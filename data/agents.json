@@ -1,0 +1,164 @@
+{
+  "agents": [
+    {
+      "id": "lang-chain",
+      "name": "LangChain",
+      "languages": ["Python", "JavaScript", "TypeScript"],
+      "best_for": "General-purpose AI agents, ecosystem breadth, and complex workflows beyond MCP.",
+      "superpower": "Composability and massive ecosystem of integrations.",
+      "description": "One of the most established frameworks in the AI agent ecosystem. Known for its extensive toolkit of chains, tool integrations, and reasoning loops.",
+      "mcp_support": true,
+      "repository": "https://github.com/langchain-ai/langchain"
+    },
+    {
+      "id": "lang-graph",
+      "name": "LangGraph",
+      "languages": ["Python", "JavaScript", "TypeScript"],
+      "best_for": "Complex, multi-step agents with conditional logic and stateful orchestration.",
+      "superpower": "State machines, branching, loops, and retries for absolute control.",
+      "description": "A framework built on top of LangChain for building stateful, multi-actor applications with LLMs.",
+      "mcp_support": true,
+      "repository": "https://github.com/langchain-ai/langgraph"
+    },
+    {
+      "id": "auto-gen",
+      "name": "AutoGen",
+      "languages": ["Python"],
+      "best_for": "Collaborative and autonomous multi-agent systems, Microsoft ecosystem.",
+      "superpower": "Agent conversations, human-in-the-loop, and research-backed multi-agent patterns.",
+      "description": "A framework that enables the development of LLM applications using multiple agents that can converse with each other to solve tasks.",
+      "mcp_support": true,
+      "repository": "https://github.com/microsoft/autogen"
+    },
+    {
+      "id": "crew-ai",
+      "name": "CrewAI",
+      "languages": ["Python"],
+      "best_for": "Role-based multi-agent orchestration and task delegation.",
+      "superpower": "Intuitive 'AI Team' mental model with clear roles and goals.",
+      "description": "Framework for orchestrating role-playing, autonomous AI agents. By collaborative intelligence, agents work together to tackle complex tasks.",
+      "mcp_support": true,
+      "repository": "https://github.com/crewAIInc/crewAI"
+    },
+    {
+      "id": "llama-index",
+      "name": "LlamaIndex",
+      "languages": ["Python", "TypeScript"],
+      "best_for": "Data-aware AI applications, RAG, and combining structured and unstructured data.",
+      "superpower": "Knowledge-driven agents with superior data ingestion and retrieval tools.",
+      "description": "A data framework for LLM applications to ingest, structure, and access private or domain-specific data.",
+      "mcp_support": true,
+      "repository": "https://github.com/run-llama/llama_index"
+    },
+    {
+      "id": "pydantic-ai",
+      "name": "PydanticAI",
+      "languages": ["Python"],
+      "best_for": "Type safety, data validation, and production-grade reliability in Python apps.",
+      "superpower": "Leverages Pydantic for runtime type checking and structured output validation.",
+      "description": "A GenAI agent framework designed to bring the 'FastAPI feeling' to agent development with full type safety.",
+      "mcp_support": true,
+      "repository": "https://github.com/pydantic/pydantic-ai"
+    },
+    {
+      "id": "claude-agent-sdk",
+      "name": "Claude Agent SDK",
+      "languages": ["Python", "TypeScript"],
+      "best_for": "Production deployments with Claude models, security-conscious applications.",
+      "superpower": "First-class MCP support and 'zero-trust' tool allowlisting.",
+      "description": "Anthropic's official framework for building autonomous agents, optimized for Claude models.",
+      "mcp_support": true,
+      "repository": "https://github.com/anthropics/claude-agent-sdk-python"
+    },
+    {
+      "id": "openai-agents-sdk",
+      "name": "OpenAI Agents SDK",
+      "languages": ["Python", "TypeScript"],
+      "best_for": "Agent handoffs, delegation patterns, and responsive UIs with streaming.",
+      "superpower": "Minimalist, composable agent patterns and native OpenAI model optimization.",
+      "description": "OpenAI's official framework for building lightweight, composable agents focused on handoffs and delegation.",
+      "mcp_support": true,
+      "repository": "https://github.com/openai/openai-agents-python"
+    },
+    {
+      "id": "google-adk",
+      "name": "Google Agent Development Kit (ADK)",
+      "languages": ["Python", "Java"],
+      "best_for": "Gemini and Google ecosystem, multi-language teams, production deployments.",
+      "superpower": "Multi-language support (including Java) and built-in web UI/CLI/API.",
+      "description": "Google's framework for developing and deploying AI agents, designed to feel like traditional software development.",
+      "mcp_support": true,
+      "repository": "https://github.com/google/adk-python"
+    },
+    {
+      "id": "agno",
+      "name": "Agno",
+      "languages": ["Python"],
+      "best_for": "Speed, minimal boilerplate, and spawning large fleets of agents at scale.",
+      "superpower": "High runtime performance (~3μs instantiation) and minimal code (~10 lines for MCP).",
+      "description": "A lightweight framework focused on developer velocity and performance for building production agents.",
+      "mcp_support": true,
+      "repository": "https://github.com/agno-agi/agno"
+    },
+    {
+      "id": "dspy",
+      "name": "DSPy",
+      "languages": ["Python"],
+      "best_for": "Systematic prompt optimization and treating prompts as a programming problem.",
+      "superpower": "Automatic prompt compilation and optimization based on evaluation datasets.",
+      "description": "A framework for algorithmically optimizing LLM prompts and weights, especially useful for complex pipelines.",
+      "mcp_support": true,
+      "repository": "https://github.com/stanfordnlp/dspy"
+    },
+    {
+      "id": "mastra",
+      "name": "Mastra",
+      "languages": ["TypeScript"],
+      "best_for": "TypeScript/JavaScript developers, modern web stack, and Vercel ecosystem.",
+      "superpower": "All-in-one TypeScript framework with agents, workflows, RAG, and built-in evals.",
+      "description": "Built on Vercel AI SDK, Mastra provides a native TypeScript experience for building AI features.",
+      "mcp_support": true,
+      "repository": "https://github.com/mastra-ai/mastra"
+    },
+    {
+      "id": "semantic-kernel",
+      "name": "Semantic Kernel",
+      "languages": ["Python", ".NET", "Java"],
+      "best_for": "Production-grade agents, Microsoft ecosystem, and enterprise integration.",
+      "superpower": "Clean plugin architecture and seamless combination of prompts, tools, and memory.",
+      "description": "An SDK that integrates LLMs with conventional programming languages to build sophisticated agents.",
+      "mcp_support": true,
+      "repository": "https://github.com/microsoft/semantic-kernel"
+    },
+    {
+      "id": "haystack",
+      "name": "Haystack",
+      "languages": ["Python"],
+      "best_for": "Search-based applications, RAG, and modular LLM pipelines.",
+      "superpower": "Modular architecture and strong expertise in search and retrieval.",
+      "description": "An open-source framework for building customizable LLM applications and search systems.",
+      "mcp_support": true,
+      "repository": "https://github.com/deepset-ai/haystack"
+    },
+    {
+      "id": "mcp-agent",
+      "name": "mcp-agent",
+      "languages": ["Python"],
+      "best_for": "Lightweight MCP-optimized development following Anthropic's agent patterns.",
+      "superpower": "Direct implementation of augmented LLM, parallel, and router patterns.",
+      "description": "A simple, lightweight library by lastmileAI highly optimized for the Model Context Protocol.",
+      "mcp_support": true,
+      "repository": "https://github.com/lastmile-ai/mcp-agent"
+    },
+    {
+      "id": "upsonic",
+      "name": "Upsonic",
+      "languages": ["Python"],
+      "best_for": "Financial sector, security, and scaling multi-agent systems.",
+      "superpower": "Emphasis on security and deflection of common LLM exploits.",
+      "description": "An AI agent framework targeted toward the financial sector with a security-first approach.",
+      "mcp_support": true,
+      "repository": "https://github.com/Upsonic/Upsonic"
+    }
+  ]
+}
