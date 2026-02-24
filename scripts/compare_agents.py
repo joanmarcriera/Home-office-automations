@@ -4,10 +4,10 @@ import os
 import sys
 import argparse
 
-def load_agents():
-    data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'agents.json')
+def load_data(filename):
+    data_path = os.path.join(os.path.dirname(__file__), '..', 'data', filename)
     with open(data_path, 'r') as f:
-        return json.load(f)['agents']
+        return json.load(f)
 
 def list_agents(agents, language=None):
     print(f"{'Name':<30} | {'Languages':<30} | {'Superpower'}")
@@ -37,7 +37,7 @@ def compare_agents(agents, id1, id2):
     print(f"{'MCP Support':<15} | {str(a1['mcp_support']):<40} | {str(a2['mcp_support']):<40}")
     print(f"{'Repository':<15} | {a1['repository']:<40} | {a2['repository']:<40}")
 
-def show_details(agents, agent_id):
+def show_agent_details(agents, agent_id):
     agent = next((a for a in agents if a['id'] == agent_id), None)
     if not agent:
         print(f"Error: Agent with id '{agent_id}' not found.")
@@ -52,37 +52,83 @@ def show_details(agents, agent_id):
     print(f"MCP Support: {agent['mcp_support']}")
     print(f"Repository: {agent['repository']}")
 
+def list_integrations(integrations, category=None):
+    print(f"{'Name':<30} | {'Category':<20} | {'Connectivity'}")
+    print("-" * 100)
+    for integration in integrations:
+        if category and category.lower() not in integration['category'].lower():
+            continue
+        conn = ", ".join(integration['connectivity'])
+        print(f"{integration['name']:<30} | {integration['category']:<20} | {conn}")
+
+def show_integration_details(integrations, int_id):
+    integration = next((i for i in integrations if i['id'] == int_id), None)
+    if not integration:
+        print(f"Error: Integration with id '{int_id}' not found.")
+        return
+
+    print(f"Name: {integration['name']}")
+    print(f"ID: {integration['id']}")
+    print(f"Category: {integration['category']}")
+    print(f"Connectivity: {', '.join(integration['connectivity'])}")
+    print(f"Description: {integration['description']}")
+    print(f"Use Cases:")
+    for uc in integration['use_cases']:
+        print(f"  - {uc}")
+    print(f"Repository: {integration['repository']}")
+
 def main():
-    parser = argparse.ArgumentParser(description="Compare and explore AI agent frameworks.")
+    parser = argparse.ArgumentParser(description="AI Hub Tool: Compare and explore AI agents and integrations.")
     subparsers = parser.add_subparsers(dest="command")
 
-    # List command
-    list_parser = subparsers.add_parser("list", help="List all agents")
-    list_parser.add_argument("--lang", help="Filter by language")
+    # List agents command
+    list_parser = subparsers.add_parser("list", help="List all AI agents")
+    list_parser.add_argument("--lang", help="Filter agents by language")
 
-    # Compare command
-    compare_parser = subparsers.add_parser("compare", help="Compare two agents side-by-side")
+    # Compare agents command
+    compare_parser = subparsers.add_parser("compare", help="Compare two AI agents side-by-side")
     compare_parser.add_argument("id1", help="ID of the first agent")
     compare_parser.add_argument("id2", help="ID of the second agent")
 
-    # Details command
-    details_parser = subparsers.add_parser("details", help="Show full details for an agent")
+    # Agent details command
+    details_parser = subparsers.add_parser("details", help="Show full details for an AI agent")
     details_parser.add_argument("id", help="ID of the agent")
+
+    # List integrations command
+    list_int_parser = subparsers.add_parser("list-int", help="List all integrations")
+    list_int_parser.add_argument("--cat", help="Filter integrations by category")
+
+    # Integration details command
+    int_details_parser = subparsers.add_parser("details-int", help="Show full details for an integration")
+    int_details_parser.add_argument("id", help="ID of the integration")
 
     args = parser.parse_args()
 
-    try:
-        agents = load_agents()
-    except Exception as e:
-        print(f"Error loading agents data: {e}")
-        sys.exit(1)
+    if args.command in ["list", "compare", "details"]:
+        try:
+            agents = load_data('agents.json')['agents']
+        except Exception as e:
+            print(f"Error loading agents data: {e}")
+            sys.exit(1)
 
-    if args.command == "list":
-        list_agents(agents, args.lang)
-    elif args.command == "compare":
-        compare_agents(agents, args.id1, args.id2)
-    elif args.command == "details":
-        show_details(agents, args.id)
+        if args.command == "list":
+            list_agents(agents, args.lang)
+        elif args.command == "compare":
+            compare_agents(agents, args.id1, args.id2)
+        elif args.command == "details":
+            show_agent_details(agents, args.id)
+
+    elif args.command in ["list-int", "details-int"]:
+        try:
+            integrations = load_data('integrations.json')['integrations']
+        except Exception as e:
+            print(f"Error loading integrations data: {e}")
+            sys.exit(1)
+
+        if args.command == "list-int":
+            list_integrations(integrations, args.cat)
+        elif args.command == "details-int":
+            show_integration_details(integrations, args.id)
     else:
         parser.print_help()
 
