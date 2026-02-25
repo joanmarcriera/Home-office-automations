@@ -4,9 +4,9 @@
 Automate the routing and notification of family-wide administrative tasks (bills, insurance, medical).
 
 ## Pre-requisites
-- [Paperless-ngx](../docs/services/paperless-ngx.md)
-- [Home Assistant](../docs/services/home-assistant.md)
-- [Matrix/Signal](../docs/architecture/component_map.md)
+- [Paperless-ngx](../services/paperless-ngx.md)
+- [Home Assistant](../services/home-assistant.md)
+- [Matrix/Signal](../architecture/component_map.md)
 
 ## Step-by-Step Flow
 1.  **Ingest**: Document arrives via Email or Scan.
@@ -29,4 +29,4 @@ JSON payload to Home Assistant:
     - *Recovery*: Default to "ASAP" or 7 days from today.
 
 ## Variants
-- **SMS Notifications**: Using [Signal-cli](../docs/architecture/component_map.md) for urgent alerts.
+- **SMS Notifications**: Using [Signal-cli](../architecture/component_map.md) for urgent alerts.

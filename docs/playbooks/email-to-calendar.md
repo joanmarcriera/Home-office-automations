@@ -4,10 +4,10 @@
 Automatically extract dates and events from incoming emails and sync them to the primary family calendar.
 
 ## Pre-requisites
-- [n8n](../docs/services/n8n.md)
-- [Paperless-ngx](../docs/services/paperless-ngx.md)
-- [LLM (Ollama or OpenAI)](../docs/services/ollama.md)
-- [Google Calendar](../docs/tools/calendar_tasks/google_calendar.md)
+- [n8n](../services/n8n.md)
+- [Paperless-ngx](../services/paperless-ngx.md)
+- [LLM (Ollama or OpenAI)](../services/ollama.md)
+- [Google Calendar](../tools/calendar_tasks/google_calendar.md)
 
 ## Step-by-Step Flow
 1.  **Ingestion**: n8n workflow triggers via IMAP on a new email in the `Automate/Intake` folder.
@@ -35,4 +35,4 @@ Automatically extract dates and events from incoming emails and sync them to the
 
 ## Variants
 - **SaaS Only**: Replace n8n/Ollama with Zapier and ChatGPT.
-- **Local Only**: Replace Google Calendar with [Radicale](../docs/services/radicale.md) via CalDAV.
+- **Local Only**: Replace Google Calendar with [Radicale](../services/radicale.md) via CalDAV.

@@ -4,14 +4,14 @@
 Convert physical documents (mail, receipts) into actionable tasks in the task manager.
 
 ## Pre-requisites
-- [OCRmyPDF](../docs/tools/process_understanding/ocrmypdf.md)
-- [Paperless-ngx](../docs/services/paperless-ngx.md)
-- [Vikunja](../docs/services/vikunja.md)
-- [n8n](../docs/services/n8n.md)
+- [OCRmyPDF](../tools/process_understanding/ocrmypdf.md)
+- [Paperless-ngx](../services/paperless-ngx.md)
+- [Vikunja](../services/vikunja.md)
+- [n8n](../services/n8n.md)
 
 ## Step-by-Step Flow
 1.  **Ingestion**: Physical scan via mobile app or scanner reaches the `Nextcloud/Scans` folder.
-2.  **Processing**: [Syncthing](../docs/services/syncthing.md) moves the file to the Paperless consumption directory.
+2.  **Processing**: [Syncthing](../services/syncthing.md) moves the file to the Paperless consumption directory.
 3.  **Understanding**: Paperless performs OCR and classifies the document. If it detects a keyword like "Invoice" or "Due", it adds the tag `action-required`.
 4.  **Trigger**: n8n monitors Paperless via webhook for the `action-required` tag.
 5.  **Reasoning**: n8n sends the OCR text to the LLM using the [Extraction and Classification Prompt](../reference-implementations/llm-prompts/extraction-and-classification.md).

@@ -1,0 +1,12 @@
+site/
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+env/
+venv/
+.python-version
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
