@@ -2,6 +2,34 @@
 
 This document defines the technical standards for tools to interoperate within this automation stack.
 
+## Taxonomy
+
+The knowledge base uses a stable set of top-level categories. Do not create new top-level sections unless strictly necessary.
+
+| Category | Location | What belongs here |
+| :--- | :--- | :--- |
+| **AI & Knowledge** | `tools/ai_knowledge/` | General AI tools, knowledge management, LLM products |
+| **Frameworks** | `tools/frameworks/` | Libraries for building LLM apps (LangChain, LlamaIndex, etc.) |
+| **Providers** | `tools/providers/` | Companies offering LLM APIs or managed AI services |
+| **Agents** | `tools/agents/` | Agent frameworks and autonomous AI tools |
+| **Orchestration** | `tools/orchestration/` | Workflow automation, multi-agent routing, pipeline tools |
+| **Infrastructure** | `tools/infrastructure/` | Inference engines, vector DBs, serving stacks, quantisation |
+| **Benchmarking** | `tools/benchmarking/` | Eval frameworks, benchmarks, leaderboards |
+| **Development & Ops** | `tools/development_ops/` | AI-assisted coding tools and IDEs |
+| **Patterns** | `knowledge_base/patterns/` | Recurring design patterns (RAG, tool calling, routing, etc.) |
+| **Playbooks** | `playbooks/` | Step-by-step workflow guides |
+
+### Deduplication Rules
+
+- **One canonical page per tool/framework/provider.** All other mentions must link to that canonical page.
+- Before creating a new page, search the repo for the tool name, URL, and common aliases.
+- If a source maps to an existing page, update that page rather than creating a new one.
+- Merge duplicates rather than creating parallel pages.
+
+### Source Classification Tags
+
+Items in `new-sources.md` use these tags: `tool` · `framework` · `provider` · `paper/article` · `tutorial/guide` · `benchmark/eval` · `infrastructure` · `analysis`
+
 ## Naming Conventions
 - **Tags (Paperless)**: `kebab-case`. Lowercase only. Prefix status tags with `s:` and category tags with `c:`.
 - **Workflows (n8n)**: `[Trigger Source] -> [Primary Action]`. Example: `IMAP -> Paperless Intake`.
