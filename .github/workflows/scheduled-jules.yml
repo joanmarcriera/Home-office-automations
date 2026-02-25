@@ -1,0 +1,26 @@
+name: Scheduled Jules Maintenance
+on:
+  schedule:
+    - cron: '0 0,8,16 * * *' # Runs 3 times a day (00:00, 08:00, 16:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  jules-watch:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Jules Issue Watcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/jules_issue_watcher.py
