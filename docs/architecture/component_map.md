@@ -22,7 +22,7 @@ This map categorizes all tools in the stack based on their primary function in t
 ## 3. Understand (Reasoning Engines)
 *The brains of the stack that process and reason over information.*
 - **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/ai_knowledge/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md)
-- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md)
+- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md), [ansigpt](../tools/ai_knowledge/ansigpt.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/ai_knowledge/perplexity.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md)
 
@@ -35,8 +35,8 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## 5. Act (Agents & Execution)
 *Tools that perform modifications to the environment.*
-- **Autonomous Agents**: [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md)
-- **Coding Assistants**: [Aider](../tools/development_ops/aider.md), [Cursor](../tools/development_ops/cursor.md), [Zed](../tools/development_ops/zed.md), [VS Code](../tools/development_ops/vscode.md)
+- **Autonomous Agents**: [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md), [TeamOut](../tools/ai_knowledge/teamout.md)
+- **Coding Assistants**: [Aider](../tools/development_ops/aider.md), [Cursor](../tools/development_ops/cursor.md), [Zed](../tools/development_ops/zed.md), [VS Code](../tools/development_ops/vscode.md), [Claude Code](../tools/development_ops/claude-code.md)
 - **Custom Orchestration**: [Custom Agents (SSH + LLM Loop)](../tools/development_ops/custom_agents.md)
 - **Execution Plane**: [SSH Execution Patterns](ssh_execution_patterns.md)
 - **Home Control**: [Home Assistant](../services/home-assistant.md)

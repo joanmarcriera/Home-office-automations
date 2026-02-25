@@ -205,6 +205,18 @@
       "doc_path": "docs/tools/ai_knowledge/llamaindex.md"
     },
     {
+      "id": "ansigpt",
+      "name": "ansigpt",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/ansigpt.md"
+    },
+    {
+      "id": "teamout",
+      "name": "TeamOut",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/teamout.md"
+    },
+    {
       "id": "vscode",
       "name": "VS Code",
       "category": "Development & Ops",
@@ -341,6 +353,12 @@
       "name": "Junie CLI",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/junie-cli.md"
+    },
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-code.md"
     },
     {
       "id": "linkwarden",

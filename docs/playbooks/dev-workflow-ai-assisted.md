@@ -30,3 +30,6 @@ Accelerate homelab infrastructure development using a hierarchy of AI coding age
 ## Variants
 - **Cloud-Based**: Use GPT-4o via [LiteLLM](../services/litellm.md) for better reasoning.
 - **Privacy-First**: Use local Llama-3-Coder models in Ollama.
+
+## Case Studies & References
+- [How we rebuilt Next.js with AI in one week](https://blog.cloudflare.com/vinext) (Cloudflare's experience with AI-assisted rebuilding of components).
