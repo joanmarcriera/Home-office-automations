@@ -431,6 +431,138 @@
       "name": "Chatbot Arena",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/chatbot-arena.md"
+    },
+    {
+      "id": "actual-budget",
+      "name": "Actual Budget",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/actual-budget.md"
+    },
+    {
+      "id": "audiobookshelf",
+      "name": "Audiobookshelf",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/audiobookshelf.md"
+    },
+    {
+      "id": "changedetection",
+      "name": "Changedetection.io",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/changedetection.md"
+    },
+    {
+      "id": "drawio",
+      "name": "Draw.io",
+      "category": "Creative & Communication",
+      "doc_path": "docs/services/drawio.md"
+    },
+    {
+      "id": "element",
+      "name": "Element",
+      "category": "Creative & Communication",
+      "doc_path": "docs/services/element.md"
+    },
+    {
+      "id": "excalidraw",
+      "name": "Excalidraw",
+      "category": "Creative & Communication",
+      "doc_path": "docs/services/excalidraw.md"
+    },
+    {
+      "id": "immich",
+      "name": "Immich",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/immich.md"
+    },
+    {
+      "id": "gitea",
+      "name": "Gitea",
+      "category": "Development & Ops",
+      "doc_path": "docs/services/gitea.md"
+    },
+    {
+      "id": "it-tools",
+      "name": "IT-Tools",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/it-tools.md"
+    },
+    {
+      "id": "kiwix",
+      "name": "Kiwix",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/services/kiwix.md"
+    },
+    {
+      "id": "mealie",
+      "name": "Mealie",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/mealie.md"
+    },
+    {
+      "id": "metube",
+      "name": "MeTube",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/metube.md"
+    },
+    {
+      "id": "minecraft",
+      "name": "Minecraft",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/minecraft.md"
+    },
+    {
+      "id": "navidrome",
+      "name": "Navidrome",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/navidrome.md"
+    },
+    {
+      "id": "omni-tools",
+      "name": "Omni Tools",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/omni-tools.md"
+    },
+    {
+      "id": "open-webui",
+      "name": "Open WebUI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/services/open-webui.md"
+    },
+    {
+      "id": "plex",
+      "name": "Plex",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/plex.md"
+    },
+    {
+      "id": "portracker",
+      "name": "Portracker",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/portracker.md"
+    },
+    {
+      "id": "searXNG",
+      "name": "SearXNG",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/searXNG.md"
+    },
+    {
+      "id": "speedtest",
+      "name": "Speedtest Tracker",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/speedtest.md"
+    },
+    {
+      "id": "trilium",
+      "name": "Trilium Notes",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/services/trilium.md"
+    },
+    {
+      "id": "tubearchivist",
+      "name": "Tube Archivist",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/tubearchivist.md"
     }
   ]
 }

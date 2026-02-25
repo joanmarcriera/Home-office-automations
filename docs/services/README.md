@@ -8,6 +8,8 @@ This directory contains documentation for services that are typically self-hoste
 - [**Ollama**](ollama.md) - Local LLM inference.
 - [**Paperless-ngx**](paperless-ngx.md) - Document management.
 - [**Tailscale**](tailscale.md) - Secure mesh networking.
+- [**Immich**](immich.md) - High-performance photo management.
+- [**Actual Budget**](actual-budget.md) - Privacy-focused personal finance.
 
 ## 📂 Full List
-Refer to the [Main README](../../README.md) or the `scripts/compare_agents.py` CLI tool for a complete list of all 70+ tools and services.
+Refer to the [Main README](../../README.md) or the \`scripts/compare_agents.py\` CLI tool for a complete list of all 90+ tools and services.

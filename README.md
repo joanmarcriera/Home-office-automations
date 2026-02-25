@@ -37,7 +37,7 @@ A comprehensive operating manual for a privacy-first, AI-powered home lab and fa
 
 -   [**Operational Playbooks**](playbooks/) - Step-by-step guides for common workflows.
 -   [**Reference Implementations**](reference-implementations/) - Workflow exports, prompt templates, and config standards.
--   [**Tool Catalogue**](docs/tools/) - Detailed documentation for 35+ tools.
+-   [**Tool Catalogue**](docs/tools/) - Detailed documentation for 90+ tools.
 -   [**Architecture**](docs/architecture/) - High-level component maps and data flows.
 -   [**Knowledge Base**](docs/knowledge_base/) - Deep dives into AI models and agent protocols.
 -   [**Standards & Conventions**](standards-and-conventions.md) - Naming and data contract specifications.

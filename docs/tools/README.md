@@ -10,6 +10,8 @@ This directory contains detailed documentation for various AI tools and developm
 - [**Development & AI Ops**](development_ops/) - AI coding assistants and DevOps tools.
 - [**Intake & Storage**](intake_storage/) - Standard protocols and storage tools.
 - [**Process & Understanding**](process_understanding/) - Tools for document analysis and data extraction.
+- [**Media & Entertainment**](../services/) - Self-hosted media servers and downloaders.
+- [**Creative & Communication**](../services/) - Collaboration, diagramming, and messaging.
 
 ## 🛠️ Usage
 Each tool page includes a description, official links, alternatives, and a backlog of future enhancements.
