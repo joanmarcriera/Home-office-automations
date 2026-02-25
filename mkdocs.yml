@@ -179,6 +179,7 @@ nav:
       - Terminus 2: tools/development_ops/terminus-2.md
       - Vscode: tools/development_ops/vscode.md
       - Claude Code: tools/development_ops/claude-code.md
+      - Claude Code Setup: tools/development_ops/claude-code-setup.md
       - Zed: tools/development_ops/zed.md
     - Intake & Storage:
       - Overview: tools/intake_storage/index.md
