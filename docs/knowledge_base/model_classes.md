@@ -31,6 +31,7 @@ Models that can process and understand both text and images.
 Models that can directly process or generate audio/speech without intermediate text conversion.
 - **Purpose**: Real-time translation, emotion-aware voice assistants.
 - **Examples**: GPT-4o (Advanced Voice), Gemini 1.5 Pro.
+- **Sources**: [Current Large Audio Language Models largely transcribe rather than listen](https://arxiv.org/abs/2510.10444) (Analysis of auditory understanding vs transcription).
 
 ## 7. State Space Models (SSM) & Hybrids
 Alternatives to the Transformer architecture (like Mamba) designed for very long context and linear scaling.
@@ -56,6 +57,12 @@ Models specifically optimized to handle 100K+ tokens in their active window.
 Models fine-tuned for reliable function calling and tool interaction.
 - **Purpose**: Autonomous agents, complex workflow automation.
 - **Examples**: NexusRaven-V2, Berkeley Function Calling Leaderboard (BFCL) top models.
+- **Sources**: [The First Fully General Computer Action Model](https://si.inc/posts/fdm1) (Shift towards autonomous system interaction).
+
+## 12. Variational Autoencoders (VAE)
+Generative models that learn a compressed latent representation of data, often used for image and video synthesis.
+- **Purpose**: Image/video reconstruction, generative diversity, latent space exploration.
+- **Sources**: [Learnings from 4 months of Image-Video VAE experiments](https://www.linum.ai/field-notes/vae-reconstruction-vs-generation).
 
 ## Backlog
 - Add comparison table of model architectures (Dense vs MoE vs SSM).

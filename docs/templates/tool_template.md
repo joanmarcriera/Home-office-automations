@@ -6,32 +6,36 @@
 ## What problem it solves
 [Specific problems addressed]
 
-## Where it fits in the pipeline
-[ingest / process / reason / act / sync]
+## Where it fits in the stack
+[Provider / Router / Agent / Tool / Framework / Infra / Eval / Pattern]
 
-## Typical use cases (in this homelab / family automation context)
-[Practical examples: school docs, family calendar, coding, etc.]
+## Typical use cases
+- [Use case 1]
+- [Use case 2]
 
-## Integration points
-- [Point 1]
-- [Point 2]
+## Strengths
+- [Strength 1]
+- [Strength 2]
+
+## Limitations
+- [Limitation 1]
+- [Limitation 2]
+
+## When to use it
+- [Scenario 1]
+
+## When not to use it
+- [Scenario 1]
 
 ## Licensing and cost
 - **Open Source**: [Yes/No]
 - **Cost**: [Free / Paid / Freemium]
-- **Free tier**: [Yes/No (details)]
 - **Self-hostable**: [Yes/No]
 
-## Strengths
-- [Strength 1]
+## Related tools / concepts
+- [Related tool 1](relative-link.md)
 
-## Limitations
-- [Limitation 1]
-
-## Alternatives / Related tools
-- [Related tool 1]
-
-## Links
-- [Official Website]
-- [GitHub]
-- [Docs]
+## Sources / References
+- [Official Website](URL)
+- [GitHub](URL)
+- [Docs](URL)

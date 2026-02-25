@@ -11,6 +11,14 @@ Thank you for your interest in improving the Home-Office Automation & AI Hub! We
 ## Automated Contributions via Google Jules
 This repository uses **Google Jules**, an autonomous AI coding agent, to help with maintenance and feature development.
 
+### Daily Ingestion Job
+Jules runs a **scheduled daily job** that:
+
+1. **Scans** high-signal sources (Hacker News, Reddit, arXiv, GitHub Trending, engineering blogs, etc.)
+2. **Stages** qualifying items in [`docs/new-sources.md`](new-sources.md) with title, URL, summary, and tags
+3. **Integrates** staged items into canonical pages or creates new pages using the [tool template](templates/tool_template.md) or [article template](templates/article_template.md)
+4. **Deduplicates** against existing content before adding anything
+
 ### Assigning a Task to Jules
 You can request Jules to perform a task by:
 1.  **Opening an Issue**: Describe the task clearly (e.g., "Add documentation for Tool X" or "Fix broken link in README").
@@ -21,6 +29,9 @@ You can request Jules to perform a task by:
 ## Contribution Standards
 - **Precise & Technical**: Avoid marketing language; focus on implementation details.
 - **Cross-Link**: Always link to related tools, playbooks, or architectural docs.
+- **One canonical page per tool/framework/provider**: All mentions elsewhere must link to the canonical page.
+- **Use templates**: [Tool template](templates/tool_template.md) for tools/frameworks/providers. [Article template](templates/article_template.md) for papers and articles.
+- **No stub pages**: Only create a page if you have enough information to fill the template meaningfully.
 - **JSON Metadata**: If adding a tool, ensure you also update `data/all_tools.json`.
 
 ---

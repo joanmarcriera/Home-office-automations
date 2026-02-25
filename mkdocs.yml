@@ -51,6 +51,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - New Sources: new-sources.md
   - Playbooks:
     - Overview: playbooks/index.md
     - Dev Workflow AI Assisted: playbooks/dev-workflow-ai-assisted.md
@@ -127,7 +128,9 @@ nav:
       - Obsidian: tools/ai_knowledge/obsidian.md
       - OpenAI: tools/ai_knowledge/openai.md
       - OpenRouter: tools/ai_knowledge/openrouter.md
+      - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
+      - TeamOut: tools/ai_knowledge/teamout.md
     - Automation & Orchestration:
       - Overview: tools/automation_orchestration/index.md
       - Make: tools/automation_orchestration/make.md
@@ -175,10 +178,21 @@ nav:
       - Tabnine: tools/development_ops/tabnine.md
       - Terminus 2: tools/development_ops/terminus-2.md
       - Vscode: tools/development_ops/vscode.md
+      - Claude Code: tools/development_ops/claude-code.md
       - Zed: tools/development_ops/zed.md
     - Intake & Storage:
       - Overview: tools/intake_storage/index.md
       - Caldav: tools/intake_storage/caldav.md
+    - Frameworks:
+      - Overview: tools/frameworks/index.md
+    - Providers:
+      - Overview: tools/providers/index.md
+    - Agents:
+      - Overview: tools/agents/index.md
+    - Orchestration:
+      - Overview: tools/orchestration/index.md
+    - Infrastructure:
+      - Overview: tools/infrastructure/index.md
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
@@ -195,6 +209,9 @@ nav:
     - Overview: knowledge_base/README.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - Model Classes: knowledge_base/model_classes.md
+    - Security & Privacy: knowledge_base/llm_security_privacy.md
+    - Patterns:
+      - Overview: knowledge_base/patterns/index.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
     - Calendar:
