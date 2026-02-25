@@ -7,6 +7,7 @@
 - [Codex](codex.md)
 - [Continue Dev](continue_dev.md)
 - [Cursor](cursor.md)
+- [Custom Agents (SSH + LLM Loop)](custom_agents.md)
 - [Droid](droid.md)
 - [Github Copilot](github_copilot.md)
 - [Gpt Engineer](gpt_engineer.md)

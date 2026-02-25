@@ -133,6 +133,36 @@
       "doc_path": "docs/tools/ai_knowledge/chatgpt.md"
     },
     {
+      "id": "openai",
+      "name": "OpenAI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/openai.md"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic Claude",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/anthropic.md"
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/deepseek.md"
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/openrouter.md"
+    },
+    {
+      "id": "local-llms",
+      "name": "Local LLMs",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/local_llms.md"
+    },
+    {
       "id": "perplexity",
       "name": "Perplexity",
       "category": "AI Assistants & Knowledge",
@@ -215,6 +245,12 @@
       "name": "Aider",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/aider.md"
+    },
+    {
+      "id": "custom-agents",
+      "name": "Custom Agents",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/custom_agents.md"
     },
     {
       "id": "codex",
