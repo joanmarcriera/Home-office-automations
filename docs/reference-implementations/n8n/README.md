@@ -13,6 +13,6 @@ This directory contains reference workflow exports for common automations.
 **Actions**: Get OCR text, Send to LLM node, Create GCal event.
 
 ## How to use
-1. Import the JSON into your [n8n](../../docs/services/n8n.md) instance.
+1. Import the JSON into your [n8n](../../services/n8n.md) instance.
 2. Configure credentials for IMAP, Paperless, and Google.
-3. Update the LLM model ID to your local [Ollama](../../docs/services/ollama.md) or OpenAI instance.
+3. Update the LLM model ID to your local [Ollama](../../services/ollama.md) or OpenAI instance.

@@ -1,0 +1,198 @@
+site_name: Home-Office Automation & AI Hub
+site_url: https://home-toolset.riera.co.uk
+repo_url: https://github.com/joanmarcriera/Home-office-automations
+repo_name: joanmarcriera/Home-office-automations
+site_description: A comprehensive operating manual for a privacy-first, AI-powered home lab and family automation stack.
+
+theme:
+  name: material
+  logo: material/home-automation
+  favicon: material/home-automation
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.tooltips
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Playbooks:
+    - Overview: playbooks/index.md
+    - Dev Workflow AI Assisted: playbooks/dev-workflow-ai-assisted.md
+    - Email To Calendar: playbooks/email-to-calendar.md
+    - Family Admin Automation: playbooks/family-admin-automation.md
+    - Scan To Task: playbooks/scan-to-task.md
+    - School Admin Intake: playbooks/school-admin-intake.md
+  - Services:
+    - Overview: services/README.md
+    - Inventory: services/inventory.md
+    - All Services:
+      - Actual Budget: services/actual-budget.md
+      - Audiobookshelf: services/audiobookshelf.md
+      - Authentik: services/authentik.md
+      - Changedetection: services/changedetection.md
+      - Diskover: services/diskover.md
+      - Drawio: services/drawio.md
+      - Element: services/element.md
+      - Excalidraw: services/excalidraw.md
+      - Focalboard: services/focalboard.md
+      - Gitea: services/gitea.md
+      - Grocy: services/grocy.md
+      - Habitica: services/habitica.md
+      - Home Assistant: services/home-assistant.md
+      - Homebox: services/homebox.md
+      - Immich: services/immich.md
+      - It Tools: services/it-tools.md
+      - Jackett: services/jackett.md
+      - Jellyfin: services/jellyfin.md
+      - Kiwix: services/kiwix.md
+      - Linkwarden: services/linkwarden.md
+      - Litellm: services/litellm.md
+      - Mealie: services/mealie.md
+      - Metube: services/metube.md
+      - Minecraft: services/minecraft.md
+      - n8n: services/n8n.md
+      - Navidrome: services/navidrome.md
+      - Nextcloud: services/nextcloud.md
+      - Ollama: services/ollama.md
+      - Omni Tools: services/omni-tools.md
+      - Open Webui: services/open-webui.md
+      - Paperless AI: services/paperless-ai.md
+      - Paperless Ngx: services/paperless-ngx.md
+      - Plex: services/plex.md
+      - Portracker: services/portracker.md
+      - Qbittorrent: services/qbittorrent.md
+      - Radicale: services/radicale.md
+      - Rclone Automation: services/rclone-automation.md
+      - Searxng: services/searXNG.md
+      - Speedtest: services/speedtest.md
+      - Storj: services/storj.md
+      - Syncthing: services/syncthing.md
+      - Tailscale: services/tailscale.md
+      - Tika: services/tika.md
+      - Trilium: services/trilium.md
+      - Tubearchivist: services/tubearchivist.md
+      - Vikunja: services/vikunja.md
+      - Whisper: services/whisper.md
+  - Tool Catalogue:
+    - Overview: tools/README.md
+    - AI & Knowledge:
+      - Overview: tools/ai_knowledge/index.md
+      - Chatgpt: tools/ai_knowledge/chatgpt.md
+      - Dify: tools/ai_knowledge/dify.md
+      - Flowise: tools/ai_knowledge/flowise.md
+      - Jules: tools/ai_knowledge/jules.md
+      - Langchain: tools/ai_knowledge/langchain.md
+      - Llamaindex: tools/ai_knowledge/llamaindex.md
+      - Logseq: tools/ai_knowledge/logseq.md
+      - Obsidian: tools/ai_knowledge/obsidian.md
+      - Perplexity: tools/ai_knowledge/perplexity.md
+    - Automation & Orchestration:
+      - Overview: tools/automation_orchestration/index.md
+      - Make: tools/automation_orchestration/make.md
+      - Zapier: tools/automation_orchestration/zapier.md
+    - Benchmarking:
+      - Overview: tools/benchmarking/index.md
+      - Chatbot Arena: tools/benchmarking/chatbot-arena.md
+      - Gpqa: tools/benchmarking/gpqa.md
+      - Gsm8K: tools/benchmarking/gsm8k.md
+      - Human Eval: tools/benchmarking/human-eval.md
+      - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
+      - LLMperf: tools/benchmarking/llmperf.md
+      - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md
+      - Mbpp: tools/benchmarking/mbpp.md
+      - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
+      - Swe Bench: tools/benchmarking/swe-bench.md
+      - Terminal Bench: tools/benchmarking/terminal-bench.md
+    - Calendar & Tasks:
+      - Overview: tools/calendar_tasks/index.md
+      - Google Calendar: tools/calendar_tasks/google_calendar.md
+    - Development & Ops:
+      - Overview: tools/development_ops/index.md
+      - Aider: tools/development_ops/aider.md
+      - Anti Gravity: tools/development_ops/anti_gravity.md
+      - Cloud Code: tools/development_ops/cloud_code.md
+      - Codeium: tools/development_ops/codeium.md
+      - Codex: tools/development_ops/codex.md
+      - Continue Dev: tools/development_ops/continue_dev.md
+      - Cursor: tools/development_ops/cursor.md
+      - Droid: tools/development_ops/droid.md
+      - Github Copilot: tools/development_ops/github_copilot.md
+      - Gpt Engineer: tools/development_ops/gpt_engineer.md
+      - Junie Cli: tools/development_ops/junie-cli.md
+      - Melty: tools/development_ops/melty.md
+      - Mentat: tools/development_ops/mentat.md
+      - Openhands: tools/development_ops/openhands.md
+      - Plandex: tools/development_ops/plandex.md
+      - Sourcegraph Cody: tools/development_ops/sourcegraph_cody.md
+      - Superconductor: tools/development_ops/superconductor.md
+      - Sweep Dev: tools/development_ops/sweep_dev.md
+      - Tabnine: tools/development_ops/tabnine.md
+      - Terminus 2: tools/development_ops/terminus-2.md
+      - Vscode: tools/development_ops/vscode.md
+      - Zed: tools/development_ops/zed.md
+    - Intake & Storage:
+      - Overview: tools/intake_storage/index.md
+      - Caldav: tools/intake_storage/caldav.md
+    - Process & Understanding:
+      - Overview: tools/process_understanding/index.md
+      - OCRmypdf: tools/process_understanding/ocrmypdf.md
+  - Architecture:
+    - Overview: architecture/README.md
+    - Infrastructure Detail: architecture/infrastructure.md
+    - Component Map: architecture/component_map.md
+    - Flows: architecture/flows.md
+    - Automated Contributions: architecture/automated_contributions.md
+  - Knowledge Base:
+    - Overview: knowledge_base/README.md
+    - Agent Protocols: knowledge_base/agent_protocols.md
+    - Model Classes: knowledge_base/model_classes.md
+  - Reference Implementations:
+    - Overview: reference-implementations/index.md
+    - Calendar:
+      - Mapping Rules: reference-implementations/calendar/mapping-rules.md
+    - LLM Prompts:
+      - Date Extraction: reference-implementations/llm-prompts/date-extraction.md
+      - Extraction And Classification: reference-implementations/llm-prompts/extraction-and-classification.md
+    - N8N:
+      - Overview: reference-implementations/n8n/README.md
+    - Paperless:
+      - Tag Taxonomy: reference-implementations/paperless/tag-taxonomy.md
+  - Roadmap: roadmap.md
+  - Standards: standards.md
+  - Contributing: CONTRIBUTING.md
