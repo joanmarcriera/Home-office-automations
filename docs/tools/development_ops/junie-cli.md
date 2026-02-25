@@ -6,7 +6,7 @@ Junie is an AI coding assistant designed to live in your terminal and assist wit
 Junie provides a set of tools for navigating code, understanding dependencies, and making changes across multiple files. It focuses on being lightweight and highly integrated with the developer's existing terminal workflow.
 
 ## Links
-- [Junie CLI Repository](https://github.com/junie-ai/junie)
+- [Junie CLI Repository](https://junie.jetbrains.com/)
 
 ## Alternatives
 - [Aider](aider.md)
