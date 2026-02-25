@@ -1,0 +1,17 @@
+# Rclone Automation
+
+Automated scripts and configurations for Rclone on TrueNAS SCALE.
+
+## Description
+Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between local ZFS pools and remote cloud providers (S3, B2, Drive).
+
+## Links
+- [Rclone Official Website](https://rclone.org/)
+
+## Alternatives
+- [Duplicati](https://www.duplicati.com/)
+- [Kopia](https://kopia.io/)
+
+## Backlog
+- Implement bandwidth throttling during business hours.
+- Set up healthcheck notifications for failed syncs.

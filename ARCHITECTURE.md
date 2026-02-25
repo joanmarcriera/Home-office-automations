@@ -1,0 +1,37 @@
+# Home Lab Architecture Overview
+
+## Infrastructure Environment: TrueNAS SCALE
+The primary infrastructure for this home lab is built on **TrueNAS SCALE**, an open-source storage platform based on Debian GNU/Linux. It provides a robust foundation for running containerized services and managing large-scale ZFS storage pools.
+
+### Core Components
+1.  **ZFS Storage**: All persistent data is stored on ZFS pools (e.g., `tank`). This ensures data integrity with features like snapshots, replication, and self-healing.
+2.  **App Management**: Services are deployed as Docker containers or Kubernetes pods (via TrueNAS Apps/Charts).
+3.  **Network**: Services are primarily accessed over the local network (LAN) or securely via a **Tailscale** mesh network. A reverse proxy (Traefik/Nginx) handles TLS and subdomain routing.
+
+## Service Interaction Map
+Services are organized into a functional pipeline to handle information and automation.
+
+### 1. Ingest & Storage
+Raw data enters the system through email (IMAP), scanners, or manual uploads. It is stored in dedicated ZFS datasets within `/mnt/<pool>/applications/`.
+- **Services**: [Paperless-ngx](docs/services/paperless-ngx.md), [Nextcloud](docs/services/nextcloud.md), [Syncthing](docs/services/syncthing.md), [qBittorrent](docs/services/qbittorrent.md).
+
+### 2. Process & Understanding
+Stored data is processed for OCR and analyzed using local reasoning engines.
+- **Services**: [Ollama](docs/services/ollama.md), [LiteLLM](docs/services/litellm.md), [Paperless-AI](docs/services/paperless-ai.md), [Diskover](docs/services/diskover.md).
+
+### 3. Automation & Orchestration
+Workflows connect services to perform complex tasks, such as extracting events from documents and syncing them to calendars.
+- **Services**: [n8n](docs/services/n8n.md), [Home Assistant](docs/services/home-assistant.md).
+
+### 4. Productivity & Synchronization
+The final outcomes are synced to user-facing applications like calendars, task managers, and knowledge bases.
+- **Services**: [Vikunja](docs/services/vikunja.md), [Radicale](docs/services/radicale.md), [Obsidian](docs/tools/ai_knowledge/obsidian.md).
+
+### 5. Benchmarking & Quality Assurance
+Continuous evaluation of model performance and reasoning accuracy.
+- **Services**: [HLE](docs/tools/benchmarking/humanitys-last-exam.md), [Terminal-Bench](docs/tools/benchmarking/terminal-bench.md), [Ollama Benchmark CLI](docs/tools/benchmarking/ollama-benchmark-cli.md).
+
+## Backup & Recovery
+- **Local**: Scheduled ZFS snapshots of all application datasets.
+- **Offsite**: Periodic synchronization of critical datasets to cloud storage using [rclone](docs/services/rclone-automation.md).
+- **Configuration**: All infrastructure-as-code and configuration files are version-controlled in this repository.

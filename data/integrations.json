@@ -1,0 +1,69 @@
+{
+  "integrations": [
+    {
+      "id": "paperless-ngx",
+      "name": "Paperless-ngx",
+      "category": "Document Management",
+      "connectivity": ["REST API", "IMAP (Email)", "Samba/FTP", "Webhooks"],
+      "description": "An open-source document management system that transforms your physical documents into a searchable online archive.",
+      "use_cases": [
+        "Automatic document archiving from email (IMAP)",
+        "OCR and full-text search",
+        "Integration with AI agents via REST API to retrieve or store documents"
+      ],
+      "repository": "https://github.com/paperless-ngx/paperless-ngx"
+    },
+    {
+      "id": "composio",
+      "name": "Composio",
+      "category": "Integration Platform",
+      "connectivity": ["MCP", "Direct API", "OAuth"],
+      "description": "A platform that provides 850+ toolkits and 11,000+ tools for AI agents, handling complex authentication and connectivity.",
+      "use_cases": [
+        "Connecting agents to Google Calendar, Gmail, Slack, and Outlook",
+        "Simplifying OAuth flow for enterprise tools",
+        "Hosted MCP endpoints for easy integration"
+      ],
+      "repository": "https://github.com/ComposioHQ/composio"
+    },
+    {
+      "id": "nylas",
+      "name": "Nylas",
+      "category": "Communication API",
+      "connectivity": ["Unified API", "MCP", "CLI"],
+      "description": "A developer-first API platform that simplifies integration with email, calendar, and contacts from 250+ providers.",
+      "use_cases": [
+        "Unified access to Gmail, Outlook, and IMAP",
+        "Agent-native email and calendar access via Nylas CLI",
+        "Real-time sync and webhooks for communication events"
+      ],
+      "repository": "https://github.com/nylas/cli"
+    },
+    {
+      "id": "mcp-google-calendar",
+      "name": "MCP Google Calendar Server",
+      "category": "Calendar",
+      "connectivity": ["MCP"],
+      "description": "A Model Context Protocol server that gives AI agents direct access to Google Calendar.",
+      "use_cases": [
+        "Scheduling and modifying events",
+        "Checking availability and listing upcoming appointments",
+        "Managing multiple calendars via a standardized protocol"
+      ],
+      "repository": "https://github.com/modelcontextprotocol/servers"
+    },
+    {
+      "id": "mcp-gmail",
+      "name": "MCP Gmail Server",
+      "category": "Email",
+      "connectivity": ["MCP"],
+      "description": "A Model Context Protocol server that enables AI agents to read, search, and send emails via Gmail.",
+      "use_cases": [
+        "Drafting and sending emails",
+        "Searching through inbox with natural language",
+        "Standardized email tool access across frameworks"
+      ],
+      "repository": "https://github.com/modelcontextprotocol/servers"
+    }
+  ]
+}
