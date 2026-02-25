@@ -1,37 +1,16 @@
-# Paperless-AI Service Documentation
+# Paperless-AI
 
-## Service Overview
-Paperless-AI adds a RAG-powered chat interface and semantic search to Paperless-ngx.
+Paperless-AI is a companion tool for Paperless-ngx that uses AI to automate document tagging and metadata extraction.
 
-## Purpose / Business Value
-Allows for natural language querying of the document archive, making it easier to extract information from stored files.
+## Description
+It integrates with LLMs (via Ollama or OpenAI) to analyze the content of your documents and suggest or apply tags, correspondents, and document types.
 
-## Why Self-Hosted
-To keep the indexing and reasoning of sensitive documents within the private infrastructure.
+## Links
+- [GitHub Repository](https://github.com/clusterfudge/paperless-ai)
 
-## Data Location
-`/mnt/<pool>/applications/paperless-ai/`
+## Alternatives
+- [Paperless-ngx (Native matching)](paperless-ngx.md)
+- [Teedy](https://teedy.io/)
 
-## Backup Strategy
-- Configuration and indexing state backed up via ZFS snapshots.
-
-## Network Exposure
-- **LAN**: Accessible via its own web UI or integrated into Paperless-ngx.
-
-## Authentication Method
-Pass-through from Paperless-ngx or standalone.
-
-## Dependencies
-- Paperless-ngx (API), Ollama or other LLM provider.
-
-## Resource Usage Notes
-Memory intensive due to vector storage and LLM inference.
-
-## Security Considerations
-Ensure API keys for LLM providers are secured.
-
-## Maintenance Tasks
-- Re-indexing when large amounts of new documents are added to Paperless.
-
-## Upgrade Procedure
-Update the docker image.
+## Backlog
+- Improve prompt templates for better invoice extraction.

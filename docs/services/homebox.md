@@ -1,39 +1,16 @@
-# Homebox Service Documentation
+# Homebox
 
-## Service Overview
-Homebox is the inventory and organization system built for the home user.
+Homebox is an inventory and organization system for your home.
 
-## Purpose / Business Value
-Organizes physical assets in the home lab and household, including warranties and location tracking.
+## Description
+It is designed to be simple, fast, and easy to use. It helps you keep track of your belongings, where they are, and what they are worth.
 
-## Why Self-Hosted
-To keep a private record of personal belongings.
+## Links
+- [GitHub Repository](https://github.com/sysadminsmedia/homebox)
 
-## Data Location
-`/mnt/<pool>/applications/homebox/`
+## Alternatives
+- [Grocy](grocy.md)
+- [Snipe-IT](https://snipeitapp.com/)
 
-## Backup Strategy
-- SQLite database backups.
-- Dataset snapshots.
-
-## Network Exposure
-- **LAN**: Port 7745.
-- **Tailscale**: Remote access for inventory management.
-
-## Authentication Method
-Built-in user management.
-
-## Dependencies
-- Go-based standalone binary or Docker.
-
-## Resource Usage Notes
-Extremely lightweight.
-
-## Security Considerations
-Ensure secure login credentials.
-
-## Maintenance Tasks
-- Regular backups of the SQLite database.
-
-## Upgrade Procedure
-Pull the latest docker image and restart.
+## Backlog
+- Export data to CSV for insurance purposes.

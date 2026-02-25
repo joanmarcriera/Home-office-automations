@@ -1,41 +1,16 @@
-# Storj Node Service Documentation
+# Storj
 
-## Service Overview
-A Storj storage node contributes disk space to the Storj decentralized cloud storage network.
+Storj is a decentralized cloud storage provider.
 
-## Purpose / Business Value
-Monetizes excess storage space on TrueNAS pools to offset homelab costs.
+## Description
+It offers S3-compatible storage that is distributed across thousands of nodes worldwide, providing high reliability and security.
 
-## Why Self-Hosted
-Utilizes existing hardware and storage capacity to generate passive income.
+## Links
+- [Official Website](https://www.storj.io/)
 
-## Data Location
-- **Identity**: `/mnt/<pool>/applications/storj/identity/`
-- **Data**: `/mnt/<pool>/applications/storj/data/`
+## Alternatives
+- [Amazon S3](https://aws.amazon.com/s3/)
+- [Backblaze B2](https://www.backblaze.com/cloud-storage)
 
-## Backup Strategy
-- **Identity**: MUST be backed up (redundant copies).
-- **Data**: Generally not backed up (network handles redundancy).
-
-## Network Exposure
-- **External**: Port 28967 (TCP/UDP) must be forwarded for network participation.
-
-## Authentication Method
-Identity certificate signed by the Storj network.
-
-## Dependencies
-- Reliable internet connection with low latency.
-- Sufficient disk space.
-
-## Resource Usage Notes
-Lightweight CPU/RAM; steady disk I/O and network bandwidth.
-
-## Security Considerations
-Isolate the node in a DMZ or dedicated VLAN if possible.
-
-## Maintenance Tasks
-- Monitoring node reputation and earnings.
-- Ensuring uptime (critical for reputation).
-
-## Upgrade Procedure
-Auto-update is built-in for most Storj docker configurations.
+## Backlog
+- Configure as a backup target for Rclone.

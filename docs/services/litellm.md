@@ -1,40 +1,18 @@
-# LiteLLM Service Documentation
+# LiteLLM
 
-## Service Overview
-LiteLLM is a universal proxy for LLM APIs, providing a unified interface for multiple providers.
+LiteLLM is a proxy server that allows you to call 100+ LLMs using the OpenAI format.
 
-## Purpose / Business Value
-Simplifies the management of multiple AI models, handling failovers, retries, and budget tracking for all AI-powered services in the home lab.
+## Description
+It handles authentication, error handling, and cost tracking for multiple model providers.
 
-## Why Self-Hosted
-To provide a secure, centralized gateway for all local and cloud AI models.
+## Links
+- [Official Website](https://www.litellm.ai/)
+- [GitHub Repository](https://github.com/BerriAI/litellm)
 
-## Data Location
-`/mnt/<pool>/applications/litellm/`
+## Alternatives
+- [One API](https://github.com/songquanpeng/one-api)
+- [LocalAI](https://github.com/go-skynet/LocalAI)
 
-## Backup Strategy
-- `config.yaml` backup.
-- Environment variable secrets stored in a secure manager.
-
-## Network Exposure
-- **LAN**: Port 4000.
-- **Tailscale**: Private access for AI-powered development tools.
-
-## Authentication Method
-Master key or virtual keys for different services.
-
-## Dependencies
-- Connectivity to external LLM APIs (OpenAI, Anthropic, etc.) or local Ollama instances.
-
-## Resource Usage Notes
-Lightweight CPU usage; low RAM requirement.
-
-## Security Considerations
-Protect the master key. Do not expose the management UI to the WAN.
-
-## Maintenance Tasks
-- Monitoring API costs and usage.
-- Updating configurations when new models are released.
-
-## Upgrade Procedure
-Update the docker image.
+## Backlog
+- Configure budget alerts.
+- Set up caching with Redis.

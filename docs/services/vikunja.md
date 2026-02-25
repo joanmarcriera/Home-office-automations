@@ -1,39 +1,16 @@
-# Vikunja Service Documentation
+# Vikunja
 
-## Service Overview
-Vikunja is an open-source, self-hosted to-do list application for organizing tasks and projects.
+Vikunja is an open-source, self-hosted To-do list application.
 
-## Purpose / Business Value
-Provides a centralized, private task management system for personal and family use.
+## Description
+It allows you to organize all your tasks on all platforms. It features boards, lists, and a powerful filter system.
 
-## Why Self-Hosted
-To keep personal tasks and schedules private and accessible within the local network.
+## Links
+- [Official Website](https://vikunja.io/)
 
-## Data Location
-`/mnt/<pool>/applications/vikunja/`
+## Alternatives
+- [Focalboard](focalboard.md)
+- [Nextcloud Tasks](nextcloud.md)
 
-## Backup Strategy
-- Database backups (MariaDB/PostgreSQL).
-- ZFS snapshots of application data.
-
-## Network Exposure
-- **LAN**: Port 3456.
-- **Reverse Proxy**: Exposed for remote task management.
-
-## Authentication Method
-Built-in user accounts with support for OpenID Connect.
-
-## Dependencies
-- Database (MySQL/PostgreSQL).
-
-## Resource Usage Notes
-Lightweight.
-
-## Security Considerations
-Secure the API endpoint. Use TLS via reverse proxy.
-
-## Maintenance Tasks
-- Regular database backups.
-
-## Upgrade Procedure
-Update the docker-compose image tags for both frontend and backend.
+## Backlog
+- Sync with CalDAV (Radicale).

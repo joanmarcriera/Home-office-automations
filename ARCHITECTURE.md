@@ -13,7 +13,7 @@ Services are organized into a functional pipeline to handle information and auto
 
 ### 1. Ingest & Storage
 Raw data enters the system through email (IMAP), scanners, or manual uploads. It is stored in dedicated ZFS datasets within `/mnt/<pool>/applications/`.
-- **Services**: [Paperless-ngx](docs/services/paperless-ngx.md), [Nextcloud](docs/services/nextcloud.md), [Syncthing](docs/tools/intake_storage/syncthing.md), [qBittorrent](docs/services/qbittorrent.md).
+- **Services**: [Paperless-ngx](docs/services/paperless-ngx.md), [Nextcloud](docs/services/nextcloud.md), [Syncthing](docs/services/syncthing.md), [qBittorrent](docs/services/qbittorrent.md).
 
 ### 2. Process & Understanding
 Stored data is processed for OCR and analyzed using local reasoning engines.

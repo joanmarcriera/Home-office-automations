@@ -1,65 +1,436 @@
 {
   "tools": [
-    {"id": "paperless-ngx", "name": "Paperless-ngx", "category": "Intake & Storage", "doc_path": "docs/services/paperless-ngx.md"},
-    {"id": "nextcloud", "name": "Nextcloud", "category": "Intake & Storage", "doc_path": "docs/services/nextcloud.md"},
-    {"id": "syncthing", "name": "Syncthing", "category": "Intake & Storage", "doc_path": "docs/services/syncthing.md"},
-    {"id": "homebox", "name": "Homebox", "category": "Intake & Storage", "doc_path": "docs/services/homebox.md"},
-    {"id": "grocy", "name": "Grocy", "category": "Intake & Storage", "doc_path": "docs/services/grocy.md"},
-    {"id": "caldav", "name": "CalDAV", "category": "Intake & Storage", "doc_path": "docs/tools/intake_storage/caldav.md"},
-    {"id": "radicale", "name": "Radicale", "category": "Intake & Storage", "doc_path": "docs/services/radicale.md"},
-    {"id": "paperless-ai", "name": "Paperless-AI", "category": "Process & Understanding", "doc_path": "docs/services/paperless-ai.md"},
-    {"id": "ocrmypdf", "name": "OCRmyPDF", "category": "Process & Understanding", "doc_path": "docs/tools/process_understanding/ocrmypdf.md"},
-    {"id": "tika", "name": "Apache Tika", "category": "Process & Understanding", "doc_path": "docs/services/tika.md"},
-    {"id": "ollama", "name": "Ollama", "category": "Process & Understanding", "doc_path": "docs/services/ollama.md"},
-    {"id": "litellm", "name": "LiteLLM", "category": "Process & Understanding", "doc_path": "docs/services/litellm.md"},
-    {"id": "n8n", "name": "n8n", "category": "Automation & Orchestration", "doc_path": "docs/services/n8n.md"},
-    {"id": "home-assistant", "name": "Home Assistant", "category": "Automation & Orchestration", "doc_path": "docs/services/home-assistant.md"},
-    {"id": "tailscale", "name": "Tailscale", "category": "Automation & Orchestration", "doc_path": "docs/services/tailscale.md"},
-    {"id": "zapier", "name": "Zapier", "category": "Automation & Orchestration", "doc_path": "docs/tools/automation_orchestration/zapier.md"},
-    {"id": "make", "name": "Make", "category": "Automation & Orchestration", "doc_path": "docs/tools/automation_orchestration/make.md"},
-    {"id": "google-calendar", "name": "Google Calendar", "category": "Calendar & Tasks", "doc_path": "docs/tools/calendar_tasks/google_calendar.md"},
-    {"id": "vikunja", "name": "Vikunja", "category": "Calendar & Tasks", "doc_path": "docs/services/vikunja.md"},
-    {"id": "jules", "name": "Jules (Google)", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/jules.md"},
-    {"id": "chatgpt", "name": "ChatGPT", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/chatgpt.md"},
-    {"id": "perplexity", "name": "Perplexity", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/perplexity.md"},
-    {"id": "obsidian", "name": "Obsidian", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/obsidian.md"},
-    {"id": "logseq", "name": "Logseq", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/logseq.md"},
-    {"id": "dify", "name": "Dify", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/dify.md"},
-    {"id": "flowise", "name": "Flowise", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/flowise.md"},
-    {"id": "langchain", "name": "LangChain", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/langchain.md"},
-    {"id": "llamaindex", "name": "LlamaIndex", "category": "AI Assistants & Knowledge", "doc_path": "docs/tools/ai_knowledge/llamaindex.md"},
-    {"id": "vscode", "name": "VS Code", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/vscode.md"},
-    {"id": "cursor", "name": "Cursor", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/cursor.md"},
-    {"id": "cloud-code", "name": "Cloud Code", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/cloud_code.md"},
-    {"id": "anti-gravity", "name": "Anti-Gravity", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/anti_gravity.md"},
-    {"id": "openhands", "name": "OpenHands", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/openhands.md"},
-    {"id": "aider", "name": "Aider", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/aider.md"},
-    {"id": "codex", "name": "Codex (OpenAI)", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/codex.md"},
-    {"id": "superconductor", "name": "Superconductor", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/superconductor.md"},
-    {"id": "github-copilot", "name": "GitHub Copilot", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/github_copilot.md"},
-    {"id": "continue-dev", "name": "Continue.dev", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/continue_dev.md"},
-    {"id": "codeium", "name": "Codeium", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/codeium.md"},
-    {"id": "sourcegraph-cody", "name": "Sourcegraph Cody", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/sourcegraph_cody.md"},
-    {"id": "tabnine", "name": "Tabnine", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/tabnine.md"},
-    {"id": "gpt-engineer", "name": "GPT Engineer", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/gpt_engineer.md"},
-    {"id": "sweep-dev", "name": "Sweep.dev", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/sweep_dev.md"},
-    {"id": "mentat", "name": "Mentat", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/mentat.md"},
-    {"id": "plandex", "name": "Plandex", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/plandex.md"},
-    {"id": "melty", "name": "Melty", "category": "Development & Ops", "doc_path": "docs/tools/development_ops/melty.md"},
-    {"id": "linkwarden", "name": "Linkwarden", "category": "Intake & Storage", "doc_path": "docs/services/linkwarden.md"},
-    {"id": "habitica", "name": "Habitica", "category": "Intake & Storage", "doc_path": "docs/services/habitica.md"},
-    {"id": "jellyfin", "name": "Jellyfin", "category": "Intake & Storage", "doc_path": "docs/services/jellyfin.md"},
-    {"id": "focalboard", "name": "Focalboard", "category": "Intake & Storage", "doc_path": "docs/services/focalboard.md"},
-    {"id": "qbittorrent", "name": "qBittorrent", "category": "Intake & Storage", "doc_path": "docs/services/qbittorrent.md"},
-    {"id": "jackett", "name": "Jackett", "category": "Intake & Storage", "doc_path": "docs/services/jackett.md"},
-    {"id": "diskover", "name": "Diskover", "category": "Intake & Storage", "doc_path": "docs/services/diskover.md"},
-    {"id": "storj", "name": "Storj Node", "category": "Intake & Storage", "doc_path": "docs/services/storj.md"},
-    {"id": "rclone-automation", "name": "rclone Automation", "category": "Intake & Storage", "doc_path": "docs/services/rclone-automation.md"},
-    {"id": "humanitys-last-exam", "name": "Humanity's Last Exam (HLE)", "category": "Benchmarking", "doc_path": "docs/tools/benchmarking/humanitys-last-exam.md"},
-    {"id": "terminal-bench", "name": "Terminal-Bench", "category": "Benchmarking", "doc_path": "docs/tools/benchmarking/terminal-bench.md"},
-    {"id": "ollama-benchmark-cli", "name": "Ollama Benchmark CLI", "category": "Benchmarking", "doc_path": "docs/tools/benchmarking/ollama-benchmark-cli.md"},
-    {"id": "swe-bench", "name": "SWE-bench", "category": "Benchmarking", "doc_path": "docs/tools/benchmarking/swe-bench.md"},
-    {"id": "lm-evaluation-harness", "name": "LM Evaluation Harness", "category": "Benchmarking", "doc_path": "docs/tools/benchmarking/lm-evaluation-harness.md"},
-    {"id": "llmperf", "name": "LLMPerf", "category": "Benchmarking", "doc_path": "docs/tools/benchmarking/llmperf.md"}
+    {
+      "id": "paperless-ngx",
+      "name": "Paperless-ngx",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/paperless-ngx.md"
+    },
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/nextcloud.md"
+    },
+    {
+      "id": "syncthing",
+      "name": "Syncthing",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/syncthing.md"
+    },
+    {
+      "id": "homebox",
+      "name": "Homebox",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/homebox.md"
+    },
+    {
+      "id": "grocy",
+      "name": "Grocy",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/grocy.md"
+    },
+    {
+      "id": "caldav",
+      "name": "CalDAV",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/caldav.md"
+    },
+    {
+      "id": "radicale",
+      "name": "Radicale",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/radicale.md"
+    },
+    {
+      "id": "paperless-ai",
+      "name": "Paperless-AI",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/paperless-ai.md"
+    },
+    {
+      "id": "ocrmypdf",
+      "name": "OCRmyPDF",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
+    },
+    {
+      "id": "tika",
+      "name": "Apache Tika",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/tika.md"
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/ollama.md"
+    },
+    {
+      "id": "litellm",
+      "name": "LiteLLM",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/litellm.md"
+    },
+    {
+      "id": "whisper",
+      "name": "Whisper",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/whisper.md"
+    },
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/services/n8n.md"
+    },
+    {
+      "id": "home-assistant",
+      "name": "Home Assistant",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/services/home-assistant.md"
+    },
+    {
+      "id": "tailscale",
+      "name": "Tailscale",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/services/tailscale.md"
+    },
+    {
+      "id": "zapier",
+      "name": "Zapier",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/zapier.md"
+    },
+    {
+      "id": "make",
+      "name": "Make",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/make.md"
+    },
+    {
+      "id": "google-calendar",
+      "name": "Google Calendar",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/google_calendar.md"
+    },
+    {
+      "id": "vikunja",
+      "name": "Vikunja",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/services/vikunja.md"
+    },
+    {
+      "id": "jules",
+      "name": "Jules (Google)",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/jules.md"
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/chatgpt.md"
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/perplexity.md"
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/obsidian.md"
+    },
+    {
+      "id": "logseq",
+      "name": "Logseq",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/logseq.md"
+    },
+    {
+      "id": "dify",
+      "name": "Dify",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/dify.md"
+    },
+    {
+      "id": "flowise",
+      "name": "Flowise",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/flowise.md"
+    },
+    {
+      "id": "langchain",
+      "name": "LangChain",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/langchain.md"
+    },
+    {
+      "id": "llamaindex",
+      "name": "LlamaIndex",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/llamaindex.md"
+    },
+    {
+      "id": "vscode",
+      "name": "VS Code",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/vscode.md"
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/cursor.md"
+    },
+    {
+      "id": "zed",
+      "name": "Zed",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/zed.md"
+    },
+    {
+      "id": "cloud-code",
+      "name": "Cloud Code",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/cloud_code.md"
+    },
+    {
+      "id": "anti-gravity",
+      "name": "Anti-Gravity",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/anti_gravity.md"
+    },
+    {
+      "id": "openhands",
+      "name": "OpenHands",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/openhands.md"
+    },
+    {
+      "id": "aider",
+      "name": "Aider",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/aider.md"
+    },
+    {
+      "id": "codex",
+      "name": "Codex (OpenAI)",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/codex.md"
+    },
+    {
+      "id": "superconductor",
+      "name": "Superconductor",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/superconductor.md"
+    },
+    {
+      "id": "github-copilot",
+      "name": "GitHub Copilot",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/github_copilot.md"
+    },
+    {
+      "id": "continue-dev",
+      "name": "Continue.dev",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/continue_dev.md"
+    },
+    {
+      "id": "codeium",
+      "name": "Codeium",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/codeium.md"
+    },
+    {
+      "id": "sourcegraph-cody",
+      "name": "Sourcegraph Cody",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/sourcegraph_cody.md"
+    },
+    {
+      "id": "tabnine",
+      "name": "Tabnine",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/tabnine.md"
+    },
+    {
+      "id": "gpt-engineer",
+      "name": "GPT Engineer",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/gpt_engineer.md"
+    },
+    {
+      "id": "sweep-dev",
+      "name": "Sweep.dev",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/sweep_dev.md"
+    },
+    {
+      "id": "mentat",
+      "name": "Mentat",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/mentat.md"
+    },
+    {
+      "id": "plandex",
+      "name": "Plandex",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/plandex.md"
+    },
+    {
+      "id": "melty",
+      "name": "Melty",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/melty.md"
+    },
+    {
+      "id": "droid",
+      "name": "Droid",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/droid.md"
+    },
+    {
+      "id": "terminus-2",
+      "name": "Terminus 2",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/terminus-2.md"
+    },
+    {
+      "id": "junie-cli",
+      "name": "Junie CLI",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/junie-cli.md"
+    },
+    {
+      "id": "linkwarden",
+      "name": "Linkwarden",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/linkwarden.md"
+    },
+    {
+      "id": "habitica",
+      "name": "Habitica",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/habitica.md"
+    },
+    {
+      "id": "jellyfin",
+      "name": "Jellyfin",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/jellyfin.md"
+    },
+    {
+      "id": "focalboard",
+      "name": "Focalboard",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/focalboard.md"
+    },
+    {
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/qbittorrent.md"
+    },
+    {
+      "id": "jackett",
+      "name": "Jackett",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/jackett.md"
+    },
+    {
+      "id": "diskover",
+      "name": "Diskover",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/diskover.md"
+    },
+    {
+      "id": "storj",
+      "name": "Storj Node",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/storj.md"
+    },
+    {
+      "id": "rclone-automation",
+      "name": "rclone Automation",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/rclone-automation.md"
+    },
+    {
+      "id": "authentik",
+      "name": "Authentik",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/services/authentik.md"
+    },
+    {
+      "id": "humanitys-last-exam",
+      "name": "Humanity's Last Exam (HLE)",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/humanitys-last-exam.md"
+    },
+    {
+      "id": "terminal-bench",
+      "name": "Terminal-Bench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/terminal-bench.md"
+    },
+    {
+      "id": "ollama-benchmark-cli",
+      "name": "Ollama Benchmark CLI",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/ollama-benchmark-cli.md"
+    },
+    {
+      "id": "swe-bench",
+      "name": "SWE-bench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/swe-bench.md"
+    },
+    {
+      "id": "lm-evaluation-harness",
+      "name": "LM Evaluation Harness",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/lm-evaluation-harness.md"
+    },
+    {
+      "id": "llmperf",
+      "name": "LLMPerf",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/llmperf.md"
+    },
+    {
+      "id": "human-eval",
+      "name": "HumanEval",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/human-eval.md"
+    },
+    {
+      "id": "mbpp",
+      "name": "MBPP",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/mbpp.md"
+    },
+    {
+      "id": "gpqa",
+      "name": "GPQA",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/gpqa.md"
+    },
+    {
+      "id": "gsm8k",
+      "name": "GSM8K",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/gsm8k.md"
+    },
+    {
+      "id": "chatbot-arena",
+      "name": "Chatbot Arena",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/chatbot-arena.md"
+    }
   ]
 }

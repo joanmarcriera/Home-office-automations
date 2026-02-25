@@ -1,40 +1,16 @@
-# Focalboard Service Documentation
+# Focalboard
 
-## Service Overview
-Focalboard is an open-source, self-hosted alternative to Trello, Notion, and Asana.
+Focalboard is an open-source, multilingual, self-hosted project management tool.
 
-## Purpose / Business Value
-Facilitates project management and task tracking for home lab projects and household organization.
+## Description
+It is an alternative to Trello, Notion, and Asana, providing a Kanban-style board for task management.
 
-## Why Self-Hosted
-Ensures data privacy and keeps project boards accessible locally without cloud dependence.
+## Links
+- [Official Website](https://www.focalboard.com/)
 
-## Data Location
-`/mnt/<pool>/applications/focalboard/`
+## Alternatives
+- [Kanboard](https://kanboard.org/)
+- [Vikunja](vikunja.md)
 
-## Backup Strategy
-- Database backups to `/mnt/<pool>/backups/focalboard/`.
-- Dataset snapshots.
-
-## Network Exposure
-- **LAN**: Port 8000.
-- **Tailscale**: Remote access for task management on the go.
-
-## Authentication Method
-Username/Password authentication.
-
-## Dependencies
-- PostgreSQL (recommended for production).
-
-## Resource Usage Notes
-Lightweight for single-user or small team usage.
-
-## Security Considerations
-Isolate the database. Use a reverse proxy for HTTPS.
-
-## Maintenance Tasks
-- Database maintenance.
-- Periodic cleanup of archived boards.
-
-## Upgrade Procedure
-Pull the latest docker image and redeploy.
+## Backlog
+- Sync with Nextcloud Tasks.

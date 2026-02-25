@@ -28,5 +28,5 @@ Accelerate homelab infrastructure development using a hierarchy of AI coding age
     - *Recovery*: Use Aider's repository map feature.
 
 ## Variants
-- **Cloud-Based**: Use GPT-4o via [LiteLLM](../docs/process_understanding/litellm.md) for better reasoning.
+- **Cloud-Based**: Use GPT-4o via [LiteLLM](../docs/services/litellm.md) for better reasoning.
 - **Privacy-First**: Use local Llama-3-Coder models in Ollama.

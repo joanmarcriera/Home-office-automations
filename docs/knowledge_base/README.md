@@ -1,0 +1,14 @@
+# Knowledge Base
+
+This section contains deep dives into the technologies, protocols, and conceptual frameworks that power the AI Hub.
+
+## 📖 Contents
+- [**Model Classes**](model_classes.md) - Understanding the different types of LLMs (MoE, Reasoning, Multimodal, etc.).
+- [**Agent Protocols**](agent_protocols.md) - Deep dive into MCP (Model Context Protocol) and ACP (Agent Control Protocol).
+- [**Architecture & Flows**](../architecture/README.md) - High-level system design.
+
+## 🚀 Purpose
+The knowledge base serves as the "theory" section of the repository, providing the necessary context to effectively connect and configure the tools in the [Tool Catalogue](../tools/README.md).
+
+## 🛠️ Contribution
+We welcome deep dives into new technologies. Please follow the [Contributing Guide](../CONTRIBUTING.md).

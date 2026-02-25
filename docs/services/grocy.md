@@ -1,38 +1,16 @@
-# Grocy Service Documentation
+# Grocy
 
-## Service Overview
-Grocy is a self-hosted web-based groceries & household management solution.
+Grocy is a self-hosted groceries & household management solution for your home.
 
-## Purpose / Business Value
-Helps track household inventory (pantry, fridge), plan meals, and manage chores to reduce waste and improve efficiency.
+## Description
+It tracks your stock, shopping list, recipes, and more.
 
-## Why Self-Hosted
-To keep personal consumption and lifestyle data private.
+## Links
+- [Official Website](https://grocy.info/)
 
-## Data Location
-`/mnt/<pool>/applications/grocy/`
+## Alternatives
+- [Homebox](homebox.md)
+- [KitchenOwl](https://github.com/TomW1605/kitchenowl)
 
-## Backup Strategy
-- Database backups and attachment snapshots.
-
-## Network Exposure
-- **LAN**: Port 80.
-- **Home Assistant**: Often accessed via Home Assistant Ingress.
-
-## Authentication Method
-Built-in user management.
-
-## Dependencies
-- PHP, SQLite (default).
-
-## Resource Usage Notes
-Lightweight.
-
-## Security Considerations
-Keep updated. Isolate within the LAN.
-
-## Maintenance Tasks
-- Regular data cleanup and barcode maintenance.
-
-## Upgrade Procedure
-Update the docker image.
+## Backlog
+- Set up barcode scanning via mobile app.

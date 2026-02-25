@@ -1,40 +1,18 @@
-# Home Assistant Service Documentation
+# Home Assistant
 
-## Service Overview
-Home Assistant is the central control system for smart home devices, focusing on local control and privacy.
+Open source home automation that puts local control and privacy first.
 
-## Purpose / Business Value
-Provides a unified interface and automation engine for all household smart devices (lights, climate, security).
+## Description
+Powered by a worldwide community of tinkerers and DIY enthusiasts. Perfect to run on a Raspberry Pi or a local server.
 
-## Why Self-Hosted
-Local control ensures smart home functionality even without internet access and protects user privacy.
+## Links
+- [Official Website](https://www.home-assistant.io/)
+- [Integrations](https://www.home-assistant.io/integrations/)
 
-## Data Location
-`/mnt/<pool>/applications/home-assistant/`
+## Alternatives
+- [OpenHAB](https://www.openhab.org/)
+- [Domoticz](https://www.domoticz.com/)
 
-## Backup Strategy
-- Built-in "Google Drive Backup" add-on or local ZFS snapshots.
-- Full system backups before major version upgrades.
-
-## Network Exposure
-- **LAN**: Port 8123.
-- **Reverse Proxy**: Exposed via Nabu Casa or private reverse proxy for remote access.
-
-## Authentication Method
-Built-in user management with 2FA support.
-
-## Dependencies
-- Connectivity to smart devices (Zigbee, Z-Wave, Wi-Fi).
-
-## Resource Usage Notes
-Lightweight but benefits from SSD storage for the database (recorder).
-
-## Security Considerations
-Enable 2FA. Isolate smart home devices in a separate VLAN if possible.
-
-## Maintenance Tasks
-- Monitoring device battery levels.
-- Updating integrations and add-ons.
-
-## Upgrade Procedure
-Update via the Supervisor or by pulling the latest Docker image.
+## Backlog
+- Integrate AI voice assistant via OpenAI/Ollama.
+- Setup dashboard for energy monitoring.

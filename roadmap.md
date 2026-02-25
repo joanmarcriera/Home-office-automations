@@ -9,18 +9,52 @@ This document tracks missing components and planned technical improvements for t
 
 ## Nice-to-Haves
 - **Multi-Calendar Conflict Detection**: Checking both husband and wife's calendars before suggesting an event time.
-- **Voice-to-Task**: Integrating [Ollama](docs/tools/process_understanding/ollama.md) with local voice-to-text for hands-free task creation.
+- **Voice-to-Task**: Integrating [Ollama](docs/services/ollama.md) with local voice-to-text for hands-free task creation.
 - **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days.
+
+## 🌟 Future Projects (Home-Centric AI)
+
+### Home Operations
+- **AI-Powered Warranty & Manual Assistant**:
+    - *Goal*: Automatically track warranty expiration from scanned receipts and provide chat-based troubleshooting using scanned manuals.
+    - *Stack*: [Paperless-ngx](docs/services/paperless-ngx.md), [n8n](docs/services/n8n.md), local LLM (RAG).
+- **Smart Energy Anomaly Detection**:
+    - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
+    - *Stack*: [Home Assistant](docs/services/home-assistant.md), [Ollama](docs/services/ollama.md).
+
+### Family Knowledge Management
+- **Personalized Family "Daily Briefing"**:
+    - *Goal*: A unified morning report (voice or chat) summarizing the day's schedule, chores, weather, and "On This Day" memories.
+    - *Stack*: [n8n](docs/services/n8n.md), [Vikunja](docs/services/vikunja.md), [Google Calendar](docs/tools/calendar_tasks/google_calendar.md).
+- **Semantic Search for Family History**:
+    - *Goal*: Natural language search across decades of family documents, journals, and logs.
+    - *Stack*: [Paperless-ngx](docs/services/paperless-ngx.md), [Obsidian](docs/tools/ai_knowledge/obsidian.md), local Vector DB.
+
+### Media & Entertainment
+- **AI-Categorized Home Video Archive**:
+    - *Goal*: Automated tagging and semantic search for home videos (e.g., "Find the video of the birthday party").
+    - *Stack*: Local vision models (CLIP/Whisper), TrueNAS storage.
+- **Local Audio Library Enrichment**:
+    - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
+    - *Stack*: Whisper (local), [Ollama](docs/services/ollama.md).
+
+### Advanced Infrastructure
+- **Self-Healing Homelab Agent**:
+    - *Goal*: An AI agent that monitors [TrueNAS SCALE](ARCHITECTURE.md) logs and automatically restarts services or alerts on hardware failure.
+    - *Stack*: [n8n](docs/services/n8n.md), [Tailscale](docs/services/tailscale.md), local specialized agent.
+- **Sovereign Identity & SSO**:
+    - *Goal*: Fully self-hosted single sign-on for all family members across all services.
+    - *Stack*: Authentik or LL-LDAP.
 
 ## Technical Next Steps
 
 ### Short-Term
 - [ ] Add webhook-based ingestion for Paperless-ngx (switching from polling consumption folder).
 - [ ] Refine [Task Extraction Prompt](reference-implementations/llm-prompts/extraction-and-classification.md) for better priority detection.
-- [ ] Standardize [n8n](docs/tools/automation_orchestration/n8n.md) error handling using sub-workflows.
+- [ ] Standardize [n8n](docs/services/n8n.md) error handling using sub-workflows.
 
 ### Medium-Term
-- [ ] Implement [Headscale](docs/tools/automation_orchestration/tailscale.md) for a fully self-hosted mesh network.
+- [ ] Implement [Headscale](docs/services/tailscale.md) for a fully self-hosted mesh network.
 - [ ] Integrate [Vikunja](docs/services/vikunja.md) task dependencies into n8n flows.
 - [ ] Deploy [LiteLLM](docs/services/litellm.md) proxy to load-balance between local and cloud models.
 

@@ -1,39 +1,16 @@
-# Radicale Service Documentation
+# Radicale
 
-## Service Overview
-Radicale is a lightweight CalDAV (calendar) and CardDAV (contact) server.
+Radicale is a small but powerful CalDAV and CardDAV server.
 
-## Purpose / Business Value
-Provides a private, self-hosted alternative to Google Contacts and Calendar, allowing for simple sync across personal devices.
+## Description
+It is lightweight and easy to set up, providing a way to host your own calendars and contacts.
 
-## Why Self-Hosted
-To maintain data sovereignty over sensitive schedule and contact information.
+## Links
+- [Official Website](https://radicale.org/)
 
-## Data Location
-`/mnt/<pool>/applications/radicale/`
+## Alternatives
+- [Nextcloud (Contacts/Calendar)](nextcloud.md)
+- [Baikal](https://sabre.io/baikal/)
 
-## Backup Strategy
-- Simple file-level backups of the storage directory.
-- ZFS snapshots of the application dataset.
-
-## Network Exposure
-- **LAN**: Port 5232.
-- **Reverse Proxy**: Exposed for remote sync on mobile devices.
-
-## Authentication Method
-Built-in basic authentication or external auth backends.
-
-## Dependencies
-- Python environment (if not running via Docker).
-
-## Resource Usage Notes
-Extremely lightweight.
-
-## Security Considerations
-Always use TLS (via reverse proxy) when accessing over WAN.
-
-## Maintenance Tasks
-- Monitoring log files for sync errors.
-
-## Upgrade Procedure
-Update the docker image or use `pip install --upgrade radicale`.
+## Backlog
+- Integration with Vikunja for shared task lists.

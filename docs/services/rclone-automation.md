@@ -1,40 +1,17 @@
-# rclone Automation Jobs Service Documentation
+# Rclone Automation
 
-## Service Overview
-rclone is a command-line program to manage files on cloud storage. Automation jobs use rclone to sync or copy files between TrueNAS datasets and cloud providers.
+Automated scripts and configurations for Rclone on TrueNAS SCALE.
 
-## Purpose / Business Value
-Ensures offsite backups and data synchronization between local and cloud environments.
+## Description
+Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between local ZFS pools and remote cloud providers (S3, B2, Drive).
 
-## Why Self-Hosted
-Provides a flexible, scriptable way to manage cloud data without using proprietary client software.
+## Links
+- [Rclone Official Website](https://rclone.org/)
 
-## Data Location
-- **Config**: `/mnt/<pool>/applications/rclone/rclone.conf`
-- **Logs**: `/mnt/<pool>/applications/rclone/logs/`
+## Alternatives
+- [Duplicati](https://www.duplicati.com/)
+- [Kopia](https://kopia.io/)
 
-## Backup Strategy
-- The `rclone.conf` file is critical and must be backed up securely (contains API tokens).
-
-## Network Exposure
-- **LAN**: N/A (usually runs as a CLI tool or cron job).
-- **External**: Outbound connections to cloud providers.
-
-## Authentication Method
-Cloud-specific OAuth or API keys stored in `rclone.conf`.
-
-## Dependencies
-- Connectivity to cloud providers (e.g., Backblaze B2, Google Drive).
-
-## Resource Usage Notes
-Lightweight CPU/RAM; bandwidth usage can be high during sync tasks.
-
-## Security Considerations
-Encrypt the `rclone.conf` file using rclone's built-in encryption.
-
-## Maintenance Tasks
-- Monitoring job logs for errors.
-- Renewing API tokens if necessary.
-
-## Upgrade Procedure
-Update the rclone binary or docker image.
+## Backlog
+- Implement bandwidth throttling during business hours.
+- Set up healthcheck notifications for failed syncs.
