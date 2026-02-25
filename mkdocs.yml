@@ -131,16 +131,19 @@ nav:
     - Automation & Orchestration:
       - Overview: tools/automation_orchestration/index.md
       - Make: tools/automation_orchestration/make.md
+      - MCP Registry: tools/automation_orchestration/mcp-registry.md
       - Zapier: tools/automation_orchestration/zapier.md
     - Benchmarking:
       - Overview: tools/benchmarking/index.md
       - Chatbot Arena: tools/benchmarking/chatbot-arena.md
+      - DREAM Benchmark: tools/benchmarking/dream.md
       - Gpqa: tools/benchmarking/gpqa.md
       - Gsm8K: tools/benchmarking/gsm8k.md
       - Human Eval: tools/benchmarking/human-eval.md
       - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
       - LLMperf: tools/benchmarking/llmperf.md
       - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md
+      - LongCLI-Bench: tools/benchmarking/longcli-bench.md
       - Mbpp: tools/benchmarking/mbpp.md
       - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
       - Swe Bench: tools/benchmarking/swe-bench.md
@@ -179,6 +182,8 @@ nav:
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
+      - PageIndex: tools/process_understanding/pageindex.md
+      - RAGFlow: tools/process_understanding/ragflow.md
   - Architecture:
     - Overview: architecture/README.md
     - Infrastructure Detail: architecture/infrastructure.md
@@ -204,3 +209,4 @@ nav:
   - Roadmap: roadmap.md
   - Standards: standards.md
   - Contributing: CONTRIBUTING.md
+  - New Sources: new-sources.md
