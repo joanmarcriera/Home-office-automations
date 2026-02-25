@@ -56,6 +56,7 @@ nav:
     - Dev Workflow AI Assisted: playbooks/dev-workflow-ai-assisted.md
     - Email To Calendar: playbooks/email-to-calendar.md
     - Family Admin Automation: playbooks/family-admin-automation.md
+    - Raspberry Pi Kiosk Automation: playbooks/raspberry-pi-kiosk-automation.md
     - Scan To Task: playbooks/scan-to-task.md
     - School Admin Intake: playbooks/school-admin-intake.md
   - Services:
@@ -113,14 +114,19 @@ nav:
     - Overview: tools/README.md
     - AI & Knowledge:
       - Overview: tools/ai_knowledge/index.md
+      - Anthropic Claude: tools/ai_knowledge/anthropic.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
+      - DeepSeek: tools/ai_knowledge/deepseek.md
       - Dify: tools/ai_knowledge/dify.md
       - Flowise: tools/ai_knowledge/flowise.md
       - Jules: tools/ai_knowledge/jules.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
+      - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
       - Obsidian: tools/ai_knowledge/obsidian.md
+      - OpenAI: tools/ai_knowledge/openai.md
+      - OpenRouter: tools/ai_knowledge/openrouter.md
       - Perplexity: tools/ai_knowledge/perplexity.md
     - Automation & Orchestration:
       - Overview: tools/automation_orchestration/index.md
@@ -151,6 +157,7 @@ nav:
       - Codex: tools/development_ops/codex.md
       - Continue Dev: tools/development_ops/continue_dev.md
       - Cursor: tools/development_ops/cursor.md
+      - Custom Agents: tools/development_ops/custom_agents.md
       - Droid: tools/development_ops/droid.md
       - Github Copilot: tools/development_ops/github_copilot.md
       - Gpt Engineer: tools/development_ops/gpt_engineer.md
@@ -177,6 +184,7 @@ nav:
     - Infrastructure Detail: architecture/infrastructure.md
     - Component Map: architecture/component_map.md
     - Flows: architecture/flows.md
+    - SSH Execution Patterns: architecture/ssh_execution_patterns.md
     - Automated Contributions: architecture/automated_contributions.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md

@@ -19,31 +19,32 @@ This map categorizes all tools in the stack based on their primary function in t
 - **Media/Projects**: [Jellyfin](../services/jellyfin.md), [Focalboard](../services/focalboard.md)
 - **Distributed**: [Storj Node](../services/storj.md)
 
-## 3. Understand (Process & Reason)
-*Tools that transform raw data into structured insights or actionable intelligence.*
-- **OCR**: [OCRmyPDF](../tools/process_understanding/ocrmypdf.md), [Apache Tika](../services/tika.md), [Whisper](../services/whisper.md)
-- **Reasoning Engines**: [Ollama](../services/ollama.md), [ChatGPT](../tools/ai_knowledge/chatgpt.md), [Jules (Google)](../tools/ai_knowledge/jules.md)
+## 3. Understand (Reasoning Engines)
+*The brains of the stack that process and reason over information.*
+- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/ai_knowledge/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md)
+- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md)
+- **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/ai_knowledge/perplexity.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md)
-- **Research**: [Perplexity](../tools/ai_knowledge/perplexity.md), [Diskover](../services/diskover.md)
 
-## 4. Decide (Orchestrate)
-*Tools that determine which actions to take based on processed information.*
+## 4. Decide (Orchestrate & Route)
+*Tools that determine which actions to take and how to route requests.*
+- **Routing Layers**: [LiteLLM](../services/litellm.md), [OpenRouter](../tools/ai_knowledge/openrouter.md)
 - **Workflow Engines**: [n8n](../services/n8n.md), [Home Assistant](../services/home-assistant.md)
 - **Cloud Connectors**: [Zapier](../tools/automation_orchestration/zapier.md), [Make](../tools/automation_orchestration/make.md)
 - **Identity**: [Authentik](../services/authentik.md)
-- **Agent Frameworks**: [LangChain](../tools/ai_knowledge/langchain.md), [LlamaIndex](../tools/ai_knowledge/llamaindex.md), [Dify](../tools/ai_knowledge/dify.md), [Flowise](../tools/ai_knowledge/flowise.md)
 
-## 5. Act
-*Tools that perform physical or digital modifications to the environment.*
+## 5. Act (Agents & Execution)
+*Tools that perform modifications to the environment.*
+- **Autonomous Agents**: [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md)
+- **Coding Assistants**: [Aider](../tools/development_ops/aider.md), [Cursor](../tools/development_ops/cursor.md), [Zed](../tools/development_ops/zed.md), [VS Code](../tools/development_ops/vscode.md)
+- **Custom Orchestration**: [Custom Agents (SSH + LLM Loop)](../tools/development_ops/custom_agents.md)
+- **Execution Plane**: [SSH Execution Patterns](ssh_execution_patterns.md)
 - **Home Control**: [Home Assistant](../services/home-assistant.md)
-- **Task Management**: [Vikunja](../services/vikunja.md)
-- **Development**: [VS Code](../tools/development_ops/vscode.md), [Cursor](../tools/development_ops/cursor.md), [Zed](../tools/development_ops/zed.md), [Aider](../tools/development_ops/aider.md), [OpenHands](../tools/development_ops/openhands.md), [Anti-Gravity](../tools/development_ops/anti_gravity.md), [Junie CLI](../tools/development_ops/junie-cli.md), [Droid](../tools/development_ops/droid.md), [Terminus 2](../tools/development_ops/terminus-2.md), [Cloud Code](../tools/development_ops/cloud_code.md), [Superconductor](../tools/development_ops/superconductor.md), [GitHub Copilot](../tools/development_ops/github_copilot.md), [Continue.dev](../tools/development_ops/continue_dev.md), [Codeium](../tools/development_ops/codeium.md), [Sourcegraph Cody](../tools/development_ops/sourcegraph_cody.md), [Tabnine](../tools/development_ops/tabnine.md), [GPT Engineer](../tools/development_ops/gpt_engineer.md), [Sweep.dev](../tools/development_ops/sweep_dev.md), [Mentat](../tools/development_ops/mentat.md), [Plandex](../tools/development_ops/plandex.md), [Melty](../tools/development_ops/melty.md), [Codex (OpenAI)](../tools/development_ops/codex.md)
 
-## 6. Sync
-*Tools that ensure information is consistent across devices and platforms.*
+## 6. Sync & Infrastructure
+*Tools that ensure consistency and secure connectivity.*
 - **Network Access**: [Tailscale](../services/tailscale.md)
 - **Protocols**: [CalDAV](../tools/intake_storage/caldav.md)
-- **Model Proxy**: [LiteLLM](../services/litellm.md)
 - **Data Transfer**: [rclone Automation](../services/rclone-automation.md)
 
 ## 7. Benchmark

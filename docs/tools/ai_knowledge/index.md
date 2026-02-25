@@ -1,10 +1,16 @@
 # Ai & Knowledge
 
-- [Chatgpt](chatgpt.md)
+- [Anthropic Claude](anthropic.md)
+- [ChatGPT](chatgpt.md)
+- [DeepSeek](deepseek.md)
 - [Dify](dify.md)
 - [Flowise](flowise.md)
 - [Jules](jules.md)
-- [Langchain](langchain.md)
+- [LangChain](langchain.md)
+- [LiteLLM](../../services/litellm.md)
+- [Local LLMs (Ollama, MLX, llama.cpp)](local_llms.md)
 - [Logseq](logseq.md)
 - [Obsidian](obsidian.md)
+- [OpenAI](openai.md)
+- [OpenRouter](openrouter.md)
 - [Perplexity](perplexity.md)
