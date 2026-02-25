@@ -617,6 +617,36 @@
       "name": "Tube Archivist",
       "category": "Media & Entertainment",
       "doc_path": "docs/services/tubearchivist.md"
+    },
+    {
+      "id": "mcp-registry",
+      "name": "MCP Registry",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/mcp-registry.md"
+    },
+    {
+      "id": "ragflow",
+      "name": "RAGFlow",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/ragflow.md"
+    },
+    {
+      "id": "pageindex",
+      "name": "PageIndex",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/pageindex.md"
+    },
+    {
+      "id": "dream-benchmark",
+      "name": "DREAM Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/dream.md"
+    },
+    {
+      "id": "longcli-bench",
+      "name": "LongCLI-Bench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/longcli-bench.md"
     }
   ]
 }
