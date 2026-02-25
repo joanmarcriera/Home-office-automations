@@ -14,10 +14,10 @@ A comprehensive operating manual for a privacy-first, AI-powered home lab and fa
 
 | Level | Description | Core Tools |
 | :--- | :--- | :--- |
-| **Level 1: Manual** | Digital storage and basic sync. | [Nextcloud](docs/tools/intake_storage/nextcloud.md), [Syncthing](docs/tools/intake_storage/syncthing.md) |
-| **Level 2: Organized** | Centralized documents and visual orchestration. | [Paperless-ngx](docs/tools/intake_storage/paperless-ngx.md), [n8n](docs/tools/automation_orchestration/n8n.md) |
-| **Level 3: Augmented** | AI-assisted extraction and semantic search. | [Paperless-AI](docs/tools/process_understanding/paperless-ai.md), [Ollama](docs/tools/process_understanding/ollama.md) |
-| **Level 4: Autonomous** | Agent-led refactoring and proactive task management. | [Jules](docs/tools/ai_knowledge/jules.md), [OpenHands](docs/tools/development_ops/openhands.md) |
+| **Level 1: Manual** | Digital storage and basic sync. | [Nextcloud](docs/services/nextcloud.md), [Syncthing](docs/services/syncthing.md) |
+| **Level 2: Organized** | Centralized documents and visual orchestration. | [Paperless-ngx](docs/services/paperless-ngx.md), [n8n](docs/services/n8n.md) |
+| **Level 3: Augmented** | AI-assisted extraction, semantic search, and benchmarking. | [Paperless-AI](docs/services/paperless-ai.md), [Ollama](docs/services/ollama.md), [HLE](docs/tools/benchmarking/humanitys-last-exam.md) |
+| **Level 4: Autonomous** | Agent-led refactoring, proactive task management, and performance optimization. | [Jules](docs/tools/ai_knowledge/jules.md), [OpenHands](docs/tools/development_ops/openhands.md), [Terminal-Bench](docs/tools/benchmarking/terminal-bench.md) |
 
 ---
 
@@ -25,10 +25,10 @@ A comprehensive operating manual for a privacy-first, AI-powered home lab and fa
 
 | Requirement | Preferred Tools | Why? |
 | :--- | :--- | :--- |
-| **100% Self-Hosted** | Radicale, Vikunja, Ollama | No external API dependencies. |
-| **Highest Accuracy** | ChatGPT, Google Calendar | State-of-the-art models and reliable SaaS. |
-| **Developer Focus** | Cursor, Aider, OpenHands | Tight integration with Git and codebases. |
-| **Low Resource** | Homebox, Syncthing | Efficient, specialized tools. |
+| **100% Self-Hosted** | [Radicale](docs/services/radicale.md), [Vikunja](docs/services/vikunja.md), [Ollama](docs/services/ollama.md) | No external API dependencies. |
+| **Highest Accuracy** | [ChatGPT](docs/tools/ai_knowledge/chatgpt.md), [Google Calendar](docs/tools/calendar_tasks/google_calendar.md) | State-of-the-art models and reliable SaaS. |
+| **Developer Focus** | [Cursor](docs/tools/development_ops/cursor.md), [Aider](docs/tools/development_ops/aider.md), [OpenHands](docs/tools/development_ops/openhands.md) | Tight integration with Git and codebases. |
+| **Low Resource** | [Homebox](docs/services/homebox.md), [Syncthing](docs/services/syncthing.md) | Efficient, specialized tools. |
 
 ---
 

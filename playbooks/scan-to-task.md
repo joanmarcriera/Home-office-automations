@@ -5,9 +5,9 @@ Convert physical documents (mail, receipts) into actionable tasks in the task ma
 
 ## Pre-requisites
 - [OCRmyPDF](../docs/tools/process_understanding/ocrmypdf.md)
-- [Paperless-ngx](../docs/tools/intake_storage/paperless-ngx.md)
-- [Vikunja](../docs/tools/calendar_tasks/vikunja.md)
-- [n8n](../docs/tools/automation_orchestration/n8n.md)
+- [Paperless-ngx](../docs/services/paperless-ngx.md)
+- [Vikunja](../docs/services/vikunja.md)
+- [n8n](../docs/services/n8n.md)
 
 ## Step-by-Step Flow
 1.  **Ingestion**: Physical scan via mobile app or scanner reaches the `Nextcloud/Scans` folder.

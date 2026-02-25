@@ -6,7 +6,7 @@ Accelerate homelab infrastructure development using a hierarchy of AI coding age
 ## Pre-requisites
 - [VS Code](../docs/tools/development_ops/vscode.md) or [Cursor](../docs/tools/development_ops/cursor.md)
 - [Aider](../docs/tools/development_ops/aider.md)
-- [Ollama](../docs/tools/process_understanding/ollama.md)
+- [Ollama](../docs/services/ollama.md)
 - [Jules (Google)](../docs/tools/ai_knowledge/jules.md)
 
 ## Step-by-Step Flow

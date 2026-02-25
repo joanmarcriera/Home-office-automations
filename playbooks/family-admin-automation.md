@@ -4,8 +4,8 @@
 Automate the routing and notification of family-wide administrative tasks (bills, insurance, medical).
 
 ## Pre-requisites
-- [Paperless-ngx](../docs/tools/intake_storage/paperless-ngx.md)
-- [Home Assistant](../docs/tools/automation_orchestration/home_assistant.md)
+- [Paperless-ngx](../docs/services/paperless-ngx.md)
+- [Home Assistant](../docs/services/home-assistant.md)
 - [Matrix/Signal](../docs/architecture/component_map.md)
 
 ## Step-by-Step Flow

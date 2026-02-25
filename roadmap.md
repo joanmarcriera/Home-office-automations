@@ -21,8 +21,8 @@ This document tracks missing components and planned technical improvements for t
 
 ### Medium-Term
 - [ ] Implement [Headscale](docs/tools/automation_orchestration/tailscale.md) for a fully self-hosted mesh network.
-- [ ] Integrate [Vikunja](docs/tools/calendar_tasks/google_calendar.md) task dependencies into n8n flows.
-- [ ] Deploy [LiteLLM](docs/tools/process_understanding/litellm.md) proxy to load-balance between local and cloud models.
+- [ ] Integrate [Vikunja](docs/services/vikunja.md) task dependencies into n8n flows.
+- [ ] Deploy [LiteLLM](docs/services/litellm.md) proxy to load-balance between local and cloud models.
 
 ### Long-Term
 - [ ] Build a custom "Home Admin Agent" using [LangChain](docs/tools/ai_knowledge/langchain.md) that can reason across the entire document store.
