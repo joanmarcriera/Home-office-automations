@@ -51,6 +51,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - New Sources: new-sources.md
   - Playbooks:
     - Overview: playbooks/index.md
     - Dev Workflow AI Assisted: playbooks/dev-workflow-ai-assisted.md
@@ -176,6 +177,16 @@ nav:
     - Intake & Storage:
       - Overview: tools/intake_storage/index.md
       - Caldav: tools/intake_storage/caldav.md
+    - Frameworks:
+      - Overview: tools/frameworks/index.md
+    - Providers:
+      - Overview: tools/providers/index.md
+    - Agents:
+      - Overview: tools/agents/index.md
+    - Orchestration:
+      - Overview: tools/orchestration/index.md
+    - Infrastructure:
+      - Overview: tools/infrastructure/index.md
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
@@ -190,6 +201,8 @@ nav:
     - Overview: knowledge_base/README.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - Model Classes: knowledge_base/model_classes.md
+    - Patterns:
+      - Overview: knowledge_base/patterns/index.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
     - Calendar:
