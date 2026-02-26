@@ -57,3 +57,7 @@ python3 scripts/compare_agents.py doc paperless-ngx
 
 ---
 *Organized for a high-performance, private homelab environment as of 2025.*
+
+## 🤝 Contributors
+
+* **Antigravity** - Agentic AI Coding Assistant
