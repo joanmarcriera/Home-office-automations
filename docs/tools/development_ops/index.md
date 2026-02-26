@@ -15,6 +15,7 @@
 - [Melty](melty.md)
 - [Mentat](mentat.md)
 - [Openhands](openhands.md)
+- [OpenSwarm](openswarm.md)
 - [Plandex](plandex.md)
 - [Sourcegraph Cody](sourcegraph_cody.md)
 - [Superconductor](superconductor.md)

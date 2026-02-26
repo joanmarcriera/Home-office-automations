@@ -71,7 +71,7 @@ The first time Jules runs, review the PR carefully to confirm it follows the tem
 
 - [Jules](https://jules.google/)
 - [GitHub Actions Documentation](https://docs.github.com/actions)
-- [Daily Jules Maintenance Workflow](../../.github/workflows/daily-jules-maintenance.yml)
+- [Daily Jules Maintenance Workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/daily-jules-maintenance.yml)
 
 ## Contribution Metadata
 

@@ -39,3 +39,18 @@ It identifies a critical security and privacy vulnerability where traditional an
 
 ## Sources / references
 - [Large-Scale Online Deanonymization with LLMs](https://simonlermen.substack.com/p/large-scale-online-deanonymization)
+
+## API and Infrastructure Security
+
+The introduction of LLM capabilities into existing platforms often shifts the risk profile of existing security credentials.
+
+### Case Study: Google API Keys and Gemini
+Historically, many Google API keys (such as those for Maps) were treated as "publicly shareable" secrets because their misuse was limited to financial exhaustion or quota theft. However, the introduction of Gemini and the ability to use these same keys to access reasoning engines and private data changed this paradigm.
+
+**Key Takeaways:**
+- **Credential Escalation**: Old API keys can gain new, dangerous capabilities when a provider launches new AI services on the same infrastructure.
+- **Scoping is Critical**: API keys should be restricted to specific services and IP addresses whenever possible.
+- **Audit Legacy Keys**: Regularly review old keys to ensure they haven't inherited unintended AI-related permissions.
+
+**Sources:**
+- [Google API Keys Weren't Secrets. But then Gemini Changed the Rules](https://trufflesecurity.com/blog/google-api-keys-werent-secrets-but-then-gemini-changed-the-rules)
