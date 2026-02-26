@@ -34,8 +34,6 @@ jobs:
         working-directory: ./ai-daily-digest
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          # Using a stable, highly capable free model
-          OPENROUTER_MODEL: "meta-llama/llama-3.3-70b-instruct:free"
         run: python scripts/digest.py
 
       - name: Commit and Push Changes
