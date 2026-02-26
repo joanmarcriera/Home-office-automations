@@ -17,8 +17,12 @@ SOURCES_FILE = "sources.yaml"
 PROCESSED_FILE = os.path.join(DATA_DIR, "processed.json")
 README_FILE = "README.md"
 
-# Model selection. You can use lighter/faster models like google/gemini-2.5-flash
-MODEL = os.environ.get("OPENROUTER_MODEL", "google/gemini-2.5-flash")
+# Model selection with comma separated fallbacks (e.g., model1,model2,model3)
+MODEL_STRING = os.environ.get(
+    "OPENROUTER_MODEL", 
+    "meta-llama/llama-3.3-70b-instruct:free,google/gemini-2.0-pro-exp-02-05:free,mistralai/mistral-nemo:free"
+)
+MODELS = [m.strip() for m in MODEL_STRING.split(",")]
 
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 if not OPENROUTER_API_KEY:
@@ -122,20 +126,31 @@ Rules & Guidelines:
     user_content = json.dumps(items, indent=2)
     prompt = f"Here are the new items to process:\n\n{user_content}"
     
-    try:
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt.strip()},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3, # Low temperature for more factual summaries
-            max_tokens=2000
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        print(f"Failed to generate digest via OpenRouter: {e}")
-        return None
+    for model in MODELS:
+        try:
+            print(f"Attempting to generate digest with model: {model}...")
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": system_prompt.strip()},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3, # Low temperature for more factual summaries
+                max_tokens=2000
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "temporarily rate-limited" in err_str:
+                print(f"Model {model} is rate limited. Trying next fallback...")
+                continue
+            else:
+                print(f"Failed to generate digest via OpenRouter with {model}: {e}")
+                # Don't fallback for non-rate-limit errors like 401 unauthorized
+                return None
+                
+    print("All fallback models were rate limited or failed.")
+    return None
 
 def update_readme(digest_md, date_str):
     """
@@ -191,7 +206,7 @@ def main():
         print("No new items found. Exiting cleanly.")
         sys.exit(0)
         
-    print(f"Found {len(all_new_items)} new items. Processing with OpenRouter (Model: {MODEL})...")
+    print(f"Found {len(all_new_items)} new items. Processing with OpenRouter (Models: {', '.join(MODELS)})...")
     
     digest_md = summarize_with_openrouter(all_new_items)
     
