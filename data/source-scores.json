@@ -1,0 +1,130 @@
+{
+  "sources": {
+    "anthropic.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "app.teamout.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "arxiv.org": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "ben-evans.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "blog.cloudflare.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "code.claude.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "gist.github.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "github.blog": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "github.com": {
+      "discovered": 13,
+      "integrated": 13,
+      "score": 1.0
+    },
+    "kanyilmaz.me": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "linum.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "mcpservers.org": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "medium.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "modelcontextprotocol.info": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "news.microsoft.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "npmjs.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "rockwotj.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "saewitz.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "si.inc": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "simonlermen.substack.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "stackone.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "trufflesecurity.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "valyu.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "vibrantlabs.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "yogthos.net": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    }
+  },
+  "updated": "2026-02-26"
+}

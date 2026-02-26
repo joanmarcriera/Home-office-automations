@@ -1,0 +1,49 @@
+{
+  "snapshot_date": "2026-02-26",
+  "total_docs": 126,
+  "tool_docs": 79,
+  "service_docs": 47,
+  "by_category": {
+    "ai_knowledge": 18,
+    "automation_orchestration": 8,
+    "benchmarking": 14,
+    "calendar_tasks": 1,
+    "development_ops": 29,
+    "frameworks": 1,
+    "infrastructure": 2,
+    "intake_storage": 1,
+    "process_understanding": 5
+  },
+  "docs_with_code_examples": 4,
+  "docs_without_code_examples": 122,
+  "shallow_docs": [
+    "docs/services/focalboard.md",
+    "docs/services/storj.md",
+    "docs/services/homebox.md",
+    "docs/services/qbittorrent.md",
+    "docs/services/diskover.md",
+    "docs/services/minecraft.md",
+    "docs/services/tika.md",
+    "docs/services/tailscale.md",
+    "docs/services/kiwix.md",
+    "docs/services/plex.md",
+    "docs/services/portracker.md",
+    "docs/services/vikunja.md",
+    "docs/services/metube.md",
+    "docs/services/authentik.md",
+    "docs/services/gitea.md",
+    "docs/services/speedtest.md",
+    "docs/services/jackett.md",
+    "docs/services/mealie.md",
+    "docs/services/excalidraw.md",
+    "docs/services/grocy.md"
+  ],
+  "underdeveloped_categories": [
+    "calendar_tasks",
+    "frameworks",
+    "infrastructure",
+    "intake_storage",
+    "process_understanding"
+  ],
+  "weekly_additions": 0
+}
