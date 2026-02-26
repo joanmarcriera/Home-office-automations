@@ -52,3 +52,13 @@ This map categorizes all tools in the stack based on their primary function in t
 - **Reasoning**: [Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md), [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md), [DREAM Benchmark](../tools/benchmarking/dream.md)
 - **Agentic**: [Terminal-Bench](../tools/benchmarking/terminal-bench.md), [SWE-bench](../tools/benchmarking/swe-bench.md), [LongCLI-Bench](../tools/benchmarking/longcli-bench.md), [PA-bench](../tools/benchmarking/pa-bench.md)
 - **Local Performance**: [Ollama Benchmark CLI](../tools/benchmarking/ollama-benchmark-cli.md), [LLMPerf](../tools/benchmarking/llmperf.md)
+
+## Sources / References
+
+- [Stack Overview](https://home-toolset.riera.co.uk)
+- [Component Map Source Data](../../data/all_tools.json)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: high

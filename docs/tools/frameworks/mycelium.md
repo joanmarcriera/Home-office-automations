@@ -45,3 +45,8 @@ It addresses "context rot" and cognitive saturation in LLM agents by decomposing
 ## Sources / References
 - [Managing Complexity with Mycelium](https://yogthos.net/posts/2026-02-25-ai-at-scale.html)
 - [Mycelium GitHub](https://github.com/yogthos/mycelium)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

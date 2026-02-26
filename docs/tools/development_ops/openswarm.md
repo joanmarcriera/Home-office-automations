@@ -43,3 +43,8 @@ It simplifies the coordination of multiple AI agents performing complex, interde
 
 ## Sources / References
 - [OpenSwarm GitHub](https://github.com/Intrect-io/OpenSwarm)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

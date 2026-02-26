@@ -49,3 +49,8 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 - [Google Gemini Official Page](https://deepmind.google/technologies/gemini/)
 - [Gemini API Documentation](https://ai.google.dev/docs)
 - [Google API Keys Weren't Secrets. But then Gemini Changed the Rules](https://trufflesecurity.com/blog/google-api-keys-werent-secrets-but-then-gemini-changed-the-rules)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: high
