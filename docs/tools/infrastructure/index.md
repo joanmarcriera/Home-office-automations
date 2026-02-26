@@ -8,6 +8,7 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 | :--- | :--- |
 | [Ollama](../../services/ollama.md) | Local LLM inference server |
 | [LiteLLM](../../services/litellm.md) | Unified LLM API proxy |
+| [ZSE](zse.md) | Fast cold-start LLM inference engine |
 
 <!-- New infrastructure pages are added here by Jules -->
 

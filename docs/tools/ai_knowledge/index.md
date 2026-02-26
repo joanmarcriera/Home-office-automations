@@ -12,5 +12,6 @@
 - [Logseq](logseq.md)
 - [Obsidian](obsidian.md)
 - [OpenAI](openai.md)
+- [Google Gemini](google-gemini.md)
 - [OpenRouter](openrouter.md)
 - [Perplexity](perplexity.md)

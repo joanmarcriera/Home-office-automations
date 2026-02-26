@@ -8,5 +8,6 @@ Libraries and frameworks for building AI/LLM-powered applications — orchestrat
 | :--- | :--- |
 | [LangChain](../ai_knowledge/langchain.md) | LLM application framework with chains, agents, and tool use |
 | [LlamaIndex](../ai_knowledge/llamaindex.md) | Data framework for LLM apps — indexing, retrieval, RAG |
+| [Mycelium](mycelium.md) | Recursive workflow framework using state machines and Malli contracts |
 
 <!-- New framework pages are added here by Jules -->
