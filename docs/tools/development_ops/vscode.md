@@ -14,3 +14,12 @@ It features a rich ecosystem of extensions, including many AI-powered tools.
 
 ## Backlog
 - Create a "Standard AI Dev" extension pack.
+
+## Sources / References
+
+- [Reference](https://code.visualstudio.com/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

@@ -61,3 +61,12 @@ Directly giving an SSH key to a cloud-based LLM provider (via a "plugin" or "act
 - [Custom Agents](../tools/development_ops/custom_agents.md)
 - [Raspberry Pi Kiosk Automation](../playbooks/raspberry-pi-kiosk-automation.md)
 - [Standards and Conventions](../standards.md)
+
+## Sources / References
+
+- [Reference](https://man.openbsd.org/ssh)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

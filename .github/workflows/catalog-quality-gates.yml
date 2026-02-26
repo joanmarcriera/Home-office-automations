@@ -1,0 +1,28 @@
+name: Catalog Quality Gates
+
+on:
+  pull_request:
+    paths:
+      - "mkdocs.yml"
+      - "data/all_tools.json"
+      - "docs/services/*.md"
+      - "docs/tools/**/*.md"
+      - "scripts/check_catalog_consistency.py"
+      - ".github/workflows/catalog-quality-gates.yml"
+
+jobs:
+  catalog-consistency:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate nav/catalog consistency
+        run: python3 scripts/check_catalog_consistency.py

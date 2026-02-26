@@ -30,6 +30,19 @@ The knowledge base uses a stable set of top-level categories. Do not create new 
 
 Items in `new-sources.md` use these tags: `tool` · `framework` · `provider` · `paper/article` · `tutorial/guide` · `benchmark/eval` · `infrastructure` · `analysis`
 
+### Daily Intake Log Format
+
+New-source intake is daily-file based:
+
+- Index: `docs/new-sources.md`
+- Daily files: `docs/new-sources/YYYY-MM-DD.md`
+- Required table header:
+  - `Title | URL | Tags | Status | Canonical Page | Notes`
+- Allowed statuses:
+  - `new`, `integrated`, `duplicate`, `needs-more-info`, `low-confidence`
+
+Validation is enforced by `scripts/validate_new_sources.py` in CI.
+
 ## Naming Conventions
 - **Tags (Paperless)**: `kebab-case`. Lowercase only. Prefix status tags with `s:` and category tags with `c:`.
 - **Workflows (n8n)**: `[Trigger Source] -> [Primary Action]`. Example: `IMAP -> Paperless Intake`.

@@ -14,3 +14,12 @@ It allows you to organize all your tasks on all platforms. It features boards, l
 
 ## Backlog
 - Sync with CalDAV (Radicale).
+
+## Sources / References
+
+- [Reference](https://vikunja.io/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

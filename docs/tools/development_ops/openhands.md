@@ -44,3 +44,12 @@ Client-server architecture. Usually runs in a Docker container to provide a sand
 - [Aider](aider.md)
 - [Custom Agents](custom_agents.md)
 - [OpenAI](../ai_knowledge/openai.md)
+
+## Sources / References
+
+- [Reference](https://github.com/All-Hands-AI/OpenHands)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

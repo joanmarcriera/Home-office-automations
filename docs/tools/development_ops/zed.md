@@ -14,3 +14,12 @@ It is built in Rust and designed for speed. It features native AI integration an
 
 ## Backlog
 - Setup Zed's "Anthropic" integration for faster completions.
+
+## Sources / References
+
+- [Reference](https://zed.dev/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

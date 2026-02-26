@@ -50,3 +50,12 @@ Provides a tailored, minimal orchestration layer for specific infrastructure tas
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
 - [Raspberry Pi Kiosk Automation](../../playbooks/raspberry-pi-kiosk-automation.md)
 - [OpenAI](../ai_knowledge/openai.md)
+
+## Sources / References
+
+- [Reference](https://github.com/joanmarcriera/Home-office-automations)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

@@ -15,3 +15,14 @@ Stream to any device from your own server, with no strings attached. No fees, no
 ## Backlog
 - Setup hardware acceleration for transcoding.
 - Integrate with Gelli (Android music client).
+
+## Sources / References
+
+- [Reference](https://jellyfin.org/)
+- [Reference](https://www.plex.tv/)
+- [Reference](https://emby.media/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

@@ -17,3 +17,14 @@ With a node-based approach, n8n allows you to connect anything to everything. It
 ## Backlog
 - Create a reusable sub-workflow for AI document processing.
 - Implement error handling with automated retry logic.
+
+## Sources / References
+
+- [Reference](https://n8n.io/)
+- [Reference](https://docs.n8n.io/)
+- [Reference](https://pipedream.com/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

@@ -15,3 +15,14 @@ It allows users to create and edit events, set reminders, and share calendars wi
 
 ## Backlog
 - Implement bi-directional sync with Radicale via n8n.
+
+## Sources / References
+
+- [Reference](https://calendar.google.com/)
+- [Reference](https://developers.google.com/calendar)
+- [Reference](https://proton.me/calendar)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

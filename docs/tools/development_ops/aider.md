@@ -45,3 +45,12 @@ CLI tool that runs locally. It manages the context by selecting relevant files t
 - [OpenHands](openhands.md)
 - [OpenAI](../ai_knowledge/openai.md)
 - [Anthropic](../ai_knowledge/anthropic.md)
+
+## Sources / References
+
+- [Reference](https://aider.chat/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

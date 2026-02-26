@@ -14,3 +14,13 @@ It integrates with LLMs (via Ollama or OpenAI) to analyze the content of your do
 
 ## Backlog
 - Improve prompt templates for better invoice extraction.
+
+## Sources / References
+
+- [Reference](https://github.com/clusterfudge/paperless-ai)
+- [Reference](https://teedy.io/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

@@ -49,3 +49,12 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - [Aider](../development_ops/aider.md)
 - [OpenHands](../development_ops/openhands.md)
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
+
+## Sources / References
+
+- [Reference](https://openai.com/index/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

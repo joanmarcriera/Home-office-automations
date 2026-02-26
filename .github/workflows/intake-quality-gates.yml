@@ -1,0 +1,26 @@
+name: Intake Quality Gates
+
+on:
+  pull_request:
+    paths:
+      - "docs/new-sources.md"
+      - "docs/new-sources/*.md"
+      - "scripts/validate_new_sources.py"
+      - ".github/workflows/intake-quality-gates.yml"
+
+jobs:
+  validate-intake-logs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate new-sources schema
+        run: python3 scripts/validate_new_sources.py

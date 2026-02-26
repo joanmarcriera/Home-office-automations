@@ -16,3 +16,14 @@ It transforms your physical documents into a searchable online archive. It handl
 ## Backlog
 - Configure multi-user permissions.
 - Setup automated email ingestion.
+
+## Sources / References
+
+- [Reference](https://docs.paperless-ngx.com/)
+- [Reference](https://github.com/paperless-ngx/paperless-ngx)
+- [Reference](https://docspell.org/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

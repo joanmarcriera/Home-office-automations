@@ -16,3 +16,14 @@ It provides a simple CLI and API for running models like Llama 3, Mistral, and o
 ## Backlog
 - Benchmarking performance on TrueNAS SCALE.
 - Setup GPU passthrough for faster inference.
+
+## Sources / References
+
+- [Reference](https://ollama.com/)
+- [Reference](https://github.com/ollama/ollama)
+- [Reference](https://lmstudio.ai/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

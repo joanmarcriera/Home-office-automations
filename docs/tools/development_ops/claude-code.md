@@ -35,7 +35,12 @@ It reduces the friction of context-switching between an AI chat interface and a 
 - [Aider](./aider.md)
 - [Droid](./droid.md)
 - [OpenHands](./openhands.md)
+- [Claude Code Setup](./claude-code-setup.md)
 - [Agent Client Protocol (ACP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / references
 - [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
+
+## Contribution Metadata
+- Last reviewed: 2026-02-26
+- Confidence: medium

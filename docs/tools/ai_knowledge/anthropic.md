@@ -45,3 +45,12 @@ Cloud-hosted API service (via Anthropic Console or Amazon Bedrock/Google Vertex 
 - [OpenAI](openai.md)
 - [OpenRouter](openrouter.md)
 - [Aider](../development_ops/aider.md)
+
+## Sources / References
+
+- [Reference](https://www.anthropic.com/news)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

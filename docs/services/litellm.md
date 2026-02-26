@@ -51,3 +51,12 @@ It eliminates the complexity of managing different SDKs and authentication metho
 - [OpenAI](../tools/ai_knowledge/openai.md)
 - [Anthropic](../tools/ai_knowledge/anthropic.md)
 - [Local LLMs](../tools/ai_knowledge/local_llms.md)
+
+## Sources / References
+
+- [Reference](https://docs.litellm.ai/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

@@ -14,3 +14,12 @@ It features a native AI chat, codebase indexing for context-aware answers, and "
 
 ## Backlog
 - Evaluate Cursor's "Tab" (Copilot++) performance vs GitHub Copilot.
+
+## Sources / References
+
+- [Reference](https://cursor.com/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium
