@@ -138,6 +138,7 @@ nav:
       - TeamOut: tools/ai_knowledge/teamout.md
     - Automation & Orchestration:
       - Overview: tools/automation_orchestration/index.md
+      - Atlassian Jira MCP Implementations: tools/automation_orchestration/atlassian-jira-mcp.md
       - CliHub: tools/automation_orchestration/clihub.md
       - Make: tools/automation_orchestration/make.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md

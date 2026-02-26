@@ -713,6 +713,12 @@
       "name": "llama.cpp",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/infrastructure/llama-cpp.md"
+    },
+    {
+      "id": "atlassian-jira-mcp-implementations",
+      "name": "Atlassian Jira MCP Implementations",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/atlassian-jira-mcp.md"
     }
   ]
 }
