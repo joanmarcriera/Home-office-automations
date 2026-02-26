@@ -17,6 +17,7 @@
 - [Junie Cli](junie-cli.md)
 - [Melty](melty.md)
 - [Mentat](mentat.md)
+- [OpenClaw](openclaw.md)
 - [OpenCode](opencode.md)
 - [Openhands](openhands.md)
 - [OpenSwarm](openswarm.md)

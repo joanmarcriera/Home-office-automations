@@ -22,3 +22,12 @@ The Agent Client Protocol (ACP) is an open standard designed to enable any AI ag
     - **Universal Compatibility**: Any agent implementing ACP can gain access to an IDE's full codebase context and powerful reviewing tools.
     - **Privacy First**: ACP is designed to be local-first; data doesn't necessarily touch cloud servers unless specifically configured.
 - **Benefits**: Allows developers to use specialized external agents (like Claude Code or Gemini CLI) directly inside their preferred IDE without proprietary plugins for each agent.
+
+## Sources / References
+
+- [Reference](https://kanyilmaz.me/2026/02/23/cli-vs-mcp.html)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-27
+- Confidence: medium

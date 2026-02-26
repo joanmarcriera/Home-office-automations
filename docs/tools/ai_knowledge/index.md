@@ -17,3 +17,4 @@
 - [OpenRouter](openrouter.md)
 - [Perplexity](perplexity.md)
 - [TeamOut](teamout.md)
+- [Valyu](valyu.md)
