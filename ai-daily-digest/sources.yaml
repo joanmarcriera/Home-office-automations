@@ -47,3 +47,40 @@
   type: rss
   url: https://rockwotj.com/rss.xml
   tags: [security, llm, engineering]
+
+# --- Tool & framework discovery feeds ---
+
+- name: The Changelog
+  type: rss
+  url: https://changelog.com/feed
+  tags: [open-source, tools]
+
+- name: Latent Space
+  type: rss
+  url: https://www.latent.space/feed
+  tags: [llm, tools, engineering]
+
+- name: The New Stack
+  type: rss
+  url: https://thenewstack.io/feed/
+  tags: [infrastructure, devops]
+
+- name: r/ollama
+  type: reddit
+  url: https://www.reddit.com/r/ollama/.rss
+  tags: [llm, local, tools]
+
+- name: r/n8n
+  type: reddit
+  url: https://www.reddit.com/r/n8n/.rss
+  tags: [automation, orchestration]
+
+- name: r/selfhosted
+  type: reddit
+  url: https://www.reddit.com/r/selfhosted/.rss
+  tags: [infrastructure, self-hosted]
+
+- name: r/LLMDevs
+  type: reddit
+  url: https://www.reddit.com/r/LLMDevs/.rss
+  tags: [llm, tools, development]
