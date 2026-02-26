@@ -54,8 +54,9 @@ Historically, many Google API keys (such as those for Maps) were treated as "pub
 
 **Sources:**
 - [Google API Keys Weren't Secrets. But then Gemini Changed the Rules](https://trufflesecurity.com/blog/google-api-keys-werent-secrets-but-then-gemini-changed-the-rules)
+- [Microsoft Cyber Pulse: Why AI Agent Governance Matters](https://news.microsoft.com/source/emea/features/microsoft-cyber-pulse-ai-agents-4/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-27
 - Confidence: high

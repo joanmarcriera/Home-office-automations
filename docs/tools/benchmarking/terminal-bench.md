@@ -14,3 +14,13 @@ It focuses on tasks that require interacting with a real terminal environment, s
 
 ## Backlog
 - Evaluate "Terminus 2" on new benchmark tasks.
+
+## Sources / References
+
+- [Reference](https://github.com/pro-puffin/terminal-bench)
+- [Reference](https://github.com/princeton-nlp/intercode)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

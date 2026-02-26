@@ -15,3 +15,13 @@ It is highly extensible through plugins and themes, allowing you to build a pers
 ## Backlog
 - Set up automated Git sync for the vault.
 - Integration with "Smart Connections" plugin for AI-powered note linking.
+
+## Sources / References
+
+- [Reference](https://obsidian.md/)
+- [Reference](https://joplinapp.org/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

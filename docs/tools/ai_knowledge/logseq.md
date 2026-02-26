@@ -14,3 +14,13 @@ It uses a local-first, outliner-based approach to knowledge management, supporti
 
 ## Backlog
 - Sync with Obsidian vault for cross-tool compatibility.
+
+## Sources / References
+
+- [Reference](https://logseq.com/)
+- [Reference](https://roamresearch.com/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

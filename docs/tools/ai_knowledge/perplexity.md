@@ -14,3 +14,14 @@ It provides real-time information and citations from across the web to answer co
 
 ## Backlog
 - Explore the Perplexity API for automated research tasks.
+
+## Sources / References
+
+- [Reference](https://www.perplexity.ai/)
+- [Reference](https://www.google.com)
+- [Reference](https://www.genspark.ai/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

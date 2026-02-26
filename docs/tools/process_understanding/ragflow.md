@@ -42,3 +42,8 @@ It solves the "garbage in, garbage out" problem in RAG systems by using advanced
 - [Official Website](https://ragflow.io/)
 - [GitHub Repository](https://github.com/infiniflow/ragflow)
 - [RAGFlow Documentation](https://ragflow.io/docs/dev/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

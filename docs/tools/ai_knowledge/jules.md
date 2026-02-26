@@ -16,3 +16,12 @@ In this repository, Jules also performs autonomous maintenance by watching for i
 
 ## Backlog
 - Integration with external issue trackers.
+
+## Sources / References
+
+- [Reference](https://github.com/google-jules)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

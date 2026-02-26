@@ -14,3 +14,12 @@ It is powered by OpenAI models and integrated into various IDEs. It can also be 
 
 ## Backlog
 - Configure Copilot Extensions for internal tool integration.
+
+## Sources / References
+
+- [Reference](https://github.com/features/copilot)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

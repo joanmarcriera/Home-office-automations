@@ -14,3 +14,13 @@ It consists of highly complex, multi-disciplinary questions that require deep ex
 
 ## Backlog
 - Track performance of upcoming models (o1, Claude 3.5 Opus).
+
+## Sources / References
+
+- [Reference](https://humanityslastexam.ai/)
+- [Reference](https://github.com/hendrycks/test)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

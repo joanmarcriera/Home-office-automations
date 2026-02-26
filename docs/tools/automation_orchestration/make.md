@@ -14,3 +14,12 @@ It allows you to design, build, and automate anything from tasks and workflows t
 
 ## Backlog
 - Comparison of cost-per-execution with n8n.
+
+## Sources / References
+
+- [Reference](https://www.make.com/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

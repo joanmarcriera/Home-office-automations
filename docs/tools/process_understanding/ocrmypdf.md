@@ -14,3 +14,14 @@ It uses the Tesseract OCR engine and is highly configurable for various language
 
 ## Backlog
 - Optimize for multi-core processing on TrueNAS SCALE.
+
+## Sources / References
+
+- [Reference](https://github.com/ocrmypdf/OCRmyPDF)
+- [Reference](https://github.com/tesseract-ocr/tesseract)
+- [Reference](https://aws.amazon.com/textract/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

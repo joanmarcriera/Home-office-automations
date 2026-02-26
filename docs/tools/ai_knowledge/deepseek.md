@@ -43,3 +43,12 @@ Available via their own API (DeepSeek Platform) or can be self-hosted using the 
 - [OpenAI](openai.md)
 - [Anthropic](anthropic.md)
 - [Local LLMs](local_llms.md)
+
+## Sources / References
+
+- [Reference](https://github.com/joanmarcriera/Home-office-automations)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

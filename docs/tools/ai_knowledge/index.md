@@ -15,3 +15,4 @@
 - [Google Gemini](google-gemini.md)
 - [OpenRouter](openrouter.md)
 - [Perplexity](perplexity.md)
+- [Valyu](valyu.md)

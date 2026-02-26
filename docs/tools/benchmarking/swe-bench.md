@@ -15,3 +15,13 @@ It uses actual issues from GitHub and requires the model to generate a functiona
 
 ## Backlog
 - Track "Jules" performance on a subset of SWE-bench.
+
+## Sources / References
+
+- [Reference](https://www.swebench.com/)
+- [Reference](https://github.com/princeton-nlp/SWE-bench)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

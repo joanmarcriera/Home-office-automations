@@ -14,3 +14,13 @@ It synchronizes files between two or more computers in real time, safely and sec
 
 ## Backlog
 - Configure selective sync for mobile devices.
+
+## Sources / References
+
+- [Reference](https://syncthing.net/)
+- [Reference](https://www.resilio.com/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

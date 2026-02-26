@@ -14,3 +14,12 @@ It allows you to automate repetitive tasks without coding or relying on develope
 
 ## Backlog
 - Set up Zaps for non-self-hostable services (e.g., Slack).
+
+## Sources / References
+
+- [Reference](https://zapier.com/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

@@ -40,3 +40,8 @@ It addresses the fragmentation in the MCP ecosystem by providing a single, autho
 ## Sources / references
 - [Official MCP Registry Announcement](https://modelcontextprotocol.info/tools/registry/)
 - [Registry Browser](https://registry.modelcontextprotocol.io/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

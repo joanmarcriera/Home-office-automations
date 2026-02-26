@@ -14,3 +14,13 @@ It measures tokens-per-second and response latency for different models on your 
 
 ## Backlog
 - Compare performance of TrueNAS SCALE with GPU passthrough vs CPU-only.
+
+## Sources / References
+
+- [Reference](https://github.com/marwanjeridi/ollama-benchmark)
+- [Reference](https://ollama.com/docs/api)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium
