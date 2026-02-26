@@ -53,6 +53,8 @@ The prompt instructs Jules to stop at the first step that produces meaningful wo
 2. **Doc quality audit** (if queue is empty) — finds up to 3 tool docs missing required sections and adds placeholder content tagged `<!-- needs-content -->`
 3. **Broken internal links** (if steps 1 & 2 found nothing) — scans `docs/` for dead internal links and fixes or removes them (up to 10 per run)
 
+Daily intake files are validated by `scripts/validate_new_sources.py` and the `Intake Quality Gates` workflow.
+
 Jules opens a PR titled `chore: daily maintenance YYYY-MM-DD` after completing whichever step had work.
 
 ### Free tier cost
@@ -64,3 +66,14 @@ Jules opens a PR titled `chore: daily maintenance YYYY-MM-DD` after completing w
 
 ### Reviewing Jules' PRs
 The first time Jules runs, review the PR carefully to confirm it follows the templates and taxonomy. Jules self-corrects based on feedback left in PR comments.
+
+## Sources / References
+
+- [Jules](https://jules.google/)
+- [GitHub Actions Documentation](https://docs.github.com/actions)
+- [Daily Jules Maintenance Workflow](../../.github/workflows/daily-jules-maintenance.yml)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: high

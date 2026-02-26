@@ -14,7 +14,7 @@ INDEX_PATH = Path("docs/new-sources.md")
 LOG_DIR = Path("docs/new-sources")
 FILENAME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}\.md$")
 H1_RE = re.compile(r"^#\s+New Sources Log\s+[—-]\s+(\d{4}-\d{2}-\d{2})\s*$")
-LINK_RE = re.compile(r"\[(\d{4}-\d{2}-\d{2})\]\(new-sources/(\d{4}-\d{2}-\d{2}\.md)\)")
+DATE_LINK_RE = re.compile(r"\[(\d{4}-\d{2}-\d{2})\]\(([^)]+)\)")
 URL_RE = re.compile(r"https?://", re.IGNORECASE)
 REQUIRED_HEADERS = [
     "Title",
@@ -123,8 +123,20 @@ def validate_index(log_files: list[Path], errors: list[str]) -> None:
         return
 
     text = INDEX_PATH.read_text(encoding="utf-8")
-    links = LINK_RE.findall(text)
-    linked_files = {filename for _date, filename in links}
+    linked_files: set[str] = set()
+    for date_str, target in DATE_LINK_RE.findall(text):
+        canonical_a = f"/new-sources/{date_str}"
+        canonical_b = f"/new-sources/{date_str}/"
+        if target not in {canonical_a, canonical_b}:
+            continue
+        linked_files.add(f"{date_str}.md")
+
+    # Explicitly block the old relative link style that causes /new-sources/new-sources/ 404s.
+    legacy = re.findall(r"\[\d{4}-\d{2}-\d{2}\]\(new-sources/\d{4}-\d{2}-\d{2}\.md\)", text)
+    if legacy:
+        errors.append(
+            f"{INDEX_PATH}: use absolute links `/new-sources/YYYY-MM-DD/` in the Daily Log Files table; legacy `new-sources/YYYY-MM-DD.md` links are not allowed."
+        )
 
     for log_file in log_files:
         if log_file.name not in linked_files:

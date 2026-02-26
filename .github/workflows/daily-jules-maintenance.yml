@@ -48,6 +48,7 @@ This is an automated daily maintenance task. Please complete the steps below **i
 Use the daily inbox format:
 - index file: `docs/new-sources.md`
 - daily logs: `docs/new-sources/YYYY-MM-DD.md`
+- index links format: `/new-sources/YYYY-MM-DD/` (do not use `new-sources/YYYY-MM-DD.md`)
 
 Find all rows with `Status` = `new` across daily logs.
 
@@ -60,6 +61,10 @@ For each row:
 6. Mark the row as `integrated` in that daily file and add/update `Canonical Page`.
 
 If today's daily file does not exist yet, create `docs/new-sources/$TODAY.md` using the schema documented in `docs/new-sources.md`.
+
+Before opening the PR, run:
+`python3 scripts/validate_new_sources.py`
+If it fails, fix the intake files until it passes.
 
 If the queue is empty (no `new` entries), proceed to Step 2.
 
