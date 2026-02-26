@@ -20,7 +20,7 @@ README_FILE = "README.md"
 # Model selection with comma separated fallbacks (e.g., model1,model2,model3)
 MODEL_STRING = os.environ.get(
     "OPENROUTER_MODEL", 
-    "meta-llama/llama-3.3-70b-instruct:free,google/gemini-2.0-pro-exp-02-05:free,mistralai/mistral-nemo:free"
+    "meta-llama/llama-3.3-70b-instruct:free,google/gemini-2.0-pro-exp-02-05:free,mistralai/mistral-nemo:free,nvidia/llama-nemotron-embed-vl-1b-v2:free"
 )
 MODELS = [m.strip() for m in MODEL_STRING.split(",")]
 
