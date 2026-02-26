@@ -42,3 +42,8 @@
   type: rss
   url: https://simonwillison.net/atom/entries/
   tags: [personal, llm, tools, engineering]
+
+- name: Tyler Rockwood Blog
+  type: rss
+  url: https://rockwotj.com/rss.xml
+  tags: [security, llm, engineering]

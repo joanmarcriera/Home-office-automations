@@ -683,6 +683,30 @@
       "name": "Mycelium",
       "category": "Development & Ops",
       "doc_path": "docs/tools/frameworks/mycelium.md"
+    },
+    {
+      "id": "clihub",
+      "name": "CliHub",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/clihub.md"
+    },
+    {
+      "id": "servicenow-mcp",
+      "name": "ServiceNow MCP Server",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/servicenow-mcp.md"
+    },
+    {
+      "id": "github-copilot-cli",
+      "name": "GitHub Copilot CLI",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/github-copilot-cli.md"
+    },
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/opencode.md"
     }
   ]
 }

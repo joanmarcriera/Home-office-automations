@@ -29,6 +29,7 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 | Latent Space | Engineering-focused interviews and implementation patterns | https://www.latent.space/ |
 | Daniel Saewitz | High-signal analysis of commercial OSS and AI strategy | https://saewitz.com/ |
 | Dmitri Sotnikov (Yogthos) | Deep dives into managing AI complexity and Clojure patterns | https://yogthos.net/ |
+| Tyler Rockwood | Applied LLM security analysis with practical trust-boundary experiments | https://rockwotj.com/blog/ |
 
 ## Suggested Operating Cadence
 
@@ -62,6 +63,7 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 - [Latent Space](https://www.latent.space/)
 - [Daniel Saewitz's Blog](https://saewitz.com/)
 - [Dmitri Sotnikov's Blog (yogthos.net)](https://yogthos.net/)
+- [Tyler Rockwood's Blog](https://rockwotj.com/blog/)
 
 ## Contribution Metadata
 

@@ -6,8 +6,8 @@ site_description: A comprehensive operating manual for a privacy-first, AI-power
 
 theme:
   name: material
-  logo: material/home-automation
-  favicon: material/home-automation
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -24,7 +24,6 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   features:
-    - navigation.tabs
     - navigation.sections
     - navigation.top
     - navigation.tracking
@@ -139,8 +138,10 @@ nav:
       - TeamOut: tools/ai_knowledge/teamout.md
     - Automation & Orchestration:
       - Overview: tools/automation_orchestration/index.md
+      - CliHub: tools/automation_orchestration/clihub.md
       - Make: tools/automation_orchestration/make.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
+      - ServiceNow MCP Server: tools/automation_orchestration/servicenow-mcp.md
       - Zapier: tools/automation_orchestration/zapier.md
     - Benchmarking:
       - Overview: tools/benchmarking/index.md
@@ -173,10 +174,12 @@ nav:
       - Custom Agents: tools/development_ops/custom_agents.md
       - Droid: tools/development_ops/droid.md
       - Github Copilot: tools/development_ops/github_copilot.md
+      - GitHub Copilot CLI: tools/development_ops/github-copilot-cli.md
       - Gpt Engineer: tools/development_ops/gpt_engineer.md
       - Junie Cli: tools/development_ops/junie-cli.md
       - Melty: tools/development_ops/melty.md
       - Mentat: tools/development_ops/mentat.md
+      - OpenCode: tools/development_ops/opencode.md
       - Openhands: tools/development_ops/openhands.md
       - Plandex: tools/development_ops/plandex.md
       - Sourcegraph Cody: tools/development_ops/sourcegraph_cody.md
@@ -225,6 +228,10 @@ nav:
     - Security & Privacy: knowledge_base/llm_security_privacy.md
     - Patterns:
       - Overview: knowledge_base/patterns/index.md
+      - Claude Tool Search: knowledge_base/patterns/claude-tool-search.md
+      - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
+      - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
+      - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
     - Calendar:

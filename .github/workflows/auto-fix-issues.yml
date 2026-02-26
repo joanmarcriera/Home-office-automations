@@ -58,12 +58,45 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
         run: |
+          set -euo pipefail
           git push -u origin auto-fix-issue-$ISSUE_NUMBER
-          
+
+          pr_body=$(cat <<EOF
+This is an automated fix for #$ISSUE_NUMBER generated autonomously by Aider and OpenRouter. Please review the changes.
+
+Closes #$ISSUE_NUMBER
+EOF
+)
+
           # We check if there are actual diffs so we don't spam empty PRs
           gh pr create \
             --title "fix: automated resolution for issue #$ISSUE_NUMBER" \
-            --body "This is an automated fix for #$ISSUE_NUMBER generated autonomously by Aider and OpenRouter. Please review the changes." \
+            --body "$pr_body" \
             --base main \
             --head auto-fix-issue-$ISSUE_NUMBER \
             || echo "No changes found or PR already exists."
+
+      - name: Enable auto-merge when possible
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
+        run: |
+          set -euo pipefail
+
+          pr_number="$(gh pr list --head auto-fix-issue-$ISSUE_NUMBER --base main --json number --jq '.[0].number')"
+          if [ -z "$pr_number" ] || [ "$pr_number" = "null" ]; then
+            echo "No PR found for issue #$ISSUE_NUMBER; skipping auto-merge."
+            exit 0
+          fi
+
+          merge_state="$(gh pr view "$pr_number" --json mergeStateStatus --jq '.mergeStateStatus')"
+          echo "PR #$pr_number merge state: $merge_state"
+
+          if [ "$merge_state" = "DIRTY" ]; then
+            echo "PR #$pr_number has merge conflicts; auto-merge not enabled."
+            exit 0
+          fi
+
+          # Merges immediately when possible; otherwise enables auto-merge until checks/reviews pass.
+          gh pr merge "$pr_number" --auto --squash --delete-branch
