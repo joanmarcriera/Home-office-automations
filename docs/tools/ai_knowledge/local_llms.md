@@ -49,3 +49,12 @@ The model weights are downloaded and stored locally. Inference is performed usin
 - [Ollama (Service)](../../services/ollama.md)
 - [DeepSeek](deepseek.md)
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
+
+## Sources / References
+
+- [Reference](https://github.com/joanmarcriera/Home-office-automations)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

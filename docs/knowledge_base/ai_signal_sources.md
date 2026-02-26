@@ -64,8 +64,9 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 - [Daniel Saewitz's Blog](https://saewitz.com/)
 - [Dmitri Sotnikov's Blog (yogthos.net)](https://yogthos.net/)
 - [Tyler Rockwood's Blog](https://rockwotj.com/blog/)
+- [The AI Agent Tools Landscape: 120+ Tools Mapped [2026]](https://stackone.com/blog/ai-agent-tools-landscape-2026/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-27
 - Confidence: medium

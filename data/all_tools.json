@@ -719,6 +719,42 @@
       "name": "Atlassian Jira MCP Implementations",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/atlassian-jira-mcp.md"
+    },
+    {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/openclaw.md"
+    },
+    {
+      "id": "browser-use",
+      "name": "Browser Use",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/browser-use.md"
+    },
+    {
+      "id": "skyvern",
+      "name": "Skyvern",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/skyvern.md"
+    },
+    {
+      "id": "crawl4ai",
+      "name": "Crawl4AI",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/crawl4ai.md"
+    },
+    {
+      "id": "firecrawl",
+      "name": "Firecrawl",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/firecrawl.md"
+    },
+    {
+      "id": "valyu",
+      "name": "Valyu",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/valyu.md"
     }
   ]
 }

@@ -53,6 +53,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-02-27: new-sources/2026-02-27.md
       - 2026-02-26: new-sources/2026-02-26.md
       - 2026-02-25: new-sources/2026-02-25.md
       - 2025-02-25: new-sources/2025-02-25.md
@@ -137,13 +138,16 @@ nav:
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
       - TeamOut: tools/ai_knowledge/teamout.md
+      - Valyu: tools/ai_knowledge/valyu.md
     - Automation & Orchestration:
       - Overview: tools/automation_orchestration/index.md
       - Atlassian Jira MCP Implementations: tools/automation_orchestration/atlassian-jira-mcp.md
+      - Browser Use: tools/automation_orchestration/browser-use.md
       - CliHub: tools/automation_orchestration/clihub.md
       - Make: tools/automation_orchestration/make.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
       - ServiceNow MCP Server: tools/automation_orchestration/servicenow-mcp.md
+      - Skyvern: tools/automation_orchestration/skyvern.md
       - Zapier: tools/automation_orchestration/zapier.md
     - Benchmarking:
       - Overview: tools/benchmarking/index.md
@@ -181,6 +185,7 @@ nav:
       - Junie Cli: tools/development_ops/junie-cli.md
       - Melty: tools/development_ops/melty.md
       - Mentat: tools/development_ops/mentat.md
+      - OpenClaw: tools/development_ops/openclaw.md
       - OpenCode: tools/development_ops/opencode.md
       - Openhands: tools/development_ops/openhands.md
       - Plandex: tools/development_ops/plandex.md
@@ -213,6 +218,8 @@ nav:
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
+      - Crawl4AI: tools/process_understanding/crawl4ai.md
+      - Firecrawl: tools/process_understanding/firecrawl.md
       - PageIndex: tools/process_understanding/pageindex.md
       - RAGFlow: tools/process_understanding/ragflow.md
   - Architecture:
