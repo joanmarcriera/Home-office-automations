@@ -1,0 +1,56 @@
+name: Daily AI Digest
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at 00:00 UTC
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+# Use permissive defaults or explicitly grant contents write permission if needed
+permissions:
+  contents: write
+
+jobs:
+  generate-digest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Important if workflow needs to trigger other workflows, otherwise default GITHUB_TOKEN is fine
+          fetch-depth: 1 
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        working-directory: ./ai-daily-digest
+        run: pip install -r requirements.txt
+
+      - name: Run Digest Script
+        working-directory: ./ai-daily-digest
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          # Using a free model available on OpenRouter
+          OPENROUTER_MODEL: "google/gemini-2.0-flash-lite-preview-02-05:free"
+        run: python scripts/digest.py
+
+      - name: Commit and Push Changes
+        working-directory: ./ai-daily-digest
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add only the relevant directories that the script updates
+          git add data/ daily/ README.md
+          
+          # Check if there are any changes to commit
+          if git diff --staged --quiet; then
+            echo "No new updates to commit."
+          else
+            git commit -m "chore(digest): update daily AI digest for $(date +'%Y-%m-%d')"
+            git push origin main
+          fi

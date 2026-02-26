@@ -38,3 +38,29 @@ To help Jules improve the content effectively, use structured prompts in the iss
 - **Refactoring**: "Refactor docs/tools/X to follow the new template. Ensure all links are updated."
 - **Data Entry**: "Update data/all_tools.json with the latest version numbers for the tools in Intake & Storage."
 - **Search & Research**: "Research Tool Y and create a documentation page in docs/tools/process_understanding/."
+
+---
+
+## Daily Maintenance Job
+
+A scheduled GitHub Actions workflow (`.github/workflows/daily-jules-maintenance.yml`) opens one maintenance issue per day at **07:00 UTC** and immediately applies the `jules` label. Jules picks it up automatically.
+
+### What it does (in priority order)
+
+The prompt instructs Jules to stop at the first step that produces meaningful work:
+
+1. **Process the intake queue** — finds all `new` entries in `docs/new-sources.md`, deduplicates against existing pages, creates canonical docs using the correct template, updates `data/all_tools.json` and `mkdocs.yml` nav, marks entries `integrated`
+2. **Doc quality audit** (if queue is empty) — finds up to 3 tool docs missing required sections and adds placeholder content tagged `<!-- needs-content -->`
+3. **Broken internal links** (if steps 1 & 2 found nothing) — scans `docs/` for dead internal links and fixes or removes them (up to 10 per run)
+
+Jules opens a PR titled `chore: daily maintenance YYYY-MM-DD` after completing whichever step had work.
+
+### Free tier cost
+~30 seconds per run × 30 days = **~15 minutes/month** of GitHub Actions time.
+
+### How to pause it
+- **One day**: Close the issue Jules created — it won't reopen until the next day's cron
+- **Indefinitely**: Disable the workflow in GitHub → Actions → Daily Jules Maintenance → Disable workflow
+
+### Reviewing Jules' PRs
+The first time Jules runs, review the PR carefully to confirm it follows the templates and taxonomy. Jules self-corrects based on feedback left in PR comments.

@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys, json; inp = json.load(sys.stdin); path = inp.get('file_path',''); exit(0) if 'mkdocs.yml' not in path else None\" 2>/dev/null || python3 -c \"import yaml; yaml.safe_load(open('mkdocs.yml')); print('mkdocs.yml: OK')\" 2>&1 || echo 'ERROR: mkdocs.yml syntax invalid — check nav and indentation'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"\nimport sys, json\ninp = json.load(sys.stdin)\npath = inp.get('file_path', '')\nif '.github/workflows/' in path:\n    print(f'BLOCKED: Editing workflow files requires explicit user confirmation. File: {path}')\n    sys.exit(2)\n\" 2>/dev/null"
+          }
+        ]
+      }
+    ]
+  }
+}

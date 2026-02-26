@@ -5,6 +5,7 @@ This section contains deep dives into the technologies, protocols, and conceptua
 ## 📖 Contents
 - [**Model Classes**](model_classes.md) - Understanding the different types of LLMs (MoE, Reasoning, Multimodal, etc.).
 - [**Agent Protocols**](agent_protocols.md) - Deep dive into MCP (Model Context Protocol) and ACP (Agent Control Protocol).
+- [**AI Signal Sources**](ai_signal_sources.md) - Curated company and independent technical blogs worth monitoring.
 - [**Architecture & Flows**](../architecture/README.md) - High-level system design.
 
 ## 🚀 Purpose

@@ -24,11 +24,11 @@ This map categorizes all tools in the stack based on their primary function in t
 - **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/ai_knowledge/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md)
 - **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md), [ansigpt](../tools/ai_knowledge/ansigpt.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/ai_knowledge/perplexity.md)
-- **Semantic Search**: [Paperless-AI](../services/paperless-ai.md)
+- **Semantic Search**: [Paperless-AI](../services/paperless-ai.md), [RAGFlow](../tools/process_understanding/ragflow.md), [PageIndex](../tools/process_understanding/pageindex.md)
 
 ## 4. Decide (Orchestrate & Route)
 *Tools that determine which actions to take and how to route requests.*
-- **Routing Layers**: [LiteLLM](../services/litellm.md), [OpenRouter](../tools/ai_knowledge/openrouter.md)
+- **Routing Layers**: [LiteLLM](../services/litellm.md), [OpenRouter](../tools/ai_knowledge/openrouter.md), [MCP Registry](../tools/automation_orchestration/mcp-registry.md)
 - **Workflow Engines**: [n8n](../services/n8n.md), [Home Assistant](../services/home-assistant.md)
 - **Cloud Connectors**: [Zapier](../tools/automation_orchestration/zapier.md), [Make](../tools/automation_orchestration/make.md)
 - **Identity**: [Authentik](../services/authentik.md)
@@ -49,6 +49,6 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## 7. Benchmark
 *Tools for evaluating model performance and reasoning.*
-- **Reasoning**: [Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md), [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md)
-- **Agentic**: [Terminal-Bench](../tools/benchmarking/terminal-bench.md), [SWE-bench](../tools/benchmarking/swe-bench.md)
+- **Reasoning**: [Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md), [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md), [DREAM Benchmark](../tools/benchmarking/dream.md)
+- **Agentic**: [Terminal-Bench](../tools/benchmarking/terminal-bench.md), [SWE-bench](../tools/benchmarking/swe-bench.md), [LongCLI-Bench](../tools/benchmarking/longcli-bench.md)
 - **Local Performance**: [Ollama Benchmark CLI](../tools/benchmarking/ollama-benchmark-cli.md), [LLMPerf](../tools/benchmarking/llmperf.md)

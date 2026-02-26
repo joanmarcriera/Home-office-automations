@@ -52,6 +52,7 @@ This document tracks missing components and planned technical improvements for t
 - [ ] Add webhook-based ingestion for Paperless-ngx (switching from polling consumption folder).
 - [ ] Refine [Task Extraction Prompt](reference-implementations/llm-prompts/extraction-and-classification.md) for better priority detection.
 - [ ] Standardize [n8n](./services/n8n.md) error handling using sub-workflows.
+- [ ] Roll out the Multi-Agent KnowledgeOps contract (roles + CI gates + metadata compliance) across all AI-authored doc PRs.
 
 ### Medium-Term
 - [ ] Implement [Headscale](./services/tailscale.md) for a fully self-hosted mesh network.

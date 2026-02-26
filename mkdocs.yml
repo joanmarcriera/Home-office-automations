@@ -134,16 +134,19 @@ nav:
     - Automation & Orchestration:
       - Overview: tools/automation_orchestration/index.md
       - Make: tools/automation_orchestration/make.md
+      - MCP Registry: tools/automation_orchestration/mcp-registry.md
       - Zapier: tools/automation_orchestration/zapier.md
     - Benchmarking:
       - Overview: tools/benchmarking/index.md
       - Chatbot Arena: tools/benchmarking/chatbot-arena.md
+      - DREAM Benchmark: tools/benchmarking/dream.md
       - Gpqa: tools/benchmarking/gpqa.md
       - Gsm8K: tools/benchmarking/gsm8k.md
       - Human Eval: tools/benchmarking/human-eval.md
       - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
       - LLMperf: tools/benchmarking/llmperf.md
       - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md
+      - LongCLI-Bench: tools/benchmarking/longcli-bench.md
       - Mbpp: tools/benchmarking/mbpp.md
       - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
       - Swe Bench: tools/benchmarking/swe-bench.md
@@ -176,6 +179,7 @@ nav:
       - Terminus 2: tools/development_ops/terminus-2.md
       - Vscode: tools/development_ops/vscode.md
       - Claude Code: tools/development_ops/claude-code.md
+      - Claude Code Setup: tools/development_ops/claude-code-setup.md
       - Zed: tools/development_ops/zed.md
     - Intake & Storage:
       - Overview: tools/intake_storage/index.md
@@ -193,6 +197,8 @@ nav:
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
+      - PageIndex: tools/process_understanding/pageindex.md
+      - RAGFlow: tools/process_understanding/ragflow.md
   - Architecture:
     - Overview: architecture/README.md
     - Infrastructure Detail: architecture/infrastructure.md
@@ -200,9 +206,11 @@ nav:
     - Flows: architecture/flows.md
     - SSH Execution Patterns: architecture/ssh_execution_patterns.md
     - Automated Contributions: architecture/automated_contributions.md
+    - Multi-Agent KnowledgeOps: architecture/multi_agent_knowledgeops.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - Agent Protocols: knowledge_base/agent_protocols.md
+    - AI Signal Sources: knowledge_base/ai_signal_sources.md
     - Model Classes: knowledge_base/model_classes.md
     - Security & Privacy: knowledge_base/llm_security_privacy.md
     - Patterns:

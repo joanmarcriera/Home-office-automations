@@ -1,0 +1,44 @@
+- name: OpenAI Blog
+  type: rss
+  url: https://openai.com/blog/rss.xml
+  tags: [llm, research]
+
+- name: Anthropic Blog
+  type: rss
+  url: https://www.anthropic.com/feed.xml
+  tags: [llm, research]
+
+- name: Microsoft AI Blog
+  type: rss
+  url: https://blogs.microsoft.com/ai/feed/
+  tags: [ai, industry]
+
+- name: Google AI Blog
+  type: rss
+  url: https://blog.google/technology/ai/rss/
+  tags: [llm, google, industry]
+
+- name: Hugging Face Blog
+  type: rss
+  url: https://huggingface.co/blog/feed.xml
+  tags: [open-source, research, tools]
+
+- name: NVIDIA AI Blog
+  type: rss
+  url: https://blogs.nvidia.com/category/artificial-intelligence/feed/
+  tags: [hardware, industry, ai]
+
+- name: r/LocalLLaMA
+  type: reddit
+  url: https://www.reddit.com/r/LocalLLaMA/.rss
+  tags: [open-source, models]
+
+- name: r/MachineLearning
+  type: reddit
+  url: https://www.reddit.com/r/MachineLearning/.rss
+  tags: [research, discussion]
+
+- name: Simon Willison's Weblog
+  type: rss
+  url: https://simonwillison.net/atom/entries/
+  tags: [personal, llm, tools, engineering]
