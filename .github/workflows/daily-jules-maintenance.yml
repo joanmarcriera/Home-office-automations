@@ -15,6 +15,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Ensure jules label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          found="$(gh label list --repo "$REPO" --search "jules" --json name --jq '[.[] | select(.name == "jules")] | length')"
+          if [ "$found" = "0" ]; then
+            gh label create "jules" \
+              --repo "$REPO" \
+              --color "1f6feb" \
+              --description "Issues queued for Jules automation"
+          fi
+
       - name: Check for existing open maintenance issue today
         id: check
         env:
