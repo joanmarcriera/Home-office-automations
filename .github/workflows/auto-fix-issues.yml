@@ -1,0 +1,70 @@
+name: Auto-Fix Issue
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to fix'
+        required: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  autofix:
+    if: github.event.label.name == 'auto-fix' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          
+      - name: Install dependencies
+        run: |
+          pip install aider-chat
+          # We need jq to parse gh output
+          sudo apt-get install jq
+
+      - name: Create auto-fix branch
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b auto-fix-issue-$ISSUE_NUMBER
+
+      - name: Run Auto-fix Python Script
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
+          # Providing a highly capable, free text generation model from OpenRouter
+          OPENROUTER_MODEL: "meta-llama/llama-3.3-70b-instruct:free"
+        run: |
+          python scripts/auto_fix.py $ISSUE_NUMBER
+          
+      - name: Create PR with fixes
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
+        run: |
+          git push -u origin auto-fix-issue-$ISSUE_NUMBER
+          
+          # We check if there are actual diffs so we don't spam empty PRs
+          gh pr create \
+            --title "fix: automated resolution for issue #$ISSUE_NUMBER" \
+            --body "This is an automated fix for #$ISSUE_NUMBER generated autonomously by Aider and OpenRouter. Please review the changes." \
+            --base main \
+            --head auto-fix-issue-$ISSUE_NUMBER \
+            || echo "No changes found or PR already exists."
