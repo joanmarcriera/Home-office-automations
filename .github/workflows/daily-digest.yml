@@ -2,7 +2,8 @@ name: Daily AI Digest
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Runs daily at 00:00 UTC
+    - cron: "0 0 * * *"  # 00:00 UTC
+    - cron: "0 12 * * *" # 12:00 UTC — second run catches different time zones
   workflow_dispatch: # Allows manual trigger from the Actions tab
 
 # Use permissive defaults or explicitly grant contents write permission if needed

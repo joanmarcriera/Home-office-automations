@@ -2,7 +2,8 @@ name: Digest to Intake Bridge
 
 on:
   schedule:
-    - cron: "0 1 * * *"  # 01:00 UTC, 1 hour after daily digest
+    - cron: "0 1 * * *"  # 01:00 UTC, 1 hour after morning digest
+    - cron: "0 13 * * *" # 13:00 UTC, 1 hour after afternoon digest
   workflow_dispatch:
 
 permissions:

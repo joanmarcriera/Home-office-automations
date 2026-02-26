@@ -3,6 +3,7 @@ name: Weekly Growth Planner
 on:
   schedule:
     - cron: "0 2 * * 1"  # Monday 02:00 UTC
+    - cron: "0 2 * * 4"  # Thursday 02:00 UTC — second planning cycle
   workflow_dispatch:
 
 permissions:
