@@ -21,8 +21,7 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          found="$(gh label list --repo "$REPO" --search "jules" --json name --jq '[.[] | select(.name == "jules")] | length')"
-          if [ "$found" = "0" ]; then
+          if ! gh api "repos/$REPO/labels/jules" >/dev/null 2>&1; then
             gh label create "jules" \
               --repo "$REPO" \
               --color "1f6feb" \
