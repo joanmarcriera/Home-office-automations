@@ -2,6 +2,8 @@
 
 - [Aider](aider.md)
 - [Anti Gravity](anti_gravity.md)
+- [Claude Code](claude-code.md)
+- [Claude Code Setup](claude-code-setup.md)
 - [Cloud Code](cloud_code.md)
 - [Codeium](codeium.md)
 - [Codex](codex.md)

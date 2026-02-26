@@ -65,6 +65,7 @@ nav:
     - Raspberry Pi Kiosk Automation: playbooks/raspberry-pi-kiosk-automation.md
     - Scan To Task: playbooks/scan-to-task.md
     - School Admin Intake: playbooks/school-admin-intake.md
+    - Knowledge Base Health: playbooks/knowledge-base-health.md
   - Services:
     - Overview: services/README.md
     - Inventory: services/inventory.md

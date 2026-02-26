@@ -1,17 +1,45 @@
 # Continue.dev
 
-Continue is an open-source AI code assistant that brings the power of LLMs to VS Code and JetBrains.
+## What it is
+An open-source AI code assistant that brings the power of LLMs to VS Code and JetBrains. It allows you to use any LLM (local via Ollama or remote via API) for code completion, chat, and editing.
 
-## Description
-It allows you to use any LLM (local via Ollama or remote via API) for code completion, chat, and editing.
+## What problem it solves
+Gives developers flexibility to choose their own LLM backend (including local models) for AI-assisted coding, avoiding vendor lock-in to a single provider.
 
-## Links
-- [Official Website](https://www.continue.dev/)
-- [GitHub Repository](https://github.com/continuedev/continue)
+## Where it fits in the stack
+**Development & Ops**. Serves as an open-source, model-agnostic AI coding layer inside VS Code and JetBrains.
 
-## Alternatives
+## Typical use cases
+- AI code completion using local Ollama models
+- Chat-based coding assistance with any LLM provider
+- Multi-file editing with context from the repository
+
+## Strengths
+- Open source and model-agnostic
+- Supports local LLMs via Ollama
+- Available for both VS Code and JetBrains
+
+## Limitations
+- Requires configuration to connect to local or remote models
+- Completion quality depends on the chosen model
+
+## When to use it
+- When you want AI code assistance with local LLMs (e.g., via Ollama)
+- When you need an open-source alternative to proprietary coding assistants
+
+## When not to use it
+- When you prefer a turnkey, zero-configuration AI editor experience
+- When you need a fully integrated AI-native editor (consider Cursor or Zed)
+
+## Related tools / concepts
 - [Cursor](cursor.md)
 - [Zed](zed.md)
 
-## Backlog
-- Configure local embedding model for repository-wide context.
+## Sources / references
+- [Official Website](https://www.continue.dev/)
+- [GitHub Repository](https://github.com/continuedev/continue)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: medium

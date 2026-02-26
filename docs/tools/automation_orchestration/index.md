@@ -4,6 +4,7 @@
 - [Browser Use](browser-use.md)
 - [CliHub](clihub.md)
 - [Make](make.md)
+- [MCP Registry](mcp-registry.md)
 - [ServiceNow MCP Server](servicenow-mcp.md)
 - [Skyvern](skyvern.md)
 - [Zapier](zapier.md)
