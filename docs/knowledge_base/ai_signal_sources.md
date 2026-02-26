@@ -27,6 +27,8 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 | Sebastian Raschka | Reproducible, code-first breakdowns of current LLM research | https://sebastianraschka.com/blog/ |
 | Nathan Lambert (Interconnects) | Clear frontier-model research commentary from a practitioner lens | https://www.interconnects.ai/ |
 | Latent Space | Engineering-focused interviews and implementation patterns | https://www.latent.space/ |
+| Daniel Saewitz | High-signal analysis of commercial OSS and AI strategy | https://saewitz.com/ |
+| Dmitri Sotnikov (Yogthos) | Deep dives into managing AI complexity and Clojure patterns | https://yogthos.net/ |
 
 ## Suggested Operating Cadence
 
@@ -58,6 +60,8 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 - [Sebastian Raschka Blog](https://sebastianraschka.com/blog/)
 - [Interconnects](https://www.interconnects.ai/welcome)
 - [Latent Space](https://www.latent.space/)
+- [Daniel Saewitz's Blog](https://saewitz.com/)
+- [Dmitri Sotnikov's Blog (yogthos.net)](https://yogthos.net/)
 
 ## Contribution Metadata
 

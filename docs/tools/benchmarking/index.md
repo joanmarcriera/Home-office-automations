@@ -9,5 +9,6 @@
 - [Lm Evaluation Harness](lm-evaluation-harness.md)
 - [Mbpp](mbpp.md)
 - [Ollama Benchmark Cli](ollama-benchmark-cli.md)
+- [Pa Bench](pa-bench.md)
 - [Swe Bench](swe-bench.md)
 - [Terminal Bench](terminal-bench.md)

@@ -21,21 +21,21 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## 3. Understand (Reasoning Engines)
 *The brains of the stack that process and reason over information.*
-- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/ai_knowledge/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md)
-- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md), [ansigpt](../tools/ai_knowledge/ansigpt.md)
+- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/ai_knowledge/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md)
+- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/ai_knowledge/perplexity.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md), [RAGFlow](../tools/process_understanding/ragflow.md), [PageIndex](../tools/process_understanding/pageindex.md)
 
 ## 4. Decide (Orchestrate & Route)
 *Tools that determine which actions to take and how to route requests.*
 - **Routing Layers**: [LiteLLM](../services/litellm.md), [OpenRouter](../tools/ai_knowledge/openrouter.md), [MCP Registry](../tools/automation_orchestration/mcp-registry.md)
-- **Workflow Engines**: [n8n](../services/n8n.md), [Home Assistant](../services/home-assistant.md)
+- **Workflow Engines**: [n8n](../services/n8n.md), [Home Assistant](../services/home-assistant.md), [Mycelium](../tools/frameworks/mycelium.md)
 - **Cloud Connectors**: [Zapier](../tools/automation_orchestration/zapier.md), [Make](../tools/automation_orchestration/make.md)
 - **Identity**: [Authentik](../services/authentik.md)
 
 ## 5. Act (Agents & Execution)
 *Tools that perform modifications to the environment.*
-- **Autonomous Agents**: [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md), [TeamOut](../tools/ai_knowledge/teamout.md)
+- **Autonomous Agents**: [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md), [TeamOut](../tools/ai_knowledge/teamout.md), [OpenSwarm](../tools/development_ops/openswarm.md)
 - **Coding Assistants**: [Aider](../tools/development_ops/aider.md), [Cursor](../tools/development_ops/cursor.md), [Zed](../tools/development_ops/zed.md), [VS Code](../tools/development_ops/vscode.md), [Claude Code](../tools/development_ops/claude-code.md)
 - **Custom Orchestration**: [Custom Agents (SSH + LLM Loop)](../tools/development_ops/custom_agents.md)
 - **Execution Plane**: [SSH Execution Patterns](ssh_execution_patterns.md)
@@ -50,5 +50,15 @@ This map categorizes all tools in the stack based on their primary function in t
 ## 7. Benchmark
 *Tools for evaluating model performance and reasoning.*
 - **Reasoning**: [Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md), [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md), [DREAM Benchmark](../tools/benchmarking/dream.md)
-- **Agentic**: [Terminal-Bench](../tools/benchmarking/terminal-bench.md), [SWE-bench](../tools/benchmarking/swe-bench.md), [LongCLI-Bench](../tools/benchmarking/longcli-bench.md)
+- **Agentic**: [Terminal-Bench](../tools/benchmarking/terminal-bench.md), [SWE-bench](../tools/benchmarking/swe-bench.md), [LongCLI-Bench](../tools/benchmarking/longcli-bench.md), [PA-bench](../tools/benchmarking/pa-bench.md)
 - **Local Performance**: [Ollama Benchmark CLI](../tools/benchmarking/ollama-benchmark-cli.md), [LLMPerf](../tools/benchmarking/llmperf.md)
+
+## Sources / References
+
+- [Stack Overview](https://home-toolset.riera.co.uk)
+- [Component Map Source Data](../../data/all_tools.json)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-02-26
+- Confidence: high
