@@ -707,6 +707,12 @@
       "name": "OpenCode",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/opencode.md"
+    },
+    {
+      "id": "llama-cpp",
+      "name": "llama.cpp",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/infrastructure/llama-cpp.md"
     }
   ]
 }

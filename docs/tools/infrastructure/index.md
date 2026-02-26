@@ -6,6 +6,7 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 
 | Tool | What it does |
 | :--- | :--- |
+| [llama.cpp](llama-cpp.md) | Lightweight local inference runtime for quantized LLMs |
 | [Ollama](../../services/ollama.md) | Local LLM inference server |
 | [LiteLLM](../../services/litellm.md) | Unified LLM API proxy |
 | [ZSE](zse.md) | Fast cold-start LLM inference engine |
