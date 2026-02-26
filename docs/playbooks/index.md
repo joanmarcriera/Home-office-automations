@@ -8,3 +8,4 @@ Step-by-step guides for common workflows.
 - [Raspberry Pi Kiosk Automation](raspberry-pi-kiosk-automation.md)
 - [Scan to Task](scan-to-task.md)
 - [School Admin Intake](school-admin-intake.md)
+- [Knowledge Base Health](knowledge-base-health.md)
