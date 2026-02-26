@@ -2,7 +2,7 @@ name: Auto-Fix Issue
 
 on:
   issues:
-    types: [labeled]
+    types: [opened]
   workflow_dispatch:
     inputs:
       issue_number:
@@ -16,7 +16,6 @@ permissions:
 
 jobs:
   autofix:
-    if: github.event.label.name == 'auto-fix' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

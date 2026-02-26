@@ -15,7 +15,7 @@ This repository uses **Google Jules**, an autonomous AI coding agent, to help wi
 Jules runs a **scheduled daily job** that:
 
 1. **Scans** high-signal sources (Hacker News, Reddit, arXiv, GitHub Trending, engineering blogs, etc.)
-2. **Stages** qualifying items in [`docs/new-sources.md`](new-sources.md) with title, URL, summary, and tags
+2. **Stages** qualifying items in daily logs under [`docs/new-sources/`](new-sources.md) with title, URL, tags, and status
 3. **Integrates** staged items into canonical pages or creates new pages using the [tool template](templates/tool_template.md) or [article template](templates/article_template.md)
 4. **Deduplicates** against existing content before adding anything
 

@@ -45,15 +45,21 @@ This is an automated daily maintenance task. Please complete the steps below **i
 
 ### Step 1 — Process the intake queue
 
-Open `docs/new-sources.md` and find all entries where `Status` is `new`.
+Use the daily inbox format:
+- index file: `docs/new-sources.md`
+- daily logs: `docs/new-sources/YYYY-MM-DD.md`
 
-For each entry:
-1. Check `data/all_tools.json` and `docs/tools/` to see if a canonical page already exists for this tool or concept. If it does, add the source URL to `## Sources / references` on that page and mark the entry `integrated`. Move to the next entry.
+Find all rows with `Status` = `new` across daily logs.
+
+For each row:
+1. Check `data/all_tools.json`, `docs/tools/`, and `docs/services/` to see if a canonical page already exists. If it does, add the source URL to `## Sources / References` on that page and mark the row `integrated`. Move to the next row.
 2. Classify the entry using the tags in `docs/standards.md`: `tool` · `framework` · `provider` · `paper/article` · `tutorial/guide` · `benchmark/eval` · `infrastructure` · `analysis`
 3. Determine the correct target directory from the taxonomy table in `docs/standards.md`.
 4. Create the page using `docs/templates/tool_template.md` (for tools, frameworks, providers) or `docs/templates/article_template.md` (for papers and articles). Fill in **all required sections** with concise, neutral, technically accurate content. Do not leave any section empty.
 5. If it is a tool, framework, or provider: add an entry to `data/all_tools.json` and add the page to the correct section of `mkdocs.yml` nav in alphabetical order.
-6. Mark the entry as `integrated` in `docs/new-sources.md`.
+6. Mark the row as `integrated` in that daily file and add/update `Canonical Page`.
+
+If today's daily file does not exist yet, create `docs/new-sources/$TODAY.md` using the schema documented in `docs/new-sources.md`.
 
 If the queue is empty (no `new` entries), proceed to Step 2.
 

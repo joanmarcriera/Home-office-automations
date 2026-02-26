@@ -49,7 +49,7 @@ A scheduled GitHub Actions workflow (`.github/workflows/daily-jules-maintenance.
 
 The prompt instructs Jules to stop at the first step that produces meaningful work:
 
-1. **Process the intake queue** — finds all `new` entries in `docs/new-sources.md`, deduplicates against existing pages, creates canonical docs using the correct template, updates `data/all_tools.json` and `mkdocs.yml` nav, marks entries `integrated`
+1. **Process the intake queue** — finds all `new` rows in daily logs under `docs/new-sources/YYYY-MM-DD.md` (indexed by `docs/new-sources.md`), deduplicates against existing pages, creates canonical docs using the correct template, updates `data/all_tools.json` and `mkdocs.yml` nav, and marks rows `integrated`
 2. **Doc quality audit** (if queue is empty) — finds up to 3 tool docs missing required sections and adds placeholder content tagged `<!-- needs-content -->`
 3. **Broken internal links** (if steps 1 & 2 found nothing) — scans `docs/` for dead internal links and fixes or removes them (up to 10 per run)
 
