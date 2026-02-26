@@ -34,5 +34,31 @@ You can request Jules to perform a task by:
 - **No stub pages**: Only create a page if you have enough information to fill the template meaningfully.
 - **JSON Metadata**: If adding a tool, ensure you also update `data/all_tools.json`.
 
+## Multi-Agent KnowledgeOps Contract (Mandatory)
+
+For AI-authored documentation updates, this contract is required:
+
+1. **Deduplicate first**: Search for existing tool/topic pages and aliases before creating new files.
+2. **Keep canonical ownership**: Update the existing canonical page whenever possible.
+3. **Use the right template and taxonomy**: Follow [tool template](templates/tool_template.md), [article template](templates/article_template.md), and `docs/standards.md`.
+4. **Add auditable metadata** on every AI-authored knowledge-page update:
+   - `Last reviewed` in `YYYY-MM-DD`
+   - `Confidence` as `high`, `medium`, or `low`
+   - `Sources / References` with at least one URL
+5. **Keep PR intent narrow**: Intake, curation, or audit work should be separate PRs whenever possible.
+
+See [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md) for the full operating model.
+
+## AI PR Checklist
+
+Before requesting review, AI-authored PRs must satisfy:
+
+- [ ] Canonical page search completed (name + aliases)
+- [ ] No duplicate canonical pages introduced
+- [ ] Correct template and taxonomy used
+- [ ] Required metadata added (`Last reviewed`, `Confidence`, `Sources / References`)
+- [ ] At least one high-signal source URL included
+- [ ] `data/all_tools.json` and `mkdocs.yml` updated when applicable
+
 ---
 *Every contribution helps make this hub a better operating manual for everyone.*

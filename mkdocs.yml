@@ -206,9 +206,11 @@ nav:
     - Flows: architecture/flows.md
     - SSH Execution Patterns: architecture/ssh_execution_patterns.md
     - Automated Contributions: architecture/automated_contributions.md
+    - Multi-Agent KnowledgeOps: architecture/multi_agent_knowledgeops.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - Agent Protocols: knowledge_base/agent_protocols.md
+    - AI Signal Sources: knowledge_base/ai_signal_sources.md
     - Model Classes: knowledge_base/model_classes.md
     - Security & Privacy: knowledge_base/llm_security_privacy.md
     - Patterns:

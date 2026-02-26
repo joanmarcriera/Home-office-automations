@@ -1,0 +1,42 @@
+name: Docs Quality Gates
+
+on:
+  pull_request:
+    paths:
+      - "docs/*.md"
+      - "docs/**/*.md"
+      - "scripts/check_docs_contract.py"
+      - ".github/workflows/docs-quality-gates.yml"
+
+jobs:
+  knowledgeops-contract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Run KnowledgeOps contract checks
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          CHANGED_FILES="$(git diff --name-only "$BASE_SHA...$HEAD_SHA" | grep '^docs/.*\.md$' || true)"
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No Markdown files changed under docs/."
+            exit 0
+          fi
+
+          echo "Changed docs:"
+          echo "$CHANGED_FILES"
+
+          # shellcheck disable=SC2086
+          python3 scripts/check_docs_contract.py $CHANGED_FILES

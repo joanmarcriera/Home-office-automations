@@ -61,3 +61,24 @@ An automated flow is considered "done" when:
 2.  The source document is updated with a `processed` or `actioned` tag.
 3.  No errors were logged in the orchestration engine (n8n).
 4.  If a critical failure occurred, a notification was sent to a human review channel.
+
+## AI-Authored Documentation Metadata (Required)
+
+For AI-authored updates to knowledge pages (`docs/tools/`, `docs/services/`, `docs/knowledge_base/`, `docs/architecture/`, `docs/playbooks/`, and `docs/reference-implementations/`), include:
+
+- `Last reviewed`: ISO date (`YYYY-MM-DD`)
+- `Confidence`: `high`, `medium`, or `low`
+- `Sources / References`: at least one URL
+
+Recommended section format:
+
+```md
+## Sources / References
+- [Official docs](https://example.com)
+
+## Contribution Metadata
+- Last reviewed: 2026-02-25
+- Confidence: medium
+```
+
+These requirements are enforced by `scripts/check_docs_contract.py` in pull-request CI.
