@@ -1,0 +1,51 @@
+name: Weekly Growth Planner
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"  # Monday 02:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install openai
+
+      - name: Run growth tracker
+        run: python scripts/growth_tracker.py
+
+      - name: Update source scores
+        run: python scripts/update_source_scores.py
+
+      - name: Create weekly issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/weekly_planner.py
+
+      - name: Commit metrics
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/growth-metrics.json data/source-scores.json
+          if git diff --staged --quiet; then
+            echo "No metrics changes."
+          else
+            git commit -m "chore: weekly growth snapshot $(date +'%Y-%m-%d')"
+            git push origin main
+          fi
