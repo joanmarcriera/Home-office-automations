@@ -140,8 +140,8 @@ Rules & Guidelines:
             )
             return response.choices[0].message.content
         except Exception as e:
-            err_str = str(e)
-            if "429" in err_str or "temporarily rate-limited" in err_str:
+            err_str = str(e).lower()
+            if "429" in err_str or "rate limit" in err_str or "temporarily rate-limited" in err_str or hasattr(e, 'status_code') and e.status_code == 429:
                 print(f"Model {model} is rate limited. Trying next fallback...")
                 continue
             else:
