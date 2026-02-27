@@ -208,7 +208,13 @@ nav:
       - Caldav: tools/intake_storage/caldav.md
     - Frameworks:
       - Overview: tools/frameworks/index.md
+      - AutoGen: tools/frameworks/autogen.md
+      - CrewAI: tools/frameworks/crewai.md
+      - DSPy: tools/frameworks/dspy.md
+      - Haystack: tools/frameworks/haystack.md
       - Mycelium: tools/frameworks/mycelium.md
+      - Semantic Kernel: tools/frameworks/semantic-kernel.md
+      - Smolagents: tools/frameworks/smolagents.md
     - Providers:
       - Overview: tools/providers/index.md
     - Agents:

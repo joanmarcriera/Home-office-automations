@@ -685,6 +685,42 @@
       "doc_path": "docs/tools/frameworks/mycelium.md"
     },
     {
+      "id": "dspy",
+      "name": "DSPy",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/dspy.md"
+    },
+    {
+      "id": "haystack",
+      "name": "Haystack",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/haystack.md"
+    },
+    {
+      "id": "semantic-kernel",
+      "name": "Semantic Kernel",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/semantic-kernel.md"
+    },
+    {
+      "id": "crewai",
+      "name": "CrewAI",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/crewai.md"
+    },
+    {
+      "id": "autogen",
+      "name": "AutoGen",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/autogen.md"
+    },
+    {
+      "id": "smolagents",
+      "name": "Smolagents",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/smolagents.md"
+    },
+    {
       "id": "clihub",
       "name": "CliHub",
       "category": "Automation & Orchestration",
