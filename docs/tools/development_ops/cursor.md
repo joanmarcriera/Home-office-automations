@@ -31,6 +31,33 @@ Provides a deeply integrated AI coding experience where the editor itself unders
 - When you prefer a fully open-source editor
 - When you want to use only local LLMs without cloud dependencies
 
+## Getting started
+
+Download Cursor from the official website and sign in. On first run, it will index your codebase for AI context.
+
+1. **Install**: Download for your OS (Windows/Mac/Linux).
+2. **Index**: Let Cursor index your repository (check the status in the bottom right corner).
+3. **Configure**: Add your custom instructions in `.cursorrules` to guide the AI.
+
+## Usage examples
+
+### .cursorrules setup
+Create a `.cursorrules` file in your root directory to enforce coding standards:
+```markdown
+# Coding Standards
+- Use TypeScript for all new files.
+- Prefer functional components over classes.
+- Use Tailwind CSS for styling.
+- Ensure all functions have JSDoc comments.
+```
+
+### AI Keyboard Shortcuts
+| Action | Shortcut (Mac) | Shortcut (Windows/Linux) |
+| :--- | :--- | :--- |
+| **Edit code in place** | `Cmd + K` | `Ctrl + K` |
+| **Chat with codebase** | `Cmd + L` | `Ctrl + L` |
+| **Open Composer** | `Cmd + I` | `Ctrl + I` |
+
 ## Related tools / concepts
 - [VS Code](vscode.md) + [Continue](continue_dev.md)
 - [Zed](zed.md)
@@ -40,5 +67,5 @@ Provides a deeply integrated AI coding experience where the editor itself unders
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-27
 - Confidence: medium

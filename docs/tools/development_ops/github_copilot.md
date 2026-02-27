@@ -31,6 +31,29 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 - When strict local-only code processing is required
 - When you prefer a free alternative (consider Codeium)
 
+## Getting started
+
+GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrains, and Neovim.
+
+1. **Install**: Install the "GitHub Copilot" and "GitHub Copilot Chat" extensions.
+2. **Auth**: Sign in to your GitHub account with an active Copilot subscription.
+3. **Use**: Start typing to see inline suggestions, or press `Cmd+I` (Mac) / `Ctrl+I` (Windows) to open the chat.
+
+## Usage examples
+
+### Chat Commands
+Use slash commands in the chat sidebar to perform specific tasks:
+- `/explain`: Get an explanation of the selected code.
+- `/fix`: Propose a fix for bugs in the selected code.
+- `/tests`: Generate unit tests for the current file.
+
+### Workspace Agent
+Use the `@workspace` participant to ask questions about your entire project:
+```text
+@workspace How are the API routes structured in this project?
+@workspace Where is the database connection initialized?
+```
+
 ## Related tools / concepts
 - [Codeium](codeium.md)
 - [Tabnine](tabnine.md)
@@ -40,5 +63,5 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-27
 - Confidence: medium

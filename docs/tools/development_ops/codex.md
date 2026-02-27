@@ -31,6 +31,41 @@ Provides a specialized language model for code generation, enabling tools like G
 - When you need a self-hosted or open-source code model
 - When newer models (GPT-4o, Llama 3) better fit your requirements
 
+## Getting started
+
+While Codex is primarily an API-based model, it can be used via CLI tools like `codex-cli` or similar wrappers.
+
+```bash
+# Install a Codex-compatible CLI wrapper
+npm install -g codex-cli
+
+# Set your OpenAI API Key
+export OPENAI_API_KEY=your-key-here
+
+# Run a simple query
+codex "Create a python function to scrape a website"
+```
+
+## CLI examples
+
+### Local Model Configuration
+Some wrappers allow redirecting Codex-style requests to local inference servers:
+```bash
+# Configure CLI to point to a local Ollama instance instead of OpenAI
+codex config set base_url http://localhost:11434/v1
+codex config set model codellama
+```
+
+### Sandboxed Execution
+Run generated code in a restricted environment to prevent system damage:
+```bash
+# Execute with sandboxing flags (if supported by the CLI tool)
+codex --execute --sandbox=docker "Calculate the first 1000 prime numbers"
+
+# Use with Open Interpreter for more advanced sandboxed execution
+interpreter --local --model codellama --sandbox
+```
+
 ## Related tools / concepts
 - [Llama 3 (Fine-tuned for code)](https://ollama.com/library/llama3)
 - [StarCoder](https://github.com/bigcode-project/starcoder)
@@ -40,5 +75,5 @@ Provides a specialized language model for code generation, enabling tools like G
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-27
 - Confidence: medium
