@@ -6,6 +6,7 @@ Recurring architectural and design patterns in AI/LLM systems — RAG, tool call
 
 <!-- New pattern pages are added here by Jules -->
 
+- [Retrieval-Augmented Generation (RAG)](rag.md)
 - [Claude Tool Search Pattern](claude-tool-search.md)
 - [Agent Skills Best Practices](skills-best-practices.md)
 - [OpenClaw Workflow Prompt Library Pattern](openclaw-workflow-prompts.md)
