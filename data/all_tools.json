@@ -141,8 +141,44 @@
     {
       "id": "anthropic",
       "name": "Anthropic Claude",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/anthropic.md"
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/anthropic.md"
+    },
+    {
+      "id": "cohere",
+      "name": "Cohere",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/cohere.md"
+    },
+    {
+      "id": "mistral-ai",
+      "name": "Mistral AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/mistral.md"
+    },
+    {
+      "id": "together-ai",
+      "name": "Together AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/together.md"
+    },
+    {
+      "id": "groq",
+      "name": "Groq",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/groq.md"
+    },
+    {
+      "id": "fireworks-ai",
+      "name": "Fireworks AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/fireworks.md"
+    },
+    {
+      "id": "replicate",
+      "name": "Replicate",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/replicate.md"
     },
     {
       "id": "deepseek",

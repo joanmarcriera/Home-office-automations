@@ -41,7 +41,7 @@ Available via their own API (DeepSeek Platform) or can be self-hosted using the 
 
 ## Links to related pages
 - [OpenAI](openai.md)
-- [Anthropic](anthropic.md)
+- [Anthropic](../providers/anthropic.md)
 - [Local LLMs](local_llms.md)
 
 ## Sources / References

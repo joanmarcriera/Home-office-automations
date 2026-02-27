@@ -125,7 +125,6 @@ nav:
     - Overview: tools/README.md
     - AI & Knowledge:
       - Overview: tools/ai_knowledge/index.md
-      - Anthropic Claude: tools/ai_knowledge/anthropic.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
       - Dify: tools/ai_knowledge/dify.md
@@ -217,6 +216,13 @@ nav:
       - Smolagents: tools/frameworks/smolagents.md
     - Providers:
       - Overview: tools/providers/index.md
+      - Anthropic: tools/providers/anthropic.md
+      - Cohere: tools/providers/cohere.md
+      - Mistral AI: tools/providers/mistral.md
+      - Together AI: tools/providers/together.md
+      - Groq: tools/providers/groq.md
+      - Fireworks AI: tools/providers/fireworks.md
+      - Replicate: tools/providers/replicate.md
     - Agents:
       - Overview: tools/agents/index.md
     - Orchestration:

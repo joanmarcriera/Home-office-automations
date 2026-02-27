@@ -49,7 +49,7 @@ It eliminates the complexity of managing different SDKs and authentication metho
 ## Links to related pages
 - [OpenRouter](../tools/ai_knowledge/openrouter.md)
 - [OpenAI](../tools/ai_knowledge/openai.md)
-- [Anthropic](../tools/ai_knowledge/anthropic.md)
+- [Anthropic](../tools/providers/anthropic.md)
 - [Local LLMs](../tools/ai_knowledge/local_llms.md)
 
 ## Sources / References

@@ -22,7 +22,7 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## 3. Understand (Reasoning Engines)
 *The brains of the stack that process and reason over information.*
-- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/ai_knowledge/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md)
+- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md)
 - **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/ai_knowledge/perplexity.md), [Valyu](../tools/ai_knowledge/valyu.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md), [RAGFlow](../tools/process_understanding/ragflow.md), [PageIndex](../tools/process_understanding/pageindex.md)

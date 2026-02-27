@@ -38,7 +38,7 @@ It simplifies the coordination of multiple AI agents performing complex, interde
 
 ## Related tools / concepts
 - [Claude Code](./claude-code.md)
-- [Anthropic](../ai_knowledge/anthropic.md)
+- [Anthropic](../providers/anthropic.md)
 - [Multi-Agent Systems](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References

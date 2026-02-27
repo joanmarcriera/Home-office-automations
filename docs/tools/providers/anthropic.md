@@ -7,15 +7,34 @@ Anthropic is an AI safety and research company that produces the Claude family o
 Offers a high-performance alternative to OpenAI with a focus on "Constitutional AI" (safety) and exceptional performance in coding and long-form document analysis.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine**. Often used as the primary engine for coding agents due to its high accuracy in code generation and refactoring.
+**LLM / Reasoning Engine / Provider**. Often used as the primary engine for coding agents due to its high accuracy in code generation and refactoring.
 
-## Architecture overview
-Cloud-hosted API service (via Anthropic Console or Amazon Bedrock/Google Vertex AI).
-
-## Typical workflows
+## Typical use cases
 - **Pair Programming**: Claude 3.5 Sonnet is currently a top choice for tools like Aider.
 - **Complex Analysis**: Summarizing long technical documentation or legal files.
 - **Strict Adherence**: Workflows requiring close following of complex formatting rules.
+
+## Getting started
+Install the SDK:
+```bash
+pip install anthropic
+```
+
+Basic API call:
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+message = client.messages.create(
+    model="claude-3-5-sonnet-20240620",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Hello, Claude"}
+    ]
+)
+print(message.content)
+```
 
 ## Strengths
 - **Coding Excellence**: Claude 3.5 Sonnet is widely regarded as one of the best models for software engineering.
@@ -37,20 +56,21 @@ Cloud-hosted API service (via Anthropic Console or Amazon Bedrock/Google Vertex 
 - When a local/offline solution is required.
 - If already deeply integrated into another provider's ecosystem with significant credits.
 
-## Security considerations
-- **Key Safety**: Protect Anthropic API keys.
-- **Shared Responsibility**: Ensure data sent to the API complies with your organization's privacy standards.
+## Licensing and cost
+- **Open Source**: No
+- **Cost**: Paid (Usage-based pricing; free tier available via console for testing)
+- **Self-hostable**: No (Cloud service)
 
-## Links to related pages
-- [OpenAI](openai.md)
-- [OpenRouter](openrouter.md)
+## Related tools / concepts
+- [OpenAI](../ai_knowledge/openai.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 - [Aider](../development_ops/aider.md)
 
 ## Sources / References
-
-- [Reference](https://www.anthropic.com/news)
+- [Official Website](https://www.anthropic.com/)
+- [Anthropic News](https://www.anthropic.com/news)
+- [API Documentation](https://docs.anthropic.com/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-02-27
+- Confidence: high
