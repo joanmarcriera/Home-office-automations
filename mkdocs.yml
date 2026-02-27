@@ -269,6 +269,7 @@ nav:
     - Patterns:
       - Overview: knowledge_base/patterns/index.md
       - Retrieval-Augmented Generation (RAG): knowledge_base/patterns/rag.md
+      - Tool Calling & Model Context Protocol (MCP): knowledge_base/patterns/tool-calling-and-mcp.md
       - Claude Tool Search: knowledge_base/patterns/claude-tool-search.md
       - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
       - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
