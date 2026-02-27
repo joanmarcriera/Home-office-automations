@@ -41,7 +41,7 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 
 ## Related tools / concepts
 - [OpenAI](./openai.md)
-- [Anthropic](./anthropic.md)
+- [Anthropic](../providers/anthropic.md)
 - [DeepSeek](./deepseek.md)
 - [OpenRouter](./openrouter.md)
 

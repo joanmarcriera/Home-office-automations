@@ -1,7 +1,7 @@
 # Ai & Knowledge
 
 - [ansigpt](ansigpt.md)
-- [Anthropic Claude](anthropic.md)
+- [Anthropic Claude](../providers/anthropic.md)
 - [ChatGPT](chatgpt.md)
 - [DeepSeek](deepseek.md)
 - [Dify](dify.md)

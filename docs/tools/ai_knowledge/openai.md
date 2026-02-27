@@ -44,7 +44,7 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - **Prompt Injection**: Be aware that models can be manipulated via input; implement output validation.
 
 ## Links to related pages
-- [Anthropic](anthropic.md)
+- [Anthropic](../providers/anthropic.md)
 - [OpenRouter](openrouter.md)
 - [Aider](../development_ops/aider.md)
 - [OpenHands](../development_ops/openhands.md)

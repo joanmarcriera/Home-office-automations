@@ -27,7 +27,7 @@ DEFAULT_SOURCES = {
     "docs/tools/ai_knowledge/openai.md": ["https://openai.com/index/"],
     "docs/architecture/ssh_execution_patterns.md": ["https://man.openbsd.org/ssh"],
     "docs/services/litellm.md": ["https://docs.litellm.ai/"],
-    "docs/tools/ai_knowledge/anthropic.md": ["https://www.anthropic.com/news"],
+    "docs/tools/providers/anthropic.md": ["https://www.anthropic.com/news"],
     "docs/tools/ai_knowledge/openrouter.md": ["https://openrouter.ai/docs/overview/introduction"],
 }
 

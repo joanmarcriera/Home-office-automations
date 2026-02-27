@@ -33,7 +33,7 @@ Naive tool-calling can fail when many tools overlap or when tool descriptions ar
 - When ultra-low-latency responses are the main constraint
 
 ## Related tools / concepts
-- [Anthropic Claude](../../tools/ai_knowledge/anthropic.md)
+- [Anthropic Claude](../../tools/providers/anthropic.md)
 - [Agent Protocols](../agent_protocols.md)
 - [Patterns Index](index.md)
 

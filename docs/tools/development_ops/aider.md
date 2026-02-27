@@ -44,7 +44,7 @@ CLI tool that runs locally. It manages the context by selecting relevant files t
 ## Links to related pages
 - [OpenHands](openhands.md)
 - [OpenAI](../ai_knowledge/openai.md)
-- [Anthropic](../ai_knowledge/anthropic.md)
+- [Anthropic](../providers/anthropic.md)
 
 ## Sources / References
 
