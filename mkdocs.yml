@@ -263,6 +263,7 @@ nav:
     - Overview: knowledge_base/README.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md
+    - Essential Reading List: knowledge_base/ai_reading_list.md
     - Model Classes: knowledge_base/model_classes.md
     - Security & Privacy: knowledge_base/llm_security_privacy.md
     - Patterns:
