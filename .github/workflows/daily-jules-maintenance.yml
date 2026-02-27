@@ -2,7 +2,8 @@ name: Daily Jules Maintenance
 
 on:
   schedule:
-    - cron: '0 7 * * *' # 07:00 UTC daily - between Jules' 00:00 and 08:00 UTC processing windows
+    - cron: '0 7 * * *'  # 07:00 UTC — morning maintenance
+    - cron: '0 19 * * *' # 19:00 UTC — afternoon maintenance, processes bridge afternoon intake
   workflow_dispatch: # allow manual trigger for testing
 
 jobs:
