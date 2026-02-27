@@ -755,6 +755,42 @@
       "name": "Valyu",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/valyu.md"
+    },
+    {
+      "id": "vllm",
+      "name": "vLLM",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/vllm.md"
+    },
+    {
+      "id": "tgi",
+      "name": "Text Generation Inference (TGI)",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/tgi.md"
+    },
+    {
+      "id": "sglang",
+      "name": "SGLang",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/sglang.md"
+    },
+    {
+      "id": "exllamav2",
+      "name": "ExLlamaV2",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/exllamav2.md"
+    },
+    {
+      "id": "aphrodite-engine",
+      "name": "Aphrodite Engine",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/aphrodite-engine.md"
+    },
+    {
+      "id": "mlx",
+      "name": "MLX",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/mlx.md"
     }
   ]
 }
