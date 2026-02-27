@@ -36,7 +36,11 @@ theme:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - attr_list
@@ -230,6 +234,7 @@ nav:
     - SSH Execution Patterns: architecture/ssh_execution_patterns.md
     - Automated Contributions: architecture/automated_contributions.md
     - Multi-Agent KnowledgeOps: architecture/multi_agent_knowledgeops.md
+    - Prompt Catalogue: architecture/prompt-catalogue.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - Agent Protocols: knowledge_base/agent_protocols.md
