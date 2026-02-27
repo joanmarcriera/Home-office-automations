@@ -217,7 +217,13 @@ nav:
       - Overview: tools/orchestration/index.md
     - Infrastructure:
       - Overview: tools/infrastructure/index.md
+      - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
+      - ExLlamaV2: tools/infrastructure/exllamav2.md
       - llama.cpp: tools/infrastructure/llama-cpp.md
+      - MLX: tools/infrastructure/mlx.md
+      - SGLang: tools/infrastructure/sglang.md
+      - Text Generation Inference (TGI): tools/infrastructure/tgi.md
+      - vLLM: tools/infrastructure/vllm.md
       - ZSE: tools/infrastructure/zse.md
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
