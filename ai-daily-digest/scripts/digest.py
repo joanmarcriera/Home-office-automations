@@ -143,13 +143,11 @@ Rules & Guidelines:
             err_str = str(e).lower()
             if "429" in err_str or "rate limit" in err_str or "temporarily rate-limited" in err_str or hasattr(e, 'status_code') and e.status_code == 429:
                 print(f"Model {model} is rate limited. Trying next fallback...")
-                continue
             else:
-                print(f"Failed to generate digest via OpenRouter with {model}: {e}")
-                # Don't fallback for non-rate-limit errors like 401 unauthorized
-                return None
+                print(f"Model {model} failed. Trying next fallback. Error: {e}")
+            continue
                 
-    print("All fallback models were rate limited or failed.")
+    print("All fallback models were exhausted without a successful response.")
     return None
 
 def update_readme(digest_md, date_str):

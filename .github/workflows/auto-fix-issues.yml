@@ -61,17 +61,12 @@ jobs:
           set -euo pipefail
           git push -u origin auto-fix-issue-$ISSUE_NUMBER
 
-          pr_body=$(cat <<EOF
-This is an automated fix for #$ISSUE_NUMBER generated autonomously by Aider and OpenRouter. Please review the changes.
-
-Closes #$ISSUE_NUMBER
-EOF
-)
-
           # We check if there are actual diffs so we don't spam empty PRs
           gh pr create \
             --title "fix: automated resolution for issue #$ISSUE_NUMBER" \
-            --body "$pr_body" \
+            --body "This is an automated fix for #$ISSUE_NUMBER generated autonomously by Aider and OpenRouter. Please review the changes.
+
+Closes #$ISSUE_NUMBER" \
             --base main \
             --head auto-fix-issue-$ISSUE_NUMBER \
             || echo "No changes found or PR already exists."
