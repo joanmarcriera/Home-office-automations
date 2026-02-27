@@ -2,6 +2,19 @@
 
 ## 📅 Digest for 2026-02-27
 
+# 🛠️ Tools & Agents
+
+## Self-Hosted Attendance Tracking
+
+A martial arts studio owner is seeking a free, self-hosted application to track student attendance. This request highlights the growing interest in self-hosted solutions for managing educational and training activities.
+
+- [Source](https://www.reddit.com/r/selfhosted/comments/1rfso5s/looking_for_a_selfhosted_application_for_tracking/)
+
+---
+
+
+## 📅 Digest for 2026-02-27
+
 ### Executive Summary
 * OpenAI and Pacific Northwest National Laboratory have introduced DraftNEPABench, a new benchmark evaluating how AI coding agents can accelerate federal permitting.
 * Google has launched Nano Banana 2, a new image generation model that promises to improve upon last year's version with faster speeds and better results.
