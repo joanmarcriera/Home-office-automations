@@ -150,6 +150,35 @@ Rules & Guidelines:
     print("All fallback models were exhausted without a successful response.")
     return None
 
+def build_fallback_digest(items, date_str):
+    """
+    Build a deterministic markdown digest when LLM providers are unavailable.
+    """
+    lines = [
+        f"## Digest fallback for {date_str}",
+        "",
+        "OpenRouter models were unavailable (rate limited or provider error).",
+        "This fallback keeps ingestion moving and preserves source links.",
+        "",
+        "## New items",
+        "",
+    ]
+
+    for idx, item in enumerate(items[:80], start=1):
+        title = item.get("title", "No title").strip() or "No title"
+        source = item.get("source", "Unknown source").strip() or "Unknown source"
+        link = item.get("link", "").strip()
+        if link:
+            lines.append(f"{idx}. [{title}]({link}) ({source})")
+        else:
+            lines.append(f"{idx}. {title} ({source})")
+
+    if len(items) > 80:
+        lines.extend(["", f"...and {len(items) - 80} more items were collected."])
+
+    lines.append("")
+    return "\n".join(lines)
+
 def update_readme(digest_md, date_str):
     """
     Optionally prepends the latest digest to the README.md or a central file.
@@ -208,10 +237,11 @@ def main():
     
     digest_md = summarize_with_openrouter(all_new_items)
     
-    if not digest_md:
-        sys.exit(1)
-        
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if not digest_md:
+        print("Falling back to deterministic digest because all LLM models failed.")
+        digest_md = build_fallback_digest(all_new_items, date_str)
+
     out_file = os.path.join(DAILY_DIR, f"{date_str}.md")
     
     with open(out_file, "w") as f:
