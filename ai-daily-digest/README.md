@@ -1,5 +1,34 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-02-27
+
+### Executive Summary
+* OpenAI and Pacific Northwest National Laboratory have introduced DraftNEPABench, a new benchmark evaluating how AI coding agents can accelerate federal permitting.
+* Google has launched Nano Banana 2, a new image generation model that promises to improve upon last year's version with faster speeds and better results.
+* The Massachusetts AI Hub and Google are launching a new AI training initiative for the Commonwealth, providing no-cost access to Google's AI training for all Baystate residents.
+
+### Models & Releases
+* **Qwen3.5-35B-A3B**: A new model that has been shown to be fast and efficient, with some users reporting 2x faster inference speeds compared to other models.
+* **Nano Banana 2**: Google's new image generation model that promises to improve upon last year's version with faster speeds and better results.
+* **GLM-4.7-Flash**: A model that has been shown to be fast and efficient, with some users reporting good results for coding tasks.
+
+### Tools & Agents
+* **Ollama**: A self-hosted, open-source alternative to cloud-based AI services that allows users to run AI models locally on their own machines.
+* **Claude Code**: A coding assistant that uses AI to help with coding tasks, available as a self-hosted solution or through cloud-based services.
+* **n8n**: A workflow automation tool that allows users to automate tasks and workflows using a visual interface.
+
+### Research & Papers
+* **LightMem**: A new paper that presents a lightweight and efficient memory-augmented generation approach, showing 10x+ gains with 100x lower cost.
+* **DualPath**: A new paper that presents a breakthrough in storage bandwidth bottleneck in agentic LLM inference, showing significant performance improvements.
+
+### Industry News
+* **Google and the Massachusetts AI Hub**: Launching a new AI training initiative for the Commonwealth, providing no-cost access to Google's AI training for all Baystate residents.
+* **OpenAI and Pacific Northwest National Laboratory**: Introducing DraftNEPABench, a new benchmark evaluating how AI coding agents can accelerate federal permitting.
+* **DeepSeek**: Granting early access to its major V4 update to domestic suppliers such as Huawei, while withholding access from US chipmakers like Nvidia and AMD.
+
+---
+
+
 ## 📅 Digest for 2026-02-26
 
 ### Executive Summary
