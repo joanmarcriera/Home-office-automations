@@ -37,6 +37,49 @@ CLI tool that runs locally. It manages the context by selecting relevant files t
 - For massive, multi-step architectural changes that require a higher level of autonomy.
 - When you need the agent to browse the web or interact with non-file system tools.
 
+## Getting started
+
+Install Aider via pip and run it in your git repository:
+
+```bash
+# Install Aider
+pip install aider-chat
+
+# Set your API key (optional if using local models)
+export ANTHROPIC_API_KEY=your-key-here
+
+# Start Aider in your project
+aider
+```
+
+## CLI examples
+
+### Hello World
+Ask Aider to create a new file with a simple script:
+```bash
+aider hello-world.py
+# In the chat: "Create a hello world script in python"
+```
+
+### Using Local Models (Ollama)
+Aider supports local models via Ollama or LiteLLM:
+```bash
+# Run with a local Llama 3 model
+aider --model ollama/llama3
+```
+
+### Commit Workflow
+Aider automatically commits changes with descriptive messages:
+```bash
+# Start aider and it will track your session
+aider
+
+# After making changes via chat, aider will:
+# 1. Show you the diff
+# 2. Ask for confirmation (or auto-commit if configured)
+# 3. Create a git commit: "feat: add login route to express app"
+```
+
 ## Security considerations
 - **File Access**: Aider has the same permissions as the user running it.
 - **Commit History**: Review automated commits to ensure no secrets were accidentally added.
@@ -52,5 +95,5 @@ CLI tool that runs locally. It manages the context by selecting relevant files t
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-27
 - Confidence: medium
