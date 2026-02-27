@@ -225,6 +225,12 @@ nav:
       - Replicate: tools/providers/replicate.md
     - Agents:
       - Overview: tools/agents/index.md
+      - Agency Swarm: tools/agents/agency-swarm.md
+      - Agno: tools/agents/agno.md
+      - Bee Agent Framework: tools/agents/bee-agent-framework.md
+      - Composio: tools/agents/composio.md
+      - LangGraph: tools/agents/langgraph.md
+      - Phidata: tools/agents/phidata.md
     - Orchestration:
       - Overview: tools/orchestration/index.md
     - Infrastructure:

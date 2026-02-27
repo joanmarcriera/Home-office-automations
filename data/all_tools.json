@@ -863,6 +863,42 @@
       "name": "MLX",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/mlx.md"
+    },
+    {
+      "id": "langgraph",
+      "name": "LangGraph",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/langgraph.md"
+    },
+    {
+      "id": "agency-swarm",
+      "name": "Agency Swarm",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/agency-swarm.md"
+    },
+    {
+      "id": "composio",
+      "name": "Composio",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/composio.md"
+    },
+    {
+      "id": "phidata",
+      "name": "Phidata",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/phidata.md"
+    },
+    {
+      "id": "bee-agent-framework",
+      "name": "Bee Agent Framework",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/bee-agent-framework.md"
+    },
+    {
+      "id": "agno",
+      "name": "Agno",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/agno.md"
     }
   ]
 }
