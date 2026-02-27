@@ -261,6 +261,7 @@ nav:
     - Prompt Catalogue: architecture/prompt-catalogue.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
+    - AI Tooling Landscape: knowledge_base/ai_tooling_landscape.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md
     - Essential Reading List: knowledge_base/ai_reading_list.md

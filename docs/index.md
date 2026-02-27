@@ -14,7 +14,7 @@ hide:
 
     ---
 
-    New here? Start with the [Maturity Ladder](#maturity-ladder) to see where you are, or jump to a [Playbook](playbooks/index.md) for a hands-on workflow.
+    New here? Explore the [AI Tooling Landscape](knowledge_base/ai_tooling_landscape.md) to see how it all fits together, or follow the [Maturity Ladder](#maturity-ladder).
 
 -   :material-tools:{ .lg .middle } **126 Tools & Services**
 
