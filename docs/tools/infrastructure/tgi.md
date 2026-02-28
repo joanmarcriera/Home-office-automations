@@ -72,5 +72,5 @@ curl 127.0.0.1:8080/generate \
 - [Official Documentation](https://huggingface.co/docs/text-generation-inference)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

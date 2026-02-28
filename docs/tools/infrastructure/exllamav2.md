@@ -76,5 +76,5 @@ print(output)
 - [EXL2 Format Explained](https://github.com/turboderp/exllamav2/wiki/EXL2-quantization)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

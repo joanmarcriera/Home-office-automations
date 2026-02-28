@@ -78,5 +78,5 @@ python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 - [Docs](https://docs.vllm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
