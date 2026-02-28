@@ -62,12 +62,15 @@ MCP introduces a standardized client-server architecture to make tools portable 
 - **Hosts**: The environment where the LLM lives (e.g., Claude Desktop, Zed, Cursor, an agent framework).
 - **Clients**: Connect to MCP servers and handle the communication protocol.
 - **Servers**: Provide specific tools, resources, or prompts via the MCP standard.
-- **Transport Layer**: Defines how messages move between client and server (e.g., `stdio` for local processes, `SSE` for remote web servers).
+- **Transport Layer**: Defines how messages move between client and server. Common transports include:
+    - **stdio**: Communication via standard input/output for local processes.
+    - **SSE**: Server-Sent Events for one-way server-to-client updates over HTTP.
+    - **HTTP**: Standard REST-based communication for remote services.
 - **Components**:
-    - **Resources**: Read-only data (files, database records).
-    - **Tools**: Executable functions that can change state.
-    - **Prompts**: Pre-defined templates for interacting with the LLM.
-    - **Sampling**: Allowing servers to request completions from the LLM via the client.
+    - **Resources**: Read-only data (files, database records, API responses).
+    - **Tools**: Executable functions that can change state or perform actions.
+    - **Prompts**: Pre-defined templates for interacting with the LLM or initiating workflows.
+    - **Sampling**: A mechanism allowing servers to request completions from the LLM via the client (agentic behavior).
 
 ### MCP Client-Server Flow
 ```text
@@ -85,33 +88,65 @@ MCP introduces a standardized client-server architecture to make tools portable 
 
 ## Getting started
 
-### 1. Basic Tool Calling (Anthropic Python SDK)
-```python
-import anthropic
+### 1. Basic Tool Calling
 
-client = anthropic.Anthropic()
+=== "Anthropic Python SDK"
+    ```python
+    import anthropic
 
-tools = [{
-    "name": "get_stock_price",
-    "description": "Retrieves the current stock price for a given ticker symbol.",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "ticker": {"type": "string", "description": "The stock ticker, e.g. AAPL"}
-        },
-        "required": ["ticker"]
-    }
-}]
+    client = anthropic.Anthropic()
 
-message = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
-    max_tokens=1024,
-    tools=tools,
-    messages=[{"role": "user", "content": "What is the price of AAPL?"}]
-)
+    tools = [{
+        "name": "get_stock_price",
+        "description": "Retrieves the current stock price for a given ticker symbol.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "ticker": {"type": "string", "description": "The stock ticker, e.g. AAPL"}
+            },
+            "required": ["ticker"]
+        }
+    }]
 
-print(message.content) # Contains the tool use request
-```
+    message = client.messages.create(
+        model="claude-3-5-sonnet-20241022",
+        max_tokens=1024,
+        tools=tools,
+        messages=[{"role": "user", "content": "What is the price of AAPL?"}]
+    )
+
+    print(message.content) # Contains the tool use request
+    ```
+
+=== "OpenAI Python SDK"
+    ```python
+    from openai import OpenAI
+
+    client = OpenAI()
+
+    tools = [{
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the current weather",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string"}
+                },
+                "required": ["location"]
+            }
+        }
+    }]
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "What's the weather in London?"}],
+        tools=tools
+    )
+
+    print(response.choices[0].message.tool_calls)
+    ```
 
 ### 2. Simple MCP Server (Python SDK)
 ```python
@@ -152,7 +187,20 @@ if __name__ == "__main__":
 - [OpenRouter](../../tools/ai_knowledge/openrouter.md)
 - [Browser Use](../../tools/automation_orchestration/browser-use.md)
 - [Composio](../../tools/agents/composio.md)
-- **Agent Frameworks**: [LangGraph](../../tools/agents/langgraph.md), [CrewAI](../../tools/frameworks/crewai.md), [AutoGen](../../tools/frameworks/autogen.md), [Agno](../../tools/agents/agno.md), [Agency Swarm](../../tools/agents/agency-swarm.md), [Smolagents](../../tools/frameworks/smolagents.md)
+- **Agent Frameworks**:
+    - [Agency Swarm](../../tools/agents/agency-swarm.md)
+    - [Agno](../../tools/agents/agno.md)
+    - [Bee Agent Framework](../../tools/agents/bee-agent-framework.md)
+    - [LangGraph](../../tools/agents/langgraph.md)
+    - [Phidata](../../tools/agents/phidata.md)
+- **Other Frameworks**:
+    - [AutoGen](../../tools/frameworks/autogen.md)
+    - [CrewAI](../../tools/frameworks/crewai.md)
+    - [DSPy](../../tools/frameworks/dspy.md)
+    - [Haystack](../../tools/frameworks/haystack.md)
+    - [Mycelium](../../tools/frameworks/mycelium.md)
+    - [Semantic Kernel](../../tools/frameworks/semantic-kernel.md)
+    - [Smolagents](../../tools/frameworks/smolagents.md)
 
 ## Sources / references
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
