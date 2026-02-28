@@ -37,6 +37,58 @@ Proxy service. Your agent sends requests to OpenRouter, which then routes them t
 - For latency-critical production applications.
 - When you have direct enterprise agreements/discounts with a specific provider (e.g. Azure OpenAI).
 
+## Getting started
+
+```bash
+pip install openai
+```
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key="your-api-key",
+)
+
+completion = client.chat.completions.create(
+  model="google/gemini-2.0-flash-001",
+  messages=[
+    {
+      "role": "user",
+      "content": "What is the capital of France?"
+    }
+  ]
+)
+print(completion.choices[0].message.content)
+```
+
+## API examples
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key="your-api-key",
+)
+
+completion = client.chat.completions.create(
+  extra_headers={
+    "HTTP-Referer": "https://your-site-url.com", # Optional, for including your app on openrouter.ai rankings.
+    "X-Title": "Your App Name", # Optional. Shows in rankings on openrouter.ai.
+  },
+  model="anthropic/claude-3.5-sonnet",
+  messages=[
+    {
+      "role": "user",
+      "content": "Explain quantum computing in three sentences."
+    }
+  ]
+)
+print(completion.choices[0].message.content)
+```
+
 ## Security considerations
 - **Third-party Data Flow**: Your prompts pass through OpenRouter; ensure this is acceptable for your data sensitivity.
 - **API Key Security**: Treat your OpenRouter key as a "master key" for all your AI services.

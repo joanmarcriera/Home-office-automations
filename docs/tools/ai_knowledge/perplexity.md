@@ -32,6 +32,48 @@ AI & Knowledge — used as a research and information retrieval tool when up-to-
 - When working with private or sensitive data that should not leave the local network
 - When offline access is required
 
+## Getting started
+
+```bash
+pip install openai
+```
+
+To use the Perplexity API, you need a valid API key from the [Perplexity API Settings](https://www.perplexity.ai/settings/api).
+
+## API examples
+
+```python
+from openai import OpenAI
+
+YOUR_API_KEY = "INSERT_API_KEY_HERE"
+
+client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
+
+# chat completion without streaming
+response = client.chat.completions.create(
+    model="sonar-reasoning-pro",
+    messages=[
+        {"role": "system", "content": "Be precise and concise."},
+        {"role": "user", "content": "How many stars are there in our galaxy?"},
+    ],
+)
+print(response.choices[0].message.content)
+```
+
+```bash
+curl --request POST \
+     --url https://api.perplexity.ai/chat/completions \
+     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "model": "sonar-reasoning-pro",
+       "messages": [
+         {"role": "system", "content": "Be precise and concise."},
+         {"role": "user", "content": "How many stars are there in our galaxy?"}
+       ]
+     }'
+```
+
 ## Related tools / concepts
 - [Google Search](https://www.google.com)
 - [Genspark](https://www.genspark.ai/)
