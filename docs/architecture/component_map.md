@@ -19,11 +19,12 @@ This map categorizes all tools in the stack based on their primary function in t
 - **Calendars/Contacts**: [Radicale](../services/radicale.md), [Google Calendar](../tools/calendar_tasks/google_calendar.md)
 - **Media/Projects**: [Jellyfin](../services/jellyfin.md), [Focalboard](../services/focalboard.md)
 - **Distributed**: [Storj Node](../services/storj.md)
+- **Fine-tuning**: [OpenPipe](../tools/infrastructure/openpipe.md)
 
 ## 3. Understand (Reasoning Engines)
 *The brains of the stack that process and reason over information.*
 - **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [DeepSeek](../tools/ai_knowledge/deepseek.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md)
-- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (MLX, llama.cpp)](../tools/ai_knowledge/local_llms.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
+- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (llama.cpp)](../tools/ai_knowledge/local_llms.md), [vLLM](../tools/infrastructure/vllm.md), [TGI](../tools/infrastructure/tgi.md), [SGLang](../tools/infrastructure/sglang.md), [ExLlamaV2](../tools/infrastructure/exllamav2.md), [Aphrodite Engine](../tools/infrastructure/aphrodite-engine.md), [MLX](../tools/infrastructure/mlx.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/ai_knowledge/perplexity.md), [Valyu](../tools/ai_knowledge/valyu.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md), [RAGFlow](../tools/process_understanding/ragflow.md), [PageIndex](../tools/process_understanding/pageindex.md)
 
@@ -51,7 +52,7 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## 7. Benchmark
 *Tools for evaluating model performance and reasoning.*
-- **Reasoning**: [Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md), [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md), [DREAM Benchmark](../tools/benchmarking/dream.md)
+- **Reasoning**: [Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md), [LangSmith](../tools/benchmarking/langsmith.md), [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md), [DREAM Benchmark](../tools/benchmarking/dream.md)
 - **Agentic**: [Terminal-Bench](../tools/benchmarking/terminal-bench.md), [SWE-bench](../tools/benchmarking/swe-bench.md), [LongCLI-Bench](../tools/benchmarking/longcli-bench.md), [PA-bench](../tools/benchmarking/pa-bench.md)
 - **Local Performance**: [Ollama Benchmark CLI](../tools/benchmarking/ollama-benchmark-cli.md), [LLMPerf](../tools/benchmarking/llmperf.md)
 
@@ -62,5 +63,5 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

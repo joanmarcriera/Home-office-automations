@@ -68,11 +68,57 @@ print(response)
 - [LlamaIndex](llamaindex.md)
 - [Haystack](https://github.com/deepset-ai/haystack)
 
+## Getting started
+
+Install the core LangChain package and the OpenAI integration:
+
+```bash
+pip install langchain langchain-openai
+```
+
+Minimal example to call an LLM:
+
+```python
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o")
+response = llm.invoke("Hello, how are you?")
+print(response.content)
+```
+
+## API examples
+
+### Simple Chain with Prompt Template, LLM, and Output Parser
+
+This example demonstrates the recommended way to compose components using LangChain Expression Language (LCEL).
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+# 1. Define the Prompt Template
+prompt = ChatPromptTemplate.from_template("Tell me a short joke about {topic}")
+
+# 2. Initialize the Model
+model = ChatOpenAI(model="gpt-4o")
+
+# 3. Initialize the Output Parser
+output_parser = StrOutputParser()
+
+# 4. Compose the Chain using LCEL
+chain = prompt | model | output_parser
+
+# 5. Invoke the Chain
+response = chain.invoke({"topic": "bears"})
+print(response)
+```
+
 ## Sources / references
 - [Official Website](https://www.langchain.com/)
 - [GitHub Repository](https://github.com/langchain-ai/langchain)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium

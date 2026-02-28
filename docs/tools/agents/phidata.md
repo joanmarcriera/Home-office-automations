@@ -42,6 +42,7 @@ from phi.agent import Agent
 from phi.model.openai import OpenAIChat
 from phi.tools.duckduckgo import DuckDuckGo
 
+# 1. Create the assistant with a tool
 agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
     tools=[DuckDuckGo()],
@@ -50,6 +51,7 @@ agent = Agent(
     markdown=True,
 )
 
+# 2. Run a query
 agent.print_response("What is the latest news about AI agents?", stream=True)
 ```
 
@@ -62,11 +64,12 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 - [Agno](agno.md) (Successor to Phidata v2)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [Official Website](https://www.phidata.com/)
 - [GitHub Repository](https://github.com/phidata-hq/phidata)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

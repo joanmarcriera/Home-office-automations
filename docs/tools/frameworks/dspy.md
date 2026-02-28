@@ -7,7 +7,7 @@ DSPy (Declarative Self-improving Language Programs, Pythonically) is a framework
 Traditional LLM development involves manual prompt engineering ("prompt hacking"), which is brittle and doesn't scale. DSPy replaces this with a programming model where you define signatures and modules, and an optimizer automatically generates high-quality prompts or fine-tunes models to satisfy your requirements.
 
 ## Where it fits in the stack
-**Framework**. It sits between the raw LLM and the application logic, providing a structured way to build and optimize pipelines.
+Framework
 
 ## Typical use cases
 - **Complex RAG Pipelines**: Optimizing retrieval and generation steps together.
@@ -37,24 +37,21 @@ Traditional LLM development involves manual prompt engineering ("prompt hacking"
 - **Self-hostable**: Yes
 
 ## Getting started
+
 ```bash
 pip install dspy
 ```
 
 ```python
 import dspy
-
-# Configure the LM
 lm = dspy.OpenAI(model='gpt-3.5-turbo')
 dspy.settings.configure(lm=lm)
 
-# Define a signature
 class CoT(dspy.Signature):
     """Answer questions with chain of thought."""
     question = dspy.InputField()
     answer = dspy.OutputField(desc="often between 10 and 50 words")
 
-# Use the module
 generate_answer = dspy.ChainOfThought(CoT)
 pred = generate_answer(question="What is the capital of France?")
 print(pred.answer)
@@ -63,7 +60,7 @@ print(pred.answer)
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Prompt Engineering](https://home-toolset.riera.co.uk/knowledge_base/patterns/index.md)
+- [Prompt Engineering](../../knowledge_base/patterns/index.md)
 
 ## Sources / References
 - [Official Website](https://dspy-docs.vercel.app/)
@@ -71,5 +68,5 @@ print(pred.answer)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

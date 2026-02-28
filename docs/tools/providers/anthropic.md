@@ -41,6 +41,7 @@ print(message.content)
 - **Safety Focus**: Built with Constitutional AI principles.
 - **Large Context**: Ability to handle up to 200k+ tokens.
 - **Low Hallucination**: Generally exhibits high factual accuracy.
+- **Pricing Tiers**: Offers a competitive range from the low-cost **Haiku** (high speed) to the flagship **Sonnet** (balanced) and **Opus** (most capable/expensive).
 
 ## Limitations
 - **Cloud Dependency**: Similar to OpenAI, requires external API access.
@@ -72,5 +73,5 @@ print(message.content)
 - [API Documentation](https://docs.anthropic.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

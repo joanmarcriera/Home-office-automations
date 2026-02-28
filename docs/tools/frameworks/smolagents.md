@@ -7,7 +7,7 @@ Smolagents is a lightweight and efficient agent framework developed by Hugging F
 Many agent frameworks are heavy and introduce significant abstraction overhead. Smolagents provides a "minimalist" approach to tool-calling agents, making them easier to understand, debug, and deploy in resource-constrained environments.
 
 ## Where it fits in the stack
-**Framework / Agent Library**. A lightweight alternative for building tool-using agents.
+Framework / Agent Library
 
 ## Typical use cases
 - **Personal Assistants**: Small agents for local task automation.
@@ -37,6 +37,7 @@ Many agent frameworks are heavy and introduce significant abstraction overhead. 
 - **Self-hostable**: Yes
 
 ## Getting started
+
 ```bash
 pip install smolagents
 ```
@@ -61,5 +62,5 @@ agent.run("What is the current population of Tokyo?")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

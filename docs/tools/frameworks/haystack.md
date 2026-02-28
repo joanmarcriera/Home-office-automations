@@ -7,7 +7,7 @@ Haystack is an end-to-end open-source framework for building applications powere
 It simplifies the construction of complex LLM pipelines by providing modular components for document loading, indexing, retrieval, and generation. Its "Pipeline" abstraction allows for flexible, DAG-based architectures that can handle non-linear logic.
 
 ## Where it fits in the stack
-**Framework**. It serves as the orchestration layer for RAG systems and AI agents.
+Framework
 
 ## Typical use cases
 - **Enterprise RAG**: Building search systems over millions of documents.
@@ -37,6 +37,7 @@ It simplifies the construction of complex LLM pipelines by providing modular com
 - **Self-hostable**: Yes
 
 ## Getting started
+
 ```bash
 pip install haystack-ai
 ```
@@ -46,14 +47,12 @@ from haystack import Pipeline
 from haystack.components.builders import PromptBuilder
 from haystack.components.generators import OpenAIGenerator
 
-# Define the pipeline
 prompt_template = "What is the capital of {{country}}?"
 pipeline = Pipeline()
 pipeline.add_component("prompt_builder", PromptBuilder(template=prompt_template))
 pipeline.add_component("llm", OpenAIGenerator())
 pipeline.connect("prompt_builder", "llm")
 
-# Run the pipeline
 result = pipeline.run({"prompt_builder": {"country": "France"}})
 print(result["llm"]["replies"][0])
 ```
@@ -61,7 +60,6 @@ print(result["llm"]["replies"][0])
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Elasticsearch](https://github.com/elastic/elasticsearch)
 
 ## Sources / References
 - [Official Website](https://haystack.deepset.ai/)
@@ -70,5 +68,5 @@ print(result["llm"]["replies"][0])
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

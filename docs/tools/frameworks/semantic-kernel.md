@@ -7,7 +7,7 @@ Semantic Kernel is an open-source SDK from Microsoft that allows developers to i
 It bridges the gap between AI models and traditional software engineering. It provides a structured way to manage prompts, state, and tool-calling (native functions) while maintaining type safety and standard development practices.
 
 ## Where it fits in the stack
-**Framework / SDK**. It provides the integration layer for embedding AI into enterprise applications.
+Framework / SDK
 
 ## Typical use cases
 - **Enterprise App Integration**: Adding AI features to existing .NET or Python applications.
@@ -37,6 +37,7 @@ It bridges the gap between AI models and traditional software engineering. It pr
 - **Self-hostable**: Yes
 
 ## Getting started
+
 ```bash
 pip install semantic-kernel
 ```
@@ -48,12 +49,8 @@ from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 
 async def main():
     kernel = Kernel()
-    # Note: Requires OPENAI_API_KEY env var
     kernel.add_service(OpenAIChatCompletion(ai_model_id="gpt-3.5-turbo"))
-
-    # Create a function from a prompt
     func = kernel.add_function(prompt="What is the capital of {{$input}}?", plugin_name="Geo", function_name="Capital")
-
     result = await kernel.invoke(func, input="France")
     print(result)
 
@@ -64,7 +61,6 @@ if __name__ == "__main__":
 ## Related tools / concepts
 - [AutoGen](autogen.md)
 - [LangChain](../ai_knowledge/langchain.md)
-- [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 
 ## Sources / References
 - [GitHub](https://github.com/microsoft/semantic-kernel)
@@ -72,5 +68,5 @@ if __name__ == "__main__":
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

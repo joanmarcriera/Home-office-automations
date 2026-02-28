@@ -37,7 +37,7 @@ print(response.text)
 - **RAG Optimization**: Command R series is specifically designed for RAG workflows with high tool-use accuracy.
 - **Multilingual Support**: Industry-leading multilingual embedding and reranking models.
 - **Enterprise Ready**: Strong focus on data privacy and deployment flexibility (Cloud, VPC, On-prem).
-- **Pricing**: Clear usage-based pricing. Free "Trial" tier for development; "Production" tier for scaled usage.
+- **Pricing Tiers**: Features a generous **Trial** tier (free for non-production/dev) and a usage-based **Production** tier for scaled deployment.
 
 ## Limitations
 - **Focus**: Less focused on creative or multi-modal tasks compared to OpenAI or Anthropic.
@@ -68,5 +68,5 @@ print(response.text)
 - [Cohere Blog](https://cohere.com/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

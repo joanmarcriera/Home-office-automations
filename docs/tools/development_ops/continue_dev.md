@@ -31,6 +31,49 @@ Gives developers flexibility to choose their own LLM backend (including local mo
 - When you prefer a turnkey, zero-configuration AI editor experience
 - When you need a fully integrated AI-native editor (consider Cursor or Zed)
 
+## Getting started
+
+Continue is available as an extension for VS Code and JetBrains.
+
+1. **Install**: Search for "Continue" in your IDE's extension marketplace.
+2. **Configure**: Click the gear icon in the Continue sidebar to open `config.json`.
+3. **Select Model**: Choose a provider (e.g., Ollama, Anthropic, OpenAI) to start chatting.
+
+## Usage examples
+
+### config.json with Ollama provider
+Configure Continue to use a local model via Ollama:
+```json
+{
+  "models": [
+    {
+      "title": "Ollama Llama 3",
+      "provider": "ollama",
+      "model": "llama3"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Starcoder 2",
+    "provider": "ollama",
+    "model": "starcoder2:3b"
+  }
+}
+```
+
+### custom slash commands
+Add custom behavior by defining slash commands in `config.json`:
+```json
+{
+  "customCommands": [
+    {
+      "name": "test",
+      "description": "Write a unit test for the selected code",
+      "prompt": "Write a comprehensive unit test for this code using Jest: {{{ input }}}"
+    }
+  ]
+}
+```
+
 ## Related tools / concepts
 - [Cursor](cursor.md)
 - [Zed](zed.md)
@@ -41,5 +84,5 @@ Gives developers flexibility to choose their own LLM backend (including local mo
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-28
 - Confidence: medium

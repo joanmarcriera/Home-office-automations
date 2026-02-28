@@ -136,6 +136,44 @@ Use this matrix for quarterly integration reviews:
 | Zapier | Low | Low | Medium | No-code automation | Fast to ship, less control |
 | Xcode | Medium | Low | Medium | Apple-native tooling | Useful for iOS/macOS pipelines |
 
+## Getting started
+
+OpenRouter is an OpenAI-compatible API. You can use the standard OpenAI Python client by pointing the `base_url` to OpenRouter.
+
+```bash
+pip install openai
+```
+
+## API examples
+
+### Using OpenAI SDK with OpenRouter
+
+```python
+from openai import OpenAI
+
+# Initialize the client with OpenRouter's base URL and your API key
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key="sk-or-v1-xxxxxx...",
+)
+
+completion = client.chat.completions.create(
+  extra_headers={
+    "HTTP-Referer": "https://your-site-url.com", # Optional, for including your app on openrouter.ai rankings.
+    "X-Title": "Your App Name", # Optional. Shows in rankings on openrouter.ai.
+  },
+  model="anthropic/claude-3.5-sonnet",
+  messages=[
+    {
+      "role": "user",
+      "content": "What is the best way to implement a multi-agent system?"
+    }
+  ]
+)
+
+print(completion.choices[0].message.content)
+```
+
 ## Sources / References
 
 - [OpenRouter overview](https://openrouter.ai/docs/overview/introduction)
@@ -156,5 +194,5 @@ Use this matrix for quarterly integration reviews:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium
