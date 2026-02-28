@@ -34,7 +34,7 @@ While standard LangChain chains are great for linear workflows, they struggle wi
 ## Getting started
 ### Installation
 ```bash
-pip install langgraph langchain_openai
+pip install langgraph langchain_openai langchain-community duckduckgo-search
 ```
 
 ### Working Example
@@ -43,27 +43,45 @@ from typing import Annotated
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode
 from langchain_openai import ChatOpenAI
+from langchain_community.tools import DuckDuckGoSearchRun
 
+# 1. Define the state
 class State(TypedDict):
     messages: Annotated[list, add_messages]
 
-graph_builder = StateGraph(State)
-llm = ChatOpenAI(model="gpt-4o")
+# 2. Initialize tools and LLM
+tools = [DuckDuckGoSearchRun()]
+tool_node = ToolNode(tools)
+llm = ChatOpenAI(model="gpt-4o").bind_tools(tools)
 
+# 3. Define the node logic
 def chatbot(state: State):
     return {"messages": [llm.invoke(state["messages"])]}
 
+# 4. Build the graph
+graph_builder = StateGraph(State)
 graph_builder.add_node("chatbot", chatbot)
+graph_builder.add_node("tools", tool_node)
+
+# Conditional edges for tool calling
+def route_tools(state: State):
+    if state["messages"][-1].tool_calls:
+        return "tools"
+    return END
+
 graph_builder.add_edge(START, "chatbot")
-graph_builder.add_edge("chatbot", END)
+graph_builder.add_conditional_edges("chatbot", route_tools)
+graph_builder.add_edge("tools", "chatbot")
 
 graph = graph_builder.compile()
 
-# Run the agent
-for event in graph.stream({"messages": [("user", "What is LangGraph?")]}):
+# 5. Run a query
+for event in graph.stream({"messages": [("user", "Search for the current price of Bitcoin.")]}):
     for value in event.values():
-        print(value["messages"][-1].content)
+        if "messages" in value:
+            print(value["messages"][-1].content)
 ```
 
 ## Licensing and cost
@@ -75,11 +93,12 @@ for event in graph.stream({"messages": [("user", "What is LangGraph?")]}):
 - [LangChain](../ai_knowledge/langchain.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [CrewAI](../frameworks/crewai.md)
+- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [Official Documentation](https://langchain-ai.github.io/langgraph/)
 - [GitHub Repository](https://github.com/langchain-ai/langgraph)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

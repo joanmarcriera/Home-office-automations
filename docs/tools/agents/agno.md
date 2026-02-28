@@ -35,21 +35,25 @@ Agno simplifies the transition from a single agent prototype to a production-rea
 ## Getting started
 ### Installation
 ```bash
-pip install agno openai
+pip install agno openai duckduckgo-search
 ```
 
 ### Working Example
 ```python
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
+from agno.tools.duckduckgo import DuckDuckGo
 
+# 1. Create the agent with a tool
 agent = Agent(
     model=OpenAIChat(id="gpt-4o"),
-    description="You are a helpful AI assistant.",
+    tools=[DuckDuckGo()],
+    description="You are a helpful AI assistant that can search the web.",
     markdown=True
 )
 
-agent.print_response("Tell me about the Agno framework.")
+# 2. Run a query
+agent.print_response("Tell me about the Agno framework and its search capabilities.")
 ```
 
 ## Licensing and cost
@@ -60,6 +64,7 @@ agent.print_response("Tell me about the Agno framework.")
 ## Related tools / concepts
 - [Phidata](phidata.md) (Predecessor)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [FastAPI](https://fastapi.tiangolo.com/)
 
 ## Sources / References
@@ -68,5 +73,5 @@ agent.print_response("Tell me about the Agno framework.")
 - [Documentation](https://docs.agno.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
