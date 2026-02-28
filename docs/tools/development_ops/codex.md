@@ -48,7 +48,7 @@ codex "Create a python function to scrape a website"
 
 ## CLI examples
 
-### Local Model Configuration
+### codex with local models
 Some wrappers allow redirecting Codex-style requests to local inference servers:
 ```bash
 # Configure CLI to point to a local Ollama instance instead of OpenAI
@@ -56,7 +56,7 @@ codex config set base_url http://localhost:11434/v1
 codex config set model codellama
 ```
 
-### Sandboxed Execution
+### sandboxed execution
 Run generated code in a restricted environment to prevent system damage:
 ```bash
 # Execute with sandboxing flags (if supported by the CLI tool)
@@ -75,5 +75,5 @@ interpreter --local --model codellama --sandbox
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium

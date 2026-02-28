@@ -54,21 +54,21 @@ aider
 
 ## CLI examples
 
-### Hello World
+### aider hello-world
 Ask Aider to create a new file with a simple script:
 ```bash
 aider hello-world.py
 # In the chat: "Create a hello world script in python"
 ```
 
-### Using Local Models (Ollama)
+### aider with ollama
 Aider supports local models via Ollama or LiteLLM:
 ```bash
 # Run with a local Llama 3 model
 aider --model ollama/llama3
 ```
 
-### Commit Workflow
+### aider commit workflow
 Aider automatically commits changes with descriptive messages:
 ```bash
 # Start aider and it will track your session
@@ -95,5 +95,5 @@ aider
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium

@@ -41,7 +41,7 @@ Continue is available as an extension for VS Code and JetBrains.
 
 ## Usage examples
 
-### config.json with Ollama
+### config.json with Ollama provider
 Configure Continue to use a local model via Ollama:
 ```json
 {
@@ -60,7 +60,7 @@ Configure Continue to use a local model via Ollama:
 }
 ```
 
-### Custom Slash Commands
+### custom slash commands
 Add custom behavior by defining slash commands in `config.json`:
 ```json
 {
@@ -84,5 +84,5 @@ Add custom behavior by defining slash commands in `config.json`:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium
