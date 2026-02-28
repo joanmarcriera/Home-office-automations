@@ -36,10 +36,61 @@ AI & Knowledge — used as a research and information retrieval tool when up-to-
 - [Google Search](https://www.google.com)
 - [Genspark](https://www.genspark.ai/)
 
+## Getting started
+
+Perplexity provides an OpenAI-compatible API. You can use the standard OpenAI Python client to interact with it.
+
+```bash
+pip install openai
+```
+
+## API examples
+
+### Calling Perplexity API with Python
+
+```python
+from openai import OpenAI
+
+YOUR_API_KEY = "pplx-xxxxxxxx"
+
+client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
+
+# Chat completion without streaming
+response = client.chat.completions.create(
+    model="sonar-reasoning-pro",
+    messages=[
+        {
+            "role": "system",
+            "content": "Be precise and concise.",
+        },
+        {
+            "role": "user",
+            "content": "What are the latest developments in MCP (Model Context Protocol)?",
+        },
+    ],
+)
+print(response.choices[0].message.content)
+```
+
+### Calling Perplexity API with curl
+
+```bash
+curl -X POST https://api.perplexity.ai/chat/completions \
+  -H "Authorization: Bearer {YOUR_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-reasoning-pro",
+    "messages": [
+      {"role": "system", "content": "Be precise and concise."},
+      {"role": "user", "content": "How many stars are in the Milky Way?"}
+    ]
+  }'
+```
+
 ## Sources / references
 - [Official Website](https://www.perplexity.ai/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-28
 - Confidence: medium

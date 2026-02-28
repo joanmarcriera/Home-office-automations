@@ -36,11 +36,36 @@ AI & Knowledge — serves as a visual platform for building and deploying LLM ap
 - [Flowise](flowise.md)
 - [LangFlow](https://github.com/langflow-ai/langflow)
 
+## Getting started
+
+Dify is typically deployed via Docker. Once running, you can access its features through the web UI or via its REST API.
+
+To use the API, you first need to create an application in the Dify dashboard and generate an API Key.
+
+## API examples
+
+### Calling a Dify Workflow API
+
+Workflows in Dify can be triggered via a POST request.
+
+```bash
+curl -X POST 'https://api.dify.ai/v1/workflows/run' \
+--header 'Authorization: Bearer {YOUR_API_KEY}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "inputs": {
+        "query": "What are the benefits of self-hosting LLMs?"
+    },
+    "response_mode": "blocking",
+    "user": "unique_user_id_123"
+}'
+```
+
 ## Sources / references
 - [Official Website](https://dify.ai/)
 - [GitHub Repository](https://github.com/langgenius/dify)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-28
 - Confidence: medium
