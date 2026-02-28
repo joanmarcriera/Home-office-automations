@@ -48,20 +48,20 @@ claude
 
 ## CLI examples
 
-### Initializing a Project
+### claude-code init
 Create a `CLAUDE.md` file to give Claude persistent context about your repository:
 ```bash
 claude /init
 ```
 
-### Useful Slash Commands
+### slash commands
 Inside an active `claude` session, use these commands for quick actions:
 - `/help`: Show available commands and skills.
 - `/compact`: Summarize conversation history to save tokens.
 - `/config`: Interactively configure settings (model, theme, etc.).
 - `/review`: (If skill exists) Trigger a code review of staged changes.
 
-### MCP Setup
+### MCP setup
 Configure Model Context Protocol servers to extend Claude's capabilities:
 ```bash
 # List configured MCP servers
@@ -82,5 +82,5 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 - [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium

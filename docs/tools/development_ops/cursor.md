@@ -41,7 +41,7 @@ Download Cursor from the official website and sign in. On first run, it will ind
 
 ## Usage examples
 
-### .cursorrules setup
+### .cursorrules file
 Create a `.cursorrules` file in your root directory to enforce coding standards:
 ```markdown
 # Coding Standards
@@ -51,7 +51,7 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 - Ensure all functions have JSDoc comments.
 ```
 
-### AI Keyboard Shortcuts
+### keyboard shortcuts for AI features
 | Action | Shortcut (Mac) | Shortcut (Windows/Linux) |
 | :--- | :--- | :--- |
 | **Edit code in place** | `Cmd + K` | `Ctrl + K` |
@@ -67,5 +67,5 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium

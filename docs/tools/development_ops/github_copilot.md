@@ -41,13 +41,13 @@ GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrain
 
 ## Usage examples
 
-### Chat Commands
+### copilot chat commands
 Use slash commands in the chat sidebar to perform specific tasks:
 - `/explain`: Get an explanation of the selected code.
 - `/fix`: Propose a fix for bugs in the selected code.
 - `/tests`: Generate unit tests for the current file.
 
-### Workspace Agent
+### workspace agent
 Use the `@workspace` participant to ask questions about your entire project:
 ```text
 @workspace How are the API routes structured in this project?
@@ -63,5 +63,5 @@ Use the `@workspace` participant to ask questions about your entire project:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: medium
