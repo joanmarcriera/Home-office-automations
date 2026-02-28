@@ -37,7 +37,7 @@ print(response.choices[0].message.content)
 - **Model Variety**: Supports hundreds of open-source models across text, image, and code.
 - **Speed**: One of the fastest inference providers on the market.
 - **Features**: Offers serverless API, dedicated clusters, and fine-tuning.
-- **Pricing**: Extremely low costs for serverless inference. Pricing is usage-based (per 1M tokens) and generally much cheaper than proprietary alternatives.
+- **Pricing Tiers**: Offers aggressive **Serverless** pricing (usage-based, very low cost) and **Dedicated Clusters** for predictable performance at scale.
 
 ## Limitations
 - **Third-Party Dependency**: You are relying on their platform for uptime and security of the open models.
@@ -68,5 +68,5 @@ print(response.choices[0].message.content)
 - [Together AI Models](https://www.together.ai/models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

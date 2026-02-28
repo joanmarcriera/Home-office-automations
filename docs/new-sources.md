@@ -6,8 +6,8 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
-| 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 12 | Daily ingestion (LLM inference infrastructure + 6 Agent frameworks) |
-| 2026-02-27 | [2026-02-27](/new-sources/2026-02-27/) | 0 | 15 | Daily ingestion (agents, browser tools, search APIs) |
+| 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 25 | Daily ingestion (infrastructure, frameworks, agent tooling, and providers) |
+| 2026-02-27 | [2026-02-27](/new-sources/2026-02-27/) | 0 | 27 | Daily ingestion (agents, browser tools, search APIs, frameworks, and providers) |
 | 2026-02-26 | [2026-02-26](/new-sources/2026-02-26/) | 0 | 18 | Daily ingestion plus open-issue catch-up integrations |
 | 2026-02-25 | [2026-02-25](/new-sources/2026-02-25/) | 0 | 9 | Initial daily migration |
 | 2025-02-25 | [2025-02-25](/new-sources/2025-02-25/) | 0 | 5 | Legacy entries migrated from old monolithic inbox |

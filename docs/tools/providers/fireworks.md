@@ -39,7 +39,7 @@ print(response.choices[0].message.content)
 - **Speed**: Optimized inference engine (FireAttention) provides high tokens per second.
 - **Developer Experience**: OpenAI-compatible API makes migration simple.
 - **Fine-tuning**: Excellent support for LoRA fine-tuning and deployment.
-- **Pricing**: Usage-based, very competitive. Separate tiers for serverless and dedicated deployments.
+- **Pricing Tiers**: Features highly competitive **Serverless** usage-based pricing and **On-Demand/Reserved** capacity for large-scale production needs.
 
 ## Limitations
 - **Model Variety**: While broad, they focus on a curated set of high-performance models rather than everything available.
@@ -70,5 +70,5 @@ print(response.choices[0].message.content)
 - [Model Directory](https://fireworks.ai/models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

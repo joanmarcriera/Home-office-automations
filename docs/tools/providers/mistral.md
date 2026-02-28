@@ -46,7 +46,7 @@ print(chat_response.choices[0].message.content)
 - **Efficiency**: Known for "punching above their weight" in terms of parameter count vs performance.
 - **Open Weights**: Many models are released under Apache 2.0 or Mistral Research License, allowing local hosting.
 - **Codestral**: Highly capable model specifically for code generation and FIM (Fill-In-the-Middle).
-- **Pricing**: Very competitive API pricing via "La Plateforme". Multiple tiers from cheap (Ministral) to premium (Mistral Large).
+- **Pricing Tiers**: Extremely competitive pricing through **La Plateforme**, ranging from the ultra-cheap **Ministral** and **Mistral Small** to the flagship **Mistral Large**.
 
 ## Limitations
 - **API Maturity**: While improving, the API featureset (e.g., fine-tuning, complex tool use) has historically trailed OpenAI.
@@ -77,5 +77,5 @@ print(chat_response.choices[0].message.content)
 - [Mistral News](https://mistral.ai/news)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
