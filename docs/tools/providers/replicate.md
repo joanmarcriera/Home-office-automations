@@ -36,7 +36,7 @@ for item in output:
 - **Unrivaled Variety**: Hosts thousands of models for text, image, video, audio, and more.
 - **Simplicity**: Extremely easy-to-use API and web interface.
 - **Cog**: Their open-source tool (Cog) allows you to package your own models for deployment on Replicate.
-- **Pricing**: Mostly per-second billing based on the GPU hardware used. Very transparent for intermittent usage.
+- **Pricing Tiers**: Uses transparent **Per-second** billing based on the specific hardware (CPU/GPU) selected, making it ideal for intermittent and varied workloads.
 
 ## Limitations
 - **Cold Starts**: Models not in constant use may experience "cold starts" (delay while the container spins up).
@@ -67,5 +67,5 @@ for item in output:
 - [Model Explorer](https://replicate.com/explore)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

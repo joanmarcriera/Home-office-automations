@@ -43,7 +43,7 @@ print(chat_completion.choices[0].message.content)
 - **Extreme Speed**: Often 10x+ faster than traditional GPU-based providers.
 - **Open Model Support**: Focuses on the best open-weights models like Llama 3 and Mixtral.
 - **Low Latency**: Unmatched time-to-first-token (TTFT) and tokens per second.
-- **Pricing**: Very competitive token-based pricing. Offers a generous free tier for developers to experiment.
+- **Pricing Tiers**: Provides a generous **Free** tier for development and prototyping, alongside competitive usage-based **On-Demand** pricing.
 
 ## Limitations
 - **Model Selection**: Limited to the open models they have optimized for their LPU hardware.
@@ -74,5 +74,5 @@ print(chat_completion.choices[0].message.content)
 - [Groq Documentation](https://docs.groq.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
