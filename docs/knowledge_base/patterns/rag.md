@@ -136,7 +136,7 @@ print(result["answer"])
     *   *Recursive:* Adjusts based on punctuation/structure.
     *   *Semantic:* Uses embeddings to find natural break points.
 *   **Embedding Model Selection:**
-    *   *Local:* (e.g., [Ollama](../../tools/ai_knowledge/ollama.md) with `nomic-embed-text`, BGE, HuggingFace) for privacy and zero cost.
+    *   *Local:* (e.g., [Ollama](../../services/ollama.md) with `nomic-embed-text`, BGE, HuggingFace) for privacy and zero cost.
     *   *API-based:* (e.g., OpenAI, Cohere) for high performance with less local compute.
 *   **Vector Store Selection:**
     *   Options include Chroma, Pinecone, Weaviate, or [pgvector](../../tools/infrastructure/index.md#sub-categories).
