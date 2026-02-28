@@ -35,34 +35,31 @@ Connecting agents to real-world tools usually requires writing boilerplate for a
 ## Getting started
 ### Installation
 ```bash
-pip install composio-core
-# Or for specific frameworks
-pip install composio-openai
+pip install composio-core composio-openai
 ```
 
 ### Working Example
 ```python
-from composio import Composio, App
+from composio_openai import ComposioToolSet, App
 from openai import OpenAI
 
-client = OpenAI()
-composio = Composio()
+# 1. Initialize OpenAI client and Composio Toolset
+client = OpenAI(api_key="YOUR_OPENAI_KEY")
+toolset = ComposioToolSet(api_key="YOUR_COMPOSIO_KEY")
 
-# Initialize session for a user
-session = composio.create(user_id="user_1")
+# 2. Get tools for a specific app (e.g., GitHub)
+tools = toolset.get_tools(apps=[App.GITHUB])
 
-# Get tools for GitHub
-tools = session.tools(apps=[App.GITHUB])
-
-# Use in OpenAI
+# 3. Create an agentic completion request
 response = client.chat.completions.create(
     model="gpt-4o",
-    messages=[{"role": "user", "content": "Create a GitHub issue in my test repo"}],
-    tools=tools
+    messages=[{"role": "user", "content": "Star the repository 'composiohq/composio' on GitHub"}],
+    tools=tools,
+    tool_choice="auto"
 )
 
-# Handle tool calls
-result = session.handle_tool_calls(response)
+# 4. Execute the tool call
+result = toolset.handle_tool_calls(response)
 print(result)
 ```
 
@@ -72,6 +69,7 @@ print(result)
 - **Self-hostable**: Enterprise versions support self-hosting.
 
 ## Related tools / concepts
+- [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [Zapier](../automation_orchestration/zapier.md)
 - [Make](../automation_orchestration/make.md)
@@ -82,5 +80,5 @@ print(result)
 - [GitHub](https://github.com/composiohq/composio)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

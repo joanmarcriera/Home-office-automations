@@ -44,12 +44,14 @@ import { UnstructuredRawModel } from "beeai-framework/backend/unstructured";
 import { DuckDuckGoSearchTool } from "beeai-framework/tools/search/duckduckgo";
 
 async function main() {
+    // 1. Create the agent with a tool
     const agent = new BeeAgent({
         llm: new UnstructuredRawModel({ modelId: "gpt-4o" }),
         tools: [new DuckDuckGoSearchTool()],
         memory: []
     });
 
+    // 2. Run a query
     const response = await agent.run({ prompt: "What is the Bee Agent Framework?" });
     console.log(response.result.text);
 }
@@ -63,6 +65,7 @@ main();
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+- [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [LangGraph](langgraph.md)
 
@@ -71,5 +74,5 @@ main();
 - [IBM Research Blog](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high

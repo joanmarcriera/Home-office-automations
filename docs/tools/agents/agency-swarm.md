@@ -39,25 +39,35 @@ pip install agency-swarm
 
 ### Working Example
 ```python
-from agency_swarm import Agent, Agency, set_openai_key
+from agency_swarm import Agent, Agency, set_openai_key, BaseTool
+from pydantic import Field
 
 set_openai_key("YOUR_API_KEY")
 
-# Define specialized agents
+# 1. Define a custom tool
+class CalculateTool(BaseTool):
+    """A tool to calculate the square of a number."""
+    number: int = Field(..., description="The number to square.")
+
+    def run(self):
+        return f"The result is {self.number ** 2}"
+
+# 2. Define specialized agents
 ceo = Agent(name="CEO",
             description="Responsible for coordinating the agency.",
             instructions="Direct the developer to complete tasks.")
 
 developer = Agent(name="Developer",
-                 description="Responsible for writing code.",
-                 instructions="Write code based on CEO's instructions.")
+                 tools=[CalculateTool],
+                 description="Responsible for math operations.",
+                 instructions="Use the CalculateTool when asked for math.")
 
-# Create the agency
+# 3. Create the agency
 agency = Agency([ceo, [ceo, developer]],
-                shared_instructions="Work together to build a hello world script.")
+                shared_instructions="Work together to solve user requests.")
 
-# Run a query
-agency.get_completion("CEO, please ask the developer to write a Python hello world script.")
+# 4. Run a query
+agency.get_completion("CEO, please ask the developer to calculate the square of 15.")
 ```
 
 ## Licensing and cost
@@ -69,11 +79,12 @@ agency.get_completion("CEO, please ask the developer to write a Python hello wor
 - [OpenAI](../ai_knowledge/openai.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [CrewAI](../frameworks/crewai.md)
+- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/VRSEN/agency-swarm)
 - [Official Website](https://agency-swarm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
