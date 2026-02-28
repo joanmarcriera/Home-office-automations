@@ -6,6 +6,7 @@
 - [Gsm8k](gsm8k.md)
 - [Human Eval](human-eval.md)
 - [Humanitys Last Exam](humanitys-last-exam.md)
+- [LangSmith](langsmith.md)
 - [Llmperf](llmperf.md)
 - [Lm Evaluation Harness](lm-evaluation-harness.md)
 - [LongCLI-Bench](longcli-bench.md)
