@@ -522,7 +522,7 @@ Required sections:
    (RAGFlow, LlamaIndex, LangChain, Crawl4AI, etc.)
 ## Code example — a minimal Python RAG pipeline using LlamaIndex
    or LangChain (pick whichever has better docs)
-## Sources / References — include 3-5 authoritative sources
+## Sources / References (authoritative sources)
 ## Contribution Metadata
 
 Add to mkdocs.yml under Knowledge Base > Patterns.
@@ -558,8 +558,8 @@ Required sections:
 ## Tools in this repo — link to existing MCP-related docs (MCP
    Registry, ServiceNow MCP, CliHub, Claude Code, etc.)
 ## Code example — a minimal MCP server in Python
-## Sources / References
-## Contribution Metadata
+## Sources / References (standard sections)
+## Contribution Metadata (standard sections)
 
 Add to mkdocs.yml under Knowledge Base > Patterns.
 
@@ -592,7 +592,7 @@ Required sections:
    where the repo is actively expanding
 ## How this repo stays current — brief description of the daily
    digest → bridge → Jules → weekly planner pipeline
-## Sources / References — link to architecture docs
+## Sources / References (architecture links)
 ## Contribution Metadata
 
 Add to mkdocs.yml under Knowledge Base.
@@ -712,6 +712,7 @@ Fix all issues found and commit in a single PR titled
 
 ## Sources / References
 
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - [Automated Contributions (Jules setup)](automated_contributions.md)
 - [Multi-Agent KnowledgeOps Governance](multi_agent_knowledgeops.md)
 - [Daily Jules Maintenance workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/daily-jules-maintenance.yml)
