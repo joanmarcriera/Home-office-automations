@@ -32,6 +32,35 @@ AI & Knowledge — serves as a data-centric framework for building RAG pipelines
 - When building complex multi-agent workflows (consider LangChain or LangGraph instead)
 - When the application does not involve data retrieval or indexing
 
+## Getting started
+
+```bash
+pip install llama-index
+```
+
+```python
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+documents = SimpleDirectoryReader("data").load_data()
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+```
+
+## API examples
+
+```python
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+# Load documents and build index
+documents = SimpleDirectoryReader("./docs").load_data()
+index = VectorStoreIndex.from_documents(documents)
+
+# Query the index
+query_engine = index.as_query_engine()
+response = query_engine.query("What are the key features of this tool?")
+print(response)
+```
+
 ## Related tools / concepts
 - [LangChain](langchain.md)
 - [Haystack](https://github.com/deepset-ai/haystack)
@@ -42,5 +71,5 @@ AI & Knowledge — serves as a data-centric framework for building RAG pipelines
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-27
 - Confidence: medium
