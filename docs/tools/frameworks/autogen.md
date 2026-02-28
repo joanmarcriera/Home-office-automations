@@ -7,7 +7,7 @@ AutoGen is an open-source framework from Microsoft Research that enables the dev
 It enables complex workflows that require multiple turns of conversation, code generation and execution, and human-in-the-loop feedback. It automates the "chat" between agents to reach a goal.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator**. It provides a robust foundation for conversational agents.
+Framework / Multi-Agent Orchestrator
 
 ## Typical use cases
 - **Software Engineering**: An assistant agent writing code and a proxy agent executing it to fix bugs.
@@ -37,6 +37,7 @@ It enables complex workflows that require multiple turns of conversation, code g
 - **Self-hostable**: Yes
 
 ## Getting started
+
 ```bash
 pip install pyautogen
 ```
@@ -65,5 +66,5 @@ user_proxy.initiate_chat(assistant, message="Show me the stock price of NVDA for
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
