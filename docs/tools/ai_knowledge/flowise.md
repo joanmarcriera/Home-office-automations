@@ -36,11 +36,39 @@ AI & Knowledge — provides a no-code visual builder for LLM pipelines that can 
 - [Dify](dify.md)
 - [LangFlow](https://github.com/langflow-ai/langflow)
 
+## Getting started
+
+Install Flowise globally via npm and start it:
+
+```bash
+npm install -g flowise
+npx flowise start
+```
+
+Once running, you can access the UI at `http://localhost:3000`.
+
+## API examples
+
+### Calling a Flowise Chatflow via REST
+
+You can interact with your deployed chatflows using the Prediction API.
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
+     -H "Content-Type: application/json" \
+     -d '{
+            "question": "How do I set up a vector store in Flowise?",
+            "overrideConfig": {
+                "returnSourceDocuments": true
+            }
+         }'
+```
+
 ## Sources / references
 - [Official Website](https://flowiseai.com/)
 - [GitHub Repository](https://github.com/FlowiseAI/Flowise)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-02-28
 - Confidence: medium
