@@ -57,6 +57,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-02-28: new-sources/2026-02-28.md
       - 2026-02-27: new-sources/2026-02-27.md
       - 2026-02-26: new-sources/2026-02-26.md
       - 2026-02-25: new-sources/2026-02-25.md
@@ -160,6 +161,7 @@ nav:
       - Gsm8K: tools/benchmarking/gsm8k.md
       - Human Eval: tools/benchmarking/human-eval.md
       - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
+      - LangSmith: tools/benchmarking/langsmith.md
       - LLMperf: tools/benchmarking/llmperf.md
       - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md
       - LongCLI-Bench: tools/benchmarking/longcli-bench.md
@@ -239,6 +241,7 @@ nav:
       - ExLlamaV2: tools/infrastructure/exllamav2.md
       - llama.cpp: tools/infrastructure/llama-cpp.md
       - MLX: tools/infrastructure/mlx.md
+      - OpenPipe: tools/infrastructure/openpipe.md
       - SGLang: tools/infrastructure/sglang.md
       - Text Generation Inference (TGI): tools/infrastructure/tgi.md
       - vLLM: tools/infrastructure/vllm.md
