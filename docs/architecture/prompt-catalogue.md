@@ -9,7 +9,7 @@ Every prompt, issue template, and LLM call used to keep this repository growing 
 | ID | Name | Runner | Cadence | Type |
 | :--- | :--- | :--- | :--- | :--- |
 | **GA-1** | [Daily AI Digest](#ga-1-daily-ai-digest) | GitHub Actions | 2×/day | Recurring |
-| **GA-2** | [Digest → Intake Bridge](#ga-2-digest--intake-bridge) | GitHub Actions + OpenRouter LLM | 2×/day | Recurring |
+| **GA-2** | [Digest → Intake Bridge](#ga-2-digest-intake-bridge) | GitHub Actions + OpenRouter LLM | 2×/day | Recurring |
 | **GA-3** | [Daily Jules Maintenance](#ga-3-daily-jules-maintenance) | GitHub Actions → Jules | 2×/day | Recurring |
 | **GA-4** | [Weekly Growth Planner](#ga-4-weekly-growth-planner) | GitHub Actions → Jules | 2×/week | Recurring |
 | **J-1** | [Fill Infrastructure Category](#j-1-fill-infrastructure-category) | Jules scheduled task | Once (Day 1) | One-shot |
@@ -20,7 +20,7 @@ Every prompt, issue template, and LLM call used to keep this repository growing 
 | **J-6** | [Add Code Examples (Batch 2)](#j-6-add-code-examples-batch-2) | Jules scheduled task | Once (Day 1) | One-shot |
 | **J-7** | [Essential Reading List](#j-7-essential-reading-list) | Jules scheduled task | Once (Day 1) | One-shot |
 | **J-8** | [RAG Pattern Deep Dive](#j-8-rag-pattern-deep-dive) | Jules scheduled task | Once (Day 1) | One-shot |
-| **J-9** | [MCP & Tool-Calling Pattern](#j-9-mcp--tool-calling-pattern) | Jules scheduled task | Once (Day 1) | One-shot |
+| **J-9** | [MCP & Tool-Calling Pattern](#j-9-mcp-tool-calling-pattern) | Jules scheduled task | Once (Day 1) | One-shot |
 | **J-10** | [Landscape Overview](#j-10-landscape-overview) | Jules scheduled task | Once (Day 1) | One-shot |
 | **JR-1** | [Daily Intake Processing](#jr-1-daily-intake-processing) | Jules scheduled task | Daily | Recurring |
 | **JR-2** | [Weekly Doc Deepening](#jr-2-weekly-doc-deepening) | Jules scheduled task | Weekly (Mon) | Recurring |
@@ -45,7 +45,7 @@ No LLM prompt is embedded in the workflow — the digest script (`ai-daily-diges
 
 ---
 
-### GA-2: Digest → Intake Bridge
+### GA-2: Digest-Intake Bridge
 
 | | |
 | :--- | :--- |
@@ -522,7 +522,7 @@ Required sections:
    (RAGFlow, LlamaIndex, LangChain, Crawl4AI, etc.)
 ## Code example — a minimal Python RAG pipeline using LlamaIndex
    or LangChain (pick whichever has better docs)
-## Sources / References — include 3-5 authoritative sources
+## Sources / References (authoritative sources)
 ## Contribution Metadata
 
 Add to mkdocs.yml under Knowledge Base > Patterns.
@@ -532,7 +532,7 @@ PR title: "feat: add RAG patterns deep dive"
 
 ---
 
-### J-9: MCP & Tool-Calling Pattern
+### J-9: MCP-Tool-Calling Pattern
 
 | | |
 | :--- | :--- |
@@ -558,8 +558,8 @@ Required sections:
 ## Tools in this repo — link to existing MCP-related docs (MCP
    Registry, ServiceNow MCP, CliHub, Claude Code, etc.)
 ## Code example — a minimal MCP server in Python
-## Sources / References
-## Contribution Metadata
+## Sources / References (standard sections)
+## Contribution Metadata (standard sections)
 
 Add to mkdocs.yml under Knowledge Base > Patterns.
 
@@ -592,7 +592,7 @@ Required sections:
    where the repo is actively expanding
 ## How this repo stays current — brief description of the daily
    digest → bridge → Jules → weekly planner pipeline
-## Sources / References — link to architecture docs
+## Sources / References (architecture links)
 ## Contribution Metadata
 
 Add to mkdocs.yml under Knowledge Base.
@@ -712,6 +712,7 @@ Fix all issues found and commit in a single PR titled
 
 ## Sources / References
 
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - [Automated Contributions (Jules setup)](automated_contributions.md)
 - [Multi-Agent KnowledgeOps Governance](multi_agent_knowledgeops.md)
 - [Daily Jules Maintenance workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/daily-jules-maintenance.yml)
