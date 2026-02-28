@@ -7,7 +7,7 @@ CrewAI is an open-source framework for orchestrating role-playing, collaborative
 It simplifies the creation of multi-agent systems where agents need to collaborate and follow a specific process (sequential, hierarchical, etc.). It manages the communication and task hand-offs between agents automatically.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator**. It sits on top of LLMs and provides the logic for agent collaboration.
+Framework / Multi-Agent Orchestrator
 
 ## Typical use cases
 - **Content Creation Pipelines**: A writer agent, a researcher agent, and an editor agent working together.
@@ -37,6 +37,7 @@ It simplifies the creation of multi-agent systems where agents need to collabora
 - **Self-hostable**: Yes
 
 ## Getting started
+
 ```bash
 pip install crewai
 ```
@@ -44,15 +45,12 @@ pip install crewai
 ```python
 from crewai import Agent, Task, Crew
 
-# Define agents
 researcher = Agent(role='Researcher', goal='Find info about {topic}', backstory='Expert analyst')
 writer = Agent(role='Writer', goal='Write a post about {topic}', backstory='Professional blogger')
 
-# Define tasks
 task1 = Task(description='Research the latest trends in {topic}', agent=researcher, expected_output='A list of 5 trends')
 task2 = Task(description='Write a 3-paragraph summary of the trends', agent=writer, expected_output='A blog post')
 
-# Create and run the crew
 crew = Crew(agents=[researcher, writer], tasks=[task1, task2])
 result = crew.kickoff(inputs={'topic': 'AI in 2024'})
 print(result)
@@ -70,5 +68,5 @@ print(result)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
