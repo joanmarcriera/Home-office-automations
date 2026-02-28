@@ -72,5 +72,5 @@ print(response.choices[0].message.content)
 - [Official Documentation](https://sgl-project.github.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-02-28
 - Confidence: high
