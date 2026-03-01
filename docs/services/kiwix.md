@@ -14,3 +14,13 @@ It allows you to download and access content like Wikipedia, Wiktionary, and TED
 
 ## Backlog
 - Set up automated downloads for new ZIM files.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://www.kiwix.org/
+- https://github.com/kiwix/kiwix-tools
+- https://internet-in-a-box.org/

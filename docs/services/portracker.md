@@ -14,3 +14,13 @@ It provides a dashboard to monitor active ports on your network and discover new
 
 ## Backlog
 - Set up alerts for unexpected port changes.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/mostafa-wahied/portracker
+- https://nmap.org/
+- https://www.netdata.cloud/

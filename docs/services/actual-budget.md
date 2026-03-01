@@ -15,3 +15,13 @@ Actual is a super fast, privacy-focused budgeting tool that lets you manage your
 
 ## Backlog
 - Set up automated bank synchronization via GoCardless/Nordigen.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://actualbudget.com/
+- https://github.com/actualbudget/actual
+- https://www.firefly-iii.org/
