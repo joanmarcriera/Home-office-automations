@@ -73,5 +73,5 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 - [Documentation](https://docs.agno.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high

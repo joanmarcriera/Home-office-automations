@@ -16,3 +16,13 @@ It allows you to integrate various authentication sources and provide Single Sig
 ## Backlog
 - Configure LDAP outpost for legacy apps.
 - Implement Passkey support.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://goauthentik.io/
+- https://docs.goauthentik.io/
+- https://www.keycloak.org/

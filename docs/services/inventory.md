@@ -29,3 +29,11 @@ This table provides a high-level overview of all services running in the TrueNAS
 - **Secret Management**: Need to ensure all `.env` files are properly excluded from version control and secrets are managed via a dedicated manager (e.g., Vault or TrueNAS Secrets).
 - **ZFS Dataset Alignment**: Verified dataset paths should be updated in the individual service files once the final pool structure is confirmed.
 - **Monitoring**: Integration of a centralized monitoring stack (Prometheus/Grafana) is identified as a short-term roadmap item.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/joanmarcriera/Home-office-automations

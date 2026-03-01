@@ -30,3 +30,11 @@ Text:
 
 Response: One word only.
 ```
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/joanmarcriera/Home-office-automations

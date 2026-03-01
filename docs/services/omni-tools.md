@@ -14,3 +14,12 @@ It provides a wide array of utilities, including text tools, coding tools, and m
 
 ## Backlog
 - Add custom tool modules for repository management.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/the-omni-tools/omni-tools
+- https://github.com/gchq/CyberChef

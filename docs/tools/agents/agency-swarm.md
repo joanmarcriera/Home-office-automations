@@ -86,5 +86,5 @@ agency.get_completion("CEO, please ask the developer to calculate the square of 
 - [Official Website](https://agency-swarm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high

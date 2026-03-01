@@ -34,3 +34,11 @@ Convert physical documents (mail, receipts) into actionable tasks in the task ma
 ## Variants
 - **Manual Intake**: User manually uploads a PDF to Paperless and applies the tag.
 - **Email Forward**: User forwards an email to the intake address.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/joanmarcriera/Home-office-automations
