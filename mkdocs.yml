@@ -265,6 +265,7 @@ nav:
     - Prompt Catalogue: architecture/prompt-catalogue.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
+    - Landscape Overview: knowledge_base/landscape-overview.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md

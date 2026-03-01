@@ -30,3 +30,11 @@ This document describes typical end-to-end automation scenarios within the home 
 3. **Act**: Code is committed to local [GitHub](https://github.com) or Gitea repository.
 4. **Sync**: [Cloud Code](../tools/development_ops/cloud_code.md) or [n8n](../services/n8n.md) detects the commit and triggers a deployment to the local Kubernetes cluster or a Docker host.
 5. **Verify**: Automated agents in [Anti-Gravity](../tools/development_ops/anti_gravity.md) verify the live deployment by running browser-based tests.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com

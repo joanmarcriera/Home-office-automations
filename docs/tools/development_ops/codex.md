@@ -60,7 +60,7 @@ codex config set model codellama
 Run generated code in a restricted environment to prevent system damage:
 ```bash
 # Execute with sandboxing flags (if supported by the CLI tool)
-codex --execute --sandbox=docker "Calculate the first 1000 prime numbers"
+codex --execute --full-auto --sandbox=docker "Calculate the first 1000 prime numbers"
 
 # Use with Open Interpreter for more advanced sandboxed execution
 interpreter --local --model codellama --sandbox
@@ -75,5 +75,5 @@ interpreter --local --model codellama --sandbox
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: medium

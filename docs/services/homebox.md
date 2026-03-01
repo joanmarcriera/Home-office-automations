@@ -14,3 +14,12 @@ It is designed to be simple, fast, and easy to use. It helps you keep track of y
 
 ## Backlog
 - Export data to CSV for insurance purposes.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/sysadminsmedia/homebox
+- https://snipeitapp.com/

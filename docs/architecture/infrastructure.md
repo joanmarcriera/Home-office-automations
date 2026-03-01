@@ -35,3 +35,11 @@ Continuous evaluation of model performance and reasoning accuracy.
 - **Local**: Scheduled ZFS snapshots of all application datasets.
 - **Offsite**: Periodic synchronization of critical datasets to cloud storage using [rclone](../services/rclone-automation.md).
 - **Configuration**: All infrastructure-as-code and configuration files are version-controlled in this repository.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/joanmarcriera/Home-office-automations

@@ -33,3 +33,11 @@ Accelerate homelab infrastructure development using a hierarchy of AI coding age
 
 ## Case Studies & References
 - [How we rebuilt Next.js with AI in one week](https://blog.cloudflare.com/vinext) (Cloudflare's experience with AI-assisted rebuilding of components).
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://blog.cloudflare.com/vinext

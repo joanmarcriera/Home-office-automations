@@ -15,3 +15,13 @@ It is a simple and intuitive tool for creating sketches and diagrams that look l
 
 ## Backlog
 - Integrate with Obsidian via the Excalidraw plugin.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://excalidraw.com/
+- https://github.com/excalidraw/excalidraw
+- https://www.tldraw.com/

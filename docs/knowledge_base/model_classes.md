@@ -67,3 +67,13 @@ Generative models that learn a compressed latent representation of data, often u
 ## Backlog
 - Add comparison table of model architectures (Dense vs MoE vs SSM).
 - Include details on "Reasoning Tokens" and "Chain of Thought" native models.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://arxiv.org/abs/2510.10444
+- https://si.inc/posts/fdm1
+- https://www.linum.ai/field-notes/vae-reconstruction-vs-generation

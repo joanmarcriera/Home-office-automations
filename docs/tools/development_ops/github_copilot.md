@@ -63,5 +63,5 @@ Use the `@workspace` participant to ask questions about your entire project:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: medium

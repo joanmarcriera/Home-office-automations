@@ -15,3 +15,13 @@ It is designed as a direct replacement for Google Photos, offering features like
 
 ## Backlog
 - Configure machine learning node for advanced image classification.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://immich.app/
+- https://github.com/immich-app/immich
+- https://www.photoprism.app/

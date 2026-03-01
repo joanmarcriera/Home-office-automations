@@ -68,5 +68,5 @@ print(response.choices[0].message.content)
 - [Together AI Models](https://www.together.ai/models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high
