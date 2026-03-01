@@ -36,6 +36,14 @@ Framework
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Related tools / concepts
+- [LangChain](../ai_knowledge/langchain.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
+
+## Sources / References
+- [Official Website](https://dspy-docs.vercel.app/)
+- [GitHub](https://github.com/stanfordnlp/dspy)
+
 ## Getting started
 
 ```bash
@@ -57,16 +65,7 @@ pred = generate_answer(question="What is the capital of France?")
 print(pred.answer)
 ```
 
-## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Prompt Engineering](../../knowledge_base/patterns/index.md)
-
-## Sources / References
-- [Official Website](https://dspy-docs.vercel.app/)
-- [GitHub](https://github.com/stanfordnlp/dspy)
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high

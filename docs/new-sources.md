@@ -6,6 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-03-01 | [2026-03-01](/new-sources/2026-03-01/) | 0 | 6 | Integration of framework documentation (DSPy, Haystack, Semantic Kernel, CrewAI, AutoGen, Smolagents) |
 | 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 25 | Daily ingestion (infrastructure, frameworks, agent tooling, and providers) |
 | 2026-02-27 | [2026-02-27](/new-sources/2026-02-27/) | 0 | 27 | Daily ingestion (agents, browser tools, search APIs, frameworks, and providers) |
 | 2026-02-26 | [2026-02-26](/new-sources/2026-02-26/) | 0 | 18 | Daily ingestion plus open-issue catch-up integrations |
