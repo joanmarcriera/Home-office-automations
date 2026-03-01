@@ -1,37 +1,38 @@
 # SGLang
 
 ## What it is
-SGLang (Structured Generation Language) is a fast serving framework designed for Large Language Models and Vision Language Models. It focuses on accelerating "structured" generation where LLM outputs need to follow a specific format (e.g., JSON, multiple-choice) or involve complex prompting workflows.
+SGLang (Structured Generation Language) is a high-performance serving framework designed for Large Language Models (LLMs) and Vision Language Models (VLMs). It is specifically optimized for complex prompting workflows and "structured" output (like JSON or code).
 
 ## What problem it solves
-Complex LLM workflows often involve repetitive prompts, multiple calls, and structured output requirements, which can be slow and inefficient. SGLang optimizes these by using a **RadixAttention** mechanism for prefix caching across multiple requests and a fast runtime for constrained/structured generation.
+Modern LLM applications often involve complex multi-turn dialogues, shared system prompts, and structured output requirements. SGLang uses a **RadixAttention** mechanism to automatically cache and reuse Key-Value (KV) prefixes across different requests, significantly reducing latency and increasing throughput for these workloads.
 
 ## Where it fits in the stack
-**Infra** — It is a high-performance inference runtime and server, particularly suited for agentic workflows and structured data extraction.
+Infra
 
 ## Typical use cases
-- Fast serving of LLMs for agentic workflows with long, shared system prompts.
-- Structured data extraction (JSON, YAML) with high reliability and speed.
-- Serving Vision Language Models (VLMs).
+- Serving agents that use long, shared system prompts.
+- High-speed structured data extraction (JSON, YAML).
+- Low-latency serving of Vision Language Models.
+- Complex prompt chaining and multi-step reasoning workflows.
 
 ## Strengths
-- **RadixAttention**: Automatically caches and reuses KV cache prefixes across requests.
+- **RadixAttention**: Industry-leading prefix caching for multi-turn and agentic workflows.
 - **Fast Structured Output**: Highly optimized engine for constrained generation.
-- **VLM Support**: Excellent performance for vision-based models.
-- **OpenAI-Compatible**: Provides a standard API interface.
+- **Comprehensive VLM Support**: Excellent performance for vision-based models.
+- **Native Interpreter**: Includes a high-level Python interface for complex LLM programming.
 
 ## Limitations
-- **Newer Ecosystem**: Documentation and community resources are still growing compared to vLLM.
-- **Hardware**: Primarily optimized for NVIDIA GPUs.
+- **Hardware**: Primarily targets NVIDIA GPUs.
+- **Ecosystem**: Newer than vLLM, so community integrations and documentation are still maturing.
 
 ## When to use it
-- When your application uses complex, multi-turn dialogues or shared prefixes (e.g., agents).
-- When you need low-latency structured generation.
-- When you are working with VLMs.
+- When your application relies on multi-turn interactions or shared prompt prefixes.
+- When you need low-latency, reliable structured generation.
+- When serving VLMs.
 
 ## When not to use it
-- For very simple, single-prompt text generation where vLLM might be more straightforward.
-- In CPU-only environments.
+- For basic, single-prompt text generation where vLLM might be more widely documented.
+- On non-NVIDIA hardware.
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
@@ -50,14 +51,14 @@ pip install "sglang[all]"
 python -m sglang.launch_server --model-path meta-llama/Llama-3.1-8B-Instruct --port 30000
 ```
 
-### Querying with Python (OpenAI-Compatible)
+### Minimal Python Example (OpenAI Compatible)
 ```python
 from openai import OpenAI
 client = OpenAI(base_url="http://127.0.0.1:30000/v1", api_key="EMPTY")
 
 response = client.chat.completions.create(
     model="default",
-    messages=[{"role": "user", "content": "Explain quantum entanglement."}],
+    messages=[{"role": "user", "content": "Explain prefix caching in one sentence."}],
 )
 print(response.choices[0].message.content)
 ```
@@ -65,12 +66,12 @@ print(response.choices[0].message.content)
 ## Related tools / concepts
 - [vLLM](vllm.md)
 - [Text Generation Inference (TGI)](tgi.md)
-- [Guidance](https://github.com/guidance-ai/guidance) (Structured generation framework)
+- [Guidance](https://github.com/guidance-ai/guidance)
 
 ## Sources / References
 - [GitHub](https://github.com/sgl-project/sglang)
 - [Official Documentation](https://sgl-project.github.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high
