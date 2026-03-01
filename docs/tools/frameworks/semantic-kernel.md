@@ -36,14 +36,6 @@ Framework / SDK
 - **Cost**: Free
 - **Self-hostable**: Yes
 
-## Related tools / concepts
-- [AutoGen](autogen.md)
-- [LangChain](../ai_knowledge/langchain.md)
-
-## Sources / References
-- [GitHub](https://github.com/microsoft/semantic-kernel)
-- [Microsoft Documentation](https://learn.microsoft.com/en-us/semantic-kernel/)
-
 ## Getting started
 
 ```bash
@@ -66,7 +58,15 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+## Related tools / concepts
+- [AutoGen](autogen.md)
+- [LangChain](../ai_knowledge/langchain.md)
+
+## Sources / References
+- [GitHub](https://github.com/microsoft/semantic-kernel)
+- [Microsoft Documentation](https://learn.microsoft.com/en-us/semantic-kernel/)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: high

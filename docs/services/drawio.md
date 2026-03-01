@@ -15,13 +15,3 @@ It allows you to create a wide variety of diagrams, including flowcharts, networ
 
 ## Backlog
 - Set up self-hosted instance on TrueNAS for offline access.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://www.draw.io/
-- https://github.com/jgraph/drawio
-- https://www.lucidchart.com/

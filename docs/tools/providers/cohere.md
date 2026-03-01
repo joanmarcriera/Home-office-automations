@@ -68,5 +68,5 @@ print(response.text)
 - [Cohere Blog](https://cohere.com/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: high

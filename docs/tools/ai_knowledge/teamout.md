@@ -35,8 +35,3 @@ It automates the time-consuming process of sourcing venues, managing team prefer
 
 ## Sources / references
 - [Launch HN: TeamOut (YC W22) – AI agent for planning company retreats](https://app.teamout.com/ai)
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01

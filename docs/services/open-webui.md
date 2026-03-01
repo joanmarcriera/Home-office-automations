@@ -15,13 +15,3 @@ It provides a versatile interface for interacting with LLMs running locally (via
 
 ## Backlog
 - Integrate with internal knowledge base for RAG.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://openwebui.com/
-- https://github.com/open-webui/open-webui
-- https://github.com/ollama-webui/ollama-webui

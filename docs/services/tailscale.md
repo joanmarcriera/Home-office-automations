@@ -15,13 +15,3 @@ It builds a secure WireGuard-based mesh network between your devices, even behin
 ## Backlog
 - Setup Tailscale Exit Node on TrueNAS SCALE.
 - Configure MagicDNS for easy service access.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://tailscale.com/
-- https://www.zerotier.com/
-- https://www.netmaker.io/

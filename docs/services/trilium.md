@@ -14,11 +14,3 @@ It provides a rich set of features, including scripting, versioning, and end-to-
 
 ## Backlog
 - Sync with mobile devices for on-the-go note taking.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://github.com/zadam/trilium

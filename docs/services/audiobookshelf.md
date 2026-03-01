@@ -15,13 +15,3 @@ It allows you to organize and stream your audiobook and podcast collection. It f
 
 ## Backlog
 - Integrate with Kavita for ebook/manga support.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://www.audiobookshelf.org/
-- https://github.com/advplyr/audiobookshelf
-- https://www.plex.tv/

@@ -84,5 +84,5 @@ Add custom behavior by defining slash commands in `config.json`:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: medium

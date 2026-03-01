@@ -71,5 +71,5 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 - [GitHub Repository](https://github.com/phidata-hq/phidata)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: high

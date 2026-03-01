@@ -15,13 +15,3 @@ It allows you to easily import recipes from the web, plan your weekly meals, and
 
 ## Backlog
 - Integrate with Home Assistant for recipe display on kitchen dashboard.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://mealie.io/
-- https://github.com/mealie-recipes/mealie
-- https://tandoor.dev/

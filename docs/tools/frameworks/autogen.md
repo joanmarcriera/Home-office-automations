@@ -36,15 +36,6 @@ Framework / Multi-Agent Orchestrator
 - **Cost**: Free
 - **Self-hostable**: Yes
 
-## Related tools / concepts
-- [CrewAI](crewai.md)
-- [Semantic Kernel](semantic-kernel.md)
-- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
-
-## Sources / References
-- [GitHub](https://github.com/microsoft/autogen)
-- [Official Website](https://microsoft.github.io/autogen/)
-
 ## Getting started
 
 ```bash
@@ -64,7 +55,16 @@ user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "co
 user_proxy.initiate_chat(assistant, message="Show me the stock price of NVDA for the last 3 months.")
 ```
 
+## Related tools / concepts
+- [CrewAI](crewai.md)
+- [Semantic Kernel](semantic-kernel.md)
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
+
+## Sources / References
+- [GitHub](https://github.com/microsoft/autogen)
+- [Official Website](https://microsoft.github.io/autogen/)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: high

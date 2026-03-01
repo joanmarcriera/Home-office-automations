@@ -77,5 +77,5 @@ print(chat_response.choices[0].message.content)
 - [Mistral News](https://mistral.ai/news)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: high

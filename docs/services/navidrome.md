@@ -15,13 +15,3 @@ It is a high-performance music server that allows you to listen to your music co
 
 ## Backlog
 - Integrate with "Audiobookshelf" for a unified audio library.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://www.navidrome.org/
-- https://github.com/navidrome/navidrome
-- https://airsonic.github.io/

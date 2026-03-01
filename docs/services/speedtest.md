@@ -14,13 +14,3 @@ It automatically runs speed tests at scheduled intervals and displays the result
 
 ## Backlog
 - Integrate with Home Assistant for network health monitoring.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://github.com/alexjustesen/speedtest-tracker
-- https://www.speedtest.net/
-- https://librespeed.org/

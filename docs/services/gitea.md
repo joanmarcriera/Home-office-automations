@@ -15,13 +15,3 @@ It is a community-managed lightweight code hosting solution written in Go. It pr
 
 ## Backlog
 - Set up Gitea Actions for automated repository tasks.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://gitea.io/
-- https://github.com/go-gitea/gitea
-- https://about.gitlab.com/

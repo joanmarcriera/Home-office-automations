@@ -30,11 +30,3 @@ Defined in [Classification Standards](../standards.md).
 
 ## Variants
 - **Direct Scan**: Scanning a physical permission slip brought home by the student.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://github.com/joanmarcriera/Home-office-automations

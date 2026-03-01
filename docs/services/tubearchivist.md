@@ -15,13 +15,3 @@ It allows you to index and download YouTube videos, metadata, and comments to yo
 
 ## Backlog
 - Configure automated downloads for subscribed channels.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://www.tubearchivist.com/
-- https://github.com/tubearchivist/tubearchivist
-- https://github.com/ytdl-org/youtube-dl

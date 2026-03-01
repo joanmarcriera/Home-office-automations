@@ -36,15 +36,6 @@ Framework
 - **Cost**: Free
 - **Self-hostable**: Yes
 
-## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-
-## Sources / References
-- [Official Website](https://haystack.deepset.ai/)
-- [GitHub](https://github.com/deepset-ai/haystack)
-- [Documentation](https://docs.haystack.deepset.ai/)
-
 ## Getting started
 
 ```bash
@@ -66,7 +57,16 @@ result = pipeline.run({"prompt_builder": {"country": "France"}})
 print(result["llm"]["replies"][0])
 ```
 
+## Related tools / concepts
+- [LangChain](../ai_knowledge/langchain.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
+
+## Sources / References
+- [Official Website](https://haystack.deepset.ai/)
+- [GitHub](https://github.com/deepset-ai/haystack)
+- [Documentation](https://docs.haystack.deepset.ai/)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: high

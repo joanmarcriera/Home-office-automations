@@ -38,8 +38,3 @@ It solves the complexity problem of modern LLM implementations by stripping them
 
 ## Sources / references
 - [ansigpt: c89 implementation of microgpt](https://github.com/yobibyte/ansigpt)
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01

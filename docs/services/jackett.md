@@ -14,13 +14,3 @@ It parses the HTML response and then sends results back to the requesting softwa
 
 ## Backlog
 - Migrate to Prowlarr for better integration with the "Arr" stack.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://github.com/Jackett/Jackett
-- https://github.com/Prowlarr/Prowlarr
-- https://github.com/FlareSolverr/FlareSolverr

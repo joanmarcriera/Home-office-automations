@@ -67,5 +67,5 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: medium

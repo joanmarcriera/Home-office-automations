@@ -15,13 +15,3 @@ It focuses on privacy, ensuring that users are neither tracked nor profiled. It 
 
 ## Backlog
 - Configure as default search engine in browser for all local devices.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://searxng.org/
-- https://github.com/searxng/searxng
-- https://duckduckgo.com/

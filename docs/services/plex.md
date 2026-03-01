@@ -14,12 +14,3 @@ It organizes your video, music, and photos from your personal libraries and stre
 
 ## Backlog
 - Configure Plex Meta Manager for automated collection management.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://www.plex.tv/
-- https://emby.media/

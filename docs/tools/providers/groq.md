@@ -74,5 +74,5 @@ print(chat_completion.choices[0].message.content)
 - [Groq Documentation](https://docs.groq.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: high

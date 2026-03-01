@@ -22,11 +22,3 @@ If no event is found, return {"event_name": null}.
 ## Implementation Notes
 - **Context injection**: Always provide the current year and date to the LLM to resolve relative terms like "next Tuesday".
 - **Validation**: Pass the result through a JSON validator node in n8n before reaching the calendar tool.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://github.com/joanmarcriera/Home-office-automations

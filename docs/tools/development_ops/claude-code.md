@@ -82,5 +82,5 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 - [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-02-28
 - Confidence: medium

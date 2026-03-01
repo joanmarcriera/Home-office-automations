@@ -15,13 +15,3 @@ It can perform multilingual speech recognition, speech translation, and language
 
 ## Backlog
 - Implement real-time transcription for meetings via n8n.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://github.com/openai/whisper
-- https://github.com/ggerganov/whisper.cpp
-- https://www.deepgram.com/

@@ -15,13 +15,3 @@ It provides end-to-end encrypted messaging, voice, and video calls. As it is bui
 
 ## Backlog
 - Set up Matrix Synapse homeserver for full self-hosting.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://element.io/
-- https://github.com/vector-im/element-web
-- https://signal.org/
