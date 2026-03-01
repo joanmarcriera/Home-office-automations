@@ -14,3 +14,13 @@ It offers S3-compatible storage that is distributed across thousands of nodes wo
 
 ## Backlog
 - Configure as a backup target for Rclone.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://www.storj.io/
+- https://aws.amazon.com/s3/
+- https://www.backblaze.com/cloud-storage

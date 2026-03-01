@@ -3,7 +3,7 @@
 Thank you for your interest in improving the Home-Office Automation & AI Hub! We welcome contributions from both humans and AI agents.
 
 ## How You Can Help
-- **Add New Tools**: Found a tool that fits the stack? Document it using our [standard template](/templates/tool_template/).
+- **Add New Tools**: Found a tool that fits the stack? Document it using our [standard template](templates/tool_template.md).
 - **Refine Playbooks**: Improve our existing automation guides with more technical detail or new variants.
 - **Update Services**: Ensure the documentation for self-hosted services remains accurate as versions change.
 - **Improve Prompts**: Optimize our LLM prompt templates for better extraction and classification results.
@@ -15,8 +15,8 @@ This repository uses **Google Jules**, an autonomous AI coding agent, to help wi
 Jules runs a **scheduled daily job** that:
 
 1. **Scans** high-signal sources (Hacker News, Reddit, arXiv, GitHub Trending, engineering blogs, etc.)
-2. **Stages** qualifying items in daily logs under [`docs/new-sources/`](/new-sources/) with title, URL, tags, and status
-3. **Integrates** staged items into canonical pages or creates new pages using the [tool template](/templates/tool_template/) or [article template](/templates/article_template/)
+2. **Stages** qualifying items in daily logs under [`docs/new-sources/`](new-sources.md) with title, URL, tags, and status
+3. **Integrates** staged items into canonical pages or creates new pages using the [tool template](templates/tool_template.md) or [article template](templates/article_template.md)
 4. **Deduplicates** against existing content before adding anything
 
 ### Assigning a Task to Jules
@@ -30,7 +30,7 @@ You can request Jules to perform a task by:
 - **Precise & Technical**: Avoid marketing language; focus on implementation details.
 - **Cross-Link**: Always link to related tools, playbooks, or architectural docs.
 - **One canonical page per tool/framework/provider**: All mentions elsewhere must link to the canonical page.
-- **Use templates**: [Tool template](/templates/tool_template/) for tools/frameworks/providers. [Article template](/templates/article_template/) for papers and articles.
+- **Use templates**: [Tool template](templates/tool_template.md) for tools/frameworks/providers. [Article template](templates/article_template.md) for papers and articles.
 - **No stub pages**: Only create a page if you have enough information to fill the template meaningfully.
 - **JSON Metadata**: If adding a tool, ensure you also update `data/all_tools.json`.
 
@@ -40,14 +40,14 @@ For AI-authored documentation updates, this contract is required:
 
 1. **Deduplicate first**: Search for existing tool/topic pages and aliases before creating new files.
 2. **Keep canonical ownership**: Update the existing canonical page whenever possible.
-3. **Use the right template and taxonomy**: Follow [tool template](/templates/tool_template/), [article template](/templates/article_template/), and [standards](/standards/).
+3. **Use the right template and taxonomy**: Follow [tool template](templates/tool_template.md), [article template](templates/article_template.md), and [standards](standards.md).
 4. **Add auditable metadata** on every AI-authored knowledge-page update:
    - `Last reviewed` in `YYYY-MM-DD`
    - `Confidence` as `high`, `medium`, or `low`
    - `Sources / References` with at least one URL
 5. **Keep PR intent narrow**: Intake, curation, or audit work should be separate PRs whenever possible.
 
-See [Multi-Agent KnowledgeOps Governance](/architecture/multi_agent_knowledgeops/) for the full operating model.
+See [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md) for the full operating model.
 
 ## AI PR Checklist
 

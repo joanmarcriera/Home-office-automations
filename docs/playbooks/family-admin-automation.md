@@ -30,3 +30,11 @@ JSON payload to Home Assistant:
 
 ## Variants
 - **SMS Notifications**: Using [Signal-cli](../architecture/component_map.md) for urgent alerts.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/joanmarcriera/Home-office-automations

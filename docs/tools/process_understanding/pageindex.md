@@ -41,3 +41,8 @@ It addresses the inaccuracies of vector similarity search in professional docume
 - [Official Website](https://pageindex.ai/)
 - [GitHub Repository](https://github.com/VectifyAI/PageIndex)
 - [PageIndex Framework Introduction](https://pageindex.ai/blog/pageindex-intro)
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01

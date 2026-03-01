@@ -36,3 +36,11 @@ Automatically extract dates and events from incoming emails and sync them to the
 ## Variants
 - **SaaS Only**: Replace n8n/Ollama with Zapier and ChatGPT.
 - **Local Only**: Replace Google Calendar with [Radicale](../services/radicale.md) via CalDAV.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/joanmarcriera/Home-office-automations

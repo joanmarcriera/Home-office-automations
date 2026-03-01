@@ -14,3 +14,13 @@ It is useful for content analysis, search indexing, and automated document proce
 
 ## Backlog
 - Integrate with n8n for automated PDF-to-Markdown conversion.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://tika.apache.org/
+- https://aws.amazon.com/textract/
+- https://unstructured.io/
