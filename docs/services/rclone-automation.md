@@ -15,3 +15,13 @@ Rclone is a command-line program to manage files on cloud storage. This service 
 ## Backlog
 - Implement bandwidth throttling during business hours.
 - Set up healthcheck notifications for failed syncs.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://rclone.org/
+- https://www.duplicati.com/
+- https://kopia.io/

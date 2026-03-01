@@ -14,3 +14,13 @@ It helps you identify disk space usage, find old or duplicate files, and gain in
 
 ## Backlog
 - Integrate with TrueNAS SCALE via NFS mount.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/diskoverdata/diskover-community
+- https://diskanalyzer.com/
+- https://dev.yorhel.nl/ncdu

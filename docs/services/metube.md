@@ -14,3 +14,12 @@ It provides a simple and easy-to-use interface for downloading videos from YouTu
 
 ## Backlog
 - Configure automated download folders for specific channels.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/alexta69/metube
+- https://github.com/MrS0m30n3/youtube-dl-gui

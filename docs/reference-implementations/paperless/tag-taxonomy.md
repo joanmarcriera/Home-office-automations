@@ -16,3 +16,11 @@
 - `Keep-7-years`: Tax related.
 - `Keep-forever`: Birth certificates, deeds.
 - `Ephemeral`: Coupons, flyers.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://github.com/joanmarcriera/Home-office-automations
