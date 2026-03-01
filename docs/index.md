@@ -14,7 +14,7 @@ hide:
 
     ---
 
-    New here? Explore the [**AI Tooling Landscape — 2026 Overview**](knowledge_base/ai_tooling_landscape.md) to see how the entire ecosystem fits together, or follow the [Maturity Ladder](#maturity-ladder).
+    Explore the [**AI Tooling Landscape — 2026 Overview**](knowledge_base/ai_tooling_landscape.md) to understand how the entire AI stack fits together, or follow the [Maturity Ladder](#maturity-ladder).
 
 -   :material-tools:{ .lg .middle } **126 Tools & Services**
 
