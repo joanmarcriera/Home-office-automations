@@ -11,3 +11,4 @@ venv/
 .coverage
 htmlcov/
 .claude/settings.local.json
+.playwright-mcp/
