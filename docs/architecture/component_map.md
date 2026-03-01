@@ -63,5 +63,5 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high
