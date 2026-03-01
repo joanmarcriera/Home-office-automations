@@ -14,3 +14,12 @@ It is an alternative to Trello, Notion, and Asana, providing a Kanban-style boar
 
 ## Backlog
 - Sync with Nextcloud Tasks.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://www.focalboard.com/
+- https://kanboard.org/

@@ -57,6 +57,8 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-01: new-sources/2026-03-01.md
+      - 2026-02-28: new-sources/2026-02-28.md
       - 2026-02-27: new-sources/2026-02-27.md
       - 2026-02-26: new-sources/2026-02-26.md
       - 2026-02-25: new-sources/2026-02-25.md
@@ -160,6 +162,7 @@ nav:
       - Gsm8K: tools/benchmarking/gsm8k.md
       - Human Eval: tools/benchmarking/human-eval.md
       - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
+      - LangSmith: tools/benchmarking/langsmith.md
       - LLMperf: tools/benchmarking/llmperf.md
       - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md
       - LongCLI-Bench: tools/benchmarking/longcli-bench.md
@@ -239,6 +242,7 @@ nav:
       - ExLlamaV2: tools/infrastructure/exllamav2.md
       - llama.cpp: tools/infrastructure/llama-cpp.md
       - MLX: tools/infrastructure/mlx.md
+      - OpenPipe: tools/infrastructure/openpipe.md
       - SGLang: tools/infrastructure/sglang.md
       - Text Generation Inference (TGI): tools/infrastructure/tgi.md
       - vLLM: tools/infrastructure/vllm.md
@@ -261,10 +265,11 @@ nav:
     - Prompt Catalogue: architecture/prompt-catalogue.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
-    - AI Tooling Landscape: knowledge_base/ai_tooling_landscape.md
+    - Landscape Overview: knowledge_base/landscape-overview.md
+    - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md
-    - Essential Reading List: knowledge_base/ai_reading_list.md
+    - Essential AI Reading List: knowledge_base/ai_reading_list.md
     - Model Classes: knowledge_base/model_classes.md
     - Security & Privacy: knowledge_base/llm_security_privacy.md
     - Patterns:

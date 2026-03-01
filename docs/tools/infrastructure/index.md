@@ -11,6 +11,7 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 | [llama.cpp](llama-cpp.md) | Lightweight local inference runtime for quantized LLMs |
 | [LiteLLM](../../services/litellm.md) | Unified LLM API proxy |
 | [MLX](mlx.md) | Optimized machine learning framework for Apple Silicon |
+| [OpenPipe](openpipe.md) | Data-driven fine-tuning platform |
 | [Ollama](../../services/ollama.md) | Local LLM inference server |
 | [SGLang](sglang.md) | Fast structured generation and prefix caching runtime |
 | [Text Generation Inference (TGI)](tgi.md) | Hugging Face production inference server |

@@ -36,6 +36,14 @@ Framework / Agent Library
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Related tools / concepts
+- [LangChain](../ai_knowledge/langchain.md)
+- [Hugging Face Hub](https://huggingface.co/models)
+
+## Sources / References
+- [GitHub](https://github.com/huggingface/smolagents)
+- [Blog Post](https://huggingface.co/blog/smolagents)
+
 ## Getting started
 
 ```bash
@@ -52,15 +60,7 @@ agent = CodeAgent(tools=[DuckDuckGoSearchTool()], model=HfApiModel())
 agent.run("What is the current population of Tokyo?")
 ```
 
-## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [Hugging Face Hub](https://huggingface.co/models)
-
-## Sources / References
-- [GitHub](https://github.com/huggingface/smolagents)
-- [Blog Post](https://huggingface.co/blog/smolagents)
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high

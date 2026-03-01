@@ -14,3 +14,12 @@ With in-game rewards and punishments to motivate you and a strong social network
 
 ## Backlog
 - API integration for automated habit scoring based on n8n workflows.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://habitica.com/
+- https://www.superbetter.com/

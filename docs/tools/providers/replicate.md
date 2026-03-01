@@ -67,5 +67,5 @@ for item in output:
 - [Model Explorer](https://replicate.com/explore)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high

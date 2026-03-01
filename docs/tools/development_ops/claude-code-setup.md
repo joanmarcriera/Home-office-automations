@@ -105,3 +105,8 @@ Invoked automatically when adding or editing playbooks and tool docs. Checks:
 ## Sources / references
 - [Claude Code documentation](https://docs.anthropic.com/claude-code)
 - [MCP specification](https://modelcontextprotocol.io)
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01

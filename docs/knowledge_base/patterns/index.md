@@ -6,7 +6,7 @@ Recurring architectural and design patterns in AI/LLM systems — RAG, tool call
 
 <!-- New pattern pages are added here by Jules -->
 
-- [Retrieval-Augmented Generation (RAG)](rag.md)
+- [Retrieval-Augmented Generation (RAG)](rag.md) — Grounding LLM output with retrieved context
 - [Tool Calling & Model Context Protocol (MCP)](tool-calling-and-mcp.md)
 - [Claude Tool Search Pattern](claude-tool-search.md)
 - [Agent Skills Best Practices](skills-best-practices.md)

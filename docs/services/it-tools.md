@@ -15,3 +15,13 @@ It provides a wide variety of web-based tools, including formatters (JSON, SQL, 
 
 ## Backlog
 - Host locally on TrueNAS for offline developer support.
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01
+
+## Sources / References
+- https://it-tools.tech/
+- https://github.com/CorentinTh/it-tools
+- https://devtoys.app/

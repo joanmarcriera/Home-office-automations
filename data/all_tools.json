@@ -899,6 +899,18 @@
       "name": "Agno",
       "category": "Agents",
       "doc_path": "docs/tools/agents/agno.md"
+    },
+    {
+      "id": "langsmith",
+      "name": "LangSmith",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/langsmith.md"
+    },
+    {
+      "id": "openpipe",
+      "name": "OpenPipe",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/openpipe.md"
     }
   ]
 }

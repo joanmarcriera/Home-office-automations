@@ -38,3 +38,8 @@ It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where
 ## Sources / references
 - [Hugging Face Paper Page](https://huggingface.co/papers/2602.18940)
 - [arXiv Preprint (arXiv:2602.18940)](https://arxiv.org/abs/2602.18940)
+
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-03-01

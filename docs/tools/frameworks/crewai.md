@@ -36,6 +36,16 @@ Framework / Multi-Agent Orchestrator
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Related tools / concepts
+- [AutoGen](autogen.md)
+- [LangChain](../ai_knowledge/langchain.md)
+- [Multi-Agent Systems](../../architecture/multi_agent_knowledgeops.md)
+
+## Sources / References
+- [Official Website](https://www.crewai.com/)
+- [GitHub](https://github.com/joaomdmoura/crewAI)
+- [Documentation](https://docs.crewai.com/)
+
 ## Getting started
 
 ```bash
@@ -56,17 +66,7 @@ result = crew.kickoff(inputs={'topic': 'AI in 2024'})
 print(result)
 ```
 
-## Related tools / concepts
-- [AutoGen](autogen.md)
-- [LangChain](../ai_knowledge/langchain.md)
-- [Multi-Agent Systems](../../architecture/multi_agent_knowledgeops.md)
-
-## Sources / References
-- [Official Website](https://www.crewai.com/)
-- [GitHub](https://github.com/joaomdmoura/crewAI)
-- [Documentation](https://docs.crewai.com/)
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high

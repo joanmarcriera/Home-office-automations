@@ -1,37 +1,37 @@
 # vLLM
 
 ## What it is
-vLLM is a fast and easy-to-use library for LLM inference and serving. It achieves high throughput by using **PagedAttention**, an attention algorithm that manages attention keys and values efficiently, inspired by virtual memory in operating systems.
+vLLM is a high-throughput and memory-efficient inference and serving engine for LLMs. It is powered by **PagedAttention**, a new attention algorithm that manages attention keys and values (KV cache) more efficiently, similar to how virtual memory works in operating systems.
 
 ## What problem it solves
-LLM inference is often bottlenecked by the memory management of KV (key-value) caches. Traditional methods lead to memory fragmentation and over-allocation. vLLM's PagedAttention allows for near-zero waste in KV cache memory, enabling significantly higher batch sizes and throughput.
+LLM serving is often bottlenecked by KV cache memory management. Traditional systems suffer from significant memory fragmentation and over-reservation. vLLM's PagedAttention allows KV cache memory to be stored in non-contiguous memory spaces, reducing waste to near-zero and enabling much higher batch sizes and overall throughput.
 
 ## Where it fits in the stack
-**Infra** — It serves as the core inference engine in the infrastructure layer, often used to power OpenAI-compatible API servers.
+Infra
 
 ## Typical use cases
-- High-throughput serving of LLMs (e.g., Llama 3, Mistral) in production.
-- Offline batched inference for large datasets.
-- Multi-GPU distributed inference via Ray or NCCL.
+- High-concurrency production LLM serving.
+- Building OpenAI-compatible API endpoints for self-hosted models.
+- High-throughput offline batch inference.
 
 ## Strengths
-- **PagedAttention**: Efficient memory management of KV cache.
-- **Continuous Batching**: High throughput by processing requests as they arrive.
-- **OpenAI-Compatible**: Drop-in replacement for OpenAI API.
-- **Broad Model Support**: Supports most popular transformer architectures.
+- **State-of-the-Art Throughput**: Significantly outperforms traditional serving engines.
+- **Efficient Memory Usage**: PagedAttention minimizes KV cache fragmentation.
+- **Continuous Batching**: Processes new requests immediately without waiting for the whole batch to finish.
+- **Broad Model Support**: Native support for Llama, Mistral, Gemma, and many others.
 
 ## Limitations
-- **Hardware Requirements**: Optimized primarily for NVIDIA GPUs (though support for AMD, Intel, and others is growing).
-- **Latency vs Throughput**: While throughput is exceptional, it may not always be the lowest-latency option for single-request scenarios compared to specialized runtimes like llama.cpp for small models.
+- **Hardware Specificity**: Primarily optimized for NVIDIA GPUs; support for other backends (AMD, TPU, CPU) is evolving.
+- **Complexity**: Tuning for specific latency/throughput trade-offs can be complex.
 
 ## When to use it
-- When you need to serve LLMs to many concurrent users.
-- When you have high-end GPUs (A100, H100) and want to maximize utilization.
-- When you need an OpenAI-compatible interface for your self-hosted models.
+- When you need to serve LLMs to a large number of concurrent users.
+- When maximizing GPU utilization is a priority.
+- When you require an OpenAI-compatible API interface.
 
 ## When not to use it
-- For low-resource environments (e.g., consumer laptops without dedicated GPUs) where llama.cpp might be better.
-- For non-transformer based models that are not yet supported.
+- For low-resource environments or consumer hardware without high-end NVIDIA GPUs (consider llama.cpp).
+- For models or architectures not yet supported by vLLM's kernel optimizations.
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
@@ -45,7 +45,7 @@ LLM inference is often bottlenecked by the memory management of KV (key-value) c
 pip install vllm
 ```
 
-### Minimal Python Example (Offline Inference)
+### Minimal Python Example
 ```python
 from vllm import LLM, SamplingParams
 
@@ -62,15 +62,15 @@ for output in outputs:
     print(f"Prompt: {prompt!r}, Generated text: {generated_text!r}")
 ```
 
-### Minimal CLI Example (OpenAI-Compatible Server)
+### Minimal CLI Example
 ```bash
 python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 ```
 
 ## Related tools / concepts
-- [llama.cpp](llama-cpp.md)
 - [Text Generation Inference (TGI)](tgi.md)
-- [Ollama](../../services/ollama.md)
+- [SGLang](sglang.md)
+- [llama.cpp](llama-cpp.md)
 
 ## Sources / References
 - [Official Website](https://vllm.ai/)
@@ -78,5 +78,5 @@ python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 - [Docs](https://docs.vllm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: high
