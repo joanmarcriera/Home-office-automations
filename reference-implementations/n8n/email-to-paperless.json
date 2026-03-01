@@ -1,0 +1,14 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "postToPath": "/api/documents/post_document/"
+      },
+      "name": "Paperless Intake",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {}
+}
