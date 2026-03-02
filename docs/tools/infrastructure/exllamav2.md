@@ -38,6 +38,16 @@ Infra
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Related tools / concepts
+- [llama.cpp](llama-cpp.md)
+- [Aphrodite Engine](aphrodite-engine.md)
+- [GPTQ](https://github.com/IST-DASLab/gptq)
+
+## Sources / References
+- [Official Website](https://github.com/turboderp/exllamav2)
+- [GitHub](https://github.com/turboderp/exllamav2)
+- [EXL2 Wiki](https://github.com/turboderp/exllamav2/wiki)
+
 ## Getting started
 
 ### Installation
@@ -67,15 +77,6 @@ output = generator.generate_text("The secret of life is", max_new_tokens=50)
 print(output)
 ```
 
-## Related tools / concepts
-- [llama.cpp](llama-cpp.md)
-- [Aphrodite Engine](aphrodite-engine.md)
-- [GPTQ](https://github.com/IST-DASLab/gptq)
-
-## Sources / References
-- [GitHub](https://github.com/turboderp/exllamav2)
-- [EXL2 Wiki](https://github.com/turboderp/exllamav2/wiki)
-
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high
