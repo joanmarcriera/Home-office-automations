@@ -1,0 +1,62 @@
+name: Daily Jules Knowledge Expansion
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # 12:00 UTC
+  workflow_dispatch: # allow manual trigger for testing
+
+jobs:
+  open-knowledge-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure jules label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if ! gh api "repos/$REPO/labels/jules" >/dev/null 2>&1; then
+            gh label create "jules" \
+              --repo "$REPO" \
+              --color "1f6feb" \
+              --description "Issues queued for Jules automation"
+          fi
+
+      - name: Check for existing open knowledge expansion issue today
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          EXISTING=$(gh issue list \
+            --repo "$REPO" \
+            --label jules \
+            --state open \
+            --search "Daily Knowledge Expansion" \
+            --json title \
+            --jq "[.[] | select(.title | contains(\"$TODAY\"))] | length")
+          echo "existing=$EXISTING" >> "$GITHUB_OUTPUT"
+          echo "today=$TODAY" >> "$GITHUB_OUTPUT"
+
+      - name: Open Jules knowledge issue
+        if: steps.check.outputs.existing == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TODAY: ${{ steps.check.outputs.today }}
+        run: |
+          set -euo pipefail
+          cp .github/issue-templates/daily-jules-knowledge.md issue_body.md
+
+          gh issue create \
+            --repo "$REPO" \
+            --title "Daily Knowledge Expansion - $TODAY" \
+            --label jules \
+            --body-file issue_body.md

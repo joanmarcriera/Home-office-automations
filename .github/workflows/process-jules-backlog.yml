@@ -1,0 +1,44 @@
+name: Process Jules Backlog
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs weekly on Sunday at 00:00 UTC
+  workflow_dispatch: # allow manual trigger
+
+jobs:
+  open-backlog-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure jules label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if ! gh api "repos/$REPO/labels/jules" >/dev/null 2>&1; then
+            gh label create "jules" \
+              --repo "$REPO" \
+              --color "1f6feb" \
+              --description "Issues queued for Jules automation"
+          fi
+
+      - name: Open Jules backlog issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          cp .github/issue-templates/process-jules-backlog.md issue_body.md
+          TODAY=$(date +%Y-%m-%d)
+          
+          gh issue create \
+            --repo "$REPO" \
+            --title "Process Jules Backlog - $TODAY" \
+            --label jules \
+            --body-file issue_body.md
