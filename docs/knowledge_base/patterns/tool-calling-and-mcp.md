@@ -12,6 +12,40 @@ LLMs are traditionally "isolated" from the real world, limited by their training
 - **Complex Logic**: Offloads tasks like mathematical calculations, data processing, or code execution to specialized software.
 - **Ecosystem Portability**: MCP specifically solves the "N-to-M" problem where every agent framework needs its own integration for every tool. With MCP, you build a tool once and it works everywhere.
 
+## Where it fits in the stack
+Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocols & Standards)**. They serve as the critical interface between Layer 2/3 (Models and Inference) and Layer 5/6 (Frameworks and Agents), enabling standardized communication between the "brain" and its "hands."
+
+## Typical use cases
+- **Personal Assistants**: Checking calendars, sending messages, and setting reminders.
+- **Developer Tools**: Searching codebases, running tests, and managing Git repositories (e.g., via Claude Code or Aider).
+- **Data Analysis**: Querying SQL databases or internal APIs to generate reports based on real-time data.
+- **Enterprise Integration**: Connecting AI agents to legacy systems like Jira, ServiceNow, or Slack.
+- **Autonomous Research**: Allowing agents to browse the web, extract content, and synthesize information.
+
+## Strengths
+- **Interoperability**: MCP allows one tool implementation to serve multiple LLMs and applications.
+- **Grounding**: Reduces hallucinations by forcing the model to rely on external, verifiable data.
+- **Decoupling**: Separates the "reasoning" (LLM) from the "execution" (tool code), making systems easier to maintain and secure.
+- **Dynamic Discovery**: MCP servers can describe their capabilities to the host at runtime, allowing for flexible, plug-and-play architectures.
+
+## Limitations
+- **Latency**: Each tool call requires at least one extra round-trip to the model, increasing total response time.
+- **Token Cost**: Tool definitions and result data consume space in the context window, increasing cost.
+- **Reliability**: The LLM may fail to generate valid JSON, or the external tool/API itself may be unavailable.
+- **Security**: Granting an LLM the ability to execute code or access data requires careful sandboxing and permission management.
+
+## When to use it
+- **Factual Accuracy**: When you need the model to use real-time or verified data instead of hallucinating answers.
+- **Action-Oriented Agents**: When the purpose of the LLM is to perform tasks, not just provide information.
+- **Standardizing Toolkits**: Use MCP when building tools that need to be shared across different AI environments (Zed, Cursor, Claude).
+- **Security & Control**: When you want to strictly control what actions the LLM can take by defining a rigid API (tool schema).
+
+## When not to use it
+- **Simple Creative Writing**: When the task is purely linguistic (e.g., "Write a poem about a cat").
+- **High Latency Concerns**: If the external API or database is slow and real-time response is required.
+- **Static Knowledge**: If the information is common knowledge and the training data is sufficient.
+- **Over-Complexity**: If the task can be solved more reliably by simple prompt engineering or fixed data insertion.
+
 ## How tool calling works
 The tool calling cycle typically follows these steps:
 1.  **Tool Definition**: The developer provides the LLM with a list of available tools, defined using a structured schema (usually JSON Schema) that includes names, descriptions, and parameter types.
@@ -216,18 +250,6 @@ For sensitive operations (writing files, deleting data, sending emails), the run
 
 ### MCP Server Composition
 A core benefit of MCP is the ability for a single client (like Claude Desktop or an agent) to connect to many independent servers. This creates a "composable brain" where specialized servers for Google Calendar, Slack, GitHub, and local databases can be aggregated into a single assistant without code changes.
-
-## When to use it
-- **Factual Accuracy**: When you need the model to use real-time or verified data instead of hallucinating answers.
-- **Action-Oriented Agents**: When the purpose of the LLM is to perform tasks, not just provide information.
-- **Standardizing Toolkits**: Use MCP when building tools that need to be shared across different AI environments (Zed, Cursor, Claude).
-- **Security & Control**: When you want to strictly control what actions the LLM can take by defining a rigid API (tool schema).
-
-## When not to use it
-- **Simple Creative Writing**: When the task is purely linguistic (e.g., "Write a poem about a cat").
-- **High Latency Concerns**: If the external API or database is slow and real-time response is required.
-- **Static Knowledge**: If the information is common knowledge and the training data is sufficient.
-- **Over-Complexity**: If the task can be solved more reliably by simple prompt engineering or fixed data insertion.
 
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md) — Broader context for MCP and ACP.
