@@ -1,23 +1,22 @@
 # SGLang
 
 ## What it is
-SGLang (Structured Generation Language) is a high-performance serving framework designed for Large Language Models (LLMs) and Vision Language Models (VLMs). It is specifically optimized for complex prompting workflows and "structured" output (like JSON or code).
+SGLang is a fast serving framework for large language models and vision-language models. It makes your interaction with models faster and more controllable by optimizing the runtime with features like RadixAttention.
 
 ## What problem it solves
-Modern LLM applications often involve complex multi-turn dialogues, shared system prompts, and structured output requirements. SGLang uses a **RadixAttention** mechanism to automatically cache and reuse Key-Value (KV) prefixes across different requests, significantly reducing latency and increasing throughput for these workloads.
+LLM applications often involve repetitive prompting, structured output requirements, and complex chaining. SGLang addresses these by providing a high-performance runtime that significantly reduces latency through aggressive caching (RadixAttention) and optimized kernels for constrained generation.
 
 ## Where it fits in the stack
 Infra
 
 ## Typical use cases
-- Serving agents that use long, shared system prompts.
-- High-speed structured data extraction (JSON, YAML).
-- Low-latency serving of Vision Language Models.
-- Complex prompt chaining and multi-step reasoning workflows.
+- High-performance serving of LLMs and VLMs (Vision-Language Models).
+- Applications requiring complex, multi-turn structured generation.
+- Serving scenarios where prefix caching can significantly improve throughput (e.g., multi-turn chat, few-shot prompting).
 
 ## Strengths
-- **RadixAttention**: Industry-leading prefix caching for multi-turn and agentic workflows.
-- **Fast Structured Output**: Highly optimized engine for constrained generation.
+- **RadixAttention**: Automatically caches and reuses KV cache across different requests with shared prefixes.
+- **Fast Structured Generation**: Optimized engine for constrained generation.
 - **Comprehensive VLM Support**: Excellent performance for vision-based models.
 - **Native Interpreter**: Includes a high-level Python interface for complex LLM programming.
 
@@ -38,6 +37,16 @@ Infra
 - **Open Source**: Yes (Apache 2.0)
 - **Cost**: Free
 - **Self-hostable**: Yes
+
+## Related tools / concepts
+- [vLLM](vllm.md)
+- [Text Generation Inference (TGI)](tgi.md)
+- [Guidance](https://github.com/guidance-ai/guidance)
+
+## Sources / References
+- [Official Website](https://sgl-project.github.io/)
+- [GitHub](https://github.com/sgl-project/sglang)
+- [Docs](https://sgl-project.github.io/)
 
 ## Getting started
 
@@ -63,15 +72,6 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-## Related tools / concepts
-- [vLLM](vllm.md)
-- [Text Generation Inference (TGI)](tgi.md)
-- [Guidance](https://github.com/guidance-ai/guidance)
-
-## Sources / References
-- [GitHub](https://github.com/sgl-project/sglang)
-- [Official Documentation](https://sgl-project.github.io/)
-
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high

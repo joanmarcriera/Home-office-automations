@@ -60,9 +60,10 @@ python -m aphrodite.endpoints.kobold.api_server --model /path/to/model/
 - [llama.cpp](llama-cpp.md)
 
 ## Sources / References
+- [Official Website](https://aphrodite.pygmalion.chat/)
 - [GitHub](https://github.com/PygmalionAI/aphrodite-engine)
 - [Documentation](https://aphrodite.pygmalion.chat/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high
