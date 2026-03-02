@@ -48,10 +48,11 @@ Use slash commands in the chat sidebar to perform specific tasks:
 - `/tests`: Generate unit tests for the current file.
 
 ### workspace agent
-Use the `@workspace` participant to ask questions about your entire project:
+Use the `@workspace` participant to ask questions about your entire project with full context:
 ```text
 @workspace How are the API routes structured in this project?
 @workspace Where is the database connection initialized?
+@workspace /explain How the authentication middleware works.
 ```
 
 ## Related tools / concepts
@@ -63,5 +64,5 @@ Use the `@workspace` participant to ask questions about your entire project:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium

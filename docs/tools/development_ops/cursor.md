@@ -57,6 +57,7 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 | **Edit code in place** | `Cmd + K` | `Ctrl + K` |
 | **Chat with codebase** | `Cmd + L` | `Ctrl + L` |
 | **Open Composer** | `Cmd + I` | `Ctrl + I` |
+| **Apply Suggested Fix** | `Cmd + Enter` | `Ctrl + Enter` |
 
 ## Related tools / concepts
 - [VS Code](vscode.md) + [Continue](continue_dev.md)
@@ -67,5 +68,5 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium
