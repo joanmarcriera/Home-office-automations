@@ -55,10 +55,9 @@ aider
 ## CLI examples
 
 ### aider hello-world
-Ask Aider to create a new file with a simple script:
+Ask Aider to create a new file with a simple script by passing the instruction directly:
 ```bash
-aider hello-world.py
-# In the chat: "Create a hello world script in python"
+aider hello-world.py --message "Create a hello world script in python"
 ```
 
 ### aider with ollama
@@ -95,5 +94,5 @@ aider
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium
