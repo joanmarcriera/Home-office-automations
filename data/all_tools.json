@@ -140,43 +140,43 @@
     },
     {
       "id": "anthropic",
-      "name": "Anthropic Claude",
+      "name": "Anthropic (Claude)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/anthropic.md"
     },
     {
       "id": "cohere",
-      "name": "Cohere",
+      "name": "Cohere (Enterprise RAG)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/cohere.md"
     },
     {
       "id": "mistral-ai",
-      "name": "Mistral AI",
+      "name": "Mistral AI (Mixtral/Codestral)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/mistral.md"
     },
     {
       "id": "together-ai",
-      "name": "Together AI",
+      "name": "Together AI (Open Models)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/together.md"
     },
     {
       "id": "groq",
-      "name": "Groq",
+      "name": "Groq (LPU Inference)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/groq.md"
     },
     {
       "id": "fireworks-ai",
-      "name": "Fireworks AI",
+      "name": "Fireworks AI (Fast Inference)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/fireworks.md"
     },
     {
       "id": "replicate",
-      "name": "Replicate",
+      "name": "Replicate (Multi-modal)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/replicate.md"
     },
