@@ -1,22 +1,24 @@
 # Tool Calling & Model Context Protocol (MCP)
 
 ## What it is
-**Tool calling** (also known as function calling) is a pattern where Large Language Models (LLMs) generate structured data (typically JSON) to signal their intent to invoke external functions, rather than just generating text.
+**Tool calling** (also known as function calling) is a standardized pattern where Large Language Models (LLMs) generate structured data (typically JSON) to signal their intent to invoke external functions, rather than just generating text. This allows the model to act as a "reasoning engine" that can decide when and how to use external capabilities.
 
-**Model Context Protocol (MCP)** is an open standard, introduced by Anthropic, that provides a universal way to connect LLMs to external tools and data sources. It standardizes the interface between "hosts" (like IDEs or agent frameworks), "clients", and "servers" that provide specific capabilities.
+**Model Context Protocol (MCP)** is an open, universal standard introduced by Anthropic that provides a unified way to connect LLMs to external tools and data sources. It decouples the model from the specific implementations of tools, allowing a single MCP server to provide capabilities to any compatible LLM host (IDE, agent framework, or chat interface).
 
 ## What problem it solves
-LLMs are traditionally limited to the knowledge present in their training data and the text-based interface of their context window. Tool calling and MCP extend these capabilities by allowing LLMs to:
-- **Interact with the real world**: Perform database queries, send emails, or trigger API calls.
-- **Access fresh data**: Retrieve real-time information from the web or internal systems.
-- **Perform complex computations**: Offload mathematical or logic-heavy tasks to specialized code.
-- **Control environments**: Manipulate files, run shell commands, or navigate browsers.
+LLMs are traditionally "isolated" from the real world, limited by their training data and the text-based interface of their context window. Tool calling and MCP solve several critical limitations:
+- **Dynamic Data Access**: Allows LLMs to query databases, search the web, or read local files to get up-to-date information.
+- **Real-World Actions**: Enables LLMs to perform operations like sending emails, updating Jira tickets, or controlling a browser.
+- **Complex Logic**: Offloads tasks like mathematical calculations, data processing, or code execution to specialized software.
+- **Ecosystem Portability**: MCP specifically solves the "N-to-M" problem where every agent framework needs its own integration for every tool. With MCP, you build a tool once and it works everywhere.
 
 ## How tool calling works
-1.  **Function/Tool Definition**: The developer provides the LLM with a list of available tools, defined using a structured schema (usually JSON Schema).
-2.  **LLM Generates Structured Call**: When the LLM decides a tool is needed, it outputs a JSON object containing the tool name and the required arguments.
-3.  **Runtime Executes**: The application (runtime) parses the JSON, executes the actual function, and captures the result.
-4.  **LLM Incorporates Result**: The result is sent back to the LLM as a "tool" message. The LLM then uses this information to continue the conversation or generate a final response.
+The tool calling cycle typically follows these steps:
+1.  **Tool Definition**: The developer provides the LLM with a list of available tools, defined using a structured schema (usually JSON Schema) that includes names, descriptions, and parameter types.
+2.  **LLM Decision**: Based on the user prompt, the LLM determines if a tool is needed. If so, it generates a structured call (JSON) instead of a text response.
+3.  **Client Execution**: The application (the "host" or "client") receives the JSON, validates it, and executes the corresponding function in its environment.
+4.  **Result Feedback**: The tool's output is sent back to the LLM as a new message in the conversation history.
+5.  **Final Response**: The LLM incorporates the tool result into its reasoning to provide a final answer to the user.
 
 ### Example: Tool Definition (JSON Schema)
 ```json
@@ -57,33 +59,48 @@ LLMs are traditionally limited to the knowledge present in their training data a
 ```
 
 ## MCP architecture
-MCP introduces a standardized client-server architecture to make tools portable across different LLM applications.
+MCP uses a client-server architecture to standardize the connection between AI applications and data/tools.
 
-- **Hosts**: The environment where the LLM lives (e.g., Claude Desktop, Zed, Cursor, an agent framework).
-- **Clients**: Connect to MCP servers and handle the communication protocol.
-- **Servers**: Provide specific tools, resources, or prompts via the MCP standard.
-- **Transport Layer**: Defines how messages move between client and server. Common transports include:
-    - **stdio**: Communication via standard input/output for local processes.
-    - **SSE**: Server-Sent Events for one-way server-to-client updates over HTTP.
-    - **HTTP**: Standard REST-based communication for remote services.
-- **Components**:
-    - **Resources**: Read-only data (files, database records, API responses).
-    - **Tools**: Executable functions that can change state or perform actions.
-    - **Prompts**: Pre-defined templates for interacting with the LLM or initiating workflows.
-    - **Sampling**: A mechanism allowing servers to request completions from the LLM via the client (agentic behavior).
+### Core Components
+- **Hosts**: The primary application where the LLM is running (e.g., Claude Desktop, Zed, Cursor, or a custom agent). The host manages the LLM's lifecycle.
+- **Clients**: Reside within the host and maintain 1:1 connections with MCP servers.
+- **Servers**: Lightweight programs that expose specific capabilities (tools, resources, or prompts) through the MCP protocol.
+- **Transport Layer**: The communication medium between client and server.
+    - **stdio**: Standard input/output (most common for local tools).
+    - **SSE**: Server-Sent Events (used for remote servers over HTTP).
+    - **HTTP/TCP**: Direct socket-based communication.
+- **Capabilities**:
+    - **Resources**: Read-only data (e.g., a file's content, a database schema).
+    - **Tools**: Executable functions (e.g., "create_file", "search_web").
+    - **Prompts**: Reusable prompt templates (e.g., "analyze_codebase").
+    - **Sampling**: Allows a server to ask the client to run an LLM completion (agentic servers).
 
 ### MCP Client-Server Flow
 ```text
-  [ Host Application ]
-          |
-  [   MCP Client    ] <--- (Transport: stdio/SSE/HTTP) ---> [   MCP Server    ]
-          |                                               |
-  (1) List Tools    -------------------------------------> |
-  (2) Tool List     <------------------------------------- (Return available tools)
-          |                                               |
-  (3) Call Tool     -------------------------------------> |
-  (4) Execution     <------------------------------------- (Run code/API call)
-  (5) Tool Result   <------------------------------------- |
+  ┌──────────────┐             ┌──────────────┐             ┌──────────────┐
+  │     Host     │             │  MCP Client  │             │  MCP Server  │
+  │ (IDE, Agent) │             │ (in context) │             │ (Local/Remote)│
+  └──────┬───────┘             └──────┬───────┘             └──────┬───────┘
+         │                            │                            │
+         │  Initialize Connection     │                            │
+         ├───────────────────────────>│      List Capabilities     │
+         │                            ├───────────────────────────>│
+         │                            │    Tools, Resources, etc.  │
+         │                            |<───────────────────────────┤
+         │                            │                            │
+         │    User Request            │                            │
+         ├───────────────────────────>│                            │
+         │   (LLM decides tool use)   │                            │
+         │                            │      Call Tool (args)      │
+         │                            ├───────────────────────────>│
+         │                            │      Execute Function      │
+         │                            │                            │
+         │                            │      Tool Result           │
+         │                            |<───────────────────────────┤
+         │    Process Result          │                            │
+         |<───────────────────────────┤                            │
+         │                            │                            │
+  ┌──────┴───────┐             ┌──────┴───────┘             ┌──────┴───────┐
 ```
 
 ## Getting started
@@ -96,6 +113,7 @@ MCP introduces a standardized client-server architecture to make tools portable 
 
     client = anthropic.Anthropic()
 
+    # (1) Define tools
     tools = [{
         "name": "get_stock_price",
         "description": "Retrieves the current stock price for a given ticker symbol.",
@@ -108,6 +126,7 @@ MCP introduces a standardized client-server architecture to make tools portable 
         }
     }]
 
+    # (2) Request completion with tools
     message = client.messages.create(
         model="claude-3-5-sonnet-20241022",
         max_tokens=1024,
@@ -115,7 +134,8 @@ MCP introduces a standardized client-server architecture to make tools portable 
         messages=[{"role": "user", "content": "What is the price of AAPL?"}]
     )
 
-    print(message.content) # Contains the tool use request
+    # (3) Process the tool_use content block
+    print(message.content)
     ```
 
 === "OpenAI Python SDK"
@@ -124,6 +144,7 @@ MCP introduces a standardized client-server architecture to make tools portable 
 
     client = OpenAI()
 
+    # (1) Define functions
     tools = [{
         "type": "function",
         "function": {
@@ -132,75 +153,107 @@ MCP introduces a standardized client-server architecture to make tools portable 
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "location": {"type": "string"}
+                    "location": {"type": "string", "description": "The city and state"}
                 },
                 "required": ["location"]
             }
         }
     }]
 
+    # (2) Request chat completion
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": "What's the weather in London?"}],
         tools=tools
     )
 
+    # (3) Access tool_calls from the message
     print(response.choices[0].message.tool_calls)
     ```
 
 ### 2. Simple MCP Server (Python SDK)
+
+To build a server, use the `mcp` Python SDK and `FastMCP` for a high-level API.
+
 ```python
+# pip install mcp
 from mcp.server.fastmcp import FastMCP
 
-# Create an MCP server
+# Create an MCP server instance
 mcp = FastMCP("WeatherService")
 
 @mcp.tool()
 def get_weather(location: str) -> str:
-    """Get the weather for a specific location."""
-    return f"The weather in {location} is sunny, 25°C."
+    """Get the weather for a specific location.
+
+    Args:
+        location: The city and state (e.g., London, UK)
+    """
+    # In a real implementation, you'd call a weather API here
+    return f"The weather in {location} is currently sunny, 22°C."
 
 if __name__ == "__main__":
+    # Runs the server using the stdio transport by default
     mcp.run()
 ```
 
 ## Patterns
-- **Single Tool Use**: The LLM calls one tool to answer a specific question.
-- **Multi-tool Chaining**: The LLM uses the output of one tool as the input for another (e.g., search for a user ID, then fetch their orders).
-- **Parallel Tool Calls**: The LLM requests multiple tool executions simultaneously to save time (e.g., checking prices from three different vendors at once).
-- **Tool Use with Confirmation (Human-in-the-Loop)**: The application intercepts sensitive tool calls (like "delete_database" or "send_email") and waits for user approval before execution.
-- **MCP Server Composition**: A single MCP client connecting to multiple specialized MCP servers, aggregating their capabilities into a unified agent.
+
+### Single Tool Use
+The model identifies that a specific tool is required to satisfy the user request, generates the call, and waits for the result. This is the simplest implementation, used for queries like "Check the weather" or "Look up this user's email."
+
+### Multi-tool Chaining
+The LLM uses multiple tools in sequence, where the output of one tool serves as the input (or part of the reasoning) for the next call.
+- **Example**: An agent first calls `search_files` to find a specific document, then calls `read_file` using the path returned, and finally calls `summarize_text` on the content.
+
+### Parallel Tool Calls
+Modern LLMs can generate multiple tool calls in a single turn. This is highly efficient for fetching independent pieces of information.
+- **Example**: When asked to "compare the stock prices of Apple, Nvidia, and Microsoft," the model can return three `get_stock_price` calls at once. The runtime executes them in parallel and returns all results to the model simultaneously.
+
+### Tool Use with Confirmation (Human-in-the-Loop)
+For sensitive operations (writing files, deleting data, sending emails), the runtime intercepts the tool call and prompts the user for approval.
+- **Implementation**: The host application renders the proposed tool arguments to the user. The tool is only executed if the user confirms; otherwise, a "user canceled" error is sent back to the model.
+
+### MCP Server Composition
+A core benefit of MCP is the ability for a single client (like Claude Desktop or an agent) to connect to many independent servers. This creates a "composable brain" where specialized servers for Google Calendar, Slack, GitHub, and local databases can be aggregated into a single assistant without code changes.
 
 ## When to use it
-- When you need to bridge the gap between LLM reasoning and external systems.
-- When you want to build reusable toolkits that work across different agents/IDEs (MCP).
-- When you need factual accuracy that requires querying a source of truth.
+- **Factual Accuracy**: When you need the model to use real-time or verified data instead of hallucinating answers.
+- **Action-Oriented Agents**: When the purpose of the LLM is to perform tasks, not just provide information.
+- **Standardizing Toolkits**: Use MCP when building tools that need to be shared across different AI environments (Zed, Cursor, Claude).
+- **Security & Control**: When you want to strictly control what actions the LLM can take by defining a rigid API (tool schema).
 
 ## When not to use it
-- For tasks that are purely creative or linguistic.
-- When the latency of an external call is unacceptable.
-- When the task can be solved by simply providing the information in the system prompt.
+- **Simple Creative Writing**: When the task is purely linguistic (e.g., "Write a poem about a cat").
+- **High Latency Concerns**: If the external API or database is slow and real-time response is required.
+- **Static Knowledge**: If the information is common knowledge and the training data is sufficient.
+- **Over-Complexity**: If the task can be solved more reliably by simple prompt engineering or fixed data insertion.
 
 ## Related tools / concepts
-- [Agent Protocols](../agent_protocols.md)
-- [LangChain](../../tools/ai_knowledge/langchain.md)
-- [OpenRouter](../../tools/ai_knowledge/openrouter.md)
-- [Browser Use](../../tools/automation_orchestration/browser-use.md)
-- [Composio](../../tools/agents/composio.md)
-- **Agent Frameworks**:
-    - [Agency Swarm](../../tools/agents/agency-swarm.md)
-    - [Agno](../../tools/agents/agno.md)
-    - [Bee Agent Framework](../../tools/agents/bee-agent-framework.md)
-    - [LangGraph](../../tools/agents/langgraph.md)
-    - [Phidata](../../tools/agents/phidata.md)
-- **Other Frameworks**:
-    - [AutoGen](../../tools/frameworks/autogen.md)
-    - [CrewAI](../../tools/frameworks/crewai.md)
-    - [DSPy](../../tools/frameworks/dspy.md)
-    - [Haystack](../../tools/frameworks/haystack.md)
-    - [Mycelium](../../tools/frameworks/mycelium.md)
-    - [Semantic Kernel](../../tools/frameworks/semantic-kernel.md)
-    - [Smolagents](../../tools/frameworks/smolagents.md)
+- [Agent Protocols](../agent_protocols.md) — Broader context for MCP and ACP.
+- [LangChain](../../tools/ai_knowledge/langchain.md) — Multi-model library for tool calling.
+- [OpenRouter](../../tools/ai_knowledge/openrouter.md) — Unified API for accessing multiple tool-calling models.
+- [Browser Use](../../tools/automation_orchestration/browser-use.md) — Agentic browser control via tool calling.
+- [Composio](../../tools/agents/composio.md) — Tool integration platform.
+
+### Agent Frameworks
+- [Agency Swarm](../../tools/agents/agency-swarm.md)
+- [Agno](../../tools/agents/agno.md)
+- [Bee Agent Framework](../../tools/agents/bee-agent-framework.md)
+- [LangGraph](../../tools/agents/langgraph.md)
+- [Phidata](../../tools/agents/phidata.md)
+- [AutoGen](../../tools/frameworks/autogen.md)
+- [CrewAI](../../tools/frameworks/crewai.md)
+- [DSPy](../../tools/frameworks/dspy.md)
+- [Haystack](../../tools/frameworks/haystack.md)
+- [Mycelium](../../tools/frameworks/mycelium.md)
+- [Semantic Kernel](../../tools/frameworks/semantic-kernel.md)
+- [Smolagents](../../tools/frameworks/smolagents.md)
+
+### Specific MCP Implementations
+- [Atlassian Jira MCP](../../tools/automation_orchestration/atlassian-jira-mcp.md)
+- [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md)
+- [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)
 
 ## Sources / references
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
@@ -208,5 +261,5 @@ if __name__ == "__main__":
 - [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-03-01
 - Confidence: high

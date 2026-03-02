@@ -32,29 +32,6 @@ AI & Knowledge — provides a no-code visual builder for LLM pipelines that can 
 - When you need full programmatic control or want to use a framework other than LangChain
 - When the application is simple enough that a few lines of code suffice
 
-## Getting started
-
-```bash
-# Install Flowise globally
-npm install -g flowise
-
-# Start Flowise
-npx flowise start
-```
-
-## API examples
-
-```bash
-curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
-     -H "Content-Type: application/json" \
-     -d '{
-            "question": "What is the capital of France?",
-            "overrideConfig": {
-                "maxTokens": 256
-            }
-         }'
-```
-
 ## Related tools / concepts
 - [Dify](dify.md)
 - [LangFlow](https://github.com/langflow-ai/langflow)
@@ -64,7 +41,10 @@ curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
 Install Flowise globally via npm and start it:
 
 ```bash
+# Install Flowise globally
 npm install -g flowise
+
+# Start Flowise
 npx flowise start
 ```
 
@@ -93,5 +73,5 @@ curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: medium

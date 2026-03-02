@@ -32,7 +32,15 @@ AI & Knowledge — serves as a visual platform for building and deploying LLM ap
 - When you need fine-grained programmatic control over LLM pipelines
 - When the overhead of running another service is not justified for simple tasks
 
+## Related tools / concepts
+- [Flowise](flowise.md)
+- [LangFlow](https://github.com/langflow-ai/langflow)
+
 ## Getting started
+
+Dify is typically deployed via Docker. Once running, you can access its features through the web UI or via its REST API. To use the API, you first need to create an application in the Dify dashboard and generate an API Key.
+
+Minimal Python client example:
 
 ```bash
 pip install dify-client
@@ -44,31 +52,6 @@ from dify_client import ChatClient
 client = ChatClient(api_key="your-api-key")
 response = client.create_chat_message(inputs={}, query="Hello Dify!", user="jules")
 ```
-
-## API examples
-
-```bash
-curl -X POST 'https://api.dify.ai/v1/workflows/run' \
---header 'Authorization: Bearer {api_key}' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "inputs": {
-        "text": "Optimize this code"
-    },
-    "response_mode": "blocking",
-    "user": "jules"
-}'
-```
-
-## Related tools / concepts
-- [Flowise](flowise.md)
-- [LangFlow](https://github.com/langflow-ai/langflow)
-
-## Getting started
-
-Dify is typically deployed via Docker. Once running, you can access its features through the web UI or via its REST API.
-
-To use the API, you first need to create an application in the Dify dashboard and generate an API Key.
 
 ## API examples
 
@@ -95,5 +78,5 @@ curl -X POST 'https://api.dify.ai/v1/workflows/run' \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: medium

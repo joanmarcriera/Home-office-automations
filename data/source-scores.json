@@ -1,8 +1,8 @@
 {
   "sources": {
     "anthropic.com": {
-      "discovered": 1,
-      "integrated": 1,
+      "discovered": 3,
+      "integrated": 3,
       "score": 1.0
     },
     "app.teamout.com": {
@@ -30,6 +30,21 @@
       "integrated": 1,
       "score": 1.0
     },
+    "cohere.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "deepseek.com": {
+      "discovered": 2,
+      "integrated": 0,
+      "score": 0.0
+    },
+    "fireworks.ai": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
     "gist.github.com": {
       "discovered": 1,
       "integrated": 1,
@@ -41,11 +56,21 @@
       "score": 1.0
     },
     "github.com": {
-      "discovered": 13,
-      "integrated": 13,
+      "discovered": 37,
+      "integrated": 37,
+      "score": 1.0
+    },
+    "groq.com": {
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "kanyilmaz.me": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "langchain.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -65,6 +90,11 @@
       "integrated": 1,
       "score": 1.0
     },
+    "mistral.ai": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
     "modelcontextprotocol.info": {
       "discovered": 1,
       "integrated": 1,
@@ -78,6 +108,21 @@
     "npmjs.com": {
       "discovered": 1,
       "integrated": 1,
+      "score": 1.0
+    },
+    "ollama.com": {
+      "discovered": 2,
+      "integrated": 0,
+      "score": 0.0
+    },
+    "openpipe.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "replicate.com": {
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "rockwotj.com": {
@@ -105,6 +150,11 @@
       "integrated": 1,
       "score": 1.0
     },
+    "together.ai": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
     "trufflesecurity.com": {
       "discovered": 1,
       "integrated": 1,
@@ -126,5 +176,5 @@
       "score": 1.0
     }
   },
-  "updated": "2026-02-27"
+  "updated": "2026-03-02"
 }

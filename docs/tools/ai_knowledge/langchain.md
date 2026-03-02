@@ -32,38 +32,6 @@ AI & Knowledge — serves as a foundational framework that other tools in the st
 - When the use case is a simple single-prompt LLM call
 - When you prefer a data-centric framework like LlamaIndex for pure RAG workloads
 
-## Getting started
-
-```bash
-pip install langchain langchain-openai
-```
-
-```python
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-
-llm = ChatOpenAI()
-prompt = ChatPromptTemplate.from_template("tell me a joke about {topic}")
-chain = prompt | llm
-```
-
-## API examples
-
-```python
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-
-llm = ChatOpenAI(model="gpt-4o")
-prompt = ChatPromptTemplate.from_template("Explain {concept} in one sentence.")
-output_parser = StrOutputParser()
-
-chain = prompt | llm | output_parser
-
-response = chain.invoke({"concept": "quantum entanglement"})
-print(response)
-```
-
 ## Related tools / concepts
 - [LlamaIndex](llamaindex.md)
 - [Haystack](https://github.com/deepset-ai/haystack)
@@ -120,5 +88,5 @@ print(response)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-03-01
 - Confidence: medium
