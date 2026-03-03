@@ -31,6 +31,19 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
 ## When not to use it
 - For quick, throwaway prototypes where simplicity is the main goal.
 
+## CLI examples
+```bash
+# Run the framework's CLI (requires installation)
+npx beeai-framework help
+
+# Initialize a new project (using the official template)
+# (Assuming a template exists or via direct npm init)
+npm init beeai-agent
+
+# Execute a tool via the CLI (if supported by specific tools)
+npx beeai-framework tool run duckduckgo "What is the Bee Agent Framework?"
+```
+
 ## Getting started
 ### Installation
 === "TypeScript"
@@ -88,7 +101,7 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [LangGraph](langgraph.md)
 
 ## Sources / References
@@ -96,5 +109,5 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
 - [IBM Research Blog](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high
