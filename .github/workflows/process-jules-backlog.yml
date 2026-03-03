@@ -2,7 +2,7 @@ name: Process Jules Backlog
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Runs weekly on Sunday at 00:00 UTC
+    - cron: '30 0 * * *'  # Runs daily at 00:30 UTC
   workflow_dispatch: # allow manual trigger
 
 jobs:
@@ -28,14 +28,41 @@ jobs:
               --description "Issues queued for Jules automation"
           fi
 
-      - name: Open Jules backlog issue
+      - name: Check open Jules backlog status
+        id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          cp .github/issue-templates/process-jules-backlog.md issue_body.md
           TODAY=$(date +%Y-%m-%d)
+          OPEN_JULES=$(gh issue list \
+            --repo "$REPO" \
+            --label jules \
+            --state open \
+            --json number,title \
+            --jq "[.[] | select((.title | startswith(\"Process Jules Backlog - \")) | not)] | length")
+          OPEN_BACKLOG=$(gh issue list \
+            --repo "$REPO" \
+            --label jules \
+            --state open \
+            --search "Process Jules Backlog -" \
+            --json number \
+            --jq "length")
+
+          echo "open_jules=$OPEN_JULES" >> "$GITHUB_OUTPUT"
+          echo "open_backlog=$OPEN_BACKLOG" >> "$GITHUB_OUTPUT"
+          echo "today=$TODAY" >> "$GITHUB_OUTPUT"
+
+      - name: Open Jules backlog issue
+        if: steps.check.outputs.open_jules != '0' && steps.check.outputs.open_backlog == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TODAY: ${{ steps.check.outputs.today }}
+        run: |
+          set -euo pipefail
+          cp .github/issue-templates/process-jules-backlog.md issue_body.md
           
           gh issue create \
             --repo "$REPO" \
