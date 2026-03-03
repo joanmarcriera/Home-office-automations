@@ -86,13 +86,15 @@ Use this matrix for quarterly integration reviews:
 
 ## Getting started
 
+### Installation
+
 OpenRouter is an OpenAI-compatible API. You can use the standard OpenAI Python client by pointing the `base_url` to OpenRouter.
 
 ```bash
 pip install openai
 ```
 
-Minimal Python example:
+### Minimal Python Example
 
 ```python
 from openai import OpenAI
@@ -164,5 +166,5 @@ print(completion.choices[0].message.content)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: medium

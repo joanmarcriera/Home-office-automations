@@ -38,11 +38,15 @@ AI & Knowledge — serves as a data-centric framework for building RAG pipelines
 
 ## Getting started
 
+### Installation
+
 Install LlamaIndex:
 
 ```bash
 pip install llama-index
 ```
+
+### Minimal Python Example
 
 Minimal example to query a directory of documents:
 
@@ -52,6 +56,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 documents = SimpleDirectoryReader("data").load_data()
 index = VectorStoreIndex.from_documents(documents)
 query_engine = index.as_query_engine()
+# Note: Ensure you have a 'data' directory with documents before running
 response = query_engine.query("What did the author do growing up?")
 print(response)
 ```
@@ -100,5 +105,5 @@ index = load_index_from_storage(storage_context)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: medium

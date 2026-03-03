@@ -38,11 +38,15 @@ AI & Knowledge — serves as a foundational framework that other tools in the st
 
 ## Getting started
 
+### Installation
+
 Install the core LangChain package and the OpenAI integration:
 
 ```bash
 pip install langchain langchain-openai
 ```
+
+### Minimal Python Example
 
 Minimal example to call an LLM:
 
@@ -88,5 +92,5 @@ print(response)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: medium

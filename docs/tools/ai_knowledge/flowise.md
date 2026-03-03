@@ -38,6 +38,8 @@ AI & Knowledge — provides a no-code visual builder for LLM pipelines that can 
 
 ## Getting started
 
+### Installation
+
 Install Flowise globally via npm and start it:
 
 ```bash
@@ -48,7 +50,9 @@ npm install -g flowise
 npx flowise start
 ```
 
-Once running, you can access the UI at `http://localhost:3000`.
+### Minimal Example
+
+Once running, you can access the UI at `http://localhost:3000` to begin building your LLM flows. To interact with your flow programmatically, use the Prediction API as shown in the examples below.
 
 ## API examples
 
@@ -73,5 +77,5 @@ curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: medium
