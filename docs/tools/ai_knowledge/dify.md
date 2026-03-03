@@ -38,19 +38,31 @@ AI & Knowledge — serves as a visual platform for building and deploying LLM ap
 
 ## Getting started
 
+### Installation
+
 Dify is typically deployed via Docker. Once running, you can access its features through the web UI or via its REST API. To use the API, you first need to create an application in the Dify dashboard and generate an API Key.
 
-Minimal Python client example:
+For programmatic access via Python, install the official client:
 
 ```bash
 pip install dify-client
 ```
 
+### Minimal Python Example
+
 ```python
 from dify_client import ChatClient
 
+# Initialize the ChatClient
 client = ChatClient(api_key="your-api-key")
-response = client.create_chat_message(inputs={}, query="Hello Dify!", user="jules")
+
+# Send a message to your Dify application
+# Note: In dify-client, the response is already parsed as a dictionary
+response = client.create_chat_message(
+    inputs={},
+    query="Hello Dify!",
+    user="unique_user_id"
+)
 print(response)
 ```
 
@@ -79,5 +91,5 @@ curl -X POST 'https://api.dify.ai/v1/workflows/run' \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: medium

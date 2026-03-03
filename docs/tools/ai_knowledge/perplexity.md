@@ -38,22 +38,26 @@ AI & Knowledge — used as a research and information retrieval tool when up-to-
 
 ## Getting started
 
-Perplexity provides an OpenAI-compatible API. You can use the standard OpenAI Python client to interact with it. To use the Perplexity API, you need a valid API key from the [Perplexity API Settings](https://www.perplexity.ai/settings/api).
+### Installation
+
+Perplexity provides an OpenAI-compatible API. You can use the standard OpenAI Python client to interact with it.
 
 ```bash
 pip install openai
 ```
 
-Minimal Python example:
+### Minimal Python Example
+
+To use the Perplexity API, you need a valid API key from the [Perplexity API Settings](https://www.perplexity.ai/settings/api).
 
 ```python
 from openai import OpenAI
 
-client = OpenAI(api_key="YOUR_API_KEY", base_url="https://api.perplexity.ai")
+client = OpenAI(api_key="YOUR_PPLX_API_KEY", base_url="https://api.perplexity.ai")
 
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
-    messages=[{"role": "user", "content": "Hello!"}],
+    messages=[{"role": "user", "content": "What is the capital of France?"}],
 )
 print(response.choices[0].message.content)
 ```
@@ -106,5 +110,5 @@ curl -X POST https://api.perplexity.ai/chat/completions \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: medium
