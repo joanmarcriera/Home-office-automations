@@ -31,26 +31,14 @@ Framework
 - For very simple scripts where a basic API call suffices.
 - If you are already deeply committed to another framework's ecosystem (e.g., LlamaIndex).
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
-## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-
-## Sources / References
-- [Official Website](https://haystack.deepset.ai/)
-- [GitHub](https://github.com/deepset-ai/haystack)
-- [Documentation](https://docs.haystack.deepset.ai/)
-
 ## Getting started
 
+### Installation
 ```bash
 pip install haystack-ai
 ```
 
+### Minimal Python Example
 ```python
 from haystack import Pipeline
 from haystack.components.builders import PromptBuilder
@@ -66,7 +54,21 @@ result = pipeline.run({"prompt_builder": {"country": "France"}})
 print(result["llm"]["replies"][0])
 ```
 
+## Licensing and cost
+- **Open Source**: Yes (Apache 2.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Related tools / concepts
+- [LangChain](../ai_knowledge/langchain.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
+
+## Sources / References
+- [Official Website](https://haystack.deepset.ai/)
+- [GitHub](https://github.com/deepset-ai/haystack)
+- [Documentation](https://docs.haystack.deepset.ai/)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high

@@ -31,25 +31,14 @@ Framework / SDK
 - For quick prototyping or research-focused LLM scripts.
 - If you don't need the "kernel" abstraction and prefer a more lightweight approach.
 
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
-## Related tools / concepts
-- [AutoGen](autogen.md)
-- [LangChain](../ai_knowledge/langchain.md)
-
-## Sources / References
-- [GitHub](https://github.com/microsoft/semantic-kernel)
-- [Microsoft Documentation](https://learn.microsoft.com/en-us/semantic-kernel/)
-
 ## Getting started
 
+### Installation
 ```bash
 pip install semantic-kernel
 ```
 
+### Minimal Python Example
 ```python
 import asyncio
 from semantic_kernel import Kernel
@@ -66,7 +55,20 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+## Licensing and cost
+- **Open Source**: Yes (MIT License)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Related tools / concepts
+- [AutoGen](autogen.md)
+- [LangChain](../ai_knowledge/langchain.md)
+
+## Sources / References
+- [GitHub](https://github.com/microsoft/semantic-kernel)
+- [Microsoft Documentation](https://learn.microsoft.com/en-us/semantic-kernel/)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high
