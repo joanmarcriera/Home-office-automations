@@ -99,6 +99,7 @@ Invoked automatically when adding or editing playbooks and tool docs. Checks:
 
 ## Related tools / concepts
 - [Claude Code](./claude-code.md)
+- [Claude Code Router](./claude-code-router.md)
 - [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [Standards & Conventions](../../standards.md)
 

@@ -4,6 +4,7 @@
 - [Anti Gravity](anti_gravity.md)
 - [Axiom Guardian](axiom-guardian.md)
 - [Claude Code](claude-code.md)
+- [Claude Code Router](claude-code-router.md)
 - [Claude Code Container MCP](claude-code-container-mcp.md)
 - [Claude Code Setup](claude-code-setup.md)
 - [Cloud Code](cloud_code.md)

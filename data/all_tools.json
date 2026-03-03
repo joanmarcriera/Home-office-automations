@@ -410,6 +410,12 @@
       "doc_path": "docs/tools/development_ops/claude-code-setup.md"
     },
     {
+      "id": "claude-code-router",
+      "name": "Claude Code Router",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-code-router.md"
+    },
+    {
       "id": "linkwarden",
       "name": "Linkwarden",
       "category": "Intake & Storage",
