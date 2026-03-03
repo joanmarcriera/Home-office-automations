@@ -32,11 +32,6 @@ Infra
 - On Linux, Windows, or Intel-based Macs.
 - For production deployments on standard cloud servers (NVIDIA GPUs).
 
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Getting started
 
 ### Installation
@@ -64,6 +59,11 @@ print(response)
 python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --prompt "Why is the sky blue?"
 ```
 
+## Licensing and cost
+- **Open Source**: Yes (MIT)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md)
 - [PyTorch](https://pytorch.org/)
@@ -76,5 +76,5 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - [Documentation](https://ml-explore.github.io/mlx/build/html/index.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high
