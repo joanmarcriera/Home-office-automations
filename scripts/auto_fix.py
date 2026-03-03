@@ -36,7 +36,7 @@ def main():
     with open("issue_prompt.txt", "w") as f:
         f.write(prompt)
         
-    model = os.environ.get("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
+    model = os.environ.get("OPENROUTER_MODEL", "upstage/solar-pro-3:free")
     
     print(f"Running Aider on issue #{issue_number} using OpenRouter model {model}...")
     
