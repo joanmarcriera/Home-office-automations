@@ -33,11 +33,6 @@ Infra
 - For low-resource environments or consumer hardware without high-end NVIDIA GPUs (consider llama.cpp).
 - For models or architectures not yet supported by vLLM's kernel optimizations.
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Getting started
 
 ### Installation
@@ -67,6 +62,11 @@ for output in outputs:
 python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 ```
 
+## Licensing and cost
+- **Open Source**: Yes (Apache 2.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
 ## Related tools / concepts
 - [Text Generation Inference (TGI)](tgi.md)
 - [SGLang](sglang.md)
@@ -78,5 +78,5 @@ python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 - [Docs](https://docs.vllm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high

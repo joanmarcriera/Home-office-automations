@@ -31,25 +31,14 @@ Framework
 - For very simple, single-prompt applications.
 - If you don't have even a small dataset to use for optimization.
 
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
-## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-
-## Sources / References
-- [Official Website](https://dspy-docs.vercel.app/)
-- [GitHub](https://github.com/stanfordnlp/dspy)
-
 ## Getting started
 
+### Installation
 ```bash
 pip install dspy
 ```
 
+### Minimal Python Example
 ```python
 import dspy
 lm = dspy.OpenAI(model='gpt-3.5-turbo')
@@ -65,7 +54,20 @@ pred = generate_answer(question="What is the capital of France?")
 print(pred.answer)
 ```
 
+## Licensing and cost
+- **Open Source**: Yes (MIT License)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Related tools / concepts
+- [LangChain](../ai_knowledge/langchain.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
+
+## Sources / References
+- [Official Website](https://dspy-docs.vercel.app/)
+- [GitHub](https://github.com/stanfordnlp/dspy)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high
