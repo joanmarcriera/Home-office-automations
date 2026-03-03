@@ -63,7 +63,6 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 ## Related tools / concepts
 - [Agno](agno.md) (Successor to Phidata v2)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
@@ -71,5 +70,5 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 - [GitHub Repository](https://github.com/phidata-hq/phidata)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high

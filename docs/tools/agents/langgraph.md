@@ -91,14 +91,13 @@ for event in graph.stream({"messages": [("user", "Search for the current price o
 
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
-- [CrewAI](../frameworks/crewai.md)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [CrewAI](../frameworks/crewai.md)
 
 ## Sources / References
 - [Official Documentation](https://langchain-ai.github.io/langgraph/)
 - [GitHub Repository](https://github.com/langchain-ai/langgraph)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high

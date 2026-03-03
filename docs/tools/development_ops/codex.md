@@ -57,12 +57,13 @@ codex config set model codellama
 ```
 
 ### sandboxed execution
-Run generated code in a restricted environment to prevent system damage:
+Run generated code in a restricted environment to prevent system damage. This is particularly useful for agents that can execute the code they generate:
 ```bash
 # Execute with sandboxing flags (if supported by the CLI tool)
 codex --execute --full-auto --sandbox=docker "Calculate the first 1000 prime numbers"
 
-# Use with Open Interpreter for more advanced sandboxed execution
+# Use with Open Interpreter for more advanced, automated sandboxed execution
+# This allows the LLM to run code in a secure E2B or Docker container
 interpreter --local --model codellama --sandbox
 ```
 
@@ -75,5 +76,5 @@ interpreter --local --model codellama --sandbox
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium
