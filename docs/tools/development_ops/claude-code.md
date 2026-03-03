@@ -77,6 +77,7 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 ```
 
 ## Related tools / concepts
+- [Claude Code Router](./claude-code-router.md)
 - [Aider](./aider.md)
 - [Droid](./droid.md)
 - [OpenHands](./openhands.md)

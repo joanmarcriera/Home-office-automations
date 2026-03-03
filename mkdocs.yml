@@ -185,6 +185,7 @@ nav:
       - Anti Gravity: tools/development_ops/anti_gravity.md
       - Axiom Guardian: tools/development_ops/axiom-guardian.md
       - Claude Code: tools/development_ops/claude-code.md
+      - Claude Code Router: tools/development_ops/claude-code-router.md
       - Claude Code Container MCP: tools/development_ops/claude-code-container-mcp.md
       - Claude Code Setup: tools/development_ops/claude-code-setup.md
       - Cloud Code: tools/development_ops/cloud_code.md
