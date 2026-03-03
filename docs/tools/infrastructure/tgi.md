@@ -32,21 +32,6 @@ Infra
 - For local development on consumer hardware where simpler tools like Ollama or llama.cpp suffice.
 - If your commercial model conflicts with the HFOIL license terms.
 
-## Licensing and cost
-- **Open Source**: Yes (HFOIL v1.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
-## Related tools / concepts
-- [vLLM](vllm.md)
-- [SGLang](sglang.md)
-- [Inference engines](index.md)
-
-## Sources / References
-- [Official Website](https://huggingface.co/docs/text-generation-inference)
-- [GitHub](https://github.com/huggingface/text-generation-inference)
-- [Docs](https://huggingface.co/docs/text-generation-inference)
-
 ## Getting started
 
 ### Installation (Docker)
@@ -71,6 +56,21 @@ curl 127.0.0.1:8080/generate \
     -H 'Content-Type: application/json'
 ```
 
+## Licensing and cost
+- **Open Source**: Yes (HFOIL v1.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Related tools / concepts
+- [vLLM](vllm.md)
+- [SGLang](sglang.md)
+- [Inference engines](index.md)
+
+## Sources / References
+- [Official Website](https://huggingface.co/docs/text-generation-inference)
+- [GitHub](https://github.com/huggingface/text-generation-inference)
+- [Docs](https://huggingface.co/docs/text-generation-inference)
+
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high

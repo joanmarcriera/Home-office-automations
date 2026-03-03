@@ -918,6 +918,72 @@
       "name": "OpenPipe",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/openpipe.md"
+    },
+    {
+      "id": "chronos-mcp",
+      "name": "Chronos MCP",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/chronos-mcp.md"
+    },
+    {
+      "id": "makefile-mcp",
+      "name": "Makefile MCP",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/makefile-mcp.md"
+    },
+    {
+      "id": "vault-mcp",
+      "name": "Vault MCP Server",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/vault-mcp.md"
+    },
+    {
+      "id": "vikunja-mcp",
+      "name": "Vikunja MCP Server",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/vikunja-mcp.md"
+    },
+    {
+      "id": "axiom-guardian",
+      "name": "Axiom Guardian",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/axiom-guardian.md"
+    },
+    {
+      "id": "claude-code-container-mcp",
+      "name": "Claude Code Container MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-code-container-mcp.md"
+    },
+    {
+      "id": "desktop-commander-mcp",
+      "name": "Desktop Commander MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/desktop-commander-mcp.md"
+    },
+    {
+      "id": "free-will-mcp",
+      "name": "Free Will MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/free-will-mcp.md"
+    },
+    {
+      "id": "fuzzing-mcp-server",
+      "name": "Fuzzing MCP Server",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/fuzzing-mcp-server.md"
+    },
+    {
+      "id": "jupyter-kernel-mcp",
+      "name": "Jupyter Kernel MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/jupyter-kernel-mcp.md"
+    },
+    {
+      "id": "symbolic-mcp",
+      "name": "Symbolic MCP Server",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/symbolic-mcp.md"
     }
   ]
 }
