@@ -1,0 +1,29 @@
+/* Improve readability for dense markdown tables across the site. */
+.md-typeset .md-typeset__table {
+  margin-bottom: 1.25rem;
+}
+
+.md-typeset table:not([class]) {
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  vertical-align: top;
+}
+
+.md-typeset table:not([class]) th {
+  white-space: nowrap;
+}
+
+.md-typeset table:not([class]) code {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 76.1875em) {
+  .md-typeset table:not([class]) {
+    font-size: 0.78rem;
+  }
+}
