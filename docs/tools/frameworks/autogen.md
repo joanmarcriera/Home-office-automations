@@ -31,6 +31,27 @@ Framework / Multi-Agent Orchestrator
 - For static pipelines that don't benefit from back-and-forth conversation.
 - If you prefer a more rigid, non-conversational orchestration model.
 
+## Getting started
+
+### Installation
+```bash
+pip install pyautogen
+```
+
+### Minimal Python Example
+```python
+from autogen import AssistantAgent, UserProxyAgent
+
+# Assistant agent for reasoning
+assistant = AssistantAgent("assistant", llm_config={"model": "gpt-4"})
+
+# User proxy agent for executing code
+user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "coding"})
+
+# Start the conversation
+user_proxy.initiate_chat(assistant, message="Show me the stock price of NVDA for the last 3 months.")
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
@@ -45,26 +66,7 @@ Framework / Multi-Agent Orchestrator
 - [GitHub](https://github.com/microsoft/autogen)
 - [Official Website](https://microsoft.github.io/autogen/)
 
-## Getting started
-
-```bash
-pip install pyautogen
-```
-
-```python
-from autogen import AssistantAgent, UserProxyAgent
-
-# Assistant agent for reasoning
-assistant = AssistantAgent("assistant", llm_config={"model": "gpt-4"})
-
-# User proxy agent for executing code
-user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "coding"})
-
-# Start the conversation
-user_proxy.initiate_chat(assistant, message="Show me the stock price of NVDA for the last 3 months.")
-```
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high

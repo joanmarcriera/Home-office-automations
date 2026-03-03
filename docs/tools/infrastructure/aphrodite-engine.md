@@ -32,11 +32,6 @@ Infra
 - If you need the absolute latest, bleeding-edge features from the main vLLM project.
 - For non-NVIDIA hardware (consider llama.cpp).
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Getting started
 
 ### Installation
@@ -54,6 +49,11 @@ python -m aphrodite.endpoints.openai.api_server --model /path/to/model/ --dtype 
 python -m aphrodite.endpoints.kobold.api_server --model /path/to/model/
 ```
 
+## Licensing and cost
+- **Open Source**: Yes (Apache 2.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
 ## Related tools / concepts
 - [vLLM](vllm.md)
 - [ExLlamaV2](exllamav2.md)
@@ -65,5 +65,5 @@ python -m aphrodite.endpoints.kobold.api_server --model /path/to/model/
 - [Documentation](https://aphrodite.pygmalion.chat/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high

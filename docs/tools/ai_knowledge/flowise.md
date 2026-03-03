@@ -48,13 +48,19 @@ npm install -g flowise
 npx flowise start
 ```
 
-Once running, you can access the UI at `http://localhost:3000`.
+Once running, you can access the UI at `http://localhost:3000`. You can test a basic prediction via `curl`:
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
+     -H "Content-Type: application/json" \
+     -d '{"question": "Hello!"}'
+```
 
 ## API examples
 
 ### Calling a Flowise Chatflow via REST
 
-You can interact with your deployed chatflows using the Prediction API.
+You can interact with your deployed chatflows using the Prediction API, including configuration overrides.
 
 ```bash
 curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
@@ -73,5 +79,5 @@ curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium
