@@ -49,6 +49,7 @@ Minimal example to query a directory of documents:
 ```python
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
+# Assumes you have a folder named 'data' with text files
 documents = SimpleDirectoryReader("data").load_data()
 index = VectorStoreIndex.from_documents(documents)
 query_engine = index.as_query_engine()
@@ -100,5 +101,5 @@ index = load_index_from_storage(storage_context)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium

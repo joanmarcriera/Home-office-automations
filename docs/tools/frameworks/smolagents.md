@@ -31,6 +31,24 @@ Framework / Agent Library
 - For extremely complex, multi-crew enterprise orchestrations.
 - If you need built-in support for complex persistent state management or long-term memory.
 
+## Getting started
+
+### Installation
+```bash
+pip install smolagents
+```
+
+### Minimal Python Example
+```python
+from smolagents import CodeAgent, DuckDuckGoSearchTool, HfApiModel
+
+# Define the agent with a search tool
+agent = CodeAgent(tools=[DuckDuckGoSearchTool()], model=HfApiModel())
+
+# Run a task
+agent.run("What is the current population of Tokyo?")
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
 - **Cost**: Free
@@ -44,23 +62,7 @@ Framework / Agent Library
 - [GitHub](https://github.com/huggingface/smolagents)
 - [Blog Post](https://huggingface.co/blog/smolagents)
 
-## Getting started
-
-```bash
-pip install smolagents
-```
-
-```python
-from smolagents import CodeAgent, DuckDuckGoSearchTool, HfApiModel
-
-# Define the agent with a search tool
-agent = CodeAgent(tools=[DuckDuckGoSearchTool()], model=HfApiModel())
-
-# Run a task
-agent.run("What is the current population of Tokyo?")
-```
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high

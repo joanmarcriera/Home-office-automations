@@ -51,13 +51,14 @@ from dify_client import ChatClient
 
 client = ChatClient(api_key="your-api-key")
 response = client.create_chat_message(inputs={}, query="Hello Dify!", user="jules")
+print(response)
 ```
 
 ## API examples
 
 ### Calling a Dify Workflow API
 
-Workflows in Dify can be triggered via a POST request.
+Workflows in Dify can be triggered via a POST request to the Workflow API endpoint.
 
 ```bash
 curl -X POST 'https://api.dify.ai/v1/workflows/run' \
@@ -78,5 +79,5 @@ curl -X POST 'https://api.dify.ai/v1/workflows/run' \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium
