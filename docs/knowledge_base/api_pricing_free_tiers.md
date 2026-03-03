@@ -72,6 +72,47 @@ Capability tags:
 - <span class="cap-tag cap-budget">BUDGET</span> better free-tier value or lower-cost experimentation.
 - <span class="cap-tag cap-open">OPEN</span> open-weight/open-model ecosystem affinity.
 
+<!-- BEGIN AUTO-CAPABILITY-SUMMARY -->
+
+### Capability Capacity Summary (auto-generated)
+
+These summaries are generated from the model rows on this page using `scripts/update_api_pricing_capability_summary.py`.
+Only rows with a numeric daily token cap are included in the capacity math.
+
+#### Leaderboard By Capability (known daily token caps)
+
+| Capability | Top models | Highest known daily cap | Known models |
+| :--- | :--- | :--- | :--- |
+| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M); Cerebras — Llama 4 Maverick 400B (1M) | 62.5M | 7 |
+| Verification | Google Gemini — Gemini 2.5 Pro (25M) | 25M | 1 |
+| Reasoning | Google Gemini — Gemini 2.5 Pro (25M) | 25M | 1 |
+| Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M) | 250M | 3 |
+| Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 4 Maverick 400B (1M) | 250M | 8 |
+| Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 3.1 8B (1M) | 250M | 6 |
+| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 6 |
+
+#### 80% Shortlist (known-cap coverage)
+
+| Capability | Models to reach >=80% of known capacity | Coverage | Total known daily cap |
+| :--- | :--- | :--- | :--- |
+| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M) | 96.6% | 90.6M |
+| Verification | Google Gemini — Gemini 2.5 Pro (25M) | 100.0% | 25M |
+| Reasoning | Google Gemini — Gemini 2.5 Pro (25M) | 100.0% | 25M |
+| Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 92.6% | 337.5M |
+| Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 98.7% | 316.6M |
+| Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 99.3% | 314.6M |
+| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K) | 85.4% | 4.1M |
+
+#### Fast Recommendation (80% rule, known-cap data)
+
+| Goal | Recommended free-first models | Why this set |
+| :--- | :--- | :--- |
+| Coding | Google Gemini — Gemini 2.5 Flash; Google Gemini — Gemini 2.5 Pro | Reaches 96.6% of known daily capacity (90.6M total known). |
+| Verification | Google Gemini — Gemini 2.5 Pro | Reaches 100.0% of known daily capacity (25M total known). |
+| Reasoning | Google Gemini — Gemini 2.5 Pro | Reaches 100.0% of known daily capacity (25M total known). |
+
+<!-- END AUTO-CAPABILITY-SUMMARY -->
+
 ### Google Gemini
 
 | Model | Quotas | Verification | Summary |
@@ -179,6 +220,7 @@ When updating this page:
 2. Update `Free tier / trial`, `Evidence summary`, and `Last verified`.
 3. Add providers only when official pricing and docs links are stable.
 4. Use `Unclear` when evidence is ambiguous.
+5. Regenerate capacity summaries with `python3 scripts/update_api_pricing_capability_summary.py`.
 
 ## Related pages
 
