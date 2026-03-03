@@ -142,43 +142,50 @@
       "id": "anthropic",
       "name": "Anthropic (Claude)",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/anthropic.md"
+      "doc_path": "docs/tools/providers/anthropic.md",
+      "models": ["Claude 3.5 Sonnet", "Claude 3.5 Haiku", "Claude 3 Opus"]
     },
     {
       "id": "cohere",
       "name": "Cohere (Enterprise RAG)",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/cohere.md"
+      "doc_path": "docs/tools/providers/cohere.md",
+      "models": ["Command R+", "Command R", "Embed", "Rerank"]
     },
     {
       "id": "mistral-ai",
       "name": "Mistral AI (Mixtral/Codestral)",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/mistral.md"
+      "doc_path": "docs/tools/providers/mistral.md",
+      "models": ["Mistral Large", "Mistral Small", "Mixtral 8x7B", "Mixtral 8x22B", "Codestral"]
     },
     {
       "id": "together-ai",
       "name": "Together AI (Open Models)",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/together.md"
+      "doc_path": "docs/tools/providers/together.md",
+      "models": ["Llama 3.1", "Qwen 2.5", "Mistral", "Mixtral"]
     },
     {
       "id": "groq",
       "name": "Groq (LPU Inference)",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/groq.md"
+      "doc_path": "docs/tools/providers/groq.md",
+      "models": ["Llama 3.1", "Mixtral 8x7B", "Gemma 2"]
     },
     {
       "id": "fireworks-ai",
       "name": "Fireworks AI (Fast Inference)",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/fireworks.md"
+      "doc_path": "docs/tools/providers/fireworks.md",
+      "models": ["Llama 3.1", "Qwen 2.5", "Myriad Fine-tunes"]
     },
     {
       "id": "replicate",
       "name": "Replicate (Multi-modal)",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/replicate.md"
+      "doc_path": "docs/tools/providers/replicate.md",
+      "models": ["Llama 3.1", "Stable Diffusion XL", "CogVideoX"]
     },
     {
       "id": "deepseek",
@@ -911,6 +918,72 @@
       "name": "OpenPipe",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/openpipe.md"
+    },
+    {
+      "id": "chronos-mcp",
+      "name": "Chronos MCP",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/chronos-mcp.md"
+    },
+    {
+      "id": "makefile-mcp",
+      "name": "Makefile MCP",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/makefile-mcp.md"
+    },
+    {
+      "id": "vault-mcp",
+      "name": "Vault MCP Server",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/vault-mcp.md"
+    },
+    {
+      "id": "vikunja-mcp",
+      "name": "Vikunja MCP Server",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/vikunja-mcp.md"
+    },
+    {
+      "id": "axiom-guardian",
+      "name": "Axiom Guardian",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/axiom-guardian.md"
+    },
+    {
+      "id": "claude-code-container-mcp",
+      "name": "Claude Code Container MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-code-container-mcp.md"
+    },
+    {
+      "id": "desktop-commander-mcp",
+      "name": "Desktop Commander MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/desktop-commander-mcp.md"
+    },
+    {
+      "id": "free-will-mcp",
+      "name": "Free Will MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/free-will-mcp.md"
+    },
+    {
+      "id": "fuzzing-mcp-server",
+      "name": "Fuzzing MCP Server",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/fuzzing-mcp-server.md"
+    },
+    {
+      "id": "jupyter-kernel-mcp",
+      "name": "Jupyter Kernel MCP",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/jupyter-kernel-mcp.md"
+    },
+    {
+      "id": "symbolic-mcp",
+      "name": "Symbolic MCP Server",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/symbolic-mcp.md"
     }
   ]
 }

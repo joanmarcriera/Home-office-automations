@@ -31,33 +31,69 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
 ## When not to use it
 - For quick, throwaway prototypes where simplicity is the main goal.
 
-## Getting started
-### Installation (TypeScript)
+## CLI examples
 ```bash
-npm install beeai-framework
+# Run the framework's CLI (requires installation)
+npx beeai-framework help
+
+# Initialize a new project (using the official template)
+# (Assuming a template exists or via direct npm init)
+npm init beeai-agent
+
+# Execute a tool via the CLI (if supported by specific tools)
+npx beeai-framework tool run duckduckgo "What is the Bee Agent Framework?"
 ```
 
-### Working Example (TypeScript)
-```typescript
-import { BeeAgent } from "beeai-framework/agents/bee/agent";
-import { UnstructuredRawModel } from "beeai-framework/backend/unstructured";
-import { DuckDuckGoSearchTool } from "beeai-framework/tools/search/duckduckgo";
+## Getting started
+### Installation
+=== "TypeScript"
+    ```bash
+    npm install beeai-framework
+    ```
+=== "Python"
+    ```bash
+    pip install beeai-framework
+    ```
 
-async function main() {
-    // 1. Create the agent with a tool
-    const agent = new BeeAgent({
-        llm: new UnstructuredRawModel({ modelId: "gpt-4o" }),
-        tools: [new DuckDuckGoSearchTool()],
-        memory: []
-    });
+### Working Example
+=== "TypeScript"
+    ```typescript
+    import { BeeAgent } from "beeai-framework/agents/bee/agent";
+    import { UnstructuredRawModel } from "beeai-framework/backend/unstructured";
+    import { DuckDuckGoSearchTool } from "beeai-framework/tools/search/duckduckgo";
 
-    // 2. Run a query
-    const response = await agent.run({ prompt: "What is the Bee Agent Framework?" });
-    console.log(response.result.text);
-}
+    async function main() {
+        // 1. Create the agent with a tool
+        const agent = new BeeAgent({
+            llm: new UnstructuredRawModel({ modelId: "gpt-4o" }),
+            tools: [new DuckDuckGoSearchTool()],
+            memory: []
+        });
 
-main();
-```
+        // 2. Run a query
+        const response = await agent.run({ prompt: "What is the Bee Agent Framework?" });
+        console.log(response.result.text);
+    }
+
+    main();
+    ```
+=== "Python"
+    ```python
+    from beeai_framework.agents.bee.agent import BeeAgent
+    from beeai_framework.backend.chat import ChatModel
+    from beeai_framework.tools.search.duckduckgo import DuckDuckGoSearchTool
+
+    # 1. Create the agent with a tool
+    agent = BeeAgent(
+        llm=ChatModel.from_name("openai:gpt-4o"),
+        tools=[DuckDuckGoSearchTool()],
+        memory=[]
+    )
+
+    # 2. Run a query
+    response = agent.run(prompt="What is the Bee Agent Framework?")
+    print(response.result.text)
+    ```
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0 License)
@@ -65,8 +101,7 @@ main();
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [LangGraph](langgraph.md)
 
 ## Sources / References
@@ -74,5 +109,5 @@ main();
 - [IBM Research Blog](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high

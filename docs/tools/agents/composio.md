@@ -32,6 +32,18 @@ Connecting agents to real-world tools usually requires writing boilerplate for a
 - For simple agents that don't need external tool access.
 - If you have strict privacy requirements that forbid third-party tool routers.
 
+## CLI examples
+```bash
+# Login to Composio
+composio login
+
+# Add an integration (e.g., GitHub)
+composio add github
+
+# List all active integrations
+composio list
+```
+
 ## Getting started
 ### Installation
 ```bash
@@ -69,8 +81,7 @@ print(result)
 - **Self-hostable**: Enterprise versions support self-hosting.
 
 ## Related tools / concepts
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [Zapier](../automation_orchestration/zapier.md)
 - [Make](../automation_orchestration/make.md)
 
@@ -80,5 +91,5 @@ print(result)
 - [GitHub](https://github.com/composiohq/composio)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high

@@ -31,6 +31,28 @@ Framework / Multi-Agent Orchestrator
 - For simple tasks where a single LLM call or a basic chain is enough.
 - If you need extremely fine-grained control over the low-level agent communication protocol.
 
+## Getting started
+
+### Installation
+```bash
+pip install crewai
+```
+
+### Minimal Python Example
+```python
+from crewai import Agent, Task, Crew
+
+researcher = Agent(role='Researcher', goal='Find info about {topic}', backstory='Expert analyst')
+writer = Agent(role='Writer', goal='Write a post about {topic}', backstory='Professional blogger')
+
+task1 = Task(description='Research the latest trends in {topic}', agent=researcher, expected_output='A list of 5 trends')
+task2 = Task(description='Write a 3-paragraph summary of the trends', agent=writer, expected_output='A blog post')
+
+crew = Crew(agents=[researcher, writer], tasks=[task1, task2])
+result = crew.kickoff(inputs={'topic': 'AI in 2024'})
+print(result)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
@@ -46,27 +68,7 @@ Framework / Multi-Agent Orchestrator
 - [GitHub](https://github.com/joaomdmoura/crewAI)
 - [Documentation](https://docs.crewai.com/)
 
-## Getting started
-
-```bash
-pip install crewai
-```
-
-```python
-from crewai import Agent, Task, Crew
-
-researcher = Agent(role='Researcher', goal='Find info about {topic}', backstory='Expert analyst')
-writer = Agent(role='Writer', goal='Write a post about {topic}', backstory='Professional blogger')
-
-task1 = Task(description='Research the latest trends in {topic}', agent=researcher, expected_output='A list of 5 trends')
-task2 = Task(description='Write a 3-paragraph summary of the trends', agent=writer, expected_output='A blog post')
-
-crew = Crew(agents=[researcher, writer], tasks=[task1, task2])
-result = crew.kickoff(inputs={'topic': 'AI in 2024'})
-print(result)
-```
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high

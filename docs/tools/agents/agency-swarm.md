@@ -31,6 +31,19 @@ It simplifies the creation of multi-agent systems by providing a structured way 
 - If you need a provider-agnostic framework (consider CrewAI or LangGraph).
 - For very low-latency requirements (Assistants API can have overhead).
 
+## CLI examples
+```bash
+# Create a new agency project structure
+agency-swarm create-space --name my_agency
+
+# Run a specific agent within your agency
+# (Requires environment setup and agent definition)
+python -m my_agency.run_agent --agent_name CEO
+
+# List all available tools in your current agency
+python -m my_agency.list_tools
+```
+
 ## Getting started
 ### Installation
 ```bash
@@ -77,14 +90,13 @@ agency.get_completion("CEO, please ask the developer to calculate the square of 
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [CrewAI](../frameworks/crewai.md)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/VRSEN/agency-swarm)
 - [Official Website](https://agency-swarm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high

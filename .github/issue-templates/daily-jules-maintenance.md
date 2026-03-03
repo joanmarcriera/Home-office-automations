@@ -2,6 +2,8 @@
 
 This is an automated daily maintenance task. Please complete the steps below **in order**, stopping at the first step that produces meaningful work. Do not attempt all three steps in a single PR.
 
+> **Important**: Do NOT update `Last reviewed` dates or `Confidence` metadata unless you are also making substantive content changes to that file. The CI gate will reject PRs that only change metadata.
+
 ---
 
 ### Step 1 - Process the intake queue

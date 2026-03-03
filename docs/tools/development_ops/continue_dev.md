@@ -41,15 +41,21 @@ Continue is available as an extension for VS Code and JetBrains.
 
 ## Usage examples
 
-### config.json with Ollama provider
-Configure Continue to use a local model via Ollama:
+### config.json with Ollama and Anthropic providers
+Configure Continue to use both local (Ollama) and remote (Claude) models:
 ```json
 {
   "models": [
     {
-      "title": "Ollama Llama 3",
+      "title": "Ollama Llama 3.1",
       "provider": "ollama",
-      "model": "llama3"
+      "model": "llama3.1"
+    },
+    {
+      "title": "Claude 3.5 Sonnet",
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20240620",
+      "apiKey": "YOUR_API_KEY"
     }
   ],
   "tabAutocompleteModel": {
@@ -84,5 +90,5 @@ Add custom behavior by defining slash commands in `config.json`:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium

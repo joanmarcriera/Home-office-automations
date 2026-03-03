@@ -70,5 +70,5 @@ print(response.choices[0].message.content)
 - [Model Directory](https://fireworks.ai/models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high

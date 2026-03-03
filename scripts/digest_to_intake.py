@@ -29,7 +29,7 @@ SOURCE_SCORES_PATH = Path("data/source-scores.json")
 
 MODEL_STRING = os.environ.get(
     "OPENROUTER_MODEL",
-    "meta-llama/llama-3.3-70b-instruct:free,deepseek/deepseek-r1:free,qwen/qwen-2-7b-instruct:free",
+    "upstage/solar-pro-3:free,google/gemma-3-27b-it:free,qwen/qwen-2-7b-instruct:free",
 )
 MODELS = [m.strip() for m in MODEL_STRING.split(",")]
 

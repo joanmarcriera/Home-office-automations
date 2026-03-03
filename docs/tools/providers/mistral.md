@@ -1,18 +1,19 @@
 # Mistral AI
 
 ## What it is
-Mistral AI is a European AI company that develops both open-weight and commercial large language models, including the **Mistral 7B**, **Mixtral 8x7B**, **Mixtral 8x22B**, and the **Codestral** families.
+Mistral AI is a European AI company that develops both open-weight and commercial large language models, including the Mistral, Mixtral, and Codestral families. It has evolved from a model provider into a full agentic platform with native support for tool calling, persistent conversations, and standardized protocols.
 
 ## What problem it solves
-Provides a high-performance, efficient alternative to American providers, offering some of the best-performing open-weight models for self-hosting and private deployment.
+Provides a high-performance, efficient alternative to American providers, offering some of the best-performing open-weight models for self-hosting and a robust API for agentic workflows.
 
 ## Where it fits in the stack
-**LLM Provider**. Offers both a hosted API (La Plateforme) and models that can be run locally via tools like Ollama or vLLM.
+**LLM Provider** and **Agent Platform**. Offers both a hosted API (La Plateforme) and models that can be run locally via tools like Ollama or vLLM.
 
 ## Typical use cases
-- **Local Deployment**: Running Mixtral 8x7B or Mistral Nemo on-premises for maximum data privacy.
-- **Code Assistance**: Using Codestral for specialized programming tasks and FIM (Fill-In-the-Middle) operations.
-- **Efficient Inference**: Using small but capable models (Ministral) for high-volume, low-cost tasks.
+- **Agentic Workflows**: Building autonomous agents that use web search, code execution, and MCP tools.
+- **Local Deployment**: Running Mixtral 8x7B or Mistral Nemo on-premises for privacy.
+- **Code Assistance**: Using Codestral or Devstral for specialized programming tasks and coding agents.
+- **Multimodal Applications**: Processing images and text together with Pixtral or Mistral Large 3.
 
 ## Getting started
 Install the SDK:
@@ -42,40 +43,59 @@ chat_response = client.chat.complete(
 print(chat_response.choices[0].message.content)
 ```
 
+## Model Families
+- **Mistral Large 3**: Flagship multimodal model with 256k context window and powerful agentic capabilities.
+- **Ministral Family**: Compact models (3B, 8B, 14B) designed for edge devices and efficient local hosting.
+- **Magistral**: Specialized reasoning models with transparent, verifiable thinking steps.
+- **Codestral / Devstral**: Purpose-built models for code generation, FIM (Fill-In-the-Middle), and coding agents.
+- **Pixtral**: Multimodal models capable of native vision and text processing.
+- **Voxtral**: Specialized audio models for high-accuracy speech-to-text and transcription.
+
+## Agentic Capabilities
+Mistral provides a first-class Agents API that goes beyond simple completions:
+- **Built-in Tools**: Native connectors for **Web Search**, **Code Interpreter**, and **Image Generation**.
+- **Model Context Protocol (MCP)**: Native support in the Python SDK for connecting to any MCP server to extend agent capabilities.
+- **Persistent Conversations**: Built-in state management for long-running agent interactions.
+- **Agent Handoffs**: Orchestrate multi-agent workflows where agents can hand off tasks to specialized sub-agents.
+
 ## Strengths
-- **Efficiency**: Known for "punching above their weight" in terms of parameter count vs performance (e.g., Mixtral's Sparse MoE architecture).
-- **Open Weights**: Many flagship models are released under Apache 2.0 or Mistral Research License, allowing local hosting.
-- **Codestral**: Highly capable model specifically for code generation and professional software development.
-- **Pricing Tiers**: Extremely competitive pricing through **La Plateforme**, ranging from the ultra-cheap **Ministral** and **Mistral Small** to the flagship **Mistral Large**.
+- **Efficiency**: Known for "punching above their weight" in terms of parameter count vs performance.
+- **Open Weights**: Many models are released under Apache 2.0 or Mistral Research License, allowing local hosting.
+- **Native MCP Support**: Direct integration with the Model Context Protocol standard.
+- **European Sovereignity**: High-performance AI hosted and developed in the EU.
 
 ## Limitations
-- **API Maturity**: While improving rapidly, the API featureset (e.g., complex tool use, Assistants-style abstractions) has historically trailed OpenAI.
-- **Safety Tuning**: Generally less "preachy" than US counterparts, which may require more careful prompting for specific alignment needs.
+- **API Maturity**: While rapidly catching up, some advanced features like complex model distillation are still evolving compared to OpenAI.
+- **Safety Tuning**: Generally follows a more pragmatic approach to safety, which may require more specific guardrailing for certain enterprise use cases.
 
 ## When to use it
-- When you want to avoid vendor lock-in by using open-weight models.
-- For high-performance, European-hosted AI services that comply with GDPR.
-- For specialized coding tasks where Codestral excels.
+- When you want to avoid vendor lock-in with open-weight models.
+- For building agents that need standardized tool access via MCP.
+- For high-performance European-hosted AI requirements.
+- For specialized coding tasks.
 
 ## When not to use it
-- If you require deeply integrated multi-modal native support (e.g., vision/audio/image gen) in a single unified API.
-- If your workflow is already heavily reliant on OpenAI-specific features like GPTs.
+- If your workflow is deeply coupled with proprietary OpenAI features like GPTs or specific Assistants API implementations that don't map to Mistral Agents.
 
 ## Licensing and cost
-- **Open Source**: Yes (Mistral 7B, Mixtral 8x7B/8x22B are Apache 2.0; others vary).
-- **Cost**: Free (Self-hosted) / Paid (API).
-- **Self-hostable**: Yes.
+- **Free Tiers**:
+    - **Free API Tier**: Available on **La Plateforme** for development, testing, and individual usage (subject to rate limits).
+    - **Le Chat**: Free-to-use conversational interface at [chat.mistral.ai](https://chat.mistral.ai/).
+- **Open Source**: Yes (Mistral 7B, Mixtral 8x7B/8x22B are Apache 2.0; others vary by model).
+- **Commercial**: Paid API usage and enterprise licensing for self-deployment.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
 - [vLLM](../infrastructure/vllm.md)
+- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md)
 - [DeepSeek](../ai_knowledge/deepseek.md)
 
 ## Sources / References
 - [Official Website](https://mistral.ai/)
 - [Mistral Documentation](https://docs.mistral.ai/)
-- [Mistral News](https://mistral.ai/news)
+- [Mistral Models Overview](https://mistral.ai/models)
+- [Mistral Agents Introduction](https://docs.mistral.ai/agents/introduction/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high
