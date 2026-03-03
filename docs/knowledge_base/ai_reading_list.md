@@ -22,6 +22,7 @@ A curated list of high-signal sources for staying current on AI, LLMs, agents, a
 - **Latent Space** ([latent.space](https://www.latent.space)) — Deep-dive podcast and newsletter, excellent for understanding the "AI Engineer" stack and emerging implementation patterns.
 - **Import AI** ([jack-clark.net](https://jack-clark.net)) — Jack Clark's curated roundup, best-in-class coverage of AI policy, safety, and global research milestones.
 - **The Gradient** ([thegradient.pub](https://thegradient.pub)) — Long-form AI analysis, providing thoughtful, long-form perspectives and debates on the direction of AI research.
+- **TheSequence** ([thesequence.ai](https://thesequence.ai)) — Deep-dive technical newsletter, providing detailed breakdowns of research papers and engineering patterns.
 - **TLDR AI** ([tldr.tech/ai](https://tldr.tech/ai)) — Daily technical summary, quick, skimmable daily digest of the most important AI tools, papers, and news.
 - **Ben's Bites** ([bensbites.co](https://www.bensbites.co)) — Daily AI product updates, focusing on the "new and shiny" AI products and creative use cases appearing every day.
 - **Interconnects** ([interconnects.ai](https://www.interconnects.ai)) — Frontier model analysis, deep, practitioner-level analysis of the newest frontier models and research.
@@ -33,6 +34,7 @@ A curated list of high-signal sources for staying current on AI, LLMs, agents, a
 - **Google DeepMind** — Historical powerhouse of fundamental AI breakthroughs and scientific applications, continuing to produce foundational research spanning from LLMs to AI for science.
 - **Meta FAIR** — Leading the charge in high-quality open-source models and fundamental research, a crucial source for open-weights models that democratize AI access.
 - **Mistral** — Proving that small, efficient models can rival giants in performance, essential for tracking the efficiency frontier and high-performance local inference.
+- **DeepSeek** — Leading the way in cost-efficient, high-performance open models, particularly in reasoning and coding domains.
 - **Allen AI (AI2)** — Non-profit research focusing on AI for the common good and open science, important for open-dataset initiatives and research unbiased by commercial interests.
 
 ## Aggregators & Communities
@@ -45,6 +47,7 @@ A curated list of high-signal sources for staying current on AI, LLMs, agents, a
 ## Podcasts
 - **Latent Space Podcast** — Deep technical conversations with the builders of the AI engineering era, the best source for understanding the actual engineering trade-offs made by leading practitioners.
 - **Gradient Dissent (W&B)** — Interviews with top ML practitioners about their real-world workflows and challenges, providing deep insight into the production realities of training and deploying models.
+- **No Priors** — High-level conversations with AI founders and researchers about the future of the industry and the most significant shifts in the technology.
 - **Practical AI** — Accessible discussions on making AI useful in real-world software development, great for seeing how AI fits into broader software engineering and business contexts.
 
 ## Sources / References
@@ -68,7 +71,9 @@ A curated list of high-signal sources for staying current on AI, LLMs, agents, a
 - [Ben's Bites](https://www.bensbites.co/)
 - [Interconnects](https://www.interconnects.ai/)
 - [AlphaSignal](https://alphasignal.ai/)
+- [TheSequence](https://thesequence.ai)
+- [No Priors Podcast](https://www.nopriors.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high
