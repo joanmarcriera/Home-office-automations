@@ -17,38 +17,38 @@ This is the canonical tracker for API pricing links and free-tier availability a
 
 ## Canonical pricing matrix (last verified: 2026-03-03)
 
-| Provider / Platform | API docs | Pricing link | Free tier / trial | Evidence summary | Last verified |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| OpenAI | [Platform docs](https://platform.openai.com/docs) | [API pricing](https://openai.com/api/pricing/) | No | API is usage-priced; prepaid billing docs require purchased credits (minimum purchase described). | 2026-03-03 |
-| Anthropic (Claude API) | [Claude docs](https://docs.anthropic.com/) | [API pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | Pricing FAQ states new users get a small amount of free API credits to start. | 2026-03-03 |
-| Google Gemini Developer API | [Gemini API docs](https://ai.google.dev/gemini-api/docs) | [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include Free Tier rows with "Free of charge" for supported usage. | 2026-03-03 |
-| OpenRouter | [OpenRouter docs](https://openrouter.ai/docs/overview/introduction) | [OpenRouter pricing](https://openrouter.ai/pricing) | Yes | Pricing page documents a Free plan (25+ free models, free providers, daily limits). | 2026-03-03 |
-| xAI (Grok API) | [xAI API docs](https://docs.x.ai/docs/overview) | [x.ai API](https://x.ai/api) | Yes | x.ai API page and docs reference monthly free requests/credits for users. | 2026-03-03 |
-| Z.ai (GLM API) | [Z.ai API docs](https://docs.z.ai/) | [Model pricing](https://docs.z.ai/guides/model-pricing) | Yes | Pricing docs state new users can claim free token packages for API models. | 2026-03-03 |
-| Alibaba DashScope (Qwen APIs) | [Model docs](https://www.alibabacloud.com/help/en/model-studio/getting-started/models) | [Model Studio pricing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio) | Yes | Docs indicate most models provide free quota during initial release period. | 2026-03-03 |
-| Cohere | [Cohere docs](https://docs.cohere.com/) | [Cohere pricing](https://cohere.com/pricing) | Yes | Pricing page states trial API key calls are free (rate-limited, non-production). | 2026-03-03 |
-| Mistral AI | [Mistral docs](https://docs.mistral.ai/) | [Mistral pricing](https://mistral.ai/pricing) | Yes | Help docs describe a free Experiment plan for trying API models (no card required). | 2026-03-03 |
-| Together AI | [Together docs](https://docs.together.ai/) | [Together pricing](https://www.together.ai/pricing) | No | Billing docs state there is no free trial and credits start with a paid minimum purchase. | 2026-03-03 |
-| Groq | [Groq docs](https://console.groq.com/docs/overview) | [Groq pricing](https://groq.com/pricing/) | Yes | Pricing page exposes free API key; rate-limit docs include dedicated Free Plan limits. | 2026-03-03 |
-| Fireworks AI | [Fireworks docs](https://fireworks.ai/docs) | [Fireworks pricing](https://fireworks.ai/pricing) | Yes | Pricing page states "Get started with $1 in free credits." | 2026-03-03 |
-| Replicate | [Replicate docs](https://replicate.com/docs) | [Replicate pricing](https://replicate.com/pricing) | Partial | Billing docs state select models can be run for free before paid billing is required. | 2026-03-03 |
-| DeepSeek API | [DeepSeek API docs](https://api-docs.deepseek.com/) | [DeepSeek pricing](https://api-docs.deepseek.com/quick_start/pricing) | Unclear | Pricing docs reference topped-up and granted balances but no explicit standing free tier. | 2026-03-03 |
-| Perplexity API | [Perplexity docs](https://docs.perplexity.ai/) | [Perplexity pricing guide](https://docs.perplexity.ai/guides/pricing) | No | Docs state usage draws from purchased credits with minimum top-up and card requirement. | 2026-03-03 |
-| AI21 | [AI21 docs](https://docs.ai21.com/) | [AI21 pricing](https://www.ai21.com/pricing) | Yes | Pricing page advertises a 90-day free trial with included credits. | 2026-03-03 |
-| Voyage AI | [Voyage docs](https://docs.voyageai.com/) | [Voyage pricing](https://www.voyageai.com/pricing) | Unclear | Public pricing page shows paid plans and token rates; no explicit free tier statement found. | 2026-03-03 |
-| Cloudflare Workers AI | [Workers AI docs](https://developers.cloudflare.com/workers-ai/) | [Workers AI pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/) | Yes | Pricing docs include a Free plan with daily included usage. | 2026-03-03 |
-| Hugging Face Inference Providers | [HF Inference docs](https://huggingface.co/docs/inference-providers) | [HF pricing](https://huggingface.co/pricing) | Yes | HF pricing notes monthly included inference credits (amount depends on account tier). | 2026-03-03 |
-| Cerebras Inference | [Cerebras docs](https://inference-docs.cerebras.ai/) | [Cerebras pricing](https://cloud.cerebras.ai/pricing) | Yes | Pricing page references monthly free usage/credits for its free tier. | 2026-03-03 |
-| NVIDIA API Catalog | [NVIDIA API docs](https://build.nvidia.com/docs) | [NVIDIA API pricing](https://build.nvidia.com/pricing) | Yes | Pricing page references free credits to get started. | 2026-03-03 |
-| SambaNova Cloud | [SambaNova docs](https://cloud.sambanova.ai/docs/) | [SambaNova pricing](https://cloud.sambanova.ai/pricing) | Unclear | Public pricing page exposes paid plans; no explicit free-tier policy found in listed docs. | 2026-03-03 |
-| AWS Bedrock | [Bedrock docs](https://docs.aws.amazon.com/bedrock/) | [Bedrock pricing](https://aws.amazon.com/bedrock/pricing/) | No | Pricing model is pay-as-you-go with metered usage; no Bedrock-specific standing free tier listed. | 2026-03-03 |
-| Azure OpenAI Service | [Azure OpenAI docs](https://learn.microsoft.com/azure/ai-services/openai/) | [Azure OpenAI pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) | Unclear | Service pricing is metered; Azure account-level free credits may apply but are not an OpenAI-service-specific free tier. | 2026-03-03 |
-| Vertex AI (Gemini via GCP) | [Vertex AI docs](https://cloud.google.com/vertex-ai/docs) | [Vertex AI generative pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) | Unclear | Pricing page provides metered model pricing; no persistent API free-tier statement confirmed here. | 2026-03-03 |
-| OCI Generative AI | [OCI GenAI docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) | [OCI pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Public pricing page provides paid rates; no explicit standing free-tier statement found. | 2026-03-03 |
+| Provider / Platform | Official links | Free tier / trial | Evidence summary |
+| :--- | :--- | :--- | :--- |
+| OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; prepaid credits required. |
+| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. |
+| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows. |
+| OpenRouter | [Docs](https://openrouter.ai/docs/overview/introduction) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
+| xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
+| Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://docs.z.ai/guides/model-pricing) | Yes | New users can claim free API token packages. |
+| Alibaba DashScope (Qwen APIs) | [Docs](https://www.alibabacloud.com/help/en/model-studio/getting-started/models) · [Pricing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio) | Yes | Many models show temporary free quota periods. |
+| Cohere | [Docs](https://docs.cohere.com/) · [Pricing](https://cohere.com/pricing) | Yes | Trial API keys are free and rate-limited. |
+| Mistral AI | [Docs](https://docs.mistral.ai/) · [Pricing](https://mistral.ai/pricing) | Yes | Experiment plan supports free API testing. |
+| Together AI | [Docs](https://docs.together.ai/) · [Pricing](https://www.together.ai/pricing) | No | Billing docs indicate paid credits are required. |
+| Groq | [Docs](https://console.groq.com/docs/overview) · [Pricing](https://groq.com/pricing/) | Yes | Free API plan and limits are documented. |
+| Fireworks AI | [Docs](https://fireworks.ai/docs) · [Pricing](https://fireworks.ai/pricing) | Yes | Public pricing notes starter free credits. |
+| Replicate | [Docs](https://replicate.com/docs) · [Pricing](https://replicate.com/pricing) | Partial | Some models can be run free before billing. |
+| DeepSeek API | [Docs](https://api-docs.deepseek.com/) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) | Unclear | Granted balances are mentioned, fixed free tier unclear. |
+| Perplexity API | [Docs](https://docs.perplexity.ai/) · [Pricing](https://docs.perplexity.ai/guides/pricing) | No | Purchased credits and top-up requirements documented. |
+| AI21 | [Docs](https://docs.ai21.com/) · [Pricing](https://www.ai21.com/pricing) | Yes | Pricing page advertises free trial credits. |
+| Voyage AI | [Docs](https://docs.voyageai.com/) · [Pricing](https://www.voyageai.com/pricing) | Unclear | Paid rates are clear; standing free tier not explicit. |
+| Cloudflare Workers AI | [Docs](https://developers.cloudflare.com/workers-ai/) · [Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/) | Yes | Free plan includes daily usage. |
+| Hugging Face Inference Providers | [Docs](https://huggingface.co/docs/inference-providers) · [Pricing](https://huggingface.co/pricing) | Yes | Monthly included inference credits by account tier. |
+| Cerebras Inference | [Docs](https://inference-docs.cerebras.ai/) · [Pricing](https://cloud.cerebras.ai/pricing) | Yes | Pricing references free-tier usage/credits. |
+| NVIDIA API Catalog | [Docs](https://build.nvidia.com/docs) · [Pricing](https://build.nvidia.com/pricing) | Yes | Starter credits are referenced publicly. |
+| SambaNova Cloud | [Docs](https://cloud.sambanova.ai/docs/) · [Pricing](https://cloud.sambanova.ai/pricing) | Unclear | Public page shows paid plans; no stable free policy. |
+| AWS Bedrock | [Docs](https://docs.aws.amazon.com/bedrock/) · [Pricing](https://aws.amazon.com/bedrock/pricing/) | No | Metered pay-as-you-go pricing. |
+| Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
+| Vertex AI (Gemini via GCP) | [Docs](https://cloud.google.com/vertex-ai/docs) · [Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) | Unclear | Metered pricing; no persistent API free-tier statement. |
+| OCI Generative AI | [Docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) · [Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Paid rates are public; free tier not clearly documented. |
 
 ## Model-level quota tracker (expanded list)
 
-This section is organized by provider (instead of one very wide table) for easier scanning.
+This section is grouped by provider with compact four-column tables for narrower screens.
 
 - `Verified` = core limits are visible in official docs.
 - `Partially verified` = provider free-tier stance is verified, but model-level quotas are dynamic or not fully published.
@@ -60,99 +60,100 @@ Quick jump:
 [Google Gemini](#google-gemini) · [OpenAI](#openai) · [Anthropic Claude](#anthropic-claude) · [Groq](#groq) · [Together AI](#together-ai) · [Hugging Face](#hugging-face) · [Mistral AI](#mistral-ai) · [DeepSeek](#deepseek) · [Cohere](#cohere) · [OpenRouter](#openrouter) · [Cerebras](#cerebras) · [xAI Grok](#xai-grok)
 
 `Quotas` format is `context / RPM / RPD / TPM / daily token cap`.
+`n/p` means "not published."
 
 ### Google Gemini
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Gemini 2.5 Pro | `1M / 5 / 100 / 250K / ~25M` | Google account | Excellent | Verified | Region and compliance rules can affect access. |
-| Gemini 2.5 Flash | `1M / 10 / 250 / 250K / ~62.5M` | Google account | Very Good | Verified | Official free-tier RPM is 10 (not 15). |
-| Gemini 2.5 Flash-Lite | `1M / 15 / 1000 / 250K / ~250M` | Google account | Good | Verified | Highest free-tier RPD in listed Gemini models. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Gemini 2.5 Pro | `1M / 5 / 100 / 250K / ~25M` | Verified | Account: Google. Quality: Excellent. Regional/compliance rules may affect access. |
+| Gemini 2.5 Flash | `1M / 10 / 250 / 250K / ~62.5M` | Verified | Account: Google. Quality: Very Good. Official free-tier RPM is 10 (not 15). |
+| Gemini 2.5 Flash-Lite | `1M / 15 / 1000 / 250K / ~250M` | Verified | Account: Google. Quality: Good. Highest listed Gemini free-tier RPD. |
 
 ### OpenAI
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| GPT-4o | `128K / tier-dependent / tier-dependent / tier-dependent / tier-dependent` | OpenAI account | Excellent | Partially verified | No standing public free API tier documented. |
-| GPT-4o mini | `128K / tier-dependent / tier-dependent / tier-dependent / tier-dependent` | OpenAI account | Very Good | Partially verified | Limits depend on trust tier/account status. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| GPT-4o | `128K / tier / tier / tier / tier` | Partially verified | Account: OpenAI. Quality: Excellent. No standing public free API tier documented. |
+| GPT-4o mini | `128K / tier / tier / tier / tier` | Partially verified | Account: OpenAI. Quality: Very Good. Limits vary by trust tier/account status. |
 
 ### Anthropic Claude
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Claude 3.5 Sonnet | `200K / tier-dependent / tier-dependent / tier-dependent / tier-dependent` | Anthropic console account | Excellent | Partially verified | Tier 1 requires purchased credits; caps vary. |
-| Claude 3 Haiku | `200K / tier-dependent / tier-dependent / tier-dependent / tier-dependent` | Anthropic console account | Good | Partially verified | Fixed global daily/token caps are not published. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Claude 3.5 Sonnet | `200K / tier / tier / tier / tier` | Partially verified | Account: Anthropic console. Quality: Excellent. Tier 1 needs purchased credits. |
+| Claude 3 Haiku | `200K / tier / tier / tier / tier` | Partially verified | Account: Anthropic console. Quality: Good. Fixed global daily caps are not published. |
 
 ### Groq
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Llama 3.3 70B (llama-3.3-70b-versatile) | `128K / 30 / 1000 / 12K / 100K` | Groq account (no CC for free tier) | Very Good | Verified | Official current free row differs from older community numbers. |
-| Llama 4 Maverick 17B | `128K / 30 / 1000 / 6K / 500K` | Groq account (no CC for free tier) | Good | Verified | Fast inference; limits can change by model revision. |
-| Qwen3 32B | `128K / 30 / 14,400 / 6K / 500K` | Groq account (no CC for free tier) | Good | Partially verified | Model IDs and limits can shift between releases. |
-| Compound AI (groq/compound) | `128K / 30 / 250 / 70K / not published` | Groq account (no CC for free tier) | Good | Verified | Official table does not publish a TPD value. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Llama 3.3 70B (llama-3.3-70b-versatile) | `128K / 30 / 1000 / 12K / 100K` | Verified | Account: Groq (no CC for free tier). Quality: Very Good. Official row differs from older community numbers. |
+| Llama 4 Maverick 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | Account: Groq (no CC for free tier). Quality: Good. Fast inference; revision limits can change. |
+| Qwen3 32B | `128K / 30 / 14,400 / 6K / 500K` | Partially verified | Account: Groq (no CC for free tier). Quality: Good. Model IDs/limits may shift by release. |
+| Compound AI (groq/compound) | `128K / 30 / 250 / 70K / n/p` | Verified | Account: Groq (no CC for free tier). Quality: Good. Official docs do not publish TPD. |
 
 ### Together AI
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Llama 4 Maverick | `131K / tier-dependent / tier-dependent / tier-dependent / tier-dependent` | Together account + paid credits | Very Good | Verified | No standing free trial in current billing docs. |
-| DeepSeek V3.1 | `64K / tier-dependent / tier-dependent / tier-dependent / tier-dependent` | Together account + paid credits | Excellent | Verified | Current docs do not confirm "$100 signup credits." |
-| Mistral Small 3 | `128K / tier-dependent / tier-dependent / tier-dependent / tier-dependent` | Together account + paid credits | Good | Verified | Limits are spend/account-tier dependent. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Llama 4 Maverick | `131K / tier / tier / tier / tier` | Verified | Account: Together + paid credits. Quality: Very Good. No standing free trial in current docs. |
+| DeepSeek V3.1 | `64K / tier / tier / tier / tier` | Verified | Account: Together + paid credits. Quality: Excellent. "$100 signup credits" not confirmed in current docs. |
+| Mistral Small 3 | `128K / tier / tier / tier / tier` | Verified | Account: Together + paid credits. Quality: Good. Limits are spend/account-tier dependent. |
 
 ### Hugging Face
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Various open models | `varies / provider-dependent / provider-dependent / provider-dependent / monthly credit-based` | Hugging Face account | Varies | Verified | Limits depend on routed provider and account plan. |
-| Pro-tier routed providers | `varies / higher than free / provider-dependent / provider-dependent / credit-based` | Hugging Face Pro | Very Good | Verified | Pro includes higher monthly included credits. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Various open models | `varies / provider / provider / provider / credit-based` | Verified | Account: Hugging Face. Quality: Varies. Limits depend on routed provider and plan. |
+| Pro-tier routed providers | `varies / higher / provider / provider / credit-based` | Verified | Account: Hugging Face Pro. Quality: Very Good. Pro includes higher monthly credits. |
 
 ### Mistral AI
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Mistral Nemo 12B | `model-dependent / plan-dependent / plan-dependent / plan-dependent / plan-dependent` | Mistral account (Experiment/Scale) | Good | Partially verified | Free Experiment plan exists; per-model quotas are dynamic. |
-| Mistral Small 3.1 | `128K / plan-dependent / plan-dependent / plan-dependent / plan-dependent` | Mistral account (Experiment/Scale) | Good | Partially verified | Access and limits depend on plan tier. |
-| Codestral | `32K / plan-dependent / plan-dependent / plan-dependent / plan-dependent` | Mistral account (Experiment/Scale) | Excellent | Partially verified | Code-oriented model with account-tier gating. |
-| Mistral Large 3 | `128K / plan-dependent / plan-dependent / plan-dependent / plan-dependent` | Mistral account (Experiment/Scale) | Excellent | Partially verified | Most capable tier generally tied to paid scale usage. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Mistral Nemo 12B | `model / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Good. Free Experiment plan exists; quotas are dynamic. |
+| Mistral Small 3.1 | `128K / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Good. Access/limits depend on plan tier. |
+| Codestral | `32K / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Excellent. Code-oriented with plan gating. |
+| Mistral Large 3 | `128K / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Excellent. Most capable tier usually paid. |
 
 ### DeepSeek
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| DeepSeek V3.2 (deepseek-chat) | `128K / not published / not published / not published / not published` | DeepSeek account | Excellent | Partially verified | Pricing and granted-balance behavior are public, quotas are not fixed. |
-| DeepSeek R1 / reasoner | `128K / not published / not published / not published / not published` | DeepSeek account | Excellent | Unverified | "5M free signup tokens" is not confirmed in official public pricing docs. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| DeepSeek V3.2 (deepseek-chat) | `128K / n/p / n/p / n/p / n/p` | Partially verified | Account: DeepSeek. Quality: Excellent. Pricing is public; fixed free quotas are not. |
+| DeepSeek R1 / reasoner | `128K / n/p / n/p / n/p / n/p` | Unverified | Account: DeepSeek. Quality: Excellent. "5M signup tokens" is not confirmed in official docs. |
 
 ### Cohere
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Command R7B | `128K / 20 (trial chat) / ~1000 calls/month / endpoint-dependent / 1000 calls/month` | Cohere account (trial key) | Good | Verified | Trial keys are free but heavily rate-limited. |
-| Command R+ | `128K / 20 (trial chat) / ~1000 calls/month / endpoint-dependent / 1000 calls/month` | Cohere account (trial key) | Very Good | Verified | Monthly trial cap is account-wide for trial usage. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Command R7B | `128K / 20 / ~1000mo / endpoint / 1000mo` | Verified | Account: Cohere trial key. Quality: Good. Free trial usage is heavily rate-limited. |
+| Command R+ | `128K / 20 / ~1000mo / endpoint / 1000mo` | Verified | Account: Cohere trial key. Quality: Very Good. Trial cap is account-wide per month. |
 
 ### OpenRouter
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Qwen3 Coder 480B (`:free` variant when available) | `model-dependent / 20 / 50/day (<$10 credits) or 1000/day (>= $10 credits) / not published / not published` | OpenRouter account | Excellent | Verified | Free limits are account-plan based, not per-model fixed quotas. |
-| GPT-OSS-120B (`:free` variant when available) | `model-dependent / 20 / 50/day or 1000/day (>= $10 credits) / not published / not published` | OpenRouter account | Very Good | Verified | Free variants can rotate over time. |
-| Llama 3.3 70B (`:free` variant when available) | `model-dependent / 20 / 50/day or 1000/day (>= $10 credits) / not published / not published` | OpenRouter account | Very Good | Verified | Free router pool is dynamic. |
-| Mistral Small 3.1 (`:free` variant when available) | `model-dependent / 20 / 50/day or 1000/day (>= $10 credits) / not published / not published` | OpenRouter account | Good | Verified | Best for low-volume experimentation. |
-| DeepSeek R1 (`:free` variant when available) | `model-dependent / 20 / 50/day or 1000/day (>= $10 credits) / not published / not published` | OpenRouter account | Excellent | Verified | Prior community RPD values differ from current docs. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Qwen3 Coder 480B (`:free` variant when available) | `model / 20 / 50d (<$10) or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Excellent. Free limits are account-plan based. |
+| GPT-OSS-120B (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Very Good. Free variants can rotate. |
+| Llama 3.3 70B (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Very Good. Free router pool is dynamic. |
+| Mistral Small 3.1 (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Good. Best for low-volume testing. |
+| DeepSeek R1 (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Excellent. Current docs differ from older community RPD values. |
 
 ### Cerebras
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Llama 4 Maverick 400B | `128K (paid tier) / 30 / 14,400 / 60K / 1M/day` | Cerebras account | Very Good | Partially verified | Context and limits vary by model page and tier. |
-| Qwen3 Coder 235B | `64K free, 131K paid / 30 / 14,400 / 60K / 1M/day` | Cerebras account | Excellent | Partially verified | Good coding performance signals; verify live model page limits. |
-| Llama 3.1 8B | `8K free, 32K paid / 30 / 14,400 / 60K / 1M/day` | Cerebras account | Good | Verified | Free-tier limits are explicitly published. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Llama 4 Maverick 400B | `128K (paid) / 30 / 14,400 / 60K / 1M` | Partially verified | Account: Cerebras. Quality: Very Good. Context/limits vary by tier and model page. |
+| Qwen3 Coder 235B | `64K free, 131K paid / 30 / 14,400 / 60K / 1M` | Partially verified | Account: Cerebras. Quality: Excellent. Verify live limits on model page. |
+| Llama 3.1 8B | `8K free, 32K paid / 30 / 14,400 / 60K / 1M` | Verified | Account: Cerebras. Quality: Good. Free-tier limits are explicitly published. |
 
 ### xAI Grok
 
-| Model | Quotas | Account Type | Code Quality | Verification | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Grok 4.1 Fast | `model-dependent / credit-dependent / credit-dependent / credit-dependent / credit-dependent` | xAI account | Very Good | Unverified | Promotional free credits may exist; fixed "$25 startup credits" not consistently documented. |
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Grok 4.1 Fast | `model / credit / credit / credit / credit` | Unverified | Account: xAI. Quality: Very Good. Promotional credits may exist; fixed "$25 startup credits" not consistently documented. |
 
 ## Notes and caveats
 

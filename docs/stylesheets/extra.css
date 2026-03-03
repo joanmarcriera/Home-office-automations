@@ -1,29 +1,47 @@
 /* Improve readability for dense markdown tables across the site. */
+.md-grid {
+  max-width: 92rem;
+}
+
+.md-typeset .md-typeset__table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+}
+
 .md-typeset .md-typeset__table {
   margin-bottom: 1.25rem;
 }
 
 .md-typeset table:not([class]) {
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   line-height: 1.35;
+  min-width: 34rem;
 }
 
 .md-typeset table:not([class]) th,
 .md-typeset table:not([class]) td {
   vertical-align: top;
-}
-
-.md-typeset table:not([class]) th {
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .md-typeset table:not([class]) code {
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 @media screen and (max-width: 76.1875em) {
+  .md-grid {
+    max-width: 100%;
+  }
+
   .md-typeset table:not([class]) {
     font-size: 0.78rem;
+  }
+}
+
+@media screen and (min-width: 100em) {
+  .md-grid {
+    max-width: 108rem;
   }
 }
