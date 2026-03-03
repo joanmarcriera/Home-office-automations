@@ -251,9 +251,24 @@ For sensitive operations (writing files, deleting data, sending emails), the run
 ### MCP Server Composition
 A core benefit of MCP is the ability for a single client (like Claude Desktop or an agent) to connect to many independent servers. This creates a "composable brain" where specialized servers for Google Calendar, Slack, GitHub, and local databases can be aggregated into a single assistant without code changes.
 
+## When to use it / When not to use it
+### When to use it
+- **Factual Accuracy**: When you need the model to use real-time or verified data instead of hallucinating answers.
+- **Action-Oriented Agents**: When the purpose of the LLM is to perform tasks, not just provide information.
+- **Standardizing Toolkits**: Use MCP when building tools that need to be shared across different AI environments (Zed, Cursor, Claude).
+- **Security & Control**: When you want to strictly control what actions the LLM can take by defining a rigid API (tool schema).
+
+### When not to use it
+- **Simple Creative Writing**: When the task is purely linguistic (e.g., "Write a poem about a cat").
+- **High Latency Concerns**: If the external API or database is slow and real-time response is required.
+- **Static Knowledge**: If the information is common knowledge and the training data is sufficient.
+- **Over-Complexity**: If the task can be solved more reliably by simple prompt engineering or fixed data insertion.
+
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md) — Broader context for MCP and ACP.
+- [Dify](../../tools/ai_knowledge/dify.md) — LLM app development platform with agent workflows.
 - [LangChain](../../tools/ai_knowledge/langchain.md) — Multi-model library for tool calling.
+- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) — Data framework for indexing, retrieval, and tool-augmented agents.
 - [OpenRouter](../../tools/ai_knowledge/openrouter.md) — Unified API for accessing multiple tool-calling models.
 - [Browser Use](../../tools/automation_orchestration/browser-use.md) — Agentic browser control via tool calling.
 - [Composio](../../tools/agents/composio.md) — Tool integration platform.
@@ -274,8 +289,18 @@ A core benefit of MCP is the ability for a single client (like Claude Desktop or
 
 ### Specific MCP Implementations
 - [Atlassian Jira MCP](../../tools/automation_orchestration/atlassian-jira-mcp.md)
-- [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md)
+- [Chronos MCP](../../tools/automation_orchestration/chronos-mcp.md)
+- [Claude Code Container MCP](../../tools/development_ops/claude-code-container-mcp.md)
+- [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md)
+- [Free Will MCP](../../tools/development_ops/free-will-mcp.md)
+- [Fuzzing MCP Server](../../tools/development_ops/fuzzing-mcp-server.md)
+- [Jupyter Kernel MCP](../../tools/development_ops/jupyter-kernel-mcp.md)
+- [Makefile MCP](../../tools/automation_orchestration/makefile-mcp.md)
 - [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)
+- [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md)
+- [Symbolic MCP Server](../../tools/development_ops/symbolic-mcp.md)
+- [Vault MCP Server](../../tools/automation_orchestration/vault-mcp.md)
+- [Vikunja MCP Server](../../tools/automation_orchestration/vikunja-mcp.md)
 
 ## Sources / references
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
@@ -283,5 +308,5 @@ A core benefit of MCP is the ability for a single client (like Claude Desktop or
 - [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: high
