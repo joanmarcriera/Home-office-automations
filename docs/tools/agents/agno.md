@@ -32,6 +32,18 @@ Agno simplifies the transition from a single agent prototype to a production-rea
 ## When not to use it
 - If you require a TypeScript-native framework (consider Bee Agent Framework).
 
+## CLI examples
+```bash
+# Initialize an Agno project
+agno init
+
+# Start the Agno serving environment (FastAPI based)
+agno serve
+
+# Manage agent sessions via the CLI
+agno sessions list
+```
+
 ## Getting started
 ### Installation
 ```bash
@@ -63,7 +75,7 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 
 ## Related tools / concepts
 - [Phidata](phidata.md) (Predecessor)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [FastAPI](https://fastapi.tiangolo.com/)
 
 ## Sources / References
@@ -72,5 +84,5 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 - [Documentation](https://docs.agno.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high

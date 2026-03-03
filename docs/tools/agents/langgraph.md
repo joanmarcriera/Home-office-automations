@@ -31,6 +31,18 @@ While standard LangChain chains are great for linear workflows, they struggle wi
 - For simple, linear LLM chains.
 - If you prefer a more "magic" out-of-the-box multi-agent experience (like CrewAI).
 
+## CLI examples
+```bash
+# Install the LangGraph CLI
+pip install langgraph-cli
+
+# Start the LangGraph development server
+langgraph dev
+
+# Deploy a graph to LangGraph Cloud (requires configuration)
+langgraph deploy
+```
+
 ## Getting started
 ### Installation
 ```bash
@@ -91,7 +103,7 @@ for event in graph.stream({"messages": [("user", "Search for the current price o
 
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [CrewAI](../frameworks/crewai.md)
 
 ## Sources / References
@@ -99,5 +111,5 @@ for event in graph.stream({"messages": [("user", "Search for the current price o
 - [GitHub Repository](https://github.com/langchain-ai/langgraph)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high

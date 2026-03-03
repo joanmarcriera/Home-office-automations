@@ -30,6 +30,18 @@ It bridges the gap between raw LLMs and functional agents by providing out-of-th
 ## When not to use it
 - For extremely complex multi-agent graphs (consider LangGraph).
 
+## CLI examples
+```bash
+# Initialize a new phidata project
+phi init
+
+# Start a phidata environment (e.g., with PostgreSQL)
+phi start
+
+# Stop the phidata environment
+phi stop
+```
+
 ## Getting started
 ### Installation
 ```bash
@@ -63,12 +75,12 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 ## Related tools / concepts
 - [Agno](agno.md) (Successor to Phidata v2)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [Official Website](https://www.phidata.com/)
 - [GitHub Repository](https://github.com/phidata-hq/phidata)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-03
 - Confidence: high
