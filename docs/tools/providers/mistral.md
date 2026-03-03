@@ -21,7 +21,7 @@ Install the SDK:
 pip install mistralai
 ```
 
-Basic API call:
+Basic API call (Python):
 ```python
 from mistralai import Mistral
 import os

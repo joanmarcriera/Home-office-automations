@@ -4,15 +4,15 @@
 Cohere is an enterprise-focused AI platform providing large language models (including the Command R family) for text generation, embeddings, and reranking.
 
 ## What problem it solves
-Provides high-performance, enterprise-grade models specifically optimized for Retrieval-Augmented Generation (RAG) and multilingual applications.
+Provides high-performance, enterprise-grade models specifically optimized for Retrieval-Augmented Generation (RAG), tool use, and multilingual applications.
 
 ## Where it fits in the stack
-**Provider / Embedding / Reranking**. It provides the reasoning and retrieval components of an AI pipeline.
+**Provider / Embedding / Reranking**. It provides the reasoning and retrieval components of a production-grade AI pipeline.
 
 ## Typical use cases
-- **Enterprise RAG**: Using Command R+ for complex retrieval-augmented generation.
-- **Multilingual Search**: Using Cohere Embed for cross-language semantic search.
-- **Search Optimization**: Using Cohere Rerank to improve the relevance of search results.
+- **Enterprise RAG**: Using Command R+ for complex retrieval-augmented generation with high citation accuracy.
+- **Multilingual Search**: Using Cohere Embed for cross-language semantic search across 100+ languages.
+- **Search Optimization**: Using Cohere Rerank to dramatically improve the relevance of initial search results.
 
 ## Getting started
 Install the SDK:
@@ -34,28 +34,28 @@ print(response.text)
 ```
 
 ## Strengths
-- **RAG Optimization**: Command R series is specifically designed for RAG workflows with high tool-use accuracy.
+- **RAG Optimization**: Command R series is specifically designed for RAG workflows with high tool-use accuracy and automated citations.
 - **Multilingual Support**: Industry-leading multilingual embedding and reranking models.
-- **Enterprise Ready**: Strong focus on data privacy and deployment flexibility (Cloud, VPC, On-prem).
+- **Enterprise Ready**: Strong focus on data privacy, security, and deployment flexibility (Cloud, VPC, On-prem).
 - **Pricing Tiers**: Features a generous **Trial** tier (free for non-production/dev) and a usage-based **Production** tier for scaled deployment.
 
 ## Limitations
-- **Focus**: Less focused on creative or multi-modal tasks compared to OpenAI or Anthropic.
-- **Ecosystem**: While growing, the community ecosystem is smaller than OpenAI's.
+- **Focus**: Less focused on creative writing or multi-modal tasks compared to OpenAI or Anthropic.
+- **Ecosystem**: While growing, the developer community ecosystem is smaller than OpenAI's.
 
 ## When to use it
-- When building production-grade RAG systems.
-- When multilingual support is a core requirement.
-- For enterprise applications requiring strict data sovereignty.
+- When building production-grade RAG systems that require citations.
+- When multilingual support is a core requirement for your search or chat.
+- For enterprise applications requiring strict data sovereignty and VPC deployment.
 
 ## When not to use it
-- For simple hobbyist projects where a generic model like GPT-4o-mini might be cheaper/easier.
-- When requiring native multi-modal capabilities (e.g., image generation) in the same API.
+- For simple hobbyist projects where a generic model like GPT-4o-mini might be cheaper or easier to integrate.
+- When requiring native multi-modal capabilities like image generation.
 
 ## Licensing and cost
-- **Open Source**: No (Proprietary models, but some are open-weights like Command R).
+- **Open Source**: No (Proprietary models, though Command R weights are available for research/commercial use under specific licenses).
 - **Cost**: Paid (Usage-based), Freemium (Trial tier available).
-- **Self-hostable**: Yes (via private cloud or VPC deployments).
+- **Self-hostable**: Yes (via private cloud or VPC deployments on AWS, Azure, GCP).
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md)
