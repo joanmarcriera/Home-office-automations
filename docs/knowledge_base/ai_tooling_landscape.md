@@ -34,7 +34,7 @@ User-facing interfaces and platforms where humans interact with AI. These provid
 
 ### Layer 6: Agents & Orchestration
 Systems that coordinate multiple steps, tools, and agents to achieve complex goals. This layer handles reasoning, planning, and task execution using underlying models and frameworks.
-- **Relevant Pages**: [CrewAI](../tools/frameworks/crewai.md), [AutoGen](../tools/frameworks/autogen.md), [LangGraph](../tools/agents/langgraph.md), [n8n](../services/n8n.md), [Agency Swarm](../tools/agents/agency-swarm.md), [Agno](../tools/agents/agno.md), [Bee Agent Framework](../tools/agents/bee-agent-framework.md), [Composio](../tools/agents/composio.md), [Phidata](../tools/agents/phidata.md), [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md), [Browser Use](../tools/automation_orchestration/browser-use.md), [Zapier](../tools/automation_orchestration/zapier.md), [Make](../tools/automation_orchestration/make.md), [Skyvern](../tools/automation_orchestration/skyvern.md).
+- **Relevant Pages**: [Mistral Agents](../tools/providers/mistral.md), [CrewAI](../tools/frameworks/crewai.md), [AutoGen](../tools/frameworks/autogen.md), [LangGraph](../tools/agents/langgraph.md), [n8n](../services/n8n.md), [Agency Swarm](../tools/agents/agency-swarm.md), [Agno](../tools/agents/agno.md), [Bee Agent Framework](../tools/agents/bee-agent-framework.md), [Composio](../tools/agents/composio.md), [Phidata](../tools/agents/phidata.md), [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md), [Browser Use](../tools/automation_orchestration/browser-use.md), [Zapier](../tools/automation_orchestration/zapier.md), [Make](../tools/automation_orchestration/make.md), [Skyvern](../tools/automation_orchestration/skyvern.md).
 - **Key Trends**: Shift from linear chains to complex, stateful multi-agent graphs.
 
 ### Layer 5: Frameworks
@@ -44,7 +44,7 @@ Development libraries used to build AI applications, handling prompt management,
 
 ### Layer 4: Protocols & Standards
 The "glue" that allows models to interact with tools and other agents consistently. These standards ensure interoperability across the ecosystem.
-- **Relevant Pages**: [Model Context Protocol (MCP)](agent_protocols.md), [Agent Client Protocol (ACP)](agent_protocols.md), [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md).
+- **Relevant Pages**: [Model Context Protocol (MCP)](agent_protocols.md), [Agent Client Protocol (ACP)](agent_protocols.md), [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md), [Mistral AI (Native MCP)](../tools/providers/mistral.md).
 - **Key Trends**: Rapid adoption of MCP as the standard for model-to-tool communication.
 
 ### Layer 3: Inference & Serving
@@ -90,5 +90,5 @@ The underlying hardware, storage, and low-level optimizations like quantization 
 - [MAD Landscape 2024](https://mad.firstmark.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high
