@@ -142,43 +142,50 @@
       "id": "anthropic",
       "name": "Anthropic Claude",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/anthropic.md"
+      "doc_path": "docs/tools/providers/anthropic.md",
+      "models": ["Claude 3.5 Sonnet", "Claude 3.5 Haiku", "Claude 3 Opus"]
     },
     {
       "id": "cohere",
       "name": "Cohere",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/cohere.md"
+      "doc_path": "docs/tools/providers/cohere.md",
+      "models": ["Command R+", "Command R", "Embed", "Rerank"]
     },
     {
       "id": "mistral-ai",
       "name": "Mistral AI",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/mistral.md"
+      "doc_path": "docs/tools/providers/mistral.md",
+      "models": ["Mistral Large", "Mistral Small", "Mixtral 8x7B", "Mixtral 8x22B", "Codestral"]
     },
     {
       "id": "together-ai",
       "name": "Together AI",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/together.md"
+      "doc_path": "docs/tools/providers/together.md",
+      "models": ["Llama 3.1", "Qwen 2.5", "Mistral", "Mixtral"]
     },
     {
       "id": "groq",
       "name": "Groq",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/groq.md"
+      "doc_path": "docs/tools/providers/groq.md",
+      "models": ["Llama 3.1", "Mixtral 8x7B", "Gemma 2"]
     },
     {
       "id": "fireworks-ai",
       "name": "Fireworks AI",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/fireworks.md"
+      "doc_path": "docs/tools/providers/fireworks.md",
+      "models": ["Llama 3.1", "Qwen 2.5", "Myriad Fine-tunes"]
     },
     {
       "id": "replicate",
       "name": "Replicate",
       "category": "Providers",
-      "doc_path": "docs/tools/providers/replicate.md"
+      "doc_path": "docs/tools/providers/replicate.md",
+      "models": ["Llama 3.1", "Stable Diffusion XL", "CogVideoX"]
     },
     {
       "id": "deepseek",

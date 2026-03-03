@@ -1,7 +1,7 @@
 # Cohere
 
 ## What it is
-Cohere is an enterprise-focused AI platform providing large language models for text generation, embeddings, and reranking.
+Cohere is an enterprise-focused AI platform providing large language models (including the Command R family) for text generation, embeddings, and reranking.
 
 ## What problem it solves
 Provides high-performance, enterprise-grade models specifically optimized for Retrieval-Augmented Generation (RAG) and multilingual applications.
@@ -68,5 +68,5 @@ print(response.text)
 - [Cohere Blog](https://cohere.com/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high
