@@ -16,5 +16,6 @@
 - [OpenAI](openai.md)
 - [OpenRouter](openrouter.md)
 - [Perplexity](perplexity.md)
+- [Qwen3-Coder-Next](qwen.md)
 - [TeamOut](teamout.md)
 - [Valyu](valyu.md)

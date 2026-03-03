@@ -57,6 +57,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
       - 2026-03-01: new-sources/2026-03-01.md
       - 2026-02-28: new-sources/2026-02-28.md
@@ -143,6 +144,7 @@ nav:
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
+      - Qwen3-Coder-Next: tools/ai_knowledge/qwen.md
       - TeamOut: tools/ai_knowledge/teamout.md
       - Valyu: tools/ai_knowledge/valyu.md
     - Automation & Orchestration:
