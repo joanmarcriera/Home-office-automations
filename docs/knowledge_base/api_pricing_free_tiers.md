@@ -62,98 +62,108 @@ Quick jump:
 `Quotas` format is `context / RPM / RPD / TPM / daily token cap`.
 `n/p` means "not published."
 
+Capability tags:
+
+- <span class="cap-tag cap-code">CODE</span> code generation and refactoring tasks.
+- <span class="cap-tag cap-verify">VERIFY</span> cross-checking, factual validation, and test review.
+- <span class="cap-tag cap-reason">REASON</span> complex reasoning and multi-step planning.
+- <span class="cap-tag cap-longctx">LONGCTX</span> long documents, large prompts, and retrieval-heavy workflows.
+- <span class="cap-tag cap-fast">FAST</span> low-latency interactions and interactive agent loops.
+- <span class="cap-tag cap-budget">BUDGET</span> better free-tier value or lower-cost experimentation.
+- <span class="cap-tag cap-open">OPEN</span> open-weight/open-model ecosystem affinity.
+
 ### Google Gemini
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Gemini 2.5 Pro | `1M / 5 / 100 / 250K / ~25M` | Verified | Account: Google. Quality: Excellent. Regional/compliance rules may affect access. |
-| Gemini 2.5 Flash | `1M / 10 / 250 / 250K / ~62.5M` | Verified | Account: Google. Quality: Very Good. Official free-tier RPM is 10 (not 15). |
-| Gemini 2.5 Flash-Lite | `1M / 15 / 1000 / 250K / ~250M` | Verified | Account: Google. Quality: Good. Highest listed Gemini free-tier RPD. |
+| Gemini 2.5 Pro | `1M / 5 / 100 / 250K / ~25M` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Google. Quality: Excellent. Regional/compliance rules may affect access. |
+| Gemini 2.5 Flash | `1M / 10 / 250 / 250K / ~62.5M` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Quality: Very Good. Official free-tier RPM is 10 (not 15). |
+| Gemini 2.5 Flash-Lite | `1M / 15 / 1000 / 250K / ~250M` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Quality: Good. Highest listed Gemini free-tier RPD. |
 
 ### OpenAI
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| GPT-4o | `128K / tier / tier / tier / tier` | Partially verified | Account: OpenAI. Quality: Excellent. No standing public free API tier documented. |
-| GPT-4o mini | `128K / tier / tier / tier / tier` | Partially verified | Account: OpenAI. Quality: Very Good. Limits vary by trust tier/account status. |
+| GPT-4o | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span><br>Account: OpenAI. Quality: Excellent. No standing public free API tier documented. |
+| GPT-4o mini | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenAI. Quality: Very Good. Limits vary by trust tier/account status. |
 
 ### Anthropic Claude
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Claude 3.5 Sonnet | `200K / tier / tier / tier / tier` | Partially verified | Account: Anthropic console. Quality: Excellent. Tier 1 needs purchased credits. |
-| Claude 3 Haiku | `200K / tier / tier / tier / tier` | Partially verified | Account: Anthropic console. Quality: Good. Fixed global daily caps are not published. |
+| Claude 3.5 Sonnet | `200K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Anthropic console. Quality: Excellent. Tier 1 needs purchased credits. |
+| Claude 3 Haiku | `200K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: Anthropic console. Quality: Good. Fixed global daily caps are not published. |
 
 ### Groq
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Llama 3.3 70B (llama-3.3-70b-versatile) | `128K / 30 / 1000 / 12K / 100K` | Verified | Account: Groq (no CC for free tier). Quality: Very Good. Official row differs from older community numbers. |
-| Llama 4 Maverick 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | Account: Groq (no CC for free tier). Quality: Good. Fast inference; revision limits can change. |
-| Qwen3 32B | `128K / 30 / 14,400 / 6K / 500K` | Partially verified | Account: Groq (no CC for free tier). Quality: Good. Model IDs/limits may shift by release. |
-| Compound AI (groq/compound) | `128K / 30 / 250 / 70K / n/p` | Verified | Account: Groq (no CC for free tier). Quality: Good. Official docs do not publish TPD. |
+| Llama 3.3 70B (llama-3.3-70b-versatile) | `128K / 30 / 1000 / 12K / 100K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Very Good. Official row differs from older community numbers. |
+| Llama 4 Maverick 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Fast inference; revision limits can change. |
+| Qwen3 32B | `128K / 30 / 14,400 / 6K / 500K` | Partially verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Model IDs/limits may shift by release. |
+| Compound AI (groq/compound) | `128K / 30 / 250 / 70K / n/p` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-code">CODE</span><br>Account: Groq (no CC for free tier). Quality: Good. Official docs do not publish TPD. |
 
 ### Together AI
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Llama 4 Maverick | `131K / tier / tier / tier / tier` | Verified | Account: Together + paid credits. Quality: Very Good. No standing free trial in current docs. |
-| DeepSeek V3.1 | `64K / tier / tier / tier / tier` | Verified | Account: Together + paid credits. Quality: Excellent. "$100 signup credits" not confirmed in current docs. |
-| Mistral Small 3 | `128K / tier / tier / tier / tier` | Verified | Account: Together + paid credits. Quality: Good. Limits are spend/account-tier dependent. |
+| Llama 4 Maverick | `131K / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Together + paid credits. Quality: Very Good. No standing free trial in current docs. |
+| DeepSeek V3.1 | `64K / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Together + paid credits. Quality: Excellent. "$100 signup credits" not confirmed in current docs. |
+| Mistral Small 3 | `128K / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Together + paid credits. Quality: Good. Limits are spend/account-tier dependent. |
 
 ### Hugging Face
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Various open models | `varies / provider / provider / provider / credit-based` | Verified | Account: Hugging Face. Quality: Varies. Limits depend on routed provider and plan. |
-| Pro-tier routed providers | `varies / higher / provider / provider / credit-based` | Verified | Account: Hugging Face Pro. Quality: Very Good. Pro includes higher monthly credits. |
+| Various open models | `varies / provider / provider / provider / credit-based` | Verified | <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-code">CODE</span><br>Account: Hugging Face. Quality: Varies. Limits depend on routed provider and plan. |
+| Pro-tier routed providers | `varies / higher / provider / provider / credit-based` | Verified | <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: Hugging Face Pro. Quality: Very Good. Pro includes higher monthly credits. |
 
 ### Mistral AI
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Mistral Nemo 12B | `model / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Good. Free Experiment plan exists; quotas are dynamic. |
-| Mistral Small 3.1 | `128K / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Good. Access/limits depend on plan tier. |
-| Codestral | `32K / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Excellent. Code-oriented with plan gating. |
-| Mistral Large 3 | `128K / plan / plan / plan / plan` | Partially verified | Account: Mistral (Experiment/Scale). Quality: Excellent. Most capable tier usually paid. |
+| Mistral Nemo 12B | `model / plan / plan / plan / plan` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Mistral (Experiment/Scale). Quality: Good. Free Experiment plan exists; quotas are dynamic. |
+| Mistral Small 3.1 | `128K / plan / plan / plan / plan` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Mistral (Experiment/Scale). Quality: Good. Access/limits depend on plan tier. |
+| Codestral | `32K / plan / plan / plan / plan` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Mistral (Experiment/Scale). Quality: Excellent. Code-oriented with plan gating. |
+| Mistral Large 3 | `128K / plan / plan / plan / plan` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: Mistral (Experiment/Scale). Quality: Excellent. Most capable tier usually paid. |
 
 ### DeepSeek
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| DeepSeek V3.2 (deepseek-chat) | `128K / n/p / n/p / n/p / n/p` | Partially verified | Account: DeepSeek. Quality: Excellent. Pricing is public; fixed free quotas are not. |
-| DeepSeek R1 / reasoner | `128K / n/p / n/p / n/p / n/p` | Unverified | Account: DeepSeek. Quality: Excellent. "5M signup tokens" is not confirmed in official docs. |
+| DeepSeek V3.2 (deepseek-chat) | `128K / n/p / n/p / n/p / n/p` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: DeepSeek. Quality: Excellent. Pricing is public; fixed free quotas are not. |
+| DeepSeek R1 / reasoner | `128K / n/p / n/p / n/p / n/p` | Unverified | <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-code">CODE</span><br>Account: DeepSeek. Quality: Excellent. "5M signup tokens" is not confirmed in official docs. |
 
 ### Cohere
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Command R7B | `128K / 20 / ~1000mo / endpoint / 1000mo` | Verified | Account: Cohere trial key. Quality: Good. Free trial usage is heavily rate-limited. |
-| Command R+ | `128K / 20 / ~1000mo / endpoint / 1000mo` | Verified | Account: Cohere trial key. Quality: Very Good. Trial cap is account-wide per month. |
+| Command R7B | `128K / 20 / ~1000mo / endpoint / 1000mo` | Verified | <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-fast">FAST</span><br>Account: Cohere trial key. Quality: Good. Free trial usage is heavily rate-limited. |
+| Command R+ | `128K / 20 / ~1000mo / endpoint / 1000mo` | Verified | <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span><br>Account: Cohere trial key. Quality: Very Good. Trial cap is account-wide per month. |
 
 ### OpenRouter
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Qwen3 Coder 480B (`:free` variant when available) | `model / 20 / 50d (<$10) or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Excellent. Free limits are account-plan based. |
-| GPT-OSS-120B (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Very Good. Free variants can rotate. |
-| Llama 3.3 70B (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Very Good. Free router pool is dynamic. |
-| Mistral Small 3.1 (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Good. Best for low-volume testing. |
-| DeepSeek R1 (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | Account: OpenRouter. Quality: Excellent. Current docs differ from older community RPD values. |
+| Qwen3 Coder 480B (`:free` variant when available) | `model / 20 / 50d (<$10) or 1000d (>= $10) / n/p / n/p` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenRouter. Quality: Excellent. Free limits are account-plan based. |
+| GPT-OSS-120B (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenRouter. Quality: Very Good. Free variants can rotate. |
+| Llama 3.3 70B (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenRouter. Quality: Very Good. Free router pool is dynamic. |
+| Mistral Small 3.1 (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenRouter. Quality: Good. Best for low-volume testing. |
+| DeepSeek R1 (`:free` variant when available) | `model / 20 / 50d or 1000d (>= $10) / n/p / n/p` | Verified | <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenRouter. Quality: Excellent. Current docs differ from older community RPD values. |
 
 ### Cerebras
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Llama 4 Maverick 400B | `128K (paid) / 30 / 14,400 / 60K / 1M` | Partially verified | Account: Cerebras. Quality: Very Good. Context/limits vary by tier and model page. |
-| Qwen3 Coder 235B | `64K free, 131K paid / 30 / 14,400 / 60K / 1M` | Partially verified | Account: Cerebras. Quality: Excellent. Verify live limits on model page. |
-| Llama 3.1 8B | `8K free, 32K paid / 30 / 14,400 / 60K / 1M` | Verified | Account: Cerebras. Quality: Good. Free-tier limits are explicitly published. |
+| Llama 4 Maverick 400B | `128K (paid) / 30 / 14,400 / 60K / 1M` | Partially verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Cerebras. Quality: Very Good. Context/limits vary by tier and model page. |
+| Qwen3 Coder 235B | `64K free, 131K paid / 30 / 14,400 / 60K / 1M` | Partially verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Cerebras. Quality: Excellent. Verify live limits on model page. |
+| Llama 3.1 8B | `8K free, 32K paid / 30 / 14,400 / 60K / 1M` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-open">OPEN</span><br>Account: Cerebras. Quality: Good. Free-tier limits are explicitly published. |
 
 ### xAI Grok
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Grok 4.1 Fast | `model / credit / credit / credit / credit` | Unverified | Account: xAI. Quality: Very Good. Promotional credits may exist; fixed "$25 startup credits" not consistently documented. |
+| Grok 4.1 Fast | `model / credit / credit / credit / credit` | Unverified | <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: xAI. Quality: Very Good. Promotional credits may exist; fixed "$25 startup credits" not consistently documented. |
 
 ## Notes and caveats
 
