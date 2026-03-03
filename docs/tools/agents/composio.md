@@ -81,7 +81,7 @@ print(result)
 - **Self-hostable**: Enterprise versions support self-hosting.
 
 ## Related tools / concepts
-- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [Zapier](../automation_orchestration/zapier.md)
 - [Make](../automation_orchestration/make.md)
 
@@ -91,5 +91,5 @@ print(result)
 - [GitHub](https://github.com/composiohq/composio)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-02
 - Confidence: high

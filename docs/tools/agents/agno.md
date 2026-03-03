@@ -75,7 +75,7 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 
 ## Related tools / concepts
 - [Phidata](phidata.md) (Predecessor)
-- [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
+- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [FastAPI](https://fastapi.tiangolo.com/)
 
 ## Sources / References
@@ -84,5 +84,5 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 - [Documentation](https://docs.agno.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-02
 - Confidence: high

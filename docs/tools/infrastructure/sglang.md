@@ -33,6 +33,21 @@ Infra
 - For basic, single-prompt text generation where vLLM might be more widely documented.
 - On non-NVIDIA hardware.
 
+## Licensing and cost
+- **Open Source**: Yes (Apache 2.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Related tools / concepts
+- [vLLM](vllm.md)
+- [Text Generation Inference (TGI)](tgi.md)
+- [Guidance](https://github.com/guidance-ai/guidance)
+
+## Sources / References
+- [Official Website](https://sgl-project.github.io/)
+- [GitHub](https://github.com/sgl-project/sglang)
+- [Docs](https://sgl-project.github.io/)
+
 ## Getting started
 
 ### Installation
@@ -57,21 +72,6 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
-## Related tools / concepts
-- [vLLM](vllm.md)
-- [Text Generation Inference (TGI)](tgi.md)
-- [Guidance](https://github.com/guidance-ai/guidance)
-
-## Sources / References
-- [Official Website](https://sgl-project.github.io/)
-- [GitHub](https://github.com/sgl-project/sglang)
-- [Docs](https://sgl-project.github.io/)
-
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-02
 - Confidence: high

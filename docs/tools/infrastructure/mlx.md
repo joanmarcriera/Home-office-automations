@@ -76,5 +76,5 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - [Documentation](https://ml-explore.github.io/mlx/build/html/index.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-02
 - Confidence: high

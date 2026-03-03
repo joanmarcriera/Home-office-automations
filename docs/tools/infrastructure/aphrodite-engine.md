@@ -65,5 +65,5 @@ python -m aphrodite.endpoints.kobold.api_server --model /path/to/model/
 - [Documentation](https://aphrodite.pygmalion.chat/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-02
 - Confidence: high
