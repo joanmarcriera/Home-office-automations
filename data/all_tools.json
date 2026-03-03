@@ -908,6 +908,12 @@
       "doc_path": "docs/tools/agents/agno.md"
     },
     {
+      "id": "agentic-automation-canvas",
+      "name": "Agentic Automation Canvas (AAC)",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/agentic-automation-canvas.md"
+    },
+    {
       "id": "langsmith",
       "name": "LangSmith",
       "category": "Benchmarking",
