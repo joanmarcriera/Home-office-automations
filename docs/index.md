@@ -10,7 +10,7 @@ hide:
 
 <div class="grid cards" markdown>
 
--   :material-rocket-launch:{ .lg .middle } **Get Started**
+-   :material-rocket-launch:{ .lg .middle } **Start Here**
 
     ---
 

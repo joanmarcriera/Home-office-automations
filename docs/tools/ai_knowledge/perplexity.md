@@ -44,6 +44,20 @@ Perplexity provides an OpenAI-compatible API. You can use the standard OpenAI Py
 pip install openai
 ```
 
+Minimal Python example:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_API_KEY", base_url="https://api.perplexity.ai")
+
+response = client.chat.completions.create(
+    model="sonar-reasoning-pro",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+print(response.choices[0].message.content)
+```
+
 ## API examples
 
 ### Calling Perplexity API with Python
@@ -92,5 +106,5 @@ curl -X POST https://api.perplexity.ai/chat/completions \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 - Confidence: medium

@@ -1,18 +1,18 @@
 # Replicate
 
 ## What it is
-Replicate is a cloud platform that makes it easy to run open-source machine learning models via a simple API, covering everything from LLMs to image generation and audio processing.
+Replicate is a cloud platform that makes it easy to run open-source machine learning models via a simple API, covering everything from LLMs to image generation, video, and audio processing.
 
 ## What problem it solves
-Eliminates the complexity of managing GPU infrastructure, Docker containers, and model deployment for a vast library of open-source AI models.
+Eliminates the significant complexity of managing GPU infrastructure, Docker containers (Cog), and model weights for a vast library of open-source AI models.
 
 ## Where it fits in the stack
-**Inference Provider / Multi-modal Hub**. It is an "everything store" for running AI models in the cloud.
+**Inference Provider / Multi-modal Hub**. It is an "everything store" for running almost any open-source AI model in the cloud.
 
 ## Typical use cases
-- **Multi-modal Pipelines**: Combining an LLM with an image generator (like SDXL) in one workflow.
-- **Rapid Prototyping**: Testing niche or research models without local setup.
-- **Scaling Niche Models**: Moving from a local experiment to a production API instantly.
+- **Multi-modal Pipelines**: Combining an LLM (Llama 3) with an image generator (SDXL) and an upscaler in a single automated workflow.
+- **Rapid Prototyping**: Testing new research models or niche adapters without any local setup.
+- **Scaling Custom Models**: Moving from a local experiment to a production-ready API instantly using their Cog tool.
 
 ## Getting started
 Install the SDK:
@@ -33,27 +33,27 @@ for item in output:
 ```
 
 ## Strengths
-- **Unrivaled Variety**: Hosts thousands of models for text, image, video, audio, and more.
-- **Simplicity**: Extremely easy-to-use API and web interface.
-- **Cog**: Their open-source tool (Cog) allows you to package your own models for deployment on Replicate.
-- **Pricing Tiers**: Uses transparent **Per-second** billing based on the specific hardware (CPU/GPU) selected, making it ideal for intermittent and varied workloads.
+- **Unrivaled Variety**: Hosts thousands of models for text, image, video, audio, and specialized ML tasks.
+- **Simplicity**: Extremely easy-to-use API, web interface, and CLI.
+- **Cog**: Their open-source tool (Cog) allows you to package and deploy your own custom models to Replicate easily.
+- **Pricing Tiers**: Uses transparent **Per-second** billing based on the specific hardware (CPU/GPU) selected, making it ideal for intermittent and highly varied workloads.
 
 ## Limitations
 - **Cold Starts**: Models not in constant use may experience "cold starts" (delay while the container spins up).
-- **Cost at Scale**: For 24/7 high-volume LLM usage, dedicated providers like Together or Groq might be cheaper.
+- **Cost at Scale**: For constant, high-volume 24/7 LLM usage, specialized serverless providers like Together or Groq might be more cost-effective.
 
 ## When to use it
-- When you need a "swiss army knife" of models.
-- For image, video, or audio generation tasks.
-- When you want to deploy your own custom models without managing servers.
+- When you need a "swiss army knife" of diverse models (especially for non-text tasks).
+- For image, video, or audio generation tasks where variety is key.
+- When you want to deploy your own custom models without managing servers or Kubernetes.
 
 ## When not to use it
-- For high-volume, low-latency LLM applications where serverless providers like Groq or Together excel.
-- If you need the extreme reasoning of proprietary models like GPT-4o.
+- For high-volume, low-latency LLM-only applications where serverless providers like Groq excel.
+- If you need the extreme proprietary reasoning of models like GPT-4o.
 
 ## Licensing and cost
 - **Open Source**: The platform is proprietary; Cog is open-source; most hosted models are open-weights.
-- **Cost**: Paid (Per-second/Usage-based).
+- **Cost**: Paid (Per-second / Usage-based).
 - **Self-hostable**: No (Cloud service), but Cog can be used for local deployment.
 
 ## Related tools / concepts
@@ -67,5 +67,5 @@ for item in output:
 - [Model Explorer](https://replicate.com/explore)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-03
 - Confidence: high

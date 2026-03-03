@@ -57,6 +57,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
       - 2026-03-01: new-sources/2026-03-01.md
       - 2026-02-28: new-sources/2026-02-28.md
@@ -149,11 +150,15 @@ nav:
       - Overview: tools/automation_orchestration/index.md
       - Atlassian Jira MCP Implementations: tools/automation_orchestration/atlassian-jira-mcp.md
       - Browser Use: tools/automation_orchestration/browser-use.md
+      - Chronos MCP: tools/automation_orchestration/chronos-mcp.md
       - CliHub: tools/automation_orchestration/clihub.md
       - Make: tools/automation_orchestration/make.md
+      - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
       - ServiceNow MCP Server: tools/automation_orchestration/servicenow-mcp.md
       - Skyvern: tools/automation_orchestration/skyvern.md
+      - Vault MCP Server: tools/automation_orchestration/vault-mcp.md
+      - Vikunja MCP Server: tools/automation_orchestration/vikunja-mcp.md
       - Zapier: tools/automation_orchestration/zapier.md
     - Benchmarking:
       - Overview: tools/benchmarking/index.md
@@ -179,32 +184,39 @@ nav:
       - Overview: tools/development_ops/index.md
       - Aider: tools/development_ops/aider.md
       - Anti Gravity: tools/development_ops/anti_gravity.md
+      - Axiom Guardian: tools/development_ops/axiom-guardian.md
+      - Claude Code: tools/development_ops/claude-code.md
+      - Claude Code Container MCP: tools/development_ops/claude-code-container-mcp.md
+      - Claude Code Setup: tools/development_ops/claude-code-setup.md
       - Cloud Code: tools/development_ops/cloud_code.md
       - Codeium: tools/development_ops/codeium.md
       - Codex: tools/development_ops/codex.md
       - Continue Dev: tools/development_ops/continue_dev.md
       - Cursor: tools/development_ops/cursor.md
       - Custom Agents: tools/development_ops/custom_agents.md
+      - Desktop Commander MCP: tools/development_ops/desktop-commander-mcp.md
       - Droid: tools/development_ops/droid.md
+      - Free Will MCP: tools/development_ops/free-will-mcp.md
+      - Fuzzing MCP Server: tools/development_ops/fuzzing-mcp-server.md
       - Github Copilot: tools/development_ops/github_copilot.md
       - GitHub Copilot CLI: tools/development_ops/github-copilot-cli.md
       - Gpt Engineer: tools/development_ops/gpt_engineer.md
       - Junie Cli: tools/development_ops/junie-cli.md
+      - Jupyter Kernel MCP: tools/development_ops/jupyter-kernel-mcp.md
       - Melty: tools/development_ops/melty.md
       - Mentat: tools/development_ops/mentat.md
       - OpenClaw: tools/development_ops/openclaw.md
       - OpenCode: tools/development_ops/opencode.md
       - Openhands: tools/development_ops/openhands.md
+      - OpenSwarm: tools/development_ops/openswarm.md
       - Plandex: tools/development_ops/plandex.md
       - Sourcegraph Cody: tools/development_ops/sourcegraph_cody.md
       - Superconductor: tools/development_ops/superconductor.md
       - Sweep Dev: tools/development_ops/sweep_dev.md
+      - Symbolic MCP Server: tools/development_ops/symbolic-mcp.md
       - Tabnine: tools/development_ops/tabnine.md
       - Terminus 2: tools/development_ops/terminus-2.md
       - Vscode: tools/development_ops/vscode.md
-      - Claude Code: tools/development_ops/claude-code.md
-      - Claude Code Setup: tools/development_ops/claude-code-setup.md
-      - OpenSwarm: tools/development_ops/openswarm.md
       - Zed: tools/development_ops/zed.md
     - Intake & Storage:
       - Overview: tools/intake_storage/index.md
