@@ -2,6 +2,8 @@
 
 Companies and platforms that offer LLM inference, APIs, or managed AI services.
 
+For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier Matrix](../../knowledge_base/api_pricing_free_tiers.md).
+
 ## Contents
 
 | Provider | What it offers |

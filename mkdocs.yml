@@ -280,6 +280,7 @@ nav:
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
+    - API Pricing & Free Tier Matrix: knowledge_base/api_pricing_free_tiers.md
     - Landscape Overview: knowledge_base/landscape-overview.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md
