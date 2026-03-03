@@ -12,7 +12,7 @@ The Model Context Protocol (MCP) is an open standard that standardizes how appli
     - **MCP Clients**: Frameworks or IDEs that connect to servers to use their tools (e.g., Claude Agent SDK, Zed, Cursor).
 - **Benefits**: Build a tool once as an MCP server and use it in any compatible agent framework or editor.
 - **Pattern Guide**: [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md)
-- **Compatible Frameworks**: [LangGraph](../tools/agents/langgraph.md), [Bee Agent Framework](../tools/agents/bee-agent-framework.md), [Composio](../tools/agents/composio.md), [Agno](../tools/agents/agno.md).
+- **Compatible Frameworks**: [LangGraph](../tools/agents/langgraph.md), [Bee Agent Framework](../tools/agents/bee-agent-framework.md), [Composio](../tools/agents/composio.md), [Agno](../tools/agents/agno.md), [Mistral AI](../tools/providers/mistral.md) (Native Python SDK support).
 - **Sources**: [Making MCP cheaper via CLI](https://kanyilmaz.me/2026/02/23/cli-vs-mcp.html) (Exploring lightweight CLI implementations vs server-side MCP).
 
 ## 2. Agent Client Protocol (ACP)
@@ -31,5 +31,5 @@ The Agent Client Protocol (ACP) is an open standard designed to enable any AI ag
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-03-03
 - Confidence: medium
