@@ -4,17 +4,18 @@
 A curated list of high-signal sources for staying current on AI, LLMs, agents, and tooling.
 
 ## Blogs & Personal Sites
-- **Simon Willison** ([simonwillison.net](https://simonwillison.net)) — LLM tooling, prompt engineering, and practical AI analysis, exceptional at documenting the fast-moving practical side of LLMs and open-source tooling.
-- **Lilian Weng** ([lilianweng.github.io](https://lilianweng.github.io/posts/)) — Deep technical surveys of ML topics, providing some of the most thorough and well-cited technical deep dives on AI architectures and methods.
-- **Jay Alammar** ([jalammar.github.io](https://jalammar.github.io)) — Visual explanations of transformers and LLMs, master of visual intuition for complex transformer architectures and model mechanics.
-- **Sebastian Raschka** ([sebastianraschka.com](https://sebastianraschka.com)) — LLM training, fine-tuning, and evaluation tutorials that bridge research and code with highly reproducible results.
-- **Chip Huyen** ([huyenchip.com](https://huyenchip.com)) — MLOps and LLM systems design, a leading voice on the infrastructure and systems engineering required to put AI into production.
-- **Eugene Yan** ([eugeneyan.com](https://eugeneyan.com)) — Applied ML, RecSys, and LLM patterns, focused on the practical patterns and "how-to" of building reliable AI-powered products.
-- **Andrej Karpathy** ([karpathy.ai](https://karpathy.ai)) — AI education and deep learning fundamentals, offering world-class clarity on how LLMs work from first principles and the "LLM OS" concept.
-- **Vicki Boykis** ([vickiboykis.com](https://vickiboykis.com)) — ML engineering and data systems, providing a grounded, skeptical, and deeply experienced perspective on ML in the real world.
-- **Hamel Husain** ([hamel.dev](https://hamel.dev)) — LLM evaluation and engineering workflows, expert on the rigors of LLM evaluation and building high-quality AI features.
-- **Jeremy Howard** ([fast.ai](https://www.fast.ai)) — AI education and top-down learning, a pioneer of making deep learning accessible to software engineers through a code-first approach.
-- **François Chollet** ([fchollet.com](https://fchollet.com)) — AI research and intelligence theory, deep thinker on the nature of intelligence, abstraction, and the limits of current LLM architectures.
+- **Simon Willison** ([simonwillison.net](https://simonwillison.net)) — Essential for tracking the fast-moving practical side of LLM tooling, prompt engineering, and open-source integration.
+- **Lilian Weng** ([lilianweng.github.io](https://lilianweng.github.io/posts/)) — Unrivaled for thorough, well-cited technical deep dives on AI architectures, memory, and reasoning methods.
+- **Jay Alammar** ([jalammar.github.io](https://jalammar.github.io)) — The gold standard for developing visual intuition about complex transformer architectures and model mechanics.
+- **Sebastian Raschka** ([sebastianraschka.com](https://sebastianraschka.com)) — Bridges the gap between research and code with highly reproducible tutorials on LLM training, fine-tuning, and evaluation.
+- **Chip Huyen** ([huyenchip.com](https://huyenchip.com)) — Leading perspective on the infrastructure, MLOps, and systems engineering required to put AI into production.
+- **Eugene Yan** ([eugeneyan.com](https://eugeneyan.com)) — Focused on the applied ML patterns and practical "how-to" of building reliable, data-driven AI products.
+- **Andrej Karpathy** ([karpathy.ai](https://karpathy.ai)) — Offers world-class clarity on deep learning fundamentals and the "LLM OS" concept for software engineers.
+- **Hamel Husain** ([hamel.dev](https://hamel.dev)) — Expert guidance on the rigors of LLM evaluation, fine-tuning, and building high-quality AI engineering workflows.
+- **Vicki Boykis** ([vickiboykis.com](https://vickiboykis.com)) — Provides a grounded, experienced perspective on ML engineering, data systems, and the reality of deploying models.
+- **Jeremy Howard** ([fast.ai](https://www.fast.ai)) — Pioneer of the "top-down" code-first approach, making cutting-edge deep learning accessible to traditional software developers.
+- **François Chollet** ([fchollet.com](https://fchollet.com)) — Essential for deep thinking on the nature of intelligence, abstraction, and the theoretical limits of current LLM architectures.
+- **Tyler Rockwood** ([rockwotj.com](https://rockwotj.com/blog/)) — High-signal analysis of LLM security, trust boundaries, and practical exploits in AI systems.
 
 ## Newsletters
 - **The Batch** (deeplearning.ai) — Andrew Ng's weekly AI digest, high-level synthesis of AI trends and their societal/business impacts from an industry legend.
@@ -38,11 +39,11 @@ A curated list of high-signal sources for staying current on AI, LLMs, agents, a
 - **Allen AI (AI2)** — Non-profit research focusing on AI for the common good and open science, important for open-dataset initiatives and research unbiased by commercial interests.
 
 ## Aggregators & Communities
-- **Hacker News (AI filter)** — Real-time discussion and discovery of new AI tools by the engineering community, the best place to find early-stage tools and technical debates.
-- **r/LocalLLaMA** — The primary hub for the open-weights and local inference community, unrivaled for practical tips on running, quantizing, and fine-tuning models locally.
-- **r/MachineLearning** — Serious academic and professional discussion on ML research and engineering, a high-density source for paper discussions and professional ML engineering advice.
-- **Papers With Code** — Essential for finding the implementation behind the latest research papers, bridging the gap between academic theory and practical, runnable implementations.
-- **Hugging Face Daily Papers** — Curated daily feed of the most impactful research papers in the community, excellent for staying on top of the sheer volume of new research appearing daily.
+- **Hacker News (AI filter)** — The best place for real-time technical debate and discovering new AI developer tools before they go mainstream.
+- **r/LocalLLaMA** — The primary hub for the open-weights community, unrivaled for practical tips on running and quantizing models locally.
+- **r/MachineLearning** — High-density source for academic paper discussions and professional ML engineering advice.
+- **Papers With Code** — Bridges the gap between academic theory and practical implementation by linking papers directly to runnable code.
+- **Hugging Face Daily Papers** — Curated daily feed that helps filter the sheer volume of new research appearing on arXiv.
 
 ## Podcasts
 - **Latent Space Podcast** — Deep technical conversations with the builders of the AI engineering era, the best source for understanding the actual engineering trade-offs made by leading practitioners.
