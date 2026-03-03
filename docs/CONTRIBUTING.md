@@ -2,6 +2,21 @@
 
 Thank you for your interest in improving the Home-Office Automation & AI Hub! We welcome contributions from both humans and AI agents.
 
+## LLM Agent Quick Start
+
+Before changing files, read these in order:
+
+1. [AGENTS.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/AGENTS.md) — repository operating contract, checklists, and quality bar
+2. [skills.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/skills.md) — reusable task patterns for intake, docs updates, workflow edits, and branch hygiene
+3. [Standards](standards.md) — taxonomy and canonical-page rules
+
+Use this sequence for most tasks:
+
+1. Find canonical page or confirm it does not exist.
+2. Make scoped edits for one intent only.
+3. Run relevant validation scripts.
+4. Open/merge PR only after required checks pass.
+
 ## How You Can Help
 - **Add New Tools**: Found a tool that fits the stack? Document it using our [standard template](templates/tool_template.md).
 - **Refine Playbooks**: Improve our existing automation guides with more technical detail or new variants.

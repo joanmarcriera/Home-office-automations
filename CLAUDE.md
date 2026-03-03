@@ -3,6 +3,12 @@
 ## Project purpose
 Home-Office Automation & AI Hub: an operating manual and knowledge base for a privacy-first, AI-powered home lab stack (Ollama, n8n, Paperless-ngx, Jules, mkdocs).
 
+## Primary maintenance docs
+- `AGENTS.md` — repository-wide operating contract for autonomous agents
+- `skills.md` — reusable task patterns/checklists
+- `docs/CONTRIBUTING.md` — contribution process and quality gates
+- `docs/standards.md` — taxonomy and canonical-page rules
+
 ## Stack at a glance
 - **Docs**: MkDocs Material, published via GitHub Actions to GitHub Pages
 - **Local LLMs**: Ollama on TrueNAS (192.168.0.5:30068, 18 models) and MacBook M4 (localhost:11434)
@@ -32,7 +38,7 @@ Home-Office Automation & AI Hub: an operating manual and knowledge base for a pr
 One canonical page per tool. Search before creating. Merge duplicates; never create parallel pages.
 
 ### After editing mkdocs.yml
-Always verify: `python3 -c "import yaml; yaml.safe_load(open('mkdocs.yml')); print('OK')"`
+Always verify: `ruby -ryaml -e 'YAML.load_file("mkdocs.yml"); puts "OK"'`
 
 ## Project skills — use these instead of doing it manually
 - `/new-tool-doc <name> <category>` — scaffold a new tool page from the standard template
