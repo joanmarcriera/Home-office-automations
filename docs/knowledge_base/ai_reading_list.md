@@ -48,6 +48,28 @@ A curated list of high-signal sources for staying current on AI, LLMs, agents, a
 - **Gradient Dissent (W&B)** — Deep insights into the production realities of training and deploying models from top industry practitioners.
 - **Practical AI** — Focuses on how AI fits into broader software engineering contexts and makes it useful for everyday development.
 
+## Sources / References
+- [Simon Willison's Weblog](https://simonwillison.net/)
+- [Lil'Log](https://lilianweng.github.io/posts/)
+- [Jay Alammar's Blog](https://jalammar.github.io/)
+- [Sebastian Raschka's Blog](https://sebastianraschka.com/)
+- [Chip Huyen's Blog](https://huyenchip.com/)
+- [Eugene Yan's Blog](https://eugeneyan.com/)
+- [Andrej Karpathy's Website](https://karpathy.ai/)
+- [Vicki Boykis's Blog](https://vickiboykis.com/)
+- [Hamel Husain's Blog](https://hamel.dev/)
+- [Fast.ai](https://www.fast.ai/)
+- [François Chollet's Website](https://fchollet.com/)
+- [The Batch](https://www.deeplearning.ai/the-batch/)
+- [AI News](https://buttondown.com/ainews)
+- [Latent Space](https://www.latent.space/)
+- [Import AI](https://jack-clark.net/)
+- [The Gradient](https://thegradient.pub/)
+- [TLDR AI](https://tldr.tech/ai)
+- [Ben's Bites](https://www.bensbites.co/)
+- [Interconnects](https://www.interconnects.ai/)
+- [AlphaSignal](https://alphasignal.ai/)
+
 ## Contribution Metadata
 - Last reviewed: 2026-03-03
 - Confidence: high
