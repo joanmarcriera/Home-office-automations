@@ -5,6 +5,10 @@ on:
     - cron: '30 0 * * *'  # Runs daily at 00:30 UTC
   workflow_dispatch: # allow manual trigger
 
+concurrency:
+  group: process-jules-backlog
+  cancel-in-progress: false
+
 jobs:
   open-backlog-issue:
     runs-on: ubuntu-latest

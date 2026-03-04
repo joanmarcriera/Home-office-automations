@@ -6,6 +6,10 @@ on:
     - cron: '0 19 * * *' # 19:00 UTC — afternoon maintenance, processes bridge afternoon intake
   workflow_dispatch: # allow manual trigger for testing
 
+concurrency:
+  group: daily-jules-maintenance
+  cancel-in-progress: false
+
 jobs:
   open-maintenance-issue:
     runs-on: ubuntu-latest

@@ -1,0 +1,112 @@
+name: API Pricing Maintenance
+
+on:
+  schedule:
+    - cron: "30 8 * * 1" # Monday 08:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: api-pricing-maintenance
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Regenerate capability summaries
+        run: python3 scripts/update_api_pricing_capability_summary.py
+
+      - name: Check pricing-doc freshness
+        id: freshness
+        run: |
+          python3 scripts/check_doc_freshness.py \
+            docs/knowledge_base/api_pricing_free_tiers.md \
+            --max-days 21 \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Run knowledge quality checks
+        run: |
+          python3 scripts/check_docs_contract.py docs/knowledge_base/api_pricing_free_tiers.md
+          python3 scripts/check_catalog_consistency.py
+
+      - name: Commit and push generated updates
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "main" ]; then
+            echo "Skipping commit/push on non-main ref: ${GITHUB_REF_NAME}"
+            exit 0
+          fi
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/knowledge_base/api_pricing_free_tiers.md
+          if git diff --staged --quiet; then
+            echo "No pricing summary changes."
+          else
+            git commit -m "chore(pricing): refresh capability capacity summaries"
+            git push origin main
+          fi
+
+      - name: Open stale-review issue if needed
+        if: steps.freshness.outputs.stale_any == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REPORT: ${{ steps.freshness.outputs.freshness_report }}
+        run: |
+          set -euo pipefail
+          if ! gh api "repos/$REPO/labels/jules" >/dev/null 2>&1; then
+            gh label create "jules" \
+              --repo "$REPO" \
+              --color "1f6feb" \
+              --description "Issues queued for Jules automation"
+          fi
+
+          EXISTING=$(gh issue list \
+            --repo "$REPO" \
+            --state open \
+            --search "Pricing Matrix Freshness" \
+            --json number \
+            --jq 'length')
+
+          if [ "$EXISTING" != "0" ]; then
+            echo "Freshness issue already open."
+            exit 0
+          fi
+
+          BODY=$(cat <<'EOF'
+          ## API Pricing Matrix Freshness Alert
+
+          The weekly pricing-maintenance workflow detected stale review metadata.
+
+          ### Report
+          ```
+          __REPORT__
+          ```
+
+          ### Action
+          - Re-verify provider pricing and free-tier claims from official docs.
+          - Update `Last reviewed` and evidence summaries.
+          - Regenerate capability summaries with:
+            `python3 scripts/update_api_pricing_capability_summary.py`
+          EOF
+          )
+          BODY="${BODY/__REPORT__/$REPORT}"
+
+          gh issue create \
+            --repo "$REPO" \
+            --title "Pricing Matrix Freshness - action required" \
+            --label "jules" \
+            --body "$BODY"

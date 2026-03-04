@@ -1,0 +1,34 @@
+name: Generated Content Gates
+
+on:
+  pull_request:
+    paths:
+      - "docs/knowledge_base/api_pricing_free_tiers.md"
+      - "scripts/update_api_pricing_capability_summary.py"
+      - "scripts/check_doc_freshness.py"
+      - ".github/workflows/generated-content-gates.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  generated-summary-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Ensure auto-generated pricing summaries are up to date
+        run: python3 scripts/update_api_pricing_capability_summary.py --check
+
+      - name: Ensure pricing matrix review date is fresh
+        run: |
+          python3 scripts/check_doc_freshness.py \
+            docs/knowledge_base/api_pricing_free_tiers.md \
+            --max-days 45 \
+            --fail-on-stale

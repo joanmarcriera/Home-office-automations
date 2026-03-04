@@ -5,6 +5,10 @@ on:
     - cron: "0 6 * * *"  # 06:00 UTC — single daily run to conserve CI minutes
   workflow_dispatch: # Allows manual trigger from the Actions tab
 
+concurrency:
+  group: daily-digest
+  cancel-in-progress: false
+
 # Use permissive defaults or explicitly grant contents write permission if needed
 permissions:
   contents: write
