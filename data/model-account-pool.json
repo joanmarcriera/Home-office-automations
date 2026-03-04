@@ -1,0 +1,286 @@
+{
+  "version": 1,
+  "last_updated": "2026-03-04",
+  "defaults": {
+    "policy_owner": "home-office-ai-ops",
+    "max_retries_per_provider": 2,
+    "cooldown_minutes_after_rate_limit": 20,
+    "fail_open_to_next_route": true
+  },
+  "providers": [
+    {
+      "id": "google_gemini",
+      "name": "Google Gemini API",
+      "supports_free_tier": true,
+      "account_multiplexing_allowed": true
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "supports_free_tier": true,
+      "account_multiplexing_allowed": true
+    },
+    {
+      "id": "groq",
+      "name": "Groq API",
+      "supports_free_tier": true,
+      "account_multiplexing_allowed": true
+    },
+    {
+      "id": "cerebras",
+      "name": "Cerebras Inference",
+      "supports_free_tier": true,
+      "account_multiplexing_allowed": true
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic API",
+      "supports_free_tier": false,
+      "account_multiplexing_allowed": true
+    }
+  ],
+  "accounts": [
+    {
+      "id": "work_gemini_primary",
+      "provider": "google_gemini",
+      "owner_scope": "work",
+      "tier": "free",
+      "credential_env": "GEMINI_API_KEY_WORK",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "personal_gemini_primary",
+      "provider": "google_gemini",
+      "owner_scope": "personal",
+      "tier": "free",
+      "credential_env": "GEMINI_API_KEY_PERSONAL",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "household_gemini_backup",
+      "provider": "google_gemini",
+      "owner_scope": "household",
+      "tier": "free",
+      "credential_env": "GEMINI_API_KEY_HOUSEHOLD",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "work_openrouter_primary",
+      "provider": "openrouter",
+      "owner_scope": "work",
+      "tier": "free",
+      "credential_env": "OPENROUTER_API_KEY_WORK",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "personal_openrouter_backup",
+      "provider": "openrouter",
+      "owner_scope": "personal",
+      "tier": "free",
+      "credential_env": "OPENROUTER_API_KEY_PERSONAL",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "work_groq_primary",
+      "provider": "groq",
+      "owner_scope": "work",
+      "tier": "free",
+      "credential_env": "GROQ_API_KEY_WORK",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "household_groq_backup",
+      "provider": "groq",
+      "owner_scope": "household",
+      "tier": "free",
+      "credential_env": "GROQ_API_KEY_HOUSEHOLD",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "work_cerebras_primary",
+      "provider": "cerebras",
+      "owner_scope": "work",
+      "tier": "free",
+      "credential_env": "CEREBRAS_API_KEY_WORK",
+      "enabled": true,
+      "daily_budget_usd": 0
+    },
+    {
+      "id": "work_anthropic_paid",
+      "provider": "anthropic",
+      "owner_scope": "work",
+      "tier": "paid",
+      "credential_env": "ANTHROPIC_API_KEY_WORK",
+      "enabled": true,
+      "daily_budget_usd": 8
+    }
+  ],
+  "routing_profiles": {
+    "coding": {
+      "objective": "maximize_free_capacity_then_quality",
+      "routes": [
+        {
+          "provider": "google_gemini",
+          "account_pool": [
+            "work_gemini_primary",
+            "personal_gemini_primary",
+            "household_gemini_backup"
+          ],
+          "model_preferences": [
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash",
+            "gemini-2.5-pro"
+          ],
+          "weight": 50
+        },
+        {
+          "provider": "openrouter",
+          "account_pool": [
+            "work_openrouter_primary",
+            "personal_openrouter_backup"
+          ],
+          "model_preferences": [
+            "qwen3-coder-480b:free",
+            "gpt-oss-120b:free",
+            "llama-3.3-70b:free"
+          ],
+          "weight": 30
+        },
+        {
+          "provider": "groq",
+          "account_pool": [
+            "work_groq_primary",
+            "household_groq_backup"
+          ],
+          "model_preferences": [
+            "llama-3.3-70b-versatile",
+            "qwen3-32b"
+          ],
+          "weight": 20
+        }
+      ]
+    },
+    "verification": {
+      "objective": "maximize_reliability_with_cost_guardrails",
+      "routes": [
+        {
+          "provider": "google_gemini",
+          "account_pool": [
+            "work_gemini_primary",
+            "personal_gemini_primary"
+          ],
+          "model_preferences": [
+            "gemini-2.5-pro",
+            "gemini-2.5-flash"
+          ],
+          "weight": 60
+        },
+        {
+          "provider": "openrouter",
+          "account_pool": [
+            "work_openrouter_primary",
+            "personal_openrouter_backup"
+          ],
+          "model_preferences": [
+            "deepseek-r1:free",
+            "qwen3-coder-480b:free"
+          ],
+          "weight": 25
+        },
+        {
+          "provider": "anthropic",
+          "account_pool": [
+            "work_anthropic_paid"
+          ],
+          "model_preferences": [
+            "claude-3-5-sonnet"
+          ],
+          "weight": 15
+        }
+      ]
+    },
+    "reasoning": {
+      "objective": "maximize_reasoning_depth_with_low_spend",
+      "routes": [
+        {
+          "provider": "google_gemini",
+          "account_pool": [
+            "work_gemini_primary",
+            "personal_gemini_primary"
+          ],
+          "model_preferences": [
+            "gemini-2.5-pro"
+          ],
+          "weight": 55
+        },
+        {
+          "provider": "openrouter",
+          "account_pool": [
+            "work_openrouter_primary"
+          ],
+          "model_preferences": [
+            "deepseek-r1:free"
+          ],
+          "weight": 25
+        },
+        {
+          "provider": "anthropic",
+          "account_pool": [
+            "work_anthropic_paid"
+          ],
+          "model_preferences": [
+            "claude-3-5-sonnet"
+          ],
+          "weight": 20
+        }
+      ]
+    }
+  },
+  "rotation": {
+    "strategy": "weighted-round-robin",
+    "provider_pools": {
+      "google_gemini": {
+        "order": [
+          "work_gemini_primary",
+          "personal_gemini_primary",
+          "household_gemini_backup"
+        ]
+      },
+      "openrouter": {
+        "order": [
+          "work_openrouter_primary",
+          "personal_openrouter_backup"
+        ]
+      },
+      "groq": {
+        "order": [
+          "work_groq_primary",
+          "household_groq_backup"
+        ]
+      },
+      "cerebras": {
+        "order": [
+          "work_cerebras_primary"
+        ]
+      },
+      "anthropic": {
+        "order": [
+          "work_anthropic_paid"
+        ]
+      }
+    }
+  },
+  "guardrails": {
+    "max_total_daily_spend_usd": 12,
+    "free_tier_priority_required": true,
+    "paid_accounts_only_as_fallback": true,
+    "allow_household_accounts_for_non_sensitive_jobs": true
+  }
+}
