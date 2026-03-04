@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-03-04
+
+## Digest fallback for 2026-03-04
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [GPT-5.3 Instant System Card](https://openai.com/index/gpt-5-3-instant-system-card) (OpenAI Blog)
+2. [GPT-5.3 Instant: Smoother, more useful everyday conversations](https://openai.com/index/gpt-5-3-instant) (OpenAI Blog)
+3. [Create new worlds in Project Genie with these 4 tips](https://blog.google/innovation-and-ai/models-and-research/google-deepmind/tips-prompt-writing-project-genie/) (Google AI Blog)
+4. [Gemini 3.1 Flash-Lite: Built for intelligence at scale](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/) (Google AI Blog)
+5. [PRX Part 3 — Training a Text-to-Image Model in 24h!](https://huggingface.co/blog/Photoroom/prx-part3) (Hugging Face Blog)
+6. [Qwen 3.5 4b is so good, that it can vibe code a fully working OS web app in one go.](https://www.reddit.com/r/LocalLLaMA/comments/1rkb8en/qwen_35_4b_is_so_good_that_it_can_vibe_code_a/) (r/LocalLLaMA)
+7. [Junyang Lin has left Qwen :(](https://www.reddit.com/r/LocalLLaMA/comments/1rjtzyn/junyang_lin_has_left_qwen/) (r/LocalLLaMA)
+8. [Qwen3.5-27B Q4 Quantization Comparison](https://www.reddit.com/r/LocalLLaMA/comments/1rk5qmr/qwen3527b_q4_quantization_comparison/) (r/LocalLLaMA)
+9. [Is anyone else just blown away that this local LLMs are even possible?](https://www.reddit.com/r/LocalLLaMA/comments/1rk45ko/is_anyone_else_just_blown_away_that_this_local/) (r/LocalLLaMA)
+10. [Ever wonder how much cost you can save when coding with local LLM?](https://www.reddit.com/r/LocalLLaMA/comments/1rkai3l/ever_wonder_how_much_cost_you_can_save_when/) (r/LocalLLaMA)
+11. [Apple unveils M5 Pro and M5 Max, citing up to 4× faster LLM prompt processing than M4 Pro and M4 Max](https://www.reddit.com/r/LocalLLaMA/comments/1rjqsv6/apple_unveils_m5_pro_and_m5_max_citing_up_to_4/) (r/LocalLLaMA)
+12. [Qwen3.5-9B Uncensored Aggressive Release (GGUF)](https://www.reddit.com/r/LocalLLaMA/comments/1rk74ap/qwen359b_uncensored_aggressive_release_gguf/) (r/LocalLLaMA)
+13. [The DoW vs Anthropic saga proves closed-source safety is a fraud. We need open evaluation.](https://www.reddit.com/r/LocalLLaMA/comments/1rk342c/the_dow_vs_anthropic_saga_proves_closedsource/) (r/LocalLLaMA)
+14. [Qwen3.5-35B-A3B hits 37.8% on SWE-bench Verified Hard — nearly matching Claude Opus 4.6 (40%) with the right verification strategy](https://www.reddit.com/r/LocalLLaMA/comments/1rkdlqi/qwen3535ba3b_hits_378_on_swebench_verified_hard/) (r/LocalLLaMA)
+15. [Qwen3.5-9B abliterated — 0% refusals + vision](https://www.reddit.com/r/LocalLLaMA/comments/1rjwm8i/qwen359b_abliterated_0_refusals_vision/) (r/LocalLLaMA)
+16. [Would you be interested in a fully local AI 3D model generator ?](https://www.reddit.com/r/LocalLLaMA/comments/1rjuccw/would_you_be_interested_in_a_fully_local_ai_3d/) (r/LocalLLaMA)
+17. [Qwen3.5-18B-REAP-A3B-Coding: 50% Expert-Pruned](https://www.reddit.com/r/LocalLLaMA/comments/1rk8knf/qwen3518breapa3bcoding_50_expertpruned/) (r/LocalLLaMA)
+18. [Are true base models dead?](https://www.reddit.com/r/LocalLLaMA/comments/1rjyngn/are_true_base_models_dead/) (r/LocalLLaMA)
+19. [You can now train LLMs in VS Code for free via Google Colab & unsloth!](https://www.reddit.com/r/LocalLLaMA/comments/1rk7gp3/you_can_now_train_llms_in_vs_code_for_free_via/) (r/LocalLLaMA)
+20. [Benchmarked 11 MLX models on M3 Ultra — here's which ones are actually smart and fast](https://www.reddit.com/r/LocalLLaMA/comments/1rkcvqa/benchmarked_11_mlx_models_on_m3_ultra_heres_which/) (r/LocalLLaMA)
+21. [Qwen3.5-4B Uncensored Aggressive Release (GGUF)](https://www.reddit.com/r/LocalLLaMA/comments/1rjp08s/qwen354b_uncensored_aggressive_release_gguf/) (r/LocalLLaMA)
+22. [LFM2-24B-A2B: Whoa! Fast!](https://www.reddit.com/r/LocalLLaMA/comments/1rkacng/lfm224ba2b_whoa_fast/) (r/LocalLLaMA)
+23. [Kokoro TTS, but it clones voices now — Introducing KokoClone](https://www.reddit.com/r/LocalLLaMA/comments/1rjrjg3/kokoro_tts_but_it_clones_voices_now_introducing/) (r/LocalLLaMA)
+24. [Qwen 2.5 -> 3 -> 3.5, smallest models. Incredible improvement over the generations.](https://www.reddit.com/r/LocalLLaMA/comments/1rjd4pv/qwen_25_3_35_smallest_models_incredible/) (r/LocalLLaMA)
+25. [Catching an AI Red Teamer in the Wild: Using Reverse Prompt Injection as a Honeypot Detection Mechanism](https://www.reddit.com/r/LocalLLaMA/comments/1rjq8w1/catching_an_ai_red_teamer_in_the_wild_using/) (r/LocalLLaMA)
+26. [That's terrifyingly convincing...](https://www.reddit.com/r/LocalLLaMA/comments/1rk97hw/thats_terrifyingly_convincing/) (r/LocalLLaMA)
+27. [MCP server that indexes codebases into a knowledge graph — 120x token reduction benchmarked across 35 repos](https://www.reddit.com/r/LocalLLaMA/comments/1rjt4hh/mcp_server_that_indexes_codebases_into_a/) (r/LocalLLaMA)
+28. [Unsloth fixed version of Qwen3.5-35B-A3B is incredible at research tasks.](https://www.reddit.com/r/LocalLLaMA/comments/1rjh5wg/unsloth_fixed_version_of_qwen3535ba3b_is/) (r/LocalLLaMA)
+29. [[P] We made GoodSeed, a pleasant ML experiment tracker](https://www.reddit.com/r/MachineLearning/comments/1rk1mgi/p_we_made_goodseed_a_pleasant_ml_experiment/) (r/MachineLearning)
+30. [[R] AdamWClip: AdamW with adaptive gradient clipping](https://www.reddit.com/r/MachineLearning/comments/1rjmwmf/r_adamwclip_adamw_with_adaptive_gradient_clipping/) (r/MachineLearning)
+31. [[P] I trained Qwen2.5-1.5b with RLVR (GRPO) vs SFT and compared benchmark performance](https://www.reddit.com/r/MachineLearning/comments/1rk2kcz/p_i_trained_qwen2515b_with_rlvr_grpo_vs_sft_and/) (r/MachineLearning)
+32. [[R] Are neurons the wrong primitive for modeling decision systems?](https://www.reddit.com/r/MachineLearning/comments/1rjcqzq/r_are_neurons_the_wrong_primitive_for_modeling/) (r/MachineLearning)
+33. [[R] Boundary-Metric Evaluation for Thin-Structure Segmentation under 2% Foreground Sparsity](https://www.reddit.com/r/MachineLearning/comments/1rjptov/r_boundarymetric_evaluation_for_thinstructure/) (r/MachineLearning)
+34. [[D] Quantified analysis of 2,218 Gary Marcus claims - two independent LLM pipelines, scored against evidence](https://www.reddit.com/r/MachineLearning/comments/1rk8e5p/d_quantified_analysis_of_2218_gary_marcus_claims/) (r/MachineLearning)
+35. [[P] Bridging the gap between arXiv PDFs and runnable implementations: Announcing ResearchClaw (Open Source)](https://www.reddit.com/r/MachineLearning/comments/1rk7ncx/p_bridging_the_gap_between_arxiv_pdfs_and/) (r/MachineLearning)
+36. [[R] How often do you implement research papers?](https://www.reddit.com/r/MachineLearning/comments/1rk7ghz/r_how_often_do_you_implement_research_papers/) (r/MachineLearning)
+37. [[P] *Free Code* Real-time voice-to-voice with your LLM & full reasoning LLM interface (Telegram + 25 tools, vision, docs, memory) on a Mac Studio running Qwen 3.5 35B — 100% local, zero API cost. Full build open-sourced. cloudfare + n8n + Pipecat + MLX unlock insane possibilities on consumer hardwar](https://www.reddit.com/r/MachineLearning/comments/1rk66ay/p_free_code_realtime_voicetovoice_with_your_llm/) (r/MachineLearning)
+38. [[P] On-device Qwen3-TTS (1.7B/0.6B) inference on iOS and macOS via MLX-Swift — voice cloning, voice design, and streaming TTS with no cloud](https://www.reddit.com/r/MachineLearning/comments/1riwd3l/p_ondevice_qwen3tts_17b06b_inference_on_ios_and/) (r/MachineLearning)
+39. [[AINews] Anthropic @ $19B ARR, Qwen team leaves, Gemini and GPT bump up fast models](https://www.latent.space/p/ainews-anthropic-19b-arr-qwen-team) (Latent Space)
+40. [[AINews] Truth in the time of Artifice](https://www.latent.space/p/ainews-truth-in-the-time-of-artifice) (Latent Space)
+41. [How WebAssembly plugins simplify Kubernetes extensibility](https://thenewstack.io/how-webassembly-plugins-are-simplifying-kubernetes-extensibility/) (The New Stack)
+42. [How to clone a drive to an image with Clonezilla](https://thenewstack.io/how-to-clone-a-drive-to-an-image-with-clonezilla/) (The New Stack)
+43. [Why 83% of organizations reportedly trust open source with their most sensitive assets](https://thenewstack.io/why-83-of-organizations-reportedly-trust-open-source-with-their-most-sensitive-assets/) (The New Stack)
+44. [OpenAI’s GPT-5.3 Instant promises to dial down the cringe](https://thenewstack.io/openai-gpt-5-1-instant/) (The New Stack)
+45. [Confluent adds A2A support, anomaly detection, and Queues for Kafka in major platform update](https://thenewstack.io/confluent-kafka-a2a-agents/) (The New Stack)
+46. [Google launches Gemini 3.1 Flash-Lite, its fastest Gemini 3 model yet](https://thenewstack.io/google-gemini-3-1-flash-lite/) (The New Stack)
+47. [Google’s Chrome browser moves to a two-week release cycle](https://thenewstack.io/chrome-two-week-releases/) (The New Stack)
+48. [OpenClaw rocks to GitHub’s most-starred status, but is it safe?](https://thenewstack.io/openclaw-github-stars-security/) (The New Stack)
+49. [Developers are coding to a moving target, and nobody knows where AI lands next](https://thenewstack.io/developers-coding-moving-target-ai/) (The New Stack)
+50. [Meta gave React its own foundation. But it’s not letting go just yet.](https://thenewstack.io/react-foundation-open-source-governance/) (The New Stack)
+51. [Outside Anthropic Office in SF "Thank You"](https://www.reddit.com/r/ollama/comments/1rjns3h/outside_anthropic_office_in_sf_thank_you/) (r/ollama)
+52. [MUST use this to make the text more readable!](https://www.reddit.com/r/ollama/comments/1rk9969/must_use_this_to_make_the_text_more_readable/) (r/ollama)
+53. [Qwen3.5 no think?](https://www.reddit.com/r/ollama/comments/1rk9fdt/qwen35_no_think/) (r/ollama)
+54. [NEXT-GEN INTELLIGENCE: NEURALNET’S AUTONOMOUS SALES FORCE](https://www.reddit.com/r/ollama/comments/1rkct2f/nextgen_intelligence_neuralnets_autonomous_sales/) (r/ollama)
+55. [I Built A World From Nothing. Can You Find The Pattern?](https://www.reddit.com/r/ollama/comments/1rk8yf0/i_built_a_world_from_nothing_can_you_find_the/) (r/ollama)
+56. [I built a benchmark scoring tool for AI agent teams, not solo models. Would love your feedback on it.](https://www.reddit.com/r/ollama/comments/1rk8jp4/i_built_a_benchmark_scoring_tool_for_ai_agent/) (r/ollama)
+57. [Qwen3.5-9B abliterated — 0% refusals + vision](https://www.reddit.com/r/ollama/comments/1rjwn03/qwen359b_abliterated_0_refusals_vision/) (r/ollama)
+58. [Any way to hide reasoning in Web UI?](https://www.reddit.com/r/ollama/comments/1rk6yxh/any_way_to_hide_reasoning_in_web_ui/) (r/ollama)
+59. [Running llama3 in my cli through ollama](https://www.reddit.com/r/ollama/comments/1rk4qen/running_llama3_in_my_cli_through_ollama/) (r/ollama)
+60. [v0.2.1 of mem0-mcp-selfhosted: session hooks so Claude never skips memory search, Ollama as main LLM, OAT auto-refresh](https://www.reddit.com/r/ollama/comments/1rjw1vd/v021_of_mem0mcpselfhosted_session_hooks_so_claude/) (r/ollama)
+61. [pentesting ollama](https://www.reddit.com/r/ollama/comments/1rjmyap/pentesting_ollama/) (r/ollama)
+62. [Built an open source autocomplete extension for VS Code that works for markdown/text, not just code, but I need help finding the right Ollama model for it](https://www.reddit.com/r/ollama/comments/1rjt89q/built_an_open_source_autocomplete_extension_for/) (r/ollama)
+63. [Best ways to bridge Ollama into document and email drafting workflows without the "browser context switch"?](https://www.reddit.com/r/ollama/comments/1rjt1xx/best_ways_to_bridge_ollama_into_document_and/) (r/ollama)
+64. [Is there any way to see how much cloud model usage you have left?](https://www.reddit.com/r/ollama/comments/1rjjznz/is_there_any_way_to_see_how_much_cloud_model/) (r/ollama)
+65. [Openclaw rate limited](https://www.reddit.com/r/ollama/comments/1rjng4g/openclaw_rate_limited/) (r/ollama)
+66. [VRE: What if AI agents couldn't act on knowledge they can't structurally justify?](https://www.reddit.com/r/ollama/comments/1rjel0p/vre_what_if_ai_agents_couldnt_act_on_knowledge/) (r/ollama)
+67. [I built an Actor to scrape 6,151 n8n community workflows. Here's the full analysis.](https://www.reddit.com/r/n8n/comments/1rk5tat/i_built_an_actor_to_scrape_6151_n8n_community/) (r/n8n)
+68. [🌱 n8n-as-code just got a major makeover: rewritten sync engine, cleaner CLI, and smarter AI agents](https://www.reddit.com/r/n8n/comments/1rjoc33/n8nascode_just_got_a_major_makeover_rewritten/) (r/n8n)
+69. [*Free Code* Real-time voice-to-voice with your LLM & full reasoning LLM interface (Telegram + 25 tools, vision, docs, memory) on a Mac Studio running Qwen 3.5 35B — 100% local, zero API cost. Full build open-sourced. cloudfare + n8n + Pipecat + MLX unlock insane possibilities on consumer hardware.](https://www.reddit.com/r/n8n/comments/1rk61d2/free_code_realtime_voicetovoice_with_your_llm/) (r/n8n)
+70. [Best AI to problem solve on n8n?](https://www.reddit.com/r/n8n/comments/1rk86p2/best_ai_to_problem_solve_on_n8n/) (r/n8n)
+71. [Ideas for best SEO workflows using n8n ?](https://www.reddit.com/r/n8n/comments/1rke942/ideas_for_best_seo_workflows_using_n8n/) (r/n8n)
+72. [coordinating between multiple AI agents](https://www.reddit.com/r/n8n/comments/1rjydkq/coordinating_between_multiple_ai_agents/) (r/n8n)
+73. [https://apify.com/syntellect_ai/ca-lotto-draw-games](https://www.reddit.com/r/n8n/comments/1rkcpug/httpsapifycomsyntellect_aicalottodrawgames/) (r/n8n)
+74. [Where are all scammer courses?](https://www.reddit.com/r/n8n/comments/1rjum5s/where_are_all_scammer_courses/) (r/n8n)
+75. [Anyone using n8n for production?](https://www.reddit.com/r/n8n/comments/1rk989w/anyone_using_n8n_for_production/) (r/n8n)
+76. [Free workflow: CSV Lead Sourcing → ICP Filter → Dedupe → Google Sheets](https://www.reddit.com/r/n8n/comments/1rjtzzc/free_workflow_csv_lead_sourcing_icp_filter_dedupe/) (r/n8n)
+77. [Bad Gateway after updating n8n on Hostinger VPS](https://www.reddit.com/r/n8n/comments/1rk9167/bad_gateway_after_updating_n8n_on_hostinger_vps/) (r/n8n)
+78. [How to turn my workflows into usable products](https://www.reddit.com/r/n8n/comments/1rk8w9v/how_to_turn_my_workflows_into_usable_products/) (r/n8n)
+79. [n8n tip: Avoid re-running LLM analysis by checking history in Baserow](https://www.reddit.com/r/n8n/comments/1rk8uv1/n8n_tip_avoid_rerunning_llm_analysis_by_checking/) (r/n8n)
+80. [Reddit API became painful… so I built a simpler one for n8n](https://www.reddit.com/r/n8n/comments/1rk8cnj/reddit_api_became_painful_so_i_built_a_simpler/) (r/n8n)
+
+...and 46 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-03-03
 
 ### Executive Summary
