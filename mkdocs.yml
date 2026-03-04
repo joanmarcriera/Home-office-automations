@@ -61,6 +61,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
       - 2026-03-01: new-sources/2026-03-01.md
       - 2026-02-28: new-sources/2026-02-28.md
@@ -267,6 +268,7 @@ nav:
       - ZSE: tools/infrastructure/zse.md
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
+      - Docling MCP: tools/process_understanding/docling-mcp.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
       - Crawl4AI: tools/process_understanding/crawl4ai.md
       - Firecrawl: tools/process_understanding/firecrawl.md
