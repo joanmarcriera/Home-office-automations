@@ -45,6 +45,8 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
 | Vertex AI (Gemini via GCP) | [Docs](https://cloud.google.com/vertex-ai/docs) · [Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) | Unclear | Metered pricing; no persistent API free-tier statement. |
 | OCI Generative AI | [Docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) · [Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Paid rates are public; free tier not clearly documented. |
+| MiniMax | [Docs](https://platform.minimaxi.com/docs/guides/models-intro) · [Pricing](https://platform.minimaxi.com/docs/pricing/overview) | Yes | Coding Plan provides a low-cost entry tier; trial credits available. |
+| Moonshot AI | [Docs](https://platform.moonshot.cn/docs/intro) · [Pricing](https://platform.moonshot.cn/docs/pricing/overview) | Partial | Trial credits are typically granted to new developer accounts. |
 
 ## Model-level quota tracker (expanded list)
 
@@ -206,6 +208,19 @@ Only rows with a numeric daily token cap are included in the capacity math.
 | :--- | :--- | :--- | :--- |
 | Grok 4.1 Fast | `model / credit / credit / credit / credit` | Unverified | <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: xAI. Quality: Very Good. Promotional credits may exist; fixed "$25 startup credits" not consistently documented. |
 
+### MiniMax
+
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| MiniMax-M2.5 (Coding Plan Starter) | `200K / 40 prompts per 5h / n/p / n/p / n/p` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-reason">REASON</span><br>Account: MiniMax. Quality: Excellent. Optimized for coding. Fixed-fee subscription. |
+| MiniMax-M2.5 (Pay-as-you-go) | `200K / plan / plan / plan / plan` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span><br>Account: MiniMax. Quality: Excellent. Competitive RMB pricing (2.1/8.4 per 1M tokens). |
+
+### Moonshot AI
+
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| moonshot-v1-128k | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Moonshot AI. Quality: Very Good. Famous for pioneer long-context stability. |
+
 ## Notes and caveats
 
 - Provider pricing and free-tier rules change frequently; always verify from official links before budgeting.
@@ -238,6 +253,9 @@ When updating this page:
 - [OpenRouter Pricing](https://openrouter.ai/pricing)
 - [OpenRouter API rate limits](https://openrouter.ai/docs/api-reference/limits/)
 - [OpenRouter Free Models Router](https://openrouter.ai/docs/guides/routing/routers/free-models-router)
+- [MiniMax Pricing](https://platform.minimaxi.com/docs/pricing/overview)
+- [MiniMax Coding Plan](https://platform.minimaxi.com/docs/coding-plan/intro)
+- [Moonshot AI Pricing](https://platform.moonshot.cn/docs/pricing/overview)
 - [xAI API](https://x.ai/api)
 - [xAI Models/Pricing docs](https://docs.x.ai/docs/models)
 - [xAI Billing](https://docs.x.ai/docs/billing)
