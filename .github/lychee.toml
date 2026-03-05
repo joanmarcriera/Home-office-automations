@@ -1,4 +1,4 @@
-verbose = false
+verbose = "error"
 no_progress = true
 include_mail = false
 max_concurrency = 6
