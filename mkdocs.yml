@@ -61,6 +61,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
       - 2026-03-01: new-sources/2026-03-01.md
       - 2026-02-28: new-sources/2026-02-28.md
@@ -248,6 +249,7 @@ nav:
       - Agency Swarm: tools/agents/agency-swarm.md
       - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
       - Agno: tools/agents/agno.md
+      - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
       - Bee Agent Framework: tools/agents/bee-agent-framework.md
       - Composio: tools/agents/composio.md
       - LangGraph: tools/agents/langgraph.md
