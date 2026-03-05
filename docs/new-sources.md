@@ -6,14 +6,14 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
-| 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 22 | Daily ingestion (API pricing, infra, agents) |
-| 2026-03-02 | [2026-03-02](/new-sources/2026-03-02/) | 0 | 18 | Daily ingestion (infrastructure, agents, frameworks) |
-| 2026-03-01 | [2026-03-01](/new-sources/2026-03-01/) | 0 | 0 | Daily ingestion (empty) |
-| 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 4 | Daily ingestion (infrastructure, benchmarking) |
-| 2026-02-27 | [2026-02-27](/new-sources/2026-02-27/) | 0 | 21 | Daily ingestion (agents, frameworks, providers, and analysis) |
-| 2026-02-26 | [2026-02-26](/new-sources/2026-02-26/) | 0 | 18 | Daily ingestion plus open-issue catch-up integrations |
-| 2026-02-25 | [2026-02-25](/new-sources/2026-02-25/) | 0 | 9 | Initial daily migration |
-| 2025-02-25 | [2025-02-25](/new-sources/2025-02-25/) | 0 | 5 | Legacy entries migrated from old monolithic inbox |
+| 2026-03-03 | [2026-03-03](new-sources/2026-03-03.md) | 0 | 22 | Daily ingestion (API pricing, infra, agents) |
+| 2026-03-02 | [2026-03-02](new-sources/2026-03-02.md) | 0 | 18 | Daily ingestion (infrastructure, agents, frameworks) |
+| 2026-03-01 | [2026-03-01](new-sources/2026-03-01.md) | 0 | 0 | Daily ingestion (empty) |
+| 2026-02-28 | [2026-02-28](new-sources/2026-02-28.md) | 0 | 4 | Daily ingestion (infrastructure, benchmarking) |
+| 2026-02-27 | [2026-02-27](new-sources/2026-02-27.md) | 0 | 21 | Daily ingestion (agents, frameworks, providers, and analysis) |
+| 2026-02-26 | [2026-02-26](new-sources/2026-02-26.md) | 0 | 18 | Daily ingestion plus open-issue catch-up integrations |
+| 2026-02-25 | [2026-02-25](new-sources/2026-02-25.md) | 0 | 9 | Initial daily migration |
+| 2025-02-25 | [2025-02-25](new-sources/2025-02-25.md) | 0 | 5 | Legacy entries migrated from old monolithic inbox |
 
 ## Required Daily Log Schema
 

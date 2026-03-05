@@ -1,4 +1,7 @@
-# Phidata
+# Phidata (Legacy)
+
+> [!IMPORTANT]
+> Phidata has been rebranded to **Agno**. New projects should use [Agno](agno.md). This page is maintained for legacy reference.
 
 ## What it is
 Phidata is a framework for building AI assistants with memory, knowledge, and tools. It allows you to turn any LLM into an "Assistant" that can store data in a database, search across local files, and take actions using Python functions.
@@ -79,7 +82,7 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 
 ## Sources / References
 - [Official Website](https://www.phidata.com/)
-- [GitHub Repository](https://github.com/phidata-hq/phidata)
+- [GitHub Repository](https://github.com/agno-agi/agno)
 
 ## Contribution Metadata
 - Last reviewed: 2026-03-02

@@ -34,7 +34,7 @@ Demonstrates that a simple, direct approach to terminal-based AI agents (LLM + t
 
 ## Related tools / concepts
 - [OpenHands](openhands.md)
-- [Devin](https://www.cognition-labs.com/devin)
+- [Devin](https://cognition.ai/)
 
 ## Sources / references
 - [Terminal-Bench GitHub](https://github.com/pro-puffin/terminal-bench)

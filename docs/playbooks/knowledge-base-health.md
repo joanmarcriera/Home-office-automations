@@ -78,7 +78,7 @@ Track these over time to measure knowledge base health:
 
 ## Sources / references
 - [Project standards](../standards.md)
-- [MkDocs Material docs](https://squidfox.dev/mkdocs-material/)
+- [MkDocs Material docs](https://squidfox.github.io/mkdocs-material/)
 
 ## Contribution Metadata
 
