@@ -4,6 +4,7 @@ include_mail = false
 max_concurrency = 6
 retry_wait_time = 2
 timeout = 20
+root_dir = "."
 
 accept = ["200", "206", "301", "302", "303", "307", "308", "401", "403", "429"]
 
@@ -13,4 +14,14 @@ exclude = [
   "^http://127\\.0\\.0\\.1",
   "^https://127\\.0\\.0\\.1",
   "https://chatgpt\\.com/share/",
+  "^/new-sources/",
+  "https://squidfox\\.dev/mkdocs-material/",
+  "https://superconductor\\.ai/",
+  "https://humanityslastexam\\.ai/",
+  "https://docs\\.browser-use\\.ai/",
+  "https://chat\\.lmsys\\.org/",
+  "docs/templates/relative-link\\.md",
+  "docs/templates/URL",
+  "https://openrouter\\.ai/docs/guides/community/live-kit",
+  "https://vercel\\.com/blog/tag/ai",
 ]
