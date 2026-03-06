@@ -149,7 +149,7 @@ nav:
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
-      - Qwen3-Coder-Next: tools/ai_knowledge/qwen.md
+      - Qwen: tools/ai_knowledge/qwen.md
       - TeamOut: tools/ai_knowledge/teamout.md
       - Valyu: tools/ai_knowledge/valyu.md
     - Automation & Orchestration:
@@ -294,6 +294,7 @@ nav:
     - API Pricing & Free Tier Matrix: knowledge_base/api_pricing_free_tiers.md
     - Landscape Overview: knowledge_base/landscape-overview.md
     - Agent Protocols: knowledge_base/agent_protocols.md
+    - Model Comparison and Evaluation: knowledge_base/model_comparison_and_evaluation.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md
     - Essential AI Reading List: knowledge_base/ai_reading_list.md
     - Model Classes: knowledge_base/model_classes.md
