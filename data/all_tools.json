@@ -55,6 +55,12 @@
       "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
     },
     {
+      "id": "docling-mcp",
+      "name": "Docling MCP",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/docling-mcp.md"
+    },
+    {
       "id": "tika",
       "name": "Apache Tika",
       "category": "Process & Understanding",
