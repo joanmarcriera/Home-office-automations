@@ -1,6 +1,7 @@
 verbose = "info"
 no_progress = true
 include_mail = false
+root_dir = "docs"
 max_concurrency = 6
 retry_wait_time = 2
 timeout = 20
@@ -40,4 +41,26 @@ exclude = [
   "^http://127\\.0\\.0\\.1",
   "^https://127\\.0\\.0\\.1",
   "https://chatgpt\\.com/share/",
+  "^https://github\\.com/the-omni-tools/omni-tools",
+  "^https://github\\.com/clusterfudge/paperless-ai",
+  "^https://github\\.com/clihub/clihub",
+  "^https://github\\.com/google-jules/anti-gravity",
+  "^https://github\\.com/anthropic/claude-code",
+  "^https://github\\.com/gpt-engineer-ai/gpt-engineer",
+  "^https://github\\.com/AbanteAI/mentat",
+  "^https://github\\.com/pro-puffin/terminal-bench",
+  "^https://github\\.com/allenai/ARC-benchmark",
+  "^https://github\\.com/chiahsuan/ASDiv",
+  "^https://github\\.com/marwanjeridi/ollama-benchmark",
+  "^https://www\\.apple\\.com/silicon/",
+  "^https://superconductor\\.ai/",
+  "^https://humanityslastexam\\.ai/",
+  "^https://openrouter\\.ai/",
+  "^https://vercel\\.com/blog/tag/ai",
+  "^https://docs\\.browser-use\\.ai/",
+  "^https://chat\\.lmsys\\.org/",
+  "^https://www\\.cognition-labs\\.com/devin",
+  "^https://huggingface\\.co/tasks/",
+  "relative-link\\.md",
+  "URL$",
 ]

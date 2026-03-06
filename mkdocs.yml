@@ -250,6 +250,7 @@ nav:
       - Agency Swarm: tools/agents/agency-swarm.md
       - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
       - Agno: tools/agents/agno.md
+      - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
       - Bee Agent Framework: tools/agents/bee-agent-framework.md
       - Composio: tools/agents/composio.md
       - LangGraph: tools/agents/langgraph.md

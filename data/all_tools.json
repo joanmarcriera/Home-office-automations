@@ -926,6 +926,12 @@
       "doc_path": "docs/tools/agents/agno.md"
     },
     {
+      "id": "anthropic-agent-skills",
+      "name": "Anthropic Agent Skills",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/anthropic-agent-skills.md"
+    },
+    {
       "id": "agentic-automation-canvas",
       "name": "Agentic Automation Canvas (AAC)",
       "category": "Agents",
