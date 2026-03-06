@@ -55,6 +55,12 @@
       "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
     },
     {
+      "id": "docling-mcp",
+      "name": "Docling MCP",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/docling-mcp.md"
+    },
+    {
       "id": "tika",
       "name": "Apache Tika",
       "category": "Process & Understanding",
@@ -186,6 +192,20 @@
       "category": "Providers",
       "doc_path": "docs/tools/providers/replicate.md",
       "models": ["Llama 3.1", "Stable Diffusion XL", "CogVideoX"]
+    },
+    {
+      "id": "minimax",
+      "name": "MiniMax",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/minimax.md",
+      "models": ["M2.5", "M2.1", "M2"]
+    },
+    {
+      "id": "moonshot",
+      "name": "Moonshot AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/moonshot.md",
+      "models": ["moonshot-v1"]
     },
     {
       "id": "deepseek",
@@ -842,6 +862,12 @@
       "doc_path": "docs/tools/ai_knowledge/valyu.md"
     },
     {
+      "id": "qwen",
+      "name": "Qwen3-Coder-Next",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/qwen.md"
+    },
+    {
       "id": "vllm",
       "name": "vLLM",
       "category": "Infrastructure",
@@ -912,6 +938,12 @@
       "name": "Agno",
       "category": "Agents",
       "doc_path": "docs/tools/agents/agno.md"
+    },
+    {
+      "id": "anthropic-agent-skills",
+      "name": "Anthropic Agent Skills",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/anthropic-agent-skills.md"
     },
     {
       "id": "agentic-automation-canvas",

@@ -61,6 +61,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-05: new-sources/2026-03-05.md
       - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
       - 2026-03-01: new-sources/2026-03-01.md
@@ -148,6 +149,7 @@ nav:
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
+      - Qwen3-Coder-Next: tools/ai_knowledge/qwen.md
       - TeamOut: tools/ai_knowledge/teamout.md
       - Valyu: tools/ai_knowledge/valyu.md
     - Automation & Orchestration:
@@ -244,11 +246,14 @@ nav:
       - Groq: tools/providers/groq.md
       - Fireworks AI: tools/providers/fireworks.md
       - Replicate: tools/providers/replicate.md
+      - MiniMax: tools/providers/minimax.md
+      - Moonshot AI: tools/providers/moonshot.md
     - Agents:
       - Overview: tools/agents/index.md
       - Agency Swarm: tools/agents/agency-swarm.md
       - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
       - Agno: tools/agents/agno.md
+      - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
       - Bee Agent Framework: tools/agents/bee-agent-framework.md
       - Composio: tools/agents/composio.md
       - LangGraph: tools/agents/langgraph.md
@@ -268,6 +273,7 @@ nav:
       - ZSE: tools/infrastructure/zse.md
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
+      - Docling MCP: tools/process_understanding/docling-mcp.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
       - Crawl4AI: tools/process_understanding/crawl4ai.md
       - Firecrawl: tools/process_understanding/firecrawl.md

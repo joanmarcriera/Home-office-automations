@@ -33,6 +33,7 @@ Poorly authored skills waste context, trigger incorrectly, and produce inconsist
 - When no autonomous skill routing is in use
 
 ## Related tools / concepts
+- [Anthropic Agent Skills](../../tools/agents/anthropic-agent-skills.md)
 - [Claude Code Setup](../../tools/development_ops/claude-code-setup.md)
 - [Patterns Index](index.md)
 

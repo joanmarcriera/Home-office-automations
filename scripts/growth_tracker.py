@@ -54,6 +54,43 @@ def is_shallow(path: str, threshold: int = 1500) -> bool:
     return len(text) < threshold
 
 
+def count_intake_activity() -> tuple[int, int]:
+    """Count intake items and integrated items from the last 7 days of daily logs."""
+    import re
+    sources_dir = Path("docs/new-sources")
+    if not sources_dir.exists():
+        return 0, 0
+
+    cutoff = datetime.now(timezone.utc) - __import__("datetime").timedelta(days=7)
+    total = 0
+    integrated = 0
+
+    for log_file in sources_dir.glob("*.md"):
+        # Parse date from filename (YYYY-MM-DD.md)
+        match = re.match(r"(\d{4}-\d{2}-\d{2})\.md$", log_file.name)
+        if not match:
+            continue
+        file_date = datetime.strptime(match.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        if file_date < cutoff:
+            continue
+
+        text = log_file.read_text(encoding="utf-8")
+        # Count table rows (lines starting with |, excluding header/separator)
+        for line in text.splitlines():
+            line = line.strip()
+            if not line.startswith("|") or line.startswith("| ---") or line.startswith("| Status"):
+                continue
+            cells = [c.strip() for c in line.split("|")]
+            if len(cells) < 3:
+                continue
+            total += 1
+            status = cells[1].lower() if len(cells) > 1 else ""
+            if "integrated" in status:
+                integrated += 1
+
+    return total, integrated
+
+
 def load_previous() -> dict:
     """Load previous snapshot for delta calculation."""
     if OUTPUT_PATH.exists():
@@ -85,6 +122,9 @@ def main() -> int:
     previous = load_previous()
     prev_total = previous.get("total_docs", len(all_docs))
 
+    # Intake conversion metrics
+    intake_items_7d, intake_integrated_7d = count_intake_activity()
+
     snapshot = {
         "snapshot_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "total_docs": len(all_docs),
@@ -96,6 +136,9 @@ def main() -> int:
         "shallow_docs": shallow[:20],  # top 20 shallowest
         "underdeveloped_categories": underdeveloped,
         "weekly_additions": len(all_docs) - prev_total,
+        "intake_items_7d": intake_items_7d,
+        "intake_integrated_7d": intake_integrated_7d,
+        "intake_conversion_rate": round(intake_integrated_7d / intake_items_7d * 100, 1) if intake_items_7d else 0.0,
     }
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
