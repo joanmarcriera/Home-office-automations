@@ -12,10 +12,12 @@ Eliminates the need to manage multiple API keys and client libraries for differe
 ## Architecture overview
 Proxy service. Your agent sends requests to OpenRouter, which then routes them to the specified backend provider (e.g., Together AI, DeepInfra, Anthropic directly).
 
-## Typical workflows
+## Typical use cases
 - **Model Switching**: Easily testing different models (e.g., switching from Claude 3.5 to GPT-4o) just by changing the model ID string.
 - **Unified Billing**: Paying one provider for usage across many different model families.
 - **Accessing Open Models**: Using Llama 3, Qwen, or Mistral models without self-hosting.
+- **Tool Calling**: Standardizing tool usage across different models and providers.
+- **Interleaved Thinking**: Allowing models to reason between tool calls for sophisticated decision-making.
 
 ## Strengths
 - **Simplicity**: One API key for everything.
@@ -41,7 +43,7 @@ Proxy service. Your agent sends requests to OpenRouter, which then routes them t
 - **Third-party Data Flow**: Your prompts pass through OpenRouter; ensure this is acceptable for your data sensitivity.
 - **API Key Security**: Treat your OpenRouter key as a "master key" for all your AI services.
 
-## Links to related pages
+## Related tools / concepts
 - [LiteLLM](../../services/litellm.md)
 - [OpenAI](openai.md)
 - [Anthropic](../providers/anthropic.md)
@@ -146,9 +148,74 @@ completion = client.chat.completions.create(
 print(completion.choices[0].message.content)
 ```
 
+### Tool Calling with OpenRouter (OpenAI SDK)
+
+```python
+import json
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key="your-api-key",
+)
+
+# 1. Define the tool
+tools = [
+  {
+    "type": "function",
+    "function": {
+      "name": "get_weather",
+      "description": "Get the current weather in a given location",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {"type": "string", "description": "The city and state, e.g. San Francisco, CA"},
+          "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+        },
+        "required": ["location"]
+      }
+    }
+  }
+]
+
+# 2. First request to let the model decide to use a tool
+messages = [{"role": "user", "content": "What's the weather like in Paris?"}]
+response = client.chat.completions.create(
+  model="google/gemini-2.0-flash-001",
+  messages=messages,
+  tools=tools
+)
+
+response_message = response.choices[0].message
+messages.append(response_message)
+
+# 3. Handle tool calls
+if response_message.tool_calls:
+    for tool_call in response_message.tool_calls:
+        # Execute your local function here based on tool_call.function.name
+        # For this example, we'll use a dummy response
+        tool_result = "Sunny, 22°C"
+
+        messages.append({
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "name": tool_call.function.name,
+            "content": tool_result
+        })
+
+    # 4. Send the tool result back to the model
+    final_response = client.chat.completions.create(
+      model="google/gemini-2.0-flash-001",
+      messages=messages,
+      tools=tools # Must be included in every request
+    )
+    print(final_response.choices[0].message.content)
+```
+
 ## Sources / References
 
 - [OpenRouter overview](https://openrouter.ai/docs/overview/introduction)
+- [OpenRouter Tool & Function Calling](https://openrouter.ai/docs/guides/features/tool-calling)
 - [OpenRouter integrations settings](https://openrouter.ai/settings/integrations)
 - [OpenRouter community integration guides](https://openrouter.ai/docs/guides/community/)
 - [OpenAI News](https://openai.com/index/)

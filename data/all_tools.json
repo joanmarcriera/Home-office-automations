@@ -848,6 +848,12 @@
       "doc_path": "docs/tools/ai_knowledge/valyu.md"
     },
     {
+      "id": "qwen",
+      "name": "Qwen3-Coder-Next",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/qwen.md"
+    },
+    {
       "id": "vllm",
       "name": "vLLM",
       "category": "Infrastructure",
