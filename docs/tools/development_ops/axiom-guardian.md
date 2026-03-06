@@ -41,7 +41,7 @@ It shifts the AI paradigm from passive compliance ("How can I help you?") to act
 
 ## Related tools / concepts
 - [AI Alignment](../../knowledge_base/patterns/llm-trust-boundaries.md)
-- [Natural Language Inference](https://huggingface.co/tasks/natural-language-inference)
+- [Natural Language Inference](https://huggingface.co/models?pipeline_tag=zero-shot-classification)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References

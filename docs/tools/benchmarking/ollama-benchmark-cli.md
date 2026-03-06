@@ -34,7 +34,7 @@ Provides a quick way to measure and compare the inference performance of differe
 
 ## Related tools / concepts
 - [LLMPerf](llmperf.md)
-- [Simple `time` command with `curl`](https://ollama.com/docs/api)
+- [Simple `time` command with `curl`](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/marwanjeridi/ollama-benchmark) (Example implementation)
