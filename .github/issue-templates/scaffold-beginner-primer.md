@@ -1,5 +1,7 @@
 ## Scaffold Beginner Primer: [TOPIC] - @jules
 
+> **Before pushing**: Run `git fetch origin main && git rebase origin/main` to avoid merge conflicts with other PRs.
+
 Create `docs/knowledge_base/[slug].md` using the template at `docs/templates/primer_template.md`.
 
 ### Requirements

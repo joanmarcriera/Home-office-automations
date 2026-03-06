@@ -1,5 +1,7 @@
 ## Weekly Cross-Link Fix - @jules
 
+> **Before pushing**: Run `git fetch origin main && git rebase origin/main` to avoid merge conflicts with other PRs.
+
 The following tool mentions in docs lack internal links to their canonical pages.
 
 ### Unlinked mentions

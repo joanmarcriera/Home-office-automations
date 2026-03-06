@@ -2,6 +2,8 @@
 
 > **Important**: Do NOT update `Last reviewed` dates or `Confidence` metadata unless you are also making substantive content changes to that file. The CI gate will reject PRs that only change metadata.
 
+> **Before pushing**: Run `git fetch origin main && git rebase origin/main` to avoid merge conflicts with other PRs.
+
 The following docs are the shallowest in the knowledge base and need practical content.
 
 ### Target docs
