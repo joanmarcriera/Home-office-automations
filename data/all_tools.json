@@ -55,6 +55,12 @@
       "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
     },
     {
+      "id": "docling-mcp",
+      "name": "Docling MCP",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/docling-mcp.md"
+    },
+    {
       "id": "tika",
       "name": "Apache Tika",
       "category": "Process & Understanding",
@@ -840,6 +846,12 @@
       "name": "Valyu",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/valyu.md"
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen3-Coder-Next",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/qwen.md"
     },
     {
       "id": "vllm",

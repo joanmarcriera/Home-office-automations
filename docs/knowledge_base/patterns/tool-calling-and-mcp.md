@@ -290,6 +290,7 @@ A core benefit of MCP is the ability for a single client (like Claude Desktop or
 ### Specific MCP Implementations
 - [Atlassian Jira MCP](../../tools/automation_orchestration/atlassian-jira-mcp.md)
 - [Chronos MCP](../../tools/automation_orchestration/chronos-mcp.md)
+- [Docling MCP](../../tools/process_understanding/docling-mcp.md)
 - [Claude Code Container MCP](../../tools/development_ops/claude-code-container-mcp.md)
 - [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md)
 - [Free Will MCP](../../tools/development_ops/free-will-mcp.md)

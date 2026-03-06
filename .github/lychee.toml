@@ -5,10 +5,37 @@ root_dir = "docs"
 max_concurrency = 6
 retry_wait_time = 2
 timeout = 20
+root_dir = "docs"
 
 accept = ["200", "206", "301", "302", "303", "307", "308", "401", "403", "429"]
 
 exclude = [
+  "https://github\\.com/phidata-hq/phidata.*",
+  "https://github\\.com/TomW1605/kitchenowl.*",
+  "https://github\\.com/the-omni-tools/omni-tools.*",
+  "https://github\\.com/clusterfudge/paperless-ai.*",
+  "https://github\\.com/anthropic/claude-code.*",
+  "https://github\\.com/google-jules/anti-gravity.*",
+  "https://github\\.com/gpt-engineer-ai/gpt-engineer.*",
+  "https://github\\.com/AbanteAI/mentat.*",
+  "https://github\\.com/clihub/clihub.*",
+  "https://github\\.com/marwanjeridi/ollama-benchmark.*",
+  "https://github\\.com/pro-puffin/terminal-bench.*",
+  "https://github\\.com/chiahsuan/ASDiv.*",
+  "https://github\\.com/allenai/ARC-benchmark.*",
+  "https://www.voyageai.com/pricing",
+  "https://www.apple.com/silicon/",
+  "https://www.cognition-labs.com/devin",
+  "https://openrouter.ai/docs/guides/community/live-kit",
+  "https://openrouter.ai/docs/overview/introduction",
+  "https://vercel.com/blog/tag/ai",
+  "https://huggingface.co/tasks/natural-language-inference",
+  "https://squidfox.dev/mkdocs-material/",
+  "https://docs.browser-use.ai/",
+  "https://chat.lmsys.org/",
+  "https://humanityslastexam.ai/",
+  "https://superconductor.ai/",
+  "https://ollama.com/docs/api",
   "^http://localhost",
   "^https://localhost",
   "^http://127\\.0\\.0\\.1",
