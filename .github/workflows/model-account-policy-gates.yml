@@ -1,0 +1,27 @@
+name: Model Account Policy Gates
+
+on:
+  pull_request:
+    paths:
+      - "data/model-account-pool.json"
+      - "scripts/validate_model_account_pool.py"
+      - ".github/workflows/model-account-policy-gates.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate model account pool policy
+        run: python3 scripts/validate_model_account_pool.py data/model-account-pool.json

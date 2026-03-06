@@ -80,6 +80,8 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 ## Sources / References
 - [Official Website](https://www.phidata.com/)
 - [GitHub Repository](https://github.com/agno-agi/phidata)
+- [Official Website](https://www.agno.com/)
+- [GitHub Repository](https://github.com/agno-agi/agno)
 
 ## Contribution Metadata
 - Last reviewed: 2026-03-02

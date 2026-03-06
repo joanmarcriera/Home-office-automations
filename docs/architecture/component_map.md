@@ -5,7 +5,7 @@ This map categorizes all tools in the stack based on their primary function in t
 ## 1. Ingest
 *Tools responsible for receiving or capturing raw information.*
 - **Email (IMAP)**: [Paperless-ngx](../services/paperless-ngx.md), [n8n](../services/n8n.md)
-- **Scanning**: [OCRmyPDF](../tools/process_understanding/ocrmypdf.md)
+- **Scanning**: [OCRmyPDF](../tools/process_understanding/ocrmypdf.md), [Docling MCP](../tools/process_understanding/docling-mcp.md)
 - **Manual Input**: [Obsidian](../tools/ai_knowledge/obsidian.md), [Logseq](../tools/ai_knowledge/logseq.md)
 - **Inventory**: [Homebox](../services/homebox.md), [Grocy](../services/grocy.md)
 - **Bookmarks/Tasks**: [Linkwarden](../services/linkwarden.md), [Habitica](../services/habitica.md)

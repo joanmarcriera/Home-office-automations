@@ -9,6 +9,7 @@ Tools and frameworks for building, running, and orchestrating autonomous AI agen
 | [Agency Swarm](agency-swarm.md) | Collaborative multi-agent orchestration framework |
 | [Agentic Automation Canvas](agentic-automation-canvas.md) | Design and governance framework for agentic systems |
 | [Agno](agno.md) | Lightweight Python framework (formerly Phidata v2) |
+| [Anthropic Agent Skills](anthropic-agent-skills.md) | Standardized, reusable skill folders for Claude |
 | [Bee Agent Framework](bee-agent-framework.md) | IBM's TypeScript/Python agent framework |
 | [Composio](composio.md) | Tool integration platform for AI agents |
 | [Dify](../ai_knowledge/dify.md) | LLM app development platform with agent workflows |
