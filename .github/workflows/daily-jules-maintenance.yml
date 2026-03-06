@@ -33,7 +33,28 @@ jobs:
               --description "Issues queued for Jules automation"
           fi
 
+      - name: Check for open Jules PRs (throttle)
+        id: throttle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          OPEN_PRS=$(gh pr list \
+            --repo "$REPO" \
+            --state open \
+            --json number,title,labels,headRefName \
+            --jq '[.[] | select(
+              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
+              (.labels[]?.name == "jules")
+            )] | length')
+          echo "open_prs=$OPEN_PRS" >> "$GITHUB_OUTPUT"
+          if [ "$OPEN_PRS" != "0" ]; then
+            echo "⏸️ Throttled: $OPEN_PRS open Jules PR(s). Skipping issue creation."
+          fi
+
       - name: Check for existing open maintenance issue today
+        if: steps.throttle.outputs.open_prs == '0'
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,7 +72,7 @@ jobs:
           echo "today=$TODAY" >> "$GITHUB_OUTPUT"
 
       - name: Open Jules maintenance issue
-        if: steps.check.outputs.existing == '0'
+        if: steps.throttle.outputs.open_prs == '0' && steps.check.outputs.existing == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}

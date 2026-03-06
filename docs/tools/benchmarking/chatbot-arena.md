@@ -37,8 +37,8 @@ Provides a human-preference-based ranking of LLMs that captures subjective quali
 - [MT-Bench](https://github.com/lm-sys/FastChat/tree/main/fastchat/llm_judge)
 
 ## Sources / references
-- [Chatbot Arena Website](https://chat.lmsys.org/)
-- [Leaderboard](https://chat.lmsys.org/?leaderboard)
+- [LMSYS Chatbot Arena](https://arena.lmsys.org/)
+- [LMSYS Leaderboard](https://arena.lmsys.org/leaderboard)
 
 ## Contribution Metadata
 

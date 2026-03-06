@@ -1,0 +1,38 @@
+name: Jules Pipeline — Next Issue After Merge
+
+# After a Jules PR merges, the pipeline is clear for the next issue.
+# This workflow triggers the appropriate daily issue-creation workflow
+# so Jules can pick up work without waiting for the next cron tick.
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  issues: write
+  actions: write
+
+jobs:
+  trigger-next:
+    # Only run when a Jules-related PR is merged (not just closed)
+    if: >-
+      github.event.pull_request.merged == true && (
+        contains(github.event.pull_request.title, 'daily maintenance') ||
+        contains(github.event.pull_request.title, 'daily knowledge') ||
+        contains(github.event.pull_request.title, 'weekly') ||
+        contains(github.event.pull_request.title, 'cross-link') ||
+        contains(github.event.pull_request.title, 'primer') ||
+        contains(github.event.pull_request.title, 'automated resolution')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for main to settle
+        run: sleep 30
+
+      - name: Trigger daily maintenance workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Jules PR merged — triggering next issue creation cycle."
+          gh workflow run "Daily Jules Maintenance" --repo "$REPO" || true

@@ -1,0 +1,121 @@
+name: Auto-Merge Jules PRs
+
+# Merges Jules PRs automatically once all quality gates pass.
+# This is the second stage of the sequential Jules pipeline:
+#   1. Issue created → Jules works → PR opened
+#   2. Quality gates pass → THIS workflow auto-merges
+#   3. Merge triggers next issue creation (via jules-pipeline-trigger.yml)
+
+on:
+  # Re-evaluate whenever a check suite completes on a PR
+  check_suite:
+    types: [completed]
+  # Also trigger on PR review approval (belt-and-suspenders)
+  pull_request_review:
+    types: [submitted]
+  # Manual fallback
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to auto-merge'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: jules-auto-merge
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find mergeable Jules PRs
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          INPUT_PR: ${{ github.event.inputs.pr_number || '' }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "$INPUT_PR" ]; then
+            # Manual trigger — use the provided PR number
+            echo "pr_numbers=$INPUT_PR" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Find open PRs created by Jules (branch pattern or author)
+          JULES_PRS=$(gh pr list \
+            --repo "$REPO" \
+            --state open \
+            --json number,title,labels,headRefName \
+            --jq '[.[] | select(
+              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
+              (.labels[]?.name == "jules") or
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|weekly-deepen|cross-link|primer|auto-fix"; "i"))
+            )] | map(.number) | join(",")')
+
+          if [ -z "$JULES_PRS" ]; then
+            echo "No open Jules PRs found."
+            echo "pr_numbers=" >> "$GITHUB_OUTPUT"
+          else
+            echo "Found Jules PRs: $JULES_PRS"
+            echo "pr_numbers=$JULES_PRS" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Auto-merge passing PRs
+        if: steps.find.outputs.pr_numbers != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBERS: ${{ steps.find.outputs.pr_numbers }}
+        run: |
+          set -euo pipefail
+          IFS=',' read -ra PRS <<< "$PR_NUMBERS"
+
+          for PR in "${PRS[@]}"; do
+            echo "--- Checking PR #$PR ---"
+
+            # Get PR merge status
+            MERGEABLE=$(gh pr view "$PR" --repo "$REPO" --json mergeable,mergeStateStatus \
+              --jq '{mergeable: .mergeable, status: .mergeStateStatus}')
+            echo "Merge state: $MERGEABLE"
+
+            STATUS=$(echo "$MERGEABLE" | jq -r '.status')
+            IS_MERGEABLE=$(echo "$MERGEABLE" | jq -r '.mergeable')
+
+            if [ "$IS_MERGEABLE" != "MERGEABLE" ]; then
+              echo "PR #$PR is not mergeable (state: $IS_MERGEABLE). Skipping."
+              continue
+            fi
+
+            # Check that all required status checks have passed
+            CHECKS=$(gh pr checks "$PR" --repo "$REPO" --json name,state \
+              --jq '[.[] | select(.state != "SUCCESS" and .state != "SKIPPED")] | length')
+
+            if [ "$CHECKS" != "0" ]; then
+              echo "PR #$PR has $CHECKS non-passing checks. Skipping."
+              continue
+            fi
+
+            # Check for merge conflicts
+            if [ "$STATUS" = "BLOCKED" ]; then
+              echo "PR #$PR is blocked (likely conflicts). Skipping."
+              continue
+            fi
+
+            echo "✅ PR #$PR is ready — merging!"
+            gh pr merge "$PR" \
+              --repo "$REPO" \
+              --merge \
+              --delete-branch \
+              --body "Auto-merged by Jules pipeline after all quality gates passed."
+            echo "Merged PR #$PR successfully."
+
+            # Only merge ONE PR per run to maintain sequential pipeline
+            break
+          done

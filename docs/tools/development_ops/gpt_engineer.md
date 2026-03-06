@@ -36,7 +36,7 @@ Reduces the time to bootstrap a new project by generating a complete codebase fr
 - [OpenHands](openhands.md)
 
 ## Sources / references
-- [GitHub Repository](https://github.com/gpt-engineer-ai/gpt-engineer)
+- [GitHub Repository](https://github.com/AntonOsika/gpt-engineer)
 
 ## Contribution Metadata
 

@@ -30,11 +30,13 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | Mistral AI | [Docs](https://docs.mistral.ai/) · [Pricing](https://mistral.ai/pricing) | Yes | Experiment plan supports free API testing. |
 | Together AI | [Docs](https://docs.together.ai/) · [Pricing](https://www.together.ai/pricing) | No | Billing docs indicate paid credits are required. |
 | Groq | [Docs](https://console.groq.com/docs/overview) · [Pricing](https://groq.com/pricing/) | Yes | Free API plan and limits are documented. |
+| Kiro | [Docs](https://kiro.dev/docs/) · [Pricing](https://kiro.dev/pricing/) | Yes | Perpetual free tier (50 credits/mo) + 500 bonus credits. |
 | Fireworks AI | [Docs](https://fireworks.ai/docs) · [Pricing](https://fireworks.ai/pricing) | Yes | Public pricing notes starter free credits. |
 | Replicate | [Docs](https://replicate.com/docs) · [Pricing](https://replicate.com/pricing) | Partial | Some models can be run free before billing. |
 | DeepSeek API | [Docs](https://api-docs.deepseek.com/) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) | Unclear | Granted balances are mentioned, fixed free tier unclear. |
 | Perplexity API | [Docs](https://docs.perplexity.ai/) · [Pricing](https://docs.perplexity.ai/guides/pricing) | No | Purchased credits and top-up requirements documented. |
 | AI21 | [Docs](https://docs.ai21.com/) · [Pricing](https://www.ai21.com/pricing) | Yes | Pricing page advertises free trial credits. |
+| Abacus.AI | [Docs](https://abacus.ai/service/docs) · [Pricing](https://abacus.ai/pricing) | Yes | Free trial and ChatLLM free access documented. |
 | Voyage AI | [Docs](https://docs.voyageai.com/) · [Pricing](https://docs.voyageai.com/docs/pricing) | Unclear | Paid rates are clear; standing free tier not explicit. |
 | Cloudflare Workers AI | [Docs](https://developers.cloudflare.com/workers-ai/) · [Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/) | Yes | Free plan includes daily usage. |
 | Hugging Face Inference Providers | [Docs](https://huggingface.co/docs/inference-providers) · [Pricing](https://huggingface.co/pricing) | Yes | Monthly included inference credits by account tier. |
@@ -42,6 +44,7 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | NVIDIA API Catalog | [Docs](https://build.nvidia.com/docs) · [Pricing](https://build.nvidia.com/pricing) | Yes | Starter credits are referenced publicly. |
 | SambaNova Cloud | [Docs](https://sambanova.ai/docs) · [Pricing](https://sambanova.ai/pricing) | Unclear | Public page shows paid plans; no stable free policy. |
 | AWS Bedrock | [Docs](https://docs.aws.amazon.com/bedrock/) · [Pricing](https://aws.amazon.com/bedrock/pricing/) | No | Metered pay-as-you-go pricing. |
+| Amazon Q | [Docs](https://docs.aws.amazon.com/amazonq/) · [Pricing](https://aws.amazon.com/q/pricing/) | Yes | Free tier for individuals/developers is documented. |
 | Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
 | Vertex AI (Gemini via GCP) | [Docs](https://cloud.google.com/vertex-ai/docs) · [Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) | Unclear | Metered pricing; no persistent API free-tier statement. |
 | OCI Generative AI | [Docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) · [Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Paid rates are public; free tier not clearly documented. |
@@ -59,7 +62,7 @@ This section is grouped by provider with compact four-column tables for narrower
 `Code Generation Quality` is subjective and treated as community-assessed, not an official benchmark metric.
 
 Quick jump:
-[Google Gemini](#google-gemini) · [OpenAI](#openai) · [Anthropic Claude](#anthropic-claude) · [Groq](#groq) · [Together AI](#together-ai) · [Hugging Face](#hugging-face) · [Mistral AI](#mistral-ai) · [DeepSeek](#deepseek) · [Cohere](#cohere) · [OpenRouter](#openrouter) · [Cerebras](#cerebras) · [xAI Grok](#xai-grok)
+[Google Gemini](#google-gemini) · [OpenAI](#openai) · [Anthropic Claude](#anthropic-claude) · [Groq](#groq) · [Together AI](#together-ai) · [Hugging Face](#hugging-face) · [Mistral AI](#mistral-ai) · [DeepSeek](#deepseek) · [Cohere](#cohere) · [OpenRouter](#openrouter) · [Cerebras](#cerebras) · [xAI Grok](#xai-grok) · [Kiro](#kiro)
 
 `Quotas` format is `context / RPM / RPD / TPM / daily token cap`.
 `n/p` means "not published."
@@ -85,33 +88,33 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Capability | Top models | Highest known daily cap | Known models |
 | :--- | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M); Cerebras — Llama 4 Maverick 400B (1M) | 62.5M | 7 |
+| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M); Cerebras — Llama 4 Maverick 400B (1M) | 62.5M | 9 |
 | Verification | Google Gemini — Gemini 2.5 Pro (25M) | 25M | 1 |
-| Reasoning | Google Gemini — Gemini 2.5 Pro (25M) | 25M | 1 |
+| Reasoning | Google Gemini — Gemini 2.5 Pro (25M); Groq — GPT OSS 120B (100K) | 25M | 2 |
 | Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M) | 250M | 3 |
-| Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 4 Maverick 400B (1M) | 250M | 8 |
-| Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 3.1 8B (1M) | 250M | 6 |
-| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 6 |
+| Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 4 Maverick 400B (1M) | 250M | 9 |
+| Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 3.1 8B (1M) | 250M | 7 |
+| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 7 |
 
 #### 80% Shortlist (known-cap coverage)
 
 | Capability | Models to reach >=80% of known capacity | Coverage | Total known daily cap |
 | :--- | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M) | 96.6% | 90.6M |
+| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M) | 95.9% | 91.2M |
 | Verification | Google Gemini — Gemini 2.5 Pro (25M) | 100.0% | 25M |
-| Reasoning | Google Gemini — Gemini 2.5 Pro (25M) | 100.0% | 25M |
+| Reasoning | Google Gemini — Gemini 2.5 Pro (25M) | 99.6% | 25.1M |
 | Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 92.6% | 337.5M |
-| Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 98.7% | 316.6M |
-| Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 99.3% | 314.6M |
-| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K) | 85.4% | 4.1M |
+| Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 98.5% | 317.1M |
+| Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 99.2% | 315.1M |
+| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 87.0% | 4.6M |
 
 #### Fast Recommendation (80% rule, known-cap data)
 
 | Goal | Recommended free-first models | Why this set |
 | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash; Google Gemini — Gemini 2.5 Pro | Reaches 96.6% of known daily capacity (90.6M total known). |
+| Coding | Google Gemini — Gemini 2.5 Flash; Google Gemini — Gemini 2.5 Pro | Reaches 95.9% of known daily capacity (91.2M total known). |
 | Verification | Google Gemini — Gemini 2.5 Pro | Reaches 100.0% of known daily capacity (25M total known). |
-| Reasoning | Google Gemini — Gemini 2.5 Pro | Reaches 100.0% of known daily capacity (25M total known). |
+| Reasoning | Google Gemini — Gemini 2.5 Pro | Reaches 99.6% of known daily capacity (25.1M total known). |
 
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
@@ -144,7 +147,16 @@ Only rows with a numeric daily token cap are included in the capacity math.
 | Llama 3.3 70B (llama-3.3-70b-versatile) | `128K / 30 / 1000 / 12K / 100K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Very Good. Official row differs from older community numbers. |
 | Llama 4 Maverick 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Fast inference; revision limits can change. |
 | Qwen3 32B | `128K / 30 / 14,400 / 6K / 500K` | Partially verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Model IDs/limits may shift by release. |
+| Llama 4 Scout 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq. 16E MoE variant optimized for low-latency tasks. |
+| GPT OSS 120B | `128K / 30 / 1000 / 12K / 100K` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Groq. High performance open-weights model. |
+| Kimi K2 (kimi-k2-0905) | `256K / n/p / n/p / n/p / n/p` | Verified | <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Groq. 1T parameter MoE with 256K context. |
 | Compound AI (groq/compound) | `128K / 30 / 250 / 70K / n/p` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-code">CODE</span><br>Account: Groq (no CC for free tier). Quality: Good. Official docs do not publish TPD. |
+
+### Kiro
+
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Auto (Frontier Mix) | `n/p / n/p / n/p / n/p / 50 credits` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Kiro. Mixed agent using frontier models. Free tier includes 50 monthly credits. |
 
 ### Together AI
 
@@ -246,6 +258,9 @@ When updating this page:
 
 ## Sources / References
 
+- [Kiro Pricing](https://kiro.dev/pricing/)
+- [Abacus.AI Pricing](https://abacus.ai/pricing)
+- [Amazon Q Pricing](https://aws.amazon.com/q/pricing/)
 - [OpenAI API Pricing](https://openai.com/api/pricing/)
 - [OpenAI Prepaid Billing](https://help.openai.com/en/articles/8264644-how-can-i-set-up-prepaid-billing)
 - [Anthropic Claude API Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
@@ -286,7 +301,7 @@ When updating this page:
 - [Azure OpenAI Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
 - [Vertex AI GenAI Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing)
 - [OCI Generative AI Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/)
-- [Google Gemini rate limits](https://ai.google.dev/gemini-api/docs/quota)
+- [Google Gemini rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
 - [Groq rate limits](https://console.groq.com/docs/rate-limits)
 - [Cerebras rate limits](https://inference-docs.cerebras.ai/support/rate-limits)
 - [ChatGPT shared context (title only)](https://chatgpt.com/share/69a760fd-3520-8000-bfbd-19bdf623a333)

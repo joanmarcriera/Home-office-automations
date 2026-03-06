@@ -37,7 +37,7 @@ Addresses the saturation of easier benchmarks by providing a set of questions th
 - [MMLU](https://github.com/hendrycks/test)
 
 ## Sources / references
-- [HLE Website](https://humanityslastexam.ai/)
+- [Hugging Face Dataset](https://huggingface.co/datasets/m-a-p/HLE)
 
 ## Contribution Metadata
 
