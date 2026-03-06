@@ -7,6 +7,9 @@ Maintain content quality, freshness, and discoverability across the knowledge ba
 - [Quality audit script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/audit_docs_quality.py) (`scripts/audit_docs_quality.py`)
 - [Docs contract checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_docs_contract.py) (`scripts/check_docs_contract.py`)
 - [Catalog consistency checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_catalog_consistency.py) (`scripts/check_catalog_consistency.py`)
+- [Doc freshness checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_doc_freshness.py) (`scripts/check_doc_freshness.py`)
+- [API pricing summary generator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/update_api_pricing_capability_summary.py) (`scripts/update_api_pricing_capability_summary.py`)
+- [Model account policy validator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/validate_model_account_pool.py) (`scripts/validate_model_account_pool.py`)
 - [Standards reference](../standards.md)
 
 ## Review cadence
@@ -16,6 +19,11 @@ Maintain content quality, freshness, and discoverability across the knowledge ba
 | Intake queue (`new-sources/`) | Daily | Jules (automated) | `daily-jules-maintenance.yml` opens a structured issue |
 | Doc contract CI gate | Every PR | CI | `docs-quality-gates.yml` runs `check_docs_contract.py` |
 | Catalog consistency CI gate | Every PR | CI | `catalog-quality-gates.yml` runs `check_catalog_consistency.py` |
+| Generated pricing summary gate | PRs touching pricing tracker | CI | `generated-content-gates.yml` runs summary sync + freshness checks |
+| API pricing maintenance | Weekly | CI | `api-pricing-maintenance.yml` refreshes capacity summaries and flags stale review metadata |
+| External link health | Weekly + docs PRs | CI | `docs-link-health.yml` (Lychee) checks markdown links |
+| Model-account routing policy gate | PRs touching policy file | CI | `model-account-policy-gates.yml` validates multi-account routing rules |
+| Vikunja bidirectional sync | Every 30 minutes + issue events | CI | `vikunja-sync.yml` synchronizes GitHub issues and Vikunja tasks |
 | Full quality audit | Weekly (manual) | Maintainer | `python3 scripts/audit_docs_quality.py` |
 | Staleness review (docs >90 days old) | Monthly | Maintainer | See "Staleness check" below |
 | Taxonomy alignment | Quarterly | Maintainer | Verify category dirs match `standards.md` |
@@ -77,5 +85,5 @@ Track these over time to measure knowledge base health:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-03-04
 - Confidence: high

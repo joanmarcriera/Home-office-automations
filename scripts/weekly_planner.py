@@ -54,6 +54,8 @@ def build_deepening_body(shallow_docs: list[str]) -> str:
 
     return f"""## Weekly Doc Deepening
 
+> **Important**: Do NOT update `Last reviewed` dates or `Confidence` metadata unless you are also making substantive content changes to that file. The CI gate will reject PRs that only change metadata.
+
 The following {len(targets)} docs are the shallowest in the knowledge base and need practical content added.
 
 ### Target docs
@@ -68,11 +70,11 @@ For each doc above:
 3. If the tool has a CLI, add `## CLI examples` with 2-3 common commands
 4. If the tool has an API/SDK, add `## API examples` with a Python or curl snippet
 5. Keep all existing content unchanged
-6. Update `- Last reviewed: {_today()}` in the Contribution Metadata section
+6. Ensure all code examples are **complete and runnable** — no placeholder `...` blocks
 
 ### Quality checks
 - Verify: `python3 -c "import yaml; yaml.safe_load(open('mkdocs.yml')); print('OK')"`
-- Ensure all code examples are complete and runnable (no placeholder `...` blocks)
+- Validate sources: `python3 scripts/validate_new_sources.py`
 """
 
 
@@ -135,6 +137,17 @@ def main() -> int:
         title = f"Category gap fill: expand {worst} (currently {count} docs)"
         if create_issue(title, body, ["jules"]):
             created += 1
+
+    # Issue 3: Cross-link report
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from cross_link_report import load_tool_pages, scan_for_unlinked, create_issue as create_crosslink_issue
+
+    tools = load_tool_pages()
+    if tools:
+        mentions = scan_for_unlinked(tools)
+        if mentions:
+            if create_crosslink_issue(mentions):
+                created += 1
 
     print(f"Created {created} issue(s).")
     return 0

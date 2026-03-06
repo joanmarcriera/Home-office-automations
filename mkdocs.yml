@@ -27,6 +27,7 @@ theme:
     - navigation.sections
     - navigation.top
     - navigation.tracking
+    - toc.integrate
     - search.suggest
     - search.highlight
     - search.share
@@ -52,11 +53,15 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
+extra_css:
+  - stylesheets/extra.css
+
 nav:
   - Home: index.md
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
       - 2026-03-01: new-sources/2026-03-01.md
       - 2026-02-28: new-sources/2026-02-28.md
@@ -143,6 +148,7 @@ nav:
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
+      - Qwen3-Coder-Next: tools/ai_knowledge/qwen.md
       - TeamOut: tools/ai_knowledge/teamout.md
       - Valyu: tools/ai_knowledge/valyu.md
     - Automation & Orchestration:
@@ -280,6 +286,7 @@ nav:
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
+    - API Pricing & Free Tier Matrix: knowledge_base/api_pricing_free_tiers.md
     - Landscape Overview: knowledge_base/landscape-overview.md
     - Agent Protocols: knowledge_base/agent_protocols.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md

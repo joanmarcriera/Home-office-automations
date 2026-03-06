@@ -1,0 +1,33 @@
+name: Docs Link Health
+
+on:
+  pull_request:
+    paths:
+      - "docs/*.md"
+      - "docs/**/*.md"
+      - "README.md"
+      - "skills.md"
+      - ".github/lychee.toml"
+      - ".github/workflows/docs-link-health.yml"
+  schedule:
+    - cron: "0 3 * * 0" # Sunday 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config .github/lychee.toml "docs/**/*.md" "README.md" "skills.md"
+          fail: true
+          jobSummary: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

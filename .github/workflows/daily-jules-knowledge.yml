@@ -5,6 +5,10 @@ on:
     - cron: '0 12 * * *'  # 12:00 UTC
   workflow_dispatch: # allow manual trigger for testing
 
+concurrency:
+  group: daily-jules-knowledge
+  cancel-in-progress: false
+
 jobs:
   open-knowledge-issue:
     runs-on: ubuntu-latest
