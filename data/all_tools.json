@@ -194,6 +194,20 @@
       "models": ["Llama 3.1", "Stable Diffusion XL", "CogVideoX"]
     },
     {
+      "id": "minimax",
+      "name": "MiniMax",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/minimax.md",
+      "models": ["M2.5", "M2.1", "M2"]
+    },
+    {
+      "id": "moonshot",
+      "name": "Moonshot AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/moonshot.md",
+      "models": ["moonshot-v1"]
+    },
+    {
       "id": "deepseek",
       "name": "DeepSeek",
       "category": "AI Assistants & Knowledge",

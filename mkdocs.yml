@@ -61,6 +61,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-05: new-sources/2026-03-05.md
       - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
       - 2026-03-01: new-sources/2026-03-01.md
@@ -245,6 +246,8 @@ nav:
       - Groq: tools/providers/groq.md
       - Fireworks AI: tools/providers/fireworks.md
       - Replicate: tools/providers/replicate.md
+      - MiniMax: tools/providers/minimax.md
+      - Moonshot AI: tools/providers/moonshot.md
     - Agents:
       - Overview: tools/agents/index.md
       - Agency Swarm: tools/agents/agency-swarm.md

@@ -6,6 +6,8 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-03-05 | [2026-03-05](/new-sources/2026-03-05/) | 0 | 2 | New providers: MiniMax, Moonshot AI |
+| 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 19 | Provider and framework updates |
 | 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 20 | Daily ingestion (providers, agents, infrastructure) |
 | 2026-03-02 | [2026-03-02](/new-sources/2026-03-02/) | 0 | 18 | Daily ingestion (infrastructure, agents, frameworks) |
 | 2026-03-01 | [2026-03-01](/new-sources/2026-03-01/) | 0 | 0 | Daily ingestion (empty) |

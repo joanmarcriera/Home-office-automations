@@ -22,9 +22,9 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; prepaid credits required. |
 | Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. |
 | Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows. |
-| OpenRouter | [Docs](https://openrouter.ai/docs/overview/introduction) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
+| OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
-| Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://docs.z.ai/guides/model-pricing) | Yes | New users can claim free API token packages. |
+| Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://docs.z.ai/guides/pricing) | Yes | New users can claim free API token packages. |
 | Alibaba DashScope (Qwen APIs) | [Docs](https://www.alibabacloud.com/help/en/model-studio/getting-started/models) · [Pricing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio) | Yes | Many models show temporary free quota periods. |
 | Cohere | [Docs](https://docs.cohere.com/) · [Pricing](https://cohere.com/pricing) | Yes | Trial API keys are free and rate-limited. |
 | Mistral AI | [Docs](https://docs.mistral.ai/) · [Pricing](https://mistral.ai/pricing) | Yes | Experiment plan supports free API testing. |
@@ -35,16 +35,18 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | DeepSeek API | [Docs](https://api-docs.deepseek.com/) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) | Unclear | Granted balances are mentioned, fixed free tier unclear. |
 | Perplexity API | [Docs](https://docs.perplexity.ai/) · [Pricing](https://docs.perplexity.ai/guides/pricing) | No | Purchased credits and top-up requirements documented. |
 | AI21 | [Docs](https://docs.ai21.com/) · [Pricing](https://www.ai21.com/pricing) | Yes | Pricing page advertises free trial credits. |
-| Voyage AI | [Docs](https://docs.voyageai.com/) · [Pricing](https://www.voyageai.com/pricing) | Unclear | Paid rates are clear; standing free tier not explicit. |
+| Voyage AI | [Docs](https://docs.voyageai.com/) · [Pricing](https://docs.voyageai.com/docs/pricing) | Unclear | Paid rates are clear; standing free tier not explicit. |
 | Cloudflare Workers AI | [Docs](https://developers.cloudflare.com/workers-ai/) · [Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/) | Yes | Free plan includes daily usage. |
 | Hugging Face Inference Providers | [Docs](https://huggingface.co/docs/inference-providers) · [Pricing](https://huggingface.co/pricing) | Yes | Monthly included inference credits by account tier. |
-| Cerebras Inference | [Docs](https://inference-docs.cerebras.ai/) · [Pricing](https://cloud.cerebras.ai/pricing) | Yes | Pricing references free-tier usage/credits. |
+| Cerebras Inference | [Docs](https://inference-docs.cerebras.ai/) · [Pricing](https://inference-docs.cerebras.ai/introduction) | Yes | Pricing references free-tier usage/credits. |
 | NVIDIA API Catalog | [Docs](https://build.nvidia.com/docs) · [Pricing](https://build.nvidia.com/pricing) | Yes | Starter credits are referenced publicly. |
-| SambaNova Cloud | [Docs](https://cloud.sambanova.ai/docs/) · [Pricing](https://cloud.sambanova.ai/pricing) | Unclear | Public page shows paid plans; no stable free policy. |
+| SambaNova Cloud | [Docs](https://sambanova.ai/docs) · [Pricing](https://sambanova.ai/pricing) | Unclear | Public page shows paid plans; no stable free policy. |
 | AWS Bedrock | [Docs](https://docs.aws.amazon.com/bedrock/) · [Pricing](https://aws.amazon.com/bedrock/pricing/) | No | Metered pay-as-you-go pricing. |
 | Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
 | Vertex AI (Gemini via GCP) | [Docs](https://cloud.google.com/vertex-ai/docs) · [Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) | Unclear | Metered pricing; no persistent API free-tier statement. |
 | OCI Generative AI | [Docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) · [Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Paid rates are public; free tier not clearly documented. |
+| MiniMax | [Docs](https://platform.minimaxi.com/docs/guides/models-intro) · [Pricing](https://platform.minimaxi.com/docs/guides/pricing-paygo) | Yes | Coding Plan provides a low-cost entry tier; trial credits available. |
+| Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
 
 ## Model-level quota tracker (expanded list)
 
@@ -206,6 +208,19 @@ Only rows with a numeric daily token cap are included in the capacity math.
 | :--- | :--- | :--- | :--- |
 | Grok 4.1 Fast | `model / credit / credit / credit / credit` | Unverified | <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: xAI. Quality: Very Good. Promotional credits may exist; fixed "$25 startup credits" not consistently documented. |
 
+### MiniMax
+
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| MiniMax-M2.5 (Coding Plan Starter) | `200K / 40 prompts per 5h / n/p / n/p / n/p` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-reason">REASON</span><br>Account: MiniMax. Quality: Excellent. Optimized for coding. Fixed-fee subscription. |
+| MiniMax-M2.5 (Pay-as-you-go) | `200K / plan / plan / plan / plan` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span><br>Account: MiniMax. Quality: Excellent. Competitive RMB pricing (2.1/8.4 per 1M tokens). |
+
+### Moonshot AI
+
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| moonshot-v1-128k | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Moonshot AI. Quality: Very Good. Famous for pioneer long-context stability. |
+
 ## Notes and caveats
 
 - Provider pricing and free-tier rules change frequently; always verify from official links before budgeting.
@@ -238,10 +253,13 @@ When updating this page:
 - [OpenRouter Pricing](https://openrouter.ai/pricing)
 - [OpenRouter API rate limits](https://openrouter.ai/docs/api-reference/limits/)
 - [OpenRouter Free Models Router](https://openrouter.ai/docs/guides/routing/routers/free-models-router)
+- [MiniMax Pricing](https://platform.minimaxi.com/docs/guides/pricing-paygo)
+- [MiniMax Coding Plan](https://platform.minimaxi.com/docs/coding-plan/intro)
+- [Moonshot AI Website](https://platform.moonshot.cn/)
 - [xAI API](https://x.ai/api)
 - [xAI Models/Pricing docs](https://docs.x.ai/docs/models)
-- [xAI Billing](https://docs.x.ai/docs/billing)
-- [Z.ai Model Pricing](https://docs.z.ai/guides/model-pricing)
+- [xAI Billing](https://docs.x.ai/docs/models)
+- [Z.ai Model Pricing](https://docs.z.ai/guides/pricing)
 - [Alibaba Model Studio billing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio)
 - [Alibaba Model pricing](https://www.alibabacloud.com/help/en/model-studio/model-pricing)
 - [Cohere Pricing](https://cohere.com/pricing)
@@ -258,10 +276,10 @@ When updating this page:
 - [DeepSeek Models & Pricing](https://api-docs.deepseek.com/quick_start/pricing)
 - [Perplexity API Pricing](https://docs.perplexity.ai/guides/pricing)
 - [AI21 Pricing](https://www.ai21.com/pricing)
-- [Voyage Pricing](https://www.voyageai.com/pricing)
+- [Voyage Pricing](https://docs.voyageai.com/docs/pricing)
 - [Cloudflare Workers AI Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/)
 - [Hugging Face Pricing](https://huggingface.co/pricing)
-- [Cerebras Pricing](https://cloud.cerebras.ai/pricing)
+- [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 - [NVIDIA API Pricing](https://build.nvidia.com/pricing)
 - [SambaNova Pricing](https://cloud.sambanova.ai/pricing)
 - [AWS Bedrock Pricing](https://aws.amazon.com/bedrock/pricing/)
