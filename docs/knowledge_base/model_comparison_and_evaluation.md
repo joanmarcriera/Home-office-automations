@@ -23,7 +23,7 @@ When reviewing benchmark results, you will encounter several standardized metric
 
 ### General Knowledge and Reasoning
 - **MMLU (Massive Multitask Language Understanding)**: Tests a model's knowledge across 57 subjects in STEM, the humanities, social sciences, and more. It is the most common "all-purpose" benchmark.
-- **GPQA (Graduate-Level Google-Proof Q&A)**: A very difficult benchmark written by experts (PhDs) in biology, physics, and chemistry. Designed to be hard even for non-expert humans with internet access.
+- **[GPQA (Graduate-Level Google-Proof Q&A)](../tools/benchmarking/gpqa.md)**: A very difficult benchmark written by experts (PhDs) in biology, physics, and chemistry. Designed to be hard even for non-expert humans with internet access.
 
 ### Mathematics
 - **[GSM8K (Grade School Math 8K)](../tools/benchmarking/gsm8k.md)**: 8,500 grade-school math word problems. It tests multi-step arithmetic reasoning.
@@ -39,6 +39,13 @@ When reviewing benchmark results, you will encounter several standardized metric
 - **Time to First Token (TTFT)**: How quickly the model starts generating a response after receiving a prompt.
 - **[LLMperf](../tools/benchmarking/llmperf.md)**: A tool for measuring these operational metrics across different API providers.
 
+### Core Metrics Defined
+While benchmarks provide a score, they often rely on these underlying statistical metrics:
+- **Accuracy / Exact Match (EM)**: The percentage of responses that are exactly correct (common in math and multiple-choice).
+- **F1 Score**: A balance between precision (correctness) and recall (completeness), often used in classification or extraction tasks.
+- **BLEU / ROUGE**: Automated metrics that measure text similarity between a model's output and a reference "gold standard" (common in translation and summarization).
+- **Pass@k**: Used in coding benchmarks like [HumanEval](../tools/benchmarking/human-eval.md) to measure the probability that at least one of *k* generated samples passes all tests.
+
 ## Practical Interpretation
 
 To choose the best model for your practical scenario, consider the following:
@@ -52,7 +59,13 @@ To choose the best model for your practical scenario, consider the following:
 - [Benchmarking Tool Catalogue](../tools/benchmarking/index.md)
 - [Model Classes](model_classes.md)
 - [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md)
+- [Qwen](../tools/ai_knowledge/qwen.md)
+
+## Sources / References
+- [Chatbot Arena (LMSYS)](https://chat.lmsys.org/)
+- [Hugging Face Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)
+- [LiveCodeBench](https://livecodebench.github.io/leaderboard.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-05
+- Last reviewed: 2026-03-06
 - Confidence: high
