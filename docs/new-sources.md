@@ -9,7 +9,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 | 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 20 | Daily ingestion (infrastructure, agents, providers, qwen) |
 | 2026-03-02 | [2026-03-02](/new-sources/2026-03-02/) | 0 | 18 | Daily ingestion (infrastructure, agents, frameworks) |
 | 2026-03-01 | [2026-03-01](/new-sources/2026-03-01/) | 0 | 0 | Daily ingestion (empty) |
-| 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 4 | Daily ingestion (infrastructure, benchmarking) |
+| 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 10 | Daily ingestion (infrastructure, benchmarking) |
 | 2026-02-27 | [2026-02-27](/new-sources/2026-02-27/) | 0 | 21 | Daily ingestion (agents, frameworks, providers, and analysis) |
 | 2026-02-26 | [2026-02-26](/new-sources/2026-02-26/) | 0 | 18 | Daily ingestion plus open-issue catch-up integrations |
 | 2026-02-25 | [2026-02-25](/new-sources/2026-02-25/) | 0 | 9 | Initial daily migration |
