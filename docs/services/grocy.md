@@ -42,7 +42,7 @@ curl -X GET "http://localhost:9283/api/stock" \
 
 ## Alternatives
 - [Homebox](homebox.md)
-- [KitchenOwl](https://github.com/KitchenOwl/KitchenOwl)
+- [KitchenOwl](https://github.com/KitchenOwl/kitchenowl)
 
 ## Backlog
 - Set up barcode scanning via mobile app.

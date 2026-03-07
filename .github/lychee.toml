@@ -11,6 +11,8 @@ accept = ["200", "206", "301", "302", "303", "307", "308", "401", "403", "429"]
 exclude = [
   "URL$",
   "^/new-sources/",
+  "/new-sources/",
+  "docs/new-sources/",
   "^http://127\\.0\\.0\\.1",
   "^http://localhost",
   "^https://127\\.0\\.0\\.1",
@@ -35,6 +37,7 @@ exclude = [
   "^https://vercel\\.com/blog/tag/ai",
   "^https://www\\.apple\\.com/silicon/",
   "^https://www\\.cognition-labs\\.com/devin",
+  "^https://arena\\.lmsys\\.org/",
   "docs/templates/URL",
   "docs/templates/relative-link\\.md",
   "https://chat.lmsys.org/",
@@ -55,5 +58,6 @@ exclude = [
   "https://www.apple.com/silicon/",
   "https://www.cognition-labs.com/devin",
   "https://www.voyageai.com/pricing",
+  "https://github.com/democratize-technology/.*",
   "relative-link\\.md",
 ]
