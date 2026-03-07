@@ -51,6 +51,16 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | MiniMax | [Docs](https://platform.minimaxi.com/docs/guides/models-intro) · [Pricing](https://platform.minimaxi.com/docs/guides/pricing-paygo) | Yes | Coding Plan provides a low-cost entry tier; trial credits available. |
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
 
+## Developer Program Plans
+
+These are the core subscription plans for developers that bundle AI access, cloud credits, and other professional benefits.
+
+| Program / Plan | Cost | AI Access & Quotas | Cloud Credits & Benefits |
+| :--- | :--- | :--- | :--- |
+| **Google Developer Program — Standard** | Free | 10 Firebase Studio workspaces; Gemini Code Assist (Basic); Gemini CLI (60 RPM / 1000 RPD) | Monthly Google Skills credits (via GEAR); community access; private previews. |
+| **Google Developer Program — Premium** | $24.99/mo or $299/yr | 30 Firebase Studio workspaces; Gemini Code Assist (Higher); Gemini CLI (120 RPM / 1500 RPD) | $45/mo ($550/yr) GenAI/Cloud credit; $500 bonus credit upon certification; 1 Cloud cert voucher; expert consultation. |
+| **Google Developer Program — Enterprise** | Preview | Gemini Code Assist Enterprise; Gemini CLI (120 RPM / 2000 RPD) | $150/mo Google Cloud credit; centralized purchasing; developer sandboxes. |
+
 ## Model-level quota tracker (expanded list)
 
 This section is grouped by provider with compact four-column tables for narrower screens.
@@ -265,6 +275,7 @@ When updating this page:
 - [OpenAI Prepaid Billing](https://help.openai.com/en/articles/8264644-how-can-i-set-up-prepaid-billing)
 - [Anthropic Claude API Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 - [Google Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Google Developer Program Plans & Pricing](https://developers.google.com/program/plans-and-pricing)
 - [OpenRouter Pricing](https://openrouter.ai/pricing)
 - [OpenRouter API rate limits](https://openrouter.ai/docs/api-reference/limits/)
 - [OpenRouter Free Models Router](https://openrouter.ai/docs/guides/routing/routers/free-models-router)
