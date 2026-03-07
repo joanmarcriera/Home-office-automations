@@ -60,7 +60,8 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 | **Apply Suggested Fix** | `Cmd + Enter` | `Ctrl + Enter` |
 
 ## Related tools / concepts
-- [VS Code](vscode.md) + [Continue](continue_dev.md)
+- [VS Code](vscode.md)
+- [Continue](continue_dev.md)
 - [Zed](zed.md)
 
 ## Sources / references
