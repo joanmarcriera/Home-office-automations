@@ -83,7 +83,7 @@ aider
 - **File Access**: Aider has the same permissions as the user running it.
 - **Commit History**: Review automated commits to ensure no secrets were accidentally added.
 
-## Links to related pages
+## Related tools / concepts
 - [OpenHands](openhands.md)
 - [OpenAI](../ai_knowledge/openai.md)
 - [Anthropic](../providers/anthropic.md)

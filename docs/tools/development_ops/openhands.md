@@ -40,7 +40,7 @@ Client-server architecture. Usually runs in a Docker container to provide a sand
 - **Sandbox Escape**: While Docker provides isolation, be cautious when giving agents high-level permissions.
 - **API Costs**: Highly autonomous agents can consume many tokens quickly.
 
-## Links to related pages
+## Related tools / concepts
 - [Aider](aider.md)
 - [Custom Agents](custom_agents.md)
 - [OpenAI](../ai_knowledge/openai.md)

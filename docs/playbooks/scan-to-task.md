@@ -3,6 +3,20 @@
 ## Objective
 Convert physical documents (mail, receipts) into actionable tasks in the task manager.
 
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    A[Physical Document] -->|Scan| B(Nextcloud/Scans)
+    B -->|Syncthing| C(Paperless-ngx Consumption)
+    C -->|OCR & Classification| D{Action Required?}
+    D -- Yes --> E[n8n Webhook Trigger]
+    D -- No --> F[Archive]
+    E -->|Extraction| G[LLM Processing]
+    G -->|Create Task| H[Vikunja Task]
+    H -->|Link Back| C
+```
+
 ## Pre-requisites
 - [OCRmyPDF](../tools/process_understanding/ocrmypdf.md)
 - [Paperless-ngx](../services/paperless-ngx.md)
