@@ -21,7 +21,7 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | :--- | :--- | :--- | :--- |
 | OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; prepaid credits required. |
 | Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. |
-| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows. AI Pro members receive $10/mo Cloud credits. |
+| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
 | Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
