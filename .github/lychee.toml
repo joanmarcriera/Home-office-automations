@@ -1,11 +1,15 @@
+# Lychee configuration for broken link checking
+# Documentation: https://github.com/lychee-cli/lychee
+
 # verbose = "info"
 no_progress = true
-include_mail = false
+include_mail = false  # Disabled to avoid crawling email addresses
 max_concurrency = 6
 retry_wait_time = 2
 timeout = 20
 root_dir = "docs"
 
+# Accept common status codes and some that represent transient or restricted access
 accept = ["200", "206", "301", "302", "303", "307", "308", "401", "403", "429"]
 
 exclude = [
@@ -14,7 +18,7 @@ exclude = [
   "docs/templates/URL",
   "docs/templates/relative-link\.md",
 
-  # Flaky or broken external domains
+  # Flaky or broken external domains that frequently cause CI timeouts or 403s
   "https://azure\.microsoft\.com/.*",
   "https://github\.com/KitchenOwl/.*",
   "https://github\.com/democratize-technology/.*",
@@ -25,7 +29,10 @@ exclude = [
   "https://humanityslastexam\.ai/.*",
   "https://superconductor\.ai/.*",
 
-  # Local absolute site paths that Lychee can't resolve from source .md files
+  # Local absolute site paths (e.g., /new-sources/) that Lychee cannot resolve
+  # from raw Markdown source files. These are required by repository validation
+  # scripts (scripts/validate_new_sources.py) to maintain consistent cross-references
+  # in the built site.
   "^/new-sources/.*",
 
   # Generic local/dev links
