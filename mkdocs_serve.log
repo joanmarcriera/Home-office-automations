@@ -1,0 +1,26 @@
+
+[31m │  ⚠  WARNING – MkDocs 2.0 is incompatible with Material for MkDocs[0m
+[31m │[0m
+[31m │[0m  MkDocs 2.0 introduces backward-incompatible changes:
+[31m │[0m
+[31m │  × [0mAll plugins will stop working – the plugin system has been removed
+[31m │  × [0mAll theme overrides will break – the theming system has been rewritten
+[31m │  × [0mNo migration path exists – existing projects cannot be upgraded
+[31m │  × [0mClosed contribution model – community members can't report bugs
+[31m │  × [0mCurrently unlicensed – unsuitable for production use
+[31m │[0m
+[31m │[0m  Our full analysis:
+[31m │[0m
+[31m │[0m  [4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/[0m
+[0m
+INFO    -  Building documentation...
+INFO    -  Cleaning site directory
+INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/tool_template.md' which is excluded from the built site.
+INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/tool_template.md' which is excluded from the built site.
+INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/article_template.md' which is excluded from the built site.
+INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/tool_template.md' which is excluded from the built site.
+INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/article_template.md' which is excluded from the built site.
+INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/tool_template.md' which is excluded from the built site.
+INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/article_template.md' which is excluded from the built site.
+INFO    -  Documentation built in 7.51 seconds
+INFO    -  [00:39:49] Serving on http://127.0.0.1:8000/
