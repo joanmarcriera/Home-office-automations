@@ -203,7 +203,6 @@ nav:
       - Custom Agents: tools/development_ops/custom_agents.md
       - Desktop Commander MCP: tools/development_ops/desktop-commander-mcp.md
       - Droid: tools/development_ops/droid.md
-      - Firebase Studio: tools/development_ops/firebase-studio.md
       - Free Will MCP: tools/development_ops/free-will-mcp.md
       - Fuzzing MCP Server: tools/development_ops/fuzzing-mcp-server.md
       - Github Copilot: tools/development_ops/github_copilot.md
