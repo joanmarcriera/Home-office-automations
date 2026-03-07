@@ -15,6 +15,7 @@
 - [Custom Agents (SSH + LLM Loop)](custom_agents.md)
 - [Desktop Commander MCP](desktop-commander-mcp.md)
 - [Droid](droid.md)
+- [Firebase Studio](firebase-studio.md)
 - [Free Will MCP](free-will-mcp.md)
 - [Fuzzing MCP Server](fuzzing-mcp-server.md)
 - [Github Copilot](github_copilot.md)

@@ -1,69 +1,43 @@
+# Lychee configuration for broken link checking
+# Documentation: https://github.com/lychee-cli/lychee
+
 # verbose = "info"
 no_progress = true
-include_mail = false
+include_mail = false  # Disabled to avoid crawling email addresses
 max_concurrency = 6
 retry_wait_time = 2
 timeout = 20
 root_dir = "docs"
 
+# Accept common status codes and some that represent transient or restricted access
 accept = ["200", "206", "301", "302", "303", "307", "308", "401", "403", "429"]
 
 exclude = [
   "URL$",
-  "^/new-sources/",
-  "^http://127\\.0\\.0\\.1",
-  "^http://localhost",
-  "^https://127\\.0\\.0\\.1",
-  "^https://chat\\.lmsys\\.org/",
-  "^https://docs\\.browser-use\\.ai/",
-  "^https://github\\.com/AbanteAI/mentat",
-  "^https://github\\.com/allenai/ARC-benchmark",
-  "^https://github\\.com/anthropic/claude-code",
-  "^https://github\\.com/chiahsuan/ASDiv",
-  "^https://github\\.com/clihub/clihub",
-  "^https://github\\.com/clusterfudge/paperless-ai",
-  "^https://github\\.com/google-jules/anti-gravity",
-  "^https://github\\.com/gpt-engineer-ai/gpt-engineer",
-  "^https://github\\.com/marwanjeridi/ollama-benchmark",
-  "^https://github\\.com/pro-puffin/terminal-bench",
-  "^https://github\\.com/the-omni-tools/omni-tools",
-  "^https://huggingface\\.co/tasks/",
-  "^https://humanityslastexam\\.ai/",
-  "^https://localhost",
-  "^https://openrouter\\.ai/",
-  "^https://superconductor\\.ai/",
-  "^https://vercel\\.com/blog/tag/ai",
-  "^https://www\\.apple\\.com/silicon/",
-  "^https://www\\.apple\\.com/apple-silicon/",
-  "^https://www\\.cognition-labs\\.com/devin",
-  "^https://abacus\\.ai/service/docs",
-  "^https://arena\\.lmsys\\.org/",
-  "^https://azure\\.microsoft\\.com/pricing/details/cognitive-services/openai-service/",
-  "^https://docs\\.z\\.ai/guides/pricing",
-  "^https://github\\.com/KitchenOwl/KitchenOwl",
-  "^https://github\\.com/democratize-technology/fuzzing-mcp-server",
-  "^https://github\\.com/democratize-technology/symbolic-mcp",
-  "^https://milvus\\.io/",
-  "^https://sambanova\\.ai/",
+  "relative-link\.md",
   "docs/templates/URL",
-  "docs/templates/relative-link\\.md",
-  "https://chat.lmsys.org/",
-  "https://chatgpt\\.com/share/",
-  "https://docs.browser-use.ai/",
-  "https://github\\.com/TomW1605/kitchenowl.*",
-  "https://github\\.com/phidata-hq/phidata.*",
-  "https://huggingface.co/tasks/natural-language-inference",
-  "https://humanityslastexam.ai/",
-  "https://ollama.com/docs/api",
-  "https://openrouter.ai/docs/guides/community/live-kit",
-  "https://openrouter.ai/docs/overview/introduction",
-  "https://openrouter\\.ai/docs/guides/community/live-kit",
-  "https://squidfox.dev/mkdocs-material/",
-  "https://squidfox\\.dev/mkdocs-material/",
-  "https://superconductor.ai/",
-  "https://vercel.com/blog/tag/ai",
-  "https://www.apple.com/silicon/",
-  "https://www.cognition-labs.com/devin",
-  "https://www.voyageai.com/pricing",
-  "relative-link\\.md",
+  "docs/templates/relative-link\.md",
+
+  # Flaky or broken external domains that frequently cause CI timeouts or 403s
+  "https://azure\.microsoft\.com/.*",
+  "https://github\.com/KitchenOwl/.*",
+  "https://github\.com/democratize-technology/.*",
+  "https://arena\.lmsys\.org/.*",
+  "https://chat\.lmsys\.org/.*",
+  "https://www\.apple\.com/apple-silicon/.*",
+  "https://docs\.browser-use\.ai/.*",
+  "https://humanityslastexam\.ai/.*",
+  "https://superconductor\.ai/.*",
+
+  # Local absolute site paths (e.g., /new-sources/) that Lychee cannot resolve
+  # from raw Markdown source files. These are required by repository validation
+  # scripts (scripts/validate_new_sources.py) to maintain consistent cross-references
+  # in the built site.
+  "^/new-sources/.*",
+
+  # Generic local/dev links
+  "^http://127\.0\.1",
+  "^http://localhost",
+  "^https://127\.0\.1",
+  "^https://localhost"
 ]

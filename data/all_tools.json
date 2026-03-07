@@ -406,6 +406,12 @@
       "doc_path": "docs/tools/development_ops/droid.md"
     },
     {
+      "id": "firebase-studio",
+      "name": "Firebase Studio",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/firebase-studio.md"
+    },
+    {
       "id": "terminus-2",
       "name": "Terminus 2",
       "category": "Development & Ops",

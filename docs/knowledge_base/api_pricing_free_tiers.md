@@ -24,7 +24,7 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows. AI Pro members receive $10/mo Cloud credits. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
-| Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://docs.z.ai/guides/pricing) | Yes | New users can claim free API token packages. |
+| Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
 | Alibaba DashScope (Qwen APIs) | [Docs](https://www.alibabacloud.com/help/en/model-studio/getting-started/models) · [Pricing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio) | Yes | Many models show temporary free quota periods. |
 | Cohere | [Docs](https://docs.cohere.com/) · [Pricing](https://cohere.com/pricing) | Yes | Trial API keys are free and rate-limited. |
 | Mistral AI | [Docs](https://docs.mistral.ai/) · [Pricing](https://mistral.ai/pricing) | Yes | Experiment plan supports free API testing. |
@@ -36,20 +36,30 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | DeepSeek API | [Docs](https://api-docs.deepseek.com/) · [Pricing](https://api-docs.deepseek.com/quick_start/pricing) | Unclear | Granted balances are mentioned, fixed free tier unclear. |
 | Perplexity API | [Docs](https://docs.perplexity.ai/) · [Pricing](https://docs.perplexity.ai/guides/pricing) | No | Purchased credits and top-up requirements documented. |
 | AI21 | [Docs](https://docs.ai21.com/) · [Pricing](https://www.ai21.com/pricing) | Yes | Pricing page advertises free trial credits. |
-| Abacus.AI | [Docs](https://abacus.ai/service/docs) · [Pricing](https://abacus.ai/pricing) | Yes | Free trial and ChatLLM free access documented. |
+| Abacus.AI | [Docs](https://abacus.ai/) · [Pricing](https://abacus.ai/pricing) | Yes | Free trial and ChatLLM free access documented. |
 | Voyage AI | [Docs](https://docs.voyageai.com/) · [Pricing](https://docs.voyageai.com/docs/pricing) | Unclear | Paid rates are clear; standing free tier not explicit. |
 | Cloudflare Workers AI | [Docs](https://developers.cloudflare.com/workers-ai/) · [Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/) | Yes | Free plan includes daily usage. |
 | Hugging Face Inference Providers | [Docs](https://huggingface.co/docs/inference-providers) · [Pricing](https://huggingface.co/pricing) | Yes | Monthly included inference credits by account tier. |
 | Cerebras Inference | [Docs](https://inference-docs.cerebras.ai/) · [Pricing](https://inference-docs.cerebras.ai/introduction) | Yes | Pricing references free-tier usage/credits. |
 | NVIDIA API Catalog | [Docs](https://build.nvidia.com/docs) · [Pricing](https://build.nvidia.com/pricing) | Yes | Starter credits are referenced publicly. |
-| SambaNova Cloud | [Docs](https://sambanova.ai/docs) · [Pricing](https://sambanova.ai/pricing) | Unclear | Public page shows paid plans; no stable free policy. |
+| SambaNova Cloud | [Docs](http://docs.sambanova.ai/) · [Pricing](https://cloud.sambanova.ai/plans/pricing) | Unclear | Public page shows paid plans; no stable free policy. |
 | AWS Bedrock | [Docs](https://docs.aws.amazon.com/bedrock/) · [Pricing](https://aws.amazon.com/bedrock/pricing/) | No | Metered pay-as-you-go pricing. |
 | Amazon Q | [Docs](https://docs.aws.amazon.com/amazonq/) · [Pricing](https://aws.amazon.com/q/pricing/) | Yes | Free tier for individuals/developers is documented. |
-| Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
+| Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
 | Vertex AI (Gemini via GCP) | [Docs](https://cloud.google.com/vertex-ai/docs) · [Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) | Unclear | Metered pricing; no persistent API free-tier statement. |
 | OCI Generative AI | [Docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) · [Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Paid rates are public; free tier not clearly documented. |
 | MiniMax | [Docs](https://platform.minimaxi.com/docs/guides/models-intro) · [Pricing](https://platform.minimaxi.com/docs/guides/pricing-paygo) | Yes | Coding Plan provides a low-cost entry tier; trial credits available. |
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
+
+## Developer Program Plans
+
+These are the core subscription plans for developers that bundle AI access, cloud credits, and other professional benefits.
+
+| Program / Plan | Cost | AI Access & Quotas | Cloud Credits & Benefits |
+| :--- | :--- | :--- | :--- |
+| **Google Developer Program — Standard** | Free | 10 Firebase Studio workspaces; Gemini Code Assist (Basic); Gemini CLI (60 RPM / 1000 RPD) | Monthly Google Skills credits (via GEAR); community access; private previews. |
+| **Google Developer Program — Premium** | $24.99/mo or $299/yr | 30 Firebase Studio workspaces; Gemini Code Assist (Higher); Gemini CLI (120 RPM / 1500 RPD) | $45/mo ($550/yr) GenAI/Cloud credit; $500 bonus credit upon certification; 1 Cloud cert voucher; expert consultation. |
+| **Google Developer Program — Enterprise** | Preview | Gemini Code Assist Enterprise; Gemini CLI (120 RPM / 2000 RPD) | $150/mo Google Cloud credit; centralized purchasing; developer sandboxes. |
 
 ## Model-level quota tracker (expanded list)
 
@@ -265,6 +275,7 @@ When updating this page:
 - [OpenAI Prepaid Billing](https://help.openai.com/en/articles/8264644-how-can-i-set-up-prepaid-billing)
 - [Anthropic Claude API Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 - [Google Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Google Developer Program Plans & Pricing](https://developers.google.com/program/plans-and-pricing)
 - [OpenRouter Pricing](https://openrouter.ai/pricing)
 - [OpenRouter API rate limits](https://openrouter.ai/docs/api-reference/limits/)
 - [OpenRouter Free Models Router](https://openrouter.ai/docs/guides/routing/routers/free-models-router)
@@ -274,7 +285,8 @@ When updating this page:
 - [xAI API](https://x.ai/api)
 - [xAI Models/Pricing docs](https://docs.x.ai/docs/models)
 - [xAI Billing](https://docs.x.ai/docs/models)
-- [Z.ai Model Pricing](https://docs.z.ai/guides/pricing)
+- [Z.ai Docs](https://docs.z.ai/)
+- [Z.ai Model Pricing](https://open.bigmodel.cn/)
 - [Alibaba Model Studio billing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio)
 - [Alibaba Model pricing](https://www.alibabacloud.com/help/en/model-studio/model-pricing)
 - [Cohere Pricing](https://cohere.com/pricing)
@@ -296,9 +308,9 @@ When updating this page:
 - [Hugging Face Pricing](https://huggingface.co/pricing)
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 - [NVIDIA API Pricing](https://build.nvidia.com/pricing)
-- [SambaNova Pricing](https://cloud.sambanova.ai/pricing)
+- [SambaNova Pricing](https://cloud.sambanova.ai/plans/pricing)
 - [AWS Bedrock Pricing](https://aws.amazon.com/bedrock/pricing/)
-- [Azure OpenAI Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+- [Azure OpenAI Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/)
 - [Vertex AI GenAI Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing)
 - [OCI Generative AI Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/)
 - [Google Gemini rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
