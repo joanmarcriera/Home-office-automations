@@ -285,6 +285,7 @@ When updating this page:
 - [xAI API](https://x.ai/api)
 - [xAI Models/Pricing docs](https://docs.x.ai/docs/models)
 - [xAI Billing](https://docs.x.ai/docs/models)
+- [Z.ai Docs](https://docs.z.ai/)
 - [Z.ai Model Pricing](https://open.bigmodel.cn/)
 - [Alibaba Model Studio billing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio)
 - [Alibaba Model pricing](https://www.alibabacloud.com/help/en/model-studio/model-pricing)
