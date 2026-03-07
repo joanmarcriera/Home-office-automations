@@ -39,7 +39,7 @@ It reduces the friction of setting up local development environments for full-st
 - **Open Source**: No
 - **Cost**: Freemium (Integrated into the [Google Developer Program](https://developers.google.com/program/plans-and-pricing))
     - **Standard**: 10 workspaces (Free)
-    - **Premium**: 30 workspaces ($29.99/mo or $299/yr)
+    - **Premium**: 30 workspaces ($24.99/mo or $299/yr)
 - **Self-hostable**: No
 
 ## Related tools / concepts

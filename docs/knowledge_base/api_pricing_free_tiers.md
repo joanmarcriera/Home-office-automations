@@ -45,7 +45,7 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | SambaNova Cloud | [Docs](http://docs.sambanova.ai/) · [Pricing](https://cloud.sambanova.ai/plans/pricing) | Unclear | Public page shows paid plans; no stable free policy. |
 | AWS Bedrock | [Docs](https://docs.aws.amazon.com/bedrock/) · [Pricing](https://aws.amazon.com/bedrock/pricing/) | No | Metered pay-as-you-go pricing. |
 | Amazon Q | [Docs](https://docs.aws.amazon.com/amazonq/) · [Pricing](https://aws.amazon.com/q/pricing/) | Yes | Free tier for individuals/developers is documented. |
-| Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
+| Azure OpenAI Service | [Docs](https://learn.microsoft.com/azure/ai-services/openai/) · [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/) | Unclear | Metered service; only account-level cloud credits may apply. |
 | Vertex AI (Gemini via GCP) | [Docs](https://cloud.google.com/vertex-ai/docs) · [Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) | Unclear | Metered pricing; no persistent API free-tier statement. |
 | OCI Generative AI | [Docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) · [Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Paid rates are public; free tier not clearly documented. |
 | MiniMax | [Docs](https://platform.minimaxi.com/docs/guides/models-intro) · [Pricing](https://platform.minimaxi.com/docs/guides/pricing-paygo) | Yes | Coding Plan provides a low-cost entry tier; trial credits available. |
@@ -307,9 +307,9 @@ When updating this page:
 - [Hugging Face Pricing](https://huggingface.co/pricing)
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 - [NVIDIA API Pricing](https://build.nvidia.com/pricing)
-- [SambaNova Pricing](https://cloud.sambanova.ai/pricing)
+- [SambaNova Pricing](https://cloud.sambanova.ai/plans/pricing)
 - [AWS Bedrock Pricing](https://aws.amazon.com/bedrock/pricing/)
-- [Azure OpenAI Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+- [Azure OpenAI Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/)
 - [Vertex AI GenAI Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing)
 - [OCI Generative AI Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/)
 - [Google Gemini rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
