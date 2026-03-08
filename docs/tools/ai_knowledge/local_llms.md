@@ -20,6 +20,7 @@ The model weights are downloaded and stored locally. Inference is performed usin
 - **Local Development**: Testing agent logic without incurring costs.
 - **Sensitive Data Processing**: Summarizing private documents or logs.
 - **Always-on Low-latency Tasks**: Simple classification or formatting that needs to happen fast and often.
+- **GUI-based Interaction**: Using [LM Studio](https://lmstudio.ai/) to quickly download and chat with models from Hugging Face without using the CLI.
 
 ## Strengths
 - **Privacy**: No data leaves your machine.
@@ -45,6 +46,42 @@ The model weights are downloaded and stored locally. Inference is performed usin
 - **Local API Access**: By default, Ollama and others might listen on `localhost`. Be careful when exposing these to your local network.
 - **Model Integrity**: Download models from trusted sources (like the official Ollama library or reputable HuggingFace users).
 
+## Getting started
+
+### Installation (Ollama)
+
+Ollama is the standard for local LLM management.
+
+```bash
+# MacOS/Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Then pull a model
+ollama pull llama3
+```
+
+### Minimal Python Example (Local API)
+
+Interacting with a local LLM via Ollama's OpenAI-compatible API.
+
+```python
+import requests
+
+# Default Ollama API endpoint
+url = "http://localhost:11434/api/chat"
+
+payload = {
+    "model": "llama3",
+    "messages": [
+        {"role": "user", "content": "Why is local AI important?"}
+    ],
+    "stream": False
+}
+
+response = requests.post(url, json=payload)
+print(response.json()['message']['content'])
+```
+
 ## Links to related pages
 - [Ollama (Service)](../../services/ollama.md)
 - [DeepSeek](deepseek.md)
@@ -56,5 +93,5 @@ The model weights are downloaded and stored locally. Inference is performed usin
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-03-08
+- Confidence: high
