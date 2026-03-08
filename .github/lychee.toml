@@ -51,8 +51,6 @@ exclude = [
   "^https://milvus\\.io/",
   "^https://owncloud\\.com/",
   "^https://sambanova\\.ai/",
-  "^https://platform\\.minimaxi\\.com/",
-  "^http://docs\\.sambanova\\.ai/",
   "docs/templates/URL",
   "docs/templates/relative-link\\.md",
 
@@ -66,9 +64,8 @@ exclude = [
   "https://docs\\.browser-use\\.ai/.*",
   "https://humanityslastexam\\.ai/.*",
   "https://superconductor\\.ai/.*",
-  "https://www\\.deepgram\\.com/.*",
   "https://www\\.gnu\\.org/software/make/.*",
-  "https://owncloud\\.com/.*",
+  "https://huggingface\\.co/spaces/.*",
 
   # Local absolute site paths (e.g., /new-sources/) that Lychee cannot resolve
   # from raw Markdown source files. These are required by repository validation
