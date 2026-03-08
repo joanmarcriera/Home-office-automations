@@ -22,5 +22,15 @@ INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/tool_templat
 INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/article_template.md' which is excluded from the built site.
 INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/tool_template.md' which is excluded from the built site.
 INFO    -  Doc file 'CONTRIBUTING.md' contains a link to 'templates/article_template.md' which is excluded from the built site.
-INFO    -  Documentation built in 7.51 seconds
-INFO    -  [00:39:49] Serving on http://127.0.0.1:8000/
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-03-05/', it was left as is. Did you mean 'new-sources/2026-03-05.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-03-03/', it was left as is. Did you mean 'new-sources/2026-03-03.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-03-03/', it was left as is. Did you mean 'new-sources/2026-03-03.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-03-02/', it was left as is. Did you mean 'new-sources/2026-03-02.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-03-01/', it was left as is. Did you mean 'new-sources/2026-03-01.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-02-28/', it was left as is. Did you mean 'new-sources/2026-02-28.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-02-27/', it was left as is. Did you mean 'new-sources/2026-02-27.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-02-26/', it was left as is. Did you mean 'new-sources/2026-02-26.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2026-02-25/', it was left as is. Did you mean 'new-sources/2026-02-25.md'?
+INFO    -  Doc file 'new-sources.md' contains an absolute link '/new-sources/2025-02-25/', it was left as is. Did you mean 'new-sources/2025-02-25.md'?
+INFO    -  Documentation built in 6.31 seconds
+INFO    -  [21:37:39] Serving on http://0.0.0.0:8000/
