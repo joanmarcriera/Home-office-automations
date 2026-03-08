@@ -91,4 +91,4 @@ for obj in response.get("Contents", []):
 - https://www.storj.io/
 - https://aws.amazon.com/s3/
 - https://www.backblaze.com/cloud-storage
-- [S3 Compatibility](https://docs.storj.io/dcs/s3-compatibility/)
+- [S3 Compatibility](https://storj.dev/learn/concepts/access/s3-gateway)
