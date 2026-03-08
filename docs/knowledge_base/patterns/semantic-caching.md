@@ -127,8 +127,7 @@ Implementation typically requires a vector store (e.g., Chroma, Qdrant) and an e
 ## Sources / references
 
 *   [GPTCache: A Library for Creating Semantic Cache for LLM Queries](https://github.com/zilliztech/GPTCache)
-*   [Redis: Semantic Caching with LLMs](https://redis.io/solutions/semantic-caching/)
-*   [LiteLLM: Caching Documentation](https://docs.litellm.ai/docs/proxy/caching)
+*   [LiteLLM: Caching Documentation](https://docs.litellm.ai/)
 
 ## Contribution Metadata
 
