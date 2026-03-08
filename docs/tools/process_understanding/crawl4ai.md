@@ -42,6 +42,7 @@ It simplifies the process of turning complex, noisy web pages into clean data fo
 - [Firecrawl](firecrawl.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [RAGFlow](ragflow.md)
+- [Skyvern](../automation_orchestration/skyvern.md)
 
 ## Sources / References
 - [GitHub](https://github.com/unclecode/crawl4ai)
