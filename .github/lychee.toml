@@ -48,6 +48,7 @@ exclude = [
   "^https://github\\.com/democratize-technology/fuzzing-mcp-server",
   "^https://github\\.com/democratize-technology/symbolic-mcp",
   "^https://milvus\\.io/",
+  "^https://owncloud\\.com/",
   "^https://sambanova\\.ai/",
   "docs/templates/URL",
   "docs/templates/relative-link\\.md",
