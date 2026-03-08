@@ -10,7 +10,7 @@ Offers a high-performance alternative to OpenAI with a focus on "Constitutional 
 **LLM / Reasoning Engine / Provider**. Often used as the primary engine for coding agents due to its high accuracy in code generation and refactoring.
 
 ## Typical use cases
-- **Pair Programming**: Claude 3.5 Sonnet is currently a top choice for tools like Aider.
+- **Pair Programming**: Claude 3.5 Sonnet is currently a top choice for tools like [Aider](../development_ops/aider.md).
 - **Complex Analysis**: Summarizing long technical documentation or legal files.
 - **Strict Adherence**: Workflows requiring close following of complex formatting rules.
 
@@ -66,6 +66,7 @@ print(message.content)
 - [OpenAI](../ai_knowledge/openai.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Aider](../development_ops/aider.md)
+- [Mistral AI](mistral.md)
 
 ## Sources / References
 - [Official Website](https://www.anthropic.com/)

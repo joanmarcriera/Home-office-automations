@@ -34,7 +34,7 @@ AI & Knowledge — serves as a foundational framework that other tools in the st
 
 ## Related tools / concepts
 - [LlamaIndex](llamaindex.md)
-- [Haystack](https://github.com/deepset-ai/haystack)
+- [Haystack](../frameworks/haystack.md)
 
 ## Getting started
 
