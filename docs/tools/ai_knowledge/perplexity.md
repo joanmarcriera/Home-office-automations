@@ -33,8 +33,9 @@ AI & Knowledge — used as a research and information retrieval tool when up-to-
 - When offline access is required
 
 ## Related tools / concepts
-- [Google Search](https://www.google.com)
-- [Genspark](https://www.genspark.ai/)
+- [ChatGPT](./chatgpt.md)
+- [DeepSeek](./deepseek.md)
+- [OpenRouter](./openrouter.md)
 
 ## Getting started
 

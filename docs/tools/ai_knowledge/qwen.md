@@ -8,6 +8,10 @@ Qwen is a series of Large Language Models (LLMs) developed by Alibaba Cloud, inc
 - Code generation and assistance
 - Multimodal understanding
 
+## Related tools / concepts
+- [Local LLMs](./local_llms.md)
+- [DeepSeek](./deepseek.md)
+
 ## Sources / References
 - [Official Website](https://github.com/QwenLM/Qwen)
 

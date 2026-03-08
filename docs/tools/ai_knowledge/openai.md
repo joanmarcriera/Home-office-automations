@@ -43,12 +43,12 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - **Data Privacy**: Review OpenAI's data usage policy; ensure sensitive PII is redacted if necessary.
 - **Prompt Injection**: Be aware that models can be manipulated via input; implement output validation.
 
-## Links to related pages
-- [Anthropic](../providers/anthropic.md)
-- [OpenRouter](openrouter.md)
+## Related tools / concepts
+- [Anthropic Claude](../providers/anthropic.md)
+- [OpenRouter](./openrouter.md)
 - [Aider](../development_ops/aider.md)
 - [OpenHands](../development_ops/openhands.md)
-- [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
+- [DeepSeek](./deepseek.md)
 
 ## Sources / References
 

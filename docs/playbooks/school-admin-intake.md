@@ -3,6 +3,19 @@
 ## Objective
 Streamline the processing of school-related correspondence, extracting dates for school activities and archiving official documents.
 
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    A[School Email / Scan] -->|n8n IMAP / Watcher| B(Paperless-ngx Archive)
+    B -->|Tag: School| C(Paperless-AI Analysis)
+    C -->|RAG Extraction| D{Extracted Data}
+    D -->|Activity Date| E[Google Calendar Sync]
+    D -->|Consent Required| F[Vikunja Task: Consent]
+    E --> G[Notification]
+    F --> G
+```
+
 ## Pre-requisites
 - [Paperless-ngx](../services/paperless-ngx.md)
 - [n8n](../services/n8n.md)
