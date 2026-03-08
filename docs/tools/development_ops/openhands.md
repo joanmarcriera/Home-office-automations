@@ -43,7 +43,7 @@ Client-server architecture. Usually runs in a Docker container to provide a sand
 ## Related tools / concepts
 - [Aider](aider.md)
 - [Custom Agents](custom_agents.md)
-- [OpenAI](../ai_knowledge/openai.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 
 ## Sources / References
 
