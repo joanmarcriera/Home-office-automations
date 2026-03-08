@@ -50,6 +50,7 @@ exclude = [
   "^https://milvus\\.io/",
   "^https://sambanova\\.ai/",
   "^http://docs\\.sambanova\\.ai/",
+  "^https://owncloud\\.com/",
   "docs/templates/URL",
   "docs/templates/relative-link\\.md",
 
