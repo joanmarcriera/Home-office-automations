@@ -43,8 +43,9 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - **Data Privacy**: Review OpenAI's data usage policy; ensure sensitive PII is redacted if necessary.
 - **Prompt Injection**: Be aware that models can be manipulated via input; implement output validation.
 
-## Links to related pages
+## Related tools / concepts
 - [Anthropic](../providers/anthropic.md)
+- [Mistral AI](../providers/mistral.md)
 - [OpenRouter](openrouter.md)
 - [Aider](../development_ops/aider.md)
 - [OpenHands](../development_ops/openhands.md)

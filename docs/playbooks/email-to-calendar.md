@@ -9,6 +9,21 @@ Automatically extract dates and events from incoming emails and sync them to the
 - [LLM (Ollama or OpenAI)](../services/ollama.md)
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md)
 
+## Workflow Architecture
+```mermaid
+flowchart TD
+    A[New Email in IMAP folder] --> B[n8n Workflow Trigger]
+    B --> C[Convert Email to PDF]
+    C --> D[Upload to Paperless-ngx]
+    D --> E[Extract Text via OCR]
+    E --> F[Call LLM for Date Extraction]
+    F --> G{Event Found?}
+    G -- Yes --> H[Create Google Calendar Event]
+    G -- No --> I[Tag as Failed / Notify]
+    H --> J[Update Paperless Tag: synced]
+    I --> K[Update Paperless Tag: failed]
+```
+
 ## Step-by-Step Flow
 1.  **Ingestion**: n8n workflow triggers via IMAP on a new email in the `Automate/Intake` folder.
 2.  **Storage**: n8n uploads the email body (as PDF) or any existing PDF attachments to Paperless-ngx with the tag `needs-processing`.

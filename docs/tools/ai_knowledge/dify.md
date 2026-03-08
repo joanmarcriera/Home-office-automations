@@ -34,6 +34,8 @@ AI & Knowledge — serves as a visual platform for building and deploying LLM ap
 
 ## Related tools / concepts
 - [Flowise](flowise.md)
+- [LangChain](langchain.md)
+- [LlamaIndex](llamaindex.md)
 - [LangFlow](https://github.com/langflow-ai/langflow)
 
 ## Getting started

@@ -34,6 +34,7 @@ AI & Knowledge — provides a no-code visual builder for LLM pipelines that can 
 
 ## Related tools / concepts
 - [Dify](dify.md)
+- [LangChain](langchain.md)
 - [LangFlow](https://github.com/langflow-ai/langflow)
 
 ## Getting started

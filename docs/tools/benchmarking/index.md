@@ -1,5 +1,7 @@
 # Benchmarking
 
+For a conceptual overview of model comparison platforms and evaluation metrics, see [Model Comparison and Evaluation](../../knowledge_base/model_comparison_and_evaluation.md).
+
 - [Chatbot Arena](chatbot-arena.md)
 - [DREAM Benchmark](dream.md)
 - [Gpqa](gpqa.md)
