@@ -45,6 +45,16 @@ flowchart TD
 - **Task Duplicate**:
     - *Recovery*: n8n checks Vikunja for existing tasks with similar names/dates before creating.
 
+## Local LLM Optimization
+For users preferring a privacy-first approach, local LLMs can replace cloud-based providers in the **Reasoning** step.
+- **Recommended Model**: `Qwen3-Coder-Next` (via [Ollama](../services/ollama.md)) provides high-precision extraction for structured administrative data.
+- **Hardware**: Requires at least 16GB VRAM for optimal performance.
+
+## Token-Efficiency Guidance
+- **Preprocessing**: Strip unnecessary whitespace and common OCR noise (e.g., repeating header/footer patterns) before sending text to the LLM.
+- **Prompting**: Use concise system prompts and request only the required JSON fields to minimize output tokens.
+- **Task Batching**: If processing multiple small receipts, batch them into a single LLM call where possible to reduce per-document overhead.
+
 ## Variants
 - **Manual Intake**: User manually uploads a PDF to Paperless and applies the tag.
 - **Email Forward**: User forwards an email to the intake address.
