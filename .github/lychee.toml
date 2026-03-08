@@ -51,6 +51,8 @@ exclude = [
   "^https://milvus\\.io/",
   "^https://owncloud\\.com/",
   "^https://sambanova\\.ai/",
+  "^https://platform\\.minimaxi\\.com/",
+  "^http://docs\\.sambanova\\.ai/",
   "docs/templates/URL",
   "docs/templates/relative-link\\.md",
 
