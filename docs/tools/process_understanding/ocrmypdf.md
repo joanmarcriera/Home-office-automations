@@ -32,7 +32,31 @@ Makes scanned PDF documents searchable and indexable by adding a hidden text lay
 - When documents are already digital-native PDFs with embedded text
 - When you need OCR for non-PDF formats (use Tesseract directly or other tools)
 
+## Typical Workflow
+
+### Local Processing with Docker
+Run `ocrmypdf` on a local file using Docker without installing dependencies:
+
+```bash
+docker run --rm \
+    -v "$(pwd):/home/docker" \
+    jbarlow83/ocrmypdf \
+    --language eng \
+    input_scanned.pdf \
+    output_searchable.pdf
+```
+
+### Batch Processing Script
+A simple bash snippet to process all PDFs in a directory:
+
+```bash
+for f in *.pdf; do
+    docker run --rm -v "$(pwd):/home/docker" jbarlow83/ocrmypdf "$f" "ocr_$f"
+done
+```
+
 ## Related tools / concepts
+- [Paperless AI](../../services/paperless-ai.md)
 - [Tesseract CLI](https://github.com/tesseract-ocr/tesseract)
 - [Amazon Textract](https://aws.amazon.com/textract/)
 

@@ -41,6 +41,7 @@ It abstracts away the complexities of modern web scraping, including JS renderin
 ## Related tools / concepts
 - [Crawl4AI](crawl4ai.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
+- [Skyvern](../automation_orchestration/skyvern.md)
 
 ## Sources / References
 - [GitHub](https://github.com/firecrawl/firecrawl)
