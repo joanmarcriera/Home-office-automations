@@ -7,6 +7,9 @@ name: Auto-Merge Jules PRs
 #   3. Merge triggers next issue creation (via jules-pipeline-trigger.yml)
 
 on:
+  # Try to arm auto-merge as soon as a Jules PR is opened/updated.
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
   # Re-evaluate whenever a check suite completes on a PR
   check_suite:
     types: [completed]
@@ -31,6 +34,16 @@ concurrency:
 
 jobs:
   auto-merge:
+    if: >-
+      github.event_name != 'pull_request' || (
+        contains(github.event.pull_request.title, 'daily maintenance') ||
+        contains(github.event.pull_request.title, 'daily knowledge') ||
+        contains(github.event.pull_request.title, 'weekly') ||
+        contains(github.event.pull_request.title, 'cross-link') ||
+        contains(github.event.pull_request.title, 'primer') ||
+        contains(github.event.pull_request.title, 'automated resolution') ||
+        github.event.pull_request.user.login == 'google-labs-jules[bot]'
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Find mergeable Jules PRs
@@ -93,14 +106,17 @@ jobs:
               continue
             fi
 
-            # Check that all required status checks have passed
-            CHECKS=$(gh pr checks "$PR" --repo "$REPO" --json name,state \
-              --jq '[.[] | select(.state != "SUCCESS" and .state != "SKIPPED")] | length')
+            # Evaluate checks: if failing -> skip; if pending -> arm auto-merge.
+            FAILING_CHECKS=$(gh pr checks "$PR" --repo "$REPO" --json name,state \
+              --jq '[.[] | select(.state == "FAILURE" or .state == "ERROR" or .state == "CANCELLED" or .state == "TIMED_OUT" or .state == "ACTION_REQUIRED")] | length')
 
-            if [ "$CHECKS" != "0" ]; then
-              echo "PR #$PR has $CHECKS non-passing checks. Skipping."
+            if [ "$FAILING_CHECKS" != "0" ]; then
+              echo "PR #$PR has $FAILING_CHECKS failing checks. Skipping."
               continue
             fi
+
+            NON_PASSING=$(gh pr checks "$PR" --repo "$REPO" --json name,state \
+              --jq '[.[] | select(.state != "SUCCESS" and .state != "SKIPPED")] | length')
 
             # Check for merge conflicts
             if [ "$STATUS" = "BLOCKED" ]; then
@@ -108,13 +124,24 @@ jobs:
               continue
             fi
 
-            echo "✅ PR #$PR is ready — merging!"
-            gh pr merge "$PR" \
-              --repo "$REPO" \
-              --merge \
-              --delete-branch \
-              --body "Auto-merged by Jules pipeline after all quality gates passed."
-            echo "Merged PR #$PR successfully."
+            if [ "$NON_PASSING" = "0" ]; then
+              echo "✅ PR #$PR checks are passing — merging now."
+              gh pr merge "$PR" \
+                --repo "$REPO" \
+                --merge \
+                --delete-branch \
+                --body "Auto-merged by Jules pipeline after all quality gates passed."
+              echo "Merged PR #$PR successfully."
+            else
+              echo "ℹ️ PR #$PR has pending checks — arming auto-merge."
+              gh pr merge "$PR" \
+                --repo "$REPO" \
+                --merge \
+                --auto \
+                --delete-branch \
+                --body "Auto-merge enabled by Jules pipeline. Will merge when required checks pass."
+              echo "Auto-merge armed for PR #$PR."
+            fi
 
             # Only merge ONE PR per run to maintain sequential pipeline
             break

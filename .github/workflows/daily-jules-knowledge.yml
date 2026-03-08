@@ -2,7 +2,7 @@ name: Daily Jules Knowledge Expansion
 
 on:
   schedule:
-    - cron: '0 12 * * *'  # 12:00 UTC
+    - cron: '0 2,9,16 * * *'  # 02:00, 09:00, 16:00 UTC
   workflow_dispatch: # allow manual trigger for testing
 
 concurrency:
@@ -52,36 +52,63 @@ jobs:
             echo "⏸️ Throttled: $OPEN_PRS open Jules PR(s). Skipping issue creation."
           fi
 
-      - name: Check for existing open knowledge expansion issue today
+      - name: Check queue status for knowledge issue creation
         if: steps.throttle.outputs.open_prs == '0'
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          TODAY=$(date +%Y-%m-%d)
-          EXISTING=$(gh issue list \
+          set -euo pipefail
+          TODAY=$(date -u +%Y-%m-%d)
+          SLOT=$(date -u +%H%M)
+
+          # Existing daily knowledge automation issues (any date)
+          OPEN_KNOWLEDGE=$(gh issue list \
             --repo "$REPO" \
             --label jules \
             --state open \
-            --search "Daily Knowledge Expansion" \
+            --search "Daily Knowledge Expansion -" \
+            --json number \
+            --jq "length")
+
+          # Open human/task issues for Jules (excluding automation envelope issues)
+          OPEN_NON_AUTOMATION=$(gh issue list \
+            --repo "$REPO" \
+            --label jules \
+            --state open \
             --json title \
-            --jq "[.[] | select(.title | contains(\"$TODAY\"))] | length")
-          echo "existing=$EXISTING" >> "$GITHUB_OUTPUT"
+            --jq '[.[] | select(
+              (.title | startswith("Daily Knowledge Expansion - ") | not) and
+              (.title | startswith("Daily Maintenance Run - ") | not) and
+              (.title | startswith("Process Jules Backlog - ") | not)
+            )] | length')
+
+          echo "open_knowledge=$OPEN_KNOWLEDGE" >> "$GITHUB_OUTPUT"
+          echo "open_non_automation=$OPEN_NON_AUTOMATION" >> "$GITHUB_OUTPUT"
           echo "today=$TODAY" >> "$GITHUB_OUTPUT"
+          echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+
+          if [ "$OPEN_NON_AUTOMATION" != "0" ]; then
+            echo "⏸️ Skipping daily expansion: $OPEN_NON_AUTOMATION open non-automation jules issue(s) pending."
+          fi
+          if [ "$OPEN_KNOWLEDGE" != "0" ]; then
+            echo "⏸️ Skipping daily expansion: existing open Daily Knowledge Expansion issue detected."
+          fi
 
       - name: Open Jules knowledge issue
-        if: steps.throttle.outputs.open_prs == '0' && steps.check.outputs.existing == '0'
+        if: steps.throttle.outputs.open_prs == '0' && steps.check.outputs.open_knowledge == '0' && steps.check.outputs.open_non_automation == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           TODAY: ${{ steps.check.outputs.today }}
+          SLOT: ${{ steps.check.outputs.slot }}
         run: |
           set -euo pipefail
           cp .github/issue-templates/daily-jules-knowledge.md issue_body.md
 
           gh issue create \
             --repo "$REPO" \
-            --title "Daily Knowledge Expansion - $TODAY" \
+            --title "Daily Knowledge Expansion - $TODAY $SLOT UTC" \
             --label jules \
             --body-file issue_body.md
