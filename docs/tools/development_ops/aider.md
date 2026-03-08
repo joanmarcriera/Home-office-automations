@@ -85,6 +85,7 @@ aider
 
 ## Related tools / concepts
 - [OpenHands](openhands.md)
+- [Claude Code Router](claude-code-router.md)
 - [OpenAI](../ai_knowledge/openai.md)
 - [Anthropic](../providers/anthropic.md)
 
