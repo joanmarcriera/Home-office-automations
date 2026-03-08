@@ -50,18 +50,18 @@ exclude = [
   "^https://milvus\\.io/",
   "^https://sambanova\\.ai/",
   "docs/templates/URL",
-  "docs/templates/relative-link\.md",
+  "docs/templates/relative-link\\.md",
 
   # Flaky or broken external domains that frequently cause CI timeouts or 403s
-  "https://azure\.microsoft\.com/.*",
-  "https://github\.com/KitchenOwl/.*",
-  "https://github\.com/democratize-technology/.*",
-  "https://arena\.lmsys\.org/.*",
-  "https://chat\.lmsys\.org/.*",
-  "https://www\.apple\.com/apple-silicon/.*",
-  "https://docs\.browser-use\.ai/.*",
-  "https://humanityslastexam\.ai/.*",
-  "https://superconductor\.ai/.*",
+  "https://azure\\.microsoft\\.com/.*",
+  "https://github\\.com/KitchenOwl/.*",
+  "https://github\\.com/democratize-technology/.*",
+  "https://arena\\.lmsys\\.org/.*",
+  "https://chat\\.lmsys\\.org/.*",
+  "https://www\\.apple\\.com/apple-silicon/.*",
+  "https://docs\\.browser-use\\.ai/.*",
+  "https://humanityslastexam\\.ai/.*",
+  "https://superconductor\\.ai/.*",
 
   # Local absolute site paths (e.g., /new-sources/) that Lychee cannot resolve
   # from raw Markdown source files. These are required by repository validation
@@ -70,8 +70,8 @@ exclude = [
   "^/new-sources/.*",
 
   # Generic local/dev links
-  "^http://127\.0\.1",
+  "^http://127\\.0\\.1",
   "^http://localhost",
-  "^https://127\.0\.1",
+  "^https://127\\.0\\.1",
   "^https://localhost"
 ]
