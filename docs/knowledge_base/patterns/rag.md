@@ -199,7 +199,7 @@ The following examples demonstrate a minimal local RAG setup using **Ollama** fo
 
 *   **RAG Platforms:** [Dify](../../tools/ai_knowledge/dify.md), [Flowise](../../tools/ai_knowledge/flowise.md), [RAGFlow](../../tools/process_understanding/ragflow.md)
 *   **Orchestration:** [LlamaIndex](../../tools/ai_knowledge/llamaindex.md), [LangChain](../../tools/ai_knowledge/langchain.md), [Haystack](../../tools/frameworks/haystack.md)
-*   **Infrastructure:** [Vector Databases](../../tools/infrastructure/index.md#sub-categories), [Embedding Models](../../tools/infrastructure/index.md#sub-categories)
+*   **Infrastructure:** [Vector Databases](../../tools/infrastructure/index.md), [Embedding Models](../../tools/infrastructure/index.md)
 *   **Data Extraction:** [Crawl4AI](../../tools/process_understanding/crawl4ai.md), [Firecrawl](../../tools/process_understanding/firecrawl.md), [OCRmyPDF](../../tools/process_understanding/ocrmypdf.md)
 *   **Local Solutions:** [Paperless-AI](../../services/paperless-ai.md), [PageIndex](../../tools/process_understanding/pageindex.md)
 *   **Evaluation:** RAGAS, DeepEval, TruLens
