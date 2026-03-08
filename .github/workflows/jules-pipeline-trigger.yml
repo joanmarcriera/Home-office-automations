@@ -19,10 +19,12 @@ jobs:
       github.event.pull_request.merged == true && (
         contains(github.event.pull_request.title, 'daily maintenance') ||
         contains(github.event.pull_request.title, 'daily knowledge') ||
+        contains(github.event.pull_request.title, 'jules sprint') ||
         contains(github.event.pull_request.title, 'weekly') ||
         contains(github.event.pull_request.title, 'cross-link') ||
         contains(github.event.pull_request.title, 'primer') ||
-        contains(github.event.pull_request.title, 'automated resolution')
+        contains(github.event.pull_request.title, 'automated resolution') ||
+        github.event.pull_request.user.login == 'google-labs-jules[bot]'
       )
     runs-on: ubuntu-latest
     steps:
@@ -43,3 +45,10 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           gh workflow run "Daily Jules Knowledge Expansion" --repo "$REPO" || true
+
+      - name: Trigger sprint workforce workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh workflow run "Jules Sprint Workforce (2 Weeks)" --repo "$REPO" || true

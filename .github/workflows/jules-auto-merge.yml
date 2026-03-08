@@ -38,6 +38,7 @@ jobs:
       github.event_name != 'pull_request' || (
         contains(github.event.pull_request.title, 'daily maintenance') ||
         contains(github.event.pull_request.title, 'daily knowledge') ||
+        contains(github.event.pull_request.title, 'jules sprint') ||
         contains(github.event.pull_request.title, 'weekly') ||
         contains(github.event.pull_request.title, 'cross-link') ||
         contains(github.event.pull_request.title, 'primer') ||
@@ -65,11 +66,12 @@ jobs:
           JULES_PRS=$(gh pr list \
             --repo "$REPO" \
             --state open \
-            --json number,title,labels,headRefName \
+            --json number,title,labels,headRefName,author \
             --jq '[.[] | select(
               (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
               (.labels[]?.name == "jules") or
-              (.headRefName | test("jules|daily-maintenance|daily-knowledge|weekly-deepen|cross-link|primer|auto-fix"; "i"))
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix"; "i")) or
+              (.author.login == "google-labs-jules[bot]")
             )] | map(.number) | join(",")')
 
           if [ -z "$JULES_PRS" ]; then

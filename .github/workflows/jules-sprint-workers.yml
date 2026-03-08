@@ -1,0 +1,88 @@
+name: Jules Sprint Workforce (2 Weeks)
+
+on:
+  schedule:
+    - cron: "0 */4 * * *" # every 4 hours
+  workflow_dispatch:
+
+concurrency:
+  group: jules-sprint-workers
+  cancel-in-progress: false
+
+jobs:
+  seed-worker-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    env:
+      REPO: ${{ github.repository }}
+      SPRINT_START: "2026-03-08"
+      SPRINT_END: "2026-03-22"
+      TARGET_WORKERS: "9"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          for LABEL in jules jules-sprint; do
+            if ! gh api "repos/$REPO/labels/$LABEL" >/dev/null 2>&1; then
+              if [ "$LABEL" = "jules" ]; then
+                gh label create "$LABEL" --repo "$REPO" --color "1f6feb" --description "Issues queued for Jules automation"
+              else
+                gh label create "$LABEL" --repo "$REPO" --color "6f42c1" --description "2-week autonomous sprint work items for Jules"
+              fi
+            fi
+          done
+
+      - name: Check sprint window
+        id: window
+        run: |
+          set -euo pipefail
+          TODAY=$(date -u +%F)
+          echo "today=$TODAY" >> "$GITHUB_OUTPUT"
+          if [[ "$TODAY" < "$SPRINT_START" || "$TODAY" > "$SPRINT_END" ]]; then
+            echo "in_window=false" >> "$GITHUB_OUTPUT"
+            echo "Outside sprint window ($SPRINT_START .. $SPRINT_END)."
+          else
+            echo "in_window=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for pending non-automation Jules issues
+        if: steps.window.outputs.in_window == 'true'
+        id: backlog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          OPEN_NON_AUTOMATION=$(gh issue list \
+            --repo "$REPO" \
+            --label jules \
+            --state open \
+            --json title,labels \
+            --jq '[.[] | select(
+              (.title | startswith("Daily Knowledge Expansion - ") | not) and
+              (.title | startswith("Daily Maintenance Run - ") | not) and
+              (.title | startswith("Process Jules Backlog - ") | not) and
+              (.labels | any(.name == "jules-sprint") | not)
+            )] | length')
+          echo "open_non_automation=$OPEN_NON_AUTOMATION" >> "$GITHUB_OUTPUT"
+          if [ "$OPEN_NON_AUTOMATION" != "0" ]; then
+            echo "⏸️ Non-automation Jules backlog detected ($OPEN_NON_AUTOMATION). Sprint seeding skipped."
+          fi
+
+      - name: Seed/maintain sprint worker issues
+        if: steps.window.outputs.in_window == 'true' && steps.backlog.outputs.open_non_automation == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 scripts/open_jules_sprint_issues.py \
+            --repo "$REPO" \
+            --target-workers "$TARGET_WORKERS"

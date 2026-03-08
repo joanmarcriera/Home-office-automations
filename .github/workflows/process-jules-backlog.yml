@@ -45,7 +45,12 @@ jobs:
             --label jules \
             --state open \
             --json number,title \
-            --jq "[.[] | select((.title | startswith(\"Process Jules Backlog - \")) | not)] | length")
+            --jq "[.[] | select(
+              (.title | startswith(\"Process Jules Backlog - \") | not) and
+              (.title | startswith(\"Daily Knowledge Expansion - \") | not) and
+              (.title | startswith(\"Daily Maintenance Run - \") | not) and
+              (.title | startswith(\"[W\") | not)
+            )] | length")
           OPEN_BACKLOG=$(gh issue list \
             --repo "$REPO" \
             --label jules \
