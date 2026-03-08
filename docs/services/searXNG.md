@@ -30,7 +30,7 @@ mkdir searxng && cd searxng
 docker run --rm -it searxng/searxng -w
 
 # Start SearXNG
-docker run -d -p 8080:8080 -v ${PWD}/searxng:/etc/searxng --name searxng searxng/searxng
+docker run -d -p 8080:8080 -v ${PWD}:/etc/searxng --name searxng searxng/searxng
 ```
 
 Access the UI at `http://localhost:8080`.
