@@ -16,16 +16,18 @@ It eliminates the complexity of managing different SDKs and authentication metho
                                                | ----> [ Local Ollama ]
 ```
 
-## Typical workflows
+## Typical use cases
 - **Unified Interface**: Using one API key and one endpoint to access any model.
 - **Failover**: Automatically switching to a secondary model (e.g., GPT-4o to Claude 3.5) if the primary one is down or rate-limited.
 - **Cost Management**: Tracking spend across different departments or projects using virtual keys.
+- **Local LLM Proxy**: Exposing a local Ollama instance via an OpenAI-compatible API for tools that don't support Ollama natively.
 - **Load Balancing**: Distributing requests across multiple instances of the same model to increase throughput.
 
 ## Strengths
 - **Protocol Standardization**: Everything speaks "OpenAI Chat Completions".
 - **Massive Provider Support**: Works with almost every known LLM API.
 - **Self-hostable**: Complete control over your routing infrastructure.
+- **Token Efficiency**: Helps manage and enforce token budgets across multiple providers, ensuring cost-effective usage.
 - **Detailed Logging**: Excellent for debugging agent-LLM interactions.
 
 ## Limitations
@@ -40,6 +42,28 @@ It eliminates the complexity of managing different SDKs and authentication metho
 ## When not to use it
 - If you only ever use a single provider (e.g., only OpenAI).
 - For very simple, low-volume projects where the proxy is overkill.
+
+## Getting started
+
+### Configuration Example (`config.yaml`)
+To proxy a local Ollama instance:
+
+```yaml
+model_list:
+  - model_name: my-llama3
+    litellm_params:
+      model: ollama/llama3
+      api_base: http://localhost:11434
+```
+
+### Running with Docker
+```bash
+docker run \
+    -v $(pwd)/config.yaml:/app/config.yaml \
+    -p 4000:4000 \
+    ghcr.io/berriai/litellm:main-latest \
+    --config /app/config.yaml --detailed_debug
+```
 
 ## Security considerations
 - **Proxy Authentication**: Secure the LiteLLM proxy with master keys.
@@ -58,5 +82,5 @@ It eliminates the complexity of managing different SDKs and authentication metho
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-03-08
 - Confidence: medium

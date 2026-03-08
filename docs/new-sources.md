@@ -6,7 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
-| 2026-03-08 | [2026-03-08](/new-sources/2026-03-08/) | 0 | 2 | Deepened Whisper and SearXNG services |
+| 2026-03-08 | [2026-03-08](/new-sources/2026-03-08/) | 0 | 1 | Home Assistant Ollama Integration |
 | 2026-03-05 | [2026-03-05](/new-sources/2026-03-05/) | 0 | 2 | New providers: MiniMax, Moonshot AI |
 | 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 19 | Provider and framework updates |
 | 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 20 | Daily ingestion (providers, agents, infrastructure) |
