@@ -31,6 +31,29 @@ Framework / Agent Library
 - For extremely complex, multi-crew enterprise orchestrations.
 - If you need built-in support for complex persistent state management or long-term memory.
 
+## Local LLM Usage & Token Efficiency
+
+Running `smolagents` with local models (e.g., via Ollama or vLLM) is a powerful way to reduce costs and maintain privacy.
+
+### Local Ollama Example
+```python
+from smolagents import CodeAgent, LiteLLMModel
+
+# Initialize with a local Ollama model via LiteLLM
+model = LiteLLMModel(
+    model_id="ollama/llama3",
+    api_base="http://localhost:11434"
+)
+
+agent = CodeAgent(tools=[], model=model)
+agent.run("Write a Python script to calculate the first 10 Fibonacci numbers.")
+```
+
+### Token-Efficiency Tips
+- **Use Specialized Models**: For `CodeAgent`, use models optimized for coding (e.g., `deepseek-coder` or `qwen2.5-coder`) to reduce the number of reasoning steps.
+- **Limit Tool Output**: Large tool outputs can quickly exhaust the context window of smaller local models. Ensure tools return concise, structured data.
+- **Task Decomposition**: Small models perform better when complex tasks are broken down into smaller, focused sub-tasks.
+
 ## Getting started
 
 ### Installation

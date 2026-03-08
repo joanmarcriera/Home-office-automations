@@ -32,6 +32,41 @@ It makes local LLM inference practical on CPUs and smaller devices by combining 
 - When managed cloud APIs are preferred for simplicity and elasticity
 - When you need frontier-model quality that local hardware cannot sustain
 
+## Getting started
+
+### Docker Compose Example
+Run `llama.cpp` as an OpenAI-compatible server using Docker:
+
+```yaml
+services:
+  llama-cpp:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./models:/models
+    command: "-m /models/llama-3-8b-instruct.Q4_K_M.gguf -c 2048 --host 0.0.0.0 --port 8080"
+```
+
+### Python API Example
+Use the `openai` library to interact with your local `llama.cpp` server:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:8080/v1", api_key="sk-no-key-required")
+
+response = client.chat.completions.create(
+    model="local-model",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Explain quantization in 3 sentences."}
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes
 - **Cost**: Free software; infrastructure/hardware costs still apply
