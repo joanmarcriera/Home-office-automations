@@ -309,6 +309,8 @@ nav:
       - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
       - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
       - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
+      - LLM Routing and Optimization: knowledge_base/patterns/llm-routing-and-optimization.md
+      - Semantic Caching: knowledge_base/patterns/semantic-caching.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
     - Calendar:
