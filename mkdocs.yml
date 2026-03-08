@@ -61,7 +61,6 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
-      - 2026-03-08: new-sources/2026-03-08.md
       - 2026-03-05: new-sources/2026-03-05.md
       - 2026-03-03: new-sources/2026-03-03.md
       - 2026-03-02: new-sources/2026-03-02.md
@@ -310,8 +309,6 @@ nav:
       - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
       - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
       - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
-      - LLM Routing and Optimization: knowledge_base/patterns/llm-routing-and-optimization.md
-      - Semantic Caching: knowledge_base/patterns/semantic-caching.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
     - Calendar:
