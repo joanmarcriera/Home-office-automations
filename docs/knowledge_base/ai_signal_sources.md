@@ -28,6 +28,12 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 | Nathan Lambert (Interconnects) | Clear frontier-model research commentary from a practitioner lens | https://www.interconnects.ai/ |
 | Latent Space | Engineering-focused interviews and implementation patterns | https://www.latent.space/ |
 | Daniel Saewitz | High-signal analysis of commercial OSS and AI strategy | https://saewitz.com/ |
+
+## Prompt Engineering & System Prompts
+
+| Source | Focus | URL |
+| :--- | :--- | :--- |
+| System Prompts Leaks | Extracted system prompts from frontier models (Claude, GPT, Gemini) | https://github.com/asgeirtj/system_prompts_leaks/ |
 | Dmitri Sotnikov (Yogthos) | Deep dives into managing AI complexity and Clojure patterns | https://yogthos.net/ |
 | Tyler Rockwood | Applied LLM security analysis with practical trust-boundary experiments | https://rockwotj.com/blog/ |
 
@@ -64,9 +70,10 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 - [Daniel Saewitz's Blog](https://saewitz.com/)
 - [Dmitri Sotnikov's Blog (yogthos.net)](https://yogthos.net/)
 - [Tyler Rockwood's Blog](https://rockwotj.com/blog/)
+- [System Prompts Leaks GitHub](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
 - [The AI Agent Tools Landscape: 120+ Tools Mapped [2026]](https://stackone.com/blog/ai-agent-tools-landscape-2026/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-03-09
 - Confidence: medium
