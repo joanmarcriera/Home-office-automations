@@ -12,6 +12,7 @@ Recurring architectural and design patterns in AI/LLM systems — RAG, tool call
 - [Agent Skills Best Practices](skills-best-practices.md)
 - [OpenClaw Workflow Prompt Library Pattern](openclaw-workflow-prompts.md)
 - [LLM Trust Boundaries Pattern](llm-trust-boundaries.md)
+- [Software Factories Pattern](software-factories.md) — Non-interactive development via seed, validation, and feedback loops
 
 ## Common Patterns
 
