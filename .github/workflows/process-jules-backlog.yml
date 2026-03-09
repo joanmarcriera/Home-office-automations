@@ -3,6 +3,8 @@ name: Process Jules Backlog
 on:
   schedule:
     - cron: '30 0 * * *'  # Runs daily at 00:30 UTC
+  issues:
+    types: [opened, reopened, labeled]
   workflow_dispatch: # allow manual trigger
 
 concurrency:
@@ -11,6 +13,15 @@ concurrency:
 
 jobs:
   open-backlog-issue:
+    if: >-
+      github.event_name != 'issues' ||
+      (
+        github.event_name == 'issues' && (
+          github.event.action == 'opened' ||
+          github.event.action == 'reopened' ||
+          (github.event.action == 'labeled' && github.event.label.name == 'jules')
+        )
+      )
     runs-on: ubuntu-latest
     permissions:
       issues: write

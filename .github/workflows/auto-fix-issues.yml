@@ -46,6 +46,8 @@ jobs:
           git checkout -b auto-fix-issue-$ISSUE_NUMBER
 
       - name: Run Auto-fix Python Script
+        id: autofix
+        continue-on-error: true
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,7 +57,7 @@ jobs:
           python scripts/auto_fix.py $ISSUE_NUMBER
           
       - name: Create PR with fixes
-        if: success()
+        if: steps.autofix.outcome == 'success'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
@@ -72,5 +74,17 @@ jobs:
             --base main \
             --head auto-fix-issue-$ISSUE_NUMBER \
             || echo "No changes found or PR already exists."
+
+      - name: Fallback to Jules when OpenRouter lane fails
+        if: steps.autofix.outcome != 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label jules || true
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
+            "OpenRouter auto-fix could not complete this issue in CI. Falling back to Jules (`jules`) for handling."
 
       # Auto-merge removed — all PRs require human review
