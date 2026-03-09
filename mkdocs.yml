@@ -311,6 +311,7 @@ nav:
       - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
       - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
       - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
+      - Software Factories: knowledge_base/patterns/software-factories.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
     - Calendar:

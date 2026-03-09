@@ -6,6 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-03-09 | [2026-03-09](/new-sources/2026-03-09/) | 0 | 3 | Integrated Software Factory and Agentic Engineering patterns |
 | 2026-03-08 | [2026-03-08](/new-sources/2026-03-08/) | 3 | 5 | Added local AI desktop tools and integrated Qwen/Local LLM, Whisper/SearXNG, and Home Assistant Ollama |
 | 2026-03-05 | [2026-03-05](/new-sources/2026-03-05/) | 0 | 2 | New providers: MiniMax, Moonshot AI |
 | 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 19 | Provider and framework updates |
