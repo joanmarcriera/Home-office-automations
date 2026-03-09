@@ -41,7 +41,7 @@ It allows agents to manage tasks, projects, labels, and teams directly within a 
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Vikunja](https://vikunja.io/)
+- [Vikunja](../../services/vikunja.md)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
 - [MCP Registry](mcp-registry.md)
 

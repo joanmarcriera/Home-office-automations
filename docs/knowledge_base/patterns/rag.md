@@ -203,7 +203,7 @@ The following examples demonstrate a minimal local RAG setup using **Ollama** fo
 *   **Data Extraction:** [Crawl4AI](../../tools/process_understanding/crawl4ai.md), [Firecrawl](../../tools/process_understanding/firecrawl.md), [OCRmyPDF](../../tools/process_understanding/ocrmypdf.md)
 *   **Local Solutions:** [Paperless-AI](../../services/paperless-ai.md), [PageIndex](../../tools/process_understanding/pageindex.md)
 *   **Evaluation:** RAGAS, DeepEval, TruLens
-*   **Concepts:** [Tool Calling & MCP](tool-calling-and-mcp.md), [Agent Protocols](../agent_protocols.md)
+*   **Concepts:** [Tool Calling & MCP](tool-calling-and-mcp.md), [Agent Protocols](../../knowledge_base/agent_protocols.md)
 
 ## Sources / references
 
