@@ -1,0 +1,79 @@
+name: Monthly Reddit OpenClaw Intake
+
+on:
+  schedule:
+    - cron: "0 3 1 * *" # 1st day of month, 03:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: monthly-reddit-openclaw-intake
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install openai
+
+      - name: Run monthly Reddit intake bridge
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+          REDDIT_SUBREDDIT: openclaw
+          REDDIT_TIMEFRAME: month
+          REDDIT_POST_LIMIT: "60"
+          MAX_INTAKE_ITEMS: "5"
+        run: python scripts/monthly_reddit_openclaw_intake.py
+
+      - name: Validate intake logs
+        run: python3 scripts/validate_new_sources.py
+
+      - name: Enforce small PR footprint (max 3 files)
+        run: |
+          set -euo pipefail
+          changed=$(git status --porcelain | wc -l | tr -d ' ')
+          echo "Changed files: $changed"
+          if [ "$changed" -gt 3 ]; then
+            echo "Too many changed files ($changed). Expected <= 3."
+            exit 1
+          fi
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/monthly-reddit-openclaw-intake-${{ github.run_id }}
+          delete-branch: true
+          title: "chore(intake): monthly Reddit OpenClaw bridge"
+          commit-message: "chore(intake): monthly Reddit OpenClaw bridge"
+          body: |
+            Automated monthly intake from `r/openclaw` using Reddit API + OpenRouter filtering.
+
+            Scope guardrails:
+            - Max 5 items per run
+            - Expected file footprint <= 3 files
+            - Intake validation required
+          labels: |
+            jules
+          add-paths: |
+            docs/new-sources.md
+            docs/new-sources/*.md
+
