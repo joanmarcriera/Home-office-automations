@@ -874,6 +874,42 @@
       "doc_path": "docs/tools/ai_knowledge/qwen.md"
     },
     {
+      "id": "jasper",
+      "name": "Jasper",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/jasper.md"
+    },
+    {
+      "id": "copy-ai",
+      "name": "Copy.ai",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/copy-ai.md"
+    },
+    {
+      "id": "runwayml",
+      "name": "Runway ML",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/runwayml.md"
+    },
+    {
+      "id": "synthesia",
+      "name": "Synthesia",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/synthesia.md"
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/elevenlabs.md"
+    },
+    {
+      "id": "notion-ai",
+      "name": "Notion AI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/notion-ai.md"
+    },
+    {
       "id": "vllm",
       "name": "vLLM",
       "category": "Infrastructure",

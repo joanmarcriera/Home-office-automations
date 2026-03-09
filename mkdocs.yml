@@ -136,14 +136,18 @@ nav:
     - AI & Knowledge:
       - Overview: tools/ai_knowledge/index.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
+      - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
       - Dify: tools/ai_knowledge/dify.md
+      - ElevenLabs: tools/ai_knowledge/elevenlabs.md
       - Flowise: tools/ai_knowledge/flowise.md
+      - Jasper: tools/ai_knowledge/jasper.md
       - Jules: tools/ai_knowledge/jules.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
+      - Notion AI: tools/ai_knowledge/notion-ai.md
       - Obsidian: tools/ai_knowledge/obsidian.md
       - OpenAI: tools/ai_knowledge/openai.md
       - Google Gemini: tools/ai_knowledge/google-gemini.md
@@ -151,6 +155,8 @@ nav:
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
       - Qwen: tools/ai_knowledge/qwen.md
+      - Runway ML: tools/ai_knowledge/runwayml.md
+      - Synthesia: tools/ai_knowledge/synthesia.md
       - TeamOut: tools/ai_knowledge/teamout.md
       - Valyu: tools/ai_knowledge/valyu.md
     - Automation & Orchestration:
