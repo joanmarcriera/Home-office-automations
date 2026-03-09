@@ -56,7 +56,7 @@ To implement the Software Factory pattern in local, free-as-in-beer environments
 
 ## Related tools / concepts
 - [Agentic Engineering Patterns](https://simonwillison.net/guides/agentic-engineering-patterns/)
-- [Digital Twin Universe](https://factory.strongdm.ai/techniques/digital-twin-universe)
+- [Digital Twin Universe](https://factory.strongdm.ai/techniques/dtu)
 - [Qwen 2.5 Coder](../../tools/ai_knowledge/qwen.md)
 - [Jules](../../tools/ai_knowledge/jules.md) (The autonomous coding agent used in this hub)
 
