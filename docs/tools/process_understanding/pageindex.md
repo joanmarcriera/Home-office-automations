@@ -35,7 +35,7 @@ It addresses the inaccuracies of vector similarity search in professional docume
 
 ## Related tools / concepts
 - [RAGFlow](./ragflow.md)
-- [Retrieval-Augmented Generation (RAG)](../../knowledge_base/README.md)
+- [Retrieval-Augmented Generation (RAG)](../../knowledge_base/patterns/rag.md)
 
 ## Sources / references
 - [Official Website](https://pageindex.ai/)
