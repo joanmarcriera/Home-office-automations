@@ -72,6 +72,7 @@ exclude = [
   "https://huggingface\\.co/spaces/.*",
   "https://tanstack\\.com/.*",
   "https://www\\.kiwix\\.org/.*",
+  "https://thesequence\\.ai/.*",
 
   # Local absolute site paths (e.g., /new-sources/) that Lychee cannot resolve
   # from raw Markdown source files. These are required by repository validation

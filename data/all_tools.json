@@ -208,6 +208,12 @@
       "models": ["moonshot-v1"]
     },
     {
+      "id": "bigswitch",
+      "name": "BigSwitch",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/bigswitch.md"
+    },
+    {
       "id": "deepseek",
       "name": "DeepSeek",
       "category": "AI Assistants & Knowledge",
@@ -982,6 +988,18 @@
       "doc_path": "docs/tools/agents/agno.md"
     },
     {
+      "id": "symphony",
+      "name": "Symphony (OpenAI)",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/symphony.md"
+    },
+    {
+      "id": "superpowers",
+      "name": "Superpowers",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/superpowers.md"
+    },
+    {
       "id": "anthropic-agent-skills",
       "name": "Anthropic Agent Skills",
       "category": "Agents",
@@ -1052,6 +1070,12 @@
       "name": "Free Will MCP",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/free-will-mcp.md"
+    },
+    {
+      "id": "nanoclaw",
+      "name": "NanoClaw",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/nanoclaw.md"
     },
     {
       "id": "fuzzing-mcp-server",
