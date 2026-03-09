@@ -13,6 +13,7 @@ Recurring architectural and design patterns in AI/LLM systems — RAG, tool call
 - [OpenClaw Workflow Prompt Library Pattern](openclaw-workflow-prompts.md)
 - [LLM Trust Boundaries Pattern](llm-trust-boundaries.md)
 - [Software Factories Pattern](software-factories.md) — Non-interactive development via seed, validation, and feedback loops
+- [Filesystem-as-Interface Pattern](filesystem-context.md) — Filesystem as the primary interface and persistence layer for agents
 
 ## Common Patterns
 

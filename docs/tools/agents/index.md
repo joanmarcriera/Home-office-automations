@@ -17,6 +17,8 @@ Tools and frameworks for building, running, and orchestrating autonomous AI agen
 | [LangGraph](langgraph.md) | Stateful agent orchestration by LangChain |
 | [OpenHands](../development_ops/openhands.md) | Autonomous software development agent |
 | [Phidata](phidata.md) | Framework for building AI assistants with memory and tools |
+| [Superpowers](superpowers.md) | Agent development workflow and skills framework |
+| [Symphony](symphony.md) | OpenAI's autonomous implementation framework |
 
 <!-- New agent pages are added here by Jules -->
 
