@@ -1,0 +1,81 @@
+name: Issue Automation Router
+
+on:
+  issues:
+    types: [opened, reopened, edited]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: issue-router-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.pull_request == null)
+    steps:
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          ensure_label() {
+            local name="$1"
+            local color="$2"
+            local description="$3"
+            if ! gh api "repos/$REPO/labels/$name" >/dev/null 2>&1; then
+              gh label create "$name" \
+                --repo "$REPO" \
+                --color "$color" \
+                --description "$description"
+            fi
+          }
+
+          ensure_label "jules" "1f6feb" "Issues queued for Jules automation"
+          ensure_label "autofix" "8b5cf6" "Issues queued for OpenRouter auto-fix"
+
+      - name: Route issue to automation lane
+        if: github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+
+          ISSUE_JSON=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json title,body,labels,author)
+          TITLE=$(echo "$ISSUE_JSON" | jq -r '.title // ""' | tr '[:upper:]' '[:lower:]')
+          BODY=$(echo "$ISSUE_JSON" | jq -r '.body // ""' | tr '[:upper:]' '[:lower:]')
+          HAS_JULES=$(echo "$ISSUE_JSON" | jq '[.labels[].name | ascii_downcase] | index("jules") != null')
+          HAS_AUTOFIX=$(echo "$ISSUE_JSON" | jq '[.labels[].name | ascii_downcase] | index("autofix") != null')
+
+          # Do not mutate automation-generated control issues.
+          if [[ "$TITLE" == process\ jules\ backlog\ -* ]] || [[ "$TITLE" == daily\ knowledge\ expansion\ -* ]] || [[ "$TITLE" == daily\ maintenance\ run\ -* ]] || [[ "$TITLE" == \[w* ]]; then
+            echo "Control issue detected; no routing changes."
+            exit 0
+          fi
+
+          # Skip if already routed.
+          if [[ "$HAS_JULES" == "true" ]] || [[ "$HAS_AUTOFIX" == "true" ]]; then
+            echo "Issue already has an automation label."
+            exit 0
+          fi
+
+          # Route to OpenRouter auto-fix when explicitly requested.
+          if [[ "$TITLE $BODY" == *"[openrouter]"* ]] || [[ "$TITLE $BODY" == *"#openrouter"* ]] || [[ "$TITLE $BODY" == *"autofix"* ]] || [[ "$TITLE $BODY" == *"auto-fix"* ]]; then
+            gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "autofix"
+            gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
+              "Automation routing: this issue was queued to the OpenRouter auto-fix lane (`autofix`). If no fix PR is produced, it will fall back to `jules`."
+            exit 0
+          fi
+
+          # Default route: Jules lane.
+          gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "jules"
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
+            "Automation routing: this issue was queued to Jules (`jules`) for implementation."
