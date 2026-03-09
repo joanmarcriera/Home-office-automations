@@ -1,0 +1,48 @@
+name: Cleanup Stale Automation Issues
+
+on:
+  schedule:
+    - cron: "20 1 * * *" # Daily at 01:20 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: cleanup-automation-issues
+  cancel-in-progress: false
+
+jobs:
+  close-stale-control-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Close stale auto-generated control issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          PATTERN='^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -|Category gap fill:|Weekly deepening:)'
+
+          TO_CLOSE=$(gh issue list \
+            --repo "$REPO" \
+            --state open \
+            --label jules \
+            --author "app/github-actions" \
+            --limit 200 \
+            --json number,title,createdAt \
+            --jq ".[] | select((.createdAt | fromdateiso8601) < (now - 172800)) | select(.title | test(\"$PATTERN\")) | .number")
+
+          if [ -z "${TO_CLOSE:-}" ]; then
+            echo "No stale automation issues to close."
+            exit 0
+          fi
+
+          for n in $TO_CLOSE; do
+            gh issue close "$n" \
+              --repo "$REPO" \
+              --comment "Superseded by newer automation cycles; closing stale control issue automatically."
+            echo "Closed stale automation issue #$n"
+          done
+
