@@ -9,6 +9,19 @@ Accelerate homelab infrastructure development using a hierarchy of AI coding age
 - [Ollama](../services/ollama.md)
 - [Jules (Google)](../tools/ai_knowledge/jules.md)
 
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    A[Drafting: Cursor] -->|Outline & Python script| B[Implementation: Aider]
+    B -->|Complex functions| C[Refactoring: Jules]
+    C -->|Best practices & Unit tests| D[Verification: Anti-Gravity]
+    D -->|Plan-Code-Test loop| E[Audit: Human Review]
+    E -->|Approved| F[Merge to main]
+    B -.->|Linter errors| B
+    D -.->|Test failures| B
+```
+
 ## Step-by-Step Flow
 1.  **Drafting**: Use Cursor to outline a new automation script in Python.
 2.  **Implementation**: Use Aider to perform targeted code generation for complex functions.
