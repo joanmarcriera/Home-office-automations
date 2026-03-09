@@ -36,7 +36,7 @@ Symphony offers two primary paths:
 
 ## Related tools / concepts
 - [Harness Engineering (OpenAI Blog)](https://openai.com/index/harness-engineering/)
-- [OpenCode](opencode.md)
+- [OpenCode](../development_ops/opencode.md)
 
 ## Sources / References
 
