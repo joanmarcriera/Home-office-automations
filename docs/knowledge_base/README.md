@@ -7,6 +7,7 @@ This section contains deep dives into the technologies, protocols, and conceptua
     [**AI Tooling Landscape — 2026 Overview**](ai_tooling_landscape.md) — A high-level map of the entire AI tooling ecosystem as documented in this repository. Use this as your primary entry point to understand how everything connects.
 
 - [**Model Classes**](model_classes.md) - Understanding the different types of LLMs (MoE, Reasoning, Multimodal, etc.).
+- [**System Prompts**](system_prompts.md) - Foundational instructions for frontier models and "high engineering" persona design.
 - [**Model Comparison and Evaluation**](model_comparison_and_evaluation.md) - Guide to LLM leaderboards, benchmarks, and metrics.
 - [**Agent Protocols**](agent_protocols.md) - Deep dive into MCP (Model Context Protocol) and ACP (Agent Control Protocol).
 - [**API Pricing & Free Tier Matrix**](api_pricing_free_tiers.md) - Canonical tracker for provider pricing links and current free-tier availability.
