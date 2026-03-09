@@ -1,0 +1,106 @@
+name: Monthly Reddit OpenClaw Intake
+
+on:
+  schedule:
+    - cron: "0 3 1 * *" # 1st day of month, 03:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: monthly-reddit-openclaw-intake
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install openai
+
+      - name: Resolve credential fallbacks
+        env:
+          OPENROUTER_API_KEY_SECRET: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY_VAR: ${{ vars.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL_VAR: ${{ vars.OPENROUTER_MODEL }}
+          REDDIT_CLIENT_ID_SECRET: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_ID_VAR: ${{ vars.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_CLIENT_SECRET_VAR: ${{ vars.REDDIT_CLIENT_SECRET }}
+          REDDIT_USER_AGENT_SECRET: ${{ secrets.REDDIT_USER_AGENT }}
+          REDDIT_USER_AGENT_VAR: ${{ vars.REDDIT_USER_AGENT }}
+        run: |
+          set -euo pipefail
+          echo "OPENROUTER_API_KEY=${OPENROUTER_API_KEY_SECRET:-$OPENROUTER_API_KEY_VAR}" >> "$GITHUB_ENV"
+          echo "OPENROUTER_MODEL=${OPENROUTER_MODEL_VAR:-}" >> "$GITHUB_ENV"
+          echo "REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID_SECRET:-$REDDIT_CLIENT_ID_VAR}" >> "$GITHUB_ENV"
+          echo "REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET_SECRET:-$REDDIT_CLIENT_SECRET_VAR}" >> "$GITHUB_ENV"
+          echo "REDDIT_USER_AGENT=${REDDIT_USER_AGENT_SECRET:-$REDDIT_USER_AGENT_VAR}" >> "$GITHUB_ENV"
+
+      - name: Preflight required credentials
+        run: |
+          set -euo pipefail
+          missing=0
+          for v in OPENROUTER_API_KEY REDDIT_CLIENT_ID REDDIT_CLIENT_SECRET REDDIT_USER_AGENT; do
+            if [ -z "${!v:-}" ]; then
+              echo "::error::$v is not set (set as secret or variable)."
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Run monthly Reddit intake bridge
+        env:
+          REDDIT_SUBREDDIT: openclaw
+          REDDIT_TIMEFRAME: month
+          REDDIT_POST_LIMIT: "60"
+          MAX_INTAKE_ITEMS: "5"
+        run: python scripts/monthly_reddit_openclaw_intake.py
+
+      - name: Validate intake logs
+        run: python3 scripts/validate_new_sources.py
+
+      - name: Enforce small PR footprint (max 3 files)
+        run: |
+          set -euo pipefail
+          changed=$(git status --porcelain | wc -l | tr -d ' ')
+          echo "Changed files: $changed"
+          if [ "$changed" -gt 3 ]; then
+            echo "Too many changed files ($changed). Expected <= 3."
+            exit 1
+          fi
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/monthly-reddit-openclaw-intake-${{ github.run_id }}
+          delete-branch: true
+          title: "chore(intake): monthly Reddit OpenClaw bridge"
+          commit-message: "chore(intake): monthly Reddit OpenClaw bridge"
+          body: |
+            Automated monthly intake from `r/openclaw` using Reddit API + OpenRouter filtering.
+
+            Scope guardrails:
+            - Max 5 items per run
+            - Expected file footprint <= 3 files
+            - Intake validation required
+          labels: |
+            jules
+          add-paths: |
+            docs/new-sources.md
+            docs/new-sources/*.md
