@@ -12,6 +12,50 @@ It builds a secure WireGuard-based mesh network between your devices, even behin
 - [ZeroTier](https://www.zerotier.com/)
 - [Netmaker](https://www.netmaker.io/)
 
+## Getting started
+
+### Installation
+On most Linux distributions, you can install Tailscale with a single command:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+After installation, authenticate the device:
+
+```bash
+sudo tailscale up
+```
+
+## CLI examples
+
+The `tailscale` command is used to manage the local node and view network status.
+
+```bash
+# Check the status of your tailnet and connected peers
+tailscale status
+
+# Get the Tailscale IP address of the current machine
+tailscale ip -4
+
+# Bring down the Tailscale connection
+sudo tailscale down
+```
+
+## API examples
+
+Tailscale provides a REST API (v2) for tailnet administration. You can use OAuth clients to generate access tokens.
+
+```bash
+# Generate an access token using OAuth credentials
+curl -d "client_id=YOUR_CLIENT_ID" -d "client_secret=YOUR_CLIENT_SECRET" \
+  "https://api.tailscale.com/api/v2/oauth/token"
+
+# List all devices in your tailnet
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  "https://api.tailscale.com/api/v2/tailnet/example.com/devices"
+```
+
 ## Backlog
 - Setup Tailscale Exit Node on TrueNAS SCALE.
 - Configure MagicDNS for easy service access.
@@ -25,3 +69,6 @@ It builds a secure WireGuard-based mesh network between your devices, even behin
 - https://tailscale.com/
 - https://www.zerotier.com/
 - https://www.netmaker.io/
+- https://tailscale.com/docs/install/linux
+- https://tailscale.com/docs/reference/tailscale-cli
+- https://tailscale.com/docs/reference/tailscale-api

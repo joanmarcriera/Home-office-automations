@@ -45,4 +45,3 @@ jobs:
               --comment "Superseded by newer automation cycles; closing stale control issue automatically."
             echo "Closed stale automation issue #$n"
           done
-

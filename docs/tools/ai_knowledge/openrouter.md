@@ -47,6 +47,7 @@ Proxy service. Your agent sends requests to OpenRouter, which then routes them t
 - [LiteLLM](../../services/litellm.md)
 - [OpenAI](openai.md)
 - [Anthropic](../providers/anthropic.md)
+- [OpenHands](../development_ops/openhands.md)
 
 ## Integration ecosystem and technical signal feeds
 

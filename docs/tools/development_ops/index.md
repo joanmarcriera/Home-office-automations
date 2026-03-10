@@ -25,6 +25,7 @@
 - [Jupyter Kernel MCP](jupyter-kernel-mcp.md)
 - [Melty](melty.md)
 - [Mentat](mentat.md)
+- [NanoClaw](nanoclaw.md)
 - [OpenClaw](openclaw.md)
 - [OpenCode](opencode.md)
 - [Openhands](openhands.md)

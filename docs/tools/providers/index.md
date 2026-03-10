@@ -18,5 +18,6 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [Replicate](replicate.md) | Run open-source models via API |
 | [MiniMax](minimax.md) | M2.5 coding-optimized models and Coding Plan |
 | [Moonshot AI](moonshot.md) | Kimi models with pioneer long-context (128k+) |
+| [BigSwitch](bigswitch.md) | Directory of European tech alternatives |
 
 <!-- New provider pages are added here by Jules -->
