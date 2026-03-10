@@ -71,4 +71,4 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 - https://www.netmaker.io/
 - https://tailscale.com/docs/install/linux
 - https://tailscale.com/docs/reference/tailscale-cli
-- https://tailscale.com/docs/api/v2
+- https://tailscale.com/docs/reference/tailscale-api

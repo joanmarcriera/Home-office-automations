@@ -76,5 +76,5 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 - [Official Website](https://jellyfin.org/)
 - [Plex](https://www.plex.tv/) (Non-OSS)
 - [Emby](https://emby.media/) (Non-OSS)
-- [Jellyfin Docker Documentation](https://jellyfin.org/docs/general/administration/installing/#docker)
-- [Jellyfin API Documentation](https://jellyfin.org/docs/general/administration/api/)
+- [Jellyfin Docker Documentation](https://jellyfin.org/docs/general/installation/container)
+- [Jellyfin API Documentation](https://api.jellyfin.org/)
