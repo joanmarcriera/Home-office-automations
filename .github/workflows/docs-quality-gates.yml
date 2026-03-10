@@ -2,11 +2,6 @@ name: Docs Quality Gates
 
 on:
   pull_request:
-    paths:
-      - "docs/*.md"
-      - "docs/**/*.md"
-      - "scripts/check_docs_contract.py"
-      - ".github/workflows/docs-quality-gates.yml"
 
 jobs:
   knowledgeops-contract:

@@ -33,6 +33,12 @@ jobs:
               --description "Issues queued for Jules automation"
           fi
 
+      - name: Quarantine failed Jules issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: python3 scripts/quarantine_failed_jules_issues.py
+
       - name: Check for open Jules PRs (throttle)
         id: throttle
         env:

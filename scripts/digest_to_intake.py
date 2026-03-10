@@ -29,7 +29,7 @@ SOURCE_SCORES_PATH = Path("data/source-scores.json")
 
 MODEL_STRING = os.environ.get(
     "OPENROUTER_MODEL",
-    "upstage/solar-pro-3:free,google/gemma-3-27b-it:free,qwen/qwen-2-7b-instruct:free",
+    "google/gemma-3-27b-it:free,google/gemma-3-12b-it:free",
 )
 MODELS = [m.strip() for m in MODEL_STRING.split(",")]
 
@@ -133,7 +133,7 @@ Return ONLY valid JSON. No markdown wrapping."""
                 print(f"Rate limited on {model}, trying next...")
                 continue
             print(f"Error with {model}: {e}")
-            return []
+            continue
 
     print("All models failed.")
     return []

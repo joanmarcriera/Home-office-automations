@@ -2,13 +2,6 @@ name: Docs Link Health
 
 on:
   pull_request:
-    paths:
-      - "docs/*.md"
-      - "docs/**/*.md"
-      - "README.md"
-      - "skills.md"
-      - ".github/lychee.toml"
-      - ".github/workflows/docs-link-health.yml"
   schedule:
     - cron: "0 3 * * 0" # Sunday 03:00 UTC
   workflow_dispatch:

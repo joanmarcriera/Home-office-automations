@@ -71,11 +71,11 @@ jobs:
           if [[ "$TITLE $BODY" == *"[openrouter]"* ]] || [[ "$TITLE $BODY" == *"#openrouter"* ]] || [[ "$TITLE $BODY" == *"autofix"* ]] || [[ "$TITLE $BODY" == *"auto-fix"* ]]; then
             gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "autofix"
             gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
-              "Automation routing: this issue was queued to the OpenRouter auto-fix lane (`autofix`). If no fix PR is produced, it will fall back to `jules`."
+              'Automation routing: this issue was queued to the OpenRouter auto-fix lane (`autofix`). If no fix PR is produced, it will fall back to `jules`.'
             exit 0
           fi
 
           # Default route: Jules lane.
           gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "jules"
           gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
-            "Automation routing: this issue was queued to Jules (`jules`) for implementation."
+            'Automation routing: this issue was queued to Jules (`jules`) for implementation.'

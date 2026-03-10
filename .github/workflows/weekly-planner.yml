@@ -12,6 +12,7 @@ concurrency:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   plan:
@@ -42,18 +43,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/weekly_planner.py
 
-      - name: Commit metrics
-        run: |
-          if [ "${GITHUB_REF_NAME}" != "main" ]; then
-            echo "Skipping commit/push on non-main ref: ${GITHUB_REF_NAME}"
-            exit 0
-          fi
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/growth-metrics.json data/source-scores.json
-          if git diff --staged --quiet; then
-            echo "No metrics changes."
-          else
-            git commit -m "chore: weekly growth snapshot $(date +'%Y-%m-%d')"
-            git push origin main
-          fi
+      - name: Create pull request for weekly metrics
+        if: github.ref_name == 'main'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/weekly-growth-planner
+          delete-branch: true
+          title: "chore: weekly growth snapshot"
+          commit-message: "chore: weekly growth snapshot"
+          body: |
+            Automated weekly growth metrics refresh from:
+            - `scripts/growth_tracker.py`
+            - `scripts/update_source_scores.py`
+
+            This workflow now opens a PR instead of pushing to `main` directly.
+          labels: |
+            jules
+          add-paths: |
+            data/growth-metrics.json
+            data/source-scores.json

@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 concurrency:
   group: api-pricing-maintenance
@@ -43,21 +44,22 @@ jobs:
           python3 scripts/check_docs_contract.py docs/knowledge_base/api_pricing_free_tiers.md
           python3 scripts/check_catalog_consistency.py
 
-      - name: Commit and push generated updates
-        run: |
-          if [ "${GITHUB_REF_NAME}" != "main" ]; then
-            echo "Skipping commit/push on non-main ref: ${GITHUB_REF_NAME}"
-            exit 0
-          fi
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/knowledge_base/api_pricing_free_tiers.md
-          if git diff --staged --quiet; then
-            echo "No pricing summary changes."
-          else
-            git commit -m "chore(pricing): refresh capability capacity summaries"
-            git push origin main
-          fi
+      - name: Create pull request for generated updates
+        if: github.ref_name == 'main'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/api-pricing-maintenance
+          delete-branch: true
+          title: "chore(pricing): refresh capability capacity summaries"
+          commit-message: "chore(pricing): refresh capability capacity summaries"
+          body: |
+            Automated refresh of the pricing capability summaries.
+
+            This workflow now submits changes through a pull request so it remains compatible with the repository rules that require PR-based updates to `main`.
+          labels: |
+            jules
+          add-paths: |
+            docs/knowledge_base/api_pricing_free_tiers.md
 
       - name: Open stale-review issue if needed
         if: steps.freshness.outputs.stale_any == 'true'

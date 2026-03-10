@@ -21,10 +21,8 @@ README_FILE = "README.md"
 MODEL_STRING = os.environ.get(
     "OPENROUTER_MODEL",
     (
-        "upstage/solar-pro-3:free,"
         "google/gemma-3-27b-it:free,"
-        "google/gemma-3-12b-it:free,"
-        "qwen/qwen-2-7b-instruct:free"
+        "google/gemma-3-12b-it:free"
     )
 )
 MODELS = [m.strip() for m in MODEL_STRING.split(",")]

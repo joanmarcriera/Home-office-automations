@@ -1,0 +1,34 @@
+name: Jules Issue Hygiene
+
+on:
+  issue_comment:
+    types: [created, edited]
+  schedule:
+    - cron: "15 */2 * * *" # Every 2 hours
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: jules-issue-hygiene
+  cancel-in-progress: false
+
+jobs:
+  quarantine-failed-jules-issues:
+    if: >-
+      github.event_name != 'issue_comment' || (
+        github.event.issue.pull_request == null &&
+        github.event.comment.user.login == 'google-labs-jules' &&
+        contains(github.event.comment.body, 'failed to create a task')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Quarantine failed Jules issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: python3 scripts/quarantine_failed_jules_issues.py

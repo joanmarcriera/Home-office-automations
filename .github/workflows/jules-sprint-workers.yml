@@ -41,6 +41,11 @@ jobs:
             fi
           done
 
+      - name: Quarantine failed Jules issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/quarantine_failed_jules_issues.py
+
       - name: Check sprint window
         id: window
         run: |
