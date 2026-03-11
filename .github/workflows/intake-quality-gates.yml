@@ -7,6 +7,7 @@ on:
       - "docs/new-sources/*.md"
       - "scripts/validate_new_sources.py"
       - ".github/workflows/intake-quality-gates.yml"
+  workflow_dispatch:
 
 jobs:
   validate-intake-logs:

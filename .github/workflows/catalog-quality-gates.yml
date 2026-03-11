@@ -9,6 +9,7 @@ on:
       - "docs/tools/**/*.md"
       - "scripts/check_catalog_consistency.py"
       - ".github/workflows/catalog-quality-gates.yml"
+  workflow_dispatch:
 
 jobs:
   catalog-consistency:

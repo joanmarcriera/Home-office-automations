@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   issues: write
   pull-requests: write
@@ -46,6 +47,7 @@ jobs:
 
       - name: Create pull request for generated updates
         if: github.ref_name == 'main'
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           branch: automation/api-pricing-maintenance
@@ -60,6 +62,21 @@ jobs:
             jules
           add-paths: |
             docs/knowledge_base/api_pricing_free_tiers.md
+
+      - name: Trigger PR gate workflows
+        if: github.ref_name == 'main' && steps.cpr.outputs.pull-request-operation != 'none'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_BRANCH: ${{ steps.cpr.outputs.pull-request-branch }}
+          BASE_SHA: ${{ github.sha }}
+          HEAD_SHA: ${{ steps.cpr.outputs.pull-request-head-sha }}
+        run: |
+          python3 scripts/dispatch_pr_gate_workflows.py \
+            --repo "$REPO" \
+            --ref "$PR_BRANCH" \
+            --base-sha "$BASE_SHA" \
+            --head-sha "$HEAD_SHA"
 
       - name: Open stale-review issue if needed
         if: steps.freshness.outputs.stale_any == 'true'

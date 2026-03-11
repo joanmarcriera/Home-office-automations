@@ -2,6 +2,14 @@ name: Docs Quality Gates
 
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      base_sha:
+        description: "Base commit SHA for diffing changed docs"
+        required: true
+      head_sha:
+        description: "Head commit SHA for diffing changed docs"
+        required: false
 
 jobs:
   knowledgeops-contract:
@@ -21,9 +29,14 @@ jobs:
 
       - name: Run KnowledgeOps contract checks
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.base_sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.head_sha || github.sha }}
         run: |
+          if [ -z "$BASE_SHA" ]; then
+            echo "::error::BASE_SHA is required."
+            exit 1
+          fi
+
           CHANGED_FILES="$(git diff --name-only "$BASE_SHA...$HEAD_SHA" | grep '^docs/.*\.md$' || true)"
 
           if [ -z "$CHANGED_FILES" ]; then
@@ -39,6 +52,6 @@ jobs:
 
       - name: Reject metadata-only changes
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.base_sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.head_sha || github.sha }}
         run: python3 scripts/check_substantive_changes.py "$BASE_SHA" "$HEAD_SHA"
