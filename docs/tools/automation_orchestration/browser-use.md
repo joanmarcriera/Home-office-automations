@@ -14,6 +14,16 @@ It bridges the gap between static scraping (which fails on dynamic, JS-heavy sit
 - **Workflow Automation**: Automating tasks on web apps that lack official APIs.
 - **Agent Testing**: Verifying browser-based agent behaviors.
 
+## Example company use cases
+- **Finance ops**: log into a supplier portal, download monthly statements, and hand them to a document pipeline.
+- **Lead generation**: gather structured data from directories or websites that do not expose a practical API.
+- **QA and support**: reproduce user-reported UI issues or verify that a browser-based workflow still works after changes.
+
+## Example workflow shape
+```text
+Find target page -> authenticate -> navigate multi-step flow -> extract result -> store structured output
+```
+
 ## Strengths
 - **Native MCP Support**: Can be used as an MCP server with Claude Desktop.
 - **High Success Rate**: Reportedly high accuracy on benchmarks like WebVoyager.
@@ -33,6 +43,11 @@ It bridges the gap between static scraping (which fails on dynamic, JS-heavy sit
 - When a fast, stable REST API is available for the same task.
 - For high-frequency, low-latency data extraction.
 
+## Selection comments
+- Prefer APIs first, browser automation second.
+- Browser Use is strongest when the workflow is interactive, stateful, and human-like.
+- Pair it with [n8n](../../services/n8n.md) for scheduling and retries, and with [mem0](../agents/mem0.md) if the agent must remember prior interactions.
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT)
 - **Cost**: Free (Self-hosted)
@@ -41,6 +56,8 @@ It bridges the gap between static scraping (which fails on dynamic, JS-heavy sit
 ## Related tools / concepts
 - [Skyvern](skyvern.md)
 - [Firecrawl](../process_understanding/firecrawl.md)
+- [n8n](../../services/n8n.md)
+- [mem0](../agents/mem0.md)
 - [Playwright MCP Server](https://github.com/microsoft/playwright-mcp)
 
 ## Sources / References
@@ -49,5 +66,5 @@ It bridges the gap between static scraping (which fails on dynamic, JS-heavy sit
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-03-14
 - Confidence: high

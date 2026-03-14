@@ -40,10 +40,25 @@ Install via the Cursor Agent plugin marketplace: `/plugin-add superpowers`.
 #### Codex / OpenCode
 Follow platform-specific instructions to fetch the skill files from the [official repository](https://github.com/obra/superpowers).
 
+## Example company use cases
+- **Product engineering**: enforce design-first planning and verification for every AI-generated pull request.
+- **Agency delivery**: keep client repos consistent even when different agents or contractors are contributing.
+- **Internal automation team**: standardize how agents propose, implement, verify, and hand off workflow changes.
+
+## Example workflow
+```text
+Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Review -> Merge
+```
+
 ## Ecosystem notes
 - Superpowers sits inside the broader coding-agent skills ecosystem alongside Anthropic's reference [skills repository](https://github.com/anthropics/skills), curated indexes such as [awesomeclaude.ai](https://awesomeclaude.ai/), and broader directories like [awesome-skills.com](https://awesome-skills.com/).
 - The strongest use case is not "install everything" but "standardize a high-quality operating model across agents and repos."
 - Community variants such as `ui-ux-pro-max-skill` are useful specialization examples, but they should be reviewed like code because they encode process, tools, and risk assumptions.
+
+## Selection comments
+- Superpowers is strongest when quality and repeatability matter more than raw speed.
+- Use it by default for code that affects production systems, shared libraries, or client deliverables.
+- Do not force it on trivial one-off edits where the process overhead outweighs the risk.
 
 ## Related tools / concepts
 - [Claude Code](../development_ops/claude-code.md)

@@ -17,6 +17,7 @@ Tools and frameworks for building, running, and orchestrating autonomous AI agen
 | [Dify](../ai_knowledge/dify.md) | LLM app development platform with agent workflows |
 | [Jules](../ai_knowledge/jules.md) | Google's autonomous coding agent |
 | [LangGraph](langgraph.md) | Stateful agent orchestration by LangChain |
+| [mem0](mem0.md) | Memory layer for agent and application continuity |
 | [OpenHands](../development_ops/openhands.md) | Autonomous software development agent |
 | [Phidata](phidata.md) | Framework for building AI assistants with memory and tools |
 | [Superpowers](superpowers.md) | Agent development workflow and skills framework |

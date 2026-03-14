@@ -10,6 +10,7 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 | [ExLlamaV2](exllamav2.md) | Optimized GPTQ/EXL2 inference for consumer GPUs |
 | [llama.cpp](llama-cpp.md) | Lightweight local inference runtime for quantized LLMs |
 | [LiteLLM](../../services/litellm.md) | Unified LLM API proxy |
+| [LocalAI](localai.md) | Self-hosted OpenAI-compatible local inference platform |
 | [MLX](mlx.md) | Apple's array framework for ML on Apple Silicon |
 | [OpenPipe](openpipe.md) | Data-driven fine-tuning platform |
 | [Ollama](../../services/ollama.md) | Local LLM inference server |

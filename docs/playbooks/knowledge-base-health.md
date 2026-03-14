@@ -10,6 +10,7 @@ Maintain content quality, freshness, and discoverability across the knowledge ba
 - [Doc freshness checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_doc_freshness.py) (`scripts/check_doc_freshness.py`)
 - [API pricing summary generator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/update_api_pricing_capability_summary.py) (`scripts/update_api_pricing_capability_summary.py`)
 - [Model account policy validator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/validate_model_account_pool.py) (`scripts/validate_model_account_pool.py`)
+- [Starred repo intake checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_starred_repo_intake.py) (`scripts/check_starred_repo_intake.py`)
 - [Standards reference](../standards.md)
 
 ## Review cadence
@@ -25,6 +26,7 @@ Maintain content quality, freshness, and discoverability across the knowledge ba
 | Model-account routing policy gate | PRs touching policy file | CI | `model-account-policy-gates.yml` validates multi-account routing rules |
 | Vikunja bidirectional sync | Every 30 minutes + issue events | CI | `vikunja-sync.yml` synchronizes GitHub issues and Vikunja tasks |
 | Full quality audit | Weekly (manual) | Maintainer | `python3 scripts/audit_docs_quality.py` |
+| Starred repo drift check | Weekly (manual/local) | Maintainer | `python3 scripts/check_starred_repo_intake.py --ai-only --min-stars 5000` |
 | Staleness review (docs >90 days old) | Monthly | Maintainer | See "Staleness check" below |
 | Taxonomy alignment | Quarterly | Maintainer | Verify category dirs match `standards.md` |
 
@@ -41,6 +43,11 @@ Maintain content quality, freshness, and discoverability across the knowledge ba
 3. **Fix the top 5 issues**: focus on the docs that will fail CI the next time they are touched.
 4. **Update `data/all_tools.json`**: ensure every page in `mkdocs.yml` nav has a matching entry.
 5. **Verify nav ↔ index consistency**: each `index.md` in `docs/tools/*/` should list all sibling tool pages.
+6. **Check starred-repo drift**:
+   ```bash
+   python3 scripts/check_starred_repo_intake.py --ai-only --min-stars 5000
+   ```
+   - If repos are missing, add them to today's intake log before documenting them.
 
 ## Step-by-step: staleness check
 
@@ -73,6 +80,7 @@ Track these over time to measure knowledge base health:
 - **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains. Fix: always update both when removing a page.
 - **Duplicate pages**: two pages document the same tool. Fix: merge into the canonical page and redirect/remove the duplicate.
 - **Stale model references**: docs reference old model names (e.g., "Claude 3.5 Sonnet" instead of "Claude Sonnet 4.6"). Fix: search-and-replace during staleness reviews.
+- **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`. Fix: run `check_starred_repo_intake.py` locally and append any real candidates to today's daily log.
 
 ## Related tools / concepts
 - [Standards](../standards.md)
@@ -82,6 +90,7 @@ Track these over time to measure knowledge base health:
 ## Sources / references
 - [Project standards](../standards.md)
 - [MkDocs Material docs](https://squidfunk.github.io/mkdocs-material/)
+- [GitHub CLI](https://cli.github.com/)
 
 ## Contribution Metadata
 

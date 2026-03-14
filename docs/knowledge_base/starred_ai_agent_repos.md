@@ -5,9 +5,9 @@ This page summarizes the AI and agent-related repositories from your GitHub star
 Star counts below are from a GitHub API snapshot pulled on 2026-03-14 from your starred repositories. "Reputation" is an editorial assessment based on maintainer track record, institutional backing, and ecosystem trust, not a GitHub API field.
 
 ## Quick take
-- **Default baseline for Claude/coding-agent work**: [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [anthropics/claude-cookbooks](https://github.com/anthropics/claude-cookbooks), [upstash/context7](https://github.com/upstash/context7)
-- **Usually used in combination with other tools**: [browser-use/browser-use](https://github.com/browser-use/browser-use), [mem0ai/mem0](https://github.com/mem0ai/mem0), [openai/whisper](https://github.com/openai/whisper), [google/langextract](https://github.com/google/langextract), [googleworkspace/cli](https://github.com/googleworkspace/cli), [AlexsJones/llmfit](https://github.com/AlexsJones/llmfit), [musistudio/claude-code-router](https://github.com/musistudio/claude-code-router), [farion1231/cc-switch](https://github.com/farion1231/cc-switch)
-- **Strong but situational primary stacks**: [Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT), [anomalyco/opencode](https://github.com/anomalyco/opencode), [FlowiseAI/Flowise](https://github.com/FlowiseAI/Flowise), [mudler/LocalAI](https://github.com/mudler/LocalAI), [bytedance/deer-flow](https://github.com/bytedance/deer-flow), [Fosowl/agenticSeek](https://github.com/Fosowl/agenticSeek), [stitionai/devika](https://github.com/stitionai/devika), [plandex-ai/plandex](https://github.com/plandex-ai/plandex)
+- **Default baseline for Claude/coding-agent work**: [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [anthropics/claude-cookbooks](https://github.com/anthropics/claude-cookbooks), [Context7](../tools/development_ops/context7.md)
+- **Usually used in combination with other tools**: [browser-use/browser-use](https://github.com/browser-use/browser-use), [mem0](../tools/agents/mem0.md), [openai/whisper](https://github.com/openai/whisper), [google/langextract](https://github.com/google/langextract), [googleworkspace/cli](https://github.com/googleworkspace/cli), [llmfit](../tools/development_ops/llmfit.md), [musistudio/claude-code-router](https://github.com/musistudio/claude-code-router), [farion1231/cc-switch](https://github.com/farion1231/cc-switch)
+- **Strong but situational primary stacks**: [Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT), [anomalyco/opencode](https://github.com/anomalyco/opencode), [FlowiseAI/Flowise](https://github.com/FlowiseAI/Flowise), [LocalAI](../tools/infrastructure/localai.md), [DeerFlow](../tools/agents/deerflow.md), [Fosowl/agenticSeek](https://github.com/Fosowl/agenticSeek), [stitionai/devika](https://github.com/stitionai/devika), [plandex-ai/plandex](https://github.com/plandex-ai/plandex)
 
 ## Decision table
 
@@ -46,6 +46,11 @@ Star counts below are from a GitHub API snapshot pulled on 2026-03-14 from your 
 - **If the stack needs memory**: add [mem0ai/mem0](https://github.com/mem0ai/mem0), but only when the workflow truly spans sessions or users.
 - **If the stack must run locally**: start with [mudler/LocalAI](https://github.com/mudler/LocalAI) plus [AlexsJones/llmfit](https://github.com/AlexsJones/llmfit) before investing in local-agent orchestration.
 - **If the stack is Workspace-heavy**: treat [googleworkspace/cli](https://github.com/googleworkspace/cli) as baseline infrastructure, not an optional helper.
+
+## Example company bundles
+- **AI operations baseline**: Claude skills + Superpowers + Context7 + n8n.
+- **Research-heavy company**: DeerFlow + Tavily + Browser Use + mem0 + Workspace CLI.
+- **Local-first company**: LocalAI + llmfit + Ollama + Flowise for internal tools and prototypes.
 
 ## What not to overuse
 - Do not default to heavyweight autonomous-agent platforms such as AutoGPT, Devika, AgenticSeek, or DeerFlow unless the task truly needs end-to-end autonomy.

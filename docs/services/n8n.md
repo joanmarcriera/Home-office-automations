@@ -219,6 +219,15 @@ This keeps n8n improving as an operating system for your business processes, not
 - [Supabase](../tools/infrastructure/supabase.md) works well as lightweight state storage for workflow memory, queue snapshots, or approval state outside n8n itself.
 - [Replicate](../tools/providers/replicate.md) and [ElevenLabs](../tools/ai_knowledge/elevenlabs.md) are useful when automations need media generation rather than text-only inference.
 
+## Company starter examples
+- **Lead intake system**: web form or email -> enrich with Tavily -> store in Supabase -> create Workspace assets -> create follow-up tasks.
+- **Sales prep workflow**: account name -> research via DeerFlow/Tavily -> save brief -> send summary to Workspace docs or CRM.
+- **Content production loop**: topic queue -> research -> generate draft -> human review -> publish checklist -> performance tracking.
+
+## Selection comments
+- n8n should usually be the control plane, not the only intelligence layer.
+- Let specialized tools handle search, memory, browser automation, and inference; let n8n coordinate timing, retries, approvals, and auditability.
+
 ## Related tools / concepts
 - [Ollama](ollama.md) (Use as AI backend)
 - [Zapier](../tools/automation_orchestration/zapier.md) (Alternative)

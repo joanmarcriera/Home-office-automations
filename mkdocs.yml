@@ -216,6 +216,7 @@ nav:
       - Cloud Code: tools/development_ops/cloud_code.md
       - Codeium: tools/development_ops/codeium.md
       - Codex: tools/development_ops/codex.md
+      - Context7: tools/development_ops/context7.md
       - Continue Dev: tools/development_ops/continue_dev.md
       - Cursor: tools/development_ops/cursor.md
       - Custom Agents: tools/development_ops/custom_agents.md
@@ -231,6 +232,7 @@ nav:
       - Humanizer: tools/development_ops/humanizer.md
       - Junie Cli: tools/development_ops/junie-cli.md
       - Jupyter Kernel MCP: tools/development_ops/jupyter-kernel-mcp.md
+      - llmfit: tools/development_ops/llmfit.md
       - Melty: tools/development_ops/melty.md
       - Mentat: tools/development_ops/mentat.md
       - OpenClaw: tools/development_ops/openclaw.md
@@ -285,6 +287,7 @@ nav:
       - Composio: tools/agents/composio.md
       - DeerFlow: tools/agents/deerflow.md
       - LangGraph: tools/agents/langgraph.md
+      - mem0: tools/agents/mem0.md
       - Phidata: tools/agents/phidata.md
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md
@@ -295,6 +298,7 @@ nav:
       - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
       - ExLlamaV2: tools/infrastructure/exllamav2.md
       - llama.cpp: tools/infrastructure/llama-cpp.md
+      - LocalAI: tools/infrastructure/localai.md
       - MLX: tools/infrastructure/mlx.md
       - OpenPipe: tools/infrastructure/openpipe.md
       - SGLang: tools/infrastructure/sglang.md
@@ -322,6 +326,7 @@ nav:
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
+    - AI Company Starter Stack: knowledge_base/ai_company_starter_stack.md
     - Starred AI / Agent Repositories Over 10K Stars: knowledge_base/starred_ai_agent_repos.md
     - Google One Plans Comparison: knowledge_base/google_one_plans_comparison.md
     - API Pricing & Free Tier Matrix: knowledge_base/api_pricing_free_tiers.md

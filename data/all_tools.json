@@ -1208,6 +1208,30 @@
       "name": "Google Lyria",
       "category": "AI & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/google-lyria.md"
+    },
+    {
+      "id": "context7",
+      "name": "Context7",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/context7.md"
+    },
+    {
+      "id": "llmfit",
+      "name": "llmfit",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/llmfit.md"
+    },
+    {
+      "id": "mem0",
+      "name": "mem0",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/mem0.md"
+    },
+    {
+      "id": "localai",
+      "name": "LocalAI",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/localai.md"
     }
   ]
 }

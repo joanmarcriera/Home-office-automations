@@ -14,6 +14,11 @@ It gives teams a starting point for building structured research agents instead 
 - Multi-step browsing and summarization workflows
 - Internal research copilots that need repeatable task structure
 
+## Example company use cases
+- **Strategy research**: compile competitor, pricing, and tooling landscape reports before major decisions.
+- **Sales enablement**: research target accounts, competitors, and public signals before outreach.
+- **Product discovery**: gather feature, documentation, and ecosystem evidence before choosing integrations.
+
 ## Strengths
 - Open-source starting point from a large AI lab
 - Clear fit for research-oriented agent workflows
@@ -31,6 +36,11 @@ It gives teams a starting point for building structured research agents instead 
 - When a simpler search API plus application logic is enough
 - When you need a stable SaaS product rather than an open-source starting point
 
+## Selection comments
+- DeerFlow is strongest when the work looks like "collect evidence, synthesize it, and produce an informed artifact."
+- It is not the default choice for simple CRUD automations or fast transactional workflows.
+- Pair it with [Tavily](../providers/tavily.md) for search, [mem0](mem0.md) for longitudinal memory, and [Browser Use](../automation_orchestration/browser-use.md) for interactive browsing gaps.
+
 ## Licensing and cost
 - **Open Source**: Yes
 - **Cost**: Free to inspect and adapt; runtime costs depend on models and infrastructure
@@ -39,6 +49,7 @@ It gives teams a starting point for building structured research agents instead 
 ## Related tools / concepts
 - [Tavily](../providers/tavily.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
+- [mem0](mem0.md)
 - [Symphony](symphony.md)
 
 ## Sources / References

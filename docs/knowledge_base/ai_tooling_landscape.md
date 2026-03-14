@@ -87,6 +87,7 @@ The underlying hardware, storage, and low-level optimizations like quantization 
 - **"I want to evaluate models"** → [Benchmarking tools](../tools/benchmarking/index.md)
 - **"I want to stay current"** → [Essential AI Reading List](ai_reading_list.md)
 - **"I want the highest-signal repos from my GitHub stars"** → [Starred AI / Agent Repositories Over 10K Stars](starred_ai_agent_repos.md)
+- **"I want the shortest practical stack for an AI-driven company"** → [AI Company Starter Stack](ai_company_starter_stack.md)
 
 ## Sources / references
 - [Sequoia: Generative AI's Act Two](https://www.sequoiacap.com/article/generative-ai-act-two/)

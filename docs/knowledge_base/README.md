@@ -8,6 +8,7 @@ This section contains deep dives into the technologies, protocols, and conceptua
 
 - [**Model Classes**](model_classes.md) - Understanding the different types of LLMs (MoE, Reasoning, Multimodal, etc.).
 - [**Starred AI / Agent Repositories Over 10K Stars**](starred_ai_agent_repos.md) - Practical ranking and usage guide based on your starred GitHub repos.
+- [**AI Company Starter Stack**](ai_company_starter_stack.md) - Opinionated default stack for building a company where AI is part of daily operations.
 - [**System Prompts**](system_prompts.md) - Foundational instructions for frontier models and "high engineering" persona design.
 - [**Model Comparison and Evaluation**](model_comparison_and_evaluation.md) - Guide to LLM leaderboards, benchmarks, and metrics.
 - [**Agent Protocols**](agent_protocols.md) - Deep dive into MCP (Model Context Protocol) and ACP (Agent Control Protocol).

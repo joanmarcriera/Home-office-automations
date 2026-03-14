@@ -14,6 +14,29 @@ It makes operational know-how reusable. Instead of rediscovering the same prompt
 - Packaging domain-specific operating procedures
 - Sharing prompts, templates, and task scaffolds
 
+## Example company use cases
+- **Sales ops**: a lead-research skill that pulls CRM notes, formats account briefs, and proposes outreach angles.
+- **Client delivery**: a repo-audit skill that runs the same architecture, docs, and deployment checks across every client project.
+- **Content team**: a scripting skill that converts topic research into hooks, outlines, and publishing checklists.
+
+## Example skill bundle structure
+```text
+skills/
+  lead-research/
+    SKILL.md
+    templates/
+      account-brief.md
+  delivery-audit/
+    SKILL.md
+  content-scripting/
+    SKILL.md
+```
+
+## Selection comments
+- Skills are best when the task repeats across clients, teams, or repos.
+- If the workflow is still changing weekly, start with a prompt or playbook first, then convert it into a skill after the pattern stabilizes.
+- Use [Superpowers](superpowers.md) when you want a whole engineering operating model. Use the broader skills ecosystem when you want smaller reusable capabilities.
+
 ## Strengths
 - Reuse of proven workflows
 - Faster onboarding for teams adopting coding agents
@@ -33,6 +56,7 @@ It makes operational know-how reusable. Instead of rediscovering the same prompt
 - [Anthropic Agent Skills](anthropic-agent-skills.md)
 - [Superpowers](superpowers.md)
 - [Claude Code](../development_ops/claude-code.md)
+- [Claude Cookbooks](../development_ops/claude-cookbooks.md)
 
 ## Sources / References
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
