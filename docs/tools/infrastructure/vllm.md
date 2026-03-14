@@ -71,6 +71,7 @@ python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 - [Text Generation Inference (TGI)](tgi.md)
 - [SGLang](sglang.md)
 - [llama.cpp](llama-cpp.md)
+- [Ollama](../../services/ollama.md)
 
 ## Sources / References
 - [Official Website](https://vllm.ai/)
