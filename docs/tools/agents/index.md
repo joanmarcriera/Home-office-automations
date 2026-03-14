@@ -12,6 +12,8 @@ Tools and frameworks for building, running, and orchestrating autonomous AI agen
 | [Anthropic Agent Skills](anthropic-agent-skills.md) | Standardized, reusable skill folders for Claude |
 | [Bee Agent Framework](bee-agent-framework.md) | IBM's TypeScript/Python agent framework |
 | [Composio](composio.md) | Tool integration platform for AI agents |
+| [Claude Skills Ecosystem](claude-skills-ecosystem.md) | Community skill packs, directories, and reusable workflows for Claude |
+| [DeerFlow](deerflow.md) | Open-source research workflow project from ByteDance |
 | [Dify](../ai_knowledge/dify.md) | LLM app development platform with agent workflows |
 | [Jules](../ai_knowledge/jules.md) | Google's autonomous coding agent |
 | [LangGraph](langgraph.md) | Stateful agent orchestration by LangChain |

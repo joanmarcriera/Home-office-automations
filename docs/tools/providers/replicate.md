@@ -51,6 +51,11 @@ for item in output:
 - For high-volume, low-latency LLM-only applications where serverless providers like Groq excel.
 - If you need the extreme proprietary reasoning of models like GPT-4o.
 
+## Practical notes
+- Replicate is especially strong when one workflow mixes multiple modalities, for example image generation, speech, and video transforms in the same pipeline.
+- It is often simpler to prototype on Replicate first and only later migrate hot paths to a more specialized provider.
+- It complements [Tavily](tavily.md) and [Supabase](../infrastructure/supabase.md) well in stacks that need retrieval plus generated media assets.
+
 ## Licensing and cost
 - **Open Source**: The platform is proprietary; Cog is open-source; most hosted models are open-weights.
 - **Cost**: Paid (Per-second / Usage-based).
@@ -60,6 +65,8 @@ for item in output:
 - [Hugging Face](https://huggingface.co/)
 - [Together AI](together.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
+- [Tavily](tavily.md)
+- [Supabase](../infrastructure/supabase.md)
 
 ## Sources / References
 - [Official Website](https://replicate.com/)
@@ -67,5 +74,5 @@ for item in output:
 - [Model Explorer](https://replicate.com/explore)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-14
 - Confidence: high

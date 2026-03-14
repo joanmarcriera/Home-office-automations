@@ -135,22 +135,28 @@ nav:
     - Overview: tools/README.md
     - AI & Knowledge:
       - Overview: tools/ai_knowledge/index.md
+      - AI Templates: tools/ai_knowledge/aitmpl.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
       - Dify: tools/ai_knowledge/dify.md
       - ElevenLabs: tools/ai_knowledge/elevenlabs.md
       - Flowise: tools/ai_knowledge/flowise.md
+      - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
       - Jasper: tools/ai_knowledge/jasper.md
       - Jules: tools/ai_knowledge/jules.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
+      - LM Studio: tools/ai_knowledge/lm-studio.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
+      - NotebookLM: tools/ai_knowledge/notebooklm.md
       - Notion AI: tools/ai_knowledge/notion-ai.md
       - Obsidian: tools/ai_knowledge/obsidian.md
       - OpenAI: tools/ai_knowledge/openai.md
       - Google Gemini: tools/ai_knowledge/google-gemini.md
+      - Google Lyria: tools/ai_knowledge/google-lyria.md
+      - Google Opal: tools/ai_knowledge/google-opal.md
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
@@ -165,6 +171,7 @@ nav:
       - Browser Use: tools/automation_orchestration/browser-use.md
       - Chronos MCP: tools/automation_orchestration/chronos-mcp.md
       - CliHub: tools/automation_orchestration/clihub.md
+      - Google Workspace CLI: tools/automation_orchestration/google-workspace-cli.md
       - Make: tools/automation_orchestration/make.md
       - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
@@ -199,8 +206,12 @@ nav:
       - Anti Gravity: tools/development_ops/anti_gravity.md
       - Axiom Guardian: tools/development_ops/axiom-guardian.md
       - Claude Code: tools/development_ops/claude-code.md
+      - Claude Context Mode: tools/development_ops/claude-context-mode.md
       - Claude Code Router: tools/development_ops/claude-code-router.md
       - Claude Code Container MCP: tools/development_ops/claude-code-container-mcp.md
+      - Claude Cookbooks: tools/development_ops/claude-cookbooks.md
+      - Claude Hooks: tools/development_ops/claude-hooks.md
+      - Claude Plugins: tools/development_ops/claude-plugins.md
       - Claude Code Setup: tools/development_ops/claude-code-setup.md
       - Cloud Code: tools/development_ops/cloud_code.md
       - Codeium: tools/development_ops/codeium.md
@@ -215,7 +226,9 @@ nav:
       - Fuzzing MCP Server: tools/development_ops/fuzzing-mcp-server.md
       - Github Copilot: tools/development_ops/github_copilot.md
       - GitHub Copilot CLI: tools/development_ops/github-copilot-cli.md
+      - Google Stitch: tools/development_ops/google-stitch.md
       - Gpt Engineer: tools/development_ops/gpt_engineer.md
+      - Humanizer: tools/development_ops/humanizer.md
       - Junie Cli: tools/development_ops/junie-cli.md
       - Jupyter Kernel MCP: tools/development_ops/jupyter-kernel-mcp.md
       - Melty: tools/development_ops/melty.md
@@ -225,6 +238,7 @@ nav:
       - Openhands: tools/development_ops/openhands.md
       - NanoClaw: tools/development_ops/nanoclaw.md
       - OpenSwarm: tools/development_ops/openswarm.md
+      - Playwright: tools/development_ops/playwright.md
       - Plandex: tools/development_ops/plandex.md
       - Sourcegraph Cody: tools/development_ops/sourcegraph_cody.md
       - Superconductor: tools/development_ops/superconductor.md
@@ -232,6 +246,7 @@ nav:
       - Symbolic MCP Server: tools/development_ops/symbolic-mcp.md
       - Tabnine: tools/development_ops/tabnine.md
       - Terminus 2: tools/development_ops/terminus-2.md
+      - Vercel OSS: tools/development_ops/vercel-oss.md
       - Vscode: tools/development_ops/vscode.md
       - Zed: tools/development_ops/zed.md
     - Intake & Storage:
@@ -258,6 +273,7 @@ nav:
       - MiniMax: tools/providers/minimax.md
       - Moonshot AI: tools/providers/moonshot.md
       - BigSwitch: tools/providers/bigswitch.md
+      - Tavily: tools/providers/tavily.md
     - Agents:
       - Overview: tools/agents/index.md
       - Agency Swarm: tools/agents/agency-swarm.md
@@ -265,7 +281,9 @@ nav:
       - Agno: tools/agents/agno.md
       - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
       - Bee Agent Framework: tools/agents/bee-agent-framework.md
+      - Claude Skills Ecosystem: tools/agents/claude-skills-ecosystem.md
       - Composio: tools/agents/composio.md
+      - DeerFlow: tools/agents/deerflow.md
       - LangGraph: tools/agents/langgraph.md
       - Phidata: tools/agents/phidata.md
       - Superpowers: tools/agents/superpowers.md
@@ -280,6 +298,7 @@ nav:
       - MLX: tools/infrastructure/mlx.md
       - OpenPipe: tools/infrastructure/openpipe.md
       - SGLang: tools/infrastructure/sglang.md
+      - Supabase: tools/infrastructure/supabase.md
       - Text Generation Inference (TGI): tools/infrastructure/tgi.md
       - vLLM: tools/infrastructure/vllm.md
       - ZSE: tools/infrastructure/zse.md
@@ -303,6 +322,7 @@ nav:
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
+    - Starred AI / Agent Repositories Over 10K Stars: knowledge_base/starred_ai_agent_repos.md
     - Google One Plans Comparison: knowledge_base/google_one_plans_comparison.md
     - API Pricing & Free Tier Matrix: knowledge_base/api_pricing_free_tiers.md
     - Landscape Overview: knowledge_base/landscape-overview.md

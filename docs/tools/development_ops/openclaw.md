@@ -33,6 +33,12 @@ It simplifies the deployment of autonomous agents that can handle scheduling, me
 - For mission-critical enterprise systems without robust human-in-the-loop and security gates.
 - If you are uncomfortable managing a self-hosted agent environment.
 
+## Ecosystem notes
+- OpenClaw is increasingly useful as both a runtime and a distribution surface for packaged agent behavior.
+- Community marketplaces such as ClawHub make browsing, sharing, and selling skills easier, but they also raise the bar for governance and provenance checks.
+- Compared with [NanoClaw](nanoclaw.md), OpenClaw favors a broader ecosystem and skill marketplace model over a tightly constrained runtime.
+- Compared with [OpenHands](openhands.md) or [Plandex](plandex.md), OpenClaw is less about codebase-local implementation loops and more about deployable autonomous agent behavior.
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
 - **Cost**: Free (Self-hosted) / Paid (Managed hosting)
@@ -45,9 +51,10 @@ It simplifies the deployment of autonomous agents that can handle scheduling, me
 
 ## Sources / References
 - [GitHub](https://github.com/openclaw/openclaw)
+- [ClawHub](https://www.clawhub.ai/)
 - [Pattern: OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-03-14
 - Confidence: high

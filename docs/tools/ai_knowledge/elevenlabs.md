@@ -40,8 +40,8 @@ AI & Knowledge — used for audio content generation and accessibility.
 
 ## Sources / references
 - [Official Website](https://elevenlabs.io/)
-- [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)
+- [Documentation](https://elevenlabs.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-08
+- Last reviewed: 2026-03-14
 - Confidence: high

@@ -14,6 +14,7 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 | [OpenPipe](openpipe.md) | Data-driven fine-tuning platform |
 | [Ollama](../../services/ollama.md) | Local LLM inference server |
 | [SGLang](sglang.md) | Fast structured generation runtime from LMSYS |
+| [Supabase](supabase.md) | Postgres-first backend platform for app and workflow state |
 | [Text Generation Inference (TGI)](tgi.md) | Hugging Face's production inference server |
 | [vLLM](vllm.md) | High-throughput LLM serving engine (PagedAttention) |
 | [ZSE](zse.md) | Fast cold-start LLM inference engine |

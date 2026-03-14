@@ -59,6 +59,11 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 | **Open Composer** | `Cmd + I` | `Ctrl + I` |
 | **Apply Suggested Fix** | `Cmd + Enter` | `Ctrl + Enter` |
 
+## Practical notes
+- Cursor is strongest when rules, project memory, and model selection are treated as part of the editor setup rather than optional extras.
+- It overlaps with [Claude Code](claude-code.md) on autonomous edits, but Cursor remains more editor-centric while Claude Code remains more terminal-centric.
+- It pairs well with reusable workflow systems such as [Superpowers](../agents/superpowers.md) when you want stronger process control than the editor provides by default.
+
 ## Related tools / concepts
 - [VS Code](vscode.md)
 - [Continue](continue_dev.md)
@@ -69,5 +74,5 @@ Create a `.cursorrules` file in your root directory to enforce coding standards:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-14
 - Confidence: medium

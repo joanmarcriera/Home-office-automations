@@ -82,11 +82,44 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 - [Droid](./droid.md)
 - [OpenHands](./openhands.md)
 - [Claude Code Setup](./claude-code-setup.md)
+- [Claude Plugins](./claude-plugins.md)
+- [Claude Context Mode](./claude-context-mode.md)
+- [Claude Hooks](./claude-hooks.md)
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
 - [Agent Client Protocol (ACP)](../../knowledge_base/agent_protocols.md)
+
+## Ecosystem extensions
+
+### Curated starting points
+- [awesomeclaude.ai](https://awesomeclaude.ai/) is a high-signal starting point for Claude Code workflows, skills, commands, and surrounding tools.
+- [awesome-skills.com](https://awesome-skills.com/) is useful when you want reusable community skill packs rather than one-off prompt snippets.
+- [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) works well as a broad index of commands, hooks, skills, and ecosystem repos.
+
+### Plugin and extension layer
+- Community plugin distribution is becoming a meaningful part of the Claude Code workflow, especially for browser tooling, repo helpers, and workflow packs.
+- Use plugin marketplaces when you want fast installation and updates.
+- Use direct GitHub repos when you want to audit the actual prompts, hooks, or skills before adoption.
+
+### Context, hooks, and skills
+- **Context mode / MCP** helps Claude Code pull in structured external context without stuffing everything into a single prompt.
+- **Hooks** are better than prompt-only instructions when you need deterministic notifications, checks, or guardrails around the coding loop.
+- **Skills** are the right layer for reusable workflows, planning patterns, and domain-specific execution scaffolds.
+
+### Community signals
+- Community skill directories are useful discovery surfaces, but quality varies widely. Prefer repos with clear READMEs, examples, and recent maintenance.
+- This [Reddit field report](https://www.reddit.com/r/ClaudeAI/comments/1ok9v3d/i_tested_30_community_claude_skills_for_a_week/) is useful as a practical reminder that many community skills are best treated as starting points to adapt, not production-grade defaults.
 
 ## Sources / references
 - [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
+- [awesomeclaude.ai](https://awesomeclaude.ai/)
+- [awesome-skills.com](https://awesome-skills.com/)
+- [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
+- [Claude Hooks](https://github.com/johnlindquist/claude-hooks)
+- [Anthropic Skills Repository](https://github.com/anthropics/skills)
+- [Skill Seekers](https://github.com/yusufkaraaslan/Skill_Seekers)
+- [Awesome Claude Skills](https://github.com/BehiSecc/awesome-claude-skills)
+- [Reddit field report](https://www.reddit.com/r/ClaudeAI/comments/1ok9v3d/i_tested_30_community_claude_skills_for_a_week/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-14
 - Confidence: medium

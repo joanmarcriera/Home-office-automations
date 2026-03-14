@@ -4,6 +4,7 @@
 - [Browser Use](browser-use.md)
 - [Chronos MCP](chronos-mcp.md)
 - [CliHub](clihub.md)
+- [Google Workspace CLI](google-workspace-cli.md)
 - [Make](make.md)
 - [Makefile MCP](makefile-mcp.md)
 - [MCP Registry](mcp-registry.md)

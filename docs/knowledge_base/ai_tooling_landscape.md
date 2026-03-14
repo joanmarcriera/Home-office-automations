@@ -86,6 +86,7 @@ The underlying hardware, storage, and low-level optimizations like quantization 
 - **"I want to add AI to my app"** → [LangChain](../tools/ai_knowledge/langchain.md)/[LlamaIndex](../tools/ai_knowledge/llamaindex.md) + [OpenRouter](../tools/ai_knowledge/openrouter.md) (provider API)
 - **"I want to evaluate models"** → [Benchmarking tools](../tools/benchmarking/index.md)
 - **"I want to stay current"** → [Essential AI Reading List](ai_reading_list.md)
+- **"I want the highest-signal repos from my GitHub stars"** → [Starred AI / Agent Repositories Over 10K Stars](starred_ai_agent_repos.md)
 
 ## Sources / references
 - [Sequoia: Generative AI's Act Two](https://www.sequoiacap.com/article/generative-ai-act-two/)

@@ -1094,6 +1094,120 @@
       "name": "Symbolic MCP Server",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/symbolic-mcp.md"
+    },
+    {
+      "id": "deerflow",
+      "name": "DeerFlow",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/deerflow.md"
+    },
+    {
+      "id": "claude-skills-ecosystem",
+      "name": "Claude Skills Ecosystem",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/claude-skills-ecosystem.md"
+    },
+    {
+      "id": "tavily",
+      "name": "Tavily",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/tavily.md"
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/supabase.md"
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/playwright.md"
+    },
+    {
+      "id": "lm-studio",
+      "name": "LM Studio",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/lm-studio.md"
+    },
+    {
+      "id": "notebooklm",
+      "name": "NotebookLM",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/notebooklm.md"
+    },
+    {
+      "id": "google-opal",
+      "name": "Google Opal",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/google-opal.md"
+    },
+    {
+      "id": "google-stitch",
+      "name": "Google Stitch",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/google-stitch.md"
+    },
+    {
+      "id": "gemini-canvas",
+      "name": "Gemini Canvas",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/gemini-canvas.md"
+    },
+    {
+      "id": "claude-plugins",
+      "name": "Claude Plugins",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-plugins.md"
+    },
+    {
+      "id": "claude-context-mode",
+      "name": "Claude Context Mode",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-context-mode.md"
+    },
+    {
+      "id": "claude-hooks",
+      "name": "Claude Hooks",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-hooks.md"
+    },
+    {
+      "id": "humanizer",
+      "name": "Humanizer",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/humanizer.md"
+    },
+    {
+      "id": "aitmpl",
+      "name": "AI Templates",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
+    },
+    {
+      "id": "vercel-oss",
+      "name": "Vercel OSS",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/vercel-oss.md"
+    },
+    {
+      "id": "claude-cookbooks",
+      "name": "Claude Cookbooks",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/claude-cookbooks.md"
+    },
+    {
+      "id": "google-workspace-cli",
+      "name": "Google Workspace CLI",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/google-workspace-cli.md"
+    },
+    {
+      "id": "google-lyria",
+      "name": "Google Lyria",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/google-lyria.md"
     }
   ]
 }

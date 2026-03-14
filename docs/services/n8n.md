@@ -213,6 +213,12 @@ Use a recurring Jules task focused on n8n value growth:
 
 This keeps n8n improving as an operating system for your business processes, not just as isolated automations.
 
+## Useful AI-adjacent integrations
+- [Tavily](../tools/providers/tavily.md) is a good fit when workflows need web search or research enrichment before summarization or routing.
+- [Playwright](../tools/development_ops/playwright.md) is useful when the target system lacks a stable API and a browser automation fallback is acceptable.
+- [Supabase](../tools/infrastructure/supabase.md) works well as lightweight state storage for workflow memory, queue snapshots, or approval state outside n8n itself.
+- [Replicate](../tools/providers/replicate.md) and [ElevenLabs](../tools/ai_knowledge/elevenlabs.md) are useful when automations need media generation rather than text-only inference.
+
 ## Related tools / concepts
 - [Ollama](ollama.md) (Use as AI backend)
 - [Zapier](../tools/automation_orchestration/zapier.md) (Alternative)
@@ -233,5 +239,5 @@ This keeps n8n improving as an operating system for your business processes, not
 - [n8n AI capabilities](https://docs.n8n.io/advanced-ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-08
+- Last reviewed: 2026-03-14
 - Confidence: medium

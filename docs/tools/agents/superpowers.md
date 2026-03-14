@@ -40,16 +40,25 @@ Install via the Cursor Agent plugin marketplace: `/plugin-add superpowers`.
 #### Codex / OpenCode
 Follow platform-specific instructions to fetch the skill files from the [official repository](https://github.com/obra/superpowers).
 
+## Ecosystem notes
+- Superpowers sits inside the broader coding-agent skills ecosystem alongside Anthropic's reference [skills repository](https://github.com/anthropics/skills), curated indexes such as [awesomeclaude.ai](https://awesomeclaude.ai/), and broader directories like [awesome-skills.com](https://awesome-skills.com/).
+- The strongest use case is not "install everything" but "standardize a high-quality operating model across agents and repos."
+- Community variants such as `ui-ux-pro-max-skill` are useful specialization examples, but they should be reviewed like code because they encode process, tools, and risk assumptions.
+
 ## Related tools / concepts
 - [Claude Code](../development_ops/claude-code.md)
 - [Anthropic Agent Skills](anthropic-agent-skills.md)
+- [Claude Skills Ecosystem](claude-skills-ecosystem.md)
 
 ## Sources / References
 
 - [Official GitHub Repository](https://github.com/obra/superpowers)
 - [Superpowers for Claude Code (Blog Post)](https://blog.fsck.com/2025/10/09/superpowers/)
 - [Anthropic Agent Skills Specification](https://agentskills.io/)
+- [awesomeclaude.ai](https://awesomeclaude.ai/)
+- [awesome-skills.com](https://awesome-skills.com/)
+- [UI UX Pro Max Skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-09
+- Last reviewed: 2026-03-14
 - Confidence: high
