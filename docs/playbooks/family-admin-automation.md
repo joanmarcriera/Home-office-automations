@@ -9,6 +9,16 @@ Automate the routing and notification of family-wide administrative tasks (bills
 - [Matrix/Signal](../architecture/component_map.md)
 
 ## Step-by-Step Flow
+
+```mermaid
+flowchart TD
+    A[Ingest: Email or Scan] --> B[Classify: Paperless Matching Rules]
+    B --> C[Process: n8n Workflow]
+    C --> D[Notify: Home Assistant Alert]
+    D --> E[Dashboard: HA Unprocessed Admin Card]
+    E --> F[Action: Manual Tag Removal]
+```
+
 1.  **Ingest**: Document arrives via Email or Scan.
 2.  **Classify**: Paperless matching rules categorize as `Insurance` or `Utility`.
 3.  **Process**: n8n workflow triggers on tag application.

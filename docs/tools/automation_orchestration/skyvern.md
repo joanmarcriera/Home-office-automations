@@ -41,6 +41,7 @@ It replaces brittle, DOM-based automation (like traditional Playwright or Seleni
 ## Related tools / concepts
 - [Browser Use](browser-use.md)
 - [Crawl4AI](../process_understanding/crawl4ai.md)
+- [n8n](../../services/n8n.md)
 
 ## Sources / References
 - [GitHub](https://github.com/Skyvern-AI/skyvern)
