@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: weekly-growth-planner
+  # Shared queue because multiple scheduled lanes update the same weekly rollup PR branch.
+  group: automation-rollup-producer
   cancel-in-progress: false
 
 permissions:
@@ -49,18 +50,14 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
-          branch: automation/weekly-growth-planner
+          branch: automation/weekly-rollup
           delete-branch: true
-          title: "chore: weekly growth snapshot"
+          title: "chore: automation rollup"
           commit-message: "chore: weekly growth snapshot"
           body: |
-            Automated weekly growth metrics refresh from:
-            - `scripts/growth_tracker.py`
-            - `scripts/update_source_scores.py`
+            Automated weekly rollup for repository-maintenance changes.
 
-            This workflow now opens a PR instead of pushing to `main` directly.
-          labels: |
-            jules
+            This shared PR is refreshed by the scheduled automation lanes during the week and merged by the weekly rollup workflow after it syncs with `main` and re-runs the required checks.
           add-paths: |
             data/growth-metrics.json
             data/source-scores.json

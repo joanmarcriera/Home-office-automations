@@ -5,6 +5,8 @@ name: Auto-Merge Jules PRs
 #   1. Issue created → Jules works → PR opened
 #   2. Quality gates pass → THIS workflow auto-merges
 #   3. Merge triggers next issue creation (via jules-pipeline-trigger.yml)
+# Shared weekly automation rollups are handled separately by
+# `weekly-automation-rollup-merge.yml`.
 
 on:
   # Try to arm auto-merge as soon as a Jules PR is opened/updated.
@@ -76,11 +78,12 @@ jobs:
             --state open \
             --json number,title,labels,headRefName,author \
             --jq '[.[] | select(
+              (.headRefName != "automation/weekly-rollup") and (
               (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
               (.labels[]?.name == "jules") or
               (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix"; "i")) or
               (.author.login == "google-labs-jules[bot]")
-            )] | map(.number) | join(",")')
+            ))] | map(.number) | join(",")')
 
           if [ -z "$JULES_PRS" ]; then
             echo "No open Jules PRs found."
@@ -103,32 +106,49 @@ jobs:
           for PR in "${PRS[@]}"; do
             echo "--- Checking PR #$PR ---"
 
-            # Get PR merge status
-            MERGEABLE=$(gh pr view "$PR" --repo "$REPO" --json mergeable,mergeStateStatus \
-              --jq '{mergeable: .mergeable, status: .mergeStateStatus}')
-            echo "Merge state: $MERGEABLE"
+            STATUS=UNKNOWN
+            IS_MERGEABLE=UNKNOWN
+            for attempt in 1 2 3 4 5; do
+              MERGEABLE=$(gh pr view "$PR" --repo "$REPO" --json mergeable,mergeStateStatus \
+                --jq '{mergeable: .mergeable, status: .mergeStateStatus}')
+              echo "Merge state attempt $attempt: $MERGEABLE"
 
-            STATUS=$(echo "$MERGEABLE" | jq -r '.status')
-            IS_MERGEABLE=$(echo "$MERGEABLE" | jq -r '.mergeable')
+              STATUS=$(echo "$MERGEABLE" | jq -r '.status')
+              IS_MERGEABLE=$(echo "$MERGEABLE" | jq -r '.mergeable')
 
-            if [ "$IS_MERGEABLE" != "MERGEABLE" ]; then
+              if [ "$IS_MERGEABLE" != "UNKNOWN" ] || [ "$STATUS" != "UNKNOWN" ]; then
+                break
+              fi
+
+              sleep 10
+            done
+
+            if [ "$IS_MERGEABLE" != "MERGEABLE" ] && [ "$IS_MERGEABLE" != "UNKNOWN" ]; then
               echo "PR #$PR is not mergeable (state: $IS_MERGEABLE). Skipping."
               continue
             fi
 
-            # Evaluate checks: if failing -> skip; if pending -> arm auto-merge.
-            FAILING_CHECKS=$(gh pr checks "$PR" --repo "$REPO" --json name,state \
-              --jq '[.[] | select(.state == "FAILURE" or .state == "ERROR" or .state == "CANCELLED" or .state == "TIMED_OUT" or .state == "ACTION_REQUIRED")] | length')
+            HEAD_SHA=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq '.headRefOid')
+            REQUIRED_CHECKS=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs" \
+              --jq '[.check_runs[] | select(.name == "knowledgeops-contract" or .name == "link-check") | {name, status, conclusion}]')
+            echo "Required checks: $REQUIRED_CHECKS"
+
+            PRESENT_CHECKS=$(echo "$REQUIRED_CHECKS" | jq 'length')
+            FAILING_CHECKS=$(echo "$REQUIRED_CHECKS" | jq '[.[] | select(.status == "completed" and (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral"))] | length')
 
             if [ "$FAILING_CHECKS" != "0" ]; then
               echo "PR #$PR has $FAILING_CHECKS failing checks. Skipping."
               continue
             fi
 
-            NON_PASSING=$(gh pr checks "$PR" --repo "$REPO" --json name,state \
-              --jq '[.[] | select(.state != "SUCCESS" and .state != "SKIPPED")] | length')
+            NON_PASSING=$(echo "$REQUIRED_CHECKS" | jq '[.[] | select(.status != "completed" or (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral"))] | length')
 
-            if [ "$NON_PASSING" = "0" ] && [ "$STATUS" != "BLOCKED" ]; then
+            if [ "$PRESENT_CHECKS" -lt "2" ]; then
+              echo "PR #$PR has only $PRESENT_CHECKS/2 required checks reported so far."
+              NON_PASSING=1
+            fi
+
+            if [ "$NON_PASSING" = "0" ] && [ "$STATUS" != "BLOCKED" ] && [ "$IS_MERGEABLE" = "MERGEABLE" ]; then
               echo "✅ PR #$PR checks are passing — merging now."
               gh pr merge "$PR" \
                 --repo "$REPO" \

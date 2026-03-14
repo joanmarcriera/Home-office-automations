@@ -12,7 +12,8 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: api-pricing-maintenance
+  # Shared queue because multiple scheduled lanes update the same weekly rollup PR branch.
+  group: automation-rollup-producer
   cancel-in-progress: false
 
 jobs:
@@ -50,16 +51,14 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
-          branch: automation/api-pricing-maintenance
+          branch: automation/weekly-rollup
           delete-branch: true
-          title: "chore(pricing): refresh capability capacity summaries"
+          title: "chore: automation rollup"
           commit-message: "chore(pricing): refresh capability capacity summaries"
           body: |
-            Automated refresh of the pricing capability summaries.
+            Automated weekly rollup for repository-maintenance changes.
 
-            This workflow now submits changes through a pull request so it remains compatible with the repository rules that require PR-based updates to `main`.
-          labels: |
-            jules
+            This shared PR is refreshed by the scheduled automation lanes during the week and merged by the weekly rollup workflow after it syncs with `main` and re-runs the required checks.
           add-paths: |
             docs/knowledge_base/api_pricing_free_tiers.md
 

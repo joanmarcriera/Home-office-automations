@@ -1,0 +1,99 @@
+name: Weekly Automation Rollup Merge
+
+on:
+  schedule:
+    - cron: "15 18-23 * * 0" # Sunday 18:15-23:15 UTC — keep retrying until the weekly rollup PR merges
+  workflow_dispatch:
+
+concurrency:
+  group: automation-rollup-merge
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge-rollup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find open rollup PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          PR_NUMBER=$(gh pr list \
+            --repo "$REPO" \
+            --state open \
+            --head automation/weekly-rollup \
+            --json number \
+            --jq '.[0].number // ""')
+
+          echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No open weekly automation rollup PR."
+          else
+            echo "Found rollup PR #$PR_NUMBER."
+          fi
+
+      - name: Sync rollup branch with main
+        if: steps.pr.outputs.number != ''
+        id: sync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main automation/weekly-rollup
+          BASE_SHA=$(git rev-parse origin/main)
+
+          git checkout -B automation/weekly-rollup origin/automation/weekly-rollup
+          git merge --no-edit origin/main
+          git push origin HEAD:automation/weekly-rollup
+
+          echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger required checks for rollup PR
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BASE_SHA: ${{ steps.sync.outputs.base_sha }}
+          HEAD_SHA: ${{ steps.sync.outputs.head_sha }}
+        run: |
+          python3 scripts/dispatch_pr_gate_workflows.py \
+            --repo "$REPO" \
+            --ref automation/weekly-rollup \
+            --base-sha "$BASE_SHA" \
+            --head-sha "$HEAD_SHA"
+
+      - name: Let GitHub register refreshed checks
+        if: steps.pr.outputs.number != ''
+        run: sleep 20
+
+      - name: Enable rollup PR auto-merge
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          gh pr merge "$PR_NUMBER" \
+            --repo "$REPO" \
+            --merge \
+            --auto \
+            --delete-branch \
+            --body "Weekly automation rollup refreshed against main, required checks dispatched, and auto-merge enabled."
