@@ -18,6 +18,16 @@ The goal is not to list every good tool. The goal is to help you choose the smal
 | Claude implementation examples | [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md) | First-party examples reduce integration guesswork | You already have strong internal patterns |
 | Local/private inference option | [LocalAI](../tools/infrastructure/localai.md) + [llmfit](../tools/development_ops/llmfit.md) | Gives you a path to self-hosting without blind hardware bets | Frontier cloud models are more important than control |
 
+## Expansion packs
+
+| Pack | Add these tools | Use when | Main output |
+| :--- | :--- | :--- | :--- |
+| Knowledge workspace pack | [AnythingLLM](../tools/ai_knowledge/anythingllm.md) + [LocalAI](../tools/infrastructure/localai.md) or [Ollama](../services/ollama.md) | Teams need a shared internal assistant over documents and knowledge | Internal AI workspace |
+| Routing and model control pack | [LiteLLM](../services/litellm.md) + [OpenRouter](../tools/ai_knowledge/openrouter.md) + [ClawRouter](../tools/infrastructure/clawrouter.md) | You need cost, fallback, or provider-routing control across many agents | Model governance and routing |
+| Research and lead-intel pack | [DeerFlow](../tools/agents/deerflow.md) + [Tavily](../tools/providers/tavily.md) + [Browser Use](../tools/automation_orchestration/browser-use.md) + [mem0](../tools/agents/mem0.md) | Sales, strategy, or market research becomes a core workflow | Reusable intelligence pipelines |
+| Finance and market pack | [OpenBB](../tools/ai_knowledge/openbb.md) + [n8n](../services/n8n.md) + [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md) | Finance, investor, or market reporting needs become recurring | Structured finance briefings |
+| Visual builder pack | [Flowise](../tools/ai_knowledge/flowise.md) + [Supabase](../tools/infrastructure/supabase.md) | You want non-engineers or mixed teams to ship internal AI tools faster | Prototype-to-internal-app path |
+
 ## What each part is for
 
 ### 1. Skills + Superpowers
@@ -54,6 +64,25 @@ Use this pair when privacy, local control, or cost discipline matters.
 - **llmfit** decides what can run on your hardware.
 - **LocalAI** gives you a reusable local API once you know the hardware plan is viable.
 
+### 6. Routing layer: LiteLLM vs OpenRouter vs ClawRouter
+Use this layer when model choice, fallback behavior, or provider economics become operational concerns.
+
+- **LiteLLM** is the best general internal routing/control plane.
+- **OpenRouter** is the fastest way to access many hosted models behind one API and billing layer.
+- **ClawRouter** is the specialized choice when OpenClaw-style agent routing is part of the architecture itself.
+
+### 7. Knowledge workspace: AnythingLLM
+Use this when the company needs a usable AI workspace for teams, not just back-end components.
+
+- **AnythingLLM** is a fast way to stand up internal knowledge assistants.
+- It is especially useful when the team wants document-grounded chat before investing in custom product work.
+
+### 8. Finance intelligence: OpenBB
+Use this when structured financial or market intelligence should feed founder, investor, or sales workflows.
+
+- **OpenBB** adds structured market data that generic web search cannot replace.
+- It is most useful for companies where market, macro, or financial context changes decisions.
+
 ## Comparison table
 
 | Need | Best default | Use instead when | Comment |
@@ -68,6 +97,9 @@ Use this pair when privacy, local control, or cost discipline matters.
 | Current docs for agents | [Context7](../tools/development_ops/context7.md) | No external docs required | Very high leverage for coding teams |
 | First-party Claude patterns | [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md) | You need broader ecosystem docs | Strong complement to Context7 |
 | Local inference | [LocalAI](../tools/infrastructure/localai.md) | You need frontier quality and speed first | Pair with llmfit before buying hardware |
+| Internal AI workspace | [AnythingLLM](../tools/ai_knowledge/anythingllm.md) | You need full custom product behavior | Great for shared internal assistants |
+| Model routing | [LiteLLM](../services/litellm.md) | You only need one hosted provider | Use OpenRouter for simpler hosted access; use ClawRouter for OpenClaw-heavy stacks |
+| Finance / market intelligence | [OpenBB](../tools/ai_knowledge/openbb.md) | Generic web research is enough | Best when market data should be structured and recurring |
 
 ## Selection map
 
@@ -99,6 +131,9 @@ flowchart LR
     C["Context7 / Claude Cookbooks"] --- O
     L["LocalAI / llmfit"] --- P["Private inference"]
     P --- O
+    K["AnythingLLM"] --- O
+    R2["LiteLLM / OpenRouter / ClawRouter"] --- O
+    F2["OpenBB"] --- R
 ```
 
 ## Example starter stacks
@@ -130,6 +165,31 @@ Use this when account research, competitor analysis, and evidence gathering are 
 
 Use this when local control and internal data handling matter more than frontier-model convenience.
 
+### Shared internal knowledge stack
+- [AnythingLLM](../tools/ai_knowledge/anythingllm.md)
+- [LocalAI](../tools/infrastructure/localai.md)
+- [Ollama](../services/ollama.md)
+- [mem0](../tools/agents/mem0.md)
+- [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md)
+
+Use this when the company needs an internal assistant surface that people can actually use daily.
+
+### Multi-model routing stack
+- [LiteLLM](../services/litellm.md)
+- [OpenRouter](../tools/ai_knowledge/openrouter.md)
+- [ClawRouter](../tools/infrastructure/clawrouter.md)
+- [Context7](../tools/development_ops/context7.md)
+
+Use this when many models, providers, or routing policies are becoming a cost and reliability problem.
+
+### Finance and market intelligence stack
+- [OpenBB](../tools/ai_knowledge/openbb.md)
+- [DeerFlow](../tools/agents/deerflow.md)
+- [Tavily](../tools/providers/tavily.md)
+- [n8n](../services/n8n.md)
+
+Use this when finance, market context, or target-account intelligence needs to become systematic.
+
 ## What I would use first
 If I were setting up an AI-driven company from scratch, I would start with:
 
@@ -145,6 +205,9 @@ Then I would add:
 - [mem0](../tools/agents/mem0.md) when continuity actually matters
 - [DeerFlow](../tools/agents/deerflow.md) when research becomes a core workflow
 - [LocalAI](../tools/infrastructure/localai.md) and [llmfit](../tools/development_ops/llmfit.md) when local/private inference is justified
+- [AnythingLLM](../tools/ai_knowledge/anythingllm.md) when teams need a shared internal AI workspace
+- [LiteLLM](../services/litellm.md) or [OpenRouter](../tools/ai_knowledge/openrouter.md) when model routing becomes operationally important
+- [OpenBB](../tools/ai_knowledge/openbb.md) when finance and market intelligence become recurring workflows
 
 ## Sources / References
 - [Starred AI / Agent Repositories Over 10K Stars](starred_ai_agent_repos.md)
@@ -158,6 +221,9 @@ Then I would add:
 - [Claude Cookbooks](https://github.com/anthropics/claude-cookbooks)
 - [LocalAI](https://github.com/mudler/LocalAI)
 - [llmfit](https://github.com/AlexsJones/llmfit)
+- [AnythingLLM](https://github.com/Mintplex-Labs/anything-llm)
+- [OpenBB](https://github.com/OpenBB-finance/OpenBB)
+- [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
 - Last reviewed: 2026-03-14

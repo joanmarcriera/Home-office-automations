@@ -136,6 +136,7 @@ nav:
     - AI & Knowledge:
       - Overview: tools/ai_knowledge/index.md
       - AI Templates: tools/ai_knowledge/aitmpl.md
+      - AnythingLLM: tools/ai_knowledge/anythingllm.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
@@ -153,6 +154,7 @@ nav:
       - NotebookLM: tools/ai_knowledge/notebooklm.md
       - Notion AI: tools/ai_knowledge/notion-ai.md
       - Obsidian: tools/ai_knowledge/obsidian.md
+      - OpenBB: tools/ai_knowledge/openbb.md
       - OpenAI: tools/ai_knowledge/openai.md
       - Google Gemini: tools/ai_knowledge/google-gemini.md
       - Google Lyria: tools/ai_knowledge/google-lyria.md
@@ -296,6 +298,7 @@ nav:
     - Infrastructure:
       - Overview: tools/infrastructure/index.md
       - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
+      - ClawRouter: tools/infrastructure/clawrouter.md
       - ExLlamaV2: tools/infrastructure/exllamav2.md
       - llama.cpp: tools/infrastructure/llama-cpp.md
       - LocalAI: tools/infrastructure/localai.md

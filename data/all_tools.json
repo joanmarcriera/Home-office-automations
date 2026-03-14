@@ -1232,6 +1232,24 @@
       "name": "LocalAI",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/localai.md"
+    },
+    {
+      "id": "anythingllm",
+      "name": "AnythingLLM",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/anythingllm.md"
+    },
+    {
+      "id": "openbb",
+      "name": "OpenBB",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/openbb.md"
+    },
+    {
+      "id": "clawrouter",
+      "name": "ClawRouter",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/clawrouter.md"
     }
   ]
 }

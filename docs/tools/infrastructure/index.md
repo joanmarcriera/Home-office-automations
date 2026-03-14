@@ -7,6 +7,7 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 | Tool | What it does |
 | :--- | :--- |
 | [Aphrodite Engine](aphrodite-engine.md) | Inference engine forked from vLLM for local use |
+| [ClawRouter](clawrouter.md) | Agent-native routing layer for OpenClaw model selection |
 | [ExLlamaV2](exllamav2.md) | Optimized GPTQ/EXL2 inference for consumer GPUs |
 | [llama.cpp](llama-cpp.md) | Lightweight local inference runtime for quantized LLMs |
 | [LiteLLM](../../services/litellm.md) | Unified LLM API proxy |
