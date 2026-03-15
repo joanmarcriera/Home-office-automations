@@ -58,7 +58,7 @@ This map categorizes all tools in the stack based on their primary function in t
 
 ## Sources / References
 
-- [Stack Overview](https://home-toolset.riera.co.uk)
+- [Stack Overview](http://ai.riera.co.uk)
 - [Component Map Source Data](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/all_tools.json)
 
 ## Contribution Metadata

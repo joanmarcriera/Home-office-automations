@@ -33,7 +33,7 @@ flowchart LR
         F --> G[Main branch]
     end
     subgraph Serve
-        G --> H[GitHub Pages\nhome-toolset.riera.co.uk]
+        G --> H[GitHub Pages\nai.riera.co.uk]
     end
 ```
 
