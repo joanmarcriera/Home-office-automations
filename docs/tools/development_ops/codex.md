@@ -1,10 +1,10 @@
 # OpenAI Codex
 
 ## What it is
-The model that powers GitHub Copilot and other AI coding tools. It is a descendant of GPT-3 that has been fine-tuned on code from GitHub.
+OpenAI's coding-specialized model line and related coding-agent surfaces. In current routing terms, this is the lane to use when the task is strongly code-centric rather than broad general reasoning.
 
 ## What problem it solves
-Provides a specialized language model for code generation, enabling tools like GitHub Copilot to offer accurate code completions and generation from natural language prompts.
+Provides a specialized language model and tooling surface for code generation, editing, and implementation-oriented coding assistance.
 
 ## Where it fits in the stack
 **Development & Ops**. Functions as the underlying model powering several AI coding assistants.
@@ -13,23 +13,45 @@ Provides a specialized language model for code generation, enabling tools like G
 - Powering code completion tools (e.g., GitHub Copilot)
 - Generating code from natural language descriptions
 - Translating between programming languages
+- Editing or refactoring an existing codebase
+- Writing tests and implementation scaffolds
 
 ## Strengths
-- Fine-tuned specifically for code, yielding high-quality completions
-- Broad language support inherited from GPT-3's training data
-- Well-integrated into the GitHub Copilot ecosystem
+- Code-specialized behavior
+- Useful when you want code editing bias rather than general chat behavior
+- Strong fit for code generation, refactors, and test-writing loops
 
 ## Limitations
 - Proprietary; no self-hosting option
-- Being superseded by newer OpenAI models (e.g., GPT-4o)
+- Not the best default for broad research, planning, or mixed non-code reasoning
+- Should be treated as a specialized lane, not the universal default
+
+## Model routing
+
+Use `gpt-5.3-codex` when:
+- the task is mostly code
+- you want source-editing behavior
+- you are building inside an IDE, CLI, or code agent flow
+
+Do not use it when:
+- the task is mainly research
+- the task is business analysis with some incidental code
+- you actually need the broader deliberate reasoning of GPT-5.4
+
+Best pairings:
+- default coding lane: [Anthropic Sonnet](../providers/anthropic.md)
+- hard reasoning escalation: [OpenAI](../ai_knowledge/openai.md) with GPT-5.4 `high`
+- central policy: [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## When to use it
 - When using GitHub Copilot or other tools built on Codex
 - When evaluating code-specialized models against general-purpose LLMs
+- When the task is code-centric enough to justify a specialized coding lane
 
 ## When not to use it
 - When you need a self-hosted or open-source code model
-- When newer models (GPT-4o, Llama 3) better fit your requirements
+- When the task is not primarily code
+- When a general reasoning model is better suited to the work
 
 ## Getting started
 
@@ -70,11 +92,15 @@ interpreter --local --model codellama --sandbox
 ## Related tools / concepts
 - [Llama 3 (Fine-tuned for code)](https://ollama.com/library/llama3)
 - [StarCoder](https://github.com/bigcode-project/starcoder)
+- [OpenAI](../ai_knowledge/openai.md)
+- [Anthropic](../providers/anthropic.md)
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## Sources / references
-- [OpenAI Codex Page](https://openai.com/blog/openai-codex/)
+- [OpenAI Codex](https://openai.com/codex/)
+- [OpenAI Models Overview](https://platform.openai.com/docs/models)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-15
 - Confidence: medium

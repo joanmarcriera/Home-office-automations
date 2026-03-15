@@ -55,6 +55,8 @@ To choose the best model for your practical scenario, consider the following:
 3.  **Human Preference vs. Automation**: A model might have a high MMLU score but feel "robotic" or overly verbose. Check the **Chatbot Arena Elo** for a sense of how the model actually feels to interact with.
 4.  **Cost-Performance Tradeoff**: Use the **[API Pricing & Free Tier Matrix](api_pricing_free_tiers.md)** alongside these benchmarks to find the model that provides the necessary capability at the lowest cost.
 
+For task-level routing decisions such as when to use Haiku vs Sonnet vs Opus, or GPT-5.4 `low` vs `medium` vs `high` vs `xhigh`, use the dedicated [Model Routing Guide](model_routing_guide.md).
+
 ## Related tools / concepts
 - [Benchmarking Tool Catalogue](../tools/benchmarking/index.md)
 - [Model Classes](model_classes.md)

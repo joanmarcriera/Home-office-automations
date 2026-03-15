@@ -1,7 +1,7 @@
 # Anthropic Claude
 
 ## What it is
-Anthropic is an AI safety and research company that produces the Claude family of LLMs (Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku), known for their strong reasoning and large context windows.
+Anthropic is an AI safety and research company that produces the Claude family of LLMs, known for strong reasoning, coding performance, and large context windows.
 
 ## What problem it solves
 Offers a high-performance alternative to OpenAI with a focus on "Constitutional AI" (safety) and exceptional performance in coding, long-form document analysis, and complex reasoning tasks.
@@ -10,7 +10,7 @@ Offers a high-performance alternative to OpenAI with a focus on "Constitutional 
 **LLM / Reasoning Engine / Provider**. Often used as the primary engine for coding agents due to its high accuracy in code generation and refactoring.
 
 ## Typical use cases
-- **Pair Programming**: Claude 3.5 Sonnet is currently a top choice for tools like [Aider](../development_ops/aider.md).
+- **Pair Programming**: Sonnet is typically the default Claude lane for tools like [Aider](../development_ops/aider.md).
 - **Complex Analysis**: Summarizing long technical documentation or legal files.
 - **Strict Adherence**: Workflows requiring close following of complex formatting rules.
 
@@ -37,11 +37,30 @@ print(message.content)
 ```
 
 ## Strengths
-- **Coding Excellence**: Claude 3.5 Sonnet is widely regarded as one of the best models for software engineering.
+- **Coding Excellence**: Sonnet is widely regarded as one of the strongest daily-driver models for software engineering.
 - **Safety Focus**: Built with Constitutional AI principles for better alignment and safety.
 - **Large Context**: Ability to handle up to 200k+ tokens (and expanding).
 - **Low Hallucination**: Generally exhibits high factual accuracy and honesty.
 - **Pricing Tiers**: Offers a competitive range from the low-cost **Haiku** (high speed, low cost) to the flagship **Sonnet** (balanced performance/cost) and **Opus** (most capable/expensive).
+
+## Model routing
+
+### Haiku
+- Use for: fast classification, extraction, rewriting, and cheap high-volume tasks
+- Default? No
+- Comment: use when throughput matters more than deep reasoning
+
+### Sonnet
+- Use for: default coding, planning, document reasoning, and most daily serious work
+- Default? Yes
+- Comment: best Claude default for mixed quality/cost work
+
+### Opus
+- Use for: premium escalation on hard synthesis, difficult reasoning, or high-stakes final passes
+- Default? No
+- Comment: use only after Sonnet fails or when the answer quality matters enough to justify the premium
+
+See the central routing guide: [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## Limitations
 - **Cloud Dependency**: Requires external API access (proprietary, closed-source).
@@ -49,9 +68,10 @@ print(message.content)
 - **Cost**: High-end models like Opus are significantly more expensive than smaller models.
 
 ## When to use it
-- For software development tasks where Sonnet 3.5 excels.
+- For software development tasks where Sonnet is the right default
 - When safety and alignment are critical priorities for your application.
 - For analyzing very long documents or entire codebases in a single context.
+- When you want a three-tier routing strategy: Haiku for cheap work, Sonnet for defaults, Opus for escalation
 
 ## When not to use it
 - When a local/offline solution is required for privacy or cost.
@@ -67,12 +87,14 @@ print(message.content)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Aider](../development_ops/aider.md)
 - [Mistral AI](mistral.md)
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## Sources / References
 - [Official Website](https://www.anthropic.com/)
 - [Anthropic News](https://www.anthropic.com/news)
 - [API Documentation](https://docs.anthropic.com/)
+- [Models Overview](https://docs.anthropic.com/en/docs/about-claude/models/overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-15
 - Confidence: high

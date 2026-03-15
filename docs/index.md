@@ -30,6 +30,12 @@ hide:
 
     Start in the [AI Builder Index](knowledge_base/ai_builder_index.md), then use the [Free AI Website Playbook](knowledge_base/free_ai_website_playbook.md).
 
+-   **Choose the right model**
+
+    ---
+
+    Start with the [Model Routing Guide](knowledge_base/model_routing_guide.md).
+
 -   **Understand architecture and system design**
 
     ---

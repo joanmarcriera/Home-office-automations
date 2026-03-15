@@ -1,7 +1,7 @@
 # OpenAI
 
 ## What it is
-OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs) including the GPT-4 and GPT-o1 series.
+OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs), including the GPT-5 family and coding-specialized model lines.
 
 ## What problem it solves
 Provides state-of-the-art reasoning, coding, and instruction-following capabilities via a reliable API, enabling complex automation and agentic workflows.
@@ -18,7 +18,7 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - **Data Extraction**: Converting unstructured documents (scans, emails) into structured JSON.
 
 ## Strengths
-- **State-of-the-art performance**: High reasoning capabilities (especially GPT-4o and o1).
+- **State-of-the-art performance**: Strong reasoning, coding, and tool-use capabilities across the GPT-5 family.
 - **Large context windows**: Support for processing large codebases or multiple documents.
 - **Tool use (Function Calling)**: Robust support for structured output and calling external tools.
 - **Reliability**: Highly available API with predictable latency.
@@ -32,6 +32,35 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - When maximum reasoning power is required for complex tasks.
 - For production-grade automations where reliability is paramount.
 - When needing to process very large contexts that local models can't handle yet.
+
+## Effort-level routing
+
+### GPT-5.4 `low`
+- Use for: straightforward serious work where you still want GPT-5.4 quality
+- Default? No
+- Comment: good first pass when latency and cost matter
+
+### GPT-5.4 `medium`
+- Use for: the default OpenAI lane for planning, debugging, analysis, and non-trivial implementation help
+- Default? Yes
+- Comment: best general OpenAI default
+
+### GPT-5.4 `high`
+- Use for: hard reasoning, difficult debugging, deeper architecture analysis
+- Default? No
+- Comment: use when `medium` is not holding up
+
+### GPT-5.4 `xhigh`
+- Use for: explicit last-step escalation on very hard or very important reasoning tasks
+- Default? No
+- Comment: avoid using this as background default because it adds cost and latency quickly
+
+### GPT-5.3 Codex
+- Use for: code-specialized generation and editing
+- Default? Only for code-centric lanes
+- Comment: use this when the task is mostly code, not broad general reasoning
+
+See the central routing guide: [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## When not to use it
 - For processing highly sensitive/private data that must remain on-premises.
@@ -50,13 +79,17 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - [Aider](../development_ops/aider.md)
 - [OpenHands](../development_ops/openhands.md)
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
+- [OpenAI Codex](../development_ops/codex.md)
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## Sources / References
 
-- [Reference](https://openai.com/index/)
-- [How will OpenAI compete?](https://www.ben-evans.com/benedictevans/2026/2/19/how-will-openai-compete-nkg2x) (Ben Evans Analysis)
+- [OpenAI](https://openai.com/)
+- [Models Overview](https://platform.openai.com/docs/models)
+- [Reasoning Guide](https://platform.openai.com/docs/guides/reasoning)
+- [Codex](https://openai.com/codex/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-03-15
 - Confidence: medium

@@ -24,6 +24,12 @@ This section contains deep dives into the technologies, protocols, and conceptua
 
     Start with [AI Tooling Landscape — 2026 Overview](ai_tooling_landscape.md).
 
+-   **Choose The Right Model**
+
+    ---
+
+    Start with [Model Routing Guide](model_routing_guide.md).
+
 -   **Review The Strongest Repos From GitHub Stars**
 
     ---
@@ -38,6 +44,7 @@ This section contains deep dives into the technologies, protocols, and conceptua
 - [**Free AI Website Playbook**](free_ai_website_playbook.md) - Which website types fit free tiers, which hosts to choose, and how to prompt an LLM to build them.
 - [**AI Company Starter Stack**](ai_company_starter_stack.md) - Opinionated default stack for building a company where AI is part of daily operations.
 - [**AI Tooling Landscape — 2026 Overview**](ai_tooling_landscape.md) - High-level map of the entire AI tooling ecosystem in this repository.
+- [**Model Routing Guide**](model_routing_guide.md) - Clear defaults and escalation rules for Haiku, Sonnet, Opus, GPT-5.4 effort levels, and GPT-5.3 Codex.
 - [**Starred AI / Agent Repositories Over 10K Stars**](starred_ai_agent_repos.md) - Practical ranking and usage guide based on your starred GitHub repos.
 
 ## Deep Dives
@@ -45,6 +52,7 @@ This section contains deep dives into the technologies, protocols, and conceptua
 - [**Model Classes**](model_classes.md) - Understanding the different types of LLMs (MoE, Reasoning, Multimodal, etc.).
 - [**System Prompts**](system_prompts.md) - Foundational instructions for frontier models and "high engineering" persona design.
 - [**Model Comparison and Evaluation**](model_comparison_and_evaluation.md) - Guide to LLM leaderboards, benchmarks, and metrics.
+- [**Model Routing Guide**](model_routing_guide.md) - Practical task-routing guidance for choosing the right model and effort level.
 - [**Agent Protocols**](agent_protocols.md) - Deep dive into MCP (Model Context Protocol) and ACP (Agent Control Protocol).
 - [**API Pricing & Free Tier Matrix**](api_pricing_free_tiers.md) - Canonical tracker for provider pricing links and current free-tier availability.
 - [**AI Signal Sources**](ai_signal_sources.md) - Curated company and independent technical blogs worth monitoring.
