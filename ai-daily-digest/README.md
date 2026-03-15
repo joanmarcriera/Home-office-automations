@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-03-15
+
+## Digest fallback for 2026-03-15
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Nvidia's Nemotron 3 Super is a bigger deal than you think](https://www.reddit.com/r/LocalLLaMA/comments/1rtp0og/nvidias_nemotron_3_super_is_a_bigger_deal_than/) (r/LocalLLaMA)
+2. [Unsloth will no longer be making TQ1_0 quants](https://www.reddit.com/r/LocalLLaMA/comments/1ru25ms/unsloth_will_no_longer_be_making_tq1_0_quants/) (r/LocalLLaMA)
+3. [55 → 282 tok/s: How I got Qwen3.5-397B running at speed on 4x RTX PRO 6000 Blackwell](https://www.reddit.com/r/LocalLLaMA/comments/1rtrdsv/55_282_toks_how_i_got_qwen35397b_running_at_speed/) (r/LocalLLaMA)
+4. [StepFun releases SFT dataset used to train Step 3.5 Flash](https://www.reddit.com/r/LocalLLaMA/comments/1rtrmp1/stepfun_releases_sft_dataset_used_to_train_step/) (r/LocalLLaMA)
+5. [Qwen3.5 35b is sure one the best local model (pulling above its weight)](https://www.reddit.com/r/LocalLLaMA/comments/1rtm7bf/qwen35_35b_is_sure_one_the_best_local_model/) (r/LocalLLaMA)
+6. [Agents given the choice between natural language and structured queries abandoned NL within minutes](https://www.reddit.com/r/LocalLLaMA/comments/1rtxkm1/agents_given_the_choice_between_natural_language/) (r/LocalLLaMA)
+7. [(Very) High-Quality Attention Coder-Next GGUFs](https://www.reddit.com/r/LocalLLaMA/comments/1rtos2b/very_highquality_attention_codernext_ggufs/) (r/LocalLLaMA)
+8. [Self hosting, Power consumption, rentability and the cost of privacy, in France](https://www.reddit.com/r/LocalLLaMA/comments/1ru1g23/self_hosting_power_consumption_rentability_and/) (r/LocalLLaMA)
+9. [llama.cpp build b8338 adds OpenVINO backend + NPU support for prefill + kvcache](https://www.reddit.com/r/LocalLLaMA/comments/1rtx13d/llamacpp_build_b8338_adds_openvino_backend_npu/) (r/LocalLLaMA)
+10. [running Qwen3.5-27B Q5 splitt across a 4070ti and an amd rx6800 over LAN @ 13t/s with a 32k prompt](https://www.reddit.com/r/LocalLLaMA/comments/1ru17mh/running_qwen3527b_q5_splitt_across_a_4070ti_and/) (r/LocalLLaMA)
+11. [Local manga translator with LLMs built in](https://www.reddit.com/r/LocalLLaMA/comments/1rtf4v8/local_manga_translator_with_llms_built_in/) (r/LocalLLaMA)
+12. [Qwen 3.5 Thinking Anxiety](https://www.reddit.com/r/LocalLLaMA/comments/1rto17p/qwen_35_thinking_anxiety/) (r/LocalLLaMA)
+13. [Qwen3 TTS in C++ with 1.7B support, speaker encoding extraction, and desktop UI](https://www.reddit.com/r/LocalLLaMA/comments/1rtoscf/qwen3_tts_in_c_with_17b_support_speaker_encoding/) (r/LocalLLaMA)
+14. [Cicikus v3 Prometheus 4.4B - An Experimental Franken-Merge for Edge Reasoning](https://www.reddit.com/r/LocalLLaMA/comments/1rtw7qo/cicikus_v3_prometheus_44b_an_experimental/) (r/LocalLLaMA)
+15. [Thanks to the Intel team for OpenVINO backend in llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1rte9m7/thanks_to_the_intel_team_for_openvino_backend_in/) (r/LocalLLaMA)
+16. [I compared 8 AI coding models on the same real-world feature in an open-source TypeScript project. Here are the results](https://www.reddit.com/r/LocalLLaMA/comments/1rtwxco/i_compared_8_ai_coding_models_on_the_same/) (r/LocalLLaMA)
+17. [qwen 3.5 - tool errors because of </thinking>](https://www.reddit.com/r/LocalLLaMA/comments/1rtxcbm/qwen_35_tool_errors_because_of_thinking/) (r/LocalLLaMA)
+18. [Best local model for coding? (RTX5080 + 64Gb RAM)](https://www.reddit.com/r/LocalLLaMA/comments/1rtjoq9/best_local_model_for_coding_rtx5080_64gb_ram/) (r/LocalLLaMA)
+19. [Anyone using Multi Model with the Qwen 3.5 Series?](https://www.reddit.com/r/LocalLLaMA/comments/1ru0gzt/anyone_using_multi_model_with_the_qwen_35_series/) (r/LocalLLaMA)
+20. [Research?](https://www.reddit.com/r/LocalLLaMA/comments/1ru6rss/research/) (r/LocalLLaMA)
+21. [You guys gotta try OpenCode + OSS LLM](https://www.reddit.com/r/LocalLLaMA/comments/1ru6qml/you_guys_gotta_try_opencode_oss_llm/) (r/LocalLLaMA)
+22. [Qwen3.5 27B refuses to stop thinking](https://www.reddit.com/r/LocalLLaMA/comments/1ru6czk/qwen35_27b_refuses_to_stop_thinking/) (r/LocalLLaMA)
+23. [Is the 48 GB modded RTX 4090 still the highest available or is there something higher confirmed and who is the most reliable seller?](https://www.reddit.com/r/LocalLLaMA/comments/1ru63f0/is_the_48_gb_modded_rtx_4090_still_the_highest/) (r/LocalLLaMA)
+24. [The arXiv is separating from Cornell University, and is hiring a CEO, who will be paid roughly $300,000/year. "After decades of productive partnership with Cornell University, and with support from the Simons Foundation, arXiv is establishing itself as an independent nonprofit organization"](https://www.reddit.com/r/MachineLearning/comments/1rtjirw/the_arxiv_is_separating_from_cornell_university/) (r/MachineLearning)
+25. [[P] Karpathy's autoresearch with evolutionary database.](https://www.reddit.com/r/MachineLearning/comments/1rtsbkv/p_karpathys_autoresearch_with_evolutionary/) (r/MachineLearning)
+26. [[D] Need advice on handling a difficult ACL ARR situation](https://www.reddit.com/r/MachineLearning/comments/1rtled3/d_need_advice_on_handling_a_difficult_acl_arr/) (r/MachineLearning)
+27. [[D] Reported our meta-reviewer in this ARR cycle — no response yet. Should we commit to ACL or should we go with March 2026 cycle with explaining how meta reviews are wrong in revision doc?](https://www.reddit.com/r/MachineLearning/comments/1rth86s/d_reported_our_metareviewer_in_this_arr_cycle_no/) (r/MachineLearning)
+28. [[D] ACL ARR 2026 Jan cycle — Does the commitment track have to match the track chosen during ARR submission?](https://www.reddit.com/r/MachineLearning/comments/1rtkazr/d_acl_arr_2026_jan_cycle_does_the_commitment/) (r/MachineLearning)
+29. [[D] Is anyone interested in the RL ↔ Neuroscience “spiral”? Thinking of writing a deep dive series](https://www.reddit.com/r/MachineLearning/comments/1rtouwo/d_is_anyone_interested_in_the_rl_neuroscience/) (r/MachineLearning)
+30. [My fireside chat about agentic engineering at the Pragmatic Summit](https://simonwillison.net/2026/Mar/14/pragmatic-summit/#atom-entries) (Simon Willison's Weblog)
+31. [Why AI systems are failing in familiar ways](https://thenewstack.io/ai-agents-batch-size-gravity/) (The New Stack)
+32. [Tromjaro is a free-trade Linux distribution with plenty to offer](https://thenewstack.io/tromjaro-is-a-free-trade-linux-distribution-with-plenty-to-offer/) (The New Stack)
+33. [TypeScript 6.0 RC arrives as a bridge to a faster future](https://thenewstack.io/typescript-6-0-rc-arrives-as-a-bridge-to-a-faster-future/) (The New Stack)
+34. [MCP’s biggest growing pains for production use will soon be solved](https://thenewstack.io/model-context-protocol-roadmap-2026/) (The New Stack)
+35. [AI layoffs are here, the MCP vs API debate, and the rise of the Mac Mini-powered Agent](https://thenewstack.io/ai-layoffs-mcp-api-mac-mini-agent/) (The New Stack)
+36. [Andrej Karpathy’s 630-line Python script ran 50 experiments overnight without any human input](https://thenewstack.io/karpathy-autonomous-experiment-loop/) (The New Stack)
+37. [Ollama on a 2008 Dell Latitude](https://www.reddit.com/r/ollama/comments/1rtljsy/ollama_on_a_2008_dell_latitude/) (r/ollama)
+38. [Chetna - A human brain mimicking memory system for AI agents.](https://www.reddit.com/r/ollama/comments/1rtuplr/chetna_a_human_brain_mimicking_memory_system_for/) (r/ollama)
+39. [I built a React Native app that lets your phone use your laptop's GPU for local inference over your home network](https://www.reddit.com/r/ollama/comments/1rtrjn2/i_built_a_react_native_app_that_lets_your_phone/) (r/ollama)
+40. [Ollama's cloud models no longer require downloading via ollama pull.](https://www.reddit.com/r/ollama/comments/1rtru9o/ollamas_cloud_models_no_longer_require/) (r/ollama)
+41. [I am hosting Ollama locally but am getting message that I have reached my limit, what am I not understanding](https://www.reddit.com/r/ollama/comments/1rtdyue/i_am_hosting_ollama_locally_but_am_getting/) (r/ollama)
+42. [built a native macOS app to polish text using local Ollama models](https://www.reddit.com/r/ollama/comments/1ru07lh/built_a_native_macos_app_to_polish_text_using/) (r/ollama)
+43. [Ollama Cloud: Usage limit reduction in past 24 hours](https://www.reddit.com/r/ollama/comments/1rte5w5/ollama_cloud_usage_limit_reduction_in_past_24/) (r/ollama)
+44. [What would be the best vision model for box scanning ocr on amd 7800xt](https://www.reddit.com/r/ollama/comments/1rtctv0/what_would_be_the_best_vision_model_for_box/) (r/ollama)
+45. [VLM & VRAM recommendations for 8MP/4K image analysis](https://www.reddit.com/r/ollama/comments/1rtotsp/vlm_vram_recommendations_for_8mp4k_image_analysis/) (r/ollama)
+46. [Some useful repos if you are building AI agents](https://www.reddit.com/r/ollama/comments/1rtlf7k/some_useful_repos_if_you_are_building_ai_agents/) (r/ollama)
+47. [Incorrect memory calculations for nemotron?](https://www.reddit.com/r/ollama/comments/1rtrebl/incorrect_memory_calculations_for_nemotron/) (r/ollama)
+48. [How to calculate what I can run on GPU?](https://www.reddit.com/r/ollama/comments/1rtpuu5/how_to_calculate_what_i_can_run_on_gpu/) (r/ollama)
+49. [I tested 135 local LLM models with my open-source tool — Mistral Small 3 (14B) outperformed most 30B models](https://www.reddit.com/r/ollama/comments/1rtoliq/i_tested_135_local_llm_models_with_my_opensource/) (r/ollama)
+50. [Does model type (using cloud) affect how quickly you meet your limit in the pro plan?](https://www.reddit.com/r/ollama/comments/1rteq5t/does_model_type_using_cloud_affect_how_quickly/) (r/ollama)
+51. [Beginner: learned n8n automation in 4 days and built 3 workflows](https://www.reddit.com/r/n8n/comments/1ru3ftm/beginner_learned_n8n_automation_in_4_days_and/) (r/n8n)
+52. [One pattern that made my n8n workflows 10x more reliable in production](https://www.reddit.com/r/n8n/comments/1rtn9nn/one_pattern_that_made_my_n8n_workflows_10x_more/) (r/n8n)
+53. [N8n telegram issue](https://www.reddit.com/r/n8n/comments/1ru1g9d/n8n_telegram_issue/) (r/n8n)
+54. [The file "/files/{{$now.toMillis()}}.mp4" is not writable.](https://www.reddit.com/r/n8n/comments/1ru5hzk/the_file_filesnowtomillismp4_is_not_writable/) (r/n8n)
+55. [we built an AI that clones your brand's visual style —here's the whole story.](https://www.reddit.com/r/n8n/comments/1rtrjm8/we_built_an_ai_that_clones_your_brands_visual/) (r/n8n)
+56. [Workflow to extract text from an image](https://www.reddit.com/r/n8n/comments/1ru33bs/workflow_to_extract_text_from_an_image/) (r/n8n)
+57. [N8n switch node](https://www.reddit.com/r/n8n/comments/1ru1evd/n8n_switch_node/) (r/n8n)
+58. [How do you document your n8n workflows for clients?](https://www.reddit.com/r/n8n/comments/1rtw6gu/how_do_you_document_your_n8n_workflows_for_clients/) (r/n8n)
+59. [HIRING BUILDERS](https://www.reddit.com/r/n8n/comments/1ru0ie9/hiring_builders/) (r/n8n)
+60. [Anyone else tired of flying blind with n8n AI workflows? Building a "Datadog/Sentry for n8n" and want your thoughts.](https://www.reddit.com/r/n8n/comments/1rtsevb/anyone_else_tired_of_flying_blind_with_n8n_ai/) (r/n8n)
+61. [I stopped building ‘agents’ and started engineering them (full build walkthrough)](https://www.reddit.com/r/n8n/comments/1rtkay1/i_stopped_building_agents_and_started_engineering/) (r/n8n)
+62. [Cómo le muestro al cliente mi automatización?](https://www.reddit.com/r/n8n/comments/1rtskwx/cómo_le_muestro_al_cliente_mi_automatización/) (r/n8n)
+63. [Saturday Showcase](https://www.reddit.com/r/n8n/comments/1rtkwkm/saturday_showcase/) (r/n8n)
+64. [I Have 7 Months to Replace My 9-to-5 Job with Automation and No-code. What Advice Can You Offer? (Roadmap)](https://www.reddit.com/r/n8n/comments/1rtvqva/i_have_7_months_to_replace_my_9to5_job_with/) (r/n8n)
+65. [WhatsApp message forwarder multi chat to a single chat.](https://www.reddit.com/r/n8n/comments/1rtd2x7/whatsapp_message_forwarder_multi_chat_to_a_single/) (r/n8n)
+66. [Open source doesn’t mean safe](https://www.reddit.com/r/selfhosted/comments/1rtxssn/open_source_doesnt_mean_safe/) (r/selfhosted)
+67. [My neighbor offered me this as a thank-you because I supported him a lot while he was struggling with depression. What can I do with it? It's an M720Q.](https://www.reddit.com/r/selfhosted/comments/1rtie16/my_neighbor_offered_me_this_as_a_thankyou_because/) (r/selfhosted)
+68. [How important is domain name selection?](https://www.reddit.com/r/selfhosted/comments/1rtrf59/how_important_is_domain_name_selection/) (r/selfhosted)
+69. [HortusFox: Development roadmap, stance on AI and community appreciation](https://www.reddit.com/r/selfhosted/comments/1rthmgh/hortusfox_development_roadmap_stance_on_ai_and/) (r/selfhosted)
+70. [Sharing my way of keeping track of what I want to self-host](https://www.reddit.com/r/selfhosted/comments/1ru6f84/sharing_my_way_of_keeping_track_of_what_i_want_to/) (r/selfhosted)
+71. [Fireshare - Share your game clips, videos, or other media via unique links (V1.5.0)](https://www.reddit.com/r/selfhosted/comments/1rtoext/fireshare_share_your_game_clips_videos_or_other/) (r/selfhosted)
+72. [I cannot get Traefik to generate wildcard certs for the life of me](https://www.reddit.com/r/selfhosted/comments/1ru775t/i_cannot_get_traefik_to_generate_wildcard_certs/) (r/selfhosted)
+73. [I need help with my proxmox/omv/media stack](https://www.reddit.com/r/selfhosted/comments/1ru6a9v/i_need_help_with_my_proxmoxomvmedia_stack/) (r/selfhosted)
+74. [Best Jellyfin offline viewing client for iOS?](https://www.reddit.com/r/selfhosted/comments/1rtwi2d/best_jellyfin_offline_viewing_client_for_ios/) (r/selfhosted)
+75. [What is your go to setup?](https://www.reddit.com/r/selfhosted/comments/1rtylck/what_is_your_go_to_setup/) (r/selfhosted)
+76. [Adding Certificate on Nginx PM - Internal Error Help](https://www.reddit.com/r/selfhosted/comments/1ru5ook/adding_certificate_on_nginx_pm_internal_error_help/) (r/selfhosted)
+77. [glance updates and search suggestions](https://www.reddit.com/r/selfhosted/comments/1rtj8h6/glance_updates_and_search_suggestions/) (r/selfhosted)
+78. [Dawarich points far away from my route](https://www.reddit.com/r/selfhosted/comments/1rti176/dawarich_points_far_away_from_my_route/) (r/selfhosted)
+79. [Self hosted replit/vercel](https://www.reddit.com/r/selfhosted/comments/1rtm0ej/self_hosted_replitvercel/) (r/selfhosted)
+80. [Blocking Port 853](https://www.reddit.com/r/selfhosted/comments/1rtmon5/blocking_port_853/) (r/selfhosted)
+
+...and 22 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
