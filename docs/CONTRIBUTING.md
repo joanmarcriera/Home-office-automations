@@ -27,19 +27,20 @@ Use this sequence for most tasks:
 This repository uses **Google Jules**, an autonomous AI coding agent, to help with maintenance and feature development.
 
 ### Daily Ingestion Job
-Jules runs a **scheduled daily job** that:
+The repository now splits ingestion into separate automation lanes:
 
-1. **Scans** high-signal sources (Hacker News, Reddit, arXiv, GitHub Trending, engineering blogs, etc.)
-2. **Stages** qualifying items in daily logs under [`docs/new-sources/`](new-sources.md) with title, URL, tags, and status
-3. **Integrates** staged items into canonical pages or creates new pages using the [tool template](templates/tool_template.md) or [article template](templates/article_template.md)
-4. **Deduplicates** against existing content before adding anything
+1. **Daily digest** scans and summarizes external sources
+2. **Digest-to-intake bridge** stages qualifying items in daily logs under [`docs/new-sources/`](new-sources.md)
+3. **Daily Jules Maintenance** opens a `jules` issue after intake staging
+4. **Jules** integrates staged items into canonical pages or creates new pages using the [tool template](templates/tool_template.md) or [article template](templates/article_template.md)
+5. **Quality gates** validate docs, intake logs, links, and catalog consistency before merge
 
 ### Assigning a Task to Jules
 You can request Jules to perform a task by:
 1.  **Opening an Issue**: Describe the task clearly (e.g., "Add documentation for Tool X" or "Fix broken link in README").
 2.  **Adding the Label**: Apply the label `jules` (case-insensitive) to the issue.
 3.  **Review the Plan**: Jules will analyze the task and post a plan as a comment. Once you approve, Jules will get to work.
-4.  **Review the PR**: Jules will open a Pull Request with its changes for your final review.
+4.  **Review the PR**: Jules will open a Pull Request with its changes. Depending on the automation lane and repository policy, it may auto-merge after required checks pass.
 
 ## Contribution Standards
 - **Precise & Technical**: Avoid marketing language; focus on implementation details.
@@ -77,3 +78,17 @@ Before requesting review, AI-authored PRs must satisfy:
 
 ---
 *Every contribution helps make this hub a better operating manual for everyone.*
+
+## Sources / References
+- [Automated Contributions](architecture/automated_contributions.md)
+- [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md)
+- [GitHub Actions Documentation](https://docs.github.com/actions)
+
+## Related
+- [Home](index.md)
+- [Automated Contributions](architecture/automated_contributions.md)
+- [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md)
+
+## Contribution Metadata
+- Last reviewed: 2026-03-15
+- Confidence: high

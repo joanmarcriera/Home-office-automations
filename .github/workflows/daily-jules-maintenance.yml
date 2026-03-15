@@ -2,8 +2,8 @@ name: Daily Jules Maintenance
 
 on:
   schedule:
-    - cron: '0 7 * * *'  # 07:00 UTC — morning maintenance
-    - cron: '0 19 * * *' # 19:00 UTC — afternoon maintenance, processes bridge afternoon intake
+    - cron: '20 7 * * *'  # 07:20 UTC — after digest-to-intake bridge completes
+    - cron: '0 19 * * *'  # 19:00 UTC — afternoon maintenance pass
   workflow_dispatch: # allow manual trigger for testing
 
 concurrency:

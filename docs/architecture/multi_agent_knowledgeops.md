@@ -69,6 +69,8 @@ To make the contract enforceable, PR automation should check:
 
 These checks are implemented by `scripts/check_docs_contract.py` and run on pull requests.
 
+In this repository, the practical gate stack also includes catalog consistency, intake validation, link health, and generated-content checks depending on which files changed.
+
 ## Phased Rollout Plan
 
 ### Phase 1: Contract and Structure
@@ -103,7 +105,13 @@ A PR is complete only when:
 - [Automated Contributions](./automated_contributions.md)
 - [GitHub Actions: Events that trigger workflows](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)
 
+## Related
+
+- [Home](../index.md)
+- [Automated Contributions](./automated_contributions.md)
+- [Contributing Guide](../CONTRIBUTING.md)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-03-15
 - Confidence: high

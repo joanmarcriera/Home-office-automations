@@ -66,13 +66,23 @@ hide:
 
 ```mermaid
 flowchart LR
-    A["Daily digest"] --> B["Intake logs"]
-    B --> C["Jules maintenance issues"]
-    C --> D["PRs with docs/catalog updates"]
-    D --> E["Quality gates"]
-    E --> F["Main branch"]
-    F --> G["Weekly backlog/deepening loops"]
+    A["Daily digest"] --> B["Digest-to-intake bridge"]
+    B --> C["Intake logs"]
+    C --> D["Jules maintenance issues"]
+    D --> E["Jules PRs or weekly rollup PR"]
+    E --> F["Quality gates"]
+    F --> G["Main branch"]
+    G --> H["Weekly backlog and deepening loops"]
 ```
+
+Repository mapping:
+
+- **Daily digest**: `.github/workflows/daily-digest.yml`
+- **Digest-to-intake bridge**: `.github/workflows/digest-to-intake.yml`
+- **Jules maintenance issues**: `.github/workflows/daily-jules-maintenance.yml`
+- **Jules PRs / weekly rollup PR**: Jules bot PRs plus `automation/weekly-rollup`
+- **Quality gates**: docs, catalog, intake, link, and generated-content workflows
+- **Weekly backlog / deepening loops**: `.github/workflows/process-jules-backlog.yml`, `.github/workflows/daily-jules-knowledge.yml`, `.github/workflows/weekly-planner.yml`, `.github/workflows/weekly-automation-rollup-merge.yml`
 
 Supporting docs:
 
@@ -85,7 +95,16 @@ Supporting docs:
 ## Maintenance Entry Points
 
 - Human maintainers: [CONTRIBUTING.md](CONTRIBUTING.md)
-- LLM agents: [AGENTS.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/AGENTS.md)
-- Agent task patterns: [skills.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/skills.md)
+- LLM agents: [AGENTS.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/AGENTS.md) (repo-root file on GitHub)
+- Agent task patterns: [skills.md](https://github.com/joanmarcriera/Home-office-automations/blob/main/skills.md) (repo-root file on GitHub)
 
 <small>Use this page as the section index. Use section overview pages for detailed scope and conventions.</small>
+
+## Sources / References
+- [Automated Contributions](architecture/automated_contributions.md)
+- [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md)
+- [Contributing Guide](CONTRIBUTING.md)
+
+## Contribution Metadata
+- Last reviewed: 2026-03-15
+- Confidence: high

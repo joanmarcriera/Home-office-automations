@@ -63,7 +63,7 @@ jobs:
             docs/knowledge_base/api_pricing_free_tiers.md
 
       - name: Trigger PR gate workflows
-        if: github.ref_name == 'main' && steps.cpr.outputs.pull-request-operation != 'none'
+        if: github.ref_name == 'main' && (steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}

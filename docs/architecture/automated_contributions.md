@@ -3,7 +3,14 @@
 This document describes how to set up and manage the automated contribution system using **Google Jules**.
 
 ## System Overview
-The system allows the repository to self-improve by assigning tasks to the Jules coding agent via GitHub issues. A scheduled automation ensures that Jules periodically checks for new tasks and executes them.
+The system allows the repository to self-improve through a staged automation pipeline:
+
+1. scheduled workflows collect and summarize sources,
+2. a bridge stages candidates into intake logs,
+3. control issues are opened for Jules,
+4. Jules opens PRs,
+5. quality gates run,
+6. passing changes merge directly or through the weekly automation rollup.
 
 ## Setup Instructions
 
@@ -16,22 +23,33 @@ The system allows the repository to self-improve by assigning tasks to the Jules
 - Ensure the label `jules` (case-insensitive) is created in the repository.
 
 ### 3. Scheduled Tasks Configuration
-The repository utilizes an autonomous watcher (`.github/workflows/scheduled-jules.yml`) that runs periodically to find new tasks.
+The repository now uses multiple workflows rather than one watcher:
 
-### 1. Issue Watcher Logic
-The watcher searches for any open issues mentioning "jules" that do not yet have the `jules` label.
-- **Labeling**: It automatically adds the `jules` label to trigger the agent.
-- **Default Intent**: If no specific action verbs (e.g., "refactor", "fix", "add") are found in the issue, it assumes the issue provides new information to be organized. In this case, it adds a guiding comment for Jules.
+- `.github/workflows/daily-digest.yml` generates the daily digest content
+- `.github/workflows/digest-to-intake.yml` stages qualifying sources into `docs/new-sources/`
+- `.github/workflows/daily-jules-maintenance.yml` opens maintenance issues for Jules after intake staging
+- `.github/workflows/daily-jules-knowledge.yml` opens knowledge-expansion issues
+- `.github/workflows/process-jules-backlog.yml` opens backlog-processing control issues when queued Jules issues accumulate
+- `.github/workflows/jules-auto-merge.yml` merges passing Jules PRs
+- `.github/workflows/weekly-automation-rollup-merge.yml` merges the shared automation rollup PR
+
+### 4. Issue Routing Logic
+The repository also has an issue router:
+
+- `.github/workflows/issue-automation-router.yml` labels ordinary issues for the correct automation lane
+- default route is `jules`
+- explicit autofix requests can be routed to the `autofix` lane instead
 
 ### 2. Manual Triggering
 You can also manually trigger Jules by adding the `jules` label to any issue.
 
 ## Task Lifecycle
-1.  **Discovery**: Human or script adds `jules` label to an issue.
-2.  **Planning**: Jules analyzes the issue and codebase context, then posts a Markdown plan.
-3.  **Approval**: A maintainer approves the plan via a comment.
-4.  **Execution**: Jules clones the repo in a secure VM, applies changes, and runs tests.
-5.  **Submission**: Jules opens a Pull Request for review.
+1.  **Discovery / staging**: digest and bridge workflows update repository-maintenance artifacts and intake logs.
+2.  **Issue creation**: a control workflow opens a `jules` issue for the next unit of work.
+3.  **Execution**: Jules analyzes the issue, makes changes, and opens a PR.
+4.  **Validation**: docs, catalog, intake, link, and generated-content gates run on the PR.
+5.  **Merge**: passing Jules PRs auto-merge; shared automation changes can accumulate on `automation/weekly-rollup` and merge through the weekly rollup workflow.
+6.  **Next cycle**: `jules-pipeline-trigger.yml` triggers the next issue-creation cycle after a Jules PR merge.
 
 ## Best Practices for "Improvement" Issues
 To help Jules improve the content effectively, use structured prompts in the issue description:
@@ -43,7 +61,7 @@ To help Jules improve the content effectively, use structured prompts in the iss
 
 ## Daily Maintenance Job
 
-A scheduled GitHub Actions workflow (`.github/workflows/daily-jules-maintenance.yml`) opens one maintenance issue per day at **07:00 UTC** and immediately applies the `jules` label. Jules picks it up automatically.
+A scheduled GitHub Actions workflow (`.github/workflows/daily-jules-maintenance.yml`) opens maintenance issues twice a day. The morning run happens after the digest-to-intake bridge so intake rows are present before Jules starts the maintenance pass.
 
 ### What it does (in priority order)
 
@@ -55,7 +73,19 @@ The prompt instructs Jules to stop at the first step that produces meaningful wo
 
 Daily intake files are validated by `scripts/validate_new_sources.py` and the `Intake Quality Gates` workflow.
 
-Jules opens a PR titled `chore: daily maintenance YYYY-MM-DD` after completing whichever step had work.
+Jules opens a PR after completing whichever step had work. If the work lands through the shared automation rollup branch, the weekly rollup merge workflow handles final integration.
+
+## Working flow summary
+
+```mermaid
+flowchart LR
+    A["Daily digest"] --> B["Digest-to-intake bridge"]
+    B --> C["docs/new-sources/"]
+    C --> D["Daily Jules Maintenance issue"]
+    D --> E["Jules PR or automation rollup PR"]
+    E --> F["Quality gates"]
+    F --> G["Main branch or auto-merge queue"]
+```
 
 ### Free tier cost
 ~30 seconds per run × 30 days = **~15 minutes/month** of GitHub Actions time.
@@ -72,8 +102,17 @@ The first time Jules runs, review the PR carefully to confirm it follows the tem
 - [Jules](https://jules.google/)
 - [GitHub Actions Documentation](https://docs.github.com/actions)
 - [Daily Jules Maintenance Workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/daily-jules-maintenance.yml)
+- [Digest to Intake Bridge Workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/digest-to-intake.yml)
+- [Jules Auto-Merge Workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/jules-auto-merge.yml)
+- [Weekly Automation Rollup Merge Workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/weekly-automation-rollup-merge.yml)
+
+## Related
+
+- [Home](../index.md)
+- [Multi-Agent KnowledgeOps Governance](multi_agent_knowledgeops.md)
+- [Contributing Guide](../CONTRIBUTING.md)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-03-15
 - Confidence: high

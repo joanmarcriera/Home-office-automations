@@ -104,7 +104,7 @@ jobs:
             docs/new-sources/*.md
 
       - name: Trigger PR gate workflows
-        if: steps.cpr.outputs.pull-request-operation != 'none'
+        if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
