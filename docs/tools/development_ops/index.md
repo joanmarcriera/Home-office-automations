@@ -46,6 +46,25 @@
 - [Symbolic MCP Server](symbolic-mcp.md)
 - [Tabnine](tabnine.md)
 - [Terminus 2](terminus-2.md)
+- [Vercel](vercel.md)
 - [Vercel OSS](vercel-oss.md)
+- [Cloudflare Pages](cloudflare-pages.md)
+- [Netlify](netlify.md)
+- [GitHub Pages](github-pages.md)
 - [Vscode](vscode.md)
 - [Zed](zed.md)
+
+## Related
+
+- [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
+- [AI Builder Index](../../knowledge_base/ai_builder_index.md)
+
+## Sources / References
+- [Vercel](https://vercel.com/)
+- [Cloudflare Pages](https://pages.cloudflare.com/)
+- [Netlify](https://www.netlify.com/)
+- [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
+
+## Contribution Metadata
+- Last reviewed: 2026-03-15
+- Confidence: medium

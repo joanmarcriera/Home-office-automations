@@ -61,6 +61,9 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-15: new-sources/2026-03-15.md
+      - 2026-03-14: new-sources/2026-03-14.md
+      - 2026-03-09: new-sources/2026-03-09.md
       - 2026-03-08: new-sources/2026-03-08.md
       - 2026-03-05: new-sources/2026-03-05.md
       - 2026-03-03: new-sources/2026-03-03.md
@@ -250,7 +253,11 @@ nav:
       - Symbolic MCP Server: tools/development_ops/symbolic-mcp.md
       - Tabnine: tools/development_ops/tabnine.md
       - Terminus 2: tools/development_ops/terminus-2.md
+      - Vercel: tools/development_ops/vercel.md
       - Vercel OSS: tools/development_ops/vercel-oss.md
+      - Cloudflare Pages: tools/development_ops/cloudflare-pages.md
+      - Netlify: tools/development_ops/netlify.md
+      - GitHub Pages: tools/development_ops/github-pages.md
       - Vscode: tools/development_ops/vscode.md
       - Zed: tools/development_ops/zed.md
     - Intake & Storage:
@@ -328,6 +335,8 @@ nav:
     - Prompt Catalogue: architecture/prompt-catalogue.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
+    - AI Builder Index: knowledge_base/ai_builder_index.md
+    - Free AI Website Playbook: knowledge_base/free_ai_website_playbook.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
     - AI Company Starter Stack: knowledge_base/ai_company_starter_stack.md
     - Starred AI / Agent Repositories Over 10K Stars: knowledge_base/starred_ai_agent_repos.md

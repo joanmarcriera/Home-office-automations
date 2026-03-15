@@ -24,6 +24,12 @@ hide:
 
     Start in the [Tool Catalogue](tools/README.md), then use the [AI Tooling Landscape](knowledge_base/ai_tooling_landscape.md) for context.
 
+-   **Build a website or app quickly**
+
+    ---
+
+    Start in the [AI Builder Index](knowledge_base/ai_builder_index.md), then use the [Free AI Website Playbook](knowledge_base/free_ai_website_playbook.md).
+
 -   **Understand architecture and system design**
 
     ---

@@ -1186,10 +1186,34 @@
       "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
     },
     {
+      "id": "vercel",
+      "name": "Vercel",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/vercel.md"
+    },
+    {
       "id": "vercel-oss",
       "name": "Vercel OSS",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/vercel-oss.md"
+    },
+    {
+      "id": "cloudflare-pages",
+      "name": "Cloudflare Pages",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/cloudflare-pages.md"
+    },
+    {
+      "id": "netlify",
+      "name": "Netlify",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/netlify.md"
+    },
+    {
+      "id": "github-pages",
+      "name": "GitHub Pages",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/github-pages.md"
     },
     {
       "id": "claude-cookbooks",

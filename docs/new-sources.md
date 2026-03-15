@@ -6,12 +6,12 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-03-15 | [2026-03-15](/new-sources/2026-03-15/) | 0 | 11 | Added website-hosting canonicals, free website playbook, and discovery-style builder index |
 | 2026-03-14 | [2026-03-14](/new-sources/2026-03-14/) | 0 | 33 | Added Claude ecosystem coverage, search/backend/browser tools, Google AI product pages, direct pages for memory/context/local inference, and company-stack extensions |
 | 2026-03-09 | [2026-03-09](/new-sources/2026-03-09/) | 0 | 8 | Integrated Software Factory, Symphony, Superpowers, BigSwitch, NanoClaw, and Filesystem-as-Interface patterns |
 | 2026-03-08 | [2026-03-08](/new-sources/2026-03-08/) | 2 | 6 | Added local AI desktop tools and integrated Qwen/Local LLM, Whisper/SearXNG, Home Assistant Ollama, and LocalAI |
 | 2026-03-05 | [2026-03-05](/new-sources/2026-03-05/) | 0 | 2 | New providers: MiniMax, Moonshot AI |
-| 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 19 | Provider and framework updates |
-| 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 20 | Daily ingestion (providers, agents, infrastructure) |
+| 2026-03-03 | [2026-03-03](/new-sources/2026-03-03/) | 0 | 21 | Provider, agent, and infrastructure updates |
 | 2026-03-02 | [2026-03-02](/new-sources/2026-03-02/) | 0 | 18 | Daily ingestion (infrastructure, agents, frameworks) |
 | 2026-03-01 | [2026-03-01](/new-sources/2026-03-01/) | 0 | 0 | Daily ingestion (empty) |
 | 2026-02-28 | [2026-02-28](/new-sources/2026-02-28/) | 0 | 10 | Daily ingestion (infrastructure, benchmarking) |

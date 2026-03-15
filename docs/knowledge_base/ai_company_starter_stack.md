@@ -8,6 +8,7 @@ The goal is not to list every good tool. The goal is to help you choose the smal
 
 | Layer | Default choice | Why it belongs in the starter stack | Replace when |
 | :--- | :--- | :--- | :--- |
+| Website / app surface | [Free AI Website Playbook](free_ai_website_playbook.md) -> [Vercel](../tools/development_ops/vercel.md) + [Supabase](../tools/infrastructure/supabase.md) | Gives you a practical default for public sites, MVPs, and internal tools | Your architecture has stronger static-site or infra constraints |
 | Agent operating model | [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) + [Superpowers](../tools/agents/superpowers.md) | Reusable workflows plus execution discipline | You are not using coding agents seriously yet |
 | Current technical context | [Context7](../tools/development_ops/context7.md) | Keeps coding agents grounded in current docs | Your work is mostly non-technical or repo-local |
 | Workflow control plane | [n8n](../services/n8n.md) | Scheduling, retries, approvals, and cross-system automation | Your company is still too small for durable workflows |
@@ -22,6 +23,7 @@ The goal is not to list every good tool. The goal is to help you choose the smal
 
 | Pack | Add these tools | Use when | Main output |
 | :--- | :--- | :--- | :--- |
+| Website launch pack | [Free AI Website Playbook](free_ai_website_playbook.md) + [Vercel](../tools/development_ops/vercel.md) + [Supabase](../tools/infrastructure/supabase.md) | You need a public launch surface, waitlist, or early MVP | Public web presence and product shell |
 | Knowledge workspace pack | [AnythingLLM](../tools/ai_knowledge/anythingllm.md) + [LocalAI](../tools/infrastructure/localai.md) or [Ollama](../services/ollama.md) | Teams need a shared internal assistant over documents and knowledge | Internal AI workspace |
 | Routing and model control pack | [LiteLLM](../services/litellm.md) + [OpenRouter](../tools/ai_knowledge/openrouter.md) + [ClawRouter](../tools/infrastructure/clawrouter.md) | You need cost, fallback, or provider-routing control across many agents | Model governance and routing |
 | Research and lead-intel pack | [DeerFlow](../tools/agents/deerflow.md) + [Tavily](../tools/providers/tavily.md) + [Browser Use](../tools/automation_orchestration/browser-use.md) + [mem0](../tools/agents/mem0.md) | Sales, strategy, or market research becomes a core workflow | Reusable intelligence pipelines |
@@ -29,6 +31,14 @@ The goal is not to list every good tool. The goal is to help you choose the smal
 | Visual builder pack | [Flowise](../tools/ai_knowledge/flowise.md) + [Supabase](../tools/infrastructure/supabase.md) | You want non-engineers or mixed teams to ship internal AI tools faster | Prototype-to-internal-app path |
 
 ## What each part is for
+
+### 0. Website layer
+Use this when the company needs an actual web surface, not only internal automation.
+
+- The [Free AI Website Playbook](free_ai_website_playbook.md) helps choose what kind of site to build and what host fits.
+- [Vercel](../tools/development_ops/vercel.md) is the default when speed of launch matters.
+- [Supabase](../tools/infrastructure/supabase.md) is the default backend once forms, auth, or product state appear.
+- Use [GitHub Pages](../tools/development_ops/github-pages.md) for docs-heavy sites and [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md) for static directories and static-first public properties.
 
 ### 1. Skills + Superpowers
 Use this pair when you want agents to behave like trained operators instead of smart autocomplete.
@@ -87,6 +97,7 @@ Use this when structured financial or market intelligence should feed founder, i
 
 | Need | Best default | Use instead when | Comment |
 | :--- | :--- | :--- | :--- |
+| Public website or product shell | [Free AI Website Playbook](free_ai_website_playbook.md) + [Vercel](../tools/development_ops/vercel.md) | Static docs or content site is enough | The playbook is the decision layer; Vercel is the common default |
 | Reusable company procedures | [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) | You only need one-off prompts | Skills matter once the process repeats |
 | Reliable coding-agent execution | [Superpowers](../tools/agents/superpowers.md) | Speed matters more than rigor | Best for important engineering work |
 | Workflow orchestration | [n8n](../services/n8n.md) | One small script is enough | n8n is the operating system, not just a node editor |
@@ -139,6 +150,9 @@ flowchart LR
 ## Example starter stacks
 
 ### Lean AI-native services company
+- [Free AI Website Playbook](free_ai_website_playbook.md)
+- [Vercel](../tools/development_ops/vercel.md)
+- [Supabase](../tools/infrastructure/supabase.md)
 - [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md)
 - [Superpowers](../tools/agents/superpowers.md)
 - [Context7](../tools/development_ops/context7.md)
@@ -210,6 +224,7 @@ Then I would add:
 - [OpenBB](../tools/ai_knowledge/openbb.md) when finance and market intelligence become recurring workflows
 
 ## Sources / References
+- [Free AI Website Playbook](free_ai_website_playbook.md)
 - [Starred AI / Agent Repositories Over 10K Stars](starred_ai_agent_repos.md)
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
 - [Superpowers](https://github.com/obra/superpowers)
@@ -226,5 +241,5 @@ Then I would add:
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-03-15
 - Confidence: medium
