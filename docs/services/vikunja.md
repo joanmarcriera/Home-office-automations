@@ -37,8 +37,10 @@ Authenticate using an API token in the `Authorization` header:
 
 ```bash
 curl -H "Authorization: Bearer <your_api_token>" \
-     "https://try.vikunja.io/api/v1/tasks"
+     "<your-vikunja-base-url>/api/v1/tasks"
 ```
+
+Use your own private Vikunja base URL here. Do not commit instance-specific URLs, project IDs, or tokens into this repository.
 
 ## Links
 - [Official Website](https://vikunja.io/)
@@ -58,5 +60,5 @@ curl -H "Authorization: Bearer <your_api_token>" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-03-15
 - Confidence: high

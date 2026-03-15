@@ -10,7 +10,7 @@ This table provides a high-level overview of all services running in the TrueNAS
 | **Home Assistant** | Smart Home Control | `homeassistant/home-assistant` | `/mnt/<pool>/applications/home-assistant/` | Reverse Proxy / LAN |
 | **Ollama** | Local LLM Runner | `ollama/ollama` | `/mnt/<pool>/applications/ollama/` | LAN / Tailscale |
 | **Jellyfin** | Media Streaming | `jellyfin/jellyfin` | `/mnt/<pool>/applications/jellyfin/` | Reverse Proxy / LAN |
-| **Vikunja** | Task Management | `vikunja/vikunja` | `/mnt/<pool>/applications/vikunja/` | Reverse Proxy / LAN |
+| **Vikunja** | Task Management | `vikunja/vikunja` | Private dataset path | Private network / reverse proxy |
 | **Linkwarden** | Bookmark Manager | `ghcr.io/linkwarden/linkwarden` | `/mnt/<pool>/applications/linkwarden/` | Reverse Proxy / LAN |
 | **Habitica** | Gamified Tasks | `habitica/habitica` | `/mnt/<pool>/applications/habitica/` | LAN / Tailscale |
 | **Focalboard** | Project Management | `mattermost/focalboard` | `/mnt/<pool>/applications/focalboard/` | LAN / Tailscale |

@@ -24,7 +24,7 @@ Maintain content quality, freshness, and discoverability across the knowledge ba
 | API pricing maintenance | Weekly | CI | `api-pricing-maintenance.yml` refreshes capacity summaries and flags stale review metadata |
 | External link health | Weekly + docs PRs | CI | `docs-link-health.yml` (Lychee) checks markdown links |
 | Model-account routing policy gate | PRs touching policy file | CI | `model-account-policy-gates.yml` validates multi-account routing rules |
-| Vikunja bidirectional sync | Every 30 minutes + issue events | CI | `vikunja-sync.yml` synchronizes GitHub issues and Vikunja tasks |
+| Vikunja bidirectional sync | Disabled | Maintainer | Workflow intentionally removed from CI until the integration is reviewed and re-enabled safely |
 | Full quality audit | Weekly (manual) | Maintainer | `python3 scripts/audit_docs_quality.py` |
 | Starred repo drift check | Weekly (manual/local) | Maintainer | `python3 scripts/check_starred_repo_intake.py --ai-only --min-stars 5000` |
 | Staleness review (docs >90 days old) | Monthly | Maintainer | See "Staleness check" below |
