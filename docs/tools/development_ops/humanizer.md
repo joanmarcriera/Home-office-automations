@@ -29,9 +29,12 @@ It addresses the common issue of AI output sounding overly mechanical, generic, 
 - When factual accuracy or source quality is still the primary problem
 
 ## Related tools / concepts
+
 - [AI Templates](../ai_knowledge/aitmpl.md)
 - [Claude Cookbooks](claude-cookbooks.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / References
 - [GitHub Repository](https://github.com/blader/humanizer)
 

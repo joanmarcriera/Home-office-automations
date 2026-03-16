@@ -33,9 +33,12 @@ AI & Knowledge — acts as an autonomous coding agent integrated into the reposi
 - When the work involves sensitive credentials or infrastructure changes that need human review
 
 ## Related tools / concepts
+
 - [OpenHands](../development_ops/openhands.md)
 - [Aider](../development_ops/aider.md)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Internal System Documentation](../../architecture/automated_contributions.md)
 - [Jules Info](https://github.com/google-jules)

@@ -34,9 +34,12 @@ AI & Knowledge — cloud-based copywriting and marketing automation tool.
 - When strict data privacy and local execution are required
 
 ## Related tools / concepts
+
 - [Jasper](jasper.md)
 - [ChatGPT](chatgpt.md)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://www.copy.ai/)
 - [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)

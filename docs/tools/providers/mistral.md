@@ -85,10 +85,11 @@ Mistral provides a first-class Agents API that goes beyond simple completions:
 - **Commercial**: Paid API usage and enterprise licensing for self-deployment.
 
 ## Related tools / concepts
+
 - [Ollama](../../services/ollama.md)
-- [vLLM](../infrastructure/vllm.md)
 - [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md)
 - [DeepSeek](../ai_knowledge/deepseek.md)
+- [vLLM](../infrastructure/vllm.md)
 
 ## Sources / References
 - [Official Website](https://mistral.ai/)

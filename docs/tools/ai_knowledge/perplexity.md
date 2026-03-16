@@ -33,9 +33,12 @@ AI & Knowledge — used as a research and information retrieval tool when up-to-
 - When offline access is required
 
 ## Related tools / concepts
+
 - [Google Search](https://www.google.com)
 - [Genspark](https://www.genspark.ai/)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Getting started
 
 ### Installation

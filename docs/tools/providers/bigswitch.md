@@ -20,9 +20,12 @@ BigSwitch is a community-driven directory focused on European alternatives to Bi
 Visit [bigswitch.eu](https://bigswitch.eu/) to browse the directory and discover European alternatives for your tech stack.
 
 ## Related tools / concepts
+
 - [Digital Sovereignty](../../architecture/automated_contributions.md)
 - [GDPR Compliance](../../knowledge_base/llm_security_privacy.md)
-
+- [Replicate](replicate.md)
+- [MiniMax](minimax.md)
+- [Groq](groq.md)
 ## Sources / References
 
 - [Official Website](https://bigswitch.eu/)

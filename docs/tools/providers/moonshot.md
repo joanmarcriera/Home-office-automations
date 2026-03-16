@@ -37,9 +37,12 @@ Enables the processing and analysis of massive documents, entire codebases, or l
 - **Self-hostable**: No
 
 ## Related tools / concepts
+
 - [DeepSeek](../ai_knowledge/deepseek.md)
 - [OpenAI](../ai_knowledge/openai.md)
-
+- [Replicate](replicate.md)
+- [MiniMax](minimax.md)
+- [Groq](groq.md)
 ## Sources / References
 - [Official Website](https://www.moonshot.cn/)
 - [Developer Platform](https://platform.moonshot.cn/)

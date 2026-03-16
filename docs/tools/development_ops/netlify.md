@@ -54,11 +54,12 @@ It makes it easy to publish and iterate on frontend sites without building a ful
 - [Netlify](netlify.md) + [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md): use this path when you want host guidance before implementation
 
 ## Related tools / concepts
+
 - [Vercel](vercel.md)
 - [Cloudflare Pages](cloudflare-pages.md)
 - [GitHub Pages](github-pages.md)
-- [Supabase](../infrastructure/supabase.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
+- [Supabase](../infrastructure/supabase.md)
 
 ## Sources / References
 - [Official Website](https://www.netlify.com/)

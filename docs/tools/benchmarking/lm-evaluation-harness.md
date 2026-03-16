@@ -33,9 +33,12 @@ Eliminates the need to implement individual benchmark evaluation pipelines by pr
 - When benchmarking inference speed rather than model quality
 
 ## Related tools / concepts
+
 - [OpenCompass](https://opencompass.org.cn/)
 - [HELM](https://crfm.stanford.edu/helm/lite/)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LongCLI-Bench](longcli-bench.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/EleutherAI/lm-evaluation-harness)
 

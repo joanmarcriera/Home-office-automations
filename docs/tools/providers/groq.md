@@ -64,6 +64,7 @@ print(chat_completion.choices[0].message.content)
 - **Self-hostable**: No (Cloud service).
 
 ## Related tools / concepts
+
 - [Together AI](together.md)
 - [Fireworks AI](fireworks.md)
 - [vLLM](../infrastructure/vllm.md)

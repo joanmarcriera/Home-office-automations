@@ -82,11 +82,13 @@ response = requests.post(url, json=payload)
 print(response.json()['message']['content'])
 ```
 
-## Links to related pages
+## Related tools / concepts
+
 - [Ollama (Service)](../../services/ollama.md)
 - [DeepSeek](deepseek.md)
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
 ## Sources / References
 
 - [Reference](https://github.com/joanmarcriera/Home-office-automations)

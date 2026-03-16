@@ -32,9 +32,12 @@ Brings AI-assisted coding directly into the terminal, enabling repository-wide u
 - When visual code navigation (e.g., in Cursor) is important
 
 ## Related tools / concepts
+
 - [Aider](aider.md)
 - [Superconductor](superconductor.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Junie CLI Repository](https://junie.jetbrains.com/)
 

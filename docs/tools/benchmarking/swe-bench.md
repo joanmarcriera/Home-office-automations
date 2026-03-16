@@ -33,9 +33,12 @@ Measures whether LLMs can perform practical software engineering work -- underst
 - When you need quick, lightweight benchmarking
 
 ## Related tools / concepts
+
 - [HumanEval](human-eval.md)
 - [Terminal-Bench](terminal-bench.md)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
+- [LongCLI-Bench](longcli-bench.md)
 ## Sources / references
 - [Official Website](https://www.swebench.com/)
 - [GitHub Repository](https://github.com/princeton-nlp/SWE-bench)

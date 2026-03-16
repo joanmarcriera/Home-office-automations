@@ -35,9 +35,12 @@ Symphony offers two primary paths:
 2.  **Custom Implementation**: Use the [Symphony Specification](https://github.com/openai/symphony/blob/main/SPEC.md) to build your own implementation in your preferred programming language.
 
 ## Related tools / concepts
+
 - [Harness Engineering (OpenAI Blog)](https://openai.com/index/harness-engineering/)
 - [OpenCode](../development_ops/opencode.md)
-
+- [LangGraph](langgraph.md)
+- [Bee Agent Framework](bee-agent-framework.md)
+- [Claude Skills Ecosystem](claude-skills-ecosystem.md)
 ## Sources / References
 
 - [Official GitHub Repository](https://github.com/openai/symphony)

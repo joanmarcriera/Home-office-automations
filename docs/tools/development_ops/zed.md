@@ -32,9 +32,12 @@ Addresses editor performance limitations by providing a fast, Rust-based editor 
 - When you need a mature, widely-adopted editor ecosystem
 
 ## Related tools / concepts
+
 - [VS Code](vscode.md)
 - [Cursor](cursor.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Reference](https://zed.dev/)
 

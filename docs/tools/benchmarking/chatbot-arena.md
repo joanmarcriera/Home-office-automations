@@ -33,9 +33,12 @@ Provides a human-preference-based ranking of LLMs that captures subjective quali
 - When you need domain-specific evaluation (e.g., code, math, science)
 
 ## Related tools / concepts
+
 - [AlpacaEval](https://github.com/tatsu-lab/alpaca_eval)
 - [MT-Bench](https://github.com/lm-sys/FastChat/tree/main/fastchat/llm_judge)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 ## Sources / references
 - [LMSYS Chatbot Arena](https://arena.lmsys.org/)
 - [LMSYS Leaderboard](https://arena.lmsys.org/leaderboard)

@@ -33,9 +33,12 @@ Enables non-developers to create complex multi-step automations connecting diffe
 - When you need full programmatic control over automation logic
 
 ## Related tools / concepts
+
 - [n8n](../../services/n8n.md)
 - [Zapier](zapier.md)
-
+- [Browser Use](browser-use.md)
+- [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
+- [Skyvern](skyvern.md)
 ## Sources / references
 - [Official Website](https://www.make.com/)
 

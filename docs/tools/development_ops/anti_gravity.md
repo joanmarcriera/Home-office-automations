@@ -31,9 +31,12 @@ Simplifies the development of autonomous coding agents by offering pre-built abs
 - When general-purpose LLM orchestration (e.g., LangChain) is sufficient
 
 ## Related tools / concepts
+
 - [LangChain](../ai_knowledge/langchain.md)
 - [CrewAI](https://github.com/joaomdmoura/crewAI)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Internal Project Reference](https://github.com/google-jules/anti-gravity) (Placeholder)
 

@@ -29,10 +29,14 @@ It automates the time-consuming process of sourcing venues, managing team prefer
 - Not for personal travel planning or general-purpose task management.
 
 ## Related tools / concepts
+
 - AI Agents
 - [ChatGPT](./chatgpt.md)
 - Event Management Automation
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
+- [OpenRouter](openrouter.md)
 ## Sources / references
 - [Launch HN: TeamOut (YC W22) – AI agent for planning company retreats](https://app.teamout.com/ai)
 

@@ -33,9 +33,12 @@ Demonstrates that a simple, direct approach to terminal-based AI agents (LLM + t
 - When a non-terminal workflow is preferred
 
 ## Related tools / concepts
+
 - [OpenHands](openhands.md)
 - [Devin](https://cognition.ai/)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Terminal-Bench GitHub](https://github.com/pro-puffin/terminal-bench)
 - [Reference Blog Post](https://mariozechner.at/posts/2025-11-30-pi-coding-agent/)

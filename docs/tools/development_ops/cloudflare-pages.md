@@ -54,11 +54,12 @@ It gives teams a fast and low-friction way to publish static and frontend-first 
 - [Cloudflare Pages](cloudflare-pages.md) + [n8n](../../services/n8n.md): useful for internal frontends driven by automation outputs
 
 ## Related tools / concepts
+
 - [Vercel](vercel.md)
 - [Netlify](netlify.md)
 - [GitHub Pages](github-pages.md)
-- [Supabase](../infrastructure/supabase.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
+- [Supabase](../infrastructure/supabase.md)
 
 ## Sources / References
 - [Official Website](https://pages.cloudflare.com/)

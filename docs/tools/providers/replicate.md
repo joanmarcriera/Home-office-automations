@@ -62,6 +62,7 @@ for item in output:
 - **Self-hostable**: No (Cloud service), but Cog can be used for local deployment.
 
 ## Related tools / concepts
+
 - [Hugging Face](https://huggingface.co/)
 - [Together AI](together.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)

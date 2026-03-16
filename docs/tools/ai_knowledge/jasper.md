@@ -35,9 +35,12 @@ AI & Knowledge — used as a cloud-based marketing and copywriting assistant.
 - When a local, privacy-first solution is strictly required
 
 ## Related tools / concepts
+
 - [Copy.ai](copy-ai.md)
 - [ChatGPT](chatgpt.md)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://www.jasper.ai/)
 - [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)

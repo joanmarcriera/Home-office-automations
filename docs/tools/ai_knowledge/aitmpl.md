@@ -29,9 +29,12 @@ It gives users a faster way to discover proven prompt structures and packaged AI
 - When you need repo-specific or domain-specific operating logic
 
 ## Related tools / concepts
+
 - [Claude Plugins](../development_ops/claude-plugins.md)
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
-
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
+- [OpenRouter](openrouter.md)
 ## Sources / References
 - [Official Website](https://www.aitmpl.com/)
 

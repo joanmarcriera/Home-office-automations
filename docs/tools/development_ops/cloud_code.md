@@ -32,9 +32,12 @@ Reduces context switching by bringing cloud-native development workflows (Kubern
 - When a standalone Kubernetes management tool (e.g., Lens) is preferred
 
 ## Related tools / concepts
+
 - [Lens](https://k8slens.dev/)
 - [Skaffold](https://skaffold.dev/)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Official Website](https://cloud.google.com/code)
 

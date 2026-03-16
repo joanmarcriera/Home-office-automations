@@ -33,9 +33,12 @@ AI & Knowledge — serves as a data-centric framework for building RAG pipelines
 - When the application does not involve data retrieval or indexing
 
 ## Related tools / concepts
+
 - [LangChain](langchain.md)
 - [Haystack](https://github.com/deepset-ai/haystack)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Getting started
 
 ### Installation

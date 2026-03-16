@@ -54,12 +54,13 @@ It removes most of the operational work required to publish a modern web app, ma
 - [Vercel](vercel.md) + [Vercel OSS](vercel-oss.md): best when you want both deployment and reference implementations
 
 ## Related tools / concepts
-- [Supabase](../infrastructure/supabase.md)
+
 - [Netlify](netlify.md)
 - [Cloudflare Pages](cloudflare-pages.md)
 - [GitHub Pages](github-pages.md)
 - [Vercel OSS](vercel-oss.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
+- [Supabase](../infrastructure/supabase.md)
 
 ## Sources / References
 - [Official Website](https://vercel.com/)

@@ -33,9 +33,12 @@ Measures whether AI agents can effectively operate in a terminal environment, a 
 - When you need a well-established benchmark with extensive published results
 
 ## Related tools / concepts
+
 - [SWE-bench](swe-bench.md)
 - [InterCode](https://github.com/princeton-nlp/intercode)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
+- [LongCLI-Bench](longcli-bench.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/pro-puffin/terminal-bench)
 
