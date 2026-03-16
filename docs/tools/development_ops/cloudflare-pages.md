@@ -62,7 +62,7 @@ It gives teams a fast and low-friction way to publish static and frontend-first 
 
 ## Sources / References
 - [Official Website](https://pages.cloudflare.com/)
-- [Pricing](https://developers.cloudflare.com/pages/platform/pricing/)
+- [Pricing](https://developers.cloudflare.com/pages/functions/pricing/)
 - [Documentation](https://developers.cloudflare.com/pages/)
 
 ## Contribution Metadata
