@@ -88,9 +88,12 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [LangGraph](langgraph.md)
-
+- [Claude Skills Ecosystem](claude-skills-ecosystem.md)
+- [Phidata](phidata.md)
+- [Superpowers](superpowers.md)
 ## Sources / References
 - [GitHub Repository](https://github.com/i-am-bee/beeai-framework)
 - [IBM Research Blog](https://research.ibm.com/blog/ai-agent-reliability-beeai)

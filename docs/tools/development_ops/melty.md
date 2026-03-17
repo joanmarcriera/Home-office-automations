@@ -32,9 +32,12 @@ Bridges the gap between AI code generation and developer intent by focusing on u
 - When you prefer a terminal-based workflow
 
 ## Related tools / concepts
+
 - [Cursor](cursor.md)
 - [Zed](zed.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/meltylabs/melty)
 

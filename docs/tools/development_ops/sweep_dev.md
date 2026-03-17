@@ -32,9 +32,12 @@ Automates the conversion of GitHub issues into working pull requests, reducing t
 - When your issue tracker is not GitHub
 
 ## Related tools / concepts
+
 - [OpenHands](openhands.md)
 - [Jules](../ai_knowledge/jules.md) (for internal tasks)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Official Website](https://sweep.dev/)
 

@@ -29,9 +29,10 @@ It prevents wasted time trying to run models that do not fit your hardware or pe
 - When you already know you will use hosted frontier APIs
 
 ## Related tools / concepts
-- [LocalAI](../infrastructure/localai.md)
+
 - [Ollama](../../services/ollama.md)
 - [LM Studio](../ai_knowledge/lm-studio.md)
+- [LocalAI](../infrastructure/localai.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/AlexsJones/llmfit)

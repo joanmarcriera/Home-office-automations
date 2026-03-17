@@ -33,9 +33,12 @@ AI & Knowledge — serves as a local-first personal knowledge management tool, c
 - When long-form document writing is the primary use case
 
 ## Related tools / concepts
+
 - [Obsidian](obsidian.md)
 - [Roam Research](https://roamresearch.com/) (Non-OSS)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://logseq.com/)
 

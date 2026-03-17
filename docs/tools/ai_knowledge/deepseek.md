@@ -39,11 +39,13 @@ Available via their own API (DeepSeek Platform) or can be self-hosted using the 
 - **API Privacy**: Review their data handling and privacy policy.
 - **Key Management**: Use standard secret management practices.
 
-## Links to related pages
+## Related tools / concepts
+
 - [OpenAI](openai.md)
 - [Anthropic](../providers/anthropic.md)
 - [Local LLMs](local_llms.md)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
 ## Sources / References
 
 - [Reference](https://github.com/joanmarcriera/Home-office-automations)

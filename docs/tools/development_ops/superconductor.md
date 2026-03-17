@@ -32,9 +32,12 @@ Minimizes latency in AI-assisted coding by prioritizing speed, keeping developer
 - When a mature extension ecosystem is required
 
 ## Related tools / concepts
+
 - [Aider](aider.md)
 - [Junie](junie-cli.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Official Website](https://superconductor.ai/)
 

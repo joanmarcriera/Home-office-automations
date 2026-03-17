@@ -33,9 +33,12 @@ AI & Knowledge — serves as a personal knowledge management tool that stores da
 - When real-time multi-user collaboration is a core requirement
 
 ## Related tools / concepts
+
 - [Logseq](logseq.md)
 - [Joplin](https://joplinapp.org/)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://obsidian.md/)
 

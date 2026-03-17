@@ -32,10 +32,13 @@ It solves the complexity problem of modern LLM implementations by stripping them
 - Not for tasks requiring complex reasoning or large context windows.
 
 ## Related tools / concepts
+
 - [Local LLMs](./local_llms.md)
 - [Ollama](../../services/ollama.md)
 - Transformer Architecture
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [ansigpt: c89 implementation of microgpt](https://github.com/yobibyte/ansigpt)
 

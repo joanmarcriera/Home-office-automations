@@ -46,11 +46,13 @@ Provides a tailored, minimal orchestration layer for specific infrastructure tas
 - **Command Injection**: Ensure the LLM output is parsed safely before being executed.
 - **Least Privilege**: The SSH user should only have the permissions necessary for the task.
 
-## Links to related pages
+## Related tools / concepts
+
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
 - [Raspberry Pi Kiosk Automation](../../playbooks/raspberry-pi-kiosk-automation.md)
 - [OpenAI](../ai_knowledge/openai.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
 ## Sources / References
 
 - [Reference](https://github.com/joanmarcriera/Home-office-automations)

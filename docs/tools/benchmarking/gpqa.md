@@ -33,9 +33,12 @@ Measures whether LLMs possess deep, expert-level scientific knowledge and reason
 - When you need broad general-knowledge evaluation (use MMLU instead)
 
 ## Related tools / concepts
+
 - [MMLU (Massive Multitask Language Understanding)](https://github.com/hendrycks/test)
 - [ARC (AI2 Reasoning Challenge)](https://github.com/allenai/ARC-benchmark)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 ## Sources / references
 - [Arxiv Paper](https://arxiv.org/abs/2311.12022)
 

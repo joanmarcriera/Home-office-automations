@@ -33,9 +33,12 @@ Eliminates manual repetitive work by connecting disparate apps and services thro
 - When you need complex, multi-step workflows with advanced logic (use [Make](make.md) or n8n)
 
 ## Related tools / concepts
+
 - [n8n](../../services/n8n.md)
 - [Make](make.md)
-
+- [Browser Use](browser-use.md)
+- [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
+- [Skyvern](skyvern.md)
 ## Sources / references
 - [Official Website](https://zapier.com/)
 

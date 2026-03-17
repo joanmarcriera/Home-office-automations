@@ -37,9 +37,10 @@ It lowers the barrier to local LLM experimentation by packaging model discovery,
 - **Self-hostable**: Local desktop runtime only
 
 ## Related tools / concepts
+
 - [Local LLMs (Ollama, MLX, llama.cpp)](local_llms.md)
 - [Ollama](../../services/ollama.md)
-- [MLX](../infrastructure/mlx.md)
+- [llama.cpp](../infrastructure/llama-cpp.md)
 
 ## Sources / References
 - [Official Website](https://lmstudio.ai/)

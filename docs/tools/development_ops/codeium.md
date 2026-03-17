@@ -32,9 +32,12 @@ Accelerates coding by providing AI-driven autocomplete and search across a wide 
 - When deep codebase-aware context (beyond file-level) is needed
 
 ## Related tools / concepts
+
 - [GitHub Copilot](github_copilot.md)
 - [Tabnine](tabnine.md)
-
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
+- [Sourcegraph Cody](sourcegraph_cody.md)
 ## Sources / references
 - [Official Website](https://codeium.com/)
 

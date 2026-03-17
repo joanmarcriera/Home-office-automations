@@ -32,9 +32,12 @@ Enables developers to make coordinated, multi-file changes from the terminal wit
 - When single-file completions are the primary need
 
 ## Related tools / concepts
+
 - [Aider](aider.md)
 - [Plandex](plandex.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/AbanteAI/mentat)
 

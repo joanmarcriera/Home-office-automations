@@ -32,9 +32,12 @@ Manages the complexity of large, multi-file changes by breaking them into explic
 - When real-time inline completions are the primary need
 
 ## Related tools / concepts
+
 - [Aider](aider.md)
 - [OpenHands](openhands.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Official Website](https://plandex.ai/)
 - [GitHub Repository](https://github.com/plandex-ai/plandex)

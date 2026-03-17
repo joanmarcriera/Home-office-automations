@@ -32,9 +32,12 @@ Automates repetitive development tasks such as code review, security scanning, a
 - When you need full control over the AI model used
 
 ## Related tools / concepts
+
 - [Claude Code](https://github.com/anthropic/claude-code)
 - [Aider](aider.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Factory AI Website](https://www.factory.ai/)
 - [GitHub - Droid Action](https://github.com/Factory-AI/droid-action)

@@ -78,9 +78,12 @@ agent.run("What is the current population of Tokyo?")
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+
 - [LangChain](../ai_knowledge/langchain.md)
 - [Hugging Face Hub](https://huggingface.co/models)
-
+- [AutoGen](autogen.md)
+- [DSPy](dspy.md)
+- [Haystack](haystack.md)
 ## Sources / References
 - [GitHub](https://github.com/huggingface/smolagents)
 - [Blog Post](https://huggingface.co/blog/smolagents)

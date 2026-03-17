@@ -29,9 +29,12 @@ It gives creators and product teams a model-native way to generate or assist wit
 - When your use case needs a fully open or self-hosted audio stack
 
 ## Related tools / concepts
+
 - [ElevenLabs](elevenlabs.md)
 - [Replicate](../providers/replicate.md)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / References
 - [Official Website](https://deepmind.google/models/lyria/)
 

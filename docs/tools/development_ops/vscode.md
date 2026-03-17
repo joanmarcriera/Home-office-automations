@@ -32,9 +32,12 @@ Provides a lightweight yet powerful code editor with a vast extension ecosystem,
 - When maximum editor performance is critical (consider Zed)
 
 ## Related tools / concepts
+
 - [Zed](zed.md)
 - [Cursor](cursor.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Reference](https://code.visualstudio.com/)
 
