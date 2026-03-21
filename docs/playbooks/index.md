@@ -7,6 +7,7 @@ Step-by-step execution guides for recurring workflows. Each playbook is self-con
 | If you want to… | Use this playbook |
 | :--- | :--- |
 | Automate a coding or review task end-to-end with AI assistance | [Dev Workflow (AI-Assisted)](dev-workflow-ai-assisted.md) |
+| Prepare office documents for LLM training or retrieval ingestion | [Document Preparation for LLM Training](document-preparation-for-llm-training.md) |
 | Route emails into calendar events automatically | [Email to Calendar](email-to-calendar.md) |
 | Automate household paperwork — school letters, appointments, admin | [Family Admin Automation](family-admin-automation.md) |
 | Display dashboards or a kiosk on a Raspberry Pi without a desktop | [Raspberry Pi Kiosk Automation](raspberry-pi-kiosk-automation.md) |
@@ -22,6 +23,13 @@ Step-by-step execution guides for recurring workflows. Each playbook is self-con
 Uses Claude Code, GitHub, and local LLMs to accelerate coding tasks — from issue triage to PR creation. Covers prompt engineering tips, safe automation boundaries, and review checkpoints.
 
 **Stack**: Claude Code · Ollama · GitHub Actions · n8n
+
+---
+
+### [Document Preparation for LLM Training](document-preparation-for-llm-training.md)
+Normalizes `docx`, `pdf`, `pptx`, spreadsheet files, and Google Workspace exports into machine-readable text plus metadata. Includes OCR, deduplication, and selective merge guidance for fragmented corpora.
+
+**Stack**: OCRmyPDF · Apache Tika · Docling MCP · Google Workspace CLI · Paperless-ngx
 
 ---
 

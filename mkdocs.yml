@@ -77,6 +77,7 @@ nav:
   - Playbooks:
     - Overview: playbooks/index.md
     - Dev Workflow AI Assisted: playbooks/dev-workflow-ai-assisted.md
+    - Document Preparation For LLM Training: playbooks/document-preparation-for-llm-training.md
     - Email To Calendar: playbooks/email-to-calendar.md
     - Family Admin Automation: playbooks/family-admin-automation.md
     - Raspberry Pi Kiosk Automation: playbooks/raspberry-pi-kiosk-automation.md
