@@ -85,10 +85,38 @@ def load_existing_urls() -> set[str]:
     return urls
 
 
+def _parse_reddit_listing(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    posts: list[dict[str, Any]] = []
+    for child in payload.get("data", {}).get("children", []):
+        p = child.get("data", {})
+        posts.append(
+            {
+                "title": p.get("title", ""),
+                "url": p.get("url", ""),
+                "permalink": f"https://www.reddit.com{p.get('permalink', '')}",
+                "selftext": p.get("selftext", ""),
+                "score": p.get("score", 0),
+                "comments": p.get("num_comments", 0),
+                "created_utc": p.get("created_utc", 0),
+            }
+        )
+    return posts
+
+
+def fetch_top_posts_public(subreddit: str, timeframe: str, limit: int) -> list[dict[str, Any]]:
+    """Fetch top posts using Reddit's public JSON API — no OAuth credentials required."""
+    user_agent = os.environ.get("REDDIT_USER_AGENT", "python:home-office-kb-intake:v1.0").strip()
+    url = f"https://www.reddit.com/r/{subreddit}/top.json?{urlencode({'t': timeframe, 'limit': limit})}"
+    req = Request(url, method="GET", headers={"User-Agent": user_agent})
+    with urlopen(req, timeout=30) as resp:
+        body = resp.read().decode("utf-8")
+    return _parse_reddit_listing(json.loads(body))
+
+
 def reddit_oauth_token() -> str:
     client_id = env_required("REDDIT_CLIENT_ID")
     client_secret = env_required("REDDIT_CLIENT_SECRET")
-    user_agent = env_required("REDDIT_USER_AGENT")
+    user_agent = os.environ.get("REDDIT_USER_AGENT", "python:home-office-kb-intake:v1.0").strip()
 
     payload = urlencode({"grant_type": "client_credentials"}).encode("utf-8")
     basic = base64.b64encode(f"{client_id}:{client_secret}".encode("utf-8")).decode("utf-8")
@@ -113,37 +141,34 @@ def reddit_oauth_token() -> str:
     return token
 
 
-def fetch_top_posts(token: str, subreddit: str, timeframe: str, limit: int) -> list[dict[str, Any]]:
-    user_agent = env_required("REDDIT_USER_AGENT")
+def fetch_top_posts_oauth(token: str, subreddit: str, timeframe: str, limit: int) -> list[dict[str, Any]]:
+    user_agent = os.environ.get("REDDIT_USER_AGENT", "python:home-office-kb-intake:v1.0").strip()
     url = f"https://oauth.reddit.com/r/{subreddit}/top?{urlencode({'t': timeframe, 'limit': limit})}"
-
     req = Request(
         url,
         method="GET",
-        headers={
-            "Authorization": f"Bearer {token}",
-            "User-Agent": user_agent,
-        },
+        headers={"Authorization": f"Bearer {token}", "User-Agent": user_agent},
     )
     with urlopen(req, timeout=30) as resp:
         body = resp.read().decode("utf-8")
-    payload = json.loads(body)
+    return _parse_reddit_listing(json.loads(body))
 
-    posts: list[dict[str, Any]] = []
-    for child in payload.get("data", {}).get("children", []):
-        p = child.get("data", {})
-        posts.append(
-            {
-                "title": p.get("title", ""),
-                "url": p.get("url", ""),
-                "permalink": f"https://www.reddit.com{p.get('permalink', '')}",
-                "selftext": p.get("selftext", ""),
-                "score": p.get("score", 0),
-                "comments": p.get("num_comments", 0),
-                "created_utc": p.get("created_utc", 0),
-            }
-        )
-    return posts
+
+def fetch_top_posts(subreddit: str, timeframe: str, limit: int) -> list[dict[str, Any]]:
+    """Fetch top posts, preferring public API; falls back to OAuth if credentials are set."""
+    client_id = os.environ.get("REDDIT_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("REDDIT_CLIENT_SECRET", "").strip()
+
+    if client_id and client_secret:
+        print("Reddit OAuth credentials found — using authenticated API.")
+        try:
+            token = reddit_oauth_token()
+            return fetch_top_posts_oauth(token, subreddit, timeframe, limit)
+        except Exception as exc:
+            print(f"OAuth fetch failed ({exc}), falling back to public API.")
+
+    print("Using Reddit public JSON API (no OAuth).")
+    return fetch_top_posts_public(subreddit, timeframe, limit)
 
 
 def select_with_openrouter(posts: list[dict[str, Any]], max_items: int) -> list[Candidate]:
@@ -297,8 +322,7 @@ def main() -> int:
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     try:
-        token = reddit_oauth_token()
-        posts = fetch_top_posts(token, subreddit=subreddit, timeframe=timeframe, limit=post_limit)
+        posts = fetch_top_posts(subreddit=subreddit, timeframe=timeframe, limit=post_limit)
     except Exception as exc:
         print(f"Failed to fetch Reddit posts: {exc}")
         return 1

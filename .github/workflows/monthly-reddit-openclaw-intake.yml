@@ -56,7 +56,10 @@ jobs:
         run: |
           set -euo pipefail
           missing=0
-          for v in OPENROUTER_API_KEY REDDIT_CLIENT_ID REDDIT_CLIENT_SECRET REDDIT_USER_AGENT; do
+          # Only OPENROUTER_API_KEY is hard-required.
+          # Reddit credentials (REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET) are optional:
+          # the script falls back to the public Reddit JSON API when they are absent.
+          for v in OPENROUTER_API_KEY; do
             if [ -z "${!v:-}" ]; then
               echo "::error::$v is not set (set as secret or variable)."
               missing=1
@@ -65,6 +68,9 @@ jobs:
           if [ "$missing" -ne 0 ]; then
             exit 1
           fi
+          if [ -z "${REDDIT_CLIENT_ID:-}" ] || [ -z "${REDDIT_CLIENT_SECRET:-}" ]; then
+            echo "::notice::Reddit OAuth credentials not set — will use public API (rate-limited, lower quota)."
+          fi
 
       - name: Run monthly Reddit intake bridge
         env:
@@ -72,6 +78,7 @@ jobs:
           REDDIT_TIMEFRAME: month
           REDDIT_POST_LIMIT: "60"
           MAX_INTAKE_ITEMS: "5"
+          REDDIT_USER_AGENT: ${{ vars.REDDIT_USER_AGENT || 'python:home-office-kb-intake:v1.0 (by /u/automationbot)' }}
         run: python scripts/monthly_reddit_openclaw_intake.py
 
       - name: Validate intake logs
