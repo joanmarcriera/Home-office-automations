@@ -111,8 +111,6 @@ nav:
       - Linkwarden: services/linkwarden.md
       - Litellm: services/litellm.md
       - Mealie: services/mealie.md
-      - Metube: services/metube.md
-      - Minecraft: services/minecraft.md
       - n8n: services/n8n.md
       - Navidrome: services/navidrome.md
       - Nextcloud: services/nextcloud.md
@@ -359,6 +357,7 @@ nav:
       - Tool Calling & Model Context Protocol (MCP): knowledge_base/patterns/tool-calling-and-mcp.md
       - Claude Tool Search: knowledge_base/patterns/claude-tool-search.md
       - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
+      - Fine-tuning Open Models: knowledge_base/patterns/fine-tuning-open-models.md
       - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
       - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
       - Software Factories: knowledge_base/patterns/software-factories.md

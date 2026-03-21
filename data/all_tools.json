@@ -149,63 +149,101 @@
       "name": "Anthropic (Claude)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/anthropic.md",
-      "models": ["Claude 3.5 Sonnet", "Claude 3.5 Haiku", "Claude 3 Opus"]
+      "models": [
+        "Claude 3.5 Sonnet",
+        "Claude 3.5 Haiku",
+        "Claude 3 Opus"
+      ]
     },
     {
       "id": "cohere",
       "name": "Cohere (Enterprise RAG)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/cohere.md",
-      "models": ["Command R+", "Command R", "Embed", "Rerank"]
+      "models": [
+        "Command R+",
+        "Command R",
+        "Embed",
+        "Rerank"
+      ]
     },
     {
       "id": "mistral-ai",
       "name": "Mistral AI (Mixtral/Codestral)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/mistral.md",
-      "models": ["Mistral Large", "Mistral Small", "Mixtral 8x7B", "Mixtral 8x22B", "Codestral"]
+      "models": [
+        "Mistral Large",
+        "Mistral Small",
+        "Mixtral 8x7B",
+        "Mixtral 8x22B",
+        "Codestral"
+      ]
     },
     {
       "id": "together-ai",
       "name": "Together AI (Open Models)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/together.md",
-      "models": ["Llama 3.1", "Qwen 2.5", "Mistral", "Mixtral"]
+      "models": [
+        "Llama 3.1",
+        "Qwen 2.5",
+        "Mistral",
+        "Mixtral"
+      ]
     },
     {
       "id": "groq",
       "name": "Groq (LPU Inference)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/groq.md",
-      "models": ["Llama 3.1", "Mixtral 8x7B", "Gemma 2"]
+      "models": [
+        "Llama 3.1",
+        "Mixtral 8x7B",
+        "Gemma 2"
+      ]
     },
     {
       "id": "fireworks-ai",
       "name": "Fireworks AI (Fast Inference)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/fireworks.md",
-      "models": ["Llama 3.1", "Qwen 2.5", "Myriad Fine-tunes"]
+      "models": [
+        "Llama 3.1",
+        "Qwen 2.5",
+        "Myriad Fine-tunes"
+      ]
     },
     {
       "id": "replicate",
       "name": "Replicate (Multi-modal)",
       "category": "Providers",
       "doc_path": "docs/tools/providers/replicate.md",
-      "models": ["Llama 3.1", "Stable Diffusion XL", "CogVideoX"]
+      "models": [
+        "Llama 3.1",
+        "Stable Diffusion XL",
+        "CogVideoX"
+      ]
     },
     {
       "id": "minimax",
       "name": "MiniMax",
       "category": "Providers",
       "doc_path": "docs/tools/providers/minimax.md",
-      "models": ["M2.5", "M2.1", "M2"]
+      "models": [
+        "M2.5",
+        "M2.1",
+        "M2"
+      ]
     },
     {
       "id": "moonshot",
       "name": "Moonshot AI",
       "category": "Providers",
       "doc_path": "docs/tools/providers/moonshot.md",
-      "models": ["moonshot-v1"]
+      "models": [
+        "moonshot-v1"
+      ]
     },
     {
       "id": "bigswitch",
@@ -638,18 +676,6 @@
       "name": "Mealie",
       "category": "Intake & Storage",
       "doc_path": "docs/services/mealie.md"
-    },
-    {
-      "id": "metube",
-      "name": "MeTube",
-      "category": "Media & Entertainment",
-      "doc_path": "docs/services/metube.md"
-    },
-    {
-      "id": "minecraft",
-      "name": "Minecraft",
-      "category": "Media & Entertainment",
-      "doc_path": "docs/services/minecraft.md"
     },
     {
       "id": "navidrome",
@@ -1274,6 +1300,12 @@
       "name": "ClawRouter",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/clawrouter.md"
+    },
+    {
+      "id": "fine-tuning-open-models",
+      "name": "Fine-tuning Open Models",
+      "category": "Patterns",
+      "doc_path": "docs/knowledge_base/patterns/fine-tuning-open-models.md"
     }
   ]
 }

@@ -18,8 +18,8 @@ jobs:
 
     env:
       REPO: ${{ github.repository }}
-      SPRINT_START: "2026-03-08"
-      SPRINT_END: "2026-03-22"
+      SPRINT_START: "2026-03-22"
+      SPRINT_END: "2026-06-07"
       TARGET_WORKERS: "9"
 
     steps:
