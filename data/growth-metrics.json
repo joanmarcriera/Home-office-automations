@@ -1,8 +1,8 @@
 {
   "snapshot_date": "2026-03-02",
-  "total_docs": 152,
+  "total_docs": 150,
   "tool_docs": 105,
-  "service_docs": 47,
+  "service_docs": 45,
   "by_category": {
     "agents": 6,
     "ai_knowledge": 17,
@@ -25,7 +25,6 @@
     "docs/services/syncthing.md",
     "docs/services/radicale.md",
     "docs/services/homebox.md",
-    "docs/services/minecraft.md",
     "docs/services/storj.md",
     "docs/services/qbittorrent.md",
     "docs/services/plex.md",
@@ -35,7 +34,6 @@
     "docs/services/diskover.md",
     "docs/services/jellyfin.md",
     "docs/services/kiwix.md",
-    "docs/services/metube.md",
     "docs/services/authentik.md",
     "docs/services/portracker.md",
     "docs/services/gitea.md"
