@@ -60,6 +60,7 @@ print(response.choices[0].message.content)
 - **Self-hostable**: No (Cloud service).
 
 ## Related tools / concepts
+
 - [Together AI](together.md)
 - [Groq](groq.md)
 - [vLLM](../infrastructure/vllm.md)

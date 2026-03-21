@@ -42,9 +42,10 @@ It prevents every agent interaction from starting from zero. Instead of cramming
 - Use **n8n** when you need process execution and scheduling, not memory by itself.
 
 ## Related tools / concepts
-- [Supabase](../infrastructure/supabase.md)
+
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [n8n](../../services/n8n.md)
+- [Supabase](../infrastructure/supabase.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/mem0ai/mem0)

@@ -33,9 +33,12 @@ Provides a large-scale, standardized evaluation of LLM code generation on entry-
 - When testing non-Python code generation
 
 ## Related tools / concepts
+
 - [HumanEval](human-eval.md)
 - [EvalPlus](https://github.com/evalplus/evalplus)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/google-research/google-research/tree/master/mbpp)
 

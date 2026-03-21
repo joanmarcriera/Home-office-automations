@@ -60,9 +60,12 @@ print(result["llm"]["replies"][0])
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-
+- [AutoGen](autogen.md)
+- [DSPy](dspy.md)
+- [Smolagents](smolagents.md)
 ## Sources / References
 - [Official Website](https://haystack.deepset.ai/)
 - [GitHub](https://github.com/deepset-ai/haystack)

@@ -33,8 +33,12 @@ Provides an open, standardized protocol for calendar synchronization, enabling i
 - When you need features beyond basic calendar sync (e.g., advanced scheduling logic)
 
 ## Related tools / concepts
+
 - [Google Calendar API](../calendar_tasks/google_calendar.md)
 - [Microsoft Graph API](https://developer.microsoft.com/en-us/graph)
+- [llama.cpp](../infrastructure/llama-cpp.md)
+- [Text Generation Inference (TGI)](../infrastructure/tgi.md)
+- [Aphrodite Engine](../infrastructure/aphrodite-engine.md)
 
 ## Sources / references
 - [CalDAV.org](http://caldav.org/)

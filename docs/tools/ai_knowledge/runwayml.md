@@ -34,10 +34,14 @@ AI & Knowledge — used for generative media and advanced video processing.
 - When you have no budget for cloud-based rendering credits
 
 ## Related tools / concepts
+
 - [Synthesia](synthesia.md)
 - Luma Dream Machine
 - Sora (OpenAI)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
+- [OpenRouter](openrouter.md)
 ## Sources / references
 - [Official Website](https://runwayml.com/)
 - [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)

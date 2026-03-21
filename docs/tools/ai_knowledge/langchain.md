@@ -33,9 +33,12 @@ AI & Knowledge — serves as a foundational framework that other tools in the st
 - When you prefer a data-centric framework like LlamaIndex for pure RAG workloads
 
 ## Related tools / concepts
+
 - [LlamaIndex](llamaindex.md)
 - [Haystack](../frameworks/haystack.md)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Getting started
 
 ### Installation

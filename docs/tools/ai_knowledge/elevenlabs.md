@@ -35,9 +35,12 @@ AI & Knowledge — used for audio content generation and accessibility.
 - When strict offline, local processing is a requirement for privacy or latency
 
 ## Related tools / concepts
+
 - [Synthesia](synthesia.md)
 - [Whisper](../../services/whisper.md) (for speech-to-text)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://elevenlabs.io/)
 - [Documentation](https://elevenlabs.io/docs)

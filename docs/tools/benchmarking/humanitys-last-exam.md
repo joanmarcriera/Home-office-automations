@@ -33,9 +33,12 @@ Addresses the saturation of easier benchmarks by providing a set of questions th
 - When you need domain-specific benchmarking rather than general difficulty
 
 ## Related tools / concepts
+
 - [GPQA](gpqa.md)
 - [MMLU](https://github.com/hendrycks/test)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 ## Sources / references
 - [Hugging Face Dataset](https://huggingface.co/datasets/m-a-p/HLE)
 

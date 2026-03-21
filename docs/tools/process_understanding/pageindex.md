@@ -34,9 +34,12 @@ It addresses the inaccuracies of vector similarity search in professional docume
 - When extremely low latency is required for a massive number of concurrent queries.
 
 ## Related tools / concepts
+
 - [RAGFlow](./ragflow.md)
 - [Retrieval-Augmented Generation (RAG)](../../knowledge_base/patterns/rag.md)
-
+- [Firecrawl](firecrawl.md)
+- [Docling MCP](docling-mcp.md)
+- [Crawl4AI](crawl4ai.md)
 ## Sources / references
 - [Official Website](https://pageindex.ai/)
 - [GitHub Repository](https://github.com/VectifyAI/PageIndex)

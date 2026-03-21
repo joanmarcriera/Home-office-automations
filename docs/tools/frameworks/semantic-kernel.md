@@ -61,9 +61,12 @@ if __name__ == "__main__":
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+
 - [AutoGen](autogen.md)
 - [LangChain](../ai_knowledge/langchain.md)
-
+- [DSPy](dspy.md)
+- [Haystack](haystack.md)
+- [Smolagents](smolagents.md)
 ## Sources / References
 - [GitHub](https://github.com/microsoft/semantic-kernel)
 - [Microsoft Documentation](https://learn.microsoft.com/en-us/semantic-kernel/)

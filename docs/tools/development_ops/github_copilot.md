@@ -56,9 +56,12 @@ Use the `@workspace` participant to ask questions about your entire project with
 ```
 
 ## Related tools / concepts
+
 - [Codeium](codeium.md)
 - [Tabnine](tabnine.md)
-
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
+- [Sourcegraph Cody](sourcegraph_cody.md)
 ## Sources / references
 - [Official Website](https://github.com/features/copilot)
 

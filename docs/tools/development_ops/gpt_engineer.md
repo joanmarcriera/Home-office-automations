@@ -32,9 +32,12 @@ Reduces the time to bootstrap a new project by generating a complete codebase fr
 - When precise control over code structure is required
 
 ## Related tools / concepts
+
 - [Plandex](plandex.md)
 - [OpenHands](openhands.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/AntonOsika/gpt-engineer)
 

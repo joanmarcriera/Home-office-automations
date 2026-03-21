@@ -5,6 +5,16 @@ Syncthing is a continuous file synchronization program.
 ## Description
 It synchronizes files between two or more computers in real time, safely and securely.
 
+## When to use it
+- When you need to sync files across multiple devices without relying on a central cloud provider.
+- For private, encrypted, and decentralized data synchronization.
+- When you want to maintain full control over your data and bandwidth.
+
+## When not to use it
+- If you need a backup solution with historical versioning (Syncthing is primarily for sync, though it has basic versioning).
+- If you require a collaborative editing environment like Google Docs or Microsoft 365.
+- For users who prefer a simple "link-based" sharing model common in centralized cloud services.
+
 ## Getting started
 
 ### Installation
@@ -17,10 +27,13 @@ Simply run the `syncthing` binary to start the service and open the web GUI:
 ./syncthing
 ```
 
-The admin GUI will be available at `http://localhost:8384/`.
+### Hello World
+1. After starting Syncthing, the admin GUI will open automatically at `http://localhost:8384/`.
+2. Click on **Actions** (top right) and select **Show ID**.
+3. This unique **Device ID** is what you will share with your other devices to establish a secure connection.
 
 ## CLI examples
-The `syncthing` binary supports several command-line arguments:
+The `syncthing` binary supports several command-line arguments for configuration and management:
 
 ```bash
 # Show version information
@@ -29,13 +42,27 @@ syncthing --version
 # Generate a new configuration and keys in the specified directory
 syncthing --generate="/path/to/config"
 
-# Set the GUI listen address
+# Set the GUI listen address manually
 syncthing --gui-address="0.0.0.0:8384"
 ```
 
 ## API examples
-Syncthing provides a REST API. Authenticate using the `X-API-Key` header:
+Syncthing provides a REST API. Authenticate using the `X-API-Key` header (found in the Web GUI under Actions > Settings).
 
+### Python Example
+```python
+import requests
+
+url = "http://localhost:8384/rest/system/version"
+headers = {
+    "X-API-Key": "YOUR_API_KEY"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())
+```
+
+### Curl Example
 ```bash
 # Get system version
 curl -X GET -H "X-API-Key: <your_api_key>" \

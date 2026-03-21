@@ -33,9 +33,12 @@ Provides a standardized way to measure whether LLMs can perform multi-step arith
 - When testing non-mathematical capabilities
 
 ## Related tools / concepts
+
 - [MATH Benchmark](https://github.com/hendrycks/math)
 - [ASDiv](https://github.com/chiahsuan/ASDiv)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/openai/grade-school-math)
 

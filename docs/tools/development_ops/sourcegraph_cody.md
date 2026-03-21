@@ -32,9 +32,12 @@ Provides AI code assistance grounded in a deep understanding of the entire codeb
 - When you do not want to set up or pay for Sourcegraph infrastructure
 
 ## Related tools / concepts
+
 - [GitHub Copilot](github_copilot.md)
 - [Cursor](cursor.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Official Website](https://about.sourcegraph.com/cody)
 

@@ -60,9 +60,12 @@ print(pred.answer)
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-
+- [AutoGen](autogen.md)
+- [Haystack](haystack.md)
+- [Smolagents](smolagents.md)
 ## Sources / References
 - [Official Website](https://dspy-docs.vercel.app/)
 - [GitHub](https://github.com/stanfordnlp/dspy)

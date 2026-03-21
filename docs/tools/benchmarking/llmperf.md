@@ -33,9 +33,12 @@ Enables objective comparison of LLM API providers on operational metrics (speed,
 - When evaluating model quality or accuracy
 
 ## Related tools / concepts
+
 - [Ollama Benchmark](ollama-benchmark-cli.md)
 - [LiteLLM (Cost tracking features)](../../services/litellm.md)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/ray-project/llmperf)
 

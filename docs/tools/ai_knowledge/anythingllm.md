@@ -42,9 +42,10 @@ It gives teams an "all-in-one" application surface for internal knowledge work w
 - Use **AnythingLLM + LocalAI/Ollama** when privacy and self-hosting matter.
 
 ## Related tools / concepts
+
 - [Flowise](flowise.md)
-- [LocalAI](../infrastructure/localai.md)
 - [Ollama](../../services/ollama.md)
+- [LocalAI](../infrastructure/localai.md)
 
 ## Sources / References
 - [Official Website](https://anythingllm.com)

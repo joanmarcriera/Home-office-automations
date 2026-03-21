@@ -33,9 +33,12 @@ AI & Knowledge — used as a cloud-based conversational assistant alongside loca
 - When deterministic, reproducible outputs are required
 
 ## Related tools / concepts
+
 - [Claude](https://claude.ai/)
 - [Gemini](https://gemini.google.com/)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://chatgpt.com/)
 - [OpenAI API](https://openai.com/api/)

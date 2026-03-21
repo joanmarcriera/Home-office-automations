@@ -34,9 +34,12 @@ AI & Knowledge — used for automated video presentation and educational content
 - When you want to maintain a "hand-crafted" or raw human feel for a brand
 
 ## Related tools / concepts
+
 - [Runway ML](runwayml.md)
 - [ElevenLabs](elevenlabs.md) (often used for the voice component)
-
+- [AI Templates](aitmpl.md)
+- [Google Gemini](google-gemini.md)
+- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://www.synthesia.io/)
 - [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)

@@ -32,9 +32,12 @@ Provides AI code completion with strong privacy guarantees by running models loc
 - When a free tool is preferred (consider Codeium)
 
 ## Related tools / concepts
+
 - [Codeium](codeium.md)
 - [GitHub Copilot](github_copilot.md)
-
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
+- [Sourcegraph Cody](sourcegraph_cody.md)
 ## Sources / references
 - [Official Website](https://www.tabnine.com/)
 

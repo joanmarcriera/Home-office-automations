@@ -81,9 +81,12 @@ Add custom behavior by defining slash commands in `config.json`:
 ```
 
 ## Related tools / concepts
+
 - [Cursor](cursor.md)
 - [Zed](zed.md)
-
+- [Codeium](codeium.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 ## Sources / references
 - [Official Website](https://www.continue.dev/)
 - [GitHub Repository](https://github.com/continuedev/continue)

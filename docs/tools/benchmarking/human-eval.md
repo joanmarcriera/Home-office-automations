@@ -33,9 +33,12 @@ Provides a standardized measure of whether LLMs can generate functionally correc
 - When you need multilingual code generation evaluation
 
 ## Related tools / concepts
+
 - [MBPP (Mostly Basic Python Problems)](mbpp.md)
 - [BigCodeBench](https://github.com/bigcode-project/bigcodebench)
-
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [SWE-bench](swe-bench.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 ## Sources / references
 - [GitHub Repository](https://github.com/openai/human-eval)
 

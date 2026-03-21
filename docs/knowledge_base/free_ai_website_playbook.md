@@ -376,7 +376,7 @@ If you do not have a strong reason otherwise:
 
 ## Sources / References
 - [Vercel Pricing](https://vercel.com/pricing)
-- [Cloudflare Pages Pricing](https://developers.cloudflare.com/pages/platform/pricing/)
+- [Cloudflare Pages Pricing](https://www.cloudflare.com/plans/developer-platform/)
 - [Netlify Pricing](https://www.netlify.com/pricing/)
 - [GitHub Pages Overview](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
 - [Firebase Pricing](https://firebase.google.com/pricing)
