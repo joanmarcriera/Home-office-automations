@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-03-22
+
+## Digest fallback for 2026-03-22
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Build a Domain-Specific Embedding Model in Under a Day](https://huggingface.co/blog/nvidia/domain-specific-embedding-finetune) (Hugging Face Blog)
+2. [What's New in Mellea 0.4.0 + Granite Libraries Release](https://huggingface.co/blog/ibm-granite/granite-libraries) (Hugging Face Blog)
+3. [Qwen3.5-122B-A10B Uncensored (Aggressive) — GGUF Release + new K_P Quants](https://www.reddit.com/r/LocalLLaMA/comments/1s0aa1y/qwen35122ba10b_uncensored_aggressive_gguf_release/) (r/LocalLLaMA)
+4. [ik_llama.cpp gives 26x faster prompt processing on Qwen 3.5 27B — real world numbers](https://www.reddit.com/r/LocalLLaMA/comments/1s07ysr/ik_llamacpp_gives_26x_faster_prompt_processing_on/) (r/LocalLLaMA)
+5. [Interesting loop](https://www.reddit.com/r/LocalLLaMA/comments/1s0aes8/interesting_loop/) (r/LocalLLaMA)
+6. [Llama 8B matching 70B on multi-hop QA with structured prompting, no fine-tuning](https://www.reddit.com/r/LocalLLaMA/comments/1s05thz/llama_8b_matching_70b_on_multihop_qa_with/) (r/LocalLLaMA)
+7. [Moonshot says Cursor Composer was authorized](https://www.reddit.com/r/LocalLLaMA/comments/1rzqg06/moonshot_says_cursor_composer_was_authorized/) (r/LocalLLaMA)
+8. [[Round 2 - Followup] M5 Max 128G Performance tests. I just got my new toy, and here's what it can do. (thank you for the feedback)](https://www.reddit.com/r/LocalLLaMA/comments/1s0czc4/round_2_followup_m5_max_128g_performance_tests_i/) (r/LocalLLaMA)
+9. [Don't sleep on the new Nemotron Cascade](https://www.reddit.com/r/LocalLLaMA/comments/1rzud2z/dont_sleep_on_the_new_nemotron_cascade/) (r/LocalLLaMA)
+10. [Qwen wants you to know…](https://www.reddit.com/r/LocalLLaMA/comments/1rzeonn/qwen_wants_you_to_know/) (r/LocalLLaMA)
+11. [A few days ago I switched to Linux to try vLLM out of curiosity. Ended up creating a %100 local, parallel, multi-agent setup with Claude Code and gpt-oss-120b for concurrent vibecoding and orchestration with CC's agent Teams entirely offline. This video shows 4 agents collaborating.](https://www.reddit.com/r/LocalLLaMA/comments/1s0bzwz/a_few_days_ago_i_switched_to_linux_to_try_vllm/) (r/LocalLLaMA)
+12. [DeepSeek Core Researcher Daya Guo Rumored to Have Resigned](https://www.reddit.com/r/LocalLLaMA/comments/1rzu7rc/deepseek_core_researcher_daya_guo_rumored_to_have/) (r/LocalLLaMA)
+13. [I'm using llama.cpp to run models larger than my Mac's memory](https://www.reddit.com/r/LocalLLaMA/comments/1s0a8wa/im_using_llamacpp_to_run_models_larger_than_my/) (r/LocalLLaMA)
+14. [FeatherOps: Fast fp8 matmul on RDNA3 without native fp8](https://www.reddit.com/r/LocalLLaMA/comments/1s0a3fg/featherops_fast_fp8_matmul_on_rdna3_without/) (r/LocalLLaMA)
+15. [Litesearch: Karpathy's autoresearch but for consumer GPUs (4–8GB) + easy GUI](https://www.reddit.com/r/LocalLLaMA/comments/1s050fg/litesearch_karpathys_autoresearch_but_for/) (r/LocalLLaMA)
+16. [Multi-Token Prediction (MTP) for qwen-3.5 is coming to mlx-lm](https://www.reddit.com/r/LocalLLaMA/comments/1rzntv5/multitoken_prediction_mtp_for_qwen35_is_coming_to/) (r/LocalLLaMA)
+17. [Benchmark MiniMax-M2.5 on 8*H20 perf test](https://www.reddit.com/r/LocalLLaMA/comments/1s0db0h/benchmark_minimaxm25_on_8h20_perf_test/) (r/LocalLLaMA)
+18. [I just ran Qwen3.5 35B on my iPhone at 5.6 tok/sec.](https://www.reddit.com/r/LocalLLaMA/comments/1s07nld/i_just_ran_qwen35_35b_on_my_iphone_at_56_toksec/) (r/LocalLLaMA)
+19. [Feedback on my 256gb VRAM local setup and cluster plans. Lawyer keeping it local.](https://www.reddit.com/r/LocalLLaMA/comments/1rzg33q/feedback_on_my_256gb_vram_local_setup_and_cluster/) (r/LocalLLaMA)
+20. [3x RTX 5090's to a single RTX Pro 6000](https://www.reddit.com/r/LocalLLaMA/comments/1s02h92/3x_rtx_5090s_to_a_single_rtx_pro_6000/) (r/LocalLLaMA)
+21. [Will they or won’t they? Why they gotta toy with our emotions?](https://www.reddit.com/r/LocalLLaMA/comments/1s06q6g/will_they_or_wont_they_why_they_gotta_toy_with/) (r/LocalLLaMA)
+22. [This is incredibly tempting](https://www.reddit.com/r/LocalLLaMA/comments/1rzhdsd/this_is_incredibly_tempting/) (r/LocalLLaMA)
+23. ["Go big or go home."](https://www.reddit.com/r/LocalLLaMA/comments/1s0d55v/go_big_or_go_home/) (r/LocalLLaMA)
+24. [Fixing Qwen thinking repetition](https://www.reddit.com/r/LocalLLaMA/comments/1rzsehn/fixing_qwen_thinking_repetition/) (r/LocalLLaMA)
+25. [Want to vibe code with a self hosted LLM](https://www.reddit.com/r/LocalLLaMA/comments/1s0a1vd/want_to_vibe_code_with_a_self_hosted_llm/) (r/LocalLLaMA)
+26. [Small models can be good agents](https://www.reddit.com/r/LocalLLaMA/comments/1rzv31l/small_models_can_be_good_agents/) (r/LocalLLaMA)
+27. [[D] Solving the "Liquid-Solid Interface" Problem: 116 High-Fidelity Datasets of Coastal Physics (Waves, Saturated Sand, Light Transport)](https://www.reddit.com/r/MachineLearning/comments/1s0ea4v/d_solving_the_liquidsolid_interface_problem_116/) (r/MachineLearning)
+28. [[D] Single-artist longitudinal fine art dataset spanning 5 decades now on Hugging Face — potential applications in style evolution, figure representation, and ethical training data](https://www.reddit.com/r/MachineLearning/comments/1s0dce7/d_singleartist_longitudinal_fine_art_dataset/) (r/MachineLearning)
+29. [[P] Vibecoded on a home PC: building a ~2700 Elo browser-playable neural chess engine with a Karpathy-inspired AI-assisted research loop](https://www.reddit.com/r/MachineLearning/comments/1rzrs17/p_vibecoded_on_a_home_pc_building_a_2700_elo/) (r/MachineLearning)
+30. [[N] ArXiv, the pioneering preprint server, declares independence from Cornell | Science | As an independent nonprofit, it hopes to raise funds to cope with exploding submissions and “AI slop”](https://www.reddit.com/r/MachineLearning/comments/1rzp5ph/n_arxiv_the_pioneering_preprint_server_declares/) (r/MachineLearning)
+31. [[D] How do you add theoretical justification to an AI/ML paper?](https://www.reddit.com/r/MachineLearning/comments/1rzkuxd/d_how_do_you_add_theoretical_justification_to_an/) (r/MachineLearning)
+32. [[P] Open-source ML homeworks with auto-tests - fundamental algorithms from first principles](https://www.reddit.com/r/MachineLearning/comments/1s00v5r/p_opensource_ml_homeworks_with_autotests/) (r/MachineLearning)
+33. [Medical AI gets 66% worse when you use automated labels for training, and the benchmark hides it! [R][P]](https://www.reddit.com/r/MachineLearning/comments/1rz748k/medical_ai_gets_66_worse_when_you_use_automated/) (r/MachineLearning)
+34. [[D] Has "AI research lab" become completely meaningless as a term?](https://www.reddit.com/r/MachineLearning/comments/1rz5met/d_has_ai_research_lab_become_completely/) (r/MachineLearning)
+35. [[P] Interactive 2D and 3D Visualization of GPT-2](https://www.reddit.com/r/MachineLearning/comments/1rz340w/p_interactive_2d_and_3d_visualization_of_gpt2/) (r/MachineLearning)
+36. [Built a website for easily searching and discussing arXiv papers [P]](https://www.reddit.com/r/MachineLearning/comments/1rzon32/built_a_website_for_easily_searching_and/) (r/MachineLearning)
+37. [[R] Predicting Tetris wins](https://www.reddit.com/r/MachineLearning/comments/1rzmh1a/r_predicting_tetris_wins/) (r/MachineLearning)
+38. [What measure do I use to compare nested models and non nested models in high dimensional survival analysis [D]](https://www.reddit.com/r/MachineLearning/comments/1rzpyjc/what_measure_do_i_use_to_compare_nested_models/) (r/MachineLearning)
+39. [Performance Prediction of Antenna Control Servo System based on LSTM Network [R]](https://www.reddit.com/r/MachineLearning/comments/1rzlq06/performance_prediction_of_antenna_control_servo/) (r/MachineLearning)
+40. [[D] Doubt regarding CVPR camera ready submission](https://www.reddit.com/r/MachineLearning/comments/1rz1n3b/d_doubt_regarding_cvpr_camera_ready_submission/) (r/MachineLearning)
+41. [[D] Seeking feedback: Safe autonomous agents for enterprise systems](https://www.reddit.com/r/MachineLearning/comments/1rziq9q/d_seeking_feedback_safe_autonomous_agents_for/) (r/MachineLearning)
+42. [[R] Seeing arxiv endorser (eess.IV or cs.CV) CT lung nodule AI validation preprint](https://www.reddit.com/r/MachineLearning/comments/1rztzib/r_seeing_arxiv_endorser_eessiv_or_cscv_ct_lung/) (r/MachineLearning)
+43. [[P] Benchmark: Using XGBoost vs. DistilBERT for detecting "Month 2 Tanking" in cold email infrastructure?](https://www.reddit.com/r/MachineLearning/comments/1rzpc28/p_benchmark_using_xgboost_vs_distilbert_for/) (r/MachineLearning)
+44. [[P] Zero-code runtime visibility for PyTorch training](https://www.reddit.com/r/MachineLearning/comments/1ryww1u/p_zerocode_runtime_visibility_for_pytorch_training/) (r/MachineLearning)
+45. [[P] neuropt: LLM-guided hyperparameter optimization that reads your training curves](https://www.reddit.com/r/MachineLearning/comments/1rz4tri/p_neuropt_llmguided_hyperparameter_optimization/) (r/MachineLearning)
+46. [Profiling Hacker News users based on their comments](https://simonwillison.net/2026/Mar/21/profiling-hacker-news-users/#atom-entries) (Simon Willison's Weblog)
+47. [Dreamer: the Personal Agent OS — David Singleton](https://www.latent.space/p/dreamer) (Latent Space)
+48. [[AINews] Every Lab serious enough about Developers has bought their own Devtools](https://www.latent.space/p/ainews-every-lab-serious-enough-about) (Latent Space)
+49. [Anthropic’s response to the AI tool that caused lines around the block in Shenzhen](https://thenewstack.io/claude-dispatch-versus-openclaw/) (The New Stack)
+50. [Why WebAssembly won’t replace Kubernetes but makes Helm more secure](https://thenewstack.io/helm-webassembly-kubernetes-security/) (The New Stack)
+51. [Cursor beats Opus at 10x less, Meta’s agent goes rogue, and the 300-page Trump America AI Act](https://thenewstack.io/cursor-beats-opus-metas-agent-rogue-and-trump-america-ai-act/) (The New Stack)
+52. [AI can write your infrastructure code. There’s a reason most teams won’t let it.](https://thenewstack.io/spacelift-ai-infrastructure-code/) (The New Stack)
+53. [China is winning the open source AI race — but a US company still controls everything underneath](https://thenewstack.io/china-leads-open-ai-models/) (The New Stack)
+54. [Why the ‘glorified host’ for AI is exactly the Kubernetes we need](https://thenewstack.io/kubernetes-glorified-ai-host/) (The New Stack)
+55. [OpenAI acquires Astral to bring open source Python developer tools to Codex — but details are still fuzzy](https://thenewstack.io/openai-astral-acquisition/) (The New Stack)
+56. [Why flat Kubernetes networks fail at scale](https://thenewstack.io/kubernetes-network-security-hierarchies/) (The New Stack)
+57. [From pillars to platform: How open observability data is changing the industry](https://thenewstack.io/open-observability-ai-platforms/) (The New Stack)
+58. [Linux kernel scale is swamping an already-flawed CVE system](https://thenewstack.io/linux-kernel-cve-system/) (The New Stack)
+59. [Monitoring my rice with Ollama](https://www.reddit.com/r/ollama/comments/1s05goq/monitoring_my_rice_with_ollama/) (r/ollama)
+60. [Collama - Run Ollama Models on Google Colab (Free, No Local GPU)](https://www.reddit.com/r/ollama/comments/1s08aa9/collama_run_ollama_models_on_google_colab_free_no/) (r/ollama)
+61. [I got tired of Claude/Copilot generating insecure code, so I built a local offline AI to physically block my VS Code saves. Here it is catching a Log Injection flaw.](https://www.reddit.com/r/ollama/comments/1s0bojt/i_got_tired_of_claudecopilot_generating_insecure/) (r/ollama)
+62. [Is local Qwen3.5 397B support expected soon?](https://www.reddit.com/r/ollama/comments/1rzu4q2/is_local_qwen35_397b_support_expected_soon/) (r/ollama)
+63. [Local RAG on old android](https://www.reddit.com/r/ollama/comments/1rzjgab/local_rag_on_old_android/) (r/ollama)
+64. [My own system](https://www.reddit.com/r/ollama/comments/1s06pep/my_own_system/) (r/ollama)
+65. [I built a simple local automation Obsidian with Ollama. Weekly insights, morning briefings, study recaps and text-to-notes](https://www.reddit.com/r/ollama/comments/1rzqe4c/i_built_a_simple_local_automation_obsidian_with/) (r/ollama)
+66. [Memora is exploding but I think Chetna deserves your attention.](https://www.reddit.com/r/ollama/comments/1s03tjv/memora_is_exploding_but_i_think_chetna_deserves/) (r/ollama)
+67. [AxonPulse VS: Visually orchestrate Ollama with hardware, audio, and Vector DBs](https://www.reddit.com/r/ollama/comments/1rzyc75/axonpulse_vs_visually_orchestrate_ollama_with/) (r/ollama)
+68. [How much Context window can your setup handle when coding?](https://www.reddit.com/r/ollama/comments/1rzx1om/how_much_context_window_can_your_setup_handle/) (r/ollama)
+69. [Where can I learn the basic LLMs and local LLMs concepts?](https://www.reddit.com/r/ollama/comments/1rzqv8x/where_can_i_learn_the_basic_llms_and_local_llms/) (r/ollama)
+70. [Can a 4GB vram run qwen 3.5 ?](https://www.reddit.com/r/ollama/comments/1rzttel/can_a_4gb_vram_run_qwen_35/) (r/ollama)
+71. [Embedding text with accent](https://www.reddit.com/r/ollama/comments/1rzqowg/embedding_text_with_accent/) (r/ollama)
+72. [I built a full desktop app runtime for local + cloud AI inference](https://www.reddit.com/r/ollama/comments/1s00uwp/i_built_a_full_desktop_app_runtime_for_local/) (r/ollama)
+73. [i built a routing-first troubleshooting layer for ollama workflows](https://www.reddit.com/r/ollama/comments/1rzi62e/i_built_a_routingfirst_troubleshooting_layer_for/) (r/ollama)
+74. [Diabolical Mini Me](https://www.reddit.com/r/ollama/comments/1rzkf2k/diabolical_mini_me/) (r/ollama)
+75. [Got ($1000+$500) of credits on a cloud platform (for GPU usage). Anyone here interested?](https://www.reddit.com/r/ollama/comments/1rzjnli/got_1000500_of_credits_on_a_cloud_platform_for/) (r/ollama)
+76. [Can anyone help me run openclaw for free?](https://www.reddit.com/r/ollama/comments/1rzq9e2/can_anyone_help_me_run_openclaw_for_free/) (r/ollama)
+77. [Eron: Chat for local and OpenAI-compatible models with iOS integrations](https://www.reddit.com/r/ollama/comments/1ryzn8d/eron_chat_for_local_and_openaicompatible_models/) (r/ollama)
+78. [LlamaWatch — a tiny macOS menu bar app to monitor and control Ollama](https://www.reddit.com/r/ollama/comments/1rzb9z1/llamawatch_a_tiny_macos_menu_bar_app_to_monitor/) (r/ollama)
+79. [Ollama cloud vs chatgpt for coding.](https://www.reddit.com/r/ollama/comments/1rypslq/ollama_cloud_vs_chatgpt_for_coding/) (r/ollama)
+80. [Quantized LLMs are great until your agent needs to actually work.](https://www.reddit.com/r/ollama/comments/1ryzagy/quantized_llms_are_great_until_your_agent_needs/) (r/ollama)
+
+...and 71 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
