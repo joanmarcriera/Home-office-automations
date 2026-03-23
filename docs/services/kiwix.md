@@ -27,6 +27,12 @@ docker run -d \
 
 Access the content at `http://localhost:8080`.
 
+### Hello World
+1. Download a small `.zim` file (e.g., [Ray Charles Wiki](https://download.kiwix.org/zim/wikipedia/wikipedia_en_ray_charles_mini_2024-01.zim)).
+2. Place it in `/path/to/zims`.
+3. Start the container with that filename.
+4. Navigate to `http://localhost:8080` to read the offline content.
+
 ## CLI examples
 The `kiwix-manage` tool allows you to manage library XML files:
 
@@ -36,6 +42,9 @@ kiwix-manage /data/library.xml add /data/wikipedia.zim
 
 # Remove a zim file from the library
 kiwix-manage /data/library.xml remove wikipedia
+
+# List all files in a ZIM archive
+kiwix-search --list /data/wikipedia.zim
 ```
 
 ## API examples
