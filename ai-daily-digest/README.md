@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-03-28
+
+## Digest fallback for 2026-03-28
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [STADLER reshapes knowledge work at a 230-year-old company](https://openai.com/index/stadler) (OpenAI Blog)
+2. [Watch James Manyika talk AI and creativity with LL COOL J.](https://blog.google/innovation-and-ai/technology/ai/ll-cool-j-dialogues/) (Google AI Blog)
+3. [Transform your headphones into a live personal translator on iOS.](https://blog.google/products-and-platforms/products/translate/live-translate-with-headphones/) (Google AI Blog)
+4. [Gemini 3.1 Flash Live: Making audio AI more natural and reliable](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/) (Google AI Blog)
+5. [Search Live is expanding globally](https://blog.google/products-and-platforms/products/search/search-live-global-expansion/) (Google AI Blog)
+6. [Google TurboQuant running Qwen Locally on MacAir](https://www.reddit.com/r/LocalLLaMA/comments/1s5kdu0/google_turboquant_running_qwen_locally_on_macair/) (r/LocalLLaMA)
+7. [Skipping 90% of KV dequant work → +22.8% decode at 32K (llama.cpp, TurboQuant)](https://www.reddit.com/r/LocalLLaMA/comments/1s56g07/skipping_90_of_kv_dequant_work_228_decode_at_32k/) (r/LocalLLaMA)
+8. [Glm 5.1 is out](https://www.reddit.com/r/LocalLLaMA/comments/1s51id3/glm_51_is_out/) (r/LocalLLaMA)
+9. [GLM-5.1 model weight will be released on April 6 or April 7](https://www.reddit.com/r/LocalLLaMA/comments/1s5l23i/glm51_model_weight_will_be_released_on_april_6_or/) (r/LocalLLaMA)
+10. [M5 Max vs M3 Max Inference Benchmarks (Qwen3.5, oMLX, 128GB, 40 GPU cores)](https://www.reddit.com/r/LocalLLaMA/comments/1s5np41/m5_max_vs_m3_max_inference_benchmarks_qwen35_omlx/) (r/LocalLLaMA)
+11. [New Unsloth Studio Release!](https://www.reddit.com/r/LocalLLaMA/comments/1s56q9g/new_unsloth_studio_release/) (r/LocalLLaMA)
+12. [Gemini Pro leaks its raw chain of thought, gets stuck in an infinite loop, narrates its own existential crisis, then prints (End) thousands of times](https://www.reddit.com/r/LocalLLaMA/comments/1s589ev/gemini_pro_leaks_its_raw_chain_of_thought_gets/) (r/LocalLLaMA)
+13. [#OpenSource4o Movement Trending on Twitter/X - Release Opensource of GPT-4o](https://www.reddit.com/r/LocalLLaMA/comments/1s5g1v9/opensource4o_movement_trending_on_twitterx/) (r/LocalLLaMA)
+14. [Google’s TurboQuant AI-compression algorithm can reduce LLM memory usage by 6x](https://www.reddit.com/r/LocalLLaMA/comments/1s57ky1/googles_turboquant_aicompression_algorithm_can/) (r/LocalLLaMA)
+15. [I spent 96 hours setting up dual DGX Sparks and a Mac Studio M3 Ultra for the same 397B model. Neither won.](https://www.reddit.com/r/LocalLLaMA/comments/1s5lba0/i_spent_96_hours_setting_up_dual_dgx_sparks_and_a/) (r/LocalLLaMA)
+16. [Yagmi: A local-first web search agent](https://www.reddit.com/r/LocalLLaMA/comments/1s5gpo5/yagmi_a_localfirst_web_search_agent/) (r/LocalLLaMA)
+17. [Do 2B models have practical use cases, or are they just toys for now?](https://www.reddit.com/r/LocalLLaMA/comments/1s5bztk/do_2b_models_have_practical_use_cases_or_are_they/) (r/LocalLLaMA)
+18. [ARC-AGI-3 is a fun game](https://www.reddit.com/r/LocalLLaMA/comments/1s5mabx/arcagi3_is_a_fun_game/) (r/LocalLLaMA)
+19. [Anyway to get close to GPT4o on a local model (I know it’s a dumb question)](https://www.reddit.com/r/LocalLLaMA/comments/1s5plrv/anyway_to_get_close_to_gpt4o_on_a_local_model_i/) (r/LocalLLaMA)
+20. [TurboQuant for weights: near‑optimal 4‑bit LLM quantization with lossless 8‑bit residual – 3.2× memory savings](https://www.reddit.com/r/LocalLLaMA/comments/1s51b5h/turboquant_for_weights_nearoptimal_4bit_llm/) (r/LocalLLaMA)
+21. [i put a 0.5B LLM on a Miyoo A30 handheld. it runs entirely on-device, no internet.](https://www.reddit.com/r/LocalLLaMA/comments/1s5pdn8/i_put_a_05b_llm_on_a_miyoo_a30_handheld_it_runs/) (r/LocalLLaMA)
+22. [V100 32 Gb : 6h of benchmarks across 20 models with CPU offloading & power limitations](https://www.reddit.com/r/LocalLLaMA/comments/1s5o37v/v100_32_gb_6h_of_benchmarks_across_20_models_with/) (r/LocalLLaMA)
+23. [Is it worth the upgrade from 48GB to 60GB VRAM?](https://www.reddit.com/r/LocalLLaMA/comments/1s5jjz8/is_it_worth_the_upgrade_from_48gb_to_60gb_vram/) (r/LocalLLaMA)
+24. [Cohere Transcribe WebGPU: state-of-the-art multilingual speech recognition in your browser](https://www.reddit.com/r/LocalLLaMA/comments/1s5g2zh/cohere_transcribe_webgpu_stateoftheart/) (r/LocalLLaMA)
+25. [Why Mistral's Voxtral is the new gold standard for "Day 0" integration (90ms Latency on M4)](https://www.reddit.com/r/LocalLLaMA/comments/1s5ouyu/why_mistrals_voxtral_is_the_new_gold_standard_for/) (r/LocalLLaMA)
+26. [[Qwen Meetup] Function Calling Harness with Qwen, turning 6.75% to 100%](https://www.reddit.com/r/LocalLLaMA/comments/1s4ydfu/qwen_meetup_function_calling_harness_with_qwen/) (r/LocalLLaMA)
+27. [Advice for Working with Agents in YOLO Mode](https://www.reddit.com/r/LocalLLaMA/comments/1s5kvia/advice_for_working_with_agents_in_yolo_mode/) (r/LocalLLaMA)
+28. [Vera, a local-first code search for AI agents (Rust, ONNX, 63 languages, CLI + SKILL/MCP)](https://www.reddit.com/r/LocalLLaMA/comments/1s5idyp/vera_a_localfirst_code_search_for_ai_agents_rust/) (r/LocalLLaMA)
+29. [Confused about turboquant](https://www.reddit.com/r/LocalLLaMA/comments/1s5n6xt/confused_about_turboquant/) (r/LocalLLaMA)
+30. [[D] Many times I feel additional experiments during the rebuttal make my paper worse](https://www.reddit.com/r/MachineLearning/comments/1s5j8bg/d_many_times_i_feel_additional_experiments_during/) (r/MachineLearning)
+31. [[D] Thinking about augmentation as invariance assumptions](https://www.reddit.com/r/MachineLearning/comments/1s5nxwc/d_thinking_about_augmentation_as_invariance/) (r/MachineLearning)
+32. [[Project] PentaNet: Pushing beyond BitNet with Native Pentanary {-2, -1, 0, 1, 2} Quantization (124M, zero-multiplier inference)](https://www.reddit.com/r/MachineLearning/comments/1s5l5l2/project_pentanet_pushing_beyond_bitnet_with/) (r/MachineLearning)
+33. [[D] We audited LoCoMo: 6.4% of the answer key is wrong and the judge accepts up to 63% of intentionally wrong answers](https://www.reddit.com/r/MachineLearning/comments/1s54cvg/d_we_audited_locomo_64_of_the_answer_key_is_wrong/) (r/MachineLearning)
+34. [[R] Controlled experiment: giving an LLM agent access to CS papers during automated hyperparameter search improves results by 3.2%](https://www.reddit.com/r/MachineLearning/comments/1s5jpgz/r_controlled_experiment_giving_an_llm_agent/) (r/MachineLearning)
+35. [[D] On conferences and page limitations](https://www.reddit.com/r/MachineLearning/comments/1s4yyyi/d_on_conferences_and_page_limitations/) (r/MachineLearning)
+36. [[D] Could really use some guidance . I'm a 2nd year Data Science UG Student](https://www.reddit.com/r/MachineLearning/comments/1s5qw0i/d_could_really_use_some_guidance_im_a_2nd_year/) (r/MachineLearning)
+37. [[P] Deezer showed CNN detection fails on compressed audio, here's a dual-engine approach that survives MP3](https://www.reddit.com/r/MachineLearning/comments/1s51amm/p_deezer_showed_cnn_detection_fails_on_compressed/) (r/MachineLearning)
+38. [[P] Create datasets from TikTok videos](https://www.reddit.com/r/MachineLearning/comments/1s5g7xj/p_create_datasets_from_tiktok_videos/) (r/MachineLearning)
+39. [[R] ACL ARR review desk rejected](https://www.reddit.com/r/MachineLearning/comments/1s54zw3/r_acl_arr_review_desk_rejected/) (r/MachineLearning)
+40. [[D] Building a demand forecasting system for multi-location retail with no POS integration, architecture feedback wanted](https://www.reddit.com/r/MachineLearning/comments/1s53w67/d_building_a_demand_forecasting_system_for/) (r/MachineLearning)
+41. [[R] Which place should I commit to ACL SRW or ICML workshop or AACL?](https://www.reddit.com/r/MachineLearning/comments/1s4vrxq/r_which_place_should_i_commit_to_acl_srw_or_icml/) (r/MachineLearning)
+42. [Retraining vs Fine-tuning or Transfer Learning? [D]](https://www.reddit.com/r/MachineLearning/comments/1s4uzmy/retraining_vs_finetuning_or_transfer_learning_d/) (r/MachineLearning)
+43. [[D] Real-time Student Attention Detection: ResNet vs Facial Landmarks - Which approach for resource-constrained deployment?](https://www.reddit.com/r/MachineLearning/comments/1s56ljk/d_realtime_student_attention_detection_resnet_vs/) (r/MachineLearning)
+44. [[D] Looking for definition of open-world ish learning problem](https://www.reddit.com/r/MachineLearning/comments/1s503nd/d_looking_for_definition_of_openworld_ish/) (r/MachineLearning)
+45. [[D] OOD and Spandrels, or What you should know about EBM.](https://www.reddit.com/r/MachineLearning/comments/1s4gp7d/d_ood_and_spandrels_or_what_you_should_know_about/) (r/MachineLearning)
+46. [[D] - 1M tokens/second serving Qwen 3.5 27B on B200 GPUs, benchmark results and findings](https://www.reddit.com/r/MachineLearning/comments/1s4hxgu/d_1m_tokenssecond_serving_qwen_35_27b_on_b200/) (r/MachineLearning)
+47. [[R] Interested in recent research into recall vs recognition in LLMs](https://www.reddit.com/r/MachineLearning/comments/1s4o5vu/r_interested_in_recent_research_into_recall_vs/) (r/MachineLearning)
+48. [[D] Why evaluating only final outputs is misleading for local LLM agents](https://www.reddit.com/r/MachineLearning/comments/1s4i6h5/d_why_evaluating_only_final_outputs_is_misleading/) (r/MachineLearning)
+49. [Pretrained ADAM v2 weights [D]](https://www.reddit.com/r/MachineLearning/comments/1s4lfcn/pretrained_adam_v2_weights_d/) (r/MachineLearning)
+50. [[P] gumbel-mcts, a high-performance Gumbel MCTS implementation](https://www.reddit.com/r/MachineLearning/comments/1s44vgv/p_gumbelmcts_a_highperformance_gumbel_mcts/) (r/MachineLearning)
+51. [Vibe coding SwiftUI apps is a lot of fun](https://simonwillison.net/2026/Mar/27/vibe-coding-swiftui/#atom-entries) (Simon Willison's Weblog)
+52. [Astral has been acquired by OpenAI](https://changelog.com/news/184) (The Changelog)
+53. [[AINews] H100 prices are melting *UP*](https://www.latent.space/p/ainews-h100-prices-are-melting-up) (Latent Space)
+54. [[AINews] Everything is CLI](https://www.latent.space/p/ainews-everything-is-cli) (Latent Space)
+55. [Gitleaks creator returns with Betterleaks, an open source secrets scanner for the agentic era](https://thenewstack.io/betterleaks-open-source-secret-scanner/) (The New Stack)
+56. [How TeamPCP turned Aqua Security’s own Trivy scanner into a weapon against millions of developers](https://thenewstack.io/teampcp-trivy-supply-chain-attack/) (The New Stack)
+57. [OpenAI’s Codex gets plugins](https://thenewstack.io/openais-codex-gets-plugins/) (The New Stack)
+58. [GitHub will train AI models on your Copilot data — and share it with Microsoft](https://thenewstack.io/github-copilot-interaction-data/) (The New Stack)
+59. [The reason your pgvector benchmark is lying to you](https://thenewstack.io/why-pgvector-benchmarks-lie/) (The New Stack)
+60. [The operational gap is real, and it’s getting wider](https://thenewstack.io/closing-cloud-operational-gap/) (The New Stack)
+61. [Enterprise dev teams are about to hit a wall. And CI pipelines can’t save them.](https://thenewstack.io/ai-agent-validation-bottleneck/) (The New Stack)
+62. [TurboQuant](https://www.reddit.com/r/ollama/comments/1s5gk9e/turboquant/) (r/ollama)
+63. [It feels like they ship us a new feature every two days!](https://www.reddit.com/r/ollama/comments/1s53gkz/it_feels_like_they_ship_us_a_new_feature_every/) (r/ollama)
+64. [🛡️ BuildRight: The "Horizontal Layer of Truth" for AI Engineering](https://www.reddit.com/r/ollama/comments/1s5r7lo/buildright_the_horizontal_layer_of_truth_for_ai/) (r/ollama)
+65. [Built a local AI agent on top of Ollama that I can control from my phone (WebRTC, no cloud)](https://www.reddit.com/r/ollama/comments/1s5jcej/built_a_local_ai_agent_on_top_of_ollama_that_i/) (r/ollama)
+66. [Issue with unsloth quantized models](https://www.reddit.com/r/ollama/comments/1s5ja3b/issue_with_unsloth_quantized_models/) (r/ollama)
+67. [Ollama’s Kimi2.5 Cloud version is dumber than a box of rocks.](https://www.reddit.com/r/ollama/comments/1s52quq/ollamas_kimi25_cloud_version_is_dumber_than_a_box/) (r/ollama)
+68. [New to this. Is qwen35 27.8B going crazy or is this normal](https://www.reddit.com/r/ollama/comments/1s5f3xz/new_to_this_is_qwen35_278b_going_crazy_or_is_this/) (r/ollama)
+69. [Telemetria Ollama](https://www.reddit.com/r/ollama/comments/1s5gyxi/telemetria_ollama/) (r/ollama)
+70. [Need suggestion for annual subscription.](https://www.reddit.com/r/ollama/comments/1s57bel/need_suggestion_for_annual_subscription/) (r/ollama)
+71. [New to this trying to install Fairtrail](https://www.reddit.com/r/ollama/comments/1s5fqty/new_to_this_trying_to_install_fairtrail/) (r/ollama)
+72. [Ollma Integration with VS Code Github Copilot?](https://www.reddit.com/r/ollama/comments/1s50d3w/ollma_integration_with_vs_code_github_copilot/) (r/ollama)
+73. [Added branching + switch logic to my Ollama-based AI workflow builder (v0.7.0)](https://www.reddit.com/r/ollama/comments/1s50o0p/added_branching_switch_logic_to_my_ollamabased_ai/) (r/ollama)
+74. [MiroThinker 1.7 mini: 3B active params, beats GPT 5 on multiple benchmarks, weights on HuggingFace](https://www.reddit.com/r/ollama/comments/1s489fo/mirothinker_17_mini_3b_active_params_beats_gpt_5/) (r/ollama)
+75. [Ollama cloud api don't work with Deepseek.](https://www.reddit.com/r/ollama/comments/1s55oio/ollama_cloud_api_dont_work_with_deepseek/) (r/ollama)
+76. [Adapt the Interface, Not the Model: Tier-Based Tool Routing](https://www.reddit.com/r/ollama/comments/1s55jsv/adapt_the_interface_not_the_model_tierbased_tool/) (r/ollama)
+77. [Recommendation for an Industrial Maintenance assistant](https://www.reddit.com/r/ollama/comments/1s55j7w/recommendation_for_an_industrial_maintenance/) (r/ollama)
+78. [Can't use Ollama cloud models for Openclaw](https://www.reddit.com/r/ollama/comments/1s55cpd/cant_use_ollama_cloud_models_for_openclaw/) (r/ollama)
+79. [I built a library of compressed knowledge packs you can paste into system prompts — saves ~15% tokens](https://www.reddit.com/r/ollama/comments/1s4sany/i_built_a_library_of_compressed_knowledge_packs/) (r/ollama)
+80. [what llm model would be best for a normal laptop without gpu](https://www.reddit.com/r/ollama/comments/1s58dls/what_llm_model_would_be_best_for_a_normal_laptop/) (r/ollama)
+
+...and 73 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
