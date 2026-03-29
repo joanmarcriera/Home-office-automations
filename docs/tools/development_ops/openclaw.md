@@ -51,6 +51,16 @@ Skills are self-contained behaviour modules. Each skill defines:
 
 Skills are distributed as files (YAML + Markdown) or packages from ClawHub. They compose: a skill can invoke another skill, pass context forward, or branch based on LLM output.
 
+## Ecosystem map
+
+| Layer | What it covers | Practical examples |
+|---|---|---|
+| **Core runtime** | Agent loop, memory, channel adapters, scheduler, skill execution | OpenClaw itself |
+| **Skill distribution** | Reusable behaviors and integrations | ClawHub marketplace, self-authored YAML skills |
+| **Workflow libraries** | Field-tested prompts and scenario libraries | [OpenClaw Workflow Prompt Library Pattern](../../knowledge_base/patterns/openclaw-workflow-prompts.md), [OpenClaw Use-Case Catalog](../../knowledge_base/patterns/openclaw-use-case-catalog.md) |
+| **Operator surfaces** | Easier ways to drive the runtime | [Picnic](../automation_orchestration/picnic.md), messaging channels, CLI |
+| **Model routing** | Cost and reliability control for skills | LiteLLM + Ollama/OpenRouter profiles |
+
 ## Typical use cases
 
 - **Personal assistant via Telegram**: Ask questions, manage tasks, set reminders, trigger home-automation scenes.
@@ -174,7 +184,14 @@ router_settings:
   allowed_fails: 2
 ```
 
-## Security model
+### Routing patterns for cost and reliability
+
+- **Cheap routing**: monitoring, link summaries, and lightweight triage can use smaller or cheaper models.
+- **Balanced routing**: daily assistants, browser navigation, and inbox review usually benefit from a middle tier.
+- **Premium routing**: deep research, ambiguous investigations, and high-stakes planning deserve the strongest model profile you can justify.
+- **Approval-aware routing**: destructive or external-side-effect skills should combine stronger models with explicit approval gates, not just bigger models.
+
+## Production hardening
 
 | Risk | Mitigation |
 |---|---|
@@ -183,6 +200,14 @@ router_settings:
 | Credential exposure | Secrets via environment variables; never hardcoded in skill YAML |
 | Unvetted ClawHub skills | Review skill source before installing; prefer community-vetted or self-authored |
 | Channel access control | Per-channel permission lists in skill config; OPENCLAW_API_KEY for REST API |
+
+### Practical operating controls
+
+- **Patch quickly**: TechRadar's March 2026 "ClawJacked" coverage reported a local-gateway authentication flaw and recommended upgrading to `2026.2.25` or later.
+- **Assume hostile content**: emails, webpages, and copied prompts should be treated as untrusted input, not as authority over the system prompt.
+- **Separate capability tiers**: keep read-only, draft-only, and approval-gated skills distinct.
+- **Review the install path**: community skills and fake installers are part of the threat surface; use trusted sources and inspect capabilities before enabling them.
+- **Use cost-aware routing**: most scheduled workflows do not need the most expensive model on every invocation.
 
 !!! warning "High-autonomy risk"
     OpenClaw skills can execute shell commands and HTTP calls. Always review skill source before installing from ClawHub. Apply the principle of least privilege in tool bindings.
@@ -239,16 +264,22 @@ router_settings:
 - [Ollama](../../services/ollama.md) — local model serving
 - [n8n](../../services/n8n.md) — complementary workflow automation
 - [OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md) — curated prompt library
+- [OpenClaw Use-Case Catalog](../../knowledge_base/patterns/openclaw-use-case-catalog.md) — categorized workload ideas and fit criteria
+- [OpenClaw Security and Operations Pattern](../../knowledge_base/patterns/openclaw-security-operations.md) — hardening and operating controls
 - [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md) — skill authoring guide
 
 ## Sources / References
 
 - [GitHub — openclaw/openclaw](https://github.com/openclaw/openclaw)
 - [ClawHub Marketplace](https://www.clawhub.ai/)
+- [OpenClaw system prompt concepts](https://docs.openclaw.ai/concepts/system-prompt)
 - [OpenClaw after 50 days: all prompts for 20 real workflows](https://gist.github.com/velvet-shark/b4c6724c391f612c4de4e9a07b0a74b6)
+- [awesome-openclaw-usecases](https://github.com/hesamsheikh/awesome-openclaw-usecases)
+- [TechRadar: "ClawJacked" vulnerability report](https://www.techradar.com/pro/security/a-human-chosen-password-doesnt-stand-a-chance-openclaw-has-yet-another-major-security-flaw-heres-what-we-know-about-clawjacked)
+- [TechRadar: fake OpenClaw installers and GitHub malware campaign](https://www.techradar.com/pro/security/hackers-exploit-openclaw-to-spread-malware-via-github-and-a-little-help-from-bing)
 - [Pattern: OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-03-29
 - Confidence: high

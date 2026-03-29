@@ -6,6 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-03-29 | [2026-03-29](/new-sources/2026-03-29/) | 0 | 5 | Added OpenClaw security/operations and use-case catalog patterns. |
 | 2026-03-16 | [2026-03-16](/new-sources/2026-03-16/) | 0 | 0 | Standardized related tools sections across all documentation. |
 | 2026-03-15 | [2026-03-15](/new-sources/2026-03-15/) | 0 | 11 | Added website-hosting canonicals, free website playbook, and discovery-style builder index |
 | 2026-03-14 | [2026-03-14](/new-sources/2026-03-14/) | 0 | 33 | Added Claude ecosystem coverage, search/backend/browser tools, Google AI product pages, direct pages for memory/context/local inference, and company-stack extensions |
