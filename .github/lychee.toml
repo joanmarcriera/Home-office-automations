@@ -77,6 +77,7 @@ exclude = [
   "https://thesequence\\.ai/.*",
   "https://librespeed\\.org/.*",
   "https://plandex\\.ai/.*",
+  "https://developer\\.microsoft\\.com/.*",
 
   # Local absolute site paths (e.g., /new-sources/) that Lychee cannot resolve
   # from raw Markdown source files. These are required by repository validation

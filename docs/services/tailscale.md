@@ -27,6 +27,12 @@ After installation, authenticate the device:
 sudo tailscale up
 ```
 
+### Hello-world example
+1. Install Tailscale on two different devices (e.g., your laptop and your phone).
+2. Run `tailscale status` on your laptop to see your phone listed with its Tailscale IP.
+3. Ping your phone using its Tailscale IP: `tailscale ping <phone-ip>`.
+4. You have now established a secure connection between your devices!
+
 ## CLI examples
 
 The `tailscale` command is used to manage the local node and view network status.
@@ -40,6 +46,9 @@ tailscale ip -4
 
 # Bring down the Tailscale connection
 sudo tailscale down
+
+# Check network connectivity and find the nearest DERP relay
+tailscale netcheck
 ```
 
 ## API examples
@@ -54,6 +63,10 @@ curl -d "client_id=YOUR_CLIENT_ID" -d "client_secret=YOUR_CLIENT_SECRET" \
 # List all devices in your tailnet
 curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   "https://api.tailscale.com/api/v2/tailnet/example.com/devices"
+
+# Get details for a specific device by ID
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  "https://api.tailscale.com/api/v2/device/123456789"
 ```
 
 ## Backlog

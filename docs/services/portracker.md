@@ -16,7 +16,7 @@ It provides a dashboard to monitor active ports on your network and discover new
 
 ## Getting started
 
-### Docker Compose
+### Installation
 The easiest way to deploy Portracker is via Docker Compose:
 
 ```yaml
@@ -34,6 +34,12 @@ services:
 
 Access the dashboard at `http://localhost:3050`.
 
+### Hello-world example
+1. Start Portracker: `docker compose up -d`.
+2. Open `http://localhost:3050` in your browser.
+3. Observe how Portracker automatically discovers other running Docker containers and their ports on your system.
+4. Run a new container (e.g., `docker run -d -p 8888:80 nginx`) and see it appear in real-time.
+
 ## CLI examples
 You can interact with the Portracker container using Docker commands:
 
@@ -43,6 +49,9 @@ docker logs -f portracker
 
 # Check the version of Portracker
 docker exec portracker ./portracker --version
+
+# Clear the scan cache
+docker exec portracker rm -rf /app/data/cache
 ```
 
 ## API examples
@@ -51,6 +60,9 @@ Portracker provides a simple health check and status API:
 ```bash
 # Check service health
 curl http://localhost:3050/health
+
+# Get a list of all discovered services and ports
+curl http://localhost:3050/api/v1/services
 ```
 
 ## Links

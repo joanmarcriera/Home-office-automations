@@ -14,7 +14,7 @@ It is useful for content analysis, search indexing, and automated document proce
 
 ## Getting started
 
-### Docker installation
+### Installation
 The easiest way to run Tika Server is via Docker:
 
 ```bash
@@ -22,6 +22,12 @@ docker run -d -p 9998:9998 --name tika apache/tika
 ```
 
 Tika will be available at `http://localhost:9998`.
+
+### Hello-world example
+1. Ensure the container is running: `docker ps | grep tika`
+2. Create a test file: `echo "Hello World" > test.txt`
+3. Send it to Tika: `curl -T test.txt http://localhost:9998/tika`
+4. Tika should return the extracted text: `Hello World`
 
 ## CLI examples
 
@@ -36,6 +42,9 @@ curl -H "Accept: application/json" -T document.docx http://localhost:9998/meta
 
 # Detect the MIME type of a file
 curl -T image.png http://localhost:9998/detect/stream
+
+# List all available parsers
+curl http://localhost:9998/parsers
 ```
 
 ## API examples
@@ -52,6 +61,12 @@ with open("document.pdf", "rb") as f:
     response = requests.put(url, data=f, headers=headers)
 
 print(response.text)
+```
+
+### Get Server Metadata
+```bash
+# Get server version and information
+curl http://localhost:9998/tika/version
 ```
 
 ## Backlog

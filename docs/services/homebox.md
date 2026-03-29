@@ -15,7 +15,7 @@ It is designed to be simple, fast, and easy to use. It helps you keep track of y
 
 ## Getting started
 
-### Docker
+### Installation
 To run Homebox using Docker:
 
 ```bash
@@ -29,6 +29,12 @@ docker run -d \
 
 Access the web interface at `http://localhost:3100`.
 
+### Hello-world example
+1. Open `http://localhost:3100` in your browser.
+2. Create an initial account (the first user is the admin).
+3. Go to **Locations** and create a "Main Storage".
+4. Go to **Items** and add "My First Item" to start tracking your inventory.
+
 ## CLI examples
 Management is primarily via the web UI, but you can use `docker exec` for basic tasks:
 
@@ -38,6 +44,9 @@ docker logs homebox
 
 # Check Homebox version
 docker exec homebox /app/homebox --version
+
+# View help for available commands
+docker exec homebox /app/homebox --help
 ```
 
 ## API examples
@@ -46,6 +55,9 @@ Homebox provides a REST API for data interaction. Use a Bearer token if authenti
 ```bash
 # Basic health check
 curl -X GET "http://localhost:3100/api/v1/health"
+
+# List items (requires API token)
+curl -H "Authorization: Bearer YOUR_TOKEN" "http://localhost:3100/api/v1/items"
 ```
 
 ## Links

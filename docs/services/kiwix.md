@@ -15,17 +15,23 @@ It allows you to download and access content like Wikipedia, Wiktionary, and TED
 
 ## Getting started
 
-### Docker
+### Installation
 To serve a single `.zim` file using `kiwix-serve` in Docker:
 
 ```bash
 docker run -d \
   -p 8080:80 \
   -v /path/to/zims:/data \
-  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2024-01.zim
+  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-02.zim
 ```
 
 Access the content at `http://localhost:8080`.
+
+### Hello-world example
+1. Download a small `.zim` file (e.g., [Wikipedia 100](https://download.kiwix.org/zim/wikipedia/wikipedia_en_100_mini_2026-01.zim)).
+2. Place it in `/path/to/zims`.
+3. Start the container with that filename.
+4. Navigate to `http://localhost:8080` to read the offline content.
 
 ## CLI examples
 The `kiwix-manage` tool allows you to manage library XML files:
@@ -36,6 +42,9 @@ kiwix-manage /data/library.xml add /data/wikipedia.zim
 
 # Remove a zim file from the library
 kiwix-manage /data/library.xml remove wikipedia
+
+# List all files in a ZIM archive
+kiwix-search --list /data/wikipedia.zim
 ```
 
 ## API examples
@@ -44,6 +53,9 @@ Kiwix-serve provides an OPDS catalog and a basic API for library exploration:
 ```bash
 # Fetch library information in OPDS format
 curl -X GET "http://localhost:8080/catalog.xml"
+
+# Search for a specific term across the library
+curl -X GET "http://localhost:8080/search?q=physics"
 ```
 
 ## Links
