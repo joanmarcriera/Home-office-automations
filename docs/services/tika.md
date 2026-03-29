@@ -23,6 +23,12 @@ docker run -d -p 9998:9998 --name tika apache/tika
 
 Tika will be available at `http://localhost:9998`.
 
+### Hello World
+1. Ensure the container is running: `docker ps | grep tika`
+2. Create a test file: `echo "Hello World" > test.txt`
+3. Send it to Tika: `curl -T test.txt http://localhost:9998/tika`
+4. Tika should return the extracted text: `Hello World`
+
 ## CLI examples
 
 You can use the Tika Server's REST API via `curl` for command-line processing.
@@ -36,6 +42,9 @@ curl -H "Accept: application/json" -T document.docx http://localhost:9998/meta
 
 # Detect the MIME type of a file
 curl -T image.png http://localhost:9998/detect/stream
+
+# List all available parsers
+curl http://localhost:9998/parsers
 ```
 
 ## API examples
