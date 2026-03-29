@@ -10,7 +10,7 @@ It allows you to index and download YouTube videos, metadata, and comments to yo
 - [GitHub Repository](https://github.com/tubearchivist/tubearchivist)
 
 ## Alternatives
-- [MeTube](metube.md)
+- MeTube
 - [Youtube-dl](https://github.com/ytdl-org/youtube-dl)
 
 ## Backlog
