@@ -34,6 +34,8 @@ Users often know desired outcomes but struggle to express executable agent instr
 
 ## Related tools / concepts
 - [OpenCode (Oh My OpenCode Ecosystem)](../../tools/development_ops/opencode.md)
+- [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md)
+- [OpenClaw Security and Operations Pattern](openclaw-security-operations.md)
 - [Agent Protocols](../agent_protocols.md)
 - [Patterns Index](index.md)
 

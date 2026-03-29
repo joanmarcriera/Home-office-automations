@@ -360,6 +360,8 @@ nav:
       - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
       - Fine-tuning Open Models: knowledge_base/patterns/fine-tuning-open-models.md
       - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
+      - OpenClaw Use-Case Catalog: knowledge_base/patterns/openclaw-use-case-catalog.md
+      - OpenClaw Security and Operations: knowledge_base/patterns/openclaw-security-operations.md
       - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
       - Software Factories: knowledge_base/patterns/software-factories.md
       - Filesystem-as-Interface: knowledge_base/patterns/filesystem-context.md
