@@ -15,11 +15,11 @@ jobs:
   open-backlog-issue:
     if: >-
       github.event_name != 'issues' ||
-      (
+          (
         github.event_name == 'issues' && (
           github.event.action == 'opened' ||
           github.event.action == 'reopened' ||
-          (github.event.action == 'labeled' && github.event.label.name == 'jules')
+          (github.event.action == 'labeled' && (github.event.label.name == 'jules' || github.event.label.name == 'jules-blocked'))
         )
       )
     runs-on: ubuntu-latest
@@ -49,7 +49,31 @@ jobs:
           REPO: ${{ github.repository }}
         run: python3 scripts/quarantine_failed_jules_issues.py
 
+      - name: Check for open Jules PRs (throttle)
+        id: throttle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          OPEN_PRS=$(gh pr list \
+            --repo "$REPO" \
+            --state open \
+            --json number,title,body,labels,headRefName,author \
+            --jq '[.[] | select(
+              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
+              ((.body // "") | test("PR created automatically by Jules"; "i")) or
+              (.labels[]?.name == "jules") or
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix"; "i")) or
+              (.author.login == "google-labs-jules[bot]")
+            )] | length')
+          echo "open_prs=$OPEN_PRS" >> "$GITHUB_OUTPUT"
+          if [ "$OPEN_PRS" != "0" ]; then
+            echo "⏸️ Throttled: $OPEN_PRS open Jules PR(s). Skipping backlog issue creation."
+          fi
+
       - name: Check open Jules backlog status
+        if: steps.throttle.outputs.open_prs == '0'
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,31 +81,49 @@ jobs:
         run: |
           set -euo pipefail
           TODAY=$(date +%Y-%m-%d)
+          NON_CONTROL_FILTER='[.[] | select(
+            (.title | startswith("Process Jules Backlog - ") | not) and
+            (.title | startswith("Daily Knowledge Expansion - ") | not) and
+            (.title | startswith("Daily Maintenance Run - ") | not) and
+            (.title | startswith("[W") | not)
+          )] | length'
+
           OPEN_JULES=$(gh issue list \
             --repo "$REPO" \
             --label jules \
             --state open \
             --json number,title \
-            --jq "[.[] | select(
-              (.title | startswith(\"Process Jules Backlog - \") | not) and
-              (.title | startswith(\"Daily Knowledge Expansion - \") | not) and
-              (.title | startswith(\"Daily Maintenance Run - \") | not) and
-              (.title | startswith(\"[W\") | not)
-            )] | length")
+            --jq "$NON_CONTROL_FILTER")
+          OPEN_BLOCKED=$(gh issue list \
+            --repo "$REPO" \
+            --label jules-blocked \
+            --state open \
+            --json number,title \
+            --jq "$NON_CONTROL_FILTER")
           OPEN_BACKLOG=$(gh issue list \
             --repo "$REPO" \
-            --label jules \
             --state open \
             --search "Process Jules Backlog -" \
-            --json number \
-            --jq "length")
+            --json number,title \
+            --jq "[.[] | select(.title | startswith(\"Process Jules Backlog - \"))] | length")
 
+          OPEN_WORK=$((OPEN_JULES + OPEN_BLOCKED))
+
+          echo "open_work=$OPEN_WORK" >> "$GITHUB_OUTPUT"
+          echo "open_blocked=$OPEN_BLOCKED" >> "$GITHUB_OUTPUT"
           echo "open_jules=$OPEN_JULES" >> "$GITHUB_OUTPUT"
           echo "open_backlog=$OPEN_BACKLOG" >> "$GITHUB_OUTPUT"
           echo "today=$TODAY" >> "$GITHUB_OUTPUT"
 
+          if [ "$OPEN_WORK" = "0" ]; then
+            echo "No open Jules or Jules-blocked backlog items."
+          fi
+          if [ "$OPEN_BACKLOG" != "0" ]; then
+            echo "Existing Process Jules Backlog issue already open."
+          fi
+
       - name: Open Jules backlog issue
-        if: steps.check.outputs.open_jules != '0' && steps.check.outputs.open_backlog == '0'
+        if: steps.throttle.outputs.open_prs == '0' && steps.check.outputs.open_work != '0' && steps.check.outputs.open_backlog == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
