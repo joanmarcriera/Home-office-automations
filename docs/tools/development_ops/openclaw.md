@@ -234,6 +234,7 @@ router_settings:
 - [LiteLLM](../../services/litellm.md) — model routing proxy for connecting OpenClaw to local or remote models
 - [OpenHands](openhands.md) — software-engineering agent platform
 - [NanoClaw](nanoclaw.md) — minimal, constrained agent runtime
+- [Picnic](../automation_orchestration/picnic.md) — desktop product that exposes OpenClaw-powered flows and scheduled agents through a non-technical UI
 - [OpenSwarm](openswarm.md) — multi-agent swarm orchestration
 - [Ollama](../../services/ollama.md) — local model serving
 - [n8n](../../services/n8n.md) — complementary workflow automation
