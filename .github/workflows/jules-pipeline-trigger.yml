@@ -24,6 +24,7 @@ jobs:
         contains(github.event.pull_request.title, 'cross-link') ||
         contains(github.event.pull_request.title, 'primer') ||
         contains(github.event.pull_request.title, 'automated resolution') ||
+        contains(github.event.pull_request.body || '', 'PR created automatically by Jules') ||
         github.event.pull_request.user.login == 'google-labs-jules[bot]'
       )
     runs-on: ubuntu-latest
@@ -52,3 +53,17 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           gh workflow run "Jules Sprint Workforce (2 Weeks)" --repo "$REPO" || true
+
+      - name: Trigger backlog workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh workflow run "Process Jules Backlog" --repo "$REPO" || true
+
+      - name: Trigger cleanup workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh workflow run "Cleanup Stale Automation Issues" --repo "$REPO" || true
