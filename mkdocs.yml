@@ -180,6 +180,7 @@ nav:
       - Make: tools/automation_orchestration/make.md
       - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
+      - Picnic: tools/automation_orchestration/picnic.md
       - ServiceNow MCP Server: tools/automation_orchestration/servicenow-mcp.md
       - Skyvern: tools/automation_orchestration/skyvern.md
       - Vault MCP Server: tools/automation_orchestration/vault-mcp.md
