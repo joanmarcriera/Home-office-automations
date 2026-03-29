@@ -28,7 +28,7 @@ docker run -d \
 Access the content at `http://localhost:8080`.
 
 ### Hello World
-1. Download a small `.zim` file (e.g., [Ray Charles Wiki](https://download.kiwix.org/zim/wikipedia/wikipedia_en_ray_charles_mini_2024-01.zim)).
+1. Download a small `.zim` file from the [official Kiwix Wikipedia catalog](https://download.kiwix.org/zim/wikipedia/).
 2. Place it in `/path/to/zims`.
 3. Start the container with that filename.
 4. Navigate to `http://localhost:8080` to read the offline content.
@@ -73,4 +73,5 @@ curl -X GET "http://localhost:8080/catalog.xml"
 ## Sources / References
 - https://www.kiwix.org/
 - https://github.com/kiwix/kiwix-tools
+- https://download.kiwix.org/zim/wikipedia/
 - https://internet-in-a-box.org/
