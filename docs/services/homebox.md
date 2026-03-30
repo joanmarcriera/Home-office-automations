@@ -24,7 +24,6 @@ It helps you keep track of your belongings, their locations, warranties, and pur
 ## Alternatives
 - [Grocy](grocy.md) (more focused on groceries and meal planning)
 - [Snipe-IT](https://snipeitapp.com/) (Enterprise-grade IT asset management)
-- [Inventory Manager](https://github.com/v-shatkyy/inventory-manager)
 
 ## Getting started
 

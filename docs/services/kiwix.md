@@ -23,7 +23,7 @@ It uses the highly compressed ZIM format to store entire websites or databases i
 ## Alternatives
 - [Internet-in-a-Box](https://internet-in-a-box.org/)
 - [Xowa](http://xowa.org/)
-- [Aard 2](https://aard2.github.io/)
+- [Aard 2](https://github.com/itkach/aard2-android)
 
 ## Getting started
 
