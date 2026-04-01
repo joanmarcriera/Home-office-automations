@@ -4,11 +4,11 @@ This page provides a bird's-eye view of the AI tool catalogue, showing current m
 
 ## Overview
 - **Last Generated:** 2026-04-01
-- **Total Tools Documented:** 211
+- **Total Tools Documented:** 211 (Significant growth from 150 in the March snapshot)
 
 ## Category Breakdown
 
-Current tool count and focus per category:
+Current tool count and focus per category, verified against `growth-metrics.json` snapshots:
 
 | Category | Count | Summary |
 | :--- | :--- | :--- |
@@ -29,7 +29,7 @@ Current tool count and focus per category:
 | **Patterns** | 1 | Standardized approaches and architectural patterns. |
 
 ## Top 10 Most-Connected Tools
-Based on the number of links in their 'Related tools / concepts' sections.
+Based on the number of internal links in their 'Related tools / concepts' sections.
 
 | Tool | Related Links |
 | :--- | :--- |
@@ -53,172 +53,110 @@ Categories with fewer than 8 docs are identified as areas where the repository i
 - Patterns (1)
 
 ## What's New This Month
-Tools added in the last 30 days:
+Key tools added or promoted to the tool catalogue in the last 30 days:
 - AI Templates
-- Agency Swarm
+- Actual Budget
 - Agentic Automation Canvas (AAC)
-- Agno
-- Aider
-- Anthropic (Claude)
-- Anthropic Agent Skills
-- Anti-Gravity
 - AnythingLLM
-- Aphrodite Engine
-- Atlassian Jira MCP Implementations
-- AutoGen
+- Apache Tika
+- Audiobookshelf
+- Authentik
 - Axiom Guardian
-- Bee Agent Framework
 - BigSwitch
-- Browser Use
-- CalDAV
-- ChatGPT
-- Chatbot Arena
+- Changedetection.io
 - Chronos MCP
-- Claude Code
 - Claude Code Container MCP
 - Claude Code Router
-- Claude Code Setup
 - Claude Context Mode
 - Claude Cookbooks
 - Claude Hooks
 - Claude Plugins
 - Claude Skills Ecosystem
 - ClawRouter
-- CliHub
-- Cloud Code
 - Cloudflare Pages
-- Codeium
-- Codex (OpenAI)
-- Cohere (Enterprise RAG)
-- Composio
 - Context7
-- Continue.dev
 - Copy.ai
-- Crawl4AI
-- CrewAI
-- Cursor
-- Custom Agents
-- DREAM Benchmark
-- DSPy
-- DeepSeek
 - DeerFlow
 - Desktop Commander MCP
-- Dify
+- Diskover
 - Docling MCP
-- Droid
+- Draw.io
+- Element
 - ElevenLabs
-- ExLlamaV2
+- Excalidraw
+- Fine-tuning Open Models
 - Firebase Studio
-- Firecrawl
-- Fireworks AI (Fast Inference)
-- Flowise
+- Focalboard
 - Free Will MCP
 - Fuzzing MCP Server
-- GPQA
-- GPT Engineer
-- GSM8K
 - Gemini Canvas
-- GitHub Copilot
-- GitHub Copilot CLI
 - GitHub Pages
-- Google Calendar
-- Google Gemini
+- Gitea
 - Google Lyria
 - Google Opal
 - Google Stitch
 - Google Workspace CLI
-- Groq (LPU Inference)
-- Haystack
-- HumanEval
-- Humanity's Last Exam (HLE)
+- Grocy
+- Habitica
+- Home Assistant
+- Homebox
 - Humanizer
+- IT-Tools
+- Immich
+- Jackett
 - Jasper
-- Jules (Google)
-- Junie CLI
+- Jellyfin
 - Jupyter Kernel MCP
-- LLMPerf
-- LM Evaluation Harness
-- LM Studio
-- LangChain
-- LangGraph
-- LangSmith
-- LlamaIndex
-- Local LLMs
-- LocalAI
-- Logseq
-- LongCLI-Bench
-- MBPP
-- MCP Registry
-- MLX
-- Make
+- Kiwix
+- Linkwarden
+- LiteLLM
 - Makefile MCP
-- Melty
-- Mentat
+- Mealie
 - MiniMax
 - Mistral AI (Mixtral/Codestral)
 - Moonshot AI
-- Mycelium
 - NanoClaw
+- Navidrome
 - Netlify
+- Nextcloud
 - NotebookLM
 - Notion AI
-- OCRmyPDF
-- Obsidian
-- Ollama Benchmark CLI
-- OpenAI
+- Ollama
+- Omni Tools
+- Open WebUI
 - OpenBB
-- OpenClaw
-- OpenCode
-- OpenHands
-- OpenPipe
-- OpenRouter
-- OpenSwarm
-- PA-bench
-- PageIndex
-- Perplexity
-- Phidata
+- Paperless-AI
+- Paperless-ngx
 - Picnic
-- Plandex
 - Playwright
+- Plex
+- Portracker
 - Qwen3-Coder-Next
-- RAGFlow
-- Replicate (Multi-modal)
+- Radicale
 - Runway ML
-- SGLang
-- SWE-bench
-- Semantic Kernel
-- ServiceNow MCP Server
-- Skyvern
-- Smolagents
-- Sourcegraph Cody
+- SearXNG
+- Speedtest Tracker
+- Storj Node
 - Supabase
-- Superconductor
 - Superpowers
-- Sweep.dev
 - Symbolic MCP Server
 - Symphony (OpenAI)
+- Syncthing
 - Synthesia
-- Tabnine
 - Tavily
-- TeamOut
-- Terminal-Bench
-- Terminus 2
-- Text Generation Inference (TGI)
-- Together AI (Open Models)
-- VS Code
-- Valyu
+- Trilium Notes
+- Tube Archivist
 - Vault MCP Server
 - Vercel
 - Vercel OSS
+- Vikunja
 - Vikunja MCP Server
-- ZSE
-- Zapier
-- Zed
-- ansigpt
-- llama.cpp
+- Whisper
 - llmfit
 - mem0
-- vLLM
+- n8n
+- qBittorrent
+- rclone Automation
 
 ## Sources / References
 - [All Tools Metadata](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/all_tools.json)
@@ -227,5 +165,5 @@ Tools added in the last 30 days:
 - [GitHub Repository](https://github.com/joanmarcriera/Home-office-automations)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-04-01
 - Confidence: high
