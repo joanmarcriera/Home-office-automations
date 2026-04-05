@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-05
+
+## Digest fallback for 2026-04-05
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Gemma 4 26b is the perfect all around local model and I'm surprised how well it does.](https://www.reddit.com/r/LocalLLaMA/comments/1scucfg/gemma_4_26b_is_the_perfect_all_around_local_model/) (r/LocalLLaMA)
+2. [Gemma 4 31B beats several frontier models on the FoodTruck Bench](https://www.reddit.com/r/LocalLLaMA/comments/1sci5h6/gemma_4_31b_beats_several_frontier_models_on_the/) (r/LocalLLaMA)
+3. [One year ago DeepSeek R1 was 25 times bigger than Gemma 4](https://www.reddit.com/r/LocalLLaMA/comments/1scovb5/one_year_ago_deepseek_r1_was_25_times_bigger_than/) (r/LocalLLaMA)
+4. [Gemma 4 vs Qwen3.5 on SVG style](https://www.reddit.com/r/LocalLLaMA/comments/1scr78z/gemma_4_vs_qwen35_on_svg_style/) (r/LocalLLaMA)
+5. [Local Claude Code with Qwen3.5 27B](https://www.reddit.com/r/LocalLLaMA/comments/1scrnzm/local_claude_code_with_qwen35_27b/) (r/LocalLLaMA)
+6. [Don’t buy the DGX Spark: NVFP4 Still Missing After 6 Months](https://www.reddit.com/r/LocalLLaMA/comments/1scf1x8/dont_buy_the_dgx_spark_nvfp4_still_missing_after/) (r/LocalLLaMA)
+7. [I made a 35% REAP of 397B with potentially usable quality in 96GB GPU](https://www.reddit.com/r/LocalLLaMA/comments/1scrksf/i_made_a_35_reap_of_397b_with_potentially_usable/) (r/LocalLLaMA)
+8. [Apple: Embarrassingly Simple Self-Distillation Improves Code Generation](https://www.reddit.com/r/LocalLLaMA/comments/1sc7uwa/apple_embarrassingly_simple_selfdistillation/) (r/LocalLLaMA)
+9. [Are ocr engines like tesseract still valid or do people just use image recognition models now.](https://www.reddit.com/r/LocalLLaMA/comments/1scpwa5/are_ocr_engines_like_tesseract_still_valid_or_do/) (r/LocalLLaMA)
+10. [Gemma 4 for 16 GB VRAM](https://www.reddit.com/r/LocalLLaMA/comments/1scw979/gemma_4_for_16_gb_vram/) (r/LocalLLaMA)
+11. [We absolutely need Qwen3.6-397B-A17B to be open source](https://www.reddit.com/r/LocalLLaMA/comments/1sccpbj/we_absolutely_need_qwen36397ba17b_to_be_open/) (r/LocalLLaMA)
+12. [But it’s so more fun](https://www.reddit.com/r/LocalLLaMA/comments/1scwiik/but_its_so_more_fun/) (r/LocalLLaMA)
+13. [Unnoticed Gemma-4 Feature - it admits that it does not now...](https://www.reddit.com/r/LocalLLaMA/comments/1sck9g8/unnoticed_gemma4_feature_it_admits_that_it_does/) (r/LocalLLaMA)
+14. [Improved markdown quality, code intelligence for 248 languages, and more in Kreuzberg v4.7.0](https://www.reddit.com/r/LocalLLaMA/comments/1scv46p/improved_markdown_quality_code_intelligence_for/) (r/LocalLLaMA)
+15. [Gemma4 26B A4B runs easily on 16GB Macs](https://www.reddit.com/r/LocalLLaMA/comments/1scjoox/gemma4_26b_a4b_runs_easily_on_16gb_macs/) (r/LocalLLaMA)
+16. [its all about the harness](https://www.reddit.com/r/LocalLLaMA/comments/1scvo88/its_all_about_the_harness/) (r/LocalLLaMA)
+17. [Basic PSA. PocketPal got updated, so runs Gemma 4.](https://www.reddit.com/r/LocalLLaMA/comments/1scsgid/basic_psa_pocketpal_got_updated_so_runs_gemma_4/) (r/LocalLLaMA)
+18. [Running Gemma4 26B A4B on the Rockchip NPU using a custom llama.cpp fork. Impressive results for just 4W of power usage!](https://www.reddit.com/r/LocalLLaMA/comments/1sc8kdg/running_gemma4_26b_a4b_on_the_rockchip_npu_using/) (r/LocalLLaMA)
+19. [so…. Qwen3.5 or Gemma 4?](https://www.reddit.com/r/LocalLLaMA/comments/1scbpmo/so_qwen35_or_gemma_4/) (r/LocalLLaMA)
+20. [Gemma 4 vs Whisper](https://www.reddit.com/r/LocalLLaMA/comments/1scvozx/gemma_4_vs_whisper/) (r/LocalLLaMA)
+21. [Gemma 4 31B vs Gemma 4 26B-A4B vs Qwen 3.5 27B — 30-question blind eval with Claude Opus 4.6 as judge](https://www.reddit.com/r/LocalLLaMA/comments/1scwos6/gemma_4_31b_vs_gemma_4_26ba4b_vs_qwen_35_27b/) (r/LocalLLaMA)
+22. [Extended NYT Connections Benchmark scores: MiniMax-M2.7 34.4, Gemma 4 31B 30.1, Arcee Trinity Large Thinking 29.5](https://www.reddit.com/r/LocalLLaMA/comments/1scl7pl/extended_nyt_connections_benchmark_scores/) (r/LocalLLaMA)
+23. [Gemma 4 fixes in llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1sc4gui/gemma_4_fixes_in_llamacpp/) (r/LocalLLaMA)
+24. [Running OpenClaw with Gemma 4 TurboQuant on MacAir 16GB](https://www.reddit.com/r/LocalLLaMA/comments/1sciyfg/running_openclaw_with_gemma_4_turboquant_on/) (r/LocalLLaMA)
+25. [[D] KDD Review Discussion](https://www.reddit.com/r/MachineLearning/comments/1sci9nh/d_kdd_review_discussion/) (r/MachineLearning)
+26. [[D] Hash table aspects of ReLU neural networks](https://www.reddit.com/r/MachineLearning/comments/1scvhk8/d_hash_table_aspects_of_relu_neural_networks/) (r/MachineLearning)
+27. [[D] Those of you with 10+ years in ML — what is the public completely wrong about?](https://www.reddit.com/r/MachineLearning/comments/1sbzxwn/d_those_of_you_with_10_years_in_ml_what_is_the/) (r/MachineLearning)
+28. [[D] ICML reviewer making up false claim in acknowledgement, what to do?](https://www.reddit.com/r/MachineLearning/comments/1sc79nk/d_icml_reviewer_making_up_false_claim_in/) (r/MachineLearning)
+29. [[P] MCGrad: fix calibration of your ML model in subgroups](https://www.reddit.com/r/MachineLearning/comments/1scjzer/p_mcgrad_fix_calibration_of_your_ml_model_in/) (r/MachineLearning)
+30. [[D] Offering licensed Indian language speech datasets (with explicit contributor consent)](https://www.reddit.com/r/MachineLearning/comments/1sctehe/d_offering_licensed_indian_language_speech/) (r/MachineLearning)
+31. [[D] ICML Reviewer Acknowledgement](https://www.reddit.com/r/MachineLearning/comments/1scaajx/d_icml_reviewer_acknowledgement/) (r/MachineLearning)
+32. [[D] ACL 2026 Decision](https://www.reddit.com/r/MachineLearning/comments/1sbyfpm/d_acl_2026_decision/) (r/MachineLearning)
+33. [[P] GPU friendly lossless 12-bit BF16 format with 0.03% escape rate and 1 integer ADD decode works for AMD & NVIDIA](https://www.reddit.com/r/MachineLearning/comments/1sbv9jl/p_gpu_friendly_lossless_12bit_bf16_format_with/) (r/MachineLearning)
+34. [[P] Cadenza: Connect Wandb logs to agents easily for autonomous research.](https://www.reddit.com/r/MachineLearning/comments/1scm9do/p_cadenza_connect_wandb_logs_to_agents_easily_for/) (r/MachineLearning)
+35. [Best OCR for template-based form extraction? [D]](https://www.reddit.com/r/MachineLearning/comments/1sc5o71/best_ocr_for_templatebased_form_extraction_d/) (r/MachineLearning)
+36. [First time NeurIPS. How different is it from low-ranked conferences? [D]](https://www.reddit.com/r/MachineLearning/comments/1sbnbnv/first_time_neurips_how_different_is_it_from/) (r/MachineLearning)
+37. [[D] ICML 2026 Average Score](https://www.reddit.com/r/MachineLearning/comments/1sbhuti/d_icml_2026_average_score/) (r/MachineLearning)
+38. [[D] TMLR reviews seem more reliable than ICML/NeurIPS/ICLR](https://www.reddit.com/r/MachineLearning/comments/1sb7l13/d_tmlr_reviews_seem_more_reliable_than/) (r/MachineLearning)
+39. [[P] I trained a Mamba-3 log anomaly detector that hit 0.9975 F1 on HDFS — and I’m curious how far this can go](https://www.reddit.com/r/MachineLearning/comments/1sbe0dk/p_i_trained_a_mamba3_log_anomaly_detector_that/) (r/MachineLearning)
+40. [[P] Remote sensing foundation models made easy to use.](https://www.reddit.com/r/MachineLearning/comments/1sbnhcu/p_remote_sensing_foundation_models_made_easy_to/) (r/MachineLearning)
+41. [[D] CVPR 2026 Travel Grant/Registration Waiver](https://www.reddit.com/r/MachineLearning/comments/1sbknlv/d_cvpr_2026_travel_grantregistration_waiver/) (r/MachineLearning)
+42. [[D] Best websites for pytorch/numpy interviews](https://www.reddit.com/r/MachineLearning/comments/1sboat2/d_best_websites_for_pytorchnumpy_interviews/) (r/MachineLearning)
+43. [[R] VOID: Video Object and Interaction Deletion (physically-consistent video inpainting)](https://www.reddit.com/r/MachineLearning/comments/1sb9d9s/r_void_video_object_and_interaction_deletion/) (r/MachineLearning)
+44. [[D] When to transition from simple heuristics to ML models (e.g., DensityFunction)?](https://www.reddit.com/r/MachineLearning/comments/1sbkh9l/d_when_to_transition_from_simple_heuristics_to_ml/) (r/MachineLearning)
+45. [The Axios supply chain attack used individually targeted social engineering](https://simonwillison.net/2026/Apr/3/supply-chain-social-engineering/#atom-entries) (Simon Willison's Weblog)
+46. [[AINews] Good Friday](https://www.latent.space/p/ainews-good-friday) (Latent Space)
+47. [Marc Andreessen introspects on The Death of the Browser, Pi + OpenClaw, and Why "This Time Is Different"](https://www.latent.space/p/pmarca) (Latent Space)
+48. [[AINews] Gemma 4: The best small Multimodal Open Models, dramatically better than Gemma 3 in every way](https://www.latent.space/p/ainews-gemma-4-the-best-small-multimodal) (Latent Space)
+49. [SUSE Rancher and Vultr want to break AI infrastructure free from the hyperscalers](https://thenewstack.io/vultr-suse-rancher-ai/) (The New Stack)
+50. [Vultr says its Nvidia-powered AI infrastructure costs 50% to 90% less than hyperscalers](https://thenewstack.io/vultr-nvidia-ai-infrastructure/) (The New Stack)
+51. [“I started to lose my ability to code”: Developers grapple with the real cost of AI programming tools](https://thenewstack.io/ai-coding-tools-reckoning/) (The New Stack)
+52. [Digital Experience Monitoring belongs in the modern developer workflow](https://thenewstack.io/digital-experience-monitoring-workflow/) (The New Stack)
+53. [The hidden reason your AI assistant feels so sluggish](https://thenewstack.io/why-ai-feels-sluggish/) (The New Stack)
+54. [The laptop return that broke a RAG pipeline](https://thenewstack.io/rag-pipeline-hybrid-search/) (The New Stack)
+55. [JRVS V2](https://www.reddit.com/r/ollama/comments/1scsvz7/jrvs_v2/) (r/ollama)
+56. [Ollama Gemma4:31b on 3090 - FP,Q8,Q4 Benchmark](https://www.reddit.com/r/ollama/comments/1sc6q5t/ollama_gemma431b_on_3090_fpq8q4_benchmark/) (r/ollama)
+57. [OpenWebUI integration, code intelligence for 248 languages, and more in Kreuzberg v4.7.0](https://www.reddit.com/r/ollama/comments/1scvc1y/openwebui_integration_code_intelligence_for_248/) (r/ollama)
+58. [OpenStitch, open-source AI UI prototyping tool that runs locally with Ollama](https://www.reddit.com/r/ollama/comments/1sci25b/openstitch_opensource_ai_ui_prototyping_tool_that/) (r/ollama)
+59. [Different between RAM and VRAM](https://www.reddit.com/r/ollama/comments/1sc4bti/different_between_ram_and_vram/) (r/ollama)
+60. [Openclaw + Ollama on Pi5? well...](https://www.reddit.com/r/ollama/comments/1schagl/openclaw_ollama_on_pi5_well/) (r/ollama)
+61. [how are you guys running mlx-community/gemma-4-31b-8bit on Mac?](https://www.reddit.com/r/ollama/comments/1sclhbp/how_are_you_guys_running/) (r/ollama)
+62. [Found a bug on the way of instlling...](https://www.reddit.com/r/ollama/comments/1sckn97/found_a_bug_on_the_way_of_instlling/) (r/ollama)
+63. [looking for beta testers - iOS AI chat app that is private, using ollama cloud open source models with ONLY local storage, tool use, web search, mark down etc.](https://www.reddit.com/r/ollama/comments/1sc2cvl/looking_for_beta_testers_ios_ai_chat_app_that_is/) (r/ollama)
+64. [Day 2 of building in public: finally added a second brain UI for my agent (+ a pixel 3D office)](https://www.reddit.com/r/ollama/comments/1scfqnq/day_2_of_building_in_public_finally_added_a/) (r/ollama)
+65. [Gemma4 Web Search Hang](https://www.reddit.com/r/ollama/comments/1scfk8b/gemma4_web_search_hang/) (r/ollama)
+66. [Best coding agent + model for strix halo 128 machine](https://www.reddit.com/r/ollama/comments/1scee79/best_coding_agent_model_for_strix_halo_128_machine/) (r/ollama)
+67. [Dedicated EPYC servers for Ollama — real CPU inference benchmarks on CCX33 through CCX63](https://www.reddit.com/r/ollama/comments/1sce5lx/dedicated_epyc_servers_for_ollama_real_cpu/) (r/ollama)
+68. [[Ollama Cloud] - Qwen3.5 / Minimax 2.7 / Deepseek 3.1,3.2](https://www.reddit.com/r/ollama/comments/1sc8ezq/ollama_cloud_qwen35_minimax_27_deepseek_3132/) (r/ollama)
+69. [Looking for Community help testing/breaking/improving a memory integrated Ai hub](https://www.reddit.com/r/ollama/comments/1sc7xdz/looking_for_community_help/) (r/ollama)
+70. [Is this true? Or is really just marketing? Gemma4](https://www.reddit.com/r/ollama/comments/1sb7sqq/is_this_true_or_is_really_just_marketing_gemma4/) (r/ollama)
+71. [I am not able to use Ollama Cloud version](https://www.reddit.com/r/ollama/comments/1sc8zxp/i_am_not_able_to_use_ollama_cloud_version/) (r/ollama)
+72. [tried running qwen 3.5:9b, it seems to have no memory or output? confused if i'm using it wrong](https://www.reddit.com/r/ollama/comments/1sc4awm/tried_running_qwen_359b_it_seems_to_have_no/) (r/ollama)
+73. [Hermes-agent -- What is this message about?](https://www.reddit.com/r/ollama/comments/1sc82vo/hermesagent_what_is_this_message_about/) (r/ollama)
+74. [No more need for an API](https://www.reddit.com/r/ollama/comments/1sbsrr3/no_more_need_for_an_api/) (r/ollama)
+75. [Running Ollama + llama.cpp side by side on 16GB Mac Mini: Gemma 4 for triage, Qwen 35B via mmap for heavy tasks](https://www.reddit.com/r/ollama/comments/1sb9loe/running_ollama_llamacpp_side_by_side_on_16gb_mac/) (r/ollama)
+76. [Looking for the best coding AI for software development](https://www.reddit.com/r/ollama/comments/1sbjrsh/looking_for_the_best_coding_ai_for_software/) (r/ollama)
+77. [Overthinking Much?](https://www.reddit.com/r/ollama/comments/1scae54/overthinking_much/) (r/ollama)
+78. [What can i run with this laptop?](https://www.reddit.com/r/ollama/comments/1sbgfra/what_can_i_run_with_this_laptop/) (r/ollama)
+79. [Local llms for coding im running i5 11th gen 16gb ram and rtx 4060ti 8gb](https://www.reddit.com/r/ollama/comments/1sc0dd5/local_llms_for_coding_im_running_i5_11th_gen_16gb/) (r/ollama)
+80. [I built a WhatsApp + voice AI agent in n8n that handles 90% of customer service. Sold the business, the buyer kept it running without me](https://www.reddit.com/r/n8n/comments/1sc3i30/i_built_a_whatsapp_voice_ai_agent_in_n8n_that/) (r/n8n)
+
+...and 69 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
