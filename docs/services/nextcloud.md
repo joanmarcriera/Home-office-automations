@@ -8,7 +8,7 @@ It provides a safe home for all your data - files, contacts, calendars, and more
 ## When to use it
 - When you need a comprehensive, self-hosted suite for file storage, collaboration, and productivity.
 - For users who want to maintain full control over their data while having access to features similar to Google Workspace or Microsoft 365.
-- When you want a extensible platform with a wide range of apps (Talk, Calendar, Contacts, Office).
+- When you want an extensible platform with a wide range of apps (Talk, Calendar, Contacts, Office).
 
 ## When not to use it
 - If you only need simple file synchronization without the extra features (consider [Syncthing](syncthing.md)).
@@ -28,6 +28,13 @@ docker run -d \
 ```
 
 Access Nextcloud at `http://localhost:8080`.
+
+### Hello World
+1. Run the Docker command to start Nextcloud.
+2. Navigate to `http://localhost:8080` in your browser.
+3. Create an admin account by entering a username and password.
+4. Click **Install** to finish the initial setup.
+5. You can now start uploading files or installing apps from the Nextcloud App Store.
 
 ## CLI examples
 Nextcloud includes the `occ` (Nextcloud Command-line Control) tool for server management.
@@ -77,6 +84,5 @@ curl -u admin:password \
 - [Reference](https://www.seafile.com/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
 - Confidence: medium
+- Last reviewed: 2026-03-02

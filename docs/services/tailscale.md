@@ -5,12 +5,14 @@ Tailscale is a zero-config VPN that makes your devices accessible from anywhere 
 ## Description
 It builds a secure WireGuard-based mesh network between your devices, even behind firewalls and NATs.
 
-## Links
-- [Official Website](https://tailscale.com/)
+## When to use it
+- When you need a secure, zero-config VPN to connect devices across different networks and firewalls.
+- For accessing home lab services or remote servers without exposing them to the public internet.
+- To establish a secure mesh network for team collaboration or CI/CD pipelines.
 
-## Alternatives
-- [ZeroTier](https://www.zerotier.com/)
-- [Netmaker](https://www.netmaker.io/)
+## When not to use it
+- If your environment requires a strictly hardware-based VPN solution with no third-party coordination server (though you can use [Headscale](https://github.com/juanfont/headscale) as an open-source alternative).
+- For extremely high-throughput site-to-site links where dedicated leased lines or high-end hardware routers are more appropriate.
 
 ## Getting started
 
@@ -65,6 +67,13 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   "https://api.tailscale.com/api/v2/tailnet/example.com/devices"
 ```
 
+## Links
+- [Official Website](https://tailscale.com/)
+
+## Alternatives
+- [ZeroTier](https://www.zerotier.com/)
+- [Netmaker](https://www.netmaker.io/)
+
 ## Backlog
 - Setup Tailscale Exit Node on TrueNAS SCALE.
 - Configure MagicDNS for easy service access.
@@ -72,7 +81,7 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 
 ## Sources / References
 - https://tailscale.com/
