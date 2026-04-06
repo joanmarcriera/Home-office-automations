@@ -25,18 +25,18 @@ services:
     image: mostafawahied/portracker:latest
     container_name: portracker
     ports:
-      - "3050:3050"
+      - "4999:4999"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./data:/app/data
     restart: always
 ```
 
-Access the dashboard at `http://localhost:3050`.
+Access the dashboard at `http://localhost:4999`.
 
 ### Hello World
 1. Start Portracker: `docker compose up -d`.
-2. Open `http://localhost:3050` in your browser.
+2. Open `http://localhost:4999` in your browser.
 3. Observe how Portracker automatically discovers other running Docker containers and their ports on your system.
 4. Run a new container (e.g., `docker run -d -p 8888:80 nginx`) and see it appear in real-time.
 
@@ -59,7 +59,10 @@ Portracker provides a simple health check and status API:
 
 ```bash
 # Check service health
-curl http://localhost:3050/health
+curl http://localhost:4999/api/v1/health
+
+# Check the scan status (if supported)
+curl http://localhost:4999/api/v1/status
 ```
 
 ## Links
@@ -75,7 +78,7 @@ curl http://localhost:3050/health
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker

@@ -34,6 +34,13 @@ uplink setup
 
 Follow the prompts to enter your access grant or API key.
 
+### Hello World
+1. Install and setup the `uplink` CLI as described above.
+2. Create a new bucket: `uplink mb sj://hello-world`.
+3. Create a small text file: `echo "Hello Storj" > hello.txt`.
+4. Upload the file: `uplink cp hello.txt sj://hello-world/`.
+5. Verify the upload: `uplink ls sj://hello-world/`.
+
 ## CLI examples
 The `uplink` tool supports standard object storage operations:
 
@@ -84,7 +91,7 @@ for obj in response.get("Contents", []):
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 
 ## Sources / References
 - https://www.storj.io/
