@@ -10,7 +10,7 @@ timeout = 20
 root_dir = "docs"
 
 # Accept common status codes and some that represent transient or restricted access
-accept = ["200", "206", "301", "302", "303", "307", "308", "401", "403", "429"]
+accept = ["200", "202", "206", "301", "302", "303", "307", "308", "401", "403", "429"]
 
 exclude = [
   "URL$",
@@ -77,6 +77,7 @@ exclude = [
   "https://thesequence\\.ai/.*",
   "https://librespeed\\.org/.*",
   "https://plandex\\.ai/.*",
+  "https://www\\.deepseek\\.com/.*",
 
   # Local absolute site paths (e.g., /new-sources/) that Lychee cannot resolve
   # from raw Markdown source files. These are required by repository validation
