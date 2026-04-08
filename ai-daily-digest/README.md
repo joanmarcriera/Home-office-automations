@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-08
+
+## Digest fallback for 2026-04-08
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Announcing the OpenAI Safety Fellowship](https://openai.com/index/introducing-openai-safety-fellowship) (OpenAI Blog)
+2. [GLM-5.1](https://www.reddit.com/r/LocalLLaMA/comments/1sf0jok/glm51/) (r/LocalLLaMA)
+3. [You can now fine-tune Gemma 4 locally 8GB VRAM + Bug Fixes](https://www.reddit.com/r/LocalLLaMA/comments/1sexdhk/you_can_now_finetune_gemma_4_locally_8gb_vram_bug/) (r/LocalLLaMA)
+4. [Every day I wake up and thank God for having me be born 23 minutes away from a MicroCenter](https://www.reddit.com/r/LocalLLaMA/comments/1sf1icy/every_day_i_wake_up_and_thank_god_for_having_me/) (r/LocalLLaMA)
+5. [Gemma4-31B worked in an iterative-correction loop (with a long-term memory bank) for 2 hours to solve a problem that baseline GPT-5.4-Pro couldn't](https://www.reddit.com/r/LocalLLaMA/comments/1sf8nqw/gemma431b_worked_in_an_iterativecorrection_loop/) (r/LocalLLaMA)
+6. [Found this cool new harness, gonna give it a spin with the new GLM 5.1. I’ll report back later.](https://www.reddit.com/r/LocalLLaMA/comments/1sf6cds/found_this_cool_new_harness_gonna_give_it_a_spin/) (r/LocalLLaMA)
+7. [Serving 1B+ tokens/day locally in my research lab](https://www.reddit.com/r/LocalLLaMA/comments/1sf57nh/serving_1b_tokensday_locally_in_my_research_lab/) (r/LocalLLaMA)
+8. [🇪🇬 The First Open-Source AI Model in Egypt!](https://www.reddit.com/r/LocalLLaMA/comments/1sfl8tw/the_first_opensource_ai_model_in_egypt/) (r/LocalLLaMA)
+9. [DFlash: Block Diffusion for Flash Speculative Decoding.](https://www.reddit.com/r/LocalLLaMA/comments/1sexsvd/dflash_block_diffusion_for_flash_speculative/) (r/LocalLLaMA)
+10. [Fix: Dual Intel Arc GPUs using all system RAM during inference - found the cause and a working fix (llama.cpp SYCL)](https://www.reddit.com/r/LocalLLaMA/comments/1sfe80l/fix_dual_intel_arc_gpus_using_all_system_ram/) (r/LocalLLaMA)
+11. [GLM 5.1 Benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1sf1u2g/glm_51_benchmarks/) (r/LocalLLaMA)
+12. [kv-cache : support attention rotation for heterogeneous iSWA by ggerganov · Pull Request #21513 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1sf61n2/kvcache_support_attention_rotation_for/) (r/LocalLLaMA)
+13. [Gemma 4 31B GGUF quants ranked by KL divergence (unsloth, bartowski, lmstudio-community, ggml-org)](https://www.reddit.com/r/LocalLLaMA/comments/1seua77/gemma_4_31b_gguf_quants_ranked_by_kl_divergence/) (r/LocalLLaMA)
+14. [Wait is attn rotate already enabled by default since this release tell it support SWA attention?](https://www.reddit.com/r/LocalLLaMA/comments/1sfhafc/wait_is_attn_rotate_already_enabled_by_default/) (r/LocalLLaMA)
+15. [Gemma 4, llama.cpp, tool calls, and tool results - ChatGPT fixed it for me](https://www.reddit.com/r/LocalLLaMA/comments/1sfj075/gemma_4_llamacpp_tool_calls_and_tool_results/) (r/LocalLLaMA)
+16. [Auto-creation of agent SKILLs from observing your screen via Gemma 4 for any agent to execute and self-improve](https://www.reddit.com/r/LocalLLaMA/comments/1sey6vv/autocreation_of_agent_skills_from_observing_your/) (r/LocalLLaMA)
+17. [Turns out Gemma 4 had MTP (multi token prediction) all along](https://www.reddit.com/r/LocalLLaMA/comments/1seqblr/turns_out_gemma_4_had_mtp_multi_token_prediction/) (r/LocalLLaMA)
+18. [Share your llama-server init strings for Gemma 4 models.](https://www.reddit.com/r/LocalLLaMA/comments/1sfh2ut/share_your_llamaserver_init_strings_for_gemma_4/) (r/LocalLLaMA)
+19. [Why is HuggingFace & HuggingChat completely free? What’s the business model here?](https://www.reddit.com/r/LocalLLaMA/comments/1sf6fdc/why_is_huggingface_huggingchat_completely_free/) (r/LocalLLaMA)
+20. [You guys seen this? beats turboquant by 18%](https://www.reddit.com/r/LocalLLaMA/comments/1seymdx/you_guys_seen_this_beats_turboquant_by_18/) (r/LocalLLaMA)
+21. [Last Week in Multimodal AI - Local Edition](https://www.reddit.com/r/LocalLLaMA/comments/1sfk3ml/last_week_in_multimodal_ai_local_edition/) (r/LocalLLaMA)
+22. [TurboQuant - Extreme KV Cache Quantization · ggml-org/llama.cpp · Discussion #20969](https://www.reddit.com/r/LocalLLaMA/comments/1sevwek/turboquant_extreme_kv_cache_quantization/) (r/LocalLLaMA)
+23. [In terms of Quality, how good is Bonsai 8B?](https://www.reddit.com/r/LocalLLaMA/comments/1sfk2w5/in_terms_of_quality_how_good_is_bonsai_8b/) (r/LocalLLaMA)
+24. [Gemma 4 thinking system prompt](https://www.reddit.com/r/LocalLLaMA/comments/1sfjhsx/gemma_4_thinking_system_prompt/) (r/LocalLLaMA)
+25. [Gemma 4 is a huge improvement in many European languages, including Danish, Dutch, French and Italian](https://www.reddit.com/r/LocalLLaMA/comments/1seo2rq/gemma_4_is_a_huge_improvement_in_many_european/) (r/LocalLLaMA)
+26. [[D] thoughts on current community moving away from heavy math?](https://www.reddit.com/r/MachineLearning/comments/1sesq0s/d_thoughts_on_current_community_moving_away_from/) (r/MachineLearning)
+27. [[D] MemPalace claims 100% on LoCoMo and a "perfect score on LongMemEval." Its own BENCHMARKS.md documents why neither is meaningful.](https://www.reddit.com/r/MachineLearning/comments/1seunbr/d_mempalace_claims_100_on_locomo_and_a_perfect/) (r/MachineLearning)
+28. [[D] Is ACL more about the benchmarks now?](https://www.reddit.com/r/MachineLearning/comments/1seqckq/d_is_acl_more_about_the_benchmarks_now/) (r/MachineLearning)
+29. [[R] Hybrid attention for small code models: 50x faster inference, but data scaling still dominates](https://www.reddit.com/r/MachineLearning/comments/1senzrn/r_hybrid_attention_for_small_code_models_50x/) (r/MachineLearning)
+30. [[R] TriAttention: Efficient KV Cache Compression for Long-Context Reasoning](https://www.reddit.com/r/MachineLearning/comments/1serby2/r_triattention_efficient_kv_cache_compression_for/) (r/MachineLearning)
+31. [[D] How's MLX and jax/ pytorch on MacBooks these days?](https://www.reddit.com/r/MachineLearning/comments/1seexk0/d_hows_mlx_and_jax_pytorch_on_macbooks_these_days/) (r/MachineLearning)
+32. [[P] A control plane for post-training workflows](https://www.reddit.com/r/MachineLearning/comments/1sf1hdt/p_a_control_plane_for_posttraining_workflows/) (r/MachineLearning)
+33. [ParetoBandit: Budget-Paced Adaptive Routing for Non-Stationary LLM Serving](https://www.reddit.com/r/MachineLearning/comments/1sey2e7/paretobandit_budgetpaced_adaptive_routing_for/) (r/MachineLearning)
+34. [[R] Best practices for implementing and benchmarking a custom PyTorch RL algorithm?](https://www.reddit.com/r/MachineLearning/comments/1sev0a5/r_best_practices_for_implementing_and/) (r/MachineLearning)
+35. [[D] ICML 26 - What to do with the zero follow-up questions](https://www.reddit.com/r/MachineLearning/comments/1se451u/d_icml_26_what_to_do_with_the_zero_followup/) (r/MachineLearning)
+36. [[D] Is this considered unsupervised or semi-supervised learning in anomaly detection?](https://www.reddit.com/r/MachineLearning/comments/1sewmif/d_is_this_considered_unsupervised_or/) (r/MachineLearning)
+37. [[D] IJCAI 2026 rebuttal discussion](https://www.reddit.com/r/MachineLearning/comments/1sdu1gd/d_ijcai_2026_rebuttal_discussion/) (r/MachineLearning)
+38. [[D] Attending ICPR conference](https://www.reddit.com/r/MachineLearning/comments/1sehlqp/d_attending_icpr_conference/) (r/MachineLearning)
+39. [[R] Agentic AI and Occupational Displacement: A Multi-Regional Task Exposure Analysis (236 occupations, 5 US metros)](https://www.reddit.com/r/MachineLearning/comments/1selu8x/r_agentic_ai_and_occupational_displacement_a/) (r/MachineLearning)
+40. [[P] Easily provide Wandb logs as context to agents for analysis and planning.](https://www.reddit.com/r/MachineLearning/comments/1se1rmd/p_easily_provide_wandb_logs_as_context_to_agents/) (r/MachineLearning)
+41. [[D] AI research on small language models](https://www.reddit.com/r/MachineLearning/comments/1secv6c/d_ai_research_on_small_language_models/) (r/MachineLearning)
+42. [Built a Hybrid NAS tool for RNN architectures (HyNAS-R) – Looking for feedback for my final year evaluation [R]](https://www.reddit.com/r/MachineLearning/comments/1sebmo8/built_a_hybrid_nas_tool_for_rnn_architectures/) (r/MachineLearning)
+43. [[R] 94.42% on BANKING77 Official Test Split with Lightweight Embedding + Example Reranking (strict full-train protocol)](https://www.reddit.com/r/MachineLearning/comments/1sefidi/r_9442_on_banking77_official_test_split_with/) (r/MachineLearning)
+44. [[D] Tested model routing on financial AI datasets — good savings and curious what benchmarks others use.](https://www.reddit.com/r/MachineLearning/comments/1sedqda/d_tested_model_routing_on_financial_ai_datasets/) (r/MachineLearning)
+45. [Anthropic's Project Glasswing - restricting Claude Mythos to security researchers - sounds necessary to me](https://simonwillison.net/2026/Apr/7/project-glasswing/#atom-entries) (Simon Willison's Weblog)
+46. [Why Openclaw is not for you](https://rockwotj.com/blog/openclaw/) (Tyler Rockwood Blog)
+47. [[AINews] Anthropic @ $30B ARR, Project GlassWing and Claude Mythos Preview — first model too dangerous to release since GPT-2](https://www.latent.space/p/ainews-anthropic-30b-arr-project) (Latent Space)
+48. [Extreme Harness Engineering for Token Billionaires: 1M LOC, 1B toks/day, 0% human code, 0% human review — Ryan Lopopolo, OpenAI Frontier & Symphony](https://www.latent.space/p/harness-eng) (Latent Space)
+49. [[AINews] Gemma 4 crosses 2 million downloads](https://www.latent.space/p/ainews-gemma-4-crosses-2-million) (Latent Space)
+50. [Open-source leaders question whether Meta’s Alexandr Wang will truly give away its AI models](https://thenewstack.io/meta-open-source-models/) (The New Stack)
+51. [Sam Altman promised billions for AI safety. Here’s what OpenAI actually spent.](https://thenewstack.io/altman-openai-ai-safety/) (The New Stack)
+52. [Amazon S3 Files gives the world’s biggest object store a file system](https://thenewstack.io/aws-s3-files-filesystem/) (The New Stack)
+53. [Anthropic’s Claude Mythos is now available, but not for you](https://thenewstack.io/anthropic-claude-mythos-cybersecurity/) (The New Stack)
+54. [Amazon EKS Auto Mode wants to end Kubernetes toil — one node at a time](https://thenewstack.io/eks-auto-mode-kubernetes/) (The New Stack)
+55. [True enterprise sovereignty is more approachable than ever, thanks to K8s-powered cloud-neutral PostgreSQL](https://thenewstack.io/sovereign-postgresql-kubernetes-portability/) (The New Stack)
+56. [Model Flop Utilization is the metric Aria Networks says will define the AI infrastructure era](https://thenewstack.io/aria-networks-ai-network/) (The New Stack)
+57. [Anthropic’s harness shakeup “just fragments workflows,” developers warn](https://thenewstack.io/anthropic-claude-harness-restrictions/) (The New Stack)
+58. [MCP servers turn Claude into a reasoning engine for your data](https://thenewstack.io/build-mcp-server-tutorial/) (The New Stack)
+59. [MCP maintainers from Anthropic, AWS, Microsoft, and OpenAI lay out enterprise security roadmap at Dev Summit](https://thenewstack.io/mcp-maintainers-enterprise-roadmap/) (The New Stack)
+60. [Is observability still an operations problem at your organization?](https://thenewstack.io/is-observability-still-an-operations-problem-at-your-organization/) (The New Stack)
+61. [30 Days of an LLM Honeypot](https://www.reddit.com/r/ollama/comments/1sff7i0/30_days_of_an_llm_honeypot/) (r/ollama)
+62. [GLM-5.1 Scores 94.6% Against Claude Opus on Coding at a Fraction the Cost](https://www.reddit.com/r/ollama/comments/1sf2g2c/glm51_scores_946_against_claude_opus_on_coding_at/) (r/ollama)
+63. [Running Gemma 4 with Ollama and exposing it via API](https://www.reddit.com/r/ollama/comments/1sf6gxt/running_gemma_4_with_ollama_and_exposing_it_via/) (r/ollama)
+64. [I ran Gemma 4 26B vs Qwen 3.5 27B across 18 real local business tests on my RTX 4090. Gemma won 13 to 5.](https://www.reddit.com/r/ollama/comments/1semflm/i_ran_gemma_4_26b_vs_qwen_35_27b_across_18_real/) (r/ollama)
+65. [Need help to resolve this issue: pulling manifest Error: max retries exceeded: Get "https://dd20bb891979d25aebc8bec07b2b3bbc.r2.cloudflarestorage.com/ollama/docker/registry/v2/blobs/s… tls: failed to verify certificate: x509: certificate has expired or is not yet valid:](https://www.reddit.com/r/ollama/comments/1sfl9wb/need_help_to_resolve_this_issue_pulling_manifest/) (r/ollama)
+66. [Ollama Cloud models good for coding?](https://www.reddit.com/r/ollama/comments/1sf001r/ollama_cloud_models_good_for_coding/) (r/ollama)
+67. [I built a desktop workspace that lets Ollama keep working on long-horizon tasks, and it’s open source](https://www.reddit.com/r/ollama/comments/1sewlo8/i_built_a_desktop_workspace_that_lets_ollama_keep/) (r/ollama)
+68. [Questions about running Gemma 4 on Apple Silicon](https://www.reddit.com/r/ollama/comments/1sfi97h/questions_about_running_gemma_4_on_apple_silicon/) (r/ollama)
+69. [Benchmarked all 4 Gemma 4 models on 4 machines (RTX 5090, M1 Max, DGX Spark, Mac mini) — the 31B results are brutal](https://www.reddit.com/r/ollama/comments/1sfg6s1/benchmarked_all_4_gemma_4_models_on_4_machines/) (r/ollama)
+70. [Most “AI memory” projects hand-wave ingestion. I built the missing layer.](https://www.reddit.com/r/ollama/comments/1sffoi3/most_ai_memory_projects_handwave_ingestion_i/) (r/ollama)
+71. [I built a full desktop AI assistant that runs on Ollama, and it's free](https://www.reddit.com/r/ollama/comments/1se91tz/i_built_a_full_desktop_ai_assistant_that_runs_on/) (r/ollama)
+72. [What is the best LLM for each VRAM tier?](https://www.reddit.com/r/ollama/comments/1seq0sf/what_is_the_best_llm_for_each_vram_tier/) (r/ollama)
+73. [Eidos: A Python CLI tool to turn PDFs into structured Markdown summaries & study them locally with Ollama](https://www.reddit.com/r/ollama/comments/1seyvtn/eidos_a_python_cli_tool_to_turn_pdfs_into/) (r/ollama)
+74. [Smallest Ai Model](https://www.reddit.com/r/ollama/comments/1sf2zgp/smallest_ai_model/) (r/ollama)
+75. [Setups reais com Ollama (26B–70B): hardware, tokens/s e performance prática — buscando insights / consultoria](https://www.reddit.com/r/ollama/comments/1sf4cap/setups_reais_com_ollama_26b70b_hardware_tokenss_e/) (r/ollama)
+76. [Im stuck on choose ollama model screen](https://www.reddit.com/r/ollama/comments/1seu3dg/im_stuck_on_choose_ollama_model_screen/) (r/ollama)
+77. [Issues with Ollama not using VRAM - 7940HS (780M) on Proxmox/Ubuntu Server VM](https://www.reddit.com/r/ollama/comments/1seync3/issues_with_ollama_not_using_vram_7940hs_780m_on/) (r/ollama)
+78. [Rockchip NPU support](https://www.reddit.com/r/ollama/comments/1sey218/rockchip_npu_support/) (r/ollama)
+79. [What if the real breakthrough for local LLMs isn’t cheaper hardware, but smarter small models?](https://www.reddit.com/r/ollama/comments/1se15mi/what_if_the_real_breakthrough_for_local_llms_isnt/) (r/ollama)
+80. [I wanted Claude Max but I'm a broke CS student. So I built an open-source TUI orchestrator that forces free/local models to act as a swarm using AST-Hypergraphs and Git worktrees. I would appreciate suggestions, advice, and feedback that can help me improve the tool before I release it!](https://www.reddit.com/r/ollama/comments/1segbnh/i_wanted_claude_max_but_im_a_broke_cs_student_so/) (r/ollama)
+
+...and 74 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
