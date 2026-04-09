@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-09
+
+## Digest fallback for 2026-04-09
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [The next phase of enterprise AI](https://openai.com/index/next-phase-of-enterprise-ai) (OpenAI Blog)
+2. [Introducing the Child Safety Blueprint](https://openai.com/index/introducing-child-safety-blueprint) (OpenAI Blog)
+3. [ALTK‑Evolve: On‑the‑Job Learning for AI Agents](https://huggingface.co/blog/ibm-research/altk-evolve) (Hugging Face Blog)
+4. [Safetensors is Joining the PyTorch Foundation](https://huggingface.co/blog/safetensors-joins-pytorch-foundation) (Hugging Face Blog)
+5. [It's insane how lobotomized Opus 4.6 is right now. Even Gemma 4 31B UD IQ3 XXS beat it on the carwash test on my 5070 TI.](https://www.reddit.com/r/LocalLLaMA/comments/1sgd7fp/its_insane_how_lobotomized_opus_46_is_right_now/) (r/LocalLLaMA)
+6. [kepler-452b. GGUF when?](https://www.reddit.com/r/LocalLLaMA/comments/1sftj52/kepler452b_gguf_when/) (r/LocalLLaMA)
+7. [It finally happened, I actually had a use case for a local LLM and it was brilliant](https://www.reddit.com/r/LocalLLaMA/comments/1sg2686/it_finally_happened_i_actually_had_a_use_case_for/) (r/LocalLLaMA)
+8. [EXAONE 4.5 released](https://www.reddit.com/r/LocalLLaMA/comments/1sgc8ir/exaone_45_released/) (r/LocalLLaMA)
+9. [Meta has not given up on open-source](https://www.reddit.com/r/LocalLLaMA/comments/1sfzdrv/meta_has_not_given_up_on_opensource/) (r/LocalLLaMA)
+10. [New Model! LGAI-EXAONE/EXAONE-4.5-33B](https://www.reddit.com/r/LocalLLaMA/comments/1sgex6u/new_model_lgaiexaoneexaone4533b/) (r/LocalLLaMA)
+11. [It looks like we’ll need to download the new Gemma 4 GGUFs](https://www.reddit.com/r/LocalLLaMA/comments/1sfrrgz/it_looks_like_well_need_to_download_the_new_gemma/) (r/LocalLLaMA)
+12. [Opus, Gemini and Chatpt top models all disappeared from the Arena, is this the reason?](https://www.reddit.com/r/LocalLLaMA/comments/1sg29tl/opus_gemini_and_chatpt_top_models_all_disappeared/) (r/LocalLLaMA)
+13. [Meta new reasoning model Muse Spark](https://www.reddit.com/r/LocalLLaMA/comments/1sfxlpj/meta_new_reasoning_model_muse_spark/) (r/LocalLLaMA)
+14. [HF moves safetensors to the PyTorch Foundation](https://www.reddit.com/r/LocalLLaMA/comments/1sfv6t5/hf_moves_safetensors_to_the_pytorch_foundation/) (r/LocalLLaMA)
+15. [New TTS Model: VoxCPM2](https://www.reddit.com/r/LocalLLaMA/comments/1sg89kl/new_tts_model_voxcpm2/) (r/LocalLLaMA)
+16. [I tracked a major cache reuse issue down to Qwen 3.5’s chat template](https://www.reddit.com/r/LocalLLaMA/comments/1sg076h/i_tracked_a_major_cache_reuse_issue_down_to_qwen/) (r/LocalLLaMA)
+17. [Why do companies build open source models?](https://www.reddit.com/r/LocalLLaMA/comments/1sg9kax/why_do_companies_build_open_source_models/) (r/LocalLLaMA)
+18. [What is Meta even doing right now?](https://www.reddit.com/r/LocalLLaMA/comments/1sg91vd/what_is_meta_even_doing_right_now/) (r/LocalLLaMA)
+19. [Qwen3.5-35B-A3B-Uncensored-FernflowerAI-GGUF](https://www.reddit.com/r/LocalLLaMA/comments/1sfwauj/qwen3535ba3buncensoredfernfloweraigguf/) (r/LocalLLaMA)
+20. [My experience with the Intel Arc Pro B70 for local LLMs: Fast, but a complete mess (for now)](https://www.reddit.com/r/LocalLLaMA/comments/1sgdt7t/my_experience_with_the_intel_arc_pro_b70_for/) (r/LocalLLaMA)
+21. [pi.dev coding agent is moving to Earendil](https://www.reddit.com/r/LocalLLaMA/comments/1sg37af/pidev_coding_agent_is_moving_to_earendil/) (r/LocalLLaMA)
+22. [I think my Gemma4 is having a breakdown](https://www.reddit.com/r/LocalLLaMA/comments/1sge96n/i_think_my_gemma4_is_having_a_breakdown/) (r/LocalLLaMA)
+23. [Gemma 4 seems to work best with high temperature for coding](https://www.reddit.com/r/LocalLLaMA/comments/1sg8r4l/gemma_4_seems_to_work_best_with_high_temperature/) (r/LocalLLaMA)
+24. [Liquid AI releases LFM2.5-VL-450M - structured visual understanding at 240ms](https://www.reddit.com/r/LocalLLaMA/comments/1sfxs7f/liquid_ai_releases_lfm25vl450m_structured_visual/) (r/LocalLLaMA)
+25. [Meta Releases Muse Spark - A Natively Multimodal Reasoning model](https://www.reddit.com/r/LocalLLaMA/comments/1sfyacf/meta_releases_muse_spark_a_natively_multimodal/) (r/LocalLLaMA)
+26. [Mamba 1 & 2 to Mamba 3 Architectural Upgrade](https://www.reddit.com/r/LocalLLaMA/comments/1sge45s/mamba_1_2_to_mamba_3_architectural_upgrade/) (r/LocalLLaMA)
+27. [Turbo-OCR for high-volume image and PDF processing](https://www.reddit.com/r/LocalLLaMA/comments/1sg8lfr/turboocr_for_highvolume_image_and_pdf_processing/) (r/LocalLLaMA)
+28. [M5 Max 128GB, 17 models, 23 prompts: Qwen 3.5 122B is still a local king](https://www.reddit.com/r/LocalLLaMA/comments/1sfr6u4/m5_max_128gb_17_models_23_prompts_qwen_35_122b_is/) (r/LocalLLaMA)
+29. [[D] Dealing with an unprofessional reviewer using fake references and personal attacks in ICML26](https://www.reddit.com/r/MachineLearning/comments/1sg0pk1/d_dealing_with_an_unprofessional_reviewer_using/) (r/MachineLearning)
+30. [[D] How are reviewers able to get away without providing acknowledgement in ICML 2026?](https://www.reddit.com/r/MachineLearning/comments/1sftb6h/d_how_are_reviewers_able_to_get_away_without/) (r/MachineLearning)
+31. [[P] turboquant-pro autotune: One command finds the optimal compression for your vector database [R]](https://www.reddit.com/r/MachineLearning/comments/1sgh53u/p_turboquantpro_autotune_one_command_finds_the/) (r/MachineLearning)
+32. [ICML 2026 am I cooked? [D]](https://www.reddit.com/r/MachineLearning/comments/1sg188m/icml_2026_am_i_cooked_d/) (r/MachineLearning)
+33. [[P] citracer: a small CLI tool to trace where a concept comes from in a citation graph](https://www.reddit.com/r/MachineLearning/comments/1sfydvx/p_citracer_a_small_cli_tool_to_trace_where_a/) (r/MachineLearning)
+34. [[P] Building a LLM from scratch with Mary Shelley's "Frankenstein" (on Kaggle)](https://www.reddit.com/r/MachineLearning/comments/1sfuwqh/p_building_a_llm_from_scratch_with_mary_shelleys/) (r/MachineLearning)
+35. [Free tool I built to score dataset quality (LQS) — feedback welcome [D]](https://www.reddit.com/r/MachineLearning/comments/1sg4hee/free_tool_i_built_to_score_dataset_quality_lqs/) (r/MachineLearning)
+36. [Looking for help with IEEE PDF eXpress [D]](https://www.reddit.com/r/MachineLearning/comments/1sg9bww/looking_for_help_with_ieee_pdf_express_d/) (r/MachineLearning)
+37. [[D] thoughts on current community moving away from heavy math?](https://www.reddit.com/r/MachineLearning/comments/1sesq0s/d_thoughts_on_current_community_moving_away_from/) (r/MachineLearning)
+38. [[D] MemPalace claims 100% on LoCoMo and a "perfect score on LongMemEval." Its own BENCHMARKS.md documents why neither is meaningful.](https://www.reddit.com/r/MachineLearning/comments/1seunbr/d_mempalace_claims_100_on_locomo_and_a_perfect/) (r/MachineLearning)
+39. [[D] Is ACL more about the benchmarks now?](https://www.reddit.com/r/MachineLearning/comments/1seqckq/d_is_acl_more_about_the_benchmarks_now/) (r/MachineLearning)
+40. [[R] TriAttention: Efficient KV Cache Compression for Long-Context Reasoning](https://www.reddit.com/r/MachineLearning/comments/1serby2/r_triattention_efficient_kv_cache_compression_for/) (r/MachineLearning)
+41. [ParetoBandit: Budget-Paced Adaptive Routing for Non-Stationary LLM Serving](https://www.reddit.com/r/MachineLearning/comments/1sey2e7/paretobandit_budgetpaced_adaptive_routing_for/) (r/MachineLearning)
+42. [[P] A control plane for post-training workflows](https://www.reddit.com/r/MachineLearning/comments/1sf1hdt/p_a_control_plane_for_posttraining_workflows/) (r/MachineLearning)
+43. [[R] Best practices for implementing and benchmarking a custom PyTorch RL algorithm?](https://www.reddit.com/r/MachineLearning/comments/1sev0a5/r_best_practices_for_implementing_and/) (r/MachineLearning)
+44. [[D] Is this considered unsupervised or semi-supervised learning in anomaly detection?](https://www.reddit.com/r/MachineLearning/comments/1sewmif/d_is_this_considered_unsupervised_or/) (r/MachineLearning)
+45. [Meta's new model is Muse Spark, and meta.ai chat has some interesting tools](https://simonwillison.net/2026/Apr/8/muse-spark/#atom-entries) (Simon Willison's Weblog)
+46. [Anthropic's Project Glasswing - restricting Claude Mythos to security researchers - sounds necessary to me](https://simonwillison.net/2026/Apr/7/project-glasswing/#atom-entries) (Simon Willison's Weblog)
+47. [[AINews] Meta Superintelligence Labs announces Muse Spark, first frontier model on their completely new stack](https://www.latent.space/p/ainews-meta-superintelligence-labs) (Latent Space)
+48. [[AINews] Anthropic @ $30B ARR, Project GlassWing and Claude Mythos Preview — first model too dangerous to release since GPT-2](https://www.latent.space/p/ainews-anthropic-30b-arr-project) (Latent Space)
+49. [Extreme Harness Engineering for Token Billionaires: 1M LOC, 1B toks/day, 0% human code, 0% human review — Ryan Lopopolo, OpenAI Frontier & Symphony](https://www.latent.space/p/harness-eng) (Latent Space)
+50. [Niantic Spatial wants to map the 80% of the economy AI can’t see](https://thenewstack.io/niantic-spatial-scaniverse-world-models/) (The New Stack)
+51. [In the AI Age, Java is More Relevant Than Ever](https://thenewstack.io/in-the-ai-age-java-is-more-relevant-than-ever/) (The New Stack)
+52. [With Claude Managed Agents, Anthropic wants to run your AI agents for you](https://thenewstack.io/with-claude-managed-agents-anthropic-wants-to-run-your-ai-agents-for-you/) (The New Stack)
+53. [Microsoft wants to make service mesh invisible](https://thenewstack.io/microsoft-wants-to-make-service-mesh-invisible/) (The New Stack)
+54. [Open-source leaders question whether Meta’s Alexandr Wang will truly give away its AI models](https://thenewstack.io/meta-open-source-models/) (The New Stack)
+55. [Sam Altman promised billions for AI safety. Here’s what OpenAI actually spent.](https://thenewstack.io/altman-openai-ai-safety/) (The New Stack)
+56. [Amazon S3 Files gives the world’s biggest object store a file system](https://thenewstack.io/aws-s3-files-filesystem/) (The New Stack)
+57. [Anthropic’s Claude Mythos is now available, but not for you](https://thenewstack.io/anthropic-claude-mythos-cybersecurity/) (The New Stack)
+58. [Amazon EKS Auto Mode wants to end Kubernetes toil — one node at a time](https://thenewstack.io/eks-auto-mode-kubernetes/) (The New Stack)
+59. [True enterprise sovereignty is more approachable than ever, thanks to K8s-powered cloud-neutral PostgreSQL](https://thenewstack.io/sovereign-postgresql-kubernetes-portability/) (The New Stack)
+60. [Model Flop Utilization is the metric Aria Networks says will define the AI infrastructure era](https://thenewstack.io/aria-networks-ai-network/) (The New Stack)
+61. [30 Days of an LLM Honeypot](https://www.reddit.com/r/ollama/comments/1sff7i0/30_days_of_an_llm_honeypot/) (r/ollama)
+62. [I built a Free OpenSource CLI coding agent specifically for 8k context windows LLMs.](https://www.reddit.com/r/ollama/comments/1sg3fes/i_built_a_free_opensource_cli_coding_agent/) (r/ollama)
+63. [Gemma 4 E2B and Qwen 3.5 2B on a Raspberry Pi 5 with Ollama — here's what each one is actually good for](https://www.reddit.com/r/ollama/comments/1sg63jk/gemma_4_e2b_and_qwen_35_2b_on_a_raspberry_pi_5/) (r/ollama)
+64. [Best cloud model for OpenCode](https://www.reddit.com/r/ollama/comments/1sghs1w/best_cloud_model_for_opencode/) (r/ollama)
+65. [Alternative to NotebookLM with no data limits](https://www.reddit.com/r/ollama/comments/1sgeof6/alternative_to_notebooklm_with_no_data_limits/) (r/ollama)
+66. [I got tired of Claude/Cursor wasting my tokens on Git diffs, so I built a local MCP server to handle it for free.](https://www.reddit.com/r/ollama/comments/1sfwyfr/i_got_tired_of_claudecursor_wasting_my_tokens_on/) (r/ollama)
+67. [something weird about gemma 4 e4b model on ollama or hf](https://www.reddit.com/r/ollama/comments/1sggjsv/something_weird_about_gemma_4_e4b_model_on_ollama/) (r/ollama)
+68. [What model would y'all recommend for coding with a 32GB video card?](https://www.reddit.com/r/ollama/comments/1sgfdyg/what_model_would_yall_recommend_for_coding_with_a/) (r/ollama)
+69. [Do :cloud models proxy to the original provider's API, or does Ollama host them independently?](https://www.reddit.com/r/ollama/comments/1sg1ere/do_cloud_models_proxy_to_the_original_providers/) (r/ollama)
+70. [The Open Source AI Lie: Weight-Washing, Broken Definitions, and Who Benefits](https://www.reddit.com/r/ollama/comments/1sg1q1b/the_open_source_ai_lie_weightwashing_broken/) (r/ollama)
+71. [Help 24GB vram and openclaw](https://www.reddit.com/r/ollama/comments/1sg5ky3/help_24gb_vram_and_openclaw/) (r/ollama)
+72. [how do you feel about your local AI interaction data?](https://www.reddit.com/r/ollama/comments/1sg5baf/how_do_you_feel_about_your_local_ai_interaction/) (r/ollama)
+73. [Anyone tried running gemma4 on 3060 ??](https://www.reddit.com/r/ollama/comments/1sgdgxq/anyone_tried_running_gemma4_on_3060/) (r/ollama)
+74. [Why is Gemma4:31B way slower than Qwen3.5:35B?](https://www.reddit.com/r/ollama/comments/1sfrjbs/why_is_gemma431b_way_slower_than_qwen3535b/) (r/ollama)
+75. [GLM-5.1 Scores 94.6% Against Claude Opus on Coding at a Fraction the Cost](https://www.reddit.com/r/ollama/comments/1sf2g2c/glm51_scores_946_against_claude_opus_on_coding_at/) (r/ollama)
+76. [Claude Code + Ollama Web Search](https://www.reddit.com/r/ollama/comments/1sfqt2b/claude_code_ollama_web_search/) (r/ollama)
+77. [I'm new to n8n and local LLMs, what are the best ones currently?](https://www.reddit.com/r/ollama/comments/1sftbmk/im_new_to_n8n_and_local_llms_what_are_the_best/) (r/ollama)
+78. [Quick question.. I have environment variable model call set to 0… openwebui loading 3…](https://www.reddit.com/r/ollama/comments/1sfr5df/quick_question_i_have_environment_variable_model/) (r/ollama)
+79. [model crashes system](https://www.reddit.com/r/ollama/comments/1sfqte6/model_crashes_system/) (r/ollama)
+80. [Running Gemma 4 with Ollama and exposing it via API](https://www.reddit.com/r/ollama/comments/1sf6gxt/running_gemma_4_with_ollama_and_exposing_it_via/) (r/ollama)
+
+...and 77 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
