@@ -1,5 +1,57 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-11
+
+## Digest fallback for 2026-04-11
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Using custom GPTs](https://openai.com/academy/custom-gpts) (OpenAI Blog)
+2. [ChatGPT for customer success teams](https://openai.com/academy/customer-success) (OpenAI Blog)
+3. [Applications of AI at OpenAI](https://openai.com/academy/applications-of-ai) (OpenAI Blog)
+4. [Research with ChatGPT](https://openai.com/academy/search-and-deep-research) (OpenAI Blog)
+5. [Analyzing data with ChatGPT](https://openai.com/academy/data-analysis) (OpenAI Blog)
+6. [Financial services](https://openai.com/academy/financial-services) (OpenAI Blog)
+7. [Responsible and safe use of AI](https://openai.com/academy/responsible-and-safe-use) (OpenAI Blog)
+8. [Writing with ChatGPT](https://openai.com/academy/writing) (OpenAI Blog)
+9. [ChatGPT for research](https://openai.com/academy/research) (OpenAI Blog)
+10. [Creating images with ChatGPT](https://openai.com/academy/image-generation) (OpenAI Blog)
+11. [Personalizing ChatGPT](https://openai.com/academy/personalization) (OpenAI Blog)
+12. [ChatGPT for finance teams](https://openai.com/academy/finance) (OpenAI Blog)
+13. [Getting started with ChatGPT](https://openai.com/academy/getting-started) (OpenAI Blog)
+14. [Working with files in ChatGPT](https://openai.com/academy/working-with-files) (OpenAI Blog)
+15. [ChatGPT for sales teams](https://openai.com/academy/sales) (OpenAI Blog)
+16. [Prompting fundamentals](https://openai.com/academy/prompting) (OpenAI Blog)
+17. [ChatGPT for managers](https://openai.com/academy/managers) (OpenAI Blog)
+18. [Using projects in ChatGPT](https://openai.com/academy/projects) (OpenAI Blog)
+19. [ChatGPT for marketing teams](https://openai.com/academy/marketing) (OpenAI Blog)
+20. [Brainstorming with ChatGPT](https://openai.com/academy/brainstorming) (OpenAI Blog)
+21. [AI fundamentals](https://openai.com/academy/what-is-ai) (OpenAI Blog)
+22. [ChatGPT for operations teams](https://openai.com/academy/operations) (OpenAI Blog)
+23. [Healthcare](https://openai.com/academy/healthcare) (OpenAI Blog)
+24. [Our response to the Axios developer tool compromise](https://openai.com/index/axios-developer-tool-compromise) (OpenAI Blog)
+25. [Using skills](https://openai.com/academy/skills) (OpenAI Blog)
+26. [[AINews] AI Engineer Europe 2026](https://www.latent.space/p/ainews-ai-engineer-europe-2026) (Latent Space)
+27. [Where are the guardrails everyone promised for AI?](https://thenewstack.io/skiplabs-ai-guardrails-skipper/) (The New Stack)
+28. [How to build an AI-powered private document search app with RAG, ChromaDB, and memory](https://thenewstack.io/build-rag-document-search/) (The New Stack)
+29. [Why data governance is the secret to AI agent success](https://thenewstack.io/data-governance-ai-agents/) (The New Stack)
+30. [PyTorch Foundation Expands AI Stack with Safetensors, ExecuTorch, and Helion](https://thenewstack.io/pytorch-ai-stack-expand/) (The New Stack)
+31. [OpenAI’s new $100 tier targets developers hitting Codex (and Claude Code) limits](https://thenewstack.io/openais-new-100-tier-targets-developers-hitting-codex-and-claude-code-limits/) (The New Stack)
+32. [Replit taps RevenueCat to help vibe-coders make money](https://thenewstack.io/replit-revenuecat-help-vibe-coders-monetize/) (The New Stack)
+33. [Anthropic takes Claude Cowork out of preview and straight into the enterprise](https://thenewstack.io/anthropic-takes-claude-cowork-out-of-preview-and-straight-into-the-enterprise/) (The New Stack)
+34. [AWS wants to register your AI agents](https://thenewstack.io/aws-wants-to-register-your-ai-agents/) (The New Stack)
+35. [The next stages of AI conformance in the cloud-native, open-source world](https://thenewstack.io/the-next-stages-of-ai-conformance-in-the-cloud-native-open-source-world/) (The New Stack)
+36. [Open source maintainers are drowning in AI-generated pull requests. Enterprise teams are next.](https://thenewstack.io/ai-generated-code-crisis/) (The New Stack)
+37. [Ramp targets AI’s fastest-growing cost: spend that’s hard to track](https://thenewstack.io/ramp-ai-token-spend-management/) (The New Stack)
+38. [Zencoder goes beyond coding](https://thenewstack.io/zencoder-goes-beyond-coding/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
