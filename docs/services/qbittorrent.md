@@ -37,36 +37,53 @@ docker run -d \
 
 Access the web interface at `http://localhost:8080`. The default credentials (if not printed to the log) are often `admin` / `adminadmin`.
 
-## CLI examples
+### Hello World
+1. Run the Docker command to start qBittorrent.
+2. Navigate to `http://localhost:8080` and log in.
+3. Go to **Tools > Options > BitTorrent** and enable "Add torrents in Paused state" for safety.
+4. Click the **Add Torrent Link** button and paste a legal magnet link (e.g., a Linux ISO) to see the client in action.
 
-You can manage the qBittorrent container using standard Docker commands:
+## CLI examples
+The `qbittorrent-nox` binary can be managed via the Docker container.
 
 ```bash
 # View container logs to find the temporary WebUI password
 docker logs qbittorrent
 
-# Restart the qBittorrent service
-docker restart qbittorrent
-
 # Check the version of qBittorrent running in the container
 docker exec qbittorrent qbittorrent-nox --version
+
+# Pause all active torrents
+docker exec qbittorrent qbittorrent-nox --pause-all
 ```
 
 ## API examples
+The Web UI API (v2) allows for remote torrent management.
 
-qBittorrent provides a Web UI API. First, authenticate to get a session cookie:
+### Python Example
+Using the `qbittorrent-api` library is recommended for Python.
+
+```python
+from qbittorrentapi import Client
+
+conn_info = dict(host='localhost', port=8080, username='admin', password='your_password')
+qbt_client = Client(**conn_info)
+
+# List all torrents
+for torrent in qbt_client.torrents_info():
+    print(f"Torrent: {torrent.name}, Progress: {torrent.progress*100:.2f}%")
+```
+
+### Curl Example
+First, authenticate to get a session cookie:
 
 ```bash
 # Login and save the session cookie
 curl -i --header "Referer: http://localhost:8080" \
      --data "username=admin&password=your_password" \
      "http://localhost:8080/api/v2/auth/login"
-```
 
-Once authenticated, use the cookie (SID) for subsequent requests:
-
-```bash
-# List all torrents (requires SID cookie)
+# List all torrents (requires SID cookie from previous response)
 curl "http://localhost:8080/api/v2/torrents/info" \
      --cookie "SID=<your_session_id>"
 ```
