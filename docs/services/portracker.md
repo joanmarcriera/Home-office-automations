@@ -17,19 +17,25 @@ It provides a dashboard to monitor active ports on your network and discover new
 ## Getting started
 
 ### Docker Compose
-The easiest way to deploy Portracker is via Docker Compose:
+The recommended way to deploy Portracker is via Docker Compose. It requires host PID access and specific capabilities to monitor system ports.
 
 ```yaml
 services:
   portracker:
     image: mostafawahied/portracker:latest
     container_name: portracker
+    restart: unless-stopped
+    pid: "host"  # Required for port detection
+    cap_add:
+      - SYS_PTRACE     # Allows reading other PIDs' /proc entries
+      - SYS_ADMIN      # Allows namespace access for host ports
+    security_opt:
+      - apparmor:unconfined # Required on some systems for port access
     ports:
       - "4999:4999"
     volumes:
+      - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./data:/app/data
-    restart: always
 ```
 
 Access the dashboard at `http://localhost:4999`.
@@ -41,7 +47,7 @@ Access the dashboard at `http://localhost:4999`.
 4. Run a new container (e.g., `docker run -d -p 8888:80 nginx`) and see it appear in real-time.
 
 ## CLI examples
-You can interact with the Portracker container using Docker commands:
+Management and inspection can be done via Docker commands:
 
 ```bash
 # View real-time logs of discovered services
@@ -50,7 +56,7 @@ docker logs -f portracker
 # Check the version of Portracker
 docker exec portracker ./portracker --version
 
-# Clear the scan cache
+# Force a re-scan by clearing the cache
 docker exec portracker rm -rf /app/data/cache
 ```
 

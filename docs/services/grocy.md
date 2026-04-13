@@ -39,14 +39,14 @@ docker run -d \
 3. Navigate to **Stock overview** to see your current inventory or add your first product.
 
 ## CLI examples
-Grocy does not have an official CLI. However, you can manage the Docker container and perform maintenance tasks:
+While primarily web-based, you can use the Docker CLI for maintenance:
 
 ```bash
-# View container logs
-docker logs grocy
+# View container logs to troubleshoot startup
+docker logs -f grocy
 
-# Access the container shell
-docker exec -it grocy /bin/bash
+# Execute a database migration manually (if needed)
+docker exec -it grocy php /app/www/public/index.php /migrate
 
 # Check the build version of the running container
 docker inspect -f '{{ index .Config.Labels "build_version" }}' grocy
@@ -66,7 +66,9 @@ headers = {
 }
 
 response = requests.get(url, headers=headers)
-print(response.json())
+if response.status_code == 200:
+    for item in response.json():
+        print(f"Product ID: {item['product_id']}, Amount: {item['amount']}")
 ```
 
 ### Curl Example

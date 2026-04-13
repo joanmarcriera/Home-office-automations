@@ -42,22 +42,23 @@ Follow the prompts to enter your access grant or API key.
 5. Verify the upload: `uplink ls sj://hello-world/`.
 
 ## CLI examples
-The `uplink` tool supports standard object storage operations:
+The `uplink` tool supports standard object storage operations. Use the `sj://` protocol for buckets.
 
 ```bash
-# List all buckets
-uplink ls
+# Create a new bucket
+uplink mb sj://my-bucket
 
-# Upload a local file to a bucket
-uplink cp my-local-file.txt sj://my-bucket/
+# Upload a local file with a custom expiration date
+uplink cp my-local-file.txt sj://my-bucket/ --expires 2026-12-31T23:59:59Z
 
-# Create a shareable URL for an object
-uplink share sj://my-bucket/my-local-file.txt
+# List objects and their sizes in a bucket
+uplink ls sj://my-bucket/
 ```
 
 ## API examples
-Use the `boto3` library to interact with Storj via its S3-compatible Gateway:
+Use the `boto3` library to interact with Storj via its S3-compatible Gateway.
 
+### Python (Boto3)
 ```python
 import boto3
 
@@ -75,7 +76,7 @@ s3.upload_file("local_image.png", "my-bucket", "cloud_image.png")
 # List objects in a bucket
 response = s3.list_objects_v2(Bucket="my-bucket")
 for obj in response.get("Contents", []):
-    print(obj["Key"])
+    print(f"Object: {obj['Key']}, Size: {obj['Size']} bytes")
 ```
 
 ## Links
