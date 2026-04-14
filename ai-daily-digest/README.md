@@ -1,5 +1,21 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-14
+
+## Digest fallback for 2026-04-14
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Enterprises power agentic workflows in Cloudflare Agent Cloud with OpenAI](https://openai.com/index/cloudflare-openai-agent-cloud) (OpenAI Blog)
+2. [Cursor, Claude Code, and Codex are merging into one AI coding stack nobody planned](https://thenewstack.io/ai-coding-tool-stack/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
