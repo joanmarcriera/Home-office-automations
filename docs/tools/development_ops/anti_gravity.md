@@ -33,7 +33,7 @@ Simplifies the development of autonomous coding agents by offering pre-built abs
 ## Related tools / concepts
 
 - [LangChain](../ai_knowledge/langchain.md)
-- [CrewAI](https://github.com/joaomdmoura/crewAI)
+- [CrewAI](../frameworks/crewai.md)
 - [Codeium](codeium.md)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
 - [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)

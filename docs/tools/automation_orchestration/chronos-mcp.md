@@ -39,7 +39,7 @@ It provides advanced calendar and event management capabilities with multi-accou
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [CalDAV](https://tools.ietf.org/html/rfc4791)
+- [CalDAV](../intake_storage/caldav.md)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
 - [Chronos CalDAV library](https://github.com/democratize-technology/chronos-mcp)
 
