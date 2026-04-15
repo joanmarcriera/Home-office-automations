@@ -12,7 +12,7 @@ Provides state-of-the-art reasoning, coding, and instruction-following capabilit
 ## Architecture overview
 Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI's endpoints and receive structured or natural language responses.
 
-## Typical workflows
+## Typical use cases
 - **Code Generation**: Used by agents like Aider or OpenHands to write and refactor code.
 - **Infrastructure Planning**: Reasoning about system state and proposing shell commands.
 - **Data Extraction**: Converting unstructured documents (scans, emails) into structured JSON.

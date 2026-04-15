@@ -34,6 +34,65 @@ AI & Knowledge — used for audio content generation and accessibility.
 - When simple, functional TTS (like built-in OS voices) is sufficient
 - When strict offline, local processing is a requirement for privacy or latency
 
+## Getting started
+
+### Installation
+To use the ElevenLabs Python SDK:
+
+```bash
+pip install elevenlabs
+```
+
+### Quick Start
+To generate and play audio from text:
+
+```python
+from elevenlabs import generate, play
+
+audio = generate(
+  text="Hello! I am a human-like voice from ElevenLabs.",
+  voice="Rachel",
+  model="eleven_multilingual_v2"
+)
+
+play(audio)
+```
+
+## CLI examples
+
+```bash
+# Generate speech using curl
+curl -X POST "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM" \
+     -H "xi-api-key: <your_api_key>" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "text": "The quick brown fox jumps over the lazy dog.",
+       "model_id": "eleven_monolingual_v1"
+     }' \
+     --output speech.mp3
+```
+
+## API examples
+
+### Python SDK (Complex Example)
+```python
+from elevenlabs import ElevenLabs
+
+client = ElevenLabs(api_key="YOUR_API_KEY")
+
+audio_generator = client.generate(
+    text="This is a stream of audio being generated in real-time.",
+    voice="Josh",
+    model="eleven_turbo_v2_5",
+    stream=True
+)
+
+for chunk in audio_generator:
+    if chunk:
+        # Process audio chunk
+        pass
+```
+
 ## Related tools / concepts
 
 - [Synthesia](synthesia.md)

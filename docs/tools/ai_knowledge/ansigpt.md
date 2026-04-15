@@ -35,7 +35,7 @@ It solves the complexity problem of modern LLM implementations by stripping them
 
 - [Local LLMs](./local_llms.md)
 - [Ollama](../../services/ollama.md)
-- Transformer Architecture
+- [Transformer Architecture](../../knowledge_base/patterns/index.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
