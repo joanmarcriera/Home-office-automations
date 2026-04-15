@@ -11,6 +11,24 @@ This playbook describes how to use an LLM-powered agent to automate the configur
 
 ## Typical Automation Workflow
 
+```mermaid
+flowchart TD
+    A[Start] --> B[OS Preparation]
+    B --> C[Environment Setup]
+    C --> D[Autologin Configuration]
+    D --> E[Kiosk Script Creation]
+    E --> F[Service Persistence]
+    F --> G[End / Verification]
+
+    subgraph "Agentic Loop"
+    B
+    C
+    D
+    E
+    F
+    end
+```
+
 The agent follows an iterative "Propose-Execute-Observe" loop to configure the Pi:
 
 1.  **OS Preparation**: Agent checks the OS version and updates packages.
