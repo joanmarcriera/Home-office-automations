@@ -1,6 +1,27 @@
 # NanoClaw
 
+## What it is
 NanoClaw is a lightweight, AI-native personal assistant framework designed as a secure, containerized alternative to [OpenClaw](openclaw.md). It runs on the Claude Agent SDK and prioritizes codebase simplicity and OS-level isolation.
+
+## What problem it solves
+It addresses the security risks and code complexity of heavy agent frameworks by providing a minimalist, container-first assistant that evolves through self-modification and composable skills.
+
+## Where it fits in the stack
+**Development & Ops / Personal Assistant**. It is a lightweight agent framework for individuals and developers.
+
+## Typical use cases
+- Secure, sandboxed AI assistance for personal local tasks
+- Building custom multi-channel agents (WhatsApp, Telegram, etc.)
+- Prototyping agent swarms in a low-complexity environment
+
+## Strengths
+- **Security-First**: Native container isolation
+- **Minimalist**: Small codebase, easy to understand and fork
+- **Self-Modifying**: Can evolve its own features through code transformations
+
+## Limitations
+- Not designed for complex enterprise multi-user scenarios
+- Requires comfort with self-modifying code concepts
 
 ## When to use it
 
