@@ -33,6 +33,8 @@ AI & Knowledge — used as a cloud-based conversational assistant alongside loca
 - When deterministic, reproducible outputs are required
 
 ## Related tools / concepts
+- [Claude](claude.md)
+- [Gemini](gemini.md)
 
 - [Claude](https://claude.ai/)
 - [Gemini](https://gemini.google.com/)
