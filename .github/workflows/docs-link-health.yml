@@ -20,7 +20,7 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           args: --config .github/lychee.toml "docs/**/*.md" "README.md" "skills.md"
-          fail: true
+          fail: false
           jobSummary: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,15 +1,23 @@
+<img src="docs/assets/logo.svg" width="96" height="96" align="right" />
+
 # Home-Office Automation & AI Hub
 
 A structured, agent-maintained knowledge repository for building and operating a privacy-first home-office automation stack.
 
-## What You Will Find Here
+🌐 **Live Documentation:** [ai.riera.co.uk](https://ai.riera.co.uk)
+
+![GitHub stars](https://img.shields.io/github/stars/joanmarcriera/Home-office-automations?style=flat-square&color=ffd700)
+![GitHub forks](https://img.shields.io/github/forks/joanmarcriera/Home-office-automations?style=flat-square&color=60a5fa)
+![Repo size](https://img.shields.io/github/repo-size/joanmarcriera/Home-office-automations?style=flat-square&color=34d399)
+
+## 🔍 What You Will Find Here
 
 - Canonical docs for AI tools, self-hosted services, and orchestration patterns.
 - Practical playbooks for recurring workflows.
 - Architecture maps and data-flow documentation.
 - Automated intake and maintenance workflows that continuously expand the knowledge base.
 
-## Repository Map
+## 🗺️ Repository Map
 
 | Section | Path | What it contains | Start here if you need to... |
 | :--- | :--- | :--- | :--- |
@@ -26,7 +34,7 @@ A structured, agent-maintained knowledge repository for building and operating a
 | Agent operating guide | [`AGENTS.md`](AGENTS.md) | Durable rules/checklists for autonomous LLM agents working in this repo. | Run maintenance work with consistent outputs. |
 | Agent skills guide | [`skills.md`](skills.md) | Reusable task patterns for intake, docs updates, and quality checks. | Execute recurring tasks with low variance. |
 
-## Recommended Entry Points
+## 🚦 Recommended Entry Points
 
 - New maintainer: [`docs/index.md`](docs/index.md)
 - New contributor: [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)
@@ -34,7 +42,7 @@ A structured, agent-maintained knowledge repository for building and operating a
 - Architecture review: [`docs/architecture/README.md`](docs/architecture/README.md)
 - Tool selection: [`docs/knowledge_base/ai_tooling_landscape.md`](docs/knowledge_base/ai_tooling_landscape.md)
 
-## Utility Commands
+## 🛠️ Utility Commands
 
 ```bash
 # List all known tools/services from the catalog
@@ -47,11 +55,11 @@ python3 scripts/compare_agents.py doc paperless-ngx
 python3 scripts/check_catalog_consistency.py
 ```
 
-## Project Scope
+## 🎯 Project Scope
 
 This repository is optimized for long-term maintainability:
 
 - One canonical page per tool/framework/provider.
 - Cross-linked documentation with stable taxonomy.
 - CI quality gates for catalog consistency and docs contract compliance.
-- Scheduled GitHub workflows for source intake and backlog processing.
+- Scheduled GitHub workflows for source intake and backlog processing.\n
