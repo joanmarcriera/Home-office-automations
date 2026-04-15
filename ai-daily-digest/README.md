@@ -1,5 +1,35 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-15
+
+## Digest fallback for 2026-04-15
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Trusted access for the next era of cyber defense](https://openai.com/index/scaling-trusted-access-for-cyber-defense) (OpenAI Blog)
+2. [Turn your best AI prompts into one-click tools in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/) (Google AI Blog)
+3. [Bringing people together at AI for the Economy Forum](https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/ai-economy-forum/) (Google AI Blog)
+4. [[AINews] Humanity's Last Gasp](https://www.latent.space/p/ainews-humanitys-last-gasp) (Latent Space)
+5. [Notion’s Token Town: 5 Rebuilds, 100+ Tools, MCP vs CLIs and the Software Factory Future — Simon Last & Sarah Sachs of Notion](https://www.latent.space/p/notion) (Latent Space)
+6. [[AINews] Top Local Models List - April 2026](https://www.latent.space/p/ainews-top-local-models-list-april) (Latent Space)
+7. [Why observability platforms are becoming AI auditing tools](https://thenewstack.io/agentic-ai-observability-auditing/) (The New Stack)
+8. [Anthropic’s redesigned Claude Code desktop app lets you burn through tokens even faster](https://thenewstack.io/claude-code-desktop-redesign/) (The New Stack)
+9. [Claude Code can now do your job overnight](https://thenewstack.io/claude-code-can-now-do-your-job-overnight/) (The New Stack)
+10. [Spring creator wants Java’s type system to tame agentic AI](https://thenewstack.io/spring-creator-java-type-system-agentic-ai-rod-johnson/) (The New Stack)
+11. [Claude Mythos Preview completes full cyberattack simulation for the first time](https://thenewstack.io/claude-mythos-preview-simulation/) (The New Stack)
+12. [Can you make Kubernetes invisible? Here’s why AWS is on a mission to do it.](https://thenewstack.io/aws-kubernetes-invisible-simplicity/) (The New Stack)
+13. [Google’s Gemini in Chrome now lets you save prompts as “skills”](https://thenewstack.io/gemini-chrome-saved-prompts/) (The New Stack)
+14. [Kumo’s new foundation model replaces months of data science engineering with plain-English queries](https://thenewstack.io/kumo-ai-foundation-models/) (The New Stack)
+15. [Beyond the VPN: Cloudflare Mesh builds a private network for the age of AI agents](https://thenewstack.io/cloudflare-mesh-agent-networking/) (The New Stack)
+16. [From clobbered drafts to real-time sync](https://thenewstack.io/real-time-sync-engine/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-03-14
 
 ## Digest fallback for 2026-03-14
