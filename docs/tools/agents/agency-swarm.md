@@ -92,6 +92,7 @@ agency.get_completion("CEO, please ask the developer to calculate the square of 
 - [OpenAI](../ai_knowledge/openai.md)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [CrewAI](../frameworks/crewai.md)
+- [LangGraph](langgraph.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/VRSEN/agency-swarm)

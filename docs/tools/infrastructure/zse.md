@@ -38,7 +38,7 @@ It tackles the "cold start" problem in serverless LLM deployments. By achieving 
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
-- [vLLM](https://github.com/vllm-project/vllm)
+- [vLLM](vllm.md)
 - [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References

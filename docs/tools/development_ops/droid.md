@@ -33,7 +33,7 @@ Automates repetitive development tasks such as code review, security scanning, a
 
 ## Related tools / concepts
 
-- [Claude Code](https://github.com/anthropic/claude-code)
+- [Claude Code](claude-code.md)
 - [Aider](aider.md)
 - [Codeium](codeium.md)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)

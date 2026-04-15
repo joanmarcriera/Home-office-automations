@@ -162,7 +162,7 @@ instructions: |
   4. Run the tests and fix any failures before finishing
 ```
 
-## Typical workflows
+## Typical use cases
 
 - **End-to-end feature implementation**: "Implement a REST endpoint for user profile updates, including input validation, error handling, and tests."
 - **Bug hunting**: "The background job occasionally throws a KeyError in worker.py. Find the root cause and fix it."

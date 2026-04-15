@@ -61,6 +61,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-03-30: new-sources/2026-03-30.md
       - 2026-03-16: new-sources/2026-03-16.md
       - 2026-03-15: new-sources/2026-03-15.md
       - 2026-03-14: new-sources/2026-03-14.md
@@ -339,6 +340,7 @@ nav:
     - AI Builder Index: knowledge_base/ai_builder_index.md
     - Free AI Website Playbook: knowledge_base/free_ai_website_playbook.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
+    - AI Tool Access Matrix: knowledge_base/ai_tool_access_matrix.md
     - AI Company Starter Stack: knowledge_base/ai_company_starter_stack.md
     - Model Routing Guide: knowledge_base/model_routing_guide.md
     - Starred AI / Agent Repositories Over 10K Stars: knowledge_base/starred_ai_agent_repos.md

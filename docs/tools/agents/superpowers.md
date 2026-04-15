@@ -1,6 +1,27 @@
 # Superpowers
 
+## What it is
 Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like Claude Code, Cursor, and Codex. It builds on top of composable "skills" to enforce a rigorous engineering process.
+
+## What problem it solves
+It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation.
+
+## Where it fits in the stack
+**Agents / Workflow Framework**. It sits on top of coding agents to provide process-level guardrails and skills.
+
+## Typical use cases
+- Enforcing TDD and plan-first development in agentic workflows
+- Breaking down complex engineering tasks into verifiable sub-tasks
+- Managing long-running autonomous coding sessions
+
+## Strengths
+- Enforces high-quality engineering standards (TDD, YAGNI, DRY)
+- Increases agent autonomy and reliability
+- Composable skills-based architecture
+
+## Limitations
+- Higher process overhead for trivial tasks
+- Requires an agent environment that supports the skills framework
 
 ## When to use it
 

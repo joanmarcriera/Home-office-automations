@@ -3,6 +3,19 @@
 ## Objective
 Maintain content quality, freshness, and discoverability across the knowledge base through regular audits and automated checks.
 
+```mermaid
+flowchart TD
+    A[Start Audit] --> B[Run audit_docs_quality.py]
+    B --> C{Issues Found?}
+    C -- No --> D[Check Staleness]
+    C -- Yes --> E[Fix Priority Issues]
+    E --> F[Update data/all_tools.json]
+    F --> G[Verify Nav/Index Consistency]
+    G --> D
+    D --> H[Update Review Dates]
+    H --> I[End Audit]
+```
+
 ## Pre-requisites
 - [Quality audit script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/audit_docs_quality.py) (`scripts/audit_docs_quality.py`)
 - [Docs contract checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_docs_contract.py) (`scripts/check_docs_contract.py`)

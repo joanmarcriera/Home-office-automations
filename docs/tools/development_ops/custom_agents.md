@@ -16,7 +16,7 @@ Provides a tailored, minimal orchestration layer for specific infrastructure tas
                                       +--> [ Approval Loop (Human) ]
 ```
 
-## Typical workflows
+## Typical use cases
 - **Server Maintenance**: "Check disk space on all nodes and clear logs if above 90%."
 - **Configuration Updates**: "Update the nginx config on the proxy server and reload the service."
 - **Diagnostics**: "Analyze why the service on the Raspberry Pi is failing to start."

@@ -29,34 +29,34 @@ docker run -it -p 80:8000 mattermost/focalboard
 3. Click **Add Board** in the sidebar and select a template (e.g., "Project Tasks") to create your first Kanban board.
 
 ## CLI examples
-Focalboard is primarily a web-based application. Development and build tasks are managed via `make`:
+Focalboard provides an import tool and can be managed via `make` for development:
 
 ```bash
+# Import a Trello archive into Focalboard
+./bin/focalboard-server import trello trello_export.json
+
 # Build the server and web app (requires Go and Node.js)
-make prebuild
-make
+make prebuild && make
 
-# Run the compiled server binary
-./bin/focalboard-server
-
-# Build only the web app
-make webapp
+# Reset the admin password (if supported by your version)
+./bin/focalboard-server reset-password admin
 ```
 
 ## API examples
-The Boards API can be accessed via HTTP requests. Use your session token (obtained after login) for authentication.
+The Boards API (Swagger) allows for programmatic task and board management.
 
 ### Python Example
 ```python
 import requests
 
+# Use your session token obtained after login
 url = "http://localhost:8000/api/v1/boards"
-headers = {
-    "Authorization": "Bearer YOUR_SESSION_TOKEN"
-}
+headers = {"Authorization": "Bearer YOUR_SESSION_TOKEN"}
 
 response = requests.get(url, headers=headers)
-print(response.json())
+if response.status_code == 200:
+    for board in response.json():
+        print(f"Board Name: {board['title']}")
 ```
 
 ### Curl Example
