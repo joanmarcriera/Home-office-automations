@@ -876,6 +876,12 @@
       "doc_path": "docs/tools/automation_orchestration/browser-use.md"
     },
     {
+      "id": "picnic",
+      "name": "Picnic",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/picnic.md"
+    },
+    {
       "id": "skyvern",
       "name": "Skyvern",
       "category": "Automation & Orchestration",

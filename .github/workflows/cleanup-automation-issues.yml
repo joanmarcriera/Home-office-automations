@@ -23,8 +23,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          PATTERN='^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -|Category gap fill:|Weekly deepening:)'
-
           TO_CLOSE=$(gh issue list \
             --repo "$REPO" \
             --state open \
@@ -32,16 +30,30 @@ jobs:
             --author "app/github-actions" \
             --limit 200 \
             --json number,title,createdAt \
-            --jq ".[] | select((.createdAt | fromdateiso8601) < (now - 172800)) | select(.title | test(\"$PATTERN\")) | .number")
+            --jq '
+              def family:
+                if (.title | startswith("Daily Maintenance Run -")) then "daily-maintenance"
+                elif (.title | startswith("Daily Knowledge Expansion -")) then "daily-knowledge"
+                elif (.title | startswith("Process Jules Backlog -")) then "process-backlog"
+                elif (.title | startswith("Category gap fill:")) then "category-gap-fill"
+                elif (.title | startswith("Weekly deepening:")) then "weekly-deepening"
+                else empty
+                end;
+              map(select(.title | test("^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -|Category gap fill:|Weekly deepening:)"))
+                  | . + {family: family})
+              | group_by(.family)
+              | map(sort_by(.createdAt) | reverse | .[1:] | .[]?.number)
+              | flatten
+              | .[]')
 
           if [ -z "${TO_CLOSE:-}" ]; then
-            echo "No stale automation issues to close."
+            echo "No superseded automation issues to close."
             exit 0
           fi
 
           for n in $TO_CLOSE; do
             gh issue close "$n" \
               --repo "$REPO" \
-              --comment "Superseded by newer automation cycles; closing stale control issue automatically."
-            echo "Closed stale automation issue #$n"
+              --comment "Superseded by a newer automation control issue; closing automatically."
+            echo "Closed superseded automation issue #$n"
           done

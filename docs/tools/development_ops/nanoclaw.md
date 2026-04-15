@@ -43,6 +43,7 @@ Then run `/setup` inside the Claude CLI.
 - [OpenClaw](openclaw.md)
 - [Claude Code](claude-code.md)
 - [Anthropic Agent Skills](../agents/anthropic-agent-skills.md)
+- [Symphony](../agents/symphony.md)
 
 ## Sources / References
 

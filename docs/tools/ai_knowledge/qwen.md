@@ -14,6 +14,18 @@ Provides high-performance, open-weight alternatives to proprietary models like G
 - **Multilingual Applications**: Leveraging its strong performance across 29+ languages.
 - **Large Context Analysis**: Utilizing the 256K context window of Qwen3 models for document processing.
 - **Edge Deployment**: Running smaller variants (e.g., 0.5B, 1.5B, 3B) on mobile or low-power devices.
+- **Hosted agent backends**: Using frontier Qwen variants through providers such as NVIDIA NIM when you want multimodal and tool-calling support without self-hosting the biggest checkpoints.
+
+## Hosted inference notes
+
+NVIDIA's March 2026 model card for `qwen3.5-122b-a10b` is a useful signal for how Qwen is being packaged for production inference:
+
+- It is a 122B Mixture-of-Experts model with 10B active parameters.
+- The published deployment supports text, image, and video inputs.
+- The model is explicitly positioned for reasoning, coding, multimodal chat, and tool-calling agent workflows.
+- Native context length is listed at 262,144 tokens, with YaRN-based extension to 1,010,000 tokens.
+
+That matters because it shows Qwen is no longer only a self-hosted or Hugging Face story; there is now a clearer provider path for large, agent-ready Qwen deployments.
 
 ## Getting started
 
@@ -49,6 +61,7 @@ print(response.choices[0].message.content)
 - **Efficient Architecture**: Qwen3-Coder-Next uses a Mixture-of-Experts (MoE) architecture (e.g., 3B activated / 80B total parameters) for high performance with lower compute requirements.
 - **Native Long Context**: Supports up to 256K tokens natively, ideal for large codebases.
 - **Wide Model Range**: Scales from tiny edge models to massive 72B+ parameter powerhouses.
+- **Growing hosted availability**: Provider-packaged deployments such as NVIDIA NIM make large multimodal Qwen variants easier to consume operationally.
 
 ## Limitations
 - **Hardware for Large Models**: The 72B and 80B MoE models require significant VRAM (40GB+ even with quantization).
@@ -77,8 +90,9 @@ print(response.choices[0].message.content)
 - [Official Website](https://qwenlm.github.io/)
 - [Qwen GitHub](https://github.com/QwenLM/Qwen)
 - [Hugging Face Collection](https://huggingface.co/Qwen)
+- [NVIDIA NIM model card: qwen3.5-122b-a10b](https://build.nvidia.com/qwen/qwen3.5-122b-a10b/modelcard)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-08
+- Last reviewed: 2026-03-29
 - Confidence: high

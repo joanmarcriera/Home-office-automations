@@ -180,6 +180,7 @@ nav:
       - Make: tools/automation_orchestration/make.md
       - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
+      - Picnic: tools/automation_orchestration/picnic.md
       - ServiceNow MCP Server: tools/automation_orchestration/servicenow-mcp.md
       - Skyvern: tools/automation_orchestration/skyvern.md
       - Vault MCP Server: tools/automation_orchestration/vault-mcp.md
@@ -359,6 +360,8 @@ nav:
       - Agent Skills Best Practices: knowledge_base/patterns/skills-best-practices.md
       - Fine-tuning Open Models: knowledge_base/patterns/fine-tuning-open-models.md
       - OpenClaw Workflow Prompt Library: knowledge_base/patterns/openclaw-workflow-prompts.md
+      - OpenClaw Use-Case Catalog: knowledge_base/patterns/openclaw-use-case-catalog.md
+      - OpenClaw Security and Operations: knowledge_base/patterns/openclaw-security-operations.md
       - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
       - Software Factories: knowledge_base/patterns/software-factories.md
       - Filesystem-as-Interface: knowledge_base/patterns/filesystem-context.md

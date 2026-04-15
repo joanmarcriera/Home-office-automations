@@ -234,6 +234,8 @@ This keeps n8n improving as an operating system for your business processes, not
 - [Make](../tools/automation_orchestration/make.md) (Alternative)
 - [OpenRouter](../tools/ai_knowledge/openrouter.md) (Multi-provider LLM routing for prompts/models)
 - [Home Assistant](home-assistant.md) (Example of broader automation ecosystem integration)
+- [OpenClaw Use-Case Catalog](../knowledge_base/patterns/openclaw-use-case-catalog.md) (Concrete OpenClaw workload shapes that n8n can coordinate or gate)
+- [OpenClaw Security and Operations Pattern](../knowledge_base/patterns/openclaw-security-operations.md) (Guardrails for autonomous agent actions touching real systems)
 
 ## Backlog
 - Add reusable sub-workflows: `email-triage`, `risk-gating`, `human-approval`.

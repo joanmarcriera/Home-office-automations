@@ -49,10 +49,13 @@ jobs:
           OPEN_PRS=$(gh pr list \
             --repo "$REPO" \
             --state open \
-            --json number,title,labels,headRefName \
+            --json number,title,body,labels,headRefName,author \
             --jq '[.[] | select(
               (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
-              (.labels[]?.name == "jules")
+              ((.body // "") | test("PR created automatically by Jules"; "i")) or
+              (.labels[]?.name == "jules") or
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix"; "i")) or
+              (.author.login == "google-labs-jules[bot]")
             )] | length')
           echo "open_prs=$OPEN_PRS" >> "$GITHUB_OUTPUT"
           if [ "$OPEN_PRS" != "0" ]; then

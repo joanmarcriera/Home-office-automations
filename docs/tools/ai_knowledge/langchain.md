@@ -13,6 +13,17 @@ AI & Knowledge — serves as a foundational framework that other tools in the st
 - Building retrieval-augmented generation pipelines over private data
 - Creating multi-step agent workflows with tool use
 - Exploring LangGraph for complex multi-agent orchestration
+- Using Deep Agents when you want planning, memory, and subagents for long-running autonomous tasks
+
+## Framework selection notes
+
+LangChain now has a clearer split between its layers:
+
+- **LangChain**: the quick-start framework for standardized agent and app patterns.
+- **Deep Agents**: the opinionated harness for autonomous, long-running, non-deterministic tasks where planning, memory, and subagents matter.
+- **LangGraph**: the lower-level stateful runtime when you want tighter control over workflow shape and execution semantics.
+
+That distinction matters in practice. Many teams start with LangChain for fast prototyping, move to Deep Agents when the task needs more autonomy, and drop to LangGraph when they need explicit state-machine style control.
 
 ## Strengths
 - Large and active open-source community with extensive documentation
@@ -92,8 +103,9 @@ print(response)
 ## Sources / references
 - [Official Website](https://www.langchain.com/)
 - [GitHub Repository](https://github.com/langchain-ai/langchain)
+- [LangChain Deep Agents overview](https://www.langchain.com/deep-agents)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-03-29
 - Confidence: medium

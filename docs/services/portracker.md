@@ -17,25 +17,37 @@ It provides a dashboard to monitor active ports on your network and discover new
 ## Getting started
 
 ### Docker Compose
-The easiest way to deploy Portracker is via Docker Compose:
+The recommended way to deploy Portracker is via Docker Compose. It requires host PID access and specific capabilities to monitor system ports.
 
 ```yaml
 services:
   portracker:
     image: mostafawahied/portracker:latest
     container_name: portracker
+    restart: unless-stopped
+    pid: "host"  # Required for port detection
+    cap_add:
+      - SYS_PTRACE     # Allows reading other PIDs' /proc entries
+      - SYS_ADMIN      # Allows namespace access for host ports
+    security_opt:
+      - apparmor:unconfined # Required on some systems for port access
     ports:
-      - "3050:3050"
+      - "4999:4999"
     volumes:
+      - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./data:/app/data
-    restart: always
 ```
 
-Access the dashboard at `http://localhost:3050`.
+Access the dashboard at `http://localhost:4999`.
+
+### Hello World
+1. Start Portracker: `docker compose up -d`.
+2. Open `http://localhost:4999` in your browser.
+3. Observe how Portracker automatically discovers other running Docker containers and their ports on your system.
+4. Run a new container (e.g., `docker run -d -p 8888:80 nginx`) and see it appear in real-time.
 
 ## CLI examples
-You can interact with the Portracker container using Docker commands:
+Management and inspection can be done via Docker commands:
 
 ```bash
 # View real-time logs of discovered services
@@ -43,6 +55,9 @@ docker logs -f portracker
 
 # Check the version of Portracker
 docker exec portracker ./portracker --version
+
+# Force a re-scan by clearing the cache
+docker exec portracker rm -rf /app/data/cache
 ```
 
 ## API examples
@@ -50,7 +65,10 @@ Portracker provides a simple health check and status API:
 
 ```bash
 # Check service health
-curl http://localhost:3050/health
+curl http://localhost:4999/api/v1/health
+
+# Check the scan status (if supported)
+curl http://localhost:4999/api/v1/status
 ```
 
 ## Links
@@ -66,7 +84,7 @@ curl http://localhost:3050/health
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-03-02
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker

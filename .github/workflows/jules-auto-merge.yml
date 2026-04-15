@@ -53,6 +53,7 @@ jobs:
         contains(github.event.pull_request.title, 'cross-link') ||
         contains(github.event.pull_request.title, 'primer') ||
         contains(github.event.pull_request.title, 'automated resolution') ||
+        contains(github.event.pull_request.body || '', 'PR created automatically by Jules') ||
         github.event.pull_request.user.login == 'google-labs-jules[bot]'
       )
     runs-on: ubuntu-latest
@@ -72,14 +73,15 @@ jobs:
             exit 0
           fi
 
-          # Find open PRs created by Jules (branch pattern or author)
+          # Find open PRs created by Jules (title/body marker, branch pattern, label, or author)
           JULES_PRS=$(gh pr list \
             --repo "$REPO" \
             --state open \
-            --json number,title,labels,headRefName,author \
+            --json number,title,body,labels,headRefName,author \
             --jq '[.[] | select(
               (.headRefName != "automation/weekly-rollup") and (
               (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
+              ((.body // "") | test("PR created automatically by Jules"; "i")) or
               (.labels[]?.name == "jules") or
               (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix"; "i")) or
               (.author.login == "google-labs-jules[bot]")

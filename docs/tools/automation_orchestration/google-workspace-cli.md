@@ -24,6 +24,16 @@ It reduces friction when automating Google Workspace tasks that would otherwise 
 New customer won -> create Drive folder -> create onboarding Doc -> create Sheet tracker -> notify team in Chat
 ```
 
+## Architecture notes
+
+The upstream project is more dynamic than a typical Google API CLI:
+
+- The `gws` command surface is generated at runtime from Google Discovery Service JSON documents.
+- It deliberately avoids generated per-service Rust crates for standard Workspace APIs.
+- Adding a new supported service is mainly a registration problem in the service map and discovery layer, not a code-generation problem across many bindings.
+
+That architecture makes the CLI unusually adaptable for broad Workspace coverage, but it also means reliability depends on discovery-document handling and careful runtime parsing rather than static generated clients.
+
 ## Strengths
 - CLI-friendly workflow for a widely used business platform
 - Good fit for automation-heavy operations
@@ -51,7 +61,8 @@ New customer won -> create Drive folder -> create onboarding Doc -> create Sheet
 
 ## Sources / References
 - [GitHub Repository](https://github.com/googleworkspace/cli)
+- [googleworkspace/cli AGENTS.md](https://github.com/googleworkspace/cli/blob/main/AGENTS.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-03-29
 - Confidence: medium
