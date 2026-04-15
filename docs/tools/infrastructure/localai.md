@@ -31,6 +31,55 @@ It gives teams a local or self-hosted way to serve models behind a familiar API 
 - When you need frontier-model quality above all else
 - When your team is not ready to own inference infrastructure
 
+## Getting started
+
+### Docker installation
+To run LocalAI with Docker:
+
+```bash
+docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
+# For GPU support (Nvidia):
+# docker run -p 8080:8080 --gpus all --name local-ai -ti localai/localai:latest-aio-gpu-nvidia-cuda-12
+```
+
+The API will be available at `http://localhost:8080`.
+
+## CLI examples
+
+```bash
+# List available models
+curl http://localhost:8080/v1/models
+
+# Chat completion request
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4",
+    "messages": [{"role": "user", "content": "Say hello!"}]
+  }'
+```
+
+## API examples
+
+### Python (OpenAI SDK)
+LocalAI is a drop-in replacement for OpenAI's API.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8080/v1",
+    api_key="sk-no-key-required"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "How do I run local models?"}]
+)
+
+print(response.choices[0].message.content)
+```
+
 ## Example company use cases
 - **Internal helpdesk assistant**: answer policy or ops questions without sending data to external providers.
 - **Drafting and classification**: handle low-risk summarization, tagging, and document enrichment locally.

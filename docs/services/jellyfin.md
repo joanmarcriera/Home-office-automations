@@ -5,12 +5,14 @@ Jellyfin is the volunteer-built media solution that puts you in control of your 
 ## Description
 Stream to any device from your own server, with no strings attached. No fees, no tracking, no central server.
 
-## Links
-- [Official Website](https://jellyfin.org/)
+## When to use it
+- When you want a completely open-source, self-hosted media server with no tracking or subscription fees.
+- For users who value privacy and want full control over their media collection and metadata.
+- To stream your own collection of movies, TV shows, and music to various devices.
 
-## Alternatives
-- [Plex](https://www.plex.tv/) (Non-OSS)
-- [Emby](https://emby.media/) (Non-OSS)
+## When not to use it
+- If you require out-of-the-box support for a very wide range of proprietary smart TV platforms (Plex often has better native app availability).
+- If you prefer a managed, cloud-hosted solution with minimal server maintenance.
 
 ## Getting started
 
@@ -30,6 +32,13 @@ docker run -d \
 ```
 
 Jellyfin will be available at `http://localhost:8096`.
+
+### Hello World
+1. Start the Jellyfin container using the Docker command above.
+2. Open your web browser and navigate to `http://localhost:8096`.
+3. Follow the Setup Wizard to create your first user and set your preferred language.
+4. Add your first library by selecting the folder you mounted to `/media`.
+5. Your media will begin to appear in the dashboard!
 
 ## CLI examples
 
@@ -63,6 +72,13 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
      -X GET "http://localhost:8096/Users/{userId}/Views"
 ```
 
+## Links
+- [Official Website](https://jellyfin.org/)
+
+## Alternatives
+- [Plex](https://www.plex.tv/) (Non-OSS)
+- [Emby](https://emby.media/) (Non-OSS)
+
 ## Backlog
 - Setup hardware acceleration for transcoding.
 - Integrate with Gelli (Android music client).
@@ -70,7 +86,7 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 
 ## Contribution Metadata
 - Confidence: medium
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-03-02
 
 ## Sources / References
 - [Official Website](https://jellyfin.org/)

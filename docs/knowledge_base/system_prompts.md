@@ -20,7 +20,7 @@ A curated collection of extracted system prompts from popular chatbots and front
 
 ### Claude System Prompt
 Anthropic's system prompt for Claude is a prime example of "high engineering" prompt design, featuring detailed instructions for tool use and response formatting.
-- [Claude System Prompt](https://asgeirtj.github.io/system_prompts_leaks/Anthropic/claude.html)
+- [Claude System Prompt](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude.ai-human-readable.md)
 
 ## Related tools / concepts
 - [Agent Protocols](agent_protocols.md)
@@ -29,7 +29,7 @@ Anthropic's system prompt for Claude is a prime example of "high engineering" pr
 
 ## Sources / References
 - [System Prompts Leaks GitHub](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
-- [Claude System Prompt Leak](https://asgeirtj.github.io/system_prompts_leaks/Anthropic/claude.html)
+- [Claude System Prompt Leak](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude.ai-human-readable.md)
 
 ## Contribution Metadata
 - Last reviewed: 2026-03-09

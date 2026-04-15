@@ -83,6 +83,7 @@ The underlying hardware, storage, and low-level optimizations like quantization 
 ## How to use this repo
 - **"I want to run LLMs locally"** → [Ollama](../services/ollama.md), [MLX](../tools/infrastructure/mlx.md), [llama.cpp](../tools/infrastructure/llama-cpp.md), [ExLlamaV2](../tools/infrastructure/exllamav2.md)
 - **"I want to build an AI agent"** → [CrewAI](../tools/frameworks/crewai.md)/[AutoGen](../tools/frameworks/autogen.md) + [LangGraph](../tools/agents/langgraph.md) + [MCP](agent_protocols.md)
+- **"I want to choose a daily AI assistant or coding agent by access surface"** → [AI Tool Access Matrix](ai_tool_access_matrix.md)
 - **"I want to add AI to my app"** → [LangChain](../tools/ai_knowledge/langchain.md)/[LlamaIndex](../tools/ai_knowledge/llamaindex.md) + [OpenRouter](../tools/ai_knowledge/openrouter.md) (provider API)
 - **"I want to evaluate models"** → [Benchmarking tools](../tools/benchmarking/index.md)
 - **"I want to stay current"** → [Essential AI Reading List](ai_reading_list.md)

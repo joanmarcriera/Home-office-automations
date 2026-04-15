@@ -30,9 +30,9 @@ It automates the time-consuming process of sourcing venues, managing team prefer
 
 ## Related tools / concepts
 
-- AI Agents
+- [AI Agents](../agents/index.md)
 - [ChatGPT](./chatgpt.md)
-- Event Management Automation
+- [Event Management Automation](../automation_orchestration/index.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)

@@ -62,6 +62,7 @@ Symphony offers two primary paths:
 - [LangGraph](langgraph.md)
 - [Bee Agent Framework](bee-agent-framework.md)
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md)
+- [NanoClaw](../development_ops/nanoclaw.md)
 ## Sources / References
 
 - [Official GitHub Repository](https://github.com/openai/symphony)
