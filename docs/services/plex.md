@@ -12,6 +12,16 @@ It organizes your video, music, and photos from your personal libraries and stre
 - [Jellyfin](jellyfin.md)
 - [Emby](https://emby.media/)
 
+## When to use it
+- When you want a highly polished, user-friendly interface for your personal media collection.
+- If you need easy remote access (Plex Pass often simplifies this with Relay).
+- For a "set it and forget it" experience for non-technical family members.
+
+## When not to use it
+- If you strictly require open-source software (Plex is proprietary).
+- When you want a solution that doesn't require a central account (Plex.tv).
+- If you want full control over every aspect of the metadata and scanning without any external telemetry.
+
 ## Getting started
 
 ### Docker installation
@@ -51,6 +61,20 @@ docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --refresh --s
 
 Plex exposes a REST API on port 32400. You need a `X-Plex-Token` for authentication.
 
+### Python Example
+```python
+import requests
+
+# Replace with your actual server IP and token
+base_url = "http://localhost:32400"
+headers = {"X-Plex-Token": "YOUR_PLEX_TOKEN"}
+
+# Get all library sections
+response = requests.get(f"{base_url}/library/sections", headers=headers)
+print(response.text)
+```
+
+### Curl Example
 ```bash
 # Get all library sections in XML format
 curl -X GET "http://localhost:32400/library/sections?X-Plex-Token=YOUR_PLEX_TOKEN"
@@ -58,6 +82,11 @@ curl -X GET "http://localhost:32400/library/sections?X-Plex-Token=YOUR_PLEX_TOKE
 # Get server identity and version
 curl -X GET "http://localhost:32400/identity"
 ```
+
+## Related tools / concepts
+- [Jellyfin](jellyfin.md)
+- [Nextcloud](nextcloud.md)
+- [n8n](n8n.md)
 
 ## Backlog
 - Configure Plex Meta Manager for automated collection management.

@@ -77,7 +77,7 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 - [Phidata](phidata.md) (Predecessor)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [LangGraph](langgraph.md)
-- [FastAPI](https://fastapi.tiangolo.com/)
+- [Bee Agent Framework](bee-agent-framework.md)
 
 ## Sources / References
 - [Official Website](https://www.agno.com/)

@@ -12,6 +12,15 @@ Stream to any device from your own server, with no strings attached. No fees, no
 - [Plex](https://www.plex.tv/) (Non-OSS)
 - [Emby](https://emby.media/) (Non-OSS)
 
+## When to use it
+- When you want a fully open-source, community-driven media server.
+- If you prefer total privacy with no central servers or account tracking.
+- When you want features like hardware transcoding without a paid subscription.
+
+## When not to use it
+- If you need a extremely polished client app on every possible smart TV (clients are good, but Plex has more reach).
+- If you find the initial metadata setup less automated than commercial alternatives.
+
 ## Getting started
 
 ### Docker installation
@@ -50,6 +59,20 @@ docker restart jellyfin
 
 Jellyfin provides a comprehensive REST API. You'll need an `X-Emby-Token` for most requests, which you can generate by authenticating.
 
+### Python Example
+```python
+import requests
+
+# Replace with your actual server IP and token
+base_url = "http://localhost:8096"
+headers = {"X-Emby-Token": "YOUR_ACCESS_TOKEN"}
+
+# Get public server information
+response = requests.get(f"{base_url}/System/Info/Public", headers=headers)
+print(response.json())
+```
+
+### Curl Example
 ```bash
 # Get information about the server
 curl -X GET "http://localhost:8096/System/Info/Public"
@@ -62,6 +85,11 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
      -X GET "http://localhost:8096/Users/{userId}/Views"
 ```
+
+## Related tools / concepts
+- [Plex](plex.md)
+- [Nextcloud](nextcloud.md)
+- [Navidrome](navidrome.md)
 
 ## Backlog
 - Setup hardware acceleration for transcoding.

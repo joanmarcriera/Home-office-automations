@@ -3,6 +3,24 @@
 ## Overview
 This playbook describes how to use an LLM-powered agent to automate the configuration of a Raspberry Pi into a dedicated kiosk dashboard. This pattern is ideal for home dashboards, status displays, or smart mirrors.
 
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    A[Agent: Propose Configuration] --> B[Execute: SSH Command]
+    B --> C[Observe: Read Output/Errors]
+    C --> D{Success?}
+    D -- No --> E[Agent: Debug & Fix]
+    E --> B
+    D -- Yes --> F[Next Setup Step]
+    F --> G[1. OS Preparation]
+    G --> H[2. Environment Setup]
+    H --> I[3. Autologin Config]
+    I --> J[4. Kiosk Script]
+    J --> K[5. Service Persistence]
+    K --> L[Kiosk Operational]
+```
+
 ## Stack
 - **Reasoning**: OpenAI GPT-4o or Claude 3.5 Sonnet.
 - **Agent**: [Custom Agent](../tools/development_ops/custom_agents.md) or [Aider](../tools/development_ops/aider.md).
