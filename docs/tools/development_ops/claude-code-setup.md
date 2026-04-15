@@ -9,6 +9,27 @@ Claude Code's power in this repo comes from project-specific hooks, agents, and 
 ## Where it fits in the stack
 **Category**: Development & Ops / Tooling Configuration
 
+## Typical use cases
+- Setting up a local environment for contributing to this repository
+- Reproducing the project-specific agent and skill configuration
+- Standardizing the developer experience across team members
+
+## Strengths
+- Highly reproducible setup
+- Project-specific automation (hooks, subagents)
+- Integrated MCP server configuration
+
+## Limitations
+- Requires manual step for global skill installation
+- Node.js and Python (uv) dependency
+
+## When to use it
+- When setting up a new workstation for repository development
+- When the project-level configuration changes and needs to be synchronized
+
+## When not to use it
+- For general Claude Code usage outside of this repository context
+
 ---
 
 ## Prerequisites

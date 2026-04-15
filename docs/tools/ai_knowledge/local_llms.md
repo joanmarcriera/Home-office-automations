@@ -16,7 +16,7 @@ Provides 100% privacy, works offline, has no per-token costs, and allows for inf
 ## Architecture overview
 The model weights are downloaded and stored locally. Inference is performed using your local CPU/GPU/NPU.
 
-## Typical workflows
+## Typical use cases
 - **Local Development**: Testing agent logic without incurring costs.
 - **Sensitive Data Processing**: Summarizing private documents or logs.
 - **Always-on Low-latency Tasks**: Simple classification or formatting that needs to happen fast and often.

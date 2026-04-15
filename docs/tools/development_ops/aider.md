@@ -12,7 +12,7 @@ It bridges the gap between the LLM's reasoning and your local file system, allow
 ## Architecture overview
 CLI tool that runs locally. It manages the context by selecting relevant files to send to the LLM (using a repo map) and applies the LLM's suggested changes back to the disk.
 
-## Typical workflows
+## Typical use cases
 - **Feature Implementation**: "Add a login route to the Express app."
 - **Refactoring**: "Convert all these functions to use async/await."
 - **Bug Fixing**: "Fix the null pointer exception in the user controller."

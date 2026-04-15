@@ -12,7 +12,7 @@ Provides extremely high-performance LLMs (rivaling GPT-4/Claude 3.5) at a signif
 ## Architecture overview
 Available via their own API (DeepSeek Platform) or can be self-hosted using the open-weight versions (DeepSeek-V3, DeepSeek-Coder-V2).
 
-## Typical workflows
+## Typical use cases
 - **Massive Refactoring**: Using high-performance models for large-scale code changes without the high cost of OpenAI/Anthropic.
 - **Math/Logic Tasks**: Leveraging DeepSeek's strong performance in logic-heavy domains.
 - **Cheap Agentic Exploration**: Running agents in "discovery" modes where many API calls are expected.
