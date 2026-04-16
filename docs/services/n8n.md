@@ -15,6 +15,7 @@ It replaces repetitive manual operations across tools and teams. Unlike cloud-on
 - **AI-assisted operations**: triage, summarize, draft responses, and escalate only low-confidence cases.
 
 ## Strengths
+- **Centralized Error Handling**: Standardized error management via "Error Trigger" nodes and sub-workflows.
 - **Visual + programmable**: easy to build visually, still supports advanced expressions/logic.
 - **Self-hostable**: private automation with infrastructure you control.
 - **Broad integrations**: large ecosystem of built-in and community nodes.
@@ -24,6 +25,14 @@ It replaces repetitive manual operations across tools and teams. Unlike cloud-on
 - **Learning curve**: robust flows require strong data modeling and error handling.
 - **Scale design required**: business-critical usage needs queue mode, persistent DB, and observability.
 - **Credential discipline**: secrets management and environment separation must be done explicitly.
+
+## Best Practices: Error Handling
+To ensure high availability and auditability of automated processes, standardizing error handling is critical:
+
+1.  **Centralized Error Sub-workflow**: Create a dedicated workflow that accepts error data (workflow name, execution ID, error message, timestamp) and routes it to a notification channel (e.g., Element, Email, or a centralized Error Queue dashboard).
+2.  **The "Error Trigger" Node**: Configure an Error Trigger node in every critical workflow. Set it to trigger the centralized error sub-workflow whenever a node fails.
+3.  **Graceful Retries**: For flaky external APIs, use the "Wait" node or node-level retry settings (Retry on Fail) with exponential backoff before triggering an error.
+4.  **Logging**: Ensure all errors are logged with enough context to allow for "Operator role" root cause analysis.
 
 ## When to use it
 - You want long-running, auditable business automations.

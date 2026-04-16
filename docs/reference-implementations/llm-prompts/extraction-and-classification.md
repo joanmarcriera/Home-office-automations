@@ -54,6 +54,22 @@ To improve reliability with local models (e.g. `Qwen3-Coder-Next`), use **JSON M
 ### Token-Efficiency Tip
 When using local models, prefer a **minimal schema**. Removing the `owner` field or `reasoning` can reduce output tokens by 20-30% in high-volume ingestion workflows.
 
+## Priority Selection Logic
+To ensure consistent priority detection with local LLMs, use the following definitions in your system prompt or instruction block:
+
+- **HIGH**:
+    - Tasks with a due date of today or tomorrow.
+    - Presence of urgency keywords: `urgent`, `asap`, `immediately`, `critical`, `deadline`.
+    - Legal, financial, or medical requirements that have immediate consequences (e.g., "pay by", "court date").
+- **MEDIUM**:
+    - Tasks with a due date within the next 7 days.
+    - Routine business or household tasks that are time-sensitive but not immediate (e.g., "schedule appointment", "weekly report").
+    - Action items mentioned in meeting summaries without explicit deadlines.
+- **LOW**:
+    - Tasks with no due date or a date more than 7 days away.
+    - "Nice-to-have" items, reading lists, or long-term research goals.
+    - General suggestions or ideas (e.g., "maybe we should", "someday").
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-03-01
