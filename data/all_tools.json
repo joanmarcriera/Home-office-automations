@@ -1336,6 +1336,30 @@
             "name": "Gemini",
             "category": "AI & Knowledge",
             "doc_path": "docs/tools/ai_knowledge/gemini.md"
+        },
+        {
+            "id": "playwright-mcp",
+            "name": "Playwright MCP Server",
+            "category": "Automation & Orchestration",
+            "doc_path": "docs/tools/automation_orchestration/playwright-mcp.md"
+        },
+        {
+            "id": "docling",
+            "name": "Docling",
+            "category": "Process & Understanding",
+            "doc_path": "docs/tools/process_understanding/docling.md"
+        },
+        {
+            "id": "devin",
+            "name": "Devin",
+            "category": "Development & Ops",
+            "doc_path": "docs/tools/development_ops/devin.md"
+        },
+        {
+            "id": "hashicorp-vault",
+            "name": "HashiCorp Vault",
+            "category": "Automation & Orchestration",
+            "doc_path": "docs/tools/automation_orchestration/hashicorp-vault.md"
         }
     ]
 }
