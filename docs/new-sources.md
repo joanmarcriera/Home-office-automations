@@ -6,8 +6,8 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
-| 2026-03-30 | [2026-03-30](/new-sources/2026-03-30/) | 58 | 0 | Identified related tools/concepts lacking local documentation across all tool docs. |
 | 2026-04-06 | [2026-04-06](/new-sources/2026-04-06/) | 1 | 0 | Audit of tool documentation related sections and missing local docs. |
+| 2026-03-30 | [2026-03-30](/new-sources/2026-03-30/) | 58 | 0 | Identified related tools/concepts lacking local documentation across all tool docs. |
 | 2026-03-29 | [2026-03-29](/new-sources/2026-03-29/) | 0 | 9 | Added OpenClaw ecosystem patterns plus four source-driven updates from issue #179. |
 | 2026-03-16 | [2026-03-16](/new-sources/2026-03-16/) | 0 | 0 | Standardized related tools sections across all documentation. |
 | 2026-03-17 | [2026-03-17](/new-sources/2026-03-17/) | 50+ | 0 | Remaining items from 2026-03-16, staged for future integration. |
