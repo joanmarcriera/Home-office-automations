@@ -38,7 +38,7 @@ Traditional Makefile MCP implementations often expose a single generic `make` to
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [GNU Make](https://www.gnu.org/software/make/)
+- [GNU Make](gnu-make.md)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
 - [FastMCP](https://github.com/jlowin/fastmcp)
 

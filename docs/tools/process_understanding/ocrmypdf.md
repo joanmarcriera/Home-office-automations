@@ -57,7 +57,7 @@ done
 
 ## Related tools / concepts
 - [Paperless AI](../../services/paperless-ai.md)
-- [Tesseract CLI](https://github.com/tesseract-ocr/tesseract)
+- [Tesseract CLI](tesseract.md)
 - [Amazon Textract](https://aws.amazon.com/textract/)
 
 ## Sources / references

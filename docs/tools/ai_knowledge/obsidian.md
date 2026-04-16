@@ -35,7 +35,7 @@ AI & Knowledge — serves as a personal knowledge management tool that stores da
 ## Related tools / concepts
 
 - [Logseq](logseq.md)
-- [Joplin](https://joplinapp.org/)
+- [Joplin](joplin.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
