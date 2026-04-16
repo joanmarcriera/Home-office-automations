@@ -95,3 +95,33 @@ Recommended section format:
 ```
 
 These requirements are enforced by `scripts/check_docs_contract.py` in pull-request CI.
+
+## Multi-Agent KnowledgeOps Contract
+
+To ensure consistency when multiple autonomous agents or humans contribute to the knowledge base, the following "KnowledgeOps" contract is enforced:
+
+### 1. Contribution Metadata
+Every AI-authored or AI-updated document must include the `Contribution Metadata` section with `Last reviewed`, `Confidence`, and `Sources / References`.
+
+### 2. Catalog Consistency
+New tools must be added to `data/all_tools.json` and `mkdocs.yml` before the PR is considered "Done".
+
+### 3. CI Gates
+- `validate_new_sources.py`: Ensures daily logs are valid and no duplicate URLs exist.
+- `check_docs_contract.py`: Enforces metadata and section requirements.
+- `check_catalog_consistency.py`: Syncs `data/all_tools.json` with the filesystem.
+
+### 4. No Placeholder Policy
+Avoid `TBD` or `TODO` in merged documents. If information is missing, use a minimal description or skip the section.
+
+## Document Extraction Audit Trail
+
+To maintain accountability and traceability for AI-processed documents, every extraction result must be logged with the following audit metadata:
+
+- `llm_provider`: e.g., OpenAI, Ollama.
+- `llm_model`: The specific model version (e.g., `gpt-4o-2024-05-13`, `llama3.1:8b`).
+- `prompt_version`: The SemVer version of the prompt used (from `reference-implementations/llm-prompts/`).
+- `timestamp`: ISO8601 UTC.
+- `raw_input_hash`: SHA256 of the input text/file to verify against later changes.
+
+This metadata should be stored in the document's metadata (e.g., Paperless-ngx document notes or a dedicated sidecar JSON file).
