@@ -151,6 +151,7 @@ nav:
       - Flowise: tools/ai_knowledge/flowise.md
       - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
       - Jasper: tools/ai_knowledge/jasper.md
+      - Joplin: tools/ai_knowledge/joplin.md
       - Jules: tools/ai_knowledge/jules.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
@@ -181,6 +182,7 @@ nav:
       - Chronos MCP: tools/automation_orchestration/chronos-mcp.md
       - CliHub: tools/automation_orchestration/clihub.md
       - Google Workspace CLI: tools/automation_orchestration/google-workspace-cli.md
+      - GNU Make: tools/automation_orchestration/gnu-make.md
       - Make: tools/automation_orchestration/make.md
       - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
@@ -331,6 +333,7 @@ nav:
       - Overview: tools/process_understanding/index.md
       - Docling MCP: tools/process_understanding/docling-mcp.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
+      - Tesseract CLI: tools/process_understanding/tesseract.md
       - Crawl4AI: tools/process_understanding/crawl4ai.md
       - Firecrawl: tools/process_understanding/firecrawl.md
       - PageIndex: tools/process_understanding/pageindex.md
