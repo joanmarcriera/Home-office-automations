@@ -63,6 +63,9 @@ This document tracks missing components and planned technical improvements for t
     - [ ] Create n8n node/workflow for "Get Task Dependencies".
     - [ ] Implement logic to delay task start until blockers are closed.
 - [ ] Deploy [LiteLLM](./services/litellm.md) proxy.
+    - [ ] Configure Prometheus/Grafana monitoring for LiteLLM.
+    - [ ] Implement usage-based quotas for internal API keys.
+    - [ ] Set up load balancing between multiple Ollama instances.
     - [ ] Configure local Ollama and OpenAI as backends.
     - [ ] Implement API key management for internal services.
 
@@ -72,6 +75,9 @@ This document tracks missing components and planned technical improvements for t
     - [ ] Integrate agent with Vikunja for task status updates.
     - [ ] Add voice interface via Whisper/Piper.
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
+    - [ ] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS.
+    - [ ] Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support.
+    - [ ] Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx with [Cert-Manager](https://cert-manager.io/).
     - [ ] Set up 3-node K3s cluster.
     - [ ] Define Helm charts for core services (n8n, Paperless).
     - [ ] Implement Longhorn for distributed storage.
