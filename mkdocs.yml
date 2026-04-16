@@ -142,6 +142,8 @@ nav:
       - AI Templates: tools/ai_knowledge/aitmpl.md
       - AnythingLLM: tools/ai_knowledge/anythingllm.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
+      - Claude: tools/ai_knowledge/claude.md
+      - Gemini: tools/ai_knowledge/gemini.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
       - Dify: tools/ai_knowledge/dify.md
@@ -152,7 +154,6 @@ nav:
       - Jules: tools/ai_knowledge/jules.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
-      - LM Studio: tools/ai_knowledge/lm-studio.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
       - NotebookLM: tools/ai_knowledge/notebooklm.md
@@ -287,6 +288,7 @@ nav:
       - Moonshot AI: tools/providers/moonshot.md
       - BigSwitch: tools/providers/bigswitch.md
       - Tavily: tools/providers/tavily.md
+      - Hugging Face: tools/providers/huggingface.md
     - Agents:
       - Overview: tools/agents/index.md
       - Agency Swarm: tools/agents/agency-swarm.md
@@ -317,6 +319,8 @@ nav:
       - Supabase: tools/infrastructure/supabase.md
       - Text Generation Inference (TGI): tools/infrastructure/tgi.md
       - vLLM: tools/infrastructure/vllm.md
+      - LM Studio: tools/infrastructure/lm-studio.md
+      - Jan.ai: tools/infrastructure/jan-ai.md
       - ZSE: tools/infrastructure/zse.md
     - Process & Understanding:
       - Overview: tools/process_understanding/index.md
