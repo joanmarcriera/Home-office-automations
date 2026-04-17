@@ -35,7 +35,7 @@ Demonstrates that a simple, direct approach to terminal-based AI agents (LLM + t
 ## Related tools / concepts
 
 - [OpenHands](openhands.md)
-- [Devin](https://cognition.ai/)
+- [Devin](devin.md)
 - [Codeium](codeium.md)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
 - [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)

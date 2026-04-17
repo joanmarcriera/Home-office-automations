@@ -18,6 +18,10 @@ This document tracks missing components and planned technical improvements for t
 - **AI-Powered Warranty & Manual Assistant**:
     - *Goal*: Automatically track warranty expiration from scanned receipts and provide chat-based troubleshooting using scanned manuals.
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [n8n](./services/n8n.md), local LLM (RAG).
+    - [ ] Define Paperless-ngx tag schema for warranties and manuals.
+    - [ ] Create n8n workflow to extract expiration dates from warranty documents.
+    - [ ] Set up Vector DB index for scanned manuals.
+    - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
@@ -45,6 +49,10 @@ This document tracks missing components and planned technical improvements for t
 - **Sovereign Identity & SSO**:
     - *Goal*: Fully self-hosted single sign-on for all family members across all services.
     - *Stack*: Authentik or LL-LDAP.
+    - [ ] Research Authentik vs Kanidm vs LL-LDAP for family use.
+    - [ ] Deploy chosen SSO solution via Docker.
+    - [ ] Configure OIDC for first 3 services (Nextcloud, Vikunja, Gitea).
+    - [ ] Set up 2FA for all family member accounts.
 
 ## Technical Next Steps
 

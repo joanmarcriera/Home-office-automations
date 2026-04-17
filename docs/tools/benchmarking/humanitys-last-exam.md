@@ -35,7 +35,7 @@ Addresses the saturation of easier benchmarks by providing a set of questions th
 ## Related tools / concepts
 
 - [GPQA](gpqa.md)
-- [MMLU](https://github.com/hendrycks/test)
+- [MMLU](mmlu.md)
 - [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 - [SWE-bench](swe-bench.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
