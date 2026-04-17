@@ -62,12 +62,12 @@ This document tracks missing components and planned technical improvements for t
 - [ ] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
     - [ ] Create n8n node/workflow for "Get Task Dependencies".
     - [ ] Implement logic to delay task start until blockers are closed.
-- [ ] Deploy [LiteLLM](./services/litellm.md) proxy.
-    - [ ] Configure Prometheus/Grafana monitoring for LiteLLM.
-    - [ ] Implement usage-based quotas for internal API keys.
-    - [ ] Set up load balancing between multiple Ollama instances.
-    - [ ] Configure local Ollama and OpenAI as backends.
-    - [ ] Implement API key management for internal services.
+- [x] Deploy [LiteLLM](./services/litellm.md) proxy.
+    - [x] Configure Prometheus/Grafana monitoring for LiteLLM.
+    - [x] Implement usage-based quotas for internal API keys.
+    - [x] Set up load balancing between multiple Ollama instances.
+    - [x] Configure local Ollama and OpenAI as backends.
+    - [x] Implement API key management for internal services.
 
 ### Long-Term
 - [ ] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md).

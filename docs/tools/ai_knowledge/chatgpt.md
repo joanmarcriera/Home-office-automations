@@ -36,8 +36,6 @@ AI & Knowledge — used as a cloud-based conversational assistant alongside loca
 - [Claude](claude.md)
 - [Gemini](gemini.md)
 
-- [Claude](https://claude.ai/)
-- [Gemini](https://gemini.google.com/)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)

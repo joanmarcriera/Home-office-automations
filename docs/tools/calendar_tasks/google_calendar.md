@@ -35,7 +35,7 @@ Provides a centralized, cloud-based calendar for scheduling events, coordinating
 ## Related tools / concepts
 
 - [Nextcloud Calendar](../../services/nextcloud.md)
-- [Proton Calendar](https://proton.me/calendar)
+- [Proton Calendar](proton_calendar.md)
 - [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md)
 - [n8n](../../services/n8n.md)
 - [Make](../automation_orchestration/make.md)

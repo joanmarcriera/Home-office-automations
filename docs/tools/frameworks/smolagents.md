@@ -80,7 +80,7 @@ agent.run("What is the current population of Tokyo?")
 ## Related tools / concepts
 
 - [LangChain](../ai_knowledge/langchain.md)
-- [Hugging Face Hub](https://huggingface.co/models)
+- [Hugging Face Hub](../providers/huggingface.md)
 - [AutoGen](autogen.md)
 - [DSPy](dspy.md)
 - [Haystack](haystack.md)
