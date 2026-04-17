@@ -200,6 +200,9 @@ nav:
       - Gsm8K: tools/benchmarking/gsm8k.md
       - Human Eval: tools/benchmarking/human-eval.md
       - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
+      - OpenCompass: tools/benchmarking/opencompass.md
+      - HELM: tools/benchmarking/helm.md
+      - EvalPlus: tools/benchmarking/evalplus.md
       - LangSmith: tools/benchmarking/langsmith.md
       - LLMperf: tools/benchmarking/llmperf.md
       - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md

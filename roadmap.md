@@ -38,6 +38,9 @@ This document tracks missing components and planned technical improvements for t
 - **AI-Categorized Home Video Archive**:
     - *Goal*: Automated tagging and semantic search for home videos (e.g., "Find the video of the birthday party").
     - *Stack*: Local vision models (CLIP/Whisper), TrueNAS storage.
+    - [ ] Research local vision models for video frame embedding.
+    - [ ] Prototype metadata extraction script using Whisper and CLIP.
+    - [ ] Set up Vector DB for semantic search over video metadata.
 - **Local Audio Library Enrichment**:
     - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
     - *Stack*: Whisper (local), [Ollama](./services/ollama.md).

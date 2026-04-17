@@ -618,6 +618,24 @@
       "doc_path": "docs/tools/benchmarking/mmlu.md"
     },
     {
+      "id": "opencompass",
+      "name": "OpenCompass",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/opencompass.md"
+    },
+    {
+      "id": "helm",
+      "name": "HELM",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/helm.md"
+    },
+    {
+      "id": "evalplus",
+      "name": "EvalPlus",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/evalplus.md"
+    },
+    {
       "id": "actual-budget",
       "name": "Actual Budget",
       "category": "Intake & Storage",
