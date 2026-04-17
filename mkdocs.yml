@@ -300,6 +300,7 @@ nav:
       - Moonshot AI: tools/providers/moonshot.md
       - BigSwitch: tools/providers/bigswitch.md
       - Tavily: tools/providers/tavily.md
+      - Microsoft Graph API: tools/providers/microsoft-graph.md
       - AWS Bedrock: tools/providers/aws-bedrock.md
       - Hugging Face: tools/providers/huggingface.md
     - Agents:
