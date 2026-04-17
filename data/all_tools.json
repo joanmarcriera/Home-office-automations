@@ -1432,6 +1432,12 @@
       "name": "Joplin",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/joplin.md"
+    },
+    {
+      "id": "microsoft-graph",
+      "name": "Microsoft Graph API",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/microsoft-graph.md"
     }
   ]
 }

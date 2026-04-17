@@ -22,7 +22,7 @@
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-04-18
 
 ## Sources / References
 - https://github.com/joanmarcriera/Home-office-automations
