@@ -1414,6 +1414,18 @@
       "name": "Joplin",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/joplin.md"
+    },
+    {
+      "id": "arc",
+      "name": "ARC (AI2 Reasoning Challenge)",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/arc.md"
+    },
+    {
+      "id": "asdiv",
+      "name": "ASDiv (Academia Sinica Diverse MWP Dataset)",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/asdiv.md"
     }
   ]
 }
