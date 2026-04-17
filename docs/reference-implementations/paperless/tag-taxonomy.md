@@ -7,8 +7,8 @@
 - `automation-failed`: LLM or script hit an error.
 
 ## Category Tags
-- `Admin/Warranty`
-- `Admin/Manual`
+- `Admin/Warranty` (receipts/consumer protection)
+- `Admin/Manual` (product manuals/troubleshooting)
 - `Finance/Bill`
 - `School/Correspondence`
 - `Health/Record`
@@ -22,7 +22,7 @@
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-04-18
 
 ## Sources / References
 - https://github.com/joanmarcriera/Home-office-automations

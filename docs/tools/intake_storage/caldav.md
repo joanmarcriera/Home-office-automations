@@ -35,7 +35,7 @@ Provides an open, standardized protocol for calendar synchronization, enabling i
 ## Related tools / concepts
 
 - [Google Calendar API](../calendar_tasks/google_calendar.md)
-- [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/overview)
+- [Microsoft Graph API](../providers/microsoft-graph.md)
 - [llama.cpp](../infrastructure/llama-cpp.md)
 - [Text Generation Inference (TGI)](../infrastructure/tgi.md)
 - [Aphrodite Engine](../infrastructure/aphrodite-engine.md)
