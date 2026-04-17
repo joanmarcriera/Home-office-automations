@@ -105,6 +105,21 @@ model_list:
       model: openrouter/google/gemma-3-27b-it:free
       api_key: os.environ/OPENROUTER_API_KEY
 
+  # ── Load Balancing ──────────────────────────────────────
+  # Distribute traffic across multiple Ollama instances
+  - model_name: llama3-balanced
+    litellm_params:
+      model: ollama/llama3
+      api_base: http://ollama-1:11434
+    model_info:
+      id: "ollama-1"
+  - model_name: llama3-balanced
+    litellm_params:
+      model: ollama/llama3
+      api_base: http://ollama-2:11434
+    model_info:
+      id: "ollama-2"
+
 router_settings:
   routing_strategy: least-busy
   fallback_model: openrouter-free
@@ -214,6 +229,21 @@ litellm_settings:
 # Metrics exposed at http://localhost:4000/metrics
 # Track: litellm_requests_total, litellm_total_tokens, litellm_request_latency_seconds
 ```
+
+#### Prometheus Scrape Config
+Add this to your `prometheus.yml`:
+```yaml
+scrape_configs:
+  - job_name: 'litellm'
+    static_configs:
+      - targets: ['litellm:4000']
+```
+
+#### Grafana Dashboard
+Use the [official LiteLLM Grafana Dashboard](https://github.com/BerriAI/litellm/blob/main/deploy-container/grafana_dashboard.json) to visualize:
+- Request volume by model/key
+- Latency (p95, p99)
+- Token usage and cost
 
 ## Management UI
 

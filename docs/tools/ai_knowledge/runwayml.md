@@ -36,8 +36,8 @@ AI & Knowledge — used for generative media and advanced video processing.
 ## Related tools / concepts
 
 - [Synthesia](synthesia.md)
-- [Luma Dream Machine](https://lumalabs.ai/dream-machine)
-- [Sora (OpenAI)](https://openai.com/sora)
+- [Luma Dream Machine](luma-dream-machine.md)
+- [Sora (OpenAI)](sora.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
