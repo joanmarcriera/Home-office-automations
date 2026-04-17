@@ -7,6 +7,8 @@
 - `automation-failed`: LLM or script hit an error.
 
 ## Category Tags
+- `Admin/Warranty`
+- `Admin/Manual`
 - `Finance/Bill`
 - `School/Correspondence`
 - `Health/Record`
