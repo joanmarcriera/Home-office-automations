@@ -21,6 +21,10 @@ This document tracks missing components and planned technical improvements for t
     - [x] Define Paperless-ngx tag schema for warranties and manuals.
     - [ ] Create n8n workflow to extract expiration dates from warranty documents.
     - [ ] Set up Vector DB index for scanned manuals.
+        - [ ] Evaluate Milvus vs Chroma for technical documentation storage.
+        - [ ] Design metadata schema for manual indexing (e.g., product name, version, document section).
+        - [ ] Implement chunking and embedding logic for structured PDF/Markdown manuals.
+        - [ ] Create verification test for manual retrieval (RAG performance).
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
         - [ ] Research best-in-class local embedding models for technical documentation.
         - [ ] Prototype manual ingestion pipeline (PDF to Markdown conversion).
