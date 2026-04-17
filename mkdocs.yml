@@ -194,8 +194,6 @@ nav:
       - Zapier: tools/automation_orchestration/zapier.md
     - Benchmarking:
       - Overview: tools/benchmarking/index.md
-      - ARC: tools/benchmarking/arc.md
-      - ASDiv: tools/benchmarking/asdiv.md
       - Chatbot Arena: tools/benchmarking/chatbot-arena.md
       - DREAM Benchmark: tools/benchmarking/dream.md
       - Gpqa: tools/benchmarking/gpqa.md

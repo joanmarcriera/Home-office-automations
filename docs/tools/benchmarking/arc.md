@@ -41,5 +41,5 @@ Do not use it as a sole metric for specialized domains (like law or medicine) or
 - [ARC Leaderboard (AI2)](https://allenai.org/data/arc)
 
 ---
-**Last reviewed:** 2026-03-30
-**Confidence:** high
+- Last reviewed: 2026-03-30
+- Confidence: high

@@ -7,7 +7,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
 | 2026-04-08 | [2026-04-08](/new-sources/2026-04-08/) | 29 | 0 | Staged General Tools/Services from older logs. |
-| 2026-04-07 | [2026-04-07](/new-sources/2026-04-07/) | 0 | 12 | Staged Benchmarking items from older logs. |
+| 2026-04-07 | [2026-04-07](/new-sources/2026-04-07/) | 9 | 3 | Staged Benchmarking items; integrated ARC, ASDiv, BigCodeBench. |
 | 2026-04-06 | [2026-04-06](/new-sources/2026-04-06/) | 1 | 0 | Audit of tool documentation related sections and missing local docs. |
 | 2026-03-30 | [2026-03-30](/new-sources/2026-03-30/) | 0 | 58 | Staged entries to manageable daily logs. |
 | 2026-03-29 | [2026-03-29](/new-sources/2026-03-29/) | 0 | 9 | Added OpenClaw ecosystem patterns plus four source-driven updates from issue #179. |

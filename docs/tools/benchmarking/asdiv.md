@@ -40,5 +40,5 @@ Do not use it for evaluating high-level mathematics (calculus, linear algebra) o
 - [ACL Anthology Paper](https://aclanthology.org/2020.acl-main.92.pdf)
 
 ---
-**Last reviewed:** 2026-03-30
-**Confidence:** high
+- Last reviewed: 2026-03-30
+- Confidence: high

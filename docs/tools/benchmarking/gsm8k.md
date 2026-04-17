@@ -35,7 +35,7 @@ Provides a standardized way to measure whether LLMs can perform multi-step arith
 ## Related tools / concepts
 
 - [MATH Benchmark](https://github.com/hendrycks/math)
-- [ASDiv](asdiv.md)
+- [ASDiv](https://github.com/chiahsuan/ASDiv)
 - [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 - [SWE-bench](swe-bench.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
