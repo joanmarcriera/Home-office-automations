@@ -612,6 +612,12 @@
       "doc_path": "docs/tools/benchmarking/chatbot-arena.md"
     },
     {
+      "id": "mmlu",
+      "name": "MMLU",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/mmlu.md"
+    },
+    {
       "id": "actual-budget",
       "name": "Actual Budget",
       "category": "Intake & Storage",
@@ -1144,6 +1150,12 @@
       "name": "Tavily",
       "category": "Providers",
       "doc_path": "docs/tools/providers/tavily.md"
+    },
+    {
+      "id": "aws-bedrock",
+      "name": "AWS Bedrock",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/aws-bedrock.md"
     },
     {
       "id": "supabase",

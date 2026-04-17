@@ -39,7 +39,7 @@ It simplifies the integration of sophisticated document understanding capabiliti
 
 ## Related tools / concepts
 - [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Docling](https://github.com/DS4SD/docling)
+- [Docling](docling.md)
 - [OCRmyPDF](ocrmypdf.md)
 - [Milvus](https://milvus.io/)
 

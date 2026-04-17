@@ -209,6 +209,7 @@ nav:
       - Pa Bench: tools/benchmarking/pa-bench.md
       - Swe Bench: tools/benchmarking/swe-bench.md
       - Terminal Bench: tools/benchmarking/terminal-bench.md
+      - MMLU: tools/benchmarking/mmlu.md
     - Calendar & Tasks:
       - Overview: tools/calendar_tasks/index.md
       - Google Calendar: tools/calendar_tasks/google_calendar.md
@@ -293,6 +294,7 @@ nav:
       - Moonshot AI: tools/providers/moonshot.md
       - BigSwitch: tools/providers/bigswitch.md
       - Tavily: tools/providers/tavily.md
+      - AWS Bedrock: tools/providers/aws-bedrock.md
       - Hugging Face: tools/providers/huggingface.md
     - Agents:
       - Overview: tools/agents/index.md
