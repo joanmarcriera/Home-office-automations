@@ -11,8 +11,6 @@
 - `School/Correspondence`
 - `Health/Record`
 - `Admin/Government`
-- `Admin/Warranty`: Receipts or documents for consumer protection.
-- `Admin/Manual`: Product manuals and troubleshooting guides.
 
 ## Retention Tags
 - `Keep-7-years`: Tax related.
@@ -22,7 +20,7 @@
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-30
+- Last reviewed: 2026-03-01
 
 ## Sources / References
 - https://github.com/joanmarcriera/Home-office-automations

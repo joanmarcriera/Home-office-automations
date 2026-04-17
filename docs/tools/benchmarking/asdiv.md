@@ -1,50 +1,44 @@
 # ASDiv (Academia Sinica Diverse MWP Dataset)
 
 ## What it is
-ASDiv (Academia Sinica Diverse Math Word Problem) is a diverse corpus of 2,305 English Math Word Problems (MWPs). It is designed to evaluate the linguistic and problem-solving diversity of mathematical reasoning models, providing a more challenging and diverse set of problems than older benchmarks.
+ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed for evaluating the natural language understanding and problem-solving capabilities of AI solvers.
 
 ## What problem it solves
-It addresses the lack of diversity in traditional math word problem datasets. By providing problems with high linguistic variety and different mathematical operations, it measures a model's ability to truly understand the problem description rather than relying on simple template matching.
+Many existing MWP datasets suffer from limited diversity in language patterns or problem types. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school, preventing models from over-fitting to specific phrasing.
 
 ## Where it fits in the stack
-**Benchmarking**. It is used to evaluate the mathematical reasoning and language understanding capabilities of LLMs.
+ASDiv belongs to the **Benchmarking** category, specifically focusing on mathematical reasoning and lexicon usage diversity.
 
 ## Typical use cases
-- Benchmarking LLM performance on diverse mathematical word problems.
-- Evaluating the robustness of math solvers across different linguistic phrasings.
-- Researching the intersection of natural language understanding and formal reasoning.
+- Benchmarking LLMs on elementary-level mathematical reasoning.
+- Developing and testing specialized Math Word Problem solvers.
+- Measuring the robustness of NLU systems against varied linguistic expressions of math problems.
 
 ## Strengths
-- **Linguistic Diversity**: Contains a wide range of vocabulary and sentence structures.
-- **Problem Variety**: Covers various types of mathematical operations and reasoning steps.
-- **Manual Annotation**: High-quality, human-annotated problems.
+- **High Diversity**: Features a wide range of vocabulary and sentence structures.
+- **Detailed Annotation**: Each problem is annotated with its specific type and difficulty grade.
+- **Lexicon Metric**: Includes a proposed metric for measuring the diversity of MWP corpora.
 
 ## Limitations
-- **Size**: Smaller than some newer benchmarks like GSM8K.
-- **Complexity**: Primarily focuses on grade-school level math, though with higher linguistic complexity.
+- **Scope**: Limited to elementary school mathematics.
+- **Language**: Only available in English.
+- **Scale**: Smaller than some newer, synthetic datasets, though more diverse.
 
 ## When to use it
-- When evaluating the robustness of a model's mathematical reasoning against linguistic variation.
-- As a complementary benchmark to [GSM8K](gsm8k.md) and [MATH](https://github.com/hendrycks/math).
+Use ASDiv to verify that a model can handle varied phrasing in math problems without relying on superficial pattern matching.
 
 ## When not to use it
-- When evaluating advanced collegiate-level mathematics (use MATH Benchmark instead).
-- For general-purpose reasoning not focused on math.
-
-## Licensing and cost
-- **Open Source**: Yes
-- **Cost**: Free
-- **Self-hostable**: Yes
+Do not use it for evaluating high-level mathematics (calculus, linear algebra) or for testing non-mathematical reasoning.
 
 ## Related tools / concepts
-- [GSM8K](gsm8k.md)
-- [EvalPlus](evalplus.md)
-- [LM Evaluation Harness](lm-evaluation-harness.md)
+- [GSM8K](../benchmarking/gsm8k.md)
+- [MATH Benchmark](https://github.com/hendrycks/math)
+- [HumanEval](../benchmarking/human-eval.md)
 
-## Sources / References
-- [GitHub Repository](https://github.com/chiahsuan/ASDiv)
-- [ACL 2020 Paper](https://aclanthology.org/2020.acl-main.92/)
+## Sources / references
+- [ASDiv GitHub Repository](https://github.com/chiahsuan/ASDiv)
+- [ACL Anthology Paper](https://aclanthology.org/2020.acl-main.92.pdf)
 
-## Contribution Metadata
+---
 - Last reviewed: 2026-03-30
 - Confidence: high

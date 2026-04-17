@@ -1,55 +1,45 @@
 # BigCodeBench
 
 ## What it is
-BigCodeBench is a comprehensive benchmark designed to evaluate the code generation capabilities of Large Language Models (LLMs) when dealing with diverse function calls and complex instructions. It features 1,140 programming tasks that require the use of 139 different Python libraries.
+BigCodeBench is a comprehensive benchmark for evaluating code generation capabilities of LLMs in realistic software engineering scenarios. It features 1,140 programming tasks that require the use of diverse libraries and complex function calls.
 
 ## What problem it solves
-Traditional benchmarks like [HumanEval](human-eval.md) and [MBPP](mbpp.md) primarily focus on short, algorithmic problems that rarely involve external libraries. BigCodeBench addresses the gap between these "toy" problems and real-world software engineering by testing a model's ability to invoke diverse APIs and follow multi-step, complex instructions.
+Simple benchmarks like HumanEval or MBPP focus on basic algorithmic tasks that don't reflect real-world programming. BigCodeBench evaluates "tool-use" and the ability to follow complex, multi-step instructions using common Python libraries.
 
 ## Where it fits in the stack
-**Benchmarking**. It serves as a high-fidelity evaluation tool for developers and researchers to assess how well an LLM can perform as a real-world coding assistant.
+BigCodeBench is a core tool in the **Benchmarking** layer for code-specialized models and agents.
 
 ## Typical use cases
-- **API Usage Evaluation**: Testing if a model can correctly import and use specific Python libraries (e.g., pandas, matplotlib, requests).
-- **Instruction Following**: Assessing a model's ability to adhere to complex constraints and requirements within a coding prompt.
-- **Model Comparison**: Ranking different LLMs based on their practical coding utility rather than just algorithmic logic.
+- Comparing the programming performance of different LLMs (e.g., Llama 3 vs. GPT-4).
+- Evaluating coding agents that need to use external libraries.
+- Ranking instruction-tuned models on their ability to generate functional, production-like code.
 
 ## Strengths
-- **Scale and Diversity**: 1,140 tasks across various domains (data science, web dev, etc.) and 139 libraries.
-- **Instruction Variants**: Offers two versions: `BigCodeBench-Complete` (code completion) and `BigCodeBench-Instruct` (instruction following).
-- **Rigorous Verification**: Uses automated test cases to verify the correctness of generated code.
-- **Real-world Alignment**: Much closer to actual developer workflows than legacy benchmarks.
+- **Realism**: Tasks are software-engineering-oriented rather than purely algorithmic.
+- **Large Scale**: Contains over 1,000 tasks, reducing the impact of luck in evaluation.
+- **Tool Integration**: Requires models to correctly call functions from various libraries.
 
 ## Limitations
-- **Language Focus**: Currently primarily focused on Python.
-- **Complexity**: Harder for smaller models to score well, as it requires significant reasoning and knowledge of external libraries.
-- **Execution Overhead**: Requires a complex environment with many pre-installed libraries to run the full evaluation suite.
+- **Execution Overhead**: Running the full benchmark can be computationally expensive and slow.
+- **Python-Centric**: Primarily focuses on Python code generation.
+- **Complexity**: Harder for smaller models to achieve meaningful scores compared to simpler benchmarks.
 
 ## When to use it
-- When you need to evaluate an LLM's readiness for integration into a professional IDE or developer tool.
-- When comparing "coding-specific" models (e.g., CodeLlama, DeepSeek-Coder) against general-purpose models.
+Use BigCodeBench when evaluating models intended for use as coding assistants or autonomous software engineers.
 
 ## When not to use it
-- For testing basic programming logic in a language-agnostic way.
-- For evaluating non-coding capabilities like general reasoning or creative writing.
-
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free to use (software and dataset).
-- **Self-hostable**: Yes, via the BigCodeBench evaluation framework.
+Avoid using it for base models that have not been instruction-tuned, as they will likely fail on the complex natural language instructions.
 
 ## Related tools / concepts
-- [HumanEval](human-eval.md)
-- [MBPP](mbpp.md)
-- [SWE-bench](swe-bench.md)
-- [EvalPlus](evalplus.md)
-- [LiveCodeBench](https://livecodebench.github.io/)
+- [HumanEval](../benchmarking/human-eval.md)
+- [MBPP](../benchmarking/mbpp.md)
+- [EvalPlus](../benchmarking/evalplus.md)
+- [SWE-bench](../benchmarking/swe-bench.md)
 
-## Sources / References
-- [GitHub Repository](https://github.com/bigcode-project/bigcodebench)
-- [arXiv: BigCodeBench: Benchmarking Code Generation with Diverse Function Calls and Complex Instructions](https://arxiv.org/abs/2406.15877)
-- [Hugging Face Dataset](https://huggingface.co/datasets/bigcode/bigcodebench)
+## Sources / references
+- [BigCodeBench GitHub](https://github.com/bigcode-project/bigcodebench)
+- [BigCodeBench Website](https://bigcode-bench.github.io/)
 
-## Contribution Metadata
+---
 - Last reviewed: 2026-03-30
 - Confidence: high
