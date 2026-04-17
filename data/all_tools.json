@@ -1444,6 +1444,18 @@
       "name": "MT-Bench",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/mt-bench.md"
+    },
+    {
+      "id": "math-benchmark",
+      "name": "MATH Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/math-benchmark.md"
+    },
+    {
+      "id": "alpaca-eval",
+      "name": "AlpacaEval",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/alpaca-eval.md"
     }
   ]
 }
