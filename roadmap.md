@@ -18,10 +18,15 @@ This document tracks missing components and planned technical improvements for t
 - **AI-Powered Warranty & Manual Assistant**:
     - *Goal*: Automatically track warranty expiration from scanned receipts and provide chat-based troubleshooting using scanned manuals.
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [n8n](./services/n8n.md), local LLM (RAG).
-    - [ ] Define Paperless-ngx tag schema for warranties and manuals.
+    - [x] Define Paperless-ngx tag schema for warranties and manuals.
     - [ ] Create n8n workflow to extract expiration dates from warranty documents.
     - [ ] Set up Vector DB index for scanned manuals.
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
+        - [ ] Research best-in-class local embedding models for technical documentation.
+        - [ ] Prototype manual ingestion pipeline (PDF to Markdown conversion).
+        - [ ] Select vector database (Milvus/Chroma) for manual storage.
+        - [ ] Implement retrieval strategy (Hybrid search: Keyword + Semantic).
+        - [ ] Design simple chat UI for mobile-friendly troubleshooting.
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).

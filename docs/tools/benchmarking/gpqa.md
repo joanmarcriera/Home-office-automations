@@ -35,7 +35,7 @@ Measures whether LLMs possess deep, expert-level scientific knowledge and reason
 ## Related tools / concepts
 
 - [MMLU (Massive Multitask Language Understanding)](mmlu.md)
-- [ARC (AI2 Reasoning Challenge)](https://github.com/allenai/ARC-benchmark)
+- [ARC (AI2 Reasoning Challenge)](arc.md)
 - [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 - [SWE-bench](swe-bench.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
