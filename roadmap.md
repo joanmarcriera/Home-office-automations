@@ -25,14 +25,23 @@ This document tracks missing components and planned technical improvements for t
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
+    - [ ] Research Home Assistant power monitoring sensors in `docs/services/home-assistant.md`.
+    - [ ] Define baseline vs anomaly logic in a new reference implementation file.
+    - [ ] Create n8n workflow for LLM-based reasoning using Ollama node.
 
 ### Family Knowledge Management
 - **Personalized Family "Daily Briefing"**:
     - *Goal*: A unified morning report (voice or chat) summarizing the day's schedule, chores, weather, and "On This Day" memories.
     - *Stack*: [n8n](./services/n8n.md), [Vikunja](./services/vikunja.md), [Google Calendar](./tools/calendar_tasks/google_calendar.md).
+    - [ ] Research n8n "Google Calendar" and "Vikunja" nodes for event aggregation.
+    - [ ] Design Daily Briefing prompt template in `docs/reference-implementations/llm-prompts/`.
+    - [ ] Implement n8n workflow for scheduled morning delivery via Telegram/Email.
 - **Semantic Search for Family History**:
     - *Goal*: Natural language search across decades of family documents, journals, and logs.
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [Obsidian](./tools/ai_knowledge/obsidian.md), local Vector DB.
+    - [ ] Define Paperless-ngx document types for historical archives.
+    - [ ] Research vector embedding scripts for Obsidian journals.
+    - [ ] Set up local Vector DB index for OCR'd text search.
 
 ### Media & Entertainment
 - **AI-Categorized Home Video Archive**:

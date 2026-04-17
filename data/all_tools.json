@@ -618,6 +618,24 @@
       "doc_path": "docs/tools/benchmarking/mmlu.md"
     },
     {
+      "id": "arc",
+      "name": "ARC (AI2 Reasoning Challenge)",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/arc.md"
+    },
+    {
+      "id": "asdiv",
+      "name": "ASDiv",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/asdiv.md"
+    },
+    {
+      "id": "bigcodebench",
+      "name": "BigCodeBench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/bigcodebench.md"
+    },
+    {
       "id": "opencompass",
       "name": "OpenCompass",
       "category": "Benchmarking",

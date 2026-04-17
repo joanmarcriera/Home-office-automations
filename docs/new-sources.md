@@ -6,13 +6,15 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-04-08 | [2026-04-08](/new-sources/2026-04-08/) | 29 | 0 | Staged General Tools/Services from older logs. |
+| 2026-04-07 | [2026-04-07](/new-sources/2026-04-07/) | 0 | 12 | Staged Benchmarking items from older logs. |
 | 2026-04-06 | [2026-04-06](/new-sources/2026-04-06/) | 1 | 0 | Audit of tool documentation related sections and missing local docs. |
-| 2026-03-30 | [2026-03-30](/new-sources/2026-03-30/) | 58 | 0 | Identified related tools/concepts lacking local documentation across all tool docs. |
+| 2026-03-30 | [2026-03-30](/new-sources/2026-03-30/) | 0 | 58 | Staged entries to manageable daily logs. |
 | 2026-03-29 | [2026-03-29](/new-sources/2026-03-29/) | 0 | 9 | Added OpenClaw ecosystem patterns plus four source-driven updates from issue #179. |
-| 2026-03-21 | [2026-03-21](/new-sources/2026-03-21/) | 14 | 2 | Divided intake from 2026-03-17 (Automation, Miscellaneous). |
-| 2026-03-20 | [2026-03-20](/new-sources/2026-03-20/) | 12 | 0 | Divided intake from 2026-03-17 (Benchmarking). |
-| 2026-03-19 | [2026-03-19](/new-sources/2026-03-19/) | 15 | 1 | Divided intake from 2026-03-17 (Process Understanding, Development & Ops). Integrated ripgrep. |
-| 2026-03-18 | [2026-03-18](/new-sources/2026-03-18/) | 11 | 1 | Divided intake from 2026-03-17 (Infrastructure, Frameworks, Agents). Integrated FastAPI. |
+| 2026-03-21 | [2026-03-21](/new-sources/2026-03-21/) | 0 | 16 | Divided intake from 2026-03-17 (Automation, Miscellaneous). |
+| 2026-03-20 | [2026-03-20](/new-sources/2026-03-20/) | 0 | 12 | Divided intake from 2026-03-17 (Benchmarking). |
+| 2026-03-19 | [2026-03-19](/new-sources/2026-03-19/) | 0 | 16 | Divided intake from 2026-03-17 (Process Understanding, Development & Ops). Integrated ripgrep. |
+| 2026-03-18 | [2026-03-18](/new-sources/2026-03-18/) | 0 | 12 | Divided intake from 2026-03-17 (Infrastructure, Frameworks, Agents). Integrated FastAPI. |
 | 2026-03-16 | [2026-03-16](/new-sources/2026-03-16/) | 0 | 0 | Standardized related tools sections across all documentation. |
 | 2026-03-15 | [2026-03-15](/new-sources/2026-03-15/) | 0 | 11 | Added website-hosting canonicals, free website playbook, and discovery-style builder index |
 | 2026-03-14 | [2026-03-14](/new-sources/2026-03-14/) | 0 | 33 | Added Claude ecosystem coverage, search/backend/browser tools, Google AI product pages, direct pages for memory/context/local inference, and company-stack extensions |
