@@ -121,6 +121,12 @@
       "doc_path": "docs/tools/calendar_tasks/google_calendar.md"
     },
     {
+      "id": "proton-calendar",
+      "name": "Proton Calendar",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/proton_calendar.md"
+    },
+    {
       "id": "vikunja",
       "name": "Vikunja",
       "category": "Calendar & Tasks",
@@ -922,6 +928,12 @@
       "name": "Picnic",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/picnic.md"
+    },
+    {
+      "id": "pulse-mcp",
+      "name": "PulseMCP",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/pulse-mcp.md"
     },
     {
       "id": "skyvern",

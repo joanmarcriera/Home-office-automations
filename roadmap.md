@@ -20,7 +20,11 @@ This document tracks missing components and planned technical improvements for t
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [n8n](./services/n8n.md), local LLM (RAG).
     - [x] Define Paperless-ngx tag schema for warranties and manuals.
     - [ ] Create n8n workflow to extract expiration dates from warranty documents.
-    - [ ] Set up Vector DB index for scanned manuals.
+    - [ ] Set up Vector DB index for scanned manuals:
+        - [ ] Research Milvus vs Chroma vs Qdrant for local manual RAG storage.
+        - [ ] Design metadata schema for manuals (model number, manufacturer, year, document type).
+        - [ ] Implement chunking and embedding pipeline for OCR'd PDF manuals.
+        - [ ] Verify retrieval accuracy and relevance with a test set of common household manuals.
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
