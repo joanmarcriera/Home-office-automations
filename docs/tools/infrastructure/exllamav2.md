@@ -42,6 +42,7 @@ Infra
 - [llama.cpp](llama-cpp.md)
 - [Aphrodite Engine](aphrodite-engine.md)
 - [GPTQ](https://github.com/IST-DASLab/gptq)
+- [vLLM](vllm.md)
 
 ## Sources / References
 - [Official Website](https://github.com/turboderp/exllamav2)

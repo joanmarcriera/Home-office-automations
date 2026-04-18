@@ -4,11 +4,16 @@ This document tracks missing components and planned technical improvements for t
 
 ## Missing Pieces (Must-Haves)
 - **Centralized Error Queue**: A unified dashboard (e.g. specialized Home Assistant view) to see all failed n8n workflows.
-    - [ ] Research dashboard tools for n8n error visualization (e.g., Home Assistant, custom Grafana dashboard).
-    - [ ] Define a standardized error schema for n8n sub-workflows (status, model, workflow_id, timestamp).
+    - [x] Research dashboard tools for n8n error visualization (e.g., Home Assistant, custom Grafana dashboard).
+    - [x] Define a standardized error schema for n8n sub-workflows (status, model, workflow_id, timestamp).
     - [ ] Implement a "Push to Error Queue" sub-workflow in n8n for global reuse.
     - [ ] Create a basic Home Assistant dashboard to display the error queue via REST sensor or MQTT.
+
 - **Human-in-the-Loop (HITL) UI**: A simple web interface to approve or correct AI-extracted dates before they hit the calendar.
+    - [ ] Design Backend API for document approval staging.
+    - [ ] Prototype Frontend UI for rapid human verification.
+    - [ ] Integrate verified dates with Google/Proton Calendar.
+
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
 
 ## Nice-to-Haves

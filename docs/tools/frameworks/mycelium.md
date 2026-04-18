@@ -40,6 +40,7 @@ It addresses "context rot" and cognitive saturation in LLM agents by decomposing
 ## Related tools / concepts
 - [Maestro](https://github.com/yogthos/maestro) (underlying workflow engine)
 - [Malli](https://github.com/metosin/malli) (data-driven schemas)
+- [Maestro](https://github.com/yogthos/maestro)
 - [Orchestration](../automation_orchestration/index.md)
 
 ## Sources / References
