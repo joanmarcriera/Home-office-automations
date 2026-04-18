@@ -35,9 +35,25 @@ Markdown-formatted text, suitable for delivery via Telegram or Email.
 ```
 
 ## Integration Details
-- **Trigger**: Cron (e.g., 07:00 AM daily).
-- **Data Fetching**: Use n8n nodes for Google Calendar, Vikunja, and OpenWeatherMap.
-- **Synthesis**: Pass the aggregated data into this prompt using an LLM node (e.g., Ollama or OpenAI).
+
+### 1. Data Fetching Strategy
+- **Google Calendar Node**:
+    - **Resource**: Event
+    - **Operation**: Get Many
+    - **Filter**: Set `Time Min` to `{{ $now.set({ hour: 0, minute: 0, second: 0 }).toISO() }}` and `Time Max` to `{{ $now.set({ hour: 23, minute: 59, second: 59 }).toISO() }}` to fetch only today's events.
+- **Vikunja Node**:
+    - **Resource**: Task
+    - **Operation**: Get Many
+    - **Filters**: Filter by `due_date` (today) and `done` (false).
+- **OpenWeatherMap Node**:
+    - **Resource**: Current Weather or 5-Day Forecast.
+    - **Operation**: Get
+    - **Location**: Your home city.
+
+### 2. Aggregation & Synthesis
+- **Aggregate Node**: Use the **Aggregate** node to combine the arrays of events and tasks into a single object.
+- **LLM Node**:
+    - **Synthesis**: Pass the aggregated data into this prompt using an LLM node (e.g., Ollama or OpenAI).
 - **Delivery**: Send the output to the family Telegram group or via email.
 
 ## Sources / References

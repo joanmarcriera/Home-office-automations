@@ -146,6 +146,7 @@ nav:
       - Gemini: tools/ai_knowledge/gemini.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
+      - Dex: tools/ai_knowledge/dex.md
       - Dify: tools/ai_knowledge/dify.md
       - ElevenLabs: tools/ai_knowledge/elevenlabs.md
       - Flowise: tools/ai_knowledge/flowise.md
@@ -158,6 +159,7 @@ nav:
       - Llamaindex: tools/ai_knowledge/llamaindex.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
+      - Nano Banana: tools/ai_knowledge/nano-banana.md
       - NotebookLM: tools/ai_knowledge/notebooklm.md
       - Notion AI: tools/ai_knowledge/notion-ai.md
       - Obsidian: tools/ai_knowledge/obsidian.md
@@ -221,9 +223,9 @@ nav:
       - ARC (AI2 Reasoning Challenge): tools/benchmarking/arc.md
       - ASDiv: tools/benchmarking/asdiv.md
       - BigCodeBench: tools/benchmarking/bigcodebench.md
+      - AlpacaEval: tools/benchmarking/alpaca-eval.md
       - MT-Bench: tools/benchmarking/mt-bench.md
       - MATH Benchmark: tools/benchmarking/math-benchmark.md
-      - AlpacaEval: tools/benchmarking/alpaca-eval.md
     - Calendar & Tasks:
       - Overview: tools/calendar_tasks/index.md
       - Google Calendar: tools/calendar_tasks/google_calendar.md
@@ -309,6 +311,7 @@ nav:
       - Moonshot AI: tools/providers/moonshot.md
       - BigSwitch: tools/providers/bigswitch.md
       - Tavily: tools/providers/tavily.md
+      - Microsoft Graph API: tools/providers/microsoft-graph.md
       - AWS Bedrock: tools/providers/aws-bedrock.md
       - Hugging Face: tools/providers/huggingface.md
       - Microsoft Graph API: tools/providers/microsoft-graph.md
@@ -368,6 +371,7 @@ nav:
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - n8n Error Handling: knowledge_base/patterns/n8n-error-handling.md
+    - Energy Anomaly Detection: knowledge_base/energy-anomaly-detection-baseline.md
     - AI Builder Index: knowledge_base/ai_builder_index.md
     - Free AI Website Playbook: knowledge_base/free_ai_website_playbook.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md

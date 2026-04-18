@@ -6,12 +6,13 @@ This document tracks missing components and planned technical improvements for t
 - **Centralized Error Queue**: A unified dashboard (e.g. specialized Home Assistant view) to see all failed n8n workflows.
     - [x] Research dashboard tools for n8n error visualization (e.g., Home Assistant, custom Grafana dashboard).
     - [x] Define a standardized error schema for n8n sub-workflows (status, model, workflow_id, timestamp).
-    - [ ] Implement a "Push to Error Queue" sub-workflow in n8n for global reuse.
-    - [ ] Create a basic Home Assistant dashboard to display the error queue via REST sensor or MQTT.
+    - [x] Implement a "Push to Error Queue" sub-workflow in n8n for global reuse (see [Error Handler Workflow](docs/reference-implementations/n8n/error-handler.json)).
+    - [x] Create a basic Home Assistant dashboard to display the error queue via REST sensor or MQTT (see [Dashboard Config](docs/knowledge_base/patterns/n8n-error-handling.md)).
 
 - **Human-in-the-Loop (HITL) UI**: A simple web interface to approve or correct AI-extracted dates before they hit the calendar.
-    - [ ] Design Backend API for document approval staging.
-    - [ ] Prototype Frontend UI for rapid human verification.
+    - [ ] Define Backend API endpoints (GET `/staged-docs`, POST `/approve/{id}`, POST `/reject/{id}`).
+    - [ ] Select Frontend framework (Streamlit for rapid prototyping vs React for durability).
+    - [ ] Design database schema for staged extractions (staged_at, original_metadata, corrected_metadata).
     - [ ] Integrate verified dates with Google/Proton Calendar.
 
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
@@ -19,7 +20,7 @@ This document tracks missing components and planned technical improvements for t
 ## Nice-to-Haves
 - **Multi-Calendar Conflict Detection**: Checking both husband and wife's calendars before suggesting an event time.
 - **Voice-to-Task**: Integrating [Ollama](./services/ollama.md) with local voice-to-text for hands-free task creation.
-- **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days.
+- [x] **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days (see `scripts/paperless_retention.py`).
 
 ## 🌟 Future Projects (Home-Centric AI)
 
@@ -38,16 +39,16 @@ This document tracks missing components and planned technical improvements for t
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
-    - [ ] Identify candidate power monitoring sensors in Home Assistant for key appliances (Washer, Fridge, EV).
-    - [ ] Research Home Assistant "Utility Meter" and "Derivative" sensors for baseline usage patterns.
-    - [ ] Define baseline vs anomaly logic (e.g., spike duration, time-of-day weighting) in a new reference implementation file.
+    - [x] Identify candidate power monitoring sensors in Home Assistant for key appliances (Washer, Fridge, EV) (see [Baseline Logic](docs/knowledge_base/energy-anomaly-detection-baseline.md)).
+    - [x] Research Home Assistant "Utility Meter" and "Derivative" sensors for baseline usage patterns.
+    - [x] Define baseline vs anomaly logic (e.g., spike duration, time-of-day weighting) in a new reference implementation file.
     - [ ] Create n8n workflow for LLM-based reasoning using Ollama node to classify spikes as "Normal" or "Anomaly".
 
 ### Family Knowledge Management
 - **Personalized Family "Daily Briefing"**:
     - *Goal*: A unified morning report (voice or chat) summarizing the day's schedule, chores, weather, and "On This Day" memories.
     - *Stack*: [n8n](./services/n8n.md), [Vikunja](./services/vikunja.md), [Google Calendar](./tools/calendar_tasks/google_calendar.md).
-    - [ ] Research n8n "Google Calendar" and "Vikunja" nodes for event aggregation.
+    - [x] Research n8n "Google Calendar" and "Vikunja" nodes for event aggregation (see [Integration Details](docs/reference-implementations/llm-prompts/daily-briefing.md)).
     - [x] Design Daily Briefing prompt template in `docs/reference-implementations/llm-prompts/daily-briefing.md`.
     - [ ] Implement n8n workflow for scheduled morning delivery via Telegram/Email.
 - **Semantic Search for Family History**:
@@ -72,6 +73,9 @@ This document tracks missing components and planned technical improvements for t
 - **Self-Healing Homelab Agent**:
     - *Goal*: An AI agent that monitors [TrueNAS SCALE](architecture/infrastructure.md) logs and automatically restarts services or alerts on hardware failure.
     - *Stack*: [n8n](./services/n8n.md), [Tailscale](./services/tailscale.md), local specialized agent.
+    - [ ] Research TrueNAS SCALE log streaming via syslog or webhooks for real-time monitoring.
+    - [ ] Identify critical service health check endpoints (e.g., Paperless-ngx, Home Assistant).
+    - [ ] Define automated restart logic for Docker containers vs K3s pods.
 - **Sovereign Identity & SSO**:
     - *Goal*: Fully self-hosted single sign-on for all family members across all services.
     - *Stack*: Authentik or LL-LDAP.
