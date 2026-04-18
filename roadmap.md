@@ -48,12 +48,12 @@ This document tracks missing components and planned technical improvements for t
     - *Goal*: A unified morning report (voice or chat) summarizing the day's schedule, chores, weather, and "On This Day" memories.
     - *Stack*: [n8n](./services/n8n.md), [Vikunja](./services/vikunja.md), [Google Calendar](./tools/calendar_tasks/google_calendar.md).
     - [ ] Research n8n "Google Calendar" and "Vikunja" nodes for event aggregation.
-    - [ ] Design Daily Briefing prompt template in `docs/reference-implementations/llm-prompts/`.
+    - [x] Design Daily Briefing prompt template in `docs/reference-implementations/llm-prompts/daily-briefing.md`.
     - [ ] Implement n8n workflow for scheduled morning delivery via Telegram/Email.
 - **Semantic Search for Family History**:
     - *Goal*: Natural language search across decades of family documents, journals, and logs.
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [Obsidian](./tools/ai_knowledge/obsidian.md), local Vector DB.
-    - [ ] Define Paperless-ngx document types for historical archives.
+    - [x] Define Paperless-ngx document types for historical archives (see [Tag Taxonomy](reference-implementations/paperless/tag-taxonomy.md)).
     - [ ] Research vector embedding scripts for Obsidian journals.
     - [ ] Set up local Vector DB index for OCR'd text search.
 
@@ -75,7 +75,7 @@ This document tracks missing components and planned technical improvements for t
 - **Sovereign Identity & SSO**:
     - *Goal*: Fully self-hosted single sign-on for all family members across all services.
     - *Stack*: Authentik or LL-LDAP.
-    - [ ] Research Authentik vs Kanidm vs LL-LDAP for family use.
+    - [x] Research Authentik vs Kanidm vs LL-LDAP for family use (see [SSO Comparison](docs/knowledge_base/sso-comparison.md)).
     - [ ] Deploy chosen SSO solution via Docker.
     - [ ] Configure OIDC for first 3 services (Nextcloud, Vikunja, Gitea).
     - [ ] Set up 2FA for all family member accounts.
@@ -110,8 +110,16 @@ This document tracks missing components and planned technical improvements for t
     - [ ] Add voice interface via Whisper/Piper.
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [ ] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS.
-    - [ ] Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support.
-    - [ ] Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx with [Cert-Manager](https://cert-manager.io/).
-    - [ ] Set up 3-node K3s cluster.
-    - [ ] Define Helm charts for core services (n8n, Paperless).
-    - [ ] Implement Longhorn for distributed storage.
+    - [ ] **Networking & Ingress**:
+        - [ ] Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support.
+        - [ ] Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx with [Cert-Manager](https://cert-manager.io/).
+        - [ ] Configure External-DNS for automated DNS record management.
+    - [ ] **Storage**:
+        - [ ] Implement Longhorn for distributed block storage.
+        - [ ] Configure NFS CSI driver for TrueNAS integration.
+    - [ ] **Compute**:
+        - [ ] Set up 3-node K3s cluster.
+        - [ ] Implement node affinity/taints for specialized workloads (e.g., GPU).
+    - [ ] **Deployment & Observability**:
+        - [ ] Define Helm charts for core services (n8n, Paperless).
+        - [ ] Set up Prometheus/Grafana stack for cluster monitoring.

@@ -14,6 +14,11 @@
 - `Health/Record`
 - `Admin/Government`
 
+## History & Archive Tags
+- `History/Family-Record`: Letters, journals, family trees.
+- `History/Photo-Archive`: Scanned physical photos.
+- `History/Genealogy`: Birth/Death certificates (historic), census records.
+
 ## Retention Tags
 - `Keep-7-years`: Tax related.
 - `Keep-forever`: Birth certificates, deeds.
