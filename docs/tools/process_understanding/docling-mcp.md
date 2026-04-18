@@ -42,6 +42,7 @@ It simplifies the integration of sophisticated document understanding capabiliti
 - [Docling](docling.md)
 - [OCRmyPDF](ocrmypdf.md)
 - [Milvus](https://milvus.io/)
+- [RAGFlow](ragflow.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/docling-project/docling-mcp)

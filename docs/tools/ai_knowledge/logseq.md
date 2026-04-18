@@ -36,6 +36,7 @@ AI & Knowledge — serves as a local-first personal knowledge management tool, c
 
 - [Obsidian](obsidian.md)
 - [Roam Research](https://roamresearch.com/) (Non-OSS)
+- [Joplin](joplin.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)

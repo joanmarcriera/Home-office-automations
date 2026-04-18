@@ -36,6 +36,7 @@ AI & Knowledge — used as a research and information retrieval tool when up-to-
 
 - [Google Search](https://www.google.com)
 - [Genspark](https://www.genspark.ai/)
+- [SearXNG](../../services/searXNG.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)

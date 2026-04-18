@@ -65,9 +65,11 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+
 - [llama.cpp](llama-cpp.md)
 - [PyTorch](https://pytorch.org/)
 - [Apple Silicon](https://www.apple.com/silicon/)
+- [ExLlamaV2](exllamav2.md)
 
 ## Sources / References
 - [Official Website](https://github.com/ml-explore/mlx)
