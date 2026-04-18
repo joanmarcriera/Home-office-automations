@@ -146,6 +146,7 @@ nav:
       - Gemini: tools/ai_knowledge/gemini.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
+      - Dex: tools/ai_knowledge/dex.md
       - Dify: tools/ai_knowledge/dify.md
       - ElevenLabs: tools/ai_knowledge/elevenlabs.md
       - Flowise: tools/ai_knowledge/flowise.md
@@ -158,6 +159,7 @@ nav:
       - Llamaindex: tools/ai_knowledge/llamaindex.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
+      - Nano Banana: tools/ai_knowledge/nano-banana.md
       - NotebookLM: tools/ai_knowledge/notebooklm.md
       - Notion AI: tools/ai_knowledge/notion-ai.md
       - Obsidian: tools/ai_knowledge/obsidian.md
