@@ -314,6 +314,7 @@ nav:
       - Microsoft Graph API: tools/providers/microsoft-graph.md
       - AWS Bedrock: tools/providers/aws-bedrock.md
       - Hugging Face: tools/providers/huggingface.md
+      - Microsoft Graph API: tools/providers/microsoft-graph.md
     - Agents:
       - Overview: tools/agents/index.md
       - Agency Swarm: tools/agents/agency-swarm.md
