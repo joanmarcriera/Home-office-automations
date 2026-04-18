@@ -43,6 +43,7 @@ It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where
 - [Cursor](../development_ops/cursor.md)
 - [Aider](../development_ops/aider.md)
 - [RO-Crate Standard](https://www.researchobject.org/ro-crate/)
+- [Symphony](symphony.md)
 
 ## Sources / References
 - [Official Website](https://aac.slolab.ai/)

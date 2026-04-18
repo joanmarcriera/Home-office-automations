@@ -121,6 +121,12 @@
       "doc_path": "docs/tools/calendar_tasks/google_calendar.md"
     },
     {
+      "id": "proton-calendar",
+      "name": "Proton Calendar",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/proton_calendar.md"
+    },
+    {
       "id": "vikunja",
       "name": "Vikunja",
       "category": "Calendar & Tasks",
@@ -654,6 +660,24 @@
       "doc_path": "docs/tools/benchmarking/evalplus.md"
     },
     {
+      "id": "alpaca-eval",
+      "name": "AlpacaEval",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/alpaca-eval.md"
+    },
+    {
+      "id": "mt-bench",
+      "name": "MT-Bench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/mt-bench.md"
+    },
+    {
+      "id": "math-benchmark",
+      "name": "MATH Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/math-benchmark.md"
+    },
+    {
       "id": "actual-budget",
       "name": "Actual Budget",
       "category": "Intake & Storage",
@@ -922,6 +946,12 @@
       "name": "Picnic",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/picnic.md"
+    },
+    {
+      "id": "pulse-mcp",
+      "name": "PulseMCP",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/pulse-mcp.md"
     },
     {
       "id": "skyvern",
@@ -1438,24 +1468,6 @@
       "name": "Microsoft Graph API",
       "category": "Providers",
       "doc_path": "docs/tools/providers/microsoft-graph.md"
-    },
-    {
-      "id": "mt-bench",
-      "name": "MT-Bench",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/mt-bench.md"
-    },
-    {
-      "id": "math-benchmark",
-      "name": "MATH Benchmark",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/math-benchmark.md"
-    },
-    {
-      "id": "alpaca-eval",
-      "name": "AlpacaEval",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/alpaca-eval.md"
     }
   ]
 }

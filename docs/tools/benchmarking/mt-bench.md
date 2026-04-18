@@ -1,47 +1,49 @@
 # MT-Bench
 
 ## What it is
-MT-Bench is a multi-turn conversation benchmark designed to evaluate the chat capabilities of Large Language Models (LLMs). It uses a set of 80 high-quality multi-turn questions across eight common categories.
+MT-Bench is a benchmark designed to evaluate the multi-turn conversational capabilities of Large Language Models (LLMs). It consists of 80 high-quality, multi-turn questions across eight categories: writing, roleplay, extraction, reasoning, math, coding, knowledge I (STEM), and knowledge II (humanities/social science).
 
 ## What problem it solves
-It addresses the limitation of single-turn benchmarks by testing an LLM's ability to maintain context, follow instructions across multiple turns, and handle follow-up questions, which is more representative of real-world human-AI interaction.
+Many traditional benchmarks only evaluate single-turn responses, failing to capture a model's ability to maintain context, follow instructions across multiple exchanges, and handle the dynamic nature of real-world conversations.
 
 ## Where it fits in the stack
-**Benchmarking / Evaluation**. It is a key tool for assessing the conversational proficiency and instruction-following consistency of chat-tuned models.
+**Benchmarking**. It is a core component of the LMSYS FastChat evaluation framework, providing a more rigorous test of conversational flow than single-turn evaluations.
 
 ## Typical use cases
-- Evaluating model performance in multi-turn dialogues.
-- Comparing the conversational abilities of different LLMs using LLM-as-a-judge.
-- Testing context retention and follow-up handling in AI assistants.
+- **Conversational AI Evaluation**: Assessing how well a chatbot handles follow-up questions and maintains context.
+- **Model Comparison**: Ranking chat-tuned models based on their ability to handle complex, multi-step instructions.
+- **LLM-as-a-Judge Validation**: MT-Bench is often used with GPT-4 as a judge to provide automated, scalable scoring that correlates with human judgment.
 
 ## Strengths
-- **Multi-turn Focus**: Specifically designed for conversational evaluation.
-- **Diverse Categories**: Covers writing, roleplay, extraction, reasoning, math, coding, knowledge I (STEM), and knowledge II (humanities/social science).
-- **LLM-as-a-Judge**: Uses strong models (like GPT-4) to grade responses, which has shown high correlation with human preferences.
+- **Multi-turn Focus**: Specifically designed to test conversation depth.
+- **Diverse Categories**: Covers a wide range of tasks from coding to roleplay.
+- **Strong Human Correlation**: GPT-4 based scoring on MT-Bench shows over 80% agreement with human experts.
+- **Open Dataset**: The questions and human judgments are publicly available for research.
 
 ## Limitations
-- **Bias**: The judging model (e.g., GPT-4) may have its own biases or prefer its own style of output.
-- **Cost**: Running evaluation with high-end models as judges can be expensive.
-- **Static Dataset**: As models are trained on more data, there is a risk of benchmark contamination.
+- **Judge Bias**: If using an LLM as a judge, it may inherit the biases of that judge (e.g., preference for certain styles or lengths).
+- **Scale**: With 80 questions, it is smaller than some "massive" benchmarks, though the multi-turn nature adds complexity.
+- **Static Nature**: Like all fixed benchmarks, it risks data contamination over time.
 
 ## When to use it
-- When you need to assess how well a model handles follow-up questions and maintains context over a conversation.
-- To benchmark chat-tuned models against industry leaders using a standardized methodology.
+- When evaluating chat-tuned models where multi-turn interaction is a primary use case.
+- When you need an automated conversational benchmark that aligns closely with human preference.
 
 ## When not to use it
-- If you are only interested in single-turn performance or specific narrow tasks (like pure extraction without dialogue).
-- If you lack access to a strong model to serve as the judge for automated grading.
+- For evaluating base (non-chat-tuned) models that are not designed for dialogue.
+- When you only need to measure narrow technical capabilities like raw code execution or mathematical proof (use specialized benchmarks instead).
 
 ## Related tools / concepts
 - [Chatbot Arena](chatbot-arena.md)
 - [AlpacaEval](alpaca-eval.md)
-- [MMLU](mmlu.md)
-- [LLM-as-a-Judge](https://arxiv.org/abs/2306.05685)
+- [GSM8K](gsm8k.md)
+- [HumanEval](human-eval.md)
 
 ## Sources / references
-- [MT-Bench GitHub Repository](https://github.com/lm-sys/FastChat/tree/main/fastchat/llm_judge)
-- [Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena (Paper)](https://arxiv.org/abs/2306.05685)
+- [FastChat GitHub (LLM Judge)](https://github.com/lm-sys/FastChat/tree/main/fastchat/llm_judge)
+- [MT-Bench Paper: "Judging LLM-as-a-judge" (Zheng et al., 2023)](https://arxiv.org/abs/2306.05685)
+- [LMSYS Leaderboard](https://arena.lmsys.org/leaderboard)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-17
+- Last reviewed: 2026-04-08
 - Confidence: high
