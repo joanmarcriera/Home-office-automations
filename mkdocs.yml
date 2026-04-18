@@ -368,6 +368,7 @@ nav:
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - n8n Error Handling: knowledge_base/patterns/n8n-error-handling.md
+    - Energy Anomaly Detection: knowledge_base/energy-anomaly-detection-baseline.md
     - AI Builder Index: knowledge_base/ai_builder_index.md
     - Free AI Website Playbook: knowledge_base/free_ai_website_playbook.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
