@@ -32,6 +32,20 @@ Provides a quick way to measure and compare the inference performance of differe
 - When benchmarking cloud API providers (use [LLMPerf](llmperf.md) instead)
 - When evaluating model accuracy or quality
 
+## Lightweight Alternative: `time` + `curl`
+If you don't want to install a dedicated benchmarking tool, you can get basic latency and throughput metrics using the standard `time` command and `curl`. This is useful for quick checks or when working on a remote server with minimal tools.
+
+```bash
+time curl -X POST http://localhost:11434/api/generate \
+  -d '{
+    "model": "llama3",
+    "prompt": "Why is the sky blue?",
+    "stream": false
+  }'
+```
+
+The output will show the total execution time. You can calculate tokens per second by dividing the `total_duration` (returned in the JSON response) by the number of tokens generated.
+
 ## Related tools / concepts
 
 - [LLMPerf](llmperf.md)
