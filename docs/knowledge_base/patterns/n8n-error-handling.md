@@ -58,3 +58,41 @@ To ensure consistency across the stack, the following schema must be used when p
 | node_name | String | The specific node that triggered the error. |
 | timestamp | ISO8601 | The exact time of the failure. |
 | message | String | The human-readable error message. |
+
+## Reference Implementation: Home Assistant Dashboard
+
+To visualize the error queue in Home Assistant, use a **Markdown Card** in your dashboard. This card parses the attributes of the `sensor.n8n_error_queue` created by the reference n8n workflow.
+
+### Dashboard Card (Markdown)
+
+```yaml
+type: markdown
+title: n8n Error Queue
+content: >
+  **Status**: {{ state_attr('sensor.n8n_error_queue', 'status') }}
+
+  **Message**: {{ states('sensor.n8n_error_queue') }}
+
+  **Workflow ID**: {{ state_attr('sensor.n8n_error_queue', 'workflow_id') }}
+
+  **Failed Node**: {{ state_attr('sensor.n8n_error_queue', 'node_name') }}
+
+  **Last Occurred**: {{ state_attr('sensor.n8n_error_queue', 'timestamp') }}
+```
+
+### Manual Configuration (configuration.yaml)
+
+If you prefer to define the sensor manually to ensure it exists before the first n8n push:
+
+```yaml
+template:
+  - sensor:
+      - name: "n8n Error Queue"
+        unique_id: n8n_error_queue
+        state: "No errors"
+        attributes:
+          status: "healthy"
+          workflow_id: "none"
+          node_name: "none"
+          timestamp: "N/A"
+```
