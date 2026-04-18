@@ -1498,6 +1498,18 @@
       "name": "Shelly",
       "category": "Automation & Orchestration",
       "doc_path": "docs/knowledge_base/energy-anomaly-detection-baseline.md"
+    },
+    {
+      "id": "dex",
+      "name": "Dex",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/dex.md"
+    },
+    {
+      "id": "nano-banana",
+      "name": "Nano Banana",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/nano-banana.md"
     }
   ]
 }

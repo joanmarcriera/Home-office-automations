@@ -10,8 +10,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Create a basic Home Assistant dashboard to display the error queue via REST sensor or MQTT (see [Dashboard Config](docs/knowledge_base/patterns/n8n-error-handling.md)).
 
 - **Human-in-the-Loop (HITL) UI**: A simple web interface to approve or correct AI-extracted dates before they hit the calendar.
-    - [ ] Design Backend API for document approval staging.
-    - [ ] Prototype Frontend UI for rapid human verification.
+    - [ ] Define Backend API endpoints (GET `/staged-docs`, POST `/approve/{id}`, POST `/reject/{id}`).
+    - [ ] Select Frontend framework (Streamlit for rapid prototyping vs React for durability).
+    - [ ] Design database schema for staged extractions (staged_at, original_metadata, corrected_metadata).
     - [ ] Integrate verified dates with Google/Proton Calendar.
 
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
@@ -19,7 +20,7 @@ This document tracks missing components and planned technical improvements for t
 ## Nice-to-Haves
 - **Multi-Calendar Conflict Detection**: Checking both husband and wife's calendars before suggesting an event time.
 - **Voice-to-Task**: Integrating [Ollama](./services/ollama.md) with local voice-to-text for hands-free task creation.
-- **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days.
+- [x] **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days (see `scripts/paperless_retention.py`).
 
 ## 🌟 Future Projects (Home-Centric AI)
 
@@ -72,6 +73,9 @@ This document tracks missing components and planned technical improvements for t
 - **Self-Healing Homelab Agent**:
     - *Goal*: An AI agent that monitors [TrueNAS SCALE](architecture/infrastructure.md) logs and automatically restarts services or alerts on hardware failure.
     - *Stack*: [n8n](./services/n8n.md), [Tailscale](./services/tailscale.md), local specialized agent.
+    - [ ] Research TrueNAS SCALE log streaming via syslog or webhooks for real-time monitoring.
+    - [ ] Identify critical service health check endpoints (e.g., Paperless-ngx, Home Assistant).
+    - [ ] Define automated restart logic for Docker containers vs K3s pods.
 - **Sovereign Identity & SSO**:
     - *Goal*: Fully self-hosted single sign-on for all family members across all services.
     - *Stack*: Authentik or LL-LDAP.
