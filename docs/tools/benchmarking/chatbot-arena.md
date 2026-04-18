@@ -34,8 +34,8 @@ Provides a human-preference-based ranking of LLMs that captures subjective quali
 
 ## Related tools / concepts
 
-- [AlpacaEval](https://github.com/tatsu-lab/alpaca_eval)
-- [MT-Bench](https://github.com/lm-sys/FastChat/tree/main/fastchat/llm_judge)
+- [AlpacaEval](alpaca-eval.md)
+- [MT-Bench](mt-bench.md)
 - [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 - [SWE-bench](swe-bench.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)

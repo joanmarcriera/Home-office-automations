@@ -660,6 +660,24 @@
       "doc_path": "docs/tools/benchmarking/evalplus.md"
     },
     {
+      "id": "alpaca-eval",
+      "name": "AlpacaEval",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/alpaca-eval.md"
+    },
+    {
+      "id": "mt-bench",
+      "name": "MT-Bench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/mt-bench.md"
+    },
+    {
+      "id": "math-benchmark",
+      "name": "MATH Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/math-benchmark.md"
+    },
+    {
       "id": "actual-budget",
       "name": "Actual Budget",
       "category": "Intake & Storage",

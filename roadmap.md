@@ -4,6 +4,10 @@ This document tracks missing components and planned technical improvements for t
 
 ## Missing Pieces (Must-Haves)
 - **Centralized Error Queue**: A unified dashboard (e.g. specialized Home Assistant view) to see all failed n8n workflows.
+    - [ ] Research dashboard tools for n8n error visualization (e.g., Home Assistant, custom Grafana dashboard).
+    - [ ] Define a standardized error schema for n8n sub-workflows (status, model, workflow_id, timestamp).
+    - [ ] Implement a "Push to Error Queue" sub-workflow in n8n for global reuse.
+    - [ ] Create a basic Home Assistant dashboard to display the error queue via REST sensor or MQTT.
 - **Human-in-the-Loop (HITL) UI**: A simple web interface to approve or correct AI-extracted dates before they hit the calendar.
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
 
@@ -29,9 +33,10 @@ This document tracks missing components and planned technical improvements for t
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
-    - [ ] Research Home Assistant power monitoring sensors in `docs/services/home-assistant.md`.
-    - [ ] Define baseline vs anomaly logic in a new reference implementation file.
-    - [ ] Create n8n workflow for LLM-based reasoning using Ollama node.
+    - [ ] Identify candidate power monitoring sensors in Home Assistant for key appliances (Washer, Fridge, EV).
+    - [ ] Research Home Assistant "Utility Meter" and "Derivative" sensors for baseline usage patterns.
+    - [ ] Define baseline vs anomaly logic (e.g., spike duration, time-of-day weighting) in a new reference implementation file.
+    - [ ] Create n8n workflow for LLM-based reasoning using Ollama node to classify spikes as "Normal" or "Anomaly".
 
 ### Family Knowledge Management
 - **Personalized Family "Daily Briefing"**:
