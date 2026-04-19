@@ -22,13 +22,19 @@ This document tracks missing components and planned technical improvements for t
 
 ## Nice-to-Haves
 - **Multi-Calendar Conflict Detection**: Checking both husband and wife's calendars before suggesting an event time.
-    - [ ] Research Google Calendar Free/Busy API for availability checks.
-    - [ ] Research [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) for multi-calendar reading capabilities.
+    - [x] Research Google Calendar Free/Busy API for availability checks (see [Multi-Calendar Research](docs/knowledge_base/multi-calendar-conflict-research.md)).
+    - [x] Research [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) for multi-calendar reading capabilities (see [Multi-Calendar Research](docs/knowledge_base/multi-calendar-conflict-research.md)).
     - [ ] Implement n8n logic to aggregate availability and identify conflicts.
+        - [ ] Design n8n workflow to fetch Free/Busy data from multiple Google accounts.
+        - [ ] Implement JSON logic to find overlapping busy slots and identify available 'free' gaps.
+        - [ ] Create n8n 'Conflict Alert' notification for Telegram.
 - **Voice-to-Task**: Integrating [Ollama](./services/ollama.md) with local voice-to-text for hands-free task creation.
-    - [ ] Research Whisper.cpp for local high-performance Speech-to-Text (STT).
-    - [ ] Integrate STT with Home Assistant Assist voice pipeline.
+    - [x] Research Whisper.cpp for local high-performance Speech-to-Text (STT) (see [Voice-to-Task Research](docs/knowledge_base/voice-to-task-research.md)).
+    - [x] Integrate STT with Home Assistant Assist voice pipeline (see [Voice-to-Task Research](docs/knowledge_base/voice-to-task-research.md)).
     - [ ] Create n8n trigger to process voice-extracted tasks and route to Vikunja.
+        - [ ] Deploy Wyoming-Whisper container on the compute node.
+        - [ ] Configure 'Voice Assistant' in Home Assistant using the Wyoming STT service.
+        - [ ] Create n8n webhook trigger to receive transcribed text from HA and parse into Vikunja tasks.
 - [x] **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days (see `scripts/paperless_retention.py`).
 
 ## 🌟 Future Projects (Home-Centric AI)
