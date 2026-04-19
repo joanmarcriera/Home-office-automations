@@ -13,8 +13,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Define Backend API endpoints (GET `/staged-docs`, POST `/approve/{id}`, POST `/reject/{id}`) (see [HITL UI Design](docs/reference-implementations/hitl-ui-design.md)).
     - [x] Select Frontend framework (Streamlit for rapid prototyping vs React for durability).
     - [x] Design database schema for staged extractions (staged_at, original_metadata, corrected_metadata).
+    - [x] Implement reference implementation for HITL UI (see [HITL UI Implementation](docs/reference-implementations/hitl-ui/)).
     - [ ] Integrate verified dates with Google/Proton Calendar:
-        - [ ] Implement Google Calendar API integration (POST /events).
+        - [x] Implement Google Calendar API integration (POST /events) (see [Reference Script](scripts/gcal_sync_reference.py)).
         - [ ] Implement Proton Calendar event creation via [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md).
 
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
@@ -82,7 +83,7 @@ This document tracks missing components and planned technical improvements for t
     - *Goal*: Fully self-hosted single sign-on for all family members across all services.
     - *Stack*: Authentik or LL-LDAP.
     - [x] Research Authentik vs Kanidm vs LL-LDAP for family use (see [SSO Comparison](docs/knowledge_base/sso-comparison.md)).
-    - [ ] Deploy chosen SSO solution via Docker.
+    - [x] Deploy chosen SSO solution via Docker (see [Authentik Service](docs/services/authentik.md)).
     - [ ] Configure OIDC for first 3 services (Nextcloud, Vikunja, Gitea).
     - [ ] Set up 2FA for all family member accounts.
 
