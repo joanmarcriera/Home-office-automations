@@ -96,6 +96,7 @@ curl -X GET "http://localhost:3000/api/v1/repos/owner/repo" \
 - [Forgejo](https://forgejo.org/)
 
 ## Backlog
+- Configure OIDC authentication via [Authentik](authentik.md) for Single Sign-On.
 - Set up Gitea Actions for automated repository tasks.
 
 ## Sources / References

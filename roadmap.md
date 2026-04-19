@@ -16,7 +16,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Implement reference implementation for HITL UI (see [HITL UI Implementation](docs/reference-implementations/hitl-ui/)).
     - [ ] Integrate verified dates with Google/Proton Calendar:
         - [x] Implement Google Calendar API integration (POST /events) (see [Reference Script](scripts/gcal_sync_reference.py)).
-        - [ ] Implement Proton Calendar event creation via [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md).
+        - [x] Implement Proton Calendar event creation via [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) (see [Reference Script](scripts/chronos_sync_reference.py)).
 
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
 
@@ -37,6 +37,8 @@ This document tracks missing components and planned technical improvements for t
         - [x] Research Milvus vs Chroma vs Qdrant for local manual RAG storage (see [Vector DB Comparison](docs/knowledge_base/vector-db-comparison.md)).
         - [x] Design metadata schema for manuals (model number, manufacturer, year, document type) (see [Manuals Schema](docs/reference-implementations/metadata-schemas/manuals.md)).
         - [ ] Implement chunking and embedding pipeline for OCR'd PDF manuals.
+            - [ ] Implement section-aware chunking for "Troubleshooting" and "Maintenance" sections.
+            - [ ] Configure metadata extraction (manufacturer, model) during ingestion.
         - [ ] Verify retrieval accuracy and relevance with a test set of common household manuals.
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
 - **Smart Energy Anomaly Detection**:
@@ -112,19 +114,26 @@ This document tracks missing components and planned technical improvements for t
 
 ### Long-Term
 - [ ] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md).
-    - [ ] Design LangChain agent structure and tool definitions.
-    - [ ] Implement Paperless-ngx tool for RAG retrieval.
-    - [ ] Integrate agent with Vikunja for task status updates.
-    - [ ] Add voice interface via local Whisper/Piper.
+    - [ ] **Agent Architecture**:
+        - [ ] Design LangChain agent structure and tool definitions.
+        - [ ] Research and select state management for agent memory (e.g., LangGraph).
+    - [ ] **Tool Integrations**:
+        - [ ] Implement Paperless-ngx tool for RAG retrieval.
+        - [ ] Integrate agent with Vikunja for task status updates and creation.
+        - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
+    - [ ] **User Interface**:
+        - [ ] Implement a simple Chat UI for the agent.
+        - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [ ] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS.
     - [ ] **Networking & Ingress**:
-        - [ ] Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support.
-        - [ ] Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx with [Cert-Manager](https://cert-manager.io/).
-        - [ ] Configure External-DNS for automated DNS record management.
+        - [ ] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
+        - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
+        - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
+        - [ ] **DNS Automation**: Configure External-DNS for automated DNS record management with local/cloud providers.
     - [ ] **Storage**:
-        - [ ] Implement Longhorn for distributed block storage.
-        - [ ] Configure NFS CSI driver for TrueNAS integration.
+        - [ ] **Distributed Storage**: Implement Longhorn for high-availability distributed block storage across nodes.
+        - [ ] **Legacy Integration**: Configure NFS CSI driver for persistent volumes stored on TrueNAS SCALE.
     - [ ] **Compute**:
         - [ ] Set up 3-node K3s cluster.
         - [ ] Implement node affinity/taints for specialized workloads (e.g., GPU).

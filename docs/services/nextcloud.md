@@ -74,6 +74,7 @@ curl -u admin:password \
 - [Seafile](https://www.seafile.com/)
 
 ## Backlog
+- Configure OIDC authentication via [Authentik](authentik.md) using the `user_oidc` app.
 - Setup Nextcloud Office with Collabora Online.
 - Enable end-to-end encryption for sensitive folders.
 

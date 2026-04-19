@@ -552,6 +552,12 @@
       "doc_path": "docs/services/authentik.md"
     },
     {
+      "id": "headscale",
+      "name": "Headscale",
+      "category": "Infrastructure",
+      "doc_path": "docs/services/headscale.md"
+    },
+    {
       "id": "humanitys-last-exam",
       "name": "Humanity's Last Exam (HLE)",
       "category": "Benchmarking",
