@@ -101,6 +101,7 @@ nav:
       - Focalboard: services/focalboard.md
       - Gitea: services/gitea.md
       - Grocy: services/grocy.md
+      - Headscale: services/headscale.md
       - Habitica: services/habitica.md
       - Home Assistant: services/home-assistant.md
       - Homebox: services/homebox.md
@@ -334,6 +335,7 @@ nav:
       - Overview: tools/orchestration/index.md
     - Infrastructure:
       - Docker: tools/infrastructure/docker.md
+      - Headscale: services/headscale.md
       - Overview: tools/infrastructure/index.md
       - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
       - ClawRouter: tools/infrastructure/clawrouter.md

@@ -79,6 +79,7 @@ Use your own private Vikunja base URL here. Do not commit instance-specific URLs
 - [Nextcloud Tasks](nextcloud.md)
 
 ## Backlog
+- Configure OIDC authentication via [Authentik](authentik.md) for Single Sign-On.
 - Sync with CalDAV (Radicale).
 
 ## Sources / References
