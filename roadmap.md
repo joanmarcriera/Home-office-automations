@@ -14,7 +14,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Select Frontend framework (Streamlit for rapid prototyping vs React for durability).
     - [x] Design database schema for staged extractions (staged_at, original_metadata, corrected_metadata).
     - [x] Implement reference implementation for HITL UI (see [HITL UI Implementation](docs/reference-implementations/hitl-ui/)).
-    - [ ] Integrate verified dates with Google/Proton Calendar:
+    - [x] Integrate verified dates with Google/Proton Calendar:
         - [x] Implement Google Calendar API integration (POST /events) (see [Reference Script](scripts/gcal_sync_reference.py)).
         - [x] Implement Proton Calendar event creation via [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) (see [Reference Script](scripts/chronos_sync_reference.py)).
 
@@ -22,7 +22,13 @@ This document tracks missing components and planned technical improvements for t
 
 ## Nice-to-Haves
 - **Multi-Calendar Conflict Detection**: Checking both husband and wife's calendars before suggesting an event time.
+    - [ ] Research Google Calendar Free/Busy API for availability checks.
+    - [ ] Research [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) for multi-calendar reading capabilities.
+    - [ ] Implement n8n logic to aggregate availability and identify conflicts.
 - **Voice-to-Task**: Integrating [Ollama](./services/ollama.md) with local voice-to-text for hands-free task creation.
+    - [ ] Research Whisper.cpp for local high-performance Speech-to-Text (STT).
+    - [ ] Integrate STT with Home Assistant Assist voice pipeline.
+    - [ ] Create n8n trigger to process voice-extracted tasks and route to Vikunja.
 - [x] **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days (see `scripts/paperless_retention.py`).
 
 ## 🌟 Future Projects (Home-Centric AI)
@@ -86,7 +92,7 @@ This document tracks missing components and planned technical improvements for t
     - *Stack*: Authentik or LL-LDAP.
     - [x] Research Authentik vs Kanidm vs LL-LDAP for family use (see [SSO Comparison](docs/knowledge_base/sso-comparison.md)).
     - [x] Deploy chosen SSO solution via Docker (see [Authentik Service](docs/services/authentik.md)).
-    - [ ] Configure OIDC for first 3 services (Nextcloud, Vikunja, Gitea).
+    - [x] Configure OIDC for first 3 services (Nextcloud, Vikunja, Gitea).
     - [ ] Set up 2FA for all family member accounts.
 
 ## Technical Next Steps
