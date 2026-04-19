@@ -1522,6 +1522,24 @@
       "name": "Self-Healing Agent",
       "category": "Automation & Orchestration",
       "doc_path": "docs/knowledge_base/self-healing-agent-research.md"
+    },
+    {
+      "id": "vector-db-comparison",
+      "name": "Vector DB Comparison",
+      "category": "Knowledge Base",
+      "doc_path": "docs/knowledge_base/vector-db-comparison.md"
+    },
+    {
+      "id": "vision-models-research",
+      "name": "Vision Models Research",
+      "category": "Knowledge Base",
+      "doc_path": "docs/knowledge_base/vision-models-research.md"
+    },
+    {
+      "id": "obsidian-vector-search",
+      "name": "Obsidian Vector Search",
+      "category": "Knowledge Base",
+      "doc_path": "docs/knowledge_base/obsidian-vector-search.md"
     }
   ]
 }
