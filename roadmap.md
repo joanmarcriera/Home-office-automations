@@ -10,9 +10,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Create a basic Home Assistant dashboard to display the error queue via REST sensor or MQTT (see [Dashboard Config](docs/knowledge_base/patterns/n8n-error-handling.md)).
 
 - **Human-in-the-Loop (HITL) UI**: A simple web interface to approve or correct AI-extracted dates before they hit the calendar.
-    - [ ] Define Backend API endpoints (GET `/staged-docs`, POST `/approve/{id}`, POST `/reject/{id}`).
-    - [ ] Select Frontend framework (Streamlit for rapid prototyping vs React for durability).
-    - [ ] Design database schema for staged extractions (staged_at, original_metadata, corrected_metadata).
+    - [x] Define Backend API endpoints (GET `/staged-docs`, POST `/approve/{id}`, POST `/reject/{id}`) (see [HITL UI Design](docs/reference-implementations/hitl-ui-design.md)).
+    - [x] Select Frontend framework (Streamlit for rapid prototyping vs React for durability).
+    - [x] Design database schema for staged extractions (staged_at, original_metadata, corrected_metadata).
     - [ ] Integrate verified dates with Google/Proton Calendar.
 
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
@@ -29,7 +29,7 @@ This document tracks missing components and planned technical improvements for t
     - *Goal*: Automatically track warranty expiration from scanned receipts and provide chat-based troubleshooting using scanned manuals.
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [n8n](./services/n8n.md), local LLM (RAG).
     - [x] Define Paperless-ngx tag schema for warranties and manuals.
-    - [ ] Create n8n workflow to extract expiration dates from warranty documents.
+    - [x] Create n8n workflow to extract expiration dates from warranty documents (see [Warranty Extraction Prompt](docs/reference-implementations/llm-prompts/warranty-extraction.md)).
     - [ ] Set up Vector DB index for scanned manuals:
         - [ ] Research Milvus vs Chroma vs Qdrant for local manual RAG storage.
         - [ ] Design metadata schema for manuals (model number, manufacturer, year, document type).
@@ -73,9 +73,9 @@ This document tracks missing components and planned technical improvements for t
 - **Self-Healing Homelab Agent**:
     - *Goal*: An AI agent that monitors [TrueNAS SCALE](architecture/infrastructure.md) logs and automatically restarts services or alerts on hardware failure.
     - *Stack*: [n8n](./services/n8n.md), [Tailscale](./services/tailscale.md), local specialized agent.
-    - [ ] Research TrueNAS SCALE log streaming via syslog or webhooks for real-time monitoring.
-    - [ ] Identify critical service health check endpoints (e.g., Paperless-ngx, Home Assistant).
-    - [ ] Define automated restart logic for Docker containers vs K3s pods.
+    - [x] Research TrueNAS SCALE log streaming via syslog or webhooks for real-time monitoring (see [Self-Healing Agent Research](docs/knowledge_base/self-healing-agent-research.md)).
+    - [x] Identify critical service health check endpoints (e.g., Paperless-ngx, Home Assistant).
+    - [x] Define automated restart logic for Docker containers vs K3s pods.
 - **Sovereign Identity & SSO**:
     - *Goal*: Fully self-hosted single sign-on for all family members across all services.
     - *Stack*: Authentik or LL-LDAP.

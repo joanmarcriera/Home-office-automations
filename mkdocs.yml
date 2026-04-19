@@ -372,6 +372,7 @@ nav:
     - Overview: knowledge_base/README.md
     - n8n Error Handling: knowledge_base/patterns/n8n-error-handling.md
     - Energy Anomaly Detection: knowledge_base/energy-anomaly-detection-baseline.md
+    - Self-Healing Agent: knowledge_base/self-healing-agent-research.md
     - AI Builder Index: knowledge_base/ai_builder_index.md
     - Free AI Website Playbook: knowledge_base/free_ai_website_playbook.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
@@ -404,12 +405,14 @@ nav:
       - Filesystem-as-Interface: knowledge_base/patterns/filesystem-context.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
+    - HITL UI Design: reference-implementations/hitl-ui-design.md
     - Webhook Ingestion: reference-implementations/paperless/webhook-ingestion.md
     - Calendar:
       - Mapping Rules: reference-implementations/calendar/mapping-rules.md
     - LLM Prompts:
       - Date Extraction: reference-implementations/llm-prompts/date-extraction.md
       - Extraction And Classification: reference-implementations/llm-prompts/extraction-and-classification.md
+      - Warranty Extraction: reference-implementations/llm-prompts/warranty-extraction.md
     - N8N:
       - Overview: reference-implementations/n8n/README.md
     - Paperless:

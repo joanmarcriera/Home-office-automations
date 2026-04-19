@@ -1510,6 +1510,18 @@
       "name": "Nano Banana",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/nano-banana.md"
+    },
+    {
+      "id": "hitl-ui",
+      "name": "HITL UI",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/reference-implementations/hitl-ui-design.md"
+    },
+    {
+      "id": "self-healing-agent",
+      "name": "Self-Healing Agent",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/knowledge_base/self-healing-agent-research.md"
     }
   ]
 }
