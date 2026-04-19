@@ -13,7 +13,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Define Backend API endpoints (GET `/staged-docs`, POST `/approve/{id}`, POST `/reject/{id}`) (see [HITL UI Design](docs/reference-implementations/hitl-ui-design.md)).
     - [x] Select Frontend framework (Streamlit for rapid prototyping vs React for durability).
     - [x] Design database schema for staged extractions (staged_at, original_metadata, corrected_metadata).
-    - [ ] Integrate verified dates with Google/Proton Calendar.
+    - [ ] Integrate verified dates with Google/Proton Calendar:
+        - [ ] Implement Google Calendar API integration (POST /events).
+        - [ ] Implement Proton Calendar event creation via [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md).
 
 - [x] **Audit Trail**: Logging which LLM version and prompt version was used for every document extraction (see [Standards](docs/standards.md)).
 
@@ -30,9 +32,9 @@ This document tracks missing components and planned technical improvements for t
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [n8n](./services/n8n.md), local LLM (RAG).
     - [x] Define Paperless-ngx tag schema for warranties and manuals.
     - [x] Create n8n workflow to extract expiration dates from warranty documents (see [Warranty Extraction Prompt](docs/reference-implementations/llm-prompts/warranty-extraction.md)).
-    - [ ] Set up Vector DB index for scanned manuals:
-        - [ ] Research Milvus vs Chroma vs Qdrant for local manual RAG storage.
-        - [ ] Design metadata schema for manuals (model number, manufacturer, year, document type).
+    - [x] Set up Vector DB index for scanned manuals:
+        - [x] Research Milvus vs Chroma vs Qdrant for local manual RAG storage (see [Vector DB Comparison](docs/knowledge_base/vector-db-comparison.md)).
+        - [x] Design metadata schema for manuals (model number, manufacturer, year, document type) (see [Manuals Schema](docs/reference-implementations/metadata-schemas/manuals.md)).
         - [ ] Implement chunking and embedding pipeline for OCR'd PDF manuals.
         - [ ] Verify retrieval accuracy and relevance with a test set of common household manuals.
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
@@ -42,7 +44,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Identify candidate power monitoring sensors in Home Assistant for key appliances (Washer, Fridge, EV) (see [Baseline Logic](docs/knowledge_base/energy-anomaly-detection-baseline.md)).
     - [x] Research Home Assistant "Utility Meter" and "Derivative" sensors for baseline usage patterns.
     - [x] Define baseline vs anomaly logic (e.g., spike duration, time-of-day weighting) in a new reference implementation file.
-    - [ ] Create n8n workflow for LLM-based reasoning using Ollama node to classify spikes as "Normal" or "Anomaly".
+    - [x] Create n8n workflow for LLM-based reasoning using Ollama node to classify spikes as "Normal" or "Anomaly" (see [Workflow Template](docs/reference-implementations/n8n/energy-anomaly-classifier.json)).
 
 ### Family Knowledge Management
 - **Personalized Family "Daily Briefing"**:
@@ -50,19 +52,19 @@ This document tracks missing components and planned technical improvements for t
     - *Stack*: [n8n](./services/n8n.md), [Vikunja](./services/vikunja.md), [Google Calendar](./tools/calendar_tasks/google_calendar.md).
     - [x] Research n8n "Google Calendar" and "Vikunja" nodes for event aggregation (see [Integration Details](docs/reference-implementations/llm-prompts/daily-briefing.md)).
     - [x] Design Daily Briefing prompt template in `docs/reference-implementations/llm-prompts/daily-briefing.md`.
-    - [ ] Implement n8n workflow for scheduled morning delivery via Telegram/Email.
+    - [x] Implement n8n workflow for scheduled morning delivery via Telegram/Email (see [Workflow Template](docs/reference-implementations/n8n/daily-briefing-flow.json)).
 - **Semantic Search for Family History**:
     - *Goal*: Natural language search across decades of family documents, journals, and logs.
     - *Stack*: [Paperless-ngx](./services/paperless-ngx.md), [Obsidian](./tools/ai_knowledge/obsidian.md), local Vector DB.
     - [x] Define Paperless-ngx document types for historical archives (see [Tag Taxonomy](reference-implementations/paperless/tag-taxonomy.md)).
-    - [ ] Research vector embedding scripts for Obsidian journals.
+    - [x] Research vector embedding scripts for Obsidian journals (see [Obsidian Vector Search](docs/knowledge_base/obsidian-vector-search.md)).
     - [ ] Set up local Vector DB index for OCR'd text search.
 
 ### Media & Entertainment
 - **AI-Categorized Home Video Archive**:
     - *Goal*: Automated tagging and semantic search for home videos (e.g., "Find the video of the birthday party").
     - *Stack*: Local vision models (CLIP/Whisper), TrueNAS storage.
-    - [ ] Research local vision models for video frame embedding.
+    - [x] Research local vision models for video frame embedding (see [Vision Models Research](docs/knowledge_base/vision-models-research.md)).
     - [ ] Prototype metadata extraction script using Whisper and CLIP.
     - [ ] Set up Vector DB for semantic search over video metadata.
 - **Local Audio Library Enrichment**:
@@ -109,9 +111,10 @@ This document tracks missing components and planned technical improvements for t
 
 ### Long-Term
 - [ ] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md).
-    - [ ] Implement RAG over Paperless-ngx documents.
+    - [ ] Design LangChain agent structure and tool definitions.
+    - [ ] Implement Paperless-ngx tool for RAG retrieval.
     - [ ] Integrate agent with Vikunja for task status updates.
-    - [ ] Add voice interface via Whisper/Piper.
+    - [ ] Add voice interface via local Whisper/Piper.
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [ ] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS.
     - [ ] **Networking & Ingress**:

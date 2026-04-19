@@ -1,0 +1,75 @@
+{
+  "name": "Smart Energy Anomaly Classifier",
+  "nodes": [
+    {
+      "parameters": {
+        "event": "state_changed",
+        "entityId": "sensor.total_house_power"
+      },
+      "name": "Home Assistant Trigger",
+      "type": "n8n-nodes-base.homeAssistant",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.new_state.state}}",
+              "operation": "larger",
+              "value2": 3000
+            }
+          ]
+        }
+      },
+      "name": "Power Threshold",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3",
+        "prompt": "=Analyze this power spike: {{$json.new_state.state}} Watts. Given historical baseline, is this a known appliance or an anomaly?"
+      },
+      "name": "Analyze Spike (Ollama)",
+      "type": "n8n-nodes-base.ollama",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Home Assistant Trigger": {
+      "main": [
+        [
+          {
+            "node": "Power Threshold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Power Threshold": {
+      "main": [
+        [
+          {
+            "node": "Analyze Spike (Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
