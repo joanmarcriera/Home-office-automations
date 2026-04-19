@@ -78,8 +78,28 @@ Use your own private Vikunja base URL here. Do not commit instance-specific URLs
 - [Focalboard](focalboard.md)
 - [Nextcloud Tasks](nextcloud.md)
 
+## SSO & OIDC Integration
+Vikunja supports OIDC for Single Sign-On via [Authentik](authentik.md).
+
+### Configuration (`config.yml`)
+Add the following to your `config.yml`:
+
+```yaml
+auth:
+  openid:
+    enabled: true
+    providers:
+      authentik:
+        name: "Authentik"
+        authurl: "https://authentik.example.com/application/o/vikunja/"
+        clientid: "<Your Client ID>"
+        clientsecret: "<Your Client Secret>"
+        scope: "openid profile email"
+```
+
+In Authentik, configure the Redirect URI as: `https://vikunja.example.com/auth/openid/authentik`
+
 ## Backlog
-- Configure OIDC authentication via [Authentik](authentik.md) for Single Sign-On.
 - Sync with CalDAV (Radicale).
 
 ## Sources / References
@@ -89,5 +109,5 @@ Use your own private Vikunja base URL here. Do not commit instance-specific URLs
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-04-08
 - Confidence: high

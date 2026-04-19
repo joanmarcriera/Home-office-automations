@@ -73,8 +73,25 @@ curl -u admin:password \
 - [Owncloud](https://owncloud.com/)
 - [Seafile](https://www.seafile.com/)
 
+## SSO & OIDC Integration
+Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On using the `user_oidc` app.
+
+### Configuration Steps
+1.  **Install App**: In Nextcloud, go to **Apps** and install the **OpenID Connect user backend** (`user_oidc`) app.
+2.  **Authentik Provider**: Create an OAuth2/OpenID Provider in Authentik:
+    -   **Client Type**: Confidential.
+    -   **Redirect URIs**: `https://nextcloud.example.com/apps/user_oidc/openid-callback/authentik`
+3.  **Nextcloud Settings**: Go to **Administration settings > OpenID Connect**:
+    -   **Provider Identifier**: `authentik`
+    -   **Discovery Endpoint**: `https://authentik.example.com/application/o/nextcloud/.well-known/openid-configuration`
+    -   **Client ID**: `<Your Client ID>`
+    -   **Client Secret**: `<Your Client Secret>`
+    -   **Scope**: `openid profile email`
+
+> [!WARNING]
+> If you require Server-Side Encryption, you must use LDAP instead of OIDC, as encryption requires the user's cleartext password which is not provided by OIDC.
+
 ## Backlog
-- Configure OIDC authentication via [Authentik](authentik.md) using the `user_oidc` app.
 - Setup Nextcloud Office with Collabora Online.
 - Enable end-to-end encryption for sensitive folders.
 
@@ -86,4 +103,4 @@ curl -u admin:password \
 
 ## Contribution Metadata
 - Confidence: medium
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-04-08

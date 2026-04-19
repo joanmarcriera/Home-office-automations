@@ -95,8 +95,24 @@ curl -X GET "http://localhost:3000/api/v1/repos/owner/repo" \
 - [GitLab](https://about.gitlab.com/)
 - [Forgejo](https://forgejo.org/)
 
+## SSO & OIDC Integration
+Gitea supports OIDC for Single Sign-On via [Authentik](authentik.md).
+
+### Configuration Steps
+1.  Navigate to **Site Administration > Authentication Sources**.
+2.  Click **Add Authentication Source**.
+3.  Set **Authentication Type** to `OpenID Connect`.
+4.  Configure the following:
+    -   **Authentication Name**: `authentik`
+    -   **OAuth2 Provider**: `OpenID Connect`
+    -   **Client ID (Key)**: `<Your Client ID>`
+    -   **Client Secret**: `<Your Client Secret>`
+    -   **OpenID Connect Auto Discovery URL**: `https://authentik.example.com/application/o/gitea/.well-known/openid-configuration`
+    -   **Additional Scopes**: `email profile`
+
+In Authentik, the Redirect URI should be: `https://gitea.example.com/user/oauth2/authentik/callback`
+
 ## Backlog
-- Configure OIDC authentication via [Authentik](authentik.md) for Single Sign-On.
 - Set up Gitea Actions for automated repository tasks.
 
 ## Sources / References
@@ -108,5 +124,5 @@ curl -X GET "http://localhost:3000/api/v1/repos/owner/repo" \
 - [Forgejo](https://forgejo.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-08
+- Last reviewed: 2026-04-08
 - Confidence: high

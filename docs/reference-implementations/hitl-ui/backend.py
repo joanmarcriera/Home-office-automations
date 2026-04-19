@@ -3,6 +3,19 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 import uuid
+import sys
+import os
+
+# Import reference calendar sync scripts
+# In a real-world scenario, these would be part of a shared library or microservice
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "scripts"))
+try:
+    from gcal_sync_reference import create_gcal_event
+    from chronos_sync_reference import create_caldav_event
+except ImportError:
+    # Fallback for demonstration if scripts aren't in path
+    def create_gcal_event(*args, **kwargs): print("Mock GCal Sync Triggered")
+    def create_caldav_event(*args, **kwargs): print("Mock CalDAV Sync Triggered")
 
 app = FastAPI(title="HITL Staging API")
 
@@ -44,11 +57,24 @@ async def approve_document(id: uuid.UUID, corrected_metadata: Optional[Dict[str,
 
     doc = staged_db[id]
     doc.status = "approved"
-    if corrected_metadata:
-        doc.corrected_metadata = corrected_metadata
+    metadata = corrected_metadata or doc.original_metadata
+    doc.corrected_metadata = corrected_metadata
 
-    # In a real implementation, this would trigger an n8n webhook or similar
-    print(f"Triggering integration for {id} with metadata: {doc.corrected_metadata or doc.original_metadata}")
+    # Trigger Calendar Integration if metadata contains a due_date
+    if "due_date" in metadata:
+        summary = f"Due: {metadata.get('document_type', 'Document')}"
+        description = f"Automated reminder for document: {doc.source_document_url}"
+        start_time = metadata["due_date"] + "T09:00:00Z"
+        end_time = metadata["due_date"] + "T10:00:00Z"
+
+        # Trigger both for demonstration purposes
+        create_gcal_event(summary, description, start_time, end_time)
+
+        caldav_url = os.getenv("CALDAV_CALENDAR_URL", "https://example.com/dav/personal/")
+        create_caldav_event(summary, description, start_time, end_time, caldav_url)
+
+    # In a real implementation, this would also trigger an n8n webhook or similar
+    print(f"Triggering integration for {id} with metadata: {metadata}")
 
     return {"status": "approved", "id": id}
 
