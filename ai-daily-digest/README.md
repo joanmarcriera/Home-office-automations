@@ -1,5 +1,23 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-20
+
+## Digest fallback for 2026-04-20
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Changes in the system prompt between Claude Opus 4.6 and 4.7](https://simonwillison.net/2026/Apr/18/opus-system-prompt/#atom-entries) (Simon Willison's Weblog)
+2. [SmartBear’s Swagger update targets the API drift problem AI coding tools created](https://thenewstack.io/smartbear-swagger-ai-api-management/) (The New Stack)
+3. [Anthropic, OpenAI, Google, and Microsoft agree that the harness is the product. They disagree on the price.](https://thenewstack.io/ai-agent-harness-pricing-split/) (The New Stack)
+4. [Google and OpenAI are making a run at Claude’s desktop moat, and Anthropic is making it easy](https://thenewstack.io/google-and-openai-are-making-a-run-at-claudes-desktop-moat-and-anthropic-is-making-it-easy/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
