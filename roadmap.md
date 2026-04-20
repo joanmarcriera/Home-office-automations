@@ -116,9 +116,9 @@ This document tracks missing components and planned technical improvements for t
 - [x] Roll out the Multi-Agent KnowledgeOps contract (see [Standards](docs/standards.md)).
 
 ### Medium-Term
-- [ ] Implement [Headscale](./services/tailscale.md) for a fully self-hosted mesh network.
+- [ ] Implement [Headscale](./services/headscale.md) for a fully self-hosted mesh network.
     - [ ] Deploy Headscale container.
-    - [ ] Configure OIDC for Headscale.
+    - [x] Configure OIDC for Headscale (see [Headscale Service](docs/services/headscale.md)).
     - [ ] Migrate first 3 nodes from Tailscale SaaS to Headscale.
 - [ ] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
     - [ ] Create n8n node/workflow for "Get Task Dependencies".
@@ -135,7 +135,8 @@ This document tracks missing components and planned technical improvements for t
     - [ ] **Agent Architecture**:
         - [ ] Design LangChain agent structure and tool definitions.
         - [ ] Research and select state management for agent memory (e.g., LangGraph).
-        - [ ] Implement persistent checkpointer for long-running family tasks.
+            - [ ] Implement persistent checkpointer for long-running family tasks using `SqliteSaver`.
+            - [ ] Define graph state schema for cross-tool context sharing.
     - [ ] **Tool Integrations**:
         - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
         - [ ] Integrate agent with Vikunja for task status updates and creation via Vikunja API.
@@ -145,7 +146,7 @@ This document tracks missing components and planned technical improvements for t
         - [ ] Implement a simple Chat UI for the agent.
         - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
-    - [ ] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS.
+    - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
     - [ ] **Networking & Ingress**:
         - [ ] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
         - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
