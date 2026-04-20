@@ -49,9 +49,9 @@ This document tracks missing components and planned technical improvements for t
         - [x] Research Milvus vs Chroma vs Qdrant for local manual RAG storage (see [Vector DB Comparison](docs/knowledge_base/vector-db-comparison.md)).
         - [x] Design metadata schema for manuals (model number, manufacturer, year, document type) (see [Manuals Schema](docs/reference-implementations/metadata-schemas/manuals.md)).
         - [ ] Implement chunking and embedding pipeline for OCR'd PDF manuals.
-            - [ ] Create Python script for section-aware PDF chunking using `PyMuPDF` or `LangChain`.
-            - [ ] Implement metadata extraction logic to pull `model_number` and `manufacturer` from OCR text.
-            - [ ] Configure ChromaDB or Qdrant collection for manual storage.
+            - [x] Create Python script for section-aware PDF chunking using `PyMuPDF` or `LangChain`.
+            - [x] Implement metadata extraction logic to pull `model_number` and `manufacturer` from OCR text.
+            - [x] Configure ChromaDB or Qdrant collection for manual storage.
         - [ ] Verify retrieval accuracy and relevance with a test set of common household manuals.
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
         - [ ] Create Streamlit or Open WebUI frontend for "Manual Assistant".
@@ -117,7 +117,7 @@ This document tracks missing components and planned technical improvements for t
 
 ### Medium-Term
 - [ ] Implement [Headscale](./services/headscale.md) for a fully self-hosted mesh network.
-    - [ ] Deploy Headscale container.
+    - [x] Deploy Headscale container.
     - [x] Configure OIDC for Headscale (see [Headscale Service](docs/services/headscale.md)).
     - [ ] Migrate first 3 nodes from Tailscale SaaS to Headscale.
 - [ ] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
