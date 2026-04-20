@@ -1,0 +1,161 @@
+{
+  "name": "Multi-Calendar Conflict Checker",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 8
+            }
+          ]
+        }
+      },
+      "name": "Daily Check",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "freeBusy",
+        "timeMin": "={{$now.set({ hour: 0, minute: 0, second: 0 }).toISO()}}",
+        "timeMax": "={{$now.plus({days: 7}).toISO()}}",
+        "items": [
+          {
+            "id": "USER_EMAIL_1"
+          }
+        ]
+      },
+      "name": "GCal User 1",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        300,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "freeBusy",
+        "timeMin": "={{$now.set({ hour: 0, minute: 0, second: 0 }).toISO()}}",
+        "timeMax": "={{$now.plus({days: 7}).toISO()}}",
+        "items": [
+          {
+            "id": "USER_EMAIL_2"
+          }
+        ]
+      },
+      "name": "GCal User 2",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        300,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "name": "Merge Calendars",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        550,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const husbandBusy = $items(\"GCal User 1\")[0].json.calendars['USER_EMAIL_1'].busy;\nconst wifeBusy = $items(\"GCal User 2\")[0].json.calendars['USER_EMAIL_2'].busy;\n\nconst conflicts = [];\n\nhusbandBusy.forEach(hSlot => {\n  wifeBusy.forEach(wSlot => {\n    const start = new Date(Math.max(new Date(hSlot.start), new Date(wSlot.start)));\n    const end = new Date(Math.min(new Date(hSlot.end), new Date(wSlot.end)));\n\n    if (start < end) {\n      conflicts.push({\n        start: start.toISOString(),\n        end: end.toISOString(),\n        type: 'Mutual Conflict'\n      });\n    }\n  });\n});\n\nreturn conflicts.map(c => ({ json: c }));"
+      },
+      "name": "Identify Conflicts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        750,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=⚠️ Conflict Alert: Both calendars are busy between {{ $json.start }} and {{ $json.end }}"
+      },
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Check": {
+      "main": [
+        [
+          {
+            "node": "GCal User 1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GCal User 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GCal User 1": {
+      "main": [
+        [
+          {
+            "node": "Merge Calendars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GCal User 2": {
+      "main": [
+        [
+          {
+            "node": "Merge Calendars",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Calendars": {
+      "main": [
+        [
+          {
+            "node": "Identify Conflicts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify Conflicts": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
