@@ -374,6 +374,7 @@ nav:
     - Overview: knowledge_base/README.md
     - n8n Error Handling: knowledge_base/patterns/n8n-error-handling.md
     - Energy Anomaly Detection: knowledge_base/energy-anomaly-detection-baseline.md
+    - Manual Troubleshooting: knowledge_base/manual-troubleshooting-research.md
     - Self-Healing Agent: knowledge_base/self-healing-agent-research.md
     - Multi-Calendar Conflict Research: knowledge_base/multi-calendar-conflict-research.md
     - Voice-to-Task Research: knowledge_base/voice-to-task-research.md
