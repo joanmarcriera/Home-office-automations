@@ -56,7 +56,7 @@ This document tracks missing components and planned technical improvements for t
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
         - [x] Research Open WebUI vs Streamlit for rapid prototyping and family ease-of-use (see [Research](docs/knowledge_base/manual-troubleshooting-research.md)).
         - [x] Define system prompts for the Troubleshooting Assistant (see [Research](docs/knowledge_base/manual-troubleshooting-research.md)).
-        - [ ] Implement n8n or Python backend for hybrid search (keyword + vector) and LLM orchestration.
+        - [x] Implement Python backend for hybrid search (keyword + vector) and LLM orchestration. (see [Reference Backend](docs/reference-implementations/manual-assistant/backend.py))
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
@@ -78,16 +78,18 @@ This document tracks missing components and planned technical improvements for t
     - [x] Define Paperless-ngx document types for historical archives (see [Tag Taxonomy](reference-implementations/paperless/tag-taxonomy.md)).
     - [x] Research vector embedding scripts for Obsidian journals (see [Obsidian Vector Search](docs/knowledge_base/obsidian-vector-search.md)).
     - [ ] Set up local Vector DB index for OCR'd text search.
-        - [ ] Implement n8n or Python script to export OCR'd text from Paperless-ngx via REST API.
+        - [x] Implement Python script to export OCR'd text from Paperless-ngx via REST API. (see `scripts/paperless_export_text.py`)
         - [ ] Implement incremental indexing logic for new Obsidian vault entries using `docs/knowledge_base/obsidian-vector-search.md` as a baseline.
         - [ ] Develop a unified search CLI/API for cross-source (Paperless + Obsidian) semantic queries.
+            - [ ] Define Pydantic schemas for the unified search results API.
+            - [ ] Implement a simple BM25-like keyword ranking for Paperless results to complement vector search.
 
 ### Media & Entertainment
 - **AI-Categorized Home Video Archive**:
     - *Goal*: Automated tagging and semantic search for home videos (e.g., "Find the video of the birthday party").
     - *Stack*: Local vision models (CLIP/Whisper), TrueNAS storage.
     - [x] Research local vision models for video frame embedding (see [Vision Models Research](docs/knowledge_base/vision-models-research.md)).
-    - [ ] Prototype metadata extraction script using Whisper (audio) and CLIP (visual).
+    - [x] Prototype metadata extraction script using Whisper (audio) and CLIP (visual). (see `scripts/video_metadata_prototype.py`)
     - [ ] Configure Vector DB collection for video metadata storage.
     - [ ] Implement semantic search interface for video archive.
 - **Local Audio Library Enrichment**:
@@ -143,6 +145,8 @@ This document tracks missing components and planned technical improvements for t
     - [ ] **Tool Integrations**:
         - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
         - [ ] Integrate agent with Vikunja for task status updates and creation via Vikunja API.
+            - [ ] Implement a tool for the agent to query the Vikunja API for task status.
+            - [ ] Design the prompt for the agent's task-routing logic.
         - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
         - [ ] Add "Home Assistant Tool" to control lights/scenes via the agent.
     - [ ] **User Interface**:
@@ -152,6 +156,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
     - [ ] **Networking & Ingress**:
         - [ ] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
+            - [ ] Create a MetalLB IPAddressPool manifest for the cluster.
         - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
         - [ ] **DNS Automation**:
@@ -166,4 +171,5 @@ This document tracks missing components and planned technical improvements for t
         - [ ] Implement node affinity/taints for specialized workloads (e.g., GPU).
     - [ ] **Deployment & Observability**:
         - [ ] Define Helm charts for core services (n8n, Paperless).
+            - [ ] Draft Helm chart values for n8n deployment with persistent storage.
         - [ ] Set up Prometheus/Grafana stack for cluster monitoring.

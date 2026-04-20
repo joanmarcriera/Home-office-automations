@@ -413,6 +413,7 @@ nav:
       - Filesystem-as-Interface: knowledge_base/patterns/filesystem-context.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
+    - Manual Assistant: reference-implementations/manual-assistant/manual-assistant-implementation.md
     - HITL UI Design: reference-implementations/hitl-ui-design.md
     - Webhook Ingestion: reference-implementations/paperless/webhook-ingestion.md
     - Calendar:

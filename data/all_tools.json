@@ -1546,6 +1546,12 @@
       "name": "Obsidian Vector Search",
       "category": "Knowledge Base",
       "doc_path": "docs/knowledge_base/obsidian-vector-search.md"
+    },
+    {
+      "id": "manual-assistant",
+      "name": "Manual Assistant",
+      "category": "Reference Implementations",
+      "doc_path": "docs/reference-implementations/manual-assistant/manual-assistant-implementation.md"
     }
   ]
 }
