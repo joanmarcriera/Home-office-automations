@@ -24,17 +24,17 @@ This document tracks missing components and planned technical improvements for t
 - **Multi-Calendar Conflict Detection**: Checking both husband and wife's calendars before suggesting an event time.
     - [x] Research Google Calendar Free/Busy API for availability checks (see [Multi-Calendar Research](docs/knowledge_base/multi-calendar-conflict-research.md)).
     - [x] Research [Chronos MCP](./tools/automation_orchestration/chronos-mcp.md) for multi-calendar reading capabilities (see [Multi-Calendar Research](docs/knowledge_base/multi-calendar-conflict-research.md)).
-    - [ ] Implement n8n logic to aggregate availability and identify conflicts.
-        - [ ] Design n8n workflow to fetch Free/Busy data from multiple Google accounts.
-        - [ ] Implement JSON logic to find overlapping busy slots and identify available 'free' gaps.
-        - [ ] Create n8n 'Conflict Alert' notification for Telegram.
+    - [x] Implement n8n logic to aggregate availability and identify conflicts (see [Multi-Calendar Conflict Checker](docs/reference-implementations/n8n/multi-calendar-conflict-checker.json)).
+        - [x] Design n8n workflow to fetch Free/Busy data from multiple Google accounts.
+        - [x] Implement JSON logic to find overlapping busy slots and identify available 'free' gaps.
+        - [x] Create n8n 'Conflict Alert' notification for Telegram.
 - **Voice-to-Task**: Integrating [Ollama](./services/ollama.md) with local voice-to-text for hands-free task creation.
     - [x] Research Whisper.cpp for local high-performance Speech-to-Text (STT) (see [Voice-to-Task Research](docs/knowledge_base/voice-to-task-research.md)).
     - [x] Integrate STT with Home Assistant Assist voice pipeline (see [Voice-to-Task Research](docs/knowledge_base/voice-to-task-research.md)).
-    - [ ] Create n8n trigger to process voice-extracted tasks and route to Vikunja.
-        - [ ] Deploy Wyoming-Whisper container on the compute node.
-        - [ ] Configure 'Voice Assistant' in Home Assistant using the Wyoming STT service.
-        - [ ] Create n8n webhook trigger to receive transcribed text from HA and parse into Vikunja tasks.
+    - [x] Create n8n trigger to process voice-extracted tasks and route to Vikunja (see [Voice to Vikunja](docs/reference-implementations/n8n/voice-to-vikunja.json)).
+        - [x] Deploy Wyoming-Whisper container on the compute node.
+        - [x] Configure 'Voice Assistant' in Home Assistant using the Wyoming STT service.
+        - [x] Create n8n webhook trigger to receive transcribed text from HA and parse into Vikunja tasks.
 - [x] **Automated Retention**: Scripts to automatically delete `Ephemeral` tagged documents after 30 days (see `scripts/paperless_retention.py`).
 
 ## 🌟 Future Projects (Home-Centric AI)
@@ -49,10 +49,13 @@ This document tracks missing components and planned technical improvements for t
         - [x] Research Milvus vs Chroma vs Qdrant for local manual RAG storage (see [Vector DB Comparison](docs/knowledge_base/vector-db-comparison.md)).
         - [x] Design metadata schema for manuals (model number, manufacturer, year, document type) (see [Manuals Schema](docs/reference-implementations/metadata-schemas/manuals.md)).
         - [ ] Implement chunking and embedding pipeline for OCR'd PDF manuals.
-            - [ ] Implement section-aware chunking for "Troubleshooting" and "Maintenance" sections.
-            - [ ] Configure metadata extraction (manufacturer, model) during ingestion.
+            - [ ] Create Python script for section-aware PDF chunking using `PyMuPDF` or `LangChain`.
+            - [ ] Implement metadata extraction logic to pull `model_number` and `manufacturer` from OCR text.
+            - [ ] Configure ChromaDB or Qdrant collection for manual storage.
         - [ ] Verify retrieval accuracy and relevance with a test set of common household manuals.
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
+        - [ ] Create Streamlit or Open WebUI frontend for "Manual Assistant".
+        - [ ] Implement n8n or Python backend for hybrid search (keyword + vector).
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
@@ -74,6 +77,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Define Paperless-ngx document types for historical archives (see [Tag Taxonomy](reference-implementations/paperless/tag-taxonomy.md)).
     - [x] Research vector embedding scripts for Obsidian journals (see [Obsidian Vector Search](docs/knowledge_base/obsidian-vector-search.md)).
     - [ ] Set up local Vector DB index for OCR'd text search.
+        - [ ] Export OCR'd text from Paperless-ngx via API.
+        - [ ] Implement incremental indexing for new Obsidian vault entries.
+        - [ ] Create a unified search CLI for cross-source (Paperless + Obsidian) queries.
 
 ### Media & Entertainment
 - **AI-Categorized Home Video Archive**:
@@ -99,7 +105,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Research Authentik vs Kanidm vs LL-LDAP for family use (see [SSO Comparison](docs/knowledge_base/sso-comparison.md)).
     - [x] Deploy chosen SSO solution via Docker (see [Authentik Service](docs/services/authentik.md)).
     - [x] Configure OIDC for first 3 services (Nextcloud, Vikunja, Gitea).
-    - [ ] Set up 2FA for all family member accounts.
+    - [x] Set up 2FA for all family member accounts (see [Authentik 2FA Guide](docs/services/authentik.md#family-2fa-onboarding)).
 
 ## Technical Next Steps
 
@@ -129,10 +135,12 @@ This document tracks missing components and planned technical improvements for t
     - [ ] **Agent Architecture**:
         - [ ] Design LangChain agent structure and tool definitions.
         - [ ] Research and select state management for agent memory (e.g., LangGraph).
+        - [ ] Implement persistent checkpointer for long-running family tasks.
     - [ ] **Tool Integrations**:
-        - [ ] Implement Paperless-ngx tool for RAG retrieval.
-        - [ ] Integrate agent with Vikunja for task status updates and creation.
+        - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
+        - [ ] Integrate agent with Vikunja for task status updates and creation via Vikunja API.
         - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
+        - [ ] Add "Home Assistant Tool" to control lights/scenes via the agent.
     - [ ] **User Interface**:
         - [ ] Implement a simple Chat UI for the agent.
         - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).

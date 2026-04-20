@@ -144,14 +144,25 @@ curl -X GET "http://localhost:8000/api/v3/core/users/" \
 - [Keycloak](https://www.keycloak.org/)
 - [Authelia](https://www.authelia.com/)
 
+## Family 2FA Onboarding
+
+To secure family member accounts, it is recommended to enforce Two-Factor Authentication (2FA). Authentik supports TOTP (authenticator apps) and WebAuthn (Passkeys/Security Keys).
+
+### Enforcing 2FA for Users
+1. **Create a TOTP Stage**: In the Admin interface, go to *Flows and Stages* -> *Stages* and create a new *TOTP Authenticator Stage*.
+2. **Update Enrollment Flow**: Add the TOTP stage to your default user enrollment flow to ensure new members set it up immediately.
+3. **Policy-based Enforcement**: Create a *Policy* that checks if a user has a 2FA device registered. Apply this policy to sensitive applications to require 2FA on login.
+
+### Passkey Support
+Authentik natively supports WebAuthn. Family members can register their phone or a hardware key (like a YubiKey) as a Passkey under their user profile settings.
+
 ## Backlog
 - Configure LDAP outpost for legacy apps.
-- Implement Passkey support.
 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-04-18
 
 ## Sources / References
 - https://goauthentik.io/

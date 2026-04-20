@@ -18,6 +18,18 @@ This directory contains reference workflow exports for common automations.
 **Triggers**: Webhook (called by Error Trigger nodes in other workflows).
 **Actions**: Pushes error metadata to Home Assistant via REST API.
 
+## 4. Multi-Calendar Conflict Checker
+**File**: `multi-calendar-conflict-checker.json`
+**Purpose**: Aggregates availability from multiple Google Calendars and identifies overlapping busy slots (conflicts).
+**Triggers**: Scheduled (Cron) or manual trigger.
+**Actions**: Queries Free/Busy API, Identifies overlaps via Code node, Sends Telegram alert.
+
+## 5. Voice to Vikunja
+**File**: `voice-to-vikunja.json`
+**Purpose**: Receives voice-to-text transcriptions via webhook (e.g., from Home Assistant Assist) and uses a local LLM to extract tasks into Vikunja.
+**Triggers**: Webhook (from Home Assistant Assist).
+**Actions**: LLM extraction (Ollama), Create task in Vikunja.
+
 ## How to use
 1. Import the JSON into your [n8n](../../services/n8n.md) instance.
 2. Configure credentials for IMAP, Paperless, and Google.
