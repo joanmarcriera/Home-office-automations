@@ -48,14 +48,15 @@ This document tracks missing components and planned technical improvements for t
     - [x] Set up Vector DB index for scanned manuals:
         - [x] Research Milvus vs Chroma vs Qdrant for local manual RAG storage (see [Vector DB Comparison](docs/knowledge_base/vector-db-comparison.md)).
         - [x] Design metadata schema for manuals (model number, manufacturer, year, document type) (see [Manuals Schema](docs/reference-implementations/metadata-schemas/manuals.md)).
-        - [ ] Implement chunking and embedding pipeline for OCR'd PDF manuals.
-            - [x] Create Python script for section-aware PDF chunking using `PyMuPDF` or `LangChain`.
+        - [x] Implement chunking and embedding pipeline for OCR'd PDF manuals.
+            - [x] Create Python script for section-aware PDF chunking using `PyMuPDF` or `LangChain`. (see `scripts/process_manuals.py`)
             - [x] Implement metadata extraction logic to pull `model_number` and `manufacturer` from OCR text.
             - [x] Configure ChromaDB or Qdrant collection for manual storage.
-        - [ ] Verify retrieval accuracy and relevance with a test set of common household manuals.
+        - [x] Verify retrieval accuracy and relevance with a test set of common household manuals. (see `scripts/verify_manual_retrieval.py`)
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
-        - [ ] Create Streamlit or Open WebUI frontend for "Manual Assistant".
-        - [ ] Implement n8n or Python backend for hybrid search (keyword + vector).
+        - [ ] Research Open WebUI vs Streamlit for rapid prototyping and family ease-of-use.
+        - [ ] Define system prompts for the Troubleshooting Assistant (handling edge cases like "not found in manual").
+        - [ ] Implement n8n or Python backend for hybrid search (keyword + vector) and LLM orchestration.
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
     - *Stack*: [Home Assistant](./services/home-assistant.md), [Ollama](./services/ollama.md).
@@ -77,9 +78,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Define Paperless-ngx document types for historical archives (see [Tag Taxonomy](reference-implementations/paperless/tag-taxonomy.md)).
     - [x] Research vector embedding scripts for Obsidian journals (see [Obsidian Vector Search](docs/knowledge_base/obsidian-vector-search.md)).
     - [ ] Set up local Vector DB index for OCR'd text search.
-        - [ ] Export OCR'd text from Paperless-ngx via API.
-        - [ ] Implement incremental indexing for new Obsidian vault entries.
-        - [ ] Create a unified search CLI for cross-source (Paperless + Obsidian) queries.
+        - [ ] Implement n8n or Python script to export OCR'd text from Paperless-ngx via API.
+        - [ ] Implement incremental indexing for new Obsidian vault entries using `docs/knowledge_base/obsidian-vector-search.md` as a baseline.
+        - [ ] Create a unified search CLI/API for cross-source (Paperless + Obsidian) semantic queries.
 
 ### Media & Entertainment
 - **AI-Categorized Home Video Archive**:
@@ -119,10 +120,11 @@ This document tracks missing components and planned technical improvements for t
 - [ ] Implement [Headscale](./services/headscale.md) for a fully self-hosted mesh network.
     - [x] Deploy Headscale container.
     - [x] Configure OIDC for Headscale (see [Headscale Service](docs/services/headscale.md)).
-    - [ ] Migrate first 3 nodes from Tailscale SaaS to Headscale.
+    - [ ] Migrate first 3 nodes from Tailscale SaaS to Headscale (see [Migration Playbook](docs/playbooks/tailscale-to-headscale-migration.md)).
 - [ ] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
-    - [ ] Create n8n node/workflow for "Get Task Dependencies".
-    - [ ] Implement logic to delay task start until blockers are closed.
+    - [ ] Research Vikunja API for task relation/dependency endpoints (see `docs/services/vikunja.md`).
+    - [ ] Create a reference n8n workflow for checking task blockers and relations.
+    - [ ] Implement auto-unblocking logic in the daily briefing or a dedicated worker to notify when a blocker is closed.
 - [x] Deploy [LiteLLM](./services/litellm.md) proxy.
     - [x] Configure Prometheus/Grafana monitoring for LiteLLM.
     - [x] Implement usage-based quotas for internal API keys.
