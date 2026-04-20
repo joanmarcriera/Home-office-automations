@@ -54,8 +54,8 @@ This document tracks missing components and planned technical improvements for t
             - [x] Configure ChromaDB or Qdrant collection for manual storage.
         - [x] Verify retrieval accuracy and relevance with a test set of common household manuals. (see `scripts/verify_manual_retrieval.py`)
     - [ ] Implement chat-based troubleshooting interface using RAG over manuals.
-        - [ ] Research Open WebUI vs Streamlit for rapid prototyping and family ease-of-use.
-        - [ ] Define system prompts for the Troubleshooting Assistant (handling edge cases like "not found in manual").
+        - [x] Research Open WebUI vs Streamlit for rapid prototyping and family ease-of-use (see [Research](docs/knowledge_base/manual-troubleshooting-research.md)).
+        - [x] Define system prompts for the Troubleshooting Assistant (see [Research](docs/knowledge_base/manual-troubleshooting-research.md)).
         - [ ] Implement n8n or Python backend for hybrid search (keyword + vector) and LLM orchestration.
 - **Smart Energy Anomaly Detection**:
     - *Goal*: Use local reasoning to detect unusual power spikes or appliances left on, providing proactive alerts.
@@ -78,17 +78,18 @@ This document tracks missing components and planned technical improvements for t
     - [x] Define Paperless-ngx document types for historical archives (see [Tag Taxonomy](reference-implementations/paperless/tag-taxonomy.md)).
     - [x] Research vector embedding scripts for Obsidian journals (see [Obsidian Vector Search](docs/knowledge_base/obsidian-vector-search.md)).
     - [ ] Set up local Vector DB index for OCR'd text search.
-        - [ ] Implement n8n or Python script to export OCR'd text from Paperless-ngx via API.
-        - [ ] Implement incremental indexing for new Obsidian vault entries using `docs/knowledge_base/obsidian-vector-search.md` as a baseline.
-        - [ ] Create a unified search CLI/API for cross-source (Paperless + Obsidian) semantic queries.
+        - [ ] Implement n8n or Python script to export OCR'd text from Paperless-ngx via REST API.
+        - [ ] Implement incremental indexing logic for new Obsidian vault entries using `docs/knowledge_base/obsidian-vector-search.md` as a baseline.
+        - [ ] Develop a unified search CLI/API for cross-source (Paperless + Obsidian) semantic queries.
 
 ### Media & Entertainment
 - **AI-Categorized Home Video Archive**:
     - *Goal*: Automated tagging and semantic search for home videos (e.g., "Find the video of the birthday party").
     - *Stack*: Local vision models (CLIP/Whisper), TrueNAS storage.
     - [x] Research local vision models for video frame embedding (see [Vision Models Research](docs/knowledge_base/vision-models-research.md)).
-    - [ ] Prototype metadata extraction script using Whisper and CLIP.
-    - [ ] Set up Vector DB for semantic search over video metadata.
+    - [ ] Prototype metadata extraction script using Whisper (audio) and CLIP (visual).
+    - [ ] Configure Vector DB collection for video metadata storage.
+    - [ ] Implement semantic search interface for video archive.
 - **Local Audio Library Enrichment**:
     - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
     - *Stack*: Whisper (local), [Ollama](./services/ollama.md).
@@ -122,7 +123,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Configure OIDC for Headscale (see [Headscale Service](docs/services/headscale.md)).
     - [ ] Migrate first 3 nodes from Tailscale SaaS to Headscale (see [Migration Playbook](docs/playbooks/tailscale-to-headscale-migration.md)).
 - [ ] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
-    - [ ] Research Vikunja API for task relation/dependency endpoints (see `docs/services/vikunja.md`).
+    - [x] Research Vikunja API for task relation/dependency endpoints (see `docs/services/vikunja.md`).
     - [ ] Create a reference n8n workflow for checking task blockers and relations.
     - [ ] Implement auto-unblocking logic in the daily briefing or a dedicated worker to notify when a blocker is closed.
 - [x] Deploy [LiteLLM](./services/litellm.md) proxy.
@@ -153,7 +154,10 @@ This document tracks missing components and planned technical improvements for t
         - [ ] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
         - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
-        - [ ] **DNS Automation**: Configure External-DNS for automated DNS record management with local/cloud providers.
+        - [ ] **DNS Automation**:
+            - [ ] Install External-DNS operator in the cluster.
+            - [ ] Configure provider-specific credentials (e.g., API tokens).
+            - [ ] Set up domain filters and synchronization intervals.
     - [ ] **Storage**:
         - [ ] **Distributed Storage**: Implement Longhorn for high-availability distributed block storage across nodes.
         - [ ] **Legacy Integration**: Configure NFS CSI driver for persistent volumes stored on TrueNAS SCALE.

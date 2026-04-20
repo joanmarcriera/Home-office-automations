@@ -78,6 +78,27 @@ Use your own private Vikunja base URL here. Do not commit instance-specific URLs
 - [Focalboard](focalboard.md)
 - [Nextcloud Tasks](nextcloud.md)
 
+## Task Relations
+Vikunja allows linking tasks together with various relation types.
+
+### Available Relation Types
+| Type | Description | Opposite |
+| :--- | :--- | :--- |
+| **Subtask** | The task is a subtask of another. | Parent task |
+| **Parent task** | The task is a parent of another. | Subtask |
+| **Blocking** | The task blocks another task. | Blocked by |
+| **Blocked by** | The task is blocked by another. | Blocking |
+| **Precedes** | The task comes before another. | Follows |
+| **Follows** | The task comes after another. | Precedes |
+| **Related** | Tasks are related (symmetric). | Related |
+| **Duplicate of** | The task is a duplicate of another. | Duplicates |
+| **Duplicates** | The task duplicates another. | Duplicate of |
+| **Copied from** | The task was copied from another. | Copied to |
+| **Copied to** | The task was copied to another. | Copied from |
+
+### API Endpoint
+Task relations are managed via the `/tasks/{id}/relations` endpoint.
+
 ## SSO & OIDC Integration
 Vikunja supports OIDC for Single Sign-On via [Authentik](authentik.md).
 
@@ -109,5 +130,5 @@ In Authentik, configure the Redirect URI as: `https://vikunja.example.com/auth/o
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-08
+- Last reviewed: 2025-05-15
 - Confidence: high
