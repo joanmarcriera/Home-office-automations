@@ -1,5 +1,25 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-21
+
+## Digest fallback for 2026-04-21
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [OpenAI helps Hyatt advance AI among colleagues](https://openai.com/index/hyatt-advances-ai-with-chatgpt-enterprise) (OpenAI Blog)
+2. [How to Ground a Korean AI Agent in Real Demographics with Synthetic Personas](https://huggingface.co/blog/nvidia/build-korean-agents-with-nemotron-personas) (Hugging Face Blog)
+3. [[AINews] Moonshot Kimi K2.6: the world's leading Open Model refreshes to catch up to Opus 4.6 (ahead of DeepSeek v4?)](https://www.latent.space/p/ainews-moonshot-kimi-k26-the-worlds) (Latent Space)
+4. [🔬 Training Transformers to solve 95% failure rate of Cancer Trials — Ron Alfa & Daniel Bear, Noetik](https://www.latent.space/p/noetik) (Latent Space)
+5. [SUSE and Nvidia reveal a turnkey AI factory for sovereign enterprise workloads](https://thenewstack.io/suse-nvidia-ai-factory/) (The New Stack)
+6. [SmartBear’s Swagger update targets the API drift problem AI coding tools created](https://thenewstack.io/smartbear-swagger-ai-api-management/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
