@@ -1558,6 +1558,24 @@
       "name": "Manual Assistant",
       "category": "Reference Implementations",
       "doc_path": "docs/reference-implementations/manual-assistant/manual-assistant-implementation.md"
+    },
+    {
+      "id": "gemini-flash-tts",
+      "name": "Gemini 3.1 Flash TTS",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/gemini-flash-tts.md"
+    },
+    {
+      "id": "skills-in-chrome",
+      "name": "Skills in Chrome",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/skills-in-chrome.md"
+    },
+    {
+      "id": "holotab",
+      "name": "HoloTab",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/holotab.md"
     }
   ]
 }

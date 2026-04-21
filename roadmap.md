@@ -92,11 +92,15 @@ This document tracks missing components and planned technical improvements for t
     - [x] Prototype metadata extraction script using Whisper (audio) and CLIP (visual). (see `scripts/video_metadata_prototype.py`)
     - [x] Configure Vector DB collection for video metadata storage. (see `scripts/setup_video_db.py`)
     - [ ] Implement semantic search interface for video archive.
-        - [ ] Design search API for video metadata retrieval.
+        - [x] Design search API for video metadata retrieval. (see `scripts/video_search_api.py`)
         - [ ] Create a Streamlit-based video search UI with preview capabilities.
 - **Local Audio Library Enrichment**:
     - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
     - *Stack*: Whisper (local), [Ollama](./services/ollama.md).
+    - [ ] Research optimal Whisper variants for long-form audio (e.g., faster-whisper, distil-whisper).
+    - [ ] Design metadata schema for audio transcriptions (speaker ID, timestamps, chapter markers).
+    - [ ] Implement transcription pipeline script for large audio files.
+    - [ ] Integrate audio transcripts into the [Unified Search CLI](./scripts/unified_search.py).
 
 ### Advanced Infrastructure
 - [x] **Self-Healing Homelab Agent**:
@@ -183,9 +187,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
     - [ ] **Networking & Ingress**:
         - [ ] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
-            - [ ] Create a MetalLB IPAddressPool manifest for the cluster.
-            - [ ] Create a MetalLB L2Advertisement manifest to announce the IP pool.
-            - [ ] Verify IP allocation from the pool to a test service.
+            - [x] Create a MetalLB IPAddressPool manifest for the cluster. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
+            - [x] Create a MetalLB L2Advertisement manifest to announce the IP pool. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
+            - [x] Verify IP allocation from the pool to a test service.
         - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
             - [ ] Deploy Traefik via Helm chart with `service.type=LoadBalancer`.
             - [ ] Configure Traefik `IngressRoute` for a sample internal service (e.g., Whoami).
