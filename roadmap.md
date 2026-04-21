@@ -79,9 +79,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Research vector embedding scripts for Obsidian journals (see [Obsidian Vector Search](docs/knowledge_base/obsidian-vector-search.md)).
     - [ ] Set up local Vector DB index for OCR'd text search.
         - [x] Implement Python script to export OCR'd text from Paperless-ngx via REST API. (see `scripts/paperless_export_text.py`)
-        - [ ] Implement incremental indexing logic for new Obsidian vault entries using `docs/knowledge_base/obsidian-vector-search.md` as a baseline.
+        - [x] Implement incremental indexing logic for new Obsidian vault entries using `docs/knowledge_base/obsidian-vector-search.md` as a baseline. (see `scripts/obsidian_incremental_indexing.py`)
         - [ ] Develop a unified search CLI/API for cross-source (Paperless + Obsidian) semantic queries.
-            - [ ] Define Pydantic schemas for the unified search results API.
+            - [x] Define Pydantic schemas for the unified search results API. (see `docs/reference-implementations/metadata-schemas/unified-search-api.py`)
             - [ ] Implement a simple BM25-like keyword ranking for Paperless results to complement vector search.
 
 ### Media & Entertainment
@@ -124,9 +124,12 @@ This document tracks missing components and planned technical improvements for t
     - [x] Deploy Headscale container.
     - [x] Configure OIDC for Headscale (see [Headscale Service](docs/services/headscale.md)).
     - [ ] Migrate first 3 nodes from Tailscale SaaS to Headscale (see [Migration Playbook](docs/playbooks/tailscale-to-headscale-migration.md)).
+        - [ ] Migrate TrueNAS SCALE NAS node.
+        - [ ] Migrate primary K3s compute node.
+        - [ ] Migrate Home Assistant VM.
 - [ ] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
     - [x] Research Vikunja API for task relation/dependency endpoints (see `docs/services/vikunja.md`).
-    - [ ] Create a reference n8n workflow for checking task blockers and relations.
+    - [x] Create a reference n8n workflow for checking task blockers and relations. (see `docs/reference-implementations/n8n/vikunja-task-relations.json`)
     - [ ] Implement auto-unblocking logic in the daily briefing or a dedicated worker to notify when a blocker is closed.
 - [x] Deploy [LiteLLM](./services/litellm.md) proxy.
     - [x] Configure Prometheus/Grafana monitoring for LiteLLM.
@@ -142,13 +145,16 @@ This document tracks missing components and planned technical improvements for t
         - [ ] Research and select state management for agent memory (e.g., LangGraph).
             - [ ] Implement persistent checkpointer for long-running family tasks using `SqliteSaver`.
             - [ ] Define graph state schema for cross-tool context sharing.
+            - [ ] Implement a `MemoryManager` class to wrap SQLite checkpointer for easy agent access.
     - [ ] **Tool Integrations**:
         - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
         - [ ] Integrate agent with Vikunja for task status updates and creation via Vikunja API.
             - [ ] Implement a tool for the agent to query the Vikunja API for task status.
+            - [ ] Implement Vikunja `TaskUpdateTool` and `TaskCreateTool` using Pydantic schemas.
             - [ ] Design the prompt for the agent's task-routing logic.
         - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
         - [ ] Add "Home Assistant Tool" to control lights/scenes via the agent.
+            - [ ] Implement Home Assistant `SceneTriggerTool` and `LightControlTool` using HA REST API.
     - [ ] **User Interface**:
         - [ ] Implement a simple Chat UI for the agent.
         - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).
@@ -157,8 +163,11 @@ This document tracks missing components and planned technical improvements for t
     - [ ] **Networking & Ingress**:
         - [ ] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
             - [ ] Create a MetalLB IPAddressPool manifest for the cluster.
+            - [ ] Create a MetalLB L2Advertisement manifest to announce the IP pool.
         - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
+            - [ ] Deploy Traefik via Helm chart with `service.type=LoadBalancer`.
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
+            - [ ] Create a `ClusterIssuer` for Let's Encrypt production using DNS-01 (Cloudflare/DigitalOcean).
         - [ ] **DNS Automation**:
             - [ ] Install External-DNS operator in the cluster.
             - [ ] Configure provider-specific credentials (e.g., API tokens).
