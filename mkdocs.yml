@@ -145,6 +145,7 @@ nav:
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Claude: tools/ai_knowledge/claude.md
       - Gemini: tools/ai_knowledge/gemini.md
+      - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
       - Dex: tools/ai_knowledge/dex.md
@@ -153,6 +154,7 @@ nav:
       - Flowise: tools/ai_knowledge/flowise.md
       - Genspark: tools/ai_knowledge/genspark.md
       - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
+      - HoloTab: tools/ai_knowledge/holotab.md
       - Jasper: tools/ai_knowledge/jasper.md
       - Joplin: tools/ai_knowledge/joplin.md
       - Jules: tools/ai_knowledge/jules.md
@@ -176,6 +178,7 @@ nav:
       - Perplexity: tools/ai_knowledge/perplexity.md
       - Qwen: tools/ai_knowledge/qwen.md
       - Runway ML: tools/ai_knowledge/runwayml.md
+      - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
       - Synthesia: tools/ai_knowledge/synthesia.md
       - TeamOut: tools/ai_knowledge/teamout.md
       - Valyu: tools/ai_knowledge/valyu.md
