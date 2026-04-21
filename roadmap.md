@@ -149,7 +149,12 @@ This document tracks missing components and planned technical improvements for t
             - [x] Define graph state schema for cross-tool context sharing.
             - [x] Implement a `MemoryManager` class to wrap SQLite checkpointer for easy agent access. (see `scripts/agent_memory.py`)
         - [ ] Implement a basic `AgentExecutor` with support for dynamic tool loading.
+            - [ ] Define Tool Registry schema for dynamic discovery.
+            - [ ] Implement a base `Tool` class with standard error handling and logging.
+            - [ ] Implement a "Plan-and-Execute" orchestration loop using LangGraph.
         - [ ] Design the primary "Family Context" system prompt for the agent.
+            - [ ] Define core family values and communication style for the agent.
+            - [ ] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
     - [ ] **Tool Integrations**:
         - [ ] **Paperless Tool**:
             - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
@@ -168,7 +173,12 @@ This document tracks missing components and planned technical improvements for t
             - [ ] Implement a HA `StateQueryTool` to allow the agent to check entity states.
     - [ ] **User Interface**:
         - [ ] Implement a simple Chat UI for the agent.
+            - [ ] Develop a Streamlit or React-based messaging interface.
+            - [ ] Implement persistent chat history retrieval from agent memory.
+            - [ ] Add support for file uploads (e.g., for direct Paperless ingestion).
         - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).
+            - [ ] Integrate a "Voice Toggle" in the UI for hands-free mode.
+            - [ ] Configure Home Assistant Assist to route voice commands to the agent.
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
     - [ ] **Networking & Ingress**:

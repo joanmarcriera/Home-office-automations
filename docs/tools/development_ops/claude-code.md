@@ -13,10 +13,12 @@ It reduces the friction of context-switching between an AI chat interface and a 
 - **Codebase Refactoring**: Identifying and applying patterns across multiple files.
 - **Automated Debugging**: Running tests, analyzing error logs, and applying fixes in a loop.
 - **Remote Environment Control**: Managing and interacting with remote servers or containers via its Remote Control feature.
+- **Overnight Tasks**: New capability allowing Claude Code to handle long-running jobs autonomously.
 
 ## Strengths
 - **Agentic Capabilities**: Can proactively run commands (e.g., `git`, `npm test`) to verify its work.
 - **Remote Control**: Built-in support for managing remote dev environments.
+- **Redesigned Desktop App**: Enhanced interface for desktop-based agentic workflows.
 - **Optimized Reasoning**: Leverages Claude 3.5 Sonnet for high-quality code generation and logic.
 
 ## Limitations
@@ -111,6 +113,7 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 
 ## Sources / references
 - [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
+- [Claude Code: Overnight Jobs](https://thenewstack.io/claude-code-can-now-do-your-job-overnight/)
 - [awesomeclaude.ai](https://awesomeclaude.ai/)
 - [awesome-skills.com](https://awesome-skills.com/)
 - [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
@@ -121,5 +124,5 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 - [Reddit field report](https://www.reddit.com/r/ClaudeAI/comments/1ok9v3d/i_tested_30_community_claude_skills_for_a_week/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-04-16
 - Confidence: medium
