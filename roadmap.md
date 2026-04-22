@@ -156,7 +156,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Define Tool Registry schema for dynamic discovery (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
             - [x] Implement a base `Tool` class with standard error handling and logging (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
             - [x] Implement a "Plan-and-Execute" orchestration loop using LangGraph (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
-        - [ ] Design the primary "Family Context" system prompt for the agent.
+        - [x] Design the primary "Family Context" system prompt for the agent. (see `docs/reference-implementations/llm-prompts/family-context.md`)
             - [x] Define core family values and communication style for the agent.
                 - [x] Draft "Family Values" document to guide agent interactions.
                 - [x] Implement a `FamilyValueTone` utility to adjust LLM responses. (see `scripts/family_value_tone.py`)
@@ -168,8 +168,8 @@ This document tracks missing components and planned technical improvements for t
                 - [ ] Configure `PaperlessDocumentLoader` with local API credentials.
             - [ ] Implement a metadata-aware filter for the Paperless tool (e.g., filter by tag/correspondent).
         - [ ] **Vikunja Integration**:
-            - [ ] Implement a tool for the agent to query the Vikunja API for task status.
-                - [ ] Define `VikunjaQueryTool` with support for filtered list views.
+            - [x] Implement a tool for the agent to query the Vikunja API for task status.
+                - [x] Define `VikunjaQueryTool` with support for filtered list views. (see `scripts/vikunja_tool.py`)
             - [ ] Implement Vikunja `TaskUpdateTool` and `TaskCreateTool` using Pydantic schemas.
             - [ ] Design the prompt for the agent's task-routing logic.
             - [ ] Implement a `TaskDependencyResolver` tool to handle Vikunja relations.
