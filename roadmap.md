@@ -91,9 +91,9 @@ This document tracks missing components and planned technical improvements for t
     - [x] Research local vision models for video frame embedding (see [Vision Models Research](docs/knowledge_base/vision-models-research.md)).
     - [x] Prototype metadata extraction script using Whisper (audio) and CLIP (visual). (see `scripts/video_metadata_prototype.py`)
     - [x] Configure Vector DB collection for video metadata storage. (see `scripts/setup_video_db.py`)
-    - [ ] Implement semantic search interface for video archive.
+    - [x] Implement semantic search interface for video archive.
         - [x] Design search API for video metadata retrieval. (see `scripts/video_search_api.py`)
-        - [ ] Create a Streamlit-based video search UI with preview capabilities.
+        - [x] Create a Streamlit-based video search UI with preview capabilities. (see `docs/reference-implementations/video-archive/`)
 - **Local Audio Library Enrichment**:
     - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
     - *Stack*: Whisper (local), [Ollama](./services/ollama.md).
@@ -157,11 +157,11 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement a base `Tool` class with standard error handling and logging (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
             - [x] Implement a "Plan-and-Execute" orchestration loop using LangGraph (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
         - [ ] Design the primary "Family Context" system prompt for the agent.
-            - [ ] Define core family values and communication style for the agent.
+            - [x] Define core family values and communication style for the agent.
                 - [x] Draft "Family Values" document to guide agent interactions.
-                - [ ] Implement a `FamilyValueTone` utility to adjust LLM responses.
-            - [ ] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
-                - [ ] Create a `UserContextFetcher` tool to pull relevant user data.
+                - [x] Implement a `FamilyValueTone` utility to adjust LLM responses. (see `scripts/family_value_tone.py`)
+            - [x] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
+                - [x] Create a `UserContextFetcher` tool to pull relevant user data. (see `scripts/user_context_tool.py`)
     - [ ] **Tool Integrations**:
         - [ ] **Paperless Tool**:
             - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
