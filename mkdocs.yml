@@ -335,6 +335,7 @@ nav:
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md
       - OpenAI Agents SDK: tools/agents/openai-agents-sdk.md
+      - Home Admin Agent Tools: tools/agents/home-admin-tools.md
     - Orchestration:
       - Overview: tools/orchestration/index.md
     - Infrastructure:

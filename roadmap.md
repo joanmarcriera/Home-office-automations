@@ -170,16 +170,16 @@ This document tracks missing components and planned technical improvements for t
         - [ ] **Vikunja Integration**:
             - [x] Implement a tool for the agent to query the Vikunja API for task status.
                 - [x] Define `VikunjaQueryTool` with support for filtered list views. (see `scripts/vikunja_tool.py`)
-            - [ ] Implement Vikunja `TaskUpdateTool` and `TaskCreateTool` using Pydantic schemas.
+            - [x] Implement Vikunja `TaskUpdateTool` and `TaskCreateTool` using Pydantic schemas.
             - [ ] Design the prompt for the agent's task-routing logic.
-            - [ ] Implement a `TaskDependencyResolver` tool to handle Vikunja relations.
+            - [x] Implement a `TaskDependencyResolver` tool to handle Vikunja relations.
         - [ ] **Calendar Integration**:
             - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
             - [ ] Implement a "Schedule Conflict Checker" tool for the agent.
         - [ ] **Home Assistant Integration**:
-            - [ ] Add "Home Assistant Tool" to control lights/scenes via the agent.
-            - [ ] Implement Home Assistant `SceneTriggerTool` and `LightControlTool` using HA REST API.
-            - [ ] Implement a HA `StateQueryTool` to allow the agent to check entity states.
+            - [x] Add "Home Assistant Tool" to control lights/scenes via the agent.
+            - [x] Implement Home Assistant `SceneTriggerTool` and `LightControlTool` using HA REST API.
+            - [x] Implement a HA `StateQueryTool` to allow the agent to check entity states.
     - [ ] **User Interface**:
         - [ ] Implement a simple Chat UI for the agent.
             - [ ] Develop a Streamlit or React-based messaging interface.

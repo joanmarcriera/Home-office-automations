@@ -19,7 +19,8 @@ try:
     from langgraph.graph import StateGraph, END
     from agent_memory import MemoryManager
     from family_value_tone import FamilyValueTone
-    from vikunja_tool import VikunjaQueryTool
+    from vikunja_tool import VikunjaQueryTool, VikunjaCreateTool, VikunjaUpdateTool, VikunjaRelationTool
+    from home_assistant_tool import HAStateQueryTool, HASceneTriggerTool, HALightControlTool
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     LANGGRAPH_AVAILABLE = False
@@ -68,6 +69,12 @@ class HomeAdminAgent:
         self.registry.register(TestTool())
         if LANGGRAPH_AVAILABLE:
             self.registry.register(VikunjaQueryTool())
+            self.registry.register(VikunjaCreateTool())
+            self.registry.register(VikunjaUpdateTool())
+            self.registry.register(VikunjaRelationTool())
+            self.registry.register(HAStateQueryTool())
+            self.registry.register(HASceneTriggerTool())
+            self.registry.register(HALightControlTool())
         self.memory_manager = MemoryManager(db_path)
         self.system_prompt = self._load_system_prompt()
 
