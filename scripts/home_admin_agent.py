@@ -7,40 +7,25 @@ Implements a Plan-and-Execute orchestration loop using LangGraph.
 import os
 import sys
 import json
-from typing import Annotated, List, Dict, Type, Any, TypedDict, Optional, Union
-from abc import ABC, abstractmethod
+from typing import List, Dict, Type, Any, Optional, Union
 from pydantic import BaseModel, Field
 
 # Add current directory to path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from agent_models import BaseHomeTool, ToolMetadata, AgentState
+
 try:
     from langgraph.graph import StateGraph, END
-    from langgraph.graph.message import add_messages
     from agent_memory import MemoryManager
+    from family_value_tone import FamilyValueTone
+    from vikunja_tool import VikunjaQueryTool
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     LANGGRAPH_AVAILABLE = False
-    print("Warning: langgraph or agent_memory not available.")
+    print("Warning: langgraph or dependencies not available.")
 
-# --- Tool Registry and Base Class ---
-
-class ToolMetadata(BaseModel):
-    name: str
-    description: str
-    args_schema: Type[BaseModel]
-    category: str  # e.g., 'knowledge', 'automation', 'tasks'
-
-class BaseHomeTool(ABC):
-    @classmethod
-    @abstractmethod
-    def get_metadata(cls) -> ToolMetadata:
-        pass
-
-    @abstractmethod
-    async def run(self, **kwargs) -> str:
-        """Execute the tool's primary logic."""
-        pass
+# --- Tool Registry ---
 
 class ToolRegistry:
     """Registry for dynamic tool discovery."""
@@ -75,27 +60,52 @@ class TestTool(BaseHomeTool):
     async def run(self, query: str) -> str:
         return f"Tool Response: {query}"
 
-# --- Agent State ---
-
-class AgentState(TypedDict):
-    # Messages in the conversation
-    messages: Annotated[List[Any], add_messages]
-    # The current plan (sequence of steps)
-    plan: List[str]
-    # Results from executed steps
-    results: List[str]
-    # Shared context across tools
-    context: Dict[str, Any]
-    # Final response to user
-    final_response: Optional[str]
-
 # --- Agent Executor ---
 
 class HomeAdminAgent:
     def __init__(self, db_path: str = "agent_memory.db"):
         self.registry = ToolRegistry()
         self.registry.register(TestTool())
+        if LANGGRAPH_AVAILABLE:
+            self.registry.register(VikunjaQueryTool())
         self.memory_manager = MemoryManager(db_path)
+        self.system_prompt = self._load_system_prompt()
+
+    def _load_system_prompt(self) -> str:
+        """Loads the system prompt from the reference file or uses the default tone utility."""
+        prompt_path = os.path.join(os.path.dirname(__file__), "..", "docs", "reference-implementations", "llm-prompts", "family-context.md")
+        try:
+            if os.path.exists(prompt_path):
+                with open(prompt_path, "r") as f:
+                    content = f.read()
+                    # Extract the markdown block if present
+                    import re
+                    match = re.search(r"```markdown\n(.*?)\n```", content, re.DOTALL)
+                    if match:
+                        return match.group(1)
+            if 'FamilyValueTone' in globals():
+                return FamilyValueTone.get_system_prompt()
+            return "You are Ralph, the Home Admin Agent."
+        except Exception as e:
+            print(f"Error loading system prompt: {e}")
+            if 'FamilyValueTone' in globals():
+                return FamilyValueTone.get_system_prompt()
+            return "You are Ralph, the Home Admin Agent."
+
+    def _get_populated_system_prompt(self, context: Dict[str, Any]) -> str:
+        """Populates the system prompt with dynamic context."""
+        from datetime import datetime, timezone
+
+        current_date = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        calendar_summary = context.get("calendar_summary", "No calendar data available.")
+        task_summary = context.get("task_summary", "No task data available.")
+
+        prompt = self.system_prompt
+        prompt = prompt.replace("{{ current_date }}", current_date)
+        prompt = prompt.replace("{{ calendar_summary }}", calendar_summary)
+        prompt = prompt.replace("{{ task_summary }}", task_summary)
+
+        return prompt
 
     def _build_workflow(self, saver):
         builder = StateGraph(AgentState)
@@ -104,11 +114,23 @@ class HomeAdminAgent:
         async def planner_node(state: AgentState):
             print("--- NODE: PLANNER ---")
             messages = state["messages"]
+            context = state.get("context", {})
+
+            # Populate system prompt with current context
+            system_prompt = self._get_populated_system_prompt(context)
+            print(f"DEBUG: System Prompt populated (length: {len(system_prompt)})")
+
+            # In a real implementation, we would pass 'system_prompt'
+            # and 'messages' to an LLM here.
+            full_context_messages = [("system", system_prompt)] + messages
+
             last_message = messages[-1].content if hasattr(messages[-1], 'content') else str(messages[-1])
 
             # Simple simulation: if "test" is in message, plan a test tool call
             if "test" in last_message.lower():
                 plan = ["Call test_tool with query='Hello from planner'"]
+            elif "task" in last_message.lower() or "vikunja" in last_message.lower():
+                plan = ["Call vikunja_query_tool with search='test'"]
             else:
                 plan = ["Respond directly to user"]
 
@@ -125,6 +147,11 @@ class HomeAdminAgent:
                     tool = self.registry.get_tool("test_tool")
                     if tool:
                         result = await tool.run(query="Automated execution")
+                        results.append(result)
+                elif "Call vikunja_query_tool" in step:
+                    tool = self.registry.get_tool("vikunja_query_tool")
+                    if tool:
+                        result = await tool.run(search="test")
                         results.append(result)
                 elif "Respond directly" in step:
                     results.append("No tools needed.")
