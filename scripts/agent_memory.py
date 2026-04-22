@@ -12,6 +12,7 @@ from typing import Optional, Any
 # This implementation assumes langgraph is installed in the target environment
 try:
     from langgraph.checkpoint.sqlite import SqliteSaver
+    from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     LANGGRAPH_AVAILABLE = False
@@ -36,11 +37,20 @@ class MemoryManager:
         # LangGraph 0.2+ uses SqliteSaver.from_conn_string(":memory:") or a file
         try:
             # Check if using newer langgraph-checkpoint-sqlite
+            # Note: from_conn_string returns a context manager in some versions
+            # or requires being used in a 'with' block.
+            # In LangGraph 0.2+, it often returns the saver directly if sync.
             return SqliteSaver.from_conn_string(self.db_path)
         except AttributeError:
             # Fallback for older versions if applicable
             conn = sqlite3.connect(self.db_path, check_same_thread=False)
             return SqliteSaver(conn)
+
+    def get_async_checkpointer(self):
+        """Returns an AsyncSqliteSaver checkpointer context manager."""
+        if not LANGGRAPH_AVAILABLE:
+            return None
+        return AsyncSqliteSaver.from_conn_string(self.db_path)
 
     def clear_memory(self):
         """Clears all agent memory by deleting the database file."""

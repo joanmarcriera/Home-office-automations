@@ -152,13 +152,13 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement persistent checkpointer for long-running family tasks using `SqliteSaver`.
             - [x] Define graph state schema for cross-tool context sharing.
             - [x] Implement a `MemoryManager` class to wrap SQLite checkpointer for easy agent access. (see `scripts/agent_memory.py`)
-        - [ ] Implement a basic `AgentExecutor` with support for dynamic tool loading.
+        - [x] Implement a basic `AgentExecutor` with support for dynamic tool loading.
             - [x] Define Tool Registry schema for dynamic discovery (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
             - [x] Implement a base `Tool` class with standard error handling and logging (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
             - [x] Implement a "Plan-and-Execute" orchestration loop using LangGraph (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
         - [ ] Design the primary "Family Context" system prompt for the agent.
             - [ ] Define core family values and communication style for the agent.
-                - [ ] Draft "Family Values" document to guide agent interactions.
+                - [x] Draft "Family Values" document to guide agent interactions.
                 - [ ] Implement a `FamilyValueTone` utility to adjust LLM responses.
             - [ ] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
                 - [ ] Create a `UserContextFetcher` tool to pull relevant user data.
