@@ -99,8 +99,8 @@ This document tracks missing components and planned technical improvements for t
     - *Stack*: Whisper (local), [Ollama](./services/ollama.md).
     - [x] Research optimal Whisper variants for long-form audio (e.g., faster-whisper, distil-whisper) (see [Audio Transcription Research](docs/knowledge_base/audio-transcription-research.md)).
     - [x] Design metadata schema for audio transcriptions (speaker ID, timestamps, chapter markers) (see [Audio Transcription Schema](docs/reference-implementations/metadata-schemas/audio-transcription.md)).
-    - [ ] Implement transcription pipeline script for large audio files.
-    - [ ] Integrate audio transcripts into the [Unified Search CLI](./scripts/unified_search.py).
+    - [x] Implement transcription pipeline script for large audio files. (see `scripts/transcribe_audio.py`)
+    - [x] Integrate audio transcripts into the [Unified Search CLI](./scripts/unified_search.py).
 
 ### Advanced Infrastructure
 - [x] **Self-Healing Homelab Agent**:
@@ -158,13 +158,18 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement a "Plan-and-Execute" orchestration loop using LangGraph (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
         - [ ] Design the primary "Family Context" system prompt for the agent.
             - [ ] Define core family values and communication style for the agent.
+                - [ ] Draft "Family Values" document to guide agent interactions.
+                - [ ] Implement a `FamilyValueTone` utility to adjust LLM responses.
             - [ ] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
+                - [ ] Create a `UserContextFetcher` tool to pull relevant user data.
     - [ ] **Tool Integrations**:
         - [ ] **Paperless Tool**:
             - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
+                - [ ] Configure `PaperlessDocumentLoader` with local API credentials.
             - [ ] Implement a metadata-aware filter for the Paperless tool (e.g., filter by tag/correspondent).
         - [ ] **Vikunja Integration**:
             - [ ] Implement a tool for the agent to query the Vikunja API for task status.
+                - [ ] Define `VikunjaQueryTool` with support for filtered list views.
             - [ ] Implement Vikunja `TaskUpdateTool` and `TaskCreateTool` using Pydantic schemas.
             - [ ] Design the prompt for the agent's task-routing logic.
             - [ ] Implement a `TaskDependencyResolver` tool to handle Vikunja relations.
@@ -195,6 +200,8 @@ This document tracks missing components and planned technical improvements for t
             - [x] Configure Traefik `IngressRoute` for a sample internal service (e.g., Whoami) (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
             - [x] Define Traefik `IngressRoute` for Paperless-ngx (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
             - [ ] Configure Authentik OIDC middleware for Traefik.
+                - [ ] Create `ForwardAuth` middleware resource in Kubernetes.
+                - [ ] Update `IngressRoute` with Authentik middleware reference.
             - [ ] Enable Traefik Dashboard with basic auth.
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
             - [ ] Create a `ClusterIssuer` for Let's Encrypt production using DNS-01 (Cloudflare/DigitalOcean).
