@@ -382,6 +382,8 @@ nav:
     - Self-Healing Agent: knowledge_base/self-healing-agent-research.md
     - Multi-Calendar Conflict Research: knowledge_base/multi-calendar-conflict-research.md
     - Voice-to-Task Research: knowledge_base/voice-to-task-research.md
+    - Audio Transcription Research: knowledge_base/audio-transcription-research.md
+    - Home Admin Agent Architecture: knowledge_base/home-admin-agent-architecture.md
     - AI Builder Index: knowledge_base/ai_builder_index.md
     - Free AI Website Playbook: knowledge_base/free_ai_website_playbook.md
     - AI Tooling Landscape — 2026 Overview: knowledge_base/ai_tooling_landscape.md
@@ -419,6 +421,7 @@ nav:
     - Overview: reference-implementations/index.md
     - Manual Assistant: reference-implementations/manual-assistant/manual-assistant-implementation.md
     - HITL UI Design: reference-implementations/hitl-ui-design.md
+    - Audio Transcription Schema: reference-implementations/metadata-schemas/audio-transcription.md
     - Webhook Ingestion: reference-implementations/paperless/webhook-ingestion.md
     - Calendar:
       - Mapping Rules: reference-implementations/calendar/mapping-rules.md
