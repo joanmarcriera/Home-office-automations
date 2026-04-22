@@ -97,8 +97,8 @@ This document tracks missing components and planned technical improvements for t
 - **Local Audio Library Enrichment**:
     - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
     - *Stack*: Whisper (local), [Ollama](./services/ollama.md).
-    - [ ] Research optimal Whisper variants for long-form audio (e.g., faster-whisper, distil-whisper).
-    - [ ] Design metadata schema for audio transcriptions (speaker ID, timestamps, chapter markers).
+    - [x] Research optimal Whisper variants for long-form audio (e.g., faster-whisper, distil-whisper) (see [Audio Transcription Research](docs/knowledge_base/audio-transcription-research.md)).
+    - [x] Design metadata schema for audio transcriptions (speaker ID, timestamps, chapter markers) (see [Audio Transcription Schema](docs/reference-implementations/metadata-schemas/audio-transcription.md)).
     - [ ] Implement transcription pipeline script for large audio files.
     - [ ] Integrate audio transcripts into the [Unified Search CLI](./scripts/unified_search.py).
 
@@ -147,15 +147,15 @@ This document tracks missing components and planned technical improvements for t
 ### Long-Term
 - [ ] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md).
     - [ ] **Agent Architecture**:
-        - [ ] Design LangChain agent structure and tool definitions.
+        - [x] Design LangChain agent structure and tool definitions (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
         - [x] Research and select state management for agent memory (e.g., LangGraph).
             - [x] Implement persistent checkpointer for long-running family tasks using `SqliteSaver`.
             - [x] Define graph state schema for cross-tool context sharing.
             - [x] Implement a `MemoryManager` class to wrap SQLite checkpointer for easy agent access. (see `scripts/agent_memory.py`)
         - [ ] Implement a basic `AgentExecutor` with support for dynamic tool loading.
-            - [ ] Define Tool Registry schema for dynamic discovery.
-            - [ ] Implement a base `Tool` class with standard error handling and logging.
-            - [ ] Implement a "Plan-and-Execute" orchestration loop using LangGraph.
+            - [x] Define Tool Registry schema for dynamic discovery (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
+            - [x] Implement a base `Tool` class with standard error handling and logging (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
+            - [x] Implement a "Plan-and-Execute" orchestration loop using LangGraph (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
         - [ ] Design the primary "Family Context" system prompt for the agent.
             - [ ] Define core family values and communication style for the agent.
             - [ ] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
@@ -191,9 +191,9 @@ This document tracks missing components and planned technical improvements for t
             - [x] Create a MetalLB L2Advertisement manifest to announce the IP pool. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
             - [x] Verify IP allocation from the pool to a test service.
         - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
-            - [ ] Deploy Traefik via Helm chart with `service.type=LoadBalancer`.
-            - [ ] Configure Traefik `IngressRoute` for a sample internal service (e.g., Whoami).
-            - [ ] Define Traefik `IngressRoute` for Paperless-ngx.
+            - [x] Draft Traefik Helm configuration (see `docs/reference-implementations/k8s-infrastructure/traefik/helm-values.yaml`).
+            - [x] Configure Traefik `IngressRoute` for a sample internal service (e.g., Whoami) (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
+            - [x] Define Traefik `IngressRoute` for Paperless-ngx (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
             - [ ] Configure Authentik OIDC middleware for Traefik.
             - [ ] Enable Traefik Dashboard with basic auth.
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
