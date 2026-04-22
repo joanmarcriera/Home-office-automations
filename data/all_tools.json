@@ -1074,6 +1074,12 @@
       "doc_path": "docs/tools/agents/openai-agents-sdk.md"
     },
     {
+      "id": "home-admin-tools",
+      "name": "Home Admin Agent Tools",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/home-admin-tools.md"
+    },
+    {
       "id": "agency-swarm",
       "name": "Agency Swarm",
       "category": "Agents",
