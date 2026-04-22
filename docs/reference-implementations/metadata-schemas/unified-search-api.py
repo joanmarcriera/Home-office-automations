@@ -25,10 +25,18 @@ class ObsidianSource(SearchSource):
     folder: str
     tags: List[str] = []
 
+class AudioSource(SearchSource):
+    """Metadata for an audio transcription."""
+    file_id: str
+    transcribed_at: datetime
+    duration_seconds: float
+    model_used: str
+    tags: List[str] = []
+
 class UnifiedSearchResult(BaseModel):
     """A single result in the unified search."""
-    source_type: str = Field(..., description="Type of source: 'paperless' or 'obsidian'")
-    data: Union[PaperlessSource, ObsidianSource]
+    source_type: str = Field(..., description="Type of source: 'paperless', 'obsidian', or 'audio'")
+    data: Union[PaperlessSource, ObsidianSource, AudioSource]
     relevance_score: float
 
 class UnifiedSearchResponse(BaseModel):

@@ -45,9 +45,16 @@ class ObsidianSource(SearchSource):
     folder: str
     tags: List[str] = []
 
+class AudioSource(SearchSource):
+    file_id: str
+    transcribed_at: datetime
+    duration_seconds: float
+    model_used: str
+    tags: List[str] = []
+
 class UnifiedSearchResult(BaseModel):
     source_type: str
-    data: Any # Union[PaperlessSource, ObsidianSource]
+    data: Any # Union[PaperlessSource, ObsidianSource, AudioSource]
     relevance_score: float
 
 class UnifiedSearchResponse(BaseModel):
@@ -97,7 +104,7 @@ def search_paperless(query: str, documents: List[Dict[str, Any]], top_k: int = 5
 
     results = []
     for i, score in enumerate(scores):
-        if score > 0:
+        if score != 0:
             doc = documents[i]
             # Create snippet (first 200 chars)
             snippet = doc["content"][:200] + "..." if len(doc["content"]) > 200 else doc["content"]
@@ -129,10 +136,76 @@ def search_obsidian_mock(query: str, top_k: int = 5) -> List[UnifiedSearchResult
     # containing indexed Obsidian notes.
     return []
 
+def load_audio_data(export_dir: str) -> List[Dict[str, Any]]:
+    """Loads transcription JSON files for BM25 indexing."""
+    export_path = Path(export_dir)
+    if not export_path.exists():
+        return []
+
+    documents = []
+    for json_file in export_path.glob("*.json"):
+        try:
+            with open(json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            if "full_text" in data:
+                documents.append({
+                    "id": data["file_id"],
+                    "title": data.get("title", data["file_id"]),
+                    "content": data["full_text"],
+                    "file_id": data["file_id"],
+                    "transcribed_at": datetime.fromisoformat(data["transcribed_at"].replace("Z", "+00:00")),
+                    "duration_seconds": data["duration_seconds"],
+                    "model_used": data["model_used"],
+                    "tags": data.get("tags", [])
+                })
+        except Exception:
+            continue
+    return documents
+
+def search_audio(query: str, documents: List[Dict[str, Any]], top_k: int = 5) -> List[UnifiedSearchResult]:
+    if not documents:
+        return []
+
+    tokenized_query = query.lower().split()
+    corpus = [doc["content"].lower().split() for doc in documents]
+    bm25 = BM25Okapi(corpus)
+
+    scores = bm25.get_scores(tokenized_query)
+
+    results = []
+    for i, score in enumerate(scores):
+        if score != 0:
+            doc = documents[i]
+            snippet = doc["content"][:200] + "..." if len(doc["content"]) > 200 else doc["content"]
+
+            a_source = AudioSource(
+                id=doc["id"],
+                title=doc["title"],
+                url=f"nfs://nas/audio/{doc['file_id']}",
+                snippet=snippet,
+                score=float(score),
+                file_id=doc["file_id"],
+                transcribed_at=doc["transcribed_at"],
+                duration_seconds=doc["duration_seconds"],
+                model_used=doc["model_used"],
+                tags=doc["tags"]
+            )
+
+            results.append(UnifiedSearchResult(
+                source_type="audio",
+                data=a_source,
+                relevance_score=float(score)
+            ))
+
+    results.sort(key=lambda x: x.relevance_score, reverse=True)
+    return results[:top_k]
+
 def main():
-    parser = argparse.ArgumentParser(description="Unified Search across Paperless and Obsidian.")
+    parser = argparse.ArgumentParser(description="Unified Search across Paperless, Obsidian, and Audio.")
     parser.add_argument("query", help="Search query.")
     parser.add_argument("--paperless-dir", default="./paperless_export", help="Directory with Paperless TXT exports.")
+    parser.add_argument("--audio-dir", default="./audio_transcripts", help="Directory with audio transcription JSONs.")
     parser.add_argument("--top-k", type=int, default=5, help="Number of results to return.")
     parser.add_argument("--json", action="store_true", help="Output results as JSON.")
 
@@ -147,8 +220,12 @@ def main():
     # 2. Search Obsidian (Mock for now)
     obsidian_results = search_obsidian_mock(args.query, top_k=args.top_k)
 
+    # 3. Search Audio
+    audio_docs = load_audio_data(args.audio_dir)
+    audio_results = search_audio(args.query, audio_docs, top_k=args.top_k)
+
     # Combine results
-    all_results = paperless_results + obsidian_results
+    all_results = paperless_results + obsidian_results + audio_results
     all_results.sort(key=lambda x: x.relevance_score, reverse=True)
     final_results = all_results[:args.top_k]
 
