@@ -58,17 +58,42 @@ When using local models, prefer a **minimal schema**. Removing the `owner` field
 To ensure consistent priority detection with local LLMs, use the following definitions in your system prompt or instruction block:
 
 - **HIGH**:
-    - Tasks with a due date of today or tomorrow.
-    - Presence of urgency keywords: `urgent`, `asap`, `immediately`, `critical`, `deadline`.
-    - Legal, financial, or medical requirements that have immediate consequences (e.g., "pay by", "court date").
+    - **Deadlines**: Tasks with a due date of today or tomorrow.
+    - **Keywords**: Presence of urgency keywords: `urgent`, `asap`, `immediately`, `critical`, `deadline`.
+    - **Consequences**: Legal, financial, or medical requirements that have immediate consequences (e.g., "pay by", "court date", "appointment tomorrow").
+    - **Blocked Work**: Tasks that are blocking multiple other people or critical infrastructure repairs.
 - **MEDIUM**:
-    - Tasks with a due date within the next 7 days.
-    - Routine business or household tasks that are time-sensitive but not immediate (e.g., "schedule appointment", "weekly report").
-    - Action items mentioned in meeting summaries without explicit deadlines.
+    - **Weekly Horizon**: Tasks with a due date within the next 7 days.
+    - **Routine/Business**: Routine business or household tasks that are time-sensitive but not immediate (e.g., "schedule appointment", "weekly report").
+    - **Meeting Actions**: Action items mentioned in meeting summaries without explicit deadlines.
 - **LOW**:
-    - Tasks with no due date or a date more than 7 days away.
-    - "Nice-to-have" items, reading lists, or long-term research goals.
-    - General suggestions or ideas (e.g., "maybe we should", "someday").
+    - **Future/Someday**: Tasks with no due date or a date more than 7 days away.
+    - **Non-Critical**: "Nice-to-have" items, reading lists, or long-term research goals.
+    - **Inspirational**: General suggestions or ideas (e.g., "maybe we should", "someday").
+
+## Improved Prompt for Local LLMs (Example)
+To ensure the best results from models like `Qwen3-Coder-Next` or `Llama-3.1`, use a **Few-Shot** approach:
+
+```text
+Extract actionable tasks from the following text. Use the priority definitions provided below.
+
+### Priority Definitions
+- HIGH: Due today/tomorrow, urgent keywords, or immediate legal/financial consequences.
+- MEDIUM: Due within 7 days or routine time-sensitive business.
+- LOW: No due date, due > 7 days, or "nice-to-have" items.
+
+### Examples
+Input: "Please pay the electricity bill by tomorrow or they will cut the power."
+Output: [{"task": "Pay electricity bill", "due_date": "2026-04-21", "priority": "high", "owner": null}]
+
+Input: "We should think about painting the fence this summer."
+Output: [{"task": "Paint the fence", "due_date": null, "priority": "low", "owner": null}]
+
+### Text to Process
+{{ocr_text}}
+
+### Response (JSON Only)
+```
 
 ## Contribution Metadata
 - Confidence: high
