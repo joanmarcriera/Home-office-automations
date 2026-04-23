@@ -186,7 +186,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement persistent chat history retrieval from agent memory. (see `scripts/home_admin_ui.py`)
             - [x] Add support for file uploads (e.g., for direct Paperless ingestion). (see `scripts/home_admin_ui.py`)
         - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).
-            - [ ] Integrate a "Voice Toggle" in the UI for hands-free mode.
+            - [x] Integrate a "Voice Toggle" in the UI for hands-free mode. (see `scripts/home_admin_ui.py`)
             - [ ] Configure Home Assistant Assist to route voice commands to the agent.
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
@@ -204,27 +204,29 @@ This document tracks missing components and planned technical improvements for t
                 - [x] Update `IngressRoute` with Authentik middleware reference. (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`)
             - [x] Enable Traefik Dashboard with basic auth. (see `docs/reference-implementations/k8s-infrastructure/traefik/dashboard-auth.yaml`)
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
-            - [ ] Create a `ClusterIssuer` for Let's Encrypt production using DNS-01 (Cloudflare/DigitalOcean).
+            - [x] Create a `ClusterIssuer` for Let's Encrypt production using DNS-01 (Cloudflare/DigitalOcean). (see `docs/reference-implementations/k8s-infrastructure/cert-manager/cluster-issuer.yaml`)
             - [ ] Issue a test certificate for an internal subdomain.
         - [ ] **DNS Automation**:
             - [ ] Install External-DNS operator in the cluster.
-            - [ ] Configure provider-specific credentials (e.g., API tokens).
+            - [ ] Configure Cloudflare API token secret for External-DNS.
+            - [ ] Draft External-DNS `Deployment` and `ClusterRole` manifests.
             - [ ] Set up domain filters and synchronization intervals.
             - [ ] Verify automated A-record creation for a new Ingress resource.
     - [ ] **Storage**:
         - [ ] **Distributed Storage**: Implement Longhorn for high-availability distributed block storage across nodes.
-            - [ ] Research Longhorn system requirements.
+            - [ ] Install `open-iscsi` and `nfs-common` on all K3s nodes.
             - [ ] Install Longhorn via Helm chart.
-            - [ ] Configure Longhorn storage classes.
+            - [ ] Configure Longhorn storage classes (e.g., `longhorn-static`, `longhorn-dynamic`).
+            - [ ] Configure Longhorn backup target (NFS or S3).
             - [ ] Verify block storage replication between nodes.
         - [ ] **Legacy Integration**: Configure NFS CSI driver for persistent volumes stored on TrueNAS SCALE.
             - [ ] Install NFS CSI driver on K3s.
             - [ ] Configure TrueNAS NFS exports for K3s nodes.
-            - [ ] Create a test PersistentVolume using NFS CSI.
+            - [x] Create a test PersistentVolume using NFS CSI. (see `docs/reference-implementations/k8s-infrastructure/storage/nfs-pv.yaml`)
     - [ ] **Compute**:
         - [ ] Set up 3-node K3s cluster.
         - [ ] Implement node affinity/taints for specialized workloads (e.g., GPU).
     - [ ] **Deployment & Observability**:
         - [ ] Define Helm charts for core services (n8n, Paperless).
-            - [ ] Draft Helm chart values for n8n deployment with persistent storage.
+            - [x] Draft Helm chart values for n8n deployment with persistent storage. (see `docs/reference-implementations/k8s-infrastructure/n8n/helm-values.yaml`)
         - [ ] Set up Prometheus/Grafana stack for cluster monitoring.

@@ -56,6 +56,11 @@ if prompt := st.chat_input("What can I help you with today?"):
 
 # Sidebar info
 with st.sidebar:
+    st.header("Voice Interface")
+    voice_enabled = st.toggle("Enable Voice (Hands-free mode)", value=False)
+    if voice_enabled:
+        st.info("Voice interface active. (STT/TTS integration TBD)")
+
     st.header("Document Ingestion")
     uploaded_file = st.file_uploader("Upload a document for Paperless-ngx", type=["pdf", "png", "jpg", "txt"])
     if uploaded_file:
