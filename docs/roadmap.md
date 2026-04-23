@@ -60,5 +60,5 @@ This document tracks missing components and planned technical improvements for t
 - [ ] Deploy [LiteLLM](./services/litellm.md) proxy to load-balance between local and cloud models.
 
 ### Long-Term
-- [ ] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md) that can reason across the entire document store.
+- [x] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md) that can reason across the entire document store. (see `scripts/home_admin_agent.py` and `scripts/home_admin_ui.py`)
 - [ ] Full migration to Kubernetes (K3s) for all homelab services to improve resilience.

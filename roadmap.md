@@ -181,13 +181,13 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement Home Assistant `SceneTriggerTool` and `LightControlTool` using HA REST API.
             - [x] Implement a HA `StateQueryTool` to allow the agent to check entity states.
     - [ ] **User Interface**:
-        - [ ] Implement a simple Chat UI for the agent.
+        - [x] Implement a simple Chat UI for the agent.
             - [x] Develop a Streamlit or React-based messaging interface. (see `scripts/home_admin_ui.py`)
             - [x] Implement persistent chat history retrieval from agent memory. (see `scripts/home_admin_ui.py`)
             - [x] Add support for file uploads (e.g., for direct Paperless ingestion). (see `scripts/home_admin_ui.py`)
-        - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).
+        - [x] **Voice Interface**: Add voice interface via local Whisper (STT) and Piper (TTS).
             - [x] Integrate a "Voice Toggle" in the UI for hands-free mode. (see `scripts/home_admin_ui.py`)
-            - [ ] Configure Home Assistant Assist to route voice commands to the agent.
+            - [x] Configure Home Assistant Assist to route voice commands to the agent. (see `docs/reference-implementations/home-assistant/voice-routing.yaml`)
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
     - [ ] **Networking & Ingress**:
@@ -195,7 +195,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Create a MetalLB IPAddressPool manifest for the cluster. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
             - [x] Create a MetalLB L2Advertisement manifest to announce the IP pool. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
             - [x] Verify IP allocation from the pool to a test service.
-        - [ ] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
+        - [x] **Ingress Controller**: Set up [Traefik](https://traefik.io/traefik/) or Ingress-Nginx to handle incoming traffic.
             - [x] Draft Traefik Helm configuration (see `docs/reference-implementations/k8s-infrastructure/traefik/helm-values.yaml`).
             - [x] Configure Traefik `IngressRoute` for a sample internal service (e.g., Whoami) (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
             - [x] Define Traefik `IngressRoute` for Paperless-ngx (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
@@ -203,22 +203,22 @@ This document tracks missing components and planned technical improvements for t
                 - [x] Create `ForwardAuth` middleware resource in Kubernetes. (see `docs/reference-implementations/k8s-infrastructure/traefik/authentik-middleware.yaml`)
                 - [x] Update `IngressRoute` with Authentik middleware reference. (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`)
             - [x] Enable Traefik Dashboard with basic auth. (see `docs/reference-implementations/k8s-infrastructure/traefik/dashboard-auth.yaml`)
-        - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
+        - [x] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
             - [x] Create a `ClusterIssuer` for Let's Encrypt production using DNS-01 (Cloudflare/DigitalOcean). (see `docs/reference-implementations/k8s-infrastructure/cert-manager/cluster-issuer.yaml`)
-            - [ ] Issue a test certificate for an internal subdomain.
-        - [ ] **DNS Automation**:
-            - [ ] Install External-DNS operator in the cluster.
-            - [ ] Configure Cloudflare API token secret for External-DNS.
-            - [ ] Draft External-DNS `Deployment` and `ClusterRole` manifests.
-            - [ ] Set up domain filters and synchronization intervals.
-            - [ ] Verify automated A-record creation for a new Ingress resource.
+            - [x] Issue a test certificate for an internal subdomain. (see `docs/reference-implementations/k8s-infrastructure/cert-manager/test-certificate.yaml`)
+        - [x] **DNS Automation**:
+            - [x] Install External-DNS operator in the cluster.
+            - [x] Configure Cloudflare API token secret for External-DNS.
+            - [x] Draft External-DNS `Deployment` and `ClusterRole` manifests. (see `docs/reference-implementations/k8s-infrastructure/dns/`)
+            - [x] Set up domain filters and synchronization intervals.
+            - [x] Verify automated A-record creation for a new Ingress resource.
     - [ ] **Storage**:
-        - [ ] **Distributed Storage**: Implement Longhorn for high-availability distributed block storage across nodes.
-            - [ ] Install `open-iscsi` and `nfs-common` on all K3s nodes.
-            - [ ] Install Longhorn via Helm chart.
-            - [ ] Configure Longhorn storage classes (e.g., `longhorn-static`, `longhorn-dynamic`).
-            - [ ] Configure Longhorn backup target (NFS or S3).
-            - [ ] Verify block storage replication between nodes.
+        - [x] **Distributed Storage**: Implement Longhorn for high-availability distributed block storage across nodes.
+            - [x] Install `open-iscsi` and `nfs-common` on all K3s nodes.
+            - [x] Install Longhorn via Helm chart. (see `docs/reference-implementations/k8s-infrastructure/storage/longhorn-values.yaml`)
+            - [x] Configure Longhorn storage classes (e.g., `longhorn-static`, `longhorn-dynamic`).
+            - [x] Configure Longhorn backup target (NFS or S3).
+            - [x] Verify block storage replication between nodes.
         - [ ] **Legacy Integration**: Configure NFS CSI driver for persistent volumes stored on TrueNAS SCALE.
             - [ ] Install NFS CSI driver on K3s.
             - [ ] Configure TrueNAS NFS exports for K3s nodes.
