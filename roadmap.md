@@ -133,7 +133,7 @@ This document tracks missing components and planned technical improvements for t
         - [ ] Migrate TrueNAS SCALE NAS node.
         - [ ] Migrate primary K3s compute node.
         - [ ] Migrate Home Assistant VM.
-- [ ] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
+- [x] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
     - [x] Research Vikunja API for task relation/dependency endpoints (see `docs/services/vikunja.md`).
     - [x] Create a reference n8n workflow for checking task blockers and relations. (see `docs/reference-implementations/n8n/vikunja-task-relations.json`)
     - [x] Implement auto-unblocking logic in the daily briefing or a dedicated worker to notify when a blocker is closed. (see `scripts/vikunja_unblock_notifier.py`)
@@ -176,7 +176,7 @@ This document tracks missing components and planned technical improvements for t
         - [ ] **Calendar Integration**:
             - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
             - [ ] Implement a "Schedule Conflict Checker" tool for the agent.
-        - [ ] **Home Assistant Integration**:
+        - [x] **Home Assistant Integration**:
             - [x] Add "Home Assistant Tool" to control lights/scenes via the agent.
             - [x] Implement Home Assistant `SceneTriggerTool` and `LightControlTool` using HA REST API.
             - [x] Implement a HA `StateQueryTool` to allow the agent to check entity states.
@@ -191,7 +191,7 @@ This document tracks missing components and planned technical improvements for t
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
     - [ ] **Networking & Ingress**:
-        - [ ] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
+        - [x] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
             - [x] Create a MetalLB IPAddressPool manifest for the cluster. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
             - [x] Create a MetalLB L2Advertisement manifest to announce the IP pool. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
             - [x] Verify IP allocation from the pool to a test service.
@@ -213,7 +213,14 @@ This document tracks missing components and planned technical improvements for t
             - [ ] Verify automated A-record creation for a new Ingress resource.
     - [ ] **Storage**:
         - [ ] **Distributed Storage**: Implement Longhorn for high-availability distributed block storage across nodes.
+            - [ ] Research Longhorn system requirements.
+            - [ ] Install Longhorn via Helm chart.
+            - [ ] Configure Longhorn storage classes.
+            - [ ] Verify block storage replication between nodes.
         - [ ] **Legacy Integration**: Configure NFS CSI driver for persistent volumes stored on TrueNAS SCALE.
+            - [ ] Install NFS CSI driver on K3s.
+            - [ ] Configure TrueNAS NFS exports for K3s nodes.
+            - [ ] Create a test PersistentVolume using NFS CSI.
     - [ ] **Compute**:
         - [ ] Set up 3-node K3s cluster.
         - [ ] Implement node affinity/taints for specialized workloads (e.g., GPU).

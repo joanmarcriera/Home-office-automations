@@ -22,6 +22,7 @@ try:
     from vikunja_tool import VikunjaQueryTool, VikunjaCreateTool, VikunjaUpdateTool, VikunjaRelationTool
     from home_assistant_tool import HAStateQueryTool, HASceneTriggerTool, HALightControlTool
     from paperless_tool import PaperlessSearchTool
+    from calendar_tool import GCalendarCreateTool, ChronosCalendarTool, ScheduleConflictCheckerTool
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     LANGGRAPH_AVAILABLE = False
@@ -77,6 +78,9 @@ class HomeAdminAgent:
             self.registry.register(HASceneTriggerTool())
             self.registry.register(HALightControlTool())
             self.registry.register(PaperlessSearchTool())
+            self.registry.register(GCalendarCreateTool())
+            self.registry.register(ChronosCalendarTool())
+            self.registry.register(ScheduleConflictCheckerTool())
         self.memory_manager = MemoryManager(db_path)
         self.system_prompt = self._load_system_prompt()
 

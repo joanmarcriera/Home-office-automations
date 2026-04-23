@@ -12,3 +12,5 @@ venv/
 htmlcov/
 .claude/settings.local.json
 .playwright-mcp/
+*.db
+*.log
