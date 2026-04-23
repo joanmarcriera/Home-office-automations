@@ -19,9 +19,13 @@ def get_agent():
 
 agent = get_agent()
 
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Initialize chat history from agent memory if empty
+if "messages" not in st.session_state or not st.session_state.messages:
+    with st.spinner("Loading history..."):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        history = loop.run_until_complete(agent.get_history())
+        st.session_state.messages = history
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -52,6 +56,11 @@ if prompt := st.chat_input("What can I help you with today?"):
 
 # Sidebar info
 with st.sidebar:
+    st.header("Document Ingestion")
+    uploaded_file = st.file_uploader("Upload a document for Paperless-ngx", type=["pdf", "png", "jpg", "txt"])
+    if uploaded_file:
+        st.success(f"File {uploaded_file.name} received! (Ingestion logic TBD)")
+
     st.header("Capabilities")
     st.write("Current tools registered:")
     for tool in agent.registry.list_tools():

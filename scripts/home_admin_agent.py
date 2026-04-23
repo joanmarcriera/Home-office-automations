@@ -105,6 +105,27 @@ class HomeAdminAgent:
                 return FamilyValueTone.get_system_prompt()
             return "You are Ralph, the Home Admin Agent."
 
+    async def get_history(self, thread_id: str = "default") -> List[Dict[str, Any]]:
+        """Retrieves chat history for a given thread."""
+        if not LANGGRAPH_AVAILABLE:
+            return []
+
+        async with self.memory_manager.get_async_checkpointer() as saver:
+            config = {"configurable": {"thread_id": thread_id}}
+            state = await saver.aget(config)
+            if state and "checkpoint" in state and "channel_values" in state["checkpoint"]:
+                messages = state["checkpoint"]["channel_values"].get("messages", [])
+                formatted_history = []
+                for msg in messages:
+                    # msg is likely a tuple or BaseMessage
+                    if hasattr(msg, "content"):
+                        role = "user" if "Human" in str(type(msg)) or "User" in str(type(msg)) else "assistant"
+                        formatted_history.append({"role": role, "content": msg.content})
+                    elif isinstance(msg, tuple) and len(msg) == 2:
+                        formatted_history.append({"role": msg[0], "content": msg[1]})
+                return formatted_history
+        return []
+
     def _get_populated_system_prompt(self, context: Dict[str, Any]) -> str:
         """Populates the system prompt with dynamic context."""
         from datetime import datetime, timezone
