@@ -163,15 +163,15 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
                 - [x] Create a `UserContextFetcher` tool to pull relevant user data. (see `scripts/user_context_tool.py`)
     - [ ] **Tool Integrations**:
-        - [ ] **Paperless Tool**:
-            - [ ] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
-                - [ ] Configure `PaperlessDocumentLoader` with local API credentials.
-            - [ ] Implement a metadata-aware filter for the Paperless tool (e.g., filter by tag/correspondent).
-        - [ ] **Vikunja Integration**:
+        - [x] **Paperless Tool**:
+            - [x] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
+                - [x] Configure `PaperlessDocumentLoader` with local API credentials. (see `scripts/paperless_tool.py`)
+            - [x] Implement a metadata-aware filter for the Paperless tool (e.g., filter by tag/correspondent). (see `scripts/paperless_tool.py`)
+        - [x] **Vikunja Integration**:
             - [x] Implement a tool for the agent to query the Vikunja API for task status.
                 - [x] Define `VikunjaQueryTool` with support for filtered list views. (see `scripts/vikunja_tool.py`)
             - [x] Implement Vikunja `TaskUpdateTool` and `TaskCreateTool` using Pydantic schemas.
-            - [ ] Design the prompt for the agent's task-routing logic.
+            - [x] Design the prompt for the agent's task-routing logic. (see `docs/reference-implementations/llm-prompts/vikunja-task-routing.md`)
             - [x] Implement a `TaskDependencyResolver` tool to handle Vikunja relations.
         - [ ] **Calendar Integration**:
             - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
@@ -199,10 +199,10 @@ This document tracks missing components and planned technical improvements for t
             - [x] Draft Traefik Helm configuration (see `docs/reference-implementations/k8s-infrastructure/traefik/helm-values.yaml`).
             - [x] Configure Traefik `IngressRoute` for a sample internal service (e.g., Whoami) (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
             - [x] Define Traefik `IngressRoute` for Paperless-ngx (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
-            - [ ] Configure Authentik OIDC middleware for Traefik.
-                - [ ] Create `ForwardAuth` middleware resource in Kubernetes.
+            - [x] Configure Authentik OIDC middleware for Traefik.
+                - [x] Create `ForwardAuth` middleware resource in Kubernetes. (see `docs/reference-implementations/k8s-infrastructure/traefik/authentik-middleware.yaml`)
                 - [ ] Update `IngressRoute` with Authentik middleware reference.
-            - [ ] Enable Traefik Dashboard with basic auth.
+            - [x] Enable Traefik Dashboard with basic auth. (see `docs/reference-implementations/k8s-infrastructure/traefik/dashboard-auth.yaml`)
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
             - [ ] Create a `ClusterIssuer` for Let's Encrypt production using DNS-01 (Cloudflare/DigitalOcean).
             - [ ] Issue a test certificate for an internal subdomain.

@@ -21,6 +21,7 @@ try:
     from family_value_tone import FamilyValueTone
     from vikunja_tool import VikunjaQueryTool, VikunjaCreateTool, VikunjaUpdateTool, VikunjaRelationTool
     from home_assistant_tool import HAStateQueryTool, HASceneTriggerTool, HALightControlTool
+    from paperless_tool import PaperlessSearchTool
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     LANGGRAPH_AVAILABLE = False
@@ -75,6 +76,7 @@ class HomeAdminAgent:
             self.registry.register(HAStateQueryTool())
             self.registry.register(HASceneTriggerTool())
             self.registry.register(HALightControlTool())
+            self.registry.register(PaperlessSearchTool())
         self.memory_manager = MemoryManager(db_path)
         self.system_prompt = self._load_system_prompt()
 
@@ -159,6 +161,11 @@ class HomeAdminAgent:
                     tool = self.registry.get_tool("vikunja_query_tool")
                     if tool:
                         result = await tool.run(search="test")
+                        results.append(result)
+                elif "Call paperless_search_tool" in step:
+                    tool = self.registry.get_tool("paperless_search_tool")
+                    if tool:
+                        result = await tool.run(query="test")
                         results.append(result)
                 elif "Respond directly" in step:
                     results.append("No tools needed.")
