@@ -173,18 +173,18 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement Vikunja `TaskUpdateTool` and `TaskCreateTool` using Pydantic schemas.
             - [x] Design the prompt for the agent's task-routing logic. (see `docs/reference-implementations/llm-prompts/vikunja-task-routing.md`)
             - [x] Implement a `TaskDependencyResolver` tool to handle Vikunja relations.
-        - [ ] **Calendar Integration**:
-            - [ ] Create a "Calendar Tool" using Chronos MCP / Google Calendar API.
-            - [ ] Implement a "Schedule Conflict Checker" tool for the agent.
+        - [x] **Calendar Integration**:
+            - [x] Create a "Calendar Tool" using Chronos MCP / Google Calendar API. (see `scripts/calendar_tool.py`)
+            - [x] Implement a "Schedule Conflict Checker" tool for the agent. (see `scripts/calendar_tool.py`)
         - [x] **Home Assistant Integration**:
             - [x] Add "Home Assistant Tool" to control lights/scenes via the agent.
             - [x] Implement Home Assistant `SceneTriggerTool` and `LightControlTool` using HA REST API.
             - [x] Implement a HA `StateQueryTool` to allow the agent to check entity states.
     - [ ] **User Interface**:
         - [ ] Implement a simple Chat UI for the agent.
-            - [ ] Develop a Streamlit or React-based messaging interface.
-            - [ ] Implement persistent chat history retrieval from agent memory.
-            - [ ] Add support for file uploads (e.g., for direct Paperless ingestion).
+            - [x] Develop a Streamlit or React-based messaging interface. (see `scripts/home_admin_ui.py`)
+            - [x] Implement persistent chat history retrieval from agent memory. (see `scripts/home_admin_ui.py`)
+            - [x] Add support for file uploads (e.g., for direct Paperless ingestion). (see `scripts/home_admin_ui.py`)
         - [ ] Add voice interface via local Whisper (STT) and Piper (TTS).
             - [ ] Integrate a "Voice Toggle" in the UI for hands-free mode.
             - [ ] Configure Home Assistant Assist to route voice commands to the agent.
@@ -201,7 +201,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Define Traefik `IngressRoute` for Paperless-ngx (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`).
             - [x] Configure Authentik OIDC middleware for Traefik.
                 - [x] Create `ForwardAuth` middleware resource in Kubernetes. (see `docs/reference-implementations/k8s-infrastructure/traefik/authentik-middleware.yaml`)
-                - [ ] Update `IngressRoute` with Authentik middleware reference.
+                - [x] Update `IngressRoute` with Authentik middleware reference. (see `docs/reference-implementations/k8s-infrastructure/traefik/ingress-examples.yaml`)
             - [x] Enable Traefik Dashboard with basic auth. (see `docs/reference-implementations/k8s-infrastructure/traefik/dashboard-auth.yaml`)
         - [ ] **TLS Management**: Install [Cert-Manager](https://cert-manager.io/) and configure Let's Encrypt with DNS-01 challenge for internal services.
             - [ ] Create a `ClusterIssuer` for Let's Encrypt production using DNS-01 (Cloudflare/DigitalOcean).

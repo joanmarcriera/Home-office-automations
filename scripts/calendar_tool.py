@@ -121,9 +121,15 @@ END:VCALENDAR"""
         except Exception as e:
             return f"Error creating CalDAV event: {str(e)}"
 
+class CalendarEvent(BaseModel):
+    summary: str
+    start: str
+    end: str
+
 class ConflictCheckerArgs(BaseModel):
     start_time: str = Field(..., description="The start time to check (ISO 8601).")
     end_time: str = Field(..., description="The end time to check (ISO 8601).")
+    existing_events: Optional[List[CalendarEvent]] = Field(None, description="List of existing events to check against.")
     calendar_ids: List[str] = Field(default=["primary"], description="List of calendar IDs to check.")
 
 class ScheduleConflictCheckerTool(BaseHomeTool):
@@ -133,15 +139,39 @@ class ScheduleConflictCheckerTool(BaseHomeTool):
     def get_metadata(cls) -> ToolMetadata:
         return ToolMetadata(
             name="schedule_conflict_checker_tool",
-            description="Checks for overlapping events in the specified calendars.",
+            description="Checks for overlapping events. Can perform actual overlap logic if existing_events are provided.",
             args_schema=ConflictCheckerArgs,
             category="automation"
         )
 
-    async def run(self, start_time: str, end_time: str, calendar_ids: List[str] = ["primary"]) -> str:
-        # Mocking conflict check as full Free/Busy API integration requires complex setup
-        # In a real scenario, this would call the GCal Free/Busy API
-        return f"No conflicts found for the period {start_time} to {end_time} in calendars: {', '.join(calendar_ids)} (Simulated)."
+    async def run(self, start_time: str, end_time: str, existing_events: Optional[List[CalendarEvent]] = None, calendar_ids: List[str] = ["primary"]) -> str:
+        if not existing_events:
+            # Mocking conflict check as full Free/Busy API integration requires complex setup
+            # In a real scenario, this would call the GCal Free/Busy API
+            return f"No conflicts found for the period {start_time} to {end_time} in calendars: {', '.join(calendar_ids)} (Simulated)."
+
+        try:
+            req_start = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+            req_end = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+        except ValueError as e:
+            return f"Error parsing requested times: {str(e)}"
+
+        conflicts = []
+        for event in existing_events:
+            try:
+                ev_start = datetime.fromisoformat(event.start.replace('Z', '+00:00'))
+                ev_end = datetime.fromisoformat(event.end.replace('Z', '+00:00'))
+
+                # Overlap logic: (StartA < EndB) and (EndA > StartB)
+                if req_start < ev_end and req_end > ev_start:
+                    conflicts.append(f"'{event.summary}' ({event.start} to {event.end})")
+            except ValueError:
+                continue
+
+        if conflicts:
+            return f"Conflict(s) detected: {', '.join(conflicts)}"
+        else:
+            return f"No conflicts found among {len(existing_events)} provided events for the period {start_time} to {end_time}."
 
 if __name__ == "__main__":
     import asyncio
