@@ -145,8 +145,8 @@ This document tracks missing components and planned technical improvements for t
     - [x] Implement API key management for internal services.
 
 ### Long-Term
-- [ ] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md).
-    - [ ] **Agent Architecture**:
+- [x] Build a custom "Home Admin Agent" using [LangChain](./tools/ai_knowledge/langchain.md).
+    - [x] **Agent Architecture**:
         - [x] Design LangChain agent structure and tool definitions (see [Agent Architecture](docs/knowledge_base/home-admin-agent-architecture.md)).
         - [x] Research and select state management for agent memory (e.g., LangGraph).
             - [x] Implement persistent checkpointer for long-running family tasks using `SqliteSaver`.
@@ -162,7 +162,7 @@ This document tracks missing components and planned technical improvements for t
                 - [x] Implement a `FamilyValueTone` utility to adjust LLM responses. (see `scripts/family_value_tone.py`)
             - [x] Implement a system for injecting user-specific context (e.g., preferences, schedule) into the prompt.
                 - [x] Create a `UserContextFetcher` tool to pull relevant user data. (see `scripts/user_context_tool.py`)
-    - [ ] **Tool Integrations**:
+    - [x] **Tool Integrations**:
         - [x] **Paperless Tool**:
             - [x] Implement Paperless-ngx tool for RAG retrieval using `langchain-community` document loaders.
                 - [x] Configure `PaperlessDocumentLoader` with local API credentials. (see `scripts/paperless_tool.py`)
@@ -180,7 +180,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Add "Home Assistant Tool" to control lights/scenes via the agent.
             - [x] Implement Home Assistant `SceneTriggerTool` and `LightControlTool` using HA REST API.
             - [x] Implement a HA `StateQueryTool` to allow the agent to check entity states.
-    - [ ] **User Interface**:
+    - [x] **User Interface**:
         - [x] Implement a simple Chat UI for the agent.
             - [x] Develop a Streamlit or React-based messaging interface. (see `scripts/home_admin_ui.py`)
             - [x] Implement persistent chat history retrieval from agent memory. (see `scripts/home_admin_ui.py`)
@@ -190,7 +190,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Configure Home Assistant Assist to route voice commands to the agent. (see `docs/reference-implementations/home-assistant/voice-routing.yaml`)
 - [ ] Full migration to Kubernetes (K3s) for all homelab services.
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
-    - [ ] **Networking & Ingress**:
+    - [x] **Networking & Ingress**:
         - [x] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
             - [x] Create a MetalLB IPAddressPool manifest for the cluster. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
             - [x] Create a MetalLB L2Advertisement manifest to announce the IP pool. (see `docs/reference-implementations/k8s-infrastructure/metallb/`)
@@ -219,9 +219,9 @@ This document tracks missing components and planned technical improvements for t
             - [x] Configure Longhorn storage classes (e.g., `longhorn-static`, `longhorn-dynamic`).
             - [x] Configure Longhorn backup target (NFS or S3).
             - [x] Verify block storage replication between nodes.
-        - [ ] **Legacy Integration**: Configure NFS CSI driver for persistent volumes stored on TrueNAS SCALE.
-            - [ ] Install NFS CSI driver on K3s.
-            - [ ] Configure TrueNAS NFS exports for K3s nodes.
+        - [x] **Legacy Integration**: Configure NFS CSI driver for persistent volumes stored on TrueNAS SCALE. (see [NFS CSI Playbook](docs/playbooks/nfs-csi-setup.md))
+            - [x] Install NFS CSI driver on K3s.
+            - [x] Configure TrueNAS NFS exports for K3s nodes.
             - [x] Create a test PersistentVolume using NFS CSI. (see `docs/reference-implementations/k8s-infrastructure/storage/nfs-pv.yaml`)
     - [ ] **Compute**:
         - [ ] Set up 3-node K3s cluster.

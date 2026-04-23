@@ -14,6 +14,7 @@ Step-by-step execution guides for recurring workflows. Each playbook is self-con
 | Convert a scanned document into an actionable task | [Scan to Task](scan-to-task.md) |
 | Ingest and process school admin emails, letters, or attachments | [School Admin Intake](school-admin-intake.md) |
 | Audit, repair, or improve the knowledge base and documentation | [Knowledge Base Health](knowledge-base-health.md) |
+| Configure NFS CSI driver for persistent volumes on K3s | [NFS CSI Setup](nfs-csi-setup.md) |
 
 ---
 
@@ -72,6 +73,13 @@ Watches an email folder for school-related messages, classifies them (event / ac
 Audits doc structure, catalog consistency, broken links, and stale metadata. Generates a prioritised fix list and optionally opens Jules issues for automated remediation.
 
 **Stack**: Python scripts · Jules · GitHub Actions · MkDocs
+
+---
+
+### [NFS CSI Setup](nfs-csi-setup.md)
+Step-by-step instructions for configuring the NFS CSI driver on a K3s cluster to use persistent storage hosted on a TrueNAS SCALE server. Covers driver installation, StorageClass configuration, and dynamic provisioning verification.
+
+**Stack**: K3s · TrueNAS SCALE · Helm · NFS CSI
 
 ---
 
