@@ -27,4 +27,5 @@ Google Gemini for macOS is a native desktop application designed to provide a se
 - [Google Gemini Mac app debuts to end the clunky hunt for browser tabs](https://thenewstack.io/gemini-app-macos-launch/) (The New Stack, 2026-04-16)
 
 ---
-*Last reviewed: 2026-04-16* | *Confidence: High*
+- Last reviewed: 2026-04-16
+- Confidence: high
