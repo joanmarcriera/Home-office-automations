@@ -6,7 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
-| 2026-04-16 | [2026-04-16](/new-sources/2026-04-16/) | 18 | 10 | AI Daily Digest discovery. |
+| 2026-04-16 | [2026-04-16](/new-sources/2026-04-16/) | 0 | 28 | AI Daily Digest discovery. |
 | 2026-04-08 | [2026-04-08](/new-sources/2026-04-08/) | 0 | 29 | Staged General Tools/Services from older logs. |
 | 2026-04-07 | [2026-04-07](/new-sources/2026-04-07/) | 0 | 12 | Staged Benchmarking items; integrated all items. |
 | 2026-04-06 | [2026-04-06](/new-sources/2026-04-06/) | 0 | 1 | Audit of tool documentation related sections and missing local docs. |

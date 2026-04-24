@@ -232,7 +232,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Draft Helm chart values for Paperless-ngx deployment. (see `docs/reference-implementations/k8s-infrastructure/paperless-ngx/helm-values.yaml`)
         - [x] Set up Prometheus/Grafana stack for cluster monitoring. (see `docs/reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml`)
 
-- [ ] **Infrastructure Modernization (2026+)**:
-    - [ ] Research **"Invisible Kubernetes"** patterns from AWS and Microsoft to simplify cluster management and reduce operational toil.
-    - [ ] Evaluate **Google Axion Processors** (ARM-based) for homelab compute nodes to improve performance-per-watt for AI workloads.
-    - [ ] Investigate **Real-time Sync Engines** for improving collaborative editing and data consistency across self-hosted apps.
+- [x] **Infrastructure Modernization (2026+)**:
+    - [x] Research **"Invisible Kubernetes"** patterns from AWS and Microsoft to simplify cluster management and reduce operational toil. (See: [Invisible Kubernetes](docs/knowledge_base/invisible_kubernetes.md))
+    - [x] Evaluate **Google Axion Processors** (ARM-based) for homelab compute nodes to improve performance-per-watt for AI workloads. (See: [Google Axion](docs/knowledge_base/google_axion.md))
+    - [x] Investigate **Real-time Sync Engines** for improving collaborative editing and data consistency across self-hosted apps. (See: [Real-time Sync Engines](docs/knowledge_base/real_time_sync_engines.md))
