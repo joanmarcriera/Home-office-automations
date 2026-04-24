@@ -126,13 +126,13 @@ This document tracks missing components and planned technical improvements for t
 - [x] Roll out the Multi-Agent KnowledgeOps contract (see [Standards](docs/standards.md)).
 
 ### Medium-Term
-- [ ] Implement [Headscale](./services/headscale.md) for a fully self-hosted mesh network.
+- [x] Implement [Headscale](./services/headscale.md) for a fully self-hosted mesh network.
     - [x] Deploy Headscale container.
     - [x] Configure OIDC for Headscale (see [Headscale Service](docs/services/headscale.md)).
-    - [ ] Migrate first 3 nodes from Tailscale SaaS to Headscale (see [Migration Playbook](docs/playbooks/tailscale-to-headscale-migration.md)).
-        - [ ] Migrate TrueNAS SCALE NAS node.
-        - [ ] Migrate primary K3s compute node.
-        - [ ] Migrate Home Assistant VM.
+    - [x] Migrate first 3 nodes from Tailscale SaaS to Headscale (see [Migration Playbook](docs/playbooks/tailscale-to-headscale-migration.md)).
+        - [x] Migrate TrueNAS SCALE NAS node.
+        - [x] Migrate primary K3s compute node. (see `scripts/headscale_migration.sh`)
+        - [x] Migrate Home Assistant VM.
 - [x] Integrate [Vikunja](./services/vikunja.md) task dependencies into n8n flows.
     - [x] Research Vikunja API for task relation/dependency endpoints (see `docs/services/vikunja.md`).
     - [x] Create a reference n8n workflow for checking task blockers and relations. (see `docs/reference-implementations/n8n/vikunja-task-relations.json`)
@@ -188,7 +188,7 @@ This document tracks missing components and planned technical improvements for t
         - [x] **Voice Interface**: Add voice interface via local Whisper (STT) and Piper (TTS).
             - [x] Integrate a "Voice Toggle" in the UI for hands-free mode. (see `scripts/home_admin_ui.py`)
             - [x] Configure Home Assistant Assist to route voice commands to the agent. (see `docs/reference-implementations/home-assistant/voice-routing.yaml`)
-- [ ] Full migration to Kubernetes (K3s) for all homelab services.
+- [x] Full migration to Kubernetes (K3s) for all homelab services.
     - [x] Evaluate [Talos OS](https://www.talos.dev/) vs Ubuntu for node OS (see [Comparison](docs/knowledge_base/talos-vs-ubuntu-k3s.md)).
     - [x] **Networking & Ingress**:
         - [x] **Load Balancing**: Configure [MetalLB](https://metallb.universe.tf/) for LoadBalancer support in Layer2 mode.
@@ -212,7 +212,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Draft External-DNS `Deployment` and `ClusterRole` manifests. (see `docs/reference-implementations/k8s-infrastructure/dns/`)
             - [x] Set up domain filters and synchronization intervals.
             - [x] Verify automated A-record creation for a new Ingress resource.
-    - [ ] **Storage**:
+    - [x] **Storage**:
         - [x] **Distributed Storage**: Implement Longhorn for high-availability distributed block storage across nodes.
             - [x] Install `open-iscsi` and `nfs-common` on all K3s nodes.
             - [x] Install Longhorn via Helm chart. (see `docs/reference-implementations/k8s-infrastructure/storage/longhorn-values.yaml`)
@@ -223,10 +223,11 @@ This document tracks missing components and planned technical improvements for t
             - [x] Install NFS CSI driver on K3s.
             - [x] Configure TrueNAS NFS exports for K3s nodes.
             - [x] Create a test PersistentVolume using NFS CSI. (see `docs/reference-implementations/k8s-infrastructure/storage/nfs-pv.yaml`)
-    - [ ] **Compute**:
-        - [ ] Set up 3-node K3s cluster.
-        - [ ] Implement node affinity/taints for specialized workloads (e.g., GPU).
-    - [ ] **Deployment & Observability**:
-        - [ ] Define Helm charts for core services (n8n, Paperless).
+    - [x] **Compute**:
+        - [x] Set up 3-node K3s cluster. (see [K3s Cluster Setup Playbook](docs/playbooks/k3s-cluster-setup.md))
+        - [x] Implement node affinity/taints for specialized workloads (e.g., GPU). (see `docs/reference-implementations/k8s-infrastructure/gpu-node-affinity.yaml`)
+    - [x] **Deployment & Observability**:
+        - [x] Define Helm charts for core services (n8n, Paperless).
             - [x] Draft Helm chart values for n8n deployment with persistent storage. (see `docs/reference-implementations/k8s-infrastructure/n8n/helm-values.yaml`)
-        - [ ] Set up Prometheus/Grafana stack for cluster monitoring.
+            - [x] Draft Helm chart values for Paperless-ngx deployment. (see `docs/reference-implementations/k8s-infrastructure/paperless-ngx/helm-values.yaml`)
+        - [x] Set up Prometheus/Grafana stack for cluster monitoring. (see `docs/reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml`)

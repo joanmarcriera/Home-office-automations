@@ -1,0 +1,49 @@
+# Prometheus-Grafana (kube-prometheus-stack) Helm Chart Values
+# Chart: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - grafana.riera.co.uk
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.riera.co.uk
+  persistence:
+    enabled: true
+    storageClass: "longhorn"
+    size: 5Gi
+
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          resources:
+            requests:
+              storage: 20Gi
+
+alertmanager:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+    hosts:
+      - alertmanager.riera.co.uk
+    tls:
+      - secretName: alertmanager-tls
+        hosts:
+          - alertmanager.riera.co.uk
+  persistence:
+    enabled: true
+    storageClass: "longhorn"
+    size: 2Gi

@@ -19,6 +19,12 @@ Migrating to Headscale ensures 100% data sovereignty over your network topology.
 On each node currently running Tailscale, perform the following:
 
 ### Linux
+You can use the provided migration script:
+```bash
+./scripts/headscale_migration.sh https://<headscale-fqdn>
+```
+
+Or manually:
 ```bash
 # Logout from Tailscale SaaS
 tailscale logout
@@ -42,7 +48,25 @@ If not using OIDC or if a node requires manual registration:
    headscale nodes register --user <username> --key <node-key>
    ```
 
-## Step 4: Verification
+## Step 4: Node-Specific Checklists
+
+### TrueNAS SCALE NAS
+- [ ] SSH into TrueNAS.
+- [ ] Run `tailscale logout`.
+- [ ] Run `tailscale up --login-server https://<headscale-fqdn>`.
+- [ ] Verify NAS is reachable via Tailscale IP in Headscale.
+
+### K3s Compute Node
+- [ ] Ensure `tailscale` is running on the host.
+- [ ] Run migration script or manual commands.
+- [ ] Update any K3s service advertisements if using Tailscale IPs for cluster communication.
+
+### Home Assistant VM
+- [ ] Use the HA Terminal & SSH add-on.
+- [ ] Execute `tailscale logout` followed by `tailscale up --login-server ...`.
+- [ ] Re-verify HA external access if proxied through Tailscale.
+
+## Step 5: Verification
 1. List nodes on Headscale: `headscale nodes list`.
 2. Verify connectivity between nodes: `tailscale ping <other-node-ip>`.
 3. Ensure ACLs are correctly migrated if using a custom `policy.hujson`.
@@ -59,5 +83,5 @@ tailscale up
 - [Tailscale CLI Reference](https://tailscale.com/kb/1080/cli/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-20
+- Last reviewed: 2026-04-24
 - Confidence: high
