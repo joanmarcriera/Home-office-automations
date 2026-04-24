@@ -12,9 +12,10 @@ The Software Factory is an architectural pattern for non-interactive software de
 **Pattern**. This belongs in the upper layers of the agentic stack, specifically under **Orchestration** and **Quality Assurance**. It defines the workflow loop for high-autonomy coding agents.
 
 ## Typical use cases
-- Developing complex security software with unreviewed code.
-- Building high-fidelity clones (Digital Twins) of SaaS services (Okta, Slack, Jira) for safe, high-volume testing.
-- "Gene Transfusion": Extracting patterns from legacy systems and porting them to new architectures autonomously.
+- **Continuous Maintenance**: Agents that automatically monitor, debug, and patch production codebases.
+- **Enterprise System-of-Record**: Turning collaboration tools (like Notion) into agent-native environments where agents spec, code, and verify work in a shared database.
+- **Digital Twin Development**: Building high-fidelity clones of SaaS services (Okta, Slack, Jira) for safe, high-volume testing.
+- **Gene Transfusion**: Extracting patterns from legacy systems and porting them to new architectures autonomously.
 
 ## Strengths
 - **Compounding Correctness**: Long-horizon agentic workflows can self-correct when guided by a strong validation loop.
@@ -54,17 +55,27 @@ To implement the Software Factory pattern in local, free-as-in-beer environments
 - Implement **Red/Green TDD** loops where the local agent must first make a failing test pass before moving to the next scenario.
 - Use **Scenario-as-Holdout**: Store end-to-end user stories in a local directory that the agent only sees during the validation phase, not during the implementation phase.
 
+## Lessons from "Token Town" (Notion's Journey)
+Building a software factory at scale (as seen in Notion's 2026 "Custom Agents" rollout) reveals several critical requirements:
+- **Iterative Rebuilds**: Success often requires 4–5 architectural shifts as model capabilities (context window, tool-calling reliability) evolve.
+- **Specification Layer**: A robust factory needs a human-readable spec layer (e.g., Markdown files, Notion pages, or structured databases) that agents can commit to and humans can review.
+- **Self-Verification Loop**: Agents must be able to download datasets, run evals, iterate on failures, and implement fixes autonomously within a "rigorous outer system."
+- **Progressive Disclosure**: When a system has hundreds of tools, agents need mechanisms to discover and load only relevant tools to avoid "nerfing" model performance or wasting tokens.
+- **Bootstrapping Power**: The most capable agents can configure themselves, inspect their own failures, and even edit their own system instructions when blocked.
+
 ## Related tools / concepts
 - [Agentic Engineering Patterns](https://simonwillison.net/guides/agentic-engineering-patterns/)
 - [Digital Twin Universe](https://factory.strongdm.ai/techniques/dtu)
 - [Qwen 2.5 Coder](../../tools/ai_knowledge/qwen.md)
 - [Jules](../../tools/ai_knowledge/jules.md) (The autonomous coding agent used in this hub)
+- [Notion AI](../../tools/ai_knowledge/notion-ai.md) (Implementing Agent-Native systems of record)
 
 ## Sources / References
+- [Latent Space: Notion's Token Town & The Software Factory Future](https://www.latent.space/p/notion)
 - [Simon Willison: Software Factories and the Agentic Moment](https://simonwillison.net/2026/Feb/7/software-factory/)
 - [StrongDM Software Factory Principles](https://factory.strongdm.ai/principles)
 - [StrongDM Techniques](https://factory.strongdm.ai/techniques)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-09
+- Last reviewed: 2026-04-16
 - Confidence: high

@@ -570,6 +570,12 @@
       "doc_path": "docs/tools/benchmarking/terminal-bench.md"
     },
     {
+      "id": "vakra",
+      "name": "VAKRA Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/vakra.md"
+    },
+    {
       "id": "ollama-benchmark-cli",
       "name": "Ollama Benchmark CLI",
       "category": "Benchmarking",
