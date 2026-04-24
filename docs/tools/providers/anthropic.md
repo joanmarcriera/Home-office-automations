@@ -60,6 +60,11 @@ print(message.content)
 - Default? No
 - Comment: use only after Sonnet fails or when the answer quality matters enough to justify the premium
 
+### Mythos
+- Use for: frontier-scale simulations, extreme context tasks, and high-reliability software factory architectures
+- Default? No
+- Comment: Released in 2026, it is the successor to Opus for the most demanding agentic workloads.
+
 See the central routing guide: [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## Limitations

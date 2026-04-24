@@ -102,6 +102,7 @@ nav:
       - Gitea: services/gitea.md
       - Grocy: services/grocy.md
       - Headscale: services/headscale.md
+      - Cloudflare Mesh: services/cloudflare-mesh.md
       - Habitica: services/habitica.md
       - Home Assistant: services/home-assistant.md
       - Homebox: services/homebox.md
@@ -144,6 +145,7 @@ nav:
       - AnythingLLM: tools/ai_knowledge/anythingllm.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Claude: tools/ai_knowledge/claude.md
+      - Claude Mythos: tools/ai_knowledge/claude-mythos.md
       - Gemini: tools/ai_knowledge/gemini.md
       - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md

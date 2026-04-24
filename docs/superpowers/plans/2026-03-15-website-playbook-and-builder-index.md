@@ -1,6 +1,6 @@
 # Website Playbook And Builder Index Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Add a dedicated guide for free website-building options and LLM prompting patterns, plus a discovery-oriented knowledge-base index inspired by awesomeclaude.ai.
 
@@ -20,22 +20,22 @@
 - Modify: `mkdocs.yml`
 - Modify: `data/all_tools.json`
 
-- [ ] **Step 1: Review current related docs**
+- [x] **Step 1: Review current related docs**
 
 Run: `sed -n '1,240p' docs/knowledge_base/ai_company_starter_stack.md`
 Expected: existing stack guide without a dedicated website playbook.
 
-- [ ] **Step 2: Review knowledge-base landing page**
+- [x] **Step 2: Review knowledge-base landing page**
 
 Run: `sed -n '1,220p' docs/knowledge_base/README.md`
 Expected: current list-style landing page that can be improved with curated discovery links.
 
-- [ ] **Step 3: Identify missing hosting canonicals**
+- [x] **Step 3: Identify missing hosting canonicals**
 
 Run: `rg --files docs/tools docs/services | rg "(vercel|cloudflare|netlify|github-pages|render|railway|firebase|hosting)"`
 Expected: limited or missing canonical docs for major free-tier website hosts.
 
-- [ ] **Step 4: Commit planning state if needed**
+- [x] **Step 4: Commit planning state if needed**
 
 ```bash
 git add docs/superpowers/plans/2026-03-15-website-playbook-and-builder-index.md
@@ -48,7 +48,7 @@ git commit -m "docs: add website playbook implementation plan"
 - Create: `docs/knowledge_base/free_ai_website_playbook.md`
 - Create: `docs/knowledge_base/ai_builder_index.md`
 
-- [ ] **Step 1: Gather official pricing/free-tier references**
+- [x] **Step 1: Gather official pricing/free-tier references**
 
 Sources to consult:
 - Vercel pricing
@@ -60,7 +60,7 @@ Sources to consult:
 - Railway pricing
 - Supabase pricing
 
-- [ ] **Step 2: Capture only durable decisions**
+- [x] **Step 2: Capture only durable decisions**
 
 Expected output:
 - host category,
@@ -82,7 +82,7 @@ Expected output:
 - Modify: `data/all_tools.json`
 - Modify: `mkdocs.yml`
 
-- [ ] **Step 1: Write canonical docs with consistent sections**
+- [x] **Step 1: Write canonical docs with consistent sections**
 
 Each page must include:
 - what it is,
@@ -97,7 +97,7 @@ Each page must include:
 - sources,
 - contribution metadata.
 
-- [ ] **Step 2: Add examples and free-tier framing**
+- [x] **Step 2: Add examples and free-tier framing**
 
 Each host page should include:
 - example website types,
@@ -105,7 +105,7 @@ Each host page should include:
 - basic free-tier suitability,
 - which adjacent tools pair well with it.
 
-- [ ] **Step 3: Update nav and tool catalog**
+- [x] **Step 3: Update nav and tool catalog**
 
 Run after edits:
 - `python3 scripts/check_catalog_consistency.py`
@@ -117,7 +117,7 @@ Expected: no missing nav/catalog pairings.
 **Files:**
 - Create: `docs/knowledge_base/free_ai_website_playbook.md`
 
-- [ ] **Step 1: Write site-type taxonomy**
+- [x] **Step 1: Write site-type taxonomy**
 
 Include:
 - landing page,
@@ -131,7 +131,7 @@ Include:
 - portfolio,
 - lead-gen microsite.
 
-- [ ] **Step 2: Write host-selection matrix**
+- [x] **Step 2: Write host-selection matrix**
 
 Include columns for:
 - host,
@@ -141,7 +141,7 @@ Include columns for:
 - upgrade trigger,
 - comments.
 
-- [ ] **Step 3: Add LLM prompting patterns**
+- [x] **Step 3: Add LLM prompting patterns**
 
 Include:
 - reusable prompt skeleton,
@@ -150,7 +150,7 @@ Include:
 - anti-patterns,
 - "what to specify before asking the LLM to code".
 
-- [ ] **Step 4: Add diagrams**
+- [x] **Step 4: Add diagrams**
 
 Include Mermaid diagrams for:
 - site-type selection,
@@ -167,7 +167,7 @@ Include Mermaid diagrams for:
 - Modify: `docs/knowledge_base/ai_company_starter_stack.md`
 - Modify: `mkdocs.yml`
 
-- [ ] **Step 1: Write category-first landing content**
+- [x] **Step 1: Write category-first landing content**
 
 Use curated buckets:
 - build websites,
@@ -177,14 +177,14 @@ Use curated buckets:
 - internal knowledge,
 - local/private AI.
 
-- [ ] **Step 2: Add "start here" callouts**
+- [x] **Step 2: Add "start here" callouts**
 
 Each bucket should state:
 - best first page,
 - who it is for,
 - common next step.
 
-- [ ] **Step 3: Link the new website playbook from stack and landscape pages**
+- [x] **Step 3: Link the new website playbook from stack and landscape pages**
 
 Expected: user can move from overview -> builder index -> website playbook -> host/tool page -> back to start pages.
 
@@ -195,21 +195,21 @@ Expected: user can move from overview -> builder index -> website playbook -> ho
 **Files:**
 - Modify: any touched docs that fail path review
 
-- [ ] **Step 1: Review primary user journeys**
+- [x] **Step 1: Review primary user journeys**
 
 Check paths:
 - home -> knowledge base -> builder index -> website playbook -> host page -> back
 - home -> AI company starter stack -> website layer -> website playbook
 - host page -> related tools -> relevant next page
 
-- [ ] **Step 2: Extend shallow docs**
+- [x] **Step 2: Extend shallow docs**
 
 If a touched page is too thin, add:
 - concrete examples,
 - comparisons,
 - adjacent-tool guidance.
 
-- [ ] **Step 3: Run document validation**
+- [x] **Step 3: Run document validation**
 
 Run:
 - `python3 scripts/check_catalog_consistency.py`
@@ -217,7 +217,7 @@ Run:
 - `python3 scripts/validate_new_sources.py`
 - `ruby -ryaml -e 'YAML.load_file("mkdocs.yml"); puts "mkdocs.yml OK"'`
 
-- [ ] **Step 4: Commit and push**
+- [x] **Step 4: Commit and push**
 
 ```bash
 git add docs/knowledge_base docs/tools/development_ops docs/superpowers/plans/2026-03-15-website-playbook-and-builder-index.md mkdocs.yml data/all_tools.json

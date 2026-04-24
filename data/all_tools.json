@@ -1582,6 +1582,18 @@
       "name": "HoloTab",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/holotab.md"
+    },
+    {
+      "id": "cloudflare-mesh",
+      "name": "Cloudflare Mesh",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/services/cloudflare-mesh.md"
+    },
+    {
+      "id": "claude-mythos",
+      "name": "Claude Mythos",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/claude-mythos.md"
     }
   ]
 }
