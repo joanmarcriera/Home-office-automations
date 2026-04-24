@@ -10,16 +10,17 @@ Bridges the gap between a knowledge base and an AI assistant, allowing users to 
 AI & Knowledge — integrated productivity and workspace assistant.
 
 ## Typical use cases
-- Summarizing meeting notes and project documents
-- Drafting content, emails, and brainstorm lists
-- Extracting action items from unstructured text
-- Improving writing (editing for tone, length, or clarity)
-- Q&A over the entire workspace knowledge base
+- **Summarizing meeting notes and project documents**: Meeting Notes act as a high-signal data capture point for the whole workspace.
+- **Drafting content, emails, and brainstorm lists**: High-velocity drafting within the context of a team's shared knowledge.
+- **Extracting action items from unstructured text**: Automating follow-ups and task creation.
+- **Custom Agents**: Building specialized agents that triage email, enrich applicants with web search, and write structured data to databases.
+- **Q&A and Agentic Search**: Natural language search over the entire workspace knowledge base, optimized for agent retrieval (Top-K over CTR).
 
 ## Strengths
-- Seamlessly integrated into an existing popular workspace tool
-- Context-aware; can reference other pages and data within Notion
-- Easy to use with "Ask AI" prompts and contextual menus
+- **Seamless Integration**: AI lives where collaboration data (pages, databases) already exists.
+- **Agent-Native System of Record**: Pages and databases serve as "memory" for agents, accessible by both humans and LLMs.
+- **Usage-Based Credits**: A pricing model (Notion Credits) that allows customers to pay for what they use across different model tiers and tool capabilities.
+- **Context-Awareness**: Agents can reference other pages and data within Notion for high-fidelity multi-hop reasoning.
 
 ## Limitations
 - Requires a paid add-on to the standard Notion subscription
@@ -41,8 +42,9 @@ AI & Knowledge — integrated productivity and workspace assistant.
 
 ## Sources / references
 - [Official Website](https://www.notion.so/product/ai)
+- [Latent Space: Notion's Token Town & The Software Factory Future](https://www.latent.space/p/notion)
 - [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-08
+- Last reviewed: 2026-04-16
 - Confidence: high

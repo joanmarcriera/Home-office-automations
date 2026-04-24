@@ -224,6 +224,7 @@ nav:
       - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
       - Pa Bench: tools/benchmarking/pa-bench.md
       - Swe Bench: tools/benchmarking/swe-bench.md
+      - VAKRA Benchmark: tools/benchmarking/vakra.md
       - Terminal Bench: tools/benchmarking/terminal-bench.md
       - MMLU: tools/benchmarking/mmlu.md
       - ARC (AI2 Reasoning Challenge): tools/benchmarking/arc.md

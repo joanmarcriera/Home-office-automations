@@ -17,3 +17,4 @@ For a conceptual overview of model comparison platforms and evaluation metrics, 
 - [Pa Bench](pa-bench.md)
 - [Swe Bench](swe-bench.md)
 - [Terminal Bench](terminal-bench.md)
+- [VAKRA Benchmark](vakra.md)
