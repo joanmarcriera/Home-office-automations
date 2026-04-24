@@ -33,10 +33,26 @@ The model weights are downloaded and stored locally. Inference is performed usin
 - **Hardware Requirement**: Requires significant RAM (especially for larger models) and GPU/NPU acceleration.
 - **Maintenance**: You are responsible for updating software and managing model files.
 
+## Recommended Models (April 2026)
+
+The local model landscape is dominated by highly capable open-weight families that rival mid-tier cloud models:
+
+- **General Purpose**:
+    - **Qwen 3.5**: The most broadly recommended family across all use cases.
+    - **Gemma 4**: Strong usability and performance for small to mid-sized deployments.
+    - **GLM-5**: Near the top of broad open-model rankings for general intelligence.
+    - **DeepSeek V3.2**: A top-tier cluster model for general purpose reasoning.
+- **Agentic & Tool-heavy**:
+    - **MiniMax M2.7**: Repeatedly cited for its effectiveness in agentic workflows.
+- **Coding**:
+    - **Qwen3-Coder-Next**: The overwhelming community consensus for local coding tasks.
+- **Practical/Uncensored**:
+    - **GPT-oss 20B**: A recommended practical option for those seeking uncensored variants.
+
 ## When to use it
 - For any task involving sensitive or personal data.
 - When you want to avoid recurring costs for high-volume, simpler tasks.
-- For local coding assistants (e.g., using `llama-3-8b` or `deepseek-coder` locally).
+- For local coding assistants (e.g., using `Qwen3-Coder-Next` locally).
 
 ## When not to use it
 - When you need the absolute highest reasoning performance available today.
@@ -95,5 +111,5 @@ print(response.json()['message']['content'])
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-08
+- Last reviewed: 2026-04-16
 - Confidence: high

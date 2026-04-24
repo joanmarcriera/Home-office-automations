@@ -56,7 +56,35 @@ Historically, many Google API keys (such as those for Maps) were treated as "pub
 - [Google API Keys Weren't Secrets. But then Gemini Changed the Rules](https://trufflesecurity.com/blog/google-api-keys-werent-secrets-but-then-gemini-changed-the-rules)
 - [Microsoft Cyber Pulse: Why AI Agent Governance Matters](https://news.microsoft.com/source/emea/features/microsoft-cyber-pulse-ai-agents-4/)
 
+## Agentic Security: The "Lethal Trifecta"
+
+As AI agents gain autonomous capabilities, a new class of high-severity risks emerges from the combination of three elements, often called the **Lethal Trifecta**:
+
+1.  **Access to Private Data**: The ability to read sensitive internal information (e.g., code, customer data, PII).
+2.  **Exposure to Untrusted Content**: Processing data from the open web or external users (e.g., emails, web scraping).
+3.  **Ability to Communicate Externally**: Having the permission to call external APIs or send data outside the organization's boundary.
+
+When an agent possesses all three, it becomes a prime target for prompt-injection attacks that can lead to mass data exfiltration or autonomous system compromise.
+
+### Layered Defense for Agents
+
+To mitigate these risks, engineering teams should implement a layered security model:
+
+-   **Model Level**: Use distinct messaging roles (System vs. User) and randomized delimiters to separate instructions from content.
+-   **System Level**:
+    -   **Least Privilege**: Narrowly scope tool access and credentials.
+    -   **Default-Deny Networking**: Limit agent communication to specific, approved endpoints.
+    -   **Workflow Separation**: Ensure no single agent holds all three legs of the lethal trifecta. Separate read-only agents from those with write/network access.
+-   **Human Level**: Implement human-in-the-loop (HITL) approvals for high-risk operations (e.g., file deletion, database writes, external communication).
+
+### Case Study: Cal.com and Open Source Security
+In April 2026, Cal.com made the significant decision to move its core codebase from open to private. This move was driven by a "security reckoning" caused by the rise of AI agents. The concern was that having a public codebase allowed autonomous agents to study the entire logic of the application to find and exploit vulnerabilities at a speed and scale previously impossible.
+
+**Source:**
+- [Cal.com goes private: A security reckoning for open source](https://thenewstack.io/cal-com-codebase-security-ai/)
+- [Agents are rewriting the rules of security](https://thenewstack.io/securing-ai-agent-systems/)
+
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-04-16
 - Confidence: high

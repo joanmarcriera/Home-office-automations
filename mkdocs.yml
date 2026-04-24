@@ -160,6 +160,7 @@ nav:
       - HoloTab: tools/ai_knowledge/holotab.md
       - Jasper: tools/ai_knowledge/jasper.md
       - Joplin: tools/ai_knowledge/joplin.md
+      - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Jules: tools/ai_knowledge/jules.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
@@ -225,6 +226,7 @@ nav:
       - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
       - Pa Bench: tools/benchmarking/pa-bench.md
       - Swe Bench: tools/benchmarking/swe-bench.md
+      - Supermetal Benchmark: tools/benchmarking/supermetal.md
       - VAKRA Benchmark: tools/benchmarking/vakra.md
       - Terminal Bench: tools/benchmarking/terminal-bench.md
       - MMLU: tools/benchmarking/mmlu.md
@@ -361,6 +363,7 @@ nav:
       - Jan.ai: tools/infrastructure/jan-ai.md
       - ZSE: tools/infrastructure/zse.md
     - Process & Understanding:
+      - AI Auditing Tools: tools/process_understanding/ai-auditing-tools.md
       - Docling: tools/process_understanding/docling.md
       - Overview: tools/process_understanding/index.md
       - Docling MCP: tools/process_understanding/docling-mcp.md

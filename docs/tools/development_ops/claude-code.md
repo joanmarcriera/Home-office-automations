@@ -1,10 +1,10 @@
 # Claude Code
 
 ## What it is
-Claude Code is a command-line interface (CLI) tool and AI agent from Anthropic that can directly interact with your local development environment. It can read and write files, run terminal commands, and perform complex coding tasks.
+Claude Code is a command-line interface (CLI) tool and AI agent from Anthropic that can directly interact with your local development environment. It can read and write files, run terminal commands, and perform complex coding tasks. While originally a CLI-first tool, it now features a powerful **Redesigned Desktop App** for orchestrating multiple agentic workflows.
 
 ## What problem it solves
-It reduces the friction of context-switching between an AI chat interface and a code editor. By operating directly in the terminal, it can autonomously navigate large codebases and execute the commands necessary to implement and verify changes.
+It reduces the friction of context-switching between an AI chat interface and a code editor. By operating directly in your environment, it can autonomously navigate large codebases and execute the commands necessary to implement and verify changes.
 
 ## Where it fits in the stack
 **Category**: Agent / Tool
@@ -13,17 +13,18 @@ It reduces the friction of context-switching between an AI chat interface and a 
 - **Codebase Refactoring**: Identifying and applying patterns across multiple files.
 - **Automated Debugging**: Running tests, analyzing error logs, and applying fixes in a loop.
 - **Remote Environment Control**: Managing and interacting with remote servers or containers via its Remote Control feature.
-- **Overnight Tasks**: New capability allowing Claude Code to handle long-running jobs autonomously.
+- **Overnight Routines**: Using the "Routines" feature to delegate long-running, complex tasks to Claude to complete autonomously while you are away.
 
 ## Strengths
 - **Agentic Capabilities**: Can proactively run commands (e.g., `git`, `npm test`) to verify its work.
 - **Remote Control**: Built-in support for managing remote dev environments.
-- **Redesigned Desktop App**: Enhanced interface for desktop-based agentic workflows.
+- **Desktop Orchestration**: The redesigned desktop app features an integrated terminal, side chat, improved diff viewer, and rearrangeable panes (Preview, Plan, Diff, Tasks, Terminal).
+- **Overnight Routines**: Can handle complex jobs overnight, providing a summary of changes upon your return.
 - **Optimized Reasoning**: Leverages Claude 3.5 Sonnet for high-quality code generation and logic.
 
 ## Limitations
 - **Proprietary**: Requires an Anthropic API key and is not open source.
-- **CLI Only**: Lacks the visual multi-file diffing and GUI features found in IDEs like Cursor.
+- **Cost**: Token usage can be high for complex agentic tasks.
 
 ## When to use it
 - Use when you need an autonomous agent to handle complex, multi-step development workflows.
@@ -125,4 +126,4 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-16
-- Confidence: medium
+- Confidence: high
