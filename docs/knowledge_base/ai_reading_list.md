@@ -20,7 +20,7 @@ A curated list of high-signal sources for staying current on AI, LLMs, agents, a
 ## Newsletters
 - **The Batch** (deeplearning.ai) — Andrew Ng's weekly AI digest, high-level synthesis of AI trends and their societal/business impacts from an industry legend.
 - **AI News** ([buttondown.com/ainews](https://buttondown.com/ainews)) — Daily aggregator, comprehensive daily summary of everything happening in the AI Twitter/X and GitHub ecosystem.
-- **Latent Space** ([latent.space](https://www.latent.space)) — Deep-dive podcast and newsletter, excellent for understanding the "AI Engineer" stack and emerging implementation patterns.
+- **Latent Space** ([latent.space](https://www.latent.space)) — Deep-dive podcast and newsletter, excellent for understanding the "AI Engineer" stack and emerging implementation patterns. (See: [Humanity's Last Gasp](https://www.latent.space/p/ainews-humanitys-last-gasp) for the "Turkey Problem" of work value).
 - **Import AI** ([jack-clark.net](https://jack-clark.net)) — Jack Clark's curated roundup, best-in-class coverage of AI policy, safety, and global research milestones.
 - **The Gradient** ([thegradient.pub](https://thegradient.pub)) — Long-form AI analysis, providing thoughtful, long-form perspectives and debates on the direction of AI research.
 - **TheSequence** ([thesequence.ai](https://thesequence.ai)) — Deep-dive technical newsletter, providing detailed breakdowns of research papers and engineering patterns.

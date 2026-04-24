@@ -61,6 +61,7 @@ nav:
   - New Sources:
     - Overview: new-sources.md
     - Daily Logs:
+      - 2026-04-16: new-sources/2026-04-16.md
       - 2026-03-30: new-sources/2026-03-30.md
       - 2026-03-16: new-sources/2026-03-16.md
       - 2026-03-15: new-sources/2026-03-15.md
@@ -384,6 +385,10 @@ nav:
     - Prompt Catalogue: architecture/prompt-catalogue.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
+    - AI Economic Impact: knowledge_base/ai_economic_impact.md
+    - Google Axion Processors: knowledge_base/google_axion.md
+    - Invisible Kubernetes: knowledge_base/invisible_kubernetes.md
+    - Real-time Sync Engines: knowledge_base/real_time_sync_engines.md
     - n8n Error Handling: knowledge_base/patterns/n8n-error-handling.md
     - Energy Anomaly Detection: knowledge_base/energy-anomaly-detection-baseline.md
     - Manual Troubleshooting: knowledge_base/manual-troubleshooting-research.md
@@ -424,6 +429,7 @@ nav:
       - OpenClaw Security and Operations: knowledge_base/patterns/openclaw-security-operations.md
       - LLM Trust Boundaries: knowledge_base/patterns/llm-trust-boundaries.md
       - Software Factories: knowledge_base/patterns/software-factories.md
+      - Prompt Requests: knowledge_base/patterns/prompt_requests.md
       - Filesystem-as-Interface: knowledge_base/patterns/filesystem-context.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md

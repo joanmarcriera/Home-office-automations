@@ -3,7 +3,7 @@
 This page provides a bird's-eye view of the AI tool catalogue, showing current metrics, connectivity, and recent additions. It is updated monthly to reflect the evolving state of the repository.
 
 ## Overview
-- **Last Generated:** 2026-04-01
+- **Last Generated:** 2026-04-24
 - **Total Tools Documented:** 211 (Significant growth from 150 in the March snapshot)
 
 ## Category Breakdown
@@ -50,7 +50,7 @@ Categories with fewer than 8 docs are identified as areas where the repository i
 - Media & Entertainment (5)
 - Creative & Communication (3)
 - Calendar & Tasks (2)
-- Patterns (1)
+- Patterns (2)
 
 ## What's New This Month
 Key tools added or promoted to the tool catalogue in the last 30 days:
@@ -158,12 +158,16 @@ Key tools added or promoted to the tool catalogue in the last 30 days:
 - qBittorrent
 - rclone Automation
 
+## Critical Risks & Future Outlook
+The "Humanity's Last Gasp" analysis (April 2026) suggests that the current era of "AI assisting humans to work harder" may be a transient state (the "Turkey Problem"). As benchmarks like SWE-Bench Pro become saturated and AGI superclusters approach, the "Software Factory" pattern and "Prompt Requests" will likely redefine the role of the engineer.
+
 ## Sources / References
+- [Humanity's Last Gasp (Latent Space)](https://www.latent.space/p/ainews-humanitys-last-gasp)
 - [All Tools Metadata](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/all_tools.json)
 - [Growth Metrics](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/growth-metrics.json)
 - [Architecture Component Map](../architecture/component_map.md)
 - [GitHub Repository](https://github.com/joanmarcriera/Home-office-automations)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-01
+- Last reviewed: 2026-04-24
 - Confidence: high
