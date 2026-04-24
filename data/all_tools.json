@@ -1578,6 +1578,12 @@
       "doc_path": "docs/tools/ai_knowledge/gemini-flash-tts.md"
     },
     {
+      "id": "gemini-macos",
+      "name": "Gemini for macOS",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/gemini-macos.md"
+    },
+    {
       "id": "skills-in-chrome",
       "name": "Skills in Chrome",
       "category": "AI Assistants & Knowledge",

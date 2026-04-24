@@ -148,6 +148,7 @@ nav:
       - Claude Mythos: tools/ai_knowledge/claude-mythos.md
       - Gemini: tools/ai_knowledge/gemini.md
       - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
+      - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek: tools/ai_knowledge/deepseek.md
       - Dex: tools/ai_knowledge/dex.md
