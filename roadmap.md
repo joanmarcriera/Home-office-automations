@@ -85,7 +85,7 @@ This document tracks missing components and planned technical improvements for t
             - [x] Implement a simple BM25-like keyword ranking for Paperless results to complement vector search.
 
 ### Media & Entertainment
-- **AI-Categorized Home Video Archive**:
+- [x] **AI-Categorized Home Video Archive**:
     - *Goal*: Automated tagging and semantic search for home videos (e.g., "Find the video of the birthday party").
     - *Stack*: Local vision models (CLIP/Whisper), TrueNAS storage.
     - [x] Research local vision models for video frame embedding (see [Vision Models Research](docs/knowledge_base/vision-models-research.md)).
@@ -94,7 +94,7 @@ This document tracks missing components and planned technical improvements for t
     - [x] Implement semantic search interface for video archive.
         - [x] Design search API for video metadata retrieval. (see `scripts/video_search_api.py`)
         - [x] Create a Streamlit-based video search UI with preview capabilities. (see `docs/reference-implementations/video-archive/`)
-- **Local Audio Library Enrichment**:
+- [x] **Local Audio Library Enrichment**:
     - *Goal*: Automated transcription of personal audiobooks and podcasts for full-text search.
     - *Stack*: Whisper (local), [Ollama](./services/ollama.md).
     - [x] Research optimal Whisper variants for long-form audio (e.g., faster-whisper, distil-whisper) (see [Audio Transcription Research](docs/knowledge_base/audio-transcription-research.md)).
