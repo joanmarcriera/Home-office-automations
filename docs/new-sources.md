@@ -18,10 +18,10 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 | 2026-03-18 | [2026-03-18](/new-sources/2026-03-18/) | 0 | 12 | Divided intake from 2026-03-17 (Infrastructure, Frameworks, Agents). Integrated FastAPI. |
 | 2026-03-16 | [2026-03-16](/new-sources/2026-03-16/) | 0 | 0 | Standardized related tools sections across all documentation. |
 | 2026-03-15 | [2026-03-15](/new-sources/2026-03-15/) | 0 | 11 | Added website-hosting canonicals, free website playbook, and discovery-style builder index |
-| 2026-03-14 | [2026-03-14](/new-sources/2026-03-14/) | 0 | 33 | Added Claude ecosystem coverage, search/backend/browser tools, Google AI product pages, direct pages for memory/context/local inference, and company-stack extensions |
-| 2026-03-11 | [2026-03-11](/new-sources/2026-03-11/) | 8 | 5 | Ingested Daily Digest (Gemini in Sheets, Qwen 3.5 Watch/Doom, instruction hierarchy). |
+| 2026-03-14 | [2026-03-14](/new-sources/2026-03-14/) | 5 | 35 | Added Claude ecosystem coverage, NVIDIA NeMo Retriever, ColQwen3.5-v2, and Perplexity Agent API. |
+| 2026-03-11 | [2026-03-11](/new-sources/2026-03-11/) | 0 | 13 | Ingested Daily Digest (Gemini in Sheets, Qwen 3.5 Watch/Doom, instruction hierarchy). |
 | 2026-03-09 | [2026-03-09](/new-sources/2026-03-09/) | 0 | 8 | Integrated Software Factory, Symphony, Superpowers, BigSwitch, NanoClaw, and Filesystem-as-Interface patterns |
-| 2026-03-08 | [2026-03-08](/new-sources/2026-03-08/) | 2 | 6 | Added local AI desktop tools and integrated Qwen/Local LLM, Whisper/SearXNG, Home Assistant Ollama, and LocalAI |
+| 2026-03-08 | [2026-03-08](/new-sources/2026-03-08/) | 5 | 18 | Added local AI desktop tools and triaged Heretic/ARA, Ubuntu 26.04 AI, and Qwen3-Coder-Next. |
 | 2026-03-07 | [2026-03-07](/new-sources/2026-03-07/) | 8 | 4 | Ingested Daily Digest (llama.cpp MCP, Open WebUI terminal, GPT-5.4 AINews). |
 | 2026-03-06 | [2026-03-06](/new-sources/2026-03-06/) | 11 | 6 | Ingested Daily Digest (GPT-5.4 launch, ChatGPT Excel, Qwen 3.5 122B impressions). |
 | 2026-03-05 | [2026-03-05](/new-sources/2026-03-05/) | 0 | 2 | New providers: MiniMax, Moonshot AI |

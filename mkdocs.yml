@@ -182,6 +182,7 @@ nav:
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
+      - ColQwen: tools/ai_knowledge/colqwen.md
       - Project Genie: tools/ai_knowledge/project-genie.md
       - Qwen: tools/ai_knowledge/qwen.md
       - Runway ML: tools/ai_knowledge/runwayml.md
@@ -341,6 +342,8 @@ nav:
       - LangGraph: tools/agents/langgraph.md
       - mem0: tools/agents/mem0.md
       - Nvidia NemoClaw: tools/agents/nemoclaw.md
+      - NVIDIA NeMo Retriever: tools/agents/nemo-retriever.md
+      - Perplexity Agent API: tools/agents/perplexity-agent-api.md
       - Phidata: tools/agents/phidata.md
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md
@@ -362,6 +365,7 @@ nav:
       - SGLang: tools/infrastructure/sglang.md
       - Supabase: tools/infrastructure/supabase.md
       - Text Generation Inference (TGI): tools/infrastructure/tgi.md
+      - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
       - vLLM: tools/infrastructure/vllm.md
       - LM Studio: tools/infrastructure/lm-studio.md
       - Jan.ai: tools/infrastructure/jan-ai.md
