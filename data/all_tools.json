@@ -1666,6 +1666,30 @@
       "name": "Ubuntu AI Snaps",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/ubuntu-ai.md"
+    },
+    {
+      "id": "heretic-ara",
+      "name": "Heretic / ARA",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/heretic-ara.md"
+    },
+    {
+      "id": "codegraphcontext",
+      "name": "CodeGraphContext",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/codegraphcontext.md"
+    },
+    {
+      "id": "judgegpt",
+      "name": "JudgeGPT",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/judgegpt.md"
+    },
+    {
+      "id": "replit-agent",
+      "name": "Replit Agent",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/replit-agent.md"
     }
   ]
 }

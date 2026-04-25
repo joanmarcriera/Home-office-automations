@@ -176,6 +176,7 @@ nav:
       - OpenAI: tools/ai_knowledge/openai.md
       - Google Gemini: tools/ai_knowledge/google-gemini.md
       - Google Search: tools/ai_knowledge/google-search.md
+      - Heretic / ARA: tools/ai_knowledge/heretic-ara.md
       - Roam Research: tools/ai_knowledge/roam-research.md
       - Google Lyria: tools/ai_knowledge/google-lyria.md
       - Google Opal: tools/ai_knowledge/google-opal.md
@@ -198,6 +199,7 @@ nav:
       - Browser Use: tools/automation_orchestration/browser-use.md
       - Chronos MCP: tools/automation_orchestration/chronos-mcp.md
       - CliHub: tools/automation_orchestration/clihub.md
+      - CodeGraphContext: tools/automation_orchestration/codegraphcontext.md
       - Google Workspace CLI: tools/automation_orchestration/google-workspace-cli.md
       - GNU Make: tools/automation_orchestration/gnu-make.md
       - Make: tools/automation_orchestration/make.md
@@ -219,6 +221,7 @@ nav:
       - Human Eval: tools/benchmarking/human-eval.md
       - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
       - InterCode: tools/benchmarking/intercode.md
+      - JudgeGPT: tools/benchmarking/judgegpt.md
       - OpenCompass: tools/benchmarking/opencompass.md
       - HELM: tools/benchmarking/helm.md
       - EvalPlus: tools/benchmarking/evalplus.md
@@ -345,6 +348,7 @@ nav:
       - NVIDIA NeMo Retriever: tools/agents/nemo-retriever.md
       - Perplexity Agent API: tools/agents/perplexity-agent-api.md
       - Phidata: tools/agents/phidata.md
+      - Replit Agent: tools/agents/replit-agent.md
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md
       - OpenAI Agents SDK: tools/agents/openai-agents-sdk.md

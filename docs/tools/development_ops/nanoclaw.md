@@ -70,7 +70,8 @@ Then run `/setup` inside the Claude CLI.
 
 - [Official GitHub Repository](https://github.com/qwibitai/nanoclaw)
 - [Official Website](https://nanoclaw.dev/)
+- [NanoClaw: Containerized AI Agents for Security](https://thenewstack.io/nanoclaw-containerized-ai-agents/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-09
+- Last reviewed: 2026-04-18
 - Confidence: high
