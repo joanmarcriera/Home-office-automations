@@ -15,9 +15,10 @@ It makes local LLM inference practical on CPUs and smaller devices by combining 
 - Powering higher-level local model tools and wrappers
 
 ## Strengths
-- Lightweight and portable local runtime
-- Strong support for quantized model execution
-- Large ecosystem and broad community adoption
+- Lightweight and portable local runtime.
+- Strong support for quantized model execution.
+- **Agentic Features**: Native support for **MCP (Model Context Protocol)** and automatic parser generation for structured outputs (added 2026-03-07).
+- Large ecosystem and broad community adoption.
 
 ## Limitations
 - Requires manual model/runtime tuning for best performance
@@ -79,6 +80,8 @@ print(response.choices[0].message.content)
 
 ## Sources / References
 - [llama.cpp repository](https://github.com/ggml-org/llama.cpp)
+- [MCP support merged](https://www.reddit.com/r/LocalLLaMA/comments/1rn23l6/mcp_support_got_merged_to_llamacpp/)
+- [Automatic parser generator](https://www.reddit.com/r/LocalLLaMA/comments/1rmp3ep/llamacpp_now_with_automatic_parser_generator/)
 - [Ultimate guide to running quantized LLMs on CPU with llama.cpp](https://medium.com/red-buffer/ultimate-guide-to-running-quantized-llms-on-cpu-with-llama-cpp-1a26c34bb6dd)
 
 ## Contribution Metadata

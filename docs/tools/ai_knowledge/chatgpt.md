@@ -10,9 +10,11 @@ Provides a general-purpose conversational AI interface for brainstorming, drafti
 AI & Knowledge — used as a cloud-based conversational assistant alongside local LLM options.
 
 ## Typical use cases
-- Drafting and editing text, emails, and documentation
-- Answering research questions and summarizing information
-- Exploring Custom GPTs for repository-specific or domain-specific knowledge
+- Drafting and editing text, emails, and documentation.
+- Answering research questions and summarizing information.
+- **Excel Data Integration**: Direct data processing and financial integrations within Excel (launched 2026-03-06).
+- **Advanced Education**: New ways to learn math and science with interactive step-by-step guidance (launched 2026-03-11).
+- Exploring Custom GPTs for repository-specific or domain-specific knowledge.
 
 ## Strengths
 - Broad general knowledge and strong reasoning capabilities
@@ -41,6 +43,8 @@ AI & Knowledge — used as a cloud-based conversational assistant alongside loca
 - [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://chatgpt.com/)
+- [ChatGPT for Excel](https://openai.com/index/chatgpt-for-excel)
+- [New ways to learn math and science in ChatGPT](https://openai.com/index/new-ways-to-learn-math-and-science-in-chatgpt)
 - [OpenAI API](https://openai.com/api/)
 
 ## Contribution Metadata
