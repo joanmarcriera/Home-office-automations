@@ -1624,6 +1624,24 @@
       "name": "AI Auditing Tools",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/ai-auditing-tools.md"
+    },
+    {
+      "id": "project-genie",
+      "name": "Project Genie",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/project-genie.md"
+    },
+    {
+      "id": "kokoclone",
+      "name": "KokoClone",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/kokoclone.md"
+    },
+    {
+      "id": "nemoclaw",
+      "name": "Nvidia NemoClaw",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/nemoclaw.md"
     }
   ]
 }

@@ -163,6 +163,7 @@ nav:
       - Joplin: tools/ai_knowledge/joplin.md
       - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Jules: tools/ai_knowledge/jules.md
+      - KokoClone: tools/ai_knowledge/kokoclone.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
@@ -181,6 +182,7 @@ nav:
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
+      - Project Genie: tools/ai_knowledge/project-genie.md
       - Qwen: tools/ai_knowledge/qwen.md
       - Runway ML: tools/ai_knowledge/runwayml.md
       - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
@@ -338,6 +340,7 @@ nav:
       - DeerFlow: tools/agents/deerflow.md
       - LangGraph: tools/agents/langgraph.md
       - mem0: tools/agents/mem0.md
+      - Nvidia NemoClaw: tools/agents/nemoclaw.md
       - Phidata: tools/agents/phidata.md
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md

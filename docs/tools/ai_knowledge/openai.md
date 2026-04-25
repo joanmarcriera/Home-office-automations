@@ -92,11 +92,13 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 
 - [Introducing GPT-5.4](https://openai.com/index/introducing-gpt-5-4)
 - [GPT-5.3 Instant](https://openai.com/index/gpt-5-3-instant)
+- [GPT-5.3 Instant System Card](https://openai.com/index/gpt-5-3-instant-system-card)
 - [Instruction Hierarchy Challenge](https://openai.com/index/instruction-hierarchy-challenge)
+- [Improving instruction hierarchy in frontier LLMs](https://openai.com/index/instruction-hierarchy-challenge)
 - [OpenAI to acquire Promptfoo](https://openai.com/index/openai-to-acquire-promptfoo)
 - [Codex Security Research Preview](https://openai.com/index/codex-security-now-in-research-preview)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-15
-- Confidence: medium
+- Last reviewed: 2026-04-16
+- Confidence: high
