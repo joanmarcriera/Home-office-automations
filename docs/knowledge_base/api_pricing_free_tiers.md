@@ -243,6 +243,14 @@ Only rows with a numeric daily token cap are included in the capacity math.
 | :--- | :--- | :--- | :--- |
 | moonshot-v1-128k | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Moonshot AI. Quality: Very Good. Famous for pioneer long-context stability. |
 
+## Model Intelligence-per-Dollar Value (2026 Triage)
+
+Based on community analysis (April 2026), models are categorized by their efficiency relative to cost:
+
+- **Top Intelligence**: GPT-5.4, Gemini 3.1 Pro. Use these for high-stakes reasoning where cost is secondary.
+- **Best Value**: MiMo-V2-Flash. Offers the highest intelligence-per-dollar for high-volume tasks.
+- **Balanced**: GLM-5, Kimi K2.5, Gemini 3 Flash. These models offer a strong middle ground for general-purpose agentic loops.
+
 ## Notes and caveats
 
 - Provider pricing and free-tier rules change frequently; always verify from official links before budgeting.
