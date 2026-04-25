@@ -10,10 +10,10 @@ Provides high-performance, open-weight alternatives to proprietary models like G
 **LLM / Reasoning Engine (Open-weights)**. It can be used as a backend for local agents or via various inference providers.
 
 ## Typical use cases
-- **Local Coding Assistance**: Using `Qwen2.5-Coder` for IDE completions and agentic refactoring.
+- **Local Coding Assistance**: Using `Qwen3.5-Coder` and `Qwen2.5-Coder` for IDE completions and agentic refactoring. Qwen 3.5 4B has demonstrated the ability to "vibe code" fully working OS web apps in one go.
 - **Multilingual Applications**: Leveraging its strong performance across 29+ languages.
 - **Large Context Analysis**: Utilizing the 256K context window of Qwen3 models for document processing.
-- **Edge Deployment**: Running smaller variants (e.g., 0.5B, 1.5B, 3B) on mobile or low-power devices.
+- **Edge Deployment**: Running smaller variants (e.g., 0.8B, 1.5B, 3B, 4B) on mobile or low-power devices. The 0.8B model is capable of running on a watch.
 - **Hosted agent backends**: Using frontier Qwen variants through providers such as NVIDIA NIM when you want multimodal and tool-calling support without self-hosting the biggest checkpoints.
 
 ## Hosted inference notes
@@ -57,8 +57,8 @@ print(response.choices[0].message.content)
 ```
 
 ## Strengths
-- **State-of-the-Art Coding**: `Qwen2.5-Coder` rivals much larger models in coding benchmarks.
-- **Efficient Architecture**: Qwen3-Coder-Next uses a Mixture-of-Experts (MoE) architecture (e.g., 3B activated / 80B total parameters) for high performance with lower compute requirements.
+- **State-of-the-Art Coding**: `Qwen3.5` variants continue to push coding performance, with the 35B model achieving 37.8% on SWE-bench Verified Hard (matching Claude Opus 4.6 with appropriate verification).
+- **Efficient Architecture**: Qwen3-Coder-Next and Qwen 3.5 variants use Mixture-of-Experts (MoE) architectures (e.g., the 122B model uses 10B active parameters) for high performance with lower compute requirements.
 - **Native Long Context**: Supports up to 256K tokens natively, ideal for large codebases.
 - **Wide Model Range**: Scales from tiny edge models to massive 72B+ parameter powerhouses.
 - **Growing hosted availability**: Provider-packaged deployments such as NVIDIA NIM make large multimodal Qwen variants easier to consume operationally.
@@ -82,6 +82,7 @@ print(response.choices[0].message.content)
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
+- [Whisper](../../services/whisper.md) (Qwen3 ASR has been noted to outperform Whisper in some aspects)
 - [Ollama (Service)](../../services/ollama.md)
 - [DeepSeek](deepseek.md)
 - [Local LLMs](local_llms.md)
@@ -90,6 +91,7 @@ print(response.choices[0].message.content)
 - [Official Website](https://qwenlm.github.io/)
 - [Qwen GitHub](https://github.com/QwenLM/Qwen)
 - [Hugging Face Collection](https://huggingface.co/Qwen)
+- [Qwen 3.5 SWE-bench Results](https://www.reddit.com/r/LocalLLaMA/comments/1rkdlqi/qwen3535ba3b_hits_378_on_swebench_verified_hard/)
 - [NVIDIA NIM model card: qwen3.5-122b-a10b](https://build.nvidia.com/qwen/qwen3.5-122b-a10b/modelcard)
 
 ## Contribution Metadata

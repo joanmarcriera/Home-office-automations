@@ -1,7 +1,7 @@
 # OpenAI
 
 ## What it is
-OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs), including the GPT-5 family and coding-specialized model lines.
+OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs), including the GPT-5.4 and GPT-5.3 families and coding-specialized model lines.
 
 ## What problem it solves
 Provides state-of-the-art reasoning, coding, and instruction-following capabilities via a reliable API, enabling complex automation and agentic workflows.
@@ -41,9 +41,9 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - Comment: good first pass when latency and cost matter
 
 ### GPT-5.4 `medium`
-- Use for: the default OpenAI lane for planning, debugging, analysis, and non-trivial implementation help
+- Use for: the default OpenAI lane for planning, debugging, analysis, and non-trivial implementation help.
 - Default? Yes
-- Comment: best general OpenAI default
+- Comment: best general OpenAI default. Includes the "Thinking" system for improved reasoning.
 
 ### GPT-5.4 `high`
 - Use for: hard reasoning, difficult debugging, deeper architecture analysis
@@ -55,10 +55,15 @@ Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI
 - Default? No
 - Comment: avoid using this as background default because it adds cost and latency quickly
 
+### GPT-5.3 Instant
+- Use for: faster, smoother everyday conversations.
+- Default? No
+- Comment: optimized for lower latency and more natural interaction.
+
 ### GPT-5.3 Codex
-- Use for: code-specialized generation and editing
+- Use for: code-specialized generation and editing.
 - Default? Only for code-centric lanes
-- Comment: use this when the task is mostly code, not broad general reasoning
+- Comment: use this when the task is mostly code, not broad general reasoning. Includes updated security research preview.
 
 See the central routing guide: [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
@@ -73,6 +78,7 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 - **Prompt Injection**: Be aware that models can be manipulated via input; implement output validation.
 
 ## Related tools / concepts
+- [Promptfoo](../benchmarking/index.md) (Acquisition announced 2026-03-11)
 - [Anthropic](../providers/anthropic.md)
 - [Mistral AI](../providers/mistral.md)
 - [OpenRouter](openrouter.md)
@@ -84,10 +90,11 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 
 ## Sources / References
 
-- [OpenAI](https://openai.com/)
-- [Models Overview](https://platform.openai.com/docs/models)
-- [Reasoning Guide](https://platform.openai.com/docs/guides/reasoning)
-- [Codex](https://openai.com/codex/)
+- [Introducing GPT-5.4](https://openai.com/index/introducing-gpt-5-4)
+- [GPT-5.3 Instant](https://openai.com/index/gpt-5-3-instant)
+- [Instruction Hierarchy Challenge](https://openai.com/index/instruction-hierarchy-challenge)
+- [OpenAI to acquire Promptfoo](https://openai.com/index/openai-to-acquire-promptfoo)
+- [Codex Security Research Preview](https://openai.com/index/codex-security-now-in-research-preview)
 
 ## Contribution Metadata
 

@@ -12,14 +12,14 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 ## Typical use cases
 - Multimodal analysis (e.g., "What is happening in this video?").
 - Large-scale codebase analysis and refactoring.
-- Integration with Google Workspace (Docs, Gmail, Drive).
+- Integration with Google Workspace (Docs, Gmail, Drive, Sheets).
 - Building applications that require massive context windows.
 
 ## Strengths
 - **Multimodality**: Natively designed to handle diverse data types.
 - **Massive Context**: Currently offers the largest context windows in the industry.
 - **Google Integration**: Deeply integrated with Google's search and productivity tools.
-- **Efficiency**: The "Flash" variants offer high speed and low cost for their capability level.
+- **Efficiency**: The "Flash" and "Flash-Lite" variants offer high speed and low cost for their capability level.
 
 ## Limitations
 - **Consistency**: Performance can vary significantly between the Ultra, Pro, and Flash versions.
@@ -47,6 +47,8 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 
 ## Sources / References
 - [Official Website](https://gemini.google.com/)
+- [Gemini 3.1 Flash-Lite](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/)
+- [Gemini in Google Sheets](https://blog.google/products-and-platforms/products/workspace/gemini-google-sheets-state-of-the-art/)
 - [Google AI Studio](https://aistudio.google.com/)
 - [Gemini Documentation](https://ai.google.dev/docs)
 
