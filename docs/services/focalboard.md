@@ -29,17 +29,17 @@ docker run -it -p 80:8000 mattermost/focalboard
 3. Click **Add Board** in the sidebar and select a template (e.g., "Project Tasks") to create your first Kanban board.
 
 ## CLI examples
-Focalboard provides an import tool and can be managed via `make` for development:
+Focalboard provides an import tool and can be managed via `docker exec`:
 
 ```bash
 # Import a Trello archive into Focalboard
-./bin/focalboard-server import trello trello_export.json
+docker exec -it focalboard ./bin/focalboard-server import trello trello_export.json
 
-# Build the server and web app (requires Go and Node.js)
-make prebuild && make
+# Reset the admin password
+docker exec -it focalboard ./bin/focalboard-server reset-password admin
 
-# Reset the admin password (if supported by your version)
-./bin/focalboard-server reset-password admin
+# Check the server version
+docker exec -it focalboard ./bin/focalboard-server version
 ```
 
 ## API examples
@@ -64,6 +64,12 @@ if response.status_code == 200:
 # Get all boards
 curl -H "Authorization: Bearer <your_session_token>" \
      "http://localhost:8000/api/v1/boards"
+
+# Create a new card on a board
+curl -H "Authorization: Bearer <your_session_token>" \
+     -X POST -H "Content-Type: application/json" \
+     -d '{"title": "New Task", "boardId": "<board-id>"}' \
+     "http://localhost:8000/api/v1/boards/<board-id>/cards"
 ```
 
 ## Links
@@ -80,6 +86,7 @@ curl -H "Authorization: Bearer <your_session_token>" \
 ## Sources / References
 - [GitHub README](https://github.com/mattermost/focalboard#readme)
 - [Developer Guide](https://developers.mattermost.com/contribute/focalboard/)
+- [Administrator's Guide](https://www.focalboard.com/guide/admin/)
 
 ## Contribution Metadata
 - Confidence: high

@@ -69,6 +69,9 @@ curl http://localhost:4999/api/v1/health
 
 # Check the scan status (if supported)
 curl http://localhost:4999/api/v1/status
+
+# Get all scan results
+curl http://localhost:4999/api/v1/results
 ```
 
 ## Links
@@ -82,11 +85,11 @@ curl http://localhost:4999/api/v1/status
 - Set up alerts for unexpected port changes.
 
 
+## Sources / References
+- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
+- [Nmap (Network Mapper)](https://nmap.org/)
+- [Netdata Cloud](https://www.netdata.cloud/)
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-03-02
-
-## Sources / References
-- https://github.com/mostafa-wahied/portracker
-- https://nmap.org/
-- https://www.netdata.cloud/

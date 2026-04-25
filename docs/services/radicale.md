@@ -45,8 +45,8 @@ python3 -m radicale --version
 # Run verification of local collections storage
 python3 -m radicale --verify-storage
 
-# Start the server with a custom storage path and debug logging
-python3 -m radicale --storage-filesystem-folder=/path/to/collections --debug
+# Start the server with a custom configuration file
+python3 -m radicale --config /path/to/config
 ```
 
 ## API examples
@@ -68,6 +68,10 @@ print(response.text)
 ```bash
 # Create a new calendar collection
 curl -u username:password -X MKCOL "http://localhost:5232/username/calendar/"
+
+# Add an event to a calendar
+curl -u username:password -X PUT -H "Content-Type: text/calendar" \
+     --data-binary @event.ics "http://localhost:5232/username/calendar/event1.ics"
 ```
 
 ## Links
@@ -85,6 +89,7 @@ curl -u username:password -X MKCOL "http://localhost:5232/username/calendar/"
 
 - [Radicale Documentation](https://radicale.org/v3.html)
 - [Installation Guide](https://radicale.org/v3.html#installation)
+- [Configuration Guide](https://radicale.org/v3.html#configuration)
 
 ## Contribution Metadata
 

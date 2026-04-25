@@ -67,6 +67,10 @@ print(response.json())
 # Get system version
 curl -X GET -H "X-API-Key: <your_api_key>" \
      "http://localhost:8384/rest/system/version"
+
+# Force a rescan of all folders
+curl -X POST -H "X-API-Key: <your_api_key>" \
+     "http://localhost:8384/rest/db/scan"
 ```
 
 ## Links
@@ -84,6 +88,7 @@ curl -X GET -H "X-API-Key: <your_api_key>" \
 
 - [Getting Started Guide](https://docs.syncthing.net/intro/getting-started.html)
 - [REST API Documentation](https://docs.syncthing.net/dev/rest.html)
+- [Configuration Reference](https://docs.syncthing.net/users/config.html)
 
 ## Contribution Metadata
 

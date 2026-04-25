@@ -16,9 +16,26 @@ It tracks your stock, shopping list, recipes, and more.
 
 ## Getting started
 
-### Docker
-The recommended way to install Grocy is via the LinuxServer.io Docker image:
+### Docker Compose
+The recommended way to install Grocy is via Docker Compose:
 
+```yaml
+services:
+  grocy:
+    image: lscr.io/linuxserver/grocy:latest
+    container_name: grocy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/config:/config
+    ports:
+      - 9283:80
+    restart: unless-stopped
+```
+
+### Docker Run
 ```bash
 docker run -d \
   --name=grocy \
@@ -76,6 +93,12 @@ if response.status_code == 200:
 # Get current stock
 curl -X GET "http://localhost:9283/api/stock" \
      -H "GROCY-API-KEY: <your_api_key>"
+
+# Add a specific amount to stock (Product ID 1)
+curl -X POST "http://localhost:9283/api/stock/products/1/add" \
+     -H "GROCY-API-KEY: <your_api_key>" \
+     -H "Content-Type: application/json" \
+     -d '{"amount": 5, "transaction_type": "purchase"}'
 ```
 
 ## Links
@@ -93,6 +116,7 @@ curl -X GET "http://localhost:9283/api/stock" \
 
 - [Official Website](https://grocy.info/)
 - [LinuxServer.io Grocy Documentation](https://docs.linuxserver.io/images/docker-grocy/)
+- [Grocy API Documentation (Swagger)](https://demo.grocy.info/api)
 
 ## Contribution Metadata
 
