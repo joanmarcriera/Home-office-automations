@@ -18,7 +18,8 @@ It replaces repetitive manual operations across tools and teams. Unlike cloud-on
 - **Centralized Error Handling**: Standardized error management via "Error Trigger" nodes and sub-workflows.
 - **Visual + programmable**: easy to build visually, still supports advanced expressions/logic.
 - **Self-hostable**: private automation with infrastructure you control.
-- **Broad integrations**: large ecosystem of built-in and community nodes.
+- **Broad integrations**: large ecosystem of built-in and community nodes, including `n8n-nodes-claude-pro` (introduced 2026-03-06) for advanced Anthropic integrations.
+- **n8n-as-code**: Features a rewritten sync engine, cleaner CLI, and smarter AI agent integration for managing workflows as code (makeover 2026-03-04).
 - **Good ops model**: retries, execution logs, error workflows, queue mode.
 
 ## Limitations
@@ -142,7 +143,7 @@ docker compose exec n8n n8n export:credentials --all --output=/files/credentials
 
 Use AI in three roles around n8n:
 
-1. **Designer role**: convert SOPs into workflow specs, node maps, and test cases.
+1. **Designer role**: convert SOPs into workflow specs, node maps, and test cases. AI agents can now generate importable n8n workflow JSON directly from descriptions.
 2. **Operator role**: review failed executions, classify root cause, propose retries/fixes.
 3. **Optimizer role**: identify manual bottlenecks and propose new automations weekly.
 
@@ -257,7 +258,10 @@ This keeps n8n improving as an operating system for your business processes, not
 - [Documentation](https://docs.n8n.io/)
 - [Self-hosting n8n](https://docs.n8n.io/hosting/)
 - [n8n AI capabilities](https://docs.n8n.io/advanced-ai/)
+- [n8n-as-code makeover](https://www.reddit.com/r/n8n/comments/1rjoc33/n8nascode_just_got_a_major_makeover_rewritten/)
+- [n8n-nodes-claude-pro](https://www.reddit.com/r/n8n/comments/1rlpwzs/introduction_to_n8nnodesclaudepro/)
+- [AI agent generating n8n workflow JSON](https://www.reddit.com/r/n8n/comments/1rmcndm/i_built_an_agent_that_generates_importable_n8n/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-04-16
+- Confidence: high

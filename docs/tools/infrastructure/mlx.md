@@ -71,12 +71,16 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - [Apple Silicon](https://www.apple.com/silicon/)
 - [ExLlamaV2](exllamav2.md)
 
+## Performance
+- **Benchmarking**: 11 MLX models were benchmarked on M3 Ultra in March 2026, demonstrating its capability as a top-tier local inference platform.
+
 ## Sources / References
 - [Official Website](https://github.com/ml-explore/mlx)
 - [GitHub](https://github.com/ml-explore/mlx)
 - [MLX Examples](https://github.com/ml-explore/mlx-examples)
 - [Documentation](https://ml-explore.github.io/mlx/build/html/index.html)
+- [Benchmarked 11 MLX models on M3 Ultra](https://www.reddit.com/r/LocalLLaMA/comments/1rkcvqa/benchmarked_11_mlx_models_on_m3_ultra_heres_which/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-04-16
 - Confidence: high

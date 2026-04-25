@@ -57,10 +57,12 @@ print(response.choices[0].message.content)
 ```
 
 ## Strengths
-- **State-of-the-Art Coding**: `Qwen3.5` variants continue to push coding performance, with the 35B model achieving 37.8% on SWE-bench Verified Hard (matching Claude Opus 4.6 with appropriate verification).
+- **State-of-the-Art Coding**: `Qwen3.5` variants continue to push coding performance, with the 35B model achieving 37.8% on SWE-bench Verified Hard (matching Claude Opus 4.6 with appropriate verification). Unsloth-fixed versions of `Qwen3.5-35B-A3B` show incredible results in research tasks.
 - **Efficient Architecture**: Qwen3-Coder-Next and Qwen 3.5 variants use Mixture-of-Experts (MoE) architectures (e.g., the 122B model uses 10B active parameters) for high performance with lower compute requirements.
-- **Native Long Context**: Supports up to 256K tokens natively, ideal for large codebases.
-- **Wide Model Range**: Scales from tiny edge models to massive 72B+ parameter powerhouses.
+- **Native Long Context**: Supports up to 256K tokens natively, ideal for large codebases. The tiny 0.8B model has demonstrated the ability to reason over a 100-file repository.
+- **Wide Model Range**: Scales from tiny edge models (0.8B, 2B, 4B) to massive 72B+ and 122B parameter powerhouses.
+- **Multimodal Capabilities**: Qwen3.5-4B shows strong handwriting recognition performance.
+- **Community Optimizations**: `ik_llama.cpp` dramatically outperforms mainline for Qwen3.5 on CPU. Unsloth provides optimized GGUF updates for the series.
 - **Growing hosted availability**: Provider-packaged deployments such as NVIDIA NIM make large multimodal Qwen variants easier to consume operationally.
 
 ## Limitations
@@ -82,7 +84,7 @@ print(response.choices[0].message.content)
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Whisper](../../services/whisper.md) (Qwen3 ASR has been noted to outperform Whisper in some aspects)
+- [Whisper](../../services/whisper.md) (Qwen3 ASR has been noted to outperform Whisper in almost every aspect)
 - [Ollama (Service)](../../services/ollama.md)
 - [DeepSeek](deepseek.md)
 - [Local LLMs](local_llms.md)
@@ -93,8 +95,12 @@ print(response.choices[0].message.content)
 - [Hugging Face Collection](https://huggingface.co/Qwen)
 - [Qwen 3.5 SWE-bench Results](https://www.reddit.com/r/LocalLLaMA/comments/1rkdlqi/qwen3535ba3b_hits_378_on_swebench_verified_hard/)
 - [NVIDIA NIM model card: qwen3.5-122b-a10b](https://build.nvidia.com/qwen/qwen3.5-122b-a10b/modelcard)
+- [Final Qwen 3.5 Unsloth GGUF Update](https://www.reddit.com/r/LocalLLaMA/comments/1rlkptk/final_qwen35_unsloth_gguf_update/)
+- [Qwen 3.5 0.8B reasoning over 100-file repo](https://www.reddit.com/r/LocalLLaMA/comments/1rmpdkc/i_made_a_tiny_08b_qwen_model_reason_over_a/)
+- [Qwen 3.5 4B handwriting recognition](https://www.reddit.com/r/LocalLLaMA/comments/1rprouf/qwen354b_handwriting_recognition_is_really_good/)
+- [Ryzen AI Max 395+ Benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1rpw17y/ryzen_ai_max_395_128gb_qwen_35_35b122b_benchmarks/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-29
+- Last reviewed: 2026-04-16
 - Confidence: high

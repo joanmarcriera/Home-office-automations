@@ -23,6 +23,13 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 
 <!-- New infrastructure pages are added here by Jules -->
 
+## Hardware Highlights
+
+As of early 2026, Apple Silicon continues to be the dominant platform for high-performance local AI inference in the homelab:
+
+- **Apple M5 Pro / M5 Max**: Unveiled March 2026, offering up to **4× faster LLM prompt processing** compared to previous generations, significantly reducing agentic loop latency.
+- **Apple M3 Ultra**: Benchmark results for 11 MLX models (March 2026) confirm it as a premier choice for running large-scale local models with unified memory.
+
 ## Sub-categories
 
 - **Inference engines** — vLLM, TGI, llama.cpp, MLX, etc.
