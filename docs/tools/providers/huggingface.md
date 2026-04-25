@@ -48,6 +48,7 @@ Provider and Model Hub. It serves as the primary source for models used by [Olla
 
 ## Sources / References
 - [Official Website](https://huggingface.co/)
+- [Introducing Storage Buckets on the Hugging Face Hub](https://huggingface.co/blog/storage-buckets)
 - [Hugging Face Documentation](https://huggingface.co/docs)
 - [Hugging Face GitHub](https://github.com/huggingface)
 

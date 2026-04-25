@@ -155,6 +155,7 @@ nav:
       - Dex: tools/ai_knowledge/dex.md
       - Dify: tools/ai_knowledge/dify.md
       - ElevenLabs: tools/ai_knowledge/elevenlabs.md
+      - Fish Audio: tools/ai_knowledge/fish-audio.md
       - Flowise: tools/ai_knowledge/flowise.md
       - Genspark: tools/ai_knowledge/genspark.md
       - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
@@ -341,6 +342,7 @@ nav:
       - LangGraph: tools/agents/langgraph.md
       - mem0: tools/agents/mem0.md
       - Nvidia NemoClaw: tools/agents/nemoclaw.md
+      - Nvidia NeMo Retriever: tools/agents/nemo-retriever.md
       - Phidata: tools/agents/phidata.md
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md
