@@ -1642,6 +1642,30 @@
       "name": "Nvidia NemoClaw",
       "category": "Agents",
       "doc_path": "docs/tools/agents/nemoclaw.md"
+    },
+    {
+      "id": "nemo-retriever",
+      "name": "NVIDIA NeMo Retriever",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/nemo-retriever.md"
+    },
+    {
+      "id": "perplexity-agent-api",
+      "name": "Perplexity Agent API",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/perplexity-agent-api.md"
+    },
+    {
+      "id": "colqwen",
+      "name": "ColQwen",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/colqwen.md"
+    },
+    {
+      "id": "ubuntu-ai",
+      "name": "Ubuntu AI Snaps",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/ubuntu-ai.md"
     }
   ]
 }
