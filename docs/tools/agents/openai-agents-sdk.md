@@ -45,6 +45,7 @@ It simplifies the process of creating agents that can use tools, maintain state,
 ## Sources / References
 - [The next evolution of the Agents SDK](https://openai.com/index/the-next-evolution-of-the-agents-sdk)
 - [OpenAI’s Agents SDK separates the harness from the compute](https://thenewstack.io/openai-agents-sdk-sandboxes/)
+- [Agents SDK Sandboxes](https://www.zdnet.com/article/openai-agents-sdk-sandboxes/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-16
