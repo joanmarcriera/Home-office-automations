@@ -400,6 +400,9 @@ nav:
       - ZSE: tools/infrastructure/zse.md
     - Process & Understanding:
       - AI Auditing Tools: tools/process_understanding/ai-auditing-tools.md
+      - Arize AI: tools/process_understanding/arize-ai.md
+      - Braintrust: tools/process_understanding/braintrust.md
+      - Comet Opik: tools/process_understanding/comet-opik.md
       - Docling: tools/process_understanding/docling.md
       - Overview: tools/process_understanding/index.md
       - Docling MCP: tools/process_understanding/docling-mcp.md
