@@ -57,8 +57,8 @@ print(response.choices[0].message.content)
 ```
 
 ## Strengths
-- **State-of-the-Art Coding**: `Qwen3.5` variants continue to push coding performance, with the 35B model achieving 37.8% on SWE-bench Verified Hard (matching Claude Opus 4.6 with appropriate verification). Unsloth-fixed versions of `Qwen3.5-35B-A3B` show incredible results in research tasks.
-- **Efficient Architecture**: Qwen3-Coder-Next and Qwen 3.5 variants use Mixture-of-Experts (MoE) architectures (e.g., the 122B model uses 10B active parameters) for high performance with lower compute requirements.
+- **State-of-the-Art Coding**: `Qwen3.5` variants continue to push coding performance. The **Qwen3.5-35B-A3B** model is a standout, achieving 37.8% on SWE-bench Verified Hard, matching or exceeding much larger proprietary models like Claude Opus 4.6.
+- **Efficient Architecture**: Qwen3-Coder-Next and Qwen 3.5 variants use Mixture-of-Experts (MoE). The **35B-A3B** variant specifically utilizes roughly 3B active parameters, providing a massive performance-to-compute ratio under an Apache 2.0 license.
 - **Native Long Context**: Supports up to 256K tokens natively, ideal for large codebases. The tiny 0.8B model has demonstrated the ability to reason over a 100-file repository.
 - **Wide Model Range**: Scales from tiny edge models (0.8B, 2B, 4B) to massive 72B+ and 122B parameter powerhouses.
 - **Multimodal Capabilities**: Qwen3.5-4B shows strong handwriting recognition performance.
