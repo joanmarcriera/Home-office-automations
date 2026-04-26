@@ -39,7 +39,7 @@
     {
       "id": "aitmpl",
       "name": "AI Templates",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
     },
     {
@@ -59,6 +59,12 @@
       "name": "AmpCode",
       "category": "Enterprise AI",
       "doc_path": "docs/tools/enterprise/ampcode.md"
+    },
+    {
+      "id": "karpathy-skills",
+      "name": "Andrej Karpathy Skills",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/karpathy-skills.md"
     },
     {
       "id": "ansigpt",
@@ -92,7 +98,7 @@
     {
       "id": "anythingllm",
       "name": "AnythingLLM",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/anythingllm.md"
     },
     {
@@ -224,7 +230,7 @@
     {
       "id": "claude",
       "name": "Claude",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/claude.md"
     },
     {
@@ -416,7 +422,7 @@
     {
       "id": "deeptutor",
       "name": "DeepTutor",
-      "category": "AI Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/deeptutor.md"
     },
     {
@@ -516,6 +522,12 @@
       "doc_path": "docs/tools/benchmarking/evalplus.md"
     },
     {
+      "id": "everything-claude-code",
+      "name": "Everything Claude Code",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/everything-claude-code.md"
+    },
+    {
       "id": "excalidraw",
       "name": "Excalidraw",
       "category": "Creative & Communication",
@@ -595,7 +607,7 @@
     {
       "id": "gemini",
       "name": "Gemini",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/gemini.md"
     },
     {
@@ -607,7 +619,7 @@
     {
       "id": "gemini-canvas",
       "name": "Gemini Canvas",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/gemini-canvas.md"
     },
     {
@@ -673,13 +685,13 @@
     {
       "id": "google-lyria",
       "name": "Google Lyria",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/google-lyria.md"
     },
     {
       "id": "google-opal",
       "name": "Google Opal",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/google-opal.md"
     },
     {
@@ -934,10 +946,16 @@
       "doc_path": "docs/tools/ai_knowledge/langchain.md"
     },
     {
+      "id": "langfuse",
+      "name": "Langfuse",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/langfuse.md"
+    },
+    {
       "id": "langgraph",
       "name": "LangGraph",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/langgraph.md"
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/langgraph.md"
     },
     {
       "id": "langsmith",
@@ -982,6 +1000,12 @@
       "doc_path": "docs/tools/ai_knowledge/llamaindex.md"
     },
     {
+      "id": "llamaparse",
+      "name": "LlamaParse",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/llamaparse.md"
+    },
+    {
       "id": "llmfit",
       "name": "llmfit",
       "category": "Development & Ops",
@@ -1002,7 +1026,7 @@
     {
       "id": "lm-studio",
       "name": "LM Studio",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/infrastructure/lm-studio.md"
     },
     {
@@ -1052,6 +1076,12 @@
       "name": "MATH Benchmark",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/math-benchmark.md"
+    },
+    {
+      "id": "matt-pocock-skills",
+      "name": "Matt Pocock Skills",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/matt-pocock-skills.md"
     },
     {
       "id": "mbpp",
@@ -1191,7 +1221,7 @@
     {
       "id": "notebooklm",
       "name": "NotebookLM",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/notebooklm.md"
     },
     {
@@ -1275,13 +1305,13 @@
     {
       "id": "openai-agents-sdk",
       "name": "OpenAI Agents SDK",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/openai-agents-sdk.md"
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/openai-agents-sdk.md"
     },
     {
       "id": "openbb",
       "name": "OpenBB",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/openbb.md"
     },
     {
@@ -1409,6 +1439,12 @@
       "name": "Portracker",
       "category": "Process & Understanding",
       "doc_path": "docs/services/portracker.md"
+    },
+    {
+      "id": "posthog",
+      "name": "PostHog",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/posthog.md"
     },
     {
       "id": "project-genie",
@@ -1702,6 +1738,12 @@
       "name": "Ubuntu AI Snaps",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/ubuntu-ai.md"
+    },
+    {
+      "id": "unstructured",
+      "name": "Unstructured.io",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/unstructured.md"
     },
     {
       "id": "vakra",

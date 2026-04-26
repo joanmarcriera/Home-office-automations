@@ -137,6 +137,12 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
+### Alibaba DashScope (Qwen)
+
+| Model | Quotas | Verification | Summary |
+| :--- | :--- | :--- | :--- |
+| Qwen3.5-35B-A3B | `128K / plan / plan / plan / plan` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-open">OPEN</span><br>Account: DashScope. SOTA agentic coding (37.8% SWE-bench Verified Hard). |
+
 ### Google Gemini
 
 | Model | Quotas | Verification | Summary |
@@ -288,6 +294,7 @@ When updating this page:
 - [OpenRouter Pricing](https://openrouter.ai/pricing)
 - [OpenRouter API rate limits](https://openrouter.ai/docs/api-reference/limits/)
 - [OpenRouter Free Models Router](https://openrouter.ai/docs/guides/routing/routers/free-models-router)
+- [Qwen3.5-35B-A3B SOTA Performance](https://www.reddit.com/r/AIToolsPerformance/comments/1sn9okz/qwen3635ba3b_drops_with_apache_20_agentic_coding/)
 - [MiniMax Pricing](https://platform.minimaxi.com/docs/guides/pricing-paygo)
 - [MiniMax Coding Plan](https://platform.minimaxi.com/docs/coding-plan/intro)
 - [Moonshot AI Website](https://platform.moonshot.cn/)

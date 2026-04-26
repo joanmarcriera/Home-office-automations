@@ -149,6 +149,7 @@ nav:
       - Claude: tools/ai_knowledge/claude.md
       - Claude Mythos: tools/ai_knowledge/claude-mythos.md
       - DeepTutor: tools/ai_knowledge/deeptutor.md
+      - Everything Claude Code: tools/ai_knowledge/everything-claude-code.md
       - Gemini: tools/ai_knowledge/gemini.md
       - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
       - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
@@ -164,11 +165,13 @@ nav:
       - HoloTab: tools/ai_knowledge/holotab.md
       - Jasper: tools/ai_knowledge/jasper.md
       - Joplin: tools/ai_knowledge/joplin.md
+      - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
       - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Jules: tools/ai_knowledge/jules.md
       - KokoClone: tools/ai_knowledge/kokoclone.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
+      - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
       - Nano Banana: tools/ai_knowledge/nano-banana.md
@@ -312,13 +315,17 @@ nav:
     - Intake & Storage:
       - Overview: tools/intake_storage/index.md
       - Caldav: tools/intake_storage/caldav.md
+      - LlamaParse: tools/intake_storage/llamaparse.md
+      - Unstructured.io: tools/intake_storage/unstructured.md
     - Frameworks:
       - Overview: tools/frameworks/index.md
       - AutoGen: tools/frameworks/autogen.md
       - CrewAI: tools/frameworks/crewai.md
       - DSPy: tools/frameworks/dspy.md
       - Haystack: tools/frameworks/haystack.md
+      - LangGraph: tools/frameworks/langgraph.md
       - Mycelium: tools/frameworks/mycelium.md
+      - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
       - Semantic Kernel: tools/frameworks/semantic-kernel.md
       - Smolagents: tools/frameworks/smolagents.md
     - Providers:
@@ -359,7 +366,6 @@ nav:
       - Composio: tools/agents/composio.md
       - DeerFlow: tools/agents/deerflow.md
       - GPT Researcher: tools/agents/gpt-researcher.md
-      - LangGraph: tools/agents/langgraph.md
       - Letta: tools/agents/letta.md
       - mem0: tools/agents/mem0.md
       - Nvidia NemoClaw: tools/agents/nemoclaw.md
@@ -370,7 +376,6 @@ nav:
       - Replit Agent: tools/agents/replit-agent.md
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md
-      - OpenAI Agents SDK: tools/agents/openai-agents-sdk.md
       - Home Admin Agent Tools: tools/agents/home-admin-tools.md
     - Orchestration:
       - Overview: tools/orchestration/index.md
@@ -398,7 +403,9 @@ nav:
       - Docling: tools/process_understanding/docling.md
       - Overview: tools/process_understanding/index.md
       - Docling MCP: tools/process_understanding/docling-mcp.md
+      - Langfuse: tools/process_understanding/langfuse.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
+      - PostHog: tools/process_understanding/posthog.md
       - Tesseract CLI: tools/process_understanding/tesseract.md
       - Crawl4AI: tools/process_understanding/crawl4ai.md
       - Firecrawl: tools/process_understanding/firecrawl.md
