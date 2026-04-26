@@ -156,6 +156,7 @@ nav:
       - Dex: tools/ai_knowledge/dex.md
       - Dify: tools/ai_knowledge/dify.md
       - ElevenLabs: tools/ai_knowledge/elevenlabs.md
+      - Fish Audio: tools/ai_knowledge/fish-audio.md
       - Flowise: tools/ai_knowledge/flowise.md
       - Genspark: tools/ai_knowledge/genspark.md
       - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
@@ -339,6 +340,7 @@ nav:
       - Hugging Face: tools/providers/huggingface.md
       - Microsoft Graph API: tools/providers/microsoft-graph.md
     - Enterprise AI:
+      - AmpCode: tools/enterprise/ampcode.md
       - Fyxer AI: tools/enterprise/fyxer.md
       - Glean: tools/enterprise/glean.md
       - Hebbia: tools/enterprise/hebbia.md
@@ -348,14 +350,18 @@ nav:
       - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
       - Agno: tools/agents/agno.md
       - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
+      - AutoReason: tools/agents/autoreason.md
       - Bee Agent Framework: tools/agents/bee-agent-framework.md
       - Claude Skills Ecosystem: tools/agents/claude-skills-ecosystem.md
       - Composio: tools/agents/composio.md
       - DeerFlow: tools/agents/deerflow.md
+      - GPT Researcher: tools/agents/gpt-researcher.md
       - LangGraph: tools/agents/langgraph.md
+      - Letta: tools/agents/letta.md
       - mem0: tools/agents/mem0.md
       - Nvidia NemoClaw: tools/agents/nemoclaw.md
       - NVIDIA NeMo Retriever: tools/agents/nemo-retriever.md
+      - Open Agents: tools/agents/open-agents.md
       - Perplexity Agent API: tools/agents/perplexity-agent-api.md
       - Phidata: tools/agents/phidata.md
       - Replit Agent: tools/agents/replit-agent.md

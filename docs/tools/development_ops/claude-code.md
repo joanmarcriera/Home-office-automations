@@ -119,6 +119,15 @@ The most effective way to scale Claude Code is to use a layered orchestration pa
 - Community plugin distribution is becoming a meaningful part of the Claude Code workflow, especially for browser tooling, repo helpers, and workflow packs.
 - Use plugin marketplaces when you want fast installation and updates.
 - Use direct GitHub repos when you want to audit the actual prompts, hooks, or skills before adoption.
+- **Recommended Plugins**:
+  - **connect-apps**: Works across GitHub, Slack, Notion, Gmail.
+  - **agentlint**: Checks if repo is AI agent-friendly.
+  - **code-review**: Proper PR reviews before shipping.
+  - **test-writer-fixer**: Writing and fixing unit tests (Jest, Vitest, Pytest).
+  - **debugger**: Deep dives into complex bugs.
+  - **bug-fix**: Analyzes stack traces and fixes issues.
+  - **mcp-builder**: Building MCP servers with less trial and error.
+  - **theme-factory**: Faster UI theme creation.
 
 ### Context, hooks, and skills
 - **Context mode / MCP** helps Claude Code pull in structured external context without stuffing everything into a single prompt.
@@ -132,9 +141,11 @@ The most effective way to scale Claude Code is to use a layered orchestration pa
 ## Sources / references
 - [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
 - [Claude Code: Overnight Jobs](https://thenewstack.io/claude-code-can-now-do-your-job-overnight/)
+- [Automate tasks with Claude Code](https://www.geeky-gadgets.com/automate-tasks-with-claude-code/)
 - [awesomeclaude.ai](https://awesomeclaude.ai/)
 - [awesome-skills.com](https://awesome-skills.com/)
 - [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
+- [Awesome Claude Plugins](https://github.com/ComposioHQ/awesome-claude-plugins)
 - [Claude Hooks](https://github.com/johnlindquist/claude-hooks)
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
 - [Skill Seekers](https://github.com/yusufkaraaslan/Skill_Seekers)

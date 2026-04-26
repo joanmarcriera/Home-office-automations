@@ -49,6 +49,7 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 - [Official Website](https://gemini.google.com/)
 - [Gemini 3.1 Flash-Lite](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/)
 - [Gemini in Google Sheets](https://blog.google/products-and-platforms/products/workspace/gemini-google-sheets-state-of-the-art/)
+- [Gemini for Heart Health (Australia)](https://blog.google/products-and-platforms/products/ai/gemini-rural-health-australia/)
 - [Google AI Studio](https://aistudio.google.com/)
 - [Gemini Documentation](https://ai.google.dev/docs)
 

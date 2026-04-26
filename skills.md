@@ -67,3 +67,9 @@ When finishing any skill, report:
 1. Changed files
 2. Validation commands run and results
 3. Remaining risks or follow-up items
+
+## Sources / references
+
+- [Superpowers](https://github.com/obra/superpowers)
+- [Documentation Writer Skill](https://skills.sh/github/awesome-copilot/documentation-writer)
+- [Grill-me Skill](https://github.com/mattpocock/skills/blob/main/grill-me/SKILL.md)

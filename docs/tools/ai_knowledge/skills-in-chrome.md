@@ -37,6 +37,7 @@ It simplifies the execution of recurring AI-driven tasks by allowing them to be 
 
 ## Sources / References
 - [Turn AI prompts into one-click tools in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/)
+- [Saving Prompts as Skills](https://www.zdnet.com/article/chrome-skills-prompts-saved/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-16

@@ -139,6 +139,12 @@
       "doc_path": "docs/tools/ai_knowledge/jules.md"
     },
     {
+      "id": "fish-audio",
+      "name": "Fish Audio",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/fish-audio.md"
+    },
+    {
       "id": "chatgpt",
       "name": "ChatGPT",
       "category": "AI Assistants & Knowledge",
@@ -1744,6 +1750,36 @@
       "name": "SharpAI Security Benchmark",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/sharp-ai.md"
+    },
+    {
+      "id": "autoreason",
+      "name": "AutoReason",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/autoreason.md"
+    },
+    {
+      "id": "open-agents",
+      "name": "Open Agents",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/open-agents.md"
+    },
+    {
+      "id": "gpt-researcher",
+      "name": "GPT Researcher",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/gpt-researcher.md"
+    },
+    {
+      "id": "letta",
+      "name": "Letta",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/letta.md"
+    },
+    {
+      "id": "ampcode",
+      "name": "AmpCode",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/ampcode.md"
     }
   ]
 }
