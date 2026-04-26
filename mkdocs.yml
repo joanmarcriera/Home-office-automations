@@ -394,6 +394,7 @@ nav:
     - Automated Contributions: architecture/automated_contributions.md
     - Multi-Agent KnowledgeOps: architecture/multi_agent_knowledgeops.md
     - Prompt Catalogue: architecture/prompt-catalogue.md
+    - Text-to-SQL Architecture: architecture/data-copilot-text-to-sql.md
   - Knowledge Base:
     - Overview: knowledge_base/README.md
     - AI Economic Impact: knowledge_base/ai_economic_impact.md
@@ -444,6 +445,7 @@ nav:
       - Filesystem-as-Interface: knowledge_base/patterns/filesystem-context.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
+    - Data Copilot Skeleton: reference-implementations/data-copilot/skeleton-guide.md
     - Manual Assistant: reference-implementations/manual-assistant/manual-assistant-implementation.md
     - HITL UI Design: reference-implementations/hitl-ui-design.md
     - Audio Transcription Schema: reference-implementations/metadata-schemas/audio-transcription.md

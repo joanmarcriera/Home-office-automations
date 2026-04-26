@@ -13,6 +13,7 @@ High-level design of the AI Hub: how components connect, how data flows between 
 | [Automated Contributions](automated_contributions.md) | How Google Jules, digest workflows, and quality gates keep the repo self-improving |
 | [Multi-Agent KnowledgeOps](multi_agent_knowledgeops.md) | Governance contract, role model, and CI gates for scalable multi-agent documentation growth |
 | [Prompt Catalogue](prompt-catalogue.md) | Reference library of production prompts used across automation workflows |
+| [Text-to-SQL Architecture](data-copilot-text-to-sql.md) | Layered multi-agent pipeline for natural language data querying |
 
 ---
 
