@@ -1,5 +1,29 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-26
+
+## Digest fallback for 2026-04-26
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [8 Gemini tips for organizing your space (and life)](https://blog.google/products-and-platforms/products/gemini/gemini-spring-cleaning-tips/) (Google AI Blog)
+2. [Exploring with agents](https://changelog.com/podcast/680) (The Changelog)
+3. [[AINews] DeepSeek V4 Pro (1.6T-A49B) and Flash (284B-A13B), Base and Instruct — runnable on Huawei Ascend chips](https://www.latent.space/p/ainews-deepseek-v4-pro-16t-a49b-and) (Latent Space)
+4. [Jaeger adopts OpenTelemetry at its core to solve the AI agent observability gap](https://thenewstack.io/jaeger-v2-ai-observability/) (The New Stack)
+5. [The real story from OpenAI’s big week is Workspace Agents, not GPT-5.5](https://thenewstack.io/openai-workspace-agents-gpt-5-5/) (The New Stack)
+6. [Mistral’s Leanstral wants to kill off human-in-the-loop code checks, but is it blowing in the wind?](https://thenewstack.io/leanstral-formal-verification-code/) (The New Stack)
+7. [Vectors gave us AI search, tensors are going to make it smarter](https://thenewstack.io/vectors-tensors-ai-search-explained/) (The New Stack)
+8. [“Mythos-like hacking, open to all”: Industry reacts to OpenAI’s GPT 5.5](https://thenewstack.io/openai-chatgpt-gpt-5-5-security/) (The New Stack)
+9. [Cursor and Chainguard partner to lock down the AI agent supply chain](https://thenewstack.io/cursor-chainguard-agentic-ai-secure/) (The New Stack)
+10. [Why Claude needs a real environment to validate cloud-native code](https://thenewstack.io/claude-cloud-native-validation/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
