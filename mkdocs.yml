@@ -148,6 +148,7 @@ nav:
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Claude: tools/ai_knowledge/claude.md
       - Claude Mythos: tools/ai_knowledge/claude-mythos.md
+      - DeepTutor: tools/ai_knowledge/deeptutor.md
       - Gemini: tools/ai_knowledge/gemini.md
       - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
       - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
@@ -204,6 +205,7 @@ nav:
       - CliHub: tools/automation_orchestration/clihub.md
       - CodeGraphContext: tools/automation_orchestration/codegraphcontext.md
       - Google Workspace CLI: tools/automation_orchestration/google-workspace-cli.md
+      - Lightpanda Browser: tools/automation_orchestration/lightpanda.md
       - GNU Make: tools/automation_orchestration/gnu-make.md
       - Make: tools/automation_orchestration/make.md
       - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
@@ -347,6 +349,7 @@ nav:
     - Agents:
       - Overview: tools/agents/index.md
       - Agency Swarm: tools/agents/agency-swarm.md
+      - Agency-Agents: tools/agents/agency-agents.md
       - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
       - Agno: tools/agents/agno.md
       - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
@@ -400,6 +403,7 @@ nav:
       - Crawl4AI: tools/process_understanding/crawl4ai.md
       - Firecrawl: tools/process_understanding/firecrawl.md
       - PageIndex: tools/process_understanding/pageindex.md
+      - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
       - RAGFlow: tools/process_understanding/ragflow.md
   - Reports:
     - Data Copilot Issue Verification: reports/data-copilot-issue-verification.md
