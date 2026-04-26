@@ -1,6 +1,36 @@
 {
   "tools": [
     {
+      "id": "ai-auditing",
+      "name": "AI Auditing Tools",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/ai-auditing-tools.md"
+    },
+    {
+      "id": "aitmpl",
+      "name": "AI Templates",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
+    },
+    {
+      "id": "arc",
+      "name": "ARC (AI2 Reasoning Challenge)",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/arc.md"
+    },
+    {
+      "id": "asdiv",
+      "name": "ASDiv",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/asdiv.md"
+    },
+    {
+      "id": "aws-bedrock",
+      "name": "AWS Bedrock",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/aws-bedrock.md"
+    },
+    {
       "id": "actual-budget",
       "name": "Actual Budget",
       "category": "Intake & Storage",
@@ -31,18 +61,6 @@
       "doc_path": "docs/tools/agents/agno.md"
     },
     {
-      "id": "ai-auditing",
-      "name": "AI Auditing Tools",
-      "category": "Process & Understanding",
-      "doc_path": "docs/tools/process_understanding/ai-auditing-tools.md"
-    },
-    {
-      "id": "aitmpl",
-      "name": "AI Templates",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
-    },
-    {
       "id": "aider",
       "name": "Aider",
       "category": "Development & Ops",
@@ -65,12 +83,6 @@
       "name": "Andrej Karpathy Skills",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/karpathy-skills.md"
-    },
-    {
-      "id": "ansigpt",
-      "name": "ansigpt",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/ansigpt.md"
     },
     {
       "id": "anthropic",
@@ -114,16 +126,10 @@
       "doc_path": "docs/tools/infrastructure/aphrodite-engine.md"
     },
     {
-      "id": "arc",
-      "name": "ARC (AI2 Reasoning Challenge)",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/arc.md"
-    },
-    {
-      "id": "asdiv",
-      "name": "ASDiv",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/asdiv.md"
+      "id": "arize-ai",
+      "name": "Arize AI",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/arize-ai.md"
     },
     {
       "id": "atlassian-jira-mcp-implementations",
@@ -156,12 +162,6 @@
       "doc_path": "docs/tools/agents/autoreason.md"
     },
     {
-      "id": "aws-bedrock",
-      "name": "AWS Bedrock",
-      "category": "Providers",
-      "doc_path": "docs/tools/providers/aws-bedrock.md"
-    },
-    {
       "id": "axiom-guardian",
       "name": "Axiom Guardian",
       "category": "Development & Ops",
@@ -192,6 +192,12 @@
       "doc_path": "docs/tools/providers/bigswitch.md"
     },
     {
+      "id": "braintrust",
+      "name": "Braintrust",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/braintrust.md"
+    },
+    {
       "id": "browser-use",
       "name": "Browser Use",
       "category": "Automation & Orchestration",
@@ -210,16 +216,16 @@
       "doc_path": "docs/services/changedetection.md"
     },
     {
-      "id": "chatbot-arena",
-      "name": "Chatbot Arena",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/chatbot-arena.md"
-    },
-    {
       "id": "chatgpt",
       "name": "ChatGPT",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/chatgpt.md"
+    },
+    {
+      "id": "chatbot-arena",
+      "name": "Chatbot Arena",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/chatbot-arena.md"
     },
     {
       "id": "chronos-mcp",
@@ -360,6 +366,12 @@
       "doc_path": "docs/tools/ai_knowledge/colqwen.md"
     },
     {
+      "id": "comet-opik",
+      "name": "Comet Opik",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/comet-opik.md"
+    },
+    {
       "id": "composio",
       "name": "Composio",
       "category": "Agents",
@@ -406,6 +418,18 @@
       "name": "Custom Agents",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/custom_agents.md"
+    },
+    {
+      "id": "dream-benchmark",
+      "name": "DREAM Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/dream.md"
+    },
+    {
+      "id": "dspy",
+      "name": "DSPy",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/dspy.md"
     },
     {
       "id": "data-copilot-mcp",
@@ -486,22 +510,10 @@
       "doc_path": "docs/services/drawio.md"
     },
     {
-      "id": "dream-benchmark",
-      "name": "DREAM Benchmark",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/dream.md"
-    },
-    {
       "id": "droid",
       "name": "Droid",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/droid.md"
-    },
-    {
-      "id": "dspy",
-      "name": "DSPy",
-      "category": "Frameworks",
-      "doc_path": "docs/tools/frameworks/dspy.md"
     },
     {
       "id": "element",
@@ -528,16 +540,16 @@
       "doc_path": "docs/tools/ai_knowledge/everything-claude-code.md"
     },
     {
-      "id": "excalidraw",
-      "name": "Excalidraw",
-      "category": "Creative & Communication",
-      "doc_path": "docs/services/excalidraw.md"
-    },
-    {
       "id": "exllamav2",
       "name": "ExLlamaV2",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/exllamav2.md"
+    },
+    {
+      "id": "excalidraw",
+      "name": "Excalidraw",
+      "category": "Creative & Communication",
+      "doc_path": "docs/services/excalidraw.md"
     },
     {
       "id": "fine-tuning-open-models",
@@ -605,6 +617,36 @@
       "doc_path": "docs/tools/enterprise/fyxer.md"
     },
     {
+      "id": "gnu-make",
+      "name": "GNU Make",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/gnu-make.md"
+    },
+    {
+      "id": "gpqa",
+      "name": "GPQA",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/gpqa.md"
+    },
+    {
+      "id": "gpt-engineer",
+      "name": "GPT Engineer",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/gpt_engineer.md"
+    },
+    {
+      "id": "gpt-researcher",
+      "name": "GPT Researcher",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/gpt-researcher.md"
+    },
+    {
+      "id": "gsm8k",
+      "name": "GSM8K",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/gsm8k.md"
+    },
+    {
       "id": "gemini",
       "name": "Gemini",
       "category": "AI Assistants & Knowledge",
@@ -635,12 +677,6 @@
       "doc_path": "docs/tools/ai_knowledge/genspark.md"
     },
     {
-      "id": "gitea",
-      "name": "Gitea",
-      "category": "Development & Ops",
-      "doc_path": "docs/services/gitea.md"
-    },
-    {
       "id": "github-copilot",
       "name": "GitHub Copilot",
       "category": "Development & Ops",
@@ -659,16 +695,16 @@
       "doc_path": "docs/tools/development_ops/github-pages.md"
     },
     {
+      "id": "gitea",
+      "name": "Gitea",
+      "category": "Development & Ops",
+      "doc_path": "docs/services/gitea.md"
+    },
+    {
       "id": "glean",
       "name": "Glean",
       "category": "Enterprise AI",
       "doc_path": "docs/tools/enterprise/glean.md"
-    },
-    {
-      "id": "gnu-make",
-      "name": "GNU Make",
-      "category": "Automation & Orchestration",
-      "doc_path": "docs/tools/automation_orchestration/gnu-make.md"
     },
     {
       "id": "google-calendar",
@@ -713,24 +749,6 @@
       "doc_path": "docs/tools/automation_orchestration/google-workspace-cli.md"
     },
     {
-      "id": "gpqa",
-      "name": "GPQA",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/gpqa.md"
-    },
-    {
-      "id": "gpt-engineer",
-      "name": "GPT Engineer",
-      "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/gpt_engineer.md"
-    },
-    {
-      "id": "gpt-researcher",
-      "name": "GPT Researcher",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/gpt-researcher.md"
-    },
-    {
       "id": "grocy",
       "name": "Grocy",
       "category": "Intake & Storage",
@@ -748,10 +766,16 @@
       ]
     },
     {
-      "id": "gsm8k",
-      "name": "GSM8K",
+      "id": "helm",
+      "name": "HELM",
       "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/gsm8k.md"
+      "doc_path": "docs/tools/benchmarking/helm.md"
+    },
+    {
+      "id": "hitl-ui",
+      "name": "HITL UI",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/reference-implementations/hitl-ui-design.md"
     },
     {
       "id": "habitica",
@@ -784,22 +808,10 @@
       "doc_path": "docs/tools/enterprise/hebbia.md"
     },
     {
-      "id": "helm",
-      "name": "HELM",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/helm.md"
-    },
-    {
       "id": "heretic-ara",
       "name": "Heretic / ARA",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/heretic-ara.md"
-    },
-    {
-      "id": "hitl-ui",
-      "name": "HITL UI",
-      "category": "Automation & Orchestration",
-      "doc_path": "docs/reference-implementations/hitl-ui-design.md"
     },
     {
       "id": "holotab",
@@ -850,6 +862,12 @@
       "doc_path": "docs/tools/development_ops/humanizer.md"
     },
     {
+      "id": "it-tools",
+      "name": "IT-Tools",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/it-tools.md"
+    },
+    {
       "id": "immich",
       "name": "Immich",
       "category": "Media & Entertainment",
@@ -860,12 +878,6 @@
       "name": "InterCode",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/intercode.md"
-    },
-    {
-      "id": "it-tools",
-      "name": "IT-Tools",
-      "category": "Process & Understanding",
-      "doc_path": "docs/services/it-tools.md"
     },
     {
       "id": "jackett",
@@ -940,16 +952,28 @@
       "doc_path": "docs/tools/ai_knowledge/kumo-ai.md"
     },
     {
+      "id": "llmperf",
+      "name": "LLMPerf",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/llmperf.md"
+    },
+    {
+      "id": "lm-evaluation-harness",
+      "name": "LM Evaluation Harness",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/lm-evaluation-harness.md"
+    },
+    {
+      "id": "lm-studio",
+      "name": "LM Studio",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/infrastructure/lm-studio.md"
+    },
+    {
       "id": "langchain",
       "name": "LangChain",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/langchain.md"
-    },
-    {
-      "id": "langfuse",
-      "name": "Langfuse",
-      "category": "Process & Understanding",
-      "doc_path": "docs/tools/process_understanding/langfuse.md"
     },
     {
       "id": "langgraph",
@@ -962,6 +986,12 @@
       "name": "LangSmith",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/langsmith.md"
+    },
+    {
+      "id": "langfuse",
+      "name": "Langfuse",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/langfuse.md"
     },
     {
       "id": "letta",
@@ -988,12 +1018,6 @@
       "doc_path": "docs/services/litellm.md"
     },
     {
-      "id": "llama-cpp",
-      "name": "llama.cpp",
-      "category": "Process & Understanding",
-      "doc_path": "docs/tools/infrastructure/llama-cpp.md"
-    },
-    {
       "id": "llamaindex",
       "name": "LlamaIndex",
       "category": "AI Assistants & Knowledge",
@@ -1004,30 +1028,6 @@
       "name": "LlamaParse",
       "category": "Intake & Storage",
       "doc_path": "docs/tools/intake_storage/llamaparse.md"
-    },
-    {
-      "id": "llmfit",
-      "name": "llmfit",
-      "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/llmfit.md"
-    },
-    {
-      "id": "llmperf",
-      "name": "LLMPerf",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/llmperf.md"
-    },
-    {
-      "id": "lm-evaluation-harness",
-      "name": "LM Evaluation Harness",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/lm-evaluation-harness.md"
-    },
-    {
-      "id": "lm-studio",
-      "name": "LM Studio",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/infrastructure/lm-studio.md"
     },
     {
       "id": "local-llms",
@@ -1054,6 +1054,42 @@
       "doc_path": "docs/tools/benchmarking/longcli-bench.md"
     },
     {
+      "id": "math-benchmark",
+      "name": "MATH Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/math-benchmark.md"
+    },
+    {
+      "id": "mbpp",
+      "name": "MBPP",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/mbpp.md"
+    },
+    {
+      "id": "mcp-registry",
+      "name": "MCP Registry",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/mcp-registry.md"
+    },
+    {
+      "id": "mlx",
+      "name": "MLX",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/mlx.md"
+    },
+    {
+      "id": "mmlu",
+      "name": "MMLU",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/mmlu.md"
+    },
+    {
+      "id": "mt-bench",
+      "name": "MT-Bench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/mt-bench.md"
+    },
+    {
       "id": "make",
       "name": "Make",
       "category": "Automation & Orchestration",
@@ -1072,28 +1108,10 @@
       "doc_path": "docs/reference-implementations/manual-assistant/manual-assistant-implementation.md"
     },
     {
-      "id": "math-benchmark",
-      "name": "MATH Benchmark",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/math-benchmark.md"
-    },
-    {
       "id": "matt-pocock-skills",
       "name": "Matt Pocock Skills",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/matt-pocock-skills.md"
-    },
-    {
-      "id": "mbpp",
-      "name": "MBPP",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/mbpp.md"
-    },
-    {
-      "id": "mcp-registry",
-      "name": "MCP Registry",
-      "category": "Automation & Orchestration",
-      "doc_path": "docs/tools/automation_orchestration/mcp-registry.md"
     },
     {
       "id": "mealie",
@@ -1106,12 +1124,6 @@
       "name": "Melty",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/melty.md"
-    },
-    {
-      "id": "mem0",
-      "name": "mem0",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/mem0.md"
     },
     {
       "id": "mentat",
@@ -1150,18 +1162,6 @@
       ]
     },
     {
-      "id": "mlx",
-      "name": "MLX",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/mlx.md"
-    },
-    {
-      "id": "mmlu",
-      "name": "MMLU",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/mmlu.md"
-    },
-    {
       "id": "moonshot",
       "name": "Moonshot AI",
       "category": "Providers",
@@ -1171,22 +1171,22 @@
       ]
     },
     {
-      "id": "mt-bench",
-      "name": "MT-Bench",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/mt-bench.md"
-    },
-    {
       "id": "mycelium",
       "name": "Mycelium",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/mycelium.md"
     },
     {
-      "id": "n8n",
-      "name": "n8n",
-      "category": "Automation & Orchestration",
-      "doc_path": "docs/services/n8n.md"
+      "id": "nemo-retriever",
+      "name": "NVIDIA NeMo Retriever",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/nemo-retriever.md"
+    },
+    {
+      "id": "nemotron",
+      "name": "NVIDIA Nemotron-3 Super",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/nemotron.md"
     },
     {
       "id": "nano-banana",
@@ -1231,22 +1231,16 @@
       "doc_path": "docs/tools/ai_knowledge/notion-ai.md"
     },
     {
-      "id": "nemo-retriever",
-      "name": "NVIDIA NeMo Retriever",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/nemo-retriever.md"
-    },
-    {
       "id": "nemoclaw",
       "name": "Nvidia NemoClaw",
       "category": "Agents",
       "doc_path": "docs/tools/agents/nemoclaw.md"
     },
     {
-      "id": "nemotron",
-      "name": "NVIDIA Nemotron-3 Super",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/nemotron.md"
+      "id": "ocrmypdf",
+      "name": "OCRmyPDF",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
     },
     {
       "id": "obsidian",
@@ -1259,12 +1253,6 @@
       "name": "Obsidian Vector Search",
       "category": "Knowledge Base",
       "doc_path": "docs/knowledge_base/obsidian-vector-search.md"
-    },
-    {
-      "id": "ocrmypdf",
-      "name": "OCRmyPDF",
-      "category": "Process & Understanding",
-      "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
     },
     {
       "id": "ollama",
@@ -1465,22 +1453,10 @@
       "doc_path": "docs/tools/automation_orchestration/pulse-mcp.md"
     },
     {
-      "id": "qbittorrent",
-      "name": "qBittorrent",
-      "category": "Intake & Storage",
-      "doc_path": "docs/services/qbittorrent.md"
-    },
-    {
       "id": "qwen",
       "name": "Qwen3-Coder-Next",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/qwen.md"
-    },
-    {
-      "id": "radicale",
-      "name": "Radicale",
-      "category": "Intake & Storage",
-      "doc_path": "docs/services/radicale.md"
     },
     {
       "id": "ragflow",
@@ -1489,10 +1465,10 @@
       "doc_path": "docs/tools/process_understanding/ragflow.md"
     },
     {
-      "id": "rclone-automation",
-      "name": "rclone Automation",
+      "id": "radicale",
+      "name": "Radicale",
       "category": "Intake & Storage",
-      "doc_path": "docs/services/rclone-automation.md"
+      "doc_path": "docs/services/radicale.md"
     },
     {
       "id": "replicate",
@@ -1524,6 +1500,18 @@
       "doc_path": "docs/tools/ai_knowledge/runwayml.md"
     },
     {
+      "id": "sglang",
+      "name": "SGLang",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/sglang.md"
+    },
+    {
+      "id": "swe-bench",
+      "name": "SWE-bench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/swe-bench.md"
+    },
+    {
       "id": "searXNG",
       "name": "SearXNG",
       "category": "Process & Understanding",
@@ -1546,12 +1534,6 @@
       "name": "ServiceNow MCP Server",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/servicenow-mcp.md"
-    },
-    {
-      "id": "sglang",
-      "name": "SGLang",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/sglang.md"
     },
     {
       "id": "sharp-ai",
@@ -1624,12 +1606,6 @@
       "name": "Superpowers",
       "category": "Agents",
       "doc_path": "docs/tools/agents/superpowers.md"
-    },
-    {
-      "id": "swe-bench",
-      "name": "SWE-bench",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/swe-bench.md"
     },
     {
       "id": "sweep-dev",
@@ -1752,6 +1728,12 @@
       "doc_path": "docs/tools/benchmarking/vakra.md"
     },
     {
+      "id": "vscode",
+      "name": "VS Code",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/vscode.md"
+    },
+    {
       "id": "valyu",
       "name": "Valyu",
       "category": "AI Assistants & Knowledge",
@@ -1806,28 +1788,16 @@
       "doc_path": "docs/knowledge_base/vision-models-research.md"
     },
     {
-      "id": "vllm",
-      "name": "vLLM",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/vllm.md"
-    },
-    {
-      "id": "vscode",
-      "name": "VS Code",
-      "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/vscode.md"
-    },
-    {
       "id": "whisper",
       "name": "Whisper",
       "category": "Process & Understanding",
       "doc_path": "docs/services/whisper.md"
     },
     {
-      "id": "xai-grok",
-      "name": "xAI Grok",
-      "category": "Providers",
-      "doc_path": "docs/tools/providers/xai-grok.md"
+      "id": "zse",
+      "name": "ZSE",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/infrastructure/zse.md"
     },
     {
       "id": "zapier",
@@ -1842,10 +1812,58 @@
       "doc_path": "docs/tools/development_ops/zed.md"
     },
     {
-      "id": "zse",
-      "name": "ZSE",
+      "id": "ansigpt",
+      "name": "ansigpt",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/ansigpt.md"
+    },
+    {
+      "id": "llama-cpp",
+      "name": "llama.cpp",
       "category": "Process & Understanding",
-      "doc_path": "docs/tools/infrastructure/zse.md"
+      "doc_path": "docs/tools/infrastructure/llama-cpp.md"
+    },
+    {
+      "id": "llmfit",
+      "name": "llmfit",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/llmfit.md"
+    },
+    {
+      "id": "mem0",
+      "name": "mem0",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/mem0.md"
+    },
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/services/n8n.md"
+    },
+    {
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/qbittorrent.md"
+    },
+    {
+      "id": "rclone-automation",
+      "name": "rclone Automation",
+      "category": "Intake & Storage",
+      "doc_path": "docs/services/rclone-automation.md"
+    },
+    {
+      "id": "vllm",
+      "name": "vLLM",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/vllm.md"
+    },
+    {
+      "id": "xai-grok",
+      "name": "xAI Grok",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/xai-grok.md"
     }
   ]
 }
