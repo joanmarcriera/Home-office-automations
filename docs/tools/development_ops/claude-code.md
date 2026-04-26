@@ -91,6 +91,23 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
 - [Agent Client Protocol (ACP)](../../knowledge_base/agent_protocols.md)
 
+## Advanced Patterns & Best Practices
+
+### 1. Orchestration Workflow (Command → Agent → Skill)
+The most effective way to scale Claude Code is to use a layered orchestration pattern:
+- **Slash Commands** (.claude/commands/): Simple templates for recurring tasks (e.g., `/refactor`).
+- **Subagents** (.claude/agents/): Autonomous actors in isolated contexts for high-compute reasoning.
+- **Skills** (.claude/skills/): Domain-specific knowledge and tools that are auto-discovered.
+
+### 2. Context Management
+- **Aggressive Compacting**: Context rot kicks in around 400k tokens. Use `/compact` manually or via hooks to drop unnecessary test logs while keeping the core reasoning.
+- **Subagents for Context Isolation**: Instead of 50 file reads in your main session, use a subagent. Main session only sees the subagent's conclusion, keeping your primary window clean.
+- **Rewind > Correct**: If an implementation fails, use `Esc Esc` or `/rewind` instead of prompting "fix this." It prevents failed code from polluting future reasoning.
+
+### 3. Verification Iron Laws
+- **Test-Time Compute**: Use separate context windows for implementation and review. One agent writes the code, another (fresh context) tries to find bugs in it.
+- **Staff Reviewer Pattern**: Spin up a second Claude session to "grill" your plan before execution.
+
 ## Ecosystem extensions
 
 ### Curated starting points
@@ -122,8 +139,9 @@ claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
 - [Skill Seekers](https://github.com/yusufkaraaslan/Skill_Seekers)
 - [Awesome Claude Skills](https://github.com/BehiSecc/awesome-claude-skills)
+- [Claude Code Best Practice (Repo)](https://github.com/shanraisshan/claude-code-best-practice)
 - [Reddit field report](https://www.reddit.com/r/ClaudeAI/comments/1ok9v3d/i_tested_30_community_claude_skills_for_a_week/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-04-26
 - Confidence: high

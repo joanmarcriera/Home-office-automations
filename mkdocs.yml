@@ -177,6 +177,7 @@ nav:
       - OpenAI: tools/ai_knowledge/openai.md
       - Google Gemini: tools/ai_knowledge/google-gemini.md
       - Google Search: tools/ai_knowledge/google-search.md
+      - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
       - Heretic / ARA: tools/ai_knowledge/heretic-ara.md
       - Roam Research: tools/ai_knowledge/roam-research.md
       - Google Lyria: tools/ai_knowledge/google-lyria.md
@@ -244,6 +245,7 @@ nav:
       - AlpacaEval: tools/benchmarking/alpaca-eval.md
       - MT-Bench: tools/benchmarking/mt-bench.md
       - MATH Benchmark: tools/benchmarking/math-benchmark.md
+      - SharpAI Security Benchmark: tools/benchmarking/sharp-ai.md
     - Calendar & Tasks:
       - Overview: tools/calendar_tasks/index.md
       - Google Calendar: tools/calendar_tasks/google_calendar.md
@@ -318,6 +320,9 @@ nav:
       - Smolagents: tools/frameworks/smolagents.md
     - Providers:
       - Overview: tools/providers/index.md
+      - Azure OpenAI: tools/providers/azure-openai.md
+      - xAI Grok: tools/providers/xai-grok.md
+      - Vercel AI Gateway: tools/providers/vercel-ai-gateway.md
       - Anthropic: tools/providers/anthropic.md
       - Cohere: tools/providers/cohere.md
       - Mistral AI: tools/providers/mistral.md
@@ -333,6 +338,10 @@ nav:
       - AWS Bedrock: tools/providers/aws-bedrock.md
       - Hugging Face: tools/providers/huggingface.md
       - Microsoft Graph API: tools/providers/microsoft-graph.md
+    - Enterprise AI:
+      - Fyxer AI: tools/enterprise/fyxer.md
+      - Glean: tools/enterprise/glean.md
+      - Hebbia: tools/enterprise/hebbia.md
     - Agents:
       - Overview: tools/agents/index.md
       - Agency Swarm: tools/agents/agency-swarm.md
@@ -386,6 +395,8 @@ nav:
       - Firecrawl: tools/process_understanding/firecrawl.md
       - PageIndex: tools/process_understanding/pageindex.md
       - RAGFlow: tools/process_understanding/ragflow.md
+  - Reports:
+    - Data Copilot Issue Verification: reports/data-copilot-issue-verification.md
   - Architecture:
     - Overview: architecture/README.md
     - Infrastructure Detail: architecture/infrastructure.md

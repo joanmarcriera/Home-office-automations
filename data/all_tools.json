@@ -1696,6 +1696,54 @@
       "name": "Data Copilot MCP Tooling",
       "category": "Patterns",
       "doc_path": "docs/knowledge_base/patterns/data-copilot-mcp-tooling.md"
+    },
+    {
+      "id": "azure-openai",
+      "name": "Azure OpenAI Service",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/azure-openai.md"
+    },
+    {
+      "id": "xai-grok",
+      "name": "xAI Grok",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/xai-grok.md"
+    },
+    {
+      "id": "vercel-ai-gateway",
+      "name": "Vercel AI Gateway",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/vercel-ai-gateway.md"
+    },
+    {
+      "id": "fyxer-ai",
+      "name": "Fyxer AI",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/fyxer.md"
+    },
+    {
+      "id": "glean",
+      "name": "Glean",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/glean.md"
+    },
+    {
+      "id": "hebbia",
+      "name": "Hebbia",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/hebbia.md"
+    },
+    {
+      "id": "nemotron",
+      "name": "NVIDIA Nemotron-3 Super",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/nemotron.md"
+    },
+    {
+      "id": "sharp-ai",
+      "name": "SharpAI Security Benchmark",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/sharp-ai.md"
     }
   ]
 }

@@ -20,6 +20,7 @@ NeMo Retriever is part of the NVIDIA NeMo platform. It can be deployed via NVIDI
 ### Minimal Concepts
 1. **Embeddings**: High-performance microservices for generating vector representations.
 2. **Reranking**: Advanced models to refine retrieval results for better relevance.
+- **Nemotron-3 Super Integration**: Optimized to provide high-fidelity retrieval for the Nemotron-3 Super 1M context window, ensuring "needle in a haystack" accuracy.
 3. **Agentic Pipeline**: Integration with orchestration frameworks like LangChain or LlamaIndex.
 
 ## Strengths
@@ -46,5 +47,5 @@ NeMo Retriever is part of the NVIDIA NeMo platform. It can be deployed via NVIDI
 - [NVIDIA NeMo Retriever Product Page](https://www.nvidia.com/en-us/ai-data-science/generative-ai/nemo-framework/retriever/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-04-26
 - Confidence: high

@@ -15,7 +15,7 @@ This is the canonical tracker for API pricing links and free-tier availability a
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-## Canonical pricing matrix (last verified: 2026-03-03)
+## Canonical pricing matrix (last verified: 2026-04-26)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
@@ -50,6 +50,15 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | OCI Generative AI | [Docs](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm) · [Pricing](https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/pricing/) | Unclear | Paid rates are public; free tier not clearly documented. |
 | MiniMax | [Docs](https://platform.minimaxi.com/docs/guides/models-intro) · [Pricing](https://platform.minimaxi.com/docs/guides/pricing-paygo) | Yes | Coding Plan provides a low-cost entry tier; trial credits available. |
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
+
+## Enterprise Productivity Suite (2026 Benchmarks)
+
+| Tool | Pricing Model | Free Tier / Trial | Notes |
+| :--- | :--- | :--- | :--- |
+| **Fyxer AI** | ~$30-$50/user/mo | 14-day Trial | Executive admin & inbox management. |
+| **Glean** | Enterprise Quote | No | Unified search across 100+ SaaS apps. |
+| **Hebbia** | Institutional Quote | No | High-precision analytical search for Finance/Law. |
+| **tl;dv** | Freemium | Yes | Meeting recorder with free unlimited tier. |
 
 ## Developer Program Plans
 
@@ -320,5 +329,5 @@ When updating this page:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-03
-- Confidence: medium
+- Last reviewed: 2026-04-26
+- Confidence: high
