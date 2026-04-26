@@ -1690,6 +1690,12 @@
       "name": "Replit Agent",
       "category": "Agents",
       "doc_path": "docs/tools/agents/replit-agent.md"
+    },
+    {
+      "id": "data-copilot-mcp",
+      "name": "Data Copilot MCP Tooling",
+      "category": "Patterns",
+      "doc_path": "docs/knowledge_base/patterns/data-copilot-mcp-tooling.md"
     }
   ]
 }

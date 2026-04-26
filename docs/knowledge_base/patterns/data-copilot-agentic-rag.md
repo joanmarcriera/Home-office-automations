@@ -1,0 +1,81 @@
+# Data Copilot: Agentic RAG & Hybrid Retrieval
+
+Diagnostic analytics often requires more than just a SQL query. Answering "Why did revenue drop?" requires looking at data (SQL), standard operating procedures (SOPs), policy changes (Meeting Notes), and external factors. This pattern defines an agentic retrieval system that decides between structured (SQL) and unstructured (Docs) sources.
+
+## Goal
+Enable the Data Copilot to answer complex diagnostic questions by deciding when to query SQL, documents, or both, and synthesizing the results with confidence scoring.
+
+## Hybrid Retrieval Workflow
+
+```mermaid
+flowchart TD
+    User([User Question]) --> Planner[1. Agentic Planner]
+    Planner --> SourceCheck{Which Sources?}
+
+    SourceCheck -- Structured --> SQLAgent[2. SQL Agent Layer]
+    SourceCheck -- Unstructured --> RAGAgent[3. RAG Agent Layer]
+    SourceCheck -- Both --> SQLAgent & RAGAgent
+
+    SQLAgent --> RetrievalCheck{Sufficient?}
+    RAGAgent --> RetrievalCheck
+
+    RetrievalCheck -- No: Need more info --> Planner
+    RetrievalCheck -- Yes --> Synthesis[4. Synthesis Agent]
+
+    Synthesis --> Output[/Diagnostic Answer/]
+```
+
+## Layers
+
+### 1. Agentic Planner
+- **Role**: Analyzes the refined intent to determine if the answer lies in the database, the knowledge base, or a combination.
+- **Decision Logic**:
+  - If the question involves "How many", "Total", "Top X" -> **SQL**.
+  - If the question involves "Why", "Policy", "Process", "Who is responsible" -> **RAG**.
+  - If the question is a root-cause diagnosis (e.g., "Why did metric X change?") -> **Hybrid**.
+
+### 2. SQL Agent Layer
+- Follows the [Layered Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md).
+
+### 3. RAG Agent Layer
+- Uses semantic search over unstructured documents (SOPs, meeting notes, project logs).
+- **Tool**: MCP server exposing local Markdown files.
+
+### 4. Synthesis Agent
+- Combines the structured data points from SQL with the qualitative context from RAG.
+- **Output Requirements**: Must state assumptions and provide a confidence score.
+
+## Multi-hop Investigation Flow
+For "Why" questions, the agent often needs multiple steps:
+1.  **Step 1**: Query SQL to identify *what* changed (e.g., "Conversion rate dropped in the Kitchen category").
+2.  **Step 2**: Query RAG to find *reasons* (e.g., search for "Kitchen category" in meeting notes/project logs).
+3.  **Step 3**: Synthesize: "Revenue dropped because of conversion rate (SQL), which was likely caused by the supplier delay mentioned in the March 12 meeting (RAG)."
+
+## Retrieval Sufficiency & Confidence Scoring
+
+### Sufficiency Check
+Before synthesis, the planner must ask: "Do I have enough information to answer the user's specific diagnostic question without guessing?"
+- **Low Sufficiency**: "I found the metric drop, but no corresponding notes in the logs."
+- **Action**: Report findings but state the missing link.
+
+### Confidence Scoring
+- **High (0.8 - 1.0)**: Direct match in SQL + explicit reason found in RAG.
+- **Medium (0.5 - 0.7)**: Metric drop found, but reason is inferred from general policy.
+- **Low (0.0 - 0.4)**: Correlating data found but no causal links.
+
+## Example Q&A: Diagnostic
+**Question**: "Why did my grocery spending spike last week?"
+
+**Agent Logic**:
+1.  **SQL Query**: Finds top categories for last week. (Result: 'Dining Out' is 3x higher than average).
+2.  **RAG Query**: Search for "Dining", "Restaurants", or "Guests" in family logs/calendar. (Result: Found "Anniversary Dinner" on April 20).
+3.  **Synthesis**: "Your spending spiked by £150 last week primarily due to 'Dining Out'. This is explained by the 'Anniversary Dinner' event found in your calendar for April 20."
+4.  **Confidence**: 0.95 (Direct causal link found).
+
+## Sources / References
+- [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
+- [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
+
+## Contribution Metadata
+- Last reviewed: 2026-04-26
+- Confidence: high

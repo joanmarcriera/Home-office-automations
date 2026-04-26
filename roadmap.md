@@ -39,6 +39,13 @@ This document tracks missing components and planned technical improvements for t
 
 ## 🌟 Future Projects (Home-Centric AI)
 
+### Data Copilot
+- [x] **Layered Text-to-SQL Architecture**: (see [Architecture](docs/architecture/data-copilot-text-to-sql.md) and [Skeleton](docs/reference-implementations/data-copilot/skeleton.py))
+- [x] **MCP Tooling & Standardization**: (see [Pattern](docs/knowledge_base/patterns/data-copilot-mcp-tooling.md))
+- [x] **Agentic RAG + Hybrid Retrieval**: (see [Pattern](docs/knowledge_base/patterns/data-copilot-agentic-rag.md))
+- [x] **Validation & Repair Guardrails**: (see [Playbook](docs/playbooks/data-copilot-sql-validation.md))
+- [x] **Answer Synthesis Schema**: (see [Reference Implementation](docs/reference-implementations/data-copilot/answer-synthesis-schema.md))
+
 ### Home Operations
 - [x] **AI-Powered Warranty & Manual Assistant**:
     - *Goal*: Automatically track warranty expiration from scanned receipts and provide chat-based troubleshooting using scanned manuals.

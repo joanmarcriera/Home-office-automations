@@ -87,6 +87,7 @@ nav:
     - Scan To Task: playbooks/scan-to-task.md
     - School Admin Intake: playbooks/school-admin-intake.md
     - Knowledge Base Health: playbooks/knowledge-base-health.md
+    - Data Copilot SQL Validation: playbooks/data-copilot-sql-validation.md
   - Services:
     - Overview: services/README.md
     - Inventory: services/inventory.md
@@ -443,9 +444,12 @@ nav:
       - Software Factories: knowledge_base/patterns/software-factories.md
       - Prompt Requests: knowledge_base/patterns/prompt_requests.md
       - Filesystem-as-Interface: knowledge_base/patterns/filesystem-context.md
+      - Data Copilot MCP Tooling: knowledge_base/patterns/data-copilot-mcp-tooling.md
+      - Data Copilot Agentic RAG: knowledge_base/patterns/data-copilot-agentic-rag.md
   - Reference Implementations:
     - Overview: reference-implementations/index.md
     - Data Copilot Skeleton: reference-implementations/data-copilot/skeleton-guide.md
+    - Data Copilot Answer Synthesis: reference-implementations/data-copilot/answer-synthesis-schema.md
     - Manual Assistant: reference-implementations/manual-assistant/manual-assistant-implementation.md
     - HITL UI Design: reference-implementations/hitl-ui-design.md
     - Audio Transcription Schema: reference-implementations/metadata-schemas/audio-transcription.md
