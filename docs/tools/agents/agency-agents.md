@@ -46,3 +46,5 @@ It provides "off-the-shelf" expert agents with predefined personalities, process
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: medium
+
+- [Agency-Agents (GitHub)](https://github.com/msitarzewski/agency-agents)
