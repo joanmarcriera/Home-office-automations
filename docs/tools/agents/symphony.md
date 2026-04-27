@@ -59,10 +59,11 @@ Symphony offers two primary paths:
 
 - [Harness Engineering (OpenAI Blog)](https://openai.com/index/harness-engineering/)
 - [OpenCode](../development_ops/opencode.md)
-- [LangGraph](langgraph.md)
+- [LangGraph](../frameworks/langgraph.md)
 - [Bee Agent Framework](bee-agent-framework.md)
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md)
 - [NanoClaw](../development_ops/nanoclaw.md)
+
 ## Sources / References
 
 - [Official GitHub Repository](https://github.com/openai/symphony)

@@ -36,7 +36,7 @@ It provides a unified "operating system for your life," allowing you to store no
 
 ## Related tools / concepts
 - [Obsidian](../ai_knowledge/obsidian.md)
-- [Logseq](logseq.md)
+- [Logseq](../ai_knowledge/logseq.md)
 
 ## Sources / References
 - [Official Website](https://anytype.io/)

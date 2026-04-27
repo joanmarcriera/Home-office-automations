@@ -37,7 +37,7 @@ It automates PDF accessibility and parsing, ensuring that complex PDF structures
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [LlamaParse](../agents/llamaparse.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
 - [Marker](https://github.com/VikParuchuri/marker)
 
 ## Sources / References

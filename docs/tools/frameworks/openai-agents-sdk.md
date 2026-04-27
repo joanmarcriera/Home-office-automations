@@ -37,10 +37,10 @@ It simplifies the process of creating agents that can use tools, maintain state,
 - **Self-hostable**: Yes (SDK logic)
 
 ## Related tools / concepts
-- [Symphony (OpenAI)](./symphony.md)
+- [Symphony (OpenAI)](../agents/symphony.md)
 - [LangGraph](./langgraph.md)
-- [Agency Swarm](./agency-swarm.md)
-- [Agentic Automation Canvas (AAC)](./agentic-automation-canvas.md)
+- [Agency Swarm](../agents/agency-swarm.md)
+- [Agentic Automation Canvas (AAC)](../agents/agentic-automation-canvas.md)
 
 ## Sources / References
 - [The next evolution of the Agents SDK](https://openai.com/index/the-next-evolution-of-the-agents-sdk)

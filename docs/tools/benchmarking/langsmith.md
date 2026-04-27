@@ -42,7 +42,7 @@ Benchmarking / Observability
 
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
-- [LangGraph](../agents/langgraph.md)
+- [LangGraph](../frameworks/langgraph.md)
 - [Benchmarking](./index.md)
 
 ## Sources / References

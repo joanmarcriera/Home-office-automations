@@ -14,6 +14,12 @@ It provides the infrastructure needed to transition from experimental agent prot
 - Secure agentic workflows
 - Scaling agent deployments
 
+## Related tools / concepts
+
+- [Fyxer AI](fyxer.md)
+- [Glean](glean.md)
+- [Hebbia](hebbia.md)
+
 ## Sources / references
 - [AmpCode Official Site](https://ampcode.com/)
 

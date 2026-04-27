@@ -17,6 +17,14 @@ It provides a set of ready-to-use agents and a framework for building new ones, 
 ## Getting started
 Check the GitHub repository for the latest setup guides and examples.
 
+## Related tools / concepts
+
+- [Agency Swarm](agency-swarm.md)
+- [Agency-Agents](agency-agents.md)
+- [Agentic Automation Canvas (AAC)](agentic-automation-canvas.md)
+- [Agno](agno.md)
+- [Anthropic Agent Skills](anthropic-agent-skills.md)
+
 ## Sources / references
 - [vercel-labs/open-agents](https://github.com/vercel-labs/open-agents)
 

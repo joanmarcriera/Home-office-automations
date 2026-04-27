@@ -35,7 +35,7 @@ It combines the simplicity of Markdown with the power of a programmable environm
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Logseq](logseq.md)
+- [Logseq](../ai_knowledge/logseq.md)
 - [Trilium Notes](../../services/trilium.md)
 
 ## Sources / References

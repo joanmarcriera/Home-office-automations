@@ -9,6 +9,14 @@ It automates the ingestion of diverse document types, handling complex layouts a
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing
 
+## Related tools / concepts
+
+- [Actual Budget](../../services/actual-budget.md)
+- [AnyType](anytype.md)
+- [CalDAV](caldav.md)
+- [Diskover](../../services/diskover.md)
+- [Focalboard](../../services/focalboard.md)
+
 ## Sources / references
 - [Unstructured.io Website](https://unstructured.io/)
 

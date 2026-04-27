@@ -17,6 +17,14 @@ It addresses the limitations of standard chain-of-thought prompting by providing
 ## Getting started
 Refer to the official repository for installation and usage instructions.
 
+## Related tools / concepts
+
+- [Agency Swarm](agency-swarm.md)
+- [Agency-Agents](agency-agents.md)
+- [Agentic Automation Canvas (AAC)](agentic-automation-canvas.md)
+- [Agno](agno.md)
+- [Anthropic Agent Skills](anthropic-agent-skills.md)
+
 ## Sources / references
 - [NousResearch/autoreason](https://github.com/NousResearch/autoreason)
 

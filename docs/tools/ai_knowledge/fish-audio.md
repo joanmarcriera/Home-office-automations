@@ -17,6 +17,14 @@ It provides a powerful alternative to proprietary TTS services, offering researc
 ## Getting started
 Available on GitHub and Hugging Face.
 
+## Related tools / concepts
+
+- [AI Templates](aitmpl.md)
+- [Andrej Karpathy Skills](karpathy-skills.md)
+- [AnythingLLM](anythingllm.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+
 ## Sources / references
 - [Fish Audio GitHub](https://github.com/fishaudio/fish-speech)
 

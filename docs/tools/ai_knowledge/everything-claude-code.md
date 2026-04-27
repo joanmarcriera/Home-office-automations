@@ -14,6 +14,14 @@ It provides a production-ready setup for agents, moving beyond simple configurat
 - **Security Scanning**: Integrated hooks for safe development.
 - **Multi-platform Support**: Works across Claude Code, Codex, Cursor, Gemini, and more.
 
+## Related tools / concepts
+
+- [AI Templates](aitmpl.md)
+- [Andrej Karpathy Skills](karpathy-skills.md)
+- [AnythingLLM](anythingllm.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+
 ## Sources / references
 - [Everything Claude Code (GitHub)](https://github.com/affaan-m/everything-claude-code)
 

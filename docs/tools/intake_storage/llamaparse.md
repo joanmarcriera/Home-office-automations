@@ -9,6 +9,14 @@ Overcomes the limitations of standard PDF text extraction by using vision-aware 
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing
 
+## Related tools / concepts
+
+- [Actual Budget](../../services/actual-budget.md)
+- [AnyType](anytype.md)
+- [CalDAV](caldav.md)
+- [Diskover](../../services/diskover.md)
+- [Focalboard](../../services/focalboard.md)
+
 ## Sources / references
 - [LlamaParse (LlamaIndex)](https://www.llamaindex.ai/llamaparse)
 

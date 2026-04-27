@@ -12,6 +12,14 @@ Extends agent capabilities with domain-specific execution scaffolds and critical
 ## Key Skills
 - **Grill-me**: A skill used to cross-examine and verify a proposed plan before execution.
 
+## Related tools / concepts
+
+- [AI Templates](aitmpl.md)
+- [Andrej Karpathy Skills](karpathy-skills.md)
+- [AnythingLLM](anythingllm.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+
 ## Sources / references
 - [Matt Pocock Skills (GitHub)](https://github.com/mattpocock/skills)
 

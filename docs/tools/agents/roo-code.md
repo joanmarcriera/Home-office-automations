@@ -50,7 +50,7 @@ Like its predecessor, Roo Code solves the context-switching problem by integrati
 
 ## Related tools / concepts
 - [Cline](cline.md) (The project it was forked from)
-- [Aider](aider.md) (Terminal-based agent)
+- [Aider](../development_ops/aider.md) (Terminal-based agent)
 - [Model Context Protocol (MCP)](../knowledge_base/mcp.md)
 
 ## Sources / References
