@@ -324,6 +324,12 @@
       "doc_path": "docs/tools/automation_orchestration/clihub.md"
     },
     {
+      "id": "cline",
+      "name": "Cline",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/cline.md"
+    },
+    {
       "id": "cloud-code",
       "name": "Cloud Code",
       "category": "Development & Ops",
@@ -645,6 +651,12 @@
       "name": "Gemini Canvas",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/gemini-canvas.md"
+    },
+    {
+      "id": "gemini-cli",
+      "name": "Google Gemini CLI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/gemini-cli.md"
     },
     {
       "id": "gemini-macos",
@@ -1417,6 +1429,12 @@
       "doc_path": "docs/services/paperless-ngx.md"
     },
     {
+      "id": "personaplex",
+      "name": "NVIDIA PersonaPlex",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/personaplex.md"
+    },
+    {
       "id": "perplexity",
       "name": "Perplexity",
       "category": "AI Assistants & Knowledge",
@@ -1495,6 +1513,12 @@
       "doc_path": "docs/tools/automation_orchestration/pulse-mcp.md"
     },
     {
+      "id": "pydantic-ai",
+      "name": "PydanticAI",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/pydantic-ai.md"
+    },
+    {
       "id": "qbittorrent",
       "name": "qBittorrent",
       "category": "Intake & Storage",
@@ -1546,6 +1570,12 @@
       "name": "Roam Research",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/roam-research.md"
+    },
+    {
+      "id": "roo-code",
+      "name": "Roo Code",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/roo-code.md"
     },
     {
       "id": "runwayml",

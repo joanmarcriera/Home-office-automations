@@ -161,6 +161,7 @@ nav:
       - Flowise: tools/ai_knowledge/flowise.md
       - Genspark: tools/ai_knowledge/genspark.md
       - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
+      - Gemini CLI: tools/ai_knowledge/gemini-cli.md
       - HoloTab: tools/ai_knowledge/holotab.md
       - Jasper: tools/ai_knowledge/jasper.md
       - Joplin: tools/ai_knowledge/joplin.md
@@ -179,6 +180,7 @@ nav:
       - Obsidian: tools/ai_knowledge/obsidian.md
       - OpenBB: tools/ai_knowledge/openbb.md
       - OpenAI: tools/ai_knowledge/openai.md
+      - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
       - Google Gemini: tools/ai_knowledge/google-gemini.md
       - Google Search: tools/ai_knowledge/google-search.md
       - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
@@ -331,6 +333,7 @@ nav:
       - Mycelium: tools/frameworks/mycelium.md
       - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
       - Semantic Kernel: tools/frameworks/semantic-kernel.md
+      - PydanticAI: tools/frameworks/pydantic-ai.md
       - Smolagents: tools/frameworks/smolagents.md
     - Providers:
       - Overview: tools/providers/index.md
@@ -363,6 +366,7 @@ nav:
       - Agency Swarm: tools/agents/agency-swarm.md
       - Agency-Agents: tools/agents/agency-agents.md
       - Agentic Automation Canvas: tools/agents/agentic-automation-canvas.md
+      - Cline: tools/agents/cline.md
       - Agno: tools/agents/agno.md
       - Anthropic Agent Skills: tools/agents/anthropic-agent-skills.md
       - AutoReason: tools/agents/autoreason.md
@@ -379,6 +383,7 @@ nav:
       - Perplexity Agent API: tools/agents/perplexity-agent-api.md
       - Phidata: tools/agents/phidata.md
       - Replit Agent: tools/agents/replit-agent.md
+      - Roo Code: tools/agents/roo-code.md
       - Superpowers: tools/agents/superpowers.md
       - Symphony: tools/agents/symphony.md
       - Home Admin Agent Tools: tools/agents/home-admin-tools.md
