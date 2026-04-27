@@ -18,6 +18,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [Replicate](replicate.md) | Run open-source models via API |
 | [MiniMax](minimax.md) | M2.5 coding-optimized models and Coding Plan |
 | [Moonshot AI](moonshot.md) | Kimi models with pioneer long-context (128k+) |
+| [Ollama](../../services/ollama.md) | Local inference engine for open models |
 | [BigSwitch](bigswitch.md) | Directory of European tech alternatives |
 | [Tavily](tavily.md) | Search and extraction API for AI agents |
 
