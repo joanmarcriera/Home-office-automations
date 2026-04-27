@@ -1257,7 +1257,7 @@
     {
       "id": "ollama",
       "name": "Ollama",
-      "category": "Process & Understanding",
+      "category": "Providers",
       "doc_path": "docs/services/ollama.md"
     },
     {

@@ -6,11 +6,11 @@ This report verifies that the requirements for GitHub issues #186 through #190 h
 
 | Issue # | Title | Primary Deliverable | Status |
 | :--- | :--- | :--- | :--- |
-| **#186** | Layered Text-to-SQL Architecture | `docs/architecture/data-copilot-text-to-sql.md` | Verified |
-| **#187** | MCP Tool/Data Standardization | `docs/knowledge_base/patterns/data-copilot-mcp-tooling.md` | Verified |
-| **#188** | Agentic RAG + Hybrid Retrieval | `docs/knowledge_base/patterns/data-copilot-agentic-rag.md` | Verified |
-| **#189** | SQL Validation & Repair Guardrails | `docs/playbooks/data-copilot-sql-validation.md` | Verified |
-| **#190** | Answer Synthesis Schema | `docs/reference-implementations/data-copilot/answer-synthesis-schema.md` | Verified |
+| **#186** | Layered Text-to-SQL Architecture | `docs/architecture/data-copilot-text-to-sql.md` | Closed |
+| **#187** | MCP Tool/Data Standardization | `docs/knowledge_base/patterns/data-copilot-mcp-tooling.md` | Closed |
+| **#188** | Agentic RAG + Hybrid Retrieval | `docs/knowledge_base/patterns/data-copilot-agentic-rag.md` | Closed |
+| **#189** | SQL Validation & Repair Guardrails | `docs/playbooks/data-copilot-sql-validation.md` | Closed |
+| **#190** | Answer Synthesis Schema | `docs/reference-implementations/data-copilot/answer-synthesis-schema.md` | Closed |
 
 ## Detailed Verification
 
