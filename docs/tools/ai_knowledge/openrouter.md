@@ -58,8 +58,9 @@ The OpenRouter settings integrations page is account-scoped. The table below is 
 | OpenAI SDK | [Guide](https://openrouter.ai/docs/guides/community/openai-sdk) | OpenAI-compatible client routing | [OpenAI News](https://openai.com/index/) | API and model release notes |
 | Anthropic Agent SDK | [Guide](https://openrouter.ai/docs/guides/community/anthropic-agent-sdk) | Agent runtime + tool orchestration | [Anthropic News](https://www.anthropic.com/news) | Claude capabilities and policy changes |
 | LangChain | [Guide](https://openrouter.ai/docs/guides/community/langchain) | LLM app chains and agents | [LangChain Blog](https://blog.langchain.com/) | Framework patterns and breaking changes |
-| Langfuse | [Guide](https://openrouter.ai/docs/guides/community/langfuse) | Tracing, observability, evals | [Langfuse Blog](https://langfuse.com/blog) | Prompt/trace observability practices |
-| Arize | [Guide](https://openrouter.ai/docs/guides/community/arize) | Evaluation and monitoring | [Arize Blog](https://arize.com/blog/) | Production eval and drift monitoring |
+| Langfuse | [Guide](https://openrouter.ai/docs/guides/community/langfuse) | Tracing, observability, evals | [Langfuse Blog](https://langfuse.com/blog) | High value for debugging | [Langfuse](../process_understanding/langfuse.md) |
+| Arize | [Guide](https://openrouter.ai/docs/guides/community/arize) | Evaluation and monitoring | [Arize Blog](https://arize.com/blog/) | Best for long-lived systems | [Arize AI](../process_understanding/arize-ai.md) |
+| Braintrust | [Guide](https://openrouter.ai/docs/guides/community/braintrust) | Tracing, evals, and proxy | [Braintrust Blog](https://www.braintrust.dev/blog) | Strong for prompt engineering | [Braintrust](../process_understanding/braintrust.md) |
 | LiveKit | [Guide](https://openrouter.ai/docs/guides/community/live-kit) | Realtime voice/video agents | [LiveKit Blog](https://blog.livekit.io/) | Realtime agent implementation details |
 | PydanticAI | [Guide](https://openrouter.ai/docs/guides/community/pydantic-ai) | Typed agent workflows | [Pydantic Articles](https://pydantic.dev/articles) | Structured-output and schema patterns |
 | TanStack AI | [Guide](https://openrouter.ai/docs/guides/community/tanstack-ai) | Frontend AI UX integration | [TanStack Blog](https://tanstack.com/blog) | Frontend framework and API updates |

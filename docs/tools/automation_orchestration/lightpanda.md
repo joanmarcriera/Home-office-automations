@@ -48,3 +48,5 @@ It provides a lightweight, extremely fast, and low-memory footprint browser for 
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
+
+- [Lightpanda Browser (GitHub)](https://github.com/lightpanda-io/browser)

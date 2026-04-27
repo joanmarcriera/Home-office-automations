@@ -15,3 +15,5 @@ It codifies high-signal development habits and "instincts" into actionable patte
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
+
+- [Andrej Karpathy Skills (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills)

@@ -46,3 +46,5 @@ It automates PDF accessibility and parsing, ensuring that complex PDF structures
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: medium
+
+- [OpenDataLoader PDF (GitHub)](https://github.com/opendataloader-project/opendataloader-pdf)

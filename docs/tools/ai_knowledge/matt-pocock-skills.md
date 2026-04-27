@@ -18,3 +18,5 @@ Extends agent capabilities with domain-specific execution scaffolds and critical
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
+
+- [Matt Pocock Skills (GitHub)](https://github.com/mattpocock/skills)

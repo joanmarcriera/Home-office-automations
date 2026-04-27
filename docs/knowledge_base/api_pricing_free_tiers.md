@@ -288,6 +288,7 @@ When updating this page:
 - [Amazon Q Pricing](https://aws.amazon.com/q/pricing/)
 - [OpenAI API Pricing](https://openai.com/api/pricing/)
 - [OpenAI Prepaid Billing](https://help.openai.com/en/articles/8264644-how-can-i-set-up-prepaid-billing)
+- [Model API pricing list on Reddit](https://www.reddit.com/r/openclaw/comments/1rt27st/i_made_a_list_of_models_and_their_api_pricing_on/)
 - [Anthropic Claude API Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 - [Google Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)
 - [Google Developer Program Plans & Pricing](https://developers.google.com/program/plans-and-pricing)

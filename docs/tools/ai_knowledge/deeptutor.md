@@ -45,3 +45,5 @@ It addresses the "passive learning" problem by engaging users in active, Socrati
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: medium
+
+- [DeepTutor (GitHub)](https://github.com/HKUDS/DeepTutor)

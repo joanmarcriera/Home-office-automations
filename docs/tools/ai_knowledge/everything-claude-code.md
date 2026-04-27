@@ -20,3 +20,5 @@ It provides a production-ready setup for agents, moving beyond simple configurat
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
+
+- [Everything Claude Code (GitHub)](https://github.com/affaan-m/everything-claude-code)
