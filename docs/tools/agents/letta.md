@@ -19,6 +19,14 @@ It enables long-lived agents that remember past interactions and information ove
 pip install letta
 ```
 
+## Related tools / concepts
+
+- [Agency Swarm](agency-swarm.md)
+- [Agency-Agents](agency-agents.md)
+- [Agentic Automation Canvas (AAC)](agentic-automation-canvas.md)
+- [Agno](agno.md)
+- [Anthropic Agent Skills](anthropic-agent-skills.md)
+
 ## Sources / references
 - [Letta Official Site](https://www.letta.com/)
 - [Letta GitHub](https://github.com/letta-ai/letta)

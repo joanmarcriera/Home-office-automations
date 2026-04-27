@@ -101,10 +101,11 @@ print(response.json()['message']['content'])
 ## Related tools / concepts
 
 - [Ollama (Service)](../../services/ollama.md)
-- [DeepSeek](deepseek.md)
+- [DeepSeek](../providers/deepseek.md)
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
+
 ## Sources / References
 
 - [Reference](https://github.com/joanmarcriera/Home-office-automations)

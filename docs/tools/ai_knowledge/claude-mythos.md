@@ -38,6 +38,14 @@ Use Claude Mythos when:
 - [Claude Code](../development_ops/claude-code.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
+## Related tools / concepts
+
+- [AI Templates](aitmpl.md)
+- [Andrej Karpathy Skills](karpathy-skills.md)
+- [AnythingLLM](anythingllm.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+
 ## Sources / References
 - [Claude Mythos Preview completes full cyberattack simulation for the first time](https://thenewstack.io/claude-mythos-preview-simulation/)
 

@@ -71,6 +71,14 @@ These tools require the following environment variables to be set:
 | `HOME_ASSISTANT_URL` | Base URL for HA API | `http://localhost:8123/api` |
 | `HOME_ASSISTANT_TOKEN` | Long-lived access token for HA | (Required) |
 
+## Related tools / concepts
+
+- [Agency Swarm](agency-swarm.md)
+- [Agency-Agents](agency-agents.md)
+- [Agentic Automation Canvas (AAC)](agentic-automation-canvas.md)
+- [Agno](agno.md)
+- [Anthropic Agent Skills](anthropic-agent-skills.md)
+
 ## Sources / References
 
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)

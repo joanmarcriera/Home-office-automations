@@ -38,7 +38,7 @@ It provides "off-the-shelf" expert agents with predefined personalities, process
 ## Related tools / concepts
 - [CrewAI](../frameworks/crewai.md)
 - [AutoGen](../frameworks/autogen.md)
-- [OpenClaw](../agents/openclaw.md)
+- [OpenClaw](../development_ops/openclaw.md)
 
 ## Sources / References
 - [GitHub](https://github.com/msitarzewski/agency-agents)

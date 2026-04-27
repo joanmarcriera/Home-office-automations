@@ -59,7 +59,7 @@ gemini setup-github
 
 ## Related tools / concepts
 - [Google Gemini](google-gemini.md) (Underlying Model)
-- [Aider](../agents/aider.md) (Terminal-based agent)
+- [Aider](../development_ops/aider.md) (Terminal-based agent)
 - [Claude Code](../development_ops/claude-code.md) (Anthropic's equivalent)
 
 ## Sources / References

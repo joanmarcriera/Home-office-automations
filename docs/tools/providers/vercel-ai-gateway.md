@@ -54,7 +54,7 @@ print(completion.choices[0].message.content)
 - **Overhead**: Adds another network hop, though usually mitigated by edge execution.
 
 ## Related tools / concepts
-- [OpenRouter](openrouter.md) (Alternative model aggregator)
+- [OpenRouter](../ai_knowledge/openrouter.md) (Alternative model aggregator)
 - [LiteLLM](../../services/litellm.md) (Self-hosted gateway alternative)
 
 ## Sources / References

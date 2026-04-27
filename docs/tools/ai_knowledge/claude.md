@@ -44,7 +44,7 @@ AI Model and Conversational Assistant. It can be accessed via the Claude.ai web 
 - [ChatGPT](chatgpt.md)
 - [Gemini](gemini.md)
 - [Anthropic](../providers/anthropic.md)
-- [Claude Code](../development_ops/claude_code.md)
+- [Claude Code](../development_ops/claude-code.md)
 
 ## Sources / References
 - [Official Website](https://claude.ai/)

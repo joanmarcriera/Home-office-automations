@@ -14,6 +14,14 @@ It allows developers to debug complex LLM interactions, track costs, monitor lat
 - **Evaluation**: Automates model-based grading of responses.
 - **OpenRouter Integration**: Native support for receiving logs from OpenRouter.
 
+## Related tools / concepts
+
+- [AI Auditing Tools](ai-auditing-tools.md)
+- [Apache Tika](../../services/tika.md)
+- [Arize AI](arize-ai.md)
+- [Braintrust](braintrust.md)
+- [Changedetection.io](../../services/changedetection.md)
+
 ## Sources / references
 - [Langfuse Website](https://langfuse.com/)
 

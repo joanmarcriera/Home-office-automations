@@ -88,7 +88,7 @@ Mistral provides a first-class Agents API that goes beyond simple completions:
 
 - [Ollama](../../services/ollama.md)
 - [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md)
-- [DeepSeek](../ai_knowledge/deepseek.md)
+- [DeepSeek](deepseek.md)
 - [vLLM](../infrastructure/vllm.md)
 
 ## Sources / References

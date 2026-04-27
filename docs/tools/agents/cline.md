@@ -50,7 +50,7 @@ It eliminates the "copy-paste" loop between an IDE and an AI chat interface. Ins
 
 ## Related tools / concepts
 - [Roo Code](roo-code.md) (Popular fork/alternative)
-- [Aider](aider.md) (Terminal-based agent)
+- [Aider](../development_ops/aider.md) (Terminal-based agent)
 - [Cursor](https://cursor.com/) (AI-native IDE)
 - [Windsurf](../development_ops/windsurf.md) (Agentic IDE)
 

@@ -22,6 +22,14 @@ Google Gemini for macOS is a native desktop application designed to provide a se
 3. Sign in with your Google account.
 4. (Optional) Grant accessibility permissions to enable advanced tab management features.
 
+## Related tools / concepts
+
+- [AI Templates](aitmpl.md)
+- [Andrej Karpathy Skills](karpathy-skills.md)
+- [AnythingLLM](anythingllm.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+
 ## Sources / References
 
 - [Google Gemini Mac app debuts to end the clunky hunt for browser tabs](https://thenewstack.io/gemini-app-macos-launch/) (The New Stack, 2026-04-16)

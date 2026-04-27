@@ -21,6 +21,14 @@ Available as a Python package or via Docker.
 pip install gpt-researcher
 ```
 
+## Related tools / concepts
+
+- [Agency Swarm](agency-swarm.md)
+- [Agency-Agents](agency-agents.md)
+- [Agentic Automation Canvas (AAC)](agentic-automation-canvas.md)
+- [Agno](agno.md)
+- [Anthropic Agent Skills](anthropic-agent-skills.md)
+
 ## Sources / references
 - [GPT Researcher GitHub](https://github.com/assafelovic/gpt-researcher)
 

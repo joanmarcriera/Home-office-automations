@@ -86,7 +86,7 @@ print(response.choices[0].message.content)
 ## Related tools / concepts
 - [Whisper](../../services/whisper.md) (Qwen3 ASR has been noted to outperform Whisper in almost every aspect)
 - [Ollama (Service)](../../services/ollama.md)
-- [DeepSeek](deepseek.md)
+- [DeepSeek](../providers/deepseek.md)
 - [Local LLMs](local_llms.md)
 
 ## Sources / References

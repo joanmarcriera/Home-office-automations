@@ -9,6 +9,14 @@ It codifies high-signal development habits and "instincts" into actionable patte
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Best Practices
 
+## Related tools / concepts
+
+- [AI Templates](aitmpl.md)
+- [AnythingLLM](anythingllm.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+- [Claude Mythos](claude-mythos.md)
+
 ## Sources / references
 - [Andrej Karpathy Skills (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills)
 
