@@ -120,14 +120,14 @@ The most effective way to scale Claude Code is to use a layered orchestration pa
 - Use plugin marketplaces when you want fast installation and updates.
 - Use direct GitHub repos when you want to audit the actual prompts, hooks, or skills before adoption.
 - **Recommended Plugins**:
-  - **connect-apps**: Works across GitHub, Slack, Notion, Gmail.
-  - **agentlint**: Checks if repo is AI agent-friendly.
-  - **code-review**: Proper PR reviews before shipping.
-  - **test-writer-fixer**: Writing and fixing unit tests (Jest, Vitest, Pytest).
-  - **debugger**: Deep dives into complex bugs.
-  - **bug-fix**: Analyzes stack traces and fixes issues.
-  - **mcp-builder**: Building MCP servers with less trial and error.
-  - **theme-factory**: Faster UI theme creation.
+  - **connect-apps**: Works across GitHub, Slack, Notion, Gmail and other tools.
+  - **agentlint**: Checks if your repo is AI agent-friendly with evidence-backed checks across several dimensions.
+  - **code-review**: Proper PR reviews before you ship anything.
+  - **test-writer-fixer**: Writing and fixing unit tests (Jest, Vitest, Pytest and more).
+  - **debugger**: Digging into complex bugs that otherwise take forever.
+  - **bug-fix**: Analyzing stack traces and fixing issues in your codebase.
+  - **mcp-builder**: Building MCP servers without as much trial and error.
+  - **theme-factory**: Putting together UI themes faster.
 
 ### Context, hooks, and skills
 - **Context mode / MCP** helps Claude Code pull in structured external context without stuffing everything into a single prompt.
@@ -154,5 +154,5 @@ The most effective way to scale Claude Code is to use a layered orchestration pa
 - [Reddit field report](https://www.reddit.com/r/ClaudeAI/comments/1ok9v3d/i_tested_30_community_claude_skills_for_a_week/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-04-27
 - Confidence: high
