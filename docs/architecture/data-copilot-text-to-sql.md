@@ -65,6 +65,15 @@ To maintain a "free/cheap-first" stack, we recommend the following model routing
 | Column Pruning | Qwen 2.5 7B (Local) | Structured output is critical here. |
 | SQL Generation | GPT-4o-mini or Claude 3.5 Haiku | High reliability for syntax at low cost. |
 
+## Token Control & Schema Pruning Strategy
+
+To minimize costs and stay within the context limits of smaller models, the following pruning strategies are used:
+
+1.  **Semantic Table Filtering**: Instead of sending all table schemas, we use an embedding-based search (RAG) to find the top $N$ (usually 3-5) most relevant tables for the intent.
+2.  **Column-Level Pruning**: Once tables are selected, only the primary keys, foreign keys, and columns identified by the **Column Prune Agent** are included in the final SQL generation prompt.
+3.  **Schema metadata**: We include short comments in the schema (e.g., `-- type: categorical`) rather than raw data samples to keep token counts low.
+4.  **Fallback Routing**: If a query fails on a local model (e.g. Qwen 2.5 7B), it is automatically routed to a more capable but expensive model (e.g. Claude 3.5 Sonnet) with the same pruned schema.
+
 ## Failure Modes & Mitigation
 
 1. **Wrong Domain (Router Failure)**:
