@@ -970,6 +970,12 @@
       "doc_path": "docs/tools/intake_storage/khoj.md"
     },
     {
+      "id": "kimi-cli",
+      "name": "Kimi CLI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/kimi-cli.md"
+    },
+    {
       "id": "kiwix",
       "name": "Kiwix",
       "category": "AI Assistants & Knowledge",
@@ -1185,6 +1191,12 @@
       ]
     },
     {
+      "id": "minio",
+      "name": "MinIO",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/minio.md"
+    },
+    {
       "id": "mistral-ai",
       "name": "Mistral AI (Mixtral/Codestral)",
       "category": "Providers",
@@ -1315,6 +1327,12 @@
       "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
     },
     {
+      "id": "oh-my-opencode",
+      "name": "oh-my-opencode",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/opencode.md"
+    },
+    {
       "id": "ollama",
       "name": "Ollama",
       "category": "Providers",
@@ -1367,12 +1385,6 @@
       "name": "OpenClaw",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/openclaw.md"
-    },
-    {
-      "id": "opencode",
-      "name": "OpenCode",
-      "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/opencode.md"
     },
     {
       "id": "opencompass",

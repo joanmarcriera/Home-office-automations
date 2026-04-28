@@ -153,6 +153,7 @@ nav:
       - Gemini: tools/ai_knowledge/gemini.md
       - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
       - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
+      - Kimi CLI: tools/ai_knowledge/kimi-cli.md
       - Copy.ai: tools/ai_knowledge/copy-ai.md
       - Dex: tools/ai_knowledge/dex.md
       - Dify: tools/ai_knowledge/dify.md
@@ -294,7 +295,7 @@ nav:
       - Melty: tools/development_ops/melty.md
       - Mentat: tools/development_ops/mentat.md
       - OpenClaw: tools/development_ops/openclaw.md
-      - OpenCode: tools/development_ops/opencode.md
+      - oh-my-opencode: tools/development_ops/opencode.md
       - Openhands: tools/development_ops/openhands.md
       - NanoClaw: tools/development_ops/nanoclaw.md
       - OpenSwarm: tools/development_ops/openswarm.md
@@ -320,6 +321,7 @@ nav:
       - Caldav: tools/intake_storage/caldav.md
       - Khoj: tools/intake_storage/khoj.md
       - LlamaParse: tools/intake_storage/llamaparse.md
+      - MinIO: tools/intake_storage/minio.md
       - SilverBullet: tools/intake_storage/silverbullet.md
       - Unstructured.io: tools/intake_storage/unstructured.md
       - Verba: tools/intake_storage/verba.md

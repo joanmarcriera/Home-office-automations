@@ -16,6 +16,23 @@ It offers S3-compatible storage that is distributed across thousands of nodes wo
 
 ## Getting started
 
+### Docker installation
+Running a Storj node via Docker allows you to contribute storage to the network and earn rewards.
+
+```bash
+docker run -d --restart unless-stopped --stop-timeout 300 \
+  -p 28967:28967/tcp \
+  -p 28967:28967/udp \
+  -p 127.0.0.1:14002:14002 \
+  -e WALLET="0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+  -e EMAIL="user@example.com" \
+  -e ADDRESS="domain.ddns.net:28967" \
+  -e STORAGE="2TB" \
+  --mount type=bind,source="/path/to/identity",target=/app/identity \
+  --mount type=bind,source="/path/to/storage",target=/app/config \
+  --name storagenode storjlabs/storagenode:latest
+```
+
 ### Installation
 Install the `uplink` CLI tool to manage your Storj buckets and objects:
 
@@ -53,6 +70,9 @@ uplink cp my-local-file.txt sj://my-bucket/ --expires 2026-12-31T23:59:59Z
 
 # List objects and their sizes in a bucket
 uplink ls sj://my-bucket/
+
+# Share a specific path with a new access grant
+uplink share sj://my-bucket/public-folder/ --readonly --not-after 2026-12-31T23:59:59Z
 ```
 
 ## API examples
