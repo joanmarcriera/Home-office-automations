@@ -1,0 +1,50 @@
+# tl;dv
+
+## What it is
+tl;dv is an AI-powered meeting recorder and transcription tool designed for remote and hybrid teams. It integrates with platforms like Zoom, Google Meet, and Microsoft Teams to capture meetings, generate transcripts, and summarize key insights.
+
+## What problem it solves
+It eliminates the need for manual note-taking and ensures that meeting knowledge is accessible and searchable across the organization. It helps in catching up on missed meetings quickly through AI-generated summaries and "clips" of important moments.
+
+## Where it fits in the stack
+**Category**: Enterprise Productivity / Meeting Intelligence
+
+## Typical use cases
+- **Sales Calls**: Capturing customer feedback and requirements.
+- **Product Interviews**: Transcribing user research sessions.
+- **Team Syncs**: Summarizing action items and decisions for stakeholders.
+- **Onboarding**: Sharing recorded knowledge with new team members.
+
+## Strengths
+- **Multi-platform Support**: Works seamlessly with major video conferencing tools.
+- **AI Summarization**: Automatically extracts action items and key takeaways.
+- **Deep Integration**: Syncs meeting insights with CRM and project management tools (e.g., Notion, Slack, Salesforce).
+- **Freemium Model**: Offers a generous free tier for individuals and small teams.
+
+## Limitations
+- **Privacy Compliance**: Recording meetings requires consent and may be restricted in certain jurisdictions or industries.
+- **Transcription Accuracy**: May struggle with technical jargon or heavy accents, though it allows for manual correction.
+
+## Getting started
+1.  **Install**: Add the tl;dv extension to your browser or invite the bot to your calendar.
+2.  **Record**: Start your meeting and ensure tl;dv is active.
+3.  **Review**: After the meeting, access the dashboard to view the transcript and AI summary.
+
+## Pricing
+- **Free**: Unlimited recordings and transcripts for individuals.
+- **Pro**: Advanced AI features, CRM integrations, and team collaboration tools.
+- **Enterprise**: Custom security, SSO, and dedicated support.
+
+## Related tools / concepts
+- [Fyxer AI](fyxer.md)
+- [Glean](glean.md)
+- [Hebbia](hebbia.md)
+- [Otter.ai](https://otter.ai/)
+
+## Sources / References
+- [tl;dv Official Website](https://tldv.io/)
+- [Top AI Productivity Tools (Reddit)](https://www.reddit.com/r/Anthropic/comments/1orkcqt/top_ai_productivity_tools/)
+
+## Contribution Metadata
+- Last reviewed: 2026-05-01
+- Confidence: high
