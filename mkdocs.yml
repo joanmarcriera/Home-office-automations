@@ -147,6 +147,7 @@ nav:
       - AnythingLLM: tools/ai_knowledge/anythingllm.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Claude: tools/ai_knowledge/claude.md
+      - Claude How-To: tools/ai_knowledge/claude-howto.md
       - Claude Mythos: tools/ai_knowledge/claude-mythos.md
       - DeepTutor: tools/ai_knowledge/deeptutor.md
       - Everything Claude Code: tools/ai_knowledge/everything-claude-code.md
@@ -169,6 +170,7 @@ nav:
       - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Jules: tools/ai_knowledge/jules.md
       - KokoClone: tools/ai_knowledge/kokoclone.md
+      - last30days-skill: tools/ai_knowledge/last30days-skill.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
       - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
