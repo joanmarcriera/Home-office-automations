@@ -282,6 +282,12 @@
       "doc_path": "docs/tools/development_ops/claude-hooks.md"
     },
     {
+      "id": "claude-howto",
+      "name": "Claude How-To",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/claude-howto.md"
+    },
+    {
       "id": "claude-mythos",
       "name": "Claude Mythos",
       "category": "AI Assistants & Knowledge",
@@ -998,6 +1004,12 @@
       "name": "KokoClone",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/kokoclone.md"
+    },
+    {
+      "id": "last30days-skill",
+      "name": "last30days-skill",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/last30days-skill.md"
     },
     {
       "id": "kumo-ai",

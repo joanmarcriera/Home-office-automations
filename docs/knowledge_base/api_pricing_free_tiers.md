@@ -15,13 +15,13 @@ This is the canonical tracker for API pricing links and free-tier availability a
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-## Canonical pricing matrix (last verified: 2026-04-26)
+## Canonical pricing matrix (last verified: 2026-04-28)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
 | OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; prepaid credits required. |
 | Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. |
-| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows. AI Pro members receive $10/mo Cloud credits. |
+| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows for Flash/Lite. Pro models require paid tier as of April 2026. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
 | Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
@@ -107,10 +107,10 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Capability | Top models | Highest known daily cap | Known models |
 | :--- | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M); Cerebras — Llama 4 Maverick 400B (1M) | 62.5M | 9 |
-| Verification | Google Gemini — Gemini 2.5 Pro (25M) | 25M | 1 |
-| Reasoning | Google Gemini — Gemini 2.5 Pro (25M); Groq — GPT OSS 120B (100K) | 25M | 2 |
-| Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M) | 250M | 3 |
+| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M) | 62.5M | 8 |
+| Verification | n/a | n/a | 0 |
+| Reasoning | Groq — GPT OSS 120B (100K) | 100K | 1 |
+| Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 250M | 2 |
 | Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 4 Maverick 400B (1M) | 250M | 9 |
 | Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M); Cerebras — Llama 3.1 8B (1M) | 250M | 7 |
 | Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 7 |
@@ -119,10 +119,10 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Capability | Models to reach >=80% of known capacity | Coverage | Total known daily cap |
 | :--- | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash (62.5M); Google Gemini — Gemini 2.5 Pro (25M) | 95.9% | 91.2M |
-| Verification | Google Gemini — Gemini 2.5 Pro (25M) | 100.0% | 25M |
-| Reasoning | Google Gemini — Gemini 2.5 Pro (25M) | 99.6% | 25.1M |
-| Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 92.6% | 337.5M |
+| Coding | Google Gemini — Gemini 2.5 Flash (62.5M) | 94.4% | 66.2M |
+| Verification | n/a | n/a | n/a |
+| Reasoning | Groq — GPT OSS 120B (100K) | 100.0% | 100K |
+| Long-context | Google Gemini — Gemini 2.5 Flash-Lite (250M) | 80.0% | 312.5M |
 | Low-latency | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 98.5% | 317.1M |
 | Budget/free-value | Google Gemini — Gemini 2.5 Flash-Lite (250M); Google Gemini — Gemini 2.5 Flash (62.5M) | 99.2% | 315.1M |
 | Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 87.0% | 4.6M |
@@ -131,9 +131,9 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Goal | Recommended free-first models | Why this set |
 | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash; Google Gemini — Gemini 2.5 Pro | Reaches 95.9% of known daily capacity (91.2M total known). |
-| Verification | Google Gemini — Gemini 2.5 Pro | Reaches 100.0% of known daily capacity (25M total known). |
-| Reasoning | Google Gemini — Gemini 2.5 Pro | Reaches 99.6% of known daily capacity (25.1M total known). |
+| Coding | Google Gemini — Gemini 2.5 Flash | Reaches 94.4% of known daily capacity (66.2M total known). |
+| Verification | n/a | No numeric daily-cap data available for this capability. |
+| Reasoning | Groq — GPT OSS 120B | Reaches 100.0% of known daily capacity (100K total known). |
 
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
@@ -147,8 +147,8 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Gemini 2.5 Pro | `1M / 5 / 100 / 250K / ~25M` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Google. Quality: Excellent. Regional/compliance rules may affect access. |
-| Gemini 2.5 Flash | `1M / 10 / 250 / 250K / ~62.5M` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Quality: Very Good. Official free-tier RPM is 10 (not 15). |
+| Gemini 2.5 Pro | `1M / paid / paid / paid / paid` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Google. Free tier access removed April 2026. Paid subscription required. |
+| Gemini 2.5 Flash | `1M / 10 / 250 / 250K / ~62.5M` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Quality: Very Good. Stable free tier for Flash. |
 | Gemini 2.5 Flash-Lite | `1M / 15 / 1000 / 250K / ~250M` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Quality: Good. Highest listed Gemini free-tier RPD. |
 
 ### OpenAI
@@ -337,5 +337,5 @@ When updating this page:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-27
+- Last reviewed: 2026-04-28
 - Confidence: high
