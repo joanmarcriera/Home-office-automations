@@ -145,6 +145,8 @@ nav:
       - Overview: tools/ai_knowledge/index.md
       - AI Templates: tools/ai_knowledge/aitmpl.md
       - AnythingLLM: tools/ai_knowledge/anythingllm.md
+      - big-AGI: tools/ai_knowledge/big-agi.md
+      - Chatbox AI: tools/ai_knowledge/chatbox.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Claude: tools/ai_knowledge/claude.md
       - Claude How-To: tools/ai_knowledge/claude-howto.md
@@ -169,11 +171,15 @@ nav:
       - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
       - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Jules: tools/ai_knowledge/jules.md
+      - Kimi CLI: tools/ai_knowledge/kimi-cli.md
       - KokoClone: tools/ai_knowledge/kokoclone.md
       - last30days-skill: tools/ai_knowledge/last30days-skill.md
+      - LibreChat: tools/ai_knowledge/librechat.md
+      - LobeHub: tools/ai_knowledge/lobehub.md
       - Langchain: tools/ai_knowledge/langchain.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
       - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
+      - Msty: tools/ai_knowledge/msty.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
       - Nano Banana: tools/ai_knowledge/nano-banana.md

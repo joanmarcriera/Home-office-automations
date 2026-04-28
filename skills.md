@@ -73,3 +73,8 @@ When finishing any skill, report:
 - [Superpowers](https://github.com/obra/superpowers)
 - [Documentation Writer Skill](https://skills.sh/github/awesome-copilot/documentation-writer)
 - [Grill-me Skill](https://github.com/mattpocock/skills/blob/main/grill-me/SKILL.md)
+
+- [andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
+- [everything-claude-code](https://github.com/affaan-m/everything-claude-code)
+- [last30days-skill](https://github.com/mvanhorn/last30days-skill)
+- [claude-howto](https://github.com/luongnv89/claude-howto)
