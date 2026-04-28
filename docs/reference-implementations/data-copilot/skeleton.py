@@ -1,5 +1,6 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
+import math
 
 # --- 1. Schema Definitions (Pydantic for validation) ---
 
@@ -22,17 +23,36 @@ class PrunedSchema(BaseModel):
     table_name: str
     columns: List[str]
 
-# --- 2. Agent Interfaces (Skeleton) ---
+class TokenStats(BaseModel):
+    estimated_tokens: int
+    pruning_ratio: float
+
+# --- 2. Token Control & Pruning Utilities ---
+
+def estimate_tokens(text: str) -> int:
+    """Rough token estimation (4 chars per token)."""
+    return math.ceil(len(text) / 4)
+
+def calculate_pruning_ratio(original_cols: int, pruned_cols: int) -> float:
+    if original_cols == 0:
+        return 0.0
+    return 1 - (pruned_cols / original_cols)
+
+# --- 3. Agent Interfaces (Skeleton) ---
 
 class DataCopilotPipeline:
     def __init__(self):
         # In a real implementation, you'd initialize LLM clients here
-        pass
+        self.full_schema_mock = {
+            "items": ["id", "name", "quantity", "purchase_price", "category_id", "room", "created_at", "updated_at", "tags", "notes", "location_detail"],
+            "categories": ["id", "name", "description", "parent_id", "slug", "icon"],
+            "orders": ["id", "order_date", "total_amount", "vendor_id", "status"]
+        }
 
     async def workspace_router(self, query: str) -> WorkspaceContext:
         """Layer 1: Route query to a specific domain."""
         print(f"Routing query: {query}")
-        # Mock logic
+        # Mock logic: Small model (e.g. Qwen 2.5 0.8B) classification
         return WorkspaceContext(
             workspace_id="inventory",
             description="Home Inventory and Assets",
@@ -42,6 +62,7 @@ class DataCopilotPipeline:
     async def intent_agent(self, query: str, context: WorkspaceContext) -> IntentOutput:
         """Layer 2: Extract structured intent."""
         print(f"Extracting intent for: {query}")
+        # Mock logic: Extract metrics and filters
         return IntentOutput(
             metrics=["quantity", "purchase_price"],
             dimensions=["category"],
@@ -51,25 +72,46 @@ class DataCopilotPipeline:
     async def table_agent(self, intent: IntentOutput) -> TableSelection:
         """Layer 3: Select relevant tables."""
         print(f"Selecting tables for intent: {intent.metrics}")
+        # In practice, use semantic search over table descriptions
         return TableSelection(
             selected_tables=["items", "categories"],
             rationale="Need 'items' for quantity/price and 'categories' for grouping."
         )
 
     async def column_prune_agent(self, tables: List[str], intent: IntentOutput) -> List[PrunedSchema]:
-        """Layer 4: Prune columns to minimize prompt size."""
+        """Layer 4: Prune columns to minimize prompt size (Token Control)."""
         print(f"Pruning columns for tables: {tables}")
-        return [
-            PrunedSchema(table_name="items", columns=["name", "quantity", "purchase_price", "category_id", "room"]),
-            PrunedSchema(table_name="categories", columns=["id", "name"])
-        ]
+
+        pruned_results = []
+        total_original_cols = 0
+        total_pruned_cols = 0
+
+        for table in tables:
+            all_cols = self.full_schema_mock.get(table, [])
+            total_original_cols += len(all_cols)
+
+            # Skeletal logic: keep primary keys and columns mentioned in intent
+            # In a real agent, the LLM would pick these based on the question.
+            pruned_cols = [col for col in all_cols if col in ["id", "category_id"] or col in intent.metrics or col in intent.dimensions or col in intent.filters]
+
+            pruned_results.append(PrunedSchema(table_name=table, columns=pruned_cols))
+            total_pruned_cols += len(pruned_cols)
+
+        stats = TokenStats(
+            estimated_tokens=estimate_tokens(str(pruned_results)),
+            pruning_ratio=calculate_pruning_ratio(total_original_cols, total_pruned_cols)
+        )
+        print(f"Pruning Complete. Ratio: {stats.pruning_ratio:.2%}, Estimated Tokens: {stats.estimated_tokens}")
+
+        return pruned_results
 
     async def sql_generator(self, intent: IntentOutput, schema: List[PrunedSchema]) -> str:
         """Layer 5: Generate the final SQL."""
-        print("Generating SQL...")
+        print("Generating SQL using pruned schema...")
+        # Input to prompt: Only the pruned schema + intent JSON
         return "SELECT c.name, SUM(i.quantity) FROM items i JOIN categories c ON i.category_id = c.id WHERE i.room = 'Kitchen' GROUP BY c.name;"
 
-# --- 3. Example Execution ---
+# --- 4. Example Execution ---
 
 async def main():
     pipeline = DataCopilotPipeline()
@@ -84,7 +126,7 @@ async def main():
     # 3. Tables
     tables = await pipeline.table_agent(intent)
 
-    # 4. Prune (Optional HITL Point here)
+    # 4. Prune (Critical Token Control Point)
     pruned_schema = await pipeline.column_prune_agent(tables.selected_tables, intent)
 
     # 5. Generate
