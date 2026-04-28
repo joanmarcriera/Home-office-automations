@@ -92,6 +92,12 @@ To minimize costs and stay within the context limits of smaller models, the foll
 - **Extremely Wide Tables**: Tables with 500+ columns (requires heavy RAG-based column selection first).
 - **Non-Relational Complex Joins**: When the data resides across multiple incompatible silos (use a Multi-Agent RAG instead).
 
+## Related tools / concepts
+- [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
+
 ## Sources / References
 - [Uber Engineering: Text-to-SQL at Scale](https://www.uber.com/en-GB/blog/text-to-sql-at-scale/)
 - [SQL-Coder (Defog.ai)](https://github.com/defog-ai/sqlcoder)

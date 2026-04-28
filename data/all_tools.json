@@ -7,16 +7,16 @@
       "doc_path": "docs/services/actual-budget.md"
     },
     {
-      "id": "agency-swarm",
-      "name": "Agency Swarm",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/agency-swarm.md"
-    },
-    {
       "id": "agency-agents",
       "name": "Agency-Agents",
       "category": "Agents",
       "doc_path": "docs/tools/agents/agency-agents.md"
+    },
+    {
+      "id": "agency-swarm",
+      "name": "Agency Swarm",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/agency-swarm.md"
     },
     {
       "id": "agentic-automation-canvas",
@@ -37,16 +37,16 @@
       "doc_path": "docs/tools/process_understanding/ai-auditing-tools.md"
     },
     {
-      "id": "aitmpl",
-      "name": "AI Templates",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
-    },
-    {
       "id": "aider",
       "name": "Aider",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/aider.md"
+    },
+    {
+      "id": "aitmpl",
+      "name": "AI Templates",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
     },
     {
       "id": "alpaca-eval",
@@ -59,12 +59,6 @@
       "name": "AmpCode",
       "category": "Enterprise AI",
       "doc_path": "docs/tools/enterprise/ampcode.md"
-    },
-    {
-      "id": "karpathy-skills",
-      "name": "Andrej Karpathy Skills",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/karpathy-skills.md"
     },
     {
       "id": "ansigpt",
@@ -106,12 +100,6 @@
       "name": "AnyType",
       "category": "Intake & Storage",
       "doc_path": "docs/tools/intake_storage/anytype.md"
-    },
-    {
-      "id": "tika",
-      "name": "Apache Tika",
-      "category": "Process & Understanding",
-      "doc_path": "docs/services/tika.md"
     },
     {
       "id": "aphrodite-engine",
@@ -438,10 +426,22 @@
       "doc_path": "docs/tools/development_ops/custom_agents.md"
     },
     {
+      "id": "data-copilot-architecture",
+      "name": "Data Copilot Architecture",
+      "category": "Architecture",
+      "doc_path": "docs/architecture/data-copilot-text-to-sql.md"
+    },
+    {
       "id": "data-copilot-mcp",
       "name": "Data Copilot MCP Tooling",
       "category": "Patterns",
       "doc_path": "docs/knowledge_base/patterns/data-copilot-mcp-tooling.md"
+    },
+    {
+      "id": "data-copilot-skeleton",
+      "name": "Data Copilot Skeleton",
+      "category": "Reference Implementations",
+      "doc_path": "docs/reference-implementations/data-copilot/skeleton-guide.md"
     },
     {
       "id": "deepseek",
@@ -641,12 +641,6 @@
       "doc_path": "docs/tools/ai_knowledge/gemini.md"
     },
     {
-      "id": "gemini-flash-tts",
-      "name": "Gemini 3.1 Flash TTS",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/gemini-flash-tts.md"
-    },
-    {
       "id": "gemini-canvas",
       "name": "Gemini Canvas",
       "category": "AI Assistants & Knowledge",
@@ -657,6 +651,12 @@
       "name": "Google Gemini CLI",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/gemini-cli.md"
+    },
+    {
+      "id": "gemini-flash-tts",
+      "name": "Gemini 3.1 Flash TTS",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/gemini-flash-tts.md"
     },
     {
       "id": "gemini-macos",
@@ -958,6 +958,12 @@
       "doc_path": "docs/tools/development_ops/jupyter-kernel-mcp.md"
     },
     {
+      "id": "karpathy-skills",
+      "name": "Andrej Karpathy Skills",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/karpathy-skills.md"
+    },
+    {
       "id": "khoj",
       "name": "Khoj",
       "category": "Intake & Storage",
@@ -1249,6 +1255,24 @@
       "doc_path": "docs/services/navidrome.md"
     },
     {
+      "id": "nemo-retriever",
+      "name": "NVIDIA NeMo Retriever",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/nemo-retriever.md"
+    },
+    {
+      "id": "nemoclaw",
+      "name": "Nvidia NemoClaw",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/nemoclaw.md"
+    },
+    {
+      "id": "nemotron",
+      "name": "NVIDIA Nemotron-3 Super",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/nemotron.md"
+    },
+    {
       "id": "netlify",
       "name": "Netlify",
       "category": "Development & Ops",
@@ -1271,24 +1295,6 @@
       "name": "Notion AI",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/notion-ai.md"
-    },
-    {
-      "id": "nemo-retriever",
-      "name": "NVIDIA NeMo Retriever",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/nemo-retriever.md"
-    },
-    {
-      "id": "nemoclaw",
-      "name": "Nvidia NemoClaw",
-      "category": "Agents",
-      "doc_path": "docs/tools/agents/nemoclaw.md"
-    },
-    {
-      "id": "nemotron",
-      "name": "NVIDIA Nemotron-3 Super",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/nemotron.md"
     },
     {
       "id": "obsidian",
@@ -1429,12 +1435,6 @@
       "doc_path": "docs/services/paperless-ngx.md"
     },
     {
-      "id": "personaplex",
-      "name": "NVIDIA PersonaPlex",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/personaplex.md"
-    },
-    {
       "id": "perplexity",
       "name": "Perplexity",
       "category": "AI Assistants & Knowledge",
@@ -1445,6 +1445,12 @@
       "name": "Perplexity Agent API",
       "category": "Agents",
       "doc_path": "docs/tools/agents/perplexity-agent-api.md"
+    },
+    {
+      "id": "personaplex",
+      "name": "NVIDIA PersonaPlex",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/personaplex.md"
     },
     {
       "id": "phidata",
@@ -1774,6 +1780,12 @@
       "name": "Text Generation Inference (TGI)",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/tgi.md"
+    },
+    {
+      "id": "tika",
+      "name": "Apache Tika",
+      "category": "Process & Understanding",
+      "doc_path": "docs/services/tika.md"
     },
     {
       "id": "together-ai",
