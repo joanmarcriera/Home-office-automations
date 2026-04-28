@@ -10,6 +10,7 @@ High-precision AI tools for enterprise search, analytics, and executive producti
 | [Fyxer AI](../enterprise/fyxer.md) | Executive assistant and inbox automation |
 | [Glean](../enterprise/glean.md) | Unified search across enterprise SaaS apps |
 | [Hebbia](../enterprise/hebbia.md) | High-precision analytical search for professional services |
+| [tl;dv](../enterprise/tldv.md) | AI meeting recorder and transcription |
 
 ## Sources / References
 

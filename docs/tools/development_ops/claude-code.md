@@ -150,7 +150,7 @@ The most effective way to scale Claude Code is to use a layered orchestration pa
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
 - [Skill Seekers](https://github.com/yusufkaraaslan/Skill_Seekers)
 - [Awesome Claude Skills](https://github.com/BehiSecc/awesome-claude-skills)
-- [Claude Code Best Practice (Repo)](https://github.com/shanraisshan/claude-code-best-practice)
+- [Claude Code Best Practice (Vibe coding to agentic engineering)](https://github.com/shanraisshan/claude-code-best-practice)
 - [Reddit field report](https://www.reddit.com/r/ClaudeAI/comments/1ok9v3d/i_tested_30_community_claude_skills_for_a_week/)
 
 ## Contribution Metadata

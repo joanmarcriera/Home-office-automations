@@ -28,12 +28,14 @@ Nemotron-3 Super is available across multiple platforms and as open weights.
 2.  **OpenRouter**: Available via API (includes a free tier for trial).
 3.  **Hugging Face**: Download open weights for local deployment.
 4.  **Perplexity**: Available for Pro subscribers and via API.
+5.  **Cloud Providers**: Available through Baseten, Cloudflare, Coreweave, DeepInfra, Fireworks AI, FriendliAI, Google Cloud, Inference.net, Lightning AI, Modal, Nebius, and Together AI.
 
 ### Deployment Cookbooks
 NVIDIA provides reference implementations for major inference engines:
-- **vLLM**: For high-throughput continuous batching.
-- **SGLang**: Optimized for multi-agent tool-calling.
-- **TensorRT-LLM**: Low-latency production deployment on NVIDIA hardware.
+- [vLLM Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/vllm_cookbook.ipynb): For high-throughput continuous batching.
+- [SGLang Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/sglang_cookbook.ipynb): Optimized for multi-agent tool-calling.
+- [TensorRT-LLM Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/trtllm_cookbook.ipynb): Low-latency production deployment on NVIDIA hardware.
+- [LoRA Fine-tuning](https://github.com/NVIDIA-NeMo/Nemotron/tree/main/usage-cookbook/Nemotron-3-Super/lora-text2sql): Domain-specific optimization recipes.
 
 ## Strengths
 - **Efficiency**: 5x throughput improvement over previous generations.
