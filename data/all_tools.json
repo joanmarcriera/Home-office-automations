@@ -432,10 +432,28 @@
       "doc_path": "docs/architecture/data-copilot-text-to-sql.md"
     },
     {
+      "id": "data-copilot-agentic-rag",
+      "name": "Data Copilot Agentic RAG",
+      "category": "Patterns",
+      "doc_path": "docs/knowledge_base/patterns/data-copilot-agentic-rag.md"
+    },
+    {
       "id": "data-copilot-mcp",
       "name": "Data Copilot MCP Tooling",
       "category": "Patterns",
       "doc_path": "docs/knowledge_base/patterns/data-copilot-mcp-tooling.md"
+    },
+    {
+      "id": "data-copilot-sql-validation",
+      "name": "Data Copilot SQL Validation",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
+    },
+    {
+      "id": "data-copilot-answer-synthesis",
+      "name": "Data Copilot Answer Synthesis",
+      "category": "Reference Implementations",
+      "doc_path": "docs/reference-implementations/data-copilot/answer-synthesis-schema.md"
     },
     {
       "id": "data-copilot-skeleton",

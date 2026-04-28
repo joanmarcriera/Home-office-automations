@@ -32,26 +32,69 @@ flowchart TD
 - **Role**: Identifies which "workspace" (database or domain) the question belongs to (e.g., Finance, Home Automation, Inventory).
 - **Benefit**: Prevents the LLM from being overwhelmed by the entire repository's schema.
 - **Model Recommendation**: Small/Fast (e.g., Qwen 2.5 0.8B or 2B via Ollama).
+- **Interface**:
+```json
+{
+  "workspace_id": "inventory",
+  "description": "Home Inventory and Assets",
+  "db_connection_string": "sqlite:///home_inventory.db"
+}
+```
 
 ### 2. Intent Agent
 - **Role**: Refines the raw user question into a structured intent, identifying metrics, time ranges, and filters.
 - **Input**: User question + Workspace context.
 - **Output**: JSON object with intent parameters.
+- **Interface**:
+```json
+{
+  "metrics": ["quantity", "purchase_price"],
+  "dimensions": ["category"],
+  "filters": {"room": "Kitchen"},
+  "time_range": "last_30_days"
+}
+```
 
 ### 3. Table Agent
 - **Role**: Selects the minimal set of tables required to answer the intent.
 - **HITL Point**: Optional user approval of selected tables to prevent joined-table explosions.
 - **Pruning Strategy**: Semantic search over table descriptions (RAG) instead of dumping all table names.
+- **Interface**:
+```json
+{
+  "selected_tables": ["items", "categories"],
+  "rationale": "Need 'items' for quantity/price and 'categories' for grouping."
+}
+```
 
 ### 4. Column Prune Agent
 - **Role**: For the selected tables, identifies only the columns needed for the query.
 - **Benefit**: Drastically reduces the prompt size for the final SQL generation, staying within small model context limits.
 - **HITL Point**: Verification of critical columns (e.g., "Are you sure you want 'net_price' instead of 'gross_price'?").
+- **Interface**:
+```json
+[
+  {
+    "table_name": "items",
+    "columns": ["name", "quantity", "purchase_price", "category_id", "room"]
+  },
+  {
+    "table_name": "categories",
+    "columns": ["id", "name"]
+  }
+]
+```
 
 ### 5. SQL Generator
 - **Role**: Produces the final SQL query using the pruned schema and refined intent.
 - **Input**: Intent JSON + Pruned Schema (Tables + Columns).
-- **Output**: Valid SQL.
+- **Output**: Valid SQL string.
+- **Interface**:
+```json
+{
+  "sql": "SELECT c.name, SUM(i.quantity) FROM items i JOIN categories c ON i.category_id = c.id WHERE i.room = 'Kitchen' GROUP BY c.name;"
+}
+```
 
 ## Cost & Model Routing
 
