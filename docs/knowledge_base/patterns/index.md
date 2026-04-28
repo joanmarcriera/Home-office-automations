@@ -15,6 +15,8 @@ Recurring architectural and design patterns in AI/LLM systems — RAG, tool call
 - [LLM Trust Boundaries Pattern](llm-trust-boundaries.md)
 - [Software Factories Pattern](software-factories.md) — Non-interactive development via seed, validation, and feedback loops
 - [Filesystem-as-Interface Pattern](filesystem-context.md) — Filesystem as the primary interface and persistence layer for agents
+- [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md) — Standardizing data access for Text-to-SQL pipelines using MCP
+- [Data Copilot Agentic RAG](data-copilot-agentic-rag.md) — Hybrid retrieval pattern for diagnostic analytics
 
 ## Common Patterns
 

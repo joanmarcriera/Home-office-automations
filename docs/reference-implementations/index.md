@@ -12,5 +12,9 @@ Workflow exports, prompt templates, and config standards.
 ## n8n
 - [Overview](n8n/README.md)
 
+## Data Copilot
+- [Skeleton Guide](data-copilot/skeleton-guide.md)
+- [Answer Synthesis Schema](data-copilot/answer-synthesis-schema.md)
+
 ## Paperless
 - [Tag Taxonomy](paperless/tag-taxonomy.md)
