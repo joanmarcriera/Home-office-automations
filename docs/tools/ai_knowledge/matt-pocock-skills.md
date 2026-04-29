@@ -12,6 +12,38 @@ Extends agent capabilities with domain-specific execution scaffolds and critical
 ## Key Skills
 - **Grill-me**: A skill used to cross-examine and verify a proposed plan before execution.
 
+## Getting started
+
+### Installation
+Matt Pocock's skills can be installed using the `skills.sh` installer:
+
+```bash
+npx skills@latest add mattpocock/skills
+```
+
+### Basic usage
+After installation, run the setup skill in your agent:
+
+```bash
+/setup-matt-pocock-skills
+```
+
+This will guide you through configuring your issue tracker and document storage preferences.
+
+## CLI examples
+Use the skills directly within your AI agent's interactive session:
+
+```bash
+# Verify a plan before execution
+/grill-me
+
+# Use Test-Driven Development loop
+/tdd
+
+# Diagnose a complex bug
+/diagnose
+```
+
 ## Related tools / concepts
 
 - [AI Templates](aitmpl.md)
