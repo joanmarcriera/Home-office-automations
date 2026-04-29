@@ -1,49 +1,43 @@
 # DeepTutor
 
 ## What it is
-DeepTutor is an AI-powered learning and tutoring framework designed to help students and researchers master complex subjects through interactive dialogue.
+DeepTutor is an AI-powered educational framework designed for personalized learning and intelligent tutoring, leveraging advanced reasoning models to guide students through complex topics.
 
 ## What problem it solves
-It addresses the "passive learning" problem by engaging users in active, Socratic-style tutoring, identifying knowledge gaps, and providing personalized explanations.
+It addresses the limitations of standard chatbots in education by providing a structured, pedagogical approach to learning. It focuses on "teaching how to think" rather than just providing answers, using multi-turn reasoning to identify student misconceptions.
 
 ## Where it fits in the stack
-**Category**: AI Knowledge / Framework
+**Category**: Tool / AI Assistants & Knowledge
 
 ## Typical use cases
-- Personalized student tutoring.
-- Technical research and self-directed learning.
-- Onboarding new developers to a complex codebase.
+- Personalized coding tutor for students.
+- Intelligent assistant for complex technical documentation.
+- Research-driven educational agent experiments.
 
 ## Strengths
-- Focuses on pedagogical best practices (active learning).
-- Adaptable to different skill levels and domains.
-- Open-source framework for building custom tutors.
+- Pedagogy-first design.
+- Leverages reasoning models for deep understanding of student intent.
+- Open-source framework for building educational agents.
 
 ## Limitations
-- Quality of tutoring is highly dependent on the underlying LLM's reasoning capability.
-- May require domain-specific fine-tuning or RAG for high-precision technical subjects.
+- Requires high-reasoning models (e.g., GPT-4, Claude 3.5 Opus) for optimal performance.
+- Primarily a research/development framework rather than a finished consumer product.
 
 ## When to use it
-- When you want to learn a new topic through interactive questioning rather than just reading.
-- When building educational applications powered by AI.
-
-## When not to use it
-- For quick fact-retrieval (use a standard search or RAG assistant).
+- When building educational platforms that require more than simple Q&A.
+- When studying how agents can be used for persistent, structured learning.
 
 ## Licensing and cost
 - **Open Source**: Yes
-- **Cost**: Free (Self-hosted)
-- **Self-hostable**: Yes
+- **API Usage**: Dependent on the underlying LLM provider.
 
 ## Related tools / concepts
-- [NotebookLM](../ai_knowledge/notebooklm.md)
-- [Khan Academy Khanmigo](https://www.khanacademy.org/khanmigo)
+- [AutoReason](../agents/autoreason.md)
+- [NotebookLM](notebooklm.md)
 
 ## Sources / References
-- [GitHub](https://github.com/HKUDS/DeepTutor)
+- [DeepTutor GitHub](https://github.com/HKUDS/DeepTutor)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
-- Confidence: medium
-
-- [DeepTutor (GitHub)](https://github.com/HKUDS/DeepTutor)
+- Last reviewed: 2026-05-02
+- Confidence: high

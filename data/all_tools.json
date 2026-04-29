@@ -432,28 +432,10 @@
       "doc_path": "docs/tools/development_ops/custom_agents.md"
     },
     {
-      "id": "data-copilot-architecture",
-      "name": "Data Copilot Architecture",
-      "category": "Architecture",
-      "doc_path": "docs/architecture/data-copilot-text-to-sql.md"
-    },
-    {
       "id": "data-copilot-agentic-rag",
       "name": "Data Copilot Agentic RAG",
       "category": "Patterns",
       "doc_path": "docs/knowledge_base/patterns/data-copilot-agentic-rag.md"
-    },
-    {
-      "id": "data-copilot-mcp",
-      "name": "Data Copilot MCP Tooling",
-      "category": "Patterns",
-      "doc_path": "docs/knowledge_base/patterns/data-copilot-mcp-tooling.md"
-    },
-    {
-      "id": "data-copilot-sql-validation",
-      "name": "Data Copilot SQL Validation",
-      "category": "Playbooks",
-      "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
     },
     {
       "id": "data-copilot-answer-synthesis",
@@ -462,16 +444,46 @@
       "doc_path": "docs/reference-implementations/data-copilot/answer-synthesis-schema.md"
     },
     {
+      "id": "data-copilot-architecture",
+      "name": "Data Copilot Architecture",
+      "category": "Architecture",
+      "doc_path": "docs/architecture/data-copilot-text-to-sql.md"
+    },
+    {
+      "id": "data-copilot-mcp",
+      "name": "Data Copilot MCP Tooling",
+      "category": "Patterns",
+      "doc_path": "docs/knowledge_base/patterns/data-copilot-mcp-tooling.md"
+    },
+    {
       "id": "data-copilot-skeleton",
       "name": "Data Copilot Skeleton",
       "category": "Reference Implementations",
       "doc_path": "docs/reference-implementations/data-copilot/skeleton-guide.md"
     },
     {
+      "id": "data-copilot-sql-validation",
+      "name": "Data Copilot SQL Validation",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
+    },
+    {
+      "id": "datadog",
+      "name": "Datadog",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/datadog.md"
+    },
+    {
       "id": "deepseek",
       "name": "DeepSeek",
       "category": "Providers",
       "doc_path": "docs/tools/providers/deepseek.md"
+    },
+    {
+      "id": "deepseek-r1",
+      "name": "DeepSeek R1",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/deepseek-r1.md"
     },
     {
       "id": "deeptutor",
@@ -994,6 +1006,12 @@
       "doc_path": "docs/tools/intake_storage/khoj.md"
     },
     {
+      "id": "kimi-cli",
+      "name": "Kimi CLI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/kimi-cli.md"
+    },
+    {
       "id": "kiwix",
       "name": "Kiwix",
       "category": "AI Assistants & Knowledge",
@@ -1004,12 +1022,6 @@
       "name": "KokoClone",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/kokoclone.md"
-    },
-    {
-      "id": "last30days-skill",
-      "name": "last30days-skill",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/last30days-skill.md"
     },
     {
       "id": "kumo-ai",
@@ -1040,6 +1052,12 @@
       "name": "LangSmith",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/langsmith.md"
+    },
+    {
+      "id": "last30days-skill",
+      "name": "last30days-skill",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/last30days-skill.md"
     },
     {
       "id": "letta",
@@ -1636,6 +1654,12 @@
       "name": "Semantic Kernel",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/semantic-kernel.md"
+    },
+    {
+      "id": "sentry",
+      "name": "Sentry",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/sentry.md"
     },
     {
       "id": "servicenow-mcp",
