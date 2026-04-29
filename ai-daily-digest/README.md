@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-04-29
+
+## Digest fallback for 2026-04-29
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [OpenAI models, Codex, and Managed Agents come to AWS](https://openai.com/index/openai-on-aws) (OpenAI Blog)
+2. [Our commitment to community safety](https://openai.com/index/our-commitment-to-community-safety) (OpenAI Blog)
+3. [OpenAI available at FedRAMP Moderate](https://openai.com/index/openai-available-at-fedramp-moderate) (OpenAI Blog)
+4. [Celebrating 20 years of Google Translate: Fun facts, tips and new features to try](https://blog.google/products-and-platforms/products/translate/fun-facts-google-translate-20-years/) (Google AI Blog)
+5. [Join the new AI Agents Vibe Coding Course from Google and Kaggle](https://blog.google/innovation-and-ai/technology/developers-tools/kaggle-genai-intensive-course-vibe-coding-june-2026/) (Google AI Blog)
+6. [Introducing NVIDIA Nemotron 3 Nano Omni: Long-Context Multimodal Intelligence for Documents, Audio and Video Agents](https://huggingface.co/blog/nvidia/nemotron-3-nano-omni-multimodal-intelligence) (Hugging Face Blog)
+7. [Why isn’t LLM reasoning done in vector space instead of natural language?](https://www.reddit.com/r/LocalLLaMA/comments/1syjidd/why_isnt_llm_reasoning_done_in_vector_space/) (r/LocalLLaMA)
+8. [AMD has invented something that lets you use AI at home! They call it a "computer"](https://www.reddit.com/r/LocalLLaMA/comments/1syphxh/amd_has_invented_something_that_lets_you_use_ai/) (r/LocalLLaMA)
+9. [Hipfire dev update: full AMD arch validation incoming (RDNA 1 thru 4, plus Strix Halo and bc250)](https://www.reddit.com/r/LocalLLaMA/comments/1syp3un/hipfire_dev_update_full_amd_arch_validation/) (r/LocalLLaMA)
+10. [Xiami mimo-v2.5 pro MIT license surpasses Opus 4.5 on arena](https://www.reddit.com/r/LocalLLaMA/comments/1sylydi/xiami_mimov25_pro_mit_license_surpasses_opus_45/) (r/LocalLLaMA)
+11. [Something from Mistral (Vibe) tomorrow](https://www.reddit.com/r/LocalLLaMA/comments/1sy6xoo/something_from_mistral_vibe_tomorrow/) (r/LocalLLaMA)
+12. [I stumbled on a Gemma 4 chat template bug for tools and fixed it](https://www.reddit.com/r/LocalLLaMA/comments/1syps6i/i_stumbled_on_a_gemma_4_chat_template_bug_for/) (r/LocalLLaMA)
+13. [meantime on r/vibecoding](https://www.reddit.com/r/LocalLLaMA/comments/1sy0npk/meantime_on_rvibecoding/) (r/LocalLLaMA)
+14. [Qwen 3.6 27B BF16 vs Q4_K_M vs Q8_0 GGUF evaluation](https://www.reddit.com/r/LocalLLaMA/comments/1sxzqry/qwen_36_27b_bf16_vs_q4_k_m_vs_q8_0_gguf_evaluation/) (r/LocalLLaMA)
+15. [Study: 2x+ coding performance of 7B model without touching the coding agent](https://www.reddit.com/r/LocalLLaMA/comments/1symfop/study_2x_coding_performance_of_7b_model_without/) (r/LocalLLaMA)
+16. [MiMo-V2.5-GGUF (preview available)](https://www.reddit.com/r/LocalLLaMA/comments/1syphr9/mimov25gguf_preview_available/) (r/LocalLLaMA)
+17. [Mistral Medium Is On The Way](https://www.reddit.com/r/LocalLLaMA/comments/1sy8u2k/mistral_medium_is_on_the_way/) (r/LocalLLaMA)
+18. [llama.cpp's Preliminary SM120 Native NVFP4 MMQ Is Merged](https://www.reddit.com/r/LocalLLaMA/comments/1syjflw/llamacpps_preliminary_sm120_native_nvfp4_mmq_is/) (r/LocalLLaMA)
+19. [Nemotron-3-Nano-Omni-30B-A3B-Reasoning, New model?](https://www.reddit.com/r/LocalLLaMA/comments/1sy5xr1/nemotron3nanoomni30ba3breasoning_new_model/) (r/LocalLLaMA)
+20. [Deepseek Vision Coming](https://www.reddit.com/r/LocalLLaMA/comments/1sxy0o7/deepseek_vision_coming/) (r/LocalLLaMA)
+21. [Mistral-Medium 3.5 (128B) spotted ?](https://www.reddit.com/r/LocalLLaMA/comments/1sycgzj/mistralmedium_35_128b_spotted/) (r/LocalLLaMA)
+22. [Mistral Workflows](https://www.reddit.com/r/LocalLLaMA/comments/1sydpg7/mistral_workflows/) (r/LocalLLaMA)
+23. [I'm done with using local LLMs for coding](https://www.reddit.com/r/LocalLLaMA/comments/1sxqa2c/im_done_with_using_local_llms_for_coding/) (r/LocalLLaMA)
+24. [Ling-2.6-flash](https://www.reddit.com/r/LocalLLaMA/comments/1sy54p5/ling26flash/) (r/LocalLLaMA)
+25. [DeepSeek Vision/Multimodal 👀](https://www.reddit.com/r/LocalLLaMA/comments/1sys6ab/deepseek_visionmultimodal/) (r/LocalLLaMA)
+26. [XiaomiMiMo MiMo-V2.5 (not pro) - Architecture: Sparse MoE (Mixture of Experts), 310B total / 15B activated parameters](https://www.reddit.com/r/LocalLLaMA/comments/1sy9u3h/xiaomimimo_mimov25_not_pro_architecture_sparse/) (r/LocalLLaMA)
+27. [Introducing Laguna XS.2 and Laguna M.1](https://www.reddit.com/r/LocalLLaMA/comments/1sy6oxr/introducing_laguna_xs2_and_laguna_m1/) (r/LocalLLaMA)
+28. [Qwen3.6-27B IQ4_XS FULL VRAM with 110k context](https://www.reddit.com/r/LocalLLaMA/comments/1sy0qj5/qwen3627b_iq4_xs_full_vram_with_110k_context/) (r/LocalLLaMA)
+29. [Duality of r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1sxs71y/duality_of_rlocalllama/) (r/LocalLLaMA)
+30. [Why isn’t LLM reasoning done in vector space instead of natural language?[D]](https://www.reddit.com/r/MachineLearning/comments/1syjlc2/why_isnt_llm_reasoning_done_in_vector_space/) (r/MachineLearning)
+31. [Visualizing Loss Landscapes of Neural Networks [P]](https://www.reddit.com/r/MachineLearning/comments/1sy7f5r/visualizing_loss_landscapes_of_neural_networks_p/) (r/MachineLearning)
+32. [IJCAI-ECAI 2026: Decision Notification and ChairingTool Status Thread [D]](https://www.reddit.com/r/MachineLearning/comments/1syl769/ijcaiecai_2026_decision_notification_and/) (r/MachineLearning)
+33. [What is the scientific value of administering the standard Rorschach test to LLMs when the training data is almost certainly contaminated? (R) + [D]](https://www.reddit.com/r/MachineLearning/comments/1syc6ee/what_is_the_scientific_value_of_administering_the/) (r/MachineLearning)
+34. [The Structured Output Benchmark (SOB) - validates both JSON parse and value accuracy [R]](https://www.reddit.com/r/MachineLearning/comments/1syepnz/the_structured_output_benchmark_sob_validates/) (r/MachineLearning)
+35. [Free Registration & $20K Prize Pool: 2nd MLC-SLM Challenge 2026 on Multilingual Speech LLMs [N]](https://www.reddit.com/r/MachineLearning/comments/1symd9i/free_registration_20k_prize_pool_2nd_mlcslm/) (r/MachineLearning)
+36. [Anyone actively researching Weight Space Learning? [D]](https://www.reddit.com/r/MachineLearning/comments/1syp3rv/anyone_actively_researching_weight_space_learning/) (r/MachineLearning)
+37. [Built an ML model that predicts UFC fights and use AI to explain why [P]](https://www.reddit.com/r/MachineLearning/comments/1synej7/built_an_ml_model_that_predicts_ufc_fights_and/) (r/MachineLearning)
+38. [ACL ARR March 2026 Cycle [D]](https://www.reddit.com/r/MachineLearning/comments/1sy3xuz/acl_arr_march_2026_cycle_d/) (r/MachineLearning)
+39. [Dynamic batching for Encoder-Decoder MT training or generation when long sequence caps the batch size [P]](https://www.reddit.com/r/MachineLearning/comments/1sy01uz/dynamic_batching_for_encoderdecoder_mt_training/) (r/MachineLearning)
+40. [IJCAI-ECAI'26: Chairingtool PaperStatus first changed to Rejected and now again to Submitted. [D]](https://www.reddit.com/r/MachineLearning/comments/1sy0lp8/ijcaiecai26_chairingtool_paperstatus_first/) (r/MachineLearning)
+41. [Topological Data Analysis-friendly CAD/3D point cloud dataset [P]](https://www.reddit.com/r/MachineLearning/comments/1sy9jt3/topological_data_analysisfriendly_cad3d_point/) (r/MachineLearning)
+42. [What do reviewers actually mean when they say the paper sound more like a technical report? [D]](https://www.reddit.com/r/MachineLearning/comments/1sx8xpa/what_do_reviewers_actually_mean_when_they_say_the/) (r/MachineLearning)
+43. [How do you test AI agents in production? The unpredictability is overwhelming.[D]](https://www.reddit.com/r/MachineLearning/comments/1sx3p40/how_do_you_test_ai_agents_in_production_the/) (r/MachineLearning)
+44. [Maths vs machine learning publishing venues [D]](https://www.reddit.com/r/MachineLearning/comments/1sx0bnx/maths_vs_machine_learning_publishing_venues_d/) (r/MachineLearning)
+45. [INT8 quantization gives me better accuracy than FP16 ! [D]](https://www.reddit.com/r/MachineLearning/comments/1sx35es/int8_quantization_gives_me_better_accuracy_than/) (r/MachineLearning)
+46. [CVPR Workshop Decisions [D]](https://www.reddit.com/r/MachineLearning/comments/1sx6vlm/cvpr_workshop_decisions_d/) (r/MachineLearning)
+47. [Anyone using Tensordock GPU instances and having problems with failing VM’s [D]](https://www.reddit.com/r/MachineLearning/comments/1sxdh95/anyone_using_tensordock_gpu_instances_and_having/) (r/MachineLearning)
+48. [How are you managing long-running preprocessing jobs at scale? Curious what's actually working [R]](https://www.reddit.com/r/MachineLearning/comments/1sxjs4e/how_are_you_managing_longrunning_preprocessing/) (r/MachineLearning)
+49. [Tracking the history of the now-deceased OpenAI Microsoft AGI clause](https://simonwillison.net/2026/Apr/27/now-deceased-agi-clause/#atom-entries) (Simon Willison's Weblog)
+50. [[AINews] not much happened today](https://www.latent.space/p/ainews-not-much-happened-today) (Latent Space)
+51. [[AINews] ImageGen is on the Path to AGI](https://www.latent.space/p/ainews-imagegen-is-on-the-path-to) (Latent Space)
+52. [Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition](https://www.latent.space/p/appliedintuition) (Latent Space)
+53. [“Developer loyalty is at zero right now”: Google doesn’t care which AI coding tool you use](https://thenewstack.io/google-doesnt-care/) (The New Stack)
+54. [Why Broadcom is betting on a private cloud comeback](https://thenewstack.io/broadcom-vcf-kubernetes-platform/) (The New Stack)
+55. [SAS opens its analytics engine to Claude, Copilot and any AI agent with Viya MCP Server](https://thenewstack.io/sas-viya-mcp-governance/) (The New Stack)
+56. [Why JSON Schema matters more than ever in the age of generative AI](https://thenewstack.io/json-schema-ai-reliability/) (The New Stack)
+57. [Sentry’s Seer Agent lets developers debug production issues in natural language](https://thenewstack.io/sentrys-seer-agent-debug/) (The New Stack)
+58. [From system of record to system of control: How NetBox Labs is making network engineers “masters of intent.”](https://thenewstack.io/netbox-labs-network-intent/) (The New Stack)
+59. [Why Terraform is green when your cloud is broken](https://thenewstack.io/terraform-state-infrastructure-drift/) (The New Stack)
+60. [Lovelace emerges from stealth with context engine that claims 1000x AI investigative power](https://thenewstack.io/lovelace-ai-context-engine-elemental-andrew-moore/) (The New Stack)
+61. [Microsoft-OpenAI rewrite opens the door for Anthropic and Google](https://thenewstack.io/openai-microsoft-partnership-restructured/) (The New Stack)
+62. [GitHub moves Copilot to usage-based billing as AI coding costs climb](https://thenewstack.io/github-copilot-usage-billing/) (The New Stack)
+63. [Why AI engineering needs old-school discipline](https://thenewstack.io/thoughtworks-radar-agentic-ai/) (The New Stack)
+64. [“I was tired of explaining it to somebody who was supposed to build it for me”: Meet the executives vibe-coding their own tools.](https://thenewstack.io/vibe-coding-ceos-executives-ai-agents/) (The New Stack)
+65. [What the 2026 State of Open Source report reveals about digital autonomy](https://thenewstack.io/open-source-digital-autonomy/) (The New Stack)
+66. [Why developers are betting on Postgres for AI](https://thenewstack.io/postgres-ai-ground-truth/) (The New Stack)
+67. [Can your operations handle your security ambitions?](https://thenewstack.io/security-operational-maturity-scaling/) (The New Stack)
+68. [GitHub veteran Brian Douglas launches Paper Compute to fix AI agent infrastructure](https://thenewstack.io/paper-compute-agent-infrastructure/) (The New Stack)
+69. [Reduce TTFT by 40%, consume less RAM, and drop agent wall times by 46% for your local LLMs.](https://www.reddit.com/r/ollama/comments/1syf1xf/reduce_ttft_by_40_consume_less_ram_and_drop_agent/) (r/ollama)
+70. [Lessons from building a coding agent for 8k context windows: token budgeting, parallel executors, and per-file isolation](https://www.reddit.com/r/ollama/comments/1sydc55/lessons_from_building_a_coding_agent_for_8k/) (r/ollama)
+71. [Has anyone here actually used Ollama Cloud for production? Considering switching from OpenRouter](https://www.reddit.com/r/ollama/comments/1syfckc/has_anyone_here_actually_used_ollama_cloud_for/) (r/ollama)
+72. [Ollama Cloud Kimi k2.6 infinite thinking loop - Almost unusable at this point](https://www.reddit.com/r/ollama/comments/1syrtoe/ollama_cloud_kimi_k26_infinite_thinking_loop/) (r/ollama)
+73. [Sick of being patient for ollama cloud capacity that never arrives](https://www.reddit.com/r/ollama/comments/1sy485i/sick_of_being_patient_for_ollama_cloud_capacity/) (r/ollama)
+74. [Agree?](https://www.reddit.com/r/ollama/comments/1sxjfea/agree/) (r/ollama)
+75. [Does anyone know the parser and render for qwen3.6 in ollama modelfile?](https://www.reddit.com/r/ollama/comments/1syqbly/does_anyone_know_the_parser_and_render_for_qwen36/) (r/ollama)
+76. [Very Slow Cloud Models](https://www.reddit.com/r/ollama/comments/1sydu24/very_slow_cloud_models/) (r/ollama)
+77. [How slow is Ollama 20 dollar plan ?](https://www.reddit.com/r/ollama/comments/1sy7ew0/how_slow_is_ollama_20_dollar_plan/) (r/ollama)
+78. [Mimo V2.5-Pro open sourced](https://www.reddit.com/r/ollama/comments/1sxvzyn/mimo_v25pro_open_sourced/) (r/ollama)
+79. [ollama run ministral-3:3b throwing error](https://www.reddit.com/r/ollama/comments/1syisgi/ollama_run_ministral33b_throwing_error/) (r/ollama)
+80. [ollama run ministral-3:3b throwing error](https://www.reddit.com/r/ollama/comments/1syirum/ollama_run_ministral33b_throwing_error/) (r/ollama)
+
+...and 82 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
