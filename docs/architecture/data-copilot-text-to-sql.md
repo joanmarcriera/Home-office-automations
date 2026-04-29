@@ -96,6 +96,17 @@ flowchart TD
 }
 ```
 
+## Data Contracts
+
+To ensure interoperability between agents, the following JSON schema patterns are enforced:
+
+| Interface | Format | Description |
+| :--- | :--- | :--- |
+| **Workspace** | `{"id": str, "db": str}` | Target domain and connection string. |
+| **Intent** | `{"metrics": list, "filters": dict}` | Structured requirement from user question. |
+| **Schema** | `[{"table": str, "cols": list}]` | Pruned set of tables and columns. |
+| **Final Answer**| `SynthesisResponse` | Standardized output from [Answer Synthesis](../reference-implementations/data-copilot/answer-synthesis-schema.md). |
+
 ## Cost & Model Routing
 
 To maintain a "free/cheap-first" stack, we recommend the following model routing:
