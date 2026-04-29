@@ -9,6 +9,33 @@ It codifies high-signal development habits and "instincts" into actionable patte
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Best Practices
 
+## Typical use cases
+- **Agent Initialization**: Setting baseline "thinking" patterns for a new project.
+- **Workflow Optimization**: Reducing agent hallucinations and "looping" by enforcing clarifying questions.
+- **Code Review Standard**: Using the guidelines as a checklist for human or AI code reviews.
+
+## Strengths
+- **Low Overhead**: Simple Markdown-based guidelines that don't require complex infrastructure.
+- **High Signal**: Focuses on the most common and damaging mistakes made by AI agents.
+- **Developer-Centric**: Aligns AI behavior with senior-level software engineering best practices.
+
+## Limitations
+- **Opinionated**: Some patterns might conflict with specific project styles or requirements.
+- **Manual Enforcement**: Outside of Claude Code, requires manual inclusion in system prompts or project context.
+
+## When to use it
+- When you find your AI agent is making "obvious" mistakes or over-complicating solutions.
+- At the start of a new project to establish a high bar for code quality.
+
+## When not to use it
+- For highly experimental or "creative" coding where standard constraints might be too restrictive.
+- In environments where a different, strict coding standard is already enforced.
+
+## Licensing and cost
+- **Open Source**: Yes (MIT)
+- **Cost**: Free
+- **Self-hostable**: N/A (Documentation/Guidelines)
+
 ## Getting started
 
 ### Installation

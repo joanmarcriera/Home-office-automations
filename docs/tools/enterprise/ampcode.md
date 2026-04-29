@@ -10,9 +10,31 @@ It provides the infrastructure needed to transition from experimental agent prot
 **Category**: Enterprise AI
 
 ## Typical use cases
-- Enterprise task automation
-- Secure agentic workflows
-- Scaling agent deployments
+- **Enterprise Repository Orchestration**: Managing complex tasks across massive, distributed codebases.
+- **Secure Agent Deployment**: Running agents in environments with strict security and compliance requirements.
+- **Developer Productivity at Scale**: Automating boilerplate, refactors, and tests across entire engineering organizations.
+
+## Strengths
+- **Security-First**: Built for enterprise environments with robust authentication and auditing.
+- **Sourcegraph Integration**: Leverages deep code intelligence for better context and reasoning.
+- **High Reliability**: Focuses on deterministic outcomes and production-grade stability.
+
+## Limitations
+- **Closed Ecosystem**: Proprietary software that requires an enterprise license for full features.
+- **Target Audience**: Less optimized for individual developers or small open-source projects.
+
+## When to use it
+- In corporate environments where security and scalability are the top priorities.
+- When you need an agent that can reason across thousands of repositories safely.
+
+## When not to use it
+- For personal projects or small teams where free, open-source alternatives like Aider are sufficient.
+- If you require a fully transparent, open-weight model stack.
+
+## Licensing and cost
+- **Open Source**: No (Proprietary)
+- **Cost**: Paid (Enterprise subscription)
+- **Self-hostable**: Yes (for Enterprise customers)
 
 ## Getting started
 

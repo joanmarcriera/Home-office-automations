@@ -120,14 +120,14 @@ The most effective way to scale Claude Code is to use a layered orchestration pa
 - Use plugin marketplaces when you want fast installation and updates.
 - Use direct GitHub repos when you want to audit the actual prompts, hooks, or skills before adoption.
 - **Recommended Plugins**:
-  - **connect-apps**: Works across GitHub, Slack, Notion, Gmail and other tools.
-  - **agentlint**: Checks if your repo is AI agent-friendly with evidence-backed checks across several dimensions.
-  - **code-review**: Proper PR reviews before you ship anything.
-  - **test-writer-fixer**: Writing and fixing unit tests (Jest, Vitest, Pytest and more).
-  - **debugger**: Digging into complex bugs that otherwise take forever.
-  - **bug-fix**: Analyzing stack traces and fixing issues in your codebase.
-  - **mcp-builder**: Building MCP servers without as much trial and error.
-  - **theme-factory**: Putting together UI themes faster.
+  - **connect-apps**: Bridges Claude Code with external SaaS platforms like GitHub, Slack, Notion, and Gmail for cross-app orchestration.
+  - **agentlint**: Evaluates repository structure and documentation (like `CLAUDE.md`, `AGENTS.md`) to ensure it is optimized for AI agent consumption.
+  - **code-review**: Automates professional-grade pull request reviews, focusing on logic, style, and security.
+  - **test-writer-fixer**: A specialized agent for generating new unit tests and fixing broken ones across major frameworks (Jest, Pytest, Vitest).
+  - **debugger**: An interactive diagnostic assistant that analyzes runtime logs and execution traces to identify the root cause of complex bugs.
+  - **bug-fix**: Analyzes stack traces and repository context to propose and apply surgical fixes for identified issues.
+  - **mcp-builder**: A development toolkit for rapidly scaffolding and testing new Model Context Protocol (MCP) servers.
+  - **theme-factory**: A UI/UX utility for generating and applying consistent themes and styles across web applications.
 
 ### Context, hooks, and skills
 - **Context mode / MCP** helps Claude Code pull in structured external context without stuffing everything into a single prompt.

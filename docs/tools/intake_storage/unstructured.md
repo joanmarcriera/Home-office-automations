@@ -9,6 +9,35 @@ It automates the ingestion of diverse document types, handling complex layouts a
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing
 
+## Typical use cases
+- **RAG Pipelines**: Extracting text and metadata from varied document sets for vector database ingestion.
+- **Data Lake Hydration**: Normalizing disparate document formats (PDF, Word, Email) into a standard JSON/Markdown format.
+- **Knowledge Graph Construction**: Extracting structured elements and relationships from messy documents.
+
+## Strengths
+- **Broad Format Support**: Handles 20+ file types including PDF, HTML, Word, and PowerPoint.
+- **Open-Source & Local**: Can be run fully offline without data leaving your infrastructure.
+- **Layout Awareness**: Not just OCR; it understands headers, lists, and tables.
+
+## Limitations
+- **Resource Intensive**: Complex partitioning (especially with vision models) requires significant CPU/GPU.
+- **Dependency Heavy**: The "all-docs" installation is large and can have version conflicts.
+- **Performance Variability**: Extraction quality can vary significantly based on the partitioning strategy chosen (fast vs. hi-res).
+
+## When to use it
+- When you have a high volume of diverse, messy document types.
+- When data privacy requires local processing of sensitive documents.
+- When you need more than just raw text (e.g., you need to preserve document structure).
+
+## When not to use it
+- For very simple text files or clean Markdown where standard readers suffice.
+- If you need real-time, low-latency parsing (it is optimized for batch ETL).
+
+## Licensing and cost
+- **Open Source**: Yes (Apache 2.0)
+- **Cost**: Free (Self-hosted) / Paid (Unstructured API / Platform)
+- **Self-hostable**: Yes
+
 ## Getting started
 
 ### Installation

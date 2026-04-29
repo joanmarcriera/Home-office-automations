@@ -16,6 +16,9 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 | **Workflow Maintainer** | Adjusting schedules, issue automation, CI behavior. | `.github/workflows/**`, optional `scripts/**` | Validate YAML, confirm workflow logic via `gh run` |
 | **Issue-to-PR Resolver** | Converting open issues into merged fixes. | Issue-specific files + branch/PR metadata | Relevant repo checks + green PR status checks |
 | **Branch Janitor** | Post-merge cleanup of remote/local branches and stale PR refs. | Git branches/PR state | Verify open PR list and branch list after cleanup |
+| **Superpowers** | High-level agent orchestration and skill management. | `.claude/skills/`, `.claude/agents/` | Verify skill discovery and execution. |
+| **Documentation Writer** | Automated generation and maintenance of project docs. | `docs/**`, `README.md` | Run `check_docs_contract`. |
+| **Grill-me** | Rigorous cross-examination and verification of plans. | Issue/Task context | Confirm robust plan before execution. |
 
 ## Skill Playbooks
 
