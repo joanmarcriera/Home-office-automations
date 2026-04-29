@@ -149,6 +149,7 @@ nav:
       - Claude: tools/ai_knowledge/claude.md
       - Claude How-To: tools/ai_knowledge/claude-howto.md
       - Claude Mythos: tools/ai_knowledge/claude-mythos.md
+      - DeepSeek R1: tools/ai_knowledge/deepseek-r1.md
       - DeepTutor: tools/ai_knowledge/deeptutor.md
       - Everything Claude Code: tools/ai_knowledge/everything-claude-code.md
       - Gemini: tools/ai_knowledge/gemini.md
@@ -167,6 +168,7 @@ nav:
       - Jasper: tools/ai_knowledge/jasper.md
       - Joplin: tools/ai_knowledge/joplin.md
       - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
+      - Kimi CLI: tools/ai_knowledge/kimi-cli.md
       - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Jules: tools/ai_knowledge/jules.md
       - KokoClone: tools/ai_knowledge/kokoclone.md
@@ -415,6 +417,7 @@ nav:
       - Arize AI: tools/process_understanding/arize-ai.md
       - Braintrust: tools/process_understanding/braintrust.md
       - Comet Opik: tools/process_understanding/comet-opik.md
+      - Datadog: tools/process_understanding/datadog.md
       - Docling: tools/process_understanding/docling.md
       - Overview: tools/process_understanding/index.md
       - Docling MCP: tools/process_understanding/docling-mcp.md
@@ -427,6 +430,7 @@ nav:
       - PageIndex: tools/process_understanding/pageindex.md
       - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
       - RAGFlow: tools/process_understanding/ragflow.md
+      - Sentry: tools/process_understanding/sentry.md
   - Reports:
     - Data Copilot Issue Verification: reports/data-copilot-issue-verification.md
   - Architecture:
