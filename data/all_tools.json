@@ -49,6 +49,12 @@
       "doc_path": "docs/tools/ai_knowledge/aitmpl.md"
     },
     {
+      "id": "akiflow",
+      "name": "Akiflow",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/akiflow.md"
+    },
+    {
       "id": "alpaca-eval",
       "name": "AlpacaEval",
       "category": "Benchmarking",
@@ -546,6 +552,12 @@
       "doc_path": "docs/tools/process_understanding/docling-mcp.md"
     },
     {
+      "id": "documentation-writer",
+      "name": "Documentation Writer Skill",
+      "category": "Agents",
+      "doc_path": "docs/tools/ai_knowledge/index.md"
+    },
+    {
       "id": "drawio",
       "name": "Draw.io",
       "category": "Creative & Communication",
@@ -604,6 +616,12 @@
       "name": "ExLlamaV2",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/exllamav2.md"
+    },
+    {
+      "id": "fantastical",
+      "name": "Fantastical",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/fantastical.md"
     },
     {
       "id": "fine-tuning-open-models",
@@ -1267,6 +1285,18 @@
       ]
     },
     {
+      "id": "morgen",
+      "name": "Morgen",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/morgen.md"
+    },
+    {
+      "id": "motion-calendar",
+      "name": "Motion",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/motion.md"
+    },
+    {
       "id": "mt-bench",
       "name": "MT-Bench",
       "category": "Benchmarking",
@@ -1343,6 +1373,12 @@
       "name": "Notion AI",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/notion-ai.md"
+    },
+    {
+      "id": "notion-calendar",
+      "name": "Notion Calendar",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/notion-calendar.md"
     },
     {
       "id": "obsidian",
@@ -1457,6 +1493,12 @@
       "name": "OpenSwarm",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/openswarm.md"
+    },
+    {
+      "id": "outlook-calendar",
+      "name": "Outlook Calendar",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/outlook.md"
     },
     {
       "id": "pa-bench",
@@ -1601,6 +1643,12 @@
       "name": "rclone Automation",
       "category": "Intake & Storage",
       "doc_path": "docs/services/rclone-automation.md"
+    },
+    {
+      "id": "reclaim-ai",
+      "name": "Reclaim.ai",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/reclaim.md"
     },
     {
       "id": "replicate",
@@ -1840,6 +1888,12 @@
       "name": "Apache Tika",
       "category": "Process & Understanding",
       "doc_path": "docs/services/tika.md"
+    },
+    {
+      "id": "todoist",
+      "name": "Todoist",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/todoist.md"
     },
     {
       "id": "together-ai",

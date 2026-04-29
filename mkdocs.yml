@@ -259,8 +259,16 @@ nav:
       - SharpAI Security Benchmark: tools/benchmarking/sharp-ai.md
     - Calendar & Tasks:
       - Overview: tools/calendar_tasks/index.md
+      - Akiflow: tools/calendar_tasks/akiflow.md
+      - Fantastical: tools/calendar_tasks/fantastical.md
       - Google Calendar: tools/calendar_tasks/google_calendar.md
+      - Morgen: tools/calendar_tasks/morgen.md
+      - Motion: tools/calendar_tasks/motion.md
+      - Notion Calendar: tools/calendar_tasks/notion-calendar.md
+      - Outlook Calendar: tools/calendar_tasks/outlook.md
       - Proton Calendar: tools/calendar_tasks/proton_calendar.md
+      - Reclaim.ai: tools/calendar_tasks/reclaim.md
+      - Todoist: tools/calendar_tasks/todoist.md
     - Development & Ops:
       - Devin: tools/development_ops/devin.md
       - Overview: tools/development_ops/index.md

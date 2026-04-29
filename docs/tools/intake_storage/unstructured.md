@@ -9,6 +9,51 @@ It automates the ingestion of diverse document types, handling complex layouts a
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing
 
+## Getting started
+
+### Installation
+```bash
+pip install "unstructured[all-docs]"
+```
+
+### Basic usage
+```python
+from unstructured.partition.auto import partition
+
+elements = partition(filename="example.pdf")
+
+for element in elements:
+    print(element)
+```
+
+## CLI examples
+```bash
+# Process a local directory and output JSON
+unstructured-ingest local \
+  --input-path example-docs \
+  --output-dir unstructured-output \
+  --num-processes 2 \
+  --recursive \
+  --verbose
+
+# Process from S3 (requires [s3] extra)
+unstructured-ingest s3 \
+  --remote-url s3://my-bucket/documents/ \
+  --output-dir s3-output
+```
+
+## API examples
+```python
+import requests
+
+url = "https://api.unstructured.io/general/v0/general"
+headers = {"Accept": "application/json", "unstructured-api-key": "YOUR_API_KEY"}
+files = {"files": open("example.pdf", "rb")}
+
+response = requests.post(url, headers=headers, files=files)
+print(response.json())
+```
+
 ## Related tools / concepts
 
 - [Actual Budget](../../services/actual-budget.md)
