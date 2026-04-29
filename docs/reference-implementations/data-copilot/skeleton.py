@@ -50,19 +50,44 @@ class DataCopilotPipeline:
 
     async def table_agent(self, intent: IntentOutput) -> TableSelection:
         """Layer 3: Select relevant tables."""
-        print(f"Selecting tables for intent: {intent.metrics}")
-        return TableSelection(
+        print(f"Selecting tables for intent metrics: {intent.metrics}")
+
+        selection = TableSelection(
             selected_tables=["items", "categories"],
             rationale="Need 'items' for quantity/price and 'categories' for grouping."
         )
 
+        # HITL Point: Table Approval
+        print(f"\n[HITL] Table Approval: {selection.selected_tables}")
+        print(f"Rationale: {selection.rationale}")
+        print("Human approved tables: Yes\n")
+
+        return selection
+
     async def column_prune_agent(self, tables: List[str], intent: IntentOutput) -> List[PrunedSchema]:
         """Layer 4: Prune columns to minimize prompt size."""
         print(f"Pruning columns for tables: {tables}")
-        return [
-            PrunedSchema(table_name="items", columns=["name", "quantity", "purchase_price", "category_id", "room"]),
-            PrunedSchema(table_name="categories", columns=["id", "name"])
-        ]
+
+        # Mock schema pruning logic
+        pruned = []
+        for table in tables:
+            if table == "items":
+                # Only include requested metrics and necessary join keys/filters
+                cols = ["category_id"] # Join key
+                if "quantity" in intent.metrics: cols.append("quantity")
+                if "purchase_price" in intent.metrics: cols.append("purchase_price")
+                if "room" in intent.filters: cols.append("room")
+                pruned.append(PrunedSchema(table_name=table, columns=cols))
+            elif table == "categories":
+                pruned.append(PrunedSchema(table_name=table, columns=["id", "name"]))
+
+        # HITL Point: Column Approval
+        print(f"[HITL] Pruned Schema Approval:")
+        for p in pruned:
+            print(f"  - {p.table_name}: {p.columns}")
+        print("Human approved columns: Yes\n")
+
+        return pruned
 
     async def sql_generator(self, intent: IntentOutput, schema: List[PrunedSchema]) -> str:
         """Layer 5: Generate the final SQL."""
