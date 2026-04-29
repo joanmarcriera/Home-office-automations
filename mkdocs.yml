@@ -144,60 +144,63 @@ nav:
     - AI & Knowledge:
       - Overview: tools/ai_knowledge/index.md
       - AI Templates: tools/ai_knowledge/aitmpl.md
+      - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
       - AnythingLLM: tools/ai_knowledge/anythingllm.md
+      - big-AGI: tools/ai_knowledge/big-agi.md
+      - Chatbox AI: tools/ai_knowledge/chatbox-ai.md
       - Chatgpt: tools/ai_knowledge/chatgpt.md
       - Claude: tools/ai_knowledge/claude.md
       - Claude How-To: tools/ai_knowledge/claude-howto.md
       - Claude Mythos: tools/ai_knowledge/claude-mythos.md
+      - ColQwen: tools/ai_knowledge/colqwen.md
+      - Copy.ai: tools/ai_knowledge/copy-ai.md
       - DeepSeek R1: tools/ai_knowledge/deepseek-r1.md
       - DeepTutor: tools/ai_knowledge/deeptutor.md
-      - Everything Claude Code: tools/ai_knowledge/everything-claude-code.md
-      - Gemini: tools/ai_knowledge/gemini.md
-      - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
-      - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
-      - Copy.ai: tools/ai_knowledge/copy-ai.md
       - Dex: tools/ai_knowledge/dex.md
       - Dify: tools/ai_knowledge/dify.md
       - ElevenLabs: tools/ai_knowledge/elevenlabs.md
+      - Everything Claude Code: tools/ai_knowledge/everything-claude-code.md
       - Fish Audio: tools/ai_knowledge/fish-audio.md
       - Flowise: tools/ai_knowledge/flowise.md
-      - Genspark: tools/ai_knowledge/genspark.md
+      - Gemini: tools/ai_knowledge/gemini.md
       - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
       - Gemini CLI: tools/ai_knowledge/gemini-cli.md
+      - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
+      - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
+      - Genspark: tools/ai_knowledge/genspark.md
+      - Google Gemini: tools/ai_knowledge/google-gemini.md
+      - Google Lyria: tools/ai_knowledge/google-lyria.md
+      - Google Opal: tools/ai_knowledge/google-opal.md
+      - Google Search: tools/ai_knowledge/google-search.md
+      - Heretic / ARA: tools/ai_knowledge/heretic-ara.md
       - HoloTab: tools/ai_knowledge/holotab.md
       - Jasper: tools/ai_knowledge/jasper.md
       - Joplin: tools/ai_knowledge/joplin.md
-      - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
-      - Kimi CLI: tools/ai_knowledge/kimi-cli.md
-      - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Jules: tools/ai_knowledge/jules.md
+      - Kimi CLI: tools/ai_knowledge/kimi-cli.md
       - KokoClone: tools/ai_knowledge/kokoclone.md
-      - last30days-skill: tools/ai_knowledge/last30days-skill.md
+      - Kumo AI: tools/ai_knowledge/kumo-ai.md
       - Langchain: tools/ai_knowledge/langchain.md
+      - last30days-skill: tools/ai_knowledge/last30days-skill.md
       - Llamaindex: tools/ai_knowledge/llamaindex.md
-      - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
+      - LobeHub: tools/ai_knowledge/lobehub.md
       - Local LLMs: tools/ai_knowledge/local_llms.md
       - Logseq: tools/ai_knowledge/logseq.md
+      - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
       - Nano Banana: tools/ai_knowledge/nano-banana.md
       - NotebookLM: tools/ai_knowledge/notebooklm.md
       - Notion AI: tools/ai_knowledge/notion-ai.md
+      - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
+      - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
       - Obsidian: tools/ai_knowledge/obsidian.md
       - OpenBB: tools/ai_knowledge/openbb.md
       - OpenAI: tools/ai_knowledge/openai.md
-      - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
-      - Google Gemini: tools/ai_knowledge/google-gemini.md
-      - Google Search: tools/ai_knowledge/google-search.md
-      - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
-      - Heretic / ARA: tools/ai_knowledge/heretic-ara.md
-      - Roam Research: tools/ai_knowledge/roam-research.md
-      - Google Lyria: tools/ai_knowledge/google-lyria.md
-      - Google Opal: tools/ai_knowledge/google-opal.md
       - OpenRouter: tools/ai_knowledge/openrouter.md
       - ansigpt: tools/ai_knowledge/ansigpt.md
       - Perplexity: tools/ai_knowledge/perplexity.md
-      - ColQwen: tools/ai_knowledge/colqwen.md
       - Project Genie: tools/ai_knowledge/project-genie.md
       - Qwen: tools/ai_knowledge/qwen.md
+      - Roam Research: tools/ai_knowledge/roam-research.md
       - Runway ML: tools/ai_knowledge/runwayml.md
       - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
       - Synthesia: tools/ai_knowledge/synthesia.md
@@ -408,9 +411,11 @@ nav:
       - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
       - ClawRouter: tools/infrastructure/clawrouter.md
       - ExLlamaV2: tools/infrastructure/exllamav2.md
+      - Jan.ai: tools/infrastructure/jan-ai.md
       - llama.cpp: tools/infrastructure/llama-cpp.md
       - LocalAI: tools/infrastructure/localai.md
       - MLX: tools/infrastructure/mlx.md
+      - Msty: tools/infrastructure/msty.md
       - OpenPipe: tools/infrastructure/openpipe.md
       - SGLang: tools/infrastructure/sglang.md
       - Supabase: tools/infrastructure/supabase.md
@@ -418,7 +423,6 @@ nav:
       - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
       - vLLM: tools/infrastructure/vllm.md
       - LM Studio: tools/infrastructure/lm-studio.md
-      - Jan.ai: tools/infrastructure/jan-ai.md
       - ZSE: tools/infrastructure/zse.md
     - Process & Understanding:
       - AI Auditing Tools: tools/process_understanding/ai-auditing-tools.md
@@ -473,14 +477,6 @@ nav:
     - Model Routing Guide: knowledge_base/model_routing_guide.md
     - Starred AI / Agent Repositories Over 10K Stars: knowledge_base/starred_ai_agent_repos.md
     - Google One Plans Comparison: knowledge_base/google_one_plans_comparison.md
-    - API Pricing & Free Tier Matrix: knowledge_base/api_pricing_free_tiers.md
-    - Landscape Overview: knowledge_base/landscape-overview.md
-    - Vector DB Comparison: knowledge_base/vector-db-comparison.md
-    - Vision Models Research: knowledge_base/vision-models-research.md
-    - Obsidian Vector Search: knowledge_base/obsidian-vector-search.md
-    - Agent Protocols: knowledge_base/agent_protocols.md
-    - Model Comparison and Evaluation: knowledge_base/model_comparison_and_evaluation.md
-    - System Prompts: knowledge_base/system_prompts.md
     - AI Signal Sources: knowledge_base/ai_signal_sources.md
     - Essential AI Reading List: knowledge_base/ai_reading_list.md
     - Model Classes: knowledge_base/model_classes.md

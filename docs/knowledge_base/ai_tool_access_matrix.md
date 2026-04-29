@@ -49,6 +49,10 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [Open WebUI](../services/open-webui.md) | Self-hosted AI workspace | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Strong self-hosted front end for local and cloud models. |
 | [LibreChat](../tools/ai_knowledge/index.md) | Self-hosted chat/agents | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Flexible self-hosted stack with custom endpoints and agents. |
 | [AnythingLLM](../tools/ai_knowledge/anythingllm.md) | Local-first workspace/agents | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Local-first and practical for private document and agent use. |
+| [LobeHub](../tools/ai_knowledge/lobehub.md) | Self-hosted AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Self-hostable multi-model workspace with rich plugin ecosystem. |
+| [Chatbox AI](../tools/ai_knowledge/chatbox-ai.md) | Desktop chat client | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Desktop multi-model chat client with cross-device sync. |
+| [Msty](../tools/ai_knowledge/msty.md) | Local AI desktop app | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Local AI desktop app with integrated model hub and RAG. |
+| [big-AGI](../tools/ai_knowledge/big-agi.md) | Expert AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Expert workspace for multi-model reasoning and zero-latency UI. |
 | [LM Studio](../tools/infrastructure/lm-studio.md) | Local model runner | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | Best as a local model host rather than a full productivity agent. |
 | [Jan](../tools/infrastructure/jan-ai.md) | Local AI app | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟠 | 🔴 | Local, open-source chat client with MCP support. |
 | [TypingMind](../tools/ai_knowledge/index.md) | Multi-model UI | 🟠 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | Good front end when plugins, Zapier, or MCP matter more than native apps. |
@@ -104,14 +108,10 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [DSPy](../tools/frameworks/dspy.md) | Programming framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Programmatic prompting and optimization framework. |
 | [Instructor](../tools/ai_knowledge/index.md) | Structured output library | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | Lightweight library for structured outputs. |
 | [Mem0](../tools/agents/mem0.md) | Memory layer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Agent memory layer rather than a full assistant. |
-| [LobeHub](../tools/ai_knowledge/index.md) | Self-hosted AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Self-hostable multi-model workspace. |
-| [Chatbox AI](../tools/ai_knowledge/index.md) | Desktop chat client | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Desktop multi-model chat client. |
-| [Msty](../tools/ai_knowledge/index.md) | Local AI desktop app | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Local AI desktop app with model flexibility. |
 | [AirOps](../tools/ai_knowledge/index.md) | Content / workflow platform | 🔴 | 🔵 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Workflow/content platform with app integrations. |
 | [Google ADK](../tools/frameworks/index.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Google-centered agent development kit. |
 | [Firebase Genkit](../tools/frameworks/index.md) | Full-stack AI framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | Full-stack AI framework for app developers. |
 | [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) | Agent SDK | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | OpenAI-centered SDK path for agents. |
-| [big-AGI](../tools/ai_knowledge/index.md) | Expert AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Expert workspace/front end; row should be row-source checked before procurement. |
 | [AG2](../tools/frameworks/index.md) | Multi-agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Multi-agent framework descended from AutoGen ecosystem work. |
 | [Mastra](../tools/frameworks/index.md) | TypeScript agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | TypeScript agent framework with developer-first focus. |
 | [Superinterface](../tools/ai_knowledge/index.md) | AI assistant UI / infra | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | Assistant UI and infrastructure layer. |

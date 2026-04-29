@@ -9,6 +9,33 @@ Extends agent capabilities with domain-specific execution scaffolds and critical
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Agent Skills
 
+## Typical use cases
+- **Plan Verification**: Using `Grill-me` to ensure a proposed solution is robust before execution.
+- **TDD Workflows**: Automating the Red-Green-Refactor loop with specialized skills.
+- **Complex Bug Diagnosis**: Leveraging multi-step diagnostic patterns for elusive issues.
+
+## Strengths
+- **Action-Oriented**: Provides concrete execution scaffolds rather than just passive advice.
+- **Critical Thinking**: Specifically designed to force agents to "think twice" before acting.
+- **Standardized**: Uses the `skills.sh` pattern for easy installation and updates.
+
+## Limitations
+- **Setup Required**: Requires specific installation steps and sometimes tool configuration.
+- **Learning Curve**: Agents may need specific instructions to effectively utilize some of the deeper skills.
+
+## When to use it
+- When you need a "staff engineer" level of rigor from your AI assistant.
+- For complex projects that benefit from structured planning and TDD.
+
+## When not to use it
+- For quick, trivial scripts where the overhead of a "Grill-me" session is overkill.
+- If you prefer a completely custom, non-standardized skill setup.
+
+## Licensing and cost
+- **Open Source**: Yes (MIT)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
 ## Key Skills
 - **Grill-me**: A skill used to cross-examine and verify a proposed plan before execution.
 
@@ -58,5 +85,3 @@ Use the skills directly within your AI agent's interactive session:
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
-
-- [Matt Pocock Skills (GitHub)](https://github.com/mattpocock/skills)

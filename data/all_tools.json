@@ -186,6 +186,12 @@
       "doc_path": "docs/tools/agents/bee-agent-framework.md"
     },
     {
+      "id": "big-agi",
+      "name": "big-AGI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/big-agi.md"
+    },
+    {
       "id": "bigcodebench",
       "name": "BigCodeBench",
       "category": "Benchmarking",
@@ -226,6 +232,12 @@
       "name": "Chatbot Arena",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/chatbot-arena.md"
+    },
+    {
+      "id": "chatbox-ai",
+      "name": "Chatbox AI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/chatbox-ai.md"
     },
     {
       "id": "chatgpt",
@@ -1144,6 +1156,12 @@
       "doc_path": "docs/tools/infrastructure/lm-studio.md"
     },
     {
+      "id": "lobehub",
+      "name": "LobeHub",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/lobehub.md"
+    },
+    {
       "id": "local-llms",
       "name": "Local LLMs",
       "category": "AI Assistants & Knowledge",
@@ -1295,6 +1313,12 @@
       "name": "Motion",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/motion.md"
+    },
+    {
+      "id": "msty",
+      "name": "Msty",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/msty.md"
     },
     {
       "id": "mt-bench",

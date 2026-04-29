@@ -9,6 +9,35 @@ Overcomes the limitations of standard PDF text extraction by using vision-aware 
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing
 
+## Typical use cases
+- **Complex PDF Extraction**: Parsing documents with multi-column layouts, nested tables, and embedded diagrams.
+- **Markdown-first RAG**: Converting PDFs directly to high-quality Markdown for LLM consumption.
+- **Financial Report Analysis**: Extracting tabular data from annual reports and statements with high fidelity.
+
+## Strengths
+- **Vision-Aware**: Uses advanced vision models to understand document layout better than traditional OCR.
+- **Markdown Output**: Optimized for LLMs, preserving hierarchies and table structures in clean Markdown.
+- **Ecosystem Integration**: Seamlessly connects with LlamaIndex for end-to-end RAG development.
+
+## Limitations
+- **Cloud Dependency**: Primarily a cloud-based service, which may not suit air-gapped environments.
+- **Latency**: High-accuracy vision-based parsing can be slower than simple text extraction.
+- **Cost at Scale**: Beyond the free tier, it operates on a credit-based system that can become significant for massive datasets.
+
+## When to use it
+- When traditional PDF parsers fail on complex layouts or tables.
+- When you want "LLM-ready" Markdown output without manual cleaning.
+- When you are already using the LlamaIndex framework.
+
+## When not to use it
+- For simple, text-only PDFs where `PyPDF2` or `marker` would be faster and cheaper.
+- If your data cannot leave your local environment (though local versions are evolving).
+
+## Licensing and cost
+- **Open Source**: No (Proprietary service)
+- **Cost**: Freemium (1,000 pages per month free)
+- **Self-hostable**: Limited (Docker image available for enterprise)
+
 ## Getting started
 
 ### Installation

@@ -9,10 +9,12 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 | [Aphrodite Engine](aphrodite-engine.md) | Inference engine forked from vLLM for local use |
 | [ClawRouter](clawrouter.md) | Agent-native routing layer for OpenClaw model selection |
 | [ExLlamaV2](exllamav2.md) | Optimized GPTQ/EXL2 inference for consumer GPUs |
+| [Jan.ai](jan-ai.md) | Local, open-source AI desktop client |
 | [llama.cpp](llama-cpp.md) | Lightweight local inference runtime for quantized LLMs |
 | [LiteLLM](../../services/litellm.md) | Unified LLM API proxy |
 | [LocalAI](localai.md) | Self-hosted OpenAI-compatible local inference platform |
 | [MLX](mlx.md) | Apple's array framework for ML on Apple Silicon |
+| [Msty](../ai_knowledge/msty.md) | Local-first AI desktop app with model hub |
 | [OpenPipe](openpipe.md) | Data-driven fine-tuning platform |
 | [Ollama](../../services/ollama.md) | Local LLM inference server |
 | [SGLang](sglang.md) | Fast structured generation runtime from LMSYS |
