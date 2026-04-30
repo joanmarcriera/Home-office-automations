@@ -71,6 +71,24 @@ unstructured-ingest s3 \
   --output-dir s3-output
 ```
 
+### Python S3 Ingestion Example
+```python
+from unstructured.ingest.connector.s3 import S3AccessConfig, SimpleS3Config
+from unstructured.ingest.interfaces import ProcessorConfig, ReadConfig
+from unstructured.ingest.runner import S3Runner
+
+runner = S3Runner(
+    processor_config=ProcessorConfig(verbose=True, output_dir="s3-output", num_processes=2),
+    read_config=ReadConfig(),
+    connector_config=SimpleS3Config(
+        access_config=S3AccessConfig(),
+        remote_url="s3://my-bucket/documents/",
+    ),
+)
+
+runner.run()
+```
+
 ## API examples
 ```python
 import requests

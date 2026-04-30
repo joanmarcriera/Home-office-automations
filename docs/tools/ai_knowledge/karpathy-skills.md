@@ -52,6 +52,15 @@ Alternatively, you can manually add the `CLAUDE.md` to your project:
 curl -o CLAUDE.md https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/CLAUDE.md
 ```
 
+### Sample CLAUDE.md Snippet
+```markdown
+## Karpathy Instincts
+- **Think Before Coding**: Surface tradeoffs. Ask when unclear.
+- **Simplicity First**: Minimal code. No speculative features.
+- **Surgical Changes**: Touch only what you must. Match existing style.
+- **Goal-Driven Execution**: Define success criteria. Loop until verified.
+```
+
 ### Basic usage
 Once installed, the guidelines are automatically applied by the AI agent during its thinking process. You can verify it's working by observing if the agent:
 - Asks clarifying questions before implementation.
@@ -71,6 +80,7 @@ The skills can be managed via the Claude Code CLI:
 
 ## Related tools / concepts
 
+- [Surgical Changes](https://peerlist.io/xiji2646/articles/the-978kstar-file-that-makes-claude-code-stop-overengineerin)
 - [Matt Pocock Skills](matt-pocock-skills.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)

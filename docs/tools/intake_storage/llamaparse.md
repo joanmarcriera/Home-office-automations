@@ -74,10 +74,8 @@ llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
 
 ## API examples
 ```bash
-# Upload and parse using the REST API (v2)
-curl -X POST \
-  'https://api.cloud.llamaindex.ai/api/v2/parse' \
-  -H 'Accept: application/json' \
+# Create a parse job using the REST API (v2)
+curl -X POST 'https://api.cloud.llamaindex.ai/api/v2/parse' \
   -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY" \
   --data '{
@@ -85,6 +83,14 @@ curl -X POST \
     "tier": "agentic",
     "version": "latest"
   }'
+
+# Retrieve results (Markdown)
+curl 'https://api.cloud.llamaindex.ai/api/v2/parse/{job_id}?expand=markdown' \
+  -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY"
+
+# List completed jobs
+curl 'https://api.cloud.llamaindex.ai/api/v2/parse?page_size=10&status=COMPLETED' \
+  -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY"
 ```
 
 ## Related tools / concepts
