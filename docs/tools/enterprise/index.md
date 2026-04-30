@@ -7,8 +7,13 @@ High-precision AI tools for enterprise search, analytics, and executive producti
 | Tool | Focus |
 | :--- | :--- |
 | [AmpCode](../enterprise/ampcode.md) | Scalable enterprise AI infrastructure |
+| [Coveo](../enterprise/coveo.md) | AI search and discovery platform |
+| [Curiosity](../enterprise/curiosity.md) | Desktop AI search and knowledge assistant |
+| [Dashworks](../enterprise/dashworks.md) | AI-powered knowledge management |
+| [Elastic](../enterprise/elastic.md) | Distributed search and analytics engine |
 | [Fyxer AI](../enterprise/fyxer.md) | Executive assistant and inbox automation |
 | [Glean](../enterprise/glean.md) | Unified search across enterprise SaaS apps |
+| [Guru](../enterprise/guru.md) | Collaborative knowledge management |
 | [Hebbia](../enterprise/hebbia.md) | High-precision analytical search for professional services |
 | [tl;dv](../enterprise/tldv.md) | AI meeting recorder and transcription |
 
@@ -51,5 +56,5 @@ For simple personal tasks or low-budget hobbyist projects.
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-27
+- Last reviewed: 2026-05-02
 - Confidence: high

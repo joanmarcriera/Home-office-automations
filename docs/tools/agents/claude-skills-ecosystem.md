@@ -53,6 +53,7 @@ skills/
 - When the workflow is too specific or unstable to standardize yet
 
 ## Related tools / concepts
+- [Documentation Writer](documentation-writer.md)
 - [Anthropic Agent Skills](anthropic-agent-skills.md)
 - [Superpowers](superpowers.md)
 - [Claude Code](../development_ops/claude-code.md)
@@ -67,5 +68,5 @@ skills/
 - [Superpowers](https://github.com/obra/superpowers)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-05-02
 - Confidence: high

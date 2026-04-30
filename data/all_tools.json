@@ -426,6 +426,12 @@
       "doc_path": "docs/tools/ai_knowledge/copy-ai.md"
     },
     {
+      "id": "coveo",
+      "name": "Coveo",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/coveo.md"
+    },
+    {
       "id": "crawl4ai",
       "name": "Crawl4AI",
       "category": "Process & Understanding",
@@ -438,6 +444,12 @@
       "doc_path": "docs/tools/frameworks/crewai.md"
     },
     {
+      "id": "curiosity",
+      "name": "Curiosity",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/curiosity.md"
+    },
+    {
       "id": "cursor",
       "name": "Cursor",
       "category": "Development & Ops",
@@ -448,6 +460,12 @@
       "name": "Custom Agents",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/custom_agents.md"
+    },
+    {
+      "id": "dashworks",
+      "name": "Dashworks",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/dashworks.md"
     },
     {
       "id": "data-copilot-agentic-rag",
@@ -567,7 +585,7 @@
       "id": "documentation-writer",
       "name": "Documentation Writer Skill",
       "category": "Agents",
-      "doc_path": "docs/tools/ai_knowledge/index.md"
+      "doc_path": "docs/tools/agents/documentation-writer.md"
     },
     {
       "id": "drawio",
@@ -592,6 +610,12 @@
       "name": "DSPy",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/dspy.md"
+    },
+    {
+      "id": "elastic",
+      "name": "Elastic",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/elastic.md"
     },
     {
       "id": "element",
@@ -854,6 +878,12 @@
       "name": "GSM8K",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/gsm8k.md"
+    },
+    {
+      "id": "guru",
+      "name": "Guru",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/guru.md"
     },
     {
       "id": "habitica",
