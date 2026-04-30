@@ -84,10 +84,11 @@ export AMP_SETTINGS_FILE="./custom-settings.json"
 - [Fyxer AI](fyxer.md)
 - [Glean](glean.md)
 - [Hebbia](hebbia.md)
+- [Claude Code](../development_ops/claude-code.md)
 
 ## Sources / references
 - [AmpCode Official Site](https://ampcode.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
-- Confidence: medium
+- Last reviewed: 2026-05-02
+- Confidence: high

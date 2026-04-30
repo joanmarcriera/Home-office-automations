@@ -71,17 +71,16 @@ The skills can be managed via the Claude Code CLI:
 
 ## Related tools / concepts
 
-- [AI Templates](aitmpl.md)
-- [AnythingLLM](anythingllm.md)
-- [ChatGPT](chatgpt.md)
-- [Claude](claude.md)
-- [Claude Mythos](claude-mythos.md)
+- [Matt Pocock Skills](matt-pocock-skills.md)
+- [Claude Code](../development_ops/claude-code.md)
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
+- [Superpowers](../agents/superpowers.md)
 
 ## Sources / references
 - [Andrej Karpathy Skills (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-02
 - Confidence: high
 
 - [Andrej Karpathy Skills (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills)

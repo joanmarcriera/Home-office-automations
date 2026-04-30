@@ -73,15 +73,14 @@ Use the skills directly within your AI agent's interactive session:
 
 ## Related tools / concepts
 
-- [AI Templates](aitmpl.md)
 - [Andrej Karpathy Skills](karpathy-skills.md)
-- [AnythingLLM](anythingllm.md)
-- [ChatGPT](chatgpt.md)
-- [Claude](claude.md)
+- [Claude Code](../development_ops/claude-code.md)
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
+- [Superpowers](../agents/superpowers.md)
 
 ## Sources / references
 - [Matt Pocock Skills (GitHub)](https://github.com/mattpocock/skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-02
 - Confidence: high

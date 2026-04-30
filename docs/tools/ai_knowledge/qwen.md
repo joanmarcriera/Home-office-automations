@@ -1,7 +1,7 @@
 # Qwen
 
 ## What it is
-Qwen is a series of Large Language Models (LLMs) developed by Alibaba Cloud, including general-purpose (Qwen), coding (Qwen-Coder), and vision (Qwen-VL) models. It is one of the most capable open-weight model families available, particularly strong in coding, mathematics, and multilingual tasks.
+Qwen is a series of Large Language Models (LLMs) developed by Alibaba Cloud, including general-purpose (Qwen), coding (Qwen-Coder), and vision (Qwen-VL) models. The family features standout agentic variants such as **Qwen 3.6-35B-A3B**, and it remains one of the most capable open-weight model families available, particularly strong in coding, mathematics, and multilingual tasks.
 
 ## What problem it solves
 Provides high-performance, open-weight alternatives to proprietary models like GPT-4o. It enables powerful local inference for coding assistants and private reasoning tasks without relying on cloud APIs.
@@ -103,5 +103,5 @@ print(response.choices[0].message.content)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-27
+- Last reviewed: 2026-05-02
 - Confidence: high

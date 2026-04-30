@@ -85,15 +85,14 @@ print(response.json())
 
 ## Related tools / concepts
 
-- [Actual Budget](../../services/actual-budget.md)
-- [AnyType](anytype.md)
-- [CalDAV](caldav.md)
-- [Diskover](../../services/diskover.md)
-- [Focalboard](../../services/focalboard.md)
+- [LlamaParse](llamaparse.md)
+- [Paperless-ngx](../../services/paperless-ngx.md)
+- [Docling](../process_understanding/docling.md)
+- [RAG](../../knowledge_base/patterns/rag.md)
 
 ## Sources / references
 - [Unstructured.io Website](https://unstructured.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-02
 - Confidence: high

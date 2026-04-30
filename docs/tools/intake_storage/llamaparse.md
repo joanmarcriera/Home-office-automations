@@ -89,15 +89,14 @@ curl -X POST \
 
 ## Related tools / concepts
 
-- [Actual Budget](../../services/actual-budget.md)
-- [AnyType](anytype.md)
-- [CalDAV](caldav.md)
-- [Diskover](../../services/diskover.md)
-- [Focalboard](../../services/focalboard.md)
+- [Unstructured.io](unstructured.md)
+- [Docling](../process_understanding/docling.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
+- [RAG](../../knowledge_base/patterns/rag.md)
 
 ## Sources / references
 - [LlamaParse (LlamaIndex)](https://www.llamaindex.ai/llamaparse)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-02
 - Confidence: high
