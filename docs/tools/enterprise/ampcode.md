@@ -13,11 +13,13 @@ It provides the infrastructure needed to transition from experimental agent prot
 - **Enterprise Repository Orchestration**: Managing complex tasks across massive, distributed codebases.
 - **Secure Agent Deployment**: Running agents in environments with strict security and compliance requirements.
 - **Developer Productivity at Scale**: Automating boilerplate, refactors, and tests across entire engineering organizations.
+- **Automated Dependency Management**: Proactively identifying and updating stale dependencies across multiple projects.
 
 ## Strengths
 - **Security-First**: Built for enterprise environments with robust authentication and auditing.
-- **Sourcegraph Integration**: Leverages deep code intelligence for better context and reasoning.
+- **Sourcegraph Integration**: Leverages Sourcegraph's deep code intelligence (Cody) for better context and reasoning across massive, distributed repositories.
 - **High Reliability**: Focuses on deterministic outcomes and production-grade stability.
+- **Agentic Orchestration**: Capable of managing multi-step workflows like large-scale refactoring or automated test generation across entire organizations.
 
 ## Limitations
 - **Closed Ecosystem**: Proprietary software that requires an enterprise license for full features.

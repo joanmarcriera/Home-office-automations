@@ -61,6 +61,12 @@
       "doc_path": "docs/tools/benchmarking/alpaca-eval.md"
     },
     {
+      "id": "amie",
+      "name": "Amie",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/amie.md"
+    },
+    {
       "id": "ampcode",
       "name": "AmpCode",
       "category": "Enterprise AI",
@@ -2044,6 +2050,12 @@
       "name": "Vikunja MCP Server",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/vikunja-mcp.md"
+    },
+    {
+      "id": "vimcal",
+      "name": "Vimcal",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/vimcal.md"
     },
     {
       "id": "vision-models-research",

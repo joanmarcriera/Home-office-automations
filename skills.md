@@ -19,6 +19,9 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 | **Superpowers** | High-level agent orchestration and skill management. | `.claude/skills/`, `.claude/agents/` | Verify skill discovery and execution. |
 | **Documentation Writer** | Automated generation and maintenance of project docs. | `docs/**`, `README.md` | Run `check_docs_contract`. |
 | **Grill-me** | Rigorous cross-examination and verification of plans. | Issue/Task context | Confirm robust plan before execution. |
+| **Everything Claude Code** | Production-ready setup with security scanning and research-first development. | `.claude/config.json`, `CLAUDE.md`, hooks | Run security and consistency checks. |
+| **last30days-skill** | Weekly AI ecosystem news summarization and skill gap analysis. | Scheduled tasks, knowledge base | Verify summary accuracy and source links. |
+| **Claude How-To** | Hand-on guides for advanced agentic workflows and MCP. | Documentation, configuration examples | Confirm step-by-step reproducibility. |
 
 ## Skill Playbooks
 

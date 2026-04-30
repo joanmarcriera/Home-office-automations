@@ -1,7 +1,7 @@
 # Qwen
 
 ## What it is
-Qwen is a series of Large Language Models (LLMs) developed by Alibaba Cloud, including general-purpose (Qwen), coding (Qwen-Coder), and vision (Qwen-VL) models. The family features standout agentic variants such as **Qwen 3.6-35B-A3B**, and it remains one of the most capable open-weight model families available, particularly strong in coding, mathematics, and multilingual tasks.
+Qwen is a series of Large Language Models (LLMs) developed by Alibaba Cloud, including general-purpose (Qwen), coding (Qwen-Coder), and vision (Qwen-VL) models. The family features standout agentic variants such as **Qwen 3.5-35B-A3B**, which continues to push the boundaries of open-weight performance. It remains one of the most capable open-weight model families available, particularly strong in coding, mathematics, and multilingual tasks.
 
 ## What problem it solves
 Provides high-performance, open-weight alternatives to proprietary models like GPT-4o. It enables powerful local inference for coding assistants and private reasoning tasks without relying on cloud APIs.
@@ -57,7 +57,7 @@ print(response.choices[0].message.content)
 ```
 
 ## Strengths
-- **State-of-the-Art Coding**: `Qwen3.5` and `Qwen3.6` variants continue to push coding performance. The **Qwen3.6-35B-A3B** model (and its 3.5 predecessor) are standouts, achieving **37.8% on SWE-bench Verified Hard**, matching or exceeding much larger proprietary models like Claude Opus 4.6. Its ability to reason through complex, multi-file software engineering tasks makes it a premier choice for autonomous coding agents.
+- **State-of-the-Art Coding**: `Qwen3.5` variants continue to push coding performance. The **Qwen3.5-35B-A3B** model is a standout, achieving top-tier results on benchmarks like SWE-bench Verified, matching or exceeding much larger proprietary models. Its ability to reason through complex, multi-file software engineering tasks makes it a premier choice for autonomous coding agents.
 - **Efficient Architecture**: Qwen3-Coder-Next and Qwen 3.5 variants use Mixture-of-Experts (MoE). The **35B-A3B** variant specifically utilizes roughly 3B active parameters, providing a massive performance-to-compute ratio under an Apache 2.0 license.
 - **Native Long Context**: Supports up to 256K tokens natively, ideal for large codebases. The tiny 0.8B model has demonstrated the ability to reason over a 100-file repository.
 - **Wide Model Range**: Scales from tiny edge models (0.8B, 2B, 4B) to massive 72B+ and 122B parameter powerhouses.
@@ -94,7 +94,6 @@ print(response.choices[0].message.content)
 - [Qwen GitHub](https://github.com/QwenLM/Qwen)
 - [Hugging Face Collection](https://huggingface.co/Qwen)
 - [Qwen 3.5 SWE-bench Results](https://www.reddit.com/r/LocalLLaMA/comments/1rkdlqi/qwen3535ba3b_hits_378_on_swebench_verified_hard/)
-- [Qwen3.6-35B-A3B Agentic Coding](https://www.reddit.com/r/AIToolsPerformance/comments/1sn9okz/qwen3635ba3b_drops_with_apache_20_agentic_coding/)
 - [NVIDIA NIM model card: qwen3.5-122b-a10b](https://build.nvidia.com/qwen/qwen3.5-122b-a10b/modelcard)
 - [Final Qwen 3.5 Unsloth GGUF Update](https://www.reddit.com/r/LocalLLaMA/comments/1rlkptk/final_qwen35_unsloth_gguf_update/)
 - [Qwen 3.5 0.8B reasoning over 100-file repo](https://www.reddit.com/r/LocalLLaMA/comments/1rmpdkc/i_made_a_tiny_08b_qwen_model_reason_over_a/)

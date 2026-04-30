@@ -37,7 +37,8 @@ Extends agent capabilities with domain-specific execution scaffolds and critical
 - **Self-hostable**: Yes
 
 ## Key Skills
-- **Grill-me**: A skill used to cross-examine and verify a proposed plan before execution.
+- **Grill-me**: A skill used to cross-examine and verify a proposed plan before execution. Getting the agent to ask detailed questions about what you are building to fix the communication gap between you and the agent.
+- **Triage**: Uses labels to help triage tickets in your issue tracker.
 
 ## Getting started
 
@@ -69,6 +70,9 @@ Use the skills directly within your AI agent's interactive session:
 
 # Diagnose a complex bug
 /diagnose
+
+# Setup skill
+/setup-matt-pocock-skills
 ```
 
 ## Related tools / concepts

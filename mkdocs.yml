@@ -263,6 +263,7 @@ nav:
     - Calendar & Tasks:
       - Overview: tools/calendar_tasks/index.md
       - Akiflow: tools/calendar_tasks/akiflow.md
+      - Amie: tools/calendar_tasks/amie.md
       - Fantastical: tools/calendar_tasks/fantastical.md
       - Google Calendar: tools/calendar_tasks/google_calendar.md
       - Morgen: tools/calendar_tasks/morgen.md
@@ -272,6 +273,7 @@ nav:
       - Proton Calendar: tools/calendar_tasks/proton_calendar.md
       - Reclaim.ai: tools/calendar_tasks/reclaim.md
       - Todoist: tools/calendar_tasks/todoist.md
+      - Vimcal: tools/calendar_tasks/vimcal.md
     - Development & Ops:
       - Devin: tools/development_ops/devin.md
       - Overview: tools/development_ops/index.md
