@@ -103,6 +103,12 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - [OpenAI: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
 - [Pydantic Documentation](https://docs.pydantic.dev/)
 
+## Related tools / concepts
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high

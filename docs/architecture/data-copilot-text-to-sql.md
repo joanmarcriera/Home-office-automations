@@ -114,6 +114,7 @@ To minimize costs and stay within the context limits of smaller models, the foll
 
 1.  **Semantic Table Filtering**: Instead of sending all table schemas, we use an embedding-based search (RAG) to find the top $N$ (usually 3-5) most relevant tables for the intent.
 2.  **Column-Level Pruning**: Once tables are selected, only the primary keys, foreign keys, and columns identified by the **Column Prune Agent** are included in the final SQL generation prompt.
+    - *Example*: For a table `orders` with 50 columns, if the intent is "Total sales by month", the pruned schema sent to the SQL Generator only contains `[id, total_amount, created_at]`.
 3.  **Schema metadata**: We include short comments in the schema (e.g., `-- type: categorical`) rather than raw data samples to keep token counts low.
 4.  **Fallback Routing**: If a query fails on a local model (e.g. Qwen 2.5 7B), it is automatically routed to a more capable but expensive model (e.g. Claude 3.5 Sonnet) with the same pruned schema.
 
@@ -134,6 +135,7 @@ To minimize costs and stay within the context limits of smaller models, the foll
 - **High-stakes Financial Audits**: Where 100% precision is required without human review.
 - **Extremely Wide Tables**: Tables with 500+ columns (requires heavy RAG-based column selection first).
 - **Non-Relational Complex Joins**: When the data resides across multiple incompatible silos (use a Multi-Agent RAG instead).
+- **Highly Nested JSON**: If the database stores critical business logic inside deeply nested JSONB/JSON columns that require complex extraction paths, LLMs often struggle without specialized "flattening" agents.
 
 ## Related tools / concepts
 - [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)

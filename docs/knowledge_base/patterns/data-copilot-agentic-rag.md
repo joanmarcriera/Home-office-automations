@@ -47,14 +47,20 @@ flowchart TD
 
 ## Multi-hop Investigation Flow
 For "Why" questions, the agent often needs multiple steps:
-1.  **Step 1**: Query SQL to identify *what* changed (e.g., "Conversion rate dropped in the Kitchen category").
-2.  **Step 2**: Query RAG to find *reasons* (e.g., search for "Kitchen category" in meeting notes/project logs).
-3.  **Step 3**: Synthesize: "Revenue dropped because of conversion rate (SQL), which was likely caused by the supplier delay mentioned in the March 12 meeting (RAG)."
+1.  **Step 1 (Structured)**: Query SQL to identify *what* changed (e.g., "Conversion rate dropped in the Kitchen category").
+2.  **Step 2 (Unstructured)**: Query RAG to find *reasons* (e.g., search for "Kitchen category" in meeting notes/project logs).
+3.  **Step 3 (Synthesis)**: Combine findings. If a direct reason is missing, the agent may initiate a **Step 4 (Refined Retrieval)** to check alternative sources like calendar events or email summaries.
 
 ## Retrieval Sufficiency & Confidence Scoring
 
 ### Sufficiency Check
 Before synthesis, the planner must ask: "Do I have enough information to answer the user's specific diagnostic question without guessing?"
+
+**Criteria for Sufficiency**:
+- **Source grounding**: Every claim in the synthesis must be traceable to a specific SQL row or document snippet.
+- **Dimensional alignment**: If the SQL identifies a drop in a specific category (e.g., "Kitchen"), the RAG retrieval must have explicitly searched for that category.
+- **Temporal alignment**: The quantitative change and the qualitative event must occur within a logical timeframe (e.g., event precedes or coincides with the change).
+
 - **Low Sufficiency**: "I found the metric drop, but no corresponding notes in the logs."
 - **Action**: Report findings but state the missing link.
 
@@ -75,6 +81,12 @@ Before synthesis, the planner must ask: "Do I have enough information to answer 
 ## Sources / References
 - [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
 - [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
+
+## Related tools / concepts
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md)
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
