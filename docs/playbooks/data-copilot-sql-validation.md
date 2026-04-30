@@ -31,6 +31,7 @@ A query can be syntactically perfect but business-incorrect.
 | **Metric Drift** | Wrong column for a metric. | Using `subtotal` instead of `total_including_tax`. |
 | **Filter Failure** | Wrong time range or scope. | Showing "Global" data when asked for "UK only". |
 | **Join Explosion** | Joining too many tables. | Joining 5 tables to answer a 1-table question. |
+| **Performance Risk** | Missing indexes or scans. | Querying a 10M row table without an indexed filter. |
 
 ## 4. Self-Correction Loop (Repair)
 If validation fails, the "SQL Repair" flow is triggered:
@@ -46,13 +47,19 @@ Stop the automated flow and notify a human if:
 4.  **Complex Logic**: The intent requires a logic depth the current model cannot reliably produce.
 
 ## Low-Cost Implementation Options
-- **SQLGlot**: Python library for SQL transpilation and safety checks without an LLM.
+- **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call. It can also be used to automatically inject `LIMIT` clauses.
 - **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
 - **Small Model Judge**: Use a small local model (Qwen 2.5 7B) specifically to check the generated SQL against the policy checklist.
 
 ## Sources / References
 - [SQLGlot Documentation](https://github.com/tobymao/sqlglot)
 - [Guardrails AI](https://www.guardrailsai.com/)
+
+## Related tools / concepts
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-26

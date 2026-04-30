@@ -15,6 +15,12 @@ Design a "free/cheap-first" standardization layer that allows the Data Copilot t
 | **External APIs** | Tool (REST) | Low (API Keys) | `fetch` or specialized MCP servers (e.g., Jira, Slack) |
 | **Metadata** | Resource (Schema) | Free (Local) | SQL introspection MCP server |
 
+## Resource vs Tool Patterns
+
+When designing MCP servers for Data Copilots, follow these patterns:
+- **Resources**: Use for static or slowly changing context (e.g., Schema, KPI definitions, archived SOPs). The agent "reads" these to build its world model.
+- **Tools**: Use for actions or live data retrieval (e.g., `execute_query`, `fetch_current_weather`, `create_jira_ticket`). The agent "calls" these to interact with the world.
+
 ## Concrete MCP Integration Examples
 
 ### 1. SQL Query Server
@@ -55,10 +61,17 @@ For a home-office or small team setup, start with these three:
 - **Least Privilege**: SQL MCP servers should use read-only credentials with `LIMIT` enforcement.
 - **Auditability**: All MCP tool calls are logged by the agent orchestrator (n8n or LangGraph).
 - **Authentication**: MCP servers should be restricted to the local network/Tailscale mesh with token-based access.
+- **Network Isolation**: For high-security home labs, run MCP servers in a dedicated "Automation" VLAN or a Tailscale "tag" group that only allows connections from the agent orchestrator node.
 
 ## Sources / References
 - [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 - [Anthropic: Introducing MCP](https://www.anthropic.com/news/model-context-protocol)
+
+## Related tools / concepts
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot Agentic RAG](data-copilot-agentic-rag.md)
+- [Tool Calling & Model Context Protocol (MCP)](tool-calling-and-mcp.md)
+- [Claude Tool Search](claude-tool-search.md)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
