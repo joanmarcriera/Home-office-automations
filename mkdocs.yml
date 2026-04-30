@@ -221,6 +221,7 @@ nav:
       - Make: tools/automation_orchestration/make.md
       - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
       - MCP Registry: tools/automation_orchestration/mcp-registry.md
+      - Model Context Protocol (MCP): tools/automation_orchestration/mcp.md
       - Picnic: tools/automation_orchestration/picnic.md
       - PulseMCP: tools/automation_orchestration/pulse-mcp.md
       - ServiceNow MCP Server: tools/automation_orchestration/servicenow-mcp.md
@@ -248,6 +249,7 @@ nav:
       - Mbpp: tools/benchmarking/mbpp.md
       - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
       - Pa Bench: tools/benchmarking/pa-bench.md
+      - Promptfoo: tools/benchmarking/promptfoo.md
       - Swe Bench: tools/benchmarking/swe-bench.md
       - Supermetal Benchmark: tools/benchmarking/supermetal.md
       - VAKRA Benchmark: tools/benchmarking/vakra.md
@@ -343,10 +345,12 @@ nav:
     - Frameworks:
       - Overview: tools/frameworks/index.md
       - AutoGen: tools/frameworks/autogen.md
+      - AutoGen Studio: tools/frameworks/autogen-studio.md
       - CrewAI: tools/frameworks/crewai.md
       - DSPy: tools/frameworks/dspy.md
       - Haystack: tools/frameworks/haystack.md
       - LangGraph: tools/frameworks/langgraph.md
+      - Microsoft Agent Framework: tools/frameworks/microsoft-agent-framework.md
       - Mycelium: tools/frameworks/mycelium.md
       - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
       - Semantic Kernel: tools/frameworks/semantic-kernel.md
@@ -420,6 +424,7 @@ nav:
       - ClawRouter: tools/infrastructure/clawrouter.md
       - ExLlamaV2: tools/infrastructure/exllamav2.md
       - Jan.ai: tools/infrastructure/jan-ai.md
+      - Kubernetes (K3s): tools/infrastructure/k3s.md
       - llama.cpp: tools/infrastructure/llama-cpp.md
       - LocalAI: tools/infrastructure/localai.md
       - MLX: tools/infrastructure/mlx.md
@@ -441,7 +446,9 @@ nav:
       - Docling: tools/process_understanding/docling.md
       - Overview: tools/process_understanding/index.md
       - Docling MCP: tools/process_understanding/docling-mcp.md
+      - Grafana Cloud: tools/process_understanding/grafana-cloud.md
       - Langfuse: tools/process_understanding/langfuse.md
+      - New Relic AI: tools/process_understanding/new-relic-ai.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
       - PostHog: tools/process_understanding/posthog.md
       - Tesseract CLI: tools/process_understanding/tesseract.md

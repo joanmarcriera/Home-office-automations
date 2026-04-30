@@ -162,6 +162,12 @@
       "doc_path": "docs/tools/frameworks/autogen.md"
     },
     {
+      "id": "autogen-studio",
+      "name": "AutoGen Studio",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/autogen-studio.md"
+    },
+    {
       "id": "autoreason",
       "name": "AutoReason",
       "category": "Agents",
@@ -863,6 +869,12 @@
       "doc_path": "docs/tools/agents/gpt-researcher.md"
     },
     {
+      "id": "grafana-cloud",
+      "name": "Grafana Cloud",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/grafana-cloud.md"
+    },
+    {
       "id": "grocy",
       "name": "Grocy",
       "category": "Intake & Storage",
@@ -1058,6 +1070,12 @@
       "name": "Jupyter Kernel MCP",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/jupyter-kernel-mcp.md"
+    },
+    {
+      "id": "k3s",
+      "name": "Kubernetes (K3s)",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/k3s.md"
     },
     {
       "id": "karpathy-skills",
@@ -1258,6 +1276,12 @@
       "doc_path": "docs/tools/benchmarking/mbpp.md"
     },
     {
+      "id": "mcp",
+      "name": "Model Context Protocol (MCP)",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/mcp.md"
+    },
+    {
       "id": "mcp-registry",
       "name": "MCP Registry",
       "category": "Automation & Orchestration",
@@ -1286,6 +1310,12 @@
       "name": "Mentat",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/mentat.md"
+    },
+    {
+      "id": "microsoft-agent-framework",
+      "name": "Microsoft Agent Framework",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/microsoft-agent-framework.md"
     },
     {
       "id": "microsoft-graph",
@@ -1415,6 +1445,12 @@
       "name": "Netlify",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/netlify.md"
+    },
+    {
+      "id": "new-relic-ai",
+      "name": "New Relic AI",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/new-relic-ai.md"
     },
     {
       "id": "nextcloud",
@@ -1655,6 +1691,12 @@
       "name": "Project Genie",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/project-genie.md"
+    },
+    {
+      "id": "promptfoo",
+      "name": "Promptfoo",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/promptfoo.md"
     },
     {
       "id": "proton-calendar",

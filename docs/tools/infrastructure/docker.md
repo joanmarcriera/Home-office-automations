@@ -70,7 +70,7 @@ Follow the official guides for:
 
 ## Related tools / concepts
 - [Docker Compose](https://docs.docker.com/compose/)
-- [Kubernetes (K3s)](../infrastructure/k3s.md)
+- [Kubernetes (K3s)](k3s.md)
 - [Podman](https://podman.io/)
 - [LXC/LXD](https://linuxcontainers.org/)
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)

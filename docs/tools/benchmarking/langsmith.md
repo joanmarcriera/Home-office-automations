@@ -41,6 +41,7 @@ Benchmarking / Observability
 - **Self-hostable**: Yes (Enterprise only)
 
 ## Related tools / concepts
+- [Promptfoo](promptfoo.md)
 - [LangChain](../ai_knowledge/langchain.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Benchmarking](./index.md)
