@@ -72,10 +72,16 @@ Before synthesis, the planner must ask: "Do I have enough information to answer 
 3.  **Synthesis**: "Your spending spiked by £150 last week primarily due to 'Dining Out'. This is explained by the 'Anniversary Dinner' event found in your calendar for April 20."
 4.  **Confidence**: 0.95 (Direct causal link found).
 
+## Related tools / concepts
+- [Data Copilot Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md)
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+
 ## Sources / References
 - [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
 - [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-04-30
 - Confidence: high

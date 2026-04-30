@@ -99,10 +99,16 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - **Primary**: Claude 3.5 Haiku or GPT-4o-mini (Reliable structured output).
 - **Fallback**: Qwen 2.5 7B (Local) with a strict JSON-mode system prompt and Pydantic validation on the output. If the JSON is invalid, the system should retry once with the error message.
 
+## Related tools / concepts
+- [Data Copilot Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+
 ## Sources / References
 - [OpenAI: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
 - [Pydantic Documentation](https://docs.pydantic.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-04-30
 - Confidence: high

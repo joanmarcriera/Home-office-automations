@@ -56,10 +56,16 @@ For a home-office or small team setup, start with these three:
 - **Auditability**: All MCP tool calls are logged by the agent orchestrator (n8n or LangGraph).
 - **Authentication**: MCP servers should be restricted to the local network/Tailscale mesh with token-based access.
 
+## Related tools / concepts
+- [Data Copilot Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot Agentic RAG](data-copilot-agentic-rag.md)
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+
 ## Sources / References
 - [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 - [Anthropic: Introducing MCP](https://www.anthropic.com/news/model-context-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-04-30
 - Confidence: high
