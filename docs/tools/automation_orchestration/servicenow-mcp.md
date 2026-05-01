@@ -39,7 +39,8 @@ It reduces direct API wiring work when you want agents to query incidents, chang
 
 ## Related tools / concepts
 - [MCP Registry](mcp-registry.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol (MCP)](mcp.md)
+- [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
 - [Service Inventory](../../services/inventory.md)
 
 ## Sources / References

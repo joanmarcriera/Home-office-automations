@@ -41,8 +41,10 @@ It enables AI assistants to create and control isolated Claude Code instances pr
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
-- [Docker](https://www.docker.com/)
+- [Docker](../infrastructure/docker.md)
 - [AWS Bedrock](../providers/aws-bedrock.md)
+- [Desktop Commander MCP](desktop-commander-mcp.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / References
 - [Claude Code Container MCP GitHub](https://github.com/democratize-technology/claude-code-container-mcp)

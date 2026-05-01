@@ -230,7 +230,9 @@ Useful prompts once connected:
 ## Related tools / concepts
 - [MCP Registry](mcp-registry.md)
 - [ServiceNow MCP Server](servicenow-mcp.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Playwright MCP Server](playwright-mcp.md)
+- [Model Context Protocol (MCP)](mcp.md)
+- [n8n](../../services/n8n.md)
 
 ## Sources / References
 - [Issue source: requested MCP examples](https://github.com/joanmarcriera/Home-office-automations/issues/24)

@@ -38,7 +38,9 @@ It automates PDF accessibility and parsing, ensuring that complex PDF structures
 
 ## Related tools / concepts
 - [LlamaParse](../intake_storage/llamaparse.md)
-- [Marker](https://github.com/VikParuchuri/marker)
+- [Unstructured.io](../intake_storage/unstructured.md)
+- [Docling](docling.md)
+- [Docling MCP](docling-mcp.md)
 
 ## Sources / References
 - [GitHub](https://github.com/opendataloader-project/opendataloader-pdf)

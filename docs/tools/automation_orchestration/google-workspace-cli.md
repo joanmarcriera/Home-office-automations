@@ -58,6 +58,7 @@ That architecture makes the CLI unusually adaptable for broad Workspace coverage
 - [n8n](../../services/n8n.md)
 - [Zapier](zapier.md)
 - [Gemini Canvas](../ai_knowledge/gemini-canvas.md)
+- [Gemini CLI](../ai_knowledge/gemini-cli.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/googleworkspace/cli)
