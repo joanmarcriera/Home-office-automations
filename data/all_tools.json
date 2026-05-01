@@ -354,6 +354,12 @@
       "doc_path": "docs/tools/infrastructure/clawrouter.md"
     },
     {
+      "id": "clickhouse",
+      "name": "ClickHouse",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/clickhouse.md"
+    },
+    {
       "id": "clihub",
       "name": "CliHub",
       "category": "Automation & Orchestration",
@@ -690,6 +696,12 @@
       "doc_path": "docs/knowledge_base/patterns/fine-tuning-open-models.md"
     },
     {
+      "id": "firebase-genkit",
+      "name": "Firebase Genkit",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/firebase-genkit.md"
+    },
+    {
       "id": "firebase-studio",
       "name": "Firebase Studio",
       "category": "Development & Ops",
@@ -819,6 +831,12 @@
       "name": "GNU Make",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/gnu-make.md"
+    },
+    {
+      "id": "google-adk",
+      "name": "Agent Development Kit (ADK)",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/google-adk.md"
     },
     {
       "id": "google-calendar",
@@ -1018,6 +1036,12 @@
       "doc_path": "docs/services/immich.md"
     },
     {
+      "id": "instructor",
+      "name": "Instructor",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/instructor.md"
+    },
+    {
       "id": "intercode",
       "name": "InterCode",
       "category": "Benchmarking",
@@ -1196,6 +1220,12 @@
       "name": "LlamaIndex",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/llamaindex.md"
+    },
+    {
+      "id": "llamaindex-ts",
+      "name": "LlamaIndex.TS",
+      "category": "AI & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/llamaindex-ts.md"
     },
     {
       "id": "llamaparse",
@@ -1615,6 +1645,12 @@
       "doc_path": "docs/tools/development_ops/openswarm.md"
     },
     {
+      "id": "opentelemetry-collector",
+      "name": "OpenTelemetry Collector",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/opentelemetry-collector.md"
+    },
+    {
       "id": "outlook-calendar",
       "name": "Outlook Calendar",
       "category": "Calendar & Tasks",
@@ -1697,6 +1733,12 @@
       "name": "Plex",
       "category": "Media & Entertainment",
       "doc_path": "docs/services/plex.md"
+    },
+    {
+      "id": "portkey",
+      "name": "Portkey AI Gateway",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/portkey.md"
     },
     {
       "id": "portracker",
@@ -1824,6 +1866,12 @@
       "doc_path": "docs/tools/ai_knowledge/runwayml.md"
     },
     {
+      "id": "s3-storage",
+      "name": "S3 / S3-Compatible Storage",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/s3-storage.md"
+    },
+    {
       "id": "searXNG",
       "name": "SearXNG",
       "category": "Process & Understanding",
@@ -1894,6 +1942,12 @@
       "name": "Smolagents",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/smolagents.md"
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/snowflake.md"
     },
     {
       "id": "sourcegraph-cody",
@@ -2124,6 +2178,12 @@
       "doc_path": "docs/tools/providers/vercel-ai-gateway.md"
     },
     {
+      "id": "vercel-ai-sdk",
+      "name": "AI SDK (by Vercel)",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/vercel-ai-sdk.md"
+    },
+    {
       "id": "vercel-oss",
       "name": "Vercel OSS",
       "category": "Development & Ops",
@@ -2164,6 +2224,18 @@
       "name": "VS Code",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/vscode.md"
+    },
+    {
+      "id": "wandb-weave",
+      "name": "W&B Weave",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/wandb-weave.md"
+    },
+    {
+      "id": "webhook",
+      "name": "Webhook",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/webhook.md"
     },
     {
       "id": "whisper",
