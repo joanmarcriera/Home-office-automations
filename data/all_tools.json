@@ -37,6 +37,12 @@
       "doc_path": "docs/knowledge_base/patterns/agentic-workflows.md"
     },
     {
+      "id": "agentops",
+      "name": "AgentOps",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/agentops.md"
+    },
+    {
       "id": "agno",
       "name": "Agno",
       "category": "Agents",
@@ -53,6 +59,12 @@
       "name": "Aider",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/aider.md"
+    },
+    {
+      "id": "airops",
+      "name": "AirOps",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/airops.md"
     },
     {
       "id": "aitmpl",
@@ -690,6 +702,12 @@
       "doc_path": "docs/tools/calendar_tasks/fantastical.md"
     },
     {
+      "id": "fiddler",
+      "name": "Fiddler AI",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/fiddler.md"
+    },
+    {
       "id": "fine-tuning-open-models",
       "name": "Fine-tuning Open Models",
       "category": "Patterns",
@@ -881,6 +899,12 @@
       "doc_path": "docs/tools/automation_orchestration/google-workspace-cli.md"
     },
     {
+      "id": "goose",
+      "name": "Goose",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/goose.md"
+    },
+    {
       "id": "gpqa",
       "name": "GPQA",
       "category": "Benchmarking",
@@ -928,6 +952,12 @@
       "doc_path": "docs/tools/benchmarking/gsm8k.md"
     },
     {
+      "id": "gumloop",
+      "name": "Gumloop",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/gumloop.md"
+    },
+    {
       "id": "guru",
       "name": "Guru",
       "category": "Enterprise AI",
@@ -962,6 +992,12 @@
       "name": "Hebbia",
       "category": "Enterprise AI",
       "doc_path": "docs/tools/enterprise/hebbia.md"
+    },
+    {
+      "id": "helicone",
+      "name": "Helicone",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/helicone.md"
     },
     {
       "id": "helm",
@@ -1186,6 +1222,12 @@
       "doc_path": "docs/tools/ai_knowledge/last30days-skill.md"
     },
     {
+      "id": "lastmile",
+      "name": "LastMile AI",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/lastmile.md"
+    },
+    {
       "id": "letta",
       "name": "Letta",
       "category": "Agents",
@@ -1244,6 +1286,12 @@
       "name": "LLMPerf",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/llmperf.md"
+    },
+    {
+      "id": "llmware",
+      "name": "LLMWare",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/llmware.md"
     },
     {
       "id": "lm-evaluation-harness",
@@ -1573,6 +1621,12 @@
       "doc_path": "docs/tools/agents/open-agents.md"
     },
     {
+      "id": "open-interpreter",
+      "name": "Open Interpreter",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/open-interpreter.md"
+    },
+    {
       "id": "open-webui",
       "name": "Open WebUI",
       "category": "AI Assistants & Knowledge",
@@ -1679,6 +1733,12 @@
       "name": "Paperless-ngx",
       "category": "Intake & Storage",
       "doc_path": "docs/services/paperless-ngx.md"
+    },
+    {
+      "id": "parea",
+      "name": "Parea",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/parea.md"
     },
     {
       "id": "perplexity",
@@ -1805,6 +1865,12 @@
       "name": "RAG Pattern",
       "category": "Patterns",
       "doc_path": "docs/knowledge_base/patterns/rag-pattern.md"
+    },
+    {
+      "id": "ragas",
+      "name": "Ragas",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/ragas.md"
     },
     {
       "id": "ragflow",
@@ -1960,6 +2026,12 @@
       "name": "Speedtest Tracker",
       "category": "Process & Understanding",
       "doc_path": "docs/services/speedtest.md"
+    },
+    {
+      "id": "stagehand",
+      "name": "Stagehand",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/stagehand.md"
     },
     {
       "id": "storj",

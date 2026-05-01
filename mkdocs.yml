@@ -142,9 +142,12 @@ nav:
   - Tool Catalogue:
       - Overview: tools/README.md
       - AI & Knowledge:
+          - Overview: tools/ai_knowledge/index.md
           - AI Templates: tools/ai_knowledge/aitmpl.md
           - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
+          - ansigpt: tools/ai_knowledge/ansigpt.md
           - AnythingLLM: tools/ai_knowledge/anythingllm.md
+          - big-AGI: tools/ai_knowledge/big-agi.md
           - Chatbox AI: tools/ai_knowledge/chatbox-ai.md
           - Chatgpt: tools/ai_knowledge/chatgpt.md
           - Claude: tools/ai_knowledge/claude.md
@@ -161,8 +164,8 @@ nav:
           - Fish Audio: tools/ai_knowledge/fish-audio.md
           - Flowise: tools/ai_knowledge/flowise.md
           - Gemini: tools/ai_knowledge/gemini.md
-          - Gemini CLI: tools/ai_knowledge/gemini-cli.md
           - Gemini Canvas: tools/ai_knowledge/gemini-canvas.md
+          - Gemini CLI: tools/ai_knowledge/gemini-cli.md
           - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
           - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
           - Genspark: tools/ai_knowledge/genspark.md
@@ -179,22 +182,22 @@ nav:
           - KokoClone: tools/ai_knowledge/kokoclone.md
           - Kumo AI: tools/ai_knowledge/kumo-ai.md
           - Langchain: tools/ai_knowledge/langchain.md
-          - LlamaIndex.TS: tools/ai_knowledge/llamaindex-ts.md
+          - last30days-skill: tools/ai_knowledge/last30days-skill.md
           - Llamaindex: tools/ai_knowledge/llamaindex.md
+          - LlamaIndex.TS: tools/ai_knowledge/llamaindex-ts.md
           - LobeHub: tools/ai_knowledge/lobehub.md
           - Local LLMs: tools/ai_knowledge/local_llms.md
           - Logseq: tools/ai_knowledge/logseq.md
           - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
-          - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
-          - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
           - Nano Banana: tools/ai_knowledge/nano-banana.md
           - NotebookLM: tools/ai_knowledge/notebooklm.md
           - Notion AI: tools/ai_knowledge/notion-ai.md
+          - NVIDIA Nemotron-3 Super: tools/ai_knowledge/nemotron.md
+          - NVIDIA PersonaPlex: tools/ai_knowledge/personaplex.md
           - Obsidian: tools/ai_knowledge/obsidian.md
           - OpenAI: tools/ai_knowledge/openai.md
           - OpenBB: tools/ai_knowledge/openbb.md
           - OpenRouter: tools/ai_knowledge/openrouter.md
-          - Overview: tools/ai_knowledge/index.md
           - Perplexity: tools/ai_knowledge/perplexity.md
           - Project Genie: tools/ai_knowledge/project-genie.md
           - Qwen: tools/ai_knowledge/qwen.md
@@ -204,10 +207,9 @@ nav:
           - Synthesia: tools/ai_knowledge/synthesia.md
           - TeamOut: tools/ai_knowledge/teamout.md
           - Valyu: tools/ai_knowledge/valyu.md
-          - ansigpt: tools/ai_knowledge/ansigpt.md
-          - big-AGI: tools/ai_knowledge/big-agi.md
-          - last30days-skill: tools/ai_knowledge/last30days-skill.md
       - Automation & Orchestration:
+          - Overview: tools/automation_orchestration/index.md
+          - AirOps: tools/automation_orchestration/airops.md
           - Atlassian Jira MCP Implementations:
               tools/automation_orchestration/atlassian-jira-mcp.md
           - Browser Use: tools/automation_orchestration/browser-use.md
@@ -217,13 +219,16 @@ nav:
           - GNU Make: tools/automation_orchestration/gnu-make.md
           - Google Workspace CLI:
               tools/automation_orchestration/google-workspace-cli.md
+          - Goose: tools/automation_orchestration/goose.md
+          - Gumloop: tools/automation_orchestration/gumloop.md
           - HashiCorp Vault: tools/automation_orchestration/hashicorp-vault.md
           - Lightpanda Browser: tools/automation_orchestration/lightpanda.md
-          - MCP Registry: tools/automation_orchestration/mcp-registry.md
+          - LLMWare: tools/automation_orchestration/llmware.md
           - Make: tools/automation_orchestration/make.md
           - Makefile MCP: tools/automation_orchestration/makefile-mcp.md
+          - MCP Registry: tools/automation_orchestration/mcp-registry.md
           - Model Context Protocol (MCP): tools/automation_orchestration/mcp.md
-          - Overview: tools/automation_orchestration/index.md
+          - Open Interpreter: tools/automation_orchestration/open-interpreter.md
           - Picnic: tools/automation_orchestration/picnic.md
           - Playwright MCP Server:
               tools/automation_orchestration/playwright-mcp.md
@@ -231,6 +236,7 @@ nav:
           - ServiceNow MCP Server:
               tools/automation_orchestration/servicenow-mcp.md
           - Skyvern: tools/automation_orchestration/skyvern.md
+          - Stagehand: tools/automation_orchestration/stagehand.md
           - Vault MCP Server: tools/automation_orchestration/vault-mcp.md
           - Vikunja MCP Server: tools/automation_orchestration/vikunja-mcp.md
           - Zapier: tools/automation_orchestration/zapier.md
@@ -457,6 +463,8 @@ nav:
           - LM Studio: tools/infrastructure/lm-studio.md
           - ZSE: tools/infrastructure/zse.md
       - Process & Understanding:
+          - Overview: tools/process_understanding/index.md
+          - AgentOps: tools/process_understanding/agentops.md
           - AI Auditing Tools: tools/process_understanding/ai-auditing-tools.md
           - Arize AI: tools/process_understanding/arize-ai.md
           - Braintrust: tools/process_understanding/braintrust.md
@@ -466,18 +474,22 @@ nav:
           - Datadog: tools/process_understanding/datadog.md
           - Docling: tools/process_understanding/docling.md
           - Docling MCP: tools/process_understanding/docling-mcp.md
+          - Fiddler AI: tools/process_understanding/fiddler.md
           - Firecrawl: tools/process_understanding/firecrawl.md
           - Grafana Cloud: tools/process_understanding/grafana-cloud.md
+          - Helicone: tools/process_understanding/helicone.md
           - Langfuse: tools/process_understanding/langfuse.md
+          - LastMile AI: tools/process_understanding/lastmile.md
           - New Relic AI: tools/process_understanding/new-relic-ai.md
           - OCRmypdf: tools/process_understanding/ocrmypdf.md
           - OpenDataLoader PDF:
               tools/process_understanding/opendataloader-pdf.md
           - OpenTelemetry Collector:
               tools/process_understanding/opentelemetry-collector.md
-          - Overview: tools/process_understanding/index.md
           - PageIndex: tools/process_understanding/pageindex.md
+          - Parea: tools/process_understanding/parea.md
           - PostHog: tools/process_understanding/posthog.md
+          - Ragas: tools/process_understanding/ragas.md
           - RAGFlow: tools/process_understanding/ragflow.md
           - Sentry: tools/process_understanding/sentry.md
           - Snowflake: tools/process_understanding/snowflake.md
