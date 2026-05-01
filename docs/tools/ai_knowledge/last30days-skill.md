@@ -1,29 +1,32 @@
 # last30days-skill
 
 ## What it is
-`last30days-skill` is a tool/skill designed to run periodically (e.g., once a week) to help users stay updated with the latest advancements, skills, and tools in the AI ecosystem by summarizing changes from the last 30 days.
+`last30days-skill` is a specialized skill (or tool) for Claude Code that allows the assistant to quickly summarize and analyze repository activity over the last 30 days. It leverages Git history to provide insights into recent changes, active contributors, and modified files.
 
 ## What problem it solves
-It addresses the "information overload" in the fast-moving AI field, helping users focus on high-signal updates and continuous learning.
+In large or fast-moving repositories, it's hard for an agent (or a human) to quickly get up to speed on what has changed recently. `last30days-skill` provides a concise, high-level summary that helps the assistant understand the current state of the project and recent architectural or feature updates.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Learning Layer**.
+**Category**: AI Assistants & Knowledge / Claude Code Skills
 
 ## Typical use cases
-- Weekly AI ecosystem news summarization.
-- Continuous skill gap analysis.
-- Automated knowledge base updates.
+- **Onboarding**: A new agent session uses the skill to understand recent context.
+- **Standup Summaries**: Generating a report of what was accomplished in the last month.
+- **Change Impact Analysis**: Seeing which areas of the codebase have been most volatile.
 
-## Getting started
-The tool is typically configured as a scheduled task or an agent skill.
+## Strengths
+- **Native Integration**: Designed specifically to work within the Claude Code environment.
+- **Speed**: Quickly parses local Git history without needing external API calls.
+- **Contextual Awareness**: Provides the assistant with "recent memory" of the project.
 
 ## Related tools / concepts
+- [Claude Code](../development_ops/claude-code.md)
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
-- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
+- [Everything Claude Code](../ai_knowledge/everything-claude-code.md)
 
 ## Sources / references
-- [last30days-skill GitHub](https://github.com/mvanhorn/last30days-skill)
+- [last30days-skill GitHub Repository](https://github.com/mvanhorn/last30days-skill)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-28
+- Last reviewed: 2026-05-09
 - Confidence: high
