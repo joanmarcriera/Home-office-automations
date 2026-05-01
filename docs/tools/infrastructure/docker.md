@@ -73,7 +73,7 @@ Follow the official guides for:
 - [Kubernetes (K3s)](k3s.md)
 - [Podman](https://podman.io/)
 - [LXC/LXD](https://linuxcontainers.org/)
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / References
 - [Official Website](https://www.docker.com/)

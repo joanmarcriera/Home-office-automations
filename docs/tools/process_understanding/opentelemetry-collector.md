@@ -66,7 +66,8 @@ docker run -p 4317:4317 -p 4318:4318 \
 - [Datadog](datadog.md)
 - [Sentry](sentry.md)
 - [Grafana Cloud](grafana-cloud.md)
-- [OpenRouter](../ai_knowledge/openrouter.md) (Can broadcast to an OTel Collector)
+- [New Relic AI](new-relic-ai.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 
 ## Sources / references
 - [Official Website](https://opentelemetry.io/docs/collector/)

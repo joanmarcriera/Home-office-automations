@@ -33,8 +33,10 @@ Most LLMs lack direct access to the web or can only "see" through screenshots. P
 
 ## Related tools / concepts
 - [Playwright](../development_ops/playwright.md)
-- [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Browser-use](../automation_orchestration/browser-use.md)
+- [Model Context Protocol (MCP)](mcp.md)
+- [Browser Use](browser-use.md)
+- [Stagehand](stagehand.md)
+- [Skyvern](skyvern.md)
 
 ## Sources / references
 - [Playwright MCP GitHub](https://github.com/microsoft/playwright-mcp)

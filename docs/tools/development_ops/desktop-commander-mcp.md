@@ -39,9 +39,10 @@ It enables AI assistants (like Claude Desktop) to interact directly with the loc
 - **Self-hostable**: Yes (Local-only)
 
 ## Related tools / concepts
-- [Claude Desktop](../development_ops/vscode.md)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
-- [ripgrep](https://github.com/BurntSushi/ripgrep)
+- [Claude Code](claude-code.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [ripgrep](ripgrep.md)
+- [Claude Code Container MCP](claude-code-container-mcp.md)
 
 ## Sources / References
 - [Desktop Commander MCP GitHub](https://github.com/democratize-technology/DesktopCommanderMCP)

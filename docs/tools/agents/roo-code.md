@@ -52,6 +52,7 @@ Like its predecessor, Roo Code solves the context-switching problem by integrati
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Cline](cline.md) (The project it was forked from)
 - [Aider](../development_ops/aider.md) (Terminal-based agent)
+- [Claude Code](../development_ops/claude-code.md)
 
 ## Sources / References
 - [Official GitHub](https://github.com/RooVetGit/Roo-Code)

@@ -72,14 +72,40 @@ amp --execute "run tests"
 ```
 
 ## API examples
-Amp functionality is primarily exposed through its CLI and its integration with MCP servers. Configuration can be managed via environment variables for automation:
+Amp functionality is primarily exposed through its CLI and its integration with MCP servers. Configuration can be managed via environment variables for automation. You can also interact with the underlying Sourcegraph API that Amp utilizes for deeper repository insights.
 
-```bash
-# Set environment variables for automated workflows
-export AMP_API_KEY="your-api-key"
-export AMP_LOG_LEVEL="info"
-export AMP_SETTINGS_FILE="./custom-settings.json"
+### Python Example: Fetching Repository Context
+```python
+import os
+import requests
+
+def get_amp_repo_context(repo_name):
+    api_key = os.getenv("AMP_API_KEY")
+    # Amp leverages Sourcegraph GraphQL API
+    url = "https://sourcegraph.com/.api/graphql"
+    query = """
+    query Repository($name: String!) {
+      repository(name: $name) {
+        id
+        description
+        url
+      }
+    }
+    """
+    headers = {"Authorization": f"token {api_key}"}
+    response = requests.post(url, json={"query": query, "variables": {"name": repo_name}}, headers=headers)
+    return response.json()
+
+# Example usage
+# context = get_amp_repo_context("github.com/sourcegraph/amp")
+# print(context)
 ```
+
+### Data Contracts
+AmpCode follows strict data contracts for agentic interaction:
+- **Input**: Natural language task or structured JSON job definition.
+- **Context**: Dynamic injection of repository snippets via Sourcegraph embeddings.
+- **Output**: Git diffs, log reports, or status updates conforming to standardized schemas.
 
 ## Related tools / concepts
 

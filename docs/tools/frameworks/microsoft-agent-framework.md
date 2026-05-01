@@ -40,6 +40,8 @@ It simplifies the coordination of multiple LLM-powered agents, providing standar
 - [AutoGen](autogen.md)
 - [Semantic Kernel](semantic-kernel.md)
 - [CrewAI](crewai.md)
+- [LangGraph](langgraph.md)
+- [OpenAI Agents SDK](openai-agents-sdk.md)
 
 ## Sources / References
 - [Official Website](https://www.microsoft.com/en-us/research/project/ai-agents/)
