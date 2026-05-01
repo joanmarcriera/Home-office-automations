@@ -7,6 +7,12 @@
       "doc_path": "docs/services/actual-budget.md"
     },
     {
+      "id": "ag2",
+      "name": "AG2",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/ag2.md"
+    },
+    {
       "id": "agency-agents",
       "name": "Agency-Agents",
       "category": "Agents",
@@ -23,6 +29,12 @@
       "name": "Agentic Automation Canvas (AAC)",
       "category": "Agents",
       "doc_path": "docs/tools/agents/agentic-automation-canvas.md"
+    },
+    {
+      "id": "agentic-workflows",
+      "name": "Agentic Workflows",
+      "category": "Patterns",
+      "doc_path": "docs/knowledge_base/patterns/agentic-workflows.md"
     },
     {
       "id": "agno",
@@ -1120,6 +1132,12 @@
       "doc_path": "docs/tools/ai_knowledge/langchain.md"
     },
     {
+      "id": "langflow",
+      "name": "Langflow",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/langflow.md"
+    },
+    {
       "id": "langfuse",
       "name": "Langfuse",
       "category": "Process & Understanding",
@@ -1256,6 +1274,12 @@
       "name": "Manual Assistant",
       "category": "Reference Implementations",
       "doc_path": "docs/reference-implementations/manual-assistant/manual-assistant-implementation.md"
+    },
+    {
+      "id": "mastra",
+      "name": "Mastra",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/mastra.md"
     },
     {
       "id": "math-benchmark",
@@ -1735,6 +1759,12 @@
       "doc_path": "docs/services/radicale.md"
     },
     {
+      "id": "rag-pattern",
+      "name": "RAG Pattern",
+      "category": "Patterns",
+      "doc_path": "docs/knowledge_base/patterns/rag-pattern.md"
+    },
+    {
       "id": "ragflow",
       "name": "RAGFlow",
       "category": "Process & Understanding",
@@ -1768,6 +1798,12 @@
       "name": "Replit Agent",
       "category": "Agents",
       "doc_path": "docs/tools/agents/replit-agent.md"
+    },
+    {
+      "id": "rivet",
+      "name": "Rivet",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/rivet.md"
     },
     {
       "id": "roam-research",
@@ -1890,6 +1926,12 @@
       "doc_path": "docs/tools/development_ops/superconductor.md"
     },
     {
+      "id": "superinterface",
+      "name": "Superinterface",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/superinterface.md"
+    },
+    {
       "id": "supermetal",
       "name": "Supermetal Benchmark",
       "category": "Benchmarking",
@@ -1960,6 +2002,12 @@
       "name": "TeamOut",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/teamout.md"
+    },
+    {
+      "id": "temporal",
+      "name": "Temporal",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/temporal.md"
     },
     {
       "id": "terminal-bench",
