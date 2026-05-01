@@ -1,8 +1,12 @@
 # Process & Understanding
-
+- [ClickHouse](clickhouse.md)
 - [Crawl4AI](crawl4ai.md)
 - [Docling MCP](docling-mcp.md)
 - [Firecrawl](firecrawl.md)
 - [Ocrmypdf](ocrmypdf.md)
+- [OpenTelemetry Collector](opentelemetry-collector.md)
 - [PageIndex](pageindex.md)
 - [RAGFlow](ragflow.md)
+- [Snowflake](snowflake.md)
+- [W&B Weave](wandb-weave.md)
+- [Webhook](webhook.md)
