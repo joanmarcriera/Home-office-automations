@@ -342,6 +342,12 @@
       "doc_path": "docs/tools/infrastructure/clawrouter.md"
     },
     {
+      "id": "clickhouse",
+      "name": "ClickHouse",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/clickhouse.md"
+    },
+    {
       "id": "clihub",
       "name": "CliHub",
       "category": "Automation & Orchestration",
@@ -1591,6 +1597,12 @@
       "doc_path": "docs/tools/development_ops/openswarm.md"
     },
     {
+      "id": "opentelemetry",
+      "name": "OpenTelemetry Collector",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/opentelemetry.md"
+    },
+    {
       "id": "outlook-calendar",
       "name": "Outlook Calendar",
       "category": "Calendar & Tasks",
@@ -1788,6 +1800,12 @@
       "doc_path": "docs/tools/ai_knowledge/runwayml.md"
     },
     {
+      "id": "s3-storage",
+      "name": "S3 / S3-Compatible Storage",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/s3-storage.md"
+    },
+    {
       "id": "searXNG",
       "name": "SearXNG",
       "category": "Process & Understanding",
@@ -1858,6 +1876,12 @@
       "name": "Smolagents",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/smolagents.md"
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/snowflake.md"
     },
     {
       "id": "sourcegraph-cody",
@@ -2116,6 +2140,18 @@
       "name": "VS Code",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/vscode.md"
+    },
+    {
+      "id": "wb-weave",
+      "name": "W&B Weave",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/wb-weave.md"
+    },
+    {
+      "id": "webhook",
+      "name": "Webhook",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/webhook.md"
     },
     {
       "id": "whisper",

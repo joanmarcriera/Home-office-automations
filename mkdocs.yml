@@ -228,6 +228,7 @@ nav:
       - Skyvern: tools/automation_orchestration/skyvern.md
       - Vault MCP Server: tools/automation_orchestration/vault-mcp.md
       - Vikunja MCP Server: tools/automation_orchestration/vikunja-mcp.md
+      - Webhook: tools/automation_orchestration/webhook.md
       - Zapier: tools/automation_orchestration/zapier.md
     - Benchmarking:
       - Overview: tools/benchmarking/index.md
@@ -337,9 +338,12 @@ nav:
       - Overview: tools/intake_storage/index.md
       - AnyType: tools/intake_storage/anytype.md
       - Caldav: tools/intake_storage/caldav.md
+      - ClickHouse: tools/intake_storage/clickhouse.md
       - Khoj: tools/intake_storage/khoj.md
       - LlamaParse: tools/intake_storage/llamaparse.md
+      - S3 / S3-Compatible Storage: tools/intake_storage/s3-storage.md
       - SilverBullet: tools/intake_storage/silverbullet.md
+      - Snowflake: tools/intake_storage/snowflake.md
       - Unstructured.io: tools/intake_storage/unstructured.md
       - Verba: tools/intake_storage/verba.md
     - Frameworks:
@@ -442,22 +446,24 @@ nav:
       - Arize AI: tools/process_understanding/arize-ai.md
       - Braintrust: tools/process_understanding/braintrust.md
       - Comet Opik: tools/process_understanding/comet-opik.md
+      - Crawl4AI: tools/process_understanding/crawl4ai.md
       - Datadog: tools/process_understanding/datadog.md
       - Docling: tools/process_understanding/docling.md
       - Overview: tools/process_understanding/index.md
       - Docling MCP: tools/process_understanding/docling-mcp.md
+      - Firecrawl: tools/process_understanding/firecrawl.md
       - Grafana Cloud: tools/process_understanding/grafana-cloud.md
       - Langfuse: tools/process_understanding/langfuse.md
       - New Relic AI: tools/process_understanding/new-relic-ai.md
       - OCRmypdf: tools/process_understanding/ocrmypdf.md
-      - PostHog: tools/process_understanding/posthog.md
-      - Tesseract CLI: tools/process_understanding/tesseract.md
-      - Crawl4AI: tools/process_understanding/crawl4ai.md
-      - Firecrawl: tools/process_understanding/firecrawl.md
-      - PageIndex: tools/process_understanding/pageindex.md
       - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
+      - OpenTelemetry Collector: tools/process_understanding/opentelemetry.md
+      - PageIndex: tools/process_understanding/pageindex.md
+      - PostHog: tools/process_understanding/posthog.md
       - RAGFlow: tools/process_understanding/ragflow.md
       - Sentry: tools/process_understanding/sentry.md
+      - Tesseract CLI: tools/process_understanding/tesseract.md
+      - W&B Weave: tools/process_understanding/wb-weave.md
   - Reports:
     - Data Copilot Issue Verification: reports/data-copilot-issue-verification.md
   - Architecture:
