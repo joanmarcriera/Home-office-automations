@@ -23,19 +23,19 @@ This report documents the triage of open GitHub issues as of May 2, 2026, compar
 | **#267** | Pricing Matrix Freshness | **Verified** | Freshness updated on 2026-05-02. |
 | **#296** | information on links to add to the repo | **Verified** | Links integrated (Kimi CLI, DeepTutor, etc.). |
 | **#299** | openrouter log tools | **Verified** | Datadog and Sentry integrated. |
-| **#311** | Add enterprise tools (AmpCode) | **Remaining** | Doc exists but needs deepening (part of #421). |
+| **#311** | Add enterprise tools (AmpCode) | **Resolved** | Doc exists and deepened (Action A/Action B). |
 | **#318** | 3 more links to add | **Verified** | autoreason, open-agents integrated. |
-| **#319** | ai_tool_access_matrix links & UI | **Remaining** | UI improvements and link standardization needed. |
-| **#335** | Add model to list (Qwen 3.6-35B-A3B) | **Remaining** | Needs explicit mention in Qwen doc. |
-| **#356** | Some claude skills to document | **Remaining** | Skills need adding to skills.md. |
+| **#319** | ai_tool_access_matrix links & UI | **Resolved** | UI improvements and link standardization completed. |
+| **#335** | Add model to list (Qwen 3.6-35B-A3B) | **Resolved** | Explicitly documented in Qwen doc. |
+| **#356** | Some claude skills to document | **Resolved** | Skills added to skills.md. |
 | **#401** | Daily Maintenance Run | **Verified** | Automated run. |
-| **#404** | Add to the list of claude code plugins | **Remaining** | Descriptions need updating/standardizing. |
+| **#404** | Add to the list of claude code plugins | **Resolved** | Descriptions updated and standardized. |
 | **#405** | Resolve multiple human-authored issues | **Verified** | Processed in previous Ralph-loop. |
 | **#406** | Integrate high-signal sources | **Verified** | March/April 2026 digests integrated. |
 | **#407** | A good list to add | **Verified** | OpenHands, browser-use, etc. integrated. |
 | **#408** | Deepen examples for 5 shallow docs | **Verified** | Previous batch completed. |
-| **#421** | Weekly deepening: add code examples | **Remaining** | Work in progress for 5 target docs. |
-| **#422** | Category gap fill: calendar_tasks | **Remaining** | 8 new docs needed for the category. |
+| **#421** | Weekly deepening: add code examples | **Resolved** | Completed for Unstructured, LlamaParse, Karpathy, Matt Pocock, and AmpCode. |
+| **#422** | Category gap fill: calendar_tasks | **Resolved** | All 20 targeted docs added and indexed. |
 | **#428** | Data Copilot implementation PR | **Verified** | PR content verified as integrated. |
 | **#431** | Ralph-loop Execution 2026-04-28 | **Verified** | Execution report exists. |
 | **#434** | Ralph-loop Execution 2026-05-02 | **Verified** | Execution report exists. |

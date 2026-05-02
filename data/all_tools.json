@@ -1927,6 +1927,12 @@
       "doc_path": "docs/tools/process_understanding/ragflow.md"
     },
     {
+      "id": "ramp",
+      "name": "Ramp",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/ramp.md"
+    },
+    {
       "id": "rclone-automation",
       "name": "rclone Automation",
       "category": "Intake & Storage",
@@ -2204,8 +2210,8 @@
     {
       "id": "temporal",
       "name": "Temporal",
-      "category": "Frameworks",
-      "doc_path": "docs/tools/frameworks/temporal.md"
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/temporal.md"
     },
     {
       "id": "terminal-bench",
