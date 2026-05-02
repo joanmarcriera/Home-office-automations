@@ -17,7 +17,18 @@ Overcomes the limitations of standard PDF text extraction by using vision-aware 
 ## Strengths
 - **Vision-Aware**: Uses advanced vision models to understand document layout better than traditional OCR.
 - **Markdown Output**: Optimized for LLMs, preserving hierarchies and table structures in clean Markdown.
+- **Cost Optimizer**: Automatically routes simple pages to cheaper tiers while keeping complex pages on premium tiers.
 - **Ecosystem Integration**: Seamlessly connects with LlamaIndex for end-to-end RAG development.
+
+## Parsing Tiers
+LlamaParse offers four tiers that trade off cost, latency, and accuracy:
+
+| Tier | Best For | Cost (Credits/Page) |
+| :--- | :--- | :---: |
+| **Fast** | Plain text, single column, no tables. | 0.5 |
+| **Cost Effective** | Text with simple tables; clean markdown. | 3 |
+| **Agentic** | Scanned pages, multi-column, charts. | 10 |
+| **Agentic Plus** | Dense financial reports, mission-critical accuracy. | 45 |
 
 ## Limitations
 - **Cloud Dependency**: Primarily a cloud-based service, which may not suit air-gapped environments.
