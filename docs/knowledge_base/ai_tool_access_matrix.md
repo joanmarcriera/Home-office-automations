@@ -47,7 +47,7 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [Roo Code](../tools/agents/roo-code.md) | VS Code coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Similar to Cline, with explicit OpenAI-compatible and Z.ai-oriented provider paths. |
 | [OpenHands](../tools/development_ops/openhands.md) | Agent platform | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟠 | 🟠 | 🟢 | More of a software-agent runtime than a personal productivity assistant. |
 | [Open WebUI](../services/open-webui.md) | Self-hosted AI workspace | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Strong self-hosted front end for local and cloud models. |
-| [LibreChat](../tools/ai_knowledge/index.md) | Self-hosted chat/agents | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Flexible self-hosted stack with custom endpoints and agents. |
+| [LibreChat](../tools/ai_knowledge/librechat.md) | Self-hosted chat/agents | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Flexible self-hosted stack with custom endpoints and agents. |
 | [AnythingLLM](../tools/ai_knowledge/anythingllm.md) | Local-first workspace/agents | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Local-first and practical for private document and agent use. |
 | [LobeHub](../tools/ai_knowledge/lobehub.md) | Self-hosted AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Self-hostable multi-model workspace with rich plugin ecosystem. |
 | [Chatbox AI](../tools/ai_knowledge/chatbox-ai.md) | Desktop chat client | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Desktop multi-model chat client with cross-device sync. |
@@ -55,7 +55,7 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [big-AGI](../tools/ai_knowledge/big-agi.md) | Expert AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Expert workspace for multi-model reasoning and zero-latency UI. |
 | [LM Studio](../tools/infrastructure/lm-studio.md) | Local model runner | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | Best as a local model host rather than a full productivity agent. |
 | [Jan](../tools/infrastructure/jan-ai.md) | Local AI app | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟠 | 🔴 | Local, open-source chat client with MCP support. |
-| [TypingMind](../tools/ai_knowledge/index.md) | Multi-model UI | 🟠 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | Good front end when plugins, Zapier, or MCP matter more than native apps. |
+| [TypingMind](../tools/ai_knowledge/typingmind.md) | Multi-model UI | 🟠 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | Good front end when plugins, Zapier, or MCP matter more than native apps. |
 | [Open Interpreter](../tools/automation_orchestration/open-interpreter.md) | Local computer-use agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟠 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Strong for local computer, files, and terminal; not a native Gmail or Calendar tool. |
 | [Goose](../tools/automation_orchestration/goose.md) | Local general-purpose agent | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟠 | 🟢 | Broad local agent with deep MCP emphasis. |
 | [Langflow](../tools/frameworks/langflow.md) | Visual agent builder | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟠 | 🟢 | Better as a builder and orchestrator than as an end-user assistant. |
@@ -76,7 +76,7 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [AutoGen](../tools/frameworks/autogen.md) | Multi-agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Framework for agent coordination and experiments. |
 | [AutoGen Studio](../tools/frameworks/autogen.md) | Low-code agent UI | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | UI layer for AutoGen-style agent workflows. |
 | [Semantic Kernel](../tools/frameworks/semantic-kernel.md) | Agent SDK | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | SDK for embedding agents into applications. |
-| [Microsoft Agent Framework](../tools/frameworks/index.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | 🟢 | Microsoft-centered agent framework path. |
+| [Microsoft Agent Framework](../tools/frameworks/microsoft-agent-framework.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | 🟢 | Microsoft-centered agent framework path. |
 | [Agno](../tools/agents/agno.md) | Agent runtime / framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Agent framework with practical local and app-building focus. |
 | [Haystack](../tools/frameworks/haystack.md) | RAG / agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Strong RAG framework, not a productivity assistant. |
 | [PydanticAI](../tools/frameworks/pydantic-ai.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟠 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | Developer framework centered on typed Python agents. |
@@ -84,7 +84,7 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [LlamaIndex.TS](../tools/ai_knowledge/llamaindex-ts.md) | TypeScript context / agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | TypeScript counterpart for context-heavy apps. |
 | [LlamaParse](../tools/intake_storage/llamaparse.md) | Document AI / OCR | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Document parsing service rather than an agent. |
 | [Dify](../tools/ai_knowledge/dify.md) | Agent/workflow platform | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | App builder with workflow and agent surfaces. |
-| Vellum | AI workflow / agent platform | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Hosted workflow platform. |
+| [Vellum](../tools/automation_orchestration/vellum.md) | AI assistant / orchestration | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Hosted workflow platform with local computer-use. |
 | [Rivet](../tools/frameworks/rivet.md) | Visual AI IDE | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟠 | 🟢 | 🟠 | 🔴 | Visual workflow IDE; self-host status depends on deployment path. |
 | [LiteLLM](../services/litellm.md) | LLM gateway | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | High-value provider abstraction and routing layer. |
 | [OpenRouter](../tools/ai_knowledge/openrouter.md) | Model router / API | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Hosted model router with broad OpenAI-compatible API coverage. |

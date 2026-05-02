@@ -183,6 +183,7 @@ nav:
           - Kumo AI: tools/ai_knowledge/kumo-ai.md
           - Langchain: tools/ai_knowledge/langchain.md
           - last30days-skill: tools/ai_knowledge/last30days-skill.md
+          - LibreChat: tools/ai_knowledge/librechat.md
           - Llamaindex: tools/ai_knowledge/llamaindex.md
           - LlamaIndex.TS: tools/ai_knowledge/llamaindex-ts.md
           - LobeHub: tools/ai_knowledge/lobehub.md
@@ -206,6 +207,7 @@ nav:
           - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
           - Synthesia: tools/ai_knowledge/synthesia.md
           - TeamOut: tools/ai_knowledge/teamout.md
+          - TypingMind: tools/ai_knowledge/typingmind.md
           - Valyu: tools/ai_knowledge/valyu.md
       - Automation & Orchestration:
           - Overview: tools/automation_orchestration/index.md
@@ -234,6 +236,7 @@ nav:
           - Skyvern: tools/automation_orchestration/skyvern.md
           - Stagehand: tools/automation_orchestration/stagehand.md
           - Vault MCP Server: tools/automation_orchestration/vault-mcp.md
+          - Vellum: tools/automation_orchestration/vellum.md
           - Vikunja MCP Server: tools/automation_orchestration/vikunja-mcp.md
           - Zapier: tools/automation_orchestration/zapier.md
       - Benchmarking:
