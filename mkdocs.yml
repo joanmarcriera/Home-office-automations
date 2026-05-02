@@ -406,7 +406,6 @@ nav:
           - Semantic Kernel: tools/frameworks/semantic-kernel.md
           - Smolagents: tools/frameworks/smolagents.md
           - Superinterface: tools/frameworks/superinterface.md
-          - Temporal: tools/frameworks/temporal.md
       - Providers:
           - AWS Bedrock: tools/providers/aws-bedrock.md
           - Anthropic: tools/providers/anthropic.md
@@ -438,6 +437,7 @@ nav:
           - Glean: tools/enterprise/glean.md
           - Guru: tools/enterprise/guru.md
           - Hebbia: tools/enterprise/hebbia.md
+          - Ramp: tools/enterprise/ramp.md
           - tldv: tools/enterprise/tldv.md
       - Agents:
           - Overview: tools/agents/index.md
@@ -468,6 +468,7 @@ nav:
           - Home Admin Agent Tools: tools/agents/home-admin-tools.md
       - Orchestration:
           - Overview: tools/orchestration/index.md
+          - Temporal: tools/orchestration/temporal.md
       - Infrastructure:
           - Docker: tools/infrastructure/docker.md
           - Headscale: services/headscale.md

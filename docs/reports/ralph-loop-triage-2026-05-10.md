@@ -6,24 +6,24 @@ This report documents the triage of open backlog items as of May 10, 2026, conso
 
 | Issue / Item | Source | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **Atlassian Jira MCP** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **Google Workspace CLI** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **Playwright MCP Server** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **ServiceNow MCP Server** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **Claude Code Container MCP** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **Desktop Commander MCP** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **Microsoft Agent Framework** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **OpenDataLoader PDF** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **OpenTelemetry Collector** | Orphaned | **Pending** | Missing from mkdocs.yml navigation. |
-| **Claude Code Plugins** | #404 | **Remaining** | Plugin descriptions need standardization. |
-| **AmpCode Deepening** | #311 | **Remaining** | Needs concrete Python/API example. |
-| **Docker-K3s Link** | New Sources | **Pending** | Missing cross-link in Docker doc. |
-| **Roo-Code-MCP Link** | New Sources | **Pending** | Missing cross-link in Roo Code doc. |
+| **Atlassian Jira MCP** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **Google Workspace CLI** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **Playwright MCP Server** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **ServiceNow MCP Server** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **Claude Code Container MCP** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **Desktop Commander MCP** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **Microsoft Agent Framework** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **OpenDataLoader PDF** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **OpenTelemetry Collector** | Orphaned | **Resolved** | Integrated into mkdocs.yml and catalog. |
+| **Claude Code Plugins** | #404 | **Resolved** | Plugin descriptions standardized. |
+| **AmpCode Deepening** | #311 | **Resolved** | Python example and Data Contracts added. |
+| **Docker-K3s Link** | New Sources | **Resolved** | Cross-link added to Docker doc. |
+| **Roo-Code-MCP Link** | New Sources | **Resolved** | Cross-link added to Roo Code doc. |
 
 ## Action Plan for Current Run
-- **Action A**: Standardize Claude Code plugins, deepen AmpCode docs, and integrate orphaned tools into navigation/registry.
-- **Action B**: Implement missing cross-links for Docker, Roo Code, and the 9 orphaned tools.
-- **Action C**: Verify all changes against project standards (3-5 related links, metadata, sorting).
+- **Action A**: Standardize Claude Code plugins, deepen AmpCode docs, and integrate orphaned tools into navigation/registry. (Completed)
+- **Action B**: Implement missing cross-links for Docker, Roo Code, and the 9 orphaned tools. (Completed)
+- **Action C**: Verify all changes against project standards (3-5 related links, metadata, sorting). (Completed)
 
 ---
 - Confidence: high
