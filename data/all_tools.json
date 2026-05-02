@@ -126,6 +126,12 @@
       "doc_path": "docs/tools/development_ops/anti_gravity.md"
     },
     {
+      "id": "any-do",
+      "name": "Any.do",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/any-do.md"
+    },
+    {
       "id": "anythingllm",
       "name": "AnythingLLM",
       "category": "AI Assistants & Knowledge",
@@ -142,6 +148,12 @@
       "name": "Aphrodite Engine",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/aphrodite-engine.md"
+    },
+    {
+      "id": "apple-calendar",
+      "name": "Apple Calendar",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/apple-calendar.md"
     },
     {
       "id": "arc",
@@ -256,6 +268,12 @@
       "name": "CalDAV",
       "category": "Intake & Storage",
       "doc_path": "docs/tools/intake_storage/caldav.md"
+    },
+    {
+      "id": "calendly",
+      "name": "Calendly",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/calendly.md"
     },
     {
       "id": "changedetection",
@@ -700,6 +718,12 @@
       "name": "Fantastical",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/fantastical.md"
+    },
+    {
+      "id": "fastmail",
+      "name": "Fastmail",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/fastmail.md"
     },
     {
       "id": "fiddler",
@@ -1426,6 +1450,12 @@
       "doc_path": "docs/tools/providers/microsoft-graph.md"
     },
     {
+      "id": "microsoft-todo",
+      "name": "Microsoft To Do",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/microsoft-todo.md"
+    },
+    {
       "id": "minimax",
       "name": "MiniMax",
       "category": "Providers",
@@ -1938,6 +1968,12 @@
       "doc_path": "docs/tools/intake_storage/s3-storage.md"
     },
     {
+      "id": "savvycal",
+      "name": "SavvyCal",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/savvycal.md"
+    },
+    {
       "id": "searXNG",
       "name": "SearXNG",
       "category": "Process & Understanding",
@@ -2038,6 +2074,12 @@
       "name": "Storj Node",
       "category": "Intake & Storage",
       "doc_path": "docs/services/storj.md"
+    },
+    {
+      "id": "sunsama",
+      "name": "Sunsama",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/sunsama.md"
     },
     {
       "id": "supabase",
@@ -2158,6 +2200,12 @@
       "name": "Text Generation Inference (TGI)",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/tgi.md"
+    },
+    {
+      "id": "ticktick",
+      "name": "TickTick",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/ticktick.md"
     },
     {
       "id": "tika",

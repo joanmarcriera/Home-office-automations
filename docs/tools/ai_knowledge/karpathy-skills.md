@@ -67,6 +67,15 @@ Once installed, the guidelines are automatically applied by the AI agent during 
 - Prefers simple, direct solutions over complex abstractions.
 - Makes surgical changes to the code.
 
+## Thinking Pattern Example
+When faced with a vague request like "Fix the auth," an agent using Karpathy/Pocock skills avoids jumping straight into code.
+
+**Agent Thinking Process:**
+1. **Initial Impulse**: Look for `auth.py` and start changing login logic.
+2. **Skill Check (Grill-me)**: Wait. "Fix the auth" is ambiguous. I need more context to be surgical.
+3. **Action**: Ask the user: "Could you specify if this is a bug with the current login flow, an integration issue with the new provider, or a request for a new feature like MFA?"
+4. **Result**: User specifies it's a redirect loop after OAuth. Agent now knows exactly which file and function to target, minimizing code churn.
+
 ## CLI examples
 The skills can be managed via the Claude Code CLI:
 

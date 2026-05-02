@@ -38,6 +38,17 @@ It automates the ingestion of diverse document types, handling complex layouts a
 - **Cost**: Free (Self-hosted) / Paid (Unstructured API / Platform)
 - **Self-hostable**: Yes
 
+## Partitioning Strategies
+The Unstructured library offers several strategies for preprocessing documents, specified via the `strategy` parameter.
+
+| Strategy | Type | Best For | Trade-offs |
+| :--- | :--- | :--- | :--- |
+| `auto` | Hybrid | Most documents | Default; balances speed and accuracy automatically. |
+| `fast` | Rule-based | Plain text / clean PDFs | 100x faster than model-based; fails on tables/images. |
+| `hi_res` | Model-based | Complex layouts / Tables | Highest accuracy for structural elements; slower. |
+| `ocr_only` | Model-based | Scanned docs / Images | Pure OCR approach; ignores non-image text paths. |
+| `vlm` | Vision-model | Challenging/Handwritten | Uses Vision Language Models for maximum semantic recovery. |
+
 ## Getting started
 
 ### Installation

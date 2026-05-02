@@ -10,9 +10,10 @@ It makes operational know-how reusable. Instead of rediscovering the same prompt
 **Agents / Reusable Agent Capabilities**. Skills are composable behavior packages for coding agents.
 
 ## Typical use cases
-- Standardizing coding-agent workflows across teams
-- Packaging domain-specific operating procedures
-- Sharing prompts, templates, and task scaffolds
+- **UI Prototyping**: Using the `frontend-design` skill for production-grade React/Next.js generation.
+- **Web Automation**: Using the `browser-use` skill for live web research and multi-site automation.
+- **Autonomous Security**: Using the `shannon` skill for automated pen-testing and vulnerability scanning.
+- **Code Refinement**: Using the `simplify` skill for automated quality reviews and architectural simplification.
 
 ## Example company use cases
 - **Sales ops**: a lead-research skill that pulls CRM notes, formats account briefs, and proposes outreach angles.
@@ -54,6 +55,8 @@ skills/
 
 ## Related tools / concepts
 - [Documentation Writer](documentation-writer.md)
+- [Andrej Karpathy Skills](../ai_knowledge/karpathy-skills.md)
+- [Matt Pocock Skills](../ai_knowledge/matt-pocock-skills.md)
 - [Anthropic Agent Skills](anthropic-agent-skills.md)
 - [Superpowers](superpowers.md)
 - [Claude Code](../development_ops/claude-code.md)

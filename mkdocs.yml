@@ -273,14 +273,22 @@ nav:
           - Overview: tools/calendar_tasks/index.md
           - Akiflow: tools/calendar_tasks/akiflow.md
           - Amie: tools/calendar_tasks/amie.md
+          - Any.do: tools/calendar_tasks/any-do.md
+          - Apple Calendar: tools/calendar_tasks/apple-calendar.md
+          - Calendly: tools/calendar_tasks/calendly.md
           - Fantastical: tools/calendar_tasks/fantastical.md
+          - Fastmail: tools/calendar_tasks/fastmail.md
           - Google Calendar: tools/calendar_tasks/google_calendar.md
+          - Microsoft To Do: tools/calendar_tasks/microsoft-todo.md
           - Morgen: tools/calendar_tasks/morgen.md
           - Motion: tools/calendar_tasks/motion.md
           - Notion Calendar: tools/calendar_tasks/notion-calendar.md
           - Outlook Calendar: tools/calendar_tasks/outlook.md
           - Proton Calendar: tools/calendar_tasks/proton_calendar.md
           - Reclaim.ai: tools/calendar_tasks/reclaim.md
+          - SavvyCal: tools/calendar_tasks/savvycal.md
+          - Sunsama: tools/calendar_tasks/sunsama.md
+          - TickTick: tools/calendar_tasks/ticktick.md
           - Todoist: tools/calendar_tasks/todoist.md
           - Vimcal: tools/calendar_tasks/vimcal.md
       - Development & Ops:
