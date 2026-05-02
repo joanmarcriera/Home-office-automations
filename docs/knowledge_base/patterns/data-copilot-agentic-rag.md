@@ -46,10 +46,16 @@ flowchart TD
 - **Output Requirements**: Must state assumptions and provide a confidence score.
 
 ## Multi-hop Investigation Flow
-For "Why" questions, the agent often needs multiple steps:
-1.  **Step 1 (Structured)**: Query SQL to identify *what* changed (e.g., "Conversion rate dropped in the Kitchen category").
-2.  **Step 2 (Unstructured)**: Query RAG to find *reasons* (e.g., search for "Kitchen category" in meeting notes/project logs).
-3.  **Step 3 (Synthesis)**: Combine findings. If a direct reason is missing, the agent may initiate a **Step 4 (Refined Retrieval)** to check alternative sources like calendar events or email summaries.
+For complex root-cause "Why" questions, the agent often needs multiple steps of iterative retrieval:
+
+1.  **Step 1: Identify Variance (Structured)**: Query SQL to identify exactly *what* changed, by *how much*, and *when*.
+    - *Example*: "Conversion rate dropped by 5% in the 'Home Office' category between May 1st and May 7th."
+2.  **Step 2: Contextual Lookup (Unstructured)**: Query RAG (Meeting Notes, Project Logs) using the specifics from Step 1.
+    - *Search Query*: "Home Office conversion rate drop May 2026" or "Home Office category updates".
+3.  **Step 3: Hypothesize & Validate**: If Step 2 finds a potential cause (e.g., "We updated the pricing algorithm"), the agent may perform a second SQL query to validate the hypothesis.
+    - *Validation Query*: "Compare average price in Home Office before and after May 1st."
+4.  **Step 4: Refined Retrieval (Optional)**: If Step 2 is insufficient, check alternative sources like Calendar events (e.g., "Was there a site-wide outage?") or Email summaries (e.g., "Customer support reported a bug in the Home Office checkout flow").
+5.  **Step 5: Final Synthesis**: Combine quantitative proof with qualitative reasoning.
 
 ## Retrieval Sufficiency & Confidence Scoring
 
@@ -70,6 +76,8 @@ Before synthesis, the planner must ask: "Do I have enough information to answer 
 - **Low (0.0 - 0.4)**: Correlating data found but no causal links.
 
 ## Example Q&A: Diagnostic
+
+### Example 1: Home Finance
 **Question**: "Why did my grocery spending spike last week?"
 
 **Agent Logic**:
@@ -77,6 +85,16 @@ Before synthesis, the planner must ask: "Do I have enough information to answer 
 2.  **RAG Query**: Search for "Dining", "Restaurants", or "Guests" in family logs/calendar. (Result: Found "Anniversary Dinner" on April 20).
 3.  **Synthesis**: "Your spending spiked by £150 last week primarily due to 'Dining Out'. This is explained by the 'Anniversary Dinner' event found in your calendar for April 20."
 4.  **Confidence**: 0.95 (Direct causal link found).
+
+### Example 2: Business Metric
+**Question**: "Why did conversion rate (Metric X) drop for the 'Outdoor' category?"
+
+**Agent Logic**:
+1.  **Step 1 (SQL)**: Compares conversion rate per category. (Result: 'Outdoor' category conversion fell from 3.2% to 1.8% starting Tuesday).
+2.  **Step 2 (RAG)**: Searches project logs for "Outdoor category". (Result: Found entry in `dev_log.md`: "Deployed new image gallery component for Outdoor category on Tuesday morning").
+3.  **Step 3 (Refined SQL)**: Queries for error rates in the Outdoor category. (Result: 404 errors on image assets spiked on Tuesday).
+4.  **Synthesis**: "Conversion rate (Metric X) for the 'Outdoor' category dropped from 3.2% to 1.8% due to a buggy deployment of the new image gallery component on Tuesday, which caused image asset failures."
+5.  **Confidence**: 0.90 (Strong correlation between deployment event and error spike).
 
 ## Sources / References
 - [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
@@ -91,3 +109,4 @@ Before synthesis, the planner must ask: "Do I have enough information to answer 
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
+- Related Issues: #188

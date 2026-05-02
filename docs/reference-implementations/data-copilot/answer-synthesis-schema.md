@@ -112,3 +112,4 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
+- Related Issues: #190

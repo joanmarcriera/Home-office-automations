@@ -76,3 +76,4 @@ For a home-office or small team setup, start with these three:
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high
+- Related Issues: #187
