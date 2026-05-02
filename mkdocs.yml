@@ -59,14 +59,29 @@ nav:
       - Overview: new-sources.md
       - Daily Logs:
           - '2026-05-07': new-sources/2026-05-07.md
+          - '2026-05-02': new-sources/2026-05-02.md
+          - '2026-04-27': new-sources/2026-04-27.md
+          - '2026-04-26': new-sources/2026-04-26.md
           - 2026-04-16: new-sources/2026-04-16.md
+          - 2026-04-08: new-sources/2026-04-08.md
+          - 2026-04-07: new-sources/2026-04-07.md
+          - 2026-04-06: new-sources/2026-04-06.md
           - 2026-03-30: new-sources/2026-03-30.md
+          - 2026-03-29: new-sources/2026-03-29.md
+          - 2026-03-21: new-sources/2026-03-21.md
+          - 2026-03-20: new-sources/2026-03-20.md
+          - 2026-03-19: new-sources/2026-03-19.md
+          - 2026-03-18: new-sources/2026-03-18.md
           - 2026-03-16: new-sources/2026-03-16.md
           - 2026-03-15: new-sources/2026-03-15.md
           - 2026-03-14: new-sources/2026-03-14.md
+          - 2026-03-11: new-sources/2026-03-11.md
           - 2026-03-09: new-sources/2026-03-09.md
           - 2026-03-08: new-sources/2026-03-08.md
+          - 2026-03-07: new-sources/2026-03-07.md
+          - 2026-03-06: new-sources/2026-03-06.md
           - 2026-03-05: new-sources/2026-03-05.md
+          - 2026-03-04: new-sources/2026-03-04.md
           - 2026-03-03: new-sources/2026-03-03.md
           - 2026-03-02: new-sources/2026-03-02.md
           - 2026-03-01: new-sources/2026-03-01.md
@@ -82,10 +97,13 @@ nav:
           playbooks/document-preparation-for-llm-training.md
       - Email To Calendar: playbooks/email-to-calendar.md
       - Family Admin Automation: playbooks/family-admin-automation.md
+      - K3s Cluster Setup: playbooks/k3s-cluster-setup.md
+      - NFS CSI Setup: playbooks/nfs-csi-setup.md
       - Raspberry Pi Kiosk Automation:
           playbooks/raspberry-pi-kiosk-automation.md
       - Scan To Task: playbooks/scan-to-task.md
       - School Admin Intake: playbooks/school-admin-intake.md
+      - Tailscale to Headscale Migration: playbooks/tailscale-to-headscale-migration.md
       - Knowledge Base Health: playbooks/knowledge-base-health.md
       - Data Copilot SQL Validation: playbooks/data-copilot-sql-validation.md
   - Services:
@@ -189,6 +207,7 @@ nav:
           - LobeHub: tools/ai_knowledge/lobehub.md
           - Local LLMs: tools/ai_knowledge/local_llms.md
           - Logseq: tools/ai_knowledge/logseq.md
+          - Luma Dream Machine: tools/ai_knowledge/luma-dream-machine.md
           - Matt Pocock Skills: tools/ai_knowledge/matt-pocock-skills.md
           - Nano Banana: tools/ai_knowledge/nano-banana.md
           - NotebookLM: tools/ai_knowledge/notebooklm.md
@@ -205,6 +224,7 @@ nav:
           - Roam Research: tools/ai_knowledge/roam-research.md
           - Runway ML: tools/ai_knowledge/runwayml.md
           - Skills in Chrome: tools/ai_knowledge/skills-in-chrome.md
+          - Sora: tools/ai_knowledge/sora.md
           - Synthesia: tools/ai_knowledge/synthesia.md
           - TeamOut: tools/ai_knowledge/teamout.md
           - TypingMind: tools/ai_knowledge/typingmind.md
@@ -340,6 +360,7 @@ nav:
           - Openhands: tools/development_ops/openhands.md
           - Plandex: tools/development_ops/plandex.md
           - Playwright: tools/development_ops/playwright.md
+          - ripgrep: tools/development_ops/ripgrep.md
           - Sourcegraph Cody: tools/development_ops/sourcegraph_cody.md
           - Superconductor: tools/development_ops/superconductor.md
           - Sweep Dev: tools/development_ops/sweep_dev.md
@@ -369,6 +390,7 @@ nav:
           - AutoGen Studio: tools/frameworks/autogen-studio.md
           - CrewAI: tools/frameworks/crewai.md
           - DSPy: tools/frameworks/dspy.md
+          - FastAPI: tools/frameworks/fastapi.md
           - Firebase Genkit: tools/frameworks/firebase-genkit.md
           - Haystack: tools/frameworks/haystack.md
           - Instructor: tools/frameworks/instructor.md
@@ -416,6 +438,7 @@ nav:
           - Glean: tools/enterprise/glean.md
           - Guru: tools/enterprise/guru.md
           - Hebbia: tools/enterprise/hebbia.md
+          - tldv: tools/enterprise/tldv.md
       - Agents:
           - Overview: tools/agents/index.md
           - Agency Swarm: tools/agents/agency-swarm.md
@@ -455,6 +478,7 @@ nav:
           - Jan.ai: tools/infrastructure/jan-ai.md
           - Kubernetes (K3s): tools/infrastructure/k3s.md
           - llama.cpp: tools/infrastructure/llama-cpp.md
+          - LM Studio: tools/infrastructure/lm-studio.md
           - LocalAI: tools/infrastructure/localai.md
           - MLX: tools/infrastructure/mlx.md
           - Msty: tools/infrastructure/msty.md
@@ -464,7 +488,6 @@ nav:
           - Text Generation Inference (TGI): tools/infrastructure/tgi.md
           - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
           - vLLM: tools/infrastructure/vllm.md
-          - LM Studio: tools/infrastructure/lm-studio.md
           - ZSE: tools/infrastructure/zse.md
       - Process & Understanding:
           - Overview: tools/process_understanding/index.md
@@ -499,8 +522,29 @@ nav:
           - W&B Weave: tools/process_understanding/wandb-weave.md
           - Webhook: tools/process_understanding/webhook.md
   - Reports:
-      - Data Copilot Issue Verification:
-          reports/data-copilot-issue-verification.md
+      - Overview: reports/ralph-loop-triage.md
+      - Execution Logs:
+          - '2026-05-10': reports/ralph-loop-execution-2026-05-10.md
+          - '2026-05-09': reports/ralph-loop-execution-2026-05-09.md
+          - '2026-05-05': reports/ralph-loop-execution-2026-05-05.md
+          - '2026-05-02': reports/ralph-loop-execution-2026-05-02.md
+          - '2026-05-01': reports/ralph-loop-execution-2026-05-01.md
+          - '2026-04-28': reports/ralph-loop-execution-2026-04-28.md
+          - '2026-04-27': reports/ralph-loop-execution-2026-04-27.md
+          - '2026-04-26': reports/ralph-loop-execution-2026-04-26.md
+      - Triage Reports:
+          - '2026-05-10': reports/ralph-loop-triage-2026-05-10.md
+          - '2026-05-06': reports/ralph-loop-triage-2026-05-06.md
+      - Backlogs:
+          - '2026-05-09': reports/ralph-loop-backlog-2026-05-09.md
+          - '2026-05-08': reports/ralph-loop-backlog-2026-05-08.md
+          - '2026-05-06': reports/ralph-loop-backlog-2026-05-06.md
+          - '2026-04-28': reports/ralph-loop-backlog-2026-04-28.md
+          - OpenRouter Logs: reports/openrouter-logs-backlog.md
+      - Resolutions:
+          - Issue Resolution — 2026-05-11: reports/issue-resolution-2026-05-11.md
+          - Data Copilot Issue Verification: reports/data-copilot-issue-verification.md
+          - Data Copilot Sprint Resolution: reports/data-copilot-sprint-resolution.md
   - Architecture:
       - Overview: architecture/README.md
       - Infrastructure Detail: architecture/infrastructure.md
@@ -513,10 +557,21 @@ nav:
       - Text-to-SQL Architecture: architecture/data-copilot-text-to-sql.md
   - Knowledge Base:
       - Overview: knowledge_base/README.md
+      - Agent Protocols: knowledge_base/agent_protocols.md
       - AI Economic Impact: knowledge_base/ai_economic_impact.md
+      - API Pricing & Free Tiers: knowledge_base/api_pricing_free_tiers.md
+      - Family Values: knowledge_base/family-values.md
       - Google Axion Processors: knowledge_base/google_axion.md
       - Invisible Kubernetes: knowledge_base/invisible_kubernetes.md
+      - Landscape Overview: knowledge_base/landscape-overview.md
+      - Model Comparison & Evaluation: knowledge_base/model_comparison_and_evaluation.md
+      - Obsidian Vector Search: knowledge_base/obsidian-vector-search.md
       - Real-time Sync Engines: knowledge_base/real_time_sync_engines.md
+      - SSO Comparison: knowledge_base/sso-comparison.md
+      - System Prompts: knowledge_base/system_prompts.md
+      - Talos vs Ubuntu K3s: knowledge_base/talos-vs-ubuntu-k3s.md
+      - Vector DB Comparison: knowledge_base/vector-db-comparison.md
+      - Vision Models Research: knowledge_base/vision-models-research.md
       - n8n Error Handling: knowledge_base/patterns/n8n-error-handling.md
       - Energy Anomaly Detection:
           knowledge_base/energy-anomaly-detection-baseline.md
