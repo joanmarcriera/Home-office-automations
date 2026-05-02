@@ -22,6 +22,10 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 | **Everything Claude Code** | Production-ready setup with security scanning and research-first development. | `.claude/config.json`, `CLAUDE.md`, hooks | Run security and consistency checks. |
 | **last30days-skill** | Weekly AI ecosystem news summarization and skill gap analysis. | Scheduled tasks, knowledge base | Verify summary accuracy and source links. |
 | **Claude How-To** | Hand-on guides for advanced agentic workflows and MCP. | Documentation, configuration examples | Confirm step-by-step reproducibility. |
+| **UI Prototyping** | Production-grade frontend generation. | `frontend/**`, `src/components/**` | Lint check, accessibility scan |
+| **Web Automation** | Live web research and multi-site orchestration. | `docs/research/**`, `.claude/session.log` | Verify URL reachability, content extraction quality |
+| **Autonomous Security** | Automated pen-testing and vulnerability scanning. | `src/**`, `package.json`, `.github/workflows/**` | Run security audit, verify no new vulnerabilities |
+| **Code Refinement** | Architectural simplification and quality reviews. | `src/**`, `docs/architecture/**` | Maintain test coverage, run complexity analysis |
 
 ## Skill Playbooks
 
@@ -66,6 +70,25 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 2. Delete merged remote branches except protected deployment branches.
 3. Prune local refs and verify clean state.
 
+### 7) Staff Reviewer Pattern (Meta-Skill)
+
+1. When a plan is proposed, spin up a secondary agent context.
+2. The secondary agent must "grill" the plan, looking for edge cases, security flaws, or over-engineering.
+3. Refine the plan based on feedback until both contexts reach consensus.
+
+### 8) Context Isolation Pattern (Meta-Skill)
+
+1. For high-compute reasoning or tasks requiring many file reads (50+), use subagents.
+2. The main session should only receive the final conclusion or artifacts from the subagent.
+3. Use `/compact` aggressively in the subagent session to manage token rot.
+
+### 9) Code Refinement
+
+1. Identify complex or redundant code paths using complexity analysis tools.
+2. Propose architectural simplifications that maintain existing behavior.
+3. Implement changes surgically, matching the surrounding style exactly.
+4. Verify no regressions using existing test suites.
+
 ## Completion Template
 
 When finishing any skill, report:
@@ -79,3 +102,5 @@ When finishing any skill, report:
 - [Superpowers](https://github.com/obra/superpowers)
 - [Documentation Writer Skill](https://skills.sh/github/awesome-copilot/documentation-writer)
 - [Grill-me Skill](https://github.com/mattpocock/skills/blob/main/grill-me/SKILL.md)
+- [Claude Skills Ecosystem](docs/tools/agents/claude-skills-ecosystem.md)
+- [Claude Code Best Practices](docs/tools/development_ops/claude-code.md)

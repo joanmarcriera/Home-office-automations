@@ -79,25 +79,59 @@ unstructured-ingest local \
 # Process from S3 (requires [s3] extra)
 unstructured-ingest s3 \
   --remote-url s3://my-bucket/documents/ \
-  --output-dir s3-output
+  --output-dir s3-output \
+  --anonymous \
+  --recursive
 ```
 
 ### Python S3 Ingestion Example
 ```python
+import os
 from unstructured.ingest.connector.s3 import S3AccessConfig, SimpleS3Config
 from unstructured.ingest.interfaces import ProcessorConfig, ReadConfig
 from unstructured.ingest.runner import S3Runner
 
+# Set credentials via env vars or S3AccessConfig
+os.environ["AWS_ACCESS_KEY_ID"] = "YOUR_KEY"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "YOUR_SECRET"
+
 runner = S3Runner(
-    processor_config=ProcessorConfig(verbose=True, output_dir="s3-output", num_processes=2),
+    processor_config=ProcessorConfig(
+        verbose=True,
+        output_dir="s3-output",
+        num_processes=2,
+        reprocess=False # Skip files already processed
+    ),
     read_config=ReadConfig(),
     connector_config=SimpleS3Config(
         access_config=S3AccessConfig(),
         remote_url="s3://my-bucket/documents/",
+        recursive=True
     ),
 )
 
 runner.run()
+```
+
+### Advanced Pipeline: Chunking for RAG
+```python
+from unstructured.partition.pdf import partition_pdf
+from unstructured.chunking.title import chunk_by_title
+
+elements = partition_pdf(
+    filename="research_paper.pdf",
+    strategy="hi_res",
+    extract_images_in_pdf=False,
+    infer_table_structure=True,
+    chunking_strategy="by_title",
+    max_characters=1000,
+    combine_text_under_n_chars=200
+)
+
+# Access clean, structured chunks
+for chunk in elements:
+    print(f"Type: {chunk.category}")
+    print(f"Content: {chunk.text[:50]}...")
 ```
 
 ## API examples
@@ -108,7 +142,13 @@ url = "https://api.unstructured.io/general/v0/general"
 headers = {"Accept": "application/json", "unstructured-api-key": "YOUR_API_KEY"}
 files = {"files": open("example.pdf", "rb")}
 
-response = requests.post(url, headers=headers, files=files)
+# Add strategy and coordinates parameters
+data = {
+    "strategy": "hi_res",
+    "coordinates": "true"
+}
+
+response = requests.post(url, headers=headers, files=files, data=data)
 print(response.json())
 ```
 
@@ -121,7 +161,9 @@ print(response.json())
 
 ## Sources / references
 - [Unstructured.io Website](https://unstructured.io/)
+- [Unstructured Ingest Documentation](https://unstructured-io.github.io/unstructured/ingest/overview.html)
+- [Chunking Strategies](https://unstructured-io.github.io/unstructured/core/chunking.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-11
 - Confidence: high

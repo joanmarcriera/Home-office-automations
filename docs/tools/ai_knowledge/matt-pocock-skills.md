@@ -39,6 +39,8 @@ Extends agent capabilities with domain-specific execution scaffolds and critical
 ## Key Skills
 - **Grill-me**: A skill used to cross-examine and verify a proposed plan before execution. Getting the agent to ask detailed questions about what you are building to fix the communication gap between you and the agent.
 - **Triage**: Uses labels to help triage tickets in your issue tracker.
+- **TDD**: Implements a strict Red-Green-Refactor loop, refusing to write implementation code until a failing test exists.
+- **Diagnose**: Runs a multi-point inspection of the environment and code to find the root cause of a failure.
 
 ## Getting started
 
@@ -63,17 +65,32 @@ Use the skills directly within your AI agent's interactive session:
 
 ```bash
 # Verify a plan before execution
+# Agent will ask 3-5 challenging questions about your approach
 /grill-me
 
 # Use Test-Driven Development loop
+# 1. Write failing test 2. Write code 3. Refactor
 /tdd
 
 # Diagnose a complex bug
+# Agent runs logs, checks versions, and traces execution
 /diagnose
 
 # Setup skill
 /setup-matt-pocock-skills
 ```
+
+## Thinking Pattern: The "Grill-me" Session
+Before starting a 2-hour refactor, the user triggers `/grill-me`.
+
+**Agent Interaction:**
+1. **User**: "I'm going to migrate the database to Prisma."
+2. **Agent (/grill-me)**:
+   - "How will you handle existing data migration?"
+   - "What is the rollback plan if the Prisma schema generation fails in CI?"
+   - "Have you considered the performance impact of Prisma's query engine on our edge functions?"
+3. **User**: *Answers questions, refining the plan.*
+4. **Agent**: "Plan verified. Proceeding with migration."
 
 ## Related tools / concepts
 
@@ -84,7 +101,8 @@ Use the skills directly within your AI agent's interactive session:
 
 ## Sources / references
 - [Matt Pocock Skills (GitHub)](https://github.com/mattpocock/skills)
+- [Total TypeScript - Professional AI Workflows](https://www.totaltypescript.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-11
 - Confidence: high
