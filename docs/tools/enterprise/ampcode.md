@@ -69,43 +69,76 @@ amp --execute "Explain this project" --log-level debug
 # Authenticate with an API key (for CI/CD)
 export AMP_API_KEY="your-api-key"
 amp --execute "run tests"
+
+# List available agents in the enterprise registry
+amp agents list
 ```
 
 ## API examples
 Amp functionality is primarily exposed through its CLI and its integration with MCP servers. Configuration can be managed via environment variables for automation. You can also interact with the underlying Sourcegraph API that Amp utilizes for deeper repository insights.
 
-### Python Example: Fetching Repository Context
+### Python Example: Fetching Repository Context (via GraphQL)
+Amp leverages Sourcegraph's GraphQL API for deep code search and context retrieval.
+
 ```python
 import os
 import requests
+import json
 
-def get_amp_repo_context(repo_name):
+def get_amp_repo_context(repo_name, query_text):
     api_key = os.getenv("AMP_API_KEY")
-    # Amp leverages Sourcegraph GraphQL API
     url = "https://sourcegraph.com/.api/graphql"
+
+    # GraphQL query for cross-repository search
     query = """
-    query Repository($name: String!) {
-      repository(name: $name) {
-        id
-        description
-        url
+    query Search($query: String!) {
+      search(query: $query, version: V2) {
+        results {
+          results {
+            ... on FileMatch {
+              file {
+                path
+                repository {
+                  name
+                }
+              }
+              lineMatches {
+                lineNumber
+                preview
+              }
+            }
+          }
+        }
       }
     }
     """
-    headers = {"Authorization": f"token {api_key}"}
-    response = requests.post(url, json={"query": query, "variables": {"name": repo_name}}, headers=headers)
-    return response.json()
 
-# Example usage
-# context = get_amp_repo_context("github.com/sourcegraph/amp")
-# print(context)
+    search_string = f"repo:^{repo_name}$ {query_text}"
+    variables = {"query": search_string}
+    headers = {"Authorization": f"token {api_key}"}
+
+    response = requests.post(
+        url,
+        json={"query": query, "variables": variables},
+        headers=headers
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f"Query failed with status {response.status_code}: {response.text}")
+
+# Example: Search for authentication logic in a specific repo
+# context = get_amp_repo_context("github.com/org/project", "type:file login")
+# print(json.dumps(context, indent=2))
 ```
 
 ### Data Contracts
 AmpCode follows strict data contracts for agentic interaction:
 - **Input**: Natural language task or structured JSON job definition.
-- **Context**: Dynamic injection of repository snippets via Sourcegraph embeddings.
+- **Context**: Dynamic injection of repository snippets via Sourcegraph embeddings and symbol graphs.
 - **Output**: Git diffs, log reports, or status updates conforming to standardized schemas.
+- **Verification**: Automatic triggering of CI pipelines or test suites defined in the repository contract.
 
 ## Related tools / concepts
 
@@ -113,10 +146,12 @@ AmpCode follows strict data contracts for agentic interaction:
 - [Glean](glean.md)
 - [Hebbia](hebbia.md)
 - [Claude Code](../development_ops/claude-code.md)
+- [Sourcegraph Cody](https://sourcegraph.com/cody)
 
 ## Sources / references
 - [AmpCode Official Site](https://ampcode.com/)
+- [Sourcegraph API Documentation](https://sourcegraph.com/docs/api/graphql)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-11
 - Confidence: high

@@ -75,6 +75,32 @@ for doc in documents:
     print(doc.text)
 ```
 
+### Agentic Tier Example (Vision-Aware Parsing)
+The agentic tier uses advanced reasoning to handle messy layouts and tables.
+
+```python
+from llama_parse import LlamaParse
+
+parser = LlamaParse(
+    api_key=os.environ["LLAMA_CLOUD_API_KEY"],
+    result_type="markdown",
+    parsing_instruction="""
+    This is a financial report with complex tables.
+    Please extract all tables into clear Markdown format,
+    ensuring that nested headers are correctly represented.
+    """,
+    gpt4o_mode=True, # Use GPT-4o vision for maximum accuracy
+    premium_mode=True, # Required for Agentic tiers
+)
+
+# Using the sync parser for high-priority documents
+documents = parser.load_data("complex_report.pdf")
+full_markdown = "\n\n".join([doc.text for doc in documents])
+
+with open("output.md", "w") as f:
+    f.write(full_markdown)
+```
+
 ## CLI examples
 LlamaParse is primarily used via its SDKs or REST API. However, it can be triggered from the LlamaIndex CLI if integrated into a RAG pipeline.
 
@@ -113,7 +139,8 @@ curl 'https://api.cloud.llamaindex.ai/api/v2/parse?page_size=10&status=COMPLETED
 
 ## Sources / references
 - [LlamaParse (LlamaIndex)](https://www.llamaindex.ai/llamaparse)
+- [LlamaParse API Reference](https://docs.cloud.llamaindex.ai/api-reference)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-11
 - Confidence: high

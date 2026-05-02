@@ -67,14 +67,21 @@ Once installed, the guidelines are automatically applied by the AI agent during 
 - Prefers simple, direct solutions over complex abstractions.
 - Makes surgical changes to the code.
 
-## Thinking Pattern Example
+## Thinking Pattern Example: Handling Ambiguity
 When faced with a vague request like "Fix the auth," an agent using Karpathy/Pocock skills avoids jumping straight into code.
 
 **Agent Thinking Process:**
 1. **Initial Impulse**: Look for `auth.py` and start changing login logic.
-2. **Skill Check (Grill-me)**: Wait. "Fix the auth" is ambiguous. I need more context to be surgical.
+2. **Skill Check (Simplicity/Surgical)**: Wait. "Fix the auth" is ambiguous. I need more context to be surgical and avoid over-engineering.
 3. **Action**: Ask the user: "Could you specify if this is a bug with the current login flow, an integration issue with the new provider, or a request for a new feature like MFA?"
 4. **Result**: User specifies it's a redirect loop after OAuth. Agent now knows exactly which file and function to target, minimizing code churn.
+
+## Thinking Pattern Example: The "Zero-Draft" Pattern
+Instead of writing 200 lines of complex boilerplate, the agent writes a "Zero-Draft" that proves the core logic works with minimum dependencies.
+
+1. **Step 1**: Write a 10-line script that triggers the core API or logic.
+2. **Step 2**: Verify the draft runs and returns the expected result.
+3. **Step 3**: "Refactor" the proven logic into the production codebase surgically.
 
 ## CLI examples
 The skills can be managed via the Claude Code CLI:
@@ -97,9 +104,8 @@ The skills can be managed via the Claude Code CLI:
 
 ## Sources / references
 - [Andrej Karpathy Skills (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills)
+- [Andrej Karpathy's Recommendations for LLMs](https://karpathy.ai/llm.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-11
 - Confidence: high
-
-- [Andrej Karpathy Skills (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills)
