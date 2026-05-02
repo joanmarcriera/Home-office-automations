@@ -1258,6 +1258,12 @@
       "doc_path": "docs/tools/agents/letta.md"
     },
     {
+      "id": "librechat",
+      "name": "LibreChat",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/librechat.md"
+    },
+    {
       "id": "lightpanda",
       "name": "Lightpanda Browser",
       "category": "Automation & Orchestration",
@@ -2244,6 +2250,12 @@
       "doc_path": "docs/services/tubearchivist.md"
     },
     {
+      "id": "typingmind",
+      "name": "TypingMind",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/typingmind.md"
+    },
+    {
       "id": "ubuntu-ai",
       "name": "Ubuntu AI Snaps",
       "category": "Infrastructure",
@@ -2278,6 +2290,12 @@
       "name": "Vector DB Comparison",
       "category": "Knowledge Base",
       "doc_path": "docs/knowledge_base/vector-db-comparison.md"
+    },
+    {
+      "id": "vellum",
+      "name": "Vellum",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/vellum.md"
     },
     {
       "id": "verba",
