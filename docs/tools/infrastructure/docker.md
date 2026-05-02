@@ -71,6 +71,7 @@ Follow the official guides for:
 ## Related tools / concepts
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Kubernetes (K3s)](k3s.md)
+- [Portracker](../../services/portracker.md)
 - [Podman](https://podman.io/)
 - [LXC/LXD](https://linuxcontainers.org/)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)

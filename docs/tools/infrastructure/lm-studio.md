@@ -1,54 +1,50 @@
 # LM Studio
 
 ## What it is
-LM Studio is a desktop application that allows users to discover, download, and run local Large Language Models (LLMs) on their own hardware. It provides a user-friendly graphical interface (GUI) for managing GGUF-formatted models.
+LM Studio is a desktop application for discovering, downloading, running, and chatting with local models.
 
 ## What problem it solves
-It lowers the barrier to entry for running local AI by providing a simple "one-click" experience. It handles model downloading from Hugging Face, hardware acceleration (including Apple Silicon and NVIDIA GPUs), and provides a local OpenAI-compatible server for integration with other tools.
+It lowers the barrier to local LLM experimentation by packaging model discovery, downloads, chat, and an OpenAI-compatible local server into one desktop workflow.
 
 ## Where it fits in the stack
-Infrastructure and Local Inference Engine. It is a desktop-centric alternative to [Ollama](../../services/ollama.md).
+**AI & Knowledge / Local Model Workbench**. It is a practical bridge between end-user experimentation and local inference.
 
 ## Typical use cases
-- Testing different open-source models (Llama, Mistral, etc.) without writing code.
-- Running a local, private chatbot.
-- Providing a local API for tools like [Cursor](../../docs/tools/development_ops/cursor.md) or [Claude Code](../../docs/tools/development_ops/claude_code.md).
+- Testing local models without a CLI-heavy setup
+- Running a local OpenAI-compatible endpoint for development
+- Comparing small and medium models on a laptop or workstation
 
 ## Strengths
-- **Ease of Use**: Excellent GUI for discovery and configuration.
-- **Hardware Auto-Detection**: Automatically configures GPU offloading.
-- **In-App Discovery**: Integrated search and download from Hugging Face.
-- **Model Compatibility**: Broad support for GGUF quants.
+- Easy local-model onboarding
+- Friendly UI for experimentation
+- Useful stepping stone before deeper infrastructure choices
 
 ## Limitations
-- **Closed Source**: The application itself is proprietary, though it runs open-source models.
-- **Desktop Only**: Primarily designed for interactive desktop use, not headless server environments.
-- **Resource Intensive**: Requires significant RAM and VRAM for larger models.
+- Less flexible than lower-level inference stacks for production
+- Desktop-first workflow is not ideal for multi-user deployment
 
 ## When to use it
-- When you want a GUI-first experience for managing local LLMs.
-- When you are on macOS or Windows and want the easiest possible setup.
-- When you need to quickly benchmark different quantization levels.
+- When you want the fastest path to trying local models
+- When you need a simple local server for app development or evaluation
 
 ## When not to use it
-- If you need a lightweight, headless server (use [Ollama](../../services/ollama.md)).
-- If you require a fully open-source stack.
-- For high-concurrency production workloads.
+- When you need multi-user, server-grade inference
+- When you already operate [Ollama](../../services/ollama.md) or [vLLM](../infrastructure/vllm.md) successfully
 
 ## Licensing and cost
-- **Open Source**: No (Proprietary application).
-- **Cost**: Free for personal use.
-- **Self-hostable**: Yes (Runs locally on your machine).
+- **Open Source**: No
+- **Cost**: Free desktop app
+- **Self-hostable**: Local desktop runtime only
 
 ## Related tools / concepts
+
+- [Local LLMs (Ollama, MLX, llama.cpp)](local_llms.md)
 - [Ollama](../../services/ollama.md)
-- [Hugging Face](../providers/huggingface.md)
-- [Local LLMs](../ai_knowledge/local_llms.md)
+- [llama.cpp](../infrastructure/llama-cpp.md)
 
 ## Sources / References
 - [Official Website](https://lmstudio.ai/)
-- [LM Studio Documentation](https://lmstudio.ai/docs)
 
 ## Contribution Metadata
+- Last reviewed: 2026-03-14
 - Confidence: high
-- Last reviewed: 2026-04-06

@@ -720,6 +720,12 @@
       "doc_path": "docs/tools/calendar_tasks/fantastical.md"
     },
     {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/fastapi.md"
+    },
+    {
       "id": "fastmail",
       "name": "Fastmail",
       "category": "Calendar & Tasks",
@@ -1296,7 +1302,7 @@
     {
       "id": "llamaindex-ts",
       "name": "LlamaIndex.TS",
-      "category": "AI & Knowledge",
+      "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/llamaindex-ts.md"
     },
     {
@@ -1332,7 +1338,7 @@
     {
       "id": "lm-studio",
       "name": "LM Studio",
-      "category": "AI Assistants & Knowledge",
+      "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/lm-studio.md"
     },
     {
@@ -1364,6 +1370,12 @@
       "name": "LongCLI-Bench",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/longcli-bench.md"
+    },
+    {
+      "id": "luma-dream-machine",
+      "name": "Luma Dream Machine",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/luma-dream-machine.md"
     },
     {
       "id": "make",
@@ -1944,6 +1956,12 @@
       "doc_path": "docs/tools/agents/replit-agent.md"
     },
     {
+      "id": "ripgrep",
+      "name": "ripgrep",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/ripgrep.md"
+    },
+    {
       "id": "rivet",
       "name": "Rivet",
       "category": "Frameworks",
@@ -2056,6 +2074,12 @@
       "name": "Snowflake",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/snowflake.md"
+    },
+    {
+      "id": "sora",
+      "name": "Sora",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/sora.md"
     },
     {
       "id": "sourcegraph-cody",
@@ -2218,6 +2242,12 @@
       "name": "Apache Tika",
       "category": "Process & Understanding",
       "doc_path": "docs/services/tika.md"
+    },
+    {
+      "id": "tldv",
+      "name": "tldv",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/tldv.md"
     },
     {
       "id": "todoist",
