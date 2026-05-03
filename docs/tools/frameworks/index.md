@@ -20,3 +20,10 @@ Libraries and frameworks for building AI/LLM-powered applications — orchestrat
 | [Semantic Kernel](semantic-kernel.md) | SDK for integrating LLMs into applications (.NET, Python) |
 | [Smolagents](smolagents.md) | Lightweight agent framework for simple tool-calling agents |
 
+## Related tools / concepts
+
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Agents](../agents/index.md)
+- [Orchestration](../orchestration/index.md)
+- [Providers](../providers/index.md)
