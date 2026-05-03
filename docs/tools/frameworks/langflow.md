@@ -13,6 +13,7 @@ It reduces the complexity of building AI pipelines by providing a visual way to 
 - **Rapid Prototyping**: Quickly testing different combinations of models and prompts.
 - **Workflow Visualization**: Understanding and documenting complex AI logic through a graph-based interface.
 - **Low-Code AI Development**: Enabling developers to build AI apps with minimal manual coding.
+- **Enterprise RAG Pipelines**: Designing and deploying production-grade retrieval-augmented generation systems with hybrid search and custom reranking logic.
 
 ## Strengths
 - **Visual Interface**: Highly intuitive node-based UI for building workflows.
@@ -35,8 +36,33 @@ It reduces the complexity of building AI pipelines by providing a visual way to 
 
 ### Installation
 ```bash
-pip install langflow
+python -m pip install langflow -U
+```
+
+### Running the UI
+```bash
 langflow run
+```
+
+### Using as a Library
+You can also run Langflow flows directly from your Python code:
+
+```python
+from langflow.load import run_flow_from_json
+
+TWEAKS = {
+  "OpenAIModel-c97v1": {
+    "model_name": "gpt-4o",
+  },
+}
+
+result = run_flow_from_json(
+    flow="path/to/your/flow.json",
+    input_value="Hello, Langflow!",
+    tweaks=TWEAKS
+)
+
+print(result[0].outputs[0].results)
 ```
 
 ## Licensing and cost
@@ -48,6 +74,8 @@ langflow run
 - [LangChain](../ai_knowledge/langchain.md)
 - [Flowise](../ai_knowledge/flowise.md)
 - [CrewAI](crewai.md)
+- [Rivet](rivet.md)
+- [Dify](../ai_knowledge/dify.md)
 
 ## Sources / References
 - [Official Website](https://www.langflow.org/)
