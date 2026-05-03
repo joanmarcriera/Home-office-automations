@@ -31,6 +31,38 @@ It provides a powerful visual interface for designing AI logic, making it easier
 - For trivial AI tasks where a simple API call is sufficient.
 - If you are not comfortable with node-based visual programming.
 
+## Getting started
+
+### Installation
+To use Rivet in your project:
+```bash
+npm install @ironclad/rivet-node
+```
+
+### Running a Graph
+You can load and run a `.rivet-project` file in your Node.js application:
+
+```typescript
+import { runGraph, loadProject, NodeId } from '@ironclad/rivet-node';
+
+async function runRivetGraph() {
+  const project = await loadProject('path/to/project.rivet-project');
+
+  const results = await runGraph(project, {
+    graph: 'Main Graph' as NodeId,
+    inputs: {
+      userInput: { type: 'string', value: 'Hello Rivet!' }
+    },
+    // Required if using OpenAI nodes
+    openAiKey: process.env.OPENAI_API_KEY,
+  });
+
+  console.log(results.output.value);
+}
+
+runRivetGraph();
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
@@ -40,6 +72,8 @@ It provides a powerful visual interface for designing AI logic, making it easier
 - [Langflow](langflow.md)
 - [Flowise](../ai_knowledge/flowise.md)
 - [AutoGen](autogen.md)
+- [Promptfoo](../benchmarking/promptfoo.md)
+- [LangGraph](langgraph.md)
 
 ## Sources / References
 - [Official Website](https://rivet.ironcladapp.com/)
