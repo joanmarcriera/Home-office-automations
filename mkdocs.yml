@@ -525,6 +525,7 @@ nav:
   - Reports:
       - Overview: reports/ralph-loop-triage.md
       - Execution Logs:
+          - '2026-05-12': reports/ralph-loop-execution-2026-05-12.md
           - '2026-05-10': reports/ralph-loop-execution-2026-05-10.md
           - '2026-05-09': reports/ralph-loop-execution-2026-05-09.md
           - '2026-05-05': reports/ralph-loop-execution-2026-05-05.md

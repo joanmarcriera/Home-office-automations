@@ -10,9 +10,9 @@ It addresses the challenges of fragmented AI development by offering a cohesive 
 **Framework / Agent Platform**.
 
 ## Typical use cases
-- **Building Specialized Agents**: Creating agents for customer support, data analysis, or content generation.
-- **Agent Monitoring**: Using built-in observability tools to track agent behavior and performance.
-- **Enterprise AI Deployment**: Providing a structured way to deploy agents within an organization.
+- **Agentic Workflows**: Building complex multi-step workflows that can be monitored and managed.
+- **TypeScript-Native Agents**: Ideal for teams working with a modern TypeScript/Next.js stack.
+- **Enterprise Agent Platforms**: Providing a unified platform for multi-agent systems with built-in observability.
 
 ## Strengths
 - **Unified Platform**: Combines orchestration, tools, and monitoring in a single framework.
@@ -30,6 +30,34 @@ It addresses the challenges of fragmented AI development by offering a cohesive 
 ## When not to use it
 - For quick, one-off AI experiments where a lighter framework might be faster.
 - If you already have established tools for orchestration and monitoring.
+
+## Getting started
+
+### Installation
+```bash
+npx create-mastra@latest
+```
+
+### Basic Example (Manual Setup)
+```typescript
+import { Mastra, Agent } from '@mastra/core';
+
+const agent = new Agent({
+  name: 'Assistant',
+  instructions: 'You are a helpful assistant.',
+  model: {
+    provider: 'OPEN_AI',
+    name: 'gpt-4',
+  },
+});
+
+const mastra = new Mastra({
+  agents: [agent],
+});
+
+const response = await agent.generate('Tell me about Mastra.');
+console.log(response.text);
+```
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0 License)

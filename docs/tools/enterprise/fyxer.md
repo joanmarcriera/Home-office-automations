@@ -44,8 +44,10 @@ Fyxer is a SaaS platform that integrates directly with workspace accounts.
 - **Trial**: Typically offers a 14-day trial (requires credit card).
 
 ## Related tools / concepts
-- [Superhuman](https://superhuman.com/) (Competitor focused on speed and client UI)
-- [tl;dv](https://tldv.io/) (Specialized meeting assistant alternative)
+- [tldv](tldv.md)
+- [Glean](glean.md)
+- [Ramp](ramp.md)
+- [Coveo](coveo.md)
 
 ## Sources / References
 - [Fyxer AI Review (2026)](https://gmelius.com/es/blog/fyxer-ai-review)

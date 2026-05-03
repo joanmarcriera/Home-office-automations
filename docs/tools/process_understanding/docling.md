@@ -36,7 +36,9 @@ Document extraction is often fragile and loses structural information like heade
 ## Related tools / concepts
 - [Docling MCP](docling-mcp.md)
 - [OCRmyPDF](ocrmypdf.md)
-- [Unstructured](https://unstructured.io/)
+- [Unstructured](../intake_storage/unstructured.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
+- [Tesseract CLI](tesseract.md)
 
 ## Sources / references
 - [Official Website](https://github.com/docling-project/docling)
