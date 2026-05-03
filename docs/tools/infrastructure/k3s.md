@@ -30,6 +30,55 @@ It simplifies the operation of Kubernetes by bundling necessary components into 
 ## When not to use it
 - In extremely large enterprise environments where a managed service (EKS, GKE) or a full distribution (RKE, OpenShift) is preferred.
 
+## Getting started
+
+### Installation
+The simplest way to install K3s on a Linux host:
+```bash
+curl -sfL https://get.k3s.io | sh -
+# Check node status
+sudo k3s kubectl get node
+```
+
+### Deploying a Simple Workload
+Create a file named `whoami.yaml`:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+      - name: whoami
+        image: traefik/whoami
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: whoami
+```
+
+Apply the manifest:
+```bash
+sudo k3s kubectl apply -f whoami.yaml
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0).
 - **Cost**: Free.
@@ -39,11 +88,14 @@ It simplifies the operation of Kubernetes by bundling necessary components into 
 - [Docker](docker.md)
 - [Home Assistant (via HASS-K8s)](../../services/home-assistant.md)
 - [TrueNAS SCALE (Uses K3s internally)](../../architecture/infrastructure.md)
+- [Talos OS](../../knowledge_base/talos-vs-ubuntu-k3s.md)
+- [Longhorn](../../roadmap.md)
 
 ## Sources / References
 - [Official Website](https://k3s.io/)
 - [K3s GitHub](https://github.com/k3s-io/k3s)
+- [K3s Documentation](https://docs.k3s.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-13
 - Confidence: high

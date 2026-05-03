@@ -33,18 +33,39 @@ It solves the problem of "prompt regression" by providing a framework for regres
 
 ## Getting started
 
-Initialize a new project:
+### Installation and Initialization
 ```bash
+# Initialize a new project
 npx promptfoo init
 ```
 
-Run an evaluation:
-```bash
-npx promptfoo eval
+### Configuration Example (`promptfooconfig.yaml`)
+Define your prompts, providers, and test cases:
+```yaml
+prompts:
+  - "Summarize this in one sentence: {{text}}"
+  - "Give me a TL;DR of the following: {{text}}"
+
+providers:
+  - openai:gpt-4o
+  - anthropic:messages:claude-3-5-sonnet-20240620
+
+tests:
+  - vars:
+      text: "The Model Context Protocol (MCP) is an open standard that enables developers to build secure, two-way connections between their data sources and AI models."
+    assert:
+      - type: icontains
+        value: "MCP"
+      - type: javascript
+        value: output.length < 100
 ```
 
-View results:
+### Execution
 ```bash
+# Run the evaluation
+npx promptfoo eval
+
+# View results in a web-based dashboard
 npx promptfoo view
 ```
 
@@ -57,11 +78,14 @@ npx promptfoo view
 - [Braintrust](../process_understanding/braintrust.md)
 - [LangSmith](langsmith.md)
 - [OpenCompass](opencompass.md)
+- [AgentOps](../process_understanding/agentops.md)
+- [Ragas](../process_understanding/ragas.md)
 
 ## Sources / References
 - [Official Website](https://www.promptfoo.dev/)
 - [Promptfoo GitHub](https://github.com/promptfoo/promptfoo)
+- [Promptfoo Documentation](https://www.promptfoo.dev/docs/intro/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-13
 - Confidence: high
