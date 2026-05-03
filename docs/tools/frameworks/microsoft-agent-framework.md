@@ -1,40 +1,44 @@
 # Microsoft Agent Framework
 
 ## What it is
-Microsoft Agent Framework (part of the broader Azure AI and Semantic Kernel ecosystem) is a collection of libraries and standards for building, orchestrating, and managing multi-agent AI systems.
+Microsoft Agent Framework (part of the broader Azure AI and Semantic Kernel ecosystem) is a collection of libraries and standards for building, orchestrating, and managing multi-agent AI systems. It is designed to provide high-level abstractions for agent communication and state management.
 
 ## What problem it solves
-It simplifies the coordination of multiple LLM-powered agents, providing standardized ways for them to communicate, share state, and collaborate on complex tasks.
+It simplifies the coordination of multiple LLM-powered agents, providing standardized ways for them to communicate, share state, and collaborate on complex tasks. It addresses the challenges of agentic memory, tool access control, and cross-agent consistency in an enterprise context.
 
 ## Where it fits in the stack
-**Framework / Orchestration**.
+**Category**: Frameworks / Orchestration
 
 ## Typical use cases
 - **Multi-agent Collaboration**: Building teams of agents with specialized roles (e.g., Researcher, Coder, Reviewer).
 - **Enterprise Agent Management**: Deploying agents within existing Microsoft 365 or Azure environments.
-- **Workflow Automation**: Orchestrating agents to perform end-to-end business processes.
+- **Workflow Automation**: Orchestrating agents to perform end-to-end business processes with human-in-the-loop (HITL) support.
+- **Legacy System Integration**: Using Semantic Kernel connectors to allow agents to interact with corporate APIs and databases.
 
 ## Strengths
-- **Azure Integration**: Seamlessly works with Azure OpenAI Service and other Azure AI components.
-- **Enterprise Ready**: Designed with security, scalability, and observability in mind.
-- **Support for Standards**: Often integrates with existing Microsoft development standards.
+- **Azure Integration**: Seamlessly works with Azure OpenAI Service, Azure AI Search, and other Azure components.
+- **Enterprise Ready**: Designed with robust security, scalability, and built-in observability for production monitoring.
+- **Standardized State**: Provides sophisticated patterns for managing agent memory and conversation history across different models.
+- **Multi-Language Support**: Strong support for both C# (.NET) and Python, catering to enterprise and AI research teams alike.
 
 ## Limitations
 - **Complexity**: Can have a steeper learning curve compared to simpler multi-agent frameworks like CrewAI.
-- **Ecosystem Lock-in**: Deepest integration is within the Microsoft/Azure ecosystem.
+- **Ecosystem Affinity**: While usable standalone, its deepest value is realized within the Microsoft/Azure ecosystem.
+- **Rapid Evolution**: The framework is evolving quickly, which can lead to frequent updates and breaking changes in earlier versions.
 
 ## When to use it
-- When building complex, enterprise-grade multi-agent systems on Azure.
-- When you need robust orchestration and state management for agents.
+- When building complex, enterprise-grade multi-agent systems, especially if already using Azure.
+- When you need robust orchestration, security, and state management for agents in a production environment.
+- When you need to integrate agents with .NET-based applications.
 
 ## When not to use it
-- For simple, single-agent tasks where a basic SDK (like OpenAI's) is sufficient.
-- If you prefer a lightweight, ecosystem-agnostic open-source framework.
+- For simple, single-agent tasks where a basic SDK (like OpenAI's) or a lightweight library (like Smolagents) is sufficient.
+- If you prefer a completely lightweight, community-driven, or ecosystem-agnostic open-source framework.
 
 ## Licensing and cost
-- **Open Source**: Parts are open source (e.g., Semantic Kernel); others are proprietary.
-- **Cost**: Variable; depends on Azure usage.
-- **Self-hostable**: Yes (the framework libraries).
+- **Open Source**: Significant parts are open source (e.g., Semantic Kernel); others are proprietary Azure services.
+- **Cost**: Variable; libraries are free, but underlying Azure AI services and infrastructure incur costs.
+- **Self-hostable**: Yes (the framework libraries can be run anywhere).
 
 ## Related tools / concepts
 - [AutoGen](autogen.md)
@@ -42,11 +46,13 @@ It simplifies the coordination of multiple LLM-powered agents, providing standar
 - [CrewAI](crewai.md)
 - [LangGraph](langgraph.md)
 - [OpenAI Agents SDK](openai-agents-sdk.md)
+- [Azure OpenAI](../providers/azure-openai.md)
 
 ## Sources / References
-- [Official Website](https://www.microsoft.com/en-us/research/project/ai-agents/)
-- [Microsoft Agent Framework Documentation](https://learn.microsoft.com/en-us/azure/ai-services/agents/)
+- [Official Microsoft AI Agents Site](https://www.microsoft.com/en-us/research/project/ai-agents/)
+- [Azure AI Agents Service Documentation](https://learn.microsoft.com/en-us/azure/ai-services/agents/)
+- [Semantic Kernel Overview](https://learn.microsoft.com/en-us/semantic-kernel/overview/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-12
 - Confidence: high

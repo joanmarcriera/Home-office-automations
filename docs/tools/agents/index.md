@@ -25,7 +25,10 @@ Tools and frameworks for building, running, and orchestrating autonomous AI agen
 
 <!-- New agent pages are added here by Jules -->
 
-## Related
+## Related tools / concepts
 
 - [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Multi-Agent KnowledgeOps Governance](../../architecture/multi_agent_knowledgeops.md)
 - [Orchestration](../orchestration/index.md)
+- [Frameworks](../frameworks/index.md)

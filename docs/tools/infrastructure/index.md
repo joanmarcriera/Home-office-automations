@@ -38,3 +38,11 @@ As of early 2026, Apple Silicon continues to be the dominant platform for high-p
 - **Vector databases** — Pinecone, Weaviate, Milvus, Qdrant, etc.
 - **Serving & routing** — Load balancers, model routers, API gateways
 - **Quantisation & optimisation** — GGUF, GPTQ, AWQ, etc.
+
+## Related tools / concepts
+
+- [Local LLMs](../ai_knowledge/local_llms.md)
+- [Model Comparison & Evaluation](../../knowledge_base/model_comparison_and_evaluation.md)
+- [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md)
+- [Infrastructure Detail](../../architecture/infrastructure.md)
+- [Providers](../providers/index.md)
