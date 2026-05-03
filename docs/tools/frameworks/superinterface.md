@@ -10,9 +10,9 @@ It bridges the gap between AI agents and the end-user by providing a structured 
 **Framework / UI Layer for AI**.
 
 ## Typical use cases
-- **AI-Powered Dashboards**: Creating interactive interfaces where users can query data using natural language.
-- **Agentic Chatbots**: Building sophisticated chat interfaces that can perform actions on behalf of the user.
-- **Custom AI Assistants**: Developing tailored assistants with a specific UI and set of capabilities.
+- **Agent-Driven UIs**: Building React-based interfaces that are powered by autonomous agents.
+- **Custom AI Assistant Portals**: Developing tailored, brand-aware portals for family or client use.
+- **Interactive AI Dashboards**: Creating dashboards where users interact with complex data via chat.
 
 ## Strengths
 - **UI Focus**: Specialized in building the interface layer for AI applications.
@@ -30,6 +30,39 @@ It bridges the gap between AI agents and the end-user by providing a structured 
 ## When not to use it
 - For backend-only AI tasks with no user interface requirement.
 - If you prefer to build your own custom UI from scratch using general-purpose frontend frameworks.
+
+## Getting started
+
+### Installation
+```bash
+npm install @superinterface/react @tanstack/react-query @radix-ui/themes
+```
+
+### Basic Example (React)
+```tsx
+'use client'
+import { SuperinterfaceProvider, ThreadDialog } from '@superinterface/react'
+import { Theme } from '@radix-ui/themes'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import '@radix-ui/themes/styles.css'
+
+const queryClient = new QueryClient()
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Theme>
+        <SuperinterfaceProvider variables={{
+          publicApiKey: 'YOUR_PUBLIC_API_KEY',
+          assistantId: 'YOUR_ASSISTANT_ID',
+        }}>
+          <ThreadDialog />
+        </SuperinterfaceProvider>
+      </Theme>
+    </QueryClientProvider>
+  )
+}
+```
 
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)

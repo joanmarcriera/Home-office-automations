@@ -4,21 +4,21 @@ This report documents the remaining work for the Ralph-loop, following the compl
 
 ## Batch 4: Observability & Evaluation (Remaining)
 Tools for monitoring and benchmarking agent performance.
-- [ ] AgentOps
-- [ ] Ragas
-- [ ] Helicone
-- [ ] Parea
-- [ ] LastMile AI
-- [ ] Fiddler
+- [x] AgentOps
+- [x] Ragas
+- [x] Helicone
+- [x] Parea
+- [x] LastMile AI
+- [x] Fiddler
 
 ## Batch 5: Specialized Browsing & Automation
 Tools focused on web interaction and specialized workflows.
-- [ ] Open Interpreter
-- [ ] Goose
-- [ ] Stagehand
-- [ ] Gumloop
-- [ ] AirOps
-- [ ] LLMWare
+- [x] Open Interpreter
+- [x] Goose
+- [x] Stagehand
+- [x] Gumloop
+- [x] AirOps
+- [x] LLMWare
 
 ## Notes
 - Issue #299 (OpenRouter Log Tools) is now fully integrated.
