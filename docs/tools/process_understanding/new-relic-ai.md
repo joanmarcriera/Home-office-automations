@@ -35,15 +35,42 @@ It addresses the unique challenges of AI monitoring, such as tracking non-determ
 - **Cost**: Paid (usage-based).
 - **Self-hostable**: No.
 
+## Getting started
+
+### Installation
+For Python applications, install the New Relic agent and the AI monitoring package:
+```bash
+pip install newrelic
+```
+
+### Example: Monitoring a LangChain Application
+Initialize the agent at the very beginning of your application:
+```python
+import newrelic.agent
+newrelic.agent.initialize('newrelic.ini')
+
+from langchain_openai import ChatOpenAI
+
+# The New Relic agent automatically instruments supported libraries like LangChain
+llm = ChatOpenAI(model_name="gpt-4o")
+response = llm.invoke("What is the Model Context Protocol?")
+```
+
+### Viewing Results
+Metrics such as token count, response time, and cost are automatically sent to the New Relic "AI Monitoring" dashboard, where you can view performance by model and individual request traces.
+
 ## Related tools / concepts
 - [Datadog](datadog.md)
 - [Grafana Cloud](grafana-cloud.md)
 - [Langfuse](langfuse.md)
+- [Arize Phoenix](arize-ai.md)
+- [Parea](parea.md)
 
 ## Sources / References
 - [New Relic AI Monitoring](https://newrelic.com/products/ai-monitoring)
 - [New Relic Documentation](https://docs.newrelic.com/)
+- [New Relic Python Agent AI Guide](https://docs.newrelic.com/docs/apm/agents/python-agent/getting-started/introduction-new-relic-python/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-13
 - Confidence: high

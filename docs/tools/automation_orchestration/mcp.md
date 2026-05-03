@@ -30,17 +30,70 @@ It eliminates the need to write custom integration code for every tool/LLM combi
 ## When not to use it
 - For very simple, one-off tool implementations where a basic API call is sufficient.
 
+## Getting started
+
+### MCP Architecture
+MCP uses a client-server architecture. A **Client** (like Claude Desktop) connects to a **Server** (a small program that exposes tools) over a transport layer like Stdio or HTTP/SSE.
+
+### Example: Using a Local MCP Server (Claude Desktop)
+To add a local MCP server to Claude Desktop, edit your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/path/to/allowed/directory"
+      ]
+    }
+  }
+}
+```
+
+### Developing a Simple MCP Server (Node.js)
+```typescript
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+
+const server = new Server({
+  name: "example-server",
+  version: "1.0.0"
+}, {
+  capabilities: { tools: {} }
+});
+
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: [{
+    name: "get_weather",
+    description: "Get the weather for a location",
+    inputSchema: {
+      type: "object",
+      properties: { location: { type: "string" } }
+    }
+  }]
+}));
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
 ## Related tools / concepts
 - [Claude Code](../development_ops/claude-code.md)
 - [Roo Code](../agents/roo-code.md)
 - [MCP Registry](mcp-registry.md)
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [Cline](../agents/cline.md)
 
 ## Sources / References
 - [Official Website](https://modelcontextprotocol.io/)
 - [Anthropic MCP Announcement](https://www.anthropic.com/news/model-context-protocol)
 - [MCP Documentation](https://modelcontextprotocol.io/docs/concepts/architecture)
+- [MCP SDKs](https://github.com/modelcontextprotocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-13
 - Confidence: high
