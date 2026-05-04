@@ -39,6 +39,9 @@ Bridges the gap between notes/tasks in Notion and time management in a calendar,
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md)
 - [Fantastical](fantastical.md)
+- [Morgen](morgen.md)
+- [Amie](amie.md)
+- [Akiflow](akiflow.md)
 
 ## Sources / References
 - [Notion Calendar](https://www.notion.so/product/calendar)

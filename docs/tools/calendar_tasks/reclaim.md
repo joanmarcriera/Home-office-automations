@@ -31,6 +31,20 @@ Solves "calendar tetris" by automatically blocking time for deep work and habits
 - If you use Outlook or iCloud as your primary calendar
 - If you prefer manual, fixed-time scheduling
 
+## Getting started
+
+### n8n Integration (API)
+Reclaim.ai can be integrated into automation workflows using its API. While n8n doesn't have a native node yet, you can use the **HTTP Request** node.
+
+1. Generate an API Key in Reclaim under **Settings > API**.
+2. In n8n, use the HTTP Request node:
+   - **Method**: GET
+   - **URL**: `https://api.reclaim.ai/api/tasks`
+   - **Authentication**: Header (`Authorization: Bearer YOUR_API_KEY`)
+
+### Raycast / CLI
+Power users often interact with Reclaim via the Raycast extension or community CLI tools to quickly add tasks to their "Smart Queue".
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Freemium
@@ -40,10 +54,13 @@ Solves "calendar tetris" by automatically blocking time for deep work and habits
 - [Google Calendar](google_calendar.md)
 - [Motion](motion.md)
 - [Akiflow](akiflow.md)
+- [Todoist](todoist.md)
+- [n8n](../../services/n8n.md)
 
 ## Sources / References
 - [Reclaim.ai Official Site](https://reclaim.ai/)
+- [Reclaim API Documentation](https://github.com/reclaim-ai/reclaim-api)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-13
 - Confidence: high

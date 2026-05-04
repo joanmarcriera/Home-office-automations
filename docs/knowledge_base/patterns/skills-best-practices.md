@@ -187,7 +187,7 @@ For Claude Code skills, document any dangerous operations with a warning:
 
 ## Skill taxonomy for this stack
 
-Organise skills into layers to avoid overlap and make discovery predictable:
+Organise skills into layers to avoid overlap and make discovery predictably:
 
 | Layer | Examples | Notes |
 |---|---|---|
@@ -199,27 +199,27 @@ Organise skills into layers to avoid overlap and make discovery predictable:
 | **Dev** | `commit`, `pr-review`, `deploy` | Software engineering actions |
 | **Maintenance** | `knowledge-base-update`, `cleanup` | Repo/system maintenance |
 
-## Validation loop
+## Quality assurance checklist
 
-Before deploying a skill, run through this checklist:
+Use this checklist during design, execution, and performance reviews to ensure high-quality agent skills.
 
 ### Design review
-- [ ] Trigger description is specific enough to avoid false positives
-- [ ] Trigger description is broad enough to catch all legitimate invocations
-- [ ] Instructions are step-by-step, not open-ended goals
-- [ ] Permissions are minimised to what is strictly needed
-- [ ] Edge cases (missing inputs, API errors, ambiguous requests) are handled explicitly
+- [ ] **Trigger specificity**: Trigger description is specific enough to avoid false positives.
+- [ ] **Trigger coverage**: Trigger description is broad enough to catch all legitimate invocations.
+- [ ] **Actionable steps**: Instructions are step-by-step, not open-ended goals.
+- [ ] **Principle of least privilege**: Permissions are minimised to what is strictly needed.
+- [ ] **Error handling**: Edge cases (missing inputs, API errors, ambiguous requests) are handled explicitly.
 
 ### Execution review
-- [ ] Invoke with an exact-match trigger phrase → skill fires correctly
-- [ ] Invoke with a near-miss phrase that should NOT trigger → skill does not fire
-- [ ] Run the skill on a test input → output matches expected format
-- [ ] Introduce a simulated API error → skill handles it gracefully and reports the error
+- [ ] **Positive test**: Invoke with an exact-match trigger phrase → skill fires correctly.
+- [ ] **Negative test**: Invoke with a near-miss phrase that should NOT trigger → skill does not fire.
+- [ ] **Output validation**: Run the skill on a test input → output matches expected format.
+- [ ] **Resilience test**: Introduce a simulated API error → skill handles it gracefully and reports the error.
 
 ### Performance review
-- [ ] Instruction length is under 300 tokens (measure with `tiktoken`)
-- [ ] No redundant context that the model already knows from its system prompt
-- [ ] Output format is consistent across 3+ separate test runs
+- [ ] **Token efficiency**: Instruction length is under 300 tokens (measure with `tiktoken`).
+- [ ] **Context minimization**: No redundant context that the model already knows from its system prompt.
+- [ ] **Consistency**: Output format is consistent across 3+ separate test runs.
 
 ## Common skill patterns
 
