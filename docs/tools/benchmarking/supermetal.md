@@ -25,14 +25,51 @@ It addresses the latency and complexity bottlenecks in Change Data Capture (CDC)
 - When you need low-latency synchronization between production databases and an analytical data lake.
 - When looking to reduce the operational overhead of Kafka/Spark-based pipelines.
 
+## Getting started
+Supermetal operates via an API-driven connector model. To get started, deploy the Supermetal service and use the REST API to configure your source and sink connectors.
+
+## API examples
+**Create a new connector**:
+```bash
+curl -X POST "https://your-supermetal-instance/api/v1/connectors/my-pg-to-iceberg" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "my-pg-to-iceberg",
+    "source": {
+      "postgres": {
+        "connection": {
+          "host": "pg-host",
+          "user": "sync_user",
+          "password": "password",
+          "database": "prod_db"
+        },
+        "replication_type": { "logical_replication": {} }
+      }
+    },
+    "sink": {
+      "iceberg": {
+        "catalog_type": "glue",
+        "database": "analytics"
+      }
+    }
+  }'
+```
+
+**List all connectors**:
+```bash
+curl "https://your-supermetal-instance/api/v1/connectors"
+```
+
 ## Related tools / concepts
 - [Data Stack Consolidation](../../knowledge_base/landscape-overview.md)
-- Apache Iceberg
-- Change Data Capture (CDC)
+- [AirOps](../automation_orchestration/airops.md)
+- [Temporal](../orchestration/temporal.md)
+- [Datadog](../process_understanding/datadog.md)
+- [Grafana](../process_understanding/grafana.md)
 
 ## Sources / references
 - [Postgres to Iceberg in 13 minutes: How Supermetal compares](https://thenewstack.io/postgres-iceberg-cdc-benchmarks/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-18
 - Confidence: high

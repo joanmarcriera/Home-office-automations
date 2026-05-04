@@ -22,16 +22,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **#421** | Weekly deepening (Batch 8) | **Resolved** | Unstructured, LlamaParse, Karpathy, Matt Pocock, AmpCode deepened. |
 | **#422** | Category gap fill: calendar_tasks | **Verified** | 20 docs added and indexed. |
 | **Batch 9** | Weekly deepening: AI Knowledge | **Resolved** | Fish Audio, KokoClone, Gemini macOS, /last30days, and ECC deepened. |
+| **Batch 10** | Weekly deepening: Mixed Batch | **Resolved** | Claude How-To, Supermetal, AirOps, Gumloop, and Gemini Canvas deepened. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
-- **Weekly Deepening (Batch 10)**: Focus on 5 shallow docs:
-  - `docs/tools/ai_knowledge/claude-howto.md`
-  - `docs/tools/benchmarking/supermetal.md`
-  - `docs/tools/automation_orchestration/airops.md`
-  - `docs/tools/automation_orchestration/gumloop.md`
-  - `docs/tools/ai_knowledge/gemini-canvas.md`
+- **Weekly Deepening (Batch 11)**: Triage next set of shallow docs from `docs/new-sources/`.
 - **Link Audit**: Verify all canonical tool pages have 5+ relative links (continuing the audit from index files).
 - **Access Matrix Freshness**: Check for any new Google Workspace or MCP-native features for tools marked 🔴 in Gmail/Calendar columns.
 
