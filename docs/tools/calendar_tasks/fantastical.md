@@ -39,6 +39,9 @@ Simplifies event creation through natural language input (e.g., "Lunch with John
 ## Related tools / concepts
 - [Notion Calendar](notion-calendar.md)
 - [Morgen](morgen.md)
+- [Vimcal](vimcal.md)
+- [Amie](amie.md)
+- [Sunsama](sunsama.md)
 
 ## Sources / References
 - [Flexibits Fantastical](https://flexibits.com/fantastical)

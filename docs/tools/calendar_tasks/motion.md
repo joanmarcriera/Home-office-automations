@@ -31,6 +31,27 @@ Eliminates the need for manual scheduling by automatically prioritizing tasks an
 - If you have a simple schedule with few tasks
 - If you are on a tight budget
 
+## Getting started
+
+### n8n Automation
+Motion provides a public API that allows you to create tasks from external triggers (e.g., a "high priority" email or a new GitHub issue).
+
+**Example: Creating a task via HTTP Request**
+- **Endpoint**: `POST https://api.usemotion.com/v1/tasks`
+- **Headers**:
+  - `X-API-Key`: `YOUR_API_KEY`
+  - `Content-Type`: `application/json`
+- **Payload**:
+```json
+{
+  "name": "Review Project Proposal",
+  "dueDate": "2026-06-05T17:00:00Z",
+  "duration": 60,
+  "priority": "ASAP",
+  "workspaceId": "YOUR_WORKSPACE_ID"
+}
+```
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Paid (Subscription)
@@ -40,10 +61,13 @@ Eliminates the need for manual scheduling by automatically prioritizing tasks an
 - [Reclaim.ai](reclaim.md)
 - [Akiflow](akiflow.md)
 - [Google Calendar](google_calendar.md)
+- [Sunsama](sunsama.md)
+- [n8n](../../services/n8n.md)
 
 ## Sources / References
 - [Motion Official Site](https://www.usemotion.com/)
+- [Motion API Documentation](https://docs.usemotion.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-13
 - Confidence: high
