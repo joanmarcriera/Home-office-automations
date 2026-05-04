@@ -25,16 +25,47 @@ It bridges the gap between complex AI capabilities and non-technical (or time-co
 - **Platform Lock-in**: Workflows are tied to the Gumloop platform.
 - **Customization**: While powerful, it may have limits compared to writing raw code for extremely niche logic.
 
+## Getting started
+1.  **Install the Python SDK**:
+    ```bash
+    pip install gumloop
+    ```
+2.  Obtain your `api_key` and `user_id` from the Gumloop dashboard.
+3.  Identify the `flow_id` of the automation you wish to run.
+
+## API examples
+**Run a workflow via Python SDK**:
+```python
+from gumloop import GumloopClient
+
+# Initialize the client
+client = GumloopClient(
+    api_key="your_api_key",
+    user_id="your_user_id"
+)
+
+# Run a workflow and wait for outputs
+output = client.run_flow(
+    flow_id="your_flow_id",
+    inputs={
+        "input_name": "input_value"
+    }
+)
+
+print(output)
+```
+
 ## Related tools / concepts
 - [n8n](../../services/n8n.md)
 - [Zapier](zapier.md)
 - [Make](make.md)
 - [Agentic Automation Canvas](../agents/agentic-automation-canvas.md)
+- [AirOps](airops.md)
 
 ## Sources / references
 - [Gumloop Official Website](https://www.gumloop.com/)
 - [Gumloop Documentation](https://docs.gumloop.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-18
 - Confidence: high
