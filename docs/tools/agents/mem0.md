@@ -14,10 +14,34 @@ It prevents every agent interaction from starting from zero. Instead of cramming
 - Persisting account, project, or process context for agents
 - Tracking multi-step work across long-running company workflows
 
+## Getting started (Python SDK)
+
+```python
+# 1. Install via pip
+# pip install mem0ai
+
+from mem0 import Memory
+
+# 2. Initialize Memory
+m = Memory()
+
+# 3. Add a memory
+messages = [
+    {"role": "user", "content": "Hi, I'm Alex. I love basketball and gaming."},
+    {"role": "assistant", "content": "Hey Alex! I'll remember your interests."}
+]
+m.add(messages, user_id="alex")
+
+# 4. Search memories
+results = m.search("What do you know about me?", filters={"user_id": "alex"})
+print(results)
+```
+
 ## Strengths
 - Clear fit for agent memory and personalization
 - Useful for cross-session continuity
 - Strong complement to workflow and browser agents
+- Supports multiple memory scopes: User, Session, and Agent
 
 ## Limitations
 - Adds complexity if the workflow does not truly need persistence
@@ -42,14 +66,17 @@ It prevents every agent interaction from starting from zero. Instead of cramming
 - Use **n8n** when you need process execution and scheduling, not memory by itself.
 
 ## Related tools / concepts
-
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [n8n](../../services/n8n.md)
 - [Supabase](../infrastructure/supabase.md)
+- [LangChain](../ai_knowledge/langchain.md)
+- [Agno](./agno.md)
 
 ## Sources / References
+- [Official Website](https://mem0.ai/)
 - [GitHub Repository](https://github.com/mem0ai/mem0)
+- [Mem0 Documentation](https://docs.mem0.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high

@@ -46,6 +46,7 @@ This report documents the triage of open GitHub issues as of May 2, 2026, compar
 - **Issue #422**: Add 8 tools to `calendar_tasks`.
 - **Issue #319**: Enhance Access Matrix UI (emojis + links).
 - **Issue #335, #356, #404**: Finalize specific tool/skill/plugin integrations.
+- **Issue #408**: Deepen examples for 5 shallow docs (mem0, Google Opal, Project Genie, Sora, NotebookLM). (Completed)
 
 ---
 - Confidence: high

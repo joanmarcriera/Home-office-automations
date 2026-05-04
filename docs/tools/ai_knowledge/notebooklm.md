@@ -1,44 +1,47 @@
 # NotebookLM
 
 ## What it is
-NotebookLM is Google's AI-assisted research notebook for working with user-provided sources.
+NotebookLM is Google's AI-assisted research notebook designed to ground LLM responses in user-provided sources. It allows users to upload documents, websites, and notes to create a private knowledge base for synthesis and exploration.
 
 ## What problem it solves
-It helps users explore, summarize, and synthesize a bounded set of documents without building a custom RAG stack.
+It solves the "hallucination" and context window problems for researchers by ensuring every response is cited and grounded in a specific, bounded set of documents. It allows for deep analysis of custom materials without building a custom RAG stack.
 
 ## Where it fits in the stack
-**AI & Knowledge / Research Workspace**. It is an end-user knowledge tool rather than a developer framework.
+**AI Assistants & Knowledge / Research Workspace**. It is an end-user productivity tool for document-heavy analysis.
 
 ## Typical use cases
-- Research synthesis from curated source packs
-- Personal knowledge exploration
-- Brief creation from uploaded documents and notes
+- **Research Synthesis**: Analyzing hundreds of pages of project documents to find patterns or answer specific questions.
+- **Personal Knowledge Management**: Exploring personal notes or archives with an AI that "knows" your history.
+- **Audio Overviews**: Generating natural-sounding, podcast-style deep dives where two AI hosts discuss the uploaded materials.
 
 ## Strengths
-- Fast path to source-grounded analysis
-- Useful for researchers and operators who do not want to build custom tooling
-- Strong fit for notebook-style workflows
+- **Source Grounding**: Every answer comes with citations to the specific parts of your uploaded documents.
+- **Ease of Use**: No-code interface for uploading sources and starting a conversation instantly.
+- **Multimodal**: Supports text, PDFs, Google Docs, and now "Audio Overviews" for alternative synthesis.
 
 ## Limitations
-- Less control than building your own retrieval pipeline
-- Product boundaries and integrations are constrained by the managed experience
+- **Closed Ecosystem**: Limited control over the underlying retrieval strategy compared to building a custom pipeline.
+- **Privacy**: While Google states data is not used to train models, it remains a managed cloud service.
 
 ## When to use it
-- When you want grounded research help from your own documents
-- When speed matters more than custom pipeline control
+- When you have a massive amount of text to digest and need a "chat with your docs" interface immediately.
+- For generating accessible summaries (like the Audio Overview) for team members or stakeholders.
 
 ## When not to use it
-- When you need deep workflow automation or custom retrieval logic
-- When sensitive data policies rule out a managed consumer product
+- When you need to automate document processing into a broader company workflow (use LlamaIndex or n8n instead).
+- When the data is extremely sensitive and requires a fully air-gapped or self-hosted solution.
 
 ## Related tools / concepts
-- [RAG Pattern](../../knowledge_base/patterns/rag.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [LlamaIndex](llamaindex.md)
 - [Google Gemini](google-gemini.md)
+- [Perplexity](perplexity.md)
+- [LangChain](langchain.md)
 
 ## Sources / References
-- [Official Website](https://notebooklm.google.com/)
+- [NotebookLM Official Website](https://notebooklm.google.com/)
+- [Google NotebookLM Blog](https://blog.google/technology/ai/notebooklm-audio-overviews/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high
