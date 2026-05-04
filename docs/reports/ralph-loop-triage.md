@@ -1,53 +1,39 @@
-# Ralph-loop Triage Report — 2026-05-16
+# Ralph-loop Triage Report — 2026-05-17
 
-This report documents the triage of open GitHub issues as of May 2, 2026, comparing requested work against the current repository state.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 17, 2026.
 
 ## Issue Status Summary
 
 | Issue # | Title | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **#186** | Data Copilot: Layered Text-to-SQL architecture | **Verified** | Architecture doc and skeleton.py integrated. |
-| **#187** | Data Copilot: MCP tool/data standardization | **Verified** | Integration matrix and examples integrated. |
-| **#188** | Data Copilot: Agentic RAG + hybrid retrieval | **Verified** | Planner logic and diagnostic examples integrated. |
-| **#189** | Data Copilot: Validation and repair guardrails | **Verified** | Pipeline and policy checklist integrated. |
-| **#190** | Data Copilot: Answer synthesis schema | **Verified** | Pydantic schema and prompt contract integrated. |
-| **#192** | Ensure all the following agents are represented | **Verified** | All 14 providers documented and indexed. |
-| **#201** | Add an enterprise productive suite section | **Verified** | Enterprise section created in docs/tools/enterprise/. |
-| **#202** | add this , and learn from it | **Verified** | Claude-code-best-practice learned/integrated. |
-| **#203** | Intelligence per value, price comparison | **Verified** | Integrated into api_pricing_free_tiers.md. |
-| **#210** | Super nemo tools and providers | **Verified** | Nemotron-3 Super tools and providers documented. |
-| **#227** | Ass security bench | **Verified** | SharpAI Security Benchmark verified/integrated. |
-| **#229** | Fxyr | **Verified** | Fyxer AI added to enterprise tooling. |
-| **#249** | Daily Knowledge Expansion - 2026-03-27 | **Verified** | Automated run, work integrated. |
-| **#258** | Process Jules Backlog - 2026-03-29 | **Verified** | Backlog processed in previous runs. |
-| **#267** | Pricing Matrix Freshness | **Verified** | Freshness updated on 2026-05-02. |
-| **#296** | information on links to add to the repo | **Verified** | Links integrated (Kimi CLI, DeepTutor, etc.). |
-| **#299** | openrouter log tools | **Verified** | Datadog and Sentry integrated. |
-| **#311** | Add enterprise tools (AmpCode) | **Resolved** | Doc exists and deepened (Action A/Action B). |
-| **#318** | 3 more links to add | **Verified** | autoreason, open-agents integrated. |
-| **#319** | ai_tool_access_matrix links & UI | **Resolved** | UI improvements and link standardization completed. |
-| **#335** | Add model to list (Qwen 3.6-35B-A3B) | **Resolved** | Explicitly documented in Qwen doc. |
-| **#356** | Some claude skills to document | **Resolved** | Skills added to skills.md. |
-| **#401** | Daily Maintenance Run | **Verified** | Automated run. |
-| **#404** | Add to the list of claude code plugins | **Resolved** | Descriptions updated and standardized. |
-| **#405** | Resolve multiple human-authored issues | **Verified** | Processed in previous Ralph-loop. |
-| **#406** | Integrate high-signal sources | **Verified** | March/April 2026 digests integrated. |
-| **#407** | A good list to add | **Verified** | OpenHands, browser-use, etc. integrated. |
-| **#408** | Deepen examples for 5 shallow docs | **Verified** | Previous batch completed. |
-| **#421** | Weekly deepening: add code examples | **Resolved** | Completed for Unstructured, LlamaParse, Karpathy, Matt Pocock, and AmpCode. |
-| **#422** | Category gap fill: calendar_tasks | **Resolved** | All 20 targeted docs added and indexed. |
-| **#428** | Data Copilot implementation PR | **Verified** | PR content verified as integrated. |
-| **#431** | Ralph-loop Execution 2026-04-28 | **Verified** | Execution report exists. |
-| **#434** | Ralph-loop Execution 2026-05-02 | **Verified** | Execution report exists. |
-| **#436** | Finalize Data Copilot Architecture | **Verified** | Final cleanup done. |
+| **#186-#190** | Data Copilot Series | **Verified** | Architecture, MCP, RAG, Validation, and Synthesis integrated. |
+| **#192** | Representation of all agents | **Verified** | 14 providers documented and indexed. |
+| **#201** | Enterprise productive suite | **Verified** | Section created in docs/tools/enterprise/. |
+| **#203** | Intelligence per value matrix | **Verified** | Integrated into api_pricing_free_tiers.md. |
+| **#299** | OpenRouter log tools | **Verified** | Datadog, Sentry, Grafana, New Relic integrated. |
+| **#311** | Add enterprise tools (AmpCode) | **Verified** | Doc deepened with Python examples and Data Contracts. |
+| **#319** | ai_tool_access_matrix links & UI | **Verified** | UI standardized; links and status markers updated. |
+| **#335** | Add model (Qwen 3.6-35B-A3B) | **Verified** | Explicitly documented in Qwen doc. |
+| **#356** | Claude skills documentation | **Verified** | Skills added to skills.md. |
+| **#359** | Weekly deepening (Batch 6) | **Verified** | Habitica, Trilium, Rclone, Mealie, Speedtest deepened. |
+| **#360** | Category gap fill (Intake/Storage) | **Verified** | AnyType, Khoj, SilverBullet, Verba added. |
+| **#404** | Claude code plugins | **Verified** | Descriptions updated and standardized. |
+| **#408** | Deepen examples (Batch 7) | **Verified** | mem0, Google Opal, Project Genie, Sora, NotebookLM deepened. |
+| **#421** | Weekly deepening (Batch 8) | **Resolved** | Unstructured, LlamaParse, Karpathy, Matt Pocock, AmpCode deepened. |
+| **#422** | Category gap fill: calendar_tasks | **Verified** | 20 docs added and indexed. |
+| **Batch 9** | Weekly deepening: AI Knowledge | **Resolved** | Fish Audio, KokoClone, Gemini macOS, /last30days, and ECC deepened. |
 
-## Action Plan for Remaining Work
-- **Issue #421**: Deepen docs for Unstructured, LlamaParse, Karpathy Skills, Matt Pocock Skills, and AmpCode.
-- **Issue #422**: Add 8 tools to `calendar_tasks`.
-- **Issue #319**: Enhance Access Matrix UI (emojis + links).
-- **Issue #335, #356, #404**: Finalize specific tool/skill/plugin integrations.
-- **Issue #408**: Deepen examples for 5 shallow docs (mem0, Google Opal, Project Genie, Sora, NotebookLM). (Completed)
-- **Shallow Docs Maintenance**: Deepen index files and 5 agent docs (Letta, GPT Researcher, NemoClaw, AutoReason, Open Agents). (Completed 2026-05-16)
+## Action Plan for Remaining Work (Action C)
+The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
+
+- **Weekly Deepening (Batch 10)**: Focus on 5 shallow docs:
+  - `docs/tools/ai_knowledge/claude-howto.md`
+  - `docs/tools/benchmarking/supermetal.md`
+  - `docs/tools/automation_orchestration/airops.md`
+  - `docs/tools/automation_orchestration/gumloop.md`
+  - `docs/tools/ai_knowledge/gemini-canvas.md`
+- **Link Audit**: Verify all canonical tool pages have 5+ relative links (continuing the audit from index files).
+- **Access Matrix Freshness**: Check for any new Google Workspace or MCP-native features for tools marked 🔴 in Gmail/Calendar columns.
 
 ---
 - Confidence: high

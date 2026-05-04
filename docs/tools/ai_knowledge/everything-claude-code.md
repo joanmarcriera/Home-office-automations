@@ -1,32 +1,72 @@
-# Everything Claude Code
+# Everything Claude Code (ECC)
 
 ## What it is
-A comprehensive system and collection of configurations, skills, instincts, and memory optimizations for Claude Code and other AI agent harnesses.
+Everything Claude Code (ECC) is a comprehensive performance optimization system designed for AI agent harnesses, primarily [Claude Code](../development_ops/claude-code.md). It is not just a configuration pack but a complete ecosystem of specialized agents, skills, hooks, and rules evolved from intensive daily production use.
 
 ## What problem it solves
-It provides a production-ready setup for agents, moving beyond simple configurations to include security scanning, research-first development, and continuous learning.
+It bridges the gap between a raw AI CLI and a production-ready autonomous engineering environment. ECC addresses context window management, security risks, memory persistence across sessions, and language-specific coding standards through automated enforcement and optimized prompt engineering.
 
 ## Where it fits in the stack
-**Category**: AI & Knowledge / Tooling Guide
+**Category**: AI Assistants & Knowledge / Developer Tooling
 
-## Key Features
-- **Instincts & Memory**: Optimized patterns for agent persistence and reasoning.
-- **Security Scanning**: Integrated hooks for safe development.
-- **Multi-platform Support**: Works across Claude Code, Codex, Cursor, Gemini, and more.
+## Typical use cases
+- **Autonomous Engineering**: Leveraging specialized subagents (Architect, Planner, TDD Guide) for complex feature implementation.
+- **Security Auditing**: Using the integrated [AgentShield](#agentshield) to scan configurations for secrets and injection risks.
+- **Continuous Learning**: Automatically extracting patterns from development sessions into reusable "instincts" and skills.
+- **Multi-Agent Orchestration**: Managing complex workflows across multiple services using PM2 and collaborative planning commands.
+
+## Key Components
+- **Subagents (48+)**: Specialized personas like `typescript-reviewer`, `sql-auditor`, and `build-error-resolver` for delegation.
+- **Skills (182+)**: Domain-specific workflow definitions ranging from `frontend-slides` to `market-research`.
+- **Hooks Runtime**: Trigger-based automations that fire on tool events (e.g., auto-formatting after an edit or secret detection before prompt submission).
+- **Rules (34+)**: Standardized, language-specific guidelines (TypeScript, Python, Go, Swift, PHP) that ensure consistency across the codebase.
+
+## Ecosystem Tools
+
+### AgentShield — Security Auditor
+A dedicated auditor that scans Claude Code configurations (`.claude/` directory) for vulnerabilities. It uses adversarial reasoning (Red Team/Blue Team agents) to evaluate protection layers and synthesize risk assessments.
+
+### Skill Creator
+Analyzes local Git history to automatically generate `SKILL.md` files and instinct collections, allowing the agent to "learn" from the existing codebase patterns.
+
+## Getting started
+
+### Option 1: Install as a Claude Code Plugin (Recommended)
+```bash
+# Add the marketplace
+/plugin marketplace add https://github.com/affaan-m/everything-claude-code
+
+# Install the plugin
+/plugin install everything-claude-code@everything-claude-code
+```
+
+### Option 2: Manual Installation
+```bash
+git clone https://github.com/affaan-m/everything-claude-code.git
+cd everything-claude-code
+
+# Copy agents to your configuration
+cp agents/*.md ~/.claude/agents/
+```
+
+## Technical details
+- **Cross-Platform Support**: Rewritten in Node.js for compatibility across Windows, macOS, and Linux.
+- **Adapter Pattern**: Uses a DRY (Don't Repeat Yourself) adapter to share hook scripts between Claude Code and [Cursor](../development_ops/cursor.md).
+- **Token Optimization**: Includes recommended settings to reduce costs (e.g., setting `MAX_THINKING_TOKENS`) without sacrificing reasoning quality.
+- **Memory Persistence**: Implements SQLite-backed state stores to track session history and skill evolution.
 
 ## Related tools / concepts
-
-- [AI Templates](aitmpl.md)
-- [Andrej Karpathy Skills](karpathy-skills.md)
-- [AnythingLLM](anythingllm.md)
-- [ChatGPT](chatgpt.md)
-- [Claude](claude.md)
+- [Claude Code](../development_ops/claude-code.md) (Core harness)
+- [Cursor](../development_ops/cursor.md) (Supported IDE)
+- [OpenCode](../development_ops/opencode.md) (Supported harness)
+- [Aider](../development_ops/aider.md) (Terminal-based alternative)
+- [last30days-skill](last30days-skill.md) (Integrated social research skill)
 
 ## Sources / references
 - [Everything Claude Code (GitHub)](https://github.com/affaan-m/everything-claude-code)
+- [ECC Documentation / Guides](https://ecc.tools/)
+- [Anthropic Claude Code Documentation](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-17
 - Confidence: high
-
-- [Everything Claude Code (GitHub)](https://github.com/affaan-m/everything-claude-code)
