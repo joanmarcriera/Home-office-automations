@@ -1,34 +1,76 @@
 # KokoClone
 
 ## What it is
-KokoClone is a voice cloning extension for Kokoro TTS, a high-performance local text-to-speech model. It allows users to clone voices with high fidelity using minimal audio samples.
+KokoClone is an efficient neural voice cloning extension for [Kokoro TTS](https://huggingface.co/hexgrad/Kokoro-82M), a high-performance local text-to-speech model. It leverages the Kokoro-ONNX runtime to deliver fast, real-time multilingual voice cloning on standard consumer hardware.
 
 ## What problem it solves
-It brings high-quality, local voice cloning to the Kokoro TTS ecosystem, reducing reliance on cloud-based voice cloning services and enabling personalized local voice interfaces.
+It eliminates the need for expensive, cloud-based voice cloning subscriptions by providing a high-fidelity, local-first alternative. KokoClone allows users to clone any target voice with as little as a few seconds of reference audio, maintaining privacy and enabling offline use cases.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Text-to-Speech**.
+**Category**: AI Assistants & Knowledge / Text-to-Speech
 
 ## Typical use cases
-- **Personalized Assistants**: Creating a local voice assistant that sounds like a specific individual.
-- **Content Creation**: Generating voiceovers with cloned voices for local media projects.
+- **Local Personal Assistants**: Creating a customized voice for home automation systems or personal agents.
+- **Narrative Content**: Generating voiceovers for videos or audiobooks using consistent, cloned personas.
+- **Accessibility**: Providing personalized voice replacement for individuals with speech impairments.
 
 ## Strengths
-- **Local Execution**: Runs entirely on local hardware, ensuring privacy and offline availability.
-- **High Fidelity**: Produces natural-sounding cloned voices.
-- **Integration**: Works seamlessly with the existing Kokoro TTS framework.
+- **Extreme Efficiency**: Built on the 82M-parameter Kokoro architecture, it requires less than 2 GB of VRAM and runs smoothly on both CPUs and entry-level GPUs.
+- **Real-Time Performance**: Optimized ONNX runtime ensures low-latency synthesis suitable for interactive applications.
+- **Zero-Shot Cloning**: Capable of mimicking a target timbre without requiring intensive fine-tuning or large datasets.
+- **Multilingual Support**: Inherits Kokoro's ability to handle multiple languages including English, Japanese, and Chinese.
 
 ## Limitations
-- **Hardware Requirements**: Requires sufficient GPU resources for optimal performance.
-- **Ethics**: Like all voice cloning technology, requires responsible use.
+- **Hardware Performance**: While it runs on CPU, the best experience (lowest latency) still requires an NVIDIA GPU with CUDA support.
+- **Sample Quality**: The quality of the clone is highly dependent on the clarity and lack of background noise in the reference audio sample.
+
+## Getting started
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/Ashish-Patnaik/kokoclone.git
+cd kokoclone
+
+# Install dependencies (CPU example)
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt
+```
+
+### CLI usage
+```bash
+# Generate cloned speech
+python cli.py \
+    --text "Welcome to KokoClone, your local voice cloning engine." \
+    --lang en \
+    --ref path/to/reference_voice.wav \
+    --out output_cloned_voice.wav
+```
+
+### Web Interface
+```bash
+# Launch the Gradio UI for Text-to-Clone and Audio-to-Clone tasks
+python app.py
+```
+
+## Technical details
+- **Architecture**: Based on Kokoro-ONNX, utilizing a lightweight neural TTS backbone.
+- **Model Handling**: Automatically downloads required ONNX and BIN weights from Hugging Face on first run.
+- **VRAM-Aware Chunking**: Optimized for long-form synthesis on limited hardware.
+- **Inference Engine**: ONNX Runtime for cross-platform hardware acceleration.
 
 ## Related tools / concepts
-- [ElevenLabs](./elevenlabs.md) (Proprietary alternative)
-- [Whisper](../../services/whisper.md)
+- [Fish Audio](fish-audio.md) (Higher-fidelity, larger-scale alternative)
+- [Whisper](../../services/whisper.md) (Speech-to-text for reference audio preparation)
+- [ElevenLabs](elevenlabs.md) (Cloud-based proprietary alternative)
+- [Ollama](../../services/ollama.md) (Local model runner integration)
+- [Msty](../infrastructure/msty.md) (Local AI desktop with audio support)
 
-## Sources / References
-- [Kokoro TTS, but it clones voices now — Introducing KokoClone](https://www.reddit.com/r/LocalLLaMA/comments/1rjrjg3/kokoro_tts_but_it_clones_voices_now_introducing/)
+## Sources / references
+- [KokoClone GitHub](https://github.com/Ashish-Patnaik/kokoclone)
+- [Kokoro-82M on Hugging Face](https://huggingface.co/hexgrad/Kokoro-82M)
+- [Reddit: Kokoro TTS, but it clones voices now](https://www.reddit.com/r/LocalLLaMA/comments/1rjrjg3/kokoro_tts_but_it_clones_voices_now_introducing/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-17
 - Confidence: high

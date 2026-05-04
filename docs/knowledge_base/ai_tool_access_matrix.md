@@ -33,12 +33,13 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [ChatGPT](../tools/ai_knowledge/chatgpt.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strongest all-rounder for native research, files, and app connectors. |
 | [Claude](../tools/ai_knowledge/claude.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strong for cited research and Google Workspace connectors. |
 | [Gemini Apps](../tools/ai_knowledge/gemini.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Strongest Google-native fit for Gmail and Calendar workflows. |
+| [Gemini for macOS](../tools/ai_knowledge/gemini-macos.md) | Desktop Agent | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Native macOS integration with screen awareness and local files. |
 | [Perplexity](../tools/ai_knowledge/perplexity.md) | Research/search | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Excellent web research; weaker first-party Gmail and Calendar story. |
 | [NotebookLM](../tools/ai_knowledge/notebooklm.md) | Research/notebooks | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Best for source-grounded research on owned materials; less of an action agent. |
 | [GitHub Copilot](../tools/development_ops/github_copilot.md) | Coding assistant | 🔴 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Good code agent in IDE; external app access is mainly via MCP. |
 | [Cursor](../tools/development_ops/cursor.md) | AI IDE | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strong coding IDE; external systems mainly through MCP. |
 | [Windsurf](../tools/development_ops/windsurf.md) | AI IDE | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Similar to Cursor; MCP is the main integration route. |
-| [Claude Code](../tools/development_ops/claude-code.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | Terminal-first coding agent with broad MCP reach. |
+| [Claude Code](../tools/development_ops/claude-code.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | Terminal-first agent with broad MCP and skill ecosystem ([ECC](../tools/ai_knowledge/everything-claude-code.md)). |
 | [Codex CLI](../tools/development_ops/codex.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Strong local terminal workflow; OpenAI-centric rather than provider-agnostic. |
 | [Gemini CLI](../tools/ai_knowledge/gemini-cli.md) | Coding / terminal agent | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Good terminal choice when official Workspace access is important. |
 | [Aider](../tools/development_ops/aider.md) | Terminal pair programmer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Practical for local repos; broad model and provider flexibility. |
@@ -93,6 +94,7 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [LiteLLM](../services/litellm.md) | LLM gateway | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | High-value provider abstraction and routing layer. |
 | [OpenRouter](../tools/ai_knowledge/openrouter.md) | Model router / API | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Hosted model router with broad OpenAI-compatible API coverage. |
 | [Vercel AI SDK](../tools/development_ops/vercel-ai-sdk.md) | App / agent SDK | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟠 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | App SDK for AI interfaces and agents, not a standalone assistant. |
+| [/last30days](../tools/ai_knowledge/last30days-skill.md) | Research skill | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | Specialized social-signal research skill for Claude Code/OpenClaw. |
 | [Temporal](../tools/orchestration/temporal.md) | Durable workflow engine | 🟢 | 🔴 | 🔴 | 🟠 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | Durable orchestration substrate. |
 | [AgentOps](../tools/process_understanding/agentops.md) | Agent observability | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | Observability product for agent runs. |
 | [Langfuse](../tools/process_understanding/langfuse.md) | LLM observability | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | Open-source observability with self-host path. |
@@ -157,6 +159,7 @@ The most practical stack is often layered: a native assistant for research, a lo
 - [ChatGPT synced connectors](https://help.openai.com/en/articles/10847137-internal-knowledge-on-chatgpt-faq)
 - [OpenAI deep research guide](https://platform.openai.com/docs/guides/deep-research)
 - [Claude Gmail and Google Calendar integration](https://support.anthropic.com/zh-TW/articles/11088742-%E4%BD%BF%E7%94%A8-gmail-%E5%92%8C-google-calendar-%E6%95%B4%E5%90%88%E5%8A%9F%E8%83%BD)
+- [Google Gemini Mac app launch](https://thenewstack.io/gemini-app-macos-launch/)
 - [Google Workspace Gemini privacy and app context](https://support.google.com/meet/answer/14615114)
 - [Model Context Protocol introduction](https://www.anthropic.com/news/model-context-protocol)
 - [Open WebUI MCP support](https://docs.openwebui.com/openapi-servers/mcp/)
