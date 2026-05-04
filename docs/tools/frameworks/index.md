@@ -1,29 +1,36 @@
 # Frameworks
 
-Libraries and frameworks for building AI/LLM-powered applications — orchestration, retrieval, agent construction, and inference pipelines.
+AI frameworks provide the abstractions needed to build, optimize, and deploy agentic and RAG-based applications. They handle the "glue" code of LLM interactions, tool execution, and prompt management.
 
-## Contents
+## Framework Selection Guidance
 
-| Framework | What it does |
-| :--- | :--- |
-<!-- New framework pages are added here by Jules -->
-| [Agent Development Kit (ADK)](google-adk.md) | Enterprise agent framework from Google |
-| [AutoGen](autogen.md) | Microsoft's multi-agent conversation framework |
-| [CrewAI](crewai.md) | Collaborative multi-agent orchestration framework |
-| [DSPy](dspy.md) | Programming framework for algorithmically optimizing LLM prompts |
-| [Firebase Genkit](firebase-genkit.md) | Full-stack AI framework for Firebase/App developers |
-| [Haystack](haystack.md) | Modular LLM framework for building RAG and search pipelines |
-| [Instructor](instructor.md) | Library for structured LLM outputs using Pydantic |
-| [LangChain](../ai_knowledge/langchain.md) | LLM application framework with chains, agents, and tool use |
-| [LlamaIndex](../ai_knowledge/llamaindex.md) | Data framework for LLM apps — indexing, retrieval, RAG |
-| [Mycelium](mycelium.md) | Recursive workflow framework using state machines and Malli contracts |
-| [Semantic Kernel](semantic-kernel.md) | SDK for integrating LLMs into applications (.NET, Python) |
-| [Smolagents](smolagents.md) | Lightweight agent framework for simple tool-calling agents |
+| Goal | Recommended Frameworks | Why? |
+| :--- | :--- | :--- |
+| **General Purpose RAG** | [LlamaIndex](llamaindex.md), [LangChain](../ai_knowledge/langchain.md) | Mature ecosystems with deep data and tool integrations. |
+| **Multi-Agent Systems** | [AutoGen](autogen.md), [CrewAI](crewai.md), [AG2](ag2.md) | Specialized in agent coordination, delegation, and role-playing. |
+| **Structured Output** | [Instructor](instructor.md), [PydanticAI](pydantic-ai.md) | Focus on typed, reliable data extraction using Pydantic. |
+| **Optimization** | [DSPy](dspy.md) | Programmatic prompt optimization instead of manual trial-and-error. |
+| **Local / Lightweight** | [Smolagents](smolagents.md), [Mastra](mastra.md) | Minimalist approach with focus on speed and developer experience. |
 
-## Related tools / concepts
+## Core Framework List
 
+| Framework | Primary Language | Role |
+| :--- | :--- | :--- |
+| [AG2](ag2.md) | Python | Advanced multi-agent orchestration. |
+| [AutoGen](autogen.md) | Python | Original multi-agent conversation framework. |
+| [CrewAI](crewai.md) | Python | Role-based agent collaboration. |
+| [DSPy](dspy.md) | Python | Prompt compiler and optimizer. |
+| [Haystack](haystack.md) | Python | Modular pipeline framework for RAG. |
+| [LangChain](../ai_knowledge/langchain.md) | Python / JS | Swiss-army knife for LLM apps. |
+| [LlamaIndex](llamaindex.md) | Python / JS | Context-augmented data framework. |
+| [Mastra](mastra.md) | TypeScript | Integration-first agent engine. |
+| [PydanticAI](pydantic-ai.md) | Python | Typed, functional agent framework. |
+| [Semantic Kernel](semantic-kernel.md) | C# / Python | Microsoft-native agent SDK. |
+
+## Related Tools / Concepts
+
+- [Orchestration](../orchestration/index.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Agents](../agents/index.md)
-- [Orchestration](../orchestration/index.md)
 - [Providers](../providers/index.md)

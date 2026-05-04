@@ -1,4 +1,4 @@
-# Ralph-loop Triage Report — 2026-05-02
+# Ralph-loop Triage Report — 2026-05-16
 
 This report documents the triage of open GitHub issues as of May 2, 2026, comparing requested work against the current repository state.
 
@@ -47,6 +47,7 @@ This report documents the triage of open GitHub issues as of May 2, 2026, compar
 - **Issue #319**: Enhance Access Matrix UI (emojis + links).
 - **Issue #335, #356, #404**: Finalize specific tool/skill/plugin integrations.
 - **Issue #408**: Deepen examples for 5 shallow docs (mem0, Google Opal, Project Genie, Sora, NotebookLM). (Completed)
+- **Shallow Docs Maintenance**: Deepen index files and 5 agent docs (Letta, GPT Researcher, NemoClaw, AutoReason, Open Agents). (Completed 2026-05-16)
 
 ---
 - Confidence: high
