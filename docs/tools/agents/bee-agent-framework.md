@@ -1,7 +1,7 @@
 # Bee Agent Framework
 
 ## What it is
-The Bee Agent Framework is an open-source framework by IBM (under the i-am-bee organization) for building, deploying, and orchestrating AI agents. It supports both TypeScript and Python and is designed for production-ready, reliable agentic workflows.
+The Bee Agent Framework is an open-source framework by IBM for building, deploying, and orchestrating AI agents. It supports both TypeScript and Python and is designed for production-ready, reliable agentic workflows.
 
 ## What problem it solves
 It focuses on agent reliability and observability. It provides "Requirement Agents" that can enforce specific rules during execution, and detailed execution traces to help debug complex agent behaviors.
@@ -14,24 +14,8 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
 - Multi-agent systems with complex planning and execution steps
 - Cross-language projects (TS/Python)
 
-## Strengths
-- **Reliability**: Built-in safeguards and "Requirement Agents" to prevent common agent failure modes.
-- **Observability**: Excellent execution tracing and logging.
-- **Multi-language**: Official support for both TypeScript and Python.
-- **Protocol Support**: Early adoption of [MCP](../../knowledge_base/agent_protocols.md) and ACP.
-
-## Limitations
-- **Complexity**: Might be more complex than lightweight frameworks for simple tasks.
-- **Community**: Newer compared to established frameworks like LangChain.
-
-## When to use it
-- For production applications where reliability and debugging are critical.
-- If you need a framework that natively supports the Model Context Protocol.
-
-## When not to use it
-- For quick, throwaway prototypes where simplicity is the main goal.
-
 ## Getting started
+
 ### Installation
 === "TypeScript"
     ```bash
@@ -42,7 +26,22 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
     pip install beeai-framework
     ```
 
-### Working Example
+### Basic Usage
+Initialize an agent with a model and a set of tools to start performing tasks.
+
+## CLI examples
+```bash
+# Initialize a new Bee project (TypeScript)
+npx beeai-framework init my-agent
+
+# Run a Bee agent in development mode
+npx beeai-framework dev
+
+# List available tools in the project
+npx beeai-framework tools list
+```
+
+## API examples
 === "TypeScript"
     ```typescript
     import { BeeAgent } from "beeai-framework/agents/bee/agent";
@@ -50,18 +49,15 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
     import { DuckDuckGoSearchTool } from "beeai-framework/tools/search/duckduckgo";
 
     async function main() {
-        // 1. Create the agent with a tool
         const agent = new BeeAgent({
             llm: new UnstructuredRawModel({ modelId: "gpt-4o" }),
             tools: [new DuckDuckGoSearchTool()],
             memory: []
         });
 
-        // 2. Run a query
-        const response = await agent.run({ prompt: "What is the Bee Agent Framework?" });
+        const response = await agent.run({ prompt: "Who won the 2024 World Series?" });
         console.log(response.result.text);
     }
-
     main();
     ```
 === "Python"
@@ -70,35 +66,39 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
     from beeai_framework.backend.chat import ChatModel
     from beeai_framework.tools.search.duckduckgo import DuckDuckGoSearchTool
 
-    # 1. Create the agent with a tool
     agent = BeeAgent(
         llm=ChatModel.from_name("openai:gpt-4o"),
         tools=[DuckDuckGoSearchTool()],
         memory=[]
     )
 
-    # 2. Run a query
-    response = agent.run(prompt="What is the Bee Agent Framework?")
+    response = agent.run(prompt="Who won the 2024 World Series?")
     print(response.result.text)
     ```
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0 License)
-- **Cost**: Free
-- **Self-hostable**: Yes
+## Strengths
+- **Reliability**: Built-in safeguards and "Requirement Agents" to prevent common agent failure modes.
+- **Observability**: Excellent execution tracing and logging.
+- **Multi-language**: Official support for both TypeScript and Python.
+- **Protocol Support**: Native support for [MCP](../../knowledge_base/agent_protocols.md).
+
+## Limitations
+- **Complexity**: Might be more complex than lightweight frameworks for simple tasks.
+- **Community**: Newer compared to established frameworks like LangChain.
 
 ## Related tools / concepts
-
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md)
 - [Phidata](phidata.md)
 - [Superpowers](superpowers.md)
+- [Agno](agno.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/i-am-bee/beeai-framework)
+- [Official Documentation](https://i-am-bee.github.io/beeai-framework/)
 - [IBM Research Blog](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-19
 - Confidence: high

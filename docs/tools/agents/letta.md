@@ -12,7 +12,6 @@ Standard LLMs suffer from "forgetfulness" once their context window is exceeded.
 ## Typical use cases
 - **Persistent Personal Assistants**: Agents that remember months of conversation history and preferences.
 - **Multi-session Coding Projects**: Agents that maintain state across different days of development.
-- **Interactive Role-playing**: Characters that maintain consistent long-term story arcs.
 - **Durable Workflows**: Agents that can be paused and resumed without losing task context.
 
 ## Virtual Context Management
@@ -20,7 +19,50 @@ Letta implements a "Virtual Context" architecture inspired by operating systems:
 - **Core Memory**: Fixed-size, high-priority context (e.g., current task, user bio).
 - **Archival Memory**: Infinite long-term storage (vector DB) for facts and past logs.
 - **Recall Memory**: Searchable history of all past interactions.
-- **Memory Tiering**: The agent can explicitly move information between these tiers using tool calls.
+
+## Getting started
+
+### Installation
+```bash
+pip install letta
+```
+
+### Basic Usage
+Start the Letta server and interact with a stateful agent that persists its memory in a database.
+
+## CLI examples
+```bash
+# Start the interactive Letta Code CLI
+letta
+
+# Run a query in headless mode and persist the result
+letta -p "Implement a Dockerfile for a Go application and remember my preference for Alpine base images."
+
+# Switch the underlying LLM model for the current agent session
+letta /model gpt-4o
+```
+
+## API examples
+```python
+from letta import create_client
+
+client = create_client()
+
+# 1. Create a stateful agent with persistent memory
+agent = client.create_agent(
+    name="DurableAssistant",
+    memory_type="base_memory"
+)
+
+# 2. Send a message that updates agent state
+response = client.user_message(
+    agent_id=agent.id,
+    message="My favorite project is the autonomous drone hub."
+)
+
+# 3. Retrieve the response (the agent will remember this in the next call)
+print(f"Agent: {response[0].text}")
+```
 
 ## Strengths
 - **State Persistence**: State is stored in a database (PostgreSQL by default), allowing agents to survive process restarts.
@@ -32,55 +74,19 @@ Letta implements a "Virtual Context" architecture inspired by operating systems:
 - **Complexity**: Setting up the server and database infrastructure is more involved than simple stateless agents.
 - **Token Usage**: Managing the memory buffer requires additional tokens for system prompts and internal reasoning.
 
-## Getting started
-
-### Installation
-```bash
-pip install letta
-```
-
-### Basic usage (Local Server)
-```bash
-# Start the Letta server
-letta server
-```
-
-### Python SDK Example
-```python
-from letta import create_client
-
-client = create_client()
-
-# Create a new agent with persistent memory
-agent = client.create_agent(
-    name="MemoryAgent",
-    memory_type="base_memory"
-)
-
-# Send a message
-response = client.user_message(
-    agent_id=agent.id,
-    message="Remember that my favorite color is indigo."
-)
-
-print(f"Agent Response: {response[0].text}")
-
-# In a separate session, the agent will still remember!
-```
-
 ## Related tools / concepts
-
 - [Mem0](mem0.md)
 - [Agno](agno.md)
 - [Agency Swarm](agency-swarm.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [LangGraph](../frameworks/langgraph.md)
 
 ## Sources / references
 - [Letta Official Site](https://www.letta.com/)
 - [Letta GitHub](https://github.com/letta-ai/letta)
-- [Virtual Context Management Research](https://arxiv.org/abs/2310.08560)
+- [Official Documentation](https://docs.letta.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-05-19
 - Confidence: high

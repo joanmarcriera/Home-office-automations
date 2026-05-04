@@ -22,6 +22,46 @@ AutoReason uses a "Loop-and-Verify" logic:
 - **Code Debugging**: Identifying root causes by iteratively testing assumptions against the codebase.
 - **Deep Research**: Multi-hop reasoning tasks where information from step A determines the search for step B.
 
+## Getting started
+
+### Installation
+```bash
+git clone https://github.com/NousResearch/autoreason.git
+cd autoreason
+pip install -r requirements.txt
+```
+
+### Basic Usage
+The framework is primarily used by running experiment runners that execute the "Reason-Verify-Correct" loop.
+
+## CLI examples
+```bash
+# Run the main experiment runner for writing tasks
+python run_overnight.py
+
+# Run the code experiment runner for competitive programming tasks
+python run_code_overnight.py
+
+# Run a multi-seed replication experiment to verify robustness
+python run_multi_seed.py
+```
+
+## API examples
+```python
+# Conceptual usage within a Nous-compatible framework
+from autoreason import Reasoner
+
+# Initialize with a high-reasoning model
+reasoner = Reasoner(model="nous-hermes-3-llama-3.1-70b")
+
+# Solve a complex causal reasoning task
+result = reasoner.solve("Explain the causal link between interest rates and housing starts.")
+
+# Access the final answer and the iterative reasoning trace
+print(f"Answer: {result.final_answer}")
+print(f"Steps taken: {len(result.reasoning_trace)}")
+```
+
 ## Strengths
 - **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then check it.
 - **Open-Source**: Developed by Nous Research with a focus on open-weight model compatibility.
@@ -31,33 +71,18 @@ AutoReason uses a "Loop-and-Verify" logic:
 - **High Token Consumption**: Iteration and verification loops can use 5-10x more tokens than single-shot inference.
 - **Inference Latency**: Not suitable for real-time chat; better for "batch" reasoning tasks.
 
-## Getting started
-AutoReason is often used as a library within larger agentic workflows.
-
-```python
-# Conceptual usage within a Nous-compatible framework
-from autoreason import Reasoner
-
-reasoner = Reasoner(model="nous-hermes-3-llama-3.1-70b")
-result = reasoner.solve("Explain the causal link between X and Y in this dataset.")
-
-# AutoReason will internally loop through verification steps before returning
-print(result.final_answer)
-print(result.reasoning_trace)
-```
-
 ## Related tools / concepts
-
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
 - [Agno](agno.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Model Comparison](../../knowledge_base/model_comparison_and_evaluation.md)
 - [Jules](../ai_knowledge/jules.md)
+- [Open Agents](open-agents.md)
 
 ## Sources / references
 - [NousResearch/autoreason](https://github.com/NousResearch/autoreason)
 - [Nous Research Reasoning Patterns](https://nousresearch.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-05-19
 - Confidence: high
