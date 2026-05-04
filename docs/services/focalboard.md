@@ -1,9 +1,12 @@
 # Focalboard
 
+> [!WARNING]
+> This repository is currently not maintained. If you're interested in becoming a maintainer, please let the Mattermost community know. This documentation refers to the standalone Personal Server edition.
+
 Focalboard is an open-source, multilingual, self-hosted project management tool.
 
 ## Description
-It is an alternative to Trello, Notion, and Asana, providing a Kanban-style board for task management.
+It is an alternative to Trello, Notion, and Asana, providing a Kanban-style board for task management. It comes in two primary editions: Personal Desktop (standalone app) and Personal Server (multi-user server).
 
 ## When to use it
 - When you need a self-hosted, open-source alternative to Trello or Asana for team project management.
@@ -17,53 +20,56 @@ It is an alternative to Trello, Notion, and Asana, providing a Kanban-style boar
 ## Getting started
 
 ### Docker
-To run Focalboard locally using the official Docker image:
+To run the Focalboard Personal Server locally using the official Docker image:
 
 ```bash
-docker run -it -p 80:8000 mattermost/focalboard
+docker run -d --name focalboard -p 8000:8000 mattermost/focalboard
 ```
 
 ### Hello World
-1. Access the interface at `http://localhost`.
-2. Follow the on-screen prompts to create your first user account.
-3. Click **Add Board** in the sidebar and select a template (e.g., "Project Tasks") to create your first Kanban board.
+1. Access the web interface at `http://localhost:8000`.
+2. Follow the on-screen prompts to create your first user account (this account will be the admin).
+3. Click **Add Board** in the sidebar.
+4. Select a template like "Project Tasks" or start with an "Empty Board".
+5. Drag and drop cards between columns (e.g., "To Do" to "In Progress") to see the Kanban flow in action.
 
 ## CLI examples
-Focalboard provides an import tool and can be managed via `make` for development:
+The `focalboard-server` binary handles imports and administrative tasks:
 
 ```bash
 # Import a Trello archive into Focalboard
-./bin/focalboard-server import trello trello_export.json
+./focalboard-server import trello trello_export.json
 
-# Build the server and web app (requires Go and Node.js)
-make prebuild && make
+# Reset the password for a specific user
+./focalboard-server reset-password <username>
 
-# Reset the admin password (if supported by your version)
-./bin/focalboard-server reset-password admin
+# Check the version of the Focalboard server
+./focalboard-server version
 ```
 
 ## API examples
-The Boards API (Swagger) allows for programmatic task and board management.
+The Boards API allows for programmatic task and board management. Authentication requires a session token.
 
 ### Python Example
 ```python
 import requests
 
-# Use your session token obtained after login
+# Fetch all boards for the authenticated user
 url = "http://localhost:8000/api/v1/boards"
 headers = {"Authorization": "Bearer YOUR_SESSION_TOKEN"}
 
 response = requests.get(url, headers=headers)
-if response.status_code == 200:
-    for board in response.json():
-        print(f"Board Name: {board['title']}")
+if response.ok:
+    boards = response.json()
+    for board in boards:
+        print(f"Board: {board['title']} (ID: {board['id']})")
 ```
 
 ### Curl Example
 ```bash
-# Get all boards
+# Get the current user's information
 curl -H "Authorization: Bearer <your_session_token>" \
-     "http://localhost:8000/api/v1/boards"
+     "http://localhost:8000/api/v1/users/me"
 ```
 
 ## Links
@@ -83,4 +89,4 @@ curl -H "Authorization: Bearer <your_session_token>" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-04

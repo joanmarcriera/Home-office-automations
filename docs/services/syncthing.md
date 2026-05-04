@@ -18,55 +18,58 @@ It synchronizes files between two or more computers in real time, safely and sec
 ## Getting started
 
 ### Installation
-Download the latest binary for your operating system from the [official downloads page](https://syncthing.net/downloads/).
-
-### Running Syncthing
-Simply run the `syncthing` binary to start the service and open the web GUI:
+The easiest way to install Syncthing on Linux is via the official APT repository (for Debian/Ubuntu) or by downloading the [pre-compiled binaries](https://syncthing.net/downloads/).
 
 ```bash
+# Example: Download and extract for Linux 64-bit
+curl -L https://github.com/syncthing/syncthing/releases/latest/download/syncthing-linux-amd64-v1.27.6.tar.gz | tar xz
+cd syncthing-linux-amd64-*
 ./syncthing
 ```
 
 ### Hello World
-1. After starting Syncthing, the admin GUI will open automatically at `http://localhost:8384/`.
-2. Click on **Actions** (top right) and select **Show ID**.
-3. This unique **Device ID** is what you will share with your other devices to establish a secure connection.
+1. Start Syncthing: `./syncthing`. The Web GUI will open at `http://localhost:8384`.
+2. On your **first device**, go to **Actions > Show ID** and copy the long string.
+3. On your **second device**, click **Add Remote Device** and paste the ID from the first device.
+4. On the **first device**, a notification will appear; click **Add Device** to confirm.
+5. In the **Default Folder** settings on either device, go to the **Sharing** tab and check the other device to start syncing files in `~/Sync`.
 
 ## CLI examples
-The `syncthing` binary supports several command-line arguments for configuration and management:
+The `syncthing` binary handles both service execution and configuration tasks:
 
 ```bash
-# Show version information
-syncthing --version
-
-# Generate a new configuration and keys in the specified directory
+# Generate a new API key and configuration without starting the GUI
 syncthing --generate="/path/to/config"
 
-# Set the GUI listen address manually
-syncthing --gui-address="0.0.0.0:8384"
+# Reset the GUI password if you are locked out
+syncthing --gui-password="newpassword" --gui-user="admin"
+
+# Check the version and build information
+syncthing --version
 ```
 
 ## API examples
-Syncthing provides a REST API. Authenticate using the `X-API-Key` header (found in the Web GUI under Actions > Settings).
+Syncthing's REST API is comprehensive. Find your API key in **Actions > Settings > General**.
 
 ### Python Example
 ```python
 import requests
 
-url = "http://localhost:8384/rest/system/version"
-headers = {
-    "X-API-Key": "YOUR_API_KEY"
-}
+# Fetch the current system status and resource usage
+url = "http://localhost:8384/rest/system/status"
+headers = {"X-API-Key": "YOUR_API_KEY"}
 
 response = requests.get(url, headers=headers)
-print(response.json())
+if response.ok:
+    status = response.json()
+    print(f"Syncthing Version: {status['version']}, Uptime: {status['uptime']}s")
 ```
 
 ### Curl Example
 ```bash
-# Get system version
-curl -X GET -H "X-API-Key: <your_api_key>" \
-     "http://localhost:8384/rest/system/version"
+# Force a rescan of a specific folder (replace 'default' with your folder ID)
+curl -X POST -H "X-API-Key: <your_api_key>" \
+     "http://localhost:8384/rest/db/scan?folder=default"
 ```
 
 ## Links
@@ -87,5 +90,5 @@ curl -X GET -H "X-API-Key: <your_api_key>" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-04
 - Confidence: high

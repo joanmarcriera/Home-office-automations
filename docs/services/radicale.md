@@ -23,51 +23,76 @@ Install Radicale using `pip`:
 python3 -m pip install --upgrade radicale
 ```
 
-### Running Radicale
-To start the server with default settings (binds to `localhost:5232`):
+### Basic Setup
+For a secure setup, create a configuration file and a users file:
 
 ```bash
-python3 -m radicale
+# Create a user 'admin' with a password (requires htpasswd from apache2-utils)
+htpasswd -c /path/to/users admin
+
+# Create a basic config (config.ini)
+cat <<EOF > config.ini
+[auth]
+type = htpasswd
+htpasswd_filename = /path/to/users
+htpasswd_encryption = autodetect
+
+[server]
+hosts = 0.0.0.0:5232
+EOF
+```
+
+### Running Radicale
+```bash
+python3 -m radicale --config config.ini
 ```
 
 ### Hello World
 1. Access the web interface at `http://localhost:5232`.
-2. Log in with any username and password (default configuration allows any login).
-3. Use the web interface to create your first **Calendar** or **Address book** collection.
+2. Log in with the username and password you created via `htpasswd`.
+3. Click **Create new collection** and choose **Calendar**.
+4. Name your collection (e.g., "Work") and click **Create**.
+5. You now have a CalDAV URL you can use in clients like Thunderbird or DAVx⁵.
 
 ## CLI examples
-The `radicale` module supports several command-line flags for configuration and maintenance:
+The `radicale` module provides several maintenance and configuration utilities:
 
 ```bash
-# Print version information
-python3 -m radicale --version
-
-# Run verification of local collections storage
+# Verify the integrity of the local collections storage
 python3 -m radicale --verify-storage
 
-# Start the server with a custom storage path and debug logging
-python3 -m radicale --storage-filesystem-folder=/path/to/collections --debug
+# Check the version of the installed Radicale package
+python3 -m radicale --version
+
+# Verify a specific item file (e.g., a .ics file) for errors
+python3 -m radicale --verify-item /path/to/collection/item.ics
 ```
 
 ## API examples
-As a CalDAV/CardDAV server, Radicale is accessed via standard DAV methods.
+Radicale is a CalDAV/CardDAV server and uses standard HTTP methods like `PROPFIND` and `MKCOL`.
 
 ### Python Example
-Using the `requests` library to fetch collections (requires authentication if configured):
+Fetch collection details using the `requests` library:
 
 ```python
 import requests
 
-url = "http://localhost:5232/username/"
-response = requests.request("PROPFIND", url, auth=("username", "password"), headers={"Depth": "1"})
+url = "http://localhost:5232/admin/"
+# PROPFIND is used to discover collections
+response = requests.request(
+    "PROPFIND",
+    url,
+    auth=("admin", "your_password"),
+    headers={"Depth": "1"}
+)
 
-print(response.text)
+print(f"Collections for admin:\n{response.text}")
 ```
 
 ### Curl Example
 ```bash
-# Create a new calendar collection
-curl -u username:password -X MKCOL "http://localhost:5232/username/calendar/"
+# Delete a collection
+curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
 ```
 
 ## Links
@@ -88,5 +113,5 @@ curl -u username:password -X MKCOL "http://localhost:5232/username/calendar/"
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-04
 - Confidence: high
