@@ -16,9 +16,26 @@ It tracks your stock, shopping list, recipes, and more.
 
 ## Getting started
 
-### Docker
-The recommended way to install Grocy is via the LinuxServer.io Docker image:
+### Docker Compose
+The recommended way to run Grocy is using Docker Compose:
 
+```yaml
+services:
+  grocy:
+    image: lscr.io/linuxserver/grocy:latest
+    container_name: grocy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/grocy/config:/config
+    ports:
+      - 9283:80
+    restart: unless-stopped
+```
+
+### Docker CLI
 ```bash
 docker run -d \
   --name=grocy \
@@ -32,49 +49,47 @@ docker run -d \
 ```
 
 ### Hello World
-1. Access the web interface at `http://localhost:9283`.
-2. Log in with the default credentials:
-   - **Username:** `admin`
-   - **Password:** `admin`
-3. Navigate to **Stock overview** to see your current inventory or add your first product.
+1. Start the container and access the web interface at `http://localhost:9283`.
+2. Log in with the default credentials (**Username:** `admin`, **Password:** `admin`).
+3. Go to **Master Data > Products** to add your first item.
+4. Go to **Purchase** to add stock for that product.
+5. Check the **Stock overview** to see your inventory and its expiration status.
 
 ## CLI examples
-While primarily web-based, you can use the Docker CLI for maintenance:
+Use the Docker CLI for maintenance and troubleshooting:
 
 ```bash
-# View container logs to troubleshoot startup
+# View real-time container logs
 docker logs -f grocy
 
-# Execute a database migration manually (if needed)
-docker exec -it grocy php /app/www/public/index.php /migrate
+# Access the container shell for advanced maintenance
+docker exec -it grocy /bin/bash
 
-# Check the build version of the running container
+# Check the build version of the running image
 docker inspect -f '{{ index .Config.Labels "build_version" }}' grocy
 ```
 
 ## API examples
-Grocy provides a RESTful API. Authenticate using an API key (generated in the web UI under "Manage API keys").
+Grocy features a RESTful API. Generate an API key in the web UI under **Manage API keys**.
 
 ### Python Example
 ```python
 import requests
 
+# Get current stock levels
 url = "http://localhost:9283/api/stock"
-headers = {
-    "GROCY-API-KEY": "YOUR_API_KEY",
-    "accept": "application/json"
-}
+headers = {"GROCY-API-KEY": "YOUR_API_KEY", "accept": "application/json"}
 
 response = requests.get(url, headers=headers)
-if response.status_code == 200:
+if response.ok:
     for item in response.json():
-        print(f"Product ID: {item['product_id']}, Amount: {item['amount']}")
+        print(f"Product: {item['product_id']}, Amount: {item['amount']}")
 ```
 
 ### Curl Example
 ```bash
-# Get current stock
-curl -X GET "http://localhost:9283/api/stock" \
+# Get system information
+curl -X GET "http://localhost:9283/api/system/info" \
      -H "GROCY-API-KEY: <your_api_key>"
 ```
 
@@ -96,5 +111,5 @@ curl -X GET "http://localhost:9283/api/stock" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-04
 - Confidence: high
