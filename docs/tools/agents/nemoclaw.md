@@ -29,6 +29,22 @@ NemoClaw is designed for production reliability:
 - **Hardware Affinity**: Maximum benefit is realized on Nvidia-based infrastructure.
 - **Complexity**: Targeted at enterprise developers; may be overpowered for simple home-automation scripts.
 
+## CLI examples
+```bash
+# NemoClaw often uses the OpenShell/Agent Toolkit for management
+# Initialize a new agent sandbox environment
+nemoclaw onboard
+
+# Check the status of a specific agent sandbox
+nemoclaw my-assistant status
+
+# List all active sandboxes
+nemoclaw list
+
+# Connect to a sandbox and execute an agentic task
+nemoclaw my-assistant connect
+```
+
 ## Getting started
 
 ### Prerequisite: NeMo Framework
@@ -38,7 +54,7 @@ NemoClaw requires the NeMo environment. The most common deployment is via Docker
 docker pull nvcr.io/nvidia/nemo:24.05
 ```
 
-### Basic Agent Initialization (Conceptual)
+### Basic Agent Initialization
 ```python
 from nemoclaw import Agent, ToolRegistry
 
@@ -56,17 +72,36 @@ agent = Agent(
 response = agent.run("Check logs for GPU temperature spikes.")
 ```
 
+## API examples
+NemoClaw provides an OpenAI-compatible API for its sandboxed agents:
+
+```python
+import requests
+
+# Query a running NemoClaw sandbox
+url = "http://localhost:8000/v1/chat/completions"
+payload = {
+    "model": "main",
+    "messages": [{"role": "user", "content": "Analyze the current system telemetry."}]
+}
+
+response = requests.post(url, json=payload)
+print(response.json())
+```
+
 ## Related tools / concepts
 - [AG2](../frameworks/ag2.md)
 - [OpenClaw](../development_ops/openclaw.md)
 - [NVIDIA NeMo Retriever](nemo-retriever.md)
 - [Kubernetes (K3s)](../infrastructure/k3s.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / References
-- [Nvidia plans NemoClaw launch, an open-source platform for AI agents](https://thenewstack.io/nvidia-nemoclaw-launch/)
+- [Official GitHub](https://github.com/NVIDIA/NemoClaw)
 - [Nvidia NeMo Framework Documentation](https://docs.nvidia.com/nemo-framework/)
+- [NemoClaw CLI Selection Guide](https://docs.nvidia.com/nemoclaw/latest/reference/cli-selection-guide.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-05-20
 - Confidence: high

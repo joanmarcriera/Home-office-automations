@@ -49,7 +49,7 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [Plandex](../tools/development_ops/plandex.md) | Terminal AI agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | AI coding agent for the terminal; handles complex, multi-step tasks. |
 | [Continue](../tools/development_ops/continue_dev.md) | IDE coding agent/checks | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Useful for repo checks plus flexible model backends. |
 | [Cline](../tools/agents/cline.md) | VS Code coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Strong editor agent with browser support and custom provider URL options. |
-| [Roo Code](../tools/agents/roo-code.md) | VS Code coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Similar to Cline, with explicit OpenAI-compatible and Z.ai-oriented provider paths. |
+| [Roo Code](../tools/agents/roo-code.md) | VS Code coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Similar to Cline, with explicit OpenAI-compatible and Z.ai-oriented provider paths. |
 | [OpenHands](../tools/development_ops/openhands.md) | Agent platform | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟠 | 🟠 | 🟢 | More of a software-agent runtime than a personal productivity assistant. |
 | [Open WebUI](../services/open-webui.md) | Self-hosted AI workspace | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Strong self-hosted front end for local and cloud models. |
 | [LibreChat](../tools/ai_knowledge/librechat.md) | Self-hosted chat/agents | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Flexible self-hosted stack with custom endpoints and agents. |
@@ -81,6 +81,7 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [CrewAI](../tools/frameworks/crewai.md) | Multi-agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Framework for multi-agent app construction. |
 | [AutoGen](../tools/frameworks/autogen.md) | Multi-agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Framework for agent coordination and experiments. |
 | [AutoGen Studio](../tools/frameworks/autogen-studio.md) | Low-code agent UI | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | UI layer for AutoGen-style agent workflows. |
+| [Open Agents](../tools/agents/open-agents.md) | Agent / web automation | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | 🔵 | 🟢 | 🔴 | Vercel Labs blueprint for deployable browser-use agents. |
 | [Semantic Kernel](../tools/frameworks/semantic-kernel.md) | Agent SDK | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | SDK for embedding agents into applications. |
 | [Microsoft Agent Framework](../tools/frameworks/microsoft-agent-framework.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | 🟢 | Microsoft-centered agent framework path. |
 | [Agno](../tools/agents/agno.md) | Agent runtime / framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Agent framework with practical local and app-building focus and MCP support. |
@@ -123,7 +124,8 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [Braintrust](../tools/process_understanding/braintrust.md) | Observability / eval | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | Evaluation, prompt, and tracing infrastructure. |
 | [DSPy](../tools/frameworks/dspy.md) | Programming framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Programmatic prompting and optimization framework. |
 | [Instructor](../tools/frameworks/instructor.md) | Structured output library | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | Lightweight library for structured outputs. |
-| [Mem0](../tools/agents/mem0.md) | Memory layer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Agent memory layer rather than a full assistant. |
+| [Mem0](../tools/agents/mem0.md) | Memory layer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Agent memory layer with dedicated CLI and persistent user/session context. |
+| [Nvidia NemoClaw](../tools/agents/nemoclaw.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | High-performance enterprise agent platform optimized for Nvidia hardware. |
 | [AirOps](../tools/automation_orchestration/airops.md) | Content / workflow platform | 🔴 | 🔵 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Workflow/content platform with app integrations. |
 | [Google ADK](../tools/frameworks/google-adk.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Google-centered agent development kit. |
 | [Firebase Genkit](../tools/frameworks/firebase-genkit.md) | Full-stack AI framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | Full-stack AI framework for app developers. |
