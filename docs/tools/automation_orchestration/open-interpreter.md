@@ -38,11 +38,32 @@ interpreter
 ```
 Then simply type your request in plain English.
 
-### Python Integration
+## CLI examples
+```bash
+# Start an interactive interpreter session
+interpreter
+
+# Run a task in "fast" mode using a cheaper model
+interpreter --fast
+
+# Execute a specific request directly from the terminal
+interpreter --task "Summarize the latest system logs"
+```
+
+## API examples
 ```python
 from interpreter import interpreter
 
+# Simple chat interface
 interpreter.chat("What are the 5 largest files in my home directory?")
+
+# Stream the output for real-time display
+for chunk in interpreter.chat("Convert all .webp files in this folder to .png", display=False, stream=True):
+    print(chunk)
+
+# Configure the model and settings programmatically
+interpreter.offline = True # Force local execution
+interpreter.llm.model = "ollama/llama3"
 ```
 
 ## Related tools / concepts
@@ -50,11 +71,13 @@ interpreter.chat("What are the 5 largest files in my home directory?")
 - [Claude Code](../development_ops/claude-code.md)
 - [Aider](../development_ops/aider.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Goose](goose.md)
+- [Cline](../agents/cline.md)
 
 ## Sources / references
 - [Open Interpreter Website](https://openinterpreter.com/)
 - [Open Interpreter GitHub](https://github.com/OpenInterpreter/open-interpreter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-22
 - Confidence: high

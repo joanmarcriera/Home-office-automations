@@ -39,16 +39,44 @@ curl -fsSL https://github.com/block/goose/releases/latest/download/goose_install
 goose session
 ```
 
+## CLI examples
+```bash
+# Start a new interactive Goose session
+goose session
+
+# Run a specific task directly via the CLI
+goose run "Scan the current directory for security vulnerabilities"
+
+# List all available tools and skills in Goose
+goose tools list
+```
+
+## API examples
+Goose is primarily a CLI-driven tool, but its toolset can be extended via the Model Context Protocol (MCP) or by writing custom Python toolkits.
+
+```python
+# Custom tool definition for Goose (following MCP-like patterns)
+def my_custom_tool(param: str) -> str:
+    """
+    A descriptive docstring that Goose uses to understand when to call this tool.
+    """
+    return f"Processed {param}"
+
+# Tools are typically registered in a goose-config.yaml or via MCP
+```
+
 ## Related tools / concepts
 - [Open Interpreter](open-interpreter.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [Model Context Protocol (MCP)](mcp.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Aider](../development_ops/aider.md)
+- [Cline](../agents/cline.md)
 
 ## Sources / references
 - [Goose GitHub Repository](https://github.com/block/goose)
 - [Block Engineering Blog](https://developer.squareup.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-22
 - Confidence: high
