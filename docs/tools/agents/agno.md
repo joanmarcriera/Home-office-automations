@@ -50,7 +50,7 @@ agno sessions list
 pip install agno openai duckduckgo-search
 ```
 
-### Working Example
+### Basic Usage
 ```python
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
@@ -68,6 +68,24 @@ agent = Agent(
 agent.print_response("Tell me about the Agno framework and its search capabilities.")
 ```
 
+## API examples
+```python
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
+
+# Create an agent with session-aware memory
+agent = Agent(
+    model=OpenAIChat(id="gpt-4o"),
+    description="You are a helpful assistant.",
+    add_history_to_messages=True,
+    num_history_responses=3,
+)
+
+# Execute and get Python response object
+response = agent.run("What is 15 * 15?")
+print(response.content)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
@@ -77,7 +95,9 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 - [Phidata](phidata.md) (Predecessor)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [LangGraph](../frameworks/langgraph.md)
-- [FastAPI](https://fastapi.tiangolo.com/)
+- [FastAPI](../frameworks/fastapi.md)
+- [PydanticAI](../frameworks/pydantic-ai.md)
+- [CrewAI](../frameworks/crewai.md)
 
 ## Sources / References
 - [Official Website](https://www.agno.com/)
@@ -85,5 +105,5 @@ agent.print_response("Tell me about the Agno framework and its search capabiliti
 - [Documentation](https://docs.agno.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-20
 - Confidence: high

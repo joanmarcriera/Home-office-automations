@@ -50,37 +50,50 @@ python -m my_agency.list_tools
 pip install agency-swarm
 ```
 
-### Working Example
+### Basic Usage
 ```python
-from agency_swarm import Agent, Agency, set_openai_key, BaseTool
-from pydantic import Field
+from agency_swarm import Agent, Agency, set_openai_key
 
 set_openai_key("YOUR_API_KEY")
 
-# 1. Define a custom tool
-class CalculateTool(BaseTool):
-    """A tool to calculate the square of a number."""
-    number: int = Field(..., description="The number to square.")
-
-    def run(self):
-        return f"The result is {self.number ** 2}"
-
-# 2. Define specialized agents
+# 1. Define specialized agents
 ceo = Agent(name="CEO",
             description="Responsible for coordinating the agency.",
-            instructions="Direct the developer to complete tasks.")
+            instructions="Direct the researcher to complete tasks.")
 
-developer = Agent(name="Developer",
-                 tools=[CalculateTool],
-                 description="Responsible for math operations.",
-                 instructions="Use the CalculateTool when asked for math.")
+researcher = Agent(name="Researcher",
+                 description="Responsible for finding information.",
+                 instructions="Provide detailed reports on requested topics.")
 
-# 3. Create the agency
-agency = Agency([ceo, [ceo, developer]],
-                shared_instructions="Work together to solve user requests.")
+# 2. Create the agency (Communication: CEO <-> Researcher)
+agency = Agency([ceo, [ceo, researcher]],
+                shared_instructions="Collaborate to provide high-quality research.")
 
-# 4. Run a query
-agency.get_completion("CEO, please ask the developer to calculate the square of 15.")
+# 3. Run a query
+response = agency.get_completion("CEO, please ask the researcher to find the latest trends in AI agents.")
+print(response)
+```
+
+## API examples
+```python
+from agency_swarm import Agent, BaseTool
+from pydantic import Field
+
+# Define a Pydantic-based tool
+class WebSearchTool(BaseTool):
+    """Search the web for information."""
+    query: str = Field(..., description="The search query.")
+
+    def run(self):
+        # Implementation logic here
+        return f"Results for: {self.query}"
+
+# Instantiate agent with tools
+researcher = Agent(
+    name="Researcher",
+    tools=[WebSearchTool],
+    instructions="Use the WebSearchTool for every query."
+)
 ```
 
 ## Licensing and cost
@@ -93,11 +106,13 @@ agency.get_completion("CEO, please ask the developer to calculate the square of 
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [CrewAI](../frameworks/crewai.md)
 - [LangGraph](../frameworks/langgraph.md)
+- [Agno](agno.md)
+- [Phidata](phidata.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/VRSEN/agency-swarm)
 - [Official Website](https://agency-swarm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-20
 - Confidence: high
