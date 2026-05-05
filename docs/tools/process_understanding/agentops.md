@@ -45,10 +45,46 @@ agentops.init(api_key="YOUR_API_KEY")
 agentops.end_session("Success")
 ```
 
+## CLI examples
+
+### agentops init
+Initializes a new AgentOps project in the current directory:
+```bash
+agentops init
+```
+
+### agentops login
+Authenticates the CLI with your AgentOps account:
+```bash
+agentops login
+```
+
+### agentops export
+Exports session data or traces for offline analysis:
+```bash
+agentops export --session-id <session_id>
+```
+
+## API examples
+
+### Python (Tracking a custom event)
+```python
+import agentops
+
+agentops.init(api_key="YOUR_API_KEY")
+
+# Record a custom event within a session
+agentops.record_action("Tool Execution", metadata={"tool": "search", "status": "success"})
+
+agentops.end_session("Success")
+```
+
 ## Related tools / concepts
 - [Langfuse](langfuse.md)
 - [Arize AI](arize-ai.md)
 - [W&B Weave](wandb-weave.md)
+- [Comet Opik](comet-opik.md)
+- [Helicone](helicone.md)
 - [CrewAI](../frameworks/crewai.md)
 - [AutoGen](../frameworks/autogen.md)
 
