@@ -15,8 +15,13 @@ Like its predecessor, Roo Code solves the context-switching problem by integrati
 - **Rapid Prototyping**: Quickly spinning up boilerplate and initial logic across multiple files.
 - **Exploratory Debugging**: Letting the agent trace through logs and source code to find root causes.
 
+## Patterns
+- **Custom Modes**: Users can define specific personas in a `.roomodes` file, allowing for specialized agents like "Reviewer", "DevOps", or "Copywriter".
+- **MCP Tool Hub**: Roo Code treats the [Model Context Protocol](../automation_orchestration/mcp.md) as a first-class citizen, enabling seamless connection to local and remote tools.
+- **Context Pinning**: Allows users to pin specific files or documentation URLs to the current task to ensure the agent has the necessary background.
+
 ## Strengths
-- **Custom Modes**: Allows users to define specific personas and instruction sets for different tasks (e.g., "Architect Mode", "Security Mode").
+- **Custom Modes**: Allows users to define specific personas and instruction sets for different tasks.
 - **Community-Driven**: Fast-paced development cycle with frequent updates and community contributions.
 - **Extensible Tooling**: Strong support for the Model Context Protocol (MCP) to add new capabilities.
 - **Model Flexibility**: Supports all major LLM providers (Anthropic, OpenAI, DeepSeek, Google, etc.) and local models.
@@ -36,12 +41,45 @@ Like its predecessor, Roo Code solves the context-switching problem by integrati
 - If you prioritize absolute stability and a minimalist interface over advanced features.
 - In environments where extension updates need to be strictly vetted.
 
-## Getting started
+## CLI examples
+```bash
+# Roo Code is primarily used as a VS Code extension; however, it can execute terminal commands
+# Example: Running a security scan through an MCP-provided tool
+mcp-tool-security-audit --path .
 
+# Example: Running tests to verify an autonomous fix
+npm test
+
+# Example: Managing local MCP servers used by Roo Code
+mcp-server-manager list
+```
+
+## Getting started
 ### Installation
-1. Install the **Roo Code** extension from the VS Code Marketplace.
+1. Install the **Roo Code** extension from the VS Code Marketplace or Open VSX Registry.
 2. Open the Roo Code sidebar and configure your Preferred AI provider.
-3. (Optional) Explore "Custom Modes" to tailor the agent to your specific needs.
+3. (Optional) Explore "Custom Modes" by clicking the mode selector at the top of the sidebar.
+
+### Basic Usage
+1. Open a workspace and start a new Roo Code task.
+2. Choose a mode (e.g., Code, Architect, or Ask).
+3. Review and approve the proposed file changes and terminal commands.
+
+## API examples
+Roo Code allows for custom mode definitions via JSON. A sample `.roomodes` entry:
+
+```json
+{
+  "customModes": [
+    {
+      "slug": "security-audit",
+      "name": "Security Auditor",
+      "roleDefinition": "You are an expert security researcher focusing on OWASP Top 10 vulnerabilities.",
+      "groups": ["read", "browser"]
+    }
+  ]
+}
+```
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0).
@@ -54,12 +92,13 @@ Like its predecessor, Roo Code solves the context-switching problem by integrati
 - [MCP Registry](../automation_orchestration/mcp-registry.md)
 - [Aider](../development_ops/aider.md) (Terminal-based agent)
 - [Claude Code](../development_ops/claude-code.md)
+- [Windsurf](../development_ops/windsurf.md)
 
 ## Sources / References
-- [Official GitHub](https://github.com/RooVetGit/Roo-Code)
-- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=RooVetGit.roo-code)
-- [Cline vs Roo Code Comparison](https://betterstack.com/community/comparisons/cline-vs-roo-code-vs-cursor/)
+- [Official GitHub](https://github.com/RooCodeInc/Roo-Code)
+- [Roo Code Documentation](https://docs.roocode.com/)
+- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-28
+- Last reviewed: 2026-05-20
 - Confidence: high

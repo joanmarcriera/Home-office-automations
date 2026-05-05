@@ -29,7 +29,23 @@ As a Vercel Labs project, Open Agents is optimized for:
 - **Security Overhead**: Requires careful management of session cookies and credentials.
 - **Dynamic Web Failures**: Like all browser agents, it can break if the target website's UI changes significantly.
 
+## CLI examples
+```bash
+# Clone the open agents repository
+git clone https://github.com/vercel-labs/open-agents
+
+# Install dependencies
+npm install
+
+# Start the local development server for the agent platform
+npm run dev
+
+# Run specific agent tests in headless mode
+npm test -- --headless
+```
+
 ## Getting started
+### Installation
 The project is modular. You can clone specific agent templates from the Vercel Labs GitHub.
 
 ```bash
@@ -38,18 +54,44 @@ cd open-agents
 npm install
 ```
 
-## Related tools / concepts
+### Basic Usage
+1. Set up your environment variables (OpenAI/Anthropic API keys).
+2. Configure a `Vercel Sandbox` to execute code in isolated environments.
+3. Use the pre-built `Computer Use` skill to automate browser tasks.
 
+## API examples
+Open Agents uses the Vercel AI SDK patterns for stream-based agent responses:
+
+```typescript
+import { generateText, tool } from 'ai';
+import { openai } from '@ai-sdk/openai';
+
+const result = await generateText({
+  model: openai('gpt-4o'),
+  tools: {
+    browser_search: tool({
+      description: 'Search the web using a headless browser',
+      parameters: z.object({ query: z.string() }),
+      execute: async ({ query }) => { /* ... */ },
+    }),
+  },
+  prompt: 'Find the latest price for AAPL stock.',
+});
+```
+
+## Related tools / concepts
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [Stagehand](../automation_orchestration/stagehand.md)
 - [Cline](cline.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [AI SDK (by Vercel)](../development_ops/vercel-ai-sdk.md)
+- [MCP Registry](../automation_orchestration/mcp-registry.md)
 
 ## Sources / references
 - [vercel-labs/open-agents](https://github.com/vercel-labs/open-agents)
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
+- [Vercel Coding Agent Platform Template](https://vercel.com/templates/next.js/coding-agent-platform)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-05-20
 - Confidence: high
