@@ -40,13 +40,61 @@ client = openai.OpenAI(
 )
 
 response = client.chat.completions.create(
-  model="gpt-4",
+  model="gpt-4o",
   messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+## CLI examples
+
+### helm compose up
+Deploys the complete Helicone stack using Helm Compose (for self-hosting):
+```bash
+helm compose up
+```
+
+### aws s3 ls
+List backups or logs stored in S3 (standard infrastructure management for Helicone):
+```bash
+aws s3 ls s3://helicone-backups/
+```
+
+### curl (Manual Proxy Test)
+Test the Helicone proxy connectivity directly via curl:
+```bash
+curl https://oai.helicone.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Helicone-Auth: Bearer $HELICONE_API_KEY" \
+  -d '{"model": "gpt-4o", "messages": [{"role": "user", "content": "Hello"}]}'
+```
+
+## API examples
+
+### Python (Logging Custom Properties)
+```python
+import openai
+
+client = openai.OpenAI(
+  api_key="OPENAI_API_KEY",
+  base_url="https://oai.helicone.ai/v1",
+  default_headers={
+    "Helicone-Auth": f"Bearer {HELICONE_API_KEY}",
+    "Helicone-Property-Session": "session_123",
+    "Helicone-Property-App": "demo-app"
+  }
+)
+
+# Properties are automatically tracked in the Helicone dashboard
+response = client.chat.completions.create(
+  model="gpt-4o",
+  messages=[{"role": "user", "content": "Analyze this data."}]
 )
 ```
 
 ## Related tools / concepts
 - [Langfuse](langfuse.md)
+- [AgentOps](agentops.md)
 - [Portkey AI Gateway](../providers/portkey.md)
 - [LiteLLM](../../services/litellm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
