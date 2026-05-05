@@ -32,6 +32,47 @@ It converts images containing text (like scans or screenshots) into machine-read
 - For handwritten documents (consider specialized AI models).
 - When a higher-level wrapper like OCRmyPDF is available for PDF-specific tasks.
 
+## Getting started
+
+### Installation
+```bash
+# macOS
+brew install tesseract
+
+# Ubuntu
+sudo apt-get install tesseract-ocr
+
+# Verify installation
+tesseract --version
+```
+
+## CLI examples
+```bash
+# Extract text from an image to a text file (output_file.txt)
+tesseract image.png output_file -l eng
+
+# List available/installed languages
+tesseract --list-langs
+
+# Extract text from an image and output to standard output (stdout)
+tesseract image.png stdout -l eng
+```
+
+## API examples
+
+### Python (via pytesseract wrapper)
+```python
+import pytesseract
+from PIL import Image
+
+# Open an image file
+img = Image.open('image.png')
+
+# Convert image to string
+text = pytesseract.image_to_string(img, lang='eng')
+print(text)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache License 2.0)
 - **Cost**: Free
@@ -40,12 +81,14 @@ It converts images containing text (like scans or screenshots) into machine-read
 ## Related tools / concepts
 - [OCRmyPDF](ocrmypdf.md)
 - [Docling](docling.md)
-- [Amazon Textract](https://aws.amazon.com/textract/)
+- [Firecrawl](firecrawl.md)
+- [PageIndex](pageindex.md)
+- [RAGFlow](ragflow.md)
 
 ## Sources / References
 - [Tesseract OCR GitHub](https://github.com/tesseract-ocr/tesseract)
 - [Tesseract Documentation](https://tesseract-ocr.github.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-06
+- Last reviewed: 2026-05-27
 - Confidence: high
