@@ -31,7 +31,21 @@ Evaluating RAG systems is notoriously difficult because both the retrieval (find
 pip install ragas
 ```
 
-### Basic Evaluation Example
+## CLI examples
+```bash
+# List available project templates
+ragas quickstart
+
+# Create a new RAG evaluation project from a template
+ragas quickstart rag_eval
+
+# Create project in a specific directory
+ragas quickstart rag_eval --output-dir ./eval_project
+```
+
+## API examples
+
+### Basic Evaluation
 ```python
 from ragas import evaluate
 from datasets import Dataset
@@ -44,21 +58,23 @@ data_samples = {
 }
 dataset = Dataset.from_dict(data_samples)
 
-# Evaluate the dataset
-score = evaluate(dataset)
-print(score)
+# Evaluate the dataset (returns a result object with scores)
+result = evaluate(dataset)
+print(result)
 ```
 
 ## Related tools / concepts
 - [LangSmith](../benchmarking/langsmith.md)
 - [Arize AI](arize-ai.md)
+- [W&B Weave](wandb-weave.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [Langfuse](langfuse.md)
 
 ## Sources / references
 - [Ragas Documentation](https://docs.ragas.io/)
 - [Ragas GitHub Repository](https://github.com/explodinggradients/ragas)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-27
 - Confidence: high

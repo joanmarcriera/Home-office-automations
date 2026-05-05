@@ -30,15 +30,29 @@ It addresses the difficulty of debugging and optimizing complex, multi-step LLM 
 
 ### Installation
 ```bash
-pip install weave
+pip install weave wandb
 ```
 
-### Basic Tracing Example
+## CLI examples
+```bash
+# Login to Weights & Biases
+wandb login
+
+# Initialize a new W&B project (Weave uses W&B projects for storage)
+wandb init --project my-weave-app
+
+# List runs in the current project
+wandb runs
+```
+
+## API examples
+
+### Basic Tracing with Decorators
 ```python
 import weave
 import openai
 
-# Initialize Weave
+# Initialize Weave with a project name
 weave.init("my-llm-app")
 
 @weave.op()
@@ -50,7 +64,7 @@ def call_llm(prompt: str):
     )
     return response.choices[0].message.content
 
-# This call will be automatically traced in W&B
+# This call will be automatically traced in the W&B dashboard
 print(call_llm("What is AI observability?"))
 ```
 
@@ -59,6 +73,8 @@ print(call_llm("What is AI observability?"))
 - [Braintrust](braintrust.md)
 - [Comet Opik](comet-opik.md)
 - [OpenRouter](../ai_knowledge/openrouter.md) (Streams traces to Weave)
+- [Arize AI](arize-ai.md)
+- [Ragas](ragas.md)
 
 ## Sources / references
 - [W&B Weave Website](https://wandb.ai/site/weave/)
@@ -66,5 +82,5 @@ print(call_llm("What is AI observability?"))
 - [OpenRouter Weave Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/wandb-weave)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-27
 - Confidence: high
