@@ -38,10 +38,66 @@ It abstracts away the complexities of modern web scraping, including JS renderin
 - **Cost**: Free (Self-hosted) / Paid (Cloud Tier)
 - **Self-hostable**: Yes
 
+## Getting started
+
+### Installation
+
+**Python SDK:**
+```bash
+pip install firecrawl-py
+```
+
+**CLI (via NPM):**
+```bash
+npm install -g firecrawl-cli
+```
+
+### Basic usage
+```python
+from firecrawl import Firecrawl
+
+app = Firecrawl(api_key="YOUR_API_KEY")
+
+# Scrape a single URL
+doc = app.scrape("https://firecrawl.dev", formats=["markdown"])
+print(doc.markdown)
+```
+
+## CLI examples
+The CLI requires the `firecrawl-cli` NPM package.
+
+```bash
+# Scrape a URL to markdown
+firecrawl scrape https://firecrawl.dev
+
+# Search the web and return 5 results
+firecrawl search "firecrawl" --limit 5
+
+# Crawl an entire website
+firecrawl crawl https://docs.firecrawl.dev --limit 10
+```
+
+## API examples
+```python
+from firecrawl import Firecrawl
+
+app = Firecrawl(api_key="fc-YOUR_API_KEY")
+
+# Use the Agent for autonomous data gathering
+result = app.agent(prompt="Find the founders of Firecrawl")
+print(result.data)
+
+# Map URLs to discover site structure
+map_result = app.map("https://firecrawl.dev", search="pricing")
+print(map_result)
+```
+
 ## Related tools / concepts
 - [Crawl4AI](crawl4ai.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [Skyvern](../automation_orchestration/skyvern.md)
+- [Docling](docling.md)
+- [RAGFlow](ragflow.md)
 
 ## Sources / References
 - [GitHub](https://github.com/firecrawl/firecrawl)
