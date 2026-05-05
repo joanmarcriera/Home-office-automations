@@ -33,7 +33,7 @@ It addresses the performance limitations of traditional row-oriented databases w
 docker run -d --name clickhouse-server -p 8123:8123 -p 9000:9000 clickhouse/clickhouse-server
 ```
 
-### Basic SQL Example
+### Initial Schema Setup
 ```sql
 CREATE TABLE traces (
     event_time DateTime,
@@ -43,10 +43,44 @@ CREATE TABLE traces (
     latency Float32
 ) ENGINE = MergeTree()
 ORDER BY event_time;
+```
 
-INSERT INTO traces VALUES ('2026-05-08 10:00:00', 'claude-3-5-sonnet', 500, 200, 1.5);
+## CLI examples
 
-SELECT model, AVG(latency) FROM traces GROUP BY model;
+### Start ClickHouse Client
+```bash
+clickhouse-client
+```
+
+### Run a Remote Query
+```bash
+clickhouse-client --host <HOST> --query "SELECT count() FROM system.parts"
+```
+
+### Import Data from CSV
+```bash
+cat logs.csv | clickhouse-client --query "INSERT INTO logs FORMAT CSV"
+```
+
+## API examples
+
+### Python (clickhouse-connect)
+```python
+import clickhouse_connect
+
+client = clickhouse_connect.get_client(host='localhost', port=8123)
+
+# Execute a query and fetch results
+result = client.query('SELECT model, AVG(latency) FROM traces GROUP BY model')
+for row in result.result_rows:
+    print(row)
+
+# Insert multiple rows
+data = [
+    ['2026-05-24 10:00:00', 'gpt-4o', 100, 50, 0.8],
+    ['2026-05-24 10:01:00', 'claude-3-5-sonnet', 200, 150, 1.2]
+]
+client.insert('traces', data, column_names=['event_time', 'model', 'prompt_tokens', 'completion_tokens', 'latency'])
 ```
 
 ## Related tools / concepts
@@ -54,6 +88,8 @@ SELECT model, AVG(latency) FROM traces GROUP BY model;
 - [Snowflake](snowflake.md)
 - [Datadog](datadog.md)
 - [S3 / S3-Compatible Storage](../intake_storage/s3-storage.md)
+- [PostHog](posthog.md)
+- [OpenTelemetry Collector](opentelemetry-collector.md)
 
 ## Sources / references
 - [Official Website](https://clickhouse.com/)
@@ -61,5 +97,5 @@ SELECT model, AVG(latency) FROM traces GROUP BY model;
 - [OpenRouter Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/clickhouse)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-24
 - Confidence: high

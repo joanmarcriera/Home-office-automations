@@ -7,7 +7,7 @@ Sentry is an open-source error tracking and performance monitoring platform that
 It provides real-time visibility into application errors and performance bottlenecks. It captures crashes, exceptions, and slow transactions, providing the context (stack traces, breadcrumbs, user data) needed to fix bugs quickly.
 
 ## Where it fits in the stack
-**Category**: Tool / Process Understanding
+**Category**: Process & Understanding / Error Tracking
 
 ## Typical use cases
 - Real-time error monitoring for web and mobile applications.
@@ -24,29 +24,67 @@ It provides real-time visibility into application errors and performance bottlen
 - Can generate significant noise if not configured correctly (filtering errors).
 - SaaS version has usage limits that can be reached quickly in high-traffic apps.
 
-## When to use it
-- In almost any application where you want to know about errors before your users report them.
-- When you need to trace performance issues across service boundaries.
-- For monitoring LLM application failures and latency.
+## Getting started
 
-## When not to use it
-- If you already have a comprehensive observability suite (like Datadog) that covers your error tracking needs.
+### Installation (Sentry CLI)
+```bash
+curl -sL https://sentry.io/get-cli/ | bash
+```
 
-## Licensing and cost
-- **Open Source**: Yes (Self-hostable)
-- **SaaS**: Yes (Freemium model)
-- **Paid**: Tiered pricing based on event volume and features.
+### SDK Integration (Python)
+```bash
+pip install --upgrade sentry-sdk
+```
+
+## CLI examples
+
+### Login to Sentry
+```bash
+sentry-cli login
+```
+
+### Send a Test Event
+```bash
+sentry-cli send-event -m "Test message from CLI"
+```
+
+### Manage Releases
+```bash
+sentry-cli releases new -p <PROJECT_NAME> <VERSION_NUMBER>
+```
+
+## API examples
+
+### Python SDK
+```python
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://examplePublicKey@o0.ingest.sentry.io/0",
+    traces_sample_rate=1.0,
+)
+
+# Capture a custom error message
+sentry_sdk.capture_message("Custom application event recorded.")
+
+# Divide by zero will be automatically captured
+division_by_zero = 1 / 0
+```
 
 ## Related tools / concepts
 - [Datadog](datadog.md)
 - [Langfuse](langfuse.md)
 - [PostHog](posthog.md)
+- [OpenTelemetry Collector](opentelemetry-collector.md)
+- [New Relic AI](new-relic-ai.md)
+- [AgentOps](agentops.md)
 
 ## Sources / References
 - [Official Website](https://sentry.io/)
+- [Sentry Documentation](https://docs.sentry.io/)
 - [Sentry GitHub](https://github.com/getsentry/sentry)
 - [OpenRouter Logging Docs](https://openrouter.ai/docs/activity/logging)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-24
 - Confidence: high

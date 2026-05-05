@@ -62,12 +62,53 @@ docker run -p 4317:4317 -p 4318:4318 \
     otel/opentelemetry-collector:latest
 ```
 
+## CLI examples
+
+### Run with Custom Config
+```bash
+otelcol --config=config.yaml
+```
+
+### Validate Configuration
+```bash
+otelcol validate --config=config.yaml
+```
+
+### Check Version
+```bash
+otelcol --version
+```
+
+## API examples
+
+### Python (OTLP Trace Export)
+```python
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
+# Initialize Tracer
+trace.set_tracer_provider(TracerProvider())
+tracer = trace.get_tracer(__name__)
+
+# Configure OTLP Exporter to local Collector
+otlp_exporter = OTLPSpanExporter(endpoint="localhost:4317", insecure=True)
+span_processor = BatchSpanProcessor(otlp_exporter)
+trace.get_tracer_provider().add_span_processor(span_processor)
+
+with tracer.start_as_current_span("agent-interaction"):
+    print("Sending telemetry to OTel Collector...")
+```
+
 ## Related tools / concepts
 - [Datadog](datadog.md)
 - [Sentry](sentry.md)
 - [Grafana Cloud](grafana-cloud.md)
 - [New Relic AI](new-relic-ai.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
+- [ClickHouse](clickhouse.md)
+- [PostHog](posthog.md)
 
 ## Sources / references
 - [Official Website](https://opentelemetry.io/docs/collector/)
@@ -75,5 +116,5 @@ docker run -p 4317:4317 -p 4318:4318 \
 - [OpenRouter OTel Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/opentelemetry-collector)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-24
 - Confidence: high

@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-05-17
+# Ralph-loop Triage Report — 2026-05-24
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 17, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 24, 2026.
 
 ## Issue Status Summary
 
@@ -28,11 +28,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 14** | Weekly deepening: Agents | **Resolved** | Anthropic Agent Skills, Claude Skills Ecosystem, DeerFlow, Replit Agent, and Symphony deepened. |
 | **Batch 15** | Weekly deepening: Automation | **Resolved** | Stagehand, Goose, Open Interpreter, Skyvern, and Browser Use deepened. |
 | **Batch 16** | Weekly deepening: Process | **Resolved** | Crawl4AI, Firecrawl, PageIndex, RAGFlow, and Docling deepened. |
+| **Batch 17** | Weekly deepening: Process | **Resolved** | Datadog, Sentry, ClickHouse, Snowflake, and OpenTelemetry Collector deepened. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
-- **Weekly Deepening (Batch 17)**: Triage next set of shallow docs from `docs/tools/process_understanding/` (e.g., ClickHouse, Snowflake, OpenTelemetry Collector).
+- **Weekly Deepening (Batch 18)**: Triage next set of shallow docs from `docs/tools/process_understanding/` (e.g., AgentOps, Langfuse, PostHog, Arize AI).
 - **Link Audit**: Verify all canonical tool pages have 5+ relative links (continuing the audit from index files).
 - **Access Matrix Freshness**: Check for any new Google Workspace or MCP-native features for tools marked 🔴 in Gmail/Calendar columns.
 
