@@ -53,6 +53,42 @@ skills/
 ## When not to use it
 - When the workflow is too specific or unstable to standardize yet
 
+## Getting started
+
+### Installation
+Skills are typically added to a `skills/` directory in your project or a global skills path:
+```bash
+# Example: Adding the Documentation Writer skill
+npx skills@latest add awesome-copilot/documentation-writer
+```
+
+### Usage
+Once installed, Claude or other compatible agents can be directed to use these skills via their command-line interface or system prompt.
+
+## CLI examples
+```bash
+# List all installed skills in a Claude Code session
+/skills list
+
+# Add a specific skill from a repository
+/skills add https://github.com/user/my-awesome-skill
+
+# Run a specific skill command
+/document-codebase
+```
+
+## API examples
+```json
+{
+  "skill": "documentation-writer",
+  "action": "generate-readme",
+  "parameters": {
+    "target_dir": "./src",
+    "output_file": "README.md"
+  }
+}
+```
+
 ## Related tools / concepts
 - [Documentation Writer](documentation-writer.md)
 - [Andrej Karpathy Skills](../ai_knowledge/karpathy-skills.md)
@@ -61,6 +97,7 @@ skills/
 - [Superpowers](superpowers.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [Claude Cookbooks](../development_ops/claude-cookbooks.md)
+- [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md)
 
 ## Sources / References
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
@@ -71,5 +108,5 @@ skills/
 - [Superpowers](https://github.com/obra/superpowers)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-21
 - Confidence: high
