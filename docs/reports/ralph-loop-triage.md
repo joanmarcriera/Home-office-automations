@@ -25,11 +25,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 10** | Weekly deepening: Mixed Batch | **Resolved** | Claude How-To, Supermetal, AirOps, Gumloop, and Gemini Canvas deepened. |
 | **Batch 11** | Weekly deepening: Agents | **Resolved** | Agency-Agents, AutoReason, Bee Agent Framework, GPT Researcher, and Letta deepened. |
 | **Batch 13** | Weekly deepening: Agents | **Resolved** | Cline, Roo Code, Nvidia NemoClaw, Open Agents, and mem0 deepened. |
+| **Batch 14** | Weekly deepening: Agents | **Resolved** | Anthropic Agent Skills, Claude Skills Ecosystem, DeerFlow, Replit Agent, and Symphony deepened. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
-- **Weekly Deepening (Batch 14)**: Triage next set of shallow docs from `docs/tools/agents/` (e.g., Anthropic Agent Skills, Claude Skills Ecosystem).
+- **Weekly Deepening (Batch 15)**: Triage next set of shallow docs from `docs/tools/automation_orchestration/` (e.g., Stagehand, Goose, Open Interpreter).
 - **Link Audit**: Verify all canonical tool pages have 5+ relative links (continuing the audit from index files).
 - **Access Matrix Freshness**: Check for any new Google Workspace or MCP-native features for tools marked 🔴 in Gmail/Calendar columns.
 
