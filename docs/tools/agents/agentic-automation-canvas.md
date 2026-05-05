@@ -33,6 +33,49 @@ It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where
 - For trivial, single-prompt AI tasks that do not require tool-calling or multi-step reasoning.
 - When a project's goals and constraints are already fully documented in a compatible machine-readable format.
 
+## CLI examples
+```bash
+# AAC is a web-based Vue.js tool, no direct CLI for canvas creation.
+# However, the exported RO-Crate can be validated via:
+rocrate validate ./exported-crate/
+
+# To self-host the AAC application locally:
+git clone https://github.com/slolab/agentic-automation-canvas.git
+npm install && npm run dev
+```
+
+## Getting started
+### Online Access
+Access the live version of the canvas at [aac.slolab.ai](https://aac.slolab.ai/). No installation is required as it is a client-side web application.
+
+### Basic Workflow
+1. **Define Scope**: Enter the primary goals and constraints of your agentic project.
+2. **Quantify Benefits**: Input expected productivity gains and human verification costs.
+3. **Export Metadata**: Save your project as an `AGENTS.md` file or an RO-Crate package for interoperability.
+
+## API examples
+```json
+{
+  "@context": "https://w3id.org/ro/crate/1.1/context",
+  "@graph": [
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "name": "My Agentic Project",
+      "description": "An automated workflow for document synthesis",
+      "hasPart": [
+        { "@id": "AGENTS.md" }
+      ]
+    },
+    {
+      "@id": "AGENTS.md",
+      "@type": "File",
+      "about": "Project implementation contract"
+    }
+  ]
+}
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache License 2.0)
 - **Cost**: Free
@@ -44,6 +87,8 @@ It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where
 - [Aider](../development_ops/aider.md)
 - [RO-Crate Standard](https://www.researchobject.org/ro-crate/)
 - [Symphony](symphony.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Standards](../../standards.md)
 
 ## Sources / References
 - [Official Website](https://aac.slolab.ai/)
@@ -52,5 +97,5 @@ It addresses the **Expectation-Realisation Gap**: the systemic discrepancy where
 - [Quantifying the Expectation-Realisation Gap for Agentic AI Systems (arXiv:2602.20292)](https://arxiv.org/abs/2602.20292)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-05-20
 - Confidence: high
