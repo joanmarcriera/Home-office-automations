@@ -54,6 +54,18 @@ Starts the local Phoenix UI:
 python -c "import phoenix as px; px.launch_app()"
 ```
 
+### phoenix
+If installed via pip, starts the Phoenix server:
+```bash
+phoenix
+```
+
+### px project list
+Lists all available projects (requires `@arizeai/phoenix-cli` or similar environment):
+```bash
+px project list
+```
+
 ## API examples
 
 ### Python (Tracing with OpenInference)
@@ -73,6 +85,8 @@ LangChainInstrumentor().instrument()
 - [Langfuse](./langfuse.md)
 - [PostHog](./posthog.md)
 - [LangSmith](../benchmarking/langsmith.md)
+- [Weights & Biases](./wandb-weave.md)
+- [AgentOps](./agentops.md)
 
 ## Sources / references
 - [Official Website](https://arize.com/)
@@ -80,5 +94,5 @@ LangChainInstrumentor().instrument()
 - [OpenRouter Logging Guide](https://openrouter.ai/docs/guides/logging)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-26
 - Confidence: high
