@@ -44,16 +44,50 @@ await page.goto("https://news.ycombinator.com");
 await page.act("Find the first article about AI and click its comments link");
 ```
 
+## CLI examples
+```bash
+# Initialize a new Stagehand project
+npx stagehand init
+
+# Start the Stagehand development environment
+npx stagehand dev
+
+# Check the installed Stagehand version
+npx stagehand --version
+```
+
+## API examples
+```typescript
+import { Stagehand } from "@browserbase/stagehand";
+
+const stagehand = new Stagehand({
+  env: "LOCAL",
+  apiKey: process.env.BROWSERBASE_API_KEY,
+});
+
+await stagehand.init();
+
+// Use natural language to extract data
+const data = await stagehand.page.extract({
+  instruction: "Extract the names and prices of all products on this page",
+  schema: z.array(z.object({ name: z.string(), price: z.string() })),
+});
+
+await stagehand.close();
+```
+
 ## Related tools / concepts
 - [Playwright](../development_ops/playwright.md)
 - [Browser Use](browser-use.md)
 - [Lightpanda](lightpanda.md)
 - [Skyvern](skyvern.md)
+- [Crawl4AI](../process_understanding/crawl4ai.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references
 - [Stagehand GitHub Repository](https://github.com/browserbase/stagehand)
 - [Browserbase Website](https://www.browserbase.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-22
 - Confidence: high
