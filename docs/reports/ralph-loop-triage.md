@@ -28,8 +28,8 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
-- **Weekly Deepening (Batch 25)**: **Pending** (Remaining shallow services: Tailscale, Syncthing, Storj, Radicale, radicale-automation).
-- **Weekly Deepening (Batch 26)**: **Pending** (Remaining shallow services: qBittorrent-automation, SearXNG-automation, Plex-automation).
+- **Weekly Deepening (Batch 25)**: **Resolved** (Deepened Tailscale, Syncthing, Storj; created radicale-automation).
+- **Weekly Deepening (Batch 26)**: **Resolved** (Created qBittorrent-automation, SearXNG-automation, Plex-automation).
 - **Link Audit (Infrastructure)**: **Resolved** (Completed for all files in `docs/tools/infrastructure/`).
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 

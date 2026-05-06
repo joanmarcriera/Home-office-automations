@@ -76,9 +76,12 @@ curl -X POST -H "X-API-Key: <your_api_key>" \
 - [Official Website](https://syncthing.net/)
 - [Documentation](https://docs.syncthing.net/)
 
-## Alternatives
-- [Resilio Sync](https://www.resilio.com/) (Non-OSS)
-- [Nextcloud](nextcloud.md)
+## Related tools / concepts
+- [Nextcloud](nextcloud.md) (Alternative storage/sync)
+- [Rclone Automation](rclone-automation.md) (For cloud sync)
+- [Tailscale](tailscale.md) (For secure peer-to-peer connection)
+- [Docker](../tools/infrastructure/docker.md) (Common deployment method)
+- [Storj](storj.md) (Decentralized storage alternative)
 
 ## Backlog
 - Configure selective sync for mobile devices.
@@ -90,5 +93,5 @@ curl -X POST -H "X-API-Key: <your_api_key>" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-04
+- Last reviewed: 2026-06-12
 - Confidence: high

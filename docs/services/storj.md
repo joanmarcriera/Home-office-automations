@@ -82,9 +82,12 @@ for obj in response.get("Contents", []):
 ## Links
 - [Official Website](https://www.storj.io/)
 
-## Alternatives
-- [Amazon S3](https://aws.amazon.com/s3/)
-- [Backblaze B2](https://www.backblaze.com/cloud-storage)
+## Related tools / concepts
+- [S3 / S3-Compatible Storage](../tools/intake_storage/s3-storage.md) (Core protocol)
+- [Rclone Automation](rclone-automation.md) (Common tool for Storj sync)
+- [Syncthing](syncthing.md) (Local sync alternative)
+- [Nextcloud](nextcloud.md) (Can use Storj as external storage)
+- [n8n](n8n.md) (For automating bucket operations)
 
 ## Backlog
 - Configure as a backup target for Rclone.
@@ -92,7 +95,7 @@ for obj in response.get("Contents", []):
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-06-12
 
 ## Sources / References
 - https://www.storj.io/
