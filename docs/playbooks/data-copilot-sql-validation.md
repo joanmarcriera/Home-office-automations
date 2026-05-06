@@ -51,6 +51,12 @@ Stop the automated flow and notify a human if:
 - **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
 - **Small Model Judge**: Use a small local model (Qwen 2.5 7B) specifically to check the generated SQL against the policy checklist.
 
+## Related tools / concepts
+- [Data Copilot Text-to-SQL Architecture](../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
+
 ## Sources / References
 - [SQLGlot Documentation](https://github.com/tobymao/sqlglot)
 - [Guardrails AI](https://www.guardrailsai.com/)
@@ -62,6 +68,6 @@ Stop the automated flow and notify a human if:
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-04-30
 - Confidence: high
 - Related Issues: #189

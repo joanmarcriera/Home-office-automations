@@ -96,6 +96,18 @@ flowchart TD
 }
 ```
 
+## Data Contracts (Interfaces)
+
+To ensure interoperability between layers, we use standardized Pydantic models (see [Skeleton Implementation](../reference-implementations/data-copilot/skeleton-guide.md)).
+
+| Interface | Input | Output |
+| :--- | :--- | :--- |
+| **Router** | `query: str` | `WorkspaceContext` (ID, DB Path) |
+| **Intent** | `query`, `WorkspaceContext` | `IntentOutput` (Metrics, Filters, Time) |
+| **Table** | `IntentOutput` | `TableSelection` (Table List, Rationale) |
+| **Prune** | `tables: List`, `IntentOutput` | `List[PrunedSchema]` (Table + Columns) |
+| **SQL** | `IntentOutput`, `List[PrunedSchema]` | `sql: str` |
+
 ## Cost & Model Routing
 
 To maintain a "free/cheap-first" stack, we recommend the following model routing:

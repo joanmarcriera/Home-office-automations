@@ -63,6 +63,12 @@ For a home-office or small team setup, start with these three:
 - **Authentication**: MCP servers should be restricted to the local network/Tailscale mesh with token-based access.
 - **Network Isolation**: For high-security home labs, run MCP servers in a dedicated "Automation" VLAN or a Tailscale "tag" group that only allows connections from the agent orchestrator node.
 
+## Related tools / concepts
+- [Data Copilot Text-to-SQL Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot Agentic RAG](data-copilot-agentic-rag.md)
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+
 ## Sources / References
 - [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 - [Anthropic: Introducing MCP](https://www.anthropic.com/news/model-context-protocol)
@@ -74,6 +80,6 @@ For a home-office or small team setup, start with these three:
 - [Claude Tool Search](claude-tool-search.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-04-30
 - Confidence: high
 - Related Issues: #187

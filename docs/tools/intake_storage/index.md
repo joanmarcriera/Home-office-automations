@@ -7,9 +7,10 @@ The intake and storage layer is responsible for the extraction, transformation, 
 | Capability | Description | Core Tools |
 | :--- | :--- | :--- |
 | **Parsing & Extraction** | Converting complex PDFs, HTML, and office docs into clean Markdown/JSON. | [Unstructured.io](unstructured.md), [LlamaParse](llamaparse.md), [Docling](../process_understanding/docling.md) |
-| **Object Storage** | Durable persistence for raw files and processed artifacts. | [S3 / S3-Compatible](s3-storage.md) |
+| **Object Storage** | Durable persistence for raw files and processed artifacts. | [S3 / S3-Compatible](s3-storage.md), [MinIO](minio.md) |
 | **Hybrid Systems** | Integrated environments for personal knowledge management and search. | [AnyType](anytype.md), [Khoj](khoj.md), [SilverBullet](silverbullet.md) |
 | **Database Sync** | Synchronizing specialized data types like calendars or journals. | [Caldav](caldav.md) |
+| **Analytics Warehouses** | Columnar and cloud warehouses for logs, traces, and analytical workloads. | [ClickHouse](../process_understanding/clickhouse.md), [Snowflake](../process_understanding/snowflake.md) |
 
 ## Tool Selection Guidance
 
