@@ -20,7 +20,9 @@ Every query must pass these automated checks:
 - [ ] **Row Limits**: Does the query have a `LIMIT` clause? (Hard cap e.g., 1000).
 - [ ] **Table Allowlist**: Does it only touch tables defined in the Workspace context?
 - [ ] **No Mutations**: Does it contain forbidden keywords like `DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `GRANT`?
-- [ ] **PII/PHI Control**: Are sensitive columns (e.g., `ssn`, `password_hash`, `private_notes`) excluded?
+- [ ] **PII/PHI Masking**:
+  - Sensitive columns (e.g., `ssn`, `password_hash`) must be excluded from the `SELECT` list.
+  - If a sensitive column is needed for filtering (e.g., `user_id`), it must be hashed or replaced with a pseudonym in the final output returned to the UI.
 
 ## 3. Semantic Validation & Risk Taxonomy
 A query can be syntactically perfect but business-incorrect.
@@ -36,7 +38,9 @@ A query can be syntactically perfect but business-incorrect.
 ## 4. Self-Correction Loop (Repair)
 If validation fails, the "SQL Repair" flow is triggered:
 1.  **Capture Error**: Gather the SQL + Error Message (from DB) or Policy Violation (from Guardrail).
-2.  **Prompt Generator**: Feed the error back to the LLM: "Your query failed due to [Error]. Rewrite it adhering to the schema and policy."
+2.  **Prompt Generator**: Feed the error back to the LLM using a repair template:
+    - **Syntax Error**: "The query `[SQL]` failed with `[ERROR]`. Likely cause: missing column or invalid join. Please rewrite using the verified schema below."
+    - **Policy Violation**: "The query `[SQL]` violated policy `[RULE]`. Please rewrite ensuring no forbidden keywords or sensitive columns are used."
 3.  **Retry Limit**: Max 2 retries. If still failing, trigger "Stop and Escalate".
 
 ## 5. Stop and Escalate Criteria
@@ -47,7 +51,10 @@ Stop the automated flow and notify a human if:
 4.  **Complex Logic**: The intent requires a logic depth the current model cannot reliably produce.
 
 ## Low-Cost Implementation Options
-- **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call. It can also be used to automatically inject `LIMIT` clauses.
+- **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call.
+  - **Structural Check**: Ensure no `CROSS JOIN` or non-indexed joins are present.
+  - **Auto-Injection**: Automatically append `LIMIT 100` if missing.
+  - **Dialect Translation**: Translate generic SQL into specific DB dialects (e.g., SQLite vs Postgres).
 - **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
 - **Small Model Judge**: Use a small local model (Qwen 2.5 7B) specifically to check the generated SQL against the policy checklist.
 
@@ -60,8 +67,9 @@ Stop the automated flow and notify a human if:
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [n8n Automation](../services/n8n.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-06
 - Confidence: high
 - Related Issues: #189

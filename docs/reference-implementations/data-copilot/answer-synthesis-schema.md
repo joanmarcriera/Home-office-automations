@@ -22,13 +22,14 @@ class Source(BaseModel):
     description: str
 
 class SynthesisResponse(BaseModel):
-    answer_summary: str = Field(..., description="Human-readable concise answer")
-    key_metrics: List[DataPoint]
-    explanation: str = Field(..., description="Detailed reasoning and context")
-    sources: List[Source]
-    confidence_score: float = Field(..., ge=0.0, le=1.0)
-    assumptions: List[str] = Field(default_factory=list)
-    recommended_actions: List[str] = Field(default_factory=list)
+    answer_summary: str = Field(..., description="1-2 sentence human-readable direct answer.")
+    key_metrics: List[DataPoint] = Field(..., description="Numerical findings extracted from the data.")
+    explanation: str = Field(..., description="The 'Why' behind the data, linking SQL results to RAG context.")
+    sources: List[Source] = Field(..., description="Traceability links to SQL queries or Document paths.")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="0.0 (No idea) to 1.0 (Certain). Deducted for ambiguity.")
+    assumptions: List[str] = Field(default_factory=list, description="Logical leaps the agent made (e.g., 'Assuming VAT is 20%').")
+    recommended_actions: List[str] = Field(default_factory=list, description="Next steps for the user based on the findings.")
+    needs_human_review: bool = Field(default=False, description="Set to True if confidence < 0.6 or data is contradictory.")
 ```
 
 ## Prompt Contract for Synthesis Step
@@ -39,11 +40,17 @@ When prompting the LLM for the final synthesis, the system prompt must enforce t
 ### System Instructions
 You are a Data Analyst Agent. Your task is to synthesize raw data results into a structured JSON response.
 
-1.  **Summary**: Provide a 1-2 sentence direct answer.
-2.  **Metrics**: Extract the most relevant numerical findings.
-3.  **Context**: Explain *why* the data looks this way based on provided RAG context.
-4.  **Confidence**: Assign a score (0.0 to 1.0). Deduct points for missing sources or ambiguous joins.
-5.  **Actions**: Suggest what the user should do next based on the data (e.g., "Review your electricity usage during peak hours").
+**Core Rules**:
+1.  **Direct Answer**: Provide a 1-2 sentence summary first.
+2.  **Groundedness**: Do not hallucinate sources. Every claim must have a corresponding entry in the `sources` list.
+3.  **Confidence**: Assign a score. Be honest about uncertainty (e.g., if SQL and RAG are contradictory).
+4.  **Actionable**: Suggest next steps that are specific and relevant to the findings.
+5.  **Flag for Review**: If the confidence score is below 0.6, set `needs_human_review` to `true`.
+
+**Negative Constraints**:
+- Do not include raw SQL in the `answer_summary`.
+- Do not mention table names or internal IDs to the user.
+- Do not make financial advice; state "Consult your policy" if unsure.
 ```
 
 ## Example Outputs
@@ -108,8 +115,9 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [n8n Automation](../../services/n8n.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-06
 - Confidence: high
 - Related Issues: #190
