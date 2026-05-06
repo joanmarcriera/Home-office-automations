@@ -29,6 +29,12 @@ NemoClaw is designed for production reliability:
 - **Hardware Affinity**: Maximum benefit is realized on Nvidia-based infrastructure.
 - **Complexity**: Targeted at enterprise developers; may be overpowered for simple home-automation scripts.
 
+## When to use it
+Use NemoClaw when an Nvidia-centered agent workload needs GPU-accelerated orchestration and enterprise deployment patterns. <!-- needs-content -->
+
+## When not to use it
+Do not use NemoClaw for simple personal automations that do not need Nvidia infrastructure or multi-agent runtime complexity. <!-- needs-content -->
+
 ## CLI examples
 ```bash
 # NemoClaw often uses the OpenShell/Agent Toolkit for management
