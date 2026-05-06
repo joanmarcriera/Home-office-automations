@@ -2,17 +2,30 @@
 
 Gitea is a painless self-hosted Git service.
 
-## Description
-It is a community-managed lightweight code hosting solution written in Go. It provides features like issue tracking, code review, and CI/CD integration, with a focus on simplicity and performance.
+## What it is
+Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance.
 
-## When to use it
-- When you need a lightweight, low-resource Git hosting solution (runs comfortably on a Raspberry Pi).
-- When you want a simple, GitHub-like experience for private or small-team projects.
-- When you want to self-host your CI/CD pipelines via Gitea Actions.
+## What problem it solves
+It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of GitHub. It provides a central hub for code collaboration and automation that can run on low-power hardware.
 
-## When not to use it
-- When you require the deep enterprise features and complex permission models of GitLab.
-- When you need a managed service with no maintenance overhead (consider GitHub or GitLab.com).
+## Where it fits in the stack
+Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is often the trigger for CI/CD pipelines that deploy other services in the stack.
+
+## Typical use cases
+- **Private Code Hosting**: Maintaining internal tools and projects away from public eyes.
+- **GitOps**: Storing infrastructure-as-code (Ansible, Terraform, K3s manifests) and triggering deployments.
+- **Documentation**: Hosting project documentation via Gitea's built-in wiki or Markdown support.
+- **Mirrors**: Maintaining local mirrors of critical public repositories for offline access.
+
+## Strengths
+- **Performance**: Extremely lightweight and fast; runs comfortably on a Raspberry Pi.
+- **GitHub-Like UX**: Familiar interface that requires minimal learning for existing Git users.
+- **Self-Contained**: Can be run as a single binary or a small Docker container with minimal dependencies.
+- **Built-in CI/CD**: Gitea Actions provides GitHub Actions compatibility out of the box.
+
+## Limitations
+- **Ecosystem**: Smaller plugin and integration ecosystem compared to GitHub or GitLab.
+- **Enterprise Features**: Lacks some of the advanced high-availability and compliance features of GitLab Enterprise.
 
 ## Getting started
 
@@ -75,6 +88,9 @@ docker exec -u 1000 -it gitea gitea admin user create --username admin --passwor
 
 # Dump database
 docker exec -u 1000 -it gitea gitea dump
+
+# List all repositories
+docker exec -u 1000 -it gitea gitea admin repo list
 ```
 
 ## API examples
@@ -84,16 +100,25 @@ Gitea features a comprehensive Swagger-documented API:
 # Get repository information
 curl -X GET "http://localhost:3000/api/v1/repos/owner/repo" \
   -H "Authorization: token <YOUR_TOKEN>"
+
+# Create a new issue via API
+curl -X POST "http://localhost:3000/api/v1/repos/owner/repo/issues" \
+  -H "Authorization: token <YOUR_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Bug Report", "body": "Something is broken."}'
 ```
+
+## Related tools / concepts
+- [Ollama](ollama.md) — For running local AI code reviews via Gitea Actions.
+- [Authentik](authentik.md) — For SSO and user management.
+- [Drone](https://www.drone.io/) — A popular third-party CI/CD engine that integrates deeply with Gitea.
+- [Forgejo](https://forgejo.org/) — A community-driven fork of Gitea focusing on software freedom.
+- [Ansible](../tools/orchestration/ansible.md) — For automating the deployment of Gitea itself.
 
 ## Links
 - [Official Website](https://gitea.io/)
 - [GitHub Repository](https://github.com/go-gitea/gitea)
 - [Gitea Actions Overview](https://docs.gitea.com/usage/actions/overview)
-
-## Alternatives
-- [GitLab](https://about.gitlab.com/)
-- [Forgejo](https://forgejo.org/)
 
 ## SSO & OIDC Integration
 Gitea supports OIDC for Single Sign-On via [Authentik](authentik.md).
@@ -115,14 +140,12 @@ In Authentik, the Redirect URI should be: `https://gitea.example.com/user/oauth2
 ## Backlog
 - Set up Gitea Actions for automated repository tasks.
 
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-06-20
+
 ## Sources / References
 - https://gitea.io/
 - https://github.com/go-gitea/gitea
-- https://about.gitlab.com/
-- [Gitea Documentation](https://docs.gitea.com/)
-- [Gitea Actions Overview](https://docs.gitea.com/usage/actions/overview)
-- [Forgejo](https://forgejo.org/)
-
-## Contribution Metadata
-- Last reviewed: 2026-04-08
-- Confidence: high
+- https://docs.gitea.com/
+- https://forgejo.org/

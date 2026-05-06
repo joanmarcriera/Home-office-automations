@@ -31,7 +31,7 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 
 - **Weekly Deepening (Batch 25)**: **Resolved** (Deepened Tailscale, Syncthing, Storj; created radicale-automation).
 - **Weekly Deepening (Batch 26)**: **Resolved** (Created qBittorrent-automation, SearXNG-automation, Plex-automation).
-- **Weekly Deepening (Batch 28)**: Deepen `drawio.md`, `element.md`, `excalidraw.md`, `focalboard.md`, `gitea.md`.
+- **Weekly Deepening (Batch 28)**: **Resolved** (Deepened drawio, element, excalidraw, focalboard, gitea).
 - **Weekly Deepening (Batch 29)**: Deepen `grocy.md`, `habitica.md`, `home-assistant.md`, `homebox.md`, `it-tools.md`.
 - **Weekly Deepening (Batch 30)**: Deepen `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`.
 - **Weekly Deepening (Batch 31)**: Deepen `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`.
