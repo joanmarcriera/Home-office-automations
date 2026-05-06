@@ -38,8 +38,9 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Weekly Deepening (Batch 21)**: **Resolved** (DeepSeek R1, Perplexity, AnythingLLM, LobeHub, Dify deepened).
-- **Link Audit**: **In Progress** (Completed for major AI knowledge assistants and several shallow pages).
-- **Access Matrix Freshness**: Check for any new Google Workspace or MCP-native features for tools marked 🔴 in Gmail/Calendar columns.
+- **Weekly Deepening (Batch 23)**: **Resolved** (LM Studio, Jan.ai, Msty, Google Gemini, LibreChat deepened).
+- **Link Audit**: **In Progress** (Batch 23 tools completed; continuing for other infrastructure tools).
+- **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 
 ---
 - Confidence: high
