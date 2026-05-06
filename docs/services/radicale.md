@@ -1,18 +1,37 @@
 # Radicale
 
-Radicale is a small but powerful CalDAV and CardDAV server.
+## What it is
+Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight and easy to set up.
 
-## Description
-It is lightweight and easy to set up, providing a way to host your own calendars and contacts.
+## What problem it solves
+It allows individuals and small groups to host their own calendars and contacts privately, without relying on large corporate cloud providers. It uses a simple, file-based storage format (iCalendar and vCard), making it easy to backup and manage.
+
+## Where it fits in the stack
+**Category**: Services / Calendar & Tasks. It serves as the primary "Intake & Storage" layer for personal scheduling and contact data.
+
+## Typical use cases
+- Syncing personal calendars across desktop (Thunderbird) and mobile (Android/iOS) devices.
+- Hosting a shared family calendar.
+- Storing a private address book that is accessible from multiple devices.
+- Serving as a backend for task management tools that support CalDAV.
+
+## Strengths
+- **Lightweight**: Minimal CPU and memory usage.
+- **Simple Storage**: Uses standard .ics and .vcf files on disk.
+- **Extensible**: Supports various authentication backends (htpasswd, LDAP, remote user).
+- **Standards-Compliant**: Works with a wide range of CalDAV and CardDAV clients.
+
+## Limitations
+- **No Built-in Web Client**: Primarily designed to be used with external clients, though it has a minimal admin UI.
+- **Single-Server Focus**: Not designed for massive, multi-server deployments.
 
 ## When to use it
-- When you want a simple, lightweight, and self-hosted CalDAV/CardDAV server for personal use.
-- When you want to keep your calendars and contacts in a simple, file-based storage format.
-- For syncing contacts and calendars across devices without relying on third-party cloud services.
+- When you want a simple, self-hosted solution for syncing calendars and contacts.
+- When you value data privacy and want to own your scheduling data in a simple format.
 
 ## When not to use it
-- If you need a full collaborative groupware suite with email and file storage (consider [Nextcloud](nextcloud.md) instead).
-- If you require advanced sharing and permission features beyond simple user-based collection isolation.
+- For enterprise-grade collaboration with complex resource booking and email integration (use [Nextcloud](nextcloud.md) or SOGo).
+- If you require a full-featured web interface for managing appointments.
 
 ## Getting started
 
@@ -71,9 +90,7 @@ python3 -m radicale --verify-item /path/to/collection/item.ics
 ## API examples
 Radicale is a CalDAV/CardDAV server and uses standard HTTP methods like `PROPFIND` and `MKCOL`.
 
-### Python Example
-Fetch collection details using the `requests` library:
-
+### Python (Listing Collections)
 ```python
 import requests
 
@@ -89,29 +106,31 @@ response = requests.request(
 print(f"Collections for admin:\n{response.text}")
 ```
 
-### Curl Example
+### curl (Deleting a Collection)
 ```bash
-# Delete a collection
 curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
 ```
 
-## Links
+## Licensing and cost
+- **Open Source**: Yes (GPL-3.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Related tools / concepts
+- [Nextcloud (Contacts/Calendar)](nextcloud.md) (Alternative storage)
+- [Vikunja](vikunja.md) (Task management)
+- [DAVx⁵](https://www.davx5.com/) (Standard Android sync client)
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md) (To expose CalDAV to AI agents)
+- [Google Calendar](../tools/calendar_tasks/google_calendar.md) (Public alternative)
+
+## Sources / References
 - [Official Website](https://radicale.org/)
 - [GitHub Repository](https://github.com/Kozea/Radicale)
-
-## Alternatives
-- [Nextcloud (Contacts/Calendar)](nextcloud.md)
-- [Baikal](https://sabre.io/baikal/)
+- [Radicale Documentation](https://radicale.org/v3.html)
 
 ## Backlog
 - Integration with Vikunja for shared task lists.
 
-## Sources / References
-
-- [Radicale Documentation](https://radicale.org/v3.html)
-- [Installation Guide](https://radicale.org/v3.html#installation)
-
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-04
+- Last reviewed: 2026-06-05
 - Confidence: high

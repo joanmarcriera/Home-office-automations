@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-05-24
+# Ralph-loop Triage Report — 2026-06-05
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 24, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of June 5, 2026.
 
 ## Issue Status Summary
 
@@ -21,25 +21,16 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **#408** | Deepen examples (Batch 7) | **Verified** | mem0, Google Opal, Project Genie, Sora, NotebookLM deepened. |
 | **#421** | Weekly deepening (Batch 8) | **Resolved** | Unstructured, LlamaParse, Karpathy, Matt Pocock, AmpCode deepened. |
 | **#422** | Category gap fill: calendar_tasks | **Verified** | 20 docs added and indexed. |
-| **Batch 9** | Weekly deepening: AI Knowledge | **Resolved** | Fish Audio, KokoClone, Gemini macOS, /last30days, and ECC deepened. |
-| **Batch 10** | Weekly deepening: Mixed Batch | **Resolved** | Claude How-To, Supermetal, AirOps, Gumloop, and Gemini Canvas deepened. |
-| **Batch 11** | Weekly deepening: Agents | **Resolved** | Agency-Agents, AutoReason, Bee Agent Framework, GPT Researcher, and Letta deepened. |
-| **Batch 13** | Weekly deepening: Agents | **Resolved** | Cline, Roo Code, Nvidia NemoClaw, Open Agents, and mem0 deepened. |
-| **Batch 14** | Weekly deepening: Agents | **Resolved** | Anthropic Agent Skills, Claude Skills Ecosystem, DeerFlow, Replit Agent, and Symphony deepened. |
-| **Batch 15** | Weekly deepening: Automation | **Resolved** | Stagehand, Goose, Open Interpreter, Skyvern, and Browser Use deepened. |
-| **Batch 16** | Weekly deepening: Process | **Resolved** | Crawl4AI, Firecrawl, PageIndex, RAGFlow, and Docling deepened. |
-| **Batch 17** | Weekly deepening: Process | **Resolved** | Datadog, Sentry, ClickHouse, Snowflake, and OpenTelemetry Collector deepened. |
-| Batch 18 | Weekly deepening: Process | **Resolved** | AgentOps, Langfuse, Helicone, Parea, and PostHog deepened. |
-| **Batch 19** | Weekly deepening: Process | **Resolved** | Arize AI, Braintrust, Comet Opik, Fiddler, and LastMile AI deepened. |
-| **Batch 20** | Weekly deepening: Process | **Resolved** | Ragas, W&B Weave, Webhook, Tesseract, and OCRmyPDF deepened. |
-| **Batch 22** | Weekly deepening: Agents | **Resolved** | AutoReason, Bee Agent Framework, GPT Researcher, Letta, and NeMo Retriever deepened. |
+| **Batch 21** | Weekly deepening: AI Knowledge | **Resolved** | DeepSeek R1, Perplexity, AnythingLLM, LobeHub, and Dify deepened. |
+| **Batch 23** | Weekly deepening: Infrastructure | **Resolved** | LM Studio, Jan.ai, Msty, Google Gemini, and LibreChat deepened. |
+| **Batch 24** | Weekly deepening: Services | **Resolved** | Paperless-ngx, SearXNG, Plex, qBittorrent, and Radicale deepened. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
-- **Weekly Deepening (Batch 21)**: **Resolved** (DeepSeek R1, Perplexity, AnythingLLM, LobeHub, Dify deepened).
-- **Weekly Deepening (Batch 23)**: **Resolved** (LM Studio, Jan.ai, Msty, Google Gemini, LibreChat deepened).
-- **Link Audit**: **In Progress** (Batch 23 tools completed; continuing for other infrastructure tools).
+- **Weekly Deepening (Batch 25)**: **Pending** (Remaining shallow services: Tailscale, Syncthing, Storj, Radicale, radicale-automation).
+- **Weekly Deepening (Batch 26)**: **Pending** (Remaining shallow services: qBittorrent-automation, SearXNG-automation, Plex-automation).
+- **Link Audit (Infrastructure)**: **Resolved** (Completed for all files in `docs/tools/infrastructure/`).
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 
 ---
