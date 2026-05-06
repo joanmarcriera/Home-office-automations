@@ -103,6 +103,18 @@
       "doc_path": "docs/tools/ai_knowledge/ansigpt.md"
     },
     {
+      "id": "apache-airflow",
+      "name": "Apache Airflow",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/apache-airflow.md"
+    },
+    {
+      "id": "apache-hamilton",
+      "name": "Apache Hamilton",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/apache-hamilton.md"
+    },
+    {
       "id": "anthropic",
       "name": "Anthropic (Claude)",
       "category": "Providers",
@@ -154,6 +166,12 @@
       "name": "Apple Calendar",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/apple-calendar.md"
+    },
+    {
+      "id": "argo-workflows",
+      "name": "Argo Workflows",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/argo-workflows.md"
     },
     {
       "id": "arc",
@@ -564,6 +582,12 @@
       "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
     },
     {
+      "id": "dagster",
+      "name": "Dagster",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/dagster.md"
+    },
+    {
       "id": "datadog",
       "name": "Datadog",
       "category": "Process & Understanding",
@@ -760,6 +784,12 @@
       "name": "Firecrawl",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/firecrawl.md"
+    },
+    {
+      "id": "flyte",
+      "name": "Flyte",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/flyte.md"
     },
     {
       "id": "fireworks-ai",
@@ -1178,6 +1208,12 @@
       "name": "Kubernetes (K3s)",
       "category": "Infrastructure",
       "doc_path": "docs/tools/infrastructure/k3s.md"
+    },
+    {
+      "id": "kestra",
+      "name": "Kestra",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/kestra.md"
     },
     {
       "id": "karpathy-skills",
@@ -1811,6 +1847,12 @@
       "name": "NVIDIA PersonaPlex",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/personaplex.md"
+    },
+    {
+      "id": "prefect",
+      "name": "Prefect",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/prefect.md"
     },
     {
       "id": "phidata",
@@ -2464,6 +2506,12 @@
       "name": "Zapier",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/zapier.md"
+    },
+    {
+      "id": "zenml",
+      "name": "ZenML",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/zenml.md"
     },
     {
       "id": "zed",

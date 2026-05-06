@@ -59,6 +59,7 @@ nav:
       - Overview: new-sources.md
       - Daily Logs:
           - '2026-05-07': new-sources/2026-05-07.md
+          - '2026-05-06': new-sources/2026-05-06.md
           - '2026-05-02': new-sources/2026-05-02.md
           - '2026-04-27': new-sources/2026-04-27.md
           - '2026-04-26': new-sources/2026-04-26.md
@@ -473,7 +474,15 @@ nav:
           - Home Admin Agent Tools: tools/agents/home-admin-tools.md
       - Orchestration:
           - Overview: tools/orchestration/index.md
+          - Apache Airflow: tools/orchestration/apache-airflow.md
+          - Apache Hamilton: tools/orchestration/apache-hamilton.md
+          - Argo Workflows: tools/orchestration/argo-workflows.md
+          - Dagster: tools/orchestration/dagster.md
+          - Flyte: tools/orchestration/flyte.md
+          - Kestra: tools/orchestration/kestra.md
+          - Prefect: tools/orchestration/prefect.md
           - Temporal: tools/orchestration/temporal.md
+          - ZenML: tools/orchestration/zenml.md
       - Infrastructure:
           - Docker: tools/infrastructure/docker.md
           - Headscale: services/headscale.md
