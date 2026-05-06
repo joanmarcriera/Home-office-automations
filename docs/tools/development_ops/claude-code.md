@@ -79,6 +79,18 @@ claude mcp list
 claude mcp add my-server npx -y @modelcontextprotocol/server-everything
 ```
 
+
+### Curated Plugins & Extensions
+- **connect-apps**: Integrate with GitHub, Slack, Notion, Gmail, and more.
+- **agentlint**: Repository health checks for AI agent friendliness.
+- **code-review**: Automated PR reviews before shipping.
+- **test-writer-fixer**: Writing and fixing unit tests (Jest, Vitest, Pytest).
+- **debugger**: Deep analysis of complex bugs.
+- **bug-fix**: Stack trace analysis and automated fixing.
+- **mcp-builder**: Streamlined MCP server development.
+- **theme-factory**: Fast UI theme generation.
+- **Awesome Claude Plugins**: [Curated list on GitHub](https://github.com/ComposioHQ/awesome-claude-plugins)
+
 ## Related tools / concepts
 - [Claude Code Router](claude-code-router.md)
 - [Aider](aider.md)

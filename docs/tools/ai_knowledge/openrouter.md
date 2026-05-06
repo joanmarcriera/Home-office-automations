@@ -69,6 +69,14 @@ The OpenRouter settings integrations page is account-scoped. The table below is 
 | Zapier | [Guide](https://openrouter.ai/docs/guides/community/zapier) | SaaS automation and triggers | [Zapier Engineering](https://zapier.com/engineering/) | Integration architecture and reliability |
 | Xcode | [Guide](https://openrouter.ai/docs/guides/community/xcode) | Apple-side local development flow | [Apple Developer News](https://developer.apple.com/news/) | Toolchain and platform-level updates |
 
+
+## Log Destinations
+OpenRouter supports sending logs to various observability and data tools:
+- **Observability**: Arize AI, Braintrust, Datadog, Langfuse, LangSmith, New Relic AI, Sentry
+- **Data & Storage**: ClickHouse, Grafana Cloud, PostHog, S3 / S3-Compatible, Snowflake
+- **Webhooks & Finance**: Webhook, Ramp
+- **Standards**: OpenTelemetry Collector, W&B Weave
+
 ## Suggested comparison matrix
 
 Use this matrix for quarterly integration reviews:
