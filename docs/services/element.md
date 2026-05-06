@@ -27,6 +27,9 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 - **UX Complexity**: The decentralized nature (homeservers, cross-signing) can be confusing for new users compared to centralized apps.
 - **Resource Intensive**: Running a full Matrix homeserver (Synapse) can be resource-heavy for low-end hardware.
 
+## When not to use it
+Do not use Element as a drop-in replacement for simple SMS-style family messaging if users are not ready to understand homeservers, key backup, and device verification. For large regulated organizations, validate Matrix retention, moderation, discovery, and e-discovery requirements before replacing Slack or Microsoft Teams.
+
 ## Getting started
 
 ### Web/Desktop App
@@ -47,49 +50,66 @@ services:
 ```
 
 ## CLI examples
-While Element is a GUI, the Matrix ecosystem provides powerful CLI tools like `matrix-commander` for automation:
+While Element is a GUI, the Matrix ecosystem provides CLI tools like `matrix-commander` for automation:
 
 ```bash
-# Send a message to a room via CLI
-matrix-commander --room "!roomid:matrix.org" --message "Hello from the CLI!"
+# Install the CLI in an isolated Python environment
+python3 -m pip install --user matrix-commander
 
-# Listen for messages and trigger a local script
-matrix-commander --listen --on-message "./handle_message.sh"
+# Log in interactively and store credentials for later commands
+matrix-commander --login password
 
-# Get room info
-matrix-commander --room "!roomid:matrix.org" --info
+# Send a message using exported room configuration
+: "${MATRIX_ROOM_ID:?set MATRIX_ROOM_ID to a Matrix room ID}"
+matrix-commander --room "$MATRIX_ROOM_ID" --message "Hello from the home-office automation stack"
+
+# Get room info for the same configured room
+matrix-commander --room "$MATRIX_ROOM_ID" --room-info
 ```
 
 ## API examples
-The Matrix Client-Server API allows for direct programmatic interaction.
+The Matrix Client-Server API allows direct programmatic interaction. The examples below are runnable after exporting real credentials from a bot or test account.
 
 ### Python (using `matrix-nio`)
 ```python
 import asyncio
+import os
 from nio import AsyncClient
 
-async def main():
-    client = AsyncClient("https://matrix.org", "@your_user:matrix.org")
-    await client.login("your_password")
+HOMESERVER = os.environ["MATRIX_HOMESERVER"]
+USER_ID = os.environ["MATRIX_USER_ID"]
+PASSWORD = os.environ["MATRIX_PASSWORD"]
+ROOM_ID = os.environ["MATRIX_ROOM_ID"]
 
+async def main():
+    client = AsyncClient(HOMESERVER, USER_ID)
+    login_response = await client.login(PASSWORD)
+    if getattr(login_response, "access_token", None) is None:
+        raise RuntimeError(f"Matrix login failed: {login_response}")
     await client.room_send(
-        room_id="!your_room_id:matrix.org",
+        room_id=ROOM_ID,
         message_type="m.room.message",
         content={
             "msgtype": "m.text",
             "body": "Alert: Motion detected in the garden!"
-        }
+        },
     )
     await client.close()
 
 asyncio.run(main())
 ```
 
-### Curl Example
+### Curl example
 ```bash
-# Send a simple text message via API
-curl -XPOST -d '{"msgtype":"m.text", "body":"Hello World"}' \
-     "https://matrix.org/_matrix/client/r0/rooms/!roomid:matrix.org/send/m.room.message?access_token=YOUR_ACCESS_TOKEN"
+: "${MATRIX_HOMESERVER:=https://matrix.org}"
+: "${MATRIX_ROOM_ID:?set MATRIX_ROOM_ID to a Matrix room ID}"
+: "${MATRIX_ACCESS_TOKEN:?set MATRIX_ACCESS_TOKEN to a bot or user access token}"
+
+curl -X POST \
+  -H "Authorization: Bearer $MATRIX_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"msgtype":"m.text","body":"Hello from curl"}' \
+  "$MATRIX_HOMESERVER/_matrix/client/v3/rooms/$MATRIX_ROOM_ID/send/m.room.message/$(date +%s)"
 ```
 
 ## Related tools / concepts
@@ -111,7 +131,7 @@ curl -XPOST -d '{"msgtype":"m.text", "body":"Hello World"}' \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-05-06
 
 ## Sources / References
 - https://element.io/
