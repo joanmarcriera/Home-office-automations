@@ -31,15 +31,91 @@ It provides a high-reasoning, "thinking" model that is accessible as open weight
 - **License**: DeepSeek License (Open Weights)
 - **Cost**: Low-cost API access via DeepSeek or OpenRouter; free to self-host.
 
+## Getting started
+
+### Installation
+DeepSeek R1 is accessible via an OpenAI-compatible API or can be run locally using Ollama.
+
+```bash
+# To run locally via Ollama
+ollama run deepseek-r1
+```
+
+### Basic API setup (Python)
+```bash
+pip install openai
+```
+
+## CLI examples
+
+### 1. Basic Chat Completion (curl)
+```bash
+curl https://api.deepseek.com/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+  -d '{
+        "model": "deepseek-v4-pro",
+        "messages": [
+          {"role": "user", "content": "Explain quantum entanglement like I am five."}
+        ],
+        "stream": false
+      }'
+```
+
+### 2. Reasoning Mode (Thinking enabled)
+```bash
+curl https://api.deepseek.com/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+  -d '{
+        "model": "deepseek-v4-pro",
+        "messages": [
+          {"role": "user", "content": "Find the derivative of x^2 * sin(x)."}
+        ],
+        "thinking": {"type": "enabled"},
+        "reasoning_effort": "high"
+      }'
+```
+
+### 3. List Available Models
+```bash
+curl https://api.deepseek.com/models \
+  -H "Authorization: Bearer $DEEPSEEK_API_KEY"
+```
+
+## API examples
+
+### Python (OpenAI SDK)
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_DEEPSEEK_API_KEY", base_url="https://api.deepseek.com")
+
+response = client.chat.completions.create(
+    model="deepseek-v4-pro",
+    messages=[
+        {"role": "user", "content": "Write a Python function to sort a list of dictionaries by a specific key."}
+    ],
+    extra_body={"thinking": {"type": "enabled"}}
+)
+
+print(f"Thought: {response.choices[0].message.reasoning_content}")
+print(f"Answer: {response.choices[0].message.content}")
+```
+
 ## Related tools / concepts
 - [DeepSeek](deepseek.md)
 - [OpenRouter](openrouter.md)
 - [Ollama](../../services/ollama.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+- [Local LLMs](local_llms.md)
 
 ## Sources / References
 - [DeepSeek Official Site](https://www.deepseek.com/)
 - [DeepSeek R1 Technical Report](https://github.com/deepseek-ai/DeepSeek-R1)
+- [DeepSeek API Documentation](https://api-docs.deepseek.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-28
 - Confidence: high

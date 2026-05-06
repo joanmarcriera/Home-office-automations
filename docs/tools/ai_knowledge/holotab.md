@@ -31,12 +31,15 @@ It addresses the need for a more integrated and proactive AI assistant within th
 - For highly specialized technical tasks that require a more dedicated development environment.
 
 ## Related tools / concepts
-- [Skills in Chrome](./skills-in-chrome.md)
-- [Perplexity](./perplexity.md)
+- [Skills in Chrome](skills-in-chrome.md)
+- [Perplexity](perplexity.md)
+- [Genspark](genspark.md)
+- [Browser Use](../automation_orchestration/browser-use.md)
+- [Open Agents](../agents/open-agents.md)
 
 ## Sources / References
 - [HoloTab AI browser companion](https://huggingface.co/blog/Hcompany/holotab)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-28
 - Confidence: high

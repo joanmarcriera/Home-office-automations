@@ -44,6 +44,10 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 - [ChatGPT](chatgpt.md)
 - [Claude](claude.md)
 - [Ollama](../../services/ollama.md) (for running Gemini's open-weight counterpart, Gemma)
+- [Google Search](google-search.md)
+- [NotebookLM](notebooklm.md)
+- [Gemini for macOS](gemini-macos.md)
+- [Gemini CLI](gemini-cli.md)
 
 ## Sources / References
 - [Official Website](https://gemini.google.com/)
@@ -55,4 +59,4 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-04-06
+- Last reviewed: 2026-05-28

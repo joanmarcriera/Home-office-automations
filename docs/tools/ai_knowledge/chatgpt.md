@@ -37,10 +37,11 @@ AI & Knowledge — used as a cloud-based conversational assistant alongside loca
 ## Related tools / concepts
 - [Claude](claude.md)
 - [Gemini](gemini.md)
+- [Perplexity](perplexity.md)
+- [OpenAI](../providers/openai.md)
+- [DeepSeek R1](deepseek-r1.md)
+- [Everything Claude Code](everything-claude-code.md)
 
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-- [Google Opal](google-opal.md)
 ## Sources / references
 - [Official Website](https://chatgpt.com/)
 - [ChatGPT for Excel](https://openai.com/index/chatgpt-for-excel)
@@ -49,5 +50,5 @@ AI & Knowledge — used as a cloud-based conversational assistant alongside loca
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-28
+- Confidence: high

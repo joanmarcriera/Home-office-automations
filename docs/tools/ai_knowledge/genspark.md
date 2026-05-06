@@ -36,10 +36,13 @@ Traditional search engines require the user to click through multiple links and 
 - [Perplexity](perplexity.md)
 - [Google Search](google-search.md)
 - [NotebookLM](notebooklm.md)
+- [GPT Researcher](../agents/gpt-researcher.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
 
 ## Sources / references
 - [Official Website](https://www.genspark.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-18
-- Confidence: medium
+- Last reviewed: 2026-05-28
+- Confidence: high

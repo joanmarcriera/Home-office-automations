@@ -36,11 +36,69 @@ It centralizes multiple AI models (OpenAI, Claude, Gemini, Ollama) and an extens
 - **Cost**: Free (Self-hosted) / Freemium (Cloud version with credit system)
 - **Self-hostable**: Yes (via Docker)
 
+## Getting started
+
+### Installation (Docker)
+The recommended way to self-host LobeHub (Lobe Chat) is via Docker.
+
+```bash
+# Using the setup script
+bash <(curl -fsSL https://lobe.li/setup.sh)
+
+# Start the service
+docker compose up -d
+```
+
+### Local Development
+```bash
+git clone https://github.com/lobehub/lobe-chat.git
+cd lobe-chat
+pnpm install
+pnpm dev
+```
+
+## CLI examples
+
+### 1. Initialize Docker Infrastructure
+```bash
+# Pulls latest images and sets up initial volumes
+bash <(curl -fsSL https://lobe.li/setup.sh)
+```
+
+### 2. Start with Environment Variables
+```bash
+docker run -d -p 3210:3210 \
+  -e OPENAI_API_KEY=sk-xxxx \
+  -e ACCESS_CODE=lobe66 \
+  --name lobe-chat \
+  lobehub/lobe-chat
+```
+
+### 3. Check Service Status
+```bash
+docker ps | grep lobe-chat
+```
+
+## API examples
+
+### Integration with Ollama
+LobeHub connects to Ollama via its local endpoint. In LobeHub settings:
+1. Navigate to `Language Models` -> `Ollama`.
+2. Set `Proxy` to `http://localhost:11434/v1` (or your Ollama server IP).
+3. Enable the models you have pulled locally.
+
+### Using MCP Servers
+LobeHub supports Model Context Protocol (MCP) servers. To add a tool via MCP:
+1. Go to `Plugins` -> `MCP`.
+2. Enter the MCP server URL or configure a local executable path.
+3. The tools provided by the MCP server will now be available for your agents to use.
+
 ## Related tools / concepts
 - [AnythingLLM](anythingllm.md)
 - [Open WebUI](../../services/open-webui.md)
-- [LibreChat](index.md)
+- [LibreChat](librechat.md)
 - [Ollama](../../services/ollama.md)
+- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [LobeHub Official Site](https://lobehub.com/)
@@ -48,5 +106,5 @@ It centralizes multiple AI models (OpenAI, Claude, Gemini, Ollama) and an extens
 - [LobeHub Documentation](https://lobehub.com/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-28
 - Confidence: high

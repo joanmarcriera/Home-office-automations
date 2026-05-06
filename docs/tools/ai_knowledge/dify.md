@@ -25,73 +25,85 @@ AI & Knowledge — serves as a visual platform for building and deploying LLM ap
 - Smaller community and ecosystem compared to LangChain
 
 ## When to use it
-- When you want to visually prototype and deploy LLM applications without writing code
+- When you want a visual environment to prototype and deploy LLM applications
 - When building RAG or agent applications that connect to local LLM infrastructure
 
 ## When not to use it
 - When you need fine-grained programmatic control over LLM pipelines
 - When the overhead of running another service is not justified for simple tasks
 
-## Related tools / concepts
-- [Flowise](flowise.md)
-- [LangChain](langchain.md)
-- [LlamaIndex](llamaindex.md)
-- [LangFlow](https://github.com/langflow-ai/langflow)
-
 ## Getting started
 
-### Installation
+### Installation (Docker Compose)
+Dify is best deployed using Docker Compose for self-hosting.
 
-Dify is typically deployed via Docker. Once running, you can access its features through the web UI or via its REST API. To use the API, you first need to create an application in the Dify dashboard and generate an API Key.
+```bash
+git clone https://github.com/langgenius/dify.git
+cd dify/docker
+cp .env.example .env
+docker compose up -d
+```
 
-For programmatic access via Python, install the official client:
+### Accessing the Dashboard
+Once the containers are running, navigate to `http://localhost/install` in your browser to complete the initial setup and create your admin account.
+
+## CLI examples
+
+### 1. Start Dify Infrastructure
+```bash
+docker compose up -d
+```
+
+### 2. View Service Logs
+```bash
+docker compose logs -f api
+```
+
+### 3. Database Migration (Maintenance)
+```bash
+docker exec -it dify-api-1 flask db upgrade
+```
+
+## API examples
+
+### Calling a Dify Chat Application (Python)
+Dify provides an official Python SDK for interacting with your deployed applications.
 
 ```bash
 pip install dify-client
 ```
 
-### Minimal Python Example
-
 ```python
 from dify_client import ChatClient
 
-# Initialize the ChatClient
-client = ChatClient(api_key="your-api-key")
+# Initialize the ChatClient with your App's API Key
+client = ChatClient(api_key="app-xxxxxxxxxxxxxx")
 
-# Send a message to your Dify application
-# Note: In dify-client, the response is already parsed as a dictionary
+# Create a chat message
 response = client.create_chat_message(
     inputs={},
-    query="Hello Dify!",
-    user="unique_user_id"
+    query="How can I optimize my local RAG pipeline?",
+    user="user_123",
+    response_mode="blocking"
 )
-print(response)
+
+print(response.json())
 ```
 
-## API examples
-
-### Calling a Dify Workflow API
-
-Workflows in Dify can be triggered via a POST request to the Workflow API endpoint.
-
-```bash
-curl -X POST 'https://api.dify.ai/v1/workflows/run' \
---header 'Authorization: Bearer {YOUR_API_KEY}' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "inputs": {
-        "query": "What are the benefits of self-hosting LLMs?"
-    },
-    "response_mode": "blocking",
-    "user": "unique_user_id_123"
-}'
-```
+## Related tools / concepts
+- [Flowise](flowise.md)
+- [LangChain](langchain.md)
+- [LlamaIndex](llamaindex.md)
+- [Langflow](../frameworks/langflow.md)
+- [AnythingLLM](anythingllm.md)
+- [Ollama](../../services/ollama.md)
 
 ## Sources / references
 - [Official Website](https://dify.ai/)
 - [GitHub Repository](https://github.com/langgenius/dify)
+- [Dify Documentation](https://docs.dify.ai/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-03
-- Confidence: medium
+- Last reviewed: 2026-05-28
+- Confidence: high
