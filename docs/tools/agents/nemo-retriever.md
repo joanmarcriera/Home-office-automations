@@ -14,6 +14,17 @@ Traditional RAG pipelines often struggle with retrieval accuracy and latency as 
 - **Enterprise RAG**: Connecting LLMs to massive corporate knowledge bases with high precision.
 - **Real-time Data Access**: Providing agents with up-to-date information from structured and unstructured sources.
 
+## When to use it
+- **Enterprise-Scale RAG**: When you need to scale retrieval to millions of documents with low latency.
+- **Agentic Workflows**: If your agents require complex, multi-step retrieval strategies that go beyond simple vector search.
+- **NVIDIA Ecosystem**: When you are already using NVIDIA GPUs and NIM for model serving.
+- **High Accuracy Requirements**: When you need advanced reranking and hybrid search to improve "needle in a haystack" performance.
+
+## When not to use it
+- **Small-Scale Projects**: For simple RAG with a few documents, a basic ChromaDB or Pinecone setup is easier and cheaper.
+- **Non-NVIDIA Environments**: It is heavily optimized for NVIDIA hardware; running it on CPU-only or other GPU vendors is not recommended.
+- **Budget Constrained**: The commercial licensing for NVIDIA AI Enterprise can be a barrier for individual developers or small startups.
+
 ## Getting started
 NeMo Retriever is part of the NVIDIA NeMo platform. It can be deployed via NVIDIA NIM (NVIDIA Inference Microservices) or as standalone containers.
 
@@ -22,6 +33,42 @@ NeMo Retriever is part of the NVIDIA NeMo platform. It can be deployed via NVIDI
 2. **Reranking**: Advanced models to refine retrieval results for better relevance.
 - **Nemotron-3 Super Integration**: Optimized to provide high-fidelity retrieval for the Nemotron-3 Super 1M context window, ensuring "needle in a haystack" accuracy.
 3. **Agentic Pipeline**: Integration with orchestration frameworks like LangChain or LlamaIndex.
+
+## CLI examples
+```bash
+# Pull and run the NeMo Retriever Embedding NIM
+docker run --rm --runtime=nvidia -e NGC_API_KEY=$NGC_API_KEY \
+    -p 8000:8000 \
+    nvcr.io/nvidia/nim/nvidia-embed-qa-4:latest
+
+# Check the health of the retriever service
+curl -X 'GET' 'http://localhost:8000/v1/health' -H 'accept: application/json'
+
+# Generate embeddings for a text snippet using the CLI
+curl -X 'POST' 'http://localhost:8000/v1/embeddings' \
+    -H 'Content-Type: application/json' \
+    -d '{"input": ["Hello world"], "model": "nvidia/embed-qa-4"}'
+```
+
+## API examples
+```python
+import requests
+
+# Example of calling the NeMo Retriever Embedding API
+def get_embeddings(text_list, model="nvidia/embed-qa-4"):
+    url = "http://localhost:8000/v1/embeddings"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "input": text_list,
+        "model": model
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+# Example usage within a RAG pipeline
+embeddings = get_embeddings(["NVIDIA NeMo Retriever provides agentic RAG capabilities."])
+print(f"Embedding dimensions: {len(embeddings['data'][0]['embedding'])}")
+```
 
 ## Strengths
 - **Agentic Retrieval**: Specifically designed for agent-based workflows with complex retrieval needs.
@@ -47,5 +94,5 @@ NeMo Retriever is part of the NVIDIA NeMo platform. It can be deployed via NVIDI
 - [NVIDIA NeMo Retriever Product Page](https://www.nvidia.com/en-us/ai-data-science/generative-ai/nemo-framework/retriever/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-29
 - Confidence: high

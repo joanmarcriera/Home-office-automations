@@ -32,6 +32,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | Batch 18 | Weekly deepening: Process | **Resolved** | AgentOps, Langfuse, Helicone, Parea, and PostHog deepened. |
 | **Batch 19** | Weekly deepening: Process | **Resolved** | Arize AI, Braintrust, Comet Opik, Fiddler, and LastMile AI deepened. |
 | **Batch 20** | Weekly deepening: Process | **Resolved** | Ragas, W&B Weave, Webhook, Tesseract, and OCRmyPDF deepened. |
+| **Batch 22** | Weekly deepening: Agents | **Resolved** | AutoReason, Bee Agent Framework, GPT Researcher, Letta, and NeMo Retriever deepened. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

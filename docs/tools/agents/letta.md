@@ -14,6 +14,16 @@ Standard LLMs suffer from "forgetfulness" once their context window is exceeded.
 - **Multi-session Coding Projects**: Agents that maintain state across different days of development.
 - **Durable Workflows**: Agents that can be paused and resumed without losing task context.
 
+## When to use it
+- **Long-Lived Agents**: When you need an agent to maintain personality, memory, and state over weeks or months of interaction.
+- **Context-Exceeding Tasks**: When the information needed for a task (e.g., a large codebase or complex user history) exceeds the LLM's raw context window.
+- **Stateful Multi-Session Work**: For engineering or research tasks that span multiple sessions and require the agent to remember where it left off.
+
+## When not to use it
+- **Stateless Transactions**: For simple, one-off API calls or basic chatbots, the memory management overhead is unnecessary.
+- **Low-Latency Requirements**: Tiered memory access (searching vector DBs and updating core memory) increases inference time.
+- **Serverless Deployments**: Letta requires a persistent server and database, making it less suitable for purely serverless architectures.
+
 ## Virtual Context Management
 Letta implements a "Virtual Context" architecture inspired by operating systems:
 - **Core Memory**: Fixed-size, high-priority context (e.g., current task, user bio).
@@ -88,5 +98,5 @@ print(f"Agent: {response[0].text}")
 - [Official Documentation](https://docs.letta.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-05-29
 - Confidence: high

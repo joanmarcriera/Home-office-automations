@@ -22,6 +22,16 @@ AutoReason uses a "Loop-and-Verify" logic:
 - **Code Debugging**: Identifying root causes by iteratively testing assumptions against the codebase.
 - **Deep Research**: Multi-hop reasoning tasks where information from step A determines the search for step B.
 
+## When to use it
+- **High-Stakes Logic**: When the cost of an incorrect logical step is high and multi-step verification is required.
+- **Open-Weight Model Optimization**: When trying to achieve "reasoning" performance on par with proprietary models using open-weights like Llama-3.1 or Nous Hermes.
+- **Iterative Debugging**: For complex code issues where the agent must "test" a hypothesis and receive feedback.
+
+## When not to use it
+- **Low-Latency Chat**: Because of the iterative "verify and correct" loops, it is too slow for real-time human interaction.
+- **Simple Extraction**: For basic data extraction or summarization, the overhead and token cost are unjustifiable.
+- **Strict Budget Constraints**: The 5-10x token consumption makes it expensive for high-volume, low-value tasks.
+
 ## Getting started
 
 ### Installation
@@ -84,5 +94,5 @@ print(f"Steps taken: {len(result.reasoning_trace)}")
 - [Nous Research Reasoning Patterns](https://nousresearch.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-05-29
 - Confidence: high
