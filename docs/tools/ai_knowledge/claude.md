@@ -45,6 +45,8 @@ AI Model and Conversational Assistant. It can be accessed via the Claude.ai web 
 - [Gemini](gemini.md)
 - [Anthropic](../providers/anthropic.md)
 - [Claude Code](../development_ops/claude-code.md)
+- [Everything Claude Code](everything-claude-code.md)
+- [Claude How-To](claude-howto.md)
 
 ## Sources / References
 - [Official Website](https://claude.ai/)
@@ -53,4 +55,4 @@ AI Model and Conversational Assistant. It can be accessed via the Claude.ai web 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-04-06
+- Last reviewed: 2026-05-28

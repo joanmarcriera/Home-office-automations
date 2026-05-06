@@ -34,10 +34,14 @@ It addresses the limitations of standard chatbots in education by providing a st
 ## Related tools / concepts
 - [AutoReason](../agents/autoreason.md)
 - [NotebookLM](notebooklm.md)
+- [DeepSeek R1](deepseek-r1.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+- [Gemini](gemini.md)
 
 ## Sources / References
 - [DeepTutor GitHub](https://github.com/HKUDS/DeepTutor)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-28
 - Confidence: high

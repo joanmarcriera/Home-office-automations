@@ -32,14 +32,16 @@ Traditional machine learning requires data scientists to "flatten" multi-table r
 - For very small or single-table datasets where traditional ML is sufficient.
 
 ## Related tools / concepts
-- [Data Stack Consolidation](../../knowledge_base/landscape-overview.md)
-- Relational Pretrained Transformer (SAP-RPT-1)
-- PyTorch Geometric
+- [Landscape Overview](../../knowledge_base/landscape-overview.md)
+- [Snowflake](../infrastructure/snowflake.md)
+- [ClickHouse](../process_understanding/clickhouse.md)
+- [Sentry](../process_understanding/sentry.md)
+- [Datadog](../process_understanding/datadog.md)
 
 ## Sources / references
 - [Kumo's new foundation model replaces months of data science engineering](https://thenewstack.io/kumo-ai-foundation-models/)
 - [RelBench Benchmark](https://relbench.stanford.edu/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-28
 - Confidence: high

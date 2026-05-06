@@ -31,26 +31,96 @@ It gives teams an "all-in-one" application surface for internal knowledge work w
 - When you need a fully custom application architecture
 - When a simple RAG API service is enough and a full workspace UI is unnecessary
 
-## Example company use cases
-- **Internal handbook assistant**: chat over SOPs, policies, project docs, and delivery playbooks.
-- **Client knowledge rooms**: isolate documents per account and give teams a fast way to query them.
-- **Founder workspace**: centralize strategy docs, sales notes, and operating knowledge in one assistant surface.
+## Getting started
 
-## Selection comments
-- Use **AnythingLLM** when you need an internal AI workspace quickly.
-- Use **Flowise** when you want a visual builder for custom flows rather than a finished workspace app.
-- Use **AnythingLLM + LocalAI/Ollama** when privacy and self-hosting matter.
+### Installation
+AnythingLLM can be installed as a Desktop application or run via Docker.
+
+**Desktop**: Download the installer from the [official website](https://anythingllm.com/download).
+
+**Docker (Linux/macOS/Windows)**:
+```bash
+docker pull mintplexlabs/anythingllm
+export STORAGE_LOCATION=$HOME/anythingllm && mkdir -p $STORAGE_LOCATION && touch "$STORAGE_LOCATION/.env"
+docker run -d -p 3001:3001 --cap-add SYS_ADMIN -v "$STORAGE_LOCATION:/app/storage" -v "$STORAGE_LOCATION/.env:/app/server/.env" --name anythingllm mintplexlabs/anythingllm
+```
+
+## CLI examples
+
+### 1. Run via Docker Compose
+Create a `docker-compose.yml`:
+```yaml
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm
+    container_name: anythingllm
+    ports:
+      - "3001:3001"
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - ./storage:/app/storage
+      - .env:/app/server/.env
+    restart: always
+```
+Then run: `docker compose up -d`
+
+### 2. View Container Logs
+```bash
+docker logs -f anythingllm
+```
+
+### 3. Access Container Shell
+```bash
+docker exec -it anythingllm /bin/bash
+```
+
+## API examples
+
+### REST API (Python/curl)
+AnythingLLM provides a Developer API (enabled in Settings -> Developer API).
+
+```bash
+# Get all workspaces
+curl -X GET 'http://localhost:3001/api/v1/workspaces' \
+  -H "Authorization: Bearer $ANYTHINGLLM_API_KEY"
+```
+
+```python
+import requests
+
+API_KEY = "YOUR_API_KEY"
+BASE_URL = "http://localhost:3001/api/v1"
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+# Chat with a specific workspace
+workspace_slug = "my-internal-kb"
+data = {
+    "message": "What is our policy on remote work?",
+    "mode": "query" # 'query' for RAG, 'chat' for conversation
+}
+
+response = requests.post(f"{BASE_URL}/workspace/{workspace_slug}/chat", json=data, headers=headers)
+print(response.json()['textResponse'])
+```
 
 ## Related tools / concepts
-
 - [Flowise](flowise.md)
 - [Ollama](../../services/ollama.md)
 - [LocalAI](../infrastructure/localai.md)
+- [Open WebUI](../../services/open-webui.md)
+- [LibreChat](librechat.md)
+- [Dify](dify.md)
 
 ## Sources / References
 - [Official Website](https://anythingllm.com)
 - [GitHub Repository](https://github.com/Mintplex-Labs/anything-llm)
+- [AnythingLLM Documentation](https://docs.anythingllm.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-28
+- Confidence: high

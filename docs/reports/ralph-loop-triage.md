@@ -36,8 +36,8 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
-- **Weekly Deepening (Batch 21)**: Triage next set of shallow docs from `docs/tools/ai_knowledge/` (e.g., DeepSeek R1, Perplexity, AnythingLLM, LobeHub, Dify).
-- **Link Audit**: Verify all canonical tool pages have 5+ relative links (continuing the audit from index files).
+- **Weekly Deepening (Batch 21)**: **Resolved** (DeepSeek R1, Perplexity, AnythingLLM, LobeHub, Dify deepened).
+- **Link Audit**: **In Progress** (Completed for major AI knowledge assistants and several shallow pages).
 - **Access Matrix Freshness**: Check for any new Google Workspace or MCP-native features for tools marked 🔴 in Gmail/Calendar columns.
 
 ---
