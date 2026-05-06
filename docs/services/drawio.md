@@ -27,6 +27,9 @@ Draw.io sits in the **Documentation and Design** layer of the home-office stack.
 - **Collaboration**: Real-time collaboration in the self-hosted version is more complex to set up than the SaaS version.
 - **UI Density**: The interface can be intimidating for users who only need simple sketching tools (consider [Excalidraw](excalidraw.md) for those cases).
 
+## When not to use it
+Draw.io is not the best fit for text-native diagrams that must be reviewed primarily in pull requests, generated from code, or diffed line-by-line; use Mermaid or PlantUML for those cases. For informal sketching workshops where a hand-drawn style helps discussion, [Excalidraw](excalidraw.md) may be faster.
+
 ## Getting started
 
 ### Docker (Self-Hosted)
@@ -46,14 +49,18 @@ For offline use, the desktop app is recommended:
 The Draw.io Desktop app includes a CLI for batch processing and conversion:
 
 ```bash
+cat > sample.drawio <<'XML'
+<mxfile><diagram name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel></diagram></mxfile>
+XML
+
 # Export a diagram to PDF via CLI (Desktop app required)
-drawio -x -f pdf -o output.pdf input.drawio
+drawio -x -f pdf -o sample.pdf sample.drawio
 
 # Export to PNG with a specific width
-drawio -x -f png --width 1200 -o diagram.png architecture.drawio
+drawio -x -f png --width 1200 -o sample.png sample.drawio
 
-# Check Docker container health
-docker inspect --format='{{.State.Health.Status}}' drawio
+# Check that the self-hosted container exists and inspect its state
+docker inspect --format='{{.State.Status}}' drawio
 ```
 
 ## API examples
@@ -64,7 +71,8 @@ You can pass parameters to the Draw.io URL to configure its behavior:
 
 ```html
 <!-- Embed Draw.io with specific UI configuration -->
-<iframe frameborder="0"
+<iframe id="drawio-iframe"
+        frameborder="0"
         width="100%"
         height="600px"
         src="https://embed.diagrams.net/?embed=1&ui=atlas&spin=1&proto=json">
@@ -79,7 +87,7 @@ When embedding, you can send actions via `postMessage`:
 const iframe = document.getElementById('drawio-iframe');
 iframe.contentWindow.postMessage(JSON.stringify({
   action: 'load',
-  xml: '<mxfile>...</mxfile>'
+  xml: '<mxfile><diagram name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel></diagram></mxfile>'
 }), '*');
 ```
 
@@ -100,7 +108,7 @@ iframe.contentWindow.postMessage(JSON.stringify({
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-05-06
 
 ## Sources / References
 - https://www.draw.io/
