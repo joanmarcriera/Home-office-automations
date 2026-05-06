@@ -15,7 +15,7 @@ This is the canonical tracker for API pricing links and free-tier availability a
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-## Canonical pricing matrix (last verified: 2026-05-02)
+## Canonical pricing matrix (last verified: 2026-05-14)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
@@ -141,6 +141,7 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
+| Qwen3.6-35B-A3B | `262K / plan / plan / plan / plan` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-open">OPEN</span><br>Account: DashScope. Latest frontier variant with 3B active parameters. |
 | Qwen3.5-35B-A3B | `128K / plan / plan / plan / plan` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-open">OPEN</span><br>Account: DashScope. SOTA agentic coding (37.8% SWE-bench Verified Hard). |
 
 ### Google Gemini
@@ -338,5 +339,6 @@ When updating this page:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-14
 - Confidence: high
+- Related Issues: #203

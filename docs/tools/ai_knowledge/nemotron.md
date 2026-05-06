@@ -47,6 +47,7 @@ NVIDIA provides reference implementations for major inference engines:
 - **Model Size**: At 120B total parameters, it requires significant VRAM even with its 12B active parameter efficiency.
 
 ## Related tools / concepts
+- [NVIDIA](../providers/nvidia.md)
 - [NVIDIA NeMo Retriever](../agents/nemo-retriever.md)
 - [OpenCode](../development_ops/opencode.md)
 - [Mamba Architecture](../../knowledge_base/model_classes.md)
