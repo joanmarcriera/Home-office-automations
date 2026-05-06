@@ -28,28 +28,46 @@ It provides virtually unlimited, durable, and highly available storage for unstr
 
 ## Getting started
 
+### OpenRouter Broadcast Configuration
+OpenRouter can stream each AI interaction as a separate JSON file to an S3 bucket.
+
+- **Path Template**: `openrouter-traces/{year}/{month}/{day}/{traceId}.json`
+- **File Format**: Each file contains the full trace including prompt, response, model, and cost.
+
 ### CLI example (AWS CLI)
 ```bash
-# Upload a file
+# Upload a file to your AI data lake
 aws s3 cp my-logs.json s3://my-ai-bucket/logs/
 
-# List objects
-aws s3 ls s3://my-ai-bucket/
+# List daily traces
+aws s3 ls s3://my-ai-bucket/openrouter-traces/2026/05/18/
 
-# Download a file
-aws s3 cp s3://my-ai-bucket/logs/my-logs.json .
+# Download a specific trace
+aws s3 cp s3://my-ai-bucket/openrouter-traces/2026/05/18/abc123.json .
 ```
 
 ### Python example (Boto3)
 ```python
 import boto3
+import json
 
-s3 = boto3.client('s3')
-s3.upload_file('local_file.txt', 'my-bucket', 'remote_file.txt')
+# Initialize S3 client for an S3-compatible service (e.g., Cloudflare R2)
+s3 = boto3.client(
+    's3',
+    endpoint_url='https://<account_id>.r2.cloudflarestorage.com',
+    aws_access_key_id='<access_key>',
+    aws_secret_access_key='<secret_key>'
+)
 
-response = s3.list_objects_v2(Bucket='my-bucket')
-for obj in response.get('Contents', []):
-    print(obj['Key'])
+# Fetch and parse an AI trace
+bucket = 'my-ai-traces'
+key = 'openrouter-traces/2026/05/18/example-trace.json'
+
+response = s3.get_object(Bucket=bucket, Key=key)
+trace_data = json.loads(response['Body'].read().decode('utf-8'))
+
+print(f"Model used: {trace_data['model']}")
+print(f"Total tokens: {trace_data['total_tokens']}")
 ```
 
 ## Related tools / concepts
@@ -64,5 +82,5 @@ for obj in response.get('Contents', []):
 - [OpenRouter S3 Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/s3)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-18
 - Confidence: high

@@ -33,33 +33,62 @@ It addresses the performance limitations of traditional row-oriented databases w
 docker run -d --name clickhouse-server -p 8123:8123 -p 9000:9000 clickhouse/clickhouse-server
 ```
 
-### Basic SQL Example
+### OpenRouter Log Ingestion Schema
+Before enabling OpenRouter broadcast, create the following table to receive traces:
+
 ```sql
-CREATE TABLE traces (
-    event_time DateTime,
-    model String,
-    prompt_tokens UInt32,
-    completion_tokens UInt32,
-    latency Float32
+CREATE TABLE OPENROUTER_TRACES (
+    TIMESTAMP DateTime64(3, 'UTC'),
+    ID String,
+    MODEL String,
+    APP_ID Nullable(String),
+    USER_ID Nullable(String),
+    PROMPT_TOKENS UInt32,
+    COMPLETION_TOKENS UInt32,
+    TOTAL_TOKENS UInt32,
+    TOTAL_COST Float64,
+    LATENCY Float64,
+    STATUS String,
+    REQUEST String,
+    RESPONSE String
 ) ENGINE = MergeTree()
-ORDER BY event_time;
+ORDER BY TIMESTAMP;
+```
 
-INSERT INTO traces VALUES ('2026-05-08 10:00:00', 'claude-3-5-sonnet', 500, 200, 1.5);
+### Python Query Example
+You can query your AI traces using the `clickhouse-connect` library.
 
-SELECT model, AVG(latency) FROM traces GROUP BY model;
+```python
+import clickhouse_connect
+
+# Initialize client
+client = clickhouse_connect.get_client(host='localhost', username='default', password='')
+
+# Query top models by usage
+query = """
+    SELECT MODEL, count() as usage_count, sum(TOTAL_COST) as total_cost
+    FROM OPENROUTER_TRACES
+    GROUP BY MODEL
+    ORDER BY usage_count DESC
+"""
+result = client.query(query)
+
+for row in result.result_rows:
+    print(f"Model: {row[0]}, Count: {row[1]}, Cost: ${row[2]:.4f}")
 ```
 
 ## Related tools / concepts
-- [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming destination)
+- [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming source)
 - [Snowflake](snowflake.md)
 - [Datadog](datadog.md)
 - [S3 / S3-Compatible Storage](../intake_storage/s3-storage.md)
+- [Langfuse](langfuse.md)
 
 ## Sources / references
 - [Official Website](https://clickhouse.com/)
 - [ClickHouse Documentation](https://clickhouse.com/docs/en/intro)
-- [OpenRouter Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/clickhouse)
+- [OpenRouter Broadcast to ClickHouse](https://openrouter.ai/docs/guides/features/broadcast/clickhouse)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-18
 - Confidence: high
