@@ -24,12 +24,18 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 21** | Weekly deepening: AI Knowledge | **Resolved** | DeepSeek R1, Perplexity, AnythingLLM, LobeHub, and Dify deepened. |
 | **Batch 23** | Weekly deepening: Infrastructure | **Resolved** | LM Studio, Jan.ai, Msty, Google Gemini, and LibreChat deepened. |
 | **Batch 24** | Weekly deepening: Services | **Resolved** | Paperless-ngx, SearXNG, Plex, qBittorrent, and Radicale deepened. |
+| **Batch 27** | Weekly deepening: Services | **Resolved** | Actual Budget, Audiobookshelf, Authentik, Changedetection.io, and Diskover deepened. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Weekly Deepening (Batch 25)**: **Resolved** (Deepened Tailscale, Syncthing, Storj; created radicale-automation).
 - **Weekly Deepening (Batch 26)**: **Resolved** (Created qBittorrent-automation, SearXNG-automation, Plex-automation).
+- **Weekly Deepening (Batch 28)**: Deepen `drawio.md`, `element.md`, `excalidraw.md`, `focalboard.md`, `gitea.md`.
+- **Weekly Deepening (Batch 29)**: Deepen `grocy.md`, `habitica.md`, `home-assistant.md`, `homebox.md`, `it-tools.md`.
+- **Weekly Deepening (Batch 30)**: Deepen `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`.
+- **Weekly Deepening (Batch 31)**: Deepen `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`.
+- **Weekly Deepening (Batch 32)**: Deepen `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`.
 - **Link Audit (Infrastructure)**: **Resolved** (Completed for all files in `docs/tools/infrastructure/`).
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 
