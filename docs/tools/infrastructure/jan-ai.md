@@ -33,6 +33,41 @@ Infrastructure and Local Inference Engine. It focuses on the "Local-First" deskt
 - If you only need a raw API endpoint for other applications.
 - If you prefer a more "it just works" experience with automatic hardware tuning (LM Studio might be faster for some).
 
+## Getting started
+1. Download Jan from [jan.ai](https://jan.ai/) for your OS.
+2. Open the application and use the "Hub" to download a model (e.g., Llama 3).
+3. Start a new thread and select the downloaded model to begin chatting.
+4. (Optional) Enable the "API Server" in settings to use Jan as a local backend.
+
+## CLI examples
+Jan includes a CLI tool (often called `jan` or `janctl` depending on version) for headless operation and integration.
+
+```bash
+# Start a local model server
+jan serve meta-llama-3-8b
+
+# List available models
+jan models list
+
+# Launch an agent (like Claude Code) pre-wired to your local model
+jan launch claude --model llama-3-8b
+```
+
+## API examples
+Jan provides an OpenAI-compatible API on `localhost:1337` by default.
+
+```python
+import openai
+
+client = openai.OpenAI(base_url="http://localhost:1337/v1", api_key="jan")
+
+completion = client.chat.completions.create(
+  model="meta-llama-3-8b",
+  messages=[{"role": "user", "content": "How do I secure a home server?"}]
+)
+print(completion.choices[0].message.content)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (AGPL-3.0).
 - **Cost**: Free.
@@ -41,12 +76,16 @@ Infrastructure and Local Inference Engine. It focuses on the "Local-First" deskt
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
 - [LM Studio](lm-studio.md)
+- [Msty](msty.md)
+- [LibreChat](../ai_knowledge/librechat.md)
+- [Open WebUI](../../services/open-webui.md)
 - [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Official Website](https://jan.ai/)
 - [Jan GitHub Repository](https://github.com/janhq/jan)
+- [Jan CLI Documentation](https://jan.ai/docs/desktop/cli)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-01
 - Confidence: high
-- Last reviewed: 2026-04-06

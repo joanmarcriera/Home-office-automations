@@ -35,17 +35,56 @@ It eliminates the need to switch between multiple chat interfaces for different 
 - If you prefer a turnkey, zero-configuration SaaS experience.
 - If you only use a single AI provider and don't mind their native interface.
 
+## Getting started
+1. Clone the repository: `git clone https://github.com/danny-avila/LibreChat.git`.
+2. Create a `.env` file from the provided `example.env` and add your API keys.
+3. (Optional) Customize `librechat.yaml` to configure specific endpoints, models, and MCP servers.
+4. Run the stack: `docker compose up -d`.
+5. Access the UI at `http://localhost:3080`.
+
+## CLI examples
+LibreChat is primarily managed via Docker Compose and environment variables, but it includes utility commands for maintenance.
+
+```bash
+# Update the LibreChat stack to the latest version
+docker compose pull && docker compose up -d
+
+# Check logs for the server container
+docker compose logs -f api
+
+# Execute a command inside the running API container to clear cache
+docker compose exec api npm run clear-cache
+```
+
+## API examples
+LibreChat provides a REST API for management and can also act as a proxy. Configuration is handled via `librechat.yaml`.
+
+```yaml
+# Example configuration for a custom OpenAI-compatible endpoint in librechat.yaml
+endpoints:
+  custom:
+    - name: "Local Inference"
+      apiKey: "${LOCAL_API_KEY}"
+      baseURL: "http://host.docker.internal:11434/v1"
+      models:
+        default: ["llama3", "mistral"]
+        fetch: true
+```
+
 ## Related tools / concepts
 - [Open WebUI](../../services/open-webui.md)
 - [AnythingLLM](../ai_knowledge/anythingllm.md)
 - [Ollama](../../services/ollama.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [TypingMind](typingmind.md)
+- [LobeHub](lobehub.md)
+- [Jan.ai](../infrastructure/jan-ai.md)
 
 ## Sources / references
 - [Official Website](https://www.librechat.ai/)
 - [GitHub Repository](https://github.com/danny-avila/LibreChat)
+- [LibreChat Configuration Guide](https://www.librechat.ai/docs/configuration/librechat_yaml)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-01
 - Confidence: high
