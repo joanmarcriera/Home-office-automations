@@ -1,9 +1,29 @@
 # qBittorrent
 
-qBittorrent is an open-source BitTorrent client.
+## What it is
+qBittorrent is a cross-platform, open-source BitTorrent client written in C++. It provides a familiar user interface similar to µTorrent but is entirely free of advertisements and bloatware.
 
-## Description
-It aims to be an open-source alternative to µTorrent. It is fast, stable, and provides a feature-rich web interface.
+## What problem it solves
+It provides a reliable and efficient way to download and share files via the BitTorrent protocol. It centralizes torrent management through a powerful web interface, allowing for headless operation on servers or NAS devices.
+
+## Where it fits in the stack
+**Category**: Services / Content Acquisition. It is typically part of the "Automation" and "Data Intake" layer of a homelab media stack.
+
+## Typical use cases
+- Downloading Linux ISOs and other large open-source datasets.
+- Managing torrents remotely via a web browser.
+- Automating downloads using tools like [n8n](n8n.md) or the "Arr" suite.
+- Hosting a private seeding box for community-shared content.
+
+## Strengths
+- **No Ads**: Completely free and open-source with no bundled software.
+- **Web UI**: Excellent, feature-rich web interface that mirrors the desktop application.
+- **Search Engine**: Integrated search engine for finding torrents across multiple sites.
+- **Resource Efficient**: Low CPU and memory footprint compared to many other clients.
+
+## Limitations
+- **Security**: Requires careful configuration (VPN/Proxy) for private operation.
+- **UI Design**: The interface is functional but may feel dated to some users.
 
 ## When to use it
 - When you need a reliable, lightweight BitTorrent client with a web interface.
@@ -88,22 +108,26 @@ curl "http://localhost:8080/api/v2/torrents/info" \
      --cookie "SID=<your_session_id>"
 ```
 
-## Links
-- [Official Website](https://www.qbittorrent.org/)
+## Related tools / concepts
+- [n8n](n8n.md) (For automation)
+- [Docker](../tools/infrastructure/docker.md)
+- [SearXNG](searXNG.md) (For finding content)
+- [Plex](plex.md) (For media consumption)
+- [TrueNAS](../../architecture/infrastructure.md) (Storage backend)
 
-## Alternatives
+## Licensing and cost
+- **Open Source**: Yes (GPL-2.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Sources / References
+- [Official Website](https://www.qbittorrent.org/)
 - [Transmission](https://transmissionbt.com/)
 - [Deluge](https://deluge-torrent.org/)
 
 ## Backlog
 - Setup WireGuard VPN killswitch for the qBittorrent container.
 
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://www.qbittorrent.org/
-- https://transmissionbt.com/
-- https://deluge-torrent.org/
+- Last reviewed: 2026-06-05
