@@ -1843,6 +1843,12 @@
       "doc_path": "docs/services/plex.md"
     },
     {
+      "id": "plex-automation",
+      "name": "Plex Automation",
+      "category": "Services",
+      "doc_path": "docs/services/plex-automation.md"
+    },
+    {
       "id": "portkey",
       "name": "Portkey AI Gateway",
       "category": "Providers",
@@ -1897,6 +1903,12 @@
       "doc_path": "docs/services/qbittorrent.md"
     },
     {
+      "id": "qbittorrent-automation",
+      "name": "qBittorrent Automation",
+      "category": "Services",
+      "doc_path": "docs/services/qbittorrent-automation.md"
+    },
+    {
       "id": "qwen",
       "name": "Qwen3-Coder-Next",
       "category": "AI Assistants & Knowledge",
@@ -1907,6 +1919,12 @@
       "name": "Radicale",
       "category": "Intake & Storage",
       "doc_path": "docs/services/radicale.md"
+    },
+    {
+      "id": "radicale-automation",
+      "name": "Radicale Automation",
+      "category": "Services",
+      "doc_path": "docs/services/radicale-automation.md"
     },
     {
       "id": "rag-pattern",
@@ -2008,6 +2026,12 @@
       "name": "SearXNG",
       "category": "Process & Understanding",
       "doc_path": "docs/services/searXNG.md"
+    },
+    {
+      "id": "searXNG-automation",
+      "name": "SearXNG Automation",
+      "category": "Services",
+      "doc_path": "docs/services/searXNG-automation.md"
     },
     {
       "id": "self-healing-agent",

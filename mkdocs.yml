@@ -143,11 +143,15 @@ nav:
           - Paperless AI: services/paperless-ai.md
           - Paperless Ngx: services/paperless-ngx.md
           - Plex: services/plex.md
+          - Plex Automation: services/plex-automation.md
           - Portracker: services/portracker.md
           - Qbittorrent: services/qbittorrent.md
+          - Qbittorrent Automation: services/qbittorrent-automation.md
           - Radicale: services/radicale.md
+          - Radicale Automation: services/radicale-automation.md
           - Rclone Automation: services/rclone-automation.md
           - Searxng: services/searXNG.md
+          - Searxng Automation: services/searXNG-automation.md
           - Speedtest: services/speedtest.md
           - Storj: services/storj.md
           - Syncthing: services/syncthing.md
