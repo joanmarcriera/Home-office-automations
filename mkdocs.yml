@@ -574,6 +574,8 @@ nav:
   - Knowledge Base:
       - Overview: knowledge_base/README.md
       - Agent Protocols: knowledge_base/agent_protocols.md
+      - Agent Framework Learning Map:
+          knowledge_base/agent_framework_learning_map.md
       - AI Economic Impact: knowledge_base/ai_economic_impact.md
       - API Pricing & Free Tiers: knowledge_base/api_pricing_free_tiers.md
       - Family Values: knowledge_base/family-values.md
