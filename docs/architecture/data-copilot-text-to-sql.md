@@ -110,15 +110,24 @@ To ensure interoperability between layers, we use standardized Pydantic models (
 
 ## Cost & Model Routing
 
-To maintain a "free/cheap-first" stack, we recommend the following model routing:
+To maintain a "free/cheap-first" stack, route each layer to the cheapest model class that can pass that layer's tests, then escalate only the failed layer with the same pruned context. Treat model IDs as configuration, not hard-coded business logic, because hosted catalogs and local model availability change over time.
 
-| Layer | Recommended Model | Rationale |
-| :--- | :--- | :--- |
-| Router | Qwen 2.5 0.8B (Local) | Low latency, simple classification. |
-| Intent | Qwen 2.5 7B or Llama 3.1 8B | Needs better reasoning for metric extraction. |
-| Table Selection | Groq (Llama 3.1 70B) | High accuracy for selection; remains free under Groq limits. |
-| Column Pruning | Qwen 2.5 7B (Local) | Structured output is critical here. |
-| SQL Generation | GPT-4o-mini or Claude 3.5 Haiku | High reliability for syntax at low cost. |
+| Layer | Free / cheap primary route | Escalation route | Token budget control | Rationale |
+| :--- | :--- | :--- | :--- | :--- |
+| Router | Local Ollama small classifier such as `qwen3:1.7b` or another compact open model | Local `qwen3:8b` | Workspace names + 1-line descriptions only | Simple domain classification should not require paid tokens. |
+| Intent | Local `qwen3:8b`, `llama3.1:8b`, or equivalent small instruct model | Low-cost hosted model such as OpenAI GPT-5.4 mini-class or Claude Haiku-class | User question + workspace policy + metric glossary | Metric/date extraction needs stronger reasoning than routing but remains compact. |
+| Table Selection | Hosted free/developer-plan open model on Groq or local 8B model over table summaries | Low-cost hosted mini/Haiku-class model | Top 10 table cards, each with owner, grains, joins, and metric tags | Wrong-table errors are expensive, so this layer gets stronger reasoning and HITL review. |
+| Column Pruning | Local `qwen3:8b` with JSON/schema output validation | Claude Haiku-class or OpenAI mini-class model | Selected table DDL plus PK/FK/metric comments only | Structured pruning is cheap to verify and keeps SQL prompts small. |
+| SQL Generation | Low-cost hosted mini/Haiku-class model | Larger hosted SQL-capable model only after validation failure | Pruned schema + intent JSON + dialect rules; no full database dump | SQL syntax and dialect reliability are worth a small paid call after pruning. |
+
+### Human correction points
+
+Human correction is intentionally placed before the pipeline pays for larger-context SQL generation:
+
+1. **Table review**: The Table Agent returns selected tables, confidence, and a rationale. If confidence is low, too many tables are selected, or a domain expert spots a missing fact table, the reviewer can replace the table list and continue without rerunning routing or intent extraction.
+2. **Column / metric review**: The Column Prune Agent returns per-table column lists and the metric assumptions it inferred. A reviewer can correct ambiguous fields such as `gross_price` versus `net_price`, add required join keys, or send the question back for clarification.
+3. **Post-validation review**: If SQL validation or sample-result checks fail, show the user the intent, table list, pruned schema, generated SQL, and validator error together so the correction targets the smallest broken layer.
+
 
 ## Token Control & Schema Pruning Strategy
 
@@ -128,19 +137,23 @@ To minimize costs and stay within the context limits of smaller models, the foll
 2.  **Column-Level Pruning**: Once tables are selected, only the primary keys, foreign keys, and columns identified by the **Column Prune Agent** are included in the final SQL generation prompt.
     - *Example*: For a table `orders` with 50 columns, if the intent is "Total sales by month", the pruned schema sent to the SQL Generator only contains `[id, total_amount, created_at]`.
 3.  **Schema metadata**: We include short comments in the schema (e.g., `-- type: categorical`) rather than raw data samples to keep token counts low.
-4.  **Fallback Routing**: If a query fails on a local model (e.g. Qwen 2.5 7B), it is automatically routed to a more capable but expensive model (e.g. Claude 3.5 Sonnet) with the same pruned schema.
+4.  **Fallback Routing**: If a query fails on a local model, route only that layer to a more capable hosted model with the same pruned schema. Avoid rerunning the whole pipeline unless the validator proves the earlier interface is wrong.
+5.  **Token ceilings per layer**: Enforce hard maximum prompt sizes for router, intent, table, prune, and SQL layers. If a layer exceeds its budget, summarize or retrieve fewer schema cards before escalating to a bigger model.
 
 ## Failure Modes & Mitigation
 
 1. **Wrong Domain (Router Failure)**:
    - *Symptom*: Question about "eggs" routed to "Home Office" instead of "Grocy".
    - *Mitigation*: Provide a "Unsure" fallback that triggers a human clarification.
-2. **Table Explosion (Table Agent Failure)**:
-   - *Symptom*: Selecting 10+ tables for a simple query.
-   - *Mitigation*: Hard limit on table count (e.g., max 4) and HITL verification.
-3. **Metric Ambiguity**:
-   - *Symptom*: User asks for "Total Sales" but schema has `subtotal`, `tax`, and `total`.
-   - *Mitigation*: Intent agent must request clarification if multiple column matches are found in the metadata.
+2. **Wrong Table / Table Explosion (Table Agent Failure)**:
+   - *Symptom*: Selecting an event-log table instead of the canonical fact table, or selecting 10+ tables for a simple query.
+   - *Mitigation*: Hard limit on table count (e.g., max 4), table-grain metadata, and HITL verification before column pruning.
+3. **Wrong Metric Definition**:
+   - *Symptom*: User asks for "spend" or "total sales" but the schema has `subtotal`, `tax`, `discount`, `gross_price`, and `net_price`.
+   - *Mitigation*: Maintain a metric glossary, require the Intent Agent to emit metric assumptions, and ask for clarification when multiple metric definitions match.
+4. **Unsafe or Overbroad SQL**:
+   - *Symptom*: Generated SQL uses `SELECT *`, unbounded date ranges, write statements, or cross-workspace joins.
+   - *Mitigation*: Run a SQL policy validator before execution, reject write statements, require date limits for large fact tables, and execute only against read-only credentials.
 
 ## When NOT to use Text-to-SQL
 
@@ -158,8 +171,12 @@ To minimize costs and stay within the context limits of smaller models, the foll
 ## Sources / References
 - [Uber Engineering: Text-to-SQL at Scale](https://www.uber.com/en-GB/blog/text-to-sql-at-scale/)
 - [SQL-Coder (Defog.ai)](https://github.com/defog-ai/sqlcoder)
+- [Ollama documentation](https://docs.ollama.com/)
+- [Groq supported models](https://console.groq.com/docs/models)
+- [OpenAI API pricing](https://openai.com/api/pricing)
+- [Claude pricing documentation](https://docs.claude.com/en/docs/about-claude/pricing)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-06
 - Confidence: high
 - Related Issues: #186
