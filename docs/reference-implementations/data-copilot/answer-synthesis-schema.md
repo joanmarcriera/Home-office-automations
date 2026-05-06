@@ -1,9 +1,16 @@
 # Reference Implementation: Data Copilot Answer Synthesis
 
-This document defines the standardized output schema for the final step of the Data Copilot pipeline. By enforcing a machine-parseable yet human-readable structure, we ensure that the Copilot provides more than just raw numbers—it provides reasoning, context, and actionable next steps.
+## What it is
+The Data Copilot Answer Synthesis schema is a standardized JSON structure used to format the final output of an AI data analyst. It ensures that every response includes not just the raw data, but also the underlying reasoning, specific source citations, a confidence score, and recommended next steps.
+
+## What problem it solves
+Raw SQL results are often difficult for non-technical users to interpret. Furthermore, LLM-generated answers can lack transparency, making it hard to know where a number came from or how much to trust it. This schema solves the "black box" problem by forcing the model to explicitly state its sources, assumptions, and level of certainty.
 
 ## Goal
 Standardize Data Copilot responses to include key metrics, explanations, sources, confidence scores, and recommended actions.
+
+## Where it fits in the stack
+This schema is a core component of the **Reference Implementations** layer. It defines the output contract for the **Orchestration** layer (Data Copilot pipeline) and is designed to be consumed by the **Services** layer (e.g., a Chat UI or Telegram bot). It leverages the **Frameworks** layer (Pydantic) for validation.
 
 ## Answer Synthesis Schema (Pydantic)
 
@@ -45,6 +52,12 @@ You are a Data Analyst Agent. Your task is to synthesize raw data results into a
 4.  **Confidence**: Assign a score (0.0 to 1.0). Deduct points for missing sources or ambiguous joins.
 5.  **Actions**: Suggest what the user should do next based on the data (e.g., "Review your electricity usage during peak hours").
 ```
+
+## Typical use cases
+- **Executive Summaries**: Providing a high-level briefing of weekly financial performance with direct links to the relevant transaction logs.
+- **Root-Cause Reports**: Explaining *why* a specific metric changed, citing both SQL data points and recent project log entries.
+- **Automated Alerts**: Sending a Telegram notification about a power spike that includes the appliance manual's troubleshooting section as a recommended action.
+- **Audit Trails**: Maintaining a permanent, structured record of what information the AI provided to the user and which specific database queries were used to generate it.
 
 ## Example Outputs
 
@@ -94,10 +107,31 @@ You are a Data Analyst Agent. Your task is to synthesize raw data results into a
 }
 ```
 
+## Strengths
+- **Transparency**: Every claim is linked to a specific source (SQL row or document snippet).
+- **Actionability**: Encourages the model to provide useful next steps rather than just passive information.
+- **Machine-Parseable**: The JSON structure allows for easy integration into dashboards or automated downstream workflows.
+- **Consistency**: Ensures that all Data Copilot instances across different domains return information in the same predictable format.
+
+## Limitations
+- **Token Usage**: Structured JSON outputs require more tokens than plain text responses.
+- **Model Intelligence**: Requires a model with strong instruction-following capabilities to ensure the JSON matches the schema perfectly.
+- **Schema Rigidity**: May need periodic updates as new types of data sources (e.g., video or audio) are added to the retrieval pipeline.
+
 ## Cheap/Free Model Fallback Strategy
 Synthesis requires high instruction-following but lower reasoning than SQL generation.
 - **Primary**: Claude 3.5 Haiku or GPT-4o-mini (Reliable structured output).
 - **Fallback**: Qwen 2.5 7B (Local) with a strict JSON-mode system prompt and Pydantic validation on the output. If the JSON is invalid, the system should retry once with the error message.
+
+## When to use it
+- In any user-facing AI application where data integrity and auditability are critical.
+- When you need to display AI results in a structured UI component (like a card or a table).
+- When you want to programmatically monitor the "confidence" of AI answers over time.
+
+## When not to use it
+- **Internal Debugging**: Where raw text logs are sufficient for the developer.
+- **Low-Stakes Chat**: For general conversational queries that don't involve data retrieval.
+- **Highly Fluid Contexts**: Where the response structure needs to change drastically based on the user's personality or mood.
 
 ## Sources / References
 - [OpenAI: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
