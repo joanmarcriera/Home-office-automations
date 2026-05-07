@@ -1,9 +1,32 @@
 # Portracker
 
-Portracker is a self-hosted, real-time port monitoring and discovery tool.
+## What it is
 
-## Description
-It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
+Portracker is a self-hosted, real-time network port monitoring and service discovery tool. It scans your network to identify active ports and maps them to the services they represent, providing a centralized dashboard for network visibility.
+
+## What problem it solves
+
+In complex homelab or home-office environments, keeping track of which service is using which port can be difficult, often leading to port conflicts or forgotten "ghost" services. Portracker provides a real-time, visual map of your network's port usage, integrating directly with Docker and TrueNAS to provide context for each open port.
+
+## Where it fits in the stack
+
+**Category**: Service / Infrastructure Monitoring. It sits in the **network observability** layer, providing a higher-level view than raw packet sniffers but more focus on port mapping than general-purpose metrics dashboards.
+
+## Typical use cases
+- Monitoring active ports on a local network or server.
+- Discovering "shadow IT" or unexpected services running in containers.
+- Planning port assignments for new services to avoid conflicts.
+- Auditing network exposure for security purposes.
+
+## Strengths
+- **Real-time Discovery**: Automatically detects new services as they come online.
+- **Docker Integration**: Maps ports directly to container names and status.
+- **Lightweight**: Low resource consumption, making it suitable for always-on monitoring.
+- **Clean Dashboard**: Easy-to-read interface for quick network audits.
+
+## Limitations
+- **Not a Firewall**: It monitors ports but does not provide active blocking or security enforcement.
+- **Local Scope**: Primarily designed for local network segments; large-scale enterprise scanning is better handled by tools like Nmap.
 
 ## When to use it
 - When you want to monitor open ports on your network in real-time.
@@ -78,12 +101,12 @@ curl -X GET "http://localhost:4999/api/v1/status" \
      -H "x-api-key: YOUR_PEER_API_KEY"
 ```
 
-## Links
-- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
-
-## Alternatives
-- [Nmap](https://nmap.org/)
-- [Netdata](https://www.netdata.cloud/)
+## Related tools / concepts
+- [Home Assistant](home-assistant.md) — for monitoring smart device availability
+- [Netdata](https://www.netdata.cloud/) — for deep real-time system and network metrics
+- [Uptime Kuma](https://github.com/louislam/uptime-kuma) — for service availability monitoring
+- [SearXNG](searXNG.md) — for privacy-respecting network-wide search
+- [Nmap](https://nmap.org/) — for one-time, deep security port scans
 
 ## Backlog
 - Set up alerts for unexpected port changes.
@@ -92,6 +115,9 @@ curl -X GET "http://localhost:4999/api/v1/status" \
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-05-04
+
+## External links
+- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker
