@@ -58,6 +58,31 @@ Use role-specific behavior to reduce overlap and improve predictability.
 - Flags stale pages for refresh
 - Fixes low-risk quality issues in small PRs
 
+## Parallel Lane Rules
+
+When multiple agents are active at the same time, each agent must work inside a lane with an explicit file boundary.
+
+| Lane | Primary scope | Merge risk |
+| :--- | :--- | :--- |
+| Intake | `docs/new-sources*`, `data/all_tools.json`, `mkdocs.yml` | High if several agents edit the same daily log or navigation block |
+| Tool curation | One canonical page under `docs/tools/` or `docs/services/` | Medium if pages share related-tool links or catalog entries |
+| Playbooks | One page under `docs/playbooks/` or `docs/reference-implementations/` | Low when the PR avoids shared index churn |
+| Architecture / KB | One concept page under `docs/architecture/` or `docs/knowledge_base/` | Medium because cross-links can touch multiple overview pages |
+
+Prefer one changed canonical page plus required metadata/source updates. If a task needs catalog or navigation edits, treat those files as part of the same lane and avoid opening a second PR that touches them until the first one merges.
+
+## PR Sequencing for Automation
+
+For autonomous sprint work:
+
+1. Open one PR per issue or worker lane.
+2. Enable automerge only after local validation has passed.
+3. Wait for the merge queue or automerge workflow before opening another PR that touches overlapping files.
+4. If a PR becomes conflict-dirty, do not keep piling new changes onto the branch. Rebase or replace it with a fresh branch from `main`.
+5. Close or supersede duplicate branches once a newer PR has already landed the same issue scope.
+
+This keeps the repository moving without turning `main`, `mkdocs.yml`, or `data/all_tools.json` into shared conflict points.
+
 ## CI Quality Gates
 
 To make the contract enforceable, PR automation should check:
@@ -97,6 +122,7 @@ A PR is complete only when:
 2. Metadata and sources are present and valid.
 3. Canonical duplication checks were performed.
 4. Navigation/data indexes were updated when required.
+5. The PR body lists the checks run and names any unavailable local tools.
 
 ## Sources / References
 
@@ -104,6 +130,7 @@ A PR is complete only when:
 - [Contributing Guide](../CONTRIBUTING.md)
 - [Automated Contributions](./automated_contributions.md)
 - [GitHub Actions: Events that trigger workflows](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)
+- [Repository standards](../standards.md)
 
 ## Related
 
@@ -113,5 +140,5 @@ A PR is complete only when:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-05-07
 - Confidence: high
