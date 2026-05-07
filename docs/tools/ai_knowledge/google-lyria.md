@@ -28,16 +28,27 @@ It gives creators and product teams a model-native way to generate or assist wit
 ## When not to use it
 - When your use case needs a fully open or self-hosted audio stack
 
-## Related tools / concepts
+## Getting started
 
+### Accessing Lyria
+1.  **Google Labs**: Many Lyria-powered experiments (like Dream Track for YouTube Shorts) are rolled out via [Google Labs](https://labs.google/).
+2.  **YouTube Creator Tools**: If you are a recognized creator, check your YouTube Studio "Create" options for AI-assisted music generation features.
+3.  **Google AI Studio**: Monitor the "Audio" or "Multimodal" model selections in [Google AI Studio](https://aistudio.google.com/) for experimental music generation endpoints as they become available.
+
+## Related tools / concepts
 - [ElevenLabs](elevenlabs.md)
 - [Replicate](../providers/replicate.md)
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
+- [Sora](sora.md)
+- [Project Genie](project-genie.md)
+- [Luma Dream Machine](luma-dream-machine.md)
+- [Synthesia](synthesia.md)
+
 ## Sources / References
 - [Official Website](https://deepmind.google/models/lyria/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-06-27
+- Confidence: high
