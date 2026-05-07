@@ -1,10 +1,7 @@
 # Playbook: Data Copilot SQL Validation & Repair
 
 ## What it is
-The Data Copilot SQL Validation & Repair playbook is a standardized operational framework for ensuring the safety, performance, and correctness of AI-generated SQL queries. It establishes a "guardrail" system that sits between the LLM generator and the live production database, automatically catching and fixing errors before they cause impact.
-
-## What it is
-A technical blueprint for validating AI-generated SQL queries before they reach the database. It combines static analysis, dynamic dry-runs, and LLM-based semantic checks.
+A technical blueprint and operational framework for validating AI-generated SQL queries before they reach the database. It establishes a "guardrail" system that combines static analysis, dynamic dry-runs, and LLM-based semantic checks to ensure safety, performance, and correctness.
 
 ## What problem it solves
 Prevents "hallucinated" SQL from causing data breaches (SQL injection), performance degradation (cross-joins on large tables), or business errors (incorrect metric calculations).
@@ -128,6 +125,6 @@ Stop the automated flow and notify a human if:
 - [Guardrails AI](https://www.guardrailsai.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-06-28
 - Confidence: high
 - Related Issues: #189
