@@ -34,12 +34,32 @@ It enables the rapid creation of interactive environments and simulations withou
 - **Duration**: Current interactive sessions are often limited in duration (e.g., 60-second clips) or spatial complexity.
 - **Premium Cost**: High computational requirements result in significant subscription pricing.
 
+## When to use it
+- To quickly prototype interactive environments and simulations without traditional game development.
+- For research into "world models" and how AI learns physics from video.
+- To generate diverse, physics-aware synthetic data for training other AI agents.
+
+## When not to use it
+- When you need permanent, highly complex game worlds with complex logic beyond physical interaction.
+- If you require a fully open-source or local deployment (Genie is a managed Google research prototype).
+
+## Getting started
+
+### Exploring your first World
+1.  Access [Project Genie](https://labs.google/projectgenie) via Google Labs (U.S. Only).
+2.  **Upload an image**: Provide a starting frame for your world (e.g., a 2D platformer level design).
+3.  **Prompt**: Describe the physics and character movement (e.g., "A low-gravity moon base where the character leaps between craters").
+4.  **Interact**: Use the keyboard or controller icons to move your character through the generated sequence.
+5.  **Refine**: Edit your prompt to change the "vibe" or physics of the world in real-time.
+
 ## Related tools / concepts
 - [Google Gemini](google-gemini.md)
 - [Runway ML](runwayml.md)
 - [Sora](sora.md)
 - [Luma Dream Machine](luma-dream-machine.md)
 - [AG2](../frameworks/ag2.md)
+- [NotebookLM](notebooklm.md)
+- [ElevenLabs](elevenlabs.md)
 
 ## Sources / References
 - [Genie 3 — Google DeepMind](https://deepmind.google/models/genie/)
