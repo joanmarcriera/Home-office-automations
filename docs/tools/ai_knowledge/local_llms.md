@@ -21,6 +21,7 @@ The model weights are downloaded and stored locally. Inference is performed usin
 - **Sensitive Data Processing**: Summarizing private documents or logs.
 - **Always-on Low-latency Tasks**: Simple classification or formatting that needs to happen fast and often.
 - **GUI-based Interaction**: Using [LM Studio](https://lmstudio.ai/) to quickly download and chat with models from Hugging Face without using the CLI.
+- **Provider Pre-filtering**: Compressing, classifying, or redacting content locally before forwarding only the necessary context to a paid cloud model.
 
 ## Strengths
 - **Privacy**: No data leaves your machine.
@@ -53,6 +54,7 @@ The local model landscape is dominated by highly capable open-weight families th
 - For any task involving sensitive or personal data.
 - When you want to avoid recurring costs for high-volume, simpler tasks.
 - For local coding assistants (e.g., using `Qwen3-Coder-Next` locally).
+- When the workflow can be split into cheap local preparation plus a smaller, higher-value cloud model call.
 
 ## When not to use it
 - When you need the absolute highest reasoning performance available today.
@@ -61,6 +63,19 @@ The local model landscape is dominated by highly capable open-weight families th
 ## Security considerations
 - **Local API Access**: By default, Ollama and others might listen on `localhost`. Be careful when exposing these to your local network.
 - **Model Integrity**: Download models from trusted sources (like the official Ollama library or reputable HuggingFace users).
+- **Prompt and Log Hygiene**: Treat local prompts, transcripts, and vector indexes as sensitive data. Local execution prevents provider upload, but it does not remove the need for filesystem permissions, backup rules, and retention limits.
+- **Network Boundary**: If a local server is exposed beyond `127.0.0.1`, put it behind the same authentication, firewall, and reverse-proxy controls used for other self-hosted services.
+
+## Token-efficiency pattern
+
+Use local models as the first pass when the task is repetitive or privacy-sensitive:
+
+1. **Classify locally**: decide whether a document is relevant, private, duplicate, or safe to forward.
+2. **Compress locally**: extract only the facts, citations, and unresolved questions needed by the next step.
+3. **Escalate selectively**: send the compressed context to a hosted model only when higher reasoning quality, multimodal capability, or stronger tool support is required.
+4. **Keep artifacts local**: store intermediate summaries and embeddings in local services where possible, then send short derived prompts to providers.
+
+This keeps the paid provider call focused on the part of the workflow where it adds real value, while local inference handles the high-volume and low-risk preparation work.
 
 ## Getting started
 
@@ -108,9 +123,13 @@ print(response.json()['message']['content'])
 
 ## Sources / References
 
-- [Reference](https://github.com/joanmarcriera/Home-office-automations)
+- [Ollama documentation](https://github.com/ollama/ollama/tree/main/docs)
+- [Ollama API reference](https://github.com/ollama/ollama/blob/main/docs/api.md)
+- [llama.cpp project](https://github.com/ggml-org/llama.cpp)
+- [Hugging Face Transformers documentation](https://huggingface.co/docs/transformers)
+- [MLX documentation](https://ml-explore.github.io/mlx/build/html/index.html)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-07
 - Confidence: high

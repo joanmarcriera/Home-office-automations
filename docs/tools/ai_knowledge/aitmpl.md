@@ -28,16 +28,27 @@ It gives users a faster way to discover proven prompt structures and packaged AI
 ## When not to use it
 - When you need repo-specific or domain-specific operating logic
 
-## Related tools / concepts
+## Getting started
 
+### Discovering Templates
+1.  **Browse the Gallery**: Navigate to the [official gallery](https://www.aitmpl.com/) to explore categories like Coding, Marketing, or General Productivity.
+2.  **Filter by Tool**: Use the built-in filters to find templates specifically designed for tools like Claude, ChatGPT, or Midjourney.
+3.  **Remix and Adapt**: Once you find a template, copy the structure and adjust the variables to fit your specific data or desired output format.
+
+## Related tools / concepts
 - [Claude Plugins](../development_ops/claude-plugins.md)
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
 - [OpenRouter](openrouter.md)
+- [Jasper](jasper.md)
+- [Copy.ai](copy-ai.md)
+- [Flowise](flowise.md)
+- [Dify](dify.md)
+
 ## Sources / References
 - [Official Website](https://www.aitmpl.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-06-27
+- Confidence: high
