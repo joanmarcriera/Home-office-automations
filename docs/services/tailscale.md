@@ -9,6 +9,7 @@ It builds a secure WireGuard-based mesh network between your devices, even behin
 - When you need a secure, zero-config VPN to connect devices across different networks and firewalls.
 - For accessing home lab services or remote servers without exposing them to the public internet.
 - To establish a secure mesh network for team collaboration or CI/CD pipelines.
+- For giving automation agents private access to internal services without publishing those services on the open internet.
 
 ## When not to use it
 - If your environment requires a strictly hardware-based VPN solution with no third-party coordination server (though you can use [Headscale](https://github.com/juanfont/headscale) as an open-source alternative).
@@ -50,6 +51,26 @@ tailscale ip -4
 tailscale netcheck
 ```
 
+## Home-office access patterns
+
+Use Tailscale as a private access layer, then keep each service's own authentication enabled:
+
+| Pattern | Use when | Notes |
+| :--- | :--- | :--- |
+| Device mesh | Laptops, phones, and servers need direct private access | Best default for personal devices and admin endpoints |
+| Subnet router | A whole LAN segment needs to be reachable through one node | Limit advertised routes to the smallest required subnet |
+| Exit node | A device needs trusted egress through home or office | Treat exit nodes as privileged network infrastructure |
+| MagicDNS | Humans need stable names for private services | Pair with clear service names and avoid embedding raw IPs in docs |
+
+For automation, prefer service-specific tokens plus Tailscale network reachability. Tailscale proves the caller is on the private network; the application still decides what that caller can do.
+
+## Operational guardrails
+
+- Keep admin services off public DNS unless there is a separate reason to expose them.
+- Use ACLs or groups to separate family devices, lab servers, and automation runners.
+- Review `tailscale status` and the admin console before assuming an old device is still trusted.
+- Document which nodes advertise routes or run as exit nodes, because those nodes have higher blast radius.
+
 ## API examples
 
 Tailscale provides a REST API (v2) for tailnet administration. You can use OAuth clients to generate access tokens.
@@ -77,11 +98,12 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 ## Backlog
 - Setup Tailscale Exit Node on TrueNAS SCALE.
 - Configure MagicDNS for easy service access.
+- Add an ACL example for separating family devices from automation runners.
 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-05-07
 
 ## Sources / References
 - https://tailscale.com/
