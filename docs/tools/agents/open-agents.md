@@ -29,6 +29,12 @@ As a Vercel Labs project, Open Agents is optimized for:
 - **Security Overhead**: Requires careful management of session cookies and credentials.
 - **Dynamic Web Failures**: Like all browser agents, it can break if the target website's UI changes significantly.
 
+## When to use it
+Use Open Agents when building a deployable web or computer-use agent around Vercel-style application patterns. <!-- needs-content -->
+
+## When not to use it
+Do not use Open Agents when a stable API integration or smaller browser automation tool is sufficient. <!-- needs-content -->
+
 ## CLI examples
 ```bash
 # Clone the open agents repository

@@ -2,17 +2,30 @@
 
 Excalidraw is a virtual whiteboard for sketching hand-drawn like diagrams.
 
-## Description
-It is a simple and intuitive tool for creating sketches and diagrams that look like they were drawn by hand. It supports real-time collaboration and is highly accessible via the browser.
+## What it is
+Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration.
 
-## When to use it
-- When you need a quick, hand-drawn style diagram for documentation or brainstorming.
-- For real-time collaborative sketching with team members.
-- When you want a tool that works offline and supports end-to-end encryption.
+## What problem it solves
+It lowers the barrier to creating visual documentation and brainstorming. Unlike complex CAD or formal diagramming tools, Excalidraw encourages "lo-fi" sketching which is often better for early-stage ideas and quick explanations where formal notation would be a distraction.
 
-## When not to use it
-- For highly technical architectural diagrams that require strict adherence to UML or other formal notations.
-- When you need a tool with advanced layout engines (consider [Draw.io](drawio.md) instead).
+## Where it fits in the stack
+Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is often used for documentation in READMEs, blog posts, and internal wikis where a "human" feel is preferred over rigid technical diagrams.
+
+## Typical use cases
+- **UI/UX Wireframing**: Quickly sketching interface ideas.
+- **Process Brainstorming**: Mapping out high-level logic or workflows during meetings.
+- **Documentation**: Creating explanatory diagrams for software architecture in a "whiteboard" style.
+- **Remote Collaboration**: Using the live collaboration feature to brainstorm with others in real-time.
+
+## Strengths
+- **Simplicity**: Extremely intuitive interface with no learning curve.
+- **Aesthetic**: Hand-drawn look makes diagrams feel approachable and "work-in-progress".
+- **Portable**: Diagrams are stored as JSON and can be easily embedded or shared.
+- **E2EE Collaboration**: Live sessions are end-to-end encrypted.
+
+## Limitations
+- **No Formal Notation**: Not suitable for strict UML, ERD, or complex technical specifications requiring precise alignment and standard icons.
+- **Manual Layout**: Lacks the auto-layout capabilities found in tools like [Draw.io](drawio.md) or [Mermaid](../knowledge_base/patterns/diagramming.md).
 
 ## Getting started
 
@@ -40,35 +53,61 @@ docker run -d --name excalidraw -p 3000:80 excalidraw/excalidraw:latest
 3. To share your drawing, use the "Live collaboration" feature or export your work via the "Export" button.
 
 ## CLI examples
-Management of the Excalidraw service is typically done via Docker:
+While Excalidraw is primarily a browser-based tool, you can use the `@excalidraw/utils` package if you need to manipulate Excalidraw data via Node.js:
 
 ```bash
-# View service logs
+# Example: Using a custom script to convert Excalidraw JSON to SVG
+node convert_to_svg.js my_diagram.excalidraw
+
+# Docker management
 docker logs excalidraw
-
-# Update the Excalidraw image
-docker pull excalidraw/excalidraw:latest
 docker restart excalidraw
-
-# Execute a shell within the container (for inspection)
-docker exec -it excalidraw /bin/sh
 ```
+
+## API examples
+Excalidraw can be embedded as a React component or controlled via its scene data.
+
+### React Integration
+```javascript
+import { Excalidraw } from "@excalidraw/excalidraw";
+
+function App() {
+  return (
+    <div style={{ height: "500px" }}>
+      <Excalidraw onChange={(elements, state) => console.log("Elements changed", elements)} />
+    </div>
+  );
+}
+```
+
+### Exporting via API (using `@excalidraw/utils`)
+```javascript
+import { exportToSvg } from "@excalidraw/utils";
+
+const svg = await exportToSvg({
+  elements: diagramElements,
+  appState: { exportWithBlur: false },
+  files: null,
+});
+```
+
+## Related tools / concepts
+- [Draw.io](drawio.md) — For professional-grade, formal technical diagrams.
+- [tldraw](https://www.tldraw.com/) — A similar lightweight sketching alternative.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent integration via the Excalidraw plugin.
+- [Mermaid](../knowledge_base/patterns/diagramming.md) — Text-to-diagram alternative.
+- [Nextcloud](nextcloud.md) — Can be used to store and sync `.excalidraw` files.
 
 ## Links
 - [Official Website](https://excalidraw.com/)
 - [GitHub Repository](https://github.com/excalidraw/excalidraw)
 
-## Alternatives
-- [Draw.io](drawio.md)
-- [tldraw](https://www.tldraw.com/)
-
 ## Backlog
 - Integrate with Obsidian via the Excalidraw plugin.
 
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-06-20
 
 ## Sources / References
 - https://excalidraw.com/

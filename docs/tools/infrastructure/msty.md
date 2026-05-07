@@ -31,6 +31,42 @@ It simplifies the process of running and managing local LLMs, providing tools li
 - If you strictly require open-source software.
 - If you are looking for a web-based, collaborative platform for a large team (see [LobeHub](lobehub.md)).
 
+## Getting started
+1. Download Msty from [msty.ai](https://msty.ai/).
+2. Launch the app and use the "Model Hub" to download a local model.
+3. Create a "Collection" to organize your chats and documents for RAG.
+4. Use the "Matchmaker" tool to find the best model for your specific hardware configuration.
+
+## CLI examples
+Msty is primarily GUI-driven, but it supports command-line arguments for quick launching and integration.
+
+```bash
+# Launch Msty directly into a specific persona chat
+msty --persona "Code Specialist"
+
+# Launch in "Headless" mode for API background serving
+msty --headless --port 8080
+
+# Check VRAM requirements for a specific model file
+msty calculate-vram ./models/llama-3-8b.gguf
+```
+
+## API examples
+Msty provides an OpenAI-compatible API that can be enabled in settings.
+
+```python
+import openai
+
+# Msty typically hosts its local server on port 5050 by default
+client = openai.OpenAI(base_url="http://localhost:5050/v1", api_key="msty")
+
+response = client.chat.completions.create(
+    model="local-model",
+    messages=[{"role": "user", "content": "Analyze this CSV for trends."}]
+)
+print(response.choices[0].message.content)
+```
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Free (Core features) / Paid (Aurum license for advanced features)
@@ -41,11 +77,13 @@ It simplifies the process of running and managing local LLMs, providing tools li
 - [LM Studio](../infrastructure/lm-studio.md)
 - [Ollama](../../services/ollama.md)
 - [GPT Researcher](../agents/gpt-researcher.md)
+- [AnythingLLM](../ai_knowledge/anythingllm.md)
+- [LobeHub](../ai_knowledge/lobehub.md)
 
 ## Sources / References
 - [Msty Official Site](https://msty.ai/)
 - [Msty Documentation](https://docs.msty.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-06-01
 - Confidence: high

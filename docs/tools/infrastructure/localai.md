@@ -94,6 +94,8 @@ print(response.choices[0].message.content)
 - [Ollama](../../services/ollama.md)
 - [LM Studio](../ai_knowledge/lm-studio.md)
 - [llmfit](../development_ops/llmfit.md)
+- [llama.cpp](llama-cpp.md)
+- [vLLM](vllm.md)
 
 ## Sources / References
 - [Official Website](https://localai.io/)

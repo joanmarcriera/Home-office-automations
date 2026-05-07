@@ -14,6 +14,16 @@ It focuses on agent reliability and observability. It provides "Requirement Agen
 - Multi-agent systems with complex planning and execution steps
 - Cross-language projects (TS/Python)
 
+## When to use it
+- **Enterprise-Grade Agents**: When you need a framework designed for scale, security, and production-readiness.
+- **Observability Requirements**: If you need detailed execution traces and logs to debug complex agent behaviors.
+- **Policy Enforcement**: When you need to use "Requirement Agents" to enforce rules during execution.
+- **Hybrid Teams**: When working in environments that use both TypeScript and Python.
+
+## When not to use it
+- **Simple Prototyping**: For quick, one-off scripts, simpler frameworks like raw OpenAI SDK or LiteLLM might be faster.
+- **Minimal Resource Environments**: The framework's comprehensive features may introduce more overhead than needed for simple tasks.
+
 ## Getting started
 
 ### Installation
@@ -100,5 +110,5 @@ npx beeai-framework tools list
 - [IBM Research Blog](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-05-29
 - Confidence: high

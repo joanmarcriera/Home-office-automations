@@ -1,29 +1,48 @@
 # Kiwix
 
-Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection.
+## What it is
 
-## Description
-It uses the highly compressed ZIM format to store entire websites or databases in a single file. Kiwix is an essential tool for environments with limited or no internet access, such as schools in remote areas, prisons, or for personal archival.
+Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file.
+
+## What problem it solves
+
+Accessing reliable information usually requires an active internet connection. Kiwix solves this for environments with limited, censored, or no connectivity (e.g., remote schools, maritime vessels, disaster zones, or personal survival archives). It allows for high-speed, local searching of massive datasets without incurring data costs or relying on external infrastructure.
+
+## Where it fits in the stack
+
+**Category**: Service / Knowledge Management. It sits in the **offline knowledge and archival** layer, providing a fallback for critical information when the broader web is unavailable.
+
+## Typical use cases
+
+- **Remote Education**: Providing an entire encyclopedia to schools without internet.
+- **Personal Archival**: Keeping a local copy of critical documentation (e.g., medical, survival, technical) for emergencies.
+- **Privacy-First Research**: Browsing Wikipedia or Stack Overflow without being tracked by ISPs or site owners.
+- **Low-Bandwidth Environments**: Accessing content at LAN speeds instead of waiting for slow satellite or cellular links.
+
+## Strengths
+
+- **High Compression**: ZIM files can shrink a massive website into a relatively small, portable file.
+- **Powerful Search**: Includes a fast, built-in search engine that works entirely offline.
+- **Multi-Platform**: Available for Windows, macOS, Linux, Android, iOS, and as a server (kiwix-serve).
+- **Portability**: Content is stored in a single `.zim` file, making it easy to share via USB drives or SD cards.
+
+## Limitations
+
+- **Snapshot Nature**: Content is only as current as the ZIM file; it does not receive real-time updates.
+- **Read-Only**: You cannot edit the content within Kiwix; it is a reader, not a wiki engine.
+- **Large Initial Downloads**: While compressed, full datasets like "Wikipedia with Images" can still be over 100GB.
 
 ## When to use it
+
 - When you need to access large datasets (like Wikipedia) in offline, low-bandwidth, or censored environments.
 - For local archival and fast searching of educational, medical, or historical content.
 - When traveling or in locations where data costs are prohibitive.
 
 ## When not to use it
+
 - When you need real-time updates and the latest content (ZIM files are snapshots).
 - When you require editing capabilities for the content (it is a reader, not an editor).
 - If you have very limited disk space, as full Wikipedia ZIM files can be very large (tens of GB).
-
-## Links
-- [Official Website](https://www.kiwix.org/)
-- [Kiwix Get (Downloads)](https://get.kiwix.org/)
-- [GitHub Repository (Kiwix Tools)](https://github.com/kiwix/kiwix-tools)
-
-## Alternatives
-- [Internet-in-a-Box](https://internet-in-a-box.org/)
-- [Xowa](http://xowa.org/)
-- [Aard 2](https://github.com/itkach/aard2-android)
 
 ## Getting started
 
@@ -96,16 +115,28 @@ if response.status_code == 200:
     print(response.text[:500] + "...")
 ```
 
+## Related tools / concepts
+
+- [Trilium Notes](trilium.md) — for building your own personal knowledge base to complement Kiwix
+- [Audiobookshelf](audiobookshelf.md) — for a similar offline-first experience with audiobooks and podcasts
+- [Paperless-ngx](paperless-ngx.md) — for an offline-first archive of personal documents and receipts
+- [Home Assistant](home-assistant.md) — for integrating Kiwix status or content into a local dashboard
+- [Nextcloud](nextcloud.md) — for syncing ZIM files across devices for offline use
+- [Internet-in-a-Box](https://internet-in-a-box.org/) — a full hardware/software stack for offline knowledge
+
 ## Backlog
 - Set up automated downloads for new ZIM files.
 
+## Sources / References
+
+- [Official Website](https://www.kiwix.org/)
+- [Kiwix Get (Downloads)](https://get.kiwix.org/)
+- [GitHub Repository (Kiwix Tools)](https://github.com/kiwix/kiwix-tools)
+- [Internet-in-a-Box](https://internet-in-a-box.org/)
+- [Xowa](http://xowa.org/)
+- [Aard 2](https://github.com/itkach/aard2-android)
 
 ## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-02
 
-## Sources / References
-- https://www.kiwix.org/
-- https://github.com/kiwix/kiwix-tools
-- https://download.kiwix.org/zim/wikipedia/
-- https://internet-in-a-box.org/
+- Last reviewed: 2026-06-25
+- Confidence: high

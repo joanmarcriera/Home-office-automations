@@ -41,6 +41,8 @@ Infra
 - [vLLM](vllm.md)
 - [SGLang](sglang.md)
 - [Inference engines](index.md)
+- [llama.cpp](llama-cpp.md)
+- [Aphrodite Engine](aphrodite-engine.md)
 
 ## Sources / References
 - [Official Website](https://huggingface.co/docs/text-generation-inference)

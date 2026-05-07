@@ -6,8 +6,39 @@ The Data Copilot SQL Validation & Repair playbook is a standardized operational 
 ## What problem it solves
 Text-to-SQL systems are prone to three main risks: **security leaks** (accessing unauthorized data), **performance degradation** (running expensive cross-joins that crash the DB), and **semantic inaccuracy** (returning a result that runs but answers the wrong question). This playbook provides a structured way to mitigate these risks and includes a "self-healing" loop to reduce human intervention.
 
-## Goal
-Implement enterprise-safe validation for Text-to-SQL outputs, preventing data leaks, expensive queries, or incorrect metric definitions.
+## What it is
+A comprehensive framework of security, syntax, and semantic guardrails designed to wrap AI-generated SQL queries before they reach a production database.
+
+## What problem it solves
+AI-generated SQL (Text-to-SQL) can be dangerous. LLMs may hallucinate table names, generate expensive cross-joins that crash databases, or inadvertently leak PII. This playbook provides a standardized "Safe Execution" layer to mitigate these risks.
+
+## Where it fits in the stack
+**Category**: Knowledge Management / Playbooks. It resides in the **Governance & Safety layer** of the Data Copilot architecture, sitting between the SQL Generation Agent and the Database Connector (MCP).
+
+## Typical use cases
+- Preventing `DROP TABLE` or `UPDATE` commands from being executed by an AI agent.
+- Automatically injecting `LIMIT` clauses to prevent massive data egress.
+- Validating that the AI only queries tables it has been explicitly granted access to.
+- Catching join explosions (Cartesian products) before they consume database resources.
+
+## Strengths
+- **Multi-layered Defense**: Combines static analysis, dry-runs, and LLM-based semantic checks.
+- **Self-Healing**: Automatically feeds error messages back to the generator for repair.
+- **Dialect Agnostic**: Principles apply to SQLite, PostgreSQL, Snowflake, and BigQuery.
+
+## Limitations
+- **Complexity**: Implementing full semantic validation requires high-quality metadata.
+- **Latency**: Each validation step adds milliseconds to the total response time.
+- **False Positives**: Overly strict policy rules might block legitimate complex analytical queries.
+
+## When to use it
+- In any production-facing Data Copilot or Text-to-SQL application.
+- When granting AI agents access to sensitive or large-scale data warehouses.
+- To ensure compliance with data privacy regulations (GDPR, CCPA).
+
+## When not to use it
+- In a local, isolated development environment with dummy data where speed is prioritized over safety.
+- For extremely simple "single-table" query interfaces where the scope is inherently limited and fixed.
 
 ## Where it fits in the stack
 This playbook sits in the **Playbooks** section of the repository. It defines the runtime safety procedures for the **Orchestration** layer (Data Copilot architecture) and protects the **Intake & Storage** layer (the underlying databases). It uses tools from the **Development & Ops** layer (like SQLGlot) for implementation.
@@ -84,17 +115,19 @@ Stop the automated flow and notify a human if:
 - **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
 - **Small Model Judge**: Use a small local model (Qwen 2.5 7B) specifically to check the generated SQL against the policy checklist.
 
+## Related tools / concepts
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
+- [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [Tool Calling & Model Context Protocol (MCP)](../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [LiteLLM](../services/litellm.md) — for unified model access and guardrails
+
 ## Sources / References
 - [SQLGlot Documentation](https://github.com/tobymao/sqlglot)
 - [Guardrails AI](https://www.guardrailsai.com/)
 
-## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
-- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
-
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-04-30
 - Confidence: high
 - Related Issues: #189

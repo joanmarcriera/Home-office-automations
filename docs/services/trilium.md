@@ -2,11 +2,14 @@
 
 Trilium Notes is a hierarchical note taking application with focus on building large personal knowledge bases.
 
-## Description
-Trilium is a powerful open-source knowledge management tool that allows for deep nesting, scripting, and advanced visualization of relationships between notes.
+## What it is
+Trilium Notes is a hierarchical note-taking application focused on building large personal knowledge bases. It features deep nesting, powerful scripting (JavaScript), and advanced visualization of note relationships.
+
+## What problem it solves
+Managing thousands of notes with complex inter-relationships is difficult in standard "flat" or "shallow" note apps. Trilium solves this by treating notes as a forest of trees, allowing a single note to exist in multiple places, and providing an automation engine to manage metadata and note lifecycle.
 
 ## Where it fits in the stack
-**Category**: Service / Knowledge Management
+**Category**: Services / Knowledge Management. It serves as the **core intellectual repository** for structured long-term knowledge, research, and documentation.
 
 ## Typical use cases
 - Building a Personal Knowledge Base (PKB).
@@ -40,11 +43,21 @@ docker run -d -p 8080:8080 -v ~/trilium-data:/home/node/trilium-data zadam/trili
 ```
 
 ## CLI examples
-Trilium doesn't have an official first-party CLI, but you can interact with its API using `curl`.
+Trilium doesn't have an official first-party CLI, but you can interact with its API using `curl` or manage the service via Docker.
 
 ### Check health
 ```bash
 curl http://localhost:8080/api/health
+```
+
+### Search for notes via API (curl)
+```bash
+curl -H "Authorization: <your_token>" "http://localhost:8080/api/notes?search=markdown"
+```
+
+### Export a note as HTML
+```bash
+curl -H "Authorization: <your_token>" "http://localhost:8080/api/notes/<note_id>/export?format=html" -o note.html
 ```
 
 ## API examples
@@ -75,6 +88,9 @@ print(response.json())
 - [Obsidian](../tools/ai_knowledge/obsidian.md)
 - [Logseq](../tools/ai_knowledge/logseq.md)
 - [Joplin](../services/joplin.md)
+- [AnyType](../tools/ai_knowledge/anytype.md) — for a decentralized alternative
+- [SilverBullet](../tools/ai_knowledge/silverbullet.md) — for a hackable, markdown-based knowledge base
+- [n8n](n8n.md) — for automating note creation from external events
 
 ## Sources / References
 - [Official Website](https://github.com/zadam/trilium)

@@ -22,6 +22,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [MiniMax](minimax.md) | Coding-optimized models (M2.5) and managed AI services |
 | [Mistral AI](mistral.md) | European pioneer of high-efficiency open and commercial models |
 | [Moonshot AI](moonshot.md) | Kimi models with pioneering long-context (128k+) capabilities |
+| [NVIDIA](nvidia.md) | High-performance inference microservices (NIM) and API catalog |
 | [OpenAI](../ai_knowledge/openai.md) | Industry-leading GPT model family and developer ecosystem |
 | [OpenRouter](../ai_knowledge/openrouter.md) | Unified API gateway for access to 100+ open and proprietary models |
 | [Portkey AI Gateway](portkey.md) | Control plane for AI apps with routing, tracing, and caching |
