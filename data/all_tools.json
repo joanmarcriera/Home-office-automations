@@ -1675,6 +1675,12 @@
       "doc_path": "docs/tools/calendar_tasks/notion-calendar.md"
     },
     {
+      "id": "nvidia",
+      "name": "NVIDIA",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/nvidia.md"
+    },
+    {
       "id": "obsidian",
       "name": "Obsidian",
       "category": "AI Assistants & Knowledge",
