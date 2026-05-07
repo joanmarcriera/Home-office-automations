@@ -32,10 +32,40 @@ Use Dex if you are a "super-connector," freelancer, or professional whose succes
 ## When not to use it
 Avoid Dex if you prefer a fully self-hosted, offline-first approach to personal data, or if your networking needs are simple enough to be handled by a basic contact list or calendar.
 
+## Getting started
+
+### MCP Server Configuration
+To allow your AI agent (like Claude Desktop) to access Dex, add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mjs-servers": {
+    "dex": {
+      "command": "npx",
+      "args": ["-y", "@dex-crm/mcp-server"],
+      "env": {
+        "DEX_API_KEY": "YOUR_DEX_API_KEY"
+      }
+    }
+  }
+}
+```
+
+### Enabling AI Skills
+1. Log in to your Dex account.
+2. Navigate to **Settings > Integrations**.
+3. Enable the **AI Skills** toggle.
+4. Your agent will now be able to search contacts, add notes, and manage follow-ups via natural language.
+
 ## Related tools / concepts
-- **[Monica CRM](https://www.monicahq.com/):** A popular open-source, self-hosted personal CRM alternative.
-- **[MCP (Model Context Protocol)](../automation_orchestration/mcp-registry.md):** The protocol Dex uses to expose its tools to AI agents.
-- **[Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md):** The environment where Dex AI skills are deployed.
+- [Monica CRM](https://www.monicahq.com/)
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp-registry.md)
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
+- [Anthropic Agent Skills](../agents/anthropic-agent-skills.md)
+- [Jules](jules.md)
+- [Notion AI](notion-ai.md)
+- [Obsidian](obsidian.md)
+- [Logseq](logseq.md)
 
 ## Sources / references
 - [Official Website](https://getdex.com/)

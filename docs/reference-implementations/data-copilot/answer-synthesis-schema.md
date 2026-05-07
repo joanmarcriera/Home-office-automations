@@ -1,10 +1,7 @@
 # Reference Implementation: Data Copilot Answer Synthesis
 
 ## What it is
-The Data Copilot Answer Synthesis schema is a standardized JSON structure used to format the final output of an AI data analyst. It ensures that every response includes not just the raw data, but also the underlying reasoning, specific source citations, a confidence score, and recommended next steps.
-
-## What it is
-A Pydantic-based schema and prompt contract for the final stage of a Data Copilot, where raw data is transformed into a human-friendly response.
+A Pydantic-based schema and prompt contract for the final stage of a Data Copilot, ensuring that every response includes not just raw data, but also underlying reasoning, specific source citations, confidence scores, and recommended next steps.
 
 ## What problem it solves
 It prevents "lazy" agent responses (e.g., just returning a JSON array) by forcing the model to provide context, cite its sources, and suggest practical actions.
@@ -167,6 +164,6 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - [Pydantic Documentation](https://docs.pydantic.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-06-28
 - Confidence: high
 - Related Issues: #190

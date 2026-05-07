@@ -1,12 +1,12 @@
-# Ralph-loop Triage Report — 2026-06-25
+# Ralph-loop Triage Report — 2026-06-28
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of June 25, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of June 28, 2026.
 
 ## Issue Status Summary
 
 | Issue # | Title | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **#186-#190** | Data Copilot Series | **Verified & Closed** | Architecture, MCP, RAG, Validation, and Synthesis verified (May 6, 2026). |
+| **#186-#190** | Data Copilot Series | **Verified & Closed** | Architecture, MCP, RAG, Validation, and Synthesis verified (Final cleanup 2026-06-28). |
 | **#192** | Representation of all agents | **Verified** | 14 providers documented and indexed. |
 | **#201** | Enterprise productive suite | **Verified** | Section created in docs/tools/enterprise/. |
 | **#203** | Intelligence per value matrix | **Verified** | Integrated into api_pricing_free_tiers.md. |
@@ -30,7 +30,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 30** | Weekly deepening: Services | **Resolved** | Deepened `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`. |
 | **Batch 31** | Weekly deepening: Services | **Resolved** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. |
 | **Batch 32** | Weekly deepening: Services | **Resolved** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. |
-| **Batch 33** | Weekly deepening: AI Knowledge | **In Progress** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`. |
+| **Batch 33** | Weekly deepening: AI Knowledge | **Resolved** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`, `google-search.md`, `dex.md`. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
