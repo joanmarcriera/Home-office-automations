@@ -2,6 +2,38 @@
 
 This document outlines the standardization of tool and data access for the Data Copilot using the Model Context Protocol (MCP). By adopting MCP, we ensure that specialized agents in the Text-to-SQL pipeline can interact with diverse data sources (SQL, docs, APIs) through a unified, machine-parseable interface.
 
+## What it is
+The Model Context Protocol (MCP) serves as the universal interface for the Data Copilot, abstracting the complexities of direct database connections, document parsing, and API calls into a standardized set of resources and tools.
+
+## What problem it solves
+It eliminates the "N+1 connector problem" where every new data source requires a custom integration. It also decouples the reasoning engine (LLM) from the data implementation details, allowing for safer, audited, and cost-effective data access.
+
+## Where it fits in the stack
+It sits between the **Orchestration Layer** (n8n, LangGraph) and the **Data Layer** (PostgreSQL, SQLite, Markdown docs). It acts as a secure proxy that translates agentic intent into technical execution.
+
+## Typical use cases
+- Exposing a local SQLite database to a cloud-based LLM without exposing the full database.
+- Providing real-time documentation retrieval for agentic RAG workflows.
+- Standardizing metric definitions across different business units using a shared KPI glossary resource.
+
+## Strengths
+- **Decoupling**: Agents don't need to know if they are talking to SQL or a REST API.
+- **Security**: Granular control over what resources/tools are exposed.
+- **Portability**: MCP servers can be moved or swapped without changing the agent logic.
+
+## Limitations
+- **Overhead**: Adds a lightweight network layer between the agent and the data.
+- **Maturity**: Ecosystem is still evolving; some specialized databases may lack off-the-shelf MCP servers.
+
+## When to use it
+- When building a multi-agent system that needs to access diverse data types.
+- When security and auditing of data access are high priorities.
+- For "free/cheap-first" architectures where local data sources must be integrated with cloud LLMs.
+
+## When not to use it
+- For extremely simple, single-script automations where a direct DB connection is faster to implement.
+- When the data source already provides a native, highly optimized agentic interface that meets all security needs.
+
 ## Goal
 Design a "free/cheap-first" standardization layer that allows the Data Copilot to scale across new domains without hard-coding database connectors or API clients.
 
@@ -47,7 +79,7 @@ When designing MCP servers for Data Copilots, follow these patterns:
 - **Benefit**: Decouples the agent from the specific DB dialect (SQLite vs Postgres).
 
 ## Minimal MCP Server Set for Small Teams
-For a home-office or small team setup, start with these three:
+For a home-office or small team setup, start with these:
 1.  **Filesystem MCP**: Exposes Markdown docs and JSON configurations.
 2.  **SQL MCP**: Specific to your primary database (e.g., SQLite).
 3.  **Fetch MCP**: For lightweight web requests/API integrations.
@@ -68,18 +100,14 @@ For a home-office or small team setup, start with these three:
 - [Data Copilot Agentic RAG](data-copilot-agentic-rag.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [Tool Calling & Model Context Protocol (MCP)](tool-calling-and-mcp.md)
+- [Claude Tool Search](claude-tool-search.md)
 
 ## Sources / References
 - [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 - [Anthropic: Introducing MCP](https://www.anthropic.com/news/model-context-protocol)
 
-## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Data Copilot Agentic RAG](data-copilot-agentic-rag.md)
-- [Tool Calling & Model Context Protocol (MCP)](tool-calling-and-mcp.md)
-- [Claude Tool Search](claude-tool-search.md)
-
 ## Contribution Metadata
-- Last reviewed: 2026-04-30
+- Last reviewed: 2026-07-15
 - Confidence: high
 - Related Issues: #187

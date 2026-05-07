@@ -2,6 +2,37 @@
 
 This playbook defines the guardrails required to ensure that AI-generated SQL is safe, performant, and semantically correct before execution. It includes a multi-stage validation pipeline and a self-correction loop for common failures.
 
+## What it is
+A technical blueprint for validating AI-generated SQL queries before they reach the database. It combines static analysis, dynamic dry-runs, and LLM-based semantic checks.
+
+## What problem it solves
+Prevents "hallucinated" SQL from causing data breaches (SQL injection), performance degradation (cross-joins on large tables), or business errors (incorrect metric calculations).
+
+## Where it fits in the stack
+It operates within the **Inference Pipeline**, specifically between the **SQL Generation Agent** and the **Database Execution Engine**.
+
+## Typical use cases
+- Automated Text-to-SQL dashboards where users query sensitive financial data.
+- Home automation bots that trigger database-driven actions (e.g., "Show me my energy usage").
+- Self-service data exploration tools for non-technical staff.
+
+## Strengths
+- **Safety**: Multi-layered defense against malicious or accidental query errors.
+- **Reliability**: Self-correction loop reduces the need for human intervention.
+- **Performance**: Static checks catch "heavy" queries before they consume resources.
+
+## Limitations
+- **Latency**: Each validation step adds a small amount of time to the response loop.
+- **Complexity**: Requires maintaining an allowlist of tables and columns.
+
+## When to use it
+- In any production environment where LLMs generate SQL queries for live databases.
+- When working with high-volume or highly sensitive data.
+
+## When not to use it
+- During early-stage prototyping with dummy data.
+- For read-only queries on very small, non-sensitive local datasets where a failure has zero impact.
+
 ## Goal
 Implement enterprise-safe validation for Text-to-SQL outputs, preventing data leaks, expensive queries, or incorrect metric definitions.
 
@@ -56,18 +87,13 @@ Stop the automated flow and notify a human if:
 - [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [Tool Calling & Model Context Protocol (MCP)](../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [SQLGlot Documentation](https://github.com/tobymao/sqlglot)
 - [Guardrails AI](https://www.guardrailsai.com/)
 
-## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
-- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
-
 ## Contribution Metadata
-- Last reviewed: 2026-04-30
+- Last reviewed: 2026-07-15
 - Confidence: high
 - Related Issues: #189

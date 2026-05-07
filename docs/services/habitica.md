@@ -77,7 +77,11 @@ print(response.json())
 
 ## Related tools / concepts
 - [SuperBetter](https://www.superbetter.com/)
-- [Vikunja](vikunja.md) (for pure task management)
+- [Vikunja](vikunja.md)
+- [Mealie](mealie.md)
+- [Grocy](grocy.md)
+- [Home Assistant](home-assistant.md)
+- [Actual Budget](actual-budget.md)
 
 ## Backlog
 - API integration for automated habit scoring based on n8n workflows.
@@ -88,5 +92,5 @@ print(response.json())
 - [SuperBetter](https://www.superbetter.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-07-15
 - Confidence: high

@@ -2,6 +2,29 @@
 
 Homebox is an inventory and organization system built specifically for home users, focusing on simplicity, speed, and ease of use.
 
+## What it is
+A lightweight, self-hosted inventory management system written in Go. It uses a single SQLite database for all data, making it easy to host and backup.
+
+## What problem it solves
+It centralizes the tracking of household items, warranties, and insurance information, replacing disorganized spreadsheets or physical receipts with a searchable, location-aware digital catalog.
+
+## Where it fits in the stack
+It is a **Standalone Service** in the home automation stack, typically deployed via Docker and accessible via a web browser.
+
+## Typical use cases
+- Tracking high-value electronics for insurance purposes.
+- Organizing storage units, attics, and garages.
+- Managing specialized collections (e.g., tools, camping gear).
+
+## Strengths
+- **Lightweight**: Minimal CPU and RAM footprint.
+- **Fast**: Responsive web interface.
+- **Portable**: SQLite backend makes backups trivial.
+
+## Limitations
+- **Simplicity**: Lacks advanced supply chain or POS features found in enterprise ERPs.
+- **Permissions**: Limited multi-user role-based access control.
+
 ## Description
 It helps you keep track of your belongings, their locations, warranties, and purchase details. Written in Go, it is extremely lightweight (typically using less than 50MB of RAM) and uses SQLite for portable data management.
 
@@ -21,9 +44,12 @@ It helps you keep track of your belongings, their locations, warranties, and pur
 - [GitHub Repository](https://github.com/sysadminsmedia/homebox)
 - [Live Demo](https://demo.homebox.software/)
 
-## Alternatives
-- [Grocy](grocy.md) (more focused on groceries and meal planning)
-- [Snipe-IT](https://snipeitapp.com/) (Enterprise-grade IT asset management)
+## Related tools / concepts
+- [Grocy](grocy.md)
+- [Inventory](inventory.md)
+- [Paperless-ngx](paperless-ngx.md)
+- [Immich](immich.md)
+- [Nextcloud](nextcloud.md)
 
 ## Getting started
 
@@ -98,7 +124,7 @@ if response.status_code == 200:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://github.com/sysadminsmedia/homebox

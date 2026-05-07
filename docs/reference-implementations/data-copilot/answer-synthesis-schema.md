@@ -2,6 +2,37 @@
 
 This document defines the standardized output schema for the final step of the Data Copilot pipeline. By enforcing a machine-parseable yet human-readable structure, we ensure that the Copilot provides more than just raw numbers—it provides reasoning, context, and actionable next steps.
 
+## What it is
+A Pydantic-based schema and prompt contract for the final stage of a Data Copilot, where raw data is transformed into a human-friendly response.
+
+## What problem it solves
+It prevents "lazy" agent responses (e.g., just returning a JSON array) by forcing the model to provide context, cite its sources, and suggest practical actions.
+
+## Where it fits in the stack
+It is the final **Inference Stage** of the pipeline, occurring after data retrieval and before the response is delivered to the user interface.
+
+## Typical use cases
+- Generating executive summaries from complex SQL query results.
+- Providing natural language explanations for anomalies in time-series data.
+- Ensuring consistency across different UI clients (Mobile, Web, Voice) by using a shared JSON contract.
+
+## Strengths
+- **Consistency**: Every response follows the same predictable structure.
+- **Actionability**: Explicitly requires the model to think about "what's next" for the user.
+- **Auditability**: Sources and assumptions are baked into the core schema.
+
+## Limitations
+- **Token Usage**: Structured output requires more tokens than raw text.
+- **Model Requirement**: Requires a model with strong instruction-following or native structured output support.
+
+## When to use it
+- When building user-facing data assistants where trust and clarity are paramount.
+- For multi-modal applications where the UI needs to parse specific fields (like `key_metrics`) for visualization.
+
+## When not to use it
+- For internal debugging logs where raw data is preferred.
+- In latency-critical systems where the overhead of a synthesis LLM call is prohibitive.
+
 ## Goal
 Standardize Data Copilot responses to include key metrics, explanations, sources, confidence scores, and recommended actions.
 
@@ -104,18 +135,13 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [Skeleton Guide](skeleton-guide.md)
 
 ## Sources / References
 - [OpenAI: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
 - [Pydantic Documentation](https://docs.pydantic.dev/)
 
-## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
-- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
-
 ## Contribution Metadata
-- Last reviewed: 2026-04-30
+- Last reviewed: 2026-07-15
 - Confidence: high
 - Related Issues: #190

@@ -2,6 +2,29 @@
 
 IT-Tools is a collection of handy online tools for developers.
 
+## What it is
+A comprehensive suite of web-based developer utilities including formatters, generators, and converters. It is designed to run entirely in the client's browser.
+
+## What problem it solves
+It centralizes dozens of common developer tasks (like JWT decoding, UUID generation, and JSON formatting) into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites.
+
+## Where it fits in the stack
+It is a **Client-Side Utility Service**, typically self-hosted via Docker for privacy and offline availability.
+
+## Typical use cases
+- Formatting messy JSON or SQL queries for readability.
+- Generating secure passwords or mock data (UUIDs, Lorem Ipsum).
+- Converting between different data representations (Base64, Hex, YAML).
+
+## Strengths
+- **Privacy**: Most operations happen locally in the browser.
+- **Searchable**: Fast fuzzy search for all tools.
+- **Self-Hostable**: Easy deployment via a single Docker image.
+
+## Limitations
+- **Browser-Bound**: Not suitable for CLI-based automation or bulk processing of massive files.
+- **Client Performance**: Very large files may lag the browser interface.
+
 ## Description
 It provides a wide variety of web-based tools, including formatters (JSON, SQL, XML), generators (UUID, Password, QR Code), and converters. It is designed to be fast and runs entirely in the browser.
 
@@ -45,9 +68,12 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 - [Official Website](https://it-tools.tech/)
 - [GitHub Repository](https://github.com/CorentinTh/it-tools)
 
-## Alternatives
+## Related tools / concepts
 - [Omni Tools](omni-tools.md)
-- [DevToys](https://devtoys.app/) (Desktop)
+- [SearXNG](searXNG.md)
+- [Gitea](gitea.md)
+- [Authentik](authentik.md)
+- [Nextcloud](nextcloud.md)
 
 ## Backlog
 - Host locally on TrueNAS for offline developer support.
@@ -55,7 +81,7 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://it-tools.tech/

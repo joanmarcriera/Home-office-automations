@@ -2,6 +2,29 @@
 
 Portracker is a self-hosted, real-time port monitoring and discovery tool.
 
+## What it is
+A specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments.
+
+## What problem it solves
+It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans.
+
+## Where it fits in the stack
+It is a **Network Observability Tool**, typically deployed at the edge of a home lab network to monitor the Docker host or the local subnet.
+
+## Typical use cases
+- Monitoring a Docker host for new or exposed services.
+- Mapping port assignments to prevent conflicts during service deployment.
+- Auditing the local network for unintended open ports on IoT devices.
+
+## Strengths
+- **Real-time**: Near-instant discovery of service changes.
+- **Visual**: Clean dashboard for quick assessment.
+- **Docker-native**: Deep integration with the Docker socket for container metadata.
+
+## Limitations
+- **Scope**: Focused on port mapping rather than deep traffic analysis or security intrusion detection.
+- **Resource Intensity**: Continuous monitoring of host processes requires elevated privileges (`SYS_PTRACE`).
+
 ## Description
 It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
 
@@ -81,9 +104,12 @@ curl -X GET "http://localhost:4999/api/v1/status" \
 ## Links
 - [GitHub Repository](https://github.com/mostafa-wahied/portracker)
 
-## Alternatives
-- [Nmap](https://nmap.org/)
-- [Netdata](https://www.netdata.cloud/)
+## Related tools / concepts
+- [Home Assistant](home-assistant.md)
+- [Tailscale](tailscale.md)
+- [Gitea](gitea.md)
+- [Syncthing](syncthing.md)
+- [Storj](storj.md)
 
 ## Backlog
 - Set up alerts for unexpected port changes.
@@ -91,7 +117,7 @@ curl -X GET "http://localhost:4999/api/v1/status" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-04
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker
