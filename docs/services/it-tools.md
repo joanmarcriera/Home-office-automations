@@ -2,31 +2,31 @@
 
 ## What it is
 
-IT-Tools is a comprehensive, open-source collection of web-based utilities designed for developers. It features a wide array of tools including formatters (JSON, SQL, XML), generators (UUID, Password, QR Code), and various converters. The application is built to be extremely fast and runs entirely in the browser after the initial load.
+## What it is
+A comprehensive suite of web-based developer utilities including formatters, generators, and converters. It is designed to run entirely in the client's browser.
 
 ## What problem it solves
-
-Developers often need small utilities for daily tasks but using public SaaS websites for these can pose privacy risks (pasting sensitive JSON or SQL) or be inconvenient due to ads and tracking. IT-Tools provides a unified, self-hostable suite of these utilities that ensures data stays within the local network.
+It centralizes dozens of common developer tasks (like JWT decoding, UUID generation, and JSON formatting) into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites.
 
 ## Where it fits in the stack
-
-**Category**: Service / Developer Utility. It belongs in the **self-hosted productivity utilities** layer, typically hosted alongside code repositories and CI/CD tools.
+It is a **Client-Side Utility Service**, typically self-hosted via Docker for privacy and offline availability.
 
 ## Typical use cases
-- Formatting and minifying code snippets (JSON, CSS, SQL).
-- Generating secure passwords and unique identifiers (UUID, ULID).
-- Converting between different data formats (YAML to JSON, Base64, etc.).
-- Inspecting and debugging network/web data (JWT parser, HTTP status codes).
+- Formatting messy JSON or SQL queries for readability.
+- Generating secure passwords or mock data (UUIDs, Lorem Ipsum).
+- Converting between different data representations (Base64, Hex, YAML).
 
 ## Strengths
-- **Huge Variety**: Over 50+ tools in a single interface.
-- **Client-Side Processing**: Most tools perform logic in the browser, ensuring speed and privacy.
-- **Modern UI**: Clean, searchable, and responsive design.
-- **Lightweight**: Minimal backend requirements; primarily serves static assets.
+- **Privacy**: Most operations happen locally in the browser.
+- **Searchable**: Fast fuzzy search for all tools.
+- **Self-Hostable**: Easy deployment via a single Docker image.
 
 ## Limitations
-- **Browser-Only**: Not designed for automated CLI-based data processing.
-- **State Management**: Generally doesn't persist data across sessions; each tool is a "stateless" utility.
+- **Browser-Bound**: Not suitable for CLI-based automation or bulk processing of massive files.
+- **Client Performance**: Very large files may lag the browser interface.
+
+## Description
+It provides a wide variety of web-based tools, including formatters (JSON, SQL, XML), generators (UUID, Password, QR Code), and converters. It is designed to be fast and runs entirely in the browser.
 
 ## When to use it
 - When you need quick access to common developer utilities (formatters, generators, converters) without leaving the browser.
@@ -69,11 +69,11 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 - [GitHub Repository](https://github.com/CorentinTh/it-tools)
 
 ## Related tools / concepts
-- [Omni Tools](omni-tools.md) — similar collection of web-based utilities
-- [Gitea](gitea.md) — self-hosted Git service to pair with developer tools
-- [Linkwarden](linkwarden.md) — for saving useful snippets and documentation
-- [Changedetection.io](changedetection.md) — for monitoring documentation or API changes
-- [DevToys](https://devtoys.app/) — desktop-based alternative for developer utilities
+- [Omni Tools](omni-tools.md)
+- [SearXNG](searXNG.md)
+- [Gitea](gitea.md)
+- [Authentik](authentik.md)
+- [Nextcloud](nextcloud.md)
 
 ## Backlog
 - Host locally on TrueNAS for offline developer support.
@@ -81,7 +81,7 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://it-tools.tech/

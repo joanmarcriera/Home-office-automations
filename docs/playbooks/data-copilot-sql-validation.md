@@ -3,45 +3,39 @@
 ## What it is
 The Data Copilot SQL Validation & Repair playbook is a standardized operational framework for ensuring the safety, performance, and correctness of AI-generated SQL queries. It establishes a "guardrail" system that sits between the LLM generator and the live production database, automatically catching and fixing errors before they cause impact.
 
-## What problem it solves
-Text-to-SQL systems are prone to three main risks: **security leaks** (accessing unauthorized data), **performance degradation** (running expensive cross-joins that crash the DB), and **semantic inaccuracy** (returning a result that runs but answers the wrong question). This playbook provides a structured way to mitigate these risks and includes a "self-healing" loop to reduce human intervention.
-
 ## What it is
-A comprehensive framework of security, syntax, and semantic guardrails designed to wrap AI-generated SQL queries before they reach a production database.
+A technical blueprint for validating AI-generated SQL queries before they reach the database. It combines static analysis, dynamic dry-runs, and LLM-based semantic checks.
 
 ## What problem it solves
-AI-generated SQL (Text-to-SQL) can be dangerous. LLMs may hallucinate table names, generate expensive cross-joins that crash databases, or inadvertently leak PII. This playbook provides a standardized "Safe Execution" layer to mitigate these risks.
+Prevents "hallucinated" SQL from causing data breaches (SQL injection), performance degradation (cross-joins on large tables), or business errors (incorrect metric calculations).
 
 ## Where it fits in the stack
-**Category**: Knowledge Management / Playbooks. It resides in the **Governance & Safety layer** of the Data Copilot architecture, sitting between the SQL Generation Agent and the Database Connector (MCP).
+It operates within the **Inference Pipeline**, specifically between the **SQL Generation Agent** and the **Database Execution Engine**.
 
 ## Typical use cases
-- Preventing `DROP TABLE` or `UPDATE` commands from being executed by an AI agent.
-- Automatically injecting `LIMIT` clauses to prevent massive data egress.
-- Validating that the AI only queries tables it has been explicitly granted access to.
-- Catching join explosions (Cartesian products) before they consume database resources.
+- Automated Text-to-SQL dashboards where users query sensitive financial data.
+- Home automation bots that trigger database-driven actions (e.g., "Show me my energy usage").
+- Self-service data exploration tools for non-technical staff.
 
 ## Strengths
-- **Multi-layered Defense**: Combines static analysis, dry-runs, and LLM-based semantic checks.
-- **Self-Healing**: Automatically feeds error messages back to the generator for repair.
-- **Dialect Agnostic**: Principles apply to SQLite, PostgreSQL, Snowflake, and BigQuery.
+- **Safety**: Multi-layered defense against malicious or accidental query errors.
+- **Reliability**: Self-correction loop reduces the need for human intervention.
+- **Performance**: Static checks catch "heavy" queries before they consume resources.
 
 ## Limitations
-- **Complexity**: Implementing full semantic validation requires high-quality metadata.
-- **Latency**: Each validation step adds milliseconds to the total response time.
-- **False Positives**: Overly strict policy rules might block legitimate complex analytical queries.
+- **Latency**: Each validation step adds a small amount of time to the response loop.
+- **Complexity**: Requires maintaining an allowlist of tables and columns.
 
 ## When to use it
-- In any production-facing Data Copilot or Text-to-SQL application.
-- When granting AI agents access to sensitive or large-scale data warehouses.
-- To ensure compliance with data privacy regulations (GDPR, CCPA).
+- In any production environment where LLMs generate SQL queries for live databases.
+- When working with high-volume or highly sensitive data.
 
 ## When not to use it
-- In a local, isolated development environment with dummy data where speed is prioritized over safety.
-- For extremely simple "single-table" query interfaces where the scope is inherently limited and fixed.
+- During early-stage prototyping with dummy data.
+- For read-only queries on very small, non-sensitive local datasets where a failure has zero impact.
 
-## Where it fits in the stack
-This playbook sits in the **Playbooks** section of the repository. It defines the runtime safety procedures for the **Orchestration** layer (Data Copilot architecture) and protects the **Intake & Storage** layer (the underlying databases). It uses tools from the **Development & Ops** layer (like SQLGlot) for implementation.
+## Goal
+Implement enterprise-safe validation for Text-to-SQL outputs, preventing data leaks, expensive queries, or incorrect metric definitions.
 
 ## The Validation Pipeline
 
@@ -128,20 +122,12 @@ Stop the automated flow and notify a human if:
 - [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
 - [Tool Calling & Model Context Protocol (MCP)](../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [LiteLLM](../services/litellm.md) — for unified model access and guardrails
 
 ## Sources / References
 - [SQLGlot Documentation](https://github.com/tobymao/sqlglot)
 - [Guardrails AI](https://www.guardrailsai.com/)
 
-## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
-- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
-- [n8n Automation](../services/n8n.md)
-
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-07-15
 - Confidence: high
 - Related Issues: #189
