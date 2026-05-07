@@ -32,11 +32,33 @@ It provides near-instant access to billions of web pages, allowing users to find
 - For highly private or sensitive queries (consider [SearXNG](../../services/searXNG.md)).
 - When you need deep, synthesized research answers with citations (consider [Perplexity](perplexity.md)).
 
+## Getting started
+
+### Python (using `googlesearch-python`)
+For simple, non-API key based searching (scraping-based, use with caution):
+```python
+from googlesearch import search
+
+# Perform a search
+query = "Home office automation best practices"
+for result in search(query, num_results=5):
+    print(result)
+```
+
+### cURL (Google Custom Search API)
+For production-grade, structured JSON results:
+```bash
+curl "https://www.googleapis.com/customsearch/v1?key=YOUR_API_KEY&cx=YOUR_SEARCH_ENGINE_ID&q=Home+office+automation"
+```
+
 ## Related tools / concepts
 - [Perplexity](perplexity.md)
 - [Genspark](genspark.md)
 - [SearXNG](../../services/searXNG.md)
 - [Microsoft Graph API](../providers/microsoft-graph.md)
+- [OpenAI](openai.md)
+- [Gemini](gemini.md)
+- [Perplexity Agent API](../agents/perplexity-agent-api.md)
 
 ## Sources / references
 - [Official Website](https://www.google.com)

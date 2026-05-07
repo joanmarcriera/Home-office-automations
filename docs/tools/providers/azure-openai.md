@@ -64,15 +64,30 @@ response = client.chat.completions.create(
 - **Latency**: Can sometimes be higher than direct OpenAI API due to regional routing.
 - **Complexity**: Resource/Deployment management adds overhead compared to simple API keys.
 
+## When to use it
+- When you require enterprise-grade security, data privacy, and compliance (HIPAA, SOC2, etc.).
+- When you need to integrate LLMs with existing Azure infrastructure and Entra ID (Azure AD).
+- When you need predictable performance and availability guaranteed by Microsoft SLAs.
+
+## When not to use it
+- For simple, non-enterprise projects where a low-latency direct API key is sufficient.
+- If you prefer to avoid the complexity of managing Azure resources and deployments.
+- If you need immediate access to new OpenAI models that may take time to roll out to all Azure regions.
+
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md)
 - [Microsoft Graph API](microsoft-graph.md)
 - [Vercel AI Gateway](vercel-ai-gateway.md)
+- [Anthropic](anthropic.md)
+- [Mistral](mistral.md)
+- [Together](together.md)
+- [Fireworks](fireworks.md)
+- [Groq](groq.md)
 
 ## Sources / References
 - [Azure OpenAI Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
 - [Microsoft Entra ID Overview](https://learn.microsoft.com/en-us/entra/fundamentals/whatis)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-06-27
 - Confidence: high
