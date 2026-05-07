@@ -88,6 +88,17 @@ docker exec homebox /app/homebox version
 docker exec homebox sqlite3 /data/homebox.db .dump > backup.sql
 ```
 
+## Backup and insurance workflow
+
+Homebox is most valuable when inventory data survives the loss of the server that hosts it:
+
+1. Store the `/data` volume on backed-up storage, not inside an ephemeral container layer.
+2. Schedule a database copy or SQL dump before major upgrades.
+3. Export item lists and attachment metadata before insurance renewal periods.
+4. Keep photos, receipts, and warranty PDFs in [Paperless-ngx](paperless-ngx.md) or another document store, then link the relevant record from Homebox notes.
+
+For household automation, treat Homebox as the inventory index and the document system as the evidence archive. That avoids making one service responsible for both structured asset tracking and long-term document retention.
+
 ## API examples
 Homebox provides a REST API for programmatic interaction.
 
@@ -120,13 +131,15 @@ if response.status_code == 200:
 
 ## Backlog
 - Export data to CSV for insurance purposes.
+- Document a tested restore run from a copied `/data` volume.
 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-07
 
 ## Sources / References
 - https://github.com/sysadminsmedia/homebox
 - https://homebox.software/
 - https://snipeitapp.com/
+- https://docs.paperless-ngx.com/
