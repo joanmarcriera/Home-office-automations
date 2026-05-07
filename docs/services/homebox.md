@@ -2,31 +2,31 @@
 
 ## What it is
 
-Homebox is an inventory and organization system built specifically for home users, focusing on simplicity, speed, and ease of use. Written in Go, it is extremely lightweight (typically using less than 50MB of RAM) and uses SQLite for portable data management.
+## What it is
+A lightweight, self-hosted inventory management system written in Go. It uses a single SQLite database for all data, making it easy to host and backup.
 
 ## What problem it solves
-
-Keeping track of physical belongings, their locations, warranties, and purchase details can be difficult. Homebox provides a centralized, self-hosted system to organize items across multiple locations (e.g., "Garage", "Attic", "Storage Unit") without the complexity of enterprise asset management tools.
+It centralizes the tracking of household items, warranties, and insurance information, replacing disorganized spreadsheets or physical receipts with a searchable, location-aware digital catalog.
 
 ## Where it fits in the stack
-
-**Category**: Service / Inventory Management. It sits in the **personal/home organization** layer of the self-hosted stack.
+It is a **Standalone Service** in the home automation stack, typically deployed via Docker and accessible via a web browser.
 
 ## Typical use cases
-- Organizing household belongings across multiple rooms and storage areas.
-- Tracking warranties, purchase dates, and prices for insurance purposes.
-- Managing small collections (e.g., tools, books, electronics).
+- Tracking high-value electronics for insurance purposes.
+- Organizing storage units, attics, and garages.
+- Managing specialized collections (e.g., tools, camping gear).
 
 ## Strengths
-- **Extremely lightweight**: Minimal resource footprint (Go + SQLite).
-- **Simplicity**: Focused on home use rather than complex enterprise workflows.
-- **Portable data**: Uses a single SQLite database file for easy backups.
-- **Fast and responsive**: Modern, clean web interface.
+- **Lightweight**: Minimal CPU and RAM footprint.
+- **Fast**: Responsive web interface.
+- **Portable**: SQLite backend makes backups trivial.
 
 ## Limitations
-- **Single-user focus**: Lacks complex multi-user permission models.
-- **Minimal integrations**: Primarily a standalone system with a basic REST API.
-- **Not for enterprise**: Not designed for massive concurrent users or complex supply chain needs.
+- **Simplicity**: Lacks advanced supply chain or POS features found in enterprise ERPs.
+- **Permissions**: Limited multi-user role-based access control.
+
+## Description
+It helps you keep track of your belongings, their locations, warranties, and purchase details. Written in Go, it is extremely lightweight (typically using less than 50MB of RAM) and uses SQLite for portable data management.
 
 ## When to use it
 - When you need a simple, fast inventory system to track household items.
@@ -45,11 +45,11 @@ Keeping track of physical belongings, their locations, warranties, and purchase 
 - [Live Demo](https://demo.homebox.software/)
 
 ## Related tools / concepts
-- [Grocy](grocy.md) — focused on groceries and meal planning
-- [Mealie](mealie.md) — recipe manager with food inventory features
-- [Snipe-IT](https://snipeitapp.com/) — Enterprise-grade IT asset management
-- [Paperless-ngx](paperless-ngx.md) — for archiving physical receipts and warranties
-- [Actual Budget](actual-budget.md) — for tracking the financial side of purchases
+- [Grocy](grocy.md)
+- [Inventory](inventory.md)
+- [Paperless-ngx](paperless-ngx.md)
+- [Immich](immich.md)
+- [Nextcloud](nextcloud.md)
 
 ## Getting started
 
@@ -124,7 +124,7 @@ if response.status_code == 200:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://github.com/sysadminsmedia/homebox
