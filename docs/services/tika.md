@@ -1,29 +1,49 @@
 # Apache Tika
 
-The Apache Tika toolkit detects and extracts metadata and text from over a thousand different file types.
+## What it is
 
-## Description
-It is useful for content analysis, search indexing, and automated document processing. It provides a single interface for parsing all these file types, making it a cornerstone for many search engines and content analysis tools.
+The Apache Tika toolkit is an open-source library that detects and extracts metadata and text from over a thousand different file types (such as PPT, XLS, and PDF). It provides a single, unified interface for parsing complex document formats, making it a foundational tool for search engines and content analysis systems.
+
+## What problem it solves
+
+Processing diverse file formats requires specialized libraries for each type (e.g., PDFBox for PDFs, POI for Office docs). Tika simplifies this by abstracting the complexity behind a single API. It solves the problem of "dark data" by allowing automated systems to "see" inside binary files to extract searchable text and structured metadata.
+
+## Where it fits in the stack
+
+**Category**: Service / Data Processing. It sits in the **data ingestion and extraction** layer, acting as a pre-processor that converts unstructured binary documents into structured text that can be indexed by search engines (like Solr or Elasticsearch) or processed by LLMs.
+
+## Typical use cases
+
+- **Search Indexing**: Extracting text from uploaded PDFs and Word docs for a searchable knowledge base.
+- **Content Analysis**: Identifying the language and metadata (author, creation date) of large file archives.
+- **RAG Pre-processing**: Converting diverse document formats into plain text for use in Retrieval-Augmented Generation pipelines.
+- **Attachment Processing**: Automatically extracting text from email attachments for automated routing or classification.
+
+## Strengths
+
+- **Universal Parser**: Supports an incredible range of formats out of the box.
+- **Metadata Rich**: Extracts not just text, but deeply embedded metadata.
+- **Language Detection**: Built-in ability to identify the language of the extracted text.
+- **OCR Integration**: Can automatically trigger Tesseract OCR for images or "image-only" PDFs.
+
+## Limitations
+
+- **Java Based**: The core library and server run on the JVM, which can be memory-intensive.
+- **Formatting Loss**: Focuses on text extraction; original visual formatting and layout are typically lost.
+- **Complex Setup**: Configuring specialized parsers (like OCR or deep object recognition) can require significant effort.
 
 ## When to use it
+
 - When you need to extract text and metadata from a wide variety of file formats (PPT, XLS, PDF, etc.).
 - For search engine indexing where you need consistent output across different document types.
 - For content analysis, translation, and language detection tasks.
 - When building automated document processing pipelines.
 
 ## When not to use it
+
 - If you only need to process a single, specific format and a lightweight, specialized library exists (e.g., just plain text).
 - In extremely memory-constrained environments, as the Java-based Tika server can be resource-intensive.
 - If you require the highest possible OCR accuracy and speed, specialized OCR engines may be more appropriate (though Tika integrates with Tesseract).
-
-## Links
-- [Official Website](https://tika.apache.org/)
-- [Tika Wiki](https://cwiki.apache.org/confluence/display/tika)
-
-## Alternatives
-- [Textract](https://aws.amazon.com/textract/) (AWS)
-- [Unstructured.io](https://unstructured.io/)
-- [Pandoc](https://pandoc.org/) (mainly for document conversion)
 
 ## Getting started
 
@@ -95,17 +115,26 @@ The `/rmeta` endpoint is powerful for getting metadata and text from both the co
 curl -T document.docx http://localhost:9998/rmeta/text --header "Accept: application/json"
 ```
 
+## Related tools / concepts
+
+- [Unstructured.io](../tools/process_understanding/unstructured.md) — a modern alternative for document processing in AI pipelines
+- [Paperless-ngx](paperless-ngx.md) — uses Tika/OCR for document archival and searching
+- [Elasticsearch](https://www.elastic.co/) — often used to store and search the text extracted by Tika
+- [n8n](n8n.md) — for building automated workflows that trigger Tika on new file uploads
+- [Pandoc](https://pandoc.org/) — for converting between document formats (Tika extracts, Pandoc converts)
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) — the engine Tika uses for optical character recognition
+
 ## Backlog
 - Integrate with n8n for automated PDF-to-Markdown conversion.
 
+## Sources / References
+
+- [Official Website](https://tika.apache.org/)
+- [Tika Wiki](https://cwiki.apache.org/confluence/display/tika)
+- [Unstructured.io](https://unstructured.io/)
+- [Tika Server Documentation](https://cwiki.apache.org/confluence/display/TIKA/TikaServer)
 
 ## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-02
 
-## Sources / References
-- https://tika.apache.org/
-- https://aws.amazon.com/textract/
-- https://unstructured.io/
-- https://tika.apache.org/2.9.2/gettingstarted.html
-- https://cwiki.apache.org/confluence/display/TIKA/TikaServer
+- Last reviewed: 2026-06-25
+- Confidence: high
