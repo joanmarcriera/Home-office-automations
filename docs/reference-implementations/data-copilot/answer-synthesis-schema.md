@@ -2,8 +2,37 @@
 
 This document defines the standardized output schema for the final step of the Data Copilot pipeline. By enforcing a machine-parseable yet human-readable structure, we ensure that the Copilot provides more than just raw numbers—it provides reasoning, context, and actionable next steps.
 
-## Goal
-Standardize Data Copilot responses to include key metrics, explanations, sources, confidence scores, and recommended actions.
+## What it is
+A standardized JSON schema and prompt contract for the "Final Synthesis" stage of an AI data analysis pipeline.
+
+## What problem it solves
+Raw data from a database is often difficult for users to interpret without context. Standardized synthesis ensures that every answer includes not just the "what" (the number), but also the "why" (the reasoning), the "how" (the source), and the "now what" (the recommended action). It prevents "naked numbers" and builds trust through transparency.
+
+## Where it fits in the stack
+**Category**: Reference Implementation. It sits at the **Output and Interaction layer** of the Data Copilot architecture, serving as the final contract between the AI and the end-user interface.
+
+## Typical use cases
+- Presenting financial reports where numbers must be accompanied by year-over-year context.
+- Diagnosing hardware failures based on sensor logs and maintenance manuals.
+- Answering complex "Why" questions (e.g., "Why did my sales drop in Q3?") with structured multi-source evidence.
+
+## Strengths
+- **Consistency**: Ensures a uniform user experience across different types of queries.
+- **Trust**: Explicitly lists sources and assumptions, allowing users to verify the AI's logic.
+- **Actionability**: Forces the model to suggest next steps, moving beyond passive reporting.
+- **Machine Readable**: Allows the frontend to render custom widgets (e.g., trend lines, source badges) based on the JSON keys.
+
+## Limitations
+- **Token Usage**: Generating structured reasoning and actions consumes more output tokens than a simple text response.
+- **Model Quality**: Small models may struggle to populate all fields correctly while maintaining high-quality reasoning.
+
+## When to use it
+- In any Data Copilot or "Chat with your Data" application where accuracy and trust are paramount.
+- When the output needs to be consumed by other systems or automated workflows.
+
+## When not to use it
+- For extremely simple "lookup" tools (e.g., "What is the current time?") where the overhead of a full synthesis schema is unnecessary.
+- In latency-critical applications where a stream-of-consciousness text response is preferred over a structured JSON block.
 
 ## Answer Synthesis Schema (Pydantic)
 
@@ -105,6 +134,7 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [Tool Calling & Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [LobeHub](../services/lobehub.md) — for building custom agent interfaces
 
 ## Sources / References
 - [OpenAI: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
