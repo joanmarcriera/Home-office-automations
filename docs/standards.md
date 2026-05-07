@@ -43,6 +43,18 @@ New-source intake is daily-file based:
 
 Validation is enforced by `scripts/validate_new_sources.py` in CI.
 
+### Intake Concurrency Rules
+
+Daily intake files are intentionally small shared ledgers. When several agents are active:
+
+- Append new discoveries only to the current day's file.
+- Process at most a small, coherent batch per PR so status edits are easy to review.
+- If another PR already edits the same daily log, prefer a different date file or wait for the first PR to merge.
+- Do not mix unrelated intake integration with broad standards, navigation, or catalog rewrites.
+- When marking a row `integrated`, always fill the `Canonical Page` cell with the page that now owns the source.
+
+These rules keep `docs/new-sources.md`, daily logs, `data/all_tools.json`, and `mkdocs.yml` from becoming merge-conflict hotspots.
+
 ## Naming Conventions
 - **Tags (Paperless)**: `kebab-case`. Lowercase only. Prefix status tags with `s:` and category tags with `c:`.
 - **Workflows (n8n)**: `[Trigger Source] -> [Primary Action]`. Example: `IMAP -> Paperless Intake`.
@@ -106,6 +118,8 @@ Every AI-authored or AI-updated document must include the `Contribution Metadata
 ### 2. Catalog Consistency
 New tools must be added to `data/all_tools.json` and `mkdocs.yml` before the PR is considered "Done".
 
+When a PR updates only existing canonical content and does not add, move, or remove a canonical page, avoid touching `data/all_tools.json` or `mkdocs.yml`.
+
 ### 3. CI Gates
 - `validate_new_sources.py`: Ensures daily logs are valid and no duplicate URLs exist.
 - `check_docs_contract.py`: Enforces metadata and section requirements.
@@ -113,6 +127,9 @@ New tools must be added to `data/all_tools.json` and `mkdocs.yml` before the PR 
 
 ### 4. No Placeholder Policy
 Avoid `TBD` or `TODO` in merged documents. If information is missing, use a minimal description or skip the section.
+
+### 5. Small PR Policy
+Autonomous documentation PRs should usually change one canonical page plus any strictly required registry, navigation, or intake rows. Split unrelated tool pages, playbooks, and architecture notes into separate PRs.
 
 ## Document Extraction Audit Trail
 
