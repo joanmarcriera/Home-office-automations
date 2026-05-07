@@ -15,6 +15,7 @@ High-precision AI tools for enterprise search, analytics, and executive producti
 | [Glean](../enterprise/glean.md) | Unified search across enterprise SaaS apps |
 | [Guru](../enterprise/guru.md) | Collaborative knowledge management |
 | [Hebbia](../enterprise/hebbia.md) | High-precision analytical search for professional services |
+| [Ramp](../enterprise/ramp.md) | Finance automation and spend management |
 | [tl;dv](../enterprise/tldv.md) | AI meeting recorder and transcription |
 
 ## Sources / References

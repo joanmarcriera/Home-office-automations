@@ -426,6 +426,7 @@ nav:
           - MiniMax: tools/providers/minimax.md
           - Mistral AI: tools/providers/mistral.md
           - Moonshot AI: tools/providers/moonshot.md
+          - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
           - Portkey AI Gateway: tools/providers/portkey.md
           - Replicate: tools/providers/replicate.md
