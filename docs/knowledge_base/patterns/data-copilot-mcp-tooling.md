@@ -5,6 +5,41 @@ This document outlines the standardization of tool and data access for the Data 
 ## Goal
 Design a "free/cheap-first" standardization layer that allows the Data Copilot to scale across new domains without hard-coding database connectors or API clients.
 
+## What it is
+MCP Tool & Data Standardization for Data Copilot is a pattern that uses the Model Context Protocol (MCP) to provide a unified interface for AI agents to interact with various data sources and tools. It abstracts the underlying complexities of database connections, document retrieval, and API calls into a standardized set of resources and tools.
+
+## What problem it solves
+In a complex Data Copilot architecture, agents often need to access diverse data sources (SQL databases, internal documentation, KPI glossaries, etc.). Traditionally, this requires hard-coding connectors for each source, leading to brittle code and difficult scaling. MCP standardization solves this by providing a single protocol for all data interactions, making the system more modular, secure, and easier to extend.
+
+## Where it fits in the stack
+It sits in the **Orchestration and Tooling layer**, acting as the bridge between the AI agents (e.g., Intent Agent, SQL Generator) and the data storage or service providers (e.g., SQLite, Home Assistant, local files).
+
+## Typical use cases
+- Exposing a local SQLite database to a Text-to-SQL agent.
+- Providing a search interface for technical documentation to a RAG-enabled agent.
+- Standardizing access to a centralized KPI glossary across different analysts.
+- Integrating live data from smart home devices via the Home Assistant API.
+
+## Strengths
+- **Decoupling**: Agents are no longer tied to specific database dialects or API implementations.
+- **Security**: Allows for fine-grained access control and auditing at the protocol level.
+- **Portability**: MCP servers can be easily swapped or moved without changing the agent logic.
+- **Unified Interface**: Reduces the complexity of building and maintaining multiple custom connectors.
+
+## Limitations
+- **Overhead**: Introducing an abstraction layer can add slight latency to requests.
+- **Protocol Maturity**: MCP is a relatively new protocol, and the ecosystem of servers is still growing.
+- **Configuration**: Requires setting up and managing separate MCP server instances.
+
+## When to use it
+- When building a Data Copilot that needs to access multiple, diverse data sources.
+- When you want to ensure a clean separation between agent logic and data access.
+- When you need a scalable and secure way to expose local tools to AI agents.
+
+## When not to use it
+- For very simple, single-source applications where the overhead of MCP isn't justified.
+- If your environment already has a well-established and standardized data access layer that isn't compatible with MCP.
+
 ## MCP Integration Matrix
 
 | Tool Type | MCP Capability | Cost Profile | Implementation |
@@ -76,6 +111,6 @@ For a home-office or small team setup, start with these three:
 - [Anthropic: Introducing MCP](https://www.anthropic.com/news/model-context-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-30
+- Last reviewed: 2026-05-07
 - Confidence: high
 - Related Issues: #187
