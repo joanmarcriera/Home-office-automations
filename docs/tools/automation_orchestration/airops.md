@@ -25,16 +25,33 @@ AirOps addresses the difficulty of moving AI from a simple chat interface into a
 - **Commercial Platform**: Primarily a paid service with enterprise focus.
 - **Complexity**: Offers a wide range of features that might take time to master.
 
+## Getting started
+1.  Sign up for an account at [AirOps.com](https://www.airops.com/).
+2.  Navigate to the API section in your workspace settings to generate an API Key.
+3.  Design your workflow or tool in the AirOps Studio.
+4.  Publish your workflow to make it accessible via API.
+
+## API examples
+**Trigger a workflow via webhook**:
+```bash
+curl --request POST \
+  --url 'https://app.airops.com/public_api/airops_apps/YOUR_APP_UUID/webhook_async_execute?auth_token=YOUR_API_KEY' \
+  --header 'accept: application/json' \
+  --header 'content-type: application/json' \
+  --data '{ "input_variable": "Custom Value" }'
+```
+
 ## Related tools / concepts
 - [Gumloop](gumloop.md)
 - [Dify](../ai_knowledge/dify.md)
 - [Flowise](../ai_knowledge/flowise.md)
 - [Parea](../process_understanding/parea.md)
+- [Zapier](zapier.md)
 
 ## Sources / references
 - [AirOps Official Website](https://www.airops.com/)
 - [AirOps Documentation](https://docs.airops.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-18
 - Confidence: high

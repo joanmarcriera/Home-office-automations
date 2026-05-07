@@ -46,11 +46,53 @@ def my_llm_function(query: str):
 my_llm_function("Hello Parea!")
 ```
 
+## CLI examples
+
+### parea login
+Authenticates your local environment with Parea:
+```bash
+parea login
+```
+
+### parea experiment
+Runs a local experiment using a defined function and dataset:
+```bash
+parea experiment --func my_script.py:my_func --data my_data.json
+```
+
+### parea deploy
+Deploys a local prompt configuration to the Parea platform:
+```bash
+parea deploy --prompt my_prompt.yaml
+```
+
+## API examples
+
+### Python (Running an Experiment)
+```python
+from parea import Parea
+from parea.schemas import TestCase
+
+p = Parea(api_key="YOUR_API_KEY")
+
+def my_llm_func(input: str) -> str:
+    return f"AI says: {input}"
+
+# Run evaluation on a small dataset
+data = [TestCase(inputs={"input": "Hello"}, target="AI says: Hello")]
+p.experiment(
+    name="baseline-test",
+    data=data,
+    func=my_llm_func,
+).run()
+```
+
 ## Related tools / concepts
 - [Braintrust](braintrust.md)
 - [LangSmith](../benchmarking/langsmith.md)
 - [W&B Weave](wandb-weave.md)
 - [Comet Opik](comet-opik.md)
+- [Langfuse](langfuse.md)
 
 ## Sources / references
 - [Parea AI Website](https://www.parea.ai/)

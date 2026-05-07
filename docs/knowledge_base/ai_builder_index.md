@@ -11,6 +11,7 @@ It is inspired by the information-distribution pattern used on [awesomeclaude.ai
 | Build a website or app for free | [Free AI Website Playbook](free_ai_website_playbook.md) | [Vercel](../tools/development_ops/vercel.md), [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md), [GitHub Pages](../tools/development_ops/github-pages.md), [Supabase](../tools/infrastructure/supabase.md) | Founders, consultants, internal builders |
 | Set up an AI-driven company stack | [AI Company Starter Stack](ai_company_starter_stack.md) | [n8n](../services/n8n.md), [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md), [mem0](../tools/agents/mem0.md) | Teams building operating leverage |
 | Build AI products | [AI Tooling Landscape](ai_tooling_landscape.md) | [Context7](../tools/development_ops/context7.md), [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md), [OpenRouter](../tools/ai_knowledge/openrouter.md) | Product builders and engineers |
+| Choose an agent framework or agent stack | [Agent Framework Learning Map](agent_framework_learning_map.md) | [LangGraph](../tools/frameworks/langgraph.md), [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md), [OpenClaw](../tools/development_ops/openclaw.md) | Builders deciding what to study vs what to use |
 | Research markets, leads, or targets | [AI Company Starter Stack](ai_company_starter_stack.md) | [DeerFlow](../tools/agents/deerflow.md), [Tavily](../tools/providers/tavily.md), [Browser Use](../tools/automation_orchestration/browser-use.md) | Agencies, sales, strategy work |
 | Build internal knowledge assistants | [AI Company Starter Stack](ai_company_starter_stack.md) | [AnythingLLM](../tools/ai_knowledge/anythingllm.md), [LocalAI](../tools/infrastructure/localai.md), [Ollama](../services/ollama.md) | Internal enablement and knowledge access |
 | Run local or private AI | [AI Company Starter Stack](ai_company_starter_stack.md) | [LocalAI](../tools/infrastructure/localai.md), [llmfit](../tools/development_ops/llmfit.md), [Ollama](../services/ollama.md) | Privacy-sensitive or cost-conscious teams |
@@ -90,6 +91,7 @@ Use this bucket when the main question is, "What can I launch this week without 
 Use this bucket when the main question is, "How do I build the AI product itself without making architecture mistakes?"
 
 - [AI Tooling Landscape](ai_tooling_landscape.md)
+- [Agent Framework Learning Map](agent_framework_learning_map.md)
 - [Context7](../tools/development_ops/context7.md)
 - [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md)
 - [OpenRouter](../tools/ai_knowledge/openrouter.md)
@@ -153,6 +155,7 @@ flowchart TD
 - [Free AI Website Playbook](free_ai_website_playbook.md)
 - [AI Company Starter Stack](ai_company_starter_stack.md)
 - [AI Tooling Landscape](ai_tooling_landscape.md)
+- [Agent Framework Learning Map](agent_framework_learning_map.md)
 - [Home](../index.md)
 
 ## Sources / References

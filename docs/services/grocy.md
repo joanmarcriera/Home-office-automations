@@ -1,24 +1,70 @@
 # Grocy
 
-Grocy is a self-hosted groceries & household management solution for your home.
+## What it is
 
-## Description
-It tracks your stock, shopping list, recipes, and more.
+Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks.
+
+## What problem it solves
+
+Managing a household's inventory manually often leads to food waste (expired items), forgotten chores, and inefficient shopping trips. Grocy automates this by tracking expiration dates, managing recurring tasks, and allowing you to plan meals based on what you actually have in stock.
+
+## Where it fits in the stack
+
+**Category**: Service / Home Management. It sits in the **personal organization and inventory** layer of the self-hosted stack.
+
+## Typical use cases
+
+- **Stock Management**: Tracking everything you have in your pantry and fridge.
+- **Meal Planning**: Planning meals and automatically generating shopping lists for missing ingredients.
+- **Task Management**: Managing recurring household chores like "Clean the fridge" or "Change furnace filter".
+- **Battery/Equipment Tracking**: Keeping track of battery charging cycles and maintenance for home appliances.
+
+## Strengths
+
+- **Comprehensive**: Covers almost every aspect of household management in one tool.
+- **Local Control**: All data stays on your own server, ensuring privacy.
+- **Automation Ready**: Offers a robust REST API for integration with barcode scanners or smart home systems.
+- **Lightweight**: Easy to run on low-power devices like a Raspberry Pi.
+
+## Limitations
+
+- **Data Entry**: Requires discipline to keep the stock updated as you consume and buy items.
+- **UI Complexity**: The interface can be overwhelming for some users due to the large number of features.
+- **No Native Mobile App**: While third-party apps exist, the official experience is web-based.
 
 ## When to use it
+
 - When you want to reduce food waste by tracking expiration dates.
 - When you need a centralized system for household tasks, chores, and battery tracking.
 - For meal planning based on current stock levels.
 
 ## When not to use it
+
 - If you only need a simple, single-user grocery list (Grocy might be overkill).
 - For enterprise-level inventory management or point-of-sale requirements.
 
 ## Getting started
 
-### Docker
-The recommended way to install Grocy is via the LinuxServer.io Docker image:
+### Docker Compose
+The recommended way to run Grocy is using Docker Compose:
 
+```yaml
+services:
+  grocy:
+    image: lscr.io/linuxserver/grocy:latest
+    container_name: grocy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/grocy/config:/config
+    ports:
+      - 9283:80
+    restart: unless-stopped
+```
+
+### Docker CLI
 ```bash
 docker run -d \
   --name=grocy \
@@ -32,59 +78,58 @@ docker run -d \
 ```
 
 ### Hello World
-1. Access the web interface at `http://localhost:9283`.
-2. Log in with the default credentials:
-   - **Username:** `admin`
-   - **Password:** `admin`
-3. Navigate to **Stock overview** to see your current inventory or add your first product.
+1. Start the container and access the web interface at `http://localhost:9283`.
+2. Log in with the default credentials (**Username:** `admin`, **Password:** `admin`).
+3. Go to **Master Data > Products** to add your first item.
+4. Go to **Purchase** to add stock for that product.
+5. Check the **Stock overview** to see your inventory and its expiration status.
 
 ## CLI examples
-While primarily web-based, you can use the Docker CLI for maintenance:
+Use the Docker CLI for maintenance and troubleshooting:
 
 ```bash
-# View container logs to troubleshoot startup
+# View real-time container logs
 docker logs -f grocy
 
-# Execute a database migration manually (if needed)
-docker exec -it grocy php /app/www/public/index.php /migrate
+# Access the container shell for advanced maintenance
+docker exec -it grocy /bin/bash
 
-# Check the build version of the running container
+# Check the build version of the running image
 docker inspect -f '{{ index .Config.Labels "build_version" }}' grocy
 ```
 
 ## API examples
-Grocy provides a RESTful API. Authenticate using an API key (generated in the web UI under "Manage API keys").
+Grocy features a RESTful API. Generate an API key in the web UI under **Manage API keys**.
 
 ### Python Example
 ```python
 import requests
 
+# Get current stock levels
 url = "http://localhost:9283/api/stock"
-headers = {
-    "GROCY-API-KEY": "YOUR_API_KEY",
-    "accept": "application/json"
-}
+headers = {"GROCY-API-KEY": "YOUR_API_KEY", "accept": "application/json"}
 
 response = requests.get(url, headers=headers)
-if response.status_code == 200:
+if response.ok:
     for item in response.json():
-        print(f"Product ID: {item['product_id']}, Amount: {item['amount']}")
+        print(f"Product: {item['product_id']}, Amount: {item['amount']}")
 ```
 
 ### Curl Example
 ```bash
-# Get current stock
-curl -X GET "http://localhost:9283/api/stock" \
+# Get system information
+curl -X GET "http://localhost:9283/api/system/info" \
      -H "GROCY-API-KEY: <your_api_key>"
 ```
 
-## Links
-- [Official Website](https://grocy.info/)
-- [Demo](https://en.demo.grocy.info/)
+## Related tools / concepts
 
-## Alternatives
-- [Homebox](homebox.md)
-<!-- - [KitchenOwl](https://github.com/KitchenOwl/kitchenowl) (Link broken) -->
+- [Homebox](homebox.md) — for non-food inventory and organization
+- [Mealie](mealie.md) — for recipe management and meal planning
+- [Paperless-ngx](paperless-ngx.md) — for archiving grocery receipts and warranties
+- [Home Assistant](home-assistant.md) — for integrating Grocy data into smart home dashboards
+- [Vikunja](vikunja.md) — for managing larger household projects and complex task lists
+- [Linkwarden](linkwarden.md) — for saving online recipes and kitchen guides
 
 ## Backlog
 - Set up barcode scanning via mobile app.
@@ -92,9 +137,10 @@ curl -X GET "http://localhost:9283/api/stock" \
 ## Sources / References
 
 - [Official Website](https://grocy.info/)
+- [Grocy Demo](https://en.demo.grocy.info/)
 - [LinuxServer.io Grocy Documentation](https://docs.linuxserver.io/images/docker-grocy/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-06-25
 - Confidence: high

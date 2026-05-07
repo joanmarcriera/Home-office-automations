@@ -33,6 +33,50 @@ It replaces brittle, DOM-based automation (like traditional Playwright or Seleni
 - For high-speed, simple data extraction from single-site APIs.
 - When budget or latency constraints are strict.
 
+## Getting started
+
+### Installation
+Skyvern is typically deployed via Docker for local use or accessed via the Skyvern Cloud.
+
+```bash
+git clone https://github.com/Skyvern-AI/skyvern.git
+cd skyvern
+docker-compose up
+```
+
+### Basic Usage
+Once the Docker containers are running, you can access the Skyvern UI at `http://localhost:8000` to create your first automation workflow.
+
+## CLI examples
+```bash
+# Start the Skyvern server and worker using Docker
+docker-compose up -d
+
+# Check the status of the Skyvern worker
+docker-compose ps worker
+
+# View logs from the Skyvern API server
+docker-compose logs -f api
+```
+
+## API examples
+```python
+import requests
+
+# Trigger a Skyvern workflow via the API
+response = requests.post(
+    "http://localhost:8000/api/v1/workflows/execute",
+    json={
+        "url": "https://example.com/login",
+        "navigation_goal": "Log in and navigate to the invoices page",
+        "extraction_goal": "Extract the last 3 invoice numbers and amounts"
+    },
+    headers={"Authorization": "Bearer YOUR_API_KEY"}
+)
+
+print(response.json())
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT)
 - **Cost**: Free (Self-hosted) / Paid (Skyvern Cloud)
@@ -42,6 +86,9 @@ It replaces brittle, DOM-based automation (like traditional Playwright or Seleni
 - [Browser Use](browser-use.md)
 - [Crawl4AI](../process_understanding/crawl4ai.md)
 - [n8n](../../services/n8n.md)
+- [Stagehand](stagehand.md)
+- [Playwright](../development_ops/playwright.md)
+- [Lightpanda](lightpanda.md)
 
 ## Sources / References
 - [GitHub](https://github.com/Skyvern-AI/skyvern)
@@ -49,5 +96,5 @@ It replaces brittle, DOM-based automation (like traditional Playwright or Seleni
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-05-22
 - Confidence: high

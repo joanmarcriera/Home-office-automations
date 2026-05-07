@@ -42,6 +42,8 @@ Infrastructure / Fine-tuning
 - [Infrastructure](./index.md)
 - [Mistral AI](../providers/mistral.md)
 - [Together AI](../providers/together.md)
+- [vLLM](vllm.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 
 ## Sources / References
 - [Official Website](https://openpipe.ai/)

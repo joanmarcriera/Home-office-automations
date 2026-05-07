@@ -39,6 +39,9 @@ Provides a simple yet powerful interface for capturing tasks, setting deadlines,
 ## Related tools / concepts
 - [Reclaim.ai](reclaim.md)
 - [Akiflow](akiflow.md)
+- [TickTick](ticktick.md)
+- [Microsoft To Do](microsoft-todo.md)
+- [Any.do](any-do.md)
 
 ## Sources / References
 - [Todoist Official Site](https://todoist.com/)

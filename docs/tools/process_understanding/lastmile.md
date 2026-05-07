@@ -25,26 +25,77 @@ Manual evaluation of AI outputs doesn't scale. LastMile AI automates this proces
 - **Complexity**: Requires a structured approach to testing that might have a learning curve for smaller projects.
 - **Platform-Centric**: Best experienced through their cloud-based evaluation dashboard.
 
+## When to use it
+- When you need to automate your AI testing pipeline.
+- When you are scaling a RAG application and need to measure retrieval accuracy.
+
+## When not to use it
+- For very simple, exploratory prompt engineering where manual inspection is sufficient.
+
 ## Getting started
 
-### Installation
+Install the LastMile SDK:
+
 ```bash
 pip install lastmile-ai
 ```
 
-### Basic Concept
-LastMile typically involves defining "Test Sets" and "Evaluators" via their SDK or UI to run bulk assessments of model outputs.
+Set up your API token:
+
+```python
+import os
+os.environ["LASTMILE_API_TOKEN"] = "your_token_here"
+```
+
+## CLI examples
+
+### lastmile login
+Authenticates with the LastMile platform:
+```bash
+lastmile login
+```
+
+### lastmile eval run
+Executes a defined evaluation suite:
+```bash
+lastmile eval run --suite my-test-suite
+```
+
+### lastmile dataset upload
+Uploads a local CSV or JSONL for evaluation:
+```bash
+lastmile dataset upload data.csv
+```
+
+## API examples
+
+### Python (Auto-evaluating a response)
+```python
+from lastmile import AutoEval
+
+# Initialize evaluator
+evaluator = AutoEval()
+
+# Evaluate a response against a prompt
+results = evaluator.evaluate(
+    input="What is the capital of France?",
+    output="The capital of France is Paris.",
+    metrics=["factuality", "conciseness"]
+)
+print(results)
+```
 
 ## Related tools / concepts
-- [Ragas](ragas.md)
+- [Ragas](./ragas.md)
 - [Promptfoo](../benchmarking/promptfoo.md)
 - [LangSmith](../benchmarking/langsmith.md)
-- [Arize AI](arize-ai.md)
+- [Arize AI](./arize-ai.md)
+- [Braintrust](./braintrust.md)
 
 ## Sources / references
 - [LastMile AI Website](https://lastmileai.dev/)
 - [LastMile AI Documentation](https://docs.lastmileai.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-26
 - Confidence: high

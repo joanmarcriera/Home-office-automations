@@ -37,6 +37,23 @@ NVIDIA provides reference implementations for major inference engines:
 - [TensorRT-LLM Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/trtllm_cookbook.ipynb): Low-latency production deployment on NVIDIA hardware.
 - [LoRA Fine-tuning](https://github.com/NVIDIA-NeMo/Nemotron/tree/main/usage-cookbook/Nemotron-3-Super/lora-text2sql): Domain-specific optimization recipes.
 
+### Training and evaluation stack
+The NVIDIA announcement also names the tooling and techniques used to train, adapt, and rerun evaluations for Nemotron-3 Super:
+
+| Component | Role | Free/open status |
+| :--- | :--- | :--- |
+| [NeMo Gym](https://docs.nvidia.com/nemo/gym/latest/) | Scalable reinforcement-learning environment harness for agentic task rollouts. | Open-source NVIDIA library; compute costs depend on where it runs. |
+| [NeMo RL](https://docs.nvidia.com/nemo/rl/latest/) | Reinforcement-learning library used for multi-environment post-training. | Open-source NVIDIA library; practical use requires GPU capacity. |
+| [NeMo Megatron-Bridge](https://github.com/NVIDIA-NeMo/Megatron-Bridge) | Bridge for large-model SFT/LoRA workflows on NVIDIA infrastructure. | Open-source repository. |
+| [NeMo Automodel](https://github.com/NVIDIA-NeMo/Automodel) | Higher-level model customization path for SFT/LoRA recipes. | Open-source repository. |
+| [NeMo Data Designer](https://nvidia-nemo.github.io/NeMo-Data-Designer/) | Synthetic-data and data-design tooling for training data preparation. | Public docs and tooling; runtime cost depends on model/provider. |
+| [NeMo Curator](https://docs.nvidia.com/nemo/curator/latest/) | Data curation and filtering pipeline for pretraining/post-training corpora. | Public NVIDIA tooling; compute/storage costs apply. |
+| [NeMo Evaluator](https://docs.nvidia.com/nemo/evaluator/latest/) | Evaluation harness for rerunning and inspecting model benchmarks. | Public NVIDIA tooling; benchmark execution costs apply. |
+| [Unsloth](https://unsloth.ai/) | Fine-tuning route highlighted by NVIDIA for practical customization. | Free/open tooling options exist; hosted/commercial options may vary. |
+
+### Running pattern
+For agentic deployments, treat Nemotron-3 Super as the planning/escalation model rather than the only model in the system. NVIDIA's suggested pattern is to route targeted, lower-complexity steps to Nemotron 3 Nano, then escalate complex planning, long-context codebase reasoning, and cybersecurity triage to Nemotron-3 Super. Use vLLM or SGLang for open GPU serving, TensorRT-LLM for NVIDIA-optimized production latency, and NVIDIA NIM or hosted providers when you want managed endpoints.
+
 ## Strengths
 - **Efficiency**: 5x throughput improvement over previous generations.
 - **Agentic Performance**: Scores 85.6% on PinchBench (benchmark for agent brains).
@@ -54,7 +71,12 @@ NVIDIA provides reference implementations for major inference engines:
 ## Sources / References
 - [Introducing Nemotron 3 Super (NVIDIA Blog)](https://developer.nvidia.com/blog/introducing-nemotron-3-super-an-open-hybrid-mamba-transformer-moe-for-agentic-reasoning/)
 - [Nemotron-3 Super Technical Report](https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf)
+- [NVIDIA-NeMo / Nemotron GitHub repository](https://github.com/NVIDIA-NeMo/Nemotron)
+- [NVIDIA NeMo Gym documentation](https://docs.nvidia.com/nemo/gym/latest/)
+- [NVIDIA NeMo RL documentation](https://docs.nvidia.com/nemo/rl/latest/)
+- [NVIDIA NeMo Curator documentation](https://docs.nvidia.com/nemo/curator/latest/)
+- [NVIDIA NeMo Evaluator documentation](https://docs.nvidia.com/nemo/evaluator/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-06
 - Confidence: high

@@ -1,9 +1,30 @@
 # Plex
 
+## What it is
 Plex is a global streaming media service and a media player platform that organizes your video, music, and photos from your personal libraries and streams them to all your devices.
 
-## Description
-While it is not fully open-source, Plex is one of the most popular and feature-rich media server solutions. It consists of the Plex Media Server, which hosts your content, and various Plex apps that allow you to play that content on smart TVs, mobile devices, and web browsers.
+## What problem it solves
+It solves the problem of media fragmentation by centralizing your personal collection of movies, TV shows, music, and photos. It provides a polished, Netflix-like interface for your own content, handles on-the-fly transcoding for different devices, and enables secure remote access.
+
+## Where it fits in the stack
+**Category**: Services / Media. It serves as the primary media management and streaming hub in a homelab.
+
+## Typical use cases
+- Streaming personal movie and TV show collections to smart TVs and mobile devices.
+- Hosting a private music library (Plexamp).
+- Sharing media libraries with friends and family.
+- Automatically organizing and fetching metadata for media files.
+
+## Strengths
+- **Polished UI**: One of the best user interfaces in the media server space.
+- **Hardware Transcoding**: Excellent support for GPU-accelerated transcoding.
+- **Broad Device Support**: Available on almost every smart TV, console, and mobile platform.
+- **Plexamp**: A dedicated, high-quality music player app.
+
+## Limitations
+- **Proprietary**: The core server is not open-source.
+- **Centralized Auth**: Requires a connection to plex.tv for authentication.
+- **Privacy**: Some concerns over telemetry and data collection compared to open-source alternatives.
 
 ## When to use it
 - When you want a polished, user-friendly interface for managing and streaming your personal media collection.
@@ -101,10 +122,16 @@ for section in plex.library.sections():
 ## Backlog
 - Configure Plex Meta Manager for automated collection management.
 
+## Related tools / concepts
+- [Jellyfin](jellyfin.md) (Open-source alternative)
+- [Docker](../tools/infrastructure/docker.md)
+- [n8n](n8n.md) (For media automation)
+- [qBittorrent](qbittorrent.md) (For content acquisition)
+- [Search & Discovery](../tools/intake_storage/index.md)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-06-05
 
 ## Sources / References
 - https://www.plex.tv/

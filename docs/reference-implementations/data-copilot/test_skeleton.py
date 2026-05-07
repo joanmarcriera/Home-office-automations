@@ -1,34 +1,73 @@
-import pytest
 import asyncio
-from skeleton import DataCopilotPipeline, WorkspaceContext, IntentOutput
 
-@pytest.mark.asyncio
-async def test_pipeline_flow():
+from skeleton import (
+    DataCopilotPipeline,
+    HumanReviewDecision,
+    IntentOutput,
+    ReviewStatus,
+    TableSelection,
+    PrunedSchema,
+    WorkspaceContext,
+)
+
+
+def test_pipeline_flow():
+    asyncio.run(_pipeline_flow())
+
+
+async def _pipeline_flow():
     pipeline = DataCopilotPipeline()
     query = "Test query"
 
-    # 1. Router
     workspace = await pipeline.workspace_router(query)
     assert isinstance(workspace, WorkspaceContext)
     assert workspace.workspace_id == "inventory"
 
-    # 2. Intent
     intent = await pipeline.intent_agent(query, workspace)
     assert isinstance(intent, IntentOutput)
     assert "quantity" in intent.metrics
 
-    # 3. Tables
     tables = await pipeline.table_agent(intent)
     assert "items" in tables.selected_tables
 
-    # 4. Prune
-    pruned = await pipeline.column_prune_agent(tables.selected_tables, intent)
+    pruned, stats = await pipeline.column_prune_agent(tables.selected_tables, intent)
     assert len(pruned) > 0
     assert pruned[0].table_name == "items"
+    assert stats.pruning_ratio > 0
 
-    # 5. SQL
-    sql = await pipeline.sql_generator(intent, pruned)
-    assert "SELECT" in sql
+    sql = await pipeline.sql_generator(intent, pruned, stats)
+    assert "SELECT" in sql.sql
+    assert sql.model_route.primary_model.startswith("hosted:")
 
-if __name__ == "__main__":
-    asyncio.run(test_pipeline_flow())
+
+def test_human_table_correction_point():
+    pipeline = DataCopilotPipeline()
+    selection = pipeline.review_table_selection(
+        selection=TableSelection(
+            selected_tables=["orders"],
+            rationale="Ambiguous spend language.",
+            confidence=0.51,
+        ),
+        decision=HumanReviewDecision(
+            status=ReviewStatus.NEEDS_CORRECTION,
+            corrected_tables=["items", "categories"],
+            note="Inventory spend should use item purchase prices.",
+        ),
+    )
+    assert selection.selected_tables == ["items", "categories"]
+
+
+def test_human_column_correction_point():
+    pipeline = DataCopilotPipeline()
+    schema = [
+        {"table_name": "items", "columns": ["id", "quantity"]},
+        {"table_name": "categories", "columns": ["id", "name"]},
+    ]
+    corrected = pipeline.review_pruned_schema(
+        schema=[PrunedSchema.model_validate(item) for item in schema],
+        decision=HumanReviewDecision(
+            status=ReviewStatus.NEEDS_CORRECTION,
+            corrected_columns={"items": ["id", "quantity", "purchase_price", "category_id"]},
+        ),
+    )
+    assert "purchase_price" in corrected[0].columns

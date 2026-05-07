@@ -83,6 +83,8 @@ for row in result.result_rows:
 - [Datadog](datadog.md)
 - [S3 / S3-Compatible Storage](../intake_storage/s3-storage.md)
 - [Langfuse](langfuse.md)
+- [PostHog](posthog.md)
+- [OpenTelemetry Collector](opentelemetry-collector.md)
 
 ## Sources / references
 - [Official Website](https://clickhouse.com/)
@@ -90,5 +92,5 @@ for row in result.result_rows:
 - [OpenRouter Broadcast to ClickHouse](https://openrouter.ai/docs/guides/features/broadcast/clickhouse)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-05-24
 - Confidence: high

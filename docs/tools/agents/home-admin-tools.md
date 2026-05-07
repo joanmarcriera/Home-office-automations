@@ -2,6 +2,30 @@
 
 This page documents the specialized tools available to the Home Admin Agent (Ralph) for interacting with home services.
 
+## What it is
+Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent. <!-- needs-content -->
+
+## What problem it solves
+They give the agent controlled interfaces for querying and changing household task and smart-home systems. <!-- needs-content -->
+
+## Where it fits in the stack
+**Agents / Home administration tool layer**. <!-- needs-content -->
+
+## Typical use cases
+Use these tools for task creation, task updates, home-state checks, and scene control. <!-- needs-content -->
+
+## Strengths
+The tools keep home-admin actions behind explicit API wrappers instead of unrestricted shell or browser access. <!-- needs-content -->
+
+## Limitations
+The page still needs fuller operational notes on permissions, failure handling, and audit logging. <!-- needs-content -->
+
+## When to use it
+Use these tools when Ralph needs to interact with Vikunja or Home Assistant through defined service APIs. <!-- needs-content -->
+
+## When not to use it
+Do not use these tools for services that lack configured credentials, clear ownership, or rollback expectations. <!-- needs-content -->
+
 ## Vikunja Tools
 
 These tools allow the agent to manage tasks and projects in [Vikunja](../../services/vikunja.md).

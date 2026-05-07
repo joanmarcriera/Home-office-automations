@@ -33,6 +33,51 @@ It addresses the inaccuracies of vector similarity search in professional docume
 - For simple semantic searches where "vibe-based" retrieval is sufficient.
 - When extremely low latency is required for a massive number of concurrent queries.
 
+## Getting started
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/VectifyAI/PageIndex.git
+cd PageIndex
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Basic usage
+```python
+# Create a .env with your OPENAI_API_KEY
+# Run the PageIndex structure generation
+python run_pageindex.py --pdf_path example.pdf
+```
+
+## CLI examples
+```bash
+# Generate tree structure for a local PDF
+python run_pageindex.py --pdf_path document.pdf
+
+# Generate structure for a Markdown file
+python run_pageindex.py --md_path document.md
+
+# Customize extraction (max pages per node)
+python run_pageindex.py --pdf_path doc.pdf --max-pages-per-node 5
+```
+
+## API examples
+```python
+# PageIndex provides a cloud API and MCP server for remote use.
+# For local programmatic use, call the tree search logic:
+from pageindex.search import tree_search
+
+# Example local search after generating index
+# results = tree_search(query="financial metrics", root_node=index_root)
+
+# Cloud API usage (OpenAI compatible):
+from openai import OpenAI
+client = OpenAI(base_url="https://api.pageindex.ai/v1")
+```
+
 ## Related tools / concepts
 
 - [RAGFlow](./ragflow.md)
@@ -40,6 +85,7 @@ It addresses the inaccuracies of vector similarity search in professional docume
 - [Firecrawl](firecrawl.md)
 - [Docling MCP](docling-mcp.md)
 - [Crawl4AI](crawl4ai.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
 ## Sources / references
 - [Official Website](https://pageindex.ai/)
 - [GitHub Repository](https://github.com/VectifyAI/PageIndex)

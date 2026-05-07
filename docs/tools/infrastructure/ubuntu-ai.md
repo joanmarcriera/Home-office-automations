@@ -44,6 +44,8 @@ Higher-level tools can then interface with these snaps to access hardware accele
 - [Ollama](../../services/ollama.md)
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [Infrastructure Index](index.md)
+- [Docker](docker.md)
+- [Kubernetes (K3s)](k3s.md)
 
 ## Sources / References
 - [Ubuntu 26.04 to include Cuda, Rocm snaps and inference models optimised for your hardware](https://www.reddit.com/r/LocalLLaMA/comments/1rnmo3n/ubuntu_2604_to_include_cuda_rocm_snaps_and/)

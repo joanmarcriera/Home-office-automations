@@ -345,12 +345,13 @@ from trl import create_reference_model
 # Metrics: exact match, ROUGE, format adherence rate, task-specific accuracy
 ```
 
-Practical checklist:
-- [ ] Test on 50–100 held-out examples from the same distribution
-- [ ] Test on 10–20 **out-of-distribution** examples (adversarial inputs)
-- [ ] Measure format adherence rate (JSON validity, required fields present)
-- [ ] Compare against base model on a general benchmark (e.g., MMLU subset) to check for catastrophic forgetting
-- [ ] Monitor inference quality in production for the first 2 weeks
+### Post-training verification checklist
+
+- [ ] **In-distribution test**: Evaluate on 50–100 held-out examples from the training distribution.
+- [ ] **Out-of-distribution test**: Evaluate on 10–20 adversarial or edge-case inputs.
+- [ ] **Format adherence**: Measure JSON validity and presence of all required fields.
+- [ ] **Catastrophic forgetting check**: Compare against the base model on a general benchmark (e.g., MMLU subset) to check for catastrophic forgetting.
+- [ ] **Production monitoring**: Monitor inference quality and hallucination rates for the first 2 weeks of deployment.
 
 ## Common failure modes
 

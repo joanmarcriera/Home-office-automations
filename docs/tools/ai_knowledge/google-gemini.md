@@ -34,6 +34,43 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 - For tasks where a local, private model is required.
 - For simple, low-latency text tasks where a faster or cheaper model (like DeepSeek or a local Llama) would suffice.
 
+## Getting started
+1. Visit [Google AI Studio](https://aistudio.google.com/) and sign in with your Google account.
+2. Create an API Key.
+3. Use the Chat interface to test prompts or the "Get Code" button to generate snippets for your preferred language.
+4. For mobile-first integration, explore the [Gemini Nano](https://ai.google.dev/gemini-api/docs/gemini-nano) documentation.
+
+## CLI examples
+Google provides the `gcloud` CLI and specialized SDK wrappers for terminal interaction.
+
+```bash
+# Generate content via curl using your API key
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GOOGLE_API_KEY" \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{ "contents": [{ "parts":[{"text": "Write a story about a magic backpack."}]}] }'
+
+# Use the Gemini CLI (if installed via npm/pip wrappers)
+gemini-cli chat --model gemini-1.5-pro
+
+# List available models via gcloud
+gcloud ai models list --region=us-central1
+```
+
+## API examples
+The `google-generativeai` Python SDK is the primary way to interact with Gemini.
+
+```python
+import google.generativeai as genai
+import os
+
+genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+response = model.generate_content("What is the capital of France?")
+print(response.text)
+```
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Paid (via Google AI Studio or Vertex AI), with a generous free tier available for developers in AI Studio.
@@ -44,6 +81,9 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 - [Anthropic](../providers/anthropic.md)
 - [DeepSeek](../providers/deepseek.md)
 - [OpenRouter](./openrouter.md)
+- [Gemini CLI](gemini-cli.md)
+- [Gemini for macOS](gemini-macos.md)
+- [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md)
 
 ## Sources / References
 - [Google Gemini Official Page](https://deepmind.google/technologies/gemini/)
@@ -51,6 +91,5 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 - [Google API Keys Weren't Secrets. But then Gemini Changed the Rules](https://trufflesecurity.com/blog/google-api-keys-werent-secrets-but-then-gemini-changed-the-rules)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-06-01
 - Confidence: high

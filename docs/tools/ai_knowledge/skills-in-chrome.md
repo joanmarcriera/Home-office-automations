@@ -32,13 +32,16 @@ It simplifies the execution of recurring AI-driven tasks by allowing them to be 
 - If you prefer to use non-Chromium browsers.
 
 ## Related tools / concepts
-- [HoloTab](./holotab.md)
+- [HoloTab](holotab.md)
 - [Claude Plugins](../development_ops/claude-plugins.md)
+- [Browser Use](../automation_orchestration/browser-use.md)
+- [Open Agents](../agents/open-agents.md)
+- [Stagehand](../automation_orchestration/stagehand.md)
 
 ## Sources / References
 - [Turn AI prompts into one-click tools in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/)
 - [Saving Prompts as Skills](https://www.zdnet.com/article/chrome-skills-prompts-saved/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-28
 - Confidence: high

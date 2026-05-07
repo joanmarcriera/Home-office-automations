@@ -1,9 +1,32 @@
 # Portracker
 
-Portracker is a self-hosted, real-time port monitoring and discovery tool.
+## What it is
 
-## Description
-It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
+Portracker is a self-hosted, real-time network port monitoring and service discovery tool. It scans your network to identify active ports and maps them to the services they represent, providing a centralized dashboard for network visibility.
+
+## What problem it solves
+
+In complex homelab or home-office environments, keeping track of which service is using which port can be difficult, often leading to port conflicts or forgotten "ghost" services. Portracker provides a real-time, visual map of your network's port usage, integrating directly with Docker and TrueNAS to provide context for each open port.
+
+## Where it fits in the stack
+
+**Category**: Service / Infrastructure Monitoring. It sits in the **network observability** layer, providing a higher-level view than raw packet sniffers but more focus on port mapping than general-purpose metrics dashboards.
+
+## Typical use cases
+- Monitoring active ports on a local network or server.
+- Discovering "shadow IT" or unexpected services running in containers.
+- Planning port assignments for new services to avoid conflicts.
+- Auditing network exposure for security purposes.
+
+## Strengths
+- **Real-time Discovery**: Automatically detects new services as they come online.
+- **Docker Integration**: Maps ports directly to container names and status.
+- **Lightweight**: Low resource consumption, making it suitable for always-on monitoring.
+- **Clean Dashboard**: Easy-to-read interface for quick network audits.
+
+## Limitations
+- **Not a Firewall**: It monitors ports but does not provide active blocking or security enforcement.
+- **Local Scope**: Primarily designed for local network segments; large-scale enterprise scanning is better handled by tools like Nmap.
 
 ## When to use it
 - When you want to monitor open ports on your network in real-time.
@@ -17,7 +40,7 @@ It provides a dashboard to monitor active ports on your network and discover new
 ## Getting started
 
 ### Docker Compose
-The recommended way to deploy Portracker is via Docker Compose. It requires host PID access and specific capabilities to monitor system ports.
+The recommended way to deploy Portracker is via Docker Compose. Enable `ENABLE_AUTH` for secure access.
 
 ```yaml
 services:
@@ -25,58 +48,65 @@ services:
     image: mostafawahied/portracker:latest
     container_name: portracker
     restart: unless-stopped
-    pid: "host"  # Required for port detection
+    pid: "host"
     cap_add:
-      - SYS_PTRACE     # Allows reading other PIDs' /proc entries
-      - SYS_ADMIN      # Allows namespace access for host ports
+      - SYS_PTRACE
+      - SYS_ADMIN
     security_opt:
-      - apparmor:unconfined # Required on some systems for port access
+      - apparmor:unconfined
     ports:
       - "4999:4999"
+    environment:
+      - ENABLE_AUTH=true
+      - SESSION_SECRET=change-this-to-a-random-string
     volumes:
-      - ./data:/data
+      - ./portracker-data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
 ```
-
-Access the dashboard at `http://localhost:4999`.
 
 ### Hello World
 1. Start Portracker: `docker compose up -d`.
 2. Open `http://localhost:4999` in your browser.
-3. Observe how Portracker automatically discovers other running Docker containers and their ports on your system.
-4. Run a new container (e.g., `docker run -d -p 8888:80 nginx`) and see it appear in real-time.
+3. If authentication is enabled, follow the setup wizard to create your admin account.
+4. Observe how Portracker automatically discovers running Docker containers and their mapped ports.
+5. Launch a new container (e.g., `docker run -d -p 8080:80 nginx`) and watch it appear in the dashboard within seconds.
 
 ## CLI examples
-Management and inspection can be done via Docker commands:
+Manage the Portracker container and its environment:
 
 ```bash
-# View real-time logs of discovered services
+# View real-time application logs
 docker logs -f portracker
 
-# Check the version of Portracker
-docker exec portracker ./portracker --version
+# Inspect the container environment variables
+docker inspect portracker --format='{{range .Config.Env}}{{println .}}{{end}}'
 
-# Force a re-scan by clearing the cache
-docker exec portracker rm -rf /app/data/cache
+# Reset the internal SQLite database (DANGER: deletes all data)
+docker exec -it portracker rm /data/portracker.db
 ```
 
 ## API examples
-Portracker provides a simple health check and status API:
+Portracker provides internal API endpoints for health and status monitoring.
 
+### Health Check
 ```bash
-# Check service health
-curl http://localhost:4999/api/v1/health
-
-# Check the scan status (if supported)
-curl http://localhost:4999/api/v1/status
+curl -X GET "http://localhost:4999/api/v1/health"
 ```
 
-## Links
-- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
+### Peer-to-Peer Status
+In multi-node setups, you can query the status of a specific peer:
 
-## Alternatives
-- [Nmap](https://nmap.org/)
-- [Netdata](https://www.netdata.cloud/)
+```bash
+curl -X GET "http://localhost:4999/api/v1/status" \
+     -H "x-api-key: YOUR_PEER_API_KEY"
+```
+
+## Related tools / concepts
+- [Home Assistant](home-assistant.md) — for monitoring smart device availability
+- [Netdata](https://www.netdata.cloud/) — for deep real-time system and network metrics
+- [Uptime Kuma](https://github.com/louislam/uptime-kuma) — for service availability monitoring
+- [SearXNG](searXNG.md) — for privacy-respecting network-wide search
+- [Nmap](https://nmap.org/) — for one-time, deep security port scans
 
 ## Backlog
 - Set up alerts for unexpected port changes.
@@ -84,7 +114,10 @@ curl http://localhost:4999/api/v1/status
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-04
+
+## External links
+- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker

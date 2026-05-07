@@ -48,6 +48,18 @@ Sets up your API key and project settings:
 opik configure
 ```
 
+### opik harbor run
+Runs a benchmark with Opik tracking:
+```bash
+opik harbor run -d terminal-bench@head -a my_agent
+```
+
+### comet login
+Login to the broader Comet platform (required for cloud sync):
+```bash
+comet login
+```
+
 ## API examples
 
 ### Python (Tracing a function)
@@ -66,6 +78,8 @@ call_llm("Analyze this code")
 - [Langfuse](./langfuse.md)
 - [Arize AI](./arize-ai.md)
 - [LangSmith](../benchmarking/langsmith.md)
+- [Weights & Biases](./wandb-weave.md)
+- [AgentOps](./agentops.md)
 
 ## Sources / references
 - [Official Website](https://www.comet.com/site/products/opik/)
@@ -73,5 +87,5 @@ call_llm("Analyze this code")
 - [OpenRouter Logging Guide](https://openrouter.ai/docs/guides/logging)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-26
 - Confidence: high
