@@ -28,36 +28,44 @@ It removes the need to run multiple agents or use vendor-specific libraries for 
 
 ## Getting started
 
+### OpenRouter OTLP Broadcast
+OpenRouter can send traces via HTTP/protobuf to an OTel Collector.
+- **Endpoint**: `https://<your-collector-domain>/v1/traces`
+- **Protocol**: OTLP/HTTP
+
 ### Basic Configuration (`config.yaml`)
+This example shows how to receive AI traces and export them to both Sentry and a local logging service.
+
 ```yaml
 receivers:
   otlp:
     protocols:
-      grpc:
       http:
+        endpoint: "0.0.0.0:4318"
 
 processors:
   batch:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1000
 
 exporters:
+  otlphttp/sentry:
+    endpoint: "https://<sentry-dsn>@o<org-id>.ingest.sentry.io/api/<proj-id>/otlp/"
   logging:
     verbosity: detailed
-  otlp/datadog:
-    endpoint: "https://otlp-http-intake.datadoghq.com"
-    headers:
-      "dd-api-key": "${DD_API_KEY}"
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, otlp/datadog]
+      processors: [memory_limiter, batch]
+      exporters: [logging, otlphttp/sentry]
 ```
 
 ### Run via Docker
 ```bash
-docker run -p 4317:4317 -p 4318:4318 \
+docker run -p 4318:4318 \
     -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
     otel/opentelemetry-collector:latest
 ```
@@ -113,7 +121,7 @@ with tracer.start_as_current_span("agent-interaction"):
 ## Sources / references
 - [Official Website](https://opentelemetry.io/docs/collector/)
 - [GitHub Repository](https://github.com/open-telemetry/opentelemetry-collector)
-- [OpenRouter OTel Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/opentelemetry-collector)
+- [OpenRouter OTel Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/otel-collector)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-24

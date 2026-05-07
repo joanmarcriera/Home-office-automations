@@ -40,6 +40,8 @@ It tackles the "cold start" problem in serverless LLM deployments. By achieving 
 - [Ollama](../../services/ollama.md)
 - [vLLM](vllm.md)
 - [Local LLMs](../ai_knowledge/local_llms.md)
+- [SGLang](sglang.md)
+- [Text Generation Inference (TGI)](tgi.md)
 
 ## Sources / References
 - [ZSE GitHub Repository](https://github.com/Zyora-Dev/zse)

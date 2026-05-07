@@ -77,6 +77,8 @@ print(response.choices[0].message.content)
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [Ollama](../../services/ollama.md)
 - [ZSE](zse.md)
+- [vLLM](vllm.md)
+- [ExLlamaV2](exllamav2.md)
 
 ## Sources / References
 - [llama.cpp repository](https://github.com/ggml-org/llama.cpp)

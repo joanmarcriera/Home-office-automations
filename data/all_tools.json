@@ -37,6 +37,12 @@
       "doc_path": "docs/knowledge_base/patterns/agentic-workflows.md"
     },
     {
+      "id": "agent-framework-learning-map",
+      "name": "Agent Framework Learning Map",
+      "category": "Knowledge Base",
+      "doc_path": "docs/knowledge_base/agent_framework_learning_map.md"
+    },
+    {
       "id": "agentops",
       "name": "AgentOps",
       "category": "Process & Understanding",
@@ -103,6 +109,18 @@
       "doc_path": "docs/tools/ai_knowledge/ansigpt.md"
     },
     {
+      "id": "apache-airflow",
+      "name": "Apache Airflow",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/apache-airflow.md"
+    },
+    {
+      "id": "apache-hamilton",
+      "name": "Apache Hamilton",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/apache-hamilton.md"
+    },
+    {
       "id": "anthropic",
       "name": "Anthropic (Claude)",
       "category": "Providers",
@@ -154,6 +172,12 @@
       "name": "Apple Calendar",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/apple-calendar.md"
+    },
+    {
+      "id": "argo-workflows",
+      "name": "Argo Workflows",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/argo-workflows.md"
     },
     {
       "id": "arc",
@@ -564,6 +588,12 @@
       "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
     },
     {
+      "id": "dagster",
+      "name": "Dagster",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/dagster.md"
+    },
+    {
       "id": "datadog",
       "name": "Datadog",
       "category": "Process & Understanding",
@@ -760,6 +790,12 @@
       "name": "Firecrawl",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/firecrawl.md"
+    },
+    {
+      "id": "flyte",
+      "name": "Flyte",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/flyte.md"
     },
     {
       "id": "fireworks-ai",
@@ -1180,6 +1216,12 @@
       "doc_path": "docs/tools/infrastructure/k3s.md"
     },
     {
+      "id": "kestra",
+      "name": "Kestra",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/kestra.md"
+    },
+    {
       "id": "karpathy-skills",
       "name": "Andrej Karpathy Skills",
       "category": "AI Assistants & Knowledge",
@@ -1485,6 +1527,12 @@
       ]
     },
     {
+      "id": "minio",
+      "name": "MinIO",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/minio.md"
+    },
+    {
       "id": "mistral-ai",
       "name": "Mistral AI (Mixtral/Codestral)",
       "category": "Providers",
@@ -1627,6 +1675,12 @@
       "doc_path": "docs/tools/calendar_tasks/notion-calendar.md"
     },
     {
+      "id": "nvidia",
+      "name": "NVIDIA",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/nvidia.md"
+    },
+    {
       "id": "obsidian",
       "name": "Obsidian",
       "category": "AI Assistants & Knowledge",
@@ -1643,6 +1697,12 @@
       "name": "OCRmyPDF",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
+    },
+    {
+      "id": "oh-my-opencode",
+      "name": "oh-my-opencode",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/opencode.md"
     },
     {
       "id": "ollama",
@@ -1703,12 +1763,6 @@
       "name": "OpenClaw",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/openclaw.md"
-    },
-    {
-      "id": "opencode",
-      "name": "OpenCode",
-      "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/opencode.md"
     },
     {
       "id": "opencompass",
@@ -1807,6 +1861,12 @@
       "doc_path": "docs/tools/ai_knowledge/personaplex.md"
     },
     {
+      "id": "prefect",
+      "name": "Prefect",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/prefect.md"
+    },
+    {
       "id": "phidata",
       "name": "Phidata",
       "category": "Agents",
@@ -1841,6 +1901,12 @@
       "name": "Plex",
       "category": "Media & Entertainment",
       "doc_path": "docs/services/plex.md"
+    },
+    {
+      "id": "plex-automation",
+      "name": "Plex Automation",
+      "category": "Services",
+      "doc_path": "docs/services/plex-automation.md"
     },
     {
       "id": "portkey",
@@ -1897,6 +1963,12 @@
       "doc_path": "docs/services/qbittorrent.md"
     },
     {
+      "id": "qbittorrent-automation",
+      "name": "qBittorrent Automation",
+      "category": "Services",
+      "doc_path": "docs/services/qbittorrent-automation.md"
+    },
+    {
       "id": "qwen",
       "name": "Qwen3-Coder-Next",
       "category": "AI Assistants & Knowledge",
@@ -1907,6 +1979,12 @@
       "name": "Radicale",
       "category": "Intake & Storage",
       "doc_path": "docs/services/radicale.md"
+    },
+    {
+      "id": "radicale-automation",
+      "name": "Radicale Automation",
+      "category": "Services",
+      "doc_path": "docs/services/radicale-automation.md"
     },
     {
       "id": "rag-pattern",
@@ -2008,6 +2086,12 @@
       "name": "SearXNG",
       "category": "Process & Understanding",
       "doc_path": "docs/services/searXNG.md"
+    },
+    {
+      "id": "searXNG-automation",
+      "name": "SearXNG Automation",
+      "category": "Services",
+      "doc_path": "docs/services/searXNG-automation.md"
     },
     {
       "id": "self-healing-agent",
@@ -2434,6 +2518,12 @@
       "name": "Zapier",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/zapier.md"
+    },
+    {
+      "id": "zenml",
+      "name": "ZenML",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/zenml.md"
     },
     {
       "id": "zed",

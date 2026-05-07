@@ -46,9 +46,6 @@ tailscale status
 # Get the Tailscale IP address of the current machine
 tailscale ip -4
 
-# Bring down the Tailscale connection
-sudo tailscale down
-
 # Check network connectivity and find the nearest DERP relay
 tailscale netcheck
 ```
@@ -70,9 +67,12 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 ## Links
 - [Official Website](https://tailscale.com/)
 
-## Alternatives
-- [ZeroTier](https://www.zerotier.com/)
-- [Netmaker](https://www.netmaker.io/)
+## Related tools / concepts
+- [Headscale](headscale.md) (Open-source control server)
+- [Cloudflare Mesh](cloudflare-mesh.md) (Alternative mesh networking)
+- [Docker](../tools/infrastructure/docker.md) (Common deployment method)
+- [n8n](n8n.md) (For automation workflows)
+- [Home Assistant](home-assistant.md) (For IoT device networking)
 
 ## Backlog
 - Setup Tailscale Exit Node on TrueNAS SCALE.
@@ -81,7 +81,7 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-06-12
 
 ## Sources / References
 - https://tailscale.com/

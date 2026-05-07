@@ -45,6 +45,8 @@ It helps route model calls across multiple models and providers with low-latency
 - [OpenClaw](../development_ops/openclaw.md)
 - [LiteLLM](../../services/litellm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Aider](../agents/aider.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/BlockRunAI/ClawRouter)

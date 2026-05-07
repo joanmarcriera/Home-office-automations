@@ -35,7 +35,7 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [Gemini Apps](../tools/ai_knowledge/gemini.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Strongest Google-native fit for Gmail and Calendar workflows. |
 | [Gemini for macOS](../tools/ai_knowledge/gemini-macos.md) | Desktop Agent | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Native macOS integration with screen awareness and local files. |
 | [Gemini Canvas](../tools/ai_knowledge/gemini-canvas.md) | Creation Workspace | 🔴 | 🔴 | 🔴 | ⚪ | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Structured drafting and real-time code previews for Workspace. |
-| [Perplexity](../tools/ai_knowledge/perplexity.md) | Research/search | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Excellent web research; weaker first-party Gmail and Calendar story. |
+| [Perplexity](../tools/ai_knowledge/perplexity.md) | Research/search | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Excellent web research; now with native Gmail/Calendar connectors. |
 | [NotebookLM](../tools/ai_knowledge/notebooklm.md) | Research/notebooks | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Best for source-grounded research on owned materials; less of an action agent. |
 | [GitHub Copilot](../tools/development_ops/github_copilot.md) | Coding assistant | 🔴 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Good code agent in IDE; external app access is mainly via MCP. |
 | [Cursor](../tools/development_ops/cursor.md) | AI IDE | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strong coding IDE; external systems mainly through MCP. |
@@ -43,7 +43,7 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [Claude Code](../tools/development_ops/claude-code.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | Terminal-first agent with broad MCP and skill ecosystem ([ECC](../tools/ai_knowledge/everything-claude-code.md)). |
 | [Codex CLI](../tools/development_ops/codex.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Strong local terminal workflow; OpenAI-centric rather than provider-agnostic. |
 | [Gemini CLI](../tools/ai_knowledge/gemini-cli.md) | Coding / terminal agent | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Good terminal choice when official Workspace access is important. |
-| [Aider](../tools/development_ops/aider.md) | Terminal pair programmer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Practical for local repos; broad model and provider flexibility. |
+| [Aider](../tools/development_ops/aider.md) | Terminal pair programmer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟠 | 🟢 | 🟢 | Practical for local repos; MCP support via external servers. |
 | [Devin](../tools/development_ops/devin.md) | Autonomous AI Engineer | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Fully autonomous software engineer; web-based with browser/terminal access. |
 | [Melty](../tools/development_ops/melty.md) | Open-source AI IDE | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | Open-source AI IDE that watches your work and learns. |
 | [Plandex](../tools/development_ops/plandex.md) | Terminal AI agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | AI coding agent for the terminal; handles complex, multi-step tasks. |

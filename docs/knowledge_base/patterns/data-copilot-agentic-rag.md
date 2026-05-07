@@ -121,6 +121,7 @@ The final score is calculated using these penalty weights:
 4.  **Synthesis**: "Conversion rate (Metric X) for the 'Outdoor' category dropped from 3.2% to 1.8% due to a buggy deployment of the new image gallery component on Tuesday, which caused image asset failures."
 5.  **Confidence**: 0.90 (Strong correlation between deployment event and error spike).
 
+
 ## Sources / References
 - [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
 - [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)

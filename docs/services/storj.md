@@ -16,6 +16,23 @@ It offers S3-compatible storage that is distributed across thousands of nodes wo
 
 ## Getting started
 
+### Docker installation
+Running a Storj node via Docker allows you to contribute storage to the network and earn rewards.
+
+```bash
+docker run -d --restart unless-stopped --stop-timeout 300 \
+  -p 28967:28967/tcp \
+  -p 28967:28967/udp \
+  -p 127.0.0.1:14002:14002 \
+  -e WALLET="0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+  -e EMAIL="user@example.com" \
+  -e ADDRESS="domain.ddns.net:28967" \
+  -e STORAGE="2TB" \
+  --mount type=bind,source="/path/to/identity",target=/app/identity \
+  --mount type=bind,source="/path/to/storage",target=/app/config \
+  --name storagenode storjlabs/storagenode:latest
+```
+
 ### Installation
 Install the `uplink` CLI tool to manage your Storj buckets and objects:
 
@@ -53,6 +70,9 @@ uplink cp my-local-file.txt sj://my-bucket/ --expires 2026-12-31T23:59:59Z
 
 # List objects and their sizes in a bucket
 uplink ls sj://my-bucket/
+
+# Share a specific path with a new access grant
+uplink share sj://my-bucket/public-folder/ --readonly --not-after 2026-12-31T23:59:59Z
 ```
 
 ## API examples
@@ -82,9 +102,12 @@ for obj in response.get("Contents", []):
 ## Links
 - [Official Website](https://www.storj.io/)
 
-## Alternatives
-- [Amazon S3](https://aws.amazon.com/s3/)
-- [Backblaze B2](https://www.backblaze.com/cloud-storage)
+## Related tools / concepts
+- [S3 / S3-Compatible Storage](../tools/intake_storage/s3-storage.md) (Core protocol)
+- [Rclone Automation](rclone-automation.md) (Common tool for Storj sync)
+- [Syncthing](syncthing.md) (Local sync alternative)
+- [Nextcloud](nextcloud.md) (Can use Storj as external storage)
+- [n8n](n8n.md) (For automating bucket operations)
 
 ## Backlog
 - Configure as a backup target for Rclone.
@@ -92,7 +115,7 @@ for obj in response.get("Contents", []):
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-06-12
 
 ## Sources / References
 - https://www.storj.io/

@@ -72,6 +72,7 @@ python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 - [SGLang](sglang.md)
 - [llama.cpp](llama-cpp.md)
 - [Ollama](../../services/ollama.md)
+- [Aphrodite Engine](aphrodite-engine.md)
 
 ## Sources / References
 - [Official Website](https://vllm.ai/)

@@ -31,20 +31,58 @@ It lowers the barrier to local LLM experimentation by packaging model discovery,
 - When you need multi-user, server-grade inference
 - When you already operate [Ollama](../../services/ollama.md) or [vLLM](../infrastructure/vllm.md) successfully
 
+## Getting started
+1. Download and install LM Studio from [lmstudio.ai](https://lmstudio.ai/).
+2. Open the app and search for a model (e.g., `Meta-Llama-3-8B-Instruct-GGUF`).
+3. Click "Download" on the desired version.
+4. Go to the "AI Chat" tab to interact with the model immediately, or the "Local Server" tab to start an API.
+
+## CLI examples
+The `lms` CLI is bundled with the desktop application (requires version 0.4.0+).
+
+```bash
+# Check status and loaded models
+lms status
+
+# Search for and download a model
+lms get meta-llama-3-8b
+
+# Start the local OpenAI-compatible API server
+lms server start --port 1234
+```
+
+## API examples
+LM Studio provides an OpenAI-compatible local server.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:1234/v1", api_key="lmstudio")
+
+response = client.chat.completions.create(
+    model="meta-llama-3-8b",
+    messages=[{"role": "user", "content": "Explain quantum entanglement."}]
+)
+print(response.choices[0].message.content)
+```
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Free desktop app
 - **Self-hostable**: Local desktop runtime only
 
 ## Related tools / concepts
-
 - [Local LLMs (Ollama, MLX, llama.cpp)](local_llms.md)
 - [Ollama](../../services/ollama.md)
+- [Jan.ai](jan-ai.md)
+- [Msty](msty.md)
+- [Claude Code](../development_ops/claude-code.md)
 - [llama.cpp](../infrastructure/llama-cpp.md)
 
 ## Sources / References
 - [Official Website](https://lmstudio.ai/)
+- [LM Studio CLI Documentation](https://lmstudio.ai/docs/cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-06-01
 - Confidence: high

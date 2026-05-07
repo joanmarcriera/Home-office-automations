@@ -5,17 +5,30 @@
 
 Focalboard is an open-source, multilingual, self-hosted project management tool.
 
-## Description
-It is an alternative to Trello, Notion, and Asana, providing a Kanban-style board for task management. It comes in two primary editions: Personal Desktop (standalone app) and Personal Server (multi-user server).
+## What it is
+Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana.
 
-## When to use it
-- When you need a self-hosted, open-source alternative to Trello or Asana for team project management.
-- When you prefer a Kanban-style interface for organizing tasks and projects.
-- For managing personal projects or small team workflows with a lightweight server.
+## What problem it solves
+It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration and personal organization within a self-hosted infrastructure.
 
-## When not to use it
-- If you require deep integration with the full Mattermost suite but don't want to run the Mattermost server itself (use the plugin edition instead).
-- If you need advanced document editing and database features similar to Notion (Focalboard is more focused on task boards).
+## Where it fits in the stack
+Focalboard fits into the **Project Management and Productivity** layer. It is often used alongside communication tools (like [Element](element.md) or Mattermost) and document storage (like [Nextcloud](nextcloud.md)) to provide a complete collaborative environment.
+
+## Typical use cases
+- **Personal Task Tracking**: Managing "to-do" lists and personal projects using a Kanban board.
+- **Software Development**: Tracking bugs, features, and sprint progress for small teams.
+- **Content Calendars**: Planning and scheduling blog posts or social media content.
+- **Inventory Management**: Using custom properties to track physical assets.
+
+## Strengths
+- **Simple UI**: Familiar Kanban interface that is easy to adopt.
+- **Customizable**: Add custom properties (dates, selects, text) to cards.
+- **Multiple Views**: Switch between Board, Table, and Gallery views of the same data.
+- **Self-Hosted**: Full control over data and user permissions.
+
+## Limitations
+- **Maintenance Status**: Currently unmaintained (see warning), which may lead to security vulnerabilities or lack of new features.
+- **Feature Set**: Lacks the deep "all-in-one" database capabilities of Notion or the advanced automation of Jira.
 
 ## Getting started
 
@@ -72,21 +85,24 @@ curl -H "Authorization: Bearer <your_session_token>" \
      "http://localhost:8000/api/v1/users/me"
 ```
 
+## Related tools / concepts
+- [Vikunja](vikunja.md) — A modern, actively maintained task management alternative.
+- [Kanboard](https://kanboard.org/) — A minimalist self-hosted Kanban board.
+- [Nextcloud](nextcloud.md) — Offers a "Deck" app with similar Kanban functionality.
+- [Gitea](gitea.md) — Provides built-in issue boards for code projects.
+- [Trilium](trilium.md) — For deep personal knowledge management and notes.
+
 ## Links
 - [Official Website](https://www.focalboard.com/)
 - [GitHub Repository](https://github.com/mattermost/focalboard)
 
-## Alternatives
-- [Kanboard](https://kanboard.org/)
-- [Vikunja](vikunja.md)
-
 ## Backlog
 - Sync with Nextcloud Tasks.
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-06-20
 
 ## Sources / References
 - [GitHub README](https://github.com/mattermost/focalboard#readme)
 - [Developer Guide](https://developers.mattermost.com/contribute/focalboard/)
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-05-04

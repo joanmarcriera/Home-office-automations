@@ -15,13 +15,13 @@ This is the canonical tracker for API pricing links and free-tier availability a
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-## Canonical pricing matrix (last verified: 2026-05-02)
+## Canonical pricing matrix (last verified: 2026-05-14)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
-| OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; prepaid credits required. |
-| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Pricing updated for Claude 3.5 series (May 2026). |
-| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing tables include free-tier rows for Flash/Lite. Pro models require paid tier as of May 2026. |
+| OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.5, GPT-5.4, and GPT-5.4 mini. |
+| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude Opus 4.7/4.6/4.5, Sonnet 4.6/4.5, and Haiku 4.5. |
+| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 3.1 Pro Preview is paid-only, while Gemini 3.1 Flash-Lite Preview has free rows. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
 | Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
@@ -29,7 +29,7 @@ This is the canonical tracker for API pricing links and free-tier availability a
 | Cohere | [Docs](https://docs.cohere.com/) · [Pricing](https://cohere.com/pricing) | Yes | Trial API keys are free and rate-limited. |
 | Mistral AI | [Docs](https://docs.mistral.ai/) · [Pricing](https://mistral.ai/pricing) | Yes | Experiment plan supports free API testing. |
 | Together AI | [Docs](https://docs.together.ai/) · [Pricing](https://www.together.ai/pricing) | No | Billing docs indicate paid credits are required. |
-| Groq | [Docs](https://console.groq.com/docs/overview) · [Pricing](https://groq.com/pricing/) | Yes | Free API plan and limits are documented. |
+| Groq | [Docs](https://console.groq.com/docs/overview) · [Pricing](https://groq.com/pricing/) | Yes | Free API plan and model-level limits are documented; exact current limits should be read from the account limits page for production budgeting. |
 | Kiro | [Docs](https://kiro.dev/docs/) · [Pricing](https://kiro.dev/pricing/) | Yes | Perpetual free tier (50 credits/mo) + 500 bonus credits. |
 | Fireworks AI | [Docs](https://fireworks.ai/docs) · [Pricing](https://fireworks.ai/pricing) | Yes | Public pricing notes starter free credits. |
 | Replicate | [Docs](https://replicate.com/docs) · [Pricing](https://replicate.com/pricing) | Partial | Some models can be run free before billing. |
@@ -107,33 +107,33 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Capability | Top models | Highest known daily cap | Known models |
 | :--- | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash (30M); Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M) | 30M | 8 |
+| Coding | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Groq — Llama 4 Maverick 17B (500K) | 1M | 7 |
 | Verification | n/a | n/a | 0 |
-| Reasoning | Groq — GPT OSS 120B (100K) | 100K | 1 |
-| Long-context | Google Gemini — Gemini 2.5 Flash (30M); Google Gemini — Gemini 2.5 Flash-Lite (15M) | 30M | 2 |
-| Low-latency | Google Gemini — Gemini 2.5 Flash (30M); Google Gemini — Gemini 2.5 Flash-Lite (15M); Cerebras — Llama 4 Maverick 400B (1M) | 30M | 9 |
-| Budget/free-value | Google Gemini — Gemini 2.5 Flash (30M); Google Gemini — Gemini 2.5 Flash-Lite (15M); Cerebras — Llama 3.1 8B (1M) | 30M | 7 |
+| Reasoning | Groq — GPT OSS 120B (200K) | 200K | 1 |
+| Long-context | n/a | n/a | 0 |
+| Low-latency | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 7 |
+| Budget/free-value | Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 1M | 5 |
 | Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 7 |
 
 #### 80% Shortlist (known-cap coverage)
 
 | Capability | Models to reach >=80% of known capacity | Coverage | Total known daily cap |
 | :--- | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash (30M) | 89.0% | 33.7M |
+| Coding | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K); Groq — Llama 4 Scout 17B (500K) | 92.1% | 3.8M |
 | Verification | n/a | n/a | n/a |
-| Reasoning | Groq — GPT OSS 120B (100K) | 100.0% | 100K |
-| Long-context | Google Gemini — Gemini 2.5 Flash (30M); Google Gemini — Gemini 2.5 Flash-Lite (15M) | 100.0% | 45M |
-| Low-latency | Google Gemini — Gemini 2.5 Flash (30M); Google Gemini — Gemini 2.5 Flash-Lite (15M) | 90.7% | 49.6M |
-| Budget/free-value | Google Gemini — Gemini 2.5 Flash (30M); Google Gemini — Gemini 2.5 Flash-Lite (15M) | 94.5% | 47.6M |
+| Reasoning | Groq — GPT OSS 120B (200K) | 100.0% | 200K |
+| Long-context | n/a | n/a | n/a |
+| Low-latency | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 87.0% | 4.6M |
+| Budget/free-value | Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K); Groq — Llama 4 Scout 17B (500K) | 96.2% | 2.6M |
 | Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 87.0% | 4.6M |
 
 #### Fast Recommendation (80% rule, known-cap data)
 
 | Goal | Recommended free-first models | Why this set |
 | :--- | :--- | :--- |
-| Coding | Google Gemini — Gemini 2.5 Flash | Reaches 89.0% of known daily capacity (33.7M total known). |
+| Coding | Cerebras — Llama 4 Maverick 400B; Cerebras — Qwen3 Coder 235B; Groq — Llama 4 Maverick 17B; Groq — Qwen3 32B; Groq — Llama 4 Scout 17B | Reaches 92.1% of known daily capacity (3.8M total known). |
 | Verification | n/a | No numeric daily-cap data available for this capability. |
-| Reasoning | Groq — GPT OSS 120B | Reaches 100.0% of known daily capacity (100K total known). |
+| Reasoning | Groq — GPT OSS 120B | Reaches 100.0% of known daily capacity (200K total known). |
 
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
@@ -141,30 +141,32 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
+| Qwen3.6-35B-A3B | `262K / plan / plan / plan / plan` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-open">OPEN</span><br>Account: DashScope. Latest frontier variant with 3B active parameters. |
 | Qwen3.5-35B-A3B | `128K / plan / plan / plan / plan` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-open">OPEN</span><br>Account: DashScope. SOTA agentic coding (37.8% SWE-bench Verified Hard). |
 
 ### Google Gemini
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Gemini 2.5 Pro | `2M / paid / paid / paid / paid` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Google. SOTA multimodal understanding. $1.25/MTok input. |
-| Gemini 2.5 Flash | `1M / 15 / 1500 / 1M / ~30M` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Optimized for high-volume agentic tasks. $0.30/MTok input (Paid). |
-| Gemini 2.5 Flash-Lite | `1M / 30 / 1500 / 1M / ~15M` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Most cost-efficient. $0.10/MTok input (Paid). Generous free tier. |
+| Gemini 3.1 Pro Preview | `model / paid / paid / paid / paid` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Google. Paid-only Pro preview; $2/MTok input and $12/MTok output for prompts up to 200K tokens. |
+| Gemini 3.1 Flash-Lite Preview | `model / plan / plan / plan / n/p` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Google. Free input/output rows documented for Standard/Batch/Flex/Priority; paid Standard is $0.25/MTok text-image-video input and $1.50/MTok output. |
+| Gemini Embedding | `model / plan / plan / plan / n/p` | Verified | <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Google. Gemini Embedding is available on free and paid tiers; paid input is $0.15/MTok. |
 
 ### OpenAI
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| GPT-4o | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span><br>Account: OpenAI. Quality: Excellent. No standing public free API tier documented. |
-| GPT-4o mini | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenAI. Quality: Very Good. Limits vary by trust tier/account status. |
+| GPT-5.5 | `model / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span><br>Account: OpenAI. Frontier coding/professional-work model; $5/MTok input and $30/MTok output. No standing public free API tier documented. |
+| GPT-5.4 | `model / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-reason">REASON</span><br>Account: OpenAI. More affordable coding/professional-work model; $2.50/MTok input and $15/MTok output. |
+| GPT-5.4 mini | `model / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: OpenAI. Mini model for coding, computer use, and subagents; $0.75/MTok input and $4.50/MTok output. |
 
 ### Anthropic Claude
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
-| Claude 3 Opus | `200K / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Anthropic. SOTA intelligence for agents. $15/MTok input. |
-| Claude 3.5 Sonnet | `200K / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Anthropic. Optimal intelligence/cost balance. $3/MTok input. |
-| Claude 3.5 Haiku | `200K / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: Anthropic. Fastest, most cost-efficient. $0.25/MTok input. |
+| Claude Opus 4.7 | `model / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Anthropic. Current Opus line; $5/MTok input and $25/MTok output on the Claude API. |
+| Claude Sonnet 4.6 | `model / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-longctx">LONGCTX</span><br>Account: Anthropic. Current Sonnet line; $3/MTok input and $15/MTok output. |
+| Claude Haiku 4.5 | `model / tier / tier / tier / tier` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-verify">VERIFY</span><br>Account: Anthropic. Current Haiku line; $1/MTok input and $5/MTok output. |
 
 ### Groq
 
@@ -172,9 +174,9 @@ Only rows with a numeric daily token cap are included in the capacity math.
 | :--- | :--- | :--- | :--- |
 | Llama 3.3 70B (llama-3.3-70b-versatile) | `128K / 30 / 1000 / 12K / 100K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Very Good. Official row differs from older community numbers. |
 | Llama 4 Maverick 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Fast inference; revision limits can change. |
-| Qwen3 32B | `128K / 30 / 14,400 / 6K / 500K` | Partially verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Model IDs/limits may shift by release. |
-| Llama 4 Scout 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq. 16E MoE variant optimized for low-latency tasks. |
-| GPT OSS 120B | `128K / 30 / 1000 / 12K / 100K` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Groq. High performance open-weights model. |
+| Qwen3 32B | `128K / 60 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Current official free-plan row uses `qwen/qwen3-32b`. |
+| Llama 4 Scout 17B | `128K / 30 / 1000 / 30K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq. 16E MoE variant optimized for low-latency tasks; official free-plan TPM is 30K. |
+| GPT OSS 120B | `128K / 30 / 1000 / 8K / 200K` | Verified | <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Groq. High performance open-weights model; official free-plan TPD is 200K. |
 | Kimi K2 (kimi-k2-0905) | `256K / n/p / n/p / n/p / n/p` | Verified | <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Groq. 1T parameter MoE with 256K context. |
 | Compound AI (groq/compound) | `128K / 30 / 250 / 70K / n/p` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-code">CODE</span><br>Account: Groq (no CC for free tier). Quality: Good. Official docs do not publish TPD. |
 
@@ -259,6 +261,14 @@ Only rows with a numeric daily token cap are included in the capacity math.
 | :--- | :--- | :--- | :--- |
 | moonshot-v1-128k | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Moonshot AI. Quality: Very Good. Famous for pioneer long-context stability. |
 
+## Model Intelligence-per-Dollar Value (2026 Triage)
+
+Based on community analysis (April 2026), models are categorized by their efficiency relative to cost:
+
+- **Top Intelligence**: GPT-5.4, Gemini 3.1 Pro. Use these for high-stakes reasoning where cost is secondary.
+- **Best Value**: MiMo-V2-Flash. Offers the highest intelligence-per-dollar for high-volume tasks.
+- **Balanced**: GLM-5, Kimi K2.5, Gemini 3 Flash. These models offer a strong middle ground for general-purpose agentic loops.
+
 ## Notes and caveats
 
 - Provider pricing and free-tier rules change frequently; always verify from official links before budgeting.
@@ -338,5 +348,6 @@ When updating this page:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-14
 - Confidence: high
+- Related Issues: #203

@@ -21,6 +21,16 @@ GPT Researcher follows a structured 3-step autonomous workflow:
 - **Academic/Legal Preparation**: Gathering sources and summaries for specific inquiries.
 - **Daily Intelligence**: Generating briefings on evolving news topics.
 
+## When to use it
+- **Exhaustive Research**: When you need to gather information from dozens of sources simultaneously and summarize them into a single report.
+- **Fact-Checking**: To verify information against current web data and receive a cited bibliography.
+- **Automated Summarization**: When you need to create comprehensive, long-form reports on complex topics without manual browsing.
+
+## When not to use it
+- **Real-Time Fact Retrieval**: For single-shot questions (e.g., "What is the capital of France?"), standard RAG or search tools are faster and cheaper.
+- **Creative Writing**: It is optimized for factual synthesis, not creative or conversational tasks.
+- **Strict Latency Limits**: Because it performs multi-source scraping and analysis, reports can take minutes to generate.
+
 ## Getting started
 
 ### Installation
@@ -92,5 +102,5 @@ if __name__ == "__main__":
 - [Official Documentation](https://docs.gptr.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-05-29
 - Confidence: high

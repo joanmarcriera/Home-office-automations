@@ -12,8 +12,16 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 
 | Tool | Focus | UI | Self-hostable | Best for... |
 | :--- | :--- | :---: | :---: | :--- |
+| [Apache Airflow](apache-airflow.md) | Batch DAG Scheduling | 🟢 | 🟢 | Mature scheduled data and operations workflows. |
+| [Apache Hamilton](apache-hamilton.md) | Python Dataflows | 🟢 | 🟢 | Function-derived transformation DAGs inside Python systems. |
+| [Argo Workflows](argo-workflows.md) | Kubernetes Workflows | 🟢 | 🟢 | Highly parallel container jobs on Kubernetes. |
+| [Dagster](dagster.md) | Data Asset Orchestration | 🟢 | 🟢 | Data and AI pipelines with lineage and freshness context. |
+| [Flyte](flyte.md) | AI/ML Workflows | 🟢 | 🟢 | Reproducible ML and AI workflows at scale. |
+| [Kestra](kestra.md) | Declarative Automation | 🟢 | 🟢 | Event-driven workflows across data, infra, and approvals. |
 | [n8n](../../services/n8n.md) | Visual Automation | 🟢 | 🟢 | Home/Office automation with local AI nodes. |
+| [Prefect](prefect.md) | Python Workflow Engine | 🟢 | 🟢 | Python scripts moving into observable production workflows. |
 | [Temporal](temporal.md) | Durable Workflows | 🟢 | 🟢 | Mission-critical, stateful execution at scale. |
+| [ZenML](zenml.md) | MLOps Pipelines | 🟢 | 🟢 | Portable ML and agent pipelines across infrastructure stacks. |
 | [Zapier](../automation_orchestration/zapier.md) | SaaS Integration | 🟢 | 🔴 | Rapidly connecting cloud apps via AI actions. |
 | [Goose](../automation_orchestration/goose.md) | Local Agentic | 🟢 | 🟢 | Terminal-friendly local agent orchestration. |
 | [Vellum](../automation_orchestration/vellum.md) | Prompt/Workflow Ops | 🟢 | 🔴 | Collaborative prompt engineering and hosting. |
@@ -25,3 +33,16 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [LiteLLM](../../services/litellm.md)
+
+## Sources / References
+
+- [Apache Airflow documentation](https://airflow.apache.org/docs/)
+- [Argo Workflows documentation](https://argoproj.github.io/workflows/)
+- [Dagster documentation](https://docs.dagster.io/)
+- [Flyte documentation](https://docs.flyte.org/)
+- [Prefect documentation](https://docs.prefect.io/)
+
+## Contribution Metadata
+
+- Last reviewed: 2026-05-06
+- Confidence: high
