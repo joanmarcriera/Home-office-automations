@@ -30,7 +30,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 30** | Weekly deepening: Services | **Resolved** | Deepened `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`. |
 | **Batch 31** | Weekly deepening: Services | **Resolved** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. |
 | **Batch 32** | Weekly deepening: Services | **Resolved** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. |
-| **Batch 33** | Weekly deepening: AI Knowledge | **In Progress** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`. |
+| **Batch 33** | Weekly deepening: AI Knowledge | **In Progress** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
