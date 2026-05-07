@@ -38,10 +38,50 @@ It addresses the need for repeatable, high-performance execution of specialized 
 - **Cost**: Free to use (requires Anthropic API access or Claude.ai subscription)
 - **Self-hostable**: Yes (Skills are local files)
 
+## Getting started
+
+### Installation
+Clone the official skills repository or create your own skills directory:
+```bash
+git clone https://github.com/anthropics/skills.git
+```
+
+### Usage
+Configure your agent (e.g., Claude Code) to point to your skills directory. Claude will automatically index the `SKILL.md` and associated scripts.
+
+## CLI examples
+```bash
+# List available skills in a directory
+ls -R ./skills
+
+# Test a specific skill (if test scripts are provided)
+python3 ./skills/document-processing/test.py
+
+# Create a new skill from the template
+cp -r ./templates/skill-template ./skills/my-new-skill
+```
+
+## API examples
+```python
+import anthropic
+
+# Skills are typically loaded via system prompt or as tool definitions
+# Example of referencing a skill in a message
+client = anthropic.Anthropic()
+response = client.messages.create(
+    model="claude-3-7-sonnet-latest",
+    max_tokens=1024,
+    system="Use the 'document-processing' skill located in /path/to/skills.",
+    messages=[{"role": "user", "content": "Extract text from report.pdf"}]
+)
+```
+
 ## Related tools / concepts
 - [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Claude Skills Ecosystem](claude-skills-ecosystem.md)
+- [Documentation Writer Skill](documentation-writer.md)
 
 ## Sources / References
 - [Official Website](https://agentskills.io)
@@ -49,5 +89,5 @@ It addresses the need for repeatable, high-performance execution of specialized 
 - [Anthropic News: Equipping agents for the real world](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-05-21
 - Confidence: high

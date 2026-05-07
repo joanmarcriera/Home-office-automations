@@ -28,6 +28,25 @@ It enables event-driven architectures and real-time integrations between dispara
 
 ## Getting started
 
+Webhooks are passive receivers. To use them, you typically provide an endpoint URL to a service provider (like OpenRouter or GitHub).
+
+## CLI examples
+```bash
+# Test a local webhook endpoint with a mock JSON payload
+curl -X POST http://localhost:8000/webhook \
+     -H "Content-Type: application/json" \
+     -H "X-Webhook-Secret: my-secret" \
+     -d '{"event": "test", "data": "hello world"}'
+
+# Use localtunnel to expose a local port for receiving external webhooks
+npx localtunnel --port 8000
+
+# Use ngrok to expose a local port (alternative to localtunnel)
+ngrok http 8000
+```
+
+## API examples
+
 ### Basic Receiver (Python/FastAPI)
 ```python
 from fastapi import FastAPI, Request, Header, HTTPException
@@ -38,9 +57,11 @@ SECRET_TOKEN = "your-shared-secret"
 
 @app.post("/webhook")
 async def receive_webhook(request: Request, x_webhook_secret: str = Header(None)):
+    # Simple security check using a shared secret header
     if x_webhook_secret != SECRET_TOKEN:
         raise HTTPException(status_code=403, detail="Invalid secret")
 
+    # Process the incoming JSON payload
     payload = await request.json()
     print(f"Received event: {payload}")
     return {"status": "success"}
@@ -49,13 +70,15 @@ async def receive_webhook(request: Request, x_webhook_secret: str = Header(None)
 ## Related tools / concepts
 - [n8n](../../services/n8n.md) (Excellent for receiving and processing webhooks)
 - [Zapier](../automation_orchestration/zapier.md)
+- [Make](../automation_orchestration/make.md)
 - [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming destination)
 - [Event-Driven Architecture](../../knowledge_base/patterns/index.md)
+- [REST API](../../standards-and-conventions.md)
 
 ## Sources / references
 - [Webhooks.fyi](https://webhooks.fyi/)
 - [OpenRouter Webhook Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/webhook)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-27
 - Confidence: high

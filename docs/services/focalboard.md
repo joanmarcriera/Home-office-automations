@@ -1,86 +1,108 @@
 # Focalboard
 
+> [!WARNING]
+> This repository is currently not maintained. If you're interested in becoming a maintainer, please let the Mattermost community know. This documentation refers to the standalone Personal Server edition.
+
 Focalboard is an open-source, multilingual, self-hosted project management tool.
 
-## Description
-It is an alternative to Trello, Notion, and Asana, providing a Kanban-style board for task management.
+## What it is
+Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana.
 
-## When to use it
-- When you need a self-hosted, open-source alternative to Trello or Asana for team project management.
-- When you prefer a Kanban-style interface for organizing tasks and projects.
-- For managing personal projects or small team workflows with a lightweight server.
+## What problem it solves
+It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration and personal organization within a self-hosted infrastructure.
 
-## When not to use it
-- If you require deep integration with the full Mattermost suite but don't want to run the Mattermost server itself (use the plugin edition instead).
-- If you need advanced document editing and database features similar to Notion (Focalboard is more focused on task boards).
+## Where it fits in the stack
+Focalboard fits into the **Project Management and Productivity** layer. It is often used alongside communication tools (like [Element](element.md) or Mattermost) and document storage (like [Nextcloud](nextcloud.md)) to provide a complete collaborative environment.
+
+## Typical use cases
+- **Personal Task Tracking**: Managing "to-do" lists and personal projects using a Kanban board.
+- **Software Development**: Tracking bugs, features, and sprint progress for small teams.
+- **Content Calendars**: Planning and scheduling blog posts or social media content.
+- **Inventory Management**: Using custom properties to track physical assets.
+
+## Strengths
+- **Simple UI**: Familiar Kanban interface that is easy to adopt.
+- **Customizable**: Add custom properties (dates, selects, text) to cards.
+- **Multiple Views**: Switch between Board, Table, and Gallery views of the same data.
+- **Self-Hosted**: Full control over data and user permissions.
+
+## Limitations
+- **Maintenance Status**: Currently unmaintained (see warning), which may lead to security vulnerabilities or lack of new features.
+- **Feature Set**: Lacks the deep "all-in-one" database capabilities of Notion or the advanced automation of Jira.
 
 ## Getting started
 
 ### Docker
-To run Focalboard locally using the official Docker image:
+To run the Focalboard Personal Server locally using the official Docker image:
 
 ```bash
-docker run -it -p 80:8000 mattermost/focalboard
+docker run -d --name focalboard -p 8000:8000 mattermost/focalboard
 ```
 
 ### Hello World
-1. Access the interface at `http://localhost`.
-2. Follow the on-screen prompts to create your first user account.
-3. Click **Add Board** in the sidebar and select a template (e.g., "Project Tasks") to create your first Kanban board.
+1. Access the web interface at `http://localhost:8000`.
+2. Follow the on-screen prompts to create your first user account (this account will be the admin).
+3. Click **Add Board** in the sidebar.
+4. Select a template like "Project Tasks" or start with an "Empty Board".
+5. Drag and drop cards between columns (e.g., "To Do" to "In Progress") to see the Kanban flow in action.
 
 ## CLI examples
-Focalboard provides an import tool and can be managed via `make` for development:
+The `focalboard-server` binary handles imports and administrative tasks:
 
 ```bash
 # Import a Trello archive into Focalboard
-./bin/focalboard-server import trello trello_export.json
+./focalboard-server import trello trello_export.json
 
-# Build the server and web app (requires Go and Node.js)
-make prebuild && make
+# Reset the password for a specific user
+./focalboard-server reset-password <username>
 
-# Reset the admin password (if supported by your version)
-./bin/focalboard-server reset-password admin
+# Check the version of the Focalboard server
+./focalboard-server version
 ```
 
 ## API examples
-The Boards API (Swagger) allows for programmatic task and board management.
+The Boards API allows for programmatic task and board management. Authentication requires a session token.
 
 ### Python Example
 ```python
 import requests
 
-# Use your session token obtained after login
+# Fetch all boards for the authenticated user
 url = "http://localhost:8000/api/v1/boards"
 headers = {"Authorization": "Bearer YOUR_SESSION_TOKEN"}
 
 response = requests.get(url, headers=headers)
-if response.status_code == 200:
-    for board in response.json():
-        print(f"Board Name: {board['title']}")
+if response.ok:
+    boards = response.json()
+    for board in boards:
+        print(f"Board: {board['title']} (ID: {board['id']})")
 ```
 
 ### Curl Example
 ```bash
-# Get all boards
+# Get the current user's information
 curl -H "Authorization: Bearer <your_session_token>" \
-     "http://localhost:8000/api/v1/boards"
+     "http://localhost:8000/api/v1/users/me"
 ```
+
+## Related tools / concepts
+- [Vikunja](vikunja.md) — A modern, actively maintained task management alternative.
+- [Kanboard](https://kanboard.org/) — A minimalist self-hosted Kanban board.
+- [Nextcloud](nextcloud.md) — Offers a "Deck" app with similar Kanban functionality.
+- [Gitea](gitea.md) — Provides built-in issue boards for code projects.
+- [Trilium](trilium.md) — For deep personal knowledge management and notes.
 
 ## Links
 - [Official Website](https://www.focalboard.com/)
 - [GitHub Repository](https://github.com/mattermost/focalboard)
 
-## Alternatives
-- [Kanboard](https://kanboard.org/)
-- [Vikunja](vikunja.md)
-
 ## Backlog
 - Sync with Nextcloud Tasks.
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-06-20
 
 ## Sources / References
 - [GitHub README](https://github.com/mattermost/focalboard#readme)
 - [Developer Guide](https://developers.mattermost.com/contribute/focalboard/)
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-02

@@ -55,6 +55,52 @@ Symphony offers two primary paths:
 1.  **Reference Implementation**: Use the experimental Elixir-based implementation provided in the [official repository](https://github.com/openai/symphony/tree/main/elixir).
 2.  **Custom Implementation**: Use the [Symphony Specification](https://github.com/openai/symphony/blob/main/SPEC.md) to build your own implementation in your preferred programming language.
 
+## Getting started
+
+### Requirements
+- A codebase with established CI and testing harnesses.
+- Elixir (for the reference implementation) or a compatible environment for your own implementation.
+
+### Installation
+Clone the official repository:
+```bash
+git clone https://github.com/openai/symphony.git
+cd symphony
+```
+
+### Usage
+Configure your `WORKFLOW.md` (see the [SPEC.md](https://github.com/openai/symphony/blob/main/SPEC.md) for details) and start the symphony service.
+
+## CLI examples
+```bash
+# Start the symphony service with a specific workflow file
+symphony start --workflow ./WORKFLOW.md
+
+# Run a one-off implementation run for a specific issue
+symphony run --issue ABC-123
+
+# Check the status of active implementation runs
+symphony status
+```
+
+## API examples
+```json
+// Example of the JSON state returned by the Symphony HTTP extension (/api/v1/state)
+{
+  "counts": {
+    "running": 2,
+    "retrying": 1
+  },
+  "running": [
+    {
+      "issue_identifier": "MT-649",
+      "session_id": "thread-1-turn-1",
+      "tokens": { "total_tokens": 2000 }
+    }
+  ]
+}
+```
+
 ## Related tools / concepts
 
 - [Harness Engineering (OpenAI Blog)](https://openai.com/index/harness-engineering/)
@@ -63,6 +109,7 @@ Symphony offers two primary paths:
 - [Bee Agent Framework](bee-agent-framework.md)
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md)
 - [NanoClaw](../development_ops/nanoclaw.md)
+- [Superpowers](superpowers.md)
 
 ## Sources / References
 
@@ -70,5 +117,5 @@ Symphony offers two primary paths:
 - [Symphony Specification (SPEC.md)](https://github.com/openai/symphony/blob/main/SPEC.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-09
+- Last reviewed: 2026-05-21
 - Confidence: high

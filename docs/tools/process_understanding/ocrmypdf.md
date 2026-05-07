@@ -32,11 +32,20 @@ Makes scanned PDF documents searchable and indexable by adding a hidden text lay
 - When documents are already digital-native PDFs with embedded text
 - When you need OCR for non-PDF formats (use Tesseract directly or other tools)
 
-## Typical Workflow
+## Getting started
 
-### Local Processing with Docker
-Run `ocrmypdf` on a local file using Docker without installing dependencies:
+### Installation
+```bash
+# Using pip
+pip install ocrmypdf
 
+# Using Docker (recommended to avoid dependency issues)
+docker pull jbarlow83/ocrmypdf
+```
+
+## CLI examples
+
+### Basic OCR with Docker
 ```bash
 docker run --rm \
     -v "$(pwd):/home/docker" \
@@ -47,23 +56,45 @@ docker run --rm \
 ```
 
 ### Batch Processing Script
-A simple bash snippet to process all PDFs in a directory:
-
 ```bash
 for f in *.pdf; do
     docker run --rm -v "$(pwd):/home/docker" jbarlow83/ocrmypdf "$f" "ocr_$f"
 done
 ```
 
+### OCR with Deskew and Clean
+```bash
+ocrmypdf --deskew --clean --language eng input.pdf output.pdf
+```
+
+## API examples
+
+### Modern Python API
+```python
+import ocrmypdf
+from ocrmypdf import OcrOptions
+
+if __name__ == '__main__':
+    options = OcrOptions(
+        input_file='input.pdf',
+        output_file='output.pdf',
+        deskew=True,
+        languages=['eng'],
+    )
+    ocrmypdf.ocr(options)
+```
+
 ## Related tools / concepts
 - [Paperless AI](../../services/paperless-ai.md)
 - [Tesseract CLI](tesseract.md)
-- [Amazon Textract](https://aws.amazon.com/textract/)
+- [Docling](docling.md)
+- [Firecrawl](firecrawl.md)
+- [RAGFlow](ragflow.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/ocrmypdf/OCRmyPDF)
+- [OCRmyPDF Documentation](https://ocrmypdf.readthedocs.io/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-27
+- Confidence: high

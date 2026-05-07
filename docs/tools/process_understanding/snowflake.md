@@ -28,7 +28,41 @@ It eliminates the management overhead of traditional on-premises or cloud data w
 
 ## Getting started
 
-### Connecting (Python)
+### Installation (SnowSQL CLI)
+```bash
+# macOS (using Homebrew)
+brew install --cask snowflake-snowsql
+```
+
+### Initial Configuration
+Configure your connection in `~/.snowsql/config`:
+```ini
+[connections.my_conn]
+accountname = <account_identifier>
+username = <user>
+password = <password>
+```
+
+## CLI examples
+
+### Connect via SnowSQL
+```bash
+snowsql -c my_conn
+```
+
+### Run a Query from CLI
+```bash
+snowsql -c my_conn -q "SELECT current_version()"
+```
+
+### Upload a Local File to a Stage
+```bash
+snowsql -c my_conn -q "PUT file:///path/to/data.csv @my_stage"
+```
+
+## API examples
+
+### Python (snowflake-connector-python)
 ```python
 import snowflake.connector
 
@@ -55,6 +89,8 @@ ctx.close()
 - [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming destination)
 - [S3 / S3-Compatible Storage](../intake_storage/s3-storage.md)
 - [Langfuse](langfuse.md)
+- [Braintrust](braintrust.md)
+- [Datadog](datadog.md)
 
 ## Sources / references
 - [Official Website](https://www.snowflake.com/)
@@ -62,5 +98,5 @@ ctx.close()
 - [OpenRouter Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/snowflake)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-24
 - Confidence: high

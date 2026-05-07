@@ -38,7 +38,29 @@ response = openai.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-### Integration with LangChain
+## CLI examples
+
+### langfuse api traces list
+Lists recent traces from your project:
+```bash
+langfuse api traces list --limit 10
+```
+
+### langfuse api prompts get
+Retrieves a specific prompt version from the Langfuse prompt management system:
+```bash
+langfuse api prompts get --name "my-prompt-name"
+```
+
+### langfuse integration claudecode enable
+Enables tracing for Claude Code sessions:
+```bash
+langfuse integration claudecode enable
+```
+
+## API examples
+
+### Python (LangChain Integration)
 ```python
 from langfuse.callback import CallbackHandler
 
@@ -48,17 +70,32 @@ langfuse_handler = CallbackHandler()
 chain.invoke({"input": "Hello!"}, config={"callbacks": [langfuse_handler]})
 ```
 
-## Related tools / concepts
+### Python (Scoring a trace)
+```python
+from langfuse import Langfuse
 
-- [AI Auditing Tools](ai-auditing-tools.md)
+langfuse = Langfuse()
+
+# Send a score for an existing trace
+langfuse.score(
+    trace_id="existing-trace-id",
+    name="user-feedback",
+    value=1,
+    comment="Very helpful response"
+)
+```
+
+## Related tools / concepts
 - [AgentOps](agentops.md)
 - [Arize AI](arize-ai.md)
 - [Braintrust](braintrust.md)
-- [W&B Weave](wandb-weave.md)
 - [Helicone](helicone.md)
+- [Parea](parea.md)
+- [W&B Weave](wandb-weave.md)
 
 ## Sources / references
 - [Langfuse Website](https://langfuse.com/)
+- [Langfuse CLI Documentation](https://langfuse.com/docs/api-and-data-platform/features/cli)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-26

@@ -41,8 +41,9 @@ Infra
 ## Related tools / concepts
 - [llama.cpp](llama-cpp.md)
 - [Aphrodite Engine](aphrodite-engine.md)
-- [GPTQ](https://github.com/IST-DASLab/gptq)
 - [vLLM](vllm.md)
+- [MLX](mlx.md)
+- [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Official Website](https://github.com/turboderp/exllamav2)

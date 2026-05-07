@@ -33,12 +33,58 @@ Document extraction is often fragile and loses structural information like heade
 - For extremely simple text files where basic `pypdf` or `pdfminer` would be faster.
 - For high-volume real-time processing on low-powered edge devices.
 
+## Getting started
+
+### Installation
+```bash
+# Install the core library
+pip install docling
+```
+
+### Basic usage
+```python
+from docling.document_converter import DocumentConverter
+
+source = "https://arxiv.org/pdf/2408.09869"  # URL or local path
+converter = DocumentConverter()
+result = converter.convert(source)
+print(result.document.export_to_markdown())
+```
+
+## CLI examples
+```bash
+# Convert a local PDF to Markdown (default output)
+docling report.pdf
+
+# Convert to JSON and skip OCR for speed
+docling report.pdf --to json --no-ocr
+
+# Batch convert all PDFs in a directory to a specific output folder
+docling ./input_docs --from pdf --output ./converted_docs
+```
+
+## API examples
+```python
+from docling.document_converter import DocumentConverter
+
+# Advanced conversion with customized pipeline
+converter = DocumentConverter()
+result = converter.convert("technical_manual.pdf")
+
+# Extract structured components
+markdown_content = result.document.export_to_markdown()
+# Access tables as DataFrames (if any detected)
+# tables = result.document.tables
+```
+
 ## Related tools / concepts
 - [Docling MCP](docling-mcp.md)
 - [OCRmyPDF](ocrmypdf.md)
 - [Unstructured](../intake_storage/unstructured.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Tesseract CLI](tesseract.md)
+- [Crawl4AI](crawl4ai.md)
+- [Firecrawl](firecrawl.md)
 
 ## Sources / references
 - [Official Website](https://github.com/docling-project/docling)

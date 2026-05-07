@@ -33,21 +33,23 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [ChatGPT](../tools/ai_knowledge/chatgpt.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strongest all-rounder for native research, files, and app connectors. |
 | [Claude](../tools/ai_knowledge/claude.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strong for cited research and Google Workspace connectors. |
 | [Gemini Apps](../tools/ai_knowledge/gemini.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Strongest Google-native fit for Gmail and Calendar workflows. |
-| [Perplexity](../tools/ai_knowledge/perplexity.md) | Research/search | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Excellent web research; weaker first-party Gmail and Calendar story. |
+| [Gemini for macOS](../tools/ai_knowledge/gemini-macos.md) | Desktop Agent | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Native macOS integration with screen awareness and local files. |
+| [Gemini Canvas](../tools/ai_knowledge/gemini-canvas.md) | Creation Workspace | 🔴 | 🔴 | 🔴 | ⚪ | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Structured drafting and real-time code previews for Workspace. |
+| [Perplexity](../tools/ai_knowledge/perplexity.md) | Research/search | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Excellent web research; now with native Gmail/Calendar connectors. |
 | [NotebookLM](../tools/ai_knowledge/notebooklm.md) | Research/notebooks | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Best for source-grounded research on owned materials; less of an action agent. |
 | [GitHub Copilot](../tools/development_ops/github_copilot.md) | Coding assistant | 🔴 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Good code agent in IDE; external app access is mainly via MCP. |
 | [Cursor](../tools/development_ops/cursor.md) | AI IDE | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strong coding IDE; external systems mainly through MCP. |
 | [Windsurf](../tools/development_ops/windsurf.md) | AI IDE | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Similar to Cursor; MCP is the main integration route. |
-| [Claude Code](../tools/development_ops/claude-code.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | Terminal-first coding agent with broad MCP reach. |
+| [Claude Code](../tools/development_ops/claude-code.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | Terminal-first agent with broad MCP and skill ecosystem ([ECC](../tools/ai_knowledge/everything-claude-code.md)). |
 | [Codex CLI](../tools/development_ops/codex.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Strong local terminal workflow; OpenAI-centric rather than provider-agnostic. |
 | [Gemini CLI](../tools/ai_knowledge/gemini-cli.md) | Coding / terminal agent | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Good terminal choice when official Workspace access is important. |
-| [Aider](../tools/development_ops/aider.md) | Terminal pair programmer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Practical for local repos; broad model and provider flexibility. |
+| [Aider](../tools/development_ops/aider.md) | Terminal pair programmer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟠 | 🟢 | 🟢 | Practical for local repos; MCP support via external servers. |
 | [Devin](../tools/development_ops/devin.md) | Autonomous AI Engineer | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Fully autonomous software engineer; web-based with browser/terminal access. |
 | [Melty](../tools/development_ops/melty.md) | Open-source AI IDE | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | Open-source AI IDE that watches your work and learns. |
 | [Plandex](../tools/development_ops/plandex.md) | Terminal AI agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | AI coding agent for the terminal; handles complex, multi-step tasks. |
 | [Continue](../tools/development_ops/continue_dev.md) | IDE coding agent/checks | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Useful for repo checks plus flexible model backends. |
 | [Cline](../tools/agents/cline.md) | VS Code coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Strong editor agent with browser support and custom provider URL options. |
-| [Roo Code](../tools/agents/roo-code.md) | VS Code coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Similar to Cline, with explicit OpenAI-compatible and Z.ai-oriented provider paths. |
+| [Roo Code](../tools/agents/roo-code.md) | VS Code coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Similar to Cline, with explicit OpenAI-compatible and Z.ai-oriented provider paths. |
 | [OpenHands](../tools/development_ops/openhands.md) | Agent platform | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟠 | 🟠 | 🟢 | More of a software-agent runtime than a personal productivity assistant. |
 | [Open WebUI](../services/open-webui.md) | Self-hosted AI workspace | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Strong self-hosted front end for local and cloud models. |
 | [LibreChat](../tools/ai_knowledge/librechat.md) | Self-hosted chat/agents | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Flexible self-hosted stack with custom endpoints and agents. |
@@ -79,9 +81,18 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [CrewAI](../tools/frameworks/crewai.md) | Multi-agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Framework for multi-agent app construction. |
 | [AutoGen](../tools/frameworks/autogen.md) | Multi-agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Framework for agent coordination and experiments. |
 | [AutoGen Studio](../tools/frameworks/autogen-studio.md) | Low-code agent UI | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | UI layer for AutoGen-style agent workflows. |
+| [Open Agents](../tools/agents/open-agents.md) | Agent / web automation | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | 🔵 | 🟢 | 🔴 | Vercel Labs blueprint for deployable browser-use agents. |
 | [Semantic Kernel](../tools/frameworks/semantic-kernel.md) | Agent SDK | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | SDK for embedding agents into applications. |
 | [Microsoft Agent Framework](../tools/frameworks/microsoft-agent-framework.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | 🟢 | Microsoft-centered agent framework path. |
-| [Agno](../tools/agents/agno.md) | Agent runtime / framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | Agent framework with practical local and app-building focus and MCP support. |
+| [Agno](../tools/agents/agno.md) | Agent runtime / framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Agent framework with practical local and app-building focus and MCP support. |
+| [Phidata](../tools/agents/phidata.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Predecessor to Agno; flexible framework for RAG and tools. |
+| [Agency-Agents](../tools/agents/agency-agents.md) | Agent personas | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | Comprehensive suite of 110+ specialized agent personas for IDEs. |
+| [Agency Swarm](../tools/agents/agency-swarm.md) | Multi-agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | OpenAI-centric multi-agent orchestration framework. |
+| [Agentic Automation Canvas](../tools/agents/agentic-automation-canvas.md) | Design framework | 🟢 | 🔴 | 🔴 | ⚪ | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔵 | 🔴 | 🔴 | Structured framework for designing and documenting agentic systems. |
+| [AutoReason](../tools/agents/autoreason.md) | Reasoning engine | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | Autonomous self-refinement framework for complex logical tasks. |
+| [Bee Agent Framework](../tools/agents/bee-agent-framework.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | IBM's enterprise-grade framework with strong MCP and observability. |
+| [GPT Researcher](../tools/agents/gpt-researcher.md) | Research agent | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Autonomous research agent that produces cited reports from web/local data. |
+| [Letta](../tools/agents/letta.md) | Memory layer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Stateful agent framework (formerly MemGPT) with "infinite" memory. |
 | [Haystack](../tools/frameworks/haystack.md) | RAG / agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Strong RAG framework, not a productivity assistant. |
 | [PydanticAI](../tools/frameworks/pydantic-ai.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟠 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | Developer framework centered on typed Python agents. |
 | [LlamaIndex](../tools/ai_knowledge/llamaindex.md) | Context / agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Strong context and RAG layer. |
@@ -93,11 +104,14 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [LiteLLM](../services/litellm.md) | LLM gateway | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | High-value provider abstraction and routing layer. |
 | [OpenRouter](../tools/ai_knowledge/openrouter.md) | Model router / API | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Hosted model router with broad OpenAI-compatible API coverage. |
 | [Vercel AI SDK](../tools/development_ops/vercel-ai-sdk.md) | App / agent SDK | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟠 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | App SDK for AI interfaces and agents, not a standalone assistant. |
+| [/last30days](../tools/ai_knowledge/last30days-skill.md) | Research skill | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | Specialized social-signal research skill for Claude Code/OpenClaw. |
+| [Claude How-To](../tools/ai_knowledge/claude-howto.md) | Tutorial / Guides | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🔵 | 🔴 | 🔴 | Interactive guides and templates for Claude Code and MCP. |
 | [Temporal](../tools/orchestration/temporal.md) | Durable workflow engine | 🟢 | 🔴 | 🔴 | 🟠 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | Durable orchestration substrate. |
 | [AgentOps](../tools/process_understanding/agentops.md) | Agent observability | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | Observability product for agent runs. |
 | [Langfuse](../tools/process_understanding/langfuse.md) | LLM observability | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | Open-source observability with self-host path. |
 | [Opik](../tools/process_understanding/comet-opik.md) | LLM observability / eval | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | Evaluation and tracing surface. |
 | [Promptfoo](../tools/benchmarking/promptfoo.md) | Eval / red-team | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Practical CLI-driven eval and red-team tool. |
+| [Supermetal](../tools/benchmarking/supermetal.md) | Data movement / CDC | 🟢 | 🔴 | 🔴 | 🟠 | 🔴 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🔴 | 🟢 | High-speed Postgres-to-Iceberg synchronization API. |
 | [Ragas](../tools/process_understanding/ragas.md) | Evaluation library | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | Library for RAG and LLM evaluation. |
 | [Arize Phoenix](../tools/process_understanding/arize-ai.md) | Observability / eval | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | Open-source evaluation and tracing stack. |
 | [Parea](../tools/process_understanding/parea.md) | Observability / eval | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Hosted observability and evaluation platform. |
@@ -110,7 +124,8 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [Braintrust](../tools/process_understanding/braintrust.md) | Observability / eval | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | Evaluation, prompt, and tracing infrastructure. |
 | [DSPy](../tools/frameworks/dspy.md) | Programming framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Programmatic prompting and optimization framework. |
 | [Instructor](../tools/frameworks/instructor.md) | Structured output library | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | Lightweight library for structured outputs. |
-| [Mem0](../tools/agents/mem0.md) | Memory layer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Agent memory layer rather than a full assistant. |
+| [Mem0](../tools/agents/mem0.md) | Memory layer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Agent memory layer with dedicated CLI and persistent user/session context. |
+| [Nvidia NemoClaw](../tools/agents/nemoclaw.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | High-performance enterprise agent platform optimized for Nvidia hardware. |
 | [AirOps](../tools/automation_orchestration/airops.md) | Content / workflow platform | 🔴 | 🔵 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Workflow/content platform with app integrations. |
 | [Google ADK](../tools/frameworks/google-adk.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | Google-centered agent development kit. |
 | [Firebase Genkit](../tools/frameworks/firebase-genkit.md) | Full-stack AI framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | Full-stack AI framework for app developers. |
@@ -157,6 +172,7 @@ The most practical stack is often layered: a native assistant for research, a lo
 - [ChatGPT synced connectors](https://help.openai.com/en/articles/10847137-internal-knowledge-on-chatgpt-faq)
 - [OpenAI deep research guide](https://platform.openai.com/docs/guides/deep-research)
 - [Claude Gmail and Google Calendar integration](https://support.anthropic.com/zh-TW/articles/11088742-%E4%BD%BF%E7%94%A8-gmail-%E5%92%8C-google-calendar-%E6%95%B4%E5%90%88%E5%8A%9F%E8%83%BD)
+- [Google Gemini Mac app launch](https://thenewstack.io/gemini-app-macos-launch/)
 - [Google Workspace Gemini privacy and app context](https://support.google.com/meet/answer/14615114)
 - [Model Context Protocol introduction](https://www.anthropic.com/news/model-context-protocol)
 - [Open WebUI MCP support](https://docs.openwebui.com/openapi-servers/mcp/)
@@ -171,5 +187,5 @@ The most practical stack is often layered: a native assistant for research, a lo
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-05-20
 - Confidence: high

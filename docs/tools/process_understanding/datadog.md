@@ -7,7 +7,7 @@ Datadog is an enterprise-grade observability and security platform that provides
 It provides deep visibility into complex, distributed systems. It unifies metrics, traces, and logs in a single pane of glass, allowing teams to diagnose performance issues, monitor service health, and secure their cloud environments.
 
 ## Where it fits in the stack
-**Category**: Tool / Process Understanding
+**Category**: Process & Understanding / Observability
 
 ## Typical use cases
 - Monitoring cloud-native applications (AWS, Azure, GCP).
@@ -26,29 +26,67 @@ It provides deep visibility into complex, distributed systems. It unifies metric
 - Cost: Pricing can scale rapidly with volume (logs, custom metrics, etc.).
 - Learning Curve: Requires significant configuration to get the most value.
 
-## When to use it
-- When managing complex, production-grade cloud infrastructure.
-- When you need a unified observability platform across multiple teams and services.
-- When integrating with OpenRouter for high-level LLM request/response logging.
+## Getting started
 
-## When not to use it
-- For simple, single-server setups where basic monitoring is sufficient.
-- If you are on a very tight budget and don't need advanced enterprise features.
+### Installation (Agent)
+```bash
+# Install the Datadog Agent (Ubuntu/Debian)
+DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=<YOUR_API_KEY> DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
+```
 
-## Licensing and cost
-- **SaaS**: Yes
-- **Free Tier**: Limited free tier available for small environments.
-- **Paid**: Usage-based pricing across various modules (Infrastructure, APM, Log Management).
+### Configuration
+Update `/etc/datadog-agent/datadog.yaml` with your API key and site, then restart the service:
+```bash
+sudo systemctl restart datadog-agent
+```
+
+## CLI examples
+
+### Check Agent Status
+```bash
+datadog-agent status
+```
+
+### Verify Configuration
+```bash
+datadog-agent configcheck
+```
+
+### Send a Metric via DogStatsD
+```bash
+echo -n "custom.metric:1|c" | nc -w 1 -u localhost 8125
+```
+
+## API examples
+
+### Python (StatsD)
+```python
+from datadog import initialize, statsd
+
+options = {
+    'statsd_host':'127.0.0.1',
+    'statsd_port':8125
+}
+
+initialize(**options)
+
+# Increment a counter with tags
+statsd.increment('agent.run.count', tags=["env:prod", "version:1.0"])
+```
 
 ## Related tools / concepts
 - [Sentry](sentry.md)
 - [Langfuse](langfuse.md)
 - [PostHog](posthog.md)
+- [OpenTelemetry Collector](opentelemetry-collector.md)
+- [Grafana Cloud](grafana-cloud.md)
+- [New Relic AI](new-relic-ai.md)
 
 ## Sources / References
 - [Official Website](https://www.datadoghq.com/)
+- [Datadog Documentation](https://docs.datadoghq.com/)
 - [OpenRouter Logging Docs](https://openrouter.ai/docs/activity/logging)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-24
 - Confidence: high

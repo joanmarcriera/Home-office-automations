@@ -1,39 +1,51 @@
 # Project Genie
 
 ## What it is
-Project Genie is an AI research project from Google DeepMind that allows users to create interactive, playable 2D worlds from a single image or text prompt. It is a foundational world model trained on video data.
+Project Genie is an AI research prototype from Google DeepMind that allows users to create, explore, and remix interactive virtual worlds from text prompts and images. It is powered by **Genie 3**, an 11-billion-parameter autoregressive transformer world model trained on large-scale video data.
 
 ## What problem it solves
-It enables the rapid creation of interactive environments without traditional game development overhead. It allows for the exploration of world models and their ability to learn physics and gameplay mechanics from observing video.
+It enables the rapid creation of interactive environments and simulations without traditional game development overhead. It demonstrates the ability of "world models" to learn physics, gameplay mechanics, and character interactions solely from observing video.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Generative Models**.
+**AI Assistants & Knowledge / Generative Models**. It is a foundational world model for interactive world generation.
 
 ## Typical use cases
-- **Rapid Prototyping**: Creating interactive scenes for game design or storytelling.
-- **World Building**: Generating diverse environments for AI agents to inhabit and learn from.
+- **Rapid Prototyping**: Creating interactive scenes for game design, storytelling, or architectural visualization.
+- **Agent Training**: Generating diverse, physics-aware environments for AI agents to inhabit and learn from.
+- **Interactive Entertainment**: Allowing users to "walk around" and interact with worlds generated from their imagination.
+
+## Usage Requirements
+- **Subscription**: Requires a **Google AI Ultra** subscription (approx. $249.99/mo as of early 2026).
+- **Region/Age**: Currently available to users in the U.S. over the age of 18.
+- **Interface**: Accessible via Google Labs and integrated into the broader Google AI ecosystem.
 
 ## Prompting Tips
-1. **Be Specific with Style**: Describe the visual style (e.g., "pixel art", "hand-drawn") to set the world's tone.
-2. **Define Mechanics**: Specify how the character interacts with the environment (e.g., "platformer", "side-scroller").
-3. **Describe the Atmosphere**: Use evocative language for lighting and mood.
-4. **Iterate on Results**: Refine the prompt based on the generated world's interactivity.
+- **Detailed Environments**: Describe weather, lighting, and specific structures (e.g., "a lush neon forest with constant blue rain and floating crystals").
+- **Action-Oriented Characters**: Specify how the character moves—flying, rolling, hopping—and any visual effects of their movement.
+- **Image Input**: Upload a centered character with enough background to define the environment for the model to extrude into 3D.
+- **Perspective Switching**: Switch between first-person and third-person views in real-time to explore the generated space.
 
 ## Strengths
-- **Simplicity**: Generates playable worlds from minimal input.
-- **Learning from Video**: Learns complex physics and interactions without explicit programming.
+- **Physics-Aware Interactivity**: Generates playable worlds that respect basic physical laws (gravity, collision) learned from video.
+- **Remixing**: Users can take existing worlds from a gallery and modify them using natural language.
+- **High Resolution**: Genie 3 supports real-time generation at 720p/24fps.
 
 ## Limitations
-- **Resolution**: Currently limited in visual resolution and complexity.
-- **Interactivity**: Interaction types are still evolving.
+- **Duration**: Current interactive sessions are often limited in duration (e.g., 60-second clips) or spatial complexity.
+- **Premium Cost**: High computational requirements result in significant subscription pricing.
 
 ## Related tools / concepts
-- [Google Gemini](./google-gemini.md)
-- [Runway ML](./runwayml.md)
+- [Google Gemini](google-gemini.md)
+- [Runway ML](runwayml.md)
+- [Sora](sora.md)
+- [Luma Dream Machine](luma-dream-machine.md)
+- [AG2](../frameworks/ag2.md)
 
 ## Sources / References
-- [Create new worlds in Project Genie with these 4 tips](https://blog.google/innovation-and-ai/models-and-research/google-deepmind/tips-prompt-writing-project-genie/)
+- [Genie 3 — Google DeepMind](https://deepmind.google/models/genie/)
+- [How to write prompts for Project Genie (The Keyword)](https://blog.google/innovation-and-ai/models-and-research/google-deepmind/tips-prompt-writing-project-genie/)
+- [Project Genie - Google Labs](https://labs.google/projectgenie)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-15
 - Confidence: high

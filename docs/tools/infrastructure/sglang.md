@@ -41,7 +41,9 @@ Infra
 ## Related tools / concepts
 - [vLLM](vllm.md)
 - [Text Generation Inference (TGI)](tgi.md)
-- [Guidance](https://github.com/guidance-ai/guidance)
+- [Aphrodite Engine](aphrodite-engine.md)
+- [llama.cpp](llama-cpp.md)
+- [Inference engines](index.md)
 
 ## Sources / References
 - [Official Website](https://sgl-project.github.io/)

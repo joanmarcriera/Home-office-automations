@@ -50,7 +50,7 @@ composio list
 pip install composio-core composio-openai
 ```
 
-### Working Example
+### Basic Usage
 ```python
 from composio_openai import ComposioToolSet, App
 from openai import OpenAI
@@ -75,6 +75,24 @@ result = toolset.handle_tool_calls(response)
 print(result)
 ```
 
+## API examples
+```python
+from composio_openai import ComposioToolSet, App
+
+toolset = ComposioToolSet(api_key="YOUR_COMPOSIO_KEY")
+
+# List all available actions for an application
+actions = toolset.get_actions(apps=[App.GITHUB])
+for action in actions:
+    print(action.name)
+
+# Manually trigger an action
+result = toolset.execute_action(
+    action="GITHUB_STAR_A_REPOSITORY_FOR_THE_AUTHENTICATED_USER",
+    params={"owner": "composiohq", "repo": "composio"}
+)
+```
+
 ## Licensing and cost
 - **Open Source**: The SDK is open source.
 - **Cost**: Freemium (Free tier available, paid for higher usage/enterprise features).
@@ -84,6 +102,9 @@ print(result)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [Zapier](../automation_orchestration/zapier.md)
 - [Make](../automation_orchestration/make.md)
+- [CrewAI](../frameworks/crewai.md)
+- [LangGraph](../frameworks/langgraph.md)
+- [Agno](agno.md)
 
 ## Sources / References
 - [Official Website](https://composio.dev/)
@@ -91,5 +112,5 @@ print(result)
 - [GitHub](https://github.com/composiohq/composio)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-20
 - Confidence: high

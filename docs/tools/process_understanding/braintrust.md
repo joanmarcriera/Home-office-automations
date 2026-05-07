@@ -61,6 +61,12 @@ Pushes local prompts or configs to the Braintrust platform:
 braintrust push
 ```
 
+### bt eval
+Runs a local evaluation suite (requires the `bt` CLI):
+```bash
+bt eval
+```
+
 ## API examples
 
 ### Python (Logging a trace)
@@ -79,6 +85,8 @@ my_ai_function("Hello world")
 - [LangSmith](../benchmarking/langsmith.md)
 - [Promptfoo](../benchmarking/promptfoo.md)
 - [Arize AI](./arize-ai.md)
+- [Helicone](./helicone.md)
+- [Parea](./parea.md)
 
 ## Sources / references
 - [Official Website](https://www.braintrustdata.com/)
@@ -86,5 +94,5 @@ my_ai_function("Hello world")
 - [OpenRouter Logging Guide](https://openrouter.ai/docs/guides/logging)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-26
 - Confidence: high

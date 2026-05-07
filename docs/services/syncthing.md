@@ -1,9 +1,30 @@
 # Syncthing
 
-Syncthing is a continuous file synchronization program.
+## What it is
+Syncthing is a continuous, decentralized file synchronization program. It allows you to synchronize files between two or more computers in real time, safely and securely, without relying on a central server or cloud provider.
 
-## Description
-It synchronizes files between two or more computers in real time, safely and securely.
+## What problem it solves
+Managing files across multiple devices (desktop, laptop, mobile, NAS) usually requires a central cloud service like Dropbox or Google Drive, which can pose privacy risks and incur subscription costs. Syncthing solves this by providing a peer-to-peer synchronization mechanism that keeps data entirely on your own hardware.
+
+## Where it fits in the stack
+**Category**: Services / Data Synchronization. It sits in the **storage and sync** layer of a self-hosted environment, ensuring data consistency across the network.
+
+## Typical use cases
+- Syncing a "Work" folder between a desktop and a laptop.
+- Automatically backing up photos from an Android phone to a home server.
+- Synchronizing a KeepassXC database or Obsidian vault across multiple devices.
+- Distributing configuration files across a fleet of servers.
+
+## Strengths
+- **Private and Secure**: Data never leaves your devices. Transfers are encrypted and authenticated.
+- **Decentralized**: No central server to fail or be compromised.
+- **Efficient**: Uses a block-based synchronization algorithm to only transfer changed parts of files.
+- **Cross-Platform**: Runs on Linux, Windows, macOS, Android, and various BSDs.
+
+## Limitations
+- **Not a Backup Tool**: While it has file versioning, it is primarily for sync. Deleting a file on one device deletes it on all (unless "Send Only" is configured).
+- **Initial Setup**: Connecting devices requires exchanging long Device IDs, which can be cumbersome for non-technical users.
+- **No Native iOS App**: Due to OS limitations, there is no official iOS client (though third-party "Möbius Sync" exists).
 
 ## When to use it
 - When you need to sync files across multiple devices without relying on a central cloud provider.
@@ -18,74 +39,85 @@ It synchronizes files between two or more computers in real time, safely and sec
 ## Getting started
 
 ### Installation
-Download the latest binary for your operating system from the [official downloads page](https://syncthing.net/downloads/).
-
-### Running Syncthing
-Simply run the `syncthing` binary to start the service and open the web GUI:
+The easiest way to install Syncthing on Linux is via the official APT repository (for Debian/Ubuntu) or by downloading the [pre-compiled binaries](https://syncthing.net/downloads/).
 
 ```bash
+# Example: Download and extract for Linux 64-bit
+curl -L https://github.com/syncthing/syncthing/releases/latest/download/syncthing-linux-amd64-v1.27.6.tar.gz | tar xz
+cd syncthing-linux-amd64-*
 ./syncthing
 ```
 
 ### Hello World
-1. After starting Syncthing, the admin GUI will open automatically at `http://localhost:8384/`.
-2. Click on **Actions** (top right) and select **Show ID**.
-3. This unique **Device ID** is what you will share with your other devices to establish a secure connection.
+1. Start Syncthing: `./syncthing`. The Web GUI will open at `http://localhost:8384`.
+2. On your **first device**, go to **Actions > Show ID** and copy the long string.
+3. On your **second device**, click **Add Remote Device** and paste the ID from the first device.
+4. On the **first device**, a notification will appear; click **Add Device** to confirm.
+5. In the **Default Folder** settings on either device, go to the **Sharing** tab and check the other device to start syncing files in `~/Sync`.
 
 ## CLI examples
-The `syncthing` binary supports several command-line arguments for configuration and management:
+The `syncthing` binary handles both service execution and configuration tasks:
 
 ```bash
-# Show version information
-syncthing --version
-
-# Generate a new configuration and keys in the specified directory
+# Generate a new API key and configuration without starting the GUI
 syncthing --generate="/path/to/config"
 
-# Set the GUI listen address manually
-syncthing --gui-address="0.0.0.0:8384"
+# Reset the GUI password if you are locked out
+syncthing --gui-password="newpassword" --gui-user="admin"
+
+# Check the version and build information
+syncthing --version
 ```
 
 ## API examples
-Syncthing provides a REST API. Authenticate using the `X-API-Key` header (found in the Web GUI under Actions > Settings).
+Syncthing's REST API is comprehensive. Find your API key in **Actions > Settings > General**.
 
 ### Python Example
 ```python
 import requests
 
-url = "http://localhost:8384/rest/system/version"
-headers = {
-    "X-API-Key": "YOUR_API_KEY"
-}
+# Fetch the current system status and resource usage
+url = "http://localhost:8384/rest/system/status"
+headers = {"X-API-Key": "YOUR_API_KEY"}
 
 response = requests.get(url, headers=headers)
-print(response.json())
+if response.ok:
+    status = response.json()
+    print(f"Syncthing Version: {status['version']}, Uptime: {status['uptime']}s")
 ```
 
 ### Curl Example
 ```bash
-# Get system version
-curl -X GET -H "X-API-Key: <your_api_key>" \
-     "http://localhost:8384/rest/system/version"
+# Force a rescan of a specific folder (replace 'default' with your folder ID)
+curl -X POST -H "X-API-Key: <your_api_key>" \
+     "http://localhost:8384/rest/db/scan?folder=default"
 ```
 
 ## Links
 - [Official Website](https://syncthing.net/)
 - [Documentation](https://docs.syncthing.net/)
 
-## Alternatives
-- [Resilio Sync](https://www.resilio.com/) (Non-OSS)
-- [Nextcloud](nextcloud.md)
+## Licensing and cost
+- **Open Source**: Yes (MPL-2.0)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Related tools / concepts
+- [Nextcloud](nextcloud.md) — for a full suite of cloud services beyond just sync
+- [Rclone Automation](rclone-automation.md) — for syncing data to public cloud providers
+- [Tailscale](tailscale.md) — to connect devices across different networks securely
+- [Docker](../tools/infrastructure/docker.md) — for consistent deployment in a homelab
+- [Storj](storj.md) — for decentralized, encrypted cloud storage
+- [Immich](immich.md) — for self-hosted photo management (often paired with Syncthing)
 
 ## Backlog
 - Configure selective sync for mobile devices.
 
 ## Sources / References
-
+- [Official Website](https://syncthing.net/)
 - [Getting Started Guide](https://docs.syncthing.net/intro/getting-started.html)
 - [REST API Documentation](https://docs.syncthing.net/dev/rest.html)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-06-12
 - Confidence: high

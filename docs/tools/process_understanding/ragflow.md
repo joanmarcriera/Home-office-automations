@@ -33,10 +33,57 @@ It solves the "garbage in, garbage out" problem in RAG systems by using advanced
 - For simple, text-only RAG tasks where lightweight solutions like a basic vector DB would suffice.
 - In resource-constrained environments (e.g., low-power edge devices).
 
+## Getting started
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/infiniflow/ragflow.git
+cd ragflow/docker
+
+# Increase vm.max_map_count for Elasticsearch
+sudo sysctl -w vm.max_map_count=262144
+
+# Start the server using Docker Compose
+docker compose up -d
+```
+
+### Basic usage
+Access the RAGFlow UI at `http://localhost` (default port 80). Log in and configure your LLM API keys in the settings.
+
+## CLI examples
+```bash
+# Pull the latest RAGFlow image
+docker pull infiniflow/ragflow:v0.25.1
+
+# Check backend logs
+docker logs -f ragflow-server
+
+# Enter the backend container for maintenance
+docker exec -it ragflow-server bash
+```
+
+## API examples
+```python
+# RAGFlow provides a Python SDK for programmatic access
+from ragflow_sdk import RAGFlow
+
+# Initialize the client
+ragflow = RAGFlow(api_key="YOUR_API_KEY", base_url="http://ragflow-server")
+
+# Create a dataset
+dataset = ragflow.create_dataset(name="My Knowledge Base")
+
+# Upload a document
+dataset.upload_document(filename="manual.pdf")
+```
+
 ## Related tools / concepts
 - [Dify](../ai_knowledge/dify.md)
 - [PageIndex](./pageindex.md)
 - [OCRmyPDF](./ocrmypdf.md)
+- [Docling](./docling.md)
+- [Firecrawl](./firecrawl.md)
 
 ## Sources / references
 - [Official Website](https://ragflow.io/)

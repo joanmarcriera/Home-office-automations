@@ -1,9 +1,32 @@
 # Homebox
 
-Homebox is an inventory and organization system built specifically for home users, focusing on simplicity, speed, and ease of use.
+## What it is
 
-## Description
-It helps you keep track of your belongings, their locations, warranties, and purchase details. Written in Go, it is extremely lightweight (typically using less than 50MB of RAM) and uses SQLite for portable data management.
+Homebox is an inventory and organization system built specifically for home users, focusing on simplicity, speed, and ease of use. Written in Go, it is extremely lightweight (typically using less than 50MB of RAM) and uses SQLite for portable data management.
+
+## What problem it solves
+
+Keeping track of physical belongings, their locations, warranties, and purchase details can be difficult. Homebox provides a centralized, self-hosted system to organize items across multiple locations (e.g., "Garage", "Attic", "Storage Unit") without the complexity of enterprise asset management tools.
+
+## Where it fits in the stack
+
+**Category**: Service / Inventory Management. It sits in the **personal/home organization** layer of the self-hosted stack.
+
+## Typical use cases
+- Organizing household belongings across multiple rooms and storage areas.
+- Tracking warranties, purchase dates, and prices for insurance purposes.
+- Managing small collections (e.g., tools, books, electronics).
+
+## Strengths
+- **Extremely lightweight**: Minimal resource footprint (Go + SQLite).
+- **Simplicity**: Focused on home use rather than complex enterprise workflows.
+- **Portable data**: Uses a single SQLite database file for easy backups.
+- **Fast and responsive**: Modern, clean web interface.
+
+## Limitations
+- **Single-user focus**: Lacks complex multi-user permission models.
+- **Minimal integrations**: Primarily a standalone system with a basic REST API.
+- **Not for enterprise**: Not designed for massive concurrent users or complex supply chain needs.
 
 ## When to use it
 - When you need a simple, fast inventory system to track household items.
@@ -21,9 +44,12 @@ It helps you keep track of your belongings, their locations, warranties, and pur
 - [GitHub Repository](https://github.com/sysadminsmedia/homebox)
 - [Live Demo](https://demo.homebox.software/)
 
-## Alternatives
-- [Grocy](grocy.md) (more focused on groceries and meal planning)
-- [Snipe-IT](https://snipeitapp.com/) (Enterprise-grade IT asset management)
+## Related tools / concepts
+- [Grocy](grocy.md) — focused on groceries and meal planning
+- [Mealie](mealie.md) — recipe manager with food inventory features
+- [Snipe-IT](https://snipeitapp.com/) — Enterprise-grade IT asset management
+- [Paperless-ngx](paperless-ngx.md) — for archiving physical receipts and warranties
+- [Actual Budget](actual-budget.md) — for tracking the financial side of purchases
 
 ## Getting started
 

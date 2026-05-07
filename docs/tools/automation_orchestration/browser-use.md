@@ -48,6 +48,62 @@ Find target page -> authenticate -> navigate multi-step flow -> extract result -
 - Browser Use is strongest when the workflow is interactive, stateful, and human-like.
 - Pair it with [n8n](../../services/n8n.md) for scheduling and retries, and with [mem0](../agents/mem0.md) if the agent must remember prior interactions.
 
+## Getting started
+
+### Installation
+```bash
+pip install browser-use
+```
+
+### Basic Usage
+```python
+from browser_use import Agent
+from langchain_openai import ChatOpenAI
+
+async def main():
+    agent = Agent(
+        task="Go to Hacker News and find the top story about AI.",
+        llm=ChatOpenAI(model="gpt-4o"),
+    )
+    result = await agent.run()
+    print(result)
+
+import asyncio
+asyncio.run(main())
+```
+
+## CLI examples
+```bash
+# Run a simple browser-use task from the CLI
+python -m browser_use "Search for the latest news on SpaceX"
+
+# Start the browser-use web UI for interactive task creation
+python -m browser_use --ui
+
+# List all available browser-use agent configurations
+python -m browser_use --list-agents
+```
+
+## API examples
+```python
+from browser_use import Agent, Browser, BrowserConfig
+from langchain_anthropic import ChatAnthropic
+
+# Advanced configuration with a persistent browser context
+browser = Browser(config=BrowserConfig(headless=False))
+
+agent = Agent(
+    task="Log in to my dashboard and download the last 3 reports",
+    llm=ChatAnthropic(model="claude-3-5-sonnet-20240620"),
+    browser=browser
+)
+
+async def run_task():
+    history = await agent.run()
+    print(f"Task completed. Steps taken: {len(history)}")
+    await browser.close()
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT)
 - **Cost**: Free (Self-hosted)
@@ -59,6 +115,8 @@ Find target page -> authenticate -> navigate multi-step flow -> extract result -
 - [n8n](../../services/n8n.md)
 - [mem0](../agents/mem0.md)
 - [Playwright MCP Server](https://github.com/microsoft/playwright-mcp)
+- [Stagehand](stagehand.md)
+- [Lightpanda](lightpanda.md)
 
 ## Sources / References
 - [GitHub](https://github.com/browser-use/browser-use)
@@ -66,5 +124,5 @@ Find target page -> authenticate -> navigate multi-step flow -> extract result -
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-05-22
 - Confidence: high

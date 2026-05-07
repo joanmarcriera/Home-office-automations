@@ -58,6 +58,8 @@ python -m aphrodite.endpoints.kobold.api_server --model /path/to/model/
 - [vLLM](vllm.md)
 - [ExLlamaV2](exllamav2.md)
 - [llama.cpp](llama-cpp.md)
+- [SGLang](sglang.md)
+- [Text Generation Inference (TGI)](tgi.md)
 
 ## Sources / References
 - [Official Website](https://aphrodite.pygmalion.chat/)

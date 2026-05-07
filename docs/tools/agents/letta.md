@@ -1,36 +1,102 @@
 # Letta
 
 ## What it is
-Letta (formerly MemGPT) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits.
+Letta (formerly MemGPT) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store.
 
 ## What problem it solves
-It enables long-lived agents that remember past interactions and information over extended periods, making them suitable for personal assistants and complex projects.
+Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods, making them suitable for personal assistants and complex, multi-session software engineering.
 
 ## Where it fits in the stack
-**Category**: Agent
+**Category**: Agent / Memory Layer
 
 ## Typical use cases
-- Persistent personal assistants
-- Multi-session coding projects
-- Interactive role-playing
+- **Persistent Personal Assistants**: Agents that remember months of conversation history and preferences.
+- **Multi-session Coding Projects**: Agents that maintain state across different days of development.
+- **Durable Workflows**: Agents that can be paused and resumed without losing task context.
+
+## When to use it
+- **Long-Lived Agents**: When you need an agent to maintain personality, memory, and state over weeks or months of interaction.
+- **Context-Exceeding Tasks**: When the information needed for a task (e.g., a large codebase or complex user history) exceeds the LLM's raw context window.
+- **Stateful Multi-Session Work**: For engineering or research tasks that span multiple sessions and require the agent to remember where it left off.
+
+## When not to use it
+- **Stateless Transactions**: For simple, one-off API calls or basic chatbots, the memory management overhead is unnecessary.
+- **Low-Latency Requirements**: Tiered memory access (searching vector DBs and updating core memory) increases inference time.
+- **Serverless Deployments**: Letta requires a persistent server and database, making it less suitable for purely serverless architectures.
+
+## Virtual Context Management
+Letta implements a "Virtual Context" architecture inspired by operating systems:
+- **Core Memory**: Fixed-size, high-priority context (e.g., current task, user bio).
+- **Archival Memory**: Infinite long-term storage (vector DB) for facts and past logs.
+- **Recall Memory**: Searchable history of all past interactions.
 
 ## Getting started
+
+### Installation
 ```bash
 pip install letta
 ```
 
-## Related tools / concepts
+### Basic Usage
+Start the Letta server and interact with a stateful agent that persists its memory in a database.
 
-- [Agency Swarm](agency-swarm.md)
-- [Agency-Agents](agency-agents.md)
-- [Agentic Automation Canvas (AAC)](agentic-automation-canvas.md)
+## CLI examples
+```bash
+# Start the interactive Letta Code CLI
+letta
+
+# Run a query in headless mode and persist the result
+letta -p "Implement a Dockerfile for a Go application and remember my preference for Alpine base images."
+
+# Switch the underlying LLM model for the current agent session
+letta /model gpt-4o
+```
+
+## API examples
+```python
+from letta import create_client
+
+client = create_client()
+
+# 1. Create a stateful agent with persistent memory
+agent = client.create_agent(
+    name="DurableAssistant",
+    memory_type="base_memory"
+)
+
+# 2. Send a message that updates agent state
+response = client.user_message(
+    agent_id=agent.id,
+    message="My favorite project is the autonomous drone hub."
+)
+
+# 3. Retrieve the response (the agent will remember this in the next call)
+print(f"Agent: {response[0].text}")
+```
+
+## Strengths
+- **State Persistence**: State is stored in a database (PostgreSQL by default), allowing agents to survive process restarts.
+- **Infinite Context**: Automatically manages what stays in the active LLM context and what goes to long-term storage.
+- **Self-Editing Memory**: Agents can be given tools to "write" to their own memory.
+
+## Limitations
+- **Latency**: Tiered memory management adds overhead to each inference step.
+- **Complexity**: Setting up the server and database infrastructure is more involved than simple stateless agents.
+- **Token Usage**: Managing the memory buffer requires additional tokens for system prompts and internal reasoning.
+
+## Related tools / concepts
+- [Mem0](mem0.md)
 - [Agno](agno.md)
-- [Anthropic Agent Skills](anthropic-agent-skills.md)
+- [Agency Swarm](agency-swarm.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [LangGraph](../frameworks/langgraph.md)
 
 ## Sources / references
 - [Letta Official Site](https://www.letta.com/)
 - [Letta GitHub](https://github.com/letta-ai/letta)
+- [Official Documentation](https://docs.letta.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-29
 - Confidence: high

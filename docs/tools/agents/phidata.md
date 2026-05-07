@@ -48,7 +48,7 @@ phi stop
 pip install phidata openai duckduckgo-search
 ```
 
-### Working Example
+### Basic Usage
 ```python
 from phi.agent import Agent
 from phi.model.openai import OpenAIChat
@@ -67,6 +67,22 @@ agent = Agent(
 agent.print_response("What is the latest news about AI agents?", stream=True)
 ```
 
+## API examples
+```python
+from phi.agent import Agent
+from phi.storage.agent.sqlite import SqlAgentStorage
+
+# Create an agent with persistent storage
+agent = Agent(
+    storage=SqlAgentStorage(table_name="research_agent", db_file="agents.db"),
+    add_history_to_messages=True,
+    num_history_responses=3,
+)
+
+# Run and persist state
+agent.print_response("Remember that my favorite topic is renewable energy.")
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
@@ -76,6 +92,9 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 - [Agno](agno.md) (Successor to Phidata v2)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [LangChain](../ai_knowledge/langchain.md)
+- [CrewAI](../frameworks/crewai.md)
+- [LangGraph](../frameworks/langgraph.md)
 
 ## Sources / References
 - [Official Website](https://www.phidata.com/)
@@ -84,5 +103,5 @@ agent.print_response("What is the latest news about AI agents?", stream=True)
 - [GitHub Repository](https://github.com/agno-agi/agno)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-20
 - Confidence: high

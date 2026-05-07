@@ -2,8 +2,31 @@
 
 Authentik is an open-source Identity Provider that emphasizes flexibility and versatility.
 
-## Description
-It allows you to integrate various authentication sources and provide Single Sign-On (SSO) for all your applications.
+## What it is
+Authentik is a comprehensive identity management solution that functions as an Identity Provider (IdP). It supports modern protocols like OAuth2, OpenID Connect (OIDC), and SAML, as well as legacy protocols like LDAP and Radius.
+
+## What problem it solves
+It centralizes user management across dozens of different self-hosted applications. Instead of managing separate usernames and passwords for Nextcloud, Gitea, and Vikunja, users log in once to Authentik. It also adds security layers like Multi-Factor Authentication (MFA) to applications that don't natively support it.
+
+## Where it fits in the stack
+Authentik sits at the **Security and Gateway Layer**. It often integrates with a reverse proxy (like Traefik or Nginx) to intercept requests and ensure the user is authenticated before they ever reach the internal application.
+
+## Typical use cases
+- **Single Sign-On (SSO)**: One account for all homelab services.
+- **MFA Injection**: Requiring a YubiKey or TOTP code to access a legacy web app.
+- **User Enrollment**: Providing a clean sign-up flow for family members or friends.
+- **Application Portal**: A centralized dashboard showing all authorized apps.
+
+## Strengths
+- **All-in-One**: Includes the server, worker, and outpost in a single ecosystem.
+- **Extremely Flexible**: Custom flows and stages allow for complex logic (e.g., "only allow login if user is on the home Wi-Fi").
+- **Native Passkey Support**: Easy implementation of passwordless login.
+- **Outpost Architecture**: Simplifies integration with reverse proxies.
+
+## Limitations
+- **Resource Intensive**: Requires more RAM and CPU than simpler alternatives like Authelia.
+- **High Complexity**: The powerful policy engine has a steep learning curve.
+- **Component Heavy**: Requires a database (Postgres) and a cache (Redis) to function.
 
 ## When to use it
 - When you need a unified authentication provider for multiple services using OAuth2, SAML, or LDAP.
@@ -136,13 +159,12 @@ curl -X GET "http://localhost:8000/api/v3/core/users/" \
      -H "Accept: application/json"
 ```
 
-## Links
-- [Official Website](https://goauthentik.io/)
-- [Documentation](https://docs.goauthentik.io/)
-
-## Alternatives
-- [Keycloak](https://www.keycloak.org/)
-- [Authelia](https://www.authelia.com/)
+## Related tools / concepts
+- [Tailscale](tailscale.md)
+- [Headscale](headscale.md)
+- [Nextcloud](nextcloud.md)
+- [Gitea](gitea.md)
+- [Vikunja](vikunja.md)
 
 ## Family 2FA Onboarding
 
@@ -159,12 +181,11 @@ Authentik natively supports WebAuthn. Family members can register their phone or
 ## Backlog
 - Configure LDAP outpost for legacy apps.
 
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-04-18
+- Last reviewed: 2026-06-15
 
 ## Sources / References
-- https://goauthentik.io/
-- https://docs.goauthentik.io/
-- https://www.keycloak.org/
+- [Authentik Official Site](https://goauthentik.io/)
+- [Authentik Documentation](https://docs.goauthentik.io/)
+- [Keycloak Official Site](https://www.keycloak.org/)

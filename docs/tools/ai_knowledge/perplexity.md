@@ -32,14 +32,6 @@ AI & Knowledge — used as a research and information retrieval tool when up-to-
 - When working with private or sensitive data that should not leave the local network
 - When offline access is required
 
-## Related tools / concepts
-
-- [Google Search](https://www.google.com)
-- [Genspark](https://www.genspark.ai/)
-- [SearXNG](../../services/searXNG.md)
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-- [Google Opal](google-opal.md)
 ## Getting started
 
 ### Installation
@@ -61,14 +53,50 @@ client = OpenAI(api_key="YOUR_PPLX_API_KEY", base_url="https://api.perplexity.ai
 
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
-    messages=[{"role": "user", "content": "What is the capital of France?"}],
+    messages=[{"role": "user", "content": "What are the current top 3 Python frameworks for web development in 2026?"}],
 )
 print(response.choices[0].message.content)
 ```
 
+## CLI examples
+
+### 1. Basic Search Query (curl)
+```bash
+curl -X POST https://api.perplexity.ai/chat/completions \
+  -H "Authorization: Bearer $PPLX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-reasoning-pro",
+    "messages": [
+      {"role": "user", "content": "What is the latest stable version of Kubernetes?"}
+    ]
+  }'
+```
+
+### 2. Precise and Concise Output
+```bash
+curl -X POST https://api.perplexity.ai/chat/completions \
+  -H "Authorization: Bearer $PPLX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sonar-reasoning-pro",
+    "messages": [
+      {"role": "system", "content": "Be precise and concise."},
+      {"role": "user", "content": "Current price of Bitcoin in USD."}
+    ]
+  }'
+```
+
+### 3. List Supported Models
+```bash
+# Perplexity uses a specific set of Sonar models. Refer to docs for the latest list.
+curl https://api.perplexity.ai/models \
+  -H "Authorization: Bearer $PPLX_API_KEY"
+```
+
 ## API examples
 
-### Calling Perplexity API with Python
+### Python (OpenAI SDK)
 
 ```python
 from openai import OpenAI
@@ -77,42 +105,36 @@ YOUR_API_KEY = "pplx-xxxxxxxx"
 
 client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
 
-# Chat completion without streaming
+# Chat completion with reasoning and citations
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
     messages=[
         {
             "role": "system",
-            "content": "Be precise and concise.",
+            "content": "You are a professional researcher.",
         },
         {
             "role": "user",
-            "content": "What are the latest developments in MCP (Model Context Protocol)?",
+            "content": "Analyze the impact of Model Context Protocol (MCP) on the AI agent ecosystem.",
         },
     ],
 )
 print(response.choices[0].message.content)
 ```
 
-### Calling Perplexity API with curl
-
-```bash
-curl -X POST https://api.perplexity.ai/chat/completions \
-  -H "Authorization: Bearer {YOUR_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "sonar-reasoning-pro",
-    "messages": [
-      {"role": "system", "content": "Be precise and concise."},
-      {"role": "user", "content": "How many stars are in the Milky Way?"}
-    ]
-  }'
-```
+## Related tools / concepts
+- [Google Search](google-search.md)
+- [Genspark](genspark.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](claude.md)
+- [Gemini](gemini.md)
+- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / references
 - [Official Website](https://www.perplexity.ai/)
+- [Perplexity API Documentation](https://docs.perplexity.ai/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-03
-- Confidence: medium
+- Last reviewed: 2026-05-28
+- Confidence: high

@@ -38,11 +38,72 @@ It simplifies the process of turning complex, noisy web pages into clean data fo
 - **Cost**: Free (Self-hosted)
 - **Self-hostable**: Yes
 
+## Getting started
+
+### Installation
+```bash
+# Install the package
+pip install -U crawl4ai
+
+# Post-installation browser setup
+crawl4ai-setup
+```
+
+### Basic usage
+```python
+import asyncio
+from crawl4ai import AsyncWebCrawler
+
+async def main():
+    async with AsyncWebCrawler() as crawler:
+        result = await crawler.arun(
+            url="https://crawl4ai.com",
+        )
+        print(result.markdown)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## CLI examples
+```bash
+# Basic crawl with markdown output
+crwl https://crawl4ai.com -o markdown
+
+# Deep crawl with BFS strategy, max 10 pages
+crwl https://docs.crawl4ai.com --deep-crawl bfs --max-pages 10
+
+# LLM-based extraction with a specific query
+crwl https://www.example.com/products -q "Extract all product prices"
+```
+
+## API examples
+```python
+import asyncio
+from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
+
+async def main():
+    # Configure browser and crawl settings
+    browser_config = BrowserConfig(headless=True)
+    run_config = CrawlerRunConfig(cache_mode="ENABLED")
+
+    async with AsyncWebCrawler(config=browser_config) as crawler:
+        result = await crawler.arun(
+            url="https://example.com",
+            config=run_config
+        )
+        print(f"Content length: {len(result.markdown)}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
 ## Related tools / concepts
 - [Firecrawl](firecrawl.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [RAGFlow](ragflow.md)
 - [Skyvern](../automation_orchestration/skyvern.md)
+- [Docling](docling.md)
 
 ## Sources / References
 - [GitHub](https://github.com/unclecode/crawl4ai)
