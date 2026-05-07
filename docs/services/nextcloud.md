@@ -1,16 +1,45 @@
 # Nextcloud
 
-Nextcloud is the most deployed self-hosted content collaboration platform.
+## What it is
 
-## Description
-It provides a safe home for all your data - files, contacts, calendars, and more.
+Nextcloud is a suite of client-server software for creating and using file hosting services. It is the most deployed self-hosted content collaboration platform, providing a safe home for all your data - files, contacts, calendars, and more.
+
+## What problem it solves
+
+Public cloud services like Google Drive or Microsoft 365 offer great convenience but at the cost of data privacy and ownership. Nextcloud solves this by providing a comprehensive, enterprise-grade collaboration suite that you host on your own hardware, giving you full control over who has access to your data while maintaining the ease of use of a modern cloud platform.
+
+## Where it fits in the stack
+
+**Category**: Service / Productivity. It serves as the **unified content and collaboration hub**, acting as the primary repository for documents, personal data, and team communication in a home-office or small business environment.
+
+## Typical use cases
+
+- **File Synchronization**: Keeping documents and photos synced across multiple computers and mobile devices.
+- **Collaborative Editing**: Real-time document editing using integrated tools like OnlyOffice or Collabora Online.
+- **Personal Information Management (PIM)**: Syncing calendars, contacts, and tasks using open standards like CalDAV and CardDAV.
+- **Secure File Sharing**: Sharing large files with external parties via password-protected links.
+
+## Strengths
+
+- **Extensible**: A vast App Store allows for adding features like Kanban boards, video conferencing (Talk), and music players.
+- **Multi-Platform**: Robust client apps for Windows, macOS, Linux, Android, and iOS.
+- **Open Standards**: Built on PHP and SQL, using WebDAV/CalDAV for maximum compatibility with third-party tools.
+- **Strong Ecosystem**: Massive community and commercial support ensure longevity and security.
+
+## Limitations
+
+- **Resource Intensive**: Requires significant RAM and CPU compared to lightweight single-purpose tools like Syncthing.
+- **Configuration Overhead**: Proper optimization (Redis caching, background jobs) is necessary for a smooth experience on large libraries.
+- **Complex Upgrades**: Major version updates can sometimes be delicate, requiring manual intervention.
 
 ## When to use it
+
 - When you need a comprehensive, self-hosted suite for file storage, collaboration, and productivity.
 - For users who want to maintain full control over their data while having access to features similar to Google Workspace or Microsoft 365.
 - When you want an extensible platform with a wide range of apps (Talk, Calendar, Contacts, Office).
 
 ## When not to use it
+
 - If you only need simple file synchronization without the extra features (consider [Syncthing](syncthing.md)).
 - If you have very limited server resources, as Nextcloud can be resource-intensive.
 
@@ -66,12 +95,14 @@ curl -u admin:password \
      -X PROPFIND "http://localhost:8080/remote.php/dav/files/admin/"
 ```
 
-## Links
-- [Official Website](https://nextcloud.com/)
+## Related tools / concepts
 
-## Alternatives
-- [Owncloud](https://owncloud.com/)
-- [Seafile](https://www.seafile.com/)
+- [Syncthing](syncthing.md) — for a lighter, peer-to-peer file sync alternative
+- [Authentik](authentik.md) — for managing Nextcloud SSO/OIDC authentication
+- [Tailscale](tailscale.md) — for secure remote access to your Nextcloud instance
+- [Paperless-ngx](paperless-ngx.md) — can be integrated with Nextcloud for document archival
+- [OnlyOffice/Collabora](https://nextcloud.com/office/) — for real-time document editing within Nextcloud
+- [n8n](n8n.md) — for automating file processing and notification workflows
 
 ## SSO & OIDC Integration
 Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On using the `user_oidc` app.
@@ -97,10 +128,12 @@ Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On us
 
 ## Sources / References
 
-- [Reference](https://nextcloud.com/)
-- [Reference](https://owncloud.com/)
-- [Reference](https://www.seafile.com/)
+- [Official Website](https://nextcloud.com/)
+- [Nextcloud Admin Documentation](https://docs.nextcloud.com/server/latest/admin_manual/)
+- [Owncloud](https://owncloud.com/)
+- [Seafile](https://www.seafile.com/)
 
 ## Contribution Metadata
-- Confidence: medium
-- Last reviewed: 2026-04-08
+
+- Last reviewed: 2026-06-25
+- Confidence: high
