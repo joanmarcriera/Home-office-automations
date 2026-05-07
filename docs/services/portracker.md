@@ -2,31 +2,31 @@
 
 ## What it is
 
-Portracker is a self-hosted, real-time network port monitoring and service discovery tool. It scans your network to identify active ports and maps them to the services they represent, providing a centralized dashboard for network visibility.
+## What it is
+A specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments.
 
 ## What problem it solves
-
-In complex homelab or home-office environments, keeping track of which service is using which port can be difficult, often leading to port conflicts or forgotten "ghost" services. Portracker provides a real-time, visual map of your network's port usage, integrating directly with Docker and TrueNAS to provide context for each open port.
+It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans.
 
 ## Where it fits in the stack
-
-**Category**: Service / Infrastructure Monitoring. It sits in the **network observability** layer, providing a higher-level view than raw packet sniffers but more focus on port mapping than general-purpose metrics dashboards.
+It is a **Network Observability Tool**, typically deployed at the edge of a home lab network to monitor the Docker host or the local subnet.
 
 ## Typical use cases
-- Monitoring active ports on a local network or server.
-- Discovering "shadow IT" or unexpected services running in containers.
-- Planning port assignments for new services to avoid conflicts.
-- Auditing network exposure for security purposes.
+- Monitoring a Docker host for new or exposed services.
+- Mapping port assignments to prevent conflicts during service deployment.
+- Auditing the local network for unintended open ports on IoT devices.
 
 ## Strengths
-- **Real-time Discovery**: Automatically detects new services as they come online.
-- **Docker Integration**: Maps ports directly to container names and status.
-- **Lightweight**: Low resource consumption, making it suitable for always-on monitoring.
-- **Clean Dashboard**: Easy-to-read interface for quick network audits.
+- **Real-time**: Near-instant discovery of service changes.
+- **Visual**: Clean dashboard for quick assessment.
+- **Docker-native**: Deep integration with the Docker socket for container metadata.
 
 ## Limitations
-- **Not a Firewall**: It monitors ports but does not provide active blocking or security enforcement.
-- **Local Scope**: Primarily designed for local network segments; large-scale enterprise scanning is better handled by tools like Nmap.
+- **Scope**: Focused on port mapping rather than deep traffic analysis or security intrusion detection.
+- **Resource Intensity**: Continuous monitoring of host processes requires elevated privileges (`SYS_PTRACE`).
+
+## Description
+It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
 
 ## When to use it
 - When you want to monitor open ports on your network in real-time.
@@ -101,12 +101,15 @@ curl -X GET "http://localhost:4999/api/v1/status" \
      -H "x-api-key: YOUR_PEER_API_KEY"
 ```
 
+## Links
+- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
+
 ## Related tools / concepts
-- [Home Assistant](home-assistant.md) — for monitoring smart device availability
-- [Netdata](https://www.netdata.cloud/) — for deep real-time system and network metrics
-- [Uptime Kuma](https://github.com/louislam/uptime-kuma) — for service availability monitoring
-- [SearXNG](searXNG.md) — for privacy-respecting network-wide search
-- [Nmap](https://nmap.org/) — for one-time, deep security port scans
+- [Home Assistant](home-assistant.md)
+- [Tailscale](tailscale.md)
+- [Gitea](gitea.md)
+- [Syncthing](syncthing.md)
+- [Storj](storj.md)
 
 ## Backlog
 - Set up alerts for unexpected port changes.
@@ -114,7 +117,7 @@ curl -X GET "http://localhost:4999/api/v1/status" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-04
+- Last reviewed: 2026-07-15
 
 ## External links
 - [GitHub Repository](https://github.com/mostafa-wahied/portracker)
