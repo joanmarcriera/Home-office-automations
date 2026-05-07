@@ -36,12 +36,23 @@ It lowers the barrier to entry for building AI applications by eliminating the n
 ## When not to use it
 - When you need deep architectural control, custom model fine-tuning, or self-hosted data residency.
 
+## Getting started
+
+### Building your first Gem
+1.  Navigate to [Google Opal](https://opal.google.com) (or via Gemini Gems).
+2.  Select **"Create a Gem"**.
+3.  Enter a name and a "vibe" description (e.g., "A harsh code reviewer who prioritizes performance and security").
+4.  Opal will generate the system instructions. You can then test it in the preview pane.
+5.  Click **"Save"** to add it to your Gemini sidebar.
+
 ## Related tools / concepts
 - [Gemini Canvas](gemini-canvas.md)
 - [Google Stitch](../development_ops/google-stitch.md)
 - [n8n](../../services/n8n.md)
 - [Zapier](../automation_orchestration/zapier.md)
 - [Flowise](flowise.md)
+- [AnythingLLM](anythingllm.md)
+- [Dify](dify.md)
 
 ## Sources / References
 - [Google Opal (Google for Developers)](https://developers.google.com/opal)

@@ -2,8 +2,14 @@
 
 Vikunja is an open-source, self-hosted To-do list application.
 
-## Description
-It allows you to organize all your tasks on all platforms. It features boards, lists, and a powerful filter system.
+## What it is
+Vikunja is an open-source, self-hosted To-do list application that allows you to organize all your tasks on all platforms. It features Kanban boards, Gantt charts, table views, and a powerful filter system.
+
+## What problem it solves
+Maintaining a consistent task list across devices while maintaining privacy can be challenging with commercial tools. Vikunja provides an enterprise-grade task management experience that you can host yourself, ensuring your data remains private while offering the flexibility to manage everything from simple groceries to complex project timelines.
+
+## Where it fits in the stack
+**Category**: Services / Task Management. It serves as the **operational coordination layer**, managing actionable items and deadlines that result from higher-level knowledge and planning.
 
 ## When to use it
 - When you need a powerful, self-hosted To-do list with support for Kanban boards, Gantt charts, and list views.
@@ -74,10 +80,6 @@ Use your own private Vikunja base URL here. Do not commit instance-specific URLs
 - [Official Website](https://vikunja.io/)
 - [Documentation](https://vikunja.io/docs/)
 
-## Alternatives
-- [Focalboard](focalboard.md)
-- [Nextcloud Tasks](nextcloud.md)
-
 ## Task Relations
 Vikunja allows linking tasks together with various relation types.
 
@@ -127,6 +129,14 @@ In Authentik, configure the Redirect URI as: `https://vikunja.example.com/auth/o
 
 - [Official Documentation](https://vikunja.io/docs/)
 - [CLI Reference](https://vikunja.io/docs/cli/)
+
+## Related tools / concepts
+- [Focalboard](focalboard.md) — for an alternative Kanban-focused tool
+- [Nextcloud Tasks](nextcloud.md) — for tasks integrated into a larger suite
+- [Habitica](habitica.md) — for gamified task management
+- [Authentik](authentik.md) — for managing Vikunja SSO/OIDC
+- [Radicale](radicale.md) — for CalDAV sync of tasks
+- [n8n](n8n.md) — for automating task creation from emails or chats
 
 ## Contribution Metadata
 

@@ -1,12 +1,12 @@
-# Ralph-loop Triage Report — 2026-06-05
+# Ralph-loop Triage Report — 2026-06-25
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of June 5, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of June 25, 2026.
 
 ## Issue Status Summary
 
 | Issue # | Title | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **#186-#190** | Data Copilot Series | **Verified** | Architecture, MCP, RAG, Validation, and Synthesis integrated. |
+| **#186-#190** | Data Copilot Series | **Verified & Closed** | Architecture, MCP, RAG, Validation, and Synthesis verified (May 6, 2026). |
 | **#192** | Representation of all agents | **Verified** | 14 providers documented and indexed. |
 | **#201** | Enterprise productive suite | **Verified** | Section created in docs/tools/enterprise/. |
 | **#203** | Intelligence per value matrix | **Verified** | Integrated into api_pricing_free_tiers.md. |
@@ -25,19 +25,18 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 23** | Weekly deepening: Infrastructure | **Resolved** | LM Studio, Jan.ai, Msty, Google Gemini, and LibreChat deepened. |
 | **Batch 24** | Weekly deepening: Services | **Resolved** | Paperless-ngx, SearXNG, Plex, qBittorrent, and Radicale deepened. |
 | **Batch 27** | Weekly deepening: Services | **Resolved** | Actual Budget, Audiobookshelf, Authentik, Changedetection.io, and Diskover deepened. |
+| **Batch 28** | Weekly deepening: Services | **Resolved** | Deepened drawio, element, excalidraw, focalboard, gitea. |
+| **Batch 29** | Weekly deepening: Services | **Resolved** | Deepened `grocy.md`, `habitica.md`, `home-assistant.md`, `homebox.md`, `it-tools.md`. |
+| **Batch 30** | Weekly deepening: Services | **Resolved** | Deepened `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`. |
+| **Batch 31** | Weekly deepening: Services | **Resolved** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. |
+| **Batch 32** | Weekly deepening: Services | **Resolved** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. |
+| **Batch 33** | Weekly deepening: AI Knowledge | **In Progress** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
-- **Weekly Deepening (Batch 25)**: **Resolved** (Deepened Tailscale, Syncthing, Storj; created radicale-automation).
-- **Weekly Deepening (Batch 26)**: **Resolved** (Created qBittorrent-automation, SearXNG-automation, Plex-automation).
-- **Weekly Deepening (Batch 28)**: **Resolved** (Deepened drawio, element, excalidraw, focalboard, gitea).
-- **Weekly Deepening (Batch 29)**: Deepen `grocy.md`, `habitica.md`, `home-assistant.md`, `homebox.md`, `it-tools.md`.
-- **Weekly Deepening (Batch 30)**: Deepen `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`.
-- **Weekly Deepening (Batch 31)**: Deepen `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`.
-- **Weekly Deepening (Batch 32)**: Deepen `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`.
-- **Link Audit (Infrastructure)**: **Resolved** (Completed for all files in `docs/tools/infrastructure/`).
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
+- **Batch 33**: Start next iteration of service/tool deepening as per new intake logs.
 
 ---
 - Confidence: high

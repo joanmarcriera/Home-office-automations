@@ -221,6 +221,28 @@ Use this checklist during design, execution, and performance reviews to ensure h
 - [ ] **Context minimization**: No redundant context that the model already knows from its system prompt.
 - [ ] **Consistency**: Output format is consistent across 3+ separate test runs.
 
+## Advanced Patterns for Autonomous Agents
+
+### Multi-step Reasoning
+For complex engineering tasks, skills should guide the agent through a "Think -> Plan -> Execute -> Verify" loop.
+
+```markdown
+## Steps
+1. **Analyze**: Use `grep` or `ls` to locate relevant files. Read code to understand current logic.
+2. **Plan**: Describe the proposed change in a single sentence.
+3. **Execute**: Apply changes using the appropriate tool (e.g., `sed`, `write_file`, or `replace_with_git_merge_diff`).
+4. **Verify**: Run tests or use `read_file` to confirm the change is correct and follows standards.
+```
+
+### Context Pruning
+Terminal agents like Claude Code or Jules benefit from aggressive context management. Avoid reading entire large files if a targeted search is possible.
+
+- **Bad**: `cat large_file.py` (bloats context, high token cost)
+- **Good**: `grep -n "class Target" large_file.py` followed by `sed -n '10,50p' large_file.py` (targeted context)
+
+### State Preservation
+When a skill requires multiple steps across different tools, explicitly instruct the agent to use a "memory" or "scratchpad" file if the session context is limited.
+
 ## Common skill patterns
 
 ### Document intake skill
@@ -338,5 +360,6 @@ Review skills when:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-14
 - Confidence: high
+- Related Issues: #202

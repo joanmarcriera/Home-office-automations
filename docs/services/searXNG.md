@@ -111,11 +111,12 @@ print(results)
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Perplexity](../tools/ai_knowledge/perplexity.md) (AI-powered search)
-- [DuckDuckGo](https://duckduckgo.com/) (Privacy-focused search)
-- [n8n](../services/n8n.md) (For search automation)
-- [Ollama](../services/ollama.md) (To use SearXNG results with local LLMs)
-- [JSON-LD](https://json-ld.org/) (Metadata standard used in results)
+- [Perplexity](../tools/ai_knowledge/perplexity.md) — AI-powered search engine
+- [n8n](n8n.md) — for automating search workflows
+- [Ollama](ollama.md) — to use search results with local LLMs
+- [Paperless-ngx](paperless-ngx.md) — for archiving and managing documents
+- [IT-Tools](it-tools.md) — comprehensive developer utility suite
+- [Linkwarden](linkwarden.md) — to save and organize search results
 
 ## Sources / References
 - [Official Website](https://searxng.org/)

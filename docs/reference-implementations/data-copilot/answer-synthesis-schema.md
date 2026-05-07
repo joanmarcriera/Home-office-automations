@@ -1,6 +1,7 @@
 # Reference Implementation: Data Copilot Answer Synthesis
 
-This document defines the standardized output schema for the final step of the Data Copilot pipeline. By enforcing a machine-parseable yet human-readable structure, we ensure that the Copilot provides more than just raw numbers—it provides reasoning, context, and actionable next steps.
+## What it is
+The Data Copilot Answer Synthesis schema is a standardized JSON structure used to format the final output of an AI data analyst. It ensures that every response includes not just the raw data, but also the underlying reasoning, specific source citations, a confidence score, and recommended next steps.
 
 ## What it is
 A Pydantic-based schema and prompt contract for the final stage of a Data Copilot, where raw data is transformed into a human-friendly response.
@@ -53,13 +54,14 @@ class Source(BaseModel):
     description: str
 
 class SynthesisResponse(BaseModel):
-    answer_summary: str = Field(..., description="Human-readable concise answer")
-    key_metrics: List[DataPoint]
-    explanation: str = Field(..., description="Detailed reasoning and context")
-    sources: List[Source]
-    confidence_score: float = Field(..., ge=0.0, le=1.0)
-    assumptions: List[str] = Field(default_factory=list)
-    recommended_actions: List[str] = Field(default_factory=list)
+    answer_summary: str = Field(..., description="1-2 sentence human-readable direct answer.")
+    key_metrics: List[DataPoint] = Field(..., description="Numerical findings extracted from the data.")
+    explanation: str = Field(..., description="The 'Why' behind the data, linking SQL results to RAG context.")
+    sources: List[Source] = Field(..., description="Traceability links to SQL queries or Document paths.")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="0.0 (No idea) to 1.0 (Certain). Deducted for ambiguity.")
+    assumptions: List[str] = Field(default_factory=list, description="Logical leaps the agent made (e.g., 'Assuming VAT is 20%').")
+    recommended_actions: List[str] = Field(default_factory=list, description="Next steps for the user based on the findings.")
+    needs_human_review: bool = Field(default=False, description="Set to True if confidence < 0.6 or data is contradictory.")
 ```
 
 ## Prompt Contract for Synthesis Step
@@ -70,12 +72,24 @@ When prompting the LLM for the final synthesis, the system prompt must enforce t
 ### System Instructions
 You are a Data Analyst Agent. Your task is to synthesize raw data results into a structured JSON response.
 
-1.  **Summary**: Provide a 1-2 sentence direct answer.
-2.  **Metrics**: Extract the most relevant numerical findings.
-3.  **Context**: Explain *why* the data looks this way based on provided RAG context.
-4.  **Confidence**: Assign a score (0.0 to 1.0). Deduct points for missing sources or ambiguous joins.
-5.  **Actions**: Suggest what the user should do next based on the data (e.g., "Review your electricity usage during peak hours").
+**Core Rules**:
+1.  **Direct Answer**: Provide a 1-2 sentence summary first.
+2.  **Groundedness**: Do not hallucinate sources. Every claim must have a corresponding entry in the `sources` list.
+3.  **Confidence**: Assign a score. Be honest about uncertainty (e.g., if SQL and RAG are contradictory).
+4.  **Actionable**: Suggest next steps that are specific and relevant to the findings.
+5.  **Flag for Review**: If the confidence score is below 0.6, set `needs_human_review` to `true`.
+
+**Negative Constraints**:
+- Do not include raw SQL in the `answer_summary`.
+- Do not mention table names or internal IDs to the user.
+- Do not make financial advice; state "Consult your policy" if unsure.
 ```
+
+## Typical use cases
+- **Executive Summaries**: Providing a high-level briefing of weekly financial performance with direct links to the relevant transaction logs.
+- **Root-Cause Reports**: Explaining *why* a specific metric changed, citing both SQL data points and recent project log entries.
+- **Automated Alerts**: Sending a Telegram notification about a power spike that includes the appliance manual's troubleshooting section as a recommended action.
+- **Audit Trails**: Maintaining a permanent, structured record of what information the AI provided to the user and which specific database queries were used to generate it.
 
 ## Example Outputs
 
@@ -124,6 +138,17 @@ You are a Data Analyst Agent. Your task is to synthesize raw data results into a
   ]
 }
 ```
+
+## Strengths
+- **Transparency**: Every claim is linked to a specific source (SQL row or document snippet).
+- **Actionability**: Encourages the model to provide useful next steps rather than just passive information.
+- **Machine-Parseable**: The JSON structure allows for easy integration into dashboards or automated downstream workflows.
+- **Consistency**: Ensures that all Data Copilot instances across different domains return information in the same predictable format.
+
+## Limitations
+- **Token Usage**: Structured JSON outputs require more tokens than plain text responses.
+- **Model Intelligence**: Requires a model with strong instruction-following capabilities to ensure the JSON matches the schema perfectly.
+- **Schema Rigidity**: May need periodic updates as new types of data sources (e.g., video or audio) are added to the retrieval pipeline.
 
 ## Cheap/Free Model Fallback Strategy
 Synthesis requires high instruction-following but lower reasoning than SQL generation.

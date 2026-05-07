@@ -1,9 +1,12 @@
 # Habitica
 
-Habitica is an open-source habit-building and productivity app that treats your real life like a game.
+## What it is
 
-## Description
-With in-game rewards and punishments to motivate you and a strong social network to inspire you, Habitica can help you achieve your goals to become healthy, hard-working, and happy.
+Habitica is an open-source habit-building and productivity app that treats your real life like a game. It transforms your daily tasks and habits into RPG quests, rewarding completion with experience points and gold, and penalizing neglect with health loss.
+
+## What problem it solves
+
+Traditional to-do lists often lack the motivation required for long-term habit formation. Habitica solves this by using gamification (rewards, social accountability, and RPG mechanics) to make productivity engaging and fun.
 
 ## Where it fits in the stack
 **Category**: Service / Productivity

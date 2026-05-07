@@ -1,6 +1,6 @@
 # IT-Tools
 
-IT-Tools is a collection of handy online tools for developers.
+## What it is
 
 ## What it is
 A comprehensive suite of web-based developer utilities including formatters, generators, and converters. It is designed to run entirely in the client's browser.

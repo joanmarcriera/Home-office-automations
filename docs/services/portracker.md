@@ -1,6 +1,6 @@
 # Portracker
 
-Portracker is a self-hosted, real-time port monitoring and discovery tool.
+## What it is
 
 ## What it is
 A specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments.
@@ -118,6 +118,9 @@ curl -X GET "http://localhost:4999/api/v1/status" \
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-07-15
+
+## External links
+- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker

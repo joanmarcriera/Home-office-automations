@@ -1,6 +1,6 @@
 # Homebox
 
-Homebox is an inventory and organization system built specifically for home users, focusing on simplicity, speed, and ease of use.
+## What it is
 
 ## What it is
 A lightweight, self-hosted inventory management system written in Go. It uses a single SQLite database for all data, making it easy to host and backup.

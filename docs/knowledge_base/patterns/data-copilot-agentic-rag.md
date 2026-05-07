@@ -46,18 +46,36 @@ flowchart TD
 - **Output Requirements**: Must state assumptions and provide a confidence score.
 
 ## Multi-hop Investigation Flow
-For complex root-cause "Why" questions, the agent often needs multiple steps of iterative retrieval:
+For complex root-cause "Why" questions, the agent performs a recursive 5-step investigation:
 
-1.  **Step 1: Identify Variance (Structured)**: Query SQL to identify exactly *what* changed, by *how much*, and *when*.
-    - *Example*: "Conversion rate dropped by 5% in the 'Home Office' category between May 1st and May 7th."
-2.  **Step 2: Contextual Lookup (Unstructured)**: Query RAG (Meeting Notes, Project Logs) using the specifics from Step 1.
-    - *Search Query*: "Home Office conversion rate drop May 2026" or "Home Office category updates".
-3.  **Step 3: Hypothesize & Validate**: If Step 2 finds a potential cause (e.g., "We updated the pricing algorithm"), the agent may perform a second SQL query to validate the hypothesis.
-    - *Validation Query*: "Compare average price in Home Office before and after May 1st."
-4.  **Step 4: Refined Retrieval (Optional)**: If Step 2 is insufficient, check alternative sources like Calendar events (e.g., "Was there a site-wide outage?") or Email summaries (e.g., "Customer support reported a bug in the Home Office checkout flow").
-5.  **Step 5: Final Synthesis**: Combine quantitative proof with qualitative reasoning.
+1.  **Step 1: Quantitative Baseline (Structured)**:
+    - **Action**: Query SQL to establish the exact delta.
+    - **Example**: "Net revenue for 'Smart Home' category fell by £12k (15%) week-over-week starting Tuesday."
+2.  **Step 2: Event Correlation (Unstructured)**:
+    - **Action**: Search RAG (Project Logs, GitHub PRs, Change logs) for events matching the "Tuesday" timestamp.
+    - **Example**: Found PR #442: "Update pricing logic for Smart Home sensors."
+3.  **Step 3: Hypothesis Generation (Reasoning)**:
+    - **Action**: Use an LLM to link the revenue drop to the pricing change.
+    - **Hypothesis**: "The new pricing logic might have increased the price beyond a psychological threshold ($99 -> $105)."
+4.  **Step 4: Targeted Validation (Structured/Hybrid)**:
+    - **Action**: Perform a specific SQL query to check the conversion rate vs. price change.
+    - **Example**: "Compare conversion rate for sensors priced >$100 vs <$100."
+5.  **Step 5: Root Cause Synthesis**:
+    - **Action**: Combine SQL proof with document context into a final report.
+    - **Result**: "Revenue dropped because the Tuesday deployment (PR #442) moved 5 top-selling sensors above the $100 price point, where conversion fell by 40%."
 
 ## Retrieval Sufficiency & Confidence Scoring
+
+### Retrieval Sufficiency Matrix
+Before synthesis, the agent must evaluate the retrieved data against this matrix:
+
+| Component | Sufficient | Partially Sufficient | Insufficient |
+| :--- | :--- | :--- | :--- |
+| **Quantification** | Exact delta found in SQL. | General trend found, no exact numbers. | No data found in SQL. |
+| **Causality** | Event found in RAG matching timestamp. | Event found, but timestamp is off. | No related logs found. |
+| **Traceability** | Every claim has a source ID. | Some claims rely on model "general knowledge". | No citations available. |
+
+**Action**: If "Insufficient" is reached in any category, the agent must trigger a "Knowledge Gap" alert instead of synthesizing an answer.
 
 ### Sufficiency Check
 Before synthesis, the planner must ask: "Do I have enough information to answer the user's specific diagnostic question without guessing?"
@@ -71,6 +89,13 @@ Before synthesis, the planner must ask: "Do I have enough information to answer 
 - **Action**: Report findings but state the missing link.
 
 ### Confidence Scoring
+The final score is calculated using these penalty weights:
+- **Baseline**: 1.0
+- **No direct causal link**: -0.3
+- **Ambiguous SQL results**: -0.2
+- **Old document context (>90 days)**: -0.15
+- **Single source only**: -0.1
+
 - **High (0.8 - 1.0)**: Direct match in SQL + explicit reason found in RAG.
 - **Medium (0.5 - 0.7)**: Metric drop found, but reason is inferred from general policy.
 - **Low (0.0 - 0.4)**: Correlating data found but no causal links.
@@ -106,8 +131,9 @@ Before synthesis, the planner must ask: "Do I have enough information to answer 
 - [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [n8n Automation](../../services/n8n.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-30
+- Last reviewed: 2026-05-06
 - Confidence: high
 - Related Issues: #188
