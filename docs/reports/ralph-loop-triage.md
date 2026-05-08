@@ -21,6 +21,8 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **#408** | Deepen examples (Batch 7) | **Verified** | mem0, Google Opal, Project Genie, Sora, NotebookLM deepened. |
 | **#421** | Weekly deepening (Batch 8) | **Resolved** | Unstructured, LlamaParse, Karpathy, Matt Pocock, AmpCode deepened. |
 | **#422** | Category gap fill: calendar_tasks | **Verified** | 20 docs added and indexed. |
+| **#529** | Daily Maintenance Run (2026-05-07) | **Resolved** | Step 2 (Doc audit) completed for W4 tools. |
+| **#530** | [W4] Jules Sprint (AI Knowledge) | **Resolved** | Deepened gemini-macos, vercel-ai-gateway, and claude-mythos. |
 | **Batch 21** | Weekly deepening: AI Knowledge | **Resolved** | DeepSeek R1, Perplexity, AnythingLLM, LobeHub, and Dify deepened. |
 | **Batch 23** | Weekly deepening: Infrastructure | **Resolved** | LM Studio, Jan.ai, Msty, Google Gemini, and LibreChat deepened. |
 | **Batch 24** | Weekly deepening: Services | **Resolved** | Paperless-ngx, SearXNG, Plex, qBittorrent, and Radicale deepened. |
