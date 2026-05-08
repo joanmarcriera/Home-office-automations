@@ -31,6 +31,32 @@ It solves the complexity problem of modern LLM implementations by stripping them
 - Not suitable for running production-grade LLMs (e.g., Llama 3, Mixtral).
 - Not for tasks requiring complex reasoning or large context windows.
 
+## Getting started
+
+To build and run `ansigpt`, you only need a C compiler (like `gcc` or `clang`).
+
+```bash
+# Clone the repository
+git clone https://github.com/yobibyte/ansigpt.git
+cd ansigpt
+
+# Build the project
+make
+
+# Run the inference (requires a model file, see repo for details)
+./ansigpt model.bin "The capital of France is"
+```
+
+## CLI examples
+
+```bash
+# Basic completion
+./ansigpt model.bin "Once upon a time"
+
+# Completion with temperature control (if supported by build)
+./ansigpt model.bin "In a galaxy far, far away" --temp 0.7
+```
+
 ## Related tools / concepts
 
 - [Local LLMs](./local_llms.md)
@@ -39,10 +65,13 @@ It solves the complexity problem of modern LLM implementations by stripping them
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
+- [Llama.cpp](./local_llms.md)
+- [MicroGPT](https://github.com/karpathy/microGPT)
+
 ## Sources / references
 - [ansigpt: c89 implementation of microgpt](https://github.com/yobibyte/ansigpt)
 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-05-08
