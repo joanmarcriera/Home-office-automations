@@ -39,6 +39,12 @@ results = RAG.search("How do I reset the filter on the X100 model?")
 - **Storage Requirements**: Storing late interaction embeddings (multi-vector) can require significantly more disk space than standard single-vector embeddings.
 - **Specialized Pipeline**: Requires specific libraries or implementations to handle the multi-vector late interaction logic.
 
+## When to use it
+<!-- needs-content -->
+
+## When not to use it
+<!-- needs-content -->
+
 ## Licensing and cost
 - **Open Weights**: Available on Hugging Face (under Qwen model license).
 

@@ -30,6 +30,10 @@ It offers a cost-effective, high-quality alternative to Western LLM providers, o
 ## When not to use it
 - If your data residency requirements strictly forbid processing in certain jurisdictions.
 
+## What changed
+- **DeepSeek R1 Launch**: DeepSeek released R1, a reasoning model that achieves performance parity with OpenAI's o1-preview on math, code, and logic benchmarks.
+- **V3 Model Updates**: Improvements to the V3 model architecture for better instruction following and lower latency.
+
 ## Licensing and cost
 - **Open Source**: Open-weights (DeepSeek License)
 - **Cost**: Paid API (Freemium tier often available)
@@ -43,6 +47,7 @@ It offers a cost-effective, high-quality alternative to Western LLM providers, o
 - [Official Website](https://www.deepseek.com/)
 - [DeepSeek API Docs](https://platform.deepseek.com/)
 - [GitHub](https://github.com/deepseek-ai)
+- [DeepSeek-R1 Release Blog](https://api-docs.deepseek.com/news/news250120)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-27

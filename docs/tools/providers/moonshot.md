@@ -31,18 +31,43 @@ Enables the processing and analysis of massive documents, entire codebases, or l
 - If you need advanced native image or video generation within the same model family.
 - For purely local or privacy-sensitive offline workloads.
 
+## Getting started
+
+Moonshot AI provides an OpenAI-compatible API, making it easy to integrate into existing applications.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="MOONSHOT_API_KEY",
+    base_url="https://api.moonshot.cn/v1",
+)
+
+completion = client.chat.completions.create(
+    model="moonshot-v1-128k",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Hello!"}
+    ],
+)
+
+print(completion.choices[0].message.content)
+```
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Paid (Usage-based pricing; free trial credits often available for new users)
 - **Self-hostable**: No
 
 ## Related tools / concepts
-
 - [DeepSeek](deepseek.md)
 - [OpenAI](../ai_knowledge/openai.md)
 - [Replicate](replicate.md)
 - [MiniMax](minimax.md)
 - [Groq](groq.md)
+- [Anthropic](anthropic.md)
+- [Azure OpenAI](azure-openai.md)
+- [AWS Bedrock](aws-bedrock.md)
 
 ## Sources / References
 - [Official Website](https://www.moonshot.cn/)
@@ -50,4 +75,4 @@ Enables the processing and analysis of massive documents, entire codebases, or l
 
 ## Contribution Metadata
 - Last reviewed: 2026-03-05
-- Confidence: medium
+- Confidence: high

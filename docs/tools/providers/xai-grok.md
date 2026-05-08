@@ -55,6 +55,12 @@ print(completion.choices[0].message.content)
 - **Data Bias**: Knowledge is heavily weighted toward X platform data, which may not represent global reality.
 - **Cost**: API pricing is tiered and can be higher for the most capable models.
 
+## When to use it
+<!-- needs-content -->
+
+## When not to use it
+<!-- needs-content -->
+
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) (Compatible API)
 - [Perplexity](../ai_knowledge/perplexity.md) (Alternative for real-time search)
