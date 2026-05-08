@@ -24,6 +24,14 @@ It provides real-time visibility into application errors and performance bottlen
 - Can generate significant noise if not configured correctly (filtering errors).
 - SaaS version has usage limits that can be reached quickly in high-traffic apps.
 
+## When to use it
+- In any production application (web, mobile, server) to catch and resolve crashes before users report them.
+- When you need deep context (stack traces, environment variables) to debug issues in remote environments.
+
+## When not to use it
+- For local development where console logs and standard debuggers are sufficient.
+- If you only need simple uptime monitoring without error tracking (use StatusCake or UptimeRobot).
+
 ## Getting started
 
 ### Installation (Sentry CLI)

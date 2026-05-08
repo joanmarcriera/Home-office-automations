@@ -28,14 +28,25 @@ It shortens the gap between "I know what I want to build" and a tangible UI or a
 ## When not to use it
 - When you need a mature, code-first implementation workflow
 
+## Getting started
+To begin using Google Stitch:
+1. Visit the [official Stitch website](https://stitch.withgoogle.com/).
+2. Sign in with your Google account to access the prototyping environment.
+3. Use natural language prompts to describe the UI components or application logic you wish to generate.
+
 ## Related tools / concepts
 - [Gemini Canvas](../ai_knowledge/gemini-canvas.md)
 - [Google Opal](../ai_knowledge/google-opal.md)
 - [Cursor](cursor.md)
+- [vLLM](../infrastructure/vllm.md)
+- [Claude](claude.md)
+- [Aider](aider.md)
+- [GPT Engineer](gpt_engineer.md)
+- [OpenHands](openhands.md)
 
 ## Sources / References
 - [Official Website](https://stitch.withgoogle.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-08
+- Confidence: high

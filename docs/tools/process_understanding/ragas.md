@@ -24,6 +24,14 @@ Evaluating RAG systems is notoriously difficult because both the retrieval (find
 - **LLM Cost**: Evaluation runs require many LLM calls, which can be expensive and slow for large datasets.
 - **Judge Bias**: The accuracy of the evaluation depends on the quality of the "judge" model used (e.g., GPT-4).
 
+## When to use it
+- To quantitatively evaluate a RAG system's faithfulness and relevance without manually writing ground-truth answers.
+- During development to compare different retrieval strategies or model prompts.
+
+## When not to use it
+- If you have a very small dataset where manual human review is faster and more accurate.
+- If you cannot afford the API costs or latency associated with using a powerful LLM (like GPT-4) as a judge.
+
 ## Getting started
 
 ### Installation
