@@ -27,6 +27,11 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 - **UX Complexity**: The decentralized nature (homeservers, cross-signing) can be confusing for new users compared to centralized apps.
 - **Resource Intensive**: Running a full Matrix homeserver (Synapse) can be resource-heavy for low-end hardware.
 
+## When to use it
+- When you need secure, encrypted communication that you fully control.
+- When you want to bridge multiple messaging platforms (Discord, Telegram, Slack) into a single client.
+- When you need a reliable notification channel for your home automation system.
+
 ## When not to use it
 Do not use Element as a drop-in replacement for simple SMS-style family messaging if users are not ready to understand homeservers, key backup, and device verification. For large regulated organizations, validate Matrix retention, moderation, discovery, and e-discovery requirements before replacing Slack or Microsoft Teams.
 
@@ -120,6 +125,9 @@ curl -X POST \
 - [Bridges](https://matrix.org/bridges/) — Connect Matrix to other services like Telegram and Discord.
 - [Nextcloud](nextcloud.md) — For file storage and cloud services alongside communication.
 - [Gitea](gitea.md) — For hosting code and triggering notifications to Element.
+- [Paperless-ngx](paperless-ngx.md) — For notifying users when new documents are indexed.
+- [SearXNG](searXNG.md) — For secure search results sharing within Element rooms.
+- [Vikunja](vikunja.md) — For task management notifications and team coordination.
 
 ## Links
 - [Official Website](https://element.io/)
@@ -131,7 +139,7 @@ curl -X POST \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-08
 
 ## Sources / References
 - https://element.io/
