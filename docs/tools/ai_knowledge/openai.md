@@ -72,6 +72,58 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 - When working offline or in air-gapped environments.
 - For high-frequency, simple tasks where a cheaper or local model would suffice.
 
+## Getting started
+
+### CLI Example
+The `openai` CLI tool allows for quick testing of models and endpoints.
+
+```bash
+# Install the CLI
+pip install openai
+
+# Export your API key
+export OPENAI_API_KEY='your-api-key-here'
+
+# List available models
+openai models list
+
+# Run a simple completion
+openai chat completions create -m gpt-5.4-medium --message user "Hello, how can I automate my home office?"
+```
+
+### Python API Example (Structured Outputs)
+Using Pydantic with the OpenAI SDK ensures that the model returns data in a strictly validated schema.
+
+```python
+from openai import OpenAI
+from pydantic import BaseModel
+
+client = OpenAI()
+
+class HomeTask(BaseModel):
+    task_name: str
+    priority: int
+    estimated_minutes: int
+
+class TaskPlan(BaseModel):
+    tasks: list[HomeTask]
+    reasoning: str
+
+completion = client.beta.chat.completions.parse(
+    model="gpt-5.4-medium",
+    messages=[
+        {"role": "system", "content": "You are a home office manager."},
+        {"role": "user", "content": "I need to clean my desk, water the plants, and reply to 5 emails."}
+    ],
+    response_format=TaskPlan,
+)
+
+plan = completion.choices[0].message.parsed
+print(f"Reasoning: {plan.reasoning}")
+for task in plan.tasks:
+    print(f"- {task.task_name} (Priority: {task.priority})")
+```
+
 ## Security considerations
 - **API Key Management**: Never hardcode keys; use environment variables or secret managers.
 - **Data Privacy**: Review OpenAI's data usage policy; ensure sensitive PII is redacted if necessary.
@@ -87,6 +139,11 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 - [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
 - [OpenAI Codex](../development_ops/codex.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [SQL Validation Playbook](../../playbooks/data-copilot-sql-validation.md)
+- [Pydantic AI Framework](../frameworks/pydantic-ai.md)
+- [Ollama](../../services/ollama.md)
+- [LangChain](../frameworks/langchain.md)
 
 ## Sources / References
 
@@ -100,5 +157,5 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-08
 - Confidence: high
