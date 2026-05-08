@@ -10,26 +10,32 @@ Prevents "hallucinated" SQL from causing data breaches (SQL injection), performa
 It operates within the **Inference Pipeline**, specifically between the **SQL Generation Agent** and the **Database Execution Engine**.
 
 ## Typical use cases
-- Automated Text-to-SQL dashboards where users query sensitive financial data.
-- Home automation bots that trigger database-driven actions (e.g., "Show me my energy usage").
-- Self-service data exploration tools for non-technical staff.
+- **Automated PII Masking**: Ensuring that any query targeting the `users` table automatically excludes `email` or `password_hash` columns.
+- **Query Optimization**: Catching unindexed filters in natural language questions like "Show me every transaction since 2010" before they scan millions of rows.
+- **Dialect Conversion**: Automatically correcting minor syntax errors when an LLM trained on Postgres tries to query a SQLite database.
+- **Safety Enforcement**: Blocking `DROP TABLE` or `DELETE` commands that might be generated due to prompt injection or model hallucination.
+- **Home automation bots**: Triggering database-driven actions (e.g., "Show me my energy usage") with guaranteed safety.
 
 ## Strengths
+- **Defense in Depth**: Multiple layers of validation ensure that even if one check misses a risk, another will likely catch it.
+- **Reduced Hallucinations**: The self-correction loop allows the model to learn from its own mistakes in real-time.
+- **Cost Savings**: Prevents expensive, inefficient queries from consuming excessive cloud database resources.
 - **Safety**: Multi-layered defense against malicious or accidental query errors.
-- **Reliability**: Self-correction loop reduces the need for human intervention.
-- **Performance**: Static checks catch "heavy" queries before they consume resources.
 
 ## Limitations
-- **Latency**: Each validation step adds a small amount of time to the response loop.
-- **Complexity**: Requires maintaining an allowlist of tables and columns.
+- **Validation Latency**: Each check adds overhead to the total response time.
+- **Rule Maintenance**: Policy allowlists must be updated whenever the database schema changes.
+- **LLM-as-a-Judge Bias**: Semantic validation using a second LLM is not 100% foolproof and may itself hallucinate.
 
 ## When to use it
 - In any production environment where LLMs generate SQL queries for live databases.
 - When working with high-volume or highly sensitive data.
+- When utilizing smaller, less reliable models for SQL generation that require a "safety net."
 
 ## When not to use it
-- During early-stage prototyping with dummy data.
-- For read-only queries on very small, non-sensitive local datasets where a failure has zero impact.
+- **Development/Sandbox Environments**: Where risks are low and rapid prototyping is more important than strict validation.
+- **Read-Only Public Datasets**: If the data is already public and the database is small enough that performance is not a concern.
+- **Fixed-Query Systems**: If the AI is just selecting from a set of pre-written, human-verified SQL queries.
 
 ## Getting started
 
@@ -73,20 +79,17 @@ tables = ["items", "categories"]
 print(f"Is safe: {is_query_safe(query, tables)}")
 ```
 
-## Goal
-Implement enterprise-safe validation for Text-to-SQL outputs, preventing data leaks, expensive queries, or incorrect metric definitions.
-
 ## The Validation Pipeline
 
 1.  **Syntactic Validation**: Does the SQL run? (Dry-run)
 2.  **Policy Validation**: Does it violate security rules? (Allowlists, row limits)
 3.  **Semantic Validation**: Does it match the intended metrics/filters? (LLM-as-a-Judge)
 
-## 1. Syntax Validation (Dry-Run)
+### 1. Syntax Validation (Dry-Run)
 Before returning or executing, the system must perform a `EXPLAIN` or a dry-run with `LIMIT 0`.
 - **Low-cost implementation**: Use the local SQLite `EXPLAIN QUERY PLAN` or a temporary in-memory DB to verify syntax without hitting production data.
 
-## 2. Policy Validation Checklist
+### 2. Policy Validation Checklist
 Every query must pass these automated checks:
 - [ ] **Row Limits**: Does the query have a `LIMIT` clause? (Hard cap e.g., 1000).
 - [ ] **Table Allowlist**: Does it only touch tables defined in the Workspace context?
@@ -95,13 +98,7 @@ Every query must pass these automated checks:
   - Sensitive columns (e.g., `ssn`, `password_hash`) must be excluded from the `SELECT` list.
   - If a sensitive column is needed for filtering (e.g., `user_id`), it must be hashed or replaced with a pseudonym in the final output returned to the UI.
 
-## Typical use cases
-- **Automated PII Masking**: Ensuring that any query targeting the `users` table automatically excludes `email` or `password_hash` columns.
-- **Query Optimization**: Catching unindexed filters in natural language questions like "Show me every transaction since 2010" before they scan millions of rows.
-- **Dialect Conversion**: Automatically correcting minor syntax errors when an LLM trained on Postgres tries to query a SQLite database.
-- **Safety Enforcement**: Blocking `DROP TABLE` or `DELETE` commands that might be generated due to prompt injection or model hallucination.
-
-## 3. Semantic Validation & Risk Taxonomy
+### 3. Semantic Validation & Risk Taxonomy
 A query can be syntactically perfect but business-incorrect.
 
 | Risk Type | Symptom | Example |
@@ -112,46 +109,21 @@ A query can be syntactically perfect but business-incorrect.
 | **Join Explosion** | Joining too many tables. | Joining 5 tables to answer a 1-table question. |
 | **Performance Risk** | Missing indexes or scans. | Querying a 10M row table without an indexed filter. |
 
-## 4. Self-Correction Loop (Repair)
+### 4. Self-Correction Loop (Repair)
 If validation fails, the "SQL Repair" flow is triggered:
 1.  **Capture Error**: Gather the SQL + Error Message (from DB) or Policy Violation (from Guardrail).
-2.  **Prompt Generator**: Feed the error back to the LLM using a repair template:
-    - **Syntax Error**: "The query `[SQL]` failed with `[ERROR]`. Likely cause: missing column or invalid join. Please rewrite using the verified schema below."
-    - **Policy Violation**: "The query `[SQL]` violated policy `[RULE]`. Please rewrite ensuring no forbidden keywords or sensitive columns are used."
+2.  **Prompt Generator**: Feed the error back to the LLM using a repair template.
 3.  **Retry Limit**: Max 2 retries. If still failing, trigger "Stop and Escalate".
 
-## Strengths
-- **Defense in Depth**: Multiple layers of validation ensure that even if one check misses a risk, another will likely catch it.
-- **Reduced Hallucinations**: The self-correction loop allows the model to learn from its own mistakes in real-time.
-- **Cost Savings**: Prevents expensive, inefficient queries from consuming excessive cloud database resources.
-
-## Limitations
-- **Validation Latency**: Each check adds overhead to the total response time.
-- **Rule Maintenance**: Policy allowlists must be updated whenever the database schema changes.
-- **LLM-as-a-Judge Bias**: Semantic validation using a second LLM is not 100% foolproof and may itself hallucinate.
-
-## 5. Stop and Escalate Criteria
+### 5. Stop and Escalate Criteria
 Stop the automated flow and notify a human if:
 1.  **Ambiguous Metric**: Multiple valid columns match the user's intent.
 2.  **Permission Denied**: The query attempts to access a restricted schema.
 3.  **Repair Timeout**: Max retries reached without a valid query.
 4.  **Complex Logic**: The intent requires a logic depth the current model cannot reliably produce.
 
-## When to use it
-- In any production-facing Text-to-SQL system where users have direct access to query tools.
-- When working with high-volume or sensitive data that requires strict access controls.
-- When utilizing smaller, less reliable models for SQL generation that require a "safety net."
-
-## When not to use it
-- **Development/Sandbox Environments**: Where risks are low and rapid prototyping is more important than strict validation.
-- **Read-Only Public Datasets**: If the data is already public and the database is small enough that performance is not a concern.
-- **Fixed-Query Systems**: If the "AI" is just selecting from a set of pre-written, human-verified SQL queries.
-
 ## Low-Cost Implementation Options
 - **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call.
-  - **Structural Check**: Ensure no `CROSS JOIN` or non-indexed joins are present.
-  - **Auto-Injection**: Automatically append `LIMIT 100` if missing.
-  - **Dialect Translation**: Translate generic SQL into specific DB dialects (e.g., SQLite vs Postgres).
 - **Pydantic Guardrails**: Use Pydantic to validate the *structure* of the SQL intent before generation.
 - **Small Model Judge**: Use a small local model (Qwen 2.5 7B) specifically to check the generated SQL against the policy checklist.
 
@@ -163,6 +135,9 @@ Stop the automated flow and notify a human if:
 - [Tool Calling & Model Context Protocol (MCP)](../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Fiddler AI Guardrails](../tools/process_understanding/fiddler.md)
 - [LastMile AI Eval](../tools/process_understanding/lastmile.md)
+- [Ragas Evaluation Metrics](../tools/process_understanding/ragas.md)
+- [Langfuse Tracing](../tools/process_understanding/langfuse.md)
+- [Pydantic AI Framework](../tools/frameworks/pydantic-ai.md)
 
 ## Sources / References
 - [SQLGlot Documentation](https://github.com/tobymao/sqlglot)
