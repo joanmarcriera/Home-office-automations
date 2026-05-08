@@ -15,6 +15,18 @@ It bridges the gap between a raw AI CLI and a production-ready autonomous engine
 - **Continuous Learning**: Automatically extracting patterns from development sessions into reusable "instincts" and skills.
 - **Multi-Agent Orchestration**: Managing complex workflows across multiple services using PM2 and collaborative planning commands.
 
+## Strengths
+<!-- needs-content -->
+
+## Limitations
+<!-- needs-content -->
+
+## When to use it
+<!-- needs-content -->
+
+## When not to use it
+<!-- needs-content -->
+
 ## Key Components
 - **Subagents (48+)**: Specialized personas like `typescript-reviewer`, `sql-auditor`, and `build-error-resolver` for delegation.
 - **Skills (182+)**: Domain-specific workflow definitions ranging from `frontend-slides` to `market-research`.
