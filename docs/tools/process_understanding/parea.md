@@ -25,6 +25,14 @@ Parea bridges the gap between prompt experimentation and production reliability.
 - **Cloud Platform**: Full features require using the Parea cloud dashboard.
 - **Newer Entry**: Smaller community compared to older tools like LangSmith.
 
+## When to use it
+- When you need a unified dashboard for prompt engineering and production monitoring.
+- To run automated evaluations (evals) as part of your CI/CD pipeline for LLM apps.
+
+## When not to use it
+- For very simple, single-prompt applications where the overhead of a full observability platform isn't justified.
+- If you require a fully self-hosted solution for strict data privacy requirements.
+
 ## Getting started
 
 ### Installation

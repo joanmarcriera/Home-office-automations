@@ -203,7 +203,8 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [Skeleton Guide](skeleton-guide.md)
 - [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [LLM Prompts Index](../llm-prompts/)
+- [LLM Prompts Index](../llm-prompts/index.md)
+- [Ragas Evaluation Metrics](../../tools/process_understanding/ragas.md)
 
 ## Sources / References
 - [OpenAI: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
