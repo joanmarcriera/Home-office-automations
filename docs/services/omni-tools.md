@@ -2,11 +2,8 @@
 
 Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks.
 
-## Description
-It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
-
 ## What it is
-Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue.
+Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue. It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
 
 ## What problem it solves
 It replaces the habit of pasting sensitive snippets, screenshots, documents, or configuration fragments into random online utility sites. For a home office, this keeps small conversion jobs inside the LAN while giving non-technical users a simple web page instead of a collection of command-line scripts.
@@ -30,6 +27,11 @@ Omni Tools belongs in the **self-hosted productivity utilities** layer, next to 
 - **Not an automation engine**: It is interactive; use n8n, scripts, or APIs for repeatable pipelines.
 - **Browser resource limits**: Very large media/PDF jobs can exhaust client memory.
 - **No granular workflow permissions**: Put it behind network-level or reverse-proxy access controls if sensitive users share the same instance.
+
+## When to use it
+- When you need a quick, safe, and internal way to format or transform text/media snippets.
+- When working with sensitive configuration files that should not be pasted into public websites.
+- When providing non-technical team members with a user-friendly interface for common office tasks.
 
 ## When not to use it
 Do not use Omni Tools as the authoritative system for audited document transformations, regulated file processing, or unattended batch jobs. Prefer CyberChef for reproducible transformation recipes and dedicated services such as Paperless-ngx, Stirling PDF, or ImageMagick-based scripts for repeatable server-side processing.
@@ -105,9 +107,15 @@ cat formatted.json
 - [GitHub Repository](https://github.com/iib0011/omni-tools)
 - [Docker Hub](https://hub.docker.com/r/iib0011/omni-tools)
 
-## Alternatives
-- [IT-Tools](it-tools.md)
-- [CyberChef](https://github.com/gchq/CyberChef)
+## Related tools / concepts
+- [IT-Tools](it-tools.md) — A similar collection of web-based developer tools.
+- [Paperless-ngx](paperless-ngx.md) — For long-term document archival and OCR.
+- [Nextcloud](nextcloud.md) — For file storage and collaborative office suites.
+- [Authentik](authentik.md) — For adding SSO and security to self-hosted utilities.
+- [Gitea](gitea.md) — For version-controlling the scripts and configs you transform.
+- [SearXNG](searXNG.md) — For private search when looking up transformation standards.
+- [Whisper](whisper.md) — For server-side audio-to-text processing.
+- [CyberChef](https://github.com/gchq/CyberChef) — The "Swiss Army Knife" of data transformations.
 
 ## Backlog
 - Add custom tool modules for repository management.
@@ -119,4 +127,4 @@ cat formatted.json
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-08

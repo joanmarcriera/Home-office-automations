@@ -27,6 +27,11 @@ Draw.io sits in the **Documentation and Design** layer of the home-office stack.
 - **Collaboration**: Real-time collaboration in the self-hosted version is more complex to set up than the SaaS version.
 - **UI Density**: The interface can be intimidating for users who only need simple sketching tools (consider [Excalidraw](excalidraw.md) for those cases).
 
+## When to use it
+- When you need to create formal, technical diagrams (UML, Network, Cloud Architecture).
+- When you want a professional Visio alternative that works across Windows, macOS, and Linux.
+- When you need to export diagrams to multiple formats (PDF, PNG, SVG, XML) for documentation.
+
 ## When not to use it
 Draw.io is not the best fit for text-native diagrams that must be reviewed primarily in pull requests, generated from code, or diffed line-by-line; use Mermaid or PlantUML for those cases. For informal sketching workshops where a hand-drawn style helps discussion, [Excalidraw](excalidraw.md) may be faster.
 
@@ -97,6 +102,8 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Mermaid](../knowledge_base/patterns/diagramming.md) — Text-based diagramming alternative.
 - [Gitea](gitea.md) — For version-controlling diagram files.
 - [Nextcloud](nextcloud.md) — Storage backend for Draw.io diagrams.
+- [Paperless-ngx](paperless-ngx.md) — For archiving exported diagram PDFs.
+- [Authentik](authentik.md) — For securing the self-hosted Draw.io interface.
 
 ## Links
 - [Official Website](https://www.draw.io/)
@@ -108,7 +115,7 @@ iframe.contentWindow.postMessage(JSON.stringify({
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-08
 
 ## Sources / References
 - https://www.draw.io/

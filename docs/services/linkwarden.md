@@ -132,6 +132,11 @@ curl -X POST "http://localhost:3000/api/v1/links" \
 - [Changedetection.io](changedetection.md) — for monitoring websites for changes after bookmarking them
 - [Nextcloud](nextcloud.md) — can be used to sync and store Linkwarden's PDF exports
 - [Tailscale](tailscale.md) — for secure remote access to your bookmark collections
+- [Paperless-ngx](paperless-ngx.md) — For complementary document management and OCR.
+- [Authentik](authentik.md) — For managing SSO access to your bookmarking service.
+- [Gitea](gitea.md) — For versioning the research notes derived from bookmarked links.
+- [SearXNG](searXNG.md) — For private search to find new content to bookmark.
+- [Home Assistant](home-assistant.md) — For automating notifications about newly archived links.
 
 ## Backlog
 - Browser extension integration.
@@ -145,5 +150,5 @@ curl -X POST "http://localhost:3000/api/v1/links" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-05-08
 - Confidence: high
