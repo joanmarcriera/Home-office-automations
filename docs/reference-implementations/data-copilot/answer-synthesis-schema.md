@@ -123,6 +123,31 @@ You are a Data Analyst Agent. Your task is to synthesize raw data results into a
 }
 ```
 
+### Diagnosis Query (Medium Confidence)
+**Query**: "Why was my electricity bill higher than usual last month?"
+
+```json
+{
+  "answer_summary": "Your electricity bill was 25% higher due to increased HVAC usage during a cold snap and a faulty dryer sensor.",
+  "key_metrics": [
+    {"label": "HVAC Increase", "value": 45.0, "unit": "GBP"},
+    {"label": "Dryer Inefficiency", "value": 12.5, "unit": "GBP"}
+  ],
+  "explanation": "HVAC usage correlated with exterior temperature drops (mean 2°C). The dryer 'active' logs showed continuous power draw for 6 hours on three occasions, suggesting a sensor failure.",
+  "sources": [
+    {"type": "SQL", "id": "q_9912", "description": "JOIN energy_logs AND weather_data"},
+    {"type": "Doc", "id": "dryer_manual_v1", "description": "Dryer troubleshooting section"}
+  ],
+  "confidence_score": 0.75,
+  "assumptions": ["Assumed HVAC is primary heating source", "Assumed continuous draw implies fault"],
+  "recommended_actions": [
+    "Inspect dryer humidity sensor",
+    "Lower thermostat by 1 degree during peak hours"
+  ],
+  "needs_human_review": false
+}
+```
+
 ## Cheap/Free Model Fallback Strategy
 Synthesis requires high instruction-following but lower reasoning than SQL generation.
 - **Primary**: Claude 3.5 Haiku or GPT-4o-mini (Reliable structured output).

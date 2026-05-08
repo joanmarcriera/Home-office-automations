@@ -27,6 +27,9 @@ It addresses the limitations of standard chatbots in education by providing a st
 - When building educational platforms that require more than simple Q&A.
 - When studying how agents can be used for persistent, structured learning.
 
+## When not to use it
+<!-- needs-content -->
+
 ## Licensing and cost
 - **Open Source**: Yes
 - **API Usage**: Dependent on the underlying LLM provider.

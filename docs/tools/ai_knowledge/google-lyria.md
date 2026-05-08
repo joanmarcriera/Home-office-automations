@@ -45,9 +45,12 @@ It gives creators and product teams a model-native way to generate or assist wit
 - [Project Genie](project-genie.md)
 - [Luma Dream Machine](luma-dream-machine.md)
 - [Synthesia](synthesia.md)
+- [Sunoml](https://suno.com/)
+- [Udio](https://www.udio.com/)
 
 ## Sources / References
 - [Official Website](https://deepmind.google/models/lyria/)
+- [DeepMind Blog: Lyria](https://deepmind.google/discover/blog/transforming-the-future-of-music-creation/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-27

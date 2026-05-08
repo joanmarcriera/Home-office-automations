@@ -14,6 +14,18 @@ It provides practical, hands-on instructions to bridge the gap between basic cha
 - Mastering MCP configuration.
 - Optimizing prompts for agentic performance.
 
+## Strengths
+<!-- needs-content -->
+
+## Limitations
+<!-- needs-content -->
+
+## When to use it
+<!-- needs-content -->
+
+## When not to use it
+<!-- needs-content -->
+
 ## Getting started
 1.  **Install dependencies**:
     ```bash

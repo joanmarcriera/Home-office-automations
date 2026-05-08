@@ -45,9 +45,12 @@ It gives users a faster way to discover proven prompt structures and packaged AI
 - [Copy.ai](copy-ai.md)
 - [Flowise](flowise.md)
 - [Dify](dify.md)
+- [Snack Prompt](https://snackprompt.com/)
+- [PromptBase](https://promptbase.com/)
 
 ## Sources / References
 - [Official Website](https://www.aitmpl.com/)
+- [AI Templates Twitter](https://twitter.com/aitmpl)
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-27
