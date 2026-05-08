@@ -35,6 +35,32 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 - If you prefer a more privacy-centric, local approach.
 - If you require the specific reasoning style of Claude or GPT-4o.
 
+## Getting started
+
+### Python API Example (Gemini 1.5 Pro)
+Google's Generative AI SDK provides a straightforward way to interact with Gemini models, including support for massive context windows and multimodal inputs.
+
+```python
+import google.generativeai as genai
+import os
+
+# Configure the SDK
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
+# Initialize the model
+model = genai.GenerativeModel('gemini-1.5-pro')
+
+# Generate content
+response = model.generate_content("Explain the benefits of a 2-million token context window for a developer.")
+
+print(response.text)
+
+# Multimodal Example (Image + Text)
+# sample_file = genai.upload_file(path="dashboard_screenshot.png")
+# response = model.generate_content([sample_file, "Extract the key metrics from this dashboard."])
+# print(response.text)
+```
+
 ## Licensing and cost
 - **Open Source**: No (Proprietary).
 - **Cost**: Free tier (Gemini); paid "Advanced" subscription; API usage with a generous free tier in Google AI Studio.
@@ -48,6 +74,11 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 - [NotebookLM](notebooklm.md)
 - [Gemini for macOS](gemini-macos.md)
 - [Gemini CLI](gemini-cli.md)
+- [OpenAI](openai.md)
+- [Mistral AI](../providers/mistral.md)
+- [LangChain](../frameworks/langchain.md)
+- [LlamaIndex](../frameworks/llamaindex.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 
 ## Sources / References
 - [Official Website](https://gemini.google.com/)
@@ -58,5 +89,5 @@ AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Stu
 - [Gemini Documentation](https://ai.google.dev/docs)
 
 ## Contribution Metadata
+- Last reviewed: 2026-05-08
 - Confidence: high
-- Last reviewed: 2026-05-28
