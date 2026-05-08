@@ -31,6 +31,50 @@ It is the final **Inference Stage** of the pipeline, occurring after data retrie
 - For internal debugging logs where raw data is preferred.
 - In latency-critical systems where the overhead of a synthesis LLM call is prohibitive.
 
+## Getting started
+
+To use the schema in your Python pipeline, initialize the Pydantic model with your LLM's JSON output.
+
+```python
+import json
+from pydantic import ValidationError
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field
+
+# 1. Define the schema (see section below for full class definitions)
+class DataPoint(BaseModel):
+    label: str
+    value: Any
+    unit: Optional[str] = None
+
+class SynthesisResponse(BaseModel):
+    answer_summary: str
+    key_metrics: List[DataPoint]
+    explanation: str
+    confidence_score: float
+    recommended_actions: List[str]
+
+# 2. Example raw JSON from LLM
+raw_json = """
+{
+  "answer_summary": "Your electricity spend was £142.50 in March.",
+  "key_metrics": [{"label": "Total Spend", "value": 142.5, "unit": "GBP"}],
+  "explanation": "Calculated from energy_logs table.",
+  "confidence_score": 1.0,
+  "recommended_actions": ["Keep saving!"]
+}
+"""
+
+# 3. Parse and Validate
+try:
+    data = json.loads(raw_json)
+    response = SynthesisResponse(**data)
+    print(f"Summary: {response.answer_summary}")
+    print(f"Confidence: {response.confidence_score}")
+except ValidationError as e:
+    print(f"Schema validation failed: {e}")
+```
+
 ## Goal
 Standardize Data Copilot responses to include key metrics, explanations, sources, confidence scores, and recommended actions.
 
@@ -158,6 +202,8 @@ Synthesis requires high instruction-following but lower reasoning than SQL gener
 - [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [Skeleton Guide](skeleton-guide.md)
+- [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [LLM Prompts Index](../llm-prompts/)
 
 ## Sources / References
 - [OpenAI: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)

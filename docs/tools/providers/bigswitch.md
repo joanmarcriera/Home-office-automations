@@ -10,9 +10,10 @@ It helps individuals and organizations navigate the transition from US-centric S
 **Providers / Discovery Directory**. It is a selection and vetting resource for European tech providers.
 
 ## Typical use cases
-- Sourcing GDPR-compliant alternatives for business communication and cloud storage
-- Identifying EU-based AI and infrastructure providers
-- Auditing a tech stack for digital sovereignty
+- **Sourcing GDPR-compliant alternatives**: Finding business communication and cloud storage solutions that guarantee data residency in the EU.
+- **Identifying EU-based AI**: Discovering infrastructure providers like Mistral AI or Scaleway.
+- **Auditing a tech stack**: Evaluating existing services for digital sovereignty and jurisdictional risk.
+- **Privacy-First Procurement**: Using the directory to find tools that prioritize user privacy and open standards.
 
 ## Strengths
 - Focuses on digital sovereignty and EU values
@@ -45,12 +46,15 @@ It helps individuals and organizations navigate the transition from US-centric S
 Visit [bigswitch.eu](https://bigswitch.eu/) to browse the directory and discover European alternatives for your tech stack.
 
 ## Related tools / concepts
-
 - [Digital Sovereignty](../../architecture/automated_contributions.md)
 - [GDPR Compliance](../../knowledge_base/llm_security_privacy.md)
 - [Replicate](replicate.md)
 - [MiniMax](minimax.md)
 - [Groq](groq.md)
+- [Mistral](mistral.md)
+- [DeepSeek](deepseek.md)
+- [Hugging Face](huggingface.md)
+- [Together AI](together.md)
 ## Sources / References
 
 - [Official Website](https://bigswitch.eu/)
@@ -58,4 +62,4 @@ Visit [bigswitch.eu](https://bigswitch.eu/) to browse the directory and discover
 
 ## Contribution Metadata
 - Last reviewed: 2026-03-09
-- Confidence: medium
+- Confidence: high

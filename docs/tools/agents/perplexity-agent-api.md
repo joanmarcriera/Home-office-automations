@@ -47,6 +47,12 @@ print(response.json())
 - **Rate Limits**: Subject to API usage limits.
 - **Cloud Dependent**: Not suitable for 100% offline local-only environments.
 
+## When to use it
+<!-- needs-content -->
+
+## When not to use it
+<!-- needs-content -->
+
 ## Licensing and cost
 - **Commercial**: Usage-based pricing.
 

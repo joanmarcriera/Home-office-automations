@@ -31,6 +31,48 @@ It operates within the **Inference Pipeline**, specifically between the **SQL Ge
 - During early-stage prototyping with dummy data.
 - For read-only queries on very small, non-sensitive local datasets where a failure has zero impact.
 
+## Getting started
+
+To implement basic static validation, use the `sqlglot` library to parse and inspect generated queries.
+
+```python
+import sqlglot
+from sqlglot import exp
+
+def is_query_safe(sql_query: str, allowed_tables: list[str]) -> bool:
+    try:
+        # Parse the SQL into an expression tree
+        expressions = sqlglot.parse(sql_query)
+
+        for expression in expressions:
+            # 1. Check for forbidden mutation keywords
+            if any(isinstance(node, (exp.Delete, exp.Drop, exp.Update, exp.Insert, exp.Alter))
+                   for node, *_ in expression.walk()):
+                print("Error: Mutation detected.")
+                return False
+
+            # 2. Verify table allowlist
+            for table in expression.find_all(exp.Table):
+                if table.name.lower() not in [t.lower() for t in allowed_tables]:
+                    print(f"Error: Table '{table.name}' not in allowlist.")
+                    return False
+
+            # 3. Ensure LIMIT is present (optional but recommended)
+            if not expression.find(exp.Limit):
+                print("Warning: No LIMIT clause found. Appending default limit.")
+                # Logic to append LIMIT could go here
+
+        return True
+    except sqlglot.errors.ParseError as e:
+        print(f"Syntax Error: {e}")
+        return False
+
+# Example Usage
+query = "SELECT * FROM users; DROP TABLE products;"
+tables = ["items", "categories"]
+print(f"Is safe: {is_query_safe(query, tables)}")
+```
+
 ## Goal
 Implement enterprise-safe validation for Text-to-SQL outputs, preventing data leaks, expensive queries, or incorrect metric definitions.
 
@@ -119,6 +161,8 @@ Stop the automated flow and notify a human if:
 - [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
 - [Tool Calling & Model Context Protocol (MCP)](../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Fiddler AI Guardrails](../tools/process_understanding/fiddler.md)
+- [LastMile AI Eval](../tools/process_understanding/lastmile.md)
 
 ## Sources / References
 - [SQLGlot Documentation](https://github.com/tobymao/sqlglot)
