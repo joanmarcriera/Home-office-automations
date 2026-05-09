@@ -16,16 +16,23 @@ It bridges the gap between a raw AI CLI and a production-ready autonomous engine
 - **Multi-Agent Orchestration**: Managing complex workflows across multiple services using PM2 and collaborative planning commands.
 
 ## Strengths
-<!-- needs-content -->
+- **Comprehensive Ecosystem**: Offers 48+ agents and 182+ skills covering 10+ programming languages.
+- **Cross-Platform & Harness**: Supports Claude Code, Cursor, OpenCode, Codex, and Antigravity with unified rules.
+- **Security-First**: Includes AgentShield for adversarial reasoning and secret detection.
+- **Optimized Performance**: Pre-configured token optimization settings (e.g., `MAX_THINKING_TOKENS`) to reduce costs.
 
 ## Limitations
-<!-- needs-content -->
+- **Configuration Overhead**: Requires manual rule installation as Claude Code plugins cannot distribute files to the filesystem.
+- **Context Usage**: Large numbers of enabled MCP servers or skills can rapidly consume the LLM's context window.
 
 ## When to use it
-<!-- needs-content -->
+- When building complex production applications with AI agents.
+- When requiring consistent coding standards and hooks across a distributed engineering team.
+- When seeking an "all-in-one" performance system for AI agent harnesses.
 
 ## When not to use it
-<!-- needs-content -->
+- For trivial, single-file scripts where a standard prompt is sufficient.
+- If you prefer a completely "vanilla" AI experience without automated hooks or specialized subagents.
 
 ## Key Components
 - **Subagents (48+)**: Specialized personas like `typescript-reviewer`, `sql-auditor`, and `build-error-resolver` for delegation.

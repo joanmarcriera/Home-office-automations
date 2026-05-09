@@ -31,6 +31,17 @@ It eliminates the need to switch between different AI provider websites by provi
 - If you require a fully open-source stack for auditing or contribution.
 - If you are looking for an agentic framework that can perform autonomous actions on your local filesystem (see [Aider](../development_ops/aider.md)).
 
+## Getting started
+
+### Installation
+1.  Download the client for your platform from the [official website](https://chatboxai.app/).
+2.  Install and launch the application.
+
+### Configuration
+1.  Open **Settings** (gear icon).
+2.  Select your preferred **AI Provider** (e.g., OpenAI, Anthropic).
+3.  Enter your **API Key** and save.
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Free (Client download) / Paid (Cloud services and premium features)
