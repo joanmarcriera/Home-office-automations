@@ -1,8 +1,6 @@
 # Homebox
 
 ## What it is
-
-## What it is
 A lightweight, self-hosted inventory management system written in Go. It uses a single SQLite database for all data, making it easy to host and backup.
 
 ## What problem it solves
@@ -24,9 +22,6 @@ It is a **Standalone Service** in the home automation stack, typically deployed 
 ## Limitations
 - **Simplicity**: Lacks advanced supply chain or POS features found in enterprise ERPs.
 - **Permissions**: Limited multi-user role-based access control.
-
-## Description
-It helps you keep track of your belongings, their locations, warranties, and purchase details. Written in Go, it is extremely lightweight (typically using less than 50MB of RAM) and uses SQLite for portable data management.
 
 ## When to use it
 - When you need a simple, fast inventory system to track household items.

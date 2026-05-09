@@ -3,28 +3,36 @@
 This page documents the specialized tools available to the Home Admin Agent (Ralph) for interacting with home services.
 
 ## What it is
-Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent. <!-- needs-content -->
+Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [MCP](../../tools/automation_orchestration/mcp.md) or standard tool-calling patterns.
 
 ## What problem it solves
-They give the agent controlled interfaces for querying and changing household task and smart-home systems. <!-- needs-content -->
+They give the agent controlled, high-level interfaces for querying and changing household task and smart-home systems. This prevents the agent from needing direct database access or unrestricted shell execution, providing a layer of security and predictability to autonomous home operations.
 
 ## Where it fits in the stack
-**Agents / Home administration tool layer**. <!-- needs-content -->
+**Agents / Home administration tool layer**. It sits between the reasoning agent (Ralph) and the household's core services, acting as a translator for intent-to-action.
 
 ## Typical use cases
-Use these tools for task creation, task updates, home-state checks, and scene control. <!-- needs-content -->
+- **Automated Morning Briefing**: Querying Vikunja for today's tasks and Home Assistant for the current weather/house state.
+- **Scene Management**: Triggering "Good Night" or "Away" scenes based on family schedule or manual intent.
+- **Task Delegation**: Automatically creating maintenance tasks in Vikunja when Home Assistant detects a sensor alert (e.g., "Fridge door left open").
 
 ## Strengths
-The tools keep home-admin actions behind explicit API wrappers instead of unrestricted shell or browser access. <!-- needs-content -->
+- **Security**: Actions are limited by the tool's defined schema and API scopes.
+- **Discoverability**: Standard argument definitions allow LLMs to reliably use the tools without retraining.
+- **Portability**: The tools follow patterns that can be easily ported to other agent frameworks (e.g., LangGraph or MCP).
 
 ## Limitations
-The page still needs fuller operational notes on permissions, failure handling, and audit logging. <!-- needs-content -->
+- **Permission Scoping**: The tools operate with the permissions of the configured API tokens. If a token has broad access, the agent inherits that access.
+- **Lack of Transactional Rollback**: Home state changes (e.g., turning on a light) or task creations in Vikunja cannot always be automatically rolled back if a multi-step workflow fails.
+- **Dependency on Local Network**: These tools require stable connectivity to the local instances of Home Assistant and Vikunja.
 
 ## When to use it
-Use these tools when Ralph needs to interact with Vikunja or Home Assistant through defined service APIs. <!-- needs-content -->
+- When an autonomous agent needs to read from or write to the household's task and automation systems.
+- When you want to provide a "Natural Language" interface for complex home operations.
 
 ## When not to use it
-Do not use these tools for services that lack configured credentials, clear ownership, or rollback expectations. <!-- needs-content -->
+- For services that lack configured credentials or clear ownership.
+- When an action is extremely sensitive and requires a human-in-the-loop (HITL) approval that is not yet implemented.
 
 ## Vikunja Tools
 
@@ -96,11 +104,12 @@ These tools require the following environment variables to be set:
 | `HOME_ASSISTANT_TOKEN` | Long-lived access token for HA | (Required) |
 
 ## Related tools / concepts
-
+- [Home Assistant](../../services/home-assistant.md)
+- [Vikunja](../../services/vikunja.md)
+- [n8n](../../services/n8n.md)
+- [LangGraph](../frameworks/langgraph.md)
+- [MCP](../automation_orchestration/mcp.md)
 - [Agency Swarm](agency-swarm.md)
-- [Agency-Agents](agency-agents.md)
-- [Agentic Automation Canvas (AAC)](agentic-automation-canvas.md)
-- [Agno](agno.md)
 - [Anthropic Agent Skills](anthropic-agent-skills.md)
 
 ## Sources / References

@@ -56,14 +56,23 @@ print(completion.choices[0].message.content)
 - **Cost**: API pricing is tiered and can be higher for the most capable models.
 
 ## When to use it
-<!-- needs-content -->
+- When you need to synthesize real-time trends, public sentiment, or breaking news from the **X (Twitter)** platform.
+- When you prefer a reasoning model with a more **unfiltered, witty, and conversational** tone compared to standard "assistant" personalities.
+- For tasks requiring a **large context window** that is natively supported by the Grok-2 family.
 
 ## When not to use it
-<!-- needs-content -->
+- In **strictly formal or corporate environments** where the model's distinctive "wit" or "rebellious" personality might be inappropriate.
+- When absolute **social media neutrality** is required, as the model's knowledge base is heavily influenced by X platform discourse.
+- If you have strict data residency or privacy requirements that preclude the use of xAI's infrastructure.
 
 ## Related tools / concepts
-- [OpenAI](../ai_knowledge/openai.md) (Compatible API)
-- [Perplexity](../ai_knowledge/perplexity.md) (Alternative for real-time search)
+- [OpenAI](../ai_knowledge/openai.md)
+- [Perplexity](../ai_knowledge/perplexity.md)
+- [Anthropic](anthropic.md)
+- [Gemini](../ai_knowledge/google-gemini.md)
+- [DeepSeek](deepseek.md)
+- [Mistral](mistral.md)
+- [Cohere](cohere.md)
 
 ## Sources / References
 - [xAI Official Site](https://x.ai/)
