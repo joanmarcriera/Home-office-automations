@@ -1,12 +1,7 @@
 # Navidrome
 
-Navidrome is a modern self-hosted music server and streamer.
-
-## Description
-It is a high-performance music server that allows you to listen to your music collection from any device. It is compatible with Subsonic/Madsonic API and provides a beautiful web interface.
-
 ## What it is
-Navidrome indexes a local music library, serves it through a responsive web UI, and exposes a Subsonic-compatible API for mobile and desktop music clients. It is lightweight enough for small home servers but still supports multi-user libraries, transcoding through `ffmpeg`, playlists, album art, and external clients.
+Navidrome is a modern self-hosted music server and streamer. It indexes a local music library, serves it through a responsive web UI, and exposes a Subsonic-compatible API for mobile and desktop music clients. It is a high-performance music server that allows you to listen to your music collection from any device. It is lightweight enough for small home servers but still supports multi-user libraries, transcoding through `ffmpeg`, playlists, album art, and external clients.
 
 ## What problem it solves
 It turns a folder of owned audio files into a private streaming service. That avoids relying on commercial music subscriptions for personal collections, lets a household keep music available on the LAN/VPN, and gives automation scripts a stable API for library checks.
@@ -30,6 +25,12 @@ Navidrome belongs in the **media services** layer alongside Jellyfin and Audiobo
 - **Music-focused**: It is not a full video/photo media platform.
 - **Metadata-dependent**: Poor tags lead to poor browsing results.
 - **Transcoding dependency**: `ffmpeg` must be available for some formats and clients.
+
+## When to use it
+- When you have a large collection of owned music files and want to stream them like Spotify.
+- For a lightweight music server that runs on modest hardware (e.g., Raspberry Pi).
+- When you want to use third-party mobile apps like Ample, DSub, or Play:Sub.
+- To maintain privacy by keeping your listening habits and music files on your own hardware.
 
 ## When not to use it
 Do not use Navidrome as a general media server for video, live TV, or photo libraries; use Jellyfin or Plex for those workloads. If you need audiobook-specific progress handling, chapter metadata, and podcast-style feeds, prefer Audiobookshelf.
@@ -135,9 +136,15 @@ with urllib.request.urlopen(f"{base_url}/rest/ping.view?{query}", timeout=10) as
 - [Installation Docs](https://www.navidrome.org/docs/installation/)
 - [Getting Started Docs](https://www.navidrome.org/docs/getting-started/)
 
-## Alternatives
+## Related tools / concepts
 - [Airsonic](https://airsonic.github.io/)
-- [Jellyfin (Music)](jellyfin.md)
+- [Jellyfin](jellyfin.md)
+- [Audiobookshelf](audiobookshelf.md)
+- [Plex](plex.md)
+- [Beets](https://beets.io/)
+- [Lidarr](https://lidarr.audio/)
+- [MusicBrainz](https://musicbrainz.org/)
+- [Subsonic API](http://www.subsonic.org/pages/api.jsp)
 
 ## Backlog
 - Integrate with "Audiobookshelf" for a unified audio library.
@@ -151,4 +158,4 @@ with urllib.request.urlopen(f"{base_url}/rest/ping.view?{query}", timeout=10) as
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-07-15

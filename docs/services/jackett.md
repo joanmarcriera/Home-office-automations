@@ -1,12 +1,7 @@
 # Jackett
 
-Jackett works as a proxy server: it translates queries from apps (CouchPotato, SickRage, Sonarr, Radarr, etc) into tracker-site-specific http queries.
-
-## Description
-It parses the HTML response and then sends results back to the requesting software.
-
 ## What it is
-Jackett is an indexer proxy for the media-management ecosystem. It normalizes search, category, and download results from many torrent trackers into Torznab/Newznab-style feeds that tools such as Sonarr, Radarr, Lidarr, and Readarr can consume.
+Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps (CouchPotato, SickRage, Sonarr, Radarr, etc) into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software. It normalizes search, category, and download results from many torrent trackers into Torznab/Newznab-style feeds that tools such as Sonarr, Radarr, Lidarr, and Readarr can consume.
 
 ## What problem it solves
 Tracker sites often have different search forms, authentication requirements, categories, and result formats. Jackett centralizes those differences behind a local API so media managers do not need custom logic for every tracker.
@@ -30,6 +25,11 @@ Jackett sits in the **media automation** layer between tracker websites and Arr 
 - **Tracker fragility**: HTML changes or anti-bot protections can break individual indexers.
 - **Operational sensitivity**: Misconfigured public exposure can leak search behavior and API keys.
 - **Overlap with Prowlarr**: New Arr-stack deployments often prefer Prowlarr for tighter management integration.
+
+## When to use it
+- When you need to integrate multiple torrent trackers into your automated media stack.
+- To provide a standardized Torznab interface for legacy trackers.
+- When you want to troubleshoot tracker issues in a dedicated interface before they reach your media managers.
 
 ## When not to use it
 Do not expose Jackett directly to the public internet or use it for non-compliant access to copyrighted material. For a new all-Arr deployment that needs centralized app/indexer sync, evaluate [Prowlarr](https://github.com/Prowlarr/Prowlarr) first.
@@ -114,9 +114,15 @@ with urllib.request.urlopen(url, timeout=10) as response:
 - [GitHub Repository](https://github.com/Jackett/Jackett)
 - [LinuxServer Jackett image](https://docs.linuxserver.io/images/docker-jackett/)
 
-## Alternatives
+## Related tools / concepts
 - [Prowlarr](https://github.com/Prowlarr/Prowlarr)
-- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) (helper)
+- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
+- [qbittorrent](qbittorrent.md)
+- [radarr](https://radarr.video/)
+- [sonarr](https://sonarr.tv/)
+- [lidarr](https://lidarr.audio/)
+- [readarr](https://readarr.com/)
+- [jellyfin](jellyfin.md)
 
 ## Backlog
 - Migrate to Prowlarr for better integration with the "Arr" stack.
@@ -129,4 +135,4 @@ with urllib.request.urlopen(url, timeout=10) as response:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-07-15

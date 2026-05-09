@@ -1,9 +1,29 @@
 # Storj
 
-Storj is a decentralized cloud storage provider.
+## What it is
+Storj is a decentralized cloud storage provider that offers S3-compatible object storage. Unlike traditional cloud providers, Storj distributes data across thousands of independent nodes worldwide, ensuring high reliability, security, and performance.
 
-## Description
-It offers S3-compatible storage that is distributed across thousands of nodes worldwide, providing high reliability and security.
+## What problem it solves
+It provides a cost-effective and highly private alternative to centralized object storage (like AWS S3). By using client-side encryption and distributed storage, it eliminates single points of failure and significantly reduces the risk of data breaches or downtime associated with single-region providers.
+
+## Where it fits in the stack
+**Category**: Service / Infrastructure / Storage. Storj acts as a remote object storage tier for backups, media hosting, or application data.
+
+## Typical use cases
+- Off-site backups for homelab data.
+- Hosting static assets for websites or applications.
+- Sharing large files securely without centralized tracking.
+- Contributing excess local storage to the network to earn rewards.
+
+## Strengths
+- **Decentralized Architecture**: No single point of failure.
+- **S3 Compatibility**: Works with existing S3-compatible tools and libraries.
+- **Security**: Default client-side encryption.
+- **Cost**: Often significantly cheaper than major cloud providers for both storage and egress.
+
+## Limitations
+- **Object Storage Only**: Not suitable for direct block storage or low-latency database files.
+- **Internet Dependency**: Requires a stable internet connection for all operations.
 
 ## When to use it
 - When you need high-performance, decentralized object storage.
@@ -103,19 +123,21 @@ for obj in response.get("Contents", []):
 - [Official Website](https://www.storj.io/)
 
 ## Related tools / concepts
-- [S3 / S3-Compatible Storage](../tools/intake_storage/s3-storage.md) (Core protocol)
-- [Rclone Automation](rclone-automation.md) (Common tool for Storj sync)
-- [Syncthing](syncthing.md) (Local sync alternative)
-- [Nextcloud](nextcloud.md) (Can use Storj as external storage)
-- [n8n](n8n.md) (For automating bucket operations)
+- [S3 / S3-Compatible Storage](../tools/intake_storage/s3-storage.md)
+- [Rclone Automation](rclone-automation.md)
+- [Syncthing](syncthing.md)
+- [Nextcloud](nextcloud.md)
+- [n8n](n8n.md)
+- [BorgBackup](borg.md)
+- [MinIO](https://min.io/)
+- [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
 
 ## Backlog
 - Configure as a backup target for Rclone.
 
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://www.storj.io/

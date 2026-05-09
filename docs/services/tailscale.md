@@ -1,9 +1,29 @@
 # Tailscale
 
-Tailscale is a zero-config VPN that makes your devices accessible from anywhere in the world.
+## What it is
+Tailscale is a zero-config VPN that builds a secure WireGuard-based mesh network between your devices, even behind firewalls and NATs. It makes your devices accessible from anywhere in the world as if they were on the same local network.
 
-## Description
-It builds a secure WireGuard-based mesh network between your devices, even behind firewalls and NATs.
+## What problem it solves
+It simplifies complex network configurations like port forwarding, VPN server management, and NAT traversal. It provides a secure way to access internal services (like Home Assistant, NAS, or dev environments) from outside the home or office without exposing them to the public internet.
+
+## Where it fits in the stack
+**Category**: Service / Infrastructure / Networking. Tailscale acts as the primary secure connectivity layer for remote access and inter-node communication across different locations.
+
+## Typical use cases
+- Accessing home lab services (TrueNAS, Paperless, etc.) from a mobile device while traveling.
+- Connecting remote nodes (e.g., a VPS and a home server) into a single private network.
+- Securely sharing internal services with family members or colleagues.
+- Providing a private tunnel for automation agents to reach internal APIs.
+
+## Strengths
+- **Zero Configuration**: No need to manage complex VPN keys or firewall rules.
+- **Secure**: Built on WireGuard, with automatic key rotation and encrypted tunnels.
+- **Mesh Connectivity**: Devices connect directly to each other whenever possible, minimizing latency.
+- **MagicDNS**: Provides stable, easy-to-remember hostnames for all devices.
+
+## Limitations
+- **Coordination Server**: Relies on a central coordination server (though data is encrypted and doesn't pass through it).
+- **Client Software Required**: Every participating device must have the Tailscale client installed.
 
 ## When to use it
 - When you need a secure, zero-config VPN to connect devices across different networks and firewalls.
@@ -89,11 +109,14 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 - [Official Website](https://tailscale.com/)
 
 ## Related tools / concepts
-- [Headscale](headscale.md) (Open-source control server)
-- [Cloudflare Mesh](cloudflare-mesh.md) (Alternative mesh networking)
-- [Docker](../tools/infrastructure/docker.md) (Common deployment method)
-- [n8n](n8n.md) (For automation workflows)
-- [Home Assistant](home-assistant.md) (For IoT device networking)
+- [Headscale](headscale.md)
+- [Cloudflare Mesh](cloudflare-mesh.md)
+- [Docker](../tools/infrastructure/docker.md)
+- [n8n](n8n.md)
+- [Home Assistant](home-assistant.md)
+- [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
+- [Nextcloud](nextcloud.md)
+- [WireGuard](https://www.wireguard.com/)
 
 ## Backlog
 - Setup Tailscale Exit Node on TrueNAS SCALE.
@@ -103,7 +126,7 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-07
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://tailscale.com/

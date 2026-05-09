@@ -1,12 +1,13 @@
 # Rclone Automation
 
-Automated scripts and configurations for Rclone on TrueNAS SCALE.
+## What it is
+Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between local ZFS pools and remote cloud providers (S3, B2, Drive). It is a "Swiss Army knife" for cloud storage, supporting over 40 different providers.
 
-## Description
-Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between local ZFS pools and remote cloud providers (S3, B2, Drive).
+## What problem it solves
+It provides a robust, scriptable way to handle complex cloud storage operations, including automated off-site backups, synchronization between different cloud providers, and mounting remote storage as a local filesystem. It ensures data integrity through checksum verification and preserves critical metadata like timestamps.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Backup
+**Category**: Service / Infrastructure / Backup. Rclone is an essential utility for data portability and disaster recovery in a home-office or homelab environment.
 
 ## Typical use cases
 - Automated off-site backups to cloud providers.
@@ -25,6 +26,7 @@ Rclone is a command-line program to manage files on cloud storage. This service 
 ## When to use it
 - For robust, automated cloud sync tasks.
 - When you need a "Swiss Army knife" for cloud storage.
+- To bridge local storage (like TrueNAS ZFS pools) with remote cloud targets.
 
 ## When not to use it
 - For simple drag-and-drop file transfers (use a web UI or dedicated sync client).
@@ -66,7 +68,12 @@ curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote":
 ## Related tools / concepts
 - [Duplicati](https://www.duplicati.com/)
 - [Kopia](https://kopia.io/)
-- [BorgBackup](../services/borg.md)
+- [BorgBackup](borg.md)
+- [Storj](storj.md)
+- [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
+- [AWS S3](https://aws.amazon.com/s3/)
+- [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
+- [ZFS](https://openzfs.org/)
 
 ## Backlog
 - Implement bandwidth throttling during business hours.
@@ -77,5 +84,5 @@ curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote":
 - [Rclone Documentation](https://rclone.org/docs/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
 - Confidence: high
+- Last reviewed: 2026-07-15
