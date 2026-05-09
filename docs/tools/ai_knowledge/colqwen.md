@@ -40,18 +40,26 @@ results = RAG.search("How do I reset the filter on the X100 model?")
 - **Specialized Pipeline**: Requires specific libraries or implementations to handle the multi-vector late interaction logic.
 
 ## When to use it
-<!-- needs-content -->
+- When building **Vision-RAG** pipelines that must handle complex document layouts (e.g., multi-column PDFs, forms).
+- When information is primarily contained in **charts, tables, or diagrams** that standard OCR often misrepresents.
+- For high-precision retrieval where the semantic relationship between visual elements and text is critical.
 
 ## When not to use it
-<!-- needs-content -->
+- For **text-only document** archives where standard embedding models (like OpenAI or HuggingFace text-only models) are more storage-efficient.
+- In environments with **high storage constraints**, as multi-vector late interaction embeddings can take 10x-100x more space than single-vector embeddings.
+- When query latency is the absolute priority over retrieval recall in very large-scale datasets.
 
 ## Licensing and cost
 - **Open Weights**: Available on Hugging Face (under Qwen model license).
 
 ## Related tools / concepts
-- [Qwen](../ai_knowledge/qwen.md)
-- [RAG Pattern](../../knowledge_base/rag.md)
+- [Qwen](qwen.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag.md)
 - [Vision Models Research](../../knowledge_base/vision-models-research.md)
+- [LlamaIndex](llamaindex.md)
+- [LangChain](langchain.md)
+- [Ollama](../../services/ollama.md)
+- [Paperless-ngx](../../services/paperless-ngx.md)
 
 ## Sources / References
 - [ColQwen3.5-v2 4.5B Release](https://www.reddit.com/r/MachineLearning/comments/1rsxlg8/p_colqwen35v2_45b_is_out/)

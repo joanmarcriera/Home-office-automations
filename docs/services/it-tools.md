@@ -1,8 +1,6 @@
 # IT-Tools
 
 ## What it is
-
-## What it is
 A comprehensive suite of web-based developer utilities including formatters, generators, and converters. It is designed to run entirely in the client's browser.
 
 ## What problem it solves
@@ -24,9 +22,6 @@ It is a **Client-Side Utility Service**, typically self-hosted via Docker for pr
 ## Limitations
 - **Browser-Bound**: Not suitable for CLI-based automation or bulk processing of massive files.
 - **Client Performance**: Very large files may lag the browser interface.
-
-## Description
-It provides a wide variety of web-based tools, including formatters (JSON, SQL, XML), generators (UUID, Password, QR Code), and converters. It is designed to be fast and runs entirely in the browser.
 
 ## When to use it
 - When you need quick access to common developer utilities (formatters, generators, converters) without leaving the browser.
