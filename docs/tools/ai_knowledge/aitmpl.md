@@ -47,6 +47,8 @@ It gives users a faster way to discover proven prompt structures and packaged AI
 - [Dify](dify.md)
 - [Snack Prompt](https://snackprompt.com/)
 - [PromptBase](https://promptbase.com/)
+- [Fabric (Pattern marketplace)](https://github.com/danielmiessler/fabric)
+- [Prompts.ai](https://prompts.ai/)
 
 ## Sources / References
 - [Official Website](https://www.aitmpl.com/)

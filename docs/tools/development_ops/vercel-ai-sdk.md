@@ -22,6 +22,14 @@ It standardizes the integration of Large Language Models (LLMs) across multiple 
 - **Rich Hook Library**: Simplifies frontend state management for AI interactions with hooks like `useChat` and `useCompletion`.
 - **OpenTelemetry Support**: Built-in instrumentation for monitoring and tracing LLM calls.
 
+## When to use it
+- When building AI-powered web applications with TypeScript that require multi-provider support and first-class streaming.
+- When needing deep integration with the Vercel platform and Next.js ecosystem.
+
+## When not to use it
+- In Python-only backend environments where libraries like LangChain or LlamaIndex (Python) are more native.
+- If the project requires a heavy focus on non-web UI agentic frameworks (e.g., AutoGen).
+
 ## Limitations
 - **TypeScript First**: While usable in JS, it is primarily optimized for TypeScript environments.
 - **Vercel Ecosystem Affinity**: While it works anywhere, it has deeper integrations and optimizations for the Vercel platform.

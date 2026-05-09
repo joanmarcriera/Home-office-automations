@@ -28,7 +28,8 @@ It addresses the limitations of standard chatbots in education by providing a st
 - When studying how agents can be used for persistent, structured learning.
 
 ## When not to use it
-<!-- needs-content -->
+- When seeking a simple Q&A chatbot without the pedagogical overhead.
+- In production environments where latency and cost of multi-turn reasoning are primary concerns.
 
 ## Licensing and cost
 - **Open Source**: Yes

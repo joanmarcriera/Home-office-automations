@@ -15,16 +15,23 @@ It provides practical, hands-on instructions to bridge the gap between basic cha
 - Optimizing prompts for agentic performance.
 
 ## Strengths
-<!-- needs-content -->
+- **Structured Learning**: Organized into 10 progressive modules with clear time estimates.
+- **Production-Ready Templates**: Includes real-world configurations for slash commands, CLAUDE.md, and MCP servers.
+- **Visual Aids**: Uses Mermaid diagrams to explain internal feature logic.
+- **Built-in Assessment**: Interactive `/self-assessment` and `/lesson-quiz` hooks for personalized roadmaps.
 
 ## Limitations
-<!-- needs-content -->
+- **High Intensity**: The full path requires 11-13 hours of dedicated study.
+- **Tool Affinity**: Deeply specialized for Anthropic's Claude Code; less applicable to other CLI agents.
 
 ## When to use it
-<!-- needs-content -->
+- When moving from basic chat usage to advanced agentic engineering.
+- When setting up a new project and needing a standard `CLAUDE.md` and hook set.
+- When onboarding a team to Claude Code.
 
 ## When not to use it
-<!-- needs-content -->
+- If you only use Claude via the web interface or mobile app.
+- If you prefer a reference-only documentation style over a tutorial-led approach.
 
 ## Getting started
 1.  **Install dependencies**:

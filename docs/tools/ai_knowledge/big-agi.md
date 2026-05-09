@@ -32,6 +32,18 @@ It allows users to simultaneously use and compare multiple AI models through its
 - For simple, mobile-first casual chat (though it does support mobile, it's optimized for desktop productivity).
 - If you prefer a guided, simplified "one-chat-one-model" experience.
 
+## Getting started
+
+### Web Access
+1.  Navigate to [app.big-agi.com](https://app.big-agi.com/) to use the hosted version.
+2.  Configure your API keys in the **Models** section.
+3.  Use the **Beam** button to start a multi-model comparison.
+
+### Self-Hosting (Docker)
+```bash
+docker run -p 3000:3000 ghcr.io/enricoros/big-agi
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free (Open Source & app.big-agi.com) / Paid (Pro subscription for Cloud Sync)

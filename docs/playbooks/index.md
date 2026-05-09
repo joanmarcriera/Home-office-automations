@@ -15,6 +15,8 @@ Step-by-step execution guides for recurring workflows. Each playbook is self-con
 | Ingest and process school admin emails, letters, or attachments | [School Admin Intake](school-admin-intake.md) |
 | Audit, repair, or improve the knowledge base and documentation | [Knowledge Base Health](knowledge-base-health.md) |
 | Configure NFS CSI driver for persistent volumes on K3s | [NFS CSI Setup](nfs-csi-setup.md) |
+| Validate AI-generated SQL queries for safety and performance | [Data Copilot SQL Validation](data-copilot-sql-validation.md) |
+| Migrate from Tailscale to a self-hosted Headscale instance | [Tailscale to Headscale Migration](tailscale-to-headscale-migration.md) |
 
 ---
 
@@ -80,6 +82,20 @@ Audits doc structure, catalog consistency, broken links, and stale metadata. Gen
 Step-by-step instructions for configuring the NFS CSI driver on a K3s cluster to use persistent storage hosted on a TrueNAS SCALE server. Covers driver installation, StorageClass configuration, and dynamic provisioning verification.
 
 **Stack**: K3s · TrueNAS SCALE · Helm · NFS CSI
+
+---
+
+### [Data Copilot SQL Validation](data-copilot-sql-validation.md)
+A technical blueprint and operational framework for validating AI-generated SQL queries before they reach the database. Includes static analysis, dry-runs, and LLM-based semantic checks.
+
+**Stack**: SQLGlot · Pydantic · SQLite · Qwen 2.5 7B
+
+---
+
+### [Tailscale to Headscale Migration](tailscale-to-headscale-migration.md)
+Outlines the steps required to migrate homelab nodes from the Tailscale SaaS coordination server to a self-hosted Headscale instance for 100% data sovereignty.
+
+**Stack**: Headscale · Tailscale · Authentik · Docker
 
 ---
 
