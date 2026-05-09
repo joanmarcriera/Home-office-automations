@@ -3,22 +3,13 @@
 ============================================================
 
 Total docs scanned:  486
-Compliant:           363 (74.7%)
-Legacy-format:       7
+Compliant:           378 (77.8%)
+Legacy-format:       0
 Missing metadata:    0
 
---- Legacy-format docs (have '## Description') ---
-  docs/services/jackett.md
-  docs/services/navidrome.md
-  docs/services/portracker.md
-  docs/services/rclone-automation.md
-  docs/services/speedtest.md
-  docs/services/storj.md
-  docs/services/tailscale.md
-
 --- Per-category breakdown ---
-  docs/architecture                              0/8  (0%)
-  docs/knowledge_base                            7/35  (20%)
+  docs/architecture                              4/8  (50%)
+  docs/knowledge_base                            8/35  (23%)
   docs/knowledge_base/patterns                   8/17  (47%)
   docs/playbooks                                 1/12  (8%)
   docs/reference-implementations                 0/1  (0%)
@@ -28,7 +19,7 @@ Missing metadata:    0
   docs/reference-implementations/manual-assistant  1/1  (100%)
   docs/reference-implementations/metadata-schemas  0/2  (0%)
   docs/reference-implementations/paperless       0/2  (0%)
-  docs/services                                  38/52  (73%)
+  docs/services                                  48/52  (92%)
   docs/tools/agents                              25/25  (100%)
   docs/tools/ai_knowledge                        60/68  (88%)
   docs/tools/automation_orchestration            22/28  (79%)
@@ -44,17 +35,9 @@ Missing metadata:    0
   docs/tools/providers                           19/20  (95%)
 
 --- Non-compliant doc details ---
-  docs/architecture/automated_contributions.md
-    - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
-  docs/architecture/component_map.md
-    - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
-  docs/architecture/data-copilot-text-to-sql.md
-    - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it
   docs/architecture/flows.md
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
   docs/architecture/infrastructure.md
-    - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
-  docs/architecture/multi_agent_knowledgeops.md
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
   docs/architecture/prompt-catalogue.md
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
@@ -62,8 +45,6 @@ Missing metadata:    0
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
   docs/knowledge_base/agent_framework_learning_map.md
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it
-  docs/knowledge_base/agent_protocols.md
-    - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
   docs/knowledge_base/ai_builder_index.md
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
   docs/knowledge_base/ai_company_starter_stack.md
@@ -184,36 +165,10 @@ Missing metadata:    0
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
   docs/services/cloudflare-mesh.md
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, When to use it, When not to use it, Related tools / concepts
-  docs/services/excalidraw.md
-    - missing sections: When to use it, When not to use it
-  docs/services/focalboard.md
-    - missing sections: When to use it, When not to use it
-  docs/services/gitea.md
-    - missing sections: When to use it, When not to use it
   docs/services/inventory.md
     - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations, When to use it, When not to use it, Related tools / concepts
-  docs/services/jackett.md
-    - missing sections: When to use it, Related tools / concepts
-    - legacy format (## Description)
   docs/services/litellm.md
     - missing sections: Typical use cases
-  docs/services/navidrome.md
-    - missing sections: When to use it, Related tools / concepts
-    - legacy format (## Description)
-  docs/services/portracker.md
-    - legacy format (## Description)
-  docs/services/rclone-automation.md
-    - missing sections: What it is, What problem it solves
-    - legacy format (## Description)
-  docs/services/speedtest.md
-    - missing sections: What it is, What problem it solves
-    - legacy format (## Description)
-  docs/services/storj.md
-    - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations
-    - legacy format (## Description)
-  docs/services/tailscale.md
-    - missing sections: What it is, What problem it solves, Where it fits in the stack, Typical use cases, Strengths, Limitations
-    - legacy format (## Description)
   docs/services/vikunja.md
     - missing sections: Typical use cases, Strengths, Limitations
   docs/tools/ai_knowledge/deepseek-r1.md

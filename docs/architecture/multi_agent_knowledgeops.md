@@ -1,19 +1,47 @@
 # Multi-Agent KnowledgeOps Governance
 
-This document defines how multiple AI agents can safely and consistently grow this repository over time without creating duplication, stale content, or low-confidence noise.
+## What it is
 
-## Goal
+Multi-Agent KnowledgeOps Governance is a structured framework that defines how multiple AI agents (e.g., Google Jules) can safely and consistently grow a shared knowledge repository. It establishes a "durable documentation system" where agents contribute in parallel while preserving canonical ownership, source traceability, and freshness signals.
 
-Build a durable documentation system where many agents can contribute in parallel while preserving:
+## What problem it solves
 
-- Canonical ownership (one page per tool/topic)
-- Source traceability
-- Freshness and confidence signals
-- Reviewability through predictable PRs
+The primary scaling risk in AI-augmented documentation is not a lack of content, but rather the rapid accumulation of low-quality, duplicate, or stale information. Without a shared operating contract, multiple agents eventually create conflicting guidance and redundant pages. This governance model provides a common contract and quality gates to keep throughput high while preventing entropy and information decay.
 
-## Why this is the highest-leverage move
+## Where it fits in the stack
 
-The main scaling risk is not "too little content", it is low-quality content growth. Without a shared operating contract, multiple agents eventually create duplicate pages, weak sourcing, and conflicting guidance. A common contract plus quality gates keeps throughput high and entropy low.
+KnowledgeOps Governance sits in the **Process and Governance** layer of the repository architecture. It acts as the "policy engine" for the [Automated Contribution System](./automated_contributions.md), ensuring that all automated updates comply with repository [standards](../standards.md) and [taxonomies](../standards.md).
+
+## Typical use cases
+
+- **Parallel Documentation Scaling**: Managing multiple agent lanes (Intake, Curation, Audit) working on different parts of the repository simultaneously.
+- **Consistency Maintenance**: Ensuring every AI-authored page includes mandatory sections, metadata, and verifiable sources.
+- **Conflict Resolution**: Preventing "PR collisions" by defining clear file boundaries and sequencing rules for autonomous workers.
+- **Quality Auditing**: Using automated scripts (e.g., `audit_docs_quality.py`) to enforce the governance contract.
+
+## Strengths
+
+- **Predictable Growth**: Ensures all contributions meet the "High Confidence" standard regardless of which agent authored them.
+- **Scalability**: Allows the knowledge base to expand rapidly without a linear increase in human review effort.
+- **Traceability**: Every fact in the repository is tied to a specific source and review date, creating a verifiable audit trail.
+- **Deduplication**: Built-in rules for canonical ownership prevent the fragmentation of information across multiple pages.
+
+## Limitations
+
+- **Process Overhead**: Requires agents to perform extra checks (duplication searches, metadata validation) which can increase per-task token costs.
+- **Rigidity**: Highly structured templates may sometimes struggle to accommodate very unique or non-standard documentation needs.
+- **Review Lag**: While it automates many gates, final high-stakes architectural alignment still requires human "North Star" guidance.
+
+## When to use it
+
+- When operating a repository that receives contributions from more than one automated agent or worker lane.
+- When the goal is to maintain a "High Confidence" knowledge base with 100+ pages of technical documentation.
+- To provide a clear "Role Model" for AI agents to follow during autonomous sprints.
+
+## When not to use it
+
+- For small, personal repositories where the volume of change is low and human review is instantaneous.
+- For informal, low-stakes "scratchpad" projects where strict structure and metadata are unnecessary.
 
 ## Multi-Agent KnowledgeOps Contract (Mandatory)
 
@@ -132,11 +160,16 @@ A PR is complete only when:
 - [GitHub Actions: Events that trigger workflows](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)
 - [Repository standards](../standards.md)
 
-## Related
+## Related tools / concepts
 
-- [Home](../index.md)
-- [Automated Contributions](./automated_contributions.md)
+- [Automated Contribution System](./automated_contributions.md)
+- [Jules Agent](../tools/ai_knowledge/jules.md)
+- [KnowledgeOps Standards](../standards.md)
+- [Data Copilot Architecture](data-copilot-text-to-sql.md)
 - [Contributing Guide](../CONTRIBUTING.md)
+- [Quality Audit Script](../../scripts/audit_docs_quality.py)
+- [Check Docs Contract Script](../../scripts/check_docs_contract.py)
+- [Catalog Consistency Script](../../scripts/check_catalog_consistency.py)
 
 ## Contribution Metadata
 

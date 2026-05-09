@@ -1,10 +1,48 @@
 # Data Copilot: Layered Text-to-SQL Architecture
 
-This document defines a robust, cost-effective pipeline for converting natural language questions into executable SQL queries. It uses a layered, multi-agent approach to handle complexity, minimize token usage, and ensure accuracy through specialized agents and human-in-the-loop (HITL) checkpoints.
+## What it is
 
-## Overview
+Data Copilot is a robust, cost-effective pipeline architecture for converting natural language questions into executable SQL queries. It employs a layered, multi-agent approach to decompose the complex task of Text-to-SQL into five distinct, specialized stages: workspace routing, intent extraction, table selection, column pruning, and SQL generation.
 
-Traditional "one-shot" Text-to-SQL often fails on complex schemas or ambiguous questions. This architecture breaks the problem into five distinct layers, each with a narrow focus.
+## What problem it solves
+
+Traditional "one-shot" Text-to-SQL approaches frequently fail when faced with complex database schemas, ambiguous user questions, or large-scale data environments. They often consume excessive tokens and lack transparency. Data Copilot solves these issues by breaking the problem into manageable steps, minimizing token usage through aggressive schema pruning, and ensuring accuracy via specialized agents and human-in-the-loop (HITL) checkpoints.
+
+## Where it fits in the stack
+
+Data Copilot sits in the **Data Access and Analytics** layer of the Home-office stack. It acts as an intelligent intermediary between natural language interfaces (like a chat assistant) and relational databases (SQLite, Postgres, etc.), providing a governed and scalable way to query structured data without requiring SQL expertise from the end-user.
+
+## Typical use cases
+
+- **Natural Language Business Intelligence**: Allowing non-technical users to ask questions about sales, inventory, or financial metrics.
+- **Home Lab Management**: Querying home automation databases (e.g., Home Assistant, Grocy) for specific historical data or summaries.
+- **Automated Reporting**: Generating on-demand or scheduled reports based on simple text prompts.
+- **Internal Tooling**: Providing a simplified interface for employees to interact with company databases safely.
+
+## Strengths
+
+- **Token Efficiency**: Drastically reduces prompt size by only sending relevant tables and columns to the final generator.
+- **Accuracy**: Modular agents focus on specific sub-tasks, reducing the cognitive load and error rate of any single model call.
+- **Cost-Effective**: Routes simpler tasks (routing, pruning) to smaller, cheaper models, using expensive models only when necessary.
+- **Governance**: Built-in HITL points and SQL validation prevent unsafe queries and ensure data privacy.
+
+## Limitations
+
+- **Latency**: Multiple agent calls introduce sequential latency compared to a single-shot approach.
+- **Complexity**: Requires maintaining multiple prompts, agent definitions, and a coordination layer.
+- **Dialect Sensitivity**: Still requires careful configuration for specific SQL dialects (Postgres vs. SQLite vs. BigQuery).
+
+## When to use it
+
+- When you have a complex schema with dozens or hundreds of tables.
+- When you want to minimize the cost of LLM tokens for high-volume querying.
+- When you need a transparent, auditable process for how a natural language question becomes a SQL query.
+
+## When not to use it
+
+- For extremely simple, single-table databases where a one-shot prompt is sufficient.
+- For high-stakes financial audits requiring 100% precision without any human oversight.
+- When the data resides in non-relational silos that require complex multi-agent RAG instead of structured SQL.
 
 ```mermaid
 flowchart TD
@@ -155,18 +193,17 @@ To minimize costs and stay within the context limits of smaller models, the foll
    - *Symptom*: Generated SQL uses `SELECT *`, unbounded date ranges, write statements, or cross-workspace joins.
    - *Mitigation*: Run a SQL policy validator before execution, reject write statements, require date limits for large fact tables, and execute only against read-only credentials.
 
-## When NOT to use Text-to-SQL
-
-- **High-stakes Financial Audits**: Where 100% precision is required without human review.
-- **Extremely Wide Tables**: Tables with 500+ columns (requires heavy RAG-based column selection first).
-- **Non-Relational Complex Joins**: When the data resides across multiple incompatible silos (use a Multi-Agent RAG instead).
-- **Highly Nested JSON**: If the database stores critical business logic inside deeply nested JSONB/JSON columns that require complex extraction paths, LLMs often struggle without specialized "flattening" agents.
 
 ## Related tools / concepts
+
 - [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [Multi-Agent KnowledgeOps Governance](./multi_agent_knowledgeops.md)
+- [Automated Contribution System](./automated_contributions.md)
+- [Jules Agent](../tools/ai_knowledge/jules.md)
+- [KnowledgeOps Standards](../standards.md)
 
 ## Sources / References
 - [Uber Engineering: Text-to-SQL at Scale](https://www.uber.com/en-GB/blog/text-to-sql-at-scale/)
