@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-06-28
+# Ralph-loop Triage Report — 2026-07-20
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of June 28, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of July 20, 2026.
 
 ## Issue Status Summary
 
@@ -33,12 +33,13 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 31** | Weekly deepening: Services | **Resolved** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. |
 | **Batch 32** | Weekly deepening: Services | **Resolved** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. |
 | **Batch 33** | Weekly deepening: AI Knowledge | **Resolved** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`, `google-search.md`, `dex.md`. |
+| **Batch 34** | Weekly deepening: Knowledge Mgmt | **Resolved** | Deepened `anytype.md`, `silverbullet.md`, `akiflow.md`, `morgen.md`, `component_map.md`. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
-- **Batch 33**: Start next iteration of service/tool deepening as per new intake logs.
+- **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json` (e.g., `linkwarden.md`, `tubearchivist.md`).
 
 ---
 - Confidence: high
