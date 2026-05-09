@@ -41,6 +41,19 @@ It eliminates the "multiple calendar" problem by consolidating disparate schedul
 ### Installation
 Download the Morgen application for your platform from the [official website](https://www.morgen.so/download).
 
+**macOS (Homebrew)**
+```bash
+brew install --cask morgen
+```
+
+**Linux (AppImage/Deb/RPM)**
+Morgen provides native packages for most Linux distributions.
+
+```bash
+# Example for Debian/Ubuntu
+sudo dpkg -i morgen-*.deb
+```
+
 ### Connecting Calendars
 1. Launch Morgen and follow the setup wizard.
 2. Select your providers (Google, Outlook, iCloud, etc.).
@@ -50,6 +63,55 @@ Download the Morgen application for your platform from the [official website](ht
 - Navigate to the "Scheduling" tab (calendar icon with a link).
 - Create a new "Booking Page" or "Quick Meeting".
 - Customize your availability and share the generated link.
+
+## CLI examples
+While Morgen is primarily a GUI-driven application, the desktop app can be controlled via CLI on some platforms or interacted with through local protocols.
+
+```bash
+# Check if Morgen is running on macOS
+pgrep Morgen
+
+# Open Morgen to a specific date (Deep link example)
+open "morgen://calendar/2026-07-21"
+```
+
+## API examples
+The Morgen API allows you to manage tasks and events across all your connected accounts using a single interface.
+
+### Creating a Task
+```bash
+: "${MORGEN_API_KEY:?set your Morgen API key}"
+
+curl -X POST https://api.morgen.so/v3/tasks/create \
+  -H "Authorization: ApiKey $MORGEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Review Daily Knowledge Expansion PR",
+    "description": "Ensure all code examples are runnable.",
+    "priority": 1,
+    "dueDate": "2026-07-21"
+  }'
+```
+
+### Listing Calendars (Python)
+```python
+import requests
+import os
+
+api_key = os.environ.get("MORGEN_API_KEY")
+url = "https://api.morgen.so/v3/calendars/list"
+
+headers = {
+    "accept": "application/json",
+    "Authorization": f"ApiKey {api_key}"
+}
+
+response = requests.get(url, headers=headers)
+calendars = response.json().get("data", {}).get("calendars", [])
+
+for cal in calendars:
+    print(f"Name: {cal['name']}, ID: {cal['id']}")
+```
 
 ## Licensing and cost
 - **Open Source**: No
@@ -65,6 +127,7 @@ Download the Morgen application for your platform from the [official website](ht
 - [Todoist](todoist.md) (Task integration source)
 - [Microsoft To-Do](microsoft-todo.md) (Task integration source)
 - [CalDAV](../intake_storage/caldav.md) (Underlying protocol)
+- [Homebox](../../services/homebox.md) (Inventory management often used in parallel)
 
 ## Sources / References
 - [Morgen Official Site](https://www.morgen.so/)

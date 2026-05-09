@@ -35,6 +35,100 @@ It gives creators and product teams a model-native way to generate or assist wit
 2.  **YouTube Creator Tools**: If you are a recognized creator, check your YouTube Studio "Create" options for AI-assisted music generation features.
 3.  **Google AI Studio**: Monitor the "Audio" or "Multimodal" model selections in [Google AI Studio](https://aistudio.google.com/) for experimental music generation endpoints as they become available.
 
+### Vertex AI (Enterprise)
+To use Lyria via Google Cloud Vertex AI, you need a project with the Vertex AI API enabled.
+
+```bash
+# Install the Google Cloud AI Platform SDK
+pip install google-cloud-aiplatform
+```
+
+```python
+import vertexai
+from vertexai.generative_models import GenerativeModel
+
+# Initialize Vertex AI
+vertexai.init(project="your-project-id", location="us-central1")
+
+# Note: Lyria access is typically gated via Model Garden
+# This is a representative example of calling a multimodal audio model
+model = GenerativeModel("lyria-002")
+
+response = model.generate_content(
+    "A 30-second lofi hip hop beat with mellow piano and slow boom-bap drums."
+)
+
+print(response.text)
+```
+
+### Replicate (Community API)
+If you prefer a simpler REST API, Lyria-3 is available via Replicate.
+
+```bash
+pip install replicate
+export REPLICATE_API_TOKEN=your_token_here
+```
+
+```python
+import replicate
+
+output = replicate.run(
+    "google/lyria-3",
+    input={
+        "prompt": "A calm acoustic folk song with gentle guitar and soft strings."
+    }
+)
+print(output.url)
+```
+
+## CLI examples
+You can trigger Lyria generations via the `gcloud` CLI if you have the appropriate permissions and model access.
+
+```bash
+# Print an access token for authentication
+export AUTH_TOKEN=$(gcloud auth print-access-token)
+
+# Send a raw prediction request to the Vertex AI endpoint
+curl -X POST \
+  -H "Authorization: Bearer $AUTH_TOKEN" \
+  -H "Content-Type: application/json" \
+  https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/lyria-002:predict \
+  -d '{
+    "instances": [
+      { "prompt": "An upbeat 120 BPM pop track with bright acoustic guitar." }
+    ]
+  }'
+```
+
+## API examples
+The Vertex AI REST API allows for fine-tuned control over generation parameters.
+
+### Requesting multiple samples
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "Content-Type: application/json" \
+  https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/lyria-002:predict \
+  -d '{
+    "instances": [{ "prompt": "Dark atmospheric trap beat" }],
+    "parameters": { "sample_count": 2 }
+  }'
+```
+
+### Python SDK with specific parameters
+```python
+from google.cloud import aiplatform
+
+aiplatform.init(project="your-project-id")
+
+endpoint = aiplatform.Endpoint("your-endpoint-id")
+response = endpoint.predict(
+    instances=[{"prompt": "Jazzy upright bass line with dusty vinyl crackle"}],
+    parameters={"sample_count": 1}
+)
+print(response.predictions)
+```
+
 ## Related tools / concepts
 - [ElevenLabs](elevenlabs.md)
 - [Replicate](../providers/replicate.md)

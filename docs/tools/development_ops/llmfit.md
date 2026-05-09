@@ -84,7 +84,7 @@ The TUI is the primary way to interact with `llmfit`. Keybindings include:
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
-- [LM Studio](../ai_knowledge/lm-studio.md)
+- [LM Studio](../infrastructure/lm-studio.md)
 - [LocalAI](../infrastructure/localai.md)
 - [vLLM](../infrastructure/vllm.md)
 - [llama.cpp](../infrastructure/llama-cpp.md)

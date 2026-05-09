@@ -123,6 +123,7 @@ with urllib.request.urlopen(url, timeout=10) as response:
 - [lidarr](https://lidarr.audio/)
 - [readarr](https://readarr.com/)
 - [jellyfin](jellyfin.md)
+- [Homebox](homebox.md)
 
 ## Backlog
 - Migrate to Prowlarr for better integration with the "Arr" stack.

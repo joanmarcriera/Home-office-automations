@@ -12,6 +12,16 @@ It addresses the limitations of LLMs, such as hallucinations (generating incorre
 3. **Augmentation**: The retrieved information is combined with the original user query to create an augmented prompt.
 4. **Generation**: The augmented prompt is sent to the LLM, which generates a response based on both its internal knowledge and the provided context.
 
+```mermaid
+flowchart TD
+    A[User Query] --> B{Retrieval}
+    B -->|Search| C[(Vector Database)]
+    C -->|Context| D[Augmentation]
+    A --> D
+    D -->|Augmented Prompt| E[LLM Generation]
+    E --> F[Grounded Response]
+```
+
 ## Typical use cases
 - **Question Answering over Documents**: Providing answers based on a company's internal knowledge base or documentation.
 - **Fact-Checking**: Verifying claims against a trusted data source.
