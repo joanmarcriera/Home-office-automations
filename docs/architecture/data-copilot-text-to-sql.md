@@ -198,7 +198,7 @@ To minimize costs and stay within the context limits of smaller models, the foll
 
 - [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
+- [Data Copilot SQL Validation](../playbooks/data-copilot-sql-validation.md)
 - [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)
 - [Multi-Agent KnowledgeOps Governance](./multi_agent_knowledgeops.md)
 - [Automated Contribution System](./automated_contributions.md)
@@ -214,6 +214,7 @@ To minimize costs and stay within the context limits of smaller models, the foll
 - [Claude pricing documentation](https://docs.claude.com/en/docs/about-claude/pricing)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+
+- Last reviewed: 2026-05-09
 - Confidence: high
 - Related Issues: #186

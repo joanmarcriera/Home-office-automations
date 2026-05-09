@@ -1,5 +1,38 @@
 # Playbook: Knowledge Base Health
 
+## What it is
+Knowledge Base Health is a set of operational procedures and automated checks designed to ensure the repository remains accurate, up-to-date, and discoverable. It combines periodic manual audits with continuous integration (CI) quality gates.
+
+## What problem it solves
+In a rapidly evolving technical environment, documentation quickly becomes stale or fragmented. This playbook prevents "documentation rot" by establishing clear ownership, a structured review cadence, and automated enforcement of formatting standards, ensuring users can always trust the information in the repository.
+
+## Where it fits in the stack
+This playbook belongs to the **Governance and Maintenance** layer. It provides the "metabolic process" that keeps the [KnowledgeOps](../architecture/multi_agent_knowledgeops.md) system healthy and prevents entropy from degrading the quality of the shared knowledge base.
+
+## Typical use cases
+- Performing a weekly quality check to identify non-compliant documents.
+- Managing the intake of new tools and patterns from community sources.
+- Cleaning up obsolete information and ensuring model names are current.
+- Maintaining consistency between the filesystem, the `mkdocs.yml` navigation, and the `data/all_tools.json` catalog.
+
+## Strengths
+- **Multi-Layered Enforcement**: Combines automated PR gates with deeper, periodic manual/automated audits.
+- **Traceability**: Uses `Last reviewed` and `Confidence` metadata to provide clear signals to users about data reliability.
+- **Automated Discovery**: Includes scripts to detect "drift" between user stars/activity and what is actually documented.
+
+## Limitations
+- **Maintenance Overhead**: Requires dedicated effort to fix the issues identified by the audit scripts.
+- **Script Dependency**: The health of the system relies on the accuracy and maintenance of the underlying Python scripts.
+
+## When to use it
+- During every pull request to ensure immediate compliance.
+- Once a week to perform a broader scan of the entire repository.
+- When onboarding new automated agents to define their quality boundaries.
+
+## When not to use it
+- For very small, personal repositories where formal governance processes are overkill.
+- For temporary "scratchpad" notes that are not intended to be part of the canonical knowledge base.
+
 ## Objective
 Maintain content quality, freshness, and discoverability across the knowledge base through regular audits and automated checks.
 
@@ -99,6 +132,11 @@ Track these over time to measure knowledge base health:
 - [Standards](../standards.md)
 - [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
 - [Automated Contributions](../architecture/automated_contributions.md)
+- [Quality Audit Script](../../scripts/audit_docs_quality.py)
+- [Check Docs Contract Script](../../scripts/check_docs_contract.py)
+- [Catalog Consistency Script](../../scripts/check_catalog_consistency.py)
+- [KnowledgeOps Standards](../standards.md)
+- [Jules Agent](../tools/ai_knowledge/jules.md)
 
 ## Sources / references
 - [Project standards](../standards.md)
@@ -107,5 +145,5 @@ Track these over time to measure knowledge base health:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-04
+- Last reviewed: 2026-05-09
 - Confidence: high
