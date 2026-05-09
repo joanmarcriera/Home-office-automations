@@ -1,7 +1,5 @@
 # Excalidraw
 
-Excalidraw is a virtual whiteboard for sketching hand-drawn like diagrams.
-
 ## What it is
 Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration.
 
@@ -26,6 +24,17 @@ Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is
 ## Limitations
 - **No Formal Notation**: Not suitable for strict UML, ERD, or complex technical specifications requiring precise alignment and standard icons.
 - **Manual Layout**: Lacks the auto-layout capabilities found in tools like [Draw.io](drawio.md) or [Mermaid](../knowledge_base/patterns/diagramming.md).
+
+## When to use it
+- When you need to quickly sketch a diagram during a meeting or brainstorming session.
+- For creating approachable visuals for blog posts, documentation, or social media.
+- When you want a lightweight, browser-based tool without a complex setup or registration.
+- If you use Obsidian and want a powerful, integrated sketching solution.
+
+## When not to use it
+- For professional engineering diagrams that require strict adherence to industry standards (UML, SysML).
+- When you need automatic layout of nodes and edges (use Mermaid or Draw.io instead).
+- If you require a deep hierarchy of objects or complex multi-page document management.
 
 ## Getting started
 
@@ -97,6 +106,8 @@ const svg = await exportToSvg({
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent integration via the Excalidraw plugin.
 - [Mermaid](../knowledge_base/patterns/diagramming.md) — Text-to-diagram alternative.
 - [Nextcloud](nextcloud.md) — Can be used to store and sync `.excalidraw` files.
+- [Excalidraw Libraries](https://libraries.excalidraw.com/) — Community-contributed shapes and icons.
+- [Excalidraw Scripting](https://plus.excalidraw.com/plus/scripts) — Extending functionality with custom scripts.
 
 ## Links
 - [Official Website](https://excalidraw.com/)
@@ -107,7 +118,7 @@ const svg = await exportToSvg({
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://excalidraw.com/

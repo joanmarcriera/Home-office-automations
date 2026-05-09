@@ -1,12 +1,13 @@
 # Speedtest
 
-Internet connection speed testing tools and automation.
+## What it is
+Speedtest is a collection of internet connection speed testing tools and automation scripts. It primarily uses the official Speedtest.net (Ookla) CLI to measure network performance, including download speed, upload speed, latency, and jitter.
 
-## Description
-This service covers the use of Speedtest.net CLI and related tools to monitor and log internet performance over time.
+## What problem it solves
+It allows for automated, periodic monitoring of internet performance, providing data-driven evidence of ISP service levels. It helps identify intermittent bandwidth issues, verify performance after network changes, and log historical speed data for long-term analysis.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Monitoring
+**Category**: Service / Infrastructure / Monitoring. It acts as an external probe to verify the primary internet gateway's performance.
 
 ## Typical use cases
 - Monitoring ISP performance for SLA compliance.
@@ -25,9 +26,11 @@ This service covers the use of Speedtest.net CLI and related tools to monitor an
 ## When to use it
 - To verify your internet connection speed programmatically.
 - To build a history of network performance.
+- When troubleshooting suspected ISP bandwidth throttling.
 
 ## When not to use it
 - On metered or low-bandwidth connections where testing might consume too much quota.
+- During critical low-latency tasks (like gaming or video calls) as it saturates the connection.
 
 ## Getting started
 
@@ -70,13 +73,21 @@ run_speedtest()
 ```
 
 ## Related tools / concepts
-- [InfluxDB](../services/influxdb.md) (for storing speed history)
-- [Grafana](../services/grafana.md) (for visualizing results)
+- [InfluxDB](influxdb.md)
+- [Grafana](grafana.md)
+- [Prometheus](https://prometheus.io/)
+- [Uptime Kuma](https://uptime.kuma.pet/)
+- [Netdata](https://www.netdata.cloud/)
+- [Home Assistant](home-assistant.md)
+- [n8n](n8n.md)
+
+## Backlog
+- Create a dashboard for visualizing speedtest results over time.
 
 ## Sources / References
 - [Speedtest CLI Official](https://www.speedtest.net/apps/cli)
 - [Python speedtest-cli (Community)](https://github.com/sivel/speedtest-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
 - Confidence: high
+- Last reviewed: 2026-07-15

@@ -3,10 +3,8 @@
 > [!WARNING]
 > This repository is currently not maintained. If you're interested in becoming a maintainer, please let the Mattermost community know. This documentation refers to the standalone Personal Server edition.
 
-Focalboard is an open-source, multilingual, self-hosted project management tool.
-
 ## What it is
-Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana.
+Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana. It is an open-source, multilingual, self-hosted project management tool.
 
 ## What problem it solves
 It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration and personal organization within a self-hosted infrastructure.
@@ -29,6 +27,16 @@ Focalboard fits into the **Project Management and Productivity** layer. It is of
 ## Limitations
 - **Maintenance Status**: Currently unmaintained (see warning), which may lead to security vulnerabilities or lack of new features.
 - **Feature Set**: Lacks the deep "all-in-one" database capabilities of Notion or the advanced automation of Jira.
+
+## When to use it
+- When you need a simple, self-hosted Kanban board for personal or small team use.
+- To manage projects that require custom properties (e.g., "Priority", "Estimated Hours") on tasks.
+- When you prefer a standalone tool for project tracking rather than one integrated into a larger suite.
+
+## When not to use it
+- For mission-critical production environments where active security maintenance is required (consider actively maintained alternatives like [Vikunja](vikunja.md)).
+- When you need deep integration with version control systems (consider [Gitea](gitea.md) boards).
+- If your projects require complex Gantt charts or advanced resource allocation features.
 
 ## Getting started
 
@@ -91,6 +99,9 @@ curl -H "Authorization: Bearer <your_session_token>" \
 - [Nextcloud](nextcloud.md) — Offers a "Deck" app with similar Kanban functionality.
 - [Gitea](gitea.md) — Provides built-in issue boards for code projects.
 - [Trilium](trilium.md) — For deep personal knowledge management and notes.
+- [Trello](https://trello.com/) — The cloud-based inspiration for Kanban boards.
+- [Mattermost](https://mattermost.com/) — The parent project for Focalboard.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — For complementary note-taking.
 
 ## Links
 - [Official Website](https://www.focalboard.com/)
@@ -101,7 +112,7 @@ curl -H "Authorization: Bearer <your_session_token>" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - [GitHub README](https://github.com/mattermost/focalboard#readme)

@@ -1,9 +1,7 @@
 # Gitea
 
-Gitea is a painless self-hosted Git service.
-
 ## What it is
-Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance.
+Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance. It is a painless self-hosted Git service.
 
 ## What problem it solves
 It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of GitHub. It provides a central hub for code collaboration and automation that can run on low-power hardware.
@@ -26,6 +24,17 @@ Gitea sits in the **Development & DevOps** layer. It serves as the primary sourc
 ## Limitations
 - **Ecosystem**: Smaller plugin and integration ecosystem compared to GitHub or GitLab.
 - **Enterprise Features**: Lacks some of the advanced high-availability and compliance features of GitLab Enterprise.
+
+## When to use it
+- When you want a lightweight, self-hosted alternative to GitHub or GitLab.
+- For managing GitOps workflows on home lab infrastructure.
+- To maintain private copies of code and configuration without cloud dependencies.
+- When running Git services on low-resource hardware like a NAS or Raspberry Pi.
+
+## When not to use it
+- If you require advanced enterprise features like geo-replication or deep compliance auditing found in GitLab.
+- When you need the massive social ecosystem and public visibility of GitHub.
+- If your team relies heavily on proprietary third-party integrations that only support GitHub or GitLab APIs.
 
 ## Getting started
 
@@ -114,6 +123,9 @@ curl -X POST "http://localhost:3000/api/v1/repos/owner/repo/issues" \
 - [Drone](https://www.drone.io/) — A popular third-party CI/CD engine that integrates deeply with Gitea.
 - [Forgejo](https://forgejo.org/) — A community-driven fork of Gitea focusing on software freedom.
 - [Ansible](../tools/orchestration/ansible.md) — For automating the deployment of Gitea itself.
+- [GitHub](https://github.com/) — The industry standard for hosted Git services.
+- [GitLab](https://about.gitlab.com/) — The primary self-hosted enterprise competitor.
+- [Argocd](https://argoproj.github.io/cd/) — For Kubernetes-native GitOps.
 
 ## Links
 - [Official Website](https://gitea.io/)
@@ -142,7 +154,7 @@ In Authentik, the Redirect URI should be: `https://gitea.example.com/user/oauth2
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-15
 
 ## Sources / References
 - https://gitea.io/

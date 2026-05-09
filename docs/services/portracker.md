@@ -1,9 +1,7 @@
 # Portracker
 
 ## What it is
-
-## What it is
-A specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments.
+Portracker is a specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments. It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
 
 ## What problem it solves
 It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans.
@@ -24,9 +22,6 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 ## Limitations
 - **Scope**: Focused on port mapping rather than deep traffic analysis or security intrusion detection.
 - **Resource Intensity**: Continuous monitoring of host processes requires elevated privileges (`SYS_PTRACE`).
-
-## Description
-It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
 
 ## When to use it
 - When you want to monitor open ports on your network in real-time.
@@ -110,17 +105,16 @@ curl -X GET "http://localhost:4999/api/v1/status" \
 - [Gitea](gitea.md)
 - [Syncthing](syncthing.md)
 - [Storj](storj.md)
+- [Netdata](https://www.netdata.cloud/)
+- [Uptime Kuma](https://uptime.kuma.pet/)
+- [nmap](https://nmap.org/)
 
 ## Backlog
 - Set up alerts for unexpected port changes.
 
-
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-07-15
-
-## External links
-- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker
