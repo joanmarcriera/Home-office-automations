@@ -34,12 +34,15 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 32** | Weekly deepening: Services | **Resolved** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. |
 | **Batch 33** | Weekly deepening: AI Knowledge | **Resolved** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`, `google-search.md`, `dex.md`. |
 | **Batch 34** | Weekly deepening: Knowledge Mgmt | **Resolved** | Deepened `anytype.md`, `silverbullet.md`, `akiflow.md`, `morgen.md`, `component_map.md`. |
+- **Batch 36**: Architecture Deepening | **Resolved** | Deepened `flows.md`, `infrastructure.md`, `prompt-catalogue.md`.
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json` (e.g., `linkwarden.md`, `tubearchivist.md`).
+- **Batch 37**: Deepen remaining non-compliant docs in `docs/knowledge_base/` (e.g., `agent_framework_learning_map.md`, `ai_builder_index.md`).
+- **Batch 38**: Address non-compliant playbooks in `docs/playbooks/`.
 
 ---
 - Confidence: high

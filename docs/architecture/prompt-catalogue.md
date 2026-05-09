@@ -1,8 +1,47 @@
 # Prompt & Automation Catalogue
 
-Every prompt, issue template, and LLM call used to keep this repository growing — collected in one place for auditability and tuning.
+## What it is
 
----
+The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. It serves as the "source of truth" for how the repository's autonomous agents operate and make decisions.
+
+## What problem it solves
+
+Autonomous systems can often feel like "black boxes." This catalogue solves the problem of opacity by documenting the exact logic, schedules, and instructions used by agents like [Jules](../tools/ai_knowledge/jules.md). It allows for easier debugging, auditing of AI-generated content, and systematic tuning of prompt performance over time.
+
+## Where it fits in the stack
+
+**Category**: Architecture / Governance. It sits in the **metacognition and orchestration** layer, documenting the workflows that manage all other content in the repository.
+
+## Typical use cases
+
+- **Prompt Versioning**: Tracking changes to the system prompts used by the [Daily Jules Maintenance](#ga-3-daily-jules-maintenance) workflow.
+- **Workflow Auditing**: Reviewing the schedule and logic of recurring GitHub Actions like the [Daily AI Digest](#ga-1-daily-ai-digest).
+- **Agent Onboarding**: Providing a clear set of instructions and "mission statements" for new autonomous workers added to the repo.
+- **Troubleshooting**: Identifying why a particular automated task failed by examining its input prompts and execution rules.
+
+## Strengths
+
+- **Transparency**: Makes the repository's automated processes understandable to human contributors.
+- **Reproducibility**: Provides the exact prompts needed to replicate the automated workflows in other environments.
+- **Centralization**: Collects disparate GitHub Actions and local scripts into a single, searchable document.
+- **Standardization**: Encourages the use of consistent formatting and "mission-driven" prompting across all agents.
+
+## Limitations
+
+- **Maintenance Overhead**: Requires manual updates whenever a workflow or prompt is changed in the underlying code.
+- **Complexity**: As the number of agents and workflows grows, the catalogue can become difficult to navigate.
+- **Sensitivity**: Some prompts may contain logic that is specific to the current repository structure and may not be directly portable.
+
+## When to use it
+
+- When you need to understand *how* the repository is being maintained automatically.
+- When you are designing a new automated workflow and want to ensure it follows existing patterns.
+- During quality audits to verify that agents are operating within their defined "Allowed scope."
+
+## When not to use it
+
+- For documenting tool-specific features that are already covered in their respective canonical pages.
+- For storing API keys or other secrets (these belong in GitHub Secrets or a secure vault).
 
 ## Overview
 
@@ -710,16 +749,25 @@ Fix all issues found and commit in a single PR titled
 
 ---
 
-## Sources / References
+## Related tools / concepts
 
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [Automated Contributions (Jules setup)](automated_contributions.md)
-- [Multi-Agent KnowledgeOps Governance](multi_agent_knowledgeops.md)
-- [Daily Jules Maintenance workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/daily-jules-maintenance.yml)
-- [Digest-to-Intake Bridge workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/digest-to-intake.yml)
-- [Weekly Planner workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/weekly-planner.yml)
+- [Jules](../tools/ai_knowledge/jules.md) — The primary autonomous engineer that executes these prompts.
+- [Multi-Agent KnowledgeOps](multi_agent_knowledgeops.md) — The governance framework that guides these automations.
+- [Automated Contributions](automated_contributions.md) — Details on how Jules is set up and integrated.
+- [GitHub Actions](https://github.com/features/actions) — The execution platform for the recurring workflows.
+- [OpenRouter](../tools/providers/openrouter.md) — The API gateway used to access the models that run these prompts.
+- [Standards & Conventions](../../standards-and-conventions.md) — The rules that these prompts are designed to enforce.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Often used by agents to find relevant context before executing a prompt.
+- [MCP](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) — The protocol used by agents to interact with the repository and external tools.
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-05-09
 - Confidence: high
+
+## Sources / References
+
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [Automated Contributions (Jules setup)](automated_contributions.md)
+- [Multi-Agent KnowledgeOps Governance](multi_agent_knowledgeops.md)
