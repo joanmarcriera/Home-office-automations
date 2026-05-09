@@ -1,47 +1,101 @@
 # SilverBullet
 
 ## What it is
-SilverBullet is an open-source, extensible, Markdown-based personal knowledge management system that runs in the browser.
+SilverBullet is an open-source, extensible, Markdown-based personal knowledge management system that runs in the browser. It features a unique "Space Script" capability that allows the entire environment to be programmed and queried using JavaScript and a custom query language.
 
 ## What problem it solves
-It combines the simplicity of Markdown with the power of a programmable environment, allowing for live queries and custom templates.
+It combines the simplicity of Markdown with the power of a programmable database. It solves the limitation of static Markdown notes by allowing for live queries, automated indexing, and custom templates that can transform a folder of text files into a functional application (e.g., a task manager, a project tracker, or a library catalog).
 
 ## Where it fits in the stack
-**Category**: Tool / Knowledge Management
+**Category**: Tool / Knowledge Management. It is a "hacker-friendly" alternative to Obsidian or Logseq, specifically designed for users who want to extend their knowledge base using code and queries directly within their notes.
 
 ## Typical use cases
-- Creating a programmable wiki.
-- Automating note-taking with templates and queries.
-- Managing personal data in a text-based format.
+- **Programmable Wiki**: Building an internal knowledge base with automated indexes.
+- **Task Management**: Creating custom task dashboards using live queries.
+- **Data Scraping**: Using Space Scripts to pull information from external APIs into notes.
+- **Personal CRM**: Managing contacts and interactions with structured metadata and automated summaries.
 
 ## Strengths
-- Runs in the browser but stores data locally or on a server.
-- Built-in query language for Markdown blocks.
-- PWA support for mobile use.
+- **Extensibility**: Entirely programmable via Space Scripts (JavaScript).
+- **Live Queries**: Built-in SQL-like query language for Markdown blocks.
+- **Web-native**: Runs in the browser but can sync to local storage or a remote server.
+- **PWA support**: Excellent mobile experience via Progressive Web App technology.
+- **Minimalist UI**: Focuses on the content with a clean, command-palette driven interface.
 
 ## Limitations
-- Requires a server component for full functionality.
-- Smaller ecosystem compared to Obsidian or Logseq.
+- **Technical Barrier**: Requires some knowledge of JavaScript or SilverBullet's query language to unlock its full potential.
+- **Smaller Ecosystem**: Fewer community plugins compared to [Obsidian](../ai_knowledge/obsidian.md).
+- **Self-Hosting**: While it can run locally, a server component is required for the best multi-device experience.
 
 ## When to use it
-- When you want a "hacker-friendly" knowledge base that you can program and extend.
+- When you want a knowledge base that you can program and extend yourself.
+- If you prefer a browser-based workflow but want the power of a local-first application.
+- When you need to perform complex data queries across your entire note collection.
 
 ## When not to use it
-- If you want a polished, out-of-the-box consumer app.
+- If you want a polished, consumer-grade app with a massive library of one-click plugins.
+- If you are uncomfortable with writing occasional scripts or queries to manage your data.
+
+## Getting started
+
+### Installation (Docker)
+The easiest way to run SilverBullet is via Docker:
+
+```bash
+docker run -d \
+  --name silverbullet \
+  -p 3030:3030 \
+  -v ./space:/space \
+  zefhemel/silverbullet:latest
+```
+
+### Installation (Node.js)
+Alternatively, you can install it via npm:
+
+```bash
+npm install -g @silverbulletmd/silverbullet
+silverbullet ./my_space
+```
+
+### Live Query Example
+You can embed a live query in any Markdown page to list recent tasks:
+
+```markdown
+<!-- #query task where done = false limit 5 -->
+| Name | Page |
+| ---- | ---- |
+| {{name}} | [[{{page}}]] |
+<!-- /query -->
+```
+
+### Space Script Example
+Define a custom function in a page tagged with `#script`:
+
+```javascript
+silverbullet.registerFunction("hello", (name) => {
+  return `Hello, ${name}!`;
+});
+```
 
 ## Licensing and cost
-- **Open Source**: Yes (MIT)
+- **Open Source**: Yes (MIT License)
 - **Cost**: Free
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Logseq](../ai_knowledge/logseq.md)
-- [Trilium Notes](../../services/trilium.md)
+- [Obsidian](../ai_knowledge/obsidian.md) (Popular Markdown alternative)
+- [Logseq](../ai_knowledge/logseq.md) (Block-based alternative)
+- [AnyType](anytype.md) (Local-first alternative)
+- [Trilium Notes](../../services/trilium.md) (Hierarchical programmable wiki)
+- [Local LLMs](../ai_knowledge/local_llms.md) (Integrating AI with SilverBullet data)
+- [KnowledgeOps Standards](../../standards.md) (Governing programmable knowledge)
+- [n8n](../../services/n8n.md) (External automation for SilverBullet)
 
 ## Sources / References
 - [Official Website](https://silverbullet.md/)
-- [GitHub](https://github.com/silverbulletmd/silverbullet)
+- [GitHub Repository](https://github.com/silverbulletmd/silverbullet)
+- [SilverBullet Documentation](https://silverbullet.md/Getting%20Started)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-27
+- Last reviewed: 2026-07-20
 - Confidence: high
