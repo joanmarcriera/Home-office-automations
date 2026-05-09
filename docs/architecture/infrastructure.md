@@ -1,45 +1,67 @@
 # Home Lab Architecture Overview
 
-## Infrastructure Environment: TrueNAS SCALE
-The primary infrastructure for this home lab is built on **TrueNAS SCALE**, an open-source storage platform based on Debian GNU/Linux. It provides a robust foundation for running containerized services and managing large-scale ZFS storage pools.
+## What it is
 
-### Core Components
-1.  **ZFS Storage**: All persistent data is stored on ZFS pools (e.g., `tank`). This ensures data integrity with features like snapshots, replication, and self-healing.
-2.  **App Management**: Services are deployed as Docker containers or Kubernetes pods (via TrueNAS Apps/Charts).
-3.  **Network**: Services are primarily accessed over the local network (LAN) or securely via a **Tailscale** mesh network. A reverse proxy (Traefik/Nginx) handles TLS and subdomain routing.
+The Home Lab Architecture is a multi-layered infrastructure design built on **TrueNAS SCALE**, an open-source storage platform based on Debian GNU/Linux. It provides a robust foundation for running containerized services, managing large-scale ZFS storage pools, and hosting autonomous AI agents.
 
-## Service Interaction Map
-Services are organized into a functional pipeline to handle information and automation.
+## What problem it solves
 
-### 1. Ingest & Storage
-Raw data enters the system through email (IMAP), scanners, or manual uploads. It is stored in dedicated ZFS datasets within `/mnt/<pool>/applications/`.
-- **Services**: [Paperless-ngx](../services/paperless-ngx.md), [Nextcloud](../services/nextcloud.md), [Syncthing](../services/syncthing.md), [qBittorrent](../services/qbittorrent.md).
+Self-hosting a complex stack of AI and automation tools requires a stable, scalable, and secure environment. This architecture solves the problem of "service sprawl" by centralizing compute and storage, ensuring data integrity through ZFS, and providing a standardized way to deploy, network, and backup local services.
 
-### 2. Process & Understanding
-Stored data is processed for OCR and analyzed using local reasoning engines.
-- **Services**: [Ollama](../services/ollama.md), [LiteLLM](../services/litellm.md), [Paperless-AI](../services/paperless-ai.md), [Diskover](../services/diskover.md).
+## Where it fits in the stack
 
-### 3. Automation & Orchestration
-Workflows connect services to perform complex tasks, such as extracting events from documents and syncing them to calendars.
-- **Services**: [n8n](../services/n8n.md), [Home Assistant](../services/home-assistant.md).
+**Category**: Architecture / Infrastructure. It is the **foundation layer** of the entire system, providing the hardware abstraction, storage primitives, and container orchestration (Docker/K8s) upon which all other services and tools are built.
 
-### 4. Productivity & Synchronization
-The final outcomes are synced to user-facing applications like calendars, task managers, and knowledge bases.
-- **Services**: [Vikunja](../services/vikunja.md), [Radicale](../services/radicale.md), [Obsidian](../tools/ai_knowledge/obsidian.md).
+## Typical use cases
 
-### 5. Benchmarking & Quality Assurance
-Continuous evaluation of model performance and reasoning accuracy.
-- **Services**: [HLE](../tools/benchmarking/humanitys-last-exam.md), [Terminal-Bench](../tools/benchmarking/terminal-bench.md), [Ollama Benchmark CLI](../tools/benchmarking/ollama-benchmark-cli.md).
+- **Centralized Data Lake**: Storing all family documents, media, and backups in a single, high-availability ZFS pool.
+- **Local AI Hosting**: Running large language models (LLMs) and embedding models on local GPU/CPU hardware for privacy and performance.
+- **Service Orchestration**: Deploying and managing a suite of interrelated tools (n8n, Paperless, Nextcloud) as a cohesive unit.
+- **Secure Remote Access**: Connecting to the home lab from anywhere in the world via a secure, encrypted mesh network without exposing ports to the open internet.
 
-## Backup & Recovery
-- **Local**: Scheduled ZFS snapshots of all application datasets.
-- **Offsite**: Periodic synchronization of critical datasets to cloud storage using [rclone](../services/rclone-automation.md).
-- **Configuration**: All infrastructure-as-code and configuration files are version-controlled in this repository.
+## Strengths
 
+- **Data Integrity**: ZFS provides snapshots, replication, and self-healing to protect against data corruption and drive failure.
+- **Scalability**: Easily add more storage or compute resources as the lab grows.
+- **Privacy**: All processing and storage happen locally, ensuring sensitive family data never leaves the premises.
+- **Cost-Effective**: Uses open-source software and consumer-grade hardware to achieve enterprise-level features.
+
+## Limitations
+
+- **Hardware Dependency**: Reliability is tied to the physical health of the local server and network equipment.
+- **Complexity**: Requires significant technical expertise to set up and maintain a ZFS-based container environment.
+- **Power Consumption**: Running a high-performance home server 24/7 can lead to increased electricity costs.
+
+## When to use it
+
+- When you want to host your own "private cloud" for family or small business use.
+- When you need a high-performance environment for running local AI models (Ollama, LiteLLM).
+- When you prioritize data ownership and privacy over the convenience of public cloud services.
+
+## When not to use it
+
+- If you do not have the technical skills or time to manage a Linux-based server environment.
+- For extremely high-availability applications that require geographical redundancy beyond what a single home can provide.
+- If your compute needs are very low and could be better served by a simple NAS or low-power SBC (like a Raspberry Pi).
+
+## Related tools / concepts
+
+- [Tailscale](../services/tailscale.md) — For secure, zero-config mesh networking between lab nodes.
+- [Nextcloud](../services/nextcloud.md) — The primary interface for file sharing and collaborative work.
+- [Syncthing](../services/syncthing.md) — For decentralized file synchronization across devices.
+- [Paperless-ngx](../services/paperless-ngx.md) — The central document management system.
+- [Ollama](../services/ollama.md) — The local engine for running large language models.
+- [n8n](../services/n8n.md) — The workflow engine that orchestrates service interactions.
+- [rclone](../services/rclone-automation.md) — Used for offsite backups to cloud storage.
+- [TrueNAS SCALE](https://www.truenas.com/truenas-scale/) — The underlying OS and storage platform.
 
 ## Contribution Metadata
+
+- Last reviewed: 2026-05-09
 - Confidence: high
-- Last reviewed: 2026-03-01
 
 ## Sources / References
-- https://github.com/joanmarcriera/Home-office-automations
+
+- [TrueNAS SCALE Official Documentation](https://www.truenas.com/docs/scale/)
+- [ZFS on Linux Reference](https://openzfs.github.io/openzfs-docs/Getting%20Started/Ubuntu/index.html)
+- [Self-Hosted Home Lab Wiki](https://www.reddit.com/r/homelab/wiki/index)
