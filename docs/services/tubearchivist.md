@@ -127,12 +127,14 @@ curl -X POST -H "Authorization: Token <your_api_token>" \
 ```
 
 ## Related tools / concepts
-- [Plex](plex.md) — for streaming your archived content to TV/Mobile
-- [Jellyfin](jellyfin.md) — an open-source alternative to Plex
-- [Audiobookshelf](audiobookshelf.md) — for managing YouTube podcasts or audio-only archives
-- [Changedetection.io](changedetection.md) — to monitor YouTube channels for changes
-- [SearXNG](searXNG.md) — to search for YouTube content privately before archiving
-- [n8n](n8n.md) — for advanced automation of video ingestion
+- [Plex](plex.md) — for streaming your archived content to TV/Mobile.
+- [Jellyfin](jellyfin.md) — an open-source alternative to Plex.
+- [Audiobookshelf](audiobookshelf.md) — for managing YouTube podcasts or audio-only archives.
+- [Changedetection.io](changedetection.md) — to monitor YouTube channels for changes.
+- [SearXNG](searXNG.md) — to search for YouTube content privately before archiving.
+- [n8n](n8n.md) — for advanced automation of video ingestion.
+- [Home Assistant](home-assistant.md) — For automating notifications about new downloads.
+- [Tailscale](tailscale.md) — For securely accessing your archive from anywhere.
 
 ## Backlog
 - Configure automated downloads for subscribed channels.
@@ -140,7 +142,7 @@ curl -X POST -H "Authorization: Token <your_api_token>" \
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-07-20
 
 ## Sources / References
 - https://www.tubearchivist.com/

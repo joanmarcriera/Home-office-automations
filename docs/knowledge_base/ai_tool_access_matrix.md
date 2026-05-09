@@ -60,6 +60,8 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [big-AGI](../tools/ai_knowledge/big-agi.md) | Expert AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Expert workspace for multi-model reasoning and zero-latency UI. |
 | [LM Studio](../tools/infrastructure/lm-studio.md) | Local model runner | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | Best as a local model host rather than a full productivity agent. |
 | [Jan](../tools/infrastructure/jan-ai.md) | Local AI app | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟠 | 🔴 | Local, open-source chat client with MCP support. |
+| [Qwen 3.6](../tools/ai_knowledge/qwen.md) | Causal LLM/VLM | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | Frontier performance-to-compute; exceptional for coding/multimodal. |
+| [DeepSeek R1](../tools/ai_knowledge/deepseek-r1.md) | Reasoning model | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | SOTA open-weights reasoning model; strong for math/coding logic. |
 | [TypingMind](../tools/ai_knowledge/typingmind.md) | Multi-model UI | 🟠 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | Good front end when plugins, Zapier, or MCP matter more than native apps. |
 | [Open Interpreter](../tools/automation_orchestration/open-interpreter.md) | Local computer-use agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟠 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Strong for local computer, files, and terminal; not a native Gmail or Calendar tool. |
 | [Goose](../tools/automation_orchestration/goose.md) | Local general-purpose agent | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟠 | 🟢 | Broad local agent with deep MCP emphasis. |
