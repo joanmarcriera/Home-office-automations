@@ -32,22 +32,82 @@ Protocols act as the **Communication Layer** in the AI stack. They sit between a
 - For extremely simple, single-purpose agents where the overhead of implementing a protocol outweighs the benefits of modularity.
 - When using a closed, end-to-end proprietary platform that does not support external protocol integrations.
 
+## Getting started
+
+### 1. Simple MCP Server (Python SDK)
+To build a server, use the `mcp` Python SDK and `FastMCP` for a high-level API. This example creates a weather tool that can be used by any MCP-compatible host.
+
+```python
+# pip install mcp
+from mcp.server.fastmcp import FastMCP
+
+# Create an MCP server instance
+mcp = FastMCP("WeatherService")
+
+@mcp.tool()
+def get_weather(location: str) -> str:
+    """Get the weather for a specific location.
+
+    Args:
+        location: The city and state (e.g., London, UK)
+    """
+    # In a real implementation, you'd call a weather API here
+    return f"The weather in {location} is currently sunny, 22°C."
+
+if __name__ == "__main__":
+    # Runs the server using the stdio transport by default
+    mcp.run()
+```
+
+### 2. Consuming MCP Tools
+Once your server is running, you can add it to an MCP host like **Claude Desktop**. Add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "weather": {
+      "command": "python",
+      "args": ["/path/to/your/weather_server.py"]
+    }
+  }
+}
+```
+
 ## Protocol Details
 
 ### 1. Model Context Protocol (MCP)
-The Model Context Protocol (MCP) is an open standard that standardizes how applications interact with LLMs and provide them with tools and resources.
+The Model Context Protocol (MCP) is an open standard that standardizes how applications interact with LLMs and provide them with tools and resources. It decouples the "brain" (LLM) from the "tools" (data sources and APIs), allowing for a plug-and-play AI ecosystem.
 - **Developer**: Anthropic
-- **Key Concepts**:
-    - **MCP Servers**: Host specific tools (e.g., Google Calendar, GitHub, ClickHouse).
-    - **MCP Clients**: Frameworks or IDEs that connect to servers to use their tools.
+
+#### Architecture & Components
+- **Hosts**: The primary application where the LLM is running (e.g., Claude Desktop, Zed, Cursor, or a custom agent). The host manages the LLM's lifecycle and orchestrates the connection to servers.
+- **Clients**: Reside within the host and maintain 1:1 connections with MCP servers.
+- **Servers**: Lightweight programs that expose specific capabilities (tools, resources, or prompts) through the MCP protocol.
+
+#### Transport Layers
+MCP supports multiple communication mediums between clients and servers:
+- **stdio**: Standard input/output. This is the most common transport for local tools and command-line utilities.
+- **SSE**: Server-Sent Events. Used for remote servers communicating over HTTP.
+- **HTTP/TCP**: Direct socket-based communication for specialized high-performance needs.
+
+#### Capabilities
+- **Resources**: Read-only data sources that the model can reference (e.g., a file's content, a database schema, or a documentation page).
+- **Tools**: Executable functions that allow the model to perform actions (e.g., "create_file", "search_web", or "send_email").
+- **Prompts**: Reusable prompt templates that can be dynamically populated by the server.
+- **Sampling**: An advanced feature that allows a server to ask the client to run an LLM completion, enabling agentic servers to recurse or delegate tasks.
+
 - **Pattern Guide**: [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md)
 
 ### 2. Agent Client Protocol (ACP)
-The Agent Client Protocol (ACP) enables any AI agent to integrate seamlessly with any code editor or editing environment.
+The Agent Client Protocol (ACP) enables any AI agent to integrate seamlessly with any code editor or editing environment. While MCP focuses on the connection between the model and its tools, ACP focuses on the connection between the agent and the developer's workspace.
 - **Developer**: Zed
-- **Key Concepts**:
-    - **Universal Compatibility**: Standardizes multi-file editing, syntax highlighting, and diff viewing.
-    - **Privacy First**: Designed to be local-first.
+
+#### Key Concepts
+- **Universal IDE Compatibility**: ACP provides a standardized interface for agents to interact with different code editors (Cursor, Zed, VS Code) without needing custom plugins for each.
+- **Multi-file Editing**: Standardizes how agents propose changes across multiple files simultaneously, ensuring atomic updates and consistency.
+- **Rich Feedback**: Enables agents to receive syntax highlighting, linting errors, and test results directly from the IDE.
+- **Diff Management**: Provides a consistent way for agents to present diffs to the user for review and approval before applying changes.
+- **Privacy First**: Designed to be local-first, ensuring that workspace data and agent interactions remain on the user's machine.
 
 ## Related tools / concepts
 - [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md)
