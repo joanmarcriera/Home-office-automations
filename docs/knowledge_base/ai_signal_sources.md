@@ -1,6 +1,51 @@
 # AI Signal Sources
 
-This page tracks high-signal sources worth monitoring for model updates, tooling direction, safety changes, and practical engineering patterns.
+## What it is
+AI Signal Sources is a curated directory of high-signal information streams focused on model updates, tooling direction, safety changes, and practical engineering patterns. It serves as the authoritative intake list for the repository's intelligence-gathering activities.
+
+## What problem it solves
+The AI landscape moves at an overwhelming pace, making it difficult to distinguish between marketing hype and substantive technical advancement. This document filters the noise, identifying the specific sources that provide actionable technical signal for homelab automation and agentic engineering.
+
+## Where it fits in the stack
+It belongs in the **Knowledge Management / Intelligence** layer. It acts as the intake strategy for staying informed about changes in the underlying AI technologies (providers, frameworks, and tools) that power the homelab.
+
+## Typical use cases
+- **Alpha-Seeking**: Tracking new model releases and API capabilities from frontier providers (OpenAI, Anthropic, Google).
+- **Pattern Recognition**: Discovering practical agent engineering patterns and "vibe-coding" results from independent researchers.
+- **Security Hardening**: Monitoring security research for emerging threats like prompt injection or supply chain attacks in LLM systems.
+- **Maintenance Planning**: Informing the next "Ralph loop" or repository maintenance cycle with current industry standards.
+
+## Strengths
+- **High Signal-to-Noise Ratio**: Curated specifically for technical depth and engineering relevance.
+- **Primary Source Focus**: Emphasizes direct research and engineering blogs over secondary reporting or aggregators.
+- **Actionable Cadence**: Provides a structured rhythm for staying updated without being overwhelmed.
+
+## Limitations
+- **Maintenance Overhead**: Requires periodic auditing to remove sources that pivot toward marketing content or become inactive.
+- **Subjective Curation**: Reflects the specific technical standards and architectural preferences of this repository.
+- **Temporal Lag**: Even high-signal blogs can lag behind real-time social media leaks (though they offer better depth).
+
+## When to use it
+- When planning the next batch of documentation deepening or tool integration.
+- When researching a new model's performance characteristics or safety guardrails.
+- When setting up automated intelligence gathering (e.g., RSS to Telegram pipelines).
+
+## When not to use it
+- For general AI news, gossip, or speculative financial analysis.
+- As a primary learning resource for foundational concepts (use the [AI Reading List](ai_reading_list.md) instead).
+
+## Getting started
+
+### Subscription Workflow
+The most effective way to "consume" these signals is via RSS or Atom feeds.
+1. Install an RSS reader or set up an n8n workflow to monitor these URLs.
+2. Filter for keywords relevant to your current project (e.g., "MCP", "WebRTC", "Agentic").
+3. Use a "Read Later" tool like [Linkwarden](../services/linkwarden.md) to archive high-value posts.
+
+### Suggested Operating Cadence
+- **Daily**: Skim company release feeds (OpenAI, Anthropic) for model/API/policy updates.
+- **Weekly**: Review independent analysis (Simon Willison, Interconnects) for implementation implications.
+- **Monthly**: Refresh canonical docs and [Tool Access Matrix](ai_tool_access_matrix.md) based on what changed materially.
 
 ## Company Engineering and Research Blogs
 
@@ -37,17 +82,21 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 | Dmitri Sotnikov (Yogthos) | Deep dives into managing AI complexity and Clojure patterns | https://yogthos.net/ |
 | Tyler Rockwood | Applied LLM security analysis with practical trust-boundary experiments | https://rockwotj.com/blog/ |
 
-## Suggested Operating Cadence
-
-- Daily: skim company release feeds for model/API/policy updates.
-- Weekly: review independent analysis for implementation implications.
-- Monthly: refresh canonical docs based on what changed materially.
-
 ## Curation Rules
 
 - Prefer primary sources over reposts.
 - Track only sources with clear technical signal.
 - Remove sources that become mostly marketing content.
+
+## Related tools / concepts
+- [AI Tool Access Matrix](ai_tool_access_matrix.md) — For tracking the state of model capabilities across providers.
+- [AI Reading List](ai_reading_list.md) — For foundational research and long-form education.
+- [Agent Protocols](agent_protocols.md) — For the standards that enable the tools discussed in these blogs.
+- [System Prompts](system_prompts.md) — For tracking the "instructions" behind the models.
+- [Linkwarden](../services/linkwarden.md) — For archiving high-signal articles found in these sources.
+- [n8n](../services/n8n.md) — For automating the ingestion and filtering of these signal sources.
+- [Ollama](../services/ollama.md) — For testing the local models often announced in these blogs.
+- [SearXNG](../services/searXNG.md) — For private search to discover new signal sources.
 
 ## Sources / References
 
@@ -74,6 +123,5 @@ This page tracks high-signal sources worth monitoring for model updates, tooling
 - [The AI Agent Tools Landscape: 120+ Tools Mapped [2026]](https://stackone.com/blog/ai-agent-tools-landscape-2026/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-03-09
-- Confidence: medium
+- Last reviewed: 2026-05-10
+- Confidence: high
