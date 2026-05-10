@@ -21,6 +21,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **#408** | Deepen examples (Batch 7) | **Verified** | mem0, Google Opal, Project Genie, Sora, NotebookLM deepened. |
 | **#421** | Weekly deepening (Batch 8) | **Resolved** | Unstructured, LlamaParse, Karpathy, Matt Pocock, AmpCode deepened. |
 | **#422** | Category gap fill: calendar_tasks | **Verified** | 20 docs added and indexed. |
+| **#506** | Jules Sprint W3 | **Resolved** | Deepened SearXNG and Syncthing to 'High Confidence'. |
 | **#529** | Daily Maintenance Run (2026-05-07) | **Resolved** | Step 2 (Doc audit) completed for W4 tools. |
 | **#530** | [W4] Jules Sprint (AI Knowledge) | **Resolved** | Deepened gemini-macos, vercel-ai-gateway, and claude-mythos. |
 | **Batch 21** | Weekly deepening: AI Knowledge | **Resolved** | DeepSeek R1, Perplexity, AnythingLLM, LobeHub, and Dify deepened. |
@@ -43,8 +44,8 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json` (e.g., `linkwarden.md`, `tubearchivist.md`).
-- **Batch 39**: Address remaining non-compliant docs in `docs/knowledge_base/` (e.g., `agent_protocols.md`, `ai_signal_sources.md`).
-- **Batch 40**: Address remaining non-compliant playbooks in `docs/playbooks/` (e.g., `raspberry-pi-kiosk-automation.md`, `scan-to-task.md`).
+- **Batch 39**: Address remaining non-compliant docs in `docs/knowledge_base/` (e.g., `ai_tool_access_matrix.md`).
+- **Batch 40**: Address remaining non-compliant playbooks in `docs/playbooks/` (e.g., `raspberry-pi-kiosk-automation.md`, `scan-to-task.md`). **Updated (2026-05-10)**: Completed raspberry-pi-kiosk-automation and scan-to-task.
 
 ---
 - Confidence: high

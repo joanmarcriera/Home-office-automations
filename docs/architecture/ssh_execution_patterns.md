@@ -1,72 +1,83 @@
 # SSH Execution Patterns
 
-## Overview
-In a modern AI-automated infrastructure, SSH serves as the primary **execution plane**. This page documents the patterns and security models for allowing LLM-powered agents to interact with remote systems safely.
+## What it is
+SSH Execution Patterns is a collection of architectural designs and security models for allowing LLM-powered agents to interact with remote systems. It defines how an autonomous agent can safely traverse the "Trust Boundary" between a reasoning engine and a physical or virtual execution environment.
 
-## Architecture: The Three Planes
+## What problem it solves
+LLMs are capable of generating shell commands, but allowing them to execute those commands directly on a server poses significant security risks (e.g., prompt injection, accidental data loss, or privilege escalation). These patterns provide a framework for restricted, audited, and validated execution, ensuring that agents have the "hands" they need to perform work without compromising system integrity.
+
+## Where it fits in the stack
+It belongs in the **Architecture** layer. Specifically, it defines the interface between the **Development & Ops** layer (Agents like Aider or Claude Code) and the **Infrastructure** layer (Servers, Raspberry Pis, Cloud VMs).
+
+## Typical use cases
+- **Remote Configuration**: An agent setting up a web server or database on a new Raspberry Pi.
+- **Automated Troubleshooting**: An agent logging into a server to read logs and diagnose a service failure.
+- **CI/CD Orchestration**: An agent managing deployments by executing commands over SSH on a staging environment.
+- **Homelab Management**: Scaling updates or configuration changes across multiple local nodes via a centralized controller.
+
+## Strengths
+- **Protocol Native**: Leverages the industry-standard SSH protocol, which is already present on almost every Unix-like system.
+- **Fine-Grained Control**: Supports multiple levels of restriction, from simple wrapper scripts to full Human-in-the-Loop (HITL) approval flows.
+- **Auditability**: Every command and its output can be logged centrally, providing a complete audit trail of agent activity.
+
+## Limitations
+- **Latency**: SSH connections and command execution introduce latency that can slow down tight reasoning loops.
+- **Key Management**: Requires careful handling of SSH keys; if an agent's controller is compromised, the keys provide a path to the target systems.
+- **Complexity**: Setting up restricted sudoers and command allowlists requires ongoing maintenance and configuration overhead.
+
+## When to use it
+- When you need an agent to perform "real-world" actions on a server that cannot be handled via a high-level API.
+- When managing a fleet of devices (like Raspberry Pis) where SSH is the primary management interface.
+- When you want to transition from "chatting about code" to "autonomous engineering" where the agent can actually deploy and test its work.
+
+## When not to use it
+- If the task can be completed using a specialized API (e.g., a Cloud Provider API or a configuration management tool like Ansible).
+- For extremely high-security production environments where no automated agent should ever have shell access.
+
+## Getting started
+
+### Pre-requisites
+- A target machine with an SSH server enabled.
+- A dedicated service user (e.g., `ai-agent`) on the target machine.
+- An agent framework (like [Aider](../tools/development_ops/aider.md)) capable of executing local commands that wrap SSH.
+
+### Architecture: The Three Planes
 A robust automation stack separates concerns into three distinct layers:
 
 1.  **Reasoning Plane (LLM)**: The "Brain." It analyzes the current state and decides *what* needs to be done. It should never have direct access to SSH keys or credentials.
-2.  **Control Plane (Agent)**: The "Operator." A script or framework (Aider, OpenHands, Custom Python) that manages the loop, handles the LLM interaction, and initiates connections.
+2.  **Control Plane (Agent)**: The "Operator." A script or framework that manages the loop, handles the LLM interaction, and initiates connections.
 3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed. Access is strictly controlled and audited.
 
-## Execution Patterns
+### Implementation Patterns
 
-### 1. Tool-Based Execution
+#### 1. Tool-Based Execution
 The agent is provided with a "tool" (function) like `run_ssh_command(host, cmd)`.
 - **Workflow**: Agent sends command to controller -> Controller executes via SSH library (e.g., Paramiko, Fabric) -> Output is returned to the agent.
-- **Best for**: Dynamic, multi-step troubleshooting and complex configuration.
 
-### 2. Wrapper Script Execution
+#### 2. Wrapper Script Execution
 The agent calls a local wrapper script (e.g., `pi_exec "reboot"`) instead of raw SSH.
-- **Workflow**: Agent executes a local command -> Local script handles SSH connection, logging, and pre-command validation.
-- **Best for**: Restricting agents to a predefined set of safe operations.
+- **Workflow**: Agent executes a local command -> Local script handles SSH connection and pre-command validation.
 
-### 3. Human-in-the-Loop (HITL)
-Every command proposed by the LLM must be approved by a human before execution.
-- **Workflow**: Agent proposes: `rm -rf /var/log/*` -> Controller waits for user input -> User approves/denies -> Loop continues.
-- **Best for**: High-stakes production changes and learning phases.
-
-## Security Model
-
-### Dedicated Users
-Never use the `root` user for AI-driven SSH. Create a dedicated service user (e.g., `ai-agent`) with the minimal set of permissions required for its task.
-
-### Restricted Sudoers
+#### 3. Restricted Sudo Example
 If the agent needs root privileges, use `/etc/sudoers.d/ai-agent` to restrict it to specific commands:
 ```text
 ai-agent ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx, /usr/bin/apt update
 ```
 
-### Command Allowlists
-Implement a validation layer in your custom agent that checks proposed commands against a regex allowlist before they ever reach the SSH layer.
-
-### Why You NEVER Give SSH Keys to LLM Providers
-Directly giving an SSH key to a cloud-based LLM provider (via a "plugin" or "action") creates a massive security hole. If the provider is compromised, or if a prompt injection attack occurs, the attacker has a direct path into your private infrastructure. **Always keep the keys in your local Control Plane.**
-
-## Threat Model
-
-| Threat | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Prompt Injection** | Attacker tricks LLM into running malicious commands (e.g. `rm -rf /`). | Human-in-the-loop, command allowlists, restricted sudo. |
-| **Hallucination** | LLM invents a non-existent or destructive command. | Syntax validation, dry-run modes, standard error handling. |
-| **API Compromise** | LLM provider API key is stolen. | The attacker can use your credits, but cannot access your servers because they don't have your SSH keys. |
-| **Controller Compromise**| The machine running the agent is hacked. | Standard host hardening; the keys are here, so this is your most sensitive point. |
-
-## Logging and Auditing
-- **Local Logs**: Capture every command sent and the full output in the agent's log.
-- **Remote Syslog**: Use `auditd` or standard syslog on the target machine to record all activity by the `ai-agent` user.
-
-## Links to related pages
-- [Custom Agents](../tools/development_ops/custom_agents.md)
-- [Raspberry Pi Kiosk Automation](../playbooks/raspberry-pi-kiosk-automation.md)
-- [Standards and Conventions](../standards.md)
+## Related tools / concepts
+- [Raspberry Pi Kiosk Automation](../playbooks/raspberry-pi-kiosk-automation.md) — A primary application of these SSH patterns.
+- [Aider](../tools/development_ops/aider.md) — A tool that implements many of these patterns for remote repository editing.
+- [Claude Code](../tools/development_ops/claude-code.md) — An agent that uses terminal access to interact with systems.
+- [Tailscale](../services/tailscale.md) — Often used to provide the secure network layer for SSH connections.
+- [Custom Agents](../tools/development_ops/custom_agents.md) — For building controllers that implement custom validation logic.
+- [LLM Trust Boundaries](../knowledge_base/patterns/llm-trust-boundaries.md) — The theoretical framework for the security model used here.
+- [Infrastructure Overview](infrastructure.md) — Where these servers live in the homelab.
+- [Standards and Conventions](../standards.md) — The general rules governing documentation and implementation in this repo.
 
 ## Sources / References
-
-- [Reference](https://man.openbsd.org/ssh)
+- [OpenSSH Official Documentation](https://www.openssh.com/)
+- [NIST Guide to SSH](https://csrc.nist.gov/publications/detail/sp/800-41/rev-1/final)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-10
+- Confidence: high

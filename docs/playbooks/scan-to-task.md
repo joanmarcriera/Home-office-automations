@@ -1,9 +1,48 @@
 # Playbook: Scan to Task
 
-## Objective
-Convert physical documents (mail, receipts) into actionable tasks in the task manager.
+## What it is
+Scan to Task is a paperless automation pattern that transforms physical documents (mail, receipts, invoices) into actionable digital tasks. It uses OCR, LLM-based extraction, and workflow orchestration to eliminate manual data entry.
 
-## Workflow Architecture
+## What problem it solves
+Managing physical paperwork often leads to forgotten deadlines or lost information. Scan to Task digitizes the intake process, automatically identifying due dates, amounts, and required actions from scanned images or PDFs, and injecting them directly into a task management system.
+
+## Where it fits in the stack
+This playbook sits in the **Operations / Playbooks** layer. It orchestrates the flow of data between **Services** (Paperless-ngx, Nextcloud, Vikunja) and uses **Automation & Orchestration** (n8n) and **AI Models** (via Ollama or APIs) for reasoning.
+
+## Typical use cases
+- **Invoice Management**: Scanning a utility bill and automatically creating a task in Vikunja with the due date and amount.
+- **Mail Triage**: Scanning incoming letters and creating tasks for items requiring a response.
+- **Receipt Archival**: Scanning receipts for expense tracking, with the LLM extracting the vendor and total.
+- **Warranty Tracking**: Scanning product manuals or receipts to create a reminder for warranty expiration.
+
+## Strengths
+- **Automation**: Reduces the friction of moving from physical paper to a digital action list.
+- **Searchability**: Documents are indexed and searchable in Paperless-ngx, linked directly from the task.
+- **Accuracy**: LLMs can extract structured data from diverse document layouts better than traditional regex-based systems.
+
+## Limitations
+- **OCR Quality**: Success depends on the clarity of the original scan; handwritten or low-contrast text may fail.
+- **Privacy**: If using cloud-based LLMs, sensitive document text is sent to an external provider (mitigated by using local models).
+- **Setup Complexity**: Requires multiple services (Paperless, n8n, Vikunja) to be correctly configured and integrated.
+
+## When to use it
+- When you have a significant volume of physical documents that require action.
+- When you want to maintain a centralized, searchable archive of all paperwork alongside your task list.
+- When you want to leverage AI to automate the "understanding" phase of document management.
+
+## When not to use it
+- For very high-security documents that should never be digitized or processed by an LLM.
+- If you only have one or two documents a month; manual entry is simpler in that case.
+
+## Getting started
+
+### Pre-requisites
+- [Paperless-ngx](../services/paperless-ngx.md) for document storage and OCR.
+- [Vikunja](../services/vikunja.md) or another task manager with an API.
+- [n8n](../services/n8n.md) for workflow orchestration.
+- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Qwen3-Coder`).
+
+### Workflow Architecture
 
 ```mermaid
 flowchart TD
@@ -17,13 +56,7 @@ flowchart TD
     H -->|Link Back| C
 ```
 
-## Pre-requisites
-- [OCRmyPDF](../tools/process_understanding/ocrmypdf.md)
-- [Paperless-ngx](../services/paperless-ngx.md)
-- [Vikunja](../services/vikunja.md)
-- [n8n](../services/n8n.md)
-
-## Step-by-Step Flow
+### Step-by-Step Flow
 1.  **Ingestion**: Physical scan via mobile app or scanner reaches the `Nextcloud/Scans` folder.
 2.  **Processing**: [Syncthing](../services/syncthing.md) moves the file to the Paperless consumption directory.
 3.  **Understanding**: Paperless performs OCR and classifies the document. If it detects a keyword like "Invoice" or "Due", it adds the tag `action-required`.
@@ -32,37 +65,20 @@ flowchart TD
 6.  **Action**: n8n creates a task in Vikunja with a title, description, and due date.
 7.  **Linking**: The Vikunja task description includes a direct link to the Paperless document.
 
-## Data Contract
-| Field | Type | Format | Notes |
-| :--- | :--- | :--- | :--- |
-| `task_title` | String | Plain Text | Max 100 chars |
-| `due_date` | Date | YYYY-MM-DD | Optional |
-| `paperless_link` | URL | String | Internal ID |
-
-## Failure Modes & Recovery
-- **OCR Failure**: Text is garbled or unreadable.
-    - *Recovery*: Document is tagged `low-confidence` in Paperless; manual review required.
-- **Task Duplicate**:
-    - *Recovery*: n8n checks Vikunja for existing tasks with similar names/dates before creating.
-
-## Local LLM Optimization
-For users preferring a privacy-first approach, local LLMs can replace cloud-based providers in the **Reasoning** step.
-- **Recommended Model**: `Qwen3-Coder-Next` (via [Ollama](../services/ollama.md)) provides high-precision extraction for structured administrative data.
-- **Hardware**: Requires at least 16GB VRAM for optimal performance.
-
-## Token-Efficiency Guidance
-- **Preprocessing**: Strip unnecessary whitespace and common OCR noise (e.g., repeating header/footer patterns) before sending text to the LLM.
-- **Prompting**: Use concise system prompts and request only the required JSON fields to minimize output tokens.
-- **Task Batching**: If processing multiple small receipts, batch them into a single LLM call where possible to reduce per-document overhead.
-
-## Variants
-- **Manual Intake**: User manually uploads a PDF to Paperless and applies the tag.
-- **Email Forward**: User forwards an email to the intake address.
-
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
+## Related tools / concepts
+- [Paperless-ngx](../services/paperless-ngx.md) — The core document management system.
+- [Vikunja](../services/vikunja.md) — The target task management system.
+- [n8n](../services/n8n.md) — The workflow engine connecting the components.
+- [Ollama](../services/ollama.md) — For running local LLMs for private document extraction.
+- [Syncthing](../services/syncthing.md) — For moving files between the scanner, cloud, and Paperless.
+- [Nextcloud](../services/nextcloud.md) — Often used as the initial landing zone for mobile scans.
+- [OCRmyPDF](../tools/process_understanding/ocrmypdf.md) — The underlying technology for document OCR.
+- [Extraction and Classification Prompt](../reference-implementations/llm-prompts/extraction-and-classification.md) — The specific prompt used to guide the LLM.
 
 ## Sources / References
 - https://github.com/joanmarcriera/Home-office-automations
+- [Paperless-ngx Documentation](https://docs.paperless-ngx.com/)
+
+## Contribution Metadata
+- Last reviewed: 2026-05-10
+- Confidence: high

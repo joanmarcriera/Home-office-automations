@@ -1,8 +1,44 @@
 # AI Tool Access Matrix
 
-This matrix compares AI assistants, coding agents, local workspaces, workflow tools, and agent frameworks by practical access surface: local execution, Gmail, Calendar, local files, deep research, interface shape, MCP/tool ecosystem, provider flexibility, and paid-plan availability.
+## What it is
+The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP).
 
-Use it as a shortlist filter before doing row-level procurement checks. The entries treat "access" as either a native feature or an officially documented connector, plugin, node, extension, SDK, or MCP path. Unofficial hacks are excluded. "BYO remote AI" is marked Yes only where the product officially documents OpenAI-compatible/custom base URL support or another direct provider path that would make providers such as Z.ai realistic.
+## What problem it solves
+The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider.
+
+## Where it fits in the stack
+It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-support tool that sits between the **Providers** (Layer 1) and **Applications** (Layer 7), helping users navigate the connectivity options between them.
+
+## Typical use cases
+- **Assistant Selection**: Deciding between ChatGPT and Claude based on native Google Workspace integration.
+- **Agent Comparison**: Comparing coding agents like Cursor and Claude Code for their MCP support.
+- **Infrastructure Planning**: Filtering for tools that allow "BYO remote AI" or local-first execution for privacy-sensitive work.
+- **Automation Triage**: Identifying which tools can be controlled via CLI or TUI for integration into custom scripts.
+
+## Strengths
+- **Multi-Dimensional Evaluation**: Tracks 10+ practical dimensions including UI shape, CLI availability, and self-host status.
+- **Provider Agnostic**: Highlights which tools allow switching between OpenAI, Anthropic, or local models.
+- **Direct Linkage**: Every tool in the matrix is linked to its canonical documentation page in this repository.
+
+## Limitations
+- **High Temporal Decay**: Native integrations and "access surfaces" change rapidly as providers update their products.
+- **Binary Simplification**: Matrix markers (🟢/🟠/🔴) simplify complex integration depths for the sake of scannability.
+- **Subjective "Research" Score**: Evaluations of research quality are based on community consensus and practical testing, not purely objective benchmarks.
+
+## When to use it
+- When planning a new automation stack and needing to identify the most "connected" central assistant.
+- Before purchasing a paid AI subscription, to ensure the tool can access your required data sources.
+- To discover open-source or self-hosted alternatives to popular SaaS AI products.
+
+## When not to use it
+- For detailed per-model performance benchmarks (use [Benchmarking Tools](../tools/benchmarking/index.md) instead).
+- For evaluating purely decorative or single-purpose generative AI tools (e.g., image generators) without an access surface.
+
+## Getting started
+1.  **Identify your Primary Surface**: Are you mostly in VS Code, the Terminal, or a Browser?
+2.  **Check the "Fast Read" section**: Skim the summary recommendations for your priority (Coding, Automation, or General Research).
+3.  **Filter the Matrix**: Look for 🟢 in the columns that matter most to you (e.g., "Files" for local repos, "Gmail" for admin tasks).
+4.  **Deep Dive**: Click the linked tool name to read its canonical page and setup instructions.
 
 ## Legend
 
@@ -161,13 +197,14 @@ Provider flexibility is strongest in local coding agents, self-hosted chat works
 
 The most practical stack is often layered: a native assistant for research, a local coding agent for repo work, a self-hosted workspace for private files, and n8n or Zapier MCP for durable app actions.
 
-## Related
+## Related tools / concepts
 
 - [AI Tooling Landscape - 2026 Overview](ai_tooling_landscape.md)
 - [AI Company Starter Stack](ai_company_starter_stack.md)
 - [Tool Calling and Model Context Protocol](patterns/tool-calling-and-mcp.md)
 - [API Pricing and Free Tier Matrix](api_pricing_free_tiers.md)
 - [Model Routing Guide](model_routing_guide.md)
+- [Benchmarking Tools](../tools/benchmarking/index.md)
 
 ## Sources / References
 
