@@ -1,6 +1,47 @@
 # Agent Framework Learning Map
 
-This page turns a mixed list of agent frameworks, agent products, and specialised agents into a practical learning and adoption map. It is meant to avoid treating every agent project as interchangeable: some are best studied for architecture, some are practical production components, and some are niche tools to compose into a larger stack.
+## What it is
+
+The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment.
+
+## What problem it solves
+
+The explosion of agentic tools has created a "choice overload" problem where every framework is marketed as a general-purpose solution. This map solves that by differentiating between tools optimized for research, rapid prototyping, autonomous coding, or high-reliability production orchestration. It prevents "framework fatigue" by recommending a specific learning order based on the desired outcome.
+
+## Where it fits in the stack
+
+**Category**: Knowledge Base / Learning Path. It sits in the **architectural decision layer**, serving as a meta-framework that informs the selection of specific tools like [LangGraph](../tools/frameworks/langgraph.md), [CrewAI](../tools/frameworks/crewai.md), or [AutoGen](../tools/frameworks/autogen.md).
+
+## Typical use cases
+
+- **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
+- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents.
+- **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
+- **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
+
+## Strengths
+
+- **Outcome-Oriented**: Focuses on what the tool is *best for*, not just what it can do.
+- **Classification Clarity**: Separates libraries (SDKs) from environments (Operating Systems) and specialized modules.
+- **Local-First Friendly**: Prioritizes stacks that work well with local models and privacy-conscious architectures.
+- **Evidence-Based**: Links to reference implementations and production-ready defaults.
+
+## Limitations
+
+- **Fast-Moving Field**: New frameworks emerge weekly, requiring frequent updates to maintain relevance.
+- **Subjective "Defaults"**: Recommendations for "production-ready" tools reflect current repository standards and may vary by specific use case.
+- **Depth vs Breadth**: Provides a high-level map rather than deep technical tutorials for every individual framework.
+
+## When to use it
+
+- When you are starting a new agentic project and need to choose an architecture.
+- When you are overwhelmed by the number of GitHub repos claiming to be "the best" agent framework.
+- When you want to understand the difference between an Agent SDK and an Agent Operating System.
+
+## When not to use it
+
+- If you have already standardized on a specific stack and only need deep API documentation.
+- If you are building a simple, stateless chatbot that does not require agentic reasoning or tool use.
 
 ## Quick classification
 
@@ -63,6 +104,15 @@ Use this bucket when the tool solves one important slice of a larger workflow.
 3. [Letta](../tools/agents/letta.md)
 4. [DeerFlow](../tools/agents/deerflow.md)
 
+## Getting started
+
+To begin your journey with agent frameworks, follow this path:
+
+1. **The Hello World of Agents**: Start by reading the [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) documentation. It provides the simplest abstraction for tool calling and handoffs.
+2. **Master the State**: Move to [LangGraph](../tools/frameworks/langgraph.md). Build a simple circular workflow (e.g., a "Correction Loop" where one agent writes and another audits).
+3. **Explore Multi-Agent Dynamics**: Deploy a [CrewAI](../tools/frameworks/crewai.md) team of three agents (Researcher, Writer, Editor) to see how role-playing affects output quality.
+4. **Autonomous Execution**: Install [Aider](../tools/development_ops/aider.md) or explore the [OpenHands](../tools/development_ops/openhands.md) codebase to see how agents interact with a real terminal and file system.
+
 ## Narrow Stack For OpenClaw-Style Local Orchestration
 
 For a low-cost, local-model-friendly agent stack with GitHub Actions and personal workflow automation, prioritise:
@@ -91,6 +141,10 @@ For a low-cost, local-model-friendly agent stack with GitHub Actions and persona
 - [Agent Protocols](agent_protocols.md)
 - [Agentic Workflows](patterns/agentic-workflows.md)
 - [OpenClaw Workflow Prompts](patterns/openclaw-workflow-prompts.md)
+- [Data Copilot Text-to-SQL Architecture](../architecture/data-copilot-text-to-sql.md)
+- [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
+- [Flows](../architecture/flows.md)
+- [Infrastructure](../architecture/infrastructure.md)
 
 ## Sources / References
 
@@ -107,5 +161,5 @@ For a low-cost, local-model-friendly agent stack with GitHub Actions and persona
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-06
-- Confidence: medium
+- Last reviewed: 2026-05-10
+- Confidence: high

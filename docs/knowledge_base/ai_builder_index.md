@@ -1,8 +1,56 @@
 # AI Builder Index
 
-This page is the discovery-oriented front door for building things with the stack in this repository.
+## What it is
 
-It is inspired by the information-distribution pattern used on [awesomeclaude.ai](https://awesomeclaude.ai/): put the highest-signal buckets near the top, explain why they matter in one sentence, and then route people into the right detailed pages.
+The AI Builder Index is the primary discovery portal for the homelab automation and AI engineering stack documented in this repository. It serves as a high-signal directory that routes users to the appropriate playbooks, tools, and architectural patterns based on their desired outcomes, whether they are building public websites, internal company operations, or specialized research agents.
+
+## What problem it solves
+
+The repository contains a vast array of tools and patterns, which can be overwhelming for new users. The AI Builder Index solves this "discovery friction" by organizing the content into logical "outcome buckets." Instead of browsing a flat file list, builders can start with a goal (e.g., "Build a website for free") and immediately find the curated set of tools and instructions needed to achieve it.
+
+## Where it fits in the stack
+
+**Category**: Knowledge Base / Entry Point. It is the **navigational layer** of the KnowledgeOps system, sitting between the [Home Index](../index.md) and the detailed technical documentation for individual services and tools.
+
+## Typical use cases
+
+- **New User Onboarding**: Quickly finding the "Starter Stack" to begin automating a home or small business.
+- **Project Selection**: Deciding between a local-first approach (Ollama/LocalAI) or a hosted approach (OpenRouter/Vercel) for a new AI application.
+- **Research Workflow Design**: Identifying the right combination of browsing (Browser Use) and memory (mem0) tools for market intelligence.
+- **Rapid Prototyping**: Using the [Free AI Website Playbook](free_ai_website_playbook.md) to launch an MVP in a single weekend.
+
+## Strengths
+
+- **Signal-to-Noise**: Filters the entire repository into the most impactful tools and paths.
+- **Outcome-Driven**: Focuses on "Jobs to be Done" rather than tool features.
+- **Highly Visual**: Uses Mermaid diagrams and grid cards for rapid mental mapping.
+- **Opinionated Defaults**: Provides clear "Practical Defaults" to reduce decision fatigue.
+
+## Limitations
+
+- **Index Lag**: Requires manual updates when new high-impact tools are added to the repository.
+- **Abstraction Layer**: Points to documentation but does not contain the deep technical implementation details itself.
+- **Path Dependency**: Assumes users are following the repository's core philosophy of AI-assisted development and automation.
+
+## When to use it
+
+- When you are new to the repository and don't know where to start.
+- When you have a specific goal (e.g., "Set up an internal knowledge base") and need a curated stack.
+- When you need a high-level overview of how the various architectural pieces (Agents, Infrastructure, Flows) fit together.
+
+## When not to use it
+
+- If you already know exactly which tool you need (use the global search or specific category indices).
+- If you are looking for low-level API references or installation logs (go to the specific tool page).
+
+## Getting started
+
+To get the most out of the AI Builder Index:
+
+1. **Identify your Goal**: Scan the "Start by outcome" table below.
+2. **Follow the Path**: Click the link in the "Start here" column for your chosen goal.
+3. **Adopt Defaults**: If you are unsure, look at the "My practical defaults" section to see the recommended baseline stack.
+4. **Explore the Map**: Use the "Navigation map" at the bottom of the page to understand the structural hierarchy of the documentation.
 
 ## Start by outcome
 
@@ -149,19 +197,23 @@ flowchart TD
     F --> I["Broader ecosystem map"]
 ```
 
-## Related
+## Related tools / concepts
 
 - [Knowledge Base Overview](README.md)
 - [Free AI Website Playbook](free_ai_website_playbook.md)
 - [AI Company Starter Stack](ai_company_starter_stack.md)
 - [AI Tooling Landscape](ai_tooling_landscape.md)
 - [Agent Framework Learning Map](agent_framework_learning_map.md)
+- [Agent Protocols](agent_protocols.md)
+- [Agentic Workflows](patterns/agentic-workflows.md)
 - [Home](../index.md)
+- [Infrastructure](../architecture/infrastructure.md)
+- [System Prompts](system_prompts.md)
 
 ## Sources / References
 - [awesomeclaude.ai](https://awesomeclaude.ai/)
 - [Free AI Website Playbook sources](free_ai_website_playbook.md#sources--references)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
-- Confidence: medium
+- Last reviewed: 2026-05-10
+- Confidence: high
