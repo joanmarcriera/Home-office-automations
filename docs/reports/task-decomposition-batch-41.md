@@ -1,9 +1,9 @@
 # Task Decomposition: Batch 41 Deepening
 
-This report implementation **Action C** for the remaining "Shallow" and "Non-compliant" documents identified in the May 2026 quality audit. It organizes the work into prioritized sub-batches for future Ralph-loop runs.
+This report implements **Action C** for the remaining "Shallow" and "Non-compliant" documents identified in the May 2026 quality audit. It organizes the work into prioritized sub-batches for future Ralph-loop runs.
 
 ## Batch 41 Overview
-- **Objective**: Bring remaining 80+ documents to "High Confidence" standards.
+- **Objective**: Bring remaining 70+ documents to "High Confidence" standards.
 - **Standards**: 10 mandatory sections, 7+ relative links, technical examples, and full metadata.
 
 ## Sub-Batch 41.1: Core Knowledge Base (High Priority)
@@ -14,22 +14,42 @@ This report implementation **Action C** for the remaining "Shallow" and "Non-com
 - [x] `docs/knowledge_base/system_prompts.md`
 
 ## Sub-Batch 41.2: Infrastructure & Patterns
-- [ ] `docs/knowledge_base/invisible_kubernetes.md`
-- [ ] `docs/knowledge_base/google_axion.md`
+- [x] `docs/knowledge_base/invisible_kubernetes.md`
+- [x] `docs/knowledge_base/google_axion.md`
 - [x] `docs/knowledge_base/patterns/agentic-workflows.md`
-- [ ] `docs/knowledge_base/patterns/rag-pattern.md`
-- [ ] `docs/knowledge_base/patterns/n8n-error-handling.md`
+- [x] `docs/knowledge_base/patterns/rag-pattern.md`
+- [x] `docs/knowledge_base/patterns/n8n-error-handling.md`
 
 ## Sub-Batch 41.3: Playbooks & Enterprise
-- [ ] `docs/playbooks/tailscale-to-headscale-migration.md`
+- [x] `docs/playbooks/tailscale-to-headscale-migration.md`
 - [ ] `docs/playbooks/school-admin-intake.md`
 - [ ] `docs/tools/enterprise/glean.md`
 - [ ] `docs/tools/enterprise/hebbia.md`
+- [ ] `docs/tools/enterprise/fyxer.md`
+- [ ] `docs/tools/enterprise/ramp.md`
+- [ ] `docs/tools/enterprise/tldv.md`
 
 ## Sub-Batch 41.4: Process Understanding (Observability)
 - [ ] `docs/tools/process_understanding/langfuse.md`
 - [ ] `docs/tools/process_understanding/agentops.md`
 - [ ] `docs/tools/process_understanding/helicone.md`
+- [ ] `docs/tools/process_understanding/clickhouse.md`
+- [ ] `docs/tools/process_understanding/opentelemetry-collector.md`
+- [ ] `docs/tools/process_understanding/snowflake.md`
+- [ ] `docs/tools/process_understanding/wandb-weave.md`
+- [ ] `docs/tools/process_understanding/webhook.md`
+- [ ] `docs/tools/process_understanding/datadog.md`
+
+## Sub-Batch 41.5: Reference Implementations & KB Gaps
+- [ ] `docs/knowledge_base/family-values.md`
+- [ ] `docs/knowledge_base/free_ai_website_playbook.md`
+- [ ] `docs/knowledge_base/sso-comparison.md`
+- [ ] `docs/knowledge_base/energy-anomaly-detection-baseline.md`
+- [ ] `docs/knowledge_base/real_time_sync_engines.md`
+- [ ] `docs/reference-implementations/calendar/mapping-rules.md`
+- [ ] `docs/reference-implementations/hitl-ui-design.md`
+- [ ] `docs/reference-implementations/llm-prompts/daily-briefing.md`
+- [ ] `docs/reference-implementations/metadata-schemas/audio-transcription.md`
 
 ---
 - Confidence: high
