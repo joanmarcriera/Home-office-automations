@@ -26,6 +26,16 @@ It eliminates the friction of traditional expense reporting and manual data entr
 - **Credit Requirements**: As a corporate card provider, it requires businesses to meet certain financial thresholds for approval.
 - **Closed Ecosystem**: While it has great integrations, the core experience is tied to the Ramp platform and card.
 
+## When to use it
+- When you want to automate expense reports and eliminate manual receipt submission for employees.
+- When you need granular control over company spend via virtual cards with category-specific limits.
+- When you want an AI-powered assistant to automatically identify duplicate SaaS subscriptions or negotiate better rates.
+
+## When not to use it
+- For personal finance or small "side hustle" projects (use [Actual Budget](../../services/actual-budget.md) for self-hosted personal finance).
+- If your business is based entirely outside of the US and requires localized tax and banking compliance in multiple non-US regions.
+- If you prefer a traditional bank with a physical branch presence for all your business operations.
+
 ## Getting started
 
 ### Enabling AI Spend Intelligence
@@ -62,6 +72,11 @@ for tx in ai_spend:
 - [Fyxer AI](fyxer.md) (Administrative AI)
 - [OpenRouter (Logging Support)](../ai_knowledge/openrouter.md)
 - [Zapier (Automation)](../automation_orchestration/zapier.md)
+- [Hebbia](hebbia.md) (Analytical synthesis for complex documents)
+- [tldv](tldv.md) (Meeting transcription and extraction)
+- [Actual Budget](../../services/actual-budget.md) (Self-hosted personal finance)
+- [n8n](../../services/n8n.md) (Workflow automation for finance)
+- [Langfuse](../process_understanding/langfuse.md) (Observability for custom LLM integrations)
 
 ## Sources / references
 - [Ramp Official Website](https://ramp.com/)
@@ -69,5 +84,5 @@ for tx in ai_spend:
 - [OpenRouter Log Integration (Context)](../../reports/openrouter-logs-backlog.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-05-10
 - Confidence: high

@@ -40,7 +40,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 38** | Playbook Deepening | **Resolved** | Deepened dev workflow, doc prep, email-to-calendar, family admin, NFS CSI setup. |
 | **Batch 39** | Knowledge Base Deepening | **Resolved** | Deepened ai_signal_sources, agent_protocols, and ai_tool_access_matrix. |
 | **Batch 40** | Playbook Deepening | **Resolved** | Deepened raspberry-pi-kiosk-automation and scan-to-task. |
-| **Batch 41** | Maintenance Run (Audit Resolution) | **In Progress** | Deepened landscape-overview, model_classes, model_routing_guide, system_prompts, and agentic-workflows. |
+| **Batch 41** | Maintenance Run (Audit Resolution) | **In Progress** | Deepened Sub-Batches 41.1, 41.2, and 41.3 (Enterprise & Playbooks). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

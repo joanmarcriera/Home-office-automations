@@ -27,6 +27,16 @@ Fyxer is a SaaS platform that integrates directly with workspace accounts.
 1.  **AI Inbox**: The primary interface where Fyxer-processed mail is managed.
 2.  **Voice Profile**: The learned persona Fyxer uses to draft emails that sound like the user.
 
+### Getting started example
+To start with Fyxer, a user typically connects their Google Workspace or Outlook account. Fyxer then begins "training" on their sent emails to build a voice profile.
+
+```bash
+# While Fyxer is primarily a GUI platform, users can interact with
+# its meeting assistant via simple calendar invites.
+# To have Fyxer join a meeting, simply add 'assistant@fyxer.com'
+# as a guest to your calendar event.
+```
+
 ## Strengths
 - **Comprehensive Service**: Replaces multiple point solutions (notetakers, schedulers, draft tools) in one platform.
 - **Ease of Adoption**: Designed to feel like a traditional assistant rather than a complex new app.
@@ -36,6 +46,16 @@ Fyxer is a SaaS platform that integrates directly with workspace accounts.
 - **Individual Focus**: Primarily built for solo professional efficiency; limited features for shared team inbox workflows as of early 2026.
 - **Reliability**: Some reports of sluggishness or errors in the meeting assistant component in early 2026 versions.
 - **Unpredictable Pricing**: Overage fees based on email volume can make costs hard to forecast for growing teams.
+
+## When to use it
+- When you are a high-load professional (executive, founder, partner) spending 10+ hours a week on email and scheduling.
+- When you want an "AI twin" that can draft emails in your specific tone and style with minimal supervision.
+- When you need a unified assistant that handles both asynchronous (email) and synchronous (meetings) administrative tasks.
+
+## When not to use it
+- For teams that primarily communicate via [Slack](../../services/slack.md) or [Discord](../../services/discord.md) rather than email.
+- If you have low administrative overhead and don't need automated meeting transcription or scheduling assistance.
+- If you are on a tight budget and can't justify a ~$30-$50 monthly per-user fee for productivity gains.
 
 ## Licensing and cost
 - **Starter**: ~$30/user/month (annual).
@@ -48,11 +68,15 @@ Fyxer is a SaaS platform that integrates directly with workspace accounts.
 - [Glean](glean.md)
 - [Ramp](ramp.md)
 - [Coveo](coveo.md)
+- [Hebbia](hebbia.md) (Analytical synthesis for complex documents)
+- [Notion AI](../ai_knowledge/notion-ai.md) (Knowledge management and drafting)
+- [Perplexity](../ai_knowledge/perplexity.md) (Research and information gathering)
+- [n8n](../../services/n8n.md) (Workflow automation)
 
 ## Sources / References
 - [Fyxer AI Review (2026)](https://gmelius.com/es/blog/fyxer-ai-review)
 - [Official Fyxer Site](https://www.fyxer.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-10
 - Confidence: high

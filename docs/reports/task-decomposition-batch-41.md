@@ -22,12 +22,12 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 
 ## Sub-Batch 41.3: Playbooks & Enterprise
 - [x] `docs/playbooks/tailscale-to-headscale-migration.md`
-- [ ] `docs/playbooks/school-admin-intake.md`
-- [ ] `docs/tools/enterprise/glean.md`
-- [ ] `docs/tools/enterprise/hebbia.md`
-- [ ] `docs/tools/enterprise/fyxer.md`
-- [ ] `docs/tools/enterprise/ramp.md`
-- [ ] `docs/tools/enterprise/tldv.md`
+- [x] `docs/playbooks/school-admin-intake.md`
+- [x] `docs/tools/enterprise/glean.md`
+- [x] `docs/tools/enterprise/hebbia.md`
+- [x] `docs/tools/enterprise/fyxer.md`
+- [x] `docs/tools/enterprise/ramp.md`
+- [x] `docs/tools/enterprise/tldv.md`
 
 ## Sub-Batch 41.4: Process Understanding (Observability)
 - [ ] `docs/tools/process_understanding/langfuse.md`

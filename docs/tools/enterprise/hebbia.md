@@ -28,6 +28,13 @@ Hebbia is a high-end enterprise SaaS platform. Access typically requires an inst
 1.  **Workspaces**: Containers for specific research projects or document sets.
 2.  **Citations**: The highlighted snippets in source documents that ground the AI's response.
 
+### Analytical Example
+Hebbia is used for extracting signals across multiple documents. A typical prompt might look like:
+
+> "Extract all mentions of 'cybersecurity risk' across the provided 10-K filings for Batch 2026. Create a table comparing the mitigation strategies mentioned by each company."
+
+The platform then produces a structured table with direct links to the relevant pages in each PDF filing.
+
 ## Strengths
 - **Precision**: Focused on accuracy and audibility for "billion-dollar decisions."
 - **Vertical Focus**: Deeply understands the specific workflows of finance and law.
@@ -37,14 +44,30 @@ Hebbia is a high-end enterprise SaaS platform. Access typically requires an inst
 - **Vertical Specificity**: May be less effective for general creative or generic writing tasks.
 - **Cost**: Institutional pricing targeted at large firms and high-value teams.
 
+## When to use it
+- When you need to synthesize information across hundreds of complex documents (PDFs, transcripts, filings).
+- In high-stakes finance or legal environments where every AI claim must be auditable via direct citations.
+- When you need a reasoning engine that understands professional terminology and complex financial structures.
+
+## When not to use it
+- For simple web-based questions that don't require deep document analysis (use [Perplexity](../ai_knowledge/perplexity.md)).
+- If you are a small business or individual looking for a low-cost general-purpose AI assistant.
+- For creative writing, marketing copy, or general brainstorming tasks.
+
 ## Related tools / concepts
 - [Bloomberg Terminal](https://www.bloomberg.com/professional/solution/bloomberg-terminal/) (Legacy incumbent)
 - [Perplexity](../ai_knowledge/perplexity.md) (Generalist alternative for research)
+- [Glean](glean.md) (Unified search across company SaaS apps)
+- [Fyxer AI](fyxer.md) (Inbox and administrative management)
+- [tldv](tldv.md) (Transcription and knowledge extraction from meetings)
+- [Langfuse](../process_understanding/langfuse.md) (Observability for LLM analytical pipelines)
+- [AgentOps](../process_understanding/agentops.md) (Monitoring for research agents)
+- [n8n](../../services/n8n.md) (Automating data flows into research workspaces)
 
 ## Sources / References
 - [Top AI Financial Research Platforms for 2026](https://www.hebbia.com/resources/financial-research-platforms)
 - [Hebbia: What's New February 2026](https://www.hebbia.com/blog/the-disclosure-february-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-10
 - Confidence: high
