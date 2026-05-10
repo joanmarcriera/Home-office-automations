@@ -1,6 +1,36 @@
 # Landscape Overview
 
-This page provides a bird's-eye view of the AI tool catalogue, showing current metrics, connectivity, and recent additions. It is updated monthly to reflect the evolving state of the repository.
+## What it is
+The Landscape Overview is a high-level mapping and statistical summary of the entire AI tool and service ecosystem documented in this repository. It provides a bird's-eye view of the catalogue, showing current metrics, connectivity, and recent additions.
+
+## What problem it solves
+Navigating hundreds of specialized tools and services can be overwhelming. This overview provides structure, category-based discovery, and growth metrics to help users understand the "big picture" of the repository's contents and the broader AI landscape.
+
+## Where it fits in the stack
+It sits at the top of the **Knowledge Base** layer of the Multi-Agent KnowledgeOps framework, acting as the primary entry point for understanding the breadth and depth of documented resources.
+
+## Typical use cases
+- **Discovery**: Finding new tools within a specific category (e.g., "Agents" or "Infrastructure").
+- **Triage**: Identifying underdeveloped areas where the repository is actively seeking contributions.
+- **Trend Analysis**: Tracking the growth and shifting focus of the AI ecosystem over time.
+
+## Strengths
+- **Data-Driven**: Grounded in repository metadata and growth metrics.
+- **Structural Clarity**: Organizes complex information into manageable categories.
+- **Graph Insight**: Highlights the most connected and influential tools in the knowledge base.
+
+## Limitations
+- **Repository-Scoped**: Reflects the current documentation coverage rather than the entire global AI market.
+- **Snapshot-Based**: Information is updated monthly and may not reflect real-time changes in frontier models.
+
+## When to use it
+- When you are new to the repository and need a map of its contents.
+- When you are planning a new integration and want to see existing tools in that space.
+- When you want to see the latest "High Engineering" additions to the catalogue.
+
+## When not to use it
+- When you need deep technical setup instructions for a specific tool (refer to its canonical page).
+- When looking for real-time price comparisons (use the [Access Matrix](ai_tool_access_matrix.md) or [Pricing Matrix](api_pricing_free_tiers.md) instead).
 
 ## Overview
 - **Last Generated:** 2026-05-01
@@ -71,13 +101,21 @@ Key additions and integrations from the Batch 2 (Agent Frameworks), Batch 3 (SDK
 ## Critical Risks & Future Outlook
 The "Humanity's Last Gasp" analysis (April 2026) suggests that the current era of "AI assisting humans to work harder" may be a transient state (the "Turkey Problem"). As benchmarks like SWE-Bench Pro become saturated and AGI superclusters approach, the "Software Factory" pattern and "Prompt Requests" will likely redefine the role of the engineer.
 
+## Related tools / concepts
+- [Architecture Component Map](../architecture/component_map.md)
+- [Model Routing Guide](model_routing_guide.md)
+- [Model Classes](model_classes.md)
+- [API Pricing & Free Tier Matrix](api_pricing_free_tiers.md)
+- [AI Builder Index](ai_builder_index.md)
+- [Agent Frameworks Learning Map](agent_framework_learning_map.md)
+- [AI Tool Access Matrix](ai_tool_access_matrix.md)
+
 ## Sources / References
 - [Humanity's Last Gasp (Latent Space)](https://www.latent.space/p/ainews-humanitys-last-gasp)
 - [All Tools Metadata](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/all_tools.json)
 - [Growth Metrics](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/growth-metrics.json)
-- [Architecture Component Map](../architecture/component_map.md)
 - [GitHub Repository](https://github.com/joanmarcriera/Home-office-automations)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-01
+- Last reviewed: 2026-05-10
 - Confidence: high

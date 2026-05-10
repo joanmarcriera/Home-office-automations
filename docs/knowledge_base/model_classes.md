@@ -1,6 +1,35 @@
 # Classes of Large Language Models
 
-Large Language Models (LLMs) can be categorized into several classes based on their architecture, training objectives, and specialized capabilities.
+## What it is
+Large Language Models (LLMs) can be categorized into several classes based on their architecture, training objectives, and specialized capabilities. This classification helps in selecting the right tool for a specific task.
+
+## What problem it solves
+The "one-size-fits-all" approach to LLMs is increasingly inefficient. Understanding model classes allows developers to optimize for cost, latency, and reasoning depth by matching the model's specialized architecture (e.g., MoE for efficiency, reasoning-native for logic) to the problem at hand.
+
+## Where it fits in the stack
+It belongs to the **Intelligence Layer** of the AI stack. It serves as the taxonomy for the [Model Routing Guide](model_routing_guide.md), helping orchestration layers choose the correct inference path.
+
+## Typical use cases
+- **Architecting Agentic Workflows**: Choosing a "Reasoning" model for planning and a "Chat" model for user interaction.
+- **On-Device Deployment**: Selecting "Small Language Models" (SLMs) for local execution on edge hardware.
+- **RAG Systems**: Using specialized "Embedding Models" for vectorization and "Long-Context Models" for large document analysis.
+
+## Strengths
+- **Specialization**: Allows for 10x performance improvements in niche domains (like coding or vision).
+- **Efficiency**: MoE and SLM architectures provide high performance with significantly lower compute requirements.
+- **Scalability**: Proper classification enables multi-model routing pipelines that scale better than monolithic systems.
+
+## Limitations
+- **Rapid Evolution**: Model classes overlap as frontier models become increasingly multimodal and reasoning-capable.
+- **Complexity**: Managing multiple specialized models increases the engineering overhead of the routing layer.
+
+## When to use it
+- When designing a multi-step AI pipeline that requires different types of reasoning.
+- When optimizing for specific constraints like local execution, low cost, or extreme context length.
+
+## When not to use it
+- For very simple, low-stakes chat applications where a single general-purpose model is sufficient.
+- If your infrastructure only supports a single API provider with limited model variety.
 
 ## 1. Chat & Conversational Models
 General-purpose models optimized for dialogue and following instructions.
@@ -64,16 +93,26 @@ Generative models that learn a compressed latent representation of data, often u
 - **Purpose**: Image/video reconstruction, generative diversity, latent space exploration.
 - **Sources**: [Learnings from 4 months of Image-Video VAE experiments](https://www.linum.ai/field-notes/vae-reconstruction-vs-generation).
 
+## Related tools / concepts
+- [Model Routing Guide](model_routing_guide.md)
+- [Model Comparison and Evaluation](model_comparison_and_evaluation.md)
+- [OpenAI](../tools/ai_knowledge/openai.md)
+- [Claude](../tools/ai_knowledge/claude.md)
+- [Gemini](../tools/ai_knowledge/gemini.md)
+- [Qwen](../tools/ai_knowledge/qwen.md)
+- [DeepSeek](../tools/ai_knowledge/deepseek-r1.md)
+- [Mistral](../tools/providers/mistral.md)
+- [Llama 3](../tools/ai_knowledge/llama-3.md)
+
 ## Backlog
 - Add comparison table of model architectures (Dense vs MoE vs SSM).
 - Include details on "Reasoning Tokens" and "Chain of Thought" native models.
 
+## Sources / References
+- [Current Large Audio Language Models largely transcribe rather than listen](https://arxiv.org/abs/2510.10444)
+- [The First Fully General Computer Action Model](https://si.inc/posts/fdm1)
+- [Learnings from 4 months of Image-Video VAE experiments](https://www.linum.ai/field-notes/vae-reconstruction-vs-generation)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
-
-## Sources / References
-- https://arxiv.org/abs/2510.10444
-- https://si.inc/posts/fdm1
-- https://www.linum.ai/field-notes/vae-reconstruction-vs-generation
+- Last reviewed: 2026-05-10
