@@ -3,8 +3,8 @@
 This report decomposes the remaining "Shallow" and "Non-compliant" documents from the Batch 39 and Batch 40 maintenance runs into smaller, focused tasks.
 
 ## Status
-- **Issue 1**: Deepen `docs/knowledge_base/ai_signal_sources.md` (**In Progress**)
-- **Issue 2**: Deepen `docs/knowledge_base/agent_protocols.md`
+- **Issue 1**: Deepen `docs/knowledge_base/ai_signal_sources.md` (**Completed**)
+- **Issue 2**: Deepen `docs/knowledge_base/agent_protocols.md` (**Completed**)
 - **Issue 3**: Deepen `docs/playbooks/raspberry-pi-kiosk-automation.md`
 - **Issue 4**: Deepen `docs/playbooks/scan-to-task.md`
 - **Issue 5**: Deepen `docs/knowledge_base/ai_tool_access_matrix.md` (Structural compliance)
