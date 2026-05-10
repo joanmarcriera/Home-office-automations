@@ -38,14 +38,16 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 36** | Architecture Deepening | **Resolved** | Deepened `flows.md`, `infrastructure.md`, `prompt-catalogue.md`. |
 | **Batch 37** | Knowledge Base Deepening | **Resolved** | Deepened learning map, builder index, starter stack, economic impact, reading list. |
 | **Batch 38** | Playbook Deepening | **Resolved** | Deepened dev workflow, doc prep, email-to-calendar, family admin, NFS CSI setup. |
+| **Batch 39** | Knowledge Base Deepening | **Resolved** | Deepened ai_signal_sources, agent_protocols, and ai_tool_access_matrix. |
+| **Batch 40** | Playbook Deepening | **Resolved** | Deepened raspberry-pi-kiosk-automation and scan-to-task. |
+| **Batch 41** | Maintenance Run (Audit Resolution) | **In Progress** | Deepened ai_tooling_landscape, api_pricing_free_tiers, and audio-transcription-research. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json` (e.g., `linkwarden.md`, `tubearchivist.md`).
-- **Batch 39**: Address remaining non-compliant docs in `docs/knowledge_base/` (e.g., `ai_tool_access_matrix.md`).
-- **Batch 40**: Address remaining non-compliant playbooks in `docs/playbooks/` (e.g., `raspberry-pi-kiosk-automation.md`, `scan-to-task.md`). **Updated (2026-05-10)**: Completed raspberry-pi-kiosk-automation and scan-to-task.
+- **Batch 41**: Address remaining 80+ non-compliant docs as decomposed in `docs/reports/task-decomposition-batch-41.md`.
 
 ---
 - Confidence: high
