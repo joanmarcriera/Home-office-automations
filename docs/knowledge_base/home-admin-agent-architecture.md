@@ -1,6 +1,36 @@
 # Home Admin Agent Architecture
 
-This document defines the architecture for the "Home Admin Agent," a LangChain-based assistant designed to orchestrate homelab tasks, manage family knowledge, and control home automation.
+## What it is
+The Home Admin Agent is a LangChain and LangGraph-based autonomous system designed to orchestrate homelab tasks, manage family knowledge, and control home automation. It acts as a central "brain" for a self-hosted smart home, capable of multi-step reasoning and tool interaction.
+
+## What problem it solves
+Managing a complex homelab and smart home often requires multiple disparate interfaces (Home Assistant, Paperless-ngx, Vikunja, etc.). This architecture provides a unified, natural language interface that can reason across these services—for example, "Remind me to pay the bill I just uploaded to Paperless."
+
+## Where it fits in the stack
+It is the **Orchestration Layer** of the home AI ecosystem. It sits above individual **Services** (like Home Assistant) and below the **User Interface** (like a mobile app or chat client), translating high-level intent into technical execution.
+
+## Typical use cases
+- **Proactive Maintenance**: Monitoring server logs and notifying the user of potential disk failures.
+- **Family Administration**: Automatically extracting due dates from scanned school forms and adding them to the family calendar.
+- **Context-Aware Automation**: Adjusting home lighting or climate based on the user's current schedule and location.
+
+## Strengths
+- **Autonomous Reasoning**: Uses a Plan-and-Execute pattern to handle complex, multi-service requests.
+- **Modular Extensibility**: The standardized Tool Registry allows for easy integration of new services.
+- **Stateful Persistence**: Remembers conversation context and execution history across restarts.
+
+## Limitations
+- **High Latency**: Multi-step reasoning through LLM calls is slower than traditional, rule-based automation.
+- **Hardware Dependency**: Requires significant local compute or reliable API access to frontier models (like Claude 3.5 Sonnet).
+- **Security Complexity**: Requires careful management of API tokens and permissions for the various home services it controls.
+
+## When to use it
+- When you have a complex set of self-hosted services that you want to control via a single, intelligent interface.
+- When you need "cross-service" reasoning that simple automations cannot provide.
+
+## When not to use it
+- For simple, time-critical automations (e.g., turning on a light when a motion sensor is triggered)—use Home Assistant's native automations instead.
+- If you have strict privacy requirements that prevent sending data to external LLM providers (unless using a fully local LLM like Llama 3).
 
 ## Core Architecture
 
@@ -87,10 +117,21 @@ class AgentState(TypedDict):
     context: Dict[str, Any]
 ```
 
-- Last reviewed: 2025-05-15
-- Confidence: high
+## Related tools / concepts
+- [Agentic Workflows](patterns/agentic-workflows.md)
+- [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
+- [Home Assistant](../services/home-assistant.md)
+- [Paperless-ngx](../services/paperless-ngx.md)
+- [Vikunja](../services/vikunja.md)
+- [LangGraph](../tools/frameworks/langgraph.md)
+- [LangChain](../tools/frameworks/langchain.md)
+- [Pydantic](../tools/development_ops/pydantic.md)
 
-## Sources / references
+## Sources / References
 - [LangChain Plan-and-Execute](https://python.langchain.com/docs/modules/agents/agent_types/plan_and_execute)
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
 - [Pydantic V2 Documentation](https://docs.pydantic.dev/latest/)
+
+## Contribution Metadata
+- Last reviewed: 2026-05-10
+- Confidence: high

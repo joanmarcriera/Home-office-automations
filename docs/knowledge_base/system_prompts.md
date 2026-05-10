@@ -1,9 +1,37 @@
 # System Prompts
 
-## What are System Prompts
+## What it is
 System prompts (also known as system messages or developer messages) are the foundational instructions provided to a Large Language Model (LLM) before a conversation begins. They define the model's persona, its capabilities, its behavioral constraints, and the tone it should adopt.
 
-In frontier models (high engineering), these prompts are often complex, multi-layered instructions that guide the model through sophisticated reasoning paths, tool-calling protocols, and safety alignments.
+## What problem it solves
+Raw LLMs are often overly generic or prone to irrelevant outputs. System prompts "steer" the model toward a specific goal, ensuring it follows technical protocols (like tool-calling), maintains a consistent persona, and adheres to safety and style guidelines without the user having to repeat instructions in every message.
+
+## Where it fits in the stack
+It belongs to the **Interface & Configuration Layer** of the AI stack. It is the primary mechanism for aligning a generic **Intelligence Layer** (the model) with a specific **Application Layer** (the task).
+
+## Typical use cases
+- **Persona Definition**: Instructing a model to act as a "Senior Python Engineer" or a "Helpful Home Assistant."
+- **Tool Orchestration**: Providing the model with a list of available functions and the JSON schema required to call them.
+- **Output Constraints**: Requiring all responses to be in valid Markdown, JSON, or a specific brevity level.
+- **Chain-of-Thought Steering**: Encouraging the model to "think step-by-step" or "use a scratchpad" before providing a final answer.
+
+## Strengths
+- **Consistency**: Ensures the model's behavior remains stable across a multi-turn conversation.
+- **Efficiency**: Reduces the need for long, repetitive user prompts (few-shot prompting).
+- **Safety**: Hard-codes boundaries that prevent the model from generating restricted content.
+
+## Limitations
+- **Prompt Injection**: Sophisticated user prompts can sometimes "bypass" or "jailbreak" system instructions.
+- **Instruction Fatigue**: Very long system prompts can lead to "forgetting" earlier instructions or reduced performance on the core task.
+- **Model Sensitivity**: Different models respond differently to the same system prompt; what works for GPT-4o may fail for Claude 3.5 Sonnet.
+
+## When to use it
+- When building any production-grade AI application where consistent behavior is required.
+- When providing the model with access to external tools and APIs via function calling.
+
+## When not to use it
+- For quick, throwaway chat sessions where the model's default "Helpful Assistant" persona is sufficient.
+- If you are using a base model (non-instruct) that is not trained to follow system instructions.
 
 ## Why They Matter
 - **Persona & Tone**: They establish how the model interacts (e.g., helpful assistant, technical expert, concise reporter).
@@ -25,12 +53,17 @@ Anthropic's system prompt for Claude is a prime example of "high engineering" pr
 ## Related tools / concepts
 - [Agent Protocols](agent_protocols.md)
 - [Model Classes](model_classes.md)
+- [Model Routing Guide](model_routing_guide.md)
+- [Agentic Workflows](patterns/agentic-workflows.md)
 - [Claude Code Router](../tools/development_ops/claude-code-router.md)
+- [OpenAI](../tools/ai_knowledge/openai.md)
+- [Claude](../tools/ai_knowledge/claude.md)
+- [Prompt Catalogue](../architecture/prompt-catalogue.md)
 
 ## Sources / References
 - [System Prompts Leaks GitHub](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
 - [Claude System Prompt Leak](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude.ai-human-readable.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-09
+- Last reviewed: 2026-05-10
 - Confidence: high

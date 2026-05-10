@@ -6,6 +6,9 @@ Agentic workflows are design patterns where Large Language Models (LLMs) are not
 ## What problem it solves
 It enables the automation of complex tasks that require more than a single LLM call, such as multi-step research, software development, or sophisticated data analysis, by allowing the model to "think" and act over several turns.
 
+## Where it fits in the stack
+It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above the **Intelligence Layer** (individual models) and integrates with the **Tool/Action Layer** (APIs and services) to complete end-to-end tasks.
+
 ## Core concepts
 - **Planning**: The agent breaks down a complex goal into smaller, manageable steps.
 - **Tool Use**: The agent can interact with external systems (APIs, databases, web browsers) to gather information or perform actions.
@@ -39,11 +42,16 @@ It enables the automation of complex tasks that require more than a single LLM c
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
 - [Tool Calling & MCP](tool-calling-and-mcp.md)
 - [CrewAI](../../tools/frameworks/crewai.md)
+- [Home Admin Agent Architecture](../home-admin-agent-architecture.md)
+- [Model Routing Guide](../model_routing_guide.md)
+- [System Prompts](../system_prompts.md)
+- [LangGraph](../../tools/frameworks/langgraph.md)
+- [AutoGPT](../../tools/agents/autogpt.md)
 
 ## Sources / References
 - [Anthropic: Agentic Workflows](https://www.anthropic.com/news/agentic-workflows)
 - [Andrew Ng: Agentic Design Patterns](https://www.deeplearning.ai/the-batch/how-agents-can-improve-llm-performance/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-07
+- Last reviewed: 2026-05-10
 - Confidence: high
