@@ -1,9 +1,44 @@
 # AI Tooling Landscape — 2026 Overview
 
-This is a high-level map of the entire AI tooling ecosystem as documented in this repository. It serves as the main entry point for understanding how everything connects.
+## What it is
+The AI Tooling Landscape is a comprehensive architectural map of the generative AI ecosystem. It categorizes the diverse range of technologies—from physical hardware and foundational models to agentic frameworks and end-user applications—into a structured 8-layer stack.
 
-## Purpose
-A living overview that maps the AI tooling landscape into layers, showing how tools relate to each other.
+## What problem it solves
+The rapid expansion of AI has created a fragmented and overwhelming market of tools. This landscape provides a mental model and a "standard map" to help developers, architects, and hobbyists understand where a specific tool (like Ollama or LangGraph) fits, what its dependencies are, and what alternatives exist at the same layer.
+
+## Where it fits in the stack
+This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry point for the entire `docs/knowledge_base/` section, providing the context needed to navigate specialized deep-dives into models, frameworks, and infrastructure.
+
+## Typical use cases
+- **Stack Design**: Deciding which components to use when building a new AI-powered home automation service.
+- **Onboarding**: Helping new contributors understand the repository's taxonomy and how different tools interoperate.
+- **Gap Analysis**: Identifying missing layers in a personal homelab setup (e.g., realizing you have models but no orchestration layer).
+- **Technology Scouting**: Finding alternatives for a specific tool by looking at other entries in the same layer.
+
+## Strengths
+- **Comprehensive**: Covers the entire lifecycle from raw compute to finished application.
+- **Interoperable**: Focuses on the "glue" (protocols like MCP) that connects layers.
+- **Homelab-Centric**: Prioritizes tools that can be run locally or self-hosted.
+
+## Limitations
+- **High Velocity**: The AI field moves so fast that specific tool placements may become outdated within months.
+- **Agnostic**: It provides the map but doesn't mandate a single "golden path" for every user.
+- **Abstract**: Focuses on categories rather than exhaustive lists of every minor tool.
+
+## When to use it
+- Use it when you are starting a new AI project and need to understand the architectural requirements.
+- Use it to find where a new tool you've discovered fits in the broader ecosystem.
+- Use it to explain AI architecture to others using a standardized 8-layer model.
+
+## When not to use it
+- Do not use it as a real-time price list for API providers (see [API Pricing & Free Tiers](api_pricing_free_tiers.md)).
+- Do not use it for step-by-step installation instructions (see [Playbooks](../playbooks/index.md)).
+
+## Getting started
+1. Start by reviewing **The Stack (layered view)** below to identify which layer you are currently interested in.
+2. Click on the **Relevant Pages** links within each layer to explore specific tools.
+3. Consult the **Key Patterns** section to understand how these layers are typically connected in production.
+4. For a hands-on start, see the **How to use this repo** section at the bottom.
 
 ## The Stack (layered view)
 
@@ -37,8 +72,6 @@ Systems that coordinate multiple steps, tools, and agents to achieve complex goa
 - **Relevant Pages**: [Mistral Agents](../tools/providers/mistral.md), [CrewAI](../tools/frameworks/crewai.md), [AutoGen](../tools/frameworks/autogen.md), [LangGraph](../tools/agents/langgraph.md), [n8n](../services/n8n.md), [Agency Swarm](../tools/agents/agency-swarm.md), [Agentic Automation Canvas](../tools/agents/agentic-automation-canvas.md), [Agno](../tools/agents/agno.md), [Bee Agent Framework](../tools/agents/bee-agent-framework.md), [Composio](../tools/agents/composio.md), [Phidata](../tools/agents/phidata.md), [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md), [Plandex](../tools/development_ops/plandex.md), [OpenSwarm](../tools/development_ops/openswarm.md), [OpenClaw](../tools/development_ops/openclaw.md), [Jules](../tools/ai_knowledge/jules.md), [Browser Use](../tools/automation_orchestration/browser-use.md), [Zapier](../tools/automation_orchestration/zapier.md), [Make](../tools/automation_orchestration/make.md), [Skyvern](../tools/automation_orchestration/skyvern.md), [Atlassian Jira MCP](../tools/automation_orchestration/atlassian-jira-mcp.md), [ServiceNow MCP](../tools/automation_orchestration/servicenow-mcp.md), [CliHub](../tools/automation_orchestration/clihub.md).
 Systems that coordinate multiple steps, tools, and agents to achieve complex goals. This layer handles reasoning, planning, and task execution using underlying models and frameworks. It is where autonomous decision-making and environment interaction are managed.
 - **Key Trends**: Shift from linear chains to complex, stateful multi-agent graphs.
-
-
 
 ### Layer 5: Frameworks
 Development libraries used to build AI applications, handling prompt management, tool integration, and RAG logic. They provide the abstraction layer between models and applications. These frameworks simplify the process of constructing complex AI workflows and integrating various data sources.
@@ -91,11 +124,20 @@ The underlying hardware, storage, and low-level optimizations like quantization 
 - **"I want the shortest practical stack for an AI-driven company"** → [AI Company Starter Stack](ai_company_starter_stack.md)
 - **"I want to build a website or small app on free infrastructure"** → [AI Builder Index](ai_builder_index.md) and [Free AI Website Playbook](free_ai_website_playbook.md)
 
+## Related tools / concepts
+- [Model Classes](model_classes.md) — Understanding the different "tiers" of models within the landscape.
+- [Agent Protocols](agent_protocols.md) — Deep dive into MCP and ACP.
+- [Home Lab Architecture](../architecture/infrastructure.md) — How the physical layer (Layer 0) is implemented in this repo.
+- [OpenRouter](../tools/ai_knowledge/openrouter.md) — A key Layer 1 provider that bridges many models.
+- [n8n](../services/n8n.md) — A primary Layer 6 orchestration tool used in this stack.
+- [Ollama](../services/ollama.md) — The recommended Layer 3 serving solution for local use.
+- [MCP Registry](../tools/automation_orchestration/mcp-registry.md) — A catalog of tools available via the Layer 4 standard.
+
 ## Sources / references
 - [Sequoia: Generative AI's Act Two](https://www.sequoiacap.com/article/generative-ai-act-two/)
 - [A16Z: Emerging Architectures for LLM Applications](https://a16z.com/emerging-architectures-for-llm-applications/)
 - [MAD Landscape 2024](https://mad.firstmark.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-05-10
 - Confidence: high

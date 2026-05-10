@@ -1,15 +1,47 @@
 # API Pricing & Free Tier Matrix
 
-This is the canonical tracker for API pricing links and free-tier availability across LLM providers and API platforms.
+## What it is
+The API Pricing & Free Tier Matrix is a consolidated reference for the costs and free access policies of major Large Language Model (LLM) providers and AI platforms. It tracks pricing for tokens, developer program benefits, and specific model-level quotas.
 
-## Scope and usage
+## What problem it solves
+LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns.
 
-- Focus: API access (not consumer chat subscriptions unless directly tied to API credits).
-- Purpose: provider comparison, budgeting, and long-term maintenance reference.
-- Update target: monthly, and after major provider announcements.
+## Where it fits in the stack
+This document belongs to the **Layer 1: Providers** and **Layer 2: Models** analysis layer. It provides the economic context for the tools documented in `docs/tools/providers/` and `docs/tools/ai_knowledge/`.
+
+## Typical use cases
+- **Budgeting**: Estimating the monthly cost of running a specific agentic workflow (e.g., using GPT-5.4 mini for routine tasks).
+- **Free-Tier Hunting**: Identifying which providers offer enough free credits to build and test a prototype without a credit card.
+- **Provider Switching**: Comparing the "Intelligence-per-Dollar" value when deciding whether to migrate from one provider to another (e.g., Anthropic to Google).
+- **Quota Management**: Checking Rate Per Minute (RPM) and Tokens Per Day (TPD) limits for free tiers to avoid service interruptions.
+
+## Strengths
+- **Consolidated**: Aggregates data from over 30 providers in a single view.
+- **Agent-Optimized**: Specifically highlights "mini" models and high-speed providers ideal for autonomous agents.
+- **Evidence-Based**: Includes direct links to official documentation for every claim.
+- **Automated**: Uses scripts to maintain a "Capability Capacity Summary" of known free tokens.
+
+## Limitations
+- **High Volatility**: Prices and free-tier availability can change weekly.
+- **Regional Variation**: Some free tiers or pricing models may not be available in all jurisdictions.
+- **Tier Complexity**: Many providers use opaque "usage tiers" (Tier 1-5) that affect limits beyond simple price-per-token.
+
+## When to use it
+- Use it during the design phase of an AI application to select a model based on cost-efficiency.
+- Use it when you hit a rate limit and need to find an alternative provider with higher free-tier capacity.
+- Use it to verify if a "free trial" mentioned in a tutorial is still currently active.
+
+## When not to use it
+- Do not use it as a legally binding price list; always verify with the provider's official dashboard before committing to large-scale spend.
+- Do not use it for consumer-facing chat app pricing (e.g., ChatGPT Plus vs. Claude Pro) unless it specifically mentions API benefits.
+
+## Getting started
+1. Identify your primary requirement (e.g., "Coding", "Fast", or "Budget").
+2. Consult the **[Capability Capacity Summary](#capability-capacity-summary-auto-generated)** to see which models currently offer the best free-tier value.
+3. Use the **[Canonical pricing matrix](#canonical-pricing-matrix-last-verified-2026-05-14)** to jump to the official pricing and documentation for your chosen provider.
+4. Check the **[Model-level quota tracker](#model-level-quota-tracker-expanded-list)** for specific RPM/TPD limits.
 
 ## Status legend
-
 - `Yes` = official free tier/trial access is currently documented.
 - `Partial` = limited free usage exists (for example, selected models/features).
 - `No` = no current free trial/tier is documented.
@@ -262,38 +294,21 @@ Only rows with a numeric daily token cap are included in the capacity math.
 | moonshot-v1-128k | `128K / tier / tier / tier / tier` | Partially verified | <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-reason">REASON</span><br>Account: Moonshot AI. Quality: Very Good. Famous for pioneer long-context stability. |
 
 ## Model Intelligence-per-Dollar Value (2026 Triage)
-
 Based on community analysis (April 2026), models are categorized by their efficiency relative to cost:
-
 - **Top Intelligence**: GPT-5.4, Gemini 3.1 Pro. Use these for high-stakes reasoning where cost is secondary.
 - **Best Value**: MiMo-V2-Flash. Offers the highest intelligence-per-dollar for high-volume tasks.
 - **Balanced**: GLM-5, Kimi K2.5, Gemini 3 Flash. These models offer a strong middle ground for general-purpose agentic loops.
 
-## Notes and caveats
-
-- Provider pricing and free-tier rules change frequently; always verify from official links before budgeting.
-- Several vendors distinguish between product-level free plans and API-level free access.
-- Account-level cloud credits (Azure/AWS/GCP) are not equivalent to a provider-specific API free tier.
-
-## Maintenance protocol
-
-When updating this page:
-
-1. Validate each row against official docs/pricing pages.
-2. Update `Free tier / trial`, `Evidence summary`, and `Last verified`.
-3. Add providers only when official pricing and docs links are stable.
-4. Use `Unclear` when evidence is ambiguous.
-5. Regenerate capacity summaries with `python3 scripts/update_api_pricing_capability_summary.py`.
-
-## Related pages
-
-- [AI Tooling Landscape — 2026 Overview](ai_tooling_landscape.md)
-- [Model Classes](model_classes.md)
-- [OpenRouter](../tools/ai_knowledge/openrouter.md)
-- [Providers Index](../tools/providers/index.md)
+## Related tools / concepts
+- [AI Tooling Landscape](ai_tooling_landscape.md) — The architectural overview of the entire AI stack.
+- [Model Classes](model_classes.md) — Understanding the different "tiers" of models (Frontier, Performance, Mini).
+- [OpenRouter](../tools/ai_knowledge/openrouter.md) — The primary provider used in this repo for multi-model access.
+- [Groq](../tools/providers/groq.md) — Recommended for ultra-fast, low-latency free-tier inference.
+- [Mistral](../tools/providers/mistral.md) — A key open-weights provider with a strong experiment plan.
+- [DeepSeek](../tools/ai_knowledge/deepseek.md) — High-value Chinese provider often leading on cost-per-token.
+- [Benchmarking](../tools/benchmarking/index.md) — How we verify the "Intelligence" part of the value equation.
 
 ## Sources / References
-
 - [Kiro Pricing](https://kiro.dev/pricing/)
 - [Abacus.AI Pricing](https://abacus.ai/pricing)
 - [Amazon Q Pricing](https://aws.amazon.com/q/pricing/)
@@ -347,7 +362,5 @@ When updating this page:
 - [ChatGPT shared context (title only)](https://chatgpt.com/share/69a760fd-3520-8000-bfbd-19bdf623a333)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-05-10
 - Confidence: high
-- Related Issues: #203
