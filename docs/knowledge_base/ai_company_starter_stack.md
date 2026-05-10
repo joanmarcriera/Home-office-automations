@@ -1,8 +1,56 @@
 # AI Company Starter Stack
 
-This page turns the catalogue into an opinionated starter stack for building a company where AI is part of daily operations, not just a side experiment.
+## What it is
 
-The goal is not to list every good tool. The goal is to help you choose the smallest stack that gives you leverage across product, operations, research, content, and internal execution.
+The AI Company Starter Stack is an opinionated selection of tools and architectural patterns designed to turn a traditional business into an AI-native organization. It provides a curated list of "defaults" across various layers—from web surfaces and agent operating models to workflow control planes and local inference options—enabling teams to build operating leverage rather than just side experiments.
+
+## What problem it solves
+
+Most organizations struggle with "tool sprawl" when adopting AI, often implementing fragmented solutions that don't communicate or scale. This starter stack solves that by providing a unified operating system where [n8n](../services/n8n.md) coordinates workflows, [Claude Skills](../tools/agents/claude-skills-ecosystem.md) package procedures, and [mem0](../tools/agents/mem0.md) preserves context. It focuses on the "smallest stack" that provides maximum leverage across product, operations, and research.
+
+## Where it fits in the stack
+
+**Category**: Knowledge Base / Architectural Pattern. It serves as the **operational blueprint** of the repository, integrating various tools from the `docs/services/` and `docs/tools/` directories into a cohesive business framework.
+
+## Typical use cases
+
+- **Bootstrapping an AI Agency**: Using the "Research and lead-intel pack" to automate client research and market synthesis.
+- **Internal Operations Modernization**: Implementing the [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md) and n8n to automate administrative drudgery.
+- **Privacy-Conscious R&D**: Setting up [LocalAI](../tools/infrastructure/localai.md) and [llmfit](../tools/development_ops/llmfit.md) for secure, internal-only AI development.
+- **Rapid MVP Launch**: Following the "Website launch pack" to build and deploy a public-facing AI product shell.
+
+## Strengths
+
+- **High Cohesion**: Tools are selected based on how well they integrate with each other (e.g., n8n + Paperless + Vikunja).
+- **Cost-Efficiency**: Prioritizes free or low-cost starter tiers and local inference options.
+- **Scalable**: Provides a clear "Replace when" path for every layer, ensuring the stack grows with the company.
+- **Outcome-Focused**: Categorized into "Expansion packs" targeted at specific business results.
+
+## Limitations
+
+- **Opinionated**: The "Default choice" may not fit companies with strict legacy infrastructure constraints (e.g., non-Google Workspace environments).
+- **Maintenance Overhead**: Running a full self-hosted stack (n8n, Supabase, LocalAI) requires more technical expertise than using SaaS-only solutions.
+- **Fast Obsolescence**: The "Frontier" models and tools change rapidly, requiring periodic review of the recommended defaults.
+
+## When to use it
+
+- When you are building a new company and want to be "AI-native" from day one.
+- When your current AI efforts are fragmented and you need a unified operating model.
+- When you want to reduce per-token costs by migrating some workloads to local/private inference.
+
+## When not to use it
+
+- If you already have a mature, high-scale AI infrastructure that requires specialized, non-standardized tools.
+- If you are looking for a single-app solution rather than a comprehensive company-wide stack.
+
+## Getting started
+
+To implement the AI Company Starter Stack:
+
+1. **Review the Default Stack**: Scan the table below to understand the core layers and recommended tools.
+2. **Select an Expansion Pack**: Choose the pack (e.g., "Knowledge workspace pack") that matches your most urgent business bottleneck.
+3. **Deploy the Core**: Start with [n8n](../services/n8n.md) and the [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md) to build your first automation.
+4. **Iterate with Skills**: Package your repeatable procedures into the [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) to empower your team.
 
 ## The default stack
 
@@ -223,6 +271,19 @@ Then I would add:
 - [LiteLLM](../services/litellm.md) or [OpenRouter](../tools/ai_knowledge/openrouter.md) when model routing becomes operationally important
 - [OpenBB](../tools/ai_knowledge/openbb.md) when finance and market intelligence become recurring workflows
 
+## Related tools / concepts
+
+- [AI Tooling Landscape](ai_tooling_landscape.md)
+- [AI Builder Index](ai_builder_index.md)
+- [Agent Framework Learning Map](agent_framework_learning_map.md)
+- [Agent Protocols](agent_protocols.md)
+- [Agentic Workflows](patterns/agentic-workflows.md)
+- [Model Routing Guide](model_routing_guide.md)
+- [API Pricing & Free Tiers](api_pricing_free_tiers.md)
+- [Starred AI Agent Repositories](starred_ai_agent_repos.md)
+- [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
+- [Infrastructure](../architecture/infrastructure.md)
+
 ## Sources / References
 - [Free AI Website Playbook](free_ai_website_playbook.md)
 - [Starred AI / Agent Repositories Over 10K Stars](starred_ai_agent_repos.md)
@@ -241,5 +302,5 @@ Then I would add:
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
-- Confidence: medium
+- Last reviewed: 2026-05-10
+- Confidence: high
