@@ -68,12 +68,12 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/reference-implementations/llm-prompts/family-context.md`
 
 ## Sub-Batch 41.8: Reference Implementations
-- [ ] `docs/reference-implementations/llm-prompts/vikunja-task-routing.md`
-- [ ] `docs/reference-implementations/llm-prompts/warranty-extraction.md`
-- [ ] `docs/reference-implementations/metadata-schemas/manuals.md`
-- [ ] `docs/reference-implementations/paperless/tag-taxonomy.md`
-- [ ] `docs/reference-implementations/paperless/webhook-ingestion.md`
-- [ ] `docs/services/cloudflare-mesh.md`
+- [x] `docs/reference-implementations/llm-prompts/vikunja-task-routing.md`
+- [x] `docs/reference-implementations/llm-prompts/warranty-extraction.md`
+- [x] `docs/reference-implementations/metadata-schemas/manuals.md`
+- [x] `docs/reference-implementations/paperless/tag-taxonomy.md`
+- [x] `docs/reference-implementations/paperless/webhook-ingestion.md`
+- [x] `docs/services/cloudflare-mesh.md`
 
 ## Sub-Batch 41.9: Services & AI Knowledge
 - [ ] `docs/services/inventory.md`
