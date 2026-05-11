@@ -30,10 +30,71 @@ It gives users a faster way to discover proven prompt structures and packaged AI
 
 ## Getting started
 
-### Discovering Templates
-1.  **Browse the Gallery**: Navigate to the [official gallery](https://www.aitmpl.com/) to explore categories like Coding, Marketing, or General Productivity.
-2.  **Filter by Tool**: Use the built-in filters to find templates specifically designed for tools like Claude, ChatGPT, or Midjourney.
-3.  **Remix and Adapt**: Once you find a template, copy the structure and adjust the variables to fit your specific data or desired output format.
+### Installation
+Use the official CLI tool to browse and install components directly:
+```bash
+# Run without installation
+npx claude-code-templates@latest
+
+# Or install globally
+npm install -g claude-code-templates
+```
+
+### Initial Setup
+Run the health check to verify your environment:
+```bash
+cct --health-check
+```
+
+## CLI examples
+
+### Search and Install
+```bash
+# Install a specific agent
+cct --agent frontend-developer
+
+# Install multiple components at once
+cct --agent security-auditor --command security-audit --mcp github-integration
+
+# Install with default project detection
+cct --yes
+```
+
+### Analytics and Monitoring
+```bash
+# Launch the real-time analytics dashboard
+cct --analytics
+
+# Enable remote access via Cloudflare Tunnel
+cct --chats --tunnel
+```
+
+### Global Agent Management
+```bash
+# Create a globally accessible agent
+cct --create-agent customer-support
+
+# Invoke the global agent from anywhere
+customer-support "How do I handle refund requests?"
+```
+
+## API examples
+The AI Templates API is primarily used for download tracking and Discord integration.
+
+### Track a Component Download
+```python
+import requests
+
+url = "https://www.aitmpl.com/api/track-download-supabase"
+payload = {
+    "component_name": "frontend-developer",
+    "component_type": "agent",
+    "platform": "cli"
+}
+
+response = requests.post(url, json=payload)
+print(response.status_code)
+```
 
 ## Related tools / concepts
 - [Claude Plugins](../development_ops/claude-plugins.md)

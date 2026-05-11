@@ -34,28 +34,69 @@ It provides practical, hands-on instructions to bridge the gap between basic cha
 - If you prefer a reference-only documentation style over a tutorial-led approach.
 
 ## Getting started
-1.  **Install dependencies**:
-    ```bash
-    pip install uv
-    uv venv
-    source .venv/bin/activate
-    uv pip install -r scripts/requirements-dev.txt
-    ```
-2.  **Install pre-commit hooks**:
-    ```bash
-    pip install pre-commit
-    pre-commit install
-    ```
-
-## CLI examples
-Run all quality checks manually:
+Clone the repository and install development dependencies:
 ```bash
-pre-commit run --all-files
+git clone https://github.com/luongnv89/claude-howto.git
+cd claude-howto
+
+# Install dependencies using uv
+pip install uv
+uv venv
+source .venv/bin/activate
+uv pip install -r scripts/requirements-dev.txt
+
+# Verify the setup by running the tests
+pytest scripts/tests/
 ```
 
-Build the EPUB ebook:
+## CLI examples
+
+### Build the Ebook
 ```bash
+# Generate an offline EPUB version of the guide
 uv run scripts/build_epub.py
+```
+
+### Run Quality Checks
+```bash
+# Run linting, formatting, and security scans
+ruff check scripts/
+ruff format --check scripts/
+bandit -c pyproject.toml -r scripts/
+```
+
+### Self-Assessment
+Within Claude Code, once the guide's hooks are installed:
+```bash
+# Launch the interactive skill assessment
+/self-assessment
+
+# Start a specific module quiz
+/lesson-quiz 05-mcp
+```
+
+## API examples
+The repository provides internal Python scripts that can be invoked programmatically for automation.
+
+### Programmatic Ebook Generation
+```python
+import subprocess
+import sys
+
+def build_guide():
+    try:
+        result = subprocess.run(
+            ["uv", "run", "scripts/build_epub.py"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print("Build successful:", result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("Build failed:", e.stderr, file=sys.stderr)
+
+if __name__ == "__main__":
+    build_guide()
 ```
 
 ## Related tools / concepts

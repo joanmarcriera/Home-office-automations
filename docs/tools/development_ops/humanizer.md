@@ -31,25 +31,52 @@ It addresses the common issue of AI output sounding overly mechanical, generic, 
 
 ## Getting started
 
-### Installation (Claude Code)
-Clone the repository into your local Claude Code skills directory:
+### Installation
+Humanizer is a skill for Claude Code and OpenCode. To install it, clone the repository into your local skills directory:
+
+**Claude Code**
 ```bash
 mkdir -p ~/.claude/skills
 git clone https://github.com/blader/humanizer.git ~/.claude/skills/humanizer
 ```
 
-### Installation (OpenCode)
+**OpenCode**
 ```bash
 mkdir -p ~/.config/opencode/skills
 git clone https://github.com/blader/humanizer.git ~/.config/opencode/skills/humanizer
 ```
 
-### Usage
-Once installed, you can trigger the skill directly in your AI terminal:
+### Initial Run
+Launch Claude Code in your project directory. The skill is automatically loaded and ready for use.
+
+## CLI examples
+The skill is invoked using the `/humanizer` slash command within your AI terminal.
+
+### Basic Humanization
 ```bash
-/humanizer [Paste your text here]
+/humanizer "This model marks a pivotal moment in the evolution of AI."
 ```
-Alternatively, you can ask your agent: "Please humanize this text: [your text]" or provide a writing sample for **Voice Calibration** to match your personal style.
+
+### Voice Calibration
+Provide a sample of your own writing to match its style:
+```bash
+/humanizer
+Here's a sample of my writing for voice matching:
+[Paste 2-3 paragraphs of your own writing]
+
+Now humanize this text:
+[Paste AI text to humanize]
+```
+
+### Batch Processing
+Ask your agent to process multiple blocks:
+```bash
+"Please use the humanizer skill to rewrite these three paragraphs to sound more natural."
+```
+
+## API examples
+> [!NOTE]
+> Humanizer is implemented as a Markdown-based skill (`SKILL.md`) for agentic tools; it does not currently provide a standalone programmatic API or library.
 
 ## How it works
 Humanizer audits text against **29 patterns** of "AI-isms" based on the Wikipedia [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) guide. It performs a multi-pass rewrite to address:

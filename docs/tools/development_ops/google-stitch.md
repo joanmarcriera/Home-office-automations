@@ -29,10 +29,19 @@ It shortens the gap between "I know what I want to build" and a tangible UI or a
 - When you need a mature, code-first implementation workflow
 
 ## Getting started
-To begin using Google Stitch:
+Google Stitch is a web-based design and prototyping tool. To begin using it:
 1. Visit the [official Stitch website](https://stitch.withgoogle.com/).
 2. Sign in with your Google account to access the prototyping environment.
 3. Use natural language prompts to describe the UI components or application logic you wish to generate.
+4. Export your designs directly to Figma or as React/web components.
+
+## CLI examples
+> [!NOTE]
+> Google Stitch is currently a web-only design platform; it does not offer an official command-line interface.
+
+## API examples
+> [!NOTE]
+> There is no public API currently available for Google Stitch. Integration is performed via direct UI export of assets and code blocks.
 
 ## Related tools / concepts
 - [Gemini Canvas](../ai_knowledge/gemini-canvas.md)
