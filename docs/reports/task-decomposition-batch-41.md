@@ -49,7 +49,7 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/reference-implementations/calendar/mapping-rules.md`
 - [x] `docs/reference-implementations/hitl-ui-design.md`
 - [x] `docs/reference-implementations/llm-prompts/daily-briefing.md`
-- [ ] `docs/reference-implementations/metadata-schemas/audio-transcription.md`
+- [x] `docs/reference-implementations/metadata-schemas/audio-transcription.md`
 
 ---
 - Confidence: high

@@ -1,6 +1,38 @@
-# Reference Implementation: LLM Prompts for Task Extraction
+# Reference Implementation: LLM Prompts for Extraction and Classification
 
-## Prompt Template
+## What it is
+A collection of specialized prompt templates and schemas for Large Language Models (LLMs) to perform two core administrative tasks: **Task Extraction** (identifying actionable items from text) and **Document Classification** (categorizing documents into predefined buckets).
+
+## What problem it solves
+Managing a high volume of scanned documents requires significant cognitive effort to decide where each file belongs and what actions are required. Manual classification and task creation are bottlenecks in a truly automated homelab. These prompts turn raw OCR text into structured data, allowing for automated routing to [Vikunja](../../services/vikunja.md) and [Paperless-ngx](../../services/paperless-ngx.md).
+
+## Where it fits in the stack
+This implementation sits in the **intelligent processing layer** of the ingestion pipeline. It acts as the "brain" that interprets the output of OCR tools before passing structured instructions to the **task management** (Vikunja) or **document storage** (Paperless) layers.
+
+## Typical use cases
+- **Inbox Zero for Paper**: Automatically creating tasks in Vikunja for every bill, appointment, or school flyer scanned into the system.
+- **Auto-Archiving**: Categorizing documents (e.g., "Medical", "Finance", "School") to ensure they are stored with the correct tags and permissions in Paperless-ngx.
+- **Meeting Minute Processing**: Extracting action items, owners, and deadlines from meeting transcripts or notes.
+
+## Strengths
+- **Multi-Purpose**: Handles both the "what to do" (tasks) and "where to put it" (classification) in a single pipeline.
+- **Priority Intelligence**: Uses heuristic definitions to assign consistent priorities (High/Medium/Low) better than simple keyword matching.
+- **JSON Standardized**: Outputs data in a format ready for immediate API consumption.
+
+## Limitations
+- **Classification Ambiguity**: Documents that span multiple categories (e.g., a "Medical Bill") may be classified inconsistently depending on model temperature.
+- **Context Windows**: Extremely large documents may need to be summarized or chunked before classification to stay within token limits.
+- **Model Dependency**: Smaller local models may struggle with complex schema adherence compared to frontier models.
+
+## When to use it
+- When you want to automate the transition from "digitized document" to "actionable task".
+- When building a "smart inbox" that sorts documents automatically based on content rather than just filename.
+
+## When not to use it
+- For very high-security documents where LLM processing (if using a cloud provider) is restricted.
+- For simple document types where the category can be determined by the source (e.g., all files from a specific scanner folder are "Admin").
+
+## Prompt Template: Task Extraction
 ```text
 Extract actionable tasks from the following text.
 
@@ -18,9 +50,7 @@ Return a list of JSON objects:
 ]
 ```
 
-# Reference Implementation: LLM Prompts for Classification
-
-## Prompt Template
+## Prompt Template: Document Classification
 ```text
 Classify the following document into one of these categories:
 [SCHOOL, ADMIN, FINANCE, MEDICAL, TECHNICAL, MISC]
@@ -95,9 +125,20 @@ Output: [{"task": "Paint the fence", "due_date": null, "priority": "low", "owner
 ### Response (JSON Only)
 ```
 
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-03-01
+## Related tools / concepts
+- [Vikunja](../../services/vikunja.md) — The target system for extracted tasks.
+- [Paperless-ngx](../../services/paperless-ngx.md) — The target system for classified documents.
+- [Date Extraction](date-extraction.md) — Specialized prompt for precise date handling.
+- [Warranty Extraction](warranty-extraction.md) — For specific "High" priority warranty deadlines.
+- [HITL UI Design](../hitl-ui-design.md) — For manual review of extraction and classification.
+- [n8n Error Handling](../../knowledge_base/patterns/n8n-error-handling.md) — Pattern for retrying failed extractions.
+- [Document Preparation](../../playbooks/document-preparation-for-llm-training.md) — Enhancing OCR quality for better classification.
+- [n8n Service](../../services/n8n.md) — Orchestrator for these LLM prompts.
 
 ## Sources / References
-- https://github.com/joanmarcriera/Home-office-automations
+- [Home Office Automations](https://github.com/joanmarcriera/Home-office-automations)
+- [Pydantic Structured Outputs](https://docs.pydantic.dev/latest/concepts/json_schema/)
+
+## Contribution Metadata
+- Confidence: high
+- Last reviewed: 2026-05-11
