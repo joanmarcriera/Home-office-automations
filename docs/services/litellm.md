@@ -351,6 +351,12 @@ services:
 - **Network isolation**: Run the proxy on an internal Docker network; expose only port 4000 to trusted agents
 - **Logging privacy**: Prompts and responses are logged to Langfuse/Prometheus; ensure your logging backend is on private infrastructure if requests contain sensitive data
 
+## Typical use cases
+- **Multi-Agent Orchestration**: Providing a single endpoint for OpenHands, OpenClaw, and Aider to share the same model pool and budget.
+- **Cost Management**: Tracking and limiting spend for local experiments vs. production cloud calls.
+- **Resilient AI Pipelines**: Implementing automatic failover from local Ollama models to cloud providers (Anthropic/OpenRouter) during heavy load or local downtime.
+- **Local Development**: Simulating cloud model APIs using local models (e.g., using Qwen 2.5-Coder as an OpenAI-compatible substitute).
+
 ## Strengths
 
 - **Protocol normalisation**: Every agent speaks one language (OpenAI Chat Completions), regardless of backend
@@ -384,12 +390,15 @@ services:
 
 ## Related tools / concepts
 
-- [OpenRouter](../tools/ai_knowledge/openrouter.md) — cloud-based model router (alternative to LiteLLM proxy for cloud-only use)
-- [Ollama](ollama.md) — local model serving backend
-- [OpenHands](../tools/development_ops/openhands.md) — software engineering agent; recommended to pair with LiteLLM
-- [OpenClaw](../tools/development_ops/openclaw.md) — agent platform; can use LiteLLM for model routing
-- [Local LLMs](../tools/ai_knowledge/local_llms.md) — overview of local model options
-- [vLLM](../tools/infrastructure/vllm.md) — high-throughput alternative to Ollama for inference
+- [OpenRouter](../tools/ai_knowledge/openrouter.md) — cloud-based model router (alternative to LiteLLM proxy for cloud-only use).
+- [Ollama](ollama.md) — local model serving backend.
+- [OpenHands](../tools/development_ops/openhands.md) — software engineering agent; recommended to pair with LiteLLM.
+- [OpenClaw](../tools/development_ops/openclaw.md) — agent platform; can use LiteLLM for model routing.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — overview of local model options.
+- [vLLM](../tools/infrastructure/vllm.md) — high-throughput alternative to Ollama for inference.
+- [Langfuse](../tools/process_understanding/langfuse.md) — observability backend for LiteLLM.
+- [Model Routing Guide](../knowledge_base/model_routing_guide.md) — logic for choosing models via LiteLLM.
+- [Unified Search](../../scripts/unified_search.py) — script that can benefit from unified LLM access.
 
 ## Sources / References
 

@@ -25,6 +25,16 @@ It provides an open-source, high-performance alternative to proprietary TTS serv
 - **Hardware Intensity**: The flagship 4B model requires significant VRAM (ideally NVIDIA H200/A100 or RTX 4090) for optimal throughput.
 - **Model Size**: While optimized, the combined Dual-AR system is larger than lightweight models like [Kokoro TTS](kokoclone.md).
 
+## When to use it
+- **High-Fidelity Audio**: When audio quality and expressiveness are the top priorities.
+- **Rapid Voice Cloning**: When you need to clone a voice from a very short sample (30 seconds).
+- **GPU-Rich Environments**: When you have access to high-end NVIDIA GPUs to leverage SGLang acceleration.
+
+## When not to use it
+- **CPU-Only Deployment**: Performance will be poor on consumer CPUs without dedicated GPU acceleration.
+- **Low-Latency Mobile Apps**: The 4B model is too heavy for on-device mobile inference; use [Kokoro TTS](kokoclone.md) instead.
+- **Basic Voice Alerts**: For simple notification sounds where expressiveness isn't required.
+
 ## Getting started
 
 ### Installation
@@ -60,11 +70,13 @@ python -m tools.webui
 - **Alignment**: Employs Reward Models to score semantic accuracy, timbre similarity, and acoustic preference.
 
 ## Related tools / concepts
-- [KokoClone](kokoclone.md) (Lightweight local alternative)
-- [Whisper](../../services/whisper.md) (Audio transcription)
-- [SGLang](../infrastructure/sglang.md) (Inference acceleration)
-- [ElevenLabs](elevenlabs.md) (Proprietary comparison)
-- [ChatTTS](chatgpt.md) (Conversational TTS models)
+- [KokoClone](kokoclone.md) — Lightweight local alternative for TTS.
+- [Whisper](../../services/whisper.md) — SOTA audio transcription.
+- [SGLang](../infrastructure/sglang.md) — The inference framework powering Fish Audio's speed.
+- [ElevenLabs](elevenlabs.md) — Proprietary industry standard for TTS.
+- [ChatTTS](chatgpt.md) — Conversational-focused TTS models.
+- [Audiobookshelf](../../services/inventory.md) — Target service for Fish Audio generated content.
+- [Jellyfin](jellyfin.md) — Media server for hosting synthesized audio.
 
 ## Sources / references
 - [Fish Audio GitHub](https://github.com/fishaudio/fish-speech)

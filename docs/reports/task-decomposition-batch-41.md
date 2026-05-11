@@ -76,12 +76,12 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/services/cloudflare-mesh.md`
 
 ## Sub-Batch 41.9: Services & AI Knowledge
-- [ ] `docs/services/inventory.md`
-- [ ] `docs/services/litellm.md`
-- [ ] `docs/tools/ai_knowledge/deepseek-r1.md`
-- [ ] `docs/tools/ai_knowledge/fish-audio.md`
-- [ ] `docs/tools/ai_knowledge/jules.md`
-- [ ] `docs/tools/ai_knowledge/kimi-cli.md`
+- [x] `docs/services/inventory.md`
+- [x] `docs/services/litellm.md`
+- [x] `docs/tools/ai_knowledge/deepseek-r1.md`
+- [x] `docs/tools/ai_knowledge/fish-audio.md`
+- [x] `docs/tools/ai_knowledge/jules.md`
+- [x] `docs/tools/ai_knowledge/kimi-cli.md`
 
 ## Sub-Batch 41.10: AI Knowledge Deepening
 - [ ] `docs/tools/ai_knowledge/kokoclone.md`

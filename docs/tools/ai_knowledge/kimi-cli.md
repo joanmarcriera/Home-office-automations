@@ -27,14 +27,23 @@ It allows developers to access Kimi's long-context capabilities (up to 256K-1M t
 - When you need to process very large files in the terminal.
 - When working with Moonshot AI's ecosystem.
 
+## When not to use it
+- **General Purpose Coding**: For interactive coding sessions, [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md) are more feature-rich.
+- **Offline Tasks**: Requires an active internet connection to communicate with Moonshot AI's servers.
+- **Privacy-Sensitive Local Data**: If data must not leave the local machine, use [Local LLMs](local_llms.md) via [Ollama](../../services/ollama.md).
+
 ## Licensing and cost
 - **CLI Tool**: Free (Open Source)
 - **API Usage**: Requires Moonshot AI API credits.
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md)
-- [Aider](../development_ops/aider.md)
-- [Gemini CLI](gemini-cli.md)
+- [Claude Code](../development_ops/claude-code.md) — Advanced agentic CLI.
+- [Aider](../development_ops/aider.md) — Leading AI pair programming tool.
+- [Gemini CLI](gemini-cli.md) — CLI for Google's long-context models.
+- [OpenRouter](openrouter.md) — Can be used to access Kimi models via API.
+- [Local LLMs](local_llms.md) — Offline alternatives to Kimi.
+- [Ollama](../../services/ollama.md) — Local runner for long-context models like Qwen.
+- [LiteLLM](../../services/litellm.md) — Proxy for managing Kimi API access.
 
 ## Sources / References
 - [Moonshot AI Official Site](https://www.moonshot.cn/)
