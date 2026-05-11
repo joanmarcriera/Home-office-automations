@@ -1,5 +1,37 @@
 # Reference Implementation: LLM Prompt for Vikunja Task Routing
 
+## What it is
+A structured system prompt and JSON schema designed to enable AI agents to autonomously categorize, prioritize, and route incoming task requests into specific Vikunja projects. It leverages LLM reasoning to map natural language intent to structured task metadata.
+
+## What problem it solves
+Managing a growing list of tasks across multiple projects can become a bottleneck for family and personal administration. Manual triage is tedious. This implementation automates the intake process, ensuring that tasks are filed correctly with appropriate urgency and context without requiring manual entry into the Vikunja UI.
+
+## Where it fits in the stack
+This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It acts as the bridge between the **User Interface** (e.g., chat, voice) and the **Task Management System** (Vikunja), typically orchestrated via a tool-calling framework or an automation platform like n8n.
+
+## Typical use cases
+- **Voice-to-Task**: "Hey agent, remind me to buy milk" results in a task in the 'Shopping' project.
+- **Email Triage**: Extracting action items from school emails and routing them to the 'Admin' or 'School' project.
+- **Maintenance Tracking**: Logged repairs (e.g., "The fridge is making a weird noise") are automatically sent to 'Home Maintenance'.
+
+## Strengths
+- **Context-Aware**: Uses project lists and current dates to make informed routing decisions.
+- **Standardized Output**: JSON schema ensures high reliability for programmatic tool calls.
+- **Flexible Priority**: Maps natural language urgency to a consistent 1-5 scale.
+
+## Limitations
+- **Project Overlap**: Ambiguous tasks might be routed to the 'Inbox' if project descriptions are not distinct.
+- **Model Dependency**: Requires a model capable of reliable JSON output (e.g., GPT-4o, Claude 3.5 Sonnet, or GPT-5.4).
+
+## When to use it
+- When you have more than 3-5 distinct projects in Vikunja.
+- When you want to enable hands-free task entry via voice or messaging.
+- When delegating task triage to an autonomous agent.
+
+## When not to use it
+- For very simple setups with only one list (a simple prompt would suffice).
+- If the agent does not have real-time access to the current project IDs (risk of hallucinating IDs).
+
 ## Purpose
 Guide the Home Admin Agent in categorizing and routing extracted tasks to the appropriate Vikunja projects, setting priorities, and establishing dependencies.
 
@@ -62,9 +94,18 @@ Return a JSON object:
 4. **Execution**: Agent calls `vikunja_create_tool` with the determined metadata.
 5. **Feedback**: Agent confirms to the user: "I've added 'Fix kitchen sink' to your Maintenance list for tomorrow with medium priority."
 
-- Last reviewed: 2026-04-16
-- Confidence: high
+## Related tools / concepts
+- [Vikunja](../../tools/calendar_tasks/vikunja.md): The target task management system.
+- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The overall framework for this implementation.
+- [n8n](../../services/n8n.md): Common orchestration platform for these workflows.
+- [System Prompts](../../knowledge_base/system_prompts.md): Best practices for designing agent personas.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md): Patterns for multi-step task execution.
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md): Deciding which LLM to use for task triage.
+- [Email-to-Calendar Playbook](../../playbooks/email-to-calendar.md): A similar pattern for scheduling.
 
 ## Sources / References
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
-- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md)
+- [JSON Schema Standard](https://json-schema.org/)
+
+- Last reviewed: 2026-05-11
+- Confidence: high
