@@ -60,12 +60,12 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/knowledge_base/patterns/openclaw-use-case-catalog.md`
 
 ## Sub-Batch 41.7: Advanced Patterns & Research
-- [ ] `docs/knowledge_base/patterns/prompt_requests.md`
-- [ ] `docs/knowledge_base/patterns/skills-best-practices.md`
-- [ ] `docs/knowledge_base/self-healing-agent-research.md`
-- [ ] `docs/knowledge_base/starred_ai_agent_repos.md`
-- [ ] `docs/reference-implementations/data-copilot/skeleton-guide.md`
-- [ ] `docs/reference-implementations/llm-prompts/family-context.md`
+- [x] `docs/knowledge_base/patterns/prompt_requests.md`
+- [x] `docs/knowledge_base/patterns/skills-best-practices.md`
+- [x] `docs/knowledge_base/self-healing-agent-research.md`
+- [x] `docs/knowledge_base/starred_ai_agent_repos.md`
+- [x] `docs/reference-implementations/data-copilot/skeleton-guide.md`
+- [x] `docs/reference-implementations/llm-prompts/family-context.md`
 
 ## Sub-Batch 41.8: Reference Implementations
 - [ ] `docs/reference-implementations/llm-prompts/vikunja-task-routing.md`
