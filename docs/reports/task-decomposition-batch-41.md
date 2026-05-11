@@ -51,6 +51,67 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/reference-implementations/llm-prompts/daily-briefing.md`
 - [x] `docs/reference-implementations/metadata-schemas/audio-transcription.md`
 
+## Sub-Batch 41.6: KB & Patterns Expansion
+- [x] `docs/knowledge_base/google_one_plans_comparison.md`
+- [x] `docs/knowledge_base/model_comparison_and_evaluation.md`
+- [x] `docs/knowledge_base/patterns/data-copilot-agentic-rag.md`
+- [x] `docs/knowledge_base/patterns/filesystem-context.md`
+- [x] `docs/knowledge_base/patterns/fine-tuning-open-models.md`
+- [x] `docs/knowledge_base/patterns/openclaw-use-case-catalog.md`
+
+## Sub-Batch 41.7: Advanced Patterns & Research
+- [ ] `docs/knowledge_base/patterns/prompt_requests.md`
+- [ ] `docs/knowledge_base/patterns/skills-best-practices.md`
+- [ ] `docs/knowledge_base/self-healing-agent-research.md`
+- [ ] `docs/knowledge_base/starred_ai_agent_repos.md`
+- [ ] `docs/reference-implementations/data-copilot/skeleton-guide.md`
+- [ ] `docs/reference-implementations/llm-prompts/family-context.md`
+
+## Sub-Batch 41.8: Reference Implementations
+- [ ] `docs/reference-implementations/llm-prompts/vikunja-task-routing.md`
+- [ ] `docs/reference-implementations/llm-prompts/warranty-extraction.md`
+- [ ] `docs/reference-implementations/metadata-schemas/manuals.md`
+- [ ] `docs/reference-implementations/paperless/tag-taxonomy.md`
+- [ ] `docs/reference-implementations/paperless/webhook-ingestion.md`
+- [ ] `docs/services/cloudflare-mesh.md`
+
+## Sub-Batch 41.9: Services & AI Knowledge
+- [ ] `docs/services/inventory.md`
+- [ ] `docs/services/litellm.md`
+- [ ] `docs/tools/ai_knowledge/deepseek-r1.md`
+- [ ] `docs/tools/ai_knowledge/fish-audio.md`
+- [ ] `docs/tools/ai_knowledge/jules.md`
+- [ ] `docs/tools/ai_knowledge/kimi-cli.md`
+
+## Sub-Batch 41.10: AI Knowledge Deepening
+- [ ] `docs/tools/ai_knowledge/kokoclone.md`
+- [ ] `docs/tools/ai_knowledge/last30days-skill.md`
+- [ ] `docs/tools/ai_knowledge/llamaindex-ts.md`
+- [ ] `docs/tools/ai_knowledge/nemotron.md`
+- [ ] `docs/tools/automation_orchestration/airops.md`
+- [ ] `docs/tools/automation_orchestration/goose.md`
+
+## Sub-Batch 41.11: Automation & Benchmarking
+- [ ] `docs/tools/automation_orchestration/gumloop.md`
+- [ ] `docs/tools/automation_orchestration/llmware.md`
+- [ ] `docs/tools/automation_orchestration/open-interpreter.md`
+- [ ] `docs/tools/automation_orchestration/stagehand.md`
+- [ ] `docs/tools/benchmarking/sharp-ai.md`
+- [ ] `docs/tools/benchmarking/supermetal.md`
+
+## Sub-Batch 41.12: Frameworks & Infrastructure
+- [ ] `docs/tools/benchmarking/vakra.md`
+- [ ] `docs/tools/frameworks/firebase-genkit.md`
+- [ ] `docs/tools/frameworks/google-adk.md`
+- [ ] `docs/tools/frameworks/instructor.md`
+- [ ] `docs/tools/infrastructure/ubuntu-ai.md`
+- [ ] `docs/tools/intake_storage/s3-storage.md`
+
+## Sub-Batch 41.13: Process Understanding
+- [ ] `docs/tools/process_understanding/ai-auditing-tools.md`
+- [ ] `docs/tools/process_understanding/comet-opik.md`
+- [ ] `docs/tools/process_understanding/posthog.md`
+
 ---
 - Confidence: high
-- Date: 2026-05-10
+- Date: 2026-05-11

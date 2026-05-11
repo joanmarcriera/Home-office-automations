@@ -2,8 +2,30 @@
 
 Diagnostic analytics often requires more than just a SQL query. Answering "Why did revenue drop?" requires looking at data (SQL), standard operating procedures (SOPs), policy changes (Meeting Notes), and external factors. This pattern defines an agentic retrieval system that decides between structured (SQL) and unstructured (Docs) sources.
 
-## Goal
-Enable the Data Copilot to answer complex diagnostic questions by deciding when to query SQL, documents, or both, and synthesizing the results with confidence scoring.
+## What it is
+The Agentic RAG (Retrieval-Augmented Generation) and Hybrid Retrieval pattern is a sophisticated data access strategy where an AI agent acts as a dynamic planner. It determines the most effective way to answer a complex query by coordinating between structured data sources (like SQL databases) and unstructured data sources (like Markdown documentation or PDFs).
+
+## What problem it solves
+Traditional RAG often fails at complex diagnostic questions (e.g., "Why did revenue drop?") because the answer is split across multiple systems. Structured data provides the "what" (the numbers), while unstructured documents provide the "why" (policy changes, meeting notes, project logs). This pattern bridges that gap, providing a unified, causal explanation.
+
+## Where it fits in the stack
+This pattern resides at the **Reasoning & Orchestration Layer** of the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md). it serves as the intelligence layer above the raw [MCP Tooling](data-copilot-mcp-tooling.md) and database connectors.
+
+## Typical use cases
+- **Root Cause Analysis**: Diagnosing business metric fluctuations by correlating data spikes with project logs.
+- **Compliance Auditing**: Checking if financial transactions (SQL) adhere to corporate travel policies (RAG).
+- **Customer Support**: Troubleshooting technical issues by matching user account history (SQL) with technical manuals (RAG).
+- **Personal Finance**: Explaining spending anomalies by linking bank statements to calendar events and receipts.
+
+## Strengths
+- **Comprehensive Context**: Combines quantitative proof with qualitative reasoning.
+- **Autonomous Investigation**: Can perform "multi-hop" queries to track down missing information without human intervention.
+- **Traceability**: Provides a clear audit trail from the final answer back to both database rows and document snippets.
+
+## Limitations
+- **Latency**: Coordination between multiple retrieval steps and synthesis can be slower than simple RAG.
+- **Complexity**: Requires sophisticated prompt engineering for the "Planner" agent to make correct routing decisions.
+- **Compute Cost**: Multi-step reasoning chains consume significantly more tokens than single-shot retrieval.
 
 ## Hybrid Retrieval Workflow
 
@@ -121,10 +143,15 @@ The final score is calculated using these penalty weights:
 4.  **Synthesis**: "Conversion rate (Metric X) for the 'Outdoor' category dropped from 3.2% to 1.8% due to a buggy deployment of the new image gallery component on Tuesday, which caused image asset failures."
 5.  **Confidence**: 0.90 (Strong correlation between deployment event and error spike).
 
+## When to use it
+- Use when the answer requires synthesizing data from disparate silos (e.g., Jira + Postgres).
+- Use for complex "Why" questions that require multiple reasoning steps.
+- Use when high traceability and confidence scoring are required for business decisions.
 
-## Sources / References
-- [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
-- [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
+## When not to use it
+- Don't use for simple fact retrieval (e.g., "What is the capital of France?").
+- Don't use for pure data aggregation tasks (e.g., "Total sales by region").
+- Avoid when low latency is the primary requirement and a simpler RAG setup would suffice.
 
 ## Related tools / concepts
 - [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
@@ -132,6 +159,12 @@ The final score is calculated using these penalty weights:
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 - [n8n Automation](../../services/n8n.md)
+- [RAG Pattern](rag-pattern.md)
+- [Agentic Workflows](agentic-workflows.md)
+
+## Sources / References
+- [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
+- [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-06

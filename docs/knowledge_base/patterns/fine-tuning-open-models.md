@@ -1,11 +1,9 @@
 # Fine-tuning Open Models
 
 ## What it is
-
 Fine-tuning is the process of continuing the training of a pre-trained language model on a curated dataset to adapt its behaviour, tone, knowledge, or task performance for a specific domain. Unlike Retrieval-Augmented Generation (RAG), fine-tuning modifies the model weights themselves, baking knowledge and behavioural patterns into the model rather than retrieving them at inference time.
 
 ## What problem it solves
-
 Pre-trained open models are generalist. They may:
 - Not follow a specific output format consistently
 - Lack domain terminology or institutional knowledge
@@ -15,8 +13,7 @@ Pre-trained open models are generalist. They may:
 Fine-tuning addresses these gaps without replacing the base model's general capabilities.
 
 ## Where it fits in the stack
-
-**Model Adaptation Layer** — between the raw pre-trained base model (Layer 0) and the inference/serving infrastructure (Layer 1). Fine-tuning is an offline process; the resulting model is then served via Ollama, vLLM, or similar.
+**Model Adaptation Layer** — between the raw pre-trained base model (Layer 0) and the inference/serving infrastructure (Layer 1). Fine-tuning is an offline process; the resulting model is then served via [Ollama](../../services/ollama.md), [vLLM](../../tools/infrastructure/vllm.md), or similar.
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
@@ -30,6 +27,26 @@ Fine-tuning addresses these gaps without replacing the base model's general capa
 │  Agents: OpenClaw │ OpenHands │ n8n AI nodes            │
 └─────────────────────────────────────────────────────────┘
 ```
+
+## Typical use cases
+- **Structured Data Extraction**: Fine-tuning a small model (e.g., 3B or 7B) to consistently output JSON from messy OCR text.
+- **Brand Voice Alignment**: Ensuring customer-facing agents always use a specific company tone and vocabulary.
+- **SQL Generation**: Adapting a model to a specific database schema and dialect for [Text-to-SQL](../../architecture/data-copilot-text-to-sql.md) tasks.
+- **Code Completion**: Training on a private codebase to provide context-aware autocomplete that understands internal libraries.
+- **System Log Analysis**: Teaching a model to identify specific error patterns in proprietary server logs.
+
+## Strengths
+- **Zero inference overhead**: Knowledge is in weights; no retrieval latency.
+- **Consistent behaviour**: Reliable format adherence and tone even without in-context examples.
+- **Privacy**: Training data and model stay on-premises.
+- **Works with small models**: A fine-tuned 3B model can outperform a general 70B on narrow tasks.
+
+## Limitations
+- **Compute cost**: Training run requires GPU; free tiers have limited hours.
+- **Static knowledge**: Fine-tuned model does not know about events after training cutoff.
+- **Expensive to update**: Retraining needed to incorporate new knowledge.
+- **Risk of catastrophic forgetting**: Heavy fine-tuning can degrade general capabilities.
+- **Data requirements**: Needs curated, high-quality datasets; bad data = bad model.
 
 ## Fine-tuning vs RAG — decision guide
 
@@ -363,50 +380,31 @@ from trl import create_reference_model
 | Catastrophic forgetting (general capability drops) | Too many epochs or large r | Reduce epochs; lower LoRA rank; mix general data |
 | High perplexity on validation set | Dataset too small or overfitting | More data; apply early stopping; increase dropout |
 
-## Strengths
-
-- **Zero inference overhead**: Knowledge is in weights; no retrieval latency
-- **Consistent behaviour**: Reliable format adherence and tone even without in-context examples
-- **Privacy**: Training data and model stay on-premises
-- **Works with small models**: A fine-tuned 3B model can outperform a general 70B on narrow tasks
-
-## Limitations
-
-- **Compute cost**: Training run requires GPU; free tiers have limited hours
-- **Static knowledge**: Fine-tuned model does not know about events after training cutoff
-- **Expensive to update**: Retraining needed to incorporate new knowledge
-- **Risk of catastrophic forgetting**: Heavy fine-tuning can degrade general capabilities
-- **Data requirements**: Needs curated, high-quality datasets; bad data = bad model
-
 ## When to use it
-
-- When the model needs to **reliably follow a specific output format** (structured JSON, specific template)
-- When the model should adopt a **consistent persona or tone** without relying on long system prompts
-- When you have a **narrow, repetitive task** (e.g., extracting fields from a specific document type) where general models underperform
-- When you want the model's capabilities **without retrieval latency** for a known domain
-- When your dataset contains **institutional knowledge** not present in public training data
+- When the model needs to **reliably follow a specific output format** (structured JSON, specific template).
+- When the model should adopt a **consistent persona or tone** without relying on long system prompts.
+- When you have a **narrow, repetitive task** (e.g., extracting fields from a specific document type) where general models underperform.
+- When you want the model's capabilities **without retrieval latency** for a known domain.
+- When your dataset contains **institutional knowledge** not present in public training data.
 
 ## When not to use it
-
-- When knowledge needs to be **updated frequently** — use RAG instead
-- When you need to **cite sources** — RAG provides provenance, fine-tuning does not
-- When the **base model already performs well** on the task with a good system prompt
-- When compute budget is limited and RAG can solve the problem — RAG is cheaper to iterate
-- When the task requires the full knowledge of a large model that is too expensive to fine-tune
+- When knowledge needs to be **updated frequently** — use RAG instead.
+- When you need to **cite sources** — RAG provides provenance, fine-tuning does not.
+- When the **base model already performs well** on the task with a good system prompt.
+- When compute budget is limited and RAG can solve the problem — RAG is cheaper to iterate.
+- When the task requires the full knowledge of a large model that is too expensive to fine-tune.
 
 ## Related tools / concepts
-
-- [RAG Pattern](rag.md) — complementary approach; fine-tune for behaviour + RAG for facts
-- [Ollama](../../services/ollama.md) — serve fine-tuned GGUF models locally
-- [vLLM](../../tools/infrastructure/vllm.md) — high-throughput serving of fine-tuned models
-- [MLX](../../tools/infrastructure/mlx.md) — Apple Silicon inference and fine-tuning framework
-- [llama.cpp](../../tools/infrastructure/llama-cpp.md) — GGUF format reference implementation
-- [OpenPipe](../../tools/infrastructure/openpipe.md) — managed fine-tuning pipeline service
-- [LM Studio](../../tools/ai_knowledge/lm-studio.md) — local model management and testing
-- [Document Preparation for LLM Training](../../playbooks/document-preparation-for-llm-training.md) — playbook for dataset preparation from local documents
+- [RAG Pattern](rag-pattern.md)
+- [Ollama](../../services/ollama.md)
+- [vLLM](../../tools/infrastructure/vllm.md)
+- [MLX](../../tools/infrastructure/mlx.md)
+- [llama.cpp](../../tools/infrastructure/llama-cpp.md)
+- [Document Preparation for LLM Training](../../playbooks/document-preparation-for-llm-training.md)
+- [Model Classes](../model_classes.md)
+- [Model Routing Guide](../model_routing_guide.md)
 
 ## Sources / References
-
 - [LoRA: Low-Rank Adaptation of Large Language Models (Hu et al., 2021)](https://arxiv.org/abs/2106.09685)
 - [QLoRA: Efficient Finetuning of Quantized LLMs (Dettmers et al., 2023)](https://arxiv.org/abs/2305.14314)
 - [Unsloth — Fast LLM Fine-tuning](https://github.com/unslothai/unsloth)
@@ -416,6 +414,5 @@ from trl import create_reference_model
 - [MLX Examples — LoRA fine-tuning](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm)
 
 ## Contribution Metadata
-
 - Last reviewed: 2026-03-21
 - Confidence: high

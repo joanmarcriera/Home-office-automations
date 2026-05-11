@@ -1,6 +1,29 @@
 # Model Comparison and Evaluation
 
-Understanding how different AI models perform relative to each other is crucial for selecting the right tool for a specific task. This page provides a guide to the platforms, leaderboards, and metrics used to evaluate and compare Large Language Models (LLMs).
+## What it is
+Model comparison and evaluation is the systematic process of measuring the performance, reliability, and cost-effectiveness of Large Language Models (LLMs). This involves using standardized benchmarks, human preference arenas, and operational metrics to determine which model is best suited for a specific technical or creative task.
+
+## What problem it solves
+It solves the "black box" problem of AI by providing objective data to guide model selection. Without evaluation, developers and users might overpay for "frontier" models when a smaller, faster model (like Haiku or Flash) would suffice, or they might rely on a model that is prone to hallucination in their specific domain.
+
+## Where it fits in the stack
+Evaluation sits at the **Quality & Governance Layer** of the AI stack. It informs the logic in the [Model Routing Guide](model_routing_guide.md) and helps define the performance baselines for [Agentic Workflows](patterns/agentic-workflows.md).
+
+## Typical use cases
+- **Model Selection**: Choosing between GPT-5.4, Gemini 3 Pro, and Claude 4.5 for a production application.
+- **Regression Testing**: Ensuring that a fine-tuned model or a new system prompt hasn't degraded performance.
+- **Cost Optimization**: Identifying tasks that can be safely downgraded to cheaper, smaller models.
+- **Accuracy Verification**: Measuring the hallucination rate in RAG (Retrieval-Augmented Generation) systems.
+
+## Strengths
+- **Objectivity**: Moves beyond "vibes" to data-driven decision making.
+- **Performance Benchmarking**: Identifies exactly where a model excels (e.g., coding vs. creative writing).
+- **Economic Efficiency**: Directs spend to the most efficient model for the job.
+
+## Limitations
+- **Data Contamination**: Models may have been trained on the benchmark questions themselves, leading to artificially high scores.
+- **Static Benchmarks**: Evaluations can become outdated quickly as new models and techniques emerge.
+- **Human Subjectivity**: Preference arenas (like Chatbot Arena) can be influenced by model verbosity or "politeness" rather than actual accuracy.
 
 ## Side-by-side Comparison Platforms
 
@@ -57,11 +80,24 @@ To choose the best model for your practical scenario, consider the following:
 
 For task-level routing decisions such as when to use Haiku vs Sonnet vs Opus, or GPT-5.4 `low` vs `medium` vs `high` vs `xhigh`, use the dedicated [Model Routing Guide](model_routing_guide.md).
 
+## When to use it
+- Use systematic comparison when choosing a foundational model for a new product.
+- Use evaluation metrics when running [Prompt Engineering](patterns/prompt_requests.md) experiments to measure improvement.
+- Use leaderboards to stay informed about the rapidly changing open-source model landscape.
+
+## When not to use it
+- Don't rely solely on public benchmarks for domain-specific tasks (e.g., medical or legal advice) without running your own [Custom Eval](../tools/benchmarking/index.md).
+- Don't use evaluation as a substitute for real-world user testing; human preference in a production environment often differs from benchmark scores.
+
 ## Related tools / concepts
 - [Benchmarking Tool Catalogue](../tools/benchmarking/index.md)
 - [Model Classes](model_classes.md)
 - [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md)
 - [Qwen](../tools/ai_knowledge/qwen.md)
+- [Model Routing Guide](model_routing_guide.md)
+- [Chatbot Arena](../tools/benchmarking/chatbot-arena.md)
+- [GPQA](../tools/benchmarking/gpqa.md)
+- [SWE-bench](../tools/benchmarking/swe-bench.md)
 
 ## Sources / References
 - [Chatbot Arena (LMSYS)](https://chat.lmsys.org/)
