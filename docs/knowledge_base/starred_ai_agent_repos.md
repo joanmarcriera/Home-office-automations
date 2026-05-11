@@ -1,8 +1,49 @@
 # Starred AI / Agent Repositories Over 10K Stars
 
+## What it is
+
 This page summarizes the AI and agent-related repositories from your GitHub stars that currently have more than 10,000 GitHub stars. It is meant to answer a practical question: what does each repo actually add to a stack, when should it be used, and which ones are baseline additions versus situational choices.
 
 Star counts below are from a GitHub API snapshot pulled on 2026-03-14 from your starred repositories. "Reputation" is an editorial assessment based on maintainer track record, institutional backing, and ecosystem trust, not a GitHub API field.
+
+## What problem it solves
+
+- **Library Overload**: Helps navigate the "sea of stars" by filtering for high-momentum, high-reputation projects.
+- **Integration Friction**: Identifies which tools are "baselines" (always use) vs "situational" (only use for specific tasks).
+- **Stack Optimization**: Suggests bundles (e.g., Claude-centric, Local-first) to simplify architectural decisions.
+
+## Where it fits in the stack
+
+**Landscape Intelligence**. This is a meta-documentation layer that governs tool selection for all other layers (Infrastructure, Development, Services, and Agents).
+
+## Typical use cases
+
+- **Architecting a New Agent**: Deciding whether to use a visual builder like Flowise or a code-first framework like OpenCode.
+- **Benchmarking Tools**: Comparing star counts and reputation to assess the long-term viability of a dependency.
+- **Skill Expansion**: Identifying high-quality first-party resources (like Anthropic Cookbooks) to improve agent performance.
+
+## Strengths
+
+- **Curated and Prioritized**: Focuses only on high-momentum projects (>10K stars).
+- **Practical "Default Stance"**: Provides an immediate "Yes/No/Situational" recommendation for every tool.
+- **Ecosystem Awareness**: Highlights combinations and bundles that work well together.
+
+## Limitations
+
+- **Snapshot-based**: Star counts and "reputation" change over time; requires periodic refreshes.
+- **Subjective Assessment**: "Reputation" is an editorial assessment, not a purely objective metric.
+- **High-Bar Filter**: May miss smaller, high-quality projects that haven't hit the 10K mark yet.
+
+## When to use it
+
+- When **planning a new project** or refactoring an existing agent stack.
+- To **onboard new developers/agents** to the preferred repository patterns of this homelab.
+- During **quarterly stack reviews** to ensure dependencies are still industry-standard.
+
+## When not to use it
+
+- For **highly niche tasks** where the best tool might be a 100-star specialist repo.
+- When searching for **bleeding-edge research** that hasn't gained mass adoption yet.
 
 ## Quick take
 - **Default baseline for Claude/coding-agent work**: [anthropics/skills](https://github.com/anthropics/skills), [obra/superpowers](https://github.com/obra/superpowers), [anthropics/claude-cookbooks](https://github.com/anthropics/claude-cookbooks), [Context7](../tools/development_ops/context7.md)
@@ -59,7 +100,18 @@ Star counts below are from a GitHub API snapshot pulled on 2026-03-14 from your 
 - Do not add memory systems by default; memory is useful only when persistence beats complexity.
 - Do not confuse curated lists and best-practice repos with production architecture. They are accelerators, not substitutes for design.
 
+## Related tools / concepts
+
+- [AI Tool Access Matrix](ai_tool_access_matrix.md) — real-time availability and status of these tools.
+- [Model Routing Guide](model_routing_guide.md) — deciding which model to use with these repositories.
+- [Agentic Workflows](patterns/agentic-workflows.md) — patterns for operationalizing these repos.
+- [Claude Code](../../tools/development_ops/claude-code.md) — a primary consumer of many of these tools.
+- [n8n](../../services/n8n.md) — the automation engine often used to bridge these libraries.
+- [Skills Index](../../skills.md) — the functional capabilities these repos provide.
+- [Architecture Overview](../../ARCHITECTURE.md) — how these tools fit into the global stack.
+
 ## Sources / references
+
 - [GitHub API snapshot of starred repositories](https://github.com/joanmarcriera?tab=stars)
 - [Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT)
 - [anomalyco/opencode](https://github.com/anomalyco/opencode)

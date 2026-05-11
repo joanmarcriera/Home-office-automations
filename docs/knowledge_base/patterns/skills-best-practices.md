@@ -26,6 +26,13 @@ Best-practice structure prevents all of these.
 
 **Pattern**. Governs prompt/skill engineering for all autonomous agent workflows. Applies at design time (when authoring skills) and at runtime (when the agent selects and executes them).
 
+## Typical use cases
+
+- **Code Maintenance**: Automating git commits, PR reviews, and standard refactors.
+- **Data Ingestion**: Extracting fields from PDFs/emails and filing them into a database or service like Paperless-ngx.
+- **Operational Reporting**: Generating daily digests or weekly summaries from task managers and weather services.
+- **System Troubleshooting**: Implementing self-healing loops that restart services based on health check failures.
+
 ## Skill anatomy
 
 ### Claude Code skill (Markdown)
@@ -349,6 +356,7 @@ Review skills when:
 - [Claude Skills Ecosystem](../../tools/agents/claude-skills-ecosystem.md) — Claude Code skill environment
 - [Claude Code Setup](../../tools/development_ops/claude-code-setup.md) — configuring skills in Claude Code
 - [OpenClaw Workflow Prompts](openclaw-workflow-prompts.md) — curated prompt library for OpenClaw
+- [Prompt Requests](prompt_requests.md) — the post-PR development workflow pattern.
 - [Patterns Index](index.md) — other patterns in this knowledge base
 
 ## Sources / References
