@@ -1,7 +1,13 @@
 # SSO Solutions Comparison (Self-Hosted)
 
-## Overview
-This document compares self-hosted Single Sign-On (SSO) and Identity and Access Management (IAM) solutions suitable for a family homelab environment.
+## What it is
+This document provides a comparative analysis of self-hosted Single Sign-On (SSO) and Identity and Access Management (IAM) solutions. These tools allow users to use a single set of credentials to access multiple independent software systems within a homelab or enterprise environment.
+
+## What problem it solves
+Managing separate usernames and passwords for dozens of self-hosted services (Nextcloud, Gitea, etc.) is insecure and cumbersome. SSO centralizes authentication, enables Multi-Factor Authentication (MFA) across all services, and simplifies user onboarding and offboarding.
+
+## Where it fits in the stack
+SSO sits in the **Identity and Access** layer of the infrastructure stack. It typically integrates with a directory service (like LDAP) or acts as the directory itself, providing authentication protocols like OIDC (OpenID Connect), SAML, and OAuth2 to application-layer services.
 
 ## Comparison Matrix
 
@@ -14,32 +20,45 @@ This document compares self-hosted Single Sign-On (SSO) and Identity and Access 
 | **Resource Usage** | High (multiple containers) | Low/Medium | Very Low |
 | **2FA Support** | Excellent (WebAuthn, TOTP) | Excellent (WebAuthn-first) | Limited/External |
 
-## Recommendation
+## Typical use cases
+- **Centralized Homelab Auth**: Using one login for all services behind a reverse proxy.
+- **Family Member Portals**: Providing a user-friendly dashboard where family members can manage their own security settings.
+- **Legacy App Support**: Providing LDAP authentication for older software that doesn't support modern OIDC.
 
-### Use **Authentik** if:
-- You need to support a wide variety of apps (some only support SAML, others OIDC).
-- You want a polished user portal for family members to manage their own passwords and 2FA.
-- You have sufficient hardware resources (8GB+ RAM recommended for the full stack).
+## Strengths
+- **Security**: Centralizes MFA enforcement and password policies.
+- **User Experience**: Reduces login friction with "One-Click" access to services.
+- **Interoperability**: Supports diverse protocols (OIDC, SAML, LDAP).
 
-### Use **Kanidm** if:
-- Security and "correctness" are your top priorities.
-- You prefer a modern, Rust-based stack.
-- You want a solution that handles IDM and SSO in one unified system.
+## Limitations
+- **Single Point of Failure**: If the SSO service goes down, access to all integrated services is lost.
+- **Complexity**: Setting up SAML or complex OIDC flows can be technically challenging for beginners.
+- **Resource Intensity**: Full-featured solutions like Authentik require significant RAM compared to simple LDAP.
 
-### Use **LL-LDAP** if:
-- You only need simple LDAP authentication for a few legacy services.
-- You are running on very constrained hardware (e.g., a Raspberry Pi 3).
+## When to use it
+- When you have more than 3-5 self-hosted services that support external authentication.
+- When you want to enforce hardware-based MFA (WebAuthn) across your entire stack.
+- When sharing your homelab with non-technical family members.
 
-## Next Steps
-1. Deploy **Authentik** via Docker Compose for initial testing.
-2. Configure OIDC for the first three services: Nextcloud, Vikunja, and Gitea.
-3. Document the setup in `docs/services/authentik.md`.
+## When not to use it
+- For very simple setups with only one or two users and few services.
+- On extremely resource-constrained hardware (e.g., Raspberry Pi Zero).
+- If you prefer the isolation of separate credentials for every service.
 
-## Sources / References
+## Related tools / concepts
+- [Authentik](../services/authentik.md): A versatile open-source IdP.
+- [Gitea](../services/gitea.md): Self-hosted Git service that supports OIDC/LDAP.
+- [Nextcloud](../services/nextcloud.md): Collaboration platform with robust SSO integration.
+- [Vikunja](../services/vikunja.md): Task manager that integrates with OpenID Connect.
+- [Paperless-ngx](../services/paperless-ngx.md): Document management with SSO support.
+- [Tailscale](../services/tailscale.md): Zero-config VPN that can use SSO for identity.
+- [Habitica](../services/habitica.md): Productivity app that can be part of a unified auth strategy.
+
+## Sources / references
 - [Authentik Official Docs](https://docs.goauthentik.io/)
 - [Kanidm Official Docs](https://kanidm.github.io/kanidm/)
 - [Identity Management on Homelab (Reddit)](https://www.reddit.com/r/homelab/comments/17q8j9f/identity_management_and_sso_for_the_homelab/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-18
-- Confidence: medium
+- Last reviewed: 2026-05-11
+- Confidence: high

@@ -43,12 +43,12 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 ## Sub-Batch 41.5: Reference Implementations & KB Gaps
 - [x] `docs/knowledge_base/family-values.md`
 - [x] `docs/knowledge_base/free_ai_website_playbook.md`
-- [ ] `docs/knowledge_base/sso-comparison.md`
-- [ ] `docs/knowledge_base/energy-anomaly-detection-baseline.md`
-- [ ] `docs/knowledge_base/real_time_sync_engines.md`
-- [ ] `docs/reference-implementations/calendar/mapping-rules.md`
-- [ ] `docs/reference-implementations/hitl-ui-design.md`
-- [ ] `docs/reference-implementations/llm-prompts/daily-briefing.md`
+- [x] `docs/knowledge_base/sso-comparison.md`
+- [x] `docs/knowledge_base/energy-anomaly-detection-baseline.md`
+- [x] `docs/knowledge_base/real_time_sync_engines.md`
+- [x] `docs/reference-implementations/calendar/mapping-rules.md`
+- [x] `docs/reference-implementations/hitl-ui-design.md`
+- [x] `docs/reference-implementations/llm-prompts/daily-briefing.md`
 - [ ] `docs/reference-implementations/metadata-schemas/audio-transcription.md`
 
 ---

@@ -1,10 +1,13 @@
 # HITL UI for Document Extraction
 
 ## What it is
-A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-driven metadata extraction and the final system of record (e.g., Google Calendar, Vikunja, Paperless-ngx). It allows users to review, correct, and approve data before it is permanently committed.
+A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-driven metadata extraction and the final system of record (e.g., Google Calendar, Vikunja, Paperless-ngx). It allows users to review, correct, and approve data before it is permanently committed to the database.
 
 ## What problem it solves
-LLMs occasionally hallucinate or misinterpret dates and priorities in scanned documents. Automatically pushing these to a calendar can lead to cluttered or incorrect schedules. This UI provides a "staging area" for human verification.
+LLMs occasionally hallucinate or misinterpret dates and priorities in scanned documents. Automatically pushing these to a calendar can lead to cluttered or incorrect schedules. This UI provides a "staging area" for human verification, ensuring 100% accuracy for critical data like bill due dates or medical appointments.
+
+## Where it fits in the stack
+This interface sits in the **Interaction** layer of the AI-augmented home office. It acts as an optional "gatekeeper" within a workflow, triggered after the **AI Service** layer has processed a document but before the **Productivity API** layer has written the final result.
 
 ## Architecture
 - **Backend**: FastAPI (Python) for high performance and easy JSON validation.
@@ -58,12 +61,37 @@ LLMs occasionally hallucinate or misinterpret dates and priorities in scanned do
 | `corrected_metadata` | JSONB | Data as edited by the user (defaults to original) |
 | `status` | String | `pending`, `approved`, `rejected` |
 
+## Typical use cases
+- **Financial Document Ingestion**: Reviewing extracted amounts and account numbers from scanned invoices.
+- **Appointment Capture**: Confirming dates and times extracted from medical or school correspondence.
+- **Data Labeling**: Using the corrections made in the UI to create a "golden dataset" for fine-tuning future LLM extractions.
+
 ## Frontend Design (Streamlit)
 - **Sidebar**: Filter by date or document type.
 - **Main View**:
     - **Visual Reference**: Embedded PDF viewer or image of the document.
     - **Form**: Side-by-side view of "AI Suggestion" vs "Editable Fields".
     - **Actions**: Large "Approve" (Green) and "Reject" (Red) buttons.
+
+## Strengths
+- **Accuracy**: Human verification eliminates AI hallucinations.
+- **Speed**: Streamlit allows for an extremely fast development-to-deployment cycle.
+- **Feedback Loop**: Provides a mechanism to capture "ground truth" data for system improvement.
+
+## Limitations
+- **Manual Effort**: Requires user time, which can become a bottleneck if document volume is very high.
+- **Latency**: The final action (e.g., adding to calendar) is delayed until the human review is complete.
+- **UI Constraints**: Streamlit is excellent for functional internal tools but less flexible for complex, highly custom UX/UI designs.
+
+## When to use it
+- For high-stakes data where errors have financial or legal consequences.
+- When the LLM confidence score for a specific extraction is below a certain threshold.
+- During the initial "pilot" phase of an automation to build trust in the AI's performance.
+
+## When not to use it
+- For low-priority data where an occasional error is acceptable (e.g., tagging a recipe).
+- When the extraction logic is proven to be 99%+ accurate over a long period.
+- For high-velocity automated systems where human intervention is physically impossible.
 
 ## Integration Flow
 1. **n8n** extracts data from a new document.
@@ -72,10 +100,20 @@ LLMs occasionally hallucinate or misinterpret dates and priorities in scanned do
 4. User reviews data in Streamlit.
 5. On **Approve**, the HITL Backend sends the finalized data to the target service.
 
-- Last reviewed: 2026-04-09
-- Confidence: high
+## Related tools / concepts
+- [FastAPI](../tools/frameworks/fastapi.md): The recommended backend framework for the HITL service.
+- [n8n](../services/n8n.md): The workflow engine that coordinates the staging and final delivery.
+- [Paperless-ngx](../services/paperless-ngx.md): The primary source of document images and metadata.
+- [Google Calendar](../tools/calendar_tasks/google_calendar.md): A typical final destination for verified data.
+- [Vikunja](../services/vikunja.md): For creating tasks after human verification.
+- [Habitica](../services/habitica.md): For gamifying the document review process.
+- [Nextcloud](../services/nextcloud.md): For storing the final verified documents and their metadata.
 
-## Sources / References
-- [KnowledgeOps Contract](../../docs/standards.md)
+## Sources / references
+- [KnowledgeOps Documentation](../../docs/standards-and-conventions.md)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Streamlit Documentation](https://docs.streamlit.io/)
+
+## Contribution Metadata
+- Last reviewed: 2026-05-11
+- Confidence: high
