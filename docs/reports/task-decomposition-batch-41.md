@@ -30,11 +30,11 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/tools/enterprise/tldv.md`
 
 ## Sub-Batch 41.4: Process Understanding (Observability)
-- [ ] `docs/tools/process_understanding/langfuse.md`
-- [ ] `docs/tools/process_understanding/agentops.md`
-- [ ] `docs/tools/process_understanding/helicone.md`
-- [ ] `docs/tools/process_understanding/clickhouse.md`
-- [ ] `docs/tools/process_understanding/opentelemetry-collector.md`
+- [x] `docs/tools/process_understanding/langfuse.md`
+- [x] `docs/tools/process_understanding/agentops.md`
+- [x] `docs/tools/process_understanding/helicone.md`
+- [x] `docs/tools/process_understanding/clickhouse.md`
+- [x] `docs/tools/process_understanding/opentelemetry-collector.md`
 - [ ] `docs/tools/process_understanding/snowflake.md`
 - [ ] `docs/tools/process_understanding/wandb-weave.md`
 - [ ] `docs/tools/process_understanding/webhook.md`

@@ -1,19 +1,45 @@
 # Langfuse
 
 ## What it is
-An open-source LLM engineering platform for tracing, observability, metrics, and evaluation.
+Langfuse is an open-source LLM engineering platform designed for tracing, observability, metrics, and evaluation. It provides a comprehensive suite of tools to help teams collaboratively debug, analyze, and iterate on their LLM applications throughout the entire development lifecycle.
 
 ## What problem it solves
-It allows developers to debug complex LLM interactions, track costs, monitor latency, and run evaluations (scores) on agent outputs.
+LLM applications involve complex, non-deterministic interactions that are difficult to monitor using traditional software tools. Langfuse solves these challenges by providing:
+- **Trace Transparency**: Deep visibility into nested calls, including retrieval, tool usage, and embedding steps.
+- **Cost and Latency Management**: Precise tracking of token usage, model costs, and performance bottlenecks.
+- **Quality Assurance**: Tools for measuring output quality via LLM-as-a-judge, user feedback, and manual labeling.
+- **Prompt Fragmentation**: Centralized prompt management to decouple prompts from code and enable version control.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Observability
+Langfuse sits in the **Observability and Evaluation** layer of the AI stack. It integrates directly with LLM providers, frameworks (like LangChain and LlamaIndex), and gateways (like LiteLLM) to capture telemetry data.
 
-## Key Features
-- **Tracing**: Visualizes the nested calls in an agentic loop, including tool calls, LLM latency, and token usage.
-- **Evaluation**: Automates model-based grading of responses using LLM-as-a-judge or manual scoring.
-- **Prompt Management**: Version-controlled prompt management that allows decoupling prompts from application code.
-- **OpenRouter Integration**: Native support for receiving logs from OpenRouter without additional instrumentation.
+## Typical use cases
+- **Debugging Agentic Workflows**: Visualizing multi-step agent loops and identifying where a "hallucination" or tool failure occurred.
+- **Regression Testing**: Using datasets and experiments to ensure a new prompt version or model doesn't degrade performance.
+- **Production Monitoring**: Tracking real-world usage, user feedback, and cost across different models and versions.
+- **Prompt Engineering**: Collaboratively iterating on prompts in a UI-based playground and deploying them via API without redeploying code.
+
+## Strengths
+- **Open Source and Self-hostable**: Complete control over data and infrastructure, with a community-driven development model.
+- **Minimal Performance Overhead**: Asynchronous SDKs designed to capture traces without blocking application logic.
+- **Comprehensive Integration**: Native support for Python/JS SDKs, OpenTelemetry, and 50+ library/framework integrations.
+- **API-First Architecture**: Easy to export data to blob storage or integrate with custom evaluation pipelines.
+
+## Limitations
+- **Hosting Complexity**: While self-hostable, managing the database (PostgreSQL), ClickHouse (for analytics), and Redis (for task queuing) requires operational effort.
+- **Dashboard Latency**: For extremely high-volume applications, there can be a slight delay in analytics updates.
+- **Learning Curve**: Mastering advanced features like multi-step experiments and custom scoring requires familiarity with the platform's core concepts.
+
+## When to use it
+- When building complex RAG systems or multi-agent workflows that require deep nested tracing.
+- When you need to manage and version prompts independently of your application deployment cycle.
+- When data privacy is a priority and you require a self-hosted observability solution.
+- When you want to systematically evaluate LLM outputs using both automated and human-in-the-loop methods.
+
+## When not to use it
+- For extremely simple, single-prompt applications where basic logging suffices.
+- If you prefer a fully managed, zero-config SaaS solution and do not mind data leaving your infrastructure (though Langfuse offers a Cloud version).
+- If your application does not use LLMs (it is specialized for LLM telemetry).
 
 ## Getting started
 
@@ -26,77 +52,54 @@ pip install langfuse
 Langfuse provides a wrapper for the OpenAI SDK that automatically captures traces.
 
 ```python
+import os
 from langfuse.openai import openai
+
+# Configure environment variables
+# os.environ["LANGFUSE_PUBLIC_KEY"] = "pk-lf-..."
+# os.environ["LANGFUSE_SECRET_KEY"] = "sk-lf-..."
+# os.environ["LANGFUSE_HOST"] = "https://cloud.langfuse.com"
 
 # Standard OpenAI call, now automatically traced
 response = openai.chat.completions.create(
   model="gpt-4o",
   messages=[{"role": "user", "content": "How does Langfuse help with AI observability?"}],
-  name="obs-test-run" # Optional: name the trace
+  name="obs-test-run" # Name the trace for easy filtering
 )
 
 print(response.choices[0].message.content)
 ```
 
-## CLI examples
+### Manual Tracing
+For non-standard integrations, use the native SDK to create traces and spans manually:
 
-### langfuse api traces list
-Lists recent traces from your project:
-```bash
-langfuse api traces list --limit 10
-```
-
-### langfuse api prompts get
-Retrieves a specific prompt version from the Langfuse prompt management system:
-```bash
-langfuse api prompts get --name "my-prompt-name"
-```
-
-### langfuse integration claudecode enable
-Enables tracing for Claude Code sessions:
-```bash
-langfuse integration claudecode enable
-```
-
-## API examples
-
-### Python (LangChain Integration)
-```python
-from langfuse.callback import CallbackHandler
-
-langfuse_handler = CallbackHandler()
-
-# Pass the handler to your LangChain run
-chain.invoke({"input": "Hello!"}, config={"callbacks": [langfuse_handler]})
-```
-
-### Python (Scoring a trace)
 ```python
 from langfuse import Langfuse
 
 langfuse = Langfuse()
 
-# Send a score for an existing trace
-langfuse.score(
-    trace_id="existing-trace-id",
-    name="user-feedback",
-    value=1,
-    comment="Very helpful response"
-)
+trace = langfuse.trace(name = "translation-task")
+span = trace.span(name = "translate-to-german", input = "Hello world")
+
+# ... call your translation logic ...
+span.end(output = "Hallo Welt")
 ```
 
 ## Related tools / concepts
-- [AgentOps](agentops.md)
-- [Arize AI](arize-ai.md)
-- [Braintrust](braintrust.md)
-- [Helicone](helicone.md)
-- [Parea](parea.md)
-- [W&B Weave](wandb-weave.md)
+- [AgentOps](agentops.md) - Specialized agent monitoring and session tracking.
+- [Helicone](helicone.md) - Proxy-based observability for LLM requests.
+- [Arize AI](arize-ai.md) - Enterprise-grade ML observability and evaluation.
+- [W&B Weave](wandb-weave.md) - Lightweight tracing and versioning for AI developers.
+- [Parea](parea.md) - AI engineering platform for testing and monitoring.
+- [LiteLLM](../../services/litellm.md) - LLM gateway that can export traces to Langfuse.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) - Complex patterns that benefit from Langfuse tracing.
+- [Model Routing](../../knowledge_base/model_routing_guide.md) - Decision logic that can be audited via Langfuse.
 
 ## Sources / references
-- [Langfuse Website](https://langfuse.com/)
-- [Langfuse CLI Documentation](https://langfuse.com/docs/api-and-data-platform/features/cli)
+- [Langfuse Official Documentation](https://langfuse.com/docs)
+- [Langfuse GitHub Repository](https://github.com/langfuse/langfuse)
+- [Langfuse SDK Reference](https://langfuse.com/docs/sdk/overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-11
 - Confidence: high
