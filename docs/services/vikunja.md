@@ -1,7 +1,5 @@
 # Vikunja
 
-Vikunja is an open-source, self-hosted To-do list application.
-
 ## What it is
 Vikunja is an open-source, self-hosted To-do list application that allows you to organize all your tasks on all platforms. It features Kanban boards, Gantt charts, table views, and a powerful filter system.
 
@@ -10,6 +8,23 @@ Maintaining a consistent task list across devices while maintaining privacy can 
 
 ## Where it fits in the stack
 **Category**: Services / Task Management. It serves as the **operational coordination layer**, managing actionable items and deadlines that result from higher-level knowledge and planning.
+
+## Typical use cases
+- **Personal Task Management**: Using the web or mobile interface to track daily chores, shopping lists, and reminders.
+- **Project Planning**: Utilizing Gantt charts and Kanban boards to visualize multi-stage projects with dependencies.
+- **Automated Ingestion**: Creating tasks automatically via API from emails, chat messages, or CI/CD pipelines.
+- **Collaborative Lists**: Sharing specific task lists with family members or team colleagues for joint coordination.
+
+## Strengths
+- **Multiple Views**: Seamlessly switch between List, Kanban, Gantt, and Table views for the same set of tasks.
+- **Task Relations**: Robust support for subtasks, dependencies (blocking/blocked by), and related tasks.
+- **Rich Filtering**: A powerful query language for creating smart views based on tags, dates, and priorities.
+- **Self-Hosted Privacy**: Full control over data with OIDC support for secure family-wide access.
+
+## Limitations
+- **Mobile App State**: While the PWA is excellent, the native mobile apps are still in active development and may lack some advanced features.
+- **Feature Density**: The sheer number of features (relations, namespaces, teams) can be overwhelming for users seeking a simple checklist.
+- **Resource Usage**: Requires a database (Postgres/MySQL) and an API backend, making it heavier than "flat-file" task managers.
 
 ## When to use it
 - When you need a powerful, self-hosted To-do list with support for Kanban boards, Gantt charts, and list views.
@@ -76,10 +91,6 @@ curl -H "Authorization: Bearer <your_api_token>" \
 
 Use your own private Vikunja base URL here. Do not commit instance-specific URLs, project IDs, or tokens into this repository.
 
-## Links
-- [Official Website](https://vikunja.io/)
-- [Documentation](https://vikunja.io/docs/)
-
 ## Task Relations
 Vikunja allows linking tasks together with various relation types.
 
@@ -131,12 +142,14 @@ In Authentik, configure the Redirect URI as: `https://vikunja.example.com/auth/o
 - [CLI Reference](https://vikunja.io/docs/cli/)
 
 ## Related tools / concepts
-- [Focalboard](focalboard.md) — for an alternative Kanban-focused tool
-- [Nextcloud Tasks](nextcloud.md) — for tasks integrated into a larger suite
-- [Habitica](habitica.md) — for gamified task management
-- [Authentik](authentik.md) — for managing Vikunja SSO/OIDC
-- [Radicale](radicale.md) — for CalDAV sync of tasks
-- [n8n](n8n.md) — for automating task creation from emails or chats
+- [Radicale](radicale.md) — For CalDAV sync of tasks.
+- [Habitica](habitica.md) — For gamified task management.
+- [Focalboard](focalboard.md) — For an alternative Kanban-focused tool.
+- [Nextcloud](nextcloud.md) — For tasks integrated into a larger suite.
+- [Authentik](authentik.md) — For managing Vikunja SSO/OIDC.
+- [n8n](n8n.md) — For automating task creation from emails or chats.
+- [Email-to-Calendar](../playbooks/email-to-calendar.md) — Complementary playbook for scheduling.
+- [Vikunja Task Routing](../reference-implementations/llm-prompts/vikunja-task-routing.md) — LLM patterns for automated task classification.
 
 ## Contribution Metadata
 

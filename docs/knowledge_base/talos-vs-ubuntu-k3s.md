@@ -4,7 +4,15 @@
 A comparison between a traditional general-purpose Linux distribution (Ubuntu) and a modern, immutable, API-managed operating system designed specifically for Kubernetes (Talos OS).
 
 ## What problem it solves
-Choosing the right base OS for a homelab Kubernetes cluster (K3s) affects maintenance overhead, security, and resource efficiency.
+Choosing the right base OS for a homelab Kubernetes cluster (K3s) affects maintenance overhead, security, and resource efficiency. It helps decide between the flexibility of a general-purpose OS and the stability of a container-optimized OS.
+
+## Where it fits in the stack
+This comparison sits at the **infrastructure orchestration layer**. It defines the foundation upon which all other services (n8n, Paperless, etc.) are deployed, determining how nodes are provisioned, updated, and managed within the homelab.
+
+## Typical use cases
+- **Evaluating Node OS**: Deciding which distribution to install on physical hardware or virtual machines for a new K3s cluster.
+- **Security Hardening**: Planning a cluster migration from traditional Ubuntu to an immutable OS like Talos to reduce the attack surface.
+- **GitOps Implementation**: Designing a cluster where node configuration is entirely managed via YAML and stored in Git.
 
 ## Comparison Overview
 
@@ -48,8 +56,13 @@ Choosing the right base OS for a homelab Kubernetes cluster (K3s) affects mainte
 - Avoid **Talos OS** if you are not comfortable managing everything via an API or if you need to run legacy software that requires a traditional Linux environment.
 
 ## Related tools / concepts
-- [K3s Migration Cluster Architecture](../architecture/infrastructure.md)
-- [Proxmox (Commonly used to host these VMs)](https://www.proxmox.com)
+- [Invisible Kubernetes](invisible_kubernetes.md) — For patterns on simplifying cluster management.
+- [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — Practical guide for deploying the cluster.
+- [NFS CSI Setup](../playbooks/nfs-csi-setup.md) — For managing persistent storage on the chosen OS.
+- [Ubuntu AI](../tools/infrastructure/ubuntu-ai.md) — Specific configurations for Ubuntu-based AI workloads.
+- [Infrastructure Architecture](../architecture/infrastructure.md) — High-level overview of the homelab stack.
+- [Home Assistant](../services/home-assistant.md) — Often run as a VM or container on these OS choices.
+- [TrueNAS SCALE](../architecture/infrastructure.md) — Often used as the storage backend for these nodes.
 
 ## Sources / references
 - [Talos OS Documentation](https://www.talos.dev/)
