@@ -2,6 +2,31 @@
 
 This document provides a comprehensive comparison of Google One subscription plans, focusing on the distinction between standard storage-centric plans and AI-enhanced tiers like **AI Premium** and the flagship **AI Pro**.
 
+## What it is
+Google One is a subscription service that provides expanded cloud storage across Google Drive, Gmail, and Google Photos, alongside specialized benefits. In 2026, it has evolved into a tiered AI-enablement platform, offering direct access to Google's most advanced Gemini models and autonomous agent capabilities like [Jules](../tools/ai_knowledge/jules.md).
+
+## What problem it solves
+It addresses the growing need for unified digital storage while solving the "AI access gap" by bundling compute-heavy AI features (video generation, autonomous coding, deep research) into a consumer-friendly monthly subscription. It eliminates the need for separate subscriptions for storage, AI assistants, and developer tools.
+
+## Where it fits in the stack
+Google One sits at the **Subscription & Access Layer** of the personal AI stack. It serves as the gateway to the [Google Gemini](../tools/providers/google-gemini.md) ecosystem, providing the storage backbone for [NotebookLM](../tools/ai_knowledge/notebooklm.md) and the compute credits for agentic workflows.
+
+## Typical use cases
+- **Personal Data Archiving**: High-capacity storage for multi-generational photo and video libraries.
+- **AI-Native Productivity**: Using Gemini in Workspace to automate drafting, data analysis, and presentation design.
+- **Autonomous Development**: Leveraging [Jules](../tools/ai_knowledge/jules.md) for software engineering tasks.
+- **Academic Research**: Utilizing Deep Search "AI Mode" for complex literature reviews and data synthesis.
+
+## Strengths
+- **Ecosystem Integration**: Seamless operation across Android, Chrome, and Google Workspace.
+- **Price-to-Value**: Highly competitive pricing for 2TB+ tiers compared to standalone AI services.
+- **Family Benefits**: Ability to share storage and some AI features with up to five additional members.
+
+## Limitations
+- **Ecosystem Lock-in**: Deepest benefits require staying within the Google environment.
+- **Experimental Features**: Many advanced AI tools are in "Labs" status and may have variable reliability.
+- **Data Privacy**: Extensive AI usage involves processing personal data through Google's cloud-based models.
+
 ## Plan Overview & Pricing
 
 | Feature | Basic | Standard | Premium | AI Premium | AI Pro |
@@ -73,6 +98,25 @@ This document provides a comprehensive comparison of Google One subscription pla
 - **Experimental Nature:** Many AI features are labeled as experimental and may produce inaccurate or inappropriate responses.
 - **Watermarking:** Media generated via Flow, Whisk, or Google Photos includes visual and SynthID digital watermarks for transparency.
 - **Service Stability:** Capacity for agentic tools (Jules, Antigravity) is subject to availability and not guaranteed even for Pro members.
+
+## When to use it
+- When your primary productivity and data storage are already centered in the Google ecosystem.
+- When you require a cost-effective way to access frontier AI models like Gemini 3 Pro.
+- When you need a shared family storage solution that also provides AI benefits to all members.
+
+## When not to use it
+- If you have strict data sovereignty requirements that forbid cloud-based AI processing.
+- If you primarily use the Apple (iCloud/Apple Intelligence) or Microsoft (365/Copilot) ecosystems.
+- If you only need storage and have no interest in AI-enhanced productivity tools.
+
+## Related tools / concepts
+- [Jules](../tools/ai_knowledge/jules.md): The flagship autonomous coding agent.
+- [Google Gemini](../tools/providers/google-gemini.md): The underlying model family.
+- [NotebookLM](../tools/ai_knowledge/notebooklm.md): The AI-powered research and note-taking tool.
+- [Model Routing Guide](model_routing_guide.md): Guidance on when to use specific Gemini model tiers.
+- [API Pricing & Free Tiers](api_pricing_free_tiers.md): Comparison of developer-centric AI costs.
+- [Microsoft Graph](../tools/providers/microsoft-graph.md): The competitive enterprise data layer.
+- [Apple Intelligence](../tools/ai_knowledge/apple-intelligence.md): The competitive personal AI ecosystem.
 
 ## Sources / references
 

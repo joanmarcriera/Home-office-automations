@@ -2,9 +2,31 @@
 
 The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern is an emerging architectural trend where the local filesystem serves as the primary persistence layer and communication interface for AI agents.
 
-## Overview
+## What it is
+The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern is an architectural approach where the local filesystem serves as the primary persistence layer, configuration source, and communication medium for AI agents. Instead of opaque databases, agents use human-readable Markdown and YAML files to store state, memory, and instructions.
 
-In this pattern, instead of relying on complex APIs or proprietary databases for agent memory, agents interact with structured markdown or configuration files (e.g., `CLAUDE.md`, `AGENTS.md`, `SKILL.md`) located directly within the user's project directory.
+## What problem it solves
+It solves the "Black Box" problem of AI memory and configuration. Traditional SaaS-based agents store user preferences and project context in proprietary databases, making it difficult for users to audit, migrate, or version-control their agent's behavior. This pattern ensures that context is transparent, portable, and versioned alongside the code.
+
+## Where it fits in the stack
+This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the [Model Layer](../model_classes.md) and the local development environment, providing a standardized way for tools like [Claude Code](../../tools/development_ops/claude-code.md) to understand project boundaries and rules.
+
+## Typical use cases
+- **Project Rules (CLAUDE.md)**: Storing build commands, linting rules, and architectural constraints for an engineering agent.
+- **Agent Orchestration (AGENTS.md)**: Providing high-level goals and persona definitions for autonomous agents in a repository.
+- **Skill Definition (SKILL.md)**: Packaging specific capabilities (e.g., "SQL Validation") as discrete, discoverable files that an agent can learn and use.
+- **Long-term Memory**: Using a `memory/` directory to store logs of previous interactions and decisions for future context.
+
+## Strengths
+- **User Ownership**: Context and preferences stay with the user's data, not locked in a SaaS provider's database.
+- **Portability**: The same context files can be utilized by different agents (e.g., Cursor, GitHub Copilot, Claude Code) without modification.
+- **Transparency**: Humans can easily read, audit, and edit the context the agent is using to make decisions.
+- **Version Control**: Rules and context are version-controlled via Git, allowing for easy rollbacks and collaboration.
+
+## Limitations
+- **Context Window Limits**: Overloading filesystem context can quickly fill an LLM's context window, increasing latency and cost.
+- **Fragmented Standards**: Lack of a single universal standard leads to multiple competing files (`.cursorrules`, `CLAUDE.md`, `.windsurfrules`).
+- **Input Quality**: The effectiveness of the agent is highly dependent on the quality and conciseness of the human-written context files.
 
 ## Core Principles
 
@@ -13,29 +35,29 @@ In this pattern, instead of relying on complex APIs or proprietary databases for
 3.  **Boring Persistence**: Long-term memory is managed by "writing things down" in simple, searchable files.
 4.  **Skills over Modules**: Capabilities are added by providing skill descriptions (markdown files) that an agent can read and execute, or even use to transform its own source code (as seen in [NanoClaw](../../tools/development_ops/nanoclaw.md)).
 
-## Benefits
-
--   **User Ownership**: Context and preferences stay with the user's data, not locked in a SaaS database.
--   **Portability**: The same context files can be used by different agents (Claude Code, Cursor, Codex).
--   **Transparency**: Humans can easily read, audit, and edit the context the agent is using.
--   **Low Latency**: Direct filesystem I/O is faster and more reliable than network API calls for local development.
-
 ## Implementation Examples
 
 -   **CLAUDE.md**: Used by [Claude Code](../../tools/development_ops/claude-code.md) to store project-specific constraints and memory.
 -   **AGENTS.md**: A generalized standard for providing instructions to any autonomous agent in a repository.
 -   **SKILL.md**: Part of the [Agent Skills](../../tools/agents/anthropic-agent-skills.md) standard for defining reusable agent capabilities.
 
-## Constraints and Challenges
+## When to use it
+- Use when building local-first development tools where transparency and Git-integration are priorities.
+- Use for multi-agent systems where agents need a shared, durable state without the overhead of a database.
+- Use when context needs to be portable across different AI IDEs and CLI tools.
 
--   **Context Stuffing**: Overloading context files with too much information can degrade model performance and increase costs.
--   **Standardization**: Multiple competing file names (`.cursorrules`, `copilot-instructions.md`) create fragmentation.
--   **Drafting Difficulty**: Writing effective, concise context files is a skill that requires human refinement.
+## When not to use it
+- Don't use for highly dynamic, high-frequency state updates (use a Redis or vector DB instead).
+- Don't use for storing sensitive secrets (unless they are managed by an encrypted secret manager or excluded via `.gitignore`).
+- Avoid when the project size is so large that a flat filesystem search becomes a performance bottleneck for context retrieval.
 
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md)
 - [Agent Skills Best Practices](skills-best-practices.md)
 - [Software Factories](software-factories.md)
+- [Claude Code](../../tools/development_ops/claude-code.md)
+- [Agent Skills](../../tools/agents/anthropic-agent-skills.md)
+- [NanoClaw](../../tools/development_ops/nanoclaw.md)
 
 ## Sources / References
 
