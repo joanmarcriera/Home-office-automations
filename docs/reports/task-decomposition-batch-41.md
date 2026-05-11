@@ -35,7 +35,7 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/tools/process_understanding/helicone.md`
 - [x] `docs/tools/process_understanding/clickhouse.md`
 - [x] `docs/tools/process_understanding/opentelemetry-collector.md`
-- [ ] `docs/tools/process_understanding/snowflake.md`
+- [x] `docs/tools/process_understanding/snowflake.md`
 - [ ] `docs/tools/process_understanding/wandb-weave.md`
 - [ ] `docs/tools/process_understanding/webhook.md`
 - [ ] `docs/tools/process_understanding/datadog.md`

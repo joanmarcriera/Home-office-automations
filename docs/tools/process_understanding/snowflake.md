@@ -10,7 +10,9 @@ It eliminates the complexities of managing traditional on-premises data warehous
 **Category**: Process & Understanding / Data Warehouse
 
 ## Typical use cases
-- **AI Log Archiving**: Storing structured traces and JSON logs from AI providers for long-term audit and compliance.
+- **AI Log Archiving**: Storing structured traces and JSON logs from AI providers (via OpenRouter Broadcast) for long-term audit and compliance.
+- **Generative AI Workflows**: Using **Snowflake Cortex** functions (e.g., `AI_COMPLETE`, `AI_EXTRACT`) to process data directly where it resides.
+- **Document Intelligence**: Extracting structured data from PDFs and images using `AI_PARSE_DOCUMENT`.
 - **Business Intelligence**: Powering dashboards that correlate AI performance with business outcomes.
 - **Data Engineering**: Using Snowpark to process and transform large volumes of AI-generated data using Python or SQL.
 - **Secure Data Sharing**: Sharing AI telemetry data with partners or third-party auditors without moving the data.
@@ -24,6 +26,17 @@ It eliminates the complexities of managing traditional on-premises data warehous
 ## Limitations
 - **Cloud-Only**: Cannot be run locally or in air-gapped environments.
 - **Latency for Small Queries**: Optimized for massive analytical queries; may have higher latency for very small, transactional-style queries.
+- **Cost Complexity**: Usage-based pricing can become expensive if large-scale AI processing (like frequent `AI_COMPLETE` calls) is not monitored.
+
+## When to use it
+- When you have massive volumes of AI log data that require enterprise-grade storage and complex analytical processing.
+- If you need to perform "AI next to your data" using built-in LLM functions without moving sensitive information to external APIs.
+- When you require multi-cloud flexibility or secure data sharing with third parties.
+
+## When not to use it
+- For small-scale projects where a simpler database like [ClickHouse](clickhouse.md) or even SQLite would suffice.
+- If you require an on-premises or fully local-first solution.
+- For high-frequency, low-latency transactional writes that aren't primarily for analytical purposes.
 
 ## Getting started
 
@@ -120,18 +133,24 @@ finally:
 ```
 
 ## Related tools / concepts
-- [ClickHouse](clickhouse.md)
+- [ClickHouse](clickhouse.md) (Analytical alternative)
 - [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming source)
-- [S3 / S3-Compatible Storage](../intake_storage/s3-storage.md)
-- [Langfuse](langfuse.md)
-- [Braintrust](braintrust.md)
-- [Datadog](datadog.md)
+- [S3 / S3-Compatible Storage](../intake_storage/s3-storage.md) (Staging and archiving)
+- [MinIO](../intake_storage/minio.md) (On-premise object storage)
+- [Langfuse](langfuse.md) (OSS Observability)
+- [Braintrust](braintrust.md) (Enterprise eval stack)
+- [Datadog](datadog.md) (Full-stack observability)
+- [Arize AI](arize-ai.md) (ML Observability)
+- [OpenAI](../ai_knowledge/openai.md) (Supported Cortex LLM provider)
+- [Claude](../ai_knowledge/claude.md) (Supported Cortex LLM provider)
+- [KnowledgeOps Standards](../../standards.md) (Data governance)
 
 ## Sources / references
 - [Official Website](https://www.snowflake.com/)
 - [Snowflake Documentation](https://docs.snowflake.com/en/user-guide/intro-key-concepts)
 - [OpenRouter Broadcast to Snowflake](https://openrouter.ai/docs/guides/features/broadcast/snowflake)
+- [Snowflake Cortex AI](https://www.snowflake.com/en/product/features/cortex/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-05-11
 - Confidence: high
