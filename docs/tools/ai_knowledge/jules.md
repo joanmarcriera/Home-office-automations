@@ -32,6 +32,16 @@ Jules is integrated into the staged automation pipeline described in [Automated 
 - "Standardize the Access Matrix UI and fix all broken relative links."
 - "Divide the OpenRouter log backlog into actionable batches."
 
+## When to use it
+- **Autonomous Repository Maintenance**: When you need to keep a large set of technical documents up to date without constant human oversight.
+- **Complex KnowledgeOps**: For orchestrating multi-step workflows that involve intake processing, quality auditing, and cross-linking.
+- **Issue Resolution at Scale**: When there is a backlog of technical tasks that can be resolved by an agent with repository context.
+
+## When not to use it
+- **High-Level Strategy**: When making decisions that fundamentally change the repository's architecture or long-term vision.
+- **Sensitive Infrastructure**: For changes to production environments or secrets management that require strict human approval.
+- **Ambiguous Requirements**: If the task lacks sufficient context or clear "done" criteria.
+
 ## Interaction Patterns
 Users can interact with Jules by:
 - Creating an issue and adding the `jules` label.
@@ -39,11 +49,14 @@ Users can interact with Jules by:
 - Using the "Ralph-loop" command to trigger broad repository maintenance.
 
 ## Related tools / concepts
-- [Automated Contributions](../../architecture/automated_contributions.md)
-- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
-- [OpenHands](../development_ops/openhands.md)
-- [Aider](../development_ops/aider.md)
-- [Claude Code](../development_ops/claude-code.md)
+- [Automated Contributions](../../architecture/automated_contributions.md) — The pipeline Jules executes.
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The framework Jules operates within.
+- [OpenHands](../development_ops/openhands.md) — Specialized software engineering agent.
+- [Aider](../development_ops/aider.md) — CLI tool for AI-assisted coding.
+- [Claude Code](../development_ops/claude-code.md) — Agentic CLI for engineering.
+- [Everything Claude Code](../development_ops/everything-claude-code.md) — Autonomous engineering framework.
+- [OpenClaw](../development_ops/openclaw.md) — The underlying agent platform.
+- [LiteLLM](../../services/litellm.md) — Proxy for Jules' model access.
 
 ## Sources / references
 - [Jules Homepage](https://jules.google/)

@@ -27,6 +27,11 @@ It provides a high-reasoning, "thinking" model that is accessible as open weight
 - For tasks where correctness is more important than speed.
 - When you need a logic-heavy model that you can self-host or access via low-cost providers.
 
+## When not to use it
+- **Simple, Low-latency Tasks**: For basic chat or categorization where a smaller, faster model (e.g., Llama 3.2-3B) would be more efficient.
+- **Real-time Interaction**: If the ~10-30s "thinking" delay is unacceptable for the user experience.
+- **Limited VRAM Environments**: If you cannot spare the 40GB+ VRAM required for the full R1-671B (though distilled versions exist).
+
 ## Licensing and cost
 - **License**: DeepSeek License (Open Weights)
 - **Cost**: Low-cost API access via DeepSeek or OpenRouter; free to self-host.
@@ -104,12 +109,14 @@ print(f"Answer: {response.choices[0].message.content}")
 ```
 
 ## Related tools / concepts
-- [DeepSeek](deepseek.md)
-- [OpenRouter](openrouter.md)
-- [Ollama](../../services/ollama.md)
-- [ChatGPT](chatgpt.md)
-- [Claude](claude.md)
-- [Local LLMs](local_llms.md)
+- [DeepSeek](deepseek.md) — The parent model family.
+- [OpenRouter](openrouter.md) — Unified API access to R1.
+- [Ollama](../../services/ollama.md) — Local runner for distilled R1 versions.
+- [ChatGPT](chatgpt.md) — Comparison model (OpenAI o1).
+- [Claude](claude.md) — Comparison model (Claude 3.5 Sonnet).
+- [Local LLMs](local_llms.md) — Overview of open-weights alternatives.
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — How to route to R1 via LiteLLM.
+- [LiteLLM](../../services/litellm.md) — Proxy for managing R1 API keys.
 
 ## Sources / References
 - [DeepSeek Official Site](https://www.deepseek.com/)
