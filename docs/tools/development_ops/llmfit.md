@@ -34,11 +34,6 @@ It prevents wasted time trying to run models that do not fit your hardware or pe
 brew install llmfit
 ```
 
-**Windows (Scoop)**
-```bash
-scoop install llmfit
-```
-
 **Python (uv / pip)**
 ```bash
 uv tool install -U llmfit
@@ -56,27 +51,44 @@ Simply type `llmfit` to launch the interactive TUI. It will automatically detect
 
 ## CLI examples
 
+### System Audit
 ```bash
-# Classic table output in the terminal
-llmfit --cli
-
-# Top recommendations in JSON format (ideal for agents)
-llmfit recommend --json --limit 5
-
-# Filter recommendations by use case
-llmfit recommend --use-case coding --limit 3
-
-# Display detected system hardware specs
+# Display detected system hardware specs in JSON format
 llmfit system --json
 ```
 
-## TUI Interaction
-The TUI is the primary way to interact with `llmfit`. Keybindings include:
-- `p`: **Plan Mode** — Estimates hardware needed for a specific model/context size.
-- `S`: **Simulation** — Overrides detected RAM/VRAM to see what *would* fit on different hardware.
-- `D`: **Download Manager** — Manage GGUF downloads and history.
-- `b`: **Community Benchmarks** — View real-world performance data from [localmaxxing.com](https://localmaxxing.com/).
-- `f`: Cycle fit filters (Runnable, Perfect, Good, etc.).
+### Model Recommendations
+```bash
+# Get top 5 recommendations for coding in JSON format
+llmfit recommend --use-case coding --limit 5 --json
+```
+
+### Hardware Planning
+```bash
+# Estimate required hardware for a specific model and context length
+llmfit plan "meta-llama/Llama-3.1-8B" --context 8192 --json
+```
+
+## API examples
+llmfit can run as a background service to provide fit data via a REST API.
+
+### Starting the Server
+```bash
+llmfit serve --host 0.0.0.0 --port 8787
+```
+
+### Fetching Node Recommendations
+```python
+import requests
+
+# Query the local llmfit service for the best coding models
+url = "http://localhost:8787/api/v1/models/top?limit=3&use_case=coding"
+response = requests.get(url)
+models = response.json()
+
+for model in models:
+    print(f"Recommended: {model['name']} (Score: {model['score']})")
+```
 
 ## When not to use it
 - When you already know you will use hosted frontier APIs (OpenAI, Anthropic, etc.) and have no interest in local execution.
