@@ -26,6 +26,15 @@ It provides deep visibility into complex, distributed systems. It unifies metric
 - Cost: Pricing can scale rapidly with volume (logs, custom metrics, etc.).
 - Learning Curve: Requires significant configuration to get the most value.
 
+## When to use it
+- In enterprise environments where centralized observability across multiple clouds and hundreds of services is required.
+- When you need to correlate metrics, traces, and logs to debug complex, intermittent issues.
+- For monitoring AI/LLM applications at scale, especially when combined with existing infrastructure monitoring.
+
+## When not to use it
+- For very small personal projects or startups with extremely tight budgets (consider open-source alternatives like Prometheus/Grafana first).
+- If your stack is very simple (e.g., a single monolithic app) and doesn't require the depth Datadog provides.
+
 ## Getting started
 
 ### Installation (Agent)
@@ -81,6 +90,8 @@ statsd.increment('agent.run.count', tags=["env:prod", "version:1.0"])
 - [OpenTelemetry Collector](opentelemetry-collector.md)
 - [Grafana Cloud](grafana-cloud.md)
 - [New Relic AI](new-relic-ai.md)
+- [Prometheus](https://prometheus.io/)
+- [ELK Stack (Elasticsearch, Logstash, Kibana)](https://www.elastic.co/elastic-stack)
 
 ## Sources / References
 - [Official Website](https://www.datadoghq.com/)

@@ -26,6 +26,16 @@ It enables event-driven architectures and real-time integrations between dispara
 - **Reliability**: If the receiving server is down, the data may be lost (unless the provider implements retries).
 - **One-Way**: Webhooks are typically "fire and forget"; the sender doesn't wait for a complex response.
 
+## When to use it
+- When you need real-time data synchronization between two independent systems.
+- When building event-driven architectures where actions (e.g., starting a build, sending an email) should be triggered by external events.
+- To avoid the performance and resource costs associated with constant API polling.
+
+## When not to use it
+- When the order of events is critical and the provider does not guarantee delivery order.
+- For high-frequency data streams where the overhead of individual HTTP requests is too high (consider WebSockets or a message bus like Kafka instead).
+- If the receiving system cannot handle sudden bursts of traffic (spiky loads).
+
 ## Getting started
 
 Webhooks are passive receivers. To use them, you typically provide an endpoint URL to a service provider (like OpenRouter or GitHub).
@@ -74,6 +84,8 @@ async def receive_webhook(request: Request, x_webhook_secret: str = Header(None)
 - [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming destination)
 - [Event-Driven Architecture](../../knowledge_base/patterns/index.md)
 - [REST API](../../standards-and-conventions.md)
+- [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
+- [FastAPI](https://fastapi.tiangolo.com/) (Popular framework for receiving webhooks)
 
 ## Sources / references
 - [Webhooks.fyi](https://webhooks.fyi/)

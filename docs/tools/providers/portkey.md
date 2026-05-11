@@ -26,6 +26,16 @@ It solves the complexity of managing multiple LLM providers and models in produc
 - **Proxy Dependency**: Adds a network hop (though minimal latency).
 - **Configuration Overhead**: Setting up complex routing and guardrail policies requires initial configuration.
 
+## When to use it
+- When you need to manage multiple LLM providers (OpenAI, Anthropic, Google, etc.) through a single, OpenAI-compatible interface.
+- To improve application reliability using automated fallbacks, retries, and load balancing across models.
+- When production-grade observability (logging, cost tracking, latency monitoring) is required for AI features.
+- If you need to implement prompt versioning and guardrails without modifying your application code for every change.
+
+## When not to use it
+- For very simple applications using a single model from a single provider where the extra features aren't needed.
+- If your environment has extremely strict latency requirements where even a few milliseconds of proxy overhead is unacceptable.
+
 ## Getting started
 
 ### Run Locally (One Command)
@@ -58,6 +68,9 @@ response = client.chat.completions.create(
 - [LiteLLM](../../services/litellm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [AI Auditing Tools](../process_understanding/ai-auditing-tools.md)
+- [Langfuse](../process_understanding/langfuse.md)
+- [Helicone](../process_understanding/helicone.md)
+- [Prompt Engineering](../../knowledge_base/system_prompts.md)
 
 ## Sources / references
 - [Official Website](https://portkey.ai/)

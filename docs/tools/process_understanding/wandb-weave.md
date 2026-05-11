@@ -26,6 +26,15 @@ It addresses the difficulty of debugging and optimizing complex, multi-step LLM 
 - **Cloud Dependency**: While highly integrated, it primarily relies on the Weights & Biases cloud platform for visualization.
 - **Evolving Product**: As a newer addition to the W&B ecosystem, features and APIs are rapidly evolving.
 
+## When to use it
+- When building complex LLM applications where tracing internal state and tool calls is critical.
+- When you need a lightweight way to run evaluations and score model performance across datasets.
+- If you are already using Weights & Biases for traditional machine learning and want a unified observability platform.
+
+## When not to use it
+- For simple, single-prompt applications where the overhead of tracing outweighs the benefits.
+- If you require a fully air-gapped or self-hosted observability solution (though W&B offers enterprise self-hosting, the community version is cloud-centric).
+
 ## Getting started
 
 ### Installation
@@ -70,11 +79,13 @@ print(call_llm("What is AI observability?"))
 
 ## Related tools / concepts
 - [Langfuse](langfuse.md)
+- [AgentOps](agentops.md)
 - [Braintrust](braintrust.md)
 - [Comet Opik](comet-opik.md)
 - [OpenRouter](../ai_knowledge/openrouter.md) (Streams traces to Weave)
 - [Arize AI](arize-ai.md)
 - [Ragas](ragas.md)
+- [Weights & Biases (Core)](https://wandb.ai/)
 
 ## Sources / references
 - [W&B Weave Website](https://wandb.ai/site/weave/)

@@ -36,13 +36,13 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/tools/process_understanding/clickhouse.md`
 - [x] `docs/tools/process_understanding/opentelemetry-collector.md`
 - [x] `docs/tools/process_understanding/snowflake.md`
-- [ ] `docs/tools/process_understanding/wandb-weave.md`
-- [ ] `docs/tools/process_understanding/webhook.md`
-- [ ] `docs/tools/process_understanding/datadog.md`
+- [x] `docs/tools/process_understanding/wandb-weave.md`
+- [x] `docs/tools/process_understanding/webhook.md`
+- [x] `docs/tools/process_understanding/datadog.md`
 
 ## Sub-Batch 41.5: Reference Implementations & KB Gaps
-- [ ] `docs/knowledge_base/family-values.md`
-- [ ] `docs/knowledge_base/free_ai_website_playbook.md`
+- [x] `docs/knowledge_base/family-values.md`
+- [x] `docs/knowledge_base/free_ai_website_playbook.md`
 - [ ] `docs/knowledge_base/sso-comparison.md`
 - [ ] `docs/knowledge_base/energy-anomaly-detection-baseline.md`
 - [ ] `docs/knowledge_base/real_time_sync_engines.md`
