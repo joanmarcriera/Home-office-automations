@@ -104,6 +104,66 @@ with urllib.request.urlopen(url, timeout=10) as response:
     print(response.read().decode()[:500])
 ```
 
+### Advanced: Automated Media Intake (Python)
+This pattern demonstrates how to query multiple Jackett indexers for a specific term and filter results by health (seeds) and size. This is a foundational pattern for custom intake agents.
+
+```python
+import requests
+import xml.etree.ElementTree as ET
+
+# Configuration
+JACKETT_URL = "http://localhost:9117"
+API_KEY = "YOUR_JACKETT_API_KEY"
+
+def search_jackett(query, category=2000): # 2000 is usually Movies
+    # Query 'all' indexers via the Torznab interface
+    url = f"{JACKETT_URL}/api/v2.0/indexers/all/results/torznab/api"
+    params = {
+        "apikey": API_KEY,
+        "t": "search",
+        "q": query,
+        "cat": category
+    }
+
+    response = requests.get(url, params=params)
+    if response.status_code != 200:
+        return []
+
+    # Parse Torznab XML response
+    root = ET.fromstring(response.content)
+    results = []
+
+    for item in root.findall(".//item"):
+        title = item.find("title").text
+        link = item.find("link").text
+
+        # Extract Torznab-specific attributes (size, seeders)
+        size = 0
+        seeders = 0
+        for attr in item.findall("{http://torznab.com/schemas/2015/feed}attr"):
+            name = attr.get("name")
+            if name == "size":
+                size = int(attr.get("value"))
+            elif name == "seeders":
+                seeders = int(attr.get("value"))
+
+        results.append({
+            "title": title,
+            "link": link,
+            "size_gb": round(size / (1024**3), 2),
+            "seeders": seeders
+        })
+
+    return results
+
+# Example: Find a specific Linux ISO with at least 10 seeders
+matches = search_jackett("ubuntu 24.04")
+healthy_matches = [m for m in matches if m["seeders"] > 10]
+
+for m in healthy_matches:
+    print(f"Found: {m['title']} ({m['size_gb']} GB, {m['seeders']} seeds)")
+```
+
 ## Troubleshooting
 - If an indexer test fails, re-check credentials, required cookies, two-factor/session settings, and whether the tracker changed its login flow.
 - If downstream Arr apps return no results, confirm that categories selected in Jackett match the media type requested by the app.

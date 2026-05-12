@@ -7,10 +7,10 @@ This report implements **Action C** for the "Shallow" documents identified in `d
 - **Priority**: Focus on services that act as central hubs or intake points in the homelab stack.
 
 ## Sub-Batch 35.1: Media & Content Archival (High Priority)
-- [ ] `docs/services/linkwarden.md`: Add example of automated tagging via LLM and advanced PDF export management via API.
-- [ ] `docs/services/tubearchivist.md`: Add advanced `yt-dlp` configuration examples for quality control and metadata post-processing.
-- [ ] `docs/services/navidrome.md`: Add examples for subsonic API integration with local agents and automated playlist management.
-- [ ] `docs/services/jackett.md`: Add advanced query filtering examples and integration with automated media intake pipelines.
+- [x] `docs/services/linkwarden.md`: Add example of automated tagging via LLM and advanced PDF export management via API.
+- [x] `docs/services/tubearchivist.md`: Add advanced `yt-dlp` configuration examples for quality control and metadata post-processing.
+- [x] `docs/services/navidrome.md`: Add examples for subsonic API integration with local agents and automated playlist management.
+- [x] `docs/services/jackett.md`: Add advanced query filtering examples and integration with automated media intake pipelines.
 
 ## Sub-Batch 35.2: Communication & Security
 - [ ] `docs/services/element.md`: Add advanced bot integration examples using `matrix-nio` for home automation state reporting.

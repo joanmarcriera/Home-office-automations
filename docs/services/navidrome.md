@@ -124,6 +124,58 @@ with urllib.request.urlopen(f"{base_url}/rest/ping.view?{query}", timeout=10) as
     print(response.read().decode())
 ```
 
+### Advanced: Automated Playlist Management (Python)
+This script demonstrates how to search for tracks by a specific genre and create/update a playlist. This pattern is useful for local agents that curate music based on external triggers (e.g., weather or time of day).
+
+```python
+import requests
+import hashlib
+import secrets
+
+# Configuration
+BASE_URL = "http://localhost:4533/rest"
+USER = "admin"
+PASS = "password"
+CLIENT_ID = "playlist-bot"
+
+def get_auth_params():
+    salt = secrets.token_hex(6)
+    token = hashlib.md5(f"{PASS}{salt}".encode()).hexdigest()
+    return {"u": USER, "t": token, "s": salt, "v": "1.16.1", "c": CLIENT_ID, "f": "json"}
+
+def search_tracks(query):
+    params = get_auth_params()
+    params["query"] = query
+    res = requests.get(f"{BASE_URL}/search3.view", params=params)
+    return res.json().get("subsonic-response", {}).get("searchResult3", {}).get("song", [])
+
+def update_playlist(playlist_name, song_ids):
+    params = get_auth_params()
+    # 1. Get playlist ID
+    res = requests.get(f"{BASE_URL}/getPlaylists.view", params=params)
+    playlists = res.json().get("subsonic-response", {}).get("playlists", {}).get("playlist", [])
+    playlist = next((p for p in playlists if p["name"] == playlist_name), None)
+
+    if not playlist:
+        # Create if not exists
+        params["name"] = playlist_name
+        params["songId"] = song_ids
+        requests.get(f"{BASE_URL}/createPlaylist.view", params=params)
+    else:
+        # Update existing
+        pid = playlist["id"]
+        params["playlistId"] = pid
+        params["songIdToAdd"] = song_ids
+        requests.get(f"{BASE_URL}/updatePlaylist.view", params=params)
+
+# Example: Create a "Jazz Morning" playlist from recent additions
+songs = search_tracks("genre:Jazz")
+ids = [s["id"] for s in songs[:10]]
+if ids:
+    update_playlist("Jazz Morning", ids)
+    print(f"Updated 'Jazz Morning' with {len(ids)} tracks.")
+```
+
 ## Troubleshooting
 - If the UI starts but no albums appear, verify Linux permissions with `ls -n ./music` and make the Compose `user` match the folder owner.
 - If remote clients cannot connect, confirm port `4533` is reachable through the firewall, VPN, or reverse proxy.

@@ -1,12 +1,21 @@
 # Ralph-loop Execution Report — 2026-05-12
 
 ## Summary
-Deepened the final 15 non-compliant documentation files to "High Confidence" standards, completing the Batch 41 Audit Resolution. The repository documentation is now 100% compliant with the KnowledgeOps contract (10 mandatory sections, 7+ cross-links, technical examples).
+- Deepened the final 15 non-compliant documentation files to "High Confidence" standards, completing the Batch 41 Audit Resolution.
+- Deepened 4 high-priority media services (`linkwarden`, `tubearchivist`, `navidrome`, `jackett`) as part of Sub-Batch 35.1.
+- The repository documentation is now 100% compliant with the KnowledgeOps contract (10 mandatory sections, 7+ cross-links, technical examples).
 
 ## Targeted Issues
 - **Batch 41 Audit Resolution**: Bringing all "Shallow" and "Non-compliant" documents to the repository standard.
+- **Batch 35 (Sub-Batch 35.1)**: Advanced technical deepening of media services.
 
 ## Targeted Files
+### Sub-Batch 35.1: Media & Content Archival
+- `docs/services/linkwarden.md`
+- `docs/services/tubearchivist.md`
+- `docs/services/navidrome.md`
+- `docs/services/jackett.md`
+
 ### Sub-Batch 41.11: Automation & Benchmarking
 - `docs/tools/automation_orchestration/gumloop.md`
 - `docs/tools/automation_orchestration/llmware.md`
