@@ -124,6 +124,62 @@ curl -X POST "http://localhost:3000/api/v1/links" \
      -d '{"url": "https://www.wikipedia.org", "collectionId": 1}'
 ```
 
+### Advanced: Automated Tagging via LLM (Python)
+This pattern fetches untagged links and uses a local LLM (via [Ollama](ollama.md)) to suggest and apply tags.
+
+```python
+import requests
+import json
+
+BASE_URL = "http://localhost:3000/api/v1"
+API_KEY = "YOUR_LINKWARDEN_API_KEY"
+OLLAMA_URL = "http://localhost:11434/api/generate"
+
+headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+
+def get_untagged_links():
+    res = requests.get(f"{BASE_URL}/links", headers=headers)
+    return [l for l in res.json()['response'] if not l.get('tags')]
+
+def suggest_tags(title, description):
+    prompt = f"Suggest 3 short tags for a bookmark titled '{title}' with description '{description}'. Return as JSON list of strings."
+    res = requests.post(OLLAMA_URL, json={"model": "llama3", "prompt": prompt, "stream": False, "format": "json"})
+    return json.loads(res.json()['response'])
+
+for link in get_untagged_links():
+    tags = suggest_tags(link['title'], link.get('description', ''))
+    requests.patch(f"{BASE_URL}/links/{link['id']}",
+                  headers=headers,
+                  json={"tags": [{"name": t} for t in tags]})
+    print(f"Tagged '{link['title']}' with {tags}")
+```
+
+### Advanced: Bulk PDF Export Management
+Linkwarden stores archives as IDs. This script identifies links with PDF archives and downloads them for external backup.
+
+```python
+import requests
+
+API_KEY = "YOUR_API_KEY"
+headers = {"Authorization": f"Bearer {API_KEY}"}
+
+def download_pdf(link_id, filename):
+    # Endpoint to get preservation details
+    res = requests.get(f"http://localhost:3000/api/v1/links/{link_id}", headers=headers)
+    link_data = res.json()['response']
+
+    # Check for PDF archive ID
+    pdf_archive = next((a for a in link_data.get('archives', []) if a['format'] == 'pdf'), None)
+    if pdf_archive:
+        # Download the actual file
+        file_res = requests.get(f"http://localhost:3000/api/v1/archives/{pdf_archive['id']}", headers=headers)
+        with open(f"./backups/{filename}.pdf", "wb") as f:
+            f.write(file_res.content)
+
+# Example usage
+download_pdf(123, "my_preserved_page")
+```
+
 ## Related tools / concepts
 
 - [Changedetection.io](changedetection.md) — for monitoring websites for changes after bookmarking them.
@@ -139,7 +195,6 @@ curl -X POST "http://localhost:3000/api/v1/links" \
 
 ## Backlog
 - Browser extension integration.
-- Automated tagging via LLM.
 
 ## Sources / References
 
