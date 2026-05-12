@@ -26,6 +26,10 @@ This report documents the status of the Ralph-loop run on May 12, 2026, focusing
 - **Standards & Cross-Linking**:
     - Fixed missing or insufficient related links in `docs/tools/process_understanding/docling.md` and `docs/tools/enterprise/fyxer.md`.
     - Verified all 10 targeted pages now have 3-5 valid relative links.
+- **Deepening (Batch 41.10)**:
+    - Deepened `kokoclone`, `last30days-skill`, `llamaindex-ts`, `nemotron`, `airops`, and `goose` to High Confidence standards.
+    - Added missing "When to use it" and "When not to use it" sections.
+    - Ensured 7+ relative links per document.
 
 ## Verification Summary
 

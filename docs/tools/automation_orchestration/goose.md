@@ -24,6 +24,16 @@ Goose addresses the need for a standardized, extensible way for agents to intera
 - **Newer Project**: Community and ecosystem are still growing compared to older frameworks.
 - **Complexity**: Might require more setup than "zero-config" tools like Open Interpreter.
 
+## When to use it
+- **Local Engineering Tasks**: When you need an agent that can safely and efficiently run commands on your local machine.
+- **MCP-Based Workflows**: If you want to leverage the growing ecosystem of Model Context Protocol (MCP) servers for tool integration.
+- **Standardized Toolkits**: When building agents that need a consistent interface for interacting with various internal or external APIs.
+
+## When not to use it
+- **Cloud-Only Workflows**: If your tasks are entirely cloud-based and don't require local environment interaction, a hosted agent might be simpler.
+- **Non-Technical Users**: Goose is primarily a CLI-driven tool designed for developers and engineers.
+- **Strictly Controlled Environments**: Running an agent with local command execution capabilities requires careful security considerations and might not be allowed in all corporate environments.
+
 ## Getting started
 
 ### Installation
@@ -72,6 +82,8 @@ def my_custom_tool(param: str) -> str:
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Aider](../development_ops/aider.md)
 - [Cline](../agents/cline.md)
+- [Docker](../infrastructure/docker.md) (Common environment for agent isolation)
+- [K3s](../infrastructure/k3s.md) (Orchestrating agentic workloads)
 
 ## Sources / references
 - [Goose GitHub Repository](https://github.com/block/goose)

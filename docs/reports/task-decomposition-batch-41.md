@@ -84,12 +84,12 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/tools/ai_knowledge/kimi-cli.md`
 
 ## Sub-Batch 41.10: AI Knowledge Deepening
-- [ ] `docs/tools/ai_knowledge/kokoclone.md`
-- [ ] `docs/tools/ai_knowledge/last30days-skill.md`
-- [ ] `docs/tools/ai_knowledge/llamaindex-ts.md`
-- [ ] `docs/tools/ai_knowledge/nemotron.md`
-- [ ] `docs/tools/automation_orchestration/airops.md`
-- [ ] `docs/tools/automation_orchestration/goose.md`
+- [x] `docs/tools/ai_knowledge/kokoclone.md`
+- [x] `docs/tools/ai_knowledge/last30days-skill.md`
+- [x] `docs/tools/ai_knowledge/llamaindex-ts.md`
+- [x] `docs/tools/ai_knowledge/nemotron.md`
+- [x] `docs/tools/automation_orchestration/airops.md`
+- [x] `docs/tools/automation_orchestration/goose.md`
 
 ## Sub-Batch 41.11: Automation & Benchmarking
 - [ ] `docs/tools/automation_orchestration/gumloop.md`

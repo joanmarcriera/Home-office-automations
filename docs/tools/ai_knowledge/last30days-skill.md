@@ -21,6 +21,21 @@ Traditional search engines often surface stale editorial content or SEO-spam. In
 - **Intelligent Pre-Research**: The v3 engine resolves relevant handles, subreddits, and hashtags before searching, ensuring high-signal discovery.
 - **Shareable Artifacts**: Can emit self-contained, dark-mode HTML briefs for easy distribution in Slack or Notion.
 
+## Limitations
+- **Token Usage**: Parallel synthesis of multiple sources can consume significant input tokens if not carefully managed.
+- **Rate Limits**: Subject to the rate limits of the underlying search providers and social platforms.
+- **Recency Bias**: Explicitly ignores older, potentially more established documentation in favor of the "last 30 days" of activity.
+
+## When to use it
+- **Emerging Tech Research**: When researching tools or libraries that were released or updated very recently.
+- **Vibe Checks**: Understanding the community sentiment or "vibe" around a specific AI model or framework.
+- **Crisis Monitoring**: Tracking real-time outages, bugs, or major breaking changes reported by the community.
+
+## When not to use it
+- **Deep Historical Research**: If you need information from more than a month ago, traditional search is required.
+- **Static Documentation**: For stable libraries with unchanging APIs, official docs are more reliable than social chatter.
+- **Critical Production Code**: Social signals should not replace rigorous testing or official security advisories.
+
 ## Getting started
 
 ### Installation (Claude Code)
@@ -55,6 +70,9 @@ clawhub install last30days-official
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) (Community context)
 - [OpenRouter](openrouter.md) (API provider used for web search components)
 - [Exa Search](../automation_orchestration/goose.md) (Similar neural search concept)
+- [AI Signal Sources](../../knowledge_base/ai_signal_sources.md) (Inventory of social platforms searched)
+- [OpenClaw](../development_ops/openclaw.md) (Alternative host for the skill)
+- [Perplexity](perplexity.md) (Context on neural search competitors)
 
 ## Sources / references
 - [last30days-skill GitHub Repository](https://github.com/mvanhorn/last30days-skill)

@@ -25,6 +25,16 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 - **Browser Constraints**: Direct browser support is limited due to the lack of `AsyncLocalStorage` in many browser environments.
 - **Deprecation Warning**: As of April 30, 2026, the core `LlamaIndexTS` repository is marked as deprecated in favor of unified Python/Cloud-first documentation, though the NPM package remains widely used for JS/TS integrations.
 
+## When to use it
+- **Full-Stack TS Apps**: When your entire stack is TypeScript-based and you want a native, type-safe RAG implementation.
+- **Serverless/Edge Deployment**: When deploying to environments like Vercel, Netlify, or Cloudflare Workers where JS/TS runtimes are the primary choice.
+- **Unified Ecosystem**: If you are already using LlamaParse or LlamaCloud and want the most direct integration in a JS environment.
+
+## When not to use it
+- **Data Science Heavy Workflows**: If your project relies on extensive Python-only data science libraries (Pandas, Polars, Scikit-learn), the Python version is more suitable.
+- **Maximum Connector Requirements**: If you need a niche data source that only has a Python connector and no standard API or JS equivalent.
+- **Legacy Projects**: For older projects with no TypeScript support, the overhead of adding it might not outweigh the benefits.
+
 ## Getting started
 
 ### Installation
@@ -51,7 +61,10 @@ main();
 - [LlamaIndex (Python)](../ai_knowledge/llamaindex.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [RAG](../../knowledge_base/patterns/rag.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [LangGraph](../frameworks/langgraph.md) (Alternative for complex agentic flows)
+- [Pydantic AI](../frameworks/pydantic-ai.md) (Structured data patterns)
+- [Instructor](../frameworks/instructor.md) (Structured output alternative)
 
 ## Sources / references
 - [Official Website](https://ts.llamaindex.ai/)

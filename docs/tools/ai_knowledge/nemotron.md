@@ -63,11 +63,24 @@ For agentic deployments, treat Nemotron-3 Super as the planning/escalation model
 - **Hardware Affinity**: Best performance and efficiency gains require NVIDIA Blackwell (B200) GPUs.
 - **Model Size**: At 120B total parameters, it requires significant VRAM even with its 12B active parameter efficiency.
 
+## When to use it
+- **Enterprise Multi-Agent Systems**: When building complex, long-running agents that require high reasoning capacity.
+- **Modern NVIDIA Hardware**: If you have access to H100 or B200 infrastructure to leverage FP4/FP8 optimizations.
+- **Long-Context Analysis**: When you need to process and reason over huge document stacks or entire codebases (up to 1M tokens).
+
+## When not to use it
+- **Consumer Hardware**: It is generally too large for standard consumer GPUs without significant quantization or offloading.
+- **Simple Chat Tasks**: For basic Q&A or short-context summaries, smaller models (e.g., Llama 3 8B or Nemotron Nano) are more efficient.
+- **Non-NVIDIA Stacks**: While it runs on other hardware, many of its core innovations (Latent MoE, NVFP4) are optimized for NVIDIA architectures.
+
 ## Related tools / concepts
 - [NVIDIA](../providers/nvidia.md)
 - [NVIDIA NeMo Retriever](../agents/nemo-retriever.md)
 - [OpenCode](../development_ops/opencode.md)
 - [Mamba Architecture](../../knowledge_base/model_classes.md)
+- [vLLM](../infrastructure/vllm.md) (Recommended serving engine)
+- [SGLang](../infrastructure/sglang.md) (Optimized for multi-agent tool-calling)
+- [Aphrodite Engine](../infrastructure/aphrodite-engine.md) (Alternative local serving)
 
 ## Sources / References
 - [Introducing Nemotron 3 Super (NVIDIA Blog)](https://developer.nvidia.com/blog/introducing-nemotron-3-super-an-open-hybrid-mamba-transformer-moe-for-agentic-reasoning/)

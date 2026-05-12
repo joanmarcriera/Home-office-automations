@@ -24,6 +24,15 @@ It eliminates the need for expensive, cloud-based voice cloning subscriptions by
 - **Hardware Performance**: While it runs on CPU, the best experience (lowest latency) still requires an NVIDIA GPU with CUDA support.
 - **Sample Quality**: The quality of the clone is highly dependent on the clarity and lack of background noise in the reference audio sample.
 
+## When to use it
+- **Local Prototyping**: Quickly testing voice clones for personal projects or local assistants.
+- **Privacy-First Applications**: When reference audio or synthesized speech must remain on-device.
+- **Low-Latency Requirements**: For real-time applications like gaming or interactive voice response (IVR) on the edge.
+
+## When not to use it
+- **Highest Fidelity Production**: If "uncanny" or perfect human realism is required, larger models like Fish Speech or cloud services like ElevenLabs may be superior.
+- **Non-Python Environments**: Since it is primarily a Python/Gradio application, it may not fit directly into embedded C++ or mobile-only stacks without significant porting.
+
 ## Getting started
 
 ### Installation
@@ -65,6 +74,9 @@ python app.py
 - [ElevenLabs](elevenlabs.md) (Cloud-based proprietary alternative)
 - [Ollama](../../services/ollama.md) (Local model runner integration)
 - [Msty](../infrastructure/msty.md) (Local AI desktop with audio support)
+- [llama.cpp](../infrastructure/llama-cpp.md) (Similar local-first philosophy for LLMs)
+- [Home Assistant](../../services/home-assistant.md) (Primary target for custom voice integration)
+- [Piper](https://github.com/rhasspy/piper) (Another fast, local TTS engine used in HA)
 
 ## Sources / references
 - [KokoClone GitHub](https://github.com/Ashish-Patnaik/kokoclone)

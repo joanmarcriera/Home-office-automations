@@ -25,6 +25,16 @@ AirOps addresses the difficulty of moving AI from a simple chat interface into a
 - **Commercial Platform**: Primarily a paid service with enterprise focus.
 - **Complexity**: Offers a wide range of features that might take time to master.
 
+## When to use it
+- **Enterprise AI Workflows**: When you need a robust, scalable platform to manage complex AI processes across a team.
+- **Rapid Prototyping for Business**: When the goal is to quickly deploy AI tools into existing business systems without building custom infrastructure.
+- **Collaborative Design**: When product managers and domain experts need to participate directly in prompt and workflow design.
+
+## When not to use it
+- **Individual Open-Source Projects**: For simple, solo projects, open-source alternatives like Dify or Flowise might be more cost-effective.
+- **Highly Custom Local Agents**: If the requirement is for a local-first agent that interacts with a private filesystem, tools like Open Interpreter or Goose are better suited.
+- **Strictly Offline Use**: Being a cloud-based platform, it is not suitable for environments with strict air-gapped or offline requirements.
+
 ## Getting started
 1.  Sign up for an account at [AirOps.com](https://www.airops.com/).
 2.  Navigate to the API section in your workspace settings to generate an API Key.
@@ -47,6 +57,8 @@ curl --request POST \
 - [Flowise](../ai_knowledge/flowise.md)
 - [Parea](../process_understanding/parea.md)
 - [Zapier](zapier.md)
+- [Langfuse](../process_understanding/langfuse.md) (Observability integration)
+- [Helicone](../process_understanding/helicone.md) (Alternative LLM observability)
 
 ## Sources / references
 - [AirOps Official Website](https://www.airops.com/)
