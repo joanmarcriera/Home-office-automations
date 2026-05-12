@@ -24,6 +24,15 @@ It eliminates the need for expensive, cloud-based voice cloning subscriptions by
 - **Hardware Performance**: While it runs on CPU, the best experience (lowest latency) still requires an NVIDIA GPU with CUDA support.
 - **Sample Quality**: The quality of the clone is highly dependent on the clarity and lack of background noise in the reference audio sample.
 
+## When to use it
+- **Local-First Workflows**: Ideal for users who prioritize privacy and want to run voice cloning entirely on their own hardware without cloud dependencies.
+- **Real-Time Applications**: Best for interactive systems like personal assistants or game NPCs where low-latency synthesis is critical.
+- **Resource-Constrained Environments**: When high-fidelity synthesis is needed but only consumer-grade hardware (e.g., laptop GPU or CPU) is available.
+
+## When not to use it
+- **Studio-Quality Production**: Not suitable for high-end commercial voiceovers requiring extreme emotional range or complex prosody.
+- **Noisy Source Audio**: When the reference audio has significant background noise, as it lacks advanced noise-reduction capabilities during the cloning phase.
+
 ## Getting started
 
 ### Installation
@@ -65,6 +74,8 @@ python app.py
 - [ElevenLabs](elevenlabs.md) (Cloud-based proprietary alternative)
 - [Ollama](../../services/ollama.md) (Local model runner integration)
 - [Msty](../infrastructure/msty.md) (Local AI desktop with audio support)
+- [Gemini Flash TTS](gemini-flash-tts.md) (Fast cloud-based TTS alternative)
+- [Home Assistant](../../services/home-assistant.md) (Primary integration target for local voice assistants)
 
 ## Sources / references
 - [KokoClone GitHub](https://github.com/Ashish-Patnaik/kokoclone)

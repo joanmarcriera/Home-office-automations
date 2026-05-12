@@ -84,7 +84,7 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/tools/ai_knowledge/kimi-cli.md`
 
 ## Sub-Batch 41.10: AI Knowledge Deepening
-- [ ] `docs/tools/ai_knowledge/kokoclone.md`
+- [x] `docs/tools/ai_knowledge/kokoclone.md`
 - [ ] `docs/tools/ai_knowledge/last30days-skill.md`
 - [ ] `docs/tools/ai_knowledge/llamaindex-ts.md`
 - [ ] `docs/tools/ai_knowledge/nemotron.md`
