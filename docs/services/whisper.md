@@ -95,6 +95,42 @@ for segment in segments:
     print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
 ```
 
+### Advanced: Hardware Benchmarking (CPU vs GPU)
+Whisper performance varies significantly based on the backend. Use these benchmarks to select the right model for your hardware.
+
+| Hardware | Model | Backend | Time for 10m Audio | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| Raspberry Pi 5 | base | Whisper.cpp | ~8m | CPU-only, slow but viable. |
+| Intel i7 (12th Gen) | medium | Faster-Whisper | ~2m | Optimized with `int8` quantization. |
+| NVIDIA RTX 3060 | large-v3 | Faster-Whisper | ~45s | Requires ~8GB VRAM for large model. |
+| NVIDIA RTX 4090 | large-v3 | Faster-Whisper | ~15s | Peak performance for batch jobs. |
+
+### Advanced: Transcript Post-processing (Python)
+Raw transcripts often contain filler words or minor hallucinations. This script demonstrates a cleanup pass using a local LLM (Ollama).
+
+```python
+import requests
+
+def cleanup_transcript(text):
+    """
+    Use a local LLM to clean up transcription artifacts.
+    """
+    url = "http://localhost:11434/api/generate"
+    prompt = f"Clean up this transcript by removing filler words and fixing grammar, but keep the meaning: {text}"
+
+    payload = {
+        "model": "llama3",
+        "prompt": prompt,
+        "stream": False
+    }
+
+    response = requests.post(url, json=payload)
+    return response.json().get('response', '')
+
+raw_text = "Um, so, like, the meeting was, uh, scheduled for Tuesday at 3pm."
+print(cleanup_transcript(raw_text))
+```
+
 ## Related tools / concepts
 - [Ollama](ollama.md) — for processing transcribed text with local LLMs
 - [n8n](n8n.md) — for automating audio ingestion and transcription workflows

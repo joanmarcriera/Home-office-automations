@@ -91,6 +91,8 @@ async def main():
     login_response = await client.login(PASSWORD)
     if getattr(login_response, "access_token", None) is None:
         raise RuntimeError(f"Matrix login failed: {login_response}")
+
+    # Send a standard message
     await client.room_send(
         room_id=ROOM_ID,
         message_type="m.room.message",
@@ -99,6 +101,26 @@ async def main():
             "body": "Alert: Motion detected in the garden!"
         },
     )
+
+    # Advanced: Update room topic (State Event)
+    # Requires sufficient power level in the room
+    await client.room_put_state(
+        room_id=ROOM_ID,
+        event_type="m.room.topic",
+        content={"topic": "Garden Status: Active Alerts"},
+    )
+
+    # Advanced: Send a custom state event for automation tracking
+    await client.room_put_state(
+        room_id=ROOM_ID,
+        event_type="com.homelab.sensor_state",
+        state_key="garden_motion",
+        content={
+            "status": "alerting",
+            "last_seen": "2026-05-13T12:00:00Z"
+        }
+    )
+
     await client.close()
 
 asyncio.run(main())

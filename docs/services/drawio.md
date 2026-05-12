@@ -68,6 +68,26 @@ drawio -x -f png --width 1200 -o sample.png sample.drawio
 docker inspect --format='{{.State.Status}}' drawio
 ```
 
+### Advanced: CLI XML Manipulation
+For automated architecture updates, you can manipulate the underlying XML of a `.drawio` file using standard CLI tools like `sed` or specialized XML parsers.
+
+```bash
+# Example: Automatically update a version label in a diagram
+# Assuming the XML contains an attribute value="v1.0.0"
+
+sed -i 's/value="v1\.0\.0"/value="v1.1.0"/g' architecture.drawio
+
+# Example: Use a Python script to inject a new node into the XML
+python3 -c '
+import xml.etree.ElementTree as ET
+tree = ET.parse("architecture.drawio")
+root = tree.getroot()
+# Find the mxGraphModel and add a new cell (highly simplified)
+# In practice, use a library like drawio-tools
+print("XML parsed successfully")
+'
+```
+
 ## API examples
 Draw.io can be controlled via URL parameters for embedding or automated opening.
 

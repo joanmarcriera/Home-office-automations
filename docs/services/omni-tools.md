@@ -117,8 +117,61 @@ cat formatted.json
 - [Whisper](whisper.md) — For server-side audio-to-text processing.
 - [CyberChef](https://github.com/gchq/CyberChef) — The "Swiss Army Knife" of data transformations.
 
+## Advanced Extensibility
+
+Omni Tools can be extended by adding custom local modules or integrating with browser automation for repeatable tasks.
+
+### Adding Custom Local Modules
+To add your own tools to a self-hosted instance, you can mount custom JS modules into the container.
+
+1.  **Create a Module**: Define your tool in a JavaScript file (e.g., `my-custom-tool.js`).
+    ```javascript
+    // my-custom-tool.js
+    export const tool = {
+      name: "Family Repo Cleaner",
+      category: "Text",
+      execute: (input) => {
+        return input.replace(/TEMP_ID_(\d+)/g, "REDACTED");
+      }
+    };
+    ```
+2.  **Mount into Container**:
+    ```yaml
+    services:
+      omni-tools:
+        image: iib0011/omni-tools:latest
+        volumes:
+          - ./custom_tools:/app/public/tools/custom
+    ```
+
+### Browser Automation Integration (Playwright)
+Since Omni Tools is a web app, you can automate complex transformations using Playwright or Puppeteer.
+
+```python
+# Example: Automating a JSON format and Redaction via Omni Tools UI
+from playwright.sync_api import sync_playwright
+
+def automate_redaction(json_data):
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto("http://localhost:8080/json-formatter")
+
+        # Paste data into the UI
+        page.fill("textarea#input", json_data)
+        page.click("button#format")
+
+        # Extract the result
+        formatted = page.inner_text("div#output")
+        browser.close()
+        return formatted
+
+raw_json = '{"user": "Jules", "id": "TEMP_ID_123"}'
+print(automate_redaction(raw_json))
+```
+
 ## Backlog
-- Add custom tool modules for repository management.
+- Set up automated Playwright health checks for all modules.
 
 ## Sources / References
 - https://github.com/iib0011/omni-tools

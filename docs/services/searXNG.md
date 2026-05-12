@@ -105,6 +105,62 @@ results = search.run("What is vLLM?")
 print(results)
 ```
 
+### Advanced: RAG Pipeline Pattern (Python)
+This example demonstrates using SearXNG in a retrieval-augmented generation (RAG) loop with custom weighting for specific engines (e.g., focusing on documentation and code).
+
+```python
+import requests
+
+def rag_search(query, search_domain="tech"):
+    """
+    Perform a targeted search for RAG context using specific engine weights.
+    """
+    url = "http://localhost:8080/search"
+
+    # Configure domain-specific engine weights and categories
+    if search_domain == "tech":
+        params = {
+            "q": query,
+            "engines": "github,stackoverflow,wikipedia,reddit",
+            "categories": "it",
+            "format": "json",
+            "time_range": "month" # Freshness matters for RAG
+        }
+    else:
+        params = {"q": query, "format": "json"}
+
+    response = requests.get(url, params=params)
+    results = response.json().get('results', [])
+
+    # Extract snippets for LLM context window
+    context_snippets = [
+        f"Source: {r['url']}\nSnippet: {r.get('content', '')}"
+        for r in results[:5]
+    ]
+    return "\n\n".join(context_snippets)
+
+# Example usage in a RAG prompt
+query = "How to implement MCP in Python?"
+context = rag_search(query)
+prompt = f"Answer based on context:\n\n{context}\n\nQuestion: {query}"
+print(prompt)
+```
+
+### Custom Engine Weights
+SearXNG allows granular control over engine priority via the `settings.yml` file. This is useful for biasing results towards high-quality sources in your homelab.
+
+```yaml
+# /etc/searxng/settings.yml
+engines:
+  - name: google
+    weight: 1.0
+  - name: wikipedia
+    weight: 2.0  # Give Wikipedia higher priority
+  - name: github
+    weight: 3.0  # Bias heavily towards code for dev workflows
+    tokens: ['$EXTERNAL_TOKEN'] # Some engines require auth tokens
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (AGPL-3.0)
 - **Cost**: Free
