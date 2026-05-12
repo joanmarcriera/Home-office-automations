@@ -25,6 +25,16 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 - **Browser Constraints**: Direct browser support is limited due to the lack of `AsyncLocalStorage` in many browser environments.
 - **Deprecation Warning**: As of April 30, 2026, the core `LlamaIndexTS` repository is marked as deprecated in favor of unified Python/Cloud-first documentation, though the NPM package remains widely used for JS/TS integrations.
 
+## When to use it
+- Use when building enterprise-grade RAG applications within a TypeScript-first tech stack.
+- Use when deploying AI agents to serverless or edge environments where JavaScript runtimes are preferred.
+- Use when you need seamless integration with frontend frameworks like Next.js or React.
+
+## When not to use it
+- Do not use if your project requires highly specialized data connectors only available in the Python version of LlamaIndex.
+- Do not use for heavy data science or machine learning research where Python's library ecosystem (Pandas, PyTorch) is essential.
+- Avoid using in direct client-side browser code if you require persistent local indexing or complex secret management.
+
 ## Getting started
 
 ### Installation
@@ -51,7 +61,11 @@ main();
 - [LlamaIndex (Python)](../ai_knowledge/llamaindex.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [RAG](../../knowledge_base/patterns/rag.md)
+- [RAG](../../knowledge_base/patterns/rag-pattern.md)
+- [LangChain](langchain.md)
+- [Mastra](../frameworks/mastra.md)
+- [Firebase Genkit](../frameworks/firebase-genkit.md)
+- [OpenRouter](openrouter.md)
 
 ## Sources / references
 - [Official Website](https://ts.llamaindex.ai/)

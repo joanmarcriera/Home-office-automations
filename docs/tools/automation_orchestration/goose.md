@@ -24,6 +24,16 @@ Goose addresses the need for a standardized, extensible way for agents to intera
 - **Newer Project**: Community and ecosystem are still growing compared to older frameworks.
 - **Complexity**: Might require more setup than "zero-config" tools like Open Interpreter.
 
+## When to use it
+- Use when you need a local AI agent that can securely interact with your system CLI and internal scripts.
+- Use if you want to build custom toolkits for an agent using Python or the Model Context Protocol (MCP).
+- Use for engineering workflows where you need the agent to perform actions (like running tests or deploying code) rather than just writing text.
+
+## When not to use it
+- Do not use if you prefer a graphical user interface for agent management; Goose is primarily CLI-driven.
+- Avoid for simple chat tasks where a standard LLM interface like ChatGPT or Claude.ai is more convenient.
+- Do not use if you are looking for a fully autonomous agent to manage complex, multi-repo projects without human oversight; Goose is best as an "assistant" in a session.
+
 ## Getting started
 
 ### Installation
@@ -72,6 +82,9 @@ def my_custom_tool(param: str) -> str:
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Aider](../development_ops/aider.md)
 - [Cline](../agents/cline.md)
+- [Jules](../ai_knowledge/jules.md)
+- [Melty](../development_ops/melty.md)
+- [Devin](../development_ops/devin.md)
 
 ## Sources / references
 - [Goose GitHub Repository](https://github.com/block/goose)
