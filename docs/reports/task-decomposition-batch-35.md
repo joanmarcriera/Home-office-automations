@@ -13,14 +13,14 @@ This report implements **Action C** for the "Shallow" documents identified in `d
 - [x] `docs/services/jackett.md`: Add advanced query filtering examples and integration with automated media intake pipelines.
 
 ## Sub-Batch 35.2: Communication & Security
-- [ ] `docs/services/element.md`: Add advanced bot integration examples using `matrix-nio` for home automation state reporting.
-- [ ] `docs/services/searXNG.md`: Add complex API search patterns for RAG pipelines, including custom engine weight configuration.
-- [ ] `docs/services/authentik.md`: Add advanced policy examples (e.g., Geo-IP blocking, device posture checks) for homelab services.
+- [x] `docs/services/element.md`: Add advanced bot integration examples using `matrix-nio` for home automation state reporting.
+- [x] `docs/services/searXNG.md`: Add complex API search patterns for RAG pipelines, including custom engine weight configuration.
+- [x] `docs/services/authentik.md`: Add advanced policy examples (e.g., Geo-IP blocking, device posture checks) for homelab services.
 
 ## Sub-Batch 35.3: Productivity Utilities
-- [ ] `docs/services/omni-tools.md`: Add examples for extending with custom local modules or integrating with browser automation scripts.
-- [ ] `docs/services/drawio.md`: Add advanced XML manipulation examples via CLI for automated diagram generation from architecture metadata.
-- [ ] `docs/services/whisper.md`: Add performance benchmarking for different hardware backends and advanced transcription post-processing scripts.
+- [x] `docs/services/omni-tools.md`: Add examples for extending with custom local modules or integrating with browser automation scripts.
+- [x] `docs/services/drawio.md`: Add advanced XML manipulation examples via CLI for automated diagram generation from architecture metadata.
+- [x] `docs/services/whisper.md`: Add performance benchmarking for different hardware backends and advanced transcription post-processing scripts.
 
 ---
 - Confidence: high

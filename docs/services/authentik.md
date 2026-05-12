@@ -178,6 +178,47 @@ To secure family member accounts, it is recommended to enforce Two-Factor Authen
 ### Passkey Support
 Authentik natively supports WebAuthn. Family members can register their phone or a hardware key (like a YubiKey) as a Passkey under their user profile settings.
 
+## Advanced Security Policies
+
+Authentik's power lies in its Policy engine, allowing for sophisticated access control based on context.
+
+### Geo-IP Blocking
+To prevent logins from unexpected countries, you can use a Geo-IP policy.
+
+1.  **Configure Geo-IP**: Ensure Authentik is configured with a MaxMind or IP2Location database.
+2.  **Create Expression Policy**:
+    ```python
+    # Expression Policy: Only allow logins from Switzerland and local network
+
+    # Allow local RFC1918 addresses
+    if ak_is_in_network(context['http_request'].META['REMOTE_ADDR'], '192.168.0.0/16'):
+        return True
+
+    # Check country code from Geo-IP
+    geo_data = context.get('geoip', {})
+    if geo_data.get('country', {}).get('iso_code') == 'CH':
+        return True
+
+    ak_message("Access denied from your current location.")
+    return False
+    ```
+3.  **Bind Policy**: Bind this policy to your "Main-Flow" or specific sensitive applications.
+
+### Device Posture Checks (User-Agent Validation)
+While not a substitute for mTLS or MDM, you can restrict access to specific browser types or known family devices.
+
+```python
+# Expression Policy: Restrict to specific Browser/OS
+user_agent = context['http_request'].META.get('HTTP_USER_AGENT', '')
+
+# Example: Only allow access from the family's preferred browser setup
+if "Linux" in user_agent and "Firefox" in user_agent:
+    return True
+
+ak_message("Please use the approved family browser configuration for this service.")
+return False
+```
+
 ## Backlog
 - Configure LDAP outpost for legacy apps.
 
