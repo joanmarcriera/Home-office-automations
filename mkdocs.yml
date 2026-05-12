@@ -428,6 +428,7 @@ nav:
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
+          - Perplexity: tools/providers/perplexity.md
           - Portkey AI Gateway: tools/providers/portkey.md
           - Replicate: tools/providers/replicate.md
           - Tavily: tools/providers/tavily.md

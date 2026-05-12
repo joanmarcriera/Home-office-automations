@@ -42,6 +42,12 @@ It offers a cost-effective, high-quality alternative to Western LLM providers, o
 ## Related tools / concepts
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Qwen](../ai_knowledge/qwen.md)
+- [Anthropic](anthropic.md)
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Roo Code](../development_ops/roo-code.md)
+- [Cline](../development_ops/cline.md)
+- [Aider](../development_ops/aider.md)
 
 ## Sources / References
 - [Official Website](https://www.deepseek.com/)
@@ -50,5 +56,5 @@ It offers a cost-effective, high-quality alternative to Western LLM providers, o
 - [DeepSeek-R1 Release Blog](https://api-docs.deepseek.com/news/news250120)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-27
+- Last reviewed: 2026-05-12
 - Confidence: high

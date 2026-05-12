@@ -1845,6 +1845,12 @@
     {
       "id": "perplexity",
       "name": "Perplexity",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/perplexity.md"
+    },
+    {
+      "id": "perplexity-ai",
+      "name": "Perplexity AI",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/perplexity.md"
     },

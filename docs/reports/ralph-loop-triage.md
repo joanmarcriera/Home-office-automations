@@ -7,7 +7,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | Issue # | Title | Status | Notes |
 | :--- | :--- | :--- | :--- |
 | **#186-#190** | Data Copilot Series | **Verified & Closed** | Architecture, MCP, RAG, Validation, and Synthesis verified (Final cleanup 2026-06-28). |
-| **#192** | Representation of all agents | **Verified** | 14 providers documented and indexed. |
+| **#192** | Representation of all agents | **Verified & Closed** | 15+ providers documented and indexed. Added Perplexity (2026-05-12). |
 | **#201** | Enterprise productive suite | **Verified** | Section created in docs/tools/enterprise/. |
 | **#203** | Intelligence per value matrix | **Verified** | Integrated into api_pricing_free_tiers.md. |
 | **#299** | OpenRouter log tools | **Verified** | Datadog, Sentry, Grafana, New Relic integrated. |

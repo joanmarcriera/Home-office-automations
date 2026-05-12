@@ -93,6 +93,10 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 - [Aider](../development_ops/aider.md)
 - [Mistral AI](mistral.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
+- [Prompt Requests](../../knowledge_base/patterns/prompt_requests.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Daily Briefing Prompt](../../reference-implementations/llm-prompts/daily-briefing.md)
+- [Claude Skills](../../../skills.md)
 
 ## Sources / References
 - [Official Website](https://www.anthropic.com/)
@@ -101,5 +105,5 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 - [Models Overview](https://docs.anthropic.com/en/docs/about-claude/models/overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-05-12
 - Confidence: high
