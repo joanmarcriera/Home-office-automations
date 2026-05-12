@@ -25,6 +25,7 @@ For a cross-provider pricing and free-tier tracker, see [API Pricing & Free Tier
 | [NVIDIA](nvidia.md) | High-performance inference microservices (NIM) and API catalog |
 | [OpenAI](../ai_knowledge/openai.md) | Industry-leading GPT model family and developer ecosystem |
 | [OpenRouter](../ai_knowledge/openrouter.md) | Unified API gateway for access to 100+ open and proprietary models |
+| [Perplexity](perplexity.md) | AI-powered search and reasoning with real-time web access |
 | [Portkey AI Gateway](portkey.md) | Control plane for AI apps with routing, tracing, and caching |
 | [Replicate](replicate.md) | Cloud-based API for running the latest open-source models |
 | [Tavily](tavily.md) | Search and information extraction API optimized for AI agents |
