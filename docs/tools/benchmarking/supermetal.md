@@ -25,6 +25,10 @@ It addresses the latency and complexity bottlenecks in Change Data Capture (CDC)
 - When you need low-latency synchronization between production databases and an analytical data lake.
 - When looking to reduce the operational overhead of Kafka/Spark-based pipelines.
 
+## When not to use it
+- For small datasets that don't justify the overhead of a dedicated CDC tool.
+- If you require complex in-flight data transformations (consider [Fivetran](fivetran.md) or [dbt](dbt.md) for heavy T in ELT).
+
 ## Getting started
 Supermetal operates via an API-driven connector model. To get started, deploy the Supermetal service and use the REST API to configure your source and sink connectors.
 
@@ -66,6 +70,9 @@ curl "https://your-supermetal-instance/api/v1/connectors"
 - [Temporal](../orchestration/temporal.md)
 - [Datadog](../process_understanding/datadog.md)
 - [Grafana](../process_understanding/grafana.md)
+- [ClickHouse](../process_understanding/clickhouse.md)
+- [Snowflake](../process_understanding/snowflake.md)
+- [Real-time Sync Engines](../../knowledge_base/real_time_sync_engines.md)
 
 ## Sources / references
 - [Postgres to Iceberg in 13 minutes: How Supermetal compares](https://thenewstack.io/postgres-iceberg-cdc-benchmarks/)

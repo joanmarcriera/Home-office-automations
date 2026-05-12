@@ -47,7 +47,7 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json` (e.g., `linkwarden.md`, `tubearchivist.md`).
-- **Batch 41**: Address remaining 80+ non-compliant docs as decomposed in `docs/reports/task-decomposition-batch-41.md`.
+- **Batch 41**: Address remaining 80+ non-compliant docs as decomposed in `docs/reports/task-decomposition-batch-41.md`. **(Completed 2026-05-12)**.
 
 ---
 - Confidence: high

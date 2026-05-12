@@ -37,6 +37,15 @@ Higher-level tools can then interface with these snaps to access hardware accele
 - **Snap Overhead**: Minimal performance overhead due to the snap containerization (though usually negligible for GPU tasks).
 - **Version Locking**: Developers may occasionally need a very specific version of CUDA/ROCm that hasn't been snapped yet.
 
+## When to use it
+- When setting up a new Ubuntu-based machine for AI development and you want to avoid manual CUDA/ROCm installation.
+- To ensure a clean, isolated environment for AI runtimes that won't interfere with your system-wide libraries.
+- On edge devices or headless servers where ease of updates and reliability are more important than squeezing out every last drop of performance.
+
+## When not to use it
+- If you require extremely low-level control over your driver and CUDA versions for specific research purposes.
+- In environments where Snaps are explicitly forbidden or replaced by other containerization technologies like Flatpak or raw Docker (though Snaps can complement Docker).
+
 ## Licensing and cost
 - **Open Source / Free**: Part of the standard Ubuntu distribution.
 
@@ -46,6 +55,9 @@ Higher-level tools can then interface with these snaps to access hardware accele
 - [Infrastructure Index](index.md)
 - [Docker](docker.md)
 - [Kubernetes (K3s)](k3s.md)
+- [Invisible Kubernetes](../../knowledge_base/invisible_kubernetes.md)
+- [Talos vs Ubuntu K3s](../../knowledge_base/talos-vs-ubuntu-k3s.md)
+- [Google Axion](../../knowledge_base/google_axion.md)
 
 ## Sources / References
 - [Ubuntu 26.04 to include Cuda, Rocm snaps and inference models optimised for your hardware](https://www.reddit.com/r/LocalLLaMA/comments/1rnmo3n/ubuntu_2604_to_include_cuda_rocm_snaps_and/)

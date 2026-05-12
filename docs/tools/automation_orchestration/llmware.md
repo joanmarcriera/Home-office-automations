@@ -25,6 +25,15 @@ Enterprise AI often struggles with privacy (sending data to public APIs) and com
 - **Learning Curve**: The framework is comprehensive and may take time to fully understand.
 - **Model Training**: While it supports many models, achieving peak performance might require selecting or fine-tuning the right specialized model.
 
+## When to use it
+- When building enterprise RAG applications that require high security and data privacy.
+- If you want to use small, specialized models (SLMs) to reduce costs and latency while maintaining high accuracy for specific domains.
+- For complex document processing tasks that involve multi-step extraction and analysis from PDFs or spreadsheets.
+
+## When not to use it
+- For very simple, consumer-facing chatbots where a basic wrapper around OpenAI or Claude would suffice.
+- If you are fully committed to a specific cloud provider's AI stack (like AWS Bedrock) and don't need a portable, open-source framework.
+
 ## Getting started
 
 ### Installation
@@ -51,6 +60,9 @@ results = query.semantic_search("What is our security policy?", number_of_result
 - [LangChain](../ai_knowledge/langchain.md)
 - [Ollama](../../services/ollama.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [Dify](../frameworks/dify.md)
+- [LiteLLM](../../services/litellm.md)
+- [Unstructured](../ai_knowledge/unstructured.md)
 
 ## Sources / references
 - [LLMWare GitHub Repository](https://github.com/llmware-ai/llmware)

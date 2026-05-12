@@ -9,6 +9,31 @@ It helps teams understand how users interact with their applications and allows 
 ## Where it fits in the stack
 **Category**: Process & Understanding / Product Analytics
 
+## Typical use cases
+- **Full-Funnel Analytics**: Tracking user behavior from the first click to the final AI-generated response.
+- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs using feature flags.
+- **Session Replay**: Watching recordings of users interacting with AI agents to identify friction points.
+- **Conversion Tracking**: Measuring how AI features impact key business metrics like signups or purchases.
+
+## Strengths
+- **All-in-One**: Combines analytics, session recording, and feature flagging in a single platform.
+- **Extensible**: Supports "Apps" and integrations (like OpenRouter) to bring in data from external AI services.
+- **HogQL**: Powerful, SQL-like query language for advanced data analysis.
+- **Privacy Conscious**: Offers self-hosting options and SOC 2 compliance.
+
+## Limitations
+- **Generalist Focus**: While it has LLM features, it is not a dedicated AI-only observability tool (like LangSmith or LangFuse).
+- **Complexity**: The sheer number of features can make the learning curve steeper for new users.
+
+## When to use it
+- When you want to see the "big picture" of how AI features affect your overall product metrics.
+- For teams that need built-in A/B testing and feature flagging to roll out AI changes safely.
+- When you want to link specific AI traces back to actual user session recordings.
+
+## When not to use it
+- If you only need deep, low-level AI engineering traces and don't care about broader product analytics.
+- For extremely simple applications where a basic log aggregator (like Papertrail) would be enough.
+
 ## LLM Features
 - **LLM Observability**: Track agent behavior and user feedback alongside traditional product metrics like conversion and retention.
 - **Trace Management**: Capture and visualize LLM traces to debug agent decision-making.
@@ -94,6 +119,9 @@ else:
 - [Langfuse](langfuse.md)
 - [AgentOps](agentops.md)
 - [Arize AI](arize-ai.md)
+- [Helicone](helicone.md)
+- [Parea](parea.md)
+- [Mixpanel](mixpanel.md)
 
 ## Sources / references
 - [PostHog Website](https://posthog.com/)

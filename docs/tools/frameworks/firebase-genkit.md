@@ -26,6 +26,15 @@ It reduces the friction of building production-ready AI apps by providing a unif
 - **Language Support**: Currently supports JavaScript/TypeScript and Go, with Python support in development.
 - **Ecosystem Focus**: While open-source, it is optimized for the Google Cloud/Firebase stack.
 
+## When to use it
+- When you are already using the Firebase or Google Cloud ecosystem and want to add AI features with minimal friction.
+- For building production-ready AI applications that require serverless deployment and built-in observability.
+- When you prefer a structured, flow-based approach to orchestrating AI tasks in JavaScript/TypeScript or Go.
+
+## When not to use it
+- If you are building highly complex, research-oriented agentic systems that require the extreme flexibility of frameworks like LangChain or AutoGen.
+- For Python-heavy data science or AI research workflows (until full Python support is released).
+
 ## Getting started
 
 ### Installation
@@ -61,6 +70,10 @@ export const myFlow = defineFlow(
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
 - [Firebase Studio](../development_ops/firebase-studio.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Google ADK](google-adk.md)
+- [Langflow](langflow.md)
+- [Dify](dify.md)
+- [Instructor](instructor.md)
 
 ## Sources / references
 - [Official Website](https://firebase.google.com/docs/genkit)

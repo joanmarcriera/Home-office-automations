@@ -26,6 +26,15 @@ It provides virtually unlimited, durable, and highly available storage for unstr
 - **Complexity at Scale**: Managing access policies (IAM), versioning, and lifecycle rules can become complex.
 - **Data Egress Costs**: Cloud providers often charge for data transferred out of their network.
 
+## When to use it
+- When you need a highly scalable, durable place to store large amounts of unstructured AI data (logs, datasets, media).
+- For cross-tool data sharing where multiple agents or services need to read/write to a common storage layer via a standard API.
+- If you want a cost-effective, tiered storage solution that can archive older data automatically.
+
+## When not to use it
+- For high-frequency, low-latency database operations (use a relational or NoSQL database instead).
+- If you have zero connectivity to cloud services and need purely local, file-system based storage for a single machine.
+
 ## Getting started
 
 ### OpenRouter Broadcast Configuration
@@ -75,6 +84,11 @@ print(f"Total tokens: {trace_data['total_tokens']}")
 - [OpenRouter](../ai_knowledge/openrouter.md) (can stream logs directly to S3)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Rclone Automation](../../services/rclone-automation.md)
+- [AnyType](anytype.md)
+- [SilverBullet](silverbullet.md)
+- [Snowflake](../process_understanding/snowflake.md)
+- [ClickHouse](../process_understanding/clickhouse.md)
+- [Filesystem Context](../../knowledge_base/patterns/filesystem-context.md)
 
 ## Sources / references
 - [AWS S3 Official Site](https://aws.amazon.com/s3/)
