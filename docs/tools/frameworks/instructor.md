@@ -25,6 +25,15 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 - **Narrow Focus**: It is not a general-purpose agent framework (like CrewAI or AutoGen); it does structured extraction exceptionally well.
 - **Schema Dependency**: Requires defining formal schemas upfront, which might be overkill for simple text-to-text tasks.
 
+## When to use it
+- When you need reliable, type-safe data extraction from LLMs for use in programmatic workflows.
+- If you want a lightweight solution that integrates easily with your existing OpenAI/Anthropic/Gemini client code.
+- To enforce complex validation rules and automatic retries on LLM outputs using schema-based validation.
+
+## When not to use it
+- For open-ended creative writing or chat where a strict schema is not necessary or possible.
+- If you need a comprehensive framework for managing complex multi-agent conversations and memory (consider LangGraph or CrewAI).
+
 ## Getting started
 
 ### Installation (Python)
@@ -60,6 +69,10 @@ print(user.age)  # 25
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) (uses Zod for similar patterns in TS)
 - [DSPy](dspy.md)
 - [Structured Output Pattern](../../knowledge_base/patterns/index.md)
+- [LiteLLM](../../services/litellm.md)
+- [Firebase Genkit](firebase-genkit.md)
+- [Extraction and Classification](../../knowledge_base/patterns/extraction-and-classification.md)
+- [Date Extraction](../../knowledge_base/patterns/date-extraction.md)
 
 ## Sources / references
 - [Official Website](https://python.useinstructor.com/)

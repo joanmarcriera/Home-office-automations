@@ -28,10 +28,19 @@ As AI agents move from "chatting" to "acting," traditional observability (logs a
 - For any production deployment of autonomous AI agents with write access to data or systems.
 - When you need to guarantee accountability for AI-driven actions.
 
+## When not to use it
+- For simple, non-autonomous LLM wrappers (basic chat) where standard logging is sufficient.
+- During early-stage research where full audit trails might add unnecessary friction and latency.
+
 ## Related tools / concepts
 - [LangSmith](../benchmarking/langsmith.md)
 - [Observability Platforms](../../services/it-tools.md)
 - [Agentic Security](../../knowledge_base/llm_security_privacy.md)
+- [LangFuse](langfuse.md)
+- [AgentOps](agentops.md)
+- [Helicone](helicone.md)
+- [SharpAI Security Benchmark](../benchmarking/sharp-ai.md)
+- [OpenRouter Logs Backlog](../../reports/openrouter-logs-backlog.md)
 
 ## Sources / references
 - [Why observability platforms are becoming AI auditing tools](https://thenewstack.io/agentic-ai-observability-auditing/)

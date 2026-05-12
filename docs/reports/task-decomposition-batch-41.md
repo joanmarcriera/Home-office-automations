@@ -92,25 +92,25 @@ This report implements **Action C** for the remaining "Shallow" and "Non-complia
 - [x] `docs/tools/automation_orchestration/goose.md`
 
 ## Sub-Batch 41.11: Automation & Benchmarking
-- [ ] `docs/tools/automation_orchestration/gumloop.md`
-- [ ] `docs/tools/automation_orchestration/llmware.md`
-- [ ] `docs/tools/automation_orchestration/open-interpreter.md`
-- [ ] `docs/tools/automation_orchestration/stagehand.md`
-- [ ] `docs/tools/benchmarking/sharp-ai.md`
-- [ ] `docs/tools/benchmarking/supermetal.md`
+- [x] `docs/tools/automation_orchestration/gumloop.md`
+- [x] `docs/tools/automation_orchestration/llmware.md`
+- [x] `docs/tools/automation_orchestration/open-interpreter.md`
+- [x] `docs/tools/automation_orchestration/stagehand.md`
+- [x] `docs/tools/benchmarking/sharp-ai.md`
+- [x] `docs/tools/benchmarking/supermetal.md`
 
 ## Sub-Batch 41.12: Frameworks & Infrastructure
-- [ ] `docs/tools/benchmarking/vakra.md`
-- [ ] `docs/tools/frameworks/firebase-genkit.md`
-- [ ] `docs/tools/frameworks/google-adk.md`
-- [ ] `docs/tools/frameworks/instructor.md`
-- [ ] `docs/tools/infrastructure/ubuntu-ai.md`
-- [ ] `docs/tools/intake_storage/s3-storage.md`
+- [x] `docs/tools/benchmarking/vakra.md`
+- [x] `docs/tools/frameworks/firebase-genkit.md`
+- [x] `docs/tools/frameworks/google-adk.md`
+- [x] `docs/tools/frameworks/instructor.md`
+- [x] `docs/tools/infrastructure/ubuntu-ai.md`
+- [x] `docs/tools/intake_storage/s3-storage.md`
 
 ## Sub-Batch 41.13: Process Understanding
-- [ ] `docs/tools/process_understanding/ai-auditing-tools.md`
-- [ ] `docs/tools/process_understanding/comet-opik.md`
-- [ ] `docs/tools/process_understanding/posthog.md`
+- [x] `docs/tools/process_understanding/ai-auditing-tools.md`
+- [x] `docs/tools/process_understanding/comet-opik.md`
+- [x] `docs/tools/process_understanding/posthog.md`
 
 ---
 - Confidence: high
