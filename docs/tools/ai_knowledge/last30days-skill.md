@@ -21,6 +21,22 @@ Traditional search engines often surface stale editorial content or SEO-spam. In
 - **Intelligent Pre-Research**: The v3 engine resolves relevant handles, subreddits, and hashtags before searching, ensuring high-signal discovery.
 - **Shareable Artifacts**: Can emit self-contained, dark-mode HTML briefs for easy distribution in Slack or Notion.
 
+## Limitations
+- **Recency Bias**: Strictly limited to the last 30 days; cannot be used for historical research beyond that window.
+- **Platform Rate Limits**: Subject to the API quotas of underlying social platforms (especially X and GitHub).
+- **English Language Focus**: Community scoring and entity resolution are currently optimized for English-speaking technical communities.
+- **Noise Sensitivity**: While it uses an "AI Judge," viral but low-quality content can occasionally skew the results.
+
+## When to use it
+- Use when researching rapidly evolving software where documentation lags behind community discourse.
+- Use for competitive intelligence when you need to know how users are *actually* feeling about a product today.
+- Use when preparing for a technical deep dive where recent GitHub issues and PR discussions are vital.
+
+## When not to use it
+- Do not use for general knowledge or encyclopedic queries that don't change month-to-month.
+- Do not use for deep historical research (e.g., "History of LLMs before 2023").
+- Do not use for queries requiring strictly verified, peer-reviewed scientific data where community consensus is irrelevant.
+
 ## Getting started
 
 ### Installation (Claude Code)
@@ -55,6 +71,9 @@ clawhub install last30days-official
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) (Community context)
 - [OpenRouter](openrouter.md) (API provider used for web search components)
 - [Exa Search](../automation_orchestration/goose.md) (Similar neural search concept)
+- [Perplexity](perplexity.md) (Search competitor)
+- [Tavily](../providers/tavily.md) (Search API for LLMs)
+- [Dify](dify.md) (Orchestration platform that can host skills)
 
 ## Sources / references
 - [last30days-skill GitHub Repository](https://github.com/mvanhorn/last30days-skill)

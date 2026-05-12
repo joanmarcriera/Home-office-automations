@@ -25,6 +25,16 @@ AirOps addresses the difficulty of moving AI from a simple chat interface into a
 - **Commercial Platform**: Primarily a paid service with enterprise focus.
 - **Complexity**: Offers a wide range of features that might take time to master.
 
+## When to use it
+- Use when you need a multi-tenant platform for deploying AI workflows to many users or customers.
+- Use if your team includes non-technical stakeholders who need to collaborate on prompt engineering and workflow design.
+- Use when building AI tools that require deep integration with enterprise data sources like Snowflake, Postgres, or Salesforce.
+
+## When not to use it
+- Do not use for simple personal automation where lightweight tools like Zapier or basic scripts are sufficient.
+- Avoid if you require a fully open-source, self-hosted solution; consider Dify or Langflow instead.
+- Do not use for highly experimental research tasks that don't need the production-grade reliability of a managed platform.
+
 ## Getting started
 1.  Sign up for an account at [AirOps.com](https://www.airops.com/).
 2.  Navigate to the API section in your workspace settings to generate an API Key.
@@ -47,6 +57,10 @@ curl --request POST \
 - [Flowise](../ai_knowledge/flowise.md)
 - [Parea](../process_understanding/parea.md)
 - [Zapier](zapier.md)
+- [n8n](../../services/n8n.md)
+- [Make](make.md)
+- [Langflow](../frameworks/langflow.md)
+- [Glean](../enterprise/glean.md)
 
 ## Sources / references
 - [AirOps Official Website](https://www.airops.com/)

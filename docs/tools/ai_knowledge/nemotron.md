@@ -63,11 +63,25 @@ For agentic deployments, treat Nemotron-3 Super as the planning/escalation model
 - **Hardware Affinity**: Best performance and efficiency gains require NVIDIA Blackwell (B200) GPUs.
 - **Model Size**: At 120B total parameters, it requires significant VRAM even with its 12B active parameter efficiency.
 
+## When to use it
+- Use when building autonomous multi-agent systems that require long-context reasoning across massive document sets.
+- Use if you have access to NVIDIA hardware (especially Blackwell) and need to minimize inference latency for large models.
+- Use for cybersecurity or software engineering tasks where "associative recall" and multi-step planning are critical.
+
+## When not to use it
+- Do not use for simple, single-turn chat interactions where smaller, faster models (like Nemotron-3 Nano) are sufficient.
+- Avoid using on non-NVIDIA hardware if you require the 4x efficiency gains promised by NVFP4 optimization.
+- Do not use if you are strictly limited by VRAM and cannot support a 120B parameter model footprint.
+
 ## Related tools / concepts
 - [NVIDIA](../providers/nvidia.md)
 - [NVIDIA NeMo Retriever](../agents/nemo-retriever.md)
 - [OpenCode](../development_ops/opencode.md)
 - [Mamba Architecture](../../knowledge_base/model_classes.md)
+- [DeepSeek R1](deepseek-r1.md)
+- [Qwen](qwen.md)
+- [OpenRouter](openrouter.md)
+- [Llama.cpp](../infrastructure/llama-cpp.md)
 
 ## Sources / References
 - [Introducing Nemotron 3 Super (NVIDIA Blog)](https://developer.nvidia.com/blog/introducing-nemotron-3-super-an-open-hybrid-mamba-transformer-moe-for-agentic-reasoning/)
