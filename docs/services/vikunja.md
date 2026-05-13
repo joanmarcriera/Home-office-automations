@@ -133,12 +133,48 @@ auth:
 
 In Authentik, configure the Redirect URI as: `https://vikunja.example.com/auth/openid/authentik`
 
+## CalDAV Synchronization
+Vikunja supports CalDAV for syncing tasks with external clients or servers like [Radicale](radicale.md).
+
+### Authentication
+Use your Vikunja username and:
+- **Account Password**: For local or LDAP accounts without 2FA.
+- **CalDAV Token**: For OIDC accounts or accounts with 2FA enabled (generate in **Settings > CalDAV**).
+
+### Syncing with Radicale via vdirsyncer
+To synchronize Vikunja tasks with a [Radicale](radicale.md) server, use `vdirsyncer`:
+
+```ini
+[general]
+status_path = "~/.vdirsyncer/status/"
+
+[pair vikunja_radicale]
+a = "vikunja"
+b = "radicale"
+collections = ["from a", "from b"]
+metadata = ["displayname", "color"]
+
+[storage vikunja]
+type = "caldav"
+url = "https://vikunja.example.com/dav/principals/<username>/"
+username = "<username>"
+password = "<password_or_token>"
+
+[storage radicale]
+type = "caldav"
+url = "https://radicale.example.com/<username>/"
+username = "<username>"
+password = "<password>"
+```
+
+Run `vdirsyncer discover` and then `vdirsyncer sync` to initialize the connection.
+
 ## Backlog
-- Sync with CalDAV (Radicale).
 
 ## Sources / References
 
 - [Official Documentation](https://vikunja.io/docs/)
+- [CalDAV Documentation](https://vikunja.io/docs/caldav/)
 - [CLI Reference](https://vikunja.io/docs/cli/)
 
 ## Related tools / concepts
@@ -153,5 +189,5 @@ In Authentik, configure the Redirect URI as: `https://vikunja.example.com/auth/o
 
 ## Contribution Metadata
 
-- Last reviewed: 2025-05-15
+- Last reviewed: 2026-05-13
 - Confidence: high
