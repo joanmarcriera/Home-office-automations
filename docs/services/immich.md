@@ -41,44 +41,67 @@ It provides a private, high-speed way to backup and organize media from mobile d
 
 ## Getting started
 
-### Machine Learning Node
-Immich uses a dedicated service for AI tasks. By default, it runs on the CPU, but can be configured for NVIDIA GPUs or OpenVINO.
+### Hardware Acceleration (ML Node)
+Immich uses a dedicated service for AI tasks (face recognition, CLIP, etc.). For high-performance library indexing, configure NVIDIA GPU or OpenVINO.
 
+#### NVIDIA GPU (Docker)
 ```yaml
-# Partial docker-compose.yml for the ML node
 services:
   immich-machine-learning:
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:release
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     volumes:
       - model-cache:/cache
     restart: unless-stopped
 ```
 
-### Local AI Models
-Immich supports various models for:
-- **CLIP**: Enables semantic search (searching by description).
-- **Facial Recognition**: Automatically detects and groups faces.
+#### OpenVINO (Intel CPU/iGPU)
+Set `IMMICH_MACHINE_LEARNING_URL` to point to a machine-learning container using the OpenVINO image:
+`image: ghcr.io/immich-app/immich-machine-learning:release-openvino`
 
-## Backup and retention workflow
+## Backup & Restore Runbook
 
-Treat Immich as the media application layer, not the only preservation layer:
+### Backup Strategy
+To ensure a consistent backup, you must back up both the **PostgreSQL database** and the **Upload Library**.
 
-1. Back up the upload/library storage and the PostgreSQL database together.
-2. Keep a second copy outside the Immich host, such as NAS snapshots, object storage, or offline disk rotation.
-3. Test restore by bringing up a temporary stack and confirming albums, people, and search indexes rebuild correctly.
-4. For phone uploads, keep the mobile app's delete-after-upload behavior conservative until the independent backup has run.
-5. Document retention rules for screenshots, duplicates, shared albums, and original camera files separately.
+1.  **Database Dump**:
+    ```bash
+    # Run inside the database container
+    docker exec -t immich_postgres pg_dumpall -c -U postgres > immich_backup.sql
+    ```
+2.  **Filesystem Backup**:
+    Sync the `UPLOAD_LOCATION` to your backup target (e.g., using `rclone` or `rsync`).
+    ```bash
+    rsync -avz /path/to/immich/library/ /backup/immich/library/
+    ```
 
-For home-office automation, the useful split is: Immich for browsing and AI search, file-level backup for disaster recovery, and [Paperless-ngx](paperless-ngx.md) or [Homebox](homebox.md) for receipts, warranties, and inventory evidence that should not live only in a photo timeline.
+### Restore Procedure
+1.  Bring up a fresh Immich stack with the same version as your backup.
+2.  Stop the `immich_server` container: `docker stop immich_server`.
+3.  Restore the database:
+    ```bash
+    cat immich_backup.sql | docker exec -i immich_postgres psql -U postgres
+    ```
+4.  Restore the files to the `UPLOAD_LOCATION`.
+5.  Restart the stack: `docker compose up -d`.
 
 ## Related tools / concepts
 - [Photoprism](https://www.photoprism.app/) (Alternative)
 - [Nextcloud Photos](nextcloud.md) (Alternative)
+- [Paperless-ngx](paperless-ngx.md) (For document archival)
+- [Homebox](homebox.md) (For physical asset inventory)
+- [TrueNAS SCALE](../architecture/infrastructure.md) (Recommended storage backend)
+- [NVIDIA](../tools/providers/nvidia.md) (For ML acceleration)
+- [OpenVINO](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html) (Intel AI optimization)
 
 ## Backlog
-- Configure machine learning node for advanced image classification.
-- Add a tested backup/restore runbook for the Immich database and upload library.
 
 ## Sources / References
 - [Official Website](https://immich.app/)

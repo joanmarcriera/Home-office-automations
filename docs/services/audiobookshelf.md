@@ -85,13 +85,33 @@ curl -X GET "http://localhost:1337/api/libraries" \
 - [n8n](n8n.md)
 - [Whisper](whisper.md)
 
+## Advanced Integrations
+
+### Kavita (Ebooks & Manga)
+While Audiobookshelf specializes in audio, it can be paired with [Kavita](https://www.kavitareader.com/) for a complete digital library.
+
+1.  **Shared Storage**: Point both services to the same root media directory.
+2.  **OPDS Feed**: Use Audiobookshelf's OPDS feed to browse your collection in external readers that support the standard.
+3.  **Authentication**: Pair both services with [Authentik](authentik.md) for unified access.
+
+### AI Podcast Transcription
+Enrich your podcast library with full-text search by integrating [Whisper](whisper.md) for local transcription.
+
+```bash
+# Example: Using faster-whisper-server (Speaches) to transcribe a podcast episode
+curl http://speaches:8000/v1/audio/transcriptions \
+  -H "Content-Type: multipart/form-data" \
+  -F file="@/podcasts/my_episode.mp3" \
+  -F model="base"
+```
+
+The resulting JSON transcript can be indexed in a local [Vector DB](../knowledge_base/vector-db-comparison.md) for semantic search across your entire spoken-word history.
+
 ## Backlog
-- Integrate with Kavita for ebook/manga support.
-- Explore AI-based transcription for hosted podcasts.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-05-13
 
 ## Sources / References
 - [Audiobookshelf Official Site](https://www.audiobookshelf.org/)
