@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-05-10
+# Ralph-loop Triage Report — 2026-05-13
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 10, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 13, 2026.
 
 ## Issue Status Summary
 
@@ -48,7 +48,7 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json`. **Sub-Batch 35.1 (Media) completed 2026-05-12**.
 - **Batch 41**: Address remaining 80+ non-compliant docs as decomposed in `docs/reports/task-decomposition-batch-41.md`. **(Completed 2026-05-12)**.
-- **Batch 42**: Service & Automation Deepening. **Sub-Batches 42.1, 42.2, and 42.3 completed 2026-05-13**.
+- **Batch 42**: Service & Automation Deepening. **Sub-Batches 42.1, 42.2, 42.3, and 42.4 completed 2026-05-13**.
 
 ---
 - Confidence: high

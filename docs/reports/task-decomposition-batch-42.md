@@ -19,11 +19,11 @@ This report implements **Action C** for high-effort backlog items identified in 
 - [x] `Jellyfin Hardware Acceleration`: Implement and document the configuration for NVIDIA/Intel QuickSync hardware transcoding in [Jellyfin](docs/services/jellyfin.md), including container device passthrough.
 
 ## Sub-Batch 42.4: Jules Report Automation (High Effort)
-- [ ] `n8n Execution Log Aggregator`: Develop a Python script to fetch the last 24h of n8n execution logs via API and identify the top 3 failure patterns.
-- [ ] `Jules Weekly Gap Analysis`: Design a prompt for Jules to analyze the aggregated logs and propose concrete documentation or workflow PRs based on discovered gaps.
-- [ ] `Automation PR Template`: Create a standardized PR template for Jules-suggested automation improvements, including rollback procedures and test fixtures.
+- [x] `n8n Execution Log Aggregator`: Develop a Python script to fetch the last 24h of n8n execution logs via API and identify the top 3 failure patterns. (Implemented: `scripts/n8n_log_aggregator.py`)
+- [x] `Jules Weekly Gap Analysis`: Design a prompt for Jules to analyze the aggregated logs and propose concrete documentation or workflow PRs based on discovered gaps. (Implemented: `docs/reference-implementations/llm-prompts/jules-gap-analysis.md`)
+- [x] `Automation PR Template`: Create a standardized PR template for Jules-suggested automation improvements, including rollback procedures and test fixtures. (Implemented: `.github/PULL_REQUEST_TEMPLATE/automation_improvement.md`)
 
 ---
 - Confidence: high
-- Date: 2026-05-13
+- Last reviewed: 2026-05-13
 - Created by: Jules
