@@ -27,7 +27,33 @@ It replaces repetitive manual operations across tools and teams. Unlike cloud-on
 - **Scale design required**: business-critical usage needs queue mode, persistent DB, and observability.
 - **Credential discipline**: secrets management and environment separation must be done explicitly.
 
-## Best Practices: Error Handling
+## Best Practices: Observability & Patterns
+
+### 1. Golden Sub-workflows
+Standardize common patterns by creating reusable sub-workflows. See [Golden Sub-workflows](../reference-implementations/n8n/golden-subworkflows.md) for detailed reference implementations of:
+- `email-triage`: Automated classification and extraction.
+- `risk-gating`: Automated risk assessment.
+- `human-approval`: Wait-for-input patterns.
+
+### 2. SLO Dashboard (Prometheus/Grafana)
+To monitor the health of your automation stack, export n8n metrics to Prometheus and visualize them in Grafana.
+
+**Key Metrics to Track**:
+- `n8n_workflow_executions_total`: Total number of executions.
+- `n8n_workflow_failures_total`: Number of failed executions.
+- `n8n_execution_latency_seconds`: Time taken per workflow.
+- `n8n_human_approval_wait_time`: Time spent waiting for manual intervention.
+
+**Sample Prometheus Configuration**:
+```yaml
+scrape_configs:
+  - job_name: 'n8n'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['n8n:5678']
+```
+
+### 3. Error Handling
 To ensure high availability and auditability of automated processes, standardizing error handling is critical:
 
 1.  **Centralized Error Sub-workflow**: Create a dedicated workflow that accepts error data (workflow name, execution ID, error message, timestamp) and routes it to a notification channel (e.g., Element, Email, or a centralized Error Queue dashboard).
@@ -214,7 +240,7 @@ Return strict JSON:
 
 ## How to keep this n8n capability expanding over time (Jules loop)
 
-Use a recurring Jules task focused on n8n value growth:
+Use a recurring Jules task focused on n8n value growth. For detailed decomposition of these tasks, see [Batch 42.4 (Jules Report Automation)](../reports/task-decomposition-batch-42.md#sub-batch-424-jules-report-automation-high-effort).
 
 1. Pull top failed/slow executions from last 24h.
 2. Propose one additive workflow improvement.
@@ -248,9 +274,7 @@ This keeps n8n improving as an operating system for your business processes, not
 - [OpenClaw Security and Operations Pattern](../knowledge_base/patterns/openclaw-security-operations.md) (Guardrails for autonomous agent actions touching real systems)
 
 ## Backlog
-- Add reusable sub-workflows: `email-triage`, `risk-gating`, `human-approval`.
 - Add golden test fixtures for 20 real-world wine trade email scenarios.
-- Add SLO dashboard: execution latency, failure rate, manual handoff rate.
 - Add weekly Jules report: top 3 automation gaps and proposed PRs.
 
 ## Sources / References

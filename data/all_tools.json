@@ -1927,6 +1927,12 @@
       "doc_path": "docs/services/portracker.md"
     },
     {
+      "id": "prowlarr",
+      "name": "Prowlarr",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/prowlarr.md"
+    },
+    {
       "id": "posthog",
       "name": "PostHog",
       "category": "Process & Understanding",
@@ -2206,6 +2212,12 @@
       "name": "Sunsama",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/sunsama.md"
+    },
+    {
+      "id": "synapse",
+      "name": "Matrix Synapse",
+      "category": "Creative & Communication",
+      "doc_path": "docs/services/synapse.md"
     },
     {
       "id": "supabase",

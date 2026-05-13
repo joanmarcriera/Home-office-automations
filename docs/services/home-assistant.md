@@ -63,6 +63,15 @@ services:
 
 Access the web interface at `http://<your-ip>:8123`.
 
+### Energy Monitoring Dashboard
+Home Assistant includes a native Energy Dashboard to track usage across your home.
+
+1. **Configure Sensors**: Add individual power sensors (e.g., Shelly, TP-Link Kasa) to your `configuration.yaml` or via UI integrations.
+2. **Setup Dashboard**: Go to **Settings > Dashboards > Energy**.
+3. **Add Grid Consumption**: Select your main power meter sensor.
+4. **Add Individual Devices**: Track high-usage appliances like the Fridge, EV Charger, or Homelab Server.
+5. **Analyze Anomalies**: Use the dashboard to identify unusual power spikes or high baseline usage.
+
 ## Local AI Integration
 Home Assistant supports local AI via the **Ollama** integration, introduced in 2024.4. This allows for a private, local voice assistant and device control.
 
@@ -112,7 +121,6 @@ curl -X GET \
 - [n8n](n8n.md) — for complex automations that bridge HA with external web services
 
 ## Backlog
-- Setup dashboard for energy monitoring.
 
 ## Sources / References
 
