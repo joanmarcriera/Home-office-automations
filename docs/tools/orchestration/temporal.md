@@ -81,6 +81,9 @@ async def main():
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
 - [LiteLLM](../../services/litellm.md)
 - [Agno](../agents/agno.md)
+- [Mastra](../frameworks/mastra.md)
+- [AG2](../frameworks/ag2.md)
+- [Apache Airflow](apache-airflow.md)
 
 ## Sources / References
 - [Official Website](https://temporal.io/)
