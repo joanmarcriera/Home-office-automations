@@ -48,6 +48,11 @@ To use these patterns:
 2. Use the **Execute Workflow** node in your primary flows to call these sub-workflows.
 3. Pass data via the **Node Input** and receive results via the **Output**.
 
+## Sources / References
+- [n8n Execution Logs Documentation](https://docs.n8n.io/hosting/scaling-n8n/execution-logs/)
+- [n8n Sub-workflows Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow/)
+
 ---
 - Status: Reference Implementation
 - Last reviewed: 2026-05-13
+- Confidence: high
