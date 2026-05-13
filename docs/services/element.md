@@ -157,7 +157,6 @@ curl -X POST \
 - [Matrix Protocol](https://matrix.org/)
 
 ## Backlog
-- Set up Matrix Synapse homeserver for full self-hosting.
 
 ## Contribution Metadata
 - Confidence: high

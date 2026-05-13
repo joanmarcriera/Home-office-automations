@@ -175,7 +175,7 @@ for m in healthy_matches:
 - [LinuxServer Jackett image](https://docs.linuxserver.io/images/docker-jackett/)
 
 ## Related tools / concepts
-- [Prowlarr](https://github.com/Prowlarr/Prowlarr)
+- [Prowlarr](prowlarr.md)
 - [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
 - [qbittorrent](qbittorrent.md)
 - [radarr](https://radarr.video/)
@@ -186,7 +186,7 @@ for m in healthy_matches:
 - [Homebox](homebox.md)
 
 ## Backlog
-- Migrate to Prowlarr for better integration with the "Arr" stack.
+- [x] Migrate to Prowlarr for better integration with the "Arr" stack.
 
 ## Sources / References
 - https://github.com/Jackett/Jackett

@@ -189,9 +189,9 @@ if ids:
 - [Getting Started Docs](https://www.navidrome.org/docs/getting-started/)
 
 ## Related tools / concepts
+- [Audiobookshelf](audiobookshelf.md) — For specialized audiobook and podcast management.
 - [Airsonic](https://airsonic.github.io/)
 - [Jellyfin](jellyfin.md)
-- [Audiobookshelf](audiobookshelf.md)
 - [Plex](plex.md)
 - [Beets](https://beets.io/)
 - [Lidarr](https://lidarr.audio/)
@@ -199,7 +199,6 @@ if ids:
 - [Subsonic API](http://www.subsonic.org/pages/api.jsp)
 
 ## Backlog
-- Integrate with "Audiobookshelf" for a unified audio library.
 
 ## Sources / References
 - https://www.navidrome.org/

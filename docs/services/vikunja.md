@@ -169,15 +169,8 @@ password = "<password>"
 
 Run `vdirsyncer discover` and then `vdirsyncer sync` to initialize the connection.
 
-## Backlog
-
-## Sources / References
-
-- [Official Documentation](https://vikunja.io/docs/)
-- [CalDAV Documentation](https://vikunja.io/docs/caldav/)
-- [CLI Reference](https://vikunja.io/docs/cli/)
-
 ## Related tools / concepts
+- [Synapse](synapse.md) — For self-hosting the Matrix backend.
 - [Radicale](radicale.md) — For CalDAV sync of tasks.
 - [Habitica](habitica.md) — For gamified task management.
 - [Focalboard](focalboard.md) — For an alternative Kanban-focused tool.
@@ -186,6 +179,12 @@ Run `vdirsyncer discover` and then `vdirsyncer sync` to initialize the connectio
 - [n8n](n8n.md) — For automating task creation from emails or chats.
 - [Email-to-Calendar](../playbooks/email-to-calendar.md) — Complementary playbook for scheduling.
 - [Vikunja Task Routing](../reference-implementations/llm-prompts/vikunja-task-routing.md) — LLM patterns for automated task classification.
+
+## Sources / References
+
+- [Official Documentation](https://vikunja.io/docs/)
+- [CalDAV Documentation](https://vikunja.io/docs/caldav/)
+- [CLI Reference](https://vikunja.io/docs/cli/)
 
 ## Contribution Metadata
 
