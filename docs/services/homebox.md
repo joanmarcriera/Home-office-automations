@@ -124,14 +124,40 @@ if response.status_code == 200:
         print(f"Item: {item['name']}, Location: {item['location']['name']}")
 ```
 
-## Backlog
-- Export data to CSV for insurance purposes.
-- Document a tested restore run from a copied `/data` volume.
+## Data Export (CSV)
+For insurance purposes or data migration, you can export your inventory to CSV via the UI or API.
 
+### Via Web UI
+1. Navigate to **Settings** > **Export**.
+2. Select **CSV Export**.
+3. Download the generated file.
+
+### Via API (Python)
+```python
+import requests
+
+url = "http://localhost:3100/api/v1/export/csv"
+headers = {"Authorization": "Bearer YOUR_API_TOKEN"}
+
+response = requests.get(url, headers=headers)
+with open("inventory_export.csv", "wb") as f:
+    f.write(response.content)
+```
+
+## Volume Restore Procedure
+To restore Homebox from a backup of the `/data` volume:
+
+1. Stop the existing Homebox container: `docker stop homebox`.
+2. Replace the contents of your local data directory with the backup files.
+3. Ensure the `homebox.db` file is present in the root of the data volume.
+4. Start the container: `docker start homebox`.
+5. Verify that all items and locations are visible in the web interface.
+
+## Backlog
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-07
+- Last reviewed: 2026-05-13
 
 ## Sources / References
 - https://github.com/sysadminsmedia/homebox

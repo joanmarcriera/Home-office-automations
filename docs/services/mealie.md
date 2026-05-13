@@ -106,8 +106,31 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 - [Linkwarden](linkwarden.md) — for bookmarking recipe ideas before importing them into Mealie
 - [Actual Budget](actual-budget.md) — for tracking the financial cost of your weekly meal plans
 
+## External Sync & Automations
+Mealie's API allows for seamless integration with external task managers and automation platforms like [n8n](n8n.md).
+
+### Syncing Shopping Lists to Vikunja (n8n)
+To synchronize Mealie shopping lists with [Vikunja](vikunja.md), you can use an n8n workflow:
+
+1.  **Trigger**: Schedule (e.g., every 6 hours) or Mealie Webhook (on list update).
+2.  **Fetch Mealie List**: Use the HTTP Request node to call `GET /api/shopping-lists/default`.
+3.  **Format Data**: Map Mealie ingredients to Vikunja task objects.
+4.  **Update Vikunja**: Use the Vikunja node to create or update tasks in a "Grocery" project.
+
+### API Example: Exporting Ingredients
+```python
+import requests
+
+url = "http://localhost:9925/api/shopping-lists/default"
+headers = {"Authorization": "Bearer YOUR_API_TOKEN"}
+
+response = requests.get(url, headers=headers)
+items = response.json().get('items', [])
+for item in items:
+    print(f"Buy: {item['note']} ({item['food']['name']})")
+```
+
 ## Backlog
-- Sync shopping lists with external task managers.
 
 ## Sources / References
 
@@ -117,5 +140,5 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-05-13
 - Confidence: high
