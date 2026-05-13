@@ -219,8 +219,40 @@ ak_message("Please use the approved family browser configuration for this servic
 return False
 ```
 
+## LDAP Outpost Integration
+
+Authentik provides an LDAP Outpost to allow legacy applications that only support LDAP to authenticate against Authentik's user database and policy engine.
+
+### Configuration
+1.  **Create an LDAP Provider**: Go to **Resources > Providers** and create an **LDAP Provider**.
+    -   **Base DN**: `dc=ldap,dc=goauthentik,dc=io`
+    -   **Bind Flow**: A flow that handles authentication (e.g., default-authentication-flow).
+2.  **Create an LDAP Outpost**: Go to **Applications > Outposts** and create a new **Outpost**.
+    -   **Type**: LDAP.
+    -   **Service Connection**: Select your Docker or Kubernetes connection.
+3.  **Deploy the Outpost**: Authentik will provide a Docker Compose snippet for the outpost. Run it alongside your main Authentik stack.
+
+### Client Example (Python)
+Legacy apps can then bind to the LDAP outpost (usually port 389 or 636):
+
+```python
+import ldap
+
+# Configuration
+LDAP_SERVER = "ldap://authentik-outpost:389"
+BIND_DN = "cn=akadmin,ou=users,dc=ldap,dc=goauthentik,dc=io"
+BIND_PASSWORD = "your_password"
+
+try:
+    conn = ldap.initialize(LDAP_SERVER)
+    conn.simple_bind_s(BIND_DN, BIND_PASSWORD)
+    print("LDAP Bind Successful")
+except ldap.LDAPError as e:
+    print(f"LDAP Error: {e}")
+```
+
 ## Backlog
-- Configure LDAP outpost for legacy apps.
+- [x] Configure LDAP outpost for legacy apps.
 
 ## Contribution Metadata
 - Confidence: high

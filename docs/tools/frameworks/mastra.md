@@ -68,6 +68,11 @@ console.log(response.text);
 - [Phidata](../agents/phidata.md)
 - [LangGraph](langgraph.md)
 - [CrewAI](crewai.md)
+- [Agno](../agents/agno.md)
+- [Temporal](../orchestration/temporal.md)
+- [PydanticAI](pydantic-ai.md)
+- [AG2](ag2.md)
+- [Smolagents](smolagents.md)
 
 ## Sources / References
 - [Official Website](https://mastra.ai/)
