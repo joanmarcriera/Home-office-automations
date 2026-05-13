@@ -66,19 +66,41 @@ services:
     restart: unless-stopped
 ```
 
+## RAG & Knowledge Bases
+Open WebUI provides a native "Knowledge" workspace to manage documents for Retrieval-Augmented Generation (RAG).
+
+### Setting Up a Knowledge Base
+1. Navigate to **Workspace > Knowledge**.
+2. Click the **+** icon to create a new Knowledge Base.
+3. Upload files (PDF, CSV, TXT, etc.) or sync an entire directory.
+4. **Focused Retrieval**: Open WebUI will chunk and embed your documents using a local embedding model (default: `sentence-transformers/all-MiniLM-L6-v2`) and store them in its internal ChromaDB.
+
+### Using Knowledge in Chat
+- **Direct Mention**: Type `#` in the chat bar to select a specific file or an entire Knowledge Base to include in the context.
+- **Model Scoping**: Go to **Workspace > Models**, edit a model, and attach a Knowledge Base. This model will now automatically use that knowledge for every query.
+
+### External Vector Databases
+For large scale RAG, Open WebUI supports external vector stores like `Milvus` or `Qdrant` via environment variables:
+```yaml
+environment:
+  - RAG_EMBEDDING_ENGINE=ollama
+  - RAG_EMBEDDING_MODEL=mxbai-embed-large
+  - VECTOR_DB=milvus
+  - MILVUS_URI=http://milvus:19530
+```
+
 ## Related tools / concepts
-- [Ollama](ollama.md)
-- [LiteLLM](litellm.md)
-- [RAG (Retrieval Augmented Generation)](../knowledge_base/patterns/rag.md)
+- [Ollama](ollama.md) — Primary inference engine for chat and embeddings.
+- [LiteLLM](litellm.md) — For connecting Open WebUI to external APIs with a single standard.
+- [RAG (Retrieval Augmented Generation)](../knowledge_base/patterns/rag-pattern.md) — The underlying architecture for chatting with documents.
 
 ## Backlog
-- Integrate with internal knowledge base for RAG.
 
 ## Sources / References
-- [Official Website](https://openwebui.com/)
+- [Open WebUI Documentation](https://docs.openwebui.com/)
+- [Knowledge Workspace Guide](https://docs.openwebui.com/features/workspace/knowledge/)
 - [GitHub Repository](https://github.com/open-webui/open-webui)
-- [Ollama WebUI GitHub](https://github.com/ollama-webui/ollama-webui)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-08
+- Last reviewed: 2026-05-13
 - Confidence: high

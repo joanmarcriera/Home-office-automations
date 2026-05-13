@@ -129,8 +129,7 @@ curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
 - [Radicale Documentation](https://radicale.org/v3.html)
 
 ## Backlog
-- Integration with Vikunja for shared task lists.
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-05
+- Last reviewed: 2026-05-13
 - Confidence: high

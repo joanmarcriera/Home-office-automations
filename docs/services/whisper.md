@@ -95,6 +95,23 @@ for segment in segments:
     print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
 ```
 
+### Streaming API (Speaches)
+[Speaches](https://github.com/speaches-ai/speaches) (formerly `faster-whisper-server`) provides an OpenAI-compatible API for streaming transcription using Faster-Whisper.
+
+```python
+import openai
+
+client = openai.OpenAI(base_url="http://localhost:8000/v1", api_key="cant-be-empty")
+
+with open("audio.wav", "rb") as audio_file:
+    transcription = client.audio.transcriptions.create(
+        model="base",
+        file=audio_file,
+        response_format="text"
+    )
+    print(transcription)
+```
+
 ### Advanced: Hardware Benchmarking (CPU vs GPU)
 Whisper performance varies significantly based on the backend. Use these benchmarks to select the right model for your hardware.
 
@@ -131,6 +148,22 @@ raw_text = "Um, so, like, the meeting was, uh, scheduled for Tuesday at 3pm."
 print(cleanup_transcript(raw_text))
 ```
 
+## Real-time & n8n Automation
+For real-time transcription or automated pipelines, Whisper is often integrated into orchestration tools like [n8n](n8n.md).
+
+### n8n Workflow Pattern: Automated Transcription
+A common pattern involves using a local Whisper server (like Speaches) to process audio files triggered by events (e.g., a new file in a folder or a webhook from a phone).
+
+1. **Trigger**: Webhook or File Watcher (e.g., Local File Trigger).
+2. **Binary Data**: Fetch the audio file into a binary property.
+3. **HTTP Request**:
+    - **Method**: POST
+    - **URL**: `http://whisper-server:8000/v1/audio/transcriptions`
+    - **Send Binary Data**: Checked.
+    - **Body Parameters**: `model=base`, `response_format=json`.
+4. **LLM Processing**: Send the resulting text to [Ollama](ollama.md) for summarization or action item extraction.
+5. **Output**: Save the transcript to Obsidian or send a notification via Telegram.
+
 ## Related tools / concepts
 - [Ollama](ollama.md) — for processing transcribed text with local LLMs
 - [n8n](n8n.md) — for automating audio ingestion and transcription workflows
@@ -140,12 +173,10 @@ print(cleanup_transcript(raw_text))
 - [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
 
 ## Backlog
-- Implement real-time transcription for meetings via n8n.
-
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-05-13
 
 ## Sources / References
 - https://github.com/openai/whisper

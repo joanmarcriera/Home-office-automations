@@ -13,6 +13,7 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 - **Private Chat**: Interacting with LLMs without data leaving your local network.
 - **Development & Testing**: Locally testing AI-integrated applications before deploying to cloud providers.
 - **Autonomous Agents**: Serving as the local backend for agents like Aider or OpenHands.
+- **Enterprise Prototyping**: Rapidly deploying specialized models for internal document analysis or coding assistance.
 
 ## Strengths
 - **Ease of Use**: One-line installation and simple model pulling (e.g., `ollama run llama3`).
@@ -63,22 +64,38 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
+## TrueNAS SCALE & GPU Setup
+Running Ollama on [TrueNAS SCALE](../architecture/infrastructure.md) requires configuring GPU passthrough for optimal performance.
+
+### GPU Passthrough (NVIDIA)
+1. **Host Configuration**: Ensure the NVIDIA driver is active in TrueNAS SCALE (**System Settings > Advanced > Isolated GPU Device**).
+2. **Docker/App Configuration**: In the application settings, allocate `1` (or more) GPU under the "Resource Reservation" section.
+3. **Environment**: Ensure `NVIDIA_VISIBLE_DEVICES=all` and `NVIDIA_DRIVER_CAPABILITIES=compute,utility` are set in the container environment.
+
+### Performance Benchmarking
+Tokens per second (t/s) vary by model size and hardware. Use `ollama run <model>` and then `/set verbose` to see generation statistics.
+
+| Hardware | Model | VRAM Used | Eval Rate (t/s) |
+| :--- | :--- | :--- | :--- |
+| **Intel i7 (12th Gen)** | Llama 3.1 8B | 0GB (CPU) | ~3-5 t/s |
+| **NVIDIA RTX 3060 (12GB)** | Llama 3.1 8B | ~5.5GB | ~45-55 t/s |
+| **NVIDIA RTX 4090 (24GB)** | Llama 3.1 8B | ~5.5GB | ~130+ t/s |
+| **NVIDIA RTX 4090 (24GB)** | Llama 3.1 70B | ~42GB (Quant) | ~15-20 t/s |
+
 ## Related tools / concepts
-- [Open WebUI](open-webui.md)
-- [LiteLLM](litellm.md)
-- [Local LLMs](../tools/ai_knowledge/local_llms.md)
-- [LM Studio](https://lmstudio.ai/) (Alternative)
-- [LocalAI](https://localai.io/) (Alternative)
+- [Open WebUI](open-webui.md) — The recommended web frontend for Ollama.
+- [LiteLLM](litellm.md) — For load balancing multiple Ollama instances.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — Overview of the local model ecosystem.
+- [LM Studio](https://lmstudio.ai/) — A desktop-first alternative for model experimentation.
 
 ## Backlog
-- Benchmarking performance on TrueNAS SCALE.
-- Setup GPU passthrough for faster inference.
 
 ## Sources / References
 - [Official Website](https://ollama.com/)
 - [GitHub Repository](https://github.com/ollama/ollama)
-- [LM Studio](https://lmstudio.ai/)
+- [TrueNAS SCALE GPU Guide](https://www.truenas.com/docs/scale/24.10/applications/gpu/)
+- [Ollama GPU Documentation](https://github.com/ollama/ollama/blob/main/docs/gpu.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-08
-- Confidence: medium
+- Last reviewed: 2026-05-13
+- Confidence: high
