@@ -32,14 +32,29 @@ It aims to be the "fastest calendar in the world," reducing the time spent on ma
 - If you prefer a mouse-driven, visual-heavy interface.
 - If you need a free or self-hosted calendar solution.
 
+## Getting started
+Vimcal is primarily a desktop and mobile application. To get started:
+1. Connect your primary calendar (Google Calendar or Microsoft Outlook).
+2. Use `Cmd+K` (macOS) or `Ctrl+K` (Windows) to open the command palette.
+3. Use `F` to toggle "Free Slots" mode for quick availability sharing.
+
+## Technical details
+Vimcal uses advanced natural language processing (NLP) to parse event details. For example, typing "Lunch with Jane at 12pm tomorrow at Blue Bottle" automatically populates the title, date, time, and location fields.
+
 ## Related tools / concepts
-- [Cron / Notion Calendar](notion-calendar.md)
-- [Amie](amie.md)
-- [Morgen](morgen.md)
+- [Notion Calendar](notion-calendar.md) — Another high-speed, integrated calendar.
+- [Amie](amie.md) — Personal and professional calendar-task hybrid.
+- [Morgen](morgen.md) — Unified calendar and task manager with great Linux support.
+- [Akiflow](akiflow.md) — For deep task and calendar consolidation.
+- [Reclaim](reclaim.md) — AI-driven scheduling for teams.
+- [Motion](motion.md) — AI calendar that automatically rebuilds your schedule.
+- [Todoist](todoist.md) — Can be integrated for task visualization.
+- [Fantastical](fantastical.md) — Apple-ecosystem focused calendar with great NLP.
 
 ## Sources / references
 - [Vimcal Official Website](https://www.vimcal.com/)
+- [Vimcal Keyboard Shortcuts Guide](https://www.vimcal.com/shortcuts)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-05
+- Last reviewed: 2026-05-13
 - Confidence: high
