@@ -149,8 +149,42 @@ Gitea supports OIDC for Single Sign-On via [Authentik](authentik.md).
 
 In Authentik, the Redirect URI should be: `https://gitea.example.com/user/oauth2/authentik/callback`
 
+## Gitea Actions (CI/CD)
+Gitea Actions provides a built-in CI/CD solution that is compatible with GitHub Actions. It allows you to automate tasks like testing, building, and deploying directly within your self-hosted Gitea instance.
+
+### Enabling Actions
+1. In your `app.ini`, ensure Actions are enabled:
+```ini
+[actions]
+ENABLED = true
+```
+2. **Set up a Runner**: Gitea Actions requires a separate "Act Runner" to execute jobs. You can run this as a Docker container.
+3. **Registration**: Obtain a registration token from **Site Administration > Actions > Runners** and use it to register your runner.
+
+### Sample Workflow
+Create a file at `.gitea/workflows/demo.yaml` in your repository:
+
+```yaml
+name: Gitea Actions Demo
+run-name: ${{ github.actor }} is testing Gitea Actions 🚀
+on: [push]
+jobs:
+  Explore-Gitea-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by Gitea!"
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🍏 The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🙌 This job's status is ${{ job.status }}."
+```
+
 ## Backlog
-- Set up Gitea Actions for automated repository tasks.
 
 ## Contribution Metadata
 - Confidence: high

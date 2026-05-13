@@ -36,6 +36,35 @@
 - `scripts/audit_docs_quality.py`: PASSED (487/487 files compliant).
 - `scripts/check_catalog_consistency.py`: PASSED.
 
+---
+
+## Ralph-loop Execution — Round 2 (2026-05-13)
+
+### Summary
+Resolved 5 "High Priority" service backlog items by implementing technical deep-dives and clearing the `## Backlog` sections.
+
+### Targeted Files
+- `docs/services/syncthing.md`
+- `docs/services/changedetection.md`
+- `docs/services/diskover.md`
+- `docs/services/actual-budget.md`
+- `docs/services/gitea.md`
+
+### Actions Taken
+- **Technical Content Expansion**:
+    - **Syncthing**: Added "Selective Sync & Ignore Patterns" with `.stignore` examples.
+    - **Changedetection.io**: Added "Filters & Noise Reduction" for CSS/Regex excludes.
+    - **Diskover**: Added "TrueNAS SCALE & NFS Integration" setup.
+    - **Actual Budget**: Added "Bank Synchronization" via GoCardless (Nordigen).
+    - **Gitea**: Added "Gitea Actions (CI/CD)" with runner and workflow examples.
+- **Backlog Management**: Cleared targeted backlog items from all five files.
+- **Code Quality**: Addressed review feedback by fixing typos and improving Action workflow portability.
+
+### Verification Results
+- `scripts/check_docs_contract.py`: PASSED (5/5 files).
+- `scripts/audit_docs_quality.py`: PASSED (100% repository compliance).
+
 ## Next Steps
 - Periodically run `scripts/growth_tracker.py` to identify if new intake items become "shallow" as they are integrated.
 - Audit the `docs/playbooks/` directory for operational freshness.
+- Process the remaining backlog items in `docs/services/` (e.g., Immich, Home Box, Vikunja).
