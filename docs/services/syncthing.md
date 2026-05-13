@@ -110,8 +110,30 @@ curl -X POST -H "X-API-Key: <your_api_key>" \
 - [Storj](storj.md) — for decentralized, encrypted cloud storage
 - [Immich](immich.md) — for self-hosted photo management (often paired with Syncthing)
 
+## Selective Sync & Ignore Patterns
+Syncthing allows fine-grained control over which files are synchronized using `.stignore` files. This is particularly useful for mobile devices with limited storage or for excluding temporary build artifacts.
+
+### Using .stignore
+Create a file named `.stignore` in the root of your shared folder. Each line defines a pattern to ignore:
+
+```text
+// Ignore temporary files
+(?i)~*
+*.tmp
+
+// Ignore specific directories
+/node_modules
+/target
+/.cache
+
+// Ignore by file extension
+*.log
+```
+
+### Mobile Selective Sync
+On Android, you can enable "Selective Sync" in the Syncthing app settings for a specific folder. This allows you to see the file structure without downloading the actual content until requested. For iOS (Möbius Sync), utilize "Ignore Patterns" to prevent large directories from syncing to the device.
+
 ## Backlog
-- Configure selective sync for mobile devices.
 
 ## Sources / References
 - [Official Website](https://syncthing.net/)

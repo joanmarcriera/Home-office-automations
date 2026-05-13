@@ -86,8 +86,24 @@ curl http://localhost:5000/api/v1/watch \
 - [Selenium](https://www.selenium.dev/)
 - [Huginn](https://github.com/huginn/huginn)
 
+## Filters & Noise Reduction
+Effective website monitoring requires filtering out dynamic content that changes on every load (e.g., timestamps, session IDs, ads) to avoid false positive alerts.
+
+### CSS Selectors
+Use CSS selectors to focus the monitor on specific elements. For example, to monitor only the main article content and ignore sidebars:
+- **Include**: `main#content` or `article.post`
+- **Exclude**: `.sidebar`, `.footer`, `.advertisement`
+
+### Ignoring Text (Regex)
+In the "Filters" tab, use the "Ignore text" field to strip out patterns using regular expressions. Common patterns include:
+- `[0-9]{2}:[0-9]{2}:[0-9]{2}` (Timestamps)
+- `[0-9]+ comments` (Comment counts)
+- `\d+ views` (View counts)
+
+### Visual Filters
+When using the Playwright/Selenium fetcher, you can use the "Visual Filter" selector in the UI to click and hide elements directly from a rendered preview of the site.
+
 ## Backlog
-- Configure visual filter to ignore dynamic elements like timestamps.
 
 ## Contribution Metadata
 - Confidence: high

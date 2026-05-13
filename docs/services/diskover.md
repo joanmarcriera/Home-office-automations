@@ -125,8 +125,37 @@ for index in indices:
 - [Elasticsearch](https://www.elastic.co/elasticsearch/)
 - [Paperless-ngx](paperless-ngx.md)
 
+## TrueNAS SCALE & NFS Integration
+To index data residing on a [TrueNAS SCALE](../../architecture/infrastructure.md) server, you must mount the datasets to the Diskover host via NFS. This allows the crawler to access the file metadata directly.
+
+### Host Configuration (Linux)
+Install the NFS client and mount the TrueNAS dataset:
+
+```bash
+sudo apt update && sudo apt install nfs-common -y
+sudo mkdir -p /mnt/truenas_data
+sudo mount -t nfs <TRUENAS_IP>:/mnt/tank/data /mnt/truenas_data
+```
+
+### Docker Volume Mapping
+Add the mount point to your `docker-compose.yaml` to make it accessible to the Diskover container:
+
+```yaml
+services:
+  diskover:
+    # ... other config ...
+    volumes:
+      - /mnt/truenas_data:/data/truenas:ro
+```
+
+### Crawling the NFS Mount
+Once mounted, you can trigger a crawl of the TrueNAS data from within the container:
+
+```bash
+docker exec -it diskover python3 /app/diskover/diskover.py -i truenas-index /data/truenas
+```
+
 ## Backlog
-- Integrate with TrueNAS SCALE via NFS mount.
 
 ## Contribution Metadata
 - Confidence: high
