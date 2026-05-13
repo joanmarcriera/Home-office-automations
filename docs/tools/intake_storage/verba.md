@@ -34,14 +34,54 @@ It provides a user-friendly interface for building RAG applications, handling da
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Getting started
+### Docker Deployment
+The most reliable way to run Verba is via Docker Compose, which packages the frontend, backend, and Weaviate database.
+
+```bash
+git clone https://github.com/weaviate/Verba
+cd Verba
+# Set your API keys in the .env file
+docker compose up -d
+```
+
+### PIP Installation
+```bash
+pip install goldenverba
+verba start
+```
+
+## API examples
+Verba exposes a backend API that can be used to programmatically ingest data or query the RAG pipeline.
+
+### Query via Python
+```python
+import requests
+
+url = "http://localhost:8000/api/query"
+payload = {
+    "query": "How do I configure the OIDC middleware for Traefik?",
+    "conversation_id": "optional-id"
+}
+
+response = requests.post(url, json=payload)
+print(response.json()["answer"])
+```
+
 ## Related tools / concepts
-- [Weaviate](https://weaviate.io/)
-- [LlamaParse](llamaparse.md)
+- [Weaviate](../infrastructure/weaviate.md) — The vector database powering Verba.
+- [Khoj](khoj.md) — Alternative RAG assistant for personal notes.
+- [AnyType](anytype.md) — Local-first P2P knowledge base.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Underlying architectural concept.
+- [Obsidian](../ai_knowledge/obsidian.md) — Can be used as a data source via Markdown export.
+- [LangChain](../frameworks/langchain.md) — Often used in conjunction with Weaviate for custom pipelines.
+- [Ollama](../ai_knowledge/ollama.md) — Supported as a local inference backend.
 
 ## Sources / References
 - [Official Website](https://verba.weaviate.io/)
-- [GitHub](https://github.com/weaviate/Verba)
+- [GitHub Repository](https://github.com/weaviate/Verba)
+- [Weaviate Documentation](https://weaviate.io/developers/verba)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-27
+- Last reviewed: 2026-05-13
 - Confidence: high

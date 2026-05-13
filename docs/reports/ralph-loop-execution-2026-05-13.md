@@ -1,39 +1,41 @@
 # Ralph-loop Execution Report — 2026-05-13
 
 ## Summary
-- Completed the advanced technical deepening of the remaining 6 high-priority services from Batch 35 (Sub-Batches 35.2 and 35.3).
-- All targeted documents now include advanced technical examples such as RAG patterns, custom security policies, browser automation, and hardware benchmarking.
-- This run concludes the planned work for Batch 35.
+- Deepened the final 5 "shallow" documents identified in `data/growth-metrics.json` to "High Confidence" standards.
+- Achieved 100% compliance across all 487 documents in the repository (including architecture, playbooks, and reference implementations).
+- All tool and service documents now meet the 10-section contract, have 7+ relative links, and include technical examples.
 
 ## Targeted Issues
-- **Batch 35 (Deepening Shallow Docs)**: Advanced technical deepening of communication, security, and productivity services.
+- **Shallow Documentation**: Deepening the remaining 5 tools that were below the 1500-character threshold and lacked code examples.
 
 ## Targeted Files
-### Sub-Batch 35.2: Communication & Security
-- `docs/services/element.md`
-- `docs/services/searXNG.md`
-- `docs/services/authentik.md`
+### Intake & Storage
+- `docs/tools/intake_storage/khoj.md`
+- `docs/tools/intake_storage/verba.md`
 
-### Sub-Batch 35.3: Productivity Utilities
-- `docs/services/omni-tools.md`
-- `docs/services/drawio.md`
-- `docs/services/whisper.md`
+### Calendar & Tasks
+- `docs/tools/calendar_tasks/vimcal.md`
+- `docs/tools/calendar_tasks/notion-calendar.md`
+- `docs/tools/calendar_tasks/todoist.md`
 
 ## Actions Taken
 - **Advanced Technical Deepening**:
-    - `element.md`: Added `matrix-nio` examples for room topic updates and custom state events.
-    - `searXNG.md`: Added a RAG pipeline search pattern in Python and engine weight configuration details.
-    - `authentik.md`: Added advanced security policy examples for Geo-IP blocking and device posture checks.
-    - `omni-tools.md`: Added examples for custom local module extension and browser automation via Playwright.
-    - `drawio.md`: Added CLI-based XML manipulation examples for automated architecture updates.
-    - `whisper.md`: Added hardware benchmarking (CPU/GPU) and an LLM-based transcript cleanup script.
-- **Progress Tracking**:
-    - Updated `docs/reports/task-decomposition-batch-35.md` to mark all Sub-Batch 35.2 and 35.3 items as completed.
+    - `khoj.md`: Added Docker Compose setup with `pgvector` and REST API chat examples.
+    - `verba.md`: Added Docker and PIP installation guides, and a Python query example.
+    - `vimcal.md`: Added "Getting started" instructions and details on NLP event parsing.
+    - `notion-calendar.md`: Added desktop app setup, Notion integration steps, and technical linking details.
+    - `todoist.md`: Added n8n integration patterns and a Python REST API example for task creation.
+- **Link Expansion**:
+    - Expanded `Related tools / concepts` sections to ensure >= 7 relative markdown links per page, specifically targeting cross-links between the calendar and intake categories.
+- **Metadata Updates**:
+    - Updated `Confidence` to `high` and `Last reviewed` to `2026-05-13`.
 
 ## Verification Results
-- `scripts/check_docs_contract.py`: PASSED (6/6 files)
-- `scripts/audit_docs_quality.py`: PASSED
+- `scripts/growth_tracker.py`: 0 shallow docs remaining.
+- `scripts/check_docs_contract.py`: PASSED (5/5 files).
+- `scripts/audit_docs_quality.py`: PASSED (487/487 files compliant).
+- `scripts/check_catalog_consistency.py`: PASSED.
 
 ## Next Steps
-- Monitor `docs/new-sources/` for new intake items requiring similar deepening.
-- Perform a final review of the `ai_tool_access_matrix.md` to ensure any new capabilities mentioned in the deepened docs are reflected.
+- Periodically run `scripts/growth_tracker.py` to identify if new intake items become "shallow" as they are integrated.
+- Audit the `docs/playbooks/` directory for operational freshness.
