@@ -43,10 +43,101 @@ Proxy service. Your agent sends requests to OpenRouter, which then routes them t
 - **Third-party Data Flow**: Your prompts pass through OpenRouter; ensure this is acceptable for your data sensitivity.
 - **API Key Security**: Treat your OpenRouter key as a "master key" for all your AI services.
 
+## Getting started
+
+### 1. API Key Setup
+1. Create an account at [openrouter.ai](https://openrouter.ai/).
+2. Navigate to [Keys](https://openrouter.ai/settings/keys) and create a new API key.
+3. Add credits to your account (OpenRouter uses a prepay model).
+4. Store your key securely (e.g., in an `.env` file or secret manager like [Infisical](../development_ops/infisical.md)).
+
+### 2. Installation
+OpenRouter is an OpenAI-compatible API. You can use the standard OpenAI Python client.
+
+```bash
+pip install openai
+```
+
+### 3. Basic Request
+```python
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key="your-api-key",
+)
+
+completion = client.chat.completions.create(
+  model="google/gemini-2.0-flash-001",
+  messages=[{"role": "user", "content": "Hello!"}]
+)
+print(completion.choices[0].message.content)
+```
+
+## API examples
+
+### Advanced Routing and Fallbacks
+OpenRouter allows you to specify a prioritized list of models for fallback. If the first model fails or is rate-limited, it automatically tries the next.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key="sk-or-v1-xxxxxx...",
+)
+
+completion = client.chat.completions.create(
+  # Try Claude 3.5 Sonnet first, fallback to GPT-4o
+  model="anthropic/claude-3.5-sonnet,openai/gpt-4o",
+  messages=[{"role": "user", "content": "Explain quantum entanglement."}]
+)
+```
+
+### Provider-Specific Parameters
+You can control which specific providers OpenRouter uses for open models (like Llama 3).
+
+```python
+completion = client.chat.completions.create(
+  model="meta-llama/llama-3.1-405b",
+  extra_headers={
+    "X-Title": "Research Assistant",
+    "X-Provider": '{"order": ["Together", "DeepInfra"], "allow_fallbacks": false}'
+  },
+  messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+### Tool Calling (OpenAI Format)
+OpenRouter standardizes tool calling across providers, even for models that don't natively support the OpenAI tool format.
+
+```python
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_current_weather",
+        "parameters": {
+            "type": "object",
+            "properties": {"location": {"type": "string"}}
+        }
+    }
+}]
+
+response = client.chat.completions.create(
+  model="google/gemini-2.0-flash-001",
+  messages=[{"role": "user", "content": "What is the weather in London?"}],
+  tools=tools
+)
+```
+
 ## Related tools / concepts
 - [LiteLLM](../../services/litellm.md)
 - [OpenAI](openai.md)
 - [Anthropic](../providers/anthropic.md)
+- [DeepSeek](deepseek.md)
+- [Groq](../providers/groq.md)
+- [Together AI](../providers/together.md)
+- [Model Routing Guide](../../knowledge_base/patterns/model_routing_guide.md)
 - [OpenHands](../development_ops/openhands.md)
 
 ## Integration ecosystem and technical signal feeds
@@ -96,152 +187,12 @@ Use this matrix for quarterly integration reviews:
 | Zapier | Low | Low | Medium | No-code automation | Fast to ship, less control |
 | Xcode | Medium | Low | Medium | Apple-native tooling | Useful for iOS/macOS pipelines |
 
-## Getting started
-
-### Installation
-
-OpenRouter is an OpenAI-compatible API. You can use the standard OpenAI Python client by pointing the `base_url` to OpenRouter.
-
-```bash
-pip install openai
-```
-
-### Minimal Python Example
-
-```python
-from openai import OpenAI
-
-client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key="your-api-key",
-)
-
-completion = client.chat.completions.create(
-  model="google/gemini-2.0-flash-001",
-  messages=[
-    {
-      "role": "user",
-      "content": "What is the capital of France?"
-    }
-  ]
-)
-print(completion.choices[0].message.content)
-```
-
-## API examples
-
-### Using OpenAI SDK with OpenRouter
-
-```python
-from openai import OpenAI
-
-# Initialize the client with OpenRouter's base URL and your API key
-client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key="sk-or-v1-xxxxxx...",
-)
-
-completion = client.chat.completions.create(
-  extra_headers={
-    "HTTP-Referer": "https://your-site-url.com", # Optional, for including your app on openrouter.ai rankings.
-    "X-Title": "Your App Name", # Optional. Shows in rankings on openrouter.ai.
-  },
-  model="anthropic/claude-3.5-sonnet",
-  messages=[
-    {
-      "role": "user",
-      "content": "What is the best way to implement a multi-agent system?"
-    }
-  ]
-)
-
-print(completion.choices[0].message.content)
-```
-
-### Tool Calling with OpenRouter (OpenAI SDK)
-
-```python
-import json
-from openai import OpenAI
-
-client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key="your-api-key",
-)
-
-# 1. Define the tool
-tools = [
-  {
-    "type": "function",
-    "function": {
-      "name": "get_weather",
-      "description": "Get the current weather in a given location",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "location": {"type": "string", "description": "The city and state, e.g. San Francisco, CA"},
-          "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
-        },
-        "required": ["location"]
-      }
-    }
-  }
-]
-
-# 2. First request to let the model decide to use a tool
-messages = [{"role": "user", "content": "What's the weather like in Paris?"}]
-response = client.chat.completions.create(
-  model="google/gemini-2.0-flash-001",
-  messages=messages,
-  tools=tools
-)
-
-response_message = response.choices[0].message
-messages.append(response_message)
-
-# 3. Handle tool calls
-if response_message.tool_calls:
-    for tool_call in response_message.tool_calls:
-        # Execute your local function here based on tool_call.function.name
-        # For this example, we'll use a dummy response
-        tool_result = "Sunny, 22°C"
-
-        messages.append({
-            "role": "tool",
-            "tool_call_id": tool_call.id,
-            "name": tool_call.function.name,
-            "content": tool_result
-        })
-
-    # 4. Send the tool result back to the model
-    final_response = client.chat.completions.create(
-      model="google/gemini-2.0-flash-001",
-      messages=messages,
-      tools=tools # Must be included in every request
-    )
-    print(final_response.choices[0].message.content)
-```
-
 ## Sources / References
-
-- [OpenRouter overview](https://openrouter.ai/docs/overview/introduction)
-- [OpenRouter Tool & Function Calling](https://openrouter.ai/docs/guides/features/tool-calling)
-- [OpenRouter integrations settings](https://openrouter.ai/settings/integrations)
-- [OpenRouter community integration guides](https://openrouter.ai/docs/guides/community/)
-- [OpenAI News](https://openai.com/index/)
-- [Anthropic News](https://www.anthropic.com/news)
-- [LangChain Blog](https://blog.langchain.com/)
-- [Langfuse Blog](https://langfuse.com/blog)
-- [Arize Blog](https://arize.com/blog/)
-- [LiveKit Blog](https://blog.livekit.io/)
-- [Pydantic Articles](https://pydantic.dev/articles)
-- [TanStack Blog](https://tanstack.com/blog)
-- [Vercel Blog (AI)](https://vercel.com/blog/tag/ai)
-- [Infisical Blog](https://infisical.com/blog)
-- [Zapier Engineering](https://zapier.com/engineering/)
-- [Apple Developer News](https://developer.apple.com/news/)
+- [OpenRouter Documentation](https://openrouter.ai/docs)
+- [OpenRouter API Reference](https://openrouter.ai/api/v1/models)
+- [OpenRouter Rankings](https://openrouter.ai/rankings)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-03
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high
