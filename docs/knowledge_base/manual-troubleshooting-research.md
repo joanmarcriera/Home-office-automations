@@ -56,16 +56,30 @@ Rules:
 4. If a repair seems dangerous (e.g., involving high voltage or gas), advise calling a professional.
 ```
 
+## Implementation Patterns
+
+### n8n Automation: Manual Ingestion
+A common pattern for ingesting manuals from Paperless-ngx into a vector database:
+
+1. **Trigger**: Paperless-ngx webhook on document creation.
+2. **Filter**: Check for tags like `manual` or `appliance`.
+3. **Extraction**: Retrieve the document content (or OCR text).
+4. **Embedding**: Send text chunks to an embedding model (e.g., via Ollama).
+5. **Storage**: Upsert chunks into ChromaDB or similar.
+
 ## Related tools / concepts
 - [Open WebUI](../services/open-webui.md)
 - [Ollama](../services/ollama.md)
 - [Paperless-ngx](../services/paperless-ngx.md)
 - [RAG (Retrieval-Augmented Generation)](./patterns/rag.md)
+- [n8n](../services/n8n.md) — For orchestrating manual ingestion pipelines.
+- [ChromaDB](./vector-db-comparison.md) — For storing and searching manual embeddings.
+- [Manual Assistant Implementation](../reference-implementations/manual-assistant/manual-assistant-implementation.md) — Reference backend code.
 
 ## Sources / references
 - [Open WebUI Documentation](https://docs.openwebui.com/)
 - [Streamlit Documentation](https://docs.streamlit.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2025-05-15
+- Last reviewed: 2026-05-14
 - Confidence: high

@@ -24,6 +24,39 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 | **Complexity** | Familiar, but more drift over time | Steeper learning curve (API-only) |
 | **Resources** | Higher (includes many background services) | Minimalist (only what K8s needs) |
 
+## CLI and Configuration Examples
+
+### Talos OS: API-Based Management
+Talos is managed entirely via `talosctl`. There is no SSH; instead, you interact with the nodes via a secure gRPC API.
+
+**Generate a configuration:**
+```bash
+talosctl gen config my-cluster https://<cluster-endpoint>:6443
+```
+
+**Apply configuration to a node:**
+```bash
+talosctl apply-config --nodes <node-ip> --file controlplane.yaml
+```
+
+**Check node health:**
+```bash
+talosctl health --nodes <node-ip>
+```
+
+### Ubuntu: Traditional Management
+Ubuntu uses standard Linux tools for management and relies on manual or scripted hardening.
+
+**Install K3s on Ubuntu:**
+```bash
+curl -sfL https://get.k3s.io | sh -
+```
+
+**Check service status:**
+```bash
+sudo systemctl status k3s
+```
+
 ## Strengths
 
 ### Ubuntu
@@ -63,11 +96,13 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 - [Infrastructure Architecture](../architecture/infrastructure.md) — High-level overview of the homelab stack.
 - [Home Assistant](../services/home-assistant.md) — Often run as a VM or container on these OS choices.
 - [TrueNAS SCALE](../architecture/infrastructure.md) — Often used as the storage backend for these nodes.
+- [Gitea](../services/gitea.md) — For hosting GitOps repositories and CI/CD pipelines.
+- [Authentik](../services/authentik.md) — For managing identity and access to the cluster services.
 
 ## Sources / references
 - [Talos OS Documentation](https://www.talos.dev/)
 - [K3s Official Site](https://k3s.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2025-04-20
+- Last reviewed: 2026-05-14
 - Confidence: high

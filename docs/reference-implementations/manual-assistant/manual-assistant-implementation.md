@@ -18,6 +18,13 @@ It centralizes the "brain" for the [AI-Powered Warranty & Manual Assistant](../.
 - Finding maintenance schedules in manuals.
 - Verifying warranty terms for specific products.
 
+## Comparison: ChromaDB vs. Simple Search
+| Feature | Simple Search (grep) | ChromaDB (Vector) |
+| :--- | :--- | :--- |
+| **Search Method** | Exact keyword matching. | Semantic similarity. |
+| **OCR Handling** | Fails on slight OCR errors. | Robust to minor misspellings. |
+| **Context** | Returns isolated lines. | Returns semantic chunks. |
+
 ## Strengths
 - **Metadata Filtering**: Quickly narrows search to the correct manufacturer/model.
 - **Async Execution**: Built on FastAPI for high performance.
@@ -33,14 +40,43 @@ When you want to build a custom chat interface for your homelab that goes beyond
 ## When not to use it
 If you only have a few manuals; simple full-text search in Paperless-ngx might be sufficient.
 
+## API Examples
+
+### Python: Hybrid Search with Metadata Filtering
+Example of using FastAPI and ChromaDB to search for a specific appliance model:
+
+```python
+from fastapi import FastAPI
+import chromadb
+
+app = FastAPI()
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
+collection = chroma_client.get_collection(name="manuals")
+
+@app.get("/search")
+async def search_manual(query: str, manufacturer: str, model: str):
+    results = collection.query(
+        query_texts=[query],
+        n_results=3,
+        where={"$and": [{"manufacturer": manufacturer}, {"model": model}]}
+    )
+    return results
+```
+
 ## Related tools / concepts
 - [ChromaDB](../../docs/knowledge_base/vector-db-comparison.md)
 - [scripts/process_manuals.py](../../scripts/process_manuals.py)
+- [Paperless-ngx](../../services/paperless-ngx.md)
+- [Ollama](../../services/ollama.md)
+- [FastAPI](../../tools/development_ops/fastapi.md)
+- [n8n](../../services/n8n.md)
+- [Open WebUI](../../services/open-webui.md)
+- [Manual Troubleshooting Research](../../knowledge_base/manual-troubleshooting-research.md)
 
 ## Sources / References
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [ChromaDB Documentation](https://docs.trychroma.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2025-05-20
+- Last reviewed: 2026-05-14
 - Confidence: high
