@@ -1,144 +1,104 @@
 # Standards and Conventions
 
-This document defines the technical standards for tools to interoperate within this automation stack.
+## What it is
+This document defines the technical standards and operational conventions for the homelab automation stack. It ensures interoperability between diverse tools, maintains documentation quality, and provides a clear protocol for autonomous agents and human contributors.
 
-## Taxonomy
+## What problem it solves
+In a complex, multi-tool environment with frequent contributions from AI agents, fragmentation and inconsistency are high risks. These standards eliminate ambiguity in naming, document structure, metadata, and cross-tool communication, ensuring the repository remains a reliable source of truth.
+
+## Where it fits in the stack
+Governance Layer — acts as the foundational contract for all activities within the repository, from documentation updates to new service deployments.
+
+## Typical use cases
+- **Documentation Audits**: Providing the criteria used by scripts like `check_docs_contract.py` to verify page quality.
+- **Agent Onboarding**: Giving new AI agents the "rules of the road" for how to contribute safely and effectively.
+- **Workflow Design**: Setting the expectations for how n8n workflows should be named and how data should be formatted.
+
+## Strengths
+- **Consistency**: Enforces a uniform "look and feel" across hundreds of documentation pages.
+- **Automation-Friendly**: Standards are defined with programmatic verification in mind (using Python scripts).
+- **Interoperability**: Standardized data formats (JSON) and date types (ISO8601) simplify tool integration.
+
+## Limitations
+- **Overhead**: Requires contributors to follow specific steps (registry updates, metadata additions) which can be slower for manual edits.
+- **Enforcement Gap**: While many standards are script-verified, some (like "one canonical page") still require human or advanced AI judgment.
+
+## When to use it
+- Whenever creating a new tool page or reference implementation.
+- When designing a new n8n workflow or drafting a system prompt.
+- Before submitting a Pull Request to ensure all quality gates pass.
+
+## When not to use it
+- For temporary, local-only notes that will not be merged into the repository.
+- During rapid prototyping where speed is prioritized over documentation (though standards should be retrofitted before merge).
+
+## Core Taxonomy
 
 The knowledge base uses a stable set of top-level categories. Do not create new top-level sections unless strictly necessary.
 
 | Category | Location | What belongs here |
 | :--- | :--- | :--- |
-| **AI & Knowledge** | `tools/ai_knowledge/` | General AI tools, knowledge management, LLM products |
-| **Frameworks** | `tools/frameworks/` | Libraries for building LLM apps (LangChain, LlamaIndex, etc.) |
-| **Providers** | `tools/providers/` | Companies offering LLM APIs or managed AI services |
-| **Agents** | `tools/agents/` | Agent frameworks and autonomous AI tools |
-| **Orchestration** | `tools/orchestration/` | Workflow automation, multi-agent routing, pipeline tools |
-| **Infrastructure** | `tools/infrastructure/` | Inference engines, vector DBs, serving stacks, quantisation |
-| **Benchmarking** | `tools/benchmarking/` | Eval frameworks, benchmarks, leaderboards |
-| **Development & Ops** | `tools/development_ops/` | AI-assisted coding tools and IDEs |
-| **Patterns** | `knowledge_base/patterns/` | Recurring design patterns (RAG, tool calling, routing, etc.) |
-| **Playbooks** | `playbooks/` | Step-by-step workflow guides |
+| **AI & Knowledge** | `docs/tools/ai_knowledge/` | General AI tools, knowledge management, LLM products |
+| **Frameworks** | `docs/tools/frameworks/` | Libraries for building LLM apps (LangChain, LlamaIndex, etc.) |
+| **Providers** | `docs/tools/providers/` | Companies offering LLM APIs or managed AI services |
+| **Agents** | `docs/tools/agents/` | Agent frameworks and autonomous AI tools |
+| **Orchestration** | `docs/tools/orchestration/` | Workflow automation, multi-agent routing, pipeline tools |
+| **Infrastructure** | `docs/tools/infrastructure/` | Inference engines, vector DBs, serving stacks, quantisation |
+| **Benchmarking** | `docs/tools/benchmarking/` | Eval frameworks, benchmarks, leaderboards |
+| **Development & Ops** | `docs/tools/development_ops/` | AI-assisted coding tools and IDEs |
+| **Patterns** | `docs/knowledge_base/patterns/` | Recurring design patterns (RAG, tool calling, routing, etc.) |
+| **Playbooks** | `docs/playbooks/` | Step-by-step workflow guides |
 
-### Deduplication Rules
+## KnowledgeOps Contract
 
-- **One canonical page per tool/framework/provider.** All other mentions must link to that canonical page.
+### 1. Deduplication & Canonicals
+- **One canonical page per tool/topic.** All other mentions must link to that canonical page.
 - Before creating a new page, search the repo for the tool name, URL, and common aliases.
-- If a source maps to an existing page, update that page rather than creating a new one.
-- Merge duplicates rather than creating parallel pages.
+- Update `data/all_tools.json` and `mkdocs.yml` navigation when adding a new canonical.
 
-### Source Classification Tags
+### 2. Required Document Sections
+Every high-confidence documentation page must include these 10 sections:
+1. `What it is`
+2. `What problem it solves`
+3. `Where it fits in the stack`
+4. `Typical use cases`
+5. `Strengths`
+6. `Limitations`
+7. `When to use it`
+8. `When not to use it`
+9. `Related tools / concepts` (>= 7 relative markdown links)
+10. `Sources / references` (at least one valid URL)
 
-Items in `new-sources.md` use these tags: `tool` · `framework` · `provider` · `paper/article` · `tutorial/guide` · `benchmark/eval` · `infrastructure` · `analysis`
+### 3. Contribution Metadata (Required)
+Every knowledge page must include this section at the bottom:
+- `Last reviewed`: ISO date (`YYYY-MM-DD`)
+- `Confidence`: `high`, `medium`, or `low`
 
-### Daily Intake Log Format
+## Technical Conventions
 
-New-source intake is daily-file based:
-
-- Index: `docs/new-sources.md`
-- Daily files: `docs/new-sources/YYYY-MM-DD.md`
-- Required table header:
-  - `Title | URL | Tags | Status | Canonical Page | Notes`
-- Allowed statuses:
-  - `new`, `integrated`, `duplicate`, `needs-more-info`, `low-confidence`
-
-Validation is enforced by `scripts/validate_new_sources.py` in CI.
-
-### Intake Concurrency Rules
-
-Daily intake files are intentionally small shared ledgers. When several agents are active:
-
-- Append new discoveries only to the current day's file.
-- Process at most a small, coherent batch per PR so status edits are easy to review.
-- If another PR already edits the same daily log, prefer a different date file or wait for the first PR to merge.
-- Do not mix unrelated intake integration with broad standards, navigation, or catalog rewrites.
-- When marking a row `integrated`, always fill the `Canonical Page` cell with the page that now owns the source.
-
-These rules keep `docs/new-sources.md`, daily logs, `data/all_tools.json`, and `mkdocs.yml` from becoming merge-conflict hotspots.
-
-## Naming Conventions
+### Naming
 - **Tags (Paperless)**: `kebab-case`. Lowercase only. Prefix status tags with `s:` and category tags with `c:`.
 - **Workflows (n8n)**: `[Trigger Source] -> [Primary Action]`. Example: `IMAP -> Paperless Intake`.
 - **Prompts**: Versioned using SemVer. Store as Markdown files in `reference-implementations/llm-prompts/`.
 
-## Document Lifecycle States
-1.  **Ingested**: Raw file received by the system.
-2.  **OCRed**: Searchable layer added (via [OCRmyPDF](./tools/process_understanding/ocrmypdf.md)).
-3.  **Classified**: Assigned a document type and category tags.
-4.  **Actioned**: Any extracted tasks/events have been synced to external systems.
-5.  **Archived**: Document is moved to long-term storage or its final tag state.
-
-## Minimal Metadata Schema
-Every document processed by AI should attempt to populate:
-- `extraction_date`: ISO8601 of when AI ran.
-- `source_origin`: Email, Scan, Webhook.
-- `action_required`: Boolean.
-- `due_date`: If applicable.
-- `confidence_score`: 0.0 to 1.0 (from LLM).
-
-## Interoperability
+### Interoperability
 - **Data Format**: All cross-tool communication should prefer **JSON**.
 - **Dates**: Always use **ISO8601** with UTC offsets.
-- **IDs**: Use the internal ID of the source system (e.g. Paperless `document_id`) in the metadata of the destination system (e.g. GCal event description).
+- **IDs**: Use the internal ID of the source system (e.g. Paperless `document_id`) in destination metadata.
 
-## What "Done" Means
-An automated flow is considered "done" when:
-1.  The primary action is completed (Event created/Task synced).
-2.  The source document is updated with a `processed` or `actioned` tag.
-3.  No errors were logged in the orchestration engine (n8n).
-4.  If a critical failure occurred, a notification was sent to a human review channel.
+## Related tools / concepts
+- [AGENTS.md](../AGENTS.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [Multi-Agent KnowledgeOps contract](knowledge_base/patterns/agentic-workflows.md)
+- [n8n Service](services/n8n.md)
+- [Paperless-ngx](services/paperless-ngx.md)
+- [Audit Docs Quality Script](../scripts/audit_docs_quality.py)
+- [Check Docs Contract Script](../scripts/check_docs_contract.py)
 
-## AI-Authored Documentation Metadata (Required)
-
-For AI-authored updates to knowledge pages (`docs/tools/`, `docs/services/`, `docs/knowledge_base/`, `docs/architecture/`, `docs/playbooks/`, and `docs/reference-implementations/`), include:
-
-- `Last reviewed`: ISO date (`YYYY-MM-DD`)
-- `Confidence`: `high`, `medium`, or `low`
-- `Sources / References`: at least one URL
-
-Recommended section format:
-
-```md
-## Sources / References
-- [Official docs](https://example.com)
+## Sources / references
+- [GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow)
+- [n8n Best Practices](https://docs.n8n.io/workflows/best-practices/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-25
-- Confidence: medium
-```
-
-These requirements are enforced by `scripts/check_docs_contract.py` in pull-request CI.
-
-## Multi-Agent KnowledgeOps Contract
-
-To ensure consistency when multiple autonomous agents or humans contribute to the knowledge base, the following "KnowledgeOps" contract is enforced:
-
-### 1. Contribution Metadata
-Every AI-authored or AI-updated document must include the `Contribution Metadata` section with `Last reviewed`, `Confidence`, and `Sources / References`.
-
-### 2. Catalog Consistency
-New tools must be added to `data/all_tools.json` and `mkdocs.yml` before the PR is considered "Done".
-
-When a PR updates only existing canonical content and does not add, move, or remove a canonical page, avoid touching `data/all_tools.json` or `mkdocs.yml`.
-
-### 3. CI Gates
-- `validate_new_sources.py`: Ensures daily logs are valid and no duplicate URLs exist.
-- `check_docs_contract.py`: Enforces metadata and section requirements.
-- `check_catalog_consistency.py`: Syncs `data/all_tools.json` with the filesystem.
-
-### 4. No Placeholder Policy
-Avoid `TBD` or `TODO` in merged documents. If information is missing, use a minimal description or skip the section.
-
-### 5. Small PR Policy
-Autonomous documentation PRs should usually change one canonical page plus any strictly required registry, navigation, or intake rows. Split unrelated tool pages, playbooks, and architecture notes into separate PRs.
-
-## Document Extraction Audit Trail
-
-To maintain accountability and traceability for AI-processed documents, every extraction result must be logged with the following audit metadata:
-
-- `llm_provider`: e.g., OpenAI, Ollama.
-- `llm_model`: The specific model version (e.g., `gpt-4o-2024-05-13`, `llama3.1:8b`).
-- `prompt_version`: The SemVer version of the prompt used (from `reference-implementations/llm-prompts/`).
-- `timestamp`: ISO8601 UTC.
-- `raw_input_hash`: SHA256 of the input text/file to verify against later changes.
-
-This metadata should be stored in the document's metadata (e.g., Paperless-ngx document notes or a dedicated sidecar JSON file).
+- Last reviewed: 2026-05-14
+- Confidence: high

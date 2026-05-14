@@ -1,46 +1,83 @@
 # Claude Tool Search Pattern
 
 ## What it is
-A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback.
+A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback. It involves a "planning" or "discovery" step where the model explicitly searches for the most relevant tool before attempting an execution.
 
 ## What problem it solves
-Naive tool-calling can fail when many tools overlap or when tool descriptions are incomplete. Tool search improves reliability by making selection explicit and model-guided.
+Naive tool-calling often fails when an agent is presented with a large or overlapping tool catalog. The Claude Tool Search pattern improves reliability by making tool selection an explicit, model-guided process, reducing "wrong tool" hallucinations and improving first-shot accuracy in complex workflows.
 
 ## Where it fits in the stack
-**Pattern**. This sits in the agent planning and tool-routing layer.
+Orchestration Layer — sits in the agentic loop, specifically at the intersection of planning and tool routing. It is commonly implemented within [Agentic Workflows](agentic-workflows.md) using frameworks like [LangChain](../../tools/ai_knowledge/langchain.md) or [AG2](../../tools/frameworks/ag2.md).
 
 ## Typical use cases
-- Large tool catalogs where direct single-shot tool choice is brittle
-- Agent loops that need better first-tool accuracy
-- Dynamic environments where tool availability changes over time
+- **Massive Tool Catalogs**: Managing agents that have access to 50+ specialized tools where a single prompt cannot reliably include all schemas.
+- **Dynamic Capabilities**: Environments where tools are added or removed frequently, and the agent must "explore" what is currently available.
+- **Ambiguous Intents**: When a user request (e.g., "Check my status") could map to multiple systems (Jira, GitHub, Vikunja) and the agent needs to search tool descriptions to disambiguate.
 
 ## Strengths
-- Better tool recall in broad catalogs
-- More transparent routing behavior when instrumented
-- Compatible with iterative agent loops
+- **Improved Accuracy**: Higher success rates in complex tool selection scenarios.
+- **Scalability**: Allows agents to handle far more tools than would fit in a standard context window.
+- **Transparency**: The explicit search step provides an audit trail of *why* a particular tool was chosen.
 
 ## Limitations
-- Can add token and latency overhead
-- Still sensitive to poor tool descriptions/schemas
-- Needs guardrails to prevent tool overuse
+- **Latency**: Adding a discovery step increases the time to the first action.
+- **Token Cost**: Multiple round-trips for search and then execution increase token consumption.
+- **Description Sensitivity**: Highly dependent on high-quality, semantic tool descriptions.
 
 ## When to use it
-- When an agent can call many tools and quality depends on choosing the right one
-- When task-to-tool mapping is ambiguous
+- When an agent has access to a broad, diverse toolset where overlap is possible.
+- In RAG-style tool selection (Retrieval Augmented Tool Selection).
+- When building multi-agent systems where a "supervisor" routes tasks to specialized workers.
 
 ## When not to use it
-- When only one deterministic tool exists for a task
-- When ultra-low-latency responses are the main constraint
+- For simple, deterministic tasks with a small (< 5) toolset.
+- When ultra-low latency is the primary performance metric.
+- In scenarios where tool execution is strictly sequential and pre-defined.
+
+## Technical Implementation Example
+
+A common implementation involves a two-stage approach:
+
+### Phase 1: Tool Discovery
+The agent is given a `search_tools` tool that allows it to query a tool registry (e.g., [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)).
+
+```json
+{
+  "name": "search_tools",
+  "description": "Searches the tool registry for tools matching the query.",
+  "parameters": {
+    "query": "search for calendar management tools"
+  }
+}
+```
+
+### Phase 2: Targeted Execution
+Once the relevant tool ID is found, the agent calls the specific tool with the required parameters.
+
+```json
+{
+  "name": "gcal_create_event",
+  "parameters": {
+    "summary": "Meeting with Team",
+    "start_time": "2026-05-14T10:00:00Z"
+  }
+}
+```
 
 ## Related tools / concepts
 - [Anthropic Claude](../../tools/providers/anthropic.md)
+- [Agentic Workflows](agentic-workflows.md)
+- [Model Context Protocol (MCP)](tool-calling-and-mcp.md)
+- [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)
 - [Agent Protocols](../agent_protocols.md)
-- [Patterns Index](index.md)
+- [Skills Best Practices](skills-best-practices.md)
+- [Tool Calling Guide](tool-calling-and-mcp.md)
+- [LangChain](../../tools/ai_knowledge/langchain.md)
 
 ## Sources / References
 - [Introducing advanced tool use on the Claude Developer Platform](https://www.anthropic.com/engineering/advanced-tool-use)
+- [Anthropic Tool Use Documentation](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high

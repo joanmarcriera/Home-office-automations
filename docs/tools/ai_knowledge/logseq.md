@@ -1,49 +1,74 @@
 # Logseq
 
 ## What it is
-Logseq is a privacy-first, open-source knowledge management and collaboration platform. It uses a local-first, outliner-based approach to knowledge management, supporting both Markdown and Org-mode.
+Logseq is a privacy-first, open-source knowledge management and collaboration platform. It is a local-first application that treats information as a "knowledge graph" rather than a set of files, utilizing an outliner-based approach to capture and organize thoughts.
 
 ## What problem it solves
-Provides a structured, privacy-respecting way to capture and organize knowledge using an outliner model, keeping all data in local plain-text files.
+Traditional note-taking apps often struggle with "file-system thinking," where information is siloed into rigid folder structures. Logseq solves this by using bidirectional linking and block-level references, allowing users to build a non-linear network of ideas while maintaining 100% data ownership via local plain-text files (Markdown or Org-mode).
 
 ## Where it fits in the stack
-AI & Knowledge — serves as a local-first personal knowledge management tool, complementing or serving as an alternative to Obsidian.
+AI & Knowledge — serves as a privacy-focused knowledge intake and storage point. Its block-level granularity makes it exceptionally well-suited for RAG (Retrieval-Augmented Generation) applications, as agents can cite specific bullet points rather than entire documents.
 
 ## Typical use cases
-- Daily journaling and task management with an outliner interface
-- Building a personal knowledge graph with bidirectional links
-- Organizing research notes with block-level references
+- **Daily Journaling**: Using the "Journals" page as the primary entry point for all thoughts, tasks, and meetings.
+- **Project Management**: Linking blocks to project pages to create a dynamic view of all related information across different dates.
+- **Academic Research**: Utilizing block-level citations and PDF annotation features to build a structured research database.
 
 ## Strengths
-- Open-source and privacy-first with local-only storage by default
-- Outliner-based editing is well suited for hierarchical note-taking
-- Supports both Markdown and Org-mode formats
+- **Open Source**: Fully transparent codebase with a strong community focus.
+- **Privacy-First**: No cloud sync required; data stays on your local machine.
+- **Granularity**: Block-level references allow for extremely precise linking and retrieval.
+- **Extensible**: Built-in query engine (Datalog) for creating dynamic lists of tasks and notes.
 
 ## Limitations
-- Smaller plugin ecosystem compared to Obsidian
-- Outliner paradigm may not suit users who prefer long-form writing
-- Mobile experience is less polished than some competitors
+- **Learning Curve**: The outliner-only paradigm and query language can be daunting for new users.
+- **Performance**: Large graphs (10k+ pages) can occasionally experience slow indexing times.
+- **Formatting**: Not ideal for users who need to export information as polished, long-form PDF documents.
 
 ## When to use it
-- When you prefer an outliner-based approach to knowledge management
-- When open-source and local-first data ownership are priorities
+- When you want a local-first knowledge graph that prioritizes relationships between ideas over file organization.
+- When you need a tool that integrates natively with Git for version control.
+- For users who prefer "Atomic" note-taking (one thought per block).
 
 ## When not to use it
-- When you need a rich plugin ecosystem and extensive community themes
-- When long-form document writing is the primary use case
+- When you require a traditional "document" editor (consider [Obsidian](obsidian.md) instead).
+- When real-time, multi-user web collaboration is the primary requirement.
+
+## Getting started
+
+### 1. Installation
+Download the latest release from the [Logseq website](https://logseq.com/) or install via a package manager:
+```bash
+# macOS (Homebrew)
+brew install --cask logseq
+```
+
+### 2. Basic Workflow
+1. Open Logseq and select a local folder to store your "Graph."
+2. Start typing in the **Journals** page.
+3. Create a new page by typing `[[Page Name]]`.
+4. Link to an existing block by typing `((block-uuid))`.
+
+### 3. AI Integration
+Logseq supports several community plugins for AI integration (e.g., `Logseq AI Assistant`). You can connect it to [Ollama](../../services/ollama.md) or [OpenRouter](openrouter.md) to:
+- Generate summaries of long journal entries.
+- Ask questions about your local graph using RAG.
+- Auto-tag blocks based on content.
 
 ## Related tools / concepts
-
 - [Obsidian](obsidian.md)
-- [Roam Research](https://roamresearch.com/) (Non-OSS)
-- [Joplin](joplin.md)
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-- [Google Opal](google-opal.md)
+- [Anytype](anytype.md)
+- [SilverBullet](silverbullet.md)
+- [Ollama](../../services/ollama.md)
+- [OpenRouter](openrouter.md)
+- [LlamaIndex](llamaindex.md)
+- [LangChain](langchain.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+
 ## Sources / references
-- [Official Website](https://logseq.com/)
+- [Logseq Official Documentation](https://docs.logseq.com/)
+- [Logseq GitHub Repository](https://github.com/logseq/logseq)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high
