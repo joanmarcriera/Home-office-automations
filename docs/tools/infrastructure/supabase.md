@@ -36,6 +36,58 @@ It reduces the amount of backend infrastructure teams need to assemble before sh
 - When you need deep control over every backend component from day one
 - When the site is purely static and a backend would be unnecessary complexity
 
+## Getting started
+
+### Installation
+```bash
+# Install the Supabase CLI
+npm install supabase --save-dev
+
+# Initialize a new Supabase project
+npx supabase init
+```
+
+### Minimal Example
+```javascript
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://your-project.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+const { data, error } = await supabase
+  .from('profiles')
+  .select('*')
+```
+
+## CLI examples
+```bash
+# Login to the CLI
+supabase login
+
+# Start local development stack
+supabase start
+
+# Link a local project to a remote Supabase project
+supabase link --project-ref your-project-ref
+```
+
+## API examples
+```python
+import os
+from supabase import create_client, Client
+
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
+
+# Insert data into a table
+response = supabase.table("todos").insert({"task": "Learn Supabase", "status": "pending"}).execute()
+
+# Query data with filters
+data = supabase.table("todos").select("*").eq("status", "pending").execute()
+```
+
 ## Example website pairings
 - [Vercel](../development_ops/vercel.md) + Supabase for an AI SaaS MVP
 - [Cloudflare Pages](../development_ops/cloudflare-pages.md) + Supabase for an internal ops tool
