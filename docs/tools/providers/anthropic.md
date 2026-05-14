@@ -92,11 +92,13 @@ See the central routing guide: [Model Routing Guide](../../knowledge_base/model_
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Aider](../development_ops/aider.md)
 - [Mistral AI](mistral.md)
+- [DeepSeek](deepseek.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 - [Prompt Requests](../../knowledge_base/patterns/prompt_requests.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Daily Briefing Prompt](../../reference-implementations/llm-prompts/daily-briefing.md)
 - [Claude Skills](../../../skills.md)
+- [LangChain](../ai_knowledge/langchain.md)
 
 ## Sources / References
 - [Official Website](https://www.anthropic.com/)
