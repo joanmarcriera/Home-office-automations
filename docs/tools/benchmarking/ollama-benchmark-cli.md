@@ -1,40 +1,60 @@
 # Ollama Benchmark CLI
 
 ## What it is
-Ollama Benchmark CLI is a tool for benchmarking local models running on Ollama. It measures tokens-per-second and response latency for different models on your specific hardware.
+Ollama Benchmark CLI is a specialized tool for measuring the inference performance of local LLMs running on [Ollama](../../services/ollama.md). It provides detailed metrics for tokens-per-second (TPS), latency, and processing times, allowing users to objectively compare how different models perform on their specific hardware (GPU/CPU/RAM).
 
 ## What problem it solves
-Provides a quick way to measure and compare the inference performance of different models running locally on Ollama, helping identify the best model-hardware configuration for your setup.
+Hardware performance for local LLMs is highly variable. A model that runs smoothly on a 24GB VRAM card might crawl on an integrated GPU. Ollama Benchmark CLI provides a standardized way to measure "Prompt Processing Speed" and "Generation Speed," helping users select the optimal model size and quantization level for their specific system.
 
 ## Where it fits in the stack
-**Benchmarking**. Used to measure local LLM inference performance on Ollama-hosted models.
+**Benchmarking**. Used for local infrastructure performance assessment, specifically for models managed by Ollama.
 
 ## Typical use cases
-- Measuring tokens-per-second for different models on local hardware
-- Comparing inference latency across model sizes and quantization levels
-- Establishing performance baselines after hardware changes
+- **Model Selection**: Comparing the generation speed (tokens/sec) of `llama3:8b` vs `llama3:70b` on a specific machine.
+- **Hardware Optimization**: Testing the impact of different GPU drivers or system configurations on inference latency.
+- **Quantization Comparison**: Measuring the performance trade-offs between different quantization levels (e.g., `q4_K_M` vs `q8_0`).
+- **Thermal Benchmarking**: Running long-duration benchmarks to see if performance throttles due to heat over time.
 
 ## Strengths
-- Directly measures performance on your actual hardware
-- Simple to use with existing Ollama installations
-- Provides practical metrics (tokens/second, latency) relevant to daily use
+- **Native Integration**: Directly interacts with the Ollama API, no complex setup required.
+- **Detailed Metrics**: Provides separate metrics for prompt processing (prefill) and token generation.
+- **Comparative Output**: Supports table-based comparison of multiple models in a single run.
+- **Simple CLI**: Easy to install and use with standard Python tools.
 
 ## Limitations
-- Specific to Ollama; cannot benchmark other inference backends directly
-- Results are hardware-dependent and not comparable across different machines
-- Limited to inference performance; does not measure model quality
+- **Ollama Specific**: Only benchmarks models running via Ollama; it cannot directly benchmark `vLLM` or raw `llama.cpp` without an Ollama wrapper.
+- **Quality-Blind**: Measures speed only; it does not evaluate whether the model's output is actually correct or high-quality (use [HumanEval](human-eval.md) or [MMLU](mmlu.md) for that).
+- **Environment Dependent**: Results are specific to the machine running the test and cannot be compared across different hardware without careful control.
 
 ## When to use it
-- When selecting which model to run locally based on performance constraints
-- When evaluating the impact of hardware upgrades on inference speed
+- When you want to find the fastest model that fits comfortably on your local hardware.
+- When you are troubleshooting slow inference speeds in a local homelab setup.
+- When you need to provide performance data for a hardware review or comparison.
 
 ## When not to use it
-- When benchmarking cloud API providers (use [LLMPerf](llmperf.md) instead)
-- When evaluating model accuracy or quality
+- When benchmarking cloud-based API providers (use [LLMPerf](llmperf.md) instead).
+- When evaluating the reasoning or knowledge of a model (use [HLE](humanitys-last-exam.md) or [LM Evaluation Harness](lm-evaluation-harness.md)).
+- When you only need a one-off check (use the `time` + `curl` method described below).
 
-## Lightweight Alternative: `time` + `curl`
-If you don't want to install a dedicated benchmarking tool, you can get basic latency and throughput metrics using the standard `time` command and `curl`. This is useful for quick checks or when working on a remote server with minimal tools.
+## Getting started (CLI Examples)
 
+### Installation
+```bash
+pip install git+https://github.com/LarHope/ollama-benchmark.git
+```
+
+### Benchmarking Specific Models
+```bash
+ollama-benchmark --models llama3:8b deepseek-r1:32b --table_output
+```
+
+### Benchmarking with Custom Prompts
+```bash
+ollama-benchmark --models mistral --prompts "Explain quantum computing" "Write a fast Fibonacci in Python"
+```
+
+### Lightweight Alternative: `time` + `curl`
+For a quick check without installing tools, use the Ollama API directly:
 ```bash
 time curl -X POST http://localhost:11434/api/generate \
   -d '{
@@ -43,20 +63,23 @@ time curl -X POST http://localhost:11434/api/generate \
     "stream": false
   }'
 ```
-
-The output will show the total execution time. You can calculate tokens per second by dividing the `total_duration` (returned in the JSON response) by the number of tokens generated.
+*Note: Calculate tokens/sec by dividing the `total_duration` from the JSON response by the number of tokens generated.*
 
 ## Related tools / concepts
 
-- [LLMPerf](llmperf.md)
-- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
-- [Simple `time` command with `curl`](https://github.com/ollama/ollama/blob/main/docs/api.md)
-- [SWE-bench](swe-bench.md)
-- [LM Evaluation Harness](lm-evaluation-harness.md)
+- [Ollama Service](../../services/ollama.md) - The underlying model server.
+- [LLMPerf](llmperf.md) - Benchmarking API-based LLM performance.
+- [LM Evaluation Harness](lm-evaluation-harness.md) - Benchmarking model quality/accuracy.
+- [HLE (Humanity's Last Exam)](humanitys-last-exam.md) - Frontier reasoning benchmark.
+- [MMLU](mmlu.md) - General knowledge benchmark.
+- [HumanEval](human-eval.md) - Code generation benchmark.
+- [vLLM](../infrastructure/index.md) - An alternative high-performance inference server.
+
 ## Sources / references
-- [GitHub Repository](https://github.com/marwanjeridi/ollama-benchmark) (Example implementation)
+- [LarHope/ollama-benchmark GitHub Repository](https://github.com/LarHope/ollama-benchmark)
+- [Ollama API Documentation](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high
