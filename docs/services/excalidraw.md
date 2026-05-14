@@ -113,12 +113,25 @@ const svg = await exportToSvg({
 - [Official Website](https://excalidraw.com/)
 - [GitHub Repository](https://github.com/excalidraw/excalidraw)
 
+## Obsidian Integration
+Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) via the "Obsidian Excalidraw" community plugin, turning it into a powerful visual knowledge base.
+
+### Setup
+1.  In Obsidian, go to **Settings** > **Community plugins** > **Browse**.
+2.  Search for "Excalidraw" and click **Install**, then **Enable**.
+3.  Configure the "Excalidraw folder" where your `.excalidraw.md` files will be stored.
+
+### Key Features
+-   **Wiki-linking**: You can link from an Excalidraw element to any other note in your Obsidian vault using the `[[Note Name]]` syntax.
+-   **Embedding**: Embed sketches into other notes using `![[My Sketch.excalidraw]]`.
+-   **OCR**: The plugin can perform local OCR on your hand-written text within drawings, making them searchable via Obsidian's global search.
+-   **Scripting**: Automate diagram generation or metadata extraction using the built-in scripting engine.
+
 ## Backlog
-- Integrate with Obsidian via the Excalidraw plugin.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-13
 
 ## Sources / References
 - https://excalidraw.com/

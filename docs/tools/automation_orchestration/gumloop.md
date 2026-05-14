@@ -25,6 +25,16 @@ It bridges the gap between complex AI capabilities and non-technical (or time-co
 - **Platform Lock-in**: Workflows are tied to the Gumloop platform.
 - **Customization**: While powerful, it may have limits compared to writing raw code for extremely niche logic.
 
+## When to use it
+- When you need to build complex AI-driven workflows quickly without writing a lot of custom infrastructure code.
+- For business users or small teams that want to leverage LLMs for data extraction, lead gen, or content operations.
+- When you need a managed environment that handles scaling and connectivity to various SaaS tools out of the box.
+
+## When not to use it
+- For highly latency-sensitive applications that require sub-millisecond response times.
+- If you have strict data residency requirements that forbid using a third-party managed automation platform.
+- For extremely simple tasks that can be handled by a basic shell script or a single prompt in a chat interface.
+
 ## Getting started
 1.  **Install the Python SDK**:
     ```bash
@@ -61,6 +71,9 @@ print(output)
 - [Make](make.md)
 - [Agentic Automation Canvas](../agents/agentic-automation-canvas.md)
 - [AirOps](airops.md)
+- [Langflow](../frameworks/langflow.md)
+- [Dify](../frameworks/dify.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references
 - [Gumloop Official Website](https://www.gumloop.com/)

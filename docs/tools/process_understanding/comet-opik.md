@@ -26,6 +26,10 @@ It helps developers transition from experimentation to production-ready AI by pr
 - When you want an open-source, self-hostable alternative to LangSmith or Braintrust.
 - When you are already using Comet for other machine learning tasks.
 
+## When not to use it
+- If you need a hosted, zero-setup solution and don't want to manage your own observability infrastructure (consider the hosted version of LangSmith).
+- For extremely simple scripts where the overhead of adding tracing decorators doesn't provide significant value.
+
 ## Getting started
 
 Install the Opik library:
@@ -80,6 +84,9 @@ call_llm("Analyze this code")
 - [LangSmith](../benchmarking/langsmith.md)
 - [Weights & Biases](./wandb-weave.md)
 - [AgentOps](./agentops.md)
+- [Helicone](helicone.md)
+- [Parea](parea.md)
+- [ClickHouse](clickhouse.md)
 
 ## Sources / references
 - [Official Website](https://www.comet.com/site/products/opik/)

@@ -37,6 +37,22 @@ To begin the migration:
 2.  **Back up Tailscale**: Document your existing node names and ACLs.
 3.  **Perform a Pilot**: Migrate a single non-critical node first using the steps in this playbook.
 
+## Migration Workflow
+
+```mermaid
+flowchart TD
+    Start[Current: Tailscale SaaS] --> Backup[Back up node names & ACLs]
+    Backup --> Deploy[Deploy Headscale Server]
+    Deploy --> Auth[Integrate Authentik OIDC]
+    Auth --> NodeMigrate{Migrate Node}
+    NodeMigrate --> Logout[tailscale logout]
+    Logout --> Login[tailscale up --login-server URL]
+    Login --> OIDC[OIDC Authentication]
+    OIDC --> Approve[Headscale Node Approval]
+    Approve --> Verify[Verify Connectivity]
+    Verify --> End[Target: Self-hosted Mesh]
+```
+
 ## Migration Steps
 
 ### Prerequisites

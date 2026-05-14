@@ -69,6 +69,11 @@ user_proxy.initiate_chat(
 - [AutoGen](autogen.md)
 - [CrewAI](crewai.md)
 - [Semantic Kernel](semantic-kernel.md)
+- [LangGraph](langgraph.md)
+- [Langflow](langflow.md)
+- [Rivet](rivet.md)
+- [Temporal](../orchestration/temporal.md)
+- [PydanticAI](pydantic-ai.md)
 
 ## Sources / References
 - [Official Website](https://ag2.ai/)

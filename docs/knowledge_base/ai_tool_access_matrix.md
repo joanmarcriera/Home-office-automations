@@ -54,7 +54,7 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 
 ## Fast read
 
-If the priority is one tool that already does Gmail, Calendar, files, and deep research well, the strongest shortlist is [ChatGPT](../tools/ai_knowledge/chatgpt.md), [Claude](../tools/ai_knowledge/claude.md), and [Gemini Apps](../tools/ai_knowledge/gemini.md). ChatGPT and Claude are broader cross-app assistants; Gemini is strongest when the operating surface is already Google Workspace.
+If the priority is one tool that already does Gmail, Calendar, files, and deep research well, the strongest shortlist is [ChatGPT](../tools/ai_knowledge/chatgpt.md), [Claude](../tools/ai_knowledge/claude.md), [Gemini Apps](../tools/ai_knowledge/gemini.md), and [Perplexity](../tools/ai_knowledge/perplexity.md). ChatGPT and Claude are broader cross-app assistants; Gemini is strongest when the operating surface is already Google Workspace; Perplexity is best for web-grounded research with personal context.
 
 If the priority is local-first or self-hosted work, the strongest shortlist is [AnythingLLM](../tools/ai_knowledge/anythingllm.md), [LibreChat](../tools/ai_knowledge/librechat.md), [Open WebUI](../services/open-webui.md), [Jan](../tools/infrastructure/jan-ai.md), and [Goose](../tools/automation_orchestration/goose.md). These give better control over local models, self-hosting, and private files, but Gmail and Calendar usually arrive through MCP or external integrations rather than first-party connectors.
 
@@ -79,7 +79,7 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [Claude Code](../tools/development_ops/claude-code.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | Terminal-first agent with broad MCP and skill ecosystem ([ECC](../tools/ai_knowledge/everything-claude-code.md)). |
 | [Codex CLI](../tools/development_ops/codex.md) | Coding agent | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Strong local terminal workflow; OpenAI-centric rather than provider-agnostic. |
 | [Gemini CLI](../tools/ai_knowledge/gemini-cli.md) | Coding / terminal agent | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | Good terminal choice when official Workspace access is important. |
-| [Aider](../tools/development_ops/aider.md) | Terminal pair programmer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟠 | 🟢 | 🟢 | Practical for local repos; MCP support via external servers. |
+| [Aider](../tools/development_ops/aider.md) | Terminal pair programmer | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟠 | 🟢 | 🟢 | Practical for local repos; supports MCP servers via `--mcp`. |
 | [Devin](../tools/development_ops/devin.md) | Autonomous AI Engineer | 🟢 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Fully autonomous software engineer; web-based with browser/terminal access. |
 | [Melty](../tools/development_ops/melty.md) | Open-source AI IDE | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | Open-source AI IDE that watches your work and learns. |
 | [Plandex](../tools/development_ops/plandex.md) | Terminal AI agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | AI coding agent for the terminal; handles complex, multi-step tasks. |
@@ -96,7 +96,7 @@ If the priority is reliable workflow automation rather than chat, [n8n](../servi
 | [big-AGI](../tools/ai_knowledge/big-agi.md) | Expert AI workspace | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Expert workspace for multi-model reasoning and zero-latency UI. |
 | [LM Studio](../tools/infrastructure/lm-studio.md) | Local model runner | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | Best as a local model host rather than a full productivity agent. |
 | [Jan](../tools/infrastructure/jan-ai.md) | Local AI app | 🟢 | 🔵 | 🔵 | 🔵 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟠 | 🔴 | Local, open-source chat client with MCP support. |
-| [Qwen 3.6](../tools/ai_knowledge/qwen.md) | Causal LLM/VLM | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | Frontier performance-to-compute; exceptional for coding/multimodal. |
+| [Qwen 3.6](../tools/ai_knowledge/qwen.md) | Causal LLM/VLM | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | Frontier performance-to-compute (3.6-35B-A3B); exceptional for coding/multimodal. |
 | [DeepSeek R1](../tools/ai_knowledge/deepseek-r1.md) | Reasoning model | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🔴 | SOTA open-weights reasoning model; strong for math/coding logic. |
 | [TypingMind](../tools/ai_knowledge/typingmind.md) | Multi-model UI | 🟠 | 🔵 | 🔵 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | Good front end when plugins, Zapier, or MCP matter more than native apps. |
 | [Open Interpreter](../tools/automation_orchestration/open-interpreter.md) | Local computer-use agent | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟠 | 🟢 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Strong for local computer, files, and terminal; not a native Gmail or Calendar tool. |
@@ -174,6 +174,10 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [W&B Weave](../tools/process_understanding/wandb-weave.md) | Observability / eval | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Observability and evaluation layer in the W&B ecosystem. |
 | [LLMWare](../tools/automation_orchestration/llmware.md) | Local / private AI framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟠 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Local and private AI framework. |
 | [Portkey AI Gateway](../tools/providers/portkey.md) | AI gateway | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Gateway and provider abstraction layer. |
+| [Datadog](../tools/process_understanding/datadog.md) | Observability platform | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | Enterprise observability; integrates with OpenRouter for log streaming. |
+| [Snowflake](../tools/process_understanding/snowflake.md) | Data warehouse | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | Cloud data warehousing; supports LLM analytics via Cortex. |
+| [S3 / S3-Compatible](../tools/intake_storage/s3-storage.md) | Object storage | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | Scalable object storage for datasets and logs. |
+| [OTel Collector](../tools/process_understanding/opentelemetry-collector.md) | Telemetry pipeline | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | Vendor-agnostic telemetry collection and routing. |
 
 ## Practical scoring dimensions
 
@@ -226,5 +230,5 @@ The most practical stack is often layered: a native assistant for research, a lo
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-20
+- Last reviewed: 2026-05-12
 - Confidence: high

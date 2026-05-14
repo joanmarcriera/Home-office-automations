@@ -81,8 +81,24 @@ curl http://localhost:5006/info
 - [Paperless-ngx](paperless-ngx.md)
 - [Home Assistant](home-assistant.md)
 
+## Bank Synchronization
+Actual Budget supports automated transaction ingestion from banks via the GoCardless (formerly Nordigen) API. This allows for a "set it and forget it" workflow for tracking expenses.
+
+### GoCardless Setup
+1. Create a free account at [GoCardless (Bank Account Data)](https://gocardless.com/bank-account-data/).
+2. Generate a **Secret ID** and **Secret Key** in the GoCardless dashboard.
+3. In Actual Budget, navigate to **Settings > GoCardless** and enter your credentials.
+
+### Linking Accounts
+1. Once configured, click **Add Account** in the sidebar.
+2. Select **Link Bank Account**.
+3. Follow the secure OAUTH flow provided by GoCardless to authorize Actual to read your transaction history.
+4. Map the discovered bank accounts to your internal Actual budget accounts.
+
+### Manual CSV Imports
+For banks not supported by GoCardless, Actual provides a robust CSV import tool with "Import Rules" that can automatically categorize transactions based on descriptions or amounts.
+
 ## Backlog
-- Set up automated bank synchronization via GoCardless/Nordigen.
 
 ## Contribution Metadata
 - Confidence: high

@@ -24,6 +24,15 @@ Traditional web automation (like vanilla Playwright or Selenium) is brittle; if 
 - **Latency**: LLM-based element discovery is slower than traditional CSS/XPath selection.
 - **Token Cost**: Requires LLM calls for reasoning about the page content.
 
+## When to use it
+- When you need to automate interactions with complex, dynamic web applications that change their UI frequently.
+- For building AI agents that need to navigate and perform actions on the web using natural language instructions.
+- When you want to combine the reliability of Playwright with the semantic understanding of LLMs.
+
+## When not to use it
+- For high-performance scraping of static websites where traditional CSS selectors or direct API access would be much faster and cheaper.
+- If you have zero budget for LLM token usage (Stagehand requires LLM calls for its semantic features).
+
 ## Getting started
 
 ### Installation
@@ -83,6 +92,8 @@ await stagehand.close();
 - [Skyvern](skyvern.md)
 - [Crawl4AI](../process_understanding/crawl4ai.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Multi-On](../agents/multion.md)
+- [Tavily](../providers/tavily.md)
 
 ## Sources / references
 - [Stagehand GitHub Repository](https://github.com/browserbase/stagehand)

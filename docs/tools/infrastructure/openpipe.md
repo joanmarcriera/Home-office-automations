@@ -33,6 +33,64 @@ Infrastructure / Fine-tuning
 - For highly exploratory tasks where the prompt is changing frequently.
 - If you don't have enough volume to justify the fine-tuning effort or cost.
 
+## Getting started
+
+### Installation
+```bash
+pip install openpipe
+```
+
+### Minimal Example
+```python
+from openpipe import OpenAI
+
+client = OpenAI()
+
+completion = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[{"role": "user", "content": "Count to three"}],
+    openpipe={"tags": {"purpose": "testing"}}
+)
+
+print(completion.choices[0].message.content)
+```
+
+## CLI examples
+```bash
+# Log in to your OpenPipe account
+openpipe login --api-key your_api_key_here
+
+# Record a single request/response pair manually
+openpipe record --prompt "Hello" --completion "Hi there!"
+
+# List your fine-tuned models
+openpipe models list
+```
+
+## API examples
+```python
+import os
+from openpipe import OpenAI
+
+# OpenPipe is a drop-in replacement for the OpenAI SDK
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+    openpipe={"api_key": os.environ.get("OPENPIPE_API_KEY")}
+)
+
+# Requests are automatically logged for fine-tuning
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Extract name: My name is Jules"}],
+    openpipe={
+        "tags": {
+            "job_id": "extraction_001",
+            "environment": "production"
+        }
+    }
+)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Client SDK and some components)
 - **Cost**: Paid (Usage-based pricing for training and hosting)
@@ -44,6 +102,7 @@ Infrastructure / Fine-tuning
 - [Together AI](../providers/together.md)
 - [vLLM](vllm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
+- [LangSmith](../benchmarking/langsmith.md)
 
 ## Sources / References
 - [Official Website](https://openpipe.ai/)

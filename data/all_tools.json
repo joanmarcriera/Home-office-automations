@@ -25,6 +25,12 @@
       "doc_path": "docs/tools/agents/agency-swarm.md"
     },
     {
+      "id": "agent-framework-learning-map",
+      "name": "Agent Framework Learning Map",
+      "category": "Knowledge Base",
+      "doc_path": "docs/knowledge_base/agent_framework_learning_map.md"
+    },
+    {
       "id": "agentic-automation-canvas",
       "name": "Agentic Automation Canvas (AAC)",
       "category": "Agents",
@@ -35,12 +41,6 @@
       "name": "Agentic Workflows",
       "category": "Patterns",
       "doc_path": "docs/knowledge_base/patterns/agentic-workflows.md"
-    },
-    {
-      "id": "agent-framework-learning-map",
-      "name": "Agent Framework Learning Map",
-      "category": "Knowledge Base",
-      "doc_path": "docs/knowledge_base/agent_framework_learning_map.md"
     },
     {
       "id": "agentops",
@@ -109,18 +109,6 @@
       "doc_path": "docs/tools/ai_knowledge/ansigpt.md"
     },
     {
-      "id": "apache-airflow",
-      "name": "Apache Airflow",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/apache-airflow.md"
-    },
-    {
-      "id": "apache-hamilton",
-      "name": "Apache Hamilton",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/apache-hamilton.md"
-    },
-    {
       "id": "anthropic",
       "name": "Anthropic (Claude)",
       "category": "Providers",
@@ -162,6 +150,18 @@
       "doc_path": "docs/tools/intake_storage/anytype.md"
     },
     {
+      "id": "apache-airflow",
+      "name": "Apache Airflow",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/apache-airflow.md"
+    },
+    {
+      "id": "apache-hamilton",
+      "name": "Apache Hamilton",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/apache-hamilton.md"
+    },
+    {
       "id": "aphrodite-engine",
       "name": "Aphrodite Engine",
       "category": "Infrastructure",
@@ -174,16 +174,16 @@
       "doc_path": "docs/tools/calendar_tasks/apple-calendar.md"
     },
     {
-      "id": "argo-workflows",
-      "name": "Argo Workflows",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/argo-workflows.md"
-    },
-    {
       "id": "arc",
       "name": "ARC (AI2 Reasoning Challenge)",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/arc.md"
+    },
+    {
+      "id": "argo-workflows",
+      "name": "Argo Workflows",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/argo-workflows.md"
     },
     {
       "id": "arize-ai",
@@ -546,6 +546,12 @@
       "doc_path": "docs/tools/development_ops/custom_agents.md"
     },
     {
+      "id": "dagster",
+      "name": "Dagster",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/dagster.md"
+    },
+    {
       "id": "dashworks",
       "name": "Dashworks",
       "category": "Enterprise AI",
@@ -586,12 +592,6 @@
       "name": "Data Copilot SQL Validation",
       "category": "Playbooks",
       "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
-    },
-    {
-      "id": "dagster",
-      "name": "Dagster",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/dagster.md"
     },
     {
       "id": "datadog",
@@ -792,12 +792,6 @@
       "doc_path": "docs/tools/process_understanding/firecrawl.md"
     },
     {
-      "id": "flyte",
-      "name": "Flyte",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/flyte.md"
-    },
-    {
       "id": "fireworks-ai",
       "name": "Fireworks AI (Fast Inference)",
       "category": "Providers",
@@ -819,6 +813,12 @@
       "name": "Flowise",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/flowise.md"
+    },
+    {
+      "id": "flyte",
+      "name": "Flyte",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/flyte.md"
     },
     {
       "id": "focalboard",
@@ -1216,16 +1216,16 @@
       "doc_path": "docs/tools/infrastructure/k3s.md"
     },
     {
-      "id": "kestra",
-      "name": "Kestra",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/kestra.md"
-    },
-    {
       "id": "karpathy-skills",
       "name": "Andrej Karpathy Skills",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/karpathy-skills.md"
+    },
+    {
+      "id": "kestra",
+      "name": "Kestra",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/kestra.md"
     },
     {
       "id": "khoj",
@@ -1845,8 +1845,8 @@
     {
       "id": "perplexity",
       "name": "Perplexity",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/perplexity.md"
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/perplexity.md"
     },
     {
       "id": "perplexity-agent-api",
@@ -1855,16 +1855,16 @@
       "doc_path": "docs/tools/agents/perplexity-agent-api.md"
     },
     {
+      "id": "perplexity-ai",
+      "name": "Perplexity AI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/perplexity.md"
+    },
+    {
       "id": "personaplex",
       "name": "NVIDIA PersonaPlex",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/personaplex.md"
-    },
-    {
-      "id": "prefect",
-      "name": "Prefect",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/prefect.md"
     },
     {
       "id": "phidata",
@@ -1927,6 +1927,12 @@
       "doc_path": "docs/tools/process_understanding/posthog.md"
     },
     {
+      "id": "prefect",
+      "name": "Prefect",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/prefect.md"
+    },
+    {
       "id": "project-genie",
       "name": "Project Genie",
       "category": "AI Assistants & Knowledge",
@@ -1943,6 +1949,12 @@
       "name": "Proton Calendar",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/proton_calendar.md"
+    },
+    {
+      "id": "prowlarr",
+      "name": "Prowlarr",
+      "category": "Media & Entertainment",
+      "doc_path": "docs/services/prowlarr.md"
     },
     {
       "id": "pulse-mcp",
@@ -2256,6 +2268,12 @@
       "doc_path": "docs/tools/agents/symphony.md"
     },
     {
+      "id": "synapse",
+      "name": "Matrix Synapse",
+      "category": "Creative & Communication",
+      "doc_path": "docs/services/synapse.md"
+    },
+    {
       "id": "syncthing",
       "name": "Syncthing",
       "category": "Intake & Storage",
@@ -2520,16 +2538,16 @@
       "doc_path": "docs/tools/automation_orchestration/zapier.md"
     },
     {
-      "id": "zenml",
-      "name": "ZenML",
-      "category": "Orchestration",
-      "doc_path": "docs/tools/orchestration/zenml.md"
-    },
-    {
       "id": "zed",
       "name": "Zed",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/zed.md"
+    },
+    {
+      "id": "zenml",
+      "name": "ZenML",
+      "category": "Orchestration",
+      "doc_path": "docs/tools/orchestration/zenml.md"
     },
     {
       "id": "zse",

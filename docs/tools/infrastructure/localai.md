@@ -1,62 +1,93 @@
 # LocalAI
 
 ## What it is
-LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs.
+LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio.
 
 ## What problem it solves
-It gives teams a local or self-hosted way to serve models behind a familiar API surface, which reduces vendor dependence and can lower marginal cost for internal workloads.
+It gives teams a local or self-hosted way to serve models behind a familiar API surface, which reduces vendor dependence and ensures data privacy. It unifies disparate local inference backends (llama.cpp, diffusers, whisper.cpp) under a single, standard API.
 
 ## Where it fits in the stack
-**Infrastructure / Local Inference Platform**. It is part of the serving layer for teams that want private or self-hosted model access.
+**Infrastructure / Local Inference Platform**. It is the primary serving layer for private model access, sitting between your hardware and your agentic applications.
 
 ## Typical use cases
-- Self-hosted internal AI APIs
-- Replacing cloud APIs for low-risk internal workloads
-- Running local models behind an OpenAI-compatible interface
+- **Privacy-First AI APIs**: Serving models to internal applications where data must remain on-premise.
+- **Hybrid Cloud/Local Stacks**: Using LocalAI as a fallback or for low-risk tasks alongside cloud providers.
+- **Multi-Modal Agents**: Powering agents that need vision, speech, and text capabilities from a single endpoint.
+- **Homelab Automation**: Integrating LLMs into [Home Assistant](../../services/home-assistant.md) or [n8n](../../services/n8n.md) workflows locally.
 
 ## Strengths
-- OpenAI-compatible surface for easier app integration
-- Strong fit for privacy-sensitive internal tooling
-- Useful bridge between local models and existing app stacks
+- **Standardized API**: Drop-in replacement for OpenAI, making it easy to use with any existing SDK or tool.
+- **Multi-Backend Support**: Can run GGUF, EXL2, Diffusers, and more.
+- **Hardware Agnostic**: Supports CPU-only, NVIDIA CUDA, Intel OneAPI, and AMD ROCm.
+- **Feature Rich**: Supports image generation (Stable Diffusion), speech (Whisper/Piper), and vector embeddings.
 
 ## Limitations
-- Model quality still depends on the local models you choose
-- Running local inference well still requires ops and hardware discipline
+- **Complexity**: Can be more difficult to configure than [Ollama](../../services/ollama.md) due to its extensive feature set and manual model management options.
+- **Resource Intensive**: Multi-modal "All-In-One" (AIO) images are very large and require significant RAM/VRAM.
 
 ## When to use it
-- When data locality, cost control, or self-hosting matters
-- When you want one local API surface for multiple internal tools
+- When you need a single API for multiple types of AI tasks (text, image, audio).
+- When data locality, cost control, or self-hosting is a requirement.
+- When you want to use existing OpenAI-native tools with local models.
 
 ## When not to use it
-- When you need frontier-model quality above all else
-- When your team is not ready to own inference infrastructure
+- When you only need simple text inference (Ollama may be simpler).
+- When you are not prepared to manage model files and configuration YAMLs.
 
 ## Getting started
 
-### Docker installation
-To run LocalAI with Docker:
+### 1. Docker Compose Setup (Recommended)
+Create a `docker-compose.yml` to run LocalAI with CUDA support:
 
-```bash
-docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
-# For GPU support (Nvidia):
-# docker run -p 8080:8080 --gpus all --name local-ai -ti localai/localai:latest-aio-gpu-nvidia-cuda-12
+```yaml
+services:
+  local-ai:
+    image: localai/localai:latest-aio-gpu-nvidia-cuda-12
+    container_name: local-ai
+    ports:
+      - 8080:8080
+    environment:
+      - DEBUG=true
+      - MODELS_PATH=/models
+    volumes:
+      - ./models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 ```
 
-The API will be available at `http://localhost:8080`.
+### 2. Hardware Acceleration
+- **NVIDIA**: Set `image` to a `-cuda` variant and ensure `nvidia-container-toolkit` is installed.
+- **Intel**: Use `-openvino` or `-oneapi` variants.
+- **CPU Only**: Use `-cpu` variants.
 
 ## CLI examples
 
+### List Available Models
 ```bash
-# List available models
 curl http://localhost:8080/v1/models
+```
 
-# Chat completion request
-curl http://localhost:8080/v1/chat/completions \
+### Image Generation (Stable Diffusion)
+```bash
+curl http://localhost:8080/v1/images/generations \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4",
-    "messages": [{"role": "user", "content": "Say hello!"}]
+    "prompt": "A futuristic city in the style of cyberpunk",
+    "size": "512x512"
   }'
+```
+
+### Audio Transcription (Whisper)
+```bash
+curl http://localhost:8080/v1/audio/transcriptions \
+  -H "Content-Type: multipart/form-data" \
+  -F file="@audio.mp3" \
+  -F model="whisper-1"
 ```
 
 ## API examples
@@ -73,22 +104,12 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": "How do I run local models?"}]
+    model="gpt-4", # Or your local model name
+    messages=[{"role": "user", "content": "Explain RAG in one sentence."}]
 )
 
 print(response.choices[0].message.content)
 ```
-
-## Example company use cases
-- **Internal helpdesk assistant**: answer policy or ops questions without sending data to external providers.
-- **Drafting and classification**: handle low-risk summarization, tagging, and document enrichment locally.
-- **Prototype lab**: give teams a local API for experiments before deciding what should stay local vs move to cloud models.
-
-## Selection comments
-- Use **LocalAI** when control and self-hosting matter more than absolute model quality.
-- Use **Ollama** when you want simpler single-host local inference and desktop/server ergonomics.
-- Use **llmfit** before committing, to verify which models actually fit your hardware envelope.
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
@@ -96,11 +117,17 @@ print(response.choices[0].message.content)
 - [llmfit](../development_ops/llmfit.md)
 - [llama.cpp](llama-cpp.md)
 - [vLLM](vllm.md)
+- [LiteLLM](../../services/litellm.md)
+- [Home Assistant](../../services/home-assistant.md)
+- [n8n](../../services/n8n.md)
+- [Open WebUI](../../services/open-webui.md)
+- [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
 
 ## Sources / References
-- [Official Website](https://localai.io/)
-- [GitHub Repository](https://github.com/mudler/LocalAI)
+- [LocalAI Documentation](https://localai.io/)
+- [LocalAI GitHub Repository](https://github.com/mudler/LocalAI)
+- [Model Gallery](https://localai.io/models/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high

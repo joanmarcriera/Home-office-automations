@@ -62,6 +62,38 @@ docker run -d \
 
 Jellyfin will be available at `http://localhost:8096`.
 
+### Hardware Acceleration (Transcoding)
+
+To enable hardware acceleration, you must pass the host's GPU devices into the container and select the correct driver in the Jellyfin Dashboard (Playback > Transcoding).
+
+#### NVIDIA (NVENC)
+Requires the `nvidia-container-toolkit` on the host.
+
+```yaml
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+```
+
+#### Intel QuickSync (QSV) / VA-API
+Requires mounting the render group devices.
+
+```yaml
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
+```
+
 ### Hello World
 1. Start the Jellyfin container using the Docker command above.
 2. Open your web browser and navigate to `http://localhost:8096`.
@@ -111,7 +143,6 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 - [Radarr/Sonarr](https://servarr.com/) — for automating the collection management that Jellyfin serves
 
 ## Backlog
-- Setup hardware acceleration for transcoding.
 - Integrate with Gelli (Android music client).
 
 ## Sources / References

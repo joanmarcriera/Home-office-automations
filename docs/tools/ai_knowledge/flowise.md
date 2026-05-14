@@ -1,88 +1,109 @@
 # Flowise
 
 ## What it is
-Flowise is an open-source UI visual tool to build customized LLM flows. It is built on top of LangChain and allows you to create complex LLM chains and agents using a drag-and-drop interface.
+Flowise is an open-source visual builder for LLM applications. Built on top of LangChain, it provides a drag-and-drop interface to create complex chains, agents, and RAG pipelines.
 
 ## What problem it solves
-Makes it possible to build and iterate on LLM chains and agent workflows visually, without needing to write LangChain code directly.
+It lowers the barrier to entry for building LLM applications by providing a no-code/low-code interface. It enables rapid prototyping and allows non-developers or technical product managers to iterate on prompt engineering and workflow logic visually.
 
 ## Where it fits in the stack
-AI & Knowledge — provides a no-code visual builder for LLM pipelines that can integrate with local Ollama models and other stack components.
+**Orchestration / Builder Layer**. It sits above your LLM providers and vector databases, serving as the "brain" and interface for your AI applications.
 
 ## Typical use cases
-- Building chatbot flows with retrieval-augmented generation
-- Prototyping LangChain-based agent workflows via drag-and-drop
-- Implementing support chatbots backed by local documentation
+- **Customer Support Bots**: Building RAG-powered bots that answer questions based on company documentation.
+- **Workflow Prototyping**: Quickly testing different LangChain components (retrievers, agents, tools) before committing to code.
+- **Internal Tools**: Creating specialized assistants for data extraction, summarization, or translation that team members can use via a simple UI.
+- **Agentic Workflows**: Designing agents with access to custom tools (APIs, calculators, search).
 
 ## Strengths
-- Open-source and self-hostable
-- Drag-and-drop interface built on the mature LangChain ecosystem
-- Supports a wide range of LLM providers and vector stores
+- **Visual Programming**: Makes complex LangChain logic intuitive and easy to reason about.
+- **Self-Hostable**: Can be deployed easily via Docker, ensuring data privacy for local homelab use.
+- **Extensibility**: Supports custom tools and JavaScript snippets for complex logic.
+- **Integrated API**: Automatically generates REST endpoints for every chatflow you build.
 
 ## Limitations
-- Tightly coupled to LangChain, which may limit flexibility with other frameworks
-- Visual interface can become unwieldy for very complex flows
-- Debugging issues may require understanding the underlying LangChain code
+- **LangChain Coupling**: If a feature isn't in LangChain (or hasn't been integrated into Flowise yet), it can be difficult to implement.
+- **Version Management**: Managing changes and rollbacks to visual flows can be more challenging than versioning code.
+- **Resource Usage**: Running the Flowise server and its UI adds overhead compared to a lightweight script.
 
 ## When to use it
-- When you want a visual way to build and test LangChain-based LLM flows
-- When non-technical users need to create or modify LLM pipelines
+- When you want to build and iterate on LLM applications visually.
+- When you need to provide a GUI for team members to interact with AI workflows.
+- For rapid prototyping of RAG and agentic systems.
 
 ## When not to use it
-- When you need full programmatic control or want to use a framework other than LangChain
-- When the application is simple enough that a few lines of code suffice
-
-## Related tools / concepts
-- [Dify](dify.md)
-- [LangChain](langchain.md)
-- [LangFlow](https://github.com/langflow-ai/langflow)
+- When you need maximum programmatic flexibility or want to use frameworks like [LlamaIndex](llamaindex.md) or [DSPy](../frameworks/dspy.md).
+- For simple scripts where the overhead of a visual builder is unnecessary.
 
 ## Getting started
 
-### Installation
-
-Install Flowise globally via npm and start it:
+### 1. Installation and Startup
+The easiest way to run Flowise is via Docker:
 
 ```bash
-# Install Flowise globally
-npm install -g flowise
+docker run -d --name flowise -p 3000:3000 flowiseai/flowise
+```
 
-# Start Flowise
+Alternatively, use `npx`:
+
+```bash
 npx flowise start
 ```
 
-### Minimal Example
-
-Once running, you can access the UI at `http://localhost:3000` to begin building your LLM flows. To interact with your flow programmatically, use the Prediction API as shown in the examples below.
-
-```bash
-curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
-     -H "Content-Type: application/json" \
-     -d '{"question": "Hello!"}'
-```
+### 2. Building Your First Flow
+1. Open `http://localhost:3000` in your browser.
+2. Click "Add New" to create a chatflow.
+3. Drag components from the sidebar (e.g., "OpenAI Chat Model", "Recursive Character Text Splitter", "In-Memory Vector Store").
+4. Connect the components and click "Save".
 
 ## API examples
 
-### Calling a Flowise Chatflow via REST
-
-You can interact with your deployed chatflows using the Prediction API, including configuration overrides.
+### Triggering a Prediction via REST API
+Every chatflow can be triggered via a POST request.
 
 ```bash
-curl -X POST "http://localhost:3000/api/v1/prediction/{your-chatflow-id}" \
+curl -X POST "http://localhost:3000/api/v1/prediction/<CHATFLOW_ID>" \
      -H "Content-Type: application/json" \
      -d '{
-            "question": "How do I set up a vector store in Flowise?",
+            "question": "What are the benefits of using a visual builder?",
             "overrideConfig": {
-                "returnSourceDocuments": true
+                "temperature": 0.5
             }
          }'
 ```
 
+### Passing External Variables
+You can pass variables into your flows (e.g., a user ID or session context) that can be used within prompt templates.
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/prediction/<CHATFLOW_ID>" \
+     -H "Content-Type: application/json" \
+     -d '{
+            "question": "Summarize my last orders",
+            "overrideConfig": {
+                "vars": {
+                    "user_id": "12345"
+                }
+            }
+         }'
+```
+
+## Related tools / concepts
+- [LangFlow](../frameworks/langflow.md)
+- [Dify](dify.md)
+- [LangChain](langchain.md)
+- [AnythingLLM](anythingllm.md)
+- [LobeHub](lobehub.md)
+- [n8n](../../services/n8n.md)
+- [Rivet](../frameworks/rivet.md)
+- [Superinterface](../frameworks/superinterface.md)
+
 ## Sources / references
-- [Official Website](https://flowiseai.com/)
-- [GitHub Repository](https://github.com/FlowiseAI/Flowise)
+- [Flowise Official Documentation](https://docs.flowiseai.com/)
+- [Flowise GitHub Repository](https://github.com/FlowiseAI/Flowise)
+- [Flowise Cloud](https://flowiseai.com/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-03
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high

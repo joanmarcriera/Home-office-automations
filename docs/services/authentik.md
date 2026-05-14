@@ -178,8 +178,81 @@ To secure family member accounts, it is recommended to enforce Two-Factor Authen
 ### Passkey Support
 Authentik natively supports WebAuthn. Family members can register their phone or a hardware key (like a YubiKey) as a Passkey under their user profile settings.
 
+## Advanced Security Policies
+
+Authentik's power lies in its Policy engine, allowing for sophisticated access control based on context.
+
+### Geo-IP Blocking
+To prevent logins from unexpected countries, you can use a Geo-IP policy.
+
+1.  **Configure Geo-IP**: Ensure Authentik is configured with a MaxMind or IP2Location database.
+2.  **Create Expression Policy**:
+    ```python
+    # Expression Policy: Only allow logins from Switzerland and local network
+
+    # Allow local RFC1918 addresses
+    if ak_is_in_network(context['http_request'].META['REMOTE_ADDR'], '192.168.0.0/16'):
+        return True
+
+    # Check country code from Geo-IP
+    geo_data = context.get('geoip', {})
+    if geo_data.get('country', {}).get('iso_code') == 'CH':
+        return True
+
+    ak_message("Access denied from your current location.")
+    return False
+    ```
+3.  **Bind Policy**: Bind this policy to your "Main-Flow" or specific sensitive applications.
+
+### Device Posture Checks (User-Agent Validation)
+While not a substitute for mTLS or MDM, you can restrict access to specific browser types or known family devices.
+
+```python
+# Expression Policy: Restrict to specific Browser/OS
+user_agent = context['http_request'].META.get('HTTP_USER_AGENT', '')
+
+# Example: Only allow access from the family's preferred browser setup
+if "Linux" in user_agent and "Firefox" in user_agent:
+    return True
+
+ak_message("Please use the approved family browser configuration for this service.")
+return False
+```
+
+## LDAP Outpost Integration
+
+Authentik provides an LDAP Outpost to allow legacy applications that only support LDAP to authenticate against Authentik's user database and policy engine.
+
+### Configuration
+1.  **Create an LDAP Provider**: Go to **Resources > Providers** and create an **LDAP Provider**.
+    -   **Base DN**: `dc=ldap,dc=goauthentik,dc=io`
+    -   **Bind Flow**: A flow that handles authentication (e.g., default-authentication-flow).
+2.  **Create an LDAP Outpost**: Go to **Applications > Outposts** and create a new **Outpost**.
+    -   **Type**: LDAP.
+    -   **Service Connection**: Select your Docker or Kubernetes connection.
+3.  **Deploy the Outpost**: Authentik will provide a Docker Compose snippet for the outpost. Run it alongside your main Authentik stack.
+
+### Client Example (Python)
+Legacy apps can then bind to the LDAP outpost (usually port 389 or 636):
+
+```python
+import ldap
+
+# Configuration
+LDAP_SERVER = "ldap://authentik-outpost:389"
+BIND_DN = "cn=akadmin,ou=users,dc=ldap,dc=goauthentik,dc=io"
+BIND_PASSWORD = "your_password"
+
+try:
+    conn = ldap.initialize(LDAP_SERVER)
+    conn.simple_bind_s(BIND_DN, BIND_PASSWORD)
+    print("LDAP Bind Successful")
+except ldap.LDAPError as e:
+    print(f"LDAP Error: {e}")
+```
+
 ## Backlog
-- Configure LDAP outpost for legacy apps.
+- [x] Configure LDAP outpost for legacy apps.
 
 ## Contribution Metadata
 - Confidence: high

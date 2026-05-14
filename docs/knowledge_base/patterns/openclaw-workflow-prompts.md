@@ -1,48 +1,62 @@
 # OpenClaw Workflow Prompt Library Pattern
 
 ## What it is
-A reusable-prompt pattern for operating an agent stack through concrete workflow prompts (monitoring, backups, research, coding handoff, and reporting).
+A reusable-prompt pattern for operating an agent stack through concrete workflow prompts. This pattern focuses on "operationalizing" agents by providing them with highly structured, intent-rich instructions for recurring tasks like monitoring, backups, research, and reporting.
 
 ## What problem it solves
-Users often know desired outcomes but struggle to express executable agent instructions. A curated prompt library accelerates setup and improves consistency.
+Users and developers often know the desired outcome of an automation but struggle to express instructions that are both executable by an agent and resilient to edge cases. The OpenClaw Workflow Prompt pattern provides a library of pre-validated, "battle-tested" prompts that reduce the trial-and-error phase of agent deployment.
 
 ## Where it fits in the stack
-**Pattern**. This supports operational playbooks and prompt-level workflow standardization.
+Prompts & AI Layer — serves as the "software interface" between human intent and agentic execution. It supports [Operational Playbooks](../../playbooks/index.md) and standardized [Agentic Workflows](agentic-workflows.md).
 
 ## Typical use cases
-- Bootstrapping personal or team agent workflows
-- Reusing proven prompts for recurring operations
-- Building channel-based or schedule-based agent tasks
+- **Infrastructure Monitoring**: Prompts that guide an agent to check server logs and summarize anomalies.
+- **Development Handoffs**: Standardized "context dumping" prompts for moving work between different coding agents (e.g., from an architect agent to a coder agent).
+- **Scheduled Reporting**: Weekly briefs that aggregate data from multiple sources (GitHub, Vikunja, n8n) into a cohesive summary.
+- **Resource Cleanup**: Automated "janitor" prompts for identifying and deleting temporary files or old cloud resources.
 
 ## Strengths
-- Fast adoption path with copy-paste prompts
-- Good coverage of real operational scenarios
-- Encourages intent-first prompting
+- **Reduced Hallucinations**: Structured templates guide models toward specific data sources and formats.
+- **Faster Setup**: Drastically reduces the time required to bootstrap new automation workflows.
+- **Standardization**: Ensures that different agents performing the same task use the same high-quality logic.
 
 ## Limitations
-- Prompts are environment-dependent and need adaptation
-- Operational safety still depends on local permissions/guardrails
-- Prompt drift can appear as tools and environments change
+- **Environment Sensitivity**: Prompts often include assumptions about file structures or API availability that must be adapted for specific users.
+- **Maintenance**: As underlying tools (like CLI versions or API schemas) change, the prompts must be updated (prompt drift).
+- **Safety**: Reusable prompts must still be vetted for security, especially those involving destructive actions (e.g., `rm`, `delete`).
 
 ## When to use it
-- When launching a new agent ops setup and you want practical templates
-- When standardizing repeated workflows for a team
+- When implementing recurring operational tasks that are too complex for simple scripts but too regular to rewrite every time.
+- When building a "System of Record" for how your agents should behave across different domains.
 
 ## When not to use it
-- When strict policy requires fully scripted deterministic automation only
-- When your environment differs significantly from the prompt assumptions
+- For extremely simple, one-line commands that don't benefit from structured instructions.
+- When a task is so unique that a template would provide no value or could introduce bias.
+
+## Core Prompt Library Patterns
+
+### 1. The "Observer" (Monitoring)
+> "Review the last 50 lines of the `syslog` and `n8n_output.log`. Identify any unique error codes and correlate them with any recent service restarts. Summarize the impact on the `Paperless-ngx` service."
+
+### 2. The "Archivist" (Cleanup)
+> "Identify all files in the `tmp/` directory older than 30 days. List their sizes and last access times. If they are not in the `ignore_list.txt`, propose a deletion script."
+
+### 3. The "Sync-Master" (Reporting)
+> "Compare the 'Completed Tasks' in Vikunja for the last 7 days against the 'GitHub PRs Merged' in the same period. Generate a bulleted 'Weekly Achievement' report for the family newsletter."
 
 ## Related tools / concepts
-- [OpenCode (Oh My OpenCode Ecosystem)](../../tools/development_ops/opencode.md)
 - [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md)
 - [OpenClaw Security and Operations Pattern](openclaw-security-operations.md)
-- [Agent Protocols](../agent_protocols.md)
-- [Patterns Index](index.md)
+- [Agentic Workflows](agentic-workflows.md)
+- [Skills Best Practices](skills-best-practices.md)
+- [System Prompts](../system_prompts.md)
+- [Prompt Requests](prompt_requests.md)
+- [Jules Weekly Gap Analysis](../../reference-implementations/llm-prompts/jules-gap-analysis.md)
+- [Family Context Prompt](../../reference-implementations/llm-prompts/family-context.md)
 
 ## Sources / References
 - [OpenClaw after 50 days: all prompts for 20 real workflows](https://gist.github.com/velvet-shark/b4c6724c391f612c4de4e9a07b0a74b6)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high

@@ -25,6 +25,15 @@ It simplifies the transition from LLM prototyping to enterprise-grade agent depl
 - **Enterprise Complexity**: May have a steeper learning curve compared to simpler frameworks like smolagents.
 - **Ecosystem Maturity**: As a relatively new open-source release (late 2025/early 2026), the community ecosystem is still maturing.
 
+## When to use it
+- When building large-scale, enterprise-grade AI agents that require high reliability and professional-grade orchestration.
+- If you are heavily invested in the Google Cloud/Vertex AI ecosystem and want to use the same tools Google uses internally.
+- For multi-agent systems where clear boundaries, standardized skills, and robust evaluation are critical.
+
+## When not to use it
+- For quick, experimental prototypes or small personal projects where a lightweight framework like `smolagents` or `instructor` would be faster to set up.
+- If you want a framework with a massive, long-standing community ecosystem (consider LangChain or LlamaIndex instead).
+
 ## Getting started
 
 ### Installation (Python)
@@ -44,6 +53,10 @@ pip install google-adk
 - [Microsoft Agent Framework](microsoft-agent-framework.md)
 - [LangGraph](langgraph.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Firebase Genkit](firebase-genkit.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
+- [CrewAI](crewai.md)
+- [Autogen](autogen.md)
 
 ## Sources / references
 - [Google Cloud Documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk)

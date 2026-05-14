@@ -122,9 +122,42 @@ Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On us
 > [!WARNING]
 > If you require Server-Side Encryption, you must use LDAP instead of OIDC, as encryption requires the user's cleartext password which is not provided by OIDC.
 
+## Nextcloud Office & Collabora
+
+Nextcloud Office provides a powerful, browser-based office suite integrated directly into Nextcloud. It is powered by Collabora Online.
+
+### Setup (Docker)
+1.  **Run Collabora Online**:
+    ```bash
+    docker run -d --name collabora \
+      -e "domain=nextcloud\\.example\\.com" \
+      -e "extra_params=--o:ssl.enable=true --o:ssl.termination=true" \
+      -p 9980:9980 \
+      --restart unless-stopped \
+      collabora/code
+    ```
+2.  **Install App**: In Nextcloud, go to **Apps** and install **Nextcloud Office**.
+3.  **Configure**: Go to **Administration settings > Nextcloud Office**:
+    -   Select "Use your own server".
+    -   Enter the URL of your Collabora instance: `https://collabora.example.com`.
+
+## End-to-End Encryption (E2EE)
+
+Nextcloud supports client-side end-to-end encryption for maximum security of sensitive files.
+
+### Key Characteristics
+-   **Zero-Knowledge**: The server never sees the contents of encrypted files or the encryption keys.
+-   **Folder-Based**: Encryption is enabled on a per-folder basis.
+-   **Client-Side**: Encryption and decryption happen on the user's device (desktop or mobile apps).
+
+### Enablement
+1.  **Install App**: Install the **End-to-End Encryption** app from the Nextcloud App Store.
+2.  **Setup Passphrase**: On your desktop or mobile client, enable encryption for a folder. You will be provided with a 12-word recovery mnemonic. **Store this securely.**
+3.  **Limitations**: Encrypted folders cannot be shared with users who do not have E2EE configured, and they are not accessible via the web interface.
+
 ## Backlog
-- Setup Nextcloud Office with Collabora Online.
-- Enable end-to-end encryption for sensitive folders.
+- [x] Setup Nextcloud Office with Collabora Online.
+- [x] Enable end-to-end encryption for sensitive folders.
 
 ## Sources / References
 

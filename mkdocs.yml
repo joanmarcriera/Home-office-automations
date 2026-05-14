@@ -146,6 +146,7 @@ nav:
           - Plex: services/plex.md
           - Plex Automation: services/plex-automation.md
           - Portracker: services/portracker.md
+          - Prowlarr: services/prowlarr.md
           - Qbittorrent: services/qbittorrent.md
           - Qbittorrent Automation: services/qbittorrent-automation.md
           - Radicale: services/radicale.md
@@ -155,6 +156,7 @@ nav:
           - Searxng Automation: services/searXNG-automation.md
           - Speedtest: services/speedtest.md
           - Storj: services/storj.md
+          - Synapse: services/synapse.md
           - Syncthing: services/syncthing.md
           - Tailscale: services/tailscale.md
           - Tika: services/tika.md
@@ -428,6 +430,7 @@ nav:
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
+          - Perplexity: tools/providers/perplexity.md
           - Portkey AI Gateway: tools/providers/portkey.md
           - Replicate: tools/providers/replicate.md
           - Tavily: tools/providers/tavily.md

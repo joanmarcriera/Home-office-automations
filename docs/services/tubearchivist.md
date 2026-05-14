@@ -101,6 +101,42 @@ docker exec tubearchivist pip install -U yt-dlp
 docker exec tubearchivist python manage.py check_worker
 ```
 
+### Advanced: `yt-dlp` Quality Control
+In the **Settings > Application > Download Format** section, you can fine-tune how videos are selected and sorted.
+
+**Priority for AV1 (Higher efficiency):**
+Pass this to **Format Sort**:
+```text
+codec:av1,res,fps,br
+```
+
+**Limit resolution to 1080p and avoid premium/experimental formats:**
+Pass this to **Format**:
+```text
+bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]/best
+```
+
+### Advanced: Metadata Verification
+If you enable **Embed Metadata**, Tube Archivist writes a JSON object into the media file's metadata tags. You can verify this using standard tools.
+
+**Using `ffprobe` (to see the `ta` tag):**
+```bash
+ffprobe -v quiet -show_entries format_tags -of json my_video.mp4 \
+  | jq -r '.format.tags.ta'
+```
+
+**Using Python (`mutagen`):**
+```python
+import json
+from mutagen.mp4 import MP4
+
+video = MP4("video.mp4")
+# Tube Archivist metadata is stored in a custom atom
+metadata = json.loads(video.tags["----:com.tubearchivist:ta"][0].decode())
+print(f"Title: {metadata['title']}")
+print(f"Channel: {metadata['channel_name']}")
+```
+
 ## API examples
 
 ### Python (Get all videos)

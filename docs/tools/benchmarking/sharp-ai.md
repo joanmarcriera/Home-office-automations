@@ -36,10 +36,24 @@ The benchmark is typically run by security researchers and AI engineers using th
 - **Evolving Landscape**: As new attack techniques emerge, the benchmark must be constantly updated to remain relevant.
 - **Context Sensitivity**: Security performance can vary significantly depending on the specific system prompt and orchestration logic used.
 
+## When to use it
+- During the evaluation phase of a new LLM or AI agent to assess its security resilience before deployment.
+- When performing red-teaming exercises to identify potential vulnerabilities in prompt handling or tool usage.
+- As part of a CI/CD pipeline to ensure that updates to system prompts or model versions do not introduce new security regressions.
+
+## When not to use it
+- For evaluating general task performance, reasoning capability, or creativity (use benchmarks like MMLU or HumanEval for that).
+- If you are building a simple, offline application with no tool access or internet connectivity where the security risks are minimal.
+
 ## Related tools / concepts
 - [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md)
 - [Agentic Security Patterns](../../knowledge_base/patterns/openclaw-security-operations.md)
 - [Glean AI Predictions (2026 Accountability)](../enterprise/glean.md)
+- [Prompt Injection Guardrails](../../knowledge_base/patterns/n8n-error-handling.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Lakera Guard](lakera-guard.md)
+- [Giskard](giskard.md)
+- [Promptfoo](promptfoo.md)
 
 ## Sources / References
 - [SharpAI Benchmark Official Site](https://www.sharpai.org/benchmark/)

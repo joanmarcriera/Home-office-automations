@@ -31,6 +31,50 @@ It tackles the "cold start" problem in serverless LLM deployments. By achieving 
 - If you require the extensive ecosystem and plug-and-play ease of [Ollama](../../services/ollama.md).
 - For massive, steady-state production loads where throughput optimizations of vLLM might be more beneficial than startup speed.
 
+## Getting started
+Install ZSE via pip to get started with the inference engine:
+
+```bash
+pip install zyora-zse
+```
+
+To run a basic model instance locally:
+
+```bash
+zse run llama-3-8b-instruct
+```
+
+## CLI examples
+Serving a specific model with a custom port:
+
+```bash
+zse serve --model meta-llama/Llama-3-8b-instruct --port 8080
+```
+
+Listing all currently running instances:
+
+```bash
+zse ps
+```
+
+Stop a running instance:
+
+```bash
+zse stop <instance_id>
+```
+
+## API examples
+ZSE provides an OpenAI-compatible completion endpoint. You can interact with it using `curl`:
+
+```bash
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama-3-8b-instruct",
+    "messages": [{"role": "user", "content": "How does zero-shot extraction work?"}]
+  }'
+```
+
 ## Licensing and cost
 - **Open Source**: Yes
 - **Cost**: Free
@@ -42,11 +86,14 @@ It tackles the "cold start" problem in serverless LLM deployments. By achieving 
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [SGLang](sglang.md)
 - [Text Generation Inference (TGI)](tgi.md)
+- [LiteLLM](../../services/litellm.md)
+- [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
+- [Serverless AI Architectures](../../architecture/infrastructure.md)
 
 ## Sources / References
 - [ZSE GitHub Repository](https://github.com/Zyora-Dev/zse)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-14
+- Confidence: high

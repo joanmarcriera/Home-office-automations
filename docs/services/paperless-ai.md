@@ -67,17 +67,48 @@ services:
     restart: unless-stopped
 ```
 
+## Prompt Engineering & Templates
+Paperless-AI uses system prompts to guide the LLM in document analysis. High-quality templates are essential for accurate extraction of complex documents like invoices.
+
+### Advanced Invoice Extraction Template
+For best results when extracting financial data, use a structured prompt that enforces JSON output and defines data types.
+
+```markdown
+You are a high-precision data extraction assistant. Analyze the provided document and extract the following fields.
+
+## Fields to Extract:
+- **Amount**: Total amount including tax. Format: [CurrencyCode][Amount] (e.g., USD150.00).
+- **Date**: The issue date of the invoice. Format: YYYY-MM-DD.
+- **Correspondent**: The name of the company or person who issued the invoice.
+- **Invoice Number**: The unique identifier for this document.
+
+## Output Rules:
+1. Return ONLY a valid JSON object. No markdown, no explanations.
+2. If a field cannot be found, omit it from the JSON.
+3. Use a period (.) as the decimal separator. No thousand separators.
+```
+
+### Configuration via Environment
+You can override the default prompts using environment variables in your `docker-compose.yaml`:
+
+```yaml
+environment:
+  - SYSTEM_PROMPT="You are a document classifier..."
+  - USER_PROMPT="Analyze this document and return tags..."
+```
+
 ## Related tools / concepts
-- [Paperless-ngx](paperless-ngx.md)
-- [Ollama](ollama.md)
+- [Paperless-ngx](paperless-ngx.md) — The core document management system.
+- [Ollama](ollama.md) — For running local LLMs like Llama 3 or Mistral.
+- [n8n](n8n.md) — For advanced post-processing workflows.
+- [Extraction and Classification](../reference-implementations/llm-prompts/extraction-and-classification.md) — General patterns for LLM extraction.
 
 ## Backlog
-- Improve prompt templates for better invoice extraction.
 
 ## Sources / References
 - [GitHub Repository](https://github.com/clusterfudge/paperless-ai)
-- [Teedy Official Website](https://teedy.io/)
+- [Prompt Engineering Guide](https://www.promptingguide.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-08
-- Confidence: medium
+- Last reviewed: 2026-05-13
+- Confidence: high
