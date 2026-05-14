@@ -14,6 +14,14 @@ It makes local LLM inference practical on CPUs and smaller devices by combining 
 - Building local-first AI tools without cloud API dependency
 - Powering higher-level local model tools and wrappers
 
+## Comparison: llama.cpp vs. Ollama
+| Feature | llama.cpp (Direct) | Ollama (Wrapper) |
+| :--- | :--- | :--- |
+| **User Interface** | CLI-heavy, manual configuration. | Simple CLI and REST API. |
+| **Model Management**| Manual GGUF download/loading. | Automated "Pull" and management. |
+| **Control** | Granular control over all parameters. | Opinionated defaults for ease of use. |
+| **Performance** | Maximum throughput potential. | Minimal overhead on top of llama.cpp. |
+
 ## Strengths
 - Lightweight and portable local runtime.
 - Strong support for quantized model execution.
@@ -73,12 +81,32 @@ print(response.choices[0].message.content)
 - **Cost**: Free software; infrastructure/hardware costs still apply
 - **Self-hostable**: Yes
 
+## Performance Optimization
+
+### Hardware Backend Selection
+`llama.cpp` supports multiple backends for acceleration:
+
+- **Apple Silicon (Metal)**: Use `-ngl 99` to offload all layers to the GPU. Ensure `LLAMA_METAL=1` during build.
+- **NVIDIA (CUDA)**: Use `-ngl <num_layers>` to offload to VRAM. High memory bandwidth is key.
+- **CPU (OpenBLAS/AVX)**: Use `-t <num_threads>` where threads match physical core count for best efficiency.
+
+### Structured Output with Grammars
+Native support for GBNF grammars allows forcing the model to output valid JSON or other formats:
+
+```bash
+./server -m models/llama-3.gguf --grammar-file json.gbnf
+```
+
 ## Related tools / concepts
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [Ollama](../../services/ollama.md)
 - [ZSE](zse.md)
 - [vLLM](vllm.md)
 - [ExLlamaV2](exllamav2.md)
+- [GGUF Format](../ai_knowledge/local_llms.md)
+- [Quantization Concepts](../ai_knowledge/local_llms.md)
+- [MCP (Model Context Protocol)](../automation_orchestration/airops.md)
+- [Jules](../ai_knowledge/jules.md)
 
 ## Sources / References
 - [llama.cpp repository](https://github.com/ggml-org/llama.cpp)
@@ -88,5 +116,5 @@ print(response.choices[0].message.content)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-05-14
 - Confidence: high
