@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-05-13
+# Ralph-loop Triage Report — 2026-05-14
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 13, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 14, 2026.
 
 ## Issue Status Summary
 
@@ -41,6 +41,10 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 39** | Knowledge Base Deepening | **Resolved** | Deepened ai_signal_sources, agent_protocols, and ai_tool_access_matrix. |
 | **Batch 40** | Playbook Deepening | **Resolved** | Deepened raspberry-pi-kiosk-automation and scan-to-task. |
 | **Batch 41** | Maintenance Run (Audit Resolution) | **Verified & Closed** | 100% compliance achieved across 486/486 docs (2026-05-12). |
+| **Batch 44** | Maintenance Run (Oldest Backlog) | **Resolved** | Deepened `standards.md`, `logseq.md`, etc. (2026-05-14). |
+| **Batch 45** | Maintenance Run (Oldest Backlog) | **Resolved** | Deepened `llama-cpp.md`, `llm-trust-boundaries.md`, etc. (2026-05-14). |
+| **Batch 46** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `obsidian.md`, `make.md`, `zapier.md`, etc. (2026-05-14). |
+| **Batch 47** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `human-eval.md`, `gsm8k.md`, `chatbot-arena.md`, etc. (2026-05-14). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
