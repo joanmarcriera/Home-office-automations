@@ -25,13 +25,13 @@ It eliminates the need for expensive, cloud-based voice cloning subscriptions by
 - **Sample Quality**: The quality of the clone is highly dependent on the clarity and lack of background noise in the reference audio sample.
 
 ## When to use it
-- **Local-First Workflows**: Ideal for users who prioritize privacy and want to run voice cloning entirely on their own hardware without cloud dependencies.
-- **Real-Time Applications**: Best for interactive systems like personal assistants or game NPCs where low-latency synthesis is critical.
-- **Resource-Constrained Environments**: When high-fidelity synthesis is needed but only consumer-grade hardware (e.g., laptop GPU or CPU) is available.
+- **Local Prototyping**: Quickly testing voice clones for personal projects or local assistants.
+- **Privacy-First Applications**: When reference audio or synthesized speech must remain on-device.
+- **Low-Latency Requirements**: For real-time applications like gaming or interactive voice response (IVR) on the edge.
 
 ## When not to use it
-- **Studio-Quality Production**: Not suitable for high-end commercial voiceovers requiring extreme emotional range or complex prosody.
-- **Noisy Source Audio**: When the reference audio has significant background noise, as it lacks advanced noise-reduction capabilities during the cloning phase.
+- **Highest Fidelity Production**: If "uncanny" or perfect human realism is required, larger models like Fish Speech or cloud services like ElevenLabs may be superior.
+- **Non-Python Environments**: Since it is primarily a Python/Gradio application, it may not fit directly into embedded C++ or mobile-only stacks without significant porting.
 
 ## Getting started
 
@@ -74,8 +74,9 @@ python app.py
 - [ElevenLabs](elevenlabs.md) (Cloud-based proprietary alternative)
 - [Ollama](../../services/ollama.md) (Local model runner integration)
 - [Msty](../infrastructure/msty.md) (Local AI desktop with audio support)
-- [Gemini Flash TTS](gemini-flash-tts.md) (Fast cloud-based TTS alternative)
-- [Home Assistant](../../services/home-assistant.md) (Primary integration target for local voice assistants)
+- [llama.cpp](../infrastructure/llama-cpp.md) (Similar local-first philosophy for LLMs)
+- [Home Assistant](../../services/home-assistant.md) (Primary target for custom voice integration)
+- [Piper](https://github.com/rhasspy/piper) (Another fast, local TTS engine used in HA)
 
 ## Sources / references
 - [KokoClone GitHub](https://github.com/Ashish-Patnaik/kokoclone)

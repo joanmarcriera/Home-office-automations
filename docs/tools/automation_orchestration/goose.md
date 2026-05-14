@@ -25,14 +25,14 @@ Goose addresses the need for a standardized, extensible way for agents to intera
 - **Complexity**: Might require more setup than "zero-config" tools like Open Interpreter.
 
 ## When to use it
-- Use when you need a local AI agent that can securely interact with your system CLI and internal scripts.
-- Use if you want to build custom toolkits for an agent using Python or the Model Context Protocol (MCP).
-- Use for engineering workflows where you need the agent to perform actions (like running tests or deploying code) rather than just writing text.
+- **Local Engineering Tasks**: When you need an agent that can safely and efficiently run commands on your local machine.
+- **MCP-Based Workflows**: If you want to leverage the growing ecosystem of Model Context Protocol (MCP) servers for tool integration.
+- **Standardized Toolkits**: When building agents that need a consistent interface for interacting with various internal or external APIs.
 
 ## When not to use it
-- Do not use if you prefer a graphical user interface for agent management; Goose is primarily CLI-driven.
-- Avoid for simple chat tasks where a standard LLM interface like ChatGPT or Claude.ai is more convenient.
-- Do not use if you are looking for a fully autonomous agent to manage complex, multi-repo projects without human oversight; Goose is best as an "assistant" in a session.
+- **Cloud-Only Workflows**: If your tasks are entirely cloud-based and don't require local environment interaction, a hosted agent might be simpler.
+- **Non-Technical Users**: Goose is primarily a CLI-driven tool designed for developers and engineers.
+- **Strictly Controlled Environments**: Running an agent with local command execution capabilities requires careful security considerations and might not be allowed in all corporate environments.
 
 ## Getting started
 
@@ -82,9 +82,8 @@ def my_custom_tool(param: str) -> str:
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Aider](../development_ops/aider.md)
 - [Cline](../agents/cline.md)
-- [Jules](../ai_knowledge/jules.md)
-- [Melty](../development_ops/melty.md)
-- [Devin](../development_ops/devin.md)
+- [Docker](../infrastructure/docker.md) (Common environment for agent isolation)
+- [K3s](../infrastructure/k3s.md) (Orchestrating agentic workloads)
 
 ## Sources / references
 - [Goose GitHub Repository](https://github.com/block/goose)

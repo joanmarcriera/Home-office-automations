@@ -64,24 +64,23 @@ For agentic deployments, treat Nemotron-3 Super as the planning/escalation model
 - **Model Size**: At 120B total parameters, it requires significant VRAM even with its 12B active parameter efficiency.
 
 ## When to use it
-- Use when building autonomous multi-agent systems that require long-context reasoning across massive document sets.
-- Use if you have access to NVIDIA hardware (especially Blackwell) and need to minimize inference latency for large models.
-- Use for cybersecurity or software engineering tasks where "associative recall" and multi-step planning are critical.
+- **Enterprise Multi-Agent Systems**: When building complex, long-running agents that require high reasoning capacity.
+- **Modern NVIDIA Hardware**: If you have access to H100 or B200 infrastructure to leverage FP4/FP8 optimizations.
+- **Long-Context Analysis**: When you need to process and reason over huge document stacks or entire codebases (up to 1M tokens).
 
 ## When not to use it
-- Do not use for simple, single-turn chat interactions where smaller, faster models (like Nemotron-3 Nano) are sufficient.
-- Avoid using on non-NVIDIA hardware if you require the 4x efficiency gains promised by NVFP4 optimization.
-- Do not use if you are strictly limited by VRAM and cannot support a 120B parameter model footprint.
+- **Consumer Hardware**: It is generally too large for standard consumer GPUs without significant quantization or offloading.
+- **Simple Chat Tasks**: For basic Q&A or short-context summaries, smaller models (e.g., Llama 3 8B or Nemotron Nano) are more efficient.
+- **Non-NVIDIA Stacks**: While it runs on other hardware, many of its core innovations (Latent MoE, NVFP4) are optimized for NVIDIA architectures.
 
 ## Related tools / concepts
 - [NVIDIA](../providers/nvidia.md)
 - [NVIDIA NeMo Retriever](../agents/nemo-retriever.md)
 - [OpenCode](../development_ops/opencode.md)
 - [Mamba Architecture](../../knowledge_base/model_classes.md)
-- [DeepSeek R1](deepseek-r1.md)
-- [Qwen](qwen.md)
-- [OpenRouter](openrouter.md)
-- [Llama.cpp](../infrastructure/llama-cpp.md)
+- [vLLM](../infrastructure/vllm.md) (Recommended serving engine)
+- [SGLang](../infrastructure/sglang.md) (Optimized for multi-agent tool-calling)
+- [Aphrodite Engine](../infrastructure/aphrodite-engine.md) (Alternative local serving)
 
 ## Sources / References
 - [Introducing Nemotron 3 Super (NVIDIA Blog)](https://developer.nvidia.com/blog/introducing-nemotron-3-super-an-open-hybrid-mamba-transformer-moe-for-agentic-reasoning/)

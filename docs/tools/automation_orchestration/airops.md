@@ -26,14 +26,14 @@ AirOps addresses the difficulty of moving AI from a simple chat interface into a
 - **Complexity**: Offers a wide range of features that might take time to master.
 
 ## When to use it
-- Use when you need a multi-tenant platform for deploying AI workflows to many users or customers.
-- Use if your team includes non-technical stakeholders who need to collaborate on prompt engineering and workflow design.
-- Use when building AI tools that require deep integration with enterprise data sources like Snowflake, Postgres, or Salesforce.
+- **Enterprise AI Workflows**: When you need a robust, scalable platform to manage complex AI processes across a team.
+- **Rapid Prototyping for Business**: When the goal is to quickly deploy AI tools into existing business systems without building custom infrastructure.
+- **Collaborative Design**: When product managers and domain experts need to participate directly in prompt and workflow design.
 
 ## When not to use it
-- Do not use for simple personal automation where lightweight tools like Zapier or basic scripts are sufficient.
-- Avoid if you require a fully open-source, self-hosted solution; consider Dify or Langflow instead.
-- Do not use for highly experimental research tasks that don't need the production-grade reliability of a managed platform.
+- **Individual Open-Source Projects**: For simple, solo projects, open-source alternatives like Dify or Flowise might be more cost-effective.
+- **Highly Custom Local Agents**: If the requirement is for a local-first agent that interacts with a private filesystem, tools like Open Interpreter or Goose are better suited.
+- **Strictly Offline Use**: Being a cloud-based platform, it is not suitable for environments with strict air-gapped or offline requirements.
 
 ## Getting started
 1.  Sign up for an account at [AirOps.com](https://www.airops.com/).
@@ -57,10 +57,8 @@ curl --request POST \
 - [Flowise](../ai_knowledge/flowise.md)
 - [Parea](../process_understanding/parea.md)
 - [Zapier](zapier.md)
-- [n8n](../../services/n8n.md)
-- [Make](make.md)
-- [Langflow](../frameworks/langflow.md)
-- [Glean](../enterprise/glean.md)
+- [Langfuse](../process_understanding/langfuse.md) (Observability integration)
+- [Helicone](../process_understanding/helicone.md) (Alternative LLM observability)
 
 ## Sources / references
 - [AirOps Official Website](https://www.airops.com/)

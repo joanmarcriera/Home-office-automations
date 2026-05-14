@@ -26,14 +26,14 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 - **Deprecation Warning**: As of April 30, 2026, the core `LlamaIndexTS` repository is marked as deprecated in favor of unified Python/Cloud-first documentation, though the NPM package remains widely used for JS/TS integrations.
 
 ## When to use it
-- Use when building enterprise-grade RAG applications within a TypeScript-first tech stack.
-- Use when deploying AI agents to serverless or edge environments where JavaScript runtimes are preferred.
-- Use when you need seamless integration with frontend frameworks like Next.js or React.
+- **Full-Stack TS Apps**: When your entire stack is TypeScript-based and you want a native, type-safe RAG implementation.
+- **Serverless/Edge Deployment**: When deploying to environments like Vercel, Netlify, or Cloudflare Workers where JS/TS runtimes are the primary choice.
+- **Unified Ecosystem**: If you are already using LlamaParse or LlamaCloud and want the most direct integration in a JS environment.
 
 ## When not to use it
-- Do not use if your project requires highly specialized data connectors only available in the Python version of LlamaIndex.
-- Do not use for heavy data science or machine learning research where Python's library ecosystem (Pandas, PyTorch) is essential.
-- Avoid using in direct client-side browser code if you require persistent local indexing or complex secret management.
+- **Data Science Heavy Workflows**: If your project relies on extensive Python-only data science libraries (Pandas, Polars, Scikit-learn), the Python version is more suitable.
+- **Maximum Connector Requirements**: If you need a niche data source that only has a Python connector and no standard API or JS equivalent.
+- **Legacy Projects**: For older projects with no TypeScript support, the overhead of adding it might not outweigh the benefits.
 
 ## Getting started
 
@@ -61,11 +61,10 @@ main();
 - [LlamaIndex (Python)](../ai_knowledge/llamaindex.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [RAG](../../knowledge_base/patterns/rag-pattern.md)
-- [LangChain](langchain.md)
-- [Mastra](../frameworks/mastra.md)
-- [Firebase Genkit](../frameworks/firebase-genkit.md)
-- [OpenRouter](openrouter.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [LangGraph](../frameworks/langgraph.md) (Alternative for complex agentic flows)
+- [Pydantic AI](../frameworks/pydantic-ai.md) (Structured data patterns)
+- [Instructor](../frameworks/instructor.md) (Structured output alternative)
 
 ## Sources / references
 - [Official Website](https://ts.llamaindex.ai/)
