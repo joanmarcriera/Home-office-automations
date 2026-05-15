@@ -1,71 +1,100 @@
 # Cloudflare Pages
 
 ## What it is
-Cloudflare Pages is Cloudflare's platform for deploying static sites and frontend applications with global edge delivery.
+Cloudflare Pages is Cloudflare's platform for deploying static sites and frontend applications with global edge delivery. It integrates deeply with the Cloudflare global network to provide high performance and security out of the box.
 
 ## What problem it solves
-It gives teams a fast and low-friction way to publish static and frontend-first websites with global delivery, while leaving room to grow into deeper Cloudflare services later.
+It gives teams a fast and low-friction way to publish static and frontend-first websites with global delivery, while leaving room to grow into deeper Cloudflare services (like Workers, KV, and R2) later. It eliminates the need to manage servers or CDN configurations for frontend apps.
 
 ## Where it fits in the stack
-**Development & Ops / Static And Edge Website Hosting**. It is a strong default for static-first public sites, directories, documentation hubs, and lightweight applications where global delivery matters.
+**Development & Ops / Static And Edge Website Hosting**. It is a strong default for static-first public sites, directories, documentation hubs, and lightweight applications where global delivery and security (WAF) matter.
 
 ## Typical use cases
-- Documentation and content sites
-- Public directories and curated resource sites
-- Static marketing sites
-- Lightweight internal tools with an external backend
-- Sites that may later pair with Cloudflare Workers or storage products
+- Documentation and content sites (e.g., Hugo, Jekyll, Docusaurus).
+- Public directories and curated resource sites.
+- Static marketing sites and landing pages.
+- Lightweight internal tools with an external backend.
+- AI-powered apps that leverage [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/).
 
-## Example website types
-- A global public directory of AI tools
-- A content-heavy authority site with mostly static pages
-- A small operations dashboard that reads from [Supabase](../infrastructure/supabase.md)
-- A landing site where edge delivery and cache behavior matter
+## CLI Usage & Examples
+
+Cloudflare uses the `wrangler` CLI for managing Pages and Workers.
+
+```bash
+# Install Wrangler
+npm install -g wrangler
+
+# Login to Cloudflare
+wrangler login
+
+# Create a new project from a local directory
+wrangler pages deploy ./public --project-name=my-awesome-site
+
+# Manage environment variables for a project
+wrangler pages project config vars set API_KEY=secret_value --project-name=my-awesome-site
+
+# Run a local development server for Pages Functions
+wrangler pages dev ./public
+```
+
+## Pages Functions (Edge Logic)
+Cloudflare Pages supports "Functions" which are powered by Cloudflare Workers, allowing you to run dynamic code alongside your static site.
+
+### Example: Simple API Route in Pages
+```typescript
+// functions/api/hello.ts
+export async function onRequest(context) {
+  return new Response("Hello, world!");
+}
+```
 
 ## Strengths
-- Excellent fit for static and static-first sites
-- Strong global delivery story
-- Good choice when you want a simpler public-site hosting layer than a full app platform
-- Natural path into the wider Cloudflare ecosystem
+- Excellent fit for static and static-first sites.
+- Strongest global delivery story due to Cloudflare's massive network.
+- Seamless integration with [Cloudflare Workers](https://workers.cloudflare.com/) and [R2 Storage](https://www.cloudflare.com/products/r2/).
+- Unlimited bandwidth on the free tier (unlike some competitors).
+- Built-in DDoS protection and security features.
 
 ## Limitations
-- Less obviously the default for Next.js-heavy product teams than [Vercel](vercel.md)
-- Teams may overcomplicate things by adopting too much Cloudflare-specific architecture too early
-- Not the simplest choice if the site is just repo-native docs, where [GitHub Pages](github-pages.md) is often enough
+- Next.js support is available but often feels more "native" on [Vercel](vercel.md).
+- The deployment model for dynamic logic (Functions) is slightly different from standard Node.js environments.
+- Not the simplest choice if the site is just repo-native docs, where [GitHub Pages](github-pages.md) is often enough.
 
 ## When to use it
-- When the site is primarily static, content-driven, or directory-like
-- When you want a free-tier public site with strong delivery performance
-- When you want optional future growth into Cloudflare edge tooling
+- When the site is primarily static, content-driven, or directory-like.
+- When you want a free-tier public site with strong delivery performance and no bandwidth caps.
+- When you want optional future growth into Cloudflare's edge tooling (Workers, KV, AI).
+- For projects where security and DDoS protection are high priorities.
 
 ## When not to use it
-- When the best default is a frontend-led app stack on [Vercel](vercel.md)
-- When a basic docs site can live more simply on [GitHub Pages](github-pages.md)
-- When the main problem is backend hosting, not site delivery
+- When the best default is a Next.js-heavy app stack on [Vercel](vercel.md).
+- When a basic docs site can live more simply on [GitHub Pages](github-pages.md).
+- When the main problem is traditional backend hosting (e.g., Docker, long-running processes).
 
 ## Free-tier comments
-- Very strong free-tier fit for directories, docs, static sites, and lightweight internal tools
-- Pair with [Supabase](../infrastructure/supabase.md) when the site needs auth, persistence, or storage
-- Upgrade when usage patterns or architecture require deeper platform features and stronger guarantees
+- Very strong free-tier fit for directories, docs, static sites, and lightweight internal tools.
+- Includes unlimited bandwidth and a generous number of build minutes.
+- Pair with [Supabase](../infrastructure/supabase.md) or [Cloudflare D1](https://developers.cloudflare.com/d1/) for database needs.
 
 ## Common combinations
-- [Cloudflare Pages](cloudflare-pages.md) + [Supabase](../infrastructure/supabase.md): good fit for static-first tools that still need real data
-- [Cloudflare Pages](cloudflare-pages.md) + static data files: best fit for directories and public indexes
-- [Cloudflare Pages](cloudflare-pages.md) + [n8n](../../services/n8n.md): useful for internal frontends driven by automation outputs
+- [Cloudflare Pages](cloudflare-pages.md) + [Supabase](../infrastructure/supabase.md): Good fit for static-first tools that still need real data.
+- [Cloudflare Pages](cloudflare-pages.md) + [n8n](../../services/n8n.md): Useful for internal frontends driven by automation outputs.
+- [Cloudflare Pages](cloudflare-pages.md) + [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/): Build and host AI apps entirely on the Cloudflare edge.
 
 ## Related tools / concepts
-
 - [Vercel](vercel.md)
 - [Netlify](netlify.md)
 - [GitHub Pages](github-pages.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
 - [Supabase](../infrastructure/supabase.md)
+- [Cloudflare Workers](https://workers.cloudflare.com/)
 
 ## Sources / References
 - [Official Website](https://pages.cloudflare.com/)
+- [Wrangler CLI Documentation](https://developers.cloudflare.com/workers/wrangler/)
+- [Pages Functions Guide](https://developers.cloudflare.com/pages/platform/functions/)
 - [Pricing](https://www.cloudflare.com/plans/developer-platform/)
-- [Documentation](https://developers.cloudflare.com/pages/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high

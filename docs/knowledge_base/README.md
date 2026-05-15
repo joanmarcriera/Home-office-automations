@@ -44,6 +44,15 @@ This section contains deep dives into the technologies, protocols, and conceptua
 
 </div>
 
+## Getting Started
+
+To get the most out of the Knowledge Base, we recommend following this sequence:
+
+1.  **Orient**: Review the [AI Tooling Landscape](ai_tooling_landscape.md) to understand the major categories.
+2.  **Benchmark**: Use the [Model Comparison and Evaluation](model_comparison_and_evaluation.md) to understand current frontier capabilities.
+3.  **Implement**: Follow a pattern like [RAG Pattern](patterns/rag-pattern.md) or [Agentic Workflows](patterns/agentic-workflows.md) to build your first agentic system.
+4.  **Secure**: Read the [LLM Trust Boundaries](patterns/llm-trust-boundaries.md) to ensure your implementations are safe.
+
 ## Curated Guides
 
 - [**AI Builder Index**](ai_builder_index.md) - Discovery-oriented entry point for building websites, products, operations, and internal AI systems.
@@ -67,16 +76,50 @@ This section contains deep dives into the technologies, protocols, and conceptua
 - [**Essential AI Reading List**](ai_reading_list.md) — A curated guide to high-signal blogs, newsletters, and podcasts.
 - [**Architecture & Flows**](../architecture/README.md) - High-level system design.
 
+## Implementation Patterns
+
+- [**RAG Pattern**](patterns/rag-pattern.md) - Canonical implementation for Retrieval Augmented Generation.
+- [**Agentic Workflows**](patterns/agentic-workflows.md) - Designing loops and multi-agent systems.
+- [**LLM Trust Boundaries**](patterns/llm-trust-boundaries.md) - Security patterns for handling untrusted data.
+- [**MCP Tooling**](patterns/data-copilot-mcp-tooling.md) - Leveraging the Model Context Protocol for tool discovery.
+- [**n8n Error Handling**](patterns/n8n-error-handling.md) - Building resilient automation workflows.
+
+## Learning Paths
+
+### For Developers
+- [AI Builder Index](ai_builder_index.md)
+- [Agentic Workflows](patterns/agentic-workflows.md)
+- [Software Factories](patterns/software-factories.md)
+
+### For Operations
+- [AI Company Starter Stack](ai_company_starter_stack.md)
+- [n8n Error Handling](patterns/n8n-error-handling.md)
+- [OpenClaw Workflow Prompts](patterns/openclaw-workflow-prompts.md)
+
+### For Researchers
+- [Model Comparison and Evaluation](model_comparison_and_evaluation.md)
+- [AI Signal Sources](ai_signal_sources.md)
+- [Essential AI Reading List](ai_reading_list.md)
+
 ## 🚀 Purpose
-The knowledge base serves as the "theory" section of the repository, providing the necessary context to effectively connect and configure the tools in the [Tool Catalogue](../tools/README.md).
+The knowledge base serves as the "theory" section of the repository, providing the necessary context to effectively connect and configure the tools in the [Tool Catalogue](../tools/README.md). It is designed to be a living resource that evolves alongside the frontier of AI capabilities.
 
 ## 🛠️ Contribution
-We welcome deep dives into new technologies. Please follow the [Contributing Guide](../CONTRIBUTING.md).
+We welcome deep dives into new technologies. Please follow the [Contributing Guide](../CONTRIBUTING.md). When adding new articles, ensure they follow the [Standards](standards.md) and include relevant [Architecture](../architecture/README.md) cross-links.
+
+## Knowledge Maintenance
+This KB is maintained through automated "Ralph-loops" that:
+- Audit document quality and structural compliance.
+- Update model capability matrices based on new releases.
+- Deepen "Medium Confidence" documents into "High Confidence" references.
+- Verify cross-link integrity across the repository.
 
 ## Sources / References
 - [awesomeclaude.ai](https://awesomeclaude.ai/)
+- [Anthropic Documentation](https://docs.anthropic.com/)
+- [OpenAI Platform](https://platform.openai.com/docs)
 - [Home](../index.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high
