@@ -36,15 +36,54 @@ It addresses the lack of realistic evaluation frameworks for web-based agents by
 - **Cost**: Free (benchmark), but requires LLM/Browser resources to execute.
 - **Self-hostable**: Yes
 
+## Getting started
+
+PA-bench is typically executed via its Python SDK, which manages simulated environments for email and calendar applications.
+
+### 1. Installation
+```bash
+pip install pa-bench
+```
+
+### 2. Running an Evaluation
+```python
+from pa_bench import SimulationManager, ExperimentOrchestrator
+from my_agent import CustomWebAgent
+
+# Initialize simulations
+sim_manager = SimulationManager()
+sim_manager.spawn_instances(apps=["gmail", "google_calendar"])
+
+# Configure orchestrator
+orchestrator = ExperimentOrchestrator(
+    agent=CustomWebAgent(),
+    max_steps=75,
+    resolution=(1280, 960)
+)
+
+# Run benchmark
+results = orchestrator.run_suite(tasks="travel_planning")
+print(f"Success Rate: {results.success_rate}")
+
+# Cleanup
+sim_manager.shutdown()
+```
+
 ## Related tools / concepts
 - [Web Agents](../../knowledge_base/agent_protocols.md)
 - [SWE-bench](./swe-bench.md)
 - [Terminal-bench](./terminal-bench.md)
+- [WebArena](https://webarena.dev/)
+- [Mind2Web](https://github.com/osu-nlp-group/Mind2Web)
+- [GAIA (General AI Assistants)](./gaia.md)
+- [AssistantBench](./assistant-bench.md)
+- [OSWorld](./os-world.md)
 
 ## Sources / References
 - [PA-bench: Evaluating web agents on real world personal assistant workflows](https://vibrantlabs.com/blog/pa-bench)
+- [Vibrant Labs GitHub](https://github.com/vibrantlabsai/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high

@@ -32,17 +32,54 @@ Measures whether AI agents can effectively operate in a terminal environment, a 
 - When evaluating pure code generation capabilities (use [HumanEval](human-eval.md) or [MBPP](mbpp.md))
 - When you need a well-established benchmark with extensive published results
 
-## Related tools / concepts
+## Getting started
 
+Terminal-Bench (TB-2) is typically run using the `tb` CLI tool and requires a Docker environment for sandboxed execution.
+
+### 1. Installation
+```bash
+pip install terminal-bench
+# or using uv
+uv tool install terminal-bench
+```
+
+### 2. Running a Task
+To run a specific task and evaluate an agent:
+```bash
+# List available tasks
+tb list
+
+# Run evaluation for a specific model on a task
+tb run --task_id "setup-nginx-server" --model "anthropic/claude-3-5-sonnet"
+```
+
+### 3. Harbor Framework Integration
+For large-scale evaluations, Terminal-Bench 2.0 uses the **Harbor** framework:
+```python
+from harbor import HarborSandbox, TerminalBenchTask
+
+with HarborSandbox() as sandbox:
+    task = TerminalBenchTask("debug-c-memory-leak")
+    result = sandbox.execute_agent(task, agent_config="config.yaml")
+    print(f"Task Completed: {result.success}")
+```
+
+## Related tools / concepts
 - [SWE-bench](swe-bench.md)
 - [InterCode](https://github.com/princeton-nlp/intercode)
 - [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
 - [LongCLI-Bench](longcli-bench.md)
+- [Harbor Framework](https://github.com/harbor-framework/harbor)
+- [WebArena](./webarena.md)
+- [PA-bench](./pa-bench.md)
+- [GAIA](./gaia.md)
+
 ## Sources / references
-- [GitHub Repository](https://github.com/pro-puffin/terminal-bench)
+- [GitHub Repository](https://github.com/harbor-framework/terminal-bench)
+- [Terminal-Bench 2.0 (Harbor)](https://github.com/harbor-framework/terminal-bench-2)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high

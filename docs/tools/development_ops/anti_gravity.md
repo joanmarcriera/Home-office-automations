@@ -30,17 +30,44 @@ Simplifies the development of autonomous coding agents by offering pre-built abs
 - When you need a stable, production-grade agent framework
 - When general-purpose LLM orchestration (e.g., LangChain) is sufficient
 
-## Related tools / concepts
+## Getting started
 
+Antigravity is an agent-first platform that requires local installation and a Google/Gmail account for preview access.
+
+### 1. Conceptual Workflow
+- **Manager Surface**: Used for spawning and observing autonomous agents.
+- **Editor View**: A familiar IDE experience for synchronous AI-assisted coding.
+- **Mission Control**: The central interface for defining "Missions" (long-horizon tasks).
+
+### 2. Defining a Mission
+Missions are typically defined in natural language via the Manager Surface:
+```text
+Mission: Implement a new REST endpoint for user profile updates.
+1. Create the Pydantic schema in models/user.py.
+2. Implement the route in api/routes/users.py.
+3. Launch the server in the terminal to verify.
+4. Use the browser to test the API docs (Swagger).
+```
+
+### 3. Rule and Workflow Customization
+Antigravity allows defining project-level constraints and standards via "Rules" that agents must follow during execution, similar to `.clauderules`.
+
+## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
 - [CrewAI](../frameworks/crewai.md)
 - [Codeium](codeium.md)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
 - [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
+- [Windsurf](./windsurf.md)
+- [Cursor](./cursor.md)
+- [Aider](./aider.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+
 ## Sources / references
-- [Internal Project Reference](https://github.com/google-jules/anti-gravity) (Placeholder)
+- [Build with Google Antigravity (Google Developers Blog)](https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/)
+- [Getting Started with Google Antigravity (Codelabs)](https://codelabs.developers.google.com/getting-started-google-antigravity)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high
