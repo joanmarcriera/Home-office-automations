@@ -1,98 +1,106 @@
 # Aider
 
 ## What it is
-Aider is a command-line chat tool that allows you to code with LLMs directly in your local Git repository.
+Aider is a command-line chat tool that allows you to code with LLMs directly in your local Git repository. It acts as a pair programmer that can read your code, understand the project structure, and apply edits directly to your files, followed by automated Git commits.
 
 ## What problem it solves
-It bridges the gap between the LLM's reasoning and your local file system, allowing the model to read, edit, and commit code autonomously with your supervision.
+It bridges the gap between the LLM's reasoning and your local file system, eliminating the need for manual copy-pasting of code between a chat window and your editor. By managing context through a sophisticated "repository map," Aider allows models to reason about large codebases without exceeding token limits.
 
 ## Where it fits in the stack
-**Agent / Orchestration**. It acts as the "operator" that takes high-level instructions and translates them into file edits and git commands.
-
-## Architecture overview
-CLI tool that runs locally. It manages the context by selecting relevant files to send to the LLM (using a repo map) and applies the LLM's suggested changes back to the disk.
+**Development & Ops / AI Coding Assistant**. It acts as the "operator" that takes high-level instructions and translates them into file edits and git commands. It is often used in conjunction with editors like [VS Code](vscode.md) or [Zed](zed.md).
 
 ## Typical use cases
 - **Feature Implementation**: "Add a login route to the Express app."
 - **Refactoring**: "Convert all these functions to use async/await."
 - **Bug Fixing**: "Fix the null pointer exception in the user controller."
 - **Documentation**: "Write docstrings for all exported functions."
+- **Test Generation**: "Create unit tests for the newly added validation logic."
+
+## Getting started
+
+### Installation
+Aider can be installed via pip:
+
+```bash
+pip install aider-chat
+```
+
+### Basic Usage
+Set your API key and run it in your git repository:
+
+```bash
+export ANTHROPIC_API_KEY=your-key-here
+aider
+```
+
+## Technical examples
+
+### Repository Map Optimization
+Aider uses a `repo map` to provide context to the LLM. You can tune how much context is sent using the `--map-tokens` flag.
+
+```bash
+# Provide more context for complex architectural changes
+aider --map-tokens 2048
+
+# Use a specific model optimized for coding
+aider --model anthropic/claude-3-5-sonnet-20240620
+```
+
+### Batch Processing (Non-Interactive)
+You can use Aider in scripts or CI/CD pipelines by passing messages directly.
+
+```bash
+# Add a comment to every file in a directory
+aider --message "Add a license header to all files in src/" src/*.js --yes
+```
+
+### Using with Local Models (Ollama)
+Aider supports local models via Ollama, providing a completely private coding experience.
+
+```bash
+# Run with a local Llama 3 model served via Ollama
+aider --model ollama/llama3
+```
+
+## Advanced CLI Flags
+- `--read <file>`: Add a file to the chat for reference without allowing Aider to edit it.
+- `--lint-cmd <command>`: Provide a command to run after edits to check for errors; Aider will attempt to fix any errors found.
+- `--test-cmd <command>`: Provide a test command; Aider will attempt to fix the code if tests fail.
+- `--commit`: Automatically commit changes (default). Use `--no-commit` to review changes before committing manually.
 
 ## Strengths
-- **Git integration**: Automatically commits changes with descriptive messages.
-- **Efficiency**: Only sends necessary code snippets to the LLM (repo map).
+- **Git Integration**: Automatically commits changes with descriptive, high-quality messages.
+- **Context Management**: The repository map is highly effective at providing relevant context without hitting token limits.
 - **Flexibility**: Supports almost any LLM (via OpenAI, Anthropic, or OpenRouter).
-- **Speed**: Optimized for fast, iterative coding loops.
+- **Speed**: Optimized for fast, iterative coding loops in the terminal.
 
 ## Limitations
-- **Focus**: Primarily designed for file editing; limited support for long-running autonomous tasks or browser interaction.
-- **Local only**: Usually runs where the code is; requires manual setup for remote execution unless running over SSH yourself.
+- **Focus**: Primarily designed for file editing; limited support for long-running autonomous tasks or browser interaction compared to tools like [OpenHands](openhands.md).
+- **CLI Learning Curve**: Requires familiarity with the terminal and Git.
+- **Token Usage**: Can be heavy on token consumption if not managed carefully (especially the repo map).
 
 ## When to use it
 - For daily coding tasks where you want to remain in control but automate the typing/refactoring.
 - When working in a Git-tracked repository.
-- For quick fixes and smaller features.
+- For quick fixes, refactors, and adding boilerplate or documentation.
 
 ## When not to use it
-- For massive, multi-step architectural changes that require a higher level of autonomy.
+- For massive, multi-step architectural changes that require a higher level of autonomy (consider [Plandex](plandex.md)).
 - When you need the agent to browse the web or interact with non-file system tools.
 
-## Getting started
-
-Install Aider via pip and run it in your git repository:
-
-```bash
-# Install Aider
-pip install aider-chat
-
-# Set your API key (optional if using local models)
-export ANTHROPIC_API_KEY=your-key-here
-
-# Start Aider in your project
-aider
-```
-
-## CLI examples
-
-### aider hello-world
-Ask Aider to create a new file with a simple script by passing the instruction directly:
-```bash
-aider hello-world.py --message "Create a hello world script in python"
-```
-
-### aider with ollama
-Aider supports local models via Ollama or LiteLLM:
-```bash
-# Run with a local Llama 3 model
-aider --model ollama/llama3
-```
-
-### aider commit workflow
-Aider automatically commits changes with descriptive messages:
-```bash
-# Start aider and it will track your session
-aider
-
-# After making changes via chat, aider will:
-# 1. Show you the diff
-# 2. Ask for confirmation (or auto-commit if configured)
-# 3. Create a git commit: "feat: add login route to express app"
-```
-
-## Security considerations
-- **File Access**: Aider has the same permissions as the user running it.
-- **Commit History**: Review automated commits to ensure no secrets were accidentally added.
-
 ## Related tools / concepts
-- [OpenHands](openhands.md)
-- [OpenAI](../ai_knowledge/openai.md)
-- [Anthropic](../providers/anthropic.md)
+- [OpenHands](openhands.md): An autonomous AI agent for software engineering.
+- [Plandex](plandex.md): An AI coding engine designed for complex, multi-step tasks.
+- [Claude Code](claude-code-setup.md): Anthropic's official terminal-based coding assistant.
+- [VS Code](vscode.md) and [Zed](zed.md): Editors often used alongside Aider.
+- [Mentat](mentat.md): A similar terminal-based AI pair programming tool.
+- [Codeium](codeium.md) and [GitHub Copilot](github_copilot.md): IDE-integrated completion engines.
 
 ## Sources / References
-
-- [Reference](https://aider.chat/)
+- [Aider Official Website](https://aider.chat/)
+- [Aider GitHub Repository](https://github.com/paul-gauthier/aider)
+- [Aider Documentation](https://aider.chat/docs/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-03-02
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high
