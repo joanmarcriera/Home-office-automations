@@ -1,35 +1,58 @@
 # Context7
 
 ## What it is
-Context7 is an Upstash project that gives coding agents and AI editors access to current library and framework documentation through a dedicated context layer.
+Context7 is an Upstash project that gives coding agents and AI editors access to current library and framework documentation through a dedicated context layer. It acts as a specialized RAG (Retrieval-Augmented Generation) source specifically for software documentation.
 
 ## What problem it solves
-It reduces one of the biggest failure modes in coding agents: confidently using stale or hallucinated package APIs because the base model does not know the latest docs.
+It reduces one of the biggest failure modes in coding agents: confidently using stale or hallucinated package APIs because the base model does not know the latest docs. By providing "up-to-the-minute" documentation, it ensures agents use the correct parameters and methods for fast-moving libraries.
 
 ## Where it fits in the stack
 **Development & Ops / Context Retrieval**. It acts as a live documentation layer for coding agents rather than a general-purpose search engine.
 
 ## Typical use cases
-- Grounding coding agents in current package documentation
-- Supplying API references during implementation and debugging
-- Reducing prompt bloat by fetching docs on demand instead of pasting them
+- **Grounding Agents**: Keeping agents accurate when working with beta or rapidly changing SDKs.
+- **API Reference**: Supplying the agent with exact method signatures during implementation.
+- **Upgrading Dependencies**: Helping an agent migrate code by providing the latest documentation for the target version.
 
 ## Strengths
-- Strong fit for coding agents and editor integrations
-- More targeted than general web search for package/API work
-- Helps reduce stale-doc errors in fast-moving libraries
+- **Accuracy**: Targeted documentation retrieval is more reliable than general web search.
+- **Latency**: Optimized for the "coding loop" to provide fast doc lookups.
+- **Up-to-Date**: Specifically designed to index the latest documentation releases.
 
 ## Limitations
-- It does not replace broader search or architectural judgment
-- Best for library and framework docs, not arbitrary business context
+- **Scope**: Best for popular libraries and frameworks; may lack coverage for obscure or internal private docs.
+- **Dependency**: Requires an active connection to the Context7 service (or its API).
 
 ## When to use it
-- When the task depends on up-to-date SDK or framework behavior
-- When coding agents repeatedly guess outdated APIs
+- When the task depends on up-to-date SDK or framework behavior (e.g., Next.js App Router, latest LangChain).
+- When coding agents repeatedly guess outdated APIs or use deprecated methods.
+- When working in an ecosystem (like JS/TS) where libraries evolve quickly.
 
 ## When not to use it
-- When the work is entirely repo-local and no external docs are needed
-- When general web research matters more than package documentation
+- When the work is entirely repo-local and no external docs are needed.
+- When general web research (news, sentiment, trends) matters more than package documentation.
+
+## Technical Integration
+
+Context7 can be used as a "Context Provider" in modern AI editors or as a tool for autonomous agents.
+
+### Example Agent Tool Configuration
+If using a custom agent, you can define a tool to fetch documentation from Context7:
+
+```python
+import requests
+
+def fetch_package_docs(package_name, query):
+    """
+    Fetches the latest documentation for a package using Context7.
+    """
+    url = f"https://context7.upstash.io/docs/{package_name}/search"
+    response = requests.get(url, params={"q": query})
+    return response.json()["content"]
+
+# Example usage by the agent:
+# content = fetch_package_docs("supabase", "how to use upsert with filters")
+```
 
 ## Example company use cases
 - **Internal app team**: feed current Supabase, Next.js, and Stripe docs into coding agents so generated code matches current APIs.
@@ -45,10 +68,15 @@ It reduces one of the biggest failure modes in coding agents: confidently using 
 - [Claude Code](claude-code.md)
 - [Claude Cookbooks](claude-cookbooks.md)
 - [Tavily](../providers/tavily.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
+- [LangChain](../ai_knowledge/langchain.md)
 
 ## Sources / References
-- [GitHub Repository](https://github.com/upstash/context7)
+- [Context7 GitHub Repository](https://github.com/upstash/context7)
+- [Upstash Website](https://upstash.com/)
+- [awesome-context7](https://github.com/upstash/awesome-context7)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high
