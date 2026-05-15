@@ -66,7 +66,27 @@ Configure Continue to use both local (Ollama) and remote (Claude) models:
 }
 ```
 
-### custom slash commands
+### Custom Context Providers
+You can extend Continue's knowledge by adding "Context Providers" that pull in data from external sources like GitHub, Google, or local documentation.
+
+```json
+{
+  "contextProviders": [
+    {
+      "name": "docs",
+      "params": {
+        "startUrls": ["https://docs.continue.dev"]
+      }
+    },
+    {
+      "name": "codebase",
+      "params": {}
+    }
+  ]
+}
+```
+
+### Custom slash commands
 Add custom behavior by defining slash commands in `config.json`:
 ```json
 {
@@ -87,11 +107,15 @@ Add custom behavior by defining slash commands in `config.json`:
 - [Codeium](codeium.md)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
 - [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
+- [Aider](aider.md)
+- [VS Code](vscode.md)
+- [Tabnine](tabnine.md)
+
 ## Sources / references
 - [Official Website](https://www.continue.dev/)
 - [GitHub Repository](https://github.com/continuedev/continue)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high

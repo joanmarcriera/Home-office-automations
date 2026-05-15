@@ -31,6 +31,38 @@ It helps route model calls across multiple models and providers with low-latency
 - When a simpler router like [LiteLLM](../../services/litellm.md) is enough
 - When the company is not using OpenClaw or similar agent-native environments
 
+## Technical examples
+
+### Cost-Based Routing Configuration
+Configure ClawRouter to route simple tasks to cheaper models and complex reasoning to premium models.
+
+```yaml
+# clawrouter.yml example
+routing_rules:
+  - condition: "task_complexity == 'low'"
+    target: "gpt-4o-mini"
+    fallback: "claude-3-haiku"
+  - condition: "task_complexity == 'high'"
+    target: "claude-3-5-sonnet"
+    fallback: "gpt-4o"
+
+provider_priorities:
+  - provider: "anthropic"
+    weight: 0.8
+  - provider: "openai"
+    weight: 0.2
+```
+
+### Specialized Model Routing
+Route specific agent actions to the best model for that domain (e.g., coding, browsing).
+
+```yaml
+action_routing:
+  coding: "claude-3-5-sonnet"
+  web_search: "gpt-4o"
+  summarization: "claude-3-haiku"
+```
+
 ## Example company use cases
 - **High-volume agent ops**: route routine OpenClaw actions to cheaper models while reserving premium models for harder steps.
 - **Multi-model specialization**: use one model for browsing, another for code generation, and another for summarization.
@@ -46,11 +78,13 @@ It helps route model calls across multiple models and providers with low-latency
 - [LiteLLM](../../services/litellm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Aider](../agents/aider.md)
+- [Aider](../development_ops/aider.md)
+- [Zed](../development_ops/zed.md)
+- [Tabnine](../development_ops/tabnine.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high
