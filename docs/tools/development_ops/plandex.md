@@ -1,84 +1,96 @@
 # Plandex
 
 ## What it is
-Plandex is an open-source AI coding agent designed to handle large projects and complex, real-world tasks. It operates through a terminal-based REPL and is capable of full autonomy, including loading relevant files, planning and implementing changes, executing commands, and automatically debugging.
+Plandex is an AI-powered engine designed for complex, multi-file software engineering tasks. It utilizes a "plan-first" methodology where it decomposes a request into a series of explicit steps before executing them across the codebase. This approach ensures higher reliability and provides developers with a clear audit trail of intended changes.
 
 ## What problem it solves
-It addresses the limitations of simpler AI tools that struggle with large codebases or multi-step tasks. Plandex reduces the manual effort of managing context and applying coordinated edits across many files, providing a structured workflow for complex refactoring and feature development.
+Plandex manages the complexity of large, multi-file changes by breaking them into explicit plans, making it easier to reason about and review AI-generated modifications. It solves the "context drift" problem common in chat-based AI assistants by maintaining a persistent session state that tracks pending and applied changes.
 
 ## Where it fits in the stack
-**Development & Ops / AI Coding Agent**. It sits between simple completion tools (like Copilot) and fully managed AI platforms, providing a developer-centric, terminal-native environment for agentic coding.
+**Development & Ops**. Serves as a plan-and-execute AI coding engine for complex, multi-file tasks, sitting between high-level orchestration and direct file editing.
 
 ## Typical use cases
-- **Complex Refactoring**: Implementing changes that require understanding logic across multiple directories.
-- **Automated Debugging**: Running tests, identifying failures, and iterating on fixes autonomously.
-- **Codebase Exploration**: Loading entire directories into context to understand how a specific module interacts with the system.
-- **Scaffolding New Projects**: Generating initial code structures based on high-level architecture plans.
+- Large-scale, multi-file refactoring with explicit plans.
+- Complex feature implementation spanning many files and layers (e.g., API, DB, Frontend).
+- Codebase-wide migrations (e.g., moving from one library to another).
+- Generating comprehensive documentation or unit tests for large modules.
+
+## Strengths
+- **Plan-based approach**: Provides transparency and reviewability before a single line of code is changed.
+- **Persistent Sessions**: Changes are stored in a "sandbox" or "plan" until the developer chooses to apply them.
+- **Context Management**: Efficiently handles large file contexts and complex dependencies.
+- **Open Source**: Fully self-hostable with support for local and cloud models.
+
+## Limitations
+- **Execution Speed**: The two-stage (plan then execute) process can be slower for trivial edits.
+- **Workflow Overhead**: Requires developers to adapt to a specific command-driven session model.
+
+## When to use it
+- When a task spans many files and benefits from an explicit, reviewable plan.
+- When you want visibility into the AI's intended changes before they are written to disk.
+- For complex architectural shifts where understanding the "how" is as important as the "what".
+
+## When not to use it
+- When making quick, single-file edits (use [Aider](aider.md) or [Cursor](cursor.md) instead).
+- When real-time inline completions are the primary need (use [Codeium](codeium.md)).
 
 ## Getting started
 
 ### Installation
-Plandex can be installed with a single command:
+Plandex is typically installed as a binary CLI:
 
 ```bash
 curl -sL https://plandex.ai/install.sh | bash
 ```
 
-### Configuration
-Set your provider API keys (e.g., OpenRouter, OpenAI, or Anthropic):
+### Initializing a Project
+Navigate to your project root and initialize Plandex:
 
 ```bash
-export OPENROUTER_API_KEY='your-api-key'
-# Or for direct providers
-export ANTHROPIC_API_KEY='your-key'
+plandex init
 ```
 
-### Basic Workflow
-1. **Initialize**: Navigate to your project directory and start the REPL.
-   ```bash
-   plandex
-   ```
-2. **Load Context**: Tell Plandex which files or directories to focus on.
-   ```bash
-   pdx load src/ lib/
-   ```
-3. **Create a Plan**: Describe your task in chat mode, then switch to "tell" mode to generate a formal plan.
-4. **Review & Execute**: Plandex will implement the changes. You can review the diffs and apply them to your files.
+## CLI examples
 
-## Strengths
-- **Resilient to Scale**: Designed specifically to handle large projects where other tools might fail.
-- **Fine-grained Control**: Offers developers the ability to step through plans and review changes before application.
-- **Self-Hostable**: Can be run entirely locally using Docker, providing privacy and control over the serving stack.
-- **Autonomous Debugging**: Capable of running terminal commands and iterating on its own output based on error messages.
+### Creating a Plan
+Start a new session and describe a complex change:
 
-## Limitations
-- **Learning Curve**: The REPL-based workflow and specific commands (`load`, `plan`, `apply`) require some initial familiarization.
-- **API Costs**: High-autonomy tasks can lead to significant token consumption, especially with large file contexts.
-- **Windows Support**: Requires WSL; it does not natively support the Windows CMD or PowerShell environments.
+```bash
+plandex new
+plandex load src/ tests/
+plandex tell "Refactor the authentication flow to use JWT instead of sessions. Update all middleware and tests."
+```
 
-## When to use it
-- When working on large, complex codebases that require multi-file awareness.
-- When you want an autonomous agent that can run and verify its own code changes.
-- If you prefer a CLI-first workflow and want to self-host your AI coding infrastructure.
+### Reviewing and Executing
+Review the generated plan and then execute it:
 
-## When not to use it
-- For quick, single-line code completions where an IDE extension is more convenient.
-- If you are not comfortable working in a terminal environment or WSL.
-- When working on very small scripts where the overhead of planning/loading context is unnecessary.
+```bash
+plandex plan      # Review the proposed steps
+plandex apply     # Execute the plan in the sandbox
+```
+
+### Verifying and Committing
+Check the diffs in the sandbox and commit them to your local files if satisfied:
+
+```bash
+plandex diff      # See changes made in the sandbox
+plandex save      # Save sandbox changes to your actual files
+```
 
 ## Related tools / concepts
-- [Aider](aider.md): A popular terminal-based AI pair programmer.
-- [Mentat](mentat.md): An AI tool for coordinating edits across multiple files.
-- [OpenHands](openhands.md): An open-source autonomous agent platform.
-- [Claude Code](claude-code.md): Anthropic's terminal coding assistant.
-- [OpenRouter](../ai_knowledge/openrouter.md): Often used as the primary provider for Plandex.
-- [LocalAI](../infrastructure/localai.md): A provider for self-hosting models that Plandex can utilize.
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md): Patterns for selecting the best model for Plandex tasks.
+- [Aider](aider.md) — For interactive, immediate terminal-based editing.
+- [Mentat](./mentat.md) — Another terminal-native multi-file editor.
+- [Claude Code](./claude-code.md) — Anthropic's agentic coding CLI.
+- [OpenSwarm](./openswarm.md) — For orchestrating higher-level development workflows.
+- [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
+- [Cursor](cursor.md) — An AI-native IDE for a GUI-first approach.
+- [Codeium](codeium.md) — For IDE-native AI assistance.
+- [Agent Protocols](../../knowledge_base/agent_protocols.md) — Understanding the underlying agent communication standards.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://plandex.ai/)
+- [GitHub Repository](https://github.com/plandex-ai/plandex)
 - [Plandex Documentation](https://docs.plandex.ai/)
-- [Plandex GitHub Repository](https://github.com/plandex-ai/plandex)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-15

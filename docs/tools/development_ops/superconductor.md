@@ -1,70 +1,60 @@
 # Superconductor
 
 ## What it is
-Superconductor is a collaborative, "multiplayer" workspace designed for engineering teams and AI coding agents to build, review, and ship software together. It provides a cloud-based environment where multiple agents (like Claude Code, Codex, and Gemini) can be run in parallel, integrated with team communication tools and version control.
+Superconductor is a multiplayer cloud-based AI workspace designed for extreme developer velocity. It enables parallel agent sessions and real-time collaboration between human developers and multiple AI agents, focusing on ultra-fast completions and a streamlined interface for complex system design and implementation.
 
 ## What problem it solves
-It bridges the gap between individual AI coding tools and team workflows. Superconductor eliminates the isolation of local AI development by providing shared agent sessions, live app previews, and guided code reviews, allowing PMs, designers, and engineers to collaborate on AI-generated implementations in real-time.
+It minimizes latency in AI-assisted coding by prioritizing speed and parallelism. Superconductor addresses the bottleneck of sequential AI interactions by allowing multiple agents to work on different parts of a project simultaneously within a shared, synchronized cloud environment.
 
 ## Where it fits in the stack
-**Development & Ops / Collaborative AI Workspace**. It acts as a management and execution layer that orchestrates various AI coding agents within isolated cloud sandboxes, providing a unified interface for the entire team.
+**Development & Ops**. Functions as a high-speed, collaborative AI coding environment, typically used as a primary workspace or a synchronized secondary layer for intensive development sprints.
 
 ## Typical use cases
-- **Multi-Agent Implementation**: Running several different agents (e.g., one using Claude, one using GPT-5) on the same ticket to compare implementations.
-- **Collaborative Debugging**: A developer and a designer jumping into a shared agent session to iterate on UI changes with live previews.
-- **Guided Code Review**: Using AI-generated summaries and logical ordering to review complex agent-produced diffs.
-- **Proactive Automation**: Automatically creating tickets and implementations from customer feedback emails or meeting transcripts.
-
-## Getting started
-
-### Account Setup
-1. Sign up for an account at [superconductor.com](https://www.superconductor.com/sign_up).
-2. Connect your GitHub account to allow Superconductor to access your repositories.
-
-### Agent Configuration
-Add your credentials for the agents you wish to use:
-- **API Keys**: Provide keys for OpenAI, Anthropic, or Google Gemini.
-- **Subscriptions**: Connect existing Claude Pro/Max or ChatGPT Plus accounts.
-
-### Project Initialization
-1. Create a new project and select the repository.
-2. Configure the development environment (CPU, RAM, Disk) and startup commands (e.g., `npm install`, `bin/dev`).
-3. Open a ticket or link an existing GitHub issue to start a new implementation run.
+- **Rapid Prototyping**: Launching multiple agents to build out different modules of a new feature in parallel.
+- **Multiplayer Pair Programming**: Real-time collaboration where humans and AI agents contribute to the same codebase simultaneously.
+- **Speed-sensitive Development**: Workflows where minimal latency in completions and chat responses is critical for maintaining "flow".
+- **Cross-file Architectural Refactors**: Leveraging parallel sessions to update various parts of a system concurrently.
 
 ## Strengths
-- **Multiplayer Collaboration**: Shared sessions allow the whole team to steer and review agent work.
-- **Live Previews**: Every implementation run generates a live, interactive HTTPS preview of the app.
-- **Cloud Sandboxing**: Agents run in isolated containers with strict network policies, reproducing local dev environments exactly.
-- **Proactive Ingestion**: Direct integration with email (Outlook) and meetings to turn feedback into code automatically.
+- **Optimized for low-latency**: Built from the ground up for speed, reducing the "wait time" for AI generations.
+- **Parallelism**: Supports spawning multiple agent threads that can operate independently or in concert.
+- **Multiplayer Native**: Designed for teams, allowing developers to see AI and human edits in real-time.
+- **Cloud-Native**: Provides a consistent, pre-configured environment for all team members.
 
 ## Limitations
-- **Platform Dependency**: Requires a Superconductor account and cloud-hosted execution (not a standalone local CLI).
-- **Cost Management**: Running many parallel agents in the cloud can lead to significant API and infrastructure costs.
-- **Setup Overhead**: Requires configuring the build and startup environment for each project to match the local dev setup.
+- **Cloud Dependency**: Primarily a cloud-based service; local-first options may be more limited.
+- **Ecosystem Maturity**: A newer entrant with a growing but smaller community than established IDEs.
 
 ## When to use it
-- When working in a team environment where AI-generated code needs to be reviewed and steered by multiple stakeholders.
-- For projects that benefit from comparing implementations across different LLM providers.
-- When you need a "zero-config" cloud environment for agents to run tests and provide live previews.
+- When development velocity and completion speed are the highest priorities.
+- For collaborative team sprints where real-time visibility into AI edits is beneficial.
+- When you need to manage multiple simultaneous AI workstreams.
 
 ## When not to use it
-- For solo developers who prefer a minimal, terminal-only workflow (where [Aider](aider.md) or [Claude Code](claude-code.md) might suffice).
-- In environments with strict "no-cloud" data residency requirements (unless using a self-hosted enterprise version).
-- For very simple scripts that do not require a full development environment or live preview.
+- When working on offline-only projects or in environments with strict data residency requirements that prevent cloud-based AI.
+- For simple, single-file edits where a local terminal tool like [Aider](aider.md) is sufficient.
+
+## Features and Patterns
+
+### Parallel Agent Sessions
+Superconductor allows you to split tasks across multiple "Agent Workers". For example, you can have one agent refactoring the API layer while another updates the frontend components, with the workspace managing synchronization and conflict resolution.
+
+### Multiplayer Sync
+Multiple human users can join the same project session, seeing exactly what the AI is proposing and editing in real-time. This turns "prompting" into a team activity.
 
 ## Related tools / concepts
-- [Claude Code](claude-code.md): One of the primary agents supported by Superconductor.
-- [Codex](codex.md): Another supported AI coding engine.
-- [Aider](aider.md): A terminal-based alternative for local AI pairing.
-- [GitHub Copilot](github_copilot.md): Standard AI coding assistance.
-- [MCP (Model Context Protocol)](../../knowledge_base/patterns/mcp.md): Supported for extending agent capabilities.
-- [Guided Code Review](../../knowledge_base/patterns/code-review.md): A key pattern implemented in the platform.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md): The underlying paradigm of autonomous engineering.
+- [Aider](aider.md) — For terminal-based, local-first AI editing.
+- [Mentat](./mentat.md) — Multi-file terminal-based AI editing.
+- [Plandex](./plandex.md) — For complex, plan-based refactoring.
+- [Claude Code](./claude-code.md) — Anthropic's agentic coding CLI.
+- [OpenSwarm](./openswarm.md) — For orchestrating multi-agent development loops.
+- [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
+- [Cursor](cursor.md) — An AI-native IDE for a single-user GUI experience.
+- [Codeium](codeium.md) — For general-purpose IDE AI assistance.
 
-## Sources / References
-- [Official Website](https://www.superconductor.com/)
-- [Superconductor Documentation](https://www.superconductor.com/docs)
-- [Security Policy](https://www.superconductor.com/security)
+## Sources / references
+- [Official Website](https://superconductor.ai/)
+- [Superconductor Blog - Parallelism in AI Coding](https://superconductor.ai/blog/parallel-agents)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-15

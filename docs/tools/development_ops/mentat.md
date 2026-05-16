@@ -1,85 +1,93 @@
 # Mentat
 
 ## What it is
-Mentat is an open-source AI coding assistant that operates directly from your command line. Unlike many other AI tools, Mentat coordinates edits across multiple files and locations simultaneously, leveraging the full context of your project without requiring manual copy-pasting.
+Mentat is an AI tool that coordinates complex changes across multiple files directly from the terminal. It uses LLMs to understand the codebase and apply edits, focusing on developer productivity and precise control. Unlike many IDE-based assistants, Mentat is designed to handle large-scale refactors where the context spans dozens of files.
 
 ## What problem it solves
-It reduces the friction of applying complex, multi-file changes and refactors. By understanding the codebase context and providing a terminal-native workflow, Mentat helps developers execute broad architectural changes or repetitive editing tasks with high precision and minimal manual effort.
+Enables developers to make coordinated, multi-file changes from the terminal with AI assistance, reducing the manual effort of large refactors and cross-cutting edits. It eliminates the need to manually copy-paste code into a chat interface by providing a direct terminal-based "edit-loop".
 
 ## Where it fits in the stack
-**Development & Ops / AI Coding Assistant**. It serves as a terminal-based alternative to IDE-integrated AI tools, offering more direct control over multi-file edit coordination.
+**Development & Ops**. Functions as a terminal-based AI coding assistant for multi-file editing, typically used alongside a standard IDE or text editor.
 
 ## Typical use cases
-- **Multi-file Refactoring**: Renaming classes or functions and updating all references across the project.
-- **Feature Implementation**: Scaffolding new features that require changes in logic, tests, and configuration files.
-- **Codebase Navigation**: Asking questions about how different parts of the project interact.
-- **Automated Bug Fixing**: Providing instructions to fix a bug and letting Mentat identify and edit the relevant files.
+- Coordinating complex changes across multiple files
+- Codebase-wide refactoring from the terminal
+- Applying precise, controlled edits with AI assistance
+- Generating unit tests for existing codebases
+
+## Strengths
+- **Terminal-native workflow**: Ideal for developers who prefer the command line.
+- **Precise control**: Allows users to include or exclude specific files from the context.
+- **Multi-file coordination**: Handles dependencies and cross-file impacts effectively.
+
+## Limitations
+- **External LLM dependence**: Requires an API key for OpenAI, Anthropic, or other providers.
+- **Learning curve**: Terminal commands and configuration may be less intuitive than GUI alternatives.
+
+## When to use it
+- When you need precise, multi-file edits from the terminal.
+- When codebase standardization tasks require coordinated changes across several modules.
+
+## When not to use it
+- When a graphical editor experience (like [Cursor](cursor.md)) is preferred.
+- When single-file completions are the primary need.
 
 ## Getting started
 
 ### Installation
-Mentat requires Python 3.10 or higher. It is recommended to use a virtual environment.
+Mentat can be installed via pip:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
 pip install mentat-ai
 ```
 
 ### Configuration
-Set your OpenAI API key as an environment variable:
+Create a `.mentat_config.json` in your project root to manage model preferences and excluded files:
 
-```bash
-export OPENAI_API_KEY='your-api-key-here'
+```json
+{
+  "model": "gpt-4-turbo-preview",
+  "temperature": 0.2,
+  "file_exclude": ["node_modules/", "dist/", "*.log"]
+}
 ```
 
-### Basic Usage
-Run Mentat within your git project directory:
+## CLI examples
+
+### Basic multi-file edit
+Start Mentat with specific files included in the context:
 
 ```bash
-# Start Mentat with specific files in context
-mentat path/to/file1.py path/to/file2.py
-
-# Start Mentat with a whole directory
-mentat src/
+mentat src/main.py src/utils.py tests/test_main.py
 ```
 
-Once inside the Mentat REPL, you can provide instructions in natural language.
+### Interactive Refactoring
+Once inside the Mentat shell, you can issue natural language commands:
 
-## Strengths
-- **Multi-file Coordination**: Exceptional at managing edits that span across several files.
-- **Context Awareness**: Automatically respects `.gitignore` and includes project context by default.
-- **Terminal-Native**: Fits perfectly into workflows for developers who prefer the command line.
-- **Fine-grained Control**: Allows users to specify exactly which files should be in context.
+```text
+> Add a new 'Logger' class to utils.py and update main.py to use it for all error handling.
+```
 
-## Limitations
-- **External API Dependency**: Primarily relies on OpenAI's models (GPT-4), requiring an active API key and internet connection.
-- **Context Limits**: Large projects can still hit LLM token limits if too many files are included at once.
-- **Community Size**: Smaller ecosystem compared to established tools like GitHub Copilot or Aider.
+### Including directories
+You can also include entire directories to provide broader context:
 
-## When to use it
-- When performing refactors that affect multiple files.
-- When you want to remain in the terminal but need AI help with complex code changes.
-- When you need to provide a lot of local context to the AI without manual copy-pasting.
-
-## When not to use it
-- For simple, single-file completions where an IDE extension like Copilot might be faster.
-- If you prefer a GUI-based interaction for AI assistance.
-- In environments without reliable internet access or where proprietary code cannot be sent to external APIs.
+```bash
+mentat src/ --exclude src/legacy/
+```
 
 ## Related tools / concepts
-- [Aider](aider.md): A similar terminal-based AI pair programming tool.
-- [Plandex](plandex.md): An AI coding engine designed for complex tasks.
-- [Claude Code](claude-code.md): Anthropic's official terminal-based coding assistant.
-- [Cursor](cursor.md): An AI-native code editor.
-- [Windsurf](windsurf.md): An agentic IDE by Codeium.
-- [Continue](continue_dev.md): An open-source AI extension for VS Code and JetBrains.
-- [Codeium](codeium.md): A suite of AI-powered development tools.
+- [Aider](aider.md) — Another popular terminal-based AI pair programmer.
+- [Plandex](plandex.md) — For terminal-native complex refactoring.
+- [Codeium](codeium.md) — For IDE-native AI assistance.
+- [Claude Code](./claude-code.md) — Anthropic's official CLI for agentic coding.
+- [Cursor](cursor.md) — An AI-native IDE for a GUI-first approach.
+- [Continue](./continue_dev.md) — An open-source IDE extension for AI assistance.
+- [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
+- [Superconductor](./superconductor.md) — Parallel agent sessions for rapid development.
 
 ## Sources / references
-- [Official GitHub Repository](https://github.com/AbanteAI/mentat)
-- [Mentat Website](https://mentat.ai/)
-- [Mentat Documentation](https://mentat.codes/)
+- [Official Website](https://www.mentat.ai/)
+- [GitHub Repository](https://github.com/AbanteAI/mentat)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-15
