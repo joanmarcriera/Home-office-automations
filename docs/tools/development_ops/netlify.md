@@ -9,6 +9,17 @@ It makes it easy to publish and iterate on frontend sites without building a ful
 ## Where it fits in the stack
 **Development & Ops / Frontend Hosting Platform**. It is a solid option for marketing sites, JAMstack projects, and frontend-first web experiences that do not require a heavy custom backend on day one.
 
+## Core concepts
+
+### Atomic Deploys
+Netlify uses atomic deployments, meaning every deploy is a full snapshot of your site. This ensures that your site is never in an inconsistent state during a deployment and allows for instantaneous rollbacks to any previous version.
+
+### Deploy Previews
+Every Pull Request or Branch can be automatically deployed to a unique URL. This allows teams to review and test changes in a live environment before merging to production.
+
+### Edge Functions
+Netlify Edge Functions allow you to run JavaScript/TypeScript logic at the network edge, closer to your users. This is powered by Deno and is ideal for personalizing content, handling authentication, or modifying headers.
+
 ## Typical use cases
 - Marketing websites
 - Small product sites and prototypes
@@ -21,6 +32,64 @@ It makes it easy to publish and iterate on frontend sites without building a ful
 - A lightweight content site with a few dynamic widgets
 - A small prototype app front-end paired with [Supabase](../infrastructure/supabase.md)
 - A brand site where the team cares about previewing copy/design changes
+
+## Getting started
+
+### CLI Installation
+Install the Netlify CLI globally via npm:
+
+```bash
+npm install netlify-cli -g
+```
+
+### Authentication & Initialization
+Authenticate your CLI session and initialize a new project:
+
+```bash
+# Login to your Netlify account
+netlify login
+
+# Initialize a project in the current directory
+netlify init
+```
+
+### Manual Deployment
+To deploy a site manually from your terminal:
+
+```bash
+# Deploy to a draft URL for testing
+netlify deploy
+
+# Deploy to production
+netlify deploy --prod
+```
+
+## API examples
+
+### Netlify Functions (Serverless)
+Netlify Functions (AWS Lambda under the hood) allow you to run serverless backend code. Create a file at `netlify/functions/hello.ts`:
+
+```typescript
+import { Context } from "@netlify/functions"
+
+export default async (req: Request, context: Context) => {
+  return new Response("Hello from Netlify Functions!")
+}
+```
+
+### Edge Functions
+Example of an Edge Function that modifies the response based on the user's country:
+
+```typescript
+import { Context } from "@netlify/edge-functions";
+
+export default async (request: Request, context: Context) => {
+  const country = context.geo?.country?.name || "the world";
+  return new Response(`Hello from ${country}!`, {
+    headers: { "content-type": "text/html" },
+  });
+};
+```
 
 ## Strengths
 - Good developer experience for frontend teams
@@ -60,12 +129,16 @@ It makes it easy to publish and iterate on frontend sites without building a ful
 - [GitHub Pages](github-pages.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
 - [Supabase](../infrastructure/supabase.md)
+- [Cursor](cursor.md)
+- [GitHub Copilot](github_copilot.md)
+- [Vercel OSS](vercel-oss.md)
 
 ## Sources / References
 - [Official Website](https://www.netlify.com/)
 - [Pricing](https://www.netlify.com/pricing/)
 - [Documentation](https://docs.netlify.com/)
+- [Netlify CLI Reference](https://cli.netlify.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
-- Confidence: medium
+- Last reviewed: 2026-05-16
+- Confidence: high
