@@ -85,6 +85,11 @@ curl https://registry.modelcontextprotocol.io/v1/servers/search?q=postgres
 - [ServiceNow MCP Server](servicenow-mcp.md)
 - [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
 - [Playwright MCP Server](playwright-mcp.md)
+- [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md)
+- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md)
+- [Fuzzing MCP Server](../development_ops/fuzzing-mcp-server.md)
+- [Jupyter Kernel MCP](../development_ops/jupyter-kernel-mcp.md)
+- [Symbolic MCP Server](../development_ops/symbolic-mcp.md)
 - [Claude Desktop](../development_ops/vscode.md)
 - [PulseMCP](https://pulsemcp.com/) (Community-driven alternative directory)
 

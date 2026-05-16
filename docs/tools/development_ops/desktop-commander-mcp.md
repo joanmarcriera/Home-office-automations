@@ -38,16 +38,76 @@ It enables AI assistants (like Claude Desktop) to interact directly with the loc
 - **Cost**: Free
 - **Self-hostable**: Yes (Local-only)
 
+## Technical examples
+
+### 1. Searching Code with ripgrep
+Search for specific patterns across the codebase with high performance.
+
+```json
+{
+  "tool": "search_code",
+  "arguments": {
+    "query": "async function authenticate",
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules/**"]
+  }
+}
+```
+
+### 2. Surgical Editing (edit_block)
+Apply precise text replacements using SEARCH/REPLACE blocks (similar to [Aider](aider.md) or [Claude Code Hooks](claude-hooks.md)).
+
+```json
+{
+  "tool": "edit_block",
+  "arguments": {
+    "path": "src/auth.ts",
+    "edit": "<<<<<<< SEARCH\n  return user.id;\n=======\n  return { id: user.id, role: user.role };\n>>>>>>> REPLACE"
+  }
+}
+```
+
+### 3. Terminal Control (start_process)
+Start a background process and manage its lifecycle.
+
+```json
+{
+  "tool": "start_process",
+  "arguments": {
+    "command": "npm run build",
+    "cwd": "./project"
+  }
+}
+```
+
+### 4. Reading Process Output
+Capture the result of a long-running terminal operation.
+
+```json
+{
+  "tool": "read_process_output",
+  "arguments": {
+    "sessionId": "process-id-123"
+  }
+}
+```
+
 ## Related tools / concepts
-- [Claude Code](claude-code.md)
+- [Claude Code](claude-code-setup.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [ripgrep](ripgrep.md)
 - [Claude Code Container MCP](claude-code-container-mcp.md)
+- [Aider](aider.md)
+- [VS Code](vscode.md)
+- [Zed](zed.md)
+- [MCP Registry](../automation_orchestration/mcp-registry.md)
+- [Agent Protocols](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [Desktop Commander MCP GitHub](https://github.com/democratize-technology/DesktopCommanderMCP)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high

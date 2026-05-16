@@ -51,6 +51,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 51** | Maintenance Run (Technical Deepening) | **Resolved** | Deepening `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, etc. (2026-05-15). |
 | **Batch 52** | Maintenance Run (Technical Deepening) | **Resolved** | Deepened `custom_agents.md`, `droid.md`, `gpt_engineer.md`, etc. (2026-05-15). |
 | **Batch 53** | Maintenance Run (Technical Deepening) | **Resolved** | Deepened `mentat.md`, `openswarm.md`, `plandex.md`, etc. (2026-05-15). |
+| **Batch 65** | MCP Technical Deepening | **In Progress** | Deepening `claude-code-container-mcp.md`, `desktop-commander-mcp.md`, etc. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
@@ -60,6 +61,7 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 - **Batch 41**: Address remaining 80+ non-compliant docs as decomposed in `docs/reports/task-decomposition-batch-41.md`. **(Completed 2026-05-12)**.
 - **Batch 42**: Service & Automation Deepening. **Sub-Batches 42.1, 42.2, 42.3, and 42.4 completed 2026-05-13**.
 - **Batch 53**: AI Coding & Orchestration Deepening. **Completed 2026-05-15**.
+- **Batch 65**: MCP Technical Deepening. **Identified 2026-05-16**.
 
 ---
 - Confidence: high
