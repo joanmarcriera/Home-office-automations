@@ -1,54 +1,121 @@
-# Kimi CLI
+# Kimi Code CLI
 
 ## What it is
-Kimi CLI is a command-line interface for interacting with Moonshot AI's Kimi models, designed for terminal-based AI assistance and integration into developer workflows.
+Kimi Code CLI (officially `kimi-cli`) is an open-source, terminal-native AI coding agent from Moonshot AI. It operates as an agentic loop directly in the terminal, capable of reading and editing code, executing shell commands, searching the web, and autonomously planning multi-step software development tasks.
 
 ## What problem it solves
-It allows developers to access Kimi's long-context capabilities (up to 256K-1M tokens) directly from the terminal, enabling rapid querying of large codebases, logs, or documents without leaving the IDE or terminal environment.
+It reduces context switching by bringing AI-powered software engineering capabilities into the developer's primary workspace: the terminal. Unlike standard chat interfaces, Kimi Code CLI has direct access to the local filesystem and shell, allowing it to perform actions like refactoring code, running tests, and fixing build errors autonomously.
 
 ## Where it fits in the stack
-**Category**: Tool / AI Assistants & Knowledge
+**Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code-setup.md), optimized for high-speed terminal interaction and agentic workflows.
 
 ## Typical use cases
-- Analyzing large log files or codebase exports in the terminal.
-- Terminal-based code explanation and refactoring.
-- Scripting AI interactions for CI/CD or automation.
+- **Autonomous Feature Implementation**: Describing a new feature and letting the agent write the code and verify it.
+- **Automated Bug Fixing**: Providing a stack trace and letting the agent find the root cause and apply a patch.
+- **Codebase Exploration**: Asking questions about unfamiliar architectures or "finding where X is implemented."
+- **Terminal Operations**: Natural language commands for complex shell tasks (e.g., "Find all large log files and compress them").
+
+## Key Features
+- **Agentic Loop**: Plans, executes, and adjusts actions based on terminal feedback.
+- **Shell Mode**: Press `Ctrl-X` to switch between chatting with the agent and running direct shell commands.
+- **ACP Support**: Native support for the **Agent Client Protocol**, enabling integration with IDEs like Zed or JetBrains.
+- **Web Access**: Can search and fetch live documentation to ground its coding suggestions.
 
 ## Strengths
-- High context window support (pioneer in long-context stability).
-- Simple terminal integration.
-- Fast and reliable performance for text-heavy tasks.
+- **Native Terminal Integration**: No need to leave the shell for AI assistance.
+- **Multi-Model Support**: Can be configured to use Moonshot's Kimi K2 models or any OpenAI-compatible API.
+- **Extensible**: Supports custom providers and headers via a TOML configuration.
 
 ## Limitations
-- Primarily focused on Chinese language optimization, though capable in English.
-- Limited tool-calling capabilities compared to Claude Code or Aider.
+- **Latency**: Agentic reasoning steps can take time, especially for complex planning.
+- **Shell Compatibility**: Some built-in shell commands like `cd` are currently handled via a workaround rather than natively in all modes.
 
 ## When to use it
-- When you need to process very large files in the terminal.
-- When working with Moonshot AI's ecosystem.
+- When you want an AI pair programmer that can actually *run* the code it writes.
+- For rapid refactoring tasks across multiple files.
+- When working in remote SSH environments where a browser-based AI is inaccessible.
 
 ## When not to use it
-- **General Purpose Coding**: For interactive coding sessions, [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md) are more feature-rich.
-- **Offline Tasks**: Requires an active internet connection to communicate with Moonshot AI's servers.
-- **Privacy-Sensitive Local Data**: If data must not leave the local machine, use [Local LLMs](local_llms.md) via [Ollama](../../services/ollama.md).
+- For simple snippets that don't require file or shell context (use a standard chat).
+- If you prefer a GUI-first experience (use [Cursor](../development_ops/cursor.md)).
 
-## Licensing and cost
-- **CLI Tool**: Free (Open Source)
-- **API Usage**: Requires Moonshot AI API credits.
+## Getting started
+
+### Installation
+Install using the official script (requires Python 3.12+):
+
+```bash
+# Linux / macOS
+curl -LsSf https://code.kimi.com/install.sh | bash
+
+# Verify installation
+kimi --version
+```
+
+### Initial Setup
+Run the setup wizard to configure your API provider:
+
+```bash
+kimi /login
+```
+
+## Technical examples
+
+### Running an Agentic Task
+You can start a session with a specific goal:
+
+```bash
+# Refactor a specific module
+kimi "Refactor the authentication logic in src/auth.py to use JWT instead of sessions"
+
+# Find and fix errors
+kimi "Run the test suite and fix any failing tests in the reports module"
+```
+
+### IDE Integration (Zed)
+Kimi Code CLI supports the Agent Client Protocol (ACP). To use it as an agent server in Zed, add this to your `settings.json`:
+
+```json
+{
+  "agent_servers": {
+    "Kimi Code CLI": {
+      "type": "custom",
+      "command": "kimi",
+      "args": ["acp"]
+    }
+  }
+}
+```
+
+### Manual Configuration (~/.kimi/config.toml)
+For advanced users, providers can be configured manually:
+
+```toml
+[providers.kimi-for-coding]
+type = "kimi"
+base_url = "https://api.kimi.com/coding/v1"
+api_key = "sk-xxxxxxxxxxxx"
+
+[providers.openai-local]
+type = "openai_legacy"
+base_url = "http://localhost:11434/v1"
+api_key = "ollama"
+```
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md) — Advanced agentic CLI.
-- [Aider](../development_ops/aider.md) — Leading AI pair programming tool.
-- [Gemini CLI](gemini-cli.md) — CLI for Google's long-context models.
-- [OpenRouter](openrouter.md) — Can be used to access Kimi models via API.
-- [Local LLMs](local_llms.md) — Offline alternatives to Kimi.
-- [Ollama](../../services/ollama.md) — Local runner for long-context models like Qwen.
-- [LiteLLM](../../services/litellm.md) — Proxy for managing Kimi API access.
+- [Aider](../development_ops/aider.md)
+- [Claude Code](../development_ops/claude-code-setup.md)
+- [Mentat](../development_ops/mentat.md)
+- [Plandex](../development_ops/plandex.md)
+- [Agent Client Protocol (ACP)](../../knowledge_base/agent_protocols.md)
+- [Moonshot AI](../providers/moonshot.md)
+- [Terminal Benchmarking](../benchmarking/terminal-bench.md)
 
 ## Sources / References
-- [Moonshot AI Official Site](https://www.moonshot.cn/)
-- [Kimi CLI GitHub](https://github.com/MoonshotAI/kimi-cli)
+- [Official Kimi Code CLI Repository](https://github.com/MoonshotAI/kimi-cli)
+- [Kimi Code CLI Documentation](https://moonshotai.github.io/kimi-cli/en/guides/getting-started.html)
+- [Sébastien Dubois: Kimi CLI Overview](https://www.dsebastien.net/kimi-cli/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-16
 - Confidence: high
