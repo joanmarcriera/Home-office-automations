@@ -45,6 +45,34 @@ It lowers the barrier to entry for building AI applications by eliminating the n
 4.  Opal will generate the system instructions. You can then test it in the preview pane.
 5.  Click **"Save"** to add it to your Gemini sidebar.
 
+## Technical examples
+
+### Step-by-Step Workflow Logic
+Opal workflows typically consist of three primary step types: **Input**, **Generate**, and **Output**. Steps are linked via **References**.
+
+#### Example: YouTube Summarizer Workflow
+1.  **Input Step (url_collector)**:
+    - Label: "Enter YouTube URL"
+    - Placeholder: "https://youtube.com/watch?v=..."
+2.  **Generate Step (summarizer)**:
+    - Prompt: `Read the transcript from {{url_collector}} and provide a concise summary using professional technical language. Focus on actionable takeaways.`
+    - Model: Gemini 1.5 Pro
+3.  **Output Step (webpage_viewer)**:
+    - Template: Custom HTML/Markdown wrapper.
+    - Content: `{{summarizer}}`
+
+### "Vibe Coding" Design Prompts
+You can control the visual and functional output of the app by providing design constraints in the initial description:
+
+```text
+Create a YouTube video summarizer app with the following design:
+- Background color: #f0f0f0
+- Title: "Pro Video Analyzer" in sans-serif
+- Input: Labeled "Paste Link"
+- Summary: Heading "Key Insights" followed by 5 bullet points
+- Tone: Extremely analytical and concise
+```
+
 ## Related tools / concepts
 - [Gemini Canvas](gemini-canvas.md)
 - [Google Stitch](../development_ops/google-stitch.md)
@@ -53,11 +81,14 @@ It lowers the barrier to entry for building AI applications by eliminating the n
 - [Flowise](flowise.md)
 - [AnythingLLM](anythingllm.md)
 - [Dify](dify.md)
+- [Prompt Engineering](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
+- [No-Code AI Patterns](../../knowledge_base/learning-map.md)
 
 ## Sources / References
 - [Google Opal (Google for Developers)](https://developers.google.com/opal)
 - [Google Opal: Google's No-Code Tool for Building AI Apps](https://www.codecademy.com/article/google-opal-googles-no-code-tool)
+- [Gemini Gems Guide](https://support.google.com/gemini/answer/15242784)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-16
 - Confidence: high
