@@ -9,6 +9,12 @@ It addresses the inaccuracies of vector similarity search in professional docume
 ## Where it fits in the stack
 **Tool / Agent**: It acts as a specialized retrieval tool and an agentic framework for document navigation.
 
+## Technical Capabilities
+- **Hierarchical Tree Indexing**: Converts documents into semantic TOC-like trees for structured navigation.
+- **Vision-Aware Retrieval**: Supports multimodal analysis for documents with complex charts and tables.
+- **Reasoning-Based Search**: Uses LLM logic to decide which sections are most relevant to a query.
+- **Vector-Free RAG**: Operates without the need for embedding generation or vector database management.
+
 ## Typical use cases
 - **Professional Analysis**: Analyzing SEC filings, insurance policies, or dense textbooks where precise section retrieval is required.
 - **Tree-based Navigation**: Managing very long documents that exceed standard context limits by navigating a semantic "Table of Contents" tree.
@@ -64,18 +70,26 @@ python run_pageindex.py --md_path document.md
 python run_pageindex.py --pdf_path doc.pdf --max-pages-per-node 5
 ```
 
-## API examples
-```python
-# PageIndex provides a cloud API and MCP server for remote use.
-# For local programmatic use, call the tree search logic:
-from pageindex.search import tree_search
+## API & MCP Configuration
+PageIndex provides an MCP server for seamless integration with AI agents like Claude.
 
-# Example local search after generating index
-# results = tree_search(query="financial metrics", root_node=index_root)
-
-# Cloud API usage (OpenAI compatible):
-from openai import OpenAI
-client = OpenAI(base_url="https://api.pageindex.ai/v1")
+### MCP Configuration Example (`claude_desktop_config.json`)
+```json
+{
+  "mcpServers": {
+    "pageindex": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@vectify/pageindex-mcp"
+      ],
+      "env": {
+        "PAGEINDEX_API_KEY": "your_api_key_here",
+        "OPENAI_API_KEY": "your_openai_key_here"
+      }
+    }
+  }
+}
 ```
 
 ## Related tools / concepts
@@ -86,6 +100,9 @@ client = OpenAI(base_url="https://api.pageindex.ai/v1")
 - [Docling MCP](docling-mcp.md)
 - [Crawl4AI](crawl4ai.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
+- [Unstructured](../ai_knowledge/unstructured.md)
+- [LlamaParse](../ai_knowledge/llamaparse.md)
+
 ## Sources / references
 - [Official Website](https://pageindex.ai/)
 - [GitHub Repository](https://github.com/VectifyAI/PageIndex)
@@ -94,4 +111,4 @@ client = OpenAI(base_url="https://api.pageindex.ai/v1")
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-05-16
