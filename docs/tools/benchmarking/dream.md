@@ -9,6 +9,12 @@ It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where
 ## Where it fits in the stack
 **Eval**: It is a framework for benchmarking and evaluating advanced LLM agentic performance.
 
+## Technical Capabilities
+- **Agentic Verification Loop**: Employs sub-agents with browser and API access to live-check claims.
+- **Temporal Sensitivity Analysis**: Detects when research content is outdated by cross-referencing with real-time news sources.
+- **Reference-Free Scoring**: Evaluates reports based on external truth rather than comparison to a static "gold standard" report.
+- **Nuanced Error Taxonomy**: Distinguishes between hallucinations, outdated info, and reasoning logical fallacies.
+
 ## Typical use cases
 - **Benchmarking Research Agents**: Comparing how well different models or agent architectures (like OpenHands or custom research loops) generate accurate analyst-grade reports.
 - **Reasoning Probes**: Systematically identifying reasoning defects in long-form generation.
@@ -30,10 +36,37 @@ It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where
 - For evaluating simple base models on static knowledge.
 - When a fast, low-cost evaluation signal is needed for iterative model tuning.
 
+## Python Verification Loop Example
+A conceptual implementation of the DREAM verification step:
+
+```python
+from dream_eval import DreamEvaluator
+
+# Initialize the agentic evaluator with search tools
+evaluator = DreamEvaluator(
+    model="gpt-4o",
+    tools=["google_search", "web_browsing"]
+)
+
+report_content = "..." # The output from the research agent
+
+# DREAM starts its independent verification
+verification_results = evaluator.verify_claims(report_content)
+
+for claim in verification_results.claims:
+    print(f"Claim: {claim.text}")
+    print(f"Status: {claim.verification_status}") # Verified | Refuted | Unverifiable
+    print(f"Evidence: {claim.evidence_link}")
+```
+
 ## Related tools / concepts
 - [Humanity's Last Exam (HLE)](./humanitys-last-exam.md)
 - [LM Evaluation Harness](./lm-evaluation-harness.md)
 - [GPQA](./gpqa.md)
+- [Terminal-Bench](./terminal-bench.md)
+- [OpenHands](../agents/openhands.md)
+- [Letta](../agents/letta.md)
+- [SWE-bench](./swe-bench.md)
 
 ## Sources / references
 - [Hugging Face Paper Page](https://huggingface.co/papers/2602.18940)
@@ -42,4 +75,4 @@ It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-05-16
