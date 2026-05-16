@@ -9,7 +9,7 @@ The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern 
 It solves the "Black Box" problem of AI memory and configuration. Traditional SaaS-based agents store user preferences and project context in proprietary databases, making it difficult for users to audit, migrate, or version-control their agent's behavior. This pattern ensures that context is transparent, portable, and versioned alongside the code.
 
 ## Where it fits in the stack
-This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the [Model Layer](../model_classes.md) and the local development environment, providing a standardized way for tools like [Claude Code](../../tools/development_ops/claude-code.md) to understand project boundaries and rules.
+This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the [Model Layer](../model_classes.md) and the local development environment, providing a standardized way for tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) to understand project boundaries and rules.
 
 ## Typical use cases
 - **Project Rules (CLAUDE.md)**: Storing build commands, linting rules, and architectural constraints for an engineering agent.
@@ -37,9 +37,36 @@ This pattern resides at the **Persistence & Context Layer** of the agentic stack
 
 ## Implementation Examples
 
--   **CLAUDE.md**: Used by [Claude Code](../../tools/development_ops/claude-code.md) to store project-specific constraints and memory.
--   **AGENTS.md**: A generalized standard for providing instructions to any autonomous agent in a repository.
--   **SKILL.md**: Part of the [Agent Skills](../../tools/agents/anthropic-agent-skills.md) standard for defining reusable agent capabilities.
+-   **CLAUDE.md**: Used by [Claude Code](../../tools/development_ops/claude-code-setup.md) to store project-specific architecture and constraints.
+-   **AGENTS.md**: A generalized standard for providing operating instructions to autonomous agents.
+-   **SKILL.md**: Part of the [Agent Skills](../../tools/agents/anthropic-agent-skills.md) standard for defining reusable capabilities.
+
+### Interaction via Desktop Commander MCP
+The [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md) operationalizes this pattern by providing a privacy-first bridge between the model and the filesystem.
+
+#### 1. Code Discovery (search_code)
+Instead of a pre-indexed vector DB, the model uses `ripgrep` via MCP to perform live searches for relevant context.
+```json
+{
+  "tool": "search_code",
+  "arguments": {
+    "query": "export interface User",
+    "include": ["src/types/*.ts"]
+  }
+}
+```
+
+#### 2. Targeted Modifications (edit_block)
+The agent applies changes by identifying exact blocks of text in files, maintaining the filesystem as the source of truth for both code and configuration.
+```json
+{
+  "tool": "edit_block",
+  "arguments": {
+    "path": "docs/patterns/new_pattern.md",
+    "edit": "<<<<<<< SEARCH\n# Old Pattern\n=======\n# New Pattern\n>>>>>>> REPLACE"
+  }
+}
+```
 
 ## When to use it
 - Use when building local-first development tools where transparency and Git-integration are priorities.
@@ -53,9 +80,10 @@ This pattern resides at the **Persistence & Context Layer** of the agentic stack
 
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md)
+- [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md)
 - [Agent Skills Best Practices](skills-best-practices.md)
 - [Software Factories](software-factories.md)
-- [Claude Code](../../tools/development_ops/claude-code.md)
+- [Claude Code](../../tools/development_ops/claude-code-setup.md)
 - [Agent Skills](../../tools/agents/anthropic-agent-skills.md)
 - [NanoClaw](../../tools/development_ops/nanoclaw.md)
 
@@ -66,5 +94,5 @@ This pattern resides at the **Persistence & Context Layer** of the agentic stack
 - [LlamaIndex: Files Are All You Need](https://www.llamaindex.ai/blog/files-are-all-you-need)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-09
+- Last reviewed: 2026-05-16
 - Confidence: high

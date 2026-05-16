@@ -10,7 +10,7 @@ It solves the "black box" problem of AI by providing objective data to guide mod
 Evaluation sits at the **Quality & Governance Layer** of the AI stack. It informs the logic in the [Model Routing Guide](model_routing_guide.md) and helps define the performance baselines for [Agentic Workflows](patterns/agentic-workflows.md).
 
 ## Typical use cases
-- **Model Selection**: Choosing between GPT-5.4, Gemini 3 Pro, and Claude 4.5 for a production application.
+- **Model Selection**: Choosing between frontier models like **GPT-4o**, **o1**, or **o3** for complex reasoning vs. smaller "flash" models for high-speed tasks.
 - **Regression Testing**: Ensuring that a fine-tuned model or a new system prompt hasn't degraded performance.
 - **Cost Optimization**: Identifying tasks that can be safely downgraded to cheaper, smaller models.
 - **Accuracy Verification**: Measuring the hallucination rate in RAG (Retrieval-Augmented Generation) systems.
@@ -56,6 +56,11 @@ When reviewing benchmark results, you will encounter several standardized metric
 - **[HumanEval](../tools/benchmarking/human-eval.md)**: 164 handwritten programming problems from OpenAI. Measures the ability to solve basic algorithmic tasks.
 - **[MBPP (Mostly Basic Python Problems)](../tools/benchmarking/mbpp.md)**: Around 1,000 entry-level Python programming problems.
 - **[SWE-bench](../tools/benchmarking/swe-bench.md)**: A high-bar benchmark where models must resolve real GitHub issues by providing functional code patches.
+- **[Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md)**: A frontier-difficulty benchmark containing expert-level questions across hundreds of fields, designed to be the "final" challenge for reasoning models as they approach human-level performance.
+
+### Web and Agentic Workflows
+- **[PA-bench (Personal Assistant Bench)](../tools/benchmarking/pa-bench.md)**: Evaluates web agents on long-horizon, multi-application workflows (e.g., Email, Calendar, Travel Planning) using its `SimulationManager` and `ExperimentOrchestrator`.
+- **[Terminal-Bench (TB-2)](../tools/benchmarking/terminal-bench.md)**: Uses the `tb` CLI and Docker-based sandboxes to evaluate an agent's ability to operate directly in a shell environment.
 
 ### Performance and Efficiency
 - **Tokens per Second (TPS)**: A measure of inference speed.
@@ -98,6 +103,9 @@ For task-level routing decisions such as when to use Haiku vs Sonnet vs Opus, or
 - [Chatbot Arena](../tools/benchmarking/chatbot-arena.md)
 - [GPQA](../tools/benchmarking/gpqa.md)
 - [SWE-bench](../tools/benchmarking/swe-bench.md)
+- [PA-bench](../tools/benchmarking/pa-bench.md)
+- [Humanity's Last Exam](../tools/benchmarking/humanitys-last-exam.md)
+- [Terminal-bench](../tools/benchmarking/terminal-bench.md)
 
 ## Sources / References
 - [Chatbot Arena (LMSYS)](https://chat.lmsys.org/)
@@ -105,5 +113,5 @@ For task-level routing decisions such as when to use Haiku vs Sonnet vs Opus, or
 - [LiveCodeBench](https://livecodebench.github.io/leaderboard.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-06
+- Last reviewed: 2026-05-16
 - Confidence: high

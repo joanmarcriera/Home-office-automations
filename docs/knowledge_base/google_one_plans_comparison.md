@@ -75,6 +75,11 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 - **Whisk Animate:** Uses Veo 2 to transform generated images into short videos.
 - **NotebookLM:** Enhanced research assistant with support for up to 300 sources per notebook and advanced output formats (Audio Overviews, Infographics).
 - **Deep Search:** Uses Gemini 3 Pro to reason across hundreds of sites to craft comprehensive, cited research reports.
+- **[Gemini Canvas](../../tools/ai_knowledge/gemini-canvas.md):** A non-linear, infinite workspace for AI orchestration that allows users to branch thoughts, visualize agentic loops, and manage multi-model sessions.
+
+### Workspace Augmentation
+- **[Google Opal](../../tools/ai_knowledge/google-opal.md):** A no-code AI app builder within the Gemini ecosystem. It enables users to create visual "Input-Generate-Output" workflows without writing code, effectively turning prompts into reusable mini-apps.
+- **[Project Genie](../../tools/ai_knowledge/project-genie.md):** A generative world model from DeepMind for creating controllable virtual environments, integrated into the AI Pro creative suite.
 
 ## Usage Limits & Eligibility
 
@@ -113,6 +118,9 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 - [Jules](../tools/ai_knowledge/jules.md): The flagship autonomous coding agent.
 - [Google Gemini](../tools/providers/google-gemini.md): The underlying model family.
 - [NotebookLM](../tools/ai_knowledge/notebooklm.md): The AI-powered research and note-taking tool.
+- [Google Opal](../tools/ai_knowledge/google-opal.md): No-code AI app builder.
+- [Gemini Canvas](../tools/ai_knowledge/gemini-canvas.md): Infinite workspace for AI orchestration.
+- [Project Genie](../tools/ai_knowledge/project-genie.md): Generative world model.
 - [Model Routing Guide](model_routing_guide.md): Guidance on when to use specific Gemini model tiers.
 - [API Pricing & Free Tiers](api_pricing_free_tiers.md): Comparison of developer-centric AI costs.
 - [Microsoft Graph](../tools/providers/microsoft-graph.md): The competitive enterprise data layer.
@@ -128,5 +136,5 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-07
+- Last reviewed: 2026-05-16
 - Confidence: high

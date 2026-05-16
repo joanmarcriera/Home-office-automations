@@ -195,9 +195,17 @@ The following examples demonstrate a minimal local RAG setup using **Ollama** fo
 *   When latency requirements are extremely tight (sub-100ms), as RAG adds retrieval time.
 *   When the LLM's base training data is already sufficient and up-to-date for the domain.
 
+## Implementation Case Studies
+
+### 1. High-Precision Parsing (RAGFlow)
+[RAGFlow](../../tools/process_understanding/ragflow.md) utilizes the **'DeepDoc'** engine, which employs vision-based deep learning models to recognize document layout (tables, charts, headers) rather than relying on simple text extraction. This ensures that the relationship between data points is preserved during the chunking phase, preventing the loss of structural context.
+
+### 2. Multi-Modal Retrieval (Verba)
+[Verba](../../tools/ai_knowledge/verba.md) provides a standardized RAG architecture built natively on **Weaviate**. It leverages Weaviate's multi-modal capabilities to index not just text, but also images and structured data, enabling a "Unified Context" where an agent can reason across different media types using a single vector search interface.
+
 ## Related tools / concepts
 
-*   **RAG Platforms:** [Dify](../../tools/ai_knowledge/dify.md), [Flowise](../../tools/ai_knowledge/flowise.md), [RAGFlow](../../tools/process_understanding/ragflow.md)
+*   **RAG Platforms:** [Dify](../../tools/ai_knowledge/dify.md), [Flowise](../../tools/ai_knowledge/flowise.md), [RAGFlow](../../tools/process_understanding/ragflow.md), [Verba](../../tools/ai_knowledge/verba.md)
 *   **Orchestration:** [LlamaIndex](../../tools/ai_knowledge/llamaindex.md), [LangChain](../../tools/ai_knowledge/langchain.md), [Haystack](../../tools/frameworks/haystack.md)
 *   **Infrastructure:** [Vector Databases](../../tools/infrastructure/index.md), [Embedding Models](../../tools/infrastructure/index.md)
 *   **Data Extraction:** [Crawl4AI](../../tools/process_understanding/crawl4ai.md), [Firecrawl](../../tools/process_understanding/firecrawl.md), [OCRmyPDF](../../tools/process_understanding/ocrmypdf.md)
@@ -214,5 +222,5 @@ The following examples demonstrate a minimal local RAG setup using **Ollama** fo
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high

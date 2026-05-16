@@ -231,6 +231,35 @@ if __name__ == "__main__":
     mcp.run()
 ```
 
+### 3. Specialized MCP Server Examples
+Modern MCP servers go beyond simple API wrappers, providing specialized compute and verification capabilities.
+
+#### A. Automated Quality Assurance (Fuzzing)
+The [Fuzzing MCP Server](../../tools/development_ops/fuzzing-mcp-server.md) uses Hypothesis to hunt for edge cases in Python code.
+
+```json
+{
+  "tool": "fuzz_function",
+  "arguments": {
+    "code": "def process_payment(amount: float):\n    if amount <= 0: raise ValueError()\n    return amount * 1.05",
+    "function_name": "process_payment"
+  }
+}
+```
+
+#### B. Formal Verification (Symbolic)
+The [Symbolic MCP](../../tools/development_ops/symbolic-mcp.md) uses Z3 to algebraically prove properties of code.
+
+```json
+{
+  "tool": "verify_function",
+  "arguments": {
+    "code": "def absolute(x: int):\n    return x if x >= 0 else -x",
+    "property": "forall x: absolute(x) >= 0"
+  }
+}
+```
+
 ## Patterns
 
 ### Single Tool Use
@@ -309,5 +338,5 @@ A core benefit of MCP is the ability for a single client (like Claude Desktop or
 - [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high
