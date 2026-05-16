@@ -12,13 +12,6 @@ OpenClaw combines messaging channels, browser automation, shell-capable skills, 
 
 **Pattern / operations layer**. It wraps the OpenClaw runtime with the safety, routing, and review controls needed for production or always-on home-office use.
 
-## Typical use cases
-
-- Hardening a personal assistant that reads messages, email, and calendar events.
-- Running research or reporting agents that browse the web and summarize results.
-- Operating draft-only or approval-gated assistants for communications or business ops.
-- Separating cheap monitoring work from expensive deep-analysis work.
-
 ## Core operating pattern
 
 ### 1. Split skills by capability tier
@@ -54,6 +47,53 @@ This reduces cost while keeping stronger reasoning available where mistakes are 
 ### 6. Design for draft-first external behavior
 
 If the workflow touches customers, finance, or irreversible actions, OpenClaw should prepare drafts, plans, or recommendations first. Another system or human should confirm before anything is sent or executed.
+
+## Getting started
+
+### Initial Hardening Checklist
+Before deploying OpenClaw in an "always-on" mode, complete these steps:
+1. **Network Isolation**: Ensure the OpenClaw local gateway is not exposed to the public internet without a VPN or authenticated proxy.
+2. **Credential Hygiene**: Move all API keys to a dedicated environment file or secret manager; never hardcode them in skill scripts.
+3. **Skill Audit**: Remove any unused default skills, especially those with shell access or file deletion capabilities.
+4. **Patch Verification**: Run `openclaw --version` to ensure you are on `2026.2.25` or higher.
+5. **Approval Setup**: Configure at least one messaging provider (e.g., Slack or Telegram) to receive and process approval requests.
+
+## Technical example
+
+### YAML Skill Configuration with Approval Gate
+Example configuration for a "System Update" skill that requires explicit human approval via Telegram.
+
+```yaml
+skills:
+  - name: "system_patcher"
+    description: "Applies security patches to the local system"
+    capability: "shell"
+    policy:
+      requires_approval: true
+      approval_provider: "telegram"
+      approval_timeout_seconds: 3600
+      allow_during_hours: "09:00-18:00"
+    command_template: "sudo apt-get update && sudo apt-get upgrade -y"
+```
+
+### Prompt-Level Trust Tagging
+Using explicit tags to separate user instructions from retrieved untrusted data.
+
+```markdown
+System: You are an OpenClaw assistant.
+Trusted Instructions: Analyze the following email and draft a summary.
+Untrusted Data:
+<untrusted_content>
+{{retrieved_email_body}}
+</untrusted_content>
+```
+
+## Typical use cases
+
+- Hardening a personal assistant that reads messages, email, and calendar events.
+- Running research or reporting agents that browse the web and summarize results.
+- Operating draft-only or approval-gated assistants for communications or business ops.
+- Separating cheap monitoring work from expensive deep-analysis work.
 
 ## Threat model and controls
 
@@ -106,6 +146,8 @@ If the workflow touches customers, finance, or irreversible actions, OpenClaw sh
 - [n8n](../../services/n8n.md)
 - [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md)
 - [LLM Trust Boundaries](llm-trust-boundaries.md)
+- [ClawRouter](../../tools/infrastructure/clawrouter.md)
+- [Aider](../../tools/development_ops/aider.md)
 
 ## Sources / References
 
@@ -115,5 +157,5 @@ If the workflow touches customers, finance, or irreversible actions, OpenClaw sh
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-29
-- Confidence: medium
+- Last reviewed: 2026-05-16
+- Confidence: high
