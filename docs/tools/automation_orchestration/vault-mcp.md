@@ -38,15 +38,57 @@ It enables AI assistants to securely interact with HashiCorp Vault for managing 
 - **Cost**: Free (software); Vault usage/licensing still applies.
 - **Self-hostable**: Yes
 
+## Getting started
+
+Vault MCP requires a running HashiCorp Vault instance and can be configured to use either a token or AppRole for authentication.
+
+### 1. Installation
+```bash
+pip install vault-mcp
+```
+
+### 2. Configuration (Claude Desktop)
+Add the server to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "vault": {
+      "command": "python",
+      "args": ["-m", "vault_mcp"],
+      "env": {
+        "VAULT_ADDR": "https://vault.example.com:8200",
+        "VAULT_TOKEN": "your-vault-token",
+        "VAULT_NAMESPACE": "admin"
+      }
+    }
+  }
+}
+```
+
+### 3. Policy Example
+The MCP server can generate policy strings. For example, to grant read access to a specific path:
+
+```hcl
+path "secret/data/my-app/*" {
+  capabilities = ["read", "list"]
+}
+```
+
 ## Related tools / concepts
 - [HashiCorp Vault](https://www.vaultproject.io/)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Authentik](../../services/authentik.md)
+- [Kubernetes](../../architecture/infrastructure.md)
+- [Tailscale](../../services/tailscale.md)
+- [Headscale](../../services/headscale.md)
 - [hvac (Python Vault Client)](https://github.com/hvac/hvac)
 
 ## Sources / References
 - [Vault MCP GitHub](https://github.com/democratize-technology/vault-mcp)
+- [HashiCorp Vault KV Secrets Engine](https://developer.hashicorp.com/vault/docs/secrets/kv)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high
