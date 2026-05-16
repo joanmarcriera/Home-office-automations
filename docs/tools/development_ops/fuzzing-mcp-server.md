@@ -7,7 +7,7 @@ An MCP server that brings property-based testing and fuzzing capabilities to AI 
 It automates the search for bugs that traditional example-based testing might miss by generating hundreds of diverse test cases and shrinking failures to minimal, understandable counterexamples.
 
 ## Where it fits in the stack
-**Tool / Eval**. It provides a testing and verification layer for Python development.
+**Tool / Eval**. It provides a testing and verification layer for Python development, integrating with [Agent Protocols](../../knowledge_base/agent_protocols.md) for autonomous quality assurance.
 
 ## Typical use cases
 - Automated bug hunting in Python functions.
@@ -39,15 +39,61 @@ It automates the search for bugs that traditional example-based testing might mi
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Technical examples
+
+### 1. Fuzzing a Python Function (fuzz_function)
+Define a property (e.g., "sorting a list shouldn't change its length") and let the server hunt for counterexamples.
+
+```json
+{
+  "tool": "fuzz_function",
+  "arguments": {
+    "code": "def test_sort_length(l: list[int]):\n    return len(sorted(l)) == len(l)",
+    "function_name": "test_sort_length"
+  }
+}
+```
+
+### 2. Type Inference for Testing (infer_types)
+Analyze a function to automatically determine the best Hypothesis strategies for testing.
+
+```json
+{
+  "tool": "infer_types",
+  "arguments": {
+    "code": "def process_user_data(name: str, age: int, scores: list[float]):\n    pass"
+  }
+}
+```
+
+### 3. Verification with Custom Strategy
+Use specific Hypothesis strategies for targeted edge-case discovery.
+
+```json
+{
+  "tool": "fuzz_function",
+  "arguments": {
+    "code": "def test_division(x: int, y: int):\n    return x / y != 0",
+    "strategy": "integers()"
+  }
+}
+// This will quickly find the ZeroDivisionError for y=0.
+```
+
 ## Related tools / concepts
 - [Hypothesis](https://hypothesis.works/)
 - [asteval](https://github.com/newville/asteval)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Symbolic MCP](symbolic-mcp.md)
+- [MCP Registry](../automation_orchestration/mcp-registry.md)
+- [Python](../ai_knowledge/python.md)
+- [Jupyter Kernel MCP](jupyter-kernel-mcp.md)
 
 ## Sources / References
 - [Fuzzing MCP GitHub](https://github.com/democratize-technology/fuzzing-mcp-server)
+- [Hypothesis Documentation](https://hypothesis.readthedocs.io/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high
