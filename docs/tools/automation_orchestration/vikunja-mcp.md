@@ -40,15 +40,58 @@ It allows agents to manage tasks, projects, labels, and teams directly within a 
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Getting started
+
+Vikunja MCP enables AI assistants to manage tasks within a self-hosted Vikunja instance. It uses API tokens for secure access.
+
+### 1. Installation
+```bash
+pip install vikunja-mcp
+```
+
+### 2. Obtain API Token
+1. Log in to your Vikunja instance.
+2. Go to **Settings** > **API Tokens**.
+3. Create a new token with the necessary scopes (Tasks, Projects, etc.).
+
+### 3. Configuration (Claude Desktop)
+Add the server to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "vikunja": {
+      "command": "python",
+      "args": ["-m", "vikunja_mcp"],
+      "env": {
+        "VIKUNJA_URL": "https://tasks.example.com",
+        "VIKUNJA_TOKEN": "your-api-token"
+      }
+    }
+  }
+}
+```
+
+### 4. Subcommand Usage
+The agent interacts with Vikunja via subcommands. For example:
+- `tasks list` - List tasks in a project.
+- `tasks create` - Create a new task.
+- `projects create` - Create a new project list.
+
 ## Related tools / concepts
 - [Vikunja](../../services/vikunja.md)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Nextcloud](../../services/nextcloud.md)
+- [Gitea](../../services/gitea.md)
+- [Paperless-ngx](../../services/paperless-ngx.md)
+- [Google Calendar](../calendar_tasks/google_calendar.md)
 - [MCP Registry](mcp-registry.md)
 
 ## Sources / References
 - [Vikunja MCP GitHub](https://github.com/democratize-technology/vikunja-mcp)
+- [Vikunja API Documentation](https://vikunja.io/docs/api/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high

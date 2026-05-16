@@ -38,15 +38,61 @@ It provides advanced calendar and event management capabilities with multi-accou
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Getting started
+
+Chronos MCP is built with FastMCP and can be configured via a JSON configuration file for use with Claude Desktop or other MCP clients.
+
+### 1. Installation
+```bash
+pip install chronos-mcp
+```
+
+### 2. Configuration (Claude Desktop)
+Add the server to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "chronos": {
+      "command": "python",
+      "args": ["-m", "chronos_mcp"],
+      "env": {
+        "CHRONOS_CONFIG_PATH": "/path/to/your/chronos_config.yaml"
+      }
+    }
+  }
+}
+```
+
+### 3. Server Configuration (`chronos_config.yaml`)
+Define your CalDAV accounts:
+
+```yaml
+accounts:
+  - name: "Personal Nextcloud"
+    url: "https://nextcloud.example.com/remote.php/dav"
+    username: "user"
+    password_env: "NEXTCLOUD_PASSWORD"
+  - name: "Fastmail"
+    url: "https://caldav.fastmail.com/dav/"
+    username: "user@fastmail.com"
+    password_env: "FASTMAIL_APP_PASSWORD"
+```
+
 ## Related tools / concepts
 - [CalDAV](../intake_storage/caldav.md)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Nextcloud](../../services/nextcloud.md)
+- [Fastmail](../calendar_tasks/fastmail.md)
+- [Vikunja MCP](vikunja-mcp.md)
+- [Google Calendar](../calendar_tasks/google_calendar.md)
 - [Chronos CalDAV library](https://github.com/democratize-technology/chronos-mcp)
 
 ## Sources / References
 - [Chronos MCP GitHub](https://github.com/democratize-technology/chronos-mcp)
+- [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high

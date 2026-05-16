@@ -14,6 +14,13 @@ It abstracts away the complexities of modern web scraping, including JS renderin
 - **Structured Extraction**: Extracting data from many sites into a uniform JSON schema.
 - **RAG Workflows**: Feeding clean Markdown from many URLs into vector databases.
 
+## Technical Capabilities
+- **Scrape**: High-fidelity conversion of single URLs to Markdown, HTML, or structured JSON.
+- **Crawl**: Recursive traversal of entire domains with controlled depth and concurrency.
+- **Map**: Instant discovery of site structure and all sub-URLs without full page rendering.
+- **Extract**: AI-powered structured data extraction using Pydantic schemas (67% token reduction vs. full scrape).
+- **Search**: Real-time web search that returns full page content for top results.
+
 ## Strengths
 - **Managed Reliability**: Handled anti-bot, IP rotation, and dynamic JS rendering.
 - **MCP Support**: Official Firecrawl MCP server for easy integration with Claude.
@@ -77,19 +84,64 @@ firecrawl search "firecrawl" --limit 5
 firecrawl crawl https://docs.firecrawl.dev --limit 10
 ```
 
-## API examples
+## API: Structured Extraction
+Firecrawl v1 excels at extracting structured data using Pydantic schemas, significantly reducing LLM token usage.
+
 ```python
 from firecrawl import Firecrawl
+from pydantic import BaseModel
+from typing import List
 
 app = Firecrawl(api_key="fc-YOUR_API_KEY")
 
-# Use the Agent for autonomous data gathering
-result = app.agent(prompt="Find the founders of Firecrawl")
-print(result.data)
+class PricingPlan(BaseModel):
+    name: str
+    price: float
+    features: List[str]
 
-# Map URLs to discover site structure
-map_result = app.map("https://firecrawl.dev", search="pricing")
-print(map_result)
+# Extract structured data from a pricing page
+# This uses the /extract endpoint which is optimized for JSON output
+data = app.scrape("https://firecrawl.dev/pricing", {
+    "formats": ["json"],
+    "jsonOptions": {
+        "schema": PricingPlan.model_json_schema()
+    }
+})
+
+print(data["json"])
+```
+
+## API: Advanced Mapping and Searching
+The `map` endpoint is used for discovery, while `search` provides real-time content.
+
+```python
+# Discover all product URLs on a site instantly
+map_result = app.map("https://firecrawl.dev", search="product")
+print(f"Discovered URLs: {map_result['links']}")
+
+# Search the web and get full content for the top 3 results
+search_result = app.search("Best open-source RAG frameworks", {
+    "limit": 3,
+    "scrapeOptions": {"formats": ["markdown"]}
+})
+
+for result in search_result["data"]:
+    print(f"Source: {result['url']}\nContent: {result['markdown'][:200]}...")
+```
+
+## API: Actions and Interaction
+Firecrawl allows for complex browser interactions before content extraction.
+
+```python
+# Interact with a page (click, wait, scroll) before scraping
+result = app.scrape("https://example.com/login", {
+    "formats": ["markdown"],
+    "actions": [
+        {"type": "click", "selector": "#login-btn"},
+        {"type": "wait", "milliseconds": 2000},
+        {"type": "scroll", "direction": "down"}
+    ]
+})
 ```
 
 ## Related tools / concepts
@@ -97,7 +149,9 @@ print(map_result)
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [Skyvern](../automation_orchestration/skyvern.md)
 - [Docling](docling.md)
-- [RAGFlow](ragflow.md)
+- [RAGFlow](../benchmarking/ragflow.md)
+- [Valyu](../ai_knowledge/valyu.md)
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
 
 ## Sources / References
 - [GitHub](https://github.com/firecrawl/firecrawl)
@@ -105,5 +159,5 @@ print(map_result)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-27
+- Last reviewed: 2026-05-16
 - Confidence: high

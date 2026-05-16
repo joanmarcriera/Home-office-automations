@@ -2,7 +2,7 @@
 
 ## What it is
 
-Picnic is a desktop AI automation product that lets users record browser-based work, package it into reusable flows, and run those flows as scheduled agents on top of the OpenClaw runtime.
+Picnic is a desktop AI automation product that lets users record browser-based work, package it into reusable flows, and run those flows as scheduled agents on top of the [OpenClaw](../development_ops/openclaw.md) runtime.
 
 ## What problem it solves
 
@@ -10,7 +10,7 @@ OpenClaw-class agent systems are powerful, but they still assume a fairly techni
 
 ## Where it fits in the stack
 
-**Automation runtime / desktop orchestration layer**. Picnic sits above model subscriptions and browser automation primitives, and in front of OpenClaw, giving non-developers a way to teach workflows by demonstration and then run them unattended.
+**Automation runtime / desktop orchestration layer**. Picnic sits above model subscriptions and browser automation primitives, and in front of [OpenClaw](../development_ops/openclaw.md), giving non-developers a way to teach workflows by demonstration and then run them unattended.
 
 ```text
 User -> Picnic desktop UI -> Recorded flows + jobs + agents -> OpenClaw runtime -> LLM/provider subscriptions
@@ -20,7 +20,7 @@ User -> Picnic desktop UI -> Recorded flows + jobs + agents -> OpenClaw runtime 
 
 - Browser-based admin work that repeats every day or week.
 - Overnight or off-hours job execution for reports, follow-ups, and queued tasks.
-- Teams that want OpenClaw-style autonomy without starting in Docker, YAML, or the terminal.
+- Teams that want [OpenClaw](../development_ops/openclaw.md)-style autonomy without starting in Docker, YAML, or the terminal.
 - Small-business or founder workflows that benefit from prebuilt agent packages.
 
 ## Getting started
@@ -31,9 +31,35 @@ User -> Picnic desktop UI -> Recorded flows + jobs + agents -> OpenClaw runtime 
 4. Save that recording as a Flow, attach it to an Agent, and assign a schedule in the Jobs view.
 5. If the workflow outgrows the default UI, use the built-in OpenClaw Control entrypoint for lower-level runtime control.
 
-## Integration-oriented example
+## Configuration details
 
-### Scheduled portal follow-up agent
+### Model Tiers & Routing
+Picnic allows you to select which model tier to use for different parts of a flow:
+- **Fast**: Used for simple navigation and data entry (e.g., GPT-4o-mini).
+- **Smart**: Used for complex reasoning and handling ambiguous UI elements (e.g., Claude 3.5 Sonnet).
+- **Premium**: Used for high-stakes decision making or long-horizon planning (e.g., o1).
+
+### Integration with Local Runtimes
+Picnic can connect to a local [OpenClaw](../development_ops/openclaw.md) instance, allowing you to run flows recorded on your desktop across a cluster of headless agents.
+
+## Technical examples
+
+### Sample Job Definition (YAML Export)
+While Picnic is primarily GUI-driven, it allows exporting job definitions for version control or OpenClaw migration.
+
+```yaml
+job:
+  name: "Daily CRM Sync"
+  agent: "AdminAssistant"
+  flow: "crm_portal_sync_v2"
+  schedule: "cron(0 2 * * *)" # 2 AM every day
+  timeout: 1800
+  notifiers:
+    - type: "telegram"
+      chat_id: "${TELEGRAM_CHAT_ID}"
+```
+
+### Integration-oriented example: Scheduled portal follow-up agent
 
 1. Record the steps for logging into a supplier or CRM web portal inside Picnic Browser.
 2. Save the recording as a reusable Flow.
@@ -49,20 +75,20 @@ This makes Picnic a practical front door for people who want OpenClaw-backed aut
 - Built-in browser recording is a good fit for web apps that lack clean APIs.
 - Scheduling is a first-class concept rather than an add-on.
 - Sandboxed browser isolation is safer than sharing your day-to-day Chrome or Safari profile.
-- Clear migration path into OpenClaw for users who need more control later.
+- Clear migration path into [OpenClaw](../development_ops/openclaw.md) for users who need more control later.
 
 ## Limitations
 
 - Public technical documentation is thin; most public information currently comes from the marketing site and FAQ.
 - Browser-recorded automations still inherit the usual fragility of UI-driven workflows.
 - Picnic itself is not positioned as a source-available or self-hosted server product.
-- Advanced governance, custom integrations, and deep runtime tuning still push you toward OpenClaw underneath.
+- Advanced governance, custom integrations, and deep runtime tuning still push you toward [OpenClaw](../development_ops/openclaw.md) underneath.
 
 ## When to use it
 
 - When a non-technical operator wants to automate repeated browser work.
 - When the main requirement is scheduled, unattended execution from a desktop app.
-- When you want OpenClaw capabilities but prefer a guided GUI and prebuilt agent library.
+- When you want [OpenClaw](../development_ops/openclaw.md) capabilities but prefer a guided GUI and prebuilt agent library.
 
 ## When not to use it
 
@@ -82,12 +108,17 @@ This makes Picnic a practical front door for people who want OpenClaw-backed aut
 - [Browser Use](browser-use.md)
 - [n8n](../../services/n8n.md)
 - [Home Assistant](../../services/home-assistant.md)
+- [LiteLLM](../../services/litellm.md)
+- [ClawRouter](../infrastructure/clawrouter.md)
+- [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md)
+- [Custom Agents](../development_ops/custom_agents.md)
 
 ## Sources / References
 
 - [Official site](https://picnicos.com/)
+- [Picnic FAQ & Community Support](https://picnicos.com/faq)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-29
-- Confidence: medium
+- Last reviewed: 2026-05-16
+- Confidence: high

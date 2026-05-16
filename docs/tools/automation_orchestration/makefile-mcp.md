@@ -37,15 +37,65 @@ Traditional Makefile MCP implementations often expose a single generic `make` to
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Getting started
+
+Makefile MCP registers documented targets as tools. Documentation is provided via `##` comments on the target line.
+
+### 1. Installation
+```bash
+pip install makefile-mcp
+```
+
+### 2. Documenting your Makefile
+Add `##` comments to your targets to expose them:
+
+```makefile
+.PHONY: help build test
+
+## Show this help message
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+## Build the application binary
+build:
+	go build -o app main.go
+
+## Run all unit tests
+test:
+	go test ./...
+```
+
+### 3. Configuration (Claude Desktop)
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "project-make": {
+      "command": "python",
+      "args": ["-m", "makefile_mcp"],
+      "env": {
+        "MAKEFILE_PATH": "/path/to/your/Makefile"
+      }
+    }
+  }
+}
+```
+
 ## Related tools / concepts
 - [GNU Make](gnu-make.md)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Aider](../development_ops/aider.md)
+- [Plandex](../development_ops/plandex.md)
+- [Zapier](zapier.md)
 - [FastMCP](https://github.com/jlowin/fastmcp)
+- [MCP Registry](mcp-registry.md)
 
 ## Sources / References
 - [Makefile MCP GitHub](https://github.com/democratize-technology/makefile-mcp)
+- [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-16
 - Confidence: high

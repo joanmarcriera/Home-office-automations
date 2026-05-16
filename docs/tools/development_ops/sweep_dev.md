@@ -1,4 +1,4 @@
-# Sweep.dev
+# Sweep
 
 ## What it is
 Sweep is an AI "junior developer" that automates the process of transforming GitHub issues into Pull Requests. It monitors a repository's issue tracker and, when triggered, analyzes the codebase to implement the requested fix or feature, handling the entire lifecycle from triage to code generation and PR creation.

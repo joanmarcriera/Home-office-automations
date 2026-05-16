@@ -43,6 +43,7 @@ Jira MCP implementations are fragmented across many repositories. This page prov
 - [InfinitIQ-Tech/mcp-jira](https://mcpservers.org/servers/InfinitIQ-Tech/mcp-jira) — Python/Jira-API style integration with issue CRUD and transitions.
 - [1broseidon/mcp-jira-server](https://mcpservers.org/servers/1broseidon/mcp-jira-server) — REST-focused Jira issue operations.
 - [Jongryong/jira_reporter](https://mcpservers.org/servers/Jongryong/jira_reporter) — Reporting-oriented Jira MCP workflow.
+- [cyan-24/mcp-server-jira](https://github.com/cyan-24/mcp-server-jira) — Comprehensive Jira Cloud implementation with advanced search and transition support.
 
 ## ServiceNow MCP example
 - [ServiceNow MCP Server](servicenow-mcp.md) — Existing ServiceNow canonical page in this repo.
@@ -233,6 +234,9 @@ Useful prompts once connected:
 - [Playwright MCP Server](playwright-mcp.md)
 - [Model Context Protocol (MCP)](mcp.md)
 - [n8n](../../services/n8n.md)
+- [Aider](../development_ops/aider.md)
+- [GitHub Copilot](../development_ops/github_copilot.md)
+- [Claude Code](../development_ops/claude-code-setup.md)
 
 ## Sources / References
 - [Issue source: requested MCP examples](https://github.com/joanmarcriera/Home-office-automations/issues/24)
@@ -247,5 +251,5 @@ Useful prompts once connected:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-02-26
+- Last reviewed: 2026-05-16
 - Confidence: high

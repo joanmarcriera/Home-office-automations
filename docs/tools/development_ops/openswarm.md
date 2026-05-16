@@ -7,7 +7,7 @@ OpenSwarm is a multi-agent orchestrator for the Claude CLI, designed specificall
 It simplifies the coordination of multiple AI agents performing complex, interdependent tasks across project management and version control systems, reducing the manual overhead of managing individual agent runs. It bridges the gap between raw LLM APIs and the specific workflows used by engineering teams.
 
 ## Where it fits in the stack
-**Agent / Orchestrator**. It acts as a control layer that directs Claude-based agents to execute specific actions within a developer's workflow.
+**Agent / Orchestrator**. It acts as the management layer that dispatches tasks to multiple instances of the Claude CLI, coordinating their outputs and maintaining long-term project context.
 
 ## Typical use cases
 - **Automated Issue Management**: Using agents to triage, label, and respond to Linear issues.

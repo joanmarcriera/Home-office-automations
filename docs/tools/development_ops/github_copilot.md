@@ -41,13 +41,27 @@ GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrain
 
 ## Usage examples
 
-### copilot chat commands
+### Copilot Chat Commands
 Use slash commands in the chat sidebar to perform specific tasks:
 - `/explain`: Get an explanation of the selected code.
 - `/fix`: Propose a fix for bugs in the selected code.
 - `/tests`: Generate unit tests for the current file.
 
-### workspace agent
+### GitHub Copilot CLI
+The Copilot CLI brings AI assistance directly to your terminal for explaining commands or generating scripts.
+
+```bash
+# Install the CLI extension
+gh extension install github/gh-copilot
+
+# Ask for a command explanation
+gh copilot explain "git log --oneline --graph --all"
+
+# Suggest a command for a task
+gh copilot suggest "find all large files over 100MB and delete them"
+```
+
+### Workspace Agent
 Use the `@workspace` participant to ask questions about your entire project with full context:
 ```text
 @workspace How are the API routes structured in this project?
@@ -62,10 +76,15 @@ Use the `@workspace` participant to ask questions about your entire project with
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
 - [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
 - [Sourcegraph Cody](sourcegraph_cody.md)
+- [Aider](aider.md)
+- [VS Code](vscode.md)
+- [Zed](zed.md)
+
 ## Sources / references
 - [Official Website](https://github.com/features/copilot)
+- [Copilot CLI Documentation](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high

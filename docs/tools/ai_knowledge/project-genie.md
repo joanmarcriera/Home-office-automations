@@ -1,71 +1,102 @@
 # Project Genie
 
 ## What it is
-Project Genie is an AI research prototype from Google DeepMind that allows users to create, explore, and remix interactive virtual worlds from text prompts and images. It is powered by **Genie 3**, an 11-billion-parameter autoregressive transformer world model trained on large-scale video data.
+Project Genie is a generative world model from Google DeepMind that can create interactive, navigable virtual environments from a single image or text prompt. Unlike traditional video generation, Genie produces a "world" that a user can actually control and explore in real-time, essentially acting as an AI-powered game engine that learns physics and mechanics from unlabeled internet videos.
 
 ## What problem it solves
-It enables the rapid creation of interactive environments and simulations without traditional game development overhead. It demonstrates the ability of "world models" to learn physics, gameplay mechanics, and character interactions solely from observing video.
+It bridges the gap between passive content generation (like Sora) and interactive experiences. Traditionally, building a navigable 3D or 2D world requires thousands of hours of manual asset creation, physics programming, and level design. Genie automates this by "imagining" the world and its underlying rules of movement and interaction.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Generative Models**. It is a foundational world model for interactive world generation.
+**AI & Knowledge / Generative World Models**. It sits at the intersection of video generation and game development, providing a foundation for autonomous agent training (simulators) and interactive entertainment.
 
 ## Typical use cases
-- **Rapid Prototyping**: Creating interactive scenes for game design, storytelling, or architectural visualization.
-- **Agent Training**: Generating diverse, physics-aware environments for AI agents to inhabit and learn from.
-- **Interactive Entertainment**: Allowing users to "walk around" and interact with worlds generated from their imagination.
+- **Rapid Game Prototyping**: Generating a playable level from a sketch or a few sentences.
+- **Agent Training**: Creating diverse "gym" environments for training robotic or digital agents in safe, simulated physics.
+- **Interactive Storytelling**: Allowing users to enter and navigate a scene described in a narrative.
+- **Remixing Content**: Taking an existing image and transforming it into a navigable "remix."
 
-## Usage Requirements
-- **Subscription**: Requires a **Google AI Ultra** subscription (approx. $249.99/mo as of early 2026).
-- **Region/Age**: Currently available to users in the U.S. over the age of 18.
-- **Interface**: Accessible via Google Labs and integrated into the broader Google AI ecosystem.
-
-## Prompting Tips
-- **Detailed Environments**: Describe weather, lighting, and specific structures (e.g., "a lush neon forest with constant blue rain and floating crystals").
-- **Action-Oriented Characters**: Specify how the character moves—flying, rolling, hopping—and any visual effects of their movement.
-- **Image Input**: Upload a centered character with enough background to define the environment for the model to extrude into 3D.
-- **Perspective Switching**: Switch between first-person and third-person views in real-time to explore the generated space.
+## Technical Architecture
+- **Model**: Genie 3 (11-billion parameter autoregressive transformer).
+- **Performance**: 720p resolution at 24 frames per second (real-time).
+- **Inference**: Uses a "World Sketch" as a latent bottleneck to maintain consistency across frames.
+- **Training**: Trained on over 200,000 hours of unlabeled 2D platformer and 3D navigation video footage.
 
 ## Strengths
-- **Physics-Aware Interactivity**: Generates playable worlds that respect basic physical laws (gravity, collision) learned from video.
-- **Remixing**: Users can take existing worlds from a gallery and modify them using natural language.
-- **High Resolution**: Genie 3 supports real-time generation at 720p/24fps.
+- **Interactive Consistency**: The world remains stable as you move; objects don't disappear when you look away.
+- **Zero-Code Mechanics**: Infers physics (gravity, collision, friction) without explicit programming.
+- **Multi-Modal Input**: Can be triggered by text, images, or even rough sketches.
 
 ## Limitations
-- **Duration**: Current interactive sessions are often limited in duration (e.g., 60-second clips) or spatial complexity.
-- **Premium Cost**: High computational requirements result in significant subscription pricing.
+- **Resolution**: While high for real-time generative video (720p), it still lacks the fidelity of modern high-end game engines.
+- **Memory Horizon**: The "consistency" of the world may drift after several minutes of continuous, far-ranging navigation.
+- **Compute Intensity**: Requires significant TPU/GPU resources for real-time inference.
 
 ## When to use it
-- To quickly prototype interactive environments and simulations without traditional game development.
-- For research into "world models" and how AI learns physics from video.
-- To generate diverse, physics-aware synthetic data for training other AI agents.
+- When you need a custom, navigable environment for an AI agent to explore.
+- For "vibe-based" game development where the atmosphere is more important than specific hardcoded mechanics.
+- To create interactive demos for creative concepts or architectural visualizations.
 
 ## When not to use it
-- When you need permanent, highly complex game worlds with complex logic beyond physical interaction.
-- If you require a fully open-source or local deployment (Genie is a managed Google research prototype).
+- For production-grade games that require precise, pixel-perfect collision and deterministic physics.
+- In low-latency applications where any frame generation delay is unacceptable.
 
 ## Getting started
 
-### Exploring your first World
-1.  Access [Project Genie](https://labs.google/projectgenie) via Google Labs (U.S. Only).
-2.  **Upload an image**: Provide a starting frame for your world (e.g., a 2D platformer level design).
-3.  **Prompt**: Describe the physics and character movement (e.g., "A low-gravity moon base where the character leaps between craters").
-4.  **Interact**: Use the keyboard or controller icons to move your character through the generated sequence.
-5.  **Refine**: Edit your prompt to change the "vibe" or physics of the world in real-time.
+### Prompting Genie 3
+Effective world generation in Genie 3 involves three core elements: the **Environment**, the **Character**, and the **World Sketch**.
+
+#### Example: Text-to-World Prompt
+```text
+Environment: A neon-lit cyberpunk cityscape during a rainy night. Surfaces are slick asphalt with neon reflections. Distant skyscrapers with glowing advertisements.
+Character: A sleek hover-bike that drifts through corners.
+Action: Navigate the bike through tight alleys and over high-rise bridges.
+```
+
+### Navigating the World
+Once the world is generated:
+1.  **Select the Character**: Click on the object you wish to control.
+2.  **Input Actions**: Use standard WASD or arrow keys. Genie interprets these "latent actions" based on the character's inferred physics (e.g., "W" might mean "Thrust" for a bike but "Jump" for a platformer character).
+
+## Technical examples
+
+### Advanced World Sketch Modification
+Before entering the world, you can modify the **World Sketch** (the latent representation) to add specific constraints:
+
+```text
+Add a "High Perspective" constraint to the Environment prompt to ensure a wide-angle view suitable for tactical navigation.
+```
+
+### Integration Pattern for Agent Training
+Genie 3 can be used as a backend for reinforcement learning environments where a traditional simulator (like MuJoCo) is too rigid:
+
+```python
+# Conceptual integration with an RL agent
+import genie_sdk
+
+env = genie_sdk.make("cyberpunk_city_v1")
+obs = env.reset()
+
+while not done:
+    # Action here is a 'latent action' mapped from the model's learned space
+    action = agent.get_action(obs)
+    obs, reward, done, info = env.step(action)
+```
 
 ## Related tools / concepts
-- [Google Gemini](google-gemini.md)
-- [Runway ML](runwayml.md)
 - [Sora](sora.md)
 - [Luma Dream Machine](luma-dream-machine.md)
-- [AG2](../frameworks/ag2.md)
-- [NotebookLM](notebooklm.md)
-- [ElevenLabs](elevenlabs.md)
+- [Runway Gen-3](runway.md)
+- [Google Lyria](google-lyria.md)
+- [Nano Banana](nano-banana.md)
+- [Unity / Unreal Engine](https://unity.com) (Traditional counterparts)
+- [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Simulation-Aware Agents](../../knowledge_base/learning-map.md)
 
 ## Sources / References
-- [Genie 3 — Google DeepMind](https://deepmind.google/models/genie/)
-- [How to write prompts for Project Genie (The Keyword)](https://blog.google/innovation-and-ai/models-and-research/google-deepmind/tips-prompt-writing-project-genie/)
-- [Project Genie - Google Labs](https://labs.google/projectgenie)
+- [Google DeepMind: Genie: Generative Interactive Environments](https://deepmind.google/discover/blog/genie-generative-interactive-environments/)
+- [Genie 3 Prompt Guide](https://deepmind.google/models/genie/prompt-guide/)
+- [ALM Corp: Project Genie Technical Analysis](https://almcorp.com/blog/google-deepmind-project-genie-technical-analysis-applications/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-16
 - Confidence: high

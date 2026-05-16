@@ -34,6 +34,75 @@ Measures whether LLMs can perform practical software engineering work -- underst
 - When evaluating basic code generation from specifications (use [HumanEval](human-eval.md) instead)
 - When you need quick, lightweight benchmarking
 
+## Getting started
+
+SWE-bench requires a Docker environment to safely execute untrusted code and run test suites.
+
+### 1. Installation
+```bash
+pip install swebench
+```
+
+### 2. Running an Evaluation (Inference)
+Generate model predictions for a subset of issues:
+
+```bash
+python -m swebench.inference.run_api \
+    --dataset_name princeton-nlp/SWE-bench_Lite \
+    --model_name gpt-4-0613 \
+    --output_dir ./predictions
+```
+
+### 3. Evaluating Predictions (Docker)
+Use `swe-bench-docker` to execute the generated patches against the original repositories:
+
+```bash
+docker run -v $(pwd)/predictions:/predictions swebench/swe-bench-eval \
+    --predictions /predictions/gpt-4-0613.jsonl \
+    --output_dir /results
+```
+
+## Technical examples
+
+### 1. Using SWE-bench Verified
+The "Verified" subset consists of 500 tasks that have been human-verified to be solvable and have high-quality unit tests.
+
+```python
+from datasets import load_dataset
+
+# Load the verified subset
+dataset = load_dataset("princeton-nlp/SWE-bench_Verified", split="test")
+
+# Access a specific task
+task = dataset[0]
+print(f"Task ID: {task['instance_id']}")
+print(f"Problem Statement: {task['problem_statement']}")
+```
+
+### 2. Custom Evaluation Loop
+For agentic workflows, you can integrate SWE-bench as a final validation step in your local environment.
+
+```python
+from swebench.harness.test_spec import make_test_spec
+from swebench.harness.run_evaluation import run_instance
+
+# Define task instance
+instance = {
+    "repo": "django/django",
+    "pull_number": "12345",
+    "instance_id": "django__django-12345",
+    "base_commit": "abc123...",
+    "patch": "diff --git a/django/db/models/fields/__init__.py...",
+    "test_patch": "diff --git a/tests/model_fields/tests.py..."
+}
+
+# Run evaluation in Docker
+spec = make_test_spec(instance)
+result = run_instance(spec)
+
+print(f"Resolved: {result['resolved']}")
+```
+
 ## Practical evaluation notes
 
 Use SWE-bench as a high-signal engineering benchmark, but interpret it as one part of an agent-readiness picture:
@@ -60,6 +129,10 @@ When using SWE-bench results to compare coding agents, record:
 - [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
 - [LongCLI-Bench](longcli-bench.md)
+- [Aider](../development_ops/aider.md)
+- [OpenHands](../agents/openhands.md)
+- [Plandex](../development_ops/plandex.md)
+- [Claude Code](../development_ops/claude-code-setup.md)
 ## Sources / references
 - [Official Website](https://www.swebench.com/)
 - [GitHub Repository](https://github.com/princeton-nlp/SWE-bench)
@@ -68,5 +141,5 @@ When using SWE-bench results to compare coding agents, record:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-07
-- Confidence: medium
+- Last reviewed: 2026-05-16
+- Confidence: high

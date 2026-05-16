@@ -109,6 +109,9 @@ Star counts below are from a GitHub API snapshot pulled on 2026-03-14 from your 
 - [n8n](../../services/n8n.md) — the automation engine often used to bridge these libraries.
 - [Skills Index](../../skills.md) — the functional capabilities these repos provide.
 - [Architecture Overview](../../ARCHITECTURE.md) — how these tools fit into the global stack.
+- [Aider](../../tools/development_ops/aider.md) — terminal-based AI coding.
+- [Zed](../../tools/development_ops/zed.md) — high-performance AI editor.
+- [Tabnine](../../tools/development_ops/tabnine.md) — privacy-first AI completions.
 
 ## Sources / references
 
@@ -140,5 +143,5 @@ Star counts below are from a GitHub API snapshot pulled on 2026-03-14 from your 
 - [plandex-ai/plandex](https://github.com/plandex-ai/plandex)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high

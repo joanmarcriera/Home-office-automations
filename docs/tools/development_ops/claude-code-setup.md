@@ -118,11 +118,35 @@ Invoked automatically when adding or editing playbooks and tool docs. Checks:
 
 ---
 
+## Maintenance & Troubleshooting
+
+### Updating Plugins
+Keep plugins fresh to ensure compatibility with new CLI versions:
+```bash
+claude plugin update --all
+```
+
+### Resetting Config
+If the project-level subagents or hooks fail to load, try forcing a refresh by re-opening the directory or checking the `.claude/settings.json` syntax:
+```bash
+# Validate local settings
+cat .claude/settings.json | jq .
+```
+
+### Skill Permissions
+If a skill fails to execute, ensure the underlying script has execution permissions:
+```bash
+chmod +x ~/.claude/skills/ollama-*/index.py
+```
+
 ## Related tools / concepts
 - [Claude Code](./claude-code.md)
 - [Claude Code Router](./claude-code-router.md)
 - [Agent Protocols (MCP & ACP)](../../knowledge_base/agent_protocols.md)
 - [Standards & Conventions](../../standards.md)
+- [Aider](./aider.md)
+- [Mentat](./mentat.md)
+- [Cursor](./cursor.md)
 
 ## Sources / references
 - [Claude Code documentation](https://docs.anthropic.com/claude-code)
@@ -131,4 +155,4 @@ Invoked automatically when adding or editing playbooks and tool docs. Checks:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-03-01
+- Last reviewed: 2026-05-16

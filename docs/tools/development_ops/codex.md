@@ -1,106 +1,111 @@
-# OpenAI Codex
+# OpenAI Codex (and Evolution to GPT-4o/O1/O3)
 
 ## What it is
-OpenAI's coding-specialized model line and related coding-agent surfaces. In current routing terms, this is the lane to use when the task is strongly code-centric rather than broad general reasoning.
+OpenAI's coding-specialized model line (Codex) and its successors. While the specific "Codex" models (like `code-davinci-002`) are largely deprecated, their capabilities have been integrated and surpassed by newer frontier models like GPT-4o, O1, and O3. In current routing terms, this is the lane to use when the task is strongly code-centric.
 
 ## What problem it solves
-Provides a specialized language model and tooling surface for code generation, editing, and implementation-oriented coding assistance.
+Provides a specialized language model and tooling surface for code generation, editing, and implementation-oriented coding assistance. It reduces the cognitive load of syntax, boilerplate, and routine implementation tasks.
 
 ## Where it fits in the stack
-**Development & Ops**. Functions as the underlying model powering several AI coding assistants.
+**Development & Ops**. Functions as the underlying model powering several AI coding assistants, including [GitHub Copilot](github-copilot-cli.md), [Cursor](cursor.md), and [Aider](aider.md).
 
 ## Typical use cases
-- Powering code completion tools (e.g., GitHub Copilot)
-- Generating code from natural language descriptions
-- Translating between programming languages
-- Editing or refactoring an existing codebase
-- Writing tests and implementation scaffolds
+- Powering code completion tools in the IDE.
+- Generating code from natural language descriptions or design specs.
+- Translating between programming languages (e.g., Python to Rust).
+- Editing, refactoring, or optimizing an existing codebase.
+- Writing unit tests and implementation scaffolds.
+- Debugging and explaining complex code blocks.
+
+## Evolution of OpenAI Coding Models
+1. **Codex (2021)**: The original specialized coding model.
+2. **GPT-4 (2023)**: Integrated coding expertise with broad reasoning.
+3. **GPT-4o (2024)**: Faster, multimodal, and highly efficient for real-time IDE completions.
+4. **O1/O3 (2024-2025)**: Reasoning-heavy models designed for complex software engineering and logical problem solving.
+
+## API Usage Example (Chat Completion)
+Most modern coding tasks use the standard Chat Completions API with a coding-specific system prompt.
+
+```python
+from openai import OpenAI
+client = OpenAI()
+
+response = client.chat.completions.create(
+  model="gpt-4o",
+  messages=[
+    {"role": "system", "content": "You are an expert software engineer. Provide only high-quality, commented code."},
+    {"role": "user", "content": "Write a Python script to perform a BFS on a graph."}
+  ]
+)
+
+print(response.choices[0].message.content)
+```
 
 ## Strengths
-- Code-specialized behavior
-- Useful when you want code editing bias rather than general chat behavior
-- Strong fit for code generation, refactors, and test-writing loops
+- Unmatched code-specialized behavior in frontier models.
+- Deep understanding of modern libraries, frameworks, and patterns.
+- Strong fit for code generation, refactors, and test-writing loops.
+- Excellent performance in [SWE-bench](../benchmarking/swe-bench.md) and other coding benchmarks.
 
 ## Limitations
-- Proprietary; no self-hosting option
-- Not the best default for broad research, planning, or mixed non-code reasoning
-- Should be treated as a specialized lane, not the universal default
+- Proprietary; no self-hosted option.
+- API costs can scale quickly for large codebase indexing.
+- Knowledge cutoff may affect very recent library updates.
+- Best used as a specialized lane, not a universal default for all reasoning tasks.
+
+## When to use it
+- When using GitHub Copilot or other tools built on OpenAI's coding models.
+- When evaluating code-specialized models against general-purpose LLMs.
+- When the task is code-centric enough to justify a specialized coding lane.
+- For complex refactors that require a high degree of logical reasoning (O1/O3).
+
+## When not to use it
+- When you need a self-hosted or open-source code model.
+- When the task is not primarily code-related.
+- When you require a model with an absolute up-to-the-minute knowledge base of very niche new libraries.
 
 ## Model routing
 
-Use `gpt-5.3-codex` when:
-- the task is mostly code
-- you want source-editing behavior
-- you are building inside an IDE, CLI, or code agent flow
+Use `gpt-4o` or `o1-preview` when:
+- The task is mostly code and requires high precision.
+- You want source-editing behavior.
+- You are building inside an IDE, CLI, or code agent flow.
 
 Do not use it when:
-- the task is mainly research
-- the task is business analysis with some incidental code
-- you actually need the broader deliberate reasoning of GPT-5.4
+- The task is mainly broad research without implementation.
+- You need a local/offline model for privacy reasons.
+- You actually need the broader deliberate reasoning of GPT-5.4/O3 for non-code planning.
 
 Best pairings:
-- default coding lane: [Anthropic Sonnet](../providers/anthropic.md)
-- hard reasoning escalation: [OpenAI](../ai_knowledge/openai.md) with GPT-5.4 `high`
-- central policy: [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
+- Default coding lane: [Anthropic Sonnet](../providers/anthropic.md) (highly competitive with GPT-4o for code).
+- Central policy: [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
+- Local fallback: [Llama 3](../ai_knowledge/llama-3.md) (fine-tuned for code).
 
-## When to use it
-- When using GitHub Copilot or other tools built on Codex
-- When evaluating code-specialized models against general-purpose LLMs
-- When the task is code-centric enough to justify a specialized coding lane
-
-## When not to use it
-- When you need a self-hosted or open-source code model
-- When the task is not primarily code
-- When a general reasoning model is better suited to the work
-
-## Getting started
-
-While Codex is primarily an API-based model, it can be used via CLI tools like `codex-cli` or similar wrappers.
+## Implementation Example: CLI Integration
+Many developers use these models via CLI tools for rapid prototyping.
 
 ```bash
-# Install a Codex-compatible CLI wrapper
-npm install -g codex-cli
+# Example using a tool like Aider
+aider --model gpt-4o
 
-# Set your OpenAI API Key
-export OPENAI_API_KEY=your-key-here
-
-# Run a simple query
-codex "Create a python function to scrape a website"
-```
-
-## CLI examples
-
-### codex with local models
-Some wrappers allow redirecting Codex-style requests to local inference servers:
-```bash
-# Configure CLI to point to a local Ollama instance instead of OpenAI
-codex config set base_url http://localhost:11434/v1
-codex config set model codellama
-```
-
-### sandboxed execution
-Run generated code in a restricted environment to prevent system damage. This is particularly useful for agents that can execute the code they generate:
-```bash
-# Execute with sandboxing flags (if supported by the CLI tool)
-codex --execute --full-auto --sandbox=docker "Calculate the first 1000 prime numbers"
-
-# Use with Open Interpreter for more advanced, automated sandboxed execution
-# This allows the LLM to run code in a secure E2B or Docker container
-interpreter --local --model codellama --sandbox
+# Example using OpenAI CLI directly
+openai api chat.completions.create -m gpt-4o -g user "Implement a thread-safe singleton in Java"
 ```
 
 ## Related tools / concepts
-- [Llama 3 (Fine-tuned for code)](https://ollama.com/library/llama3)
-- [StarCoder](https://github.com/bigcode-project/starcoder)
+- [GitHub Copilot](github-copilot-cli.md)
+- [Cursor](cursor.md)
+- [Aider](aider.md)
 - [OpenAI](../ai_knowledge/openai.md)
 - [Anthropic](../providers/anthropic.md)
+- [SWE-bench](../benchmarking/swe-bench.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## Sources / references
-- [OpenAI Codex](https://openai.com/codex/)
 - [OpenAI Models Overview](https://platform.openai.com/docs/models)
+- [OpenAI Codex (Legacy)](https://openai.com/blog/openai-codex)
+- [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-03-15
-- Confidence: medium
+- Last reviewed: 2026-05-15
+- Confidence: high
