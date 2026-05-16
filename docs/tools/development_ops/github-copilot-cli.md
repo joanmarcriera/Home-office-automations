@@ -10,22 +10,78 @@ It brings Copilot interactions into shell-driven workflows so developers and age
 **Development & Ops Tool**. It extends Copilot from IDE-centric use into CLI-centric environments.
 
 ## Typical use cases
-- Terminal-native coding assistance
-- Agent workflows that call Copilot from scripts or shells
-- Fast code/task prompting while staying in command-line flow
-- Scheduled repository summaries or scaffolding tasks in GitHub Actions
+- **Terminal-native coding assistance**: Quickly generate shell commands or code snippets.
+- **Agent workflows**: Use Copilot within automated scripts or agent-driven shell sessions.
+- **Interactive Scaffolding**: Generate initial project structures or complex boilerplate.
+- **CI/CD Automation**: Use Copilot CLI in GitHub Actions for intelligent repository analysis.
 
-## Automation in GitHub Actions
+## Getting started
 
-GitHub now documents Copilot CLI as a runner-side automation tool, not just an interactive terminal assistant. The practical pattern is:
+GitHub Copilot CLI is now primarily distributed as an extension for the GitHub CLI (`gh`).
 
-1. Trigger a workflow on `workflow_dispatch`, a schedule, or repository events.
-2. Check out the repository with enough history for the prompt to inspect.
-3. Install the CLI on the runner with `npm install -g @github/copilot`.
-4. Authenticate with `COPILOT_GITHUB_TOKEN`, backed by a fine-grained PAT that has the `Copilot Requests` permission.
-5. Run `copilot -p ... --no-ask-user` in programmatic mode and decide whether the output should be logged, written to a file, or turned into a follow-on workflow step.
+### 1. Installation
+Ensure you have the [GitHub CLI](https://cli.github.com/) installed, then add the Copilot extension:
 
-That makes Copilot CLI viable for recurring changelog generation, daily repo digests, lightweight issue triage, and other text-heavy CI tasks where a full IDE session would be unnecessary.
+```bash
+gh extension install github/gh-copilot
+```
+
+### 2. Authentication
+Authenticate with your GitHub account:
+
+```bash
+gh auth login
+```
+
+### 3. Usage
+Access the CLI via the `gh copilot` command:
+
+```bash
+# Get help with a shell command
+gh copilot suggest "find all large files in the current directory"
+
+# Explain a complex command
+gh copilot explain "ps aux | grep node"
+```
+
+## Technical examples
+
+### 1. Custom Shell Aliases
+To improve ergonomics, add aliases to your shell configuration (`.zshrc` or `.bashrc`):
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc
+eval "$(gh copilot alias -- bash)"
+```
+
+This provides the following commands:
+- `??`: Suggest a command.
+- `git?`: Suggest a Git command.
+- `gh?`: Suggest a GitHub CLI command.
+
+Example usage:
+```bash
+?? "undo my last 3 git commits"
+```
+
+### 2. Programmatic Automation in GitHub Actions
+Copilot CLI can be used for runner-side automation (e.g., daily repo digests or issue triage).
+
+```yaml
+# .github/workflows/copilot-digest.yml
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Copilot CLI
+        run: gh extension install github/gh-copilot
+      - name: Generate Digest
+        env:
+          GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        run: |
+          gh copilot suggest "Summarize the changes in this repository over the last 24 hours" --no-ask-user > daily_digest.md
+```
 
 ## Strengths
 - Native fit for terminal-heavy engineering workflows
@@ -54,6 +110,10 @@ That makes Copilot CLI viable for recurring changelog generation, daily repo dig
 - [GitHub Copilot](github_copilot.md)
 - [Aider](aider.md)
 - [Codex](codex.md)
+- [Claude Code](claude-code-setup.md)
+- [Continue.dev](continue_dev.md)
+- [Mentat](mentat.md)
+- [Zed](zed.md)
 
 ## Sources / References
 - [GitHub Copilot CLI GA announcement (2026-02-25)](https://github.blog/changelog/2026-02-25-github-copilot-cli-is-now-generally-available/)
@@ -61,5 +121,5 @@ That makes Copilot CLI viable for recurring changelog generation, daily repo dig
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-29
-- Confidence: medium
+- Last reviewed: 2026-05-16
+- Confidence: high
