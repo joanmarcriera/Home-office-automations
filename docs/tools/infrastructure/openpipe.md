@@ -13,6 +13,13 @@ Infrastructure / Fine-tuning
 - Distilling GPT-4 level performance into a specialized Mistral or Llama-based model.
 - Reducing costs for high-volume LLM tasks like classification or extraction.
 - Improving latency for real-time applications by using smaller models.
+- "Golden Dataset" generation from production traffic.
+
+## Technical Capabilities
+- **Drop-in SDK**: Wraps the official OpenAI SDK, logging requests to OpenPipe with zero code changes to core logic.
+- **Model Distillation**: Tools to compare "Teacher" (e.g., GPT-4o) vs. "Student" (e.g., Llama-3-8B) performance.
+- **Data Pruning**: Automatically removes duplicate system prompts and redundant context to minimize training tokens.
+- **OpenAI-Compatible Hosting**: Deploys fine-tuned models to an endpoint that responds to standard OpenAI API calls.
 
 ## Strengths
 - Easy "drop-in" replacement for OpenAI's SDK.
@@ -67,7 +74,9 @@ openpipe record --prompt "Hello" --completion "Hi there!"
 openpipe models list
 ```
 
-## API examples
+## API: Production Data Collection
+The primary value of OpenPipe is capturing real-world "Teacher" model outputs to build a training set.
+
 ```python
 import os
 from openpipe import OpenAI
@@ -79,15 +88,32 @@ client = OpenAI(
 )
 
 # Requests are automatically logged for fine-tuning
+# You can tag requests to filter your dataset later in the dashboard
 response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": "Extract name: My name is Jules"}],
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Extract technical specs from this manual..."}],
     openpipe={
         "tags": {
-            "job_id": "extraction_001",
-            "environment": "production"
-        }
+            "pipeline": "manual-ingestion",
+            "version": "v2.1",
+            "is_production": "true"
+        },
+        "log_request": True # Explicitly ensure this request is logged
     }
+)
+```
+
+## API: Switching to Fine-Tuned Model
+Once a model is trained, switching is as simple as changing the `model` string.
+
+```python
+# Switch from GPT-4o to your fine-tuned model
+# The interface remains identical
+response = client.chat.completions.create(
+    model="openpipe:my-fine-tuned-llama-model",
+    messages=[{"role": "user", "content": "Extract technical specs..."}],
+    # Tagging still works for monitoring the performance of the student model
+    openpipe={"tags": {"model_type": "student"}}
 )
 ```
 
@@ -103,6 +129,9 @@ response = client.chat.completions.create(
 - [vLLM](vllm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [LangSmith](../benchmarking/langsmith.md)
+- [Weights & Biases](../benchmarking/wandb.md)
+- [Unstructured](../process_understanding/unstructured.md)
+- [LlamaParse](../process_understanding/llamaparse.md)
 
 ## Sources / References
 - [Official Website](https://openpipe.ai/)
@@ -110,5 +139,5 @@ response = client.chat.completions.create(
 - [Docs](https://docs.openpipe.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-02-28
+- Last reviewed: 2026-05-16
 - Confidence: high
