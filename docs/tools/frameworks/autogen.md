@@ -19,6 +19,13 @@ Framework / Multi-Agent Orchestrator
 - **Code Execution**: Built-in support for running generated code in Docker or local environments.
 - **Conversational Patterns**: Supports diverse conversation patterns like group chat, nested chat, and sequential chat.
 
+## Technical Architecture: Conversational Patterns
+AutoGen orchestrates agents through several established patterns:
+- **Sequential Chat**: A linear chain where one agent's output becomes another's input.
+- **Group Chat**: A multi-agent environment where a "GroupChatManager" decides which agent speaks next.
+- **Nested Chat**: An agent can "nest" a whole conversation as a tool or a sub-task, effectively creating hierarchical reasoning.
+- **StateFlow**: Using custom logic to transition between agents based on finite state machines (FSM).
+
 ## Limitations
 - **Overhead**: Can be complex to set up and manage for simpler multi-agent tasks.
 - **Cost**: Like most multi-agent frameworks, it can lead to high token consumption.
@@ -52,6 +59,32 @@ user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "co
 user_proxy.initiate_chat(assistant, message="Show me the stock price of NVDA for the last 3 months.")
 ```
 
+### Advanced Example: Critic Pattern
+This pattern uses a "Critic" agent to review the work of a "Coder" before it is finalized.
+
+```python
+from autogen import ConversableAgent
+
+coder = ConversableAgent(
+    "coder",
+    llm_config={"config_list": [{"model": "gpt-4"}]},
+    system_message="You write Python code to solve math problems."
+)
+
+critic = ConversableAgent(
+    "critic",
+    llm_config={"config_list": [{"model": "gpt-4"}]},
+    system_message="You review code for efficiency and correctness. Suggest improvements."
+)
+
+# Sequential chat with feedback loop
+critic.initiate_chat(
+    coder,
+    message="Write a function for the Fibonacci sequence.",
+    max_turns=2
+)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
@@ -59,8 +92,12 @@ user_proxy.initiate_chat(assistant, message="Show me the stock price of NVDA for
 
 ## Related tools / concepts
 - [CrewAI](crewai.md)
+- [LangGraph](./langgraph.md)
 - [Semantic Kernel](semantic-kernel.md)
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
+- [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Claude Code Router](../development_ops/claude-code-router.md)
+- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [GitHub](https://github.com/microsoft/autogen)
