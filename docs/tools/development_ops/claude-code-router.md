@@ -14,8 +14,8 @@ Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./cl
 
 ## Typical use cases
 - **DeepSeek Integration**: Using `DeepSeek-V3` for coding and `DeepSeek-R1` for "Plan Mode" at a fraction of the cost of Claude 3.5.
-- **Local Dev Loop**: Routing background tasks to a local Ollama instance (e.g., `qwen2.5-coder`) to save tokens.
-- **Enterprise Proxying**: Centralizing API key management and logging for teams using Claude Code.
+- **Local Dev Loop**: Routing background tasks to a local [Ollama instance](../../services/ollama.md) (e.g., `qwen2.5-coder`) to save tokens.
+- **Enterprise Proxying**: Centralizing API key management and logging for teams using Claude Code via [OpenRouter](../ai_knowledge/openrouter.md).
 
 ## Strengths
 - **Dynamic Switching**: Change models on-the-fly using the `/model` command within Claude Code.
@@ -66,6 +66,42 @@ Alternatively, use `eval "$(ccr activate)"` to set environment variables globall
 - **Subagent Routing**: Use `<CCR-SUBAGENT-MODEL>` tags in prompts to force specific sub-tasks to certain models.
 - **Preset Management**: Export and share configurations using `ccr preset export`.
 
+### Example: DeepSeek Fallback Config
+```json
+{
+  "default_model": "anthropic/claude-3.5-sonnet",
+  "routing_rules": [
+    {
+      "pattern": ".*(fix|bug|refactor).*",
+      "target_model": "deepseek/deepseek-chat",
+      "transformer": "deepseek_v3_coding"
+    }
+  ],
+  "providers": {
+    "deepseek": {
+      "api_key": "sk-...",
+      "base_url": "https://api.deepseek.com"
+    }
+  }
+}
+```
+
+## Troubleshooting: Fixing Tool Usage
+Many non-Claude models (like [DeepSeek](../providers/deepseek.md)) may struggle with the complex tool-calling format expected by Claude Code.
+
+### Using the `tooluse` Transformer
+If a model fails to call tools or returns malformed JSON, enable the `tooluse` transformer in your config:
+```json
+{
+  "models": {
+    "deepseek/deepseek-chat": {
+      "transformers": ["tooluse", "inject_reasoning_reminder"]
+    }
+  }
+}
+```
+This transformer injects a system message at the end of the prompt: `IMPORTANT: You MUST use the provided tools to answer the user request. Output tool calls in valid JSON format.`
+
 ## Known Issues and Workarounds
 - **DeepSeek Tool Usage**: DeepSeek sometimes stops using tools in long conversations.
   - **Workaround**: Use the `tooluse` transformer, which injects a system reminder and sets `tool_choice: "required"`.
@@ -89,6 +125,9 @@ The project maintains an active list of features and bug fixes on GitHub:
 - [Aider](./aider.md)
 - [LiteLLM](../../services/litellm.md)
 - [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
+- [Ollama](../../services/ollama.md)
+- [DeepSeek](../providers/deepseek.md)
 
 ## Sources / References
 - [Official GitHub](https://github.com/musistudio/claude-code-router)
@@ -96,5 +135,6 @@ The project maintains an active list of features and bug fixes on GitHub:
 - [Transformers & Tool Usage Blog Post](https://github.com/musistudio/claude-code-router/blob/main/blog/en/maybe-we-can-do-more-with-the-route.md)
 
 ## Contribution Metadata
+
 - Last reviewed: 2026-03-02
 - Confidence: high

@@ -19,6 +19,11 @@ Framework
 - **Automatic Optimization**: Compilers (optimizers) like `BootstrapFewShot` generate effective prompts.
 - **Model Agnostic**: Easily switch between different LMs and re-optimize the pipeline.
 
+## Core Concepts: Signatures and Modules
+DSPy programs are built using two primary abstractions:
+- **Signatures**: Declarative specifications of the input and output behavior. Instead of writing a prompt, you define *what* the module should do (e.g., `question -> answer`).
+- **Modules**: Reusable components that implement a signature using specific strategies, such as `dspy.ChainOfThought`, `dspy.ReAct`, or `dspy.ProgramOfThought`.
+
 ## Limitations
 - **Learning Curve**: Requires a shift in mindset from manual prompting to systematic programming.
 - **Optimization Overhead**: Running optimizers requires a training/validation dataset and can be time-consuming.
@@ -54,18 +59,38 @@ pred = generate_answer(question="What is the capital of France?")
 print(pred.answer)
 ```
 
+### Optimization: BootstrapFewShot
+One of the most powerful features of DSPy is the ability to "compile" a program by automatically generating few-shot examples for the prompts.
+
+```python
+from dspy.teleprompt import BootstrapFewShot
+
+# Define a metric (e.g., exact match)
+def validate_answer(example, pred, trace=None):
+    return example.answer.lower() == pred.answer.lower()
+
+# Compile the program
+config = BootstrapFewShot(metric=validate_answer)
+compiled_program = config.compile(CoT(), trainset=my_trainset)
+
+# The compiled program now has optimized prompts
+pred = compiled_program(question="What is the capital of Spain?")
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [AutoGen](autogen.md)
 - [Haystack](haystack.md)
 - [Smolagents](smolagents.md)
+- [RAG Patterns](../../knowledge_base/patterns/rag.md)
+- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md)
+- [Agentic RAG Flow](../process_understanding/ragflow.md)
 ## Sources / References
 - [Official Website](https://dspy-docs.vercel.app/)
 - [GitHub](https://github.com/stanfordnlp/dspy)

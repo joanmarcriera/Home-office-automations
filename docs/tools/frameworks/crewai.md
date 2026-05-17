@@ -19,6 +19,13 @@ Framework / Multi-Agent Orchestrator
 - **Flexible Processes**: Supports different workflows (sequential, consensual, hierarchical).
 - **Tool Integration**: Built-in support for LangChain tools and custom functions.
 
+## Advanced Configuration: Memory and Caching
+CrewAI provides sophisticated mechanisms for state management and optimization:
+- **Long-term Memory**: Persists data across different executions, allowing agents to "remember" past interactions.
+- **Short-term Memory**: Shared context within a single "kickoff" session.
+- **Entity Memory**: Specific memory for entities discovered during tasks.
+- **Caching**: Avoids redundant tool execution by caching results based on input parameters.
+
 ## Limitations
 - **Token Usage**: Multi-agent loops can quickly consume many tokens.
 - **Complexity**: Debugging "agent loop" behavior can be challenging when things go wrong.
@@ -53,6 +60,28 @@ result = crew.kickoff(inputs={'topic': 'AI in 2024'})
 print(result)
 ```
 
+### Advanced Example: Hierarchical Process
+In a hierarchical process, a "Manager" agent is automatically created (or manually assigned) to oversee task delegation and review.
+
+```python
+from crewai import Crew, Process
+
+# Define agents and tasks as usual
+# ...
+
+# Configure a crew with a hierarchical process
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[task1, task2],
+    process=Process.hierarchical,
+    manager_llm='gpt-4',
+    memory=True,
+    cache=True
+)
+
+result = crew.kickoff()
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT License)
 - **Cost**: Free
@@ -61,7 +90,11 @@ print(result)
 ## Related tools / concepts
 - [AutoGen](autogen.md)
 - [LangChain](../ai_knowledge/langchain.md)
+- [LangGraph](./langgraph.md)
 - [Multi-Agent Systems](../../architecture/multi_agent_knowledgeops.md)
+- [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Claude Code Router](../development_ops/claude-code-router.md)
+- [OpenClaw Security Patterns](../../knowledge_base/patterns/openclaw-security-operations.md)
 
 ## Sources / References
 - [Official Website](https://www.crewai.com/)

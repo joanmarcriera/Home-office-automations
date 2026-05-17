@@ -19,6 +19,12 @@ Framework
 - **Production Ready**: Designed with scaling and deployment in mind.
 - **Haystack 2.0**: Modern, simplified API with better support for complex routing.
 
+## Haystack 2.0 Architecture: Components and Connections
+Haystack 2.0 uses a more explicit and flexible pipeline architecture:
+- **Components**: The building blocks of a pipeline (e.g., `OpenAIGenerator`, `PromptBuilder`, `InMemoryDocumentStore`). Each component has defined inputs and outputs.
+- **Connections**: Explicitly defined data flows between components. Haystack validates that the output of one component matches the expected input type of the next.
+- **Dynamic Routing**: Use the `ConditionalRouter` to direct data to different branches based on runtime logic (e.g., routing based on language detection).
+
 ## Limitations
 - **Ecosystem Size**: While growing, it has fewer community integrations than LangChain.
 - **Transitioning**: Users of Haystack 1.x may find the shift to 2.0 requires significant code changes.
@@ -54,18 +60,47 @@ result = pipeline.run({"prompt_builder": {"country": "France"}})
 print(result["llm"]["replies"][0])
 ```
 
+### Advanced Example: Conditional Routing
+This example demonstrates how to route queries to different LLM prompts based on a condition.
+
+```python
+from haystack.components.routers import ConditionalRouter
+
+router_template = [
+    {
+        "condition": "{{query|length > 20}}",
+        "output": "{{query}}",
+        "output_name": "long_query",
+        "output_type": str,
+    },
+    {
+        "condition": "{{query|length <= 20}}",
+        "output": "{{query}}",
+        "output_name": "short_query",
+        "output_type": str,
+    },
+]
+
+router = ConditionalRouter(routes=router_template)
+pipeline = Pipeline()
+pipeline.add_component("router", router)
+# Connect to specialized components based on query length...
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
 - **Cost**: Free
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [AutoGen](autogen.md)
 - [DSPy](dspy.md)
 - [Smolagents](smolagents.md)
+- [RAGFlow](../process_understanding/ragflow.md)
+- [Knowledge Base Patterns](../../knowledge_base/patterns/rag.md)
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
 ## Sources / References
 - [Official Website](https://haystack.deepset.ai/)
 - [GitHub](https://github.com/deepset-ai/haystack)
