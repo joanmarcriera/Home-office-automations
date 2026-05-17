@@ -39,6 +39,33 @@ chat_completion = client.chat.completions.create(
 print(chat_completion.choices[0].message.content)
 ```
 
+## Technical examples
+
+### High-Speed Streaming
+Groq's LPU hardware enables exceptionally fluid streaming responses.
+
+```python
+from groq import Groq
+
+client = Groq()
+
+stream = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Write a 500-word story about a fast computer."}],
+    model="llama3-70b-8192",
+    stream=True,
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
+### LPU Performance Context
+The LPU (Language Processing Unit) is designed for sequential processing, which is the primary bottleneck in LLM inference.
+
+- **Tokens per Second (TPS)**: Regularly achieves 800+ TPS on Llama 3 8B and 250+ TPS on Llama 3 70B.
+- **LPU vs GPU**: Unlike GPUs which excel at parallel pixel processing, LPUs are optimized for the serial nature of text generation, eliminating the "memory wall" that slows down standard hardware.
+
 ## Strengths
 - **Extreme Speed**: Often 10x+ faster than traditional GPU-based providers (400-800+ tokens/sec).
 - **Open Model Support**: Focuses on the best open-weights models like Llama 3 and Mixtral.
@@ -67,7 +94,12 @@ print(chat_completion.choices[0].message.content)
 
 - [Together AI](together.md)
 - [Fireworks AI](fireworks.md)
+- [Mistral](mistral.md)
 - [vLLM](../infrastructure/vllm.md)
+- [SGLang](../infrastructure/sglang.md)
+- [OpenRouter](openrouter.md)
+- [LiteLLM](../infrastructure/litellm.md)
+- [Anthropic](anthropic.md)
 
 ## Sources / References
 - [Official Website](https://groq.com/)
@@ -75,5 +107,5 @@ print(chat_completion.choices[0].message.content)
 - [Groq Documentation](https://docs.groq.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-05-17
 - Confidence: high

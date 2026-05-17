@@ -43,6 +43,67 @@ chat_response = client.chat.complete(
 print(chat_response.choices[0].message.content)
 ```
 
+## Technical examples
+
+### Pixtral (Vision) Usage
+Pixtral models support native vision capabilities via URL or base64 encoded images.
+
+```python
+from mistralai import Mistral
+import os
+
+client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
+
+response = client.chat.complete(
+    model="pixtral-12b-2409",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What is in this image?"},
+                {"type": "image_url", "image_url": "https://example.com/image.jpg"}
+            ]
+        }
+    ]
+)
+print(response.choices[0].message.content)
+```
+
+### Agentic Tool Calling
+Mistral models excel at deciding which tool to call based on user intent.
+
+```python
+import os
+from mistralai import Mistral
+
+client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
+
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the current weather in a given location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string", "description": "City and state, e.g. San Francisco, CA"}
+                },
+                "required": ["location"]
+            }
+        }
+    }
+]
+
+response = client.chat.complete(
+    model="mistral-large-latest",
+    messages=[{"role": "user", "content": "What's the weather like in Paris?"}],
+    tools=tools,
+    tool_choice="auto"
+)
+print(response.choices[0].message.tool_calls)
+```
+
 ## Model Families
 - **Mistral Large 3**: Flagship multimodal model with 256k context window and powerful agentic capabilities.
 - **Ministral Family**: Compact models (3B, 8B, 14B) designed for edge devices and efficient local hosting.
@@ -89,7 +150,13 @@ Mistral provides a first-class Agents API that goes beyond simple completions:
 - [Ollama](../../services/ollama.md)
 - [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md)
 - [DeepSeek](deepseek.md)
+- [Groq](groq.md)
+- [Together AI](together.md)
+- [Fireworks AI](fireworks.md)
 - [vLLM](../infrastructure/vllm.md)
+- [Hugging Face](huggingface.md)
+- [Codestral](codestral.md)
+- [OpenRouter](openrouter.md)
 
 ## Sources / References
 - [Official Website](https://mistral.ai/)
@@ -98,5 +165,5 @@ Mistral provides a first-class Agents API that goes beyond simple completions:
 - [Mistral Agents Introduction](https://docs.mistral.ai/agents/introduction/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-05-17
 - Confidence: high

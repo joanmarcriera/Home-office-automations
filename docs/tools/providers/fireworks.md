@@ -35,6 +35,41 @@ response = fireworks.client.ChatCompletion.create(
 print(response.choices[0].message.content)
 ```
 
+## Technical examples
+
+### Function Calling (Structured Output)
+Fireworks supports function calling via Pydantic or JSON schemas.
+
+```python
+from pydantic import BaseModel
+import fireworks.client
+
+class UserInfo(BaseModel):
+    name: str
+    age: int
+    email: str
+
+response = fireworks.client.ChatCompletion.create(
+    model="accounts/fireworks/models/llama-v3-70b-instruct",
+    messages=[{"role": "user", "content": "Extract: John Doe, 30, john@example.com"}],
+    response_format={"type": "json_object", "schema": UserInfo.model_json_schema()}
+)
+print(response.choices[0].message.content)
+```
+
+### LoRA Adapter Deployment
+Fireworks allows deploying LoRA adapters without the cost of a full dedicated model.
+
+```python
+# Assuming you have an adapter uploaded to Fireworks
+response = fireworks.client.ChatCompletion.create(
+    model="accounts/your-account/models/your-base-model",
+    # Pass the adapter ID in the request
+    extra_body={"lora_adapter": "accounts/your-account/models/your-adapter-id"},
+    messages=[{"role": "user", "content": "Use your specialized knowledge."}]
+)
+```
+
 ## Strengths
 - **Speed**: Optimized inference engine (FireAttention) provides exceptionally high tokens per second.
 - **Developer Experience**: OpenAI-compatible API makes migration from other providers seamless.
@@ -63,7 +98,14 @@ print(response.choices[0].message.content)
 
 - [Together AI](together.md)
 - [Groq](groq.md)
+- [Mistral](mistral.md)
 - [vLLM](../infrastructure/vllm.md)
+- [TGI](../infrastructure/tgi.md)
+- [SGLang](../infrastructure/sglang.md)
+- [Aphrodite Engine](../infrastructure/aphrodite-engine.md)
+- [ExLlamaV2](../infrastructure/exllamav2.md)
+- [OpenRouter](openrouter.md)
+- [LiteLLM](../infrastructure/litellm.md)
 
 ## Sources / References
 - [Official Website](https://fireworks.ai/)
@@ -71,5 +113,5 @@ print(response.choices[0].message.content)
 - [Model Directory](https://fireworks.ai/models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-05-17
 - Confidence: high
