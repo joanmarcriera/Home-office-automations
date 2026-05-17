@@ -20,6 +20,41 @@ Infra
 - **Continuous Batching**: Processes new requests immediately without waiting for the whole batch to finish.
 - **Broad Model Support**: Native support for Llama, Mistral, Gemma, and many others.
 
+## Advanced Serving: Multi-LoRA
+vLLM supports serving multiple LoRA (Low-Rank Adaptation) adapters simultaneously on a single base model, allowing for efficient multi-tenant serving.
+
+```bash
+# Start server with LoRA support
+python -m vllm.entrypoints.openai.api_server \
+    --model /path/to/base_model \
+    --enable-lora \
+    --lora-modules sql-lora=/path/to/sql-adapter chat-lora=/path/to/chat-adapter
+```
+
+```python
+# Request using a specific adapter
+response = openai.ChatCompletion.create(
+    model="sql-lora",
+    messages=[{"role": "user", "content": "Write a SQL query for..."}]
+)
+```
+
+## Latency Optimization: Speculative Decoding
+Speculative decoding uses a smaller, faster "draft" model to predict multiple tokens at once, which are then verified in parallel by the larger "target" model, significantly reducing per-token latency.
+
+```bash
+python -m vllm.entrypoints.openai.api_server \
+    --model /path/to/llama-70b \
+    --speculative-model /path/to/llama-7b \
+    --num-speculative-tokens 5
+```
+
+## Prefix Caching and Prompt Sharing
+vLLM automatically identifies and caches common prefixes across different requests. This is particularly effective for multi-turn conversations or system prompts, as the KV cache for the common prefix only needs to be computed once.
+
+- **Enable automatic prefix caching**: Use the `--enable-prefix-caching` flag when starting the server.
+- **Benefit**: Reduces time-to-first-token (TTFT) and saves memory when multiple users share the same context.
+
 ## Limitations
 - **Hardware Specificity**: Primarily optimized for NVIDIA GPUs; support for other backends (AMD, TPU, CPU) is evolving.
 - **Complexity**: Tuning for specific latency/throughput trade-offs can be complex.
@@ -57,16 +92,6 @@ for output in outputs:
     print(f"Prompt: {prompt!r}, Generated text: {generated_text!r}")
 ```
 
-### Minimal CLI Example
-```bash
-python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
-```
-
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
 - [Text Generation Inference (TGI)](tgi.md)
 - [SGLang](sglang.md)
@@ -74,6 +99,8 @@ python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 - [Ollama](../../services/ollama.md)
 - [Aphrodite Engine](aphrodite-engine.md)
 - [vLLM Benchmark CLI](../benchmarking/llmperf.md)
+- [TGI Quantization Patterns](./tgi.md)
+- [SGLang RadixAttention](./sglang.md)
 
 ## Sources / References
 - [Official Website](https://vllm.ai/)
@@ -81,5 +108,5 @@ python -m vllm.entrypoints.openai.api_server --model facebook/opt-125m
 - [Docs](https://docs.vllm.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high

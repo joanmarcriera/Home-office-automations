@@ -23,7 +23,60 @@ Framework
 Haystack 2.0 uses a more explicit and flexible pipeline architecture:
 - **Components**: The building blocks of a pipeline (e.g., `OpenAIGenerator`, `PromptBuilder`, `InMemoryDocumentStore`). Each component has defined inputs and outputs.
 - **Connections**: Explicitly defined data flows between components. Haystack validates that the output of one component matches the expected input type of the next.
-- **Dynamic Routing**: Use the `ConditionalRouter` to direct data to different branches based on runtime logic (e.g., routing based on language detection).
+
+## Advanced Routing: ConditionalRouter
+Use the `ConditionalRouter` to direct data to different branches based on runtime logic, such as routing queries based on complexity or language.
+
+```python
+from haystack.components.routers import ConditionalRouter
+
+router_template = [
+    {
+        "condition": "{{query|length > 100}}",
+        "output": "{{query}}",
+        "output_name": "complex_query",
+        "output_type": str,
+    },
+    {
+        "condition": "{{query|length <= 100}}",
+        "output": "{{query}}",
+        "output_name": "simple_query",
+        "output_type": str,
+    },
+]
+
+router = ConditionalRouter(routes=router_template)
+pipeline = Pipeline()
+pipeline.add_component("router", router)
+# Connect 'complex_query' to a powerful model, 'simple_query' to a faster one.
+```
+
+## Security: Secrets Management
+Haystack 2.0 introduces a standardized way to handle sensitive information like API keys using the `Secret` type, ensuring they aren't hardcoded or accidentally logged.
+
+```python
+from haystack.utils import Secret
+from haystack.components.generators import OpenAIGenerator
+
+# Load from environment variable (preferred)
+generator = OpenAIGenerator(api_key=Secret.from_env_var("OPENAI_API_KEY"))
+
+# Or from a string (less secure, use for testing)
+generator = OpenAIGenerator(api_key=Secret.from_token("my-token"))
+```
+
+## Serialization and Deployment
+Pipelines can be easily serialized to YAML or JSON, making it simple to share configurations or deploy them in different environments without re-writing Python code.
+
+```python
+# Save pipeline to YAML
+with open("pipeline.yaml", "w") as f:
+    pipeline.dump(f)
+
+# Load pipeline from YAML
+with open("pipeline.yaml", "r") as f:
+    new_pipeline = Pipeline.load(f)
+```
 
 ## Limitations
 - **Ecosystem Size**: While growing, it has fewer community integrations than LangChain.
@@ -60,38 +113,6 @@ result = pipeline.run({"prompt_builder": {"country": "France"}})
 print(result["llm"]["replies"][0])
 ```
 
-### Advanced Example: Conditional Routing
-This example demonstrates how to route queries to different LLM prompts based on a condition.
-
-```python
-from haystack.components.routers import ConditionalRouter
-
-router_template = [
-    {
-        "condition": "{{query|length > 20}}",
-        "output": "{{query}}",
-        "output_name": "long_query",
-        "output_type": str,
-    },
-    {
-        "condition": "{{query|length <= 20}}",
-        "output": "{{query}}",
-        "output_name": "short_query",
-        "output_type": str,
-    },
-]
-
-router = ConditionalRouter(routes=router_template)
-pipeline = Pipeline()
-pipeline.add_component("router", router)
-# Connect to specialized components based on query length...
-```
-
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
@@ -101,6 +122,8 @@ pipeline.add_component("router", router)
 - [RAGFlow](../process_understanding/ragflow.md)
 - [Knowledge Base Patterns](../../knowledge_base/patterns/rag.md)
 - [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Semantic Kernel](semantic-kernel.md)
+
 ## Sources / References
 - [Official Website](https://haystack.deepset.ai/)
 - [GitHub](https://github.com/deepset-ai/haystack)
@@ -108,5 +131,5 @@ pipeline.add_component("router", router)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high

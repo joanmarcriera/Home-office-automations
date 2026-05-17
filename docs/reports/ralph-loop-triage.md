@@ -64,6 +64,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 64** | Maintenance Run (AI Knowledge) | **Resolved** | Deepened `google-opal.md`, `project-genie.md`, etc. (2026-05-16). |
 | **Batch 65** | MCP Technical Deepening | **Verified & Closed** | Deepened `claude-code-container-mcp.md`, `desktop-commander-mcp.md`, etc. (2026-05-16). |
 | **Batch 69** | Maintenance Run (Oldest Res) | **Resolved** | Deepened `langgraph.md`, `semantic-kernel.md`, `smolagents.md`, `docling-mcp.md`, `cohere.md` (2026-05-17). |
+| **Batch 70** | Technical Deepening (Frameworks & Infra) | **Resolved** | Deepened `autogen.md`, `crewai.md`, `dspy.md`, `haystack.md`, `vllm.md` (2026-05-17). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

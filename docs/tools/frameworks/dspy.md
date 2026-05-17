@@ -24,6 +24,61 @@ DSPy programs are built using two primary abstractions:
 - **Signatures**: Declarative specifications of the input and output behavior. Instead of writing a prompt, you define *what* the module should do (e.g., `question -> answer`).
 - **Modules**: Reusable components that implement a signature using specific strategies, such as `dspy.ChainOfThought`, `dspy.ReAct`, or `dspy.ProgramOfThought`.
 
+## Advanced Reasoning: ProgramOfThought
+`ProgramOfThought` is a module that handles complex tasks by generating a program (e.g., Python code) that computes the answer, rather than generating the answer directly.
+
+```python
+import dspy
+
+class MathSignature(dspy.Signature):
+    """Solve math word problems."""
+    question = dspy.InputField()
+    answer = dspy.OutputField(desc="numerical result")
+
+# Uses a Python interpreter internally to compute the answer
+math_solver = dspy.ProgramOfThought(MathSignature)
+result = math_solver(question="If I have 5 apples and buy 3 more, then double them, how many do I have?")
+print(result.answer)
+```
+
+## Systematic Optimization: BootstrapFewShotWithRandomSearch
+For more robust optimization than the basic `BootstrapFewShot`, you can use random search to find the best set of few-shot examples across multiple candidates.
+
+```python
+from dspy.teleprompt import BootstrapFewShotWithRandomSearch
+
+# Define validation metric
+def validate_context_and_answer(example, pred, trace=None):
+    # Metric logic...
+    return True
+
+# Initialize the optimizer
+tp = BootstrapFewShotWithRandomSearch(
+    metric=validate_context_and_answer,
+    max_bootstrapped_demos=4,
+    max_labeled_demos=4,
+    num_candidate_programs=10,
+    num_threads=4
+)
+
+# Compile the program against a training set
+optimized_app = tp.compile(MyModule(), trainset=trainset)
+```
+
+## Assertions and Constraints
+DSPy allows you to define assertions and suggestions within your modules to enforce constraints on the LLM's output.
+
+```python
+class MyModule(dspy.Module):
+    def forward(self, question):
+        prediction = self.generate_answer(question=question)
+        dspy.Suggest(
+            len(prediction.answer) < 100,
+            "The answer is too long, please summarize."
+        )
+        return prediction
+```
+
 ## Limitations
 - **Learning Curve**: Requires a shift in mindset from manual prompting to systematic programming.
 - **Optimization Overhead**: Running optimizers requires a training/validation dataset and can be time-consuming.
@@ -59,29 +114,6 @@ pred = generate_answer(question="What is the capital of France?")
 print(pred.answer)
 ```
 
-### Optimization: BootstrapFewShot
-One of the most powerful features of DSPy is the ability to "compile" a program by automatically generating few-shot examples for the prompts.
-
-```python
-from dspy.teleprompt import BootstrapFewShot
-
-# Define a metric (e.g., exact match)
-def validate_answer(example, pred, trace=None):
-    return example.answer.lower() == pred.answer.lower()
-
-# Compile the program
-config = BootstrapFewShot(metric=validate_answer)
-compiled_program = config.compile(CoT(), trainset=my_trainset)
-
-# The compiled program now has optimized prompts
-pred = compiled_program(question="What is the capital of Spain?")
-```
-
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
@@ -91,11 +123,14 @@ pred = compiled_program(question="What is the capital of Spain?")
 - [RAG Patterns](../../knowledge_base/patterns/rag.md)
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md)
 - [Agentic RAG Flow](../process_understanding/ragflow.md)
+- [Model Evaluation](../benchmarking/lm-evaluation-harness.md)
+
 ## Sources / References
 - [Official Website](https://dspy-docs.vercel.app/)
 - [GitHub](https://github.com/stanfordnlp/dspy)
+- [DSPy: Compiling Declarative Language Model Programs](https://arxiv.org/abs/2310.03714)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high
