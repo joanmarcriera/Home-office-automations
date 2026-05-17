@@ -34,10 +34,57 @@ print(response.text)
 ```
 
 ## Strengths
-- **RAG Optimization**: Command R series is specifically designed for RAG workflows with high tool-use accuracy and automated citations.
-- **Multilingual Support**: Industry-leading multilingual embedding and reranking models.
+- **RAG Optimization**: Command R series is specifically designed for RAG workflows with high tool-use accuracy and native, automated citations.
+- **Multilingual Support**: Industry-leading multilingual embedding and reranking models, supporting over 100 languages.
 - **Enterprise Ready**: Strong focus on data privacy, security, and deployment flexibility (Cloud, VPC, On-prem).
 - **Pricing Tiers**: Features a generous **Trial** tier (free for non-production/dev) and a usage-based **Production** tier for scaled deployment.
+- **Efficient Tool Use**: Command R+ is highly optimized for complex, multi-step tool use, outperforming many larger models in reliability.
+
+## Advanced Technical Patterns
+
+### 1. Command R+ Tool-use with Citations
+Cohere's Command R family can automatically provide citations for its answers based on the tool outputs it receives, which is essential for grounding in RAG systems.
+
+```python
+# Example of tool-use with citation support
+response = co.chat(
+    model="command-r-plus",
+    message="Search for the latest financial results of Company X.",
+    tools=[{"name": "search_financials", "description": "Searches for financial data"}]
+)
+
+# Accessing citations
+for citation in response.citations:
+    print(f"Source: {citation.text}, Start: {citation.start}, End: {citation.end}")
+```
+
+### 2. Rerank Integration for Search Relevance
+The Rerank endpoint is a "drop-in" way to improve search results by re-scoring the output of an initial search (e.g., from Elasticsearch or a vector DB).
+
+```python
+# Rerank search results
+results = co.rerank(
+    model="rerank-english-v3.0",
+    query="What is the capital of France?",
+    documents=["Paris is the capital of France.", "Lyon is a city in France."],
+    top_n=1
+)
+
+for result in results.results:
+    print(f"Document: {result.document['text']}, Score: {result.relevance_score}")
+```
+
+### 3. Multilingual Embedding Usage
+Cohere's multilingual embedding model allows you to perform semantic search across different languages using a single shared vector space.
+
+```python
+# Embed text in multiple languages
+embeddings = co.embed(
+    texts=["Hello world", "Bonjour le monde", "Hola mundo"],
+    model="embed-multilingual-v3.0",
+    input_type="search_document"
+)
+```
 
 ## Limitations
 - **Focus**: Less focused on creative writing or multi-modal tasks compared to OpenAI or Anthropic.
@@ -68,5 +115,5 @@ print(response.text)
 - [Cohere Blog](https://cohere.com/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-05-17
 - Confidence: high

@@ -15,9 +15,53 @@ Framework / Agent Library
 - **Quick Prototypes**: Rapidly testing tool-calling capabilities of a model.
 
 ## Strengths
-- **Lightweight**: Minimal dependencies and small code footprint.
-- **Easy Tool Integration**: Simple decorator-based tool definition.
-- **HF Integration**: Seamlessly works with models on the Hugging Face Hub.
+- **Lightweight**: Minimal dependencies and small code footprint, making it ideal for embedding in larger applications.
+- **Easy Tool Integration**: Simple decorator-based tool definition that feels natural to Python developers.
+- **HF Integration**: Seamlessly works with models on the Hugging Face Hub and integrates with the `transformers` ecosystem.
+- **Local LLM Friendly**: Specifically designed to work well with smaller, local models by using clear, concise prompt templates.
+
+## Advanced Technical Patterns
+
+### 1. Specialized Tool-Calling Agents
+Smolagents provides different types of agents for specialized tasks. The `CodeAgent` is particularly powerful as it allows the agent to write and execute Python code to solve tasks.
+
+```python
+from smolagents import CodeAgent, DuckDuckGoSearchTool, HfApiModel
+
+# A CodeAgent can use tools and write Python code to process the results
+agent = CodeAgent(
+    tools=[DuckDuckGoSearchTool()],
+    model=HfApiModel(),
+    add_base_tools=True # Adds useful built-in tools like 'python_interpreter'
+)
+
+agent.run("Find the population of NYC and Tokyo, and calculate the difference.")
+```
+
+### 2. Custom Tool Definition
+You can easily define your own tools using simple Python functions and the `@tool` decorator.
+
+```python
+from smolagents import tool
+
+@tool
+def get_weather(location: str) -> str:
+    """
+    Get the current weather for a given location.
+    Args:
+        location: The city and state, e.g. San Francisco, CA
+    """
+    return f"The weather in {location} is sunny."
+
+agent = CodeAgent(tools=[get_weather], model=HfApiModel())
+```
+
+### 3. Resource-Constrained Deployment
+When deploying on edge devices, focus on minimizing the model size and optimizing the context usage.
+
+- **Quantization**: Use 4-bit or 8-bit quantized models (via `bitsandbytes`) to reduce memory footprint.
+- **Context Management**: Limit the number of tools and the verbosity of tool descriptions to save tokens.
+- **Prompt Compression**: Use shorter, more direct system prompts for smaller models that struggle with complex instructions.
 
 ## Limitations
 - **Feature Set**: Less comprehensive than larger frameworks like LangChain or AutoGen.
@@ -90,5 +134,5 @@ agent.run("What is the current population of Tokyo?")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high
