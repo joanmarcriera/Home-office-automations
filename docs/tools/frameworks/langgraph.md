@@ -15,9 +15,67 @@ While standard LangChain chains are great for linear workflows, they struggle wi
 - Complex RAG pipelines that require iterative refinement
 
 ## Strengths
-- **Cycles and Recursion**: Built specifically to handle loops in agent logic.
-- **Persistence**: Built-in support for saving and loading the state of the graph.
-- **Granular Control**: Fine-grained control over the flow of the agent, unlike more "black-box" agent frameworks.
+- **Cycles and Recursion**: Built specifically to handle loops in agent logic, essential for autonomous agents that need to reflect and retry.
+- **Persistence & Time Travel**: Built-in support for saving state (checkpointers), allowing for session resumption and "time travel" to inspect or modify past states.
+- **Granular Control**: Fine-grained control over the flow of the agent (nodes and edges), unlike more "black-box" agent frameworks.
+- **Human-in-the-loop**: Native primitives for interrupting execution for human approval, editing state, or manual intervention.
+
+## Advanced Technical Patterns
+
+### 1. Persistence and Checkpointers
+LangGraph uses checkpointers to save the state of the thread after every node execution. This enables session persistence and error recovery.
+
+```python
+from langgraph.checkpoint.sqlite import SqliteSaver
+
+# Use a SQLite database for persistent memory
+memory = SqliteSaver.from_conn_string(":memory:")
+
+# Compile the graph with checkpointer
+graph = graph_builder.compile(checkpointer=memory)
+
+# Run with a thread_id to maintain state across calls
+config = {"configurable": {"thread_id": "user_session_123"}}
+graph.invoke({"messages": [("user", "My name is Jules.")]}, config)
+
+# Later, the agent will remember the name
+response = graph.invoke({"messages": [("user", "What is my name?")]}, config)
+```
+
+### 2. Multi-Agent Collaboration (Handoffs)
+You can define nodes that represent different specialized agents and use edges to route between them based on task requirements.
+
+```python
+def call_researcher(state):
+    # Logic for researcher agent
+    return {"messages": [("assistant", "I have found the data...")]}
+
+def call_writer(state):
+    # Logic for writer agent
+    return {"messages": [("assistant", "The report is ready.")]}
+
+builder = StateGraph(State)
+builder.add_node("researcher", call_researcher)
+builder.add_node("writer", call_writer)
+
+# Logic to transition from research to writing
+builder.add_edge("researcher", "writer")
+```
+
+### 3. Human-in-the-Loop (Approval Pattern)
+LangGraph allows you to set "breakpoints" where the execution pauses until a human provides input or approval.
+
+```python
+# Compile with a breakpoint before the 'tools' node
+graph = builder.compile(checkpointer=memory, interrupt_before=["tools"])
+
+# The graph will stop execution before calling a tool
+# You can then inspect the state and choose to proceed or modify
+graph.invoke(input_data, config)
+
+# After human review, resume execution:
+graph.invoke(None, config)
+```
 
 ## Limitations
 - **Steep Learning Curve**: Requires understanding of graph theory concepts and LangChain's ecosystem.
@@ -111,5 +169,5 @@ for event in graph.stream({"messages": [("user", "Search for the current price o
 - [GitHub Repository](https://github.com/langchain-ai/langgraph)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high
