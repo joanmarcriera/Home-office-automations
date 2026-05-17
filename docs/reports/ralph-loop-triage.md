@@ -67,6 +67,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 70** | Technical Deepening (Frameworks & Infra) | **Resolved** | Deepened `autogen.md`, `crewai.md`, `dspy.md`, `haystack.md`, `vllm.md` (2026-05-17). |
 | **Batch 71** | Infrastructure Maintenance | **Resolved** | Deepened `tgi.md`, `sglang.md`, `aphrodite-engine.md`, `exllamav2.md`, `claude-code-router.md` (2026-05-17). |
 | **Batch 72** | Inference Providers & Dev Studio | **Resolved** | Deepened `fireworks.md`, `groq.md`, `mistral.md`, `together.md`, `firebase-studio.md` (2026-05-17). |
+| **Batch 73** | High-Value AI Knowledge & Providers | **Resolved** | Deepened `minimax.md`, `moonshot.md`, `copy-ai.md`, `jasper.md`, `runwayml.md` (2026-05-17). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
