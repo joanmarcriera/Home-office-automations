@@ -33,6 +33,40 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
+## Technical examples
+
+### Fine-Tuning and LoRA Deployment
+Together AI provides a unified API for fine-tuning open models and deploying them as custom adapters.
+
+```python
+from together import Together
+
+client = Together()
+
+# List available fine-tuned models
+fine_tuned_models = client.fine_tuning.list()
+
+# Inference with a custom adapter
+response = client.chat.completions.create(
+    model="accounts/your-account/models/your-finetuned-llama-3",
+    messages=[{"role": "user", "content": "How should I summarize this medical report?"}],
+)
+print(response.choices[0].message.content)
+```
+
+### Dedicated GPU Cluster Usage
+For high-volume production, Together allows provisioning dedicated GPU clusters for guaranteed throughput.
+
+```python
+# Provisioning is typically done via the web console or CLI
+# Usage involves pointing your client to the dedicated model endpoint
+response = client.chat.completions.create(
+    model="meta-llama/Llama-3-70b-chat-hf",
+    extra_body={"dedicated_cluster": "cluster-id-123"},
+    messages=[{"role": "user", "content": "Batch process these items."}],
+)
+```
+
 ## Strengths
 - **Model Variety**: Supports hundreds of open-source models across text, image, and code (LLMs, Diffusion, etc.).
 - **Speed**: One of the fastest inference providers on the market due to specialized optimizations.
@@ -58,9 +92,14 @@ print(response.choices[0].message.content)
 - **Self-hostable**: No (Cloud service), but the models can be hosted elsewhere if needed.
 
 ## Related tools / concepts
-- [OpenRouter](../ai_knowledge/openrouter.md)
+- [OpenRouter](openrouter.md)
 - [Groq](groq.md)
 - [Fireworks AI](fireworks.md)
+- [Mistral](mistral.md)
+- [vLLM](../infrastructure/vllm.md)
+- [TGI](../infrastructure/tgi.md)
+- [ExLlamaV2](../infrastructure/exllamav2.md)
+- [Hugging Face](huggingface.md)
 
 ## Sources / References
 - [Official Website](https://www.together.ai/)
@@ -68,5 +107,5 @@ print(response.choices[0].message.content)
 - [Together AI Models](https://www.together.ai/models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-03
+- Last reviewed: 2026-05-17
 - Confidence: high
