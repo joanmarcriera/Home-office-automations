@@ -21,10 +21,59 @@ Framework / Multi-Agent Orchestrator
 
 ## Advanced Configuration: Memory and Caching
 CrewAI provides sophisticated mechanisms for state management and optimization:
-- **Long-term Memory**: Persists data across different executions, allowing agents to "remember" past interactions.
+- **Long-term Memory**: Persists data across different executions using LanceDB or similar, allowing agents to "remember" past interactions.
 - **Short-term Memory**: Shared context within a single "kickoff" session.
 - **Entity Memory**: Specific memory for entities discovered during tasks.
 - **Caching**: Avoids redundant tool execution by caching results based on input parameters.
+
+## Custom Tool Integration
+Agents can be equipped with custom tools to interact with external APIs or local files.
+
+```python
+from crewai_tools import BaseTool
+
+class MyCustomTool(BaseTool):
+    name: str = "My Tool"
+    description: str = "Clear description of what this tool does"
+
+    def _run(self, argument: str) -> str:
+        # Implementation of the tool logic
+        return f"Tool processed: {argument}"
+
+# Assign to agent
+agent = Agent(
+    role='Specialist',
+    goal='Process data',
+    backstory='Data analyst',
+    tools=[MyCustomTool()]
+)
+```
+
+## Hierarchical Process Orchestration
+In a hierarchical process, a "Manager" agent is automatically created (or manually assigned) to oversee task delegation and review.
+
+```python
+from crewai import Crew, Process
+from langchain_openai import ChatOpenAI
+
+# Configure a crew with a hierarchical process
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[task1, task2],
+    process=Process.hierarchical,
+    manager_llm=ChatOpenAI(model="gpt-4"),
+    memory=True,
+    cache=True,
+    verbose=True
+)
+
+result = crew.kickoff()
+```
+
+## Agent Collaboration Patterns
+- **Output Delegation**: Agents can delegate tasks to other agents in the crew if they cannot fulfill the goal themselves.
+- **Consensual Process**: Tasks are reviewed by all agents before completion.
+- **Sequential Hand-off**: The output of Task A is passed as context to Task B automatically.
 
 ## Limitations
 - **Token Usage**: Multi-agent loops can quickly consume many tokens.
@@ -60,33 +109,6 @@ result = crew.kickoff(inputs={'topic': 'AI in 2024'})
 print(result)
 ```
 
-### Advanced Example: Hierarchical Process
-In a hierarchical process, a "Manager" agent is automatically created (or manually assigned) to oversee task delegation and review.
-
-```python
-from crewai import Crew, Process
-
-# Define agents and tasks as usual
-# ...
-
-# Configure a crew with a hierarchical process
-crew = Crew(
-    agents=[researcher, writer],
-    tasks=[task1, task2],
-    process=Process.hierarchical,
-    manager_llm='gpt-4',
-    memory=True,
-    cache=True
-)
-
-result = crew.kickoff()
-```
-
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
 - [AutoGen](autogen.md)
 - [LangChain](../ai_knowledge/langchain.md)
@@ -95,6 +117,8 @@ result = crew.kickoff()
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Claude Code Router](../development_ops/claude-code-router.md)
 - [OpenClaw Security Patterns](../../knowledge_base/patterns/openclaw-security-operations.md)
+- [Smolagents](smolagents.md)
+- [Plandex](../development_ops/plandex.md)
 
 ## Sources / References
 - [Official Website](https://www.crewai.com/)
@@ -103,5 +127,5 @@ result = crew.kickoff()
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high
