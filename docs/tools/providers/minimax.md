@@ -1,52 +1,72 @@
 # MiniMax
 
 ## What it is
-MiniMax is an AI company that develops large-scale models across multiple modalities, including text, speech, video, and music. Their flagship text models, the M2 series, are known for their strong reasoning and coding capabilities.
+MiniMax is a leading AI company that develops large-scale models across multiple modalities, including text, speech, video, and music. Their latest flagship models, the **M2.7** series, are optimized for reasoning, coding, and multi-modal creative tasks.
 
 ## What problem it solves
-Provides high-performance LLMs with a particular focus on coding productivity and Agentic workflows. It offers a cost-effective alternative to global providers like Anthropic and OpenAI, especially for developers in the Asian market or those looking for high-value subscription plans.
+Provides high-performance LLMs with a particular focus on coding productivity and Agentic workflows. It offers a cost-effective alternative to global providers like Anthropic and OpenAI, especially for developers looking for high-value subscription plans that decouple cost from token-based billing.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine / Provider**. It is particularly well-suited for integration into AI coding assistants and autonomous agents.
+**LLM / Reasoning Engine / Provider**. It is particularly well-suited for integration into AI coding assistants and autonomous agents through its "Token Plan" subscription model.
 
 ## Typical use cases
-- **AI-Assisted Coding**: Using the M2.5 model for complex software engineering tasks.
-- **Agentic Workflows**: Leveraging the M2 series for multi-step reasoning and tool use.
-- **Multimodal Generation**: Creating high-quality speech, video, and music via their specialized models.
+- **AI-Assisted Coding**: Using the M2.7 model for complex software engineering and "vibe coding" tasks.
+- **Agentic Workflows**: Leveraging the M2 series for multi-step reasoning and tool use in terminal-native agents.
+- **Multimodal Generation**: Creating high-quality speech, video, and music via their specialized models (e.g., Hailuo for video).
 
 ## Strengths
-- **Coding Excellence**: The M2.5 model is optimized for multi-language programming and complex code engineering.
-- **Cost-Effective Subscription**: The "Coding Plan" offers a predictable monthly cost (starting at ¥29) instead of token-based billing.
-- **Anthropic Compatibility**: Supports calling models via the Anthropic SDK, easing migration for developers already using Claude.
-- **Low Latency**: High-speed variants (M2.5-highspeed) provide rapid responses without sacrificing quality.
+- **M2.7 Architecture**: Optimized for multi-language programming and complex code engineering with low latency.
+- **Token Plan Subscription**: Offers a predictable monthly cost (Starter/Plus/Max) with a 5-hour rolling reset window for requests, providing an alternative to per-token billing.
+- **Broad Tool Compatibility**: Native support in popular coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Cline](../agents/cline.md).
+- **Anthropic Compatibility**: Supports calling models via the Anthropic SDK, allowing for seamless integration into Claude-native workflows.
 
 ## Limitations
 - **Closed Source**: Proprietary models available only via API.
-- **Regional Focus**: While globally accessible, documentation and pricing are primarily in Chinese/RMB.
+- **Regional Focus**: While globally accessible, documentation and pricing are primarily centered on the Asian market (RMB/¥).
 
 ## When to use it
-- For heavy coding tasks where a fixed-cost subscription (Coding Plan) is more economical than per-token billing.
-- When you need a high-performance alternative to Claude 3.5 Sonnet with compatible API structures.
+- For heavy coding tasks where a fixed-cost subscription (Token Plan) is more economical than per-token billing.
+- When you need a high-performance alternative to Claude 3.5 Sonnet with compatible API structures for terminal-native agents.
 
 ## When not to use it
 - If you require fully open-source models for local deployment.
 - If your workflow is strictly tied to OpenAI-specific features not supported by the Anthropic-compatible relay.
 
+## Getting started
+
+MiniMax provides a flexible "Token Plan" for developers and teams, which can be integrated into various AI tools.
+
+### 1. Integration with Coding Agents
+Most modern coding agents support MiniMax via their OpenAI or Anthropic compatible endpoints.
+
+- **Claude Code**: Configure MiniMax as a provider in your `.claudecode/config.yaml`.
+- **Cursor**: Use the "Custom Model" feature and point the base URL to the MiniMax endpoint.
+- **OpenClaw**: Native integration via the [OpenClaw](../development_ops/openclaw.md) security and routing layer.
+
+### 2. Token Plan vs Credits
+- **Token Plan**: A subscription that provides a request quota (e.g., 600-4500 requests per 5 hours) for text models.
+- **Credits**: A pre-paid balance used for non-text models (video, music) or to supplement the Token Plan when quotas are exceeded.
+
 ## Licensing and cost
 - **Open Source**: No
-- **Cost**: Paid (Pay-as-you-go and Subscription-based "Coding Plan")
+- **Cost**: Paid (Subscription-based "Token Plan" and Pay-as-you-go "Credits")
 - **Self-hostable**: No
 
 ## Related tools / concepts
+- [Claude Code](../development_ops/claude-code.md)
+- [Everything Claude Code](../ai_knowledge/everything-claude-code.md)
+- [Cursor](../development_ops/cursor.md)
+- [Cline](../agents/cline.md)
+- [OpenClaw](../development_ops/openclaw.md)
 - [Anthropic (Claude)](anthropic.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
-- [Aider](../development_ops/aider.md)
 
 ## Sources / References
 - [Official Website](https://www.minimaxi.com/)
 - [Open Platform](https://platform.minimaxi.com/)
-- [Coding Plan Details](https://platform.minimaxi.com/docs/coding-plan/intro)
+- [Token Plan Overview](https://platform.minimaxi.com/docs/token-plan/intro)
+- [MiniMax Documentation Index](https://platform.minimaxi.com/docs/llms.txt)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-05
+- Last reviewed: 2026-05-17
 - Confidence: high
