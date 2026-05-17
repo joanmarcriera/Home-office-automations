@@ -10,7 +10,7 @@ Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./cl
 - **Compatibility Smoothing**: Uses a "Transformer" system to fix subtle differences between provider APIs (e.g., forcing tool usage or reasoning tags).
 
 ## Where it fits in the stack
-**Category**: Router / Tool
+**Router / Gateway**. It sits between the agent (Claude Code) and the inference provider, acting as a programmable middleware.
 
 ## Typical use cases
 - **DeepSeek Integration**: Using `DeepSeek-V3` for coding and `DeepSeek-R1` for "Plan Mode" at a fraction of the cost of Claude 3.5.
@@ -22,6 +22,7 @@ Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./cl
 - **Transformer System**: Built-in logic to enhance tool usage for models that struggle with instruction following (like DeepSeek).
 - **Ease of Use**: Includes a web UI (`ccr ui`) and an interactive CLI (`ccr model`) for configuration.
 - **GitHub Actions Support**: Built-in `NON_INTERACTIVE_MODE` for CI/CD workflows.
+- **MCP Discovery**: Integrated discovery of [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) tools and routing patterns.
 
 ## Limitations
 - **Latency**: Adding a proxy layer introduces minor network overhead.
@@ -61,27 +62,32 @@ ccr code
 ```
 Alternatively, use `eval "$(ccr activate)"` to set environment variables globally in your shell session, allowing you to use the standard `claude` command.
 
-## Usage Examples and Ideas
-- **Custom Routing Scripts**: Use a `custom-router.js` to route specific queries (e.g., "explain this code") to specialized models.
-- **Subagent Routing**: Use `<CCR-SUBAGENT-MODEL>` tags in prompts to force specific sub-tasks to certain models.
-- **Preset Management**: Export and share configurations using `ccr preset export`.
+## Advanced Routing Patterns
 
-### Example: DeepSeek Fallback Config
+### Agent-Native LLM Routing (YAML)
+CCR supports advanced routing rules defined in `rules.yaml` that can trigger based on query intent or tool-use requirements.
+
+```yaml
+rules:
+  - name: "heavy-coding"
+    if: "query.matches(/refactor|implement/)"
+    then: "deepseek/deepseek-chat"
+    transformer: "deepseek_v3_coding"
+  - name: "mcp-routing"
+    if: "tools.include('brave_search')"
+    then: "google/gemini-2.0-flash-exp"
+```
+
+### Fallback and Retry Strategies
+Configure automatic fallback to a frontier model if the cheaper model fails or times out:
+
 ```json
 {
-  "default_model": "anthropic/claude-3.5-sonnet",
-  "routing_rules": [
-    {
-      "pattern": ".*(fix|bug|refactor).*",
-      "target_model": "deepseek/deepseek-chat",
-      "transformer": "deepseek_v3_coding"
-    }
-  ],
-  "providers": {
-    "deepseek": {
-      "api_key": "sk-...",
-      "base_url": "https://api.deepseek.com"
-    }
+  "fallback_policy": {
+    "enabled": true,
+    "strategy": "ordered",
+    "targets": ["deepseek/deepseek-chat", "anthropic/claude-3.5-sonnet"],
+    "retry_on": [429, 503]
   }
 }
 ```
@@ -100,15 +106,6 @@ If a model fails to call tools or returns malformed JSON, enable the `tooluse` t
   }
 }
 ```
-This transformer injects a system message at the end of the prompt: `IMPORTANT: You MUST use the provided tools to answer the user request. Output tool calls in valid JSON format.`
-
-## Known Issues and Workarounds
-- **DeepSeek Tool Usage**: DeepSeek sometimes stops using tools in long conversations.
-  - **Workaround**: Use the `tooluse` transformer, which injects a system reminder and sets `tool_choice: "required"`.
-- **GLM Reasoning**: GLM models often fail to think because of Claude Code's heavy system prompt.
-  - **Workaround**: Use a custom transformer to inject expert reasoning instructions and force `<reasoning_content>` tags.
-- **Gemini Compatibility**: Gemini's tool calls lack IDs and have specific type restrictions.
-  - **Workaround**: Use the built-in `gemini` transformer to normalize requests.
 
 ## Roadmap
 The project maintains an active list of features and bug fixes on GitHub:
@@ -124,10 +121,11 @@ The project maintains an active list of features and bug fixes on GitHub:
 - [Claude Code](./claude-code.md)
 - [Aider](./aider.md)
 - [LiteLLM](../../services/litellm.md)
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md)
+- [MCP](../../knowledge_base/agent_protocols.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Ollama](../../services/ollama.md)
 - [DeepSeek](../providers/deepseek.md)
+- [Fallback Patterns](../../knowledge_base/patterns/fallback-patterns.md)
 
 ## Sources / References
 - [Official GitHub](https://github.com/musistudio/claude-code-router)
@@ -135,6 +133,5 @@ The project maintains an active list of features and bug fixes on GitHub:
 - [Transformers & Tool Usage Blog Post](https://github.com/musistudio/claude-code-router/blob/main/blog/en/maybe-we-can-do-more-with-the-route.md)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high
