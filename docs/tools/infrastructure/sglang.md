@@ -7,48 +7,37 @@ SGLang is a fast serving framework for large language models and vision-language
 LLM applications often involve repetitive prompting, structured output requirements, and complex chaining. SGLang addresses these by providing a high-performance runtime that significantly reduces latency through aggressive caching (RadixAttention) and optimized kernels for constrained generation.
 
 ## Where it fits in the stack
-Infra
+**Infra**. It sits in the serving layer, specifically optimized for complex agentic workflows and vision-language tasks.
 
 ## Typical use cases
-- High-performance serving of LLMs and VLMs (Vision-Language Models).
-- Applications requiring complex, multi-turn structured generation.
-- Serving scenarios where prefix caching can significantly improve throughput (e.g., multi-turn chat, few-shot prompting).
+- **Multi-turn Chat & Agents**: High-performance serving where prompt history is reused.
+- **Structured Data Extraction**: Applications requiring complex, multi-turn JSON or regex-constrained generation.
+- **Vision-Language Applications**: Serving models like LLaVA or Qwen-VL with high throughput.
 
 ## Strengths
-- **RadixAttention**: Automatically caches and reuses KV cache across different requests with shared prefixes.
-- **Fast Structured Generation**: Optimized engine for constrained generation.
-- **Comprehensive VLM Support**: Excellent performance for vision-based models.
-- **Native Interpreter**: Includes a high-level Python interface for complex LLM programming.
+- **RadixAttention**: Automatically caches and reuses KV cache across different requests with shared prefixes, essential for agents.
+- **Fast Structured Generation**: Optimized engine for constrained generation (JSON Schema, regex).
+- **Chunked Prefill**: Efficiently handles large prompt processing without blocking small generation tasks.
+- **Comprehensive VLM Support**: Native support and high performance for vision-based models.
+- **Native Interpreter**: Includes a high-level Python interface (SGLang runtime) for complex LLM programming.
 
 ## Limitations
-- **Hardware**: Primarily targets NVIDIA GPUs.
-- **Ecosystem**: Newer than vLLM, so community integrations and documentation are still maturing.
+- **Hardware**: Primarily targets NVIDIA GPUs (CUDA).
+- **Ecosystem**: Newer than vLLM; integration with some third-party orchestrators may require custom adapters.
 
 ## When to use it
 - When your application relies on multi-turn interactions or shared prompt prefixes.
 - When you need low-latency, reliable structured generation.
-- When serving VLMs.
+- When serving VLMs at production scale.
 
 ## When not to use it
 - For basic, single-prompt text generation where vLLM might be more widely documented.
-- On non-NVIDIA hardware.
+- On non-NVIDIA hardware or platforms where CUDA is not available.
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
 - **Cost**: Free
 - **Self-hostable**: Yes
-
-## Related tools / concepts
-- [vLLM](vllm.md)
-- [Text Generation Inference (TGI)](tgi.md)
-- [Aphrodite Engine](aphrodite-engine.md)
-- [llama.cpp](llama-cpp.md)
-- [Inference engines](index.md)
-
-## Sources / References
-- [Official Website](https://sgl-project.github.io/)
-- [GitHub](https://github.com/sgl-project/sglang)
-- [Docs](https://sgl-project.github.io/)
 
 ## Getting started
 
@@ -57,23 +46,57 @@ Infra
 pip install "sglang[all]"
 ```
 
-### Minimal CLI Example (Launch Server)
+### Advanced Server Configuration
+Launch the server with chunked prefill and RadixAttention enabled (default):
+
 ```bash
-python -m sglang.launch_server --model-path meta-llama/Llama-3.1-8B-Instruct --port 30000
+python -m sglang.launch_server \
+    --model-path meta-llama/Llama-3.1-8B-Instruct \
+    --port 30000 \
+    --chunked-prefill-size 512 \
+    --mem-fraction-static 0.8
 ```
 
-### Minimal Python Example (OpenAI Compatible)
+### Structured Generation (Python SDK)
+SGLang allows for highly efficient constrained generation using its native interpreter.
+
 ```python
-from openai import OpenAI
-client = OpenAI(base_url="http://127.0.0.1:30000/v1", api_key="EMPTY")
+import sglang as sgl
 
-response = client.chat.completions.create(
-    model="default",
-    messages=[{"role": "user", "content": "Explain prefix caching in one sentence."}],
+@sgl.function
+def multi_turn_question(s, question):
+    s += sgl.user(question)
+    s += sgl.assistant(sgl.gen("answer", max_tokens=100))
+    s += sgl.user("Summarize that in 10 words.")
+    s += sgl.assistant(sgl.gen("summary", max_tokens=50))
+
+# Execute
+state = multi_turn_question.run(
+    question="What is RadixAttention?",
+    backend=sgl.RuntimeEndpoint("http://localhost:30000")
 )
-print(response.choices[0].message.content)
+
+print(state["answer"])
+print(state["summary"])
 ```
+
+## Core Architecture: RadixAttention
+Unlike traditional LRU caching, **RadixAttention** manages the KV cache as a radix tree. When multiple requests share a prefix (e.g., a system prompt or a long document), SGLang identifies the shared node in the tree and reuses the pre-computed KV cache, eliminating redundant computation and significantly reducing time-to-first-token (TTFT).
+
+## Related tools / concepts
+- [vLLM](vllm.md)
+- [Text Generation Inference (TGI)](tgi.md)
+- [Aphrodite Engine](aphrodite-engine.md)
+- [llama.cpp](llama-cpp.md)
+- [Inference engines](index.md)
+- [JSON Schema](../knowledge_base/json-schema.md)
+- [Python SDK](../development_ops/python-sdk.md)
+
+## Sources / References
+- [Official Website](https://sgl-project.github.io/)
+- [GitHub](https://github.com/sgl-project/sglang)
+- [RadixAttention Technical Paper](https://arxiv.org/abs/2312.04515)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-02
+- Last reviewed: 2026-05-17
 - Confidence: high
