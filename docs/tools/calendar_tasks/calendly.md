@@ -36,6 +36,47 @@ Solves scheduling friction by allowing others to book meetings based on your rea
 - **Cost**: Freemium (Basic features free; advanced features paid)
 - **Self-hostable**: No
 
+## Getting started
+Calendly is a cloud-based service. To get started, create an account and connect your calendar.
+
+**Installation:**
+1. Sign up at [Calendly.com](https://calendly.com/).
+2. Connect your calendar (Google, Outlook, iCloud, or Exchange).
+
+**Hello-world example:**
+Create your first "Event Type" (e.g., "15 Minute Discovery Call") in the dashboard, then copy and share your unique link:
+`https://calendly.com/your-username/15min`
+
+Note: Calendly has no official public CLI documentation. CLI sections are skipped.
+
+## API examples
+Calendly provides a robust REST API (v2) for developers to integrate scheduling into their applications.
+
+**Authentication:**
+Requires a Personal Access Token or OAuth 2.0.
+
+**Python Example (using `requests`):**
+```python
+import requests
+
+API_TOKEN = "your_personal_access_token"
+headers = {
+    "Authorization": f"Bearer {API_TOKEN}",
+    "Content-Type": "application/json"
+}
+
+# Fetch information about the current user
+response = requests.get("https://api.calendly.com/users/me", headers=headers)
+user_data = response.json()
+print(f"User Name: {user_data['resource']['name']}")
+
+# List event types
+response = requests.get("https://api.calendly.com/event_types", headers=headers)
+event_types = response.json()
+for et in event_types['collection']:
+    print(f"Event Type: {et['name']} - {et['scheduling_url']}")
+```
+
 ## Related tools / concepts
 - [SavvyCal](savvycal.md)
 - [Akiflow](akiflow.md)
@@ -43,6 +84,7 @@ Solves scheduling friction by allowing others to book meetings based on your rea
 
 ## Sources / References
 - [Calendly Official Site](https://calendly.com/)
+- [Calendly Developer Portal (API v2)](https://developer.calendly.com/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-02

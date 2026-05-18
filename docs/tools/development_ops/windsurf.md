@@ -35,13 +35,73 @@ It moves beyond simple "chat-in-sidebar" interfaces by allowing the AI to naviga
 - **Cost**: Freemium / Paid Subscription
 - **Self-hostable**: No
 
+## Getting started
+Windsurf can be installed on macOS, Windows, and Linux. It allows for a fresh setup or importing configurations from VS Code or Cursor.
+
+**Installation:**
+1. Download the installer from the [official website](https://codeium.com/windsurf).
+2. Run the installer and follow the onboarding flow.
+3. (Optional) Install the `windsurf` command in your PATH during onboarding to enable CLI access.
+
+**Hello-world example:**
+After installation, open a folder and activate **Cascade** (Cmd+L) to start a new project. Try asking:
+`Generate a simple React counter application.`
+
+```bash
+# Launch Windsurf from the terminal (if added to PATH)
+windsurf .
+```
+
+## CLI examples
+The `windsurf` CLI is primarily used for launching the IDE and opening specific files or folders.
+
+```bash
+# Open the current directory in Windsurf
+windsurf .
+
+# Open a specific file
+windsurf path/to/file.py
+
+# Open a specific file at a specific line
+windsurf -g path/to/file.py:42
+
+# Compare two files
+windsurf --diff file1.py file2.py
+```
+
+## API examples
+Windsurf extends the VS Code ecosystem, meaning it is compatible with most VS Code extensions and APIs. Additionally, it supports the **Model Context Protocol (MCP)** for extending its agentic capabilities.
+
+**Example MCP Configuration (`windsurf_mcp_config.json`):**
+Windsurf can connect to external MCP servers to provide the AI agent (Cascade) with additional tools.
+
+```json
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_token_here"
+      }
+    }
+  }
+}
+```
+
 ## Related tools / concepts
 - [Cursor](cursor.md)
 - [Aider](aider.md)
 - [Claude Code](claude-code.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / References
-- [Official Website](https://codeium.com/windsurf)
+- [Windsurf Official Documentation](https://docs.windsurf.com/windsurf/getting-started)
+- [Windsurf MCP Guide](https://docs.windsurf.com/windsurf/cascade/mcp)
 - [Codeium Blog](https://codeium.com/blog)
 
 ## Contribution Metadata
