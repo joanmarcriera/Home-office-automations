@@ -15,12 +15,14 @@ Eliminates the significant complexity of managing GPU infrastructure, Docker con
 - **Scaling Custom Models**: Moving from a local experiment to a production-ready API instantly using their Cog tool.
 
 ## Getting started
+
+### Installation
 Install the SDK:
 ```bash
 pip install replicate
 ```
 
-Basic API call (Llama 3):
+### Basic API call (Llama 3)
 ```python
 import replicate
 
@@ -31,6 +33,46 @@ output = replicate.run(
 for item in output:
     print(item, end="")
 ```
+
+## CLI examples
+
+```bash
+# Run a model from the CLI
+replicate run \
+  -e REPLICATE_API_TOKEN=$REPLICATE_API_TOKEN \
+  meta/llama-2-70b-chat:02e509c789964a7ea473f0d4580c14dec5cb44d32623e20b3296c68a9f34595e \
+  -input "prompt=Who is the CEO of Replicate?"
+
+# Deploy your own model with Cog
+cog predict -i prompt="a futuristic city"
+```
+
+## API examples
+
+### Multi-modal Generation (Image to Video)
+```python
+import replicate
+
+# 1. Generate an image first
+image_url = replicate.run(
+    "stability-ai/sdxl:7762fd0e182511030058e3540099083bc9f5a4813359d9857a878184d34d7c43",
+    input={"prompt": "A serene mountain lake at sunset"}
+)
+
+# 2. Animate the image using Stable Video Diffusion
+video = replicate.run(
+    "stability-ai/stable-video-diffusion:3f04571484b857470f394129e710ea5575773958ef4ac2958cf5d6f5f40177e2",
+    input={"input_image": image_url}
+)
+print(video)
+```
+
+## Example workflow
+1. **Model Discovery**: Use the [Model Explorer](https://replicate.com/explore) to find a model that fits your task (e.g., background removal).
+2. **Integration**: Add the `replicate` SDK to your app and use a few-shot prompt or specific input parameters.
+3. **Packaging**: If you have a custom model, package it using **Cog** (defining `cog.yaml` and `predict.py`).
+4. **Deployment**: Run `replicate deploy` to create a production-ready endpoint for your custom model.
+5. **Orchestration**: Link your Replicate endpoints with [n8n](../../services/n8n.md) or [Flowise](../ai_knowledge/flowise.md) for automated media pipelines.
 
 ## Strengths
 - **Unrivaled Variety**: Hosts thousands of models for text, image, video, audio, and specialized ML tasks.
@@ -51,6 +93,12 @@ for item in output:
 - For high-volume, low-latency LLM-only applications where serverless providers like Groq excel.
 - If you need the extreme proprietary reasoning of models like GPT-4o.
 
+## Selection comments
+- Replicate is the gold standard for multi-modal "Swiss Army Knife" access, particularly for image, video, and audio generation.
+- The **Cog** ecosystem makes it the best choice for developers who want to move from a local PyTorch/TensorFlow environment to a cloud API with zero infrastructure management.
+- For high-volume LLM-only workloads, consider [Groq](groq.md) or [Together AI](together.md) for lower latency and cost.
+- It complements [Tavily](tavily.md) and [Supabase](../infrastructure/supabase.md) well in stacks that need retrieval plus generated media assets.
+
 ## Practical notes
 - Replicate is especially strong when one workflow mixes multiple modalities, for example image generation, speech, and video transforms in the same pipeline.
 - It is often simpler to prototype on Replicate first and only later migrate hot paths to a more specialized provider.
@@ -68,6 +116,8 @@ for item in output:
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Tavily](tavily.md)
 - [Supabase](../infrastructure/supabase.md)
+- [Groq](groq.md)
+- [Fireworks](fireworks.md)
 
 ## Sources / References
 - [Official Website](https://replicate.com/)
@@ -75,5 +125,5 @@ for item in output:
 - [Model Explorer](https://replicate.com/explore)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-05-18
 - Confidence: high
