@@ -126,6 +126,41 @@ router_settings:
   allowed_fails: 2
   cooldown_time: 60       # seconds before retrying a failed model
 
+## Advanced Routing Patterns
+
+### Priority-based Routing
+Useful for favoring a cheaper or local instance while keeping a high-performance cloud instance as a hot standby.
+
+```yaml
+model_list:
+  - model_name: coder-model
+    litellm_params:
+      model: ollama/qwen2.5-coder:14b
+      api_base: http://local-gpu:11434
+      priority: 1  # Lowest number = Highest priority
+  - model_name: coder-model
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20241022
+      priority: 2
+```
+
+### Model-specific Caching
+Enable Redis caching per model to reduce costs and latency for repetitive agent queries (like "summarize this log").
+
+```yaml
+router_settings:
+  enable_cache: true
+  cache_responses: true
+  cache_type: redis
+  redis_url: "redis://localhost:6379"
+
+model_list:
+  - model_name: fast-summary
+    litellm_params:
+      model: groq/llama-3.1-8b-instant
+      ttl: 3600  # Cache for 1 hour
+```
+
 litellm_settings:
   success_callback: ["langfuse"]
   failure_callback: ["langfuse"]
@@ -162,6 +197,16 @@ curl -X POST http://localhost:4000/key/generate \
     "max_budget": 0,
     "models": ["llama3.2", "llama3.2-local"],
     "rpm_limit": 120
+  }'
+
+# Create a token-limited key (1M tokens) for a research task
+curl -X POST http://localhost:4000/key/generate \
+  -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key_alias": "research-task",
+    "max_token_budget": 1000000,
+    "budget_duration": "30d"
   }'
 ```
 

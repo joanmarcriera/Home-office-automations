@@ -80,6 +80,7 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 - **Batch 42**: Service & Automation Deepening. **Sub-Batches 42.1, 42.2, 42.3, and 42.4 completed 2026-05-13**.
 - **Batch 53**: AI Coding & Orchestration Deepening. **Completed 2026-05-15**.
 - **Batch 65**: MCP Technical Deepening. **Identified 2026-05-16**.
+- **Batch 76 (Fine-tuning Ecosystem)**: Deepen specific fine-tuning tools: `unsloth.md`, `llama-factory.md`, `axolotl.md`, `distilabel.md`, and `glaive.md`. **Identified 2026-05-18**.
 
 ---
 - Confidence: high

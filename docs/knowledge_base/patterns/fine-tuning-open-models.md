@@ -86,6 +86,10 @@ W_new = W_base + (A × B)    where A ∈ R^(d×r), B ∈ R^(r×k), r << d
 
 Loads the base model in 4-bit NF4 quantisation, then trains LoRA adapters in bfloat16. Reduces VRAM by ~75% vs full fine-tuning. Enables fine-tuning 7B models on a 10 GB GPU or a MacBook M4.
 
+**DPO (Direct Preference Optimization)**
+
+Instead of using a separate reward model (as in RLHF), DPO directly optimises the policy based on paired preferences (chosen vs. rejected responses). It is more stable and computationally efficient than traditional reinforcement learning.
+
 **Full Fine-tuning**
 
 All weights updated. Requires substantial VRAM (2× model size in bfloat16). Typically only worthwhile for models < 3B or when compute is unconstrained. Not recommended for home-lab use.
@@ -263,6 +267,14 @@ The most common format for instruction fine-tuning:
 ### Data quality > quantity
 
 100 high-quality, diverse examples outperform 1,000 noisy ones. Deduplicate, validate outputs, and include hard negative examples (cases where the model currently fails).
+
+### Synthetic Data Generation
+
+When high-quality human data is scarce, use larger models (Claude 3.5 Sonnet, GPT-4o) to generate synthetic training examples.
+
+- **Distilabel**: A framework for synthesizing data and using LLM-as-a-judge for quality filtering.
+- **Self-Correction Loops**: Have the base model generate responses, then use a stronger model to correct them and format them into training pairs.
+- **Glaive**: Specialized in generating high-fidelity functional and tool-use datasets.
 
 ### Creating datasets from existing data
 
