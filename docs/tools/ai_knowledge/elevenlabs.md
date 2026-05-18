@@ -7,13 +7,18 @@ ElevenLabs is an AI audio research and deployment company that specializes in hi
 Provides remarkably human-like AI voices for content creators, developers, and businesses, solving the issue of robotic-sounding synthetic speech.
 
 ## Where it fits in the stack
-AI & Knowledge — used for audio content generation and accessibility.
+**AI & Knowledge / Multi-modal**. It provides the audio synthesis layer for AI agents, avatars, and automated media production.
 
 ## Typical use cases
 - Generating narrations for audiobooks and podcasts
 - Providing voices for AI avatars and video game characters
 - Dubbing content into multiple languages while preserving the original speaker's tone
 - Accessibility tools for the visually impaired
+
+## Example company use cases
+- **Media Production**: Automating the creation of localized marketing videos with consistent brand voices.
+- **Customer Experience**: Powering high-fidelity voice assistants for phone-based support systems.
+- **Gaming**: Generating dynamic dialogue for NPCs that can respond to player actions in real-time.
 
 ## Strengths
 - Exceptional emotional range and realistic prosody in synthetic voices
@@ -29,10 +34,16 @@ AI & Knowledge — used for audio content generation and accessibility.
 ## When to use it
 - When high-quality, expressive narration is required for any media project
 - For real-time voice applications in gaming or customer service
+- When preserving a specific speaker's voice across different languages (Dubbing)
 
 ## When not to use it
 - When simple, functional TTS (like built-in OS voices) is sufficient
 - When strict offline, local processing is a requirement for privacy or latency
+
+## Selection comments
+- ElevenLabs is the industry leader for emotional expression and "naturalness" in synthetic speech.
+- Use it as the default choice for client-facing or public-facing media.
+- For internal alerts or simple logging, stick to cheaper or local TTS alternatives.
 
 ## Getting started
 
@@ -100,10 +111,14 @@ for chunk in audio_generator:
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
+- [Sora](sora.md)
+- [RunwayML](../providers/runwayml.md)
+- [Gemini Flash TTS](gemini-flash-tts.md)
+
 ## Sources / references
 - [Official Website](https://elevenlabs.io/)
 - [Documentation](https://elevenlabs.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-05-18
 - Confidence: high
