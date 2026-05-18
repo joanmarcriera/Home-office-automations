@@ -68,7 +68,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 71** | Infrastructure Maintenance | **Resolved** | Deepened `tgi.md`, `sglang.md`, `aphrodite-engine.md`, `exllamav2.md`, `claude-code-router.md` (2026-05-17). |
 | **Batch 72** | Inference Providers & Dev Studio | **Resolved** | Deepened `fireworks.md`, `groq.md`, `mistral.md`, `together.md`, `firebase-studio.md` (2026-05-17). |
 | **Batch 73** | High-Value AI Knowledge & Providers | **Resolved** | Deepened `minimax.md`, `moonshot.md`, `copy-ai.md`, `jasper.md`, `runwayml.md` (2026-05-17). |
-| **Batch 74** | Oldest Backlog Maintenance | **In Progress** | Deepening 5 oldest docs (2026-03-14). `superpowers.md` completed. |
+| **Batch 74** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `superpowers.md`, `elevenlabs.md`, `claude-cookbooks.md`, `playwright.md`, `replicate.md` (2026-05-18). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

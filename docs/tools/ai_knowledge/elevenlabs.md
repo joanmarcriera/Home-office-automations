@@ -34,6 +34,11 @@ AI & Knowledge — used for audio content generation and accessibility.
 - When simple, functional TTS (like built-in OS voices) is sufficient
 - When strict offline, local processing is a requirement for privacy or latency
 
+## Selection comments
+- ElevenLabs is the gold standard for high-fidelity, expressive AI voices, making it ideal for creative and marketing applications.
+- API stability and low latency (especially with `turbo` models) make it suitable for production-grade real-time interactions.
+- Consider costs at scale; for high-volume, low-complexity tasks, explore cheaper alternatives like [Google Search](google-search.md) (TTS) or [Whisper](../../services/whisper.md) for related tasks.
+
 ## Getting started
 
 ### Installation
@@ -93,6 +98,40 @@ for chunk in audio_generator:
         pass
 ```
 
+## Voice Cloning
+ElevenLabs provides two levels of voice cloning:
+1. **Instant Voice Cloning**: Requires as little as 1 minute of audio. Ideal for quick prototypes.
+2. **Professional Voice Cloning**: Requires 30-180 minutes of high-quality audio. Provides a near-perfect digital twin.
+
+```python
+# Professional Voice Cloning trigger (conceptual)
+voice = client.clone(
+    name="My Professional Voice",
+    files=["sample1.mp3", "sample2.mp3"],
+    description="A professional clone for branding."
+)
+```
+
+## Real-time Streaming
+For low-latency applications (e.g., AI agents), use the WebSocket API or the streaming parameter in the SDK to start playback before the entire file is generated.
+
+```python
+from elevenlabs import stream
+
+audio_stream = client.generate(
+    text="Hello, I am speaking to you in real-time.",
+    stream=True
+)
+
+stream(audio_stream)
+```
+
+## Example workflow
+1. **Scripting**: Generate a script using [Google Gemini](google-gemini.md).
+2. **Audio Generation**: Use ElevenLabs API to generate audio with a specific emotional profile.
+3. **Video Synthesis**: Use the generated audio as input for [Synthesia](synthesia.md) or [Luma Dream Machine](luma-dream-machine.md) to create an AI avatar video.
+4. **Distribution**: Automate the publishing workflow using [Copy.ai](copy-ai.md).
+
 ## Related tools / concepts
 
 - [Synthesia](synthesia.md)
@@ -100,10 +139,14 @@ for chunk in audio_generator:
 - [AI Templates](aitmpl.md)
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
+- [Luma Dream Machine](luma-dream-machine.md)
+- [RunwayML](runwayml.md)
+- [Sora](sora.md)
+- [Copy.ai](copy-ai.md)
 ## Sources / references
 - [Official Website](https://elevenlabs.io/)
 - [Documentation](https://elevenlabs.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-14
+- Last reviewed: 2026-05-18
 - Confidence: high
