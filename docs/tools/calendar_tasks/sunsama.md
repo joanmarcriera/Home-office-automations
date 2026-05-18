@@ -36,6 +36,31 @@ Combats burnout and fragmentation by encouraging intentional daily planning and 
 - **Cost**: Paid (Subscription)
 - **Self-hostable**: No
 
+## Getting started
+Sunsama is available as a web app, desktop app (macOS, Windows, Linux), and mobile app.
+
+**Installation:**
+```bash
+# On macOS via Homebrew Cask
+brew install --cask sunsama
+```
+
+**Hello-world example:**
+After installation, use the `A` shortcut to add your first task to your daily plan:
+`Review the KnowledgeOps handbook`
+
+Note: Sunsama has no official public CLI documentation. CLI sections are skipped.
+
+## API examples
+Sunsama does not currently offer a public REST API for general development. Programmatic task creation is primarily handled via their official **Zapier integration**.
+
+**Creating a task via Zapier (Conceptual):**
+Users can generate a **Zapier Token** in their Sunsama settings to allow external automation tools to create tasks.
+
+1. Generate token in `Settings > Zapier`.
+2. In Zapier, select **Sunsama** as the Action App.
+3. Use the "Create Task" event to map data from other services to Sunsama.
+
 ## Related tools / concepts
 - [Akiflow](akiflow.md)
 - [Morgen](morgen.md)
@@ -43,6 +68,7 @@ Combats burnout and fragmentation by encouraging intentional daily planning and 
 
 ## Sources / References
 - [Sunsama Official Site](https://sunsama.com/)
+- [Sunsama Help Center: Zapier Integration](https://help.sunsama.com/docs/integrations/zapier/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-02

@@ -32,6 +32,21 @@ It reduces context-switching by unifying personal and professional scheduling wi
 - If you require a privacy-first, offline-only, or self-hosted solution.
 - If your workflow depends on deep project management features (use [Linear](../ai_knowledge/index.md) or [Notion](notion-calendar.md) instead).
 
+## Getting started
+Amie is primarily a web and mobile-based application. To get started, sign up on their website and connect your calendar accounts.
+
+**Installation:**
+1. Visit [Amie.so](https://www.amie.so/)
+2. Sign in with Google or Outlook.
+3. Download the macOS or iOS app for a native experience.
+
+**Hello-world example:**
+Once logged in, use the `Command + K` shortcut to open the command palette and type:
+`Coffee with Alex at 4pm`
+to create your first event.
+
+Note: Amie has no official public CLI or API documentation. CLI and API sections are skipped.
+
 ## Related tools / concepts
 - [Cron / Notion Calendar](notion-calendar.md)
 - [Fantastical](fantastical.md)
@@ -39,6 +54,7 @@ It reduces context-switching by unifying personal and professional scheduling wi
 
 ## Sources / references
 - [Amie Official Website](https://www.amie.so/)
+- [Amie Help Center & FAQ](https://amie.so/help)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-05
