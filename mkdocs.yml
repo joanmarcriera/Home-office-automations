@@ -194,6 +194,7 @@ nav:
           - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
           - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
           - Genspark: tools/ai_knowledge/genspark.md
+          - Glaive: tools/ai_knowledge/glaive.md
           - Google Gemini: tools/ai_knowledge/google-gemini.md
           - Google Lyria: tools/ai_knowledge/google-lyria.md
           - Google Opal: tools/ai_knowledge/google-opal.md
@@ -396,12 +397,15 @@ nav:
           - Agent Development Kit (ADK): tools/frameworks/google-adk.md
           - AutoGen: tools/frameworks/autogen.md
           - AutoGen Studio: tools/frameworks/autogen-studio.md
+          - Axolotl: tools/frameworks/axolotl.md
           - CrewAI: tools/frameworks/crewai.md
+          - Distilabel: tools/frameworks/distilabel.md
           - DSPy: tools/frameworks/dspy.md
           - FastAPI: tools/frameworks/fastapi.md
           - Firebase Genkit: tools/frameworks/firebase-genkit.md
           - Haystack: tools/frameworks/haystack.md
           - Instructor: tools/frameworks/instructor.md
+          - LLaMA Factory: tools/frameworks/llama-factory.md
           - LangGraph: tools/frameworks/langgraph.md
           - Langflow: tools/frameworks/langflow.md
           - Mastra: tools/frameworks/mastra.md
@@ -506,6 +510,7 @@ nav:
           - Supabase: tools/infrastructure/supabase.md
           - Text Generation Inference (TGI): tools/infrastructure/tgi.md
           - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
+          - Unsloth: tools/infrastructure/unsloth.md
           - vLLM: tools/infrastructure/vllm.md
           - ZSE: tools/infrastructure/zse.md
       - Process & Understanding:
