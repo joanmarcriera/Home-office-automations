@@ -14,6 +14,75 @@ LLM evaluation is often narrow, focusing only on accuracy for a few tasks. HELM 
 - **Comparison of Foundation Models**: Using standardized scenarios to compare models like GPT-4, Claude, and Llama on equal footing.
 - **Safety and Fairness Auditing**: Specifically checking for toxicity and bias in model responses across different demographics.
 
+## Getting started
+
+### Installation
+
+It is recommended to install HELM into a virtual environment with Python >= 3.10.
+
+```bash
+# Install the base HELM package
+pip install crfm-helm
+
+# Install additional dependencies for multimodal (VHELM/HEIM) support
+pip install "crfm-helm[vlm]"
+```
+
+### Hello-world task
+
+Evaluate GPT-2 on a small subset of the MMLU philosophy subject:
+
+```bash
+# Run the benchmark (limited to 10 instances)
+helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
+
+# Summarize the results
+helm-summarize --suite my-suite
+
+# View the results in the web UI
+helm-server --suite my-suite
+```
+The results will be available at `http://localhost:8000/`.
+
+## CLI Reference
+
+HELM provides three primary CLI tools for the evaluation lifecycle:
+
+### `helm-run`
+Executes the evaluation. You can specify what to run using the `--run-entries` flag (for quick commands) or a `--conf-file` (for complex batch runs).
+
+```bash
+# Execute a specific scenario and model
+helm-run --run-entries med_qa:model=openai/gpt2 --suite med-suite --max-eval-instances 10
+
+# Execute using a configuration file
+helm-run --conf-file run_entries.conf --suite production-suite
+```
+
+### `helm-summarize`
+Processes the raw outputs from `helm-run` into a summary format that can be visualized or compared.
+
+```bash
+# Summarize a completed suite
+helm-summarize --suite med-suite
+```
+
+### `helm-server`
+Launches a local web server to browse the results, inspect individual prompts, and view the leaderboard.
+
+```bash
+# Start the UI server
+helm-server --suite med-suite
+```
+
+## Specialized Evaluations
+
+HELM has expanded beyond general text models into specialized domains:
+
+- **VHELM (Vision-Language Models)**: Evaluates VLMs on visual perception, reasoning, and safety. Uses benchmarks like MMMU and aggregates results across 9 distinct aspects.
+- **HEIM (Holistic Evaluation of Text-To-Image Models)**: Focuses on image generation models, measuring alignment, quality, and aesthetics.
+- **MedHELM**: A specialized version for medical tasks, incorporating datasets like MedQA to assess model performance in clinical contexts.
+
 ## Strengths
 - **Multi-dimensional**: Moves beyond simple accuracy to include metrics like calibration, robustness, and fairness.
 - **Scenario-Metric Grid**: Uses a systematic approach to ensure broad coverage of tasks.
@@ -45,6 +114,11 @@ LLM evaluation is often narrow, focusing only on accuracy for a few tasks. HELM 
 - [OpenCompass](opencompass.md)
 - [MMLU](mmlu.md)
 - [GPQA](gpqa.md)
+- [Human Eval](human-eval.md)
+- [GSM8K](gsm8k.md)
+- [Chatbot Arena](chatbot-arena.md)
+- [LangSmith](langsmith.md)
+- [vLLM](../infrastructure/vllm.md)
 
 ## Sources / References
 - [Official Website](https://crfm.stanford.edu/helm/)
