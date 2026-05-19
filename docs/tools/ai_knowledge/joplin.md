@@ -14,6 +14,65 @@ It provides a secure, private way to sync notes across multiple devices (desktop
 - Capturing web pages and screenshots using the web clipper extension.
 - Syncing notes across devices with E2EE for maximum privacy.
 
+## Getting started
+To start using Joplin, download the application for your platform:
+
+1. **Desktop**: Download from the [Official Website](https://joplinapp.org/).
+2. **Mobile**: Available on the App Store and Google Play.
+3. **CLI**: Install the terminal application via NPM:
+   ```bash
+   npm install -g joplin
+   ```
+4. **Web Clipper**: Install the extension for Chrome or Firefox to capture web content directly into Joplin.
+
+## Technical Details: Data API
+Joplin provides a REST API to interact with your notes locally. The API is available when the Joplin application is running and the "Web Clipper" service is enabled.
+
+### API Configuration
+1. Enable "Web Clipper" in Joplin settings.
+2. Note the "Authorization token" provided in the settings.
+3. The default port is `41184`.
+
+### CLI Example (REST API)
+To list all notebooks using `curl`:
+```bash
+curl -X GET "http://localhost:41184/folders?token=YOUR_TOKEN"
+```
+
+To create a new note in a specific folder:
+```bash
+curl -X POST "http://localhost:41184/notes?token=YOUR_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "title": "My New Note",
+       "body": "Content of the note in Markdown",
+       "parent_id": "FOLDER_ID"
+     }'
+```
+
+## Technical Details: Terminal Application
+Joplin also offers a full-featured terminal application for users who prefer working in a console environment.
+
+```bash
+# Start the terminal application
+joplin
+
+# Use internal commands
+:help
+:ls
+:edit "Note Title"
+```
+
+## Encryption (E2EE)
+Joplin supports End-to-End Encryption (E2EE) for all your notes. When enabled, notes are encrypted on your device before being synced to any cloud target. This ensures that even if the sync target (e.g., Dropbox or Nextcloud) is compromised, your notes remain unreadable without your master password.
+
+## Web Clipper
+The Web Clipper is a browser extension that allows you to save web pages and screenshots directly from your browser. It supports:
+- Simplified page capture (removing ads and clutter).
+- Complete web page capture.
+- Selection capture.
+- Screenshot capture.
+
 ## Strengths
 - **Privacy**: Strong E2EE and support for various sync targets (including self-hosted).
 - **Format**: Notes are stored in Markdown format.
@@ -41,11 +100,16 @@ It provides a secure, private way to sync notes across multiple devices (desktop
 - [Obsidian](obsidian.md)
 - [Logseq](logseq.md)
 - [Trilium Notes](../../services/trilium.md)
+- [Anytype](../intake_storage/anytype.md)
+- [Nextcloud](../../services/nextcloud.md)
+- [Khoj](../intake_storage/khoj.md)
+- [Notion AI](notion-ai.md)
 
 ## Sources / References
 - [Official Website](https://joplinapp.org/)
+- [Joplin Data API Reference](https://joplinapp.org/api/references/rest_api/)
 - [Joplin GitHub](https://github.com/laurent22/joplin)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-06
+- Last reviewed: 2026-05-19
 - Confidence: high
