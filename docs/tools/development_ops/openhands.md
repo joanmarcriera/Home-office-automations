@@ -144,6 +144,11 @@ result = agent.run(
     "and update the docstrings to match."
 )
 print(result.summary)
+
+# Interactive session via SDK
+with agent.session() as session:
+    session.run("Fix imports in main.py")
+    session.run("Run pytest and report failures")
 ```
 
 ## Microagent system
@@ -206,13 +211,13 @@ instructions: |
 
 ## Comparison with similar tools
 
-| Tool | Autonomy | Sandboxed | Local LLM | Best domain |
-|---|---|---|---|---|
-| **OpenHands** | Very high (plan+act+verify) | Yes (Docker) | Yes (LiteLLM/Ollama) | Full software engineering |
-| **Claude Code** | High | No (host filesystem) | No (Anthropic only) | Codebase editing + CLI |
-| **Aider** | Medium | No | Yes | Targeted file edits |
-| **Cursor** | Low–Medium | No | Partial | IDE-centric editing |
-| **OpenClaw** | High | Yes (Docker) | Yes | Messaging-channel agents |
+| Tool | Autonomy | Sandboxed | Local LLM | Best domain | Key differentiator |
+|---|---|---|---|---|---|
+| **OpenHands** | Very high | Yes (Docker) | Yes | Full software engineering | Holistic planning & execution in a safe sandbox. |
+| **Claude Code** | High | No (host fs) | No | Codebase editing + CLI | Native Anthropic integration with "Agent Hooks". |
+| **Aider** | Medium | No | Yes | Targeted file edits | Fast, terminal-based pair programming with Git. |
+| **Cursor** | Low–Medium | No | Partial | IDE-centric editing | Seamless AI integration directly inside the IDE. |
+| **OpenClaw** | High | Yes (Docker) | Yes | Messaging-channel agents | Multi-channel support (Telegram/Slack) for personal agents. |
 
 ## Security considerations
 
@@ -245,5 +250,5 @@ instructions: |
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-19
 - Confidence: high
