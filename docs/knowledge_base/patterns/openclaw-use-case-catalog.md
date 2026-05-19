@@ -43,11 +43,52 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 | Reporting | Scheduled reporting and anomaly detection | Good for pulling routine metrics and calling out patterns humans might miss | Separate reporting from action-taking |
 
 ## Implementation notes
-- Use LiteLLM or a similar router to separate cheap routine jobs from expensive deep-thinking tasks.
+- Use [LiteLLM](../../services/litellm.md) or a similar router to separate cheap routine jobs from expensive deep-thinking tasks.
 - Keep destructive skills out of the default assistant loop.
 - Put draft-first boundaries around email, publishing, and customer-facing actions.
-- Use n8n or another workflow system when timing, retries, approvals, and auditability matter more than conversation.
+- Use [n8n](../../services/n8n.md) or another workflow system when timing, retries, approvals, and auditability matter more than conversation.
 - Start with one or two well-bounded skills before layering more channels or capabilities.
+
+## Technical implementation example (YAML)
+OpenClaw uses YAML-based skill definitions. Below is an example of a "Morning Briefing" skill that aggregates data from multiple sources:
+
+```yaml
+# skills/morning_briefing.yaml
+name: morning_briefing
+description: "Aggregates weather, calendar, and tasks for a daily summary."
+trigger: "morning briefing"
+parameters:
+  location:
+    type: string
+    description: "The city for weather lookup"
+    default: "San Francisco"
+actions:
+  - name: get_weather
+    skill: weather_provider
+    args:
+      city: "{{location}}"
+  - name: get_calendar
+    skill: google_calendar
+    args:
+      view: "day"
+  - name: get_tasks
+    skill: todoist
+    args:
+      filter: "today"
+prompt_template: |
+  You are a helpful morning assistant. Based on the following data:
+  Weather: {{actions.get_weather.output}}
+  Calendar: {{actions.get_calendar.output}}
+  Tasks: {{actions.get_tasks.output}}
+
+  Provide a concise, motivating summary of the user's day.
+```
+
+## Security and Guardrails
+When deploying these use cases, consider the following security patterns:
+- **Credential Isolation**: Store API keys in environment variables or a secure vault, never in the YAML definitions.
+- **Sandbox Execution**: For development use cases, ensure OpenClaw is running in a [Docker](../../tools/infrastructure/docker.md) container to isolate filesystem access.
+- **Human-in-the-loop (HITL)**: For "Content" or "Communications" use cases, enforce a `draft_only: true` flag in the skill configuration.
 
 ## When to use it
 - Use when designing a new agentic workflow and looking for established patterns and safety boundaries.

@@ -33,6 +33,84 @@ Evaluating modern large models is complex, requiring diverse datasets and multip
 - For very simple, single-task evaluations where a lightweight script might suffice.
 - If you only need to evaluate basic RAG performance (consider [DeepEval](https://github.com/confident-ai/deepeval) or [RAGAS](https://github.com/explodinggradients/ragas) instead).
 
+## Getting started
+1. **Installation**:
+   ```bash
+   conda create --name opencompass python=3.10 -y
+   conda activate opencompass
+   git clone https://github.com/open-compass/opencompass.git
+   cd opencompass
+   pip install -e .
+   ```
+2. **Dataset Preparation**:
+   ```bash
+   # Download datasets to data/ directory
+   wget https://github.com/open-compass/opencompass/releases/download/0.1.0/OpenCompassData-core-20231110.zip
+   unzip OpenCompassData-core-20231110.zip
+   ```
+3. **Hello-world Evaluation**:
+   ```bash
+   # Evaluate Opt-125m on MMLU and GSM8K
+   python run.py --models hf_opt_125m --datasets mmlu_gen gsm8k_gen
+   ```
+
+## Configuration example (Python-style)
+OpenCompass uses MMEngine's configuration system. Below is an example for evaluating a HuggingFace model:
+
+```python
+from mmengine.config import read_base
+from opencompass.models import HuggingFaceCausalLM
+
+with read_base():
+    # Inherit dataset configurations
+    from .datasets.mmlu.mmlu_gen import mmlu_datasets
+    from .datasets.gsm8k.gsm8k_gen import gsm8k_datasets
+
+datasets = [*mmlu_datasets, *gsm8k_datasets]
+
+models = [
+    dict(
+        type=HuggingFaceCausalLM,
+        abbr='llama-7b-hf',
+        path='huggyllama/llama-7b',
+        tokenizer_path='huggyllama/llama-7b',
+        model_kwargs=dict(device_map='auto'),
+        max_seq_len=2048,
+        max_out_len=100,
+        batch_size=16,
+        run_cfg=dict(num_gpus=1),
+    )
+]
+```
+
+## API-based model evaluation
+To evaluate an API-based model (e.g., OpenAI), use the following configuration:
+
+```python
+from opencompass.models import OpenAI
+
+models = [
+    dict(
+        type=OpenAI,
+        path='gpt-4o',
+        key='YOUR_OPENAI_API_KEY',
+        abbr='gpt-4o',
+        query_per_second=1,
+        max_out_len=1024,
+        max_seq_len=2048,
+        batch_size=8,
+    )
+]
+```
+
+## CLI Reference
+Commonly used CLI arguments for `run.py`:
+- `--models`: Specify model names (from `configs/models/`).
+- `--datasets`: Specify dataset names (from `configs/datasets/`).
+- `--work-dir`: Directory to save evaluation results.
+- `--mode`: `inference` for only running model, `evaluation` for calculating metrics, or `full` for both.
+- `--reuse`: Resume from a previous checkpoint.
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
 - **Cost**: Free
@@ -43,6 +121,11 @@ Evaluating modern large models is complex, requiring diverse datasets and multip
 - [HELM](helm.md)
 - [vLLM](../infrastructure/vllm.md)
 - [Chatbot Arena](chatbot-arena.md)
+- [MMLU](mmlu.md)
+- [GSM8K](gsm8k.md)
+- [HumanEval](human-eval.md)
+- [MBPP](mbpp.md)
+- [BigCodeBench](bigcodebench.md)
 
 ## Sources / References
 - [Official Website](https://opencompass.org.cn/)
