@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-05-15
+# Ralph-loop Triage Report — 2026-05-19
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 15, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 19, 2026.
 
 ## Issue Status Summary
 
@@ -70,17 +70,17 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 73** | High-Value AI Knowledge & Providers | **Resolved** | Deepened `minimax.md`, `moonshot.md`, `copy-ai.md`, `jasper.md`, `runwayml.md` (2026-05-17). |
 | **Batch 74** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `superpowers.md`, `elevenlabs.md`, `claude-cookbooks.md`, `playwright.md`, `replicate.md` (2026-05-18). |
 | **Issue 2** | Supabase Deepening | **Verified & Closed** | Deepened `supabase.md` to High Confidence (2026-05-18). |
+| **Batch 75** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `supabase.md`, `github-pages.md`, `fastapi.md`, `litellm.md`, `fine-tuning-open-models.md` (2026-05-18). |
+| **Batch 76** | Fine-tuning Ecosystem | **Verified & Closed** | Deepened `unsloth.md`, `llama-factory.md`, `axolotl.md`, `distilabel.md`, `glaive.md` (2026-05-18). |
+| **Batch 77** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `evalplus.md`, `helm.md`, `opencompass.md`, `openhands.md`, `openclaw-use-case-catalog.md` (2026-05-19). |
+| **Batch 78** | Technical Deepening (Infra & Bench) | **Resolved** | Deepened `docker.md`, `luma-dream-machine.md`, `bigcodebench.md`, `arc.md`, `asdiv.md` (2026-05-19). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json`. **Sub-Batch 35.1 (Media) completed 2026-05-12**.
-- **Batch 41**: Address remaining 80+ non-compliant docs as decomposed in `docs/reports/task-decomposition-batch-41.md`. **(Completed 2026-05-12)**.
-- **Batch 42**: Service & Automation Deepening. **Sub-Batches 42.1, 42.2, 42.3, and 42.4 completed 2026-05-13**.
-- **Batch 53**: AI Coding & Orchestration Deepening. **Completed 2026-05-15**.
-- **Batch 65**: MCP Technical Deepening. **Identified 2026-05-16**.
-- **Batch 76 (Fine-tuning Ecosystem)**: Deepen specific fine-tuning tools: `unsloth.md`, `llama-factory.md`, `axolotl.md`, `distilabel.md`, and `glaive.md`. **Identified 2026-05-18**.
+- **Batch 79 (Oldest Res Deepening)**: Target next 5 oldest non-High-Confidence docs (e.g., `joplin.md`, `devin.md`, `mmlu.md`, `huggingface.md`, `proton_calendar.md`).
 
 ---
 - Confidence: high
