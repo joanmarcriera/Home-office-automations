@@ -52,6 +52,44 @@ docker build -t my-custom-app .
 docker stop my-app && docker rm my-app
 ```
 
+## Advanced Patterns
+
+### Docker Compose (YAML)
+Orchestrate multi-container applications, such as a web app with a database.
+
+```yaml
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: example_password
+```
+
+### Multi-stage Builds
+Reduce image size by separating build-time dependencies from the runtime environment.
+
+```dockerfile
+# Build stage
+FROM node:18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
 ## Getting started
 ### Installation
 Follow the official guides for:
@@ -71,10 +109,16 @@ Follow the official guides for:
 ## Related tools / concepts
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Kubernetes (K3s)](k3s.md)
+- [vLLM](vllm.md)
+- [OpenHands](../development_ops/openhands.md)
+- [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md)
+- [Paperless-ngx](../../services/paperless-ngx.md)
+- [Home Assistant](../../services/home-assistant.md)
 - [Portracker](../../services/portracker.md)
 - [Podman](https://podman.io/)
 - [LXC/LXD](https://linuxcontainers.org/)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Agent Protocols](../../knowledge_base/agent_protocols.md)
 
 ## Sources / References
 - [Official Website](https://www.docker.com/)
@@ -82,5 +126,5 @@ Follow the official guides for:
 - [Docker Hub](https://hub.docker.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-30
+- Last reviewed: 2026-05-19
 - Confidence: high
