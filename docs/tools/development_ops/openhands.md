@@ -231,6 +231,9 @@ instructions: |
 - [Ollama](../../services/ollama.md) — local model serving backend
 - [OpenRouter](../ai_knowledge/openrouter.md) — cloud model routing fallback
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — adapt local models for better code task performance
+- [SWE-Bench](../benchmarking/swe-bench.md) — benchmark for evaluating software engineering agents
+- [Cursor](cursor.md) — AI-powered code editor
+- [OpenClaw Use-Case Catalog](../../knowledge_base/patterns/openclaw-use-case-catalog.md) — catalog of agentic workflows
 
 ## Sources / References
 
