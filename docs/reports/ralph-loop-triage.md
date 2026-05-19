@@ -81,6 +81,7 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 - **Batch 53**: AI Coding & Orchestration Deepening. **Completed 2026-05-15**.
 - **Batch 65**: MCP Technical Deepening. **Identified 2026-05-16**.
 - **Batch 76 (Fine-tuning Ecosystem)**: Deepen specific fine-tuning tools: `unsloth.md`, `llama-factory.md`, `axolotl.md`, `distilabel.md`, and `glaive.md`. **Identified 2026-05-18**.
+- **Batch 77 (Oldest Benchmarking & Dev-Ops)**: Deepen `evalplus.md`, `helm.md`, `opencompass.md`, `openhands.md`, and `openclaw-use-case-catalog.md`. **Issue 1 (`evalplus.md`) completed 2026-05-19**.
 
 ---
 - Confidence: high

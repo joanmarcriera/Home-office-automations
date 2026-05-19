@@ -14,6 +14,55 @@ Original coding benchmarks like [HumanEval](human-eval.md) often have very few t
 - **Fragility Detection**: Identifying if a model's generated code is robust across many different inputs.
 - **Code Efficiency Benchmarking**: Using the EvalPerf extension to measure the execution speed of LLM-generated code.
 
+## Getting started
+
+### Installation
+You can install EvalPlus via pip. For full functionality including vLLM and performance benchmarking:
+
+```bash
+pip install "evalplus[vllm,perf]" --upgrade
+```
+
+### Hello-world: Functional Evaluation
+To evaluate a model locally using the vLLM backend on the HumanEval dataset:
+
+```bash
+evalplus.evaluate --model "ise-uiuc/Magicoder-S-DS-6.7B" \
+                  --dataset humaneval \
+                  --backend vllm \
+                  --greedy
+```
+
+## Technical details
+
+### CLI Usage
+EvalPlus provides several command-line tools for different stages of the evaluation pipeline:
+
+- `evalplus.evaluate`: The primary entry point for end-to-end generation and evaluation.
+- `evalplus.codegen`: Used for code generation only (useful when separation of concerns is needed).
+- `evalplus.evalperf`: Specialized tool for code efficiency and performance benchmarking.
+
+### Docker Execution (Safe Sandboxing)
+For security, it is highly recommended to run the evaluation (which involves executing model-generated code) inside a Docker container:
+
+```bash
+# Generate samples locally first
+evalplus.codegen --model "gpt-4o" --dataset humaneval --backend openai
+
+# Run evaluation inside the EvalPlus sandbox
+docker run --rm -v $(pwd)/evalplus_results:/app ganler/evalplus:latest \
+           evalplus.evaluate --dataset humaneval \
+           --samples /app/humaneval/openai--gpt-4o_temp_0.0.jsonl
+```
+
+### Supported Backends
+EvalPlus supports a wide range of inference backends:
+- **vLLM**: Highly optimized for local throughput.
+- **Hugging Face**: Standard `transformers` implementation.
+- **OpenAI / Anthropic / Gemini**: Cloud-based API providers.
+- **Ollama**: Local model serving.
+- **Bedrock / hf_gaudi**: Enterprise and specialized hardware support.
+
 ## Strengths
 - **High Rigor**: Expanded test suites (HumanEval+, MBPP+) significantly reduce false positives.
 - **Multi-backend Support**: Supports evaluation via vLLM, Hugging Face, OpenAI, Anthropic, Gemini, and Ollama.
@@ -43,6 +92,9 @@ Original coding benchmarks like [HumanEval](human-eval.md) often have very few t
 - [MBPP](mbpp.md)
 - [SWE-bench](swe-bench.md)
 - [vLLM](../infrastructure/vllm.md)
+- [OpenCompass](opencompass.md)
+- [HELM](helm.md)
+- [LM Evaluation Harness](lm-evaluation-harness.md)
 
 ## Sources / References
 - [Official Website](https://evalplus.github.io/)
@@ -50,5 +102,5 @@ Original coding benchmarks like [HumanEval](human-eval.md) often have very few t
 - [NeurIPS 2023 Paper](https://openreview.net/forum?id=1qvx610Cu7)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-19
 - Confidence: high
