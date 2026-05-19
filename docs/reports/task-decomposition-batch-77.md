@@ -7,7 +7,7 @@ This batch focuses on deepening the next 5 oldest documentation issues by review
 | Doc Path | Target Standard | Status | Notes |
 | :--- | :--- | :--- | :--- |
 | `docs/tools/benchmarking/evalplus.md` | High Confidence | ✅ Completed | Code generation benchmarking with test-case augmentation. |
-| `docs/tools/benchmarking/helm.md` | High Confidence | ⏳ Pending | Stanford Holistic Evaluation of Language Models. |
+| `docs/tools/benchmarking/helm.md` | High Confidence | ✅ Completed | Stanford Holistic Evaluation of Language Models. |
 | `docs/tools/benchmarking/opencompass.md` | High Confidence | ⏳ Pending | LLM evaluation platform. |
 | `docs/tools/development_ops/openhands.md` | High Confidence | ⏳ Pending | Formerly OpenDevin; software engineering agent. |
 | `docs/knowledge_base/patterns/openclaw-use-case-catalog.md` | High Confidence | ⏳ Pending | Expanded use cases for OpenClaw agents. |
