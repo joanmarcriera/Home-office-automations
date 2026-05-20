@@ -31,10 +31,22 @@ It addresses the lack of realistic evaluation frameworks for web-based agents by
 - For evaluating models on pure reasoning or coding tasks without a web navigation component.
 - If you lack the infrastructure to run autonomous browser-based agents.
 
-## Licensing and cost
-- **Open Source**: Yes
-- **Cost**: Free (benchmark), but requires LLM/Browser resources to execute.
-- **Self-hostable**: Yes
+## Architecture and Data Flow
+PA-bench operates by orchestrating a "Simulation Manager" that spawns sandboxed application instances (e.g., mock Gmail, mock Google Calendar). The "Experiment Orchestrator" then guides the agent through specific tasks, capturing browser state, traces, and final outcomes for automated scoring.
+
+## Advanced Configuration
+Users can define custom tasks and application states via JSON configurations:
+```json
+{
+  "task_id": "travel_reimbursement_01",
+  "start_state": {
+    "gmail": "standard_inbox_with_receipts",
+    "calendar": "empty_week"
+  },
+  "goal": "Find the flight receipt in Gmail and add a corresponding expense entry to the Calendar.",
+  "eval_criteria": "Event exists on 2026-05-25 with title 'Expense: Flight' and amount '$450'."
+}
+```
 
 ## Getting started
 
@@ -71,13 +83,19 @@ sim_manager.shutdown()
 
 ## Related tools / concepts
 - [Web Agents](../../knowledge_base/agent_protocols.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [OpenHands](../agents/openhands.md)
 - [SWE-bench](./swe-bench.md)
 - [Terminal-bench](./terminal-bench.md)
-- [WebArena](https://webarena.dev/)
-- [Mind2Web](https://github.com/osu-nlp-group/Mind2Web)
 - [GAIA (General AI Assistants)](./gaia.md)
 - [AssistantBench](./assistant-bench.md)
 - [OSWorld](./os-world.md)
+- [WebArena](https://webarena.dev/)
+
+## Licensing and cost
+- **Open Source**: Yes
+- **Cost**: Free (benchmark), but requires LLM/Browser resources to execute.
+- **Self-hostable**: Yes
 
 ## Sources / References
 - [PA-bench: Evaluating web agents on real world personal assistant workflows](https://vibrantlabs.com/blog/pa-bench)
@@ -85,5 +103,5 @@ sim_manager.shutdown()
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-20
 - Confidence: high

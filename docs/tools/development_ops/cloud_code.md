@@ -22,14 +22,29 @@ Reduces context switching by bringing cloud-native development workflows (Kubern
 ## Limitations
 - Primarily oriented toward Google Cloud; less useful for other providers
 - Requires familiarity with Kubernetes concepts
+- Plugin overhead may affect IDE performance on lower-end hardware
 
 ## When to use it
 - When developing cloud-native applications targeting Kubernetes or Google Cloud
 - When you want to manage deployments without leaving the IDE
+- When you need integrated secret management via Secret Manager
 
 ## When not to use it
 - When working on projects that do not involve cloud infrastructure
-- When a standalone Kubernetes management tool (e.g., Lens) is preferred
+- When a standalone Kubernetes management tool (e.g., [Lens](https://k8slens.dev/)) is preferred
+- When working exclusively in AWS or Azure (use their respective toolkits)
+
+## Key Features
+- **Kubernetes Explorer**: Browse, manage, and view logs for clusters, nodes, and workloads.
+- **Cloud Run Support**: Develop and debug serverless applications locally and in the cloud.
+- **Secret Manager Integration**: Create and manage secrets directly within the IDE.
+- **Cloud Code AI**: Assist in writing Kubernetes YAML and Cloud Run service definitions.
+
+## Inner Loop Development with Skaffold
+Cloud Code integrates with [Skaffold](./skaffold.md) for real-time rebuilds:
+1. Open the "Cloud Code" status bar menu.
+2. Select **Run on Kubernetes**.
+3. Cloud Code will build your image, push it to a registry, and deploy it to your cluster (local or remote), then stream logs back to the IDE.
 
 ## Getting started
 
@@ -58,22 +73,28 @@ spec:
         image: gcr.io/my-project/my-app:v1
 ```
 
-### 2. Inner Loop Development with Skaffold
-Cloud Code integrates with [Skaffold](./skaffold.md) for real-time rebuilds:
-1. Open the "Cloud Code" status bar menu.
-2. Select **Run on Kubernetes**.
-3. Cloud Code will build your image, push it to a registry, and deploy it to your cluster (local or remote), then stream logs back to the IDE.
+### 2. Secret Manager Integration
+Cloud Code allows you to inject secrets into your code without exposing them in version control.
+```python
+# Cloud Code can help generate the client code for Secret Manager
+from google.cloud import secretmanager
+
+client = secretmanager.SecretManagerServiceClient()
+name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+response = client.access_secret_version(request={"name": name})
+payload = response.payload.data.decode("UTF-8")
+```
 
 ## Related tools / concepts
-- [Lens](https://k8slens.dev/)
 - [Skaffold](https://skaffold.dev/)
-- [Codeium](codeium.md)
-- [Claude Code — Project Setup Guide](claude-code-setup.md)
-- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
-- [Kustomize](https://kustomize.io/)
-- [Helm](./helm.md)
 - [Docker](./docker.md)
+- [Helm](./helm.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [Windsurf](./windsurf.md)
+- [Cursor](./cursor.md)
+- [Aider](./aider.md)
 - [Kubernetes Architecture](../../architecture/infrastructure.md)
+- [Lens](https://k8slens.dev/)
 
 ## Sources / references
 - [Official Website](https://cloud.google.com/code)
@@ -82,5 +103,5 @@ Cloud Code integrates with [Skaffold](./skaffold.md) for real-time rebuilds:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-20
 - Confidence: high

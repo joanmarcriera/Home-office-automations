@@ -32,6 +32,27 @@ Provides a centralized, cloud-based calendar for scheduling events, coordinating
 - When privacy is a priority and self-hosting is preferred (use [Nextcloud Calendar](../../services/nextcloud.md) instead)
 - When you need full control over your calendar data and infrastructure
 
+## API and Automation Patterns
+Google Calendar is often used as a central hub for agentic time-management. Common patterns include:
+- **Event Conflict Resolution**: Using an agent to check for overlaps across multiple Google and Outlook calendars.
+- **Smart Reminders**: Triggering IoT devices (via Home Assistant) based on upcoming calendar events.
+- **Automatic Time Blocking**: Syncing tasks from logseq or Obsidian into dedicated calendar blocks.
+
+## Advanced API Usage (v3)
+The Google Calendar API allows for complex queries beyond simple event creation. For example, listing upcoming events with a specific query:
+```python
+# List the next 10 events from the primary calendar
+events_result = service.events().list(
+    calendarId='primary',
+    timeMin=now,
+    maxResults=10,
+    singleEvents=True,
+    orderBy='startTime',
+    q='Project Alpha'
+).execute()
+events = events_result.get('items', [])
+```
+
 ## Getting started
 
 Google Calendar is most effectively integrated into homelab automation via the Google Calendar API or n8n nodes.
@@ -72,10 +93,10 @@ The **Google Calendar** node in n8n supports:
 - [Proton Calendar](proton_calendar.md)
 - [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md)
 - [n8n](../../services/n8n.md)
-- [Make](../automation_orchestration/make.md)
+- [Home Assistant](../../services/home-assistant.md)
+- [Logseq](../development_ops/logseq.md)
+- [Obsidian](../development_ops/obsidian.md)
 - [Fantastical](./fantastical.md)
-- [Reclaim.ai](./reclaim.md)
-- [Motion](./motion.md)
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md)
 
 ## Sources / references
@@ -85,5 +106,5 @@ The **Google Calendar** node in n8n supports:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-20
 - Confidence: high

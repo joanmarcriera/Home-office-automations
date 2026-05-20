@@ -32,6 +32,25 @@ Measures whether AI agents can effectively operate in a terminal environment, a 
 - When evaluating pure code generation capabilities (use [HumanEval](human-eval.md) or [MBPP](mbpp.md))
 - When you need a well-established benchmark with extensive published results
 
+## Evaluation Methodology
+Terminal-Bench (TB-2) uses the **Harbor** framework to provide a consistent, containerized execution environment. Each task is defined by:
+1. **Scenario**: A Docker image containing the initial system state.
+2. **Instruction**: A natural language prompt describing the goal.
+3. **Validator**: A script that checks for successful completion (e.g., verifying a service is running or a file exists with specific content).
+
+## Example Task Configuration
+Tasks are typically structured as YAML or JSON objects within the Harbor framework:
+```yaml
+task_id: "nginx-load-balancer-config"
+category: "networking"
+difficulty: "hard"
+scenario_image: "harbor/ubuntu-22.04-dev"
+instruction: "Configure Nginx as a load balancer for two backend servers running on ports 8081 and 8082."
+verification:
+  type: "bash_script"
+  script: "curl -s localhost | grep 'Backend'"
+```
+
 ## Getting started
 
 Terminal-Bench (TB-2) is typically run using the `tb` CLI tool and requires a Docker environment for sandboxed execution.
@@ -66,14 +85,14 @@ with HarborSandbox() as sandbox:
 
 ## Related tools / concepts
 - [SWE-bench](swe-bench.md)
-- [InterCode](https://github.com/princeton-nlp/intercode)
-- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [BigCodeBench](./bigcodebench.md)
+- [OpenHands](../agents/openhands.md)
+- [Aider](../development_ops/aider.md)
+- [Claude Code — Project Setup Guide](../development_ops/claude-code-setup.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
-- [LongCLI-Bench](longcli-bench.md)
 - [Harbor Framework](https://github.com/harbor-framework/harbor)
-- [WebArena](./webarena.md)
+- [OSWorld](./os-world.md)
 - [PA-bench](./pa-bench.md)
-- [GAIA](./gaia.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/harbor-framework/terminal-bench)
@@ -81,5 +100,5 @@ with HarborSandbox() as sandbox:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-20
 - Confidence: high
