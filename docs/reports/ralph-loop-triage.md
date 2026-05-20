@@ -81,8 +81,8 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json`. **Sub-Batch 35.1 (Media) completed 2026-05-12**.
-- **Batch 79 (Oldest Res Deepening)**: Target next 5 oldest non-High-Confidence docs (e.g., `joplin.md`, `devin.md`, `mmlu.md`, `huggingface.md`, `proton_calendar.md`).
-- **Batch 83 (Backlog Deepening)**: Target next 5 items from `medium_confidence_backlog.txt` (e.g., `custom_agents.md`, `droid.md`, `gpt_engineer.md`, `junie-cli.md`, `melty.md`).
+- **Batch 79 (Oldest Res Deepening)**: **Completed (2026-05-19)**. `joplin.md`, `devin.md`, `mmlu.md`, `huggingface.md`, `proton_calendar.md` reached High Confidence.
+- **Batch 83 (Backlog Deepening)**: **Completed (2026-05-20)**. `custom_agents.md`, `droid.md`, `gpt_engineer.md`, `junie-cli.md`, `melty.md` reached High Confidence.
 
 ---
 - Confidence: high
