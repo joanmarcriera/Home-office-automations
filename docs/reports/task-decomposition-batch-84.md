@@ -11,9 +11,9 @@ This report implements **Action C** for the "Shallow" documents identified in `d
 - [x] `docs/tools/ai_knowledge/chatgpt.md`: Add OpenAI API examples and technical details for Excel/Edu integrations.
 
 ## Sub-Batch 84.2: AI Discovery & Tutoring
-- [ ] `docs/tools/ai_knowledge/chatbox-ai.md`: Add technical configuration for multi-model backends and API integration examples.
-- [ ] `docs/tools/ai_knowledge/deeptutor.md`: Add technical details for specialized learning workflows and agentic tutor patterns.
-- [ ] `docs/tools/ai_knowledge/genspark.md`: Add technical examples for Sparkpage generation and source-grounded research APIs.
+- [x] `docs/tools/ai_knowledge/chatbox-ai.md`: Add technical configuration for multi-model backends and API integration examples.
+- [x] `docs/tools/ai_knowledge/deeptutor.md`: Add technical details for specialized learning workflows and agentic tutor patterns.
+- [x] `docs/tools/ai_knowledge/genspark.md`: Add technical examples for Sparkpage generation and source-grounded research APIs.
 
 ---
 - Confidence: high
