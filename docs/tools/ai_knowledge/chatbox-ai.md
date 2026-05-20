@@ -34,13 +34,37 @@ It eliminates the need to switch between different AI provider websites by provi
 ## Getting started
 
 ### Installation
-1.  Download the client for your platform from the [official website](https://chatboxai.app/).
-2.  Install and launch the application.
+1.  **Desktop**: Download the installer for Windows (.exe), macOS (.dmg), or Linux (.AppImage) from the [Official Downloads](https://chatboxai.app/).
+2.  **Mobile**: Install via the [Apple App Store](https://apps.apple.com/app/chatbox-ai/id6471368056) or [Google Play Store](https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox).
+3.  **Web**: Access the client directly at [chatboxai.app](https://chatboxai.app/).
 
-### Configuration
-1.  Open **Settings** (gear icon).
-2.  Select your preferred **AI Provider** (e.g., OpenAI, Anthropic).
-3.  Enter your **API Key** and save.
+### Basic Configuration
+1.  Launch Chatbox and open **Settings** (gear icon).
+2.  Navigate to **AI Provider**.
+3.  Select your provider (e.g., OpenAI) and enter your **API Key**.
+4.  Choose your desired **Model** (e.g., gpt-4o) and click **Save**.
+
+## Technical configuration
+
+Chatbox allows for advanced configuration, including connecting to local LLMs or custom API endpoints.
+
+### Connecting to Ollama (Local)
+1.  Ensure [Ollama](../../services/ollama.md) is running locally.
+2.  In Chatbox Settings, set **AI Provider** to `Ollama`.
+3.  Set the **API Host** to `http://localhost:11434/v1`.
+4.  Select your local model (e.g., `llama3`) from the dropdown.
+
+### Custom API Configuration (JSON)
+For providers not natively listed, use the "Custom OpenAI-compatible" option:
+
+```json
+{
+  "provider": "OpenAI-Compatible",
+  "api_key": "your-api-key",
+  "base_url": "https://your-custom-proxy.com/v1",
+  "model": "your-model-name"
+}
+```
 
 ## Licensing and cost
 - **Open Source**: No
@@ -48,14 +72,18 @@ It eliminates the need to switch between different AI provider websites by provi
 - **Self-hostable**: No (Client-side application)
 
 ## Related tools / concepts
-- [Jan.ai](../infrastructure/jan-ai.md)
-- [LM Studio](../infrastructure/lm-studio.md)
-- [Msty](msty.md)
+- [Jan.ai](../infrastructure/jan-ai.md) — Local-first AI desktop client.
+- [LM Studio](../infrastructure/lm-studio.md) — Tool for discovering and running local LLMs.
+- [Msty](msty.md) — Multi-model AI client with focus on local privacy.
+- [Aider](../development_ops/aider.md) — Terminal-based pair programmer.
+- [Ollama](../../services/ollama.md) — Local LLM runner.
+- [Perplexity](perplexity.md) — AI-powered search engine.
+- [Claude Code](../development_ops/claude-code.md) — Anthropic's official CLI coding assistant.
 
 ## Sources / References
 - [Chatbox AI Official Site](https://chatboxai.app/)
 - [Chatbox AI GitHub](https://github.com/Bin-Huang/chatbox)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-20
 - Confidence: high
