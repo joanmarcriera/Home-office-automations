@@ -12,11 +12,11 @@ This report implements the deepening of the next 5 oldest "Medium Confidence" do
   - `docs/tools/development_ops/aider.md`
 
 ## Sub-Tasks
-- [ ] **Tabnine Deepening**: Add local-only config examples, enterprise deployment patterns, and cross-links.
-- [ ] **VS Code Deepening**: Add AI-extension optimization (`settings.json`), workspace patterns, and cross-links.
-- [ ] **Zed Deepening**: Add Rust-native AI config, CLI usage, and cross-links.
-- [ ] **CalDAV Deepening**: Add protocol-level interaction examples (curl), service integration patterns, and cross-links.
-- [ ] **Aider Deepening**: Add repository map optimization, advanced CLI flags, and cross-links.
+- [x] **Tabnine Deepening**: Add local-only config examples, enterprise deployment patterns, and cross-links.
+- [x] **VS Code Deepening**: Add AI-extension optimization (`settings.json`), workspace patterns, and cross-links.
+- [x] **Zed Deepening**: Add Rust-native AI config, CLI usage, and cross-links.
+- [x] **CalDAV Deepening**: Add protocol-level interaction examples (curl), service integration patterns, and cross-links.
+- [x] **Aider Deepening**: Add repository map optimization, advanced CLI flags, and cross-links.
 
 ---
 - Confidence: high
