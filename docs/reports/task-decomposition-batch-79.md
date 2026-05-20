@@ -9,8 +9,8 @@ This batch focuses on deepening the next 5 oldest documentation issues by review
 | `docs/tools/ai_knowledge/joplin.md` | High Confidence | ✅ Completed | Note-taking and knowledge management. |
 | `docs/tools/development_ops/devin.md` | High Confidence | ✅ Completed | AI software engineer. |
 | `docs/tools/benchmarking/mmlu.md` | High Confidence | ✅ Completed | Massive Multitask Language Understanding benchmark. |
-| `docs/tools/providers/huggingface.md` | High Confidence | ⏳ Pending | AI model and dataset repository. |
-| `docs/tools/calendar_tasks/proton_calendar.md` | High Confidence | ⏳ Pending | Privacy-focused calendar service. |
+| `docs/tools/providers/huggingface.md` | High Confidence | ✅ Completed | Deepened with CLI/API examples and transformers snippets. |
+| `docs/tools/calendar_tasks/proton_calendar.md` | High Confidence | ✅ Completed | Deepened with security model and integration patterns. |
 
 ## Requirements Checklist (High Confidence)
 - [x] 10+ distinct sections (headers).
@@ -21,3 +21,4 @@ This batch focuses on deepening the next 5 oldest documentation issues by review
 
 ## Changelog
 - 2026-05-19: Initial decomposition created for Batch 79. Focus started on `joplin.md` (Issue 1).
+- 2026-05-19: Completed `huggingface.md` and `proton_calendar.md`. Batch 79 closed.
