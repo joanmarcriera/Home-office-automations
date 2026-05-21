@@ -51,7 +51,7 @@ This is a Next.js application using Tailwind CSS and Prisma.
 ## Current Sprint
 - [x] Implement User Auth
 - [x] Refactor Task Dashboard
-- [ ] Add Email Notifications (Current focus)
+- [x] Add Email Notifications
 
 ### Example Skill: Email Notification Wrapper
 You can define a "skill" for the agent to use when specific conditions are met, ensuring it follows the repository's notification standards.
@@ -69,6 +69,17 @@ Send a standardized email notification after a successful production deployment.
 1. Retrieve the list of changes from `CHANGELOG.md`.
 2. Format the email using the template in `templates/email/deployment_alert.html`.
 3. Send to `dev-alerts@example.com` via the SMTP MCP server.
+```
+
+### Implementing Email Notifications
+To implement the "Email Notifications" task from the memory file, the agent uses the configured SMTP MCP server and follows the `templates/` directory structure.
+
+```bash
+# Example command for the agent to send the notification
+mcp use smtp-server send_email \
+  --to "dev-alerts@example.com" \
+  --subject "Production Deployment Successful" \
+  --body "New features: $(cat CHANGELOG.md | head -n 10)"
 ```
 
 ## Context Mapping

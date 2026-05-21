@@ -75,14 +75,15 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 77** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `evalplus.md`, `helm.md`, `opencompass.md`, `openhands.md`, `openclaw-use-case-catalog.md` (2026-05-19). |
 | **Batch 78** | Technical Deepening (Infra & Bench) | **Resolved** | Deepened `docker.md`, `luma-dream-machine.md`, `bigcodebench.md`, `arc.md`, `asdiv.md` (2026-05-19). |
 | **Batch 82** | Technical Deepening (Backlog) | **Resolved** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, `anti_gravity.md`, `cloud_code.md` (2026-05-20). |
+| **Batch 84** | AI Knowledge Deepening | **Resolved** | Deepened `claude.md`, `chatgpt.md`, `chatbox-ai.md`, etc. (2026-05-20). |
+| **Batch 85** | Comprehensive Cleanup | **In Progress** | Deepened `deepseek.md`, `minimax.md`, `typingmind.md`, etc. (2026-05-21). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json`. **Sub-Batch 35.1 (Media) completed 2026-05-12**.
-- **Batch 79 (Oldest Res Deepening)**: **Completed (2026-05-19)**. `joplin.md`, `devin.md`, `mmlu.md`, `huggingface.md`, `proton_calendar.md` reached High Confidence.
-- **Batch 83 (Backlog Deepening)**: **Completed (2026-05-20)**. `custom_agents.md`, `droid.md`, `gpt_engineer.md`, `junie-cli.md`, `melty.md` reached High Confidence.
+- **Batch 85**: Complete Sub-Batch 85.2 (Placeholder resolution) and 85.3 (Legacy task catch-up).
 
 ---
 - Confidence: high

@@ -35,6 +35,58 @@ It provides a superior user experience compared to default AI chat interfaces, a
 - If you are a casual user who only needs basic chat functionality.
 - If you prefer a free, open-source alternative like LibreChat.
 
+
+## Getting started
+
+### Account Setup
+1. Visit [TypingMind.com](https://www.typingmind.com/).
+2. Select your version: Web, Desktop (macOS/Windows), or Custom (Self-hosted).
+3. Purchase a license key to unlock Pro features.
+
+### Configuring API Providers
+TypingMind follows a "Bring Your Own Key" (BYOK) model.
+1. Click on the gear icon (Settings) in the sidebar.
+2. Select **AI Providers**.
+3. Add your API keys for OpenAI, Anthropic, Google Gemini, or OpenRouter.
+
+### Adding an MCP Server
+TypingMind supports the Model Context Protocol (MCP) for extending agent capabilities.
+1. Go to **Settings** -> **MCP Servers**.
+2. Click **Add MCP Server**.
+3. Enter the server name and its endpoint (e.g., `http://localhost:3000`).
+
+## Technical examples
+
+### Custom Backend Configuration (JSON)
+TypingMind allows you to define custom API endpoints. This is useful for connecting to a local Ollama instance or a custom proxy like LiteLLM.
+
+```json
+{
+  "name": "Local Ollama",
+  "api_key": "not-needed",
+  "base_url": "http://localhost:11434/v1",
+  "model_list": [
+    {
+      "id": "llama3.1",
+      "name": "Llama 3.1"
+    }
+  ]
+}
+```
+
+### Prompt Library Export Pattern
+Prompts can be managed and exported in a structured JSON format.
+
+```json
+[
+  {
+    "title": "Code Reviewer",
+    "content": "You are a senior engineer. Review the following code for security and performance: {{input}}",
+    "tags": ["coding", "review"]
+  }
+]
+```
+
 ## Related tools / concepts
 - [LibreChat](librechat.md)
 - [Open WebUI](../../services/open-webui.md)
@@ -47,5 +99,5 @@ It provides a superior user experience compared to default AI chat interfaces, a
 - [TypingMind Documentation](https://docs.typingmind.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-05-21
 - Confidence: high
