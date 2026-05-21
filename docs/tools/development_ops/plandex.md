@@ -52,29 +52,46 @@ plandex init
 
 ## CLI examples
 
-### Creating a Plan
-Start a new session and describe a complex change:
+### Session and Branch Management
+Plandex uses a branching model similar to Git for managing different engineering attempts:
 
 ```bash
-plandex new
-plandex load src/ tests/
-plandex tell "Refactor the authentication flow to use JWT instead of sessions. Update all middleware and tests."
+# Create a new plan/session
+plandex new refactor-auth
+
+# Load files into the current session context
+plandex load src/auth/ tests/auth/
+
+# List all sessions and branches
+plandex branch --list
 ```
 
-### Reviewing and Executing
-Review the generated plan and then execute it:
+### The Plan-Execute-Verify Loop
+The core workflow involves describing a task, reviewing the plan, and executing it in a sandbox:
 
 ```bash
-plandex plan      # Review the proposed steps
-plandex apply     # Execute the plan in the sandbox
+# Tell Plandex what to do
+plandex tell "Implement OAuth2 with GitHub as a provider."
+
+# Review the proposed plan (multi-step decomposition)
+plandex plan
+
+# Execute the plan in the isolated sandbox
+plandex apply
 ```
 
-### Verifying and Committing
-Check the diffs in the sandbox and commit them to your local files if satisfied:
+### Verification and Synchronization
+Once changes are applied in the sandbox, you must verify and save them:
 
 ```bash
-plandex diff      # See changes made in the sandbox
-plandex save      # Save sandbox changes to your actual files
+# View the changes made in the sandbox
+plandex diff
+
+# Run tests or quality checks inside the sandbox context
+plandex run npm test
+
+# If satisfied, save sandbox changes to your project files
+plandex save
 ```
 
 ## Related tools / concepts

@@ -42,37 +42,56 @@ pip install mentat-ai
 ```
 
 ### Configuration
-Create a `.mentat_config.json` in your project root to manage model preferences and excluded files:
+Create a `.mentat_config.json` in your project root to manage model preferences, temperature, and context inclusion rules:
 
 ```json
 {
-  "model": "gpt-4-turbo-preview",
-  "temperature": 0.2,
-  "file_exclude": ["node_modules/", "dist/", "*.log"]
+  "model": "gpt-4o",
+  "temperature": 0.1,
+  "file_exclude": [
+    "node_modules/",
+    "dist/",
+    "*.log",
+    ".git/",
+    "__pycache__/"
+  ],
+  "maximum_context": 32000
 }
 ```
 
 ## CLI examples
 
-### Basic multi-file edit
-Start Mentat with specific files included in the context:
+### Context Management
+Mentat allows granular control over what the AI can see. You can include files, directories, or use glob patterns:
 
 ```bash
-mentat src/main.py src/utils.py tests/test_main.py
+# Include specific files and a directory, while excluding a sub-path
+mentat src/main.py src/utils/ tests/ --exclude tests/legacy/
+
+# Use glob patterns to include all python files in a directory
+mentat "scripts/**/*.py"
 ```
 
-### Interactive Refactoring
-Once inside the Mentat shell, you can issue natural language commands:
+### Interactive Refactoring Loop
+Once inside the Mentat shell, the "edit-loop" begins. You can provide instructions and Mentat will propose changes:
 
 ```text
-> Add a new 'Logger' class to utils.py and update main.py to use it for all error handling.
+> Search the codebase for all occurrences of hardcoded API endpoints and move them to a new config.py file.
+>
+> Mentat: [Proposes changes to 4 files]
+>
+> [y/n/i/e] (y: apply, n: skip, i: individual, e: explain)
 ```
 
-### Including directories
-You can also include entire directories to provide broader context:
+### Scripting and Automation
+You can run Mentat in a non-interactive mode for automated tasks or CI integration:
 
 ```bash
-mentat src/ --exclude src/legacy/
+# Run a specific command and exit
+mentat --run "Refactor all imports to use absolute paths"
+
+# Use a specific model for a single run
+mentat --model claude-3-5-sonnet-20240620 src/
 ```
 
 ## Related tools / concepts

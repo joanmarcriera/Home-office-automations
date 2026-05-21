@@ -37,10 +37,53 @@ It minimizes latency in AI-assisted coding by prioritizing speed and parallelism
 ## Features and Patterns
 
 ### Parallel Agent Sessions
-Superconductor allows you to split tasks across multiple "Agent Workers". For example, you can have one agent refactoring the API layer while another updates the frontend components, with the workspace managing synchronization and conflict resolution.
+Superconductor allows you to split tasks across multiple "Agent Workers". This enables concurrent development of different features or layers:
 
-### Multiplayer Sync
-Multiple human users can join the same project session, seeing exactly what the AI is proposing and editing in real-time. This turns "prompting" into a team activity.
+```text
+# Session 1 (API Agent):
+> Refactor the /v1/user endpoint to include profile_picture_url.
+
+# Session 2 (Frontend Agent):
+> Update the UserProfile component to display the new profile_picture_url with a fallback.
+```
+
+### Multiplayer Sync and Workspace Sharing
+Multiple human users can join the same project session, seeing exactly what the AI is proposing and editing in real-time. This turns "prompting" into a team activity where developers can peer-review AI changes instantly.
+
+### IDE Integration
+Superconductor provides a seamless "inner-loop" by integrating with popular local editors:
+
+- **VS Code Extension**: Connect your local VS Code instance to a remote Superconductor workspace for high-speed, parallel completions.
+- **Zed Integration**: Leverages Zed's high-performance architecture for ultra-low latency collaborative editing.
+
+## Technical Configuration
+
+### Agent Worker Specialization
+You can specialize agent workers by providing them with specific "Domain Context" in the workspace settings:
+
+```json
+{
+  "workers": [
+    {
+      "id": "backend-expert",
+      "specialization": "FastAPI, PostgreSQL",
+      "priority": "performance"
+    },
+    {
+      "id": "frontend-expert",
+      "specialization": "React, TailwindCSS",
+      "priority": "visual-fidelity"
+    }
+  ]
+}
+```
+
+### Multiplayer Permission Schemes
+Manage access to the collaborative workspace with granular role-based controls:
+
+- **Admin**: Full control over workers, models, and billing.
+- **Editor**: Can prompt agents and edit code.
+- **Reviewer**: Can view changes and leave comments but cannot apply edits to the `main` branch.
 
 ## Related tools / concepts
 - [Aider](aider.md) — For terminal-based, local-first AI editing.

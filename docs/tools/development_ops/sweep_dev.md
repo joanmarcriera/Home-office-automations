@@ -37,13 +37,46 @@ It automates the conversion of GitHub issues into working pull requests, reducin
 
 ## Configuration and Automation
 
-### Sweep Rules
-You can configure Sweep's behavior by adding a `.sweep.yaml` or a `sweep.rules` file to your repository. This allows you to enforce patterns like:
-- "Always use functional components for React."
-- "All new API endpoints must include a unit test in `tests/api/`."
+### Sweep Rules (`.sweep.yaml`)
+You can configure Sweep's behavior by adding a `.sweep.yaml` file to your repository. This allows you to enforce patterns and define the agent's operating environment:
 
-### Triggering via Labels
-A common pattern is to trigger Sweep only when a specific label (e.g., `sweep`) is added to an issue, allowing for human-in-the-loop triage before the AI starts working.
+```yaml
+# .sweep.yaml example
+branch: "main"
+rules:
+  - "Always use functional components for React."
+  - "All new API endpoints must include a unit test in tests/api/."
+  - "Follow the project's contribution metadata format: Last reviewed: YYYY-MM-DD."
+exclude:
+  - "node_modules/**"
+  - "docs/assets/**"
+description: "A junior developer agent for repo maintenance."
+```
+
+### GitHub Action Integration
+Trigger Sweep automatically or manually via GitHub Actions to maintain a "zero-backlog" state:
+
+```yaml
+# .github/workflows/sweep.yml
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  sweep:
+    if: github.event.label.name == 'sweep'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sweep
+        uses: sweepai/sweep-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sweep_api_key: ${{ secrets.SWEEP_API_KEY }}
+```
+
+### Advanced Workflow Patterns
+- **Human-in-the-Loop Triage**: Use the `labeled` trigger to ensure a maintainer reviews the issue before the agent starts implementation.
+- **Incremental Refactoring**: Tag issues with `sweep:refactor` to trigger specific refactoring rules defined in your config.
 
 ## Related tools / concepts
 - [Aider](aider.md) — For interactive, developer-led terminal editing.
