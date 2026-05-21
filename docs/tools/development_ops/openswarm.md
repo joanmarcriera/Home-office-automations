@@ -55,24 +55,56 @@ export GITHUB_TOKEN="your-github-token"
 ## CLI examples
 
 ### Triaging Linear Issues
-Run an agent to triage new issues in a specific Linear team:
+Run an agent to triage new issues in a specific Linear team, applying labels based on AI analysis:
 
 ```bash
 openswarm linear triage --team "ENG" --auto-label
 ```
 
 ### GitHub PR Review Swarm
-Initiate a swarm of agents to review a specific Pull Request:
+Initiate a swarm of agents to review a specific Pull Request with specialized strategies:
 
 ```bash
 openswarm github review --pr 42 --strategy "security,performance,style"
 ```
 
-### LanceDB Integration for Context
-OpenSwarm uses LanceDB for vector storage of project context. Initialize it with:
+### Context and Knowledge Management
+OpenSwarm utilizes LanceDB for high-performance vector storage of project context. You can sync documentation or code to the vector store:
 
 ```bash
-openswarm context sync --path ./docs
+# Sync local documentation for RAG-based reasoning
+openswarm context sync --path ./docs --db-path ~/.openswarm/lancedb
+
+# Query the swarm's collective knowledge
+openswarm context query "How is the authentication middleware structured?"
+```
+
+## Advanced Configuration
+
+### McpConfig for Tool Access
+OpenSwarm can be extended via the Model Context Protocol (MCP) to provide agents with custom tools:
+
+```json
+{
+  "mcpServers": {
+    "git": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    },
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-linear"]
+    }
+  }
+}
+```
+
+### LanceDB Persistence Patterns
+Configure LanceDB for persistent context across multiple swarm runs by setting the storage backend:
+
+```bash
+# Set up a S3-compatible backend for shared swarm memory
+openswarm config set context.storage_uri "s3://my-swarm-memory/lancedb"
 ```
 
 ## Related tools / concepts

@@ -7,15 +7,15 @@ This report implements **Action C** for the next set of oldest "Medium Confidenc
 - **Priority**: Focus on terminal-native AI coding assistants and multi-agent orchestrators.
 
 ## Sub-Batch 53.1: Terminal-Native Coding Assistants
-- [ ] `docs/tools/development_ops/mentat.md`: Add technical examples for multi-file editing, LLM configuration (e.g., `.mentat_config.json`), and "include" patterns.
-- [ ] `docs/tools/development_ops/plandex.md`: Add CLI usage for complex refactors, plan-execute-verify loops, and session management.
+- [x] `docs/tools/development_ops/mentat.md`: Add technical examples for multi-file editing, LLM configuration (e.g., `.mentat_config.json`), and "include" patterns.
+- [x] `docs/tools/development_ops/plandex.md`: Add CLI usage for complex refactors, plan-execute-verify loops, and session management.
 
 ## Sub-Batch 53.2: Agent Orchestrators
-- [ ] `docs/tools/development_ops/openswarm.md`: Add technical details for Claude CLI integration, GitHub/Linear workflow automation examples, and LanceDB configuration.
-- [ ] `docs/tools/development_ops/sweep_dev.md`: Add technical patterns for automating GitHub issue-to-PR workflows and configuration for "Sweep Rules".
+- [x] `docs/tools/development_ops/openswarm.md`: Add technical details for Claude CLI integration, GitHub/Linear workflow automation examples, and LanceDB configuration.
+- [x] `docs/tools/development_ops/sweep_dev.md`: Add technical patterns for automating GitHub issue-to-PR workflows and configuration for "Sweep Rules".
 
 ## Sub-Batch 53.3: Collaborative & Cloud AI
-- [ ] `docs/tools/development_ops/superconductor.md`: Add details on parallel agent sessions, multiplayer cloud workspaces, and integration with IDEs.
+- [x] `docs/tools/development_ops/superconductor.md`: Add details on parallel agent sessions, multiplayer cloud workspaces, and integration with IDEs.
 
 ---
 - Confidence: high
