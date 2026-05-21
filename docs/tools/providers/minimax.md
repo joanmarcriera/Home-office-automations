@@ -32,21 +32,74 @@ Provides high-performance LLMs with a particular focus on coding productivity an
 - If you require fully open-source models for local deployment.
 - If your workflow is strictly tied to OpenAI-specific features not supported by the Anthropic-compatible relay.
 
+
 ## Getting started
 
-MiniMax provides a flexible "Token Plan" for developers and teams, which can be integrated into various AI tools.
+### API Key
+1. Register on the [MiniMax Open Platform](https://platform.minimaxi.com/).
+2. Navigate to "Account Management" -> "API Keys" to create your credentials.
 
-### 1. Integration with Coding Agents
-Most modern coding agents support MiniMax via their OpenAI or Anthropic compatible endpoints.
+### Installation (Python)
+MiniMax is compatible with the OpenAI SDK.
 
-- **Claude Code**: Configure MiniMax as a provider in your `.claudecode/config.yaml`.
-- **Cursor**: Use the "Custom Model" feature and point the base URL to the MiniMax endpoint.
-- **OpenClaw**: Native integration via the [OpenClaw](../development_ops/openclaw.md) security and routing layer.
+```bash
+pip install openai
+```
 
-### 2. Token Plan vs Credits
-- **Token Plan**: A subscription that provides a request quota (e.g., 600-4500 requests per 5 hours) for text models.
-- **Credits**: A pre-paid balance used for non-text models (video, music) or to supplement the Token Plan when quotas are exceeded.
+### Usage (Hello World)
+```python
+from openai import OpenAI
 
+client = OpenAI(
+    api_key="YOUR_MINIMAX_API_KEY",
+    base_url="https://api.minimax.chat/v1"
+)
+
+response = client.chat.completions.create(
+    model="abab6.5s-chat",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant"},
+        {"role": "user", "content": "Explain the concept of 'Token Plan' in one sentence."}
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
+## CLI examples
+
+### Using curl
+```bash
+curl https://api.minimax.chat/v1/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer $MINIMAX_API_KEY"   -d '{
+    "model": "abab6.5s-chat",
+    "messages": [
+      {"role": "user", "content": "Who founded MiniMax?"}
+    ]
+  }'
+```
+
+## API examples
+
+### Anthropic SDK Compatibility
+MiniMax also supports an Anthropic-compatible endpoint, which is useful for tools designed specifically for Claude models.
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(
+    api_key="YOUR_MINIMAX_API_KEY",
+    base_url="https://api.minimax.chat/v1/anthropic"
+)
+
+message = client.messages.create(
+    model="abab6.5s-chat",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Write a Python script to calculate Fibonacci numbers."}
+    ]
+)
+print(message.content)
+```
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Paid (Subscription-based "Token Plan" and Pay-as-you-go "Credits")
@@ -68,5 +121,5 @@ Most modern coding agents support MiniMax via their OpenAI or Anthropic compatib
 - [MiniMax Documentation Index](https://platform.minimaxi.com/docs/llms.txt)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-05-21
 - Confidence: high

@@ -35,6 +35,83 @@ It simplifies the coordination of multiple LLM-powered agents, providing standar
 - For simple, single-agent tasks where a basic SDK (like OpenAI's) or a lightweight library (like Smolagents) is sufficient.
 - If you prefer a completely lightweight, community-driven, or ecosystem-agnostic open-source framework.
 
+
+## Getting started
+
+### Installation (Python)
+The framework is primarily accessed via the `azure-ai-projects` and `azure-ai-inference` libraries for Azure environments, or via `semantic-kernel` for general use.
+
+```bash
+pip install azure-ai-projects azure-identity
+```
+
+### Usage (Hello World Agent)
+This example uses the Azure AI Agents service to create a simple agent.
+
+```python
+from azure.ai.projects import AIProjectClient
+from azure.identity import DefaultAzureCredential
+
+# Initialize the client
+project_client = AIProjectClient.from_connection_string(
+    conn_str="YOUR_CONNECTION_STRING",
+    credential=DefaultAzureCredential()
+)
+
+# Create an agent
+agent = project_client.agents.create_agent(
+    model="gpt-4o",
+    name="my-first-agent",
+    instructions="You are a helpful assistant."
+)
+
+# Run a task
+run = project_client.agents.create_run(
+    thread_id="my-thread",
+    assistant_id=agent.id,
+    prompt="Tell me a joke!"
+)
+
+print(f"Agent Response: {run.messages[0].text}")
+```
+
+## CLI examples
+
+### Azure CLI (Agent Management)
+Manage AI agents and projects using the Azure CLI (`az`).
+
+```bash
+# Create a new AI project
+az ai project create --name my-ai-project --resource-group my-group
+
+# List available agents in a project
+az ai agent list --project-name my-ai-project
+```
+
+## API examples
+
+### Multi-Agent Interaction
+Defining roles and handoffs between agents using the framework logic.
+
+```python
+# Conceptual multi-agent setup in Semantic Kernel
+from semantic_kernel.agents import ChatCompletionAgent
+
+# Define Researcher
+researcher = ChatCompletionAgent(
+    name="Researcher",
+    instructions="Find data on the requested topic.",
+    kernel=kernel
+)
+
+# Define Writer
+writer = ChatCompletionAgent(
+    name="Writer",
+    instructions="Write a summary based on the research provided.",
+    kernel=kernel
+)
+```
+
 ## Licensing and cost
 - **Open Source**: Significant parts are open source (e.g., Semantic Kernel); others are proprietary Azure services.
 - **Cost**: Variable; libraries are free, but underlying Azure AI services and infrastructure incur costs.
@@ -54,5 +131,5 @@ It simplifies the coordination of multiple LLM-powered agents, providing standar
 - [Semantic Kernel Overview](https://learn.microsoft.com/en-us/semantic-kernel/overview/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-12
+- Last reviewed: 2026-05-21
 - Confidence: high

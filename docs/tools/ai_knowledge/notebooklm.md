@@ -31,6 +31,54 @@ It solves the "hallucination" and context window problems for researchers by ens
 - When you need to automate document processing into a broader company workflow (use LlamaIndex or n8n instead).
 - When the data is extremely sensitive and requires a fully air-gapped or self-hosted solution.
 
+
+## Getting started
+
+### Accessing the Platform
+1. Visit [NotebookLM.google](https://notebooklm.google.com/).
+2. Sign in with your Google Account.
+3. Click **New Notebook** to start a project.
+
+### Adding Sources
+NotebookLM supports various source types:
+- **Google Docs & Slides**: Select directly from your Drive.
+- **PDFs**: Upload local files from your machine.
+- **Websites**: Enter URLs to ingest public web content.
+- **Text Logs**: Paste raw text directly into the "Copied Text" source.
+
+### Exploring the Source Guide
+Once sources are added, the **Source Guide** provides:
+- **Notebook Guide**: A high-level summary of all sources.
+- **Suggested Questions**: AI-generated prompts based on your data.
+- **Audio Overview**: A generated podcast-style conversation about your sources.
+
+## Technical examples
+
+### Grounding Pattern
+When asking questions, NotebookLM uses a grounding pattern that prioritizes your sources over its general knowledge.
+
+**User Prompt**: "Based on the quarterly report, what were the main risks mentioned?"
+**System Logic**:
+1. Search across all indexed sources for "risks" and "quarterly report".
+2. Extract relevant snippets with page/paragraph citations.
+3. Synthesize the answer ONLY from the extracted snippets.
+
+### Effective Note-Taking for AI Synthesis
+To get the most out of NotebookLM, use structured notes as sources:
+
+```markdown
+# Project X: Meeting Notes
+Date: 2026-05-21
+Participants: Jules, Ralph
+
+## Decisions Made
+- Proceed with Batch 85 cleanup.
+- Prioritize provider API documentation.
+
+## Open Questions
+- Should we include video-generation tools in this batch?
+```
+
 ## Related tools / concepts
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [LlamaIndex](llamaindex.md)
@@ -43,5 +91,5 @@ It solves the "hallucination" and context window problems for researchers by ens
 - [Google NotebookLM Blog](https://blog.google/technology/ai/notebooklm-audio-overviews/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-21
 - Confidence: high
