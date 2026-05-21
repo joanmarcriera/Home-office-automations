@@ -105,6 +105,33 @@ results = search.run("What is vLLM?")
 print(results)
 ```
 
+### Complex API Search Pattern (Python)
+This example demonstrates a multi-step search pattern where SearXNG results are filtered by score and proximity to a specific domain (e.g., `.gov` or `.edu`) for high-fidelity research.
+
+```python
+import requests
+
+def search_academic_sources(query):
+    url = "http://localhost:8080/search"
+    params = {
+        "q": f"{query} site:*.edu",
+        "format": "json",
+        "engines": "google,bing,scholar",
+        "pageno": 1
+    }
+
+    response = requests.get(url, params=params)
+    results = response.json().get('results', [])
+
+    # Filter results by internal SearXNG score
+    high_quality = [r for r in results if r.get('score', 0) > 0.5]
+    return high_quality
+
+academic_results = search_academic_sources("impact of LLMs on cognitive load")
+for r in academic_results:
+    print(f"[{r['score']}] {r['title']} - {r['url']}")
+```
+
 ### Advanced: RAG Pipeline Pattern (Python)
 This example demonstrates using SearXNG in a retrieval-augmented generation (RAG) loop with custom weighting for specific engines (e.g., focusing on documentation and code).
 
@@ -173,6 +200,7 @@ engines:
 - [Paperless-ngx](paperless-ngx.md) — for archiving and managing documents
 - [IT-Tools](it-tools.md) — comprehensive developer utility suite
 - [Linkwarden](linkwarden.md) — to save and organize search results
+- [Crawl4AI](../tools/process_understanding/crawl4ai.md) — for high-performance scraping of search results
 
 ## Sources / References
 - [Official Website](https://searxng.org/)

@@ -75,6 +75,8 @@ print(response.json())
 - [Devin](../development_ops/devin.md)
 - [OpenHands](../development_ops/openhands.md)
 - [Aider](../development_ops/aider.md)
+- [Cursor](../development_ops/cursor.md)
+- [Windsurf](../development_ops/windsurf.md)
 - [Cline](cline.md)
 - [Roo Code](roo-code.md)
 
