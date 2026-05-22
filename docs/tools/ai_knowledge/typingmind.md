@@ -68,7 +68,37 @@ TypingMind allows you to define custom API endpoints. This is useful for connect
   "model_list": [
     {
       "id": "llama3.1",
-      "name": "Llama 3.1"
+      "name": "Llama 3.1",
+      "context_window": 128000,
+      "capabilities": ["vision", "tools"]
+    },
+    {
+      "id": "deepseek-coder",
+      "name": "DeepSeek Coder"
+    }
+  ],
+  "headers": {
+    "X-Custom-Header": "value"
+  }
+}
+```
+
+### JSON Prompt Import Patterns
+You can bulk-import prompts into your library using a specific JSON schema.
+
+```json
+{
+  "prompts": [
+    {
+      "title": "Technical Architect",
+      "content": "You are a senior technical architect. Design a scalable solution for: {{input}}",
+      "tags": ["architecture", "design"],
+      "icon": "architecture"
+    },
+    {
+      "title": "Unit Test Generator",
+      "content": "Write Jest unit tests for the following React component: {{input}}",
+      "tags": ["testing", "react"]
     }
   ]
 }
@@ -93,6 +123,8 @@ Prompts can be managed and exported in a structured JSON format.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [AnythingLLM](../ai_knowledge/anythingllm.md)
+- [Claude Code](../development_ops/claude-code.md)
+- [Cursor](../development_ops/cursor.md)
 
 ## Sources / references
 - [Official Website](https://www.typingmind.com/)

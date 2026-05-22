@@ -66,6 +66,14 @@ Before entering the world, you can modify the **World Sketch** (the latent repre
 Add a "High Perspective" constraint to the Environment prompt to ensure a wide-angle view suitable for tactical navigation.
 ```
 
+### World-Generation Technical Parameters
+When generating environments, you can fine-tune the output using technical parameters in the advanced interface:
+
+- **Consistency Horizon**: `1200 frames` (Controls how long the model remembers distant parts of the world).
+- **Physics Fidelity**: `high` (Enables more complex interactions like fluid dynamics or multi-body collisions).
+- **Latent Step Size**: `0.05` (Determines the granularity of character movement).
+- **Seed Persistence**: `Enabled` (Allows for deterministic world regeneration using the same seed).
+
 ### Integration Pattern for Agent Training
 Genie 3 can be used as a backend for reinforcement learning environments where a traditional simulator (like MuJoCo) is too rigid:
 
@@ -91,6 +99,7 @@ while not done:
 - [Unity / Unreal Engine](https://unity.com) (Traditional counterparts)
 - [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Simulation-Aware Agents](../../knowledge_base/learning-map.md)
+- [Hugging Face](../providers/huggingface.md)
 
 ## Sources / References
 - [Google DeepMind: Genie: Generative Interactive Environments](https://deepmind.google/discover/blog/genie-generative-interactive-environments/)

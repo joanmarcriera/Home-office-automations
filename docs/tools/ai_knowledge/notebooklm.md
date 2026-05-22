@@ -63,6 +63,13 @@ When asking questions, NotebookLM uses a grounding pattern that prioritizes your
 2. Extract relevant snippets with page/paragraph citations.
 3. Synthesize the answer ONLY from the extracted snippets.
 
+### Source-Aware Prompting Patterns
+To get the best results, use prompts that explicitly reference your uploaded sources.
+
+- **Cross-Source Comparison**: "Compare the technical requirements mentioned in Source A with the implementation steps in Source B. Are there any contradictions?"
+- **Thematic Synthesis**: "Identify the recurring themes across all my meeting notes from May. Highlight any unresolved action items."
+- **Entity Extraction**: "List all the stakeholders mentioned in the 'Project Charter' PDF and their primary concerns."
+
 ### Effective Note-Taking for AI Synthesis
 To get the most out of NotebookLM, use structured notes as sources:
 
@@ -85,6 +92,8 @@ Participants: Jules, Ralph
 - [Google Gemini](google-gemini.md)
 - [Perplexity](perplexity.md)
 - [LangChain](langchain.md)
+- [Claude](../ai_knowledge/claude.md)
+- [ChatGPT](../ai_knowledge/chatgpt.md)
 
 ## Sources / References
 - [NotebookLM Official Website](https://notebooklm.google.com/)
