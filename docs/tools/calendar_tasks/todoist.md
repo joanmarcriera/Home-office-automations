@@ -66,6 +66,44 @@ response = requests.post(url, headers=headers, json=data)
 print(response.json())
 ```
 
+### Batch Operations and Filtering
+You can fetch tasks filtered by project, section, or label.
+
+```python
+# Fetch all tasks in a specific project
+project_id = "123456789"
+response = requests.get(
+    f"https://api.todoist.com/rest/v2/tasks?project_id={project_id}",
+    headers=headers
+)
+tasks = response.json()
+for task in tasks:
+    print(f"- {task['content']} (Due: {task.get('due', {}).get('date', 'No date')})")
+```
+
+## Workflow Integration
+
+### Recurring Task Patterns
+Todoist's natural language engine is ideal for recurring "maintenance" tasks for agents.
+- `every day at 9am`
+- `every 1st Monday`
+- `every weekday`
+
+### Project-Based Organization
+For complex agentic workflows, use **Sections** to manage task states:
+1. **Inbox**: Raw task capture.
+2. **Analysis**: Agent is processing the task.
+3. **Action**: Ready for execution.
+4. **Review**: Human-in-the-loop verification.
+
+```python
+# Move a task to a specific section
+task_id = "..."
+section_id = "..."
+data = {"section_id": section_id}
+requests.post(f"https://api.todoist.com/rest/v2/tasks/{task_id}", headers=headers, json=data)
+```
+
 ## Related tools / concepts
 - [Reclaim.ai](reclaim.md) — Syncs Todoist tasks into your Google Calendar.
 - [Akiflow](akiflow.md) — Aggregates Todoist tasks into a unified command center.

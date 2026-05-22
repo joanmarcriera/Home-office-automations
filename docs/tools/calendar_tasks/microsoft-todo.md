@@ -36,6 +36,67 @@ Helps users stay organized and manage their day-to-day tasks with features like 
 - **Cost**: Free (with Microsoft account)
 - **Self-hostable**: No
 
+## Getting started
+
+Microsoft To Do is primarily used via its web and mobile applications, but it can be accessed programmatically via the Microsoft Graph API.
+
+1. **Account**: Sign in with a personal Microsoft account or a Microsoft 365 work/school account.
+2. **Setup**: Create your first list and try the "My Day" feature to plan your tasks.
+3. **Integration**: Enable "Flagged Email" in Settings to automatically create tasks from emails you flag in Outlook.
+
+## CLI examples
+
+While there is no official first-party CLI specifically for Microsoft To Do, you can interact with it using the **Microsoft Graph CLI** or unofficial community tools.
+
+### Using Microsoft Graph CLI
+```bash
+# Login to Microsoft Graph
+mgc login
+
+# List your task lists
+mgc users todo lists list --user-id me
+
+# Create a new task in the default 'Tasks' list
+mgc users todo lists tasks create --user-id me --todo-task-list-id <list-id> --body '{"title": "Complete documentation", "importance": "high"}'
+```
+
+### Unofficial Community CLI (todoist-style)
+Tools like `microsoft-todo-cli` (Node.js based) provide a more streamlined experience.
+```bash
+# Install (community tool)
+npm install -g microsoft-todo-cli
+
+# Add a task
+todo add "Review project proposal"
+```
+
+## API examples
+
+The **Microsoft Graph API** is the primary way to programmatically manage To Do tasks.
+
+### Create a Task (Python via msal)
+```python
+import requests
+
+# Assuming you have an access token from MSAL
+endpoint = "https://graph.microsoft.com/v1.0/me/todo/lists/<list-id>/tasks"
+headers = {
+    "Authorization": f"Bearer {access_token}",
+    "Content-Type": "application/json"
+}
+task_data = {
+    "title": "Send weekly report",
+    "categories": ["Work"],
+    "dueDateTime": {
+        "dateTime": "2024-05-25T12:00:00",
+        "timeZone": "UTC"
+    }
+}
+
+# response = requests.post(endpoint, headers=headers, json=task_data)
+# print(response.json())
+```
+
 ## Related tools / concepts
 - [Todoist](todoist.md)
 - [Outlook Calendar](outlook.md)

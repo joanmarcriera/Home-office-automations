@@ -54,6 +54,24 @@ def fetch_package_docs(package_name, query):
 # content = fetch_package_docs("supabase", "how to use upsert with filters")
 ```
 
+### Integration: Claude Desktop Config
+You can expose Context7 to Claude via an MCP server that wraps the Context7 API.
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/mcp-server-context7"],
+      "env": {
+        "UPSTASH_REDIS_REST_URL": "...",
+        "UPSTASH_REDIS_REST_TOKEN": "..."
+      }
+    }
+  }
+}
+```
+
 ## Example company use cases
 - **Internal app team**: feed current Supabase, Next.js, and Stripe docs into coding agents so generated code matches current APIs.
 - **Automation team**: keep n8n, Google Workspace, and Claude-related integrations grounded in current docs instead of old examples.

@@ -76,7 +76,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 78** | Technical Deepening (Infra & Bench) | **Resolved** | Deepened `docker.md`, `luma-dream-machine.md`, `bigcodebench.md`, `arc.md`, `asdiv.md` (2026-05-19). |
 | **Batch 82** | Technical Deepening (Backlog) | **Resolved** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, `anti_gravity.md`, `cloud_code.md` (2026-05-20). |
 | **Batch 84** | AI Knowledge Deepening | **Resolved** | Deepened `claude.md`, `chatgpt.md`, `chatbox-ai.md`, etc. (2026-05-20). |
-| **Batch 85** | Comprehensive Cleanup | **In Progress** | Deepened `deepseek.md`, `minimax.md`, `typingmind.md`, etc. (2026-05-21). |
+| **Batch 85** | Comprehensive Cleanup | **Resolved** | Deepened `supabase.md`, `todoist.md`, `microsoft-todo.md`, etc. Resolved debt from Batch 55/56 (2026-05-21). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

@@ -53,6 +53,43 @@ This is a Next.js application using Tailwind CSS and Prisma.
 - [x] Refactor Task Dashboard
 - [x] Add Email Notifications
 
+### Implementation: Email Notifications (via SMTP MCP)
+To fulfill the "Add Email Notifications" task, an agent can use an SMTP MCP server. Below is a technical implementation pattern.
+
+**MCP Configuration (`claude_desktop_config.json`):**
+```json
+{
+  "mcpServers": {
+    "smtp": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-smtp"],
+      "env": {
+        "SMTP_HOST": "smtp.example.com",
+        "SMTP_PORT": "587",
+        "SMTP_USER": "notifications@example.com",
+        "SMTP_PASSWORD": "your-password"
+      }
+    }
+  }
+}
+```
+
+**Skill Definition in `AGENTS.md`:**
+```markdown
+### Skill: send_deployment_email
+
+## Summary
+Send a standardized email notification after a successful production deployment.
+
+## Triggers
+- When the `deploy_prod` workflow completes successfully.
+
+## Instructions
+1. Retrieve the list of changes from `CHANGELOG.md`.
+2. Format the email using the template in `templates/email/deployment_alert.html`.
+3. Send to `dev-alerts@example.com` via the `smtp` MCP server using the `send_email` tool.
+```
+
 ### Example Skill: Email Notification Wrapper
 You can define a "skill" for the agent to use when specific conditions are met, ensuring it follows the repository's notification standards.
 
@@ -71,16 +108,6 @@ Send a standardized email notification after a successful production deployment.
 3. Send to `dev-alerts@example.com` via the SMTP MCP server.
 ```
 
-### Implementing Email Notifications
-To implement the "Email Notifications" task from the memory file, the agent uses the configured SMTP MCP server and follows the `templates/` directory structure.
-
-```bash
-# Example command for the agent to send the notification
-mcp use smtp-server send_email \
-  --to "dev-alerts@example.com" \
-  --subject "Production Deployment Successful" \
-  --body "New features: $(cat CHANGELOG.md | head -n 10)"
-```
 
 ## Context Mapping
 - Documentation: `/docs`

@@ -81,6 +81,17 @@ for sector in sectors.to_list():
     print(f"Sector: {sector.sector}, Performance: {sector.change_percentage}%")
 ```
 
+### CLI: Fetching Market Snapshots
+The OpenBB CLI allows for rapid data retrieval without writing code.
+
+```bash
+# Fetch daily price snapshot for a ticker
+openbb stocks load --symbol NVDA --provider polygon
+
+# Fetch latest news for a specific sector
+openbb news --term "technology" --limit 5
+```
+
 ## Example company use cases
 - **Founder finance briefings**: pull macro indicators, sector news, and comparable-company signals into weekly strategy notes.
 - **Investor relations prep**: support decks and updates with structured market context instead of ad hoc searching.

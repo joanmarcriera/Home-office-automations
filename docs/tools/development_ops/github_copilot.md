@@ -51,14 +51,23 @@ Use slash commands in the chat sidebar to perform specific tasks:
 The Copilot CLI brings AI assistance directly to your terminal for explaining commands or generating scripts.
 
 ```bash
-# Install the CLI extension
+# Install the GitHub CLI (if not already installed)
+brew install gh
+
+# Authenticate with GitHub
+gh auth login
+
+# Install the Copilot CLI extension
 gh extension install github/gh-copilot
 
 # Ask for a command explanation
 gh copilot explain "git log --oneline --graph --all"
 
-# Suggest a command for a task
+# Suggest a command for a task (interactive)
 gh copilot suggest "find all large files over 100MB and delete them"
+
+# Update the CLI extension
+gh extension upgrade gh-copilot
 ```
 
 ### Workspace Agent

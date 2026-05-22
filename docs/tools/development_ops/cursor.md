@@ -62,6 +62,28 @@ Create a `.cursorrules` file in your root directory to enforce coding standards.
 | **Open Composer** | `Cmd + I` | `Ctrl + I` |
 | **Apply Suggested Fix** | `Cmd + Enter` | `Ctrl + Enter` |
 
+## Indexing and Context Management
+
+Cursor's power comes from its ability to index your codebase. You can manage this in the settings.
+
+- **Local Indexing**: Cursor creates a local index of your files for fast retrieval.
+- **Ignore Files**: Use a `.cursorignore` file to prevent the AI from indexing specific directories (like `node_modules` or `dist`).
+- **Resync**: If the AI seems to have stale information, you can manually trigger a "Resync Index" in the "Features" -> "Codebase Indexing" section of the settings.
+
+## Advanced Configuration: `.cursorrules`
+
+The `.cursorrules` file allows you to define project-wide instructions that are automatically included in every AI prompt.
+
+```markdown
+# Project Context
+This is a high-performance Rust backend using Axum.
+
+# Preferred Patterns
+- Use `anyhow` for error handling.
+- Prefer `Tracing` for logging.
+- Ensure all public functions have doc comments.
+```
+
 ## Practical Notes
 - Cursor is strongest when rules, project memory, and model selection are treated as part of the editor setup rather than optional extras.
 - It overlaps with [Claude Code](claude-code.md) on autonomous edits, but Cursor remains more editor-centric while Claude Code remains more terminal-centric.
