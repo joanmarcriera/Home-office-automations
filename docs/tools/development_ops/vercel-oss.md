@@ -81,9 +81,23 @@ export default function Chat() {
 - If you are building a non-JavaScript/TypeScript application.
 
 ## Reference Implementation Patterns
-- **Generative UI**: Using `v0.dev` to generate components and then wiring them with `streamUI` from the AI SDK.
-- **RAG with AI SDK**: Integrating [Supabase](../infrastructure/supabase.md) or [Pinecone](https://www.pinecone.io/) for vector search within a Next.js app.
-- **Streaming tool use**: Leveraging the AI SDK to handle tool calling and UI updates in a single stream.
+
+### Generative UI Workflow (v0.dev + AI SDK)
+This pattern involves using v0 to scaffold the UI and the AI SDK to provide the dynamic data stream.
+1. **Scaffold**: Describe the desired UI in [v0.dev](https://v0.dev/) (e.g., "A dark mode dashboard for monitoring agent health").
+2. **Integrate**: Copy the React/Tailwind code into a Next.js project.
+3. **Wire**: Use `streamUI` from the AI SDK to return these components dynamically based on model output.
+
+### Multi-Model RAG (AI SDK + OpenRouter)
+A common pattern for building model-agnostic RAG systems.
+- **Provider**: Use `createOpenRouter` from `@ai-sdk/openai-compatible`.
+- **Retrieval**: Use [Supabase](../infrastructure/supabase.md) vector store via the `embed` and `embedMany` functions in the AI SDK.
+- **Orchestration**: Wrap the retrieval and generation logic in a single server action for clean frontend consumption.
+
+### Agentic Tool Use
+Leveraging the AI SDK's `tool` calling capability to interact with external APIs.
+- **Definition**: Define tools with Zod schemas for strict type safety.
+- **Execution**: The SDK handles the `requires-action` state and automatic re-submission of tool outputs to the model.
 
 ## Comments
 - Treat this as a research and reference surface.
@@ -93,6 +107,7 @@ export default function Chat() {
 ## Related tools / concepts
 - [Vercel](vercel.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
+- [Free AI Website Playbook (Docs Version)](../../playbooks/free_ai_website_playbook.md)
 - [Supabase](../infrastructure/supabase.md)
 - [Cursor](cursor.md)
 - [Aider](aider.md)
@@ -104,5 +119,5 @@ export default function Chat() {
 - [v0.dev](https://v0.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-21
 - Confidence: high

@@ -12,11 +12,11 @@ This report implements **Action C** for the next 5 oldest "Medium Confidence" do
   - `docs/tools/development_ops/codex.md`
 
 ## Sub-Tasks
-- [ ] **Knowledge Base Index Deepening**: Add more structure, cross-links to newer patterns, and a "Getting Started with the KB" section.
-- [ ] **Vercel OSS Deepening**: Add examples of specific Vercel OSS projects (e.g., AI SDK, v0) and how to use them as reference implementations.
-- [ ] **Vercel Deepening**: Add technical examples for Vercel CLI and Edge Functions/Middleware.
-- [ ] **Cloudflare Pages Deepening**: Add examples for Cloudflare Wrangler CLI and integration with Cloudflare Workers.
-- [ ] **OpenAI Codex Deepening**: Update to reflect the current state of coding models (transition to GPT-4o/O1/O3 for code) and add technical API examples.
+- [x] **Knowledge Base Index Deepening**: Add more structure, cross-links to newer patterns, and a "Getting Started with the KB" section.
+- [x] **Vercel OSS Deepening**: Add examples of specific Vercel OSS projects (e.g., AI SDK, v0) and how to use them as reference implementations.
+- [x] **Vercel Deepening**: Add technical examples for Vercel CLI and Edge Functions/Middleware.
+- [x] **Cloudflare Pages Deepening**: Add examples for Cloudflare Wrangler CLI and integration with Cloudflare Workers.
+- [x] **OpenAI Codex Deepening**: Update to reflect the current state of coding models (transition to GPT-4o/O1/O3 for code) and add technical API examples.
 
 ---
 - Confidence: high

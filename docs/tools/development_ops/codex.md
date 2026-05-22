@@ -21,7 +21,8 @@ Provides a specialized language model and tooling surface for code generation, e
 1. **Codex (2021)**: The original specialized coding model.
 2. **GPT-4 (2023)**: Integrated coding expertise with broad reasoning.
 3. **GPT-4o (2024)**: Faster, multimodal, and highly efficient for real-time IDE completions.
-4. **O1/O3 (2024-2025)**: Reasoning-heavy models designed for complex software engineering and logical problem solving.
+4. **O1 (2024)**: The first reasoning model, excelling at complex debugging and logic.
+5. **O3 (2025)**: The current frontier for software engineering, optimized for long-horizon planning and architectural reasoning.
 
 ## API Usage Example (Chat Completion)
 Most modern coding tasks use the standard Chat Completions API with a coding-specific system prompt.
@@ -39,6 +40,49 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)
+```
+
+### Advanced Example: Code-Centric Tool Calling (O3)
+Reasoning models like O3 are highly effective at using tools to navigate and modify codebases.
+
+```python
+import openai
+
+response = openai.ChatCompletion.create(
+  model="o3",
+  messages=[
+    {"role": "user", "content": "Refactor the authentication module to use JWT instead of sessions."}
+  ],
+  tools=[
+    {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "description": "Reads a file from the repository.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "filepath": {"type": "string"}
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "write_file",
+        "description": "Writes content to a file.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "filepath": {"type": "string"},
+            "content": {"type": "string"}
+          }
+        }
+      }
+    }
+  ]
+)
 ```
 
 ## Strengths
@@ -66,15 +110,16 @@ print(response.choices[0].message.content)
 
 ## Model routing
 
-Use `gpt-4o` or `o1-preview` when:
+Use `gpt-4o`, `o1`, or `o3` when:
 - The task is mostly code and requires high precision.
 - You want source-editing behavior.
 - You are building inside an IDE, CLI, or code agent flow.
+- You need complex architectural changes (prefer `o3`).
 
 Do not use it when:
 - The task is mainly broad research without implementation.
 - You need a local/offline model for privacy reasons.
-- You actually need the broader deliberate reasoning of GPT-5.4/O3 for non-code planning.
+- You actually need the broader deliberate reasoning of GPT-5.4 for non-code planning.
 
 Best pairings:
 - Default coding lane: [Anthropic Sonnet](../providers/anthropic.md) (highly competitive with GPT-4o for code).
@@ -107,5 +152,5 @@ openai api chat.completions.create -m gpt-4o -g user "Implement a thread-safe si
 - [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-21
 - Confidence: high

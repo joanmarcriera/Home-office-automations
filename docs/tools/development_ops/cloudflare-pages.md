@@ -33,8 +33,41 @@ wrangler pages deploy ./public --project-name=my-awesome-site
 # Manage environment variables for a project
 wrangler pages project config vars set API_KEY=secret_value --project-name=my-awesome-site
 
+# Manage secrets (encrypted environment variables)
+wrangler pages secret put MY_SECRET --project-name=my-awesome-site
+
+# Create a preview deployment from a branch
+wrangler pages deploy ./public --branch=feature-alpha
+
 # Run a local development server for Pages Functions
 wrangler pages dev ./public
+```
+
+## Integration with Workers KV & D1
+Cloudflare Pages Functions can directly interact with other Cloudflare resources like KV (Key-Value) and D1 (SQL Database).
+
+### Example: Using KV in a Pages Function
+```typescript
+// functions/api/counter.ts
+export async function onRequest(context) {
+  const { MY_KV_NAMESPACE } = context.env;
+  const count = (await MY_KV_NAMESPACE.get('visit_count')) || 0;
+  const nextCount = parseInt(count) + 1;
+  await MY_KV_NAMESPACE.put('visit_count', nextCount.toString());
+  return new Response(`Visits: ${nextCount}`);
+}
+```
+
+### Example: Querying D1 from a Pages Function
+```typescript
+// functions/api/users.ts
+export async function onRequest(context) {
+  const { MY_D1_DATABASE } = context.env;
+  const { results } = await MY_D1_DATABASE.prepare(
+    "SELECT * FROM users WHERE active = 1"
+  ).all();
+  return Response.json(results);
+}
 ```
 
 ## Pages Functions (Edge Logic)
@@ -84,6 +117,7 @@ export async function onRequest(context) {
 ## Related tools / concepts
 - [Vercel](vercel.md)
 - [Netlify](netlify.md)
+- [Free AI Website Playbook (Docs Version)](../../playbooks/free_ai_website_playbook.md)
 - [GitHub Pages](github-pages.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
 - [Supabase](../infrastructure/supabase.md)
@@ -96,5 +130,5 @@ export async function onRequest(context) {
 - [Pricing](https://www.cloudflare.com/plans/developer-platform/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-21
 - Confidence: high
