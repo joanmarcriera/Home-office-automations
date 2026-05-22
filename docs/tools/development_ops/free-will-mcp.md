@@ -50,13 +50,32 @@ To use it with a host like Claude Desktop, add it to your `claude_desktop_config
   "mcpServers": {
     "free-will": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "ghcr.io/democratize-technology/free-will-mcp:latest"]
+      "args": ["run", "-i", "--rm", "ghcr.io/democratize-technology/free-will-mcp:latest"],
+      "env": {
+        "OPENAI_API_KEY": "your_key_here",
+        "FREE_WILL_AUTONOMY_LEVEL": "high"
+      }
     }
   }
 }
 ```
 
 ## Technical examples
+
+### Advanced Autonomy Configuration
+You can configure the server's behavior through a `config.json` passed to the container or via environment variables.
+
+```json
+{
+  "autonomy_settings": {
+    "allow_self_prompt": true,
+    "ignore_threshold": 0.7,
+    "max_recursive_loops": 3,
+    "tools_blacklist": ["delete_file", "shutdown"],
+    "personality_bias": "contemplative"
+  }
+}
+```
 
 ### Enabling Autonomous Loops
 You can configure the server to allow the agent to set its own "wake up" events using the `self_prompt` tool.

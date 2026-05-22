@@ -75,12 +75,22 @@ You can extend Continue's knowledge by adding "Context Providers" that pull in d
     {
       "name": "docs",
       "params": {
-        "startUrls": ["https://docs.continue.dev"]
+        "startUrls": [
+          "https://docs.continue.dev",
+          "https://nextjs.org/docs",
+          "https://tailwindcss.com/docs"
+        ]
       }
     },
     {
       "name": "codebase",
       "params": {}
+    },
+    {
+      "name": "github",
+      "params": {
+        "repo": "continuedev/continue"
+      }
     }
   ]
 }

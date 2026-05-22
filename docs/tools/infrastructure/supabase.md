@@ -94,6 +94,33 @@ response = supabase.table("todos").insert({"task": "Learn Supabase", "status": "
 data = supabase.table("todos").select("*").eq("status", "pending").execute()
 ```
 
+## Architecture
+
+Supabase is not a single monolith but a suite of integrated open-source tools centered around a **PostgreSQL** database.
+
+- **PostgreSQL (Database)**: The core storage engine, providing relational capabilities and `pgvector` for AI tasks.
+- **GoTrue (Auth)**: A JWT-based API for managing users and issuing access tokens.
+- **PostgREST (REST API)**: Automatically turns your database schema into a RESTful API.
+- **Realtime (Elixir)**: Listens to PostgreSQL replication streams and broadcasts changes over WebSockets.
+- **Storage**: A S3-compatible interface for managing large files, backed by PostgreSQL for metadata.
+- **Edge Functions (Deno)**: Serverless functions that run TypeScript logic globally with low latency.
+
+## Security and Row Level Security (RLS)
+
+Security in Supabase is handled primarily through **Row Level Security (RLS)** in PostgreSQL. This allows you to define granular access policies directly on your tables.
+
+- **JWT Integration**: When a user logs in, Supabase issues a JWT. The PostgreSQL `auth.uid()` function can then be used in RLS policies to restrict data access.
+- **Service Role Key**: A "super admin" key that bypasses RLS, intended for backend-to-backend communication (never expose in the frontend).
+- **Anon Key**: A public key intended for use in the frontend, subject to RLS policies.
+
+Example RLS Policy:
+```sql
+-- Only allow users to see their own profiles
+create policy "Users can view their own profiles"
+  on profiles for select
+  using ( auth.uid() = id );
+```
+
 ## Vector Database & AI
 Supabase provides native vector support via the `pgvector` extension, making it a powerful choice for RAG (Retrieval-Augmented Generation) workflows.
 

@@ -61,6 +61,25 @@ action_routing:
   coding: "claude-3-5-sonnet"
   web_search: "gpt-4o"
   summarization: "claude-3-haiku"
+
+# Example of dynamic routing based on agent state
+dynamic_routing:
+  - if: "agent_mode == 'fast'"
+    target: "gpt-4o-mini"
+  - if: "agent_mode == 'accurate'"
+    target: "claude-3-5-sonnet"
+```
+
+### Technical Workflow: Provider Fallback
+Ensure high availability by configuring automatic failover between providers.
+
+```yaml
+failover_groups:
+  premium_reasoning:
+    primary: "anthropic/claude-3-5-sonnet"
+    secondary: "openai/gpt-4o"
+    timeout_ms: 5000
+    retry_attempts: 2
 ```
 
 ## Example company use cases

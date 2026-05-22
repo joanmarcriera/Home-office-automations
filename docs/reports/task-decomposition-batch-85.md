@@ -14,14 +14,14 @@ This report implements **Action C** for the documentation debt identified in the
 - [ ] `docs/tools/ai_knowledge/notebooklm.md`: Add technical examples for grounding and source-aware prompting patterns.
 
 ## Sub-Batch 85.2: Placeholder & TODO Resolution (Action A)
-- [ ] `docs/tools/development_ops/claude-context-mode.md`: Resolve "Add Email Notifications" TODO with technical implementation details.
-- [ ] `docs/tools/infrastructure/supabase.md`: Resolve placeholders in "Architecture" and "Security" sections.
-- [ ] `docs/tools/calendar_tasks/todoist.md`: Resolve numerous placeholders in "API Examples" and "Workflow Integration".
-- [ ] `docs/tools/calendar_tasks/microsoft-todo.md`: Resolve placeholders in "Getting started" and "CLI examples".
+- [x] `docs/tools/development_ops/claude-context-mode.md`: Resolve "Add Email Notifications" TODO with technical implementation details.
+- [x] `docs/tools/infrastructure/supabase.md`: Resolve placeholders in "Architecture" and "Security" sections.
+- [x] `docs/tools/calendar_tasks/todoist.md`: Resolve numerous placeholders in "API Examples" and "Workflow Integration".
+- [x] `docs/tools/calendar_tasks/microsoft-todo.md`: Resolve placeholders in "Getting started" and "CLI examples".
 
 ## Sub-Batch 85.3: Legacy Task Catch-up
-- [ ] Complete 5 oldest items from `docs/reports/task-decomposition-batch-55.md` (Free Will MCP, Continue.dev, GitHub Copilot).
-- [ ] Complete 5 oldest items from `docs/reports/task-decomposition-batch-56.md` (OpenBB, Claude Hooks).
+- [x] Complete 5 oldest items from `docs/reports/task-decomposition-batch-55.md` (Free Will MCP, Continue.dev, GitHub Copilot, Starred Repos, ClawRouter).
+- [x] Complete 5 oldest items from `docs/reports/task-decomposition-batch-56.md` (OpenBB, Claude Hooks, Context7, Cursor).
 
 ---
 - Confidence: high

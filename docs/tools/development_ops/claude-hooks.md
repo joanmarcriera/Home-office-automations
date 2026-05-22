@@ -77,6 +77,24 @@ Most hooks are implemented as wrapper scripts around the `claude` CLI:
 alias claude-safe='python3 pre-hook.py && claude && bash post-hook.sh'
 ```
 
+### Automation: Slack Notification on Completion
+A post-execution hook to notify the team via Slack webhook.
+
+```python
+import os
+import requests
+
+def notify_slack(message):
+    webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
+    if not webhook_url:
+        return
+    payload = {"text": message}
+    requests.post(webhook_url, json=payload)
+
+if __name__ == "__main__":
+    notify_slack("Claude Code session completed in repo: " + os.getcwd())
+```
+
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
 - [Claude Plugins](claude-plugins.md)
