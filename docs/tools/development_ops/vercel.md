@@ -35,6 +35,15 @@ vercel --prod
 
 # Manage environment variables
 vercel env add OPENAI_API_KEY production
+
+# Pull environment variables for local development
+vercel env pull .env.local
+
+# Link a local directory to a Vercel project
+vercel link
+
+# View deployment logs in the terminal
+vercel logs
 ```
 
 ## Edge Functions & Middleware
@@ -53,6 +62,30 @@ export function middleware(request: NextRequest) {
   const res = NextResponse.next();
   res.cookies.set('bucket', bucket);
   return res;
+}
+```
+
+### Example: Geo-Routing & Bot Protection
+Edge middleware is often used to route users based on their location or to block malicious traffic before it reaches the origin.
+
+```typescript
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/request';
+
+export function middleware(request: NextRequest) {
+  const country = request.geo?.country || 'US';
+  const isBot = request.headers.get('user-agent')?.includes('BadBot');
+
+  if (isBot) {
+    return new NextResponse('Access Denied', { status: 403 });
+  }
+
+  if (country === 'GB') {
+    return NextResponse.rewrite(new URL('/uk-landing', request.url));
+  }
+
+  return NextResponse.next();
 }
 ```
 
@@ -108,5 +141,5 @@ export function middleware(request: NextRequest) {
 - [Pricing](https://vercel.com/pricing)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-21
 - Confidence: high

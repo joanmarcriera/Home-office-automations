@@ -44,14 +44,29 @@ This section contains deep dives into the technologies, protocols, and conceptua
 
 </div>
 
-## Getting Started
+## Getting Started with the KB
 
-To get the most out of the Knowledge Base, we recommend following this sequence:
+The Knowledge Base (KB) is designed to take you from conceptual understanding to production-ready implementation. To get the most out of this resource, we recommend the following tiered approach:
 
-1.  **Orient**: Review the [AI Tooling Landscape](ai_tooling_landscape.md) to understand the major categories.
-2.  **Benchmark**: Use the [Model Comparison and Evaluation](model_comparison_and_evaluation.md) to understand current frontier capabilities.
-3.  **Implement**: Follow a pattern like [RAG Pattern](patterns/rag-pattern.md) or [Agentic Workflows](patterns/agentic-workflows.md) to build your first agentic system.
-4.  **Secure**: Read the [LLM Trust Boundaries](patterns/llm-trust-boundaries.md) to ensure your implementations are safe.
+### 1. Orientation & Landscape
+Begin by understanding the "Big Picture" of the current AI ecosystem.
+- **Review**: [AI Tooling Landscape](ai_tooling_landscape.md) for a categorical overview.
+- **Matrix**: Consult the [AI Tool Access Matrix](ai_tool_access_matrix.md) to see which tools have the permissions (Gmail, Files, etc.) you need.
+
+### 2. Strategic Selection
+Once oriented, choose the specific models and stacks that fit your goals.
+- **Model Choice**: Use the [Model Routing Guide](model_routing_guide.md) to determine if you need Haiku, Sonnet, or an O-series reasoning model.
+- **Default Stacks**: If building a company, start with the [AI Company Starter Stack](ai_company_starter_stack.md).
+
+### 3. Implementation Patterns
+Transition from "what to use" to "how to build" using canonical patterns.
+- **Foundational**: Master the [RAG Pattern](patterns/rag-pattern.md) and [Agentic Workflows](patterns/agentic-workflows.md).
+- **Advanced**: Explore [Data Copilot Agentic RAG](patterns/data-copilot-agentic-rag.md) for complex data synthesis.
+
+### 4. Safety & Governance
+Ensure your AI systems are resilient and secure before deployment.
+- **Security**: Audit your [LLM Trust Boundaries](patterns/llm-trust-boundaries.md).
+- **Quality**: Review the [Standards](standards.md) to ensure your own documentation and workflows remain high-confidence.
 
 ## Curated Guides
 
@@ -81,7 +96,8 @@ To get the most out of the Knowledge Base, we recommend following this sequence:
 - [**RAG Pattern**](patterns/rag-pattern.md) - Canonical implementation for Retrieval Augmented Generation.
 - [**Agentic Workflows**](patterns/agentic-workflows.md) - Designing loops and multi-agent systems.
 - [**LLM Trust Boundaries**](patterns/llm-trust-boundaries.md) - Security patterns for handling untrusted data.
-- [**MCP Tooling**](patterns/data-copilot-mcp-tooling.md) - Leveraging the Model Context Protocol for tool discovery.
+- [**Data Copilot MCP Tooling**](patterns/data-copilot-mcp-tooling.md) - Leveraging the Model Context Protocol for tool discovery and data synthesis.
+- [**Data Copilot Agentic RAG**](patterns/data-copilot-agentic-rag.md) - Advanced RAG patterns using multi-agent orchestration for data tasks.
 - [**n8n Error Handling**](patterns/n8n-error-handling.md) - Building resilient automation workflows.
 
 ## Learning Paths
@@ -121,5 +137,5 @@ This KB is maintained through automated "Ralph-loops" that:
 - [Home](../index.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-05-21
 - Confidence: high
