@@ -45,7 +45,7 @@ The framework is primarily accessed via the `azure-ai-projects` and `azure-ai-in
 pip install azure-ai-projects azure-identity
 ```
 
-### Usage (Hello World Agent)
+### Usage (Hello World Agent - Python)
 This example uses the Azure AI Agents service to create a simple agent.
 
 ```python
@@ -73,6 +73,36 @@ run = project_client.agents.create_run(
 )
 
 print(f"Agent Response: {run.messages[0].text}")
+```
+
+### Usage (Hello World Agent - .NET)
+Semantic Kernel allows for robust agent definitions in C#.
+
+```csharp
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents;
+
+// Initialize the Kernel
+var builder = Kernel.CreateBuilder();
+builder.AddAzureOpenAIChatCompletion("deployment-name", "endpoint", "api-key");
+var kernel = builder.Build();
+
+// Define the Agent
+ChatCompletionAgent agent = new()
+{
+    Name = "ReviewerAgent",
+    Instructions = "You are a code reviewer. Focus on performance.",
+    Kernel = kernel
+};
+
+// Execute a Conversation
+var history = new ChatHistory();
+history.AddUserMessage("Review this: for(int i=0; i<10; i++) { Console.WriteLine(i); }");
+
+await foreach (var message in agent.InvokeAsync(history))
+{
+    Console.WriteLine($"{message.Role}: {message.Content}");
+}
 ```
 
 ## CLI examples
@@ -124,6 +154,8 @@ writer = ChatCompletionAgent(
 - [LangGraph](langgraph.md)
 - [OpenAI Agents SDK](openai-agents-sdk.md)
 - [Azure OpenAI](../providers/azure-openai.md)
+- [Plandex](../development_ops/plandex.md)
+- [Aider](../development_ops/aider.md)
 
 ## Sources / References
 - [Official Microsoft AI Agents Site](https://www.microsoft.com/en-us/research/project/ai-agents/)

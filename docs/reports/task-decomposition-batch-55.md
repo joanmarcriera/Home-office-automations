@@ -12,11 +12,11 @@ This report implements the deepening of the next 5 oldest "Medium Confidence" do
   - `docs/tools/infrastructure/clawrouter.md`
 
 ## Sub-Tasks
-- [ ] **Free Will MCP Deepening**: Add technical JSON configuration example for enabling autonomy tools in an MCP host.
-- [ ] **Continue.dev Deepening**: Add technical example for configuring "Context Providers" in `config.json`.
-- [ ] **GitHub Copilot Deepening**: Add a technical section for GitHub Copilot CLI usage with example commands.
-- [ ] **Starred Repos Deepening**: Add missing relative links to related tools like `aider.md`, `zed.md`, and `tabnine.md` to improve graph connectivity.
-- [ ] **ClawRouter Deepening**: Add technical configuration example for a basic routing rule based on model specialization.
+- [x] **Free Will MCP Deepening**: Add technical JSON configuration example for enabling autonomy tools in an MCP host.
+- [x] **Continue.dev Deepening**: Add technical example for configuring "Context Providers" in `config.json`.
+- [x] **GitHub Copilot Deepening**: Add a technical section for GitHub Copilot CLI usage with example commands.
+- [x] **Starred Repos Deepening**: Add missing relative links to related tools like `aider.md`, `zed.md`, and `tabnine.md` to improve graph connectivity.
+- [x] **ClawRouter Deepening**: Add technical configuration example for a basic routing rule based on model specialization.
 
 ---
 - Confidence: high

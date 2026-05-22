@@ -72,6 +72,26 @@ Create an interactive calculator widget on this canvas:
 - Design: Minimalist, dark mode theme.
 ```
 
+### Structured Layout Generation
+You can force Gemini to use specific layout structures for better organization.
+
+```text
+/layout column_view
+Section 1: [Raw Data]
+Section 2: [Synthesized Insights]
+Section 3: [Visual Comparison]
+Section 4: [Final Recommendations]
+```
+
+Or for a more interconnected map:
+```text
+/layout graph_network
+- Central Node: "Project Alpha Architecture"
+- Connection: "Database" -> "Prisma ORM"
+- Connection: "Frontend" -> "Next.js 15"
+- Connection: "AI Engine" -> "Gemini 1.5 Pro"
+```
+
 ## Related tools / concepts
 - [Google Opal](google-opal.md)
 - [Notion AI](notion-ai.md)
@@ -80,6 +100,7 @@ Create an interactive calculator widget on this canvas:
 - [Obsidian Vector Search](../../knowledge_base/obsidian-vector-search.md)
 - [Interactive RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Infinite Canvas Patterns](../../knowledge_base/learning-map.md)
+- [Aider](../development_ops/aider.md)
 
 ## Sources / References
 - [LEDstudio: Google Gemini Quick Start Guide](https://ledstudio.vcu.edu/learning-resources/quick-start-guides/google-gemini/)

@@ -7,11 +7,11 @@ This report implements **Action C** for the documentation debt identified in the
 - **Priority**: Focus on API providers, flagship knowledge tools, and clearing technical debt in previous reports.
 
 ## Sub-Batch 85.1: Provider & Framework Deepening (Action A)
-- [ ] `docs/tools/providers/deepseek.md`: Add OpenAI-compatible API examples and technical model specs.
-- [ ] `docs/tools/providers/minimax.md`: Add API authentication patterns and specialized model usage (Abab 6.5).
-- [ ] `docs/tools/frameworks/microsoft-agent-framework.md`: Add Getting Started with .NET/Python and minimal agent definition.
-- [ ] `docs/tools/ai_knowledge/typingmind.md`: Add technical configuration for custom backends and JSON prompt import patterns.
-- [ ] `docs/tools/ai_knowledge/notebooklm.md`: Add technical examples for grounding and source-aware prompting patterns.
+- [x] `docs/tools/providers/deepseek.md`: Add OpenAI-compatible API examples and technical model specs.
+- [x] `docs/tools/providers/minimax.md`: Add API authentication patterns and specialized model usage (Abab 6.5).
+- [x] `docs/tools/frameworks/microsoft-agent-framework.md`: Add Getting Started with .NET/Python and minimal agent definition.
+- [x] `docs/tools/ai_knowledge/typingmind.md`: Add technical configuration for custom backends and JSON prompt import patterns.
+- [x] `docs/tools/ai_knowledge/notebooklm.md`: Add technical examples for grounding and source-aware prompting patterns.
 
 ## Sub-Batch 85.2: Placeholder & TODO Resolution (Action A)
 - [x] `docs/tools/development_ops/claude-context-mode.md`: Resolve "Add Email Notifications" TODO with technical implementation details.
@@ -21,7 +21,7 @@ This report implements **Action C** for the documentation debt identified in the
 
 ## Sub-Batch 85.3: Legacy Task Catch-up
 - [x] Complete 5 oldest items from `docs/reports/task-decomposition-batch-55.md` (Free Will MCP, Continue.dev, GitHub Copilot, Starred Repos, ClawRouter).
-- [x] Complete 5 oldest items from `docs/reports/task-decomposition-batch-56.md` (OpenBB, Claude Hooks, Context7, Cursor).
+- [x] Complete 5 oldest items from `docs/reports/task-decomposition-batch-56.md` (OpenBB, Claude Context Mode, Claude Hooks, Context7, Cursor).
 
 ---
 - Confidence: high

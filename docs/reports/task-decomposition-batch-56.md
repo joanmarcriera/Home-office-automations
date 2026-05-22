@@ -12,11 +12,11 @@ This report implements the deepening of the next 5 oldest "Medium Confidence" do
   - `docs/tools/development_ops/cursor.md`
 
 ## Sub-Tasks
-- [ ] **OpenBB Deepening**: Add technical examples for OpenBB SDK/CLI and expand cross-links.
-- [ ] **Claude Context Mode Deepening**: Add structural examples for repository memory and link to OpenClaw patterns.
-- [ ] **Claude Hooks Deepening**: Add script examples for custom workflow hooks.
-- [ ] **Context7 Deepening**: Add integration configuration examples for AI agents.
-- [ ] **Cursor Deepening**: Expand usage examples and ensure 10+ sections are present.
+- [x] **OpenBB Deepening**: Add technical examples for OpenBB SDK/CLI and expand cross-links.
+- [x] **Claude Context Mode Deepening**: Add structural examples for repository memory and link to OpenClaw patterns.
+- [x] **Claude Hooks Deepening**: Add script examples for custom workflow hooks.
+- [x] **Context7 Deepening**: Add integration configuration examples for AI agents.
+- [x] **Cursor Deepening**: Expand usage examples and ensure 10+ sections are present.
 
 ---
 - Confidence: high
