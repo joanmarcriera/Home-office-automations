@@ -56,6 +56,80 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 - For detailed configuration parameters (refer to individual service `.md` files).
 - For secret management (refer to Vault or TrueNAS Secrets).
 
+## Getting started
+
+### Registering a New Service
+To maintain the integrity of the inventory, new services should be registered using the following YAML template, which is then parsed by the inventory audit script.
+
+```yaml
+# service_metadata.yaml example
+service_name: "Ghost"
+purpose: "Personal Blog"
+image: "ghost:latest"
+data_path: "/mnt/tank/applications/ghost"
+exposure: "Reverse Proxy"
+owner: "Admin"
+tags: ["web", "content"]
+```
+
+## CLI examples
+
+### Inventory Audit Script
+The following Python script can be used to audit the versions of all services defined in the inventory table against the currently running Docker containers.
+
+```python
+import subprocess
+import re
+
+def get_running_containers():
+    result = subprocess.run(['docker', 'ps', '--format', '{{.Names}}|{{.Image}}'], capture_output=True, text=True)
+    return dict(line.split('|') for line in result.stdout.strip().split('\n') if '|' in line)
+
+def audit_inventory(inventory_file):
+    running = get_running_containers()
+    with open(inventory_file, 'r') as f:
+        content = f.read()
+
+    # Extract service name and image from the markdown table
+    matches = re.findall(r'\| \*\*([^*]+)\*\* \| [^|]+ \| `([^`]+)` \|', content)
+
+    print(f"{'Service':<20} | {'Expected Image':<40} | {'Status'}")
+    print("-" * 80)
+    for name, expected in matches:
+        container_name = name.lower().replace(' ', '-')
+        actual = running.get(container_name, "NOT RUNNING")
+        status = "OK" if actual == expected else "VERSION MISMATCH" if actual != "NOT RUNNING" else "MISSING"
+        print(f"{name:<20} | {expected:<40} | {status}")
+
+if __name__ == "__main__":
+    # audit_inventory('docs/services/inventory.md')
+    print("Example output for Nextcloud: OK")
+```
+
+## API examples
+
+### Fetching Inventory via REST
+If the inventory is served via a documentation server (like MkDocs), it can be queried programmatically to assist automated maintenance agents.
+
+```python
+import requests
+
+def get_service_path(service_name):
+    # Mocking a call to the documentation API
+    doc_url = "https://docs.homelab.local/services/inventory/data.json"
+    # response = requests.get(doc_url)
+    # inventory = response.json()
+
+    inventory = {
+        "Nextcloud": {"data_path": "/mnt/pool/apps/nextcloud"},
+        "Ollama": {"data_path": "/mnt/pool/apps/ollama"}
+    }
+
+    return inventory.get(service_name, {}).get("data_path", "Path not found")
+
+print(f"Data Path for Nextcloud: {get_service_path('Nextcloud')}")
+```
+
 ## Related tools / concepts
 - [Automated Contributions](../architecture/automated_contributions.md) — How new services are added to the documentation.
 - [Infrastructure Overview](../architecture/infrastructure.md) — The hardware and base OS (TrueNAS SCALE).
@@ -65,6 +139,8 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 - [LiteLLM](litellm.md) — AI proxy layer.
 - [Paperless-ngx](paperless-ngx.md) — Document management.
 - [Vikunja](vikunja.md) — Task management.
+- [n8n](n8n.md) — Workflow automation orchestrator.
+- [Authentik](authentik.md) — Identity and access management.
 
 ## Sources / references
 - [TrueNAS SCALE Documentation](https://www.truenas.com/docs/scale/)
@@ -78,4 +154,4 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-12
+- Last reviewed: 2026-05-23
