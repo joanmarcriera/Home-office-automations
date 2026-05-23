@@ -79,6 +79,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 85** | Comprehensive Cleanup | **Verified & Closed** | Deepened `supabase.md`, `todoist.md`, `microsoft-todo.md`, etc. Resolved debt from Batch 55/56 (2026-05-21). |
 | **Batch 86** | Deepening Shallow Docs | **Resolved** | Deepened `inventory.md`, `cloudflare-mesh.md`, `real_time_sync_engines.md`, etc. (2026-05-23). |
 | **Batch 87** | Deepening Shallow Docs | **Resolved** | Deepened `openai-agents-sdk.md`, `notion-ai.md`, `jules.md`, `roam-research.md`, `kumo-ai.md` (2026-05-23). |
+| **Batch 88** | Technical Deepening | **Resolved** | Deepened `dashworks.md`, `guru.md`, `coveo.md`, `motion.md`, `any-do.md` with technical examples (2026-05-23). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
