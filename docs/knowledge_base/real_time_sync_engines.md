@@ -64,6 +64,50 @@ Used for operations that cannot be easily merged, such as "undo" to a specific s
 ### Local State Management
 Using lightweight stores like **Nanostores** to handle client-only state (e.g., undo history, UI toggles) that should not be synced across the network.
 
+## Technical Protocol Comparison
+
+| Feature | Replicache | ElectricSQL |
+| :--- | :--- | :--- |
+| **Data Model** | Key-Value / JSON | Relational (Postgres) |
+| **Sync Protocol** | HTTP / JSON Diff | Logical Replication (CDC) |
+| **Client Store** | In-memory / IndexedDB | SQLite (via Wasm) |
+| **Conflict Resolution** | Deterministic Mutators | LWW (Last Write Wins) / CRDT |
+| **Primary Use Case** | Highly interactive web apps | SQL-heavy enterprise apps |
+
+## Implementation Examples
+
+### Replicache Mutator
+Replicache uses mutators to apply changes locally and then replay them on the server.
+
+```javascript
+// Define a mutator for updating a task status
+const mutators = {
+  updateTaskStatus: async (tx, { id, status }) => {
+    const task = await tx.get(`task/${id}`);
+    if (task) {
+      task.status = status;
+      task.updatedAt = Date.now();
+      await tx.put(`task/${id}`, task);
+    }
+  },
+};
+```
+
+### ElectricSQL Sync Rule
+ElectricSQL uses Shapes to define which parts of the database should be synced to the client.
+
+```typescript
+// Define a shape to sync only active projects and their tasks
+const repo = await exec(
+  db.projects.sync({
+    where: { status: 'active' },
+    include: {
+      tasks: true
+    }
+  })
+);
+```
+
 ## Related tools / concepts
 - [Nextcloud](../services/nextcloud.md): Uses file-based sync engines for document collaboration.
 - [Vikunja](../services/vikunja.md): Could benefit from sync engines for offline task management.
@@ -79,5 +123,5 @@ Using lightweight stores like **Nanostores** to handle client-only state (e.g., 
 - [ElectricSQL](https://electric-sql.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-05-23
 - Confidence: high
