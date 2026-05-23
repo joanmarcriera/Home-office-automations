@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-05-19
+# Ralph-loop Triage Report — 2026-05-23
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 19, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 23, 2026.
 
 ## Issue Status Summary
 
@@ -76,14 +76,15 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 78** | Technical Deepening (Infra & Bench) | **Resolved** | Deepened `docker.md`, `luma-dream-machine.md`, `bigcodebench.md`, `arc.md`, `asdiv.md` (2026-05-19). |
 | **Batch 82** | Technical Deepening (Backlog) | **Resolved** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, `anti_gravity.md`, `cloud_code.md` (2026-05-20). |
 | **Batch 84** | AI Knowledge Deepening | **Resolved** | Deepened `claude.md`, `chatgpt.md`, `chatbox-ai.md`, etc. (2026-05-20). |
-| **Batch 85** | Comprehensive Cleanup | **Resolved** | Deepened `supabase.md`, `todoist.md`, `microsoft-todo.md`, etc. Resolved debt from Batch 55/56 (2026-05-21). |
+| **Batch 85** | Comprehensive Cleanup | **Verified & Closed** | Deepened `supabase.md`, `todoist.md`, `microsoft-todo.md`, etc. Resolved debt from Batch 55/56 (2026-05-21). |
+| **Batch 86** | Deepening Shallow Docs | **In Progress** | Deepening `inventory.md`, `cloudflare-mesh.md`, etc. (2026-05-23). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Access Matrix Freshness**: **Updated (2026-06-01)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json`. **Sub-Batch 35.1 (Media) completed 2026-05-12**.
-- **Batch 85**: Complete Sub-Batch 85.2 (Placeholder resolution) and 85.3 (Legacy task catch-up).
+- **Batch 86**: Complete Sub-Batch 86.2 (Research & Knowledge Base deepening).
 
 ---
 - Confidence: high
