@@ -40,6 +40,53 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 3. Implement the chosen model using a supported engine like **Faster-Whisper** for the best balance of speed and accuracy.
 4. For a reference implementation, see the `scripts/transcribe_audio.py` script in this repository.
 
+## Performance Benchmarking
+The following Python script can be used to benchmark `faster-whisper` performance on your local hardware.
+
+```python
+import time
+from faster_whisper import WhisperModel
+
+def benchmark_transcription(model_size="distil-large-v3", device="cuda"):
+    # Load model (compute_type="float16" for GPU, "int8" for CPU)
+    compute_type = "float16" if device == "cuda" else "int8"
+    model = WhisperModel(model_size, device=device, compute_type=compute_type)
+
+    start_time = time.time()
+    segments, info = model.transcribe("sample_audio.mp3", beam_size=5)
+
+    # Exhaust the generator to complete transcription
+    text = "".join([segment.text for segment in segments])
+
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Transcribed {info.duration:.2f}s in {duration:.2f}s ({(info.duration/duration):.2f}x speed)")
+
+if __name__ == "__main__":
+    benchmark_transcription()
+```
+
+## VAD (Voice Activity Detection) Configuration
+Voice Activity Detection is critical for preventing hallucinations during silence. `faster-whisper` provides integrated Silero VAD support.
+
+```python
+# VAD configuration examples for robust transcription
+vad_parameters = {
+    "threshold": 0.5,           # Sensitivity (0.0 to 1.0)
+    "min_speech_duration_ms": 250,
+    "max_speech_duration_s": float('inf'),
+    "min_silence_duration_ms": 100,
+    "window_size_samples": 1024
+}
+
+# Apply during transcription
+segments, _ = model.transcribe(
+    "audio.mp3",
+    vad_filter=True,
+    vad_parameters=vad_parameters
+)
+```
+
 ## Comparison Table
 
 | Model Variant | Engine | Speed (vs. Large-v3) | Memory (Approx.) | Multilingual | Best For |
@@ -88,5 +135,5 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 - [Faster Whisper Accuracy and Speed Benchmark](https://www.transana.com/blog/2025/05/01/faster-whisper-in-transana-5-30-accuracy-and-processing-speed-3-of-3/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-05-23
 - Confidence: high

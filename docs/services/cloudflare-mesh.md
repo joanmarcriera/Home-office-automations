@@ -87,6 +87,20 @@ ingress:
   - service: http_status:404
 ```
 
+### Zero Trust Access Policy
+Example of a Cloudflare Access policy defined in YAML for managing agent access.
+
+```yaml
+# access_policy.yaml
+name: Allow Agent Mesh
+decision: allow
+include:
+  - common_name: "agent-01.mesh.local"
+  - ip: "192.168.1.50/32"
+require:
+  - device_posture: "managed"
+```
+
 ## API examples
 
 ### Programmatic Identity Verification

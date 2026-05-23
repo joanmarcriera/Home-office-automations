@@ -106,6 +106,17 @@ if __name__ == "__main__":
     print("Example output for Nextcloud: OK")
 ```
 
+### Service Health Check
+A quick CLI check to verify if critical services are responding on their expected ports.
+
+```bash
+# Check if Nextcloud is reachable
+curl -s -I http://nextcloud.local | grep "HTTP/1.1 200 OK" || echo "Nextcloud Down"
+
+# Check if Ollama API is active
+curl -s http://ollama.local:11434/api/tags | grep -q "models" && echo "Ollama Up" || echo "Ollama Down"
+```
+
 ## API examples
 
 ### Fetching Inventory via REST

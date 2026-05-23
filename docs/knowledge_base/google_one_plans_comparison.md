@@ -59,6 +59,36 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 | **Firebase** | No | No | 30 Firebase Studio workspaces |
 | **Photos Gen AI** | Limited | Standard | Higher limits (Photo to video, Remix) |
 
+## JSON Schema for Plan Comparison
+To facilitate automated updates and comparisons, the plan details are structured using the following JSON schema.
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "plan_name": { "type": "string" },
+    "price_monthly": { "type": "number" },
+    "storage_gb": { "type": "integer" },
+    "ai_features": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "credits_monthly": { "type": "integer" }
+  },
+  "required": ["plan_name", "price_monthly", "storage_gb"]
+}
+```
+
+## Tiered Pricing Examples
+A detailed breakdown of costs for the 2026 tiers, illustrating the value-to-cost ratio for power users and teams.
+
+| Plan | Base Monthly | Annual (Prepaid) | Storage Cost / GB |
+| :--- | :--- | :--- | :--- |
+| **Premium** | $9.99 | $99.99 | $0.005 |
+| **AI Premium** | $19.99 | $199.99 | $0.010 (includes AI) |
+| **AI Pro** | $29.99 | $299.99 | $0.015 (includes Agents) |
+
 ## Key AI Tools & Capabilities
 
 ### Gemini Ecosystem
@@ -136,5 +166,5 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-05-23
 - Confidence: high
