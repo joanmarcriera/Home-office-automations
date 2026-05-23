@@ -14,6 +14,55 @@ Captures and verifies internal knowledge, making it easily accessible via browse
 - **Customer Support**: Giving agents quick access to FAQs and troubleshooting guides.
 - **Internal Wiki Replacement**: Modernizing the company handbook with AI-driven search and verification.
 
+## Getting started
+Guru uses a browser extension and web app for knowledge management. Developers can use the Guru API to create, search, and verify knowledge "Cards" programmatically.
+
+## Technical Examples
+
+### Searching for Knowledge Cards (cURL)
+Use the API to search your Guru workspace for specific information.
+
+```bash
+curl -X GET "https://api.getguru.com/api/v1/search/cards?q=vacation+policy" \
+  -u "$GURU_USER_EMAIL:$GURU_API_TOKEN" \
+  -H "Accept: application/json"
+```
+
+### Creating a Knowledge Card via Python
+Programmatically ingest information into Guru as a verified Card.
+
+```python
+import requests
+import json
+import os
+
+# Guru uses Basic Auth (Email + API Token)
+USER = os.getenv("GURU_USER_EMAIL")
+TOKEN = os.getenv("GURU_API_TOKEN")
+AUTH = (USER, TOKEN)
+
+def create_guru_card(title, content, collection_id):
+    url = "https://api.getguru.com/api/v1/cards"
+    payload = {
+        "title": title,
+        "content": content,
+        "collectionId": collection_id,
+        "shareStatus": "TEAM"
+    }
+
+    response = requests.post(url, auth=AUTH, json=payload)
+    response.raise_for_status()
+    return response.json()
+
+# Example usage
+new_card = create_guru_card(
+    "2026 Holiday Schedule",
+    "<p>Here are the official holidays for 2026...</p>",
+    "YOUR_COLLECTION_ID"
+)
+print(f"Created Card ID: {new_card['id']}")
+```
+
 ## Strengths
 - **Knowledge Verification**: Ensures information is accurate and up-to-date with a verification workflow.
 - **In-Workflow Delivery**: Delivers info directly where teams work (e.g., inside Gmail, Slack, or Zendesk).
@@ -37,13 +86,17 @@ Captures and verifies internal knowledge, making it easily accessible via browse
 - **Self-hostable**: No
 
 ## Related tools / concepts
-- [Dashworks](dashworks.md)
-- [Glean](glean.md)
-- [Notion AI](../ai_knowledge/notion-ai.md)
+- [Dashworks](dashworks.md) — AI-powered unified search across internal apps.
+- [Glean](glean.md) — enterprise search and knowledge platform.
+- [Notion AI](../ai_knowledge/notion-ai.md) — AI workspace for notes and documents.
+- [Obsidian](../knowledge_base/index.md) — local knowledge management alternative.
+- [Logseq](../tools/development_ops/logseq.md) — privacy-first local knowledge base.
+- [AnyType](../tools/intake_storage/anytype.md) — decentralized knowledge base.
+- [SilverBullet](../tools/intake_storage/silverbullet.md) — extensible open-source wiki.
 
 ## Sources / references
 - [Guru Official Site](https://www.getguru.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-23
 - Confidence: high
