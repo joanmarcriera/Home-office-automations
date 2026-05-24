@@ -78,6 +78,44 @@ response = requests.post(
 print(response.json())
 ```
 
+## n8n Integration: Automated Habit Scoring
+
+Habitica can be integrated with [n8n](n8n.md) to automatically score habits based on external events, such as completing a workout logged in a CSV or finishing a deep work session.
+
+### Workflow Pattern: Automated Task Scoring
+1.  **Trigger**: Watch for a specific event (e.g., a new row in a [Google Sheet](https://n8n.io/integrations/google-sheets/) or a finished [Toggl](https://n8n.io/integrations/toggl/) timer).
+2.  **HTTP Request Node (Habitica API)**:
+    - **Method**: `POST`
+    - **URL**: `https://habitica.com/api/v3/tasks/{{$json["task_id"]}}/score/up`
+    - **Headers**:
+        - `x-api-user`: `{{$env["HABITICA_USER_ID"]}}`
+        - `x-api-key`: `{{$env["HABITICA_API_TOKEN"]}}`
+3.  **Notification Node**: Send a message to [Element](element.md) or [Home Assistant](home-assistant.md) confirming the XP gain.
+
+### Example: Scoring via Python Sub-process (Code Node)
+If you prefer using a specialized Python script within n8n:
+```python
+import requests
+
+def score_habit(user_id, api_token, task_id):
+    url = f"https://habitica.com/api/v3/tasks/{task_id}/score/up"
+    headers = {
+        "x-api-user": user_id,
+        "x-api-key": api_token,
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, headers=headers)
+    return response.json()
+
+# n8n input mapping
+user_id = _input.item.json['USER_ID']
+api_token = _input.item.json['API_TOKEN']
+task_id = _input.item.json['TASK_ID']
+
+result = score_habit(user_id, api_token, task_id)
+return {"json": result}
+```
+
 ## Related tools / concepts
 - [SuperBetter](https://www.superbetter.com/)
 - [Vikunja](vikunja.md)
@@ -85,9 +123,6 @@ print(response.json())
 - [Grocy](grocy.md)
 - [Home Assistant](home-assistant.md)
 - [Actual Budget](actual-budget.md)
-
-## Backlog
-- API integration for automated habit scoring based on n8n workflows.
 
 ## Sources / References
 - [Official Website](https://habitica.com/)

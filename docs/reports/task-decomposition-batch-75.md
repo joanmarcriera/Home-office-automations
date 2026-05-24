@@ -13,11 +13,11 @@ This batch focuses on deepening the next 5 oldest documentation issues by review
 | `docs/knowledge_base/patterns/fine-tuning-open-models.md` | High Confidence | ✅ Completed | Deepened with DPO and Synthetic Data sections. Decomposed tools to Batch 76. |
 
 ## Requirements Checklist (High Confidence)
-- [ ] 10+ distinct sections (headers).
-- [ ] 7+ relative markdown links to other project files.
-- [ ] Advanced technical examples (CLI, API, or YAML).
-- [ ] Validated against `audit_docs_quality.py`.
-- [ ] Validated against `check_docs_contract.py`.
+- [x] 10+ distinct sections (headers).
+- [x] 7+ relative markdown links to other project files.
+- [x] Advanced technical examples (CLI, API, or YAML).
+- [x] Validated against `audit_docs_quality.py`.
+- [x] Validated against `check_docs_contract.py`.
 
 ## Changelog
 - 2026-05-18: Initial decomposition created for Batch 75. Focus started on `supabase.md` (Issue 2).

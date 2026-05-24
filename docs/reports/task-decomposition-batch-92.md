@@ -4,14 +4,14 @@ This report implements **Action C** for the remaining technical debt and feature
 
 ## Sub-Batch 92.1: Automation & Integration (High Priority)
 Focus on connecting existing services via n8n or specialized APIs.
-- [ ] `docs/services/n8n.md`: Add golden test fixtures for 20 real-world wine trade email scenarios.
-- [ ] `docs/services/n8n.md`: Add weekly Jules report: top 3 automation gaps and proposed PRs.
-- [ ] `docs/services/tika.md`: Integrate with n8n for automated PDF-to-Markdown conversion.
-- [ ] `docs/services/habitica.md`: API integration for automated habit scoring based on n8n workflows.
+- [x] `docs/services/n8n.md`: Add golden test fixtures for 20 real-world wine trade email scenarios.
+- [x] `docs/services/n8n.md`: Add weekly Jules report: top 3 automation gaps and proposed PRs.
+- [x] `docs/services/tika.md`: Integrate with n8n for automated PDF-to-Markdown conversion.
+- [x] `docs/services/habitica.md`: API integration for automated habit scoring based on n8n workflows.
 
 ## Sub-Batch 92.2: Networking & Security
 Focus on hardening and infrastructure access.
-- [ ] `docs/services/tailscale.md`: Setup Tailscale Exit Node on TrueNAS SCALE.
+- [x] `docs/services/tailscale.md`: Setup Tailscale Exit Node on TrueNAS SCALE.
 - [ ] `docs/services/tailscale.md`: Configure MagicDNS for easy service access.
 - [ ] `docs/services/tailscale.md`: Add an ACL example for separating family devices from automation runners.
 - [ ] `docs/services/qbittorrent.md`: Setup WireGuard VPN killswitch for the qBittorrent container.

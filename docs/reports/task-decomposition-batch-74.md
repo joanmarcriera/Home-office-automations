@@ -13,11 +13,11 @@ This batch focuses on deepening the 5 oldest documentation issues by review date
 | `docs/tools/providers/replicate.md` | High Confidence | ✅ Completed | 18 sections, 7 links, Cog/Multi-modal examples. |
 
 ## Requirements Checklist (High Confidence)
-- [ ] 10+ distinct sections (headers).
-- [ ] 7+ relative markdown links to other project files.
-- [ ] Advanced technical examples (CLI, API, or YAML).
-- [ ] Validated against `audit_docs_quality.py`.
-- [ ] Validated against `check_docs_contract.py`.
+- [x] 10+ distinct sections (headers).
+- [x] 7+ relative markdown links to other project files.
+- [x] Advanced technical examples (CLI, API, or YAML).
+- [x] Validated against `audit_docs_quality.py`.
+- [x] Validated against `check_docs_contract.py`.
 
 ## Changelog
 - 2026-05-18: Initial decomposition created. Focus started on `superpowers.md`.

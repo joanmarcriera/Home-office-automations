@@ -50,6 +50,23 @@ After installation, authenticate the device:
 sudo tailscale up
 ```
 
+### TrueNAS SCALE: Exit Node Setup
+To use your TrueNAS SCALE server as a Tailscale Exit Node (routing all your traffic through your home network while away):
+
+1.  **Install the Tailscale App**: Navigate to **Apps > Discover Apps** and search for "Tailscale".
+2.  **Authentication**: During installation, provide your Auth Key or follow the login URL in the logs.
+3.  **Enable Routing**: In the Tailscale app configuration on TrueNAS, ensure "Userspace" is unchecked (if possible) and that the container has permissions for IP forwarding.
+4.  **Advertise Exit Node**:
+    - Exec into the Tailscale pod or use the extra args field:
+    ```bash
+    tailscale up --advertise-exit-node
+    ```
+5.  **Approve in Admin Console**:
+    - Go to the [Tailscale Admin Console](https://login.tailscale.com/admin/machines).
+    - Find your TrueNAS machine.
+    - Click **Edit Route Settings** and check **Exit Node**.
+6.  **Usage**: On your client device (phone/laptop), select your TrueNAS server as the "Exit Node" in the Tailscale menu.
+
 ### Hello World
 1. Install Tailscale on two different devices (e.g., your laptop and your phone).
 2. Run `tailscale status` on your laptop to see your phone listed with its Tailscale IP.
@@ -117,12 +134,6 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 - [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
 - [Nextcloud](nextcloud.md)
 - [WireGuard](https://www.wireguard.com/)
-
-## Backlog
-- Setup Tailscale Exit Node on TrueNAS SCALE.
-- Configure MagicDNS for easy service access.
-- Add an ACL example for separating family devices from automation runners.
-
 
 ## Contribution Metadata
 - Confidence: high
