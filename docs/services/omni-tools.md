@@ -170,8 +170,21 @@ raw_json = '{"user": "Jules", "id": "TEMP_ID_123"}'
 print(automate_redaction(raw_json))
 ```
 
+## Maintenance & Health
+Omni Tools is a static web application, so health monitoring focuses on the availability of the web server and the presence of key transformation modules in the UI.
+
+### Automated Health Checks (Playwright)
+A reference Playwright script is provided to verify the availability of key modules (JSON, Image, PDF) and confirm the interactive UI is responsive.
+
+```python
+# scripts/test_omni_tools_health.py
+# Usage: python3 scripts/test_omni_tools_health.py http://your-omni-tools-url
+```
+
+Run this script as part of your homelab CI/CD or via a scheduled task to ensure your local utility suite is functioning correctly.
+
 ## Backlog
-- Set up automated Playwright health checks for all modules.
+- [x] Set up automated Playwright health checks for all modules. (Completed 2026-05-24)
 
 ## Sources / References
 - https://github.com/iib0011/omni-tools
@@ -180,4 +193,4 @@ print(automate_redaction(raw_json))
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-24
