@@ -79,6 +79,22 @@ Follow the prompts to enter your access grant or API key.
 5. Verify the upload: `uplink ls sj://hello-world/`.
 
 ## CLI examples
+
+### Rclone Configuration
+To use Storj as a backup target for Rclone (S3-compatible):
+1. **Generate Credentials**: In the Storj console, create an S3 credential.
+2. **Configure Rclone**:
+```ini
+[storj]
+type = s3
+provider = other
+access_key_id = <your_access_key>
+secret_access_key = <your_secret_key>
+endpoint = https://gateway.storjshare.io
+region = us1
+```
+3. **Verify**: `rclone lsd storj:`
+
 The `uplink` tool supports standard object storage operations. Use the `sj://` protocol for buckets.
 
 ```bash
@@ -131,9 +147,10 @@ for obj in response.get("Contents", []):
 - [BorgBackup](borg.md)
 - [MinIO](https://min.io/)
 - [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
+- [Paperless-ngx](paperless-ngx.md) — For off-site archival of sensitive documents.
 
 ## Backlog
-- Configure as a backup target for Rclone.
+- [x] Configure as a backup target for Rclone.
 
 ## Contribution Metadata
 - Confidence: high

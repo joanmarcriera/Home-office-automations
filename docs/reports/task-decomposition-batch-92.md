@@ -27,14 +27,14 @@ Focus on enriching the media stack and archival automation.
 
 ## Sub-Batch 92.4: Productivity & Storage
 Focus on utility accessibility and data durability.
-- [ ] `docs/services/it-tools.md`: Host locally on TrueNAS for offline developer support.
-- [ ] `docs/services/drawio.md`: Set up self-hosted instance on TrueNAS for offline access.
-- [ ] `docs/services/storj.md`: Configure as a backup target for Rclone.
-- [ ] `docs/services/rclone-automation.md`: Implement bandwidth throttling during business hours.
-- [ ] `docs/services/rclone-automation.md`: Set up healthcheck notifications for failed syncs.
-- [ ] `docs/services/grocy.md`: Set up barcode scanning via mobile app.
-- [ ] `docs/services/focalboard.md`: Sync with Nextcloud Tasks.
-- [ ] `docs/services/speedtest.md`: Create a dashboard for visualizing speedtest results over time.
+- [x] `docs/services/it-tools.md`: Host locally on TrueNAS for offline developer support.
+- [x] `docs/services/drawio.md`: Set up self-hosted instance on TrueNAS for offline access.
+- [x] `docs/services/storj.md`: Configure as a backup target for Rclone.
+- [x] `docs/services/rclone-automation.md`: Implement bandwidth throttling during business hours.
+- [x] `docs/services/rclone-automation.md`: Set up healthcheck notifications for failed syncs.
+- [x] `docs/services/grocy.md`: Set up barcode scanning via mobile app.
+- [x] `docs/services/focalboard.md`: Sync with Nextcloud Tasks.
+- [x] `docs/services/speedtest.md`: Create a dashboard for visualizing speedtest results over time.
 
 ---
 - Status: Actionable backlog created.
