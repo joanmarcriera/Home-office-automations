@@ -56,6 +56,27 @@ rclone sync /path/to/local remote:backup -P
 rclone mount remote:path /path/to/mountpoint &
 ```
 
+### Bandwidth Throttling
+To limit bandwidth during business hours (e.g., 08:00 to 18:00), use the `--bwlimit` flag or a schedule in your script:
+
+```bash
+# Limit to 500k during the day, 10M at night
+rclone sync /local/path remote:path --bwlimit "08:00,512k 18:00,10M"
+```
+
+### Healthcheck Notifications
+Use a generic webhook pattern to notify a healthcheck service (like Healthchecks.io) upon successful completion:
+
+```bash
+#!/bin/bash
+rclone sync /data storj:backup -v
+if [ $? -eq 0 ]; then
+  curl -m 10 --retry 5 https://hc-ping.com/<uuid>
+else
+  curl -m 10 --retry 5 https://hc-ping.com/<uuid>/fail
+fi
+```
+
 ## API examples
 
 Rclone has an internal RC (Remote Control) API.
@@ -69,15 +90,19 @@ curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote":
 - [Duplicati](https://www.duplicati.com/)
 - [Kopia](https://kopia.io/)
 - [BorgBackup](borg.md)
-- [Storj](storj.md)
+- [Storj](storj.md) — A primary decentralized target for Rclone backups.
 - [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
 - [AWS S3](https://aws.amazon.com/s3/)
 - [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
 - [ZFS](https://openzfs.org/)
+- [Nextcloud](nextcloud.md) — For synchronizing user data to the cloud.
+- [Paperless-ngx](paperless-ngx.md) — For off-site archival of digitized documents.
+- [Immich](immich.md) — For backing up large photo libraries.
+- [Gitea](gitea.md) — For mirroring git repositories to object storage.
 
 ## Backlog
-- Implement bandwidth throttling during business hours.
-- Set up healthcheck notifications for failed syncs.
+- [x] Implement bandwidth throttling during business hours.
+- [x] Set up healthcheck notifications for failed syncs.
 
 ## Sources / References
 - [Rclone Official Website](https://rclone.org/)

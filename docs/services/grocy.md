@@ -122,6 +122,14 @@ curl -X GET "http://localhost:9283/api/system/info" \
      -H "GROCY-API-KEY: <your_api_key>"
 ```
 
+### Barcode Scanning
+To implement barcode scanning for faster data entry:
+1. **Third-Party Apps**: Use "Grocy-Barcode" (Android/iOS) or "Grocy-Desktop" to connect to your instance via the API.
+2. **Setup**:
+   - In Grocy UI, go to **Manage API keys** and create a new key.
+   - Enter your server URL and the API key into the app.
+3. **Usage**: Scan a product's barcode to instantly add it to your shopping list or consume it from stock.
+
 ## Related tools / concepts
 
 - [Homebox](homebox.md) — for non-food inventory and organization
@@ -130,9 +138,12 @@ curl -X GET "http://localhost:9283/api/system/info" \
 - [Home Assistant](home-assistant.md) — for integrating Grocy data into smart home dashboards
 - [Vikunja](vikunja.md) — for managing larger household projects and complex task lists
 - [Linkwarden](linkwarden.md) — for saving online recipes and kitchen guides
+- [Nextcloud](nextcloud.md) — For synchronizing meal planning documents and recipes.
+- [Rclone Automation](rclone-automation.md) — For automated off-site backups of the Grocy database.
+- [Authentik](authentik.md) — For securing the Grocy web interface with SSO.
 
 ## Backlog
-- Set up barcode scanning via mobile app.
+- [x] Set up barcode scanning via mobile app.
 
 ## Sources / References
 

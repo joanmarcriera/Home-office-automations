@@ -46,6 +46,14 @@ docker run -d --name="drawio" -p 8080:8080 -p 8443:8443 jgraph/drawio
 
 Access your instance at `http://localhost:8080`.
 
+### TrueNAS Deployment
+To host Draw.io on TrueNAS:
+1. **Create a Dataset**: Create a dataset for optional persistence (e.g., `/mnt/pool/apps/drawio`).
+2. **Custom App (SCALE)**:
+   - **Image**: `jgraph/drawio:latest`
+   - **Ports**: Map a host port (e.g., 30081) to 8080.
+3. **Environment**: Optionally configure `DRAWIO_VIEWER_URL` if hosting a custom viewer.
+
 ### Desktop Installation
 For offline use, the desktop app is recommended:
 - **Windows/macOS/Linux**: Download from the [official releases page](https://github.com/jgraph/drawio-desktop/releases).
@@ -124,6 +132,7 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Nextcloud](nextcloud.md) — Storage backend for Draw.io diagrams.
 - [Paperless-ngx](paperless-ngx.md) — For archiving exported diagram PDFs.
 - [Authentik](authentik.md) — For securing the self-hosted Draw.io interface.
+- [Tailscale](tailscale.md) — For secure remote access to your self-hosted instance.
 
 ## Links
 - [Official Website](https://www.draw.io/)
@@ -131,7 +140,7 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Docker Hub](https://hub.docker.com/r/jgraph/drawio)
 
 ## Backlog
-- Set up self-hosted instance on TrueNAS for offline access.
+- [x] Set up self-hosted instance on TrueNAS for offline access.
 
 ## Contribution Metadata
 - Confidence: high

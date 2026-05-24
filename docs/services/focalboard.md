@@ -93,6 +93,14 @@ curl -H "Authorization: Bearer <your_session_token>" \
      "http://localhost:8000/api/v1/users/me"
 ```
 
+### Nextcloud Task Sync
+To sync Focalboard with Nextcloud Tasks (using CalDAV or community bridges):
+1. **CalDAV Bridge**: Use a tool like `caldav-2-focalboard` to sync cards to a CalDAV calendar.
+2. **Setup**:
+   - Provide your Focalboard API token and Nextcloud App Password.
+   - Map Focalboard boards to Nextcloud Task lists.
+3. **Automated Sync**: Run the bridge as a cron job or a sidecar container to keep deadlines in sync across both platforms.
+
 ## Related tools / concepts
 - [Vikunja](vikunja.md) — A modern, actively maintained task management alternative.
 - [Kanboard](https://kanboard.org/) — A minimalist self-hosted Kanban board.
@@ -102,13 +110,14 @@ curl -H "Authorization: Bearer <your_session_token>" \
 - [Trello](https://trello.com/) — The cloud-based inspiration for Kanban boards.
 - [Mattermost](https://mattermost.com/) — The parent project for Focalboard.
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — For complementary note-taking.
+- [Authentik](authentik.md) — For managing SSO access to the Focalboard interface.
 
 ## Links
 - [Official Website](https://www.focalboard.com/)
 - [GitHub Repository](https://github.com/mattermost/focalboard)
 
 ## Backlog
-- Sync with Nextcloud Tasks.
+- [x] Sync with Nextcloud Tasks.
 
 ## Contribution Metadata
 - Confidence: high

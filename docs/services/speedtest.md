@@ -72,6 +72,18 @@ def run_speedtest():
 run_speedtest()
 ```
 
+### Dashboard Visualization
+To visualize speedtest results over time:
+1. **Data Collection**: Use a script to run `speedtest --format=json` and send the output to InfluxDB.
+2. **Setup InfluxDB**:
+```bash
+# Example curl to write to InfluxDB
+curl -i -XPOST 'http://localhost:8086/write?db=speedtest' --data-binary "download,host=server value=$DOWNLOAD_SPEED"
+```
+3. **Grafana Dashboard**: Connect Grafana to InfluxDB and create a "Time Series" panel using the following query:
+   - `SELECT "value" FROM "download" WHERE $timeFilter`
+4. **Automation**: Schedule the script via cron to run every hour.
+
 ## Related tools / concepts
 - [InfluxDB](influxdb.md)
 - [Grafana](grafana.md)
@@ -80,9 +92,11 @@ run_speedtest()
 - [Netdata](https://www.netdata.cloud/)
 - [Home Assistant](home-assistant.md)
 - [n8n](n8n.md)
+- [Rclone Automation](rclone-automation.md) — For ensuring backups don't saturate the connection during speedtests.
+- [Authentik](authentik.md) — For securing the Grafana dashboard.
 
 ## Backlog
-- Create a dashboard for visualizing speedtest results over time.
+- [x] Create a dashboard for visualizing speedtest results over time.
 
 ## Sources / References
 - [Speedtest CLI Official](https://www.speedtest.net/apps/cli)
