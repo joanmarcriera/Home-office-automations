@@ -64,10 +64,78 @@ A specialized monitoring and remediation agent (implemented via n8n or a custom 
 - **n8n Implementation**: Use the "SSH" node to execute the command on the target host.
 - **Safety**: Maximum 3 restart attempts within 1 hour. If it continues failing, escalate to "Alert".
 
+```bash
+# Manual remediation via SSH
+ssh user@homelab-host "docker restart paperless-ngx"
+```
+
 ### K3s (Kubernetes) Pods
 - **Command**: `kubectl rollout restart deployment/<deployment_name>`
 - **n8n Implementation**: Use the "SSH" node or a dedicated K8s operator.
 - **Advantage**: Kubernetes handles the rolling restart, ensuring no downtime if multiple replicas exist.
+
+```bash
+# Kubernetes rollout restart
+kubectl rollout restart deployment/home-assistant -n default
+```
+
+## Technical Examples
+
+### Python Remediation Script (Self-Healing)
+This script can be run as a cron job or a background service to monitor a local Docker container and restart it if the health check fails.
+
+```python
+import subprocess
+import requests
+import time
+
+SERVICE_URL = "http://localhost:8000/healthz"
+CONTAINER_NAME = "paperless-ngx"
+MAX_RETRIES = 3
+
+def check_health():
+    try:
+        response = requests.get(SERVICE_URL, timeout=5)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
+
+def restart_container():
+    print(f"Restarting {CONTAINER_NAME}...")
+    subprocess.run(["docker", "restart", CONTAINER_NAME], check=True)
+
+def main():
+    retries = 0
+    while retries < MAX_RETRIES:
+        if check_health():
+            print(f"{CONTAINER_NAME} is healthy.")
+            break
+        else:
+            print(f"{CONTAINER_NAME} health check failed.")
+            restart_container()
+            retries += 1
+            time.sleep(30)  # Wait for service to come up
+
+    if retries == MAX_RETRIES:
+        print(f"Failed to heal {CONTAINER_NAME} after {MAX_RETRIES} attempts. Escalating...")
+        # Add notification logic here (e.g., via Telegram API)
+
+if __name__ == "__main__":
+    main()
+```
+
+### n8n Remediation Webhook (cURL)
+Triggering a remediation workflow in n8n from an external monitoring system (like Uptime Kuma).
+
+```bash
+curl -X POST https://n8n.example.com/webhook/remediate \
+     -H "Content-Type: application/json" \
+     -d '{
+       "service": "home-assistant",
+       "error": "HTTP 500",
+       "host": "proxmox-01"
+     }'
+```
 
 ## Automated Alerts
 - **High Priority**: (Hardware failure, ZFS pool issues) -> Push notification (Pushover/Telegram) + Persistent Home Assistant Dashboard Notification.
@@ -89,7 +157,7 @@ A specialized monitoring and remediation agent (implemented via n8n or a custom 
 3. **Phase 3**: Implement SSH-based "Service Restarter" in n8n.
 4. **Phase 4**: Add "Cooldown" logic to prevent restart loops.
 
-- Last reviewed: 2026-04-09
+- Last reviewed: 2026-05-24
 - Confidence: high
 
 ## Sources / References

@@ -48,10 +48,14 @@ print(response.json())
 - **Cloud Dependent**: Not suitable for 100% offline local-only environments.
 
 ## When to use it
-<!-- needs-content -->
+- When your agent needs the absolute latest information from the web (e.g., news, market trends).
+- When you want to leverage Perplexity's citation and source-linking capabilities.
+- For high-accuracy research tasks where ground truth matters.
 
 ## When not to use it
-<!-- needs-content -->
+- For strictly private data that should not be sent to a cloud search engine.
+- For simple logic tasks that don't require external web search (use a local LLM instead).
+- When operating in a low-latency requirement environment where the overhead of web search is prohibitive.
 
 ## Licensing and cost
 - **Commercial**: Usage-based pricing.
@@ -60,11 +64,16 @@ print(response.json())
 - [Perplexity](../ai_knowledge/perplexity.md)
 - [Tavily](../providers/tavily.md)
 - [SearXNG](../../services/searXNG.md)
+- [Firecrawl](../process_understanding/firecrawl.md)
+- [Crawl4AI](../process_understanding/crawl4ai.md)
+- [Exa AI](../providers/exa_ai.md)
+- [Google Search](../ai_knowledge/google-search.md)
+- [OpenRouter](../providers/openrouter.md)
 
 ## Sources / References
 - [New Perplexity APIs give developers access to agentic workflows and orchestration](https://thenewstack.io/perplexity-agent-api/)
 - [Perplexity Documentation](https://docs.perplexity.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-24
 - Confidence: high

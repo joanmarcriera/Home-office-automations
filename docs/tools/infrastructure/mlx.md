@@ -70,6 +70,10 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [vLLM](vllm.md)
 - [SGLang](sglang.md)
+- [Aphrodite Engine](aphrodite-engine.md)
+- [Whisper](../../services/whisper.md)
+- [Sora](../ai_knowledge/sora.md)
+- [Llama Factory](../development_ops/llama-factory.md)
 
 ## Performance
 - **Benchmarking**: 11 MLX models were benchmarked on M3 Ultra in March 2026, demonstrating its capability as a top-tier local inference platform.
@@ -82,5 +86,5 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - [Benchmarked 11 MLX models on M3 Ultra](https://www.reddit.com/r/LocalLLaMA/comments/1rkcvqa/benchmarked_11_mlx_models_on_m3_ultra_heres_which/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-24
 - Confidence: high

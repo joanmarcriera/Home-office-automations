@@ -103,6 +103,62 @@ These tools require the following environment variables to be set:
 | `HOME_ASSISTANT_URL` | Base URL for HA API | `http://localhost:8123/api` |
 | `HOME_ASSISTANT_TOKEN` | Long-lived access token for HA | (Required) |
 
+## Technical Examples
+
+### Example: Tool Definition (MCP Format)
+This is an example of how the `vikunja_create_tool` would be defined in an [MCP](../automation_orchestration/mcp.md) server config.
+
+```json
+{
+  "name": "vikunja_create_tool",
+  "description": "Creates a new task in a specified project.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "title": { "type": "string", "description": "Task title" },
+      "project_id": { "type": "integer", "description": "ID of the target project" },
+      "description": { "type": "string", "description": "Task description" }
+    },
+    "required": ["title", "project_id"]
+  }
+}
+```
+
+### Example: Agent Tool Calling (Python)
+Using a framework like [LangGraph](../frameworks/langgraph.md) or standard OpenAI tool calling.
+
+```python
+import requests
+import os
+
+def vikunja_create_tool(title: str, project_id: int, description: str = ""):
+    url = f"{os.environ['VIKUNJA_API_URL']}/projects/{project_id}/tasks"
+    headers = {"Authorization": f"Bearer {os.environ['VIKUNJA_API_TOKEN']}"}
+    data = {"title": title, "description": description}
+
+    response = requests.put(url, headers=headers, json=data)
+    response.raise_for_status()
+    return response.json()
+
+# Example invocation by an agent
+new_task = vikunja_create_tool(
+    title="Buy milk",
+    project_id=1,
+    description="Needed for breakfast tomorrow"
+)
+print(f"Created task: {new_task['id']}")
+```
+
+### Example: Scene Trigger (cURL)
+Manually testing the scene trigger tool via the [Home Assistant](../../services/home-assistant.md) API.
+
+```bash
+curl -X POST http://localhost:8123/api/services/scene/turn_on \
+     -H "Authorization: Bearer $HOME_ASSISTANT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"entity_id": "scene.good_night"}'
+```
+
 ## Related tools / concepts
 - [Home Assistant](../../services/home-assistant.md)
 - [Vikunja](../../services/vikunja.md)
@@ -119,5 +175,5 @@ These tools require the following environment variables to be set:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-24
 - Confidence: high
