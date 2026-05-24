@@ -12,18 +12,18 @@ Focus on connecting existing services via n8n or specialized APIs.
 ## Sub-Batch 92.2: Networking & Security
 Focus on hardening and infrastructure access.
 - [x] `docs/services/tailscale.md`: Setup Tailscale Exit Node on TrueNAS SCALE.
-- [ ] `docs/services/tailscale.md`: Configure MagicDNS for easy service access.
-- [ ] `docs/services/tailscale.md`: Add an ACL example for separating family devices from automation runners.
-- [ ] `docs/services/qbittorrent.md`: Setup WireGuard VPN killswitch for the qBittorrent container.
-- [ ] `docs/services/portracker.md`: Set up alerts for unexpected port changes.
+- [x] `docs/services/tailscale.md`: Configure MagicDNS for easy service access.
+- [x] `docs/services/tailscale.md`: Add an ACL example for separating family devices from automation runners.
+- [x] `docs/services/qbittorrent.md`: Setup WireGuard VPN killswitch for the qBittorrent container.
+- [x] `docs/services/portracker.md`: Set up alerts for unexpected port changes.
 
 ## Sub-Batch 92.3: Media & Content Management
 Focus on enriching the media stack and archival automation.
-- [ ] `docs/services/jellyfin.md`: Integrate with Gelli (Android music client).
-- [ ] `docs/services/plex.md`: Configure Plex Meta Manager for automated collection management.
-- [ ] `docs/services/tubearchivist.md`: Configure automated downloads for subscribed channels.
-- [ ] `docs/services/kiwix.md`: Set up automated downloads for new ZIM files.
-- [ ] `docs/services/linkwarden.md`: Browser extension integration.
+- [x] `docs/services/jellyfin.md`: Integrate with Gelli (Android music client).
+- [x] `docs/services/plex.md`: Configure Plex Meta Manager for automated collection management.
+- [x] `docs/services/tubearchivist.md`: Configure automated downloads for subscribed channels.
+- [x] `docs/services/kiwix.md`: Set up automated downloads for new ZIM files.
+- [x] `docs/services/linkwarden.md`: Browser extension integration.
 
 ## Sub-Batch 92.4: Productivity & Storage
 Focus on utility accessibility and data durability.

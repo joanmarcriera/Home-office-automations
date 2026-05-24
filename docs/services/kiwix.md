@@ -91,6 +91,23 @@ kiwix-manage /data/library.xml add /data/new_content.zim
 kiwix-search /data/wikipedia.zim "Quantum Physics"
 ```
 
+### Automated ZIM Updates
+ZIM files are snapshots. To keep your library relatively fresh, you can use a script to download the latest versions from the Kiwix library.
+
+**Example Update Script (`update_zims.sh`):**
+```bash
+#!/bin/bash
+ZIM_DIR="/path/to/zims"
+# URL for the English Wikipedia 'mini' ZIM
+WIKI_URL="https://download.kiwix.org/zim/wikipedia/wikipedia_en_all_mini_latest.zim"
+
+echo "Checking for Wikipedia updates..."
+aria2c -d "$ZIM_DIR" -N "$WIKI_URL"
+
+# Restart kiwix-serve to pick up the new file
+docker restart kiwix
+```
+
 ## API examples
 `kiwix-serve` provides an OPDS (Open Publication Distribution System) catalog and a basic search API.
 
@@ -123,9 +140,6 @@ if response.status_code == 200:
 - [Home Assistant](home-assistant.md) — for integrating Kiwix status or content into a local dashboard
 - [Nextcloud](nextcloud.md) — for syncing ZIM files across devices for offline use
 - [Internet-in-a-Box](https://internet-in-a-box.org/) — a full hardware/software stack for offline knowledge
-
-## Backlog
-- Set up automated downloads for new ZIM files.
 
 ## Sources / References
 

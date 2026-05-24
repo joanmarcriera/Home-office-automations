@@ -83,6 +83,13 @@ services:
 5. Wait a few moments for Linkwarden to generate the screenshot and PDF.
 6. Click on the link to view the archived snapshot.
 
+### Browser Extension
+The official Linkwarden browser extension allows you to quickly save links and snapshots while browsing.
+
+1. **Install**: Download the extension for [Chrome/Edge](https://chrome.google.com/webstore/detail/linkwarden/afmionibalcnkdpgolnfnidniikfhnnh) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/linkwarden/).
+2. **Configure**: Click the extension icon and enter your self-hosted instance URL (`http://localhost:3000`) and your API key.
+3. **Save**: Click the "Save to Linkwarden" button on any webpage to automatically capture it into your preferred collection.
+
 ## CLI examples
 While primarily managed via the web, you can use Docker for maintenance:
 
@@ -192,9 +199,6 @@ download_pdf(123, "my_preserved_page")
 - [Home Assistant](home-assistant.md) — For automating notifications about newly archived links.
 - [IT-Tools](it-tools.md) — For processing snippets found in bookmarked pages.
 - [Omni Tools](omni-tools.md) — A similar collection of web-based utilities.
-
-## Backlog
-- Browser extension integration.
 
 ## Sources / References
 

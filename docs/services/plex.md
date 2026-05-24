@@ -119,15 +119,27 @@ for section in plex.library.sections():
     print(f"Library: {section.title}, Type: {section.type}")
 ```
 
-## Backlog
-- Configure Plex Meta Manager for automated collection management.
-
 ## Related tools / concepts
 - [Jellyfin](jellyfin.md) (Open-source alternative)
 - [Docker](../tools/infrastructure/docker.md)
 - [n8n](n8n.md) (For media automation)
 - [qBittorrent](qbittorrent.md) (For content acquisition)
 - [Search & Discovery](../tools/intake_storage/index.md)
+
+### Plex Meta Manager (PMM)
+[Plex Meta Manager](https://metamanager.wiki/) is an advanced tool for automating metadata and collection management in Plex. It can create dynamic collections based on IMDb lists, Trakt, or custom filters.
+
+**Basic `config.yml` Snippet:**
+```yaml
+libraries:
+  Movies:
+    collection_files:
+      - default: trending
+      - default: top_rated
+    overlay_files:
+      - default: resolution
+      - default: ratings
+```
 
 ## Contribution Metadata
 - Confidence: high

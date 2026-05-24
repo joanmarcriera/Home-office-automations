@@ -96,6 +96,26 @@ curl -X GET "http://localhost:4999/api/v1/status" \
      -H "x-api-key: YOUR_PEER_API_KEY"
 ```
 
+### Alerting & Webhooks
+Portracker can be configured to send alerts to external webhooks (e.g., Discord, Slack, or n8n) when unexpected port changes are detected.
+
+**Simple Python Webhook Listener:**
+```python
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/webhook', methods=['POST'])
+def handle_alert():
+    data = request.json
+    print(f"Alert Received: {data['event_type']}")
+    print(f"Message: {data['message']}")
+    return "OK", 200
+
+if __name__ == '__main__':
+    app.run(port=5000)
+```
+
 ## Links
 - [GitHub Repository](https://github.com/mostafa-wahied/portracker)
 
@@ -108,9 +128,6 @@ curl -X GET "http://localhost:4999/api/v1/status" \
 - [Netdata](https://www.netdata.cloud/)
 - [Uptime Kuma](https://uptime.kuma.pet/)
 - [nmap](https://nmap.org/)
-
-## Backlog
-- Set up alerts for unexpected port changes.
 
 ## Contribution Metadata
 - Confidence: high
