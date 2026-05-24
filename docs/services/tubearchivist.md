@@ -10,6 +10,13 @@ YouTube videos can be deleted, made private, or censored at any time. Tube Archi
 **Category**: Services / Media Management. It serves as a **content preservation layer**, sitting alongside tools like Plex or Jellyfin but specialized for YouTube content and metadata.
 
 ## Typical use cases
+### Automated Subscriptions
+Tube Archivist can automatically monitor and download new videos from your favorite YouTube channels or playlists.
+
+1. **Add Subscription**: Go to the **Subscriptions** tab and enter the URL of a YouTube channel or playlist.
+2. **Configure**: Set the download frequency (e.g., daily) and the maximum number of videos to keep.
+3. **Automate**: Tube Archivist will periodically poll YouTube and download any new content that matches your criteria.
+
 - Archiving educational channels or tutorials for offline reference.
 - Saving high-quality versions of favorite music videos or documentaries.
 - Building a private "YouTube" experience without ads or tracking.
@@ -171,10 +178,6 @@ curl -X POST -H "Authorization: Token <your_api_token>" \
 - [n8n](n8n.md) — for advanced automation of video ingestion.
 - [Home Assistant](home-assistant.md) — For automating notifications about new downloads.
 - [Tailscale](tailscale.md) — For securely accessing your archive from anywhere.
-
-## Backlog
-- Configure automated downloads for subscribed channels.
-
 
 ## Contribution Metadata
 - Confidence: high

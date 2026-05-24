@@ -67,6 +67,14 @@ To use your TrueNAS SCALE server as a Tailscale Exit Node (routing all your traf
     - Click **Edit Route Settings** and check **Exit Node**.
 6.  **Usage**: On your client device (phone/laptop), select your TrueNAS server as the "Exit Node" in the Tailscale menu.
 
+### MagicDNS Configuration
+MagicDNS allows you to access your devices using short, stable hostnames instead of IP addresses.
+
+1.  **Enable MagicDNS**: In the [Tailscale Admin Console](https://login.tailscale.com/admin/dns), toggle **MagicDNS** to ON.
+2.  **Nameservers**: Add global nameservers (e.g., Cloudflare `1.1.1.1` or Google `8.8.8.8`) to ensure public DNS resolution continues to work while connected.
+3.  **Search Domains**: Configure search domains if you want to use custom suffixes for your tailnet devices.
+4.  **Usage**: You can now reach your TrueNAS server at `http://truenas` or `http://truenas.your-tailnet.ts.net` instead of its private IP.
+
 ### Hello World
 1. Install Tailscale on two different devices (e.g., your laptop and your phone).
 2. Run `tailscale status` on your laptop to see your phone listed with its Tailscale IP.
@@ -107,6 +115,32 @@ For automation, prefer service-specific tokens plus Tailscale network reachabili
 - Use ACLs or groups to separate family devices, lab servers, and automation runners.
 - Review `tailscale status` and the admin console before assuming an old device is still trusted.
 - Document which nodes advertise routes or run as exit nodes, because those nodes have higher blast radius.
+
+### Advanced ACLs (Tag-based Access Control)
+Use ACLs to enforce least-privilege access across your tailnet. Prefer tags over individual user emails for automation and server nodes.
+
+```json
+{
+  "groups": {
+    "group:admin": ["alice@example.com"],
+    "group:family": ["bob@example.com", "carol@example.com"]
+  },
+  "tags": {
+    "tag:automation": ["alice@example.com"],
+    "tag:server":     ["alice@example.com"]
+  },
+  "acls": [
+    // Admins can access everything
+    {"action": "accept", "src": ["group:admin"], "dst": ["*:*"]},
+
+    // Family can only access the media server (Jellyfin/Plex)
+    {"action": "accept", "src": ["group:family"], "dst": ["tag:server:8096", "tag:server:32400"]},
+
+    // Automation runners can access specific internal APIs
+    {"action": "accept", "src": ["tag:automation"], "dst": ["tag:server:5678", "tag:server:8080"]}
+  ]
+}
+```
 
 ## API examples
 

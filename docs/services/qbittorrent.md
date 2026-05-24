@@ -63,6 +63,41 @@ Access the web interface at `http://localhost:8080`. The default credentials (if
 3. Go to **Tools > Options > BitTorrent** and enable "Add torrents in Paused state" for safety.
 4. Click the **Add Torrent Link** button and paste a legal magnet link (e.g., a Linux ISO) to see the client in action.
 
+### VPN Killswitch (Gluetun)
+To ensure qBittorrent only downloads when connected to a VPN, use [Gluetun](https://github.com/qdm12/gluetun) as a network sidecar.
+
+```yaml
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=your_provider
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=your_key
+      - WIREGUARD_ADDRESSES=10.0.0.2/32
+    ports:
+      - 8080:8080 # qBittorrent Web UI
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "container:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - WEBUI_PORT=8080
+    volumes:
+      - ./config:/config
+      - ./downloads:/downloads
+    restart: unless-stopped
+```
+
 ## CLI examples
 The `qbittorrent-nox` binary can be managed via the Docker container.
 
@@ -124,9 +159,6 @@ curl "http://localhost:8080/api/v2/torrents/info" \
 - [Official Website](https://www.qbittorrent.org/)
 - [Transmission](https://transmissionbt.com/)
 - [Deluge](https://deluge-torrent.org/)
-
-## Backlog
-- Setup WireGuard VPN killswitch for the qBittorrent container.
 
 ## Contribution Metadata
 - Confidence: high
