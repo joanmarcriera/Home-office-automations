@@ -115,6 +115,35 @@ The `/rmeta` endpoint is powerful for getting metadata and text from both the co
 curl -T document.docx http://localhost:9998/rmeta/text --header "Accept: application/json"
 ```
 
+## n8n Integration: Automated PDF-to-Markdown
+
+Tika is frequently used as a core node in [n8n](n8n.md) workflows to convert incoming attachments into a format suitable for LLM processing or archival.
+
+### Workflow Pattern: Email Attachment to Markdown
+1.  **IMAP Email Trigger**: Watch for new emails with PDF attachments.
+2.  **HTTP Request Node (Tika)**:
+    - **Method**: `PUT`
+    - **URL**: `http://tika:9998/tika`
+    - **Body**: Attachment binary data.
+    - **Headers**: `Accept: text/plain`.
+3.  **Code Node (Formatting)**: Clean up the raw text and wrap it in Markdown headers or metadata blocks.
+4.  **Vector Store / Storage**: Send the Markdown text to [Supabase](../tools/infrastructure/supabase.md) or save it as a file in [Nextcloud](nextcloud.md).
+
+### Example Code Node (JS)
+```javascript
+// Clean up Tika output for Markdown
+const rawText = $node["HTTP Request"].data["text"];
+const fileName = $node["IMAP Email"].data["attachment"]["name"];
+
+const markdown = `
+# Document: ${fileName}
+## Extracted Content
+${rawText.replace(/\n{3,}/g, '\n\n')}
+`;
+
+return [{ json: { markdown } }];
+```
+
 ## Related tools / concepts
 
 - [Unstructured.io](../tools/process_understanding/unstructured.md) — a modern alternative for document processing in AI pipelines
@@ -123,9 +152,6 @@ curl -T document.docx http://localhost:9998/rmeta/text --header "Accept: applica
 - [n8n](n8n.md) — for building automated workflows that trigger Tika on new file uploads
 - [Pandoc](https://pandoc.org/) — for converting between document formats (Tika extracts, Pandoc converts)
 - [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) — the engine Tika uses for optical character recognition
-
-## Backlog
-- Integrate with n8n for automated PDF-to-Markdown conversion.
 
 ## Sources / References
 
