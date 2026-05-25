@@ -364,23 +364,44 @@ ollama run my-extraction-model "Extract fields from: ..."
 
 After creating the model in Ollama, it becomes available to all tools in the stack (OpenClaw, OpenHands, n8n, LiteLLM) just like any other model.
 
-## Evaluation
+## Technical Verification & Evaluation
 
-After fine-tuning, evaluate on a held-out test set before deploying:
+After fine-tuning, you must evaluate the model on a held-out test set to ensure it has learned the target behavior without losing general intelligence.
+
+### Automated Format Validation
+Use `sqlglot` or standard JSON parsers to measure adherence to structured output requirements.
 
 ```python
-from trl import create_reference_model
-# Compare fine-tuned vs base model on your test set
-# Metrics: exact match, ROUGE, format adherence rate, task-specific accuracy
+import json
+import sqlglot
+
+def validate_extraction(prediction, expected_schema):
+    """Verify that the model output is valid JSON and matches the schema."""
+    try:
+        data = json.loads(prediction)
+        return all(field in data for field in expected_schema)
+    except json.JSONDecodeError:
+        return False
+
+def validate_sql(prediction, dialect="postgres"):
+    """Verify that the generated SQL is syntactically correct."""
+    try:
+        sqlglot.transpile(prediction, read=dialect)
+        return True
+    except sqlglot.errors.ParseError:
+        return False
 ```
 
-### Post-training verification checklist
-
-- [ ] **In-distribution test**: Evaluate on 50–100 held-out examples from the training distribution.
-- [ ] **Out-of-distribution test**: Evaluate on 10–20 adversarial or edge-case inputs.
-- [ ] **Format adherence**: Measure JSON validity and presence of all required fields.
-- [ ] **Catastrophic forgetting check**: Compare against the base model on a general benchmark (e.g., MMLU subset) to check for catastrophic forgetting.
-- [ ] **Production monitoring**: Monitor inference quality and hallucination rates for the first 2 weeks of deployment.
+### Evaluation Protocol
+1.  **In-distribution test**: Evaluate on 50–100 held-out examples. Aim for >95% format adherence.
+2.  **Out-of-distribution test**: Test on 20 edge cases (e.g., extremely long inputs, corrupted OCR).
+3.  **Catastrophic Forgetting Check**: Run a subset of MMLU or GSM8K. A drop of >10% vs the base model indicates over-training.
+    ```bash
+    # Example using lm-evaluation-harness
+    lm_eval --model hf --model_args pretrained=./output/fused-model \
+            --tasks mmlu_humanities,gsm8k --device cuda:0 --batch_size 8
+    ```
+4.  **Inference Monitoring**: Track the "Hallucination Rate" (invalid references or made-up data) during the first 500 production requests.
 
 ## Common failure modes
 
@@ -426,5 +447,5 @@ from trl import create_reference_model
 - [MLX Examples — LoRA fine-tuning](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-25
 - Confidence: high

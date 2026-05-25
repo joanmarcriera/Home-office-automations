@@ -17,11 +17,14 @@ Verification tasks from `docs/playbooks/data-copilot-sql-validation.md`.
 
 ## Sub-Batch 94.3: Service Freshness
 Ongoing maintenance tasks for core services.
-- [ ] `docs/services/syncthing.md`: Perform quarterly technical freshness audit.
-- [ ] `docs/services/gitea.md`: Perform quarterly technical freshness audit.
+- [x] `docs/services/syncthing.md`: Perform quarterly technical freshness audit. (Completed 2026-05-25)
+- [x] `docs/services/gitea.md`: Perform quarterly technical freshness audit. (Completed 2026-05-25)
+
+## Sub-Batch 94.4: Knowledge Base Integration
+- [x] **Access Matrix Update**: Integrate **Kimi Code CLI** into the Access Matrix. (Completed 2026-05-25)
 
 ---
-- Status: Actionable backlog created.
-- Next Step: Integrate Kimi CLI into the Access Matrix as part of Batch 94.1 initialization.
+- Status: Resolved.
+- Next Step: Triage new intake items and perform periodic audit of Pattern checklists.
 - Date: 2026-05-25
 - Created by: Jules

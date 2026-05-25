@@ -206,27 +206,42 @@ Organise skills into layers to avoid overlap and make discovery predictably:
 | **Dev** | `commit`, `pr-review`, `deploy` | Software engineering actions |
 | **Maintenance** | `knowledge-base-update`, `cleanup` | Repo/system maintenance |
 
-## Quality assurance checklist
+## Skill Quality Assurance & Validation
 
-Use this checklist during design, execution, and performance reviews to ensure high-quality agent skills.
+To ensure agentic reliability, every new skill must undergo a standardized validation framework before being merged into the production `skills/` or `.claude/skills/` directories.
 
-### Design review
-- [ ] **Trigger specificity**: Trigger description is specific enough to avoid false positives.
-- [ ] **Trigger coverage**: Trigger description is broad enough to catch all legitimate invocations.
-- [ ] **Actionable steps**: Instructions are step-by-step, not open-ended goals.
-- [ ] **Principle of least privilege**: Permissions are minimised to what is strictly needed.
-- [ ] **Error handling**: Edge cases (missing inputs, API errors, ambiguous requests) are handled explicitly.
+### Validation Protocol
 
-### Execution review
-- [ ] **Positive test**: Invoke with an exact-match trigger phrase → skill fires correctly.
-- [ ] **Negative test**: Invoke with a near-miss phrase that should NOT trigger → skill does not fire.
-- [ ] **Output validation**: Run the skill on a test input → output matches expected format.
-- [ ] **Resilience test**: Introduce a simulated API error → skill handles it gracefully and reports the error.
+1.  **Trigger Specificity Test (Discriminative Check)**:
+    -   **Positive Test**: Invoke with an exact-match trigger phrase (e.g., "commit staged changes") → confirm the skill fires and executes correctly.
+    -   **Negative Test**: Invoke with a "near-miss" or overlapping phrase from a different skill (e.g., "show git history" for a commit skill) → confirm the skill does **not** fire incorrectly (preventing false positives).
 
-### Performance review
-- [ ] **Token efficiency**: Instruction length is under 300 tokens (measure with `tiktoken`).
-- [ ] **Context minimization**: No redundant context that the model already knows from its system prompt.
-- [ ] **Consistency**: Output format is consistent across 3+ separate test runs.
+2.  **Token Efficiency Audit**:
+    -   Measure the instruction length using `tiktoken` (cl100k_base for Claude/GPT-4).
+    -   **Requirement**: Instructions must be under 300 tokens. If over, prune redundant context (e.g., "You are an assistant that...") or move non-critical edge cases to a separate reference file.
+
+3.  **Resilience & Error Handling**:
+    -   Simulate a tool failure (e.g., a 500 error from the Paperless API).
+    -   **Requirement**: The skill must explicitly catch the error, report it to the user without hallucinating success, and terminate gracefully.
+
+4.  **Consistency Baseline**:
+    -   Run the skill on the same test input 3 times.
+    -   **Requirement**: The output format and core actions must be identical across all runs (zero-variance in structured fields).
+
+### Automated Verification Snippet
+```python
+import tiktoken
+
+def check_skill_efficiency(content, limit=300):
+    """Verify that skill instructions are within token limits."""
+    encoding = tiktoken.get_encoding("cl100k_base")
+    tokens = len(encoding.encode(content))
+    return tokens <= limit, tokens
+
+# Usage in CI:
+# pass, count = check_skill_efficiency(skill_markdown)
+# assert pass, f"Skill too verbose: {count} tokens"
+```
 
 ## Advanced Patterns for Autonomous Agents
 
@@ -368,6 +383,6 @@ Review skills when:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-05-25
 - Confidence: high
 - Related Issues: #202

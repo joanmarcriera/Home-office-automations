@@ -43,7 +43,7 @@ The easiest way to install Syncthing on Linux is via the official APT repository
 
 ```bash
 # Example: Download and extract for Linux 64-bit
-curl -L https://github.com/syncthing/syncthing/releases/latest/download/syncthing-linux-amd64-v1.27.6.tar.gz | tar xz
+curl -L https://github.com/syncthing/syncthing/releases/latest/download/syncthing-linux-amd64-v2.1.0.tar.gz | tar xz
 cd syncthing-linux-amd64-*
 ./syncthing
 ```
@@ -110,6 +110,16 @@ curl -X POST -H "X-API-Key: <your_api_key>" \
 - [Storj](storj.md) — for decentralized, encrypted cloud storage
 - [Immich](immich.md) — for self-hosted photo management (often paired with Syncthing)
 
+## Advanced Configuration (v2.1.0+)
+
+### Folder Grouping
+Syncthing v2.1.0 introduces **Folder Grouping** to the Web GUI, allowing you to categorize folders into logical sets (e.g., "Work", "Personal", "Backups"). This is purely a UI enhancement and does not affect the underlying sync protocol. To group folders, use the "Edit" dialog for a folder and set a group name in the "General" tab.
+
+### Proxy Support
+Syncthing now supports global proxy configuration for all outgoing connections, including discovery and relay servers. This is useful for environments with restricted internet access.
+- **SOCKS5/HTTP**: Configurable via `config.xml` or the GUI under **Actions > Settings > Connections**.
+- **Environment Variables**: Use `all_proxy` or `https_proxy` to direct traffic through a local tunnel.
+
 ## Selective Sync & Ignore Patterns
 Syncthing allows fine-grained control over which files are synchronized using `.stignore` files. This is particularly useful for mobile devices with limited storage or for excluding temporary build artifacts.
 
@@ -134,7 +144,7 @@ Create a file named `.stignore` in the root of your shared folder. Each line def
 On Android, you can enable "Selective Sync" in the Syncthing app settings for a specific folder. This allows you to see the file structure without downloading the actual content until requested. For iOS (Möbius Sync), utilize "Ignore Patterns" to prevent large directories from syncing to the device.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [Official Website](https://syncthing.net/)
@@ -142,5 +152,5 @@ On Android, you can enable "Selective Sync" in the Syncthing app settings for a 
 - [REST API Documentation](https://docs.syncthing.net/dev/rest.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-05-25
 - Confidence: high
