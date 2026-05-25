@@ -36,14 +36,89 @@ It provides a lightweight, extremely fast, and low-memory footprint browser for 
 - **Cost**: Free
 - **Self-hostable**: Yes
 
+## Getting started
+
+### Installation
+Lightpanda can be installed via a one-line script or run as a Docker container.
+
+```bash
+# One-line installer (Linux/macOS)
+curl -fsSL https://pkg.lightpanda.io/install.sh | bash
+
+# Running via Docker (exposed on CDP port 9222)
+docker run -d --name lightpanda -p 127.0.0.1:9222:9222 lightpanda/browser:nightly
+```
+
+### Hello World (CLI)
+Fetch a page and dump it as Markdown directly from the terminal:
+
+```bash
+lightpanda fetch --dump markdown https://example.com
+```
+
+## CLI examples
+The Lightpanda CLI is designed for direct machine interaction and scraping.
+
+```bash
+# Dump page as HTML
+lightpanda fetch --dump html https://news.ycombinator.com
+
+# Execute a custom script on a page
+lightpanda fetch --script "document.querySelectorAll('a').forEach(a => console.log(a.href))" https://example.com
+
+# Start a CDP server for external tools (Playwright/Puppeteer)
+lightpanda server --host 127.0.0.1 --port 9222
+```
+
+## API examples
+Lightpanda is compatible with the **Chrome DevTools Protocol (CDP)**, allowing it to be used as a drop-in replacement for Chrome in many automation frameworks.
+
+### Connecting with Playwright (Python)
+```python
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as p:
+    # Connect to a running Lightpanda instance
+    browser = p.chromium.connect_over_cdp("http://localhost:9222")
+    page = browser.new_context().new_page()
+    page.goto("https://lightpanda.io")
+    print(page.title())
+    browser.close()
+```
+
+### Direct CDP Interaction (Node.js)
+```javascript
+const CDP = require('chrome-remote-interface');
+
+async function example() {
+    let client;
+    try {
+        client = await CDP({ port: 9222 });
+        const {Page, Runtime} = client;
+        await Page.enable();
+        await Page.navigate({url: 'https://example.com'});
+        await Page.loadEventFired();
+        const result = await Runtime.evaluate({expression: 'document.title'});
+        console.log(result.result.value);
+    } catch (err) {
+        console.error(err);
+    } finally {
+        if (client) { await client.close(); }
+    }
+}
+example();
+```
+
 ## Related tools / concepts
 - [Browser Use](browser-use.md)
 - [Playwright](https://playwright.dev/)
 - [Puppeteer](https://pptr.dev/)
+- [CDP (Chrome DevTools Protocol)](https://chromedevtools.github.io/devtools-protocol/)
 
 ## Sources / References
 - [Official Website](https://lightpanda.io/)
-- [GitHub](https://github.com/lightpanda-io/browser)
+- [GitHub Repository](https://github.com/lightpanda-io/browser)
+- [Lightpanda Documentation](https://docs.lightpanda.io/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
