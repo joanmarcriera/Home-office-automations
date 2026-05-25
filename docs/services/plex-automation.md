@@ -102,6 +102,9 @@ for episode in trash_library.search(viewed=True):
 - [Official Plex API Documentation (Community Maintained)](https://github.com/Arcanemagus/plex-api/wiki)
 - [Python-PlexAPI Documentation](https://python-plexapi.readthedocs.io/en/latest/introduction.html)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-06-12

@@ -207,6 +207,9 @@ engines:
 - [GitHub Repository](https://github.com/searxng/searxng)
 - [Documentation](https://docs.searxng.org/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Last reviewed: 2026-06-05
 - Confidence: high

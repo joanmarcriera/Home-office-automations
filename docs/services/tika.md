@@ -160,6 +160,9 @@ return [{ json: { markdown } }];
 - [Unstructured.io](https://unstructured.io/)
 - [Tika Server Documentation](https://cwiki.apache.org/confluence/display/TIKA/TikaServer)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 
 - Last reviewed: 2026-06-25

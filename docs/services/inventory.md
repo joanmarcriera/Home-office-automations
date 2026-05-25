@@ -163,6 +163,9 @@ print(f"Data Path for Nextcloud: {get_service_path('Nextcloud')}")
 - **ZFS Dataset Alignment**: Verified dataset paths should be updated in the individual service files once the final pool structure is confirmed.
 - **Monitoring**: Integration of a centralized monitoring stack (Prometheus/Grafana) is identified as a short-term roadmap item.
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-05-23

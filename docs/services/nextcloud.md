@@ -156,6 +156,7 @@ Nextcloud supports client-side end-to-end encryption for maximum security of sen
 3.  **Limitations**: Encrypted folders cannot be shared with users who do not have E2EE configured, and they are not accessible via the web interface.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Setup Nextcloud Office with Collabora Online.
 - [x] Enable end-to-end encryption for sensitive folders.
 

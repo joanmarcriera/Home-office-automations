@@ -95,6 +95,7 @@ environment:
 - [RAG (Retrieval Augmented Generation)](../knowledge_base/patterns/rag-pattern.md) — The underlying architecture for chatting with documents.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [Open WebUI Documentation](https://docs.openwebui.com/)

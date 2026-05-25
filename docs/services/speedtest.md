@@ -96,6 +96,7 @@ curl -i -XPOST 'http://localhost:8086/write?db=speedtest' --data-binary "downloa
 - [Authentik](authentik.md) — For securing the Grafana dashboard.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Create a dashboard for visualizing speedtest results over time.
 
 ## Sources / References

@@ -98,6 +98,7 @@ oidc_providers:
 - [PostgreSQL](https://www.postgresql.org/) — The required database for performance.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [Synapse GitHub Repository](https://github.com/element-hq/synapse)

@@ -129,6 +129,9 @@ return {"json": result}
 - [Habitica API Documentation](https://github.com/HabitRPG/habitica/blob/develop/API-reference.md)
 - [SuperBetter](https://www.superbetter.com/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Last reviewed: 2026-07-15
 - Confidence: high

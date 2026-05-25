@@ -104,6 +104,7 @@ environment:
 - [Extraction and Classification](../reference-implementations/llm-prompts/extraction-and-classification.md) — General patterns for LLM extraction.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [GitHub Repository](https://github.com/clusterfudge/paperless-ai)

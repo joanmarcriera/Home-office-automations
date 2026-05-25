@@ -131,6 +131,9 @@ print(response.json()['content']) # Prints the OCR'd text content
 - [Official Website](https://docs.paperless-ngx.com/)
 - [GitHub Repository](https://github.com/paperless-ngx/paperless-ngx)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Last reviewed: 2026-06-05
 - Confidence: high

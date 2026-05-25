@@ -169,6 +169,9 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 - [Nextcloud](nextcloud.md)
 - [WireGuard](https://www.wireguard.com/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-07-15

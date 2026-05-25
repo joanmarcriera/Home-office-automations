@@ -129,6 +129,7 @@ curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
 - [Radicale Documentation](https://radicale.org/v3.html)
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-13

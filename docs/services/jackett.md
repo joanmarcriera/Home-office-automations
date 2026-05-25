@@ -186,6 +186,7 @@ for m in healthy_matches:
 - [Homebox](homebox.md)
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Migrate to Prowlarr for better integration with the "Arr" stack.
 
 ## Sources / References

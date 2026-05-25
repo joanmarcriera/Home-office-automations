@@ -453,6 +453,9 @@ services:
 - [Virtual Keys & Budgets](https://docs.litellm.ai/docs/proxy/virtual_keys)
 - [Supported Providers](https://docs.litellm.ai/docs/providers)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 
 - Last reviewed: 2026-03-21

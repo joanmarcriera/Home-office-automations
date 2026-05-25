@@ -324,6 +324,9 @@ Use these 20 real-world scenarios to validate "Inbound Email Triage" and "Entity
 - [n8n-nodes-claude-pro](https://www.reddit.com/r/n8n/comments/1rlpwzs/introduction_to_n8nnodesclaudepro/)
 - [AI agent generating n8n workflow JSON](https://www.reddit.com/r/n8n/comments/1rmcndm/i_built_an_agent_that_generates_importable_n8n/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Last reviewed: 2026-04-16
 - Confidence: high

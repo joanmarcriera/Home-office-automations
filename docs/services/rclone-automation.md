@@ -101,6 +101,7 @@ curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote":
 - [Gitea](gitea.md) — For mirroring git repositories to object storage.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Implement bandwidth throttling during business hours.
 - [x] Set up healthcheck notifications for failed syncs.
 

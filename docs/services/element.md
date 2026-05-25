@@ -157,6 +157,7 @@ curl -X POST \
 - [Matrix Protocol](https://matrix.org/)
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

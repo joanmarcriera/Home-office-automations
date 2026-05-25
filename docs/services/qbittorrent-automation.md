@@ -109,6 +109,9 @@ for torrent in qbt_client.torrents_info(status_filter='seeding'):
 - [qBittorrent Web UI API Documentation](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
 - [qbittorrent-api Python Wrapper](https://github.com/rmartin16/qbittorrent-api)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-06-12

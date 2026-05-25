@@ -173,6 +173,7 @@ A common pattern involves using a local Whisper server (like Speaches) to proces
 - [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

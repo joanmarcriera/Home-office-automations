@@ -143,6 +143,7 @@ To implement barcode scanning for faster data entry:
 - [Authentik](authentik.md) — For securing the Grocy web interface with SSO.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Set up barcode scanning via mobile app.
 
 ## Sources / References

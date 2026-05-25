@@ -160,6 +160,9 @@ curl "http://localhost:8080/api/v2/torrents/info" \
 - [Transmission](https://transmissionbt.com/)
 - [Deluge](https://deluge-torrent.org/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-06-05

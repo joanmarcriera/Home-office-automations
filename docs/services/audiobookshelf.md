@@ -108,6 +108,7 @@ curl http://speaches:8000/v1/audio/transcriptions \
 The resulting JSON transcript can be indexed in a local [Vector DB](../knowledge_base/vector-db-comparison.md) for semantic search across your entire spoken-word history.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

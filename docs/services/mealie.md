@@ -131,6 +131,7 @@ for item in items:
 ```
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 

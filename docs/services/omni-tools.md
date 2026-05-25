@@ -184,6 +184,7 @@ A reference Playwright script is provided to verify the availability of key modu
 Run this script as part of your homelab CI/CD or via a scheduled task to ensure your local utility suite is functioning correctly.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Set up automated Playwright health checks for all modules. (Completed 2026-05-24)
 
 ## Sources / References
