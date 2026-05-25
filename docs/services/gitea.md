@@ -44,7 +44,7 @@ To run Gitea using Docker Compose:
 ```yaml
 services:
   server:
-    image: gitea/gitea:1.21
+    image: gitea/gitea:1.26.2
     container_name: gitea
     environment:
       - USER_UID=1000
@@ -117,6 +117,18 @@ curl -X POST "http://localhost:3000/api/v1/repos/owner/repo/issues" \
   -d '{"title": "Bug Report", "body": "Something is broken."}'
 ```
 
+## Gitea v1.26+ Enhancements
+
+### Gitea Actions Concurrency
+Gitea v1.26 introduces enhanced concurrency control for Gitea Actions. You can now limit the number of parallel jobs at the repository or organization level to prevent resource exhaustion on small servers.
+- **app.ini Configuration**: Use `[actions].MAX_PARALLEL_STEPS` to set a global limit.
+- **Workflow YAML**: Leverage `concurrency` groups (similar to GitHub Actions) to cancel in-progress runs when a new one is triggered.
+
+### UI Enhancements
+The v1.26 release brings several quality-of-life improvements to the web interface:
+- **Scoped Repository Search**: Search specifically within code, issues, or pull requests from the global search bar.
+- **Theme Persistence**: Better handling of dark/light mode switching based on browser preferences with persistent storage in user settings.
+
 ## Related tools / concepts
 - [Ollama](ollama.md) — For running local AI code reviews via Gitea Actions.
 - [Authentik](authentik.md) — For SSO and user management.
@@ -185,11 +197,11 @@ jobs:
 ```
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-25
 
 ## Sources / References
 - https://gitea.io/
