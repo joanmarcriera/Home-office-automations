@@ -44,7 +44,7 @@ To run Gitea using Docker Compose:
 ```yaml
 services:
   server:
-    image: gitea/gitea:1.21
+    image: gitea/gitea:1.26.2
     container_name: gitea
     environment:
       - USER_UID=1000
@@ -158,8 +158,14 @@ Gitea Actions provides a built-in CI/CD solution that is compatible with GitHub 
 [actions]
 ENABLED = true
 ```
-2. **Set up a Runner**: Gitea Actions requires a separate "Act Runner" to execute jobs. You can run this as a Docker container.
-3. **Registration**: Obtain a registration token from **Site Administration > Actions > Runners** and use it to register your runner.
+2. **Set up a Runner**: Gitea Actions requires a separate "Gitea Runner" (formerly `act_runner`).
+3. **Registration**: Registration tokens are now managed via the administrative UI or CLI. Note that the GET API for registration tokens has been deprecated in favor of secure session-based flows.
+
+### Advanced Actions Features (v1.26+)
+- **Concurrency Support**: Workflows can use `concurrency` groups to cancel or queue overlapping runs, matching GitHub behavior.
+- **Reusable Workflows from Private Repos**: You can now reference actions and workflows stored in private repositories you have access to.
+- **Re-run Failed Jobs**: Failed workflow runs can be partially re-run, retrying only the failing jobs to save time and resources.
+- **Workflow Summaries**: Surfacing key outcomes directly in the Actions run view via Markdown summaries.
 
 ### Sample Workflow
 Create a file at `.gitea/workflows/demo.yaml` in your repository:
@@ -184,15 +190,23 @@ jobs:
       - run: echo "🙌 This job's status is ${{ job.status }}."
 ```
 
+## New Features & Performance (v1.26)
+- **Keyboard Shortcuts**: Native repository navigation and code search shortcuts (e.g., `s` for search).
+- **Subpath Archives**: Download a zip/tarball for a specific subdirectory, useful for monorepos.
+- **Vite Migration**: Faster front-end build toolchain using Vite instead of Webpack.
+- **Terraform Registry**: Gitea can now act as a Terraform state backend.
+- **Automatic Release Notes**: Generate Markdown release notes from merged PRs and contributors.
+
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (v1.26.2).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-25
 
 ## Sources / References
 - https://gitea.io/
 - https://github.com/go-gitea/gitea
 - https://docs.gitea.com/
 - https://forgejo.org/
+- [Gitea 1.26.0 Release Blog](https://blog.gitea.com/release-of-1.26.0/)

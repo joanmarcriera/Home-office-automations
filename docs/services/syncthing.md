@@ -43,7 +43,7 @@ The easiest way to install Syncthing on Linux is via the official APT repository
 
 ```bash
 # Example: Download and extract for Linux 64-bit
-curl -L https://github.com/syncthing/syncthing/releases/latest/download/syncthing-linux-amd64-v1.27.6.tar.gz | tar xz
+curl -L https://github.com/syncthing/syncthing/releases/latest/download/syncthing-linux-amd64-v2.1.0.tar.gz | tar xz
 cd syncthing-linux-amd64-*
 ./syncthing
 ```
@@ -110,6 +110,24 @@ curl -X POST -H "X-API-Key: <your_api_key>" \
 - [Storj](storj.md) — for decentralized, encrypted cloud storage
 - [Immich](immich.md) — for self-hosted photo management (often paired with Syncthing)
 
+## Advanced Configuration & Proxy Support
+Syncthing v2.1.0 introduced several enhancements for network flexibility and organizational management.
+
+### Proxy Support
+Syncthing supports SOCKS, HTTP, and HTTPS proxies for outgoing connections. This is configured via environment variables:
+
+```bash
+# Example: Using an HTTPS proxy for all outgoing Syncthing traffic
+export all_proxy=https://proxy.example.com:8080
+./syncthing
+```
+
+### Folder & Device Grouping
+Large deployments can now group devices and folders in the GUI using the `group` attribute. This allows for cleaner organization in the web interface when managing dozens of sync points.
+
+### Block Indexing Control
+For folders where database size and overhead are more critical than minimal transfer size (e.g., very large folders with frequent small changes), block indexing can be disabled via the `blockIndexing` attribute in the folder configuration.
+
 ## Selective Sync & Ignore Patterns
 Syncthing allows fine-grained control over which files are synchronized using `.stignore` files. This is particularly useful for mobile devices with limited storage or for excluding temporary build artifacts.
 
@@ -134,13 +152,14 @@ Create a file named `.stignore` in the root of your shared folder. Each line def
 On Android, you can enable "Selective Sync" in the Syncthing app settings for a specific folder. This allows you to see the file structure without downloading the actual content until requested. For iOS (Möbius Sync), utilize "Ignore Patterns" to prevent large directories from syncing to the device.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (v2.1.0).
 
 ## Sources / References
 - [Official Website](https://syncthing.net/)
 - [Getting Started Guide](https://docs.syncthing.net/intro/getting-started.html)
 - [REST API Documentation](https://docs.syncthing.net/dev/rest.html)
+- [Syncthing v2.1.0 Release Notes](https://github.com/syncthing/syncthing/releases/tag/v2.1.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-05-25
 - Confidence: high
