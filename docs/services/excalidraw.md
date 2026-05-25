@@ -128,6 +128,7 @@ Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) 
 -   **Scripting**: Automate diagram generation or metadata extraction using the built-in scripting engine.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

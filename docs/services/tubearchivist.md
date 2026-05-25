@@ -179,6 +179,9 @@ curl -X POST -H "Authorization: Token <your_api_token>" \
 - [Home Assistant](home-assistant.md) — For automating notifications about new downloads.
 - [Tailscale](tailscale.md) — For securely accessing your archive from anywhere.
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-07-20

@@ -87,6 +87,7 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 - [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Proxy server to bypass Cloudflare protection on some trackers.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [Official Website](https://prowlarr.com/)

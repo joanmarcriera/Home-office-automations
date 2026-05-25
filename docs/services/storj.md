@@ -150,6 +150,7 @@ for obj in response.get("Contents", []):
 - [Paperless-ngx](paperless-ngx.md) — For off-site archival of sensitive documents.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Configure as a backup target for Rclone.
 
 ## Contribution Metadata

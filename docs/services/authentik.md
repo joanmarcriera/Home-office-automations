@@ -252,6 +252,7 @@ except ldap.LDAPError as e:
 ```
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Configure LDAP outpost for legacy apps.
 
 ## Contribution Metadata

@@ -186,6 +186,9 @@ Run `vdirsyncer discover` and then `vdirsyncer sync` to initialize the connectio
 - [CalDAV Documentation](https://vikunja.io/docs/caldav/)
 - [CLI Reference](https://vikunja.io/docs/cli/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 
 - Last reviewed: 2026-05-13

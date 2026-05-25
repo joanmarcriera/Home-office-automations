@@ -129,6 +129,9 @@ if __name__ == '__main__':
 - [Uptime Kuma](https://uptime.kuma.pet/)
 - [nmap](https://nmap.org/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-07-15

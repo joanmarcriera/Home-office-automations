@@ -199,6 +199,7 @@ if ids:
 - [Subsonic API](http://www.subsonic.org/pages/api.jsp)
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - https://www.navidrome.org/

@@ -140,6 +140,9 @@ oidc:
 - [Authentik Headscale Integration](https://integrations.goauthentik.io/networking/headscale/)
 - [Tailscale ACL Documentation](https://tailscale.com/kb/1018/acls/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Last reviewed: 2026-05-24
 - Confidence: high

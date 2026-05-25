@@ -206,6 +206,9 @@ download_pdf(123, "my_preserved_page")
 - [GitHub Repository](https://github.com/linkwarden/linkwarden)
 - [Wallabag Official Site](https://wallabag.org/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 
 - Last reviewed: 2026-05-08

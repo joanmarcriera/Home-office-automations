@@ -117,6 +117,7 @@ To sync Focalboard with Nextcloud Tasks (using CalDAV or community bridges):
 - [GitHub Repository](https://github.com/mattermost/focalboard)
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Sync with Nextcloud Tasks.
 
 ## Contribution Metadata

@@ -114,6 +114,9 @@ curl -u user:pass "http://localhost:5232/user/calendar/" -o my_calendar.ics
 - https://radicale.org/v3.html
 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-06-12

@@ -150,6 +150,9 @@ if response.status_code == 200:
 - [Xowa](http://xowa.org/)
 - [Aard 2](https://github.com/itkach/aard2-android)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 
 - Last reviewed: 2026-06-25

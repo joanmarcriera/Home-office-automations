@@ -156,6 +156,7 @@ docker exec -it diskover python3 /app/diskover/diskover.py -i truenas-index /dat
 ```
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

@@ -99,6 +99,7 @@ Actual Budget supports automated transaction ingestion from banks via the GoCard
 For banks not supported by GoCardless, Actual provides a robust CSV import tool with "Import Rules" that can automatically categorize transactions based on descriptions or amounts.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

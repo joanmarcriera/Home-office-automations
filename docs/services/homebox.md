@@ -154,6 +154,7 @@ To restore Homebox from a backup of the `/data` volume:
 5. Verify that all items and locations are visible in the web interface.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

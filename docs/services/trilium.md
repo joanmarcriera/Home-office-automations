@@ -96,6 +96,9 @@ print(response.json())
 - [Official Website](https://github.com/zadam/trilium)
 - [Trilium Wiki](https://github.com/zadam/trilium/wiki)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Last reviewed: 2026-04-26
 - Confidence: high

@@ -1,6 +1,6 @@
-# Ralph-loop Triage Report — 2026-05-23
+# Ralph-loop Triage Report — 2026-05-25
 
-This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 23, 2026.
+This report documents the triage of open GitHub issues and ongoing maintenance tasks as of May 25, 2026.
 
 ## Issue Status Summary
 
@@ -19,7 +19,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **#360** | Category gap fill (Intake/Storage) | **Verified & Closed** | AnyType, Khoj, SilverBullet, Verba added. |
 | **#404** | Claude code plugins | **Verified & Closed** | Descriptions updated and standardized. |
 | **#408** | Deepen examples (Batch 7) | **Verified & Closed** | mem0, Google Opal, Project Genie, Sora, NotebookLM deepened. |
-| **#421** | Weekly deepening (Batch 8) | **Verified & Closed** | Unstructured, LlamaParse, Karpathy, Matt Pocock, AmpCode deepened. |
+| **#421** | Weekly deepening (Batch 7) | **Verified & Closed** | Unstructured, LlamaParse, Karpathy, Matt Pocock, AmpCode deepened. |
 | **#422** | Category gap fill: calendar_tasks | **Verified & Closed** | 20 docs added and indexed. |
 | **#506** | Jules Sprint W3 | **Verified & Closed** | Deepened SearXNG and Syncthing to 'High Confidence'. |
 | **#529** | Daily Maintenance Run (2026-05-07) | **Verified & Closed** | Step 2 (Doc audit) completed for W4 tools. |
@@ -82,6 +82,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 88** | Technical Deepening | **Resolved** | Deepened `dashworks.md`, `guru.md`, `coveo.md`, `motion.md`, `any-do.md` with technical examples (2026-05-23). |
 | **Batch 89** | Deepening Shallow Docs | **Resolved** | Deepened `self-healing-agent-research.md`, `mlx.md`, `home-admin-tools.md`, `perplexity-agent-api.md`, `ai-auditing-tools.md` (2026-05-24). |
 | **Batch 94** | Operational Verification | **Verified & Closed** | Infrastructure migrations, data guardrails, and service freshness audits (Syncthing, Gitea) verified (2026-05-25). |
+| **Batch 95** | Service Maintenance (Backlog) | **Resolved** | Synchronized playbook checklists and populated `## Backlog` for 52 service docs (2026-05-25). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

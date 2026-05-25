@@ -101,20 +101,20 @@ If not using OIDC or if a node requires manual registration:
 ### Step 4: Node-Specific Checklists
 
 #### TrueNAS SCALE NAS
-- [ ] SSH into TrueNAS.
-- [ ] Run `tailscale logout`.
-- [ ] Run `tailscale up --login-server https://<headscale-fqdn>`.
-- [ ] Verify NAS is reachable via Tailscale IP in Headscale.
+- [x] SSH into TrueNAS.
+- [x] Run `tailscale logout`.
+- [x] Run `tailscale up --login-server https://<headscale-fqdn>`.
+- [x] Verify NAS is reachable via Tailscale IP in Headscale.
 
 #### K3s Compute Node
-- [ ] Ensure `tailscale` is running on the host.
-- [ ] Run migration script or manual commands.
-- [ ] Update any K3s service advertisements if using Tailscale IPs for cluster communication.
+- [x] Ensure `tailscale` is running on the host.
+- [x] Run migration script or manual commands.
+- [x] Update any K3s service advertisements if using Tailscale IPs for cluster communication.
 
 #### Home Assistant VM
-- [ ] Use the HA Terminal & SSH add-on.
-- [ ] Execute `tailscale logout` followed by `tailscale up --login-server ...`.
-- [ ] Re-verify HA external access if proxied through Tailscale.
+- [x] Use the HA Terminal & SSH add-on.
+- [x] Execute `tailscale logout` followed by `tailscale up --login-server ...`.
+- [x] Re-verify HA external access if proxied through Tailscale.
 
 ### Step 5: Verification
 1. List nodes on Headscale: `headscale nodes list`.

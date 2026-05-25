@@ -104,6 +104,7 @@ In the "Filters" tab, use the "Ignore text" field to strip out patterns using re
 When using the Playwright/Selenium fetcher, you can use the "Visual Filter" selector in the UI to click and hide elements directly from a rendered preview of the site.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high

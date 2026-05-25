@@ -91,10 +91,10 @@ Before returning or executing, the system must perform a `EXPLAIN` or a dry-run 
 
 ### 2. Policy Validation Checklist
 Every query must pass these automated checks:
-- [ ] **Row Limits**: Does the query have a `LIMIT` clause? (Hard cap e.g., 1000).
-- [ ] **Table Allowlist**: Does it only touch tables defined in the Workspace context?
-- [ ] **No Mutations**: Does it contain forbidden keywords like `DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `GRANT`?
-- [ ] **PII/PHI Masking**:
+- [x] **Row Limits**: Does the query have a `LIMIT` clause? (Hard cap e.g., 1000).
+- [x] **Table Allowlist**: Does it only touch tables defined in the Workspace context?
+- [x] **No Mutations**: Does it contain forbidden keywords like `DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `GRANT`?
+- [x] **PII/PHI Masking**:
   - Sensitive columns (e.g., `ssn`, `password_hash`) must be excluded from the `SELECT` list.
   - If a sensitive column is needed for filtering (e.g., `user_id`), it must be hashed or replaced with a pseudonym in the final output returned to the UI.
 

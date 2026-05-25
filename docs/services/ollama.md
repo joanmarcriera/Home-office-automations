@@ -89,6 +89,7 @@ Tokens per second (t/s) vary by model size and hardware. Use `ollama run <model>
 - [LM Studio](https://lmstudio.ai/) — A desktop-first alternative for model experimentation.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [Official Website](https://ollama.com/)

@@ -119,6 +119,9 @@ In n8n, use the **HTTP Request** node to fetch search results:
 - [SearXNG API Documentation](https://docs.searxng.org/dev/search_api.html)
 - [LangChain SearXNG Documentation](https://python.langchain.com/docs/integrations/tools/searx_search/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-06-12

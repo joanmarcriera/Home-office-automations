@@ -82,6 +82,7 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 - [Home Assistant](home-assistant.md) — For dashboard integration.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 - [x] Host locally on TrueNAS for offline developer support.
 
 

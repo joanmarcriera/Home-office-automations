@@ -157,6 +157,9 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 - [Plex](https://www.plex.tv/)
 - [Emby](https://emby.media/)
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 
 - Last reviewed: 2026-06-25

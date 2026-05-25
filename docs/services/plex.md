@@ -141,6 +141,9 @@ libraries:
       - default: ratings
 ```
 
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
+
 ## Contribution Metadata
 - Confidence: high
 - Last reviewed: 2026-06-05

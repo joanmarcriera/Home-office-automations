@@ -102,6 +102,7 @@ To ensure a consistent backup, you must back up both the **PostgreSQL database**
 - [OpenVINO](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html) (Intel AI optimization)
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [Official Website](https://immich.app/)
