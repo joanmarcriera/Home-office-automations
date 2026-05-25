@@ -72,6 +72,19 @@ The RAG architecture consists of a disconnected ingestion pipeline and a real-ti
 *   **GraphRAG:** Augments vector retrieval with a Knowledge Graph. It extracts entities and relationships to provide both global context (summarizing entire datasets) and local context (finding specific facts), solving the "blindness" of vector search to broad themes.
 *   **Agentic RAG:** An agent-driven approach where the LLM is equipped with retrieval tools. The agent plans its search strategy, chooses between multiple data sources, and performs multi-step reasoning before delivering the final answer.
 
+## Stateless RAG vs. Persistent Context
+
+As context windows expand, a new architectural decision emerges between traditional RAG and persistent "Long-Context" patterns:
+
+- **Stateless RAG (Traditional)**:
+    - **Mechanism**: Retrieval is performed per-query. Context is injected into the prompt and then "forgotten" by the model after the turn.
+    - **Best for**: Massive datasets (Petabytes) that cannot fit in any context window, or when strict per-query data isolation is required.
+    - **Pros**: Cost-effective for large datasets; highly scalable.
+- **Persistent Context (Long-Context)**:
+    - **Mechanism**: Large amounts of data (up to 2M+ tokens) are loaded into the model's active memory or KV cache (e.g., via [Google Gemini](../../tools/providers/google-gemini.md) 1.5 Pro).
+    - **Best for**: Working intensely with a specific set of documents (e.g., a codebase, a single legal case, or a book).
+    - **Pros**: Superior reasoning across the entire dataset; avoids chunking-related context loss.
+
 ## Typical use cases
 
 *   **Technical Support:** Answering questions based on product manuals and documentation.
@@ -201,11 +214,11 @@ The following examples demonstrate a minimal local RAG setup using **Ollama** fo
 [RAGFlow](../../tools/process_understanding/ragflow.md) utilizes the **'DeepDoc'** engine, which employs vision-based deep learning models to recognize document layout (tables, charts, headers) rather than relying on simple text extraction. This ensures that the relationship between data points is preserved during the chunking phase, preventing the loss of structural context.
 
 ### 2. Multi-Modal Retrieval (Verba)
-[Verba](../../tools/ai_knowledge/verba.md) provides a standardized RAG architecture built natively on **Weaviate**. It leverages Weaviate's multi-modal capabilities to index not just text, but also images and structured data, enabling a "Unified Context" where an agent can reason across different media types using a single vector search interface.
+[Verba](../../tools/intake_storage/verba.md) provides a standardized RAG architecture built natively on **Weaviate**. It leverages Weaviate's multi-modal capabilities to index not just text, but also images and structured data, enabling a "Unified Context" where an agent can reason across different media types using a single vector search interface.
 
 ## Related tools / concepts
 
-*   **RAG Platforms:** [Dify](../../tools/ai_knowledge/dify.md), [Flowise](../../tools/ai_knowledge/flowise.md), [RAGFlow](../../tools/process_understanding/ragflow.md), [Verba](../../tools/ai_knowledge/verba.md)
+*   **RAG Platforms:** [Dify](../../tools/ai_knowledge/dify.md), [Flowise](../../tools/ai_knowledge/flowise.md), [RAGFlow](../../tools/process_understanding/ragflow.md), [Verba](../../tools/intake_storage/verba.md)
 *   **Orchestration:** [LlamaIndex](../../tools/ai_knowledge/llamaindex.md), [LangChain](../../tools/ai_knowledge/langchain.md), [Haystack](../../tools/frameworks/haystack.md)
 *   **Infrastructure:** [Vector Databases](../../tools/infrastructure/index.md), [Embedding Models](../../tools/infrastructure/index.md)
 *   **Data Extraction:** [Crawl4AI](../../tools/process_understanding/crawl4ai.md), [Firecrawl](../../tools/process_understanding/firecrawl.md), [OCRmyPDF](../../tools/process_understanding/ocrmypdf.md)
@@ -222,5 +235,5 @@ The following examples demonstrate a minimal local RAG setup using **Ollama** fo
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-05-25
 - Confidence: high

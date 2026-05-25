@@ -46,6 +46,19 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 - **Static Knowledge**: If the information is common knowledge and the training data is sufficient.
 - **Over-Complexity**: If the task can be solved more reliably by simple prompt engineering or fixed data insertion.
 
+## Native Tool Calling vs. MCP-hosted Tools
+
+While both patterns enable models to use tools, they differ in their architecture and portability:
+
+- **Native Tool Calling**:
+    - **Implementation**: Tools are defined and registered directly within a specific model's API (e.g., OpenAI's `tools` parameter or Anthropic's `tool_use`).
+    - **Coupling**: The tool definitions are often tightly coupled to the specific SDK or API of the model provider.
+    - **Maintenance**: Adding a new tool requires updating the application code for every model integration.
+- **MCP-hosted Tools**:
+    - **Implementation**: Tools reside in a standalone **MCP Server**. The LLM host (client) connects to the server and discovers tools dynamically.
+    - **Decoupling**: The model is abstracted from the tool's implementation. A single server can provide tools to multiple models (Claude, GPT-4, Llama) and multiple IDEs (Cursor, Zed).
+    - **Extensibility**: New tools can be added to an MCP server without changing the model's configuration or the host application's core logic.
+
 ## How tool calling works
 The tool calling cycle typically follows these steps:
 1.  **Tool Definition**: The developer provides the LLM with a list of available tools, defined using a structured schema (usually JSON Schema) that includes names, descriptions, and parameter types.
@@ -232,30 +245,46 @@ if __name__ == "__main__":
 ```
 
 ### 3. Specialized MCP Server Examples
-Modern MCP servers go beyond simple API wrappers, providing specialized compute and verification capabilities.
+Modern MCP servers go beyond simple API wrappers, providing specialized compute, verification, and deep-system interaction capabilities.
 
-#### A. Automated Quality Assurance (Fuzzing)
-The [Fuzzing MCP Server](../../tools/development_ops/fuzzing-mcp-server.md) uses Hypothesis to hunt for edge cases in Python code.
+#### A. Property-Based Fuzzing
+The [Fuzzing MCP Server](../../tools/development_ops/fuzzing-mcp-server.md) uses the Hypothesis library to hunt for edge cases. It generates hundreds of diverse test cases to find inputs that cause a function to fail.
 
+**Example: Finding a ZeroDivisionError**
 ```json
 {
   "tool": "fuzz_function",
   "arguments": {
-    "code": "def process_payment(amount: float):\n    if amount <= 0: raise ValueError()\n    return amount * 1.05",
-    "function_name": "process_payment"
+    "code": "def test_division(x: int, y: int):\n    return x / y != 0",
+    "strategy": "integers()"
   }
 }
 ```
 
-#### B. Formal Verification (Symbolic)
-The [Symbolic MCP](../../tools/development_ops/symbolic-mcp.md) uses Z3 to algebraically prove properties of code.
+#### B. Formal Symbolic Verification
+The [Symbolic MCP](../../tools/development_ops/symbolic-mcp.md) uses the Z3 theorem prover to algebraically explore all possible execution paths. It provides mathematical guarantees that a property holds for *all* possible inputs.
 
+**Example: Proving Refactoring Equivalence**
 ```json
 {
-  "tool": "verify_function",
+  "tool": "verify_equivalence",
   "arguments": {
-    "code": "def absolute(x: int):\n    return x if x >= 0 else -x",
-    "property": "forall x: absolute(x) >= 0"
+    "original_code": "def logic(x):\n    return x * 2",
+    "new_code": "def logic(x):\n    return x + x"
+  }
+}
+```
+
+#### C. Local File System & System Interaction
+The [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md) allows agents to interact safely with the host OS.
+
+**Example: Codebase Search**
+```json
+{
+  "tool": "search_code",
+  "arguments": {
+    "query": "class DatabaseConnection",
+    "directory": "./src"
   }
 }
 ```
@@ -279,19 +308,6 @@ For sensitive operations (writing files, deleting data, sending emails), the run
 
 ### MCP Server Composition
 A core benefit of MCP is the ability for a single client (like Claude Desktop or an agent) to connect to many independent servers. This creates a "composable brain" where specialized servers for Google Calendar, Slack, GitHub, and local databases can be aggregated into a single assistant without code changes.
-
-## When to use it / When not to use it
-### When to use it
-- **Factual Accuracy**: When you need the model to use real-time or verified data instead of hallucinating answers.
-- **Action-Oriented Agents**: When the purpose of the LLM is to perform tasks, not just provide information.
-- **Standardizing Toolkits**: Use MCP when building tools that need to be shared across different AI environments (Zed, Cursor, Claude).
-- **Security & Control**: When you want to strictly control what actions the LLM can take by defining a rigid API (tool schema).
-
-### When not to use it
-- **Simple Creative Writing**: When the task is purely linguistic (e.g., "Write a poem about a cat").
-- **High Latency Concerns**: If the external API or database is slow and real-time response is required.
-- **Static Knowledge**: If the information is common knowledge and the training data is sufficient.
-- **Over-Complexity**: If the task can be solved more reliably by simple prompt engineering or fixed data insertion.
 
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md) — Broader context for MCP and ACP.
@@ -338,5 +354,5 @@ A core benefit of MCP is the ability for a single client (like Claude Desktop or
 - [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-05-25
 - Confidence: high
