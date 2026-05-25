@@ -36,13 +36,70 @@ Provides a seamless, synchronized scheduling experience for users within the App
 - **Cost**: Free (Included with Apple ID)
 - **Self-hostable**: No
 
+## Getting started
+
+### Installation
+Apple Calendar is pre-installed on all Apple devices. For command-line access, `icalBuddy` is the community standard.
+
+```bash
+# Install icalBuddy via Homebrew
+brew install ical-buddy
+```
+
+### Hello World (AppleScript)
+You can create events directly from the terminal using the built-in `osascript` (AppleScript) engine.
+
+```bash
+osascript -e 'tell application "Calendar" to make new event at end of events of calendar "Calendar" with properties {summary:"Hello from CLI", start date:(current date), end date:((current date) + 3600)}'
+```
+
+## CLI examples
+Using `icalBuddy` to query the local calendar database:
+
+```bash
+# List all events for today
+icalBuddy eventsToday
+
+# List all uncompleted tasks/reminders
+icalBuddy uncompletedTasks
+
+# List all available calendars
+icalBuddy calendars
+```
+
+## API examples
+The official way to interact with Apple Calendar programmatically is via the **EventKit** framework (Swift/Objective-C) or **AppleScript**.
+
+### List Calendars (AppleScript)
+```applescript
+tell application "Calendar"
+    set calendarList to name of every calendar
+    return calendarList
+end tell
+```
+
+### Accessing EventKit (Python via PyObjC)
+```python
+from EventKit import EKEventStore, EKEntityType
+
+store = EKEventStore.alloc().init()
+store.requestAccessToEntityType_completion_(EKEntityTypeEvent, lambda granted, error: None)
+
+calendars = store.calendarsForEntityType_(EKEntityTypeEvent)
+for calendar in calendars:
+    print(f"Calendar: {calendar.title()}")
+```
+
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md)
 - [Outlook Calendar](outlook.md)
 - [Proton Calendar](proton_calendar.md)
+- [EventKit Framework](https://developer.apple.com/documentation/eventkit)
 
 ## Sources / References
 - [Apple Calendar Support](https://support.apple.com/calendar)
+- [icalBuddy Homepage](https://hasseg.org/icalBuddy/)
+- [AppleScript Language Guide](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASL_intro.html)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-02
