@@ -134,6 +134,7 @@ Create a file named `.stignore` in the root of your shared folder. Each line def
 On Android, you can enable "Selective Sync" in the Syncthing app settings for a specific folder. This allows you to see the file structure without downloading the actual content until requested. For iOS (Möbius Sync), utilize "Ignore Patterns" to prevent large directories from syncing to the device.
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 - [Official Website](https://syncthing.net/)
