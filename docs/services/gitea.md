@@ -185,6 +185,7 @@ jobs:
 ```
 
 ## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high
