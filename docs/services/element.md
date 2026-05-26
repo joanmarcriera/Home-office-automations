@@ -22,10 +22,12 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 - **E2EE**: High-grade end-to-end encryption for all conversations.
 - **Extensibility**: Powerful API and "Widget" system for custom integrations.
 - **Open Standard**: Interoperable with any other Matrix client or server.
+- **Matrix 1.18+ Safety**: Enhanced trust and safety features including Policy Servers and granular invite blocking.
 
 ## Limitations
 - **UX Complexity**: The decentralized nature (homeservers, cross-signing) can be confusing for new users compared to centralized apps.
 - **Resource Intensive**: Running a full Matrix homeserver (Synapse) can be resource-heavy for low-end hardware.
+- **Storage Growth**: Encrypted history and media can grow significantly over time without proper cleanup policies.
 
 ## When to use it
 - When you need secure, encrypted communication that you fully control.
@@ -43,7 +45,7 @@ The easiest way to start is by using the hosted version or the desktop client:
 2. Create an account on the default `matrix.org` server or specify your own.
 
 ### Docker (Self-Hosted Web Client)
-To host the Element web interface yourself (requires a separate homeserver like Synapse):
+To host the Element web interface yourself (requires a separate homeserver like Synapse). As of May 2026, ensure you use the latest stable branch for Matrix 1.18+ compatibility.
 
 ```yaml
 services:
@@ -52,6 +54,21 @@ services:
     ports:
       - "8080:80"
     restart: always
+    environment:
+      - ELEMENT_DEFAULT_HS_URL=https://matrix.example.com
+```
+
+### Matrix RTC SFU (Video Calls)
+For high-performance video conferencing in Element, a Selective Forwarding Unit (SFU) is recommended:
+
+```yaml
+services:
+  matrix-rtc-sfu:
+    image: ghcr.io/element-hq/matrix-rtc-sfu:latest
+    ports:
+      - "8090:8090"
+    environment:
+      - SFU_EXTERNAL_URL=https://sfu.example.com
 ```
 
 ## CLI examples
@@ -140,7 +157,7 @@ curl -X POST \
 ```
 
 ## Related tools / concepts
-- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver.
+- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.153.0+).
 - [Dendrite](https://github.com/element-hq/dendrite) — A next-generation, high-performance Matrix homeserver.
 - [Home Assistant](home-assistant.md) — Frequently integrated with Element for notifications.
 - [Authentik](authentik.md) — Used for SSO authentication into Element/Matrix.
@@ -150,21 +167,24 @@ curl -X POST \
 - [Paperless-ngx](paperless-ngx.md) — For notifying users when new documents are indexed.
 - [SearXNG](searXNG.md) — For secure search results sharing within Element rooms.
 - [Vikunja](vikunja.md) — For task management notifications and team coordination.
+- [Element X](https://github.com/element-hq/element-x-android) — Successor mobile clients built with the Matrix Rust SDK for extreme performance.
 
 ## Links
 - [Official Website](https://element.io/)
 - [GitHub Repository](https://github.com/vector-im/element-web)
 - [Matrix Protocol](https://matrix.org/)
+- [Matrix v1.18 Spec](https://matrix.org/blog/2026/03/26/matrix-v1.18-release/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://element.io/
 - https://github.com/vector-im/element-web
 - https://matrix.org/docs/api/client-server/
 - https://github.com/8go/matrix-commander
+- https://matrix.org/blog/2026/03/26/matrix-v1.18-release/

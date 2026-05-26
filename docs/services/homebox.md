@@ -18,6 +18,7 @@ It is a **Standalone Service** in the home automation stack, typically deployed 
 - **Lightweight**: Minimal CPU and RAM footprint.
 - **Fast**: Responsive web interface.
 - **Portable**: SQLite backend makes backups trivial.
+- **v0.25+ Features**: Enhanced tag relationships (parent/child), fractional quantities (e.g., 1.5 units), and OpenTelemetry support.
 
 ## Limitations
 - **Simplicity**: Lacks advanced supply chain or POS features found in enterprise ERPs.
@@ -37,6 +38,7 @@ It is a **Standalone Service** in the home automation stack, typically deployed 
 ## Links
 - [Official Website](https://homebox.software/)
 - [GitHub Repository](https://github.com/sysadminsmedia/homebox)
+- [v0.25.0 Release Notes](https://github.com/sysadminsmedia/homebox/releases/tag/v0.25.0)
 - [Live Demo](https://demo.homebox.software/)
 
 ## Related tools / concepts
@@ -154,14 +156,15 @@ To restore Homebox from a backup of the `/data` volume:
 5. Verify that all items and locations are visible in the web interface.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://github.com/sysadminsmedia/homebox
 - https://homebox.software/
+- https://github.com/sysadminsmedia/homebox/releases/tag/v0.25.0
 - https://snipeitapp.com/
 - https://docs.paperless-ngx.com/
