@@ -95,10 +95,15 @@ model_list:
       api_base: http://localhost:11434
 
   # ── Cloud Fallbacks ─────────────────────────────────────
-  - model_name: claude-sonnet
+  - model_name: claude-opus
     litellm_params:
-      model: anthropic/claude-sonnet-4-20250514
+      model: anthropic/claude-opus-4.7
       api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: gemini-flash
+    litellm_params:
+      model: google/gemini-3.5-flash
+      api_key: os.environ/GEMINI_API_KEY
 
   - model_name: openrouter-free
     litellm_params:
@@ -355,6 +360,50 @@ LiteLLM proxies the full OpenAI API surface:
 | `/messages` | Anthropic Messages API passthrough |
 | `/responses` | OpenAI Responses API |
 | `/a2a` | Agent-to-agent protocol |
+| `/realtime` | OpenAI Realtime API (WebSocket) |
+
+## Realtime API
+
+GA as of May 2026, LiteLLM provides a unified WebSocket interface for Realtime multimodal (audio/text) models.
+
+```yaml
+# litellm-config.yaml
+model_list:
+  - model_name: gpt-4o-realtime
+    litellm_params:
+      model: openai/gpt-4o-realtime-preview-2024-10-01
+```
+
+Connect via WebSocket:
+`ws://localhost:4000/v1/realtime?model=gpt-4o-realtime`
+
+## Memory API
+
+Introduced in April 2026, the Memory API allows LiteLLM to maintain long-term state across sessions for specific users or agents.
+
+```python
+# python snippet
+response = litellm.completion(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "My favorite color is blue."}],
+    user="jules-001",
+    integrate_memory=True  # Automatically persists and retrieves context
+)
+```
+
+## MCP Gateway
+
+Hardened in May 2026, the MCP Gateway allows you to securely expose Model Context Protocol (MCP) servers to your agents via the LiteLLM proxy.
+
+```yaml
+# litellm-config.yaml
+mcp_servers:
+  - name: "google-drive"
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-google-drive"]
+    env:
+      GOOGLE_DRIVE_CREDENTIALS: "..."
+```
 
 ## Integrating with OpenHands
 
@@ -454,9 +503,9 @@ services:
 - [Supported Providers](https://docs.litellm.ai/docs/providers)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed 2026-05-26)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-26
 - Confidence: high
