@@ -13,12 +13,13 @@ It provides a private, high-speed way to backup and organize media from mobile d
 - **Mobile Photo Backup**: Automatically backing up photos from iOS/Android devices.
 - **Semantic Search**: Searching for photos using natural language (e.g., "dog in the park") powered by local CLIP models.
 - **Face Recognition**: Automatically grouping photos by the people appearing in them.
+- **2026 Features**: 'Free Up Space' mobile cleanup, web-based database management, and HLS video streaming (Roadmap May 2026).
 
 ## Strengths
 - **Performance**: Extremely fast even with tens of thousands of images.
 - **Feature Parity**: Offers many features found in Google Photos (sharing, albums, map view).
 - **Local AI**: All machine learning (face recognition, object detection, CLIP) runs locally.
-- **Active Development**: Rapidly evolving with frequent updates and new features.
+- **Security (v2.7.0)**: Hardened by default with a Content Security Policy (CSP).
 
 ## Limitations
 - **Setup Complexity**: Requires multiple containers (database, redis, machine learning node).
@@ -72,6 +73,7 @@ Set `IMMICH_MACHINE_LEARNING_URL` to point to a machine-learning container using
 To ensure a consistent backup, you must back up both the **PostgreSQL database** and the **Upload Library**.
 
 1.  **Database Dump**:
+    As of v2.5.0, database backups can also be managed and restored directly via the web interface. For CLI:
     ```bash
     # Run inside the database container
     docker exec -t immich_postgres pg_dumpall -c -U postgres > immich_backup.sql
@@ -100,6 +102,8 @@ To ensure a consistent backup, you must back up both the **PostgreSQL database**
 - [TrueNAS SCALE](../architecture/infrastructure.md) (Recommended storage backend)
 - [NVIDIA](../tools/providers/nvidia.md) (For ML acceleration)
 - [OpenVINO](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html) (Intel AI optimization)
+- [SearXNG](searXNG.md) — for a private meta-search engine
+- [Syncthing](syncthing.md) — for alternative file synchronization
 
 ## Backlog
 - [ ] Perform quarterly technical freshness audit.
@@ -111,5 +115,5 @@ To ensure a consistent backup, you must back up both the **PostgreSQL database**
 - [Photoprism Official Website](https://www.photoprism.app/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-07
+- Last reviewed: 2026-05-26
 - Confidence: high
