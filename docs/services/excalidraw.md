@@ -20,6 +20,7 @@ Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is
 - **Aesthetic**: Hand-drawn look makes diagrams feel approachable and "work-in-progress".
 - **Portable**: Diagrams are stored as JSON and can be easily embedded or shared.
 - **E2EE Collaboration**: Live sessions are end-to-end encrypted.
+- **v2.23+ AI Integration**: Support for AI-assisted diagram generation ("Diagram to Code") and multiple AI endpoints (Claude, Gemini, OpenAI).
 
 ## Limitations
 - **No Formal Notation**: Not suitable for strict UML, ERD, or complex technical specifications requiring precise alignment and standard icons.
@@ -101,17 +102,19 @@ const svg = await exportToSvg({
 ```
 
 ## Related tools / concepts
-- [Draw.io](drawio.md) — For professional-grade, formal technical diagrams.
+- [Draw.io](drawio.md) — For professional-grade, formal technical diagrams (v30.0.x integration).
 - [tldraw](https://www.tldraw.com/) — A similar lightweight sketching alternative.
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent integration via the Excalidraw plugin.
-- [Mermaid](../knowledge_base/patterns/diagramming.md) — Text-to-diagram alternative.
+- [Mermaid](../knowledge_base/patterns/diagramming.md) — Text-to-diagram alternative; native support added in 2026.
 - [Nextcloud](nextcloud.md) — Can be used to store and sync `.excalidraw` files.
 - [Excalidraw Libraries](https://libraries.excalidraw.com/) — Community-contributed shapes and icons.
 - [Excalidraw Scripting](https://plus.excalidraw.com/plus/scripts) — Extending functionality with custom scripts.
+- [ExcaliAI](https://github.com/excalidraw/excalidraw/tree/master/packages/excalidraw#ai) — Native AI features for image editing and diagram generation.
 
 ## Links
 - [Official Website](https://excalidraw.com/)
 - [GitHub Repository](https://github.com/excalidraw/excalidraw)
+- [Excalidraw+ Changelog](https://plus.excalidraw.com/changelog)
 
 ## Obsidian Integration
 Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) via the "Obsidian Excalidraw" community plugin, turning it into a powerful visual knowledge base.
@@ -128,13 +131,14 @@ Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) 
 -   **Scripting**: Automate diagram generation or metadata extraction using the built-in scripting engine.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://excalidraw.com/
 - https://github.com/excalidraw/excalidraw
+- https://plus.excalidraw.com/changelog
 - https://www.tldraw.com/

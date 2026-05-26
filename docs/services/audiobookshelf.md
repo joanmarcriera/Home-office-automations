@@ -17,10 +17,10 @@ In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits al
 - **Bedtime Stories**: Setting up a child-friendly interface for audio stories with controlled access.
 
 ## Strengths
-- **Native Mobile Apps**: Excellent Android and iOS (beta) apps with offline support.
+- **Native Mobile Apps**: Excellent Android and iOS apps with offline support. New 2026 clients like "Still" offer polished, minimalist interfaces.
 - **Robust Metadata**: Fetches data from Audible, Open Library, and Google Books.
-- **Multi-User Support**: Separate progress tracking for every family member.
-- **Live Transcriptions**: Experimental support for transcribing podcasts.
+- **Multi-User Support**: Separate progress tracking for every family member with automatic token refresh (v2.26.0+).
+- **Universal Search**: Improved search results include episodes for podcast libraries and better ebook indexing.
 
 ## Limitations
 - **Narrow Focus**: Not suitable for music or video collections.
@@ -38,19 +38,22 @@ In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits al
 
 ## Getting started
 
-### Docker
-To run Audiobookshelf using Docker:
+### Docker Compose
+The recommended way to run Audiobookshelf for persistent configuration and easy updates:
 
-```bash
-docker run -d \
-  --name audiobookshelf \
-  --publish 1337:80 \
-  -v /path/to/audiobooks:/audiobooks \
-  -v /path/to/podcasts:/podcasts \
-  -v /path/to/config:/config \
-  -v /path/to/metadata:/metadata \
-  --restart unless-stopped \
-  ghcr.io/advplyr/audiobookshelf:latest
+```yaml
+services:
+  audiobookshelf:
+    container_name: audiobookshelf
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    ports:
+      - 1337:80
+    volumes:
+      - /path/to/audiobooks:/audiobooks
+      - /path/to/podcasts:/podcasts
+      - /path/to/config:/config
+      - /path/to/metadata:/metadata
+    restart: unless-stopped
 ```
 
 Access the web interface at `http://localhost:1337`.
@@ -108,13 +111,13 @@ curl http://speaches:8000/v1/audio/transcriptions \
 The resulting JSON transcript can be indexed in a local [Vector DB](../knowledge_base/vector-db-comparison.md) for semantic search across your entire spoken-word history.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - [Audiobookshelf Official Site](https://www.audiobookshelf.org/)
 - [GitHub Repository](https://github.com/advplyr/audiobookshelf)
-- [Plex Official Site](https://www.plex.tv/)
+- [v2.26.0 Release Notes](https://github.com/advplyr/audiobookshelf/releases)

@@ -25,6 +25,7 @@ Web content is ephemeral; pages are often moved, deleted, or changed, leading to
 - **Collaborative**: Supports multiple users, collections, and team-based permissions.
 - **Self-Hosted**: Full control over where your data and snapshots are stored, ensuring privacy and security.
 - **Modern UI**: Features a clean, responsive interface with powerful search and tagging capabilities.
+- **v2.14+ Performance**: Next.js 15 and Expo 54 foundations with optimistic rendering for a faster interface.
 
 ## Limitations
 
@@ -46,7 +47,7 @@ Web content is ephemeral; pages are often moved, deleted, or changed, leading to
 ## Getting started
 
 ### Docker Compose
-The recommended way to deploy Linkwarden is using Docker Compose. It requires a Postgres database.
+The recommended way to deploy Linkwarden is using Docker Compose. It requires a Postgres database. As of v2.14, ensure the storage volume is correctly mapped for permanent archival preservation.
 
 ```yaml
 services:
@@ -60,6 +61,7 @@ services:
       - DATABASE_URL=postgresql://linkwarden:password@postgres:5432/linkwarden
       - NEXTAUTH_SECRET=change-this-to-a-random-string
       - NEXTAUTH_URL=http://localhost:3000
+      - STORAGE_FOLDER=/data/data
     volumes:
       - ./data:/data/data
     depends_on:
@@ -204,12 +206,13 @@ download_pdf(123, "my_preserved_page")
 
 - [Official Website](https://linkwarden.app/)
 - [GitHub Repository](https://github.com/linkwarden/linkwarden)
+- [v2.14 Release Notes](https://linkwarden.app/blog/releases/2.14)
 - [Wallabag Official Site](https://wallabag.org/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-26
 - Confidence: high
