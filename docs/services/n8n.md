@@ -20,6 +20,8 @@ It replaces repetitive manual operations across tools and teams. Unlike cloud-on
 - **Self-hostable**: private automation with infrastructure you control.
 - **Broad integrations**: large ecosystem of built-in and community nodes, including `n8n-nodes-claude-pro` (introduced 2026-03-06) for advanced Anthropic integrations.
 - **n8n-as-code**: Features a rewritten sync engine, cleaner CLI, and smarter AI agent integration for managing workflows as code (makeover 2026-03-04).
+- **Native Data Tables**: Built-in structured storage for internal state management, reducing dependency on external databases for simple persistence (introduced 2026-04-21).
+- **Model Context Protocol (MCP)**: First-class support for MCP as both a client and a server, enabling workflows to be exposed as tools to AI agents or to call external MCP services (v2.13.0+).
 - **Good ops model**: retries, execution logs, error workflows, queue mode.
 
 ## Limitations
@@ -61,6 +63,12 @@ To ensure high availability and auditability of automated processes, standardizi
 3.  **Graceful Retries**: For flaky external APIs, use the "Wait" node or node-level retry settings (Retry on Fail) with exponential backoff before triggering an error.
 4.  **Logging**: Ensure all errors are logged with enough context to allow for "Operator role" root cause analysis.
 
+### 4. External Secrets Management
+As of v2.13.0, n8n supports external secret providers to improve security posture and prevent credential sprawl.
+- **1Password Integration**: Pull credentials directly from 1Password vaults.
+- **AWS Secrets Manager / Azure Key Vault**: Supported for enterprise-grade deployments.
+- **Project Scoping**: Secrets can be scoped to specific projects to enforce the principle of least privilege.
+
 ## When to use it
 - You want long-running, auditable business automations.
 - You need privacy and self-hosting.
@@ -90,7 +98,7 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
 
   n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
+    image: docker.n8n.io/n8nio/n8n:latest # Now based on Node.js 24 baseline
     container_name: n8n
     depends_on:
       - postgres
@@ -165,6 +173,20 @@ docker compose exec n8n n8n import:workflow --separate --input=/files/workflows
 docker compose exec n8n n8n export:credentials --all --output=/files/credentials.json
 ```
 
+## Model Context Protocol (MCP) Integration
+
+n8n acts as a powerful bridge in the MCP ecosystem:
+
+### 1. n8n as an MCP Server (Workflows as Tools)
+Use the **MCP Server Trigger** node to expose any n8n workflow as a tool.
+- **Protocol Compliance**: Implements RFC 9727 and 8414 for Dynamic Client Registration (DCR).
+- **Tool Discovery**: AI agents can discover and call workflows with complex logic (e.g., "Analyze this PDF and update the CRM") as if they were simple function calls.
+
+### 2. n8n as an MCP Client (Calling External Tools)
+Use the **MCP Client Node** to connect to external MCP servers.
+- **Dynamic Execution**: Workflows can query tools from servers like filesystem-mcp, postgres-mcp, or custom private servers.
+- **Session Management**: Connections are handled natively with support for async tool execution and result streaming.
+
 ## How to use AI to run n8n operations (not only AI nodes inside workflows)
 
 Use AI in three roles around n8n:
@@ -221,6 +243,8 @@ Core workflows:
 ```text
 Classify this email into one of:
 supplier, customer, logistics, compliance, finance, spam.
+
+If using Claude 4.7+, enable **Adaptive Thinking** mode for complex triage requiring multi-step reasoning.
 
 Return strict JSON:
 {
@@ -328,5 +352,5 @@ Use these 20 real-world scenarios to validate "Inbound Email Triage" and "Entity
 - [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-26
 - Confidence: high
