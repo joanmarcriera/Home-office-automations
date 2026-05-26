@@ -182,6 +182,18 @@ if ids:
 - If some files do not play, install or expose `ffmpeg` and check whether the client requires transcoding for that format.
 - If playlists are missing, create the admin user first, then touch `.m3u` files or trigger a rescan.
 
+## Plugin Support
+Navidrome introduced a plugin system (Feb 2026) that allows extending its functionality with community-developed add-ons. Plugins are distributed as `.ndp` files and placed in the `/plugins` directory.
+
+- **AudioMuse-AI**: Integrates [Ollama](../tools/ai_knowledge/ollama.md) for sonic analysis and prompt-based playlist generation.
+- **ListenBrainz Daily Playlist Importer**: Automatically syncs daily discovery playlists from ListenBrainz.
+- **Discord Rich Presence**: Displays current playback status (artist, album, progress) on Discord.
+- **Artist NFO Metadata**: Imports sidecar XML files for enriched artist information, improving compatibility with Kodi-managed libraries.
+
+## External Integrations
+- **Soundiiz**: As of May 2026, Soundiiz natively supports Navidrome (via Subsonic API), allowing seamless library and playlist migration between Navidrome and commercial platforms like Spotify or Tidal.
+- **n8n**: Can be used to automate library management or trigger notifications based on Navidrome scrobbles via [n8n](n8n.md).
+
 ## Links
 - [Official Website](https://www.navidrome.org/)
 - [GitHub Repository](https://github.com/navidrome/navidrome)
@@ -190,16 +202,20 @@ if ids:
 
 ## Related tools / concepts
 - [Audiobookshelf](audiobookshelf.md) — For specialized audiobook and podcast management.
+- [Jellyfin](jellyfin.md) — Open-source media server.
+- [Plex](plex.md) — Proprietary media server.
+- [Tailscale](tailscale.md) — Secure remote access.
+- [Nextcloud](nextcloud.md) — File storage and synchronization.
+- [Homebox](homebox.md) — Inventory management for physical media collections.
+- [n8n](n8n.md) — Workflow automation.
 - [Airsonic](https://airsonic.github.io/)
-- [Jellyfin](jellyfin.md)
-- [Plex](plex.md)
 - [Beets](https://beets.io/)
 - [Lidarr](https://lidarr.audio/)
 - [MusicBrainz](https://musicbrainz.org/)
 - [Subsonic API](http://www.subsonic.org/pages/api.jsp)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 - https://www.navidrome.org/
@@ -210,4 +226,4 @@ if ids:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-26

@@ -175,18 +175,17 @@ for m in healthy_matches:
 - [LinuxServer Jackett image](https://docs.linuxserver.io/images/docker-jackett/)
 
 ## Related tools / concepts
-- [Prowlarr](prowlarr.md)
-- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
-- [qbittorrent](qbittorrent.md)
-- [radarr](https://radarr.video/)
-- [sonarr](https://sonarr.tv/)
-- [lidarr](https://lidarr.audio/)
-- [readarr](https://readarr.com/)
-- [jellyfin](jellyfin.md)
-- [Homebox](homebox.md)
+- [Prowlarr](prowlarr.md) — Recommended modern alternative for indexer management.
+- [qbittorrent](qbittorrent.md) — BitTorrent client for media downloads.
+- [qbittorrent-automation](qbittorrent-automation.md) — Workflows for download management.
+- [Jellyfin](jellyfin.md) — Open-source media server.
+- [Homebox](homebox.md) — Inventory management for physical media.
+- [Tailscale](tailscale.md) — Secure remote access to the Jackett UI.
+- [n8n](n8n.md) — Automation for media intake and indexing.
+- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Solves Cloudflare challenges for indexers.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 - [x] Migrate to Prowlarr for better integration with the "Arr" stack.
 
 ## Sources / References
@@ -197,4 +196,4 @@ for m in healthy_matches:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-26

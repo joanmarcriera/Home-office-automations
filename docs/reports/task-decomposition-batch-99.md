@@ -7,13 +7,13 @@ This report implements **Action C** for the remaining technical freshness audits
 - **Goal**: Maintain 100% freshness and 'High Confidence' standards across the entire service ecosystem.
 
 ## Sub-Batch 99.1: Media & Entertainment
-- [ ] `docs/services/navidrome.md`: Quarterly freshness audit.
-- [ ] `docs/services/jellyfin.md`: Quarterly freshness audit.
-- [ ] [x] `docs/services/immich.md`: (Note: Already audited in Batch 96, mark as complete if found in general grep).
-- [ ] `docs/services/tubearchivist.md`: Quarterly freshness audit.
-- [ ] `docs/services/plex.md`: Quarterly freshness audit.
-- [ ] `docs/services/plex-automation.md`: Quarterly freshness audit.
-- [ ] `docs/services/jackett.md`: Quarterly freshness audit.
+- [x] `docs/services/navidrome.md`: Quarterly freshness audit (Completed 2026-05-26).
+- [x] `docs/services/jellyfin.md`: Quarterly freshness audit (Completed 2026-05-26).
+- [x] [x] `docs/services/immich.md`: (Note: Already audited in Batch 96, mark as complete if found in general grep).
+- [x] `docs/services/tubearchivist.md`: Quarterly freshness audit (Completed 2026-05-26).
+- [x] `docs/services/plex.md`: Quarterly freshness audit (Completed 2026-05-26).
+- [x] `docs/services/plex-automation.md`: Quarterly freshness audit (Completed 2026-05-26).
+- [x] `docs/services/jackett.md`: Quarterly freshness audit (Completed 2026-05-26).
 
 ## Sub-Batch 99.2: Productivity & Information Management
 - [ ] `docs/services/vikunja.md`: Quarterly freshness audit.

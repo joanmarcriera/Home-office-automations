@@ -27,6 +27,7 @@ Tube Archivist can automatically monitor and download new videos from your favor
 - **Powerful Search**: Features an integrated Elasticsearch-based search engine for finding content within your archive.
 - **Automation**: Can be configured to automatically monitor and download new videos from specific channels or playlists.
 - **Self-Hosted**: Full control over your data and hardware.
+- **Metadata Persistence**: Supports embedding all indexed metadata directly into media files, enabling index reconstruction from the files themselves.
 
 ## Limitations
 - **Storage Intensive**: High-quality video archives can consume terabytes of storage quickly.
@@ -93,6 +94,12 @@ services:
 3. Log in with the credentials defined in your environment variables.
 4. Go to **Downloads**, paste a YouTube URL, and click **Index and Download**.
 
+## Latest Project Status (May 2026)
+- **Deno Integration**: Tube Archivist now includes the **Deno** runtime in its container to leverage the latest `yt-dlp` improvements and workarounds for YouTube's bot detection mechanisms.
+- **Enhanced Metadata Embedding**: Supports bulk embedding of indexed metadata into media files as an additional backup. In the event of an index loss, the library can be reconstructed from these embedded tags.
+- **Redownload & Multi-select**: Introduced UI improvements for bulk actions and a "Redownload" feature to easily update or fix existing media files.
+- **PO Token Support**: Integrates with PO token providers (like `bgutil-ytdlp-pot-provider`) to mitigate 403 errors and other bot detection issues.
+
 ## CLI examples
 
 Tube Archivist is primarily managed via the web UI, but you can interact with the container for maintenance.
@@ -106,6 +113,9 @@ docker exec tubearchivist pip install -U yt-dlp
 
 # Check the status of the background task worker
 docker exec tubearchivist python manage.py check_worker
+
+# Trigger a scan of channel tabs (shorts, streams, videos)
+docker exec tubearchivist python manage.py ta_index_channel_tabs
 ```
 
 ### Advanced: `yt-dlp` Quality Control
@@ -170,21 +180,21 @@ curl -X POST -H "Authorization: Token <your_api_token>" \
 ```
 
 ## Related tools / concepts
-- [Plex](plex.md) — for streaming your archived content to TV/Mobile.
-- [Jellyfin](jellyfin.md) — an open-source alternative to Plex.
-- [Audiobookshelf](audiobookshelf.md) — for managing YouTube podcasts or audio-only archives.
-- [Changedetection.io](changedetection.md) — to monitor YouTube channels for changes.
-- [SearXNG](searXNG.md) — to search for YouTube content privately before archiving.
-- [n8n](n8n.md) — for advanced automation of video ingestion.
+- [Plex](plex.md) — For streaming your archived content to TV/Mobile.
+- [Jellyfin](jellyfin.md) — Open-source media server.
+- [Audiobookshelf](audiobookshelf.md) — For managing YouTube podcasts or audio-only archives.
+- [Changedetection.io](changedetection.md) — To monitor YouTube channels for changes.
+- [SearXNG](searXNG.md) — To search for YouTube content privately before archiving.
+- [n8n](n8n.md) — For advanced automation of video ingestion.
 - [Home Assistant](home-assistant.md) — For automating notifications about new downloads.
 - [Tailscale](tailscale.md) — For securely accessing your archive from anywhere.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-20
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://www.tubearchivist.com/
