@@ -94,6 +94,9 @@ curl -X GET "http://elasticsearch:9200/_cat/indices?v"
 
 # Remove an index from Elasticsearch
 curl -X DELETE "http://elasticsearch:9200/diskover-old-index"
+
+# Compare two indices to find differences (Visual Diff helper)
+docker exec -it diskover python3 /app/diskover/diskover.py --diff index_a index_b
 ```
 
 ## API examples
@@ -119,11 +122,13 @@ for index in indices:
 ```
 
 ## Related tools / concepts
-- [Storj](storj.md)
-- [Syncthing](syncthing.md)
-- [Rclone](https://rclone.org/)
-- [Elasticsearch](https://www.elastic.co/elasticsearch/)
-- [Paperless-ngx](paperless-ngx.md)
+- [Storj](storj.md) — Targeted off-site storage for large, cold datasets identified by Diskover.
+- [Rclone Automation](rclone-automation.md) — Automate the movement of dark data to cloud targets.
+- [n8n](n8n.md) — Orchestrate cleanup workflows based on Elasticsearch query results.
+- [Syncthing](syncthing.md) — Track synchronization state and identify orphaned replicas.
+- [Elasticsearch](https://www.elastic.co/elasticsearch/) — The underlying search engine for Diskover metadata.
+- [Paperless-ngx](paperless-ngx.md) — Complementary metadata management for OCR'd documents.
+- [Authentik](authentik.md) — Secure access to the Diskover web interface.
 
 ## TrueNAS SCALE & NFS Integration
 To index data residing on a [TrueNAS SCALE](../../architecture/infrastructure.md) server, you must mount the datasets to the Diskover host via NFS. This allows the crawler to access the file metadata directly.
@@ -156,11 +161,11 @@ docker exec -it diskover python3 /app/diskover/diskover.py -i truenas-index /dat
 ```
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - [Diskover GitHub Repository](https://github.com/diskoverdata/diskover-community)

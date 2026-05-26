@@ -103,20 +103,31 @@ print(f"Status Code: {response.status_code}")
 curl -u user:pass "http://localhost:5232/user/calendar/" -o my_calendar.ics
 ```
 
+### curl (Create Task Collection)
+```bash
+# Create a new collection for automated tasks via CalDAV
+curl -u user:pass -X MKCOL \
+     -H "Content-Type: text/xml" \
+     -d '<?xml version="1.0" encoding="utf-8" ?><D:mkcol xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav"><D:set><D:prop><D:displayname>Automated Tasks</D:displayname><C:resourcetype><D:collection/><C:calendar/></C:resourcetype></D:prop></D:set></D:mkcol>' \
+     "http://localhost:5232/user/automated-tasks/"
+```
+
 ## Related tools / concepts
 - [Radicale](radicale.md) (The core service)
 - [n8n](n8n.md) (Primary automation engine)
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md) (To expose CalDAV to AI)
 - [Rclone Automation](rclone-automation.md) (For cloud backups)
 - [Home Assistant](home-assistant.md) (For calendar-based triggers)
+- [Nextcloud](nextcloud.md) — For federated calendar and contact synchronization.
+- [Authentik](authentik.md) — For centralized authentication and identity management.
 
 ## Sources / References
 - https://radicale.org/v3.html
 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-05-26

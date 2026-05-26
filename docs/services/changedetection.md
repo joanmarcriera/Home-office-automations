@@ -73,18 +73,41 @@ docker restart changedetection
 ## API examples
 Changedetection.io features a REST API. Authenticate with your API key from the Settings tab:
 
+### curl (List Watches)
 ```bash
 # List all watches
 curl http://localhost:5000/api/v1/watch \
      -H "x-api-key: <your_api_key>"
 ```
 
+### Python (Get Watch Status)
+```python
+import requests
+
+API_URL = "http://localhost:5000/api/v1/watch"
+API_KEY = "your_api_key_here"
+
+headers = {"x-api-key": API_KEY}
+response = requests.get(API_URL, headers=headers)
+
+if response.status_code == 200:
+    watches = response.json()
+    for watch_uuid, watch_data in watches.items():
+        print(f"Watch: {watch_data.get('title')} | Last Checked: {watch_data.get('last_checked')}")
+else:
+    print(f"Error: {response.status_code}")
+```
+
 ## Related tools / concepts
-- [n8n](n8n.md)
-- [Apprise](https://github.com/caronc/apprise)
-- [Playwright](https://playwright.dev/)
-- [Selenium](https://www.selenium.dev/)
-- [Huginn](https://github.com/huginn/huginn)
+- [n8n](n8n.md) — Automate workflows based on content changes.
+- [Linkwarden](linkwarden.md) — Archive and manage links found during monitoring.
+- [Authentik](authentik.md) — Secure the Changedetection instance with SSO.
+- [Paperless-ngx](paperless-ngx.md) — Ingest tracked documents for OCR and archival.
+- [Immich](immich.md) — Monitor and archive visual changes to galleries.
+- [Nextcloud](nextcloud.md) — Store snapshots and change logs.
+- [Home Assistant](home-assistant.md) — Trigger home alerts based on web changes.
+- [Apprise](https://github.com/caronc/apprise) — Notification engine for 70+ services.
+- [Playwright](https://playwright.dev/) — Headless browser for JS-heavy sites.
 
 ## Filters & Noise Reduction
 Effective website monitoring requires filtering out dynamic content that changes on every load (e.g., timestamps, session IDs, ads) to avoid false positive alerts.
@@ -104,11 +127,11 @@ In the "Filters" tab, use the "Ignore text" field to strip out patterns using re
 When using the Playwright/Selenium fetcher, you can use the "Visual Filter" selector in the UI to click and hide elements directly from a rendered preview of the site.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - [Changedetection.io Official Site](https://changedetection.io/)
