@@ -3,7 +3,7 @@
 Draw.io (now diagrams.net) is a free, open-source, and cross-platform graph drawing software developed in HTML5 and JavaScript.
 
 ## What it is
-Draw.io is a professional-grade diagramming tool that provides a wide range of features for creating flowcharts, process diagrams, organizational charts, UML, ER, and network diagrams.
+Draw.io (v30.0.x as of May 2026) is a professional-grade diagramming tool that provides a wide range of features for creating flowcharts, process diagrams, organizational charts, UML, ER, and network diagrams.
 
 ## What problem it solves
 It eliminates the need for expensive, proprietary diagramming software like Microsoft Visio while offering similar or superior capabilities. It provides a platform-agnostic way to create, store, and share visual documentation without vendor lock-in.
@@ -14,6 +14,7 @@ Draw.io sits in the **Documentation and Design** layer of the home-office stack.
 ## Typical use cases
 - **Network Architecture**: Designing and documenting home lab or enterprise network layouts.
 - **Software Design**: Creating UML diagrams, ER diagrams for databases, and software flowcharts.
+- **Text-to-Diagram**: Generating visuals from [Mermaid](../knowledge_base/patterns/diagramming.md) or PlantUML syntax.
 - **Project Planning**: Building Gantt charts and process maps for project management.
 - **Cloud Infrastructure**: Visualizing AWS, Azure, or GCP deployments using built-in icon sets.
 
@@ -59,6 +60,14 @@ For offline use, the desktop app is recommended:
 - **Windows/macOS/Linux**: Download from the [official releases page](https://github.com/jgraph/drawio-desktop/releases).
 
 ## CLI examples
+
+### Mermaid Integration (GUI)
+Draw.io supports importing Mermaid syntax directly. To use this:
+1. Click **Arrange > Insert > Mermaid**.
+2. Paste your Mermaid code (e.g., `graph TD; A-->B;`).
+3. Click **Insert**.
+
+### Desktop CLI
 The Draw.io Desktop app includes a CLI for batch processing and conversion:
 
 ```bash
@@ -133,6 +142,8 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Paperless-ngx](paperless-ngx.md) — For archiving exported diagram PDFs.
 - [Authentik](authentik.md) — For securing the self-hosted Draw.io interface.
 - [Tailscale](tailscale.md) — For secure remote access to your self-hosted instance.
+- [Immich](immich.md) — for managing media assets used in diagrams
+- [Trilium](trilium.md) — for embedding diagrams into a personal knowledge base
 
 ## Links
 - [Official Website](https://www.draw.io/)
@@ -145,7 +156,7 @@ iframe.contentWindow.postMessage(JSON.stringify({
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://www.draw.io/

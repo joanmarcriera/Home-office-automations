@@ -3,7 +3,7 @@
 Trilium Notes is a hierarchical note taking application with focus on building large personal knowledge bases.
 
 ## What it is
-Trilium Notes is a hierarchical note-taking application focused on building large personal knowledge bases. It features deep nesting, powerful scripting (JavaScript), and advanced visualization of note relationships.
+Trilium Notes (now maintained by the community as **TriliumNext**) is a hierarchical note-taking application focused on building large personal knowledge bases. It features deep nesting, powerful scripting (JavaScript), and advanced visualization of note relationships.
 
 ## What problem it solves
 Managing thousands of notes with complex inter-relationships is difficult in standard "flat" or "shallow" note apps. Trilium solves this by treating notes as a forest of trees, allowing a single note to exist in multiple places, and providing an automation engine to manage metadata and note lifecycle.
@@ -20,6 +20,7 @@ Managing thousands of notes with complex inter-relationships is difficult in sta
 - Extremely flexible hierarchical structure.
 - Built-in scripting (JavaScript) and automation.
 - Self-hostable with strong sync capabilities.
+- **2026 Features (v0.103.0)**: Native spreadsheet note types (Univer Sheets), Markdown notes with sync scrolling, and built-in OCR/text extraction for images, PDFs, and Office files.
 
 ## Limitations
 - Steeper learning curve compared to simple note apps.
@@ -62,6 +63,16 @@ curl -H "Authorization: <your_token>" "http://localhost:8080/api/notes/<note_id>
 
 ## API examples
 
+### Using the Scripting API (JavaScript)
+As of May 2026 (v0.103.0), the internal `api.axios` has been removed. Scripts should use the standard `fetch()` API for network requests.
+
+```javascript
+// Example: Fetching external data in a Trilium script
+const response = await fetch('https://api.example.com/data');
+const data = await response.json();
+api.print(data.title);
+```
+
 ### Create a note (Python)
 ```python
 import requests
@@ -91,14 +102,16 @@ print(response.json())
 - [AnyType](../tools/ai_knowledge/anytype.md) — for a decentralized alternative
 - [SilverBullet](../tools/ai_knowledge/silverbullet.md) — for a hackable, markdown-based knowledge base
 - [n8n](n8n.md) — for automating note creation from external events
+- [Paperless-ngx](paperless-ngx.md) — for long-term document archival
+- [Gitea](gitea.md) — for version-controlling external scripts
 
 ## Sources / References
-- [Official Website](https://github.com/zadam/trilium)
-- [Trilium Wiki](https://github.com/zadam/trilium/wiki)
+- [Official Repository (TriliumNext)](https://github.com/TriliumNext/Trilium)
+- [Trilium Wiki](https://github.com/TriliumNext/Trilium/wiki)
 
 ## Backlog
 - [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-26
 - Confidence: high
