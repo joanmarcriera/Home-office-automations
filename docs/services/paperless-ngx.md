@@ -115,25 +115,58 @@ response = requests.get(url, headers=headers)
 print(response.json()['content']) # Prints the OCR'd text content
 ```
 
+### n8n (Document Ingestion Workflow)
+This JSON snippet can be imported into n8n to automate document uploads:
+```json
+{
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://paperless:8000/api/documents/post_document/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "title",
+              "value": "={{$node[\"Read File\"].binary.data.fileName}}"
+            }
+          ]
+        }
+      },
+      "name": "Upload to Paperless",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    }
+  ]
+}
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (GPL-3.0)
 - **Cost**: Free
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [n8n](../services/n8n.md) (For automation workflows)
-- [Vikunja](../services/vikunja.md) (For task management linked to docs)
-- [Tika](../services/tika.md) (Underlying content extraction)
-- [Nextcloud](../services/nextcloud.md) (Alternative storage)
-- [Docspell](https://docspell.org/) (Alternative DMS)
+- [n8n](../services/n8n.md) — Automate document processing and metadata updates.
+- [Vikunja](../services/vikunja.md) — Link tasks to relevant documents for workflow management.
+- [Immich](immich.md) — Manage visual assets alongside document archives.
+- [Tika](tika.md) — Extract text from complex binary formats before ingestion.
+- [Authentik](authentik.md) — Secure DMS access with SSO and MFA.
+- [Nextcloud](../services/nextcloud.md) — Synchronize document folders with mobile devices.
+- [Linkwarden](linkwarden.md) — Archive web pages as PDFs for indexing in Paperless.
 
 ## Sources / References
 - [Official Website](https://docs.paperless-ngx.com/)
 - [GitHub Repository](https://github.com/paperless-ngx/paperless-ngx)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-05
 - Confidence: high
+- Last reviewed: 2026-05-26

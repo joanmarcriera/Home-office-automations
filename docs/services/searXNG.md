@@ -188,6 +188,23 @@ engines:
     tokens: ['$EXTERNAL_TOKEN'] # Some engines require auth tokens
 ```
 
+### Local Knowledge Base Integration
+You can configure SearXNG to search your local documentation (e.g., this repository or a local Wiki) by adding a custom engine that scrapes your local site or uses a JSON endpoint.
+
+```yaml
+# /etc/searxng/settings.yml
+engines:
+  - name: local-knowledge-base
+    engine: json_engine
+    search_url: http://your-docs-site:8000/search?q={query}
+    results_query: results
+    title_query: title
+    url_query: url
+    content_query: snippet
+    categories: general
+    weight: 5.0  # Force local knowledge to the top
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (AGPL-3.0)
 - **Cost**: Free
@@ -208,8 +225,8 @@ engines:
 - [Documentation](https://docs.searxng.org/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-05
 - Confidence: high
+- Last reviewed: 2026-05-26
