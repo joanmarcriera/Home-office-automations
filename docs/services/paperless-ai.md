@@ -13,10 +13,12 @@ It eliminates the tedious manual work of organizing scanned documents. By analyz
 - **Automated Tagging**: Assigning tags like "Invoice", "Medical", or "Contract" based on document content.
 - **Correspondent Detection**: Identifying the sender or organization associated with a document.
 - **Metadata Extraction**: Pulling specific fields like dates, amounts, or account numbers from documents.
+- **Document Q&A**: Using the "Chat" function to query the content of your archive using local or cloud LLMs.
 
 ## Strengths
 - **Native Paperless-ngx Integration**: Designed specifically to work with the Paperless-ngx API.
-- **Local LLM Support**: Can use Ollama for completely private document processing.
+- **Local LLM Support**: Can use Ollama or LM Studio for completely private document processing.
+- **Chat Functionality**: Interact with your documents via a chat interface (added 2026).
 - **Improved Accuracy**: Uses the semantic power of LLMs instead of fragile regex or keyword matching.
 
 ## Limitations
@@ -67,6 +69,15 @@ services:
     restart: unless-stopped
 ```
 
+## AI Provider Configuration (May 2026)
+Paperless-AI supports multiple AI backends. For maximum privacy, a local setup is recommended.
+
+| Provider | Note |
+| :--- | :--- |
+| **Ollama** | Best for home use. Supports Llama 3, Mistral, and specialized extraction models. |
+| **LM Studio** | Local desktop alternative. Useful for testing different quantization levels. |
+| **OpenAI** | Highest accuracy for complex multi-page extraction (requires API key). |
+
 ## Prompt Engineering & Templates
 Paperless-AI uses system prompts to guide the LLM in document analysis. High-quality templates are essential for accurate extraction of complex documents like invoices.
 
@@ -104,12 +115,13 @@ environment:
 - [Extraction and Classification](../reference-implementations/llm-prompts/extraction-and-classification.md) — General patterns for LLM extraction.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 - [GitHub Repository](https://github.com/clusterfudge/paperless-ai)
 - [Prompt Engineering Guide](https://www.promptingguide.ai/)
+- [Tailscale: AI-enhanced documents with Paperless-ngx](https://tailscale.com/blog/paperless-ngx-local-ai-document-search)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high

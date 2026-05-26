@@ -19,6 +19,7 @@ It provides a polished, ChatGPT-like interface for local LLMs (via Ollama) and e
 - **Local RAG Support**: Built-in support for document ingestion and retrieval.
 - **Role-Based Access Control**: Multi-user support with admin controls.
 - **Wide Compatibility**: Works with Ollama, OpenAI-compatible APIs, and more.
+- **Channels & Streaming**: (v0.9.0+) Support for real-time model streaming in Channels with full tool and RAG support.
 
 ## Limitations
 - **Resource Heavy**: Requires its own resources alongside the inference engine.
@@ -53,7 +54,7 @@ services:
     restart: unless-stopped
 
   open-webui:
-    image: ghcr.io/open-webui/open-webui:main
+    image: ghcr.io/open-webui/open-webui:main # v0.9.0+ (May 2026)
     container_name: open-webui
     volumes:
       - ./open-webui:/app/backend/data
@@ -63,8 +64,17 @@ services:
       - 3000:8080
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
+      # Security (v0.8.11+ / v0.9.0+)
+      - 'AIOHTTP_CLIENT_ALLOW_REDIRECTS=false' # SSRF protection
+      - 'IFRAME_CSP=default-src '\''self'\''; script-src '\''none'\'';' # Artifacts/Previews sandbox
     restart: unless-stopped
 ```
+
+## Security Posture (May 2026 Updates)
+Open WebUI has introduced critical security hardening in recent versions (v0.8.11 and v0.9.0).
+- **SSRF Protection**: Redirects are blocked by default for all outbound HTTP requests (web fetch, image loading, tool execution) to prevent server-side request forgery.
+- **Iframe Sandboxing**: Administrators can now enforce a `Content-Security-Policy` for tool embeds and artifacts via the `IFRAME_CSP` environment variable.
+- **CVE Fixes**: v0.8.11 addressed an information disclosure flaw (CVE-2026-45666) in the notes API; v0.9.0 addressed an authorization bypass (CVE-2026-45671) in file management.
 
 ## RAG & Knowledge Bases
 Open WebUI provides a native "Knowledge" workspace to manage documents for Retrieval-Augmented Generation (RAG).
@@ -95,13 +105,14 @@ environment:
 - [RAG (Retrieval Augmented Generation)](../knowledge_base/patterns/rag-pattern.md) — The underlying architecture for chatting with documents.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 - [Open WebUI Documentation](https://docs.openwebui.com/)
-- [Knowledge Workspace Guide](https://docs.openwebui.com/features/workspace/knowledge/)
-- [GitHub Repository](https://github.com/open-webui/open-webui)
+- [Open WebUI Changelog](https://github.com/open-webui/open-webui/blob/main/CHANGELOG.md)
+- [CVE-2026-45666 Vulnerability Details](https://www.sentinelone.com/vulnerability-database/cve-2026-45666/)
+- [CVE-2026-45671 Vulnerability Details](https://www.sentinelone.com/vulnerability-database/cve-2026-45671/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high

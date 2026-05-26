@@ -18,6 +18,7 @@ It centralizes the management of indexers and trackers. Instead of configuring t
 - **Seamless Synchronization**: Automatically pushes indexer configurations to Sonarr, Radarr, Lidarr, and Readarr.
 - **Broad Support**: Supports hundreds of Torrent trackers and Usenet indexers.
 - **Unified UI**: Consistent interface with other Arr apps.
+- **Authentication**: Modern versions (2026) include built-in "Basic" authentication to secure the UI against unauthorized remote access.
 - **Proxy Support**: Can proxy all indexer requests through a VPN or specific network interface.
 
 ## Limitations
@@ -87,13 +88,14 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 - [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Proxy server to bypass Cloudflare protection on some trackers.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 - [Official Website](https://prowlarr.com/)
 - [GitHub Repository](https://github.com/Prowlarr/Prowlarr)
 - [Wiki Documentation](https://wiki.servarr.com/prowlarr)
+- [Prowlarr Setup & Authentication Guide (2026)](https://www.rapidseedbox.com/blog/prowlarr-guide)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high
