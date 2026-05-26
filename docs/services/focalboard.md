@@ -1,7 +1,7 @@
 # Focalboard
 
 > [!WARNING]
-> This repository is currently not maintained. If you're interested in becoming a maintainer, please let the Mattermost community know. This documentation refers to the standalone Personal Server edition.
+> The standalone Focalboard project (Personal Server/Desktop) is currently in **community maintenance mode**. Mattermost focus has shifted to the integrated "Boards" plugin for the Mattermost platform. Users seeking an actively developed standalone project management tool should consider [Vikunja](vikunja.md).
 
 ## What it is
 Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana. It is an open-source, multilingual, self-hosted project management tool.
@@ -117,12 +117,12 @@ To sync Focalboard with Nextcloud Tasks (using CalDAV or community bridges):
 - [GitHub Repository](https://github.com/mattermost/focalboard)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 - [x] Sync with Nextcloud Tasks.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - [GitHub README](https://github.com/mattermost/focalboard#readme)

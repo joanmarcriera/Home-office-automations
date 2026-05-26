@@ -1,7 +1,7 @@
 # Consolidated Services Inventory
 
 ## What it is
-The Consolidated Services Inventory is a centralized registry and status dashboard for all services running in the TrueNAS SCALE home lab environment. It provides a high-level overview of the service purpose, container images, data persistence paths, and network exposure.
+The Consolidated Services Inventory is a centralized registry and status dashboard for all services running in the TrueNAS SCALE home lab environment. It provides a high-level overview of the service purpose, container images, data persistence paths, and network exposure. For detailed physical item tracking, see [Homebox](homebox.md).
 
 ## What problem it solves
 In a complex home lab with dozens of interconnected services (Nextcloud, Home Assistant, Ollama, etc.), it becomes difficult to track where data is stored, which images are in use, and how each service is exposed. This inventory serves as the single source of truth for administrative oversight and disaster recovery planning.
@@ -152,6 +152,10 @@ print(f"Data Path for Nextcloud: {get_service_path('Nextcloud')}")
 - [Vikunja](vikunja.md) — Task management.
 - [n8n](n8n.md) — Workflow automation orchestrator.
 - [Authentik](authentik.md) — Identity and access management.
+- [Homebox](homebox.md) — Specialized physical asset inventory system.
+- [Grocy](grocy.md) — ERP for groceries and household tasks.
+- [Immich](immich.md) — High-performance self-hosted photo and video management.
+- [Actual Budget](actual-budget.md) — Privacy-focused local-first personal finance.
 
 ## Sources / references
 - [TrueNAS SCALE Documentation](https://www.truenas.com/docs/scale/)
@@ -164,8 +168,8 @@ print(f"Data Path for Nextcloud: {get_service_path('Nextcloud')}")
 - **Monitoring**: Integration of a centralized monitoring stack (Prometheus/Grafana) is identified as a short-term roadmap item.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-05-26

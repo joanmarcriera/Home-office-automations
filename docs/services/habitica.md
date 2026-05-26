@@ -19,7 +19,8 @@ Traditional to-do lists often lack the motivation required for long-term habit f
 ## Strengths
 - Highly engaging gamification mechanics.
 - Strong community and social features.
-- Robust API for third-party integrations.
+- Robust API (v3/v4 stable) for third-party integrations.
+- Extensive cross-platform support (Web, iOS, Android).
 
 ## Limitations
 - Visual style might be too "noisy" for some users.
@@ -118,11 +119,13 @@ return {"json": result}
 
 ## Related tools / concepts
 - [SuperBetter](https://www.superbetter.com/)
-- [Vikunja](vikunja.md)
-- [Mealie](mealie.md)
-- [Grocy](grocy.md)
-- [Home Assistant](home-assistant.md)
-- [Actual Budget](actual-budget.md)
+- [Vikunja](vikunja.md) — For managing the tasks that aren't gamified.
+- [Mealie](mealie.md) — For nutritional habit tracking.
+- [Grocy](grocy.md) — For household chore integration.
+- [Home Assistant](home-assistant.md) — For real-life trigger-based scoring.
+- [Actual Budget](actual-budget.md) — For financial habit gamification.
+- [Authentik](authentik.md) — For managing external access to Habitica data tools.
+- [n8n](n8n.md) — For orchestrating complex automated scoring workflows.
 
 ## Sources / References
 - [Official Website](https://habitica.com/)
@@ -130,8 +133,8 @@ return {"json": result}
 - [SuperBetter](https://www.superbetter.com/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-26
 - Confidence: high

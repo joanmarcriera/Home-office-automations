@@ -16,14 +16,14 @@ This report implements **Action C** for the remaining technical freshness audits
 - [ ] `docs/services/jackett.md`: Quarterly freshness audit.
 
 ## Sub-Batch 99.2: Productivity & Information Management
-- [ ] `docs/services/vikunja.md`: Quarterly freshness audit.
-- [ ] `docs/services/focalboard.md`: Quarterly freshness audit.
-- [ ] `docs/services/actual-budget.md`: Quarterly freshness audit.
-- [ ] `docs/services/inventory.md`: Quarterly freshness audit.
-- [ ] `docs/services/grocy.md`: Quarterly freshness audit.
-- [ ] `docs/services/habitica.md`: Quarterly freshness audit.
-- [ ] [x] `docs/services/trilium.md`: (Note: Already audited in Batch 96).
-- [ ] `docs/services/it-tools.md`: Quarterly freshness audit.
+- [x] `docs/services/vikunja.md`: Quarterly freshness audit (May 2026).
+- [x] `docs/services/focalboard.md`: Quarterly freshness audit (May 2026).
+- [x] `docs/services/actual-budget.md`: Quarterly freshness audit (May 2026).
+- [x] `docs/services/inventory.md`: Quarterly freshness audit (May 2026).
+- [x] `docs/services/grocy.md`: Quarterly freshness audit (May 2026).
+- [x] `docs/services/habitica.md`: Quarterly freshness audit (May 2026).
+- [x] `docs/services/trilium.md`: (Note: Already audited in Batch 96).
+- [x] `docs/services/it-tools.md`: Quarterly freshness audit (May 2026).
 - [ ] `docs/services/drawio.md`: (Note: Already audited in Batch 96).
 
 ## Sub-Batch 99.3: Automation & AI Infrastructure

@@ -1,7 +1,7 @@
 # IT-Tools
 
 ## What it is
-A comprehensive suite of web-based developer utilities including formatters, generators, and converters. It is designed to run entirely in the client's browser.
+A comprehensive suite of web-based developer utilities including formatters, generators, and converters. It is designed to run entirely in the client's browser. As of **May 2026**, it includes over 100 specialized tools including CRON parsers, JWT debuggers, and various cryptographic utilities.
 
 ## What problem it solves
 It centralizes dozens of common developer tasks (like JWT decoding, UUID generation, and JSON formatting) into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites.
@@ -82,13 +82,13 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 - [Home Assistant](home-assistant.md) — For dashboard integration.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 - [x] Host locally on TrueNAS for offline developer support.
 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://it-tools.tech/

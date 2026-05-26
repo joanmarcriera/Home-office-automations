@@ -2,7 +2,7 @@
 
 ## What it is
 
-Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks.
+Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks. Since the **v4.6.0 (March 2026)** release, it requires PHP 8.5+ and features optimized quantity unit (QU) handling for faster product setup.
 
 ## What problem it solves
 
@@ -25,6 +25,7 @@ Managing a household's inventory manually often leads to food waste (expired ite
 - **Local Control**: All data stays on your own server, ensuring privacy.
 - **Automation Ready**: Offers a robust REST API for integration with barcode scanners or smart home systems.
 - **Lightweight**: Easy to run on low-power devices like a Raspberry Pi.
+- **Quantity Unit Flexibility**: Advanced mapping (v4.6.0+) allows for automatic "1:1" unit conversions during product creation.
 
 ## Limitations
 

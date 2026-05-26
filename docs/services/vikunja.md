@@ -1,7 +1,7 @@
 # Vikunja
 
 ## What it is
-Vikunja is an open-source, self-hosted To-do list application that allows you to organize all your tasks on all platforms. It features Kanban boards, Gantt charts, table views, and a powerful filter system.
+Vikunja is an open-source, self-hosted To-do list application that allows you to organize all your tasks on all platforms. It features Kanban boards, Gantt charts, table views, and a powerful filter system. Since the **v2.3.0 (May 2026)** release, it includes a robust plugin system and enhanced quick-entry capabilities.
 
 ## What problem it solves
 Maintaining a consistent task list across devices while maintaining privacy can be challenging with commercial tools. Vikunja provides an enterprise-grade task management experience that you can host yourself, ensuring your data remains private while offering the flexibility to manage everything from simple groceries to complex project timelines.
@@ -20,11 +20,12 @@ Maintaining a consistent task list across devices while maintaining privacy can 
 - **Task Relations**: Robust support for subtasks, dependencies (blocking/blocked by), and related tasks.
 - **Rich Filtering**: A powerful query language for creating smart views based on tags, dates, and priorities.
 - **Self-Hosted Privacy**: Full control over data with OIDC support for secure family-wide access.
+- **Extensibility**: A new **Plugin System** (v2.3.0+) allows for custom integrations and UI widgets.
 
 ## Limitations
 - **Mobile App State**: While the PWA is excellent, the native mobile apps are still in active development and may lack some advanced features.
 - **Feature Density**: The sheer number of features (relations, namespaces, teams) can be overwhelming for users seeking a simple checklist.
-- **Resource Usage**: Requires a database (Postgres/MySQL) and an API backend, making it heavier than "flat-file" task managers.
+- **Resource Usage**: Requires a database (Postgres/MySQL) and optionally Redis for caching, making it heavier than "flat-file" task managers.
 
 ## When to use it
 - When you need a powerful, self-hosted To-do list with support for Kanban boards, Gantt charts, and list views.
@@ -87,6 +88,16 @@ print(response.json())
 ```bash
 curl -H "Authorization: Bearer <your_api_token>" \
      "http://localhost:3456/api/v1/tasks"
+```
+
+### Advanced: Quick Entry API
+Vikunja v2.3.0+ supports a "Quick Entry" syntax via API to create tasks with dates and labels in a single string.
+
+```bash
+# Example: Create a task in project 123
+curl -X PUT -H "Authorization: Bearer <your_api_token>" \
+     -d '{"text": "Buy milk *tomorrow #prio:high"}' \
+     "http://localhost:3456/api/v1/projects/123/quick"
 ```
 
 Use your own private Vikunja base URL here. Do not commit instance-specific URLs, project IDs, or tokens into this repository.
@@ -187,9 +198,10 @@ Run `vdirsyncer discover` and then `vdirsyncer sync` to initialize the connectio
 - [CLI Reference](https://vikunja.io/docs/cli/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
+- [ ] Document the new v2.3.0 Plugin API structure.
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high
