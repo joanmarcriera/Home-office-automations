@@ -47,14 +47,43 @@ Keeping track of digital recipes often involves scattered bookmarks, screenshots
 
 The easiest way to install Mealie is via Docker Compose.
 
-### Installation (Docker)
-```bash
-docker run -d \
-  --name mealie \
-  -p 9925:9000 \
-  -v mealie-data:/app/data/ \
-  ghcr.io/mealie-recipes/mealie:latest
+### Installation (Docker Compose)
+Mealie v3.17.0 (May 2026) supports both SQLite and PostgreSQL backends.
+
+```yaml
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:latest
+    container_name: mealie
+    restart: unless-stopped
+    ports:
+      - "9925:9000"
+    volumes:
+      - ./mealie-data:/app/data
+    environment:
+      - ALLOW_SIGNUP=false
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Istanbul
+      - MAX_WORKERS=1
+      - WEB_CONCURRENCY=1
+      - BASE_URL=http://localhost:9925
+      - DEFAULT_EMAIL=admin@example.com
+      - DEFAULT_PASSWORD=YourStrongPassword
+      - DEFAULT_GROUP=Home
+      - DEFAULT_HOUSEHOLD=Family
 ```
+
+## AI Video Import (YouTube, TikTok)
+Mealie v3.13.0+ supports AI-powered recipe imports from social media videos.
+- **Workflow**: Paste a YouTube or TikTok URL into the import field.
+- **Backend**: Transcribes video using OpenAI Whisper and structures ingredients/steps.
+- **Setup**: Requires an OpenAI API key configured in `Settings -> Integrations -> OpenAI`.
+
+## Groups and Households
+Mealie v3.17.0 utilizes a two-tier user model for multi-tenant or multi-family deployments:
+- **Groups**: Isolated tenants (no shared data between groups).
+- **Households**: Subdivisions within a group. Members share recipes but have separate meal plans and shopping lists.
 
 ## CLI examples
 Mealie is primarily managed via the web UI or API, but you can interact with the container for maintenance.
@@ -131,15 +160,16 @@ for item in items:
 ```
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 
 - [Official Website](https://mealie.io/)
 - [Mealie Documentation](https://docs.mealie.io/)
 - [Recipe Scrapers Library](https://github.com/hweav/recipe-scrapers)
+- [Mealie v3.17.0 Release Guide (Localtonet)](https://localtonet.com/blog/self-host-your-recipe-manager-mealie-and-tandoor-setup-guide)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high

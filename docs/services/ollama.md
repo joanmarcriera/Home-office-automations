@@ -51,8 +51,22 @@ services:
     pull_policy: always
     tty: true
     restart: unless-stopped
-    image: ollama/ollama:latest
+    image: ollama/ollama:latest # v0.24+ (May 2026)
 ```
+
+## Codex App & Tools
+Ollama v0.24 (May 2026) introduced the **Codex App**, a native desktop experience for managing local AI workflows.
+- **Launch**: Use `ollama launch codex-app` from the terminal.
+- **Features**: Includes built-in browser support for loading local servers/sites directly within the AI interface.
+
+## Recommended Models (2026)
+Avoid relying on the `:latest` tag, which often points to smaller default versions. For May 2026, the following models are recommended for various hardware profiles:
+
+| Category | Model | VRAM Required | Note |
+| :--- | :--- | :--- | :--- |
+| **All-Rounder** | `qwen3:30b` | ~24GB | Best balance of speed and intelligence. |
+| **Reasoning** | `gemma4:26b` | ~20GB | Superior logic and thinking capabilities. |
+| **8GB RAM** | `gemma4:2b` | ~1.6GB | Minimal RAM requirements, works on older hardware. |
 
 ### API Usage Example
 You can interact with the Ollama API using `curl`:
@@ -89,14 +103,14 @@ Tokens per second (t/s) vary by model size and hardware. Use `ollama run <model>
 - [LM Studio](https://lmstudio.ai/) — A desktop-first alternative for model experimentation.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 - [Official Website](https://ollama.com/)
 - [GitHub Repository](https://github.com/ollama/ollama)
-- [TrueNAS SCALE GPU Guide](https://www.truenas.com/docs/scale/24.10/applications/gpu/)
-- [Ollama GPU Documentation](https://github.com/ollama/ollama/blob/main/docs/gpu.md)
+- [Ollama 0.24 Release Notes](https://github.com/ollama/ollama/releases)
+- [Best Ollama Models 2026 Guide](https://aiopsschool.com/blog/the-best-ollama-models-in-2026-which-model-should-you-run-on-your-hardware/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high
