@@ -16,8 +16,8 @@ Processing diverse file formats requires specialized libraries for each type (e.
 
 - **Search Indexing**: Extracting text from uploaded PDFs and Word docs for a searchable knowledge base.
 - **Content Analysis**: Identifying the language and metadata (author, creation date) of large file archives.
-- **RAG Pre-processing**: Converting diverse document formats into plain text for use in Retrieval-Augmented Generation pipelines.
-- **Attachment Processing**: Automatically extracting text from email attachments for automated routing or classification.
+- **RAG Pre-processing**: Converting diverse document formats into plain text for use in Retrieval-Augmented Generation pipelines (often feeding into [Ollama](ollama.md) or [LiteLLM](litellm.md)).
+- **Attachment Processing**: Automatically extracting text from email attachments for automated routing or classification in [n8n](n8n.md).
 
 ## Strengths
 
@@ -25,10 +25,11 @@ Processing diverse file formats requires specialized libraries for each type (e.
 - **Metadata Rich**: Extracts not just text, but deeply embedded metadata.
 - **Language Detection**: Built-in ability to identify the language of the extracted text.
 - **OCR Integration**: Can automatically trigger Tesseract OCR for images or "image-only" PDFs.
+- **Modular Architecture (v3.0+)**: Highly customizable parser configurations and reduced footprint for specialized deployments.
 
 ## Limitations
 
-- **Java Based**: The core library and server run on the JVM, which can be memory-intensive.
+- **Java Based**: The core library and server run on the JVM, which can be memory-intensive. Requires Java 11+ as of version 3.0.
 - **Formatting Loss**: Focuses on text extraction; original visual formatting and layout are typically lost.
 - **Complex Setup**: Configuring specialized parsers (like OCR or deep object recognition) can require significant effort.
 
@@ -47,11 +48,11 @@ Processing diverse file formats requires specialized libraries for each type (e.
 
 ## Getting started
 
-### Docker installation
+### Docker installation (Tika 3.0 Baseline)
 The easiest way to run Tika Server is via Docker:
 
 ```bash
-docker run -d -p 9998:9998 --name tika apache/tika
+docker run -d -p 9998:9998 --name tika apache/tika:3.0.0.0
 ```
 
 Tika will be available at `http://localhost:9998`.
@@ -60,11 +61,11 @@ Tika will be available at `http://localhost:9998`.
 You can also use the Tika application jar for local processing without a server:
 
 ```bash
-# Download the latest tika-app jar
-curl -O https://archive.apache.org/dist/tika/2.9.2/tika-app-2.9.2.jar
+# Download the latest tika-app jar (v3.0.0)
+curl -O https://archive.apache.org/dist/tika/3.0.0/tika-app-3.0.0.jar
 
 # Run it against a file
-java -jar tika-app-2.9.2.jar --text document.pdf
+java -jar tika-app-3.0.0.jar --text document.pdf
 ```
 
 ### Hello World
@@ -148,6 +149,9 @@ return [{ json: { markdown } }];
 
 - [Unstructured.io](../tools/process_understanding/unstructured.md) — a modern alternative for document processing in AI pipelines
 - [Paperless-ngx](paperless-ngx.md) — uses Tika/OCR for document archival and searching
+- [Ollama](ollama.md) — for processing Tika-extracted text with local LLMs
+- [Whisper](whisper.md) — for complementary audio/video transcription
+- [ChangeDetection.io](changedetection.md) — can trigger Tika when specific document links change
 - [Elasticsearch](https://www.elastic.co/) — often used to store and search the text extracted by Tika
 - [n8n](n8n.md) — for building automated workflows that trigger Tika on new file uploads
 - [Pandoc](https://pandoc.org/) — for converting between document formats (Tika extracts, Pandoc converts)
@@ -161,9 +165,9 @@ return [{ json: { markdown } }];
 - [Tika Server Documentation](https://cwiki.apache.org/confluence/display/TIKA/TikaServer)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-05-27
 - Confidence: high

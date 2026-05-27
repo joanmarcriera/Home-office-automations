@@ -6,7 +6,7 @@ Authentik is an open-source Identity Provider that emphasizes flexibility and ve
 Authentik is a comprehensive identity management solution that functions as an Identity Provider (IdP). It supports modern protocols like OAuth2, OpenID Connect (OIDC), and SAML, as well as legacy protocols like LDAP and Radius.
 
 ## What problem it solves
-It centralizes user management across dozens of different self-hosted applications. Instead of managing separate usernames and passwords for Nextcloud, Gitea, and Vikunja, users log in once to Authentik. It also adds security layers like Multi-Factor Authentication (MFA) to applications that don't natively support it.
+It centralizes user management across dozens of different self-hosted applications. Instead of managing separate usernames and passwords for [Nextcloud](nextcloud.md), [Gitea](gitea.md), and [Vikunja](vikunja.md), users log in once to Authentik. It also adds security layers like Multi-Factor Authentication (MFA) to applications that don't natively support it.
 
 ## Where it fits in the stack
 Authentik sits at the **Security and Gateway Layer**. It often integrates with a reverse proxy (like Traefik or Nginx) to intercept requests and ensure the user is authenticated before they ever reach the internal application.
@@ -16,12 +16,14 @@ Authentik sits at the **Security and Gateway Layer**. It often integrates with a
 - **MFA Injection**: Requiring a YubiKey or TOTP code to access a legacy web app.
 - **User Enrollment**: Providing a clean sign-up flow for family members or friends.
 - **Application Portal**: A centralized dashboard showing all authorized apps.
+- **Account Lockdown (v2026.5)**: Immediate session revocation and account deactivation in case of suspected compromise.
 
 ## Strengths
 - **All-in-One**: Includes the server, worker, and outpost in a single ecosystem.
-- **Extremely Flexible**: Custom flows and stages allow for complex logic (e.g., "only allow login if user is on the home Wi-Fi").
-- **Native Passkey Support**: Easy implementation of passwordless login.
+- **Extremely Flexible**: Custom flows and stages allow for complex logic.
+- **Native Passkey Support**: Easy implementation of passwordless login with improved Secure Enclave support in 2026.
 - **Outpost Architecture**: Simplifies integration with reverse proxies.
+- **Enterprise-Grade Conditional Access**: Integration with Fleet and Google Chrome Device Trust for posture-based access.
 
 ## Limitations
 - **Resource Intensive**: Requires more RAM and CPU than simpler alternatives like Authelia.
@@ -47,7 +49,7 @@ echo "AUTHENTIK_SECRET_KEY=$(openssl rand -base64 36)" >> .env
 echo "AUTHENTIK_POSTGRESQL__PASSWORD=$(openssl rand -base64 36)" >> .env
 ```
 
-### Docker Compose
+### Docker Compose (v2026.5 Baseline)
 Create a `docker-compose.yml` file:
 
 ```yaml
@@ -84,7 +86,7 @@ services:
     volumes:
       - redis:/data
   server:
-    image: ghcr.io/goauthentik/server:latest
+    image: ghcr.io/goauthentik/server:2026.5
     restart: unless-stopped
     command: server
     environment:
@@ -105,7 +107,7 @@ services:
       - postgresql
       - redis
   worker:
-    image: ghcr.io/goauthentik/server:latest
+    image: ghcr.io/goauthentik/server:2026.5
     restart: unless-stopped
     command: worker
     environment:
@@ -157,6 +159,10 @@ Authentik has a comprehensive REST API. Use an API Token for authentication:
 curl -X GET "http://localhost:8000/api/v3/core/users/" \
      -H "Authorization: Bearer <your_api_token>" \
      -H "Accept: application/json"
+
+# v2026.5: Lock down a user account via API
+curl -X POST "http://localhost:8000/api/v3/core/users/<user_id>/lockdown/" \
+     -H "Authorization: Bearer <your_api_token>"
 ```
 
 ## Related tools / concepts
@@ -165,6 +171,8 @@ curl -X GET "http://localhost:8000/api/v3/core/users/" \
 - [Nextcloud](nextcloud.md)
 - [Gitea](gitea.md)
 - [Vikunja](vikunja.md)
+- [n8n](n8n.md) — For automating account lifecycle events
+- [ChangeDetection.io](changedetection.md) — Monitoring security policy changes
 
 ## Family 2FA Onboarding
 
@@ -252,12 +260,12 @@ except ldap.LDAPError as e:
 ```
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 - [x] Configure LDAP outpost for legacy apps.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-05-27
 
 ## Sources / References
 - [Authentik Official Site](https://goauthentik.io/)

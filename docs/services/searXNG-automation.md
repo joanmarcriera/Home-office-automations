@@ -12,7 +12,7 @@ It provides a private, rate-limit-friendly way for local scripts and AI models t
 **Category**: Services / Search Automation. It acts as the "Web Retrieval" layer for AI agents and automated research pipelines.
 
 ## Typical use cases
-- Giving a local LLM (via Ollama or LangChain) the ability to search the live web.
+- Giving a local LLM (via [Ollama](ollama.md) or [LiteLLM](litellm.md)) the ability to search the live web.
 - Automated brand monitoring or news aggregation scripts.
 - Building a private "Daily Briefing" that searches for specific topics every morning.
 - Programmatically checking for broken links or updated information on specific sites.
@@ -22,10 +22,12 @@ It provides a private, rate-limit-friendly way for local scripts and AI models t
 - **Aggregated Data**: Access results from Google, Bing, Wikipedia, and 70+ others in one request.
 - **Privacy**: Your automated queries are proxied and stripped of tracking data.
 - **JSON Output**: Results are returned in a clean, machine-readable format.
+- **Agent-Optimized (2026)**: New API metadata including engine health and "trust scores" for individual results.
 
 ## Limitations
 - **Upstream Blocking**: High-frequency automation can lead to your SearXNG IP being blocked by major search engines (use proxies if needed).
 - **Format Stability**: Changes in upstream engine HTML can occasionally break scrapers, requiring SearXNG updates.
+- **Latency**: Aggregate search latency is limited by the slowest enabled engine.
 
 ## When to use it
 - When building AI agents that need to browse the web without expensive API fees.
@@ -100,7 +102,7 @@ print(output)
 ```
 
 ### n8n Integration (HTTP Request)
-In n8n, use the **HTTP Request** node to fetch search results:
+In [n8n](n8n.md), use the **HTTP Request** node to fetch search results:
 - **Method**: GET
 - **URL**: `http://searxng:8080/search`
 - **Query Parameters**:
@@ -108,10 +110,25 @@ In n8n, use the **HTTP Request** node to fetch search results:
   - `format`: `json`
 - This allows your workflows to "research" topics before making decisions or sending notifications.
 
+## Agentic Workflows with Playwright
+For "Deep Search" patterns, use SearXNG to find URLs, then [Playwright](../tools/development_ops/playwright.md) to scrape the content for extraction by [Unstructured.io](../tools/process_understanding/unstructured.md).
+
+```python
+# Pattern: Discover -> Scrape -> Extract
+urls = search_searxng("latest AI news")[:3]
+for url in urls:
+    # Use Playwright to handle SPA/JS-heavy sites
+    # Then send to Unstructured for clean text
+    pass
+```
+
 ## Related tools / concepts
 - [SearXNG](searXNG.md) (The core service)
 - [n8n](n8n.md) (To orchestrate search-based workflows)
-- [Ollama](../services/ollama.md) (To process search results with local AI)
+- [Ollama](ollama.md) (To process search results with local AI)
+- [LiteLLM](litellm.md) (Unified interface for search-enabled LLMs)
+- [Playwright](../tools/development_ops/playwright.md) (For deep scraping of search results)
+- [Unstructured.io](../tools/process_understanding/unstructured.md) (For cleaning scraped content)
 - [LangChain](../tools/ai_knowledge/langchain.md) (For building search-enabled agents)
 - [Tavily](../tools/providers/tavily.md) (Commercial alternative)
 
@@ -120,8 +137,8 @@ In n8n, use the **HTTP Request** node to fetch search results:
 - [LangChain SearXNG Documentation](https://python.langchain.com/docs/integrations/tools/searx_search/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-05-27
