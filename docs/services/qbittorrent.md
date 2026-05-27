@@ -17,9 +17,16 @@ It provides a reliable and efficient way to download and share files via the Bit
 
 ## Strengths
 - **No Ads**: Completely free and open-source with no bundled software.
-- **Web UI**: Excellent, feature-rich web interface that mirrors the desktop application.
+- **Web UI**: Excellent, feature-rich web interface that mirrors the desktop application. Now with virtual list rendering for high-performance scrolling in large libraries (v5.2+).
 - **Search Engine**: Integrated search engine for finding torrents across multiple sites.
-- **Resource Efficient**: Low CPU and memory footprint compared to many other clients.
+- **Resource Efficient**: Low CPU and memory footprint. v5.2+ introduces **Asynchronous Piece Calculation**, keeping the UI responsive even when adding massive torrents.
+
+## New in v5.2.x (May 2026)
+- **Category-Level Share Limits**: Set seeding ratio and time limits per category (e.g., different rules for Movies vs. TV Shows).
+- **Unconditional Subcategories**: Subcategory support is now permanently enabled, allowing for deeper organizational hierarchies.
+- **Free Disk Space Display**: The status bar now shows real-time free disk space on the download drive.
+- **Enhanced WebUI**: Added a Torrent Creator, tracker status filters, and bulk tracker management directly in the browser.
+- **Modern Infrastructure**: Transitioned to **Qt 6.10.3** and **Boost 1.86/1.91** for improved stability and performance.
 
 ## Limitations
 - **Security**: Requires careful configuration (VPN/Proxy) for private operation.
@@ -144,8 +151,10 @@ curl "http://localhost:8080/api/v2/torrents/info" \
 ```
 
 ## Related tools / concepts
-- [n8n](n8n.md) (For automation)
-- [Docker](../tools/infrastructure/docker.md)
+- [qBittorrent Automation](qbittorrent-automation.md) (Advanced API and n8n workflows)
+- [n8n](n8n.md) (For workflow automation)
+- [Jellyfin](jellyfin.md) (Open-source media server integration)
+- [Docker](../tools/infrastructure/docker.md) (Deployment standard)
 - [SearXNG](searXNG.md) (For finding content)
 - [Plex](plex.md) (For media consumption)
 - [TrueNAS](../../architecture/infrastructure.md) (Storage backend)
@@ -161,8 +170,8 @@ curl "http://localhost:8080/api/v2/torrents/info" \
 - [Deluge](https://deluge-torrent.org/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-05
+- Last reviewed: 2026-05-27
