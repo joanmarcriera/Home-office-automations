@@ -39,13 +39,13 @@ This report implements **Action C** for the remaining technical freshness audits
 - [x] `docs/services/headscale.md`: Quarterly freshness audit (2026-05-26).
 - [x] `docs/services/authentik.md`: Quarterly freshness audit (2026-05-27).
 - [x] `docs/services/cloudflare-mesh.md`: Quarterly freshness audit (2026-05-27).
-- [ ] `docs/services/portracker.md`: Quarterly freshness audit.
-- [ ] `docs/services/speedtest.md`: Quarterly freshness audit.
+- [x] `docs/services/portracker.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/speedtest.md`: Quarterly freshness audit (2026-05-27).
 
 ## Sub-Batch 99.5: Storage & Downloads
-- [ ] `docs/services/nextcloud.md`: Quarterly freshness audit.
-- [ ] `docs/services/storj.md`: Quarterly freshness audit.
-- [ ] `docs/services/rclone-automation.md`: Quarterly freshness audit.
+- [x] `docs/services/nextcloud.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/storj.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/rclone-automation.md`: Quarterly freshness audit (2026-05-27).
 - [ ] `docs/services/qbittorrent.md`: Quarterly freshness audit.
 - [ ] `docs/services/qbittorrent-automation.md`: Quarterly freshness audit.
 - [x] `docs/services/radicale.md`: Quarterly freshness audit (2026-05-26).

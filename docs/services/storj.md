@@ -16,14 +16,16 @@ It provides a cost-effective and highly private alternative to centralized objec
 - Contributing excess local storage to the network to earn rewards.
 
 ## Strengths
-- **Decentralized Architecture**: No single point of failure.
-- **S3 Compatibility**: Works with existing S3-compatible tools and libraries.
-- **Security**: Default client-side encryption.
-- **Cost**: Often significantly cheaper than major cloud providers for both storage and egress.
+- **Decentralized Architecture**: Data is split into encrypted pieces and distributed across 10,000+ nodes globally.
+- **CDN-like Performance**: Distributed nature provides high-speed access from the edge without traditional egress bottlenecks.
+- **S3 Compatibility**: Works with existing S3-compatible tools and libraries (e.g., [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)).
+- **Security**: Zero-knowledge encryption ensures only you have access to your data.
+- **Cost**: Up to 80% cheaper than traditional cloud providers (AWS, Azure, Google).
 
 ## Limitations
 - **Object Storage Only**: Not suitable for direct block storage or low-latency database files.
 - **Internet Dependency**: Requires a stable internet connection for all operations.
+- **Identity Setup**: Running a node requires generating a unique identity, which can be computationally intensive initially.
 
 ## When to use it
 - When you need high-performance, decentralized object storage.
@@ -33,6 +35,14 @@ It provides a cost-effective and highly private alternative to centralized objec
 ## When not to use it
 - When you require block storage or file system mounting (use for object storage).
 - If your workload requires absolute single-region data residency.
+
+## Edge Services & CDN
+Storj functions as a global CDN by default. Because data is distributed, files are downloaded from the closest available nodes, providing low-latency access worldwide without needing to configure separate CDN regions.
+
+### Key Performance Features
+- **Parallel Downloads**: The `uplink` CLI downloads pieces from multiple nodes simultaneously, saturating available bandwidth.
+- **Managed Passphrases**: A 2026 feature that balances security and simplicity for business users.
+- **Erasure Coding**: Data is reconstructed from only a fraction of the total pieces (e.g., 29 out of 80), ensuring availability even if many nodes go offline.
 
 ## Getting started
 
@@ -148,14 +158,16 @@ for obj in response.get("Contents", []):
 - [MinIO](https://min.io/)
 - [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
 - [Paperless-ngx](paperless-ngx.md) — For off-site archival of sensitive documents.
+- [Docker](../tools/infrastructure/docker.md)
+- [TrueNAS](../../architecture/infrastructure.md)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 - [x] Configure as a backup target for Rclone.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-27
 
 ## Sources / References
 - https://www.storj.io/
