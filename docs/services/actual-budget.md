@@ -1,6 +1,6 @@
 # Actual Budget
 
-Actual is a local-first personal finance tool, a 100% free and open-source application.
+Actual is a local-first personal finance tool, a 100% free and open-source application. As of May 2026, **v26.5.0** is the current stable release.
 
 ## What it is
 Actual is a privacy-focused personal finance manager that uses a local-first architecture. It provides a robust, fast interface for budgeting, transaction tracking, and account management, originally developed as a commercial product before being open-sourced.
@@ -15,12 +15,14 @@ In a home-automation stack, Actual serves as the **Financial Intelligence Layer*
 - **Zero-Based Budgeting**: Implementing the "Give Every Dollar a Job" philosophy.
 - **Privacy-First Finance**: Managing sensitive financial data without uploading it to a third-party cloud.
 - **Multi-Device Syncing**: Keeping budget data in sync between a desktop and mobile device via a self-hosted synchronization server.
+- **Advanced Reporting**: Utilizing **Age of Money** and **Sankey Diagrams** to visualize financial health and cash flow.
 
 ## Strengths
 - **Local-First Performance**: Extremely fast UI because all data is local.
 - **End-to-End Encryption**: Secure synchronization that the server cannot read.
 - **Active Community**: Rapidly evolving since going open-source.
 - **YNAB Migration**: Excellent compatibility for users moving from YNAB.
+- **Customization**: Support for community themes including Nord, Gruvbox, and "You Need A Theme".
 
 ## Limitations
 - **Self-Hosting Required**: Requires a server (Docker) for multi-device sync.
@@ -47,7 +49,7 @@ docker run -d \
   -p 5006:5006 \
   -v actual-data:/data \
   --restart unless-stopped \
-  actualbudget/actual-server:latest
+  actualbudget/actual-server:26.5.0
 ```
 
 Access the web interface at `http://localhost:5006`.
@@ -80,6 +82,9 @@ curl http://localhost:5006/info
 - [Vikunja](vikunja.md)
 - [Paperless-ngx](paperless-ngx.md)
 - [Home Assistant](home-assistant.md)
+- [Authentik](authentik.md) — For OIDC authentication.
+- [Grocy](grocy.md) — For complementary household inventory management.
+- [Gitea](gitea.md) — For versioning custom themes or scripts.
 
 ## Bank Synchronization
 Actual Budget supports automated transaction ingestion from banks via the GoCardless (formerly Nordigen) API. This allows for a "set it and forget it" workflow for tracking expenses.
@@ -99,13 +104,14 @@ Actual Budget supports automated transaction ingestion from banks via the GoCard
 For banks not supported by GoCardless, Actual provides a robust CSV import tool with "Import Rules" that can automatically categorize transactions based on descriptions or amounts.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-27)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-05-27
 
 ## Sources / References
 - [Actual Budget Official Site](https://actualbudget.com/)
 - [GitHub Repository](https://github.com/actualbudget/actual)
 - [Firefly III Official Site](https://www.firefly-iii.org/)
+- [Release 26.5.0 Notes](https://actualbudget.org/blog/release-26.5.0)
