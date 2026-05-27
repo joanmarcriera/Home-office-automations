@@ -1,6 +1,6 @@
 # Headscale
 
-Headscale is a self-hosted, open-source implementation of the Tailscale coordination server.
+Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of May 2026, **v0.24.0** (v1.0.0-alpha candidate) is the recommended baseline, introducing improved OIDC token handling and a unified API for node management.
 
 ## What it is
 It allows you to run your own Tailscale-compatible coordination server, providing full control over your mesh network's coordination layer without relying on Tailscale's SaaS offering.
@@ -71,11 +71,17 @@ The `headscale` CLI is used to manage users, nodes, and policies.
 # Create a new user
 headscale users create myuser
 
-# List all registered nodes
-headscale nodes list
+# List all registered nodes with extended output
+headscale nodes list -o wide
 
-# Register a new node using a pre-auth key
-headscale preauthkeys create -u myuser
+# Register a new node using a pre-auth key valid for 24h
+headscale preauthkeys create -u myuser --expiration 24h
+
+# Move a node to a different user (v0.23+)
+headscale nodes move --identifier 5 --user newuser
+
+# Expire a node manually
+headscale nodes expire --identifier 12
 ```
 
 ## Advanced Configuration (ACLs)
@@ -141,8 +147,8 @@ oidc:
 - [Tailscale ACL Documentation](https://tailscale.com/kb/1018/acls/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-05-26
 - Confidence: high

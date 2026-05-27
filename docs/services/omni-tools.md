@@ -1,6 +1,6 @@
 # Omni Tools
 
-Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks.
+Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of May 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities.
 
 ## What it is
 Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue. It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
@@ -184,7 +184,7 @@ A reference Playwright script is provided to verify the availability of key modu
 Run this script as part of your homelab CI/CD or via a scheduled task to ensure your local utility suite is functioning correctly.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
 - [x] Set up automated Playwright health checks for all modules. (Completed 2026-05-24)
 
 ## Sources / References
@@ -194,4 +194,4 @@ Run this script as part of your homelab CI/CD or via a scheduled task to ensure 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-05-26
