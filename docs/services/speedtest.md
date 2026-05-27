@@ -36,20 +36,49 @@ It allows for automated, periodic monitoring of internet performance, providing 
 
 ### Installation (Official Ookla CLI)
 ```bash
+# Ubuntu/Debian
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
 sudo apt-get install speedtest
+```
+
+### Speedtest Tracker (Self-Hosted Dashboard)
+For a persistent dashboard and automated testing, it is recommended to use [Speedtest Tracker](https://github.com/alexjustesen/speedtest-tracker).
+
+```yaml
+services:
+  speedtest-tracker:
+    container_name: speedtest-tracker
+    image: alexjustesen/speedtest-tracker:latest
+    restart: unless-stopped
+    ports:
+      - 8080:80
+      - 443:443
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - SPEEDTEST_SCHEDULE=0 * * * * # Every hour
+    volumes:
+      - ./config:/config
 ```
 
 ## CLI examples
 
 ### Run a test
 ```bash
+# Basic test with automatic server selection
 speedtest
+
+# Run test using a specific server ID
+speedtest --server-id=1234
 ```
 
-### Run a test and output as JSON
+### Advanced Formatting
 ```bash
+# Output as JSON for programmatic parsing
 speedtest --format=json
+
+# Output as CSV for spreadsheet import
+speedtest --format=csv
 ```
 
 ## API examples
@@ -93,16 +122,19 @@ curl -i -XPOST 'http://localhost:8086/write?db=speedtest' --data-binary "downloa
 - [Home Assistant](home-assistant.md)
 - [n8n](n8n.md)
 - [Rclone Automation](rclone-automation.md) — For ensuring backups don't saturate the connection during speedtests.
-- [Authentik](authentik.md) — For securing the Grafana dashboard.
+- [Authentik](authentik.md) — For securing the dashboard or Grafana instance.
+- [Portracker](portracker.md) — To monitor ports used by Speedtest Tracker.
+- [Docker](../tools/infrastructure/docker.md)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 - [x] Create a dashboard for visualizing speedtest results over time.
 
 ## Sources / References
 - [Speedtest CLI Official](https://www.speedtest.net/apps/cli)
 - [Python speedtest-cli (Community)](https://github.com/sivel/speedtest-cli)
+- [Speedtest Tracker GitHub](https://github.com/alexjustesen/speedtest-tracker)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-27

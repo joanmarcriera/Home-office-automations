@@ -24,11 +24,12 @@ Public cloud services like Google Drive or Microsoft 365 offer great convenience
 - **Extensible**: A vast App Store allows for adding features like Kanban boards, video conferencing (Talk), and music players.
 - **Multi-Platform**: Robust client apps for Windows, macOS, Linux, Android, and iOS.
 - **Open Standards**: Built on PHP and SQL, using WebDAV/CalDAV for maximum compatibility with third-party tools.
+- **AI Integration**: Hub 9+ features a native AI Assistant with a "Context Agent" for executing tasks within Nextcloud.
 - **Strong Ecosystem**: Massive community and commercial support ensure longevity and security.
 
 ## Limitations
 
-- **Resource Intensive**: Requires significant RAM and CPU compared to lightweight single-purpose tools like Syncthing.
+- **Resource Intensive**: Requires significant RAM and CPU compared to lightweight single-purpose tools like [Syncthing](syncthing.md).
 - **Configuration Overhead**: Proper optimization (Redis caching, background jobs) is necessary for a smooth experience on large libraries.
 - **Complex Upgrades**: Major version updates can sometimes be delicate, requiring manual intervention.
 
@@ -101,8 +102,11 @@ curl -u admin:password \
 - [Authentik](authentik.md) — for managing Nextcloud SSO/OIDC authentication
 - [Tailscale](tailscale.md) — for secure remote access to your Nextcloud instance
 - [Paperless-ngx](paperless-ngx.md) — can be integrated with Nextcloud for document archival
+- [Ollama](ollama.md) — for hosting local LLMs for the Nextcloud Assistant
 - [OnlyOffice/Collabora](https://nextcloud.com/office/) — for real-time document editing within Nextcloud
 - [n8n](n8n.md) — for automating file processing and notification workflows
+- [Docker](../tools/infrastructure/docker.md)
+- [TrueNAS](../../architecture/infrastructure.md)
 
 ## SSO & OIDC Integration
 Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On using the `user_oidc` app.
@@ -121,6 +125,22 @@ Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On us
 
 > [!WARNING]
 > If you require Server-Side Encryption, you must use LDAP instead of OIDC, as encryption requires the user's cleartext password which is not provided by OIDC.
+
+## Nextcloud AI Assistant (Hub 9+)
+
+Nextcloud Hub 9 (v30+) introduced the **Nextcloud Assistant** and **Context Agent**, allowing for agentic AI capabilities directly within the platform.
+
+### Key AI Features
+- **Context Agent**: Allows users to ask the assistant to execute tasks related to Nextcloud data (e.g., "Find the project plan from last week").
+- **Text Processing**: Integration with local LLMs (via [Ollama](ollama.md)) or external providers for text summarization, generation, and translation.
+- **Image Generation**: Native support for DALL-E, Stable Diffusion, and other generative models.
+- **Smart Picker**: Quickly insert AI-generated content or summaries into Talk, Mail, and Notes.
+
+### Setup (AI)
+To enable AI features, you typically need to install the following apps from the Nextcloud App Store:
+1.  **Nextcloud Assistant**: The graphical UI for AI interactions.
+2.  **Nextcloud Context Agent**: For agentic capabilities.
+3.  **Local LLM Provider**: (Optional) Use the `nextcloud-llm-ollama` bridge to connect to a local [Ollama](ollama.md) instance.
 
 ## Nextcloud Office & Collabora
 
@@ -156,7 +176,7 @@ Nextcloud supports client-side end-to-end encryption for maximum security of sen
 3.  **Limitations**: Encrypted folders cannot be shared with users who do not have E2EE configured, and they are not accessible via the web interface.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 - [x] Setup Nextcloud Office with Collabora Online.
 - [x] Enable end-to-end encryption for sensitive folders.
 
@@ -164,10 +184,11 @@ Nextcloud supports client-side end-to-end encryption for maximum security of sen
 
 - [Official Website](https://nextcloud.com/)
 - [Nextcloud Admin Documentation](https://docs.nextcloud.com/server/latest/admin_manual/)
+- [Nextcloud AI Documentation](https://docs.nextcloud.com/server/stable/admin_manual/ai/overview.html)
 - [Owncloud](https://owncloud.com/)
 - [Seafile](https://www.seafile.com/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-05-27
 - Confidence: high

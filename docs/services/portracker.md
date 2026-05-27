@@ -15,13 +15,16 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 - Auditing the local network for unintended open ports on IoT devices.
 
 ## Strengths
-- **Real-time**: Near-instant discovery of service changes.
-- **Visual**: Clean dashboard for quick assessment.
-- **Docker-native**: Deep integration with the Docker socket for container metadata.
+- **Real-time Discovery**: Near-instant discovery of service changes and port mappings.
+- **Platform Collectors**: Specialized collectors for [Docker](../tools/infrastructure/docker.md) and [TrueNAS](../../architecture/infrastructure.md).
+- **Multi-node Monitoring**: Support for Peer-to-Peer monitoring and hierarchical server grouping.
+- **Lightweight**: Single binary with an embedded SQLite database, no external dependencies.
+- **Internal Visibility**: Distinguishes between internal container ports and published host ports.
 
 ## Limitations
 - **Scope**: Focused on port mapping rather than deep traffic analysis or security intrusion detection.
 - **Resource Intensity**: Continuous monitoring of host processes requires elevated privileges (`SYS_PTRACE`).
+- **Read-only TrueNAS VMs**: VMs discovered via the TrueNAS API are read-only; full monitoring requires a local agent.
 
 ## When to use it
 - When you want to monitor open ports on your network in real-time.
@@ -35,7 +38,7 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 ## Getting started
 
 ### Docker Compose
-The recommended way to deploy Portracker is via Docker Compose. Enable `ENABLE_AUTH` for secure access.
+The recommended way to deploy Portracker is via [Docker](../tools/infrastructure/docker.md) Compose. Enable `ENABLE_AUTH` for secure access.
 
 ```yaml
 services:
@@ -54,6 +57,9 @@ services:
     environment:
       - ENABLE_AUTH=true
       - SESSION_SECRET=change-this-to-a-random-string
+      # Optional: TrueNAS API for enhanced discovery
+      - TRUENAS_API_KEY=your_api_key
+      - TRUENAS_URL=https://your-truenas-ip/api/v2.0
     volumes:
       - ./portracker-data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -119,6 +125,13 @@ if __name__ == '__main__':
 ## Links
 - [GitHub Repository](https://github.com/mostafa-wahied/portracker)
 
+## Peer-to-Peer Monitoring
+Portracker supports a decentralized monitoring model where multiple instances can be linked together.
+
+- **Add Peers**: Link secondary Portracker instances to a primary "manager" dashboard.
+- **Hierarchical Grouping**: Organize servers in a parent-child structure (e.g., nesting VM instances under their physical host).
+- **Consolidated View**: View all your servers, containers, and VMs from a single dashboard without a central server.
+
 ## Related tools / concepts
 - [Home Assistant](home-assistant.md)
 - [Tailscale](tailscale.md)
@@ -127,14 +140,19 @@ if __name__ == '__main__':
 - [Storj](storj.md)
 - [Netdata](https://www.netdata.cloud/)
 - [Uptime Kuma](https://uptime.kuma.pet/)
+- [n8n](n8n.md)
+- [Rclone Automation](rclone-automation.md)
+- [Authentik](authentik.md) — For managing SSO access to the dashboard.
+- [Docker](../tools/infrastructure/docker.md)
+- [TrueNAS](../../architecture/infrastructure.md)
 - [nmap](https://nmap.org/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-27
 
 ## Sources / References
 - https://github.com/mostafa-wahied/portracker

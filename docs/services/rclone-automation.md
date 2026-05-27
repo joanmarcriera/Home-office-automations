@@ -15,13 +15,14 @@ It provides a robust, scriptable way to handle complex cloud storage operations,
 - Mounting cloud storage as a local filesystem.
 
 ## Strengths
-- Supports 40+ cloud storage providers.
-- Highly efficient and battle-tested CLI.
-- Preserves timestamps and supports checksum verification.
+- **Massive Connectivity**: Supports 70+ cloud storage providers as of 2026, including S3, B2, Drive, and decentralized options like [Storj](storj.md).
+- **Data Integrity**: Built-in support for MD5/SHA1 checksums and timestamp preservation.
+- **Bi-directional Sync**: The `bisync` command provides robust two-way synchronization between remotes.
+- **Efficient Transfers**: Supports multi-threaded uploads and server-side moves to minimize bandwidth usage.
 
 ## Limitations
-- Command-line only (GUI is experimental).
-- Requires careful configuration of API keys and secrets.
+- **Command-line focused**: While a GUI exists (`rclone rcd --rc-web-gui`), it remains a CLI-first tool.
+- **Complexity**: The sheer number of flags and provider-specific configurations can be overwhelming for new users.
 
 ## When to use it
 - For robust, automated cloud sync tasks.
@@ -48,12 +49,23 @@ rclone config
 
 ### Sync local folder to remote
 ```bash
-rclone sync /path/to/local remote:backup -P
+# Sync with progress and checksum verification
+rclone sync /path/to/local remote:backup -P --checksum
+```
+
+### Bi-directional Sync (Two-way)
+```bash
+# Synchronize two remotes bi-directionally
+rclone bisync remote1:path remote2:path --resync
 ```
 
 ### Mount a remote as a filesystem
 ```bash
-rclone mount remote:path /path/to/mountpoint &
+# Mount remote for media apps (with caching)
+rclone mount remote:path /path/to/mountpoint \
+  --vfs-cache-mode full \
+  --vfs-cache-max-age 24h \
+  &
 ```
 
 ### Bandwidth Throttling
@@ -93,22 +105,24 @@ curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote":
 - [Storj](storj.md) — A primary decentralized target for Rclone backups.
 - [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
 - [AWS S3](https://aws.amazon.com/s3/)
-- [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
+- [TrueNAS SCALE](../../architecture/infrastructure.md)
 - [ZFS](https://openzfs.org/)
 - [Nextcloud](nextcloud.md) — For synchronizing user data to the cloud.
 - [Paperless-ngx](paperless-ngx.md) — For off-site archival of digitized documents.
 - [Immich](immich.md) — For backing up large photo libraries.
 - [Gitea](gitea.md) — For mirroring git repositories to object storage.
+- [Docker](../tools/infrastructure/docker.md)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 - [x] Implement bandwidth throttling during business hours.
 - [x] Set up healthcheck notifications for failed syncs.
 
 ## Sources / References
 - [Rclone Official Website](https://rclone.org/)
 - [Rclone Documentation](https://rclone.org/docs/)
+- [Rclone Bisync Guide](https://rclone.org/bisync/)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-27
