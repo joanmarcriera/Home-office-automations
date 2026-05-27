@@ -65,6 +65,7 @@ Genspark utilizes multiple AI agents (the "Spark" engine) to:
 - [ChatGPT](chatgpt.md) — General AI assistant with web browsing capabilities.
 - [Claude](claude.md) — Anthropic assistant focused on safety and reasoning.
 - [OpenRouter](openrouter.md) — Unified API for accessing multiple LLM backends.
+- [HoloTab](holotab.md) — AI browser companion for integrated search and task automation.
 
 ## Sources / references
 - [Official Website](https://www.genspark.ai/)

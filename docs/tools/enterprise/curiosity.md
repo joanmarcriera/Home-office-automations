@@ -31,6 +31,42 @@ Provides a unified search and AI assistant that runs across local folders, email
 - If you only use web-based tools and don't care about local file search.
 - For large-scale enterprise-wide knowledge sharing (better suited for individuals and small teams).
 
+## Getting started
+Curiosity is a desktop application available for macOS, Windows, and Linux.
+
+1.  **Download and Install**: Get the installer for your platform from the [official website](https://curiosity.ai/).
+2.  **Connect Sources**: Open the app and use the "Connect" menu to link your local folders, email accounts (Gmail, Outlook), and cloud storage (Google Drive, Slack).
+3.  **Index Data**: Allow Curiosity to index your data locally. This happens on your machine and remains private.
+4.  **Search**: Use the global shortcut (default `Alt + Space` or `Cmd + Space`) to start searching.
+
+### Search Examples
+You can use advanced filters to narrow down your results:
+
+```text
+# Search for PDFs sent from a specific person
+from:sarah type:pdf
+
+# Find documents related to a project in a specific folder
+project:alpha "budget proposal"
+
+# Search within a specific time range
+after:2026-01-01 "quarterly report"
+```
+
+## CLI examples
+Curiosity is primarily GUI-driven via its Command Palette, but it supports deep-linking and keyboard-first commands:
+
+```text
+# Toggle the Curiosity search bar
+alt + space
+
+# Open the command palette within the app
+cmd + k
+
+# Quick command to connect a new source
+> connect
+```
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Freemium (Pro subscription available)

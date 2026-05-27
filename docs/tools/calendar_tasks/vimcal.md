@@ -50,6 +50,7 @@ Vimcal uses advanced natural language processing (NLP) to parse event details. F
 - [Motion](motion.md) — AI calendar that automatically rebuilds your schedule.
 - [Todoist](todoist.md) — Can be integrated for task visualization.
 - [Fantastical](fantastical.md) — Apple-ecosystem focused calendar with great NLP.
+- [Curiosity](../enterprise/curiosity.md) — Unified search and desktop-first assistant with task integration.
 
 ## Sources / references
 - [Vimcal Official Website](https://www.vimcal.com/)
