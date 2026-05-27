@@ -28,6 +28,8 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 | **Radicale** | CalDAV Server | `tomschroeder/radicale` | `/mnt/<pool>/applications/radicale/` | Reverse Proxy / LAN |
 | **LiteLLM** | LLM Proxy | `ghcr.io/berriai/litellm` | `/mnt/<pool>/applications/litellm/` | LAN / Tailscale |
 | **rclone** | Cloud Sync | `rclone/rclone` | `/mnt/<pool>/applications/rclone/` | N/A (CLI/Cron) |
+| **Authentik** | IDP / SSO | `ghcr.io/goauthentik/server` | `/mnt/<pool>/applications/authentik/` | Reverse Proxy / LAN |
+| **Synapse** | Matrix Server | `matrixdotorg/synapse:latest` | `/mnt/<pool>/applications/synapse/` | Reverse Proxy / LAN |
 
 ## Typical use cases
 - Auditing container image versions for security updates.
@@ -152,6 +154,16 @@ print(f"Data Path for Nextcloud: {get_service_path('Nextcloud')}")
 - [Vikunja](vikunja.md) — Task management.
 - [n8n](n8n.md) — Workflow automation orchestrator.
 - [Authentik](authentik.md) — Identity and access management.
+- [Linkwarden](linkwarden.md) — Bookmark and archive management.
+- [Habitica](habitica.md) — Gamified productivity.
+- [Focalboard](focalboard.md) — Kanban-style project management.
+- [qBittorrent](qbittorrent.md) — BitTorrent client.
+- [Jackett](jackett.md) — API support for trackers.
+- [Diskover](diskover.md) — Disk usage analysis.
+- [Storj](storj.md) — Decentralized storage.
+- [Radicale](radicale.md) — CalDAV/CardDAV server.
+- [rclone-automation](rclone-automation.md) — Cloud sync and backup.
+- [Synapse](synapse.md) — Matrix communications server.
 
 ## Sources / references
 - [TrueNAS SCALE Documentation](https://www.truenas.com/docs/scale/)
@@ -164,8 +176,8 @@ print(f"Data Path for Nextcloud: {get_service_path('Nextcloud')}")
 - **Monitoring**: Integration of a centralized monitoring stack (Prometheus/Grafana) is identified as a short-term roadmap item.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-05-26

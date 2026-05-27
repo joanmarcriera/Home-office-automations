@@ -1,7 +1,7 @@
 # Matrix Synapse
 
 ## What it is
-Synapse is the reference "homeserver" implementation for Matrix, an open standard for decentralized, real-time communication. As of May 2026, **v1.153.0** is the current stable release, featuring significant improvements in OIDC stability and worker-based scaling.
+Synapse is the reference "homeserver" implementation for Matrix, an open standard for decentralized, real-time communication. As of May 2026, **v1.153.0** is the current stable release, featuring Matrix 1.11 compatibility, significant improvements in OIDC stability, and native support for Room v11.
 
 ## What problem it solves
 It allows you to own your communication infrastructure. By hosting your own Synapse server, you control your messages, identity, and data, while remaining part of the global Matrix federation.

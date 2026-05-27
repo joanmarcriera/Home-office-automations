@@ -19,7 +19,7 @@ This report implements **Action C** for the remaining technical freshness audits
 - [ ] `docs/services/vikunja.md`: Quarterly freshness audit.
 - [ ] `docs/services/focalboard.md`: Quarterly freshness audit.
 - [ ] `docs/services/actual-budget.md`: Quarterly freshness audit.
-- [ ] `docs/services/inventory.md`: Quarterly freshness audit.
+- [x] `docs/services/inventory.md`: Quarterly freshness audit (2026-05-26).
 - [ ] `docs/services/grocy.md`: Quarterly freshness audit.
 - [ ] `docs/services/habitica.md`: Quarterly freshness audit.
 - [ ] [x] `docs/services/trilium.md`: (Note: Already audited in Batch 96).
@@ -28,15 +28,15 @@ This report implements **Action C** for the remaining technical freshness audits
 
 ## Sub-Batch 99.3: Automation & AI Infrastructure
 - [ ] `docs/services/n8n.md`: (Note: Already audited in Batch 96).
-- [ ] `docs/services/whisper.md`: Quarterly freshness audit.
-- [ ] `docs/services/omni-tools.md`: Quarterly freshness audit.
+- [x] `docs/services/whisper.md`: Quarterly freshness audit (2026-05-26).
+- [x] `docs/services/omni-tools.md`: Quarterly freshness audit (2026-05-26).
 - [ ] `docs/services/tika.md`: Quarterly freshness audit.
 - [ ] `docs/services/searXNG-automation.md`: Quarterly freshness audit.
 
 ## Sub-Batch 99.4: Infrastructure & Networking
-- [ ] `docs/services/synapse.md`: Quarterly freshness audit.
+- [x] `docs/services/synapse.md`: Quarterly freshness audit (2026-05-26).
 - [ ] `docs/services/tailscale.md`: Quarterly freshness audit.
-- [ ] `docs/services/headscale.md`: Quarterly freshness audit.
+- [x] `docs/services/headscale.md`: Quarterly freshness audit (2026-05-26).
 - [ ] `docs/services/authentik.md`: Quarterly freshness audit.
 - [ ] `docs/services/cloudflare-mesh.md`: Quarterly freshness audit.
 - [ ] `docs/services/portracker.md`: Quarterly freshness audit.
