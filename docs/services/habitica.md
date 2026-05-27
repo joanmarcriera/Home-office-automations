@@ -9,29 +9,34 @@ Habitica is an open-source habit-building and productivity app that treats your 
 Traditional to-do lists often lack the motivation required for long-term habit formation. Habitica solves this by using gamification (rewards, social accountability, and RPG mechanics) to make productivity engaging and fun.
 
 ## Where it fits in the stack
-**Category**: Service / Productivity
+**Category**: Service / Productivity. It acts as the **engagement and behavioral motivation layer** within a personal organization stack.
 
 ## Typical use cases
 - Gamified habit tracking and task management.
 - Team-based productivity challenges.
 - Automated habit scoring via API.
+- Integration with fitness trackers to reward physical activity.
 
 ## Strengths
 - Highly engaging gamification mechanics.
-- Strong community and social features.
+- Strong community and social features (Parties, Guilds, Challenges).
 - Robust API for third-party integrations.
+- Open-source and community-driven.
 
 ## Limitations
 - Visual style might be too "noisy" for some users.
 - RPG elements can be distracting for pure focus.
+- Requires consistent check-ins to avoid "death" of the character.
 
 ## When to use it
 - When traditional to-do lists fail to motivate you.
 - When you want to combine habit tracking with social accountability.
+- If you enjoy RPG mechanics and "leveling up" in your daily life.
 
 ## When not to use it
 - For strictly professional or minimalist project management.
 - If you find RPG mechanics distracting.
+- When working in environments where "gamification" is perceived as unprofessional.
 
 ## Getting started
 
@@ -117,12 +122,13 @@ return {"json": result}
 ```
 
 ## Related tools / concepts
-- [SuperBetter](https://www.superbetter.com/)
-- [Vikunja](vikunja.md)
-- [Mealie](mealie.md)
-- [Grocy](grocy.md)
-- [Home Assistant](home-assistant.md)
-- [Actual Budget](actual-budget.md)
+- [Vikunja](vikunja.md) — For advanced task management and relations.
+- [Mealie](mealie.md) — For recipe management that can trigger "Cooked a Meal" habits.
+- [Grocy](grocy.md) — For household inventory that can link to "Restock" tasks.
+- [Home Assistant](home-assistant.md) — For triggering habit rewards from smart home sensors.
+- [Actual Budget](actual-budget.md) — For linking financial goals to productivity rewards.
+- [Authentik](authentik.md) — For securing self-hosted Habitica instances (if self-hosting the Node.js backend).
+- [Paperless-ngx](paperless-ngx.md) — For archiving productivity reports.
 
 ## Sources / References
 - [Official Website](https://habitica.com/)
@@ -130,8 +136,8 @@ return {"json": result}
 - [SuperBetter](https://www.superbetter.com/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-27)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-27
 - Confidence: high

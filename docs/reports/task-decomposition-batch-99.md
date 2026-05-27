@@ -16,18 +16,18 @@ This report implements **Action C** for the remaining technical freshness audits
 - [x] `docs/services/jackett.md`: Quarterly freshness audit (2026-05-26).
 
 ## Sub-Batch 99.2: Productivity & Information Management
-- [ ] `docs/services/vikunja.md`: Quarterly freshness audit.
-- [ ] `docs/services/focalboard.md`: Quarterly freshness audit.
-- [ ] `docs/services/actual-budget.md`: Quarterly freshness audit.
+- [x] `docs/services/vikunja.md`: Quarterly freshness audit (2026-05-26).
+- [x] `docs/services/focalboard.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/actual-budget.md`: Quarterly freshness audit (2026-05-27).
 - [x] `docs/services/inventory.md`: Quarterly freshness audit (2026-05-26).
-- [ ] `docs/services/grocy.md`: Quarterly freshness audit.
-- [ ] `docs/services/habitica.md`: Quarterly freshness audit.
-- [ ] [x] `docs/services/trilium.md`: (Note: Already audited in Batch 96).
-- [ ] `docs/services/it-tools.md`: Quarterly freshness audit.
-- [ ] `docs/services/drawio.md`: (Note: Already audited in Batch 96).
+- [x] `docs/services/grocy.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/habitica.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/trilium.md`: Quarterly freshness audit (2026-05-26).
+- [x] `docs/services/it-tools.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/drawio.md`: Quarterly freshness audit (2026-05-26).
 
 ## Sub-Batch 99.3: Automation & AI Infrastructure
-- [ ] `docs/services/n8n.md`: (Note: Already audited in Batch 96).
+- [x] `docs/services/n8n.md`: Quarterly freshness audit (2026-05-26).
 - [x] `docs/services/whisper.md`: Quarterly freshness audit (2026-05-26).
 - [x] `docs/services/omni-tools.md`: Quarterly freshness audit (2026-05-26).
 - [ ] `docs/services/tika.md`: Quarterly freshness audit.
@@ -48,11 +48,11 @@ This report implements **Action C** for the remaining technical freshness audits
 - [ ] `docs/services/rclone-automation.md`: Quarterly freshness audit.
 - [ ] `docs/services/qbittorrent.md`: Quarterly freshness audit.
 - [ ] `docs/services/qbittorrent-automation.md`: Quarterly freshness audit.
-- [ ] `docs/services/radicale.md`: Quarterly freshness audit.
+- [x] `docs/services/radicale.md`: Quarterly freshness audit (2026-05-26).
 - [ ] `docs/services/kiwix.md`: Quarterly freshness audit.
 
 ---
 - Status: Actionable backlog created.
-- Next Step: Initiate Sub-Batch 99.1.
-- Date: 2026-05-26
+- Next Step: Initiate Sub-Batch 99.3.
+- Date: 2026-05-27
 - Created by: Jules
