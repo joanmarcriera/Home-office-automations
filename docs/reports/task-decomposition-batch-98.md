@@ -14,9 +14,9 @@ This report implements **Action A** (Technical Freshness Audit) for the next 5 s
 - [x] `docs/services/prowlarr.md`: Add the "Authentication" feature (Basic) implemented in 2026 versions to prevent unauthorized remote access.
 
 ## Sub-Batch 98.2: Remaining Backlog Decomposition (Action C)
-- [ ] Categorize the remaining 36 service audits into thematic batches (Media, Productivity, Infrastructure) in `docs/reports/task-decomposition-batch-99.md`.
+- [x] Categorize the remaining service audits into thematic batches in `docs/reports/task-decomposition-batch-99.md`.
 
 ---
-- Status: In Progress.
-- Date: 2026-05-26
-- Created by: Jules
+- Status: Resolved.
+- Date: 2026-05-27
+- Updated by: Jules

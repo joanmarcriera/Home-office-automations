@@ -20,8 +20,10 @@ Maintaining a consistent task list across devices while maintaining privacy can 
 - **Multiple Views**: Seamlessly switch between List, Kanban, Gantt, and Table views for the same set of tasks.
 - **Task Relations**: Robust support for subtasks, dependencies (blocking/blocked by), and related tasks.
 - **Rich Filtering**: A powerful query language for creating smart views based on tags, dates, and priorities.
-- **Plugin System**: Introduced in v2.3.0, allowing community-driven extensions and custom behaviors.
+- **Plugin System**: Uses the `yaegi` loader (v2.3.0+) for easy, source-based extensions without recompilation.
 - **OAuth 2.0 Provider**: Can act as a central identity provider for other tools in your homelab.
+- **Real-time Collaboration**: WebSockets-powered notifications ensure instant updates across clients.
+- **Universal Import**: Dedicated migrators for Trello, Todoist, TickTick, WeKan, and a generic CSV mapper.
 
 ## Limitations
 - **Mobile App State**: While the PWA is excellent, the native mobile apps are still in active development and may lack some advanced features.
@@ -32,6 +34,7 @@ Maintaining a consistent task list across devices while maintaining privacy can 
 - When you need a powerful, self-hosted To-do list with support for Kanban boards, Gantt charts, and list views.
 - For managing complex personal tasks with subtasks, labels, and relations.
 - When you want a task manager that is accessible via web, desktop, and mobile (via PWA or third-party apps).
+- When migrating from proprietary tools and requiring a flexible CSV import or dedicated migrator.
 
 ## When not to use it
 - If you only need a very simple, single-list checklist (Vikunja might have more features than you need).
@@ -184,6 +187,10 @@ password = "<password>"
 - [Nextcloud](nextcloud.md) — For tasks integrated into a larger suite.
 - [Authentik](authentik.md) — For managing Vikunja SSO/OIDC.
 - [n8n](n8n.md) — For automating task creation from emails or chats.
+- [Mealie](mealie.md) — For meal-related tasks and recipe integration.
+- [Paperless-ngx](paperless-ngx.md) — For linking tasks to archived documents.
+- [Immich](immich.md) — For managing media assets referenced in tasks.
+- [Actual Budget](actual-budget.md) — For financial tasks and budget-related checklists.
 - [Email-to-Calendar](../playbooks/email-to-calendar.md) — Complementary playbook for scheduling.
 - [Vikunja Task Routing](../reference-implementations/llm-prompts/vikunja-task-routing.md) — LLM patterns for automated task classification.
 
@@ -194,8 +201,8 @@ password = "<password>"
 - [API Reference](https://vikunja.io/docs/api/)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-27)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-05-27
 - Confidence: high
