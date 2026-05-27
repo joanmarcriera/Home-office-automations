@@ -106,7 +106,7 @@ To ensure a consistent backup, you must back up both the **PostgreSQL database**
 - [Syncthing](syncthing.md) — for alternative file synchronization
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 - [Official Website](https://immich.app/)

@@ -17,14 +17,15 @@ Navidrome belongs in the **media services** layer alongside Jellyfin and Audiobo
 
 ## Strengths
 - **Small operational footprint**: Simple single-binary or single-container deployment.
-- **Client compatibility**: Works with many Subsonic-compatible apps.
-- **Read-only media mounts**: Easy to keep the app from modifying source music files.
-- **Good homelab fit**: Configuration can be managed through a TOML file or environment variables.
+- **Advanced Search**: Rebuilt on SQLite FTS5 with BM25 ranking for fast, accurate results.
+- **Artwork Management**: Comprehensive artwork overhaul with WebP encoding and per-disc cover art support.
+- **Client compatibility**: Works with many Subsonic-compatible apps and implements the OpenSubsonic Transcoding extension.
+- **Extensible**: Mature plugin system for lyrics, task queues, and external integrations.
 
 ## Limitations
 - **Music-focused**: It is not a full video/photo media platform.
 - **Metadata-dependent**: Poor tags lead to poor browsing results.
-- **Transcoding dependency**: `ffmpeg` must be available for some formats and clients.
+- **Transcoding dependency**: `ffmpeg` must be available for some formats and clients, though now fully server-managed.
 
 ## When to use it
 - When you have a large collection of owned music files and want to stream them like Spotify.
@@ -38,7 +39,7 @@ Do not use Navidrome as a general media server for video, live TV, or photo libr
 ## Getting started
 
 ### Docker Compose quick start
-Create a data directory and point the music mount at an existing local music folder:
+Create a data directory and point the music mount at an existing local music folder. v0.61+ introduces enhanced artwork and security features.
 
 ```bash
 mkdir -p ./navidrome-data ./music
@@ -55,6 +56,8 @@ services:
       ND_SCANSCHEDULE: "1h"
       ND_LOGLEVEL: "info"
       ND_SESSIONTIMEOUT: "24h"
+      ND_ENABLEARTWORKUPLOAD: "true" # New in v0.61
+      ND_ENABLEM3UEXTERNALALBUMART: "false"
     volumes:
       - ./navidrome-data:/data
       - ./music:/music:ro
@@ -199,7 +202,7 @@ if ids:
 - [Subsonic API](http://www.subsonic.org/pages/api.jsp)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 - https://www.navidrome.org/
@@ -210,4 +213,4 @@ if ids:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-26

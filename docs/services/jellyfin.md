@@ -24,6 +24,7 @@ Commercial media services often come with subscription fees, tracking, and limit
 - **Truly Open Source**: No "premium" features hidden behind a paywall (unlike Plex or Emby).
 - **Privacy Focused**: No central tracking or phone-home requirements; all data stays on your server.
 - **Hardware Acceleration**: Supports a wide range of hardware transcoding options (Intel QuickSync, NVENC, AMF).
+- **Extensible Ecosystem**: Supports a Universal Plugin Repository (May 2026) for easier community plugin management.
 - **Customizable**: Extensive support for themes, plugins, and custom CSS for the web interface.
 
 ## Limitations
@@ -141,6 +142,7 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 - [Tube Archivist](tubearchivist.md) — for archiving and serving YouTube content within a home theater setup
 - [Tailscale](tailscale.md) — for secure remote access to your Jellyfin server without port forwarding
 - [Radarr/Sonarr](https://servarr.com/) — for automating the collection management that Jellyfin serves
+- [Jellyseerr](https://jellyseerr.dev/) — for managing media requests and discovery.
 
 ### Gelli (Android Music)
 [Gelli](https://github.com/dkanada/gelli) is a native Android music player for Jellyfin. It provides a more music-centric interface compared to the main Jellyfin app, supporting offline downloads and Android Auto.
@@ -158,9 +160,9 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 - [Emby](https://emby.media/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-05-26
 - Confidence: high

@@ -25,6 +25,7 @@ It solves the problem of media fragmentation by centralizing your personal colle
 - **Proprietary**: The core server is not open-source.
 - **Centralized Auth**: Requires a connection to plex.tv for authentication.
 - **Privacy**: Some concerns over telemetry and data collection compared to open-source alternatives.
+- **Lifetime Pass Pricing**: The Lifetime Plex Pass price is increasing to **$749.99 USD** starting July 1, 2026.
 
 ## When to use it
 - When you want a polished, user-friendly interface for managing and streaming your personal media collection.
@@ -142,11 +143,11 @@ libraries:
 ```
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-05
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://www.plex.tv/
