@@ -33,15 +33,15 @@ Use Nano Banana when you need quick, high-quality image edits or generations and
 Avoid it for highly sensitive or professional-grade design work that requires absolute precision, or if you require an offline, privacy-first image editing workflow.
 
 ## Related tools / concepts
-- [Gemini](../ai_knowledge/gemini.md)
-- [Runway ML](../ai_knowledge/runwayml.md)
-- [DALL-E 3 / ChatGPT](../ai_knowledge/chatgpt.md)
+- [Gemini](gemini.md)
+- [Runway ML](runwayml.md)
+- [DALL-E 3 / ChatGPT](chatgpt.md)
 - [Project Genie](project-genie.md)
 - [Sora](sora.md)
 - [Luma Dream Machine](luma-dream-machine.md)
 - [Jasper](jasper.md)
 - [Copy.ai](copy-ai.md)
-- [Midjourney](../ai_knowledge/index.md)
+- [Midjourney](index.md)
 
 ## Sources / references
 - [Google AI Studio](https://aistudio.google.com)

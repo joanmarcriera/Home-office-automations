@@ -30,6 +30,37 @@ It addresses the need for a more integrated and proactive AI assistant within th
 - If you have strict privacy requirements and are wary of an AI observing your browsing activity.
 - For highly specialized technical tasks that require a more dedicated development environment.
 
+## Getting started
+HoloTab is currently available as a browser extension (Chrome, Edge).
+
+1.  **Install the Extension**: Download HoloTab from the [Chrome Web Store](https://chromewebstore.google.com/).
+2.  **Authenticate**: Log in with your HCompany account to sync your preferences and history.
+3.  **Activate**: Click the HoloTab icon or use the shortcut `Alt + H` to open the sidebar.
+4.  **Prompt**: Ask the assistant to help with your current page.
+
+### Usage Example
+You can use HoloTab to process web content directly in your browser:
+
+```markdown
+# Example Prompt in the HoloTab sidebar
+"Summarize the key arguments in this article and find all contact emails mentioned."
+```
+
+## API examples
+While primarily a browser tool, HoloTab can be interacted with via browser-level automation or custom shortcuts:
+
+```javascript
+// Example: Programmatically opening the HoloTab sidebar (conceptual)
+window.postMessage({ type: "HOLOTAB_TOGGLE_SIDEBAR" }, "*");
+
+// Example: Sending a snippet to HoloTab for processing
+const selection = window.getSelection().toString();
+chrome.runtime.sendMessage("holotab-extension-id", {
+  action: "PROCESS_SELECTION",
+  text: selection
+});
+```
+
 ## Related tools / concepts
 - [Skills in Chrome](skills-in-chrome.md)
 - [Perplexity](perplexity.md)

@@ -48,6 +48,19 @@ Raw business documents are often fragmented, inconsistent, and unstructured, mak
 
 To begin document preparation:
 
+```mermaid
+flowchart TD
+    A[Raw Document Storage] --> B{Document Type?}
+    B -- Scanned PDF --> C[OCRmyPDF]
+    B -- Born-digital/Office --> D[Extraction Pass]
+    C --> D
+    D -- Apache Tika / Docling --> E[Markdown Normalization]
+    E --> F[Manifest Generation JSON]
+    F --> G[Semantic Deduplication]
+    G --> H[Semantic Merging]
+    H --> I[Final Training Corpus]
+```
+
 1. **Setup Staging**: Create the recommended directory structure (`raw`, `normalized`, `manifests`, `merged`).
 2. **Run OCR**: Use [OCRmyPDF](../tools/process_understanding/ocrmypdf.md) on any scanned PDFs.
 3. **Extract and Normalize**: Use [Apache Tika](../services/tika.md) or [Docling](../tools/process_understanding/docling-mcp.md) to convert files to Markdown.
