@@ -7,10 +7,10 @@ Cloudflare Mesh is a purpose-built private networking solution (part of the Clou
 As agentic workflows become more common, agents often need to access internal resources (databases, local APIs, home servers) that are behind firewalls. Traditional VPNs are cumbersome for programmatic identities. Cloudflare Mesh (via Cloudflare Tunnels) provides a high-performance overlay network that allows cloud-hosted agents to interact with local resources using secure, machine-verifiable identities.
 
 ## Where it fits in the stack
-It operates at the **Infrastructure/Networking layer**. It sits between **Cloud-based LLMs/Agents** (e.g., OpenAI, Anthropic) and **Local Services** (e.g., Home Assistant, Paperless-ngx, internal databases), providing a secure tunnel for tool execution.
+It operates at the **Infrastructure/Networking layer**. It sits between **Cloud-based LLMs/Agents** (e.g., OpenAI, Anthropic) and **Local Services** (e.g., [Home Assistant](home-assistant.md), [Paperless-ngx](paperless-ngx.md), internal databases), providing a secure tunnel for tool execution.
 
 ## Typical use cases
-- **Internal Tool Access**: Allowing a cloud-hosted agent (e.g., Claude or GPT-5.4) to securely query a local database in a home office.
+- **Internal Tool Access**: Allowing a cloud-hosted agent (e.g., Claude 4.7 or GPT-5.4) to securely query a local database in a home office.
 - **Cross-Cloud Orchestration**: Linking agents running on different providers (AWS, GCP, local) into a single, secure mesh.
 - **Secure File Access**: Providing agents with temporary, audited access to internal document stores for RAG.
 - **WARP-to-Tunnel**: Connecting remote devices running the Cloudflare WARP client directly to internal services without a traditional VPN.
@@ -21,6 +21,7 @@ It operates at the **Infrastructure/Networking layer**. It sits between **Cloud-
 - **Zero Trust**: True Zero Trust architecture for non-human identities.
 - **Observability**: Built-in auditing and logging for every request made by an agent across the mesh via Cloudflare Logpush.
 - **Global Edge**: Low latency by connecting to the nearest Cloudflare PoP.
+- **Agent Identity Fields (2026)**: Enhanced metadata for service tokens allowing more granular policy enforcement based on agent role.
 
 ## Limitations
 - **Ecosystem Lock-in**: Requires the Cloudflare stack and a managed domain for full benefits.
@@ -149,6 +150,7 @@ The Cloudflare WARP client allows remote agents (or your mobile devices) to join
 - [Home Admin Agent Architecture](../knowledge_base/home-admin-agent-architecture.md): The primary consumer of this networking layer.
 - [n8n](n8n.md): Common service exposed via Cloudflare Mesh.
 - [HashiCorp Vault](../tools/automation_orchestration/hashicorp-vault.md): For managing secrets used in tunnel configuration.
+- [Ollama](ollama.md) — Source of agentic traffic.
 
 ## Sources / References
 - [Beyond the VPN: Cloudflare Mesh builds a private network for the age of AI agents](https://thenewstack.io/cloudflare-mesh-agent-networking/)
@@ -156,8 +158,8 @@ The Cloudflare WARP client allows remote agents (or your mobile devices) to join
 - [Cloudflare Tunnel Documentation](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-05-27
 - Confidence: high

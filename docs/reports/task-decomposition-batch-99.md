@@ -30,15 +30,15 @@ This report implements **Action C** for the remaining technical freshness audits
 - [x] `docs/services/n8n.md`: Quarterly freshness audit (2026-05-26).
 - [x] `docs/services/whisper.md`: Quarterly freshness audit (2026-05-26).
 - [x] `docs/services/omni-tools.md`: Quarterly freshness audit (2026-05-26).
-- [ ] `docs/services/tika.md`: Quarterly freshness audit.
-- [ ] `docs/services/searXNG-automation.md`: Quarterly freshness audit.
+- [x] `docs/services/tika.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/searXNG-automation.md`: Quarterly freshness audit (2026-05-27).
 
 ## Sub-Batch 99.4: Infrastructure & Networking
 - [x] `docs/services/synapse.md`: Quarterly freshness audit (2026-05-26).
-- [ ] `docs/services/tailscale.md`: Quarterly freshness audit.
+- [x] `docs/services/tailscale.md`: Quarterly freshness audit (2026-05-27).
 - [x] `docs/services/headscale.md`: Quarterly freshness audit (2026-05-26).
-- [ ] `docs/services/authentik.md`: Quarterly freshness audit.
-- [ ] `docs/services/cloudflare-mesh.md`: Quarterly freshness audit.
+- [x] `docs/services/authentik.md`: Quarterly freshness audit (2026-05-27).
+- [x] `docs/services/cloudflare-mesh.md`: Quarterly freshness audit (2026-05-27).
 - [ ] `docs/services/portracker.md`: Quarterly freshness audit.
 - [ ] `docs/services/speedtest.md`: Quarterly freshness audit.
 
@@ -52,7 +52,7 @@ This report implements **Action C** for the remaining technical freshness audits
 - [ ] `docs/services/kiwix.md`: Quarterly freshness audit.
 
 ---
-- Status: Actionable backlog created.
-- Next Step: Initiate Sub-Batch 99.3.
+- Status: In Progress.
+- Next Step: Complete Sub-Batch 99.4.
 - Date: 2026-05-27
 - Created by: Jules

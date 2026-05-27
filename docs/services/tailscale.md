@@ -4,22 +4,24 @@
 Tailscale is a zero-config VPN that builds a secure WireGuard-based mesh network between your devices, even behind firewalls and NATs. It makes your devices accessible from anywhere in the world as if they were on the same local network.
 
 ## What problem it solves
-It simplifies complex network configurations like port forwarding, VPN server management, and NAT traversal. It provides a secure way to access internal services (like Home Assistant, NAS, or dev environments) from outside the home or office without exposing them to the public internet.
+It simplifies complex network configurations like port forwarding, VPN server management, and NAT traversal. It provides a secure way to access internal services (like [Home Assistant](home-assistant.md), NAS, or dev environments) from outside the home or office without exposing them to the public internet.
 
 ## Where it fits in the stack
 **Category**: Service / Infrastructure / Networking. Tailscale acts as the primary secure connectivity layer for remote access and inter-node communication across different locations.
 
 ## Typical use cases
-- Accessing home lab services (TrueNAS, Paperless, etc.) from a mobile device while traveling.
+- Accessing home lab services (TrueNAS, [Paperless-ngx](paperless-ngx.md), etc.) from a mobile device while traveling.
 - Connecting remote nodes (e.g., a VPS and a home server) into a single private network.
 - Securely sharing internal services with family members or colleagues.
-- Providing a private tunnel for automation agents to reach internal APIs.
+- Providing a private tunnel for automation agents ([n8n](n8n.md)) to reach internal APIs.
+- Securely SSHing into servers without managing SSH keys via **Tailscale SSH**.
 
 ## Strengths
 - **Zero Configuration**: No need to manage complex VPN keys or firewall rules.
 - **Secure**: Built on WireGuard, with automatic key rotation and encrypted tunnels.
 - **Mesh Connectivity**: Devices connect directly to each other whenever possible, minimizing latency.
 - **MagicDNS**: Provides stable, easy-to-remember hostnames for all devices.
+- **Tailscale SSH (GA 2026)**: Simplifies SSH access by using Tailscale identity for authentication instead of static keys.
 
 ## Limitations
 - **Coordination Server**: Relies on a central coordination server (though data is encrypted and doesn't pass through it).
@@ -32,7 +34,7 @@ It simplifies complex network configurations like port forwarding, VPN server ma
 - For giving automation agents private access to internal services without publishing those services on the open internet.
 
 ## When not to use it
-- If your environment requires a strictly hardware-based VPN solution with no third-party coordination server (though you can use [Headscale](https://github.com/juanfont/headscale) as an open-source alternative).
+- If your environment requires a strictly hardware-based VPN solution with no third-party coordination server (though you can use [Headscale](headscale.md) as an open-source alternative).
 - For extremely high-throughput site-to-site links where dedicated leased lines or high-end hardware routers are more appropriate.
 
 ## Getting started
@@ -94,6 +96,9 @@ tailscale ip -4
 
 # Check network connectivity and find the nearest DERP relay
 tailscale netcheck
+
+# GA 2026: Check SSH status for the node
+tailscale ssh --check <peer-hostname>
 ```
 
 ## Home-office access patterns
@@ -127,7 +132,8 @@ Use ACLs to enforce least-privilege access across your tailnet. Prefer tags over
   },
   "tags": {
     "tag:automation": ["alice@example.com"],
-    "tag:server":     ["alice@example.com"]
+    "tag:server":     ["alice@example.com"],
+    "tag:agent":      ["alice@example.com"]
   },
   "acls": [
     // Admins can access everything
@@ -137,7 +143,19 @@ Use ACLs to enforce least-privilege access across your tailnet. Prefer tags over
     {"action": "accept", "src": ["group:family"], "dst": ["tag:server:8096", "tag:server:32400"]},
 
     // Automation runners can access specific internal APIs
-    {"action": "accept", "src": ["tag:automation"], "dst": ["tag:server:5678", "tag:server:8080"]}
+    {"action": "accept", "src": ["tag:automation"], "dst": ["tag:server:5678", "tag:server:8080"]},
+
+    // Agents can only access their designated tool endpoints
+    {"action": "accept", "src": ["tag:agent"], "dst": ["tag:server:9998", "tag:server:8080"]}
+  ],
+  "ssh": [
+    // Allow admins to SSH into all servers
+    {
+      "action": "accept",
+      "src": ["group:admin"],
+      "dst": ["tag:server", "tag:automation"],
+      "users": ["root", "admin"]
+    }
   ]
 }
 ```
@@ -165,16 +183,18 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 - [Docker](../tools/infrastructure/docker.md)
 - [n8n](n8n.md)
 - [Home Assistant](home-assistant.md)
+- [Ollama](ollama.md) — For running AI agents that may need secure connectivity
+- [Paperless-ngx](paperless-ngx.md) — Common service accessed via Tailscale
 - [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
 - [Nextcloud](nextcloud.md)
 - [WireGuard](https://www.wireguard.com/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (2026-05-27).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-27
 
 ## Sources / References
 - https://tailscale.com/
