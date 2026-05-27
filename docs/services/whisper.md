@@ -1,7 +1,7 @@
 # OpenAI Whisper
 
 ## What it is
-OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web.
+OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of May 2026, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription.
 
 ## What problem it solves
 Transcribing audio manually is time-consuming and expensive. Whisper provides high-accuracy transcription, translation, and language identification, allowing for the automation of meeting notes, video subtitling, and voice-controlled interfaces. It is particularly notable for its robustness to accents, background noise, and technical language.
@@ -14,17 +14,19 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 - Generating subtitles for videos in multiple languages.
 - Building voice-activated home automation commands.
 - Translating foreign language audio into English text.
+- Enriching local media libraries (e.g., [Audiobookshelf](audiobookshelf.md)) with full-text search.
 
 ## Strengths
 - **High Accuracy**: Competes with professional human transcribers in many languages.
 - **Multilingual**: Supports transcription in dozens of languages and translation into English.
 - **Robustness**: Handles background noise and various accents exceptionally well.
 - **Local Execution**: Can be run entirely offline (via Whisper.cpp or Faster-Whisper), ensuring data privacy.
+- **Batched Inference**: Faster-Whisper v1.2.x supports optimized batched processing for up to 4x speed increases.
 
 ## Limitations
-- **Resource Intensive**: Larger models (`large-v3`) require significant GPU VRAM or CPU power.
+- **Resource Intensive**: Larger models (`large-v3-turbo`) require significant GPU VRAM or CPU power.
 - **No Real-time (Native)**: The base Whisper model is designed for batch processing, though optimized versions like Whisper.cpp support streaming.
-- **Hallucination**: Can occasionally hallucinate text during long periods of silence or music.
+- **Hallucination**: Can occasionally hallucinate text during long periods of silence or music (partially mitigated by Silero-VAD V6).
 
 ## When to use it
 - When you need high-quality, private, and free transcription of audio files.
@@ -42,7 +44,8 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 pip install openai-whisper
 ```
 
-### Installation (Faster-Whisper for performance)
+### Installation (Faster-Whisper)
+Optimized version using CTranslate2.
 ```bash
 pip install faster-whisper
 ```
@@ -81,15 +84,18 @@ result = model.transcribe("audio.mp3")
 print(result["text"])
 ```
 
-### Python (Faster-Whisper)
-Faster-Whisper is a reimplementation using CTranslate2, which is up to 4x faster than the original.
+### Python (Faster-Whisper v1.2.x)
+Featuring **Batched Inference** and **Silero-VAD V6** for improved speed and accuracy.
 ```python
-from faster_whisper import WhisperModel
+from faster_whisper import WhisperModel, BatchedInferencePipeline
 
-model_size = "base"
-model = WhisperModel(model_size, device="cpu", compute_type="int8")
+model_size = "large-v3-turbo"
+# Run on GPU with FP16
+model = WhisperModel(model_size, device="cuda", compute_type="float16")
+batched_model = BatchedInferencePipeline(model)
 
-segments, info = model.transcribe("audio.mp3", beam_size=5)
+# Use Silero-VAD V6 for voice activity detection
+segments, info = batched_model.transcribe("audio.mp3", batch_size=16)
 
 for segment in segments:
     print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
@@ -112,17 +118,18 @@ with open("audio.wav", "rb") as audio_file:
     print(transcription)
 ```
 
-### Advanced: Hardware Benchmarking (CPU vs GPU)
-Whisper performance varies significantly based on the backend. Use these benchmarks to select the right model for your hardware.
+## Hardware Benchmarking (May 2026)
+Whisper performance depends on hardware acceleration and model quantization.
 
 | Hardware | Model | Backend | Time for 10m Audio | Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | Raspberry Pi 5 | base | Whisper.cpp | ~8m | CPU-only, slow but viable. |
-| Intel i7 (12th Gen) | medium | Faster-Whisper | ~2m | Optimized with `int8` quantization. |
-| NVIDIA RTX 3060 | large-v3 | Faster-Whisper | ~45s | Requires ~8GB VRAM for large model. |
-| NVIDIA RTX 4090 | large-v3 | Faster-Whisper | ~15s | Peak performance for batch jobs. |
+| Intel i7 (14th Gen) | medium | Faster-Whisper | ~1.5m | Optimized with `int8` quantization. |
+| Apple M4 Pro | large-v3 | Whisper.cpp | ~40s | Leveraging CoreML/MLX. |
+| NVIDIA RTX 4070 | large-v3 | Faster-Whisper | ~15s | FP16, batched inference. |
+| NVIDIA RTX 4090 | large-v3 | Faster-Whisper | ~8s | Peak throughput for batch jobs. |
 
-### Advanced: Transcript Post-processing (Python)
+## Advanced: Transcript Post-processing (Python)
 Raw transcripts often contain filler words or minor hallucinations. This script demonstrates a cleanup pass using a local LLM (Ollama).
 
 ```python
@@ -171,15 +178,17 @@ A common pattern involves using a local Whisper server (like Speaches) to proces
 - [Piper](../tools/ai_knowledge/piper.md) — for local Text-to-Speech (the inverse of Whisper)
 - [Home Assistant](home-assistant.md) — for integrating Whisper into voice-controlled home automation
 - [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
+- [MLX](../tools/frameworks/mlx.md) — for optimized execution on Apple Silicon.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
 
 ## Contribution Metadata
+- Last reviewed: 2026-05-26
 - Confidence: high
-- Last reviewed: 2026-05-13
 
 ## Sources / References
-- https://github.com/openai/whisper
-- https://github.com/ggerganov/whisper.cpp
-- https://github.com/SYSTRAN/faster-whisper
+- [Whisper GitHub](https://github.com/openai/whisper)
+- [Whisper.cpp GitHub](https://github.com/ggerganov/whisper.cpp)
+- [Faster-Whisper GitHub](https://github.com/SYSTRAN/faster-whisper)
+- [Speaches GitHub](https://github.com/speaches-ai/speaches)
