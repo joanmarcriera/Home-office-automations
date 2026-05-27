@@ -1,10 +1,10 @@
-# Cloudflare Mesh
+# Cloudflare Mesh (Cloudflare Zero Trust)
 
 ## What it is
-Cloudflare Mesh is a purpose-built private networking solution designed for the era of autonomous AI agents. It extends the traditional VPN and Zero Trust concepts to provide secure, low-latency communication between agents, tools, and internal services without exposing them to the public internet.
+Cloudflare Mesh is a purpose-built private networking solution (part of the Cloudflare Zero Trust suite) designed for secure, low-latency communication between agents, tools, and internal services without exposing them to the public internet. It leverages Cloudflare's global edge network to create a secure overlay for the age of AI agents.
 
 ## What problem it solves
-As agentic workflows become more common, agents often need to access internal resources (databases, local APIs, home servers) that are behind firewalls. Traditional VPNs are cumbersome for programmatic identities. Cloudflare Mesh provides a high-performance overlay network that allows cloud-hosted agents to interact with local resources using secure, machine-verifiable identities.
+As agentic workflows become more common, agents often need to access internal resources (databases, local APIs, home servers) that are behind firewalls. Traditional VPNs are cumbersome for programmatic identities. Cloudflare Mesh (via Cloudflare Tunnels) provides a high-performance overlay network that allows cloud-hosted agents to interact with local resources using secure, machine-verifiable identities.
 
 ## Where it fits in the stack
 It operates at the **Infrastructure/Networking layer**. It sits between **Cloud-based LLMs/Agents** (e.g., OpenAI, Anthropic) and **Local Services** (e.g., Home Assistant, Paperless-ngx, internal databases), providing a secure tunnel for tool execution.
@@ -13,16 +13,18 @@ It operates at the **Infrastructure/Networking layer**. It sits between **Cloud-
 - **Internal Tool Access**: Allowing a cloud-hosted agent (e.g., Claude or GPT-5.4) to securely query a local database in a home office.
 - **Cross-Cloud Orchestration**: Linking agents running on different providers (AWS, GCP, local) into a single, secure mesh.
 - **Secure File Access**: Providing agents with temporary, audited access to internal document stores for RAG.
+- **WARP-to-Tunnel**: Connecting remote devices running the Cloudflare WARP client directly to internal services without a traditional VPN.
 
 ## Strengths
 - **Agent-First Networking**: Optimized for the bursty, high-frequency request patterns typical of AI agents.
-- **Identity-Based Routing**: Traffic is routed based on the agent's verified identity rather than just IP addresses.
+- **Identity-Based Routing**: Traffic is routed based on the agent's verified identity (Service Tokens) rather than just IP addresses.
 - **Zero Trust**: True Zero Trust architecture for non-human identities.
-- **Observability**: Built-in auditing and logging for every request made by an agent across the mesh.
+- **Observability**: Built-in auditing and logging for every request made by an agent across the mesh via Cloudflare Logpush.
+- **Global Edge**: Low latency by connecting to the nearest Cloudflare PoP.
 
 ## Limitations
-- **Ecosystem Lock-in**: Requires the Cloudflare stack for full benefits.
-- **Early Stage**: As a new service (2026), advanced features and third-party integrations are still evolving.
+- **Ecosystem Lock-in**: Requires the Cloudflare stack and a managed domain for full benefits.
+- **Early Stage**: As a new service (2026), advanced features and third-party integrations for agent-specific protocols (like MCP) are still evolving.
 
 ## When to use it
 - When you need cloud-based AI agents to securely call APIs running on your local network.
@@ -31,7 +33,7 @@ It operates at the **Infrastructure/Networking layer**. It sits between **Cloud-
 
 ## When not to use it
 - For simple local-only agent setups (where everything is on the same LAN).
-- If you prefer an open-source, self-hosted alternative like Headscale.
+- If you prefer an open-source, self-hosted alternative like [Headscale](headscale.md).
 
 ## Getting started
 
@@ -87,18 +89,27 @@ ingress:
   - service: http_status:404
 ```
 
-### Zero Trust Access Policy
-Example of a Cloudflare Access policy defined in YAML for managing agent access.
+## Zero Trust & Service Tokens
+For autonomous agents, use **Service Tokens** instead of user-based authentication.
+
+### Creating a Service Token (CLI)
+```bash
+# Use Cloudflare API to create a service token for an agent
+curl -X POST "https://api.cloudflare.com/client/v4/accounts/{account_id}/access/service_tokens" \
+     -H "Authorization: Bearer {api_token}" \
+     -H "Content-Type: application/json" \
+     --data '{"name": "agent-01-token"}'
+```
+
+### Access Policy for Service Tokens
+Configure a policy in Cloudflare Zero Trust to allow requests with the specific Service Token headers (`CF-Access-Client-Id` and `CF-Access-Client-Secret`).
 
 ```yaml
-# access_policy.yaml
-name: Allow Agent Mesh
+# policy_config.yaml
+name: Allow Agent Service Token
 decision: allow
 include:
-  - common_name: "agent-01.mesh.local"
-  - ip: "192.168.1.50/32"
-require:
-  - device_posture: "managed"
+  - service_token: "{service_token_id}"
 ```
 
 ## API examples
@@ -110,8 +121,8 @@ Agents can verify their identity within the mesh by exchanging a Cloudflare Acce
 import requests
 
 def verify_agent_session(jwt_token):
+    # Verify the JWT against Cloudflare's public keys
     url = "https://yourdomain.cloudflareaccess.com/cdn-cgi/access/certs"
-    # In a real scenario, you would verify the JWT against Cloudflare's public keys
     response = requests.get(url)
     if response.status_code == 200:
         print("Successfully retrieved mesh certificates for verification")
@@ -121,24 +132,32 @@ def verify_agent_session(jwt_token):
 # verify_agent_session("AGENT_JWT_HERE")
 ```
 
+## WARP Client Integration
+The Cloudflare WARP client allows remote agents (or your mobile devices) to join the mesh and access tunnel-backed services directly by IP or private DNS.
+
+1. **Install WARP**: On the agent host or device.
+2. **Enroll in Zero Trust**: `warp-cli enrollment-token {token}`.
+3. **Configure Split Tunnels**: Ensure your private IP range (e.g., `192.168.1.0/24`) is *included* in the tunnel.
+
 ## Related tools / concepts
-- [Tailscale](../services/tailscale.md): A popular mesh VPN alternative.
-- [Headscale](../services/headscale.md): The open-source, self-hosted coordination server for Tailscale.
-- [Authentik](../services/authentik.md): For identity management within the mesh.
-- [Traefik](../services/traefik.md): For edge routing and load balancing.
+- [Tailscale](tailscale.md): A popular mesh VPN alternative.
+- [Headscale](headscale.md): The open-source, self-hosted coordination server for Tailscale.
+- [Authentik](authentik.md): For identity management within the mesh.
+- [Traefik](traefik.md): For edge routing and load balancing.
 - [Webhook Ingestion](../reference-implementations/paperless/webhook-ingestion.md): Securing ingestion endpoints.
 - [Invisible Kubernetes](../knowledge_base/invisible_kubernetes.md): Networking for agent-centric infrastructure.
 - [Home Admin Agent Architecture](../knowledge_base/home-admin-agent-architecture.md): The primary consumer of this networking layer.
-- [n8n](../services/n8n.md): Common service exposed via Cloudflare Mesh.
+- [n8n](n8n.md): Common service exposed via Cloudflare Mesh.
 - [HashiCorp Vault](../tools/automation_orchestration/hashicorp-vault.md): For managing secrets used in tunnel configuration.
 
 ## Sources / References
 - [Beyond the VPN: Cloudflare Mesh builds a private network for the age of AI agents](https://thenewstack.io/cloudflare-mesh-agent-networking/)
 - [Cloudflare Zero Trust Documentation](https://developers.cloudflare.com/cloudflare-one/)
+- [Cloudflare Tunnel Documentation](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-05-26
 - Confidence: high

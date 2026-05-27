@@ -1,7 +1,7 @@
 # Radicale
 
 ## What it is
-Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight and easy to set up.
+Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight and easy to set up. As of May 2026, the current stable version is **v3.7.x**, which continues the project's focus on simplicity, standards compliance, and file-based storage.
 
 ## What problem it solves
 It allows individuals and small groups to host their own calendars and contacts privately, without relying on large corporate cloud providers. It uses a simple, file-based storage format (iCalendar and vCard), making it easy to backup and manage.
@@ -40,6 +40,25 @@ Install Radicale using `pip`:
 
 ```bash
 python3 -m pip install --upgrade radicale
+```
+
+### Docker Compose
+For containerized deployments (common in TrueNAS and other homelab environments):
+
+```yaml
+services:
+  radicale:
+    image: tomsquest/docker-radicale:latest
+    container_name: radicale
+    ports:
+      - "5232:5232"
+    volumes:
+      - ./data:/data
+      - ./config:/config:ro
+    restart: unless-stopped
+    # Security Note: Radicale often runs as root in official apps (e.g. TrueNAS)
+    # but can be hardened to run as a non-privileged user.
+    user: "1000:1000"
 ```
 
 ### Basic Setup
@@ -85,6 +104,9 @@ python3 -m radicale --version
 
 # Verify a specific item file (e.g., a .ics file) for errors
 python3 -m radicale --verify-item /path/to/collection/item.ics
+
+# Export a collection to a single .ics file
+python3 -m radicale --export /path/to/collection > backup.ics
 ```
 
 ## API examples
@@ -111,6 +133,36 @@ print(f"Collections for admin:\n{response.text}")
 curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
 ```
 
+## Advanced Configuration & Storage
+
+### Git-based Versioning
+Radicale can use a hook system to version your collections using Git. This provides an automated audit trail for your calendars and contacts.
+
+1. Initialize a git repo in your collections directory:
+```bash
+cd /var/lib/radicale/collections
+git init
+```
+
+2. Add a hook in `config.ini`:
+```ini
+[storage]
+type = filesystem
+filesystem_folder = /var/lib/radicale/collections
+
+[hook]
+# Automatically commit changes after every modification
+after_save = git add . && git commit -m "Radicale change"
+```
+
+### Security Capabilities (TrueNAS/Container Context)
+In the TrueNAS Apps ecosystem (version 3.7.3.0+), Radicale is often deployed with specific security capabilities:
+- **CHOWN**: To manage file ownership of mounted volumes.
+- **SETUID/SETGID**: To switch to non-root users if configured.
+- **KILL**: For process management within the container.
+
+For maximum security, ensure Radicale is isolated behind a reverse proxy and uses an authentication provider like [Authentik](authentik.md).
+
 ## Licensing and cost
 - **Open Source**: Yes (GPL-3.0)
 - **Cost**: Free
@@ -119,6 +171,10 @@ curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
 ## Related tools / concepts
 - [Nextcloud (Contacts/Calendar)](nextcloud.md) (Alternative storage)
 - [Vikunja](vikunja.md) (Task management)
+- [Authentik](authentik.md) (OIDC/Auth integration)
+- [Tailscale](tailscale.md) (Secure remote access)
+- [Home Assistant](home-assistant.md) (Calendar integration)
+- [n8n](n8n.md) (Automation workflows)
 - [DAVx⁵](https://www.davx5.com/) (Standard Android sync client)
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md) (To expose CalDAV to AI agents)
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md) (Public alternative)
@@ -129,8 +185,8 @@ curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
 - [Radicale Documentation](https://radicale.org/v3.html)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high

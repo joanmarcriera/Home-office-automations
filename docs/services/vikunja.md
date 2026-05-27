@@ -1,7 +1,7 @@
 # Vikunja
 
 ## What it is
-Vikunja is an open-source, self-hosted To-do list application that allows you to organize all your tasks on all platforms. It features Kanban boards, Gantt charts, table views, and a powerful filter system.
+Vikunja is an open-source, self-hosted To-do list application that allows you to organize all your tasks on all platforms. As of May 2026, **v2.3.0** is the current stable release, featuring a new plugin system, OAuth 2.0 provider capabilities, and enhanced Gantt charts.
 
 ## What problem it solves
 Maintaining a consistent task list across devices while maintaining privacy can be challenging with commercial tools. Vikunja provides an enterprise-grade task management experience that you can host yourself, ensuring your data remains private while offering the flexibility to manage everything from simple groceries to complex project timelines.
@@ -14,12 +14,14 @@ Maintaining a consistent task list across devices while maintaining privacy can 
 - **Project Planning**: Utilizing Gantt charts and Kanban boards to visualize multi-stage projects with dependencies.
 - **Automated Ingestion**: Creating tasks automatically via API from emails, chat messages, or CI/CD pipelines.
 - **Collaborative Lists**: Sharing specific task lists with family members or team colleagues for joint coordination.
+- **Self-Hosted Productivity Hub**: Acting as an OAuth 2.0 provider to allow other self-hosted apps to authenticate users.
 
 ## Strengths
 - **Multiple Views**: Seamlessly switch between List, Kanban, Gantt, and Table views for the same set of tasks.
 - **Task Relations**: Robust support for subtasks, dependencies (blocking/blocked by), and related tasks.
 - **Rich Filtering**: A powerful query language for creating smart views based on tags, dates, and priorities.
-- **Self-Hosted Privacy**: Full control over data with OIDC support for secure family-wide access.
+- **Plugin System**: Introduced in v2.3.0, allowing community-driven extensions and custom behaviors.
+- **OAuth 2.0 Provider**: Can act as a central identity provider for other tools in your homelab.
 
 ## Limitations
 - **Mobile App State**: While the PWA is excellent, the native mobile apps are still in active development and may lack some advanced features.
@@ -65,31 +67,40 @@ docker exec <container_name> /app/vikunja/vikunja dump
 
 # Run a series of diagnostic checks
 docker exec <container_name> /app/vikunja/vikunja doctor
+
+# Manage plugins (v2.3.0+)
+docker exec <container_name> /app/vikunja/vikunja plugins list
 ```
 
 ## API examples
 Vikunja provides a comprehensive REST API. Authenticate using an API token or a Bearer token in the `Authorization` header.
 
-### Python Example
+### Python: Quick Entry
 ```python
 import requests
 
-url = "http://localhost:3456/api/v1/tasks"
-headers = {
-    "Authorization": "Bearer YOUR_API_TOKEN"
-}
+# Configuration
+URL = "http://localhost:3456/api/v1/tasks"
+TOKEN = "YOUR_API_TOKEN"
 
-response = requests.get(url, headers=headers)
-print(response.json())
+def quick_add_task(title, description=""):
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    data = {
+        "title": title,
+        "description": description,
+        "priority": 3 # High
+    }
+    response = requests.put(url, headers=headers, json=data)
+    return response.json()
+
+print(quick_add_task("Audit homelab services", "Quarterly freshness audit for Batch 99"))
 ```
 
-### Curl Example
+### curl: Fetching Projects
 ```bash
 curl -H "Authorization: Bearer <your_api_token>" \
-     "http://localhost:3456/api/v1/tasks"
+     "http://localhost:3456/api/v1/projects"
 ```
-
-Use your own private Vikunja base URL here. Do not commit instance-specific URLs, project IDs, or tokens into this repository.
 
 ## Task Relations
 Vikunja allows linking tasks together with various relation types.
@@ -109,13 +120,10 @@ Vikunja allows linking tasks together with various relation types.
 | **Copied from** | The task was copied from another. | Copied to |
 | **Copied to** | The task was copied to another. | Copied from |
 
-### API Endpoint
-Task relations are managed via the `/tasks/{id}/relations` endpoint.
+## SSO, OIDC & OAuth 2.0
+Vikunja supports OIDC for login and can act as an OAuth 2.0 provider.
 
-## SSO & OIDC Integration
-Vikunja supports OIDC for Single Sign-On via [Authentik](authentik.md).
-
-### Configuration (`config.yml`)
+### OIDC Configuration (Authentik)
 Add the following to your `config.yml`:
 
 ```yaml
@@ -131,7 +139,8 @@ auth:
         scope: "openid profile email"
 ```
 
-In Authentik, configure the Redirect URI as: `https://vikunja.example.com/auth/openid/authentik`
+### OAuth 2.0 Provider (v2.3.0+)
+Vikunja can now issue tokens for other applications. Manage your registered OAuth 2.0 applications in **Settings > API Tokens**.
 
 ## CalDAV Synchronization
 Vikunja supports CalDAV for syncing tasks with external clients or servers like [Radicale](radicale.md).
@@ -167,11 +176,9 @@ username = "<username>"
 password = "<password>"
 ```
 
-Run `vdirsyncer discover` and then `vdirsyncer sync` to initialize the connection.
-
 ## Related tools / concepts
-- [Synapse](synapse.md) — For self-hosting the Matrix backend.
 - [Radicale](radicale.md) — For CalDAV sync of tasks.
+- [Synapse](synapse.md) — For notifications and communication.
 - [Habitica](habitica.md) — For gamified task management.
 - [Focalboard](focalboard.md) — For an alternative Kanban-focused tool.
 - [Nextcloud](nextcloud.md) — For tasks integrated into a larger suite.
@@ -181,15 +188,14 @@ Run `vdirsyncer discover` and then `vdirsyncer sync` to initialize the connectio
 - [Vikunja Task Routing](../reference-implementations/llm-prompts/vikunja-task-routing.md) — LLM patterns for automated task classification.
 
 ## Sources / References
-
+- [Official Website](https://vikunja.io/)
 - [Official Documentation](https://vikunja.io/docs/)
-- [CalDAV Documentation](https://vikunja.io/docs/caldav/)
-- [CLI Reference](https://vikunja.io/docs/cli/)
+- [Changelog v2.3.0](https://vikunja.io/changelog/whats-new-in-vikunja-2.3.0)
+- [API Reference](https://vikunja.io/docs/api/)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-05-26
 - Confidence: high
