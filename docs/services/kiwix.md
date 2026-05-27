@@ -18,6 +18,7 @@ Accessing reliable information usually requires an active internet connection. K
 - **Personal Archival**: Keeping a local copy of critical documentation (e.g., medical, survival, technical) for emergencies.
 - **Privacy-First Research**: Browsing Wikipedia or Stack Overflow without being tracked by ISPs or site owners.
 - **Low-Bandwidth Environments**: Accessing content at LAN speeds instead of waiting for slow satellite or cellular links.
+- **Developer Documentation**: Using `devdocs2zim` to keep offline copies of programming docs (API reference, MDN, etc.).
 
 ## Strengths
 
@@ -25,6 +26,8 @@ Accessing reliable information usually requires an active internet connection. K
 - **Powerful Search**: Includes a fast, built-in search engine that works entirely offline.
 - **Multi-Platform**: Available for Windows, macOS, Linux, Android, iOS, and as a server (kiwix-serve).
 - **Portability**: Content is stored in a single `.zim` file, making it easy to share via USB drives or SD cards.
+- **ZIM Ecosystem**: Vast library of content through the openZIM project, including Wikipedia, StackExchange, TED, and specialized medical/technical libraries.
+- **libzim 9.x+ Performance**: Significant improvements in decompression speed and search indexing (2025/2026 updates).
 
 ## Limitations
 
@@ -54,7 +57,7 @@ docker run -d \
   --name kiwix \
   -p 8080:80 \
   -v /path/to/zims:/data \
-  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2024-01.zim
+  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-02.zim
 ```
 
 Access the content at `http://localhost:8080`.
@@ -134,12 +137,14 @@ if response.status_code == 200:
 
 ## Related tools / concepts
 
-- [Trilium Notes](trilium.md) — for building your own personal knowledge base to complement Kiwix
-- [Audiobookshelf](audiobookshelf.md) — for a similar offline-first experience with audiobooks and podcasts
-- [Paperless-ngx](paperless-ngx.md) — for an offline-first archive of personal documents and receipts
-- [Home Assistant](home-assistant.md) — for integrating Kiwix status or content into a local dashboard
-- [Nextcloud](nextcloud.md) — for syncing ZIM files across devices for offline use
-- [Internet-in-a-Box](https://internet-in-a-box.org/) — a full hardware/software stack for offline knowledge
+- [TriliumNext](trilium.md) — For building your own personal knowledge base to complement Kiwix.
+- [Audiobookshelf](audiobookshelf.md) — For a similar offline-first experience with audiobooks and podcasts.
+- [Paperless-ngx](paperless-ngx.md) — For an offline-first archive of personal documents and receipts.
+- [Home Assistant](home-assistant.md) — For integrating Kiwix status or content into a local dashboard.
+- [Nextcloud](nextcloud.md) — For syncing ZIM files across devices for offline use.
+- [Tika](tika.md) — Useful for processing and indexing the content within an offline knowledge base.
+- [SearXNG](searXNG.md) — Can be configured to prioritize local Kiwix results.
+- [Internet-in-a-Box](https://internet-in-a-box.org/) — A full hardware/software stack for offline knowledge.
 
 ## Sources / References
 
@@ -151,9 +156,9 @@ if response.status_code == 200:
 - [Aard 2](https://github.com/itkach/aard2-android)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-05-27
 - Confidence: high
