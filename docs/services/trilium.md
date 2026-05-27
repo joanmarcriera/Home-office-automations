@@ -110,7 +110,7 @@ print(response.json())
 - [Trilium Wiki](https://github.com/TriliumNext/Trilium/wiki)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-26

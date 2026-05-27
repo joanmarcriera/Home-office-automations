@@ -121,7 +121,7 @@ curl -X GET \
 - [n8n](n8n.md) — for complex automations that bridge HA with external web services
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Sources / References
 
@@ -133,5 +133,5 @@ curl -X GET \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-05-27
 - Confidence: high

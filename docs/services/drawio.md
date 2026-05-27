@@ -151,7 +151,7 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Docker Hub](https://hub.docker.com/r/jgraph/drawio)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 - [x] Set up self-hosted instance on TrueNAS for offline access.
 
 ## Contribution Metadata

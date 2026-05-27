@@ -12,15 +12,17 @@ It automates the tedious parts of media acquisition: starting downloads from RSS
 **Category**: Services / Media Automation. It sits between content discovery (RSS/Indexers) and media consumption (Plex).
 
 ## Typical use cases
-- Automatically downloading new episodes of TV shows via RSS.
-- Moving completed downloads to specific folders based on their "Category" tag.
-- Using n8n to send a Telegram notification when a large download completes.
-- Automatically pausing or slowing down downloads during business hours.
+- **RSS Auto-DL**: Automatically downloading new episodes of TV shows via RSS.
+- **Categorization & Sorting**: Moving completed downloads to specific folders based on their "Category" tag.
+- **Notifications**: Using [n8n](n8n.md) to send a Telegram or Element notification when a large download completes.
+- **Bandwidth Scheduling**: Automatically pausing or slowing down downloads during business hours.
+- **Seed Management**: Automating the cleanup of completed downloads based on share ratios or seeding time.
 
 ## Strengths
 - **Robust Web API**: Excellent documentation and coverage for almost all client features.
-- **Python Libraries**: Multiple well-maintained wrappers (e.g., `python-qbittorrent`).
+- **Python Libraries**: Multiple well-maintained wrappers (e.g., `qbittorrent-api`).
 - **Low Overhead**: Automation scripts can run as lightweight cron jobs or n8n nodes.
+- **Category-Level Limits**: As of v5.2 (May 2026), seeding limits can be enforced at the category level, allowing for automated rule sets (e.g., "Public" torrents stop at 2.0 ratio, while "Private" ones seed indefinitely).
 
 ## Limitations
 - **Security**: The Web UI API must be secured behind a strong password or VPN.
@@ -96,22 +98,34 @@ for torrent in qbt_client.torrents_info(status_filter='seeding'):
     if torrent.seeding_time > (7 * 24 * 3600):
         print(f"Removing old seed: {torrent.name}")
         torrent.delete(delete_files=True)
+
+# Automate Category-Level Limits (v5.2 Feature)
+# Set a 2.0 ratio limit for the "Linux-ISOs" category
+qbt_client.torrents_set_share_limits(
+    category='Linux-ISOs',
+    ratio_limit=2.0,
+    seeding_time_limit=-1 # No time limit
+)
 ```
 
 ## Related tools / concepts
-- [qBittorrent](qbittorrent.md) (The core client)
-- [Plex](plex.md) (Media consumer)
-- [n8n](n8n.md) (Workflow engine)
-- [Arrr Suite (Sonarr/Radarr)](https://wiki.servarr.com/) (Dedicated media automation)
-- [Rclone Automation](rclone-automation.md) (For moving files to cloud storage)
+- [qBittorrent](qbittorrent.md) — The core client.
+- [Jellyfin](jellyfin.md) — Open-source media server for consuming automated downloads.
+- [Plex](plex.md) — Alternative media consumer.
+- [n8n](n8n.md) — Workflow engine for complex "If-This-Then-That" scenarios.
+- [Rclone Automation](rclone-automation.md) — For moving files to cloud storage after download.
+- [SearXNG](searXNG.md) — Can be used to programmatically find torrent links.
+- [Authentik](authentik.md) — For managing secure access to the qBittorrent Web UI.
+- [Tailscale](tailscale.md) — For secure remote access to automation triggers.
+- [Arrr Suite (Sonarr/Radarr)](https://wiki.servarr.com/) — Dedicated media automation stacks.
 
 ## Sources / References
 - [qBittorrent Web UI API Documentation](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
 - [qbittorrent-api Python Wrapper](https://github.com/rmartin16/qbittorrent-api)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-05-27

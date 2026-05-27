@@ -47,12 +47,12 @@ This report implements **Action C** for the remaining technical freshness audits
 - [x] `docs/services/storj.md`: Quarterly freshness audit (2026-05-27).
 - [x] `docs/services/rclone-automation.md`: Quarterly freshness audit (2026-05-27).
 - [x] `docs/services/qbittorrent.md`: Quarterly freshness audit (2026-05-27).
-- [ ] `docs/services/qbittorrent-automation.md`: Quarterly freshness audit.
+- [x] `docs/services/qbittorrent-automation.md`: Quarterly freshness audit (2026-05-27).
 - [x] `docs/services/radicale.md`: Quarterly freshness audit (2026-05-26).
-- [ ] `docs/services/kiwix.md`: Quarterly freshness audit.
+- [x] `docs/services/kiwix.md`: Quarterly freshness audit (2026-05-27).
 
 ---
-- Status: In Progress.
-- Next Step: Complete Sub-Batch 99.4.
+- Status: Resolved.
+- Next Step: N/A.
 - Date: 2026-05-27
 - Created by: Jules
