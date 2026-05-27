@@ -186,7 +186,7 @@ for m in healthy_matches:
 - [Homebox](homebox.md)
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 - [x] Migrate to Prowlarr for better integration with the "Arr" stack.
 
 ## Sources / References
@@ -197,4 +197,4 @@ for m in healthy_matches:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-05-26

@@ -26,6 +26,7 @@ Tube Archivist can automatically monitor and download new videos from your favor
 - **Comprehensive Metadata**: Downloads thumbnails, descriptions, comments, and subtitles.
 - **Powerful Search**: Features an integrated Elasticsearch-based search engine for finding content within your archive.
 - **Automation**: Can be configured to automatically monitor and download new videos from specific channels or playlists.
+- **Browser Integration**: Companion browser extension allows for single-click archival directly from YouTube.
 - **Self-Hosted**: Full control over your data and hardware.
 
 ## Limitations
@@ -66,6 +67,7 @@ services:
       - HOST_GID=1000
       - TA_USERNAME=admin
       - TA_PASSWORD=password
+      - TA_AUTO_UPDATE_YTDLP=true # Automatically update yt-dlp on start
     depends_on:
       - archivist-es
       - archivist-redis
@@ -180,11 +182,11 @@ curl -X POST -H "Authorization: Token <your_api_token>" \
 - [Tailscale](tailscale.md) — For securely accessing your archive from anywhere.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-20
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - https://www.tubearchivist.com/
