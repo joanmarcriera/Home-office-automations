@@ -27,6 +27,19 @@ sudo snap install rocm-runtime
 
 Higher-level tools can then interface with these snaps to access hardware acceleration.
 
+## May 2026 Security Baseline: NVIDIA Driver Update
+
+As of May 19, 2026, a significant wave of 12 security vulnerabilities (including CVE-2026-24187 and CVE-2026-24190) has been disclosed affecting the NVIDIA display driver on Linux. These vulnerabilities include High-severity issues such as use-after-free and heap buffer overflows that could lead to code execution or escalation of privileges.
+
+### Recommended Versions (May 2026)
+To ensure system security, users must update to the following driver versions or later:
+- **GeForce R590**: 590.48.01
+- **GeForce R580**: 580.126.09
+- **NVIDIA RTX / Quadro R595**: 595.71.05
+- **NVIDIA RTX / Quadro R535**: 535.309.01
+
+**Warning**: The **R570 driver series** has been designated as **End-of-Life (EOL)** and will not receive security updates for these vulnerabilities. Users on R570 should migrate to a supported branch immediately.
+
 ## Strengths
 - **Simplified Dependency Management**: Eliminates the need to manually manage complex AI driver and library stacks.
 - **Isolation**: Snaps keep the AI runtime separate from the core OS, preventing version conflicts.
@@ -58,11 +71,13 @@ Higher-level tools can then interface with these snaps to access hardware accele
 - [Invisible Kubernetes](../../knowledge_base/invisible_kubernetes.md)
 - [Talos vs Ubuntu K3s](../../knowledge_base/talos-vs-ubuntu-k3s.md)
 - [Google Axion](../../knowledge_base/google_axion.md)
+- [NVIDIA Security Bulletin May 2026](https://nvidia.custhelp.com/app/answers/detail/a_id/5821)
 
 ## Sources / References
 - [Ubuntu 26.04 to include Cuda, Rocm snaps and inference models optimised for your hardware](https://www.reddit.com/r/LocalLLaMA/comments/1rnmo3n/ubuntu_2604_to_include_cuda_rocm_snaps_and/)
 - [Canonical / Ubuntu Blog](https://ubuntu.com/blog)
+- [GamingOnLinux: NVIDIA reveal more GPU driver security flaws for May 2026](https://www.gamingonlinux.com/2026/05/nvidia-reveal-more-gpu-driver-security-flaws-for-may-2026/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-28
 - Confidence: high

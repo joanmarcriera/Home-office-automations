@@ -17,6 +17,18 @@ The Software Factory is an architectural pattern for non-interactive software de
 - **Digital Twin Development**: Building high-fidelity clones of SaaS services (Okta, Slack, Jira) for safe, high-volume testing.
 - **Gene Transfusion**: Extracting patterns from legacy systems and porting them to new architectures autonomously.
 
+## 2026 State of the Industry: The Agentic Reality Check
+
+As of May 2026, the transition from experimental pilots to production-grade software factories has faced a significant "reality check" (Deloitte Tech Trends 2026). While 38% of organizations are actively piloting agentic AI, only 11% have successfully transitioned to production.
+
+### Key Barriers to Production
+- **Legacy Bottlenecks**: Gartner predicts 40% of agentic AI projects will fail by 2027 because legacy systems and data architectures cannot support the high-concurrency, low-latency demands of autonomous agents.
+- **"Drop-in" Failure**: Simply dropping agents into existing workflows often leads to failure. Success requires **process redesign** specifically for agentic capabilities.
+- **Infrastructure Scaling**: Token costs, while declining per unit, are scaling faster than efficiency gains. Production factories increasingly rely on **Hybrid Infrastructure**:
+    - **Public Cloud**: For variable workloads and bursting capacity.
+    - **On-Premises**: For predictable, continuous high-volume token generation.
+    - **Edge**: For physical AI integrations where latency is critical.
+
 ## Strengths
 - **Compounding Correctness**: Long-horizon agentic workflows can self-correct when guided by a strong validation loop.
 - **Extreme Scale**: Validation can run at volumes and rates far exceeding production limits or human review capacity.
@@ -69,13 +81,15 @@ Building a software factory at scale (as seen in Notion's 2026 "Custom Agents" r
 - [Qwen 2.5 Coder](../../tools/ai_knowledge/qwen.md)
 - [Jules](../../tools/ai_knowledge/jules.md) (The autonomous coding agent used in this hub)
 - [Notion AI](../../tools/ai_knowledge/notion-ai.md) (Implementing Agent-Native systems of record)
+- [Nutanix Enterprise AI](https://www.nutanix.com/theforecastbynutanix/news/ai-trends-in-2026) (Hybrid cloud platform for AI workloads)
 
 ## Sources / References
 - [Latent Space: Notion's Token Town & The Software Factory Future](https://www.latent.space/p/notion)
 - [Simon Willison: Software Factories and the Agentic Moment](https://simonwillison.net/2026/Feb/7/software-factory/)
 - [StrongDM Software Factory Principles](https://factory.strongdm.ai/principles)
 - [StrongDM Techniques](https://factory.strongdm.ai/techniques)
+- [Deloitte Tech Trends 2026](https://www.deloitte.com/us/en/insights/topics/technology-management/tech-trends.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-28
 - Confidence: high
