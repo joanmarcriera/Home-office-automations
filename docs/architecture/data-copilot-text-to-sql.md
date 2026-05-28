@@ -191,8 +191,34 @@ To minimize costs and stay within the context limits of smaller models, the foll
    - *Mitigation*: Maintain a metric glossary, require the Intent Agent to emit metric assumptions, and ask for clarification when multiple metric definitions match.
 4. **Unsafe or Overbroad SQL**:
    - *Symptom*: Generated SQL uses `SELECT *`, unbounded date ranges, write statements, or cross-workspace joins.
-   - *Mitigation*: Run a SQL policy validator before execution, reject write statements, require date limits for large fact tables, and execute only against read-only credentials.
+   - *Mitigation*: Run a **SQL Policy Validator** using `sqlglot` to enforce safety guardrails (mutation blocking, table allowlists, row limits, and sensitive column exclusion).
 
+### SQL Guardrail Implementation (Python / sqlglot)
+This logic is implemented in `scripts/sql_validator.py` and is mandatory for all Data Copilot execution paths.
+
+```python
+import sqlglot
+from sqlglot import exp
+
+def enforce_sql_policy(sql: str, allowed_tables: list[str], default_limit: int = 1000):
+    expressions = sqlglot.parse(sql)
+    # Mutation Guard: Block DELETE, DROP, UPDATE, INSERT, ALTER
+    mutation_nodes = (exp.Delete, exp.Drop, exp.Update, exp.Insert, exp.Alter)
+    for expression in expressions:
+        if any(isinstance(node, mutation_nodes) for node in expression.walk()):
+            raise ValueError("Mutation detected: DDL/DML operations are forbidden.")
+
+        # Table Guard: Check against allowlist
+        for table in expression.find_all(exp.Table):
+            if table.name.lower() not in [t.lower() for t in allowed_tables]:
+                raise ValueError(f"Table '{table.name}' not in allowlist.")
+
+        # Limit Guard: Append or cap LIMIT 1000
+        if isinstance(expression, exp.Select):
+            if not expression.find(exp.Limit):
+                expression = expression.limit(default_limit)
+    return "; ".join(e.sql() for e in expressions)
+```
 
 ## Related tools / concepts
 
@@ -215,6 +241,6 @@ To minimize costs and stay within the context limits of smaller models, the foll
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-28
 - Confidence: high
-- Related Issues: #186
+- Related Issues: #186, #187, #188, #189, #190

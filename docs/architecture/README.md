@@ -10,6 +10,7 @@ High-level design of the AI Hub: how components connect, how data flows between 
 | [Automation Flows](flows.md) | Detailed sequence and data-flow diagrams for key automation workflows |
 | [Infrastructure](infrastructure.md) | Hardware topology, network layout, and resource allocation decisions |
 | [SSH Execution Patterns](ssh_execution_patterns.md) | Secure orchestration of remote commands across TrueNAS, Pi, and MacBook |
+| [MCP Patterns](../knowledge_base/patterns/tool-calling-and-mcp.md) | Architecture for tool-calling via the Model Context Protocol |
 | [Automated Contributions](automated_contributions.md) | How Google Jules, digest workflows, and quality gates keep the repo self-improving |
 | [Multi-Agent KnowledgeOps](multi_agent_knowledgeops.md) | Governance contract, role model, and CI gates for scalable multi-agent documentation growth |
 | [Prompt Catalogue](prompt-catalogue.md) | Reference library of production prompts used across automation workflows |
@@ -20,21 +21,25 @@ High-level design of the AI Hub: how components connect, how data flows between 
 ## System at a Glance
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph Ingest
-        A[Daily digest] --> B[Digest-to-intake bridge]
+        A[Daily Digest] --> B[Intake Bridge]
         B --> C[docs/new-sources/]
     end
-    subgraph Automate
-        C --> D[Jules maintenance issue]
-        D --> E[Jules PR]
+    subgraph Ralph-loop
+        C --> D[Jules Issue]
+        D --> E[Jules Execution\n(a) Work (b) Link (c) Decompose]
+        E --> F[Jules PR]
     end
-    subgraph Gate
-        E --> F[Quality gates\ndocs · catalog · links · intake]
-        F --> G[Main branch]
+    subgraph Quality Gates
+        F --> G[Audit Docs Quality]
+        G --> H[Check Docs Contract]
+        H --> I[Check Catalog Consistency]
+        I --> J[Main Branch]
     end
-    subgraph Serve
-        G --> H[GitHub Pages\nai.riera.co.uk]
+    subgraph Deployment
+        J --> K[MkDocs Build]
+        K --> L[GitHub Pages]
     end
 ```
 
@@ -45,6 +50,7 @@ flowchart LR
 - [Home](../index.md)
 - [Contributing](../CONTRIBUTING.md)
 - [Standards](../standards.md)
+- [Ralph-loop Execution Reports](reports/)
 
 ## Sources / References
 - [Automated Contributions](automated_contributions.md)
@@ -52,5 +58,5 @@ flowchart LR
 - [GitHub Actions Documentation](https://docs.github.com/actions)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-05-28
 - Confidence: high

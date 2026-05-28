@@ -38,6 +38,14 @@ In a complex home lab with dozens of services, manual data entry and disjointed 
 3. **Act**: Code is committed to a local [Gitea](../services/gitea.md) repository.
 4. **Sync**: [n8n](../services/n8n.md) detects the commit and triggers a deployment to a Docker host.
 
+### 4. KnowledgeOps Maintenance (The Ralph-loop)
+**Goal**: Autonomous repository self-improvement and documentation freshness.
+1. **Ingest**: Daily scripts scan for new tool releases, GitHub stars, and stale documentation.
+2. **Bridge**: Qualifying items are staged in [`docs/new-sources/`](new-sources.md).
+3. **Trigger**: GitHub Actions open a "Jules" issue with the `jules` label.
+4. **Execute**: [Jules](../tools/ai_knowledge/jules.md) follows the Ralph-loop (Work, Link, or Decompose) to resolve the issue.
+5. **Verify**: Automated quality gates (`audit_docs_quality.py`, `check_docs_contract.py`) validate the changes before merge.
+
 ## Strengths
 
 - **Consistency**: Ensures every document or event is handled according to the same rules every time.
@@ -76,7 +84,7 @@ In a complex home lab with dozens of services, manual data entry and disjointed 
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-05-28
 - Confidence: high
 
 ## Sources / References
