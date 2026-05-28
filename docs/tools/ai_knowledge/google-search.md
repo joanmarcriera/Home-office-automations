@@ -1,107 +1,100 @@
 # Google Search
 
 ## What it is
-Google Search is the world's most widely used web search engine. It uses sophisticated crawling, indexing, and ranking algorithms (including AI models like RankBrain and Gemini) to organize the world's information. It increasingly utilizes generative AI features to synthesize answers directly in the search results.
+Google Search is the world's most widely used web search engine. As of 2026, it has transitioned into an "Agentic Search" platform, utilizing the **Gemini 3.5 Flash** model and the **Antigravity** platform to provide "AI Mode," which synthesizes answers, generates custom UIs, and executes agentic workflows directly within the search interface.
 
 ## What problem it solves
-It provides near-instant access to billions of web pages, allowing users to find specific facts, resources, or services across the global internet. It reduces the time spent navigating individual websites by providing direct answers, snippets, and structured data (knowledge graphs).
+It provides near-instant access to billions of web pages while reducing the cognitive load of sifting through links. It solves the "search to action" gap by allowing users to execute tasks (like booking travel or summarizing technical manuals) without leaving the search results.
 
 ## Where it fits in the stack
-**AI & Knowledge**. It is often used as a "grounding" source for AI agents via search APIs (Google Custom Search API) or as a baseline for AI-powered search tools like Perplexity. It sits in the **Discovery and Grounding** layer of the [Home-Office Architecture](../../architecture/README.md).
+**AI & Knowledge**. It is a primary "grounding" source for AI agents. In the [Home-Office Architecture](../../architecture/README.md), it serves as the **Discovery and Grounding** layer, providing real-time web context to local agents like [Ralph](../../reference-implementations/llm-prompts/family-context.md).
 
 ## Typical use cases
-- Finding specific documentation or technical resources for homelab services.
-- Verifying facts or current events for daily briefings.
-- Providing real-time web context to LLMs via "Search Tool" integrations.
-- Grounding AI agent reasoning in verified public information.
+- **Grounding for Agents**: Providing real-time technical documentation to local LLMs.
+- **AI Mode Synthesis**: Getting a single, cited answer for complex "how-to" homelab queries.
+- **Antigravity Agent Integration**: Using search-based agents to perform multi-step research tasks.
+- **Dynamic UI Generation**: Generating mini-dashboards or visual tools for data-heavy queries (e.g., "compare power usage of 5 vector databases").
 
 ## Strengths
-- **Unrivaled Index Size**: Finds niche content that other search engines might miss.
-- **Speed**: Extremely fast response times and high availability.
-- **AI Integration**: AI Overviews (Gemini-powered) provide rapid synthesis of complex topics.
-- **Deep Grounding**: The Custom Search API is the industry standard for RAG-based web grounding.
+- **Massive Index**: Still the gold standard for finding niche or long-tail technical content.
+- **Gemini 3.5 Flash Integration**: Extremely fast (sub-second) AI summaries and "AI Mode" responses.
+- **Agentic Infrastructure**: Native support for **Antigravity** agents that can perform tasks across the Google ecosystem.
+- **Custom Search API**: High reliability and structured data for RAG pipelines.
 
 ## Limitations
-- **SEO Pollution**: Search results are often dominated by ad-heavy or AI-generated "content farms."
-- **Privacy**: Tracking and profiling of search history is central to the business model.
-- **Information Bubbles**: Personalized results can restrict exposure to diverse perspectives.
-- **API Cost**: High-volume professional search APIs can become expensive.
+- **Generative Ads**: Ads are now integrated directly into AI Overviews and AI Mode responses.
+- **Privacy Trade-offs**: Deep integration with "Personal Intelligence" (Gmail/Photos) requires broad data access.
+- **AI Hallucinations**: Despite grounding, synthesized answers can still misinterpret complex technical nuances.
+- **Search-to-Action Friction**: Many agentic features require a Google/Gemini subscription for full capability.
 
 ## When to use it
-- For general information retrieval and finding specific authoritative sources.
-- When you need to ground an LLM in the latest web data using a reliable API.
-- For high-intent commercial or navigational queries.
+- When you need the most comprehensive and up-to-date web index.
+- For "AI Mode" queries that require synthesizing information from multiple authoritative sources.
+- When grounding local agents using the Custom Search API or the new **Gemini Grounding** features.
 
 ## When not to use it
-- For highly private or sensitive queries (consider [SearXNG](../../services/searXNG.md)).
-- When you need deep, synthesized research answers with full-text citations (consider [Perplexity](perplexity.md)).
-- If you want to avoid the Google ecosystem and its tracking mechanisms.
+- For queries involving highly sensitive or private household data (consider [SearXNG](../../services/searXNG.md)).
+- When you want a purely local, non-tracking search experience.
+- For deep, iterative research where [Perplexity](perplexity.md)'s persistent thread model might be superior.
 
 ## Getting started
 
-### Python (using `googlesearch-python`)
-For simple, non-API key based searching (scraping-based, use with caution for personal research only):
-```python
-from googlesearch import search
+### Python (Google Custom Search API)
+The recommended way for homelab agents to access Google Search data securely.
 
-# Perform a search
-query = "Home office automation best practices"
-for result in search(query, num_results=5):
-    print(result)
+```python
+import requests
+
+def google_search(query, api_key, cx):
+    url = "https://www.googleapis.com/customsearch/v1"
+    params = {
+        'q': query,
+        'key': api_key,
+        'cx': cx
+    }
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Example usage
+# results = google_search("n8n wyoming protocol integration", "YOUR_KEY", "YOUR_CX")
 ```
 
-### Google Custom Search API (Recommended)
-For production-grade, structured JSON results used in AI agents.
+### Gemini Grounding (v1.5+ / v3.5)
+Modern agents can now use the Gemini API with "Google Search Grounding" enabled to get verified citations natively.
 
-1.  **Create API Key**: Obtain from the [Google Cloud Console](https://console.cloud.google.com/).
-2.  **Create Search Engine**: Set up at [Programmable Search Engine](https://programmablesearchengine.google.com/).
-3.  **Perform Query**:
-```bash
-curl "https://www.googleapis.com/customsearch/v1?key=YOUR_API_KEY&cx=YOUR_SEARCH_ENGINE_ID&q=Home+office+automation"
+```python
+# Pseudo-code for Gemini API Grounding
+model = genai.GenerativeModel('gemini-3.5-flash')
+response = model.generate_content(
+    "How do I set up a local vector DB in 2026?",
+    tools=[{'google_search_retrieval': {}}]
+)
+print(response.text)
+print(response.candidates[0].grounding_metadata)
 ```
 
 ## CLI examples
 
 ```bash
-# Using a simple search tool (if installed)
-google-search "latest paperless-ngx release"
+# Using the new Antigravity CLI for agentic search tasks
+antigravity search "Summarize the latest Home Assistant release notes" --agent research
 
-# Checking connectivity to Google Search API
-curl -I "https://www.googleapis.com/customsearch/v1"
-```
-
-## API examples (Python with Requests)
-```python
-import requests
-
-API_KEY = "YOUR_API_KEY"
-CX = "YOUR_CX"
-query = "n8n wyoming protocol integration"
-url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={CX}&q={query}"
-
-response = requests.get(url)
-results = response.json()
-
-for item in results.get("items", []):
-    print(f"Title: {item['title']}\nLink: {item['link']}\n")
+# Legacy Custom Search check
+curl "https://www.googleapis.com/customsearch/v1?key=KEY&cx=CX&q=test"
 ```
 
 ## Related tools / concepts
 - [Perplexity](perplexity.md)
-- [Genspark](genspark.md)
 - [SearXNG](../../services/searXNG.md)
-- [Microsoft Graph API](../providers/microsoft-graph.md)
-- [OpenAI](openai.md)
-- [Gemini](gemini.md)
-- [Perplexity Agent API](../agents/perplexity-agent-api.md)
+- [Antigravity Ecosystem](https://antigravity.google) — Google's 2026 agent platform.
+- [Gemini](../providers/gemini.md) — the model family powering Google's AI features.
 - [Architecture](../../architecture/README.md)
-- [Standards](../../standards.md)
 - [Grounding with Google Search](https://blog.google/technology/ai/google-search-grounding-ai-overviews/)
 
 ## Sources / references
 - [Official Website](https://www.google.com)
-- [Google Custom Search JSON API](https://developers.google.com/custom-search/v1/overview)
-- [Google AI Overviews](https://support.google.com/websearch/answer/14742207)
+- [Google I/O 2026: The Agentic Gemini Era](https://blog.google/innovation-and-ai/sundar-pichai-io-2026/)
+- [Google Custom Search API Documentation](https://developers.google.com/custom-search/v1/overview)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-28
