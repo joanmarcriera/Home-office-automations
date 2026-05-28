@@ -82,11 +82,13 @@ HELM has expanded beyond general text models into specialized domains:
 - **VHELM (Vision-Language Models)**: Evaluates VLMs on visual perception, reasoning, and safety. Uses benchmarks like MMMU and aggregates results across 9 distinct aspects.
 - **HEIM (Holistic Evaluation of Text-To-Image Models)**: Focuses on image generation models, measuring alignment, quality, and aesthetics.
 - **MedHELM**: A specialized version for medical tasks, incorporating datasets like MedQA to assess model performance in clinical contexts.
+- **AIR-Bench (2026)**: Integrated into HELM v0.5+, AIR-Bench focuses on **Agentic Intelligence and Reasoning**, evaluating how models perform when given multi-step tasks that require tool use and external environmental interaction.
 
 ## Strengths
 - **Multi-dimensional**: Moves beyond simple accuracy to include metrics like calibration, robustness, and fairness.
 - **Scenario-Metric Grid**: Uses a systematic approach to ensure broad coverage of tasks.
 - **Transparency**: Provides full visibility into the prompts used and the individual model responses.
+- **LiteLLM Integration**: HELM v0.5.14+ supports LiteLLM as a backend, enabling benchmarking of any model compatible with the OpenAI API via a local proxy.
 - **Active Research**: Regularly updated by Stanford with new datasets and the latest models.
 
 ## Limitations
@@ -126,5 +128,5 @@ HELM has expanded beyond general text models into specialized domains:
 - [Stanford CRFM Blog](https://crfm.stanford.edu/2022/11/17/helm.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-28
 - Confidence: high

@@ -80,6 +80,7 @@ services:
     image: openclaw/openclaw:latest
     restart: unless-stopped
     environment:
+      OPENCLAW_PORT: 18789                  # Default port in 2026.3+
       LLM_BASE_URL: "http://litellm:4000"   # LiteLLM proxy or direct Ollama
       LLM_MODEL: "llama3.2"
       TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
@@ -88,7 +89,7 @@ services:
       - ./skills:/app/skills
       - ./data:/app/data
     ports:
-      - "3000:3000"
+      - "18789:18789"
 
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
@@ -129,6 +130,9 @@ openclaw skill list
 
 # Enable / disable
 openclaw skill enable web-research
+
+# New (2026.4): evaluate a skill's behavior locally
+openclaw eval --skill web-research --input "Latest AI news"
 ```
 
 ### Writing a custom skill
@@ -204,6 +208,7 @@ router_settings:
 ### Practical operating controls
 
 - **Patch quickly**: TechRadar's March 2026 "ClawJacked" coverage reported a local-gateway authentication flaw and recommended upgrading to `2026.2.25` or later.
+- **Mitigate ClawJacked**: In addition to patching, set `OPENCLAW_GATEWAY_AUTH=strict` and ensure the `OPENCLAW_PORT` (default 18789) is not exposed to the public internet without a VPN.
 - **Assume hostile content**: emails, webpages, and copied prompts should be treated as untrusted input, not as authority over the system prompt.
 - **Separate capability tiers**: keep read-only, draft-only, and approval-gated skills distinct.
 - **Review the install path**: community skills and fake installers are part of the threat surface; use trusted sources and inspect capabilities before enabling them.
@@ -281,5 +286,5 @@ router_settings:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-03-29
+- Last reviewed: 2026-05-28
 - Confidence: high

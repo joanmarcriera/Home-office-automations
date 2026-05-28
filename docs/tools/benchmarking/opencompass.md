@@ -18,7 +18,8 @@ Evaluating modern large models is complex, requiring diverse datasets and multip
 - **Comprehensive Coverage**: Supports 100+ datasets covering linguistics, knowledge, reasoning, coding, and multi-modality.
 - **Flexible Architecture**: Supports various evaluation paradigms (Zero-shot, Few-shot, CoT, LLM-as-a-judge).
 - **High Performance**: Integrates with acceleration backends like vLLM, LMDeploy, and ModelScope for distributed evaluation.
-- **Active Community**: Frequently updated with new benchmarks and model support.
+- **VLM Leadership**: First-class support for Vision-Language Models, including InternVL-U and InternVL2 series.
+- **Judger-Aided Evaluation**: Built-in integration with CompassJudger for reliable, automated LLM-as-a-judge workflows.
 
 ## Limitations
 - **Complexity**: The extensive configuration options and features can lead to a steeper learning curve for beginners.
@@ -111,6 +112,19 @@ Commonly used CLI arguments for `run.py`:
 - `--mode`: `inference` for only running model, `evaluation` for calculating metrics, or `full` for both.
 - `--reuse`: Resume from a previous checkpoint.
 
+## Advanced Evaluation Kits (2026)
+
+### GenEditEvalKit
+Introduced in May 2026, the **GenEditEvalKit** provides a specialized pipeline for evaluating AI-driven image and video editing models. It includes metrics for temporal consistency (for video), instruction-following accuracy, and visual quality preservation.
+
+### CompassJudger
+**CompassJudger** is a purpose-built "judge" model (based on InternLM) optimized specifically for scoring other models' outputs. It reduces the bias and cost associated with using proprietary models like GPT-4o for evaluation tasks.
+
+```bash
+# Example: Use CompassJudger to evaluate a model's open-ended responses
+python run.py --models llama-3-8b --datasets open-ended-v1 --judge compass-judger-v2
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
 - **Cost**: Free
@@ -133,5 +147,5 @@ Commonly used CLI arguments for `run.py`:
 - [Introduction by Jimmy Song](https://jimmysong.io/ai/opencompass/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-28
 - Confidence: high

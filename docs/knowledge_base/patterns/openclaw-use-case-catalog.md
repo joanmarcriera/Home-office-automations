@@ -42,6 +42,20 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 | Operations | Daily life admin and recurring checklists | Strong fit for errands, reminders, recurring personal tasks, and follow-up loops | Keep external side effects explicit |
 | Reporting | Scheduled reporting and anomaly detection | Good for pulling routine metrics and calling out patterns humans might miss | Separate reporting from action-taking |
 
+## Advanced Patterns (2026)
+
+### Moltbook: Interactive Agent Notebooks
+**Moltbook** is a specialized interface for OpenClaw that treats agent interactions as a collaborative notebook. Instead of a linear chat, users can branch agent thoughts, edit intermediate outputs, and "rerun" specific skill executions with different parameters.
+- **Pattern**: Use Moltbook for complex research and debugging where the agent's internal reasoning needs human steering.
+
+### ClawdHub Distribution
+**ClawdHub** has evolved into a full package manager for OpenClaw skills. In 2026, it supports private registries and versioned dependencies.
+- **Pattern**: Use ClawdHub to manage organizational skill-sets, ensuring all agents in a team use the same vetted security and data-ingestion tools.
+
+### Native Vector Memory
+OpenClaw 2026.3+ includes **Native Vector Memory**, removing the external dependency on Pinecone or Milvus for basic long-term context.
+- **Pattern**: Leverage native memory for "Second Brain" use cases to simplify the self-hosting stack while maintaining semantic recall capabilities.
+
 ## Implementation notes
 - Use [LiteLLM](../../services/litellm.md) or a similar router to separate cheap routine jobs from expensive deep-thinking tasks.
 - Keep destructive skills out of the default assistant loop.
@@ -115,5 +129,5 @@ When deploying these use cases, consider the following security patterns:
 - [awesome-openclaw-usecases](https://github.com/hesamsheikh/awesome-openclaw-usecases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-29
+- Last reviewed: 2026-05-28
 - Confidence: high

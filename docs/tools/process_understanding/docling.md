@@ -19,6 +19,8 @@ Document extraction is often fragile and loses structural information like heade
 - **Advanced Layout Analysis**: Accurately detects headers, paragraphs, and lists.
 - **Superior Table Recognition**: Handles complex, nested, or borderless tables.
 - **Local Execution**: Runs entirely on commodity hardware with no external API calls required.
+- **Multimodal Understanding**: Docling v2.70+ integrates **Granite-Docling**, a Vision-Language Model (VLM) for direct chart and figure interpretation.
+- **Graph-Ready**: Can export documents as **Docling-Graph** (Knowledge Graph) format for advanced RAG.
 - **Modular Design**: Easy to extend with new models or formats.
 
 ## Limitations
@@ -77,6 +79,30 @@ markdown_content = result.document.export_to_markdown()
 # tables = result.document.tables
 ```
 
+## Advanced Features (v2.70+)
+
+### Granite-Docling VLM
+Introduced in mid-2026, **Granite-Docling** is a compact VLM (based on IBM Granite) integrated into the Docling pipeline. It replaces several single-purpose models, enabling:
+- **Chart-to-Table**: Converts visual charts and graphs directly into structured data tables.
+- **Mathematical Expression OCR**: High-fidelity extraction of LaTeX from visual formulas.
+- **Figure Classification**: Differentiates between photos, diagrams, and UI screenshots.
+
+### Docling-Graph
+Docling now supports exporting document structure as a **Property Graph**. This allows RAG systems to traverse documents not just by text similarity, but by structural relationships (e.g., "Find the table associated with the caption in Section 3").
+
+```python
+# Example: Export to Docling-Graph
+from docling.document_converter import DocumentConverter
+from docling_graph import GraphExporter
+
+converter = DocumentConverter()
+result = converter.convert("complex_report.pdf")
+
+exporter = GraphExporter()
+graph = exporter.export(result.document)
+# graph can now be ingested into Neo4j or NetworkX
+```
+
 ## Related tools / concepts
 - [Docling MCP](docling-mcp.md)
 - [OCRmyPDF](ocrmypdf.md)
@@ -91,5 +117,5 @@ markdown_content = result.document.export_to_markdown()
 - [Docling Documentation](https://docling-project.github.io/docling/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-06
+- Last reviewed: 2026-05-28
 - Confidence: high
