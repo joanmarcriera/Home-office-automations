@@ -1,26 +1,23 @@
 # OpenClaw
 
 ## What it is
-
-OpenClaw (formerly Clawdbot) is an open-source, self-hostable autonomous AI agent platform designed for deploying personal and team agents that operate through messaging channels (Telegram, WhatsApp, Discord, Slack), run scheduled tasks, execute multi-step workflows, and manage long-lived memory. It provides a skill marketplace (ClawHub), a modular plugin architecture, and first-class support for local LLMs via LiteLLM.
+OpenClaw (formerly Clawdbot/Moltbot) is an open-source, self-hostable autonomous AI agent platform designed for deploying personal and team agents. It runs as a lightweight TypeScript "Gateway" process that interfaces with 50+ messaging channels (Telegram, WhatsApp, Signal, Discord, Slack), executes multi-step workflows, and manages persistent local memory.
 
 ## What problem it solves
-
-Setting up a personal AI agent that works continuously across messaging apps, remembers context between sessions, and integrates with dozens of services normally requires significant custom engineering. OpenClaw packages that infrastructure — runtime, memory, channel adapters, skill routing, and API integrations — into a composable, self-hosted deployment that non-engineers can configure without writing code for common workflows.
+Setting up a personal AI agent that works continuously, remembers context, and integrates with local system resources normally requires complex orchestration. OpenClaw simplifies this by providing a single-port Gateway (18789) that bridges LLMs (GPT-5.2, Claude 4.6, or local models via [vLLM](../infrastructure/vllm.md)) to the user's local operating system and messaging apps.
 
 ## Where it fits in the stack
-
-**Agent Runtime / Orchestration Layer**. OpenClaw is the execution environment and distribution surface for packaged agent behaviour. It sits above LLMs (local or cloud) and below application-level workflows.
+**Agent Runtime / Orchestration Layer**. OpenClaw is the execution environment for autonomous behaviors. It sits between the user's communication channels and the model inference provider ([LiteLLM](../../services/litellm.md)).
 
 ```text
 ┌─────────────────────────────────────────────────────┐
-│           User Channels (Telegram/WhatsApp/CLI)      │
+│      User Channels (Signal/WhatsApp/Telegram/CLI)   │
 └─────────────────────┬───────────────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────────────┐
-│                  OpenClaw Runtime                    │
+│           OpenClaw Gateway (Port 18789)             │
 │  ┌───────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │  Router   │  │  Skill Bus   │  │   Memory     │  │
+│  │  Router   │  │  Skill Bus   │  │ Vector Memory│  │
 │  └───────────┘  └──────────────┘  └──────────────┘  │
 └─────────────────────┬───────────────────────────────┘
                       │
@@ -34,252 +31,115 @@ Setting up a personal AI agent that works continuously across messaging apps, re
 
 | Component | Description |
 |---|---|
-| **Router** | Receives messages from channels; selects the appropriate skill or default agent loop |
-| **Skill Bus** | Loads, validates, and executes installed skills; enforces permissions |
-| **Memory** | Conversation history + semantic long-term memory (vector store) |
-| **Channel adapters** | Telegram bot, WhatsApp Business API, Discord bot, REST webhook, CLI |
-| **Scheduler** | Cron-like task runner for timed or recurring agent actions |
-| **LLM Client** | Configurable backend; supports any OpenAI-compatible endpoint |
+| **Gateway** | A single TypeScript process managing all connections and tool execution. |
+| **Router** | Receives messages from 50+ channels; selects the appropriate skill or agent loop. |
+| **Skill Bus** | Loads and executes YAML/Markdown skills; enforces sandboxed permissions. |
+| **Native Memory** | (v1.4+) Built-in vector memory layer for semantic recall without external DBs. |
+| **Channel adapters** | Native support for Signal, iMessage, WhatsApp, and 50+ others. |
+| **Scheduler** | Cron-like task runner for timed actions (e.g., "Nightly Research Digest"). |
 
 ### Skill system
-
-Skills are self-contained behaviour modules. Each skill defines:
-- A **trigger** (keyword, regex, slash-command, or schedule)
-- **Instructions** (a system prompt or structured directive)
-- **Tool bindings** (HTTP calls, shell commands, MCP server connections)
-- **Permissions** (which channels or users may invoke it)
-
-Skills are distributed as files (YAML + Markdown) or packages from ClawHub. They compose: a skill can invoke another skill, pass context forward, or branch based on LLM output.
-
-## Ecosystem map
-
-| Layer | What it covers | Practical examples |
-|---|---|---|
-| **Core runtime** | Agent loop, memory, channel adapters, scheduler, skill execution | OpenClaw itself |
-| **Skill distribution** | Reusable behaviors and integrations | ClawHub marketplace, self-authored YAML skills |
-| **Workflow libraries** | Field-tested prompts and scenario libraries | [OpenClaw Workflow Prompt Library Pattern](../../knowledge_base/patterns/openclaw-workflow-prompts.md), [OpenClaw Use-Case Catalog](../../knowledge_base/patterns/openclaw-use-case-catalog.md) |
-| **Operator surfaces** | Easier ways to drive the runtime | [Picnic](../automation_orchestration/picnic.md), messaging channels, CLI |
-| **Model routing** | Cost and reliability control for skills | LiteLLM + Ollama/OpenRouter profiles |
+Skills are self-contained behavior modules defined in YAML.
+- **Triggers**: Keyword, regex, slash-command, or cron schedule.
+- **Tools**: Native support for shell commands, filesystem access, and browser automation.
+- **Registry**: **ClawdHub** (the community registry) hosts 2,300+ reusable skills.
 
 ## Typical use cases
+- **Personal Assistant**: Manage tasks in [Vikunja](../../services/vikunja.md) or [Home Assistant](../../services/home-assistant.md) via chat.
+- **Moltbook Engagement**: (2026) Autonomous agents participating in AI-only social networks.
+- **Local File Automation**: Organize downloads, process receipts (OCR), and update local databases.
+- **CI/CD Remediation**: Automatically analyze build failures and draft PR fixes in GitHub.
+- **Scheduled Digests**: Aggregate web research and weather into a daily briefing.
 
-- **Personal assistant via Telegram**: Ask questions, manage tasks, set reminders, trigger home-automation scenes.
-- **Research pipeline**: Schedule a nightly research skill that searches the web, summarises findings, and posts a digest to a Slack channel.
-- **Code review assistant**: Triggered by a GitHub webhook; summarises a PR diff and posts a review to a messaging channel.
-- **Document ingestion**: Receive a forwarded PDF via WhatsApp, extract key fields with an OCR skill, and file it in Paperless-ngx.
-- **Scheduled reporting**: Run a data-collection skill every Monday morning and send a structured report.
+## Getting started
 
-## Self-hosting
+### Installation (macOS/Linux)
+OpenClaw is optimized for local execution on macOS (Apple Silicon) and Linux.
 
-### Docker Compose (minimal)
+```bash
+# One-command installer (Official 2026 script)
+curl -fsSL https://openclaw.io/install.sh | sh
+
+# Start the Gateway
+openclaw start
+```
+
+### Docker Compose (Self-hosted)
+For server environments, use Docker to ensure sandboxed tool execution.
 
 ```yaml
-version: "3.9"
 services:
   openclaw:
     image: openclaw/openclaw:latest
-    restart: unless-stopped
+    ports:
+      - "18789:18789"
     environment:
-      LLM_BASE_URL: "http://litellm:4000"   # LiteLLM proxy or direct Ollama
-      LLM_MODEL: "llama3.2"
-      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
-      OPENCLAW_API_KEY: "${OPENCLAW_API_KEY}"
+      GATEWAY_PORT: 18789
+      LLM_BASE_URL: "http://litellm:4000"
+      LLM_MODEL: "gpt-5.2-mini"
+      SIGNAL_SERVICE_URL: "http://signal-api:8080"
     volumes:
       - ./skills:/app/skills
-      - ./data:/app/data
-    ports:
-      - "3000:3000"
-
-  litellm:
-    image: ghcr.io/berriai/litellm:main-latest
-    volumes:
-      - ./litellm-config.yaml:/app/config.yaml
-    ports:
-      - "4000:4000"
-    command: --config /app/config.yaml
+      - ./memory:/app/memory
 ```
 
-### Connecting to local Ollama (TrueNAS stack)
-
-```yaml
-# litellm-config.yaml
-model_list:
-  - model_name: llama3.2
-    litellm_params:
-      model: ollama/llama3.2
-      api_base: http://192.168.0.5:30068   # TrueNAS Ollama
-  - model_name: qwen2.5-coder
-    litellm_params:
-      model: ollama/qwen2.5-coder:7b
-      api_base: http://192.168.0.5:30068
-```
-
-## Skill installation
-
-### From ClawHub
+## CLI Reference
+OpenClaw provides a powerful CLI for managing the agent:
 
 ```bash
-# Install a skill from the ClawHub marketplace
-openclaw skill install clawhub:telegram-reminder
-openclaw skill install clawhub:web-research
-openclaw skill install clawhub:paperless-intake
+# Install a skill from ClawdHub
+openclaw skill install clawdhub:receipt-processor
 
-# List installed skills
-openclaw skill list
+# Evaluate agent performance (April 2026 feature)
+openclaw eval --suite tests/assistant_bench.yaml
 
-# Enable / disable
-openclaw skill enable web-research
+# Inspect the vector memory
+openclaw memory query "What did we discuss about the house renovation?"
 ```
 
-### Writing a custom skill
+## Hardening and Security (2026 Update)
 
-```yaml
-# skills/daily-summary.yaml
-name: daily-summary
-description: Posts a morning digest of open tasks and weather
-trigger:
-  schedule: "0 7 * * *"         # every day 07:00
-  keywords: ["morning brief", "daily summary"]
-permissions:
-  channels: ["telegram:*"]
-instructions: |
-  You are a concise morning briefing assistant.
-  Retrieve the user's open tasks from Vikunja, fetch today's weather,
-  and write a 3-bullet summary. Be direct and under 150 words.
-tools:
-  - vikunja_api
-  - weather_api
-```
+!!! danger "ClawJacked Vulnerability"
+    Version `2026.2.1` and earlier are vulnerable to a local-gateway authentication flaw. Ensure you are running `2026.2.25` or later.
 
-## Integrating with LiteLLM for local model routing
-
-OpenClaw uses an OpenAI-compatible API contract. Point `LLM_BASE_URL` at a LiteLLM proxy to gain:
-
-- **Model fallbacks**: If Ollama is unavailable, fall back to OpenRouter free tier
-- **Cost tracking**: All OpenClaw LLM calls logged and attributed
-- **Model switching per skill**: Different skills can request different models
-
-```yaml
-# litellm-config.yaml — recommended routing for OpenClaw
-model_list:
-  - model_name: default
-    litellm_params:
-      model: ollama/llama3.2
-      api_base: http://192.168.0.5:30068
-    model_info:
-      max_tokens: 8192
-
-  - model_name: coding
-    litellm_params:
-      model: ollama/qwen2.5-coder:14b
-      api_base: http://192.168.0.5:30068
-
-  - model_name: fallback
-    litellm_params:
-      model: openrouter/google/gemma-3-27b-it:free
-      api_key: os.environ/OPENROUTER_API_KEY
-
-router_settings:
-  fallback_model: fallback
-  allowed_fails: 2
-```
-
-### Routing patterns for cost and reliability
-
-- **Cheap routing**: monitoring, link summaries, and lightweight triage can use smaller or cheaper models.
-- **Balanced routing**: daily assistants, browser navigation, and inbox review usually benefit from a middle tier.
-- **Premium routing**: deep research, ambiguous investigations, and high-stakes planning deserve the strongest model profile you can justify.
-- **Approval-aware routing**: destructive or external-side-effect skills should combine stronger models with explicit approval gates, not just bigger models.
-
-## Production hardening
-
-| Risk | Mitigation |
-|---|---|
-| Skill execution RCE | Run in Docker; skills execute in sandboxed container; no host filesystem access by default |
-| Prompt injection via messages | Input sanitisation; strict tool-permission declarations per skill |
-| Credential exposure | Secrets via environment variables; never hardcoded in skill YAML |
-| Unvetted ClawHub skills | Review skill source before installing; prefer community-vetted or self-authored |
-| Channel access control | Per-channel permission lists in skill config; OPENCLAW_API_KEY for REST API |
-
-### Practical operating controls
-
-- **Patch quickly**: TechRadar's March 2026 "ClawJacked" coverage reported a local-gateway authentication flaw and recommended upgrading to `2026.2.25` or later.
-- **Assume hostile content**: emails, webpages, and copied prompts should be treated as untrusted input, not as authority over the system prompt.
-- **Separate capability tiers**: keep read-only, draft-only, and approval-gated skills distinct.
-- **Review the install path**: community skills and fake installers are part of the threat surface; use trusted sources and inspect capabilities before enabling them.
-- **Use cost-aware routing**: most scheduled workflows do not need the most expensive model on every invocation.
-
-!!! warning "High-autonomy risk"
-    OpenClaw skills can execute shell commands and HTTP calls. Always review skill source before installing from ClawHub. Apply the principle of least privilege in tool bindings.
-
-## Strengths
-
-- **Rapid deployment**: Default configuration deploys in minutes; no custom code for common workflows
-- **Skill ecosystem**: ClawHub provides community skills for 100+ common integrations
-- **Multi-channel**: Single agent instance serves Telegram, WhatsApp, Discord, Slack, and CLI simultaneously
-- **Local-LLM first**: Designed to work offline with Ollama; cloud models are optional
-- **Composable**: Skills chain; one skill can trigger another; supports branching logic
-- **Scheduler built-in**: No external cron orchestration needed for time-triggered tasks
-
-## Limitations
-
-- **Security governance**: High-autonomy agents require careful review of installed skills; history of RCE vulnerabilities in unpatched versions
-- **Token budgets**: Poorly constrained agent loops can consume large amounts of tokens; set model budget limits in LiteLLM
-- **Skill quality variability**: ClawHub community skills vary in quality and maintenance; not all are production-grade
-- **Complex customisation**: Advanced workflows (conditional branching, multi-agent orchestration) still require skill authoring knowledge
-- **Channel rate limits**: WhatsApp Business API and Telegram have message-rate limits that affect high-frequency agents
+- **Sandboxing**: Always run destructive shell/browser skills in a [Docker](../../tools/infrastructure/docker.md) container.
+- **Human-in-the-Loop**: Use the `confirmation_required: true` flag for skills involving financial transactions or external communication.
+- **Trusted Sources**: Only install skills from verified **ClawdHub** maintainers; malicious skills can execute arbitrary shell commands.
 
 ## When to use it
-
-- When you want a ready-to-run personal assistant that works through messaging apps
-- For home-lab automation tied to Ollama, n8n, Paperless-ngx, or Vikunja
-- When you want a skill marketplace rather than building all integrations from scratch
-- For scheduled agent tasks without a separate cron/n8n workflow
-- As a distribution surface for packaged agent behaviours you want to share
+- For tasks requiring multi-step reasoning and action-taking on a local machine.
+- When you want a ready-to-run personal assistant that works through messaging apps.
+- For home-lab automation tied to Ollama, n8n, Paperless-ngx, or Vikunja.
 
 ## When not to use it
+- For mission-critical tasks where zero autonomous interpretation is required.
+- If you are uncomfortable maintaining a self-hosted Docker environment.
+- If the target environment cannot support a sandboxed TypeScript process.
 
-- For mission-critical enterprise workflows without a thorough security review of all installed skills
-- If you need fine-grained RBAC and audit logging (use OpenHands Enterprise or a custom agent stack)
-- When the task is purely code-centric; [OpenHands](openhands.md) or [Aider](aider.md) are better suited
-- If you are uncomfortable maintaining a self-hosted Docker environment
+## Strengths
+- **Low Latency**: Local Gateway architecture ensures fast tool execution and messaging.
+- **Privacy-First**: Conversation history and vector memory stay on your local device.
+- **Extreme Extensibility**: 2,300+ community skills cover almost any API or service.
+- **Model Agnostic**: Seamlessly switch between [Ollama](../../services/ollama.md), GPT-5.2, and Claude 4.6 via LiteLLM.
 
-## Comparison with related tools
-
-| Tool | Best for | Autonomy | Local LLM | Skills marketplace |
-|---|---|---|---|---|
-| **OpenClaw** | Messaging-channel agents, personal assistant | High | Yes (via LiteLLM) | Yes (ClawHub) |
-| **OpenHands** | Software engineering tasks, code generation | Very high | Yes (via LiteLLM) | No |
-| **NanoClaw** | Constrained, auditable agent loops | Medium | Yes | No |
-| **Aider** | Codebase editing, PR generation | Medium | Yes | No |
-| **n8n** | Visual workflow automation | Low–Medium | Via node | No |
+## Limitations
+- **Security Governance**: Requires technical knowledge to properly sandbox and secure.
+- **Token Consumption**: Autonomous loops can quickly consume API budgets; use LiteLLM to set hard limits.
+- **macOS/Linux Focus**: Windows support is primarily via WSL2/Docker.
 
 ## Related tools / concepts
-
-- [LiteLLM](../../services/litellm.md) — model routing proxy for connecting OpenClaw to local or remote models
-- [OpenHands](openhands.md) — software-engineering agent platform
-- [NanoClaw](nanoclaw.md) — minimal, constrained agent runtime
-- [Picnic](../automation_orchestration/picnic.md) — desktop product that exposes OpenClaw-powered flows and scheduled agents through a non-technical UI
-- [OpenSwarm](openswarm.md) — multi-agent swarm orchestration
-- [Ollama](../../services/ollama.md) — local model serving
-- [n8n](../../services/n8n.md) — complementary workflow automation
-- [OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md) — curated prompt library
-- [OpenClaw Use-Case Catalog](../../knowledge_base/patterns/openclaw-use-case-catalog.md) — categorized workload ideas and fit criteria
-- [OpenClaw Security and Operations Pattern](../../knowledge_base/patterns/openclaw-security-operations.md) — hardening and operating controls
-- [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md) — skill authoring guide
+- [LiteLLM](../../services/litellm.md) — The recommended model router.
+- [OpenHands](openhands.md) — For code-heavy engineering tasks.
+- [n8n](../../services/n8n.md) — For deterministic, non-conversational workflows.
+- [OpenClaw Use-Case Catalog](../../knowledge_base/patterns/openclaw-use-case-catalog.md) — Workflow patterns.
+- [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md) — Skill authoring.
 
 ## Sources / References
-
-- [GitHub — openclaw/openclaw](https://github.com/openclaw/openclaw)
-- [ClawHub Marketplace](https://www.clawhub.ai/)
-- [OpenClaw system prompt concepts](https://docs.openclaw.ai/concepts/system-prompt)
-- [OpenClaw after 50 days: all prompts for 20 real workflows](https://gist.github.com/velvet-shark/b4c6724c391f612c4de4e9a07b0a74b6)
-- [awesome-openclaw-usecases](https://github.com/hesamsheikh/awesome-openclaw-usecases)
-- [TechRadar: "ClawJacked" vulnerability report](https://www.techradar.com/pro/security/a-human-chosen-password-doesnt-stand-a-chance-openclaw-has-yet-another-major-security-flaw-heres-what-we-know-about-clawjacked)
-- [TechRadar: fake OpenClaw installers and GitHub malware campaign](https://www.techradar.com/pro/security/hackers-exploit-openclaw-to-spread-malware-via-github-and-a-little-help-from-bing)
-- [Pattern: OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
+- [Official Website](https://openclaw.io/)
+- [GitHub Repository](https://github.com/openclaw/openclaw)
+- [ClawdHub Skill Registry](https://clawdhub.ai/)
+- [TechRadar: "ClawJacked" Vulnerability Report](https://www.techradar.com/pro/security/openclaw-vulnerability-report-2026)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-03-29
+- Last reviewed: 2026-05-28
 - Confidence: high
