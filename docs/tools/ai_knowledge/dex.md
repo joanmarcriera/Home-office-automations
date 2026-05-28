@@ -14,9 +14,10 @@ Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specif
 - **Job Searching:** Managing recruiters and interviewers.
 - **Investor Relations:** Founders tracking potential and current investors.
 - **Personal Relationships:** Remembering birthdays and life events of friends and family.
+- **Agentic CRM Management:** Using AI agents to clean data, merge duplicates, and draft personalized outreach.
 
 ## Strengths
-- **Agentic Integration:** Native support for the Model Context Protocol (MCP) and AI Skills.
+- **Agentic Integration:** Native support for the Model Context Protocol (MCP) and AI Skills. Works out-of-the-box with [Claude Code](../development_ops/claude-code.md).
 - **Cross-Platform:** Available as a web app, mobile app, and browser extension.
 - **Automation:** Two-way sync with Google Calendar, Outlook, and LinkedIn.
 - **Clean UI:** Optimized for individual productivity rather than corporate sales pipelines.
@@ -35,16 +36,33 @@ Avoid Dex if you prefer a fully self-hosted, offline-first approach to personal 
 ## Getting started
 
 ### MCP Server Configuration
-To allow your AI agent (like Claude Desktop) to access Dex, add the following to your `claude_desktop_config.json`:
+To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md)) to access Dex, add the following to your configuration:
 
+#### Standard Stdio Configuration
 ```json
 {
-  "mjs-servers": {
+  "mcpServers": {
     "dex": {
       "command": "npx",
       "args": ["-y", "@dex-crm/mcp-server"],
       "env": {
         "DEX_API_KEY": "YOUR_DEX_API_KEY"
+      }
+    }
+  }
+}
+```
+
+#### Remote HTTP Configuration (New in 2026)
+For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex now supports Streamable HTTP transport:
+
+```json
+{
+  "mcpServers": {
+    "dex-remote": {
+      "url": "https://api.getdex.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_DEX_API_KEY"
       }
     }
   }
@@ -58,20 +76,22 @@ To allow your AI agent (like Claude Desktop) to access Dex, add the following to
 4. Your agent will now be able to search contacts, add notes, and manage follow-ups via natural language.
 
 ## Related tools / concepts
-- [Monica CRM](https://www.monicahq.com/)
-- [MCP (Model Context Protocol)](../automation_orchestration/mcp-registry.md)
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
-- [Anthropic Agent Skills](../agents/anthropic-agent-skills.md)
+- [Monica CRM](../../services/radicale.md) (Self-hosted alternative)
+- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Claude Code](../development_ops/claude-code.md)
+- [OpenClaw](../development_ops/openclaw.md)
 - [Jules](jules.md)
 - [Notion AI](notion-ai.md)
 - [Obsidian](obsidian.md)
 - [Logseq](logseq.md)
+- [ClawHub](https://www.clawhub.ai/) (Skill marketplace)
 
 ## Sources / references
 - [Official Website](https://getdex.com/)
 - [Dex AI Skill Documentation](https://getdex.com/integrations/ai-skill/)
 - [Dex MCP Server GitHub](https://github.com/dex-crm/mcp-server)
+- [ClawHub Dex Skill](https://www.clawhub.ai/skills/dex)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-18
+- Last reviewed: 2026-05-28
 - Confidence: high

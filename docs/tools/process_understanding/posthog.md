@@ -17,12 +17,13 @@ It helps teams understand how users interact with their applications and allows 
 
 ## Strengths
 - **All-in-One**: Combines analytics, session recording, and feature flagging in a single platform.
-- **Extensible**: Supports "Apps" and integrations (like OpenRouter) to bring in data from external AI services.
+- **AI Observability Dashboard**: Specialized views for cost, latency, and error rates across different LLM providers.
+- **Integrated Session Recordings**: Visualize UI changes triggered by LLM responses directly in the trace timeline.
+- **MCP Native**: Supports the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) for querying product metrics from AI assistants.
 - **HogQL**: Powerful, SQL-like query language for advanced data analysis.
-- **Privacy Conscious**: Offers self-hosting options and SOC 2 compliance.
 
 ## Limitations
-- **Generalist Focus**: While it has LLM features, it is not a dedicated AI-only observability tool (like LangSmith or LangFuse).
+- **Indexing Latency**: In high-volume environments, there can be a slight delay before traces appear in the dashboard.
 - **Complexity**: The sheer number of features can make the learning curve steeper for new users.
 
 ## When to use it
@@ -35,8 +36,9 @@ It helps teams understand how users interact with their applications and allows 
 - For extremely simple applications where a basic log aggregator (like Papertrail) would be enough.
 
 ## LLM Features
-- **LLM Observability**: Track agent behavior and user feedback alongside traditional product metrics like conversion and retention.
-- **Trace Management**: Capture and visualize LLM traces to debug agent decision-making.
+- **Cost Analysis**: Granular tracking of LLM spend by model, user, feature, and time period.
+- **Trace Management**: Full interaction timelines including generation and span events with multi-turn history.
+- **Model Comparison**: Side-by-side performance and cost metrics for different models (e.g., GPT-5 vs Claude 4).
 - **OpenRouter Integration**: Native support for receiving event logs from OpenRouter sessions to monitor model performance and costs.
 
 ## Getting started
@@ -85,16 +87,22 @@ posthog-cli capture --distinct-id user_123 --event test_event --properties '{"so
 ## API examples
 
 ### Python (AI Trace Instrumentation)
-PostHog can be integrated into AI pipelines to track multi-step agent actions using their SDK's properties to link traces to specific user sessions.
+PostHog now supports a more structured trace API for LLM monitoring:
 
 ```python
 import posthog
 
-# Link an AI trace to a user session
-posthog.capture('user_123', 'ai_trace_step', {
-    'trace_id': 'uuid-1234',
-    'step_name': 'retrieval',
-    'context_found': True
+# Capture a full LLM generation trace
+posthog.capture('user_123', '$ai_generation', {
+    '$ai_model': 'claude-3-5-sonnet',
+    '$ai_provider': 'anthropic',
+    '$ai_input_tokens': 150,
+    '$ai_output_tokens': 200,
+    '$ai_latency': 1.2,
+    '$ai_cost': 0.003,
+    '$ai_trace_id': 'trace-uuid-456',
+    '$ai_input': 'Summarize the latest sales data.',
+    '$ai_output': 'Summary: Sales are up 20%...'
 })
 ```
 
@@ -120,13 +128,14 @@ else:
 - [AgentOps](agentops.md)
 - [Arize AI](arize-ai.md)
 - [Helicone](helicone.md)
-- [Parea](parea.md)
-- [Mixpanel](mixpanel.md)
+- [OpenRouter](openrouter.md)
+- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / references
 - [PostHog Website](https://posthog.com/)
+- [PostHog AI Observability](https://posthog.com/llm-analytics)
 - [PostHog CLI Documentation](https://posthog.com/docs/endpoints/cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-26
+- Last reviewed: 2026-05-28
 - Confidence: high

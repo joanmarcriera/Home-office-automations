@@ -15,13 +15,15 @@ It addresses the challenge of "context window overload" and "hallucination" when
 - **Architectural Mapping**: Generating a high-level overview of how different components of a system interact.
 
 ## Strengths
-- **Massive Token Efficiency**: Dramatic reduction in context usage compared to raw text ingestion.
-- **Semantic Precision**: Understands the difference between a variable name and a class definition within the graph structure.
-- **MCP Native**: Integrates seamlessly with any MCP-compliant client (e.g., Claude Desktop, Cursor).
+- **Massive Token Efficiency**: Dramatic reduction in context usage (up to 120x) compared to raw text ingestion.
+- **Semantic Precision**: Indexes files, functions, classes, calls, imports, and inheritance at the symbol level.
+- **Language Support**: Supports 14+ coding languages as of May 2026.
+- **MCP Native**: Integrates seamlessly with any MCP-compliant client (e.g., Claude Desktop, Cursor, [Claude Code](../development_ops/claude-code.md)).
+- **Interactive Visualization**: Generates web-based explorers for architectural mapping.
 
 ## Limitations
-- **Indexing Overhead**: Initial conversion of a large codebase into a graph can be time-consuming.
-- **Graph Complexity**: Extremely large graphs may still require intelligent filtering by the agent.
+- **Indexing Overhead**: Initial conversion of very large codebases can be resource-intensive.
+- **Tool-Calling Dependency**: Highly dependent on the agent's ability to reason over graph structures.
 
 ## When to use it
 - When working with codebases that are too large to fit comfortably in a model's context window.
@@ -31,15 +33,49 @@ It addresses the challenge of "context window overload" and "hallucination" when
 - For small, single-file projects where standard context ingestion is sufficient.
 - If you don't have an MCP-compatible client or framework set up.
 
+## Getting started
+
+### Installation (via pip)
+CodeGraphContext is available as a Python package:
+```bash
+pip install codegraphcontext
+```
+
+### Configuration (Claude Desktop)
+Add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "codegraph": {
+      "command": "python",
+      "args": ["-m", "codegraphcontext", "serve", "--path", "/path/to/your/repo"]
+    }
+  }
+}
+```
+
+### Typical Queries
+Once configured, you can ask your agent:
+- "Find all functions that call the `update_user` method."
+- "Show me the inheritance tree for the `BaseAgent` class."
+- "What are the core dependencies of the `auth` module?"
+
 ## Related tools / concepts
-- [MCP Registry](mcp-registry.md)
+- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [Qwen](../ai_knowledge/qwen.md)
 - [Graph RAG](../../knowledge_base/patterns/rag.md)
+- [Aider](../development_ops/openhands.md)
+- [Cursor](../development_ops/index.md)
+- [vLLM](../infrastructure/vllm.md)
 
 ## Sources / References
-- [CodeGraphContext: An MCP server that converts your codebase into a graph database](https://www.reddit.com/r/LocalLLaMA/comments/1rnarei/codegraphcontext_an_mcp_server_that_converts_your/)
+- [Official GitHub Repository](https://github.com/CodeGraphContext/CodeGraphContext)
+- [Official Documentation](https://codegraphcontext.github.io/)
+- [Reddit: CodeGraphContext v0.3.0 Release](https://www.reddit.com/r/mcp/comments/1rs083q/codegraphcontext_an_mcp_server_that_converts_your/)
+- [CodeGraphContext Website](https://codegraphcontext.vercel.app/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-18
+- Last reviewed: 2026-05-28
 - Confidence: high
