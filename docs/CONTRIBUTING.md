@@ -23,17 +23,22 @@ Use this sequence for most tasks:
 - **Update Services**: Ensure the documentation for self-hosted services remains accurate as versions change.
 - **Improve Prompts**: Optimize our LLM prompt templates for better extraction and classification results.
 
-## Automated Contributions via Google Jules
-This repository uses **Google Jules**, an autonomous AI coding agent, to help with maintenance and feature development.
+## Automated Contributions: The Ralph-loop
 
-### Daily Ingestion Job
-The repository now splits ingestion into separate automation lanes:
+This repository implements the **Ralph-loop**, a systematic directive for AI agents (primarily **Google Jules**) to close issues by performing one of three actions:
 
-1. **Daily digest** scans and summarizes external sources
-2. **Digest-to-intake bridge** stages qualifying items in daily logs under [`docs/new-sources/`](new-sources.md)
-3. **Daily Jules Maintenance** opens a `jules` issue after intake staging
-4. **Jules** integrates staged items into canonical pages or creates new pages using the [tool template](templates/tool_template.md) or [article template](templates/article_template.md)
-5. **Quality gates** validate docs, intake logs, links, and catalog consistency before merge
+a) **Do the work**: Implement the requested feature, fix the bug, or perform the documentation update.
+b) **Add links**: Find the appropriate canonical location for provided external links.
+c) **Decompose**: Divide complex tasks into smaller, trackable issues with extracted context.
+
+### Daily Ingestion & Maintenance Lanes
+Automation is split into specialized lanes to maintain the "High Confidence" standard:
+
+1. **Daily Digest**: Scans and summarizes external sources (GitHub, Reddit, News).
+2. **Intake Bridge**: Stages qualifying items in [`docs/new-sources/`](new-sources.md).
+3. **Maintenance Run**: Automates routine audits, broken link fixes, and catalog syncs.
+4. **Knowledge Deepening**: Targets "Shallow" or "Stale" documents for technical expansion.
+5. **Quality Gates**: Mandatory execution of `audit_docs_quality.py` and `check_docs_contract.py`.
 
 ### Assigning a Task to Jules
 You can request Jules to perform a task by:
@@ -75,6 +80,7 @@ Before requesting review, AI-authored PRs must satisfy:
 - [ ] Required metadata added (`Last reviewed`, `Confidence`, `Sources / References`)
 - [ ] At least one high-signal source URL included
 - [ ] `data/all_tools.json` and `mkdocs.yml` updated when applicable
+- [ ] `audit_docs_quality.py` and `check_docs_contract.py` pass with 100% compliance
 
 ---
 *Every contribution helps make this hub a better operating manual for everyone.*
@@ -83,12 +89,14 @@ Before requesting review, AI-authored PRs must satisfy:
 - [Automated Contributions](architecture/automated_contributions.md)
 - [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md)
 - [GitHub Actions Documentation](https://docs.github.com/actions)
+- [Ralph-loop Execution Reports](reports/)
 
 ## Related
 - [Home](index.md)
 - [Automated Contributions](architecture/automated_contributions.md)
 - [Multi-Agent KnowledgeOps Governance](architecture/multi_agent_knowledgeops.md)
+- [Jules Agent](tools/ai_knowledge/jules.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-05-28
 - Confidence: high

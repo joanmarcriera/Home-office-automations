@@ -86,18 +86,21 @@ Use role-specific behavior to reduce overlap and improve predictability.
 - Flags stale pages for refresh
 - Fixes low-risk quality issues in small PRs
 
-## Parallel Lane Rules
+## Parallel Lane Rules: The Ralph-loop Strategy
 
-When multiple agents are active at the same time, each agent must work inside a lane with an explicit file boundary.
+When multiple agents are active simultaneously, they must adhere to the **Ralph-loop** strategy for conflict avoidance and task closure.
 
-| Lane | Primary scope | Merge risk |
+| Lane | Primary Scope | Strategy |
 | :--- | :--- | :--- |
-| Intake | `docs/new-sources*`, `data/all_tools.json`, `mkdocs.yml` | High if several agents edit the same daily log or navigation block |
-| Tool curation | One canonical page under `docs/tools/` or `docs/services/` | Medium if pages share related-tool links or catalog entries |
-| Playbooks | One page under `docs/playbooks/` or `docs/reference-implementations/` | Low when the PR avoids shared index churn |
-| Architecture / KB | One concept page under `docs/architecture/` or `docs/knowledge_base/` | Medium because cross-links can touch multiple overview pages |
+| **Intake** | `docs/new-sources*`, `data/all_tools.json`, `mkdocs.yml` | **Action B (Link)**: Focus on staging new items and updating indexes. |
+| **Curation** | `docs/tools/`, `docs/services/` | **Action A (Work)**: Deepen documentation to "High Confidence" standards. |
+| **Maintenance** | Entire repository | **Action A (Work)**: Execute batch audits and automated fixes (Batch 100+ patterns). |
+| **Decomposition** | `docs/reports/` | **Action C (Decompose)**: Triage complex issues into smaller sub-batches. |
 
-Prefer one changed canonical page plus required metadata/source updates. If a task needs catalog or navigation edits, treat those files as part of the same lane and avoid opening a second PR that touches them until the first one merges.
+### Conflict Mitigation
+- **File Locks**: Agents should treat `mkdocs.yml` and `data/all_tools.json` as shared resources; avoid concurrent edits by checking for open PRs touching these files.
+- **Rebase First**: Always run `git fetch origin main && git rebase origin/main` before starting work to avoid stale state.
+- **Narrow Focus**: Prefer one changed canonical page per PR to minimize merge conflicts.
 
 ## PR Sequencing for Automation
 
@@ -157,8 +160,8 @@ A PR is complete only when:
 - [AI Hub Standards](../standards.md)
 - [Contributing Guide](../CONTRIBUTING.md)
 - [Automated Contributions](./automated_contributions.md)
-- [GitHub Actions: Events that trigger workflows](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)
-- [Repository standards](../standards.md)
+- [GitHub Actions Documentation](https://docs.github.com/actions)
+- [Ralph-loop Execution Reports](reports/)
 
 ## Related tools / concepts
 
@@ -170,8 +173,9 @@ A PR is complete only when:
 - [Quality Audit Script](../../scripts/audit_docs_quality.py)
 - [Check Docs Contract Script](../../scripts/check_docs_contract.py)
 - [Catalog Consistency Script](../../scripts/check_catalog_consistency.py)
+- [Ralph-loop Implementation](../CONTRIBUTING.md)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-07
+- Last reviewed: 2026-05-28
 - Confidence: high
