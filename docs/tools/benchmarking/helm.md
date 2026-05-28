@@ -1,36 +1,35 @@
 # HELM (Holistic Evaluation of Language Models)
 
 ## What it is
-HELM (Holistic Evaluation of Language Models) is an open-source evaluation framework developed by Stanford University's Center for Research on Foundation Models (CRFM). It is designed to provide a comprehensive, transparent, and multi-dimensional assessment of Large Language Models (LLMs).
+HELM (Holistic Evaluation of Language Models) is an open-source evaluation framework developed by Stanford University's Center for Research on Foundation Models (CRFM). It is designed to provide a comprehensive, transparent, and multi-dimensional assessment of Large Language Models (LLMs) and Multimodal Models.
 
 ## What problem it solves
-LLM evaluation is often narrow, focusing only on accuracy for a few tasks. HELM addresses this by evaluating models across a wide range of "scenarios" (tasks) and "metrics" (accuracy, fairness, safety, efficiency, etc.), providing a holistic view of model behavior rather than just a single score.
+LLM evaluation is often narrow, focusing only on accuracy for a few tasks. HELM addresses this by evaluating models across a wide range of "scenarios" (tasks) and "metrics" (accuracy, fairness, safety, efficiency, copyright, etc.), providing a holistic view of model behavior. It mitigates "leaderboard hacking" by using a broad, standardized scenario-metric grid.
 
 ## Where it fits in the stack
-**Benchmarking**. It is a major framework used by researchers and engineers to perform deep-dive evaluations of foundation models.
+**Category**: [Benchmarking](index.md). It is the industry-standard framework used by researchers and regulators to perform deep-dive evaluations of foundation models before and after deployment.
 
 ## Typical use cases
-- **Holistic Model Assessment**: Evaluating a new model version across accuracy, safety, and bias simultaneously.
-- **Comparison of Foundation Models**: Using standardized scenarios to compare models like GPT-4, Claude, and Llama on equal footing.
-- **Safety and Fairness Auditing**: Specifically checking for toxicity and bias in model responses across different demographics.
+- **Holistic Model Assessment**: Evaluating a new model version (e.g., Llama 4 or GPT-5.2) across accuracy, safety, and bias simultaneously.
+- **Regulatory Compliance**: Using **AIR-Bench** (AI Safety Benchmark) to align model behavior with emerging government regulations and company policies.
+- **VLM Benchmarking**: Using **VHELM** to evaluate vision-language models on visual reasoning and perception.
+- **Safety and Fairness Auditing**: Specifically checking for toxicity and bias across 314+ granular risk categories in the lowest tier of the AIR-Bench taxonomy.
 
 ## Getting started
 
 ### Installation
-
 It is recommended to install HELM into a virtual environment with Python >= 3.10.
 
 ```bash
-# Install the base HELM package
+# Install the base HELM package (v0.5.x for 2026 support)
 pip install crfm-helm
 
-# Install additional dependencies for multimodal (VHELM/HEIM) support
-pip install "crfm-helm[vlm]"
+# Install additional dependencies for multimodal (VHELM/HEIM) or specific metrics
+pip install "crfm-helm[vlm,summarization]"
 ```
 
 ### Hello-world task
-
-Evaluate GPT-2 on a small subset of the MMLU philosophy subject:
+Evaluate GPT-2 on a small subset of the MMLU philosophy subject. Note that for 2026 versions, `trust_remote_code` is disabled by default for security; it must be explicitly enabled in `model_deployments.yaml` if needed.
 
 ```bash
 # Run the benchmark (limited to 10 instances)
@@ -68,46 +67,48 @@ helm-summarize --suite med-suite
 ```
 
 ### `helm-server`
-Launches a local web server to browse the results, inspect individual prompts, and view the leaderboard.
+Launches a local web server to browse the results.
+- `--suite`: Specify the suite to serve.
+- `--export-path`: (New in 2026) Export the results as a static website for hosting on GitHub Pages or an internal dashboard.
 
 ```bash
-# Start the UI server
-helm-server --suite med-suite
+# Start the UI server and export to a directory
+helm-server --suite med-suite --export-path ./docs/eval-report
 ```
 
-## Specialized Evaluations
+## Specialized Evaluations (2026 Update)
 
-HELM has expanded beyond general text models into specialized domains:
+HELM has expanded into specialized, high-concurrency domains:
 
-- **VHELM (Vision-Language Models)**: Evaluates VLMs on visual perception, reasoning, and safety. Uses benchmarks like MMMU and aggregates results across 9 distinct aspects.
-- **HEIM (Holistic Evaluation of Text-To-Image Models)**: Focuses on image generation models, measuring alignment, quality, and aesthetics.
-- **MedHELM**: A specialized version for medical tasks, incorporating datasets like MedQA to assess model performance in clinical contexts.
+- **HELM Capabilities**: A curated set of scenarios for measuring the general capabilities of the latest 2026 models (Grok 4.1, Claude 4.6, GPT-5.2).
+- **AIR-Bench (AI Safety)**: The first safety benchmark aligned with global government regulations, featuring a four-tiered safety taxonomy.
+- **VHELM (Vision-Language Models)**: Evaluates multimodal models like Gemini 3.1 Pro or Claude Opus 4.6 on visual perception and reasoning.
+- **HEIM (Text-To-Image)**: Focuses on image generation models (Sora, Midjourney v7) for aesthetics and alignment.
+- **MedHELM**: Specialized medical evaluation using MedQA and clinical reasoning scenarios.
 
 ## Strengths
-- **Multi-dimensional**: Moves beyond simple accuracy to include metrics like calibration, robustness, and fairness.
-- **Scenario-Metric Grid**: Uses a systematic approach to ensure broad coverage of tasks.
-- **Transparency**: Provides full visibility into the prompts used and the individual model responses.
-- **Active Research**: Regularly updated by Stanford with new datasets and the latest models.
+- **Multi-dimensional**: Covers 314+ risk categories and dozens of performance metrics.
+- **Security-First**: `trust_remote_code` is now disabled by default in `HuggingFaceClient`.
+- **LiteLLM Integration**: (2026) Direct support for LiteLLM allows evaluating models across any provider without complex configuration.
+- **Transparency**: Full visibility into prompts, model responses, and metric calculations.
 
 ## Limitations
-- **High Complexity**: Setting up and running full HELM evaluations is computationally expensive and complex.
-- **API Dependency**: Many scenarios require access to external model APIs, which can incur high costs.
-- **Learning Curve**: The framework's modularity makes it powerful but also harder to master than simpler evaluation scripts.
+- **High Complexity**: Setting up and running full HELM suites is computationally expensive.
+- **API Dependency**: Extensive evaluations of closed models incur high API costs.
+- **Infrastructure Requirements**: Local evaluation of large models requires significant VRAM (supported by [vLLM](../infrastructure/vllm.md)).
 
 ## When to use it
 - When you need a highly rigorous, academic-grade evaluation of a foundation model.
-- When you are concerned with safety, bias, or robustness in addition to raw performance.
+- For safety and regulatory audits (using AIR-Bench).
 - When participating in or reproducing results for major LLM leaderboards.
 
 ## When not to use it
 - For quick, "vibe-check" style evaluations of a specific application prompt.
-- If you have very limited compute or budget for API calls.
-- For evaluating specific RAG pipelines (consider [RAGAS](https://github.com/explodinggradients/ragas) instead).
+- For evaluating specific RAG pipelines (consider [RAGAS](https://github.com/explodinggradients/ragas) or [DeepEval](https://github.com/confident-ai/deepeval)).
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free (but compute/API costs for running evals apply)
-- **Self-hostable**: Yes
+- **Cost**: Free software (API/compute costs apply)
 
 ## Related tools / concepts
 - [LM Evaluation Harness](lm-evaluation-harness.md)
@@ -119,12 +120,15 @@ HELM has expanded beyond general text models into specialized domains:
 - [Chatbot Arena](chatbot-arena.md)
 - [LangSmith](langsmith.md)
 - [vLLM](../infrastructure/vllm.md)
+- [LiteLLM](../../services/litellm.md)
+- [AIR-Bench](https://crfm.stanford.edu/helm/air-bench/latest/)
 
 ## Sources / References
 - [Official Website](https://crfm.stanford.edu/helm/)
 - [GitHub Repository](https://github.com/stanford-crfm/helm)
 - [Stanford CRFM Blog](https://crfm.stanford.edu/2022/11/17/helm.html)
+- [AIR-Bench Safety Benchmark](https://crfm.stanford.edu/helm/air-bench/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-21
+- Last reviewed: 2026-05-28
 - Confidence: high
