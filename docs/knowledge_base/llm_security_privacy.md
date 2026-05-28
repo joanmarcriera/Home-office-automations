@@ -86,5 +86,5 @@ In April 2026, Cal.com made the significant decision to move its core codebase f
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-04-16
+- Last reviewed: 2026-05-28
 - Confidence: high
