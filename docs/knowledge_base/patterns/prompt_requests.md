@@ -56,7 +56,27 @@ The "human bottleneck" in Git-based workflows is becoming evident. The emerging 
 ## Reputation-Based Systems
 To handle untrusted or high-volume agentic contributions, "reputation" systems are replacing manual reviews:
 - **Mitchell Hashimoto's / Amp Code Patterns**: Moving toward systems where code contributions are evaluated based on the submitter's (or agent's) historical reliability and automated safety checks.
+- **Verification-First Development**: Rather than reviewing the code, humans review the *verification suite* (tests, formal proofs, or guardrail logs) that the agent generated.
 - **Reputation Scores**: Agents earn trust through successful deployments, passing test suites, and adhering to security protocols.
+
+## Prompt Request Implementation (Example)
+A "Prompt Request" often takes the form of a structured JSON or YAML file that defines the intent, allowing different agents to attempt the implementation.
+
+```yaml
+prompt_request:
+  id: "PR-2026-0528"
+  intent: "Add PII masking to the UserProfile logging module."
+  context:
+    - path: "src/users/profile.py"
+    - pattern: "docs/playbooks/data-copilot-sql-validation.md"
+  constraints:
+    - "No external dependencies."
+    - "Maintain 100% test coverage."
+    - "Pass Claude Code security scan."
+  verification:
+    - command: "pytest tests/test_profile_masking.py"
+    - tool: "scripts/sql_validator.py"
+```
 
 ## Agent-to-Agent Collaboration
 Agents are increasingly designed for a "software that agents want" paradigm:
@@ -71,17 +91,19 @@ The shift to "Prompt Requests" addresses key security risks:
 ## Related tools / concepts
 
 - [Agentic Workflows](agentic-workflows.md) — the broader framework for agent-led development.
+- [Multi-Agent KnowledgeOps](../multi_agent_knowledgeops.md) — coordination protocol for these workflows.
 - [Agent Skills Best Practices](skills-best-practices.md) — authoring the modules that Prompt Requests trigger.
-- [Self-healing Agent Research](../self-healing-agent-research.md) — automated remediation triggered by Prompt Requests.
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — specific guardrails for prompt-driven code.
 - [Claude Code](../../tools/development_ops/claude-code.md) — terminal-based agent that uses these patterns.
-- [Context7](../../tools/development_ops/context7.md) — providing fresh context to Prompt Requests.
 - [OpenClaw](../../tools/development_ops/openclaw.md) — runtime for executing agentic prompts.
-- [LLMFit](../../tools/development_ops/llmfit.md) — benchmarking the models used in Prompt Request loops.
+- [Jules](../../tools/ai_knowledge/jules.md) — implementation of the "Staff Reviewer" pattern.
+- [AmpCode](../../tools/enterprise/ampcode.md) — platform implementing these patterns.
 
 ## Sources / References
 - [[AINews] RIP Pull Requests (2005-2026) (Latent Space)](https://www.latent.space/p/ainews-rip-pull-requests-2005-2026)
 - [Building for Trillions of Agents (Aaron Levie)](https://x.com/levie/status/2030714592238956960)
+- [The Rise of the Prompt Request (Mitchell Hashimoto)](https://mitchellh.com/writing/prompt-requests)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-24
+- Last reviewed: 2026-05-28
 - Confidence: high

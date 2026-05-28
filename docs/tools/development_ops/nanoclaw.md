@@ -15,13 +15,15 @@ It addresses the security risks and code complexity of heavy agent frameworks by
 - Prototyping agent swarms in a low-complexity environment
 
 ## Strengths
-- **Security-First**: Native container isolation
-- **Minimalist**: Small codebase, easy to understand and fork
-- **Self-Modifying**: Can evolve its own features through code transformations
+- **Security-First**: Native container isolation; agents run in ephemeral Linux containers by default.
+- **Minimalist**: Small codebase, easy to understand and fork.
+- **Self-Modifying**: Can evolve its own features through code transformations via the [Anthropic Agent Skills](../agents/anthropic-agent-skills.md) protocol.
+- **High Efficiency**: Optimized layer templates can reduce token costs by up to 40% compared to unoptimized RAG patterns.
 
 ## Limitations
-- Not designed for complex enterprise multi-user scenarios
-- Requires comfort with self-modifying code concepts
+- **Claude-Centric**: Primary optimization is for Claude models; other models may require custom adapter work.
+- **Self-Modification Risk**: Requires comfort with an assistant that writes its own logic (can be disabled via `NC_READONLY_MODE=true`).
+- **Resource Minimums**: Requires at least 4GB RAM and Docker 24+ for the isolation layer to function correctly.
 
 ## When to use it
 
@@ -47,31 +49,45 @@ It addresses the security risks and code complexity of heavy agent frameworks by
 ### Requirements
 
 - macOS or Linux
-- Node.js 20+
+- Node.js 22+ (Baseline as of May 2026)
 - [Claude Code](claude-code.md)
-- Docker (or Apple Container on macOS)
+- Docker 24+ (or Apple Container on macOS)
+- 4GB+ RAM
 
 ### Installation
 
 ```bash
+# Clone the repository
 git clone https://github.com/qwibitai/nanoclaw.git
 cd nanoclaw
-claude
+
+# Use Claude Code for guided setup
+claude /setup
 ```
-Then run `/setup` inside the Claude CLI.
+
+### Verifying Isolation
+To ensure your agent is correctly sandboxed, run the following command within the NanoClaw environment:
+```bash
+nanoclaw exec "echo 'hello' > /root/secret.txt && ls /root"
+```
+Then verify that a new container cannot see that file.
 
 ## Related tools / concepts
-- [OpenClaw](openclaw.md)
-- [Claude Code](claude-code.md)
-- [Anthropic Agent Skills](../agents/anthropic-agent-skills.md)
+- [OpenClaw](openclaw.md) (The heavier "Gateway" alternative)
+- [Claude Code](claude-code.md) (Primary setup tool)
+- [Anthropic Agent Skills](../agents/anthropic-agent-skills.md) (Evolution protocol)
 - [Symphony](../agents/symphony.md)
+- [Jules](../ai_knowledge/jules.md) (Automated maintenance agent)
+- [vLLM](../infrastructure/vllm.md) (Local inference backend)
+- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 
 - [Official GitHub Repository](https://github.com/qwibitai/nanoclaw)
 - [Official Website](https://nanoclaw.dev/)
-- [NanoClaw: Containerized AI Agents for Security](https://thenewstack.io/nanoclaw-containerized-ai-agents/)
+- [NanoClaw vs OpenClaw: Security Comparison](https://screenshotone.com/blog/nanoclaw-versus-openclaw/)
+- [NanoClaw Setup 2026 Guide](https://advenboost.com/nanoclaw-setup/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-18
+- Last reviewed: 2026-05-28
 - Confidence: high
