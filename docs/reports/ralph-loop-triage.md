@@ -85,6 +85,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 95** | Service Maintenance (Backlog) | **Resolved** | Synchronized playbook checklists and populated `## Backlog` for 52 service docs (2026-05-25). |
 | **Batch 97** | Service Freshness Audit | **Resolved** | Audited Element, Linkwarden, Audiobookshelf, Excalidraw, and Homebox for May 2026 freshness (2026-05-26). |
 | **Batch 100** | Technical Freshness Audits | **Resolved** | Audited HELM, OpenCompass, OpenClaw, and Docling for May 2026 technical freshness (2026-05-28). |
+| **Batch 101** | Technical Freshness Audits | **Resolved** | Audited Software Factories, Ubuntu AI, ColQwen, VAKRA, and Multi-Calendar Research for May 2026 technical freshness (2026-05-28). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
