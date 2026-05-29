@@ -1,72 +1,112 @@
 # Google Gemini CLI
 
 ## What it is
-Google Gemini CLI is an open-source AI agent that brings the power of the Gemini model family directly into the terminal and GitHub workflows. It acts as both a standalone CLI tool for local development and a set of GitHub Actions for repository automation.
+**Google Gemini CLI** is a high-performance terminal interface and agentic toolkit that brings the Gemini model family directly into developer workflows and CI/CD pipelines. It acts as both a standalone CLI assistant for local development and a suite of GitHub Actions for automated repository management.
 
 ## What problem it solves
-It streamlines the developer workflow by providing immediate access to AI assistance for coding, refactoring, and documentation without leaving the terminal. In CI/CD, it automates repetitive tasks like issue triaging and pull request reviews.
+It eliminates the "context switching" penalty by allowing developers to access state-of-the-art AI for code generation, explanation, and refactoring without leaving the terminal. In CI/CD, it automates high-volume maintenance tasks like issue triaging, PR reviews, and changelog generation.
 
 ## Where it fits in the stack
-**Tool / Agent / Developer Experience (DX)**.
+**Category**: Tool / Agent / Developer Experience (DX). It serves as a bridge between the local terminal environment and Google's Vertex AI / AI Studio infrastructure.
+
+## Key Features (May 2026)
+- **Subagent Protocol**: Support for spawning specialized sub-agents to handle complex, multi-step tasks (e.g., "Refactor this API and update all dependent tests").
+- **Native GitHub Action**: Deep integration for automated pull request summaries and "smart" issue labeling.
+- **Session Export/Import**: Ability to save complex agentic sessions and resume them across different machines or team members.
+- **Node.js 24 Baseline**: Optimized for the latest Node.js LTS, providing improved performance and security for local executions.
+- **Vertex AI & AI Studio Support**: Seamlessly switch between enterprise-grade Vertex AI and the developer-friendly Google AI Studio.
+- **Long Context Native**: Designed to leverage the 1M+ token context windows of Gemini 1.5/2.0+ models for full-project analysis.
 
 ## Typical use cases
-- **Terminal Assistant**: Direct terminal interactions for code generation and command explanation.
-- **Pull Request Reviewer**: Automating code reviews via GitHub Actions by commenting on diffs.
-- **Issue Triager**: Analyzing new issues, labeling them, and suggesting fixes.
-- **Batch Code Modification**: Using agentic capabilities to refactor code across multiple files.
+- **Terminal Engineering Assistant**: Asking "Explain why this Docker build is failing" by piping logs directly into the CLI.
+- **Automated PR Reviewer**: Using the `gemini-review` action to identify logic flaws and style violations in new code submissions.
+- **Interactive Refactoring**: Using the agentic mode to "Upgrade all React components in this folder to use the new useFormStatus hook."
+- **Knowledge Synthesis**: Summarizing long documentation threads or technical specs into actionable TODO lists.
 
 ## Strengths
-- **Native Integration**: Developed by Google, ensuring first-class support for Gemini models.
-- **GitHub Actions Native**: Specifically designed to work within GitHub's ecosystem.
-- **Project Context**: Uses a `GEMINI.md` file (similar to `AGENTS.md`) to follow repository-specific rules.
-- **Tool Calling**: Can interact with other CLI tools (like `gh` CLI) to perform complex actions.
+- **Google Ecosystem Integration**: First-class support for new Gemini features (e.g., ground-truth search, code execution).
+- **Speed**: Extremely low latency when using the 'Gemini Flash' model family.
+- **Context Handling**: Better at analyzing large repositories compared to agents with smaller context windows.
+- **Extensible**: Supports custom `.geminirc` configurations and repository-specific `GEMINI.md` rules.
 
 ## Limitations
-- **Internet Dependency**: Requires a connection to Google AI Studio or Vertex AI.
-- **Token Usage**: Large codebases can consume significant quotas/costs depending on the model used (though AI Studio has generous free tiers).
-- **Environment**: Optimized for Unix-like environments and specific Node.js versions.
+- **Internet Requirement**: Requires an active connection to Google's AI APIs (Vertex or AI Studio).
+- **Rate Limits**: Free-tier AI Studio usage is generous but subject to RPM (Requests Per Minute) limits.
+- **Privacy Trade-offs**: Unless using Enterprise Vertex AI, data usage policies should be reviewed for sensitive codebases.
 
 ## When to use it
-- To automate repository maintenance tasks on GitHub.
-- For a lightweight, terminal-based alternative to heavy AI IDEs like Cursor.
+- To automate high-volume repository maintenance on GitHub.
+- For a lightweight, CLI-native alternative to heavy AI IDEs.
+- When working with very large files or projects that exceed the context limits of other agents.
 
 ## When not to use it
-- In strictly offline environments.
-- If you prefer a full GUI-based AI coding experience.
+- In offline or air-gapped development environments.
+- If your organization has a hard prohibition on using Google Cloud / Vertex AI services.
+- For tasks requiring specialized non-LLM tools not yet supported by the Gemini tool-calling ecosystem.
 
-## Getting started
+## Licensing and cost
+- **Open Source**: Yes (Apache 2.0).
+- **Cost**: Free (via Google AI Studio quotas) or Pay-as-you-go (via Vertex AI).
+- **Self-hostable**: Yes (the CLI client).
+
+## Getting started (CLI)
 
 ### Installation
+Ensure you have Node.js 24+ installed.
 ```bash
 npm install -g @google/gemini-cli
 ```
 
 ### Basic Usage
 ```bash
-gemini "Refactor this python script to use async/await"
+# Set your API Key
+export GEMINI_API_KEY="your_key_here"
+
+# Ask a coding question
+gemini "How do I implement a rate-limiter in Go using middleware?"
+
+# Refactor a file
+gemini --file app.py "Refactor this to use the repository pattern"
 ```
 
-### GitHub Action Setup
-Initialize the configuration in your repository:
+### Agentic Mode (Subagents)
 ```bash
-gemini setup-github
+# Spawn a subagent to handle a complex task
+gemini "Find all deprecated API calls in /src and create a migration plan" --agentic
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0).
-- **Cost**: Free (using Google AI Studio quotas) or Paid (via Vertex AI).
-- **Self-hostable**: Yes (the CLI itself).
+## GitHub Action Example
+Add this to your `.github/workflows/ai-review.yml`:
+
+```yaml
+name: Gemini PR Review
+on: [pull_request]
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Gemini Review
+        uses: google-github-actions/run-gemini-cli@v1
+        with:
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: "Review this PR for security vulnerabilities and performance bottlenecks."
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+```
 
 ## Related tools / concepts
-- [Google Gemini](google-gemini.md) (Underlying Model)
-- [Aider](../development_ops/aider.md) (Terminal-based agent)
-- [Claude Code](../development_ops/claude-code.md) (Anthropic's equivalent)
+- [Google Gemini](google-gemini.md) — The underlying model family.
+- [Aider](../development_ops/aider.md) — Alternative terminal-based agent.
+- [Claude Code](../development_ops/claude-code.md) — Anthropic's CLI-native agent.
+- [Vertex AI](../providers/google-vertex-ai.md) — Enterprise-grade hosting for Gemini.
 
 ## Sources / References
-- [Gemini CLI Documentation](https://geminicli.com/)
-- [Official GitHub](https://github.com/google-gemini/gemini-cli)
-- [GitHub Marketplace Action](https://github.com/marketplace/actions/run-gemini-cli)
+- [Official GitHub Repository](https://github.com/google-gemini/gemini-cli)
+- [Google AI Studio Console](https://aistudio.google.com/)
+- [Gemini CLI v0.43 Release Notes](https://releasebot.io/updates/google/gemini-cli)
+- [GitHub Blog: Node.js 20 Deprecation](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-28
+- Last reviewed: 2026-05-29
 - Confidence: high
