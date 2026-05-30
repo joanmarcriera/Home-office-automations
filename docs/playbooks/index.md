@@ -15,6 +15,7 @@ Step-by-step execution guides for recurring workflows. Each playbook is self-con
 | Ingest and process school admin emails, letters, or attachments | [School Admin Intake](school-admin-intake.md) |
 | Audit, repair, or improve the knowledge base and documentation | [Knowledge Base Health](knowledge-base-health.md) |
 | Configure NFS CSI driver for persistent volumes on K3s | [NFS CSI Setup](nfs-csi-setup.md) |
+| Deploy a 3-node HA cluster for resilient workloads | [K3s Cluster Setup](k3s-cluster-setup.md) |
 | Validate AI-generated SQL queries for safety and performance | [Data Copilot SQL Validation](data-copilot-sql-validation.md) |
 | Migrate from Tailscale to a self-hosted Headscale instance | [Tailscale to Headscale Migration](tailscale-to-headscale-migration.md) |
 
@@ -99,6 +100,13 @@ Outlines the steps required to migrate homelab nodes from the Tailscale SaaS coo
 
 ---
 
+### [K3s Cluster Setup](k3s-cluster-setup.md)
+Step-by-step operational guide for deploying a lightweight, 3-node highly available Kubernetes cluster using K3s with embedded etcd.
+
+**Stack**: K3s · Ubuntu/Talos OS · etcd
+
+---
+
 ## Related
 
 - [Tool Catalogue](../tools/README.md) — canonical docs for every tool used above
@@ -111,5 +119,5 @@ Outlines the steps required to migrate homelab nodes from the Tailscale SaaS coo
 - [Architecture: Automated Contributions](../architecture/automated_contributions.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-05-30
 - Confidence: high

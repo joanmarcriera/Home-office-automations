@@ -56,16 +56,77 @@ result = agent.run_sync('What is the capital of France?')
 print(result.data)
 ```
 
+## Advanced Patterns
+
+### Dependency Injection (DI)
+PydanticAI allows for runtime injection of external objects (database connections, user context, config) into system prompts, tools, and validators.
+
+```python
+from dataclasses import dataclass
+from pydantic_ai import Agent, RunContext
+
+@dataclass
+class MyDeps:
+    user_name: str
+    db_conn: any
+
+agent = Agent('anthropic:claude-3-5-sonnet', deps_type=MyDeps)
+
+@agent.system_prompt
+def get_system_prompt(ctx: RunContext[MyDeps]) -> str:
+    return f"Hello {ctx.deps.user_name}, I am your assistant."
+
+@agent.tool
+def get_user_data(ctx: RunContext[MyDeps], query: str) -> str:
+    return ctx.deps.db_conn.execute(query)
+
+result = agent.run_sync("Tell me about my orders", deps=MyDeps(user_name="Jules", db_conn=my_db))
+```
+
+### Structured Result Validation
+You can force an agent to return a specific Pydantic model with automatic retry on validation failure.
+
+```python
+from pydantic import BaseModel
+from pydantic_ai import Agent
+
+class OrderDetails(BaseModel):
+    order_id: int
+    item_name: str
+    quantity: int
+
+agent = Agent('openai:gpt-4o', result_type=OrderDetails)
+
+result = agent.run_sync("I want to order 5 coffee filters. Order #12345.")
+# result.data is an instance of OrderDetails
+```
+
+### Agent Graph Iteration (May 2026)
+Access and iterate over the internal agent graph nodes during execution for fine-grained monitoring or UI state management.
+
+```python
+from pydantic_ai import Agent
+
+agent = Agent('openai:gpt-4o')
+
+with agent.capture_run() as run:
+    result = agent.run_sync("Analyze this data...")
+    for node in run.nodes:
+        print(f"Executing node: {node.name}")
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT).
 - **Cost**: Free (Framework) + LLM API costs.
 - **Self-hostable**: Yes.
 
 ## Related tools / concepts
-- [Pydantic](https://docs.pydantic.dev/) (Data validation)
-- [Logfire](https://pydantic.dev/logfire) (Observability)
-- [LangGraph](langgraph.md) (Alternative graph-based framework)
-- [CrewAI](crewai.md) (Alternative role-playing framework)
+- [Pydantic](https://docs.pydantic.dev/) — Core data validation library.
+- [Logfire](https://pydantic.dev/logfire) — Native observability for Pydantic and PydanticAI.
+- [FastAPI](https://fastapi.tiangolo.com/) — Often used together for building AI microservices.
+- [LangGraph](langgraph.md) — Alternative graph-based orchestration framework.
+- [CrewAI](crewai.md) — Focuses on role-playing and collaborative agents.
+- [Agentic Design Patterns](../../knowledge_base/patterns/agentic-workflows.md) — Strategic patterns for reliable agent systems.
 
 ## Sources / References
 - [Official GitHub](https://github.com/pydantic/pydantic-ai)
@@ -73,5 +134,5 @@ print(result.data)
 - [Pydantic AI Skills](https://github.com/DougTrajano/pydantic-ai-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-28
+- Last reviewed: 2026-05-30
 - Confidence: high
