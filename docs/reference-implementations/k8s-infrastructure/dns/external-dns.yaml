@@ -12,7 +12,7 @@ rules:
 - apiGroups: [""]
   resources: ["services","endpoints","pods"]
   verbs: ["get","watch","list"]
-- apiGroups: ["extensions","networks.k8s.io"]
+- apiGroups: ["extensions","networks.k8s.io","networking.k8s.io"]
   resources: ["ingresses"]
   verbs: ["get","watch","list"]
 - apiGroups: [""]
@@ -51,13 +51,14 @@ spec:
       serviceAccountName: external-dns
       containers:
       - name: external-dns
-        image: registry.k8s.io/external-dns/external-dns:v0.14.0
+        image: registry.k8s.io/external-dns/external-dns:v0.15.1
         args:
         - --source=service
         - --source=ingress
         - --domain-filter=example.com # replace with your domain
         - --provider=cloudflare
         - --cloudflare-proxied # optional
+        - --txt-owner-id=k3s-homelab-cluster # unique ID for this cluster
         env:
         - name: CF_API_TOKEN
           valueFrom:
