@@ -1,7 +1,7 @@
 # Audio Transcription Research: Whisper Variants for Long-Form Audio
 
 ## What it is
-This research document compares various optimized versions of OpenAI's Whisper model. It focuses on engines and architectural modifications designed to handle long-form audio (podcasts, audiobooks, journals) efficiently within a homelab or self-hosted environment.
+This research document compares various optimized versions of OpenAI's Whisper model and competing architectures like **SenseVoice**. It focuses on engines and architectural modifications designed to handle long-form audio (podcasts, audiobooks, journals) efficiently within a homelab or self-hosted environment.
 
 ## What problem it solves
 The original Whisper implementation is accurate but computationally expensive and prone to "hallucination loops" during long periods of silence or background noise. This research identifies variants that reduce transcription time by up to 10x while maintaining accuracy and hardware compatibility for typical home servers.
@@ -17,13 +17,13 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 
 ## Strengths
 - **Hardware Agnostic**: Includes recommendations for both high-end NVIDIA GPUs and low-power CPU-only NAS devices.
-- **Hallucination Resistant**: Specifically highlights models (like Distil-Whisper) that solve the "repetition" bug common in standard Whisper.
-- **Quantization-Aware**: Evaluates INT8 and FP16 performance for optimized inference.
+- **Hallucination Resistant**: Specifically highlights models (like Distil-Whisper and Whisper Turbo) that solve the "repetition" bug common in standard Whisper.
+- **Quantization-Aware**: Evaluates INT8 and FP16 performance for optimized inference on mobile and desktop.
 
 ## Limitations
 - **Language Gaps**: Many high-speed distilled models (Distil-Whisper) are currently limited to English.
-- **VRAM Requirements**: The most accurate models (Large-v3) still require ~10GB of VRAM, which may exceed entry-level homelab hardware.
-- **Dependency Heavy**: requires specialized engines like CTranslate2 or `whisper.cpp` for maximum performance.
+- **VRAM Requirements**: The most accurate models still require ~6-10GB of VRAM, which may exceed entry-level homelab hardware.
+- **Engine Diversity**: requires specialized engines like CTranslate2, `whisper.cpp`, or `mlx-whisper` for maximum performance.
 
 ## When to use it
 - Use it when designing a new automated audio transcription pipeline.
@@ -34,25 +34,27 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 - Do not use it for real-time live captioning (streaming transcription), as this research focuses on batch processing of files.
 - Do not use it for music-to-sheet-music conversion (see specialized audio analysis tools).
 
-## Getting started
-1. Assess your hardware (CPU only vs. NVIDIA GPU).
+## Getting started (2026 Baseline)
+1. Assess your hardware (CPU only vs. NVIDIA GPU vs. Apple Silicon).
 2. Choose a model variant from the **Comparison Table** below based on your language needs (English only vs. Multilingual).
-3. Implement the chosen model using a supported engine like **Faster-Whisper** for the best balance of speed and accuracy.
+3. Implement the chosen model using **Faster-Whisper v1.3** or **SenseVoice Small** for the best balance of speed and diarization.
 4. For a reference implementation, see the `scripts/transcribe_audio.py` script in this repository.
 
-## Performance Benchmarking
+## Performance Benchmarking (Faster-Whisper v1.3)
 The following Python script can be used to benchmark `faster-whisper` performance on your local hardware.
 
 ```python
 import time
 from faster_whisper import WhisperModel
 
-def benchmark_transcription(model_size="distil-large-v3", device="cuda"):
+def benchmark_transcription(model_size="large-v3-turbo", device="cuda"):
     # Load model (compute_type="float16" for GPU, "int8" for CPU)
     compute_type = "float16" if device == "cuda" else "int8"
+    # Faster-Whisper v1.3 supports loading direct from HuggingFace
     model = WhisperModel(model_size, device=device, compute_type=compute_type)
 
     start_time = time.time()
+    # Beam size 5 is a good default for accuracy vs speed
     segments, info = model.transcribe("sample_audio.mp3", beam_size=5)
 
     # Exhaust the generator to complete transcription
@@ -66,74 +68,68 @@ if __name__ == "__main__":
     benchmark_transcription()
 ```
 
-## VAD (Voice Activity Detection) Configuration
-Voice Activity Detection is critical for preventing hallucinations during silence. `faster-whisper` provides integrated Silero VAD support.
+## VAD (Voice Activity Detection) - Silero V6
+Voice Activity Detection is critical for preventing hallucinations during silence. **Silero V6** (released 2026) offers 40% lower latency and better noise rejection.
 
 ```python
-# VAD configuration examples for robust transcription
-vad_parameters = {
-    "threshold": 0.5,           # Sensitivity (0.0 to 1.0)
-    "min_speech_duration_ms": 250,
-    "max_speech_duration_s": float('inf'),
-    "min_silence_duration_ms": 100,
-    "window_size_samples": 1024
-}
-
-# Apply during transcription
+# VAD configuration using Silero V6 (Integrated in Faster-Whisper v1.3)
 segments, _ = model.transcribe(
     "audio.mp3",
     vad_filter=True,
-    vad_parameters=vad_parameters
+    vad_parameters=dict(
+        threshold=0.35,              # Lower for high-noise home recordings
+        min_speech_duration_ms=100,  # V6 is more precise
+        max_speech_duration_s=float('inf'),
+        min_silence_duration_ms=200,
+        window_size_samples=512      # V6 optimized window
+    )
 )
 ```
 
-## Comparison Table
+## Comparison Table (May 2026)
 
 | Model Variant | Engine | Speed (vs. Large-v3) | Memory (Approx.) | Multilingual | Best For |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Whisper (Large-v3)** | Transformers/OpenAI | 1.0x (Baseline) | ~10GB VRAM | Yes | Maximum accuracy (multilingual) |
-| **Faster-Whisper** | CTranslate2 | 2x - 4x | ~5GB VRAM | Yes | Standard homelab CPU/GPU use |
+| **Faster-Whisper v1.3**| CTranslate2 | 4x - 6x | ~5GB VRAM | Yes | Homelab default (Balanced) |
+| **SenseVoice Small** | FunASR | ~8x | ~2GB VRAM | Yes (5+ languages)| Diarization & Emotion detection |
 | **Distil-Whisper** | Transformers | ~6x | ~5GB VRAM | No (English) | Speed & hallucination resistance |
-| **Faster-Distil-Whisper**| CTranslate2 | ~8x - 10x | ~3GB VRAM | No (English) | Best performance on limited hardware |
-| **Whisper Turbo** | Transformers | ~6x | ~6GB VRAM | Yes | Fast multilingual transcription |
+| **Whisper Turbo** | Transformers | ~8x | ~6GB VRAM | Yes | Fast multilingual (Official OpenAI) |
+| **Whisper.cpp (Q5_K)** | C++ | ~5x | ~4GB RAM | Yes | Low-power / Apple Silicon |
 
-## Key Findings
+## Key Findings (2026)
 
-### 1. Distil-Whisper (distil-large-v3)
-- **Performance**: Up to 6x faster than `large-v3`.
-- **Accuracy**: Within 1% Word Error Rate (WER) of the original model.
-- **Long-Form**: Specifically optimized for long-form audio to reduce hallucinations (repeating phrases) often seen in vanilla Whisper during silence or background noise.
-- **Limitation**: Currently only supports English.
+### 1. SenseVoice Integration
+- **Diarization**: SenseVoice Small provides native speaker diarization and emotion/event detection (e.g., laughter, applause) at inference time.
+- **Multilingual**: High performance for Chinese, English, Japanese, Korean, and Cantonese.
+- **Speed**: Outperforms Faster-Whisper on short and medium-length clips.
 
-### 2. Faster-Whisper
-- **Implementation**: Uses CTranslate2, a fast inference engine for Transformer models.
-- **Efficiency**: Significantly faster and more memory-efficient than the Hugging Face `transformers` implementation.
-- **Flexibility**: Can load `distil-whisper` models, providing the best of both worlds (distilled architecture + CTranslate2 speed).
+### 2. Silero-VAD V6
+- **Latency**: Significant reduction in VAD-related latency, enabling faster pipeline starts.
+- **Reliability**: Better handling of background "homelab hum" (fan noise, disk activity) compared to V5.
 
-### 3. Hardware Requirements
-- **GPU**: NVIDIA GPU with at least 8GB VRAM is recommended for `large` or `distil-large` models in float16.
-- **CPU**: `faster-whisper` is highly optimized for CPU (using INT8 quantization), making it viable for NAS-based transcription without a dedicated GPU.
+### 3. Hardware Trends
+- **Apple Silicon (MLX)**: `mlx-whisper` has become the standard for Mac-based homelabs, offering Unified Memory access that allows running Large-v3 models on 16GB RAM devices with zero overhead.
+- **NVIDIA Blackwell/Hopper**: FP8 support in `faster-whisper` v1.3 halves VRAM usage on 40-series and newer GPUs.
 
 ## Recommendations for Homelab
-1. **Primary Choice (English)**: Use `faster-whisper` with the `distil-large-v3` model. This provides the best balance of speed, low resource usage, and accuracy for English podcasts/audiobooks.
-2. **Multilingual Choice**: Use `faster-whisper` with `large-v3-turbo` or standard `large-v3` if accuracy is paramount for non-English content.
-3. **Pipeline Strategy**: Use Voice Activity Detection (VAD) to skip silence in long-form audio, which further improves speed and prevents hallucinations. `faster-whisper` has integrated Silero VAD support.
+1. **Primary Choice (English)**: Use `faster-whisper` v1.3 with the `distil-large-v3` model.
+2. **Multilingual & Diarization**: Use **SenseVoice Small** if you need to identify who is speaking (e.g., for family meeting notes).
+3. **Low Power (NAS)**: Use `whisper.cpp` with a `q5_k` quantized `medium` model for reliable CPU-only transcription on TrueNAS SCALE nodes.
 
 ## Related tools / concepts
 - [Whisper](../services/whisper.md) — The base model and service.
-- [Ollama](../services/ollama.md) — Can be used to run text-processing models for post-transcription summarization.
-- [Paperless-ngx](../services/paperless-ngx.md) — For storing and indexing the resulting markdown transcripts.
-- [n8n](../services/n8n.md) — For orchestrating the ingestion from RSS feeds or local folders.
-- [Audiobookshelf](../services/audiobookshelf.md) — For managing the source audiobooks.
-- [Obsidian](../tools/ai_knowledge/obsidian.md) — A popular destination for processed meeting notes and transcripts.
-- [Vercel AI SDK](../tools/frameworks/vercel-ai-gateway.md) — For bridging transcription results into web applications.
+- [Ollama](../services/ollama.md) — For post-transcription summarization and speaker naming.
+- [Paperless-ngx](../services/paperless-ngx.md) — For storing and indexing markdown transcripts.
+- [Audiobookshelf](../services/audiobookshelf.md) — For source audio management.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — Canonical destination for transcribed knowledge.
 
 ## Sources / references
-- [Distil-Whisper GitHub](https://github.com/huggingface/distil-whisper)
-- [Faster-Whisper GitHub](https://github.com/SYSTRAN/faster-whisper)
-- [Transcription benchmark: Distil-Whisper Large v2 vs Whisper Large v3](https://blog.salad.com/distil-whisper-large-v2/)
-- [Faster Whisper Accuracy and Speed Benchmark](https://www.transana.com/blog/2025/05/01/faster-whisper-in-transana-5-30-accuracy-and-processing-speed-3-of-3/)
+- [Faster-Whisper v1.3 Release Notes](https://github.com/SYSTRAN/faster-whisper/releases/tag/v1.3.0)
+- [SenseVoice GitHub Repository](https://github.com/FunASR/SenseVoice)
+- [Silero VAD V6 Documentation](https://github.com/snakers4/silero-vad)
+- [MLX Whisper (Apple Silicon Optimization)](https://github.com/ml-explore/mlx-examples/tree/main/whisper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-05-30
 - Confidence: high

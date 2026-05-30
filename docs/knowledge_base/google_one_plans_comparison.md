@@ -1,142 +1,35 @@
-# Google One Plans Comparison (2026)
+# Google One Plans Comparison (May 2026)
 
-This document provides a comprehensive comparison of Google One subscription plans, focusing on the distinction between standard storage-centric plans and AI-enhanced tiers like **AI Premium** and the flagship **AI Pro**.
+This document provides a comprehensive comparison of Google One subscription plans, focusing on the distinction between standard storage-centric plans and the **AI Plus**, **AI Pro**, and **AI Ultra** tiers launched at Google I/O 2026.
 
 ## What it is
-Google One is a subscription service that provides expanded cloud storage across Google Drive, Gmail, and Google Photos, alongside specialized benefits. In 2026, it has evolved into a tiered AI-enablement platform, offering direct access to Google's most advanced Gemini models and autonomous agent capabilities like [Jules](../tools/ai_knowledge/jules.md).
+Google One is a subscription service that provides expanded cloud storage across Google Drive, Gmail, and Google Photos. In May 2026, it has been redefined as a tiered AI-enablement platform, offering direct access to the **Gemini 3.5** family of models and autonomous agent capabilities like **Gemini Spark**.
 
 ## What problem it solves
-It addresses the growing need for unified digital storage while solving the "AI access gap" by bundling compute-heavy AI features (video generation, autonomous coding, deep research) into a consumer-friendly monthly subscription. It eliminates the need for separate subscriptions for storage, AI assistants, and developer tools.
+It addresses the growing need for unified digital storage while solving the "AI action gap" by bundling frontier intelligence (Gemini 3.5 Flash) and autonomous agents into a consumer-friendly monthly subscription. It eliminates the need for separate subscriptions for storage, video generation, and agentic development platforms.
 
 ## Where it fits in the stack
-Google One sits at the **Subscription & Access Layer** of the personal AI stack. It serves as the gateway to the [Google Gemini](../tools/providers/google-gemini.md) ecosystem, providing the storage backbone for [NotebookLM](../tools/ai_knowledge/notebooklm.md) and the compute credits for agentic workflows.
+Google One sits at the **Subscription & Access Layer** of the personal AI stack. It serves as the gateway to the [Google Gemini](../tools/providers/google-gemini.md) ecosystem, providing the storage backbone for [NotebookLM](../tools/ai_knowledge/notebooklm.md) and the compute credits for [Google Antigravity](../tools/agents/agno.md) agentic workflows.
 
 ## Typical use cases
-- **Personal Data Archiving**: High-capacity storage for multi-generational photo and video libraries.
-- **AI-Native Productivity**: Using Gemini in Workspace to automate drafting, data analysis, and presentation design.
-- **Autonomous Development**: Leveraging [Jules](../tools/ai_knowledge/jules.md) for software engineering tasks.
-- **Academic Research**: Utilizing Deep Search "AI Mode" for complex literature reviews and data synthesis.
+- **Personal Data Archiving**: High-capacity storage (up to 20TB) for massive datasets and 8K video libraries.
+- **Agentic Productivity**: Using **Gemini Spark** to autonomously take action across Workspace (scheduling, drafting, data cleanup).
+- **Autonomous Development**: Leveraging **Gemini 3.5 Flash** in **Google Antigravity** for lightning-fast testing, debugging, and iteration.
+- **Multimodal Creation**: Generating 10-second 4K video clips via **Gemini Omni** with conversational editing.
 
 ## Strengths
-- **Ecosystem Integration**: Seamless operation across Android, Chrome, and Google Workspace.
-- **Price-to-Value**: Highly competitive pricing for 2TB+ tiers compared to standalone AI services.
-- **Family Benefits**: Ability to share storage and some AI features with up to five additional members.
+- **Intelligence + Action**: Gemini 3.5 Flash is optimized for agentic benchmarks (Terminal-Bench, MCP Atlas).
+- **Omni Integration**: "Any input to any output" capability including video generation and conversational editing.
+- **Developer Synergy**: AI Ultra subscribers get YouTube Premium, 20TB storage, and priority access to Antigravity.
 
 ## Limitations
-- **Ecosystem Lock-in**: Deepest benefits require staying within the Google environment.
-- **Experimental Features**: Many advanced AI tools are in "Labs" status and may have variable reliability.
-- **Data Privacy**: Extensive AI usage involves processing personal data through Google's cloud-based models.
-
-## Plan Overview & Pricing
-
-| Feature | Basic | Standard | Premium | AI Premium | AI Pro |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Monthly Price** | $1.99 | $2.99 | $9.99 | $19.99 | $29.99 |
-| **Storage** | 100 GB | 200 GB | 2 TB | 2 TB | 2 TB |
-| **Gemini Access** | Free version | Free version | Free version | Gemini Advanced | Gemini 3 Pro & Veo |
-| **Workspace AI** | No | No | No | Yes (Gmail, Docs, etc.) | Yes (Advanced features) |
-| **Developer Tools** | No | No | No | Basic | Premium |
-| **AI Credits** | No | No | No | Limited | 1,000 / month |
-| **Sharing** | Up to 5 people | Up to 5 people | Up to 5 people | Up to 5 people | Up to 5 people |
-
-*Note: Pricing is estimated based on 2026 market positioning. Regional variations apply.*
-
-## Detailed AI & Developer Feature Matrix
-
-| Capability | Standard Plans | AI Premium | AI Pro |
-| :--- | :--- | :--- | :--- |
-| **Gemini App** | Standard | Advanced (Pro models) | Gemini 3 Pro + Veo 2 |
-| **Gemini in Workspace** | No | Yes | Yes (Priority access) |
-| **Jules (Coding Agent)** | No | Standard limits | High-intensity (higher tasks/concurrency) |
-| **Google Antigravity** | No | Trial access | Full access (Gemini 3 Pro powered) |
-| **Gemini CLI** | No | Standard limits | Higher daily usage limits |
-| **Gemini Code Assist** | No | Standard limits | Higher daily usage limits (VS Code/JetBrains) |
-| **NotebookLM** | Standard | Plus plan limits | Higher limits (300 sources/notebook) |
-| **Deep Search** | No | Basic "AI Mode" | Advanced "AI Mode" (full reports) |
-| **Flow (Video Gen)** | No | Limited | Full access (5 concurrent generations) |
-| **Whisk Animate** | No | No | 100 videos / month |
-| **Google Cloud Credits** | No | No | $10 / month |
-| **Firebase** | No | No | 30 Firebase Studio workspaces |
-| **Photos Gen AI** | Limited | Standard | Higher limits (Photo to video, Remix) |
-
-## JSON Schema for Plan Comparison
-To facilitate automated updates and comparisons, the plan details are structured using the following JSON schema.
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "plan_name": { "type": "string" },
-    "price_monthly": { "type": "number" },
-    "storage_gb": { "type": "integer" },
-    "ai_features": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "credits_monthly": { "type": "integer" }
-  },
-  "required": ["plan_name", "price_monthly", "storage_gb"]
-}
-```
-
-## Tiered Pricing Examples
-A detailed breakdown of costs for the 2026 tiers, illustrating the value-to-cost ratio for power users and teams.
-
-| Plan | Base Monthly | Annual (Prepaid) | Storage Cost / GB |
-| :--- | :--- | :--- | :--- |
-| **Premium** | $9.99 | $99.99 | $0.005 |
-| **AI Premium** | $19.99 | $199.99 | $0.010 (includes AI) |
-| **AI Pro** | $29.99 | $299.99 | $0.015 (includes Agents) |
-
-## Key AI Tools & Capabilities
-
-### Gemini Ecosystem
-- **Gemini 3 Pro:** The most advanced reasoning model available for consumer subscriptions, optimized for complex coding, logical reasoning, and creative collaboration.
-- **Gemini in Workspace:** Integration across Gmail, Docs, Slides, Sheets, and Meet for drafting, summarizing, and data analysis.
-- **Gemini CLI & Code Assist:** AI-powered terminal agents and IDE extensions for professional development workflows.
-
-### Agentic Development
-- **[Jules](../tools/ai_knowledge/jules.md):** An autonomous software engineer agent. The AI Pro plan allows for higher intensity daily code work with increased task concurrency.
-- **Google Antigravity:** A Gemini 3 Pro-powered development environment for managing autonomous AI agents. AI Pro members receive priority access to Vertex AI Model Garden models (including Claude 4.5 Sonnet and GPT-OSS-120B).
-
-### Creative & Research Tools
-- **Flow:** A generative video tool for filmmaking supporting Text-to-Video and Ingredients-to-Video.
-- **Whisk Animate:** Uses Veo 2 to transform generated images into short videos.
-- **NotebookLM:** Enhanced research assistant with support for up to 300 sources per notebook and advanced output formats (Audio Overviews, Infographics).
-- **Deep Search:** Uses Gemini 3 Pro to reason across hundreds of sites to craft comprehensive, cited research reports.
-- **[Gemini Canvas](../../tools/ai_knowledge/gemini-canvas.md):** A non-linear, infinite workspace for AI orchestration that allows users to branch thoughts, visualize agentic loops, and manage multi-model sessions.
-
-### Workspace Augmentation
-- **[Google Opal](../../tools/ai_knowledge/google-opal.md):** A no-code AI app builder within the Gemini ecosystem. It enables users to create visual "Input-Generate-Output" workflows without writing code, effectively turning prompts into reusable mini-apps.
-- **[Project Genie](../../tools/ai_knowledge/project-genie.md):** A generative world model from DeepMind for creating controllable virtual environments, integrated into the AI Pro creative suite.
-
-## Usage Limits & Eligibility
-
-- **AI Credits:** AI Pro members receive 1,000 monthly credits. These do not accumulate and refresh on the billing date.
-- **Age Requirements:** Most AI features (Gemini, Antigravity, Jules) require users to be 18 years or older. Photos Gen AI features may be available to those 13+.
-- **Regional Availability:** Features like "AI-powered calling for businesses" and "Auto browse in Chrome" are currently US-only.
-- **Family Sharing:** AI benefits can be shared with family group members at no extra cost, with each member typically receiving their own set of daily/monthly limits.
-
-## Comparison of Use Cases
-
-| Scenario | Recommended Plan | Why? |
-| :--- | :--- | :--- |
-| **Personal Backup** | Basic / Standard | Cost-effective storage for photos and files. |
-| **Power User / Freelancer** | AI Premium | Access to Gemini Advanced for productivity and standard AI tools. |
-| **Professional Developer** | **AI Pro** | Includes Jules, Code Assist, Cloud credits, and Antigravity for agentic dev. |
-| **Content Creator** | **AI Pro** | High limits for Flow (video), Whisk (animation), and Google Vids. |
-| **Academic / Researcher** | **AI Pro** | Deep Search "AI Mode" and high-limit NotebookLM for source-heavy research. |
-
-## Terms & Caveats
-
-- **Experimental Nature:** Many AI features are labeled as experimental and may produce inaccurate or inappropriate responses.
-- **Watermarking:** Media generated via Flow, Whisk, or Google Photos includes visual and SynthID digital watermarks for transparency.
-- **Service Stability:** Capacity for agentic tools (Jules, Antigravity) is subject to availability and not guaranteed even for Pro members.
+- **Ecosystem Gravity**: Deepest benefits (Daily Brief, Spark) require full integration with Google Workspace and Android.
+- **Model Availability**: Gemini 3.5 Pro is currently in testing (arrival June 2026); Pro/Ultra users currently rely on 3.5 Flash for speed.
+- **Privacy Trade-offs**: Agentic actions (Spark) require pervasive access to personal data to be effective.
 
 ## When to use it
 - When your primary productivity and data storage are already centered in the Google ecosystem.
-- When you require a cost-effective way to access frontier AI models like Gemini 3 Pro.
+- When you require a cost-effective way to access frontier AI models like Gemini 3.5 Flash.
 - When you need a shared family storage solution that also provides AI benefits to all members.
 
 ## When not to use it
@@ -144,27 +37,87 @@ A detailed breakdown of costs for the 2026 tiers, illustrating the value-to-cost
 - If you primarily use the Apple (iCloud/Apple Intelligence) or Microsoft (365/Copilot) ecosystems.
 - If you only need storage and have no interest in AI-enhanced productivity tools.
 
+## Plan Overview & Pricing (May 2026)
+
+| Feature | Basic | Standard | AI Plus | AI Pro | AI Ultra |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Monthly Price** | $1.99 | $2.99 | $19.99 | $29.99 | $99.99 |
+| **Storage** | 100 GB | 200 GB | 2 TB | 2 TB | 20 TB |
+| **Primary Model** | Gemini (Free) | Gemini (Free) | Gemini Advanced | Gemini 3.5 Flash | Gemini 3.5 Flash |
+| **Workspace AI** | No | No | Yes | Yes + Spark | Yes + Spark |
+| **Omni (Video)** | No | No | Trial | Omni Flash | Omni Flash (High) |
+| **Antigravity** | No | No | No | Standard Access | Priority Access |
+| **Usage Limits** | Baseline | Baseline | 1x | 1x | 5x |
+| **YouTube Prem.** | No | No | No | No | Yes |
+| **Sharing** | Up to 5 people | Up to 5 people | Up to 5 people | Up to 5 people | Up to 5 people |
+
+*Note: Pricing reflects May 2026 I/O announcements. Regional variations apply.*
+
+## Detailed AI & Agent Feature Matrix
+
+| Capability | AI Plus | AI Pro | AI Ultra |
+| :--- | :--- | :--- | :--- |
+| **Gemini App** | Advanced (Gemini 3) | 3.5 Flash (Default) | 3.5 Flash (5x limits) |
+| **Gemini Spark** | No | 24/7 Agent (Standard) | 24/7 Agent (High-Priority) |
+| **Daily Brief** | Basic | Advanced (Full Sync) | Advanced (Full Sync) |
+| **Gemini Omni** | Limited | 10s Video + Edit | 10s Video (High Concurrency) |
+| **Google Antigravity** | No | Standard Tier | Priority (Agent Platform) |
+| **Jules (Coding Agent)** | Standard | High-Intensity | Elite (Unlimited Concurrency) |
+| **Google Pics** | Standard | Pro (Remix/Generative) | Pro (Unlimited) |
+| **NotebookLM** | 50 sources | 300 sources | 500 sources |
+| **Cloud Credits** | $0 | $10 / month | $50 / month |
+
+## Key May 2026 Innovations
+
+### Gemini 3.5 Flash
+The first in the 3.5 series, combining frontier intelligence with action. It outperforms Gemini 3.1 Pro on coding and agentic benchmarks:
+- **Terminal-Bench 2.1**: 76.2%
+- **GDPval-AA**: 1656 Elo
+- **MCP Atlas**: 83.6%
+Ideal for "long-horizon" agentic tasks where planning and iteration are required.
+
+### Gemini Spark
+A 24/7 personal AI agent that autonomously takes action. It can:
+- Reschedule meetings based on conflicting priorities.
+- File expense reports from scanned receipts in Google Pics.
+- Draft complex replies in Gmail by referencing documents in Drive.
+
+### Gemini Omni
+A leap forward in world understanding, allowing users to generate any output from any input.
+- **Conversational Video Editing**: Change characters or lighting in a generated 10s clip via chat.
+- **SynthID Watermarking**: All outputs carry imperceptible, verifiable watermarks.
+
+### Google Antigravity
+An agent-first development platform. AI Ultra members receive priority access to build and deploy custom agents within secure, Google-hosted environments using the **Managed Agents API**.
+
+## Comparison of Use Cases
+
+| Scenario | Recommended Plan | Why? |
+| :--- | :--- | :--- |
+| **Casual Storage** | Basic / Standard | Reliable backup for mobile photos. |
+| **Productivity Power User** | AI Plus | Standard Gemini Advanced for writing and analysis. |
+| **AI Practitioner** | **AI Pro** | Includes Gemini Spark, Omni video, and 3.5 Flash speed. |
+| **Developer / Tech Lead** | **AI Ultra** | 20TB, Priority Antigravity, 5x limits, and YouTube Premium. |
+| **Content Creator** | **AI Ultra** | High storage for raw assets and high concurrency Omni generation. |
+
+## Terms & Caveats
+
+- **Service Capacity**: Antigravity and Jules task concurrency is subject to regional demand.
+- **AI Ultra Refresh**: Usage limits refresh on the billing date and do not roll over.
+- **Gemini 3.5 Pro**: Expected arrival in June 2026; will be added to Pro and Ultra plans automatically.
+
 ## Related tools / concepts
-- [Jules](../tools/ai_knowledge/jules.md): The flagship autonomous coding agent.
-- [Google Gemini](../tools/providers/google-gemini.md): The underlying model family.
-- [NotebookLM](../tools/ai_knowledge/notebooklm.md): The AI-powered research and note-taking tool.
-- [Google Opal](../tools/ai_knowledge/google-opal.md): No-code AI app builder.
-- [Gemini Canvas](../tools/ai_knowledge/gemini-canvas.md): Infinite workspace for AI orchestration.
-- [Project Genie](../tools/ai_knowledge/project-genie.md): Generative world model.
-- [Model Routing Guide](model_routing_guide.md): Guidance on when to use specific Gemini model tiers.
-- [API Pricing & Free Tiers](api_pricing_free_tiers.md): Comparison of developer-centric AI costs.
-- [Microsoft Graph](../tools/providers/microsoft-graph.md): The competitive enterprise data layer.
-- [Apple Intelligence](../tools/ai_knowledge/apple-intelligence.md): The competitive personal AI ecosystem.
+- [Gemini 3.5 Flash](../tools/providers/google-gemini.md): The core engine for the 2026 subscription.
+- [Google Antigravity](../tools/agents/agno.md): The agent-first dev platform.
+- [Jules](../tools/ai_knowledge/jules.md): Autonomous software engineering agent.
+- [NotebookLM](../tools/ai_knowledge/notebooklm.md): Research and source-heavy analysis.
+- [Model Routing Guide](model_routing_guide.md): Guidance on when to use 3.5 Flash vs 3.1 Pro.
 
 ## Sources / references
-
-- [Google AI Pro Benefits](https://support.google.com/googleone/answer/14534406)
-- [Gemini CLI Documentation](https://github.com/google-gemini/gemini-cli)
-- [Jules Agent Information](https://jules.google/)
-- [Google Developer Program Premium](https://developers.google.com/profile/help/benefits#premium-benefits)
-- [Search Labs - AI Mode](https://labs.google/search/experiment/22)
+- [Innovations from Google I/O 26 (Google Cloud Blog)](https://cloud.google.com/blog/products/ai-machine-learning/innovations-from-google-io-26-on-google-cloud)
+- [Everything new in our Google AI subscriptions (Google One Blog)](https://blog.google/products-and-platforms/products/google-one/google-ai-subscriptions/)
+- [100 things we announced at I/O 2026 (Google Blog)](https://blog.google/innovation-and-ai/technology/ai/google-io-2026-all-our-announcements/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-05-30
 - Confidence: high

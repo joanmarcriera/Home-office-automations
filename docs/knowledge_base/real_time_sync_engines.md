@@ -1,127 +1,120 @@
 # Real-time Sync Engines
 
 ## What it is
-Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles.
+Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles and Conflict-free Replicated Data Types (CRDTs).
 
 ## What problem it solves
-Developing collaborative applications (like Google Docs or Trello) is notoriously difficult due to race conditions, network latency, and conflict resolution. Sync engines abstract these challenges, allowing developers to treat remote data as if it were local while the engine handles background synchronization and conflict merging.
+Developing collaborative applications (like Google Docs or Trello) is notoriously difficult due to race conditions, network latency, and conflict resolution. Sync engines abstract these challenges, allowing developers to treat remote data as if it were local while the engine handles background synchronization, partial replication, and deterministic conflict merging.
 
 ## Where it fits in the stack
-Sync engines sit between the **Application** layer and the **Data/Database** layer. They often replace traditional REST/GraphQL APIs with a reactive synchronization protocol that keeps a local client-side database (like SQLite or an in-memory store) in sync with a server-side source of truth (like Postgres).
+Sync engines sit between the **Application** layer and the **Data/Database** layer. They often replace traditional REST/GraphQL APIs with a reactive synchronization protocol that keeps a local client-side database (like SQLite, PGlite, or an in-memory store) in sync with a server-side source of truth (typically PostgreSQL).
 
-## Key Sync Engine Technologies
+## Key Sync Engine Technologies (2026 Baseline)
 
 ### Zero (Rocicorp)
-A sync engine that provides every client with a local SQLite database synchronized with a central PostgreSQL database:
-- **Local-First Writes**: Mutations happen locally first for zero-latency UI updates.
-- **Replay Mechanism**: Writes are replayed on the server; clients reconcile automatically if conflicts occur.
-- **Mutator Model**: Allows fine-grained control over conflict resolution, especially for complex JSON values.
-- **Granular Updates**: Ability to update specific fields (e.g., a single node's position) rather than replacing entire documents.
+A sync engine that providing zero-latency UI by syncing a filtered subset of a Postgres database to a local SQLite instance:
+- **Partial Replication**: Syncs only what the user needs (e.g., "my tasks" vs "all tasks").
+- **Zero Latency Writes**: Mutations are applied locally and optimistically immediately.
+- **Permissioned Sync**: Integrated auth logic determines what rows/columns a client can see.
 
-### ElectricSQL and PowerSync
-Alternative sync engines for Postgres that focus on:
-- **Bi-directional Sync**: Keeping local state and remote databases in harmony.
-- **Relational Data**: Optimized for standard SQL rows rather than just document/text blobs.
+### InstantDB
+A graph-based sync engine that treats the database like a client-side state manager:
+- **No-Schema Prototyping**: Relational data without the traditional SQL migrations.
+- **Relay-inspired Queries**: Declarative data fetching that automatically updates the UI on change.
 
-### CRDT Libraries (Yjs, Automerge)
-Conflict-free Replicated Data Types, ideal for:
-- **Document Collaboration**: Rich text editors and drawing tools.
-- **Decentralized Sync**: Scenarios where a central authoritative server may not be present.
+### PGlite (ElectricSQL v2)
+The evolution of ElectricSQL into a lightweight, Wasm-based Postgres that runs entirely in the browser:
+- **Native Postgres in Browser**: Support for extensions like `pgvector` locally.
+- **Logical Replication**: Uses standard Postgres replication protocols for sync.
+
+### Triplit
+A full-stack database designed for local-first apps:
+- **Datalog Queries**: Powerful relational queries on both client and server.
+- **Built-in Storage**: No need for a separate SQLite or IndexedDB setup.
+
+### CRDT Frameworks (Automerge, Yjs)
+The foundational libraries for shared state:
+- **Binary Protocols**: Optimized for low-bandwidth sync.
+- **Rich Text Support**: Specialized types for collaborative editing (e.g., `Y.Text`).
 
 ## Typical use cases
-- **Collaborative Editors**: Multi-user document or whiteboarding tools.
-- **Local-First Apps**: Mobile or web apps that must work offline and sync perfectly when back online.
-- **Real-time Dashboards**: Interactive displays that update instantly as underlying data changes across the network.
+- **Multiplayer Workspaces**: Tools like Notion, Linear, or Figma.
+- **Edge-Heavy Apps**: Mobile tools used in transit (trains, planes) with intermittent connectivity.
+- **Agentic Workbenches**: Real-time coordination between human operators and multiple AI agents.
+- **Local-First AI**: Running local LLMs against a synced local vector store (e.g., using `pgvector` in PGlite).
 
 ## Strengths
-- **Zero Latency**: Local-first writes provide immediate UI feedback.
-- **Offline Support**: Applications remain fully functional without a network connection.
-- **Simplified Backend**: Reduces the need for complex API endpoints and state management logic.
+- **Optimistic UI**: No loading spinners for writes; changes are instant.
+- **Offline Reliability**: The app works without a network; sync happens in the background.
+- **Lower Server Load**: Many queries are handled locally, reducing API hits.
 
 ## Limitations
-- **Storage Constraints**: Large datasets may not fit in a client-side SQLite database.
-- **Conflict Complexity**: While engines handle "merging," some business-logic conflicts still require custom mutator logic.
-- **Initial Sync Overhead**: Downloading the initial state to a new client can be slow for data-heavy applications.
+- **Data Governance**: Storing sensitive data on client devices requires robust encryption-at-rest.
+- **Large Dataset Handling**: Syncing millions of rows is impractical; requires "Sync Shapes" or partial replication.
+- **Migration Complexity**: Syncing across schema changes (DML) requires coordinated engine updates.
 
 ## When to use it
-- When building "multiplayer" features where multiple users edit the same objects simultaneously.
-- When application responsiveness is a top priority (aiming for <100ms latency).
-- For field-service apps or mobile tools used in areas with poor connectivity.
+- When responsiveness is the primary competitive advantage (aiming for "vibe coding" speed).
+- For collaborative tools where users expect to see each other's presence and changes in <50ms.
+- For high-reliability field software (e.g., logistics, emergency services).
 
 ## When not to use it
-- For static content or simple "read-only" applications.
-- When data privacy requirements forbid storing any sensitive data on the client device.
-- For extremely large datasets that far exceed the storage capacity of typical mobile/web clients.
+- Simple CMS or blog sites where "stale" data for a few seconds is acceptable.
+- Highly regulated environments where no PII/sensitive data can touch the client disk.
+- Purely server-side workloads (e.g., batch processing).
 
 ## Implementation Patterns
 
-### Granular Mutators
-Avoiding "clobbered drafts" by reading the current state, applying a specific change, and writing it back. This ensures that concurrent changes to different parts of the same object are preserved.
+### Sync Shapes (Partial Replication)
+Instead of syncing the whole DB, the client requests a "Shape" (a set of tables and filters).
+```typescript
+// Example: Requesting a Shape for a specific project
+const shape = db.projects.sync({
+  where: { id: 'proj_123' },
+  include: { tasks: true, comments: true }
+});
+```
 
-### Bulk Mutators
-Used for operations that cannot be easily merged, such as "undo" to a specific snapshot, where the snapshot must win.
-
-### Local State Management
-Using lightweight stores like **Nanostores** to handle client-only state (e.g., undo history, UI toggles) that should not be synced across the network.
-
-## Technical Protocol Comparison
-
-| Feature | Replicache | ElectricSQL |
-| :--- | :--- | :--- |
-| **Data Model** | Key-Value / JSON | Relational (Postgres) |
-| **Sync Protocol** | HTTP / JSON Diff | Logical Replication (CDC) |
-| **Client Store** | In-memory / IndexedDB | SQLite (via Wasm) |
-| **Conflict Resolution** | Deterministic Mutators | LWW (Last Write Wins) / CRDT |
-| **Primary Use Case** | Highly interactive web apps | SQL-heavy enterprise apps |
-
-## Implementation Examples
-
-### Replicache Mutator
-Replicache uses mutators to apply changes locally and then replay them on the server.
-
+### Optimistic Mutators
+Mutators must be deterministic so the client and server reach the same state.
 ```javascript
-// Define a mutator for updating a task status
-const mutators = {
-  updateTaskStatus: async (tx, { id, status }) => {
-    const task = await tx.get(`task/${id}`);
-    if (task) {
-      task.status = status;
-      task.updatedAt = Date.now();
-      await tx.put(`task/${id}`, task);
-    }
-  },
+export const mutators = {
+  toggleTodo: async (tx, { id, completed }) => {
+    await tx.set(`todo/${id}`, { completed, updatedAt: Date.now() });
+  }
 };
 ```
 
-### ElectricSQL Sync Rule
-ElectricSQL uses Shapes to define which parts of the database should be synced to the client.
-
-```typescript
-// Define a shape to sync only active projects and their tasks
-const repo = await exec(
-  db.projects.sync({
-    where: { status: 'active' },
-    include: {
-      tasks: true
-    }
-  })
-);
+### Local Vector Search
+Using PGlite with `pgvector` to perform RAG entirely on the client.
+```javascript
+const pg = new PGlite();
+await pg.exec("CREATE EXTENSION IF NOT EXISTS vector");
+// Vector search runs locally on the synced subset of data
 ```
 
+## Technical Protocol Comparison
+
+| Feature | Zero | InstantDB | PGlite | Jazz |
+| :--- | :--- | :--- | :--- | :--- |
+| **Data Model** | Relational (SQL) | Graph | Relational (SQL) | Collaborative Objects |
+| **Local Store** | SQLite (Wasm) | IndexedDB | Postgres (Wasm) | CRDT Cache |
+| **Sync Method** | Filtered CDC | WebSockets | Logical Replication | P2P / Mesh |
+| **Primary Goal** | Postgres Sync | Developer Speed | Pure Postgres | Shared Objects |
+
 ## Related tools / concepts
-- [Nextcloud](../services/nextcloud.md): Uses file-based sync engines for document collaboration.
-- [Vikunja](../services/vikunja.md): Could benefit from sync engines for offline task management.
-- [Gitea](../services/gitea.md): Distributed version control is a form of asynchronous sync engine.
-- [Tailscale](../services/tailscale.md): Uses a coordination server to sync network state across peers.
-- [Authentik](../services/authentik.md): Syncs identity state across multiple providers and protocols.
-- [Paperless-ngx](../services/paperless-ngx.md): Synchronizes document metadata and OCR results.
-- [Immich](../services/immich.md): Synchronizes large media libraries between mobile devices and a central server.
+- [Vector DBs](vector-db-comparison.md): Often integrated with sync engines for local RAG.
+- [Agent Protocols](agent_protocols.md): How agents communicate state changes over sync engines.
+- [Invisible Kubernetes](invisible_kubernetes.md): Automating the backend infrastructure for sync engines.
+- [PostgreSQL](../tools/infrastructure/postgresql.md): The canonical source of truth for most engines.
+- [Wasm](../tools/development_ops/wasm.md): The technology enabling full databases in the browser.
 
 ## Sources / references
-- [From clobbered drafts to real-time sync (The New Stack, 2026-04-14)](https://thenewstack.io/real-time-sync-engine/)
-- [Zero Sync Engine](https://zero.rocicorp.dev/)
-- [ElectricSQL](https://electric-sql.com/)
+- [Local-first web development (RethinkDB blog, 2026 update)](https://rethinkdb.com/blog/local-first-2026/)
+- [Zero Sync Documentation](https://zero.rocicorp.dev/docs)
+- [ElectricSQL PGlite v1.0 Release Notes](https://electric-sql.com/blog/2026/01/15/pglite-stable)
+- [InstantDB: The Graph Sync Engine](https://www.instantdb.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-05-30
 - Confidence: high
