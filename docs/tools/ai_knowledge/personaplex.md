@@ -38,11 +38,89 @@ It addresses the limitations of standard turn-based (half-duplex) voice AI by al
 - **Cost**: Free to use/self-host (requires hardware).
 - **Self-hostable**: Yes.
 
+## Getting started
+
+### Installation
+PersonaPlex requires the Opus audio codec development library. On Ubuntu/Debian, install it via:
+
+```bash
+sudo apt install libopus-dev
+```
+
+Clone the repository and install the Python dependencies:
+
+```bash
+git clone https://github.com/NVIDIA/personaplex
+cd personaplex
+pip install -r requirements.txt
+```
+
+### Running the WebUI
+The easiest way to interact with the model is through the provided WebUI, which handles the full-duplex audio stream:
+
+```bash
+python -m personaplex.web_ui --model-path nvidia/personaplex-7b-v1
+```
+
+## Architecture Details
+PersonaPlex is built on a sophisticated multimodal architecture:
+- **Backbone**: Helium 7B LLM for semantic understanding.
+- **Audio Codec**: **Mimi** (ConvNet + Transformer) operating at 24kHz for low-latency compression/decompression.
+- **Transformers**: Dual-stream Temporal and Depth Transformers that process user audio, agent text, and agent audio concurrently.
+- **Prompting**: A **Hybrid System Prompt** architecture that temporally concatenates textual role descriptions with audio voice embeddings.
+
+## CLI examples
+
+While the model is primarily interaction-driven, you can use the CLI to test voice conditioning:
+
+```bash
+# Generate a voice embedding from a reference audio file
+python -m personaplex.tools.encode_voice --input reference.wav --output voice_embedding.pt
+
+# Run a headless interaction with a specific persona and voice
+python -m personaplex.cli --text-prompt "You are a helpful astronaut." \
+                          --voice-prompt voice_embedding.pt
+```
+
+## API examples
+
+PersonaPlex uses WebSockets for its full-duplex communication. Below is a conceptual Python client using `websockets` and `opuslib`:
+
+```python
+import websockets
+import opuslib
+
+async def communicate():
+    uri = "ws://localhost:8000/stream"
+    async with websockets.connect(uri) as websocket:
+        # Send initial Hybrid System Prompt (JSON)
+        await websocket.send('{"text": "You are a ship captain.", "voice": "ref_id_01"}')
+
+        # Continuous loop for full-duplex audio
+        while True:
+            # Send chunk of user audio
+            await websocket.send(user_audio_chunk)
+
+            # Receive agent audio/text
+            response = await websocket.recv()
+            process_agent_response(response)
+```
+
+## Hardware Requirements
+To maintain sub-200ms latency for real-time conversation:
+- **GPU**: NVIDIA Blackwell (B200) or Hopper (H100) is highly recommended.
+- **VRAM**: Minimum 24GB (RTX 3090/4090) for the 7B model.
+- **Memory**: 32GB+ system RAM.
+
 ## Related tools / concepts
-- [Moshi](https://kyutai.org/blog/2024-07-02-moshi) (Architecture)
-- [Helium](https://kyutai.org/blog/2025-04-30-helium) (LLM Backbone)
-- [Ollama](../../services/ollama.md) (Local inference)
-- [Whisper](../../services/whisper.md) (Alternative STT)
+- [Moshi](https://kyutai.org/blog/2024-07-02-moshi) — The base architecture developed by Kyutai.
+- [Helium](https://kyutai.org/blog/2025-04-30-helium) — The core LLM backbone for semantic reasoning.
+- [Chatterbox TTS](https://github.com/NVIDIA/chatterbox) — Used for generating synthetic training data for PersonaPlex.
+- [Ollama](../../services/ollama.md) — For running local text-based LLMs.
+- [Whisper](../../services/whisper.md) — For high-accuracy offline transcription.
+- [Real-time Sync Engines](../../knowledge_base/real_time_sync_engines.md) — Patterns for low-latency state synchronization.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For connecting PersonaPlex agents to external tools.
+- [Low-Latency Audio Patterns](../../knowledge_base/patterns/agentic-workflows.md#voice-interaction) — Research on optimizing full-duplex pipelines.
 
 ## Sources / References
 - [Official GitHub](https://github.com/NVIDIA/personaplex)
@@ -50,5 +128,5 @@ It addresses the limitations of standard turn-based (half-duplex) voice AI by al
 - [NVIDIA Technical Demo](https://research.nvidia.com/labs/adlr/personaplex/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-04-28
+- Last reviewed: 2026-05-30
 - Confidence: high

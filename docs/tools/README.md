@@ -17,7 +17,8 @@ Canonical documentation for every AI tool, framework, provider, agent, and infra
 | [calendar_tasks/](calendar_tasks/index.md) | Calendar & Tasks | Time management, scheduling, CalDAV integrations |
 | [intake_storage/](intake_storage/index.md) | Intake & Storage | Standard protocols and storage tools (CalDAV, etc.) |
 | [process_understanding/](process_understanding/index.md) | Process & Understanding | Document analysis, OCR, web crawling, RAG ingestion |
-| [orchestration/](orchestration/index.md) | Orchestration *(canonical target)* | Canonical location per standards.md — currently being populated |
+| [orchestration/](orchestration/index.md) | Orchestration | Workflow engines and data pipeline tools (Temporal, Airflow, etc.) |
+| [enterprise/](enterprise/index.md) | Enterprise AI | Workplace-specific productivity suites and enterprise search |
 
 > **Note on taxonomy drift**: `automation_orchestration/` and `orchestration/` currently coexist. Per [standards.md](../standards.md), `orchestration/` is the canonical location. New orchestration tool pages should go there; `automation_orchestration/` content will migrate over time.
 
@@ -68,5 +69,5 @@ See [Standards](../standards.md) for the full taxonomy and dedup policy, and [Co
 - [MkDocs Material](https://squidfunk.github.io/mkdocs-material/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-03-15
+- Last reviewed: 2026-05-30
 - Confidence: high
