@@ -1,45 +1,49 @@
 # Fastmail
 
 ## What it is
-An independent, privacy-focused email and calendar provider that offers a high-performance alternative to Gmail and Outlook.
+An independent, privacy-focused email and calendar provider that serves as a high-performance alternative to Gmail and Outlook, built on modern, open standards.
 
 ## What problem it solves
-Provides a fast, ad-free, and private surface for email, calendar, and contacts without the data mining common in free services.
+Provides a fast, ad-free, and private interface for email, calendar, and contacts without the data mining common in free services. It is a primary driver of the **JMAP** protocol, ensuring high interoperability for agents and modern apps.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Ecosystem Provider
+**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack.
 
 ## Typical use cases
-- Primary personal or business email and calendar hosting.
-- Managing custom domain email with advanced alias support.
-- Synchronizing calendars across devices via standard protocols (JMAP/CalDAV).
+- **Primary Communication Hub**: High-speed personal or business email and calendar hosting.
+- **Privacy Management**: Using [Masked Emails](#hello-world-masked-email) to prevent tracking across different services.
+- **Agentic Mail Processing**: Leveraging JMAP for reliable, stateless interaction with email and calendar data by LLM agents.
+- **Custom Domain Hosting**: Managing professional identities with advanced alias and catch-all support.
 
 ## Strengths
-- **Speed**: The web and mobile interfaces are exceptionally fast.
-- **Privacy**: No tracking or ads; data is never sold.
-- **Standards-First**: Strong support for JMAP, CalDAV, and CardDAV, making it easy to use with third-party clients.
+- **Speed**: The web and mobile interfaces are exceptionally fast and bloat-free.
+- **Privacy**: No tracking or ads; data is never sold. Employs on-server encryption for mail at rest.
+- **Standards-First**: Strong support for JMAP, CalDAV, and CardDAV.
+- **Masked Email (2026)**: Deeply integrated with [1Password](https://1password.com/) and bitwarden for generating site-specific aliases.
 
 ## Limitations
-- **Cost**: No free tier; subscription is required.
-- **Ecosystem**: Lacks the deep "doc" and "spreadsheet" ecosystem of Google Workspace.
+- **Subscription-Based**: No free tier; subscription is required for all features.
+- **Collaborative Suite**: Lacks the deep "doc" and "spreadsheet" ecosystem of Google Workspace.
+- **Storage Limits**: While generous, storage is capped based on the subscription tier (Standard vs Professional).
 
 ## When to use it
-- If you want to "de-Google" your personal productivity stack.
-- If you value speed and privacy over free services.
+- If you want to "de-Google" your personal productivity stack while maintaining high performance.
+- When you value privacy and open standards (JMAP).
+- If you use custom domains and need powerful alias management.
 
 ## When not to use it
-- If you require a free-forever email and calendar service.
-- If your workflow is deeply dependent on Google Sheets/Docs collaboration.
+- If you require a free-forever service.
+- If your workflow is deeply dependent on Google Sheets/Docs for real-time collaboration.
 
 ## Licensing and cost
-- **Open Source**: No
+- **Open Source**: No (Server side), but contributes heavily to open-source protocols.
 - **Cost**: Paid (Subscription)
 - **Self-hostable**: No
 
 ## Getting started
 
 ### Installation (CLI)
-The community-maintained `fastmail-cli` provides a robust interface for interacting with Fastmail services.
+The community-maintained `fastmail-cli` (Rust-based) provides a robust interface for interacting with Fastmail services.
 
 ```bash
 # Install via Cargo
@@ -50,20 +54,24 @@ fastmail setup
 ```
 
 ### Hello World (Masked Email)
+Creating a masked email directly from the command line:
 ```bash
 # Create a new masked email for a specific site
-fastmail masked create https://example.com --description "Trial Signup"
+fastmail masked create https://example.com --description "Batch 109 Audit"
 ```
 
 ## CLI examples
 The `fastmail-cli` tool supports mail, contacts, calendars, and masked emails.
 
 ```bash
-# List recent emails
-fastmail mail list --limit 10
-
-# List all calendars
+# List all calendars associated with the account
 fastmail calendar list
+
+# List recent emails from the 'Inbox'
+fastmail mail list --mailbox Inbox --limit 10
+
+# List all active masked emails
+fastmail masked list
 
 # Create a new contact
 fastmail contacts create "Jane Doe" --email "jane@example.com"
@@ -72,15 +80,8 @@ fastmail contacts create "Jane Doe" --email "jane@example.com"
 ## API examples
 Fastmail is a primary driver of the **JMAP** (JSON Meta Application Protocol) standard.
 
-### Minimal JMAP Session Request (cURL)
-```bash
-curl -X GET \
-  -H "Authorization: Bearer ${FASTMAIL_API_TOKEN}" \
-  -H "Content-Type: application/json" \
-  https://api.fastmail.com/jmap/session
-```
-
-### Fetch Mailboxes (Python)
+### Fetch Calendar Events (Python)
+This pattern is used by agents to synchronize schedules without the overhead of CalDAV.
 ```python
 import requests
 
@@ -93,27 +94,53 @@ headers = {
 }
 
 payload = {
-    "using": ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:mail"],
+    "using": [
+        "urn:ietf:params:jmap:core",
+        "urn:ietf:params:jmap:calendars"
+    ],
     "methodCalls": [
-        ["Mailbox/get", {"accountId": None, "ids": None}, "0"]
+        ["CalendarEvent/get", {
+            "accountId": "primary",
+            "ids": None,
+            "position": 0,
+            "limit": 10
+        }, "0"]
     ]
 }
 
 response = requests.post(url, headers=headers, json=payload)
-print(response.json())
+events = response.json()['methodResponses'][0][1]['list']
+for event in events:
+    print(f"Event: {event['title']} ({event['start']})")
+```
+
+### Generate Masked Email (cURL)
+```bash
+curl -X POST https://api.fastmail.com/jmap/api/ \
+  -H "Authorization: Bearer $FASTMAIL_TOKEN" \
+  -d '{
+    "using": ["https://www.fastmail.com/dev/maskedemail"],
+    "methodCalls": [
+      ["MaskedEmail/set", {
+        "create": {
+          "m1": { "forDomain": "example.com", "state": "enabled" }
+        }
+      }, "0"]
+    ]
+  }'
 ```
 
 ## Related tools / concepts
-- [Proton Calendar](proton_calendar.md)
-- [Google Calendar](google_calendar.md)
-- [Radicale](../../services/radicale.md)
-- [JMAP Protocol](https://jmap.io/)
+- [Proton Calendar](proton_calendar.md) — Alternative privacy provider.
+- [Radicale](../../services/radicale.md) — Self-hosted CalDAV alternative.
+- [JMAP Protocol](https://jmap.io/) — The underlying open standard.
+- [Apple Calendar](apple-calendar.md) — Often used as a client for Fastmail.
 
 ## Sources / References
 - [Fastmail Official Site](https://www.fastmail.com/)
 - [Fastmail Developer Documentation](https://www.fastmail.com/developer/)
-- [Lutra-Fs/fastmail-CLI](https://github.com/Lutra-Fs/fastmail-CLI)
+- [JMAP Specification](https://jmap.io/spec-mail.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-30
 - Confidence: high
