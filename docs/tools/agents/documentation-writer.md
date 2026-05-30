@@ -1,74 +1,85 @@
 # Documentation Writer Skill
 
 ## What it is
-A specialized skill for AI agents, particularly within the Claude Code and Cursor ecosystems, designed to automate the generation and maintenance of high-quality project documentation.
+A specialized skill for AI agents (Claude Code, Cursor, Gemini CLI, etc.), designed to automate the creation, auditing, and maintenance of project documentation. It follows the universal `SKILL.md` format and integrates directly with agentic development workflows.
 
 ## What problem it solves
-Reduces the burden on developers to manually write and update READMEs, API docs, and architecture summaries. It ensures documentation stays in sync with code changes by analyzing the codebase and generating accurate descriptions.
+Documentation rot is a major issue in fast-moving projects. This skill ensures that READMEs, API references, architecture diagrams, and changelogs stay synchronized with the actual source code, reducing technical debt and onboarding friction.
 
 ## Where it fits in the stack
-**Category**: Agents / Specialized Skills
+**Category**: [Agents](index.md) / [Specialized Skills](claude-skills-ecosystem.md). It acts as a documentation-specific playbook for the agent.
 
 ## Typical use cases
-- **README Generation**: Automatically creating a comprehensive `README.md` for a new repository.
-- **API Reference**: Generating documentation for functions, classes, and REST endpoints directly from source code.
-- **Architecture Summaries**: High-level descriptions of project structure and data flows.
-- **Changelog Maintenance**: Summarizing recent changes into a readable format.
+- **Full Repository Audit**: Scanning the codebase to identify missing documentation or outdated sections.
+- **Automated API Reference**: Generating docstrings and markdown files from function/class definitions.
+- **KnowledgeOps Sync**: Updating repository indexes and site navigation (e.g., `mkdocs.yml`) based on new files.
+- **Visual Mapping**: Generating Mermaid or Excalidraw diagram definitions to visualize architecture.
+
+## Key Features (May 2026 Update)
+- **Universal SKILL.md Support**: Compatible with the latest cross-agent skill standard used by Claude Code, Cursor, and Antigravity IDE.
+- **Symbolic Analysis**: Uses LSP (Language Server Protocol) data to provide deeper, more accurate code explanations than raw text analysis.
+- **Documentation Linting**: Automatically checks for broken relative links, missing metadata, and taxonomy violations.
+- **Multi-Format Export**: Generates documentation in Markdown, PDF, and interactive HTML.
 
 ## Strengths
-- **Consistency**: Enforces a standard style and structure across all documentation.
-- **Accuracy**: Extracts information directly from the code, reducing human error.
-- **Speed**: Drastically reduces the time required to document a complex project.
+- **Workflow Integration**: Can be triggered as a post-commit hook or as part of a CI/CD pipeline.
+- **Taxonomy Compliance**: Enforces project-specific documentation standards (e.g., [KnowledgeOps](../../standards-and-conventions.md)).
+- **Zero Drift**: Detects when code changes without corresponding documentation updates.
 
 ## Limitations
-- **Nuance**: May struggle with high-level design rationale or "why" decisions that aren't explicit in the code.
-- **Review Required**: Like all AI output, requires a human pass to ensure clarity and correct tone.
+- **Design Intent**: While it can describe *what* code does, it may still require human input for the *why* behind strategic design decisions.
+- **Token Usage**: Large-scale repository audits can consume significant context window space.
 
 ## When to use it
-- When starting a new project and wanting a solid documentation baseline.
-- Before a major release to ensure all new features and changes are documented.
-- When cleaning up a "legacy" codebase with poor existing documentation.
+- During the "Documentation Phase" of a sprint or Ralph-loop run.
+- When onboarding a new contributor to a complex, poorly documented repository.
+- To maintain high-quality `README.md` and `ARCHITECTURE.md` files in open-source projects.
 
 ## When not to use it
-- For highly sensitive documentation that requires strict legal or compliance oversight.
-- When the documentation requires deep philosophical or strategic context not present in the repository.
+- For legal, medical, or security-compliance documentation that requires strict human accountability.
+- In extremely small projects where manual documentation takes less time than configuring the skill.
 
 ## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free (Requires LLM API tokens)
-- **Self-hostable**: Yes
+- **Open Source**: MIT License.
+- **Cost**: Free (Requires LLM API tokens for the host agent).
+- **Self-hostable**: Yes, via the universal skill installer.
 
 ## Getting started
 
 ### Installation
-The Documentation Writer skill can be added to your agent's environment using the `skills.sh` installer:
+Install the skill using the [Antigravity Awesome Skills](https://github.com/awesome-copilot/awesome-skills) installer:
 
 ```bash
 npx skills@latest add awesome-copilot/documentation-writer
 ```
 
-### Basic usage
-Trigger the skill within your agent session:
+### Basic Commands
+Trigger the skill from within your agent terminal:
 
 ```bash
-/document-codebase
+/document-codebase --deep
 ```
 
-You can also target specific files or directories:
-
+Document a specific module:
 ```bash
-/document-file src/utils/api.py
+/document-module src/auth/
+```
+
+Audit existing documentation for freshness:
+```bash
+/audit-docs
 ```
 
 ## Related tools / concepts
-- [Claude Skills Ecosystem](claude-skills-ecosystem.md)
-- [Superpowers](superpowers.md)
-- [Matt Pocock Skills](../ai_knowledge/matt-pocock-skills.md)
-- [Andrej Karpathy Skills](../ai_knowledge/karpathy-skills.md)
+- [Claude Skills Ecosystem](claude-skills-ecosystem.md): The broader collection of agent enhancements.
+- [Superpowers](superpowers.md): Curated skill bundles for developers.
+- [KnowledgeOps](../../multi_agent_knowledgeops.md): The philosophy of managing knowledge like code.
 
 ## Sources / references
 - [Documentation Writer Skill (GitHub)](https://github.com/awesome-copilot/documentation-writer)
+- [Universal SKILL.md Standard](https://github.com/awesome-copilot/awesome-skills/blob/main/SPEC.md)
+- [10 Must-Have Skills for 2026](https://medium.com/@unicodeveloper/10-must-have-skills-for-claude-and-any-coding-agent-in-2026-b5451b013051)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
+- Last reviewed: 2026-05-30
 - Confidence: high
