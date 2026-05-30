@@ -60,13 +60,13 @@ Once oriented, choose the specific models and stacks that fit your goals.
 
 ### 3. Implementation Patterns
 Transition from "what to use" to "how to build" using canonical patterns.
-- **Foundational**: Master the [RAG Pattern](patterns/rag-pattern.md) and [Agentic Workflows](patterns/agentic-workflows.md).
+- **Foundational**: Master the [RAG Pattern](patterns/rag.md) and [Agentic Workflows](patterns/agentic-workflows.md).
 - **Advanced**: Explore [Data Copilot Agentic RAG](patterns/data-copilot-agentic-rag.md) for complex data synthesis.
 
 ### 4. Safety & Governance
 Ensure your AI systems are resilient and secure before deployment.
-- **Security**: Audit your [LLM Trust Boundaries](patterns/llm-trust-boundaries.md).
-- **Quality**: Review the [Standards](standards.md) to ensure your own documentation and workflows remain high-confidence.
+- **Security**: Audit your [LLM Security & Privacy](llm_security_privacy.md) and [Trust Boundaries](patterns/llm-trust-boundaries.md).
+- **Quality**: Review the [Standards](../standards.md) to ensure your own documentation and workflows remain high-confidence.
 
 ## Curated Guides
 
@@ -83,8 +83,7 @@ Ensure your AI systems are resilient and secure before deployment.
 - [**Model Classes**](model_classes.md) - Understanding the different types of LLMs (MoE, Reasoning, Multimodal, etc.).
 - [**System Prompts**](system_prompts.md) - Foundational instructions for frontier models and "high engineering" persona design.
 - [**Model Comparison and Evaluation**](model_comparison_and_evaluation.md) - Guide to LLM leaderboards, benchmarks, and metrics.
-- [**Model Routing Guide**](model_routing_guide.md) - Practical task-routing guidance for choosing the right model and effort level.
-- [**AI Tool Access Matrix**](ai_tool_access_matrix.md) - Side-by-side access surface comparison across Gmail, Calendar, files, research, MCP, local use, and provider flexibility.
+- [**LLM Security & Privacy**](llm_security_privacy.md) - Deep dive into agentic security, SQL guardrails, and privacy patterns.
 - [**Agent Protocols**](agent_protocols.md) - Deep dive into MCP (Model Context Protocol) and ACP (Agent Control Protocol).
 - [**API Pricing & Free Tier Matrix**](api_pricing_free_tiers.md) - Canonical tracker for provider pricing links and current free-tier availability.
 - [**AI Signal Sources**](ai_signal_sources.md) - Curated company and independent technical blogs worth monitoring.
@@ -93,8 +92,9 @@ Ensure your AI systems are resilient and secure before deployment.
 
 ## Implementation Patterns
 
-- [**RAG Pattern**](patterns/rag-pattern.md) - Canonical implementation for Retrieval Augmented Generation.
+- [**RAG Pattern**](patterns/rag.md) - Canonical implementation for Retrieval Augmented Generation.
 - [**Agentic Workflows**](patterns/agentic-workflows.md) - Designing loops and multi-agent systems.
+- [**Tool Calling & MCP**](patterns/tool-calling-and-mcp.md) - Native vs MCP-hosted tool patterns.
 - [**LLM Trust Boundaries**](patterns/llm-trust-boundaries.md) - Security patterns for handling untrusted data.
 - [**Data Copilot MCP Tooling**](patterns/data-copilot-mcp-tooling.md) - Leveraging the Model Context Protocol for tool discovery and data synthesis.
 - [**Data Copilot Agentic RAG**](patterns/data-copilot-agentic-rag.md) - Advanced RAG patterns using multi-agent orchestration for data tasks.
@@ -117,11 +117,18 @@ Ensure your AI systems are resilient and secure before deployment.
 - [AI Signal Sources](ai_signal_sources.md)
 - [Essential AI Reading List](ai_reading_list.md)
 
+## Infrastructure Research
+
+- [**Invisible Kubernetes**](invisible_kubernetes.md) - Patterns for zero-ops cluster management.
+- [**Google Axion**](google_axion.md) - High-performance ARM-based AI compute.
+- [**Talos vs Ubuntu**](talos-vs-ubuntu-k3s.md) - Node OS comparison for K3s.
+- [**Real-time Sync Engines**](real_time_sync_engines.md) - CRDT and local-first architecture.
+
 ## 🚀 Purpose
 The knowledge base serves as the "theory" section of the repository, providing the necessary context to effectively connect and configure the tools in the [Tool Catalogue](../tools/README.md). It is designed to be a living resource that evolves alongside the frontier of AI capabilities.
 
 ## 🛠️ Contribution
-We welcome deep dives into new technologies. Please follow the [Contributing Guide](../CONTRIBUTING.md). When adding new articles, ensure they follow the [Standards](standards.md) and include relevant [Architecture](../architecture/README.md) cross-links.
+We welcome deep dives into new technologies. Please follow the [Contributing Guide](../CONTRIBUTING.md). When adding new articles, ensure they follow the [Standards](../standards.md) and include relevant [Architecture](../architecture/README.md) cross-links.
 
 ## Knowledge Maintenance
 This KB is maintained through automated "Ralph-loops" that:
@@ -137,5 +144,5 @@ This KB is maintained through automated "Ralph-loops" that:
 - [Home](../index.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-05-30
 - Confidence: high
