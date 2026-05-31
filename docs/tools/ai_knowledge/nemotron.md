@@ -1,67 +1,68 @@
-# NVIDIA Nemotron-3 Super
+# NVIDIA Nemotron
 
 ## What it is
-NVIDIA Nemotron-3 Super is an open, high-efficiency large language model designed specifically for complex multi-agent applications and agentic reasoning. It is a 120B total parameter model with a 12B active-parameter Mixture-of-Experts (MoE) architecture.
+NVIDIA Nemotron is a family of open-source language models designed specifically for agentic AI, enterprise workflows, and high-precision reasoning. As of May 2026, the family includes the flagship **Nemotron 3 Super** and the newly announced **Nemotron 4** family (developed in collaboration with the Nemotron Coalition).
 
 ## What problem it solves
-It addresses the "thinking tax" and "context explosion" inherent in multi-agent systems. By using a hybrid Mamba-Transformer backbone and Latent MoE, it provides high-capacity reasoning and a massive 1M-token context window without the extreme compute costs of traditional dense models.
+It addresses the "thinking tax" and "context explosion" inherent in multi-agent systems. By using a hybrid Mamba-Transformer backbone and Latent MoE (Mixture-of-Experts), it provides high-capacity reasoning and a massive 1M-token context window with 5x throughput efficiency compared to traditional dense models on NVIDIA hardware.
 
 ## Where it fits in the stack
-**Model Provider / Intelligence Layer**. It serves as the "brain" for long-running autonomous agents, particularly in software development and cybersecurity triaging.
+**Model Provider / Intelligence Layer**. It serves as the "brain" for long-running autonomous agents, particularly in software development, cybersecurity triaging, and complex RAG pipelines.
 
-## Key Technical Innovations
-- **Hybrid Mamba-Transformer**: Combines Mamba-2 layers (for linear-time sequence efficiency) with Transformer attention layers (for precise associative recall).
+## Key Technical Innovations (Nemotron 3 Super)
+- **Hybrid Mamba-Transformer**: Combines Mamba-2 layers (linear-time sequence efficiency) with Transformer attention layers (precise associative recall).
 - **Latent MoE**: Compresses tokens before routing to experts, allowing the model to consult 4x as many experts for the same computational cost.
-- **Multi-token Prediction (MTP)**: Forecasts several future tokens simultaneously, improving reasoning during training and enabling 3x wall-clock speedups via built-in speculative decoding.
+- **Multi-token Prediction (MTP)**: Forecasts several future tokens simultaneously, enabling 3x wall-clock speedups via built-in speculative decoding.
 - **Native NVFP4 Pretraining**: Optimized for NVIDIA Blackwell architecture, cutting memory requirements and speeding up inference by 4x compared to FP8 on older hardware.
 
 ## Typical use cases
-- **Software Engineering Agents**: Handling complex codebase reasoning and multi-step merge requests.
+- **Software Engineering Agents**: Handling complex codebase reasoning and multi-step merge requests (e.g., used by Cursor and Sarvam).
 - **Cybersecurity Triaging**: Analyzing long logs and synthesizing multi-stage attack patterns.
 - **Long-Context RAG**: Reasoning over entire repositories or large document stacks (up to 1M tokens).
+- **Synthetic Data Generation**: Creating high-quality post-training data for smaller models (via Nemotron 4).
 
 ## Getting started
-Nemotron-3 Super is available across multiple platforms and as open weights.
+Nemotron models are available as open weights on Hugging Face and as optimized NIM microservices.
 
 ### Access Points
-1.  **NVIDIA build**: Try it for free via [build.nvidia.com](https://build.nvidia.com/).
-2.  **OpenRouter**: Available via API (includes a free tier for trial).
-3.  **Hugging Face**: Download open weights for local deployment.
-4.  **Perplexity**: Available for Pro subscribers and via API.
-5.  **Cloud Providers**: Available through Baseten, Cloudflare, Coreweave, DeepInfra, Fireworks AI, FriendliAI, Google Cloud, Inference.net, Lightning AI, Modal, Nebius, and Together AI.
+1.  **NVIDIA NIM**: Try it for free via [build.nvidia.com](https://build.nvidia.com/).
+2.  **OpenRouter**: Available via API for multi-provider routing.
+3.  **Hugging Face**: Download open weights (`nvidia/nemotron-3-super-120b`) for local deployment.
+4.  **Cloud Providers**: Available through Baseten, Cloudflare, Mistral AI (Coalition partner), and Perplexity.
 
 ### Deployment Cookbooks
 NVIDIA provides reference implementations for major inference engines:
 - [vLLM Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/vllm_cookbook.ipynb): For high-throughput continuous batching.
 - [SGLang Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/sglang_cookbook.ipynb): Optimized for multi-agent tool-calling.
-- [TensorRT-LLM Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/trtllm_cookbook.ipynb): Low-latency production deployment on NVIDIA hardware.
-- [LoRA Fine-tuning](https://github.com/NVIDIA-NeMo/Nemotron/tree/main/usage-cookbook/Nemotron-3-Super/lora-text2sql): Domain-specific optimization recipes.
+- [TensorRT-LLM Cookbook](https://github.com/NVIDIA-NeMo/Nemotron/blob/main/usage-cookbook/Nemotron-3-Super/trtllm_cookbook.ipynb): Low-latency production deployment.
 
-### Training and evaluation stack
-The NVIDIA announcement also names the tooling and techniques used to train, adapt, and rerun evaluations for Nemotron-3 Super:
+### 2026 Model Roadmap: Nemotron 4
+Announced in March 2026 at GTC, the **Nemotron Coalition** (including Mistral AI, LangChain, Perplexity, and Cursor) is developing the Nemotron 4 family. The first model, co-developed with Mistral AI, serves as a base frontier model designed for industry-specific specialization and agentic planning.
 
-| Component | Role | Free/open status |
-| :--- | :--- | :--- |
-| [NeMo Gym](https://docs.nvidia.com/nemo/gym/latest/) | Scalable reinforcement-learning environment harness for agentic task rollouts. | Open-source NVIDIA library; compute costs depend on where it runs. |
-| [NeMo RL](https://docs.nvidia.com/nemo/rl/latest/) | Reinforcement-learning library used for multi-environment post-training. | Open-source NVIDIA library; practical use requires GPU capacity. |
-| [NeMo Megatron-Bridge](https://github.com/NVIDIA-NeMo/Megatron-Bridge) | Bridge for large-model SFT/LoRA workflows on NVIDIA infrastructure. | Open-source repository. |
-| [NeMo Automodel](https://github.com/NVIDIA-NeMo/Automodel) | Higher-level model customization path for SFT/LoRA recipes. | Open-source repository. |
-| [NeMo Data Designer](https://nvidia-nemo.github.io/NeMo-Data-Designer/) | Synthetic-data and data-design tooling for training data preparation. | Public docs and tooling; runtime cost depends on model/provider. |
-| [NeMo Curator](https://docs.nvidia.com/nemo/curator/latest/) | Data curation and filtering pipeline for pretraining/post-training corpora. | Public NVIDIA tooling; compute/storage costs apply. |
-| [NeMo Evaluator](https://docs.nvidia.com/nemo/evaluator/latest/) | Evaluation harness for rerunning and inspecting model benchmarks. | Public NVIDIA tooling; benchmark execution costs apply. |
-| [Unsloth](https://unsloth.ai/) | Fine-tuning route highlighted by NVIDIA for practical customization. | Free/open tooling options exist; hosted/commercial options may vary. |
+## Training and Evaluation Stack
+NVIDIA provides a complete toolset for adapting and evaluating Nemotron models:
 
-### Running pattern
-For agentic deployments, treat Nemotron-3 Super as the planning/escalation model rather than the only model in the system. NVIDIA's suggested pattern is to route targeted, lower-complexity steps to Nemotron 3 Nano, then escalate complex planning, long-context codebase reasoning, and cybersecurity triage to Nemotron-3 Super. Use vLLM or SGLang for open GPU serving, TensorRT-LLM for NVIDIA-optimized production latency, and NVIDIA NIM or hosted providers when you want managed endpoints.
+| Component | Role |
+| :--- | :--- |
+| [NeMo Gym](https://docs.nvidia.com/nemo/gym/latest/) | Reinforcement-learning environment for agentic task rollouts. |
+| [NeMo Data Designer](https://nvidia-nemo.github.io/NeMo-Data-Designer/) | Synthetic-data and data-design tooling. |
+| [NeMo Evaluator](https://docs.nvidia.com/nemo/evaluator/latest/) | Evaluation harness for rerunning and inspecting model benchmarks. |
+| [Unsloth](https://unsloth.ai/) | Preferred fine-tuning route for rapid customization on consumer/prosumer hardware. |
+
+## Running Pattern
+For agentic deployments, use the **Cascade Pattern**:
+1.  Route targeted, low-complexity steps to **Nemotron 3 Nano**.
+2.  Escalate complex planning, long-context reasoning, and multi-step investigation to **Nemotron 3 Super**.
+3.  Use **vLLM** or **SGLang** for serving to leverage continuous batching and speculative decoding.
 
 ## Strengths
-- **Efficiency**: 5x throughput improvement over previous generations.
-- **Agentic Performance**: Scores 85.6% on PinchBench (benchmark for agent brains).
-- **Openness**: Fully open weights, datasets, and recipes under the NVIDIA Nemotron Open Model License.
+- **Agentic Performance**: Scores top-tier marks on PinchBench (agent brain evaluation).
+- **Hardware Affinity**: Extreme efficiency gains on NVIDIA Ampere, Hopper, and Blackwell architectures.
+- **Openness**: Commercial-friendly NVIDIA Open Model License permits free download and specialization.
 
 ## Limitations
-- **Hardware Affinity**: Best performance and efficiency gains require NVIDIA Blackwell (B200) GPUs.
-- **Model Size**: At 120B total parameters, it requires significant VRAM even with its 12B active parameter efficiency.
+- **VRAM Requirements**: The 120B model requires significant VRAM even with its MoE efficiency (typically 2-4x A100/H100 GPUs).
+- **Reasoning vs. Frontier Models**: While excellent for agents, it may still lag behind closed frontier models like OpenAI o3-Pro in pure general reasoning.
 
 ## When to use it
 - **Enterprise Multi-Agent Systems**: When building complex, long-running agents that require high reasoning capacity.
@@ -75,22 +76,16 @@ For agentic deployments, treat Nemotron-3 Super as the planning/escalation model
 
 ## Related tools / concepts
 - [NVIDIA](../providers/nvidia.md)
+- [NVIDIA PersonaPlex](personaplex.md)
 - [NVIDIA NeMo Retriever](../agents/nemo-retriever.md)
-- [OpenCode](../development_ops/opencode.md)
-- [Mamba Architecture](../../knowledge_base/model_classes.md)
-- [vLLM](../infrastructure/vllm.md) (Recommended serving engine)
-- [SGLang](../infrastructure/sglang.md) (Optimized for multi-agent tool-calling)
-- [Aphrodite Engine](../infrastructure/aphrodite-engine.md) (Alternative local serving)
+- [vLLM](../infrastructure/vllm.md)
+- [SGLang](../infrastructure/sglang.md)
 
 ## Sources / References
+- [NVIDIA Launches Nemotron Coalition (NVIDIA Newsroom, March 2026)](https://nvidianews.nvidia.com/news/nvidia-launches-nemotron-coalition-of-leading-global-ai-labs-to-advance-open-frontier-models)
+- [NVIDIA AI Models 2026 Guide (BuildFast with AI)](https://www.buildfastwithai.com/blogs/nvidia-ai-models-2026-guide)
 - [Introducing Nemotron 3 Super (NVIDIA Blog)](https://developer.nvidia.com/blog/introducing-nemotron-3-super-an-open-hybrid-mamba-transformer-moe-for-agentic-reasoning/)
-- [Nemotron-3 Super Technical Report](https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf)
-- [NVIDIA-NeMo / Nemotron GitHub repository](https://github.com/NVIDIA-NeMo/Nemotron)
-- [NVIDIA NeMo Gym documentation](https://docs.nvidia.com/nemo/gym/latest/)
-- [NVIDIA NeMo RL documentation](https://docs.nvidia.com/nemo/rl/latest/)
-- [NVIDIA NeMo Curator documentation](https://docs.nvidia.com/nemo/curator/latest/)
-- [NVIDIA NeMo Evaluator documentation](https://docs.nvidia.com/nemo/evaluator/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-31
 - Confidence: high

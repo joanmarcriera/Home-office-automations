@@ -126,30 +126,30 @@ class DataCopilotPipeline:
             "intent": ModelRoute(
                 layer="intent",
                 primary_model="local:qwen3:8b",
-                fallback_model="hosted:gpt-5.4-mini",
+                fallback_model="hosted:gemini-3.5-flash",
                 max_prompt_tokens=1_500,
                 reason="Intent extraction needs stronger metric and date reasoning.",
             ),
             "table": ModelRoute(
                 layer="table",
                 primary_model="hosted:groq-open-model",
-                fallback_model="hosted:gpt-5.4-mini",
+                fallback_model="hosted:gemini-3.5-flash",
                 max_prompt_tokens=2_000,
                 reason="Table selection benefits from stronger reasoning but only sees table summaries.",
             ),
             "prune": ModelRoute(
                 layer="prune",
                 primary_model="local:qwen3:8b",
-                fallback_model="hosted:claude-haiku-4.5",
+                fallback_model="hosted:claude-4.7-haiku",
                 max_prompt_tokens=2_000,
                 reason="Column pruning is structured-output heavy and cheap to verify.",
             ),
             "sql": ModelRoute(
                 layer="sql",
-                primary_model="hosted:gpt-5.4-mini",
-                fallback_model="hosted:claude-haiku-4.5",
-                max_prompt_tokens=3_000,
-                reason="SQL syntax generation should use the most reliable low-cost route.",
+                primary_model="hosted:claude-4.7-sonnet",
+                fallback_model="hosted:gemini-3.5-pro",
+                max_prompt_tokens=4_000,
+                reason="SQL generation requires high reasoning capability and large schema context handling.",
             ),
         }
 
