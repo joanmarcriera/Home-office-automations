@@ -13,7 +13,7 @@ It addresses the "thinking tax" and "context explosion" inherent in multi-agent 
 - **Hybrid Mamba-Transformer**: Combines Mamba-2 layers (for linear-time sequence efficiency) with Transformer attention layers (for precise associative recall).
 - **Latent MoE**: Compresses tokens before routing to experts, allowing the model to consult 4x as many experts for the same computational cost.
 - **Multi-token Prediction (MTP)**: Forecasts several future tokens simultaneously, improving reasoning during training and enabling 3x wall-clock speedups via built-in speculative decoding.
-- **Native NVFP4 Pretraining**: Optimized for NVIDIA Blackwell architecture, cutting memory requirements and speeding up inference by 4x compared to FP8 on older hardware.
+- **Native NVFP4 Pretraining**: Optimized for NVIDIA Blackwell architecture, cutting memory requirements and speeding up inference by 5x (confirmed May 2026) compared to FP8 on older hardware.
 
 ## Typical use cases
 - **Software Engineering Agents**: Handling complex codebase reasoning and multi-step merge requests.
@@ -27,7 +27,7 @@ Nemotron-3 Super is available across multiple platforms and as open weights.
 1.  **NVIDIA build**: Try it for free via [build.nvidia.com](https://build.nvidia.com/).
 2.  **OpenRouter**: Available via API (includes a free tier for trial).
 3.  **Hugging Face**: Download open weights for local deployment.
-4.  **Perplexity**: Available for Pro subscribers and via API.
+4.  **Perplexity**: Available for Pro subscribers and via API; integrated into the **Computer** orchestration layer (May 2026).
 5.  **Cloud Providers**: Available through Baseten, Cloudflare, Coreweave, DeepInfra, Fireworks AI, FriendliAI, Google Cloud, Inference.net, Lightning AI, Modal, Nebius, and Together AI.
 
 ### Deployment Cookbooks
@@ -81,9 +81,13 @@ For agentic deployments, treat Nemotron-3 Super as the planning/escalation model
 - [vLLM](../infrastructure/vllm.md) (Recommended serving engine)
 - [SGLang](../infrastructure/sglang.md) (Optimized for multi-agent tool-calling)
 - [Aphrodite Engine](../infrastructure/aphrodite-engine.md) (Alternative local serving)
+- [ColQwen](../ai_knowledge/colqwen.md)
+- [Qwen](../ai_knowledge/qwen.md)
+- [Llama 3.2 Vision](../ai_knowledge/llama.md)
 
 ## Sources / References
 - [Introducing Nemotron 3 Super (NVIDIA Blog)](https://developer.nvidia.com/blog/introducing-nemotron-3-super-an-open-hybrid-mamba-transformer-moe-for-agentic-reasoning/)
+- [NVIDIA Blackwell Performance Updates (May 2026)](https://blogs.nvidia.com/blog/nemotron-3-super-agentic-ai/)
 - [Nemotron-3 Super Technical Report](https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf)
 - [NVIDIA-NeMo / Nemotron GitHub repository](https://github.com/NVIDIA-NeMo/Nemotron)
 - [NVIDIA NeMo Gym documentation](https://docs.nvidia.com/nemo/gym/latest/)
@@ -92,5 +96,5 @@ For agentic deployments, treat Nemotron-3 Super as the planning/escalation model
 - [NVIDIA NeMo Evaluator documentation](https://docs.nvidia.com/nemo/evaluator/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-31
 - Confidence: high

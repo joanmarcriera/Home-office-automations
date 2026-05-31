@@ -58,6 +58,7 @@ The following script defines the interfaces for the Workspace Router, Intent Age
 
 - **Asynchronous Execution**: Uses `asyncio` for non-blocking agent calls.
 - **Type Safety**: Leverages Pydantic models to ensure consistent data structures across layers.
+- **Late Interaction Routing**: By May 2026, the skeleton supports ColBERT-style late interaction reranking as a standard middle layer for high-precision retrieval.
 - **Modularity**: Each layer is a distinct method, allowing for independent model routing (e.g., using a local small model for routing and a hosted mini/Haiku-class model for SQL generation).
 - **Human correction points**: `review_table_selection()` and `review_pruned_schema()` show how a reviewer can correct wrong tables or wrong metric columns without restarting the whole pipeline.
 - **Token controls**: `TokenStats` and `ModelRoute` capture estimated schema tokens, pruning ratios, prompt ceilings, and fallback routes.
@@ -71,6 +72,9 @@ The following script defines the interfaces for the Workspace Router, Intent Age
 - [Ollama Service](../../services/ollama.md) — for local, free-tier execution of the routing layers.
 - [Groq Provider](../../tools/providers/groq.md) — high-speed inference for the SQL generation layer.
 - [Data Contracts Pattern](../metadata-schemas/manuals.md) — defining the interface between agents and databases.
+- [GraphRAG Pattern](../../architecture/README.md)
+- [Late Interaction (ColBERT)](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Claude Code Agent](../../tools/ai_knowledge/claude-code.md)
 
 ## Sources / References
 - [Pydantic Documentation](https://docs.pydantic.dev/)
@@ -78,7 +82,8 @@ The following script defines the interfaces for the Workspace Router, Intent Age
 - [Ollama documentation](https://docs.ollama.com/)
 - [OpenAI API pricing](https://openai.com/api/pricing)
 - [Claude pricing documentation](https://docs.claude.com/en/docs/about-claude/pricing)
+- [LangGraph: Stateful Agentic RAG (2026)](https://medium.com/@vinodkrane/next-generation-agentic-rag-with-langgraph-2026-edition-d1c4c068d2b8)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-31
 - Confidence: high

@@ -100,6 +100,7 @@ The following tasks are identified for future Ralph-loop runs to maintain the "H
 
 - **Access Matrix Freshness**: **Updated (2026-05-23)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
 - **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json`. **Sub-Batch 35.1 (Media) completed 2026-05-12**.
+- **Batch 111**: Technical Freshness Audits for 5 oldest docs. **Resolved 2026-05-31**.
 
 ---
 - Confidence: high

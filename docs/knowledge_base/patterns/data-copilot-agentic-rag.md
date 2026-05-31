@@ -20,6 +20,7 @@ This pattern resides at the **Reasoning & Orchestration Layer** of the [Data Cop
 ## Strengths
 - **Comprehensive Context**: Combines quantitative proof with qualitative reasoning.
 - **Autonomous Investigation**: Can perform "multi-hop" queries to track down missing information without human intervention.
+- **Late Interaction (ColBERT)**: By 2026, agentic RAG has pivoted towards "late interaction" models like ColBERTv2 for significantly higher retrieval precision in deep research tasks.
 - **Traceability**: Provides a clear audit trail from the final answer back to both database rows and document snippets.
 
 ## Limitations
@@ -97,7 +98,7 @@ Before synthesis, the agent must evaluate the retrieved data against this matrix
 | **Causality** | Event found in RAG matching timestamp. | Event found, but timestamp is off. | No related logs found. |
 | **Traceability** | Every claim has a source ID. | Some claims rely on model "general knowledge". | No citations available. |
 
-**Action**: If "Insufficient" is reached in any category, the agent must trigger a "Knowledge Gap" alert instead of synthesizing an answer.
+**Action**: If "Insufficient" is reached in any category, the agent must trigger a **"Knowledge Gap" alert** or a **"BrowseComp Plus" search task** (May 2026 standard for automated deep research).
 
 ### Sufficiency Check
 Before synthesis, the planner must ask: "Do I have enough information to answer the user's specific diagnostic question without guessing?"
@@ -161,12 +162,16 @@ The final score is calculated using these penalty weights:
 - [n8n Automation](../../services/n8n.md)
 - [RAG Pattern](rag-pattern.md)
 - [Agentic Workflows](agentic-workflows.md)
+- [OpenCode](../../tools/development_ops/opencode.md)
+- [GraphRAG Pattern](../../architecture/README.md)
+- [Self-RAG Loops](../self-healing-agent-research.md)
 
 ## Sources / References
 - [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
 - [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
+- [Agentic RAG Guide 2026](https://jobsbyculture.com/blog/agentic-rag-guide-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-31
 - Confidence: high
 - Related Issues: #188

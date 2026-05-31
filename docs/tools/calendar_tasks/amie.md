@@ -10,14 +10,14 @@ It reduces context-switching by unifying personal and professional scheduling wi
 **Calendar & Tasks**.
 
 ## Typical use cases
-- Time-blocking tasks directly on the calendar.
-- Managing multiple calendar accounts (Google, Outlook) in one view.
-- Integrating email follow-ups as calendar events.
+- **AI Meeting Lifecycle**: Automated bot-free recording, transcription, and action item extraction.
+- **Unified Time-blocking**: Dragging tasks directly into calendar slots.
+- **Personal/Professional Bridge**: Bi-directional sync with Apple Reminders and multi-account support.
 
 ## Strengths
-- Highly polished, intuitive user interface.
-- Native integration of tasks and calendar.
-- Built-in team coordination features (scheduling links).
+- **Bot-free Recording**: Uses local device audio to record meetings without needing an external bot joining the call.
+- **Deep Integrations**: Native support for Apple Reminders, Craft, and ClickUp (added early 2026).
+- **Design-Forward**: Widely regarded as the most visually polished "all-in-one" productivity tool.
 
 ## Limitations
 - Proprietary SaaS; no self-hosting option.
@@ -45,17 +45,22 @@ Once logged in, use the `Command + K` shortcut to open the command palette and t
 `Coffee with Alex at 4pm`
 to create your first event.
 
-Note: Amie has no official public CLI or API documentation. CLI and API sections are skipped.
+Note: Amie added support for titles and metadata in webhooks (Early Access) in early 2026. A dedicated API page for developers is now available in Settings > Integrations > API.
 
 ## Related tools / concepts
-- [Cron / Notion Calendar](notion-calendar.md)
+- [Notion Calendar](notion-calendar.md)
 - [Fantastical](fantastical.md)
 - [Akiflow](akiflow.md)
+- [Sunsama](sunsama.md)
+- [SavvyCal](savvycal.md)
+- [TickTick](ticktick.md)
+- [Apple Calendar](../../services/apple-calendar.md)
 
 ## Sources / references
 - [Amie Official Website](https://www.amie.so/)
+- [Amie Changelog](https://amie.so/changelog)
 - [Amie Help Center & FAQ](https://amie.so/help)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-05
+- Last reviewed: 2026-05-31
 - Confidence: high
