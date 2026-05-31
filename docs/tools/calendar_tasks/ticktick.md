@@ -1,45 +1,54 @@
 # TickTick
 
+TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of May 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summaries, and Model Context Protocol (MCP) support for AI agent integration.
+
 ## What it is
-A powerful, all-in-one task management app that features a calendar, Pomodoro timer, habit tracker, and Markdown notes.
+TickTick is a multi-platform productivity suite that consolidates essential tools into a single application. It is designed for individuals who want to manage their entire life—tasks, habits, focus, and schedule—without context switching between separate apps.
 
 ## What problem it solves
-Consolidates personal productivity tools into a single app, reducing context switching between task lists, calendars, and timers.
+It reduces "app sprawl" and cognitive load by providing a unified interface for the Getting Things Done (GTD) methodology, Eisenhower Matrix prioritization, and time-blocking. It solves the fragmentation problem by keeping tasks and their associated calendar events and timers in one place.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Task Management
+- **Category**: [Calendar & Tasks](../calendar_tasks/index.md) / Task Management
+- **Layer**: Human-Facing Personal Intelligence
 
 ## Typical use cases
-- Personal task management and GTD (Getting Things Done).
-- Habit tracking and time-boxing with the integrated Pomodoro timer.
-- Managing shared family lists and simple team projects.
+- **Unified GTD**: Capturing, clarifying, and organizing life and work tasks.
+- **Time Blocking**: Dragging tasks onto the integrated calendar to schedule the day.
+- **Habit Formation**: Tracking daily routines with the built-in Habit Tracker.
+- **Deep Work**: Using the integrated Pomodoro timer with white noise and task-specific timers.
+- **Eisenhower Matrix**: Visualizing task priority across four quadrants for better decision making.
 
 ## Strengths
-- **Feature Rich**: Includes many features (calendar, timer, habits) that usually require separate apps.
-- **Natural Language Parsing**: Excellent at recognizing dates and times in task names.
-- **Multi-Platform**: Robust apps for almost every operating system and device.
+- **Feature Density**: Includes calendar, timer, habits, and notes at a lower price point than competitors like Todoist + Fantastical.
+- **AI Voice & Transcription**: Native ability to transcribe voice recordings into tasks and summarize meeting audio.
+- **Persistent Reminders**: "Nag" alerts that continue until a task is completed or snoozed, excellent for high-priority items.
+- **Superior Calendar**: Full multi-project calendar view (Month, Week, Day) built directly into the task manager.
+- **MCP Integration**: Exposes task management tools to AI agents via the Model Context Protocol.
 
 ## Limitations
-- **Calendar Power**: The integrated calendar is good but not as powerful as specialized tools like Fantastical.
-- **Free Tier Constraints**: Several core features (like full calendar view) are locked behind the Pro subscription.
+- **API Maturity**: The official public API remains less robust than Todoist's, often requiring community-maintained wrappers.
+- **Closed Ecosystem**: Proprietary and not self-hostable.
+- **Privacy**: No local-only mode; all data is synced to TickTick's servers.
 
 ## When to use it
 - If you want a single app to handle tasks, habits, and time-boxing.
-- If you find Todoist too minimalist or expensive for its feature set.
+- If you find Todoist too minimalist or find the cost of a multi-app stack prohibitive.
+- If you need persistent, aggressive reminders for task completion.
 
 ## When not to use it
-- If you need enterprise-level project management features.
-- If you prefer a modular approach with specialized apps for each function.
+- If you strictly require open-source or local-first data storage (see [Vikunja](../../services/vikunja.md)).
+- If you need enterprise-level project management features with complex permission hierarchies.
 
 ## Licensing and cost
 - **Open Source**: No
-- **Cost**: Freemium (Basic features free; Pro subscription for full features)
+- **Cost**: Freemium. Pro subscription is ~$36/year (May 2026) and is required for calendar views and advanced filtering.
 - **Self-hostable**: No
 
 ## Getting started
 
 ### Installation
-TickTick provides a limited official API (V1) and a more powerful unofficial one (V2). The `ticktick-py` library is the most popular community client.
+TickTick is available on iOS, Android, macOS, Windows, Linux, and the Web. For automation, the `ticktick-py` library is the most popular community choice.
 
 ```bash
 # Install the community Python client
@@ -47,72 +56,85 @@ pip install ticktick-py
 ```
 
 ### Hello World (Python)
-Authenticate and create a simple task:
-
 ```python
 from ticktick.api import TickTickClient
 
+# Initialize client (requires user credentials or OAuth)
 client = TickTickClient('your_email', 'your_password')
-task = client.task.builder('Hello from Python')
+
+# Create a task in the Inbox with a Pomodoro duration
+task = client.task.builder(
+    title='Record meeting summary',
+    content='Use TickTick AI to transcribe the audio',
+    priority=3 # High priority
+)
 client.task.create(task)
+print(f"Task created: {task['title']}")
 ```
 
 ## CLI examples
-There is no official CLI, but you can use `curl` to interact with the Open API (V1) once you have an OAuth token.
+While no official binary exists, you can use `curl` for automation via the Open API (V1).
 
 ```bash
 # Get all projects
 curl -X GET "https://api.ticktick.com/open/v1/project" \
   -H "Authorization: Bearer ${TICKTICK_ACCESS_TOKEN}"
 
-# Create a task in the Inbox
+# Create a task with natural language due date parsing (if supported by integration)
 curl -X POST "https://api.ticktick.com/open/v1/task" \
   -H "Authorization: Bearer ${TICKTICK_ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"title": "Buy Milk", "content": "Organic if possible"}'
-
-# Get uncompleted tasks for a specific project
-curl -X GET "https://api.ticktick.com/open/v1/project/{projectId}/data" \
-  -H "Authorization: Bearer ${TICKTICK_ACCESS_TOKEN}"
+  -d '{
+    "title": "Clean the house tomorrow at 10am",
+    "content": "Focus on the kitchen first"
+  }'
 ```
 
-## API examples
+## AI & Agent Integration
 
-### Batch Task Operations (Python)
-Using the unofficial `ticktick-py` for advanced features like batch creation.
+### AI Voice Add
+Create tasks instantly by speaking. TickTick's AI will parse the due date, priority, and list automatically.
 
-```python
-from ticktick.api import TickTickClient
+### TickTick MCP (Model Context Protocol)
+TickTick can now be used as a tool for AI agents (like Claude Desktop). This allows agents to:
+- `create_task`: Create a new task with specific parameters.
+- `list_all_tasks`: Retrieve open tasks for context-aware planning.
+- `get_project_by_id`: Fetch specific project data.
 
-client = TickTickClient('user@example.com', 'password')
-
-# Batch create tasks
-tasks = [
-    client.task.builder('Task 1', priority=3),
-    client.task.builder('Task 2', priority=1)
-]
-client.task.create(tasks)
-
-# Get all uncompleted tasks from the state
-uncompleted = client.state['tasks']
-for task in uncompleted:
-    print(f"[{task['title']}] - ID: {task['id']}")
+**Sample MCP Config (Claude Desktop):**
+```json
+"mcpServers": {
+  "ticktick": {
+    "command": "npx",
+    "args": ["-y", "@alexarevalo.ai/mcp-server-ticktick"],
+    "env": {
+      "TICKTICK_ACCESS_TOKEN": "your_token_here"
+    }
+  }
+}
 ```
-
-### Webhook Support
-TickTick does not provide official outgoing webhooks. Automation usually requires polling the API or using a middleman like Zapier/Make.
 
 ## Related tools / concepts
-- [Todoist](todoist.md)
-- [Any.do](any-do.md)
-- [Habitica](../../services/habitica.md)
-- [TickTick Open API (V1)](https://developer.ticktick.com/docs)
+- [Todoist](todoist.md) — The primary minimalist competitor.
+- [Any.do](any-do.md) — Mobile-first task management.
+- [Habitica](../../services/habitica.md) — Gamified task management.
+- [Vikunja](../../services/vikunja.md) — Self-hosted open-source alternative.
+- [Composio](https://composio.dev/toolkits/ticktick) — For advanced agentic toolsets.
 
-## Sources / References
-- [TickTick Official Site](https://ticktick.com/)
+## Links
+- [Official Website](https://ticktick.com/)
 - [TickTick Developer Portal](https://developer.ticktick.com/)
-- [ticktick-py Documentation](https://pypi.org/project/ticktick-py/)
+- [AI Features Overview](https://help.ticktick.com/articles/7444685542580551680)
+
+## Backlog
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-02
 - Confidence: high
+- Last reviewed: 2026-05-31
+
+## Sources / References
+- https://help.ticktick.com/articles/7444685542580551680
+- https://2sync.com/blog/ticktick-vs-todoist
+- https://composio.dev/toolkits/ticktick
+- KnowledgeOps Triage (2026-05-31)
