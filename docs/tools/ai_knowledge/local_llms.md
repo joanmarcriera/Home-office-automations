@@ -1,135 +1,140 @@
 # Local LLMs (Ollama, MLX, llama.cpp)
 
 ## What it is
-Tools and frameworks that allow running Large Language Models directly on your own hardware (Homelab, Workstation, Mac).
+Tools and frameworks that allow running Large Language Models directly on your own hardware (Homelab, Workstation, Mac). As of May 2026, the local ecosystem is characterized by the rise of **Small Language Models (SLMs)** and **Local Multimodal** capabilities.
 
-- **Ollama**: The easiest way to get up and running with a simple CLI and API.
-- **MLX**: Apple's framework for high-performance AI on Apple Silicon.
-- **llama.cpp**: The foundational C++ library for running LLMs on consumer hardware.
+- **Ollama**: The industry standard for local LLM management with a simple CLI and API.
+- **MLX**: Apple's high-performance AI framework optimized for Unified Memory on Apple Silicon.
+- **llama.cpp**: The foundational C++ library enabling inference on almost any hardware via quantization.
+- **LM Studio**: A premier GUI for discovering and running models with local server capabilities.
 
 ## What problem it solves
-Provides 100% privacy, works offline, has no per-token costs, and allows for infinite experimentation without API limits.
+It provides **100% data sovereignty**, eliminates recurring token costs, and ensures availability during internet outages. It allows for the processing of sensitive personal or corporate data that cannot be sent to cloud providers due to privacy or compliance requirements.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine (Self-hosted)**. Replaces cloud providers for tasks that don't require the massive scale of GPT-4.
+**LLM / Reasoning Engine (Self-hosted)**. It serves as the local intelligence layer in the [KnowledgeOps](../../architecture/README.md) stack, replacing or augmenting cloud providers like OpenAI or Anthropic.
 
 ## Architecture overview
-The model weights are downloaded and stored locally. Inference is performed using your local CPU/GPU/NPU.
+Local inference relies on **Quantization** (typically GGUF or EXL2 formats) to compress model weights while maintaining performance.
+- **CPU Inference**: Relies on system RAM and instruction sets (AVX, AMX).
+- **GPU Inference**: Relies on VRAM and CUDA/ROCm/Metal kernels.
+- **NPU Inference**: Leverages dedicated AI accelerators (Intel NPU, Qualcomm Hexagon, Apple Neural Engine).
 
 ## Typical use cases
-- **Local Development**: Testing agent logic without incurring costs.
-- **Sensitive Data Processing**: Summarizing private documents or logs.
-- **Always-on Low-latency Tasks**: Simple classification or formatting that needs to happen fast and often.
-- **GUI-based Interaction**: Using [LM Studio](https://lmstudio.ai/) to quickly download and chat with models from Hugging Face without using the CLI.
-- **Provider Pre-filtering**: Compressing, classifying, or redacting content locally before forwarding only the necessary context to a paid cloud model.
+- **Local Coding Assistance**: Running `Qwen-3.5-Coder` via [Continue](../development_ops/continue_dev.md) or `Aider`.
+- **Private RAG**: Indexing personal documents into a local vector DB and querying them via `llama-3.2-3b-instruct`.
+- **Local Vision Tasks**: Using `InternVL2` or `Llama-3.2-Vision` to describe local camera feeds or screenshots.
+- **Agentic Pre-processing**: Using a small model (e.g., `Gemma-4-2b`) to classify and route tasks before escalating to a cloud model.
+- **Offline Transcription**: Coordinating with [Whisper](../../services/whisper.md) for local voice-to-text workflows.
 
 ## Strengths
-- **Privacy**: No data leaves your machine.
-- **Cost**: Free (after purchasing the hardware).
-- **Latency**: No network round-trip to external APIs.
-- **Customization**: Use any open-weight model (Llama 3, Mistral, Qwen, etc.).
+- **Privacy & Security**: No data ever leaves the local network boundary.
+- **Cost Efficiency**: Zero cost per token; limited only by hardware power and initial cost.
+- **Low Latency**: No network round-trips to remote data centers.
+- **Infinite Customization**: Access to thousands of specialized fine-tunes on Hugging Face.
 
 ## Limitations
-- **Performance**: Generally lower reasoning capability than the largest cloud models (GPT-4o/Claude 3.5).
-- **Hardware Requirement**: Requires significant RAM (especially for larger models) and GPU/NPU acceleration.
-- **Maintenance**: You are responsible for updating software and managing model files.
+- **Reasoning Ceiling**: The largest local models (e.g., Llama-3-70B) still generally lag behind GPT-4o or Claude 3.5 Opus in complex reasoning.
+- **Hardware Bottlenecks**: High-quality inference requires significant VRAM (24GB+) or Mac Unified Memory (64GB+).
+- **Setup Complexity**: While Ollama is simple, optimizing performance for diverse hardware can be challenging.
 
-## Recommended Models (April 2026)
+## Recommended Models (May 2026)
 
-The local model landscape is dominated by highly capable open-weight families that rival mid-tier cloud models:
-
-- **General Purpose**:
-    - **Qwen 3.5**: The most broadly recommended family across all use cases.
-    - **Gemma 4**: Strong usability and performance for small to mid-sized deployments.
-    - **GLM-5**: Near the top of broad open-model rankings for general intelligence.
-    - **DeepSeek V3.2**: A top-tier cluster model for general purpose reasoning.
-- **Agentic & Tool-heavy**:
-    - **MiniMax M2.7**: Repeatedly cited for its effectiveness in agentic workflows.
-- **Coding**:
-    - **Qwen3-Coder-Next**: The overwhelming community consensus for local coding tasks.
-- **Practical/Uncensored**:
-    - **GPT-oss 20B**: A recommended practical option for those seeking uncensored variants.
+| Category | Recommended Model | Notes |
+| :--- | :--- | :--- |
+| **All-rounder** | **Llama 3.2 (3B/8B/11B)** | Excellent balance of speed and reasoning; includes Vision. |
+| **High Reasoning** | **Qwen 3.5 (72B)** | Competitive with top-tier cloud models for complex tasks. |
+| **Small/Fast** | **Gemma 4 (2B)** | Perfect for mobile or edge devices; highly efficient. |
+| **Coding** | **Qwen-3.5-Coder (32B)** | The current state-of-the-art for local coding assistance. |
+| **Multimodal** | **InternVL2 (8B/26B)** | Superior performance for OCR and complex image analysis. |
+| **Enterprise MoE** | **Nemotron-3 (120B)** | Massive Mixture-of-Experts model for diverse reasoning. |
 
 ## When to use it
-- For any task involving sensitive or personal data.
-- When you want to avoid recurring costs for high-volume, simpler tasks.
-- For local coding assistants (e.g., using `Qwen3-Coder-Next` locally).
-- When the workflow can be split into cheap local preparation plus a smaller, higher-value cloud model call.
+- When processing PII (Personally Identifiable Information) or sensitive medical/legal data.
+- For high-volume, low-complexity tasks (classification, formatting, summarization).
+- When building "local-first" software that must work without an internet connection.
+- For development and testing of agentic loops where API costs would be prohibitive.
 
 ## When not to use it
-- When you need the absolute highest reasoning performance available today.
-- If you lack dedicated hardware (GPU with 12GB+ VRAM or 16GB+ Mac Unified Memory).
-
-## Security considerations
-- **Local API Access**: By default, Ollama and others might listen on `localhost`. Be careful when exposing these to your local network.
-- **Model Integrity**: Download models from trusted sources (like the official Ollama library or reputable HuggingFace users).
-- **Prompt and Log Hygiene**: Treat local prompts, transcripts, and vector indexes as sensitive data. Local execution prevents provider upload, but it does not remove the need for filesystem permissions, backup rules, and retention limits.
-- **Network Boundary**: If a local server is exposed beyond `127.0.0.1`, put it behind the same authentication, firewall, and reverse-proxy controls used for other self-hosted services.
-
-## Token-efficiency pattern
-
-Use local models as the first pass when the task is repetitive or privacy-sensitive:
-
-1. **Classify locally**: decide whether a document is relevant, private, duplicate, or safe to forward.
-2. **Compress locally**: extract only the facts, citations, and unresolved questions needed by the next step.
-3. **Escalate selectively**: send the compressed context to a hosted model only when higher reasoning quality, multimodal capability, or stronger tool support is required.
-4. **Keep artifacts local**: store intermediate summaries and embeddings in local services where possible, then send short derived prompts to providers.
-
-This keeps the paid provider call focused on the part of the workflow where it adds real value, while local inference handles the high-volume and low-risk preparation work.
+- When the highest possible reasoning performance is required for novel research or complex planning.
+- If you lack a GPU with at least 8GB of VRAM or a Mac with 16GB+ of Unified Memory.
+- When you need a massive context window (e.g., 2M tokens) that exceeds local RAM capacity.
 
 ## Getting started
 
-### Installation (Ollama)
+### Ollama (The Standard)
+1. **Install**: `curl -fsSL https://ollama.com/install.sh | sh`
+2. **Run Model**: `ollama run llama3.2`
+3. **API Access**: Ollama listens on `http://localhost:11434` with an OpenAI-compatible API.
 
-Ollama is the standard for local LLM management.
+### MLX (Apple Silicon)
+1. **Install**: `pip install mlx-lm`
+2. **Run Inference**:
+```python
+from mlx_lm import load, generate
+model, tokenizer = load("mlx-community/Llama-3.2-3B-Instruct-4bit")
+response = generate(model, tokenizer, prompt="Explain quantum entanglement", verbose=True)
+```
+
+## CLI examples
 
 ```bash
-# MacOS/Linux
-curl -fsSL https://ollama.com/install.sh | sh
+# Pull and run a specific model
+ollama run qwen3.5-coder:32b
 
-# Then pull a model
-ollama pull llama3
+# List downloaded models and their sizes
+ollama list
+
+# Show detailed information about a running model
+ollama ps
+
+# Benchmark local inference speed (tokens/sec)
+# Using a 100-token prompt
+time ollama run llama3.2 "Write a 100 word essay on AI"
 ```
 
-### Minimal Python Example (Local API)
+## API examples
 
-Interacting with a local LLM via Ollama's OpenAI-compatible API.
+### Python: OpenAI-Compatible Entry
+Many local tools now support the OpenAI `/v1/chat/completions` standard.
 
 ```python
-import requests
+import openai
 
-# Default Ollama API endpoint
-url = "http://localhost:11434/api/chat"
+client = openai.OpenAI(
+    base_url="http://localhost:11434/v1", # Ollama default
+    api_key="ollama", # Required but ignored
+)
 
-payload = {
-    "model": "llama3",
-    "messages": [
-        {"role": "user", "content": "Why is local AI important?"}
-    ],
-    "stream": False
-}
-
-response = requests.post(url, json=payload)
-print(response.json()['message']['content'])
+response = client.chat.completions.create(
+    model="llama3.2",
+    messages=[{"role": "user", "content": "Hello local LLM!"}]
+)
+print(response.choices[0].message.content)
 ```
 
+## Security considerations
+- **Local API Binding**: By default, local servers bind to `127.0.0.1`. Do not change this to `0.0.0.0` unless you have a firewall or VPN in place.
+- **Model Poisoning**: Only download models from verified publishers (e.g., `ollama`, `mlx-community`, `bartowski`).
+- **Memory Privacy**: Local inference keeps data in RAM/VRAM. Ensure your machine is physically secure and uses disk encryption.
+
 ## Related tools / concepts
+- [Ollama (Service)](../../services/ollama.md) — The backend engine.
+- [LM Studio](https://lmstudio.ai/) — GUI for model management.
+- [Open WebUI](../../services/open-webui.md) — The premier web interface for local LLMs.
+- [LiteLLM](../../services/litellm.md) — Proxy for switching between local and cloud models.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For giving local models tool access.
+- [AnythingLLM](../../services/anythingllm.md) — Full-stack local RAG solution.
 
-- [Ollama (Service)](../../services/ollama.md)
-- [DeepSeek](../providers/deepseek.md)
-- [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-
-## Sources / References
-
-- [Ollama documentation](https://github.com/ollama/ollama/tree/main/docs)
-- [Ollama API reference](https://github.com/ollama/ollama/blob/main/docs/api.md)
-- [llama.cpp project](https://github.com/ggml-org/llama.cpp)
-- [Hugging Face Transformers documentation](https://huggingface.co/docs/transformers)
-- [MLX documentation](https://ml-explore.github.io/mlx/build/html/index.html)
+## Backlog
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-07
+- Last reviewed: 2026-05-31
 - Confidence: high
+
+## Sources / References
+- [Ollama Official Documentation](https://ollama.com/library)
+- [MLX Examples Repository](https://github.com/ml-explore/mlx-examples)
+- [llama.cpp GitHub](https://github.com/ggerganov/llama.cpp)
+- [Llama 3.2 Technical Report](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)

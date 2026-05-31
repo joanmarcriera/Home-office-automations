@@ -118,7 +118,7 @@ curl -X GET "http://flyte-admin:8088/api/v1/projects"
 - [OpenTelemetry](../benchmarking/index.md) — For tracing Flyte 2.0 executions.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-31

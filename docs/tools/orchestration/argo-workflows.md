@@ -114,7 +114,7 @@ curl -X GET "https://argo-server:2746/api/v1/workflows/argo" \
 - [Temporal](temporal.md) — For durable, long-running stateful workflows.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-31

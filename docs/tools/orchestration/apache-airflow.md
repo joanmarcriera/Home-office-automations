@@ -113,7 +113,7 @@ curl -X POST "http://localhost:8080/api/v1/dags/my_dag_id/dagRuns" \
 - [OpenTelemetry](../benchmarking/index.md) — For distributed tracing in Airflow 3.0.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-31
