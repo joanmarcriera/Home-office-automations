@@ -110,7 +110,7 @@ def downstream_asset(my_automated_asset):
 - [Great Expectations](../benchmarking/index.md) — Often used alongside Dagster for data validation.
 
 ## Backlog
-- [ ] Perform quarterly technical freshness audit.
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-31

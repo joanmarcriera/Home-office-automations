@@ -5,22 +5,23 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 ## Orchestration Patterns
 
 - **Linear/DAG Orchestration**: Predetermined paths for data processing (e.g., standard n8n workflows). Best for predictable, high-volume tasks.
-- **Agentic Orchestration**: Dynamic, loop-based execution where the LLM decides the next step (e.g., LangGraph or Agno). Best for open-ended problem solving.
+- **Agentic Orchestration**: Dynamic, loop-based execution where the LLM decides the next step (e.g., LangGraph or Ag2). Best for open-ended problem solving.
 - **Durable Orchestration**: Systems that ensure long-running workflows survive restarts and failures (e.g., Temporal).
+- **Declarative Orchestration**: Defining the desired state or asset rather than the specific steps (e.g., Kestra or Dagster).
 
 ## Tool Matrix
 
 | Tool | Focus | UI | Self-hostable | Best for... |
 | :--- | :--- | :---: | :---: | :--- |
-| [Apache Airflow](apache-airflow.md) | Batch DAG Scheduling | 🟢 | 🟢 | Mature scheduled data and operations workflows. |
+| [Apache Airflow](apache-airflow.md) | Batch DAG Scheduling | 🟢 | 🟢 | Mature scheduled data and operations workflows (Airflow 3.0+). |
 | [Apache Hamilton](apache-hamilton.md) | Python Dataflows | 🟢 | 🟢 | Function-derived transformation DAGs inside Python systems. |
 | [Argo Workflows](argo-workflows.md) | Kubernetes Workflows | 🟢 | 🟢 | Highly parallel container jobs on Kubernetes. |
-| [Dagster](dagster.md) | Data Asset Orchestration | 🟢 | 🟢 | Data and AI pipelines with lineage and freshness context. |
-| [Flyte](flyte.md) | AI/ML Workflows | 🟢 | 🟢 | Reproducible ML and AI workflows at scale. |
-| [Kestra](kestra.md) | Declarative Automation | 🟢 | 🟢 | Event-driven workflows across data, infra, and approvals. |
-| [n8n](../../services/n8n.md) | Visual Automation | 🟢 | 🟢 | Home/Office automation with local AI nodes. |
-| [Prefect](prefect.md) | Python Workflow Engine | 🟢 | 🟢 | Python scripts moving into observable production workflows. |
-| [Temporal](temporal.md) | Durable Workflows | 🟢 | 🟢 | Mission-critical, stateful execution at scale. |
+| [Dagster](dagster.md) | Data Asset Orchestration | 🟢 | 🟢 | Data and AI pipelines with lineage and freshness context (v1.9+). |
+| [Flyte](flyte.md) | AI/ML Workflows | 🟢 | 🟢 | Reproducible ML and AI workflows at scale (Flyte 2.0+). |
+| [Kestra](kestra.md) | Declarative Automation | 🟢 | 🟢 | Event-driven workflows across data, infra, and approvals (v0.18+). |
+| [n8n](../../services/n8n.md) | Visual Automation | 🟢 | 🟢 | Home/Office automation with local AI nodes and MCP support. |
+| [Prefect](prefect.md) | Python Workflow Engine | 🟢 | 🟢 | Python scripts moving into observable production (Prefect 3.0+). |
+| [Temporal](temporal.md) | Durable Workflows | 🟢 | 🟢 | Mission-critical, stateful execution and durable functions. |
 | [ZenML](zenml.md) | MLOps Pipelines | 🟢 | 🟢 | Portable ML and agent pipelines across infrastructure stacks. |
 | [Zapier](../automation_orchestration/zapier.md) | SaaS Integration | 🟢 | 🔴 | Rapidly connecting cloud apps via AI actions. |
 | [Goose](../automation_orchestration/goose.md) | Local Agentic | 🟢 | 🟢 | Terminal-friendly local agent orchestration. |
@@ -33,6 +34,7 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [LiteLLM](../../services/litellm.md)
+- [Durable Functions](../../knowledge_base/patterns/durable-functions.md)
 
 ## Sources / References
 
@@ -41,8 +43,9 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 - [Dagster documentation](https://docs.dagster.io/)
 - [Flyte documentation](https://docs.flyte.org/)
 - [Prefect documentation](https://docs.prefect.io/)
+- [Kestra documentation](https://kestra.io/docs)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-31
 - Confidence: high
