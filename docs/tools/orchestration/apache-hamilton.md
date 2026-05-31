@@ -1,58 +1,122 @@
-# Apache Hamilton
+# Hamilton
 
 ## What it is
-Apache Hamilton is an open-source Python framework for creating dataflows from ordinary Python functions. Each function represents a transformation, and Hamilton infers the directed graph from function names, parameters, and type annotations.
+Hamilton is a general-purpose micro-orchestration framework for creating dataflows from simple Python functions. Unlike traditional macro-orchestrators (like Airflow), Hamilton focuses on how code is structured *inside* a task, rather than how tasks are scheduled on a cluster.
 
 ## What problem it solves
-Hamilton helps teams structure feature engineering, data transformation, and AI data-preparation code as explicit, inspectable dataflows without requiring a heavyweight external scheduler. It is especially useful where the dependency graph should be derived from well-scoped Python functions and reused across notebooks, services, batch jobs, and orchestration systems.
+It solves the "unmaintainable spaghetti code" problem in data and ML pipelines. By mapping function names to output artifacts, Hamilton ensures that lineage is baked into the code, making it self-documenting, unit-testable, and easy to modify.
 
 ## Where it fits in the stack
-**Orchestration / Dataflow definition and execution layer**.
+**Micro-Orchestration / Dataflow Framework**. It sits between your raw Python code and your macro-orchestration layer.
 
 ## Typical use cases
-- Feature and metric computation pipelines.
-- Retrieval, ranking, and evaluation data preparation.
-- Reusable data transformation graphs embedded in services or batch jobs.
-- Documenting and visualizing dependencies between Python-derived datasets.
+- **Feature Engineering**: Creating complex, versioned features for ML models with clear lineage.
+- **LLM Pipelines**: Orchestrating prompt chains, retrieval steps, and model calls where logic needs to be modular and testable.
+- **Web Request Logic**: Breaking down complex API response generation into manageable, reusable functions.
+- **Interactive Notebooks**: Replacing monolithic notebook cells with structured Hamilton dataflows for better reproducibility.
 
 ## Strengths
-- Encourages small, testable Python functions.
-- Automatically builds a DAG from regular Python code.
-- Can complement rather than replace Airflow, Prefect, Dagster, or other schedulers.
-- Useful for lineage, visualization, and collaboration around transformation logic.
+- **Lineage as Code**: The DAG is defined by function signatures, making it impossible to have "hidden" dependencies.
+- **Infrastructure Agnostic**: Runs anywhere Python runs—from a local script to a Spark cluster or a Lambda function.
+- **Testability**: Every transformation is a standard Python function, making unit testing trivial.
+- **Visualization**: Built-in support for visualizing the dataflow DAG.
+- **Hamilton UI**: A dedicated interface for tracking, versioning, and monitoring dataflow executions.
 
 ## Limitations
-- It is not primarily a full platform scheduler like Airflow or Prefect.
-- Teams may still need an external orchestrator for deployment, scheduling, and retries.
-- Best suited to Python-centric transformation logic.
-- Less appropriate for broad SaaS or infrastructure automation.
+- **No Built-in Scheduler**: Requires an external system (Cron, Airflow, Prefect) for scheduling and resource management.
+- **Python Only**: Primarily focused on the Python ecosystem.
+- **Learning Curve**: Requires a shift in mindset from imperative scripts to declarative, function-based dataflows.
 
 ## When to use it
-- You want clear Python dataflow structure without a large platform migration.
-- Pipeline logic needs to run in multiple contexts: notebooks, APIs, and batch workflows.
-- You want function-level testability and dependency visibility.
+- When your data transformation or ML pipeline logic is becoming too complex to manage in a single script or notebook.
+- If you need clear data lineage and auditability for regulatory or debugging purposes.
+- When you want to reuse dataflow logic across different environments (e.g., local development vs. production).
 
 ## When not to use it
-- You need a complete workflow operations platform by itself.
-- Workflows are mostly shell, container, or SaaS integration tasks.
-- Your team does not use Python for transformation logic.
+- For very simple scripts where the overhead of defining functions feels unnecessary.
+- If you need a full-featured platform for scheduling, retries, and distributed worker management (use Airflow instead).
 
 ## Licensing and cost
-- **Open Source**: Yes (Apache License 2.0)
-- **Cost**: Free open-source framework; hosted DAGWorks/Hamilton UI has paid options.
-- **Self-hostable**: Yes for the open-source framework.
+- **Open Source**: Yes (BSD 3-Clause License)
+- **Cost**: Free
+- **Self-hostable**: Yes
+
+## Getting started
+
+### Installation
+```bash
+pip install sf-hamilton[visualization]
+```
+
+### Basic Example
+Define your dataflow in a module (e.g., `my_functions.py`):
+```python
+def spend(raw_marketing_data: dict) -> float:
+    return raw_marketing_data["spend"]
+
+def signups(raw_marketing_data: dict) -> int:
+    return raw_marketing_data["signups"]
+
+def cost_per_signup(spend: float, signups: int) -> float:
+    return spend / signups
+```
+
+Execute the dataflow:
+```python
+from hamilton import driver
+import my_functions
+
+dr = driver.Driver({}, my_functions)
+results = dr.execute(["cost_per_signup"], inputs={"raw_marketing_data": {"spend": 100, "signups": 10}})
+print(results)
+```
+
+## CLI examples
+Hamilton includes a CLI for project scaffolding and visualization.
+
+```bash
+# Visualize a dataflow defined in a module
+hamilton visualize my_functions --output dag.png
+
+# Scaffolding a new Hamilton project (if supported by community plugins)
+hamilton init my_new_project
+```
+
+## Python examples
+Hamilton's power comes from its Python API and drivers.
+
+```python
+from hamilton import driver
+from hamilton.plugins import h_matplotlib
+
+# Using a specialized driver for visualization or tracking
+dr = driver.Builder() \
+    .with_modules(my_functions) \
+    .with_adapter(h_matplotlib.MatplotlibWriter()) \
+    .build()
+
+# Execute and visualize inline (e.g., in Jupyter)
+dr.display_all_functions()
+```
 
 ## Related tools / concepts
-- [Dagster](dagster.md)
-- [Prefect](prefect.md)
-- [Apache Airflow](apache-airflow.md)
-- [Model Comparison & Evaluation](../../knowledge_base/model_comparison_and_evaluation.md)
+- [Apache Airflow](apache-airflow.md) — For macro-orchestration of Hamilton tasks.
+- [Dagster](dagster.md) — Another asset-centric orchestrator with similar philosophies.
+- [Burr](https://github.com/DAGWorks-Inc/burr) — For stateful agent loops and chatbots (complements Hamilton).
+- [Pandas](../frameworks/index.md) — Often used within Hamilton functions for data manipulation.
+- [Dask](../infrastructure/index.md) — Hamilton can run on Dask for distributed execution.
+- [Ray](../infrastructure/index.md) — Hamilton supports Ray for scaling dataflows.
+- [n8n](../../services/n8n.md) — For triggering Hamilton-based microservices.
 
-## Sources / References
-- [Official documentation](https://hamilton.dagworks.io/)
-- [DAGWorks documentation](https://docs.dagworks.io/)
-- [GitHub](https://github.com/apache/hamilton)
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-31
 - Confidence: high
+
+## Sources / References
+- [Hamilton Official Documentation](https://hamilton.dagworks.io/)
+- [GitHub Repository](https://github.com/dagworks-inc/hamilton)
+- [Hamilton UI](https://github.com/DAGWorks-Inc/hamilton-ui-dev)
+- [Burr: Stateful Python Applications](https://github.com/DAGWorks-Inc/burr)

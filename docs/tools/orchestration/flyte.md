@@ -1,58 +1,131 @@
 # Flyte
 
 ## What it is
-Flyte is an open-source workflow orchestration platform for AI, machine learning, and data workflows. It uses Python authoring with strongly typed tasks and workflows, while executing at scale on cloud or Kubernetes-backed infrastructure.
+Flyte is an open-source, container-native workflow orchestrator built on Kubernetes, specifically designed for machine learning and data processing at scale. As of May 2026, **Flyte 2.0** is the current major release, introducing a reimagined Python SDK, native async support, and a dedicated **Devbox** for local development.
 
 ## What problem it solves
-Flyte helps teams move ML and AI workflows from notebooks and scripts into reproducible, versioned, and scalable pipelines. It is designed for workloads where compute, data movement, caching, lineage, and reproducibility matter as much as the execution graph.
+It solves the challenges of reproducibility, scalability, and maintainability in ML pipelines. Flyte ensures that workflows are versioned, tasks are isolated in containers, and infrastructure (like GPUs) is provisioned dynamically. Flyte 2.0 further simplifies the developer experience by allowing "agentic" workflows to be constructed at runtime using native Python constructs.
 
 ## Where it fits in the stack
-**Orchestration / AI and ML workflow platform**.
+**Orchestration / ML Platform**. It acts as the backbone for large-scale AI and data platforms, sitting on top of Kubernetes.
 
 ## Typical use cases
-- Model training and evaluation pipelines.
-- Batch inference, data processing, and feature generation.
-- Agentic or long-running AI workflows that need durable execution and infrastructure awareness.
-- Reproducible experimentation that later runs at production scale.
+- **Large-Scale ML Training**: Orchestrating distributed training jobs across hundreds of GPUs (including NVIDIA H100 support).
+- **Agentic Workflows**: Using Flyte 2.0's dynamic orchestration to build self-healing AI systems that make decisions at runtime.
+- **Data Engineering**: Running complex ETL pipelines with strong type safety and task-level caching.
+- **Bioinformatics**: Processing massive datasets with strict auditability and reproducibility requirements.
 
 ## Strengths
-- Python-first authoring with typed interfaces.
-- Designed for ML and AI workloads rather than only generic scheduling.
-- Strong reproducibility, caching, and versioning model.
-- Can bridge local development and scalable production execution.
+- **Flyte 2.0 SDK**: A more intuitive, Pythonic API that supports `asyncio` for parallelism and standard `try-except` for error handling.
+- **Strong Typing**: Interfaces are strictly typed, catching errors at compile-time (or registration-time) rather than runtime.
+- **Dynamic Infrastructure**: Fine-grained resource allocation (CPU, Mem, GPU) per task.
+- **Reproducibility**: Every execution is versioned and reproducible, with built-in task-level caching.
+- **Flyte Decks**: Interactive visualizations of task outputs (e.g., plots, data summaries) directly in the UI.
 
 ## Limitations
-- Platform setup can be heavier than lightweight local orchestrators.
-- Best value appears when teams already need production ML infrastructure.
-- Less useful for simple office automation or SaaS app chaining.
-- Requires learning Flyte concepts and operational model.
+- **Kubernetes Native**: Requires a K8s cluster for full production features, though Flyte 2.0 Devbox significantly improves local testing.
+- **Learning Curve**: The concept of strongly-typed workflows and registration can be unfamiliar to users used to imperative scripts.
+- **Platform Overhead**: Managing a full Flyte installation (Admin, Propeller, DataCatalog) requires dedicated DevOps effort.
 
 ## When to use it
-- You need production-grade AI or ML pipelines with strong reproducibility.
-- Workloads need scalable infrastructure and clear artifact lineage.
-- Python developers need a path from local workflow development to production.
+- You are building production-grade ML pipelines that need to scale to thousands of containers.
+- You require strict reproducibility and auditability of your data and model versions.
+- You want to leverage Kubernetes' resource management for heterogeneous workloads (CPU vs. GPU).
 
 ## When not to use it
-- You only need scheduled scripts or small automations.
-- Your organization is not ready to operate an ML workflow platform.
-- A visual SaaS automation builder would serve the users better.
+- For simple, lightweight automation where a single machine or a basic orchestrator (like Hamilton) is sufficient.
+- If you don't have access to or the expertise to manage a Kubernetes cluster.
 
 ## Licensing and cost
 - **Open Source**: Yes (Apache License 2.0)
-- **Cost**: Free open-source edition; paid enterprise platform available through Union.ai.
+- **Cost**: Free self-hosted; paid managed offerings (Union.ai).
 - **Self-hostable**: Yes
 
-## Related tools / concepts
-- [Dagster](dagster.md)
-- [Argo Workflows](argo-workflows.md)
-- [ZenML](zenml.md)
-- [Kubernetes (K3s)](../infrastructure/k3s.md)
+## Getting started
 
-## Sources / References
-- [Official website](https://flyte.org/)
-- [Official documentation](https://docs.flyte.org/)
-- [GitHub](https://github.com/flyteorg/flyte)
+### Flyte 2.0 Devbox (Local)
+The Devbox provides a full Flyte backend and UI on your local machine:
+
+```bash
+# Install the Flyte 2 CLI
+curl -sL https://ctl.flyte.org/install | bash
+
+# Start the Devbox
+flyte dev start
+```
+Access the UI at `http://localhost:3000`.
+
+### Basic Flyte 2.0 Example
+Flyte 2.0 moves away from `@workflow` in favor of `TaskEnvironment`:
+
+```python
+import flyte
+
+# Define an environment
+env = flyte.TaskEnvironment(name="my_env")
+
+@env.task
+async def greet(name: str) -> str:
+    return f"Hello, {name}!"
+
+@env.task
+async def main(name: str) -> str:
+    message = await greet(name)
+    return message.upper()
+
+if __name__ == "__main__":
+    # Local execution
+    flyte.init_from_config()
+    result = flyte.run(main, name="Flyte 2.0")
+    print(result.wait())
+```
+
+## CLI examples
+The `flyte` CLI manages tasks, workflows, and executions.
+
+```bash
+# Register an app (workflow) to the backend
+flyte register my_app.py --project my_project --domain development
+
+# Execute a task or workflow on the cluster
+flyte run my_app.py main --name "Production Run"
+
+# List executions in a project
+flyte list execution --project my_project --domain development
+
+# Fetch logs for a specific execution
+flyte get execution <execution_id> --show-logs
+```
+
+## API examples
+Flyte 2.0 exposes a gRPC and REST API for programmatic interaction.
+
+```bash
+# Health check via REST
+curl -X GET "http://flyte-admin:8088/api/v1/health"
+
+# List projects via API
+curl -X GET "http://flyte-admin:8088/api/v1/projects"
+```
+
+## Related tools / concepts
+- [Union.ai](https://www.union.ai/) — The enterprise platform powered by Flyte.
+- [Argo Workflows](argo-workflows.md) — The underlying workflow engine often compared with Flyte.
+- [Apache Airflow](apache-airflow.md) — For general-purpose batch orchestration.
+- [Dagster](dagster.md) — For asset-centric data orchestration.
+- [NVIDIA](../providers/nvidia.md) — Flyte 2.0 has first-class support for H100 GPUs.
+- [Kubernetes](../infrastructure/index.md) — The required runtime for Flyte production clusters.
+- [OpenTelemetry](../benchmarking/index.md) — For tracing Flyte 2.0 executions.
+
+## Backlog
+- [ ] Perform quarterly technical freshness audit.
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-06
+- Last reviewed: 2026-05-31
 - Confidence: high
+
+## Sources / References
+- [Flyte Official Documentation](https://docs.flyte.org/)
+- [Union.ai: Flyte 2.0 Migration Guide](https://www.union.ai/docs/v2/flyte/user-guide/migration/flyte-2/)
+- [Flyte 2.0 OSS Announcement](https://www.union.ai/blog-post/flyte-2-oss-now-available-for-local-execution)
+- [GitHub Repository](https://github.com/flyteorg/flyte)
