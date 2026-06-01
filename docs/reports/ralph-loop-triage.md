@@ -39,12 +39,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 37** | Knowledge Base Deepening | **Verified & Closed** | Deepened learning map, builder index, starter stack, economic impact, reading list. Verified 2026-06-01. |
 | **Batch 38** | Playbook Deepening | **Verified & Closed** | Deepened dev workflow, doc prep, email-to-calendar, family admin, NFS CSI setup. Verified 2026-06-01. |
 | **Batch 39** | Knowledge Base Deepening | **Verified & Closed** | Deepened ai_signal_sources, agent_protocols, and ai_tool_access_matrix. Verified 2026-06-01. |
-| **Batch 40** | Playbook Deepening | **Resolved** | Deepened raspberry-pi-kiosk-automation and scan-to-task. |
+| **Batch 40** | Playbook Deepening | **Verified & Closed** | Deepened raspberry-pi-kiosk-automation and scan-to-task. Verified 2026-06-01. |
 | **Batch 41** | Maintenance Run (Audit Resolution) | **Verified & Closed** | 100% compliance achieved across 486/486 docs (2026-05-12). |
-| **Batch 44** | Maintenance Run (Oldest Backlog) | **Resolved** | Deepened `standards.md`, `logseq.md`, etc. (2026-05-14). |
-| **Batch 45** | Maintenance Run (Oldest Backlog) | **Resolved** | Deepened `llama-cpp.md`, `llm-trust-boundaries.md`, etc. (2026-05-14). |
-| **Batch 46** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `obsidian.md`, `make.md`, `zapier.md`, etc. (2026-05-14). |
-| **Batch 47** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `human-eval.md`, `gsm8k.md`, `chatbot-arena.md`, etc. (2026-05-14). |
+| **Batch 44** | Maintenance Run (Oldest Backlog) | **Verified & Closed** | Deepened `standards.md`, `logseq.md`, etc. Verified 2026-06-01. |
+| **Batch 45** | Maintenance Run (Oldest Backlog) | **Verified & Closed** | Deepened `llama-cpp.md`, `llm-trust-boundaries.md`, etc. Verified 2026-06-01. |
+| **Batch 46** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `obsidian.md`, `make.md`, `zapier.md`, etc. Verified 2026-06-01. |
+| **Batch 47** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `human-eval.md`, `gsm8k.md`, `chatbot-arena.md`, etc. Verified 2026-06-01. |
 | **Batch 48** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `humanitys-last-exam.md`, `llmperf.md`, `lm-evaluation-harness.md`, etc. (2026-05-14). |
 | **Batch 49** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `zse.md`, `openrouter.md`, `llamaindex.md`, `flowise.md`, `localai.md` (2026-05-14). |
 | **Batch 50** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `ragflow.md`, `mycelium.md`, `codeium.md`, `sourcegraph_cody.md`, `terminus-2.md` (2026-05-14). |
