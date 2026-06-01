@@ -84,5 +84,5 @@ flowchart LR
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-01
 - Confidence: high

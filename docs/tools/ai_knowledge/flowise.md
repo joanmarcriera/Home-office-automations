@@ -105,5 +105,5 @@ curl -X POST "http://localhost:3000/api/v1/prediction/<CHATFLOW_ID>" \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high

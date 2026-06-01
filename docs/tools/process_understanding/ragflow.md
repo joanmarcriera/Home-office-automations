@@ -114,5 +114,5 @@ RAGFlow can be integrated into n8n using the **HTTP Request** node to trigger do
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high

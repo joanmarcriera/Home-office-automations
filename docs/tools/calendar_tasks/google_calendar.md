@@ -106,5 +106,5 @@ The **Google Calendar** node in n8n supports:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-20
+- Last reviewed: 2026-06-01
 - Confidence: high

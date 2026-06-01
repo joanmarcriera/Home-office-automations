@@ -45,11 +45,11 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 45** | Maintenance Run (Oldest Backlog) | **Verified & Closed** | Deepened `llama-cpp.md`, `llm-trust-boundaries.md`, etc. Verified 2026-06-01. |
 | **Batch 46** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `obsidian.md`, `make.md`, `zapier.md`, etc. Verified 2026-06-01. |
 | **Batch 47** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `human-eval.md`, `gsm8k.md`, `chatbot-arena.md`, etc. Verified 2026-06-01. |
-| **Batch 48** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `humanitys-last-exam.md`, `llmperf.md`, `lm-evaluation-harness.md`, etc. (2026-05-14). |
-| **Batch 49** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `zse.md`, `openrouter.md`, `llamaindex.md`, `flowise.md`, `localai.md` (2026-05-14). |
-| **Batch 50** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `ragflow.md`, `mycelium.md`, `codeium.md`, `sourcegraph_cody.md`, `terminus-2.md` (2026-05-14). |
-| **Batch 51** | Maintenance Run (Technical Deepening) | **Resolved** | Deepening `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, etc. (2026-05-15). |
-| **Batch 52** | Maintenance Run (Technical Deepening) | **Resolved** | Deepened `custom_agents.md`, `droid.md`, `gpt_engineer.md`, etc. (2026-05-15). |
+| **Batch 48** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `humanitys-last-exam.md`, `llmperf.md`, `lm-evaluation-harness.md`, etc. Verified 2026-06-01. |
+| **Batch 49** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `zse.md`, `openrouter.md`, `llamaindex.md`, `flowise.md`, `localai.md`. Verified 2026-06-01. |
+| **Batch 50** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `ragflow.md`, `mycelium.md`, `codeium.md`, `sourcegraph_cody.md`, `terminus-2.md`. Verified 2026-06-01. |
+| **Batch 51** | Maintenance Run (Technical Deepening) | **Verified & Closed** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, etc. Verified 2026-06-01. |
+| **Batch 52** | Maintenance Run (Technical Deepening) | **Verified & Closed** | Deepened `custom_agents.md`, `droid.md`, `gpt_engineer.md`, etc. Verified 2026-06-01. |
 | **Batch 53** | Maintenance Run (Technical Deepening) | **Resolved** | Deepened `mentat.md`, `openswarm.md`, `plandex.md`, etc. (2026-05-15). |
 | **Batch 54** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `tabnine.md`, `vscode.md`, `zed.md`, etc. (2026-05-15). |
 | **Batch 55** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `free-will-mcp.md`, `continue_dev.md`, etc. (2026-05-15). |

@@ -72,6 +72,7 @@ Your code should pass these tests:
 - [LM Evaluation Harness](lm-evaluation-harness.md) - The framework used to run MBPP.
 - [HLE (Humanity's Last Exam)](humanitys-last-exam.md) - Frontier difficulty reasoning.
 - [MMLU](mmlu.md) - General knowledge benchmark.
+- [LiveCodeBench](livecodebench.md) - Contamination-free coding benchmark.
 
 ## Sources / references
 - [MBPP GitHub Repository (Google Research)](https://github.com/google-research/google-research/tree/master/mbpp)
@@ -80,5 +81,5 @@ Your code should pass these tests:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high

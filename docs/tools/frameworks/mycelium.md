@@ -98,5 +98,5 @@ While Mycelium is code-first, it can be triggered from n8n to handle complex sub
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high
