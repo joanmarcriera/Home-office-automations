@@ -24,11 +24,11 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **#506** | Jules Sprint W3 | **Verified & Closed** | Deepened SearXNG and Syncthing to 'High Confidence'. |
 | **#529** | Daily Maintenance Run (2026-05-07) | **Verified & Closed** | Step 2 (Doc audit) completed for W4 tools. |
 | **#530** | [W4] Jules Sprint (AI Knowledge) | **Verified & Closed** | Deepened gemini-macos, vercel-ai-gateway, and claude-mythos. |
-| **Batch 21** | Weekly deepening: AI Knowledge | **Resolved** | DeepSeek R1, Perplexity, AnythingLLM, LobeHub, and Dify deepened. |
-| **Batch 23** | Weekly deepening: Infrastructure | **Resolved** | LM Studio, Jan.ai, Msty, Google Gemini, and LibreChat deepened. |
-| **Batch 24** | Weekly deepening: Services | **Resolved** | Paperless-ngx, SearXNG, Plex, qBittorrent, and Radicale deepened. |
-| **Batch 27** | Weekly deepening: Services | **Resolved** | Actual Budget, Audiobookshelf, Authentik, Changedetection.io, and Diskover deepened. |
-| **Batch 28** | Weekly deepening: Services | **Resolved** | Deepened drawio, element, excalidraw, focalboard, gitea. |
+| **Batch 21** | Weekly deepening: AI Knowledge | **Verified & Closed** | DeepSeek R1, Perplexity, AnythingLLM, LobeHub, and Dify deepened. Verified 2026-06-01. |
+| **Batch 23** | Weekly deepening: Infrastructure | **Verified & Closed** | LM Studio, Jan.ai, Msty, Google Gemini, and LibreChat deepened. Verified 2026-06-01. |
+| **Batch 24** | Weekly deepening: Services | **Verified & Closed** | Paperless-ngx, SearXNG, Plex, qBittorrent, and Radicale deepened. Verified 2026-06-01. |
+| **Batch 27** | Weekly deepening: Services | **Verified & Closed** | Actual Budget, Audiobookshelf, Authentik, Changedetection.io, and Diskover deepened. Verified 2026-06-01. |
+| **Batch 28** | Weekly deepening: Services | **Verified & Closed** | Deepened drawio, element, excalidraw, focalboard, gitea. Verified 2026-06-01. |
 | **Batch 29** | Weekly deepening: Services | **Resolved** | Deepened `grocy.md`, `habitica.md`, `home-assistant.md`, `homebox.md`, `it-tools.md`. |
 | **Batch 30** | Weekly deepening: Services | **Resolved** | Deepened `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`. |
 | **Batch 31** | Weekly deepening: Services | **Resolved** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. |
