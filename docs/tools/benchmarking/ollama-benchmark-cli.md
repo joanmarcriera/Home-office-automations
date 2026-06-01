@@ -81,5 +81,5 @@ time curl -X POST http://localhost:11434/api/generate \
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high

@@ -82,5 +82,5 @@ You can customize Cody's behavior for your project using a `.vscode/cody.json` f
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high

@@ -103,5 +103,5 @@ prompt = f"You are a system admin. Use 'exec <command>' to run shell commands. O
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-01
 - Confidence: high

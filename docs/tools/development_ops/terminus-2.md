@@ -88,5 +88,5 @@ Terminus 2 uses a specific system prompt to guide the LLM's terminal interaction
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high

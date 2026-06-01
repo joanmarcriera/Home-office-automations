@@ -74,5 +74,5 @@ Anti-Gravity allows defining project-level constraints and standards via "Rules"
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-20
+- Last reviewed: 2026-06-01
 - Confidence: high

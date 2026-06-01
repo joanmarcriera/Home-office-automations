@@ -74,5 +74,5 @@ Confidence: {0-100%}
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-01
 - Confidence: high
