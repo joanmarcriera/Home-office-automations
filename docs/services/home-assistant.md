@@ -119,6 +119,9 @@ curl -X GET \
 - [Authentik](authentik.md) — for managing secure SSO access to your HA instance
 - [Tailscale](tailscale.md) — for secure remote access to your Home Assistant dashboard
 - [n8n](n8n.md) — for complex automations that bridge HA with external web services
+- [Immich](immich.md) — for displaying local photo galleries on HA dashboards
+- [Paperless-ngx](paperless-ngx.md) — for managing physical manuals and warranties for HA-controlled devices
+- [SearXNG](searXNG.md) — for privacy-respecting web search within the Assist interface
 
 ## Backlog
 - [x] Perform quarterly technical freshness audit (May 2026).

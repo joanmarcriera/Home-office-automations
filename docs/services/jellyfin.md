@@ -143,6 +143,8 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 - [Tailscale](tailscale.md) — for secure remote access to your Jellyfin server without port forwarding
 - [Radarr/Sonarr](https://servarr.com/) — for automating the collection management that Jellyfin serves
 - [Jellyseerr](https://jellyseerr.dev/) — for managing media requests and discovery.
+- [Authentik](authentik.md) — For centralized authentication and SSO.
+- [Nextcloud](nextcloud.md) — For storing and organizing media files.
 
 ### Gelli (Android Music)
 [Gelli](https://github.com/dkanada/gelli) is a native Android music player for Jellyfin. It provides a more music-centric interface compared to the main Jellyfin app, supporting offline downloads and Android Auto.
