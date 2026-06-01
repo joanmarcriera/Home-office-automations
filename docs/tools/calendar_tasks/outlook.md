@@ -32,10 +32,40 @@ Provides professional-grade scheduling, meeting management, and resource booking
 - When looking for a local-first or open-source solution
 
 ## Getting started
+To begin using Outlook Calendar programmatically or via CLI:
+1. Ensure you have a Microsoft 365 or Outlook.com account.
+2. For CLI usage, install the **CLI for Microsoft 365**:
+   ```bash
+   npm install -g @pnp/cli-microsoft365
+   ```
+3. **Hello-world example**: Log in to your account via the CLI:
+   ```bash
+   m365 login
+   ```
+4. Follow the on-screen instructions to authenticate in your browser.
 
-### Microsoft Graph API (Python)
-To interact with Outlook Calendar programmatically, use the `MSAL` library for authentication and the Graph API.
+## CLI examples
+The **CLI for Microsoft 365** provides comprehensive commands for managing Outlook.
 
+### List upcoming events
+```bash
+m365 outlook event list
+```
+
+### Add a new event
+```bash
+m365 outlook event add --subject "AI Sync" --start "2026-06-01T10:00:00" --end "2026-06-01T11:00:00"
+```
+
+### Remove an event
+```bash
+m365 outlook event remove --id "EVENT_ID" --force
+```
+
+## API examples
+To interact with Outlook Calendar programmatically, use the `MSAL` library for authentication and the Microsoft Graph API.
+
+### Create an event (Python)
 ```python
 import msal
 import requests

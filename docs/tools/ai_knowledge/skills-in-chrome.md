@@ -31,6 +31,16 @@ It simplifies the execution of recurring AI-driven tasks by allowing them to be 
 - For complex, multi-step agentic workflows that require external tool access beyond the browser.
 - If you prefer to use non-Chromium browsers.
 
+## Getting started
+> [!NOTE]
+> Skills in Chrome is a built-in consumer feature of Google Chrome and does not have official developer documentation, CLI, or a public API.
+
+There is no separate installation required. To use it:
+1. Open Google Chrome and sign in to your Google account.
+2. Open the Gemini side panel or type `@gemini` in the address bar.
+3. **Hello-world example**: Type a prompt like "Summarize the key points of this page" and, once the response is generated, click the **Save as Skill** button to store it for one-click access later.
+4. Access your saved skills anytime by typing `/` in the Gemini chat box.
+
 ## Related tools / concepts
 - [HoloTab](holotab.md)
 - [Claude Plugins](../development_ops/claude-plugins.md)
