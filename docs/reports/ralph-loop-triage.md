@@ -34,11 +34,11 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 31** | Weekly deepening: Services | **Verified & Closed** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. Verified 2026-06-01. |
 | **Batch 32** | Weekly deepening: Services | **Verified & Closed** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. Verified 2026-06-01. |
 | **Batch 33** | Weekly deepening: AI Knowledge | **Verified & Closed** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`, `google-search.md`, `dex.md`. Verified 2026-06-01. |
-| **Batch 34** | Weekly deepening: Knowledge Mgmt | **Resolved** | Deepened `anytype.md`, `silverbullet.md`, `akiflow.md`, `morgen.md`, `component_map.md`. |
-| **Batch 36** | Architecture Deepening | **Resolved** | Deepened `flows.md`, `infrastructure.md`, `prompt-catalogue.md`. |
-| **Batch 37** | Knowledge Base Deepening | **Resolved** | Deepened learning map, builder index, starter stack, economic impact, reading list. |
-| **Batch 38** | Playbook Deepening | **Resolved** | Deepened dev workflow, doc prep, email-to-calendar, family admin, NFS CSI setup. |
-| **Batch 39** | Knowledge Base Deepening | **Resolved** | Deepened ai_signal_sources, agent_protocols, and ai_tool_access_matrix. |
+| **Batch 34** | Weekly deepening: Knowledge Mgmt | **Verified & Closed** | Deepened `anytype.md`, `silverbullet.md`, `akiflow.md`, `morgen.md`, `component_map.md`. Verified 2026-06-01. |
+| **Batch 36** | Architecture Deepening | **Verified & Closed** | Deepened `flows.md`, `infrastructure.md`, `prompt-catalogue.md`. Verified 2026-06-01. |
+| **Batch 37** | Knowledge Base Deepening | **Verified & Closed** | Deepened learning map, builder index, starter stack, economic impact, reading list. Verified 2026-06-01. |
+| **Batch 38** | Playbook Deepening | **Verified & Closed** | Deepened dev workflow, doc prep, email-to-calendar, family admin, NFS CSI setup. Verified 2026-06-01. |
+| **Batch 39** | Knowledge Base Deepening | **Verified & Closed** | Deepened ai_signal_sources, agent_protocols, and ai_tool_access_matrix. Verified 2026-06-01. |
 | **Batch 40** | Playbook Deepening | **Resolved** | Deepened raspberry-pi-kiosk-automation and scan-to-task. |
 | **Batch 41** | Maintenance Run (Audit Resolution) | **Verified & Closed** | 100% compliance achieved across 486/486 docs (2026-05-12). |
 | **Batch 44** | Maintenance Run (Oldest Backlog) | **Resolved** | Deepened `standards.md`, `logseq.md`, etc. (2026-05-14). |
