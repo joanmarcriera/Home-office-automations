@@ -200,6 +200,10 @@ if ids:
 - [Lidarr](https://lidarr.audio/)
 - [MusicBrainz](https://musicbrainz.org/)
 - [Subsonic API](http://www.subsonic.org/pages/api.jsp)
+- [Tailscale](tailscale.md) — For secure remote access to your music library.
+- [Authentik](authentik.md) — For centralized authentication and SSO.
+- [Nextcloud](nextcloud.md) — For storing and organizing music files.
+- [n8n](n8n.md) — For automating playlist curation based on external data.
 
 ## Backlog
 - [x] Perform quarterly technical freshness audit (May 2026).

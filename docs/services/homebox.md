@@ -47,6 +47,9 @@ It is a **Standalone Service** in the home automation stack, typically deployed 
 - [Paperless-ngx](paperless-ngx.md)
 - [Immich](immich.md)
 - [Nextcloud](nextcloud.md)
+- [Tailscale](tailscale.md) — for secure remote access to your inventory
+- [Authentik](authentik.md) — for securing Homebox with SSO
+- [Rclone Automation](rclone-automation.md) — for automated off-site backups of the Homebox database
 
 ## Getting started
 

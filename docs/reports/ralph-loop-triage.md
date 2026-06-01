@@ -29,11 +29,11 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 24** | Weekly deepening: Services | **Verified & Closed** | Paperless-ngx, SearXNG, Plex, qBittorrent, and Radicale deepened. Verified 2026-06-01. |
 | **Batch 27** | Weekly deepening: Services | **Verified & Closed** | Actual Budget, Audiobookshelf, Authentik, Changedetection.io, and Diskover deepened. Verified 2026-06-01. |
 | **Batch 28** | Weekly deepening: Services | **Verified & Closed** | Deepened drawio, element, excalidraw, focalboard, gitea. Verified 2026-06-01. |
-| **Batch 29** | Weekly deepening: Services | **Resolved** | Deepened `grocy.md`, `habitica.md`, `home-assistant.md`, `homebox.md`, `it-tools.md`. |
-| **Batch 30** | Weekly deepening: Services | **Resolved** | Deepened `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`. |
-| **Batch 31** | Weekly deepening: Services | **Resolved** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. |
-| **Batch 32** | Weekly deepening: Services | **Resolved** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. |
-| **Batch 33** | Weekly deepening: AI Knowledge | **Resolved** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`, `google-search.md`, `dex.md`. |
+| **Batch 29** | Weekly deepening: Services | **Verified & Closed** | Deepened `grocy.md`, `habitica.md`, `home-assistant.md`, `homebox.md`, `it-tools.md`. Verified 2026-06-01. |
+| **Batch 30** | Weekly deepening: Services | **Verified & Closed** | Deepened `jackett.md`, `jellyfin.md`, `kiwix.md`, `linkwarden.md`, `mealie.md`. Verified 2026-06-01. |
+| **Batch 31** | Weekly deepening: Services | **Verified & Closed** | Deepened `navidrome.md`, `nextcloud.md`, `omni-tools.md`, `portracker.md`, `tika.md`. Verified 2026-06-01. |
+| **Batch 32** | Weekly deepening: Services | **Verified & Closed** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. Verified 2026-06-01. |
+| **Batch 33** | Weekly deepening: AI Knowledge | **Verified & Closed** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`, `google-search.md`, `dex.md`. Verified 2026-06-01. |
 | **Batch 34** | Weekly deepening: Knowledge Mgmt | **Resolved** | Deepened `anytype.md`, `silverbullet.md`, `akiflow.md`, `morgen.md`, `component_map.md`. |
 | **Batch 36** | Architecture Deepening | **Resolved** | Deepened `flows.md`, `infrastructure.md`, `prompt-catalogue.md`. |
 | **Batch 37** | Knowledge Base Deepening | **Resolved** | Deepened learning map, builder index, starter stack, economic impact, reading list. |
