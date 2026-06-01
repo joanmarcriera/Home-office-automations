@@ -1,44 +1,44 @@
 # Gemini
 
 ## What it is
-Gemini is Google's most capable and general family of AI models, built to be natively multimodal from the ground up. It powers a wide range of Google products and is available for developers to build upon.
+Gemini is Google's most capable and general family of AI models, built to be natively multimodal from the ground up. As of June 2026, the series includes the frontier-tier **Gemini 3.5 Flash** and **Gemini 3.1 Pro**, alongside the speed-optimized **Gemini 3.1 Flash-Lite**.
 
 ## What problem it solves
-Gemini provides a highly integrated AI experience across the Google ecosystem. It excels at processing and reasoning across different types of information, including text, code, audio, image, and video. Its massive context window (up to 2 million tokens in some versions) enables unique use cases like analyzing hours of video or massive codebases.
+Gemini provides a highly integrated AI experience across the Google ecosystem. It excels at processing and reasoning across different types of information, including text, code, audio, image, and video. Its massive context window (up to 2 million tokens) enables unique use cases like analyzing hours of video or massive codebases.
 
 ## Where it fits in the stack
 AI Model and Multimodal Assistant. Available via Gemini (web/app), Google AI Studio, and Google Cloud Vertex AI.
 
 ## Typical use cases
-- Multimodal analysis (e.g., "What is happening in this video?").
-- Large-scale codebase analysis and refactoring.
-- Integration with Google Workspace (Docs, Gmail, Drive, Sheets).
-- Building applications that require massive context windows.
+- **Multimodal analysis**: Analyzing video, audio, and images natively (e.g., "Summarize the events in this security footage").
+- **Large-scale codebase analysis**: Refactoring and documenting massive repositories using the 2M token context window.
+- **Agentic Workflows**: Using Gemini 3.5 Flash for high-speed tool use and autonomous reasoning via the **Antigravity Agent** platform.
+- **Production RAG**: High-efficiency retrieval augmented generation with Flash-tier models.
 
 ## Strengths
-- **Multimodality**: Natively designed to handle diverse data types.
-- **Massive Context**: Currently offers the largest context windows in the industry.
-- **Google Integration**: Deeply integrated with Google's search and productivity tools.
-- **Efficiency**: The "Flash" and "Flash-Lite" variants offer high speed and low cost for their capability level.
+- **Native Multimodality**: Built from the ground up to handle text, images, video, and audio simultaneously.
+- **Industry-Leading Context Window**: 1M+ tokens standard across the Pro and Flash 3.x series.
+- **Managed Agents**: (New for 2026) Support for stateful, autonomous agents running in secure sandboxes.
+- **Speed**: Gemini 3.5 Flash offers 4x output speed compared to previous generation Pro models while maintaining frontier-level intelligence.
 
 ## Limitations
-- **Consistency**: Performance can vary significantly between the Ultra, Pro, and Flash versions.
-- **Privacy Concerns**: Being a Google product, data usage policies are a key consideration for some users.
-- **Closed Source**: Proprietary models.
+- **Consistency**: Performance can vary between different model tiers (Flash vs. Pro).
+- **Privacy**: Proprietary models with specific data handling policies that may not suit all enterprise or local-first use cases.
+- **Closed Ecosystem**: Integration is deepest within Google services.
 
 ## When to use it
-- When you need to process extremely long documents or videos.
-- When you need native multimodal capabilities (text + image + video).
-- When you are already heavily invested in the Google ecosystem.
+- When you need to process extremely long documents or multiple hours of video.
+- When building autonomous agents that require high-speed tool calling (MCP support).
+- For native video-to-image or video-to-text generation tasks.
 
 ## When not to use it
-- If you prefer a more privacy-centric, local approach.
-- If you require the specific reasoning style of Claude or GPT-4o.
+- If you require a fully local, air-gapped solution (use Gemma or Llama 3 via Ollama instead).
+- If your workload is primarily small-context, high-reasoning text where Claude 3.5 Sonnet may have an edge.
 
 ## Getting started
 
-### Python API Example (Gemini 1.5 Pro)
-Google's Generative AI SDK provides a straightforward way to interact with Gemini models, including support for massive context windows and multimodal inputs.
+### Python API Example (Gemini 3.5 Flash)
+Google's Generative AI SDK (v0.8.x+) supports the latest Gemini 3.5 features, including managed agents and advanced multimodal inputs.
 
 ```python
 import google.generativeai as genai
@@ -47,29 +47,35 @@ import os
 # Configure the SDK
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
-# Initialize the model
-model = genai.GenerativeModel('gemini-1.5-pro')
+# Initialize the model (using the May 2026 GA version)
+model = genai.GenerativeModel('gemini-3.5-flash')
 
-# Generate content
-response = model.generate_content("Explain the benefits of a 2-million token context window for a developer.")
+# Generate content with massive context
+response = model.generate_content("Analyze this 1,000-page technical specification and find all security vulnerabilities.")
 
 print(response.text)
 
-# Multimodal Example (Image + Text)
-# sample_file = genai.upload_file(path="dashboard_screenshot.png")
-# response = model.generate_content([sample_file, "Extract the key metrics from this dashboard."])
+# Multimodal Video Example
+# video_file = genai.upload_file(path="tutorial_video.mp4")
+# response = model.generate_content([video_file, "Summarize the key steps in this tutorial."])
 # print(response.text)
 ```
 
+## Managed Agents & Antigravity (2026)
+Google's **Managed Agents** platform (released May 2026) allows developers to deploy autonomous agents like the **Antigravity Agent**. These agents:
+- Run in secure, isolated Google-hosted Linux sandboxes.
+- Can plan, reason, execute code, and browse the web autonomously.
+- Are orchestrated via the Gemini API using the `antigravity-preview` model ID.
+
 ## Licensing and cost
 - **Open Source**: No (Proprietary).
-- **Cost**: Free tier (Gemini); paid "Advanced" subscription; API usage with a generous free tier in Google AI Studio.
+- **Cost**: Free tier available in Google AI Studio; Pay-as-you-go for Gemini API and Vertex AI.
 - **Self-hostable**: No.
 
 ## Related tools / concepts
 - [ChatGPT](chatgpt.md)
 - [Claude](claude.md)
-- [Ollama](../../services/ollama.md) (for running Gemini's open-weight counterpart, Gemma)
+- [Ollama](../../services/ollama.md) (for running Gemma)
 - [Google Search](google-search.md)
 - [NotebookLM](notebooklm.md)
 - [Gemini for macOS](gemini-macos.md)
@@ -79,15 +85,16 @@ print(response.text)
 - [LangChain](../frameworks/langchain.md)
 - [LlamaIndex](../frameworks/llamaindex.md)
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [Antigravity Agent](antigravity-agent.md)
+- [Managed Agents Overview](managed-agents.md)
 
 ## Sources / References
 - [Official Website](https://gemini.google.com/)
-- [Gemini 3.1 Flash-Lite](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/)
-- [Gemini in Google Sheets](https://blog.google/products-and-platforms/products/workspace/gemini-google-sheets-state-of-the-art/)
-- [Gemini for Heart Health (Australia)](https://blog.google/products-and-platforms/products/ai/gemini-rural-health-australia/)
+- [Gemini API Release Notes (May 2026)](https://ai.google.dev/gemini-api/docs/changelog)
+- [Announcing Gemini 3.5 Flash](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5-flash-announcement/)
 - [Google AI Studio](https://aistudio.google.com/)
-- [Gemini Documentation](https://ai.google.dev/docs)
+- [Antigravity Agent Guide](https://ai.google.dev/gemini-api/docs/antigravity)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-01
 - Confidence: high

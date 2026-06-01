@@ -1,7 +1,7 @@
 # ripgrep (rg)
 
 ## What it is
-ripgrep (rg) is a line-oriented search tool that recursively searches your current directory for a regex pattern while respecting your gitignore.
+ripgrep (rg) is a line-oriented search tool that recursively searches your current directory for a regex pattern while respecting your gitignore. As of June 2026, **v14.1.1** is the widely used stable version in production environments.
 
 ## What problem it solves
 It provides extremely fast searching capabilities across large codebases. It is often used by AI agents to quickly find relevant code blocks or configuration files within a repository.
@@ -14,19 +14,22 @@ It provides extremely fast searching capabilities across large codebases. It is 
 - Filtering files by type or content.
 - Integration into IDEs or AI agents for codebase navigation.
 - Building repeatable repository discovery commands for coding agents before edits begin.
+- **Multi-line search**: Finding patterns that span across multiple lines using the `-U` flag.
 
 ## Strengths
 - **Performance**: Often faster than other search tools like `grep`, `ack`, or `ag`.
 - **Smart Defaults**: Respects `.gitignore` and ignores hidden files/binary files by default.
 - **Cross-platform**: Works on Windows, macOS, and Linux.
+- **Multi-line Support**: Robust support for multi-line regex searching.
 
 ## Limitations
 - **CLI-focused**: Primarily a command-line tool, though libraries and integrations exist.
-- **Not for Binary Analysis**: Designed for text files, not suitable for searching inside binary blobs.
+- **Binary Files**: While it can search binary files with `-a`, it is optimized for text files and may produce garbled output if used incorrectly on binaries.
 
 ## When to use it
 - When you need to find text in a large project quickly.
 - When building tools that need to provide search functionality to an AI agent.
+- For complex searches requiring PCRE2 support (`-P`).
 
 ## When not to use it
 - For simple searches in a single, small file where standard `grep` is already available.
@@ -39,6 +42,9 @@ rg "FastAPI"
 
 # Search for "TODO" in .md files only
 rg -t md "TODO"
+
+# Multi-line search for a class with a specific decorator
+rg -U "\[decorator\]\nclass .*:"
 
 # Search and replace (using sed-like output)
 rg 'pattern' --replace 'replacement'
@@ -79,6 +85,9 @@ brew install ripgrep
 
 # Ubuntu/Debian
 sudo apt-get install ripgrep
+
+# Rust/Cargo
+cargo install ripgrep
 ```
 
 ## Licensing and cost
@@ -91,12 +100,16 @@ sudo apt-get install ripgrep
 - [The Silver Searcher (ag)](https://github.com/ggreer/the_silver_searcher)
 - [Aider](../development_ops/aider.md)
 - [Claude Code](../development_ops/claude-code.md)
+- [Aptakube](https://aptakube.com/) — For visual log searching.
+- [FZF](https://github.com/junegunn/fzf) — For fuzzy finding.
+- [fd](https://github.com/sharkdp/fd) — A simple, fast and user-friendly alternative to 'find'.
 
 ## Sources / References
 - [GitHub Repository](https://github.com/BurntSushi/ripgrep)
 - [User Guide](https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md)
 - [ripgrep FAQ](https://github.com/BurntSushi/ripgrep/blob/master/FAQ.md)
+- [Release 14.1.0 Notes](https://github.com/BurntSushi/ripgrep/releases/tag/14.1.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-07
+- Last reviewed: 2026-06-01
 - Confidence: high

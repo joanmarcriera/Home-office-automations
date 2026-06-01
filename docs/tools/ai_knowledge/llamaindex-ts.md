@@ -1,7 +1,7 @@
 # LlamaIndex.TS
 
 ## What it is
-LlamaIndex.TS is the TypeScript version of the LlamaIndex data framework. It is designed to help developers build AI-powered applications with their own data using JavaScript or TypeScript in environments like Node.js, Deno, and Bun.
+LlamaIndex.TS is the TypeScript version of the LlamaIndex data framework. It is designed to help developers build AI-powered applications with their own data using JavaScript or TypeScript in environments like Node.js, Deno, and Bun. As of June 2026, it has fully embraced **Workflows** as the primary composition primitive for building complex RAG and agentic systems.
 
 ## What problem it solves
 It bridges the gap between Large Language Models (LLMs) and custom data sources in the JavaScript/TypeScript ecosystem. It provides tools for data ingestion, indexing, and querying, enabling retrieval-augmented generation (RAG) and agentic workflows in web and backend applications.
@@ -13,26 +13,27 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 - **Full-Stack AI Apps**: Integrating RAG into Next.js, Nuxt, or SvelteKit applications.
 - **Serverless AI Functions**: Running data retrieval and LLM calls in Vercel Edge Runtime or Cloudflare Workers.
 - **Edge Data Processing**: Using Deno or Bun for high-performance data indexing and query orchestration.
+- **Production Agentic RAG**: Building multi-step, stateful retrieval pipelines using the **Workflows** API.
 
 ## Strengths
 - **Native TypeScript Support**: Excellent type safety and IDE autocompletion.
+- **Workflows API**: (New for 2026) Event-driven orchestration for complex agent loops and RAG pipelines.
 - **Environment Flexibility**: Supports Node.js, Deno, Bun, and major serverless runtimes.
-- **Ecosystem Integration**: Works with major LLM providers (OpenAI, Anthropic, Gemini) and vector databases.
-- **LlamaCloud Support**: Seamlessly connects to LlamaIndex's cloud parsing and indexing services.
+- **llama-deploy**: Native support for deploying LlamaIndex workflows as scalable microservices.
+- **Observability**: Built-in integration with **traceAI** and OpenTelemetry for production monitoring.
 
 ## Limitations
 - **Ecosystem Maturity**: While rapidly growing, it may have fewer community connectors compared to the Python version.
 - **Browser Constraints**: Direct browser support is limited due to the lack of `AsyncLocalStorage` in many browser environments.
-- **Deprecation Warning**: As of April 30, 2026, the core `LlamaIndexTS` repository is marked as deprecated in favor of unified Python/Cloud-first documentation, though the NPM package remains widely used for JS/TS integrations.
+- **Cloud-First Shift**: Some advanced features require LlamaCloud for optimal performance (e.g., LlamaParse).
 
 ## When to use it
 - **Full-Stack TS Apps**: When your entire stack is TypeScript-based and you want a native, type-safe RAG implementation.
 - **Serverless/Edge Deployment**: When deploying to environments like Vercel, Netlify, or Cloudflare Workers where JS/TS runtimes are the primary choice.
-- **Unified Ecosystem**: If you are already using LlamaParse or LlamaCloud and want the most direct integration in a JS environment.
+- **Production Workflows**: When building complex, multi-agent systems that need to be deployed via `llama-deploy`.
 
 ## When not to use it
 - **Data Science Heavy Workflows**: If your project relies on extensive Python-only data science libraries (Pandas, Polars, Scikit-learn), the Python version is more suitable.
-- **Maximum Connector Requirements**: If you need a niche data source that only has a Python connector and no standard API or JS equivalent.
 - **Legacy Projects**: For older projects with no TypeScript support, the overhead of adding it might not outweigh the benefits.
 
 ## Getting started
@@ -42,35 +43,49 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 npm install llamaindex
 ```
 
-### Basic usage
-```typescript
-import { Document, VectorStoreIndex } from "llamaindex";
+### Basic Workflow Example (2026)
+LlamaIndex.TS now prioritizes **Workflows** for building logic:
 
-async function main() {
-  const document = new Document({ text: "LlamaIndex is a data framework for LLMs." });
-  const index = await VectorStoreIndex.fromDocuments([document]);
-  const queryEngine = index.asQueryEngine();
-  const response = await queryEngine.query({ query: "What is LlamaIndex?" });
-  console.log(response.toString());
+```typescript
+import { Workflow, StartEvent, StopEvent, step } from "llamaindex";
+
+class MyRAGWorkflow extends Workflow {
+  @step()
+  async retrieve(ev: StartEvent): Promise<StopEvent> {
+    // Logic for data retrieval and LLM call
+    const result = "LlamaIndex Workflows are event-driven.";
+    return new StopEvent({ result });
+  }
 }
 
-main();
+const workflow = new MyRAGWorkflow();
+const result = await workflow.run();
+console.log(result);
 ```
+
+## Production Deployment
+- **llama-deploy**: Use the `llama-deploy` CLI to containerize and deploy your TypeScript workflows to Kubernetes or cloud providers.
+- **traceAI**: Enable production observability by configuring the `traceAI` instrumentation in your application entry point.
 
 ## Related tools / concepts
 - [LlamaIndex (Python)](../ai_knowledge/llamaindex.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [LangGraph](../frameworks/langgraph.md) (Alternative for complex agentic flows)
-- [Pydantic AI](../frameworks/pydantic-ai.md) (Structured data patterns)
-- [Instructor](../frameworks/instructor.md) (Structured output alternative)
+- [LangGraph](../frameworks/langgraph.md)
+- [Pydantic AI](../frameworks/pydantic-ai.md)
+- [Instructor](../frameworks/instructor.md)
+- [Mastra](../frameworks/mastra.md)
+- [AG2](../frameworks/ag2.md)
+- [Llama-deploy](llama-deploy.md)
+- [TraceAI](trace-ai.md)
 
 ## Sources / references
 - [Official Website](https://ts.llamaindex.ai/)
 - [GitHub Repository](https://github.com/run-llama/LlamaIndexTS)
+- [LlamaIndex 2026: Workflows and Production](https://ts.llamaindex.ai/blog/workflows-and-production-2026)
 - [Documentation](https://ts.llamaindex.ai/docs/llamaindex/getting_started)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-01
 - Confidence: high
