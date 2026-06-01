@@ -32,18 +32,57 @@ Solves "calendar tetris" by automatically blocking time for deep work and habits
 - If you prefer manual, fixed-time scheduling
 
 ## Getting started
+To begin using Reclaim.ai:
+1. Sign up for a free account at [Reclaim.ai](https://reclaim.ai/).
+2. Connect your primary Google or Outlook calendar during onboarding.
+3. **Hello-world example**: Create your first "Habit" (e.g., "Lunch") by selecting **Habits** in the sidebar and choosing a time window. Reclaim will automatically find the best slot in your schedule.
+4. To use the API, go to **Settings > Integrations > API** and click **Generate API Key**.
 
-### n8n Integration (API)
-Reclaim.ai can be integrated into automation workflows using its API. While n8n doesn't have a native node yet, you can use the **HTTP Request** node.
+## CLI examples
+> [!NOTE]
+> Reclaim.ai does not currently offer an official first-party command-line interface.
 
-1. Generate an API Key in Reclaim under **Settings > API**.
-2. In n8n, use the HTTP Request node:
-   - **Method**: GET
-   - **URL**: `https://api.reclaim.ai/api/tasks`
-   - **Authentication**: Header (`Authorization: Bearer YOUR_API_KEY`)
+The primary way to interact with Reclaim from the desktop is via the **Raycast extension**:
+- **Create Task**: Quickly add a task to your smart queue with a due date and duration.
+- **Share Scheduling Link**: Copy your availability links directly to the clipboard.
+- **View Schedule**: See your daily agenda and join meetings from the Raycast command palette.
 
-### Raycast / CLI
-Power users often interact with Reclaim via the Raycast extension or community CLI tools to quickly add tasks to their "Smart Queue".
+## API examples
+Reclaim provides a REST API for managing tasks and schedules.
+
+### List all tasks (Python)
+```python
+import requests
+
+API_KEY = "YOUR_RECLAIM_API_KEY"
+url = "https://api.app.reclaim.ai/api/tasks"
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+tasks = response.json()
+
+for task in tasks:
+    print(f"{task['title']} - {task['status']}")
+```
+
+### Create a task (cURL)
+```bash
+curl -X POST https://api.app.reclaim.ai/api/tasks \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "title": "Finish Documentation",
+       "eventCategory": "WORK",
+       "timeChunksRequired": 4,
+       "minChunkSize": 2,
+       "maxChunkSize": 4,
+       "priority": "HIGH"
+     }'
+```
 
 ## Licensing and cost
 - **Open Source**: No

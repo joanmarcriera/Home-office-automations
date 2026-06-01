@@ -33,10 +33,14 @@ It aims to be the "fastest calendar in the world," reducing the time spent on ma
 - If you need a free or self-hosted calendar solution.
 
 ## Getting started
-Vimcal is primarily a desktop and mobile application. To get started:
-1. Connect your primary calendar (Google Calendar or Microsoft Outlook).
-2. Use `Cmd+K` (macOS) or `Ctrl+K` (Windows) to open the command palette.
-3. Use `F` to toggle "Free Slots" mode for quick availability sharing.
+> [!NOTE]
+> Vimcal is a consumer-focused calendar application and does not have official developer documentation, CLI, or a public API.
+
+To begin using it:
+1. Visit [Vimcal.com](https://www.vimcal.com/) and sign up for an account.
+2. Connect your primary Google or Outlook calendar when prompted.
+3. **Hello-world example**: Open the app and use the command palette (`Cmd+K` on Mac, `Ctrl+K` on Windows). Type "Lunch with Jane at 12pm tomorrow at Blue Bottle" and press Enter. Vimcal's NLP will automatically parse the title, date, time, and location.
+4. Use `F` to toggle "Free Slots" mode and quickly share your availability.
 
 ## Technical details
 Vimcal uses advanced natural language processing (NLP) to parse event details. For example, typing "Lunch with Jane at 12pm tomorrow at Blue Bottle" automatically populates the title, date, time, and location fields.
