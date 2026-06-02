@@ -78,6 +78,7 @@ path "secret/data/my-app/*" {
 ## Related tools / concepts
 - [HashiCorp Vault](https://www.vaultproject.io/)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Vikunja MCP](vikunja-mcp.md)
 - [Authentik](../../services/authentik.md)
 - [Kubernetes](../../architecture/infrastructure.md)
 - [Tailscale](../../services/tailscale.md)

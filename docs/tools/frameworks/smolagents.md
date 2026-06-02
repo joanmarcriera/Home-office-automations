@@ -128,6 +128,8 @@ agent.run("What is the current population of Tokyo?")
 - [AutoGen](autogen.md)
 - [DSPy](dspy.md)
 - [Haystack](haystack.md)
+- [LangGraph](langgraph.md)
+- [Semantic Kernel](semantic-kernel.md)
 ## Sources / References
 - [GitHub](https://github.com/huggingface/smolagents)
 - [Blog Post](https://huggingface.co/blog/smolagents)

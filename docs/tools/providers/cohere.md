@@ -108,6 +108,10 @@ embeddings = co.embed(
 - [OpenAI](../ai_knowledge/openai.md)
 - [Anthropic](anthropic.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
+- [DeepSeek](deepseek.md)
+- [Mistral](mistral.md)
+- [Google Gemini](../ai_knowledge/gemini.md)
+- [Meta Llama](../ai_knowledge/llama.md)
 
 ## Sources / References
 - [Official Website](https://cohere.com/)

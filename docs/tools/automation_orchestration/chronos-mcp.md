@@ -85,6 +85,7 @@ accounts:
 - [Nextcloud](../../services/nextcloud.md)
 - [Fastmail](../calendar_tasks/fastmail.md)
 - [Vikunja MCP](vikunja-mcp.md)
+- [Vault MCP](vault-mcp.md)
 - [Google Calendar](../calendar_tasks/google_calendar.md)
 - [Chronos CalDAV library](https://github.com/democratize-technology/chronos-mcp)
 

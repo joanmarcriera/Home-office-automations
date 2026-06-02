@@ -84,6 +84,7 @@ ExLlamaV2 supports various environment variables to tune performance:
 - [Quantization](../knowledge_base/patterns/quantization.md)
 - [NVIDIA CUDA](../infrastructure/nvidia-cuda.md)
 - [Long Context](../knowledge_base/long-context.md)
+- [Text Generation Inference (TGI)](tgi.md)
 
 ## Sources / References
 - [Official Website](https://github.com/turboderp/exllamav2)

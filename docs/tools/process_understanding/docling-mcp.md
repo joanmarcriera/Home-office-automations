@@ -71,6 +71,8 @@ Unlike simple OCR or text extraction, Docling MCP can reconstruct the logical st
 - [OCRmyPDF](ocrmypdf.md)
 - [Milvus](https://milvus.io/)
 - [RAGFlow](ragflow.md)
+- [LangGraph](../frameworks/langgraph.md)
+- [Smolagents](../frameworks/smolagents.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/docling-project/docling-mcp)
