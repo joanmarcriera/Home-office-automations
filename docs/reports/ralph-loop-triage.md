@@ -60,12 +60,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 60** | Maintenance Run (Technical Deepening) | **Verified & Closed** | Deepened `valyu.md`, `crawl4ai.md`, etc. Verified 2026-06-01. |
 | **Batch 61** | Maintenance Run (Production Deepening) | **Verified & Closed** | Deepened `langsmith.md`, `firecrawl.md`, etc. Verified 2026-06-01. |
 | **Batch 62** | Maintenance Run (The "Oldest" Res) | **Verified & Closed** | Deepened `teamout.md`, `claude-code-setup.md`, etc. Verified 2026-06-01. |
-| **Batch 63** | Maintenance Run (The "Oldest" Res) | **Resolved** | Deepened `chronos-mcp.md`, `vault-mcp.md`, etc. (2026-05-16). |
-| **Batch 64** | Maintenance Run (AI Knowledge) | **Resolved** | Deepened `google-opal.md`, `project-genie.md`, etc. (2026-05-16). |
+| **Batch 63** | Maintenance Run (The "Oldest" Res) | **Verified & Closed** | Deepened `chronos-mcp.md`, `vault-mcp.md`, etc. Verified 2026-06-01. |
+| **Batch 64** | Maintenance Run (AI Knowledge) | **Verified & Closed** | Deepened `google-opal.md`, `project-genie.md`, etc. Verified 2026-06-01. |
 | **Batch 65** | MCP Technical Deepening | **Verified & Closed** | Deepened `claude-code-container-mcp.md`, `desktop-commander-mcp.md`, etc. (2026-05-16). |
-| **Batch 69** | Maintenance Run (Oldest Res) | **Resolved** | Deepened `langgraph.md`, `semantic-kernel.md`, `smolagents.md`, `docling-mcp.md`, `cohere.md` (2026-05-17). |
-| **Batch 70** | Technical Deepening (Frameworks & Infra) | **Resolved** | Deepened `autogen.md`, `crewai.md`, `dspy.md`, `haystack.md`, `vllm.md` (2026-05-17). |
-| **Batch 71** | Infrastructure Maintenance | **Resolved** | Deepened `tgi.md`, `sglang.md`, `aphrodite-engine.md`, `exllamav2.md`, `claude-code-router.md` (2026-05-17). |
+| **Batch 69** | Maintenance Run (Oldest Res) | **Verified & Closed** | Deepened `langgraph.md`, `semantic-kernel.md`, `smolagents.md`, `docling-mcp.md`, `cohere.md`. Verified 2026-06-01. |
+| **Batch 70** | Technical Deepening (Frameworks & Infra) | **Verified & Closed** | Deepened `autogen.md`, `crewai.md`, `dspy.md`, `haystack.md`, `vllm.md`. Verified 2026-06-01. |
+| **Batch 71** | Infrastructure Maintenance | **Verified & Closed** | Deepened `tgi.md`, `sglang.md`, `aphrodite-engine.md`, `exllamav2.md`, `claude-code-router.md`. Verified 2026-06-01. |
 | **Batch 72** | Inference Providers & Dev Studio | **Resolved** | Deepened `fireworks.md`, `groq.md`, `mistral.md`, `together.md`, `firebase-studio.md` (2026-05-17). |
 | **Batch 73** | High-Value AI Knowledge & Providers | **Resolved** | Deepened `minimax.md`, `moonshot.md`, `copy-ai.md`, `jasper.md`, `runwayml.md` (2026-05-17). |
 | **Batch 74** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `superpowers.md`, `elevenlabs.md`, `claude-cookbooks.md`, `playwright.md`, `replicate.md` (2026-05-18). |

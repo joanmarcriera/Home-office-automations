@@ -119,6 +119,8 @@ if __name__ == "__main__":
 - [DSPy](dspy.md)
 - [Haystack](haystack.md)
 - [Smolagents](smolagents.md)
+- [AutoGen](autogen.md)
+- [LangGraph](langgraph.md)
 ## Sources / References
 - [GitHub](https://github.com/microsoft/semantic-kernel)
 - [Microsoft Documentation](https://learn.microsoft.com/en-us/semantic-kernel/)

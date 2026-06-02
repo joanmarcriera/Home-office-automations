@@ -163,6 +163,10 @@ for event in graph.stream({"messages": [("user", "Search for the current price o
 - [LangChain](../ai_knowledge/langchain.md)
 - [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
 - [CrewAI](../frameworks/crewai.md)
+- [AutoGen](autogen.md)
+- [DSPy](dspy.md)
+- [Haystack](haystack.md)
+- [Smolagents](smolagents.md)
 
 ## Sources / References
 - [Official Documentation](https://langchain-ai.github.io/langgraph/)
