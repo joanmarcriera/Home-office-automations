@@ -95,6 +95,7 @@ int main() {
 - [MicroGPT](https://github.com/karpathy/microGPT)
 - [AITMPL](aitmpl.md)
 - [Nano Banana](nano-banana.md)
+- [Llama.cpp](https://github.com/osllmai/llama.cpp)
 - [Llama.cpp](llama-cpp.md)
 
 ## Sources / references
@@ -104,4 +105,4 @@ int main() {
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-02

@@ -82,9 +82,12 @@ Google's **Managed Agents** platform (released May 2026) allows developers to de
 - [Gemini CLI](gemini-cli.md)
 - [OpenAI](openai.md)
 - [Mistral AI](../providers/mistral.md)
+- [LangChain](https://docs.langchain.com/)
 - [LangChain](../frameworks/langchain.md)
+- [LlamaIndex](https://www.llamaindex.ai/)
 - [LlamaIndex](../frameworks/llamaindex.md)
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [Antigravity Agent](https://ai.google.dev/gemini-api/docs/antigravity-agent)
 - [Antigravity Agent](antigravity-agent.md)
 - [Managed Agents Overview](managed-agents.md)
 
@@ -96,5 +99,5 @@ Google's **Managed Agents** platform (released May 2026) allows developers to de
 - [Antigravity Agent Guide](https://ai.google.dev/gemini-api/docs/antigravity)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-02
 - Confidence: high

@@ -102,11 +102,12 @@ jobs:
 - [Vertex AI](../providers/google-vertex-ai.md) — Enterprise-grade hosting for Gemini.
 
 ## Sources / References
+- [Vertex AI Documentation](https://docs.cloud.google.com/vertex-ai/docs)
 - [Official GitHub Repository](https://github.com/google-gemini/gemini-cli)
 - [Google AI Studio Console](https://aistudio.google.com/)
 - [Gemini CLI v0.43 Release Notes](https://releasebot.io/updates/google/gemini-cli)
 - [GitHub Blog: Node.js 20 Deprecation](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-29
+- Last reviewed: 2026-06-02
 - Confidence: high

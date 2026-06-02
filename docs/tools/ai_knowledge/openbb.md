@@ -112,10 +112,10 @@ openbb news --term "technology" --limit 5
 - [Financial Intelligence](../../knowledge_base/learning-map.md)
 
 ## Sources / References
-- [Official Website](https://openbb.co)
+- [Official Website](https://openbb.co/)
 - [GitHub Repository](https://github.com/OpenBB-finance/OpenBB)
 - [OpenBB Documentation](https://docs.openbb.co/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-02
 - Confidence: high
