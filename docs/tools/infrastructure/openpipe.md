@@ -137,7 +137,10 @@ response = client.chat.completions.create(
 - [Official Website](https://openpipe.ai/)
 - [GitHub](https://github.com/openpipe/openpipe)
 - [Docs](https://docs.openpipe.ai/)
+- [Weights & Biases](../process_understanding/wandb-weave.md)
+- [Unstructured](../intake_storage/unstructured.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-02
 - Confidence: high

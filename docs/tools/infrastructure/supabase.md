@@ -223,7 +223,8 @@ const channel = supabase
 - [Documentation](https://supabase.com/docs)
 - [GitHub Repository](https://github.com/supabase/supabase)
 - [pgvector on Supabase](https://supabase.com/docs/guides/ai)
+- [Dify Integration](../ai_knowledge/dify.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-02
 - Confidence: high

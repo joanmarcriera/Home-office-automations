@@ -84,7 +84,8 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - [MLX Examples](https://github.com/ml-explore/mlx-examples)
 - [Documentation](https://ml-explore.github.io/mlx/build/html/index.html)
 - [Benchmarked 11 MLX models on M3 Ultra](https://www.reddit.com/r/LocalLLaMA/comments/1rkcvqa/benchmarked_11_mlx_models_on_m3_ultra_heres_which/)
+- [Llama Factory](../frameworks/llama-factory.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-06-02
 - Confidence: high

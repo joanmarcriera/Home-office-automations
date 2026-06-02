@@ -122,12 +122,14 @@ print(response.choices[0].message.content)
 - [n8n](../../services/n8n.md)
 - [Open WebUI](../../services/open-webui.md)
 - [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
+- [LM Studio](../ai_knowledge/lm-studio.md)
 
 ## Sources / References
 - [LocalAI Documentation](https://localai.io/)
+ - [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
 - [LocalAI GitHub Repository](https://github.com/mudler/LocalAI)
 - [Model Gallery](https://localai.io/models/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-02
 - Confidence: high

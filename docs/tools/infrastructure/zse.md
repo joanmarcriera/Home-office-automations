@@ -92,8 +92,9 @@ curl http://localhost:8080/v1/chat/completions \
 
 ## Sources / References
 - [ZSE GitHub Repository](https://github.com/Zyora-Dev/zse)
+- [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-02
 - Confidence: high

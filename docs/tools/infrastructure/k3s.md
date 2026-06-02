@@ -95,7 +95,8 @@ sudo k3s kubectl apply -f whoami.yaml
 - [Official Website](https://k3s.io/)
 - [K3s GitHub](https://github.com/k3s-io/k3s)
 - [K3s Documentation](https://docs.k3s.io/)
+- [Longhorn Storage](https://longhorn.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-06-02
 - Confidence: high
