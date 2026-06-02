@@ -66,8 +66,8 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 69** | Maintenance Run (Oldest Res) | **Verified & Closed** | Deepened `langgraph.md`, `semantic-kernel.md`, `smolagents.md`, `docling-mcp.md`, `cohere.md`. Verified 2026-06-01. |
 | **Batch 70** | Technical Deepening (Frameworks & Infra) | **Verified & Closed** | Deepened `autogen.md`, `crewai.md`, `dspy.md`, `haystack.md`, `vllm.md`. Verified 2026-06-01. |
 | **Batch 71** | Infrastructure Maintenance | **Verified & Closed** | Deepened `tgi.md`, `sglang.md`, `aphrodite-engine.md`, `exllamav2.md`, `claude-code-router.md`. Verified 2026-06-01. |
-| **Batch 72** | Inference Providers & Dev Studio | **Resolved** | Deepened `fireworks.md`, `groq.md`, `mistral.md`, `together.md`, `firebase-studio.md` (2026-05-17). |
-| **Batch 73** | High-Value AI Knowledge & Providers | **Resolved** | Deepened `minimax.md`, `moonshot.md`, `copy-ai.md`, `jasper.md`, `runwayml.md` (2026-05-17). |
+| **Batch 72** | Inference Providers & Dev Studio | **Verified & Closed** | Deepened `fireworks.md`, `groq.md`, `mistral.md`, `together.md`, `firebase-studio.md`. Verified 2026-06-02. |
+| **Batch 73** | High-Value AI Knowledge & Providers | **Verified & Closed** | Deepened `minimax.md`, `moonshot.md`, `copy-ai.md`, `jasper.md`, `runwayml.md`. Verified 2026-06-02. |
 | **Batch 74** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `superpowers.md`, `elevenlabs.md`, `claude-cookbooks.md`, `playwright.md`, `replicate.md` (2026-05-18). |
 | **Issue 2** | Supabase Deepening | **Verified & Closed** | Deepened `supabase.md` to High Confidence (2026-05-18). |
 | **Batch 75** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `supabase.md`, `github-pages.md`, `fastapi.md`, `litellm.md`, `fine-tuning-open-models.md` (2026-05-18). |

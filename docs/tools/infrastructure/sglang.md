@@ -94,9 +94,10 @@ Unlike traditional LRU caching, **RadixAttention** manages the KV cache as a rad
 
 ## Sources / References
 - [Official Website](https://sgl-project.github.io/)
+- [SGLang Python SDK](https://github.com/sgl-project/sglang/tree/main/python/sglang)
 - [GitHub](https://github.com/sgl-project/sglang)
 - [RadixAttention Technical Paper](https://arxiv.org/abs/2312.04515)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-02
 - Confidence: high

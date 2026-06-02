@@ -90,7 +90,8 @@ ExLlamaV2 supports various environment variables to tune performance:
 - [Official Website](https://github.com/turboderp/exllamav2)
 - [EXL2 Wiki: Quantization and Measurement](https://github.com/turboderp/exllamav2/wiki/Quantization-and-Measurement)
 - [Flash Attention 2 Integration](https://github.com/turboderp/exllamav2#features)
+- [Quantization Guide](../../knowledge_base/patterns/quantization.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-02
 - Confidence: high
