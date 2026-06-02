@@ -84,5 +84,5 @@ print(response.choices[0].message.content)
 - [LM Studio CLI Documentation](https://lmstudio.ai/docs/cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-02
 - Confidence: high

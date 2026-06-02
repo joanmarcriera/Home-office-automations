@@ -103,5 +103,5 @@ TGI exposes a `/metrics` endpoint for Prometheus, providing detailed insights in
 - [TGI Documentation: Multi-LoRA](https://huggingface.co/docs/text-generation-inference/conceptual/multi_lora)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-02
 - Confidence: high

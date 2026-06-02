@@ -129,5 +129,5 @@ print(response.choices[0].message.content)
 - [Model Gallery](https://localai.io/models/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-02
 - Confidence: high

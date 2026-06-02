@@ -86,5 +86,5 @@ python -m aphrodite.endpoints.openai.api_server \
 - [Aphrodite Engine Sampler Documentation](https://aphrodite.pygmalion.chat/samplers)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-02
 - Confidence: high

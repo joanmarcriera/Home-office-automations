@@ -98,5 +98,5 @@ Unlike traditional LRU caching, **RadixAttention** manages the KV cache as a rad
 - [RadixAttention Technical Paper](https://arxiv.org/abs/2312.04515)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-02
 - Confidence: high
