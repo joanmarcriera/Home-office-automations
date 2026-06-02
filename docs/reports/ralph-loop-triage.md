@@ -73,12 +73,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 75** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `supabase.md`, `github-pages.md`, `fastapi.md`, `litellm.md`, `fine-tuning-open-models.md` (2026-05-18). |
 | **Batch 76** | Fine-tuning Ecosystem | **Verified & Closed** | Deepened `unsloth.md`, `llama-factory.md`, `axolotl.md`, `distilabel.md`, `glaive.md` (2026-05-18). |
 | **Batch 77** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `evalplus.md`, `helm.md`, `opencompass.md`, `openhands.md`, `openclaw-use-case-catalog.md` (2026-05-19). |
-| **Batch 78** | Technical Deepening (Infra & Bench) | **Resolved** | Deepened `docker.md`, `luma-dream-machine.md`, `bigcodebench.md`, `arc.md`, `asdiv.md` (2026-05-19). |
-| **Batch 82** | Technical Deepening (Backlog) | **Resolved** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, `anti_gravity.md`, `cloud_code.md` (2026-05-20). |
-| **Batch 84** | AI Knowledge Deepening | **Resolved** | Deepened `claude.md`, `chatgpt.md`, `chatbox-ai.md`, etc. (2026-05-20). |
+| **Batch 78** | Technical Deepening (Infra & Bench) | **Verified & Closed** | Deepened `docker.md`, `luma-dream-machine.md`, `bigcodebench.md`, `arc.md`, `asdiv.md`. Verified 2026-06-02. |
+| **Batch 82** | Technical Deepening (Backlog) | **Verified & Closed** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, `anti_gravity.md`, `cloud_code.md`. Verified 2026-06-02. |
+| **Batch 84** | AI Knowledge Deepening | **Verified & Closed** | Deepened `claude.md`, `chatgpt.md`, `chatbox-ai.md`, etc. Verified 2026-06-02. |
 | **Batch 85** | Comprehensive Cleanup | **Verified & Closed** | Deepened `supabase.md`, `todoist.md`, `microsoft-todo.md`, etc. Resolved debt from Batch 55/56 (2026-05-21). |
-| **Batch 86** | Deepening Shallow Docs | **Resolved** | Deepened `inventory.md`, `cloudflare-mesh.md`, `real_time_sync_engines.md`, etc. (2026-05-23). |
-| **Batch 87** | Deepening Shallow Docs | **Resolved** | Deepened `openai-agents-sdk.md`, `notion-ai.md`, `jules.md`, `roam-research.md`, `kumo-ai.md` (2026-05-23). |
+| **Batch 86** | Deepening Shallow Docs | **Verified & Closed** | Deepened `inventory.md`, `cloudflare-mesh.md`, `real_time_sync_engines.md`, etc. Verified 2026-06-02. |
+| **Batch 87** | Deepening Shallow Docs | **Verified & Closed** | Deepened `openai-agents-sdk.md`, `notion-ai.md`, `jules.md`, `roam-research.md`, `kumo-ai.md`. Verified 2026-06-02. |
 | **Batch 88** | Technical Deepening | **Resolved** | Deepened `dashworks.md`, `guru.md`, `coveo.md`, `motion.md`, `any-do.md` with technical examples (2026-05-23). |
 | **Batch 89** | Deepening Shallow Docs | **Resolved** | Deepened `self-healing-agent-research.md`, `mlx.md`, `home-admin-tools.md`, `perplexity-agent-api.md`, `ai-auditing-tools.md` (2026-05-24). |
 | **Batch 94** | Operational Verification | **Verified & Closed** | Infrastructure migrations, data guardrails, and service freshness audits (Syncthing, Gitea) verified (2026-05-25). |

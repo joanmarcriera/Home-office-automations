@@ -93,6 +93,7 @@ while not done:
 ## Related tools / concepts
 - [Sora](sora.md)
 - [Luma Dream Machine](luma-dream-machine.md)
+- [Runway Gen-3](https://app.runwayml.com/)
 - [Runway Gen-3](runway.md)
 - [Google Lyria](google-lyria.md)
 - [Nano Banana](nano-banana.md)
@@ -107,5 +108,5 @@ while not done:
 - [ALM Corp: Project Genie Technical Analysis](https://almcorp.com/blog/google-deepmind-project-genie-technical-analysis-applications/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-02
 - Confidence: high

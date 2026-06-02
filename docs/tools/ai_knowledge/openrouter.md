@@ -134,6 +134,7 @@ response = client.chat.completions.create(
 - [LiteLLM](../../services/litellm.md)
 - [OpenAI](openai.md)
 - [Anthropic](../providers/anthropic.md)
+- [DeepSeek AI](https://www.deepseek.com/en/)
 - [DeepSeek](deepseek.md)
 - [Groq](../providers/groq.md)
 - [Together AI](../providers/together.md)
@@ -194,5 +195,5 @@ Use this matrix for quarterly integration reviews:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-02
 - Confidence: high
