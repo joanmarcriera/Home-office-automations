@@ -55,11 +55,11 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 55** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `free-will-mcp.md`, `continue_dev.md`, etc. Verified 2026-06-01. |
 | **Batch 56** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `openbb.md`, `cursor.md`, etc. Verified 2026-06-01. |
 | **Batch 57** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `vercel.md`, `cloudflare-pages.md`, etc. Verified 2026-06-01. |
-| **Batch 58** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `netlify.md`, `langchain.md`, etc. (2026-05-16). |
-| **Batch 59** | Maintenance Run (Oldest Backlog) | **Resolved** | Deepened `swe-bench.md`, `obsidian-vector-search.md`, etc. (2026-05-16). |
-| **Batch 60** | Maintenance Run (Technical Deepening) | **Resolved** | Deepened `valyu.md`, `crawl4ai.md`, etc. (2026-05-16). |
-| **Batch 61** | Maintenance Run (Production Deepening) | **Resolved** | Deepened `langsmith.md`, `firecrawl.md`, etc. (2026-05-16). |
-| **Batch 62** | Maintenance Run (The "Oldest" Res) | **Resolved** | Deepened `teamout.md`, `claude-code-setup.md`, etc. (2026-05-16). |
+| **Batch 58** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `netlify.md`, `langchain.md`, etc. Verified 2026-06-01. |
+| **Batch 59** | Maintenance Run (Oldest Backlog) | **Verified & Closed** | Deepened `swe-bench.md`, `obsidian-vector-search.md`, etc. Verified 2026-06-01. |
+| **Batch 60** | Maintenance Run (Technical Deepening) | **Verified & Closed** | Deepened `valyu.md`, `crawl4ai.md`, etc. Verified 2026-06-01. |
+| **Batch 61** | Maintenance Run (Production Deepening) | **Verified & Closed** | Deepened `langsmith.md`, `firecrawl.md`, etc. Verified 2026-06-01. |
+| **Batch 62** | Maintenance Run (The "Oldest" Res) | **Verified & Closed** | Deepened `teamout.md`, `claude-code-setup.md`, etc. Verified 2026-06-01. |
 | **Batch 63** | Maintenance Run (The "Oldest" Res) | **Resolved** | Deepened `chronos-mcp.md`, `vault-mcp.md`, etc. (2026-05-16). |
 | **Batch 64** | Maintenance Run (AI Knowledge) | **Resolved** | Deepened `google-opal.md`, `project-genie.md`, etc. (2026-05-16). |
 | **Batch 65** | MCP Technical Deepening | **Verified & Closed** | Deepened `claude-code-container-mcp.md`, `desktop-commander-mcp.md`, etc. (2026-05-16). |
