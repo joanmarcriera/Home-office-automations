@@ -50,11 +50,11 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 50** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `ragflow.md`, `mycelium.md`, `codeium.md`, `sourcegraph_cody.md`, `terminus-2.md`. Verified 2026-06-01. |
 | **Batch 51** | Maintenance Run (Technical Deepening) | **Verified & Closed** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, etc. Verified 2026-06-01. |
 | **Batch 52** | Maintenance Run (Technical Deepening) | **Verified & Closed** | Deepened `custom_agents.md`, `droid.md`, `gpt_engineer.md`, etc. Verified 2026-06-01. |
-| **Batch 53** | Maintenance Run (Technical Deepening) | **Resolved** | Deepened `mentat.md`, `openswarm.md`, `plandex.md`, etc. (2026-05-15). |
-| **Batch 54** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `tabnine.md`, `vscode.md`, `zed.md`, etc. (2026-05-15). |
-| **Batch 55** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `free-will-mcp.md`, `continue_dev.md`, etc. (2026-05-15). |
-| **Batch 56** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `openbb.md`, `cursor.md`, etc. (2026-05-15). |
-| **Batch 57** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `vercel.md`, `cloudflare-pages.md`, etc. (2026-05-15). |
+| **Batch 53** | Maintenance Run (Technical Deepening) | **Verified & Closed** | Deepened `mentat.md`, `openswarm.md`, `plandex.md`, etc. Verified 2026-06-01. |
+| **Batch 54** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `tabnine.md`, `vscode.md`, `zed.md`, etc. Verified 2026-06-01. |
+| **Batch 55** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `free-will-mcp.md`, `continue_dev.md`, etc. Verified 2026-06-01. |
+| **Batch 56** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `openbb.md`, `cursor.md`, etc. Verified 2026-06-01. |
+| **Batch 57** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `vercel.md`, `cloudflare-pages.md`, etc. Verified 2026-06-01. |
 | **Batch 58** | Maintenance Run (Medium Confidence) | **Resolved** | Deepened `netlify.md`, `langchain.md`, etc. (2026-05-16). |
 | **Batch 59** | Maintenance Run (Oldest Backlog) | **Resolved** | Deepened `swe-bench.md`, `obsidian-vector-search.md`, etc. (2026-05-16). |
 | **Batch 60** | Maintenance Run (Technical Deepening) | **Resolved** | Deepened `valyu.md`, `crawl4ai.md`, etc. (2026-05-16). |

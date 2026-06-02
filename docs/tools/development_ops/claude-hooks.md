@@ -97,6 +97,7 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
+- [Claude Context Mode](claude-context-mode.md)
 - [Claude Plugins](claude-plugins.md)
 - [Playwright](playwright.md)
 - [Aider](aider.md)

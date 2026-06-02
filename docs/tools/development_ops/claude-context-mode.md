@@ -130,6 +130,7 @@ alias claude-pro='claude --prompt "Project context: $(cat AGENTS.md)"'
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
+- [Aider](aider.md) — For terminal-native AI pair programming comparisons.
 - [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Claude Hooks](claude-hooks.md)
 - [OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
