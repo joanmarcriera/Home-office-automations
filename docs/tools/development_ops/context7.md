@@ -84,6 +84,7 @@ You can expose Context7 to Claude via an MCP server that wraps the Context7 API.
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
+- [Claude Context Mode](claude-context-mode.md)
 - [Claude Cookbooks](claude-cookbooks.md)
 - [Tavily](../providers/tavily.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
