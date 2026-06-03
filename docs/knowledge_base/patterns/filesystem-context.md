@@ -68,6 +68,9 @@ The agent applies changes by identifying exact blocks of text in files, maintain
 }
 ```
 
+#### 3. Structured Context Discovery (read_hierarchy)
+Agents can use the filesystem hierarchy itself as a discovery mechanism. By reading the directory structure, an agent can infer architectural patterns and identify critical documentation files without a pre-computed index.
+
 ## When to use it
 - Use when building local-first development tools where transparency and Git-integration are priorities.
 - Use for multi-agent systems where agents need a shared, durable state without the overhead of a database.
@@ -94,5 +97,5 @@ The agent applies changes by identifying exact blocks of text in files, maintain
 - [LlamaIndex: Files Are All You Need](https://www.llamaindex.ai/blog/files-are-all-you-need)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-03
 - Confidence: high

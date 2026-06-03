@@ -104,7 +104,7 @@ An agent-first development platform. AI Ultra members receive priority access to
 
 - **Service Capacity**: Antigravity and Jules task concurrency is subject to regional demand.
 - **AI Ultra Refresh**: Usage limits refresh on the billing date and do not roll over.
-- **Gemini 3.5 Pro**: Expected arrival in June 2026; will be added to Pro and Ultra plans automatically.
+- **Gemini 3.5 Pro**: Officially arrived June 1, 2026; replaces 3.5 Flash as the default reasoning engine for Pro and Ultra subscribers. It features a **10M token context window** for Ultra members, enabling whole-repository reasoning natively.
 
 ## Related tools / concepts
 - [Gemini 3.5 Flash](../tools/providers/google-gemini.md): The core engine for the 2026 subscription.
@@ -119,5 +119,5 @@ An agent-first development platform. AI Ultra members receive priority access to
 - [100 things we announced at I/O 2026 (Google Blog)](https://blog.google/innovation-and-ai/technology/ai/google-io-2026-all-our-announcements/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-03
 - Confidence: high

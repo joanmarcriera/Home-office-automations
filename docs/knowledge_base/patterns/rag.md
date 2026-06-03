@@ -71,6 +71,7 @@ The RAG architecture consists of a disconnected ingestion pipeline and a real-ti
     *   **Self-RAG:** The model critiques its own retrieved chunks and generated response for relevance, support, and utility.
 *   **GraphRAG:** Augments vector retrieval with a Knowledge Graph. It extracts entities and relationships to provide both global context (summarizing entire datasets) and local context (finding specific facts), solving the "blindness" of vector search to broad themes.
 *   **Agentic RAG:** An agent-driven approach where the LLM is equipped with retrieval tools. The agent plans its search strategy, chooses between multiple data sources, and performs multi-step reasoning before delivering the final answer.
+- **Contextual Retrieval**: Introduced by Anthropic in late 2024, this technique prepends a "situational context" to every chunk before embedding it (e.g., "This chunk is from the Q3 earnings report of Company X, specifically discussing their data center expansion"). This significantly improves retrieval accuracy for ambiguous queries by 49-67% in production benchmarks.
 
 ## Stateless RAG vs. Persistent Context
 
@@ -235,5 +236,5 @@ The following examples demonstrate a minimal local RAG setup using **Ollama** fo
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-25
+- Last reviewed: 2026-06-03
 - Confidence: high

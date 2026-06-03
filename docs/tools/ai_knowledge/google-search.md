@@ -87,7 +87,7 @@ curl "https://www.googleapis.com/customsearch/v1?key=KEY&cx=CX&q=test"
 - [Perplexity](perplexity.md)
 - [SearXNG](../../services/searXNG.md)
 - [Antigravity Ecosystem](https://antigravity.google) — Google's 2026 agent platform.
-- [Gemini](../providers/gemini.md) — the model family powering Google's AI features.
+- [Gemini](gemini.md) — the model family powering Google's AI features.
 - [Architecture](../../architecture/README.md)
 - [Grounding with Google Search](https://blog.google/technology/ai/google-search-grounding-ai-overviews/)
 

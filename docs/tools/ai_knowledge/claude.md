@@ -131,7 +131,7 @@ with client.messages.stream(
 - [Everything Claude Code](everything-claude-code.md) — Comprehensive resource for Claude Code.
 - [Claude How-To](claude-howto.md) — Practical guides and recipes.
 - [MCP](../development_ops/claude-context-mode.md) — Model Context Protocol for Claude integrations.
-- [AWS Bedrock](../infrastructure/aws-bedrock.md) — Enterprise access to Claude models.
+- [AWS Bedrock](https://aws.amazon.com/bedrock/) — Enterprise access to Claude models.
 
 ## Sources / References
 - [Official Website](https://claude.ai/)

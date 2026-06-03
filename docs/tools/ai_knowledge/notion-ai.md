@@ -103,8 +103,8 @@ Notion AI is frequently used in multi-step automation pipelines.
 - [Logseq](./logseq.md)
 - [ChatGPT](./chatgpt.md)
 - [n8n](../../services/n8n.md)
-- [Make.com](../../services/make.md)
-- [AnyType](../../services/anytype.md)
+- [Make.com](https://www.make.com/)
+- [AnyType](../intake_storage/anytype.md)
 - [Roam Research](./roam-research.md)
 - [SilverBullet](../../services/silverbullet.md)
 
