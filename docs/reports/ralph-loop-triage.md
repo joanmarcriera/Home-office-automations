@@ -85,12 +85,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 95** | Service Maintenance (Backlog) | **Verified & Closed** | Synchronized playbook checklists and populated `## Backlog` for 54 service docs. Verified 2026-06-02. |
 | **Batch 97** | Service Freshness Audit | **Verified & Closed** | Audited Element, Linkwarden, Audiobookshelf, Excalidraw, and Homebox for May 2026 freshness. Verified 2026-06-02. |
 | **Batch 100** | Technical Freshness Audits | **Verified & Closed** | Audited HELM, OpenCompass, OpenClaw, and Docling for May 2026 technical freshness. Verified 2026-06-02. |
-| **Batch 101** | Technical Freshness Audits | **Resolved** | Audited Software Factories, Ubuntu AI, ColQwen, VAKRA, and Multi-Calendar Research for May 2026 technical freshness (2026-05-28). |
-| **Batch 102** | Core Architecture Freshness | **Resolved** | Audited CONTRIBUTING, README, Multi-Agent KnowledgeOps, Data Copilot, and Flows for May 2026 technical freshness (2026-05-28). |
+| **Batch 101** | Technical Freshness Audits | **Verified & Closed** | Audited Software Factories, Ubuntu AI, ColQwen, VAKRA, and Multi-Calendar Research. Verified 2026-06-03. |
+| **Batch 102** | Core Architecture Freshness | **Verified & Closed** | Audited CONTRIBUTING, README, Multi-Agent KnowledgeOps, Data Copilot, and Flows. Verified 2026-06-03. |
 | **Batch 103** | Technical Freshness Audits | **Verified & Closed** | Audited voice research, vector storage, vision models, family prompts, and search for May 2026 technical freshness (2026-05-28). |
-| **Batch 104** | Technical Freshness Audits | **Resolved** | Audited Dex CRM, NanoClaw, CodeGraphContext, Prompt Requests, and PostHog for May 2026 technical freshness (2026-05-28). |
-| **Batch 105** | Technical Freshness Audits | **Resolved** | Audited Lightpanda, SHARP, Grok, Windsurf, and Gemini CLI for May 2026 technical freshness (2026-05-29). |
-| **Batch 107** | Technical Freshness Audits | **Resolved** | Audited External-DNS, MinIO, big-AGI, Doc Writer, and Claude Code for May 2026 technical freshness (2026-05-30). |
+| **Batch 104** | Technical Freshness Audits | **Verified & Closed** | Audited Dex CRM, NanoClaw, CodeGraphContext, Prompt Requests, and PostHog. Verified 2026-06-03. |
+| **Batch 105** | Technical Freshness Audits | **Verified & Closed** | Audited Lightpanda, SHARP, Grok, Windsurf, and Gemini CLI. Verified 2026-06-03. |
+| **Batch 107** | Technical Freshness Audits | **Verified & Closed** | Audited External-DNS, MinIO, big-AGI, Doc Writer, and Claude Code. Verified 2026-06-03. |
 | **Batch 108** | Technical Freshness Audits | **Resolved** | Audited KB README, Sync Engines, Google One, Audio Transcription, and Self-healing Agents (2026-05-30). |
 | **Batch 109** | Technical Freshness Audits | **Resolved** | Audited Apple Calendar, Calendly, Fantastical, Fastmail, and Microsoft To Do for May 2026 technical freshness (2026-05-30). |
 | **Batch 110** | Technical Freshness Audits | **Resolved** | Audited SavvyCal, Sunsama, TickTick, Elastic, and Curiosity for May 2026 technical freshness (2026-05-31). |

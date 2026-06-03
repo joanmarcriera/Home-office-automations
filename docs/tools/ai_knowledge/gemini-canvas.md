@@ -103,10 +103,11 @@ Or for a more interconnected map:
 - [Aider](../development_ops/aider.md)
 
 ## Sources / References
+- [Infinite Canvas Patterns](../../knowledge_base/learning-map.md)
 - [LEDstudio: Google Gemini Quick Start Guide](https://ledstudio.vcu.edu/learning-resources/quick-start-guides/google-gemini/)
 - [Reddit: Gemini Canvas AI Workspace Features](https://www.reddit.com/r/AISEOInsider/comments/1rtopmv/gemini_canvas_ai_turn_google_search_into_a_full/)
 - [Google Labs: Experimenting with Canvas](https://labs.google/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-03
 - Confidence: high

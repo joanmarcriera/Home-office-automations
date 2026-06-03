@@ -89,7 +89,7 @@ Google's **Managed Agents** platform (released May 2026) allows developers to de
 - [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 - [Antigravity Agent](https://ai.google.dev/gemini-api/docs/antigravity-agent)
 - [Antigravity Agent](antigravity-agent.md)
-- [Managed Agents Overview](managed-agents.md)
+- [Managed Agents Overview](https://aistudio.google.com/managed-agents)
 
 ## Sources / References
 - [Official Website](https://gemini.google.com/)
@@ -97,7 +97,8 @@ Google's **Managed Agents** platform (released May 2026) allows developers to de
 - [Announcing Gemini 3.5 Flash](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5-flash-announcement/)
 - [Google AI Studio](https://aistudio.google.com/)
 - [Antigravity Agent Guide](https://ai.google.dev/gemini-api/docs/antigravity)
+- [Managed Agents Overview](https://aistudio.google.com/managed-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-02
+- Last reviewed: 2026-06-03
 - Confidence: high

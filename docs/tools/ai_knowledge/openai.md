@@ -143,10 +143,12 @@ for task in plan.tasks:
 - [SQL Validation Playbook](../../playbooks/data-copilot-sql-validation.md)
 - [Pydantic AI Framework](../frameworks/pydantic-ai.md)
 - [Ollama](../../services/ollama.md)
+- [LangChain](https://python.langchain.com/v0.2/docs/integrations/chat/openai/)
 - [LangChain](../frameworks/langchain.md)
 
 ## Sources / References
 
+- [LangChain OpenAI Integration Guide](https://python.langchain.com/v0.2/docs/integrations/chat/openai/)
 - [Introducing GPT-5.4](https://openai.com/index/introducing-gpt-5-4)
 - [GPT-5.3 Instant](https://openai.com/index/gpt-5-3-instant)
 - [GPT-5.3 Instant System Card](https://openai.com/index/gpt-5-3-instant-system-card)
@@ -157,5 +159,5 @@ for task in plan.tasks:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-03
 - Confidence: high
