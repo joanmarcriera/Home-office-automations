@@ -63,6 +63,7 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 63** | Maintenance Run (The "Oldest" Res) | **Verified & Closed** | Deepened `chronos-mcp.md`, `vault-mcp.md`, etc. Verified 2026-06-01. |
 | **Batch 64** | Maintenance Run (AI Knowledge) | **Verified & Closed** | Deepened `google-opal.md`, `project-genie.md`, etc. Verified 2026-06-01. |
 | **Batch 65** | MCP Technical Deepening | **Verified & Closed** | Deepened `claude-code-container-mcp.md`, `desktop-commander-mcp.md`, etc. (2026-05-16). |
+| **Batch 66** | Knowledge Base Deepening | **Verified & Closed** | Deepened `tool-calling-and-mcp.md`, `rag.md`, `model_comparison_and_evaluation.md`, `google_one_plans_comparison.md`, and `filesystem-context.md`. Verified 2026-06-03. |
 | **Batch 69** | Maintenance Run (Oldest Res) | **Verified & Closed** | Deepened `langgraph.md`, `semantic-kernel.md`, `smolagents.md`, `docling-mcp.md`, `cohere.md`. Verified 2026-06-01. |
 | **Batch 70** | Technical Deepening (Frameworks & Infra) | **Verified & Closed** | Deepened `autogen.md`, `crewai.md`, `dspy.md`, `haystack.md`, `vllm.md`. Verified 2026-06-01. |
 | **Batch 71** | Infrastructure Maintenance | **Verified & Closed** | Deepened `tgi.md`, `sglang.md`, `aphrodite-engine.md`, `exllamav2.md`, `claude-code-router.md`. Verified 2026-06-01. |

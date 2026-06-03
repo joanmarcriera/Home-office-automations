@@ -302,6 +302,9 @@ The LLM uses multiple tools in sequence, where the output of one tool serves as 
 Modern LLMs can generate multiple tool calls in a single turn. This is highly efficient for fetching independent pieces of information.
 - **Example**: When asked to "compare the stock prices of Apple, Nvidia, and Microsoft," the model can return three `get_stock_price` calls at once. The runtime executes them in parallel and returns all results to the model simultaneously.
 
+### Agentic MCP (Sampling)
+The **Sampling** capability in MCP allows a server to act as an agent itself. When a server encounters a problem it cannot solve with its local tools, it can "sample" the client's LLM to generate a new completion, effectively allowing for recursive agentic reasoning where tools can call other tools across different servers.
+
 ### Tool Use with Confirmation (Human-in-the-Loop)
 For sensitive operations (writing files, deleting data, sending emails), the runtime intercepts the tool call and prompts the user for approval.
 - **Implementation**: The host application renders the proposed tool arguments to the user. The tool is only executed if the user confirms; otherwise, a "user canceled" error is sent back to the model.
@@ -354,5 +357,5 @@ A core benefit of MCP is the ability for a single client (like Claude Desktop or
 - [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-25
+- Last reviewed: 2026-06-03
 - Confidence: high

@@ -11,6 +11,7 @@ Evaluation sits at the **Quality & Governance Layer** of the AI stack. It inform
 
 ## Typical use cases
 - **Model Selection**: Choosing between frontier models like **GPT-4o**, **o1**, or **o3** for complex reasoning vs. smaller "flash" models for high-speed tasks.
+- **Reasoning vs. Chat**: Evaluating "Thinking" models (like **OpenAI o1/o3** or **DeepSeek R1**) using specialized "Reasoning Benchmarks" that measure chain-of-thought depth rather than just final answer accuracy.
 - **Regression Testing**: Ensuring that a fine-tuned model or a new system prompt hasn't degraded performance.
 - **Cost Optimization**: Identifying tasks that can be safely downgraded to cheaper, smaller models.
 - **Accuracy Verification**: Measuring the hallucination rate in RAG (Retrieval-Augmented Generation) systems.
@@ -113,5 +114,5 @@ For task-level routing decisions such as when to use Haiku vs Sonnet vs Opus, or
 - [LiveCodeBench](https://livecodebench.github.io/leaderboard.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-03
 - Confidence: high

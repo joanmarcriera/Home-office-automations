@@ -15,6 +15,12 @@ It simplifies the transition from LLM prototyping to enterprise-grade agent depl
 - **Skill-Based Agents**: Extending agent capabilities using "Skills" (pre-defined action packages).
 - **Scale-Out Deployment**: Deploying agents to Google Cloud (Cloud Run, GKE) with built-in scaling and management.
 
+## Technical Capabilities
+- **State-Machine Orchestration**: Explicitly define transitions between agent states for high reliability and auditability.
+- **Skill Discovery**: Automatic registration and discovery of tools via standardized decorators.
+- **Traceability**: Native integration with Vertex AI's evaluation and monitoring tools (AI Evaluation Service).
+- **Cross-Language Support**: Standardized interfaces allow Go or Java agents to utilize Python-based skills via gRPC.
+
 ## Strengths
 - **Production-Grade**: Based on Google's internal agent infrastructure.
 - **Multi-Language**: Available in Python, TypeScript, Go, and Java.
@@ -48,8 +54,35 @@ pip install google-adk
 - **Skills**: Composable capabilities that agents can use to interact with external systems.
 - **Runtime**: Local and cloud execution environments for ADK agents.
 
+## API: Building a Skill-Based Agent
+The ADK uses a decorator-based approach to define skills that agents can then discover and use.
+
+```python
+from google_adk import Agent, Skill
+
+# 1. Define a Skill
+@Skill.define(
+    name="query_crm",
+    description="Queries the internal CRM for user status."
+)
+def query_crm(user_id: str) -> str:
+    # Logic to query an internal database
+    return f"User {user_id} is a premium customer."
+
+# 2. Initialize the Agent with the Skill
+agent = Agent(
+    name="SupportAgent",
+    model="gemini-1.5-pro",
+    skills=[query_crm]
+)
+
+# 3. Run a Task
+response = agent.run("Check the status of user 12345")
+print(response.content)
+```
+
 ## Related tools / concepts
-- [Google Gemini](../ai_knowledge/google-gemini.md)
+- [Gemini](../ai_knowledge/gemini.md)
 - [Microsoft Agent Framework](microsoft-agent-framework.md)
 - [LangGraph](langgraph.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
@@ -57,6 +90,8 @@ pip install google-adk
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [CrewAI](crewai.md)
 - [Autogen](autogen.md)
+- [Jules](../ai_knowledge/jules.md)
+- [MCP](../automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Google Cloud Documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk)
@@ -64,5 +99,5 @@ pip install google-adk
 - [Launch Announcement](https://www.reddit.com/r/vibecoding/comments/1raamgk/google_officially_launches_the_agent_development/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-03
 - Confidence: high
