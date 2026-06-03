@@ -113,7 +113,7 @@ print(response.choices[0].message.content)
 
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
-- [LM Studio](../ai_knowledge/lm-studio.md)
+- [LM Studio](lm-studio.md)
 - [llmfit](../development_ops/llmfit.md)
 - [llama.cpp](llama-cpp.md)
 - [vLLM](vllm.md)
@@ -121,15 +121,14 @@ print(response.choices[0].message.content)
 - [Home Assistant](../../services/home-assistant.md)
 - [n8n](../../services/n8n.md)
 - [Open WebUI](../../services/open-webui.md)
-- [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
-- [LM Studio](../ai_knowledge/lm-studio.md)
+- [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
 
 ## Sources / References
 - [LocalAI Documentation](https://localai.io/)
- - [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
+ - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
 - [LocalAI GitHub Repository](https://github.com/mudler/LocalAI)
 - [Model Gallery](https://localai.io/models/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-02
+- Last reviewed: 2026-06-03
 - Confidence: high
