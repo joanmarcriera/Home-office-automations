@@ -91,13 +91,13 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 104** | Technical Freshness Audits | **Verified & Closed** | Audited Dex CRM, NanoClaw, CodeGraphContext, Prompt Requests, and PostHog. Verified 2026-06-03. |
 | **Batch 105** | Technical Freshness Audits | **Verified & Closed** | Audited Lightpanda, SHARP, Grok, Windsurf, and Gemini CLI. Verified 2026-06-03. |
 | **Batch 107** | Technical Freshness Audits | **Verified & Closed** | Audited External-DNS, MinIO, big-AGI, Doc Writer, and Claude Code. Verified 2026-06-03. |
-| **Batch 108** | Technical Freshness Audits | **Resolved** | Audited KB README, Sync Engines, Google One, Audio Transcription, and Self-healing Agents (2026-05-30). |
-| **Batch 109** | Technical Freshness Audits | **Resolved** | Audited Apple Calendar, Calendly, Fantastical, Fastmail, and Microsoft To Do for May 2026 technical freshness (2026-05-30). |
-| **Batch 110** | Technical Freshness Audits | **Resolved** | Audited SavvyCal, Sunsama, TickTick, Elastic, and Curiosity for May 2026 technical freshness (2026-05-31). |
-| **Batch 111** | Technical Freshness Audits | **Resolved** | Audited Enterprise Index, Amie, Agentic RAG, Data Copilot Skeleton, and Nemotron for May 2026 technical freshness (2026-05-31). |
-| **Batch 112** | Technical Freshness Audits | **Resolved** | Audited Airflow, Hamilton, Argo, Dagster, and Flyte for May 2026 technical freshness (2026-05-31). |
-| **Batch 113** | Technical Freshness Audits | **Resolved** | Audited Rivet, AG2, Mastra, Langflow, and Superinterface for May 2026 technical freshness (2026-05-31). |
-| **Batch 114** | Technical Freshness Audits | **Resolved** | Audited Ripgrep, Temporal, Ansigpt, Gemini, and LlamaIndex.TS for June 2026 technical freshness (2026-06-01). |
+| **Batch 108** | Technical Freshness Audits | **Verified & Closed** | Audited KB README, Sync Engines, Google One, Audio Transcription, and Self-healing Agents. Verified 2026-06-03. |
+| **Batch 109** | Technical Freshness Audits | **Verified & Closed** | Audited Apple Calendar, Calendly, Fantastical, Fastmail, and Microsoft To Do. Verified 2026-06-03. |
+| **Batch 110** | Technical Freshness Audits | **Verified & Closed** | Audited SavvyCal, Sunsama, TickTick, Elastic, and Curiosity. Verified 2026-06-03. |
+| **Batch 111** | Technical Freshness Audits | **Verified & Closed** | Audited Enterprise Index, Amie, Agentic RAG, Data Copilot Skeleton, and Nemotron. Verified 2026-06-03. |
+| **Batch 112** | Technical Freshness Audits | **Verified & Closed** | Audited Airflow, Hamilton, Argo, Dagster, and Flyte. Verified 2026-06-03. |
+| **Batch 113** | Technical Freshness Audits | **Verified & Closed** | Audited Rivet, AG2, Mastra, Langflow, and Superinterface. Verified 2026-06-03. |
+| **Batch 114** | Technical Freshness Audits | **Verified & Closed** | Audited Ripgrep, Temporal, Ansigpt, Gemini, and LlamaIndex.TS. Verified 2026-06-03. |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
