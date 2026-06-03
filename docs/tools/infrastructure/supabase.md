@@ -216,14 +216,14 @@ const channel = supabase
 - [n8n](../../services/n8n.md) — Workflow automation that often uses Supabase for state.
 - [Tavily](../providers/tavily.md) — AI-native search that can feed data into Supabase.
 - [Open WebUI](../../services/open-webui.md) — Self-hosted UI for LLMs that can be backed by Postgres.
-- [Dify](../automation_orchestration/dify.md) — LLM application development platform.
+- [Dify](../ai_knowledge/dify.md) — LLM application development platform.
 
 ## Sources / References
 - [Official Website](https://supabase.com/)
 - [Documentation](https://supabase.com/docs)
 - [GitHub Repository](https://github.com/supabase/supabase)
 - [pgvector on Supabase](https://supabase.com/docs/guides/ai)
-- [Dify Integration](../ai_knowledge/dify.md)
+- [Dify](https://dify.ai/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-02

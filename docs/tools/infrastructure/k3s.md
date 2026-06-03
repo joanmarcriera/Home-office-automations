@@ -89,7 +89,7 @@ sudo k3s kubectl apply -f whoami.yaml
 - [Home Assistant (via HASS-K8s)](../../services/home-assistant.md)
 - [TrueNAS SCALE (Uses K3s internally)](../../architecture/infrastructure.md)
 - [Talos OS](../../knowledge_base/talos-vs-ubuntu-k3s.md)
-- [Longhorn](../../roadmap.md)
+- [Longhorn](https://longhorn.io/)
 
 ## Sources / References
 - [Official Website](https://k3s.io/)
