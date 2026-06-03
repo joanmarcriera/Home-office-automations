@@ -129,17 +129,17 @@ response = client.chat.completions.create(
 - [vLLM](vllm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [LangSmith](../benchmarking/langsmith.md)
-- [Weights & Biases](../benchmarking/wandb.md)
-- [Unstructured](../process_understanding/unstructured.md)
-- [LlamaParse](../process_understanding/llamaparse.md)
+- [Weights & Biases](../process_understanding/wandb-weave.md)
+- [Unstructured](../intake_storage/unstructured.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
 
 ## Sources / References
 - [Official Website](https://openpipe.ai/)
 - [GitHub](https://github.com/openpipe/openpipe)
 - [Docs](https://docs.openpipe.ai/)
-- [Weights & Biases](../process_understanding/wandb-weave.md)
-- [Unstructured](../intake_storage/unstructured.md)
-- [LlamaParse](../intake_storage/llamaparse.md)
+- [Weights & Biases](https://wandb.ai/)
+- [Unstructured](https://unstructured.io/)
+- [LlamaParse](https://www.llamaindex.ai/llamaparse)
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-02
