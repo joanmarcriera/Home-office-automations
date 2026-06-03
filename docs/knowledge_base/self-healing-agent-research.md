@@ -115,6 +115,8 @@ def main():
 - [Invisible Kubernetes](invisible_kubernetes.md) — the infrastructure layer these agents often manage.
 - [Home Admin Agent Architecture](home-admin-agent-architecture.md) — integration with the primary family assistant.
 - [Gitea](../services/gitea.md) — for config rollback patterns.
+- [n8n](../services/n8n.md) — automation platform for recovery workflows.
+- [Uptime Kuma](../services/uptime-kuma.md) — for service monitoring and triggers.
 
 ## Implementation Roadmap (2026)
 1. **Phase 1 (Baseline)**: Set up n8n "Health Check" loop and Telegram alerts.
