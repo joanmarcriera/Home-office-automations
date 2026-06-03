@@ -90,12 +90,12 @@ TGI exposes a `/metrics` endpoint for Prometheus, providing detailed insights in
 ## Related tools / concepts
 - [vLLM](vllm.md)
 - [SGLang](sglang.md)
-- [bitsandbytes](../development_ops/bitsandbytes.md)
+- [bitsandbytes](https://github.com/TimDettmers/bitsandbytes)
 - [Inference engines](index.md)
 - [llama.cpp](llama-cpp.md)
 - [Aphrodite Engine](aphrodite-engine.md)
 - [Docker](../infrastructure/docker.md)
-- [Prometheus](../infrastructure/prometheus.md)
+- [Prometheus](https://prometheus.io/)
 
 ## Sources / References
 - [Official Website](https://huggingface.co/docs/text-generation-inference)
