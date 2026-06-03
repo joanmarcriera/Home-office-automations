@@ -79,12 +79,12 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 85** | Comprehensive Cleanup | **Verified & Closed** | Deepened `supabase.md`, `todoist.md`, `microsoft-todo.md`, etc. Resolved debt from Batch 55/56 (2026-05-21). |
 | **Batch 86** | Deepening Shallow Docs | **Verified & Closed** | Deepened `inventory.md`, `cloudflare-mesh.md`, `real_time_sync_engines.md`, etc. Verified 2026-06-02. |
 | **Batch 87** | Deepening Shallow Docs | **Verified & Closed** | Deepened `openai-agents-sdk.md`, `notion-ai.md`, `jules.md`, `roam-research.md`, `kumo-ai.md`. Verified 2026-06-02. |
-| **Batch 88** | Technical Deepening | **Resolved** | Deepened `dashworks.md`, `guru.md`, `coveo.md`, `motion.md`, `any-do.md` with technical examples (2026-05-23). |
-| **Batch 89** | Deepening Shallow Docs | **Resolved** | Deepened `self-healing-agent-research.md`, `mlx.md`, `home-admin-tools.md`, `perplexity-agent-api.md`, `ai-auditing-tools.md` (2026-05-24). |
+| **Batch 88** | Technical Deepening | **Verified & Closed** | Deepened `dashworks.md`, `guru.md`, `coveo.md`, `motion.md`, `any-do.md` with technical examples. Verified 2026-06-02. |
+| **Batch 89** | Deepening Shallow Docs | **Verified & Closed** | Deepened `self-healing-agent-research.md`, `mlx.md`, `home-admin-tools.md`, `perplexity-agent-api.md`, `ai-auditing-tools.md`. Verified 2026-06-02. |
 | **Batch 94** | Operational Verification | **Verified & Closed** | Infrastructure migrations, data guardrails, and service freshness audits (Syncthing, Gitea) verified (2026-05-25). |
-| **Batch 95** | Service Maintenance (Backlog) | **Resolved** | Synchronized playbook checklists and populated `## Backlog` for 52 service docs (2026-05-25). |
-| **Batch 97** | Service Freshness Audit | **Resolved** | Audited Element, Linkwarden, Audiobookshelf, Excalidraw, and Homebox for May 2026 freshness (2026-05-26). |
-| **Batch 100** | Technical Freshness Audits | **Resolved** | Audited HELM, OpenCompass, OpenClaw, and Docling for May 2026 technical freshness (2026-05-28). |
+| **Batch 95** | Service Maintenance (Backlog) | **Verified & Closed** | Synchronized playbook checklists and populated `## Backlog` for 54 service docs. Verified 2026-06-02. |
+| **Batch 97** | Service Freshness Audit | **Verified & Closed** | Audited Element, Linkwarden, Audiobookshelf, Excalidraw, and Homebox for May 2026 freshness. Verified 2026-06-02. |
+| **Batch 100** | Technical Freshness Audits | **Verified & Closed** | Audited HELM, OpenCompass, OpenClaw, and Docling for May 2026 technical freshness. Verified 2026-06-02. |
 | **Batch 101** | Technical Freshness Audits | **Resolved** | Audited Software Factories, Ubuntu AI, ColQwen, VAKRA, and Multi-Calendar Research for May 2026 technical freshness (2026-05-28). |
 | **Batch 102** | Core Architecture Freshness | **Resolved** | Audited CONTRIBUTING, README, Multi-Agent KnowledgeOps, Data Copilot, and Flows for May 2026 technical freshness (2026-05-28). |
 | **Batch 103** | Technical Freshness Audits | **Verified & Closed** | Audited voice research, vector storage, vision models, family prompts, and search for May 2026 technical freshness (2026-05-28). |
