@@ -106,8 +106,8 @@ curl -X GET "https://api.synthesia.io/v1/videos/<VIDEO_ID>" \
 ## Related tools / concepts
 - [Sora](sora.md)
 - [Luma Dream Machine](luma-dream-machine.md)
-- [Runway Gen-3](runway.md)
-- [HeyGen](heygen.md) (Primary competitor)
+- [Runway Gen-3](https://help.runwayml.com/hc/en-us/articles/30586818553107-Gen-3-Alpha-Overview)
+- [HeyGen](https://docs.heygen.com/) (Primary competitor)
 - [ElevenLabs](../ai_knowledge/elevenlabs.md) (For high-fidelity voice cloning)
 - [n8n](../../services/n8n.md) (For automating video creation triggers)
 - [Agentic Video Pipelines](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
@@ -115,8 +115,10 @@ curl -X GET "https://api.synthesia.io/v1/videos/<VIDEO_ID>" \
 ## Sources / References
 - [Synthesia Official Website](https://www.synthesia.io/)
 - [Synthesia API Documentation](https://developers.synthesia.io/)
+- [HeyGen API Documentation](https://docs.heygen.com/)
+- [Runway Gen-3 Alpha Overview](https://help.runwayml.com/hc/en-us/articles/30586818553107-Gen-3-Alpha-Overview)
 - [dltHub: Synthesia Python API Docs](https://dlthub.com/context/source/synthesia)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-03
 - Confidence: high

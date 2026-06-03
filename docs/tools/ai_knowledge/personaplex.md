@@ -120,13 +120,14 @@ To maintain sub-200ms latency for real-time conversation:
 - [Whisper](../../services/whisper.md) — For high-accuracy offline transcription.
 - [Real-time Sync Engines](../../knowledge_base/real_time_sync_engines.md) — Patterns for low-latency state synchronization.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For connecting PersonaPlex agents to external tools.
-- [Low-Latency Audio Patterns](../../knowledge_base/patterns/agentic-workflows.md#voice-interaction) — Research on optimizing full-duplex pipelines.
+- [Low-Latency Audio Patterns](../../knowledge_base/learning-map.md) — Research on optimizing full-duplex pipelines.
 
 ## Sources / References
 - [Official GitHub](https://github.com/NVIDIA/personaplex)
 - [Research Paper](https://arxiv.org/abs/2602.06053)
 - [NVIDIA Technical Demo](https://research.nvidia.com/labs/adlr/personaplex/)
+- [Low-Latency Audio Patterns](../../knowledge_base/learning-map.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-03
 - Confidence: high

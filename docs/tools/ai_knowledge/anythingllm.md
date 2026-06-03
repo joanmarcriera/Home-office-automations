@@ -119,8 +119,8 @@ print(response.json()['textResponse'])
 ## Sources / References
 - [Official Website](https://anythingllm.com)
 - [GitHub Repository](https://github.com/Mintplex-Labs/anything-llm)
-- [AnythingLLM Documentation](https://docs.anythingllm.com/)
+- [AnythingLLM Documentation](https://docs.useanything.com/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-03
 - Confidence: high

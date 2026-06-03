@@ -124,16 +124,17 @@ print(response.choices[0].message.content)
 - [Open WebUI](../../services/open-webui.md) — The premier web interface for local LLMs.
 - [LiteLLM](../../services/litellm.md) — Proxy for switching between local and cloud models.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For giving local models tool access.
-- [AnythingLLM](../../services/anythingllm.md) — Full-stack local RAG solution.
+- [AnythingLLM](https://docs.useanything.com/introduction) — Full-stack local RAG solution.
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-06-03)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-31
+- Last reviewed: 2026-06-03
 - Confidence: high
 
 ## Sources / References
+- [AnythingLLM Documentation](https://docs.useanything.com/introduction)
 - [Ollama Official Documentation](https://ollama.com/library)
 - [MLX Examples Repository](https://github.com/ml-explore/mlx-examples)
 - [llama.cpp GitHub](https://github.com/ggerganov/llama.cpp)

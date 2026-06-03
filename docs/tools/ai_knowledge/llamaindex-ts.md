@@ -77,15 +77,17 @@ console.log(result);
 - [Instructor](../frameworks/instructor.md)
 - [Mastra](../frameworks/mastra.md)
 - [AG2](../frameworks/ag2.md)
-- [Llama-deploy](llama-deploy.md)
-- [TraceAI](trace-ai.md)
+- [Llama-deploy](https://github.com/run-llama/llama-deploy)
+- [TraceAI](https://llamatrace.com/)
 
 ## Sources / references
 - [Official Website](https://ts.llamaindex.ai/)
 - [GitHub Repository](https://github.com/run-llama/LlamaIndexTS)
 - [LlamaIndex 2026: Workflows and Production](https://ts.llamaindex.ai/blog/workflows-and-production-2026)
 - [Documentation](https://ts.llamaindex.ai/docs/llamaindex/getting_started)
+- [Llama-deploy](https://github.com/run-llama/llama-deploy)
+- [LlamaTrace (TraceAI)](https://llamatrace.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-03
 - Confidence: high

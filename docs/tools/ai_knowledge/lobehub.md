@@ -98,13 +98,15 @@ LobeHub supports Model Context Protocol (MCP) servers. To add a tool via MCP:
 - [Open WebUI](../../services/open-webui.md)
 - [LibreChat](librechat.md)
 - [Ollama](../../services/ollama.md)
+- [MCP](https://lobehub.com/docs/usage/mcp)
 - [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [LobeHub Official Site](https://lobehub.com/)
 - [LobeHub GitHub](https://github.com/lobehub/lobe-chat)
 - [LobeHub Documentation](https://lobehub.com/docs)
+- [LobeHub MCP Guide](https://lobehub.com/docs/usage/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-03
 - Confidence: high
