@@ -72,7 +72,7 @@ print(response.choices[0].message.content)
 - **Self-hostable**: Local desktop runtime only
 
 ## Related tools / concepts
-- [Local LLMs (Ollama, MLX, llama.cpp)](local_llms.md)
+- [Local LLMs (Ollama, MLX, llama.cpp)](../ai_knowledge/local_llms.md)
 - [Ollama](../../services/ollama.md)
 - [Jan.ai](jan-ai.md)
 - [Msty](msty.md)
@@ -84,5 +84,5 @@ print(response.choices[0].message.content)
 - [LM Studio CLI Documentation](https://lmstudio.ai/docs/cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-03
 - Confidence: high

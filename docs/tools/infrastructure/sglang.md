@@ -89,8 +89,8 @@ Unlike traditional LRU caching, **RadixAttention** manages the KV cache as a rad
 - [Aphrodite Engine](aphrodite-engine.md)
 - [llama.cpp](llama-cpp.md)
 - [Inference engines](index.md)
-- [JSON Schema](../knowledge_base/json-schema.md)
-- [Python SDK](../development_ops/python-sdk.md)
+- [JSON Schema](https://json-schema.org/)
+- [Python SDK](https://github.com/sgl-project/sglang/tree/main/python/sglang)
 
 ## Sources / References
 - [Official Website](https://sgl-project.github.io/)
@@ -99,5 +99,5 @@ Unlike traditional LRU caching, **RadixAttention** manages the KV cache as a rad
 - [RadixAttention Technical Paper](https://arxiv.org/abs/2312.04515)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-02
+- Last reviewed: 2026-06-03
 - Confidence: high
