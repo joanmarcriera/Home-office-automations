@@ -73,7 +73,7 @@ python -m mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit --pro
 - [Aphrodite Engine](aphrodite-engine.md)
 - [Whisper](../../services/whisper.md)
 - [Sora](../ai_knowledge/sora.md)
-- [Llama Factory](../development_ops/llama-factory.md)
+- [Llama Factory](../frameworks/llama-factory.md)
 
 ## Performance
 - **Benchmarking**: 11 MLX models were benchmarked on M3 Ultra in March 2026, demonstrating its capability as a top-tier local inference platform.

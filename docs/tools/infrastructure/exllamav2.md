@@ -81,9 +81,9 @@ ExLlamaV2 supports various environment variables to tune performance:
 - [llama.cpp](llama-cpp.md)
 - [Aphrodite Engine](aphrodite-engine.md)
 - [vLLM](vllm.md)
-- [Quantization](../knowledge_base/patterns/quantization.md)
-- [NVIDIA CUDA](../infrastructure/nvidia-cuda.md)
-- [Long Context](../knowledge_base/long-context.md)
+- [Quantization](../../knowledge_base/patterns/fine-tuning-open-models.md)
+- [NVIDIA CUDA](https://docs.nvidia.com/cuda/)
+- [Long Context](../../knowledge_base/model_routing_guide.md)
 - [Text Generation Inference (TGI)](tgi.md)
 
 ## Sources / References
