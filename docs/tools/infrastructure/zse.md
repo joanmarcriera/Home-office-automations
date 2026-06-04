@@ -87,12 +87,12 @@ curl http://localhost:8080/v1/chat/completions \
 - [SGLang](sglang.md)
 - [Text Generation Inference (TGI)](tgi.md)
 - [LiteLLM](../../services/litellm.md)
-- [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
+- [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
 - [Serverless AI Architectures](../../architecture/infrastructure.md)
 
 ## Sources / References
 - [ZSE GitHub Repository](https://github.com/Zyora-Dev/zse)
-- [Model Serving Patterns](../../knowledge_base/patterns/model_routing_guide.md)
+- [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
 
 ## Contribution Metadata
 

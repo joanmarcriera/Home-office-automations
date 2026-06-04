@@ -35,12 +35,14 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 32** | Weekly deepening: Services | **Verified & Closed** | Deepened `trilium.md`, `tubearchivist.md`, `vikunja.md`, `whisper.md`. Verified 2026-06-01. |
 | **Batch 33** | Weekly deepening: AI Knowledge | **Verified & Closed** | Deepened `google-opal.md`, `project-genie.md`, `sora.md`, `google-lyria.md`, `azure-openai.md`, `aitmpl.md`, `gemini-flash-tts.md`, `nano-banana.md`, `google-search.md`, `dex.md`. Verified 2026-06-01. |
 | **Batch 34** | Weekly deepening: Knowledge Mgmt | **Verified & Closed** | Deepened `anytype.md`, `silverbullet.md`, `akiflow.md`, `morgen.md`, `component_map.md`. Verified 2026-06-01. |
+| **Batch 35** | Deepening Shallow Docs | **Verified & Closed** | Media, Comm, Security, and Productivity docs deepened. Verified 2026-06-03. |
 | **Batch 36** | Architecture Deepening | **Verified & Closed** | Deepened `flows.md`, `infrastructure.md`, `prompt-catalogue.md`. Verified 2026-06-01. |
 | **Batch 37** | Knowledge Base Deepening | **Verified & Closed** | Deepened learning map, builder index, starter stack, economic impact, reading list. Verified 2026-06-01. |
 | **Batch 38** | Playbook Deepening | **Verified & Closed** | Deepened dev workflow, doc prep, email-to-calendar, family admin, NFS CSI setup. Verified 2026-06-01. |
 | **Batch 39** | Knowledge Base Deepening | **Verified & Closed** | Deepened ai_signal_sources, agent_protocols, and ai_tool_access_matrix. Verified 2026-06-01. |
 | **Batch 40** | Playbook Deepening | **Verified & Closed** | Deepened raspberry-pi-kiosk-automation and scan-to-task. Verified 2026-06-01. |
 | **Batch 41** | Maintenance Run (Audit Resolution) | **Verified & Closed** | 100% compliance achieved across 486/486 docs (2026-05-12). |
+| **Batch 42** | Service & Automation Deepening | **Verified & Closed** | Matrix Synapse, Authentik LDAP, n8n SLOs completed. Verified 2026-06-03. |
 | **Batch 44** | Maintenance Run (Oldest Backlog) | **Verified & Closed** | Deepened `standards.md`, `logseq.md`, etc. Verified 2026-06-01. |
 | **Batch 45** | Maintenance Run (Oldest Backlog) | **Verified & Closed** | Deepened `llama-cpp.md`, `llm-trust-boundaries.md`, etc. Verified 2026-06-01. |
 | **Batch 46** | Maintenance Run (Medium Confidence) | **Verified & Closed** | Deepened `obsidian.md`, `make.md`, `zapier.md`, etc. Verified 2026-06-01. |
@@ -75,6 +77,9 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 76** | Fine-tuning Ecosystem | **Verified & Closed** | Deepened `unsloth.md`, `llama-factory.md`, `axolotl.md`, `distilabel.md`, `glaive.md` (2026-05-18). |
 | **Batch 77** | Oldest Backlog Maintenance | **Verified & Closed** | Deepened `evalplus.md`, `helm.md`, `opencompass.md`, `openhands.md`, `openclaw-use-case-catalog.md` (2026-05-19). |
 | **Batch 78** | Technical Deepening (Infra & Bench) | **Verified & Closed** | Deepened `docker.md`, `luma-dream-machine.md`, `bigcodebench.md`, `arc.md`, `asdiv.md`. Verified 2026-06-02. |
+| **Batch 79** | Oldest Documentation Issues | **Verified & Closed** | Joplin, Devin, MMLU, HuggingFace, Proton deepened. Verified 2026-06-03. |
+| **Batch 80** | Automation & Security Deepening | **Verified & Closed** | Make, Vault, Playwright-MCP deepened. Verified 2026-06-03. |
+| **Batch 81** | Oldest Non-Compliant Docs | **Verified & Closed** | AWS Bedrock, Pulse-MCP, Alpaca-Eval, etc. deepened. Verified 2026-06-03. |
 | **Batch 82** | Technical Deepening (Backlog) | **Verified & Closed** | Deepened `pa-bench.md`, `terminal-bench.md`, `google_calendar.md`, `anti_gravity.md`, `cloud_code.md`. Verified 2026-06-02. |
 | **Batch 84** | AI Knowledge Deepening | **Verified & Closed** | Deepened `claude.md`, `chatgpt.md`, `chatbox-ai.md`, etc. Verified 2026-06-02. |
 | **Batch 85** | Comprehensive Cleanup | **Verified & Closed** | Deepened `supabase.md`, `todoist.md`, `microsoft-todo.md`, etc. Resolved debt from Batch 55/56 (2026-05-21). |
@@ -82,15 +87,21 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 87** | Deepening Shallow Docs | **Verified & Closed** | Deepened `openai-agents-sdk.md`, `notion-ai.md`, `jules.md`, `roam-research.md`, `kumo-ai.md`. Verified 2026-06-02. |
 | **Batch 88** | Technical Deepening | **Verified & Closed** | Deepened `dashworks.md`, `guru.md`, `coveo.md`, `motion.md`, `any-do.md` with technical examples. Verified 2026-06-02. |
 | **Batch 89** | Deepening Shallow Docs | **Verified & Closed** | Deepened `self-healing-agent-research.md`, `mlx.md`, `home-admin-tools.md`, `perplexity-agent-api.md`, `ai-auditing-tools.md`. Verified 2026-06-02. |
+| **Batch 91** | Deepening Shallow Docs | **Verified & Closed** | Headscale, Heretic-ara, JudgeGPT, Intercode, MS Graph. Verified 2026-06-03. |
+| **Batch 92** | Service Maintenance & Health | **Verified & Closed** | n8n fixtures, Tailscale exit node, Grocy, Focalboard. Verified 2026-06-03. |
 | **Batch 94** | Operational Verification | **Verified & Closed** | Infrastructure migrations, data guardrails, and service freshness audits (Syncthing, Gitea) verified (2026-05-25). |
 | **Batch 95** | Service Maintenance (Backlog) | **Verified & Closed** | Synchronized playbook checklists and populated `## Backlog` for 54 service docs. Verified 2026-06-02. |
+| **Batch 96** | Service Freshness Audit | **Verified & Closed** | LiteLLM, n8n, Trilium, Immich, Draw.io audited. Verified 2026-06-03. |
 | **Batch 97** | Service Freshness Audit | **Verified & Closed** | Audited Element, Linkwarden, Audiobookshelf, Excalidraw, and Homebox for May 2026 freshness. Verified 2026-06-02. |
+| **Batch 98** | Service Freshness Audit | **Verified & Closed** | Mealie, Ollama, Open WebUI, Paperless-AI, Prowlarr. Verified 2026-06-03. |
+| **Batch 99** | Service Maintenance Backlog | **Verified & Closed** | All 36 service audits categorized and completed. Verified 2026-06-03. |
 | **Batch 100** | Technical Freshness Audits | **Verified & Closed** | Audited HELM, OpenCompass, OpenClaw, and Docling for May 2026 technical freshness. Verified 2026-06-02. |
 | **Batch 101** | Technical Freshness Audits | **Verified & Closed** | Audited Software Factories, Ubuntu AI, ColQwen, VAKRA, and Multi-Calendar Research. Verified 2026-06-03. |
 | **Batch 102** | Core Architecture Freshness | **Verified & Closed** | Audited CONTRIBUTING, README, Multi-Agent KnowledgeOps, Data Copilot, and Flows. Verified 2026-06-03. |
 | **Batch 103** | Technical Freshness Audits | **Verified & Closed** | Audited voice research, vector storage, vision models, family prompts, and search for May 2026 technical freshness (2026-05-28). |
 | **Batch 104** | Technical Freshness Audits | **Verified & Closed** | Audited Dex CRM, NanoClaw, CodeGraphContext, Prompt Requests, and PostHog. Verified 2026-06-03. |
 | **Batch 105** | Technical Freshness Audits | **Verified & Closed** | Audited Lightpanda, SHARP, Grok, Windsurf, and Gemini CLI. Verified 2026-06-03. |
+| **Batch 106** | Technical Freshness Audits | **Verified & Closed** | Core index files and high-value tools (PydanticAI) updated. Verified 2026-06-03. |
 | **Batch 107** | Technical Freshness Audits | **Verified & Closed** | Audited External-DNS, MinIO, big-AGI, Doc Writer, and Claude Code. Verified 2026-06-03. |
 | **Batch 108** | Technical Freshness Audits | **Verified & Closed** | Audited KB README, Sync Engines, Google One, Audio Transcription, and Self-healing Agents. Verified 2026-06-03. |
 | **Batch 109** | Technical Freshness Audits | **Verified & Closed** | Audited Apple Calendar, Calendly, Fantastical, Fastmail, and Microsoft To Do. Verified 2026-06-03. |
@@ -104,7 +115,6 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:
 
 - **Access Matrix Freshness**: **Updated (2026-05-23)** (Perplexity Gmail/Calendar updated to 🟢; Aider MCP updated to 🟠).
-- **Batch 35**: Deepen remaining shallow docs from `data/growth-metrics.json`. **Sub-Batch 35.1 (Media) completed 2026-05-12**.
 
 ---
 - Confidence: high
