@@ -76,7 +76,7 @@ python -m tools.webui
 - [ElevenLabs](elevenlabs.md) — Proprietary industry standard for TTS.
 - [ChatTTS](chatgpt.md) — Conversational-focused TTS models.
 - [Audiobookshelf](../../services/inventory.md) — Target service for Fish Audio generated content.
-- [Jellyfin](jellyfin.md) — Media server for hosting synthesized audio.
+- [Jellyfin](../../services/jellyfin.md) — Media server for hosting synthesized audio.
 
 ## Sources / references
 - [Fish Audio GitHub](https://github.com/fishaudio/fish-speech)

@@ -74,7 +74,7 @@ For providers not natively listed, use the "Custom OpenAI-compatible" option:
 ## Related tools / concepts
 - [Jan.ai](../infrastructure/jan-ai.md) — Local-first AI desktop client.
 - [LM Studio](../infrastructure/lm-studio.md) — Tool for discovering and running local LLMs.
-- [Msty](msty.md) — Multi-model AI client with focus on local privacy.
+- [Msty](../infrastructure/msty.md) — Multi-model AI client with focus on local privacy.
 - [Aider](../development_ops/aider.md) — Terminal-based pair programmer.
 - [Ollama](../../services/ollama.md) — Local LLM runner.
 - [Perplexity](perplexity.md) — AI-powered search engine.
