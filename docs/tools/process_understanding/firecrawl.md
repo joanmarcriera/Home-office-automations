@@ -149,7 +149,7 @@ result = app.scrape("https://example.com/login", {
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [Skyvern](../automation_orchestration/skyvern.md)
 - [Docling](docling.md)
-- [RAGFlow](../benchmarking/ragflow.md)
+- [RAGFlow](ragflow.md)
 - [Valyu](../ai_knowledge/valyu.md)
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
 

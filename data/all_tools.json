@@ -744,6 +744,12 @@
       "doc_path": "docs/tools/ai_knowledge/everything-claude-code.md"
     },
     {
+      "id": "exa-ai",
+      "name": "Exa AI",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/exa_ai.md"
+    },
+    {
       "id": "excalidraw",
       "name": "Excalidraw",
       "category": "Creative & Communication",

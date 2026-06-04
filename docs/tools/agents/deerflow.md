@@ -95,7 +95,7 @@ print(response.json())
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [mem0](mem0.md)
 - [Symphony](symphony.md)
-- [LangGraph](../../tools/ai_knowledge/langgraph.md)
+- [LangGraph](../frameworks/langgraph.md)
 - [Aider](../development_ops/aider.md)
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 

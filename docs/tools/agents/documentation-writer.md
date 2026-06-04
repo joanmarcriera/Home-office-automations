@@ -73,7 +73,7 @@ Audit existing documentation for freshness:
 ## Related tools / concepts
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md): The broader collection of agent enhancements.
 - [Superpowers](superpowers.md): Curated skill bundles for developers.
-- [KnowledgeOps](../../multi_agent_knowledgeops.md): The philosophy of managing knowledge like code.
+- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md): The philosophy of managing knowledge like code.
 
 ## Sources / references
 - [Documentation Writer Skill (GitHub)](https://github.com/awesome-copilot/documentation-writer)
