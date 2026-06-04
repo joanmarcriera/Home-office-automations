@@ -90,7 +90,7 @@ const myWorkflow = workflow('example', async (c) => {
 - [LangGraph](langgraph.md)
 - [PydanticAI](pydantic-ai.md)
 - [Temporal](../orchestration/temporal.md)
-- [Claude Code](../agents/claude-code.md) — Supported via Sandbox Agent SDK.
+- [Claude Code](../development_ops/claude-code.md) — Supported via Sandbox Agent SDK.
 
 ## Sources / References
 - [Official Website](https://rivet.ironcladapp.com/)

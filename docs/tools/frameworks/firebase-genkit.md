@@ -72,7 +72,7 @@ export const myFlow = defineFlow(
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Google ADK](google-adk.md)
 - [Langflow](langflow.md)
-- [Dify](dify.md)
+- [Dify](../ai_knowledge/dify.md)
 - [Instructor](instructor.md)
 
 ## Sources / references

@@ -128,7 +128,7 @@ else:
 - [AgentOps](agentops.md)
 - [Arize AI](arize-ai.md)
 - [Helicone](helicone.md)
-- [OpenRouter](openrouter.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / references
