@@ -85,7 +85,7 @@ Effective prompts for Dream Machine often follow a structural pattern:
 - [Google Lyria](google-lyria.md)
 - [HeyGen](heygen.md)
 - [Gemini Canvas](gemini-canvas.md)
-- [ElevenLabs](../development_ops/elevenlabs.md)
+- [ElevenLabs](elevenlabs.md)
 - [Replicate](../providers/replicate.md)
 
 ## Sources / references
