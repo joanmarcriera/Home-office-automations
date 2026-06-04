@@ -425,6 +425,7 @@ nav:
           - BigSwitch: tools/providers/bigswitch.md
           - Cohere: tools/providers/cohere.md
           - DeepSeek: tools/providers/deepseek.md
+          - Exa AI: tools/providers/exa_ai.md
           - Fireworks AI: tools/providers/fireworks.md
           - Groq: tools/providers/groq.md
           - Hugging Face: tools/providers/huggingface.md

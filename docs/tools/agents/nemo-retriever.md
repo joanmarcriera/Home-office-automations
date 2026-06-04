@@ -85,7 +85,7 @@ print(f"Embedding dimensions: {len(embeddings['data'][0]['embedding'])}")
 - **Trial**: Available for testing via NVIDIA build (NIM) with free credits.
 
 ## Related tools / concepts
-- [RAG Pattern](../../knowledge_base/rag.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [NIM (Inference Microservices)](../infrastructure/vllm.md) (NIM often uses vLLM or TGI backends)
 - [LangChain](../ai_knowledge/langchain.md)
 
