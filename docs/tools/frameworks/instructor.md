@@ -71,8 +71,8 @@ print(user.age)  # 25
 - [Structured Output Pattern](../../knowledge_base/patterns/index.md)
 - [LiteLLM](../../services/litellm.md)
 - [Firebase Genkit](firebase-genkit.md)
-- [Extraction and Classification](../../knowledge_base/patterns/extraction-and-classification.md)
-- [Date Extraction](../../knowledge_base/patterns/date-extraction.md)
+- [Extraction and Classification](../../knowledge_base/patterns/extraction-and-classification.md) (In Progress)
+- [Date Extraction](../../knowledge_base/patterns/date-extraction.md) (In Progress)
 
 ## Sources / references
 - [Official Website](https://python.useinstructor.com/)

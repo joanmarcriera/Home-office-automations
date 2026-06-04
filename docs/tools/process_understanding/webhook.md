@@ -83,7 +83,7 @@ async def receive_webhook(request: Request, x_webhook_secret: str = Header(None)
 - [Make](../automation_orchestration/make.md)
 - [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming destination)
 - [Event-Driven Architecture](../../knowledge_base/patterns/index.md)
-- [REST API](../../standards-and-conventions.md)
+- [REST API](../../standards.md)
 - [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 - [FastAPI](https://fastapi.tiangolo.com/) (Popular framework for receiving webhooks)
 

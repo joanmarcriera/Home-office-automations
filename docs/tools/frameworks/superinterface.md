@@ -80,7 +80,7 @@ You can now configure truncation via the API:
 - [Vercel AI SDK](../providers/vercel-ai-gateway.md)
 - [Dify](../ai_knowledge/dify.md)
 - [Open WebUI](../../services/open-webui.md)
-- [MCP](../knowledge_base/tool-calling-and-mcp.md) — Native support in Superinterface.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Native support in Superinterface.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Supported provider for Computer Use.
 
 ## Sources / References

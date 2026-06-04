@@ -156,7 +156,7 @@ async def main():
 ## Related tools / concepts
 - [Firecrawl](firecrawl.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
-- [RAGFlow](../benchmarking/ragflow.md)
+- [RAGFlow](ragflow.md)
 - [Skyvern](../automation_orchestration/skyvern.md)
 - [Docling](docling.md)
 - [Valyu](../ai_knowledge/valyu.md)

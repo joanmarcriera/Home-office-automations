@@ -104,8 +104,8 @@ RAGFlow can be integrated into n8n using the **HTTP Request** node to trigger do
 - [OCRmyPDF](./ocrmypdf.md)
 - [Docling](./docling.md)
 - [Firecrawl](./firecrawl.md)
-- [Unstructured](../ai_knowledge/unstructured.md)
-- [LlamaParse](../ai_knowledge/llamaparse.md)
+- [Unstructured](../intake_storage/unstructured.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
 
 ## Sources / references
 - [Official Website](https://ragflow.io/)
