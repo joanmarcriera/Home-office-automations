@@ -128,7 +128,7 @@ print(response.choices[0].message.content)
 - [Claude](claude.md) — The leading reasoning competitor from Anthropic.
 - [Gemini](gemini.md) — Google's multimodal AI integration.
 - [Perplexity](perplexity.md) — AI-native search focused on citations.
-- [OpenAI](../providers/openai.md) — Detailed overview of the provider ecosystem.
+- [OpenAI](openai.md) — Detailed overview of the provider ecosystem.
 - [DeepSeek R1](deepseek-r1.md) — An open-weight reasoning alternative.
 - [Everything Claude Code](everything-claude-code.md) — For comparison with Anthropic's agentic tools.
 - [OpenAI API Reference](https://platform.openai.com/docs/api-reference) — Official technical docs.

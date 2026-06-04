@@ -96,8 +96,8 @@ for user in predictions['data']:
 - [ClickHouse](../process_understanding/clickhouse.md)
 - [Sentry](../process_understanding/sentry.md)
 - [Datadog](../process_understanding/datadog.md)
-- [Grafana Cloud](../process_understanding/grafana.md)
-- [New Relic](../process_understanding/new-relic.md)
+- [Grafana Cloud](../process_understanding/grafana-cloud.md)
+- [New Relic](../process_understanding/new-relic-ai.md)
 
 ## Sources / references
 - [Kumo's new foundation model replaces months of data science engineering](https://thenewstack.io/kumo-ai-foundation-models/)

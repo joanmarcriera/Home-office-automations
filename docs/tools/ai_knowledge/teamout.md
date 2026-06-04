@@ -64,7 +64,7 @@ While primarily a platform-based agent, TeamOut concepts can be integrated into 
 - [Google Gemini](google-gemini.md)
 - [Google Opal](google-opal.md)
 - [OpenRouter](openrouter.md)
-- [Vercel AI SDK](../frameworks/vercel-ai-sdk.md)
+- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
 - [LangChain](../ai_knowledge/langchain.md)
 
 ## Sources / references
