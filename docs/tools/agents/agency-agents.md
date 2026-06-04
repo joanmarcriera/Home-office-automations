@@ -75,7 +75,7 @@ reality_checker_prompt = load_persona("reality-checker")
 - For simple tasks where a single general assistant (e.g., Claude or ChatGPT) is sufficient.
 
 ## Related tools / concepts
-- [Claude Code](../ai_knowledge/claude-code.md)
+- [Claude Code](../development_ops/claude-code.md)
 - [Aider](../development_ops/aider.md)
 - [CrewAI](../frameworks/crewai.md)
 - [AutoGen](../frameworks/autogen.md)
@@ -85,6 +85,7 @@ reality_checker_prompt = load_persona("reality-checker")
 ## Sources / References
 - [Official GitHub Repository](https://github.com/msitarzewski/agency-agents)
 - [YUV.AI: Agency Agents Overview](https://yuv.ai/blog/agency-agents)
+- [Claude Code](https://code.claude.com/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-19
