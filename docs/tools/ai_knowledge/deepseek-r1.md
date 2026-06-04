@@ -119,7 +119,7 @@ print(f"Answer: {response.choices[0].message.content}")
 - [LiteLLM](../../services/litellm.md) — Proxy for managing R1 API keys.
 
 ## Sources / References
-- [DeepSeek Official Site](https://www.deepseek.com/)
+- [DeepSeek Official Site](https://www.deepseek.com/?ref=r1)
 - [DeepSeek R1 Technical Report](https://github.com/deepseek-ai/DeepSeek-R1)
 - [DeepSeek API Documentation](https://api-docs.deepseek.com/)
 

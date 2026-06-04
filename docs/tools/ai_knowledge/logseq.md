@@ -57,8 +57,8 @@ Logseq supports several community plugins for AI integration (e.g., `Logseq AI A
 
 ## Related tools / concepts
 - [Obsidian](obsidian.md)
-- [Anytype](anytype.md)
-- [SilverBullet](silverbullet.md)
+- [Anytype](../intake_storage/anytype.md)
+- [SilverBullet](../intake_storage/silverbullet.md)
 - [Ollama](../../services/ollama.md)
 - [OpenRouter](openrouter.md)
 - [LlamaIndex](llamaindex.md)
