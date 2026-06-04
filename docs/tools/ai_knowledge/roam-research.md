@@ -113,8 +113,8 @@ roam-to-git ./my-roam-backup --graph MyGraph --token $ROAM_TOKEN
 - [Networked Thought](../../knowledge_base/README.md)
 - [Joplin](./joplin.md)
 - [Notion AI](./notion-ai.md)
-- [AnyType](../../services/anytype.md)
-- [SilverBullet](../../services/silverbullet.md)
+- [AnyType](../intake_storage/anytype.md)
+- [SilverBullet](../intake_storage/silverbullet.md)
 - [Tika](../../services/tika.md) (for indexing Roam exports)
 
 ## Sources / references
