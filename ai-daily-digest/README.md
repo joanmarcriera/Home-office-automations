@@ -1,5 +1,101 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-06-04
+
+## Digest fallback for 2026-06-04
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers) (OpenAI Blog)
+2. [Introducing new capabilities to GPT-Rosalind](https://openai.com/index/introducing-new-capabilities-to-gpt-rosalind) (OpenAI Blog)
+3. [How Wasmer used Codex to build a Node.js runtime for the edge](https://openai.com/index/wasmer) (OpenAI Blog)
+4. [OpenAI public policy agenda](https://openai.com/index/public-policy-agenda) (OpenAI Blog)
+5. [A blueprint for democratic governance of frontier AI](https://openai.com/index/frontier-safety-blueprint) (OpenAI Blog)
+6. [Travelers deploys AI-powered claims countrywide with OpenAI](https://openai.com/index/travelers) (OpenAI Blog)
+7. [5 ways Google Search can level up your thrift and vintage shopping](https://blog.google/products-and-platforms/products/search/thrifting-tips/) (Google AI Blog)
+8. [Direct Preference Optimization Beyond Chatbots](https://huggingface.co/blog/Dharma-AI/direct-preference-optimization-beyond-chatbots) (Hugging Face Blog)
+9. [Adding MCP Tools to Reachy Mini](https://huggingface.co/blog/adding-mcp-tools-to-reachy-mini) (Hugging Face Blog)
+10. [Holo3.1: Fast & Local Computer Use Agents](https://huggingface.co/blog/Hcompany/holo31) (Hugging Face Blog)
+11. [Me visiting this sub](https://www.reddit.com/r/LocalLLaMA/comments/1tw8eul/me_visiting_this_sub/) (r/LocalLLaMA)
+12. [New Google Gemma 4 12B Claims Near-26B Performance - We Tested Both!](https://www.reddit.com/r/LocalLLaMA/comments/1tw4tmf/new_google_gemma_4_12b_claims_near26b_performance/) (r/LocalLLaMA)
+13. [More Gemma 4 models incoming](https://www.reddit.com/r/LocalLLaMA/comments/1tvzzml/more_gemma_4_models_incoming/) (r/LocalLLaMA)
+14. [google/gemma-4-12B · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1tvtn6m/googlegemma412b_hugging_face/) (r/LocalLLaMA)
+15. [Introducing Gemma 4 12B: a unified, encoder-free multimodal model](https://www.reddit.com/r/LocalLLaMA/comments/1tvw2ej/introducing_gemma_4_12b_a_unified_encoderfree/) (r/LocalLLaMA)
+16. [Gemma 4 12b 8Q Heretic Oneshot Coding](https://www.reddit.com/r/LocalLLaMA/comments/1twelo6/gemma_4_12b_8q_heretic_oneshot_coding/) (r/LocalLLaMA)
+17. [gemma-4-12b-it vs Qwen3.5-9B on shared benchmarks: Qwen is overall winner beating gemma in 5/8 benchmarks despite a smaller footprint](https://www.reddit.com/r/LocalLLaMA/comments/1tw0lua/gemma412bit_vs_qwen359b_on_shared_benchmarks_qwen/) (r/LocalLLaMA)
+18. [How can the numbers be this massive within a month ??](https://www.reddit.com/r/LocalLLaMA/comments/1tw5764/how_can_the_numbers_be_this_massive_within_a_month/) (r/LocalLLaMA)
+19. [The first Gemma 4 12B finetunes are ready](https://www.reddit.com/r/LocalLLaMA/comments/1twbi9y/the_first_gemma_4_12b_finetunes_are_ready/) (r/LocalLLaMA)
+20. [Let us let Google know that we want the Gemma 4 124b](https://www.reddit.com/r/LocalLLaMA/comments/1tvu5pp/let_us_let_google_know_that_we_want_the_gemma_4/) (r/LocalLLaMA)
+21. [Gemma 4 QAT confirmed to release soon!](https://www.reddit.com/r/LocalLLaMA/comments/1twid14/gemma_4_qat_confirmed_to_release_soon/) (r/LocalLLaMA)
+22. [Trump signs narrower executive order on AI oversight after industry objections](https://www.reddit.com/r/LocalLLaMA/comments/1tw70v7/trump_signs_narrower_executive_order_on_ai/) (r/LocalLLaMA)
+23. [Gemma 4 12B first coding agent test on a 4080 Super](https://www.reddit.com/r/LocalLLaMA/comments/1tw364k/gemma_4_12b_first_coding_agent_test_on_a_4080/) (r/LocalLLaMA)
+24. [Calling it now Microsoft is buying Unsloth.](https://www.reddit.com/r/LocalLLaMA/comments/1tvhv4b/calling_it_now_microsoft_is_buying_unsloth/) (r/LocalLLaMA)
+25. [Gemma 4 Unified is coming](https://www.reddit.com/r/LocalLLaMA/comments/1tvswv1/gemma_4_unified_is_coming/) (r/LocalLLaMA)
+26. [This day in LLM history….105 years ago today, Qwen 3.6 27b was released open source. /s](https://www.reddit.com/r/LocalLLaMA/comments/1tvsvv2/this_day_in_llm_history105_years_ago_today_qwen/) (r/LocalLLaMA)
+27. [qwen35: use post-norm hidden state for MTP by am17an · Pull Request #24025 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1tvwjq8/qwen35_use_postnorm_hidden_state_for_mtp_by/) (r/LocalLLaMA)
+28. [Gemma4 12B update](https://www.reddit.com/r/LocalLLaMA/comments/1tw6swu/gemma4_12b_update/) (r/LocalLLaMA)
+29. [Jetson AGX Orin 64GB: q8_0 good, q6_k bad](https://www.reddit.com/r/LocalLLaMA/comments/1twgwrf/jetson_agx_orin_64gb_q8_0_good_q6_k_bad/) (r/LocalLLaMA)
+30. [Been a while since we had a Qwen-Coder. could use a 3.7 80B-8B](https://www.reddit.com/r/LocalLLaMA/comments/1tvzpk1/been_a_while_since_we_had_a_qwencoder_could_use_a/) (r/LocalLLaMA)
+31. [Does anyone have news about the next GLM or Kimi model?](https://www.reddit.com/r/LocalLLaMA/comments/1twhsnh/does_anyone_have_news_about_the_next_glm_or_kimi/) (r/LocalLLaMA)
+32. [Ideogram 4 is open source! (top ranked on DesignArena)](https://www.reddit.com/r/LocalLLaMA/comments/1tvuaoh/ideogram_4_is_open_source_top_ranked_on/) (r/LocalLLaMA)
+33. [MTP has no impact on my Qwen3.6 MoE performance](https://www.reddit.com/r/LocalLLaMA/comments/1twfnqw/mtp_has_no_impact_on_my_qwen36_moe_performance/) (r/LocalLLaMA)
+34. [nex-agi/Nex-N2-Pro • Huggingface](https://www.reddit.com/r/LocalLLaMA/comments/1tw5711/nexaginexn2pro_huggingface/) (r/LocalLLaMA)
+35. [Ideal Local model technically possible?](https://www.reddit.com/r/LocalLLaMA/comments/1twfmnw/ideal_local_model_technically_possible/) (r/LocalLLaMA)
+36. [NeurIPS used uncalibrated AI detector for desk rejections [D]](https://www.reddit.com/r/MachineLearning/comments/1tvwctd/neurips_used_uncalibrated_ai_detector_for_desk/) (r/MachineLearning)
+37. [Embedding space [D]](https://www.reddit.com/r/MachineLearning/comments/1twhkut/embedding_space_d/) (r/MachineLearning)
+38. [In current ML systems, where is the main bottleneck: dataset quality or model architecture improvements? [D]](https://www.reddit.com/r/MachineLearning/comments/1twe6ii/in_current_ml_systems_where_is_the_main/) (r/MachineLearning)
+39. [Repo for implementations of various Transformer Attn mechanisms [P]](https://www.reddit.com/r/MachineLearning/comments/1twhhnq/repo_for_implementations_of_various_transformer/) (r/MachineLearning)
+40. [Research in Image/Video Gen AI models [D]](https://www.reddit.com/r/MachineLearning/comments/1twhbf9/research_in_imagevideo_gen_ai_models_d/) (r/MachineLearning)
+41. [Analysis of AlphaZero training data [D]](https://www.reddit.com/r/MachineLearning/comments/1tvw6sc/analysis_of_alphazero_training_data_d/) (r/MachineLearning)
+42. [First paper acceptance (ICML Workshop), should I attend? [D]](https://www.reddit.com/r/MachineLearning/comments/1tw0j33/first_paper_acceptance_icml_workshop_should_i/) (r/MachineLearning)
+43. [Best Visual Reasoning Model in 2026 (Including APIs) [D]](https://www.reddit.com/r/MachineLearning/comments/1twccr2/best_visual_reasoning_model_in_2026_including/) (r/MachineLearning)
+44. [MiniMax dropped a new attention architecture. [N]](https://www.reddit.com/r/MachineLearning/comments/1tvameq/minimax_dropped_a_new_attention_architecture_n/) (r/MachineLearning)
+45. [Encodec.cpp, a portable C++ implementation of Meta's EnCodec using Eigen [P]](https://www.reddit.com/r/MachineLearning/comments/1tvqhic/encodeccpp_a_portable_c_implementation_of_metas/) (r/MachineLearning)
+46. [A semantic tokenization scheme where token geometry reflects semantic relationships [R]](https://www.reddit.com/r/MachineLearning/comments/1tvsrhi/a_semantic_tokenization_scheme_where_token/) (r/MachineLearning)
+47. [Has anyone heard back from citadel ICML travel grant ? [D]](https://www.reddit.com/r/MachineLearning/comments/1tw186e/has_anyone_heard_back_from_citadel_icml_travel/) (r/MachineLearning)
+48. [TorchDAE: Implicit DAE Solvers with Index Reduction and Adjoint Sensitivity [P]](https://www.reddit.com/r/MachineLearning/comments/1tvn4ux/torchdae_implicit_dae_solvers_with_index/) (r/MachineLearning)
+49. [NeurIPS Reciprocal Reviewers be careful in reviewing with LLMs [D]](https://www.reddit.com/r/MachineLearning/comments/1tw0hf2/neurips_reciprocal_reviewers_be_careful_in/) (r/MachineLearning)
+50. [MTPAMI Survey Paper Length for submission time? [D]](https://www.reddit.com/r/MachineLearning/comments/1turyvl/mtpami_survey_paper_length_for_submission_time_d/) (r/MachineLearning)
+51. [Backpropagation destroys V1 brain alignment in one epoch, tracking RSA alignment to fMRI across training for BP, FA, predictive coding, and STDP [R]](https://www.reddit.com/r/MachineLearning/comments/1tupu9z/backpropagation_destroys_v1_brain_alignment_in/) (r/MachineLearning)
+52. [[AINews] Reve 2 and Ideogram 4: Layouts in Imagegen](https://www.latent.space/p/ainews-reve-2-and-ideogram-4-layouts) (Latent Space)
+53. [🔬Scaling Past Informal AI - Carina Hong, Axiom Math](https://www.latent.space/p/axiom) (Latent Space)
+54. [⚡️Satya Nadella: No Priors x Latent Space Crossover Special at Microsoft Build](https://www.latent.space/p/satya-2026) (Latent Space)
+55. [[AINews] Microsoft Build: MAI-Thinking-1 and MAI Family models](https://www.latent.space/p/ainews-microsoft-build-mai-thinking) (Latent Space)
+56. [GitHub's plan for Agents — Kyle Daigle, GitHub](https://www.latent.space/p/github) (Latent Space)
+57. [The AI cost crisis finally has a watchdog — just not the companies causing it](https://thenewstack.io/tokenomics-foundation/) (The New Stack)
+58. [How to get operational data off the factory floor without creating an IT breach](https://thenewstack.io/secure-ot-data-movement/) (The New Stack)
+59. [Why CPUs still matter in the age of AI agents](https://thenewstack.io/why-cpus-still-matter-in-the-age-of-ai-agents/) (The New Stack)
+60. [Rayfin: Microsoft’s answer to the gap between vibe coding and enterprise production](https://thenewstack.io/microsoft-build-2026-rayfin-replit-vibe-coding/) (The New Stack)
+61. [Microsoft bets the enterprise AI race will be won on data context, not model power](https://thenewstack.io/microsoft-build-2026-data-fabric-horizondb-ai-agents/) (The New Stack)
+62. [“A successful attack could be catastrophic”: Anthropic gives more groups access to Claude Mythos](https://thenewstack.io/anthropic-glasswing-mythos-cybersecurity/) (The New Stack)
+63. [How GitHub plans to win developers back](https://thenewstack.io/github-wants-developers-back/) (The New Stack)
+64. [Microsoft really, really, really wants developers to love Windows again](https://thenewstack.io/windows-11-developer-mode/) (The New Stack)
+65. [With Intelligent Terminal, Microsoft is reinventing the Windows terminal](https://thenewstack.io/microsoft-intelligent-terminal-ai-agents/) (The New Stack)
+66. [Microsoft debuts “Scout” at Build, a new personal agent for work](https://thenewstack.io/microsoft-build-scout/) (The New Stack)
+67. [OpenAI’s Codex adds new tools — Sites, Annotations, more plugins — for knowledge workers](https://thenewstack.io/openai-codex-knowledge-workers/) (The New Stack)
+68. [GitHub Copilot’s usage-based billing is live: Here’s what you need to know](https://thenewstack.io/github-copilot-token-billing/) (The New Stack)
+69. [What's the most unhinged thing you've used an uncensored Ollama model for? Also... what are the best uncensored models right now?](https://www.reddit.com/r/ollama/comments/1tvx0by/whats_the_most_unhinged_thing_youve_used_an/) (r/ollama)
+70. [Where's gemma4:12b?](https://www.reddit.com/r/ollama/comments/1twgzkz/wheres_gemma412b/) (r/ollama)
+71. [122B MoE local inference with 8 GB GPU VRAM by keeping experts on CPU](https://www.reddit.com/r/ollama/comments/1tvyorj/122b_moe_local_inference_with_8_gb_gpu_vram_by/) (r/ollama)
+72. [122B MoE local inference with 8 GB GPU VRAM by keeping experts on CPU](https://www.reddit.com/r/ollama/comments/1tvyrlz/122b_moe_local_inference_with_8_gb_gpu_vram_by/) (r/ollama)
+73. [I made an observe-only desktop AI guide — works with Ollama](https://www.reddit.com/r/ollama/comments/1twe2rw/i_made_an_observeonly_desktop_ai_guide_works_with/) (r/ollama)
+74. [why is ollama prioritizing my intergrated gpu over my dedicated gpu](https://www.reddit.com/r/ollama/comments/1tw8a3j/why_is_ollama_prioritizing_my_intergrated_gpu/) (r/ollama)
+75. [OpenSource Workspace for Visual-Spacial people](https://www.reddit.com/r/ollama/comments/1tw6dqi/opensource_workspace_for_visualspacial_people/) (r/ollama)
+76. [My Ollama setup felt dumber than it actually was, until I realized the model wasn't the problem](https://www.reddit.com/r/ollama/comments/1tvnde4/my_ollama_setup_felt_dumber_than_it_actually_was/) (r/ollama)
+77. [Slow ollama](https://www.reddit.com/r/ollama/comments/1twaehq/slow_ollama/) (r/ollama)
+78. [What’s the best way to go about preparing a scanned PDF of 500 pages for ingest into my rag model?](https://www.reddit.com/r/ollama/comments/1tvntn7/whats_the_best_way_to_go_about_preparing_a/) (r/ollama)
+79. [relaydeck [v0.1.4] 🚢 fully open source and local first ai orchestration engine](https://www.reddit.com/r/ollama/comments/1tw3tll/relaydeck_v014_fully_open_source_and_local_first/) (r/ollama)
+80. [Ollama 0.30.2 (Homebrew) — “llama-server binary not found” on macOS ARM](https://www.reddit.com/r/ollama/comments/1tvxavt/ollama_0302_homebrew_llamaserver_binary_not_found/) (r/ollama)
+
+...and 83 more items were collected.
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
