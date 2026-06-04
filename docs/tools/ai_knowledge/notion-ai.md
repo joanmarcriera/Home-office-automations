@@ -106,7 +106,7 @@ Notion AI is frequently used in multi-step automation pipelines.
 - [Make.com](https://www.make.com/)
 - [AnyType](../intake_storage/anytype.md)
 - [Roam Research](./roam-research.md)
-- [SilverBullet](../../services/silverbullet.md)
+- [SilverBullet](../intake_storage/silverbullet.md)
 
 ## Sources / references
 - [Official Website](https://www.notion.so/product/ai)

@@ -73,7 +73,7 @@ dataset = load_dataset("json", data_files="glaive_agent_data.json")
 - [Unsloth](../infrastructure/unsloth.md) — Frequently used to train on Glaive-generated agent data.
 - [llama-factory](../frameworks/llama-factory.md) — For orchestrating the fine-tuning run.
 - [axolotl](../frameworks/axolotl.md) — For config-based training on Glaive datasets.
-- [Tool Calling](../../knowledge_base/patterns/tool-calling.md) — The core capability Glaive aims to improve.
+- [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The core capability Glaive aims to improve.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The architectural pattern Glaive supports.
 
 ## Sources / references
