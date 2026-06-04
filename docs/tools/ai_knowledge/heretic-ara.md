@@ -84,12 +84,13 @@ for i, layer in enumerate(model.model.layers):
 - [Ollama](../../services/ollama.md)
 - [AnythingLLM](anythingllm.md)
 - [Dify](dify.md)
-- [MMLU](../../knowledge_base/mmlu.md)
+- [MMLU](../benchmarking/mmlu.md)
 - [Infrastructure Overview](../../architecture/infrastructure.md)
 
 ## Sources / References
 - [Heretic has finally defeated GPT-OSS with a new decensoring method ARA](https://www.reddit.com/r/LocalLLaMA/comments/1rnic0a/heretic_has_finally_defeated_gptoss_with_a_new/)
 - [Orthogonalization of LLM Refusal Vectors (Research Paper)](https://arxiv.org/abs/2406.11717)
+- [MMLU Dataset](https://github.com/hendrycks/test)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-24

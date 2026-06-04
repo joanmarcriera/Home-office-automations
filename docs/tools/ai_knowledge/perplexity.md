@@ -128,11 +128,12 @@ print(response.choices[0].message.content)
 - [ChatGPT](chatgpt.md)
 - [Claude](claude.md)
 - [Gemini](gemini.md)
-- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / references
 - [Official Website](https://www.perplexity.ai/)
 - [Perplexity API Documentation](https://docs.perplexity.ai/)
+- [Official MCP Website](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 

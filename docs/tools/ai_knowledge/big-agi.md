@@ -68,6 +68,7 @@ docker run -p 3000:3000 ghcr.io/enricoros/big-agi
 - [big-AGI Official Site](https://big-agi.com/)
 - [big-AGI GitHub](https://github.com/enricoros/big-AGI)
 - [big-AGI Changelog](https://big-agi.com/docs/changelog)
+- [OpenRouter](https://openrouter.ai/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-30
