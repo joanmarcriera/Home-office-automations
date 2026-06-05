@@ -87,9 +87,9 @@ sim_manager.shutdown()
 - [OpenHands](../development_ops/openhands.md)
 - [SWE-bench](./swe-bench.md)
 - [Terminal-bench](./terminal-bench.md)
-- [GAIA (General AI Assistants)](./gaia.md)
-- [AssistantBench](./assistant-bench.md)
-- [OSWorld](./os-world.md)
+- [GAIA (General AI Assistants)](gaia.md)
+- [AssistantBench](assistant-bench.md)
+- [OSWorld](os-world.md)
 - [WebArena](https://webarena.dev/)
 
 ## Licensing and cost

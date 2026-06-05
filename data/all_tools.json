@@ -198,6 +198,12 @@
       "doc_path": "docs/tools/benchmarking/asdiv.md"
     },
     {
+      "id": "assistant-bench",
+      "name": "AssistantBench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/assistant-bench.md"
+    },
+    {
       "id": "atlassian-jira-mcp-implementations",
       "name": "Atlassian Jira MCP Implementations",
       "category": "Automation & Orchestration",
@@ -861,6 +867,12 @@
       "name": "Fyxer AI",
       "category": "Enterprise AI",
       "doc_path": "docs/tools/enterprise/fyxer.md"
+    },
+    {
+      "id": "gaia",
+      "name": "GAIA (General AI Assistants)",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/gaia.md"
     },
     {
       "id": "gemini",
@@ -1751,6 +1763,12 @@
       "name": "Ollama Benchmark CLI",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/ollama-benchmark-cli.md"
+    },
+    {
+      "id": "os-world",
+      "name": "OSWorld",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/os-world.md"
     },
     {
       "id": "omni-tools",

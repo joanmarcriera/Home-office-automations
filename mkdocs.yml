@@ -270,38 +270,41 @@ nav:
           - Zapier: tools/automation_orchestration/zapier.md
       - Benchmarking:
           - Overview: tools/benchmarking/index.md
+          - AlpacaEval: tools/benchmarking/alpaca-eval.md
+          - ARC (AI2 Reasoning Challenge): tools/benchmarking/arc.md
+          - ASDiv: tools/benchmarking/asdiv.md
+          - AssistantBench: tools/benchmarking/assistant-bench.md
+          - BigCodeBench: tools/benchmarking/bigcodebench.md
           - Chatbot Arena: tools/benchmarking/chatbot-arena.md
           - DREAM Benchmark: tools/benchmarking/dream.md
+          - EvalPlus: tools/benchmarking/evalplus.md
+          - GAIA (General AI Assistants): tools/benchmarking/gaia.md
           - Gpqa: tools/benchmarking/gpqa.md
           - Gsm8K: tools/benchmarking/gsm8k.md
+          - HELM: tools/benchmarking/helm.md
           - Human Eval: tools/benchmarking/human-eval.md
           - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
           - InterCode: tools/benchmarking/intercode.md
           - JudgeGPT: tools/benchmarking/judgegpt.md
-          - OpenCompass: tools/benchmarking/opencompass.md
-          - HELM: tools/benchmarking/helm.md
-          - EvalPlus: tools/benchmarking/evalplus.md
           - LangSmith: tools/benchmarking/langsmith.md
+          - LiveCodeBench: tools/benchmarking/livecodebench.md
           - LLMperf: tools/benchmarking/llmperf.md
           - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md
-          - LiveCodeBench: tools/benchmarking/livecodebench.md
           - LongCLI-Bench: tools/benchmarking/longcli-bench.md
+          - MATH Benchmark: tools/benchmarking/math-benchmark.md
           - Mbpp: tools/benchmarking/mbpp.md
+          - MMLU: tools/benchmarking/mmlu.md
+          - MT-Bench: tools/benchmarking/mt-bench.md
           - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md
+          - OpenCompass: tools/benchmarking/opencompass.md
+          - OSWorld: tools/benchmarking/os-world.md
           - Pa Bench: tools/benchmarking/pa-bench.md
           - Promptfoo: tools/benchmarking/promptfoo.md
-          - Swe Bench: tools/benchmarking/swe-bench.md
-          - Supermetal Benchmark: tools/benchmarking/supermetal.md
-          - VAKRA Benchmark: tools/benchmarking/vakra.md
-          - Terminal Bench: tools/benchmarking/terminal-bench.md
-          - MMLU: tools/benchmarking/mmlu.md
-          - ARC (AI2 Reasoning Challenge): tools/benchmarking/arc.md
-          - ASDiv: tools/benchmarking/asdiv.md
-          - BigCodeBench: tools/benchmarking/bigcodebench.md
-          - AlpacaEval: tools/benchmarking/alpaca-eval.md
-          - MT-Bench: tools/benchmarking/mt-bench.md
-          - MATH Benchmark: tools/benchmarking/math-benchmark.md
           - SharpAI Security Benchmark: tools/benchmarking/sharp-ai.md
+          - Supermetal Benchmark: tools/benchmarking/supermetal.md
+          - Swe Bench: tools/benchmarking/swe-bench.md
+          - Terminal Bench: tools/benchmarking/terminal-bench.md
+          - VAKRA Benchmark: tools/benchmarking/vakra.md
       - Calendar & Tasks:
           - Overview: tools/calendar_tasks/index.md
           - Akiflow: tools/calendar_tasks/akiflow.md
