@@ -7,7 +7,7 @@ JudgeGPT is an open-source benchmarking tool that implements the **LLM-as-a-judg
 It addresses the limitations of traditional, static evaluation metrics (like BLEU or ROUGE) which fail to capture the nuance, creativity, and semantic correctness of modern LLM outputs. JudgeGPT automates the labor-intensive process of human evaluation while providing more consistent and scalable results. It helps in identifying [hallucinations](../../knowledge_base/llm_security_privacy.md) and regressions in complex reasoning tasks.
 
 ## Where it fits in the stack
-**Benchmarking / Evaluation**. It is used in the development and fine-tuning cycle to quantify model performance. It can be integrated into [Data Copilot](../../reference-implementations/data-copilot/README.md) workflows to validate synthesized data quality.
+**Benchmarking / Evaluation**. It is used in the development and fine-tuning cycle to quantify model performance. It can be integrated into [Data Copilot](../../reference-implementations/data-copilot/answer-synthesis-schema.md) workflows to validate synthesized data quality.
 
 ## Typical use cases
 - **Model Comparison**: Automatically scoring two different models on the same set of prompts to determine which performs better.
@@ -95,7 +95,7 @@ Output your evaluation in JSON format.
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md)
 - [Claude Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md)
 - [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md)
-- [Data Copilot Synthesis](../../reference-implementations/data-copilot/README.md)
+- [Data Copilot Synthesis](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 
 ## Sources / References
 - [Project JudgeGPT: Open-source LLM-as-judge](https://www.reddit.com/r/MachineLearning/comments/1rsxcl3/project_judgegpt_opensource_llmasjudge/)

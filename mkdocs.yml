@@ -284,6 +284,7 @@ nav:
           - LangSmith: tools/benchmarking/langsmith.md
           - LLMperf: tools/benchmarking/llmperf.md
           - Lm Evaluation Harness: tools/benchmarking/lm-evaluation-harness.md
+          - LiveCodeBench: tools/benchmarking/livecodebench.md
           - LongCLI-Bench: tools/benchmarking/longcli-bench.md
           - Mbpp: tools/benchmarking/mbpp.md
           - Ollama Benchmark Cli: tools/benchmarking/ollama-benchmark-cli.md

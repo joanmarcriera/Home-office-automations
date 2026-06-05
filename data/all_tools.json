@@ -1354,6 +1354,12 @@
       "doc_path": "docs/services/litellm.md"
     },
     {
+      "id": "livecodebench",
+      "name": "LiveCodeBench",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/livecodebench.md"
+    },
+    {
       "id": "llama-cpp",
       "name": "llama.cpp",
       "category": "Process & Understanding",
