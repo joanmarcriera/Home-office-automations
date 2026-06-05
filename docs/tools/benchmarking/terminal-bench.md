@@ -86,7 +86,7 @@ with HarborSandbox() as sandbox:
 ## Related tools / concepts
 - [SWE-bench](swe-bench.md)
 - [BigCodeBench](./bigcodebench.md)
-- [OpenHands](../agents/openhands.md)
+- [OpenHands](../development_ops/openhands.md)
 - [Aider](../development_ops/aider.md)
 - [Claude Code — Project Setup Guide](../development_ops/claude-code-setup.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)

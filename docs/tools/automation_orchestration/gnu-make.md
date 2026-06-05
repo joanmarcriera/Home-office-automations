@@ -120,7 +120,7 @@ sync-docs: ## Pull latest documents from Paperless and trigger n8n workflow
 - [Task](https://taskfile.dev/) (a modern alternative)
 - [Just](https://github.com/casey/just) (a command runner inspired by Make)
 - [Docker](../infrastructure/docker.md)
-- [Python](../development_ops/python.md)
+- [Python](../ai_knowledge/python.md)
 - [LiteLLM](../../services/litellm.md)
 - [Ollama](../../services/ollama.md)
 

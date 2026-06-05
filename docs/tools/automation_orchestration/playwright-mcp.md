@@ -100,7 +100,7 @@ docker run -i --rm mcr.microsoft.com/playwright:v1.49.0-noble npx -y @modelconte
 - [Stagehand](stagehand.md)
 - [Skyvern](skyvern.md)
 - [Claude Code](../development_ops/claude-code-setup.md)
-- [OpenHands](../agents/openhands.md)
+- [OpenHands](../development_ops/openhands.md)
 - [Puppeteer](../development_ops/puppeteer.md)
 
 ## Sources / references

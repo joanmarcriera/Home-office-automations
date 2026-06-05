@@ -228,6 +228,7 @@ nav:
           - OpenRouter: tools/ai_knowledge/openrouter.md
           - Perplexity: tools/ai_knowledge/perplexity.md
           - Project Genie: tools/ai_knowledge/project-genie.md
+          - Python: tools/ai_knowledge/python.md
           - Qwen: tools/ai_knowledge/qwen.md
           - Roam Research: tools/ai_knowledge/roam-research.md
           - Runway ML: tools/ai_knowledge/runwayml.md

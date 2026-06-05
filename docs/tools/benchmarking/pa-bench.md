@@ -84,7 +84,7 @@ sim_manager.shutdown()
 ## Related tools / concepts
 - [Web Agents](../../knowledge_base/agent_protocols.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [OpenHands](../agents/openhands.md)
+- [OpenHands](../development_ops/openhands.md)
 - [SWE-bench](./swe-bench.md)
 - [Terminal-bench](./terminal-bench.md)
 - [GAIA (General AI Assistants)](./gaia.md)
