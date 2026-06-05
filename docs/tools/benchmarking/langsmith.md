@@ -89,7 +89,7 @@ Fleet allows for no-code/low-code agent deployment. When enabled on a self-hoste
 - [Plandex](../development_ops/plandex.md)
 - [OpenPipe](../infrastructure/openpipe.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
-- [RAGFlow](../benchmarking/ragflow.md)
+- [RAGFlow](../process_understanding/ragflow.md)
 
 ## Sources / References
 - [Official Website](https://www.langchain.com/langsmith)

@@ -911,6 +911,12 @@
       "doc_path": "docs/tools/ai_knowledge/genspark.md"
     },
     {
+      "id": "giskard",
+      "name": "Giskard",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/giskard.md"
+    },
+    {
       "id": "gitea",
       "name": "Gitea",
       "category": "Development & Ops",
@@ -1316,6 +1322,12 @@
       "name": "LangGraph",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/langgraph.md"
+    },
+    {
+      "id": "lakera-guard",
+      "name": "Lakera Guard",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/lakera-guard.md"
     },
     {
       "id": "langsmith",

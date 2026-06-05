@@ -89,7 +89,7 @@ sim_manager.shutdown()
 - [Terminal-bench](./terminal-bench.md)
 - [GAIA (General AI Assistants)](gaia.md)
 - [AssistantBench](assistant-bench.md)
-- [OSWorld](os-world.md)
+- [OSWorld](./os-world.md)
 - [WebArena](https://webarena.dev/)
 
 ## Licensing and cost
