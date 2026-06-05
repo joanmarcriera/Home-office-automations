@@ -134,7 +134,7 @@ alias claude-pro='claude --prompt "Project context: $(cat AGENTS.md)"'
 - [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Claude Hooks](claude-hooks.md)
 - [OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
-- [Standards and Conventions](../../standards-and-conventions.md)
+- [Standards and Conventions](../../standards.md)
 - [Architecture Index](../../ARCHITECTURE.md)
 
 ## Sources / References

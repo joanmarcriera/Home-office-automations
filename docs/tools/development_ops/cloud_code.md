@@ -87,8 +87,8 @@ payload = response.payload.data.decode("UTF-8")
 
 ## Related tools / concepts
 - [Skaffold](https://skaffold.dev/)
-- [Docker](./docker.md)
-- [Helm](./helm.md)
+- [Docker](../infrastructure/docker.md)
+- [Helm](https://helm.sh/)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
 - [Windsurf](./windsurf.md)
 - [Cursor](./cursor.md)
