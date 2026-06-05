@@ -73,10 +73,10 @@ print(dataset['train'][0])
 - [LM Evaluation Harness](lm-evaluation-harness.md)
 - [MMLU](mmlu.md)
 - [GPQA](gpqa.md)
-- [OpenAI](../providers/openai.md)
+- [OpenAI](../ai_knowledge/openai.md)
 - [Anthropic](../providers/anthropic.md)
-- [Google Gemini](../providers/google.md)
-- [Meta Llama](../providers/meta.md)
+- [Google Gemini](../ai_knowledge/google-gemini.md)
+- [Meta Llama](https://llama.meta.com/)
 
 ## Sources / references
 - [LMSYS Chatbot Arena](https://arena.lmsys.org/)
