@@ -69,7 +69,7 @@ curl "https://your-supermetal-instance/api/v1/connectors"
 - [AirOps](../automation_orchestration/airops.md)
 - [Temporal](../orchestration/temporal.md)
 - [Datadog](../process_understanding/datadog.md)
-- [Grafana](../process_understanding/grafana.md)
+- [Grafana](../process_understanding/grafana-cloud.md)
 - [ClickHouse](../process_understanding/clickhouse.md)
 - [Snowflake](../process_understanding/snowflake.md)
 - [Real-time Sync Engines](../../knowledge_base/real_time_sync_engines.md)

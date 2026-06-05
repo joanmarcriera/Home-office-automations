@@ -105,7 +105,7 @@ Move files between the host and the container for initial setup or result extrac
 - [Desktop Commander MCP](desktop-commander-mcp.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [MCP Registry](../automation_orchestration/mcp-registry.md)
-- [CI/CD Workflows](../../playbooks/dev-workflow.md)
+- [CI/CD Workflows](../../playbooks/dev-workflow-ai-assisted.md)
 - [Fuzzing MCP Server](fuzzing-mcp-server.md)
 - [Jupyter Kernel MCP](jupyter-kernel-mcp.md)
 - [Symbolic MCP](symbolic-mcp.md)
