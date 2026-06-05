@@ -279,6 +279,7 @@ nav:
           - DREAM Benchmark: tools/benchmarking/dream.md
           - EvalPlus: tools/benchmarking/evalplus.md
           - GAIA (General AI Assistants): tools/benchmarking/gaia.md
+          - Giskard: tools/benchmarking/giskard.md
           - Gpqa: tools/benchmarking/gpqa.md
           - Gsm8K: tools/benchmarking/gsm8k.md
           - HELM: tools/benchmarking/helm.md
@@ -286,6 +287,7 @@ nav:
           - Humanitys Last Exam: tools/benchmarking/humanitys-last-exam.md
           - InterCode: tools/benchmarking/intercode.md
           - JudgeGPT: tools/benchmarking/judgegpt.md
+          - Lakera Guard: tools/benchmarking/lakera-guard.md
           - LangSmith: tools/benchmarking/langsmith.md
           - LiveCodeBench: tools/benchmarking/livecodebench.md
           - LLMperf: tools/benchmarking/llmperf.md
