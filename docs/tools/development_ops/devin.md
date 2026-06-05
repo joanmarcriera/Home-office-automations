@@ -98,7 +98,7 @@ Devin provides robust governance for organizations:
 - [Cursor](cursor.md)
 - [GPT Engineer](gpt_engineer.md)
 - [SWE-bench](../benchmarking/swe-bench.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-automation-canvas.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references
 - [Cognition AI (Devin)](https://www.cognition.ai/)

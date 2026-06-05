@@ -62,7 +62,7 @@ Anti-Gravity allows defining project-level constraints and standards via "Rules"
 - [CrewAI](../frameworks/crewai.md)
 - [OpenHands](./openhands.md)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
-- [Cline](cline.md)
+- [Cline](https://cline.bot)
 - [Windsurf](./windsurf.md)
 - [Cursor](./cursor.md)
 - [Aider](./aider.md)
