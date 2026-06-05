@@ -64,7 +64,7 @@ for claim in verification_results.claims:
 - [LM Evaluation Harness](./lm-evaluation-harness.md)
 - [GPQA](./gpqa.md)
 - [Terminal-Bench](./terminal-bench.md)
-- [OpenHands](../agents/openhands.md)
+- [OpenHands](../development_ops/openhands.md)
 - [Letta](../agents/letta.md)
 - [SWE-bench](./swe-bench.md)
 

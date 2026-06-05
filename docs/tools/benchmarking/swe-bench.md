@@ -130,7 +130,7 @@ When using SWE-bench results to compare coding agents, record:
 - [LM Evaluation Harness](lm-evaluation-harness.md)
 - [LongCLI-Bench](longcli-bench.md)
 - [Aider](../development_ops/aider.md)
-- [OpenHands](../agents/openhands.md)
+- [OpenHands](../development_ops/openhands.md)
 - [Plandex](../development_ops/plandex.md)
 - [Claude Code](../development_ops/claude-code-setup.md)
 ## Sources / references

@@ -1999,6 +1999,12 @@
       "doc_path": "docs/tools/frameworks/pydantic-ai.md"
     },
     {
+      "id": "python",
+      "name": "Python",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/python.md"
+    },
+    {
       "id": "qbittorrent",
       "name": "qBittorrent",
       "category": "Intake & Storage",

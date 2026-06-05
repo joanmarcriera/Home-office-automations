@@ -30,7 +30,7 @@ Simplifies the development of autonomous coding agents by offering pre-built abs
 - When participating in Google's developer preview programs
 
 ## When not to use it
-- When you need a stable, production-grade agent framework (use [OpenHands](../agents/openhands.md) or [CrewAI](../frameworks/crewai.md))
+- When you need a stable, production-grade agent framework (use [OpenHands](./openhands.md) or [CrewAI](../frameworks/crewai.md))
 - When general-purpose LLM orchestration (e.g., [LangChain](../ai_knowledge/langchain.md)) is sufficient
 
 ## Agent Mission Architecture
@@ -60,7 +60,7 @@ Anti-Gravity allows defining project-level constraints and standards via "Rules"
 ## Related tools / concepts
 - [LangChain](../ai_knowledge/langchain.md)
 - [CrewAI](../frameworks/crewai.md)
-- [OpenHands](../agents/openhands.md)
+- [OpenHands](./openhands.md)
 - [Claude Code — Project Setup Guide](claude-code-setup.md)
 - [Cline](cline.md)
 - [Windsurf](./windsurf.md)

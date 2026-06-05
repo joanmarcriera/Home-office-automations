@@ -16,7 +16,7 @@ It addresses the gap in agent evaluation for realistic software engineering task
 - **Reference Plan Injection**: Supports studies on how partial human guidance affects agent performance.
 
 ## Typical use cases
-- **Coding Assistant Benchmarking**: Testing tools like [Aider](../development_ops/aider.md) or [OpenHands](../agents/openhands.md) on complex, multi-tool tasks.
+- **Coding Assistant Benchmarking**: Testing tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md) on complex, multi-tool tasks.
 - **Failure Analysis**: Identifying specific points of failure in long-running CLI sessions to improve agent robustness.
 - **Human-Agent Collaboration Study**: Evaluating how plan injection and guidance from humans can improve agent success rates.
 
@@ -57,7 +57,7 @@ python run_eval.py --agent "aider" --task_id "refactor_001" --output_dir "./resu
 - [Terminal-Bench](./terminal-bench.md)
 - [Aider](../development_ops/aider.md)
 - [Plandex](../development_ops/plandex.md)
-- [OpenHands](../agents/openhands.md)
+- [OpenHands](../development_ops/openhands.md)
 - [Mentat](../development_ops/mentat.md)
 - [Sweep](../development_ops/sweep_dev.md)
 
