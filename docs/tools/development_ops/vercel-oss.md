@@ -107,7 +107,7 @@ Leveraging the AI SDK's `tool` calling capability to interact with external APIs
 ## Related tools / concepts
 - [Vercel](vercel.md)
 - [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
-- [Free AI Website Playbook (Docs Version)](../../playbooks/free_ai_website_playbook.md)
+- [Free AI Website Playbook (Docs Version)](../../knowledge_base/free_ai_website_playbook.md)
 - [Supabase](../infrastructure/supabase.md)
 - [Cursor](cursor.md)
 - [Aider](aider.md)

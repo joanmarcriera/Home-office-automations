@@ -87,10 +87,10 @@ While Mycelium is code-first, it can be triggered from n8n to handle complex sub
 - [Maestro](https://github.com/yogthos/maestro) (underlying workflow engine)
 - [Malli](https://github.com/metosin/malli) (data-driven schemas)
 - [Orchestration](../automation_orchestration/index.md)
-- [Agentic Workflows](../knowledge_base/patterns/agentic-workflows.md)
-- [System Prompts](../knowledge_base/system_prompts.md)
-- [Model Routing Guide](../knowledge_base/model_routing_guide.md)
-- [Home Admin Agent Architecture](../knowledge_base/home-admin-agent-architecture.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [System Prompts](../../knowledge_base/system_prompts.md)
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
+- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md)
 
 ## Sources / References
 - [Managing Complexity with Mycelium](https://yogthos.net/posts/2026-02-25-ai-at-scale.html)
