@@ -44,7 +44,7 @@ To begin using it:
 - [Google Opal](../ai_knowledge/google-opal.md)
 - [Cursor](cursor.md)
 - [vLLM](../infrastructure/vllm.md)
-- [Claude](claude.md)
+- [Claude](../ai_knowledge/claude.md)
 - [Aider](aider.md)
 - [GPT Engineer](gpt_engineer.md)
 - [OpenHands](openhands.md)
