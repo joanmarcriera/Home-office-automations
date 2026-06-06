@@ -474,6 +474,12 @@
       "doc_path": "docs/tools/development_ops/codex.md"
     },
     {
+      "id": "codestral",
+      "name": "Codestral",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/codestral.md"
+    },
+    {
       "id": "cohere",
       "name": "Cohere (Enterprise RAG)",
       "category": "Providers",

@@ -430,6 +430,7 @@ nav:
           - Anthropic: tools/providers/anthropic.md
           - Azure OpenAI: tools/providers/azure-openai.md
           - BigSwitch: tools/providers/bigswitch.md
+          - Codestral: tools/providers/codestral.md
           - Cohere: tools/providers/cohere.md
           - DeepSeek: tools/providers/deepseek.md
           - Exa AI: tools/providers/exa_ai.md
