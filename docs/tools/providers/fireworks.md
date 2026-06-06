@@ -104,8 +104,8 @@ response = fireworks.client.ChatCompletion.create(
 - [SGLang](../infrastructure/sglang.md)
 - [Aphrodite Engine](../infrastructure/aphrodite-engine.md)
 - [ExLlamaV2](../infrastructure/exllamav2.md)
-- [OpenRouter](openrouter.md)
-- [LiteLLM](../infrastructure/litellm.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
+- [LiteLLM](../../services/litellm.md)
 
 ## Sources / References
 - [Official Website](https://fireworks.ai/)

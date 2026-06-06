@@ -156,7 +156,7 @@ Mistral provides a first-class Agents API that goes beyond simple completions:
 - [vLLM](../infrastructure/vllm.md)
 - [Hugging Face](huggingface.md)
 - [Codestral](codestral.md)
-- [OpenRouter](openrouter.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 
 ## Sources / References
 - [Official Website](https://mistral.ai/)

@@ -92,7 +92,7 @@ response = client.chat.completions.create(
 - **Self-hostable**: No (Cloud service), but the models can be hosted elsewhere if needed.
 
 ## Related tools / concepts
-- [OpenRouter](openrouter.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 - [Groq](groq.md)
 - [Fireworks AI](fireworks.md)
 - [Mistral](mistral.md)

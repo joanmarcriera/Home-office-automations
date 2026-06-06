@@ -97,8 +97,8 @@ The LPU (Language Processing Unit) is designed for sequential processing, which 
 - [Mistral](mistral.md)
 - [vLLM](../infrastructure/vllm.md)
 - [SGLang](../infrastructure/sglang.md)
-- [OpenRouter](openrouter.md)
-- [LiteLLM](../infrastructure/litellm.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
+- [LiteLLM](../../services/litellm.md)
 - [Anthropic](anthropic.md)
 
 ## Sources / References
