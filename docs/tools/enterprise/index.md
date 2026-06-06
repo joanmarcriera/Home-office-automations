@@ -6,17 +6,18 @@ High-precision AI tools for enterprise search, analytics, and executive producti
 
 | Tool | Focus |
 | :--- | :--- |
-| [AmpCode](../enterprise/ampcode.md) | Scalable enterprise AI infrastructure |
-| [Coveo](../enterprise/coveo.md) | AI search and discovery platform |
-| [Curiosity](../enterprise/curiosity.md) | Desktop AI search and knowledge assistant |
-| [Dashworks](../enterprise/dashworks.md) | AI-powered knowledge management |
-| [Elastic](../enterprise/elastic.md) | Distributed search and analytics engine |
-| [Fyxer AI](../enterprise/fyxer.md) | Executive assistant and inbox automation |
-| [Glean](../enterprise/glean.md) | Unified search across enterprise SaaS apps |
-| [Guru](../enterprise/guru.md) | Collaborative knowledge management |
-| [Hebbia](../enterprise/hebbia.md) | High-precision analytical search for professional services |
-| [Ramp](../enterprise/ramp.md) | Finance automation and spend management |
-| [tl;dv](../enterprise/tldv.md) | AI meeting recorder and transcription |
+| [AmpCode](ampcode.md) | Scalable enterprise AI infrastructure |
+| [Coveo](coveo.md) | AI search and discovery platform |
+| [Curiosity](curiosity.md) | Desktop AI search and knowledge assistant |
+| [Dashworks](dashworks.md) | AI-powered knowledge management |
+| [Elastic](elastic.md) | Distributed search and analytics engine |
+| [Fyxer AI](fyxer.md) | Executive assistant and inbox automation |
+| [Glean](glean.md) | Unified search across enterprise SaaS apps |
+| [Guru](guru.md) | Collaborative knowledge management |
+| [Hebbia](hebbia.md) | High-precision analytical search for professional services |
+| [Microsoft Entra ID](microsoft-entra-id.md) | Cloud-based identity and access management |
+| [Ramp](ramp.md) | Finance automation and spend management |
+| [tl;dv](tldv.md) | AI meeting recorder and transcription |
 
 ## Sources / References
 

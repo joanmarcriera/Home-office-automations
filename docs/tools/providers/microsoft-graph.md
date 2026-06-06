@@ -88,7 +88,7 @@ events = await client.me.calendar_view.get(
 - [Microsoft Todo](../calendar_tasks/microsoft-todo.md)
 - [n8n Automation](../../services/n8n.md)
 - [Make](../automation_orchestration/make.md)
-- [Enterprise Suite Overview](../enterprise/README.md)
+- [Enterprise Suite Overview](../enterprise/index.md)
 - [Google Calendar API](../calendar_tasks/google_calendar.md)
 - [MCP Servers](../automation_orchestration/mcp.md)
 

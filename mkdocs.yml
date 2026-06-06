@@ -459,6 +459,7 @@ nav:
           - Glean: tools/enterprise/glean.md
           - Guru: tools/enterprise/guru.md
           - Hebbia: tools/enterprise/hebbia.md
+          - Microsoft Entra ID: tools/enterprise/microsoft-entra-id.md
           - Ramp: tools/enterprise/ramp.md
           - tldv: tools/enterprise/tldv.md
       - Agents:
