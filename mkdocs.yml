@@ -176,6 +176,7 @@ nav:
           - Chatbox AI: tools/ai_knowledge/chatbox-ai.md
           - Chatgpt: tools/ai_knowledge/chatgpt.md
           - Claude: tools/ai_knowledge/claude.md
+          - Claude Desktop: tools/ai_knowledge/claude-desktop.md
           - Claude How-To: tools/ai_knowledge/claude-howto.md
           - Claude Mythos: tools/ai_knowledge/claude-mythos.md
           - ColQwen: tools/ai_knowledge/colqwen.md
@@ -248,7 +249,6 @@ nav:
           - CodeGraphContext: tools/automation_orchestration/codegraphcontext.md
           - GNU Make: tools/automation_orchestration/gnu-make.md
           - Google Workspace CLI: tools/automation_orchestration/google-workspace-cli.md
-          - Goose: tools/automation_orchestration/goose.md
           - Gumloop: tools/automation_orchestration/gumloop.md
           - HashiCorp Vault: tools/automation_orchestration/hashicorp-vault.md
           - Lightpanda Browser: tools/automation_orchestration/lightpanda.md
@@ -259,8 +259,10 @@ nav:
           - Model Context Protocol (MCP): tools/automation_orchestration/mcp.md
           - Open Interpreter: tools/automation_orchestration/open-interpreter.md
           - Picnic: tools/automation_orchestration/picnic.md
+          - Pipedream: tools/automation_orchestration/pipedream.md
           - Playwright MCP: tools/automation_orchestration/playwright-mcp.md
           - PulseMCP: tools/automation_orchestration/pulse-mcp.md
+          - Puppeteer: tools/automation_orchestration/puppeteer.md
           - ServiceNow MCP: tools/automation_orchestration/servicenow-mcp.md
           - Skyvern: tools/automation_orchestration/skyvern.md
           - Stagehand: tools/automation_orchestration/stagehand.md
@@ -478,6 +480,7 @@ nav:
           - Composio: tools/agents/composio.md
           - Documentation Writer: tools/agents/documentation-writer.md
           - DeerFlow: tools/agents/deerflow.md
+          - Goose: tools/agents/goose.md
           - GPT Researcher: tools/agents/gpt-researcher.md
           - Letta: tools/agents/letta.md
           - mem0: tools/agents/mem0.md
@@ -679,6 +682,8 @@ nav:
       - HITL UI Design: reference-implementations/hitl-ui-design.md
       - Audio Transcription Schema:
           reference-implementations/metadata-schemas/audio-transcription.md
+      - Task Schema:
+          reference-implementations/metadata-schemas/task-schema.md
       - Webhook Ingestion:
           reference-implementations/paperless/webhook-ingestion.md
       - Calendar:
