@@ -1558,6 +1558,12 @@
       "doc_path": "docs/tools/development_ops/mentat.md"
     },
     {
+      "id": "microsoft-entra-id",
+      "name": "Microsoft Entra ID",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/microsoft-entra-id.md"
+    },
+    {
       "id": "microsoft-agent-framework",
       "name": "Microsoft Agent Framework",
       "category": "Frameworks",

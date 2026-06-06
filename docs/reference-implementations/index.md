@@ -13,6 +13,7 @@ Workflow exports, prompt templates, and config standards.
 - [Overview](n8n/README.md)
 
 ## Data Copilot
+- [Overview](data-copilot/README.md)
 - [Skeleton Guide](data-copilot/skeleton-guide.md)
 - [Answer Synthesis Schema](data-copilot/answer-synthesis-schema.md)
 

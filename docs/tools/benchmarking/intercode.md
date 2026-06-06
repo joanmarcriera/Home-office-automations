@@ -36,7 +36,7 @@ Standard static benchmarks (like [HumanEval](human-eval.md)) often fail to captu
 - When you need to measure how well a model handles real-world execution errors.
 
 ## When not to use it
-- For quick, "shallow" evaluations of general model intelligence (use [MMLU](../../knowledge_base/mmlu.md) instead).
+- For quick, "shallow" evaluations of general model intelligence (use [MMLU](mmlu.md) instead).
 - When you don't have the infrastructure to run Docker-based evaluations safely.
 
 ## Getting started
@@ -96,7 +96,7 @@ Tasks are defined by their initial state and the "gold" verification script.
 - [OpenHands](../development_ops/openhands.md)
 - [Docker](../infrastructure/docker.md)
 - [Self-healing Agents](../../knowledge_base/self-healing-agent-research.md)
-- [MMLU](../../knowledge_base/mmlu.md)
+- [MMLU](mmlu.md)
 - [Data Copilot](../../reference-implementations/data-copilot/README.md)
 
 ## Sources / references

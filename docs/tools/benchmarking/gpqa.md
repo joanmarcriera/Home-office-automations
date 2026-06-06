@@ -85,7 +85,7 @@ Frontier models typically show a significant gap between "Diamond" (expert-verif
 - [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
 - [Anthropic](../providers/anthropic.md)
-- [OpenAI](../providers/openai.md)
+- [OpenAI](../ai_knowledge/openai.md)
 
 ## Sources / references
 - [Arxiv Paper: GPQA: A Graduate-Level Google-Proof Q&A Benchmark](https://arxiv.org/abs/2311.12022)
