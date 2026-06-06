@@ -102,13 +102,13 @@ if calendars:
 - If you need advanced "room booking" or complex enterprise resource scheduling features not well-supported by basic CalDAV.
 
 ## Related tools / concepts
-- [Nextcloud](../services/nextcloud.md): A popular suite that includes a robust CalDAV server.
-- [Vikunja](../services/vikunja.md): A task manager that can sync via CalDAV.
+- [Nextcloud](../../services/nextcloud.md): A popular suite that includes a robust CalDAV server.
+- [Vikunja](../../services/vikunja.md): A task manager that can sync via CalDAV.
 - [Google Calendar](../calendar_tasks/google_calendar.md): A cloud provider that supports CalDAV access.
-- [n8n](../automation_orchestration/n8n.md): Can be used to automate CalDAV interactions.
-- [Paperless-ngx](../services/paperless-ngx.md): Can trigger calendar events based on document dates.
-- [Home Assistant](../services/home-assistant.md): Can use CalDAV for scheduling automation.
-- [Authentik](../services/authentik.md): Can provide SSO for CalDAV servers.
+- [n8n](../../services/n8n.md): Can be used to automate CalDAV interactions.
+- [Paperless-ngx](../../services/paperless-ngx.md): Can trigger calendar events based on document dates.
+- [Home Assistant](../../services/home-assistant.md): Can use CalDAV for scheduling automation.
+- [Authentik](../../services/authentik.md): Can provide SSO for CalDAV servers.
 
 ## Sources / references
 - [RFC 4791: CalDAV Specification](https://tools.ietf.org/html/rfc4791)
