@@ -1001,6 +1001,12 @@
       "doc_path": "docs/tools/ai_knowledge/google-search.md"
     },
     {
+      "id": "google-tasks",
+      "name": "Google Tasks",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/google-tasks.md"
+    },
+    {
       "id": "google-stitch",
       "name": "Google Stitch",
       "category": "Development & Ops",

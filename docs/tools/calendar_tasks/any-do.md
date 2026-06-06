@@ -88,8 +88,8 @@ message_to_anydo_task("Don't forget to review the contract")
 - [Todoist](todoist.md) — flexible task management with natural language input.
 - [Microsoft To Do](microsoft-todo.md) — lightweight personal task manager from Microsoft.
 - [Google Tasks](google-tasks.md) — simple task manager integrated with Google Workspace.
-- [Habitica](../services/habitica.md) — gamified task management.
-- [Vikunja](../services/vikunja.md) — open-source self-hosted task manager.
+- [Habitica](../../services/habitica.md) — gamified task management.
+- [Vikunja](../../services/vikunja.md) — open-source self-hosted task manager.
 - [n8n](../../services/n8n.md) — automation for syncing tasks across platforms.
 
 ## Sources / References
