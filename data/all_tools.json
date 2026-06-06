@@ -1669,6 +1669,12 @@
       "doc_path": "docs/tools/benchmarking/mt-bench.md"
     },
     {
+      "id": "multion",
+      "name": "Multi-On",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/multion.md"
+    },
+    {
       "id": "mycelium",
       "name": "Mycelium",
       "category": "Frameworks",
@@ -2602,6 +2608,12 @@
       "name": "W&B Weave",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/wandb-weave.md"
+    },
+    {
+      "id": "weaviate",
+      "name": "Weaviate",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/weaviate.md"
     },
     {
       "id": "webhook",
