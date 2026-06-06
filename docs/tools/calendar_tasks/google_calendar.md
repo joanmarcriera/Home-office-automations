@@ -94,8 +94,8 @@ The **Google Calendar** node in n8n supports:
 - [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md)
 - [n8n](../../services/n8n.md)
 - [Home Assistant](../../services/home-assistant.md)
-- [Logseq](../development_ops/logseq.md)
-- [Obsidian](../development_ops/obsidian.md)
+- [Logseq](../ai_knowledge/logseq.md)
+- [Obsidian](../ai_knowledge/obsidian.md)
 - [Fantastical](./fantastical.md)
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md)
 
