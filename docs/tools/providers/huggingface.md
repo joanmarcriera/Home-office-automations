@@ -128,7 +128,7 @@ api.upload_file(
 - [LiteLLM](../../services/litellm.md)
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [vLLM](../infrastructure/vllm.md)
-- [Unsloth](../frameworks/unsloth.md)
+- [Unsloth](../infrastructure/unsloth.md)
 - [LLaMA-Factory](../frameworks/llama-factory.md)
 - [OpenCompass](../benchmarking/opencompass.md)
 

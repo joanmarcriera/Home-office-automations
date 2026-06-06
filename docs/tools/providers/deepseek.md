@@ -113,8 +113,8 @@ response = client.chat.completions.create(
 - [Anthropic](anthropic.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [Roo Code](../development_ops/roo-code.md)
-- [Cline](../development_ops/cline.md)
+- [Roo Code](../agents/roo-code.md)
+- [Cline](../agents/cline.md)
 - [Aider](../development_ops/aider.md)
 
 ## Sources / References
