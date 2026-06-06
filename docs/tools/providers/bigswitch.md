@@ -101,7 +101,7 @@ resource "hcloud_server" "sovereign_node" {
 - [Mistral](mistral.md) — Premier European LLM provider.
 - [DeepSeek](deepseek.md) — High-performance alternative for diverse routing.
 - [Replicate](replicate.md) — Managed hosting for open-source models.
-- [LLM Trust Boundaries](../development_ops/llm-trust-boundaries.md) — Critical for sovereignty audits.
+- [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Critical for sovereignty audits.
 - [Automated Contributions](../../architecture/automated_contributions.md) — How to contribute to this directory.
 - [Hugging Face](huggingface.md) — European-headquartered AI community hub.
 - [AWS Bedrock](aws-bedrock.md) — For cross-jurisdictional comparison of cloud provider trust boundaries.
