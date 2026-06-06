@@ -85,7 +85,7 @@ curl -X POST http://localhost:8000/api/chat \
 - [Verba](verba.md) — Weaviate-powered RAG assistant.
 - [Paperless-ngx](../../services/paperless-ngx.md) — Document management system.
 - [n8n](../../services/n8n.md) — Automation tool for ingesting data into Khoj.
-- [Local LLM](../ai_knowledge/ollama.md) — Can be used as the inference backend for Khoj.
+- [Local LLM](../ai_knowledge/local_llms.md) — Can be used as the inference backend for Khoj.
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The underlying architecture of Khoj.
 
 ## Sources / References
