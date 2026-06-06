@@ -14,7 +14,7 @@ def find_open_tasks():
             with open(filepath, 'r') as f:
                 lines = f.readlines()
                 for line in lines:
-                    if '- [ ]' in line:
+                    if '- [ ]' in line and not '- [x]' in line:
                         batch_match = re.search(r'batch-(\d+)', filename)
                         batch_num = int(batch_match.group(1)) if batch_match else 0
                         tasks.append({'source': filename, 'task': line.strip(), 'priority': batch_num})

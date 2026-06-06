@@ -72,7 +72,7 @@ print(output)
 - [Agentic Automation Canvas](../agents/agentic-automation-canvas.md)
 - [AirOps](airops.md)
 - [Langflow](../frameworks/langflow.md)
-- [Dify](../frameworks/dify.md)
+- [Dify](../ai_knowledge/dify.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references

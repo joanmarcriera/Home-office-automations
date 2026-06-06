@@ -74,8 +74,8 @@ print(response.json()["answer"])
 - [AnyType](anytype.md) — Local-first P2P knowledge base.
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Underlying architectural concept.
 - [Obsidian](../ai_knowledge/obsidian.md) — Can be used as a data source via Markdown export.
-- [LangChain](../frameworks/langchain.md) — Often used in conjunction with Weaviate for custom pipelines.
-- [Ollama](../ai_knowledge/ollama.md) — Supported as a local inference backend.
+- [LangChain](../ai_knowledge/langchain.md) — Often used in conjunction with Weaviate for custom pipelines.
+- [Ollama](../../services/ollama.md) — Supported as a local inference backend.
 
 ## Sources / References
 - [Official Website](https://verba.weaviate.io/)
