@@ -125,7 +125,7 @@ The project maintains an active list of features and bug fixes on GitHub:
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Ollama](../../services/ollama.md)
 - [DeepSeek](../providers/deepseek.md)
-- [Fallback Patterns](../../knowledge_base/patterns/fallback-patterns.md) (In Progress)
+- [Fallback Patterns](../../knowledge_base/patterns/fallback-patterns.md)
 
 ## Sources / References
 - [Official GitHub](https://github.com/musistudio/claude-code-router)

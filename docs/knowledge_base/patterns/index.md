@@ -8,6 +8,9 @@ Recurring architectural and design patterns in AI/LLM systems — RAG, tool call
 
 - [Retrieval-Augmented Generation (RAG)](rag.md) — Grounding LLM output with retrieved context
 - [Tool Calling & Model Context Protocol (MCP)](tool-calling-and-mcp.md) — Universal standard for connecting LLMs to external tools and data
+- [Fallback Patterns](fallback-patterns.md) — Architecting resilience via model failover and fail-safe routing
+- [Extraction and Classification](extraction-and-classification.md) — Schema-first structured data extraction and multi-label classification
+- [Date Extraction](date-extraction.md) — Parsing and normalizing relative temporal references into ISO 8601
 - [Claude Tool Search Pattern](claude-tool-search.md)
 - [Agent Skills Best Practices](skills-best-practices.md) — Skill authoring, trigger design, permission model, validation checklist
 - [Fine-tuning Open Models](fine-tuning-open-models.md) — LoRA/QLoRA, Unsloth, axolotl, MLX, dataset prep, GGUF export for Ollama
