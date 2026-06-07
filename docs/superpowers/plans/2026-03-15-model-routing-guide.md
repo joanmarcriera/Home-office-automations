@@ -9,3 +9,20 @@
 **Tech Stack:** Markdown docs, MkDocs nav, docs contract checks, catalog consistency checks.
 
 ---
+
+### Implementation Status
+
+- [x] Create central `docs/knowledge_base/model_routing_guide.md`.
+- [x] Extend `docs/tools/ai_knowledge/openai.md` with effort-level routing.
+- [x] Extend `docs/tools/development_ops/codex.md` with model routing.
+- [x] Extend `docs/tools/ai_knowledge/claude.md` with tier routing.
+- [x] Wire into `docs/index.md`.
+- [x] Wire into `docs/knowledge_base/README.md`.
+- [x] Wire into `docs/knowledge_base/model_comparison_and_evaluation.md`.
+- [x] Add to `mkdocs.yml` navigation.
+
+---
+
+## Contribution Metadata
+- Last reviewed: 2026-06-06
+- Confidence: high

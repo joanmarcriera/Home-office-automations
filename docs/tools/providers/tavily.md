@@ -1,30 +1,30 @@
 # Tavily
 
 ## What it is
-Tavily is a search and web-extraction provider built for AI agents and LLM applications. It provides a specialized API that returns cleaned, LLM-ready content from the web.
+Tavily is a search and web-extraction provider built specifically for AI agents and LLM applications. As of February 2026, it is a part of **Nebius Group** following a $275M+ acquisition. It provides a specialized API that returns structured, cleaned, and LLM-ready content from the live web.
 
 ## What problem it solves
-It gives agents a cleaner way to search the web and retrieve grounded results than relying on generic search scraping or brittle custom connectors. It handles JavaScript rendering, proxy rotation, and content extraction automatically.
+It gives agents a reliable way to search the web and retrieve grounded results without the "glue code" burden of generic search scraping. It handles JavaScript rendering, proxy rotation, and content extraction automatically, delivering citation-ready results with minimal latency.
 
 ## Where it fits in the stack
-**Provider / Search API**. It is commonly used as the web-research layer inside agent or workflow systems like LangChain or CrewAI.
+**Provider / Search API**. It sits at the **Retrieval Layer**, acting as the primary gateway for agents to access real-time information outside their training data.
 
 ## Typical use cases
-- Web research for agents
-- Retrieval-augmented generation (RAG) with current web results
-- Competitive and trend monitoring pipelines
-- Automated fact-checking for LLM outputs
+- **Agentic Research**: Powering multi-step research loops that search from multiple angles and synthesize findings.
+- **Real-time RAG**: Providing fresh web context for retrieval-augmented generation in production applications.
+- **Competitive Intelligence**: Automated monitoring of news, trends, and competitor activity with high-fidelity extraction.
+- **Automated Fact-Checking**: Grounding LLM outputs in verified web sources to reduce hallucinations.
 
 ## Strengths
-- **Agent-Optimized**: Returns content in formats that are easy for LLMs to parse and use.
-- **Speed**: Optimized for low-latency search results.
-- **Built-in Extraction**: Extracts main content from pages, removing ads and navigation.
-- **Easy Integration**: Official SDKs for Python and JavaScript.
+- **RAG-Native Structured Retrieval**: Returns results in JSON with summaries, citations, and highlights optimized for LLM consumption.
+- **Nebius Cloud Integration**: Now part of a larger AI cloud ecosystem (Nebius), ensuring enterprise-grade scale and performance.
+- **Managed Research Endpoint**: The `/research` endpoint allows generating entire research reports in a single API call.
+- **Official Vercel AI SDK Support**: Native integration with the Vercel AI SDK for building streaming agentic web apps.
+- **Citation Ready**: Results include high-confidence provenance and source metadata by default.
 
 ## Limitations
-- **Cost**: Adds another paid API dependency to your stack.
-- **Search Quality**: While high, it may still vary depending on the niche or domain.
-- **Proprietary**: Unlike self-hosted solutions, you are dependent on their service uptime and pricing.
+- **Acquisition Uncertainty**: Following the 2026 acquisition by Nebius, the pricing and product roadmap for the free/indie tier may evolve.
+- **Search Latency**: While advanced search depth is thorough, it can introduce latency (often ~1s) that needs to be managed in real-time loops.
 
 ## When to use it
 - When agents need current web results as part of their loop.
@@ -86,18 +86,20 @@ print(answer)
 ```
 
 ## Related tools / concepts
+- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
 - [DeerFlow](../agents/deerflow.md)
 - [SearXNG](../../services/searXNG.md)
 - [Firecrawl](../process_understanding/firecrawl.md)
 - [Crawl4AI](../process_understanding/crawl4ai.md)
 - [Perplexity API](../ai_knowledge/perplexity.md)
 - [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [CrewAI Framework](../frameworks/crewai.md)
+- [Exa AI](../providers/exa_ai.md)
 
 ## Sources / References
 - [Official Website](https://www.tavily.com/)
 - [Documentation](https://docs.tavily.com/)
+- [Nebius to acquire Tavily (Calcalist)](https://www.calcalistech.com/ctechnews/article/r168bhodbe)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-06
 - Confidence: high
