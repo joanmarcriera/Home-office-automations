@@ -35,6 +35,18 @@ AI Model and Conversational Assistant. It can be accessed via the Claude.ai web 
 - If you require a fully local, offline model (use [Local LLMs](local_llms.md)).
 - If you need a model with no censorship or safety filters.
 
+## Model routing
+
+Anthropic models are categorized into three "tiers" of capability. Choosing the right tier depends on the complexity of the reasoning required.
+
+| Tier | Model | Recommended Use Case |
+| :--- | :--- | :--- |
+| **Haiku** | Claude 3.5 Haiku | Low-latency, high-volume tasks like extraction and classification. |
+| **Sonnet** | Claude 3.5 Sonnet | The default choice for most agentic workflows, coding, and tool use. |
+| **Opus** | Claude 3 Opus | Extreme logic puzzles and high-fidelity creative work. |
+
+See the central policy: [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
+
 ## Licensing and cost
 - **Open Source**: No (Proprietary).
 - **Cost**: Free tier available; paid "Pro" subscription for higher limits; pay-as-you-go API.

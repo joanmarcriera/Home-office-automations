@@ -89,5 +89,5 @@ GPT-5.4 incorporates the specialized coding strengths of **GPT-5.3-Codex**.
 - [Gemini 1.5 Pro & Flash (Google)](https://deepmind.google/technologies/gemini/pro/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-06
 - Confidence: high
