@@ -17,23 +17,22 @@ It reduces the friction of building production-ready AI apps by providing a unif
 
 ## Strengths
 - **App Developer Centric**: Uses paradigms and tooling familiar to mobile and web developers.
-- **Unified API**: Support for Gemini, OpenAI, Ollama, DeepSeek, and more.
+- **Unified API**: Support for Gemini, OpenAI, Ollama, DeepSeek, and more via the new core SDK.
 - **Developer Experience (DX)**: Includes a local Developer UI for testing prompts, flows, and tool calls in real-time.
 - **Observability**: Built-in support for traces, logs, and token usage metrics.
 - **Seamless Firebase Integration**: Works out-of-the-box with Firebase Auth, Firestore, and Cloud Functions.
 
 ## Limitations
-- **Language Support**: Currently supports JavaScript/TypeScript and Go, with Python support in development.
+- **Language Support**: Robust support for JavaScript/TypeScript and Go; Python support is currently in public preview.
 - **Ecosystem Focus**: While open-source, it is optimized for the Google Cloud/Firebase stack.
 
 ## When to use it
 - When you are already using the Firebase or Google Cloud ecosystem and want to add AI features with minimal friction.
 - For building production-ready AI applications that require serverless deployment and built-in observability.
-- When you prefer a structured, flow-based approach to orchestrating AI tasks in JavaScript/TypeScript or Go.
+- When you prefer a structured, flow-based approach to orchestrating AI tasks in JavaScript/TypeScript, Go, or Python (preview).
 
 ## When not to use it
 - If you are building highly complex, research-oriented agentic systems that require the extreme flexibility of frameworks like LangChain or AutoGen.
-- For Python-heavy data science or AI research workflows (until full Python support is released).
 
 ## Getting started
 
@@ -81,5 +80,5 @@ export const myFlow = defineFlow(
 - [Firebase AI Codelab](https://firebase.google.com/codelabs/ai-genkit-rag)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-06
 - Confidence: high

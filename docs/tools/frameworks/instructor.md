@@ -1,7 +1,7 @@
 # Instructor
 
 ## What it is
-Instructor is a multi-language library (Python, TypeScript, Go, Ruby, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure.
+Instructor is a multi-language library (Python, TypeScript, Go, Ruby, PHP, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). Following its v2 rewrite, it focuses on a simplified `from_provider` integration pattern and enhanced semantic validation using Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure.
 
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse, Instructor ensures you get validated, type-safe objects, automatically handling retries and re-asking the model if the initial output fails validation.
@@ -13,6 +13,7 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 - **Reliable Data Extraction**: Converting messy natural language (e.g., customer support emails) into structured database records.
 - **Type-Safe LLM Integration**: Ensuring LLM outputs can be directly used in application logic without complex parsing or regex.
 - **Quality Gates**: Implementing validation rules (e.g., "age must be positive", "response must not contain profanity") that are enforced via LLM retries.
+- **Semantic Validation**: Using LLMs to validate the content of extracted fields (e.g., "is this summary actually concise?").
 
 ## Strengths
 - **Schema-First**: Define what you want using standard types (Pydantic, Zod, etc.).
@@ -51,7 +52,7 @@ class User(BaseModel):
     name: str
     age: int
 
-# Patch the client to add Instructor functionality
+# Patch the client to add Instructor functionality (v2 syntax)
 client = instructor.from_provider(OpenAI())
 
 user = client.chat.completions.create(
@@ -62,6 +63,24 @@ user = client.chat.completions.create(
 
 print(user.name) # "Jason"
 print(user.age)  # 25
+```
+
+### Semantic Validation Example
+Instructor allows you to use an LLM to validate the output of another (or the same) LLM call.
+
+```python
+from typing_extensions import Annotated
+from pydantic import AfterValidator
+from instructor import llm_validator
+
+def is_concise(v: str):
+    # This uses an LLM to check if the text is concise
+    return llm_validator("is this concise?", model="gpt-4o-mini")(v)
+
+class Summary(BaseModel):
+    content: Annotated[str, AfterValidator(is_concise)]
+
+# Instructor will automatically retry if the LLM-based validator fails
 ```
 
 ## Related tools / concepts
@@ -80,5 +99,5 @@ print(user.age)  # 25
 - [Instructor Cookbook](https://python.useinstructor.com/examples/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-06
 - Confidence: high
