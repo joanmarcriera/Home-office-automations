@@ -47,7 +47,7 @@ curl -fsSL https://llmfit.axjns.dev/install.sh | sh
 ```
 
 ### Initial Run
-Simply type `llmfit` to launch the interactive TUI. It will automatically detect your CPU, RAM, and GPU/VRAM to provide tailored recommendations.
+Simply type `llmfit` to launch the interactive TUI. As of v0.9.30, it features a new Vim-like TUI for improved navigation. It will automatically detect your CPU, RAM, and GPU/VRAM (including support for Apple M5 silicon) to provide tailored recommendations.
 
 ## CLI examples
 
@@ -108,5 +108,5 @@ for model in models:
 - [Official Website](https://llmfit.axjns.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-06
 - Confidence: high
