@@ -1,7 +1,7 @@
 # Playbook: 3-Node K3s High Availability Cluster Setup
 
 ## What it is
-A step-by-step operational guide for deploying a lightweight, highly available Kubernetes cluster using K3s. It focuses on the multi-master (control-plane) configuration with embedded etcd.
+A step-by-step operational guide for deploying a lightweight, highly available Kubernetes cluster using K3s. It focuses on the multi-master (control-plane) configuration with embedded etcd. As of June 2026, K3s v1.30+ is the baseline for high-performance homelab clusters.
 
 ## What problem it solves
 Managing a single-node Kubernetes cluster creates a single point of failure. This playbook provides a path to high availability, ensuring the cluster remains operational even if one control-plane node fails. It simplifies the complex process of setting up HA etcd and control-plane components.
@@ -18,6 +18,7 @@ This playbook belongs to the **Infrastructure / Compute** layer. It provides the
 - **Low Resource Overhead**: K3s is optimized for edge and IoT, making it much lighter than vanilla K8s (kubeadm).
 - **Simple HA**: Embedded etcd removes the need for an external database (like Postgres) for the control-plane state.
 - **Production-Ready**: Includes bundled components like Traefik, Local Storage Provider, and CoreDNS.
+- **Improved CNI Support**: June 2026 standards now favor **Cilium** for high-performance networking and observability.
 
 ## Limitations
 - **Scaling Limits**: Embedded etcd is ideal for small clusters (3-5 nodes) but may struggle with very large-scale deployments compared to a dedicated etcd cluster.
@@ -34,17 +35,21 @@ This playbook belongs to the **Infrastructure / Compute** layer. It provides the
 - If you require a non-Kubernetes container orchestrator (e.g., Docker Swarm).
 
 ## Prerequisites
-- 3 Linux nodes (e.g., Ubuntu 24.04 or Talos OS).
+- 3 Linux nodes (e.g., Ubuntu 24.04, Talos OS, or Debian 12).
 - Static IP addresses for all nodes.
 - SSH access between nodes (or console access).
+- Secure boot disabled (if using specialized kernel modules like Cilium).
 
 ## Step 1: Initialize the First Node
 On the first node (`node-01`), run:
 ```bash
 curl -sfL https://get.k3s.io | sh -s - server \
   --cluster-init \
-  --tls-san <cluster-vip-or-fqdn>
+  --tls-san <cluster-vip-or-fqdn> \
+  --flannel-backend=none \
+  --disable-network-policy
 ```
+*Note: We disable Flannel to allow for the installation of Cilium as the CNI.*
 
 ## Step 2: Join the Second and Third Nodes
 Retrieve the node token from `node-01`:
@@ -59,31 +64,39 @@ curl -sfL https://get.k3s.io | sh -s - server \
   --token <node-token>
 ```
 
-## Step 3: Verify the Cluster
+## Step 3: Install Cilium CNI
+Once all nodes are joined, install Cilium from the control node:
+```bash
+cilium install --version 1.15.0
+```
+
+## Step 4: Verify the Cluster
 Check the status of the nodes:
 ```bash
 kubectl get nodes
 ```
 Ensure all 3 nodes show `Ready` and have the `control-plane,master` roles.
 
-## Step 4: Configuration Details
+## Step 5: Configuration Details
 - **Storage**: By default, K3s uses local storage. For HA, it is recommended to use [Longhorn](../reference-implementations/k8s-infrastructure/storage/longhorn-values.yaml) or [NFS CSI](../playbooks/nfs-csi-setup.md).
 - **Networking**: [MetalLB](../reference-implementations/k8s-infrastructure/metallb/) should be configured for LoadBalancer services.
+- **Service Interconnectivity**: Use [Headscale](../services/headscale.md) for secure cross-site cluster communication.
 
 ## Related tools / concepts
-- [NFS CSI Setup](nfs-csi-setup.md) — for persistent shared storage across the cluster.
-- [Talos OS vs Ubuntu K3s](../knowledge_base/talos-vs-ubuntu-k3s.md) — for choosing the underlying operating system.
-- [Invisible Kubernetes](../knowledge_base/invisible_kubernetes.md) — philosophical overview of keeping K8s management low-touch.
-- [Authentik](../services/authentik.md) — for identity management on top of the cluster.
-- [Gitea](../services/gitea.md) — for hosting GitOps configurations.
-- [Tailscale to Headscale Migration](tailscale-to-headscale-migration.md) — for secure cluster interconnectivity.
-- [Raspberry Pi Kiosk Automation](raspberry-pi-kiosk-automation.md) — as a typical edge node use case.
-- [Home Assistant](../services/home-assistant.md) — a primary service candidate for HA hosting.
+- [NFS CSI Setup](nfs-csi-setup.md)
+- [Talos OS vs Ubuntu K3s](../knowledge_base/talos-vs-ubuntu-k3s.md)
+- [Invisible Kubernetes](../knowledge_base/invisible_kubernetes.md)
+- [Authentik](../services/authentik.md)
+- [Gitea](../services/gitea.md)
+- [Tailscale to Headscale Migration](tailscale-to-headscale-migration.md)
+- [Raspberry Pi Kiosk Automation](raspberry-pi-kiosk-automation.md)
+- [Home Assistant](../services/home-assistant.md)
 
 ## Sources / References
 - [K3s High Availability with Embedded etcd](https://docs.k3s.io/datastore/ha-embedded)
-- [K3s Installation Options](https://docs.k3s.io/installation/configuration)
+- [Cilium Installation Guide](https://docs.cilium.io/en/stable/gettingstarted/k3s/)
+- [K3s v1.30 Release Notes](https://github.com/k3s-io/k3s/releases/tag/v1.30.0%2Bk3s1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-06-07
 - Confidence: high

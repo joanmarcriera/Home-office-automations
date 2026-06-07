@@ -1,7 +1,7 @@
 # Parea
 
 ## What it is
-Parea is an AI developer platform for debugging, testing, and monitoring LLM applications. It provides an integrated environment for prompt engineering, automated evaluations, and production observability.
+Parea is an AI developer platform for debugging, testing, and monitoring LLM applications. It provides an integrated environment for prompt engineering, automated evaluations, and production observability. As of June 2026, Parea v2.x features enhanced support for **Multi-Agent Tracing** and **LLM-as-a-Judge** scoring.
 
 ## What problem it solves
 Parea bridges the gap between prompt experimentation and production reliability. It allows developers to test prompts against datasets before deployment, monitor their performance in the wild, and quickly iterate based on production feedback.
@@ -19,7 +19,7 @@ Parea bridges the gap between prompt experimentation and production reliability.
 - **Unified Workflow**: Covers the entire lifecycle from prompt design to production monitoring.
 - **Developer First**: Excellent SDKs and CLI tools for local development.
 - **Custom Metrics**: Support for both heuristic-based (e.g., JSON validation) and LLM-based scorers.
-- **Collaboration**: Tools for teams to share prompts, test results, and production traces.
+- **Agent-Aware**: Specialized tracing for multi-agent handoffs and tool execution.
 
 ## Limitations
 - **Cloud Platform**: Full features require using the Parea cloud dashboard.
@@ -28,6 +28,7 @@ Parea bridges the gap between prompt experimentation and production reliability.
 ## When to use it
 - When you need a unified dashboard for prompt engineering and production monitoring.
 - To run automated evaluations (evals) as part of your CI/CD pipeline for LLM apps.
+- When tracking complex multi-agent interactions that require granular sub-span tracing.
 
 ## When not to use it
 - For very simple, single-prompt applications where the overhead of a full observability platform isn't justified.
@@ -57,21 +58,13 @@ my_llm_function("Hello Parea!")
 ## CLI examples
 
 ### parea login
-Authenticates your local environment with Parea:
 ```bash
 parea login
 ```
 
 ### parea experiment
-Runs a local experiment using a defined function and dataset:
 ```bash
 parea experiment --func my_script.py:my_func --data my_data.json
-```
-
-### parea deploy
-Deploys a local prompt configuration to the Parea platform:
-```bash
-parea deploy --prompt my_prompt.yaml
 ```
 
 ## API examples
@@ -101,11 +94,13 @@ p.experiment(
 - [W&B Weave](wandb-weave.md)
 - [Comet Opik](comet-opik.md)
 - [Langfuse](langfuse.md)
+- [Arize AI](arize-ai.md)
+- [PostHog](posthog.md)
 
 ## Sources / references
 - [Parea AI Website](https://www.parea.ai/)
 - [Parea Documentation](https://docs.parea.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-06-07
 - Confidence: high

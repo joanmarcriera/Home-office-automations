@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Home Lab Architecture is a multi-layered infrastructure design built on **TrueNAS SCALE**, an open-source storage platform based on Debian GNU/Linux. It provides a robust foundation for running containerized services, managing large-scale ZFS storage pools, and hosting autonomous AI agents.
+The Home Lab Architecture is a multi-layered infrastructure design built on **TrueNAS SCALE**, an open-source storage platform based on Debian GNU/Linux. As of June 2026, the architecture has evolved to support high-density AI workloads using **NVMe-over-Fabrics (NVMe-oF)** and dedicated GPU pools.
 
 ## What problem it solves
 
@@ -24,7 +24,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 - **Data Integrity**: ZFS provides snapshots, replication, and self-healing to protect against data corruption and drive failure.
 - **Scalability**: Easily add more storage or compute resources as the lab grows.
 - **Privacy**: All processing and storage happen locally, ensuring sensitive family data never leaves the premises.
-- **Cost-Effective**: Uses open-source software and consumer-grade hardware to achieve enterprise-level features.
+- **AI-Ready Storage**: Support for high-IOPS NVMe pools ensures that large model weights can be loaded into GPU memory in seconds.
 
 ## Limitations
 
@@ -44,24 +44,31 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 - For extremely high-availability applications that require geographical redundancy beyond what a single home can provide.
 - If your compute needs are very low and could be better served by a simple NAS or low-power SBC (like a Raspberry Pi).
 
+## Hardware Recommendations (June 2026)
+- **CPU**: Min 8 cores (AMD Ryzen 7000+ or Intel 13th Gen+ recommended).
+- **RAM**: 64GB DDR5 (ECC preferred for ZFS).
+- **GPU**: NVIDIA RTX 4090 or RTX 5000-series (24GB+ VRAM) for local LLM inference.
+- **Networking**: 10GbE SFP+ for the storage backbone.
+
 ## Related tools / concepts
 
-- [Tailscale](../services/tailscale.md) — For secure, zero-config mesh networking between lab nodes.
-- [Nextcloud](../services/nextcloud.md) — The primary interface for file sharing and collaborative work.
-- [Syncthing](../services/syncthing.md) — For decentralized file synchronization across devices.
-- [Paperless-ngx](../services/paperless-ngx.md) — The central document management system.
-- [Ollama](../services/ollama.md) — The local engine for running large language models.
-- [n8n](../services/n8n.md) — The workflow engine that orchestrates service interactions.
-- [rclone](../services/rclone-automation.md) — Used for offsite backups to cloud storage.
-- [TrueNAS SCALE](https://www.truenas.com/truenas-scale/) — The underlying OS and storage platform.
+- [Tailscale](../services/tailscale.md)
+- [Nextcloud](../services/nextcloud.md)
+- [Syncthing](../services/syncthing.md)
+- [Paperless-ngx](../services/paperless-ngx.md)
+- [Ollama](../services/ollama.md)
+- [n8n](../services/n8n.md)
+- [rclone](../services/rclone-automation.md)
+- [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md)
+- [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-06-07
 - Confidence: high
 
 ## Sources / References
 
 - [TrueNAS SCALE Official Documentation](https://www.truenas.com/docs/scale/)
 - [ZFS on Linux Reference](https://openzfs.github.io/openzfs-docs/Getting%20Started/Ubuntu/index.html)
-- [Self-Hosted Home Lab Wiki](https://www.reddit.com/r/homelab/wiki/index)
+- [NVIDIA Home Lab Guide](https://www.nvidia.com/en-us/ai-data-science/generative-ai/)

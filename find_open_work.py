@@ -23,16 +23,18 @@ def main():
     open_batches = []
     for b in batches:
         # Search for Batch X in the triage report and check its status
-        # Match "Batch 35" specifically
-        pattern = rf"Batch {b}\b.*?\| (.*?) \|"
+        # The table format is | Issue # | Title | Status | Notes |
+        # Status is in the third column (index 2 if we skip the first empty split)
+        # Match "**Batch 35**" or "Batch 35" in the first column
+        pattern = rf"Batch {b}\b.*?\|.*?\| (.*?) \|"
         match = re.search(pattern, triage_content, re.IGNORECASE)
         if match:
             status = match.group(1).strip()
-            if "Resolved" not in status and "Closed" not in status:
+            if "Resolved" not in status and "Verified & Closed" not in status:
                 open_batches.append((b, status))
         else:
-            # Maybe it's mentioned as Issue #X
-            open_batches.append((b, "Not found in triage"))
+            # Check if it's in a list or elsewhere
+            open_batches.append((b, "Not found in triage table"))
 
     print(f"Open or untracked batches: {len(open_batches)}")
     for b, status in sorted(open_batches):
