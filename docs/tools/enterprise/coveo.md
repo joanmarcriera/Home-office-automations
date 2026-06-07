@@ -93,7 +93,7 @@ push_to_coveo("doc_001", "AI Best Practices", "Content for the AI document...")
 - [Pinecone](../infrastructure/pinecone.md) — vector database for AI search.
 - [Milvus](../infrastructure/milvus.md) — open-source vector database.
 - [Search Patterns](../../knowledge_base/patterns/search-patterns.md) — general AI search architecture.
-- [OpenTelemetry](../tools/development_ops/index.md) — observability for search performance.
+- [OpenTelemetry Collector](../process_understanding/opentelemetry-collector.md) — observability for search performance.
 
 ## Sources / references
 - [Coveo Official Site](https://www.coveo.com/)

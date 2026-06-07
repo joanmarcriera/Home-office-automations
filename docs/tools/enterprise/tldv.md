@@ -60,7 +60,7 @@ tl;dv can be integrated with [Notion](../../ai_knowledge/notion-ai.md) to automa
 - [Glean](glean.md)
 - [Hebbia](hebbia.md)
 - [Otter.ai](https://otter.ai/)
-- [Notion AI](../../ai_knowledge/notion-ai.md) (Meeting notes and knowledge base)
+- [Notion AI](../ai_knowledge/notion-ai.md) (Meeting notes and knowledge base)
 - [Whisper](../../services/whisper.md) (Self-hosted speech-to-text)
 - [n8n](../../services/n8n.md) (Workflow automation for meeting data)
 - [Ramp](ramp.md) (Expense management for SaaS subscriptions)

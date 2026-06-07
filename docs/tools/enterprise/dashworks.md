@@ -92,8 +92,8 @@ print(answer['summary'])
 - [Coveo](coveo.md) — enterprise-grade search and recommendations.
 - [Notion AI](../ai_knowledge/notion-ai.md) — AI search within Notion workspaces.
 - [Elastic](elastic.md) — underlying search technology for many enterprise tools.
-- [Langfuse](../tools/process_understanding/langfuse.md) — observability for AI queries.
-- [Knowledge Management](../knowledge_base/index.md) — core concept and patterns.
+- [Langfuse](../process_understanding/langfuse.md) — observability for AI queries.
+- [Knowledge Management](../../knowledge_base/README.md) — core concept and patterns.
 
 ## Sources / references
 - [Dashworks Official Site](https://www.dashworks.ai/)
