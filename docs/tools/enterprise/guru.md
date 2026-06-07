@@ -89,10 +89,10 @@ print(f"Created Card ID: {new_card['id']}")
 - [Dashworks](dashworks.md) — AI-powered unified search across internal apps.
 - [Glean](glean.md) — enterprise search and knowledge platform.
 - [Notion AI](../ai_knowledge/notion-ai.md) — AI workspace for notes and documents.
-- [Obsidian](../knowledge_base/index.md) — local knowledge management alternative.
-- [Logseq](../tools/development_ops/logseq.md) — privacy-first local knowledge base.
-- [AnyType](../tools/intake_storage/anytype.md) — decentralized knowledge base.
-- [SilverBullet](../tools/intake_storage/silverbullet.md) — extensible open-source wiki.
+- [Obsidian](../ai_knowledge/obsidian.md) — local knowledge management alternative.
+- [Logseq](../ai_knowledge/logseq.md) — privacy-first local knowledge base.
+- [AnyType](../intake_storage/anytype.md) — decentralized knowledge base.
+- [SilverBullet](../intake_storage/silverbullet.md) — extensible open-source wiki.
 
 ## Sources / references
 - [Guru Official Site](https://www.getguru.com/)
