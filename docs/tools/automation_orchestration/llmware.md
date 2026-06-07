@@ -1,7 +1,7 @@
 # LLMWare
 
 ## What it is
-LLMWare is an open-source framework specifically designed for building enterprise-grade RAG and AI agent applications. It provides a "unified data-to-AI" pipeline that emphasizes privacy, security, and the use of small, specialized models (SLMs).
+LLMWare is an open-source framework specifically designed for building enterprise-grade RAG and AI agent applications. It provides a "unified data-to-AI" pipeline that emphasizes privacy, security, and the use of **Small Language Models (SLMs)** like BLING and DRAGON. As of June 2026, LLMWare v0.3.x includes native support for **GGUF-based local inference** and multi-step agentic workflows.
 
 ## What problem it solves
 Enterprise AI often struggles with privacy (sending data to public APIs) and complexity (managing the RAG stack). LLMWare solves this by providing a local-first architecture that makes it easy to use open-source, small models that can run on-premises while providing high accuracy for specific tasks.
@@ -19,7 +19,7 @@ Enterprise AI often struggles with privacy (sending data to public APIs) and com
 - **Small Model Focus**: Optimized for high performance using efficient models like BLING or DRAGON.
 - **Integrated Pipeline**: Covers everything from document parsing and embedding to retrieval and generation.
 - **Enterprise Ready**: Designed with security and data governance as first-class citizens.
-- **Open Source**: Full transparency and control over the AI stack.
+- **Model Efficiency**: Superior performance on standard CPU hardware for specialized tasks.
 
 ## Limitations
 - **Learning Curve**: The framework is comprehensive and may take time to fully understand.
@@ -67,7 +67,8 @@ results = query.semantic_search("What is our security policy?", number_of_result
 ## Sources / references
 - [LLMWare GitHub Repository](https://github.com/llmware-ai/llmware)
 - [LLMWare Documentation](https://llmware.ai/docs)
+- [BLING Model Family on Hugging Face](https://huggingface.co/llmware)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-06-07
 - Confidence: high

@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. It serves as the "source of truth" for how the repository's autonomous agents operate and make decisions.
+The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of June 2026, it includes specialized system prompts for multi-agent KnowledgeOps and automated quality audits.
 
 ## What problem it solves
 
@@ -24,13 +24,13 @@ Autonomous systems can often feel like "black boxes." This catalogue solves the 
 - **Transparency**: Makes the repository's automated processes understandable to human contributors.
 - **Reproducibility**: Provides the exact prompts needed to replicate the automated workflows in other environments.
 - **Centralization**: Collects disparate GitHub Actions and local scripts into a single, searchable document.
-- **Standardization**: Encourages the use of consistent formatting and "mission-driven" prompting across all agents.
+- **Standardization**: Enforces the use of "High Confidence" documentation standards across all automated outputs.
 
 ## Limitations
 
 - **Maintenance Overhead**: Requires manual updates whenever a workflow or prompt is changed in the underlying code.
 - **Complexity**: As the number of agents and workflows grows, the catalogue can become difficult to navigate.
-- **Sensitivity**: Some prompts may contain logic that is specific to the current repository structure and may not be directly portable.
+- **Sensitivity**: Some prompts may contain logic that is specific to the current repository structure.
 
 ## When to use it
 
@@ -41,7 +41,7 @@ Autonomous systems can often feel like "black boxes." This catalogue solves the 
 ## When not to use it
 
 - For documenting tool-specific features that are already covered in their respective canonical pages.
-- For storing API keys or other secrets (these belong in GitHub Secrets or a secure vault).
+- For storing API keys or other secrets.
 
 ## Overview
 
@@ -136,7 +136,7 @@ Classify these items:
 
 The workflow creates a GitHub issue with the `jules` label. Jules picks it up automatically.
 
-#### Full Issue Prompt
+#### Full Issue Prompt (June 2026 Version)
 
 ```markdown
 ## Daily Maintenance Run - @jules
@@ -176,10 +176,6 @@ For each row:
    `mkdocs.yml` nav in alphabetical order.
 6. Mark the row as `integrated` in that daily file and add/update
    `Canonical Page`.
-
-If today's daily file does not exist yet, create
-`docs/new-sources/$TODAY.md` using the schema documented in
-`docs/new-sources.md`.
 
 Before opening the PR, run:
 `python3 scripts/validate_new_sources.py`
@@ -762,7 +758,7 @@ Fix all issues found and commit in a single PR titled
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-06-07
 - Confidence: high
 
 ## Sources / References
