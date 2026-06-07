@@ -60,9 +60,9 @@ results = query.semantic_search("What is our security policy?", number_of_result
 - [LangChain](../ai_knowledge/langchain.md)
 - [Ollama](../../services/ollama.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [Dify](../frameworks/dify.md)
+- [Dify](../ai_knowledge/dify.md)
 - [LiteLLM](../../services/litellm.md)
-- [Unstructured](../ai_knowledge/unstructured.md)
+- [Unstructured](../intake_storage/unstructured.md)
 
 ## Sources / references
 - [LLMWare GitHub Repository](https://github.com/llmware-ai/llmware)

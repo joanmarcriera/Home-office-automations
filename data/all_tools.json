@@ -1552,6 +1552,12 @@
       "doc_path": "docs/tools/automation_orchestration/mcp-registry.md"
     },
     {
+      "id": "milvus",
+      "name": "Milvus",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/milvus.md"
+    },
+    {
       "id": "mealie",
       "name": "Mealie",
       "category": "Intake & Storage",
@@ -1967,6 +1973,12 @@
       "name": "Phidata",
       "category": "Agents",
       "doc_path": "docs/tools/agents/phidata.md"
+    },
+    {
+      "id": "pinecone",
+      "name": "Pinecone",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/pinecone.md"
     },
     {
       "id": "picnic",

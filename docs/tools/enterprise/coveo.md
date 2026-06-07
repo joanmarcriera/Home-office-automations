@@ -90,9 +90,9 @@ push_to_coveo("doc_001", "AI Best Practices", "Content for the AI document...")
 - [Elastic](elastic.md) — foundational search technology.
 - [Glean](glean.md) — employee search and workspace discovery.
 - [Algolia](../ai_knowledge/index.md) — API-first search for developers.
-- [Pinecone](../tools/infrastructure/index.md) — vector database for AI search.
-- [Milvus](../tools/infrastructure/index.md) — open-source vector database.
-- [Search Patterns](../knowledge_base/index.md) — general AI search architecture.
+- [Pinecone](../infrastructure/pinecone.md) — vector database for AI search.
+- [Milvus](../infrastructure/milvus.md) — open-source vector database.
+- [Search Patterns](../../knowledge_base/patterns/search-patterns.md) — general AI search architecture.
 - [OpenTelemetry](../tools/development_ops/index.md) — observability for search performance.
 
 ## Sources / references

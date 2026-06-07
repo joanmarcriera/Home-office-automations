@@ -518,9 +518,11 @@ nav:
           - llama.cpp: tools/infrastructure/llama-cpp.md
           - LM Studio: tools/infrastructure/lm-studio.md
           - LocalAI: tools/infrastructure/localai.md
+          - Milvus: tools/infrastructure/milvus.md
           - MLX: tools/infrastructure/mlx.md
           - Msty: tools/infrastructure/msty.md
           - OpenPipe: tools/infrastructure/openpipe.md
+          - Pinecone: tools/infrastructure/pinecone.md
           - SGLang: tools/infrastructure/sglang.md
           - Supabase: tools/infrastructure/supabase.md
           - Text Generation Inference (TGI): tools/infrastructure/tgi.md
@@ -668,6 +670,7 @@ nav:
           - Prompt Requests: knowledge_base/patterns/prompt_requests.md
           - RAG Pattern: knowledge_base/patterns/rag-pattern.md
           - Retrieval-Augmented Generation (RAG): knowledge_base/patterns/rag.md
+          - Search Patterns: knowledge_base/patterns/search-patterns.md
           - Software Factories: knowledge_base/patterns/software-factories.md
           - Tool Calling & Model Context Protocol (MCP):
               knowledge_base/patterns/tool-calling-and-mcp.md
