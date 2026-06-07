@@ -14,7 +14,7 @@ def find_open_tasks():
             with open(filepath, 'r') as f:
                 lines = f.readlines()
                 for line in lines:
-                    if '- [ ]' in line and not '- [x]' in line:
+                    if line.strip().startswith('- [ ]'):
                         batch_match = re.search(r'batch-(\d+)', filename)
                         batch_num = int(batch_match.group(1)) if batch_match else 0
                         tasks.append({'source': filename, 'task': line.strip(), 'priority': batch_num})
@@ -38,7 +38,7 @@ def find_stale_docs():
     docs = list(pathlib.Path("docs").rglob("*.md"))
     stale = []
     for doc in docs:
-        if "reports" in str(doc) or "templates" in str(doc) or "index.md" in str(doc) or "README.md" in str(doc):
+        if "reports" in str(doc) or "templates" in str(doc) or "index.md" in str(doc) or "README.md" in str(doc) or "new-sources" in str(doc):
             continue
         try:
             content = doc.read_text(encoding="utf-8")

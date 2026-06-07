@@ -15,15 +15,20 @@ It prevents wasted time trying to run models that do not fit your hardware or pe
 - Deciding whether to use LocalAI, Ollama, or a cloud provider
 
 ## Strengths
-- Fast hardware reality check
-- Useful before investing in local inference setup
+- **Fast Hardware Reality Check**: Instantly detects CPU, RAM, and GPU/VRAM to provide tailored model recommendations.
+- **Vim-like TUI**: Powerful interactive interface with search, filtering, and bulk comparison modes.
+- **Community Benchmarks**: Integration with [localmaxxing.com](https://localmaxxing.com) (press `b`) to see real-world performance data from other users.
+- **Hardware Simulation**: Press `S` to override your system specs and see what models would run on a target upgrade (e.g., RTX 5090).
+- **Download Manager**: Native management of model downloads and local cache for Ollama, llama.cpp, and LM Studio.
 
 ## Limitations
-- It helps with feasibility, not workload design
-- It does not choose the right workflow architecture for you
+- **Estimation vs. Execution**: Provides theoretical speed and fit estimates; actual performance may vary based on concurrent system load.
+- **Workflow Agnostic**: Helps with feasibility and fit, but does not design the application-level workflow or agent architecture.
 
 ## When to use it
-- Before standing up local model infrastructure
+- Before investing in new hardware for local LLM execution.
+- When choosing the optimal quantization level for a specific model on your machine.
+- To compare real-world performance data from the community before downloading large models.
 
 ## Getting started
 
@@ -49,7 +54,17 @@ curl -fsSL https://llmfit.axjns.dev/install.sh | sh
 ### Initial Run
 Simply type `llmfit` to launch the interactive TUI. It will automatically detect your CPU, RAM, and GPU/VRAM to provide tailored recommendations.
 
-## CLI examples
+## CLI and TUI examples
+
+### Interactive TUI (Default)
+```bash
+llmfit
+```
+- **Navigation**: `j/k` or arrows.
+- **Search**: `/` to search by name, provider, or use case.
+- **Filters**: `f` (fit), `a` (availability), `R` (runtime).
+- **Leaderboard**: `b` to view community benchmarks.
+- **Plan Mode**: `p` to calculate hardware requirements for a specific model.
 
 ### System Audit
 ```bash
@@ -69,8 +84,8 @@ llmfit recommend --use-case coding --limit 5 --json
 llmfit plan "meta-llama/Llama-3.1-8B" --context 8192 --json
 ```
 
-## API examples
-llmfit can run as a background service to provide fit data via a REST API.
+## API and Integration
+llmfit can run as a background service to provide fit data via a REST API or integrate directly as an **OpenClaw Skill**.
 
 ### Starting the Server
 ```bash
@@ -102,11 +117,13 @@ for model in models:
 - [llama.cpp](../infrastructure/llama-cpp.md)
 - [MLX](../infrastructure/mlx.md)
 - [ExLlamaV2](../infrastructure/exllamav2.md)
+- [LocalMaxxing](https://localmaxxing.com)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/AlexsJones/llmfit)
 - [Official Website](https://llmfit.axjns.dev/)
+- [Release Notes v0.9.30](https://github.com/AlexsJones/llmfit/releases/tag/v0.9.30)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-06
 - Confidence: high

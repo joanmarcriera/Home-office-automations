@@ -71,14 +71,39 @@ print(user.age)  # 25
 - [Structured Output Pattern](../../knowledge_base/patterns/index.md)
 - [LiteLLM](../../services/litellm.md)
 - [Firebase Genkit](firebase-genkit.md)
-- [Extraction and Classification](../../knowledge_base/patterns/extraction-and-classification.md) (In Progress)
-- [Date Extraction](../../knowledge_base/patterns/date-extraction.md) (In Progress)
+- [Extraction and Classification](../../reference-implementations/llm-prompts/extraction-and-classification.md)
+- [Date Extraction](../../reference-implementations/llm-prompts/date-extraction.md)
+
+## Instructor v2 and Latest Features
+Released in May 2026, **Instructor v2** introduced a major internal rewrite focused on a provider-owned architecture. While maintaining backward compatibility, it significantly improved extensibility and type-checking performance.
+
+### Key Updates in v2:
+- **Unified Provider Interface**: Streamlined `from_provider()` function for consistent cross-provider client initialization.
+- **Improved Streaming**: Enhanced support for partial responses and real-time list processing.
+- **Semantic Validation**: Built-in support for validating LLM outputs against subjective criteria using LLM-based evaluators.
+- **llms.txt Support**: Adoption of the `llms.txt` standard to make documentation instantly readable by AI agents.
+
+### Example: Semantic Validation
+```python
+from instructor import SemanticValidator
+from pydantic import BaseModel, Field, BeforeValidator
+from typing import Annotated
+
+class Response(BaseModel):
+    answer: Annotated[
+        str,
+        BeforeValidator(SemanticValidator(openai_client=client, statement="The answer must be polite and helpful"))
+    ]
+
+# If the LLM generates a rude response, Instructor will automatically retry
+```
 
 ## Sources / references
 - [Official Website](https://python.useinstructor.com/)
 - [GitHub Repository](https://github.com/jxnl/instructor)
 - [Instructor Cookbook](https://python.useinstructor.com/examples/)
+- [What's new in Instructor v2?](https://python.useinstructor.com/blog/2026/05/11/whats-new-in-instructor-v2/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-08
+- Last reviewed: 2026-06-06
 - Confidence: high
