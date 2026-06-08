@@ -25,6 +25,27 @@ LLM applications often involve repetitive prompting, structured output requireme
 - **Hardware**: Primarily targets NVIDIA GPUs (CUDA).
 - **Ecosystem**: Newer than vLLM; integration with some third-party orchestrators may require custom adapters.
 
+## Hardware requirements
+
+SGLang requires NVIDIA GPU (CUDA). Its RadixAttention cache benefit scales with model size and concurrency — most valuable for 13B+ models with many parallel requests. No Apple Silicon support — use [MLX](mlx.md) or [Ollama](../../services/ollama.md) on macOS.
+
+| Model size | Precision | Min VRAM | RTX 4060 8 GB | Notes |
+|---|---|---|---|---|
+| 7-8B | fp16 | 14-16 GB | ❌ Not viable | |
+| 7-8B | AWQ 4-bit | 4-5 GB | ✅ Comfortable | `--quantization awq` |
+| 7-8B | fp8 | 7-8 GB | ⚠️ Tight | Ampere/Ada required |
+| 13-14B | AWQ 4-bit | 7-8 GB | ⚠️ Tight | Use `--mem-fraction-static 0.80` |
+| 30B+ | any | 20 GB+ | ❌ Not viable | Multi-GPU only |
+
+**Recommended launch for RTX 4060:**
+```bash
+python -m sglang.launch_server \
+    --model-path TheBloke/Mistral-7B-Instruct-v0.2-AWQ \
+    --quantization awq \
+    --port 30000 \
+    --mem-fraction-static 0.80
+```
+
 ## When to use it
 - When your application relies on multi-turn interactions or shared prompt prefixes.
 - When you need low-latency, reliable structured generation.

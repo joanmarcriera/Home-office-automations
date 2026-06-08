@@ -23,6 +23,27 @@ It lowers the barrier to local LLM experimentation by packaging model discovery,
 - Less flexible than lower-level inference stacks for production
 - Desktop-first workflow is not ideal for multi-user deployment
 
+## Apple Silicon / Metal backend
+
+LM Studio v0.3.0+ ships with a native Metal inference backend for Apple Silicon, using llama.cpp under the hood. All 48 GB of the M5's unified memory is addressable by Metal — there is no separate VRAM pool. This makes the M5 MacBook a better local LLM host than any single consumer NVIDIA GPU for models in the 30-40B range.
+
+**M5 48 GB model ceiling:**
+
+| Model | Quantization | Approx. RAM | Notes |
+|---|---|---|---|
+| Llama 3.3 70B | Q4_K_M | ~40 GB | Fits, leaves ~8 GB headroom |
+| Qwen3.5 32B | Q5_K_M | ~22 GB | Comfortable, excellent quality |
+| Llama 3.2 11B | Q8_0 | ~12 GB | Near full precision |
+| Llama 3.2 3B | Q8_0 | ~3.5 GB | Fast; good for local agents |
+
+**CLI launch with Metal:**
+```bash
+lms server start --port 1234 --gpu-layers auto
+```
+The `auto` flag lets LM Studio calculate the optimal number of layers to offload to Metal based on available unified memory.
+
+In the **Settings → GPU** panel, ensure the **Apple Metal** or **llama.cpp Metal** backend is selected. Use the GGUF model filter when browsing — MLX-format models require the separate MLX backend available in LM Studio 0.3.6+.
+
 ## When to use it
 - When you want the fastest path to trying local models
 - When you need a simple local server for app development or evaluation
@@ -78,6 +99,7 @@ print(response.choices[0].message.content)
 - [Msty](msty.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [llama.cpp](../infrastructure/llama-cpp.md)
+- [MLX](mlx.md) — Lower-level Apple Silicon inference framework that LM Studio wraps
 
 ## Sources / References
 - [Official Website](https://lmstudio.ai/)

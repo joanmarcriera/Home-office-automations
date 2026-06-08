@@ -25,6 +25,18 @@ While vLLM is excellent for data center serving, the local community often uses 
 - **Hardware**: Primarily optimized for NVIDIA GPUs (CUDA).
 - **Update Lag**: As a downstream fork, it periodically syncs with vLLM, which may cause minor delays in new vLLM feature availability.
 
+## Hardware requirements
+
+Aphrodite Engine requires an NVIDIA GPU (CUDA). It does not support Apple Silicon / Metal — use [Ollama](../../services/ollama.md) or [MLX](mlx.md) on macOS.
+
+| Model size | Format | Min VRAM | RTX 4060 8 GB | Notes |
+|---|---|---|---|---|
+| 3-7B | GGUF Q4/Q5 | 3-5 GB | ✅ Comfortable | Best fit; use `aphrodite-gguf` backend |
+| 7-8B | EXL2 4bpw | 4-5 GB | ✅ Comfortable | Better quality/speed than GGUF |
+| 13-14B | EXL2 4bpw | 7-8 GB | ⚠️ Tight | Reduce `--gpu-memory-utilization 0.85` |
+| 13-14B | EXL2 6bpw | 10-12 GB | ❌ Not viable | Exceeds 8 GB |
+| 30B+ | any | 16 GB+ | ❌ Not viable | Multi-GPU or higher VRAM required |
+
 ## When to use it
 - When you need vLLM's batching performance but require GGUF or EXL2 support.
 - When advanced sampling controls (DRY/XTC) are critical for your use case.
