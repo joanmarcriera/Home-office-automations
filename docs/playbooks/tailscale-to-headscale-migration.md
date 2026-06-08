@@ -37,6 +37,12 @@ To begin the migration:
 2.  **Back up Tailscale**: Document your existing node names and ACLs.
 3.  **Perform a Pilot**: Migrate a single non-critical node first using the steps in this playbook.
 
+## Agent-Assisted Migration
+Modern agents can significantly simplify the migration process. Use a June 2026-class agent (e.g., [Claude 4.7](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md)) to:
+- **Translate ACLs**: Convert Tailscale `policy.hujson` to Headscale-compatible YAML/ACL formats.
+- **Automate Client Rollout**: Script the `tailscale logout` and `tailscale up --login-server` commands across a fleet of Linux nodes via SSH.
+- **Validate OIDC Config**: Verify the `config.yaml` parameters against your [Authentik](../../services/authentik.md) provider metadata.
+
 ## Migration Workflow
 
 ```mermaid
@@ -137,10 +143,15 @@ tailscale up
 - [SSO Comparison](../../knowledge_base/sso-comparison.md)
 - [Family Admin Automation](family-admin-automation.md)
 
+## Troubleshooting Migration Issues
+- **OIDC Redirect Loops**: Often caused by mismatched `server_url` in Headscale and `redirect_uris` in Authentik. Use Claude 4.7 to inspect the logs: `docker logs headscale`.
+- **Node Name Conflicts**: Headscale requires unique node names per user. If a migration fails due to naming, use `headscale nodes rename`.
+- **Pre-Auth Key Expiry**: If migrating headless nodes, ensure the pre-auth keys generated on the server have sufficient TTL.
+
 ## Sources / References
 - [Headscale Documentation](https://github.com/juanfont/headscale/blob/main/docs/ref/registration.md)
 - [Tailscale CLI Reference](https://tailscale.com/kb/1080/cli/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
