@@ -2,7 +2,7 @@
 
 ## What it is
 
-Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks. As of May 2026, **v4.6.0** is the current stable release.
+Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks. Since the **v4.6.0 (March 2026)** release, it requires PHP 8.5+ and features optimized quantity unit (QU) handling for faster product setup.
 
 ## What problem it solves
 
@@ -25,10 +25,10 @@ Managing a household's inventory manually often leads to food waste (expired ite
 - **Local Control**: All data stays on your own server, ensuring privacy.
 - **Automation Ready**: Offers a robust REST API for integration with barcode scanners or smart home systems.
 - **Lightweight**: Easy to run on low-power devices like a Raspberry Pi.
+- **Quantity Unit Flexibility**: Advanced mapping (v4.6.0+) allows for automatic "1:1" unit conversions during product creation.
 
 ## Limitations
 
-- **PHP 8.5 Requirement**: v4.6.0+ requires PHP 8.5 with SQLite 3.40+, which may require environment updates.
 - **Data Entry**: Requires discipline to keep the stock updated as you consume and buy items.
 - **UI Complexity**: The interface can be overwhelming for some users due to the large number of features.
 - **No Native Mobile App**: While third-party apps exist, the official experience is web-based.
@@ -144,7 +144,7 @@ To implement barcode scanning for faster data entry:
 - [Authentik](authentik.md) — For securing the Grocy web interface with SSO.
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-27)
+- [ ] Perform quarterly technical freshness audit.
 - [x] Set up barcode scanning via mobile app.
 
 ## Sources / References
@@ -152,9 +152,8 @@ To implement barcode scanning for faster data entry:
 - [Official Website](https://grocy.info/)
 - [Grocy Demo](https://en.demo.grocy.info/)
 - [LinuxServer.io Grocy Documentation](https://docs.linuxserver.io/images/docker-grocy/)
-- [Changelog v4.6.0](https://grocy.info/changelog)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-25
 - Confidence: high

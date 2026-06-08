@@ -1,78 +1,77 @@
+import sys
 import sqlglot
-from sqlglot import exp
+from sqlglot import exp, parse_one
 
-def enforce_sql_policy(
-    sql: str,
-    allowed_tables: list[str] = None,
-    default_limit: int = 1000,
-    sensitive_columns: list[str] = None
-) -> str:
+def validate_sql(sql, allowlist_tables=None, sensitive_columns=None, row_limit=1000):
     """
-    Parses a SQL query and enforces safety policies:
-    1. Ensures SELECT queries have a LIMIT clause.
-    2. Blocks mutation keywords (DDL/DML).
-    3. Validates against a table allowlist.
-    4. Excludes sensitive columns from SELECT outputs.
+    Validates a SQL query against security and governance guardrails.
+    Returns (is_valid, modified_sql, error_message)
     """
     try:
-        # sqlglot.parse can return multiple expressions if separated by semicolons
-        expressions = sqlglot.parse(sql)
-        modified_queries = []
+        # 1. Parse the SQL
+        expression = parse_one(sql)
 
-        for expression in expressions:
-            # 1. Check for forbidden mutation keywords
-            forbidden_nodes = (
-                exp.Delete, exp.Drop, exp.Update, exp.Insert,
-                exp.Alter, exp.TruncateTable, exp.Create, exp.Grant
-            )
-            if any(isinstance(node, forbidden_nodes) for node in expression.walk()):
-                raise ValueError("Mutation detected: DDL/DML operations are forbidden.")
+        # 2. Block Mutations (Detection of DROP, DELETE, etc.)
+        forbidden_types = (exp.Delete, exp.Drop, exp.Update, exp.Insert, exp.Alter, exp.Create, exp.TruncateTable)
+        # Check if the root expression or any sub-expression is a mutation
+        if any(expression.find(t) for t in forbidden_types) or not isinstance(expression, (exp.Select, exp.Union)):
+             return False, None, "Mutation detected. Only SELECT queries are allowed."
 
-            # 2. Verify table allowlist
-            if allowed_tables is not None:
-                for table in expression.find_all(exp.Table):
-                    if table.name.lower() not in [t.lower() for t in allowed_tables]:
-                        raise ValueError(f"Table '{table.name}' not in allowlist.")
+        # 3. Table Allowlist Validation
+        if allowlist_tables:
+            tables = [t.name.lower() for t in expression.find_all(exp.Table)]
+            for table in tables:
+                if table not in [a.lower() for a in allowlist_tables]:
+                    return False, None, f"Access to table '{table}' is not allowed."
 
-            # 3. Ensure LIMIT is present for SELECT statements
-            if isinstance(expression, exp.Select):
-                # 4. PII/PHI Masking: Check for sensitive columns in SELECT
-                if sensitive_columns is not None:
-                    for column in expression.find_all(exp.Column):
-                        if column.name.lower() in [c.lower() for c in sensitive_columns]:
-                            # If the column is in a SELECT clause (not just a JOIN or WHERE)
-                            # This is a bit simplified; in a real scenario we might allow it in WHERE but not SELECT.
-                            # For safety, we block it if it appears anywhere in a SELECT-style query for now.
-                            raise ValueError(f"Access to sensitive column '{column.name}' is forbidden.")
+        # 4. PII/PHI Masking (Sensitive Column Exclusion)
+        if sensitive_columns:
+            # We check if any sensitive columns are explicitly selected
+            projections = expression.find_all(exp.Column)
+            for col in projections:
+                if col.name.lower() in [s.lower() for s in sensitive_columns]:
+                    return False, None, f"Access to sensitive column '{col.name}' is blocked."
 
-                if not expression.find(exp.Limit):
-                    print(f"Warning: No LIMIT clause found. Appending default limit {default_limit}.")
-                    expression = expression.limit(default_limit)
-                else:
-                    # Optional: enforce a hard cap even if LIMIT is present
-                    limit_node = expression.find(exp.Limit)
-                    if limit_node and hasattr(limit_node.expression, 'this'):
-                        try:
-                            current_limit = int(limit_node.expression.this)
-                            if current_limit > default_limit:
-                                print(f"Warning: Limit {current_limit} exceeds max {default_limit}. Capping.")
-                                expression.set("limit", exp.Limit(expression=exp.Literal.number(default_limit)))
-                        except (ValueError, TypeError):
-                            pass
+            # Block SELECT * if sensitive columns are defined for any table in the query
+            # (In a more advanced version, we'd check if the * expands to sensitive columns)
+            if any(isinstance(s, exp.Star) for s in expression.find_all(exp.Star)):
+                return False, None, "SELECT * is blocked when sensitive columns are present in the environment. Please specify columns explicitly."
 
-            modified_queries.append(expression.sql())
+        # 5. Row Limit Enforcement
+        # Check if LIMIT exists, if not, add it. If it exists and is higher than row_limit, reduce it.
+        limit_clause = expression.find(exp.Limit)
+        if limit_clause:
+            try:
+                current_limit = int(limit_clause.expression.this)
+                if current_limit > row_limit:
+                    limit_clause.set("expression", exp.Literal.number(row_limit))
+            except (ValueError, TypeError):
+                # If limit is not a simple integer, overwrite it for safety
+                limit_clause.set("expression", exp.Literal.number(row_limit))
+        else:
+            expression = expression.limit(row_limit)
 
-        return "; ".join(modified_queries)
+        return True, expression.sql(), None
 
-    except sqlglot.errors.ParseError as e:
-        raise ValueError(f"Syntax Error: {e}")
+    except sqlglot.errors.SqlglotError as e:
+        return False, None, f"SQL Parsing Error: {str(e)}"
+    except Exception as e:
+        return False, None, f"Internal Error: {str(e)}"
 
 if __name__ == "__main__":
-    # Example usage
-    test_sql = "SELECT * FROM items"
-    try:
-        safe_sql = enforce_sql_policy(test_sql, allowed_tables=["items", "categories"])
-        print(f"Original: {test_sql}")
-        print(f"Safe:     {safe_sql}")
-    except Exception as e:
-        print(f"Error: {e}")
+    if len(sys.argv) < 2:
+        print("Usage: python sql_validator.py \"<sql_query>\"")
+        sys.exit(1)
+
+    query = sys.argv[1]
+    # Default example config
+    allowed = ["users", "orders", "products", "inventory"]
+    sensitive = ["email", "password", "ssn", "phone", "credit_card"]
+
+    success, result, error = validate_sql(query, allowlist_tables=allowed, sensitive_columns=sensitive)
+
+    if success:
+        print(f"VALIDATED_SQL: {result}")
+    else:
+        print(f"ERROR: {error}")
+        sys.exit(1)

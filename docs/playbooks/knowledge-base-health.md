@@ -50,13 +50,13 @@ flowchart TD
 ```
 
 ## Pre-requisites
-- [Quality audit script](../../scripts/audit_docs_quality.py) (`scripts/audit_docs_quality.py`)
-- [Docs contract checker](../../scripts/check_docs_contract.py) (`scripts/check_docs_contract.py`)
-- [Catalog consistency checker](../../scripts/check_catalog_consistency.py) (`scripts/check_catalog_consistency.py`)
-- [Doc freshness checker](../../scripts/check_doc_freshness.py) (`scripts/check_doc_freshness.py`)
-- [API pricing summary generator](../../scripts/update_api_pricing_capability_summary.py) (`scripts/update_api_pricing_capability_summary.py`)
-- [Model account policy validator](../../scripts/validate_model_account_pool.py) (`scripts/validate_model_account_pool.py`)
-- [Starred repo intake checker](../../scripts/check_starred_repo_intake.py) (`scripts/check_starred_repo_intake.py`)
+- [Quality audit script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/audit_docs_quality.py) (`scripts/audit_docs_quality.py`)
+- [Docs contract checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_docs_contract.py) (`scripts/check_docs_contract.py`)
+- [Catalog consistency checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_catalog_consistency.py) (`scripts/check_catalog_consistency.py`)
+- [Doc freshness checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_doc_freshness.py) (`scripts/check_doc_freshness.py`)
+- [API pricing summary generator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/update_api_pricing_capability_summary.py) (`scripts/update_api_pricing_capability_summary.py`)
+- [Model account policy validator](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/validate_model_account_pool.py) (`scripts/validate_model_account_pool.py`)
+- [Starred repo intake checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_starred_repo_intake.py) (`scripts/check_starred_repo_intake.py`)
 - [Standards reference](../standards.md)
 
 ## Review cadence
@@ -125,34 +125,8 @@ Track these over time to measure knowledge base health:
 - **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`. Fix: update the index file whenever adding a nav entry.
 - **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains. Fix: always update both when removing a page.
 - **Duplicate pages**: two pages document the same tool. Fix: merge into the canonical page and redirect/remove the duplicate.
-- **Stale model references**: docs reference old model names (e.g., "Claude 3.5 Sonnet" instead of "Claude 4.7" or "GPT-5.5"). Fix: search-and-replace during staleness reviews.
+- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 4.7"). Fix: search-and-replace during staleness reviews.
 - **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`. Fix: run `check_starred_repo_intake.py` locally and append any real candidates to today's daily log.
-
-## Technical Examples: Automating Audits
-
-Automating the detection of documentation drift is critical. The following Python snippet demonstrates how to programmatically identify files missing mandatory metadata:
-
-```python
-import pathlib
-import re
-
-def find_missing_metadata(directory="docs"):
-    required_patterns = [
-        r"Last reviewed:\s*\d{4}-\d{2}-\d{2}",
-        r"Confidence:\s*(high|medium|low)"
-    ]
-    docs = pathlib.Path(directory).rglob("*.md")
-    missing = []
-    for doc in docs:
-        content = doc.read_text()
-        if not all(re.search(p, content) for p in required_patterns):
-            missing.append(str(doc))
-    return missing
-
-# Usage:
-# if __name__ == "__main__":
-#     print(find_missing_metadata())
-```
 
 ## Related tools / concepts
 - [Standards](../standards.md)
@@ -161,14 +135,13 @@ def find_missing_metadata(directory="docs"):
 - [Quality Audit Script](../../scripts/audit_docs_quality.py)
 - [Check Docs Contract Script](../../scripts/check_docs_contract.py)
 - [Catalog Consistency Script](../../scripts/check_catalog_consistency.py)
-- [Doc Freshness Checker](../../scripts/check_doc_freshness.py)
+- [KnowledgeOps Standards](../standards.md)
 - [Jules Agent](../tools/ai_knowledge/jules.md)
 
 ## Sources / references
 - [Project standards](../standards.md)
 - [MkDocs Material docs](https://squidfunk.github.io/mkdocs-material/)
-- [GitHub CLI](https://cli.github.io/)
-- [KnowledgeOps Architecture Guide](../architecture/multi_agent_knowledgeops.md)
+- [GitHub CLI](https://cli.github.com/)
 
 ## Contribution Metadata
 

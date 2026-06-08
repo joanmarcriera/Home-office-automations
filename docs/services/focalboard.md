@@ -1,7 +1,7 @@
 # Focalboard
 
 > [!WARNING]
-> This repository is officially archived and currently not maintained. If you're interested in becoming a maintainer, please let the Mattermost community know. This documentation refers to the standalone Personal Server edition.
+> The standalone Focalboard project (Personal Server/Desktop) is currently in **community maintenance mode**. Mattermost focus has shifted to the integrated "Boards" plugin for the Mattermost platform. Users seeking an actively developed standalone project management tool should consider [Vikunja](vikunja.md).
 
 ## What it is
 Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana. It is an open-source, multilingual, self-hosted project management tool.
@@ -16,7 +16,7 @@ Focalboard fits into the **Project Management and Productivity** layer. It is of
 - **Personal Task Tracking**: Managing "to-do" lists and personal projects using a Kanban board.
 - **Software Development**: Tracking bugs, features, and sprint progress for small teams.
 - **Content Calendars**: Planning and scheduling blog posts or social media content.
-- **Inventory Management**: Using custom properties to track physical assets (see also [Homebox](homebox.md)).
+- **Inventory Management**: Using custom properties to track physical assets.
 
 ## Strengths
 - **Simple UI**: Familiar Kanban interface that is easy to adopt.
@@ -25,7 +25,7 @@ Focalboard fits into the **Project Management and Productivity** layer. It is of
 - **Self-Hosted**: Full control over data and user permissions.
 
 ## Limitations
-- **Maintenance Status**: Officially archived and unmaintained, which may lead to security vulnerabilities or lack of new features.
+- **Maintenance Status**: Currently unmaintained (see warning), which may lead to security vulnerabilities or lack of new features.
 - **Feature Set**: Lacks the deep "all-in-one" database capabilities of Notion or the advanced automation of Jira.
 
 ## When to use it
@@ -103,7 +103,7 @@ To sync Focalboard with Nextcloud Tasks (using CalDAV or community bridges):
 
 ## Related tools / concepts
 - [Vikunja](vikunja.md) — A modern, actively maintained task management alternative.
-- [Homebox](homebox.md) — For inventory-focused management.
+- [Kanboard](https://kanboard.org/) — A minimalist self-hosted Kanban board.
 - [Nextcloud](nextcloud.md) — Offers a "Deck" app with similar Kanban functionality.
 - [Gitea](gitea.md) — Provides built-in issue boards for code projects.
 - [Trilium](trilium.md) — For deep personal knowledge management and notes.
@@ -117,12 +117,12 @@ To sync Focalboard with Nextcloud Tasks (using CalDAV or community bridges):
 - [GitHub Repository](https://github.com/mattermost/focalboard)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-27)
+- [x] Perform quarterly technical freshness audit (May 2026).
 - [x] Sync with Nextcloud Tasks.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-05-26
 
 ## Sources / References
 - [GitHub README](https://github.com/mattermost/focalboard#readme)

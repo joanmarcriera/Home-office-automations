@@ -24,8 +24,8 @@ Commercial media services often come with subscription fees, tracking, and limit
 - **Truly Open Source**: No "premium" features hidden behind a paywall (unlike Plex or Emby).
 - **Privacy Focused**: No central tracking or phone-home requirements; all data stays on your server.
 - **Hardware Acceleration**: Supports a wide range of hardware transcoding options (Intel QuickSync, NVENC, AMF).
-- **Extensible Ecosystem**: Supports a Universal Plugin Repository (May 2026) for easier community plugin management.
 - **Customizable**: Extensive support for themes, plugins, and custom CSS for the web interface.
+- **Modern Client Ecosystem**: The **Jellyfin Desktop** app (rewritten in 2026) uses CEF and mpv for high-performance, native HDR playback across platforms.
 
 ## Limitations
 
@@ -102,6 +102,11 @@ services:
 4. Add your first library by selecting the folder you mounted to `/media`.
 5. Your media will begin to appear in the dashboard!
 
+## Latest Project Status (May 2026)
+- **Versioning Change**: The project is transitioning from the 10.x branch to **v12.0**, dropping the legacy "10" prefix to simplify the versioning scheme.
+- **Jellyfin Desktop Rewrite**: The desktop client has been completely rewritten, moving from Qt to the **Chromium Embedded Framework (CEF)** and a modern **mpv** pipeline. This change enables native HDR playback on Windows, macOS, and Wayland, and significantly improves UI responsiveness.
+- **LLM/AI Policy**: Jellyfin has implemented a formal policy for AI-assisted contributions (May 2026), requiring contributors to fully understand and explain any AI-generated code to maintain project quality and security.
+
 ## CLI examples
 
 While Jellyfin is primarily managed through its web interface, you can perform some administrative tasks via `docker exec`.
@@ -136,15 +141,14 @@ curl -H "X-Emby-Token: YOUR_ACCESS_TOKEN" \
 
 ## Related tools / concepts
 
-- [Plex](plex.md) — the primary proprietary alternative to Jellyfin
-- [Navidrome](navidrome.md) — a lightweight, music-focused streaming alternative
-- [Audiobookshelf](audiobookshelf.md) — for specialized audiobook and podcast management
-- [Tube Archivist](tubearchivist.md) — for archiving and serving YouTube content within a home theater setup
-- [Tailscale](tailscale.md) — for secure remote access to your Jellyfin server without port forwarding
-- [Radarr/Sonarr](https://servarr.com/) — for automating the collection management that Jellyfin serves
-- [Jellyseerr](https://jellyseerr.dev/) — for managing media requests and discovery.
-- [Authentik](authentik.md) — For centralized authentication and SSO.
-- [Nextcloud](nextcloud.md) — For storing and organizing media files.
+- [Plex](plex.md) — Proprietary media server alternative.
+- [Navidrome](navidrome.md) — Lightweight music-focused streaming server.
+- [Audiobookshelf](audiobookshelf.md) — Audiobook and podcast management.
+- [Tube Archivist](tubearchivist.md) — YouTube archival and serving.
+- [Tailscale](tailscale.md) — Secure remote access without port forwarding.
+- [Authentik](authentik.md) — For centralized identity and access management.
+- [n8n](n8n.md) — For advanced media automation workflows.
+- [Home Assistant](home-assistant.md) — For integrating media playback into home automation.
 
 ### Gelli (Android Music)
 [Gelli](https://github.com/dkanada/gelli) is a native Android music player for Jellyfin. It provides a more music-centric interface compared to the main Jellyfin app, supporting offline downloads and Android Auto.
