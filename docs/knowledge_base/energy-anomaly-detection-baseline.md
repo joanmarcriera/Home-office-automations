@@ -1,23 +1,15 @@
-# Smart Energy Anomaly Detection: Baseline & Logic
+# Home Energy Anomaly Detection Baseline
 
 ## What it is
-This document defines the technical approach for detecting unusual energy consumption patterns using Home Assistant, Shelly sensors, and local AI reasoning. It outlines the transition from simple threshold-based alerts to context-aware anomaly detection.
+The Home Energy Anomaly Detection Baseline is a technical framework for monitoring household power consumption and identifying irregular patterns using a combination of statistical thresholds and AI-driven classification. It leverages real-time sensor data from Home Assistant and processing logic in n8n.
 
 ## What problem it solves
-Energy anomalies (appliances left on, failing hardware, or unexpected power spikes) can lead to high costs and safety risks. Real-time detection provides proactive alerts and insights into household operations, helping to identify "vampire loads" and faulty equipment before they fail.
+Energy anomalies can indicate appliance failure (e.g., a fridge compressor stuck on), safety hazards (e.g., an iron left on), or unexpected occupancy. Manual monitoring is impossible at scale; this baseline automates the "detection-to-classification" pipeline, reducing energy waste and improving home safety.
 
 ## Where it fits in the stack
-This logic sits in the **Automation & Intelligence** layer of the smart home stack. It consumes raw data from the **Hardware/Sensor** layer (Shelly), processes it within the **Orchestration** layer (Home Assistant/n8n), and uses the **AI Service** layer (Ollama) for classification.
+**Category**: Knowledge Base / Home Automation Patterns
 
-## Hardware & Sensors
-
-### 1. Primary Sensors
-- **Shelly EM**: Ideal for monitoring entire circuits or the whole house via split-core current clamps (50A/120A).
-- **Shelly Plug S / Shelly Plus Plug**: Best for monitoring individual high-load appliances like washing machines, fridges, or space heaters.
-
-### 2. Home Assistant Helper Sensors
-- **Utility Meter**: Resets periodically (daily/weekly) to track consumption over time. Essential for "Energy Dashboard" integration.
-- **Derivative Sensor**: Measures the **rate of change** (W/min or W/h). High positive values indicate a sudden "spike" in consumption.
+This pattern sits in the **Intelligence Layer**, sitting above the sensor hardware (Shelly, Emporia) and the automation engine (Home Assistant). It acts as a filter that turns raw power data into actionable insights.
 
 ## Typical use cases
 - **Appliance Health Monitoring**: Detecting when a fridge compressor starts running longer than usual, indicating a possible coolant leak or seal failure.
@@ -36,15 +28,13 @@ To distinguish between normal operation and a true anomaly, we use a combination
 - **Calculation**: Using the **Derivative sensor**.
 - **Threshold**: If the rate of change exceeds $X$ Watts/minute where no high-load appliance (e.g., EV Charger, Oven) has changed state to 'on'.
 
-### 3. State-Aware Filtering (Context)
-To reduce false positives, the detection engine must check the state of known high-consumption devices:
-- **EV Charging**: If `sensor.ev_status == 'charging'`, ignore spikes up to 7kW.
-- **Washing Machine**: If `binary_sensor.washer_running == 'on'`, ignore oscillating patterns typical of motor cycles.
+### 3. AI Classification (June 2026 Standards)
+For high-confidence classification, the system routes suspected anomalies to **Claude 4.7** or **GPT-5.5** via n8n. These models provide the "reasoning" layer to explain *why* a pattern is unusual based on historical context.
 
 ## Strengths
 - **Low Latency**: Basic spike detection happens instantly within Home Assistant.
 - **High Accuracy**: AI-based classification reduces false positives from known appliance cycles.
-- **Privacy**: Local processing via Ollama ensures energy usage patterns never leave the home network.
+- **Privacy**: Local processing via [Ollama](../services/ollama.md) ensures energy usage patterns never leave the home network.
 
 ## Limitations
 - **Complexity**: Requires careful calibration of baselines for different times of day/week.
@@ -59,30 +49,39 @@ To reduce false positives, the detection engine must check the state of known hi
 ## When not to use it
 - In very small apartments with minimal high-load appliances where manual monitoring is trivial.
 - If you lack the infrastructure to run local AI (though basic statistical thresholds still apply).
-- If your energy sensors have low update frequency (e.g., once per hour), which misses short-duration spikes.
 
-## Reference Implementation Pattern
+## Getting started
 
-### Home Assistant Template (Spike Detection)
-```yaml
-template:
-  - binary_sensor:
-      - name: "Energy Anomaly Detected"
-        state: >
-          {% set power = states('sensor.house_total_power') | float %}
-          {% set derivative = states('sensor.power_derivative') | float %}
-          {% set ev_charging = is_state('sensor.ev_status', 'charging') %}
+### 1. Hardware Setup
+Install a whole-home energy monitor (e.g., **Shelly Pro 3EM**) or individual smart plugs (e.g., **Shelly Plus Plug S**).
 
-          {# Trigger if spike is > 2000W and EV is NOT charging #}
-          {{ derivative > 2000 and not ev_charging }}
-        attributes:
-          severity: "high"
+### 2. Home Assistant Configuration
+Create a **Derivative** helper sensor in Home Assistant to monitor the rate of power change (W/min).
+
+### 3. n8n Workflow
+Set up a workflow that triggers when the power derivative exceeds a threshold, then passes the sensor data to an AI model for classification.
+
+## CLI examples
+
+### Shelly API (Check Power)
+```bash
+curl http://192.168.1.50/rpc/Shelly.GetStatus
 ```
 
-### n8n Workflow Integration
-The `binary_sensor` above can trigger an n8n workflow that uses a local LLM (via [Ollama](../../services/ollama.md)) to classify the anomaly.
-- **Input**: Current Power, Previous Hour Average, Active Appliances.
-- **Prompt**: "The current power draw is {{ $json.power }}W. The usual average for this time is {{ $json.avg }}W. The following high-load appliances are ON: {{ $json.appliances }}. Is this an anomaly? Respond with 'Normal' or 'Anomaly' and a brief reason."
+### Home Assistant CLI (Check Sensor)
+```bash
+ha sensor info sensor.house_total_power
+```
+
+## API examples
+
+### n8n AI Prompt (Claude 4.7 / GPT-5.5)
+```json
+{
+  "model": "claude-4-7-sonnet",
+  "prompt": "The current power draw is 4500W. The usual average for this time (Tuesday 14:00) is 600W. Active appliances: Fridge, Home Office. Is this an anomaly? Provide a likely reason."
+}
+```
 
 ## Related tools / concepts
 - [Ollama](../services/ollama.md): Local LLM runner for anomaly classification.
@@ -99,5 +98,5 @@ The `binary_sensor` above can trigger an n8n workflow that uses a local LLM (via
 - [Home Assistant Derivative Sensor](https://www.home-assistant.io/integrations/derivative/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
