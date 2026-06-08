@@ -1,7 +1,7 @@
 # Home Admin Agent Architecture
 
 ## What it is
-The Home Admin Agent is a LangChain and LangGraph-based autonomous system designed to orchestrate homelab tasks, manage family knowledge, and control home automation. It acts as a central "brain" for a self-hosted smart home, capable of multi-step reasoning and tool interaction.
+The Home Admin Agent is a LangChain and LangGraph-based autonomous system designed to orchestrate homelab tasks, manage family knowledge, and control home automation. It acts as a central "brain" for a self-hosted smart home, capable of multi-step reasoning and tool interaction via the Model Context Protocol (MCP).
 
 ## What problem it solves
 Managing a complex homelab and smart home often requires multiple disparate interfaces (Home Assistant, Paperless-ngx, Vikunja, etc.). This architecture provides a unified, natural language interface that can reason across these services—for example, "Remind me to pay the bill I just uploaded to Paperless."
@@ -16,12 +16,12 @@ It is the **Orchestration Layer** of the home AI ecosystem. It sits above indivi
 
 ## Strengths
 - **Autonomous Reasoning**: Uses a Plan-and-Execute pattern to handle complex, multi-service requests.
-- **Modular Extensibility**: The standardized Tool Registry allows for easy integration of new services.
-- **Stateful Persistence**: Remembers conversation context and execution history across restarts.
+- **MCP Integration**: Native support for Model Context Protocol (MCP) servers allows for effortless tool expansion without custom Python wrappers.
+- **Stateful Persistence**: Remembers conversation context and execution history across restarts using persistent checkpoints.
 
 ## Limitations
 - **High Latency**: Multi-step reasoning through LLM calls is slower than traditional, rule-based automation.
-- **Hardware Dependency**: Requires significant local compute or reliable API access to frontier models (like Claude 3.5 Sonnet).
+- **Hardware Dependency**: Requires significant local compute or reliable API access to frontier models (like Claude 4.7 or GPT-5.5).
 - **Security Complexity**: Requires careful management of API tokens and permissions for the various home services it controls.
 
 ## When to use it
@@ -30,25 +30,39 @@ It is the **Orchestration Layer** of the home AI ecosystem. It sits above indivi
 
 ## When not to use it
 - For simple, time-critical automations (e.g., turning on a light when a motion sensor is triggered)—use Home Assistant's native automations instead.
-- If you have strict privacy requirements that prevent sending data to external LLM providers (unless using a fully local LLM like Llama 3).
+- If you have strict privacy requirements that prevent sending data to external LLM providers (unless using a fully local LLM like Llama 3.5).
 
 ## Core Architecture
 
-The agent follows a **Plan-and-Execute** pattern implemented using **LangGraph** for robust state management and multi-step reasoning.
+The agent follows a **Plan-and-Execute** pattern implemented using **LangGraph** for robust state management and multi-step reasoning. It increasingly leverages **Agentic MCP (Sampling)** to allow the agent to request the model to perform complex tasks or sub-agent orchestrations.
 
 ### Workflow Components
 
 1.  **Planner**: An LLM-driven node that breaks down the user's high-level request into a sequence of tool calls or sub-tasks.
-2.  **Executor**: A node that executes the planned steps using the **Tool Registry**.
+2.  **Executor**: A node that executes the planned steps using the **MCP Tool Registry**.
 3.  **Re-planner**: Analyzes the results of tool executions and decides whether to continue, adjust the plan, or respond to the user.
 4.  **State Management**: Uses `SqliteSaver` (via `MemoryManager`) to persist the conversation thread and the execution graph state.
 
-## Tool Registry Schema
+## MCP Integration Strategy
 
-Tools must follow a standardized schema to ensure the agent can discover and invoke them correctly.
+Modern Home Admin architectures favor MCP over custom tool classes. This allows for a decentralized set of "tool servers" (e.g., a Home Assistant MCP server, a Vikunja MCP server).
 
 ```python
-from typing import Dict, Type, Any
+from mcp import ClientSession, StdioServerParameters
+
+async def run_mcp_tool(server_params: StdioServerParameters, tool_name: str, arguments: dict):
+    async with ClientSession(server_params) as session:
+        await session.initialize()
+        result = await session.call_tool(tool_name, arguments)
+        return result.content
+```
+
+## Tool Registry Schema (Legacy & Hybrid)
+
+While migrating to MCP, the registry often supports both legacy Python tools and new MCP tools.
+
+```python
+from typing import Dict, Type, Any, List
 from pydantic import BaseModel, Field
 
 class ToolMetadata(BaseModel):
@@ -56,9 +70,10 @@ class ToolMetadata(BaseModel):
     description: str
     args_schema: Type[BaseModel]
     category: str # e.g., 'knowledge', 'automation', 'tasks'
+    provider: str = "python" # 'python' or 'mcp'
 
 class ToolRegistry:
-    """Registry for dynamic tool discovery."""
+    """Registry for dynamic tool discovery supporting Python and MCP."""
     def __init__(self):
         self._tools: Dict[str, Any] = {}
 
@@ -73,25 +88,6 @@ class ToolRegistry:
         return [t.get_metadata() for t in self._tools.values()]
 ```
 
-## Base Tool Class
-
-Every tool integrated into the Home Admin Agent must inherit from this base class.
-
-```python
-from abc import ABC, abstractmethod
-
-class BaseHomeTool(ABC):
-    @classmethod
-    @abstractmethod
-    def get_metadata(cls) -> ToolMetadata:
-        pass
-
-    @abstractmethod
-    async def run(self, **kwargs) -> str:
-        """Execute the tool's primary logic."""
-        pass
-```
-
 ## System Prompt Design
 
 The "Family Context" system prompt is the agent's core personality and operational logic. It includes:
@@ -103,7 +99,7 @@ The "Family Context" system prompt is the agent's core personality and operation
 ## Graph State Schema
 
 ```python
-from typing import Annotated, List, TypedDict
+from typing import Annotated, List, TypedDict, Dict, Any
 from langgraph.graph.message import add_messages
 
 class AgentState(TypedDict):
@@ -117,6 +113,13 @@ class AgentState(TypedDict):
     context: Dict[str, Any]
 ```
 
+## Security & Privacy Guardrails
+
+Given the agent's access to home systems, several guardrails are implemented:
+- **Human-in-the-Loop (HITL)**: Mandatory user approval for destructive actions (e.g., "Delete file", "Unlock door").
+- **Credential Scoping**: Tools use service-specific tokens with minimal necessary permissions.
+- **Local Fallback**: Capability to switch to local inference (Ollama/vLLM) for sensitive queries.
+
 ## Related tools / concepts
 - [Agentic Workflows](patterns/agentic-workflows.md)
 - [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
@@ -125,13 +128,15 @@ class AgentState(TypedDict):
 - [Vikunja](../services/vikunja.md)
 - [LangGraph](../tools/frameworks/langgraph.md)
 - [LangChain](../tools/frameworks/langchain.md)
+- [Model Context Protocol](../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Pydantic](../tools/development_ops/pydantic.md)
 
 ## Sources / References
 - [LangChain Plan-and-Execute](https://python.langchain.com/docs/modules/agents/agent_types/plan_and_execute)
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - [Pydantic V2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
