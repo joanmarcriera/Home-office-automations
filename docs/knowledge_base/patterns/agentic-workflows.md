@@ -16,9 +16,9 @@ It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above t
 - **Multi-agent Collaboration**: Multiple specialized agents work together, each handling a part of the overall workflow.
 
 ## Typical use cases
-- **Autonomous Coding Assistants**: Agents that can write, test, and debug code (e.g., Devin, Aider).
-- **Complex Research Tasks**: Agents that can search the web, synthesize information, and write a report.
-- **Personal Assistants**: Agents that can manage calendars, book flights, and handle emails.
+- **Autonomous Coding Assistants**: Agents that can write, test, and debug code (e.g., [Claude Code](../../tools/development_ops/claude-code.md), [Aider](../../tools/development_ops/aider.md)).
+- **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/process_understanding/tavily.md), synthesize information with [Claude 4.7](../../tools/ai_knowledge/claude.md), and write reports.
+- **Personal Assistants**: Agents that can manage calendars, book flights, and handle emails using [GPT-5.5](../../tools/ai_knowledge/openai.md) and [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md).
 
 ## Strengths
 - **Handles Complexity**: Can solve problems that are too difficult for a single LLM prompt.
@@ -53,5 +53,5 @@ It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above t
 - [Andrew Ng: Agentic Design Patterns](https://www.deeplearning.ai/the-batch/how-agents-can-improve-llm-performance/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

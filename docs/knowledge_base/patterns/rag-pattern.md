@@ -11,8 +11,8 @@ RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw 
 
 ## How it works
 1. **User Query**: The user provides a prompt or question.
-2. **Retrieval**: The system searches an external data source (e.g., a vector database) for information relevant to the query.
-3. **Augmentation**: The retrieved information is combined with the original user query to create an augmented prompt.
+2. **Retrieval**: The system searches an external data source (e.g., a vector database or an [MCP](../../tools/automation_orchestration/mcp.md) retrieval server) for information relevant to the query.
+3. **Augmentation**: The retrieved information is combined with the original user query to create an augmented prompt, optimized for 2026 models like [Claude 4.7](../../tools/ai_knowledge/claude.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
 4. **Generation**: The augmented prompt is sent to the LLM, which generates a response based on both its internal knowledge and the provided context.
 
 ```mermaid
@@ -52,8 +52,8 @@ flowchart TD
 To implement a basic RAG pipeline:
 1.  **Select a Vector DB**: Use [ChromaDB](../../tools/infrastructure/chromadb.md) or [Qdrant](../../tools/infrastructure/qdrant.md).
 2.  **Chunk your Data**: Use [Docling](../../tools/process_understanding/docling.md) or LangChain text spliters to break documents into manageable pieces.
-3.  **Embed and Store**: Convert chunks into vectors using an embedding model (e.g., OpenAI or HuggingFace) and store them in the DB.
-4.  **Query and Generate**: Retrieve relevant chunks based on user query and pass them as context to the LLM.
+3.  **Embed and Store**: Convert chunks into vectors using an embedding model (e.g., [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md) native embeddings) and store them in the DB.
+4.  **Query and Generate**: Retrieve relevant chunks (or use [MCP](../../tools/automation_orchestration/mcp.md) to fetch them) based on user query and pass them as context to the LLM.
 
 ## Related tools / concepts
 - [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md)
@@ -69,5 +69,5 @@ To implement a basic RAG pipeline:
 - [Prompt Engineering Guide](https://www.promptingguide.ai/techniques/rag)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

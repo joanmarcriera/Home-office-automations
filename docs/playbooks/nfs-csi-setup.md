@@ -15,9 +15,10 @@ Standard local path provisioning in K3s is limited to the storage available on i
 ## Typical use cases
 
 - **Clustered App Storage**: Providing shared persistent volumes for applications like Nextcloud or Plex that may run on any cluster node.
-- **Dynamic Provisioning**: Automatically creating NFS sub-directories on the NAS whenever a pod requests a new `PersistentVolumeClaim`.
+- **Dynamic Provisioning**: Automatically creating NFS sub-directories on the NAS whenever a pod requests a new `PersistentVolumeClaim`, optimized for large model weight storage (GPT-5.5, Llama 4 Maverick).
 - **High Availability**: Ensuring service continuity by allowing pods to restart on healthy nodes without data loss during a node failure.
 - **Centralized Backups**: Leveraging TrueNAS snapshot and cloud sync features for all Kubernetes application data.
+- **Agentic Infrastructure**: Supporting [Claude 4.7](../tools/ai_knowledge/claude.md) and [MCP](../tools/automation_orchestration/mcp.md) controlled storage lifecycle management.
 
 ## Strengths
 
@@ -128,11 +129,12 @@ kubectl get pvc test-nfs-pvc
 - [Longhorn Storage](../roadmap.md)
 - [Paperless-ngx Service](../services/paperless-ngx.md)
 - [Home Assistant Service](../services/home-assistant.md)
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
 
 ## Sources / References
 - [NFS Subdir External Provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
 - [TrueNAS NFS Shares Documentation](https://www.truenas.com/docs/scale/scaletutorials/shares/nfs/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

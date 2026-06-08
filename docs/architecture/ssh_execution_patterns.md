@@ -39,13 +39,14 @@ It belongs in the **Architecture** layer. Specifically, it defines the interface
 ### Pre-requisites
 - A target machine with an SSH server enabled.
 - A dedicated service user (e.g., `ai-agent`) on the target machine.
-- An agent framework (like [Aider](../tools/development_ops/aider.md)) capable of executing local commands that wrap SSH.
+- An agent framework (like [Aider](../tools/development_ops/aider.md) or [Claude Code](../tools/development_ops/claude-code.md)) capable of executing local commands that wrap SSH.
+- Support for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for standardized tool-calling.
 
 ### Architecture: The Three Planes
 A robust automation stack separates concerns into three distinct layers:
 
-1.  **Reasoning Plane (LLM)**: The "Brain." It analyzes the current state and decides *what* needs to be done. It should never have direct access to SSH keys or credentials.
-2.  **Control Plane (Agent)**: The "Operator." A script or framework that manages the loop, handles the LLM interaction, and initiates connections.
+1.  **Reasoning Plane (LLM)**: The "Brain." Models like [Claude 4.7](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), or [Llama 4 Maverick](../tools/ai_knowledge/meta_llama.md) analyze the current state and decide *what* needs to be done. It should never have direct access to SSH keys or credentials.
+2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., [MCP](../tools/automation_orchestration/mcp.md) server) that manages the loop, handles the LLM interaction, and initiates connections.
 3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed. Access is strictly controlled and audited.
 
 ### Implementation Patterns
@@ -79,5 +80,5 @@ ai-agent ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx, /usr/bin/apt upda
 - [NIST Guide to SSH](https://csrc.nist.gov/publications/detail/sp/800-41/rev-1/final)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
