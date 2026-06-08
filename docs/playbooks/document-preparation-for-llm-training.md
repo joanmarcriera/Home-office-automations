@@ -17,7 +17,8 @@ Raw business documents are often fragmented, inconsistent, and unstructured, mak
 - **Corpus Construction**: Building a supervised fine-tuning dataset from existing office files.
 - **RAG Pre-processing**: Normalizing a fragmented knowledge base into Markdown for high-fidelity retrieval.
 - **Data Auditing**: Cleaning and deduplicating an archive of board packs and policy manuals.
-- **Migration**: Exporting legacy Google Drive content into machine-readable formats for local AI use.
+- **Synthetic Data Generation**: Using GPT-5.5 to generate high-quality training pairs from normalized document text.
+- **High-Fidelity Extraction**: Using Claude 4.7 for section-aware parsing of complex layout PDFs.
 
 ## Strengths
 
@@ -25,6 +26,7 @@ Raw business documents are often fragmented, inconsistent, and unstructured, mak
 - **Metadata-Rich**: Includes a mandatory JSON manifest for every document to preserve provenance.
 - **Mac-Friendly**: Optimized for local execution using standard macOS and Docker tools.
 - **Scalable**: Provides clear rules for when to merge or split documents based on topical coherence.
+- **MCP Enabled**: Integrated with Docling MCP for seamless tool-based extraction within agentic workflows.
 
 ## Limitations
 
@@ -54,18 +56,18 @@ flowchart TD
     B -- Scanned PDF --> C[OCRmyPDF]
     B -- Born-digital/Office --> D[Extraction Pass]
     C --> D
-    D -- Apache Tika / Docling --> E[Markdown Normalization]
+    D -- Apache Tika / Docling MCP --> E[Markdown Normalization]
     E --> F[Manifest Generation JSON]
-    F --> G[Semantic Deduplication]
-    G --> H[Semantic Merging]
+    F --> G[Semantic Deduplication / GPT-5.5]
+    G --> H[Semantic Merging / Claude 4.7]
     H --> I[Final Training Corpus]
 ```
 
 1. **Setup Staging**: Create the recommended directory structure (`raw`, `normalized`, `manifests`, `merged`).
 2. **Run OCR**: Use [OCRmyPDF](../tools/process_understanding/ocrmypdf.md) on any scanned PDFs.
-3. **Extract and Normalize**: Use [Apache Tika](../services/tika.md) or [Docling](../tools/process_understanding/docling-mcp.md) to convert files to Markdown.
+3. **Extract and Normalize**: Use [Apache Tika](../services/tika.md) or [Docling MCP](../tools/process_understanding/docling-mcp.md) to convert files to Markdown.
 4. **Generate Manifests**: Create a JSON sidecar for every file capturing source provenance and checksums.
-5. **Deduplicate**: Remove repeated template noise (headers, footers) before merging related documents.
+5. **Deduplicate**: Use GPT-5.5 to identify and remove repeated template noise (headers, footers) before merging related documents.
 
 ## Objective
 Prepare heterogeneous business documents so they are safe, consistent, and useful for LLM training or downstream retrieval workflows. This playbook covers `docx`, `pdf`, `pptx`, spreadsheets, and Google Workspace equivalents, with a focus on normalization, metadata preservation, and selective document consolidation.
@@ -120,7 +122,7 @@ Each manifest should capture:
 ### PDF
 - Distinguish born-digital PDFs from scanned PDFs first.
 - Run OCR on scanned or image-heavy PDFs so the resulting file has a searchable text layer.
-- If the PDF contains tables or forms, use a structured extraction pass rather than plain copy-paste.
+- If the PDF contains tables or forms, use a structured extraction pass (Docling MCP with Claude 4.7) rather than plain copy-paste.
 - Retain page numbers in metadata even if you remove them from the training text.
 
 ### PPTX and Google Slides
@@ -139,15 +141,15 @@ Each manifest should capture:
 - Exclude formula noise when the computed values are what matter.
 - If a sheet is mostly operational metrics, consider keeping it for evals or retrieval rather than fine-tuning.
 
-## macOS-friendly workflow
+## macOS-friendly workflow (June 2026)
 1. Create a staging directory with `raw`, `normalized`, `manifests`, and `merged`.
 2. Export Google Docs, Sheets, and Slides into Office-compatible formats from Drive first.
 3. Run OCR on scanned PDFs with [OCRmyPDF](../tools/process_understanding/ocrmypdf.md).
 4. Extract text and metadata with [Apache Tika](../services/tika.md) for broad format coverage.
-5. For layout-sensitive PDFs, use a higher-fidelity parser such as [Docling MCP](../tools/process_understanding/docling-mcp.md) or [PageIndex](../tools/process_understanding/pageindex.md).
+5. For layout-sensitive PDFs, use [Docling MCP](../tools/process_understanding/docling-mcp.md) powered by Claude 4.7.
 6. Normalize every document into Markdown or plain text with a sidecar JSON manifest.
-7. Deduplicate repeated templates, signatures, disclaimers, and navigation chrome.
-8. Merge only related short documents into coherent packets.
+7. Deduplicate repeated templates, signatures, disclaimers, and navigation chrome using GPT-5.5.
+8. Merge only related short documents into coherent packets using Claude 4.7 for semantic grouping.
 9. Run a manual spot check on at least 5 to 10 percent of outputs before bulk ingestion.
 
 ## Consolidation strategy for many small documents
@@ -211,5 +213,5 @@ curl -H "Accept: application/json" -T handbook.docx http://localhost:9998/meta
 - [Docling MCP repository](https://github.com/docling-project/docling-mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

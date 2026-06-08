@@ -18,14 +18,16 @@ It sits at the **Infrastructure Orchestration Layer**, serving as a managed or a
 - **Reduced Complexity**: Lower barrier to entry for developers.
 - **Operational Efficiency**: Automates patching, scaling, and node termination.
 - **Cost Optimization**: Right-sizes infrastructure in real-time (e.g., via Karpenter).
+- **Agent-Ready**: Natively supports the high-burst requirements of agents like Claude 4.7.
 
 ## Limitations
 - **Abstraction Overheads**: Troubleshooting underlying issues can be harder when the infrastructure is "invisible."
 - **Provider Lock-in**: Many "invisible" features are tied to specific cloud providers (EKS, GKE).
+- **Visibility Lag**: Real-time monitoring can sometimes lag behind rapid autonomous scaling events.
 
 ## When to use it
 - When your primary goal is rapid application deployment rather than infrastructure management.
-- When running variable workloads that require rapid, autonomous scaling.
+- When running variable workloads (like GPT-5.5 driven batch processing) that require rapid, autonomous scaling.
 
 ## When not to use it
 - When you require extremely fine-grained control over kernel parameters or hardware-specific optimizations.
@@ -36,6 +38,7 @@ To implement "Invisible Kubernetes" patterns today:
 1.  **Enable Managed Node Pools**: Use AWS EKS Auto Mode or GKE Autopilot.
 2.  **Deploy Karpenter**: For autonomous, request-based node scaling.
 3.  **Use eBPF-based Meshes**: Implement Cilium or Istio Ambient Mesh to make networking transparent.
+4.  **Integrate MCP**: Use Model Context Protocol to give agents like Claude 4.7 direct visibility into cluster state.
 
 ## Key Technologies and Patterns
 
@@ -56,6 +59,11 @@ Parallel effort to make service mesh (e.g., Istio, Linkerd) operations transpare
 ### Fine-grained Authorization (Cedar)
 An open-source policy language (donated by AWS to CNCF) that provides:
 - **Authorization Utility**: Decouples policy from application logic, handling complex authorization in a Kubernetes-native way.
+
+### Autonomous SRE Agents (June 2026 Update)
+The emergence of Claude 4.7 and GPT-5.5 has enabled true autonomous SRE:
+- **Self-Healing Clusters**: Agents can now identify and remediate complex networking issues (e.g., MTU mismatches or stale ARP entries) without human intervention.
+- **Predictive Scaling**: GPT-5.5 can predict traffic surges based on upstream agent activity and pre-provision "Invisible" compute resources.
 
 ## Impact on Homelab Operations
 For advanced homelab users, "Invisible Kubernetes" patterns mean:
@@ -79,5 +87,5 @@ For advanced homelab users, "Invisible Kubernetes" patterns mean:
 - [Kro (GitHub)](https://github.com/kubernetes-sigs/kro)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

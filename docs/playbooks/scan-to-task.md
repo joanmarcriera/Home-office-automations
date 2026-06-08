@@ -12,16 +12,17 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 ## Typical use cases
 - **Invoice Management**: Scanning a utility bill and automatically creating a task in Vikunja with the due date and amount.
 - **Mail Triage**: Scanning incoming letters and creating tasks for items requiring a response.
-- **Receipt Archival**: Scanning receipts for expense tracking, with the LLM extracting the vendor and total.
+- **Receipt Archival**: Scanning receipts for expense tracking, with the LLM (Claude 4.7 Vision) extracting the vendor and total.
 - **Warranty Tracking**: Scanning product manuals or receipts to create a reminder for warranty expiration.
 
 ## Strengths
 - **Automation**: Reduces the friction of moving from physical paper to a digital action list.
 - **Searchability**: Documents are indexed and searchable in Paperless-ngx, linked directly from the task.
 - **Accuracy**: LLMs can extract structured data from diverse document layouts better than traditional regex-based systems.
+- **Vision Mastery**: Claude 4.7's improved vision capabilities allow for high-accuracy extraction from crumpled or low-contrast scans.
 
 ## Limitations
-- **OCR Quality**: Success depends on the clarity of the original scan; handwritten or low-contrast text may fail.
+- **OCR Quality**: Success depends on the clarity of the original scan; handwritten or low-contrast text may fail (mitigated by using Claude 4.7 Vision).
 - **Privacy**: If using cloud-based LLMs, sensitive document text is sent to an external provider (mitigated by using local models).
 - **Setup Complexity**: Requires multiple services (Paperless, n8n, Vikunja) to be correctly configured and integrated.
 
@@ -40,9 +41,9 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 - [Paperless-ngx](../services/paperless-ngx.md) for document storage and OCR.
 - [Vikunja](../services/vikunja.md) or another task manager with an API.
 - [n8n](../services/n8n.md) for workflow orchestration.
-- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Qwen3-Coder`).
+- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4 Maverick` or Claude 4.7 via API).
 
-### Workflow Architecture
+### Workflow Architecture (June 2026 Update)
 
 ```mermaid
 flowchart TD
@@ -51,7 +52,7 @@ flowchart TD
     C -->|OCR & Classification| D{Action Required?}
     D -- Yes --> E[n8n Webhook Trigger]
     D -- No --> F[Archive]
-    E -->|Extraction| G[LLM Processing]
+    E -->|Extraction| G[LLM Processing: Claude 4.7 Vision]
     G -->|Create Task| H[Vikunja Task]
     H -->|Link Back| C
 ```
@@ -61,7 +62,7 @@ flowchart TD
 2.  **Processing**: [Syncthing](../services/syncthing.md) moves the file to the Paperless consumption directory.
 3.  **Understanding**: Paperless performs OCR and classifies the document. If it detects a keyword like "Invoice" or "Due", it adds the tag `action-required`.
 4.  **Trigger**: n8n monitors Paperless via webhook for the `action-required` tag.
-5.  **Reasoning**: n8n sends the OCR text to the LLM using the [Extraction and Classification Prompt](../reference-implementations/llm-prompts/extraction-and-classification.md).
+5.  **Reasoning**: n8n sends the OCR text and/or page images to Claude 4.7 Vision using the [Extraction and Classification Prompt](../reference-implementations/llm-prompts/extraction-and-classification.md).
 6.  **Action**: n8n creates a task in Vikunja with a title, description, and due date.
 7.  **Linking**: The Vikunja task description includes a direct link to the Paperless document.
 
@@ -80,5 +81,5 @@ flowchart TD
 - [Paperless-ngx Documentation](https://docs.paperless-ngx.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
