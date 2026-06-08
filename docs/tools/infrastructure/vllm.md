@@ -59,6 +59,26 @@ vLLM automatically identifies and caches common prefixes across different reques
 - **Hardware Specificity**: Primarily optimized for NVIDIA GPUs; support for other backends (AMD, TPU, CPU) is evolving.
 - **Complexity**: Tuning for specific latency/throughput trade-offs can be complex.
 
+## Hardware requirements
+
+vLLM requires NVIDIA GPU (CUDA). fp16 (default) exceeds 8 GB for 7B+ models; use AWQ 4-bit or fp8 quantization on the RTX 4060. vLLM does not support Apple Silicon — use [MLX](mlx.md) or [Ollama](../../services/ollama.md) on macOS.
+
+| Model size | Precision | Min VRAM | RTX 4060 8 GB | Notes |
+|---|---|---|---|---|
+| 7-8B | fp16 | 14-16 GB | ❌ Not viable | Exceeds 8 GB |
+| 7-8B | AWQ 4-bit | 4-5 GB | ✅ Comfortable | `--quantization awq` |
+| 7-8B | fp8 (W8A8) | 7-8 GB | ⚠️ Tight | Requires Ampere/Ada (RTX 30/40xx) |
+| 13-14B | AWQ 4-bit | 7-8 GB | ⚠️ Tight | Near ceiling |
+| 30B+ | AWQ 4-bit | 16 GB+ | ❌ Not viable | Multi-GPU required |
+
+**Recommended launch for RTX 4060:**
+```bash
+python -m vllm.entrypoints.openai.api_server \
+    --model TheBloke/Mistral-7B-Instruct-v0.2-AWQ \
+    --quantization awq \
+    --gpu-memory-utilization 0.85
+```
+
 ## When to use it
 - When you need to serve LLMs to a large number of concurrent users.
 - When maximizing GPU utilization is a priority.
