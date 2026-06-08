@@ -38,7 +38,7 @@ def find_stale_docs():
     docs = list(pathlib.Path("docs").rglob("*.md"))
     stale = []
     for doc in docs:
-        if any(x in str(doc) for x in ["reports", "templates", "new-sources", "index.md", "README.md"]):
+        if "reports" in str(doc) or "templates" in str(doc) or "index.md" in str(doc) or "README.md" in str(doc) or "new-sources" in str(doc):
             continue
         try:
             content = doc.read_text(encoding="utf-8")
