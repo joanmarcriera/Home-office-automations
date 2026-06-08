@@ -17,22 +17,23 @@ It reduces the friction of building production-ready AI apps by providing a unif
 
 ## Strengths
 - **App Developer Centric**: Uses paradigms and tooling familiar to mobile and web developers.
-- **Unified API**: Support for Gemini, OpenAI, Ollama, DeepSeek, and more via the new core SDK.
+- **Unified API**: Support for Gemini, OpenAI, Ollama, DeepSeek, and more.
 - **Developer Experience (DX)**: Includes a local Developer UI for testing prompts, flows, and tool calls in real-time.
 - **Observability**: Built-in support for traces, logs, and token usage metrics.
 - **Seamless Firebase Integration**: Works out-of-the-box with Firebase Auth, Firestore, and Cloud Functions.
 
 ## Limitations
-- **Language Support**: Robust support for JavaScript/TypeScript and Go; Python support is currently in public preview.
 - **Ecosystem Focus**: While open-source, it is optimized for the Google Cloud/Firebase stack.
+- **Python Support**: While in preview, the Python SDK may lag behind the JavaScript/TypeScript implementation in terms of feature parity.
 
 ## When to use it
 - When you are already using the Firebase or Google Cloud ecosystem and want to add AI features with minimal friction.
 - For building production-ready AI applications that require serverless deployment and built-in observability.
-- When you prefer a structured, flow-based approach to orchestrating AI tasks in JavaScript/TypeScript, Go, or Python (preview).
+- When you prefer a structured, flow-based approach to orchestrating AI tasks in JavaScript/TypeScript or Go.
 
 ## When not to use it
 - If you are building highly complex, research-oriented agentic systems that require the extreme flexibility of frameworks like LangChain or AutoGen.
+- For Python-heavy data science or AI research workflows (until full Python support is released).
 
 ## Getting started
 
@@ -48,26 +49,52 @@ genkit init
 
 ### Basic Flow Example (TypeScript)
 ```typescript
-import { defineFlow, run } from '@genkit-ai/flow';
-import { generate } from '@genkit-ai/ai';
-import { gemini15Flash } from '@genkit-ai/googleai';
+import { genkit, z } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
-export const myFlow = defineFlow(
-  { name: 'myFlow', inputSchema: z.string() },
+const ai = genkit({
+  plugins: [googleAI()],
+});
+
+export const myFlow = ai.defineFlow(
+  {
+    name: 'myFlow',
+    inputSchema: z.string(),
+  },
   async (input) => {
-    const response = await generate({
-      model: gemini15Flash,
+    const { text } = await ai.generate({
+      model: googleAI.model('gemini-1.5-flash'),
       prompt: `Tell me a joke about ${input}`,
     });
-    return response.text();
+    return text;
   }
 );
+```
+
+### Multimodal Generation (Python Preview)
+Genkit now supports multimodal generation, allowing you to generate images and text simultaneously.
+
+```python
+from genkit.ai import Genkit
+from genkit.plugins.google_genai import GoogleAI
+
+ai = Genkit(plugins=[GoogleAI()])
+
+response = await ai.generate(
+    model='googleai/gemini-2.5-flash-image',
+    prompt='a banana riding a bicycle',
+    config={'response_modalities': ['IMAGE', 'TEXT']}
+)
+
+if response.media:
+    print(f"Generated image: {response.media.url}")
+print(f"Generated text: {response.text}")
 ```
 
 ## Related tools / concepts
 - [Google Gemini](../ai_knowledge/google-gemini.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [Firebase Studio](../development_ops/firebase-studio.md)
+- [Firebase Studio (Sunset March 2027)](../development_ops/firebase-studio.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Google ADK](google-adk.md)
 - [Langflow](langflow.md)
@@ -75,7 +102,8 @@ export const myFlow = defineFlow(
 - [Instructor](instructor.md)
 
 ## Sources / references
-- [Official Website](https://firebase.google.com/docs/genkit)
+- [Official Website](https://genkit.dev/)
+- [Genkit Documentation](https://firebase.google.com/docs/genkit)
 - [Genkit Introduction](https://firebase-genkit.mintlify.app/introduction)
 - [Firebase AI Codelab](https://firebase.google.com/codelabs/ai-genkit-rag)
 

@@ -1,7 +1,7 @@
 # Instructor
 
 ## What it is
-Instructor is a multi-language library (Python, TypeScript, Go, Ruby, PHP, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). Following its v2 rewrite, it focuses on a simplified `from_provider` integration pattern and enhanced semantic validation using Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure.
+Instructor is a multi-language library (Python, TypeScript, Go, Ruby, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure.
 
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse, Instructor ensures you get validated, type-safe objects, automatically handling retries and re-asking the model if the initial output fails validation.
@@ -13,7 +13,6 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 - **Reliable Data Extraction**: Converting messy natural language (e.g., customer support emails) into structured database records.
 - **Type-Safe LLM Integration**: Ensuring LLM outputs can be directly used in application logic without complex parsing or regex.
 - **Quality Gates**: Implementing validation rules (e.g., "age must be positive", "response must not contain profanity") that are enforced via LLM retries.
-- **Semantic Validation**: Using LLMs to validate the content of extracted fields (e.g., "is this summary actually concise?").
 
 ## Strengths
 - **Schema-First**: Define what you want using standard types (Pydantic, Zod, etc.).
@@ -52,7 +51,7 @@ class User(BaseModel):
     name: str
     age: int
 
-# Patch the client to add Instructor functionality (v2 syntax)
+# Patch the client to add Instructor functionality
 client = instructor.from_provider(OpenAI())
 
 user = client.chat.completions.create(
@@ -65,24 +64,6 @@ print(user.name) # "Jason"
 print(user.age)  # 25
 ```
 
-### Semantic Validation Example
-Instructor allows you to use an LLM to validate the output of another (or the same) LLM call.
-
-```python
-from typing_extensions import Annotated
-from pydantic import AfterValidator
-from instructor import llm_validator
-
-def is_concise(v: str):
-    # This uses an LLM to check if the text is concise
-    return llm_validator("is this concise?", model="gpt-4o-mini")(v)
-
-class Summary(BaseModel):
-    content: Annotated[str, AfterValidator(is_concise)]
-
-# Instructor will automatically retry if the LLM-based validator fails
-```
-
 ## Related tools / concepts
 - [PydanticAI](pydantic-ai.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) (uses Zod for similar patterns in TS)
@@ -90,13 +71,38 @@ class Summary(BaseModel):
 - [Structured Output Pattern](../../knowledge_base/patterns/index.md)
 - [LiteLLM](../../services/litellm.md)
 - [Firebase Genkit](firebase-genkit.md)
-- [Extraction and Classification](../../knowledge_base/patterns/extraction-and-classification.md)
-- [Date Extraction](../../knowledge_base/patterns/date-extraction.md)
+- [Extraction and Classification](../../reference-implementations/llm-prompts/extraction-and-classification.md)
+- [Date Extraction](../../reference-implementations/llm-prompts/date-extraction.md)
+
+## Instructor v2 and Latest Features
+Released in May 2026, **Instructor v2** introduced a major internal rewrite focused on a provider-owned architecture. While maintaining backward compatibility, it significantly improved extensibility and type-checking performance.
+
+### Key Updates in v2:
+- **Unified Provider Interface**: Streamlined `from_provider()` function for consistent cross-provider client initialization.
+- **Improved Streaming**: Enhanced support for partial responses and real-time list processing.
+- **Semantic Validation**: Built-in support for validating LLM outputs against subjective criteria using LLM-based evaluators.
+- **llms.txt Support**: Adoption of the `llms.txt` standard to make documentation instantly readable by AI agents.
+
+### Example: Semantic Validation
+```python
+from instructor import SemanticValidator
+from pydantic import BaseModel, Field, BeforeValidator
+from typing import Annotated
+
+class Response(BaseModel):
+    answer: Annotated[
+        str,
+        BeforeValidator(SemanticValidator(openai_client=client, statement="The answer must be polite and helpful"))
+    ]
+
+# If the LLM generates a rude response, Instructor will automatically retry
+```
 
 ## Sources / references
 - [Official Website](https://python.useinstructor.com/)
 - [GitHub Repository](https://github.com/jxnl/instructor)
 - [Instructor Cookbook](https://python.useinstructor.com/examples/)
+- [What's new in Instructor v2?](https://python.useinstructor.com/blog/2026/05/11/whats-new-in-instructor-v2/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-06

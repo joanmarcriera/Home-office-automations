@@ -74,10 +74,10 @@ python -m aphrodite.endpoints.openai.api_server \
 ## Related tools / concepts
 - [vLLM](vllm.md)
 - [ExLlamaV2](exllamav2.md)
-- [GGUF](https://github.com/philpax/ggml/blob/gguf-spec/docs/gguf.md)
+- [GGUF](../infrastructure/gguf.md)
 - [llama.cpp](llama-cpp.md)
-- [DRY Sampler](https://github.com/PygmalionAI/aphrodite-engine/blob/main/docs/samplers.md#dry)
-- [XTC Sampler](https://github.com/PygmalionAI/aphrodite-engine/blob/main/docs/samplers.md#xtc)
+- [DRY Sampler](../knowledge_base/dry-sampler.md)
+- [XTC Sampler](../knowledge_base/xtc-sampler.md)
 - [SGLang](sglang.md)
 
 ## Sources / References
@@ -86,5 +86,5 @@ python -m aphrodite.endpoints.openai.api_server \
 - [Aphrodite Engine Sampler Documentation](https://aphrodite.pygmalion.chat/samplers)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-02
 - Confidence: high
