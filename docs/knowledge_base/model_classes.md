@@ -34,12 +34,12 @@ It belongs to the **Intelligence Layer** of the AI stack. It serves as the taxon
 ## 1. Chat & Conversational Models
 General-purpose models optimized for dialogue and following instructions.
 - **Purpose**: General assistance, creative writing, Q&A.
-- **Examples**: GPT-4o, Claude 3.5 Sonnet, Llama 3.1.
+- **Examples**: GPT-5.5, Claude 4.7 Sonnet, Llama 4 Maverick.
 
 ## 2. Reasoning & Logic Models
 Models specifically designed or fine-tuned for complex multi-step reasoning, mathematical problem-solving, and logic.
 - **Purpose**: Scientific research, complex coding, advanced mathematics.
-- **Examples**: OpenAI o1-preview, o1-mini.
+- **Examples**: OpenAI o2-preview, o2-mini, Claude 4.7 Opus.
 
 ## 3. Mixture of Experts (MoE)
 Architecture that uses a sparse execution path, activating only a subset of parameters for each token.
@@ -115,4 +115,4 @@ Generative models that learn a compressed latent representation of data, often u
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07

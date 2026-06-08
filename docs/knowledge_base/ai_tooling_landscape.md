@@ -91,7 +91,7 @@ Engines that run model weights and provide APIs for applications to consume. Thi
 ### Layer 2: Models
 The core reasoning engines (LLMs, VLMs) that process information and generate text or actions. These are the fundamental units of intelligence in the stack. This layer includes both general-purpose foundation models and specialized models for coding, reasoning, or multimodality.
 - **Relevant Pages**: [OpenAI Models](../tools/ai_knowledge/openai.md), [Anthropic Claude](../tools/providers/anthropic.md), [Meta Llama](../tools/ai_knowledge/local_llms.md), [Mistral](../tools/providers/mistral.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md), [DeepSeek](../tools/ai_knowledge/deepseek.md), [Model Classes](model_classes.md).
-- **Key Trends**: Rise of specialized reasoning models using test-time compute.
+- **Key Trends**: Rise of specialized reasoning models using test-time compute (e.g., GPT-5.5, Claude 4.7, Llama 4 Maverick).
 
 ### Layer 1: Providers
 Companies and platforms that host models and provide them as-a-service via API. They handle the scale and infrastructure required for model access. These providers offer varying levels of cost, speed, and privacy, allowing users to choose the best fit for their needs.
@@ -139,5 +139,5 @@ The underlying hardware, storage, and low-level optimizations like quantization 
 - [MAD Landscape 2024](https://mad.firstmark.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

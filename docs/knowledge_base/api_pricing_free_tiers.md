@@ -53,7 +53,7 @@ This document belongs to the **Layer 1: Providers** and **Layer 2: Models** anal
 | :--- | :--- | :--- | :--- |
 | OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.5, GPT-5.4, and GPT-5.4 mini. |
 | Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude Opus 4.7/4.6/4.5, Sonnet 4.6/4.5, and Haiku 4.5. |
-| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 3.1 Pro Preview is paid-only, while Gemini 3.1 Flash-Lite Preview has free rows. |
+| Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 3.1 Pro Preview is paid-only, while Gemini 3.1 Flash-Lite Preview has free rows. Gemini 4 Maverick preview free for dev accounts. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
 | Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
@@ -139,31 +139,31 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Capability | Top models | Highest known daily cap | Known models |
 | :--- | :--- | :--- | :--- |
-| Coding | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Groq — Llama 4 Maverick 17B (500K) | 1M | 7 |
+| Coding | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Groq — Llama 4 Maverick 17B (500K) | 1M | 8 |
 | Verification | n/a | n/a | 0 |
 | Reasoning | Groq — GPT OSS 120B (200K) | 200K | 1 |
 | Long-context | n/a | n/a | 0 |
-| Low-latency | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 7 |
-| Budget/free-value | Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 1M | 5 |
-| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 7 |
+| Low-latency | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 8 |
+| Budget/free-value | Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 1M | 6 |
+| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 8 |
 
 #### 80% Shortlist (known-cap coverage)
 
 | Capability | Models to reach >=80% of known capacity | Coverage | Total known daily cap |
 | :--- | :--- | :--- | :--- |
-| Coding | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K); Groq — Llama 4 Scout 17B (500K) | 92.1% | 3.8M |
+| Coding | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K); Groq — Llama 4 Scout 17B (500K) | 86.4% | 4M |
 | Verification | n/a | n/a | n/a |
 | Reasoning | Groq — GPT OSS 120B (200K) | 100.0% | 200K |
 | Long-context | n/a | n/a | n/a |
-| Low-latency | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 87.0% | 4.6M |
-| Budget/free-value | Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K); Groq — Llama 4 Scout 17B (500K) | 96.2% | 2.6M |
-| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 87.0% | 4.6M |
+| Low-latency | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 82.5% | 4.8M |
+| Budget/free-value | Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K); Groq — Llama 4 Scout 17B (500K) | 87.7% | 2.9M |
+| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 82.5% | 4.8M |
 
 #### Fast Recommendation (80% rule, known-cap data)
 
 | Goal | Recommended free-first models | Why this set |
 | :--- | :--- | :--- |
-| Coding | Cerebras — Llama 4 Maverick 400B; Cerebras — Qwen3 Coder 235B; Groq — Llama 4 Maverick 17B; Groq — Qwen3 32B; Groq — Llama 4 Scout 17B | Reaches 92.1% of known daily capacity (3.8M total known). |
+| Coding | Cerebras — Llama 4 Maverick 400B; Cerebras — Qwen3 Coder 235B; Groq — Llama 4 Maverick 17B; Groq — Qwen3 32B; Groq — Llama 4 Scout 17B | Reaches 86.4% of known daily capacity (4M total known). |
 | Verification | n/a | No numeric daily-cap data available for this capability. |
 | Reasoning | Groq — GPT OSS 120B | Reaches 100.0% of known daily capacity (200K total known). |
 
@@ -204,6 +204,7 @@ Only rows with a numeric daily token cap are included in the capacity math.
 
 | Model | Quotas | Verification | Summary |
 | :--- | :--- | :--- | :--- |
+| Llama 4 Maverick 70B | `128K / 30 / 1000 / 12K / 250K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Excellent. Standard for June 2026. |
 | Llama 3.3 70B (llama-3.3-70b-versatile) | `128K / 30 / 1000 / 12K / 100K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Very Good. Official row differs from older community numbers. |
 | Llama 4 Maverick 17B | `128K / 30 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Fast inference; revision limits can change. |
 | Qwen3 32B | `128K / 60 / 1000 / 6K / 500K` | Verified | <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-open">OPEN</span> <span class="cap-tag cap-budget">BUDGET</span><br>Account: Groq (no CC for free tier). Quality: Good. Current official free-plan row uses `qwen/qwen3-32b`. |
@@ -362,5 +363,5 @@ Based on community analysis (April 2026), models are categorized by their effici
 - [ChatGPT shared context (title only)](https://chatgpt.com/share/69a760fd-3520-8000-bfbd-19bdf623a333)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

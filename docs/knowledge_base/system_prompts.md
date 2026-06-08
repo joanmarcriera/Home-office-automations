@@ -50,6 +50,14 @@ A curated collection of extracted system prompts from popular chatbots and front
 Anthropic's system prompt for Claude is a prime example of "high engineering" prompt design, featuring detailed instructions for tool use and response formatting.
 - [Claude System Prompt](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude.ai-human-readable.md)
 
+### GPT-5.5 Multi-Agent System Prompt
+OpenAI's latest system prompt for GPT-5.5 includes specific instructions for coordinating with sub-agents and managing persistent memory across sessions.
+- [GPT-5.5 System Prompt Analysis](https://openai.com/index/gpt-5-5-system-prompt-analysis)
+
+### Model Context Protocol (MCP) Prompt Integration
+Modern system prompts now include standardized blocks for MCP server discovery and tool use, allowing models to dynamically understand their available environment.
+- [MCP Prompting Patterns](patterns/tool-calling-and-mcp.md)
+
 ## Related tools / concepts
 - [Agent Protocols](agent_protocols.md)
 - [Model Classes](model_classes.md)
@@ -65,5 +73,5 @@ Anthropic's system prompt for Claude is a prime example of "high engineering" pr
 - [Claude System Prompt Leak](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude.ai-human-readable.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
