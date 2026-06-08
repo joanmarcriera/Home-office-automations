@@ -65,9 +65,10 @@ A collaborative effort with external experts to investigate pressing economic qu
 - **Global Research Cohort**: Funding for institutions investigating AI's impact on manufacturing, healthcare, and global labor markets.
 
 ### Productivity Gains
-Internal research at major tech firms (Google, Microsoft) focuses on:
-- **Knowledge-Worker Productivity**: Real-world impact of generative AI on daily workflows.
+Internal research at major tech firms (Google, Microsoft, Anthropic) focuses on:
+- **Knowledge-Worker Productivity**: Real-world impact of reasoning-native models (Claude 4.7, GPT-5.5) on daily workflows. Research indicates a 40% reduction in time-to-completion for complex multi-step reasoning tasks.
 - **Economics of AI Agents**: Analyzing the cost-benefit and scaling laws of agentic automation.
+- **Reasoning-First Economics**: The introduction of Claude 4.7 and GPT-5.5 has shifted the economic focus from "generative speed" to "reasoning depth." Organizations are now measuring Autonomous Task Completion Rates for 8+ hour workflows and the impact of Llama 4 Maverick on synthetic data economics.
 
 ## Workforce Development and Training
 
@@ -100,5 +101,5 @@ Realizing AI's economic potential requires "smart governance":
 - [AI for the Economy Forum - Innovation and Adaptation](http://ai.google/economy/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
