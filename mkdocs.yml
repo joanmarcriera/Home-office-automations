@@ -179,6 +179,7 @@ nav:
           - Claude Desktop: tools/ai_knowledge/claude-desktop.md
           - Claude How-To: tools/ai_knowledge/claude-howto.md
           - Claude Mythos: tools/ai_knowledge/claude-mythos.md
+          - ComfyUI: tools/ai_knowledge/comfyui.md
           - ColQwen: tools/ai_knowledge/colqwen.md
           - Copy.ai: tools/ai_knowledge/copy-ai.md
           - DeepSeek R1: tools/ai_knowledge/deepseek-r1.md
@@ -631,6 +632,7 @@ nav:
           knowledge_base/audio-transcription-research.md
       - Home Admin Agent Architecture:
           knowledge_base/home-admin-agent-architecture.md
+      - Home Lab Hardware Reference: knowledge_base/home-lab-hardware-guide.md
       - AI Builder Index: knowledge_base/ai_builder_index.md
       - Free AI Website Playbook: knowledge_base/free_ai_website_playbook.md
       - AI Tooling Landscape — 2026 Overview:
