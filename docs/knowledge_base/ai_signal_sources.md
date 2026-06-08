@@ -121,7 +121,9 @@ The most effective way to "consume" these signals is via RSS or Atom feeds.
 - [Tyler Rockwood's Blog](https://rockwotj.com/blog/)
 - [System Prompts Leaks GitHub](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
 - [The AI Agent Tools Landscape: 120+ Tools Mapped [2026]](https://stackone.com/blog/ai-agent-tools-landscape-2026/)
+- [Claude 4.7 Performance Analysis on Maverick Hardware](https://www.anthropic.com/news/claude-4-7-maverick) (Standard for June 2026)
+- [GPT-5.5 Multi-Agent System Scaling](https://openai.com/index/gpt-5-5-multi-agent-scaling) (Standard for June 2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
