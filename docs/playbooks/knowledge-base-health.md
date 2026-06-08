@@ -125,7 +125,7 @@ Track these over time to measure knowledge base health:
 - **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`. Fix: update the index file whenever adding a nav entry.
 - **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains. Fix: always update both when removing a page.
 - **Duplicate pages**: two pages document the same tool. Fix: merge into the canonical page and redirect/remove the duplicate.
-- **Stale model references**: docs reference old model names (e.g., "Claude 3.5 Sonnet" instead of "Claude Sonnet 4.6"). Fix: search-and-replace during staleness reviews.
+- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 4.7"). Fix: search-and-replace during staleness reviews.
 - **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`. Fix: run `check_starred_repo_intake.py` locally and append any real candidates to today's daily log.
 
 ## Related tools / concepts
@@ -145,5 +145,5 @@ Track these over time to measure knowledge base health:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-09
+- Last reviewed: 2026-06-07
 - Confidence: high

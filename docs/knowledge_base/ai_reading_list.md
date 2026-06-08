@@ -79,8 +79,8 @@ To build your AI intelligence system using this list:
 - **AlphaSignal** ([alphasignal.ai](https://alphasignal.ai)) — Technical AI news, highly technical, signal-heavy newsletter focusing on the latest breakthroughs and code repositories.
 
 ## Research Labs to Follow
-- **OpenAI Research** — Setting the pace for state-of-the-art model capabilities and safety evaluations as the industry leader in frontier models.
-- **Anthropic Research** — Pioneers of constitutional AI and mechanistic interpretability, leading research into how models think and how to align them through structural constraints.
+- **OpenAI Research** — Setting the pace for state-of-the-art model capabilities and safety evaluations, particularly with the release of GPT-5.5.
+- **Anthropic Research** — Pioneers of constitutional AI and mechanistic interpretability, leading research into how models think and how to align them through structural constraints, as seen in Claude 4.7.
 - **Google DeepMind** — Historical powerhouse of fundamental AI breakthroughs and scientific applications, continuing to produce foundational research spanning from LLMs to AI for science.
 - **Meta FAIR** — Leading the charge in high-quality open-source models and fundamental research, a crucial source for open-weights models that democratize AI access.
 - **Mistral** — Proving that small, efficient models can rival giants in performance, essential for tracking the efficiency frontier and high-performance local inference.
@@ -95,7 +95,7 @@ To build your AI intelligence system using this list:
 - **Hugging Face Daily Papers** — Curated daily feed that helps filter the sheer volume of new research appearing on arXiv.
 
 ## Podcasts
-- **Latent Space Podcast** — Deep technical conversations with the builders of the AI engineering era, the best source for understanding the actual engineering trade-offs made by leading practitioners.
+- **Latent Space Podcast** — Deep technical conversations with the builders of the AI engineering era, including essential coverage of the Model Context Protocol (MCP) and agentic workflows.
 - **Gradient Dissent (W&B)** — Interviews with top ML practitioners about their real-world workflows and challenges, providing deep insight into the production realities of training and deploying models.
 - **No Priors** — High-level conversations with AI founders and researchers about the future of the industry and the most significant shifts in the technology.
 - **Practical AI** — Accessible discussions on making AI useful in real-world software development, great for seeing how AI fits into broader software engineering and business contexts.
@@ -136,5 +136,5 @@ To build your AI intelligence system using this list:
 - [No Priors Podcast](https://www.nopriors.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

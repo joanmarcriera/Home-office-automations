@@ -21,11 +21,12 @@ Axion sits at the **Compute Infrastructure Layer**, providing the physical (or v
 
 ## Limitations
 - **Architecture Specificity**: Requires multi-arch container images (ARM64).
-- **Availability**: Limited to Google Cloud Platform; not available for on-premises hardware.
+- **Availability**: Limited to Google Cloud Platform; not available for on-premises hardware. As of June 2026, available in all major GCP regions including us-central1, europe-west1, and asia-east1.
 
 ## When to use it
 - When you want to reduce the carbon footprint and cost of your cloud-based AI infrastructure.
 - When running high-throughput web services or data processing tasks on Google Cloud.
+- For high-performance ARM64-native applications requiring the Neoverse V2 architecture.
 
 ## When not to use it
 - If your application relies on x86-specific instructions (e.g., certain legacy libraries) that haven't been ported to Arm.
@@ -38,13 +39,14 @@ To start using Axion on Google Cloud:
 3.  **Configure GKE Compute Classes**: Use GKE's compute classes to prioritize Axion nodes while maintaining x86 as a fallback.
 
 ## Overview
-Announced in April 2024 and reaching maturity in 2026, Google Axion represents a shift toward architecture-aware scheduling and energy-efficient AI infrastructure.
+Announced in April 2024 and reaching full global availability in 2026, Google Axion represents a shift toward architecture-aware scheduling and energy-efficient AI infrastructure.
 
 ## Performance and Efficiency
 Google claims significant advantages over comparable x86 instances:
 - **50% Better Performance**: Measured against general-purpose x86 workloads.
 - **60% Better Energy Efficiency**: A critical metric for the "tokens per watt" era of AI.
 - **2x Price-Performance**: Achieved with the N4A instance series (January 2026).
+- **V3 Roadmap**: Preliminary data for the Axion V3 (Neoverse V3-based) suggests a further 30% performance boost for AI-specific matrix operations.
 
 ## Kubernetes Integration (GKE)
 Axion is designed to be a "scheduling decision" rather than a migration project:
@@ -76,5 +78,5 @@ For homelab environments, the Axion trend mirrors the adoption of:
 - [Google Axion (Google Cloud)](https://cloud.google.com/blog/products/compute/introducing-google-axion)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

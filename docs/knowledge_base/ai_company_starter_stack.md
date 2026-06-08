@@ -57,7 +57,7 @@ To implement the AI Company Starter Stack:
 | Layer | Default choice | Why it belongs in the starter stack | Replace when |
 | :--- | :--- | :--- | :--- |
 | Website / app surface | [Free AI Website Playbook](free_ai_website_playbook.md) -> [Vercel](../tools/development_ops/vercel.md) + [Supabase](../tools/infrastructure/supabase.md) | Gives you a practical default for public sites, MVPs, and internal tools | Your architecture has stronger static-site or infra constraints |
-| Agent operating model | [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) + [Superpowers](../tools/agents/superpowers.md) | Reusable workflows plus execution discipline | You are not using coding agents seriously yet |
+| Agent operating model | [Claude Code](../tools/development_ops/claude-code.md) + [MCP](../tools/automation_orchestration/mcp.md) | Native terminal integration and extensible context | You need high-level visual workflow orchestration |
 | Current technical context | [Context7](../tools/development_ops/context7.md) | Keeps coding agents grounded in current docs | Your work is mostly non-technical or repo-local |
 | Workflow control plane | [n8n](../services/n8n.md) | Scheduling, retries, approvals, and cross-system automation | Your company is still too small for durable workflows |
 | Web interaction | [Browser Use](../tools/automation_orchestration/browser-use.md) | Covers UI-only systems and interactive web tasks | Stable APIs exist for the same work |
@@ -88,12 +88,12 @@ Use this when the company needs an actual web surface, not only internal automat
 - [Supabase](../tools/infrastructure/supabase.md) is the default backend once forms, auth, or product state appear.
 - Use [GitHub Pages](../tools/development_ops/github-pages.md) for docs-heavy sites and [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md) for static directories and static-first public properties.
 
-### 1. Skills + Superpowers
-Use this pair when you want agents to behave like trained operators instead of smart autocomplete.
+### 1. Claude Code + MCP Servers
+Use this pair when you want agents to behave like trained operators with direct access to your infrastructure and data.
 
-- **Skills** package repeatable company procedures.
-- **Superpowers** enforces a better process for execution.
-- Together, they make AI usable by teams, not only by one power user.
+- **Claude Code** provides a high-leverage terminal interface for agentic coding and operations.
+- **MCP** (Model Context Protocol) provides standardized connectors to databases, APIs, and local filesystems.
+- Together, they make AI natively integrated into the developer and operator workflow.
 
 ### 2. n8n + Workspace CLI
 Use this pair when the company needs actual operating workflows.
@@ -302,5 +302,5 @@ Then I would add:
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

@@ -21,7 +21,7 @@ It is the **Orchestration Layer** of the home AI ecosystem. It sits above indivi
 
 ## Limitations
 - **High Latency**: Multi-step reasoning through LLM calls is slower than traditional, rule-based automation.
-- **Hardware Dependency**: Requires significant local compute or reliable API access to frontier models (like Claude 3.5 Sonnet).
+- **Hardware Dependency**: Requires significant local compute or reliable API access to frontier models (like Claude 4.7 or GPT-5.5).
 - **Security Complexity**: Requires careful management of API tokens and permissions for the various home services it controls.
 
 ## When to use it
@@ -30,7 +30,7 @@ It is the **Orchestration Layer** of the home AI ecosystem. It sits above indivi
 
 ## When not to use it
 - For simple, time-critical automations (e.g., turning on a light when a motion sensor is triggered)—use Home Assistant's native automations instead.
-- If you have strict privacy requirements that prevent sending data to external LLM providers (unless using a fully local LLM like Llama 3).
+- If you have strict privacy requirements that prevent sending data to external LLM providers (unless using a fully local LLM like Llama 4 Maverick).
 
 ## Core Architecture
 
@@ -99,6 +99,7 @@ The "Family Context" system prompt is the agent's core personality and operation
 1.  **Identity**: "You are Ralph, the Home Admin Agent. You assist the family with schedule management, paperless document retrieval, and home automation."
 2.  **Principles**: Priority on privacy, proactive but non-intrusive alerts, and clear communication.
 3.  **Context Injection**: Dynamic injection of current date, family schedule (via Calendar Tool), and active task counts (via Vikunja Tool).
+4.  **Agentic MCP**: Integration with Model Context Protocol (MCP) servers for dynamic tool discovery and execution across distributed environments.
 
 ## Graph State Schema
 
@@ -133,5 +134,5 @@ class AgentState(TypedDict):
 - [Pydantic V2 Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
