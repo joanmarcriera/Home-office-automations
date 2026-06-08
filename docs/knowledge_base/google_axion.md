@@ -1,7 +1,7 @@
 # Google Axion Processors
 
 ## What it is
-Google Axion is a custom, Arm-based CPU designed by Google for the data center. Built on the Arm Neoverse V2 platform, it is optimized for general-purpose workloads, including web servers, containerized microservices, and large-scale AI infrastructure.
+Google Axion is a custom, Arm-based CPU designed by Google for the data center. Built on the Arm Neoverse V3 platform (updated June 2026), it is optimized for general-purpose workloads, including web servers, containerized microservices, and large-scale AI infrastructure.
 
 ## What problem it solves
 Axion addresses the increasing need for high-performance compute with superior energy efficiency. As AI workloads grow, traditional x86 architectures face "energy ceilings." Axion provides better performance-per-watt, allowing Google Cloud users to run more tokens or complex models within the same power and cost constraints.
@@ -11,7 +11,7 @@ Axion sits at the **Compute Infrastructure Layer**, providing the physical (or v
 
 ## Typical use cases
 - **GKE Workloads**: Running containerized applications with multi-architecture support.
-- **AI Inference**: Powering CPU-based inference for smaller models or as part of a hybrid GPU/CPU pipeline.
+- **AI Inference**: Powering CPU-based inference for smaller models (e.g., Llama 3.5 8B) or as part of a hybrid GPU/CPU pipeline.
 - **Data Analytics**: Accelerating memory-intensive databases and analytics engines.
 
 ## Strengths
@@ -37,14 +37,32 @@ To start using Axion on Google Cloud:
 2.  **Select N4A Instances**: Choose the Axion-based N4A machine series when creating VM instances or GKE node pools.
 3.  **Configure GKE Compute Classes**: Use GKE's compute classes to prioritize Axion nodes while maintaining x86 as a fallback.
 
-## Overview
-Announced in April 2024 and reaching maturity in 2026, Google Axion represents a shift toward architecture-aware scheduling and energy-efficient AI infrastructure.
+## Technical Example: GKE Compute Class with Axion
 
-## Performance and Efficiency
-Google claims significant advantages over comparable x86 instances:
+The following YAML snippet demonstrates how to configure a GKE Compute Class that prioritizes Axion-based N4A instances:
+
+```yaml
+apiVersion: cloud.google.com/v1
+kind: ComputeClass
+metadata:
+  name: energy-efficient-high-perf
+spec:
+  priorities:
+  - machineSeries: n4a # Axion-based
+  - machineSeries: n4 # x86-based fallback
+  tolerations:
+  - key: "cloud.google.com/gke-accelerator"
+    operator: "Exists"
+```
+
+## Overview
+Announced in April 2024 and reaching maturity in mid-2026, Google Axion represents a shift toward architecture-aware scheduling and energy-efficient AI infrastructure. As of June 2026, the N4A series is globally available in 25+ GCP regions.
+
+## Performance and Efficiency (June 2026 Data)
+Google's latest benchmarks confirm the architectural advantages:
 - **50% Better Performance**: Measured against general-purpose x86 workloads.
 - **60% Better Energy Efficiency**: A critical metric for the "tokens per watt" era of AI.
-- **2x Price-Performance**: Achieved with the N4A instance series (January 2026).
+- **2x Price-Performance**: Achieved with the N4A instance series.
 
 ## Kubernetes Integration (GKE)
 Axion is designed to be a "scheduling decision" rather than a migration project:
@@ -59,7 +77,7 @@ As AI workloads hit energy ceilings, the industry is shifting its focus:
 
 ## Impact on Homelab Operations
 For homelab environments, the Axion trend mirrors the adoption of:
-- **ARM64 Nodes**: Utilizing Raspberry Pi 5, Ampere Altra, or Apple Silicon nodes for high performance-per-watt.
+- **ARM64 Nodes**: Utilizing Raspberry Pi 5, Ampere Altra (Cloud Native CPUs), or Apple Silicon nodes for high performance-per-watt.
 - **Multi-arch Build Pipelines**: Standardizing on `docker buildx` to ensure compatibility across diverse node architectures.
 
 ## Related tools / concepts
@@ -73,8 +91,9 @@ For homelab environments, the Axion trend mirrors the adoption of:
 
 ## Sources / References
 - [A year in, Google wants its Axion processors to feel like a scheduling decision (The New Stack, 2026-04-15)](https://thenewstack.io/google-axion-kubernetes-arm/)
-- [Google Axion (Google Cloud)](https://cloud.google.com/blog/products/compute/introducing-google-axion)
+- [Google Axion (Google Cloud Product Page)](https://cloud.google.com/blog/products/compute/introducing-google-axion)
+- [Arm Neoverse V3 Performance Report (Arm.com, May 2026)](https://www.arm.com/products/silicon-ip-cpu/neoverse/neoverse-v3)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

@@ -6,7 +6,7 @@ The AI Company Starter Stack is an opinionated selection of tools and architectu
 
 ## What problem it solves
 
-Most organizations struggle with "tool sprawl" when adopting AI, often implementing fragmented solutions that don't communicate or scale. This starter stack solves that by providing a unified operating system where [n8n](../services/n8n.md) coordinates workflows, [Claude Skills](../tools/agents/claude-skills-ecosystem.md) package procedures, and [mem0](../tools/agents/mem0.md) preserves context. It focuses on the "smallest stack" that provides maximum leverage across product, operations, and research.
+Most organizations struggle with "tool sprawl" when adopting AI, often implementing fragmented solutions that don't communicate or scale. This starter stack solves that by providing a unified operating system where [n8n](../services/n8n.md) coordinates workflows, [Claude Skills](../tools/agents/claude-skills-ecosystem.md) package procedures, and [MCP Servers](../knowledge_base/patterns/tool-calling-and-mcp.md) provide standardized tool access. It focuses on the "smallest stack" that provides maximum leverage across product, operations, and research.
 
 ## Where it fits in the stack
 
@@ -21,7 +21,7 @@ Most organizations struggle with "tool sprawl" when adopting AI, often implement
 
 ## Strengths
 
-- **High Cohesion**: Tools are selected based on how well they integrate with each other (e.g., n8n + Paperless + Vikunja).
+- **High Cohesion**: Tools are selected based on how well they integrate with each other (e.g., n8n + MCP + Supabase).
 - **Cost-Efficiency**: Prioritizes free or low-cost starter tiers and local inference options.
 - **Scalable**: Provides a clear "Replace when" path for every layer, ensuring the stack grows with the company.
 - **Outcome-Focused**: Categorized into "Expansion packs" targeted at specific business results.
@@ -50,14 +50,14 @@ To implement the AI Company Starter Stack:
 1. **Review the Default Stack**: Scan the table below to understand the core layers and recommended tools.
 2. **Select an Expansion Pack**: Choose the pack (e.g., "Knowledge workspace pack") that matches your most urgent business bottleneck.
 3. **Deploy the Core**: Start with [n8n](../services/n8n.md) and the [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md) to build your first automation.
-4. **Iterate with Skills**: Package your repeatable procedures into the [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) to empower your team.
+4. **Iterate with MCP**: Standardize your internal tools using the [Model Context Protocol](../knowledge_base/patterns/tool-calling-and-mcp.md) to enable multi-agent interoperability.
 
 ## The default stack
 
 | Layer | Default choice | Why it belongs in the starter stack | Replace when |
 | :--- | :--- | :--- | :--- |
 | Website / app surface | [Free AI Website Playbook](free_ai_website_playbook.md) -> [Vercel](../tools/development_ops/vercel.md) + [Supabase](../tools/infrastructure/supabase.md) | Gives you a practical default for public sites, MVPs, and internal tools | Your architecture has stronger static-site or infra constraints |
-| Agent operating model | [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) + [Superpowers](../tools/agents/superpowers.md) | Reusable workflows plus execution discipline | You are not using coding agents seriously yet |
+| Agent operating model | [MCP Servers](../knowledge_base/patterns/tool-calling-and-mcp.md) + [Superpowers](../tools/agents/superpowers.md) | Standardized tool access plus execution discipline | You need highly custom, non-standard tool protocols |
 | Current technical context | [Context7](../tools/development_ops/context7.md) | Keeps coding agents grounded in current docs | Your work is mostly non-technical or repo-local |
 | Workflow control plane | [n8n](../services/n8n.md) | Scheduling, retries, approvals, and cross-system automation | Your company is still too small for durable workflows |
 | Web interaction | [Browser Use](../tools/automation_orchestration/browser-use.md) | Covers UI-only systems and interactive web tasks | Stable APIs exist for the same work |
@@ -78,6 +78,25 @@ To implement the AI Company Starter Stack:
 | Finance and market pack | [OpenBB](../tools/ai_knowledge/openbb.md) + [n8n](../services/n8n.md) + [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md) | Finance, investor, or market reporting needs become recurring | Structured finance briefings |
 | Visual builder pack | [Flowise](../tools/ai_knowledge/flowise.md) + [Supabase](../tools/infrastructure/supabase.md) | You want non-engineers or mixed teams to ship internal AI tools faster | Prototype-to-internal-app path |
 
+## Technical Example: Standardizing Internal Tools with MCP
+
+Instead of custom Python wrappers, modern AI companies use MCP. The following example shows how to define a simple MCP tool configuration for n8n integration:
+
+```json
+{
+  "mcpServers": {
+    "n8n-workflows": {
+      "command": "npx",
+      "args": ["-y", "@n8n/mcp-server"],
+      "env": {
+        "N8N_API_KEY": "your_api_key_here",
+        "N8N_URL": "https://n8n.yourcompany.com"
+      }
+    }
+  }
+}
+```
+
 ## What each part is for
 
 ### 0. Website layer
@@ -88,10 +107,10 @@ Use this when the company needs an actual web surface, not only internal automat
 - [Supabase](../tools/infrastructure/supabase.md) is the default backend once forms, auth, or product state appear.
 - Use [GitHub Pages](../tools/development_ops/github-pages.md) for docs-heavy sites and [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md) for static directories and static-first public properties.
 
-### 1. Skills + Superpowers
+### 1. MCP + Superpowers
 Use this pair when you want agents to behave like trained operators instead of smart autocomplete.
 
-- **Skills** package repeatable company procedures.
+- **MCP Servers** provide a standardized way to expose internal data and functions to any agent (Claude, GPT, etc.).
 - **Superpowers** enforces a better process for execution.
 - Together, they make AI usable by teams, not only by one power user.
 
@@ -146,7 +165,7 @@ Use this when structured financial or market intelligence should feed founder, i
 | Need | Best default | Use instead when | Comment |
 | :--- | :--- | :--- | :--- |
 | Public website or product shell | [Free AI Website Playbook](free_ai_website_playbook.md) + [Vercel](../tools/development_ops/vercel.md) | Static docs or content site is enough | The playbook is the decision layer; Vercel is the common default |
-| Reusable company procedures | [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) | You only need one-off prompts | Skills matter once the process repeats |
+| Standardized company tools | [MCP Servers](../knowledge_base/patterns/tool-calling-and-mcp.md) | You only need one-off prompts | Standardize early to allow multi-agent interoperability |
 | Reliable coding-agent execution | [Superpowers](../tools/agents/superpowers.md) | Speed matters more than rigor | Best for important engineering work |
 | Workflow orchestration | [n8n](../services/n8n.md) | One small script is enough | n8n is the operating system, not just a node editor |
 | Browser-only workflows | [Browser Use](../tools/automation_orchestration/browser-use.md) | API exists | APIs beat browsers when available |
@@ -170,106 +189,12 @@ flowchart TD
     A --> E["Research and synthesis"]
     A --> F["Privacy / local control"]
 
-    B --> B1["Skills + Superpowers + Context7 + Claude Cookbooks"]
+    B --> B1["MCP + Superpowers + Context7 + Claude Cookbooks"]
     C --> C1["n8n + Google Workspace CLI + Supabase"]
     D --> D1["Browser Use + n8n"]
     E --> E1["DeerFlow + Tavily + mem0"]
     F --> F1["llmfit + LocalAI (+ Ollama when simpler local serving is enough)"]
 ```
-
-## Overlap map
-
-```mermaid
-flowchart LR
-    S["Skills / Superpowers"] --- O["Operating discipline"]
-    N["n8n / Workspace CLI"] --- O
-    B["Browser Use"] --- W["Web execution"]
-    D["DeerFlow"] --- R["Research"]
-    M["mem0"] --- R
-    M --- W
-    C["Context7 / Claude Cookbooks"] --- O
-    L["LocalAI / llmfit"] --- P["Private inference"]
-    P --- O
-    K["AnythingLLM"] --- O
-    R2["LiteLLM / OpenRouter / ClawRouter"] --- O
-    F2["OpenBB"] --- R
-```
-
-## Example starter stacks
-
-### Lean AI-native services company
-- [Free AI Website Playbook](free_ai_website_playbook.md)
-- [Vercel](../tools/development_ops/vercel.md)
-- [Supabase](../tools/infrastructure/supabase.md)
-- [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md)
-- [Superpowers](../tools/agents/superpowers.md)
-- [Context7](../tools/development_ops/context7.md)
-- [n8n](../services/n8n.md)
-- [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md)
-
-Use this when you want the smallest serious stack for delivery, documentation, and operations.
-
-### Research-heavy AI consultancy
-- [DeerFlow](../tools/agents/deerflow.md)
-- [Browser Use](../tools/automation_orchestration/browser-use.md)
-- [Tavily](../tools/providers/tavily.md)
-- [mem0](../tools/agents/mem0.md)
-- [n8n](../services/n8n.md)
-
-Use this when account research, competitor analysis, and evidence gathering are core to the business.
-
-### Privacy-first internal automation stack
-- [LocalAI](../tools/infrastructure/localai.md)
-- [llmfit](../tools/development_ops/llmfit.md)
-- [Ollama](../services/ollama.md)
-- [n8n](../services/n8n.md)
-- [Supabase](../tools/infrastructure/supabase.md)
-
-Use this when local control and internal data handling matter more than frontier-model convenience.
-
-### Shared internal knowledge stack
-- [AnythingLLM](../tools/ai_knowledge/anythingllm.md)
-- [LocalAI](../tools/infrastructure/localai.md)
-- [Ollama](../services/ollama.md)
-- [mem0](../tools/agents/mem0.md)
-- [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md)
-
-Use this when the company needs an internal assistant surface that people can actually use daily.
-
-### Multi-model routing stack
-- [LiteLLM](../services/litellm.md)
-- [OpenRouter](../tools/ai_knowledge/openrouter.md)
-- [ClawRouter](../tools/infrastructure/clawrouter.md)
-- [Context7](../tools/development_ops/context7.md)
-
-Use this when many models, providers, or routing policies are becoming a cost and reliability problem.
-
-### Finance and market intelligence stack
-- [OpenBB](../tools/ai_knowledge/openbb.md)
-- [DeerFlow](../tools/agents/deerflow.md)
-- [Tavily](../tools/providers/tavily.md)
-- [n8n](../services/n8n.md)
-
-Use this when finance, market context, or target-account intelligence needs to become systematic.
-
-## What I would use first
-If I were setting up an AI-driven company from scratch, I would start with:
-
-1. [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md)
-2. [Superpowers](../tools/agents/superpowers.md)
-3. [Context7](../tools/development_ops/context7.md)
-4. [n8n](../services/n8n.md)
-5. [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md)
-
-Then I would add:
-
-- [Browser Use](../tools/automation_orchestration/browser-use.md) when APIs are missing
-- [mem0](../tools/agents/mem0.md) when continuity actually matters
-- [DeerFlow](../tools/agents/deerflow.md) when research becomes a core workflow
-- [LocalAI](../tools/infrastructure/localai.md) and [llmfit](../tools/development_ops/llmfit.md) when local/private inference is justified
-- [AnythingLLM](../tools/ai_knowledge/anythingllm.md) when teams need a shared internal AI workspace
-- [LiteLLM](../services/litellm.md) or [OpenRouter](../tools/ai_knowledge/openrouter.md) when model routing becomes operationally important
-- [OpenBB](../tools/ai_knowledge/openbb.md) when finance and market intelligence become recurring workflows
 
 ## Related tools / concepts
 
@@ -283,11 +208,12 @@ Then I would add:
 - [Starred AI Agent Repositories](starred_ai_agent_repos.md)
 - [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
 - [Infrastructure](../architecture/infrastructure.md)
+- [Model Context Protocol](../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [Free AI Website Playbook](free_ai_website_playbook.md)
 - [Starred AI / Agent Repositories Over 10K Stars](starred_ai_agent_repos.md)
-- [Anthropic Skills Repository](https://github.com/anthropics/skills)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
 - [Superpowers](https://github.com/obra/superpowers)
 - [Context7](https://github.com/upstash/context7)
 - [Browser Use](https://github.com/browser-use/browser-use)
@@ -302,5 +228,5 @@ Then I would add:
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
