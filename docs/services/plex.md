@@ -25,7 +25,10 @@ It solves the problem of media fragmentation by centralizing your personal colle
 - **Proprietary**: The core server is not open-source.
 - **Centralized Auth**: Requires a connection to plex.tv for authentication.
 - **Privacy**: Some concerns over telemetry and data collection compared to open-source alternatives.
-- **Lifetime Pass Pricing**: The Lifetime Plex Pass price is increasing to **$749.99 USD** starting July 1, 2026.
+
+## Latest Updates (May 2026)
+- **Lifetime Plex Pass Pricing**: Plex has announced a significant price increase for the Lifetime Plex Pass. Effective July 1, 2026, the price will increase from $249.99 to $749.99 USD. Existing Lifetime pass holders are unaffected by this change.
+- **Improved HDR Support**: Recent updates have improved tone mapping and native HDR playback support across major desktop and mobile clients.
 
 ## When to use it
 - When you want a polished, user-friendly interface for managing and streaming your personal media collection.
@@ -121,10 +124,12 @@ for section in plex.library.sections():
 ```
 
 ## Related tools / concepts
-- [Jellyfin](jellyfin.md) (Open-source alternative)
-- [Docker](../tools/infrastructure/docker.md)
-- [n8n](n8n.md) (For media automation)
-- [qBittorrent](qbittorrent.md) (For content acquisition)
+- [Jellyfin](jellyfin.md) — Open-source media server.
+- [Plex Automation](plex-automation.md) — Workflows and scripts for Plex.
+- [Tube Archivist](tubearchivist.md) — YouTube content preservation.
+- [qbittorrent](qbittorrent.md) — Torrent client for content acquisition.
+- [n8n](n8n.md) — Workflow automation for media ingestion.
+- [Docker](../tools/infrastructure/docker.md) — Primary deployment method.
 - [Search & Discovery](../tools/intake_storage/index.md)
 
 ### Plex Meta Manager (PMM)

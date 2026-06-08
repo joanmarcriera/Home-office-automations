@@ -92,11 +92,15 @@ for episode in trash_library.search(viewed=True):
 ```
 
 ## Related tools / concepts
-- [Plex](plex.md) (The core server)
-- [Tautulli](https://tautulli.com/) (The gold standard for Plex monitoring/notifications)
-- [Plex Meta Manager](https://metamanager.wiki/) (Advanced metadata automation)
-- [n8n](n8n.md) (To orchestrate complex media workflows)
-- [qBittorrent Automation](qbittorrent-automation.md) (The source of most media)
+- [Plex](plex.md) — The core media server.
+- [Jellyfin](jellyfin.md) — Open-source media server alternative.
+- [n8n](n8n.md) — Workflow orchestration for media ingestion.
+- [qbittorrent-automation](qbittorrent-automation.md) — Automating content acquisition.
+- [Home Assistant](home-assistant.md) — For notifications and playback-based automations.
+- [Changedetection.io](changedetection.md) — Monitoring trackers or metadata sources.
+- [Nextcloud](nextcloud.md) — For off-server backups of configuration and metadata.
+- [Tautulli](https://tautulli.com/) — Monitoring and notification system.
+- [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata automation.
 
 ## Sources / References
 - [Official Plex API Documentation (Community Maintained)](https://github.com/Arcanemagus/plex-api/wiki)
