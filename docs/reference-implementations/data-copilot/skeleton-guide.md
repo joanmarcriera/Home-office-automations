@@ -12,7 +12,7 @@ This reference implementation provides a Python-based skeleton for the layered T
 
 ## Where it fits in the stack
 
-**Reference Implementation**. It serves as a blueprint for building data-focused agents within the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) and integrates with the [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
+**Reference Implementation**. It serves as a blueprint for building data-focused agents within the [Data Copilot Architecture](../../knowledge_base/patterns/agentic-workflows.md) and integrates with the [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
 
 ## Typical use cases
 
@@ -54,11 +54,12 @@ The following script defines the interfaces for the Workspace Router, Intent Age
 
 > **Note**: This implementation uses a mock execution pattern. In a production environment, you would replace the print statements with calls to your LLM provider (e.g., Ollama, Groq, or OpenAI).
 
-## Key Features (May 2026 Update)
+## Key Features
 
 - **Asynchronous Execution**: Uses `asyncio` for non-blocking agent calls.
-- **Type Safety**: Leverages Pydantic v2.10+ for high-performance validation across layers.
-- **May 2026 Model Baseline**: Pre-configured with routes for **Gemini 3.5 Flash** (high-speed intent) and **Claude 4.7 Sonnet** (precise SQL generation).
+- **Type Safety**: Leverages Pydantic models to ensure consistent data structures across layers.
+- **Late Interaction Routing**: By May 2026, the skeleton supports ColBERT-style late interaction reranking as a standard middle layer for high-precision retrieval.
+- **Modularity**: Each layer is a distinct method, allowing for independent model routing (e.g., using a local small model for routing and a hosted mini/Haiku-class model for SQL generation).
 - **Human correction points**: `review_table_selection()` and `review_pruned_schema()` show how a reviewer can correct wrong tables or wrong metric columns without restarting the whole pipeline.
 - **Token controls**: `TokenStats` and `ModelRoute` capture estimated schema tokens, pruning ratios, prompt ceilings, and fallback routes.
 
@@ -66,16 +67,22 @@ The following script defines the interfaces for the Workspace Router, Intent Age
 
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — the broader framework this skeleton follows.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — for configuring the `ModelRoute` class.
-- [Agentic RAG & Hybrid Retrieval](../../knowledge_base/patterns/data-copilot-agentic-rag.md) — how this skeleton fits into broader diagnostic analytics.
+- [Audio Transcription Schema](../metadata-schemas/audio-transcription.md) — another example of Pydantic-based metadata.
 - [SQLGlot Integration](../../tools/development_ops/sqlglot.md) — used for validating the generated SQL.
 - [Ollama Service](../../services/ollama.md) — for local, free-tier execution of the routing layers.
 - [Groq Provider](../../tools/providers/groq.md) — high-speed inference for the SQL generation layer.
+- [Data Contracts Pattern](../metadata-schemas/manuals.md) — defining the interface between agents and databases.
+- [GraphRAG Pattern](../../architecture/README.md)
+- [Late Interaction (ColBERT)](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Claude Code Agent](../../tools/ai_knowledge/claude-code.md)
 
 ## Sources / References
 - [Pydantic Documentation](https://docs.pydantic.dev/)
 - [Python Asyncio](https://docs.python.org/3/library/asyncio.html)
-- [Gemini 3.5 Flash Benchmarks](https://blog.google/technology/ai/google-gemini-may-2026-update/)
-- [Claude 4.7 Pricing and Capability Guide](https://docs.anthropic.com/en/docs/about-claude/models)
+- [Ollama documentation](https://docs.ollama.com/)
+- [OpenAI API pricing](https://openai.com/api/pricing)
+- [Claude pricing documentation](https://docs.claude.com/en/docs/about-claude/pricing)
+- [LangGraph: Stateful Agentic RAG (2026)](https://medium.com/@vinodkrane/next-generation-agentic-rag-with-langgraph-2026-edition-d1c4c068d2b8)
 
 ## Contribution Metadata
 - Last reviewed: 2026-05-31
