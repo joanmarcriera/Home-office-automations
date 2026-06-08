@@ -37,14 +37,48 @@ It lowers the barrier to entry for the AutoGen framework by providing a visual w
 
 ## Getting started
 
-Install via pip:
+Install AutoGen Studio using pip:
 ```bash
 pip install autogenstudio
 ```
 
-Run the web UI:
+Configure your LLM provider (e.g., OpenAI):
+```bash
+export OPENAI_API_KEY='your_api_key_here'
+```
+
+Launch the interface:
 ```bash
 autogenstudio ui --port 8081
+```
+
+**Hello-world example**:
+1. Open `http://localhost:8081` in your browser.
+2. Navigate to the **Build** tab and create a new **Agent**.
+3. Go to the **Playground**, create a new session, and send the message: "Plot a chart of NVDA and TSLA stock price change YTD."
+4. Watch as the agents collaborate to write and execute Python code to generate the chart.
+
+## CLI examples
+AutoGen Studio provides a simple CLI for managing the web environment.
+
+```bash
+autogenstudio ui --port 8081    # Start the UI on a specific port
+autogenstudio version           # Check the installed version
+autogenstudio --help            # List all available CLI options
+```
+
+## API examples
+While primarily a UI, you can programmatically run workflows exported from AutoGen Studio using the AutoGen framework.
+
+```python
+from autogenstudio import WorkflowManager
+
+# Load a workflow exported as JSON from the Studio UI
+workflow_manager = WorkflowManager(workflow="workflow.json")
+
+# Run the workflow with a specific message
+task_query = "What is the capital of France?"
+workflow_manager.run(message=task_query)
 ```
 
 ## Licensing and cost

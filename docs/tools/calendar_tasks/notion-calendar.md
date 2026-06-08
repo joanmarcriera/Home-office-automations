@@ -37,10 +37,29 @@ Bridges the gap between notes/tasks in Notion and time management in a calendar,
 - **Self-hostable**: No
 
 ## Getting started
-1. Download the desktop app for macOS or Windows.
+To get started with the application:
+1. Download the desktop app for macOS or Windows from the [official website](https://www.notion.so/product/calendar).
 2. Sign in with your Google account.
-3. Use `Cmd+K` (macOS) or `Ctrl+K` (Windows) to access the command palette.
+3. **Hello-world example**: Use `Cmd+K` (macOS) or `Ctrl+K` (Windows) to open the Command Bar and type "New event" to create your first entry.
 4. Integrate with Notion via the "Notion" tab in settings to link database entries to calendar events.
+
+## CLI examples
+> [!NOTE]
+> Notion Calendar does not currently offer an official CLI.
+
+## API examples
+Notion Calendar supports a local URI scheme (`cron://`) to open the app to specific events or views from external tools.
+
+**Open a specific event**:
+```bash
+# Example URI to open an event by its iCalUID
+open "cron://[email protected]&iCalUID=[email protected]&startDate=2026-06-12T10:00:00Z&title=Meeting"
+```
+
+**Minimal API schema**:
+```text
+cron://[accountEmail]&[iCalUID]&startDate=[ISO8601]&endDate=[ISO8601]&title=[Title]
+```
 
 ## Technical details
 Notion Calendar leverages the Notion API to fetch and display database items as calendar events. It supports:

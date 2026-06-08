@@ -42,6 +42,14 @@ To begin using it:
 5. **Real-time Agents**: Use the Galileo AI integration to add interactive agent behavior to your UI components directly within the Stitch environment.
 6. Export your designs directly to Figma or as React/web components to use in [Google AI Studio](../ai_knowledge/google-ai-studio.md).
 
+## CLI examples
+> [!NOTE]
+> This tool does not currently offer an official CLI.
+
+## API examples
+> [!NOTE]
+> This tool does not currently offer an official public API.
+
 ## Related tools / concepts
 - [Gemini Canvas](../ai_knowledge/gemini-canvas.md)
 - [Google Opal](../ai_knowledge/google-opal.md)

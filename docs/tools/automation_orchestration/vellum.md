@@ -35,6 +35,51 @@ It bridges the gap between conversational AI and practical task execution. Unlik
 - If you are on Windows or Linux.
 - If you prefer a fully open-source, community-managed agent like OpenClaw.
 
+## Getting started
+Install the Vellum CLI globally:
+```bash
+bun install -g vellum
+```
+
+Initialize your assistant:
+```bash
+# This begins the onboarding and hatch process
+vellum hatch
+```
+
+**Hello-world example**:
+1. Run `vellum client` to open the terminal interface.
+2. Type "Introduce yourself and tell me what you can see on my screen."
+3. Vellum will analyze your active window and respond with its personality and a summary of your workspace.
+
+## CLI examples
+The CLI is the primary way to manage and interact with the Vellum runtime.
+
+```bash
+vellum wake        # Start background services
+vellum ps          # List all running assistant instances
+vellum client      # Open the interactive terminal client
+```
+
+## API examples
+Vellum exposes a real-time SSE (Server-Sent Events) stream for programmatic interaction.
+
+```javascript
+const response = await fetch('http://localhost:3001/v1/events', {
+  headers: { 'Authorization': 'Bearer YOUR_JWT_TOKEN' }
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  const chunk = decoder.decode(value);
+  console.log('Received event:', chunk);
+}
+```
+
 ## Related tools / concepts
 - [Open Interpreter](../automation_orchestration/open-interpreter.md)
 - [Goose](../automation_orchestration/goose.md)

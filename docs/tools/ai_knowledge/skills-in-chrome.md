@@ -41,6 +41,14 @@ There is no separate installation required. To use it:
 3. **Hello-world example**: Type a prompt like "Summarize the key points of this page" and, once the response is generated, click the **Save as Skill** button to store it for one-click access later.
 4. Access your saved skills anytime by typing `/` in the Gemini chat box.
 
+## CLI examples
+> [!NOTE]
+> This feature does not currently offer an official CLI.
+
+## API examples
+> [!NOTE]
+> This feature does not currently offer an official public API.
+
 ## Related tools / concepts
 - [HoloTab](holotab.md)
 - [Claude Plugins](../development_ops/claude-plugins.md)
