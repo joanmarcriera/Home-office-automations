@@ -11,8 +11,8 @@ It belongs to the **Orchestration & Workflow Layer**, providing resilience for a
 
 ## Typical use cases
 - **API Monitoring**: Catching and notifying when a third-party service (e.g., Google Calendar) is down.
-- **Data Integrity**: Flagging when an AI extraction fails to meet the required schema.
-- **Homelab Health**: Alerting on failed system backups or infrastructure syncs.
+- **Data Integrity**: Flagging when an AI extraction (e.g., via [Claude 4.7](../../tools/ai_knowledge/claude.md)) fails to meet the required schema.
+- **Homelab Health**: Alerting on failed system backups or infrastructure syncs via [MCP](../../tools/automation_orchestration/mcp.md) notification servers.
 
 ## Strengths
 - **Visibility**: Eliminates silent failures through centralized alerting.
@@ -72,7 +72,7 @@ To ensure consistency across the stack, the following schema must be used when p
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | status | String | Always failed for errors. |
-| model | String | (Optional) The LLM model being used when the failure occurred. |
+| model | String | (Optional) The LLM model (e.g., [GPT-5.5](../../tools/ai_knowledge/openai.md), [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md)) being used when the failure occurred. |
 | workflow_id | String | The unique ID of the failing n8n workflow. |
 | node_name | String | The specific node that triggered the error. |
 | timestamp | ISO8601 | The exact time of the failure. |
@@ -117,6 +117,7 @@ template:
 ```
 
 ## Related tools / concepts
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
 - [n8n Service](../../services/n8n.md)
 - [Home Assistant](../../services/home-assistant.md)
 - [Self-Healing Agent Research](../self-healing-agent-research.md)
@@ -129,5 +130,5 @@ template:
 - [n8n Error Handling Docs](https://docs.n8n.io/hosting/monitoring-n8n/error-handling/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
