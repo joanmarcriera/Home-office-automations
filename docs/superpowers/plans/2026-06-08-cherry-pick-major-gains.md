@@ -451,3 +451,7 @@ EOF
 ```
 
 Expected: PR URL printed to stdout.
+
+## Contribution Metadata
+- Last reviewed: 2026-06-08
+- Confidence: high

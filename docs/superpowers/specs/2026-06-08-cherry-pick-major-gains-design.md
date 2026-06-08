@@ -84,3 +84,7 @@ Add `heygen.md` entry under the `ai_knowledge` nav section.
 4. Update `mkdocs.yml` for heygen.md
 5. Commit in logical groups (services, tools, KB, scripts)
 6. Open PR against `main`
+
+## Contribution Metadata
+- Last reviewed: 2026-06-08
+- Confidence: high
