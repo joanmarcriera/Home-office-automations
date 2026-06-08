@@ -29,10 +29,16 @@ flowchart TD
 - [n8n](../services/n8n.md)
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md)
 
+## RAG-Based Extraction Standards
+Effective school document processing in June 2026 relies on high-quality RAG (Retrieval-Augmented Generation) patterns. Use models like [Llama 4 Maverick](../tools/ai_knowledge/llama.md) (for local privacy) or [Claude 4.7](../tools/ai_knowledge/claude.md) to:
+- **Parse Permission Slips**: Distinguish between "Optional Participation" and "Mandatory Attendance."
+- **Handle PII**: Automatically redact or flag student names and IDs if the document is being shared with non-secure agents.
+- **Cross-Reference Calendars**: Check the `Family Calendar` for existing conflicts before proposing a new school event.
+
 ## Step-by-Step Flow
 1.  **Filter**: n8n monitors the `Inbox` via IMAP for emails from `@school.edu` or containing keywords like "Activity", "Field Trip", "Grade".
 2.  **Archive**: The email and any attachments are sent to Paperless-ngx with the document type `SchoolCorrespondence` and the tag `School`.
-3.  **Analyze**: [Paperless-AI](../services/paperless-ai.md) triggers on the document creation to perform a RAG-based analysis.
+3.  **Analyze**: [Paperless-AI](../services/paperless-ai.md) triggers on the document creation to perform a RAG-based analysis using Claude 4.7 or Llama 4.
 4.  **Extract**: Specifically look for:
     - Activity Date/Time
     - Consent required (Yes/No)
@@ -86,10 +92,14 @@ Defined in [Classification Standards](../standards.md).
 ## Variants
 - **Direct Scan**: Scanning a physical permission slip brought home by the student.
 
-
-## Contribution Metadata
-- Last reviewed: 2026-05-10
-- Confidence: high
+## Managing High-Volume Seasons
+During peak times (e.g., Back-to-School, End-of-Term), the volume of documents can spike.
+- **Batch Processing**: Configure n8n to process school documents in batches during off-peak hours to save LLM tokens/compute.
+- **Urgency Tagging**: Use the LLM to apply an `URGENT-SCHOOL` tag for any document with a deadline less than 48 hours away.
 
 ## Sources / References
 - https://github.com/joanmarcriera/Home-office-automations
+
+## Contribution Metadata
+- Last reviewed: 2026-06-07
+- Confidence: high

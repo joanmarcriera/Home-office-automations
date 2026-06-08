@@ -37,9 +37,9 @@ This playbook sits in the **Operations / Playbooks** layer. It coordinates tools
 ## Getting started
 
 ### Pre-requisites
-- A Raspberry Pi with Raspberry Pi OS installed.
-- SSH access enabled.
-- An agent like [Aider](../tools/development_ops/aider.md) or [Claude Code](../tools/development_ops/claude-code.md) configured with access to the Pi.
+- A Raspberry Pi with Raspberry Pi OS installed (Bookworm or newer recommended).
+- SSH access enabled via [SSH Execution Patterns](../architecture/ssh_execution_patterns.md).
+- A June 2026-class agent like [Claude Code](../tools/development_ops/claude-code.md) (v4.7), [Aider](../tools/development_ops/aider.md) (with GPT-5.5), or [Llama 4 Maverick](../tools/ai_knowledge/llama.md) configured for remote execution.
 
 ### Typical Automation Workflow
 
@@ -107,10 +107,20 @@ The agent follows an iterative "Propose-Execute-Observe" loop to configure the P
 - [Paperless-ngx](../services/paperless-ngx.md) — Can be used to store and display digitized documents on the kiosk.
 - [Grafana](../services/grafana.md) — For displaying high-density infrastructure monitoring dashboards.
 
+## Security Considerations
+- **SSH Key Management**: Ensure the agent uses a dedicated, restricted SSH key for kiosk configuration.
+- **Kiosk User Lockdown**: The `pi` user should have restricted permissions, especially if the kiosk is in a public area.
+- **Network Isolation**: Place kiosks on a dedicated IoT VLAN where possible, using [Tailscale](../services/tailscale.md) for management.
+
+## Troubleshooting with Agents
+If the kiosk fails to start, modern agents like Claude 4.7 can be pointed at the logs to diagnose issues:
+- `journalctl -u kiosk.service -n 50`
+- `cat /home/pi/.xsession-errors`
+
 ## Sources / References
 - [Official Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/)
 - https://github.com/joanmarcriera/Home-office-automations
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

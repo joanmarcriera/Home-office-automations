@@ -77,10 +77,16 @@ flowchart TD
     I --> K[Update Paperless Tag: failed]
 ```
 
+## Model Selection for Extraction
+For high-precision date extraction, the following June 2026-standard models are recommended:
+- **GPT-5.5 (Omni)**: Best for complex, multi-event newsletters where intent recognition is critical.
+- **Claude 4.7 (Sonnet)**: Excellent for structured data extraction and following strict JSON schemas.
+- **Llama 4 Maverick (70B)**: The preferred local-first option for privacy-sensitive calendar data, offering performance parity with proprietary models for this specific task.
+
 ## Step-by-Step Flow
 1.  **Ingestion**: n8n workflow triggers via IMAP on a new email in the `Automate/Intake` folder.
 2.  **Storage**: n8n uploads the email body (as PDF) or any existing PDF attachments to Paperless-ngx with the tag `needs-processing`.
-3.  **Extraction**: n8n calls the LLM with the [Date Extraction Prompt](../reference-implementations/llm-prompts/date-extraction.md), passing the OCR text from Paperless.
+3.  **Extraction**: n8n calls the LLM (GPT-5.5 or Claude 4.7) with the [Date Extraction Prompt](../reference-implementations/llm-prompts/date-extraction.md), passing the OCR text from Paperless.
 4.  **Verification**: LLM returns a structured JSON object containing `event_name`, `start_date`, `end_date`, and `location`.
 5.  **Action**: n8n creates an event in Google Calendar using the data returned by the LLM.
 6.  **Cleanup**: n8n updates the Paperless document tag from `needs-processing` to `synced-to-calendar`.
@@ -118,9 +124,15 @@ flowchart TD
 - [Scan to Task](scan-to-task.md)
 - [Family Admin Automation](family-admin-automation.md)
 
+## Advanced Configuration: HITL
+To prevent "calendar spam," implement a **Human-in-the-loop (HITL)** stage:
+1. n8n sends a message to a Matrix/Signal room with the extracted event details.
+2. The message includes "Approve" and "Reject" buttons (using n8n wait nodes or webhook triggers).
+3. The event is only created in Google Calendar after a family member clicks "Approve."
+
 ## Sources / References
 - https://github.com/joanmarcriera/Home-office-automations
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high

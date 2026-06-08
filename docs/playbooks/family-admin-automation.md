@@ -61,23 +61,31 @@ Automate the routing and notification of family-wide administrative tasks (bills
 - [Home Assistant](../services/home-assistant.md)
 - [Matrix/Signal](../architecture/component_map.md)
 
+## LLM-Enhanced Classification
+While standard matching rules are effective for consistent layouts, June 2026-class models like [Claude 4.7](../tools/ai_knowledge/claude.md) or [Llama 4 Maverick](../tools/ai_knowledge/llama.md) can be integrated into the n8n workflow to handle:
+- **Ambiguous Documents**: Determining the difference between a simple medical bill and a complex insurance EOB (Explanation of Benefits).
+- **Sentiment Analysis**: Detecting urgent "Final Notice" or "Overdue" language that requires immediate escalation.
+- **Data Synthesis**: Extracting specific values like `Amount Due` and `Due Date` for inclusion in the Home Assistant notification.
+
 ## Step-by-Step Flow
 
 ```mermaid
 flowchart TD
     A[Ingest: Email or Scan] --> B[Classify: Paperless Matching Rules]
     B --> C[Process: n8n Workflow]
-    C --> D[Notify: Home Assistant Alert]
-    D --> E[Dashboard: HA Unprocessed Admin Card]
-    E --> F[Action: Manual Tag Removal]
+    C --> D[LLM Reasoning: Claude 4.7/Llama 4]
+    D --> E[Notify: Home Assistant Alert]
+    E --> F[Dashboard: HA Unprocessed Admin Card]
+    F --> G[Action: Manual Tag Removal]
 ```
 
 1.  **Ingest**: Document arrives via Email or Scan.
 2.  **Classify**: Paperless matching rules categorize as `Insurance` or `Utility`.
 3.  **Process**: n8n workflow triggers on tag application.
-4.  **Notify**: Home Assistant sends a notification to the shared family chat: "New Insurance document received. Due: [Date]".
-5.  **Dashboard**: The document appears in the "Unprocessed Admin" card on the Home Assistant dashboard.
-6.  **Action**: Once a family member pays or acknowledges, they manually remove the `needs-action` tag in Paperless.
+4.  **LLM Reasoning**: An optional step where the agent (Claude 4.7) analyzes the document content for urgency and key dates.
+5.  **Notify**: Home Assistant sends a notification to the shared family chat: "New Insurance document received. Due: [Date]".
+6.  **Dashboard**: The document appears in the "Unprocessed Admin" card on the Home Assistant dashboard.
+7.  **Action**: Once a family member pays or acknowledges, they manually remove the `needs-action` tag in Paperless.
 
 ## Data Contract
 JSON payload to Home Assistant:
@@ -107,9 +115,14 @@ JSON payload to Home Assistant:
 - [Component Map](../architecture/component_map.md)
 - [Family Context Prompt](../reference-implementations/llm-prompts/family-context.md)
 
+## Best Practices for Family Adoption
+- **Weekly Review**: Schedule a 10-minute "Family Admin Sync" to clear the Home Assistant dashboard together.
+- **Shared Ingestion**: Ensure everyone knows how to use the [Scan to Task](scan-to-task.md) station.
+- **Tag Transparency**: Use clear, human-readable tags in Paperless-ngx (e.g., `ACTION-REQUIRED`, `FILED-PENDING-PAYMENT`).
+
 ## Sources / References
 - https://github.com/joanmarcriera/Home-office-automations
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
