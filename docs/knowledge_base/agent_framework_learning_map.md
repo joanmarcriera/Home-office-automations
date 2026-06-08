@@ -15,7 +15,7 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 ## Typical use cases
 
 - **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
-- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents.
+- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 4.7.
 - **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
 - **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
 
@@ -24,7 +24,7 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 - **Outcome-Oriented**: Focuses on what the tool is *best for*, not just what it can do.
 - **Classification Clarity**: Separates libraries (SDKs) from environments (Operating Systems) and specialized modules.
 - **Local-First Friendly**: Prioritizes stacks that work well with local models and privacy-conscious architectures.
-- **Evidence-Based**: Links to reference implementations and production-ready defaults.
+- **Model Agnostic**: Explicitly supports routing between Claude 4.7 (reasoning), GPT-5.5 (speed), and Llama 4 Maverick (local).
 
 ## Limitations
 
@@ -83,18 +83,18 @@ Use this bucket when the tool solves one important slice of a larger workflow.
 - [GPT Researcher](../tools/agents/gpt-researcher.md) is strongest as a research and report-generation reference implementation.
 - [Letta](../tools/agents/letta.md) is worth studying when the hard problem is persistent memory, not simply tool calling.
 
-## Recommended Learning Order
+## Recommended Learning Order (June 2026 Update)
 
 ### Fundamentals
 
-1. [LangGraph](../tools/frameworks/langgraph.md)
-2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md)
+1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 4.7 for reasoning)
+2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5)
 3. [CrewAI](../tools/frameworks/crewai.md)
 4. [AutoGen](../tools/frameworks/autogen.md)
 
 ### Coding Agents
 
-1. [OpenHands](../tools/development_ops/openhands.md)
+1. [OpenHands](../tools/development_ops/openhands.md) (with Claude 4.7 / Aider)
 2. [OpenClaw](../tools/development_ops/openclaw.md)
 
 ### Specialised Patterns
@@ -129,6 +129,7 @@ For a low-cost, local-model-friendly agent stack with GitHub Actions and persona
 
 ## Practical Adoption Notes
 
+- **Model Selection**: As of mid-2026, Claude 4.7 is the preferred model for complex architectural planning and LangGraph orchestration, while GPT-5.5 excels at high-throughput tool calling.
 - Do not choose by popularity alone. Choose by workflow shape: coding, research, browser operation, personal assistant, or production application runtime.
 - Treat "good to study" and "good to run" as different decisions. AutoGen and OpenClaw are valuable to study even when LangGraph or OpenAI Agents SDK is the safer production default.
 - Keep specialised tools composable. Browser Use, GPT Researcher, and Letta are often better as components in a broader system than as the whole architecture.
@@ -161,5 +162,5 @@ For a low-cost, local-model-friendly agent stack with GitHub Actions and persona
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-06-07
 - Confidence: high
