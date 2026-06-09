@@ -504,6 +504,12 @@
       "doc_path": "docs/tools/ai_knowledge/colqwen.md"
     },
     {
+      "id": "comfyui",
+      "name": "ComfyUI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/comfyui.md"
+    },
+    {
       "id": "comet-opik",
       "name": "Comet Opik",
       "category": "Process & Understanding",
@@ -1136,6 +1142,12 @@
       "name": "Heretic / ARA",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/heretic-ara.md"
+    },
+    {
+      "id": "heygen",
+      "name": "HeyGen",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/heygen.md"
     },
     {
       "id": "hitl-ui",
