@@ -1,20 +1,21 @@
 # OpenTelemetry Collector
 
 ## What it is
-The OpenTelemetry (OTel) Collector is a vendor-agnostic proxy designed to receive, process, and export telemetry data, including traces, metrics, and logs. It serves as a centralized hub for observability in modern distributed systems, allowing developers to decouple data collection from backend storage and analysis platforms.
+The OpenTelemetry (OTel) Collector is a vendor-agnostic proxy designed to receive, process, and export telemetry data, including traces, metrics, and logs. As of June 2026, it serves as the backbone for AI observability, enabling seamless data flow between agentic frameworks (using **Claude 4.7**, **GPT-5.5**, or **Llama 4 Maverick**) and various storage or analysis backends.
 
 ## What problem it solves
 Managing telemetry in complex AI and cloud architectures often leads to "agent fatigue" and vendor lock-in. The Collector addresses these issues by:
 - **Unified Ingestion**: Providing a single endpoint for all telemetry signals (OTLP), removing the need for multiple vendor-specific agents.
 - **Data Transformation**: Allowing for real-time processing, such as scrubbing PII (Personally Identifiable Information), adding metadata (e.g., environment, version), and filtering noise before data is exported.
 - **Multi-Destination Routing**: Enabling a "send once, route many" pattern where data can be simultaneously sent to multiple backends (e.g., [Datadog](datadog.md) for production monitoring and a local [ClickHouse](clickhouse.md) for long-term audit logs).
-- **Protocol Translation**: Converting legacy formats (like Jaeger or Zipkin) into modern OTLP.
+- **Protocol Translation**: Converting legacy formats into modern OTLP.
+- **MCP Support**: Bridging telemetry from **Model Context Protocol (MCP)** sessions into standard observability pipelines.
 
 ## Where it fits in the stack
-The OpenTelemetry Collector sits in the **Observability Infrastructure** layer. it is positioned between the instrumented application (or streaming sources like OpenRouter) and the final observability backends.
+The OpenTelemetry Collector sits in the **Observability Infrastructure** layer. It is positioned between the instrumented application (or streaming sources like [OpenRouter](../ai_knowledge/openrouter.md)) and the final observability backends.
 
 ## Typical use cases
-- **AI Telemetry Routing**: Receiving LLM traces from sources like [OpenRouter](../ai_knowledge/openrouter.md) and routing them to [Sentry](sentry.md) for error tracking and [Langfuse](langfuse.md) for performance evaluation.
+- **AI Telemetry Routing**: Receiving LLM traces from sources like OpenRouter and routing them to [Sentry](sentry.md) for error tracking and [Langfuse](langfuse.md) for performance evaluation.
 - **PII Redaction**: Automatically identifying and masking sensitive user data in LLM prompt logs before they are sent to a cloud-based observability provider.
 - **Metric Aggregation**: Collecting infrastructure metrics from a K3s cluster and LLM usage metrics from an application, then unifying them in a [Grafana Cloud](grafana-cloud.md) dashboard.
 - **Tail-based Sampling**: High-volume AI applications can use the Collector to only export "interesting" traces (e.g., those with high latency or errors) while dropping standard successful requests to save on ingest costs.
@@ -97,10 +98,16 @@ otelcol validate --config=config.yaml
 otelcol --config=config.yaml
 ```
 
+### Check Version
+Verify the installed version of the OTel Collector:
+```bash
+otelcol --version
+```
+
 ## API examples
 
 ### Python (OTLP Trace Export)
-Configure your Python application to send data to the local Collector:
+Configure your Python application (e.g., a **Claude 4.7** agent) to send data to the local Collector:
 
 ```python
 from opentelemetry import trace
@@ -122,6 +129,27 @@ with tracer.start_as_current_span("ai-agent-run"):
     print("Telemetry being handled by OTel Collector")
 ```
 
+### JavaScript (OTLP Metric Export)
+Recording custom AI metrics (e.g., token consumption) to the Collector:
+
+```javascript
+const { MeterProvider } = require('@opentelemetry/sdk-metrics');
+const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
+
+const exporter = new OTLPMetricExporter({
+  url: 'http://localhost:4318/v1/metrics',
+});
+
+const meterProvider = new MeterProvider();
+const meter = meterProvider.getMeter('ai-usage-meter');
+
+const tokenCounter = meter.createCounter('tokens_consumed', {
+  description: 'Count of tokens consumed by the agent',
+});
+
+tokenCounter.add(150, { 'model': 'gpt-5.5-preview' });
+```
+
 ## Related tools / concepts
 - [Datadog](datadog.md) - Enterprise SaaS observability backend.
 - [Sentry](sentry.md) - Error tracking platform with OTLP support.
@@ -132,6 +160,7 @@ with tracer.start_as_current_span("ai-agent-run"):
 - [OpenRouter](../ai_knowledge/openrouter.md) - Source of streaming LLM logs that can be broadcast via OTLP.
 - [Grafana Cloud](grafana-cloud.md) - Unified visualization for OTel metrics and traces.
 - [PostHog](posthog.md) - Product analytics that can ingest OTel events.
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Protocol that can be instrumented via OTel.
 
 ## Sources / references
 - [OpenTelemetry Collector Documentation](https://opentelemetry.io/docs/collector/)
@@ -139,5 +168,5 @@ with tracer.start_as_current_span("ai-agent-run"):
 - [OpenRouter OTel Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/otel-collector)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
