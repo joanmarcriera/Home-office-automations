@@ -15,13 +15,13 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 - **Insurance Audits**: Providing a structured list of covered household items and their protection status.
 
 ## Strengths
-- **High Precision**: Focused extraction rules minimize "hallucination" of dates.
+- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5** or **Claude 4.7**.
 - **Standardized Schema**: Outputs are ready for consumption by databases and calendar APIs.
 - **Calculation Logic**: Moves the burden of date math (e.g., "12 months from today") from the user to the LLM.
 
 ## Limitations
 - **OCR Quality**: If the initial scan is poor, the LLM may misread dates or product names.
-- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context.
+- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context. Local models like **Llama 4 Maverick** are improving but may still require specific few-shot examples for these edge cases.
 
 ## When to use it
 - When integrating document management (Paperless-ngx) with task management (Vikunja).
@@ -81,7 +81,7 @@ Return a JSON object:
 ## n8n Workflow Integration Pattern
 1. **Trigger**: Paperless-ngx Webhook (Document Added with tag `Admin/Warranty`).
 2. **OCR Pull**: Fetch the full OCR text from the Paperless API.
-3. **LLM Node**: Use the prompt above with `ollama` or `openai`.
+3. **LLM Node**: Use the prompt above with **Ollama**, **GPT-5.5**, or **Claude 4.7**. **Model Context Protocol (MCP)** can be used here to dynamically fetch the required schema or update external databases.
 4. **Logic**:
     - If `expiration_date` is found, calculate reminder date (e.g., `expiration_date - 30 days`).
 5. **Target**: Create a task in **Vikunja** or an event in **Google Calendar** titled "Warranty Expiring: [Product Name]".
@@ -95,10 +95,12 @@ Return a JSON object:
 - [n8n](../../services/n8n.md): Orchestrating the extraction and alerting workflow.
 - [Metadata Schemas](../../reference-implementations/metadata-schemas/manuals.md): Related schemas for household documents.
 - [Scan-to-Task Playbook](../../playbooks/scan-to-task.md): End-to-end guide for this workflow.
+- [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / References
 - [Paperless-ngx Documentation](https://docs.paperless-ngx.com/)
 - [OpenAI Structured Outputs Guide](https://platform.openai.com/docs/guides/structured-outputs)
 
-- Last reviewed: 2026-05-11
+## Contribution Metadata
+- Last reviewed: 2026-06-08
 - Confidence: high

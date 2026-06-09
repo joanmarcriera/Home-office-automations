@@ -21,7 +21,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 
 ## Limitations
 - **Project Overlap**: Ambiguous tasks might be routed to the 'Inbox' if project descriptions are not distinct.
-- **Model Dependency**: Requires a model capable of reliable JSON output (e.g., GPT-4o, Claude 3.5 Sonnet, or GPT-5.4).
+- **Model Dependency**: Requires a model capable of reliable JSON output (e.g., **GPT-5.5**, **Claude 4.7**, or **Llama 4 Maverick**).
 
 ## When to use it
 - When you have more than 3-5 distinct projects in Vikunja.
@@ -89,7 +89,7 @@ Return a JSON object:
 
 ## Agent Integration Pattern
 1. **Intake**: User sends a message (e.g., "Remind me to fix the kitchen sink tomorrow").
-2. **Tool Call**: Agent calls `vikunja_query_tool` to get the list of active projects and their IDs.
+2. **Tool Call**: Agent calls `vikunja_query_tool` to get the list of active projects and their IDs. **Model Context Protocol (MCP)** can be used here to provide the agent with real-time access to the Vikunja API.
 3. **Reasoning**: Agent uses the prompt above to determine the correct project (Maintenance) and priority (3 or 5).
 4. **Execution**: Agent calls `vikunja_create_tool` with the determined metadata.
 5. **Feedback**: Agent confirms to the user: "I've added 'Fix kitchen sink' to your Maintenance list for tomorrow with medium priority."
@@ -102,10 +102,12 @@ Return a JSON object:
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md): Patterns for multi-step task execution.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md): Deciding which LLM to use for task triage.
 - [Email-to-Calendar Playbook](../../playbooks/email-to-calendar.md): A similar pattern for scheduling.
+- [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / References
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 - [JSON Schema Standard](https://json-schema.org/)
 
-- Last reviewed: 2026-05-11
+## Contribution Metadata
+- Last reviewed: 2026-06-08
 - Confidence: high
