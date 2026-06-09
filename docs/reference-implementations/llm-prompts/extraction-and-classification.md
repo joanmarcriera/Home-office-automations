@@ -22,7 +22,7 @@ This implementation sits in the **intelligent processing layer** of the ingestio
 ## Limitations
 - **Classification Ambiguity**: Documents that span multiple categories (e.g., a "Medical Bill") may be classified inconsistently depending on model temperature.
 - **Context Windows**: Extremely large documents may need to be summarized or chunked before classification to stay within token limits.
-- **Model Dependency**: Smaller local models may struggle with complex schema adherence compared to frontier models.
+- **Model Dependency**: Smaller local models may struggle with complex schema adherence compared to frontier models like **GPT-5.5** or **Claude 4.7**.
 
 ## When to use it
 - When you want to automate the transition from "digitized document" to "actionable task".
@@ -62,7 +62,7 @@ Response: One word only.
 ```
 
 ## JSON Schema for Structured Output
-To improve reliability with local models (e.g. `Qwen3-Coder-Next`), use **JSON Mode** or **Constrained Output** by providing a formal schema.
+To improve reliability with local models (e.g. `Qwen3-Coder-Next` or **Llama 4 Maverick**), use **JSON Mode** or **Constrained Output** by providing a formal schema. Modern models support **Model Context Protocol (MCP)** to dynamically pull these schemas from a central registry.
 
 ### Task Extraction Schema
 ```json
@@ -102,7 +102,7 @@ To ensure consistent priority detection with local LLMs, use the following defin
     - **Inspirational**: General suggestions or ideas (e.g., "maybe we should", "someday").
 
 ## Improved Prompt for Local LLMs (Example)
-To ensure the best results from models like `Qwen3-Coder-Next` or `Llama-3.1`, use a **Few-Shot** approach:
+To ensure the best results from models like `Qwen3-Coder-Next`, `Llama-3.1`, or **Llama 4 Maverick**, use a **Few-Shot** approach:
 
 ```text
 Extract actionable tasks from the following text. Use the priority definitions provided below.
@@ -134,6 +134,7 @@ Output: [{"task": "Paint the fence", "due_date": null, "priority": "low", "owner
 - [n8n Error Handling](../../knowledge_base/patterns/n8n-error-handling.md) — Pattern for retrying failed extractions.
 - [Document Preparation](../../playbooks/document-preparation-for-llm-training.md) — Enhancing OCR quality for better classification.
 - [n8n Service](../../services/n8n.md) — Orchestrator for these LLM prompts.
+- [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / References
 - [Home Office Automations](https://github.com/joanmarcriera/Home-office-automations)
@@ -141,4 +142,4 @@ Output: [{"task": "Paint the fence", "due_date": null, "priority": "low", "owner
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08

@@ -22,7 +22,7 @@ This implementation sits in the **LLM reasoning layer** of the ingestion pipelin
 ## Limitations
 - **Hallucination Risk**: LLMs may occasionally "invent" dates if the OCR text is highly garbled or ambiguous.
 - **Token Usage**: Long documents with a lot of irrelevant text can consume significant prompt tokens.
-- **Relative Date Complexity**: Highly complex relative dates (e.g., "the third Thursday after the first full moon") may still confuse smaller models.
+- **Relative Date Complexity**: Highly complex relative dates (e.g., "the third Thursday after the first full moon") may still confuse smaller models. Frontier models like **GPT-5.5** or **Claude 4.7** have significantly improved reasoning for complex temporal logic.
 
 ## When to use it
 - When you need to extract dates from unstructured documents where the layout is not consistent.
@@ -54,9 +54,10 @@ If no event is found, return {"event_name": null}.
 ## Implementation Notes
 - **Context injection**: Always provide the current year and date to the LLM to resolve relative terms like "next Tuesday".
 - **Validation**: Pass the result through a JSON validator node in n8n before reaching the calendar tool.
+- **MCP Integration**: Use the **Model Context Protocol (MCP)** to allow the model to query the current calendar state directly before proposing new events, reducing conflicts.
 
 ## Few-Shot Examples (Token-Efficient)
-Providing 1-2 examples helps local models understand the expected JSON structure without significantly increasing the token count.
+Providing 1-2 examples helps local models (like **Llama 4 Maverick**) understand the expected JSON structure without significantly increasing the token count.
 
 ```text
 Example 1:
@@ -76,6 +77,7 @@ Output: {"event_name": "School Play", "start_date": "2026-03-13T18:00:00", "end_
 - [n8n Error Handling](../../knowledge_base/patterns/n8n-error-handling.md) — Managing failed extraction attempts.
 - [n8n Service](../../services/n8n.md) — The primary orchestration tool for this prompt.
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — Related patterns for validating LLM outputs.
+- [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / References
 - [Home Office Automations](https://github.com/joanmarcriera/Home-office-automations)
@@ -83,4 +85,4 @@ Output: {"event_name": "School Play", "start_date": "2026-03-13T18:00:00", "end_
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
