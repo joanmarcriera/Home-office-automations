@@ -15,6 +15,14 @@ class PaperlessSearchArgs(BaseModel):
     tag_id: Optional[int] = Field(None, description="Filter by tag ID.")
     correspondent_id: Optional[int] = Field(None, description="Filter by correspondent ID.")
 
+class PaperlessUploadArgs(BaseModel):
+    file_path: str = Field(..., description="Local path to the document file to upload.")
+    title: Optional[str] = Field(None, description="Optional title for the document.")
+    created: Optional[str] = Field(None, description="Optional creation date in ISO 8601 format.")
+    tags: Optional[List[int]] = Field(None, description="Optional list of tag IDs to apply.")
+    correspondent_id: Optional[int] = Field(None, description="Optional correspondent ID.")
+    document_type_id: Optional[int] = Field(None, description="Optional document type ID.")
+
 class PaperlessSearchTool(BaseHomeTool):
     """Tool for searching documents in Paperless-ngx."""
 
@@ -75,8 +83,66 @@ class PaperlessSearchTool(BaseHomeTool):
         except requests.exceptions.RequestException as e:
             return f"Error searching Paperless-ngx: {str(e)}"
 
+class PaperlessUploadTool(BaseHomeTool):
+    """Tool for uploading documents to Paperless-ngx."""
+
+    @classmethod
+    def get_metadata(cls) -> ToolMetadata:
+        return ToolMetadata(
+            name="paperless_upload_tool",
+            description="Uploads a document to Paperless-ngx.",
+            args_schema=PaperlessUploadArgs,
+            category="automation"
+        )
+
+    async def run(self, file_path: str, title: Optional[str] = None, created: Optional[str] = None,
+                  tags: Optional[List[int]] = None, correspondent_id: Optional[int] = None,
+                  document_type_id: Optional[int] = None) -> str:
+        api_url = os.environ.get("PAPERLESS_API_URL", "http://localhost:8000/api")
+        api_token = os.environ.get("PAPERLESS_API_TOKEN")
+
+        if not api_token:
+            return "Error: PAPERLESS_API_TOKEN not set in environment."
+
+        if not os.path.exists(file_path):
+            return f"Error: File not found at {file_path}"
+
+        headers = {
+            "Authorization": f"Token {api_token}"
+        }
+
+        files = {
+            "document": open(file_path, "rb")
+        }
+
+        data = {}
+        if title:
+            data["title"] = title
+        if created:
+            data["created"] = created
+        if correspondent_id:
+            data["correspondent"] = correspondent_id
+        if document_type_id:
+            data["document_type"] = document_type_id
+        if tags:
+            data["tags"] = tags
+
+        try:
+            endpoint = f"{api_url.rstrip('/')}/documents/post_document/"
+            response = requests.post(endpoint, headers=headers, files=files, data=data, timeout=30)
+            response.raise_for_status()
+
+            return f"Document uploaded successfully. Status: {response.status_code}. Response: {response.text}"
+
+        except requests.exceptions.RequestException as e:
+            return f"Error uploading to Paperless-ngx: {str(e)}"
+        finally:
+            files["document"].close()
+
 if __name__ == "__main__":
     import asyncio
     async def main():
-        print("Paperless tool loaded.")
+        print("Paperless tools available:")
+        print(f"- {PaperlessSearchTool.get_metadata().name}: {PaperlessSearchTool.get_metadata().description}")
+        print(f"- {PaperlessUploadTool.get_metadata().name}: {PaperlessUploadTool.get_metadata().description}")
     asyncio.run(main())

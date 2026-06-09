@@ -1,6 +1,36 @@
 # Home Lab Hardware Reference
 
-A hardware-scoped reference for a two-machine home lab stack. Each machine has a distinct role determined by its compute profile: the TrueNAS server handles persistent services, GPU-accelerated workloads, and inference at smaller model sizes; the MacBook Pro M5 handles large-model development inference, taking advantage of Apple Silicon's unified memory architecture.
+## What it is
+A hardware-scoped reference for a two-machine home lab stack, detailing the specific compute profiles, VRAM limits, and workload routing for persistent services and development inference.
+
+## What problem it solves
+Managing a hybrid home lab (e.g., TrueNAS + MacBook) requires clear guidance on where to run specific AI workloads based on VRAM constraints and architecture (unified memory vs. dedicated GPU). This guide prevents resource contention and optimizes model placement.
+
+## Where it fits in the stack
+This is a **Knowledge Base** document sitting at the **Infrastructure** layer. it informs the deployment strategy for all tools in the `docs/tools/` and `docs/services/` categories.
+
+## Typical use cases
+- **Model Routing**: Deciding whether to run a 30B model on an M5 or a 7B model on an RTX 4060.
+- **Capacity Planning**: Estimating how many parallel video transcodes or LLM streams the lab can handle.
+- **Hardware Upgrades**: Benchmarking current performance against desired agentic workflows.
+
+## Strengths
+- **Role-Specific**: Clearly defines the "Persistent Service" (TrueNAS) vs. "Development" (M5) roles.
+- **Practical Limits**: Provides realistic "Fits?" and "⚠️ Tight" assessments based on real-world testing.
+- **Unified Endpoints**: Recommends LiteLLM for creating a seamless multi-machine API.
+
+## Limitations
+- **Hardware Specific**: Primarily focused on a specific RTX 4060 + M5 configuration.
+- **Static**: Requires manual updates as model architectures (like MoE) change their memory footprints.
+
+## When to use it
+- When adding a new LLM-powered service to the lab.
+- When configuring Ollama or vLLM backends.
+- When troubleshooting performance issues or out-of-memory errors.
+
+## When not to use it
+- For generic server hardware advice (e.g., non-AI homelab setups).
+- For enterprise-grade multi-GPU cluster configurations.
 
 ## Hardware inventory
 
@@ -103,7 +133,7 @@ Point all agents at the LiteLLM proxy and route by model alias.
 ## Sources / references
 
 - [NVIDIA RTX 4060 Specifications](https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4060/)
-- [Apple M5 Chip Overview](https://www.apple.com/newsroom/2025/03/apple-introduces-m4-ultra/)
+- [Apple Silicon unified memory performance](https://developer.apple.com/metal/pytorch/)
 - [Ollama Hardware Requirements](https://github.com/ollama/ollama/blob/main/docs/gpu.md)
 - [llama.cpp VRAM estimation](https://github.com/ggerganov/llama.cpp#memory-requirements)
 
