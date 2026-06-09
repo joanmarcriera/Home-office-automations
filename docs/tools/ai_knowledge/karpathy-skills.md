@@ -1,10 +1,10 @@
 # Andrej Karpathy Skills
 
 ## What it is
-A curated collection of skills and patterns inspired by Andrej Karpathy's approach to AI and software engineering, designed to help agents avoid basic pitfalls.
+A curated collection of skills and patterns inspired by Andrej Karpathy's approach to AI and software engineering, designed to help agents avoid basic pitfalls. As of June 2026, these guidelines have been optimized for the extreme capabilities and potential over-engineering tendencies of **Claude 4.7**, **GPT-5.5**, and **Llama 4 Maverick**.
 
 ## What problem it solves
-It codifies high-signal development habits and "instincts" into actionable patterns for AI agents.
+It codifies high-signal development habits and "instincts" into actionable patterns for AI agents. It specifically addresses the "hallucination of complexity" where advanced models attempt to solve simple problems with unnecessarily complex abstractions or massive library imports.
 
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Best Practices
@@ -13,19 +13,23 @@ It codifies high-signal development habits and "instincts" into actionable patte
 - **Agent Initialization**: Setting baseline "thinking" patterns for a new project.
 - **Workflow Optimization**: Reducing agent hallucinations and "looping" by enforcing clarifying questions.
 - **Code Review Standard**: Using the guidelines as a checklist for human or AI code reviews.
+- **MCP Constraint Enforcement**: Applying these patterns as system instructions for **Model Context Protocol** servers.
 
 ## Strengths
 - **Low Overhead**: Simple Markdown-based guidelines that don't require complex infrastructure.
 - **High Signal**: Focuses on the most common and damaging mistakes made by AI agents.
 - **Developer-Centric**: Aligns AI behavior with senior-level software engineering best practices.
+- **Adaptive**: The "Simplicity First" rule becomes more valuable as models become more powerful and prone to over-engineering.
 
 ## Limitations
 - **Opinionated**: Some patterns might conflict with specific project styles or requirements.
 - **Manual Enforcement**: Outside of Claude Code, requires manual inclusion in system prompts or project context.
+- **Nuance Dependent**: Requires the model to have sufficient "self-awareness" to identify when it is over-complicating.
 
 ## When to use it
 - When you find your AI agent is making "obvious" mistakes or over-complicating solutions.
 - At the start of a new project to establish a high bar for code quality.
+- When configuring autonomous agents like [Jules](jules.md) for long-horizon tasks.
 
 ## When not to use it
 - For highly experimental or "creative" coding where standard constraints might be too restrictive.
@@ -52,13 +56,14 @@ Alternatively, you can manually add the `CLAUDE.md` to your project:
 curl -o CLAUDE.md https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/CLAUDE.md
 ```
 
-### Sample CLAUDE.md Snippet
+### Sample CLAUDE.md Snippet (June 2026 Edition)
 ```markdown
 ## Karpathy Instincts
 - **Think Before Coding**: Surface tradeoffs. Ask when unclear.
-- **Simplicity First**: Minimal code. No speculative features.
+- **Simplicity First**: Minimal code. No speculative features. Avoid "Frontier-Model Bloat."
 - **Surgical Changes**: Touch only what you must. Match existing style.
 - **Goal-Driven Execution**: Define success criteria. Loop until verified.
+- **MCP Awareness**: Leverage tool-calling for state verification, not just text generation.
 ```
 
 ### Basic usage
@@ -70,7 +75,7 @@ Once installed, the guidelines are automatically applied by the AI agent during 
 ## Thinking Pattern Example: Handling Ambiguity
 When faced with a vague request like "Fix the auth," an agent using Karpathy/Pocock skills avoids jumping straight into code.
 
-**Agent Thinking Process:**
+**Agent Thinking Process (GPT-5.5):**
 1. **Initial Impulse**: Look for `auth.py` and start changing login logic.
 2. **Skill Check (Simplicity/Surgical)**: Wait. "Fix the auth" is ambiguous. I need more context to be surgical and avoid over-engineering.
 3. **Action**: Ask the user: "Could you specify if this is a bug with the current login flow, an integration issue with the new provider, or a request for a new feature like MFA?"
@@ -101,11 +106,12 @@ The skills can be managed via the Claude Code CLI:
 - [Claude Code](../development_ops/claude-code.md)
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
 - [Superpowers](../agents/superpowers.md)
+- [Model Context Protocol](../../tools/automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Andrej Karpathy Skills (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills)
 - [Andrej Karpathy's Recommendations for LLMs](https://karpathy.ai/llm.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
