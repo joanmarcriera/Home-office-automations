@@ -7,14 +7,15 @@ AgentOps is a specialized observability and development platform designed specif
 Developing autonomous agents is uniquely challenging due to their non-deterministic nature and the complexity of multi-turn interactions. AgentOps solves the "black box" problem by providing:
 - **Execution Transparency**: Step-by-step agent execution graphs and session replays.
 - **Reliability Tracking**: Identification of infinite loops, recursive thoughts, and faulty reasoning patterns.
-- **Cost Management**: Real-time tracking of spend across various LLM providers (OpenAI, Anthropic, Cohere, etc.).
+- **Cost Management**: Real-time tracking of spend across 400+ LLM providers via gateways like [LiteLLM](../../services/litellm.md).
 - **Benchmarking**: Evaluation metrics to measure agent success and performance over time.
 
 ## Where it fits in the stack
-AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration.
+AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **Multi-Agent Orchestration**: Monitoring interactions and handoffs between multiple agents in frameworks like [CrewAI](../frameworks/crewai.md) or AG2 ([AutoGen](../frameworks/autogen.md)).
+- **MCP Tool Observability**: Tracking calls to [MCP](../automation_orchestration/mcp.md) servers to identify tool latency and failure rates.
 - **Debugging Tool Failures**: Investigating exactly why an agent selected a specific tool and how it handled the tool's output.
 - **Production Session Analysis**: Replaying user-agent interactions to identify edge cases and improve agent reliability.
 - **Token and Bill Tracking**: Monitoring real-time costs of long-running autonomous tasks across multiple model providers.
@@ -22,7 +23,7 @@ AgentOps sits in the **AI Observability and Developer Tooling** layer. It is spe
 ## Strengths
 - **Framework Native**: Deep, often two-line integrations with [CrewAI](../frameworks/crewai.md), [AutoGen](../frameworks/autogen.md), LangChain, and LlamaIndex.
 - **Agent-Centric UI**: A dashboard designed for agentic flows, featuring session replays, event graphs, and agent metadata.
-- **Comprehensive SDK**: Rich Python SDK with decorators for tracking sessions, agents, operations, and tasks with minimal code changes.
+- **Fine-tuning Support**: Ability to export successful agent completions to fine-tune specialized models, reducing costs by up to 25%.
 - **PII Detection**: Built-in security features like honeypot and prompt injection detection (via PromptArmor).
 
 ## Limitations
@@ -40,6 +41,12 @@ AgentOps sits in the **AI Observability and Developer Tooling** layer. It is spe
 - For basic chat applications where standard request/response logging (like [Helicone](helicone.md)) is sufficient.
 - If you require a purely local, offline observability tool without any cloud component.
 - If your application does not follow agentic patterns (no autonomous tool use or multi-step reasoning).
+
+## Agent Ecosystem Standard (June 2026)
+As part of the repository's standardized June 2026 benchmark, AgentOps is the recommended platform for monitoring reasoning-heavy models including:
+- **Claude 4.7**: Optimized for long-horizon agentic tasks and MCP-based tool use.
+- **GPT-5.5**: High-performance multi-modal reasoning and complex planning.
+- **Llama 4 Maverick**: Frontier-grade open model performance for local or sovereign deployments.
 
 ## Getting started
 
@@ -93,7 +100,8 @@ def run_research():
 - [Helicone](helicone.md) - Proxy-based LLM observability.
 - [Arize AI](arize-ai.md) - Enterprise-grade observability and evaluation.
 - [W&B Weave](wandb-weave.md) - Lightweight tracing for ML workflows.
-- [Comet Opik](comet-opik.md) - Open-source evaluation and observability platform.
+- [MCP](../automation_orchestration/mcp.md) - Protocol for connecting agents to data/tools.
+- [Claude](../ai_knowledge/claude.md) - Primary frontier model for agentic workflows.
 - [CrewAI](../frameworks/crewai.md) - Multi-agent framework with native AgentOps support.
 - [AutoGen](../frameworks/autogen.md) - Microsoft's agent orchestration framework.
 - [LiteLLM](../../services/litellm.md) - Gateway that integrates with AgentOps for cost tracking.
@@ -104,5 +112,5 @@ def run_research():
 - [AgentOps GitHub Repository](https://github.com/AgentOps-AI/agentops)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
