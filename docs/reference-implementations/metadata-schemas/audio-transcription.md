@@ -14,24 +14,14 @@ This schema belongs to the **data contract and metadata layer**. It bridges the 
 - **Archiving Meetings**: Storing personal voice memos or recorded calls with high-precision timestamps for quick playback of specific segments.
 - **Audiobook Enrichment**: Creating a searchable index of local audiobooks, allowing for keyword search across hundreds of hours of audio.
 
-## Strengths
-- **Granular Timing**: Segment-level timestamps allow for deep-linking into audio files.
-- **Speaker Aware**: Native support for speaker IDs enables filtering searches by specific participants.
-- **Confidence Tracking**: Probability scores help identify segments that may require manual correction or human-in-the-loop review.
+## Model Context Protocol (MCP) Integration
+As of June 2026, structured audio metadata is increasingly served via **MCP servers** to facilitate agentic search and retrieval.
 
-## Limitations
-- **Processing Overhead**: Generating high-fidelity metadata (especially speaker diarization) significantly increases transcription time.
-- **Storage Size**: JSON metadata for long audio files can become quite large due to the high density of segments.
-
-## When to use it
-- When building a local RAG (Retrieval-Augmented Generation) system over audio collections.
-- When you need to provide a UI that allows users to "jump to" specific words in a long audio recording.
-
-## When not to use it
-- For real-time, transient transcriptions where metadata persistence is not required.
-- If only the raw text is needed without any timing or speaker context.
+- **Semantic Search**: An agent can use an MCP tool to query the audio transcription database using natural language, retrieving specific segments based on meaning rather than just keywords.
+- **Deep Linking**: MCP tools can return direct links to specific timestamps in audio files (e.g., `nfs://nas/audio/podcasts/episode1.mp3#t=300`), allowing agents to "play" the relevant segment for the user.
 
 ## Pydantic Schema Definition
+The schema is implemented using Pydantic in [transcribe_audio.py](../../scripts/transcribe_audio.py).
 
 ```python
 from datetime import datetime
@@ -69,11 +59,42 @@ class AudioTranscriptionMetadata(BaseModel):
 
 ```
 
+## Getting started
+
+### 1. Transcribe an Audio File
+Use the reference implementation to generate metadata for an MP3 file.
+```bash
+python3 scripts/transcribe_audio.py /path/to/audio.mp3 --output metadata.json --model distil-large-v3
+```
+
+### 2. Inspect the Metadata
+The output `metadata.json` will follow the Pydantic schema defined above, including timestamps and full text.
+
+### 3. Index for Search
+Use the [Unified Search API](../../scripts/unified_search.py) patterns to index the generated JSON into your local vector database.
+
+## Strengths
+- **Granular Timing**: Segment-level timestamps allow for deep-linking into audio files.
+- **Speaker Aware**: Native support for speaker IDs enables filtering searches by specific participants.
+- **Confidence Tracking**: Probability scores help identify segments that may require manual correction or human-in-the-loop review.
+
+## Limitations
+- **Processing Overhead**: Generating high-fidelity metadata (especially speaker diarization) significantly increases transcription time.
+- **Storage Size**: JSON metadata for long audio files can become quite large due to the high density of segments.
+
+## When to use it
+- When building a local RAG (Retrieval-Augmented Generation) system over audio collections.
+- When you need to provide a UI that allows users to "jump to" specific words in a long audio recording.
+
+## When not to use it
+- For real-time, transient transcriptions where metadata persistence is not required.
+- If only the raw text is needed without any timing or speaker context.
+
 ## Integration with Unified Search
 
 When indexing audio transcriptions into the Vector DB or BM25 index:
 
-1.  **Chunks**: Long transcripts should be chunked by chapters or fixed time intervals (e.g., 5 minutes) with overlapping windows.
+1.  **Chunks**: Long transcripts should be chunked by chapters or fixed time intervals (e.g., 5 minutes) with overlapping windows using **Claude 4.7** for high-quality summarization.
 2.  **Metadata Fields**:
     *   `source_type`: `audio`
     *   `title`: The name of the audiobook or podcast episode.
@@ -83,7 +104,7 @@ When indexing audio transcriptions into the Vector DB or BM25 index:
 ## Extraction Logic
 
 1.  **Speaker ID**: Use a diarization model (like `pyannote-audio`) as a post-processing step if multiple speakers are detected.
-2.  **Chapters**: If the source file doesn't have metadata chapters, use an LLM to identify topic transitions from the text segments.
+2.  **Chapters**: If the source file doesn't have metadata chapters, use **GPT-5.5** or **Claude 4.7** to identify topic transitions from the text segments.
 
 ## Related tools / concepts
 - [Audio Transcription Research](../../knowledge_base/audio-transcription-research.md) — Baseline research on Whisper and speaker diarization.
@@ -93,11 +114,12 @@ When indexing audio transcriptions into the Vector DB or BM25 index:
 - [Manuals Schema](manuals.md) — Similar metadata structure for physical document archival.
 - [Paperless Tag Taxonomy](../paperless/tag-taxonomy.md) — How transcribed audio is tagged within the broader homelab.
 - [Transcription Script](../../scripts/transcribe_audio.py) — The reference implementation for generating this schema.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — For serving structured audio metadata to agents.
 
 ## Sources / references
 - [OpenAI Whisper Segment Schema](https://github.com/openai/whisper)
 - [Pydantic Documentation](https://docs.pydantic.dev/latest/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high

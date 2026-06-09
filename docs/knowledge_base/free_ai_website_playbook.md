@@ -60,11 +60,44 @@ Free tiers are best for distribution, validation, and early workflow testing. Th
 - If your application requires heavy background processing exceeding serverless limits.
 - When handling highly sensitive or regulated data requiring private infrastructure.
 
+## Model Context Protocol (MCP) Integration
+As of June 2026, using **Claude 4.7**, **GPT-5.5**, or **Llama 4 Maverick** with MCP servers is the recommended way to scaffold and manage these sites.
+
+- **Environment Management**: Use an MCP server to securely inject environment variables (like `SUPABASE_KEY` or `OPENAI_API_KEY`) into your deployment pipeline.
+- **Scaffolding**: Leverage agentic tools to generate the boilerplate for [Vercel](../tools/development_ops/vercel.md) or [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md) directly from a natural language prompt.
+- **Automated Deployment**: Instruct the agent to run the necessary CLI commands (Wrangler or Vercel CLI) to push changes to production.
+
 ## Getting started
-1. **Choose your Archetype**: Determine if you are building a landing page, a doc site, or a full app MVP.
-2. **Select your Host**: Use the Selection Matrix above to pick the best provider.
-3. **Draft your Prompt**: Use the [How to instruct the LLM](#how-to-instruct-the-llm) section to generate your code.
-4. **Deploy**: Push your code to GitHub and connect it to your chosen host.
+
+### 1. Choose your Archetype
+Determine if you are building a landing page, a doc site, or a full app MVP.
+
+### 2. Select your Host
+Use the Selection Matrix above to pick the best provider.
+
+### 3. Draft your Prompt
+Use the [How to instruct the LLM](#how-to-instruct-the-llm) section to generate your code using **Claude 4.7** or **GPT-5.5**.
+
+### 4. Deploy via CLI
+Use the provider's CLI to deploy your site.
+
+#### Vercel CLI Example
+```bash
+npm install -g vercel
+vercel login
+# Initialize and deploy
+vercel
+# Deploy to production
+vercel --prod
+```
+
+#### Cloudflare Wrangler Example
+```bash
+npm install -g wrangler
+wrangler login
+# Deploy to Cloudflare Pages
+wrangler pages deploy ./public --project-name=my-free-site
+```
 
 ## Website archetypes
 
@@ -132,6 +165,7 @@ Backend: [none / Supabase / external API].
 - [AI Builder Index](ai_builder_index.md)
 - [AI Company Starter Stack](ai_company_starter_stack.md)
 - [AI Tooling Landscape](ai_tooling_landscape.md)
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
 
 ## Sources / References
 - [Vercel Pricing](https://vercel.com/pricing)
@@ -140,5 +174,5 @@ Backend: [none / Supabase / external API].
 - [GitHub Pages Overview](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high

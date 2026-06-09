@@ -7,11 +7,17 @@ This document defines the logic and formatting rules for mapping extracted metad
 LLM extraction outputs are often unstructured or follow inconsistent naming conventions. This reference implementation ensures that data is sanitized, formatted, and enriched correctly before being pushed to the calendar API, preventing "trash" data from cluttering the user's schedule.
 
 ## Where it fits in the stack
-This logic resides in the **Data Transformation** step of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like n8n.
+This logic resides in the **Data Transformation** step of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like n8n or via an MCP server.
+
+## Model Context Protocol (MCP) Integration: Chronos MCP
+As of June 2026, calendar mappings are increasingly handled by the **Chronos MCP** server, which provides a unified interface for CalDAV (Proton, Nextcloud) and Google Calendar.
+
+- **Unified Event Creation**: Chronos MCP allows agents (using **Claude 4.7** or **GPT-5.5**) to create events across different providers using a single standardized tool call.
+- **Dynamic Mapping**: The MCP server can apply these mapping rules automatically during the event creation process, ensuring consistency across the entire homelab.
 
 ## Mapping Table
 
-How extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/google_calendar.md) event fields.
+How extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/google_calendar.md) and Chronos MCP event fields.
 
 | Extracted Field | Calendar Field | Logic / Format |
 | :--- | :--- | :--- |
@@ -26,6 +32,25 @@ How extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/goo
 - **Automatic Bill Reminders**: Mapping the due date of a scanned PDF bill to a calendar reminder.
 - **Appointment Scheduling**: Extracting dates from confirmation emails and creating events.
 - **School Schedule Integration**: Processing school newsletters to add holidays and parent-teacher meetings to the family calendar.
+
+## Getting started
+
+### 1. Extract Metadata
+Use **Claude 4.7** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object from a document.
+```json
+{
+  "event_name": "Water Bill Due",
+  "start_date": "2026-06-20T12:00:00Z",
+  "location": "Online Portal",
+  "doc_id": "12345"
+}
+```
+
+### 2. Apply Mapping Rules
+Pass this JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the Chronos MCP server.
+
+### 3. Verify in Calendar
+Check your primary calendar for the new event, ensuring the description contains the source link and reasoning.
 
 ## Strengths
 - **Consistency**: Ensures every AI-generated event follows the same structural pattern.
@@ -55,6 +80,8 @@ How extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/goo
 - [HITL UI Design](../hitl-ui-design.md): The interface for reviewing these mappings before they are committed.
 - [Vikunja](../../services/vikunja.md): Alternative target for task-based "events".
 - [Habitica](../../services/habitica.md): For mapping recurring habits or chores derived from documents.
+- [Chronos MCP](../../scripts/calendar_tool.py): The reference implementation for CalDAV and GCal unified event management.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): For unified calendar event creation.
 
 ## Sources / references
 - [Google Calendar API Reference](https://developers.google.com/calendar/api/v3/reference/events/insert)
@@ -62,5 +89,5 @@ How extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/goo
 - [Home Office Automations (GitHub)](https://github.com/joanmarcriera/Home-office-automations)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
