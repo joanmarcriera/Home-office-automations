@@ -4,14 +4,14 @@
 The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP).
 
 ## What problem it solves
-The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider.
+The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 4.7/4.8** and **GPT-5.5** as the standard reasoning engines of June 2026.
 
 ## Where it fits in the stack
 It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-support tool that sits between the **Providers** (Layer 1) and **Applications** (Layer 7), helping users navigate the connectivity options between them.
 
 ## Typical use cases
 - **Assistant Selection**: Deciding between ChatGPT and Claude based on native Google Workspace integration.
-- **Agent Comparison**: Comparing coding agents like Cursor and Claude Code for their MCP support.
+- **Agent Comparison**: Comparing coding agents like [Cursor](../tools/development_ops/cursor.md) and [Claude Code](../tools/development_ops/claude-code.md) for their MCP support.
 - **Infrastructure Planning**: Filtering for tools that allow "BYO remote AI" or local-first execution for privacy-sensitive work.
 - **Automation Triage**: Identifying which tools can be controlled via CLI or TUI for integration into custom scripts.
 
@@ -19,6 +19,7 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 - **Multi-Dimensional Evaluation**: Tracks 10+ practical dimensions including UI shape, CLI availability, and self-host status.
 - **Provider Agnostic**: Highlights which tools allow switching between OpenAI, Anthropic, or local models.
 - **Direct Linkage**: Every tool in the matrix is linked to its canonical documentation page in this repository.
+- **June 2026 Freshness**: Incorporates the latest [MCP](../tools/automation_orchestration/mcp.md) server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
 
 ## Limitations
 - **High Temporal Decay**: Native integrations and "access surfaces" change rapidly as providers update their products.
@@ -136,9 +137,9 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [PydanticAI](../tools/frameworks/pydantic-ai.md) | Agent framework | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟠 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | Developer framework centered on typed Python agents. |
 | [LlamaIndex](../tools/ai_knowledge/llamaindex.md) | Context / agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | Strong context and RAG layer. |
 | [LlamaIndex.TS](../tools/ai_knowledge/llamaindex-ts.md) | TypeScript context / agent framework | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | TypeScript counterpart for context-heavy apps. |
-| [LlamaParse](../tools/intake_storage/llamaparse.md) | Document AI / OCR | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Document parsing service rather than an agent. |
+| [LlamaParse](../tools/intake_storage/llamaparse.md) | Document AI / OCR | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Document parsing service with native [MCP](../tools/automation_orchestration/mcp.md) support. |
 | [Dify](../tools/ai_knowledge/dify.md) | Agent/workflow platform | 🟢 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | App builder with workflow and agent surfaces. |
-| [Vellum](../tools/automation_orchestration/vellum.md) | AI assistant / orchestration | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Hosted workflow platform with local computer-use. |
+| [Vellum](../tools/automation_orchestration/vellum.md) | AI assistant / orchestration | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Hosted workflow platform with local computer-use and [MCP](../tools/automation_orchestration/mcp.md) support. |
 | [Rivet](../tools/frameworks/rivet.md) | Visual AI IDE | 🟢 | 🔴 | 🔴 | 🟠 | 🟠 | 🟢 | 🔴 | 🔴 | 🟠 | 🟢 | 🟠 | 🔴 | Visual workflow IDE; self-host status depends on deployment path. |
 | [LiteLLM](../services/litellm.md) | LLM gateway | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | High-value provider abstraction and routing layer. |
 | [OpenRouter](../tools/ai_knowledge/openrouter.md) | Model router / API | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | Hosted model router with broad OpenAI-compatible API coverage. |
@@ -179,6 +180,7 @@ The supplementary list extends the comparison beyond end-user assistants into fr
 | [Snowflake](../tools/process_understanding/snowflake.md) | Data warehouse | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | Cloud data warehousing; supports LLM analytics via Cortex. |
 | [S3 / S3-Compatible](../tools/intake_storage/s3-storage.md) | Object storage | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🟢 | Scalable object storage for datasets and logs. |
 | [OTel Collector](../tools/process_understanding/opentelemetry-collector.md) | Telemetry pipeline | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | Vendor-agnostic telemetry collection and routing. |
+| [Unstructured](../tools/intake_storage/unstructured.md) | Data processing | 🟢 | 🔴 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | Foundation for RAG; supports native [MCP](../tools/automation_orchestration/mcp.md) via `UNS-MCP`. |
 
 ## Practical scoring dimensions
 
@@ -228,8 +230,10 @@ The most practical stack is often layered: a native assistant for research, a lo
 - [Z.ai docs](https://docs.z.ai/)
 - [OpenRouter documentation](https://openrouter.ai/docs)
 - [LiteLLM documentation](https://docs.litellm.ai/)
+- [LlamaParse MCP: Agentic OCR tools](https://www.llamaindex.ai/blog/llamaparse-mcp-the-tooling-layer-for-your-document-agents)
+- [Unstructured MCP Server (UNS-MCP)](https://github.com/Unstructured-IO/UNS-MCP)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-12
+- Last reviewed: 2026-06-08
 - Confidence: high

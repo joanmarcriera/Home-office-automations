@@ -1,23 +1,25 @@
 # Unstructured.io
 
 ## What it is
-An open-source library and platform for pre-processing and "unstructuring" messy data (PDFs, HTML, Word docs) into AI-ready formats.
+An open-source library and platform for pre-processing and "unstructuring" messy data (PDFs, HTML, Word docs) into AI-ready formats. It is a foundational tool for building high-quality RAG pipelines.
 
 ## What problem it solves
-It automates the ingestion of diverse document types, handling complex layouts and extracting clean text and metadata for RAG pipelines.
+It automates the ingestion of diverse document types, handling complex layouts and extracting clean text and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that LLMs like **Claude 4.7** and **GPT-5.5** receive structured, high-signal context.
 
 ## Where it fits in the stack
-**Category**: Intake & Storage / Data Processing
+**Category**: Intake & Storage / Data Processing. It acts as the "ETL for LLMs," sitting between raw data sources and vector databases.
 
 ## Typical use cases
-- **RAG Pipelines**: Extracting text and metadata from varied document sets for vector database ingestion.
+- **RAG Pipelines**: Extracting text and metadata from varied document sets for ingestion into [Weaviate](../infrastructure/weaviate.md) or [Pinecone](../infrastructure/pinecone.md).
 - **Data Lake Hydration**: Normalizing disparate document formats (PDF, Word, Email) into a standard JSON/Markdown format.
 - **Knowledge Graph Construction**: Extracting structured elements and relationships from messy documents.
+- **Agentic Workflows**: Using the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) to give agents real-time parsing capabilities.
 
 ## Strengths
 - **Broad Format Support**: Handles 20+ file types including PDF, HTML, Word, and PowerPoint.
 - **Open-Source & Local**: Can be run fully offline without data leaving your infrastructure.
 - **Layout Awareness**: Not just OCR; it understands headers, lists, and tables.
+- **June 2026 Optimized**: Fully supports **Llama 4 Maverick** tokenization and native [MCP](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
 
 ## Limitations
 - **Resource Intensive**: Complex partitioning (especially with vision models) requires significant CPU/GPU.
@@ -64,24 +66,6 @@ elements = partition(filename="example.pdf")
 
 for element in elements:
     print(element)
-```
-
-## CLI examples
-```bash
-# Process a local directory and output JSON
-unstructured-ingest local \
-  --input-path example-docs \
-  --output-dir unstructured-output \
-  --num-processes 2 \
-  --recursive \
-  --verbose
-
-# Process from S3 (requires [s3] extra)
-unstructured-ingest s3 \
-  --remote-url s3://my-bucket/documents/ \
-  --output-dir s3-output \
-  --anonymous \
-  --recursive
 ```
 
 ### Python S3 Ingestion Example
@@ -134,6 +118,27 @@ for chunk in elements:
     print(f"Content: {chunk.text[:50]}...")
 ```
 
+## CLI examples
+```bash
+# Process a local directory and output JSON
+unstructured-ingest local \
+  --input-path example-docs \
+  --output-dir unstructured-output \
+  --num-processes 2 \
+  --recursive \
+  --verbose
+
+# Process from S3 (requires [s3] extra)
+unstructured-ingest s3 \
+  --remote-url s3://my-bucket/documents/ \
+  --output-dir s3-output \
+  --anonymous \
+  --recursive
+
+# Start the UNS-MCP server (June 2026)
+uvx uns_mcp
+```
+
 ## API examples
 ```python
 import requests
@@ -157,13 +162,19 @@ print(response.json())
 - [LlamaParse](llamaparse.md)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Docling](../process_understanding/docling.md)
-- [RAG](../../knowledge_base/patterns/rag.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Claude 4.7](../providers/anthropic.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
+- [Weaviate](../infrastructure/weaviate.md)
 
 ## Sources / references
 - [Unstructured.io Website](https://unstructured.io/)
 - [Unstructured Ingest Documentation](https://unstructured-io.github.io/unstructured/ingest/overview.html)
 - [Chunking Strategies](https://unstructured-io.github.io/unstructured/core/chunking.html)
+- [Unstructured MCP Server (UNS-MCP)](https://github.com/Unstructured-IO/UNS-MCP)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
