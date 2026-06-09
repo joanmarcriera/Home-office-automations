@@ -7,12 +7,18 @@ A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-drive
 LLMs occasionally hallucinate or misinterpret dates and priorities in scanned documents. Automatically pushing these to a calendar can lead to cluttered or incorrect schedules. This UI provides a "staging area" for human verification, ensuring 100% accuracy for critical data like bill due dates or medical appointments.
 
 ## Where it fits in the stack
-This interface sits in the **Interaction** layer of the AI-augmented home office. It acts as an optional "gatekeeper" within a workflow, triggered after the **AI Service** layer has processed a document but before the **Productivity API** layer has written the final result.
+This interface sits in the **Interaction** layer of the AI-augmented home office. It acts as an optional "gatekeeper" within a workflow, triggered after the **AI Service** layer (using **Claude 4.7** or **GPT-5.5**) has processed a document but before the **Productivity API** layer has written the final result.
 
 ## Architecture
-- **Backend**: FastAPI (Python) for high performance and easy JSON validation.
-- **Frontend**: Streamlit for rapid prototyping and Python-native integration.
+- **Backend**: FastAPI (Python) or the built-in logic in [Home Admin Agent](../../scripts/home_admin_agent.py).
+- **Frontend**: Streamlit (see [Home Admin UI](../../scripts/home_admin_ui.py)) for rapid prototyping and Python-native integration.
 - **Storage**: SQLite (standard) or PostgreSQL for the staging database.
+
+## Model Context Protocol (MCP) Integration
+As of June 2026, HITL actions are increasingly exposed via **MCP servers**.
+
+- **Agentic Review**: An agent (like Claude Code) can detect that a document requires human verification and use an MCP tool to "stage" the document and notify the user.
+- **Human Response**: Once the human approves the data in the UI, the MCP server can emit an event or update a status that the autonomous agent can then act upon to complete the workflow.
 
 ## Backend API Endpoints
 
@@ -28,7 +34,7 @@ This interface sits in the **Interaction** layer of the AI-augmented home office
       "source_document_url": "https://paperless.home/...",
       "original_metadata": {
         "title": "Water Bill",
-        "due_date": "2024-05-20",
+        "due_date": "2026-06-20",
         "amount": 45.50
       }
     }
@@ -66,6 +72,23 @@ This interface sits in the **Interaction** layer of the AI-augmented home office
 - **Appointment Capture**: Confirming dates and times extracted from medical or school correspondence.
 - **Data Labeling**: Using the corrections made in the UI to create a "golden dataset" for fine-tuning future LLM extractions.
 
+## Getting started
+
+### 1. Set up the Environment
+Ensure you have the required dependencies for the Home Admin UI.
+```bash
+pip install streamlit fastapi pydantic
+```
+
+### 2. Run the UI
+Launch the reference Streamlit implementation.
+```bash
+streamlit run scripts/home_admin_ui.py
+```
+
+### 3. Integrate with n8n
+Configure your n8n workflow to send extracted metadata to the `POST /staged-docs` endpoint instead of directly to the final service.
+
 ## Frontend Design (Streamlit)
 - **Sidebar**: Filter by date or document type.
 - **Main View**:
@@ -94,7 +117,7 @@ This interface sits in the **Interaction** layer of the AI-augmented home office
 - For high-velocity automated systems where human intervention is physically impossible.
 
 ## Integration Flow
-1. **n8n** extracts data from a new document.
+1. **n8n** extracts data from a new document using **Claude 4.7**.
 2. Instead of calling the Calendar API, n8n calls `POST /staged-docs`.
 3. User receives a notification (Telegram/Mobile) to check the HITL UI.
 4. User reviews data in Streamlit.
@@ -108,12 +131,14 @@ This interface sits in the **Interaction** layer of the AI-augmented home office
 - [Vikunja](../services/vikunja.md): For creating tasks after human verification.
 - [Habitica](../services/habitica.md): For gamifying the document review process.
 - [Nextcloud](../services/nextcloud.md): For storing the final verified documents and their metadata.
+- [Home Admin UI](../../scripts/home_admin_ui.py): The reference Streamlit implementation.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md): For exposing HITL actions to autonomous agents.
 
 ## Sources / references
-- [KnowledgeOps Documentation](../../docs/standards-and-conventions.md)
+- [KnowledgeOps Documentation](../../docs/standards.md)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Streamlit Documentation](https://docs.streamlit.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high

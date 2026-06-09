@@ -14,23 +14,11 @@ The schema sits at the **Data Management layer**. It is used by **Document Manag
 - **Maintenance Reminders**: Extracting service intervals from a car manual to create calendar events.
 - **Home Inventory**: Building a digital twin of a home's appliances with direct links to their manuals.
 
-## Strengths
-- **Granularity**: Section-aware page ranges allow for precise retrieval.
-- **Consistency**: Standardizes how model numbers and manufacturers are recorded across the library.
-- **LLM-Friendly**: Structured metadata makes it easier for LLMs to filter results before reading content.
+## Model Context Protocol (MCP) Integration
+As of June 2026, manuals are increasingly queried via **MCP servers** that interface with local vector databases.
 
-## Limitations
-- **Manual Effort**: Initially requires identifying page ranges for key sections (unless automated via LLM).
-- **Schema Evolution**: May need updates as new types of appliances or technical documents are added.
-
-## When to use it
-- When building a "Household Manual RAG" system.
-- For high-stakes appliances where troubleshooting speed is critical (HVAC, security systems).
-- When digitizing a large physical library of paper manuals.
-
-## When not to use it
-- For simple, one-page quick start guides.
-- If the manufacturer provides a robust, searchable online portal that the agent can already access.
+- **Direct Querying**: Agents can use MCP tools to ask specific questions about a manual (e.g., "How do I clean the filter on my Bosch dishwasher?") and receive precisely chunked sections.
+- **Auto-Discovery**: MCP servers can expose tools to list all available manuals and their associated metadata (manufacturer, model) to autonomous agents.
 
 ## Purpose
 This schema defines how scanned household manuals should be tagged and indexed in Paperless-ngx and subsequently stored in a vector database for RAG.
@@ -53,16 +41,45 @@ manual_metadata:
     - "Appliance/Kitchen" # Example category
 ```
 
-## Implementation in Paperless-ngx
+## Getting started
+
+### 1. Process a Manual
+Use the reference implementation to extract text and sections from a PDF.
+```bash
+python3 scripts/process_manuals.py /path/to/manual.pdf --output processed_manual.json --chroma-dir ./chroma_db
+```
+
+### 2. Configure Paperless-ngx
 1. **Custom Fields**:
    - `Manufacturer`: Text
    - `Model Number`: Text
    - `Product Name`: Text
 2. **Tags**: Apply the `Admin/Manual` tag to trigger the RAG ingestion pipeline.
 
+### 3. Query via RAG
+The [process_manuals.py](../../scripts/process_manuals.py) script integrates with ChromaDB. Use **Claude 4.7** or **GPT-5.5** to query the collection based on the stored metadata.
+
 ## Ingestion Pipeline Logic
 - **Chunking Strategy**: Use "Section-Aware" chunking. Each section (e.g., "Troubleshooting," "Maintenance") should be treated as a coherent unit.
 - **Embedding Metadata**: Include `manufacturer` and `model_number` in every vector's metadata to allow filtered retrieval.
+
+## Strengths
+- **Granularity**: Section-aware page ranges allow for precise retrieval.
+- **Consistency**: Standardizes how model numbers and manufacturers are recorded across the library.
+- **LLM-Friendly**: Structured metadata makes it easier for LLMs to filter results before reading content.
+
+## Limitations
+- **Manual Effort**: Initially requires identifying page ranges for key sections (unless automated via LLM).
+- **Schema Evolution**: May need updates as new types of appliances or technical documents are added.
+
+## When to use it
+- When building a "Household Manual RAG" system.
+- For high-stakes appliances where troubleshooting speed is critical (HVAC, security systems).
+- When digitizing a large physical library of paper manuals.
+
+## When not to use it
+- For simple, one-page quick start guides.
+- If the manufacturer provides a robust, searchable online portal that the agent can already access.
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The primary storage engine for these documents.
@@ -72,11 +89,13 @@ manual_metadata:
 - [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The system that consumes this data.
 - [n8n](../../services/n8n.md): Orchestrating the flow from scan to RAG database.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md): Multi-step processes for handling document intake.
+- [Manual Processor Script](../../scripts/process_manuals.py): The reference implementation for PDF processing and vector storage.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): For querying manuals via agentic tools.
 
 ## Sources / References
 - [Paperless-ngx Custom Fields](https://docs.paperless-ngx.com/usage/#custom-fields)
 - [YAML Standard](https://yaml.org/spec/1.2.2/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
