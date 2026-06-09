@@ -1,24 +1,25 @@
 # LlamaParse
 
 ## What it is
-A specialized PDF parsing service from LlamaIndex designed to extract structured data from complex documents (tables, diagrams, nested layouts).
+A specialized PDF parsing service from LlamaIndex designed to extract structured data from complex documents (tables, diagrams, nested layouts). It is a key component for high-fidelity RAG pipelines.
 
 ## What problem it solves
-Overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics.
+Overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics. It ensures that frontier models like **Claude 4.7** and **GPT-5.5** can reason over complex visual data such as multi-column financial reports.
 
 ## Where it fits in the stack
-**Category**: Intake & Storage / Data Processing
+**Category**: Intake & Storage / Data Processing. It provides the "structural grounding" layer for agents and RAG applications.
 
 ## Typical use cases
 - **Complex PDF Extraction**: Parsing documents with multi-column layouts, nested tables, and embedded diagrams.
-- **Markdown-first RAG**: Converting PDFs directly to high-quality Markdown for LLM consumption.
+- **Markdown-first RAG**: Converting PDFs directly to high-quality Markdown for [LlamaIndex](../ai_knowledge/llamaindex.md) ingestion.
 - **Financial Report Analysis**: Extracting tabular data from annual reports and statements with high fidelity.
+- **Agentic Document Processing**: Using the [LlamaParse MCP server](../automation_orchestration/mcp.md) for real-time document understanding in [Claude Desktop](../../knowledge_base/ai_tool_access_matrix.md).
 
 ## Strengths
 - **Vision-Aware**: Uses advanced vision models to understand document layout better than traditional OCR.
 - **Markdown Output**: Optimized for LLMs, preserving hierarchies and table structures in clean Markdown.
-- **Cost Optimizer**: Automatically routes simple pages to cheaper tiers while keeping complex pages on premium tiers.
-- **Ecosystem Integration**: Seamlessly connects with LlamaIndex for end-to-end RAG development.
+- **June 2026 Optimized**: Fully supports **Llama 4 Maverick**'s extended context and [MCP](../automation_orchestration/mcp.md) integration via `mcp.llamaindex.ai`.
+- **Ecosystem Integration**: Seamlessly connects with [LlamaIndex](../ai_knowledge/llamaindex.md) and [LangChain](../ai_knowledge/langchain.md).
 
 ## Parsing Tiers
 LlamaParse offers four tiers that trade off cost, latency, and accuracy:
@@ -38,7 +39,7 @@ LlamaParse offers four tiers that trade off cost, latency, and accuracy:
 ## When to use it
 - When traditional PDF parsers fail on complex layouts or tables.
 - When you want "LLM-ready" Markdown output without manual cleaning.
-- When you are already using the LlamaIndex framework.
+- When you are building agentic workflows that require structural document understanding.
 
 ## When not to use it
 - For simple, text-only PDFs where `PyPDF2` or `marker` would be faster and cheaper.
@@ -102,11 +103,12 @@ with open("output.md", "w") as f:
 ```
 
 ## CLI examples
-LlamaParse is primarily used via its SDKs or REST API. However, it can be triggered from the LlamaIndex CLI if integrated into a RAG pipeline.
-
 ```bash
 # Example of using a LlamaIndex RAG CLI that might use LlamaParse internally
 llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+
+# Configure the LlamaParse MCP server for Claude Code (June 2026)
+claude mcp add --transport http llamaparse https://mcp.llamaindex.ai/mcp
 ```
 
 ## API examples
@@ -135,12 +137,17 @@ curl 'https://api.cloud.llamaindex.ai/api/v2/parse?page_size=10&status=COMPLETED
 - [Unstructured.io](unstructured.md)
 - [Docling](../process_understanding/docling.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [RAG](../../knowledge_base/patterns/rag.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Claude 4.7](../providers/anthropic.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 
 ## Sources / references
 - [LlamaParse (LlamaIndex)](https://www.llamaindex.ai/llamaparse)
 - [LlamaParse API Reference](https://docs.cloud.llamaindex.ai/api-reference)
+- [LlamaParse MCP: Agentic OCR tools](https://www.llamaindex.ai/blog/llamaparse-mcp-the-tooling-layer-for-your-document-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-11
+- Last reviewed: 2026-06-08
 - Confidence: high
