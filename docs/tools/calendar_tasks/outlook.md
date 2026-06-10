@@ -1,114 +1,124 @@
-# Outlook Calendar
+# Microsoft Outlook Calendar
 
 ## What it is
-The calendar and scheduling component of Microsoft Outlook, integrated with the Microsoft 365 suite.
+The enterprise-standard calendar application for Microsoft 365. As of 2026, it is deeply integrated with **Microsoft Work IQ**, a shared intelligence layer that exposes mail, calendar, and meeting data to AI agents via the Model Context Protocol (MCP).
 
 ## What problem it solves
-Provides professional-grade scheduling, meeting management, and resource booking integrated with email and corporate directories.
+Provides professional-grade scheduling, meeting management, and resource booking integrated with email and corporate directories. It handles complex enterprise needs like delegated access, cross-tenant availability, and automated meeting transcription/summarization via Copilot.
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Personal Information Management
 
 ## Typical use cases
-- Enterprise meeting scheduling
-- Shared team calendars
-- Resource (room) booking
+- **Enterprise scheduling**: Manage complex team calendars and physical resource (room) bookings.
+- **AI-assisted coordination**: Use **Work IQ** to allow agents like **Claude 4.7** or **GPT-5.5** to schedule meetings based on organizational context.
+- **Hybrid work management**: Automatically coordinate in-person vs. remote attendance.
+- **Meeting lifecycle**: From scheduling to automated action item extraction using Microsoft 365 Copilot.
 
 ## Strengths
-- Deep integration with Microsoft 365 and Teams
-- Robust enterprise security and compliance
-- Advanced delegate and resource management
+- Deep integration with Microsoft 365, Teams, and the wider Graph ecosystem.
+- Robust enterprise security, compliance, and centralized IT governance.
+- **Work IQ Native**: First-party MCP servers allow agents to "reason" over calendar data securely.
 
 ## Limitations
-- Can be complex to configure outside the Microsoft ecosystem
-- API access (Microsoft Graph) requires significant OAuth setup
+- Can be complex to configure for personal/independent use cases outside Microsoft 365.
+- API access (Microsoft Graph) requires Entra ID (formerly Azure AD) app registration and OAuth complexity.
 
 ## When to use it
-- In corporate environments already using Microsoft 365
-- When deep integration with Outlook email is required
+- In corporate environments or home offices already standardized on Microsoft 365.
+- When you require deep integration with Outlook email and Teams meetings.
+- If you need a secure, compliant way for AI agents to interact with your schedule.
 
 ## When not to use it
-- For personal use cases where simpler, free alternatives suffice
-- When looking for a local-first or open-source solution
+- For simple personal use cases where [Google Calendar](google_calendar.md) or [Proton Calendar](proton_calendar.md) suffice.
+- If you prefer a local-first, privacy-focused, or fully open-source solution.
 
 ## Getting started
-To begin using Outlook Calendar programmatically or via CLI:
-1. Ensure you have a Microsoft 365 or Outlook.com account.
-2. For CLI usage, install the **CLI for Microsoft 365**:
+### CLI for Microsoft 365
+The official CLI now includes an **MCP server mode**.
+1. Install the CLI:
    ```bash
    npm install -g @pnp/cli-microsoft365
    ```
-3. **Hello-world example**: Log in to your account via the CLI:
+2. Log in to your account:
    ```bash
    m365 login
    ```
-4. Follow the on-screen instructions to authenticate in your browser.
+3. **Hello-world example**: List your upcoming events:
+   ```bash
+   m365 outlook event list
+   ```
 
 ## CLI examples
-The **CLI for Microsoft 365** provides comprehensive commands for managing Outlook.
+The CLI is the primary tool for administrators and power users.
 
-### List upcoming events
+### Run as an MCP Server
+You can start the CLI in MCP mode to give your AI assistant immediate access:
 ```bash
-m365 outlook event list
+m365 mcp start
 ```
 
-### Add a new event
+### Advanced Calendar Management
 ```bash
-m365 outlook event add --subject "AI Sync" --start "2026-06-01T10:00:00" --end "2026-06-01T11:00:00"
-```
+# Find available rooms for a specific time
+m365 outlook room list --placeName "Conference Room"
 
-### Remove an event
-```bash
-m365 outlook event remove --id "EVENT_ID" --force
+# Create a meeting with a Teams link
+m365 outlook event add --subject "Architecture Review" --start "2026-06-15T10:00:00" --end "2026-06-15T11:00:00" --isOnlineMeeting true
 ```
 
 ## API examples
-To interact with Outlook Calendar programmatically, use the `MSAL` library for authentication and the Microsoft Graph API.
+The **Microsoft Graph API** is the underlying engine for all Outlook integrations.
 
 ### Create an event (Python)
 ```python
-import msal
 import requests
 
-# Configuration
-client_id = 'YOUR_CLIENT_ID'
-tenant_id = 'YOUR_TENANT_ID'
-authority = f"https://login.microsoftonline.com/{tenant_id}"
-scope = ["Calendars.ReadWrite"]
+API_TOKEN = "YOUR_ACCESS_TOKEN" # Standardized naming
+API_URL = "https://graph.microsoft.com/v1.0/me/events"
 
-# Authenticate
-app = msal.PublicClientApplication(client_id, authority=authority)
-result = app.acquire_token_interactive(scopes=scope)
+headers = {
+    'Authorization': f'Bearer {API_TOKEN}',
+    'Content-Type': 'application/json'
+}
 
-if "access_token" in result:
-    # Create an event
-    endpoint = "https://graph.microsoft.com/v1.0/me/events"
-    event = {
-        "subject": "AI Project Sync",
-        "start": {"dateTime": "2026-06-01T10:00:00", "timeZone": "UTC"},
-        "end": {"dateTime": "2026-06-01T11:00:00", "timeZone": "UTC"}
-    }
-    headers = {'Authorization': f'Bearer {result["access_token"]}'}
-    response = requests.post(endpoint, json=event, headers=headers)
-    print(response.json())
+event_data = {
+    "subject": "AI Project Sync",
+    "start": {"dateTime": "2026-06-20T10:00:00", "timeZone": "UTC"},
+    "end": {"dateTime": "2026-06-20T11:00:00", "timeZone": "UTC"},
+    "location": {"displayName": "Virtual"}
+}
+
+response = requests.post(API_URL, headers=headers, json=event_data)
+print(response.json())
 ```
+
+## Model Context Protocol (MCP) Integration
+Microsoft provides official **Work IQ MCP servers** for enterprise tenants.
+
+**Available Tools (via Work IQ):**
+- `mcp_outlook_list_events`: Fetch schedule for a given range.
+- `mcp_outlook_create_event`: Schedule new meetings with intelligent conflict resolution.
+- `mcp_outlook_find_meeting_times`: Identify the best time for multiple attendees.
 
 ## Licensing and cost
 - **Open Source**: No
-- **Cost**: Paid (part of Microsoft 365), Free (Outlook.com)
-- **Self-hostable**: No (Cloud), Yes (Exchange Server)
+- **Cost**: Paid (Microsoft 365), Free (Outlook.com)
+- **Self-hostable**: No (Cloud), Yes (Exchange Server - Legacy)
 
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md)
 - [Microsoft Graph](../providers/microsoft-graph.md)
-- [Proton Calendar](proton_calendar.md)
+- [Microsoft Work IQ](../automation_orchestration/mcp.md)
 - [Microsoft To Do](microsoft-todo.md)
-- [SavvyCal](savvycal.md)
+- [Reclaim](reclaim.md) — Excellent for AI-driven Outlook scheduling.
 
 ## Sources / References
 - [Microsoft Outlook](https://outlook.live.com/)
 - [Microsoft Graph API](https://developer.microsoft.com/en-us/graph)
+- [Work IQ MCP Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/microsoft-agent-365/tooling-servers-overview)
+- [CLI for Microsoft 365](https://pnp.github.io/cli-microsoft365/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-06-08
 - Confidence: high
