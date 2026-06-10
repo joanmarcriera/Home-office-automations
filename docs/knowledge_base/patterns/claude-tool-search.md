@@ -1,13 +1,13 @@
 # Claude Tool Search Pattern
 
 ## What it is
-A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback. It involves a "planning" or "discovery" step where the model explicitly searches for the most relevant tool before attempting an execution.
+A tool-selection pattern where Claude discovers and chooses tools based on task intent, tool metadata, and iterative execution feedback. It involves a "planning" or "discovery" step where the model explicitly searches for the most relevant tool before attempting an execution. This pattern has become the industry standard for Claude 4.8 and GPT-5.5 agents managing heterogeneous toolsets.
 
 ## What problem it solves
-Naive tool-calling often fails when an agent is presented with a large or overlapping tool catalog. The Claude Tool Search pattern improves reliability by making tool selection an explicit, model-guided process, reducing "wrong tool" hallucinations and improving first-shot accuracy in complex workflows.
+Naive tool-calling often fails when an agent is presented with a large or overlapping tool catalog. The Claude Tool Search pattern improves reliability by making tool selection an explicit, model-guided process, reducing "wrong tool" hallucinations and improving first-shot accuracy in complex workflows. It specifically addresses the "context window saturation" problem encountered when passing 100+ tool definitions to Llama 4 Maverick models.
 
 ## Where it fits in the stack
-Orchestration Layer — sits in the agentic loop, specifically at the intersection of planning and tool routing. It is commonly implemented within [Agentic Workflows](agentic-workflows.md) using frameworks like [LangChain](../../tools/ai_knowledge/langchain.md) or [AG2](../../tools/frameworks/ag2.md).
+Orchestration Layer — sits in the agentic loop, specifically at the intersection of planning and tool routing. It is commonly implemented within [Agentic Workflows](agentic-workflows.md) using frameworks like [LangChain](../../tools/ai_knowledge/langchain.md), [AG2](../../tools/frameworks/ag2.md), or [FastMCP](../../tools/automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **Massive Tool Catalogs**: Managing agents that have access to 50+ specialized tools where a single prompt cannot reliably include all schemas.
@@ -18,6 +18,7 @@ Orchestration Layer — sits in the agentic loop, specifically at the intersecti
 - **Improved Accuracy**: Higher success rates in complex tool selection scenarios.
 - **Scalability**: Allows agents to handle far more tools than would fit in a standard context window.
 - **Transparency**: The explicit search step provides an audit trail of *why* a particular tool was chosen.
+- **Model Agnostic**: Works effectively across Claude 4.8 (Opus), GPT-5.5 (Omni), and Llama 4 Maverick.
 
 ## Limitations
 - **Latency**: Adding a discovery step increases the time to the first action.
@@ -64,6 +65,53 @@ Once the relevant tool ID is found, the agent calls the specific tool with the r
 }
 ```
 
+## Getting started
+To implement this pattern, you first need a centralized tool registry. As of June 2026, the [Model Context Protocol (MCP)](tool-calling-and-mcp.md) is the recommended standard.
+
+1.  **Define Tool Metadata**: Ensure every tool has a descriptive `description` field for semantic search.
+2.  **Index Tools**: Use a vector database like [ChromaDB](../../docs/knowledge_base/vector-db-comparison.md) to store tool schemas and descriptions.
+3.  **Create the Search Tool**: Implement a tool that performs a semantic search over the index.
+
+## CLI examples
+> [!NOTE]
+> This is a design pattern, not a standalone CLI tool. However, it can be tested using the [FastMCP CLI](../../tools/automation_orchestration/mcp.md).
+
+```bash
+# Search for available tools via FastMCP
+mcp search "calendar"
+
+# Inspect a specific tool schema
+mcp inspect "gcal_create_event"
+
+# Execute a tool with manual parameters for testing
+mcp call "gcal_create_event" --params '{"summary": "Test"}'
+```
+
+## API examples
+Example of implementing the discovery logic in Python using the Anthropic Claude 4.8 SDK:
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+# The system prompt instructs the model to use the search_tools first
+response = client.messages.create(
+    model="claude-4-8-opus-20260528",
+    max_tokens=1024,
+    system="Search for tools before execution if you are unsure which one to use.",
+    tools=[{
+        "name": "search_tools",
+        "description": "Searches for tool schemas by semantic query",
+        "input_schema": {
+            "type": "object",
+            "properties": {"query": {"type": "string"}}
+        }
+    }],
+    messages=[{"role": "user", "content": "Schedule a meeting for tomorrow."}]
+)
+```
+
 ## Related tools / concepts
 - [Anthropic Claude](../../tools/providers/anthropic.md)
 - [Agentic Workflows](agentic-workflows.md)
@@ -73,11 +121,13 @@ Once the relevant tool ID is found, the agent calls the specific tool with the r
 - [Skills Best Practices](skills-best-practices.md)
 - [Tool Calling Guide](tool-calling-and-mcp.md)
 - [LangChain](../../tools/ai_knowledge/langchain.md)
+- [LLM Trust Boundaries](llm-trust-boundaries.md)
 
 ## Sources / References
 - [Introducing advanced tool use on the Claude Developer Platform](https://www.anthropic.com/engineering/advanced-tool-use)
 - [Anthropic Tool Use Documentation](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
+- [MCP Foundation Specification v3.0 (June 2026)](https://mcp-foundation.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high

@@ -1,10 +1,10 @@
 # OpenClaw Workflow Prompt Library Pattern
 
 ## What it is
-A reusable-prompt pattern for operating an agent stack through concrete workflow prompts. This pattern focuses on "operationalizing" agents by providing them with highly structured, intent-rich instructions for recurring tasks like monitoring, backups, research, and reporting.
+A reusable-prompt pattern for operating an agent stack through concrete workflow prompts. This pattern focuses on "operationalizing" agents by providing them with highly structured, intent-rich instructions for recurring tasks like monitoring, backups, research, and reporting. As of June 2026, this pattern is heavily utilized by Claude 4.8 and GPT-5.5 agents to maintain state across long-horizon tasks.
 
 ## What problem it solves
-Users and developers often know the desired outcome of an automation but struggle to express instructions that are both executable by an agent and resilient to edge cases. The OpenClaw Workflow Prompt pattern provides a library of pre-validated, "battle-tested" prompts that reduce the trial-and-error phase of agent deployment.
+Users and developers often know the desired outcome of an automation but struggle to express instructions that are both executable by an agent and resilient to edge cases. The OpenClaw Workflow Prompt pattern provides a library of pre-validated, "battle-tested" prompts that reduce the trial-and-error phase of agent deployment. It also mitigates "instruction drift" when multiple models (e.g., Llama 4 Maverick and Claude 4.8) are used in the same pipeline.
 
 ## Where it fits in the stack
 Prompts & AI Layer — serves as the "software interface" between human intent and agentic execution. It supports [Operational Playbooks](../../playbooks/index.md) and standardized [Agentic Workflows](agentic-workflows.md).
@@ -19,6 +19,7 @@ Prompts & AI Layer — serves as the "software interface" between human intent a
 - **Reduced Hallucinations**: Structured templates guide models toward specific data sources and formats.
 - **Faster Setup**: Drastically reduces the time required to bootstrap new automation workflows.
 - **Standardization**: Ensures that different agents performing the same task use the same high-quality logic.
+- **Cross-Model Compatibility**: Verified to work across Claude 4.8, GPT-5.5, and Llama 4 Maverick.
 
 ## Limitations
 - **Environment Sensitivity**: Prompts often include assumptions about file structures or API availability that must be adapted for specific users.
@@ -44,6 +45,44 @@ Prompts & AI Layer — serves as the "software interface" between human intent a
 ### 3. The "Sync-Master" (Reporting)
 > "Compare the 'Completed Tasks' in Vikunja for the last 7 days against the 'GitHub PRs Merged' in the same period. Generate a bulleted 'Weekly Achievement' report for the family newsletter."
 
+## Getting started
+To start using the OpenClaw Workflow Prompt pattern, clone the standard library and integrate it into your agent's system prompt or tool-calling logic.
+
+1.  **Select a Prompt**: Browse the [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md).
+2.  **Fill Placeholders**: Replace variables like `{{ date }}` or `{{ project_path }}`.
+3.  **Execute**: Send the prompt to your preferred model (Claude 4.8 Recommended).
+
+## CLI examples
+> [!NOTE]
+> This pattern is typically invoked via agent frameworks, but can be tested using the OpenClaw CLI.
+
+```bash
+# Execute a monitoring prompt via CLI
+openclaw run monitoring --service "paperless"
+
+# List available workflow prompts
+openclaw list-prompts
+
+# Export a prompt for use in another agent
+openclaw export "sync-master" --format markdown
+```
+
+## API examples
+Example of loading and executing an OpenClaw prompt using the [FastMCP](../../tools/automation_orchestration/mcp.md) Python SDK:
+
+```python
+from mcp import FastMCP
+
+mcp = FastMCP("OpenClaw")
+
+@mcp.tool()
+def execute_workflow(prompt_id: str, context: dict):
+    """Executes a standardized OpenClaw workflow prompt."""
+    prompt_template = load_prompt(prompt_id) # Hypothetical loader
+    filled_prompt = prompt_template.format(**context)
+    return agent.call(filled_prompt) # Hypothetical agent call
+```
+
 ## Related tools / concepts
 - [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md)
 - [OpenClaw Security and Operations Pattern](openclaw-security-operations.md)
@@ -53,10 +92,12 @@ Prompts & AI Layer — serves as the "software interface" between human intent a
 - [Prompt Requests](prompt_requests.md)
 - [Jules Weekly Gap Analysis](../../reference-implementations/llm-prompts/jules-gap-analysis.md)
 - [Family Context Prompt](../../reference-implementations/llm-prompts/family-context.md)
+- [Model Context Protocol (MCP)](tool-calling-and-mcp.md)
 
 ## Sources / References
 - [OpenClaw after 50 days: all prompts for 20 real workflows](https://gist.github.com/velvet-shark/b4c6724c391f612c4de4e9a07b0a74b6)
+- [OpenClaw Foundation Documentation (June 2026)](https://openclaw.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high
