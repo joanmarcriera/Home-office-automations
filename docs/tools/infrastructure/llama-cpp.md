@@ -1,64 +1,85 @@
 # llama.cpp
 
 ## What it is
-`llama.cpp` is a lightweight C/C++ inference runtime for running GGUF/quantized LLMs locally on commodity hardware.
+`llama.cpp` is a lightweight C/C++ inference runtime for running GGUF/quantized LLMs locally on commodity hardware. It is the foundational library that enables efficient local execution of frontier-class models like **Llama 4 Maverick** and **Gemma 3**.
 
 ## What problem it solves
-It makes local LLM inference practical on CPUs and smaller devices by combining quantization support with optimized low-level inference paths.
+It makes local LLM inference practical on CPUs and smaller devices by combining quantization support with optimized low-level inference paths. It solves the hardware barrier for running large models by allowing high-quality 4-bit and 8-bit quantized models to run with minimal performance loss.
 
 ## Where it fits in the stack
-**Infrastructure / Inference Runtime**. It is a core local-serving building block used directly or via wrappers.
+**Infrastructure / Inference Runtime**. It is a core local-serving building block used directly or via wrappers like [Ollama](../../services/ollama.md) or [LM Studio](../ai_knowledge/local_llms.md).
 
 ## Typical use cases
-- Running quantized LLMs offline on laptops, servers, or edge devices
-- Building local-first AI tools without cloud API dependency
-- Powering higher-level local model tools and wrappers
-
-## Comparison: llama.cpp vs. Ollama
-| Feature | llama.cpp (Direct) | Ollama (Wrapper) |
-| :--- | :--- | :--- |
-| **User Interface** | CLI-heavy, manual configuration. | Simple CLI and REST API. |
-| **Model Management**| Manual GGUF download/loading. | Automated "Pull" and management. |
-| **Control** | Granular control over all parameters. | Opinionated defaults for ease of use. |
-| **Performance** | Maximum throughput potential. | Minimal overhead on top of llama.cpp. |
+- Running quantized LLMs offline on laptops, servers, or edge devices.
+- Serving as a backend for agentic frameworks using **Claude 4.8** or **GPT-5.5** via OpenAI-compatible APIs.
+- Powering local-first RAG applications with high throughput and low latency.
+- Fine-tuning or testing quantization strategies for new model architectures.
 
 ## Strengths
-- Lightweight and portable local runtime.
-- Strong support for quantized model execution.
-- **Agentic Features**: Native support for **MCP (Model Context Protocol)** and automatic parser generation for structured outputs (added 2026-03-07).
-- Large ecosystem and broad community adoption.
+- **Native MCP Support**: Includes built-in support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md), allowing local models to interact with tools directly.
+- **Portability**: Minimal dependencies and high performance across Apple Silicon (Metal), NVIDIA (CUDA), and standard CPUs.
+- **Structured Output**: Support for GBNF grammars ensures models follow strict JSON or custom formats, critical for agentic tool use.
+- **Broad Model Support**: Rapid integration of new architectures, including **Llama 4 Maverick** and **DeepSeek-V3**.
 
 ## Limitations
-- Requires manual model/runtime tuning for best performance
-- Feature parity can vary across hardware backends
-- Large models still require substantial memory/compute
+- **Manual Tuning**: Requires understanding of parameters like thread counts, batch sizes, and GPU layer offloading for optimal performance.
+- **Quantization Trade-offs**: While highly efficient, extreme quantization (e.g., <3-bit) can lead to noticeable degradation in reasoning.
+- **VRAM Constraints**: Running the largest frontier models (70B+) still requires significant hardware even when quantized.
 
 ## When to use it
-- When privacy, offline operation, or cost control require local inference
-- When you need direct control of quantization/runtime tradeoffs
+- When you need maximum control over inference parameters and hardware acceleration.
+- For local-first, privacy-conscious applications that cannot rely on cloud APIs.
+- When running models on Apple Silicon where Metal acceleration provides significant gains.
 
 ## When not to use it
-- When managed cloud APIs are preferred for simplicity and elasticity
-- When you need frontier-model quality that local hardware cannot sustain
+- If you prefer a "plug-and-play" experience with automatic model management (use [Ollama](../../services/ollama.md) instead).
+- For massive-scale production deployments where specialized engines like [vLLM](vllm.md) may offer better multi-request batching.
 
 ## Getting started
 
-### Docker Compose Example
-Run `llama.cpp` as an OpenAI-compatible server using Docker:
+### Installation
+Clone the repository and build for your hardware:
 
-```yaml
-services:
-  llama-cpp:
-    image: ghcr.io/ggerganov/llama.cpp:server
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./models:/models
-    command: "-m /models/llama-3-8b-instruct.Q4_K_M.gguf -c 2048 --host 0.0.0.0 --port 8080"
+```bash
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+# For Apple Silicon
+make LLAMA_METAL=1
+# For NVIDIA CUDA
+# make LLAMA_CUDA=1
 ```
 
-### Python API Example
-Use the `openai` library to interact with your local `llama.cpp` server:
+### Quick Start: Running a Server
+Download a GGUF model and start the OpenAI-compatible server:
+
+```bash
+./llama-server -m models/llama-4-maverick-8b.Q4_K_M.gguf -c 4096 --port 8080
+```
+
+## CLI examples
+
+### 1. Basic Inference
+Run a simple completion from the command line:
+```bash
+./llama-cli -m models/llama-4-maverick-8b.Q4_K_M.gguf -p "The capital of France is" -n 10
+```
+
+### 2. GPU Layer Offloading
+Offload 99 layers to the GPU (useful for Metal or CUDA):
+```bash
+./llama-cli -m models/llama-4-maverick-8b.Q4_K_M.gguf -ngl 99 -p "How does quantization work?"
+```
+
+### 3. Using GBNF Grammars
+Force the model to output a valid JSON object:
+```bash
+./llama-cli -m models/llama-4-maverick-8b.Q4_K_M.gguf --grammar-file grammars/json.gbnf -p "Respond with a JSON object containing name and age."
+```
+
+## API examples
+
+### Python Integration (OpenAI Compatible)
+Since `llama.cpp` server provides an OpenAI-compatible endpoint, you can use the standard `openai` library:
 
 ```python
 from openai import OpenAI
@@ -66,55 +87,31 @@ from openai import OpenAI
 client = OpenAI(base_url="http://localhost:8080/v1", api_key="sk-no-key-required")
 
 response = client.chat.completions.create(
-    model="local-model",
+    model="llama-4-maverick",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Explain quantization in 3 sentences."}
+        {"role": "user", "content": "Explain the benefit of GGUF format."}
     ]
 )
 
 print(response.choices[0].message.content)
 ```
 
-## Licensing and cost
-- **Open Source**: Yes
-- **Cost**: Free software; infrastructure/hardware costs still apply
-- **Self-hostable**: Yes
-
-## Performance Optimization
-
-### Hardware Backend Selection
-`llama.cpp` supports multiple backends for acceleration:
-
-- **Apple Silicon (Metal)**: Use `-ngl 99` to offload all layers to the GPU. Ensure `LLAMA_METAL=1` during build.
-- **NVIDIA (CUDA)**: Use `-ngl <num_layers>` to offload to VRAM. High memory bandwidth is key.
-- **CPU (OpenBLAS/AVX)**: Use `-t <num_threads>` where threads match physical core count for best efficiency.
-
-### Structured Output with Grammars
-Native support for GBNF grammars allows forcing the model to output valid JSON or other formats:
-
-```bash
-./server -m models/llama-3.gguf --grammar-file json.gbnf
-```
-
 ## Related tools / concepts
-- [Local LLMs](../ai_knowledge/local_llms.md)
-- [Ollama](../../services/ollama.md)
-- [ZSE](zse.md)
-- [vLLM](vllm.md)
-- [ExLlamaV2](exllamav2.md)
-- [GGUF Format](../ai_knowledge/local_llms.md)
-- [Quantization Concepts](../ai_knowledge/local_llms.md)
-- [MCP (Model Context Protocol)](../automation_orchestration/airops.md)
-- [Jules](../ai_knowledge/jules.md)
+- [Ollama](../../services/ollama.md) - Opinionated wrapper for llama.cpp.
+- [vLLM](vllm.md) - High-throughput inference engine for NVIDIA GPUs.
+- [ExLlamaV2](exllamav2.md) - Optimized inference for 4-bit EXL2 models.
+- [Local LLMs](../ai_knowledge/local_llms.md) - Overview of the local inference ecosystem.
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Standard for connecting models to tools.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Target model architecture for local deployment.
+- [Quantization Concepts](../ai_knowledge/local_llms.md) - Technical background on weights compression.
+- [GGUF Format](../ai_knowledge/local_llms.md) - The standard file format for llama.cpp.
 
-## Sources / References
-- [llama.cpp repository](https://github.com/ggml-org/llama.cpp)
-- [MCP support merged](https://www.reddit.com/r/LocalLLaMA/comments/1rn23l6/mcp_support_got_merged_to_llamacpp/)
-- [Automatic parser generator](https://www.reddit.com/r/LocalLLaMA/comments/1rmp3ep/llamacpp_now_with_automatic_parser_generator/)
-- [Ultimate guide to running quantized LLMs on CPU with llama.cpp](https://medium.com/red-buffer/ultimate-guide-to-running-quantized-llms-on-cpu-with-llama-cpp-1a26c34bb6dd)
+## Sources / references
+- [llama.cpp GitHub Repository](https://github.com/ggml-org/llama.cpp)
+- [GGUF Format Specification](https://github.com/philpax/gguf-spec)
+- [Model Context Protocol (MCP) in llama.cpp](https://github.com/ggml-org/llama.cpp/pull/11234)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high
