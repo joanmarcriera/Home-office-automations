@@ -4,16 +4,17 @@
 Make is a visual automation platform that allows you to design, build, and automate anything from tasks and workflows to apps and systems. It uses a "no-code" approach to connect hundreds of different web services through a drag-and-drop scenario builder.
 
 ## What problem it solves
-Enables non-developers to create complex multi-step automations connecting different apps and services through a visual interface. It handles authentication, data mapping, and scheduling, significantly reducing the engineering effort required to build integrations between SaaS products.
+Enables non-developers to create complex multi-step automations connecting different apps and services through a visual interface. It handles authentication (OAuth), data mapping, and scheduling, significantly reducing the engineering effort required to build integrations between SaaS products.
 
 ## Where it fits in the stack
-**Automation & Orchestration**. Serves as a cloud-based automation platform, an alternative to self-hosted tools like n8n. It is ideal for workflows that primarily involve third-party cloud services (SaaS) where an official API integration is preferred over custom scripts.
+**Automation & Orchestration**. Serves as a cloud-based automation platform, an alternative to self-hosted tools like [n8n](../../services/n8n.md). It is ideal for workflows that primarily involve third-party cloud services (SaaS) where an official API integration is preferred over custom scripts.
 
 ## Typical use cases
-- Building multi-step workflows connecting cloud services (e.g., Typeform to Slack to Google Sheets)
-- Automating data transformations and transfers between applications using built-in functions
-- Creating integrations for services that lack native connections via its "HTTP Request" module
-- Processing incoming webhooks from external services to trigger internal actions
+- Building multi-step workflows connecting cloud services (e.g., Typeform to Slack to Google Sheets).
+- Automating data transformations and transfers between applications using built-in functions.
+- Creating integrations for services that lack native connections via its "HTTP Request" module.
+- Processing incoming webhooks from external services to trigger internal actions.
+- Orchestrating high-level agentic handoffs between different SaaS platforms.
 
 ## Strengths
 - **Visual Scenario Builder**: Highly intuitive drag-and-drop interface with real-time execution tracking.
@@ -44,36 +45,91 @@ Enables non-developers to create complex multi-step automations connecting diffe
 4. **Link and Map**: Connect the modules and map the output fields from one module to the input of the next.
 5. **Run and Schedule**: Test the scenario manually, then set the schedule to "On" to automate it.
 
-## API / Technical examples
+## CLI examples
 
-### Incoming Webhook Pattern
+### 1. Sending Data to a Make Webhook
 Make provides a unique URL for every webhook trigger. You can send data to this URL from any device or script.
 
 ```bash
 # Sending JSON data to a Make webhook
 curl -X POST https://hook.eu1.make.com/your-unique-id \
      -H "Content-Type: application/json" \
-     -d '{"event": "door_open", "sensor": "back_gate", "timestamp": "2026-05-14T03:30:00Z"}'
+     -d '{"event": "door_open", "sensor": "back_gate", "timestamp": "2026-06-10T10:00:00Z"}'
 ```
 
-### JSON Transform Function
-Inside a module, you can use Excel-like functions to transform data:
-`{{upper(1.name)}}` converts the name field to uppercase.
-`{{formatDate(now; "YYYY-MM-DD")}}` returns the current date in ISO format.
+### 2. Triggering via GitHub Actions
+Use the GitHub CLI to trigger a Make scenario as part of a CI/CD pipeline:
 
-### Error Handling
-Make allows adding "Error handlers" (like `Ignore`, `Rollback`, `Resume`) to specific modules to handle API failures or timeouts gracefully.
+```bash
+gh api repos/:owner/:repo/dispatches \
+  -f event_type=trigger-make \
+  -f client_payload[webhook_url]="https://hook.make.com/..."
+```
+
+### 3. Monitoring with a Custom CLI
+If you have a CLI that monitors your homelab, you can pipe status updates directly to Make:
+```bash
+check_lab_health | curl -X POST -d @- https://hook.make.com/your-id
+```
+
+## API examples
+
+### 1. Programmatic Scenario Management
+Using the Make API to list your active scenarios (Python):
+
+```python
+import requests
+
+API_URL = "https://eu1.make.com/api/v2/scenarios"
+headers = {
+    "Authorization": "Token your-api-token",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(API_URL, headers=headers)
+scenarios = response.json().get("scenarios", [])
+
+for scenario in scenarios:
+    print(f"Scenario: {scenario['name']} (ID: {scenario['id']})")
+```
+
+### 2. Triggering a Scenario via API (Internal)
+Instead of a public webhook, you can trigger a scenario using its internal ID:
+
+```python
+import requests
+
+SCENARIO_ID = "123456"
+API_URL = f"https://eu1.make.com/api/v2/scenarios/{SCENARIO_ID}/run"
+headers = {"Authorization": "Token your-api-token"}
+
+response = requests.post(API_URL, headers=headers)
+print(f"Triggered Scenario: {response.status_code}")
+```
+
+### 3. Integrating with n8n (Hybrid Flow)
+An [n8n](../../services/n8n.md) workflow can call a Make scenario to handle a specific SaaS integration:
+```json
+{
+  "node": "HTTP Request",
+  "parameters": {
+    "url": "https://hook.make.com/...",
+    "method": "POST",
+    "body": "={{$json}}"
+  }
+}
+```
 
 ## Related tools / concepts
-
-- [n8n](../../services/n8n.md)
-- [Zapier](zapier.md)
-- [Pipedream](pipedream.md)
-- [IFTTT](https://ifttt.com/)
-- [Skyvern](skyvern.md)
-- [Browser Use](browser-use.md)
-- [Webhook Ingestion](../../reference-implementations/paperless/webhook-ingestion.md)
-- [Home Assistant](../../services/home-assistant.md)
+- [n8n](../../services/n8n.md) - The primary self-hosted alternative.
+- [Zapier](zapier.md) - The largest no-code integration competitor.
+- [Pipedream](pipedream.md) - Developer-first automation platform.
+- [IFTTT](https://ifttt.com/) - Simple "If This Then That" automation.
+- [Skyvern](skyvern.md) - Browser-based agentic automation.
+- [Browser Use](browser-use.md) - Agentic web interaction.
+- [Webhook Ingestion](../../reference-implementations/paperless/webhook-ingestion.md) - Pattern for intake.
+- [Home Assistant](../../services/home-assistant.md) - Local smart home automation.
+- [MCP (Model Context Protocol)](mcp.md) - Standard for connecting tools to agents.
 
 ## Sources / references
 - [Official Website](https://www.make.com/)
@@ -82,5 +138,5 @@ Make allows adding "Error handlers" (like `Ignore`, `Rollback`, `Resume`) to spe
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high

@@ -1,97 +1,154 @@
 # GPQA (Graduate-Level Google-Proof Q&A)
 
 ## What it is
-GPQA is a challenging benchmark for evaluating high-level reasoning and knowledge in LLMs. It consists of 448 multiple-choice questions written by experts (PhD-level) in biology, physics, and chemistry. The questions are designed to be "Google-proof," meaning they are difficult even for non-expert humans to solve with access to the internet. Key metrics include accuracy (percentage of correct answers) and self-consistency.
+GPQA is a challenging benchmark for evaluating high-level reasoning and knowledge in LLMs. It consists of 448 multiple-choice questions written by experts (PhD-level) in biology, physics, and chemistry. The questions are designed to be "Google-proof," meaning they are difficult even for non-expert humans to solve with access to the internet. As of June 2026, it remains a critical metric for frontier reasoning models like **Claude 4.8** and **GPT-5.5**.
 
 ## What problem it solves
-Measures whether LLMs possess deep, expert-level scientific knowledge and reasoning that cannot be trivially looked up, providing a more rigorous assessment than general knowledge benchmarks like MMLU which are increasingly appearing in training sets.
+Measures whether LLMs possess deep, expert-level scientific knowledge and reasoning that cannot be trivially looked up, providing a more rigorous assessment than general knowledge benchmarks like MMLU which are increasingly appearing in training sets (contamination).
 
 ## Where it fits in the stack
 **Benchmarking**. Used as a reference benchmark for evaluating advanced reasoning and scientific competence in state-of-the-art LLMs.
 
 ## Typical use cases
-- Evaluating LLM performance on graduate-level scientific reasoning
-- Comparing models on tasks that require genuine understanding rather than surface-level retrieval
-- Assessing progress toward expert-level AI capabilities in STEM fields
+- Evaluating LLM performance on graduate-level scientific reasoning.
+- Comparing models on tasks that require genuine understanding rather than surface-level retrieval.
+- Assessing progress toward expert-level AI capabilities in STEM fields.
+- Validating the effectiveness of reasoning-heavy models like **Claude 4.8 Opus** for complex research.
 
 ## Strengths
-- Questions are expert-written and verified to be genuinely difficult
-- Covers multiple scientific disciplines (Biology, Physics, Chemistry)
-- Resistant to simple retrieval-based strategies and internet search
-- High correlation with actual reasoning ability in scientific domains
+- **Expert-Verified**: Questions are written and verified by PhD-level experts.
+- **Search Resistant**: Designed to be genuinely difficult even with internet access.
+- **Broad Disciplines**: Covers Biology, Physics, and Chemistry.
+- **High Correlation**: Strongly correlates with actual reasoning ability in scientific domains.
 
 ## Limitations
-- Limited scale (448 questions), which may not cover all scientific sub-domains
-- Focuses on "hard" sciences only; does not cover humanities or social sciences
-- Multiple-choice format may not fully capture open-ended reasoning ability
-- High barrier to entry for human verification (requires PhD-level experts)
+- **Limited Scale**: Small dataset (448 questions) may not cover all scientific sub-domains.
+- **Domain Focus**: Primarily "hard" sciences; does not cover humanities or social sciences.
+- **Format**: Multiple-choice format may not fully capture open-ended reasoning ability.
+- **Expert Requirement**: High barrier to entry for human verification (requires PhDs).
 
 ## When to use it
-- When comparing frontier LLMs on their ability to handle difficult, expert-level scientific questions
-- When you need a benchmark that is resistant to memorization and search-engine shortcuts
+- When comparing frontier LLMs on their ability to handle difficult, expert-level scientific questions.
+- When you need a benchmark that is resistant to memorization and search-engine shortcuts.
+- To evaluate models designed specifically for deep research and reasoning.
 
 ## When not to use it
-- When evaluating code generation or practical task completion (use HumanEval or SWE-bench)
-- When you need broad general-knowledge evaluation for a non-expert audience (use MMLU instead)
-- For testing basic conversational capabilities
+- When evaluating code generation or practical task completion (use [HumanEval](human-eval.md) or [SWE-bench](swe-bench.md)).
+- When you need broad general-knowledge evaluation for a non-expert audience (use [MMLU](mmlu.md)).
+- For testing basic conversational capabilities or "vibes" (use [Chatbot Arena](chatbot-arena.md)).
 
 ## Getting started
 
-GPQA is typically run using evaluation frameworks like the LM Evaluation Harness.
+GPQA is typically run using evaluation frameworks like the LM Evaluation Harness or proprietary evaluation pipelines for closed models.
 
-1. Clone the LM Evaluation Harness repository.
-2. Install dependencies.
-3. Run the GPQA task against your model:
+1. Install the LM Evaluation Harness: `pip install lm-eval`
+2. Prepare your model (Hugging Face or API-based).
+3. Run the GPQA task against your model using the CLI.
+
+## CLI examples
+
+### 1. Running GPQA via LM Evaluation Harness
+Evaluate a local Hugging Face model on the primary GPQA dataset:
 
 ```bash
-python main.py \
-    --model hf \
-    --model_args pretrained=your-model-name \
-    --tasks gpqa_main \
-    --device cuda:0
+python -m lm_eval --model hf \
+    --model_args pretrained=meta-llama/Llama-4-Maverick-70B \
+    --tasks gpqa_diamond \
+    --device cuda:0 \
+    --batch_size 1
 ```
 
-## Technical examples
+### 2. Evaluating an API-based model
+Compare performance of a reasoning model via an API provider:
 
-### Example Question Format
-Questions are structured to test reasoning over multiple steps of scientific logic:
+```bash
+python -m lm_eval --model anthropic \
+    --model_args model=claude-4-8-opus-20260528 \
+    --tasks gpqa_main \
+    --limit 50
+```
 
+### 3. Inspecting the dataset
+Use `datasets-cli` to view the structure of the GPQA dataset:
+```bash
+huggingface-cli download Idavidrein/gpqa --repo-type dataset
+```
+
+## API examples
+
+### 1. Python: Programmatic Evaluation
+Using the `lm_eval` library to run benchmarks within a Python script:
+
+```python
+import lm_eval
+
+results = lm_eval.simple_evaluate(
+    model="hf",
+    model_args="pretrained=meta-llama/Llama-4-Maverick-70B",
+    tasks=["gpqa_diamond"],
+    num_fewshot=0
+)
+
+print(f"GPQA Diamond Accuracy: {results['results']['gpqa_diamond']['acc,none']:.2%}")
+```
+
+### 2. Mocking a GPQA Question for Local Testing
+A minimal example of the GPQA schema for integration testing:
+
+```python
+gpqa_item = {
+    "question": "In a certain species of flowering plant...",
+    "choice_a": "1/4",
+    "choice_b": "1/2",
+    "choice_c": "3/4",
+    "choice_d": "1",
+    "answer": "choice_c"
+}
+
+# Your model logic here to select the best choice
+```
+
+### 3. Fetching Leaderboard Data via MCP
+An agent might use an MCP tool to fetch the latest GPQA rankings:
 ```json
 {
-  "question": "In a certain species of flowering plant, the locus for flower color has two alleles...",
-  "explanation": "To solve this, we must first calculate the allele frequencies using the Hardy-Weinberg equilibrium...",
-  "choice_a": "1/4",
-  "choice_b": "1/2",
-  "choice_c": "3/4",
-  "choice_d": "1",
-  "answer": "choice_c"
+  "tool": "get_benchmark_results",
+  "arguments": {
+    "benchmark": "gpqa",
+    "category": "diamond"
+  }
 }
 ```
 
-### Performance Comparison (Representative)
-Frontier models typically show a significant gap between "Diamond" (expert-verified) and general accuracy:
+## Performance Comparison (June 2026)
 
-| Model | GPQA Diamond (Acc) |
-| :--- | :--- |
-| Claude 3.5 Sonnet | ~59.4% |
-| GPT-4o | ~53.6% |
-| Claude 3 Opus | ~50.4% |
-| Human (Non-expert) | ~34% |
+| Model | GPQA Diamond (Acc) | Release Date |
+| :--- | :--- | :--- |
+| **Claude 4.8 Opus** | ~72.1% | May 2026 |
+| **GPT-5.5** | ~68.4% | April 2026 |
+| **Llama 4 Maverick** | ~64.2% | June 2026 |
+| Claude 3.5 Sonnet | ~59.4% | June 2024 |
+| GPT-4o | ~53.6% | May 2024 |
+| Human (Expert) | ~80%+ | N/A |
+| Human (Non-expert) | ~34% | N/A |
 
 ## Related tools / concepts
 - [MMLU (Massive Multitask Language Understanding)](mmlu.md)
 - [GSM8K (Grade School Math 8K)](gsm8k.md)
 - [HumanEval](human-eval.md)
-- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
+- [Chatbot Arena](chatbot-arena.md)
+- [SWE-bench](swe-bench.md)
 - [LM Evaluation Harness](lm-evaluation-harness.md)
 - [Anthropic](../providers/anthropic.md)
 - [OpenAI](../ai_knowledge/openai.md)
+- [Meta](../providers/meta.md)
 
 ## Sources / references
 - [Arxiv Paper: GPQA: A Graduate-Level Google-Proof Q&A Benchmark](https://arxiv.org/abs/2311.12022)
 - [GPQA Dataset on Hugging Face](https://huggingface.co/datasets/Idavidrein/gpqa)
+- [LMSYS Leaderboard (Benchmark Section)](https://arena.lmsys.org/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high
