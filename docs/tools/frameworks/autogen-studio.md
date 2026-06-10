@@ -20,6 +20,7 @@ It lowers the barrier to entry for the AutoGen framework by providing a visual w
 - **Skill Management**: Easy way to add and share Python skills among agents.
 - **Session History**: Built-in persistence for agent conversations and results.
 - **Exportable**: Workflows created in the UI can be exported as JSON for use in production Python scripts.
+- **MCP Integration**: Native support for the Model Context Protocol (MCP), allowing agents to connect to a vast library of external tools and data sources.
 
 ## Limitations
 - **Feature Lag**: New features in the underlying AutoGen framework may take time to appear in the Studio.
@@ -30,6 +31,7 @@ It lowers the barrier to entry for the AutoGen framework by providing a visual w
 - For initial experimentation with multi-agent teams.
 - When you need a visual way to explain or demonstrate agent behavior to stakeholders.
 - For managing a library of reusable agent skills.
+- When you want to leverage [MCP](../automation_orchestration/mcp.md) tools without writing boilerplate integration code.
 
 ## When not to use it
 - For production-scale applications requiring high customization and performance.
@@ -42,9 +44,14 @@ Install AutoGen Studio using pip:
 pip install autogenstudio
 ```
 
-Configure your LLM provider (e.g., OpenAI):
+To enable MCP support, install the extension:
 ```bash
-export OPENAI_API_KEY='your_api_key_here'
+pip install -U "autogen-ext[mcp]"
+```
+
+Configure your LLM provider (e.g., Anthropic Claude 4.7):
+```bash
+export ANTHROPIC_API_KEY='your_api_key_here'
 ```
 
 Launch the interface:
@@ -81,6 +88,18 @@ task_query = "What is the capital of France?"
 workflow_manager.run(message=task_query)
 ```
 
+## MCP Support
+As of June 2026, AutoGen Studio supports the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md). This allows agents to use tools from any MCP server.
+
+```python
+from autogen_ext.tools.mcp import StdioMcpToolAdapter, StdioServerParams
+
+# Example of adding an MCP tool to an agent
+mcp_tool = StdioMcpToolAdapter(
+    StdioServerParams(command="npx", args=["-y", "@modelcontextprotocol/server-gcal"])
+)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT).
 - **Cost**: Free.
@@ -91,12 +110,17 @@ workflow_manager.run(message=task_query)
 - [CrewAI](crewai.md)
 - [Dify](../ai_knowledge/dify.md)
 - [LangGraph](langgraph.md)
+- [MCP](../automation_orchestration/mcp.md)
+- [Claude 4.7](../providers/anthropic.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / References
 - [Official GitHub](https://github.com/microsoft/autogen/tree/main/samples/apps/autogen-studio)
 - [AutoGen Studio Documentation](https://microsoft.github.io/autogen/docs/autogen-studio/usage)
+- [AutoGen MCP Reference](https://microsoft.github.io/autogen/stable/reference/python/autogen_ext.tools.mcp.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-12
+- Last reviewed: 2026-06-08
 - Confidence: high

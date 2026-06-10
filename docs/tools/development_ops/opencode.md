@@ -4,37 +4,42 @@
 Oh My OpenAgent (previously oh-my-opencode) is an open-source agent harness designed to provide a "world-class" development experience across multiple LLM providers. It acts as an orchestration layer on top of OpenCode, offering a full AI developer team in your terminal.
 
 ## What problem it solves
-It solves the "harness problem" where models fail not because of intelligence, but because of poor edit tools and narrow context. It provides reliable multi-model orchestration, surgical editing via content hashes, and a "Discipline Agent" system that ensures tasks are driven to 100% completion.
+It solves the "harness problem" where models fail not because of intelligence, but because of poor edit tools and narrow context. It provides reliable multi-model orchestration, surgical editing via Hashline (content hashes), and a "Discipline Agent" system that ensures tasks are driven to 100% completion.
 
 ## Where it fits in the stack
-**Development & Ops / Agent Harness**. It is the open-source alternative to proprietary "walled garden" agents like Claude Code or AmpCode.
+**Development & Ops / Agent Harness**. It is the open-source alternative to proprietary "walled garden" agents like [Claude Code](claude-code.md) or [AmpCode](../infrastructure/ampcode.md).
 
 ## Typical use cases
 - **Complex Feature Building**: Using the `ultrawork` command to trigger a multi-agent plan-and-execute loop.
-- **Large-scale Refactoring**: Leveraging LSP and AST-Grep integration for deterministic code changes.
+- **Large-scale Refactoring**: Leveraging LSP and AST-Grep integration for deterministic code changes (e.g., workspace-level renames).
 - **Autonomous Debugging**: Deploying specialized agents (Oracle, Librarian) to root cause and fix elusive bugs.
 - **Browser Automation**: Using the built-in Playwright skill for UI testing or data scraping.
+- **Context Injection**: Auto-generating hierarchical `AGENTS.md` files for lean, project-specific context.
 
-## Key Agents
-OmO uses a "Discipline Agent" system where specialized agents collaborate:
+## Key Agents (The Sisyphus Team)
+OmO uses a "Discipline Agent" system where specialized agents collaborate in parallel:
 - **Sisyphus**: The main orchestrator. Plans, delegates, and ensures tasks never stop halfway.
-- **Hephaestus**: The "Deep Worker." Explores codebases and executes goals without hand-holding.
+- **Hephaestus**: The "Deep Worker" (Implementer). Explores codebases and executes edits using Hashline.
 - **Prometheus**: The Strategic Planner. Interviews the user to refine requirements before execution starts.
-- **Oracle**: Specialized in architecture decisions and deep debugging.
+- **Oracle**: The Reasoner. Specialized in architecture decisions and deep debugging.
+- **Librarian**: Focuses on documentation and context retrieval.
+- **Explore**: Handles web search and research via Exa MCP.
 
 ## Strengths
-- **Multi-Model Orchestration**: Routes tasks to the best model for the job (Claude for logic, Gemini for creativity, etc.).
-- **Hashline (Hash-Anchored Edits)**: Edits lines by referencing content hashes, eliminating stale-line errors and whitespace issues.
-- **Claude Code Compatibility**: Support for Claude Code skills, hooks, and MCPs.
-- **Transparent & Open**: No "walled garden" lock-in; you control the providers and the tokens.
+- **Multi-Model Orchestration**: Routes tasks to the best model (e.g., Claude 4.8 for logic, Gemini 2.0 for creativity).
+- **Hashline (Hash-Anchored Edits)**: Edits lines by referencing content hashes, eliminating stale-line errors.
+- **Claude Code Compatibility**: Supports `CLAUDE.md` and `AGENTS.md` skills, hooks, and MCPs.
+- **LSP + AST-Grep**: IDE-quality refactoring and AST-aware code search/rewrites.
+- **Transparent & Open**: No vendor lock-in; supports local models like [Llama 4 Maverick](../ai_knowledge/local_llms.md).
 
 ## Limitations
-- **Setup Complexity**: While improved with `init-deep`, advanced multi-model configuration requires API key management for several providers.
+- **Setup Complexity**: While improved with `/init-deep`, advanced multi-model configuration requires API key management for several providers.
 - **Resource Usage**: Running multiple specialized agents in parallel can consume more tokens than a single-agent approach.
 
 ## When to use it
 - When you want a "Ubuntu" like experience for AI coding—stable, open, and powerful.
 - When surgical precision and high success rates for complex edits are more important than speed.
+- For large-scale refactors where AST-aware tools are required.
 
 ## When not to use it
 - For trivial, single-file changes where a simple chat interface suffices.
@@ -61,6 +66,11 @@ Run the deep initialization to set up hierarchical context for your agents:
 /init-deep
 ```
 
+### Basic Example
+```bash
+omo "Explain how the authentication flow works in this project"
+```
+
 ## CLI examples
 ```bash
 # Start the "Ultrawork" loop (Plan -> Execute -> Verify)
@@ -76,18 +86,33 @@ ultrawork "Implement the authentication flow using NextAuth"
 bunx oh-my-opencode doctor
 ```
 
+## API examples
+OmO can be integrated into custom scripts using its CLI-first interface or by importing its core modules in a Bun/Node environment.
+
+```typescript
+// Example using the internal task runner
+import { Sisyphus } from "oh-my-openagent/core";
+
+const task = await Sisyphus.plan("Refactor the payment gateway to use Stripe v2026");
+await task.execute();
+```
+
 ## Related tools / concepts
 - [Aider](aider.md)
 - [Claude Code](claude-code.md)
-- [OpenCode (MCP)](../automation_orchestration/mcp.md)
+- [MCP](../automation_orchestration/mcp.md)
 - [OpenHands](openhands.md)
 - [OpenSwarm](openswarm.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
+- [Claude 4.8](../providers/anthropic.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / References
 - [Oh My OpenAgent (GitHub)](https://github.com/code-yeongyu/oh-my-openagent)
 - [The Harness Problem (Can Bölük)](https://blog.can.ac/2026/02/12/the-harness-problem/)
 - [Oh My OpenCode Documentation](https://opencode.ai/docs/)
+- [OmO Agent Deep Dive](https://www.glukhov.org/ai-devtools/opencode/oh-my-opencode-agents/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-12
+- Last reviewed: 2026-06-08
 - Confidence: high
