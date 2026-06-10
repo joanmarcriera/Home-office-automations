@@ -1,10 +1,10 @@
 # MCP Registry
 
 ## What it is
-The MCP Registry is the central discovery platform and directory for Model Context Protocol (MCP) servers. It provides a standardized way for developers to publish and for users to discover tools that extend the capabilities of AI agents (like Claude Desktop, IDEs, or autonomous scripts).
+The MCP Registry is the central discovery platform and directory for Model Context Protocol (MCP) servers. Managed by the **Agentic AI Foundation** (under the Linux Foundation) since December 2025, it provides a standardized way for developers to publish and for users to discover tools that extend the capabilities of AI agents like Claude 4.8, GPT-5.5, and Llama 4 Maverick.
 
 ## What problem it solves
-Before the registry, MCP implementations were fragmented across GitHub, NPM, and private blogs. The registry addresses this fragmentation by providing a single, authoritative source for discovering publicly available MCP servers. It standardizes server metadata (via `server.json`), making it easier to find, evaluate, and install tools.
+Before the registry, MCP implementations were fragmented across GitHub, NPM, and private blogs. The registry addresses this fragmentation by providing a single, authoritative source for discovering publicly available MCP servers. It standardizes server metadata (via `server.json` and FastMCP 3.0), making it easier to find, evaluate, and install tools.
 
 ## Where it fits in the stack
 **Automation / Orchestration**. It acts as the "app store" or "package manager" equivalent for the AI tool-calling ecosystem. It provides the metadata infrastructure that allows agents to find the right tool for a specific task.
@@ -13,17 +13,17 @@ Before the registry, MCP implementations were fragmented across GitHub, NPM, and
 - **Discovering Integrations**: Finding an MCP server that connects Claude to a specific database (e.g., PostgreSQL), service (e.g., Slack), or local tool (e.g., terminal).
 - **Evaluating Maturity**: Checking the popularity, maintenance status, and exposed toolsets of different MCP implementations before integrating them.
 - **Publishing Tools**: Providing a standardized way for developers to share their custom MCP servers with the wider community.
-- **Protocol Compliance**: Verifying that a server follows the official MCP standards for metadata and communication.
+- **Protocol Compliance**: Verifying that a server follows the official MCP standards (FastMCP 3.0) for metadata and communication.
 
 ## Strengths
-- **Official Status**: Backed by Anthropic and the core MCP development team as the canonical directory.
+- **Official Status**: Backed by the Agentic AI Foundation as the canonical directory.
 - **Standardized Metadata**: Enforces the use of `server.json` for consistent tool representation across the ecosystem.
 - **Unified Discovery**: Creators publish once, and all consumers (IDEs, desktop apps, CLI tools) can reference the same canonical data.
 - **Searchable Index**: Provides a categorized and searchable interface for finding specific functionalities.
 
 ## Limitations
 - **Discovery Only**: Does not host the actual server code or binaries; it provides links to where they are hosted (GitHub, NPM, Docker Hub).
-- **Early Stage**: The ecosystem is growing rapidly, so quality and documentation of listed servers can vary significantly.
+- **Quality Variance**: While the registry is curated, the quality and security of community-contributed servers vary.
 - **Permissions**: The registry does not handle authentication or credential management for the servers it lists.
 
 ## When to use it
@@ -33,15 +33,14 @@ Before the registry, MCP implementations were fragmented across GitHub, NPM, and
 
 ## When not to use it
 - When you are working with private, internal, or proprietary tools that should not be publicly indexed.
-- When using non-MCP-based tool-calling systems (e.g., legacy OpenAI Function Calling).
+- When using non-MCP-based tool-calling systems.
 
 ## Getting started
+To discover and use tools from the registry, you typically find the server you need and add its configuration to your MCP client (like Claude Desktop or an MCP-native IDE).
 
-### Browsing the Registry
-You can browse the registry through the web interface at [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io/).
-
-### Using Registry Metadata in Config
-Many MCP clients use the registry metadata to simplify configuration. For example, if a tool is listed on the registry, you can often find the exact `claude_desktop_config.json` snippet required to run it.
+1. Browse the registry at [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io/).
+2. Locate a server (e.g., `@modelcontextprotocol/server-everything`).
+3. Copy the configuration snippet into your client config.
 
 ```json
 {
@@ -54,51 +53,53 @@ Many MCP clients use the registry metadata to simplify configuration. For exampl
 }
 ```
 
-## Technical examples
-
-### Publishing to the Registry
-To list a server, developers typically create a `mcp-server.json` file in their repository root and submit a PR to the official registry repository.
-
-```json
-{
-  "mcp-server": {
-    "name": "my-custom-server",
-    "description": "Exposes my custom home automation tools",
-    "version": "1.0.0",
-    "repository": "https://github.com/user/my-custom-server",
-    "license": "MIT"
-  }
-}
-```
-
-### Programmatic Discovery
-Advanced clients can fetch the registry index as JSON to provide an "in-app" discovery experience.
+## CLI examples
+The MCP Registry can be interacted with via the MCP CLI or through `npx` for individual servers.
 
 ```bash
-# Example of fetching registry metadata (hypothetical endpoint)
-curl https://registry.modelcontextprotocol.io/v1/servers/search?q=postgres
+# Search for a server in the registry
+mcp search postgres
+
+# List all official MCP servers
+mcp list --official
+
+# Install a server from the registry
+mcp install @modelcontextprotocol/server-postgres
+```
+
+## API examples
+Clients like Claude 4.8 can programmatically interact with the registry to discover tools on-the-fly using the FastMCP 3.0 SDK.
+
+```python
+from mcp.client import FastMCP
+
+# Initialize a client that can discover tools from the registry
+client = FastMCP("my-agent")
+
+# Discover tools for a specific domain
+tools = client.discover_tools("database")
+for tool in tools:
+    print(f"Found tool: {tool.name}")
 ```
 
 ## Related tools / concepts
-- [Model Context Protocol (MCP)](mcp.md)
-- [CliHub](clihub.md)
-- [ServiceNow MCP Server](servicenow-mcp.md)
-- [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
-- [Playwright MCP Server](playwright-mcp.md)
-- [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md)
-- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md)
-- [Fuzzing MCP Server](../development_ops/fuzzing-mcp-server.md)
-- [Jupyter Kernel MCP](../development_ops/jupyter-kernel-mcp.md)
-- [Symbolic MCP Server](../development_ops/symbolic-mcp.md)
-- [Claude Desktop](../development_ops/vscode.md)
-- [PulseMCP](https://pulsemcp.com/) (Community-driven alternative directory)
+- [Model Context Protocol (MCP)](mcp.md) — The underlying protocol.
+- [FastMCP 3.0](mcp.md) — The June 2026 standard for building MCP servers.
+- [CliHub](clihub.md) — A community repository for CLI tools.
+- [ServiceNow MCP Server](servicenow-mcp.md) — Enterprise integration example.
+- [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md) — Project management integration.
+- [Playwright MCP Server](playwright-mcp.md) — Browser automation tool.
+- [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md) — Sandbox environment.
+- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) — OS-level automation.
+- [Claude 4.8 (Opus)](../providers/anthropic.md) — Primary consumer of MCP tools.
 
 ## Sources / references
 - [Official MCP Registry](https://registry.modelcontextprotocol.io/)
 - [Model Context Protocol Website](https://modelcontextprotocol.io/)
-- [MCP GitHub Organization](https://github.com/modelcontextprotocol)
+- [Agentic AI Foundation Announcements](https://agentic-ai.foundation/)
+- [FastMCP 3.0 Documentation](https://github.com/modelcontextprotocol/fastmcp)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high
