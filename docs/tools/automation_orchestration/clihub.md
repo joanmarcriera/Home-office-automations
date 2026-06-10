@@ -1,13 +1,13 @@
 # CliHub
 
 ## What it is
-CliHub is a generator that connects to a Model Context Protocol (MCP) server and produces a compiled, standalone CLI binary. Each tool exposed by the MCP server is automatically converted into a command within the generated CLI.
+CliHub is a generator that connects to a Model Context Protocol (MCP) server and produces a compiled, standalone CLI binary. Each tool exposed by the MCP server is automatically converted into a command within the generated CLI. As of June 2026, it supports **MCP 3.0** and is a primary tool for "freezing" agent capabilities into stable binaries.
 
 ## What problem it solves
-MCP clients (like Claude Desktop) are excellent for interactive agent workflows, but they can add significant runtime overhead and deployment complexity for automated tasks. CliHub solves this by converting MCP tools into portable, fast, and scriptable binaries. It allows "one-command" deployment of entire tool suites for both humans and agents.
+MCP clients (like **Claude 4.8 Desktop**) are excellent for interactive agent workflows, but they can add significant runtime overhead and deployment complexity for automated tasks. CliHub solves this by converting MCP tools into portable, fast, and scriptable binaries. It allows "one-command" deployment of entire tool suites for both humans and agents, bridging the gap between dynamic agent tools and static DevOps pipelines.
 
 ## Where it fits in the stack
-**Automation / Orchestration Tool**. It bridges the gap between the emerging MCP ecosystem and traditional shell-native workflows. It effectively allows you to "compile" your agentic tools into standard DevOps-friendly binaries.
+**Automation / Orchestration Tool**. It bridges the gap between the emerging MCP ecosystem and traditional shell-native workflows. It effectively allows you to "compile" your agentic tools into standard DevOps-friendly binaries for use by models like **Llama 4 Maverick**.
 
 ## Typical use cases
 - Packaging complex MCP tool suites (like Jira or GitHub) into static binaries for CI/CD pipelines.
@@ -20,7 +20,7 @@ MCP clients (like Claude Desktop) are excellent for interactive agent workflows,
 - **Simplicity**: One-command codegen flow from MCP endpoint to ready-to-use CLI.
 - **Portability**: Generates binaries for multiple target platforms (Linux, macOS, Windows).
 - **Efficiency**: Eliminates the overhead of maintaining an active MCP transport session for simple, one-off tool calls.
-- **Interoperability**: Supports both HTTP and stdio MCP transport protocols.
+- **Interoperability**: Supports both HTTP/SSE and stdio MCP transport protocols.
 - **Agent-Friendly**: Standard CLI interfaces are easily understood by older agent models or simpler automation scripts.
 
 ## Limitations
@@ -57,15 +57,16 @@ Generate a CLI from a local MCP server (stdio):
 clihub generate --name my-tool --command "npx -y @anthropic-ai/mcp-server-atlassian"
 ```
 
-Generate a CLI from a remote MCP server (SSE/HTTP):
+## CLI examples
+
+### 1. Generating a Remote CLI (SSE)
+Connect to a hosted MCP server and generate a local binary:
 
 ```bash
 clihub generate --name remote-tool --url "https://mcp.example.com/sse"
 ```
 
-## Technical / CLI examples
-
-### Invoking a Generated Command
+### 2. Invoking a Generated Command
 Once generated, you can use the binary like any other CLI tool. If you generated a Jira CLI:
 
 ```bash
@@ -76,25 +77,63 @@ Once generated, you can use the binary like any other CLI tool. If you generated
 ./jira-cli search_issues --jql "project = PROJ AND status = Open"
 ```
 
-### Multi-Platform Build
+### 3. Multi-Platform Build
 CliHub can leverage Go's cross-compilation to build for different environments:
 
 ```bash
 GOOS=linux GOARCH=amd64 clihub generate --name jira-linux --command "..."
 ```
 
-### Integration with n8n
-Instead of configuring complex MCP nodes in n8n, you can use the "Execute Command" node to call a CliHub-generated binary for simple tool execution.
+## API examples
+
+### 1. Programmatic Generation (Go)
+Integrate CliHub's generation logic into your own Go-based developer tools:
+
+```go
+import "github.com/thellimist/clihub/pkg/generator"
+
+func main() {
+    config := generator.Config{
+        Name:    "my-tool",
+        Command: "npx -y @some/mcp-server",
+    }
+    generator.Generate(config)
+}
+```
+
+### 2. Wrapping CliHub in Python
+Using Python to manage versioning and distribution of generated binaries:
+
+```python
+import subprocess
+
+def update_tool(name, mcp_command):
+    subprocess.run(["clihub", "generate", "--name", name, "--command", mcp_command])
+    print(f"Updated {name} to latest MCP schema.")
+
+update_tool("kb-tool", "python3 scripts/mcp_kb_server.py")
+```
+
+### 3. Calling via n8n
+Instead of configuring complex MCP nodes, use the "Execute Command" node to call a CliHub binary:
+```json
+{
+  "node": "Execute Command",
+  "parameters": {
+    "command": "./jira-cli get_issue --key={{$json.key}}"
+  }
+}
+```
 
 ## Related tools / concepts
-- [Model Context Protocol (MCP)](mcp.md)
-- [MCP Registry](mcp-registry.md)
-- [ServiceNow MCP Server](servicenow-mcp.md)
-- [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
-- [Playwright MCP Server](playwright-mcp.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [n8n](../../services/n8n.md)
+- [Model Context Protocol (MCP)](mcp.md) - The underlying protocol.
+- [MCP Registry](mcp-registry.md) - For finding MCP servers to compile.
+- [ServiceNow MCP Server](servicenow-mcp.md) - A target for compilation.
+- [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md) - A target for compilation.
+- [Playwright MCP Server](playwright-mcp.md) - A target for compilation.
+- [Agent Protocols](../../knowledge_base/agent_protocols.md) - Conceptual background.
+- [Claude Code](../development_ops/claude-code.md) - A high-level consumer of MCP.
+- [n8n](../../services/n8n.md) - Orchestrator that can use generated binaries.
 
 ## Sources / References
 - [CliHub Repository](https://github.com/thellimist/clihub)
@@ -103,5 +142,5 @@ Instead of configuring complex MCP nodes in n8n, you can use the "Execute Comman
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high
