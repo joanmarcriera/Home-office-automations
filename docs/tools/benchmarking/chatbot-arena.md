@@ -1,89 +1,124 @@
 # Chatbot Arena (LMSYS)
 
 ## What it is
-Chatbot Arena is a crowdsourced open platform for evaluating LLMs through human preference. Developed by LMSYS (Large Model Systems Organization), it uses an Elo rating system based on pairwise comparisons where humans vote for the better response from two anonymous models. Its key metric is the Elo Rating, representing the relative skill level of a model based on thousands of matches.
+Chatbot Arena is a crowdsourced open platform for evaluating LLMs through human preference. Developed by LMSYS (Large Model Systems Organization), it uses an Elo rating system based on pairwise comparisons where humans vote for the better response from two anonymous models. As of June 2026, it remains the gold standard for evaluating "vibe" and conversational reasoning for models like **Claude 4.8**, **GPT-5.5**, and **Llama 4 Maverick**.
 
 ## What problem it solves
-Provides a human-preference-based ranking of LLMs that captures subjective quality differences not easily measured by automated benchmarks. It counters "benchmark contamination" by using blind human testing on unpredictable user prompts.
+Provides a human-preference-based ranking of LLMs that captures subjective quality differences not easily measured by automated benchmarks. It counters "benchmark contamination" by using blind human testing on unpredictable user prompts, providing a critical counter-narrative to synthetic benchmarks like MMLU.
 
 ## Where it fits in the stack
-**Benchmarking**. Serves as a reference leaderboard for comparing LLM quality based on real human judgments and "vibe" checks.
+**Benchmarking**. Serves as the primary reference leaderboard for comparing LLM quality and "reasoning density" based on real-world human interactions.
 
 ## Typical use cases
-- Comparing the conversational quality of different LLMs before selecting one for deployment
-- Tracking how new model releases rank against established models (e.g., GPT-4 vs. Claude 3.5)
-- Validating whether automated benchmark scores (like MMLU) align with human preferences
+- Tracking the rise of reasoning models (e.g., **GPT-5.5** vs. **Claude 4.8 Opus**) in the "Hard Prompts" category.
+- Evaluating the gap between frontier closed models and the latest open releases like **Llama 4 Maverick**.
+- Deciding on a primary model for agentic orchestration based on its "Coding" and "Long Context" Arena scores.
 
 ## Strengths
-- Based on real human preferences rather than synthetic metrics
-- Large-scale crowdsourced evaluation provides statistical robustness
-- Covers a wide range of models and is continuously updated
-- Dynamic leaderboards for specific categories (Coding, Hard Prompts, Long Context)
+- **Vibration Testing**: Captures nuances in tone, conciseness, and helpfulness that automated tests miss.
+- **Statistical Robustness**: Powered by over 1.5 million pairwise comparisons (as of 2026).
+- **Category Specificity**: Dedicated leaderboards for Coding, Creative Writing, Hard Prompts, and Vision.
+- **Contamination Resistant**: Real-time user prompts are impossible for models to pre-memorize.
 
 ## Limitations
-- Results depend on the demographics and preferences of the crowd
-- Does not measure specific capabilities like code generation or math in isolation (though category slices help)
-- No way to run it locally or privately on your own models for the main leaderboard
-- Potential for "style" bias where models with more verbose or polite formatting score higher
+- **Latency**: It takes weeks for a new model to gain enough votes for a stable Elo rating.
+- **Style Bias**: Historically, models with more verbose or polite formatting tended to score higher (though "Arena Hard" mitigates this).
+- **Crowd Demographics**: Voting patterns reflect the subjective preferences of the active user base.
 
 ## When to use it
-- When deciding which hosted LLM to use and human-perceived quality matters most
-- When validating whether a model that scores well on automated benchmarks also "feels" good to users
-- For tracking state-of-the-art (SOTA) progress in the LLM landscape
+- When you need to know which model "feels" the smartest to humans right now.
+- To validate if a model's high synthetic benchmark scores translate to real-world utility.
+- When evaluating the relative performance of reasoning models for complex planning tasks.
 
 ## When not to use it
-- When you need to benchmark local or private models not listed on the platform
-- When you need domain-specific evaluation for niche technical tasks
-- For rigorous safety or alignment testing (dedicated benchmarks are better)
+- When you need to benchmark local or private models not listed on the public platform.
+- For domain-specific evaluation for niche technical tasks (use [GPQA](gpqa.md) or [SWE-bench](swe-bench.md) instead).
+- For rigorous safety and red-teaming (use dedicated safety benchmarks).
 
 ## Getting started
 
-Users can participate in the arena by visiting the LMSYS website and entering prompts. For developers, the leaderboard data is often available for analysis.
+Users participate by entering prompts at the Arena website. For programmatic analysis, the leaderboard can be accessed via Hugging Face.
 
 1. Visit [arena.lmsys.org](https://arena.lmsys.org/).
-2. Enter a prompt in the "Side-by-side" mode.
-3. Compare Model A and Model B responses.
-4. Vote for the better response (or a tie).
+2. Enter a prompt in "Battle Mode."
+3. Compare responses from Model A and Model B.
+4. Vote and reveal the models.
 
-## Technical examples
+## CLI examples
 
-### Elo Rating Calculation
-The platform uses the standard Elo rating system. After a match between Model A (rating $R_A$) and Model B (rating $R_B$), the expected score $E_A$ for Model A is:
+### 1. Fetching Leaderboard with Hugging Face CLI
+You can download the latest Arena dataset for local analysis:
+```bash
+huggingface-cli download lmsys/chatbot_arena_conversations --repo-type dataset
+```
 
-$$E_A = \frac{1}{1 + 10^{(R_B - R_A)/400}}$$
+### 2. Running Local Evaluation with Arena Hard
+If you have a local model, you can run the "Arena Hard" benchmark locally to estimate its Elo:
+```bash
+python3 -m arena_hard.gen_answers --model-path ./models/llama-4-maverick
+python3 -m arena_hard.answer_eval --judge-model gpt-5.5
+```
 
-Ratings are updated based on the actual outcome vs. the expected outcome.
+### 3. Comparing Elo Ratings via Curl
+Query the LMSYS API (where available) to get specific model ratings:
+```bash
+curl -X GET "https://api.lmsys.org/v1/leaderboard?category=coding"
+```
 
-### Accessing Leaderboard via API
-While the voting is human-based, the leaderboard data can sometimes be queried or downloaded via the Hugging Face dataset:
+## API examples
+
+### 1. Python: Loading Arena Conversations
+Analyze human preference patterns using the public dataset:
 
 ```python
 from datasets import load_dataset
 
-# Load the Chatbot Arena Conversations dataset
+# Load the Chatbot Arena Conversations dataset (2026 update)
 dataset = load_dataset("lmsys/chatbot_arena_conversations")
-print(dataset['train'][0])
+print(f"Top prompt: {dataset['train'][0]['conversation_a'][0]['content']}")
+```
+
+### 2. Estimating Elo for New Models
+Use the Bradley-Terry model to calculate expected win rates between two models based on their Arena Elo:
+
+```python
+def expected_win_rate(elo_a, elo_b):
+    return 1 / (1 + 10 ** ((elo_b - elo_a) / 400))
+
+# GPT-5.5 (est. 1350) vs Llama 4 Maverick (est. 1310)
+win_rate = expected_win_rate(1350, 1310)
+print(f"Expected Win Rate for GPT-5.5: {win_rate:.2%}")
+```
+
+### 3. MCP Leaderboard Tool
+An agent might use an MCP tool to fetch the latest rankings:
+```json
+{
+  "tool": "get_arena_rankings",
+  "arguments": {
+    "category": "hard_prompts",
+    "limit": 5
+  }
+}
 ```
 
 ## Related tools / concepts
-- [AlpacaEval](alpaca-eval.md)
-- [MT-Bench](mt-bench.md)
-- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
-- [SWE-bench](swe-bench.md)
-- [LM Evaluation Harness](lm-evaluation-harness.md)
-- [MMLU](mmlu.md)
-- [GPQA](gpqa.md)
-- [OpenAI](../ai_knowledge/openai.md)
-- [Anthropic](../providers/anthropic.md)
-- [Google Gemini](../ai_knowledge/google-gemini.md)
-- [Meta Llama](https://llama.meta.com/)
+- [AlpacaEval](alpaca-eval.md) - Simulated human evaluation using GPT-4/5.
+- [MT-Bench](mt-bench.md) - Multi-turn conversation benchmark.
+- [DREAM](dream.md) - Deep Research Evaluation with Agentic Metrics.
+- [GPQA](gpqa.md) - Hard science questions for frontier models.
+- [SWE-bench](swe-bench.md) - Software engineering benchmark.
+- [LM Evaluation Harness](lm-evaluation-harness.md) - The standard for local evaluation.
+- [MMLU](mmlu.md) - Massive Multitask Language Understanding.
+- [Claude](../ai_knowledge/claude.md) - Frequent leaderboard topper.
+- [GPT-5.5](../ai_knowledge/openai.md) - Current SOTA contender.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - High-performing open model.
 
 ## Sources / references
 - [LMSYS Chatbot Arena](https://arena.lmsys.org/)
 - [LMSYS Leaderboard](https://arena.lmsys.org/leaderboard)
-- [LMSYS Org GitHub](https://github.com/lm-sys)
+- [Arena Hard Auto GitHub](https://github.com/lm-sys/arena-hard-auto)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high
