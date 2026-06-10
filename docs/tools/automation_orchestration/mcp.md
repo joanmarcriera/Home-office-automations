@@ -13,11 +13,13 @@ It eliminates the need to write custom integration code for every tool/LLM combi
 - **Universal Tool Access**: Giving an LLM access to a local filesystem, database, or API through a standard server.
 - **Dynamic Context Injection**: Allowing models to pull in relevant documentation or code snippets as needed.
 - **Cross-Platform Agents**: Writing a tool once and using it in multiple agent frameworks.
+- **Agent Orchestration**: Coordinating multiple specialized agents (e.g., using Claude 4.7 for reasoning and Llama 4 Maverick for task execution) via a shared protocol.
 
 ## Strengths
 - **Ecosystem Neutrality**: Designed to be used by any model provider or agent developer.
 - **Security**: Focuses on secure, locally-controlled execution of tools.
 - **Extensibility**: Growing library of community-contributed MCP servers (Google Maps, GitHub, Postgres, etc.).
+- **Performance**: Standardized transport layers (Stdio, HTTP/SSE) ensure low-latency communication.
 
 ## Limitations
 - **Adoption**: While growing rapidly, it is still a relatively new standard.
@@ -81,12 +83,48 @@ const transport = new StdioServerTransport();
 await server.connect(transport);
 ```
 
+## CLI examples
+MCP servers and clients can be managed and tested via CLI tools.
+
+```bash
+# Test an MCP server using the MCP Inspector
+npx @modelcontextprotocol/inspector <command-to-run-server>
+
+# List available tools on a local server (via Stdio)
+echo '{"jsonrpc":"2.0","method":"tools/list","id":1,"params":{}}' | node my-mcp-server.js
+
+# Use the MCP CLI to connect to a server
+mcp-cli connect stdio --command node --args my-mcp-server.js
+```
+
+## API examples
+Clients can interact with MCP servers via the defined protocol over various transports.
+
+### Client Request (JSON-RPC)
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "get_weather",
+    "arguments": {
+      "location": "San Francisco"
+    }
+  },
+  "id": 1
+}
+```
+
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md)
-- [Roo Code](../agents/roo-code.md)
-- [MCP Registry](mcp-registry.md)
-- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
-- [Cline](../agents/cline.md)
+- [Claude Code](../development_ops/claude-code.md) — Uses MCP for tool interaction.
+- [Roo Code](../agents/roo-code.md) — Open-source agent supporting MCP.
+- [MCP Registry](mcp-registry.md) — Central catalog of MCP servers.
+- [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) — Specific implementation pattern.
+- [Cline](../agents/cline.md) — IDE agent with MCP support.
+- [GPT-5.5](../providers/openai.md) — Integrated with MCP via third-party gateways.
+- [n8n](../../services/n8n.md) — Supports MCP for workflow tool execution.
+- [OpenWebUI](../../services/open-webui.md) — Integrated with MCP for tool discovery.
+- [Python SDK](https://github.com/modelcontextprotocol/python-sdk) — Official Python implementation.
 
 ## Sources / References
 - [Official Website](https://modelcontextprotocol.io/)
@@ -95,5 +133,5 @@ await server.connect(transport);
 - [MCP SDKs](https://github.com/modelcontextprotocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-13
+- Last reviewed: 2026-06-08
 - Confidence: high

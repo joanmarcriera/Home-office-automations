@@ -13,6 +13,7 @@ It sits in the **User Interface / Orchestration** layer, connecting the user to 
 - Interpreting cryptic error codes on the oven or washing machine.
 - Finding maintenance schedules (e.g., "how often to clean the dryer vent?").
 - Step-by-step guidance for minor repairs or setup.
+- Comparing troubleshooting steps across different model generations (e.g., using Claude 4.7 for reasoning).
 
 ## Comparison: Open WebUI vs. Streamlit
 
@@ -30,10 +31,11 @@ It sits in the **User Interface / Orchestration** layer, connecting the user to 
 - **Accessibility**: Family members can ask questions via phone or tablet without technical knowledge.
 - **Privacy**: Entirely self-hosted when using local LLMs and embeddings.
 - **Accuracy**: RAG reduces hallucinations by grounding the LLM in the actual text of the manual.
+- **Frontier Support**: Compatible with latest models like GPT-5.5 and Llama 4 Maverick.
 
 ## Limitations
 - **OCR Quality**: Poorly scanned manuals may lead to incorrect information retrieval.
-- **Complex Diagrams**: LLMs may struggle to interpret "Figure 1.2" if the diagram isn't correctly multi-modally indexed.
+- **Complex Diagrams**: LLMs may struggle to interpret "Figure 1.2" if the diagram isn't correctly indexed.
 
 ## When to use it
 - For any household appliance with a digital or physical manual.
@@ -42,6 +44,50 @@ It sits in the **User Interface / Orchestration** layer, connecting the user to 
 ## When not to use it
 - **Dangerous Repairs**: High-voltage electrical work or gas line issues should always be handled by professionals.
 - **Time-Critical Safety**: Do not use the assistant if there is a fire or immediate safety risk.
+
+## Getting started
+### Environment Setup
+1. Ensure Open WebUI or Streamlit is installed and connected to your local LLM provider (e.g., Ollama).
+2. Prepare your appliance manuals in PDF format.
+3. Configure your vector database (e.g., ChromaDB) for document ingestion.
+
+### Basic Assistant Query
+```bash
+# Example query to the troubleshooting assistant via CLI
+python3 scripts/home_admin_agent.py "Why is my Bosch dishwasher flashing E24?"
+```
+
+## CLI examples
+The research implementation can be tested and managed via CLI.
+
+```bash
+# Start the reference implementation (Streamlit-based)
+streamlit run scripts/home_admin_ui.py
+
+# Index a new manual into the vector database
+python3 scripts/process_manuals.py --file manuals/bosch_dishwasher.pdf
+
+# Test the RAG retrieval without the UI
+python3 scripts/verify_manual_retrieval.py "E24 error code meaning"
+```
+
+## API examples
+The assistant can be integrated into larger workflows via API.
+
+### Querying the Assistant (Python)
+```python
+import requests
+
+def get_troubleshooting_help(query):
+    # Example endpoint for the home admin agent
+    response = requests.post(
+        "http://localhost:8000/api/chat",
+        json={"message": query, "context_tags": ["manuals"]}
+    )
+    return response.json()["answer"]
+
+# get_troubleshooting_help("How do I reset the filter on my dryer?")
+```
 
 ## System Prompt Templates
 
@@ -68,12 +114,12 @@ A common pattern for ingesting manuals from Paperless-ngx into a vector database
 5. **Storage**: Upsert chunks into ChromaDB or similar.
 
 ## Related tools / concepts
-- [Open WebUI](../services/open-webui.md)
-- [Ollama](../services/ollama.md)
-- [Paperless-ngx](../services/paperless-ngx.md)
-- [RAG (Retrieval-Augmented Generation)](./patterns/rag.md)
+- [Open WebUI](../services/open-webui.md) — Primary UI choice.
+- [Ollama](../services/ollama.md) — Local inference engine.
+- [Paperless-ngx](../services/paperless-ngx.md) — Source of manual files.
+- [RAG (Retrieval-Augmented Generation)](./patterns/rag-pattern.md) — Underlying pattern.
 - [n8n](../services/n8n.md) — For orchestrating manual ingestion pipelines.
-- [ChromaDB](./vector-db-comparison.md) — For storing and searching manual embeddings.
+- [ChromaDB](./vector-db-comparison.md) — Vector storage.
 - [Manual Assistant Implementation](../reference-implementations/manual-assistant/manual-assistant-implementation.md) — Reference backend code.
 
 ## Sources / references
@@ -81,5 +127,5 @@ A common pattern for ingesting manuals from Paperless-ngx into a vector database
 - [Streamlit Documentation](https://docs.streamlit.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-08
 - Confidence: high
