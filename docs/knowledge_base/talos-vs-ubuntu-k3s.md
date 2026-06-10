@@ -13,6 +13,7 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 - **Evaluating Node OS**: Deciding which distribution to install on physical hardware or virtual machines for a new K3s cluster.
 - **Security Hardening**: Planning a cluster migration from traditional Ubuntu to an immutable OS like Talos to reduce the attack surface.
 - **GitOps Implementation**: Designing a cluster where node configuration is entirely managed via YAML and stored in Git.
+- **AI Infrastructure**: Selecting the base OS for running GPU-intensive workloads with Claude 4.7 or Llama 4 Maverick.
 
 ## Comparison Overview
 
@@ -63,6 +64,7 @@ sudo systemctl status k3s
 - **Familiarity**: Most users are comfortable with Bash and standard Linux tools.
 - **Versatility**: Can easily run non-K8s workloads alongside the cluster.
 - **Support**: Massive community and extensive documentation.
+- **Hardware Support**: Better out-of-the-box support for specialized hardware like GPUs for GPT-5.5 inference.
 
 ### Talos OS
 - **Security by Design**: Minimal attack surface; no SSH or shell to exploit.
@@ -88,21 +90,49 @@ sudo systemctl status k3s
 
 - Avoid **Talos OS** if you are not comfortable managing everything via an API or if you need to run legacy software that requires a traditional Linux environment.
 
+## Getting started
+### Installation Prep
+1. Download the latest ISO for Ubuntu or the Talos OS image for your architecture.
+2. Prepare your network environment (DHCP, DNS, and Static IPs for control plane nodes).
+3. If using Talos, install the `talosctl` CLI on your management machine.
+
+### Deploying K3s
+1. For **Ubuntu**: Run the K3s installation script and join worker nodes.
+2. For **Talos**: Use `talosctl gen config` and `talosctl apply-config` to bootstrap the cluster.
+
+## API examples
+While primarily managed via CLI, both systems expose APIs for programmatic management.
+
+### Talos API (Go)
+```go
+import (
+    "github.com/talos-systems/talos/pkg/machinery/client"
+    "context"
+)
+
+// Example logic to check node status via Talos API
+c, _ := client.New(context.Background(), client.WithEndpoints("192.168.1.10"))
+// status, _ := c.Status(context.Background())
+```
+
 ## Related tools / concepts
 - [Invisible Kubernetes](invisible_kubernetes.md) — For patterns on simplifying cluster management.
-- [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — Practical guide for deploying the cluster.
-- [NFS CSI Setup](../playbooks/nfs-csi-setup.md) — For managing persistent storage on the chosen OS.
-- [Ubuntu AI](../tools/infrastructure/ubuntu-ai.md) — Specific configurations for Ubuntu-based AI workloads.
-- [Infrastructure Architecture](../architecture/infrastructure.md) — High-level overview of the homelab stack.
-- [Home Assistant](../services/home-assistant.md) — Often run as a VM or container on these OS choices.
-- [TrueNAS SCALE](../architecture/infrastructure.md) — Often used as the storage backend for these nodes.
-- [Gitea](../services/gitea.md) — For hosting GitOps repositories and CI/CD pipelines.
-- [Authentik](../services/authentik.md) — For managing identity and access to the cluster services.
+- [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — Practical deployment guide.
+- [NFS CSI Setup](../playbooks/nfs-csi-setup.md) — Persistent storage management.
+- [Ubuntu AI](../tools/infrastructure/ubuntu-ai.md) — Ubuntu configurations for AI.
+- [Infrastructure Architecture](../architecture/infrastructure.md) — High-level stack overview.
+- [Home Assistant](../services/home-assistant.md) — Running smart home tools on K3s.
+- [TrueNAS SCALE](../architecture/infrastructure.md) — Storage backend for cluster nodes.
+- [Gitea](../services/gitea.md) — Hosting GitOps repositories.
+- [Authentik](../services/authentik.md) — Identity management for the cluster.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — For agent-infrastructure interaction.
+- [Proxmox](../tools/infrastructure/proxmox.md) — Often used to host these OS instances.
+- [Ceph](../tools/infrastructure/ceph.md) — Distributed storage alternative.
 
 ## Sources / references
 - [Talos OS Documentation](https://www.talos.dev/)
 - [K3s Official Site](https://k3s.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-08
 - Confidence: high

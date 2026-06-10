@@ -11,8 +11,9 @@ Governance Layer — acts as the foundational contract for all activities within
 
 ## Typical use cases
 - **Documentation Audits**: Providing the criteria used by scripts like `check_docs_contract.py` to verify page quality.
-- **Agent Onboarding**: Giving new AI agents the "rules of the road" for how to contribute safely and effectively.
+- **Agent Onboarding**: Giving new AI agents (e.g., Claude 4.7) the "rules of the road" for how to contribute safely and effectively.
 - **Workflow Design**: Setting the expectations for how n8n workflows should be named and how data should be formatted.
+- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.5 and Llama 4 Maverick for self-correction.
 
 ## Strengths
 - **Consistency**: Enforces a uniform "look and feel" across hundreds of documentation pages.
@@ -86,19 +87,58 @@ Every knowledge page must include this section at the bottom:
 - **Dates**: Always use **ISO8601** with UTC offsets.
 - **IDs**: Use the internal ID of the source system (e.g. Paperless `document_id`) in destination metadata.
 
+## Getting started
+### Repository Setup
+1. Clone the repository and install dependencies using Poetry.
+2. Ensure you have the latest Python version (3.11+) and `mkdocs` installed.
+3. Run `python3 find_oldest_issues.py` to identify pending tasks.
+
+## CLI examples
+Standards can be verified using the following CLI tools.
+
+```bash
+# Verify the KnowledgeOps contract for a specific file
+python3 scripts/check_docs_contract.py docs/tools/ai_knowledge/claude.md
+
+# Run a full quality audit across the repository
+python3 scripts/audit_docs_quality.py
+
+# Find documentation pages that are stale or missing metadata
+python3 scripts/check_doc_freshness.py
+```
+
+## API examples
+While standards are primarily documentation-based, they are enforced via scripts that use the following logic.
+
+### Metadata Extraction (Python)
+```python
+import re
+
+def get_last_reviewed(filepath):
+    with open(filepath, 'r') as f:
+        content = f.read()
+        match = re.search(r"Last reviewed:\s*(\d{4}-\d{2}-\d{2})", content)
+        return match.group(1) if match else None
+
+date = get_last_reviewed("docs/standards.md")
+# print(f"File last reviewed on: {date}")
+```
+
 ## Related tools / concepts
-- [AGENTS.md](../AGENTS.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [Multi-Agent KnowledgeOps contract](knowledge_base/patterns/agentic-workflows.md)
-- [n8n Service](services/n8n.md)
-- [Paperless-ngx](services/paperless-ngx.md)
-- [Audit Docs Quality Script](../scripts/audit_docs_quality.py)
-- [Check Docs Contract Script](../scripts/check_docs_contract.py)
+- [AGENTS.md](../AGENTS.md) — Fundamental rules for AI agents.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Workflow for human contributors.
+- [Multi-Agent KnowledgeOps contract](knowledge_base/patterns/agentic-workflows.md) — Orchestration standards.
+- [n8n Service](services/n8n.md) — Workflow automation implementation.
+- [Paperless-ngx](services/paperless-ngx.md) — Document management standards.
+- [Audit Docs Quality Script](../scripts/audit_docs_quality.py) — Verification tool.
+- [Check Docs Contract Script](../scripts/check_docs_contract.py) — Verification tool.
+- [Claude Code](tools/development_ops/claude-code.md) — Preferred AI coding agent.
+- [Model Context Protocol](tools/automation_orchestration/mcp.md) — Standard for tool integration.
 
 ## Sources / references
 - [GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow)
 - [n8n Best Practices](https://docs.n8n.io/workflows/best-practices/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-08
 - Confidence: high
