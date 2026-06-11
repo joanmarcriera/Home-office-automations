@@ -1,33 +1,22 @@
 # Sora (OpenAI)
 
+> [!CAUTION]
+> **Sunset Notice**: As of June 2026, OpenAI has announced the discontinuation of Sora. The web and app experiences were sunsetted on April 26, 2026. The **Sora API will be officially decommissioned on September 24, 2026**. Developers are advised to migrate to alternative video generation platforms.
+
 ## What it is
-Sora is a large-scale text-to-video AI model developed by OpenAI. It is capable of generating high-fidelity videos up to 60 seconds long while maintaining visual quality, motion consistency, and adherence to complex user prompts.
+Sora is a large-scale text-to-video AI model developed by OpenAI, currently in its final sunset phase. It is capable of generating high-fidelity videos up to 60 seconds long while maintaining visual quality, motion consistency, and adherence to complex user prompts.
 
 ## What problem it solves
-It enables the creation of complex video content directly from text, significantly reducing the overhead for video production, prototyping, and visual storytelling. It acts as a world simulator, capable of modeling physical world interactions through video generation.
+It enabled the creation of complex video content directly from text, significantly reducing the overhead for video production, prototyping, and visual storytelling. It served as a world simulator, capable of modeling physical world interactions through video generation.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Generative Media**. It is a flagship model for high-resolution video generation.
-
-## Video API Implementation (Developer Guide)
-
-For developers with API access, Sora follows an asynchronous generation pattern:
-
-1. **Submit Generation**: Send a prompt and optional `input_reference` (image) to the `/videos` endpoint.
-2. **Polling**: The API returns a video ID. The client must poll the `/videos/{id}` endpoint at reasonable intervals (10-20 seconds).
-3. **Status States**:
-   - `queued`: Request is in the buffer.
-   - `processing`: The model is generating the video frames.
-   - `completed`: The video is ready for download.
-4. **Remixing**: Use an existing `video_id` as a reference to generate variations or continue the motion.
+**AI Assistants & Knowledge / Generative Media**. Historically a flagship model for high-resolution video generation, now transitioning to legacy status.
 
 ## Typical use cases
-- **Cinematic Prototyping**: Creating high-fidelity visual concepts for filmmakers.
-- **Educational Content**: Generating explanatory videos for complex scenarios.
-- **Digital Advertising**: Producing high-quality video assets from text descriptions.
-
-## Availability
-Sora is currently in **limited availability**. Access is primarily managed through OpenAI account teams or the official Video API waitlist.
+- **Cinematic Prototyping**: Creating high-fidelity visual concepts for filmmakers (Legacy).
+- **Educational Content**: Generating explanatory videos for complex scenarios (Legacy).
+- **Digital Advertising**: Producing high-quality video assets from text descriptions (Legacy).
+- **Data Export & Archiving**: Current primary use case for existing Sora users before the final September 2024 shutdown.
 
 ## Strengths
 - **Consistency**: High temporal consistency for characters and objects across long durations (up to 1 minute).
@@ -40,31 +29,97 @@ Sora is currently in **limited availability**. Access is primarily managed throu
 - **Generation Time**: High-fidelity generation is computationally expensive and takes time.
 
 ## When to use it
-- When high-fidelity video generation from text or images is required for prototyping or storytelling.
-- For creating cinematic-quality clips up to 60 seconds with consistent characters and motion.
-- When you have access to OpenAI's managed Video API for asynchronous generation.
+- **Historical Analysis**: Studying the evolution of video generation world simulators.
+- **Legacy Projects**: Completing existing projects before the September 24, 2026 API shutdown.
+- **Data Retrieval**: Exporting and archiving generated assets from the `sora.chatgpt.com/sunset` portal.
 
 ## When not to use it
-- For real-time video generation (Sora is computationally intensive and operates on an asynchronous polling pattern).
-- When a fully open-source or locally-hosted world simulator is required.
-- If high-precision physical causality (e.g., realistic biting or complex fluid dynamics) is critical.
+- **New Projects**: Do not start new commercial projects on Sora; use [Runway ML](runwayml.md) or [Luma Dream Machine](luma-dream-machine.md) instead.
+- **Real-time Generation**: Sora is computationally intensive and operates on an asynchronous polling pattern.
+- **Post-September 2026**: The API and model weights will be completely unavailable for public/API use.
 
 ## Getting started
 
-### Generating your first Video (via API)
-1.  **Authenticate**: Obtain an API key from the OpenAI developer dashboard.
-2.  **Submit Request**: Send a `POST` request to `https://api.openai.com/v1/videos` with your prompt.
-    ```bash
-    curl https://api.openai.com/v1/videos \
-      -H "Authorization: Bearer $OPENAI_API_KEY" \
-      -d '{ "prompt": "A stylish woman walks down a Tokyo street...", "model": "sora-1" }'
-    ```
-3.  **Poll for Status**: Use the returned `video_id` to check progress.
-    ```bash
-    curl https://api.openai.com/v1/videos/vid_123 \
-      -H "Authorization: Bearer $OPENAI_API_KEY"
-    ```
-4.  **Download**: Once the status is `completed`, use the provided URL to retrieve your video.
+To manage your final Sora assets before the 2026 shutdown:
+
+1. **Export Data**: Visit [sora.chatgpt.com/sunset](https://sora.chatgpt.com/sunset) and click **Export**.
+2. **API Migration**: If you have active API integrations, begin switching to alternative video providers (e.g., Luma, Runway, or Pika).
+3. **Credit Transfer**: Unused Sora credits can typically be used for other OpenAI models like Codex or GPT-5.5.
+
+## CLI examples
+
+### Final Asset Audit
+Developers can use the CLI to list and download final video assets before deletion:
+
+```bash
+# List all video IDs generated on your account
+curl https://api.openai.com/v1/videos \
+  -H "Authorization: Bearer $OPENAI_API_KEY" | jq '.data[].id'
+```
+
+### Checking Generation Status
+If generation is still active (prior to API shutdown):
+
+```bash
+# Poll for status of a legacy generation job
+curl https://api.openai.com/v1/videos/vid_legacy_123 \
+  -H "Authorization: Bearer $OPENAI_API_KEY"
+```
+
+### Deleting Specific Assets
+Proactively deleting assets from OpenAI's final storage buffer:
+
+```bash
+curl -X DELETE https://api.openai.com/v1/videos/vid_legacy_123 \
+  -H "Authorization: Bearer $OPENAI_API_KEY"
+```
+
+## API examples
+
+### Submitting a Final Generation
+Legacy generation pattern (available until Sept 24, 2026):
+
+```python
+import requests
+
+API_URL = "https://api.openai.com/v1/videos"
+headers = {"Authorization": f"Bearer {API_TOKEN}"}
+
+# Submit a 60-second video generation request
+response = requests.post(API_URL, headers=headers, json={
+    "prompt": "A stylish woman walks down a Tokyo street...",
+    "model": "sora-2"
+})
+video_id = response.json().get("id")
+```
+
+### Polling for Completion
+Asynchronous generation status check:
+
+```python
+import time
+
+def poll_video_status(video_id):
+    while True:
+        res = requests.get(f"{API_URL}/{video_id}", headers=headers)
+        status = res.json().get("status")
+        if status == "completed":
+            return res.json().get("video_url")
+        elif status == "failed":
+            raise Exception("Generation failed")
+        time.sleep(20) # Polling at 20s intervals
+```
+
+### Remixing a Video
+Generating a variation of an existing video asset:
+
+```python
+response = requests.post(API_URL, headers=headers, json={
+    "model": "sora-2",
+    "input_reference": "vid_existing_123",
+    "prompt": "Same scene but with heavy rainfall"
+})
+```
 
 ## Related tools / concepts
 - [Runway ML](runwayml.md)
@@ -76,10 +131,11 @@ Sora is currently in **limited availability**. Access is primarily managed throu
 - [Midjourney](../ai_knowledge/index.md)
 
 ## Sources / references
-- [OpenAI Sora Official Page](https://openai.com/sora)
-- [Video generation with Sora (OpenAI API Guide)](https://platform.openai.com/docs/guides/video-generation)
-- [Sora Starter App (GitHub)](https://github.com/openai/openai-sora-sample-app)
+- [OpenAI Sora Discontinuation FAQ](https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation)
+- [OpenAI API Deprecations](https://developers.openai.com/api/docs/deprecations)
+- [OpenAI Sora Official Page (Sunset Notice)](https://openai.com/sora)
+- [Video generation with Sora (Legacy API Guide)](https://platform.openai.com/docs/guides/video-generation)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-10
 - Confidence: high
