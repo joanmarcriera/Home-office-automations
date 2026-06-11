@@ -1,106 +1,126 @@
 # Aider
 
 ## What it is
-Aider is a command-line chat tool that allows you to code with LLMs directly in your local Git repository. It acts as a pair programmer that can read your code, understand the project structure, and apply edits directly to your files, followed by automated Git commits.
+Aider is a leading command-line AI pair programmer that allows developers to edit code across multiple files directly within their local Git repository. It utilizes a sophisticated "repository map" to provide LLMs with relevant context while managing the Git lifecycle, including automated commits with high-quality messages.
 
 ## What problem it solves
-It bridges the gap between the LLM's reasoning and your local file system, eliminating the need for manual copy-pasting of code between a chat window and your editor. By managing context through a sophisticated "repository map," Aider allows models to reason about large codebases without exceeding token limits.
+Aider eliminates the friction of copying and pasting code between a chat interface and an IDE. It solves the "context management" problem by automatically selecting the most relevant code snippets for a given task, enabling models like [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md) to reason accurately about large, complex codebases without exceeding token limits.
 
 ## Where it fits in the stack
-**Development & Ops / AI Coding Assistant**. It acts as the "operator" that takes high-level instructions and translates them into file edits and git commands. It is often used in conjunction with editors like [VS Code](vscode.md) or [Zed](zed.md).
+**Development & Ops / AI Coding Assistant**. It serves as a terminal-native operator that bridges high-level intent with local file system execution and Git version control.
 
 ## Typical use cases
-- **Feature Implementation**: "Add a login route to the Express app."
-- **Refactoring**: "Convert all these functions to use async/await."
-- **Bug Fixing**: "Fix the null pointer exception in the user controller."
-- **Documentation**: "Write docstrings for all exported functions."
-- **Test Generation**: "Create unit tests for the newly added validation logic."
+- **Multi-file Refactoring**: Renaming symbols or updating API signatures across an entire project.
+- **Test-Driven Development**: Generating tests and then iterating on code until the `--test-cmd` passes.
+- **Legacy Code Onboarding**: Asking questions about a new repository and having Aider explain the flow.
+- **Automated Documentation**: Generating JSDoc, Docstrings, or README updates based on the actual implementation.
+- **Bug Fix Loops**: Providing a stack trace and letting Aider find and fix the root cause.
+
+## Strengths
+- **Native Git Integration**: Every successful edit is followed by a descriptive Git commit.
+- **Language Agnostic**: Supports over 100 programming languages with optimized context gathering.
+- **Advanced Context**: The repository map uses ctags to build a concise map of the entire project.
+- **Frontier Model Support**: Day-zero support for [Claude 4.8](claude.md), [GPT-5.5](openai.md), and [Llama 4 Maverick](qwen.md).
+- **Interactive & Batch Modes**: Equally effective for real-time pair programming and automated scripts.
+
+## Limitations
+- **Terminal-Centric**: Users who prefer a GUI-first workflow may find the CLI-only interface restrictive compared to [Cursor](cursor.md).
+- **State Management**: While excellent at editing, it lacks the deep autonomous "planning" stage found in [Plandex](plandex.md).
+- **Connectivity**: Requires a stable internet connection for frontier model APIs (unless used with local providers like [Ollama](../../services/ollama.md)).
+
+## When to use it
+- When you want to remain in your terminal and maintain a tight Git-driven development loop.
+- For tasks that require editing multiple files simultaneously with high precision.
+- When working on large codebases where manual context gathering is prohibitive.
+
+## When not to use it
+- For high-level architectural planning that doesn't involve immediate code changes.
+- If you require a full "agentic" experience that includes web browsing or cloud infrastructure management (use [Claude Code](claude-code.md) or [OpenHands](openhands.md)).
 
 ## Getting started
 
 ### Installation
-Aider can be installed via pip:
+Aider is best installed via `pip` or `pipx` for global availability:
 
 ```bash
 pip install aider-chat
 ```
 
-### Basic Usage
-Set your API key and run it in your git repository:
+### Initial Setup
+Set your provider API keys and launch Aider in your Git repo:
 
 ```bash
-export ANTHROPIC_API_KEY=your-key-here
+export ANTHROPIC_API_KEY=your_key
 aider
 ```
 
-## Technical examples
+## CLI examples
 
-### Repository Map Optimization
-Aider uses a `repo map` to provide context to the LLM. You can tune how much context is sent using the `--map-tokens` flag.
-
-```bash
-# Provide more context for complex architectural changes
-aider --map-tokens 2048
-
-# Use a specific model optimized for coding
-aider --model anthropic/claude-3-5-sonnet-20240620
-```
-
-### Batch Processing (Non-Interactive)
-You can use Aider in scripts or CI/CD pipelines by passing messages directly.
+### Architect Mode with Claude 4.8
+Use the architect mode for complex changes where reasoning is prioritized over immediate editing:
 
 ```bash
-# Add a comment to every file in a directory
-aider --message "Add a license header to all files in src/" src/*.js --yes
+aider --model anthropic/claude-4-8-opus-20260528 --architect
 ```
 
-### Using with Local Models (Ollama)
-Aider supports local models via Ollama, providing a completely private coding experience.
+### Automated Bug Fixing
+Provide a test command and let Aider iterate until success:
 
 ```bash
-# Run with a local Llama 3 model served via Ollama
-aider --model ollama/llama3
+aider --test-cmd "npm test" --message "Fix the failing tests in the auth module"
 ```
 
-## Advanced CLI Flags
-- `--read <file>`: Add a file to the chat for reference without allowing Aider to edit it.
-- `--lint-cmd <command>`: Provide a command to run after edits to check for errors; Aider will attempt to fix any errors found.
-- `--test-cmd <command>`: Provide a test command; Aider will attempt to fix the code if tests fail.
-- `--commit`: Automatically commit changes (default). Use `--no-commit` to review changes before committing manually.
+### Native MCP Integration (June 2026)
+Attach an [MCP Server](../automation_orchestration/mcp.md) to give Aider additional capabilities like database access or web search:
 
-## Strengths
-- **Git Integration**: Automatically commits changes with descriptive, high-quality messages.
-- **Context Management**: The repository map is highly effective at providing relevant context without hitting token limits.
-- **Flexibility**: Supports almost any LLM (via OpenAI, Anthropic, or OpenRouter).
-- **Speed**: Optimized for fast, iterative coding loops in the terminal.
+```bash
+aider --mcp npx -y @modelcontextprotocol/server-postgres --mcp-config database_url=...
+```
 
-## Limitations
-- **Focus**: Primarily designed for file editing; limited support for long-running autonomous tasks or browser interaction compared to tools like [OpenHands](openhands.md).
-- **CLI Learning Curve**: Requires familiarity with the terminal and Git.
-- **Token Usage**: Can be heavy on token consumption if not managed carefully (especially the repo map).
+## API examples
 
-## When to use it
-- For daily coding tasks where you want to remain in control but automate the typing/refactoring.
-- When working in a Git-tracked repository.
-- For quick fixes, refactors, and adding boilerplate or documentation.
+### Non-interactive Python Scripting
+Aider can be invoked as a library or via subprocess for automated pipelines:
 
-## When not to use it
-- For massive, multi-step architectural changes that require a higher level of autonomy (consider [Plandex](plandex.md)).
-- When you need the agent to browse the web or interact with non-file system tools.
+```python
+import subprocess
+
+def run_aider_task(prompt, files):
+    cmd = ["aider", "--message", prompt, "--yes-always"] + files
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    return result.stdout
+
+# Usage
+# run_aider_task("Add type hints to this module", ["lib/core.py"])
+```
+
+### Configuration via .aider.conf.yml
+Standardize Aider behavior across a team using a YAML config:
+
+```yaml
+model: anthropic/claude-4-8-opus-20260528
+edit-format: diff
+map-tokens: 2048
+commit: true
+dark-mode: true
+```
 
 ## Related tools / concepts
-- [OpenHands](openhands.md): An autonomous AI agent for software engineering.
-- [Plandex](plandex.md): An AI coding engine designed for complex, multi-step tasks.
-- [Claude Code](claude-code-setup.md): Anthropic's official terminal-based coding assistant.
-- [VS Code](vscode.md) and [Zed](zed.md): Editors often used alongside Aider.
-- [Mentat](mentat.md): A similar terminal-based AI pair programming tool.
-- [Codeium](codeium.md) and [GitHub Copilot](github_copilot.md): IDE-integrated completion engines.
+- [Claude Code](claude-code.md) — Anthropic's agentic coding CLI.
+- [Plandex](plandex.md) — Plan-first engineering engine for complex tasks.
+- [Cursor](cursor.md) — The leading AI-native IDE.
+- [Mentat](mentat.md) — Terminal-native multi-file editor.
+- [OpenHands](openhands.md) — Autonomous agentic engineering.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — For extending Aider's toolset.
+- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) — Often used in the underlying RAG patterns.
+- [Zed](zed.md) — High-performance editor with native Aider integration.
 
-## Sources / References
-- [Aider Official Website](https://aider.chat/)
+## Sources / references
+- [Aider Official Site](https://aider.chat/)
 - [Aider GitHub Repository](https://github.com/paul-gauthier/aider)
-- [Aider Documentation](https://aider.chat/docs/)
+- [Unified Edit Format Benchmarks (2026)](https://aider.chat/docs/benchmarks.html)
+- [Aider MCP Integration Guide](https://aider.chat/docs/mcp.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high
