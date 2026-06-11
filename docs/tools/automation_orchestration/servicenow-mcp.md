@@ -10,16 +10,18 @@ It reduces direct API wiring work when you want agents to query incidents, chang
 **Automation / Orchestration Tool**. It is a domain-specific MCP server used by MCP-compatible clients to bridge the gap between AI reasoning and enterprise IT operations.
 
 ## Typical use cases
-- Agent-assisted incident triage against ServiceNow records
-- Querying and updating tickets from coding agents
-- Script include maintenance workflows in ServiceNow from agent tools
-- Automated status reporting for change requests
+- **Natural Language Triage**: Agent-assisted incident triage using natural language queries (e.g., "Find all incidents about SAP").
+- **Automated Ticket Lifecycle**: Querying and updating tickets directly from coding agents like Claude 4.8.
+- **Script Maintenance**: Maintaining script includes, business rules, and background scripts in ServiceNow from agent tools.
+- **Status Reporting**: Automated status reporting for change requests and critical incidents.
+- **Cross-Tool Synchronization**: Bridging ServiceNow data with other tools in the homelab stack (e.g., Jira, Slack).
 
 ## Strengths
-- MCP-native interface for ServiceNow operations
-- Supports practical record search/update workflows
-- Fits existing MCP client ecosystem without custom adapters
-- Simplifies authentication by centralizing it in the server process
+- **MCP-Native**: Built specifically for the Model Context Protocol, ensuring compatibility with Claude 4.8, GPT-5.5, and Llama 4 Maverick.
+- **Natural Language Support**: Includes specialized tools for natural language search and updates.
+- **Multi-Auth Support**: Supports Basic Auth, OAuth, and Token-based authentication.
+- **Unified Interface**: Simplifies authentication by centralizing it in the server process.
+- **Script Management**: Provides dedicated tools for updating ServiceNow script files from local files.
 
 ## Limitations
 - Requires ServiceNow credentials (Service Account recommended) and environment setup
@@ -38,17 +40,24 @@ It reduces direct API wiring work when you want agents to query incidents, chang
 
 ## Getting started
 
-To use the ServiceNow MCP server with a client like Claude Desktop:
+To use the ServiceNow MCP server (June 2026 'High Confidence' version):
 
-1. Obtain your ServiceNow instance URL, username, and password.
-2. Add the server configuration to your `claude_desktop_config.json`:
+1. **Installation**:
+   ```bash
+   pip install mcp-server-servicenow
+   ```
+2. **Configuration**: Obtain your ServiceNow instance URL, username, and password.
+3. **Claude Desktop Integration**: Add the server configuration to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "servicenow": {
-      "command": "npx",
-      "args": ["-y", "@michaelbuckner/servicenow-mcp"],
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server_servicenow.cli"
+      ],
       "env": {
         "SERVICENOW_INSTANCE_URL": "https://your-instance.service-now.com",
         "SERVICENOW_USERNAME": "your-username",
@@ -59,10 +68,37 @@ To use the ServiceNow MCP server with a client like Claude Desktop:
 }
 ```
 
-## Technical examples
+## CLI examples
+
+### Running the Server Manually
+Verify your connection by running the server directly from the command line:
+
+```bash
+python -m mcp_server_servicenow.cli \
+  --url "https://your-instance.service-now.com/" \
+  --username "admin" \
+  --password "admin-password"
+```
+
+### Listing Available Tools
+If using `mcp-cli` or similar debug tools:
+
+```bash
+mcp-cli list-tools --server-command "python -m mcp_server_servicenow.cli"
+```
+
+### Inspecting Resources
+ServiceNow MCP exposes resources like incidents and tables:
+
+```bash
+# Example: List recent incidents via resource URI
+mcp-cli read-resource servicenow://incidents
+```
+
+## API examples
 
 ### Searching for Incidents
-An agent can use the `search_records` tool to find specific incidents:
+Agents using FastMCP 3.0 or native MCP clients can invoke the `search_records` tool:
 
 ```json
 // Tool call from agent
@@ -76,20 +112,29 @@ An agent can use the `search_records` tool to find specific incidents:
 }
 ```
 
-### Updating a Record
-Closing an incident via tool call:
+### Natural Language Update
+Leveraging the specialized `natural_language_update` tool for intuitive ticket management:
 
 ```json
 // Tool call from agent
 {
-  "name": "update_record",
+  "name": "natural_language_update",
   "arguments": {
-    "table_name": "incident",
-    "sys_id": "87920394871023948710239487102394",
-    "data": {
-      "state": "7",
-      "close_notes": "Resolved by AI agent through MCP server."
-    }
+    "query": "Update incident INC0010001 saying I'm working on it"
+  }
+}
+```
+
+### Updating Script Includes
+Directly updating ServiceNow business logic from an agent:
+
+```json
+{
+  "name": "update_script",
+  "arguments": {
+    "script_name": "HelloWorld",
+    "script_type": "script_include",
+    "content": "var HelloWorld = Class.create(); HelloWorld.prototype = { initialize: function() {}, type: 'HelloWorld' };"
   }
 }
 ```
@@ -107,6 +152,8 @@ Closing an incident via tool call:
 - [Claude Desktop](../agents/claude-desktop.md)
 - [Goose](../agents/goose.md)
 - [Anthropic](../providers/anthropic.md)
+- [Claude 4.8](../providers/anthropic.md)
+- [FastMCP 3.0](mcp.md)
 - [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md)
 
 ## Sources / References
@@ -115,5 +162,5 @@ Closing an incident via tool call:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-14
+- Last reviewed: 2026-06-10
 - Confidence: high
