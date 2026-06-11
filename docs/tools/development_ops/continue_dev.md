@@ -1,131 +1,140 @@
 # Continue.dev
 
 ## What it is
-An open-source AI code assistant that brings the power of LLMs to VS Code and JetBrains. It allows you to use any LLM (local via Ollama or remote via API) for code completion, chat, and editing.
+Continue is an open-source AI code assistant and IDE extension that enables developers to integrate frontier LLMs directly into VS Code and JetBrains. It is model-agnostic, supporting local inference (via [Ollama](../../services/ollama.md)) and remote APIs ([Anthropic](../providers/anthropic.md), [OpenAI](../providers/openai.md)), and provides deep codebase context through a customizable "Context Provider" system.
 
 ## What problem it solves
-Gives developers flexibility to choose their own LLM backend (including local models) for AI-assisted coding, avoiding vendor lock-in to a single provider.
+Continue solves the problem of vendor lock-in by providing a flexible, open-source layer between the IDE and the AI provider. It enables privacy-conscious development by allowing 100% local operation and addresses the "context awareness" challenge by providing a framework to pull in documentation, GitHub issues, and terminal logs directly into the AI's prompt.
 
 ## Where it fits in the stack
-**Development & Ops**. Serves as an open-source, model-agnostic AI coding layer inside VS Code and JetBrains.
+**Development & Ops / [Development Environment](index.md)**. It acts as an extensible AI companion inside existing IDEs, serving as an open alternative to [GitHub Copilot](github_copilot.md) and [Cursor](cursor.md).
 
 ## Typical use cases
-- AI code completion using local Ollama models
-- Chat-based coding assistance with any LLM provider
-- Multi-file editing with context from the repository
+- **Privacy-First Coding**: Using local Llama 4 or Starcoder 2 models via [Ollama](../../services/ollama.md) for enterprise development.
+- **Context-Aware Debugging**: Pulling in terminal output and recent file history automatically to help the AI diagnose errors.
+- **Documentation Q&A**: Adding specific documentation URLs as context providers to ask questions about new libraries.
+- **Custom Workflow Automation**: Defining project-specific slash commands for repetitive tasks like unit test generation or code review.
+- **Enterprise Model Routing**: Routing different tasks to different models (e.g., small models for autocomplete, large models for chat).
 
 ## Strengths
-- Open source and model-agnostic
-- Supports local LLMs via Ollama
-- Available for both VS Code and JetBrains
+- **Model Agnostic**: Seamlessly switch between local and cloud providers.
+- **Extensible Context**: High-performance "Context Providers" for codebases, docs, terminal, and [MCP](../automation_orchestration/mcp.md).
+- **Open Source**: Fully transparent and community-driven, under the Apache 2.0 license.
+- **IDE Support**: Native extensions for both VS Code and the full JetBrains suite.
+- **Customizable**: Deep configuration via a standard `config.json` for team-wide consistency.
 
 ## Limitations
-- Requires configuration to connect to local or remote models
-- Completion quality depends on the chosen model
+- **Manual Configuration**: Requires more setup effort than "turnkey" alternatives like [Cursor](cursor.md).
+- **UX Consistency**: As an extension, it is sometimes limited by the host IDE's UI constraints compared to a standalone AI-native IDE.
+- **Inference Speed**: Local model performance is limited by the developer's hardware.
 
 ## When to use it
-- When you want AI code assistance with local LLMs (e.g., via Ollama)
-- When you need an open-source alternative to proprietary coding assistants
+- When you require full control over which models are used and where your data is sent.
+- When you want to combine multiple model providers (e.g., local for completions, cloud for complex logic).
+- When you prefer to stay in your existing, highly-tuned VS Code or JetBrains environment.
 
 ## When not to use it
-- When you prefer a turnkey, zero-configuration AI editor experience
-- When you need a fully integrated AI-native editor (consider Cursor or Zed)
+- If you want a zero-configuration, "it just works" experience (consider [Cursor](cursor.md) or [Windsurf](windsurf.md)).
+- If you need a fully autonomous, terminal-first agent (consider [Claude Code](claude-code.md) or [Aider](aider.md)).
 
 ## Getting started
 
-Continue is available as an extension for VS Code and JetBrains.
+### Installation
+Continue is installed via the IDE marketplace:
 
-1. **Install**: Search for "Continue" in your IDE's extension marketplace.
-2. **Configure**: Click the gear icon in the Continue sidebar to open `config.json`.
-3. **Select Model**: Choose a provider (e.g., Ollama, Anthropic, OpenAI) to start chatting.
+```bash
+# VS Code
+code --install-extension continue.continue
 
-## Usage examples
+# JetBrains
+# Search for "Continue" in the Settings > Plugins menu
+```
 
-### config.json with Ollama and Anthropic providers
-Configure Continue to use both local (Ollama) and remote (Claude) models:
+### Initial Configuration
+Open your `config.json` (via the gear icon in the Continue sidebar) to define your providers.
+
+## CLI examples
+
+### Running the Continue Headless Indexer
+Continue includes a CLI for indexing large repositories for team-wide use:
+
+```bash
+npx continue-index .
+```
+
+### Updating Configuration via CLI
+You can use the Continue CLI to manage your local config programmatically:
+
+```bash
+continue config set models.default "anthropic/claude-4-8-opus"
+```
+
+### Checking Context Provider Health
+Validate that your configured documentation and codebase indices are healthy:
+
+```bash
+continue doctor
+```
+
+## API examples
+
+### config.json with Native MCP Support (June 2026)
+As of June 2026, Continue supports [Model Context Protocol](../automation_orchestration/mcp.md) servers directly in the configuration:
+
 ```json
 {
   "models": [
     {
-      "title": "Ollama Llama 3.1",
-      "provider": "ollama",
-      "model": "llama3.1"
-    },
-    {
-      "title": "Claude 3.5 Sonnet",
+      "title": "Claude 4.8 Opus",
       "provider": "anthropic",
-      "model": "claude-3-5-sonnet-20240620",
-      "apiKey": "YOUR_API_KEY"
+      "model": "claude-4-8-opus-20260528"
     }
   ],
-  "tabAutocompleteModel": {
-    "title": "Starcoder 2",
-    "provider": "ollama",
-    "model": "starcoder2:3b"
-  }
-}
-```
-
-### Custom Context Providers
-You can extend Continue's knowledge by adding "Context Providers" that pull in data from external sources like GitHub, Google, or local documentation.
-
-```json
-{
   "contextProviders": [
     {
-      "name": "docs",
+      "name": "mcp",
       "params": {
-        "startUrls": [
-          "https://docs.continue.dev",
-          "https://nextjs.org/docs",
-          "https://tailwindcss.com/docs"
-        ]
+        "url": "http://localhost:3000/mcp"
       }
     },
     {
       "name": "codebase",
       "params": {}
-    },
-    {
-      "name": "github",
-      "params": {
-        "repo": "continuedev/continue"
-      }
     }
   ]
 }
 ```
 
-### Custom slash commands
-Add custom behavior by defining slash commands in `config.json`:
-```json
-{
-  "customCommands": [
-    {
-      "name": "test",
-      "description": "Write a unit test for the selected code",
-      "prompt": "Write a comprehensive unit test for this code using Jest: {{{ input }}}"
-    }
-  ]
+### Custom Context Provider (TypeScript)
+You can build custom context providers to bridge internal company data:
+
+```typescript
+export async function getCustomContext(query: string) {
+  // Logic to fetch data from an internal wiki or database
+  return {
+    name: "InternalWiki",
+    description: "Company-specific architectural standards",
+    content: "All services must use the standard auth middleware..."
+  };
 }
 ```
 
 ## Related tools / concepts
-
-- [Cursor](cursor.md)
-- [Zed](zed.md)
-- [Codeium](codeium.md)
-- [Claude Code — Project Setup Guide](claude-code-setup.md)
-- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
-- [Aider](aider.md)
-- [VS Code](vscode.md)
-- [Tabnine](tabnine.md)
+- [Cursor](cursor.md) — The leading AI-native IDE fork.
+- [Zed](zed.md) — High-performance Rust editor with native AI features.
+- [Aider](aider.md) — Terminal-native pair programmer.
+- [Ollama](../../services/ollama.md) — Recommended for local model serving with Continue.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Supported for context extension.
+- [VS Code](vscode.md) — The primary host IDE.
+- [Tabnine](tabnine.md) — Alternative autocomplete-focused extension.
+- [Windsurf](windsurf.md) — IDE with persistent context "Flows".
 
 ## Sources / references
-- [Official Website](https://www.continue.dev/)
-- [GitHub Repository](https://github.com/continuedev/continue)
+- [Continue Official Site](https://www.continue.dev/)
+- [Continue Documentation](https://docs.continue.dev/)
+- [Continue GitHub Repository](https://github.com/continuedev/continue)
+- [MCP Integration Guide](https://docs.continue.dev/customization/context-providers#mcp)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high

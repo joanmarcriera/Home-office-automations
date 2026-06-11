@@ -1,109 +1,140 @@
 # Cursor
 
 ## What it is
-An AI-powered code editor built on top of VS Code. It features a native AI chat, codebase indexing for context-aware answers, and "Composer" mode for multi-file edits. It is designed to be an "AI-native" fork of VS Code rather than just an extension.
+Cursor is an AI-native fork of VS Code, redesigned to facilitate seamless human-AI collaboration. It features deep codebase indexing, a native "Composer" for multi-file edits, and a built-in agentic ecosystem that can run tests, debug errors, and review PRs.
 
 ## What problem it solves
-Provides a deeply integrated AI coding experience where the editor itself understands the full codebase context, enabling more accurate completions and multi-file refactors. It solves the "context fragmentation" problem where developers have to copy-paste code between their editor and a chat window.
+It solves the "context gap" in traditional IDEs by maintaining a persistent, high-fidelity index of the entire codebase. This allows models like [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md) to perform complex, multi-file refactors with minimal hallucination, eliminating the need to manually supply file context to the AI.
 
 ## Where it fits in the stack
-**Development & Ops**. Functions as a primary code editor with native AI capabilities, serving as the interface between the developer and the AI-augmented development lifecycle.
+**Development & Ops / [Development Environment](index.md)**. It serves as the primary interface for AI-augmented engineering, acting as a successor to traditional VS Code setups.
 
 ## Typical use cases
-- **Context-Aware Completion**: Predictive typing that understands your current file and project structure.
-- **Multi-File Edits**: Using "Composer" mode to apply a change across multiple files (e.g., "Add a new field to the user model and update all related API routes").
-- **Codebase Q&A**: Asking questions like "Where is the authentication logic handled?" and getting specific file references.
+- **Multi-File Refactoring**: Using "Composer" mode to apply architectural changes across many files simultaneously.
+- **Visual UI Design**: Utilizing "Design Mode" in the Cursor browser to describe or draw UI changes by voice or click.
+- **Pre-Push Security Audits**: Running `/review-security` to find vulnerabilities before opening a PR.
+- **Autonomous Bug Hunting**: Tasking the "Bugbot" agent with identifying and fixing intermittent test failures.
+- **Onboarding & Q&A**: Asking complex questions about a new codebase ("How is the database migration handled?") and receiving context-aware answers.
 
 ## Strengths
-- **VS Code Compatibility**: Existing extensions, themes, and keybindings work out of the box.
-- **Deep Context**: Locally-stored embeddings for your entire codebase ensure the AI has relevant context.
-- **Composer Mode**: High-reliability multi-file generation that can be reviewed and applied in one click.
+- **VS Code Native**: Full compatibility with all VS Code extensions, themes, and settings.
+- **Composer 3.0**: High-speed, multi-agent editing engine that can orchestrate complex changes across hundreds of files.
+- **Codebase Awareness**: Sophisticated RAG system that uses local embeddings for lightning-fast retrieval of relevant code.
+- **Native MCP Support**: Direct integration with [Model Context Protocol](../automation_orchestration/mcp.md) servers for extended tool capabilities.
+- **Design Mode**: Revolutionary UI-editing experience using voice input and element selection in a live browser.
 
 ## Limitations
-- **Proprietary**: The core AI orchestration layer is closed source.
-- **Subscription Model**: Full features (like indexing large repos or using advanced models) require a paid plan.
-- **Cloud Dependency**: While it indexes locally, most model inference still happens on Cursor's servers.
+- **Subscription Lock-in**: Advanced features and frontier model access require a monthly subscription.
+- **Closed Source Core**: The orchestration and indexing layers are proprietary.
+- **Telemetry**: Requires a cloud connection for many AI features, which may be a concern for highly sensitive environments.
 
 ## When to use it
-- When you want an AI-native editor with deep codebase understanding and low-friction multi-file editing.
-- When you are already comfortable with the VS Code ecosystem.
-- For complex refactoring tasks that span many files and directories.
+- When you want the most polished, integrated AI coding experience available.
+- For complex projects where maintaining manual context in a chat window is overwhelming.
+- If you rely on the VS Code ecosystem but want "agentic" powers (terminal execution, multi-file editing).
 
 ## When not to use it
-- When you prefer a fully open-source editor (consider [Zed](zed.md) or VS Code with [Continue](continue_dev.md)).
-- When you want to use strictly local LLMs for privacy or air-gapped environments (unless using specific local-mode configurations).
+- In strictly offline or air-gapped environments.
+- If you prefer a minimal, terminal-only workflow (use [Aider](aider.md) or [Claude Code](claude-code.md)).
+- If your organization has a "no-AI-fork" policy and requires using official VS Code only.
 
 ## Getting started
 
-Download Cursor from the official website and sign in. On first run, it will index your codebase for AI context.
+### Installation
+Download the Cursor binary for your operating system:
 
-1. **Install**: Download for your OS (Windows/Mac/Linux).
-2. **Index**: Let Cursor index your repository (check the status in the bottom right corner).
-3. **Configure**: Add your custom instructions in `.cursorrules` to guide the AI's behavior.
-
-## Usage examples
-
-### .cursorrules file
-Create a `.cursorrules` file in your root directory to enforce coding standards. This file is automatically read by Cursor to ground its suggestions:
-
-```markdown
-# Coding Standards for Project X
-- Use TypeScript with strict mode enabled.
-- Prefer functional components and Tailwind CSS.
-- Ensure all business logic is in the `/services` directory.
-- Use `consola` for logging instead of `console.log`.
+```bash
+# MacOS/Linux/Windows
+# Visit https://cursor.com/download
 ```
 
-### Keyboard Shortcuts for AI Features
-| Action | Shortcut (Mac) | Shortcut (Windows/Linux) |
-| :--- | :--- | :--- |
-| **Edit code in place** | `Cmd + K` | `Ctrl + K` |
-| **Chat with codebase** | `Cmd + L` | `Ctrl + L` |
-| **Open Composer** | `Cmd + I` | `Ctrl + I` |
-| **Apply Suggested Fix** | `Cmd + Enter` | `Ctrl + Enter` |
-
-## Indexing and Context Management
-
-Cursor's power comes from its ability to index your codebase. You can manage this in the settings.
-
-- **Local Indexing**: Cursor creates a local index of your files for fast retrieval.
-- **Ignore Files**: Use a `.cursorignore` file to prevent the AI from indexing specific directories (like `node_modules` or `dist`).
-- **Resync**: If the AI seems to have stale information, you can manually trigger a "Resync Index" in the "Features" -> "Codebase Indexing" section of the settings.
-
-## Advanced Configuration: `.cursorrules`
-
-The `.cursorrules` file allows you to define project-wide instructions that are automatically included in every AI prompt.
+### Initial Configuration
+Upon first run, Cursor will index your project. You can guide this process with a `.cursorrules` file in the root of your repository:
 
 ```markdown
-# Project Context
-This is a high-performance Rust backend using Axum.
-
-# Preferred Patterns
-- Use `anyhow` for error handling.
-- Prefer `Tracing` for logging.
-- Ensure all public functions have doc comments.
+# .cursorrules
+- Prefer functional components over classes.
+- Use Tailwind for styling.
+- All database queries must go through the repository pattern in `/src/db`.
 ```
 
-## Practical Notes
-- Cursor is strongest when rules, project memory, and model selection are treated as part of the editor setup rather than optional extras.
-- It overlaps with [Claude Code](claude-code.md) on autonomous edits, but Cursor remains more editor-centric while Claude Code remains more terminal-centric.
-- It pairs well with reusable workflow systems such as [Superpowers](../agents/superpowers.md) when you want stronger process control than the editor provides by default.
+## CLI examples
+
+### Running Cursor from the Terminal
+Launch Cursor in the current directory:
+
+```bash
+cursor .
+```
+
+### Using the Cursor CLI Agent (June 2026)
+Cursor now includes a CLI agent for headless operations:
+
+```bash
+cursor agent /review-bugbot --branch feature/auth
+```
+
+### Managing MCP Servers
+Configure [MCP Servers](../automation_orchestration/mcp.md) via the Cursor settings or CLI:
+
+```bash
+cursor mcp add postgres npx @modelcontextprotocol/server-postgres
+```
+
+## API examples
+
+### Cursor SDK (TypeScript)
+Cursor provides an SDK for building custom agents and tools that run natively within the editor:
+
+```typescript
+import { CursorAgent } from "@cursor/sdk";
+
+const myAgent = new CursorAgent({
+  name: "DocUpdater",
+  tools: [
+    {
+      name: "update_readme",
+      handler: async (context) => {
+        // Custom logic to update documentation
+      }
+    }
+  ]
+});
+
+myAgent.run();
+```
+
+### Exposing Custom Tools
+You can expose local functions to the Cursor agent as tools via the `cursor-config.json`:
+
+```json
+{
+  "tools": [
+    {
+      "name": "run_internal_audit",
+      "command": "sh scripts/audit.sh",
+      "description": "Runs the project's internal security audit script."
+    }
+  ]
+}
+```
 
 ## Related tools / concepts
-- [VS Code](vscode.md)
-- [Continue](continue_dev.md)
-- [Zed](zed.md)
-- [Aider](aider.md)
-- [Claude Code](claude-code.md)
-- [Plandex](plandex.md)
-- [Windsurf](windsurf.md)
+- [VS Code](vscode.md) — The foundation of Cursor.
+- [Claude Code](claude-code.md) — The primary terminal-based alternative.
+- [Aider](aider.md) — Terminal-native pair programmer.
+- [Windsurf](windsurf.md) — Alternative AI-native IDE with "Flows".
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Supported for tool extensions.
+- [Zed](zed.md) — High-performance Rust-based editor.
+- [Continue](continue_dev.md) — VS Code extension for those who don't want a fork.
+- [Bugbot](../agents/autoreason.md) — The native debugging agent in Cursor.
 
-## Sources / References
-- [Cursor Official Website](https://cursor.com/)
-- [Cursor Documentation](https://docs.cursor.com/)
-- [Cursor GitHub Community](https://github.com/getcursor/cursor)
+## Sources / references
+- [Cursor Official Site](https://cursor.com/)
+- [Cursor Changelog](https://cursor.com/changelog)
+- [Cursor SDK Documentation](https://cursor.com/docs/sdk)
+- [What's New in Cursor - June 2026](https://releasebot.io/updates/cursor)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high
