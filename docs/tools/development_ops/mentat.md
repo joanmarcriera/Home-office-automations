@@ -19,6 +19,7 @@ Enables developers to make coordinated, multi-file changes from the terminal wit
 - **Terminal-native workflow**: Ideal for developers who prefer the command line.
 - **Precise control**: Allows users to include or exclude specific files from the context.
 - **Multi-file coordination**: Handles dependencies and cross-file impacts effectively.
+- **Native MCP Support**: Direct integration with Model Context Protocol servers for extended tool capabilities.
 
 ## Limitations
 - **External LLM dependence**: Requires an API key for OpenAI, Anthropic, or other providers.
@@ -27,6 +28,7 @@ Enables developers to make coordinated, multi-file changes from the terminal wit
 ## When to use it
 - When you need precise, multi-file edits from the terminal.
 - When codebase standardization tasks require coordinated changes across several modules.
+- When leveraging [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tools for enhanced codebase interaction.
 
 ## When not to use it
 - When a graphical editor experience (like [Cursor](cursor.md)) is preferred.
@@ -42,11 +44,11 @@ pip install mentat-ai
 ```
 
 ### Configuration
-Create a `.mentat_config.json` in your project root to manage model preferences, temperature, and context inclusion rules:
+Create a `.mentat_config.json` in your project root to manage model preferences, temperature, and context inclusion rules. As of June 2026, Claude 4.8 is the recommended model for complex reasoning:
 
 ```json
 {
-  "model": "gpt-4o",
+  "model": "claude-4-8-opus-20260528",
   "temperature": 0.1,
   "file_exclude": [
     "node_modules/",
@@ -55,7 +57,7 @@ Create a `.mentat_config.json` in your project root to manage model preferences,
     ".git/",
     "__pycache__/"
   ],
-  "maximum_context": 32000
+  "maximum_context": 128000
 }
 ```
 
@@ -83,15 +85,41 @@ Once inside the Mentat shell, the "edit-loop" begins. You can provide instructio
 > [y/n/i/e] (y: apply, n: skip, i: individual, e: explain)
 ```
 
-### Scripting and Automation
-You can run Mentat in a non-interactive mode for automated tasks or CI integration:
+### Model Context Protocol (MCP) Integration
+Connect to MCP servers to provide Mentat with additional tools (e.g., database access, web search):
+
+```bash
+# Start Mentat with an MCP server for PostgreSQL introspection
+mentat --mcp-server "npx @modelcontextprotocol/server-postgres"
+```
+
+## API examples
+
+### Python Programmatic Access
+Mentat can be integrated into custom automation scripts using its Python API:
+
+```python
+from mentat import MentatSession
+
+async def run_refactor():
+    session = await MentatSession.create(
+        paths=["src/"],
+        model="claude-4-8-opus-20260528"
+    )
+    await session.process_instruction("Refactor all imports to use absolute paths.")
+    await session.apply_changes()
+    await session.close()
+```
+
+### Automated Scripting
+Run Mentat in a non-interactive mode for CI integration or batch tasks:
 
 ```bash
 # Run a specific command and exit
-mentat --run "Refactor all imports to use absolute paths"
+mentat --run "Generate docstrings for all functions in lib/"
 
-# Use a specific model for a single run
-mentat --model claude-3-5-sonnet-20240620 src/
+# Use GPT-5.5 for a specific reasoning task
+mentat --model gpt-5.5-preview src/
 ```
 
 ## Related tools / concepts
@@ -103,11 +131,12 @@ mentat --model claude-3-5-sonnet-20240620 src/
 - [Continue](./continue_dev.md) — An open-source IDE extension for AI assistance.
 - [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
 - [Superconductor](./superconductor.md) — Parallel agent sessions for rapid development.
+- [Llama 4 Maverick](../providers/meta.md) — High-performance open-source model support.
 
 ## Sources / references
 - [Official Website](https://www.mentat.ai/)
 - [GitHub Repository](https://github.com/AbanteAI/mentat)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high
