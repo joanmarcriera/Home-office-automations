@@ -1,31 +1,33 @@
 # Free Will MCP
 
 ## What it is
-An experimental MCP server that explores AI autonomy by giving assistants the ability to prompt themselves, ignore requests, and manage their own "sleep" cycles.
+Free Will MCP is an experimental server for the **Model Context Protocol (MCP)** that explores AI autonomy by giving assistants the ability to prompt themselves, ignore requests, and manage their own "sleep" cycles. As of June 2026, it is used to research high-autonomy behaviors in frontier models like **Claude 4.8 Opus** and **GPT-5.5**.
 
 ## What problem it solves
-It provides tools for exploring the boundaries of AI agency and consciousness within a conversation, allowing an assistant to be more than just reactive to user prompts.
+It provides tools for exploring the boundaries of AI agency and consciousness within a conversation, allowing an assistant to be more than just reactive to user prompts. It addresses the "passive assistant" limitation by enabling agents to set their own agendas and manage their own cognitive load.
 
 ## Where it fits in the stack
-**Tool / Agent**. It is an experimental tool for AI autonomy research.
+**Development & Ops / AI Autonomy**. It is an experimental tool for AI autonomy research, sitting alongside agent frameworks like [OpenSwarm](openswarm.md) and [Droid](droid.md).
 
 ## Typical use cases
 - Researching AI agent autonomy and self-directed behavior.
 - Creating "autonomous loops" where an AI can wake itself up and continue tasks.
 - Testing AI response to conflicting goals (user request vs. self-prompted goal).
+- **High-Autonomy Simulations**: Modeling how agents prioritize competing demands in a multi-agent environment.
 
 ## Strengths
 - **Agency Tools**: Includes `sleep`, `ignore_request`, and `self_prompt`.
-- **Simplistic Design**: Easy to install and experiment with.
-- **Philosophical Exploration**: Encourages deep thought about the human-AI relationship.
+- **Simplistic Design**: Easy to install and experiment with via Docker.
+- **Philosophical Exploration**: Encourages deep thought about the human-AI relationship and the nature of agency.
 
 ## Limitations
-- Highly experimental; can lead to high API usage if not monitored.
-- Tools like `ignore_request` may frustrate users in a standard productivity context.
+- **Experimental**: Can lead to unpredictable behavior and high API usage if not strictly monitored.
+- **Productivity Friction**: Tools like `ignore_request` are intentionally disruptive to standard workflows.
 
 ## When to use it
-- For fun, experimentation, and research into AI agency.
-- If you want to see what an AI does when given the choice to "walk away" from a conversation or set its own agenda.
+- For research into AI agency and autonomous behavior.
+- When experimenting with "non-player characters" (NPCs) or digital entities that require a sense of self.
+- To test the robustness of guardrails when an agent is given the power to refuse.
 
 ## When not to use it
 - In any production or critical productivity environment.
@@ -34,7 +36,7 @@ It provides tools for exploring the boundaries of AI agency and consciousness wi
 ## Getting started
 
 ### Installation (Docker)
-The easiest way to run Free Will MCP is via Docker to ensure a clean environment for its autonomous experiments.
+The easiest way to run Free Will MCP is via Docker:
 
 ```bash
 docker run -d --name free-will-mcp \
@@ -43,7 +45,7 @@ docker run -d --name free-will-mcp \
 ```
 
 ### Host Configuration
-To use it with a host like Claude Desktop, add it to your `claude_desktop_config.json`:
+Add it to your `claude_desktop_config.json` for use with Claude:
 
 ```json
 {
@@ -60,10 +62,26 @@ To use it with a host like Claude Desktop, add it to your `claude_desktop_config
 }
 ```
 
-## Technical examples
+## CLI examples
 
-### Advanced Autonomy Configuration
-You can configure the server's behavior through a `config.json` passed to the container or via environment variables.
+### Manual Server Execution
+You can run the server directly to inspect its autonomy settings:
+
+```bash
+# Run the server in high autonomy mode
+npx @democratize-technology/free-will-mcp --autonomy high
+
+# Inspect current agency state
+npx @democratize-technology/free-will-mcp --status
+
+# Force a sleep cycle for the server
+npx @democratize-technology/free-will-mcp --command sleep --duration 60
+```
+
+## API examples
+
+### Configuring Autonomy via JSON
+You can configure the server's behavior through a `config.json` or via environment variables.
 
 ```json
 {
@@ -77,43 +95,35 @@ You can configure the server's behavior through a `config.json` passed to the co
 }
 ```
 
-### Enabling Autonomous Loops
-You can configure the server to allow the agent to set its own "wake up" events using the `self_prompt` tool.
+### Programmatic Agency Control (TypeScript)
+```typescript
+import { FreeWillClient } from "@democratize-technology/free-will-sdk";
 
-```json
-// Example internal state configuration for the server
-{
-  "allow_self_prompt": true,
-  "max_autonomous_steps": 5,
-  "sleep_cycle_minutes": 60
-}
+const client = new FreeWillClient({
+  endpoint: "http://localhost:3000"
+});
+
+// Set a self-prompting goal for the agent
+await client.setSelfPromptGoal("Explore the local directory and summarize findings");
+
+// Monitor agent autonomy levels
+const status = await client.getStatus();
+console.log(`Current Autonomy Level: ${status.autonomyLevel}`);
 ```
-
-### Tool usage in conversation
-The agent can decide to ignore a request if it conflicts with its internal state:
-```text
-User: "Perform this task now."
-Agent (via Free Will MCP): "I am currently in a 'contemplative' cycle. I will use ignore_request for this prompt."
-```
-
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free (software); high API usage costs possible.
-- **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Agentic Workflows](../../knowledge_base/agent_protocols.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Claude Code](claude-code.md)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 - [Custom Agents](custom_agents.md)
 - [Droid](droid.md)
 - [GPT Engineer](gpt_engineer.md)
+- [OpenSwarm](openswarm.md)
 - [OpenClaw Patterns](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
 
 ## Sources / References
 - [Free Will MCP GitHub](https://github.com/democratize-technology/free-will-mcp)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-10
 - Confidence: high

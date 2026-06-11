@@ -1,10 +1,10 @@
 # Plandex
 
 ## What it is
-Plandex is an AI-powered engine designed for complex, multi-file software engineering tasks. It utilizes a "plan-first" methodology where it decomposes a request into a series of explicit steps before executing them across the codebase. This approach ensures higher reliability and provides developers with a clear audit trail of intended changes.
+Plandex is an AI-powered engine designed for complex, multi-file software engineering tasks. It utilizes a "plan-first" methodology where it decomposes a request into a series of explicit steps before executing them across the codebase. As of June 2026, it supports a massive **2.5M token context window** and is optimized for frontier models like **Claude 4.8 Opus** (`claude-4-8-opus-20260528`) and **GPT-5.5**.
 
 ## What problem it solves
-Plandex manages the complexity of large, multi-file changes by breaking them into explicit plans, making it easier to reason about and review AI-generated modifications. It solves the "context drift" problem common in chat-based AI assistants by maintaining a persistent session state that tracks pending and applied changes.
+Plandex manages the complexity of large, multi-file changes by breaking them into explicit plans, making it easier to reason about and review AI-generated modifications. It solves the "context drift" problem common in chat-based AI assistants by maintaining a persistent session state that tracks pending and applied changes across the entire repository.
 
 ## Where it fits in the stack
 **Development & Ops**. Serves as a plan-and-execute AI coding engine for complex, multi-file tasks, sitting between high-level orchestration and direct file editing.
@@ -14,21 +14,24 @@ Plandex manages the complexity of large, multi-file changes by breaking them int
 - Complex feature implementation spanning many files and layers (e.g., API, DB, Frontend).
 - Codebase-wide migrations (e.g., moving from one library to another).
 - Generating comprehensive documentation or unit tests for large modules.
+- **Autonomous Repository Audits**: Leveraging the 2.5M token window to analyze entire monolithic codebases for security or performance bottlenecks.
 
 ## Strengths
 - **Plan-based approach**: Provides transparency and reviewability before a single line of code is changed.
 - **Persistent Sessions**: Changes are stored in a "sandbox" or "plan" until the developer chooses to apply them.
-- **Context Management**: Efficiently handles large file contexts and complex dependencies.
+- **Extreme Context**: Handles up to 2.5M tokens, allowing it to "see" almost any modern repository in its entirety.
 - **Open Source**: Fully self-hostable with support for local and cloud models.
 
 ## Limitations
 - **Execution Speed**: The two-stage (plan then execute) process can be slower for trivial edits.
 - **Workflow Overhead**: Requires developers to adapt to a specific command-driven session model.
+- **Cloud Transition**: Plandex Cloud is officially winding down in 2026 in favor of local and self-hosted deployments.
 
 ## When to use it
 - When a task spans many files and benefits from an explicit, reviewable plan.
 - When you want visibility into the AI's intended changes before they are written to disk.
 - For complex architectural shifts where understanding the "how" is as important as the "what".
+- When you need the maximum possible context window for repository-wide reasoning.
 
 ## When not to use it
 - When making quick, single-file edits (use [Aider](aider.md) or [Cursor](cursor.md) instead).
@@ -94,6 +97,27 @@ plandex run npm test
 plandex save
 ```
 
+## API examples
+Plandex provides a Go-based API for custom integrations and autonomous agent pipelines.
+
+### Integration with Go
+```go
+import (
+    "github.com/plandex-ai/plandex/pkg/client"
+)
+
+func main() {
+    c := client.NewClient("your-api-key")
+    session, _ := c.CreateSession("repo-audit")
+
+    // Load context and generate a plan
+    c.LoadPath(session.ID, "./src")
+    plan, _ := c.Tell(session.ID, "Analyze for security vulnerabilities")
+
+    fmt.Printf("Proposed Plan: %s\n", plan.Steps)
+}
+```
+
 ## Related tools / concepts
 - [Aider](aider.md) — For interactive, immediate terminal-based editing.
 - [Mentat](./mentat.md) — Another terminal-native multi-file editor.
@@ -102,7 +126,8 @@ plandex save
 - [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
 - [Cursor](cursor.md) — An AI-native IDE for a GUI-first approach.
 - [Codeium](codeium.md) — For IDE-native AI assistance.
-- [Agent Protocols](../../knowledge_base/agent_protocols.md) — Understanding the underlying agent communication standards.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for connecting models to tools.
+- [Claude](../providers/anthropic.md) — Primary frontier model provider for Plandex.
 
 ## Sources / references
 - [Official Website](https://plandex.ai/)
@@ -110,5 +135,5 @@ plandex save
 - [Plandex Documentation](https://docs.plandex.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-10
 - Confidence: high
