@@ -1,109 +1,131 @@
 # ClawRouter
 
 ## What it is
-ClawRouter is an agent-native LLM router for OpenClaw-focused workflows.
+ClawRouter is an MIT-licensed, agent-native LLM router developed by BlockRunAI, specifically designed for [OpenClaw](../development_ops/openclaw.md) and other agentic workflows. It provides a high-performance routing layer that optimizes model calls based on cost, latency, and reasoning requirements in real-time.
 
 ## What problem it solves
-It helps route model calls across multiple models and providers with low-latency decision logic, which is useful when agent workloads need better cost, speed, or model specialization control.
+It addresses the complexity of managing multi-model agent workloads. By providing sub-1ms routing decisions, ClawRouter ensures that agents like **Claude 4.8** are used for high-stakes reasoning while simpler tasks are routed to cost-effective models like **GPT-5.5-mini** or **Llama 4 Maverick (8B)**, all while supporting the x402 protocol for automated USDC micropayments.
 
 ## Where it fits in the stack
-**Infrastructure / Routing Layer**. It sits in the model-routing layer for agent systems, especially OpenClaw-centered stacks.
+**Infrastructure / Routing Layer**. It sits between the agent orchestration layer ([OpenClaw](../development_ops/openclaw.md)) and the model providers, serving as a smart gateway for all LLM traffic.
 
 ## Typical use cases
-- Routing agent calls across different LLMs
-- Cost-optimizing high-volume agent workflows
-- Selecting specialized models for different OpenClaw tasks
+- **Cost-Optimized Agent Ops**: Automatically routing routine tool calls to cheaper models.
+- **Low-Latency Interactions**: Selecting the fastest available provider for real-time chat.
+- **Model Specialization**: Routing coding tasks to **Claude 4.8** and web search tasks to **GPT-5.5**.
+- **Automated Micropayments**: Using the x402 protocol to handle per-request billing in USDC.
 
 ## Strengths
-- Designed for agent-native routing rather than generic API abstraction
-- Clear fit for OpenClaw ecosystems
-- Useful when model routing is a first-class operational concern
+- **Sub-1ms Overhead**: Minimal latency impact on the inference pipeline.
+- **Agent-Native Design**: Built with autonomous agent patterns in mind, unlike generic API proxies.
+- **Micropayment Support**: Native integration with the x402 protocol for decentralized billing.
+- **Protocol Compatibility**: Full support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 
 ## Limitations
-- More niche than general routing layers like LiteLLM
-- Best fit is OpenClaw-heavy stacks, not every company AI stack
+- **Ecosystem Focus**: Best optimized for OpenClaw; may require extra configuration for other frameworks.
+- **Complexity**: Requires careful rule definitions to avoid suboptimal model selection.
+- **Niche Protocol**: x402 support is powerful but requires specific wallet/payment setup.
 
 ## When to use it
-- When OpenClaw is a core part of your workflow and model routing matters
-- When agent workloads need explicit cost and speed tuning across models
+- When building large-scale agent fleets that require fine-grained cost and performance control.
+- When using **OpenClaw** as your primary agent runtime.
+- If you need to implement automated, decentralized payments for AI inference.
 
 ## When not to use it
-- When a simpler router like [LiteLLM](../../services/litellm.md) is enough
-- When the company is not using OpenClaw or similar agent-native environments
+- For simple, single-model applications where a direct API call or [LiteLLM](../../services/litellm.md) is sufficient.
+- If you do not require specialized routing or micropayment features.
 
-## Technical examples
+## Getting started
 
-### Cost-Based Routing Configuration
-Configure ClawRouter to route simple tasks to cheaper models and complex reasoning to premium models.
+### Installation (Binary)
+Download the latest release from the BlockRunAI repository:
+
+```bash
+curl -L https://github.com/BlockRunAI/ClawRouter/releases/latest/download/clawrouter -o /usr/local/bin/clawrouter
+chmod +x /usr/local/bin/clawrouter
+```
+
+### Basic Configuration
+Create a `clawrouter.yml` file to define your routing rules:
 
 ```yaml
-# clawrouter.yml example
+# clawrouter.yml
 routing_rules:
-  - condition: "task_complexity == 'low'"
-    target: "gpt-4o-mini"
-    fallback: "claude-3-haiku"
-  - condition: "task_complexity == 'high'"
-    target: "claude-3-5-sonnet"
-    fallback: "gpt-4o"
+  - condition: "intent == 'coding'"
+    target: "anthropic/claude-4-8-opus"
+  - condition: "intent == 'triage'"
+    target: "openai/gpt-5-5-mini"
+  - default: "meta/llama-4-maverick-70b"
 
-provider_priorities:
-  - provider: "anthropic"
-    weight: 0.8
-  - provider: "openai"
-    weight: 0.2
+payment:
+  protocol: "x402"
+  wallet_address: "0x..."
 ```
 
-### Specialized Model Routing
-Route specific agent actions to the best model for that domain (e.g., coding, browsing).
+## CLI examples
 
-```yaml
-action_routing:
-  coding: "claude-3-5-sonnet"
-  web_search: "gpt-4o"
-  summarization: "claude-3-haiku"
-
-# Example of dynamic routing based on agent state
-dynamic_routing:
-  - if: "agent_mode == 'fast'"
-    target: "gpt-4o-mini"
-  - if: "agent_mode == 'accurate'"
-    target: "claude-3-5-sonnet"
+### 1. Starting the Router
+Start the ClawRouter service with a specific configuration:
+```bash
+clawrouter start --config ./clawrouter.yml --port 8989
 ```
 
-### Technical Workflow: Provider Fallback
-Ensure high availability by configuring automatic failover between providers.
-
-```yaml
-failover_groups:
-  premium_reasoning:
-    primary: "anthropic/claude-3-5-sonnet"
-    secondary: "openai/gpt-4o"
-    timeout_ms: 5000
-    retry_attempts: 2
+### 2. Validating Rules
+Test your routing logic without sending actual requests:
+```bash
+clawrouter validate --rule "intent == 'coding'"
 ```
 
-## Example company use cases
-- **High-volume agent ops**: route routine OpenClaw actions to cheaper models while reserving premium models for harder steps.
-- **Multi-model specialization**: use one model for browsing, another for code generation, and another for summarization.
-- **Cost-aware experimentation**: compare routing strategies before standardizing a production model mix.
+### 3. Monitoring Traffic
+View real-time routing statistics and costs:
+```bash
+clawrouter stats --live
+```
 
-## Selection comments
-- Use **ClawRouter** when routing is part of the agent architecture itself.
-- Use **LiteLLM** for broader, provider-agnostic routing across many application teams.
-- Use **OpenRouter** when you want one billing and access layer, not a deeper routing control plane.
+## API examples
+
+### Simple Routing Request
+Send a request to the ClawRouter endpoint, which will then forward it to the optimal model:
+
+```bash
+curl -X POST http://localhost:8989/v1/chat/completions \
+     -H "Content-Type: application/json" \
+     -d '{
+       "messages": [{"role": "user", "content": "Write a Python script to sort a list."}],
+       "metadata": {"intent": "coding"}
+     }'
+```
+
+### Programmatic Rule Update
+Update routing weights dynamically via the management API:
+
+```python
+import requests
+
+config_update = {
+    "weights": {
+        "anthropic": 0.7,
+        "openai": 0.3
+    }
+}
+
+requests.post("http://localhost:8989/admin/config", json=config_update)
+```
 
 ## Related tools / concepts
-- [OpenClaw](../development_ops/openclaw.md)
-- [LiteLLM](../../services/litellm.md)
-- [OpenRouter](../ai_knowledge/openrouter.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Aider](../development_ops/aider.md)
-- [Zed](../development_ops/zed.md)
-- [Tabnine](../development_ops/tabnine.md)
+- [OpenClaw](../development_ops/openclaw.md) — The primary agent runtime for ClawRouter.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Supported protocol for tool-calling.
+- [LiteLLM](../../services/litellm.md) — General-purpose LLM router.
+- [OpenRouter](../ai_knowledge/openrouter.md) — Unified API for model access.
+- [Claude 4.8](../ai_knowledge/index.md) — High-end reasoning target.
+- [Llama 4 Maverick](../ai_knowledge/index.md) — Cost-effective inference target.
+- [Aider](../development_ops/aider.md) — Coding agent that can use ClawRouter.
 
-## Sources / References
+## Sources / references
 - [GitHub Repository](https://github.com/BlockRunAI/ClawRouter)
+- [BlockRunAI Official Documentation](https://blockrun.ai/docs/clawrouter)
+- [x402 Protocol Specification](https://x402.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high

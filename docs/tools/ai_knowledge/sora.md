@@ -1,85 +1,105 @@
-# Sora (OpenAI)
+# Sora (OpenAI) - [LEGACY]
+
+> [!CAUTION]
+> **Sora is officially discontinued.** Web and app experiences were sunsetted on April 26, 2026. The Sora API is scheduled for decommissioning on September 24, 2026. For active production video generation, see [Related tools / concepts](#related-tools--concepts) for current alternatives.
 
 ## What it is
-Sora is a large-scale text-to-video AI model developed by OpenAI. It is capable of generating high-fidelity videos up to 60 seconds long while maintaining visual quality, motion consistency, and adherence to complex user prompts.
+Sora was a large-scale text-to-video AI model developed by OpenAI, capable of generating high-fidelity videos up to 60 seconds long. It served as a landmark "world simulator," modeling physical world interactions through video generation.
 
 ## What problem it solves
-It enables the creation of complex video content directly from text, significantly reducing the overhead for video production, prototyping, and visual storytelling. It acts as a world simulator, capable of modeling physical world interactions through video generation.
+It enabled the creation of complex video content directly from text or images, significantly reducing the overhead for cinematic prototyping and visual storytelling. It was the first model to demonstrate high temporal consistency for characters and objects in long-duration AI video.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Generative Media**. It is a flagship model for high-resolution video generation.
-
-## Video API Implementation (Developer Guide)
-
-For developers with API access, Sora follows an asynchronous generation pattern:
-
-1. **Submit Generation**: Send a prompt and optional `input_reference` (image) to the `/videos` endpoint.
-2. **Polling**: The API returns a video ID. The client must poll the `/videos/{id}` endpoint at reasonable intervals (10-20 seconds).
-3. **Status States**:
-   - `queued`: Request is in the buffer.
-   - `processing`: The model is generating the video frames.
-   - `completed`: The video is ready for download.
-4. **Remixing**: Use an existing `video_id` as a reference to generate variations or continue the motion.
+**Generative Media / Legacy Foundation Model**. Historically, it sat in the high-resolution video generation layer of the AI stack.
 
 ## Typical use cases
-- **Cinematic Prototyping**: Creating high-fidelity visual concepts for filmmakers.
+- **Cinematic Prototyping**: Creating high-fidelity visual concepts.
 - **Educational Content**: Generating explanatory videos for complex scenarios.
-- **Digital Advertising**: Producing high-quality video assets from text descriptions.
-
-## Availability
-Sora is currently in **limited availability**. Access is primarily managed through OpenAI account teams or the official Video API waitlist.
+- **Historical Analysis**: Studying the evolution of diffusion-based video transformers.
 
 ## Strengths
-- **Consistency**: High temporal consistency for characters and objects across long durations (up to 1 minute).
-- **Complexity**: Handles multi-character scenes and complex physical interactions (e.g., liquid splashes, wind movement).
-- **Resolution**: Supports various aspect ratios and high-definition output.
+- **Temporal Consistency**: Unprecedented stability for characters across 60-second clips.
+- **Scene Complexity**: Handled multi-character interactions and complex physics (at the time).
+- **Resolution Support**: Native support for various aspect ratios and high-definition output.
 
 ## Limitations
-- **Access**: Not yet available for wide public use.
-- **Physics**: May still struggle with precise cause-and-effect (e.g., a cookie bite that doesn't leave a mark).
-- **Generation Time**: High-fidelity generation is computationally expensive and takes time.
+- **Availability**: Remained in limited access for most of its lifecycle.
+- **Physical Causality**: Occasional struggles with precise cause-and-effect (e.g., bites not leaving marks).
+- **End of Life**: No longer supported or accessible for new projects.
 
 ## When to use it
-- When high-fidelity video generation from text or images is required for prototyping or storytelling.
-- For creating cinematic-quality clips up to 60 seconds with consistent characters and motion.
-- When you have access to OpenAI's managed Video API for asynchronous generation.
+- For **historical research** and benchmarking the progress of video generation models.
+- When reviewing architectural patterns of early large-scale video transformers.
 
 ## When not to use it
-- For real-time video generation (Sora is computationally intensive and operates on an asynchronous polling pattern).
-- When a fully open-source or locally-hosted world simulator is required.
-- If high-precision physical causality (e.g., realistic biting or complex fluid dynamics) is critical.
+- **Active Production**: Use modern alternatives like [Runway Gen-3](runwayml.md) or [Luma Dream Machine](luma-dream-machine.md).
+- **Real-time Applications**: Sora was always an asynchronous, computationally intensive process.
 
 ## Getting started
 
-### Generating your first Video (via API)
-1.  **Authenticate**: Obtain an API key from the OpenAI developer dashboard.
-2.  **Submit Request**: Send a `POST` request to `https://api.openai.com/v1/videos` with your prompt.
-    ```bash
-    curl https://api.openai.com/v1/videos \
-      -H "Authorization: Bearer $OPENAI_API_KEY" \
-      -d '{ "prompt": "A stylish woman walks down a Tokyo street...", "model": "sora-1" }'
-    ```
-3.  **Poll for Status**: Use the returned `video_id` to check progress.
-    ```bash
-    curl https://api.openai.com/v1/videos/vid_123 \
-      -H "Authorization: Bearer $OPENAI_API_KEY"
-    ```
-4.  **Download**: Once the status is `completed`, use the provided URL to retrieve your video.
+> [!NOTE]
+> Official access to Sora is no longer available. This section is preserved for historical reference.
+
+### Historical API Implementation (OpenAI Video API)
+1. **Submit**: `POST https://api.openai.com/v1/videos` with prompt.
+2. **Poll**: `GET https://api.openai.com/v1/videos/{id}` to check status.
+3. **Retrieve**: Download once status reached `completed`.
+
+## CLI examples
+
+> [!NOTE]
+> CLI tools for Sora are no longer functional due to service sunsetting.
+
+### 1. Status Polling (Historical)
+```bash
+# Example of what was used to check video status
+curl https://api.openai.com/v1/videos/vid_123 -H "Authorization: Bearer $OPENAI_API_KEY"
+```
+
+### 2. Submission (Historical)
+```bash
+# Example of what was used to submit a video prompt
+curl https://api.openai.com/v1/videos -d '{ "prompt": "Tokyo street...", "model": "sora-1" }'
+```
+
+### 3. Account Check
+```bash
+# Checking Video API quota (Legacy)
+openai api video.quota.get
+```
+
+## API examples
+
+### Historical Python Integration
+The OpenAI Python library formerly supported Sora via the `videos` namespace:
+
+```python
+# [HISTORICAL EXAMPLE - NON-FUNCTIONAL]
+from openai import OpenAI
+
+client = OpenAI()
+
+# Sora generation was asynchronous
+# video = client.videos.generate(
+#     model="sora-1",
+#     prompt="A giant cat walks through a tiny city..."
+# )
+```
 
 ## Related tools / concepts
-- [Runway ML](runwayml.md)
-- [Luma Dream Machine](luma-dream-machine.md)
-- [OpenAI](openai.md)
-- [Project Genie](project-genie.md)
-- [Synthesia](synthesia.md)
-- [Google Gemini](google-gemini.md)
-- [Midjourney](../ai_knowledge/index.md)
+- [Runway Gen-3](runwayml.md) — Recommended production alternative.
+- [Luma Dream Machine](luma-dream-machine.md) — High-fidelity video generation alternative.
+- [OpenAI](openai.md) — The parent organization.
+- [Project Genie](project-genie.md) — Generative world model research.
+- [Midjourney](../ai_knowledge/index.md) — High-fidelity image foundation.
+- [Pika Labs](../ai_knowledge/index.md) — Video generation alternative.
+- [Kling AI](../ai_knowledge/index.md) — Frontier video generation competitor.
 
 ## Sources / references
-- [OpenAI Sora Official Page](https://openai.com/sora)
-- [Video generation with Sora (OpenAI API Guide)](https://platform.openai.com/docs/guides/video-generation)
-- [Sora Starter App (GitHub)](https://github.com/openai/openai-sora-sample-app)
+- [OpenAI Sora Official Page (Archived)](https://openai.com/sora)
+- [OpenAI Service Sunset Announcement (April 2026)](https://openai.com/news/sora-sunset)
+- [Sora API Decommissioning Guide](https://platform.openai.com/docs/guides/legacy-video)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high
