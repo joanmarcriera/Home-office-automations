@@ -20,10 +20,12 @@ Plandex manages the complexity of large, multi-file changes by breaking them int
 - **Persistent Sessions**: Changes are stored in a "sandbox" or "plan" until the developer chooses to apply them.
 - **Context Management**: Efficiently handles large file contexts and complex dependencies.
 - **Open Source**: Fully self-hostable with support for local and cloud models.
+- **Context Capacity**: Massive 2M token context window (as of early 2026) allows for indexing entire large-scale projects.
 
 ## Limitations
 - **Execution Speed**: The two-stage (plan then execute) process can be slower for trivial edits.
 - **Workflow Overhead**: Requires developers to adapt to a specific command-driven session model.
+- **Self-Hosting Priority**: Following the 2026 Cloud wind-down, users must manage their own server infrastructure for team collaboration.
 
 ## When to use it
 - When a task spans many files and benefits from an explicit, reviewable plan.
@@ -94,6 +96,18 @@ plandex run npm test
 plandex save
 ```
 
+## API examples
+
+> [!NOTE]
+> Plandex is primarily a CLI-first tool. While it has an internal Go-based API for its server component, most programmatic interactions are handled via CLI wrapper scripts or direct interaction with the Plandex server's REST endpoints for custom dashboard integrations.
+
+### Triggering a Plan Programmatically
+You can trigger Plandex tasks from scripts by piping instructions:
+
+```bash
+echo "Add docstrings to all files in lib/" | plandex tell --non-interactive
+```
+
 ## Related tools / concepts
 - [Aider](aider.md) — For interactive, immediate terminal-based editing.
 - [Mentat](./mentat.md) — Another terminal-native multi-file editor.
@@ -110,5 +124,5 @@ plandex save
 - [Plandex Documentation](https://docs.plandex.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-10
 - Confidence: high
