@@ -20,6 +20,7 @@ It automates the conversion of GitHub issues into working pull requests, reducin
 - **End-to-End Automation**: Handles cloning, branching, coding, and PR creation without human intervention.
 - **"Sweep Rules"**: Allows defining project-specific coding standards that the agent must follow.
 - **Interactive PRs**: Users can comment on the generated PR, and Sweep will iterate on the code.
+- **Frontier Model Support**: Utilizes [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md) for complex reasoning tasks.
 
 ## Limitations
 - **Scope Restriction**: Primarily optimized for tasks that can be completed in a few hundred lines of code.
@@ -35,11 +36,16 @@ It automates the conversion of GitHub issues into working pull requests, reducin
 - When issues require complex, multi-step architectural reasoning or cross-repository dependencies.
 - When your primary issue tracker or version control system is not GitHub (e.g., GitLab, Bitbucket).
 
-## Configuration and Automation
+## Getting started
 
-### Sweep Rules (`.sweep.yaml`)
-You can configure Sweep's behavior by adding a `.sweep.yaml` file to your repository. This allows you to enforce patterns and define the agent's operating environment:
+### Installation
+Sweep is primarily used via its GitHub App.
 
+1. **Install GitHub App**: Go to [Sweep's GitHub App page](https://github.com/apps/sweep-ai) and install it on your repository.
+2. **Configure Rules**: Create a `.sweep.yaml` file in your repository root to define coding standards.
+3. **Trigger**: Label an issue with `sweep` or tag `@sweepai` in an issue comment.
+
+### Initial Configuration (`.sweep.yaml`)
 ```yaml
 # .sweep.yaml example
 branch: "main"
@@ -53,7 +59,25 @@ exclude:
 description: "A junior developer agent for repo maintenance."
 ```
 
-### GitHub Action Integration
+## CLI examples
+
+### Triggering Sweep via GitHub CLI
+You can use the GitHub CLI to trigger Sweep by adding the appropriate label to an issue:
+
+```bash
+# Add the 'sweep' label to trigger the agent
+gh issue edit 123 --add-label "sweep"
+
+# Comment on an issue to give Sweep specific instructions
+gh issue comment 123 --body "@sweepai please refactor this to use the new API"
+
+# List issues currently being handled by Sweep
+gh issue list --label "sweep"
+```
+
+## API examples
+
+### Integration via GitHub Actions
 Trigger Sweep automatically or manually via GitHub Actions to maintain a "zero-backlog" state:
 
 ```yaml
@@ -74,10 +98,6 @@ jobs:
           sweep_api_key: ${{ secrets.SWEEP_API_KEY }}
 ```
 
-### Advanced Workflow Patterns
-- **Human-in-the-Loop Triage**: Use the `labeled` trigger to ensure a maintainer reviews the issue before the agent starts implementation.
-- **Incremental Refactoring**: Tag issues with `sweep:refactor` to trigger specific refactoring rules defined in your config.
-
 ## Related tools / concepts
 - [Aider](aider.md) — For interactive, developer-led terminal editing.
 - [Mentat](./mentat.md) — Multi-file terminal-based AI editing.
@@ -94,5 +114,5 @@ jobs:
 - [GitHub Repository](https://github.com/sweepai/sweep)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high

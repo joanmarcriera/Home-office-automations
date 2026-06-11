@@ -20,6 +20,7 @@ It simplifies the coordination of multiple AI agents performing complex, interde
 - **Workflow Focused**: Specifically tuned for the tools developers use most (Linear, GitHub).
 - **Open Source**: Allows for community customization and extension.
 - **Scalable**: Can manage a "swarm" of agents working in parallel on different parts of a project.
+- **Frontier Model Ready**: Optimized for [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md).
 
 ## Limitations
 - **Narrow Ecosystem**: Primarily focused on Linear and GitHub; may require custom work for other integrations.
@@ -74,37 +75,22 @@ OpenSwarm utilizes LanceDB for high-performance vector storage of project contex
 ```bash
 # Sync local documentation for RAG-based reasoning
 openswarm context sync --path ./docs --db-path ~/.openswarm/lancedb
-
-# Query the swarm's collective knowledge
-openswarm context query "How is the authentication middleware structured?"
 ```
 
-## Advanced Configuration
+## API examples
 
-### McpConfig for Tool Access
-OpenSwarm can be extended via the Model Context Protocol (MCP) to provide agents with custom tools:
+### Minimal Node.js Integration
+OpenSwarm can be used programmatically to trigger swarms from your own scripts:
 
-```json
-{
-  "mcpServers": {
-    "git": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"]
-    },
-    "linear": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-linear"]
-    }
-  }
-}
-```
+```javascript
+import { OpenSwarm } from '@intrect/openswarm';
 
-### LanceDB Persistence Patterns
-Configure LanceDB for persistent context across multiple swarm runs by setting the storage backend:
+const swarm = new OpenSwarm({
+  provider: 'anthropic',
+  model: 'claude-4-8-opus-20260528'
+});
 
-```bash
-# Set up a S3-compatible backend for shared swarm memory
-openswarm config set context.storage_uri "s3://my-swarm-memory/lancedb"
+await swarm.dispatch('linear', 'triage', { team: 'ENG' });
 ```
 
 ## Related tools / concepts
@@ -116,11 +102,12 @@ openswarm config set context.storage_uri "s3://my-swarm-memory/lancedb"
 - [Mentat](./mentat.md) — Multi-file AI editing.
 - [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
 - [Superconductor](./superconductor.md) — Parallel agent sessions for rapid development.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — For extending agent capabilities.
 
 ## Sources / References
 - [OpenSwarm GitHub](https://github.com/Intrect-io/OpenSwarm)
 - [Anthropic Claude CLI Documentation](https://docs.anthropic.com/claude/docs/claude-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high

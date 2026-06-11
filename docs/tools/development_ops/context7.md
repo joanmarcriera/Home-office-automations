@@ -13,11 +13,13 @@ It reduces one of the biggest failure modes in coding agents: confidently using 
 - **Grounding Agents**: Keeping agents accurate when working with beta or rapidly changing SDKs.
 - **API Reference**: Supplying the agent with exact method signatures during implementation.
 - **Upgrading Dependencies**: Helping an agent migrate code by providing the latest documentation for the target version.
+- **MCP-based Tooling**: Providing documentation as a tool for [Model Context Protocol](../automation_orchestration/mcp.md) compatible agents.
 
 ## Strengths
 - **Accuracy**: Targeted documentation retrieval is more reliable than general web search.
 - **Latency**: Optimized for the "coding loop" to provide fast doc lookups.
 - **Up-to-Date**: Specifically designed to index the latest documentation releases.
+- **Developer-Friendly**: Seamless integration with [Claude Code](claude-code.md), [Aider](aider.md), and [Cursor](cursor.md).
 
 ## Limitations
 - **Scope**: Best for popular libraries and frameworks; may lack coverage for obscure or internal private docs.
@@ -32,12 +34,53 @@ It reduces one of the biggest failure modes in coding agents: confidently using 
 - When the work is entirely repo-local and no external docs are needed.
 - When general web research (news, sentiment, trends) matters more than package documentation.
 
-## Technical Integration
+## Getting started
 
-Context7 can be used as a "Context Provider" in modern AI editors or as a tool for autonomous agents.
+### Installation
+For most users, Context7 is used via the official MCP server:
 
-### Example Agent Tool Configuration
-If using a custom agent, you can define a tool to fetch documentation from Context7:
+```bash
+npx -y @upstash/mcp-server-context7
+```
+
+### Configuration for Claude Desktop
+Add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/mcp-server-context7"],
+      "env": {
+        "UPSTASH_REDIS_REST_URL": "YOUR_URL",
+        "UPSTASH_REDIS_REST_TOKEN": "YOUR_TOKEN"
+      }
+    }
+  }
+}
+```
+
+## CLI examples
+
+### Querying Documentation via MCP CLI
+You can test the MCP server directly using `mcp-cli`:
+
+```bash
+# Search for documentation on a specific package
+mcp-cli call context7 search --package "supabase" --query "how to use upsert"
+
+# Get specific documentation sections
+mcp-cli call context7 get_section --package "nextjs" --section "routing/app-router"
+
+# List available packages in Context7 index
+mcp-cli call context7 list_packages
+```
+
+## API examples
+
+### Python Integration
+Context7 can be used programmatically to ground your custom agents:
 
 ```python
 import requests
@@ -50,52 +93,25 @@ def fetch_package_docs(package_name, query):
     response = requests.get(url, params={"q": query})
     return response.json()["content"]
 
-# Example usage by the agent:
-# content = fetch_package_docs("supabase", "how to use upsert with filters")
+# Usage
+# content = fetch_package_docs("langchain", "how to use FastMCP 3.0")
 ```
-
-### Integration: Claude Desktop Config
-You can expose Context7 to Claude via an MCP server that wraps the Context7 API.
-
-```json
-{
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/mcp-server-context7"],
-      "env": {
-        "UPSTASH_REDIS_REST_URL": "...",
-        "UPSTASH_REDIS_REST_TOKEN": "..."
-      }
-    }
-  }
-}
-```
-
-## Example company use cases
-- **Internal app team**: feed current Supabase, Next.js, and Stripe docs into coding agents so generated code matches current APIs.
-- **Automation team**: keep n8n, Google Workspace, and Claude-related integrations grounded in current docs instead of old examples.
-- **Consulting/agency workflow**: use Context7 for client stacks you do not work with every week, so agents can ramp faster without risky guesswork.
-
-## Selection comments
-- Use **Context7** when the question is "what does the current SDK do?"
-- Use **Tavily** when the question is "what is happening on the web right now?"
-- Use **Claude Cookbooks** when the question is "show me a first-party implementation pattern."
 
 ## Related tools / concepts
-- [Claude Code](claude-code.md)
-- [Claude Context Mode](claude-context-mode.md)
-- [Claude Cookbooks](claude-cookbooks.md)
-- [Tavily](../providers/tavily.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [LangChain](../ai_knowledge/langchain.md)
+- [Claude Code](claude-code.md) — Anthropic's agentic coding CLI.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for tool integration.
+- [Aider](aider.md) — Terminal-native pair programmer.
+- [Cursor](cursor.md) — AI-native IDE.
+- [Tavily](../providers/tavily.md) — General web search for AI agents.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The underlying architecture for Context7.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Used for indexing and retrieval patterns.
+- [FastMCP](../automation_orchestration/mcp.md) — Standard for high-speed MCP server development.
 
 ## Sources / References
 - [Context7 GitHub Repository](https://github.com/upstash/context7)
 - [Upstash Website](https://upstash.com/)
-- [awesome-context7](https://github.com/upstash/awesome-context7)
+- [Upstash Documentation](https://docs.upstash.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-11
 - Confidence: high
