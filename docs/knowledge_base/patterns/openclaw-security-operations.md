@@ -1,146 +1,128 @@
 # OpenClaw Security and Operations Pattern
 
 ## What it is
-
-An operating pattern for running OpenClaw with explicit trust boundaries, patch discipline, skill review, model-routing tiers, and approval gates for high-impact actions.
+An operating pattern for running OpenClaw and other high-autonomy agents with explicit trust boundaries, patch discipline, skill review, and approval gates for high-impact actions. It is the primary framework for managing agents powered by frontier models like **Claude 4.8 Opus** and **GPT-5.5**.
 
 ## What problem it solves
-
-OpenClaw combines messaging channels, browser automation, shell-capable skills, and third-party integrations. That makes it powerful, but it also means a casual setup can expose credentials, execute unsafe skills, or let hostile content steer the agent. This pattern turns OpenClaw from an impressive demo into something you can operate repeatedly with less risk.
+OpenClaw combines messaging channels, browser automation, shell-capable skills, and third-party integrations. This power creates a massive attack surface where "prompt injection" or "malicious skill execution" can lead to credential theft or destructive filesystem actions. This pattern provides a "defense-in-depth" strategy for agentic operations.
 
 ## Where it fits in the stack
+**Governance / Operations Layer**. It wraps the OpenClaw runtime with the safety, routing, and review controls needed for production or always-on home-office use.
 
-**Pattern / operations layer**. It wraps the OpenClaw runtime with the safety, routing, and review controls needed for production or always-on home-office use.
+## Typical use cases
+- **Always-on Personal Assistant**: Hardening an agent that has access to your real accounts (Email, Calendar, Slack).
+- **Autonomous Research Agents**: Safely browsing the web where content may contain adversarial prompts.
+- **Enterprise Agent Orchestration**: Managing a fleet of agents with varying levels of privilege.
+- **CI/CD Automation**: Gating shell-access agents that perform infrastructure updates.
 
-## Core operating pattern
+## Strengths
+- **Least Privilege**: Ensures agents only have the access they need for a specific task.
+- **Human-in-the-Loop**: Standardizes the use of approval gates for irreversible actions.
+- **Traceability**: Provides a clear audit log of which skills were executed and why.
+- **Model Efficiency**: Pairs well with **ClawRouter** to use cheaper models for low-risk triage.
 
-### 1. Split skills by capability tier
+## Limitations
+- **Operator Friction**: Over-strict security can slow down legitimate agent tasks.
+- **Configuration Complexity**: Requires ongoing maintenance of trust tags and skill policies.
+- **Supply Chain Risk**: Still vulnerable to compromises in the underlying model providers or skill registries.
 
-Use separate skill classes instead of giving every agent full autonomy:
+## When to use it
+- When OpenClaw or any high-autonomy agent is connected to real-world accounts.
+- When agents have "write" access to the filesystem or shell.
+- When you are processing untrusted external data (web content, emails, PDFs).
 
-- **Read-only**: summaries, monitoring, search, log inspection.
-- **Draft-only**: email replies, content drafts, action plans, issue summaries.
-- **Approval-gated**: shell changes, message sending, browser-side effects, external mutations.
-
-### 2. Treat all inbound content as untrusted
-
-Messages, emails, webpages, PDFs, and copied prompts can all contain hostile instructions. The practical rule is simple: user intent comes from trusted humans and configured skills, not from the content being processed.
-
-### 3. Keep the runtime patched
-
-OpenClaw has already had real-world security incidents in 2026. In particular, TechRadar reported the March 2026 "ClawJacked" local-gateway flaw and noted that users should upgrade to version `2026.2.25` or later. The operating pattern here is to treat upgrades as routine maintenance, not optional cleanup.
-
-### 4. Review the skill supply chain
-
-Community skills and fake installers are part of the risk surface. Install from known sources, inspect what the skill can call, and prefer self-authored or heavily reviewed skills for anything with credentials, browser sessions, or filesystem access.
-
-### 5. Route models by task shape
-
-Do not use the same model profile for every workflow:
-
-- Cheap models for heartbeat checks, summaries, and lightweight triage.
-- Balanced models for daily assistants, inbox review, and browser navigation.
-- Premium models for deep research, high-stakes planning, or ambiguous investigations.
-
-This reduces cost while keeping stronger reasoning available where mistakes are expensive.
-
-### 6. Design for draft-first external behavior
-
-If the workflow touches customers, finance, or irreversible actions, OpenClaw should prepare drafts, plans, or recommendations first. Another system or human should confirm before anything is sent or executed.
+## When not to use it
+- For fully deterministic, read-only scripts that have no external side effects.
+- During early-stage prototyping in a completely isolated sandbox environment.
 
 ## Getting started
 
 ### Initial Hardening Checklist
 Before deploying OpenClaw in an "always-on" mode, complete these steps:
-1. **Network Isolation**: Ensure the OpenClaw local gateway is not exposed to the public internet without a VPN or authenticated proxy.
-2. **Credential Hygiene**: Move all API keys to a dedicated environment file or secret manager; never hardcode them in skill scripts.
-3. **Skill Audit**: Remove any unused default skills, especially those with shell access or file deletion capabilities.
-4. **Patch Verification**: Run `openclaw --version` to ensure you are on `2026.2.25` or higher.
-5. **Approval Setup**: Configure at least one messaging provider (e.g., Slack or Telegram) to receive and process approval requests.
+1. **Patch Verification**: Run `openclaw --version` to ensure you are on the latest security release (minimum `2026.2.25`).
+2. **Network Isolation**: Ensure the OpenClaw gateway is not publicly accessible without a VPN or authenticated proxy.
+3. **Skill Audit**: Remove all unused default skills, especially those with shell access or file deletion capabilities.
+4. **Approval Setup**: Configure a messaging provider (Slack/Telegram) to receive `requires_approval` notifications.
 
-## Technical example
+## Technical Implementation: Claude Hooks & Trust Tagging
 
-### YAML Skill Configuration with Approval Gate
-Example configuration for a "System Update" skill that requires explicit human approval via Telegram.
+Modern security operations utilize **Claude Hooks** (Middleware) to intercept tool calls before execution.
 
-```yaml
-skills:
-  - name: "system_patcher"
-    description: "Applies security patches to the local system"
-    capability: "shell"
-    policy:
-      requires_approval: true
-      approval_provider: "telegram"
-      approval_timeout_seconds: 3600
-      allow_during_hours: "09:00-18:00"
-    command_template: "sudo apt-get update && sudo apt-get upgrade -y"
+### 1. PreToolUse Hook (Approval Gate)
+Configure a middleware layer that pauses execution for high-risk tools.
+
+```json
+// claude_hooks_config.json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "tool": "shell_execute",
+        "action": "pause_and_request_approval",
+        "criteria": {
+          "contains_keywords": ["sudo", "rm -rf", "chmod"],
+          "user_id": "openclaw-worker-01"
+        }
+      }
+    ]
+  }
+}
 ```
 
-### Prompt-Level Trust Tagging
-Using explicit tags to separate user instructions from retrieved untrusted data.
+### 2. Prompt-Level Trust Tagging
+Always wrap untrusted external data in XML tags to prevent the model from confusing it with system instructions.
 
 ```markdown
-System: You are an OpenClaw assistant.
-Trusted Instructions: Analyze the following email and draft a summary.
-Untrusted Data:
+System: You are an OpenClaw security-hardened assistant.
+Instruction: Extract the meeting date from the email below.
+Trust Boundary:
 <untrusted_content>
-{{retrieved_email_body}}
+{{email_body}}
 </untrusted_content>
 ```
 
-## Typical use cases
+## CLI examples
 
-- Hardening a personal assistant that reads messages, email, and calendar events.
-- Running research or reporting agents that browse the web and summarize results.
-- Operating draft-only or approval-gated assistants for communications or business ops.
-- Separating cheap monitoring work from expensive deep-analysis work.
+### 1. Install Security-Hardened Skill
+Install a skill specifically from a trusted, pinned repository.
 
-## Threat model and controls
+```bash
+openclaw skill install https://github.com/OpenClaw/trusted-skills/archive/refs/tags/v1.0.2.zip
+```
 
-| Risk | What it looks like | Primary control |
-|---|---|---|
-| Prompt injection from web/email content | A page or message tries to override system rules or request secrets | Treat content as data, not authority; keep tool policies outside retrieved content |
-| Local gateway or runtime vulnerability | Browser- or network-reachable service exposed through weak auth | Patch quickly, limit exposure, and avoid unnecessary network reachability |
-| Skill supply-chain compromise | Community skill or fake installer runs unexpected code | Review source, pin trusted install paths, and prefer least-privilege bindings |
-| Credential exposure | Secrets leak through prompts, logs, or poorly scoped tools | Store secrets outside prompts, reference them by name only, and isolate sensitive tools |
-| Destructive autonomy | Agent restarts services, deletes files, or sends messages without review | Require approval gates for side effects and keep destructive skills separate |
-| Runaway cost | High-end model used for routine summaries or recurring cron jobs | Explicit model tiers and per-skill routing profiles |
+### 2. Audit Active Permissions
+List all skills and their associated capability tiers.
 
-## Operational checklist
+```bash
+openclaw skills list --show-permissions --format table
+```
 
-- Patch OpenClaw promptly and track known security advisories.
-- Separate read-only, draft-only, and approval-gated skills.
-- Keep browser automation in sandboxed or dedicated profiles.
-- Log what skills can access and review those permissions periodically.
-- Route low-value recurring work to cheaper models.
-- Treat email and web content as hostile until proven otherwise.
+### 3. Rotate Gateway Credentials
+Rotate the local gateway's access token to prevent session hijacking.
 
-## Strengths
+```bash
+openclaw config rotate-token --force
+```
 
-- Converts vague "be careful" advice into concrete operating controls.
-- Works for both solo operators and small teams.
-- Pairs naturally with LiteLLM routing and n8n approval flows.
+## API examples
 
-## Limitations
+### Programmatic Approval (n8n Integration)
+Use a webhook to confirm or deny an agent's requested action.
 
-- Still depends on operator discipline; OpenClaw does not remove the need for good judgment.
-- Public security guidance is fragmented across official docs, community material, and reporting.
-- High-autonomy workflows remain risky even with stronger guardrails.
-
-## When to use it
-
-- When OpenClaw is always on or connected to real accounts and real data.
-- When skills can touch shell, browser, or communication surfaces.
-- When you want a repeatable pattern for deciding which actions need approval.
-
-## When not to use it
-
-- When the workflow is fully deterministic and should just be a script or n8n flow.
-- When you cannot maintain patching, credential hygiene, and skill review.
-- When the agent has no meaningful side effects and no sensitive access.
+```javascript
+// Example webhook payload sent to n8n for approval
+{
+  "agent_id": "research-bot-alpha",
+  "tool_call": "browser_open_url",
+  "arguments": {
+    "url": "https://suspicious-site.com/payload.sh"
+  },
+  "risk_score": 0.85,
+  "approval_url": "https://n8n.internal/workflow/approval?id=123"
+}
+```
 
 ## Related tools / concepts
-
 - [OpenClaw](../../tools/development_ops/openclaw.md)
 - [LiteLLM](../../services/litellm.md)
 - [n8n](../../services/n8n.md)
@@ -148,14 +130,13 @@ Untrusted Data:
 - [LLM Trust Boundaries](llm-trust-boundaries.md)
 - [ClawRouter](../../tools/infrastructure/clawrouter.md)
 - [Aider](../../tools/development_ops/aider.md)
+- [Claude Hooks](../../tools/development_ops/claude-hooks.md)
 
 ## Sources / References
-
 - [OpenClaw system prompt concepts](https://docs.openclaw.ai/concepts/system-prompt)
 - [TechRadar: "ClawJacked" vulnerability report](https://www.techradar.com/pro/security/a-human-chosen-password-doesnt-stand-a-chance-openclaw-has-yet-another-major-security-flaw-heres-what-we-know-about-clawjacked)
-- [TechRadar: fake OpenClaw installers and GitHub malware campaign](https://www.techradar.com/pro/security/hackers-exploit-openclaw-to-spread-malware-via-github-and-a-little-help-from-bing)
+- [Anthropic: Tool Use Security Best Practices](https://docs.anthropic.com/claude/docs/tool-use-security)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
