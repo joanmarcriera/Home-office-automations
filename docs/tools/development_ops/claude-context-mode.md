@@ -1,27 +1,30 @@
 # Claude Context Mode
 
 ## What it is
-Claude Context Mode refers to community and workflow patterns for giving Claude Code richer, better-structured operating context, often through MCP servers, repository memory files, and scoped task documents. It is the practice of "context engineering" specifically for agentic coding workflows.
+Claude Context Mode refers to community and workflow patterns for giving [Claude Code](claude-code.md) richer, better-structured operating context. This is typically achieved through [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers, repository memory files (`AGENTS.md`), and scoped task documents. It is the practice of "context engineering" specifically for agentic coding workflows in June 2026.
 
 ## What problem it solves
 It reduces prompt sprawl and makes agent behavior more repeatable than pasting large amounts of context into every session. It solves the "context window amnesia" problem by ensuring the agent has access to a durable, versioned source of truth about the project's architecture, standards, and progress.
 
 ## Where it fits in the stack
-**Development & Ops / Context Engineering Pattern**. It is a practical operating pattern around Claude Code, MCP, and AI-native IDEs (like Cursor or VS Code with Continue).
+**Development & Ops / Context Engineering Pattern**. It is a practical operating pattern around [Claude Code](claude-code.md), [MCP](../automation_orchestration/mcp.md), and AI-native IDEs like [Cursor](cursor.md) or [Zed](zed.md).
 
 ## Typical use cases
-- **Repository Onboarding**: Giving an agent a high-level map of a new codebase.
-- **Architectural Guardrails**: Ensuring the agent follows specific design patterns (e.g., "always use FastAPI dependency injection").
-- **Task Persistence**: Resuming a complex, multi-day coding task across different chat sessions.
+- **Repository Onboarding**: Giving an agent a high-level map of a new codebase via `AGENTS.md`.
+- **Architectural Guardrails**: Enforcing specific design patterns (e.g., "always use [FastAPI](../frameworks/fastapi.md) dependency injection").
+- **Task Persistence**: Resuming complex, multi-day coding tasks across different chat sessions using progress logs.
+- **Dynamic Context Injection**: Using [FastMCP 3.0](../automation_orchestration/mcp.md) to fetch real-time data into the agent's reasoning loop.
 
 ## Strengths
 - **Consistency**: Agent behavior becomes more predictable across sessions.
 - **Efficiency**: Reduces the amount of manual context pasting required.
-- **Versionable**: Context files (like `MEMORY.md` or `AGENTS.md`) live in the repo and evolve with the code.
+- **Versionable**: Context files live in the repo and evolve alongside the code.
+- **Standardized**: Leverages the official [Model Context Protocol](../automation_orchestration/mcp.md) for tool-based context.
 
 ## Limitations
 - **Maintenance Overhead**: Requires human (or agent) discipline to keep context files up to date.
-- **Noise**: Poorly designed context layers can still overwhelm the model and cause "distraction" from the immediate task.
+- **Noise**: Poorly designed context layers can overwhelm the model and cause "distraction."
+- **Model specific**: Optimized for frontier models like [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md); may be less effective on smaller models.
 
 ## When to use it
 - When working on complex, long-running projects where architectural consistency is critical.
@@ -32,116 +35,98 @@ It reduces prompt sprawl and makes agent behavior more repeatable than pasting l
 - For trivial, one-off scripts where the overhead of creating context files exceeds the task effort.
 - When the task is simple enough for the agent to infer everything from local file context alone.
 
-## Implementation Pattern: The Repository Memory
+## Getting started
 
-A common pattern is maintaining a `MEMORY.md` or `AGENTS.md` at the root of the repository.
+### 1. Initialize Repository Memory
+Create an `AGENTS.md` file in your repository root to serve as the primary context source.
+```bash
+touch AGENTS.md
+```
 
-### Example `AGENTS.md` Structure
-```markdown
-# Agent Instructions
+### 2. Configure Claude Code
+Add repository-specific instructions or MCP servers to your [Claude Code Setup](claude-code-setup.md).
+```bash
+claude mcp add project-docs -- npx -y @upstash/context7-mcp
+```
 
-## Project Overview
-This is a Next.js application using Tailwind CSS and Prisma.
+### 3. Establish the Loop
+At the start of each session, point the agent to the memory file:
+```bash
+claude --prompt "Project context: $(cat AGENTS.md)"
+```
 
-## Coding Standards
-- Use functional components.
-- All API routes must be in `src/app/api`.
-- Use Zod for schema validation.
+## CLI examples
 
-## Current Sprint
-- [x] Implement User Auth
-- [x] Refactor Task Dashboard
-- [x] Add Email Notifications
+### Injecting Repo Context
+Force Claude to read the project's operating manual at startup:
+```bash
+claude --prompt "Please follow the standards in AGENTS.md"
+```
 
-### Implementation: Email Notifications (via SMTP MCP)
-To fulfill the "Add Email Notifications" task, an agent can use an SMTP MCP server. Below is a technical implementation pattern.
+### Configuring MCP Context
+Add a documentation context server to the session:
+```bash
+claude mcp add tailwind -- npx -y @modelcontextprotocol/server-documentation https://tailwindcss.com/docs
+```
 
-**MCP Configuration (`claude_desktop_config.json`):**
+### Context-Aware Refactoring
+Use [Aider](aider.md) with context mapping for multi-file changes:
+```bash
+aider --message "Apply the refactoring pattern defined in AGENTS.md to the auth module"
+```
+
+## API examples
+
+### MCP Configuration (`claude_desktop_config.json`)
+Standardize context delivery across different clients using a shared configuration.
+
 ```json
 {
   "mcpServers": {
-    "smtp": {
+    "repo-context": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-smtp"],
+      "args": ["-y", "@upstash/context7-mcp"],
       "env": {
-        "SMTP_HOST": "smtp.example.com",
-        "SMTP_PORT": "587",
-        "SMTP_USER": "notifications@example.com",
-        "SMTP_PASSWORD": "your-password"
+        "CONTEXT7_TOKEN": "your-token"
       }
     }
   }
 }
 ```
 
-**Skill Definition in `AGENTS.md`:**
-```markdown
-### Skill: send_deployment_email
+### FastMCP 3.0 Context Provider (Python)
+Create a custom context provider using the [FastMCP 3.0 SDK](../automation_orchestration/mcp.md).
 
-## Summary
-Send a standardized email notification after a successful production deployment.
+```python
+from mcp.server import FastMCP
 
-## Triggers
-- When the `deploy_prod` workflow completes successfully.
+mcp = FastMCP("ContextHelper")
 
-## Instructions
-1. Retrieve the list of changes from `CHANGELOG.md`.
-2. Format the email using the template in `templates/email/deployment_alert.html`.
-3. Send to `dev-alerts@example.com` via the `smtp` MCP server using the `send_email` tool.
+@mcp.tool()
+async def get_architecture_map() -> str:
+    """Returns the latest architecture map from ARCHITECTURE.md."""
+    with open("docs/architecture/component_map.md", "r") as f:
+        return f.read()
+
+if __name__ == "__main__":
+    mcp.run()
 ```
-
-### Example Skill: Email Notification Wrapper
-You can define a "skill" for the agent to use when specific conditions are met, ensuring it follows the repository's notification standards.
-
-```markdown
-# Skill: send_deployment_email
-
-## Summary
-Send a standardized email notification after a successful production deployment.
-
-## Triggers
-- When the `deploy_prod` workflow completes successfully.
-
-## Instructions
-1. Retrieve the list of changes from `CHANGELOG.md`.
-2. Format the email using the template in `templates/email/deployment_alert.html`.
-3. Send to `dev-alerts@example.com` via the SMTP MCP server.
-```
-
-
-## Context Mapping
-- Documentation: `/docs`
-- Schemas: `/src/lib/schemas`
-```
-
-## Technical Integration: Claude Config
-
-You can automate the loading of this context by using environment variables or wrapper scripts when starting Claude Code sessions.
-
-```bash
-# Example wrapper to inject repo memory
-alias claude-pro='claude --prompt "Project context: $(cat AGENTS.md)"'
-```
-
-## Practical Tips
-- Use **Checkpoints**: At the end of a session, ask the agent to update the `MEMORY.md` file with its progress.
-- **Modularize Context**: Keep architectural standards separate from task-specific progress.
-- **MCP for Dynamic Context**: Use MCP servers to fetch real-time data (like Jira tickets or GitHub PRs) into the context mode.
 
 ## Related tools / concepts
-- [Claude Code](claude-code.md)
-- [Aider](aider.md) — For terminal-native AI pair programming comparisons.
-- [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Claude Hooks](claude-hooks.md)
-- [OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
-- [Standards and Conventions](../../standards.md)
-- [Architecture Index](../../ARCHITECTURE.md)
+- [Claude Code](claude-code.md): The primary agent for context-aware coding.
+- [Model Context Protocol](../automation_orchestration/mcp.md): The underlying transport for dynamic context.
+- [AGENTS.md](../../AGENTS.md): The repository-wide operating contract.
+- [Aider](aider.md): Terminal-native AI pair programming with repository mapping.
+- [Claude Hooks](claude-hooks.md): Middleware for deterministic session guardrails.
+- [OpenClaw Workflow Prompts](../../knowledge_base/patterns/openclaw-workflow-prompts.md): Advanced prompting patterns.
+- [Context7](context7.md): Live documentation context layer.
+- [FastMCP 3.0 SDK](../frameworks/mastra.md): For building context-rich servers.
 
-## Sources / References
-- [awesomeclaude.ai](https://awesomeclaude.ai/)
-- [Anthropic Skills Repository](https://github.com/anthropics/skills)
-- [Claude Desktop Documentation](https://docs.anthropic.com/claude/docs/claude-desktop-overviews)
+## Sources / references
+- [Anthropic: Context Engineering Best Practices](https://docs.anthropic.com/claude/docs/context-engineering)
+- [FastMCP 3.0 Specification](https://github.com/modelcontextprotocol/fastmcp)
+- [Awesome Claude Code](https://github.com/hesreallyhim/awesome-claude-code)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-12
 - Confidence: high
