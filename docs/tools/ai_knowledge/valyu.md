@@ -31,16 +31,53 @@ It allows agents to search beyond just the current web, providing structured, hi
 - **Paid Service**: Requires an API key and usage-based pricing.
 - **Latency**: Searching proprietary databases can sometimes be slower than simple web-index searches.
 - **Closed-Source**: The search engine itself is a proprietary service.
+- **Reasoning Overhead**: While it provides the data, the final synthesis still depends on the reasoning capabilities of the consuming model (e.g., Claude 4.8 or GPT-5.5).
 
 ## When to use it
 - When an agent needs high-accuracy, verified data from scientific, financial, or legal sources.
 - For building specialized agents (e.g., a "Scientific Research Agent") that require more than just web results.
+- To provide frontier models like `claude-4-8-opus-20260528` or GPT-5.5 with grounded, verifiable context for deep reasoning tasks.
 
 ## When not to use it
 - For general, low-stakes web search where free or cheaper alternatives suffice.
 - If you require a fully open-source, self-hosted search index.
 
-## Implementation: Cross-Source Answer API
+## Getting started
+
+### Installation
+Install the Valyu Python SDK via `pip` or `uv`:
+
+```bash
+pip install valyu
+# or
+uv add valyu
+```
+
+### Basic Usage
+Initialize the client and perform a simple semantic search across all sources.
+
+```python
+from valyu import Valyu
+import os
+
+# Initialize with API key from environment
+client = Valyu(api_key=os.getenv("VALYU_API_KEY"))
+
+# Basic search query
+results = client.search(query="Latest developments in room-temperature superconductors")
+
+for result in results:
+    print(f"[{result.score:.2f}] {result.title}")
+    print(f"URL: {result.url}\n")
+```
+
+## CLI examples
+> [!NOTE]
+> Official CLI examples for Valyu are primarily managed through SDK integrations or direct API calls. A standalone CLI for end-users is not currently promoted in the official 2026 documentation.
+
+## API examples
+
+### Cross-Source Answer API
 The following example demonstrates using the `Answer` API to synthesize findings across scientific literature and regulatory filings.
 
 ```python
@@ -62,10 +99,15 @@ for citation in response.citations:
     print(f"[{citation.id}] {citation.title} ({citation.url})")
 ```
 
-## Implementation: Deep Research Pattern
+### Deep Research Pattern
 For long-horizon tasks, use the Deep Research API to generate comprehensive reports.
 
 ```python
+from valyu import Valyu
+
+# Initialize the client
+client = Valyu(api_key="your-api-key")
+
 # Deep Research for a specific market landscape
 report = client.deep_research(
     query="Future of solid-state battery manufacturing: key players, patent landscape, and supply chain risks",
@@ -89,6 +131,8 @@ with open("solid_state_research.md", "w") as f:
 - [LlamaIndex](llamaindex.md)
 - [Crawl4AI](../process_understanding/crawl4ai.md)
 - [Firecrawl](../process_understanding/firecrawl.md)
+- [Exa AI](../providers/exa_ai.md)
+- [Tavily](../providers/tavily.md)
 - [DeepSeek R1](../providers/deepseek.md)
 - [Search-as-a-Service Patterns](../../knowledge_base/patterns/claude-tool-search.md)
 
@@ -100,5 +144,5 @@ with open("solid_state_research.md", "w") as f:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
