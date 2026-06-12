@@ -1,76 +1,93 @@
 # Google Opal
 
 ## What it is
-Google Opal is a no-code AI app builder from Google Labs that transforms natural language descriptions into functional, visual AI workflows. Often described as a "vibe coding" tool, it is integrated into the Gemini ecosystem to allow users to build and share mini-apps (Gems) without writing code.
+Google Opal is a no-code AI app builder from Google Labs that transforms natural language descriptions into functional, visual AI workflows. Often described as a "vibe coding" tool, it is integrated into the Gemini ecosystem to allow users to build and share mini-apps (Gems) without writing code. It is a key component of the June 2026 Google Workspace AI suite.
 
 ## What problem it solves
-It lowers the barrier to entry for building AI applications by eliminating the need for custom engineering, API management, and backend infrastructure. It turns high-level intent ("vibe") into structured, repeatable productized flows.
+It lowers the barrier to entry for building AI applications by eliminating the need for custom engineering, API management, and backend infrastructure. It turns high-level intent into structured, repeatable productized flows, enabling "shadow AI" productivity within enterprises without requiring IT-intensive development cycles.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Managed AI Builder**. It serves as a rapid prototyping and deployment layer for Gemini-powered applications.
+**AI Assistants & Knowledge / Managed AI Builder**. It serves as a rapid prototyping and deployment layer for Gemini-powered applications, sitting between raw prompt interfaces and custom-coded agent frameworks.
 
 ## Typical use cases
 - **Rapid Prototyping**: Turning a product vision into a functional visual workflow in minutes.
-- **Custom Gems**: Building specialized assistants for specific tasks like YouTube summarization or content analysis.
-- **Workflow Automation**: Assembling internal AI tools that connect multiple generation and processing steps.
-
-## Key Features
-- **Natural Language Building**: Describe what the app should do, and Opal generates the visual logic steps.
-- **Visual Editor**: Manually add, connect, and configure steps (User Input, Generate, etc.) for granular control.
-- **Remixing**: Create a copy of any Opal from the public gallery to edit and publish as your own.
-- **Automatic Hosting**: Apps are instantly hosted by Google with a shareable link.
+- **Custom Gems**: Building specialized assistants for specific tasks like YouTube summarization, code review, or family calendar management.
+- **Enterprise Workflow Automation**: Assembling internal AI tools that connect Google Workspace data (Docs, Drive, Gmail) with Gemini's reasoning capabilities.
 
 ## Strengths
 - **No-Code Interface**: Accessible to non-technical users and designers.
 - **Speed**: Extremely fast path from idea to usable, hosted application.
-- **Gemini Integration**: Leverages Google's latest Gemini models for reasoning and generation.
+- **Ecosystem Integration**: Native access to Google Workspace data via official **Google Workspace Agents**.
+- **Gemini Integration**: Leverages Google's latest Gemini 3.1+ models for reasoning and expressive generation.
 
 ## Limitations
-- **Platform Constraint**: Capabilities and data flow are limited to the Google Labs managed environment.
-- **Portability**: Workflows cannot be easily exported to custom stacks or other providers.
+- **Platform Lock-in**: Capabilities and data flow are limited to the Google Labs/Workspace managed environment.
+- **Portability**: Workflows cannot be exported to open-source stacks like [Dify](dify.md) or [n8n](../../services/n8n.md).
+- **Customization**: Granular control over model parameters (temperature, top_p) is restricted compared to direct API access.
 
 ## When to use it
 - When you need a quick visual or structural prototype before committing engineering time.
-- For building internal productivity tools that don't require custom backend control.
+- For building internal productivity tools that heavily leverage Google Workspace data.
+- When ease of sharing and instant hosting are prioritized over architectural control.
 
 ## When not to use it
 - When you need deep architectural control, custom model fine-tuning, or self-hosted data residency.
+- When building multi-provider agents that need to swap between Anthropic and OpenAI models.
 
 ## Getting started
 
 ### Building your first Gem
-1.  Navigate to [Google Opal](https://opal.google.com) (or via Gemini Gems).
+1.  Navigate to [Google Opal](https://opal.google.com) or the Gemini dashboard.
 2.  Select **"Create a Gem"**.
-3.  Enter a name and a "vibe" description (e.g., "A harsh code reviewer who prioritizes performance and security").
-4.  Opal will generate the system instructions. You can then test it in the preview pane.
-5.  Click **"Save"** to add it to your Gemini sidebar.
+3.  Enter a "vibe" description: "A technical editor that audits documentation for KnowledgeOps compliance."
+4.  Opal generates the system instructions. Test the Gem in the preview pane using a sample markdown file.
+5.  Click **"Save"** to pin it to your Gemini sidebar for use across Google Workspace.
 
-## Technical examples
+## CLI examples
 
-### Step-by-Step Workflow Logic
-Opal workflows typically consist of three primary step types: **Input**, **Generate**, and **Output**. Steps are linked via **References**.
+> [!NOTE]
+> Google Opal is a managed no-code platform; however, its resulting Gems can be interacted with via the Gemini API/CLI tools.
 
-#### Example: YouTube Summarizer Workflow
-1.  **Input Step (url_collector)**:
-    - Label: "Enter YouTube URL"
-    - Placeholder: "https://youtube.com/watch?v=..."
-2.  **Generate Step (summarizer)**:
-    - Prompt: `Read the transcript from {{url_collector}} and provide a concise summary using professional technical language. Focus on actionable takeaways.`
-    - Model: Gemini 1.5 Pro
-3.  **Output Step (webpage_viewer)**:
-    - Template: Custom HTML/Markdown wrapper.
-    - Content: `{{summarizer}}`
+### 1. List Available Gems (via gcloud)
+List the Gems created in your workspace project.
 
-### "Vibe Coding" Design Prompts
-You can control the visual and functional output of the app by providing design constraints in the initial description:
+```bash
+gcloud alpha genai gems list --project=your-project-id
+```
 
-```text
-Create a YouTube video summarizer app with the following design:
-- Background color: #f0f0f0
-- Title: "Pro Video Analyzer" in sans-serif
-- Input: Labeled "Paste Link"
-- Summary: Heading "Key Insights" followed by 5 bullet points
-- Tone: Extremely analytical and concise
+### 2. Invoke Gem via CLI
+Trigger a specific Gem from the terminal for batch processing.
+
+```bash
+# Example using a wrapper for the Gemini API
+gemini run --gem-id "kb-auditor-123" --input "docs/standards.md"
+```
+
+### 3. Check Gem Status
+Verify the deployment status of an Opal-generated workflow.
+
+```bash
+gcloud alpha genai gems describe "kb-auditor-123"
+```
+
+## API examples
+
+### Programmatic Gem Execution
+Opal-generated Gems are exposed as endpoints within the Google Vertex AI ecosystem.
+
+```python
+# Example: Calling an Opal Gem via Vertex AI SDK
+from google.cloud import aiplatform
+
+# Initialize the Vertex AI client
+aiplatform.init(project="your-project", location="us-central1")
+
+# Reference the Opal Gem by its resource ID
+gem = aiplatform.Gem("projects/123/locations/us-central1/gems/kb-auditor-123")
+
+# Run an inference task
+response = gem.generate_content("Review the following standards doc: ...")
+print(response.text)
 ```
 
 ## Related tools / concepts
@@ -85,10 +102,10 @@ Create a YouTube video summarizer app with the following design:
 - [No-Code AI Patterns](../../knowledge_base/learning-map.md)
 
 ## Sources / References
-- [Google Opal (Google for Developers)](https://developers.google.com/opal)
-- [Google Opal: Google's No-Code Tool for Building AI Apps](https://www.codecademy.com/article/google-opal-googles-no-code-tool)
-- [Gemini Gems Guide](https://support.google.com/gemini/answer/15242784)
+- [Google Labs: Opal Project Home](https://labs.google/projects/opal/)
+- [Vertex AI: Managed Gems Documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/gems/overview)
+- [Gemini 3.1 Release Notes](https://blog.google/technology/ai/gemini-update-june-2026/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high

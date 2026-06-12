@@ -12,74 +12,8 @@ It provides an open, standardized protocol for calendar synchronization, enablin
 ## Typical use cases
 - **Multi-Device Sync**: Keeping your personal schedule in sync across phone, laptop, and tablet.
 - **Shared Calendars**: Coordinating schedules within a family or team using a self-hosted server.
-- **Automation Triggers**: Using n8n or custom scripts to watch a CalDAV calendar and trigger actions (e.g., "turn on lights when meeting starts").
+- **Automation Triggers**: Using n8n or custom scripts to watch a CalDAV calendar and trigger actions.
 - **Task Management**: Many CalDAV servers also support VTODO (tasks), allowing for synchronized todo lists via the same protocol.
-
-## Getting started
-
-### Self-Hosting a CalDAV Server
-The easiest way to get started with a dedicated CalDAV server is [Radicale](https://radicale.org/) or [Nextcloud](../services/nextcloud.md).
-
-```bash
-# Simple Radicale docker run
-docker run -d --name radicale \
-    -p 5232:5232 \
-    -v ~/radicale/data:/data \
-    tomsun/radicale
-```
-
-### Client Setup
-1. **iOS/macOS**: Native support under "Add Account" -> "Other" -> "CalDAV Account".
-2. **Android**: Requires a sync adapter like **DAVx⁵**.
-3. **Thunderbird**: Native support via the "Calendar" tab.
-
-## Technical examples
-
-### Protocol Interaction (Curl)
-You can interact with a CalDAV server directly using `curl` to perform a PROPFIND request to discover calendars.
-
-```bash
-curl -u 'user:password' -X PROPFIND \
-  -H "Depth: 1" \
-  -H "Content-Type: application/xml; charset=utf-8" \
-  -d '<?xml version="1.0" encoding="utf-8" ?>
-      <D:propfind xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
-        <D:prop>
-          <D:displayname />
-          <C:calendar-description />
-        </D:prop>
-      </D:propfind>' \
-  https://caldav.example.com/remote.php/dav/calendars/user/
-```
-
-### Python Integration (`caldav` library)
-Programmatic access to calendars is common for automation scripts.
-
-```python
-import caldav
-from datetime import datetime
-
-# Connect to the server
-client = caldav.DAVClient(
-    url="https://caldav.example.com/remote.php/dav/",
-    username="user",
-    password="password"
-)
-
-principal = client.principal()
-calendars = principal.calendars()
-
-if calendars:
-    calendar = calendars[0]
-    # Fetch events for today
-    events = calendar.date_search(
-        start=datetime(2026, 5, 15),
-        end=datetime(2026, 5, 16)
-    )
-
-    for event in events:
-        print(f"Found event: {event.vobject_instance.vevent.summary.value}")
-```
 
 ## Strengths
 - **Sovereignty**: Complete control over your private schedule when self-hosted.
@@ -101,14 +35,88 @@ if calendars:
 - If your entire organization is already on Google Workspace or Microsoft 365 and you don't need external integration.
 - If you need advanced "room booking" or complex enterprise resource scheduling features not well-supported by basic CalDAV.
 
+## Getting started
+
+The most common way to start with CalDAV is to deploy a dedicated server like **Radicale**.
+
+```bash
+# Deploy Radicale using Docker
+docker run -d --name radicale \
+    -p 5232:5232 \
+    -v ~/radicale/data:/data \
+    tomsun/radicale
+```
+
+Once running, you can connect clients by pointing them to `http://localhost:5232/user/calendar.ics/`.
+
+## CLI examples
+
+### 1. Discovery via Curl
+Use `PROPFIND` to discover the display name and description of calendars.
+
+```bash
+curl -u 'user:password' -X PROPFIND \
+  -H "Depth: 1" \
+  -H "Content-Type: application/xml; charset=utf-8" \
+  -d '<?xml version="1.0" encoding="utf-8" ?>
+      <D:propfind xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
+        <D:prop><D:displayname /><C:calendar-description /></D:prop>
+      </D:propfind>' \
+  https://caldav.example.com/remote.php/dav/calendars/user/
+```
+
+### 2. Verify Storage (Radicale)
+Check the internal storage consistency of a Radicale server.
+
+```bash
+docker exec -it radicale radicale --verify-storage
+```
+
+### 3. Fetching iCal Data
+Retrieve the raw iCalendar data for a specific calendar.
+
+```bash
+curl -u 'user:password' https://caldav.example.com/remote.php/dav/calendars/user/personal.ics
+```
+
+## API examples
+
+### Python Integration (`caldav` library)
+Programmatic access is essential for building autonomous scheduling agents.
+
+```python
+import caldav
+from datetime import datetime
+
+client = caldav.DAVClient(
+    url="https://caldav.example.com/remote.php/dav/",
+    username="user",
+    password="password"
+)
+
+principal = client.principal()
+calendars = principal.calendars()
+
+if calendars:
+    calendar = calendars[0]
+    # Fetch events for today
+    events = calendar.date_search(
+        start=datetime(2026, 6, 12),
+        end=datetime(2026, 6, 13)
+    )
+    for event in events:
+        print(f"Summary: {event.vobject_instance.vevent.summary.value}")
+```
+
 ## Related tools / concepts
-- [Nextcloud](../../services/nextcloud.md): A popular suite that includes a robust CalDAV server.
-- [Vikunja](../../services/vikunja.md): A task manager that can sync via CalDAV.
-- [Google Calendar](../calendar_tasks/google_calendar.md): A cloud provider that supports CalDAV access.
-- [n8n](../../services/n8n.md): Can be used to automate CalDAV interactions.
-- [Paperless-ngx](../../services/paperless-ngx.md): Can trigger calendar events based on document dates.
-- [Home Assistant](../../services/home-assistant.md): Can use CalDAV for scheduling automation.
-- [Authentik](../../services/authentik.md): Can provide SSO for CalDAV servers.
+- [Nextcloud](../../services/nextcloud.md): Suite that includes a robust CalDAV server.
+- [Vikunja](../../services/vikunja.md): Task manager that can sync via CalDAV.
+- [Google Calendar](../calendar_tasks/google_calendar.md): Cloud provider supporting CalDAV access.
+- [n8n](../../services/n8n.md): Automate CalDAV interactions.
+- [Paperless-ngx](../../services/paperless-ngx.md): Trigger calendar events from documents.
+- [Home Assistant](../../services/home-assistant.md): Scheduling automation.
+- [Authentik](../../services/authentik.md): SSO for CalDAV servers.
+- [Radicale](../../services/radicale-automation.md): Lightweight CalDAV/CardDAV server.
 
 ## Sources / references
 - [RFC 4791: CalDAV Specification](https://tools.ietf.org/html/rfc4791)
@@ -116,5 +124,5 @@ if calendars:
 - [Radicale Documentation](https://radicale.org/v3.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-15
+- Last reviewed: 2026-06-12
 - Confidence: high
