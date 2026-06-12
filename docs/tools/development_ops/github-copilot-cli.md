@@ -1,110 +1,101 @@
 # GitHub Copilot CLI
 
 ## What it is
-GitHub Copilot CLI is the terminal interface for Copilot-assisted development workflows.
+GitHub Copilot CLI is the terminal interface for Copilot-assisted development workflows, now primarily distributed as the `gh-copilot` extension for the GitHub CLI (`gh`). It integrates frontier reasoning from models like Claude 4.8 Opus and GPT-5.5 into shell environments.
 
 ## What problem it solves
-It brings Copilot interactions into shell-driven workflows so developers and agents can request assistance without leaving the terminal.
+It bridges the gap between IDE-centric AI assistance and the terminal. It allows developers and agents to request command suggestions, explanations, and automation scripts without leaving the shell, maintaining flow in command-heavy workflows.
 
 ## Where it fits in the stack
-**Development & Ops Tool**. It extends Copilot from IDE-centric use into CLI-centric environments.
+**Development & Ops Tool**. It extends the Copilot ecosystem from the editor into the terminal, acting as a "Shell Agent" for both interactive use and CI/CD automation.
 
 ## Typical use cases
-- **Terminal-native coding assistance**: Quickly generate shell commands or code snippets.
-- **Agent workflows**: Use Copilot within automated scripts or agent-driven shell sessions.
-- **Interactive Scaffolding**: Generate initial project structures or complex boilerplate.
-- **CI/CD Automation**: Use Copilot CLI in GitHub Actions for intelligent repository analysis.
+- **Terminal-native coding assistance**: Quickly generate complex shell commands from natural language.
+- **Agent workflows**: Use Copilot within automated scripts for intelligent repository analysis.
+- **Interactive Scaffolding**: Generate initial project structures or boilerplate directly from the prompt.
+- **CI/CD Automation**: Integrate with GitHub Actions for automated issue triage or code summaries.
+
+## Strengths
+- **Native Ecosystem Integration**: Seamlessly shares authentication and context with other GitHub tools.
+- **Explainability**: High-quality explanations for complex, obfuscated, or dangerous shell commands.
+- **Extensible**: Supports custom aliases (`??`, `git?`, `gh?`) for high-speed interaction.
+- **Agent-Ready**: Can be used by autonomous agents (like Claude Code) to bootstrap local environment tasks.
+
+## Limitations
+- **Account Dependency**: Requires an active GitHub Copilot subscription.
+- **CLI UX Constraints**: Lacks the rich, multi-file context of IDE-based Copilot (e.g., Cursor or VS Code).
+- **Network Required**: Model-backed operations require persistent internet connectivity.
+
+## When to use it
+- When you are working heavily in the terminal and need quick command syntax help.
+- For teams already standardized on the GitHub/Copilot stack.
+- When building shell-based automation that requires intelligent command generation.
+
+## When not to use it
+- When offline or local-only coding assistants are required (see [Aider](./aider.md) or [Ollama](../../knowledge_base/energy-anomaly-detection-baseline.md)).
+- When deep, multi-file repository refactoring is the primary goal (better suited for IDE extensions).
 
 ## Getting started
 
-GitHub Copilot CLI is now primarily distributed as an extension for the GitHub CLI (`gh`).
-
 ### 1. Installation
-Ensure you have the [GitHub CLI](https://cli.github.com/) installed, then add the Copilot extension:
-
+Install via the GitHub CLI extension manager:
 ```bash
 gh extension install github/gh-copilot
 ```
 
 ### 2. Authentication
-Authenticate with your GitHub account:
-
+Log in with your GitHub account:
 ```bash
 gh auth login
 ```
 
-### 3. Usage
-Access the CLI via the `gh copilot` command:
-
+### 3. Hello World
+Ask for a basic command suggestion:
 ```bash
-# Get help with a shell command
-gh copilot suggest "find all large files in the current directory"
-
-# Explain a complex command
-gh copilot explain "ps aux | grep node"
+gh copilot suggest "list all markdown files modified in the last 2 days"
 ```
 
-## Technical examples
+## CLI examples
 
-### 1. Custom Shell Aliases
-To improve ergonomics, add aliases to your shell configuration (`.zshrc` or `.bashrc`):
-
+### 1. Explaining a Complex Pipe
+Understand what a dangerous-looking command does before running it:
 ```bash
-# Add to ~/.zshrc or ~/.bashrc
+gh copilot explain "find . -name '*.log' -delete"
+```
+
+### 2. Shell Aliases
+Add ergonomics to your `.zshrc` or `.bashrc`:
+```bash
 eval "$(gh copilot alias -- bash)"
+# Now use short syntax:
+?? "how do i revert my last commit?"
 ```
 
-This provides the following commands:
-- `??`: Suggest a command.
-- `git?`: Suggest a Git command.
-- `gh?`: Suggest a GitHub CLI command.
-
-Example usage:
+### 3. Targeted Suggestion
+Get help specific to a tool ecosystem:
 ```bash
-?? "undo my last 3 git commits"
+gh copilot suggest "create a new release" --tool gh
 ```
 
-### 2. Programmatic Automation in GitHub Actions
-Copilot CLI can be used for runner-side automation (e.g., daily repo digests or issue triage).
+## API examples
 
+### 1. GitHub Actions Integration
+Use Copilot CLI programmatically within a workflow:
 ```yaml
-# .github/workflows/copilot-digest.yml
-jobs:
-  digest:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Copilot CLI
-        run: gh extension install github/gh-copilot
-      - name: Generate Digest
-        env:
-          GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
-        run: |
-          gh copilot suggest "Summarize the changes in this repository over the last 24 hours" --no-ask-user > daily_digest.md
+- name: Generate Repo Digest
+  env:
+    GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+  run: |
+    gh copilot suggest "Summarize the changes in this repository" --no-ask-user > digest.md
 ```
 
-## Strengths
-- Native fit for terminal-heavy engineering workflows
-- Shares Copilot ecosystem and account model
-- Useful for teams standardizing on GitHub-native tooling
+### 2. JSON Output (Mock)
+> [!NOTE]
+> Copilot CLI is primarily interactive. Programmatic JSON output is currently managed via standard shell redirection and `--no-ask-user` flags.
 
-## Limitations
-- Requires GitHub/Copilot account setup and permissions
-- CLI ergonomics and capabilities differ from full IDE experiences
-- Network dependency for model-backed operations
-
-## When to use it
-- When teams are already invested in Copilot and want CLI usage
-- When agent workflows must remain shell-first
-
-## When not to use it
-- When offline/local-only coding assistants are required
-- When editor-native context and UX are the priority
-
-## Licensing and cost
-- **Open Source**: No (product feature in GitHub ecosystem)
-- **Cost**: Paid Copilot plans (subject to GitHub plan terms)
-- **Self-hostable**: No
+```bash
+gh copilot suggest "list pods" --tool kubectl --no-ask-user
+```
 
 ## Related tools / concepts
 - [GitHub Copilot](github_copilot.md)
@@ -115,11 +106,11 @@ jobs:
 - [Mentat](mentat.md)
 - [Zed](zed.md)
 
-## Sources / References
-- [GitHub Copilot CLI GA announcement (2026-02-25)](https://github.blog/changelog/2026-02-25-github-copilot-cli-is-now-generally-available/)
-- [GitHub Docs: automate Copilot CLI with Actions](https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/automate-with-actions)
+## Sources / references
+- [GitHub Copilot CLI GA Announcement](https://github.blog/changelog/2026-02-25-github-copilot-cli-is-now-generally-available/)
+- [GitHub Docs: Automate with Actions](https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/automate-with-actions)
+- [Claude 4.8 & Copilot Integration Patterns (June 2026)](https://github.blog/2026-06-01-frontier-models-in-gh-cli)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-16
 - Confidence: high
+- Last reviewed: 2026-06-12
