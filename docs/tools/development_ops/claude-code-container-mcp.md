@@ -7,7 +7,7 @@ An MCP server that manages containerized Claude Code sessions, transforming the 
 It enables AI assistants to create and control isolated Claude Code instances programmatically. It provides Docker-based isolation, multi-session management, and support for AWS Bedrock, making it suitable for enterprise AI-to-AI workflows.
 
 ## Where it fits in the stack
-**Tool / Orchestration**. It provides a managed environment for running other coding agents, following the [Agent Protocols](../../knowledge_base/agent_protocols.md) for structured tool interaction.
+**Tool / Orchestration**. It provides a managed environment for running other coding agents, following the [Agent Protocols](../../knowledge_base/agent_protocols.md) for structured tool interaction with models like `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## Typical use cases
 - Parallel development workflows (managing different microservices in separate containers).
@@ -29,17 +29,58 @@ It enables AI assistants to create and control isolated Claude Code instances pr
 ## When to use it
 - When you need "an agent in your agent" to perform complex coding tasks in isolated environments.
 - When you want to automate Claude Code actions via a central orchestrator or CI/CD.
+- For enterprise deployments requiring AWS Bedrock instead of direct Anthropic API access.
 
 ## When not to use it
 - On systems where you cannot or should not provide Docker daemon access to an AI agent.
 - For simple CLI interactions where the standard Claude Code installation is sufficient.
 
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free (software); Anthropic API or AWS usage costs apply.
-- **Self-hostable**: Yes (Requires Docker)
+## Getting started
 
-## Technical examples
+Claude Code Container MCP provides a bridge between high-level orchestration and low-level agent execution.
+
+### 1. Prerequisites
+- Docker installed and running.
+- MCP client (like Claude Desktop or [Desktop Commander MCP](desktop-commander-mcp.md)).
+
+### 2. Installation
+```bash
+npm install -g @democratize-technology/claude-code-container-mcp
+```
+
+### 3. Configuration (Claude Desktop)
+```json
+{
+  "mcpServers": {
+    "claude-container": {
+      "command": "claude-code-container-mcp",
+      "args": ["--docker-socket", "/var/run/docker.sock"]
+    }
+  }
+}
+```
+
+## CLI examples
+
+### 1. Listing active sessions
+Check currently running Claude Code containers:
+```bash
+claude-code-container-mcp list
+```
+
+### 2. Manual session cleanup
+Force-stop and remove all managed containers:
+```bash
+claude-code-container-mcp prune --force
+```
+
+### 3. Debugging a session
+View logs for a specific containerized agent session:
+```bash
+claude-code-container-mcp logs --session <session-id>
+```
+
+## API examples
 
 ### 1. Creating a Session (Anthropic API)
 Automate the creation of an isolated Claude Code session for a specific project directory.
@@ -83,21 +124,6 @@ Send a prompt to an active Claude Code container to perform work.
 }
 ```
 
-### 4. Transferring Files
-Move files between the host and the container for initial setup or result extraction.
-
-```json
-{
-  "tool": "transfer_files",
-  "arguments": {
-    "sessionId": "abc-123-xyz",
-    "direction": "to_container",
-    "sourcePath": "./local-config.json",
-    "destPath": "/workspace/config.json"
-  }
-}
-```
-
 ## Related tools / concepts
 - [Claude Code](claude-code-setup.md)
 - [Docker](../infrastructure/docker.md)
@@ -116,5 +142,5 @@ Move files between the host and the container for initial setup or result extrac
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high

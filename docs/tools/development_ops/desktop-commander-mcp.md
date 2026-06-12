@@ -4,10 +4,10 @@
 A privacy-first Model Context Protocol (MCP) server that provides AI assistants with terminal control, filesystem access, and surgical text editing capabilities.
 
 ## What problem it solves
-It enables AI assistants (like Claude Desktop) to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools.
+It enables AI assistants (like Claude 4.8 Opus or GPT-5.5) to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools.
 
 ## Where it fits in the stack
-**Tool / Agent**. It provides the "hands" for an agent to operate on a local machine.
+**Tool / Agent**. It provides the "hands" for an agent to operate on a local machine, serving as a secure alternative to cloud-based execution environments.
 
 ## Typical use cases
 - Reading and writing files in a local development environment.
@@ -23,25 +23,68 @@ It enables AI assistants (like Claude Desktop) to interact directly with the loc
 
 ## Limitations
 - Operates with the permissions of the user running the server.
-- requires manual configuration of allowed directories for security.
+- Requires manual configuration of allowed directories for security.
 
 ## When to use it
 - When you want to give an agent access to your local dev environment but are concerned about privacy or data leakage.
-- When you need a lightweight, reliable bridge for filesystem and terminal operations.
+- When you need a lightweight, reliable bridge for filesystem and terminal operations for `claude-4-8-opus-20260528`.
 
 ## When not to use it
 - In untrusted environments where the agent could perform destructive actions (unless strictly configured).
 - If you require cloud-based orchestration or telemetry for team auditing.
 
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free
-- **Self-hostable**: Yes (Local-only)
+## Getting started
 
-## Technical examples
+Desktop Commander MCP is designed for local-first, privacy-conscious AI workflows.
 
-### 1. Searching Code with ripgrep
-Search for specific patterns across the codebase with high performance.
+### 1. Installation
+```bash
+npm install -g @democratize-technology/desktop-commander-mcp
+```
+
+### 2. Configuration
+Add the server to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "desktop-commander": {
+      "command": "desktop-commander-mcp",
+      "args": [],
+      "env": {
+        "ALLOWED_DIRECTORIES": "/home/user/projects"
+      }
+    }
+  }
+}
+```
+
+### 3. Verify Connection
+Check the Claude Desktop logs or status bar to ensure the server is connected and the `edit_block` and `run_command` tools are available.
+
+## CLI examples
+
+### 1. Starting the server manually
+Useful for debugging or using with custom MCP clients:
+```bash
+desktop-commander-mcp --port 3000
+```
+
+### 2. Listing allowed directories
+Verify which paths the commander has access to:
+```bash
+desktop-commander-mcp --list-allowed
+```
+
+### 3. Running a specific tool via CLI (using mcp-cli)
+```bash
+mcp-cli call desktop-commander list_files --path "."
+```
+
+## API examples
+
+### 1. Searching Code (search_code)
+Search for specific patterns across the codebase with high performance using `ripgrep`.
 
 ```json
 {
@@ -55,7 +98,7 @@ Search for specific patterns across the codebase with high performance.
 ```
 
 ### 2. Surgical Editing (edit_block)
-Apply precise text replacements using SEARCH/REPLACE blocks (similar to [Aider](aider.md) or [Claude Code Hooks](claude-hooks.md)).
+Apply precise text replacements using SEARCH/REPLACE blocks.
 
 ```json
 {
@@ -80,18 +123,6 @@ Start a background process and manage its lifecycle.
 }
 ```
 
-### 4. Reading Process Output
-Capture the result of a long-running terminal operation.
-
-```json
-{
-  "tool": "read_process_output",
-  "arguments": {
-    "sessionId": "process-id-123"
-  }
-}
-```
-
 ## Related tools / concepts
 - [Claude Code](claude-code-setup.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
@@ -109,5 +140,5 @@ Capture the result of a long-running terminal operation.
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high

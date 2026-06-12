@@ -7,7 +7,7 @@ An MCP server that implements challenge-based request validation using Natural L
 It shifts the AI paradigm from passive compliance ("How can I help you?") to active validation ("Why are you doing this?"). It detects logical contradictions between proposed actions and configured axioms, forcing the user (or agent) to justify their actions.
 
 ## Where it fits in the stack
-**Tool / Guardrail**. It provides an AI alignment and safety layer for agent actions.
+**Tool / Guardrail**. It provides an AI alignment and safety layer for agent actions, fitting between the AI model (like Claude 4.8 Opus or GPT-5.5) and the tools it attempts to execute.
 
 ## Typical use cases
 - AI Safety: Challenging potentially harmful or destructive requests before execution.
@@ -29,15 +29,11 @@ It shifts the AI paradigm from passive compliance ("How can I help you?") to act
 ## When to use it
 - When you need to enforce a set of rules or ethical principles on AI agent behavior.
 - To create a record of human justification for critical operations.
+- When working with autonomous agents powered by `claude-4-8-opus-20260528` or GPT-5.5.
 
 ## When not to use it
 - For low-stakes environments where active challenging would be an unnecessary friction.
 - When an internet connection to HuggingFace is not available (unless using basic keyword mode).
-
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free (software); HuggingFace API costs may apply for high usage.
-- **Self-hostable**: Yes
 
 ## Getting started
 
@@ -55,33 +51,52 @@ Define the principles the agent must follow:
 axioms:
   - "The agent must not delete production data without explicit triple-confirmation."
   - "The agent must prioritize system stability over performance optimizations."
-  - "The agent must always document the reasoning for infrastructure changes."
 ```
 
-### 3. Configuration (Claude Desktop)
-Add to your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "guardian": {
-      "command": "python",
-      "args": ["-m", "axiom_guardian_mcp"],
-      "env": {
-        "AXIOMS_PATH": "/path/to/your/axioms.yaml",
-        "HF_TOKEN": "your-huggingface-token"
-      }
-    }
-  }
-}
+### 3. Hello World Test
+Run the server locally to verify installation:
+```bash
+python -m axiom_guardian_mcp --test "Delete the production database"
+# Expected output: Challenge triggered based on axiom 1.
 ```
 
-### 4. Challenge-Justification Loop
-When a proposed action contradicts an axiom, the guardian tool will:
-1. Detect the contradiction using NLI.
-2. Return a challenge message to the agent.
-3. Require the agent (or user) to provide a justification.
-4. Log the justification for auditing.
+## CLI examples
+
+### 1. Running the server
+Start the MCP server with a specific axioms file:
+```bash
+AXIOMS_PATH="./my_axioms.yaml" python -m axiom_guardian_mcp
+```
+
+### 2. Validating axioms
+Check your `axioms.yaml` for syntax and logical consistency:
+```bash
+python -m axiom_guardian_mcp --validate-axioms ./axioms.yaml
+```
+
+### 3. Testing specific prompts
+Manually test how the guardian responds to a specific action prompt:
+```bash
+python -m axiom_guardian_mcp --check "Deploying code to production"
+```
+
+## API examples
+
+### Integration in Python
+You can use the Guardian logic directly in your agent's decision loop.
+
+```python
+from axiom_guardian import AxiomGuardian
+
+guardian = AxiomGuardian(axioms_path="axioms.yaml")
+
+# Check a proposed action
+result = guardian.check_action("I will clear the cache on the production server.")
+
+if result.is_contradiction:
+    print(f"Challenge: {result.challenge_message}")
+    # Prompt the user for justification...
+```
 
 ## Related tools / concepts
 - [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md)
@@ -98,5 +113,5 @@ When a proposed action contradicts an axiom, the guardian tool will:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
