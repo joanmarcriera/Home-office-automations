@@ -1,154 +1,107 @@
 # LangChain
 
 ## What it is
-LangChain is a framework for developing applications powered by large language models. It provides a set of tools and abstractions for working with LLMs, including chain of thought, retrieval augmented generation, and agentic workflows.
+LangChain is a modular framework designed to simplify the creation of applications using large language models (LLMs). It provides a standardized interface for chains, multiple integrations with other tools, and end-to-end chains for common applications.
 
 ## What problem it solves
-Provides reusable building blocks and standardized abstractions for common LLM application patterns, so developers do not have to implement prompt chaining, RAG, or agent loops from scratch.
+It addresses the "abstraction soup" and boilerplate associated with LLM development. LangChain provides reusable building blocks for prompt management, memory, indexing, and agentic workflows, allowing developers to focus on application logic rather than low-level API orchestration.
 
 ## Where it fits in the stack
-AI & Knowledge — serves as a foundational framework that other tools in the stack (such as [Flowise](flowise.md)) build upon for LLM application development.
+**AI & Knowledge / Frameworks**. It serves as the orchestration layer between frontier models like Claude 4.8 and GPT-5.5 and external data sources or tools.
 
 ## Typical use cases
-- Building retrieval-augmented generation (RAG) pipelines over private data.
-- Creating multi-step agent workflows with tool use and memory.
-- Exploring [LangGraph](https://langchain-ai.github.io/langgraph/) for complex, stateful multi-agent orchestration.
-- Using Deep Agents for autonomous, long-running tasks requiring planning and subagents.
-- Evaluating LLM applications using LangSmith for tracing and performance monitoring.
-
-## Framework selection notes
-
-LangChain now has a clearer split between its layers:
-
-- **LangChain**: the quick-start framework for standardized agent and app patterns.
-- **Deep Agents**: the opinionated harness for autonomous, long-running, non-deterministic tasks where planning, memory, and subagents matter.
-- **LangGraph**: the lower-level stateful runtime when you want tighter control over workflow shape and execution semantics.
-
-That distinction matters in practice. Many teams start with LangChain for fast prototyping, move to Deep Agents when the task needs more autonomy, and drop to LangGraph when they need explicit state-machine style control.
-
-## Advanced Patterns
-
-### LangGraph (Stateful Orchestration)
-LangGraph allows you to build agents as state machines. This is essential for complex loops where an agent needs to reflect on its own work, retry failed steps, or coordinate with other agents in a multi-turn conversation.
-
-### LangSmith (Observability & Evaluation)
-LangSmith provides a unified platform for debugging, testing, and monitoring LangChain applications. It allows you to trace every step of a chain's execution, identify bottlenecks, and run automated evaluations against test datasets.
+- **Retrieval-Augmented Generation (RAG)**: Connecting LLMs to private data for context-aware answering.
+- **Autonomous Agents**: Building loops where the LLM uses tools (like search or calculators) to solve complex tasks.
+- **Chatbots with Memory**: Maintaining state across long-running conversations.
+- **LangGraph Orchestration**: Designing complex, stateful multi-agent systems with cycles and fine-grained control.
 
 ## Strengths
-- Large and active open-source community with extensive documentation.
-- Wide range of integrations with LLM providers, vector stores, and tools.
-- Supports both Python and JavaScript/TypeScript.
-- Robust ecosystem including LangSmith for observability and LangServe for deployment.
+- **Massive Ecosystem**: Thousands of integrations for vector stores, LLMs (including native Claude 4.8 support), and data loaders.
+- **LCEL (LangChain Expression Language)**: A declarative way to compose chains that supports streaming and async by default.
+- **Observability**: Seamless integration with LangSmith for tracing and evaluating production LLM runs.
+- **Flexibility**: Supports both high-level "off-the-shelf" chains and low-level primitives for custom logic.
 
 ## Limitations
-- Abstractions can add complexity and make debugging harder ("abstraction soup").
-- Rapid pace of change can lead to breaking changes between versions.
-- Can be overkill for simple LLM interactions where a direct SDK call suffices.
+- **Complexity**: The high level of abstraction can make debugging difficult when things go wrong deep in a chain.
+- **Rapid Evolution**: Frequent breaking changes in the core library require constant maintenance of production code.
+- **Overhead**: For simple, single-prompt applications, LangChain may introduce unnecessary latency and package bloat.
 
 ## When to use it
-- When building complex LLM applications that require chaining, RAG, or agent patterns.
-- When you need integrations with many different LLM providers and data sources.
-- When you want to leverage a mature ecosystem for production-grade LLM ops (tracing, eval).
+- When building production-grade LLM applications that require tracing, versioning, and complex data retrieval.
+- When you need to quickly swap between different LLM providers (e.g., testing GPT-5.5 vs Claude 4.8).
+- When implementing advanced agentic patterns using LangGraph or Deep Agents.
 
 ## When not to use it
-- When the use case is a simple single-prompt LLM call.
-- When you prefer a data-centric framework like [LlamaIndex](llamaindex.md) for pure RAG workloads.
-- When you need a minimal, low-overhead framework for edge or resource-constrained environments.
-
-## Related tools / concepts
-
-- [LlamaIndex](llamaindex.md)
-- [Haystack](../frameworks/haystack.md)
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-- [Google Opal](google-opal.md)
-- [Flowise](flowise.md)
-- [Mastra](../frameworks/mastra.md)
-- [AG2](../frameworks/ag2.md)
+- For basic "hello world" scripts that only call an LLM once.
+- When working in extremely resource-constrained environments where package size is a priority.
+- If you prefer a more "data-first" approach for pure search/retrieval (consider [LlamaIndex](llamaindex.md)).
 
 ## Getting started
 
 ### Installation
-
-Install the core LangChain package and the OpenAI integration:
-
 ```bash
-pip install langchain langchain-openai
+pip install langchain langchain-anthropic langchain-openai
 ```
 
-### Minimal Python Example
-
-Minimal example to call an LLM:
-
+### Hello World (Python)
 ```python
-from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 
-llm = ChatOpenAI(model="gpt-4o")
-response = llm.invoke("Hello, how are you?")
+# Initialize with Claude 4.8
+model = ChatAnthropic(model="claude-4-8-opus-20260528")
+response = model.invoke("What is the future of agentic AI in 2026?")
 print(response.content)
+```
+
+## CLI examples
+The LangChain CLI helps manage templates and deployment.
+
+```bash
+# Initialize a new LangChain project from a template
+langchain app new my-app --package rag-conversation
+
+# Start a local LangServe development server
+langchain serve --port 8000
+
+# List available community templates
+langchain template list
 ```
 
 ## API examples
 
-### Simple Chain with Prompt Template, LLM, and Output Parser
-
-This example demonstrates the recommended way to compose components using LangChain Expression Language (LCEL).
+### LCEL Chain with GPT-5.5
+A minimal chain using LangChain Expression Language.
 
 ```python
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-# 1. Define the Prompt Template
-prompt = ChatPromptTemplate.from_template("Tell me a short joke about {topic}")
-
-# 2. Initialize the Model
-model = ChatOpenAI(model="gpt-4o")
-
-# 3. Initialize the Output Parser
+prompt = ChatPromptTemplate.from_template("Translate {text} to French.")
+model = ChatOpenAI(model="gpt-5.5-preview")
 output_parser = StrOutputParser()
 
-# 4. Compose the Chain using LCEL
 chain = prompt | model | output_parser
-
-# 5. Invoke the Chain
-response = chain.invoke({"topic": "bears"})
-print(response)
+result = chain.invoke({"text": "The agent is learning."})
+print(result)
 ```
 
-### Agent with Tools
-Creating an agent that can use a search tool and a calculator.
-
-```python
-from langchain import hub
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain_openai import ChatOpenAI
-from langchain_community.tools.tavily_search import TavilySearchResults
-
-# 1. Load the prompt
-prompt = hub.pull("hwchase17/openai-functions-agent")
-
-# 2. Define tools
-tools = [TavilySearchResults(max_results=1)]
-
-# 3. Initialize LLM and Agent
-llm = ChatOpenAI(model="gpt-4o")
-agent = create_openai_functions_agent(llm, tools, prompt)
-
-# 4. Create Agent Executor
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-
-# 5. Run the agent
-agent_executor.invoke({"input": "What is the weather in Tokyo?"})
-```
+## Related tools / concepts
+- [LlamaIndex](llamaindex.md)
+- [LangGraph](https://langchain-ai.github.io/langgraph/)
+- [LangSmith](https://www.langchain.com/langsmith)
+- [Mastra](../frameworks/mastra.md)
+- [Flowise](flowise.md)
+- [Deep Agents](https://www.langchain.com/deep-agents)
+- [Claude 4.8](../providers/anthropic.md)
+- [GPT-5.5](../providers/openai.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 
 ## Sources / references
-- [Official Website](https://www.langchain.com/)
-- [GitHub Repository](https://github.com/langchain-ai/langchain)
-- [LangChain Deep Agents overview](https://www.langchain.com/deep-agents)
-- [LangChain Expression Language (LCEL) Documentation](https://python.langchain.com/docs/concepts/lcel/)
+- [LangChain Official Documentation](https://python.langchain.com/)
+- [LangChain GitHub](https://github.com/langchain-ai/langchain)
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high

@@ -1,108 +1,100 @@
 # OpenDataLoader PDF
 
 ## What it is
-OpenDataLoader PDF is a specialized tool for preparing PDF documents for Retrieval-Augmented Generation (RAG) by converting them into AI-ready data formats.
+OpenDataLoader PDF is a specialized, open-source ingestion engine designed for high-fidelity conversion of complex PDF documents into AI-ready data formats (Markdown and JSON). It focuses on preserving semantic structure, including tables, multi-column layouts, and mathematical formulas.
 
 ## What problem it solves
-It automates PDF accessibility and parsing, ensuring that complex PDF structures (like tables and multi-column layouts) are correctly interpreted by LLMs, reducing noise in RAG pipelines.
+It solves the "garbage-in, garbage-out" problem in RAG pipelines. Standard PDF parsers often fail on complex layouts, resulting in jumbled text that causes hallucinations in LLMs like Claude 4.8 or GPT-5.5. OpenDataLoader uses vision-aware layout detection to ensure that text is extracted in the correct reading order.
 
 ## Where it fits in the stack
-**Category**: Tool / Process Understanding
+**Ingest / Process & Understanding**. It acts as the bridge between legacy PDF archives and modern agentic knowledge bases.
 
 ## Typical use cases
-- Preparing legacy PDF archives for agentic search.
-- Automating document accessibility compliance.
-- Extracting structured data from technical manuals.
+- **Archive Migration**: Converting thousands of historical PDF reports into a clean, searchable Markdown repository.
+- **Technical Document RAG**: Extracting structured data from dense manuals and whitepapers for high-precision retrieval.
+- **Financial Statement Parsing**: Preserving table structures from annual reports to enable accurate multi-agent reasoning.
 
 ## Strengths
-- Focused on "AI-ready" output quality.
-- Automates complex layout parsing.
-- Open-source and extensible.
+- **Layout Awareness**: Correctly identifies and parses multi-column text and floating images/tables.
+- **Table Preservation**: Converts complex PDF tables into clean Markdown tables with high accuracy.
+- **OCR Integration**: Seamlessly handles scanned PDFs via Tesseract or cloud-native OCR engines.
+- **Scalable Batch Processing**: Optimized for multi-core performance when processing large document libraries.
 
 ## Limitations
-- May require significant compute for very large batches of complex documents.
-- Performance depends on the quality of the original PDF scan (OCR quality).
+- **Processing Time**: High-fidelity layout detection is slower than simple text extraction.
+- **OCR Dependencies**: Performance on low-quality scans is heavily dependent on the chosen OCR engine.
+- **Formatting Variability**: Extreme stylistic variations in PDFs can still lead to occasional parsing artifacts.
 
 ## When to use it
-- When your RAG pipeline is struggling with hallucination due to poor PDF parsing.
-- When you need to process large volumes of PDFs into structured JSON or Markdown.
+- When your RAG pipeline requires high precision for complex documents (legal, medical, or technical).
+- When you need to process large batches of PDFs locally for privacy or cost reasons.
+- When you need output that is specifically formatted for LLM consumption.
 
 ## When not to use it
-- For simple, text-only PDFs that can be handled by basic parsers.
-- If you only need to read a single file occasionally.
+- For simple, text-only PDFs where basic libraries like `PyPDF2` or `pdfplumber` are sufficient.
+- When an official, structured source (like a LaTeX source or HTML version) is available.
 
 ## Getting started
 
-OpenDataLoader PDF is designed for batch processing of document archives into RAG-ready Markdown or JSON.
-
-### 1. Installation
+### Installation
 ```bash
 pip install opendataloader-pdf
 ```
 
-### 2. Basic Conversion
-Convert a directory of PDFs to Markdown:
-
+### Basic Batch Conversion
 ```bash
-opendataloader-pdf --input ./docs/ --output ./markdown/ --format md
+# Convert all PDFs in a folder to markdown
+opendataloader-pdf --input ./source_pdfs/ --output ./output_md/ --format md
 ```
 
-### 3. Advanced Table Extraction
-Use a specific extraction strategy for dense financial or technical tables:
-
+## CLI examples
 ```bash
-opendataloader-pdf --input manual.pdf --strategy table-focus --ocr-engine tesseract
+# Force layout-aware parsing for a complex 2-column paper
+opendataloader-pdf --input paper.pdf --layout-aware --ocr-engine tesseract
+
+# Extract only tables from a document as JSON
+opendataloader-pdf --input report.pdf --extract tables --format json
+
+# Process a directory with 4 parallel workers
+opendataloader-pdf --input ./archive/ --output ./clean/ --parallel 4
 ```
 
-## Technical examples
+## API examples
 
-### 1. Integration with a RAG pipeline (LlamaIndex)
-You can use OpenDataLoader's output directly with LlamaIndex for high-quality ingestion.
+### Integration with LlamaIndex
+Using OpenDataLoader's output to feed a vector index for Claude 4.8.
 
 ```python
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from opendataloader_pdf import PDFConverter
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 
-# 1. Convert PDFs to AI-ready Markdown
-converter = PDFConverter()
-converter.convert_dir("./raw_data", "./processed_data")
+# 1. Convert complex PDFs to AI-ready Markdown
+converter = PDFConverter(layout_aware=True)
+converter.convert_dir("./raw_docs", "./processed_md")
 
-# 2. Ingest processed Markdown into LlamaIndex
-reader = SimpleDirectoryReader("./processed_data")
+# 2. Ingest into LlamaIndex
+reader = SimpleDirectoryReader("./processed_md")
 documents = reader.load_data()
-
 index = VectorStoreIndex.from_documents(documents)
+
+# 3. Query with high confidence
 query_engine = index.as_query_engine()
-
-print(query_engine.query("What are the safety requirements listed in the manual?"))
+print(query_engine.query("What are the quarterly growth metrics in the table?"))
 ```
-
-### 2. Multi-column Layout Handling
-OpenDataLoader uses layout-aware parsing to preserve the reading order of multi-column documents.
-
-```bash
-# Force layout detection for complex papers
-opendataloader-pdf --input paper.pdf --layout-aware --min-confidence 0.85
-```
-
-## Licensing and cost
-- **Open Source**: Yes
-- **Cost**: Free
-- **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [LlamaParse](../intake_storage/llamaparse.md)
-- [Unstructured.io](../intake_storage/unstructured.md)
 - [Docling](docling.md)
 - [Docling MCP](docling-mcp.md)
+- [Crawl4AI](crawl4ai.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
+- [Unstructured.io](../intake_storage/unstructured.md)
 - [RAG Patterns](../../knowledge_base/patterns/rag.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Craw4AI](crawl4ai.md)
-- [Firecrawl](firecrawl.md)
+- [LlamaIndex](./llamaindex.md)
 
-## Sources / References
-- [GitHub](https://github.com/opendataloader-project/opendataloader-pdf)
+## Sources / references
+- [OpenDataLoader GitHub Repository](https://github.com/opendataloader-project/opendataloader-pdf)
+- [PDF to AI-Ready Data Best Practices](https://github.com/opendataloader-project/opendataloader-pdf/docs/best-practices.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high

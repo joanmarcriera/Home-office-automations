@@ -1,76 +1,101 @@
 # TeamOut
 
 ## What it is
-TeamOut is an AI agent specifically designed for the logistical planning and organization of company retreats and corporate offsites.
+TeamOut is an AI-native platform designed for the end-to-end planning and logistics of company retreats, offsites, and corporate events. It utilizes specialized agents to automate venue sourcing, budget management, and itinerary generation.
 
 ## What problem it solves
-It automates the time-consuming process of sourcing venues, managing team preferences, and coordinating the logistics of large-scale group events, ensuring that retreats meet both organizational goals and employee needs.
+Planning large-scale corporate events is traditionally a manual, months-long process involving thousands of emails. TeamOut reduces this to minutes by using AI to match company requirements (budget, team size, activities) with a global database of retreat-vetted venues.
 
 ## Where it fits in the stack
-**Category**: Tool / Agent
-
-## Technical Capabilities
-- **Automated Sourcing**: Scans a proprietary database of retreat-friendly venues globally.
-- **Preference Synthesis**: Uses LLMs to analyze employee surveys and rank venues based on team sentiment.
-- **Budget Optimization**: Iteratively adjusts retreat parameters (duration, location, activities) to hit target spend.
-- **Itinerary Generation**: Creates structured daily schedules including travel, work sessions, and social activities.
+**AI & Knowledge / Agents**. It is a verticalized AI agent specialized in the corporate travel and logistics domain.
 
 ## Typical use cases
-- **Venue Sourcing**: Finding offsite locations that fit specific budget and capacity requirements.
-- **Logistics Coordination**: Managing the "moving parts" of a company retreat.
-- **Preference Management**: Collecting and synthesizing team feedback to choose the best retreat options.
+- **Automated Venue Sourcing**: Finding retreats that specifically accommodate 50+ people with high-speed internet and breakout rooms.
+- **Budget Optimization**: Iteratively testing different dates and locations to find the most cost-effective offsite.
+- **Team Sentiment Analysis**: Synthesizing survey data from employees to automatically recommend activities (e.g., hiking vs. workshops).
 
 ## Strengths
-- **Domain Specialization**: Tailored specifically for the corporate retreat market.
-- **Integrated Platform**: Works within the broader TeamOut ecosystem for end-to-end event management.
+- **Domain-Specific Logic**: Unlike general-purpose agents, TeamOut is pre-trained on travel logistics and corporate venue data.
+- **Workflow Integration**: Integrates directly with Slack and Google Calendar for team coordination.
+- **High Signal Data**: Uses proprietary datasets of "retreat-ready" hotels that aren't always prioritized in general search engines.
 
 ## Limitations
-- **Niche Utility**: Limited to corporate event planning; not a general-purpose AI assistant.
-- **Proprietary**: Operates as a paid service within the TeamOut platform.
+- **Niche Focus**: Cannot be used for general travel (like individual flight booking) or general coding/task automation.
+- **Platform Dependent**: Best experienced through the TeamOut web platform; external API access for custom agents is currently in early preview.
 
 ## When to use it
-- Use when tasked with planning a multi-person company offsite or retreat.
+- When tasked with organizing a company offsite for 10 to 500+ people.
+- When you need to provide multiple, budget-vetted options to leadership within a short timeframe.
 
 ## When not to use it
-- Not for personal travel planning or general-purpose task management.
+- For personal travel or small family vacations.
+- For managing day-to-day office logistics or facilities management.
 
-## JSON API Example
-While primarily a platform-based agent, TeamOut concepts can be integrated into automation flows via structured payloads:
+## Getting started
 
-```json
-{
-  "retreat_request": {
-    "team_size": 25,
-    "region": "Western Europe",
-    "dates": "2026-09-15 to 2026-09-19",
-    "primary_goal": "Team Bonding & Strategic Planning",
-    "budget_per_person": 1500,
-    "requirements": [
-      "High-speed Wi-Fi",
-      "Private meeting rooms",
-      "Vegetarian catering options",
-      "Proximity to international airport"
-    ]
-  }
-}
+### Installation
+TeamOut primarily operates as a managed service. To use the integration SDK for agents:
+
+```bash
+pip install teamout-sdk
+```
+
+### Quick Start
+You can interact with the TeamOut planning engine via their web interface or by sending a structured prompt to your integrated assistant:
+
+1. Create an account at [teamout.com](https://app.teamout.com).
+2. Define your "Retreat Profile" (Team size, preferred regions).
+3. The TeamOut agent will generate 3-5 complete itineraries.
+
+## CLI examples
+While TeamOut is platform-first, the `teamout` CLI allows for programmatic status checks and profile management.
+
+```bash
+# Check the status of an ongoing retreat search
+teamout status --retreat-id R_12345
+
+# Export a draft itinerary to JSON for local review
+teamout export --retreat-id R_12345 --format json
+
+# List all active retreat projects
+teamout projects list
+```
+
+## API examples
+
+### Programmatic Retreat Request
+Using the SDK to trigger a search from a custom agent (e.g., a Claude 4.8-based assistant).
+
+```python
+from teamout import TeamOutClient
+
+client = TeamOutClient(api_key="TO_SEC_XYZ")
+
+# Request a venue search for a 25-person team in Portugal
+retreat = client.search_venues(
+    team_size=25,
+    location="Portugal",
+    budget_cap=35000,
+    requirements=["meeting-rooms", "beach-access"]
+)
+
+for venue in retreat.recommendations:
+    print(f"Found: {venue.name} - Score: {venue.match_score}%")
 ```
 
 ## Related tools / concepts
-
 - [AI Agents](../agents/index.md)
 - [ChatGPT](./chatgpt.md)
+- [Claude 4.8](../providers/anthropic.md)
+- [GPT-5.5](../providers/openai.md)
 - [Event Management Automation](../automation_orchestration/index.md)
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-- [Google Opal](google-opal.md)
-- [OpenRouter](openrouter.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [LangChain](../ai_knowledge/langchain.md)
+- [LangChain](./langchain.md)
 
 ## Sources / references
-- [Launch HN: TeamOut (YC W22) – AI agent for planning company retreats](https://app.teamout.com/ai)
-
+- [Official TeamOut AI Page](https://app.teamout.com/ai)
+- [TeamOut API Documentation (Preview)](https://docs.teamout.com/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-12
 - Confidence: high
-- Last reviewed: 2026-05-16
