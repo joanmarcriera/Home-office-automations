@@ -15,25 +15,24 @@ It reduces context switching by bringing AI-powered software engineering capabil
 - **Codebase Exploration**: Asking questions about unfamiliar architectures or "finding where X is implemented."
 - **Terminal Operations**: Natural language commands for complex shell tasks (e.g., "Find all large log files and compress them").
 
-## Key Features
+## Strengths
 - **Agentic Loop**: Plans, executes, and adjusts actions based on terminal feedback.
-- **Shell Mode**: Press `Ctrl-X` to switch between chatting with the agent and running direct shell commands.
+- **Native Terminal Integration**: No need to leave the shell for AI assistance.
 - **ACP Support**: Native support for the **Agent Client Protocol**, enabling integration with IDEs like Zed or JetBrains.
 - **Web Access**: Can search and fetch live documentation to ground its coding suggestions.
-
-## Strengths
-- **Native Terminal Integration**: No need to leave the shell for AI assistance.
-- **Multi-Model Support**: Can be configured to use Moonshot's Kimi K2 models or any OpenAI-compatible API.
+- **Multi-Model Support**: Can be configured to use Moonshot's Kimi K2 models or any OpenAI-compatible API, including `claude-4-8-opus-20260528` and GPT-5.5 via local proxies.
 - **Extensible**: Supports custom providers and headers via a TOML configuration.
 
 ## Limitations
 - **Latency**: Agentic reasoning steps can take time, especially for complex planning.
 - **Shell Compatibility**: Some built-in shell commands like `cd` are currently handled via a workaround rather than natively in all modes.
+- **Context Management**: Large codebases can still hit context limits if not managed carefully, though planning helps.
 
 ## When to use it
 - When you want an AI pair programmer that can actually *run* the code it writes.
 - For rapid refactoring tasks across multiple files.
 - When working in remote SSH environments where a browser-based AI is inaccessible.
+- As a faster, terminal-native alternative to [Claude Code](../development_ops/claude-code-setup.md).
 
 ## When not to use it
 - For simple snippets that don't require file or shell context (use a standard chat).
@@ -59,10 +58,14 @@ Run the setup wizard to configure your API provider:
 kimi /login
 ```
 
-## Technical examples
+### Hello World Example
+To verify Kimi is working correctly:
 
-### Running an Agentic Task
-You can start a session with a specific goal:
+```bash
+kimi "Write a 'hello world' script in Python and run it"
+```
+
+## CLI examples
 
 ```bash
 # Refactor a specific module
@@ -70,7 +73,12 @@ kimi "Refactor the authentication logic in src/auth.py to use JWT instead of ses
 
 # Find and fix errors
 kimi "Run the test suite and fix any failing tests in the reports module"
+
+# Explain code
+kimi "Explain how the routing works in this project"
 ```
+
+## API examples
 
 ### IDE Integration (Zed)
 Kimi Code CLI supports the Agent Client Protocol (ACP). To use it as an agent server in Zed, add this to your `settings.json`:
@@ -117,5 +125,5 @@ api_key = "ollama"
 - [Sébastien Dubois: Kimi CLI Overview](https://www.dsebastien.net/kimi-cli/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
