@@ -7,26 +7,77 @@ DSPy (Declarative Self-improving Language Programs, Pythonically) is a framework
 Traditional LLM development involves manual prompt engineering ("prompt hacking"), which is brittle and doesn't scale. DSPy replaces this with a programming model where you define signatures and modules, and an optimizer automatically generates high-quality prompts or fine-tunes models to satisfy your requirements.
 
 ## Where it fits in the stack
-Framework
+**Framework / LLM Programming Layer**. It acts as a compiler for language model programs, bridging the gap between high-level logic and low-level prompt optimization.
 
 ## Typical use cases
 - **Complex RAG Pipelines**: Optimizing retrieval and generation steps together.
 - **Multi-hop Question Answering**: Managing state and logic across multiple LLM calls.
 - **Self-Improving Agents**: Automatically refining agent prompts based on few-shot examples.
+- **Agentic Workflows**: Building robust systems for frontier models like `claude-4-8-opus-20260528`.
 
 ## Strengths
-- **Programmatic Control**: Define logic in Python rather than raw strings.
-- **Automatic Optimization**: Compilers (optimizers) like `BootstrapFewShot` generate effective prompts.
+- **Programmatic Control**: Define logic in Python rather than raw strings using **Signatures** (declarative specifications) and **Modules** (reusable components like `ChainOfThought` or `ReAct`).
+- **Automatic Optimization**: Compilers (optimizers) like `BootstrapFewShotWithRandomSearch` generate effective prompts systematically.
+- **Advanced Reasoning**: Support for `ProgramOfThought` where the model generates code to solve problems.
+- **Assertions and Constraints**: Built-in `dspy.Assert` and `dspy.Suggest` to enforce runtime constraints on LLM outputs.
 - **Model Agnostic**: Easily switch between different LMs and re-optimize the pipeline.
 
-## Core Concepts: Signatures and Modules
-DSPy programs are built using two primary abstractions:
-- **Signatures**: Declarative specifications of the input and output behavior. Instead of writing a prompt, you define *what* the module should do (e.g., `question -> answer`).
-- **Modules**: Reusable components that implement a signature using specific strategies, such as `dspy.ChainOfThought`, `dspy.ReAct`, or `dspy.ProgramOfThought`.
+## Limitations
+- **Learning Curve**: Requires a shift in mindset from manual prompting to systematic programming.
+- **Optimization Overhead**: Running optimizers requires a training/validation dataset and can be time-consuming.
+- **Complexity**: Debugging compiled programs can be more difficult than debugging raw prompts.
 
-## Advanced Reasoning: ProgramOfThought
-`ProgramOfThought` is a module that handles complex tasks by generating a program (e.g., Python code) that computes the answer, rather than generating the answer directly.
+## When to use it
+- When you are tired of manual prompt engineering.
+- When you need a robust, reproducible, and optimizable LLM pipeline.
+- When building production-grade RAG or agent systems that must adapt to different models.
 
+## When not to use it
+- For very simple, single-prompt applications.
+- If you don't have even a small dataset to use for optimization.
+- For purely experimental "chat-with-pdf" scripts that don't require high reliability.
+
+## Getting started
+
+### Installation
+```bash
+pip install dspy
+```
+
+### Minimal Python Example
+```python
+import dspy
+lm = dspy.LM('openai/gpt-4o') # Or 'anthropic/claude-3-5-sonnet'
+dspy.settings.configure(lm=lm)
+
+class CoT(dspy.Signature):
+    """Answer questions with chain of thought."""
+    question = dspy.InputField()
+    answer = dspy.OutputField(desc="often between 10 and 50 words")
+
+generate_answer = dspy.ChainOfThought(CoT)
+pred = generate_answer(question="What is the capital of France?")
+print(pred.answer)
+```
+
+## CLI examples
+> [!NOTE]
+> DSPy is primarily a library-based framework. Terminal interactions are typically handled via Python scripts or environment configuration.
+
+```bash
+# Example: Viewing the DSPy cache (if configured)
+python -m dspy.utils.cache_viewer --port 8080
+
+# Example: Running a DSPy script with specific environment variables
+DSPY_CACHEDIR=./cache python my_dspy_app.py
+
+# Example: Using the DSPy CLI for model benchmarking (if installed via extensions)
+dspy-bench --model claude-4-8-opus-20260528 --task my_task.py
+```
+
+## API examples
+
+### ProgramOfThought for Complex Logic
 ```python
 import dspy
 
@@ -41,77 +92,24 @@ result = math_solver(question="If I have 5 apples and buy 3 more, then double th
 print(result.answer)
 ```
 
-## Systematic Optimization: BootstrapFewShotWithRandomSearch
-For more robust optimization than the basic `BootstrapFewShot`, you can use random search to find the best set of few-shot examples across multiple candidates.
-
+### Optimization with BootstrapFewShotWithRandomSearch
 ```python
 from dspy.teleprompt import BootstrapFewShotWithRandomSearch
 
 # Define validation metric
 def validate_context_and_answer(example, pred, trace=None):
     # Metric logic...
-    return True
+    return pred.answer == example.answer
 
 # Initialize the optimizer
 tp = BootstrapFewShotWithRandomSearch(
     metric=validate_context_and_answer,
     max_bootstrapped_demos=4,
-    max_labeled_demos=4,
-    num_candidate_programs=10,
-    num_threads=4
+    num_candidate_programs=10
 )
 
-# Compile the program against a training set
+# Compile against a training set for Claude 4.8
 optimized_app = tp.compile(MyModule(), trainset=trainset)
-```
-
-## Assertions and Constraints
-DSPy allows you to define assertions and suggestions within your modules to enforce constraints on the LLM's output.
-
-```python
-class MyModule(dspy.Module):
-    def forward(self, question):
-        prediction = self.generate_answer(question=question)
-        dspy.Suggest(
-            len(prediction.answer) < 100,
-            "The answer is too long, please summarize."
-        )
-        return prediction
-```
-
-## Limitations
-- **Learning Curve**: Requires a shift in mindset from manual prompting to systematic programming.
-- **Optimization Overhead**: Running optimizers requires a training/validation dataset and can be time-consuming.
-
-## When to use it
-- When you are tired of manual prompt engineering.
-- When you need a robust, reproducible, and optimizable LLM pipeline.
-
-## When not to use it
-- For very simple, single-prompt applications.
-- If you don't have even a small dataset to use for optimization.
-
-## Getting started
-
-### Installation
-```bash
-pip install dspy
-```
-
-### Minimal Python Example
-```python
-import dspy
-lm = dspy.OpenAI(model='gpt-3.5-turbo')
-dspy.settings.configure(lm=lm)
-
-class CoT(dspy.Signature):
-    """Answer questions with chain of thought."""
-    question = dspy.InputField()
-    answer = dspy.OutputField(desc="often between 10 and 50 words")
-
-generate_answer = dspy.ChainOfThought(CoT)
-pred = generate_answer(question="What is the capital of France?")
-print(pred.answer)
 ```
 
 ## Related tools / concepts
@@ -129,8 +127,9 @@ print(pred.answer)
 - [Official Website](https://dspy-docs.vercel.app/)
 - [GitHub](https://github.com/stanfordnlp/dspy)
 - [DSPy: Compiling Declarative Language Model Programs](https://arxiv.org/abs/2310.03714)
+- [DSPy 2026 Roadmap](https://dspy-docs.vercel.app/roadmap)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high
