@@ -4,99 +4,38 @@
 Smolagents is a lightweight and efficient agent framework developed by Hugging Face. It focuses on simplicity, speed, and ease of use, making it ideal for building small, specialized agents that use tools.
 
 ## What problem it solves
-Many agent frameworks are heavy and introduce significant abstraction overhead. Smolagents provides a "minimalist" approach to tool-calling agents, making them easier to understand, debug, and deploy in resource-constrained environments.
+Many agent frameworks are heavy and introduce significant abstraction overhead. Smolagents provides a "minimalist" approach to tool-calling agents, making them easier to understand, debug, and deploy in resource-constrained environments or as part of larger microservices.
 
 ## Where it fits in the stack
-Framework / Agent Library
+**Framework / Agent Library**. It serves as a lightweight alternative to larger orchestrators, optimized for fast inference and local model integration.
 
 ## Typical use cases
 - **Personal Assistants**: Small agents for local task automation.
-- **Edge Computing**: Running agents on devices with limited resources.
-- **Quick Prototypes**: Rapidly testing tool-calling capabilities of a model.
+- **Edge Computing**: Running agents on devices with limited resources using quantized models.
+- **Micro-Agents**: Specialized agents within a larger multi-agent architecture.
+- **Rapid Prototyping**: Testing tool-calling capabilities of frontier models like `claude-4-8-opus-20260528`.
 
 ## Strengths
-- **Lightweight**: Minimal dependencies and small code footprint, making it ideal for embedding in larger applications.
-- **Easy Tool Integration**: Simple decorator-based tool definition that feels natural to Python developers.
-- **HF Integration**: Seamlessly works with models on the Hugging Face Hub and integrates with the `transformers` ecosystem.
-- **Local LLM Friendly**: Specifically designed to work well with smaller, local models by using clear, concise prompt templates.
-
-## Advanced Technical Patterns
-
-### 1. Specialized Tool-Calling Agents
-Smolagents provides different types of agents for specialized tasks. The `CodeAgent` is particularly powerful as it allows the agent to write and execute Python code to solve tasks.
-
-```python
-from smolagents import CodeAgent, DuckDuckGoSearchTool, HfApiModel
-
-# A CodeAgent can use tools and write Python code to process the results
-agent = CodeAgent(
-    tools=[DuckDuckGoSearchTool()],
-    model=HfApiModel(),
-    add_base_tools=True # Adds useful built-in tools like 'python_interpreter'
-)
-
-agent.run("Find the population of NYC and Tokyo, and calculate the difference.")
-```
-
-### 2. Custom Tool Definition
-You can easily define your own tools using simple Python functions and the `@tool` decorator.
-
-```python
-from smolagents import tool
-
-@tool
-def get_weather(location: str) -> str:
-    """
-    Get the current weather for a given location.
-    Args:
-        location: The city and state, e.g. San Francisco, CA
-    """
-    return f"The weather in {location} is sunny."
-
-agent = CodeAgent(tools=[get_weather], model=HfApiModel())
-```
-
-### 3. Resource-Constrained Deployment
-When deploying on edge devices, focus on minimizing the model size and optimizing the context usage.
-
-- **Quantization**: Use 4-bit or 8-bit quantized models (via `bitsandbytes`) to reduce memory footprint.
-- **Context Management**: Limit the number of tools and the verbosity of tool descriptions to save tokens.
-- **Prompt Compression**: Use shorter, more direct system prompts for smaller models that struggle with complex instructions.
+- **Lightweight**: Minimal dependencies and small code footprint.
+- **Native Python Tools**: Simple decorator-based tool definition (`@tool`).
+- **Hugging Face Integration**: Seamlessly works with the `transformers` ecosystem and HF Hub models.
+- **CodeAgent**: Unique capability where agents solve tasks by writing and executing Python code.
+- **Local Model Friendly**: Optimized for local providers like Ollama or vLLM.
 
 ## Limitations
 - **Feature Set**: Less comprehensive than larger frameworks like LangChain or AutoGen.
 - **Ecosystem**: Newer and has a smaller community-built tool library.
+- **State Management**: Lacks built-in support for complex persistent state or long-term memory out of the box.
 
 ## When to use it
 - When you want a simple, transparent agent implementation.
-- When working with Hugging Face models and libraries.
+- For building specialized, single-purpose agents.
+- When working primarily with Hugging Face models and libraries.
 
 ## When not to use it
 - For extremely complex, multi-crew enterprise orchestrations.
-- If you need built-in support for complex persistent state management or long-term memory.
-
-## Local LLM Usage & Token Efficiency
-
-Running `smolagents` with local models (e.g., via Ollama or vLLM) is a powerful way to reduce costs and maintain privacy.
-
-### Local Ollama Example
-```python
-from smolagents import CodeAgent, LiteLLMModel
-
-# Initialize with a local Ollama model via LiteLLM
-model = LiteLLMModel(
-    model_id="ollama/llama3",
-    api_base="http://localhost:11434"
-)
-
-agent = CodeAgent(tools=[], model=model)
-agent.run("Write a Python script to calculate the first 10 Fibonacci numbers.")
-```
-
-### Token-Efficiency Tips
-- **Use Specialized Models**: For `CodeAgent`, use models optimized for coding (e.g., `deepseek-coder` or `qwen2.5-coder`) to reduce the number of reasoning steps.
-- **Limit Tool Output**: Large tool outputs can quickly exhaust the context window of smaller local models. Ensure tools return concise, structured data.
-- **Task Decomposition**: Small models perform better when complex tasks are broken down into smaller, focused sub-tasks.
+- If you need native support for complex database integrations and persistent chat histories.
+- When high-level visual workflow builders are required.
 
 ## Getting started
 
@@ -116,13 +55,53 @@ agent = CodeAgent(tools=[DuckDuckGoSearchTool()], model=HfApiModel())
 agent.run("What is the current population of Tokyo?")
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
+## CLI examples
+
+```bash
+# Running a smolagents script
+python my_agent.py
+
+# Using the smolagents CLI to launch a demo UI (if available)
+smolagents ui --agent my_agent.py
+
+# Inspecting tool definitions via CLI
+smolagents list-tools
+```
+
+## API examples
+
+### CodeAgent with Local Ollama
+```python
+from smolagents import CodeAgent, LiteLLMModel
+
+# Initialize with a local Ollama model via LiteLLM
+model = LiteLLMModel(
+    model_id="ollama/llama3",
+    api_base="http://localhost:11434"
+)
+
+agent = CodeAgent(tools=[], model=model)
+agent.run("Calculate the first 10 Fibonacci numbers using a recursive function.")
+```
+
+### Custom Tool Definition
+```python
+from smolagents import tool, CodeAgent, HfApiModel
+
+@tool
+def get_weather(location: str) -> str:
+    """
+    Get the current weather for a given location.
+    Args:
+        location: The city and state, e.g. San Francisco, CA
+    """
+    return f"The weather in {location} is sunny."
+
+agent = CodeAgent(tools=[get_weather], model=HfApiModel())
+agent.run("What's the weather like in Seattle?")
+```
 
 ## Related tools / concepts
-
 - [LangChain](../ai_knowledge/langchain.md)
 - [Hugging Face Hub](../providers/huggingface.md)
 - [AutoGen](autogen.md)
@@ -130,11 +109,14 @@ agent.run("What is the current population of Tokyo?")
 - [Haystack](haystack.md)
 - [LangGraph](langgraph.md)
 - [Semantic Kernel](semantic-kernel.md)
+- [vLLM](../benchmarking/vllm.md)
+
 ## Sources / References
 - [GitHub](https://github.com/huggingface/smolagents)
 - [Blog Post](https://huggingface.co/blog/smolagents)
+- [Hugging Face Agents Documentation](https://huggingface.co/docs/smolagents/index)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high
