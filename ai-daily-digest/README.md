@@ -1,5 +1,64 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-06-13
+
+## Digest fallback for 2026-06-13
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [New OpenAI Academy courses for the next era of work](https://openai.com/index/academy-courses-applying-ai-at-work) (OpenAI Blog)
+2. [How Preply combines AI and human tutors to personalize learning](https://openai.com/index/preply) (OpenAI Blog)
+3. [Our new community investments in Virginia support local jobs and expand energy affordability.](https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/virginia-community-investments/) (Google AI Blog)
+4. [olmo-eval: An evaluation workbench for the model development loop](https://huggingface.co/blog/allenai/olmo-eval) (Hugging Face Blog)
+5. [Friendly reminder](https://www.reddit.com/r/LocalLLaMA/comments/1u4epzr/friendly_reminder/) (r/LocalLLaMA)
+6. [Anthropic forced to abruptly disable Fable 5 & Mythos 5 globally by US Gov over a jailbreak. This is exactly why we need local models.](https://www.reddit.com/r/LocalLLaMA/comments/1u4e1p5/anthropic_forced_to_abruptly_disable_fable_5/) (r/LocalLLaMA)
+7. [Diffusion Gemma is 4x faster, but makes 6x more mistakes!](https://www.reddit.com/r/LocalLLaMA/comments/1u4bne8/diffusion_gemma_is_4x_faster_but_makes_6x_more/) (r/LocalLLaMA)
+8. [We should set up a torrent network for open source models.](https://www.reddit.com/r/LocalLLaMA/comments/1u4gto1/we_should_set_up_a_torrent_network_for_open/) (r/LocalLLaMA)
+9. [Statement on the US government directive to suspend access to Fable 5 and Mythos 5](https://www.reddit.com/r/LocalLLaMA/comments/1u4dur1/statement_on_the_us_government_directive_to/) (r/LocalLLaMA)
+10. [when fable gets banned but it's ok because you've about to download qwen3.7_67b_21a_mythos_father_fable_mother_distilled_ablated_ablitereted_uncensored_agi_sparse_attention_MTP_SuperHOT_q6_maybe_q7_AGI_FINAL.gguf from huggingface](https://www.reddit.com/r/LocalLLaMA/comments/1u4l98a/when_fable_gets_banned_but_its_ok_because_youve/) (r/LocalLLaMA)
+11. [GLM-5.2 next week, open weight, MIT](https://www.reddit.com/r/LocalLLaMA/comments/1u4je3d/glm52_next_week_open_weight_mit/) (r/LocalLLaMA)
+12. [New model on huggingface](https://www.reddit.com/r/LocalLLaMA/comments/1u4fzg1/new_model_on_huggingface/) (r/LocalLLaMA)
+13. [Local LLMs aren't democratic anymore... the hardware barrier has gotten out of hand.](https://www.reddit.com/r/LocalLLaMA/comments/1u479jf/local_llms_arent_democratic_anymore_the_hardware/) (r/LocalLLaMA)
+14. [A friendly reminder that APIs are rented, local weights are forever](https://www.reddit.com/r/LocalLLaMA/comments/1u4gixn/a_friendly_reminder_that_apis_are_rented_local/) (r/LocalLLaMA)
+15. [Fable 5 data, including CoT](https://www.reddit.com/r/LocalLLaMA/comments/1u4gcxj/fable_5_data_including_cot/) (r/LocalLLaMA)
+16. [I scaled test-time compute for Qwen-3.6-27B and Gemma-4-31B to surpass Claude Mythos in code optimizations and speedups.](https://www.reddit.com/r/LocalLLaMA/comments/1u47cvc/i_scaled_testtime_compute_for_qwen3627b_and/) (r/LocalLLaMA)
+17. [MiniMaxAI/MiniMax-M3 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1u3wagy/minimaxaiminimaxm3_hugging_face/) (r/LocalLLaMA)
+18. [We should heavily discourage and moderate cloud API (deepseek api, GLM api, etc.) topics and discussion. This is LOCAL first.](https://www.reddit.com/r/LocalLLaMA/comments/1u3vrrk/we_should_heavily_discourage_and_moderate_cloud/) (r/LocalLLaMA)
+19. [moonshotai/Kimi-K2.7-Code · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1u3rdk9/moonshotaikimik27code_hugging_face/) (r/LocalLLaMA)
+20. [[NEW MODEL] Supra-Title-0.3B Just released!](https://www.reddit.com/r/LocalLLaMA/comments/1u3tvgh/new_model_supratitle03b_just_released/) (r/LocalLLaMA)
+21. [3090 died, good night sweet prince](https://www.reddit.com/r/LocalLLaMA/comments/1u4dl8d/3090_died_good_night_sweet_prince/) (r/LocalLLaMA)
+22. [ZONOS2: real-time TTS with 8B params, 900M active, and high-fidelity voice cloning](https://www.reddit.com/r/LocalLLaMA/comments/1u4lk5c/zonos2_realtime_tts_with_8b_params_900m_active/) (r/LocalLLaMA)
+23. [Open Dungeon: local roleplay with Gemma 4 QAT + inline Uncen-FLUX images, running at full 256K context under 8GB RAM (OS)](https://www.reddit.com/r/LocalLLaMA/comments/1u3uw8e/open_dungeon_local_roleplay_with_gemma_4_qat/) (r/LocalLLaMA)
+24. [PWA Support has been merged](https://www.reddit.com/r/LocalLLaMA/comments/1u40m26/pwa_support_has_been_merged/) (r/LocalLLaMA)
+25. [Do you ever see a post so bad that you ask yourself what was the prompt if this is the output and what model wrote this.](https://www.reddit.com/r/LocalLLaMA/comments/1u46czd/do_you_ever_see_a_post_so_bad_that_you_ask/) (r/LocalLLaMA)
+26. [What are ultra-tiny llms used for?](https://www.reddit.com/r/LocalLLaMA/comments/1u402xu/what_are_ultratiny_llms_used_for/) (r/LocalLLaMA)
+27. [Huawei Released openPangu 2.0 (Will open source on June 30)](https://www.reddit.com/r/LocalLLaMA/comments/1u3q1j9/huawei_released_openpangu_20_will_open_source_on/) (r/LocalLLaMA)
+28. [Unsloth Minimax M3 GGUF](https://www.reddit.com/r/LocalLLaMA/comments/1u3xwmh/unsloth_minimax_m3_gguf/) (r/LocalLLaMA)
+29. [MiniMax Sparse Attention (MSA)](https://www.reddit.com/r/LocalLLaMA/comments/1u3xl1i/minimax_sparse_attention_msa/) (r/LocalLLaMA)
+30. [Claude Fable is relentlessly proactive](https://simonwillison.net/2026/Jun/11/fable-is-relentlessly-proactive/#atom-entries) (Simon Willison's Weblog)
+31. [[AINews] Fable and Mythos officially too dangerous to release](https://www.latent.space/p/ainews-fable-and-mythos-officially) (Latent Space)
+32. [[AINews] Loopcraft: The Art of Stacking Loops](https://www.latent.space/p/ainews-loopcraft-the-art-of-stacking) (Latent Space)
+33. [Federal government orders Anthropic to pull Fable 5 and Mythos 5, three days after launch](https://thenewstack.io/us-gov-orders-anthropic-to-pull-fable-5-and-mythos-5-three-days-after-launch/) (The New Stack)
+34. [Who gets to be Switzerland in the enterprise agent wars?](https://thenewstack.io/outsystems-agent-orchestration-neutrality/) (The New Stack)
+35. [Coding agents have questions, too — so Stack Overflow built them a home](https://thenewstack.io/stack-overflow-for-agents/) (The New Stack)
+36. [“Don’t just grab random stuff off the internet”: What Chainguard found in 52,000 open-source packages](https://thenewstack.io/chainguard-greyware-scanner-vibe-coding/) (The New Stack)
+37. [“AI is disrupting everything”: Where do entry-level tech jobs go now?](https://thenewstack.io/ai-junior-developer-hiring/) (The New Stack)
+38. [“The manual model breaks”: What happens when agents write to production data](https://thenewstack.io/lakefs-agentic-ai-sandbox/) (The New Stack)
+39. [Beyond the stack trace: why AI requires a new debugging paradigm](https://thenewstack.io/beyond-the-stack-trace/) (The New Stack)
+40. [How to delegate 40% of tickets to AI](https://thenewstack.io/delegate-tickets-to-ai/) (The New Stack)
+41. [Agentic development hinges on verification. For cloud-native software, that is a runtime problem.](https://thenewstack.io/verifying-async-ai-agents/) (The New Stack)
+42. [AI agents need infrastructure: Why Europe’s regional cloud strategy matters](https://thenewstack.io/agentic-ai-cloud-sovereignty/) (The New Stack)
+43. [Transform your AI coding agent into a deterministic Java Spring expert](https://thenewstack.io/deterministic-ai-spring-upgrades/) (The New Stack)
+44. [WeAreDevelopers is coming to the US to give unsung developers a bigger voice](https://thenewstack.io/wearedevelopers-san-jose-expansion/) (The New Stack)
+45. [Cleaner AI training data, fewer bugs: Sonar’s SonarSweep explained](https://thenewstack.io/ai-training-data-quality/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
