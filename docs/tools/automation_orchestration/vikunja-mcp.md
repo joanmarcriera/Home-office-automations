@@ -1,82 +1,95 @@
 # Vikunja MCP Server
 
 ## What it is
-A Model Context Protocol (MCP) server that enables AI assistants to interact with Vikunja task management instances.
+A Model Context Protocol (MCP) server that enables AI assistants like Claude 4.8 Opus and GPT-5.5 to interact with Vikunja task management instances.
 
 ## What problem it solves
-It allows agents to manage tasks, projects, labels, and teams directly within a Vikunja instance, bridging the gap between AI assistants and personal/team productivity tools.
+It allows agents to manage tasks, projects, labels, and teams directly within a Vikunja instance, bridging the gap between autonomous assistants and self-hosted productivity tools. It supports both API token and JWT authentication for varying levels of access.
 
 ## Where it fits in the stack
-**Tool / Automation**. It provides a domain-specific interface for task management operations.
+**Tool / Automation**. It provides a domain-specific interface for task management operations within the MCP ecosystem.
 
 ## Typical use cases
 - Managing personal task lists and projects via natural language.
-- Automating project management workflows.
+- Automating project management workflows in a team environment.
 - Batch importing tasks from CSV or JSON files.
-- Team collaboration and webhook-driven automation.
+- Exporting project data for backup or migration.
 
 ## Strengths
-- **Subcommand-based tools**: Intuitive for AI interaction.
-- **Session-based authentication**: Automatic token management.
-- **Full CRUD operations**: Comprehensive task and project management.
-- **Hybrid Filtering**: Combines server-side and client-side filtering for optimal performance.
-- **Security features**: Zod-based input validation, DoS protection, and rate limiting.
+- **Subcommand-based tools**: Provides an intuitive structure for AI interaction.
+- **Session-based authentication**: Automatically handles token management.
+- **Production-ready resilience**: Uses circuit breakers and Zod-based validation for stability.
+- **Hybrid Filtering**: Optimizes performance by combining server-side and client-side filtering.
 
 ## Limitations
-- User endpoints may fail with authentication errors due to known Vikunja API issues.
-- Team operations are partially implemented (get, update, members are missing).
-- Saved filters are currently stored in memory only.
+- User-specific endpoints require JWT authentication (browser-extracted).
+- Some team operations are limited by the underlying Vikunja API.
+- Webhook subscriptions for real-time updates are still in the roadmap.
 
 ## When to use it
-- When you use Vikunja for task management and want to integrate it with MCP-compatible AI assistants like Claude Desktop.
-- When you need to automate task creation or batch import tasks into Vikunja.
+- When you use Vikunja for task management and want to integrate it with MCP-compatible assistants.
+- When you need to automate complex task creation or project hierarchy management.
+- When you require secure, validated access to your task data.
 
 ## When not to use it
-- When you require full team management capabilities that are not yet implemented.
-- When you need persistent storage for custom filters within the MCP server itself.
-
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free
-- **Self-hostable**: Yes
+- If your task management system does not support the Vikunja API.
+- If you require real-time push notifications from Vikunja to your agent (use webhooks directly).
 
 ## Getting started
 
-Vikunja MCP enables AI assistants to manage tasks within a self-hosted Vikunja instance. It uses API tokens for secure access.
+Vikunja MCP is best used via `npx` in your MCP client configuration.
 
 ### 1. Installation
+The server is typically run directly via `npx`:
 ```bash
-pip install vikunja-mcp
+npx -y @democratize-technology/vikunja-mcp
 ```
 
-### 2. Obtain API Token
-1. Log in to your Vikunja instance.
-2. Go to **Settings** > **API Tokens**.
-3. Create a new token with the necessary scopes (Tasks, Projects, etc.).
+### 2. Authentication
+Set the following environment variables:
+- `VIKUNJA_URL`: Your instance API URL (e.g., `https://tasks.example.com/api/v1`)
+- `VIKUNJA_API_TOKEN`: Your API token (starts with `tk_`)
 
 ### 3. Configuration (Claude Desktop)
-Add the server to your `claude_desktop_config.json`:
-
 ```json
 {
   "mcpServers": {
     "vikunja": {
-      "command": "python",
-      "args": ["-m", "vikunja_mcp"],
+      "command": "npx",
+      "args": ["-y", "@democratize-technology/vikunja-mcp"],
       "env": {
-        "VIKUNJA_URL": "https://tasks.example.com",
-        "VIKUNJA_TOKEN": "your-api-token"
+        "VIKUNJA_URL": "https://your-vikunja.com/api/v1",
+        "VIKUNJA_API_TOKEN": "tk_yourtoken"
       }
     }
   }
 }
 ```
 
-### 4. Subcommand Usage
-The agent interacts with Vikunja via subcommands. For example:
-- `tasks list` - List tasks in a project.
-- `tasks create` - Create a new task.
-- `projects create` - Create a new project list.
+## CLI examples
+```bash
+# Start the server with debug logging
+DEBUG=true LOG_LEVEL=debug npx @democratize-technology/vikunja-mcp
+
+# Start with custom rate limiting
+RATE_LIMIT_PER_MINUTE=120 npx @democratize-technology/vikunja-mcp
+
+# Using JWT for user-management features
+VIKUNJA_API_TOKEN="eyJ..." npx @democratize-technology/vikunja-mcp
+```
+
+## API examples
+Agents interact with the server using the `vikunja_tasks` toolset:
+```json
+// Create a new task with labels and assignees
+vikunja_tasks.create({
+  "projectId": 1,
+  "title": "Complete 2026 Audit",
+  "priority": 5,
+  "labels": [10, 22],
+  "dueDate": "2026-06-30T12:00:00Z"
+})
+```
 
 ## Related tools / concepts
 - [Vikunja](../../services/vikunja.md)
@@ -86,6 +99,7 @@ The agent interacts with Vikunja via subcommands. For example:
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Google Calendar](../calendar_tasks/google_calendar.md)
 - [MCP Registry](mcp-registry.md)
+- [Chronos MCP](chronos-mcp.md)
 
 ## Sources / References
 - [Vikunja MCP GitHub](https://github.com/democratize-technology/vikunja-mcp)
@@ -93,5 +107,5 @@ The agent interacts with Vikunja via subcommands. For example:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
