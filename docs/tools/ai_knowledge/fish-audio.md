@@ -4,7 +4,7 @@
 Fish Audio (Fish Speech) is a state-of-the-art multilingual text-to-speech (TTS) platform powered by a Dual-Autoregressive (Dual-AR) architecture. It is designed for high-fidelity, expressive voice synthesis and rapid voice cloning with minimal latency.
 
 ## What problem it solves
-It provides an open-source, high-performance alternative to proprietary TTS services like ElevenLabs. By using a transformer-based architecture isomorphic to LLMs, it enables fine-grained emotional control and achieves industry-leading Real-Time Factor (RTF) using inference acceleration frameworks.
+It provides an open-source, high-performance alternative to proprietary TTS services like ElevenLabs. By using a transformer-based architecture isomorphic to LLMs, it enables fine-grained emotional control and achieves industry-leading Real-Time Factor (RTF) using inference acceleration frameworks. It serves as a high-fidelity audio generation layer for agents powered by Claude 4.8 Opus and GPT-5.5.
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Audio Generation
@@ -24,6 +24,7 @@ It provides an open-source, high-performance alternative to proprietary TTS serv
 ## Limitations
 - **Hardware Intensity**: The flagship 4B model requires significant VRAM (ideally NVIDIA H200/A100 or RTX 4090) for optimal throughput.
 - **Model Size**: While optimized, the combined Dual-AR system is larger than lightweight models like [Kokoro TTS](kokoclone.md).
+- **Setup Complexity**: Requires specialized CUDA environments for maximum acceleration.
 
 ## When to use it
 - **High-Fidelity Audio**: When audio quality and expressiveness are the top priorities.
@@ -47,9 +48,16 @@ cd fish-speech
 uv sync
 ```
 
-### CLI Inference
+### Hello-World
 ```bash
-# Generate speech from text using a reference audio for cloning
+# Launch the Gradio-based interface
+python -m tools.webui
+```
+
+## CLI examples
+
+### Generate Speech with Voice Cloning
+```bash
 python -m tools.llama.generate \
     --text "Hello, this is a test of Fish Audio S2 Pro." \
     --prompt-text "Reference audio transcript" \
@@ -57,17 +65,46 @@ python -m tools.llama.generate \
     --output "output.wav"
 ```
 
-### WebUI
+### Batch Processing from JSON
 ```bash
-# Launch the Gradio-based interface
-python -m tools.webui
+python -m tools.llama.generate_batch --config batch_tasks.json --output_dir ./results/
 ```
 
-## Technical details
-- **Architecture**: Dual-Autoregressive Transformer + RVQ Audio Codec (10 codebooks, ~21 Hz).
-- **Training Data**: Trained on over 10 million hours of audio data across 80+ languages.
-- **Optimization**: Supports Continuous Batching, Paged KV Cache, and RadixAttention-based Prefix Caching via SGLang.
-- **Alignment**: Employs Reward Models to score semantic accuracy, timbre similarity, and acoustic preference.
+### Model Management
+```bash
+python -m tools.download_models --model-size 4b --lang all
+```
+
+## API examples
+
+### Inference via FastAPI (Internal Server)
+```python
+import requests
+
+response = requests.post(
+    "http://localhost:8080/v1/tts",
+    json={
+        "text": "The quick brown fox jumps over the lazy dog [laughing].",
+        "reference_id": "target_voice_01",
+        "format": "wav"
+    }
+)
+
+with open("output.wav", "wb") as f:
+    f.write(response.content)
+```
+
+### Using the Python SDK
+```python
+from fish_speech import FishTTS
+
+tts = FishTTS(model_path="weights/fish-speech-v1.5")
+tts.synthesize(
+    text="Synthesizing with emotional tags [excited].",
+    reference_audio="ref.wav",
+    output_path="out.wav"
+)
+```
 
 ## Related tools / concepts
 - [KokoClone](kokoclone.md) — Lightweight local alternative for TTS.
@@ -75,7 +112,7 @@ python -m tools.webui
 - [SGLang](../infrastructure/sglang.md) — The inference framework powering Fish Audio's speed.
 - [ElevenLabs](elevenlabs.md) — Proprietary industry standard for TTS.
 - [ChatTTS](chatgpt.md) — Conversational-focused TTS models.
-- [Audiobookshelf](../../services/inventory.md) — Target service for Fish Audio generated content.
+- [Audiobookshelf](../../services/inventory.md) — Target service for Fish Audio content.
 - [Jellyfin](../../services/jellyfin.md) — Media server for hosting synthesized audio.
 
 ## Sources / references
@@ -84,5 +121,5 @@ python -m tools.webui
 - [Fish Audio Blog](https://fish.audio/blog/fish-audio-open-sources-s2/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high

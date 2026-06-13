@@ -4,7 +4,7 @@
 Everything Claude Code (ECC) is a comprehensive performance optimization system designed for AI agent harnesses, primarily [Claude Code](../development_ops/claude-code.md). It is not just a configuration pack but a complete ecosystem of specialized agents, skills, hooks, and rules evolved from intensive daily production use.
 
 ## What problem it solves
-It bridges the gap between a raw AI CLI and a production-ready autonomous engineering environment. ECC addresses context window management, security risks, memory persistence across sessions, and language-specific coding standards through automated enforcement and optimized prompt engineering.
+It bridges the gap between a raw AI CLI and a production-ready autonomous engineering environment. ECC addresses context window management, security risks, memory persistence across sessions, and language-specific coding standards through automated enforcement and optimized prompt engineering. It is specifically tuned to maximize the reasoning efficiency of frontier models like `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Developer Tooling
@@ -19,11 +19,24 @@ It bridges the gap between a raw AI CLI and a production-ready autonomous engine
 - **Comprehensive Ecosystem**: Offers 48+ agents and 182+ skills covering 10+ programming languages.
 - **Cross-Platform & Harness**: Supports Claude Code, Cursor, OpenCode, Codex, and Antigravity with unified rules.
 - **Security-First**: Includes AgentShield for adversarial reasoning and secret detection.
-- **Optimized Performance**: Pre-configured token optimization settings (e.g., `MAX_THINKING_TOKENS`) to reduce costs.
+- **Optimized Performance**: Pre-configured token optimization settings (e.g., `MAX_THINKING_TOKENS`) to reduce costs while maintaining high-quality reasoning.
 
 ## Limitations
 - **Configuration Overhead**: Requires manual rule installation as Claude Code plugins cannot distribute files to the filesystem.
 - **Context Usage**: Large numbers of enabled MCP servers or skills can rapidly consume the LLM's context window.
+- **Maintenance**: Keeping 180+ skills updated requires active community participation.
+
+## Key Components
+- **Subagents (48+)**: Specialized personas like `typescript-reviewer`, `sql-auditor`, and `build-error-resolver` for delegation.
+- **Skills (182+)**: Domain-specific workflow definitions ranging from `frontend-slides` to `market-research`.
+- **Hooks Runtime**: Trigger-based automations that fire on tool events (e.g., auto-formatting after an edit or secret detection before prompt submission).
+- **Rules (34+)**: Standardized, language-specific guidelines (TypeScript, Python, Go, Swift, PHP) that ensure consistency across the codebase.
+
+### AgentShield — Security Auditor
+A dedicated auditor that scans Claude Code configurations (`.claude/` directory) for vulnerabilities. It uses adversarial reasoning (Red Team/Blue Team agents) to evaluate protection layers and synthesize risk assessments.
+
+### Skill Creator
+Analyzes local Git history to automatically generate `SKILL.md` files and instinct collections, allowing the agent to "learn" from the existing codebase patterns.
 
 ## When to use it
 - When building complex production applications with AI agents.
@@ -34,23 +47,9 @@ It bridges the gap between a raw AI CLI and a production-ready autonomous engine
 - For trivial, single-file scripts where a standard prompt is sufficient.
 - If you prefer a completely "vanilla" AI experience without automated hooks or specialized subagents.
 
-## Key Components
-- **Subagents (48+)**: Specialized personas like `typescript-reviewer`, `sql-auditor`, and `build-error-resolver` for delegation.
-- **Skills (182+)**: Domain-specific workflow definitions ranging from `frontend-slides` to `market-research`.
-- **Hooks Runtime**: Trigger-based automations that fire on tool events (e.g., auto-formatting after an edit or secret detection before prompt submission).
-- **Rules (34+)**: Standardized, language-specific guidelines (TypeScript, Python, Go, Swift, PHP) that ensure consistency across the codebase.
-
-## Ecosystem Tools
-
-### AgentShield — Security Auditor
-A dedicated auditor that scans Claude Code configurations (`.claude/` directory) for vulnerabilities. It uses adversarial reasoning (Red Team/Blue Team agents) to evaluate protection layers and synthesize risk assessments.
-
-### Skill Creator
-Analyzes local Git history to automatically generate `SKILL.md` files and instinct collections, allowing the agent to "learn" from the existing codebase patterns.
-
 ## Getting started
 
-### Option 1: Install as a Claude Code Plugin (Recommended)
+### Installation (Plugin)
 ```bash
 # Add the marketplace
 /plugin marketplace add https://github.com/affaan-m/everything-claude-code
@@ -59,20 +58,55 @@ Analyzes local Git history to automatically generate `SKILL.md` files and instin
 /plugin install everything-claude-code@everything-claude-code
 ```
 
-### Option 2: Manual Installation
+### Installation (Manual)
 ```bash
 git clone https://github.com/affaan-m/everything-claude-code.git
 cd everything-claude-code
-
-# Copy agents to your configuration
+# Deploy agents to your local configuration
 cp agents/*.md ~/.claude/agents/
 ```
 
-## Technical details
-- **Cross-Platform Support**: Rewritten in Node.js for compatibility across Windows, macOS, and Linux.
-- **Adapter Pattern**: Uses a DRY (Don't Repeat Yourself) adapter to share hook scripts between Claude Code and [Cursor](../development_ops/cursor.md).
-- **Token Optimization**: Includes recommended settings to reduce costs (e.g., setting `MAX_THINKING_TOKENS`) without sacrificing reasoning quality.
-- **Memory Persistence**: Implements SQLite-backed state stores to track session history and skill evolution.
+## CLI examples
+
+### Audit Configurations with AgentShield
+```bash
+/plugin run ecc:agentshield --path .claude/
+```
+
+### Create a New Skill from History
+```bash
+/plugin run ecc:skill-creator --since "3 days ago" --name "new-feature-pattern"
+```
+
+### List Active Subagents
+```bash
+/plugin run ecc:list-agents
+```
+
+## API examples
+
+### Configuring Subagent Delegation (JSON)
+ECC allows defining delegation rules in a central `agents.json` file.
+```json
+{
+  "delegation_rules": {
+    "security_audit": "ecc:agentshield",
+    "ui_review": "ecc:frontend-reviewer",
+    "backend_refactor": "ecc:architect"
+  }
+}
+```
+
+### Custom Hook Trigger (JavaScript)
+```javascript
+// .claude/hooks/post-edit.js
+module.exports = async ({ file, content }) => {
+  if (file.endsWith('.ts')) {
+    await run('npm run lint -- --fix ' + file);
+    console.log(`ECC: Linted ${file}`);
+  }
+};
+```
 
 ## Related tools / concepts
 - [Claude Code](../development_ops/claude-code.md) (Core harness)
@@ -80,6 +114,8 @@ cp agents/*.md ~/.claude/agents/
 - [OpenCode](../development_ops/opencode.md) (Supported harness)
 - [Aider](../development_ops/aider.md) (Terminal-based alternative)
 - [last30days-skill](last30days-skill.md) (Integrated social research skill)
+- [AgentShield](#agentshield) (Integrated security auditor)
+- [Skill Creator](#skill-creator) (Integrated pattern extractor)
 
 ## Sources / references
 - [Everything Claude Code (GitHub)](https://github.com/affaan-m/everything-claude-code)
@@ -87,5 +123,5 @@ cp agents/*.md ~/.claude/agents/
 - [Anthropic Claude Code Documentation](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high
