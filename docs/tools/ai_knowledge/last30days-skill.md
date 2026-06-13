@@ -4,7 +4,7 @@
 `last30days-skill` is a sophisticated AI agent skill for [Claude Code](../development_ops/claude-code.md), OpenClaw, and Gemini CLI. It acts as a specialized search and research engine that prioritizes real-time social signals (Reddit upvotes, X likes, YouTube transcripts, Polymarket odds) over traditional SEO-optimized web results.
 
 ## What problem it solves
-Traditional search engines often surface stale editorial content or SEO-spam. In the fast-moving AI ecosystem, critical information first appears in community discussions. `/last30days` bridges a dozen disconnected platforms, allowing an AI agent to search, score, and synthesize current trends, tool comparisons, and "unfiltered" community feedback from the last 30 days.
+Traditional search engines often surface stale editorial content or SEO-spam. In the fast-moving AI ecosystem, critical information first appears in community discussions. `/last30days` bridges a dozen disconnected platforms, allowing an AI agent to search, score, and synthesize current trends, tool comparisons, and "unfiltered" community feedback from the last 30 days. It is a vital tool for agents using `claude-4-8-opus-20260528` and GPT-5.5 to stay current with the weekly shifts in the AI landscape.
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Claude Code Skills
@@ -44,25 +44,61 @@ Traditional search engines often surface stale editorial content or SEO-spam. In
 /plugin marketplace add mvanhorn/last30days-skill
 ```
 
-### Basic Usage
-```bash
-# Research a topic
-/last30days "Claude Code MCP servers"
-
-# Generate a shareable HTML brief
-/last30days "OpenRouter vs DeepSeek" --emit=html
-```
-
 ### Installation (OpenClaw)
 ```bash
 clawhub install last30days-official
 ```
 
-## Technical details
-- **Engine Architecture**: Built with Python 3.12+ and utilizes `yt-dlp` for YouTube transcript retrieval and a vendored Node.js client for X search.
-- **Entity Resolution**: Bidirectional mapping between persons, companies, and their respective social/GitHub footprints.
-- **Synthesis Engine**: Uses an "AI Agent Judge" to filter noise and cluster identical stories across multiple sources.
-- **Privacy**: Operates locally on the user's machine; research data and API keys are not sent to external tracking servers.
+### Hello-World
+```bash
+# Research a topic
+/last30days "Claude Code MCP servers"
+```
+
+## CLI examples
+
+### Deep Tool Comparison with HTML Export
+```bash
+/last30days "OpenRouter vs DeepSeek" --emit=html --output=comparison.html
+```
+
+### GitHub and Reddit Specific Search
+```bash
+/last30days "vLLM PagedAttention bugs" --sources=github,reddit
+```
+
+### Periodic Activity Summary
+```bash
+/last30days "Anthropic API updates" --frequency=weekly --summarize=bulleted
+```
+
+## API examples
+
+### Integration via OpenClaw Skill API (Python)
+```python
+from openclaw import SkillRunner
+
+# Initialize the skill
+skill = SkillRunner("last30days-skill")
+
+# Execute a research query
+brief = skill.execute(
+    query="Llama 4 Maverick performance benchmarks",
+    depth="detailed",
+    platforms=["x", "reddit", "hacker-news"]
+)
+
+print(brief.summary)
+```
+
+### Programmatic Webhook Trigger
+```javascript
+// Trigger a last30days research task from an external event
+fetch('http://localhost:3000/skills/last30days/run', {
+  method: 'POST',
+  body: JSON.stringify({ query: 'GPT-5.5 release rumors' })
+});
+```
 
 ## Related tools / concepts
 - [Claude Code](../development_ops/claude-code.md) (Primary harness)
@@ -79,5 +115,5 @@ clawhub install last30days-official
 - [SKILL.md (Runtime Spec)](https://github.com/mvanhorn/last30days-skill/blob/main/SKILL.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high
