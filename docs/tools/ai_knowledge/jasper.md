@@ -1,7 +1,7 @@
 # Jasper
 
 ## What it is
-Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. It specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer.
+Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. In June 2026, it specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer, optimized for frontier reasoning models like `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## What problem it solves
 Automates the production of marketing assets while ensuring strict adherence to brand voice, style guides, and product knowledge. It eliminates content silos by allowing teams to plan and execute multi-channel campaigns from a single source of truth.
@@ -40,44 +40,76 @@ Jasper is most effective when integrated into your team's existing content opera
 ### 1. Training Jasper IQ
 Upload your brand's style guide, product manuals, and previous top-performing content to create a unique **Brand Voice** and **Knowledge Base**.
 
-### 2. Multi-channel Campaign Agent
-Provide a campaign objective (e.g., "Launch our new AI feature") and the agent will produce:
-- 1 SEO-optimized Blog Post
-- 3 Email Outreach Variants
-- 5 Social Media Snippets
-- 1 Landing Page Wireframe/Copy
+### 2. Campaign Creation
+Navigate to the **Campaigns** tab and select "New Campaign". Provide a brief and select your target channels.
 
-### 3. API Integration (Business Plans)
-Programmatically generate brand-aligned content within your own applications.
+### 3. API Setup
+For developers, generate an API key from the **Settings > Developer** section to begin programmatically generating content.
 
-```python
-# Conceptual example of Jasper API usage for a brand-aligned summary
-import requests
+## CLI examples
 
-url = "https://api.jasper.ai/v1/content/generate"
-payload = {
-    "model": "jasper-v1",
-    "prompt": "Summarize our quarterly report in our 'Professional/Direct' brand voice.",
-    "brand_voice_id": "bv_98765",
-    "knowledge_base_id": "kb_54321"
-}
-headers = {"Authorization": "Bearer YOUR_JASPER_API_KEY"}
+> [!NOTE]
+> As of June 2026, Jasper does not provide a standalone CLI. Terminal testing and integration are performed via `curl` against the Jasper REST API.
 
-response = requests.post(url, json=payload, headers=headers)
-print(response.json()["content"])
+### 1. Generate Content via API
+```bash
+curl -X POST https://api.jasper.ai/v1/content/generate \
+  -H "Authorization: Bearer $JASPER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Write a blog post about AI in 2026", "brand_voice_id": "bv_987"}'
 ```
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Subscription-based; Business plans for API access)
-- **Self-hostable**: No
+### 2. List Brand Voices
+```bash
+curl https://api.jasper.ai/v1/brand-voices \
+  -H "Authorization: Bearer $JASPER_API_KEY"
+```
+
+### 3. Retrieve Campaign Status
+```bash
+curl https://api.jasper.ai/v1/campaigns/camp_123 \
+  -H "Authorization: Bearer $JASPER_API_KEY"
+```
+
+## API examples
+
+### Python: Brand-Aligned Content Generation
+The Jasper API allows for seamless integration of brand-aware generation into custom CMS or marketing dashboards.
+
+```python
+import requests
+import os
+
+def generate_brand_summary(text, voice_id):
+    url = "https://api.jasper.ai/v1/content/generate"
+    headers = {
+        "Authorization": f"Bearer {os.getenv('JASPER_API_KEY')}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "jasper-v1",
+        "prompt": f"Summarize this in our brand voice: {text}",
+        "brand_voice_id": voice_id
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json().get("content")
+
+# Example usage
+# summary = generate_brand_summary("Our Q2 growth was 15%.", "bv_98765")
+# print(summary)
+```
 
 ## Related tools / concepts
 - [Copy.ai](copy-ai.md)
 - [ChatGPT](chatgpt.md)
+- [Claude](../development_ops/claude-hooks.md)
 - [AI Templates](aitmpl.md)
 - [Google Opal](google-opal.md)
 - [NotebookLM](notebooklm.md)
+- [LangChain](../ai_knowledge/langchain.md)
+- [CrewAI](../frameworks/crewai.md)
+- [n8n](../../services/n8n.md)
 
 ## Sources / references
 - [Official Website](https://www.jasper.ai/)
@@ -85,5 +117,5 @@ print(response.json()["content"])
 - [Jasper API Documentation](https://help.jasper.ai/hc/en-us/articles/18618701173659-Jasper-s-API)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high

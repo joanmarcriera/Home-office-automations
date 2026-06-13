@@ -1,7 +1,7 @@
 # Docling MCP
 
 ## What it is
-Docling MCP is a document processing service that implements the Model Context Protocol (MCP) to provide advanced document conversion, processing, and generation tools to AI agents.
+Docling MCP is a document processing service that implements the Model Context Protocol (MCP) to provide advanced document conversion, processing, and generation tools to AI agents. In June 2026, it is the primary bridge for feeding high-fidelity document data to `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## What problem it solves
 It simplifies the integration of sophisticated document understanding capabilities into AI workflows. By providing a standardized MCP interface, it allows agents to convert complex PDFs into structured formats, handle large documents via memory management, and integrate directly with RAG pipelines without custom integration code for every application.
@@ -20,34 +20,6 @@ It simplifies the integration of sophisticated document understanding capabiliti
 - **Performance Optimized**: Includes local document caching and efficient memory management for handling large-scale processing of enterprise-sized documents.
 - **RAG Integration**: Specifically designed to streamline RAG pipelines by providing clean, structured markdown or JSON that is easy to chunk and embed.
 
-## Advanced Technical Patterns
-
-### 1. MCP Tool-use for Structured Conversion
-Agents can use the standardized MCP interface to convert documents from various sources into structured JSON or Markdown, which is then used for reasoning or RAG.
-
-```json
-// Example MCP tool call to convert a remote document
-{
-  "name": "convert_document",
-  "arguments": {
-    "source": "https://example.com/complex-report.pdf",
-    "export_format": "markdown"
-  }
-}
-```
-
-### 2. RAG Pipeline Integration
-Docling MCP can serve as the primary ingestion layer for RAG pipelines, ensuring that layout information (like table relationships) is preserved during the transformation from PDF to Vector DB.
-
-- **Layout-Aware Chunking**: Use the structured output from Docling to chunk documents based on semantic headers rather than arbitrary character counts.
-- **Metadata Enrichment**: Automatically extract metadata (title, author, creation date) during the conversion process to enrich vector embeddings.
-
-### 3. Handling Complex Document Layouts
-Unlike simple OCR or text extraction, Docling MCP can reconstruct the logical structure of a document, making it suitable for:
-- **Technical Manuals**: Preserving the relationship between figures, tables, and text.
-- **Financial Reports**: Accurately extracting data from multi-page tables.
-- **Legal Documents**: Maintaining the hierarchical structure of clauses and sections.
-
 ## Limitations
 - **Format Focus**: Primarily optimized for PDF-to-structured-data workflows.
 - **Host Dependency**: Requires an MCP-compatible environment to utilize its tool-calling capabilities.
@@ -60,10 +32,73 @@ Unlike simple OCR or text extraction, Docling MCP can reconstruct the logical st
 - For basic text extraction from simple, non-layout-heavy files where lighter tools might suffice.
 - If your environment does not support the Model Context Protocol.
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
+## Getting started
+
+Docling MCP can be run as a standalone server or integrated into an MCP-compliant host.
+
+### 1. Installation
+Install the Docling MCP server via `pip`:
+
+```bash
+pip install docling-mcp
+```
+
+### 2. Run the Server
+Start the server to make the tools available to your agents:
+
+```bash
+docling-mcp start
+```
+
+### 3. MCP Configuration
+Add the server to your `mcp_servers.json` configuration for Claude Desktop or your IDE.
+
+## CLI examples
+
+### 1. Convert a Local File
+```bash
+docling-mcp convert --path "./reports/financial_q2.pdf" --format markdown
+```
+
+### 2. Process a Remote URL
+```bash
+docling-mcp convert --url "https://example.com/spec.pdf" --output-dir "./output"
+```
+
+### 3. Check Server Status
+```bash
+docling-mcp status
+```
+
+## API examples
+
+### MCP Tool Call: Document Conversion
+AI agents interact with Docling MCP using standardized tool calls.
+
+```json
+{
+  "name": "convert_document",
+  "arguments": {
+    "source": "https://example.com/complex-report.pdf",
+    "export_format": "markdown"
+  }
+}
+```
+
+### Python: Programmatic Docling Usage
+For deeper integration, the underlying Docling library can be used directly.
+
+```python
+from docling.document_converter import DocumentConverter
+
+def convert_to_md(source_url):
+    converter = DocumentConverter()
+    result = converter.convert(source_url)
+    return result.document.export_to_markdown()
+
+# Example usage
+# markdown_content = convert_to_md("https://example.com/report.pdf")
+```
 
 ## Related tools / concepts
 - [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md)
@@ -73,10 +108,14 @@ Unlike simple OCR or text extraction, Docling MCP can reconstruct the logical st
 - [RAGFlow](ragflow.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Smolagents](../frameworks/smolagents.md)
+- [Firecrawl](firecrawl.md)
+- [Crawl4AI](crawl4ai.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/docling-project/docling-mcp)
+- [Docling Project Documentation](https://docling.ai/)
+- [MCP Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high
