@@ -1,72 +1,113 @@
 # LongCLI-Bench
 
 ## What it is
-LongCLI-Bench is a preliminary benchmark and study focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows.
+LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows that span dozens of terminal turns. As of June 2026, it is a key metric for evaluating high-autonomy tools like [Claude Code](../development_ops/claude-code-setup.md).
 
 ## What problem it solves
-It addresses the gap in agent evaluation for realistic software engineering tasks. Most existing benchmarks are limited by short horizons, data contamination, or lack of fine-grained metrics. LongCLI-Bench tests agents on complex, multi-step tasks fromCS assignments and real-world workflows, highlighting failures in planning and long-term execution.
+It addresses the gap in agent evaluation for realistic, multi-step software engineering tasks. Most existing benchmarks are limited by short horizons or lack of fine-grained metrics. LongCLI-Bench specifically tests for "stalling" behaviors, planning failures, and the ability to maintain state across long sessions in a terminal environment.
 
 ## Where it fits in the stack
-**Eval**: It is a specialized benchmark for evaluating the **Agentic** and **Execution** layers of AI coding systems.
-
-## Technical Capabilities
-- **Long-Horizon Workflow Simulation**: Generates multi-step sequences requiring state preservation across shell turns.
-- **Automated Grading**: Uses unit tests and environment state assertions to verify task completion.
-- **Stalling Detection**: Measures agent "looping" or inactivity during complex planning phases.
-- **Reference Plan Injection**: Supports studies on how partial human guidance affects agent performance.
+**Eval / Benchmarking**. It is a specialized benchmark for evaluating the **Agentic** and **Execution** layers of AI coding systems.
 
 ## Typical use cases
 - **Coding Assistant Benchmarking**: Testing tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md) on complex, multi-tool tasks.
 - **Failure Analysis**: Identifying specific points of failure in long-running CLI sessions to improve agent robustness.
-- **Human-Agent Collaboration Study**: Evaluating how plan injection and guidance from humans can improve agent success rates.
+- **Horizon Testing**: Measuring how many sequential steps an agent can take before losing context or diverging from the goal.
+- **Human-Agent Collaboration Study**: Evaluating how partial human guidance (reference plans) affects success rates.
 
 ## Strengths
-- **Long-Horizon focus**: Specifically targets tasks that require sustained reasoning and multiple sequential actions.
-- **Step-Level Scoring**: Pinpoints exactly where an agent stalls or deviates from the task requirements.
-- **Realistic Tasks**: Includes "from scratch" development, feature addition, bug fixing, and refactoring scenarios.
+- **Long-Horizon focus**: Specifically targets tasks requiring sustained reasoning and multiple sequential actions.
+- **Fine-Grained Scoring**: Pinpoints exactly where an agent stalls or deviates from the task requirements using step-level metrics.
+- **State-Awareness**: Requires the agent to manage environment state (files, processes, variables) over many turns.
+- **Contamination Resistance**: Uses fresh CS assignments and custom tasks that are less likely to be in training data.
 
 ## Limitations
-- **CLI-Centric**: Focused on terminal interactions, which may not capture all agentic modalities.
-- **Nascent Benchmark**: As a preliminary study, it may still be expanding its set of evaluation instances.
+- **CLI-Centric**: Focused entirely on terminal interactions; does not evaluate GUI or web-based agency.
+- **Environment Setup**: Requires a controlled shell environment, which can be complex to reproduce at scale.
+- **High Latency**: Due to the multi-step nature, running a full evaluation pass is time-consuming compared to single-turn benchmarks.
 
 ## When to use it
-- When testing agents designed for autonomous coding or system administration.
-- When you need a more rigorous evaluation of an agent's ability to follow complex, multi-step instructions without stalling.
+- When testing agents designed for autonomous coding or complex system administration.
+- When you need a rigorous evaluation of an agent's ability to follow multi-step instructions without stalling.
+- When comparing the "planning depth" of different frontier models like [Claude 4.8 Opus](../providers/anthropic.md).
 
 ## When not to use it
 - For testing general chat capabilities or single-turn information retrieval.
 - When evaluation does not involve terminal or shell access.
+- For quick, high-level model comparisons where [SWE-bench](swe-bench.md) or [HumanEval](human-eval.md) might suffice.
 
-## CLI Benchmark Execution Example
-How to run the benchmark against a target agent:
+## Getting started
+LongCLI-Bench requires a Python 3.10+ environment and access to a terminal emulator.
 
+### 1. Installation
 ```bash
-# Clone the benchmark repo
 git clone https://github.com/finyorko/longcli-bench.git
 cd longcli-bench
-
-# Install evaluation harness
 pip install -e .
+```
 
-# Run evaluation on a specific task set (e.g., Python refactoring)
-python run_eval.py --agent "aider" --task_id "refactor_001" --output_dir "./results"
+### 2. Running a Baseline
+Run a sample task using a local agent or a mock agent to verify the setup:
+```bash
+python run_eval.py --agent "mock" --task_id "refactor_001" --output_dir "./results"
+```
+
+## CLI examples
+The following commands illustrate how to interact with the LongCLI-Bench harness.
+
+```bash
+# List all available tasks in the benchmark
+python run_eval.py --list_tasks
+
+# Run evaluation on a specific category (e.g., debugging) using Claude 4.8
+python run_eval.py --agent "claude-code" --category "debugging" --model "claude-4-8-opus-20260528"
+
+# Visualize results and generate a failure analysis report
+python scripts/analyze_results.py --input_dir "./results" --format "html"
+```
+
+## API examples
+You can integrate LongCLI-Bench into custom evaluation pipelines using its Python API.
+
+### Initializing a Task
+```python
+from longcli_bench import TaskManager, AgentHarness
+
+# Load a specific task instance
+tm = TaskManager()
+task = tm.get_task("refactor_001")
+
+print(f"Goal: {task.goal}")
+print(f"Steps: {len(task.reference_steps)}")
+```
+
+### Running an Agent Loop
+```python
+# Initialize the harness for a specific agent
+harness = AgentHarness(agent_cmd="aider --message")
+
+# Execute the agent against the task environment
+result = harness.run_task(task)
+
+print(f"Task Status: {result.status}")
+print(f"Step Success Rate: {result.step_accuracy:.2%}")
 ```
 
 ## Related tools / concepts
-- [SWE-bench](./swe-bench.md)
-- [Terminal-Bench](./terminal-bench.md)
-- [Aider](../development_ops/aider.md)
-- [Plandex](../development_ops/plandex.md)
-- [OpenHands](../development_ops/openhands.md)
-- [Mentat](../development_ops/mentat.md)
-- [Sweep](../development_ops/sweep_dev.md)
+- [SWE-bench](swe-bench.md) — Real-world GitHub issue resolution.
+- [Terminal-Bench](terminal-bench.md) — Tool-use evaluation in the CLI.
+- [Aider](../development_ops/aider.md) — High-momentum terminal coding assistant.
+- [Claude Code](../development_ops/claude-code-setup.md) — Primary target for long-horizon CLI testing.
+- [OpenHands](../development_ops/openhands.md) — Open-source agent environment.
+- [Plandex](../development_ops/plandex.md) — AI coding engine for complex tasks.
+- [Benchmarking](index.md) — Core concepts in LLM evaluation.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Patterns for multi-step AI execution.
 
 ## Sources / references
-- [Hugging Face Paper Page](https://huggingface.co/papers/2602.14337)
+- [GitHub Repository](https://github.com/finyorko/longcli-bench)
 - [arXiv Preprint (arXiv:2602.14337)](https://arxiv.org/abs/2602.14337)
-- [LongCLI-Bench GitHub Repository](https://github.com/finyorko/longcli-bench)
-
+- [Hugging Face Paper Page](https://huggingface.co/papers/2602.14337)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-12
 - Confidence: high
-- Last reviewed: 2026-05-16

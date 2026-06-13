@@ -1,102 +1,141 @@
 # LangSmith
 
 ## What it is
-LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but can be used with any LLM framework.
+LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of June 2026, it serves as the industry-standard "control plane" for complex agentic fleets.
 
 ## What problem it solves
-It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It also provides tools for creating evaluation datasets, running automated tests, and monitoring production performance.
+It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions.
 
 ## Where it fits in the stack
-Benchmarking / Observability
+**Benchmarking / Observability**. It is the primary tool for managing the lifecycle of LLM applications from prototype to production.
 
 ## Typical use cases
-- Debugging complex agentic workflows by inspecting intermediate steps and tool calls.
-- Creating "golden" datasets for regression testing.
-- Monitoring production applications for cost, latency, and quality.
-- Collaborative prompt engineering and testing.
-- Managing agent lifecycles via LangSmith Deployment (Fleet).
-
-## Technical Capabilities
-- **Traces**: Hierarchical logs of every LLM call, tool use, and logic step.
-- **Evaluators**: Automated checks (LLM-as-a-judge or heuristic) for correctness, hallucination, and safety.
-- **Hub**: A version-controlled repository for prompts with native testing support.
-- **Fleet**: A control plane for deploying and managing agent "fleets" directly on Kubernetes.
-- **Polly**: An embedded AI assistant for natural language analysis of traces and experiments.
+- **Debugging Agent Loops**: Inspecting intermediate steps and tool calls to find where an agent "stalls" or fails.
+- **Golden Dataset Curation**: Creating high-quality reference datasets for regression testing.
+- **Production Monitoring**: Real-time tracking of token usage, cost, and latency across large-scale deployments.
+- **Collaborative Prompting**: Version-controlled prompt engineering with team-wide testing support.
+- **Fleet Management**: Deploying and managing agent "fleets" via LangSmith Deployment (Fleet).
 
 ## Strengths
-- Deep integration with LangChain and LangGraph.
-- Powerful trace visualization and filtering.
-- Supports manual and automated evaluation.
-- Hub for sharing and versioning prompts.
+- **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.0.
+- **High-Fidelity Tracing**: Visualizes hierarchical execution paths including nested tool calls and parallel branches.
+- **Advanced Evaluators**: Native support for complex automated grading using frontier models like [Claude 4.8 Opus](../providers/anthropic.md).
+- **Polly AI Integration**: Embedded assistant for natural language analysis of failure patterns and performance trends.
 
 ## Limitations
-- Proprietary SaaS (though self-hosting is available for enterprise).
-- Can add latency if not configured correctly (though usually negligible).
-- Learning curve for advanced evaluation features.
+- **SaaS Lock-in**: While self-hosting is available for enterprise, the primary experience is a proprietary SaaS.
+- **Cost at Scale**: High-volume tracing in production can become expensive if not sampled correctly.
+- **Learning Curve**: Advanced evaluation and "Fleet" deployment features require significant configuration.
 
 ## When to use it
-- When building complex LLM applications that require tracing for debugging.
-- When transitioning from prototype to production and needing reliability metrics.
-- When collaborating with a team on prompt engineering.
+- When building complex LLM applications that require deep tracing for debugging.
+- When transitioning from a prototype to a production environment where reliability is critical.
+- When collaborating on prompt engineering and evaluation datasets.
 
 ## When not to use it
 - For very simple, single-call LLM scripts where a full observability platform is overkill.
-- If strict data privacy requirements forbid sending traces to a third-party SaaS (and enterprise self-hosting is not feasible).
+- If strict data privacy requirements forbid any cloud-based telemetry (and enterprise self-hosting is not feasible).
+- When a lightweight, open-source alternative like [Promptfoo](promptfoo.md) is sufficient.
 
-## Implementation: Automated Evaluation
-The following Python example shows how to run an automated evaluation on a dataset using an LLM-as-a-judge.
+## Getting started
+LangSmith requires an API key and the `langsmith` Python package.
 
+### 1. Installation
+```bash
+pip install langsmith
+```
+
+### 2. Configuration
+Set your environment variables to enable tracing:
+```bash
+export LANGSMITH_TRACING=true
+export LANGSMITH_API_KEY="ls__..."
+export LANGSMITH_PROJECT="my-agent-v1"
+```
+
+### 3. Hello-World Trace
+```python
+from langsmith import traceable
+from openai import OpenAI
+
+client = OpenAI()
+
+@traceable
+def my_agent(question: str):
+    return client.chat.completions.create(
+        model="gpt-5.5",
+        messages=[{"role": "user", "content": question}]
+    )
+
+my_agent("What is the state of MCP in June 2026?")
+```
+
+## CLI examples
+The LangSmith CLI helps manage datasets and experiments from the terminal.
+
+```bash
+# Log in to your LangSmith account
+langsmith login
+
+# Create a new dataset from a CSV file
+langsmith dataset create "Golden Tasks" --csv ./tasks.csv
+
+# Run an evaluation experiment against a dataset
+langsmith run --dataset "Golden Tasks" --config ./eval_config.yaml
+```
+
+## API examples
+Automated evaluation is a core feature of LangSmith.
+
+### Running an Evaluation
 ```python
 from langsmith import Client, evaluate
 
 client = Client()
 
-# Define the logic to be tested
+# Define the function to evaluate
 def my_app(inputs):
     return "The answer is " + inputs["question"]
 
-# Define the evaluation task
-experiment_results = evaluate(
+# Run automated evaluation
+results = evaluate(
     my_app,
     data="My Golden Dataset",
     evaluators=["qa_correctness"],
-    experiment_prefix="v1-baseline",
+    experiment_prefix="v1-baseline"
 )
 ```
 
-## Implementation: Polly Trace Analysis
-Polly can be used via the UI (Cmd+I) or programmatically to analyze failure patterns. In the UI, you can ask:
-- "Why did this trace fail to use the correct tool?"
-- "Compare the cost and latency of the last 5 experiments."
-- "Write a custom evaluator that checks if the output contains medical advice."
+### Programmatic Trace Analysis (Polly)
+Polly can be queried via the SDK to analyze traces.
+```python
+from langsmith import Client
 
-## Implementation: Fleet Agent Management
-Fleet allows for no-code/low-code agent deployment. When enabled on a self-hosted instance:
-1. **Define**: Create an agent in the LangSmith UI.
-2. **Deploy**: Fleet handles the Kubernetes service creation and scaling via KEDA.
-3. **Monitor**: Traces from the deployed fleet flow natively back into the observability dashboard.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Freemium (Free tier available, paid tiers for higher volume/enterprise)
-- **Self-hostable**: Yes (Enterprise only)
+client = Client()
+# Ask Polly to summarize failures in the last 24 hours
+summary = client.analyze_traces(
+    project_name="prod-fleet",
+    query="Why did 5% of traces fail with tool-calling errors?"
+)
+print(summary.findings)
+```
 
 ## Related tools / concepts
-- [Promptfoo](promptfoo.md)
-- [LangChain](../ai_knowledge/langchain.md)
-- [LangGraph](../frameworks/langgraph.md)
-- [Benchmarking](./index.md)
-- [Plandex](../development_ops/plandex.md)
-- [OpenPipe](../infrastructure/openpipe.md)
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
-- [RAGFlow](../process_understanding/ragflow.md)
+- [Promptfoo](promptfoo.md) — Open-source evaluation CLI.
+- [LangChain](../ai_knowledge/langchain.md) — Primary integration framework.
+- [LangGraph](../frameworks/langgraph.md) — Stateful agent orchestration.
+- [DREAM](dream.md) — Agentic research evaluation metrics.
+- [Benchmarking](index.md) — Overview of evaluation strategies.
+- [Claude Code](../development_ops/claude-code-setup.md) — Can be traced using LangSmith.
+- [OpenPipe](../infrastructure/openpipe.md) — For fine-tuning based on LangSmith traces.
+- [Plandex](../development_ops/plandex.md) — Complex agent that benefits from deep tracing.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.langchain.com/langsmith)
-- [Docs](https://docs.smith.langchain.com/)
-- [Polly Release Announcement (2026)](https://www.langchain.com/blog/polly-langsmith-ga)
-- [LangSmith Deployment Guide](https://docs.langchain.com/langsmith/deploy-self-hosted-full-platform)
+- [LangSmith Documentation](https://docs.smith.langchain.com/)
+- [Polly Release Announcement](https://www.langchain.com/blog/polly-langsmith-ga)
+- [LangSmith Self-Hosting Guide](https://docs.smith.langchain.com/self-hosting)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
