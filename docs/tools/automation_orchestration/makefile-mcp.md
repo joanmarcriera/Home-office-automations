@@ -1,85 +1,89 @@
 # Makefile MCP
 
 ## What it is
-An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants.
+An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants like Claude 4.8 Opus and GPT-5.5.
 
 ## What problem it solves
-Traditional Makefile MCP implementations often expose a single generic `make` tool, which prevents LLMs from "seeing" available targets in their tool list. `makefile-mcp` parses the Makefile to register each documented target as its own tool with descriptions.
+Traditional Makefile MCP implementations often expose a single generic `make` tool, which prevents LLMs from "seeing" available targets in their tool list. `makefile-mcp` parses the Makefile to register each documented target as its own tool with descriptions, improving discoverability and ease of use in agentic workflows.
 
 ## Where it fits in the stack
-**Tool / Automation**. It provides a discovery and execution layer for project-specific automation.
+**Tool / Automation**. It provides a discovery and execution layer for project-specific automation, bridging the gap between local build systems and frontier models.
 
 ## Typical use cases
 - Exposing build, test, lint, and deploy workflows to coding agents.
 - Managing multi-project workflows by dynamically switching working directories.
-- Documenting available automation targets for AI assistants.
+- Documenting available automation targets for AI assistants in complex monorepos.
 
 ## Strengths
 - **Target Discovery**: Automatically parses `##` comments to provide tool descriptions.
-- **Dynamic Configuration**: Allows changing the working directory at runtime.
-- **Security**: No shell expansion used for command execution; supports exclusion of dangerous targets.
-- **Built with FastMCP**: High compatibility and performance.
+- **Dynamic Configuration**: Allows changing the working directory at runtime via a dedicated tool.
+- **Security**: No shell expansion used; supports strict inclusion/exclusion of targets.
+- **Built with FastMCP**: High compatibility and performance for Claude 4.8 and GPT-5.5 environments.
 
 ## Limitations
 - Requires targets to be documented with `##` to be exposed as tools.
 - Commands run in a specified working directory only.
+- Limited to GNU Make compatible Makefiles.
 
 ## When to use it
 - When you want your AI assistant to have direct, visible access to your project's `make` targets.
 - When working on complex projects with many automation steps defined in a Makefile.
+- When you need to switch contexts between different Makefiles in a single session.
 
 ## When not to use it
 - If you do not use Makefiles for project automation.
 - If you prefer a single generic entry point for all shell commands.
-
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free
-- **Self-hostable**: Yes
+- For high-stakes production deployment targets without a "dry-run" check.
 
 ## Getting started
 
 Makefile MCP registers documented targets as tools. Documentation is provided via `##` comments on the target line.
 
 ### 1. Installation
+Install using `uv` (recommended) or `pip`:
 ```bash
-pip install makefile-mcp
+uv pip install makefile-mcp
 ```
 
 ### 2. Documenting your Makefile
 Add `##` comments to your targets to expose them:
-
 ```makefile
-.PHONY: help build test
-
-## Show this help message
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
-
-## Build the application binary
-build:
-	go build -o app main.go
-
-## Run all unit tests
-test:
-	go test ./...
+test: ## Run the test suite
+	pytest tests/
 ```
 
 ### 3. Configuration (Claude Desktop)
-Add to your `claude_desktop_config.json`:
-
+Configure your MCP client to run the server:
 ```json
 {
   "mcpServers": {
-    "project-make": {
-      "command": "python",
-      "args": ["-m", "makefile_mcp"],
-      "env": {
-        "MAKEFILE_PATH": "/path/to/your/Makefile"
-      }
+    "make": {
+      "command": "uvx",
+      "args": ["makefile-mcp", "--cwd", "/path/to/project"]
     }
   }
 }
+```
+
+## CLI examples
+```bash
+# List discovered targets and exit
+makefile-mcp --list
+
+# Start server with specific include/exclude patterns
+makefile-mcp --include "test,lint" --exclude "deploy"
+
+# Set a custom tool prefix to avoid collisions
+makefile-mcp --prefix "myproj_"
+```
+
+## API examples
+AI agents can interact with the server's configuration tool:
+```json
+// Change the working directory at runtime
+set_working_directory({
+  "path": "/absolute/path/to/new/project"
+})
 ```
 
 ## Related tools / concepts
@@ -90,6 +94,7 @@ Add to your `claude_desktop_config.json`:
 - [Zapier](zapier.md)
 - [FastMCP](https://github.com/jlowin/fastmcp)
 - [MCP Registry](mcp-registry.md)
+- [Claude Code](../development_ops/claude-code.md)
 
 ## Sources / References
 - [Makefile MCP GitHub](https://github.com/democratize-technology/makefile-mcp)
@@ -97,5 +102,5 @@ Add to your `claude_desktop_config.json`:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high

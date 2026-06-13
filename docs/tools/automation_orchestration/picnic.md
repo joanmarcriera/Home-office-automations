@@ -1,109 +1,70 @@
 # Picnic
 
 ## What it is
-
-Picnic is a desktop AI automation product that lets users record browser-based work, package it into reusable flows, and run those flows as scheduled agents on top of the [OpenClaw](../development_ops/openclaw.md) runtime.
+Picnic is a structured, project-centered GUI built on top of [OpenClaw](../development_ops/openclaw.md) for managing notes, files, goals, and AI-assisted workflows in a calm environment.
 
 ## What problem it solves
-
-OpenClaw-class agent systems are powerful, but they still assume a fairly technical operator. Picnic lowers that barrier for recurring business and home-office tasks by replacing prompt-and-config heavy setup with a desktop UI, recorded flows, prebuilt agent packages, and scheduled jobs.
+Raw agent environments can be chaotic and overwhelming. Picnic provides a human-friendly interface for [OpenClaw](../development_ops/openclaw.md), allowing users to organize work into projects and keep sensitive browsing behavior isolated within Picnic's own built-in browser. It makes AI collaboration safer and more deliberate for Claude 4.8 Opus and GPT-5.5 users.
 
 ## Where it fits in the stack
-
-**Automation runtime / desktop orchestration layer**. Picnic sits above model subscriptions and browser automation primitives, and in front of [OpenClaw](../development_ops/openclaw.md), giving non-developers a way to teach workflows by demonstration and then run them unattended.
-
-```text
-User -> Picnic desktop UI -> Recorded flows + jobs + agents -> OpenClaw runtime -> LLM/provider subscriptions
-```
+**Automation runtime / desktop orchestration layer**. Picnic sits above the [OpenClaw](../development_ops/openclaw.md) core, providing a structured workspace for business, personal, and family work.
 
 ## Typical use cases
-
-- Browser-based admin work that repeats every day or week.
-- Overnight or off-hours job execution for reports, follow-ups, and queued tasks.
-- Teams that want [OpenClaw](../development_ops/openclaw.md)-style autonomy without starting in Docker, YAML, or the terminal.
-- Small-business or founder workflows that benefit from prebuilt agent packages.
-
-## Getting started
-
-1. Download the desktop app for macOS, Windows, or Linux from the official site.
-2. Connect the subscription or model access you already use. The product is designed to work with an existing ChatGPT or Claude subscription, with optional direct API keys for advanced users.
-3. Open the built-in Picnic Browser and record a repeatable workflow once.
-4. Save that recording as a Flow, attach it to an Agent, and assign a schedule in the Jobs view.
-5. If the workflow outgrows the default UI, use the built-in OpenClaw Control entrypoint for lower-level runtime control.
-
-## Configuration details
-
-### Model Tiers & Routing
-Picnic allows you to select which model tier to use for different parts of a flow:
-- **Fast**: Used for simple navigation and data entry (e.g., GPT-4o-mini).
-- **Smart**: Used for complex reasoning and handling ambiguous UI elements (e.g., Claude 3.5 Sonnet).
-- **Premium**: Used for high-stakes decision making or long-horizon planning (e.g., o1).
-
-### Integration with Local Runtimes
-Picnic can connect to a local [OpenClaw](../development_ops/openclaw.md) instance, allowing you to run flows recorded on your desktop across a cluster of headless agents.
-
-## Technical examples
-
-### Sample Job Definition (YAML Export)
-While Picnic is primarily GUI-driven, it allows exporting job definitions for version control or OpenClaw migration.
-
-```yaml
-job:
-  name: "Daily CRM Sync"
-  agent: "AdminAssistant"
-  flow: "crm_portal_sync_v2"
-  schedule: "cron(0 2 * * *)" # 2 AM every day
-  timeout: 1800
-  notifiers:
-    - type: "telegram"
-      chat_id: "${TELEGRAM_CHAT_ID}"
-```
-
-### Integration-oriented example: Scheduled portal follow-up agent
-
-1. Record the steps for logging into a supplier or CRM web portal inside Picnic Browser.
-2. Save the recording as a reusable Flow.
-3. Attach that Flow to an Agent responsible for follow-up work.
-4. Schedule the Agent to run overnight with Picnic's Jobs or Nightshift model.
-5. When you need deeper customization, open the embedded OpenClaw control surface and extend the workflow with more advanced agent behavior.
-
-This makes Picnic a practical front door for people who want OpenClaw-backed automation without starting from raw agent configuration.
+- Organizing complex business projects with AI-assisted notes and files.
+- Running browser-based agent workflows safely using the built-in browser.
+- Maintaining long-term context for family planning or personal journals.
+- Collaborative thinking and planning where structure emerges over time.
 
 ## Strengths
-
-- Very low setup friction compared with self-hosting an agent runtime directly.
-- Built-in browser recording is a good fit for web apps that lack clean APIs.
-- Scheduling is a first-class concept rather than an add-on.
-- Sandboxed browser isolation is safer than sharing your day-to-day Chrome or Safari profile.
-- Clear migration path into [OpenClaw](../development_ops/openclaw.md) for users who need more control later.
+- **Project Isolation**: Keeps work organized and prevents context drift.
+- **Built-in Browser**: Isolates agent browsing from your primary browser session.
+- **Gradual Structure**: Start with a blank page and add context cards only when needed.
+- **Open Source Core**: Leverages the power and public scrutiny of [OpenClaw](../development_ops/openclaw.md).
 
 ## Limitations
-
-- Public technical documentation is thin; most public information currently comes from the marketing site and FAQ.
-- Browser-recorded automations still inherit the usual fragility of UI-driven workflows.
-- Picnic itself is not positioned as a source-available or self-hosted server product.
-- Advanced governance, custom integrations, and deep runtime tuning still push you toward [OpenClaw](../development_ops/openclaw.md) underneath.
+- Still in beta; features and project structures are subject to change.
+- Primarily GUI-driven; lacks a robust public-facing CLI or API for direct manipulation.
+- Requires local resources to run the desktop application and underlying agent runtime.
 
 ## When to use it
-
-- When a non-technical operator wants to automate repeated browser work.
-- When the main requirement is scheduled, unattended execution from a desktop app.
-- When you want [OpenClaw](../development_ops/openclaw.md) capabilities but prefer a guided GUI and prebuilt agent library.
+- When you want a calmer, more organized interface for your AI work.
+- When you need to manage multiple projects without mixing their context.
+- When safety and browser isolation are high priorities.
 
 ## When not to use it
+- If you require a headless, API-only automation engine (use [OpenClaw](../development_ops/openclaw.md) directly).
+- If you prefer a simple chat interface without project management features.
 
-- When you need a documented API-first automation platform with strong developer ergonomics.
-- When the workflow must be fully self-hosted, source-available, or infrastructure-managed.
-- When the task is primarily software-engineering automation rather than browser or business-process automation.
+## Getting started
+### 1. Download
+Download the Picnic desktop app for your operating system (Windows, Linux, or Mac) from the [official site](https://picnicos.com/).
 
-## Licensing and cost
+### 2. Connect
+Log in and connect your AI provider credentials. Picnic works with standard subscriptions or direct API keys.
 
-- **Open Source**: No public source repository is advertised for the Picnic application itself.
-- **Cost**: As of 2026-03-29, the official site advertises both bring-your-own-subscription usage and paid Starter, Pro, and Business tiers.
-- **Self-hostable**: No
+### 3. Create a Project
+Start a new project (Business, Personal, or Blank) and begin adding your notes, files, and goals.
+
+## CLI examples
+> [!NOTE]
+> Picnic is primarily a GUI-driven application. CLI access is managed via the underlying [OpenClaw](../development_ops/openclaw.md) runtime.
+```bash
+# Verify the OpenClaw core version Picnic is using
+openclaw --version
+```
+
+## API examples
+> [!NOTE]
+> Picnic does not currently expose a direct public API. Interaction is handled via the GUI or by extending [OpenClaw](../development_ops/openclaw.md) skills.
+```json
+// Example of an OpenClaw skill used within Picnic
+{
+  "name": "picnic_context_helper",
+  "description": "Assists with project organization inside Picnic"
+}
+```
 
 ## Related tools / concepts
-
 - [OpenClaw](../development_ops/openclaw.md)
 - [Browser Use](browser-use.md)
 - [n8n](../../services/n8n.md)
@@ -111,14 +72,13 @@ This makes Picnic a practical front door for people who want OpenClaw-backed aut
 - [LiteLLM](../../services/litellm.md)
 - [ClawRouter](../infrastructure/clawrouter.md)
 - [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md)
-- [Custom Agents](../development_ops/custom_agents.md)
+- [Claude Code](../development_ops/claude-code.md)
 
 ## Sources / References
-
-- [Official site](https://picnicos.com/)
-- [Picnic FAQ & Community Support](https://picnicos.com/faq)
+- [Picnic Official Site](https://picnicos.com/)
+- [OpenClaw Project](https://github.com/openclaw/openclaw)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
