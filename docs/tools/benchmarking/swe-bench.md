@@ -14,6 +14,7 @@ Measures whether LLMs can perform practical software engineering work -- underst
 - Comparing models on practical software engineering tasks
 - Tracking progress of AI agents toward autonomous software development
 - Choosing whether an agent is ready for repository-maintenance work that requires reading tests, editing files, and producing a valid patch
+- Benchmarking frontier models like Claude 4.8 Opus (`claude-4-8-opus-20260528`) and GPT-5.5 on real-world engineering tasks
 
 ## Strengths
 - Based on real-world GitHub issues, providing authentic evaluation
@@ -62,11 +63,32 @@ docker run -v $(pwd)/predictions:/predictions swebench/swe-bench-eval \
     --output_dir /results
 ```
 
-## Technical examples
+## CLI examples
 
 ### 1. Using SWE-bench Verified
 The "Verified" subset consists of 500 tasks that have been human-verified to be solvable and have high-quality unit tests.
 
+```bash
+# List available instances in the Verified subset
+python -m swebench.inference.run_api --dataset_name princeton-nlp/SWE-bench_Verified --list_instances
+```
+
+### 2. Run Evaluation on Single Instance
+```bash
+python -m swebench.harness.run_evaluation \
+    --dataset_name princeton-nlp/SWE-bench_Verified \
+    --instance_id django__django-11001 \
+    --prediction_path ./predictions/django__django-11001.jsonl
+```
+
+### 3. Check Docker Environment
+```bash
+docker run swebench/swe-bench-eval --version
+```
+
+## API examples
+
+### 1. Loading the Dataset
 ```python
 from datasets import load_dataset
 
@@ -76,7 +98,6 @@ dataset = load_dataset("princeton-nlp/SWE-bench_Verified", split="test")
 # Access a specific task
 task = dataset[0]
 print(f"Task ID: {task['instance_id']}")
-print(f"Problem Statement: {task['problem_statement']}")
 ```
 
 ### 2. Custom Evaluation Loop
@@ -141,5 +162,5 @@ When using SWE-bench results to compare coding agents, record:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
