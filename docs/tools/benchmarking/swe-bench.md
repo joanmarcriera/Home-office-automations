@@ -1,41 +1,43 @@
 # SWE-bench
 
 ## What it is
-SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests.
+SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of June 2026, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
 
 ## What problem it solves
-Measures whether LLMs can perform practical software engineering work -- understanding codebases, diagnosing issues, and producing working fixes -- rather than just solving isolated coding puzzles.
+Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment.
 
 ## Where it fits in the stack
-**Benchmarking**. Used as a reference benchmark for evaluating real-world software engineering capabilities of LLMs and AI agents.
+**Benchmarking / Eval**. It is used as a reference benchmark for evaluating real-world software engineering capabilities of AI agents and coding assistants.
 
 ## Typical use cases
-- Evaluating AI coding agents on their ability to resolve real GitHub issues
-- Comparing models on practical software engineering tasks
-- Tracking progress of AI agents toward autonomous software development
-- Choosing whether an agent is ready for repository-maintenance work that requires reading tests, editing files, and producing a valid patch
+- Evaluating AI coding agents on their ability to resolve real GitHub issues.
+- Comparing models on practical software engineering tasks.
+- Tracking progress of AI agents toward autonomous software development.
+- Choosing whether an agent is ready for repository-maintenance work that requires reading tests, editing files, and producing a valid patch.
 
 ## Strengths
-- Based on real-world GitHub issues, providing authentic evaluation
-- Requires end-to-end engineering skills (reading code, understanding issues, writing patches)
-- Validated by existing test suites from the source repositories
+- **Authenticity**: Based on real-world GitHub issues, providing high-fidelity evaluation.
+- **End-to-End Skill Assessment**: Requires reading code, understanding issues, and writing functional patches.
+- **Objective Validation**: Results are verified against existing test suites from the source repositories.
+- **Large Dataset**: Over 2,000 tasks across multiple popular Python repositories.
 
 ## Limitations
-- Computationally expensive to run (requires setting up real repositories and test suites)
-- Limited to Python repositories in the current dataset
-- Pass rates can be influenced by the specific subset of issues selected
-- Public leaderboard results do not automatically prove performance on private repositories, unusual stacks, or documentation-heavy maintenance work
+- **Computational Cost**: Requires a Docker environment and significant compute to run full test suites.
+- **Language Bias**: Primarily focused on Python repositories in the standard dataset.
+- **Static Nature**: While updated, older subsets can suffer from data contamination in newer model training sets.
+- **Limited Scope**: Does not typically evaluate documentation-only changes or complex multi-repository dependencies.
 
 ## When to use it
-- When evaluating AI agents or LLMs on real-world software engineering capability
-- When comparing coding agents that claim to autonomously resolve issues
+- When evaluating AI agents or LLMs on real-world software engineering capability.
+- When comparing coding agents that claim to autonomously resolve issues.
+- When performing high-signal regression testing on agentic coding frameworks.
 
 ## When not to use it
-- When evaluating basic code generation from specifications (use [HumanEval](human-eval.md) instead)
-- When you need quick, lightweight benchmarking
+- When evaluating basic code generation from simple specifications (use [HumanEval](human-eval.md) instead).
+- When you need quick, lightweight benchmarking without Docker infrastructure.
+- For testing non-Python languages (unless using specific extensions).
 
 ## Getting started
-
 SWE-bench requires a Docker environment to safely execute untrusted code and run test suites.
 
 ### 1. Installation
@@ -43,103 +45,81 @@ SWE-bench requires a Docker environment to safely execute untrusted code and run
 pip install swebench
 ```
 
-### 2. Running an Evaluation (Inference)
-Generate model predictions for a subset of issues:
-
+### 2. Basic Inference
+To get started, you can run an inference pass using a lightweight model or a specific subset:
 ```bash
 python -m swebench.inference.run_api \
     --dataset_name princeton-nlp/SWE-bench_Lite \
-    --model_name gpt-4-0613 \
+    --model_name claude-4-8-opus-20260528 \
     --output_dir ./predictions
 ```
 
-### 3. Evaluating Predictions (Docker)
-Use `swe-bench-docker` to execute the generated patches against the original repositories:
+## CLI examples
+The following commands demonstrate how to interact with the SWE-bench evaluation harness.
 
 ```bash
-docker run -v $(pwd)/predictions:/predictions swebench/swe-bench-eval \
-    --predictions /predictions/gpt-4-0613.jsonl \
-    --output_dir /results
+# Install the SWE-bench package from source for the latest updates
+pip install git+https://github.com/princeton-nlp/SWE-bench.git
+
+# Run predictions for the 'Verified' subset using a local model endpoint
+python -m swebench.inference.run_api --dataset_name princeton-nlp/SWE-bench_Verified --output_dir ./eval_results
+
+# Execute evaluation using the Docker harness to verify generated patches
+docker run -v $(pwd)/predictions:/predictions swebench/swe-bench-eval --predictions /predictions/predictions.jsonl --output_dir /results
 ```
 
-## Technical examples
+## API examples
+You can interact with SWE-bench programmatically using the `datasets` library and the `swebench` harness.
 
-### 1. Using SWE-bench Verified
-The "Verified" subset consists of 500 tasks that have been human-verified to be solvable and have high-quality unit tests.
-
+### Loading the Dataset
 ```python
 from datasets import load_dataset
 
-# Load the verified subset
+# Load the human-verified subset (500 high-quality tasks)
 dataset = load_dataset("princeton-nlp/SWE-bench_Verified", split="test")
 
-# Access a specific task
+# Access a specific task instance
 task = dataset[0]
 print(f"Task ID: {task['instance_id']}")
-print(f"Problem Statement: {task['problem_statement']}")
+print(f"Problem: {task['problem_statement']}")
 ```
 
-### 2. Custom Evaluation Loop
-For agentic workflows, you can integrate SWE-bench as a final validation step in your local environment.
-
+### Running an Evaluation Instance
 ```python
 from swebench.harness.test_spec import make_test_spec
 from swebench.harness.run_evaluation import run_instance
 
-# Define task instance
+# Define a task instance with a proposed patch
 instance = {
     "repo": "django/django",
-    "pull_number": "12345",
     "instance_id": "django__django-12345",
-    "base_commit": "abc123...",
+    "base_commit": "abc12345",
     "patch": "diff --git a/django/db/models/fields/__init__.py...",
     "test_patch": "diff --git a/tests/model_fields/tests.py..."
 }
 
-# Run evaluation in Docker
+# Run evaluation within the Docker environment
 spec = make_test_spec(instance)
 result = run_instance(spec)
-
-print(f"Resolved: {result['resolved']}")
+print(f"Issue Resolved: {result['resolved']}")
 ```
 
-## Practical evaluation notes
-
-Use SWE-bench as a high-signal engineering benchmark, but interpret it as one part of an agent-readiness picture:
-
-- **Patch correctness**: The benchmark rewards changes that satisfy existing test suites, which is useful for bug-fix agents but less direct for docs, taxonomy, and knowledge-base tasks.
-- **Repository navigation**: Strong results imply the model or harness can locate relevant files, reason over issue text, and make coherent edits in a real repo.
-- **Harness quality**: Tooling around the model matters. Search, edit, test execution, retries, and patch application can change outcomes as much as the base model.
-- **Local validation**: For private repo adoption, run a small internal task set alongside SWE-bench-style metrics so results reflect local languages, CI shape, and review expectations.
-
-## Agent comparison checklist
-
-When using SWE-bench results to compare coding agents, record:
-
-1. The exact benchmark split and date.
-2. The model, agent harness, tool access, and retry budget.
-3. Whether the run used public issue text only or any extra retrieval.
-4. Pass rate plus failure classes: setup failure, wrong file, incomplete patch, flaky test, or unsafe behavior.
-5. Cost per resolved issue, not only raw pass rate.
-
 ## Related tools / concepts
+- [HumanEval](human-eval.md) — Basic code generation benchmark.
+- [LongCLI-Bench](longcli-bench.md) — Long-horizon CLI task evaluation.
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md) — Agentic research evaluation.
+- [Aider](../development_ops/aider.md) — Terminal-based AI coding assistant.
+- [Claude Code](../development_ops/claude-code-setup.md) — Anthropic's official coding agent.
+- [OpenHands](../development_ops/openhands.md) — Open-source agentic platform.
+- [Terminal-Bench](terminal-bench.md) — Evaluating tool use in CLI environments.
+- [Benchmarking](index.md) — Overview of AI evaluation frameworks.
 
-- [HumanEval](human-eval.md)
-- [Terminal-Bench](terminal-bench.md)
-- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
-- [LM Evaluation Harness](lm-evaluation-harness.md)
-- [LongCLI-Bench](longcli-bench.md)
-- [Aider](../development_ops/aider.md)
-- [OpenHands](../development_ops/openhands.md)
-- [Plandex](../development_ops/plandex.md)
-- [Claude Code](../development_ops/claude-code-setup.md)
 ## Sources / references
 - [Official Website](https://www.swebench.com/)
 - [GitHub Repository](https://github.com/princeton-nlp/SWE-bench)
-- [SWE-bench paper](https://arxiv.org/abs/2310.06770)
-- [SWE-bench Verified](https://openai.com/index/introducing-swe-bench-verified/)
+- [SWE-bench Paper (arXiv:2310.06770)](https://arxiv.org/abs/2310.06770)
+- [SWE-bench Verified Announcement](https://openai.com/index/introducing-swe-bench-verified/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
