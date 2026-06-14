@@ -1,53 +1,53 @@
 # Superpowers
 
 ## What it is
-Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process.
+Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
 
 ## What problem it solves
-It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents common failure modes like "hallucinating" file paths, circular refactoring, and code rot.
+It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents common failure modes like "hallucinating" file paths, circular refactoring, and code rot, ensuring high performance on benchmarks like [SWE-bench](../benchmarking/swe-bench.md).
 
 ## Where it fits in the stack
-**Agents / Workflow Framework**. It sits on top of coding agents to provide process-level guardrails and skills. It is often used in conjunction with the [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) for direct filesystem control.
+**Agents / Workflow Framework**. It sits on top of coding agents to provide process-level guardrails and skills. It is often used in conjunction with the [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) for direct filesystem and terminal control.
 
 ## Typical use cases
-- Enforcing TDD and plan-first development in agentic workflows
-- Breaking down complex engineering tasks into verifiable sub-tasks
-- Managing long-running autonomous coding sessions that span multiple files
-- Maintaining code quality in large, complex repositories (e.g., those measured by [SWE-bench](../benchmarking/swe-bench.md))
+- Enforcing Test-Driven Development (TDD) and plan-first development in agentic workflows.
+- Breaking down complex engineering tasks into verifiable sub-tasks.
+- Managing long-running autonomous coding sessions that span multiple files.
+- Maintaining code quality in large, complex repositories.
+- Standardizing agent behavior across a distributed engineering team.
 
 ## Strengths
-- Enforces high-quality engineering standards (TDD, YAGNI, DRY)
-- Increases agent autonomy and reliability through explicit verification steps
-- Composable skills-based architecture that can be extended with project-specific logic
-- Seamless integration with [Anthropic Agent Skills](anthropic-agent-skills.md)
+- Enforces high-quality engineering standards (TDD, YAGNI, DRY).
+- Increases agent autonomy and reliability through explicit verification steps.
+- Composable skills-based architecture that can be extended with project-specific logic.
+- Seamless integration with [Anthropic Agent Skills](anthropic-agent-skills.md) and [FastMCP](../../knowledge_base/agent_protocols.md).
+- Native support for [Claude 4.8 Opus](../providers/anthropic.md)'s 2.5M token context window.
 
 ## Limitations
-- Higher process overhead for trivial tasks
-- Requires an agent environment that supports the skills framework
-- May require significant prompt tokens for complex planning cycles
+- Higher process overhead for trivial tasks.
+- Requires an agent environment that supports the skills framework or MCP.
+- May require significant prompt tokens for complex planning cycles (addressed by [Everything Claude Code](../../knowledge_base/patterns/everything-claude-code.md) optimizations).
+- Learning curve for developers to define custom skill YAMLs.
 
 ## When to use it
-
 - To enforce high-quality engineering standards (TDD, YAGNI, DRY) in agent-driven development.
 - When you want agents to work autonomously for extended periods (hours) without deviating from a plan.
 - For complex projects that require a systematic approach to design, planning, and implementation, as described in the [AI-Assisted Dev Workflow](../../playbooks/dev-workflow-ai-assisted.md).
 
 ## When not to use it
-
 - For trivial code changes or simple questions.
 - If you prefer an ad-hoc, conversational approach to coding without structured planning.
+- In environments where agents lack terminal or filesystem access (though remote MCP can bridge this).
 
 ## Key Workflow Components
-
-1.  **Brainstorming**: Socratic design refinement before writing code.
-2.  **Isolated Workspaces**: Uses Git worktrees to ensure a clean baseline.
-3.  **Bite-sized Planning**: Breaks work into 2-5 minute tasks with exact file paths and verification steps.
-4.  **Subagent-Driven Development**: Dispatches fresh subagents per task with two-stage reviews.
-5.  **Strict TDD**: Enforces RED-GREEN-REFACTOR cycle.
-6.  **Formal Code Review**: Automated reviews against the plan before merging.
+1. **Brainstorming**: Socratic design refinement before writing code.
+2. **Isolated Workspaces**: Uses Git worktrees to ensure a clean baseline.
+3. **Bite-sized Planning**: Breaks work into 2-5 minute tasks with exact file paths and verification steps.
+4. **Subagent-Driven Development**: Dispatches fresh subagents per task with two-stage reviews.
+5. **Strict TDD**: Enforces RED-GREEN-REFACTOR cycle.
+6. **Formal Code Review**: Automated reviews against the plan before merging.
 
 ## Technical Implementation: Skill YAML Example
-
 Superpowers skills are defined using a structured YAML format that specifies the tool's signature, implementation, and description for the LLM.
 
 ```yaml
@@ -69,7 +69,6 @@ implementation: |
 ```
 
 ## Advanced Usage: Custom Task Verification
-
 For complex refactors, you can define custom verification steps in your `superpowers.json` or `.claudestatus` files to ensure the agent doesn't just "complete" the task but actually fixes the underlying issue.
 
 ```json
@@ -87,21 +86,66 @@ For complex refactors, you can define custom verification steps in your `superpo
 
 ## Getting started
 
-### Installation
+### Installation (Claude Code)
+Superpowers is typically installed as a plugin or set of skills:
 
-Installation methods vary by platform:
-
-#### Claude Code (via Plugin Marketplace)
 ```bash
 /plugin marketplace add obra/superpowers-marketplace
 /plugin install superpowers@superpowers-marketplace
 ```
 
-#### Cursor
-Install via the Cursor Agent plugin marketplace: `/plugin-add superpowers`.
+### Hello-world (Custom Skill)
+Create a `hello_world.yaml` skill file:
 
-#### Codex / OpenCode
-Follow platform-specific instructions to fetch the skill files from the [official repository](https://github.com/obra/superpowers).
+```yaml
+name: "hello_world"
+description: "Prints a greeting to the console."
+implementation: |
+  echo "Hello from Superpowers!"
+```
+
+### Configuring Task Guardrails
+Add a `superpowers.json` to your project root to enforce verification:
+
+```json
+{
+  "enforce_tdd": true,
+  "required_reviewers": 1,
+  "max_subtasks": 5
+}
+```
+
+## CLI examples
+
+```bash
+# List all active Superpowers skills
+superpowers list --active
+
+# Initialize a new engineering plan for a task
+superpowers plan "Refactor authentication logic to use JWT"
+
+# Execute verification steps for a specific sub-task
+superpowers verify --task-id 123 --file tests/auth_test.py
+```
+
+## API examples
+
+### Defining a Verification Skill
+Skills are defined in YAML and consumed by the agent's tool-calling logic.
+
+```yaml
+# verify_test_coverage.yaml
+name: "verify_coverage"
+description: "Ensures test coverage is above a certain threshold."
+parameters:
+  type: "object"
+  properties:
+    threshold:
+      type: "integer"
+      default: 80
+implementation: |
+  coverage run -m pytest && coverage report --fail-under={{threshold}}
+```
 
 ## Example company use cases
 - **Product engineering**: enforce design-first planning and verification for every AI-generated pull request.
@@ -124,23 +168,21 @@ Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Re
 - Do not force it on trivial one-off edits where the process overhead outweighs the risk.
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md)
-- [Anthropic Agent Skills](anthropic-agent-skills.md)
-- [Claude Skills Ecosystem](claude-skills-ecosystem.md)
-- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md)
-- [Aider](../development_ops/aider.md)
-- [Plandex](../development_ops/plandex.md)
-- [SWE-bench](../benchmarking/swe-bench.md)
+- [Claude Code](../development_ops/claude-code.md) — The primary runtime for Superpowers.
+- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) — For hardware/OS-level skills.
+- [Aider](../development_ops/aider.md) — Multi-file editing agent.
+- [Plandex](../development_ops/plandex.md) — Long-horizon planning engine.
+- [Mentat](../development_ops/mentat.md) — Context-aware coding assistant.
+- [SWE-bench](../benchmarking/swe-bench.md) — Evaluation for autonomous engineering.
+- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Standard for skills/tools.
+- [Anthropic Agent Skills](anthropic-agent-skills.md) — Reference skills implementation.
 
-## Sources / References
-
+## Sources / references
 - [Official GitHub Repository](https://github.com/obra/superpowers)
 - [Superpowers for Claude Code (Blog Post)](https://blog.fsck.com/2025/10/09/superpowers/)
 - [Anthropic Agent Skills Specification](https://agentskills.io/)
-- [awesomeclaude.ai](https://awesomeclaude.ai/)
 - [awesome-skills.com](https://awesome-skills.com/)
-- [UI UX Pro Max Skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high

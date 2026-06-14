@@ -1,19 +1,20 @@
 # ElevenLabs
 
 ## What it is
-ElevenLabs is an AI audio research and deployment company that specializes in high-fidelity speech synthesis, voice cloning, and text-to-speech (TTS) technology.
+ElevenLabs is an AI audio research and deployment company that specializes in high-fidelity speech synthesis, voice cloning, and text-to-speech (TTS) technology. It is a critical component for building expressive multi-modal agents that interact naturally with users.
 
 ## What problem it solves
-Provides remarkably human-like AI voices for content creators, developers, and businesses, solving the issue of robotic-sounding synthetic speech.
+It provides remarkably human-like AI voices for content creators, developers, and businesses, solving the issue of robotic-sounding synthetic speech. It enables frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) to have a voice that matches their high reasoning capabilities.
 
 ## Where it fits in the stack
-**AI & Knowledge / Multi-modal**. It provides the audio synthesis layer for AI agents, avatars, and automated media production.
+**AI & Knowledge / Multi-modal**. It provides the audio synthesis layer for AI agents, avatars, and automated media production. It is often the "voice" of an agent system powered by orchestration frameworks like [CrewAI](../frameworks/crewai.md).
 
 ## Typical use cases
 - Generating narrations for audiobooks and podcasts
 - Providing voices for AI avatars and video game characters
 - Dubbing content into multiple languages while preserving the original speaker's tone
 - Accessibility tools for the visually impaired
+- Real-time voice interaction for autonomous agents
 
 ## Example company use cases
 - **Media Production**: Automating the creation of localized marketing videos with consistent brand voices.
@@ -25,20 +26,24 @@ Provides remarkably human-like AI voices for content creators, developers, and b
 - Powerful voice cloning capabilities (Instant and Professional)
 - Support for a wide array of languages and accents
 - Low latency API for real-time applications
+- High-fidelity dubbing with original voice preservation
 
 ## Limitations
 - Ethical concerns regarding voice cloning and potential misuse
 - Paid tiers can become expensive for high-volume audio generation
 - Occasional mispronunciations of niche technical terms or rare names
+- Requires internet connectivity for API-based generation (unlike local TTS)
 
 ## When to use it
-- When high-quality, expressive narration is required for any media project
-- For real-time voice applications in gaming or customer service
-- When preserving a specific speaker's voice across different languages (Dubbing)
+- When high-quality, expressive narration is required for any media project.
+- For real-time voice applications in gaming or customer service.
+- When preserving a specific speaker's voice across different languages (Dubbing).
+- When building a premium, multi-modal interface for an AI agent.
 
 ## When not to use it
-- When simple, functional TTS (like built-in OS voices) is sufficient
-- When strict offline, local processing is a requirement for privacy or latency
+- When simple, functional TTS (like built-in OS voices) is sufficient.
+- When strict offline, local processing is a requirement for privacy or latency (consider [Fish Audio](../ai_knowledge/fish-audio.md)).
+- For low-priority internal alerts where costs would outweigh the benefit of high-quality speech.
 
 ## Selection comments
 - ElevenLabs is the industry leader for emotional expression and "naturalness" in synthetic speech.
@@ -54,7 +59,7 @@ To use the ElevenLabs Python SDK:
 pip install elevenlabs
 ```
 
-### Quick Start
+### Hello-world (Python)
 To generate and play audio from text:
 
 ```python
@@ -66,7 +71,7 @@ audio = generate(
   model="eleven_multilingual_v2"
 )
 
-play(audio)
+# play(audio)
 ```
 
 ## CLI examples
@@ -74,18 +79,24 @@ play(audio)
 ```bash
 # Generate speech using curl
 curl -X POST "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM" \
-     -H "xi-api-key: <your_api_key>" \
+     -H "xi-api-key: $ELEVEN_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
        "text": "The quick brown fox jumps over the lazy dog.",
        "model_id": "eleven_monolingual_v1"
      }' \
      --output speech.mp3
+
+# List available voices
+curl -H "xi-api-key: $ELEVEN_API_KEY" https://api.elevenlabs.io/v1/voices
+
+# Check API usage and remaining quota
+curl -H "xi-api-key: $ELEVEN_API_KEY" https://api.elevenlabs.io/v1/user/subscription
 ```
 
 ## API examples
 
-### Python SDK (Complex Example)
+### Streaming Audio
 ```python
 from elevenlabs import ElevenLabs
 
@@ -98,27 +109,26 @@ audio_generator = client.generate(
     stream=True
 )
 
-for chunk in audio_generator:
-    if chunk:
-        # Process audio chunk
-        pass
+# for chunk in audio_generator:
+#     if chunk:
+#         process_audio_chunk(chunk)
 ```
 
 ## Related tools / concepts
-
-- [Synthesia](synthesia.md)
-- [Whisper](../../services/whisper.md) (for speech-to-text)
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-- [Google Opal](google-opal.md)
-- [Sora](sora.md)
-- [RunwayML](../providers/runwayml.md)
-- [Gemini Flash TTS](gemini-flash-tts.md)
+- [Synthesia](synthesia.md) — For video generation paired with audio.
+- [Whisper](../../services/whisper.md) — The speech-to-text counterpart.
+- [Fish Audio](fish-audio.md) — A local-first, high-fidelity TTS alternative.
+- [KokoClone](kokoclone.md) — For local neural voice cloning.
+- [Claude 4.8 Opus](../providers/anthropic.md) — High-reasoning model often used for agent logic.
+- [GPT-5.5](openai.md) — Frontier model for generating expressive dialogue.
+- [CrewAI](../frameworks/crewai.md) — Multi-agent orchestration.
+- [RunwayML](../providers/runwayml.md) — Video generation integration.
 
 ## Sources / references
 - [Official Website](https://elevenlabs.io/)
 - [Documentation](https://elevenlabs.io/docs)
+- [ElevenLabs Blog](https://elevenlabs.io/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high

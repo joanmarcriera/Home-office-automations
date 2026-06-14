@@ -4,10 +4,10 @@
 FastAPI is a modern, high-performance web framework for building APIs with Python 3.8+ based on standard Python type hints. It is designed to be easy to use, fast to code, and ready for production.
 
 ## What problem it solves
-It allows for rapid development of robust, high-performance APIs with automatic interactive documentation (Swagger UI/ReDoc). It significantly reduces developer error through type validation via [Pydantic](https://docs.pydantic.dev/) and provides native support for asynchronous programming (async/await), making it ideal for I/O-bound tasks like calling LLM APIs or querying databases.
+It allows for rapid development of robust, high-performance APIs with automatic interactive documentation (Swagger UI/ReDoc). It significantly reduces developer error through type validation via [Pydantic](https://docs.pydantic.dev/) and provides native support for asynchronous programming (async/await), making it ideal for I/O-bound tasks like calling frontier LLM APIs like [Claude 4.8 Opus](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md).
 
 ## Where it fits in the stack
-[Framework / Backend] - Often used as the orchestration or serving layer for AI agents, [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) servers, and custom homelab microservices. It bridges the gap between Python's data science ecosystem and web-standard production environments.
+**Framework / Backend**. Often used as the orchestration or serving layer for AI agents, [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) servers, and custom homelab microservices. It bridges the gap between Python's data science ecosystem and web-standard production environments.
 
 ## Typical use cases
 - Building RESTful APIs for AI agents and tools (e.g., [CrewAI](crewai.md) or [LangGraph](langgraph.md)).
@@ -39,80 +39,82 @@ It allows for rapid development of robust, high-performance APIs with automatic 
 - If your team is more proficient in another language (e.g., Go, Rust) and there's no specific need for Python's libraries.
 - For extremely simple scripts where a basic `http.server` or Flask would suffice.
 
+## Getting started
+
+### Installation
+Install FastAPI with standard dependencies:
+
+```bash
+pip install "fastapi[standard]"
+```
+
+### Hello-world
+Create a file `main.py`:
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World", "framework": "FastAPI"}
+```
+
+Run the server:
+```bash
+uvicorn main:app --reload
+```
+
 ## CLI examples
+
 ```bash
 # Run a FastAPI app with Uvicorn (development mode with hot-reload)
 uvicorn main:app --reload --port 8000
 
-# Install FastAPI with standard dependencies
-pip install "fastapi[standard]"
-
 # Run in production with multiple workers
 gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+
+# Generate OpenAPI schema to a file
+python -c "import json; from main import app; print(json.dumps(app.openapi()))" > openapi.json
 ```
 
-## Getting started
-### Basic Example
+## API examples
+
+### Pydantic Model Validation
 ```python
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-app = FastAPI(title="Agent API")
+class AgentTask(BaseModel):
+    id: str
+    goal: str
+    priority: int = 1
 
-class Item(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
+app = FastAPI()
 
-@app.post("/items/")
-async def create_item(item: Item):
-    return {"message": "Item created", "item": item}
-
-@app.get("/")
-async def read_root():
-    return {"status": "online", "framework": "FastAPI"}
+@app.post("/tasks")
+async def create_task(task: AgentTask):
+    return {"status": "created", "task_id": task.id}
 ```
 
-## Advanced Technical Examples
-
-### Dependency Injection & Security
-FastAPI's dependency injection system is ideal for handling authentication and shared resources like database connections.
-
+### Dependency Injection (Auth Example)
 ```python
 from fastapi import Depends, FastAPI, HTTPException, Security
 from fastapi.security import APIKeyHeader
 
-API_KEY_NAME = "X-API-Key"
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+api_key_header = APIKeyHeader(name="X-API-Key")
 
 async def get_api_key(api_key: str = Security(api_key_header)):
-    if api_key == "secret-token":
-        return api_key
-    raise HTTPException(status_code=403, detail="Could not validate credentials")
+    if api_key != "secret-token":
+        raise HTTPException(status_code=403)
+    return api_key
 
 app = FastAPI()
 
-@app.get("/secure-data")
-async def get_secure_data(api_key: str = Depends(get_api_key)):
-    return {"data": "This is protected by an API Key"}
-```
-
-### Background Tasks
-Perfect for long-running agentic tasks or sending notifications without blocking the response.
-
-```python
-from fastapi import BackgroundTasks, FastAPI
-
-app = FastAPI()
-
-def run_agent_workflow(task_id: str):
-    # Simulate a long-running process (e.g., CrewAI execution)
-    print(f"Processing task {task_id} in background...")
-
-@app.post("/run-task/{task_id}")
-async def start_task(task_id: str, background_tasks: BackgroundTasks):
-    background_tasks.add_task(run_agent_workflow, task_id)
-    return {"message": "Task started in background", "task_id": task_id}
+@app.get("/secure")
+async def secure_route(key: str = Depends(get_api_key)):
+    return {"data": "protected"}
 ```
 
 ## Testing
@@ -127,7 +129,7 @@ client = TestClient(app)
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"status": "online", "framework": "FastAPI"}
+    assert response.json() == {"message": "Hello World", "framework": "FastAPI"}
 ```
 
 ## Deployment
@@ -172,28 +174,23 @@ spec:
         - containerPort: 80
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
-- [Pydantic AI](pydantic-ai.md): Agentic framework built on Pydantic and FastAPI.
-- [Agno](../agents/agno.md): Multi-agent framework that integrates well with FastAPI.
-- [LangGraph](langgraph.md): State-machine based agent orchestration.
-- [CrewAI](crewai.md): Role-based multi-agent framework.
-- [Smolagents](smolagents.md): Minimalist agent library.
-- [Docker](../infrastructure/docker.md): Containerization standard.
-- [K3s](../infrastructure/k3s.md): Lightweight Kubernetes for orchestration.
-- [Supabase](../infrastructure/supabase.md): Backend-as-a-service often used as a FastAPI database.
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md): Standardized tool-calling protocol.
+- [Pydantic AI](pydantic-ai.md) — Agentic framework built on Pydantic and FastAPI.
+- [Agno](../agents/agno.md) — Multi-agent framework that integrates well with FastAPI.
+- [LangGraph](langgraph.md) — State-machine based agent orchestration.
+- [CrewAI](crewai.md) — Role-based multi-agent framework.
+- [Smolagents](smolagents.md) — Minimalist agent library.
+- [Docker](../infrastructure/docker.md) — Containerization standard.
+- [K3s](../infrastructure/k3s.md) — Lightweight Kubernetes for orchestration.
+- [Supabase](../infrastructure/supabase.md) — Backend-as-a-service often used as a FastAPI database.
+- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Standardized tool-calling protocol.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://fastapi.tiangolo.com/)
 - [FastAPI GitHub Repository](https://github.com/tiangolo/fastapi)
 - [Pydantic Documentation](https://docs.pydantic.dev/)
 - [Starlette Framework](https://www.starlette.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high
