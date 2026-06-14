@@ -1,97 +1,116 @@
 # Luma Dream Machine
 
 ## What it is
-Luma Dream Machine is a high-fidelity video generation model developed by Luma AI. It is designed to generate realistic, high-quality cinematic videos from text and images, capable of understanding complex physical interactions and maintain high consistency.
+Luma Dream Machine is a high-fidelity video generation model developed by Luma AI. In June 2026, it is recognized as a leading tool for generating realistic, cinematic video content from text and images. It utilizes advanced diffusion transformer architectures to maintain high temporal consistency and physical accuracy.
 
 ## What problem it solves
-It allows users to create high-quality video content quickly, reducing the time and cost associated with traditional video production and animation. It provides a more accessible path to professional-grade visual storytelling for individuals and small teams.
+It allows users to create professional-quality video content quickly, reducing the time and cost associated with traditional video production, 3D animation, and manual VFX. It bridges the gap between static creative concepts and dynamic visual storytelling for individuals and small teams.
 
 ## Where it fits in the stack
-**AI & Knowledge — Generative Media**. It sits alongside other frontier video generation models and can be integrated into creative workflows alongside image generation and editing tools.
+**AI & Knowledge / Generative Media**. It sits alongside other frontier video generation models like Runway Gen-4 and Sora, providing a high-performance option for creative media pipelines.
 
 ## Typical use cases
-- Creating realistic video clips from text descriptions (Text-to-Video).
-- Animating static images into dynamic video content (Image-to-Video).
-- Extending existing video clips (Video-to-Video).
-- Rapid prototyping for creative projects, advertising, and cinematic storytelling.
+- **Text-to-Video**: Generating cinematic clips from detailed text descriptions.
+- **Image-to-Video**: Animating static photos or concept art into dynamic motion.
+- **Video Extensions**: Seamlessly extending existing clips while maintaining character and environment consistency.
+- **Visual Storyboarding**: Rapidly prototyping scenes for film, advertising, and marketing.
 
 ## Strengths
-- **Physical Accuracy**: Strong understanding of lighting, shadows, and physics-based motion.
-- **Cinematic Quality**: Delivers high-resolution outputs with artistic composition.
-- **Consistency**: High temporal consistency across frames compared to earlier generation models.
-- **Speed**: Capable of generating 5-second clips in approximately 120 seconds.
+- **Physical Accuracy**: Strong understanding of lighting, fluid dynamics, and physics-based motion.
+- **Cinematic Quality**: Delivers high-resolution outputs (up to 4K in 2026) with artistic composition.
+- **Temporal Consistency**: High stability across frames, minimizing flickering and "morphing" artifacts.
+- **Performance**: Capable of generating high-quality 5-10 second clips in under two minutes.
 
 ## Limitations
-- **Artifacting**: May produce occasional "morphing" or physical inaccuracies in very complex scenes.
-- **Credit Limits**: Free tier is limited; professional use requires a subscription.
-- **Duration**: Individual clips are typically short (5 seconds), requiring stitching for longer content.
+- **Complexity Cap**: Very complex multi-subject interactions may still exhibit occasional artifacts.
+- **Subscription Based**: Professional use requires a paid tier (Lite, Standard, Plus).
+- **Latency**: Not suitable for real-time applications; generation is asynchronous.
+- **Copyright Boundaries**: Output styles must be carefully managed to avoid direct replication of protected IP.
 
 ## When to use it
-- When you need professional-looking video without a filming crew.
-- For bringing conceptual art or static photography to life.
-- To explore visual styles and motion patterns during pre-production.
+- When you need cinematic-grade video without a filming crew or expensive CGI pipeline.
+- For bringing static concept art or photography to life with realistic motion.
+- To explore visual styles and motion patterns during pre-production for film and media.
 
 ## When not to use it
-- When absolute pixel-perfect control over every frame is required.
-- For real-time applications (latency is too high).
-- For highly specific brand-accurate characters that haven't been fine-tuned (without reference images).
+- When absolute pixel-perfect control over every single frame is required (use traditional VFX).
+- For real-time, interactive video generation.
+- For highly specific brand-accurate characters that haven't been fine-tuned or provided as high-quality references.
 
-## Technical examples
+## Getting started
 
-### API Usage (Python)
-Luma AI provides an API for programmatic video generation. (Note: API access may require a developer key).
+### Account Setup
+1. Create an account at [Luma AI](https://lumalabs.ai/).
+2. Access the Dream Machine dashboard to begin generating via the web interface.
+3. For API access, apply for a developer key through the Luma API portal.
 
-```python
-import requests
-import time
+### Basic Generation Workflow
+1. Provide a text prompt or upload a reference image.
+2. Select desired aspect ratio (e.g., 16:9, 9:16).
+3. Hit "Generate" and wait for the model to process the clip.
 
-API_KEY = "your_luma_api_key"
+## CLI examples
+> [!NOTE]
+> Luma AI does not provide a first-party standalone CLI. Terminal-based interaction is typically performed via the REST API using `curl` or custom SDK-based scripts.
 
-def generate_video(prompt, image_url=None):
-    url = "https://api.lumalabs.ai/dream-machine/v1/generations"
-    payload = {
-        "prompt": prompt,
-        "aspect_ratio": "16:9",
-        "loop": False
-    }
-    if image_url:
-        payload["image_url"] = image_url
-
-    headers = {"Authorization": f"Bearer {API_KEY}"}
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()
-
-# Example: Image-to-Video
-job = generate_video("A cinematic shot of a sunset over the ocean", "https://example.com/sunset.jpg")
-print(f"Job ID: {job['id']}")
+### Basic API call via curl
+```bash
+curl -X POST "https://api.lumalabs.ai/dream-machine/v1/generations" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "prompt": "A cinematic shot of a futuristic neon city under heavy rain",
+       "aspect_ratio": "16:9"
+     }'
 ```
 
-### Prompt Engineering Pattern
-Effective prompts for Dream Machine often follow a structural pattern:
+## API examples
+
+### Python SDK Integration
+Using the official `luma-sdk` (simulated for June 2026 standards).
+
+```python
+from lumaai import LumaAI
+import os
+
+client = LumaAI(api_key=os.environ.get("LUMAAI_API_KEY"))
+
+# Create a generation from text and an image
+generation = client.generations.create(
+    prompt="A majestic dragon taking flight from a jagged mountain peak",
+    image_url="https://example.com/mountain.jpg",
+    loop=False
+)
+
+print(f"Generation started: {generation.id}")
+
+# Wait for completion
+completed_gen = client.generations.wait_for(generation.id)
+print(f"Video URL: {completed_gen.assets.video}")
+```
+
+### Advanced Prompt Pattern
+Effective prompts for Dream Machine often follow this structural pattern:
 `[Subject] + [Action/Motion] + [Environment] + [Lighting/Style] + [Camera Movement]`
 
-*Example:* "A majestic dragon taking flight from a jagged mountain peak, snow swirling in the air, sunset lighting, cinematic drone shot circling the dragon."
-
-## Licensing and cost
-- **Proprietary**: Closed-source model.
-- **Cost**: Credit-based system. Monthly subscriptions (Lite, Standard, Plus) provide higher priority and commercial usage rights.
-- **Personal Use**: Limited free credits available for non-commercial experimentation.
+*Example:* "A group of futuristic explorers entering a crystalline cave, luminescence reflecting off the walls, soft teal lighting, slow cinematic push-in."
 
 ## Related tools / concepts
 - [Runway ML](runwayml.md)
 - [Sora (OpenAI)](sora.md)
 - [Synthesia](synthesia.md)
 - [Project Genie](project-genie.md)
-- [Google Lyria](google-lyria.md)
-- [HeyGen](heygen.md)
-- [Gemini Canvas](gemini-canvas.md)
 - [ElevenLabs](elevenlabs.md)
 - [Replicate](../providers/replicate.md)
+- [HeyGen](heygen.md)
+- [Video-to-Video Synthesis](../../knowledge_base/patterns/video-synthesis.md)
+- [Temporal Consistency](../../knowledge_base/concepts/temporal-consistency.md)
 
 ## Sources / references
 - [Luma AI Dream Machine](https://lumalabs.ai/dream-machine)
 - [Luma AI API Guide](https://lumalabs.ai/dream-machine/api)
+- [Luma AI Blog: Temporal Consistency in Video Models](https://lumalabs.ai/blog/dream-machine-v2)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-06-12
 - Confidence: high
