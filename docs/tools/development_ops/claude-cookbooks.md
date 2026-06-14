@@ -1,109 +1,106 @@
 # Claude Cookbooks
 
 ## What it is
-Claude Cookbooks is Anthropic's public repository of example code, workflows, and reference material for building with Claude.
+Claude Cookbooks is Anthropic's public repository of example code, workflows, and reference material for building with Claude. As of June 2026, it is the primary resource for teams integrating frontier models like Claude 4.8 Opus into production environments.
 
 ## What problem it solves
-It gives teams a practical set of implementation examples so they do not have to infer every integration pattern from API reference docs alone.
+It gives teams a practical set of implementation examples so they do not have to infer every integration pattern from API reference docs alone. It addresses:
+- **Design Uncertainty**: Providing proven architectural patterns for RAG and tool use.
+- **Latency Optimization**: Demonstrating best practices for streaming and prompt caching.
+- **Reliability Gap**: Offering robust error handling and structured output patterns.
 
 ## Where it fits in the stack
-**Development & Ops / Reference Implementations**. It is a learning and acceleration resource for Claude builders.
+**Development & Ops / Reference Implementations**. It is a learning and acceleration resource for Claude builders, sitting between the raw API documentation and third-party frameworks like [LangChain](../ai_knowledge/langchain.md).
 
 ## Typical use cases
-- Learning Claude API usage patterns
-- Bootstrapping demos and internal prototypes
-- Reviewing implementation examples before building custom flows
-
-## Example company use cases
-- **Prototype phase**: use cookbook examples to shorten the first version of an internal assistant or workflow tool.
-- **Platform team**: use cookbook patterns as review references when standardizing how Claude is used across products.
-- **Training and onboarding**: point new engineers to concrete examples before they design their own integrations.
+- Learning Claude API usage patterns for Claude 4.8 and earlier models.
+- Bootstrapping demos and internal prototypes using the [Model Context Protocol](../automation_orchestration/mcp.md).
+- Reviewing implementation examples before building custom flows in [Cursor](cursor.md) or [Aider](aider.md).
 
 ## Strengths
-- First-party reference material
-- More implementation-oriented than high-level product pages
+- **First-party Authenticity**: Direct guidance from the Anthropic engineering team.
+- **Practicality**: Focuses on runnable code rather than abstract theory.
+- **Ecosystem Alignment**: Examples are optimized for the latest features like prompt caching and tool-use.
 
 ## Limitations
-- Examples are starting points, not complete production designs
-- Cookbook coverage may not match your exact stack
+- **Starting Points**: Examples are not always "production-ready" out of the box and may lack enterprise-grade monitoring.
+- **Stack Specificity**: Some examples may rely on specific Python or JavaScript versions that don't match your exact environment.
 
 ## When to use it
-- When you want example-driven guidance for Claude integrations
+- When you want example-driven guidance for Claude integrations.
+- When exploring new features (like vision or long-context handling) for the first time.
+- When standardizing how the team handles JSON extraction or complex tool chains.
 
 ## When not to use it
-- When you need a production-ready architecture without further engineering
+- When you need a production-ready, highly-scalable architecture without further engineering.
+- When your use case is better served by a high-level abstraction like [Superpowers](../agents/superpowers.md).
 
-## Common Patterns
-The cookbooks are organized around several core patterns:
-- **RAG (Retrieval-Augmented Generation)**: Using Claude with vector databases.
-- **Tool Use (Function Calling)**: Defining and executing tools to interact with the real world.
-- **Prompt Engineering**: System prompt design and multi-shot examples.
-- **Output Structuring**: Forcing Claude to return valid JSON or specific schemas.
+## Getting started
+To begin using the cookbooks, clone the repository and explore the notebooks.
 
-## Contribution Guide
-Developers can contribute to the community-driven sections by:
-1. Forking the `claude-cookbooks` repository.
-2. Adding a new notebook or Python script in the relevant category.
-3. Submitting a Pull Request with a clear explanation of the new pattern.
+```bash
+# Clone the official repository
+git clone https://github.com/anthropics/claude-cookbooks.git
+cd claude-cookbooks
 
-## Technical Examples
+# Install dependencies for a specific cookbook
+pip install -r requirements.txt
+```
 
-### Python: Using a Cookbook Pattern for JSON Extraction
+## CLI examples
+The repository itself is a collection of examples, but you can interact with it via standard Git and Python tools.
+
+```bash
+# Search for a specific pattern (e.g., tool use)
+grep -r "tools" .
+
+# Run a specific notebook example using jupyter
+jupyter notebook examples/tool_use_with_claude.ipynb
+```
+
+## API examples
+The cookbooks provide the foundation for patterns used in production code.
+
+### Python: Implementing Prompt Caching
 ```python
 import anthropic
 
 client = anthropic.Anthropic()
 
-# Based on 'Structured Output' cookbook pattern
+# Pattern from 'Prompt Caching' cookbook
 response = client.messages.create(
-    model="claude-3-5-sonnet-20240620",
+    model="claude-4-8-opus-20260528",
     max_tokens=1024,
-    system="You are a data extractor. Always return JSON.",
-    messages=[{"role": "user", "content": "Extract name and age: John Doe is 30."}]
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Analyze this document: ...",
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ]
+        }
+    ]
 )
-print(response.content)
 ```
-
-### TypeScript: Async Streaming Implementation
-```typescript
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic();
-
-// Based on 'Streaming' cookbook pattern
-async function main() {
-  const stream = await anthropic.messages.create({
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: 'Explain quantum physics.' }],
-    model: 'claude-3-5-sonnet-20240620',
-    stream: true,
-  });
-  for await (const messageStreamEvent of stream) {
-    console.log(messageStreamEvent.type);
-  }
-}
-
-main();
-```
-
-## Selection comments
-- Claude Cookbooks is first-party implementation guidance, not an architecture substitute.
-- Use it early in the build process, then move to your own patterns once the team knows what works.
-- Pair it with [Context7](context7.md) for current third-party docs and [Superpowers](../agents/superpowers.md) for execution discipline.
 
 ## Related tools / concepts
-- [Claude Code](claude-code.md)
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
-- [Anthropic](../providers/anthropic.md)
-- [Context7](context7.md)
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [DSPy](../frameworks/dspy.md)
-- [Flowise](../ai_knowledge/flowise.md)
+- [Claude Code](claude-code.md) — The terminal-native agent that utilizes these patterns.
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Composable skills built on cookbook patterns.
+- [Anthropic](../providers/anthropic.md) — The provider of the models.
+- [Context7](context7.md) — A live context layer for AI-native development.
+- [LangChain](../ai_knowledge/langchain.md) — Framework that often implements cookbook patterns.
+- [DSPy](../frameworks/dspy.md) — Programmatic prompt optimization.
+- [Superpowers](../agents/superpowers.md) — High-discipline agentic workflow framework.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for connecting models to tools.
 
-## Sources / References
-- [GitHub Repository](https://github.com/anthropics/claude-cookbooks)
+## Sources / references
+- [Claude Cookbooks GitHub Repository](https://github.com/anthropics/claude-cookbooks)
+- [Anthropic Documentation: Cookbooks Overview](https://docs.anthropic.com/en/docs/resources/cookbooks)
+- [Anthropic API Console](https://console.anthropic.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high

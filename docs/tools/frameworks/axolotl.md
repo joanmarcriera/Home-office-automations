@@ -1,22 +1,22 @@
 # Axolotl
 
 ## What it is
-Axolotl is a powerful, configuration-driven framework designed to streamline the fine-tuning of Large Language Models. It allows researchers and developers to define complex training runs entirely within YAML configuration files, abstracting away the boilerplate code typically required for model loading, dataset processing, and hyperparameter management.
+Axolotl is a powerful, configuration-driven framework designed to streamline the fine-tuning of Large Language Models (LLMs). As of June 2026, it remains a preferred choice for researchers and developers who need to define complex training runs entirely within YAML configuration files, abstracting away the boilerplate code typically required for model loading, dataset processing, and hyperparameter management.
 
 ## What problem it solves
 Managing the various dependencies, dataset formats, and training parameters for LLM fine-tuning can be error-prone and difficult to reproduce. Axolotl addresses this by:
 - **Declarative Configuration**: Moving all logic into a single YAML file, ensuring reproducibility and version control for training experiments.
-- **Support for Advanced Techniques**: Native integration with DeepSpeed, FSDP (Fully Sharded Data Parallel), and various quantization methods.
+- **Support for Advanced Techniques**: Native integration with DeepSpeed, FSDP (Fully Sharded Data Parallel), and various quantization methods for models like Claude 4.8 Opus (where fine-tuning is supported via proxy) and the Llama 4 family.
 - **Dataset Flexibility**: Built-in support for diverse dataset formats (Alpaca, ShareGPT, JEPA, etc.) and automatic tokenization.
 
 ## Where it fits in the stack
-Axolotl sits in the **Frameworks/Fine-tuning** layer. It provides a higher-level abstraction over the Hugging Face `transformers` and `peft` libraries, specifically catering to users who want deep control via configuration.
+Axolotl sits in the **Frameworks/Fine-tuning** layer. It provides a higher-level abstraction over the Hugging Face `transformers` and `peft` libraries, specifically catering to users who want deep control via configuration while targeting high-performance inference backends like [vLLM](../infrastructure/vllm.md).
 
 ## Typical use cases
 - **Multi-GPU Training**: Scaling fine-tuning across multiple GPUs using DeepSpeed or FSDP.
-- **Instruction Tuning**: Adapting base models to follow complex, multi-turn instructions.
+- **Instruction Tuning**: Adapting base models like Llama 4 Maverick to follow complex, multi-turn instructions.
 - **Experiment Tracking**: Maintaining a library of YAML configurations to compare different LoRA alphas, ranks, and learning rates.
-- **Dataset Mixing**: Combining multiple datasets with different weights and formats into a single training run.
+- **Dataset Mixing**: Combining multiple datasets with different weights and formats into a single training run using [distilabel](distilabel.md) generated data.
 
 ## Strengths
 - **Reproducibility**: The YAML-first approach makes it easy to share and rerun exact training setups.
@@ -72,18 +72,45 @@ sample_packing: true
 pad_to_sequence_len: true
 ```
 
-Run the training:
+## CLI examples
+Axolotl provides a streamlined CLI for training and dataset preparation.
+
 ```bash
+# Start a training run using the accelerate launcher
 accelerate launch -m axolotl.cli.train config.yml
+
+# Prepare the dataset without starting the training
+python3 -m axolotl.cli.preprocess config.yml
+
+# Merge LoRA adapters back into the base model
+python3 -m axolotl.cli.merge_lora config.yml --lora_model_dir="./completed-model"
+```
+
+## API examples
+While Axolotl is configuration-driven, it can be interacted with programmatically for custom workflows.
+
+```python
+import torch
+from axolotl.utils.config import load_config
+from axolotl.utils.models import load_model, load_tokenizer
+
+# Load configuration from YAML
+config = load_config("config.yml")
+
+# Programmatically load the model and tokenizer as defined in the config
+model, tokenizer = load_model(config)
+
+print(f"Model {config['base_model']} loaded with device: {model.device}")
 ```
 
 ## Related tools / concepts
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — The core pattern implemented by Axolotl.
 - [Unsloth](../infrastructure/unsloth.md) — A speed-optimized alternative for single-GPU setups.
 - [llama-factory](llama-factory.md) — A UI-driven alternative for fine-tuning.
-- [distilabel](distilabel.md) — For generating the high-quality synthetic data often used with Axolotl.
-- [vLLM](../infrastructure/vllm.md) — For serving models fine-tuned with Axolotl.
-- [DeepSpeed](https://github.com/microsoft/DeepSpeed) — Frequently used with Axolotl for large-scale training.
+- [distilabel](distilabel.md) — For generating high-quality synthetic data for fine-tuning.
+- [vLLM](../infrastructure/vllm.md) — Optimized inference engine for models fine-tuned with Axolotl.
+- [DeepSpeed](https://github.com/microsoft/DeepSpeed) — Framework for large-scale distributed training.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — For integrating fine-tuned models into agentic workflows.
 
 ## Sources / references
 - [Axolotl GitHub Repository](https://github.com/axolotl-ai-cloud/axolotl)
@@ -91,5 +118,5 @@ accelerate launch -m axolotl.cli.train config.yml
 - [Open-source LLM Fine-tuning Guide](https://github.com/mlabonne/llm-course)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high

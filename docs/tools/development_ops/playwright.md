@@ -1,58 +1,89 @@
 # Playwright
 
 ## What it is
-Playwright is Microsoft's browser automation and end-to-end testing framework for Chromium, Firefox, and WebKit.
+Playwright is Microsoft's browser automation and end-to-end testing framework for Chromium, Firefox, and WebKit. As of June 2026, it is the industry standard for both automated testing and agentic web browsing.
 
 ## What problem it solves
-It gives teams a reliable way to automate browsers for testing, scraping, and UI workflows that cannot be covered cleanly by API-only integrations.
+It gives teams a reliable way to automate browsers for testing, scraping, and UI workflows that cannot be covered cleanly by API-only integrations. It addresses:
+- **Cross-Browser Consistency**: Ensuring web applications work across all modern engines.
+- **Flakiness**: Using auto-wait and robust selector engines to reduce unstable test suites.
+- **Agentic Eyes**: Providing a structured interface for AI agents to "see" and interact with the web through the [Playwright MCP](../automation_orchestration/playwright-mcp.md).
 
 ## Where it fits in the stack
-**Development & Ops / Browser Automation**. It is often used both for test suites and as the browser execution layer for coding agents.
+**Development & Ops / Browser Automation**. It is often used both for CI/CD test suites and as the execution layer for autonomous coding agents like [Claude Code](claude-code.md).
 
 ## Typical use cases
-- End-to-end web application tests
-- Browser automation in agent workflows
-- Reproducing or debugging UI regressions
+- End-to-end web application tests.
+- Browser automation in agentic workflows (agent-assisted research).
+- Reproducing or debugging UI regressions.
+- Automated visual regression testing.
+- Web scraping in complex, JavaScript-heavy environments.
 
 ## Strengths
-- Cross-browser support
-- Strong automation primitives and test tooling
-- Useful both as a test runner and an agent browser backend
+- **Native Cross-Browser Support**: Single API for Chromium, WebKit, and Firefox.
+- **Auto-wait Logic**: Eliminates most `sleep` or `waitFor` calls.
+- **Powerful Tooling**: Includes a Trace Viewer, Test Runner, and Code Generator.
+- **Agent Readiness**: First-class integration with MCP for LLM-driven browsing.
 
 ## Limitations
-- Browser automation is slower and more brittle than API-level integration
-- Requires careful test design to avoid flaky suites
+- **Speed**: Browser automation is inherently slower than API-level interaction.
+- **Resource Intensive**: Running multiple browser instances requires significant memory and CPU.
+- **Maintenance**: UI changes still require selector updates, though AI-assisted tools like [Aider](aider.md) can mitigate this.
 
 ## When to use it
-- When you need real browser behavior
-- When agents must navigate or verify web interfaces directly
+- When you need to verify real browser behavior or handle complex JS interactions.
+- When agents must navigate or verify web interfaces directly.
+- When you require high-fidelity visual or accessibility testing.
 
 ## When not to use it
-- When an API integration is available and sufficient
-- When the maintenance cost of browser flows outweighs the value
+- When a stable REST or GraphQL API is available for the same task.
+- When the overhead of maintaining browser-based flows exceeds the value of the automation.
+- For simple HTTP requests (use `curl` or a request library instead).
 
-## Selection comments
-- Playwright is the preferred tool for high-reliability browser automation due to its "auto-wait" features and robust selector engine.
-- For AI agent integration, use the [Playwright MCP](https://github.com/microsoft/playwright-mcp) to give agents direct "eyes" on a web page.
-- Combine with [Superpowers](../agents/superpowers.md) for verifiable UI testing and automation cycles.
+## Getting started
 
-## CLI examples
+### Installation
+Playwright can be added to any Node.js project:
 
 ```bash
-# Install Playwright and browsers
+# Initialize Playwright in your project
 npm init playwright@latest
 
-# Generate code by recording your actions
+# Install specific browser binaries
+npx playwright install chromium
+```
+
+### Hello-world Test
+Create a simple test in `tests/example.spec.ts`:
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('has title', async ({ page }) => {
+  await page.goto('https://playwright.dev/');
+  await expect(page).toHaveTitle(/Playwright/);
+});
+```
+
+## CLI examples
+The Playwright CLI is the primary way to run tests and generate code.
+
+```bash
+# Run all tests in the project
+npx playwright test
+
+# Generate code by recording your actions in the browser
 npx playwright codegen https://example.com
 
-# Run tests in headed mode
-npx playwright test --headed
+# Open the Trace Viewer to debug a failed run
+npx playwright show-trace path/to/trace.zip
 
-# Debugging with Playwright Inspector
-PWDEBUG=1 npx playwright test
+# Run tests in headed mode to watch the execution
+npx playwright test --headed
 ```
 
 ## API examples
+Playwright provides a rich API for fine-grained browser control.
 
 ### Basic Page Interaction (TypeScript)
 ```typescript
@@ -63,7 +94,7 @@ import { chromium } from 'playwright';
   const page = await browser.newPage();
   await page.goto('https://news.ycombinator.com');
 
-  // Extract data from the page
+  // Extract data using CSS selectors
   const titles = await page.$$eval('.titleline > a', links =>
     links.map(link => link.textContent)
   );
@@ -73,44 +104,21 @@ import { chromium } from 'playwright';
 })();
 ```
 
-### Visual Regression Testing
-```typescript
-import { test, expect } from '@playwright/test';
-
-test('homepage visual check', async ({ page }) => {
-  await page.goto('https://example.com');
-  await expect(page).toHaveScreenshot('homepage.png');
-});
-```
-
-## Example workflow: Agentic Browsing
-1. **Trigger**: An agent receives a request to find the price of a specific product on a site without an API.
-2. **Execution**: The agent uses the [Playwright MCP](https://github.com/microsoft/playwright-mcp) to launch a Chromium instance.
-3. **Navigation**: The agent instructs Playwright to `page.goto()`, `page.fill()` (search bar), and `page.click()`.
-4. **Extraction**: The agent parses the DOM for price elements using CSS selectors or text matching.
-5. **Verification**: Playwright takes a screenshot of the results to provide visual proof to the user.
-
-## Licensing and cost
-- **Open Source**: Yes
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
-- [Browser Use](../automation_orchestration/browser-use.md)
-- [Claude Hooks](claude-hooks.md)
-- [n8n](../../services/n8n.md)
-- [GitHub Copilot](github_copilot.md)
-- [VS Code](vscode.md)
-- [Aider](aider.md)
-- [Cursor](cursor.md)
-- [Superpowers](../agents/superpowers.md)
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md)
+- [Playwright MCP Server](../automation_orchestration/playwright-mcp.md) — Browser automation capabilities for MCP agents.
+- [Browser Use](../automation_orchestration/browser-use.md) — High-level agent framework for browser interaction.
+- [Claude Code](claude-code.md) — Terminal agent that utilizes Playwright for web research.
+- [GitHub Actions](github-pages.md) — For running Playwright tests in CI/CD.
+- [Aider](aider.md) — AI coding assistant for writing and fixing Playwright tests.
+- [Cursor](cursor.md) — IDE with deep integration for Playwright workflows.
+- [Superpowers](../agents/superpowers.md) — Multi-agent framework for verifiable UI automation.
+- [Puppeteer](../automation_orchestration/puppeteer.md) — The precursor and primary alternative to Playwright.
 
-## Sources / References
-- [Official Website](https://playwright.dev/)
-- [Documentation](https://playwright.dev/docs/intro)
-- [Playwright MCP](https://github.com/microsoft/playwright-mcp)
+## Sources / references
+- [Official Playwright Website](https://playwright.dev/)
+- [Playwright Documentation](https://playwright.dev/docs/intro)
+- [Playwright MCP GitHub Repository](https://github.com/modelcontextprotocol/servers/tree/main/src/playwright)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high
