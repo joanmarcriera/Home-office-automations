@@ -1,10 +1,10 @@
 # Claude Code Router
 
 ## What it is
-Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./claude-code.md) CLI. It intercepts API requests from Claude Code and redirects them to various LLM providers (OpenRouter, DeepSeek, Gemini, Ollama, etc.) based on user-defined rules.
+Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./claude-code.md) CLI. It intercepts API requests from Claude Code and redirects them to various LLM providers (OpenRouter, DeepSeek, Gemini, Ollama, etc.) based on user-defined rules. As of June 2026, it is frequently used to benchmark `claude-4-8-opus-20260528` against GPT-5.5 and DeepSeek-V4.
 
 ## What problem it solves
-- **Cost Optimization**: Redirects expensive Claude 3.5 Sonnet requests to cheaper alternatives like DeepSeek-V3 or local models for background tasks.
+- **Cost Optimization**: Redirects expensive Claude 3.5/4.8 Sonnet requests to cheaper alternatives like DeepSeek-V3 or local models for background tasks.
 - **Regional Access**: Enables users in regions where Anthropic is restricted to use Claude Code by proxying through other providers.
 - **Model Flexibility**: Allows mixing and matching models for different tasks (e.g., reasoning vs. coding) within the same Claude Code session.
 - **Compatibility Smoothing**: Uses a "Transformer" system to fix subtle differences between provider APIs (e.g., forcing tool usage or reasoning tags).
@@ -13,7 +13,7 @@ Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./cl
 **Router / Gateway**. It sits between the agent (Claude Code) and the inference provider, acting as a programmable middleware.
 
 ## Typical use cases
-- **DeepSeek Integration**: Using `DeepSeek-V3` for coding and `DeepSeek-R1` for "Plan Mode" at a fraction of the cost of Claude 3.5.
+- **DeepSeek Integration**: Using `DeepSeek-V3` for coding and `DeepSeek-R1` for "Plan Mode" at a fraction of the cost of Claude 4.8.
 - **Local Dev Loop**: Routing background tasks to a local [Ollama instance](../../services/ollama.md) (e.g., `qwen2.5-coder`) to save tokens.
 - **Enterprise Proxying**: Centralizing API key management and logging for teams using Claude Code via [OpenRouter](../ai_knowledge/openrouter.md).
 
@@ -27,44 +27,48 @@ Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./cl
 ## Limitations
 - **Latency**: Adding a proxy layer introduces minor network overhead.
 - **Complexity**: Requires managing a configuration file and a local service.
-- **Instruction Adherence**: While transformers help, non-Claude models may still struggle with Claude Code's complex multi-step prompts.
+- **Instruction Adherence**: While transformers help, non-Claude models may still struggle with Claude Code's complex multi-step prompts compared to native `claude-4-8-opus-20260528` performance.
 
 ## When to use it
 - Use when you want to use Claude Code with cheaper models (e.g., DeepSeek) to save costs.
 - Use if you are in a region where direct access to Anthropic's API is restricted.
-- Use when you need to route different types of tasks (background vs. planning) to different LLM providers.
+- Use when you need to route different types of tasks (background vs. planning) to different LLM providers like GPT-5.5.
 
 ## When not to use it
 - Not necessary if you have a Claude Code Max plan and don't mind the cost.
 - Not for users who prefer a zero-configuration setup, as it requires managing a proxy service.
 
 ## Getting started
-
-### Installation
+Ensure Claude Code is installed:
 ```bash
-# Ensure Claude Code is installed
 npm install -g @anthropic-ai/claude-code
+```
 
-# Install Claude Code Router
+Install Claude Code Router:
+```bash
 npm install -g @musistudio/claude-code-router
 ```
 
-### Basic Configuration
-Start the service to generate the default config at `~/.claude-code-router/config.json`:
+Start the service:
 ```bash
 ccr start
 ```
 
-### Usage
-To run Claude Code through the router:
+## CLI examples
 ```bash
+# Set the active model for the router
+ccr model deepseek/deepseek-chat
+
+# Launch Claude Code through the router
 ccr code
+
+# Open the web-based configuration UI
+ccr ui
 ```
-Alternatively, use `eval "$(ccr activate)"` to set environment variables globally in your shell session, allowing you to use the standard `claude` command.
 
-## Advanced Routing Patterns
+## API examples
 
-### Agent-Native LLM Routing (YAML)
+### Advanced Routing Patterns (YAML)
 CCR supports advanced routing rules defined in `rules.yaml` that can trigger based on query intent or tool-use requirements.
 
 ```yaml
@@ -79,24 +83,21 @@ rules:
 ```
 
 ### Fallback and Retry Strategies
-Configure automatic fallback to a frontier model if the cheaper model fails or times out:
+Configure automatic fallback to a frontier model like `claude-4-8-opus-20260528` if the cheaper model fails:
 
 ```json
 {
   "fallback_policy": {
     "enabled": true,
     "strategy": "ordered",
-    "targets": ["deepseek/deepseek-chat", "anthropic/claude-3.5-sonnet"],
+    "targets": ["deepseek/deepseek-chat", "anthropic/claude-4-8-opus-20260528"],
     "retry_on": [429, 503]
   }
 }
 ```
 
-## Troubleshooting: Fixing Tool Usage
-Many non-Claude models (like [DeepSeek](../providers/deepseek.md)) may struggle with the complex tool-calling format expected by Claude Code.
-
-### Using the `tooluse` Transformer
-If a model fails to call tools or returns malformed JSON, enable the `tooluse` transformer in your config:
+### Troubleshooting: Fixing Tool Usage
+If a model fails to call tools, enable the `tooluse` transformer:
 ```json
 {
   "models": {
@@ -106,16 +107,6 @@ If a model fails to call tools or returns malformed JSON, enable the `tooluse` t
   }
 }
 ```
-
-## Roadmap
-The project maintains an active list of features and bug fixes on GitHub:
-- [GitHub Issues](https://github.com/musistudio/claude-code-router/issues)
-- [GitHub Discussions](https://github.com/musistudio/claude-code-router/discussions)
-
-## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free (but you pay for the underlying LLM providers)
-- **Self-hostable**: Yes
 
 ## Related tools / concepts
 - [Claude Code](./claude-code.md)
@@ -127,11 +118,11 @@ The project maintains an active list of features and bug fixes on GitHub:
 - [DeepSeek](../providers/deepseek.md)
 - [Fallback Patterns](../../knowledge_base/patterns/fallback-patterns.md)
 
-## Sources / References
+## Sources / references
 - [Official GitHub](https://github.com/musistudio/claude-code-router)
 - [Project Motivation Blog Post](https://github.com/musistudio/claude-code-router/blob/main/blog/en/project-motivation-and-how-it-works.md)
 - [Transformers & Tool Usage Blog Post](https://github.com/musistudio/claude-code-router/blob/main/blog/en/maybe-we-can-do-more-with-the-route.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high

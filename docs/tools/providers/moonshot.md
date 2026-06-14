@@ -1,10 +1,10 @@
 # Moonshot AI (Kimi)
 
 ## What it is
-Moonshot AI (also known as Yuezhianmian) is a leading Chinese AI startup that developed the **Kimi** LLM family. Their latest model, **Kimi K2.6**, is designed for trillion-parameter reasoning and native long-context support.
+Moonshot AI (also known as Yuezhianmian) is a leading Chinese AI startup that developed the **Kimi** LLM family. As of June 2026, their flagship model is **Kimi K2.6**, which features trillion-parameter reasoning and native support for 256K token context windows.
 
 ## What problem it solves
-Enables the processing and analysis of massive documents, entire codebases, or long conversation histories through its native support for exceptionally long context windows (supporting up to 256K tokens in K2.6).
+Enables the processing and analysis of massive documents, entire codebases, or long conversation histories. It serves as a high-performance alternative to `claude-4-8-opus-20260528` and GPT-5.5 for long-context reasoning tasks, particularly in Chinese-language environments.
 
 ## Where it fits in the stack
 **LLM / Reasoning Engine / Provider**. Often used for "Chat with Document" applications, long-form content synthesis, and complex codebase navigation.
@@ -17,7 +17,7 @@ Enables the processing and analysis of massive documents, entire codebases, or l
 ## Strengths
 - **Native Long Context**: A pioneer in reliable 128k to 256k context windows, maintaining high retrieval accuracy (needle-in-a-haystack).
 - **OpenAI Compatibility**: Kimi provides an OpenAI-compatible HTTP API, allowing developers to use the standard OpenAI SDKs by simply changing the `base_url`.
-- **Trillion-Parameter Reasoning**: The K2.5/K2.6 models offer state-of-the-art performance in complex logic and professional code generation.
+- **Trillion-Parameter Reasoning**: The K2.6 models offer state-of-the-art performance in complex logic and professional code generation.
 - **Tool Calling**: Robust support for function calling and external tool integration.
 
 ## Limitations
@@ -33,16 +33,38 @@ Enables the processing and analysis of massive documents, entire codebases, or l
 - For purely image-generation-centric tasks (where specialized models like Midjourney or Flux might be preferred).
 
 ## Getting started
+Moonshot AI provides an OpenAI-compatible API. Install the SDK:
 
-Moonshot AI provides an OpenAI-compatible API, making it easy to integrate into existing applications.
-
-### 1. Python SDK Installation
 ```bash
 pip install --upgrade 'openai>=1.0'
 ```
 
-### 2. Basic Chat Completion
-Simply point the `base_url` to Moonshot's endpoint to use their models with the standard OpenAI client.
+Initialize the client with the Moonshot base URL:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="$MOONSHOT_API_KEY",
+    base_url="https://api.moonshot.ai/v1",
+)
+```
+
+## CLI examples
+```bash
+# Test connection via curl
+curl https://api.moonshot.ai/v1/models \
+     -H "Authorization: Bearer $MOONSHOT_API_KEY"
+
+# Chat via CLI using curl
+curl https://api.moonshot.ai/v1/chat/completions \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $MOONSHOT_API_KEY" \
+     -d '{"model": "moonshot-v1-8k", "messages": [{"role": "user", "content": "Hi"}]}'
+```
+
+## API examples
+Basic chat completion using the OpenAI SDK:
 
 ```python
 from openai import OpenAI
@@ -53,20 +75,14 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-    model="moonshot-v1-128k", # Or moonshot-v1-auto for context-aware selection
+    model="moonshot-v1-256k",
     messages=[
-        {"role": "system", "content": "You are Kimi, an AI assistant provided by Moonshot AI."},
-        {"role": "user", "content": "Analyze this 200-page document for key financial risks."}
+        {"role": "system", "content": "You are Kimi."},
+        {"role": "user", "content": "Summarize this long document."}
     ],
 )
-
 print(completion.choices[0].message.content)
 ```
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Usage-based pricing; free trial credits available for new developers)
-- **Self-hostable**: No
 
 ## Related tools / concepts
 - [Dify](../ai_knowledge/dify.md)
@@ -75,13 +91,14 @@ print(completion.choices[0].message.content)
 - [Perplexity](../ai_knowledge/perplexity.md)
 - [DeepSeek](deepseek.md)
 - [MiniMax](minimax.md)
+- [Kimi Code CLI](../development_ops/kimi-cli.md)
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.moonshot.cn/)
 - [Kimi Open Platform](https://platform.kimi.ai/)
 - [API Overview & Compatibility](https://platform.kimi.ai/docs/api/overview)
 - [Quickstart Guide](https://platform.kimi.ai/docs/guide/start-using-kimi-api)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-17
+- Last reviewed: 2026-06-12
 - Confidence: high
