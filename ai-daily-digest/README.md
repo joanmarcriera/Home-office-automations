@@ -1,5 +1,57 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-06-14
+
+## Digest fallback for 2026-06-14
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [New OpenAI Academy courses for the next era of work](https://openai.com/index/academy-courses-applying-ai-at-work) (OpenAI Blog)
+2. [olmo-eval: An evaluation workbench for the model development loop](https://huggingface.co/blog/allenai/olmo-eval) (Hugging Face Blog)
+3. [Is this enough VRAM to run Qwen?](https://www.reddit.com/r/LocalLLaMA/comments/1u5fc4y/is_this_enough_vram_to_run_qwen/) (r/LocalLLaMA)
+4. [Open source AI Must Win](https://www.reddit.com/r/LocalLLaMA/comments/1u55rzy/open_source_ai_must_win/) (r/LocalLLaMA)
+5. [This is coming to Chinese open source models pretty soon. - prepare yourself.](https://www.reddit.com/r/LocalLLaMA/comments/1u4wy3p/this_is_coming_to_chinese_open_source_models/) (r/LocalLLaMA)
+6. [Can we stop dunking on DiffusionGemma and hack it instead?](https://www.reddit.com/r/LocalLLaMA/comments/1u5duqe/can_we_stop_dunking_on_diffusiongemma_and_hack_it/) (r/LocalLLaMA)
+7. [Want to build a custom model](https://www.reddit.com/r/LocalLLaMA/comments/1u5clts/want_to_build_a_custom_model/) (r/LocalLLaMA)
+8. [Strix Halo desktop trying to compete against DGX Spark](https://www.reddit.com/r/LocalLLaMA/comments/1u59ibr/strix_halo_desktop_trying_to_compete_against_dgx/) (r/LocalLLaMA)
+9. [when fable gets banned but it's ok because you've about to download qwen3.7_67b_21a_mythos_father_fable_mother_distilled_ablated_ablitereted_uncensored_agi_sparse_attention_MTP_SuperHOT_q6_maybe_q7_AGI_FINAL.gguf from huggingface](https://www.reddit.com/r/LocalLLaMA/comments/1u4l98a/when_fable_gets_banned_but_its_ok_because_youve/) (r/LocalLLaMA)
+10. [Codebase getting larger - Qwen3.6-27B starting to compound issues - how to work smartly with this model?](https://www.reddit.com/r/LocalLLaMA/comments/1u56yr7/codebase_getting_larger_qwen3627b_starting_to/) (r/LocalLLaMA)
+11. [Not looking good for GLM 5.2 Air... but maybe a flash model?](https://www.reddit.com/r/LocalLLaMA/comments/1u501by/not_looking_good_for_glm_52_air_but_maybe_a_flash/) (r/LocalLLaMA)
+12. [Pi Setup that pretty much replaced Claude Code for me](https://www.reddit.com/r/LocalLLaMA/comments/1u4ow2h/pi_setup_that_pretty_much_replaced_claude_code/) (r/LocalLLaMA)
+13. [Friendly reminder](https://www.reddit.com/r/LocalLLaMA/comments/1u4epzr/friendly_reminder/) (r/LocalLLaMA)
+14. [DeepSeek v4 Pro is too big for such a "midrange" performance, or am I missing something?](https://www.reddit.com/r/LocalLLaMA/comments/1u4yvqy/deepseek_v4_pro_is_too_big_for_such_a_midrange/) (r/LocalLLaMA)
+15. [Interest in an LLM Torrent Site?](https://www.reddit.com/r/LocalLLaMA/comments/1u4xiw8/interest_in_an_llm_torrent_site/) (r/LocalLLaMA)
+16. [Anthropic forced to abruptly disable Fable 5 & Mythos 5 globally by US Gov over a jailbreak. This is exactly why we need local models.](https://www.reddit.com/r/LocalLLaMA/comments/1u4e1p5/anthropic_forced_to_abruptly_disable_fable_5/) (r/LocalLLaMA)
+17. [We should set up a torrent network for open source models.](https://www.reddit.com/r/LocalLLaMA/comments/1u4gto1/we_should_set_up_a_torrent_network_for_open/) (r/LocalLLaMA)
+18. [WIP EAGLE3 for Qwens](https://www.reddit.com/r/LocalLLaMA/comments/1u5278u/wip_eagle3_for_qwens/) (r/LocalLLaMA)
+19. [Snapcompact: Saving Tokens With Images](https://www.reddit.com/r/LocalLLaMA/comments/1u517vg/snapcompact_saving_tokens_with_images/) (r/LocalLLaMA)
+20. [Local models in mid-2026](https://www.reddit.com/r/LocalLLaMA/comments/1u5fv6n/local_models_in_mid2026/) (r/LocalLLaMA)
+21. [I am losing my mind with FOMO and need some sanity checking about model capabilities](https://www.reddit.com/r/LocalLLaMA/comments/1u55wgq/i_am_losing_my_mind_with_fomo_and_need_some/) (r/LocalLLaMA)
+22. [GLM 5.2 is deployed in GLM Coding Plan. API and MIT weights in a week. Voting and benchmarks on X.](https://www.reddit.com/r/LocalLLaMA/comments/1u4nmpl/glm_52_is_deployed_in_glm_coding_plan_api_and_mit/) (r/LocalLLaMA)
+23. [I don’t know who needs to hear this but 128GB BD-R XL M-DISC is SOTA for consumer-available archival optical storage (for backing up your models)](https://www.reddit.com/r/LocalLLaMA/comments/1u4rarz/i_dont_know_who_needs_to_hear_this_but_128gb_bdr/) (r/LocalLLaMA)
+24. [I need a model that gets stuck in loops.](https://www.reddit.com/r/LocalLLaMA/comments/1u5630v/i_need_a_model_that_gets_stuck_in_loops/) (r/LocalLLaMA)
+25. [GLM-5.2 next week, open weight, MIT](https://www.reddit.com/r/LocalLLaMA/comments/1u4je3d/glm52_next_week_open_weight_mit/) (r/LocalLLaMA)
+26. [GLM 5.2 is out - open weights to be released next week. How did it do on my one-shot Pac-Man test?](https://www.reddit.com/r/LocalLLaMA/comments/1u4p1av/glm_52_is_out_open_weights_to_be_released_next/) (r/LocalLLaMA)
+27. [Diffusion Gemma is 4x faster, but makes 6x more mistakes!](https://www.reddit.com/r/LocalLLaMA/comments/1u4bne8/diffusion_gemma_is_4x_faster_but_makes_6x_more/) (r/LocalLLaMA)
+28. [Publishing WASM wheels to PyPI for use with Pyodide](https://simonwillison.net/2026/Jun/13/publishing-wasm-wheels/#atom-entries) (Simon Willison's Weblog)
+29. [[AINews] Fable and Mythos officially too dangerous to release](https://www.latent.space/p/ainews-fable-and-mythos-officially) (Latent Space)
+30. [Fable 5 and Mythos 5 remain suspended: “The ball is in Anthropic’s court”](https://thenewstack.io/fable-5-and-mythos-5-remain-suspended-the-ball-is-in-anthropics-court/) (The New Stack)
+31. [Why AI retrieval and ranking need more than vector search](https://thenewstack.io/tensors-beyond-vector-search/) (The New Stack)
+32. [Can JetBrains close the IDE skills gap before AI widens it further?](https://thenewstack.io/jetbrains-course-creators-program/) (The New Stack)
+33. [Loops are replacing prompts. Verification is about to be your biggest problem.](https://thenewstack.io/agent-loops-cloud-native-verification/) (The New Stack)
+34. [Fable 5 vs Opus 4.8: The real stakes, not the spec sheet](https://thenewstack.io/fable-5-opus-comparison/) (The New Stack)
+35. [Claude Fable cost $9 in one coding test. GPT-5.5 cost $1.50. Model triage is the new AI skill.](https://thenewstack.io/claude-fable-cost-model-triage/) (The New Stack)
+36. [Federal government orders Anthropic to pull Fable 5 and Mythos 5, three days after launch](https://thenewstack.io/us-gov-orders-anthropic-to-pull-fable-5-and-mythos-5-three-days-after-launch/) (The New Stack)
+37. [Who gets to be Switzerland in the enterprise agent wars?](https://thenewstack.io/outsystems-agent-orchestration-neutrality/) (The New Stack)
+38. [Coding agents have questions, too — so Stack Overflow built them a home](https://thenewstack.io/stack-overflow-for-agents/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
