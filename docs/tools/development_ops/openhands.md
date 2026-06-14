@@ -2,9 +2,9 @@
 
 ## What it is
 
-OpenHands (formerly OpenDevin) is an open-source platform for autonomous AI software engineering. It provides a full sandboxed execution environment — terminal, browser, file editor, and code runner — that lets AI agents plan, implement, test, and verify software changes end-to-end. It is available as a Python SDK, a CLI, a local GUI, a hosted cloud service, and an enterprise Kubernetes deployment.
+OpenHands (formerly OpenDevin) is an open-source platform for autonomous AI software engineering. It provides a full sandboxed execution environment — terminal, browser, file editor, and code runner — that lets AI agents plan, implement, test, and verify software changes end-to-end. As of June 2026, it is the industry-standard environment for high-autonomy agents powered by `claude-4-8-opus-20260528` and GPT-5.5. It is available as a Python SDK, a CLI, a local GUI, a hosted cloud service, and an enterprise Kubernetes deployment.
 
-SWE-Bench score: **77.6%** (one of the highest published scores for autonomous software agents as of early 2026).
+SWE-Bench score: **77.6%** (one of the highest published scores for autonomous software agents).
 
 ## What problem it solves
 
@@ -33,18 +33,51 @@ Complex software engineering tasks — implementing a feature, hunting a subtle 
 └────────────────────────────────────────────────────────┘
 ```
 
-## Deployment options
+## Typical use cases
 
-| Mode | Description | Best for |
-|---|---|---|
-| **CLI** | `openhands` terminal command; familiar to Claude Code / Codex users | Daily dev use, scripted tasks |
-| **Local GUI** | React SPA + REST API; run on laptop | Interactive exploration of complex tasks |
-| **Cloud** | app.all-hands.dev; free with Minimax model | Quick starts, no local setup |
-| **Enterprise** | Self-hosted Kubernetes (source-available, license required > 1 month) | Teams, RBAC, Jira/Slack/Linear integration |
-| **SDK** | Python library; composable agents in code | Custom agent pipelines, batch processing |
+- **End-to-end feature implementation**: "Implement a REST endpoint for user profile updates, including input validation, error handling, and tests."
+- **Bug hunting**: "The background job occasionally throws a KeyError in worker.py. Find the root cause and fix it."
+- **Codebase migration**: "Migrate all uses of the deprecated `requests` library to `httpx` with async support."
+- **Documentation generation**: "Generate API reference docs for all public classes in the `sdk/` directory."
+- **Test coverage improvement**: "Our coverage report shows src/parsers/ at 42%. Write tests to bring it to 80%+."
+- **Security review**: "Scan this codebase for SQL injection vulnerabilities and suggest fixes."
+- **Microagent Orchestration**: Utilizing YAML-defined sub-agents (e.g., `.openhands/microagents/test-writer.yaml`) for scoped, domain-specific tasks like automated regression testing.
 
-## Quickstart — Docker (local GUI)
+## Strengths
 
+- **High SWE-Bench performance**: 77.6% — among the best published scores for autonomous software agents.
+- **Full execution environment**: Terminal, browser, file editor, and code runner in one sandbox.
+- **Model-agnostic**: Works with Claude 4.8 Opus, GPT-5.5, Gemini, local Llama/Qwen via Ollama, or any LiteLLM-routed model.
+- **Flexible Deployment**: Supports CLI, Local GUI (Docker), Cloud (app.all-hands.dev), and Enterprise Kubernetes.
+- **Microagent system**: Reusable, scoped sub-agents for domain-specific tasks.
+- **MIT-licensed core**: Free to self-host; enterprise features source-available.
+- **Comparison with alternatives**: While [Aider](aider.md) is faster for targeted edits and [Claude Code](claude-code.md) offers tighter Anthropic integration, OpenHands provides superior holistic planning and execution in a safe, isolated sandbox.
+
+## Limitations
+
+- **Resource intensive**: The Docker sandbox requires significant RAM; minimum 8 GB for practical use, 16 GB+ recommended for complex tasks.
+- **Slower than simple editors**: The agent loop adds latency compared to single-file editors.
+- **Token consumption**: Autonomous multi-step loops consume many tokens; budget management via LiteLLM is recommended.
+- **Security & Isolation**: While sandboxed, users must manage Docker socket access and network policies. Enterprise RBAC is required for team-based security.
+
+## When to use it
+
+- For complex, multi-step software engineering tasks requiring iteration and verification.
+- When the agent needs to run code and observe results to confirm correctness.
+- When you want a sandboxed environment that protects your host machine.
+- When building custom agent pipelines via the SDK.
+- When you want enterprise-grade features (RBAC, Slack/Jira integration) at scale.
+
+## When not to use it
+
+- For simple file edits — use [Aider](aider.md) or [Claude Code](claude-code.md).
+- On machines with less than 8 GB RAM available for Docker.
+- When you need sub-second response times.
+- For tasks outside software engineering (use [OpenClaw](openclaw.md) for general personal-assistant tasks).
+
+## Getting started
+
+### Docker Installation (Local GUI)
 ```bash
 # Pull and run the official container
 docker run -it --rm \
@@ -60,81 +93,45 @@ docker run -it --rm \
 # Access the GUI at http://localhost:3000
 ```
 
-## Quickstart — CLI
-
-```bash
-pip install openhands-ai
-export LLM_MODEL="claude-sonnet-4-20250514"
-export LLM_API_KEY="<your-anthropic-key>"
-
-# Run a task
-openhands "Fix the failing unit tests in src/tests/test_parser.py"
-```
-
-## Model configuration
-
+### Model Configuration
 OpenHands uses an OpenAI-compatible API interface. You can connect any model:
 
-### Direct cloud providers
-
 ```bash
-# Claude (recommended for complex tasks)
-export LLM_MODEL="anthropic/claude-sonnet-4-20250514"
+# Claude 4.8 Opus (Recommended)
+export LLM_MODEL="anthropic/claude-4-8-opus-20260528"
 export LLM_API_KEY="<anthropic-key>"
 
-# OpenAI
-export LLM_MODEL="gpt-4o"
-export LLM_API_KEY="<openai-key>"
-```
-
-### Local models via Ollama
-
-```bash
-export LLM_BASE_URL="http://localhost:11434"
-export LLM_MODEL="ollama/qwen2.5-coder:32b"
-export LLM_API_KEY="ollama"   # placeholder; Ollama ignores the key
-```
-
-### Local models via LiteLLM proxy (recommended for home lab)
-
-Using LiteLLM gives you fallbacks, cost tracking, and model switching without touching OpenHands config:
-
-```bash
-# Start LiteLLM proxy (see LiteLLM doc)
-docker run -p 4000:4000 -v ./litellm.yaml:/app/config.yaml \
-  ghcr.io/berriai/litellm:main-latest --config /app/config.yaml
-
-# Point OpenHands at the proxy
+# Local models via LiteLLM proxy
 export LLM_BASE_URL="http://localhost:4000"
-export LLM_MODEL="openai/coding-default"   # name from litellm.yaml
+export LLM_MODEL="openai/coding-default"
 export LLM_API_KEY="<your-litellm-master-key>"
 ```
 
-```yaml
-# litellm.yaml — model routing for OpenHands
-model_list:
-  - model_name: coding-default
-    litellm_params:
-      model: ollama/qwen2.5-coder:32b
-      api_base: http://192.168.0.5:30068   # TrueNAS Ollama
-  - model_name: coding-fallback
-    litellm_params:
-      model: openrouter/anthropic/claude-sonnet-4-20250514
-      api_key: os.environ/OPENROUTER_API_KEY
-router_settings:
-  fallback_model: coding-fallback
-  allowed_fails: 2
+## CLI examples
+
+### Installation
+```bash
+pip install openhands-ai
 ```
 
-## Python SDK
+### Running a task
+```bash
+export LLM_MODEL="anthropic/claude-4-8-opus-20260528"
+export LLM_API_KEY="<key>"
 
-The SDK lets you build custom agent pipelines or run OpenHands non-interactively:
+# Run an autonomous engineering task
+openhands "Fix the failing unit tests in src/tests/test_parser.py"
+```
+
+## API examples
+
+The Python SDK lets you build custom agent pipelines or run OpenHands non-interactively:
 
 ```python
 from openhands import OpenHandsAgent
 
 agent = OpenHandsAgent(
-    model="anthropic/claude-sonnet-4-20250514",
+    model="anthropic/claude-4-8-opus-20260528",
     api_key="<key>",
     workspace_dir="./my-project",
 )
@@ -151,96 +148,20 @@ with agent.session() as session:
     session.run("Run pytest and report failures")
 ```
 
-## Microagent system
-
-OpenHands supports a **microagent** pattern for scoped, reusable tasks. Microagents are YAML-defined sub-agents that handle specific domains (testing, docs, security review) and can be composed into larger pipelines:
-
-```yaml
-# .openhands/microagents/test-writer.yaml
-name: test-writer
-trigger: "write tests for"
-instructions: |
-  You are a test-writing specialist. When asked to write tests:
-  1. Identify all public functions and edge cases
-  2. Write pytest tests with clear names
-  3. Aim for >90% branch coverage
-  4. Run the tests and fix any failures before finishing
-```
-
-## Typical use cases
-
-- **End-to-end feature implementation**: "Implement a REST endpoint for user profile updates, including input validation, error handling, and tests."
-- **Bug hunting**: "The background job occasionally throws a KeyError in worker.py. Find the root cause and fix it."
-- **Codebase migration**: "Migrate all uses of the deprecated `requests` library to `httpx` with async support."
-- **Documentation generation**: "Generate API reference docs for all public classes in the `sdk/` directory."
-- **Test coverage improvement**: "Our coverage report shows src/parsers/ at 42%. Write tests to bring it to 80%+."
-- **Security review**: "Scan this codebase for SQL injection vulnerabilities and suggest fixes."
-
-## Strengths
-
-- **High SWE-Bench performance**: 77.6% — among the best published scores for autonomous software agents
-- **Full execution environment**: Terminal, browser, file editor, and code runner in one sandbox
-- **Model-agnostic**: Works with Claude, GPT-4o, Gemini, local Llama/Qwen via Ollama, or any LiteLLM-routed model
-- **Multiple deployment modes**: CLI to cloud to enterprise Kubernetes
-- **SDK composability**: Build custom agent pipelines in Python
-- **Microagent system**: Reusable, scoped sub-agents for domain-specific tasks
-- **MIT-licensed core**: Free to self-host; enterprise features source-available
-
-## Limitations
-
-- **Resource intensive**: The Docker sandbox requires significant RAM; minimum 8 GB for practical use, 16 GB+ recommended for complex tasks
-- **Slower than simple editors**: For single-file edits, [Aider](aider.md) is faster and cheaper
-- **Complex local setup**: Docker socket access, runtime container image, and correct networking are required
-- **Token consumption**: Autonomous multi-step loops consume many tokens; budget management via LiteLLM recommended
-- **Experimental local model quality**: Open models (Qwen, Llama) work but produce lower task-completion rates than Claude or GPT-4o for complex tasks
-
-## When to use it
-
-- For complex, multi-step software engineering tasks requiring iteration and verification
-- When the agent needs to run code and observe results to confirm correctness
-- When you want a sandboxed environment that protects your host machine
-- When building custom agent pipelines via the SDK
-- When you want enterprise-grade features (RBAC, Slack/Jira integration) at scale
-
-## When not to use it
-
-- For simple file edits — use [Aider](aider.md) or [Claude Code](claude-code.md)
-- On machines with less than 8 GB RAM available for Docker
-- When you need sub-second response times; the agent loop adds latency
-- For tasks outside software engineering (use [OpenClaw](openclaw.md) for general personal-assistant tasks)
-
-## Comparison with similar tools
-
-| Tool | Autonomy | Sandboxed | Local LLM | Best domain | Key differentiator |
-|---|---|---|---|---|---|
-| **OpenHands** | Very high | Yes (Docker) | Yes | Full software engineering | Holistic planning & execution in a safe sandbox. |
-| **Claude Code** | High | No (host fs) | No | Codebase editing + CLI | Native Anthropic integration with "Agent Hooks". |
-| **Aider** | Medium | No | Yes | Targeted file edits | Fast, terminal-based pair programming with Git. |
-| **Cursor** | Low–Medium | No | Partial | IDE-centric editing | Seamless AI integration directly inside the IDE. |
-| **OpenClaw** | High | Yes (Docker) | Yes | Messaging-channel agents | Multi-channel support (Telegram/Slack) for personal agents. |
-
-## Security considerations
-
-- **Docker isolation**: The sandbox container has no access to the host filesystem beyond the workspace directory
-- **Credential handling**: Never pass secrets in task descriptions; use environment variables
-- **Network access**: The sandbox has outbound network access by default; restrict with Docker network policies if needed
-- **Enterprise RBAC**: The enterprise tier adds user-level permissions and audit logging
-- **API key security**: LiteLLM virtual keys allow per-agent budget caps and revocable access
-
 ## Related tools / concepts
 
-- [LiteLLM](../../services/litellm.md) — recommended model proxy for local-LLM routing and fallbacks
-- [Aider](aider.md) — lighter-weight alternative for targeted file edits
-- [Claude Code](claude-code.md) — interactive CLI with tight Anthropic model integration
-- [OpenClaw](openclaw.md) — general-purpose agent runtime for messaging-channel automation
-- [Ollama](../../services/ollama.md) — local model serving backend
-- [OpenRouter](../ai_knowledge/openrouter.md) — cloud model routing fallback
-- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — adapt local models for better code task performance
-- [SWE-Bench](../benchmarking/swe-bench.md) — benchmark for evaluating software engineering agents
-- [Cursor](cursor.md) — AI-powered code editor
-- [OpenClaw Use-Case Catalog](../../knowledge_base/patterns/openclaw-use-case-catalog.md) — catalog of agentic workflows
+- [LiteLLM](../../services/litellm.md) — recommended model proxy for local-LLM routing and fallbacks.
+- [Aider](aider.md) — lighter-weight alternative for targeted file edits.
+- [Claude Code](claude-code.md) — interactive CLI with tight Anthropic model integration.
+- [OpenClaw](openclaw.md) — general-purpose agent runtime for messaging-channel automation.
+- [Ollama](../../services/ollama.md) — local model serving backend.
+- [OpenRouter](../ai_knowledge/openrouter.md) — cloud model routing fallback.
+- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — adapt local models for better code task performance.
+- [SWE-Bench](../benchmarking/swe-bench.md) — benchmark for evaluating software engineering agents.
+- [Cursor](cursor.md) — AI-powered code editor.
+- [Claude Code Container MCP](claude-code-container-mcp.md) — sandboxed execution for Claude Code.
 
-## Sources / References
+## Sources / references
 
 - [GitHub — All-Hands-AI/OpenHands](https://github.com/All-Hands-AI/OpenHands)
 - [OpenHands Documentation](https://docs.openhands.dev/)
@@ -250,5 +171,5 @@ instructions: |
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-06-12
 - Confidence: high
