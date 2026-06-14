@@ -1,20 +1,20 @@
 # Glaive
 
 ## What it is
-Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. It focuses on creating datasets that improve a model's ability to use tools, call APIs, and reason through complex, multi-step tasks, which are critical capabilities for autonomous agents.
+Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. It focuses on creating datasets that improve a model's ability to use tools, call APIs, and reason through complex, multi-step tasks, which are critical capabilities for autonomous agents like [Claude Code](../development_ops/claude-code.md).
 
 ## What problem it solves
 Generic synthetic data generation often fails to capture the nuances of real-world tool use and API interactions. Glaive addresses this by:
 - **Generating Functional Data**: Creating datasets that specifically target function calling and structured output.
 - **Improving SLM Performance**: Enabling smaller, more efficient models to punch above their weight in agentic workflows.
-- **Reducing Dependency on Frontier Models**: Providing a way to distill the reasoning capabilities of large models into smaller, more cost-effective specialized models.
+- **Reducing Dependency on Frontier Models**: Providing a way to distill the reasoning capabilities of [Claude 4.8 Opus](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md) into smaller, more cost-effective specialized models.
 
 ## Where it fits in the stack
 Glaive sits in the **AI & Knowledge/Synthetic-Data** layer. It provides the high-quality training signals used to adapt base models for agentic behavior, often being paired with fine-tuning tools like [Unsloth](../infrastructure/unsloth.md) or [LLaMA Factory](../frameworks/llama-factory.md).
 
 ## Typical use cases
 - **Agentic Tool-Use Training**: Generating datasets of natural language prompts followed by correct tool calls (JSON/Python).
-- **Function Calling Distillation**: Training a 7B or 8B model to be as reliable at function calling as GPT-4o.
+- **Function Calling Distillation**: Training a 7B or 8B model to be as reliable at function calling as GPT-4o or Claude 3.5 Sonnet.
 - **Multi-Step Reasoning**: Creating synthetic examples of "Chain of Thought" reasoning for complex problem solving.
 - **API Sandbox Data**: Generating realistic API responses and error states to train models on robust error handling.
 
@@ -25,7 +25,7 @@ Glaive sits in the **AI & Knowledge/Synthetic-Data** layer. It provides the high
 - **Structured Output Mastery**: Helps models learn to strictly adhere to complex JSON schemas.
 
 ## Limitations
-- **Platform Dependent**: Unlike local tools like [distilabel](../frameworks/distilabel.md), Glaive is often used as a managed platform/service.
+- **Platform Dependent**: Unlike local tools like [distilabel](../frameworks/distilabel.md), Glaive is primarily used as a managed platform.
 - **Niche Focus**: Less focused on broad general-purpose chat data compared to frameworks like [LLaMA Factory](../frameworks/llama-factory.md).
 - **Black Box Generation**: The internal generation logic may be less transparent than fully open-source pipeline tools.
 
@@ -41,8 +41,12 @@ Glaive sits in the **AI & Knowledge/Synthetic-Data** layer. It provides the high
 
 ## Getting started
 
-### Overview
-Glaive typically operates as a platform where you define your tools and the desired interactions. The output is a dataset ready for fine-tuning.
+### Installation
+Glaive is a cloud platform; you can interact with it via its web interface or REST API. For Python integration:
+
+```bash
+pip install requests
+```
 
 ### Example Dataset Structure (Agentic)
 Glaive generated data often follows a pattern like this:
@@ -58,13 +62,63 @@ Glaive generated data often follows a pattern like this:
 }
 ```
 
-### Usage with Fine-tuning Tools
-Once the dataset is generated, it can be exported and used with [Unsloth](../infrastructure/unsloth.md):
+### Hello-world (API)
+Create a simple synthetic data request using the Glaive API:
 
 ```python
-from datasets import load_dataset
-dataset = load_dataset("json", data_files="glaive_agent_data.json")
-# Proceed to fine-tune with Unsloth or Axolotl
+import requests
+
+api_key = "YOUR_GLAIVE_API_KEY"
+url = "https://api.glaive.ai/v1/generate"
+
+payload = {
+    "task": "Create a dataset for a weather tool",
+    "num_examples": 5,
+    "format": "json"
+}
+headers = {"Authorization": f"Bearer {api_key}"}
+
+# response = requests.post(url, json=payload, headers=headers)
+# print(response.json())
+```
+
+## CLI examples
+
+```bash
+# Verify API connectivity
+curl -I https://api.glaive.ai/v1/health
+
+# Trigger a dataset generation job
+curl -X POST https://api.glaive.ai/v1/generate \
+     -H "Authorization: Bearer $GLAIVE_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"task": "calculator_tool", "num_examples": 10}'
+
+# Download a completed dataset
+curl -O https://api.glaive.ai/v1/datasets/ds_12345/download?api_key=$GLAIVE_API_KEY
+```
+
+## API examples
+
+### Python: Generating Agentic Data
+```python
+import requests
+
+def generate_tool_data(tool_definition):
+    payload = {
+        "description": "Generate conversations where a user asks to use this tool",
+        "tools": [tool_definition],
+        "temperature": 0.7
+    }
+    # r = requests.post("https://api.glaive.ai/v1/generate", json=payload)
+    # return r.json()
+
+weather_tool = {
+    "name": "get_weather",
+    "description": "Get current weather for a location",
+    "parameters": {"location": "string"}
+}
+# data = generate_tool_data(weather_tool)
 ```
 
 ## Related tools / concepts
@@ -82,5 +136,5 @@ dataset = load_dataset("json", data_files="glaive_agent_data.json")
 - [Training Small Models for Tool Use (Blog)](https://glaive.ai/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high

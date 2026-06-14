@@ -8,9 +8,10 @@ Fine-tuning different LLM architectures often requires custom code and deep expe
 - **Standardizing the Workflow**: Providing a single entry point for fine-tuning diverse models like Llama, Mistral, Qwen, and Baichuan.
 - **Reducing Technical Barrier**: Offering a "no-code" web UI for users who prefer graphical interfaces over CLI.
 - **Integrating Best Practices**: Built-in support for advanced techniques like GaLore, BAdam, DoRA, and Mixture-of-Experts (MoE) tuning.
+- **Optimizing for Frontier Benchmarks**: Enables efficient distillation of reasoning from [Claude 4.8 Opus](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md) into smaller models.
 
 ## Where it fits in the stack
-LLaMA Factory sits in the **Frameworks/Fine-tuning** layer. It is an orchestration framework that coordinates lower-level libraries (PyTorch, Transformers) to perform complex training tasks.
+**Frameworks / Fine-tuning**. It is an orchestration framework that coordinates lower-level libraries (PyTorch, Transformers) to perform complex training tasks.
 
 ## Typical use cases
 - **Multi-Model Experimentation**: Quickly comparing fine-tuning results across different model families.
@@ -36,7 +37,7 @@ LLaMA Factory sits in the **Frameworks/Fine-tuning** layer. It is an orchestrati
 
 ## When not to use it
 - If you are doing extremely low-level kernel development.
-- If you only ever tune one specific architecture (e.g., Llama 3) and prefer the absolute maximum speed of [Unsloth](../infrastructure/unsloth.md).
+- If you only ever tune one specific architecture (e.g., Llama 4) and prefer the absolute maximum speed of [Unsloth](../infrastructure/unsloth.md).
 - If your environment is extremely resource-constrained and you cannot afford the overhead of the framework's management layers.
 
 ## Getting started
@@ -48,35 +49,50 @@ cd LLaMA-Factory
 pip install -e ".[metrics,bitsandbytes,qwen]"
 ```
 
-### Launching LLaMA Board (Web UI)
+### Hello-world (Web UI)
+Launch the LLaMA Board to start tuning via your browser:
 ```bash
 llamafactory-cli webui
 ```
 
-### Hello-world Fine-tuning (CLI)
-Create a `train.yaml` config:
-```yaml
-model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
-stage: sft
-do_train: true
-dataset: identity,alpaca_gpt4_en
-template: llama3
-finetuning_type: lora
-lora_target: all
-output_dir: llama3_lora_sft
-per_device_train_batch_size: 2
-gradient_accumulation_steps: 4
-learning_rate: 1.0e-4
-num_train_epochs: 3.0
-lr_scheduler_type: cosine
-logging_steps: 10
-save_steps: 100
-plot_loss: true
-overwrite_output_dir: true
-```
-Then run:
+### Hello-world (CLI)
+Create a `train.yaml` config and start training:
 ```bash
 llamafactory-cli train train.yaml
+```
+
+## CLI examples
+
+```bash
+# Start a supervised fine-tuning (SFT) task
+llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
+
+# Export a LoRA-tuned model to a merged checkpoint
+llamafactory-cli export examples/merge_lora/llama3_lora_sft.yaml
+
+# Evaluate a model on common benchmarks (MMLU, CMMLU)
+llamafactory-cli eval examples/train_lora/llama3_lora_eval.yaml
+```
+
+## API examples
+
+### Python API: Inference
+You can use the `ChatModel` for high-level interaction with fine-tuned models.
+
+```python
+from llamafactory.chat import ChatModel
+from llamafactory.extras.misc import torch_gc
+
+args = {
+    "model_name_or_path": "path_to_your_model",
+    "template": "llama3",
+    "finetuning_type": "lora",
+}
+model = ChatModel(args)
+
+# query = "What are the benefits of synthetic data?"
+# response = model.chat(query)
+# print(response[0].response_text)
 ```
 
 ## Related tools / concepts
@@ -86,7 +102,8 @@ llamafactory-cli train train.yaml
 - [distilabel](distilabel.md) — For generating the synthetic datasets used in LLaMA Factory.
 - [vLLM](../infrastructure/vllm.md) — For serving models fine-tuned with LLaMA Factory.
 - [Qwen](../ai_knowledge/qwen.md) — Frequently tuned model family within this framework.
-- [Weights & Biases](https://wandb.ai/) — Integrated for experiment tracking.
+- [Glaive](../ai_knowledge/glaive.md) — Specialized synthetic data for agentic fine-tuning.
+- [Axolotl](axolotl.md) — Another popular fine-tuning orchestrator.
 
 ## Sources / references
 - [LLaMA Factory GitHub](https://github.com/hiyouga/LLaMA-Factory)
@@ -94,5 +111,5 @@ llamafactory-cli train train.yaml
 - [Hugging Face Blog: Fine-tuning with LLaMA Factory](https://huggingface.co/blog/llama-factory)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-18
+- Last reviewed: 2026-06-12
 - Confidence: high
