@@ -1,110 +1,119 @@
 # Devin
 
 ## What it is
-Devin is an autonomous AI software engineer capable of handling complex engineering tasks end-to-end, including planning, coding, debugging, and deployment.
+Devin is an autonomous AI software engineer capable of handling complex engineering tasks end-to-end. In June 2026, Devin v3 remains the benchmark for high-autonomy agents, featuring advanced planning, real-time debugging, and the ability to operate within its own secure, stateful container.
 
 ## What problem it solves
-Standard LLMs can write code snippets but struggle with multi-step workflows, navigating large codebases, or running and testing code. Devin operates as a full-fledged agent with its own shell, browser, and code editor.
+Standard LLMs can write code snippets but often struggle with long-horizon, multi-step engineering workflows. Devin solves this by acting as a full-fledged agent that can navigate large codebases, run and test code, browse documentation, and self-correct during the implementation process.
 
 ## Where it fits in the stack
-**AI Agent / Development Tool**. It represents the "Autonomous" tier of AI-assisted software engineering.
+**AI Agent / Development Tool**. It represents the "Autonomous" tier of AI-assisted software engineering, sitting above interactive pair-programming tools like Aider or Claude Code.
+
+## Typical use cases
+- **Bug Fixing**: Reproducing and fixing bugs reported in GitHub issues or Jira tickets autonomously.
+- **Feature Implementation**: Building new features from high-level descriptions or design documents.
+- **Legacy Migrations**: Refactoring codebases or migrating applications between frameworks (e.g., React to Next.js).
+- **Internal Tooling**: Rapidly developing dashboards, CLI utilities, and automation scripts.
+
+## Strengths
+- **High Autonomy**: Can plan and execute multi-hour tasks without human intervention.
+- **Integrated Environment**: Operates within a secure sandbox containing a terminal, browser, and code editor.
+- **Stateful Reasoning**: Maintains context over long-running sessions better than traditional chat-based LLMs.
+- **Enterprise Ready**: Features robust RBAC, audit logs, and organization-level API management.
+
+## Limitations
+- **Complexity Boundaries**: Extremely high-level architectural decisions or highly ambiguous business requirements may still require human guidance.
+- **Cost**: Significant compute costs compared to standard code-completion tools or local models.
+- **Latency**: Autonomous execution for complex tasks can take minutes or hours to complete.
+
+## When to use it
+- For well-defined but time-consuming engineering tasks where you want to delegate the entire implementation.
+- For exploring and mapping unfamiliar repositories.
+- For non-critical bug fixes and routine maintenance tasks.
+
+## When not to use it
+- For tasks requiring deep, proprietary domain expertise not present in the codebase.
+- For highly sensitive security decisions where human oversight is mandatory.
+- If you need immediate, real-time code suggestions during active typing (use [Cursor](cursor.md) or [Copilot](github_copilot.md) instead).
 
 ## Getting started
-Devin is primarily used via its web interface, but for automated workflows and terminal-first development, the unofficial `devin-cli` is available.
+
+### Account Setup
+Devin is a managed service. Access is typically managed via the [Cognition AI](https://www.cognition.ai/) dashboard.
+
+### CLI Installation
+For automated workflows and terminal-first development, use the official `devin` CLI (v3).
 
 ```bash
-# Install the CLI
+# Install the CLI via pip
 pip install devin-cli
 
-# Configure with your v3 API token (starts with cog_)
+# Configure with your API token (starts with cog_)
 devin configure
 
 # Create your first autonomous session
-devin sessions create -t "Identify and fix the race condition in our Redis cache layer"
+devin sessions create -t "Upgrade all dependencies in the frontend folder to their latest versions"
 ```
 
-## Technical Examples
-
-### CLI Session Management
+## CLI examples
 ```bash
-# List active sessions
+# List all active sessions for your organization
 devin sessions list
 
 # Send a follow-up message to a running session
-devin sessions message <session-id> -m "Also ensure we have 100% test coverage for this fix"
+devin sessions message <session-id> -m "Ensure all new tests pass before finalizing the PR"
+
+# Download the final artifacts from a completed session
+devin sessions download <session-id> --output-dir ./updates
 ```
 
-### REST API (v3)
-Devin's v3 API uses Service User tokens for secure automation.
+## API examples
 
-```bash
-curl -X POST "https://api.devin.ai/v3/organizations/$DEVIN_ORG_ID/sessions" \
-  -H "Authorization: Bearer $DEVIN_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prompt": "Refactor the authentication middleware to use JWT",
-    "create_as_user_id": "user_abc123"
-  }'
+### Devin v3 REST API (Python)
+The v3 API supports "Service Users" for secure machine-to-machine automation.
+
+```python
+import requests
+import os
+
+DEVIN_API_KEY = os.getenv("DEVIN_API_KEY")
+DEVIN_ORG_ID = os.getenv("DEVIN_ORG_ID")
+
+def start_autonomous_task(prompt):
+    url = f"https://api.devin.ai/v3/organizations/{DEVIN_ORG_ID}/sessions"
+    headers = {
+        "Authorization": f"Bearer {DEVIN_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "prompt": prompt,
+        "create_as_user_id": "service-automation-agent-01" # Impersonation for UI visibility
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+# Example: Automate a documentation update
+task = start_autonomous_task("Update the README.md with the latest API endpoints discovered in the source code.")
+print(f"Session ID: {task['id']}")
 ```
-
-## Architecture & Key Concepts
-- **Service Users**: Non-human identities designed for API integrations, using tokens with a `cog_` prefix.
-- **Session Attribution**: Using the `create_as_user_id` parameter, service users can create sessions on behalf of human users so they appear in the UI correctly.
-- **Sandboxed Environment**: Every session runs in a secure, isolated container with a terminal, browser, and editor.
-
-## Devin for Teams & Enterprise
-Devin provides robust governance for organizations:
-- **Organization API**: Manage sessions, knowledge, and secrets within a single org.
-- **Enterprise API**: Cross-organization management, including audit logs, analytics, and centralized billing.
-- **RBAC**: Fine-grained permissions to control what service users can access (e.g., `ImpersonateOrgSessions`).
-
-## Typical use cases
-- **Bug Fixing**: Reproducing and fixing bugs reported in tickets.
-- **Feature Implementation**: Building new features from a design or description.
-- **Refactoring**: Updating legacy code or migrating between frameworks.
-- **Internal Tools**: Quickly spinning up dashboards or utilities.
-
-## Comparison with similar tools
-
-| Tool | Autonomy | Primary Interface | Sandbox | Best For |
-|---|---|---|---|---|
-| **Devin** | Very High | Web / API | Yes | Autonomous end-to-end engineering |
-| [OpenHands](openhands.md) | Very High | Web / CLI / SDK | Yes | Open-source autonomous engineering |
-| [Aider](aider.md) | Medium | Terminal | No | Interactive pair programming |
-| [Claude Code](claude-code.md) | High | Terminal | No | Rapid codebase editing & exploration |
-
-## Strengths
-- **Fully Autonomous**: Can plan and execute multi-hour tasks without human intervention.
-- **Integrated Environment**: Can run code, check logs, and browse the web to find solutions.
-- **Stateful Reasoning**: Maintains context over long-running sessions better than chat-based LLMs.
-
-## Limitations
-- **Complexity Cap**: Still struggles with extremely high-level architectural decisions or highly ambiguous requirements.
-- **Cost**: Significant compute costs compared to standard code-completion tools.
-- **Speed**: Autonomous execution can take minutes or hours for complex tasks.
-
-## When to use it
-- When you have well-defined but time-consuming engineering tasks (e.g., "Implement this CRUD API").
-- For exploring new repositories or fixing non-critical bugs.
-
-## When not to use it
-- For tasks requiring deep domain expertise or highly sensitive security decisions.
-- If you need immediate, real-time code suggestions (use [GitHub Copilot](github_copilot.md) or [Cursor](cursor.md) instead).
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
 - [Aider](aider.md)
 - [OpenHands](openhands.md)
 - [Cursor](cursor.md)
-- [GPT Engineer](gpt_engineer.md)
 - [SWE-bench](../benchmarking/swe-bench.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Autonomous Agents](../../knowledge_base/concepts/autonomous-agents.md)
+- [Sandboxed Execution](../../knowledge_base/patterns/sandboxed-execution.md)
 
 ## Sources / references
 - [Cognition AI (Devin)](https://www.cognition.ai/)
 - [Devin AI Documentation](https://docs.devin.ai/)
-- [Devin CLI (unofficial)](https://pypi.org/project/devin-cli/)
+- [Devin API v3 Reference](https://docs.devin.ai/api-reference)
+- [SWE-bench: Autonomous Agent Leaderboard](https://www.swebench.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-06-12
 - Confidence: high

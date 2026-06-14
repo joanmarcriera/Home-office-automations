@@ -1,34 +1,36 @@
 # Docker
 
 ## What it is
-Docker is an open-source platform that enables developers to build, deploy, run, update, and manage containers—standardized, executable components that combine application source code with the operating system (OS) libraries and dependencies required to run that code in any environment.
+Docker is an open-source platform that enables developers to build, deploy, run, update, and manage containers—standardized, executable components that combine application source code with the operating system (OS) libraries and dependencies required to run that code in any environment. In June 2026, it remains the industry standard for containerization, powering everything from local development to massive AI inference clusters.
 
 ## What problem it solves
-It eliminates the "it works on my machine" problem by providing consistent environments across development, testing, and production. Containers are lightweight alternatives to virtual machines, sharing the host OS kernel and starting almost instantly.
+It eliminates the "it works on my machine" problem by providing consistent environments across development, testing, and production. Containers are lightweight alternatives to virtual machines, sharing the host OS kernel and starting almost instantly. This is critical for AI agents like Claude 4.8 Opus and GPT-5.5, which require isolated, reproducible environments to safely execute code.
 
 ## Where it fits in the stack
-[Infrastructure / Containerization] - It is the foundational layer for running self-hosted services and AI workloads in isolated, reproducible environments.
+**Infrastructure / Containerization**. It is the foundational layer for running self-hosted services, AI workloads, and MCP servers in isolated environments. It sits below the orchestration layer (e.g., K3s) and above the host operating system.
 
 ## Typical use cases
-- Packaging applications and their dependencies into a single image.
-- Running multiple isolated services on a single host without dependency conflicts.
-- Deploying AI models and agents (e.g., via Docker Sandboxes or MCP servers).
-- Standardizing development environments across a team.
+- **AI Agent Sandboxing**: Providing isolated environments for agents to run and test code (e.g., Claude Code Container MCP).
+- **Self-Hosted AI Services**: Deploying inference engines like vLLM or TGI.
+- **MCP Server Deployment**: Hosting Model Context Protocol servers in a standardized environment.
+- **Microservices Orchestration**: Running multi-container applications with Docker Compose.
+- **CI/CD Pipelines**: Standardizing build and test environments.
 
 ## Strengths
 - **Reproducibility**: Identical environments from dev to prod.
 - **Efficiency**: Lower overhead than VMs; fast startup and scaling.
 - **Ecosystem**: Massive library of pre-built images on Docker Hub.
-- **Security**: Process isolation and resource constraints.
+- **Security**: Process isolation and resource constraints, enhanced by June 2026 security patches for AI workloads.
 
 ## Limitations
 - **Overhead**: While lighter than VMs, it still adds some overhead compared to bare metal.
 - **Networking Complexity**: Can be difficult to manage complex networking across many containers without orchestration.
 - **Persistence**: Managing persistent data requires careful volume configuration.
+- **Kernel Dependency**: Shared kernel means it cannot run a different OS (e.g., Windows containers on Linux).
 
 ## When to use it
 - When you need to ensure an application runs identically everywhere.
-- For microservices architectures.
+- For microservices architectures and AI agent execution environments.
 - When running self-hosted tools that require specific OS dependencies.
 - For isolating AI agent execution environments (e.g., Docker Sandboxes).
 
@@ -37,74 +39,81 @@ It eliminates the "it works on my machine" problem by providing consistent envir
 - When maximum performance on bare metal is absolutely critical and isolation isn't needed.
 - On very resource-constrained systems where the Docker daemon overhead is too much.
 
-## CLI examples
-```bash
-# Run a container from an image
-docker run -d --name my-app -p 8080:80 nginx
-
-# List running containers
-docker ps
-
-# Build an image from a Dockerfile
-docker build -t my-custom-app .
-
-# Stop and remove a container
-docker stop my-app && docker rm my-app
-```
-
-## Advanced Patterns
-
-### Docker Compose (YAML)
-Orchestrate multi-container applications, such as a web app with a database.
-
-```yaml
-services:
-  web:
-    build: .
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_PASSWORD: example_password
-```
-
-### Multi-stage Builds
-Reduce image size by separating build-time dependencies from the runtime environment.
-
-```dockerfile
-# Build stage
-FROM node:18 AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# Production stage
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
 ## Getting started
+
 ### Installation
 Follow the official guides for:
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (macOS, Windows, Linux)
 - [Docker Engine](https://docs.docker.com/engine/install/) (Server/Linux)
 
 ### Basic Workflow
-1. Create a `Dockerfile`.
-2. `docker build -t my-image .`
-3. `docker run my-image`
+1. **Create a `Dockerfile`**: Define your environment.
+2. **Build the image**: `docker build -t my-agent-env .`
+3. **Run the container**: `docker run -it my-agent-env`
 
-## Licensing and cost
-- **Open Source**: Docker Engine and many components are open source (Apache 2.0).
-- **Cost**: Free for personal use, small businesses, and open-source projects. Docker Desktop requires a paid subscription for large enterprises.
-- **Self-hostable**: Yes.
+## CLI examples
+```bash
+# Run an MCP server in a container
+docker run -d --name mcp-server -e API_KEY=$API_KEY my-mcp-image
+
+# List running containers
+docker ps
+
+# Inspect container logs for an AI agent session
+docker logs -f ai-agent-sandbox
+
+# Build an image with a specific tag
+docker build -t local-inference:vLLM-0.5 .
+
+# Stop and remove all containers for a project
+docker-compose down
+```
+
+## API examples
+
+### Docker Engine API (Python SDK)
+AI agents often use the Docker Python SDK to manage their own sandboxes.
+
+```python
+import docker
+
+client = docker.from_env()
+
+# Create a secure sandbox for code execution
+container = client.containers.run(
+    "python:3.11-slim",
+    "python -c 'print(\"Hello from the sandbox\")'",
+    detach=True,
+    mem_limit="512m",
+    network_disabled=True
+)
+
+# Capture output
+exit_code = container.wait()
+logs = container.logs()
+print(logs.decode("utf-8"))
+
+# Cleanup
+container.remove()
+```
+
+### Docker Compose (YAML)
+```yaml
+services:
+  inference:
+    image: vllm/vllm-openai:latest
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+```
 
 ## Related tools / concepts
 - [Docker Compose](https://docs.docker.com/compose/)
@@ -116,15 +125,16 @@ Follow the official guides for:
 - [Home Assistant](../../services/home-assistant.md)
 - [Portracker](../../services/portracker.md)
 - [Podman](https://podman.io/)
-- [LXC/LXD](https://linuxcontainers.org/)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Sandboxed Code Execution](../../knowledge_base/patterns/sandboxed-execution.md)
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.docker.com/)
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Hub](https://hub.docker.com/)
+- [Docker Engine API Reference](https://docs.docker.com/engine/api/v1.45/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-06-12
 - Confidence: high
