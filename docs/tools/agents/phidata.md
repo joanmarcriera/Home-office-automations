@@ -1,46 +1,39 @@
 # Phidata
 
 ## What it is
-Phidata is a framework for building AI assistants with memory, knowledge, and tools. It allows you to turn any LLM into an "Assistant" that can store data in a database, search across local files, and take actions using Python functions.
+Phidata is a Python-native framework for building AI assistants with memory, knowledge, and tools. It allows developers to transform standard LLMs into functional agents capable of storing session data in databases, performing RAG across local and remote files, and executing Python functions as tools. As of June 2026, it is widely used for creating stateful, knowledge-enabled agents that integrate with enterprise data stacks.
 
 ## What problem it solves
-It bridges the gap between raw LLMs and functional agents by providing out-of-the-box support for RAG (Retrieval Augmented Generation), persistent session storage, and a structured way to define tools.
+It solves the complexity of building production-grade agents by providing standardized abstractions for session management, vector database integration, and tool-calling. Phidata bridges the gap between raw LLM outputs and actionable software by managing the lifecycle of an agent's memory and ensuring that retrieval-augmented generation (RAG) is both performant and accurate.
 
 ## Where it fits in the stack
-[Framework / Agent / Knowledge] - A comprehensive framework for building robust, knowledge-enabled agents.
+**Framework / Agent / Knowledge**. It sits as a development layer that orchestrates LLMs (OpenAI, Anthropic, etc.) with storage backends (PostgreSQL, Pinecone) and tool execution environments.
 
 ## Typical use cases
-- Research agents that can search the web and read PDF files
-- Coding assistants with access to a local codebase
-- Customer support agents with persistent memory of past conversations
+- **Knowledge-Based Assistants**: Building agents that can answer questions based on a massive internal library of PDFs, CSVs, or SQL databases.
+- **Stateful Chatbots**: Creating customer support agents that remember user preferences and past interactions across multiple sessions.
+- **Autonomous Researchers**: Agents that can search the web (via DuckDuckGo or Tavily), summarize findings, and write reports into a local filesystem.
+- **Enterprise Tool-Callers**: Integrating AI into existing Python business logic to automate workflows like invoice processing or system monitoring.
 
 ## Strengths
-- **Simple API**: Very easy to get started with a few lines of code.
-- **Database Integration**: Built-in support for PostgreSQL, Pinecone, and more for memory/knowledge.
-- **Built-in Tools**: Includes many ready-to-use tools like DuckDuckGo, Shell, and SQL.
+- **Pythonic Design**: Extremely intuitive for Python developers, with minimal boilerplate required to start a new agent.
+- **Persistent Memory**: Out-of-the-box support for database-backed memory (SQLite, PostgreSQL, MongoDB).
+- **Flexible RAG**: Built-in connectors for various vector databases and file formats.
+- **Model Agnostic**: Supports a wide range of models, including Claude 4.8 Opus and GPT-5.5.
+- **Local Development**: Optimized for running and testing agents locally before cloud deployment.
 
 ## Limitations
-- **Ecosystem**: Smaller than LangChain or LlamaIndex.
-- **Transition**: Recently underwent a major rebranding/v2 transition to [Agno](agno.md).
+- **Orchestration Complexity**: While great for single agents, very complex multi-agent graphs may require additional logic compared to specialized graph frameworks.
+- **Ecosystem Size**: Smaller community compared to legacy frameworks like LangChain, though it is rapidly growing in the agent-centric era.
 
 ## When to use it
-- When you need to build a single agent with RAG and memory capabilities quickly.
-- If you want a Python-native, lightweight framework.
+- When you want to build a single, highly-capable agent with RAG and long-term memory quickly.
+- If you prefer a Python-native framework with a clean, object-oriented API.
+- For projects where persistent session storage in a standard SQL/NoSQL database is a requirement.
 
 ## When not to use it
-- For extremely complex multi-agent graphs (consider LangGraph).
-
-## CLI examples
-```bash
-# Initialize a new phidata project
-phi init
-
-# Start a phidata environment (e.g., with PostgreSQL)
-phi start
-
-# Stop the phidata environment
-phi stop
-```
+- For extremely complex multi-agent "swarms" that require low-level control over message passing (consider specialized multi-agent frameworks).
+- If your primary focus is on a lightweight, no-config setup for a single-user agent.
 
 ## Getting started
 ### Installation
@@ -49,6 +42,8 @@ pip install phidata openai duckduckgo-search
 ```
 
 ### Basic Usage
+Initialize an agent with tools and a model (e.g., GPT-5.5):
+
 ```python
 from phi.agent import Agent
 from phi.model.openai import OpenAIChat
@@ -56,52 +51,62 @@ from phi.tools.duckduckgo import DuckDuckGo
 
 # 1. Create the assistant with a tool
 agent = Agent(
-    model=OpenAIChat(id="gpt-4o"),
+    model=OpenAIChat(id="gpt-5.5-preview"),
     tools=[DuckDuckGo()],
-    description="You are a helpful assistant that can search the web.",
+    description="You are a research assistant that can search the web.",
     show_tool_calls=True,
     markdown=True,
 )
 
 # 2. Run a query
-agent.print_response("What is the latest news about AI agents?", stream=True)
+agent.print_response("What are the latest breakthroughs in fusion energy as of June 2026?", stream=True)
+```
+
+## CLI examples
+```bash
+# Initialize a new phidata project structure
+phi init
+
+# Start the agent environment (e.g., if using Docker-based resources)
+phi start
+
+# Stop all phidata-managed resources
+phi stop
+
+# Check the status of your running agents and storage
+phi status
 ```
 
 ## API examples
+Phidata excels at adding persistent memory to agents via SQL storage:
+
 ```python
 from phi.agent import Agent
 from phi.storage.agent.sqlite import SqlAgentStorage
 
-# Create an agent with persistent storage
+# Create an agent that persists its conversation history
 agent = Agent(
-    storage=SqlAgentStorage(table_name="research_agent", db_file="agents.db"),
+    storage=SqlAgentStorage(table_name="support_agent", db_file="memory.db"),
     add_history_to_messages=True,
-    num_history_responses=3,
+    num_history_responses=5,
 )
 
-# Run and persist state
-agent.print_response("Remember that my favorite topic is renewable energy.")
+# This information will be remembered in future runs
+agent.print_response("My user ID is 9876. Please remember this for my future queries.")
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
-- [Agno](agno.md) (Successor to Phidata v2)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Agno](agno.md) (The evolved ecosystem for Phidata v2+)
+- [LlamaIndex](../ai_knowledge/llamaindex.md) (Specialized in data indexing)
 - [LangChain](../ai_knowledge/langchain.md)
 - [CrewAI](../frameworks/crewai.md)
-- [LangGraph](../frameworks/langgraph.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
-## Sources / References
-- [Official Website](https://www.phidata.com/)
-- [GitHub Repository](https://github.com/agno-agi/phidata)
-- [Official Website](https://www.agno.com/)
-- [GitHub Repository](https://github.com/agno-agi/agno)
+## Sources / references
+- [Official Phidata Website](https://www.phidata.com/)
+- [Phidata GitHub Repository](https://github.com/agno-agi/phidata)
+- [Phidata Documentation](https://docs.phidata.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-20
+- Last reviewed: 2026-06-15
 - Confidence: high
