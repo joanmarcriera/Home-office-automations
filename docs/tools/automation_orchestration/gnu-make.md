@@ -1,19 +1,43 @@
 # GNU Make
 
 ## What it is
-GNU Make is a tool which controls the generation of executables and other non-source files of a program from the program's source files. It uses a file called a `Makefile` to determine how to build the target programs.
+GNU Make is a foundational build automation tool that controls the generation of executables and other non-source files from a project's source files. It is the industry standard for managing complex build dependencies and is increasingly utilized as a universal task runner for AI-agentic workflows.
 
 ## What problem it solves
-It automatically determines which pieces of a large program need to be recompiled, and issues commands to recompile them. This saves time and ensures that the software is always built correctly according to the latest source changes. In modern workflows, it is increasingly used as a task runner to provide a unified entry point for complex multi-tool pipelines.
+In large-scale software projects and multi-tool AI pipelines, manually tracking which files need recompilation or which tasks need execution is error-prone and inefficient. GNU Make automates this by intelligently determining which targets are out-of-date based on file modification timestamps, ensuring consistent and reproducible environments for models like Claude 4.8 Opus and GPT-5.5.
 
 ## Where it fits in the stack
-**Tool / Automation**. It provides a foundational layer for automating build processes and task execution within a project.
+**Orchestration / Tooling**. GNU Make serves as the "glue" layer between raw source code/data and final artifacts, providing a unified entry point for compilers, linters, and AI agents.
 
 ## Typical use cases
-- **Compilation**: Compiling source code (C, C++, Go, etc.) into executables.
-- **Task Orchestration**: Providing a standard interface for linting, testing, and deployment.
-- **Dependency Management**: Intelligent execution based on file modification times.
-- **Environment Setup**: Bootstrapping local development environments (Docker, venv).
+- **Automated Compilation**: Managing C/C++, Go, and Rust build pipelines.
+- **Task Orchestration**: Providing a standard interface for `lint`, `test`, `deploy`, and `audit` commands.
+- **Data Pipeline Management**: Triggering data extraction and preprocessing only when source files change.
+- **Agentic Environment Setup**: Bootstrapping sandboxed environments for tools like Claude Code and Aider.
+- **Cross-Tool Glue**: Coordinating between n8n webhooks, Paperless-ngx ingestion, and local LLM inference.
+
+## Strengths
+- **Ubiquity**: Pre-installed on virtually all Unix-like systems, including Docker containers and WSL2.
+- **Efficiency**: Only executes the minimum necessary commands by tracking file dependencies.
+- **Language Agnostic**: Can wrap any CLI tool (Python, Node.js, Shell, etc.).
+- **Stability**: Mature, battle-tested logic that has remained consistent for decades.
+- **Standardized Interface**: Allows developers and agents to run `make` without knowing the underlying toolchain.
+
+## Limitations
+- **Strict Syntax**: Requires tabs for indentation; using spaces causes build failures.
+- **Complexity**: Advanced Makefiles can become "write-only" code if not properly commented.
+- **Portability**: Relies on the underlying shell (typically `/bin/sh`), which may vary between Linux, macOS, and Windows.
+
+## When to use it
+- When you need a "standard entry point" for a project (e.g., `make install`, `make test`).
+- For managing build artifacts that depend on a hierarchy of source files.
+- When working in resource-constrained or offline environments where lightweight automation is required.
+- To simplify complex Docker or AI agent commands for human and LLM operators.
+
+## When not to use it
+- For very simple, linear scripts where a single `.sh` or `.py` file is more readable.
+- In language-specific ecosystems where a native tool (like `npm`, `cargo`, or `poetry`) is already the established standard.
+- When high-level logic or complex branching is required (prefer a dedicated workflow engine like n8n).
 
 ## Getting started
 
@@ -31,28 +55,30 @@ xcode-select --install
 choco install make
 ```
 
-### Hello-world task
+### Basic Makefile
 Create a file named `Makefile`:
 
 ```makefile
 # Simple Makefile
+.PHONY: hello build
+
 hello:
-	echo "Hello, World"
+	@echo "Hello from GNU Make"
 
 build:
 	mkdir -p dist
 	touch dist/app.bin
 ```
 
-Run the task:
+Run a target:
 ```bash
 make hello
 ```
 
-## Advanced Patterns
+## CLI examples
 
-### Auto-Documenting Makefile
-A popular pattern for making Makefiles self-documenting:
+### Auto-Documenting Help
+A standard pattern for making Makefiles self-documenting for agents and humans:
 
 ```makefile
 .PHONY: help
@@ -66,69 +92,69 @@ lint: ## Run code linters
 	flake8 .
 ```
 
-### Docker Integration
-Using Make to simplify complex Docker commands:
+### Docker Management
+Simplifying complex container commands:
 
 ```makefile
-IMAGE_NAME := my-app
+IMAGE_NAME := my-ai-service
 VERSION := $(shell git rev-parse --short HEAD)
 
-build: ## Build the docker image
+docker-build: ## Build the docker image
 	docker build -t $(IMAGE_NAME):$(VERSION) .
 
-run: ## Run the container locally
+docker-run: ## Run the container locally
 	docker run -p 8080:8080 $(IMAGE_NAME):$(VERSION)
-
-push: build ## Build and push to registry
-	docker push $(IMAGE_NAME):$(VERSION)
 ```
 
-## Cross-Tool Orchestration
-Make often acts as the "glue" between different tools in the stack:
+## API examples
 
-```makefile
-# Orchestrating n8n and Paperless-ngx
-sync-docs: ## Pull latest documents from Paperless and trigger n8n workflow
-	./scripts/fetch_docs.py --target ./data/vault
-	curl -X POST http://n8n.local:5678/webhook/sync-trigger
+### Programmatic Execution (Python)
+Using Python to orchestrate Make targets in an agentic loop:
+
+```python
+import subprocess
+
+def run_make_target(target):
+    try:
+        result = subprocess.run(['make', target], capture_output=True, text=True, check=True)
+        print(f"Output:\n{result.stdout}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error running {target}:\n{e.stderr}")
+
+# Execute the 'build' target
+run_make_target('build')
 ```
 
-## Strengths
-- **Ubiquitous**: Standard on almost all Unix-like systems.
-- **Dependency Tracking**: Efficiently skips work that is already up-to-date.
-- **Language Agnostic**: Can wrap any command-line tool.
-- **Stable**: The core logic has remained consistent for decades.
+### Makefile MCP Integration
+As of June 2026, agents like Claude 4.8 Opus utilize the **Makefile MCP Server** to parse and execute targets directly:
 
-## Limitations
-- **Syntax**: Strict requirement for tabs (not spaces) in recipes.
-- **Complexity**: Can become "write-only" code if Makefiles are not well-structured.
-- **Shell Dependency**: Relies on the underlying shell (usually `/bin/sh`), which can cause portability issues.
-
-## When to use it
-- To provide a "standard interface" for a project (e.g., `make build`, `make test`).
-- For managing build artifacts that depend on many source files.
-- When you want to minimize dependencies for your automation (Make is usually already there).
-
-## When not to use it
-- For very simple scripts where a basic `.sh` or `.py` file is more readable.
-- In pure Node.js or Rust environments where `npm` or `cargo` are the standard.
+```json
+{
+  "mcp_server": "makefile-mcp",
+  "command": "list_targets",
+  "args": {
+    "path": "./Makefile"
+  }
+}
+```
 
 ## Related tools / concepts
-- [Makefile MCP](makefile-mcp.md)
-- [n8n](../../services/n8n.md)
-- [Make (formerly Integromat)](make.md)
-- [Task](https://taskfile.dev/) (a modern alternative)
-- [Just](https://github.com/casey/just) (a command runner inspired by Make)
-- [Docker](../infrastructure/docker.md)
-- [Python](../ai_knowledge/python.md)
-- [LiteLLM](../../services/litellm.md)
-- [Ollama](../../services/ollama.md)
+- [Makefile MCP](makefile-mcp.md) — Model Context Protocol server for Make.
+- [n8n](../../services/n8n.md) — High-level workflow automation.
+- [Make (formerly Integromat)](make.md) — Cloud-based automation platform.
+- [Task](https://taskfile.dev/) — Modern YAML-based alternative.
+- [Just](https://github.com/casey/just) — Command runner focused on simplicity.
+- [Docker](../infrastructure/docker.md) — Containerization standard.
+- [Claude Code](../development_ops/claude-code.md) — Official CLI agent.
+- [Aider](../development_ops/aider.md) — Agentic coding assistant.
+- [Poetry](../ai_knowledge/python.md) — Python dependency management.
 
-## Sources / References
+## Sources / references
 - [GNU Make Official Site](https://www.gnu.org/software/make/)
-- [GNU Make Documentation](https://www.gnu.org/software/make/manual/make.html)
+- [GNU Make Manual](https://www.gnu.org/software/make/manual/make.html)
 - [Makefile Tutorial](https://makefiletutorial.com/)
+- [Anthropic Claude 4.8 Tool Use Patterns](https://docs.anthropic.com/claude/docs/tool-use)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-06-12
 - Confidence: high
