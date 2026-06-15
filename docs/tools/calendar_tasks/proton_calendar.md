@@ -1,98 +1,117 @@
 # Proton Calendar
 
 ## What it is
-Proton Calendar is a privacy-focused, end-to-end encrypted calendar service developed by Proton (the makers of Proton Mail).
+Proton Calendar is a privacy-focused, end-to-end encrypted (E2EE) calendar service developed by Proton. As of June 2026, it is a key component of the privacy-first productivity suite, offering a secure alternative to mainstream providers for users of frontier models like `claude-4-8-opus-20260528` who prioritize data sovereignty.
 
 ## What problem it solves
-It provides a secure and private way to manage schedules and events without exposing data to service providers or third-party advertisers. It ensures that your itinerary remains confidential even from the service provider.
+It provides a secure and private way to manage schedules and events without exposing sensitive metadata to service providers or third-party advertisers. By using client-side encryption, it ensures that event titles, locations, and participants remain confidential even if the service provider's infrastructure is compromised.
 
 ## Where it fits in the stack
-**Orchestration / Personal Information Management**. It serves as a secure alternative to cloud calendars like Google Calendar or Outlook.
+**Orchestration / Personal Information Management (PIM)**. It serves as the secure scheduling layer for individuals and teams who have migrated away from surveillance-based ecosystems like Google Workspace or Microsoft 365.
 
 ## Typical use cases
-- **Confidential Scheduling**: Managing sensitive personal or business schedules.
-- **Secure Invitations**: Sending and receiving encrypted event invitations.
-- **Team Coordination**: Sharing calendars within a secure ecosystem.
-- **Cross-platform Sync**: Synchronization across web, Android, and iOS.
+- **Confidential Business Scheduling**: Managing sensitive meetings, legal appointments, or medical schedules.
+- **Secure Event Invitations**: Sending and receiving encrypted invitations within the Proton ecosystem.
+- **Privacy-First Homelab Integration**: Using iCal secret links to display schedules in [Home Assistant](../../services/home-assistant.md) without exposing the full calendar.
+- **Cross-Platform Sync**: Maintaining a synchronized, encrypted schedule across web, Android, iOS, and desktop.
 
-## Security Model
-Proton Calendar uses several layers of protection:
-- **End-to-End Encryption (E2EE)**: Event titles, descriptions, locations, and participants are encrypted on the client side before being sent to Proton's servers.
-- **Zero-Access Encryption**: Proton cannot decrypt your data; they only store the encrypted blobs.
-- **Signed Events**: Prevents tampering with event data during transit or at rest.
+## Strengths
+- **End-to-End Encryption (E2EE)**: All major event fields (title, description, location) are encrypted before leaving the device.
+- **Zero-Access Architecture**: Proton cannot access your calendar data; they only store the encrypted blobs.
+- **Open Source Clients**: The web and mobile applications are open source and subject to independent security audits.
+- **Standardized Import/Export**: Robust support for the `.ics` (iCalendar) format for migration.
+
+## Limitations
+- **Automation Complexity**: The E2EE nature makes it difficult for third-party automation tools (like [n8n](../../services/n8n.md) or Zapier) to interact with the data directly without user-side decryption.
+- **No Native CalDAV**: Lacks native, server-side CalDAV support for legacy desktop applications (though [Proton Bridge](https://proton.me/mail/bridge) provides some proxy capabilities for mail).
+- **Read-Only External Sync**: Integration with external tools often relies on "Secret Links" which are read-only.
+
+## When to use it
+- When privacy and data security are the primary requirements for your schedule.
+- If you are already integrated into the Proton ecosystem (Mail, Drive, VPN).
+- For managing highly sensitive appointments where even metadata leaks are a concern.
+
+## When not to use it
+- If you require high-frequency, bidirectional automation with third-party tools that don't support E2EE.
+- If your workflow depends on native CalDAV access for older desktop calendar clients.
+- When collaborative features (like complex resource booking) found in enterprise Google/Microsoft suites are required.
 
 ## Getting started
 
 ### Account Setup
-1. Create a Proton account at [proton.me](https://proton.me).
-2. Access the calendar via the web interface or mobile app.
+Create a Proton account at [proton.me](https://proton.me). Proton Calendar is included in the free tier, with expanded features available for paid plans.
 
 ### Data Migration
-To import existing calendars:
-1. Export your calendar from Google or Outlook as an `.ics` file.
-2. In Proton Calendar, go to **Settings** > **Import**.
-3. Upload the `.ics` file.
+1. Export your existing calendar from Google or Outlook as an `.ics` file.
+2. In Proton Calendar, navigate to **Settings** > **Import**.
+3. Upload the `.ics` file to populate your new calendar.
 
-## Integration Patterns
+## CLI examples
 
-### Proton Bridge
-While Proton Calendar does not support native CalDAV for third-party apps directly, users often use the **Proton Bridge** (primarily for Mail) as a proxy. For Calendar specifically, native CalDAV support is a highly requested feature but currently limited.
-
-### Exporting for External Use
-You can generate a "Secret Link" to share your calendar in a read-only format with other applications that support iCal:
-1. Go to **Settings** > **Calendars**.
-2. Select the calendar and click **Share**.
-3. Copy the **Secret Link**.
-
-## CLI / Automation Options
-Official CLI support for Proton Calendar is currently absent. However, users can interact with encrypted data via community tools or the official Bridge for related services.
-
-### Conceptual: Importing via .ics (CLI)
-You can use standard CLI tools to prepare and manage calendar data before uploading:
+### Fetching a Secret iCal Link
+While there is no official CLI for direct event manipulation, you can use `curl` to fetch your calendar's secret link for read-only automation:
 
 ```bash
-# Combine multiple ICS files for import
-cat calendar1.ics calendar2.ics > combined.ics
+# Fetch the latest schedule from a Proton Secret Link
+curl -s "https://calendar.proton.me/api/calendar/v1/share/SECRET_TOKEN/export.ics" > schedule.ics
 
-# Verify ICS structure before import
-grep "BEGIN:VEVENT" combined.ics | wc -l
+# Count the number of upcoming events in the next month (simple grep)
+grep "BEGIN:VEVENT" schedule.ics | wc -l
 ```
 
-## Strengths
-- **Privacy**: E2EE for all major event fields.
-- **Security**: Strong authentication (2FA/Security Keys) and data protection.
-- **Transparency**: Client-side code is open source and regularly audited.
-- **No Ads**: Data is not scanned for advertising purposes.
+### Validating an Exported ICS
+Use `icalendar` (Python-based CLI tool) to inspect the structure of an exported Proton calendar:
 
-## Limitations
-- **Limited Integration**: No direct CalDAV support for desktop apps like Apple Calendar without third-party workarounds.
-- **Automation Gap**: Lack of official API or CLI tools for programmatic event management.
-- **Features**: Fewer advanced scheduling features compared to Google Calendar.
+```bash
+# Install tool
+pip install icalendar
 
-## When to use it
-- When privacy and data security are the top priorities.
-- If you are already integrated into the Proton ecosystem (Mail, Drive, VPN).
-- For managing highly sensitive appointments or legal/medical schedules.
+# Inspect events
+icalendar view schedule.ics
+```
 
-## When not to use it
-- If you require deep integration with many third-party automation tools (Zapier, Make, etc.).
-- If you need native CalDAV access for legacy desktop calendar applications.
+## API examples
+
+### Parsing a Proton iCal Feed in Python
+Since direct API access is restricted by E2EE, most developers interact with Proton Calendar via the read-only iCal feed:
+
+```python
+import requests
+from icalendar import Calendar
+
+# The secret URL from Proton Calendar settings
+SECRET_URL = "https://calendar.proton.me/api/calendar/v1/share/TOKEN/export.ics"
+
+def get_upcoming_events():
+    response = requests.get(SECRET_URL)
+    cal = Calendar.from_ical(response.content)
+
+    events = []
+    for component in cal.walk():
+        if component.name == "VEVENT":
+            summary = component.get('summary')
+            start = component.get('dtstart').dt
+            events.append({"summary": summary, "start": start})
+
+    return events
+
+if __name__ == "__main__":
+    for event in get_upcoming_events():
+        print(f"{event['start']}: {event['summary']}")
+```
 
 ## Related tools / concepts
-- [Google Calendar](google_calendar.md)
-- [Nextcloud Calendar](../../services/nextcloud.md)
-- [CalDAV](../intake_storage/caldav.md)
-- [Proton Mail](https://proton.me/mail)
-- [Home Assistant](../../services/home-assistant.md) (via iCal integration)
-- [n8n](../../services/n8n.md) (via HTTP/iCal)
-- [Amie](amie.md)
-- [Sunsama](sunsama.md)
+- [Google Calendar](google_calendar.md) — The primary alternative being replaced.
+- [Nextcloud Calendar](../../services/nextcloud.md) — Self-hosted E2EE-capable alternative.
+- [CalDAV](../intake_storage/caldav.md) — The protocol standard for calendar sync.
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — MCP server for managing calendars.
+- [Home Assistant](../../services/home-assistant.md) — Often consumes Proton iCal feeds for dashboard display.
 
 ## Sources / references
-- [Official Website](https://proton.me/calendar)
+- [Proton Calendar Official Website](https://proton.me/calendar)
 - [Proton Calendar Security Model](https://proton.me/blog/proton-calendar-security-model)
 - [How to use Proton Calendar](https://proton.me/support/proton-calendar-basics)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-06-12
 - Confidence: high

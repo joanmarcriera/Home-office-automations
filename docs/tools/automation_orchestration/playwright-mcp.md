@@ -1,32 +1,53 @@
 # Playwright MCP Server
 
 ## What it is
-The Playwright MCP Server is a Model Context Protocol (MCP) implementation that gives AI agents a "headless browser" interface. It allows agents to interact with web pages using Playwright, enabling them to browse the internet, interact with UIs, and extract data.
+The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of June 2026, it is the primary tool for enabling frontier models like `claude-4-8-opus-20260528` and GPT-5.5 to interact with the live web, navigate complex SPAs (Single Page Applications), and perform multi-step browser-based tasks.
 
 ## What problem it solves
-Most LLMs lack direct access to the web or can only "see" through screenshots. Playwright MCP provides structured access to the DOM and accessibility tree, allowing agents to navigate, click, and extract data reliably without needing a traditional REST API.
+Most LLMs lack direct access to the web or can only "see" through static screenshots or text-only scrapers. Playwright MCP provides structured access to the DOM and the **Accessibility Tree**, allowing agents to click buttons, fill forms, and extract data from JavaScript-heavy sites reliably without needing a dedicated REST API.
 
 ## Where it fits in the stack
-**Agent Tooling / Automation**. It bridges the gap between AI reasoning and the interactive web. It often acts as a fallback when official [API Providers](../providers/index.md) are unavailable.
+**Agent Tooling / Browser Automation**. It sits between the AI reasoning engine and the interactive web. It is often used as a fallback or "last mile" tool when official [API Providers](../providers/index.md) are unavailable or limited.
 
 ## Typical use cases
-- **Web Scraping**: Extracting data from dynamic, JavaScript-heavy websites.
-- **Automated Testing**: Writing and running end-to-end tests through a natural language interface.
-- **Agentic Browsing**: Allowing an AI agent to perform tasks on a website (e.g., booking a flight, ordering groceries).
-- **Dashboard Interaction**: Automating internal tools that don't have public APIs.
+- **Dynamic Web Scraping**: Extracting data from sites that require JavaScript execution or user interaction.
+- **Agentic Workflows**: Allowing an AI to perform tasks like booking travel, purchasing items, or managing SaaS dashboards.
+- **Automated Testing**: Writing and running E2E tests through a natural language interface where the AI "explores" the UI.
+- **Visual Verification**: Generating screenshots and PDFs of web pages for agentic review and reporting.
+
+## Strengths
+- **Accessibility Tree Focus**: Emphasizes semantic structure over raw pixels, making interaction faster and more robust against minor CSS changes.
+- **Cross-Browser Support**: Leverages Playwright's native support for Chromium, Firefox, and WebKit.
+- **Standardized Protocol**: Compatible with any MCP host (Claude Desktop, [Claude Code](../development_ops/claude-code-setup.md), etc.).
+- **Sandboxed Execution**: Can be easily run in [Docker](../infrastructure/docker.md) to isolate browser sessions from the host system.
+
+## Limitations
+- **High Resource Usage**: Running a browser instance (even headless) consumes significantly more CPU and RAM than lightweight MCP servers.
+- **Latency**: Each browser interaction (navigate, click, wait) introduces substantial delay compared to direct API calls.
+- **Detection Risk**: Headless browsers are frequently flagged by anti-bot systems (Cloudflare, Akamai) without sophisticated stealth plugins.
+
+## When to use it
+- When an AI agent needs to perform actions on a website that lacks a public API.
+- For "self-healing" automation where the agent can adapt to UI changes in real-time.
+- When you need to extract data that is only visible after complex client-side state changes.
+
+## When not to use it
+- If a stable and documented REST/GraphQL API is available for the target service.
+- For high-throughput scraping where the overhead of a full browser is prohibitive.
+- In low-memory environments (e.g., small VPS or edge devices) where browser instances might cause OOM errors.
 
 ## Getting started
 
 ### Installation
-The server is typically run via `npx` or as a persistent process.
+The server can be run on-demand via `npx`:
 
 ```bash
-# Run the server via npx
+# Run the Playwright MCP server
 npx -y @modelcontextprotocol/server-playwright
 ```
 
-### Configuration
-To use it with a host like Claude Desktop, add it to your configuration file:
+### Configuration (Claude Desktop)
+To enable the tool in Claude Desktop, add the following to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -42,71 +63,67 @@ To use it with a host like Claude Desktop, add it to your configuration file:
 }
 ```
 
-## Technical Patterns
+## CLI examples
 
-### Tool Usage Example
-Once connected, an agent can call tools like `playwright_navigate` and `playwright_click`:
-
-```json
-// Example call from an agent
-{
-  "name": "playwright_navigate",
-  "arguments": {
-    "url": "https://news.ycombinator.com"
-  }
-}
-```
-
-### Accessibility Tree Focus
-Unlike vision-based agents, this MCP server emphasizes the **Accessibility Tree**. This provides the agent with a semantic understanding of the page elements (e.g., "Login button" vs "Rectangle at 100,200"), which significantly improves reliability.
-
-## Deployment Options
-
-### Local Mode
-Runs on your local machine, allowing the agent to access your local network and authenticated browser sessions (if configured).
-
-### Containerized Mode
-Running the server in [Docker](../infrastructure/docker.md) provides a clean, sandboxed environment for browser sessions:
+### Running via Docker
+For a sandboxed environment with all dependencies pre-installed:
 
 ```bash
 docker run -i --rm mcr.microsoft.com/playwright:v1.49.0-noble npx -y @modelcontextprotocol/server-playwright
 ```
 
-## Strengths
-- **Accessibility Tree Focus**: Uses structural data rather than pixels, making it faster and more reliable than vision-based browsing.
-- **Cross-Browser Support**: Supports Chromium, Firefox, and WebKit.
-- **Standardized Protocol**: Integrates seamlessly with any MCP host (Claude Desktop, etc.).
-- **JavaScript Execution**: Can run custom JS in the browser context for complex interactions.
+### Manual Verification
+You can test the server's basic connectivity using the MCP Inspector:
 
-## Limitations
-- **Latency**: Browser automation is inherently slower than direct API calls.
-- **Anti-Bot Detection**: Headless browsers are easily detected by advanced security systems like Cloudflare or Akamai.
-- **Resource Intensive**: Running a browser instance consumes significant CPU and Memory compared to other MCP servers.
+```bash
+npx @modelcontextprotocol/inspector npx -y @modelcontextprotocol/server-playwright
+```
 
-## When to use it
-- When an AI agent needs to interact with a website that does not have an official API.
-- For "self-healing" automation scripts that can adapt to UI changes.
-- When you need a "web agent" that can perform multi-step interactions (login, search, filter, export).
+## API examples
 
-## When not to use it
-- When a stable REST or GraphQL API is available.
-- For high-frequency data extraction where speed and cost are critical.
-- If you are operating in an environment with low memory or restricted outbound internet access.
+### Agentic Tool Call (Conceptual)
+When an agent uses the server, it issues JSON-RPC calls. Here is what a navigation call looks like:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "playwright_navigate",
+    "arguments": {
+      "url": "https://news.ycombinator.com"
+    }
+  }
+}
+```
+
+### Performing a Click
+An agent might then click the "new" link based on the accessibility tree:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "playwright_click",
+    "arguments": {
+      "selector": "text=new"
+    }
+  }
+}
+```
 
 ## Related tools / concepts
-- [Playwright](../development_ops/playwright.md)
-- [Model Context Protocol (MCP)](mcp.md)
-- [Browser Use](browser-use.md)
-- [Stagehand](stagehand.md)
-- [Skyvern](skyvern.md)
-- [Claude Code](../development_ops/claude-code-setup.md)
-- [OpenHands](../development_ops/openhands.md)
-- [Puppeteer](../development_ops/puppeteer.md)
+- [Playwright](../development_ops/playwright.md) — The underlying automation library.
+- [Browser Use](browser-use.md) — A specialized library for LLM-browser interaction.
+- [Stagehand](stagehand.md) — An AI-native web automation wrapper.
+- [Skyvern](skyvern.md) — A platform for automating browser-based workflows.
+- [Puppeteer](puppeteer.md) — The primary alternative to Playwright.
+- [Claude Code](../development_ops/claude-code-setup.md) — A terminal-based agent that frequently uses this MCP.
 
 ## Sources / references
-- [Playwright MCP GitHub](https://github.com/modelcontextprotocol/servers/tree/main/src/playwright)
-- [MCP Official Documentation](https://modelcontextprotocol.io)
+- [Playwright MCP GitHub Repository](https://github.com/modelcontextprotocol/servers/tree/main/src/playwright)
+- [Official MCP Documentation](https://modelcontextprotocol.io)
+- [Playwright Official Documentation](https://playwright.dev)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-19
+- Last reviewed: 2026-06-12
 - Confidence: high
