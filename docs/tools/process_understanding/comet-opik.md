@@ -32,50 +32,84 @@ It helps developers transition from experimentation to production-ready AI by pr
 
 ## Getting started
 
-Install the Opik library:
+### Installation
+Install the Opik library via `pip`:
 
 ```bash
 pip install opik
 ```
 
-Configure the Opik client:
+### Hello-world example
+Configure the Opik client and run a simple tracked function:
 
 ```bash
 opik configure
+```
+
+```python
+from opik import track
+
+@track
+def hello_world():
+    return "Hello from Opik!"
+
+print(hello_world())
 ```
 
 ## CLI examples
 
 ### opik configure
-Sets up your API key and project settings:
+Initializes the Opik configuration and sets up your API key:
 ```bash
 opik configure
 ```
 
 ### opik harbor run
-Runs a benchmark with Opik tracking:
+Executes a benchmark using the Harbor evaluation framework with Opik tracking:
 ```bash
 opik harbor run -d terminal-bench@head -a my_agent
 ```
 
 ### comet login
-Login to the broader Comet platform (required for cloud sync):
+Authenticates with the broader Comet ML platform for production sync:
 ```bash
 comet login
 ```
 
 ## API examples
 
-### Python (Tracing a function)
+### Manual Tracing
+For fine-grained control, you can create spans manually without decorators.
+
 ```python
-from opik import track
+from opik import Opik
 
-@track
-def call_llm(prompt):
-    # Your LLM call here
-    return "Response"
+client = Opik(project_name="my-llm-project")
+trace = client.trace(name="chat-completion")
 
-call_llm("Analyze this code")
+span = trace.span(name="llm-call", input={"prompt": "Translate 'hello' to Spanish"})
+# ... perform LLM call ...
+span.update(output={"response": "hola"})
+trace.update(output={"final_response": "hola"})
+```
+
+### Automated Evaluation
+Run an evaluation on a dataset using LLM-as-a-judge metrics.
+
+```python
+from opik.evaluation import evaluate
+from opik.evaluation.metrics import Hallucination
+
+def my_agent(input):
+    return {"output": "Agent response", "context": ["Context 1"]}
+
+metrics = [Hallucination()]
+
+evaluate(
+    dataset_name="my-test-set",
+    task=my_agent,
+    metrics=metrics
+)
 ```
 
 ## Related tools / concepts

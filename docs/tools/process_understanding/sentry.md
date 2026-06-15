@@ -34,49 +34,81 @@ It provides real-time visibility into application errors and performance bottlen
 
 ## Getting started
 
-### Installation (Sentry CLI)
+### Installation
+You can install the Sentry CLI for administrative tasks or use the language-specific SDKs for application monitoring.
+
 ```bash
+# Install Sentry CLI
 curl -sL https://sentry.io/get-cli/ | bash
+
+# Install Python SDK
+pip install --upgrade sentry-sdk
 ```
 
-### SDK Integration (Python)
-```bash
-pip install --upgrade sentry-sdk
+### Hello-world example
+Initialize Sentry in a Python script to verify error capturing:
+
+```python
+import sentry_sdk
+
+# Initialize with your DSN
+sentry_sdk.init(dsn="https://your-dsn@sentry.io/project-id")
+
+# This will be captured and sent to Sentry
+sentry_sdk.capture_message("Hello Sentry!")
 ```
 
 ## CLI examples
 
-### Login to Sentry
+### Authentication
+Authenticate the CLI with your Sentry account:
 ```bash
 sentry-cli login
 ```
 
-### Send a Test Event
+### Send a manual event
+Send a test message directly from the terminal to verify your DSN:
 ```bash
+export SENTRY_DSN="https://your-dsn@sentry.io/project-id"
 sentry-cli send-event -m "Test message from CLI"
 ```
 
-### Manage Releases
+### Proactive Release Management
+Create a new release and notify Sentry of a deployment:
 ```bash
-sentry-cli releases new -p <PROJECT_NAME> <VERSION_NUMBER>
+sentry-cli releases new -p my-project v1.0.0
+sentry-cli releases set-commits --auto v1.0.0
+sentry-cli releases finalize v1.0.0
 ```
 
 ## API examples
 
-### Python SDK
+### AI Monitoring (June 2026)
+Sentry provides specialized tracking for AI agents and LLM calls.
+
+```python
+import sentry_sdk
+from sentry_sdk.ai.monitoring import track_llm_call
+
+sentry_sdk.init(dsn="SENTRY_DSN", traces_sample_rate=1.0)
+
+@track_llm_call(provider="openai", model="gpt-4o")
+def get_completion(prompt):
+    # Your LLM logic here
+    return "Response"
+```
+
+### Manual Exception Capturing
+Explicitly capture exceptions in try-except blocks for better context.
+
 ```python
 import sentry_sdk
 
-sentry_sdk.init(
-    dsn="https://examplePublicKey@o0.ingest.sentry.io/0",
-    traces_sample_rate=1.0,
-)
-
-# Capture a custom error message
-sentry_sdk.capture_message("Custom application event recorded.")
-
-# Divide by zero will be automatically captured
-division_by_zero = 1 / 0
+try:
+    complex_operation()
+except Exception as e:
+    sentry_sdk.set_tag("operation_type", "data_sync")
+    sentry_sdk.capture_exception(e)
 ```
 
 ## Related tools / concepts
