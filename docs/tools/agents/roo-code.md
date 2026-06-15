@@ -1,45 +1,54 @@
 # Roo Code
 
 ## What it is
-Roo Code is an open-source, AI-powered coding agent for VS Code. It is a highly popular and feature-rich fork of Cline (formerly Claude Dev), designed to provide a more dynamic and community-driven alternative for autonomous development.
+Roo Code is an open-source, AI-powered autonomous coding agent for VS Code. Originally forked from Cline, it has evolved into a highly customizable platform that supports specialized "Custom Modes," deep Model Context Protocol (MCP) integration, and multi-model orchestration. As of June 2026, it is recognized for its high velocity of community-driven feature updates and its ability to handle complex, multi-file engineering tasks autonomously.
 
 ## What problem it solves
-Like its predecessor, Roo Code solves the context-switching problem by integrating AI directly into the IDE. It differentiates itself by offering specialized "Custom Modes" (personalities), rapid integration of community features, and a focus on power-user customizations.
+Roo Code eliminates the friction of manual context-switching by bringing frontier reasoning models directly into the development environment. It addresses the "last mile" of AI coding by not only suggesting code but also executing terminal commands, managing files, and performing browser-based verification. Its Custom Modes feature specifically solves the "generalist fatigue" by allowing users to constrain the agent to specific roles like Security Auditor, Frontend Specialist, or Documentation Expert.
 
 ## Where it fits in the stack
-**Agent / IDE Extension / Developer Experience (DX)**.
+**Agent / IDE Extension / Developer Experience (DX)**. It sits at the top of the stack as the primary interface between the developer and the underlying LLMs/tools.
 
 ## Typical use cases
-- **Task-Specific Assistance**: Using Custom Modes for security auditing, documentation writing, or performance optimization.
-- **Autonomous Refactoring**: Delegating complex codebase changes to the agent while monitoring progress.
-- **Rapid Prototyping**: Quickly spinning up boilerplate and initial logic across multiple files.
-- **Exploratory Debugging**: Letting the agent trace through logs and source code to find root causes.
-
-## Patterns
-- **Custom Modes**: Users can define specific personas in a `.roomodes` file, allowing for specialized agents like "Reviewer", "DevOps", or "Copywriter".
-- **MCP Tool Hub**: Roo Code treats the [Model Context Protocol](../automation_orchestration/mcp.md) as a first-class citizen, enabling seamless connection to local and remote tools.
-- **Context Pinning**: Allows users to pin specific files or documentation URLs to the current task to ensure the agent has the necessary background.
+- **Specialized Engineering**: Using the "Architect" mode to design system schemas before implementation.
+- **Autonomous Refactoring**: Delegating large-scale migrations (e.g., from React 18 to 19) to the agent with human-in-the-loop oversight.
+- **Automated Bug Resolution**: Letting the agent trace error logs, identify root causes, and apply fixes across the backend and frontend.
+- **Documentation as Code**: Using a specialized "Writer" mode to keep technical docs in sync with code changes.
 
 ## Strengths
-- **Custom Modes**: Allows users to define specific personas and instruction sets for different tasks.
-- **Community-Driven**: Fast-paced development cycle with frequent updates and community contributions.
-- **Extensible Tooling**: Strong support for the Model Context Protocol (MCP) to add new capabilities.
-- **Model Flexibility**: Supports all major LLM providers (Anthropic, OpenAI, DeepSeek, Google, etc.) and local models.
-- **Power User Features**: Includes advanced options for context management, instruction hierarchy, and terminal interaction.
+- **Custom Modes**: Native support for `.roomodes`, allowing per-project or global persona definitions with specific tool access.
+- **Frontier Model Support**: Optimized for high-fidelity reasoning with Claude 4.8 Opus and GPT-5.5.
+- **First-Class MCP Support**: Seamlessly connects to any MCP server for extended capabilities like Jira integration, memory systems, or specialized search.
+- **Context Pinning**: Advanced context management allowing users to pin critical files, URLs, or documentation segments.
+- **High Autonomy**: Capable of long-horizon tasks including running tests, fixing failures, and verifying UI changes via an internal browser.
 
 ## Limitations
-- **Stability**: Due to its fast-paced nature, it can occasionally be less polished than the more conservative upstream Cline.
-- **Complexity**: The sheer number of features and customization options can be overwhelming for new users.
-- **Token Usage**: Agentic "Act Mode" can be expensive if not monitored.
+- **Token Intensity**: Autonomous "Act Mode" can consume significant tokens, especially when processing large context windows in June 2026 models.
+- **Complexity**: The high degree of customizability requires a learning curve to master mode definitions and instruction hierarchies.
+- **Stability**: Fast-paced community updates can occasionally introduce regressions compared to more conservative IDE extensions.
 
 ## When to use it
-- If you want the most cutting-edge features and customization options available for a VS Code agent.
-- When you need task-specific "modes" to constrain the AI's behavior to certain domains (e.g., unit testing).
-- If you prefer a community-led project with a high velocity of updates.
+- When you require an agent that can act autonomously within your IDE (file edits + terminal execution).
+- If you need specialized personas for different parts of your workflow.
+- When working with high-reasoning models like Claude 4.8 Opus for complex architectural changes.
+- If you prefer an open-source, community-led project with rapid feature iteration.
 
 ## When not to use it
-- If you prioritize absolute stability and a minimalist interface over advanced features.
-- In environments where extension updates need to be strictly vetted.
+- For simple code completions where a lighter tool like GitHub Copilot (extension) is sufficient.
+- In highly restricted enterprise environments that forbid extensions from executing terminal commands.
+- If you prefer a minimalist, "no-config" experience without persona management.
+
+## Getting started
+### Installation
+1. Install the **Roo Code** extension from the VS Code Marketplace or Open VSX Registry.
+2. Open the Roo Code sidebar and click the "Settings" (gear) icon.
+3. Select your API provider (e.g., Anthropic, OpenAI, or OpenRouter) and enter your API key.
+4. Set your model to `claude-4-8-opus-20260528` or `gpt-5.5-preview` for optimal performance.
+
+### Basic Usage
+1. Start a new task in the sidebar (e.g., "Implement a new API endpoint for user profiles").
+2. Choose a mode (Code, Architect, or Ask) from the dropdown.
+3. Review and "Approve" the plan and tool executions proposed by Roo Code.
 
 ## CLI examples
 ```bash
@@ -52,53 +61,40 @@ npm test
 
 # Example: Managing local MCP servers used by Roo Code
 mcp-server-manager list
+
+# Verify the current environment for Roo Code
+node --version && npm --version
 ```
 
-## Getting started
-### Installation
-1. Install the **Roo Code** extension from the VS Code Marketplace or Open VSX Registry.
-2. Open the Roo Code sidebar and configure your Preferred AI provider.
-3. (Optional) Explore "Custom Modes" by clicking the mode selector at the top of the sidebar.
-
-### Basic Usage
-1. Open a workspace and start a new Roo Code task.
-2. Choose a mode (e.g., Code, Architect, or Ask).
-3. Review and approve the proposed file changes and terminal commands.
-
 ## API examples
-Roo Code allows for custom mode definitions via JSON. A sample `.roomodes` entry:
+Roo Code supports custom mode definitions via a `.roomodes` file in the repository root. This allows for defining specialized agent behaviors:
 
 ```json
 {
   "customModes": [
     {
-      "slug": "security-audit",
-      "name": "Security Auditor",
-      "roleDefinition": "You are an expert security researcher focusing on OWASP Top 10 vulnerabilities.",
-      "groups": ["read", "browser"]
+      "slug": "security-specialist",
+      "name": "Security Specialist",
+      "roleDefinition": "You are a senior security engineer. Your goal is to identify vulnerabilities and suggest mitigations following OWASP 2026 standards.",
+      "groups": ["read", "browser", "edit"],
+      "customInstructions": "Always check for dependency vulnerabilities and SQL injection patterns."
     }
   ]
 }
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0).
-- **Cost**: Free (Extension) + LLM API costs.
-- **Self-hostable**: Yes (local models supported).
-
 ## Related tools / concepts
+- [Cline](cline.md) (The original project Roo Code was forked from)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Cline](cline.md) (The project it was forked from)
-- [MCP Registry](../automation_orchestration/mcp-registry.md)
-- [Aider](../development_ops/aider.md) (Terminal-based agent)
 - [Claude Code](../development_ops/claude-code.md)
+- [Aider](../development_ops/aider.md)
 - [Windsurf](../development_ops/windsurf.md)
 
-## Sources / References
-- [Official GitHub](https://github.com/RooCodeInc/Roo-Code)
+## Sources / references
+- [Official Roo Code GitHub](https://github.com/RooCodeInc/Roo-Code)
 - [Roo Code Documentation](https://docs.roocode.com/)
-- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-20
+- Last reviewed: 2026-06-15
 - Confidence: high
