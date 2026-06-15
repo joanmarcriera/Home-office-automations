@@ -1,89 +1,97 @@
 # Chatbox AI
 
 ## What it is
-Chatbox AI is a powerful, multi-platform AI client application that connects users with leading AI models (OpenAI, Claude, Gemini, and more) through a consistent interface on desktop, mobile, and web.
+Chatbox AI is a comprehensive, multi-platform AI client that allows users to access a wide range of frontier models (including **Claude 4.8 Opus**, **GPT-5.5**, **Gemini 2.0**, and local models via **Ollama**) through a unified, privacy-focused interface. It is available on Windows, macOS, Linux, iOS, Android, and as a web-based client.
 
 ## What problem it solves
-It eliminates the need to switch between different AI provider websites by providing a universal, privacy-focused client that stores data locally and synchronizes across all devices.
+It centralizes AI interaction, eliminating the need to manage multiple browser tabs or individual subscriptions for different providers. By allowing users to "Bring Your Own Key" (BYOK), it provides a more cost-effective and privacy-conscious way to use high-end AI models while keeping conversation history and context synchronized across all devices.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Multi-model Client
+**AI Consumption & Interaction Layer**. It acts as the primary "cockpit" for human-AI collaboration, sitting on top of various API providers and local inference engines.
 
 ## Typical use cases
-- **Cross-Platform AI Access**: Having the same AI context and history available on Windows, macOS, Android, and iOS.
-- **Local Data Management**: Ensuring conversations are stored securely on your own device rather than on provider servers.
-- **Developer Productivity**: Using specialized features like artifact previews and syntax highlighting for coding tasks.
+- **Cross-Platform Workflows**: Starting a complex coding prompt on a desktop and continuing the conversation on a mobile device.
+- **Local LLM Interaction**: Using the Chatbox UI as a front-end for models running locally via Ollama or LM Studio.
+- **Developer Productivity**: Leveraging the "Artifacts" and "Source Code Preview" features to iterate on web components or scripts.
+- **Privacy-Sensitive Research**: Storing all conversation data locally rather than on provider servers.
 
 ## Strengths
-- **Universal Availability**: Works on almost any platform (Windows, MacOS, Linux, Android, iOS, Web).
-- **Privacy-First**: Strong emphasis on local data storage and secure cross-device sync.
-- **Intuitive Interface**: Clean, accessible UI that supports file uploads, image generation, and real-time web search.
+- **Multi-Model Support**: Native integration with almost all major AI providers and local runners.
+- **Seamless Sync**: Robust, encrypted synchronization of history and settings across desktop and mobile.
+- **User Experience**: Clean, modern interface with support for image generation, file uploads, and voice-to-text.
+- **Privacy First**: Strong emphasis on local data storage and end-to-end encryption for cloud sync.
 
 ## Limitations
-- **Proprietary Software**: The client application is not fully open source.
-- **Cost for Pro Features**: While basic usage is free (BYO API key), advanced features like cloud sync may require a subscription.
+- **Closed Source Client**: The core application is proprietary, which may be a concern for extreme privacy advocates.
+- **Subscription for Sync**: While the client is free to use with your own keys, certain "Pro" features like cloud synchronization require a paid subscription.
+- **Limited Autonomy**: Unlike agentic frameworks (e.g., [Aider](../development_ops/aider.md)), Chatbox is primarily a chat interface and does not autonomously modify local files.
 
 ## When to use it
-- If you use multiple AI models throughout the day and want a single, high-quality app to manage them all.
-- If you need a reliable mobile AI client that stays in sync with your desktop work.
+- If you use multiple different AI models daily and want a single high-quality app to manage them.
+- If you value having your AI history available on your phone as well as your workstation.
+- When you want to use frontier models like Claude 4.8 Opus without using the official web interface.
 
 ## When not to use it
-- If you require a fully open-source stack for auditing or contribution.
-- If you are looking for an agentic framework that can perform autonomous actions on your local filesystem (see [Aider](../development_ops/aider.md)).
+- For tasks requiring fully autonomous agentic behavior (use [Claude Code](../development_ops/claude-code.md)).
+- If you require a 100% open-source software stack.
 
 ## Getting started
 
 ### Installation
-1.  **Desktop**: Download the installer for Windows (.exe), macOS (.dmg), or Linux (.AppImage) from the [Official Downloads](https://chatboxai.app/).
-2.  **Mobile**: Install via the [Apple App Store](https://apps.apple.com/app/chatbox-ai/id6471368056) or [Google Play Store](https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox).
-3.  **Web**: Access the client directly at [chatboxai.app](https://chatboxai.app/).
+1.  **Desktop**: Download the installer from the [Official Website](https://chatboxai.app/).
+2.  **Mobile**: Install from the [App Store](https://apps.apple.com/app/chatbox-ai/id6471368056) or [Google Play](https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox).
+3.  **Setup**: Open **Settings** > **Model**, select your provider (e.g., Anthropic), and enter your API key.
 
-### Basic Configuration
-1.  Launch Chatbox and open **Settings** (gear icon).
-2.  Navigate to **AI Provider**.
-3.  Select your provider (e.g., OpenAI) and enter your **API Key**.
-4.  Choose your desired **Model** (e.g., gpt-4o) and click **Save**.
+## CLI examples
 
-## Technical configuration
+Chatbox is primarily a GUI application, but it can be configured via JSON configuration files on desktop systems.
 
-Chatbox allows for advanced configuration, including connecting to local LLMs or custom API endpoints.
+### Inspecting Local Data (macOS/Linux)
+```bash
+# Locate the Chatbox data directory to inspect local sqlite history
+ls ~/Library/Application\ Support/chatbox/ # macOS
+ls ~/.config/chatbox/ # Linux
+```
 
-### Connecting to Ollama (Local)
-1.  Ensure [Ollama](../../services/ollama.md) is running locally.
-2.  In Chatbox Settings, set **AI Provider** to `Ollama`.
-3.  Set the **API Host** to `http://localhost:11434/v1`.
-4.  Select your local model (e.g., `llama3`) from the dropdown.
+### Scripting Configuration
+```bash
+# Example of programmatically updating the configuration (JSON)
+# Note: Use with caution while the app is closed
+jq '.ai_provider = "Anthropic" | .api_key = "sk-ant-..." ' config.json > config.new.json
+```
 
-### Custom API Configuration (JSON)
-For providers not natively listed, use the "Custom OpenAI-compatible" option:
+## API examples
 
+### Connecting to Ollama (Local API)
+In the Chatbox Settings:
+1.  Select **Provider**: `Ollama`.
+2.  **API Host**: `http://localhost:11434`.
+3.  **Model**: Select your local model (e.g., `llama3.3-70b`).
+
+### Custom OpenAI-Compatible Endpoint
 ```json
 {
-  "provider": "OpenAI-Compatible",
-  "api_key": "your-api-key",
-  "base_url": "https://your-custom-proxy.com/v1",
-  "model": "your-model-name"
+  "name": "Local Gateway",
+  "api_key": "any",
+  "base_url": "http://192.168.1.50:8000/v1",
+  "model": "mistral-large-2026"
 }
 ```
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Free (Client download) / Paid (Cloud services and premium features)
-- **Self-hostable**: No (Client-side application)
-
 ## Related tools / concepts
 - [Jan.ai](../infrastructure/jan-ai.md) — Local-first AI desktop client.
-- [LM Studio](../infrastructure/lm-studio.md) — Tool for discovering and running local LLMs.
-- [Msty](../infrastructure/msty.md) — Multi-model AI client with focus on local privacy.
-- [Aider](../development_ops/aider.md) — Terminal-based pair programmer.
-- [Ollama](../../services/ollama.md) — Local LLM runner.
-- [Perplexity](perplexity.md) — AI-powered search engine.
-- [Claude Code](../development_ops/claude-code.md) — Anthropic's official CLI coding assistant.
+- [LM Studio](../infrastructure/lm-studio.md) — Tool for running and discovering local models.
+- [Ollama](../../services/ollama.md) — The standard local LLM runner.
+- [Claude](claude.md) — Anthropic's flagship models supported by Chatbox.
+- [ChatGPT](chatgpt.md) — OpenAI's models supported by Chatbox.
+- [Perplexity](perplexity.md) — AI search integration.
+- [Msty](../infrastructure/msty.md) — Another high-quality multi-model client.
 
-## Sources / References
+## Sources / references
 - [Chatbox AI Official Site](https://chatboxai.app/)
-- [Chatbox AI GitHub](https://github.com/Bin-Huang/chatbox)
+- [Chatbox AI GitHub (Issue Tracker/Wiki)](https://github.com/Bin-Huang/chatbox)
+- [Chatbox Pro Features](https://chatboxai.app/pro)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-20
+- Last reviewed: 2026-06-15
 - Confidence: high
