@@ -1,26 +1,50 @@
 # AWS Bedrock
 
 ## What it is
-AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI.
+AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI. In June 2026, it is the primary enterprise gateway for deploying models like Claude 4.8 Opus and Llama 4 Maverick at scale.
 
 ## What problem it solves
-It simplifies the process of building and scaling generative AI applications by removing the need to manage underlying infrastructure. It provides a unified API for multiple models, along with tools for fine-tuning, RAG (Knowledge Bases for Amazon Bedrock), and agentic workflows (Agents for Amazon Bedrock).
+It simplifies the process of building and scaling generative AI applications by removing the need to manage underlying infrastructure. It provides a unified API for multiple models, along with tools for fine-tuning, RAG (Knowledge Bases for Amazon Bedrock), and agentic workflows (Agents for Amazon Bedrock). It addresses enterprise concerns regarding data privacy, security, and compliance.
 
 ## Where it fits in the stack
-**Provider / Infrastructure**. It serves as an enterprise-grade gateway to multiple high-performance LLMs.
+**Provider / Infrastructure**. It serves as an enterprise-grade gateway and orchestration layer for multiple high-performance LLMs.
 
 ## Typical use cases
 - **Enterprise AI Applications**: Building secure, scalable AI solutions within the AWS ecosystem.
-- **Retrieval-Augmented Generation (RAG)**: Using "Knowledge Bases for Amazon Bedrock" to connect models to proprietary data.
-- **Agentic Workflows**: Deploying autonomous agents that can execute multi-step tasks using AWS resources.
-- **Model Fine-tuning**: Customizing foundation models with private data.
+- **Retrieval-Augmented Generation (RAG)**: Using "Knowledge Bases for Amazon Bedrock" to connect models to proprietary S3-hosted data.
+- **Agentic Workflows**: Deploying autonomous agents that can execute multi-step tasks using AWS Lambda and other resources.
+- **Model Fine-tuning**: Customizing foundation models with private data in a secure environment.
+
+## Strengths
+- **Enterprise-Grade Security**: Strong data privacy and compliance features (HIPAA, GDPR, etc.). Data is not used to train the underlying foundation models.
+- **Model Variety**: Access to a broad range of frontier models (Claude 4.8, Llama 4, Mistral Large 3) through a single API.
+- **Serverless Experience**: No infrastructure to manage; scales automatically with demand.
+- **AWS Integration**: Seamless integration with S3, Lambda, IAM, CloudWatch, and other AWS services.
+- **Knowledge Bases**: Built-in support for managed RAG with automated vectorization and retrieval.
+
+## Limitations
+- **AWS Ecosystem Lock-in**: Deeply tied to AWS; moving to another provider requires significant re-engineering of the integration.
+- **Complexity**: AWS's extensive configuration options (IAM, VPC, etc.) can be daunting for simple projects.
+- **Regional Availability**: Not all models or features are available in all AWS regions simultaneously.
+- **Latency**: API overhead can be higher than direct provider APIs for some use cases.
+
+## When to use it
+- When building enterprise-scale AI applications that require high security, compliance, and scalability.
+- If your organization is already heavily invested in the AWS ecosystem.
+- When you need a managed RAG or agent framework that integrates natively with cloud resources.
+- For multi-model applications where you want a unified billing and security model.
+
+## When not to use it
+- For simple, low-volume projects where a direct API like OpenAI or Anthropic might be simpler and faster.
+- If you require a provider-agnostic solution that can easily move between clouds (consider [LiteLLM](../../services/litellm.md)).
+- If you need the absolute lowest latency possible for real-time applications.
 
 ## Getting started
 
 ### 1. Prerequisites
-- An AWS account with Bedrock access enabled for the desired models (e.g., Anthropic Claude).
+- An AWS account with Bedrock access enabled for the desired models.
 - AWS CLI configured with appropriate credentials.
-- Python 3.8+ for SDK usage.
+- Python 3.9+ for SDK usage.
 
 ### 2. Installation
 ```bash
@@ -35,6 +59,7 @@ import json
 bedrock = boto3.client(service_name='bedrock-runtime', region_name='us-east-1')
 
 prompt = "Explain the benefit of AWS Bedrock in one sentence."
+# Note: Model IDs follow the June 2026 technical context of this repository.
 body = json.dumps({
     "anthropic_version": "bedrock-2023-05-31",
     "max_tokens": 100,
@@ -43,11 +68,78 @@ body = json.dumps({
 
 response = bedrock.invoke_model(
     body=body,
-    modelId='anthropic.claude-3-sonnet-20240229-v1:0'
+    modelId='anthropic.claude-4-8-opus-20260528-v1:0'
 )
 
 response_body = json.loads(response.get('body').read())
 print(response_body['content'][0]['text'])
+```
+
+## CLI examples
+Commonly used commands for inspecting model availability and performing quick tests.
+
+```bash
+# List available foundation models in a region
+aws bedrock list-foundation-models --region us-east-1
+
+# Get details for a specific model (e.g., Claude 4.8)
+aws bedrock get-foundation-model --model-identifier anthropic.claude-4-8-opus-20260528-v1:0
+
+# Invoke a model via CLI and save output
+aws bedrock-runtime invoke-model \
+  --model-id anthropic.claude-3-5-sonnet-20240620-v1:0 \
+  --body '{"anthropic_version": "bedrock-2023-05-31", "max_tokens": 1024, "messages": [{"role": "user", "content": "Hello Bedrock!"}]}' \
+  output.txt
+
+# List Knowledge Bases
+aws bedrock-agent list-knowledge-bases
+```
+
+## API examples
+Using the `boto3` SDK for streaming responses and Knowledge Base retrieval.
+
+### Streaming Response
+```python
+import boto3
+import json
+
+client = boto3.client(service_name='bedrock-runtime')
+
+def stream_claude(prompt):
+    # Note: Model IDs follow the June 2026 technical context of this repository.
+    body = json.dumps({
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 512,
+        "messages": [{"role": "user", "content": prompt}]
+    })
+
+    response = client.invoke_model_with_response_stream(
+        modelId='anthropic.claude-4-8-opus-20260528-v1:0',
+        body=body
+    )
+
+    for event in response.get('body'):
+        chunk = json.loads(event.get('chunk').get('bytes'))
+        if chunk['type'] == 'content_block_delta':
+            print(chunk['delta']['text'], end='', flush=True)
+
+stream_claude("Write a short poem about AWS Bedrock.")
+```
+
+### Knowledge Base Retrieval
+```python
+import boto3
+
+agent_client = boto3.client(service_name='bedrock-agent-runtime')
+
+def retrieve_from_kb(kb_id, query):
+    response = agent_client.retrieve(
+        knowledgeBaseId=kb_id,
+        retrievalQuery={'text': query}
+    )
+    return response['results']
+
+# results = retrieve_from_kb('KB12345678', 'What are our data retention policies?')
 ```
 
 ## Technical Architecture
@@ -57,87 +149,21 @@ AWS Bedrock operates as a serverless orchestrator between the user and the hoste
 - **Provisioned Throughput**: Allows for dedicated capacity for specific models to ensure consistent latency.
 - **Knowledge Bases**: Integrates with vector databases (like Amazon OpenSearch or Aurora) for managed RAG.
 
-## SDK Example: Streaming Response
-For low-latency applications, streaming allows the UI to display tokens as they are generated.
-
-```python
-import boto3
-import json
-
-client = boto3.client(service_name='bedrock-runtime')
-
-def stream_claude(prompt):
-    body = json.dumps({
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 512,
-        "messages": [{"role": "user", "content": prompt}]
-    })
-
-    response = client.invoke_model_with_response_stream(
-        modelId='anthropic.claude-3-5-sonnet-20240620-v1:0',
-        body=body
-    )
-
-    for event in response.get('body'):
-        chunk = json.loads(event.get('chunk').get('bytes'))
-        if chunk['type'] == 'content_block_delta':
-            print(chunk['delta']['text'], end='', flush=True)
-
-stream_claude("Write a short poem about cloud computing.")
-```
-
-## CLI Reference
-Commonly used commands for inspecting model availability and performing quick tests.
-
-```bash
-# List available foundation models
-aws bedrock list-foundation-models --region us-east-1
-
-# Get details for a specific model
-aws bedrock get-foundation-model --model-identifier anthropic.claude-3-5-sonnet-20240620-v1:0
-
-# Invoke a model via CLI
-aws bedrock-runtime invoke-model \
-  --model-id anthropic.claude-3-sonnet-20240229-v1:0 \
-  --body '{"anthropic_version": "bedrock-2023-05-31", "max_tokens": 1024, "messages": [{"role": "user", "content": "Hello!"}]}' \
-  output.txt
-```
-
-## Strengths
-- **Enterprise-Grade Security**: Strong data privacy and compliance features (HIPAA, GDPR, etc.). Data is not used to train the underlying foundation models.
-- **Model Variety**: Access to a broad range of models (Claude, Llama, Mistral, Titan) through a single API.
-- **Serverless Experience**: No infrastructure to manage; scales automatically.
-- **AWS Integration**: Seamless integration with S3, Lambda, IAM, and other AWS services.
-
-## Limitations
-- **AWS Ecosystem Lock-in**: Deeply tied to AWS; moving to another provider requires significant re-engineering.
-- **Complexity**: AWS's extensive configuration options can be daunting for simple projects.
-- **Regional Availability**: Not all models or features are available in all AWS regions.
-
-## When to use it
-- When building enterprise-scale AI applications that require high security, compliance, and scalability.
-- If your organization is already heavily invested in the AWS ecosystem.
-- When you need a managed RAG or agent framework that integrates natively with cloud resources.
-
-## When not to use it
-- For simple, low-volume projects where a direct API like OpenAI or Anthropic might be simpler.
-- If you require a provider-agnostic solution that can easily move between clouds.
-
 ## Related tools / concepts
 - [Anthropic (Claude)](anthropic.md)
 - [Meta (Llama)](../ai_knowledge/local_llms.md)
 - [Mistral AI](mistral.md)
 - [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md)
 - [Docker](../infrastructure/docker.md)
-- [LiteLLM](../../services/litellm.md) - Can proxy AWS Bedrock to provide an OpenAI-compatible API.
-- [vLLM](../infrastructure/vllm.md) - Open-source alternative for hosting models yourself.
-- [OpenCompass](../benchmarking/opencompass.md) - Can be used to evaluate models hosted on Bedrock.
+- [LiteLLM](../../services/litellm.md) - Preferred for multi-cloud abstraction.
+- [vLLM](../infrastructure/vllm.md) - Open-source alternative for self-hosting.
+- [OpenCompass](../benchmarking/opencompass.md) - For evaluating Bedrock-hosted models.
 
-## Sources / References
+## Sources / references
 - [Official AWS Bedrock Page](https://aws.amazon.com/bedrock/)
 - [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
-- [Boto3 Bedrock Runtime Documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime.html)
+- [Boto3 Bedrock Runtime Reference](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-20
+- Last reviewed: 2026-06-15
 - Confidence: high
