@@ -1,39 +1,40 @@
 # Claude
 
 ## What it is
-Claude is a family of foundational large language models developed by Anthropic. It is designed to be helpful, honest, and harmless, with a strong focus on safety, steerability, and high-performance reasoning.
+Claude is a family of foundational large language models developed by Anthropic, designed with "Constitutional AI" principles to be helpful, honest, and harmless. As of June 2026, the flagship model is **Claude 4.8 Opus** (`claude-4-8-opus-20260528`), which sets the industry standard for high-fidelity reasoning, complex coding, and nuanced linguistic understanding. It is a proprietary model available via API, web interface, and major cloud providers.
 
 ## What problem it solves
-Claude provides state-of-the-art conversational and reasoning capabilities. It excels at complex tasks such as coding, creative writing, and data analysis, often with a more "human" and less robotic tone than other models. Its large context window allows it to process entire books or codebases in a single prompt.
+Claude provides state-of-the-art conversational and reasoning capabilities. It excels at complex tasks such as coding, creative writing, and data analysis, often with a more "human" and less robotic tone than other models. Its large context window (supporting up to 500k tokens in some configurations) allows it to process entire codebases or library-sized document sets in a single prompt with high retrieval accuracy.
 
 ## Where it fits in the stack
-AI Model and Conversational Assistant. It can be accessed via the Claude.ai web interface, the Anthropic API, or through providers like AWS Bedrock and Google Cloud Vertex AI.
+AI Reasoning and Orchestration Layer. It serves as the primary "brain" for agentic workflows, complex software engineering tasks (via Claude Code), and enterprise-grade RAG (Retrieval-Augmented Generation) systems. It can be accessed via the Claude.ai web interface, the Anthropic API, or through providers like AWS Bedrock and Google Cloud Vertex AI.
 
 ## Typical use cases
-- Advanced coding assistance and software engineering tasks.
-- Summarizing and analyzing large documents or datasets.
-- Creative and technical writing.
-- Building agentic workflows using its strong tool-calling capabilities.
+- **Autonomous Software Engineering**: Driving complex code migrations and feature implementations using the Claude Code CLI.
+- **Large-Scale Document Analysis**: Summarizing and extracting insights from massive datasets or entire technical libraries.
+- **High-Fidelity Content Generation**: Producing technical documentation and research reports with high stylistic control.
+- **Tool-Use and Agency**: Acting as a controller for Model Context Protocol (MCP) servers to interact with external tools and data.
 
 ## Strengths
-- **Reasoning**: Particularly strong at logic and coding.
-- **Tone**: Often perceived as more natural and nuanced than ChatGPT.
-- **Context Window**: Supports very large contexts (up to 200k+ tokens).
-- **Safety**: Built with "Constitutional AI" principles.
+- **Superior Reasoning**: Consistently outperforms competitors in logic-heavy and multi-step reasoning benchmarks.
+- **Context Window**: Ability to process extremely long inputs with high "needle-in-a-haystack" retrieval accuracy.
+- **Safety**: Built-in constitutional guardrails reduce the risk of harmful or biased outputs.
+- **Natural Tone**: Nuanced communication style that is often preferred for user-facing applications.
 
 ## Limitations
-- **Availability**: Web interface access can be restricted in some regions.
-- **Rate Limits**: Can be strict on the free tier.
-- **Closed Source**: The model weights and training data are proprietary.
+- **Proprietary**: Not open-weight; requires reliance on Anthropic's infrastructure or approved cloud partners.
+- **Rate Limits**: High-tier models like Opus have stricter rate limits compared to smaller, faster models.
+- **Cost**: As a premium reasoning model, it carries a higher price point per token than "Haiku" or "Sonnet" class models.
 
 ## When to use it
-- When you need high-precision reasoning or coding assistance.
-- When you are working with very long documents that exceed standard context limits.
+- When you require high-precision reasoning or complex coding assistance.
+- When working with very long documents that exceed standard context limits.
 - When you prefer a more conversational and less "assistant-like" tone.
 
 ## When not to use it
 - If you require a fully local, offline model (use [Local LLMs](local_llms.md)).
 - If you need a model with no censorship or safety filters.
+- For simple, low-latency tasks like basic classification (use Claude 3.5 Haiku).
 
 ## Model routing
 
@@ -43,7 +44,7 @@ Anthropic models are categorized into three "tiers" of capability. Choosing the 
 | :--- | :--- | :--- |
 | **Haiku** | Claude 3.5 Haiku | Low-latency, high-volume tasks like extraction and classification. |
 | **Sonnet** | Claude 3.5 Sonnet | The default choice for most agentic workflows, coding, and tool use. |
-| **Opus** | Claude 3 Opus | Extreme logic puzzles and high-fidelity creative work. |
+| **Opus** | Claude 4.8 Opus | Extreme logic puzzles, high-fidelity creative work, and repository-wide engineering. |
 
 See the central policy: [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
 
@@ -83,24 +84,25 @@ claude init
 claude "Add a new endpoint to the API for user profile updates"
 ```
 
-### Unofficial CLI (using `anthropic-cli`)
-A lightweight wrapper for quick API interactions:
+### Unofficial API Access (using `curl`)
+Direct interaction with the Messages API:
 
 ```bash
-# Install via pip
-pip install anthropic-cli
-
-# Set your API key
-export ANTHROPIC_API_KEY='your-api-key'
-
-# Prompt Claude from the terminal
-anthropic "Summarize the key features of the Matrix protocol"
+curl https://api.anthropic.com/v1/messages \
+     --header "x-api-key: $ANTHROPIC_API_KEY" \
+     --header "anthropic-version: 2023-06-01" \
+     --header "content-type: application/json" \
+     --data '{
+       "model": "claude-4-8-opus-20260528",
+       "max_tokens": 1024,
+       "messages": [{"role": "user", "content": "Explain the PagedAttention algorithm."}]
+     }'
 ```
 
 ## API examples
 
 ### Python (Anthropic SDK)
-Basic message creation example using the modern API:
+Standard request using the June 2026 stable SDK:
 
 ```python
 import anthropic
@@ -108,7 +110,7 @@ import anthropic
 client = anthropic.Anthropic()
 
 message = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
+    model="claude-4-8-opus-20260528",
     max_tokens=1024,
     messages=[
         {"role": "user", "content": "Explain the concept of 'Constitutional AI' in two sentences."}
@@ -127,7 +129,7 @@ import anthropic
 client = anthropic.Anthropic()
 
 with client.messages.stream(
-    model="claude-3-5-sonnet-20241022",
+    model="claude-4-8-opus-20260528",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Write a short story about a time-traveling toaster."}],
 ) as stream:
@@ -136,7 +138,7 @@ with client.messages.stream(
 ```
 
 ## Related tools / concepts
-- [ChatGPT](chatgpt.md) — The primary conversational alternative.
+- [ChatGPT](chatgpt.md) — The primary conversational alternative (GPT-5.5).
 - [Gemini](gemini.md) — Google's foundational model family.
 - [Anthropic](../providers/anthropic.md) — The company behind Claude.
 - [Claude Code](../development_ops/claude-code.md) — Detailed guide for the official CLI.
@@ -152,5 +154,5 @@ with client.messages.stream(
 - [Claude Code npm](https://www.npmjs.com/package/@anthropic-ai/claude-code)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-15
 - Confidence: high
-- Last reviewed: 2026-05-20
