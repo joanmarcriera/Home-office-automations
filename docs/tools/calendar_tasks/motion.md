@@ -1,59 +1,63 @@
 # Motion
 
 ## What it is
-An all-in-one productivity tool that uses AI to build a daily schedule based on your tasks, meetings, and project deadlines.
+An all-in-one productivity platform that utilizes artificial intelligence to automatically build a daily schedule based on tasks, meetings, and project deadlines.
 
 ## What problem it solves
-Eliminates the need for manual scheduling by automatically prioritizing tasks and fitting them into your calendar gaps.
+Motion eliminates the cognitive overhead of manual scheduling. It solves the "planning fallacy" by dynamically reconfiguring a user's calendar when new priorities emerge or meetings are added, ensuring that deadlines are met without constant manual intervention.
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / AI Productivity
+Motion acts as an intelligent orchestration layer between traditional calendars (Google, Outlook) and task management, often serving as the primary interface for autonomous agents like Claude 4.8 Opus to manage a user's time.
 
 ## Typical use cases
-- Automated daily planning
-- Project management integrated with calendar
-- Team-wide automated scheduling
+- **Automated Daily Planning**: Generating a daily agenda that prioritizes deep work and meeting preparation.
+- **Dynamic Resource Allocation**: For teams, automatically distributing work based on individual availability and project priority.
+- **Intelligent Meeting Booking**: Providing booking links that only show availability if it doesn't conflict with high-priority task deadlines.
 
 ## Strengths
-- "Intelligent Calendar" that moves tasks automatically when meetings are added
-- Integrated task and project management
-- Meeting booking links that respect task deadlines
+- **Autonomous Rescheduling**: Automatically shifts tasks to the next available slot if a meeting runs over or a new one is booked.
+- **Deep Calendar Integration**: Two-way sync with Google and Outlook ensures a single source of truth for time.
+- **Project Awareness**: Tasks are not just isolated items but part of broader projects with their own timelines.
+- **Time Blocking**: Encourages focused work by automatically creating time blocks for assigned tasks.
 
 ## Limitations
-- Higher cost compared to other scheduling tools
-- Can feel restrictive if you prefer full manual control
+- **High Subscription Cost**: Significantly more expensive than traditional task managers like Todoist.
+- **Learning Curve**: The "AI-first" approach requires users to trust the system and properly set task parameters (duration, priority).
+- **Manual Control**: Users who prefer absolute manual control over every minute of their day may find the automation restrictive.
 
 ## When to use it
-- When you have a high volume of tasks and meetings and lack time to plan
-- For teams that want to automate work distribution
+- For professionals with high-velocity schedules and frequent meeting interruptions.
+- When you have more tasks than time and need help prioritizing what to work on next.
+- For teams that want to reduce the administrative burden of work coordination.
 
 ## When not to use it
-- If you have a simple schedule with few tasks
-- If you are on a tight budget
+- If your schedule is relatively static and predictable.
+- When operating on a tight budget where a free or lower-cost tool would suffice.
+- If you require a local-only or privacy-focused offline task manager.
 
 ## Getting started
-Motion is a SaaS platform. Users typically interact with it via the web, desktop, or mobile apps. For automation, Motion provides a robust REST API for task and schedule management.
+Motion is a SaaS platform accessible via web, macOS, Windows, iOS, and Android. It integrates deeply with Google Workspace and Microsoft 365. Developers and agents can use the Motion API to programmatically inject tasks and manage schedules.
 
-## Technical Examples
-
-### Creating a Task (cURL)
-Motion provides a public API that allows you to create tasks from external triggers (e.g., a "high priority" email or a new GitHub issue).
+## CLI examples
+While there is no official CLI, the Motion API is highly accessible via standard terminal tools like `curl`.
 
 ```bash
+# Create a new high-priority task in a specific workspace
 curl -X POST https://api.usemotion.com/v1/tasks \
   -H "X-API-Key: $MOTION_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Review Project Proposal",
-    "dueDate": "2026-06-05T17:00:00Z",
-    "duration": 60,
+    "name": "Analyze GPT-5.5 performance metrics",
+    "dueDate": "2026-06-25T17:00:00Z",
+    "duration": 90,
     "priority": "ASAP",
-    "workspaceId": "YOUR_WORKSPACE_ID"
+    "workspaceId": "WS_123456"
   }'
 ```
 
-### Fetching Tasks (Python)
-Retrieve a list of tasks for a specific workspace to use in your own automation dashboards.
+## API examples
+The Motion API allows for sophisticated integrations with AI workflows, such as automatically creating tasks from meeting transcripts processed by Claude 4.8 Opus.
 
 ```python
 import requests
@@ -61,38 +65,51 @@ import os
 
 MOTION_API_KEY = os.getenv("MOTION_API_KEY")
 
-def get_motion_tasks(workspace_id):
-    url = f"https://api.usemotion.com/v1/tasks?workspaceId={workspace_id}"
-    headers = {"X-API-Key": MOTION_API_KEY}
+def create_motion_task(name, duration_mins, priority="Normal"):
+    """
+    Creates a task in Motion, often triggered by an AI agent's reasoning.
+    """
+    url = "https://api.usemotion.com/v1/tasks"
+    headers = {
+        "X-API-Key": MOTION_API_KEY,
+        "Content-Type": "application/json"
+    }
 
-    response = requests.get(url, headers=headers)
+    payload = {
+        "name": name,
+        "duration": duration_mins,
+        "priority": priority,
+        "workspaceId": os.getenv("MOTION_WORKSPACE_ID"),
+        "autoSchedule": True
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
     response.raise_for_status()
     return response.json()
 
-# Example: List task names
-tasks = get_motion_tasks("YOUR_WORKSPACE_ID")
-for task in tasks['tasks']:
-    print(f"- {task['name']} ({task['status']})")
+# Example: Task generated from a project review session
+new_task = create_motion_task(
+    name="Update Documentation for June 2026 Audit",
+    duration_mins=120,
+    priority="High"
+)
+print(f"Task created: {new_task['id']}")
 ```
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Subscription)
-- **Self-hostable**: No
-
 ## Related tools / concepts
-- [Reclaim.ai](reclaim.md) — smart scheduling and time blocking.
-- [Akiflow](akiflow.md) — central command for tasks and calendar.
-- [Google Calendar](google_calendar.md) — primary calendar backend for Motion.
-- [Sunsama](sunsama.md) — manual daily planning and task ritual.
-- [n8n](../../services/n8n.md) — automation platform for custom Motion triggers.
-- [Todoist](todoist.md) — lightweight task management alternative.
-- [Microsoft To Do](microsoft-todo.md) — enterprise task management.
+- [Reclaim.ai](reclaim.md) — smart scheduling with a focus on habits and time blocking.
+- [Akiflow](akiflow.md) — central command for tasks and calendar with manual scheduling.
+- [Sunsama](sunsama.md) — ritual-based daily planning with deep task integrations.
+- [Google Calendar](google_calendar.md) — the foundational backend for many scheduling tools.
+- [Any.do](any-do.md) — simple task management with strong messaging integration.
+- [Todoist](todoist.md) — lightweight, natural-language task manager.
+- [n8n](../../services/n8n.md) — automation platform for custom Motion task triggers.
 
-## Sources / References
+## Sources / references
 - [Motion Official Site](https://www.usemotion.com/)
 - [Motion API Documentation](https://docs.usemotion.com/)
+- [AI Scheduling Patterns](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-06-16
 - Confidence: high
