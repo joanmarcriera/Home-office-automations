@@ -1,42 +1,45 @@
 # Skyvern
 
 ## What it is
-Skyvern is an open-source browser automation platform that uses LLMs and Computer Vision to automate complex workflows on any website.
+Skyvern is an open-source browser automation platform that leverages LLMs and Computer Vision to automate complex workflows on any website. Unlike traditional automation tools that rely on the DOM (Document Object Model), Skyvern uses visual reasoning to interact with websites. As of June 2026, it is widely used for enterprise-scale browser automation where reliability across diverse and changing UIs is paramount.
 
 ## What problem it solves
-It replaces brittle, DOM-based automation (like traditional Playwright or Selenium scripts) with a visual-reasoning approach that "sees" the page, making it resistant to layout changes.
+It solves the "fragility" problem of web automation. Traditional scripts (Playwright, Selenium) break whenever a website's CSS classes, IDs, or internal structure changes. Skyvern "sees" the page like a human, allowing it to find buttons, fields, and information based on visual appearance and context, making it extremely resilient to UI updates and redesigns.
 
 ## Where it fits in the stack
-**Infrastructure / Framework**. It provides a high-level, visual-reasoning-driven layer for browser-based agents.
+**Category**: Automation & Orchestration / Web Automation. It provides a robust, visual-reasoning layer for agents, often integrated into larger business process automation (BPA) pipelines or used alongside tools like [n8n](../../services/n8n.md).
 
 ## Typical use cases
-- **Multi-Site Workflows**: Applying the same task (e.g., "download invoice") across dozens of different sites.
-- **Visual Validation**: Checking UI elements and workflows based on visual appearance.
-- **Workflow Automation**: Replacing unreliable DOM-parsing scripts.
+- **Cross-Platform Workflows**: Executing the same task (e.g., "Extract monthly invoice") across dozens of different vendor portals with unique UIs.
+- **Legacy System Integration**: Automating interaction with old web-based systems that lack APIs and have inconsistent DOM structures.
+- **Visual Data Gathering**: Extracting information from websites where the data is presented visually (e.g., charts, maps) or in heavily obfuscated HTML.
+- **Automated Compliance Audits**: Visually verifying that certain elements or disclosures are present across a large number of web pages.
 
 ## Strengths
-- **Resilient**: Vision-based reasoning doesn't break when CSS classes or XPaths change.
-- **No-Code / Low-Code**: Includes a workflow builder for non-technical users.
-- **Playwright Compatible**: Can be integrated into existing Playwright-based SDKs.
-- **High Stars**: Popular project with 20k+ stars.
+- **Visual Resilience**: Doesn't break on DOM changes; relies on what the user actually sees.
+- **Zero-Shot Automation**: Can often automate a new website without any prior training or selector mapping.
+- **Workflow Builder**: Includes a low-code interface for designing complex multi-step automations.
+- **Observability**: Provides detailed logs and video recordings of every step the agent takes for auditability.
 
 ## Limitations
-- **Vision Model Costs**: Requires high-quality vision models, which are slower and more expensive.
-- **Inference Latency**: Visual reasoning takes time, making it unsuitable for real-time applications.
-- **Resource Intensive**: Requires significant compute (GPU) for local vision processing.
+- **Computational Cost**: Visual reasoning requires significant GPU resources for local inference or expensive vision-LLM calls.
+- **Latency**: Processing screenshots and reasoning visually is slower than direct DOM interaction.
+- **Complex UI Hurdles**: May still struggle with extremely non-standard interactive elements like complex 3D canvases or highly unconventional navigation patterns.
 
 ## When to use it
-- When you need to automate workflows across many different websites.
-- For tasks where DOM parsing is extremely difficult or unreliable.
+- When you need to automate a task across many different, unrelated websites.
+- For websites where the internal HTML structure is intentionally obfuscated or frequently changed.
+- When reliability is more important than raw execution speed.
 
 ## When not to use it
-- For high-speed, simple data extraction from single-site APIs.
-- When budget or latency constraints are strict.
+- For simple scraping of a single, stable website where a basic CSS selector or API would be faster and cheaper.
+- In high-throughput scenarios where thousands of pages must be processed per minute.
+- When running on hardware without sufficient GPU acceleration for visual processing.
 
 ## Getting started
 
 ### Installation
-Skyvern is typically deployed via Docker for local use or accessed via the Skyvern Cloud.
+Skyvern is typically deployed via Docker.
 
 ```bash
 git clone https://github.com/Skyvern-AI/skyvern.git
@@ -45,56 +48,58 @@ docker-compose up
 ```
 
 ### Basic Usage
-Once the Docker containers are running, you can access the Skyvern UI at `http://localhost:8000` to create your first automation workflow.
+After deployment, the Skyvern UI is accessible at `http://localhost:8000`. You can define a "Goal" (e.g., "Log in to my bank and download the statement") and Skyvern will attempt to execute it autonomously.
 
 ## CLI examples
 ```bash
-# Start the Skyvern server and worker using Docker
+# Start Skyvern infrastructure
 docker-compose up -d
 
-# Check the status of the Skyvern worker
-docker-compose ps worker
+# Check worker health
+docker-compose ps
 
-# View logs from the Skyvern API server
-docker-compose logs -f api
+# Monitor real-time logs from the worker
+docker-compose logs -f worker
 ```
 
 ## API examples
 ```python
 import requests
 
-# Trigger a Skyvern workflow via the API
+# Triggering a goal via the Skyvern API
 response = requests.post(
-    "http://localhost:8000/api/v1/workflows/execute",
+    "http://localhost:8000/api/v1/goals",
     json={
-        "url": "https://example.com/login",
-        "navigation_goal": "Log in and navigate to the invoices page",
-        "extraction_goal": "Extract the last 3 invoice numbers and amounts"
+        "url": "https://portal.example.com",
+        "goal": "Find the 'Billing' section and extract the balance due",
+        "proxy_config": {"use_residential": True}
     },
-    headers={"Authorization": "Bearer YOUR_API_KEY"}
+    headers={"Authorization": "Bearer YOUR_SECRET_KEY"}
 )
 
-print(response.json())
+print(f"Goal ID: {response.json()['goal_id']}")
 ```
 
 ## Licensing and cost
-- **Open Source**: Yes (MIT)
-- **Cost**: Free (Self-hosted) / Paid (Skyvern Cloud)
+- **Open Source**: Yes (AGPL-3.0)
+- **Cost**: Free (Self-hosted) / Paid (Skyvern Cloud for managed infrastructure).
 - **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Browser Use](browser-use.md)
-- [Crawl4AI](../process_understanding/crawl4ai.md)
-- [n8n](../../services/n8n.md)
-- [Stagehand](stagehand.md)
-- [Playwright](../development_ops/playwright.md)
-- [Lightpanda](lightpanda.md)
+- [Browser Use](browser-use.md) — Python-based agentic browser framework.
+- [Stagehand](stagehand.md) — TypeScript-based semantic browser automation.
+- [Crawl4AI](../process_understanding/crawl4ai.md) — Efficient scraper for LLM data ingestion.
+- [n8n](../../services/n8n.md) — For scheduling and orchestrating Skyvern tasks.
+- [Playwright](../development_ops/playwright.md) — The underlying driver for browser interaction.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Best practices for browser-based agents.
+- [Model Context Protocol](mcp.md) — For standardizing tool access for agents.
+- [Lightpanda](lightpanda.md) — A lightweight, high-performance browser alternative.
 
 ## Sources / References
-- [GitHub](https://github.com/Skyvern-AI/skyvern)
+- [Skyvern GitHub](https://github.com/Skyvern-AI/skyvern)
 - [Official Website](https://www.skyvern.com/)
+- [Skyvern Documentation](https://docs.skyvern.com/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-22
+- Last reviewed: 2026-06-16
 - Confidence: high

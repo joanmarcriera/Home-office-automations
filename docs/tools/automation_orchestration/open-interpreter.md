@@ -1,38 +1,39 @@
 # Open Interpreter
 
 ## What it is
-Open Interpreter is an open-source tool that lets LLMs run code (Python, JavaScript, Shell, and more) locally on your computer. It provides a natural language interface to your computer's capabilities, essentially acting as a locally-running, more powerful version of OpenAI's Code Interpreter (Advanced Data Analysis).
+Open Interpreter is an open-source framework that allows LLMs to run code (Python, JavaScript, Shell, etc.) locally on your computer. It provides a natural language interface to your system's capabilities, functioning as a more powerful, locally-hosted alternative to OpenAI's Advanced Data Analysis. As of June 2026, it is a staple for "local-first" agentic workflows, offering deep integration with both frontier models like **Claude 4.8 Opus** and local models via **Ollama**.
 
 ## What problem it solves
-It solves the "walled garden" problem of hosted LLM code execution. While ChatGPT can write and run code in a sandbox, Open Interpreter runs on *your* machine, meaning it has access to your files, your internet connection, and your local tools, allowing it to perform real tasks like editing videos, searching your emails, or automating complex local workflows.
+It breaks the "walled garden" constraint of hosted LLM sandboxes. While hosted environments are limited in terms of internet access, file system reach, and library availability, Open Interpreter runs on *your* machine with your permissions. This enables agents to perform real-world tasks like editing local video files, managing system settings, searching local emails, and interacting with local hardware/databases directly.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / Agentic Execution
+**Category**: Automation & Orchestration / Agentic Execution. It serves as the bridge between high-level LLM reasoning and low-level system execution, providing a safe (via user confirmation) or autonomous (via `--auto_run`) environment for code-driven actions.
 
 ## Typical use cases
-- **File Management**: "Find all large PDFs in my Downloads and move them to a new folder called Archive."
-- **Data Analysis**: "Read this CSV, create a bar chart of the sales by region, and save it as a PNG."
-- **System Automation**: "Set my computer to dark mode and open my three most frequent apps."
-- **Web Scraping**: "Go to this website, find the top 5 news articles, and summarize them into a text file."
+- **Local File Management**: "Find all large logs in my /var/log directory, compress them, and upload them to my S3 bucket."
+- **Ad-hoc Data Analysis**: "Analyze this local Excel file, generate a correlation matrix, and save the chart to my desktop."
+- **System Control**: "Switch my system to dark mode, open my work terminal, and start my local Docker containers."
+- **Developer Productivity**: "Refactor all exported functions in this directory to use the new API pattern."
 
 ## Strengths
-- **Local Execution**: Complete privacy and full access to local resources.
-- **Multi-language Support**: Can run Python, Bash, JavaScript, and more.
-- **Interactive**: Allows for human-in-the-loop confirmation before running potentially dangerous commands.
-- **Flexible Models**: Can be used with hosted models (GPT-4) or local models (via Ollama or LM Studio).
+- **Native Local Access**: Full access to your computer's files, internet, and installed tools.
+- **Privacy Centric**: When paired with local models (Llama 4, Mistral), data never leaves your machine.
+- **Multilingual**: Supports Python, Bash, JavaScript, R, and more out of the box.
+- **Human-in-the-Loop**: Excellent interactive mode that asks for confirmation before running potentially destructive commands.
 
 ## Limitations
-- **Security Risk**: Running LLM-generated code locally is inherently risky. Always use the `--save_and_run` or interactive mode to review code.
-- **Hardware Dependency**: Local performance depends on your computer's specs when running local models.
+- **Security Risks**: Executing LLM-generated code locally requires extreme caution; one hallucinated `rm -rf` can be disastrous.
+- **Hardware Dependency**: Performance of local models depends entirely on the host machine's GPU/RAM.
+- **State Management**: Managing long-running state or complex dependencies across multiple code blocks can occasionally be challenging.
 
 ## When to use it
-- When you need an AI agent to perform direct actions on your local computer (files, settings, terminal).
-- For complex data analysis or file manipulation tasks that are easier to describe in natural language than to write scripts for.
-- When you prefer local execution for privacy or to avoid the constraints of hosted LLM sandboxes.
+- When you need an agent to interact directly with your local file system or OS.
+- For complex data processing tasks where privacy is a requirement.
+- When you want to use local open-weights models for system automation tasks.
 
 ## When not to use it
-- On production servers where running unverified code generated by an LLM could compromise the entire system.
-- For simple chat tasks that don't require any local system interaction or code execution.
+- On production servers or sensitive environments without strict sandboxing (e.g., Docker/Podman).
+- For simple chat-only tasks that don't require any local system interaction.
 
 ## Getting started
 
@@ -45,49 +46,52 @@ pip install open-interpreter
 ```bash
 interpreter
 ```
-Then simply type your request in plain English.
+Simply type your request (e.g., "What's the weather, and what are my upcoming meetings?") and the agent will write and run the necessary code.
 
 ## CLI examples
 ```bash
-# Start an interactive interpreter session
+# Start an interactive session
 interpreter
 
-# Run a task in "fast" mode using a cheaper model
-interpreter --fast
+# Run a specific task autonomously (Caution!)
+interpreter --task "Convert all .mov files in ~/Videos to .mp4" --auto_run
 
-# Execute a specific request directly from the terminal
-interpreter --task "Summarize the latest system logs"
+# Use a specific local model via Ollama
+interpreter --model ollama/llama3.1:8b
 ```
 
 ## API examples
 ```python
 from interpreter import interpreter
 
-# Simple chat interface
-interpreter.chat("What are the 5 largest files in my home directory?")
+# Simple command execution
+interpreter.chat("Tell me how much free disk space I have.")
 
-# Stream the output for real-time display
-for chunk in interpreter.chat("Convert all .webp files in this folder to .png", display=False, stream=True):
+# Programmatic configuration for local-first use
+interpreter.offline = True
+interpreter.llm.model = "ollama/llama4-maverick"
+interpreter.llm.api_base = "http://localhost:11434/v1"
+
+# Running a task and capturing output
+for chunk in interpreter.chat("List my top 5 most memory-intensive processes.", stream=True):
     print(chunk)
-
-# Configure the model and settings programmatically
-interpreter.offline = True # Force local execution
-interpreter.llm.model = "ollama/llama3"
 ```
 
 ## Related tools / concepts
-- [Ollama](../../services/ollama.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [Aider](../development_ops/aider.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [Goose](goose.md)
-- [Cline](../agents/cline.md)
-- [OpenHands](../development_ops/openhands.md)
+- [Ollama](../../services/ollama.md) — For running local models with Interpreter.
+- [Claude Code](../development_ops/claude-code.md) — Anthropic's CLI agent with similar capabilities.
+- [Aider](../development_ops/aider.md) — Specialized coding tool for git-based workflows.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Implementation patterns for execution agents.
+- [Goose](goose.md) — Alternative local execution environment.
+- [Cline](../agents/cline.md) — IDE-native agent with terminal access.
+- [OpenHands](../development_ops/openhands.md) — Web-based autonomous engineering platform.
+- [Model Context Protocol](mcp.md) — For exposing local tools to remote agents.
 
 ## Sources / references
 - [Open Interpreter Website](https://openinterpreter.com/)
-- [Open Interpreter GitHub](https://github.com/OpenInterpreter/open-interpreter)
+- [GitHub Repository](https://github.com/OpenInterpreter/open-interpreter)
+- [Official Documentation](https://docs.openinterpreter.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-22
+- Last reviewed: 2026-06-16
 - Confidence: high
