@@ -1,10 +1,10 @@
 # Roam Research
 
 ## What it is
-Roam Research is a "note-taking tool for networked thought." It popularized the concept of bi-directional linking and a non-hierarchical, "graph-based" approach to personal knowledge management (PKM).
+Roam Research is a "note-taking tool for networked thought." It popularized the concept of bi-directional linking and a non-hierarchical, "graph-based" approach to personal knowledge management (PKM). By 2026, it serves as a robust engine for personal knowledge graphs that integrate with frontier AI models.
 
 ## What problem it solves
-Traditional folder-based note-taking systems often force users to categorize information prematurely. Roam allows for organic growth of knowledge by connecting ideas via `[[links]]` and `#tags`, creating a web of interrelated concepts where "the graph is the file system."
+Traditional folder-based note-taking systems often force users to categorize information prematurely. Roam allows for organic growth of knowledge by connecting ideas via `[[links]]` and `#tags`, creating a web of interrelated concepts where "the graph is the file system." This enables discovery of non-obvious connections between disparate research points.
 
 ## Where it fits in the stack
 [AI & Knowledge](./index.md). It serves as a primary source of unstructured personal data that can be used for building personal knowledge graphs or providing high-signal context for [RAG systems](../../knowledge_base/README.md).
@@ -20,6 +20,7 @@ Traditional folder-based note-taking systems often force users to categorize inf
 - **Block-level Granularity**: Every paragraph (block) is a first-class citizen with a unique ID, allowing for block embedding and referencing.
 - **Fluid Interface**: Encourages frictionless entry of information without worrying about "where it goes."
 - **Programmability**: Powerful "Roam/js" and "Roam/css" extensions allow users to build custom functionality.
+- **AI Integration**: Native support for **Claude 4.8 Opus** for graph-wide reasoning and synthesis.
 
 ## Limitations
 - **Proprietary/Closed Source**: Data is stored on Roam's servers (though encrypted graphs are supported).
@@ -37,21 +38,32 @@ Traditional folder-based note-taking systems often force users to categorize inf
 - When high-performance mobile access is a dealbreaker (Roam's mobile app is a wrapper).
 
 ## Getting started
-
-### Basic Syntax
+Users can quickly get started with Roam using its core syntax:
 - `[[Page Name]]`: Creates or links to a page.
 - `#Tag`: Creates or links to a page (shorthand for `[[Tag]]`).
 - `((Block ID))`: References a specific block.
 - `{{[[TODO]]}}`: Creates a checkbox.
+- `{{[[query]]: {and: [[Task]] {not: [[DONE]]}}}}`: Creates a dynamic query.
 
-## API: Roam Alpha API
-The Roam Alpha API allows for programmatic interaction with graphs. This is essential for syncing your homelab data into your knowledge graph.
+## CLI examples
+Using community-developed CLI tools like `roam-to-git`, you can automate the backup of your graph to a local Git repository in Markdown format.
 
+```bash
+# Example backup script
+roam-to-git ./my-roam-backup --graph MyGraph --token $ROAM_TOKEN
+
+# Listing backup contents
+ls -R ./my-roam-backup/markdown/
+```
+
+## API examples
+The Roam Alpha API allows for programmatic interaction with graphs, essential for syncing homelab data or automated agents.
+
+### Writing Blocks
 ```python
 import requests
 import json
 
-# Replace with your graph name and token
 GRAPH_NAME = "my-research-graph"
 API_TOKEN = "your_roam_api_token"
 
@@ -73,18 +85,18 @@ def create_block(location_id, text):
 create_block("daily-notes-uid", "[[Home Automation]] Alert: Front door opened at 14:00")
 ```
 
-## Advanced: JSON Graph Export/Import
-Roam allows for full graph exports in JSON format, which can be used to feed local LLMs or perform graph analysis.
+### Graph Analysis (JSON Export)
+Roam allows for full graph exports in JSON format, which can be analyzed by local LLMs like **Llama 4 Maverick**.
 
 ```json
 [
   {
     "title": "Project Alpha",
+    "uid": "proj-alpha-123",
     "children": [
       {
         "string": "Key research finding [[Source-1]]",
         "uid": "abc-123",
-        "create-time": 1716460000000,
         "children": [
             { "string": "Supporting data point", "uid": "def-456" }
         ]
@@ -94,34 +106,22 @@ Roam allows for full graph exports in JSON format, which can be used to feed loc
 ]
 ```
 
-## Integration: Roam to Markdown
-Using CLI tools like `roam-to-git`, you can automate the backup of your graph to a local Git repository in Markdown format, enabling integration with this repo's documentation standards.
-
-```bash
-# Example backup script
-roam-to-git ./my-roam-backup --graph MyGraph --token $ROAM_TOKEN
-```
-
-## Licensing and cost
-- **Proprietary**: Yes.
-- **Cost**: Paid ($15/month or $165/year). No free tier beyond a short trial.
-- **Self-hostable**: No.
-
 ## Related tools / concepts
-- [Logseq](./logseq.md) (Open-source alternative)
-- [Obsidian](./obsidian.md) (Local-first alternative)
-- [Networked Thought](../../knowledge_base/README.md)
-- [Joplin](./joplin.md)
-- [Notion AI](./notion-ai.md)
-- [AnyType](../intake_storage/anytype.md)
-- [SilverBullet](../intake_storage/silverbullet.md)
-- [Tika](../../services/tika.md) (for indexing Roam exports)
+- [Logseq](./logseq.md) — Open-source alternative.
+- [Obsidian](./obsidian.md) — Local-first alternative.
+- [Networked Thought](../../knowledge_base/README.md) — Core PKM concept.
+- [Joplin](./joplin.md) — Privacy-first notes.
+- [Notion AI](./notion-ai.md) — Workspace-integrated AI.
+- [AnyType](../intake_storage/anytype.md) — Local-first graph workspace.
+- [SilverBullet](../intake_storage/silverbullet.md) — Markdown-native PWA.
+- [Tika](../../services/tika.md) — For indexing Roam exports.
 
 ## Sources / references
 - [Official Website](https://roamresearch.com/)
 - [Roam Research API Documentation](https://developer.roamresearch.com/)
 - [Roam/js Extensions](https://roamjs.com/)
+- **Licensing**: Proprietary SaaS ($15/month).
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-06-16
 - Confidence: high
