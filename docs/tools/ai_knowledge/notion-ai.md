@@ -1,10 +1,10 @@
 # Notion AI
 
 ## What it is
-Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, and summarizing information directly where they work.
+Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, and summarizing information directly where they work. By 2026, it has evolved into a comprehensive agentic assistant capable of cross-workspace reasoning and multi-step automation.
 
 ## What problem it solves
-Bridges the gap between a knowledge base and an AI assistant, allowing users to interact with their data, automate routine writing tasks, and organize information more effectively without leaving their productivity environment.
+Bridges the gap between a knowledge base and an AI assistant, allowing users to interact with their data, automate routine writing tasks, and organize information more effectively without leaving their productivity environment. It eliminates the friction of switching between a chat interface and a system of record.
 
 ## Where it fits in the stack
 [AI & Knowledge](./index.md) — integrated productivity and workspace assistant.
@@ -21,11 +21,13 @@ Bridges the gap between a knowledge base and an AI assistant, allowing users to 
 - **Agent-Native System of Record**: Pages and databases serve as "memory" for agents, accessible by both humans and LLMs.
 - **Usage-Based Credits**: A pricing model (Notion Credits) that allows customers to pay for what they use across different model tiers and tool capabilities.
 - **Context-Awareness**: Agents can reference other pages and data within Notion for high-fidelity multi-hop reasoning.
+- **Frontier Model Support**: Leverages **GPT-5.5** and **Claude 4.8 Opus** for advanced reasoning tasks.
 
 ## Limitations
 - Requires a paid add-on to the standard Notion subscription.
 - Capabilities are primarily focused on text and data within the Notion ecosystem.
 - Data privacy is subject to Notion's enterprise AI terms.
+- High-latency for extremely large cross-database Q&A queries.
 
 ## When to use it
 - If your organization already uses Notion as its primary knowledge base and workspace.
@@ -38,26 +40,27 @@ Bridges the gap between a knowledge base and an AI assistant, allowing users to 
 - When local-only data privacy is a strict requirement (consider [Obsidian](./obsidian.md)).
 
 ## Getting started
-
-### Basic AI Usage
 Users can trigger AI features directly in the Notion UI:
 1. Press `Space` on a new line to start writing with AI.
 2. Highlight text and select **Ask AI** to edit, summarize, or translate.
 3. Use **Notion Q&A** (the sparkle icon in the sidebar) to ask questions across your entire workspace.
+4. **Agent Templates**: Use the Notion Template Gallery to deploy pre-built AI agents for common workflows.
 
-## API: Triggering AI Properties
-You can programmatically trigger Notion AI to fill database properties using the Notion API (supported via the `notion-client` Python SDK).
+## CLI examples
+> [!NOTE]
+> As of June 2026, Notion does not provide an official standalone CLI for Notion AI. Interaction is managed via the Notion UI, browser extensions, or the REST API.
 
+## API examples
+You can programmatically trigger Notion AI or enrich content using the Notion API (supported via the `notion-client` Python SDK).
+
+### Triggering AI Properties
 ```python
 import os
 from notion_client import Client
 
 notion = Client(auth=os.environ["NOTION_TOKEN"])
 
-database_id = "your_database_id"
-
 # Update a database page to trigger an AI summary property
-# Note: The property must be pre-configured as an "AI Summary" type in the UI
 notion.pages.update(
     page_id="your_page_id",
     properties={
@@ -69,9 +72,7 @@ notion.pages.update(
 )
 ```
 
-## API: Content Enrichment with LLMs
-For more advanced workflows, you can extract page content, process it with an external LLM, and write the result back to Notion.
-
+### Content Enrichment with LLMs
 ```python
 def enrich_notion_page(page_id, llm_analysis):
     notion.pages.update(
@@ -87,32 +88,25 @@ def enrich_notion_page(page_id, llm_analysis):
 enrich_notion_page("page_id_123", "Highly positive feedback with focus on UI.")
 ```
 
-## Advanced: Automation with n8n or Make
-Notion AI is frequently used in multi-step automation pipelines.
-
-- **n8n**: Use the Notion node to watch for new database entries, then send them to Notion AI for summarization or tagging.
-- **Make.com**: Create a scenario that takes an email (from Gmail), saves it to a Notion database, and uses Notion AI to extract action items.
-
-## Licensing and cost
-- **Add-on**: Notion AI is available as a paid add-on to any Notion plan (including Free).
-- **Pricing**: Typically $10 per member per month (billed annually).
-- **Usage**: Unlimited for most standard features, subject to fair use.
+### Automation with n8n
+Notion AI is frequently used in multi-step automation pipelines using [n8n](../../services/n8n.md). Use the Notion node to watch for new database entries, then send them to the Notion AI node for summarization or tagging.
 
 ## Related tools / concepts
-- [Obsidian](./obsidian.md)
-- [Logseq](./logseq.md)
-- [ChatGPT](./chatgpt.md)
-- [n8n](../../services/n8n.md)
-- [Make.com](https://www.make.com/)
-- [AnyType](../intake_storage/anytype.md)
-- [Roam Research](./roam-research.md)
-- [SilverBullet](../intake_storage/silverbullet.md)
+- [Obsidian](./obsidian.md) — Local-first alternative.
+- [Logseq](./logseq.md) — Graph-based alternative.
+- [ChatGPT](./chatgpt.md) — Standalone assistant.
+- [n8n](../../services/n8n.md) — Workflow automation.
+- [Make.com](https://www.make.com/) — Low-code automation.
+- [AnyType](../intake_storage/anytype.md) — Privacy-first workspace.
+- [Roam Research](./roam-research.md) — Networked thought.
+- [SilverBullet](../intake_storage/silverbullet.md) — Extensible markdown-based workspace.
 
 ## Sources / references
 - [Official Website](https://www.notion.so/product/ai)
 - [Latent Space: Notion's Token Town & The Software Factory Future](https://www.latent.space/p/notion)
 - [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)
+- **Licensing**: Paid add-on (typically $10/member/month).
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-06-16
 - Confidence: high
