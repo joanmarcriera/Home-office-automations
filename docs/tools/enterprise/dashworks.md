@@ -1,42 +1,60 @@
 # Dashworks
 
 ## What it is
-An AI-powered search and knowledge management platform designed for teams to find information across all their internal apps.
+Dashworks is an AI-powered search and knowledge management platform that enables teams to find information across all their internal applications through a unified, conversational interface.
 
 ## What problem it solves
-Eliminates information silos by providing a unified interface to search through Slack, Google Drive, Jira, Confluence, and other enterprise tools.
+It solves the "information silos" problem by centralizing access to data stored in fragmented tools like Slack, Google Drive, Jira, Confluence, and GitHub. Dashworks allows users to ask natural language questions and receive grounded answers based on their company's collective knowledge.
 
 ## Where it fits in the stack
 **Category**: Enterprise AI / Knowledge Management
+It acts as the "internal brain" of an organization, providing a Retrieval-Augmented Generation (RAG) layer that connects frontier models (GPT-5.5, Claude 4.8 Opus) to proprietary enterprise data.
 
 ## Typical use cases
-- **Internal Knowledge Retrieval**: Finding specific documents, messages, or tickets across multiple platforms.
-- **Onboarding**: Helping new employees find relevant information and answers to common questions.
-- **Executive Summarization**: Getting a quick overview of project statuses or meeting notes from various sources.
+- **Internal Knowledge Retrieval**: Quickly finding specific policies, project updates, or technical specs across multiple platforms.
+- **Automated Employee Onboarding**: Answering new hires' questions about company culture, tools, and processes without human intervention.
+- **Executive Summarization**: Generating brief summaries of project progress by analyzing messages and documents from disparate sources.
+
+## Strengths
+- **Massive Integration Ecosystem**: Support for over 100+ enterprise connectors out of the box.
+- **Permissions-Aware Search**: Respects existing access controls in source systems, ensuring users only see information they are authorized to access.
+- **Conversational Answers**: Beyond just links, it provides synthesized answers with citations to original sources.
+- **Ease of Deployment**: SaaS-based setup that can get a team up and running in minutes.
+
+## Limitations
+- **External Dependency**: As a SaaS platform, it requires trusting a third party with metadata or content indexing.
+- **Subscription-Based**: Costs can scale significantly for large enterprises compared to self-hosted search engines.
+- **Indexing Latency**: There may be a short delay between an update in a source system and its availability in Dashworks search.
+
+## When to use it
+- When your team loses significant productivity searching for info across too many tools.
+- If you need a "plug-and-play" RAG solution for your internal company data.
+- For organizations that prioritize ease of use and rapid time-to-value for internal search.
+
+## When not to use it
+- For highly sensitive industries that mandate 100% on-premise data residency.
+- If you have a very small team where information is easily managed in a single tool (e.g., just Notion).
+- If you require deep, custom machine learning model training on your specific domain (consider a custom stack with Pinecone and Claude).
 
 ## Getting started
-Dashworks is a SaaS platform. Integration typically involves connecting your enterprise apps via their web dashboard. For developers, the Dashworks API allows for programmatically querying the knowledge base and managing users.
+Dashworks is primarily accessed via its web application and browser extension. Developers can leverage the Dashworks API to build custom search experiences or integrate Dashworks into their own internal tools and AI agents.
 
-## Technical Examples
-
-### Querying the Knowledge Base (cURL)
-You can use the Dashworks Search API to retrieve answers across all connected sources.
+## CLI examples
+While Dashworks does not provide a standalone CLI, its API can be queried using standard tools like `curl`.
 
 ```bash
+# Query Dashworks to find information about a project
 curl -X POST https://api.dashworks.ai/v1/search \
   -H "Authorization: Bearer $DASHWORKS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "What is our policy on remote work?",
-    "stream": false,
-    "filters": {
-      "sources": ["slack", "confluence"]
-    }
+    "query": "What is the status of the Blackwell integration?",
+    "stream": false
   }'
 ```
 
-### Python SDK Example
-Using the `requests` library to interface with Dashworks:
+## API examples
+The Dashworks API allows for programmatically accessing the organizational knowledge base, which is particularly useful for augmenting AI agent prompts.
 
 ```python
 import requests
@@ -44,7 +62,10 @@ import os
 
 DASHWORKS_API_KEY = os.getenv("DASHWORKS_API_KEY")
 
-def ask_dashworks(question: str):
+def query_internal_brain(question: str):
+    """
+    Interfaces with Dashworks to retrieve internal company knowledge.
+    """
     url = "https://api.dashworks.ai/v1/search"
     headers = {
         "Authorization": f"Bearer {DASHWORKS_API_KEY}",
@@ -52,52 +73,33 @@ def ask_dashworks(question: str):
     }
     payload = {
         "query": question,
-        "max_results": 5
+        "max_results": 3,
+        "semantic_search": True
     }
 
     response = requests.post(url, json=payload, headers=headers)
     response.raise_for_status()
     return response.json()
 
-# Example usage
-answer = ask_dashworks("Who is the project lead for Alpha?")
-print(answer['summary'])
+# Example: AI agent checking for internal compliance rules
+info = query_internal_brain("What are our June 2026 data retention policies?")
+print(f"Verified Answer: {info.get('answer')}")
 ```
 
-## Strengths
-- **Wide Integration Support**: Connects to 100+ popular enterprise applications.
-- **Personalized Results**: Learns from user behavior and permissions to provide relevant answers.
-- **Privacy-First**: Built with enterprise security and data privacy in mind.
-
-## Limitations
-- **Subscription Cost**: Enterprise pricing model.
-- **Setup Complexity**: Requires administrative access to multiple third-party systems for full effect.
-
-## When to use it
-- When your team spends too much time searching for information across different apps.
-- When you need a "single source of truth" for internal knowledge.
-
-## When not to use it
-- For small teams with very few documents or apps.
-- If you prefer a completely local, self-hosted search solution.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (SaaS)
-- **Self-hostable**: No
-
 ## Related tools / concepts
-- [Glean](glean.md) — primary competitor in enterprise search.
-- [Guru](guru.md) — knowledge management with verification focus.
-- [Coveo](coveo.md) — enterprise-grade search and recommendations.
-- [Notion AI](../ai_knowledge/notion-ai.md) — AI search within Notion workspaces.
-- [Elastic](elastic.md) — underlying search technology for many enterprise tools.
-- [Langfuse](../process_understanding/langfuse.md) — observability for AI queries.
-- [Knowledge Management](../../knowledge_base/README.md) — core concept and patterns.
+- [Glean](glean.md) — the primary enterprise-scale competitor for unified search.
+- [Guru](guru.md) — focused on verified knowledge "cards" and wiki management.
+- [Coveo](coveo.md) — enterprise-grade search and recommendation platform.
+- [Notion AI](../ai_knowledge/notion-ai.md) — integrated AI search within the Notion ecosystem.
+- [Elastic](elastic.md) — open-source search foundation used for building custom indexes.
+- [Pinecone](../infrastructure/pinecone.md) — vector database for building custom enterprise RAG.
+- [Langfuse](../process_understanding/langfuse.md) — observability for tracking Dashworks-powered AI queries.
 
 ## Sources / references
 - [Dashworks Official Site](https://www.dashworks.ai/)
+- [Dashworks API Documentation](https://docs.dashworks.ai/)
+- [Enterprise Search Patterns](../../knowledge_base/patterns/search-patterns.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-23
+- Last reviewed: 2026-06-16
 - Confidence: high
