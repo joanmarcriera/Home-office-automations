@@ -1,123 +1,128 @@
 # Vercel OSS
 
 ## What it is
-Vercel OSS is Vercel's open-source ecosystem and showcase of projects, templates, and reference tooling. It includes high-profile libraries like the [AI SDK](https://sdk.vercel.ai/) and [v0](https://v0.dev/) (Vercel's generative UI tool).
+Vercel OSS is Vercel's open-source ecosystem and showcase of projects, templates, and reference tooling. In June 2026, it centers on the **Vercel AI SDK 5.0**, **v0.dev**, and a suite of high-performance libraries (Next.js, Turborepo, SWR) optimized for building autonomous, streaming AI web applications.
 
 ## What problem it solves
-It helps teams find production-oriented examples, starter projects, and reusable tooling from the Vercel ecosystem. This reduces the time spent on "boilerplate" and provides a canonical way to implement modern web features.
+It helps teams find production-oriented examples, starter projects, and reusable tooling from the Vercel ecosystem, significantly reducing the time spent on boilerplate. It provides canonical implementation patterns for "AI-native" features like streaming generative UI, tool-calling interfaces, and multi-model RAG.
 
 ## Where it fits in the stack
-**Development & Ops / OSS Reference Hub**. It is more of a discovery and reference surface than a single tool, acting as the primary source for "Next.js-native" implementation patterns.
-
-## Core Libraries & Projects
-
-- **[Vercel AI SDK](https://sdk.vercel.ai/)**: A unified toolkit for building AI-powered web apps with React, Svelte, Vue, and more.
-- **[v0.dev](https://v0.dev/)**: Generative UI tool that produces React code using Tailwind CSS and shadcn/ui.
-- **[SWR](https://swr.vercel.app/)**: React Hooks for data fetching.
-- **[Turborepo](https://turbo.build/)**: High-performance build system for JavaScript and TypeScript monorepos.
-- **[Next.js Templates](https://vercel.com/templates)**: A collection of production-ready starters.
+**Development & Ops / OSS Reference Hub**. It is the primary source for "Next.js-native" implementation patterns, sitting at the intersection of frontend development and AI orchestration.
 
 ## Typical use cases
-- Finding starter apps and templates for specific AI providers (Anthropic, OpenAI, etc.).
-- Reviewing how Vercel packages production-facing examples like "Chatbot UI" or "Generative Search".
-- Borrowing patterns for frontend or AI app scaffolds.
-- Studying how product-facing websites and app shells are structured before asking an LLM to generate one.
+- **AI-Powered Dashboards**: Using **v0.dev** to scaffold complex generative UIs that update in real-time based on agent output.
+- **Multi-Model Chat Apps**: Leveraging the AI SDK to build interfaces that switch between models like **Claude 4.8 Opus** and **GPT-5.5** seamlessly.
+- **Autonomous Web Agents**: Using the AI SDK's tool-calling capabilities to build agents that interact with external APIs directly from the browser.
+- **Monorepo Management**: Utilizing Turborepo to manage large-scale AI applications with shared component libraries.
 
-## Implementation Example: AI SDK
-The Vercel AI SDK is a cornerstone of Vercel's OSS offerings. Here is a basic implementation using the `useChat` hook:
+## Strengths
+- **High-Quality Defaults**: Standard-setting examples and libraries from a world-class product team.
+- **Seamless Integration**: Deeply optimized for [Vercel](vercel.md) and [Next.js](https://nextjs.org/).
+- **Generative UI Support**: Native support for returning React components from LLM streams via `streamUI`.
+- **Massive Ecosystem**: Extensive community templates, shadcn/ui integration, and multi-provider support.
+
+## Limitations
+- **Ecosystem Affinity**: While the AI SDK is framework-agnostic, many templates are heavily biased toward Next.js and the Vercel platform.
+- **Language Constraint**: Primarily focused on the JavaScript/TypeScript ecosystem.
+- **Maintenance Overhead**: The rapid evolution of libraries like the AI SDK requires regular updates to avoid using deprecated patterns.
+
+## When to use it
+- When you want credible, production-ready starter references for AI-powered web applications.
+- When building interfaces that require advanced "Generative UI" or streaming components.
+- When starting a new project and wanting to leverage the industry-standard **Vercel AI SDK**.
+- When you need to manage complex frontend monorepos for AI product families.
+
+## When not to use it
+- For non-JavaScript/TypeScript applications (e.g., pure Python or Go backends).
+- When building simple static sites that don't require the complexity of the Vercel OSS stack.
+- If you prefer a completely different frontend ecosystem like Vue or Svelte (though the SDK has some support, the OSS showcase is React-heavy).
+
+## Getting started
+
+### Installation
+Install the Vercel AI SDK and your preferred model providers:
+```bash
+npm install ai @ai-sdk/openai @ai-sdk/anthropic zod
+```
+
+### v0.dev Integration
+1. Describe your desired UI at [v0.dev](https://v0.dev/).
+2. Copy the generated code into your project.
+3. Wire the component to your AI SDK stream.
+
+## CLI examples
+
+### Turborepo Management
+Manage your AI monorepo with the Turbo CLI.
+```bash
+# Initialize a new Turborepo
+npx create-turbo@latest
+
+# Run development servers for all apps in the monorepo
+npx turbo dev
+
+# Build the entire project with cached results
+npx turbo build
+```
+
+## API examples
+
+### Streaming Generative UI (June 2026)
+Using `streamUI` from the AI SDK to return components dynamically from **Claude 4.8 Opus**.
 
 ```typescript
 // app/api/chat/route.ts
-import { streamText } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { streamUI } from 'ai';
+import { anthropic } from '@ai-sdk/anthropic';
+import { WeatherComponent } from '@/components/weather';
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
-  const result = await streamText({
-    model: openai('gpt-4o'),
+
+  const result = await streamUI({
+    model: anthropic('claude-4-8-opus-20260528'),
     messages,
+    tools: {
+      getWeather: {
+        description: 'Get the current weather',
+        parameters: z.object({ location: z.string() }),
+        generate: async ({ location }) => <WeatherComponent location={location} />,
+      },
+    },
   });
-  return result.toDataStreamResponse();
-}
 
-// components/chat.tsx
-'use client';
-import { useChat } from 'ai/react';
-
-export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
-  return (
-    <div>
-      {messages.map(m => (
-        <div key={m.id}>{m.role}: {m.content}</div>
-      ))}
-      <form onSubmit={handleSubmit}>
-        <input value={input} onChange={handleInputChange} />
-      </form>
-    </div>
-  );
+  return result.value;
 }
 ```
 
-## Strengths
-- High-quality examples from a strong product ecosystem.
-- Good source of implementation references for [Next.js](vercel.md) and [Tailwind CSS](https://tailwindcss.com/).
-- Useful for prompt grounding when you want concrete UI or architecture inspiration.
-- Massive community support and regular updates.
+### Multi-Model Streaming
+Switching providers based on task complexity using the unified SDK interface.
 
-## Limitations
-- Not a standalone product capability; usually tied to the [Vercel](vercel.md) ecosystem.
-- Examples still need adaptation to your stack and constraints.
-- It is inspiration and reference material, not the hosting platform itself.
+```typescript
+import { streamText } from 'ai';
+import { openai } from '@ai-sdk/openai';
 
-## When to use it
-- When you want credible starter references for productized web apps.
-- When you need examples of how polished web apps, dashboards, and AI product shells are assembled.
-- When starting a new project and wanting to use the [Vercel AI SDK](https://sdk.vercel.ai/).
-
-## When not to use it
-- When you need a focused tool rather than an ecosystem showcase.
-- When the real question is where to deploy; use [Vercel](vercel.md) or the [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md) instead.
-- If you are building a non-JavaScript/TypeScript application.
-
-## Reference Implementation Patterns
-
-### Generative UI Workflow (v0.dev + AI SDK)
-This pattern involves using v0 to scaffold the UI and the AI SDK to provide the dynamic data stream.
-1. **Scaffold**: Describe the desired UI in [v0.dev](https://v0.dev/) (e.g., "A dark mode dashboard for monitoring agent health").
-2. **Integrate**: Copy the React/Tailwind code into a Next.js project.
-3. **Wire**: Use `streamUI` from the AI SDK to return these components dynamically based on model output.
-
-### Multi-Model RAG (AI SDK + OpenRouter)
-A common pattern for building model-agnostic RAG systems.
-- **Provider**: Use `createOpenRouter` from `@ai-sdk/openai-compatible`.
-- **Retrieval**: Use [Supabase](../infrastructure/supabase.md) vector store via the `embed` and `embedMany` functions in the AI SDK.
-- **Orchestration**: Wrap the retrieval and generation logic in a single server action for clean frontend consumption.
-
-### Agentic Tool Use
-Leveraging the AI SDK's `tool` calling capability to interact with external APIs.
-- **Definition**: Define tools with Zod schemas for strict type safety.
-- **Execution**: The SDK handles the `requires-action` state and automatic re-submission of tool outputs to the model.
-
-## Comments
-- Treat this as a research and reference surface.
-- Use it before implementation when you want higher-quality examples.
-- Pair it with [Vercel](vercel.md) for deployment decisions and with [Google Cloud Code](../development_ops/cloud_code.md) when you want UI-generation inspiration from another ecosystem.
+const result = await streamText({
+  model: openai('gpt-5.5-preview'),
+  prompt: 'Write a technical deep-dive on Vercel OSS.',
+});
+```
 
 ## Related tools / concepts
 - [Vercel](vercel.md)
-- [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
-- [Free AI Website Playbook (Docs Version)](../../knowledge_base/free_ai_website_playbook.md)
 - [Supabase](../infrastructure/supabase.md)
 - [Cursor](cursor.md)
 - [Aider](aider.md)
 - [Next.js](https://nextjs.org/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
 
 ## Sources / References
-- [Official Website](https://vercel.com/oss)
+- [Official Vercel OSS Page](https://vercel.com/oss)
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
 - [v0.dev](https://v0.dev/)
+- [Next.js Blog: AI and the Future of the Web](https://nextjs.org/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high

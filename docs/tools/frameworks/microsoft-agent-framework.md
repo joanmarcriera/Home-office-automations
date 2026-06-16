@@ -1,167 +1,141 @@
 # Microsoft Agent Framework
 
 ## What it is
-Microsoft Agent Framework (part of the broader Azure AI and Semantic Kernel ecosystem) is a collection of libraries and standards for building, orchestrating, and managing multi-agent AI systems. It is designed to provide high-level abstractions for agent communication and state management.
+Microsoft Agent Framework (integrated within **Azure AI Foundry** and the **Semantic Kernel** ecosystem) is a collection of libraries and standards for building, orchestrating, and managing multi-agent AI systems. In June 2026, it serves as the primary enterprise framework for deploying agents that utilize frontier models like **Claude 4.8 Opus** (via Azure) and **GPT-5.5**, providing high-level abstractions for agent communication, state management, and tool execution.
 
 ## What problem it solves
-It simplifies the coordination of multiple LLM-powered agents, providing standardized ways for them to communicate, share state, and collaborate on complex tasks. It addresses the challenges of agentic memory, tool access control, and cross-agent consistency in an enterprise context.
+It simplifies the coordination of multiple LLM-powered agents, providing standardized ways for them to communicate, share state, and collaborate on complex tasks. It addresses critical enterprise challenges including agentic memory persistence, role-based tool access control, and cross-agent consistency, preventing the "unreliable agent" problem in production.
 
 ## Where it fits in the stack
-**Category**: Frameworks / Orchestration
+**Frameworks / Orchestration**. It sits at the orchestration layer, connecting infrastructure (Azure AI Foundry) and models with application-level agentic logic.
 
 ## Typical use cases
-- **Multi-agent Collaboration**: Building teams of agents with specialized roles (e.g., Researcher, Coder, Reviewer).
-- **Enterprise Agent Management**: Deploying agents within existing Microsoft 365 or Azure environments.
-- **Workflow Automation**: Orchestrating agents to perform end-to-end business processes with human-in-the-loop (HITL) support.
-- **Legacy System Integration**: Using Semantic Kernel connectors to allow agents to interact with corporate APIs and databases.
+- **Enterprise Multi-agent Teams**: Building teams of agents with specialized roles (e.g., Researcher, Coder, Reviewer) that collaborate on software development or financial analysis.
+- **Automated Customer Support**: Orchestrating agents that can handle complex multi-step support tickets with human-in-the-loop (HITL) handoffs.
+- **Business Process Automation**: Integrating agents into existing Microsoft 365 workflows to automate reporting, data entry, and meeting synthesis.
+- **Legacy System Interfacing**: Using Semantic Kernel connectors to allow agents to interact securely with on-premises corporate APIs and databases.
 
 ## Strengths
-- **Azure Integration**: Seamlessly works with Azure OpenAI Service, Azure AI Search, and other Azure components.
-- **Enterprise Ready**: Designed with robust security, scalability, and built-in observability for production monitoring.
-- **Standardized State**: Provides sophisticated patterns for managing agent memory and conversation history across different models.
-- **Multi-Language Support**: Strong support for both C# (.NET) and Python, catering to enterprise and AI research teams alike.
+- **Azure Integration**: Seamlessly works with Azure OpenAI Service, Azure AI Search, and the broader Azure ecosystem for security and compliance.
+- **Enterprise Scale**: Designed with robust security, built-in observability for production monitoring, and support for high-throughput agentic workloads.
+- **Sophisticated State Management**: Provides advanced patterns for managing long-term agent memory and conversation history across different model providers.
+- **Cross-Language Support**: Strong, first-class support for both **.NET** and **Python**, catering to both enterprise application developers and AI researchers.
 
 ## Limitations
-- **Complexity**: Can have a steeper learning curve compared to simpler multi-agent frameworks like CrewAI.
-- **Ecosystem Affinity**: While usable standalone, its deepest value is realized within the Microsoft/Azure ecosystem.
-- **Rapid Evolution**: The framework is evolving quickly, which can lead to frequent updates and breaking changes in earlier versions.
+- **Learning Curve**: The framework's depth and enterprise features lead to a steeper learning curve compared to lightweight libraries.
+- **Ecosystem Gravity**: While usable standalone, its maximum value is realized when deployed within the Microsoft/Azure ecosystem.
+- **Rapid Release Cycle**: The framework evolves quickly, requiring regular maintenance to keep up with new features and architectural best practices.
 
 ## When to use it
-- When building complex, enterprise-grade multi-agent systems, especially if already using Azure.
-- When you need robust orchestration, security, and state management for agents in a production environment.
-- When you need to integrate agents with .NET-based applications.
+- When building complex, enterprise-grade multi-agent systems that require high security and scalability.
+- When you need to integrate AI agents with existing .NET-based corporate infrastructure.
+- When you require robust, out-of-the-box orchestration, observability, and state management for agents in production.
+- When utilizing Azure AI Foundry as your primary model serving and management platform.
 
 ## When not to use it
-- For simple, single-agent tasks where a basic SDK (like OpenAI's) or a lightweight library (like Smolagents) is sufficient.
-- If you prefer a completely lightweight, community-driven, or ecosystem-agnostic open-source framework.
-
+- For simple, single-agent tasks where a basic SDK or a minimalist library like [Smolagents](smolagents.md) is sufficient.
+- If you prefer a completely ecosystem-agnostic, lightweight open-source framework without enterprise overhead.
+- When building non-enterprise, small-scale prototypes where speed of initial setup is the only priority.
 
 ## Getting started
 
 ### Installation (Python)
-The framework is primarily accessed via the `azure-ai-projects` and `azure-ai-inference` libraries for Azure environments, or via `semantic-kernel` for general use.
+In June 2026, the framework is primarily accessed via the `azure-ai-projects` library for Azure environments.
 
 ```bash
 pip install azure-ai-projects azure-identity
 ```
 
-### Usage (Hello World Agent - Python)
-This example uses the Azure AI Agents service to create a simple agent.
-
+### Initial Configuration
+Initialize the project client to connect to your Azure AI Foundry project:
 ```python
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
-# Initialize the client
 project_client = AIProjectClient.from_connection_string(
     conn_str="YOUR_CONNECTION_STRING",
     credential=DefaultAzureCredential()
 )
-
-# Create an agent
-agent = project_client.agents.create_agent(
-    model="gpt-4o",
-    name="my-first-agent",
-    instructions="You are a helpful assistant."
-)
-
-# Run a task
-run = project_client.agents.create_run(
-    thread_id="my-thread",
-    assistant_id=agent.id,
-    prompt="Tell me a joke!"
-)
-
-print(f"Agent Response: {run.messages[0].text}")
-```
-
-### Usage (Hello World Agent - .NET)
-Semantic Kernel allows for robust agent definitions in C#.
-
-```csharp
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Agents;
-
-// Initialize the Kernel
-var builder = Kernel.CreateBuilder();
-builder.AddAzureOpenAIChatCompletion("deployment-name", "endpoint", "api-key");
-var kernel = builder.Build();
-
-// Define the Agent
-ChatCompletionAgent agent = new()
-{
-    Name = "ReviewerAgent",
-    Instructions = "You are a code reviewer. Focus on performance.",
-    Kernel = kernel
-};
-
-// Execute a Conversation
-var history = new ChatHistory();
-history.AddUserMessage("Review this: for(int i=0; i<10; i++) { Console.WriteLine(i); }");
-
-await foreach (var message in agent.InvokeAsync(history))
-{
-    Console.WriteLine($"{message.Role}: {message.Content}");
-}
 ```
 
 ## CLI examples
 
 ### Azure CLI (Agent Management)
-Manage AI agents and projects using the Azure CLI (`az`).
+Manage AI agents and projects using the Azure CLI (`az`) with the AI extension.
 
 ```bash
-# Create a new AI project
+# Create a new AI project in a resource group
 az ai project create --name my-ai-project --resource-group my-group
 
-# List available agents in a project
+# List available agents within a specific project
 az ai agent list --project-name my-ai-project
+
+# View logs for a specific agent execution
+az ai agent logs --name my-first-agent --project-name my-ai-project
 ```
 
 ## API examples
 
-### Multi-Agent Interaction
-Defining roles and handoffs between agents using the framework logic.
+### Creating and Running an Agent (Python)
+Using the Azure AI Agents service to create a simple agent utilizing **GPT-5.5**.
 
 ```python
-# Conceptual multi-agent setup in Semantic Kernel
-from semantic_kernel.agents import ChatCompletionAgent
-
-# Define Researcher
-researcher = ChatCompletionAgent(
-    name="Researcher",
-    instructions="Find data on the requested topic.",
-    kernel=kernel
+# Create an agent with specific instructions
+agent = project_client.agents.create_agent(
+    model="gpt-5.5-preview",
+    name="analyst-agent",
+    instructions="Analyze the provided financial data and suggest optimizations."
 )
 
-# Define Writer
-writer = ChatCompletionAgent(
-    name="Writer",
-    instructions="Write a summary based on the research provided.",
-    kernel=kernel
+# Create a conversation thread and run the agent
+run = project_client.agents.create_run(
+    thread_id="thread-unique-id",
+    assistant_id=agent.id,
+    prompt="What is our projected Q3 growth based on these spreadsheets?"
 )
+
+print(f"Agent Response: {run.messages[0].text}")
 ```
 
-## Licensing and cost
-- **Open Source**: Significant parts are open source (e.g., Semantic Kernel); others are proprietary Azure services.
-- **Cost**: Variable; libraries are free, but underlying Azure AI services and infrastructure incur costs.
-- **Self-hostable**: Yes (the framework libraries can be run anywhere).
+### Multi-Agent Interaction (.NET)
+Defining roles and handoffs in C# using Semantic Kernel.
+
+```csharp
+using Microsoft.SemanticKernel.Agents;
+
+// Define a Code Reviewer Agent
+ChatCompletionAgent reviewerAgent = new()
+{
+    Name = "Reviewer",
+    Instructions = "Review code for performance and security vulnerabilities.",
+    Kernel = kernel
+};
+
+// Define a Coder Agent
+ChatCompletionAgent coderAgent = new()
+{
+    Name = "Coder",
+    Instructions = "Write optimized C# code based on user requirements.",
+    Kernel = kernel
+};
+```
 
 ## Related tools / concepts
 - [AutoGen](autogen.md)
 - [Semantic Kernel](semantic-kernel.md)
 - [CrewAI](crewai.md)
-- [LangGraph](langgraph.md)
-- [OpenAI Agents SDK](openai-agents-sdk.md)
+- [LangGraph](../frameworks/langgraph.md)
 - [Azure OpenAI](../providers/azure-openai.md)
-- [Plandex](../development_ops/plandex.md)
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Aider](../development_ops/aider.md)
+- [OpenHands](../development_ops/openhands.md)
 
 ## Sources / References
-- [Official Microsoft AI Agents Site](https://www.microsoft.com/en-us/research/project/ai-agents/)
-- [Azure AI Agents Service Documentation](https://learn.microsoft.com/en-us/azure/ai-services/agents/)
-- [Semantic Kernel Overview](https://learn.microsoft.com/en-us/semantic-kernel/overview/)
+- [Official Microsoft AI Agents Documentation](https://learn.microsoft.com/en-us/azure/ai-services/agents/)
+- [Azure AI Foundry Overview](https://ai.azure.com/)
+- [Semantic Kernel GitHub Repository](https://github.com/microsoft/semantic-kernel)
+- [Microsoft Research: Multi-Agent Systems](https://www.microsoft.com/en-us/research/project/ai-agents/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high
