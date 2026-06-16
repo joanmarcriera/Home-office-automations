@@ -1,145 +1,116 @@
 # Vercel
 
 ## What it is
-Vercel is a cloud platform for deploying frontend websites and web applications, especially modern React and Next.js projects. It provides a seamless transition from code to a globally distributed, high-performance production environment.
+Vercel is a cloud platform for deploying frontend websites and web applications, optimized for modern React, Next.js, and agentic streaming architectures. It provides a seamless transition from code to a globally distributed, high-performance production environment with native support for Edge Functions and AI-native workflows.
 
 ## What problem it solves
-It removes most of the operational work required to publish a modern web app, making it easy to go from repo to deployed site with previews, custom domains, and fast frontend delivery. It handles SSL, CI/CD, and global routing automatically.
+It eliminates the operational complexity of publishing and scaling modern web apps. Vercel automates SSL, CI/CD, global routing, and cache invalidation, allowing developers to focus on product logic. In the era of Claude 4.8 and GPT-5.5, it solves the challenge of low-latency token streaming through its optimized Edge Network.
 
 ## Where it fits in the stack
-**Development & Ops / Frontend Hosting Platform**. It is usually the best default hosting layer when the product is a website, a lightweight web app, or an AI demo with a frontend-first architecture. It sits above infrastructure providers like AWS or GCP, providing a specialized layer for frontend-heavy workloads.
+**Development & Ops / Frontend Hosting Platform**. It is the primary deployment layer for frontend-heavy applications and AI demos, sitting above infrastructure providers (AWS/GCP) to provide a specialized, developer-first experience.
 
 ## Typical use cases
-- Landing pages and marketing websites.
-- Waitlist and lead-capture pages.
-- AI demos and chat frontends (using the [Vercel AI SDK](vercel-oss.md)).
-- Small SaaS MVPs with an external backend.
-- Product sites that need fast iteration and preview deployments.
+- **AI-Native Web Apps**: Hosting chat interfaces and agentic dashboards using the [Vercel AI SDK 5.0](vercel-oss.md).
+- **Edge-First Applications**: Running logic at the edge for sub-100ms response times globally.
+- **Rapid Prototyping**: Going from a local `git push` to a production-ready preview URL in seconds.
+- **Enterprise Frontends**: Scaling Next.js applications with built-in observability and performance monitoring.
 
-## CLI Usage & Examples
+## Strengths
+- **Global Edge Network**: Minimizes TTFB (Time to First Byte) by serving content from over 100 locations.
+- **Git-Integrated Workflow**: Automatic preview deployments for every Pull Request.
+- **First-Class Next.js Support**: The inventors of Next.js, offering the most optimized hosting environment for the framework.
+- **Vercel AI SDK Integration**: Native support for streaming responses from frontier models like Claude 4.8.
 
-Vercel provides a powerful CLI for managing deployments from the terminal.
+## Limitations
+- **Serverless Constraints**: Not suitable for long-running processes (over 30s) or heavy background compute.
+- **Cost Scaling**: While the free tier is generous, enterprise features and high-bandwidth usage can scale in cost rapidly.
+- **Frontend Focus**: Less ideal for "heavy" backends (Java, C#, complex Go services) that require dedicated VPCs or persistent disk storage.
+
+## When to use it
+- When building frontend-led applications with Next.js, React, or Svelte.
+- When low latency and global performance are critical for AI streaming.
+- For team environments that benefit from automated preview deployments and PR comments.
+- When using the [Vercel OSS](vercel-oss.md) ecosystem for agentic UI.
+
+## When not to use it
+- For hosting purely static documentation where [GitHub Pages](github-pages.md) is simpler and free.
+- When you require a persistent backend or long-running websocket connections (consider [Docker](../infrastructure/docker.md) or AWS instead).
+- If your architecture requires strict data residency in a specific, non-edge VPC.
+
+## Getting started
+1. **Sign Up**: Connect your GitHub, GitLab, or Bitbucket account at [vercel.com](https://vercel.com).
+2. **Import Project**: Select a repository to deploy. Vercel will automatically detect the framework.
+3. **Configure**: Add environment variables (e.g., `ANTHROPIC_API_KEY`) in the project settings.
+4. **Deploy**: Every push to `main` will trigger a production build.
+
+## CLI examples
+The Vercel CLI is the primary tool for terminal-based management.
 
 ```bash
-# Install the Vercel CLI
+# Install the CLI
 npm install -g vercel
 
-# Login to your account
+# Login and link your local directory
 vercel login
-
-# Initialize and deploy a new project
-vercel
-
-# Deploy to production
-vercel --prod
-
-# Manage environment variables
-vercel env add OPENAI_API_KEY production
-
-# Pull environment variables for local development
-vercel env pull .env.local
-
-# Link a local directory to a Vercel project
 vercel link
 
-# View deployment logs in the terminal
-vercel logs
+# Deploy a new preview version
+vercel
+
+# Promote a deployment to production
+vercel --prod
+
+# Manage environment variables from the CLI
+vercel env add OPENAI_API_KEY production
+vercel env pull .env.local
 ```
 
-## Edge Functions & Middleware
-Vercel allows running code at the edge, closer to the user, for lower latency.
+## API examples
+Vercel's REST API allows for programmatic management of deployments and teams.
 
-### Example: Edge Middleware for A/B Testing
+### Creating a Deployment via cURL
+```bash
+curl -X POST "https://api.vercel.com/v13/deployments" \
+  -H "Authorization: Bearer $VERCEL_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "my-ai-app",
+    "files": [],
+    "projectSettings": { "framework": "nextjs" }
+  }'
+```
+
+### Edge Middleware Example
 ```typescript
 // middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const cookie = request.cookies.get('bucket');
-  const bucket = cookie?.value || (Math.random() > 0.5 ? 'a' : 'b');
-
-  const res = NextResponse.next();
-  res.cookies.set('bucket', bucket);
-  return res;
+  // Add custom headers for AI agent tracking
+  const response = NextResponse.next();
+  response.headers.set('x-agent-id', 'claude-4-8-opus');
+  return response;
 }
 ```
-
-### Example: Geo-Routing & Bot Protection
-Edge middleware is often used to route users based on their location or to block malicious traffic before it reaches the origin.
-
-```typescript
-// middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/request';
-
-export function middleware(request: NextRequest) {
-  const country = request.geo?.country || 'US';
-  const isBot = request.headers.get('user-agent')?.includes('BadBot');
-
-  if (isBot) {
-    return new NextResponse('Access Denied', { status: 403 });
-  }
-
-  if (country === 'GB') {
-    return NextResponse.rewrite(new URL('/uk-landing', request.url));
-  }
-
-  return NextResponse.next();
-}
-```
-
-## Strengths
-- Very fast path from code to deployed site (git-push to deploy).
-- Strong defaults for frontend workflows (Next.js optimization).
-- Excellent preview deployments for PR reviews.
-- Global Edge Network for low-latency content delivery.
-- Deep integration with [Vercel OSS](vercel-oss.md) tools like the AI SDK.
-
-## Limitations
-- Best when your architecture already fits the platform model (serverless/edge).
-- Free tier is ideal for launch and validation, but has strict execution limits.
-- Teams can become too dependent on platform-specific assumptions (e.g., Next.js features) if they are not deliberate.
-- Cold starts can be an issue for complex serverless functions.
-
-## When to use it
-- When you need the fastest credible path to launch a modern website.
-- When the site is frontend-heavy and backend complexity is still modest.
-- When iteration speed and preview deployments matter more than deep infrastructure control.
-- When building AI-native applications that benefit from edge streaming.
-
-## When not to use it
-- When the site is purely static docs tied to a repo, where [GitHub Pages](github-pages.md) may be simpler.
-- When you want a more static-first public site and prefer [Cloudflare Pages](cloudflare-pages.md).
-- When the core challenge is long-running backend services rather than frontend delivery.
-- For high-compliance or strict data-residency requirements that require dedicated VPCs.
-
-## Free-tier comments
-- Best free-tier fit for landing pages, waitlists, public demos, and small frontend-led MVPs.
-- Pair with [Supabase](../infrastructure/supabase.md) when you need auth, storage, or database-backed forms.
-- Upgrade when traffic, execution limits, team workflows, or reliability requirements become business-critical.
-
-## Common combinations
-- [Vercel](vercel.md) + [Supabase](../infrastructure/supabase.md): Best default for small product MVPs.
-- [Vercel](vercel.md) + [n8n](../../services/n8n.md): Use n8n for complex back-office logic while Vercel hosts the user UI.
-- [Vercel](vercel.md) + [OpenRouter](../providers/openrouter.md): Standard stack for building multi-model AI apps.
-- [Vercel](vercel.md) + [Vercel OSS](vercel-oss.md): Using the AI SDK to build streaming interfaces.
 
 ## Related tools / concepts
-- [Netlify](netlify.md)
-- [Cloudflare Pages](cloudflare-pages.md)
-- [GitHub Pages](github-pages.md)
-- [Vercel OSS](vercel-oss.md)
-- [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
-- [Supabase](../infrastructure/supabase.md)
-- [Next.js](https://nextjs.org/)
+- [Vercel OSS](vercel-oss.md) — The open-source libraries (AI SDK, v0) driving the ecosystem.
+- [Cloudflare Pages](cloudflare-pages.md) — Primary competitor for edge-first hosting.
+- [GitHub Pages](github-pages.md) — Simpler alternative for static-only sites.
+- [Next.js](https://nextjs.org/) — The React framework optimized for Vercel.
+- [Supabase](../infrastructure/supabase.md) — The standard backend/database pair for Vercel apps.
+- [Claude 4.8 Opus](../ai_knowledge/claude.md) — Recommended reasoning model for Vercel-hosted agents.
+- [GPT-5.5](../ai_knowledge/chatgpt.md) — Multi-modal model supported via the Vercel AI SDK.
+- [Netlify](netlify.md) — Alternative frontend cloud platform.
+- [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md) — Strategies for low-cost deployment.
 
-## Sources / References
-- [Official Website](https://vercel.com/)
-- [Vercel CLI Docs](https://vercel.com/docs/cli)
-- [Edge Functions Guide](https://vercel.com/docs/functions/edge-functions)
-- [Pricing](https://vercel.com/pricing)
+## Sources / references
+- [Vercel Official Documentation](https://vercel.com/docs)
+- [Vercel CLI Reference](https://vercel.com/docs/cli)
+- [Edge Functions Overview](https://vercel.com/docs/functions/edge-functions)
+- [Vercel API Reference](https://vercel.com/docs/rest-api)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high

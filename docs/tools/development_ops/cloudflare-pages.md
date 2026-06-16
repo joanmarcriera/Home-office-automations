@@ -1,134 +1,111 @@
 # Cloudflare Pages
 
 ## What it is
-Cloudflare Pages is Cloudflare's platform for deploying static sites and frontend applications with global edge delivery. It integrates deeply with the Cloudflare global network to provide high performance and security out of the box.
+Cloudflare Pages is a developer-focused platform for deploying static and JAMstack websites, deeply integrated into Cloudflare's global edge network. It leverages Cloudflare Workers to provide serverless compute (Pages Functions), enabling dynamic, low-latency web applications without the overhead of traditional server management.
 
 ## What problem it solves
-It gives teams a fast and low-friction way to publish static and frontend-first websites with global delivery, while leaving room to grow into deeper Cloudflare services (like Workers, KV, and R2) later. It eliminates the need to manage servers or CDN configurations for frontend apps.
+It eliminates the complexity of global content distribution and frontend scaling. By automating the build-to-deploy pipeline, it ensures that web applications are delivered from the nearest edge location to the user. In the June 2026 landscape, it serves as a critical host for edge-native AI applications that require high bandwidth and integrated DDoS protection.
 
 ## Where it fits in the stack
-**Development & Ops / Static And Edge Website Hosting**. It is a strong default for static-first public sites, directories, documentation hubs, and lightweight applications where global delivery and security (WAF) matter.
+**Development & Ops / Static And Edge Website Hosting**. It serves as the primary alternative to [Vercel](vercel.md), specifically for architectures that prioritize Cloudflare's security ecosystem and edge-compute model (Workers/D1/R2).
 
 ## Typical use cases
-- Documentation and content sites (e.g., Hugo, Jekyll, Docusaurus).
-- Public directories and curated resource sites.
-- Static marketing sites and landing pages.
-- Lightweight internal tools with an external backend.
-- AI-powered apps that leverage [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/).
-
-## CLI Usage & Examples
-
-Cloudflare uses the `wrangler` CLI for managing Pages and Workers.
-
-```bash
-# Install Wrangler
-npm install -g wrangler
-
-# Login to Cloudflare
-wrangler login
-
-# Create a new project from a local directory
-wrangler pages deploy ./public --project-name=my-awesome-site
-
-# Manage environment variables for a project
-wrangler pages project config vars set API_KEY=secret_value --project-name=my-awesome-site
-
-# Manage secrets (encrypted environment variables)
-wrangler pages secret put MY_SECRET --project-name=my-awesome-site
-
-# Create a preview deployment from a branch
-wrangler pages deploy ./public --branch=feature-alpha
-
-# Run a local development server for Pages Functions
-wrangler pages dev ./public
-```
-
-## Integration with Workers KV & D1
-Cloudflare Pages Functions can directly interact with other Cloudflare resources like KV (Key-Value) and D1 (SQL Database).
-
-### Example: Using KV in a Pages Function
-```typescript
-// functions/api/counter.ts
-export async function onRequest(context) {
-  const { MY_KV_NAMESPACE } = context.env;
-  const count = (await MY_KV_NAMESPACE.get('visit_count')) || 0;
-  const nextCount = parseInt(count) + 1;
-  await MY_KV_NAMESPACE.put('visit_count', nextCount.toString());
-  return new Response(`Visits: ${nextCount}`);
-}
-```
-
-### Example: Querying D1 from a Pages Function
-```typescript
-// functions/api/users.ts
-export async function onRequest(context) {
-  const { MY_D1_DATABASE } = context.env;
-  const { results } = await MY_D1_DATABASE.prepare(
-    "SELECT * FROM users WHERE active = 1"
-  ).all();
-  return Response.json(results);
-}
-```
-
-## Pages Functions (Edge Logic)
-Cloudflare Pages supports "Functions" which are powered by Cloudflare Workers, allowing you to run dynamic code alongside your static site.
-
-### Example: Simple API Route in Pages
-```typescript
-// functions/api/hello.ts
-export async function onRequest(context) {
-  return new Response("Hello, world!");
-}
-```
+- **AI-Powered Static Sites**: Hosting documentation or directories that utilize [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) for client-side inference.
+- **Global Documentation Hubs**: Deploying high-traffic technical docs (Hugo, Docusaurus) with zero bandwidth caps.
+- **Edge-First Web Apps**: Building multi-region applications with [Cloudflare D1](https://developers.cloudflare.com/d1/) for relational data and [R2 Storage](https://www.cloudflare.com/products/r2/) for media.
+- **Secure Landing Pages**: Leveraging Cloudflare's WAF and bot protection for high-value marketing or waitlist sites.
 
 ## Strengths
-- Excellent fit for static and static-first sites.
-- Strongest global delivery story due to Cloudflare's massive network.
-- Seamless integration with [Cloudflare Workers](https://workers.cloudflare.com/) and [R2 Storage](https://www.cloudflare.com/products/r2/).
-- Unlimited bandwidth on the free tier (unlike some competitors).
-- Built-in DDoS protection and security features.
+- **Unlimited Bandwidth**: Unlike most competitors, Cloudflare Pages does not charge for egress bandwidth on its free tier.
+- **Integrated Security**: Native DDoS protection, WAF, and bot mitigation are built-in.
+- **Edge Performance**: Deployments are instantly pushed to Cloudflare's 300+ data centers worldwide.
+- **Durable Storage Integration**: Native connectivity to R2 (S3-compatible) and D1 (Edge SQL).
 
 ## Limitations
-- Next.js support is available but often feels more "native" on [Vercel](vercel.md).
-- The deployment model for dynamic logic (Functions) is slightly different from standard Node.js environments.
-- Not the simplest choice if the site is just repo-native docs, where [GitHub Pages](github-pages.md) is often enough.
+- **Next.js Complexity**: While supported via `@cloudflare/next-on-pages`, it is less "turnkey" than [Vercel](vercel.md) for complex Next.js features.
+- **Build Times**: Large monorepo builds can sometimes be slower compared to specialized build pipelines.
+- **Ecosystem Focus**: Highly optimized for the "Workers" model; porting legacy Node.js apps with heavy C++ dependencies can be difficult.
 
 ## When to use it
-- When the site is primarily static, content-driven, or directory-like.
-- When you want a free-tier public site with strong delivery performance and no bandwidth caps.
-- When you want optional future growth into Cloudflare's edge tooling (Workers, KV, AI).
-- For projects where security and DDoS protection are high priorities.
+- When you want a high-performance, secure host with no bandwidth costs.
+- When building edge-native applications using the Cloudflare developer platform (D1, R2, KV).
+- For static-first sites where security and global latency are the primary concerns.
+- When you need a generous free tier for a public-facing AI tool or directory.
 
 ## When not to use it
-- When the best default is a Next.js-heavy app stack on [Vercel](vercel.md).
-- When a basic docs site can live more simply on [GitHub Pages](github-pages.md).
-- When the main problem is traditional backend hosting (e.g., Docker, long-running processes).
+- For complex, server-side rendered Next.js apps that rely on platform-specific optimizations provided by [Vercel](vercel.md).
+- When you need a persistent, long-running backend (e.g., Python/Django) that cannot be ported to Workers.
+- For simple repo-native docs where [GitHub Pages](github-pages.md) is already configured.
 
-## Free-tier comments
-- Very strong free-tier fit for directories, docs, static sites, and lightweight internal tools.
-- Includes unlimited bandwidth and a generous number of build minutes.
-- Pair with [Supabase](../infrastructure/supabase.md) or [Cloudflare D1](https://developers.cloudflare.com/d1/) for database needs.
+## Getting started
+1. **Connect Repository**: Link your GitHub or GitLab account in the [Cloudflare Dashboard](https://dash.cloudflare.com).
+2. **Select Framework**: Choose from 30+ presets (React, Vue, Astro, etc.).
+3. **Environment Variables**: Define secrets for AI provider APIs (Claude/OpenAI).
+4. **Deploy**: Cloudflare will build and deploy your site on every git push.
 
-## Common combinations
-- [Cloudflare Pages](cloudflare-pages.md) + [Supabase](../infrastructure/supabase.md): Good fit for static-first tools that still need real data.
-- [Cloudflare Pages](cloudflare-pages.md) + [n8n](../../services/n8n.md): Useful for internal frontends driven by automation outputs.
-- [Cloudflare Pages](cloudflare-pages.md) + [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/): Build and host AI apps entirely on the Cloudflare edge.
+## CLI examples
+The `wrangler` CLI is the universal tool for managing Cloudflare resources.
+
+```bash
+# Install Wrangler globally
+npm install -g wrangler
+
+# Login and initialize a Pages project
+wrangler login
+wrangler pages project create my-app
+
+# Deploy a static directory manually
+wrangler pages deploy ./dist --project-name=my-app
+
+# Run a local development environment for Pages + Functions
+wrangler pages dev ./public
+
+# Manage environment variables
+wrangler pages project config vars set ANTHROPIC_API_KEY=sk-ant-123
+```
+
+## API examples
+Cloudflare's API allows for programmatic control of Pages deployments.
+
+### Triggering a New Deployment via cURL
+```bash
+curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
+  -H "Authorization: Bearer $CLOUDFLARE_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+### Edge Logic (Pages Functions)
+```typescript
+// functions/api/chat.ts
+export async function onRequestPost(context) {
+  const { messages } = await context.request.json();
+  // Call an AI provider from the edge
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "x-api-key": context.env.ANTHROPIC_API_KEY },
+    body: JSON.stringify({ model: "claude-4-8-opus-20260528", messages })
+  });
+  return new Response(response.body);
+}
+```
 
 ## Related tools / concepts
-- [Vercel](vercel.md)
-- [Netlify](netlify.md)
-- [Free AI Website Playbook (Docs Version)](../../knowledge_base/free_ai_website_playbook.md)
-- [GitHub Pages](github-pages.md)
-- [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md)
-- [Supabase](../infrastructure/supabase.md)
-- [Cloudflare Workers](https://workers.cloudflare.com/)
+- [Vercel](vercel.md) — The primary industry benchmark for frontend cloud platforms.
+- [Cloudflare Workers](https://workers.cloudflare.com/) — The underlying edge compute engine.
+- [Cloudflare R2](https://www.cloudflare.com/products/r2/) — S3-compatible object storage at the edge.
+- [Cloudflare D1](https://developers.cloudflare.com/d1/) — Serverless SQL database.
+- [GitHub Pages](github-pages.md) — Static-only hosting for GitHub repositories.
+- [Next.js](https://nextjs.org/) — Supported via the OpenNext/Cloudflare adapter.
+- [Claude 4.8 Opus](../ai_knowledge/claude.md) — Flagship reasoning model for edge agents.
+- [Supabase](../infrastructure/supabase.md) — Often used as a backend for Pages applications.
+- [Free AI Website Playbook](../../knowledge_base/free_ai_website_playbook.md) — Comprehensive guide for deploying cost-effective sites.
 
-## Sources / References
-- [Official Website](https://pages.cloudflare.com/)
-- [Wrangler CLI Documentation](https://developers.cloudflare.com/workers/wrangler/)
-- [Pages Functions Guide](https://developers.cloudflare.com/pages/platform/functions/)
-- [Pricing](https://www.cloudflare.com/plans/developer-platform/)
+## Sources / references
+- [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages/)
+- [Wrangler CLI Reference](https://developers.cloudflare.com/workers/wrangler/commands/#pages)
+- [Workers AI Guide](https://developers.cloudflare.com/workers-ai/)
+- [Cloudflare Developer Platform Pricing](https://www.cloudflare.com/plans/developer-platform/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high
