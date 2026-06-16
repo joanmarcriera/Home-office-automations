@@ -1,88 +1,69 @@
 # MiniMax
 
 ## What it is
-MiniMax is a leading AI company that develops large-scale models across multiple modalities, including text, speech, video, and music. Their latest flagship models, the **M2.7** series, are optimized for reasoning, coding, and multi-modal creative tasks.
+MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation. Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing, making it a favorite for agentic software engineering.
 
 ## What problem it solves
-Provides high-performance LLMs with a particular focus on coding productivity and Agentic workflows. It offers a cost-effective alternative to global providers like Anthropic and OpenAI, especially for developers looking for high-value subscription plans that decouple cost from token-based billing.
+MiniMax addresses the high cost and latency of traditional transformer-based models through its optimized M3 architecture. By offering a "Token Plan" subscription model that decouples cost from usage, it solves the "token anxiety" for heavy users of autonomous agents and coding assistants, providing a cost-effective alternative to global providers like Anthropic and OpenAI.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine / Provider**. It is particularly well-suited for integration into AI coding assistants and autonomous agents through its "Token Plan" subscription model.
+**LLM / Reasoning Engine / Provider**. It serves as a primary inference provider for terminal-native agents and IDEs, particularly in the [Claude Code](../development_ops/claude-code.md) and [Cline](../agents/cline.md) ecosystems.
 
 ## Typical use cases
-- **AI-Assisted Coding**: Using the M2.7 model for complex software engineering and "vibe coding" tasks.
-- **Agentic Workflows**: Leveraging the M2 series for multi-step reasoning and tool use in terminal-native agents.
-- **Multimodal Generation**: Creating high-quality speech, video, and music via their specialized models (e.g., Hailuo for video).
+- **Agentic Coding**: Powering [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md) for long-horizon repository editing tasks.
+- **Multimodal Video Generation**: Leveraging the **Hailuo (V3)** model for high-fidelity cinematic video synthesis.
+- **Real-time Neural Speech**: Using their low-latency TTS models for interactive voice agents and assistants.
+- **High-Throughput RAG**: Processing massive document sets using their efficient long-context models (up to 1M tokens).
 
 ## Strengths
-- **M2.7 Architecture**: Optimized for multi-language programming and complex code engineering with low latency.
-- **Token Plan Subscription**: Offers a predictable monthly cost (Starter/Plus/Max) with a 5-hour rolling reset window for requests, providing an alternative to per-token billing.
-- **Broad Tool Compatibility**: Native support in popular coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Cline](../agents/cline.md).
-- **Anthropic Compatibility**: Supports calling models via the Anthropic SDK, allowing for seamless integration into Claude-native workflows.
+- **Predictable Cost (Token Plan)**: Subscription-based pricing (Starter/Plus/Max) with rolling request resets, ideal for 24/7 autonomous agents.
+- **Architectural Efficiency**: High-speed inference for coding tasks, rivaling [Claude 4.8 Sonnet](../ai_knowledge/claude.md) in speed and accuracy.
+- **Native Dual-Compatibility**: Offers both OpenAI-compatible and Anthropic-compatible endpoints out of the box.
+- **Advanced Multimodality**: Leading performance in non-text domains, specifically cinematic video generation via Hailuo.
 
 ## Limitations
-- **Closed Source**: Proprietary models available only via API.
-- **Regional Focus**: While globally accessible, documentation and pricing are primarily centered on the Asian market (RMB/¥).
+- **Closed Source**: Proprietary weights available only via managed API.
+- **Regional Billing Complexity**: Pricing is often denominated in RMB (¥), requiring international payment methods for global users.
+- **Documentation Gaps**: English documentation can sometimes lag behind the primary Chinese platform updates.
 
 ## When to use it
-- For heavy coding tasks where a fixed-cost subscription (Token Plan) is more economical than per-token billing.
-- When you need a high-performance alternative to Claude 3.5 Sonnet with compatible API structures for terminal-native agents.
+- When running high-usage autonomous agents where per-token billing becomes prohibitive.
+- When you need an Anthropic-compatible model for tools like [Claude Code](../development_ops/claude-code.md) but prefer a different provider's billing model.
+- For projects requiring high-fidelity video generation integrated via API.
 
 ## When not to use it
-- If you require fully open-source models for local deployment.
-- If your workflow is strictly tied to OpenAI-specific features not supported by the Anthropic-compatible relay.
-
+- If your workload requires local execution on private hardware (consider [Llama 4](../ai_knowledge/llama.md) instead).
+- For simple, low-volume tasks where a pay-as-you-go provider like [OpenRouter](../providers/openrouter.md) is simpler to manage.
 
 ## Getting started
-
-### API Key
-1. Register on the [MiniMax Open Platform](https://platform.minimaxi.com/).
-2. Navigate to "Account Management" -> "API Keys" to create your credentials.
-
-### Installation (Python)
-MiniMax is compatible with the OpenAI SDK.
-
-```bash
-pip install openai
-```
-
-### Usage (Hello World)
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    api_key="YOUR_MINIMAX_API_KEY",
-    base_url="https://api.minimax.chat/v1"
-)
-
-response = client.chat.completions.create(
-    model="abab6.5s-chat",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant"},
-        {"role": "user", "content": "Explain the concept of 'Token Plan' in one sentence."}
-    ]
-)
-
-print(response.choices[0].message.content)
-```
+1. **Account Creation**: Register at the [MiniMax Open Platform](https://platform.minimaxi.com/).
+2. **API Keys**: Generate a key in the dashboard under "Account Management".
+3. **Plan Selection**: Choose between "Pay-as-you-go" (Credits) or "Subscription" (Token Plan).
+4. **Integration**: Plug your key and the base URL `https://api.minimax.chat/v1` into your preferred agent or SDK.
 
 ## CLI examples
+MiniMax models can be accessed via standard `curl` or specialized CLI agents.
 
-### Using curl
 ```bash
-curl https://api.minimax.chat/v1/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer $MINIMAX_API_KEY"   -d '{
-    "model": "abab6.5s-chat",
-    "messages": [
-      {"role": "user", "content": "Who founded MiniMax?"}
-    ]
+# Chat Completion via curl (OpenAI Compatible)
+curl https://api.minimax.chat/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $MINIMAX_API_KEY" \
+  -d '{
+    "model": "abab7-chat",
+    "messages": [{"role": "user", "content": "Refactor this SQL query for performance: [query]"}]
   }'
+
+# Using MiniMax with Aider
+export ANTHROPIC_API_KEY=$MINIMAX_API_KEY
+export ANTHROPIC_API_BASE=https://api.minimax.chat/v1/anthropic
+aider --model anthropic/abab7-chat
 ```
 
 ## API examples
+MiniMax's dual-compatibility allows it to work with both major LLM SDKs.
 
-### Anthropic SDK Compatibility
-MiniMax also supports an Anthropic-compatible endpoint, which is useful for tools designed specifically for Claude models.
-
+### Anthropic SDK Integration
 ```python
 from anthropic import Anthropic
 
@@ -92,34 +73,46 @@ client = Anthropic(
 )
 
 message = client.messages.create(
-    model="abab6.5s-chat",
-    max_tokens=1024,
+    model="abab7-chat",
+    max_tokens=4096,
     messages=[
-        {"role": "user", "content": "Write a Python script to calculate Fibonacci numbers."}
+        {"role": "user", "content": "Design a microservice architecture for a real-time chat app."}
     ]
 )
 print(message.content)
 ```
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Subscription-based "Token Plan" and Pay-as-you-go "Credits")
-- **Self-hostable**: No
+
+### OpenAI SDK Integration (Text-to-Speech)
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="MINIMAX_API_KEY", base_url="https://api.minimax.chat/v1")
+
+response = client.audio.speech.create(
+    model="speech-01-turbo",
+    voice="male-01",
+    input="Welcome to the future of agentic engineering."
+)
+response.stream_to_file("output.mp3")
+```
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md)
-- [Everything Claude Code](../ai_knowledge/everything-claude-code.md)
-- [Cursor](../development_ops/cursor.md)
-- [Cline](../agents/cline.md)
-- [OpenClaw](../development_ops/openclaw.md)
-- [Anthropic (Claude)](anthropic.md)
-- [OpenRouter](../ai_knowledge/openrouter.md)
+- [Claude Code](../development_ops/claude-code.md) — Terminal-native agent with native MiniMax support.
+- [Cline](../agents/cline.md) — Popular VS Code agent often paired with MiniMax.
+- [Aider](../development_ops/aider.md) — CLI coding assistant compatible with MiniMax endpoints.
+- [Anthropic (Claude)](anthropic.md) — The primary architectural benchmark for MiniMax.
+- [OpenRouter](../providers/openrouter.md) — Aggregator often used to access MiniMax via a unified API.
+- [Everything Claude Code](../ai_knowledge/everything-claude-code.md) — Optimization guide for agentic workflows.
+- [Llama 4](../ai_knowledge/llama.md) — Open-source alternative for local inference.
+- [DeepSeek](deepseek.md) — Primary regional competitor in the high-performance LLM space.
+- [Hailuo AI](https://hailuo.ai) — MiniMax's flagship video generation platform.
 
-## Sources / References
-- [Official Website](https://www.minimaxi.com/)
-- [Open Platform](https://platform.minimaxi.com/)
-- [Token Plan Overview](https://platform.minimaxi.com/docs/token-plan/intro)
-- [MiniMax Documentation Index](https://platform.minimaxi.com/docs/llms.txt)
+## Sources / references
+- [MiniMax Official Website](https://www.minimaxi.com/)
+- [MiniMax Open Platform Documentation](https://platform.minimaxi.com/docs/)
+- [Token Plan (Subscription) Details](https://platform.minimaxi.com/docs/token-plan/intro)
+- [Linear Attention Architecture Paper](https://arxiv.org/abs/2312.00752) (Background)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high
