@@ -1,42 +1,40 @@
 # Anthropic Agent Skills
 
 ## What it is
-Anthropic Agent Skills are folders of instructions, scripts, and resources that Claude loads dynamically to improve performance on specialized tasks. They teach Claude how to complete specific tasks in a repeatable way, following the [Agent Skills](https://agentskills.io) specification.
+Anthropic Agent Skills are encapsulated "micro-playbooks" consisting of instructions, scripts, and resources that Claude loads dynamically to improve performance on specialized tasks. They teach Claude how to complete specific tasks in a repeatable way, following the [Agent Skills](https://agentskills.io) specification. In June 2026, they are the primary mechanism for extending the capabilities of frontier models like **Claude 4.8 Opus**.
 
 ## What problem it solves
-It addresses the need for repeatable, high-performance execution of specialized tasks by agents. Instead of relying on general model knowledge, skills provide structured instructions and tools tailored to specific domains like document processing, technical testing, or creative workflows.
+It addresses the need for repeatable, high-performance execution of specialized tasks by agents. Instead of relying on general model knowledge or long, brittle system prompts, skills provide structured instructions and validated tools tailored to specific domains like document processing, technical testing, or creative workflows. This reduces hallucinations and ensures "System 2" reasoning is applied consistently.
 
 ## Where it fits in the stack
-**Agent / Tool / Pattern**. It acts as a standardized way to equip autonomous agents with specialized capabilities.
+**Agent / Tool / Pattern**. It acts as a standardized way to equip autonomous agents with specialized capabilities, sitting between the core model (e.g., **Claude 4.8 Opus**) and the specific application logic.
 
 ## Typical use cases
-- **Document Processing**: Extracting data from PDFs, manipulating DOCX files, or generating XLSX reports.
-- **Technical Tasks**: Testing web applications, generating MCP servers, or automating data analysis.
-- **Enterprise Workflows**: Maintaining brand guidelines in communications or automating internal reporting.
+- **Advanced Document Processing**: Extracting structured data from high-fidelity PDFs, manipulating DOCX files, or generating complex XLSX reports.
+- **Technical Infrastructure**: Automatically generating and testing MCP servers, performing security audits on local code, or automating multi-repo data analysis.
+- **Enterprise Workflows**: Enforcing brand guidelines in multi-channel communications or automating internal financial reporting.
+- **Research & Synthesis**: Performing deep-research loops using tools like [DeerFlow](deerflow.md).
 
 ## Strengths
-- **Repeatability**: Ensures consistent behavior for specialized tasks across different sessions.
-- **Standardized**: Follows the `agentskills.io` specification, making skills interoperable.
-- **Discovery**: Uses YAML frontmatter (`name`, `description`) for easy discovery by agent routers.
-- **Extensible**: Allows developers to create custom skills using a simple Markdown-based template.
+- **Repeatability**: Ensures consistent behavior for specialized tasks across different sessions and users.
+- **Standardized**: Follows the `agentskills.io` specification, making skills interoperable across different agent harnesses like [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md).
+- **Discovery**: Uses YAML frontmatter for easy discovery and automated selection by agent routers.
+- **Extensible**: Allows developers to create custom skills using a simple Markdown-based template and local Python/TypeScript scripts.
 
 ## Limitations
-- **Model Dependent**: Optimized for the Claude family of models.
-- **Closed Source (Some)**: While many are Apache 2.0, some complex skills (like document processing) are source-available but not open source.
-- **Environment Specific**: Some skills may require specific tools or environments (e.g., Python, specialized libraries) to execute.
+- **Model Dependent**: Highly optimized for the Claude family of models; performance may vary on other frontier models like **GPT-5.5**.
+- **Execution Environment**: Requires a local or sandboxed execution environment (like a Docker container) for the associated scripts to run.
+- **Licensing**: While many skills are Apache 2.0, some complex enterprise-grade skills are source-available but require specific licenses for commercial redistribution.
 
 ## When to use it
-- When you need Claude to perform complex, multi-step tasks that require specific formatting or domain knowledge.
-- When building autonomous agent workflows that need to dynamically load and unload specialized capabilities.
+- When you need Claude to perform complex, multi-step tasks that require specific formatting, domain knowledge, or external tool execution.
+- When building autonomous agent workflows that need to dynamically load and unload specialized capabilities based on user intent.
+- When you want to share "best practice" agent behaviors across a team or organization.
 
 ## When not to use it
-- For simple, one-off tasks that don't require specialized instructions.
-- If using an LLM provider that does not support the Agent Skills specification.
-
-## Licensing and cost
-- **Open Source**: Mixed (Apache 2.0 for examples, Source-available for core document skills)
-- **Cost**: Free to use (requires Anthropic API access or Claude.ai subscription)
-- **Self-hostable**: Yes (Skills are local files)
+- For simple, one-off tasks that can be handled by standard prompt engineering.
+- If your execution environment is strictly restricted and cannot run local scripts (Python/Node.js).
+- If you are using a model that does not yet support the tool-use patterns required by the Agent Skills spec.
 
 ## Getting started
 
@@ -46,8 +44,8 @@ Clone the official skills repository or create your own skills directory:
 git clone https://github.com/anthropics/skills.git
 ```
 
-### Usage
-Configure your agent (e.g., Claude Code) to point to your skills directory. Claude will automatically index the `SKILL.md` and associated scripts.
+### Configuration
+Configure your agent (e.g., [Claude Code](../development_ops/claude-code.md)) to point to your skills directory. The agent will automatically index the `SKILL.md` files.
 
 ## CLI examples
 ```bash
@@ -66,22 +64,25 @@ cp -r ./templates/skill-template ./skills/my-new-skill
 import anthropic
 
 # Skills are typically loaded via system prompt or as tool definitions
-# Example of referencing a skill in a message
+# In June 2026, Claude 4.8 Opus is the recommended model for skill execution.
 client = anthropic.Anthropic()
 response = client.messages.create(
-    model="claude-3-7-sonnet-latest",
-    max_tokens=1024,
+    model="claude-4-8-opus-20260528",
+    max_tokens=4096,
     system="Use the 'document-processing' skill located in /path/to/skills.",
     messages=[{"role": "user", "content": "Extract text from report.pdf"}]
 )
 ```
 
 ## Related tools / concepts
-- [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md)
+- [Claude Code](../development_ops/claude-code.md)
+- [Aider](../development_ops/aider.md)
+- [Roo Code](roo-code.md)
+- [Cline](cline.md)
 - [Documentation Writer Skill](documentation-writer.md)
+- [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md)
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [Official Website](https://agentskills.io)
@@ -89,5 +90,5 @@ response = client.messages.create(
 - [Anthropic News: Equipping agents for the real world](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high
