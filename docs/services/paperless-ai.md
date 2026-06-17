@@ -1,13 +1,15 @@
 # Paperless-AI
 
-## What it is
 Paperless-AI is a companion tool for Paperless-ngx that uses Artificial Intelligence to automate document tagging, correspondent detection, and metadata extraction.
 
+## What it is
+Paperless-AI is a specialized automation layer designed to enhance [Paperless-ngx](paperless-ngx.md). It leverages Large Language Models (LLMs) to analyze document content semantically, providing a level of organization and insight that traditional rule-based systems cannot achieve. As of June 2026, it supports native integration with **Claude 4.8 Opus** and **GPT-5.5** for high-precision extraction.
+
 ## What problem it solves
-It eliminates the tedious manual work of organizing scanned documents. By analyzing the actual content of documents with LLMs, it can accurately categorize them in ways that simple rule-based matching cannot.
+It eliminates the tedious manual work of organizing scanned documents. While Paperless-ngx has robust matching algorithms, they are often restricted to literal text matches or regex. Paperless-AI understands the context of a document, allowing it to accurately categorize "that weird invoice from the plumber" even if it doesn't follow a standard template.
 
 ## Where it fits in the stack
-**Service Companion / Automation**. It works alongside Paperless-ngx, acting as an intelligent processing layer for newly added documents.
+**Service Companion / Automation**. It works alongside Paperless-ngx, acting as an intelligent processing layer for newly added documents. It is typically deployed as a Docker container within the same network as the Paperless-ngx instance.
 
 ## Typical use cases
 - **Automated Tagging**: Assigning tags like "Invoice", "Medical", or "Contract" based on document content.
@@ -17,26 +19,25 @@ It eliminates the tedious manual work of organizing scanned documents. By analyz
 
 ## Strengths
 - **Native Paperless-ngx Integration**: Designed specifically to work with the Paperless-ngx API.
-- **Local LLM Support**: Can use Ollama or LM Studio for completely private document processing.
-- **Chat Functionality**: Interact with your documents via a chat interface (added 2026).
+- **Local LLM Support**: Can use [Ollama](ollama.md) or [LM Studio](../tools/infrastructure/lm-studio.md) for completely private document processing.
+- **Chat Functionality**: Interact with your documents via a chat interface (enhanced in 2026).
 - **Improved Accuracy**: Uses the semantic power of LLMs instead of fragile regex or keyword matching.
+- **Open Source**: MIT Licensed and fully self-hostable.
 
 ## Limitations
-- **Processing Time**: LLM analysis takes longer than simple matching rules.
+- **Processing Time**: LLM analysis takes significantly longer than simple matching rules.
 - **Dependency**: Requires a running instance of Paperless-ngx and an LLM provider (local or cloud).
+- **VRAM Requirements**: Running high-quality local models (like Llama 4 Maverick) requires significant GPU resources.
 
 ## When to use it
 - If you have a high volume of documents in Paperless-ngx that need organization.
 - When you want to leverage local AI for document management without data leaving your server.
+- If your documents vary wildly in format, making standard matching rules ineffective.
 
 ## When not to use it
 - If your document organization needs are already well-handled by Paperless-ngx's native matching algorithms.
-- If you have very limited CPU/GPU resources for running LLMs.
-
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
+- If you have very limited CPU/GPU resources and cannot use cloud APIs.
+- For extremely sensitive documents where even local AI processing is restricted by policy.
 
 ## Getting started
 
@@ -69,14 +70,29 @@ services:
     restart: unless-stopped
 ```
 
-## AI Provider Configuration (May 2026)
-Paperless-AI supports multiple AI backends. For maximum privacy, a local setup is recommended.
+## AI Provider Configuration (June 2026)
+Paperless-AI supports multiple AI backends. For maximum privacy, a local setup is recommended, while cloud providers offer the highest extraction accuracy.
 
 | Provider | Note |
 | :--- | :--- |
-| **Ollama** | Best for home use. Supports Llama 3, Mistral, and specialized extraction models. |
+| **Ollama** | Best for home use. Supports Llama 4 Maverick and specialized extraction models. |
+| **Claude 4.8 Opus** | Recommended for complex, multi-page financial audits and legal reviews. |
+| **GPT-5.5** | High-speed, high-accuracy extraction with native autonomous capabilities. |
 | **LM Studio** | Local desktop alternative. Useful for testing different quantization levels. |
-| **OpenAI** | Highest accuracy for complex multi-page extraction (requires API key). |
+
+## CLI examples
+Paperless-AI is primarily a background service and does not offer a standalone CLI for document processing. Management is handled via environment variables and the Paperless-ngx interface.
+
+```bash
+# View service logs to monitor extraction progress
+docker logs -f paperless-ai
+
+# Restart the service to apply configuration changes
+docker restart paperless-ai
+```
+
+## API examples
+Paperless-AI does not expose a public REST API for external consumers; it acts as a client to the Paperless-ngx API. To interact with processed metadata, use the [Paperless-ngx API](paperless-ngx.md).
 
 ## Prompt Engineering & Templates
 Paperless-AI uses system prompts to guide the LLM in document analysis. High-quality templates are essential for accurate extraction of complex documents like invoices.
@@ -110,18 +126,23 @@ environment:
 
 ## Related tools / concepts
 - [Paperless-ngx](paperless-ngx.md) — The core document management system.
-- [Ollama](ollama.md) — For running local LLMs like Llama 3 or Mistral.
+- [Ollama](ollama.md) — For running local LLMs like Llama 4 or Mistral.
 - [n8n](n8n.md) — For advanced post-processing workflows.
+- [Claude 4.8 Opus](../tools/ai_knowledge/claude.md) — Flagship Anthropic model for high-fidelity extraction.
+- [GPT-5.5](../tools/ai_knowledge/openai.md) — Premier OpenAI model for complex document reasoning.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — Overview of running models locally for document processing.
+- [Whisper](whisper.md) — For transcribing audio files before intake into Paperless-ngx.
+- [Linkwarden](linkwarden.md) — For capturing web content to be archived in Paperless-ngx.
 - [Extraction and Classification](../reference-implementations/llm-prompts/extraction-and-classification.md) — General patterns for LLM extraction.
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-
-## Sources / References
+## Sources / references
 - [GitHub Repository](https://github.com/clusterfudge/paperless-ai)
 - [Prompt Engineering Guide](https://www.promptingguide.ai/)
 - [Tailscale: AI-enhanced documents with Paperless-ngx](https://tailscale.com/blog/paperless-ngx-local-ai-document-search)
 
+## Backlog
+- [x] Perform quarterly technical freshness audit (June 2026).
+
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-17
 - Confidence: high
