@@ -10,23 +10,25 @@ It provides real-time visibility into application errors and performance bottlen
 **Category**: Process & Understanding / Error Tracking
 
 ## Typical use cases
-- Real-time error monitoring for web and mobile applications.
-- Performance profiling and transaction tracing.
-- LLM observability and error tracking (e.g., via OpenRouter integration).
+- **Frontier Model Observability**: Monitoring reasoning traces and API errors for `claude-4-8-opus-20260528` and GPT-5.5 integrations.
+- **AI-Powered Autofix**: Utilizing Sentry's native AI agents to automatically propose and apply code fixes for production exceptions.
+- **Performance Profiling**: Identifying bottlenecks in RAG pipelines and tool-calling loops.
+- **Crash Reporting**: Real-time error monitoring for multi-modal web and mobile applications.
 
 ## Strengths
-- Excellent developer experience with deep language and framework support.
-- Open-source core with a strong community.
-- Powerful error grouping and alerting.
-- Provides actionable context for debugging.
+- **Native AI Integration**: Features like "Autofix" use frontier models to explain errors and suggest fixes directly in PRs.
+- **Deep SDK Ecosystem**: Industry-standard support for nearly every language and framework.
+- **LLM-Specific Insights**: Capture prompt metadata and token usage alongside traditional error traces.
+- **Actionable Context**: Provides rich breadcrumbs and stack traces to minimize "Time to Resolution."
 
 ## Limitations
-- Can generate significant noise if not configured correctly (filtering errors).
-- SaaS version has usage limits that can be reached quickly in high-traffic apps.
+- **Data Volume**: High-traffic agentic applications can quickly exhaust usage limits if sampling is not strictly configured.
+- **Privacy Compliance**: Requires careful PII scrubbing when sending LLM prompts/responses to Sentry.
+- **Complex Configuration**: Optimizing alerts to avoid "notification fatigue" in large-scale deployments.
 
 ## When to use it
-- In any production application (web, mobile, server) to catch and resolve crashes before users report them.
-- When you need deep context (stack traces, environment variables) to debug issues in remote environments.
+- In any production-grade agentic system where catching exceptions in tool-use loops is critical.
+- When you want to leverage AI agents to automate the debugging and bug-fixing lifecycle.
 
 ## When not to use it
 - For local development where console logs and standard debuggers are sufficient.
@@ -80,19 +82,22 @@ division_by_zero = 1 / 0
 ```
 
 ## Related tools / concepts
-- [Datadog](datadog.md)
-- [Langfuse](langfuse.md)
-- [PostHog](posthog.md)
-- [OpenTelemetry Collector](opentelemetry-collector.md)
-- [New Relic AI](new-relic-ai.md)
-- [AgentOps](agentops.md)
+- [Datadog](datadog.md) — for full-stack observability and AI metrics
+- [Langfuse](langfuse.md) — for dedicated LLM tracing and evaluation
+- [PostHog](posthog.md) — for product analytics and session replay
+- [OpenTelemetry Collector](opentelemetry-collector.md) — for vendor-agnostic telemetry ingestion
+- [New Relic AI](new-relic-ai.md) — for APM with integrated AI assistance
+- [AgentOps](agentops.md) — for specialized AI agent monitoring
+- [Comet Opik](comet-opik.md) — for open-source LLM tracing and evaluation
+- [WandB Weave](wandb-weave.md) — for lightweight LLM app building and tracing
 
-## Sources / References
+## Sources / references
 - [Official Website](https://sentry.io/)
 - [Sentry Documentation](https://docs.sentry.io/)
+- [Sentry AI Autofix](https://sentry.io/features/autofix/)
 - [Sentry GitHub](https://github.com/getsentry/sentry)
 - [OpenRouter Logging Docs](https://openrouter.ai/docs/activity/logging)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-06-16
 - Confidence: high

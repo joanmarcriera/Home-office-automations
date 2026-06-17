@@ -1,102 +1,117 @@
 # Microsoft Graph API
 
 ## What it is
-Microsoft Graph is the gateway to data and intelligence in Microsoft 365. It provides a unified programmability model that you can use to access the tremendous amount of data in Microsoft 365, Windows, and Enterprise Mobility + Security. It is a critical [provider](../providers/README.md) for enterprise-grade [agents](../agents/README.md).
+Microsoft Graph is the gateway to data and intelligence in Microsoft 365. It provides a unified programmability model that you can use to access the tremendous amount of data in Microsoft 365, Windows, and Enterprise Mobility + Security. It is a critical [provider](../providers/index.md) for enterprise-grade [agents](../agents/index.md).
 
 ## What problem it solves
-It simplifies developer interaction with Microsoft services by providing a single endpoint (`https://graph.microsoft.com`) to access data across multiple services like Outlook, OneDrive, Teams, and Microsoft Entra (formerly Azure AD). This allows for complex cross-service automations, such as those found in [Enterprise Suites](../enterprise/README.md).
+It simplifies developer interaction with Microsoft services by providing a single endpoint (`https://graph.microsoft.com`) to access data across multiple services like Outlook, OneDrive, Teams, and Microsoft Entra. This allows for complex cross-service automations and enables AI agents like `claude-4-8-opus-20260528` to act as personal assistants with full context.
 
 ## Where it fits in the stack
-**Providers / API Gateway**. It serves as the primary integration point for applications needing to interact with the Microsoft 365 ecosystem. It often powers [MCP servers](../automation_orchestration/mcp.md) for calendar and file management.
+**Providers / API Gateway**. It serves as the primary integration point for applications needing to interact with the Microsoft 365 ecosystem. It often powers [MCP servers](../automation_orchestration/mcp.md) for calendar, email, and file management in agentic workflows.
 
 ## Typical use cases
-- Synchronizing calendars (Outlook) and files (OneDrive) for [Task Management](../calendar_tasks/README.md).
-- Managing users and groups in Microsoft Entra (Azure AD).
-- Automating workflows in Microsoft Teams using [n8n](../../services/n8n.md) or [Make](../automation_orchestration/make.md).
-- Extracting insights from organizational data for [Process Understanding](../process_understanding/README.md).
-
-## Key Features
-- **Unified API**: Access Outlook, OneDrive, Teams, Planner, and more via one endpoint.
-- **Delta Queries**: Efficiently track changes to data without full synchronization.
-- **Webhooks**: Receive real-time notifications for data changes (e.g., new emails or calendar events).
-- **Microsoft Graph Explorer**: An interactive tool for testing and discovering API capabilities.
+- **Personal AI Assistants**: Synchronizing calendars (Outlook) and files (OneDrive) for autonomous [Task Management](../calendar_tasks/index.md).
+- **Enterprise Automation**: Managing users and groups in [Microsoft Entra ID](../enterprise/microsoft-entra-id.md).
+- **Workflow Orchestration**: Automating cross-app workflows in Microsoft Teams using [n8n](../../services/n8n.md) or [Make](../automation_orchestration/make.md).
+- **Knowledge Synthesis**: Extracting insights from organizational data for [Process Understanding](../process_understanding/index.md).
 
 ## Strengths
-- **Unified Endpoint**: Access a wide range of services through one API.
-- **Rich Relationships**: Navigate between related resources easily.
-- **Extensive Documentation**: Well-supported with SDKs for multiple languages.
-- **Identity Integration**: Deeply integrated with [Microsoft Entra ID](../enterprise/microsoft-entra-id.md).
+- **Unified Endpoint**: Access a wide range of services through one API, reducing integration overhead.
+- **Rich Relationships**: Navigate between related resources (e.g., user to their manager to their files) easily.
+- **Delta Queries**: Efficiently track changes to data without full synchronization, ideal for real-time agents.
+- **Deep Identity Integration**: Native integration with [Microsoft Entra ID](../enterprise/microsoft-entra-id.md) for secure, scoped access.
 
 ## Limitations
-- **Complexity**: The sheer breadth of the API can be overwhelming.
-- **Throttling**: Strict rate limits apply, requiring robust error handling in [automation workflows](../automation_orchestration/README.md).
-- **Permission Granularity**: Managing OAuth scopes and permissions requires careful planning.
+- **API Complexity**: The breadth of the API is vast, requiring significant effort to master the various resource types.
+- **Throttling**: Strict rate limits apply, requiring robust error handling and exponential backoff in [automation workflows](../automation_orchestration/index.md).
+- **Permission Management**: Navigating OAuth scopes and granular permissions (Least Privilege) can be challenging for developers.
 
 ## When to use it
-- When building applications that need to read or write data within Microsoft 365 services.
-- When creating [Custom Agents](../agents/custom_agents.md) that need access to corporate knowledge.
+- When building applications or [agents](../agents/index.md) that need to read or write data within the Microsoft 365 ecosystem.
+- When creating [Custom Agents](../agents/custom_agents.md) that require access to corporate knowledge and communication channels.
+- To enable AI-driven productivity tools that operate on calendar, email, and document data.
 
 ## When not to use it
-- For small-scale, personal automation where simpler, service-specific tools might suffice.
-- When working entirely outside the Microsoft ecosystem.
+- For simple, personal automation where a direct, service-specific tool might be faster.
+- When working entirely outside the Microsoft ecosystem (e.g., using Google Workspace exclusively).
 
 ## Getting started
 
+### App Registration
+1. Register an application in the [Microsoft Entra admin center](https://entra.microsoft.com).
+2. Configure required API permissions (e.g., `User.Read`, `Calendars.Read`).
+3. Obtain your Client ID, Tenant ID, and Client Secret.
+
 ### Authentication (OAuth2)
-Microsoft Graph requires an Azure AD application registration and an OAuth2 token.
+Microsoft Graph requires an OAuth2 access token for all requests.
 
 ```bash
-# Example: Getting an access token via CLI (Conceptual)
+# Example: Getting an access token via Azure CLI
 az account get-access-token --resource https://graph.microsoft.com
 ```
 
-## Technical examples
+## CLI examples
 
-### Fetching User Profile (cURL)
-Standard GET request to the unified endpoint.
-
+### Fetching Current User Profile
 ```bash
 curl -X GET "https://graph.microsoft.com/v1.0/me" \
      -H "Authorization: Bearer <access_token>" \
      -H "Content-Type: application/json"
 ```
 
+### Searching for Files in OneDrive
+```bash
+curl -X GET "https://graph.microsoft.com/v1.0/me/drive/root/search(q='Project Alpha')" \
+     -H "Authorization: Bearer <access_token>"
+```
+
+## API examples
+
 ### Listing Calendar Events (Python)
 Using the Microsoft Graph SDK for Python.
 
 ```python
 from msgraph import GraphServiceClient
+from azure.identity import DefaultAzureCredential
 
-# Initialize client with credentials
-client = GraphServiceClient(credentials, scopes=['Calendars.Read'])
+# Initialize client with default credentials
+client = GraphServiceClient(credentials=DefaultAzureCredential(), scopes=['Calendars.Read'])
 
-# Fetch events
+# Fetch events for the current day
 events = await client.me.calendar_view.get(
-    query_parameters = CalendarViewRequestBuilder.CalendarViewRequestBuilderGetQueryParameters(
-        start_date_time='2026-05-24T00:00:00Z',
-        end_date_time='2026-05-25T00:00:00Z'
-    )
+    query_parameters = {
+        "startDateTime": "2026-06-16T00:00:00Z",
+        "endDateTime": "2026-06-16T23:59:59Z"
+    }
 )
 ```
 
-## Maintenance & Troubleshooting
-- **Token Expiry**: Ensure your application handles token refresh logic or uses [Wrangler](../development_ops/wrangler.md) for secret management in edge environments.
-- **Throttling (429)**: Implement exponential backoff in your [n8n](../../services/n8n.md) or [Make](../automation_orchestration/make.md) nodes.
+### Sending a Teams Message (Python)
+```python
+from msgraph.generated.models.chat_message import ChatMessage
+from msgraph.generated.models.item_body import ItemBody
+
+request_body = ChatMessage(
+    body = ItemBody(content = "Hello from the Graph API!"),
+)
+
+await client.teams.by_team_id('team-id').channels.by_channel_id('channel-id').messages.post(request_body)
+```
 
 ## Related tools / concepts
-- [Microsoft Entra ID](../enterprise/microsoft-entra-id.md)
-- [Microsoft Todo](../calendar_tasks/microsoft-todo.md)
-- [n8n Automation](../../services/n8n.md)
-- [Make](../automation_orchestration/make.md)
-- [Enterprise Suite Overview](../enterprise/index.md)
-- [Google Calendar API](../calendar_tasks/google_calendar.md)
-- [MCP Servers](../automation_orchestration/mcp.md)
+- [Microsoft Entra ID](../enterprise/microsoft-entra-id.md) — for identity and access management
+- [Microsoft Todo](../calendar_tasks/microsoft-todo.md) — for task-specific API endpoints
+- [n8n Automation](../../services/n8n.md) — for visual workflow building
+- [Make](../automation_orchestration/make.md) — an alternative automation platform
+- [Google Calendar API](../calendar_tasks/google_calendar.md) — the equivalent for the Google ecosystem
+- [MCP Servers](../automation_orchestration/mcp.md) — for integrating Graph with LLM agents
+- [Wrangler](../development_ops/wrangler.md) — for managing secrets in edge environments
 
 ## Sources / references
-- [Microsoft Graph Overview](https://learn.microsoft.com/en-us/graph/overview)
+- [Microsoft Graph Documentation](https://learn.microsoft.com/en-us/graph/overview)
 - [Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
 - [Microsoft Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-06-16
 - Confidence: high
