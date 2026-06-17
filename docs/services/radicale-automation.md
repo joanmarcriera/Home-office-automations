@@ -1,43 +1,48 @@
 # Radicale Automation
 
-Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server.
+Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server, optimized for the June 2026 agentic ecosystem.
 
 ## What it is
-Radicale Automation refers to the set of scripts, n8n workflows, and configuration patterns used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md).
+Radicale Automation refers to the set of scripts, n8n workflows, and Model Context Protocol (MCP) integrations used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md). In June 2026, this increasingly involves the use of autonomous agents like Claude 4.8 Opus and GPT-5.5 to perform natural language scheduling and contact deduplication.
 
 ## What problem it solves
-It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health.
+It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents.
 
 ## Where it fits in the stack
-**Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management.
+**Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management, acting as the integration layer for the [Chronos MCP](../automation_orchestration/chronos-mcp.md) server.
 
 ## Typical use cases
-- Automated nightly backup of calendar and contact files to off-site storage.
-- Synchronizing family contacts from a shared spreadsheet into Radicale CardDAV.
-- Automatically creating calendar events in Radicale based on incoming emails (via n8n).
-- Monitoring Radicale service availability and alerting via Telegram.
+- **Natural Language Scheduling**: Using Claude 4.8 Opus to book appointments by simply describing them.
+- **Automated Contact Enrichment**: Periodically updating contact cards with information from LinkedIn or company directories via n8n.
+- **Multi-Source Synchronization**: Keeping family contacts from a shared Google Sheet in sync with Radicale CardDAV.
+- **Proactive Health Monitoring**: Monitoring Radicale service availability and alerting via Telegram or Home Assistant.
 
 ## Strengths
 - **Simple File Format**: Since Radicale stores data as plain text files, automation via standard filesystem tools is straightforward.
 - **REST-like API**: Supports standard HTTP methods for easy integration with tools like `curl` and n8n.
+- **MCP Compatibility**: Seamlessly exposes data to agents via the [Chronos MCP](../automation_orchestration/chronos-mcp.md).
 - **Python-Based**: Easy to extend with custom Python scripts.
 
 ## Limitations
 - **No Native Webhooks**: Relies on polling or filesystem watchers for change detection.
 - **Authentication Complexity**: Requires handling `htpasswd` or LDAP credentials in automation scripts.
+- **Scaling**: While fine for individuals and families, large-scale automation may hit filesystem lock contention.
 
 ## When to use it
 - To ensure your self-hosted calendar data is regularly backed up and synchronized.
 - When you need to integrate your private calendar with other automation tools like n8n or Home Assistant.
+- To enable agentic scheduling via Claude 4.8 Opus or GPT-5.5.
 
 ## When not to use it
 - If you only have a single user and a single device, manual management might be sufficient.
+- If you require millisecond-level real-time synchronization across hundreds of users.
 
 ## Getting started
 
 ### Prerequisites
 - A running [Radicale](radicale.md) instance.
 - Access to the Radicale storage directory (usually `~/.var/lib/radicale/collections`).
+- (Optional) [Chronos MCP](../automation_orchestration/chronos-mcp.md) for agentic access.
 
 ### Automated Backup Script
 Create a simple bash script to backup your collections:
@@ -56,7 +61,7 @@ rm -rf "$BACKUP_DIR"
 2. Set the Method to `PROPFIND`.
 3. URL: `http://your-radicale-server:5232/user/`.
 4. Authentication: Basic Auth (Radicale credentials).
-5. This node will return the list of available collections, serving as a starting point for more complex scheduling automations.
+5. This node will return the list of available collections.
 
 ## CLI examples
 
@@ -71,6 +76,18 @@ curl -u user:pass -X MKCOL http://localhost:5232/user/new_calendar/
 
 # List all files in a collection to check for recent changes
 ls -ltr ~/.var/lib/radicale/collections/collection-data/user/
+
+# Create a new collection for automated tasks via CalDAV (raw XML)
+curl -u user:pass -X MKCOL \
+     -H "Content-Type: text/xml" \
+     -d '<?xml version="1.0" encoding="utf-8" ?><D:mkcol xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav"><D:set><D:prop><D:displayname>Automated Tasks</D:displayname><C:resourcetype><D:collection/><C:calendar/></C:resourcetype></D:prop></D:set></D:mkcol>' \
+     "http://localhost:5232/user/automated-tasks/"
+```
+
+### Agentic Interaction via MCP
+```bash
+# If using the Chronos MCP server, an agent can list events:
+mcp-client chronos list-events --calendar "personal" --start "2026-06-01"
 ```
 
 ## API examples
@@ -103,15 +120,6 @@ print(f"Status Code: {response.status_code}")
 curl -u user:pass "http://localhost:5232/user/calendar/" -o my_calendar.ics
 ```
 
-### curl (Create Task Collection)
-```bash
-# Create a new collection for automated tasks via CalDAV
-curl -u user:pass -X MKCOL \
-     -H "Content-Type: text/xml" \
-     -d '<?xml version="1.0" encoding="utf-8" ?><D:mkcol xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav"><D:set><D:prop><D:displayname>Automated Tasks</D:displayname><C:resourcetype><D:collection/><C:calendar/></C:resourcetype></D:prop></D:set></D:mkcol>' \
-     "http://localhost:5232/user/automated-tasks/"
-```
-
 ## Related tools / concepts
 - [Radicale](radicale.md) (The core service)
 - [n8n](n8n.md) (Primary automation engine)
@@ -120,14 +128,16 @@ curl -u user:pass -X MKCOL \
 - [Home Assistant](home-assistant.md) (For calendar-based triggers)
 - [Nextcloud](nextcloud.md) — For federated calendar and contact synchronization.
 - [Authentik](authentik.md) — For centralized authentication and identity management.
+- [Vikunja](vikunja.md) — For task-based coordination often synced with Radicale.
 
 ## Sources / References
 - https://radicale.org/v3.html
 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/
+- https://agentskills.io/spec/chronos-caldav/
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit.
+- [x] Perform technical freshness audit (June 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-16
