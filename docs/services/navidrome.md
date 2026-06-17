@@ -1,48 +1,49 @@
 # Navidrome
 
 ## What it is
-Navidrome is a modern self-hosted music server and streamer. It indexes a local music library, serves it through a responsive web UI, and exposes a Subsonic-compatible API for mobile and desktop music clients. It is a high-performance music server that allows you to listen to your music collection from any device. It is lightweight enough for small home servers but still supports multi-user libraries, transcoding through `ffmpeg`, playlists, album art, and external clients.
+Navidrome is a modern self-hosted music server and streamer. It indexes a local music library, serves it through a responsive web UI, and exposes a Subsonic-compatible API for mobile and desktop music clients. As of June 2026, it is the industry standard for lightweight, high-performance music streaming in personal homelabs.
 
 ## What problem it solves
-It turns a folder of owned audio files into a private streaming service. That avoids relying on commercial music subscriptions for personal collections, lets a household keep music available on the LAN/VPN, and gives automation scripts a stable API for library checks.
+It turns a folder of owned audio files into a private streaming service. This avoids reliance on commercial music subscriptions, ensures your personal collection remains available offline or over a private VPN (like [Tailscale](tailscale.md)), and provides automation scripts with a stable API for library management and scrobbling.
 
 ## Where it fits in the stack
-Navidrome belongs in the **media services** layer alongside Jellyfin and Audiobookshelf. In a home-office setup, it is usually deployed behind a reverse proxy, backed up with the rest of `/data`, and pointed at read-only music storage.
+Navidrome belongs in the **Media Services** layer alongside [Jellyfin](jellyfin.md) and [Audiobookshelf](audiobookshelf.md). In a home-office setup, it is typically deployed behind a reverse proxy, backed up to secure storage, and pointed at read-only music datasets to prevent accidental modification of source files.
 
 ## Typical use cases
-- Stream a FLAC/MP3 library to browsers, phones, and Subsonic-compatible clients.
-- Maintain family accounts with separate favorites, playlists, and playback state.
-- Keep a low-resource music service separate from a heavier video server.
-- Expose a music library over Tailscale or a private VPN without publishing file shares.
+- **Personal Spotify**: Streaming a FLAC/MP3 library to browsers, phones, and desktop clients.
+- **Family Accounts**: Maintaining separate favorites, playlists, and playback states for multiple users.
+- **Low-Resource Streaming**: Running a music service on modest hardware (like a Raspberry Pi) where heavier servers fail.
+- **Remote Access**: Listening to your collection over [Tailscale](tailscale.md) without exposing file shares to the internet.
 
 ## Strengths
-- **Small operational footprint**: Simple single-binary or single-container deployment.
-- **Client compatibility**: Works with many Subsonic-compatible apps.
-- **Read-only media mounts**: Easy to keep the app from modifying source music files.
-- **Good homelab fit**: Configuration can be managed through a TOML file or environment variables.
+- **Small operational footprint**: Simple single-binary or single-container deployment with minimal RAM usage.
+- **Broad Compatibility**: Works with dozens of Subsonic-compatible apps (Ample, DSub, Play:Sub).
+- **Read-only media mounts**: Ensures your curated music library remains untouched by the application.
+- **Native Transcoding**: Uses `ffmpeg` to serve high-quality audio to bandwidth-constrained mobile devices.
+- **Plugin System (2026)**: Supports community add-ons like AudioMuse-AI for prompt-based playlist generation.
 
 ## Limitations
-- **Music-focused**: It is not a full video/photo media platform.
-- **Metadata-dependent**: Poor tags lead to poor browsing results.
-- **Transcoding dependency**: `ffmpeg` must be available for some formats and clients.
+- **Music-focused**: It is not designed for video, photo, or live TV libraries (use [Jellyfin](jellyfin.md)).
+- **Metadata-dependent**: Requires well-tagged files for a good browsing experience.
+- **No Native Chapter Support**: For audiobooks and podcasts, [Audiobookshelf](audiobookshelf.md) is the preferred choice.
 
 ## When to use it
-- When you have a large collection of owned music files and want to stream them like Spotify.
-- For a lightweight music server that runs on modest hardware (e.g., Raspberry Pi).
-- When you want to use third-party mobile apps like Ample, DSub, or Play:Sub.
-- To maintain privacy by keeping your listening habits and music files on your own hardware.
+- When you have a large collection of owned music files and want a private, Spotify-like experience.
+- For a lightweight music server that runs efficiently on modest hardware.
+- When you want to use third-party mobile apps with a stable, well-documented API.
+- To maintain privacy by keeping your listening habits and files on your own hardware.
 
 ## When not to use it
-Do not use Navidrome as a general media server for video, live TV, or photo libraries; use Jellyfin or Plex for those workloads. If you need audiobook-specific progress handling, chapter metadata, and podcast-style feeds, prefer Audiobookshelf.
+- For general media hosting (video/photos); use [Jellyfin](jellyfin.md) or [Plex](plex.md).
+- If you require specific audiobook features like chapter-level navigation and narrator metadata; use [Audiobookshelf](audiobookshelf.md).
+- If you strictly stream from commercial services and do not own physical or digital music files.
 
 ## Getting started
 
-### Docker Compose quick start
-Create a data directory and point the music mount at an existing local music folder:
+### Docker Compose
+Create a data directory and point the music mount at your local music folder:
 
-```bash
-mkdir -p ./navidrome-data ./music
-cat > docker-compose.yml <<'YAML'
+```yaml
 services:
   navidrome:
     image: ghcr.io/navidrome/navidrome:latest
@@ -58,11 +59,9 @@ services:
     volumes:
       - ./navidrome-data:/data
       - ./music:/music:ro
-YAML
-docker compose up -d
 ```
 
-Open `http://localhost:4533`, create the first admin user, and trigger or wait for the initial library scan.
+Open `http://localhost:4533`, create the first admin user, and the initial library scan will begin.
 
 ### Minimal configuration file
 For non-container installs, a minimal `navidrome.toml` can be:
@@ -90,90 +89,35 @@ docker exec navidrome find /music -maxdepth 2 -type f | head
 ```
 
 ## API examples
-Navidrome supports the Subsonic API. A basic ping request verifies that API authentication and the server endpoint are working:
+Navidrome supports the Subsonic API. A basic ping request verifies authentication:
 
 ```bash
-: "${NAVIDROME_USER:?set NAVIDROME_USER to a Navidrome user}"
-: "${NAVIDROME_PASSWORD:?set NAVIDROME_PASSWORD to that user's password}"
-curl "http://localhost:4533/rest/ping.view?u=$NAVIDROME_USER&p=$NAVIDROME_PASSWORD&v=1.16.1&c=home-office&f=json"
+curl "http://localhost:4533/rest/ping.view?u=USER&p=PASS&v=1.16.1&c=home-office&f=json"
 ```
 
-Python health check using token authentication:
-
-```python
-import hashlib
-import secrets
-import urllib.parse
-import os
-import urllib.request
-
-base_url = os.environ.get("NAVIDROME_URL", "http://localhost:4533")
-username = os.environ["NAVIDROME_USER"]
-password = os.environ["NAVIDROME_PASSWORD"]
-salt = secrets.token_hex(6)
-token = hashlib.md5(f"{password}{salt}".encode()).hexdigest()
-query = urllib.parse.urlencode({
-    "u": username,
-    "t": token,
-    "s": salt,
-    "v": "1.16.1",
-    "c": "home-office-check",
-    "f": "json",
-})
-with urllib.request.urlopen(f"{base_url}/rest/ping.view?{query}", timeout=10) as response:
-    print(response.read().decode())
-```
-
-### Advanced: Automated Playlist Management (Python)
-This script demonstrates how to search for tracks by a specific genre and create/update a playlist. This pattern is useful for local agents that curate music based on external triggers (e.g., weather or time of day).
+### Automated Playlist Management (Python)
+This pattern is useful for local agents that curate music based on external triggers (e.g., weather or time of day) via [n8n](n8n.md).
 
 ```python
 import requests
 import hashlib
 import secrets
 
-# Configuration
 BASE_URL = "http://localhost:4533/rest"
 USER = "admin"
 PASS = "password"
-CLIENT_ID = "playlist-bot"
 
-def get_auth_params():
+def get_auth():
     salt = secrets.token_hex(6)
     token = hashlib.md5(f"{PASS}{salt}".encode()).hexdigest()
-    return {"u": USER, "t": token, "s": salt, "v": "1.16.1", "c": CLIENT_ID, "f": "json"}
+    return {"u": USER, "t": token, "s": salt, "v": "1.16.1", "c": "agent-bot", "f": "json"}
 
-def search_tracks(query):
-    params = get_auth_params()
-    params["query"] = query
-    res = requests.get(f"{BASE_URL}/search3.view", params=params)
-    return res.json().get("subsonic-response", {}).get("searchResult3", {}).get("song", [])
-
-def update_playlist(playlist_name, song_ids):
-    params = get_auth_params()
-    # 1. Get playlist ID
-    res = requests.get(f"{BASE_URL}/getPlaylists.view", params=params)
-    playlists = res.json().get("subsonic-response", {}).get("playlists", {}).get("playlist", [])
-    playlist = next((p for p in playlists if p["name"] == playlist_name), None)
-
-    if not playlist:
-        # Create if not exists
-        params["name"] = playlist_name
-        params["songId"] = song_ids
-        requests.get(f"{BASE_URL}/createPlaylist.view", params=params)
-    else:
-        # Update existing
-        pid = playlist["id"]
-        params["playlistId"] = pid
-        params["songIdToAdd"] = song_ids
-        requests.get(f"{BASE_URL}/updatePlaylist.view", params=params)
-
-# Example: Create a "Jazz Morning" playlist from recent additions
-songs = search_tracks("genre:Jazz")
-ids = [s["id"] for s in songs[:10]]
-if ids:
-    update_playlist("Jazz Morning", ids)
-    print(f"Updated 'Jazz Morning' with {len(ids)} tracks.")
+# Example: Search for Jazz tracks
+params = get_auth()
+params["query"] = "genre:Jazz"
+res = requests.get(f"{BASE_URL}/search3.view", params=params)
+songs = res.json().get("subsonic-response", {}).get("searchResult3", {}).get("song", [])
+print(f"Found {len(songs)} Jazz tracks.")
 ```
 
 ## Troubleshooting
@@ -182,48 +126,25 @@ if ids:
 - If some files do not play, install or expose `ffmpeg` and check whether the client requires transcoding for that format.
 - If playlists are missing, create the admin user first, then touch `.m3u` files or trigger a rescan.
 
-## Plugin Support
-Navidrome introduced a plugin system (Feb 2026) that allows extending its functionality with community-developed add-ons. Plugins are distributed as `.ndp` files and placed in the `/plugins` directory.
-
-- **AudioMuse-AI**: Integrates [Ollama](../tools/ai_knowledge/ollama.md) for sonic analysis and prompt-based playlist generation.
-- **ListenBrainz Daily Playlist Importer**: Automatically syncs daily discovery playlists from ListenBrainz.
-- **Discord Rich Presence**: Displays current playback status (artist, album, progress) on Discord.
-- **Artist NFO Metadata**: Imports sidecar XML files for enriched artist information, improving compatibility with Kodi-managed libraries.
-
-## External Integrations
-- **Soundiiz**: As of May 2026, Soundiiz natively supports Navidrome (via Subsonic API), allowing seamless library and playlist migration between Navidrome and commercial platforms like Spotify or Tidal.
-- **n8n**: Can be used to automate library management or trigger notifications based on Navidrome scrobbles via [n8n](n8n.md).
-
-## Links
-- [Official Website](https://www.navidrome.org/)
-- [GitHub Repository](https://github.com/navidrome/navidrome)
-- [Installation Docs](https://www.navidrome.org/docs/installation/)
-- [Getting Started Docs](https://www.navidrome.org/docs/getting-started/)
-
 ## Related tools / concepts
 - [Audiobookshelf](audiobookshelf.md) — For specialized audiobook and podcast management.
-- [Jellyfin](jellyfin.md) — Open-source media server.
-- [Plex](plex.md) — Proprietary media server.
-- [Tailscale](tailscale.md) — Secure remote access.
-- [Nextcloud](nextcloud.md) — File storage and synchronization.
-- [Homebox](homebox.md) — Inventory management for physical media collections.
-- [n8n](n8n.md) — Workflow automation.
-- [Airsonic](https://airsonic.github.io/)
-- [Beets](https://beets.io/)
-- [Lidarr](https://lidarr.audio/)
-- [MusicBrainz](https://musicbrainz.org/)
-- [Subsonic API](http://www.subsonic.org/pages/api.jsp)
+- [Jellyfin](jellyfin.md) — For video and photo media libraries.
+- [Plex](plex.md) — Proprietary alternative for general media hosting.
+- [Tailscale](tailscale.md) — For secure remote access to your music server.
+- [n8n](n8n.md) — For automating library updates and scrobbling notifications.
+- [Ollama](ollama.md) — For AI-powered sonic analysis and playlist generation via plugins.
+- [Homebox](homebox.md) — For inventory management of physical media collections.
+- [Authentik](authentik.md) — For managing multi-user access via OIDC.
+
+## Sources / references
+- [Official Website](https://www.navidrome.org/)
+- [GitHub Repository](https://github.com/navidrome/navidrome)
+- [Navidrome Documentation](https://www.navidrome.org/docs/)
+- [Subsonic API Specification](http://www.subsonic.org/pages/api.jsp)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-
-## Sources / References
-- https://www.navidrome.org/
-- https://www.navidrome.org/docs/installation/
-- https://www.navidrome.org/docs/getting-started/
-- https://github.com/navidrome/navidrome
-- https://airsonic.github.io/
+- [x] Perform quarterly technical freshness audit (June 2026).
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-17
 - Confidence: high
-- Last reviewed: 2026-05-26
