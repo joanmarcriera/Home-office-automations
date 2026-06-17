@@ -1,49 +1,52 @@
 # Radicale
 
+Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight, standards-compliant, and easy to set up.
+
 ## What it is
-Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight and easy to set up. As of May 2026, the current stable version is **v3.7.x**, which continues the project's focus on simplicity, standards compliance, and file-based storage.
+Radicale is an open-source CalDAV and CardDAV server that allows you to host your own calendars and contacts. As of **June 2026**, the stable version is **v3.7.x**, which continues to focus on a simple, file-based storage format (iCalendar and vCard), making backups and data ownership straightforward.
 
 ## What problem it solves
-It allows individuals and small groups to host their own calendars and contacts privately, without relying on large corporate cloud providers. It uses a simple, file-based storage format (iCalendar and vCard), making it easy to backup and manage.
+It provides a private, self-hosted alternative to cloud-based synchronization services (like Google Calendar or iCloud). By using standard protocols, it allows for seamless syncing across a wide variety of devices and applications while keeping the user in full control of their scheduling and contact data.
 
 ## Where it fits in the stack
-**Category**: Services / Calendar & Tasks. It serves as the primary "Intake & Storage" layer for personal scheduling and contact data.
+Radicale serves as the **Intake & Storage layer** for personal information management (PIM) within a home-office or homelab ecosystem. It is often integrated with **Claude 4.8 Opus** or **GPT-5.5** via the **Chronos MCP** to allow AI agents to manage appointments and contacts using natural language.
 
 ## Typical use cases
-- Syncing personal calendars across desktop (Thunderbird) and mobile (Android/iOS) devices.
-- Hosting a shared family calendar.
-- Storing a private address book that is accessible from multiple devices.
-- Serving as a backend for task management tools that support CalDAV.
+- Syncing personal and family calendars across desktops (Thunderbird) and mobile devices (Android/iOS via DAVx⁵).
+- Hosting a private address book that is accessible from multiple devices.
+- Serving as a backend for task management tools that support the CalDAV protocol.
+- Providing an automated audit trail for scheduling changes via Git-based versioning.
 
 ## Strengths
-- **Lightweight**: Minimal CPU and memory usage.
-- **Simple Storage**: Uses standard .ics and .vcf files on disk.
-- **Extensible**: Supports various authentication backends (htpasswd, LDAP, remote user).
-- **Standards-Compliant**: Works with a wide range of CalDAV and CardDAV clients.
+- **Lightweight**: Minimal resource footprint, suitable for Raspberry Pi or low-power containers.
+- **Simple Storage**: Uses standard `.ics` and `.vcf` files on disk, ensuring no vendor lock-in.
+- **Extensible**: Supports multiple authentication backends (htpasswd, LDAP, remote user).
+- **Standards-Compliant**: High compatibility with various CalDAV/CardDAV clients.
 
 ## Limitations
-- **No Built-in Web Client**: Primarily designed to be used with external clients, though it has a minimal admin UI.
-- **Single-Server Focus**: Not designed for massive, multi-server deployments.
+- **No Built-in Web Client**: Lacks a full-featured web interface for managing events (primarily an admin UI).
+- **Single-Server Focus**: Not intended for large-scale enterprise deployments with thousands of users.
+- **Manual Hardening**: Requires a reverse proxy (like Nginx or Caddy) for proper SSL/TLS and advanced security.
 
 ## When to use it
-- When you want a simple, self-hosted solution for syncing calendars and contacts.
-- When you value data privacy and want to own your scheduling data in a simple format.
+- When you want a simple, privacy-focused solution for syncing calendars and contacts.
+- If you value owning your data in a transparent, file-based format.
+- For small teams or families needing a shared scheduling backend.
 
 ## When not to use it
-- For enterprise-grade collaboration with complex resource booking and email integration (use [Nextcloud](nextcloud.md) or SOGo).
-- If you require a full-featured web interface for managing appointments.
+- If you require integrated email, document collaboration, or a native web calendar (consider [Nextcloud](nextcloud.md)).
+- In environments requiring complex resource booking or advanced delegation features.
 
 ## Getting started
 
 ### Installation
 Install Radicale using `pip`:
-
 ```bash
 python3 -m pip install --upgrade radicale
 ```
 
 ### Docker Compose
-For containerized deployments (common in TrueNAS and other homelab environments):
+For containerized deployments (standard for TrueNAS SCALE or Docker-based homelabs):
 
 ```yaml
 services:
@@ -56,137 +59,90 @@ services:
       - ./data:/data
       - ./config:/config:ro
     restart: unless-stopped
-    # Security Note: Radicale often runs as root in official apps (e.g. TrueNAS)
-    # but can be hardened to run as a non-privileged user.
     user: "1000:1000"
 ```
 
-### Basic Setup
-For a secure setup, create a configuration file and a users file:
-
-```bash
-# Create a user 'admin' with a password (requires htpasswd from apache2-utils)
-htpasswd -c /path/to/users admin
-
-# Create a basic config (config.ini)
-cat <<EOF > config.ini
-[auth]
-type = htpasswd
-htpasswd_filename = /path/to/users
-htpasswd_encryption = autodetect
-
-[server]
-hosts = 0.0.0.0:5232
-EOF
-```
-
-### Running Radicale
-```bash
-python3 -m radicale --config config.ini
-```
-
 ### Hello World
-1. Access the web interface at `http://localhost:5232`.
-2. Log in with the username and password you created via `htpasswd`.
-3. Click **Create new collection** and choose **Calendar**.
-4. Name your collection (e.g., "Work") and click **Create**.
-5. You now have a CalDAV URL you can use in clients like Thunderbird or DAVx⁵.
+1. Access the admin UI at `http://localhost:5232`.
+2. Create a new collection and select **Calendar**.
+3. Name it "Work" and click **Create**.
+4. Use the provided URL in your calendar client (e.g., Thunderbird) with your configured credentials.
 
 ## CLI examples
-The `radicale` module provides several maintenance and configuration utilities:
+The `radicale` module provides utilities for maintenance and integrity checks:
 
 ```bash
 # Verify the integrity of the local collections storage
 python3 -m radicale --verify-storage
 
-# Check the version of the installed Radicale package
-python3 -m radicale --version
+# Check the installed version and active configuration paths
+python3 -m radicale --version --debug
 
-# Verify a specific item file (e.g., a .ics file) for errors
-python3 -m radicale --verify-item /path/to/collection/item.ics
-
-# Export a collection to a single .ics file
-python3 -m radicale --export /path/to/collection > backup.ics
+# Export a specific collection to a single .ics file for backup
+python3 -m radicale --export /path/to/collection > personal_backup.ics
 ```
 
 ## API examples
-Radicale is a CalDAV/CardDAV server and uses standard HTTP methods like `PROPFIND` and `MKCOL`.
+Radicale follows the standard CalDAV/CardDAV (HTTP-based) protocol.
 
-### Python (Listing Collections)
+### Python (Discovering Collections)
 ```python
 import requests
 
 url = "http://localhost:5232/admin/"
-# PROPFIND is used to discover collections
 response = requests.request(
     "PROPFIND",
     url,
     auth=("admin", "your_password"),
     headers={"Depth": "1"}
 )
-
-print(f"Collections for admin:\n{response.text}")
+print(response.text)
 ```
 
-### curl (Deleting a Collection)
+### Curl (Deleting an Event)
 ```bash
-curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/"
+curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/event-uuid.ics"
 ```
 
 ## Advanced Configuration & Storage
 
 ### Git-based Versioning
-Radicale can use a hook system to version your collections using Git. This provides an automated audit trail for your calendars and contacts.
+Radicale can automatically version your collections using Git, providing a durable history of changes.
 
 1. Initialize a git repo in your collections directory:
-```bash
-cd /var/lib/radicale/collections
-git init
-```
+   ```bash
+   cd /var/lib/radicale/collections && git init
+   ```
+2. Add the following to your `config.ini`:
+   ```ini
+   [hook]
+   after_save = git add . && git commit -m "Radicale change"
+   ```
 
-2. Add a hook in `config.ini`:
-```ini
-[storage]
-type = filesystem
-filesystem_folder = /var/lib/radicale/collections
-
-[hook]
-# Automatically commit changes after every modification
-after_save = git add . && git commit -m "Radicale change"
-```
-
-### Security Capabilities (TrueNAS/Container Context)
-In the TrueNAS Apps ecosystem (version 3.7.3.0+), Radicale is often deployed with specific security capabilities:
-- **CHOWN**: To manage file ownership of mounted volumes.
-- **SETUID/SETGID**: To switch to non-root users if configured.
-- **KILL**: For process management within the container.
-
-For maximum security, ensure Radicale is isolated behind a reverse proxy and uses an authentication provider like [Authentik](authentik.md).
-
-## Licensing and cost
-- **Open Source**: Yes (GPL-3.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
+### Security Capabilities (TrueNAS Context)
+In TrueNAS Apps (v3.7.x baseline), Radicale is often deployed with specific capabilities for secure file management:
+- **CHOWN/SETUID/SETGID**: For managing ownership of mounted datasets.
+- **KILL**: For internal process management.
 
 ## Related tools / concepts
-- [Nextcloud (Contacts/Calendar)](nextcloud.md) (Alternative storage)
-- [Vikunja](vikunja.md) (Task management)
-- [Authentik](authentik.md) (OIDC/Auth integration)
-- [Tailscale](tailscale.md) (Secure remote access)
-- [Home Assistant](home-assistant.md) (Calendar integration)
-- [n8n](n8n.md) (Automation workflows)
-- [DAVx⁵](https://www.davx5.com/) (Standard Android sync client)
-- [Chronos MCP](../automation_orchestration/chronos-mcp.md) (To expose CalDAV to AI agents)
-- [Google Calendar](../tools/calendar_tasks/google_calendar.md) (Public alternative)
+- [Nextcloud](nextcloud.md) — Comprehensive alternative with built-in web calendar.
+- [Vikunja](vikunja.md) — Task management that can sync with Radicale.
+- [Authentik](authentik.md) — For unified SSO and OIDC authentication.
+- [Tailscale](tailscale.md) — Secure remote access to your Radicale instance.
+- [Home Assistant](home-assistant.md) — For integrating calendars into home automation.
+- [n8n](n8n.md) — For automating scheduling workflows (e.g., meeting reminders).
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — To expose CalDAV data to AI agents.
+- [DAVx⁵](https://www.davx5.com/) — The industry-standard Android synchronization client.
 
 ## Sources / References
 - [Official Website](https://radicale.org/)
 - [GitHub Repository](https://github.com/Kozea/Radicale)
-- [Radicale Documentation](https://radicale.org/v3.html)
+- [Radicale Documentation (v3)](https://radicale.org/v3.html)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
+- [x] Perform quarterly technical freshness audit (June 2026).
+- [ ] Implement [Chronos MCP] integration for natural language scheduling.
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
 - Confidence: high
+- Last reviewed: 2026-06-18
