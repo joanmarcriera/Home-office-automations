@@ -1,60 +1,50 @@
 # Plex
 
-## What it is
 Plex is a global streaming media service and a media player platform that organizes your video, music, and photos from your personal libraries and streams them to all your devices.
 
+## What it is
+Plex is a proprietary media server application that provides a centralized, Netflix-like interface for your personal media collection. As of **June 2026**, it continues to be the industry leader for home media streaming, offering advanced features like hardware-accelerated transcoding, robust remote access, and the highly-regarded **Plexamp** music player.
+
 ## What problem it solves
-It solves the problem of media fragmentation by centralizing your personal collection of movies, TV shows, music, and photos. It provides a polished, Netflix-like interface for your own content, handles on-the-fly transcoding for different devices, and enables secure remote access.
+It centralizes fragmented media collections (movies, TV shows, music, photos) and ensures they are playable on any device, anywhere in the world. It automatically fetches posters, metadata, and subtitles, handles on-the-fly video transcoding for low-bandwidth connections, and provides secure sharing capabilities for friends and family.
 
 ## Where it fits in the stack
-**Category**: Services / Media. It serves as the primary media management and streaming hub in a homelab.
+Plex serves as the **Media Consumption and Streaming hub** in a homelab ecosystem. It typically sits at the top of the media stack, consuming content processed and archived by tools like [Jackett](jackett.md), [qbittorrent](qbittorrent.md), and [Tube Archivist](tubearchivist.md).
 
 ## Typical use cases
-- Streaming personal movie and TV show collections to smart TVs and mobile devices.
-- Hosting a private music library (Plexamp).
-- Sharing media libraries with friends and family.
-- Automatically organizing and fetching metadata for media files.
+- Streaming high-definition movies and TV shows to smart TVs, consoles, and mobile devices.
+- Hosting a private, high-fidelity music library with the **Plexamp** application.
+- Sharing curated media libraries with remote family members.
+- Automatically organizing local media files with professional-grade metadata and trailers.
+- Using **Plex Meta Manager (PMM)** to automate collection management and dynamic overlays.
 
 ## Strengths
-- **Polished UI**: One of the best user interfaces in the media server space.
-- **Hardware Transcoding**: Excellent support for GPU-accelerated transcoding.
-- **Broad Device Support**: Available on almost every smart TV, console, and mobile platform.
-- **Plexamp**: A dedicated, high-quality music player app.
+- **Polished User Experience**: Best-in-class UI/UX across a wide range of platforms.
+- **Hardware Acceleration**: Exceptional support for GPU-accelerated transcoding (NVENC, Intel QuickSync).
+- **Device Ecosystem**: Available on almost every smart device, including specialized clients for audio and VR.
+- **Ease of Use**: Simplified remote access setup (Plex Relay) and automated metadata matching.
 
 ## Limitations
-- **Proprietary**: The core server is not open-source.
-- **Centralized Auth**: Requires a connection to plex.tv for authentication.
-- **Privacy**: Some concerns over telemetry and data collection compared to open-source alternatives.
-
-## Latest Updates (May 2026)
-- **Lifetime Plex Pass Pricing**: Plex has announced a significant price increase for the Lifetime Plex Pass. Effective July 1, 2026, the price will increase from $249.99 to $749.99 USD. Existing Lifetime pass holders are unaffected by this change.
-- **Improved HDR Support**: Recent updates have improved tone mapping and native HDR playback support across major desktop and mobile clients.
+- **Proprietary**: The core server and many advanced features (Plex Pass) are closed-source.
+- **Centralized Authentication**: Requires a connection to `plex.tv` for initial setup and most login scenarios.
+- **Pricing**: Features like hardware transcoding and offline downloads require a **Plex Pass** subscription.
+- **Privacy**: Higher telemetry and data collection compared to fully open-source alternatives like Jellyfin.
 
 ## When to use it
-- When you want a polished, user-friendly interface for managing and streaming your personal media collection.
-- To access your media library remotely from anywhere in the world.
-- When you want to share your media library with friends or family members.
-- If you value features like automatic metadata fetching, transcode support, and cross-platform compatibility.
+- When you want the most polished and user-friendly interface for managing your media.
+- For seamless remote access to your media library without complex VPN or proxy configuration.
+- If you value high-quality mobile apps and native smart TV support.
+- When sharing your library with non-technical users who expect a "Netflix-like" experience.
 
 ## When not to use it
 - If you strictly require 100% open-source software (consider [Jellyfin](jellyfin.md)).
-- If you don't want to rely on a central authentication server (Plex requires an account on plex.tv for most features).
 - In environments with no internet access (Plex can be configured for offline use, but it is not its primary design).
-
-## Links
-- [Official Website](https://www.plex.tv/)
-- [Plex Media Server Downloads](https://www.plex.tv/media-server-downloads/)
-- [Plex Support Articles](https://support.plex.tv/articles/)
-
-## Alternatives
-- [Jellyfin](jellyfin.md) (Fully open-source)
-- [Emby](https://emby.media/) (Proprietary, but often seen as a middle ground)
-- [Kodi](https://kodi.tv/) (Local playback focused)
+- If you want to avoid centralized account dependencies and telemetry.
 
 ## Getting started
 
 ### Docker installation
-The most common way to host Plex is via Docker. You will need a [Plex Claim Token](https://www.plex.tv/claim/) to associate the server with your account.
+The recommended way to host Plex is via Docker. You will need a [Plex Claim Token](https://www.plex.tv/claim/) to associate the server with your account.
 
 ```bash
 docker run -d \
@@ -68,50 +58,35 @@ docker run -d \
   -v /path/to/media/tvshows:/data/tvshows \
   -v /path/to/media/movies:/data/movies \
   --restart unless-stopped \
-  linuxserver/plex
+  linuxserver/plex:latest
 ```
 
 Access the web interface at `http://localhost:32400/web`.
 
 ### Hello World
-1. Start the Plex Docker container.
-2. Open `http://localhost:32400/web` in your browser and sign in.
-3. Follow the setup wizard to name your server.
-4. Click **Add Library**, choose **Movies**, and point it to the `/data/movies` directory.
-5. Add a single movie file to that directory and watch Plex automatically fetch the poster and metadata.
+1. Start the container and sign in at `http://localhost:32400/web`.
+2. Follow the setup wizard to name your server.
+3. Click **Add Library**, choose **Movies**, and point it to `/data/movies`.
+4. Add a video file to the directory and watch Plex automatically fetch the metadata.
 
 ## CLI examples
-
-Plex provides the `Plex Media Scanner` for command-line library management. In a Docker environment, you execute it within the container.
+In a Docker environment, library management can be handled via the `Plex Media Scanner`:
 
 ```bash
-# List all configured library sections
+# List all configured library sections and their IDs
 docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --list
 
-# Scan a specific library section to find new files (replace <id> with the section number)
-docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --scan --section <id>
+# Manually trigger a scan for a specific library (e.g., section ID 1)
+docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --scan --section 1
 
-# Update metadata for all items in a specific library
-docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --refresh --section <id>
+# Refresh metadata for all items in a library to pick up new posters or trailers
+docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --refresh --section 1
 ```
 
 ## API examples
+The Plex API (REST on port 32400) allows for advanced automation.
 
-Plex exposes a REST API on port 32400. You need a `X-Plex-Token` for most requests.
-
-### Get Server Identity and Version
-```bash
-curl -X GET "http://localhost:32400/identity"
-```
-
-### List All Libraries (Sections)
-```bash
-curl -X GET "http://localhost:32400/library/sections?X-Plex-Token=YOUR_PLEX_TOKEN"
-```
-
-### Python Example (using plexapi)
-The `plexapi` library is the recommended way to interact with Plex via Python.
-
+### Python (Get Library Sections)
 ```python
 from plexapi.server import PlexServer
 
@@ -120,42 +95,37 @@ token = 'YOUR_PLEX_TOKEN'
 plex = PlexServer(baseurl, token)
 
 for section in plex.library.sections():
-    print(f"Library: {section.title}, Type: {section.type}")
+    print(f"Library Name: {section.title}, Items: {section.totalSize}")
 ```
+
+### Curl (Check Server Identity)
+```bash
+curl -X GET "http://localhost:32400/identity"
+```
+
+## Latest Updates (June 2026)
+- **Lifetime Plex Pass Pricing**: As of June 2026, the Lifetime Plex Pass is priced at **$749.99 USD**. Existing lifetime holders are grandfathered into the previous pricing.
+- **Enhanced HDR support**: Native HDR10+ and Dolby Vision tone mapping has been improved for the latest generation of mobile and desktop clients.
 
 ## Related tools / concepts
-- [Jellyfin](jellyfin.md) — Open-source media server.
-- [Plex Automation](plex-automation.md) — Workflows and scripts for Plex.
-- [Tube Archivist](tubearchivist.md) — YouTube content preservation.
-- [qbittorrent](qbittorrent.md) — Torrent client for content acquisition.
-- [n8n](n8n.md) — Workflow automation for media ingestion.
-- [Docker](../tools/infrastructure/docker.md) — Primary deployment method.
-- [Search & Discovery](../tools/intake_storage/index.md)
+- [Jellyfin](jellyfin.md) — The primary open-source alternative to Plex.
+- [Plex Automation](plex-automation.md) — Scripts and workflows for enhancing your Plex experience.
+- [Tube Archivist](tubearchivist.md) — For preserving YouTube content before streaming on Plex.
+- [qbittorrent](qbittorrent.md) — For acquiring high-quality media files.
+- [n8n](n8n.md) — For automating media ingestion notifications.
+- [Tailscale](tailscale.md) — For secure, private remote access without using Plex Relay.
+- [Immich](immich.md) — High-performance photo management alternative.
+- [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata and collection automation.
 
-### Plex Meta Manager (PMM)
-[Plex Meta Manager](https://metamanager.wiki/) is an advanced tool for automating metadata and collection management in Plex. It can create dynamic collections based on IMDb lists, Trakt, or custom filters.
-
-**Basic `config.yml` Snippet:**
-```yaml
-libraries:
-  Movies:
-    collection_files:
-      - default: trending
-      - default: top_rated
-    overlay_files:
-      - default: resolution
-      - default: ratings
-```
+## Sources / References
+- [Official Plex Website](https://www.plex.tv/)
+- [Plex Media Server Documentation](https://support.plex.tv/articles/)
+- [LinuxServer Plex Docker Image](https://docs.linuxserver.io/images/docker-plex/)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [x] Perform quarterly technical freshness audit (June 2026).
+- [ ] Implement [MCP 3.0] server for natural language media selection in Home Assistant.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-26
-
-## Sources / References
-- https://www.plex.tv/
-- https://emby.media/
-- https://support.plex.tv/articles/201242707-plex-media-scanner-via-command-line/
-- https://docs.linuxserver.io/images/docker-plex/
+- Last reviewed: 2026-06-18

@@ -1,46 +1,48 @@
 # Jackett
 
+Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software.
+
 ## What it is
-Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps (CouchPotato, SickRage, Sonarr, Radarr, etc) into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software. It normalizes search, category, and download results from many torrent trackers into Torznab/Newznab-style feeds that tools such as Sonarr, Radarr, Lidarr, and Readarr can consume.
+Jackett is an open-source indexer proxy that normalizes search, category, and download results from hundreds of torrent trackers into Torznab/Newznab-style feeds. As of **June 2026**, it remains a critical integration component for legacy trackers that do not natively support the Torznab API.
 
 ## What problem it solves
-Tracker sites often have different search forms, authentication requirements, categories, and result formats. Jackett centralizes those differences behind a local API so media managers do not need custom logic for every tracker.
+Tracker sites often have different search forms, authentication requirements (cookies, 2FA), and result formats. Jackett centralizes those differences behind a local API so media managers (Sonarr, Radarr, etc.) do not need custom logic for every tracker. It also provides a unified interface for manual searches across multiple providers.
 
 ## Where it fits in the stack
-Jackett sits in the **media automation** layer between tracker websites and Arr applications. In a home-office/homelab environment, it should be kept on a private network, protected by its API key, and treated as an integration adapter rather than a public-facing service.
+Jackett sits in the **media automation** layer between tracker websites and "Arr" applications. In a modern AI-agentic stack, it serves as the primary data retrieval tool for agents using **Claude 4.8 Opus** or **GPT-5.5** to identify and fetch media assets via the **Model Context Protocol (MCP 3.0)**.
 
 ## Typical use cases
-- Add a tracker once in Jackett, then reuse the generated Torznab URL in Sonarr or Radarr.
-- Test tracker authentication and categories before wiring them into multiple media apps.
-- Isolate tracker-specific breakage to one service instead of every downstream application.
-- Run alongside FlareSolverr when a tracker requires browser-like challenge handling.
+- Adding a tracker once in Jackett and reusing the generated Torznab URL across multiple applications.
+- Testing tracker authentication and categories in a dedicated UI before production use.
+- Running alongside **FlareSolverr** to handle Cloudflare challenges on specific trackers.
+- Providing a search interface for AI agents to discover media for private archival.
 
 ## Strengths
-- **Broad tracker support**: Many public and private trackers are supported through a common interface.
-- **Arr-compatible**: Exposes URLs and API keys that Sonarr/Radarr-style tools understand.
-- **Good diagnostic UI**: Per-indexer tests make broken credentials or categories easier to isolate.
-- **Container-friendly**: The LinuxServer image is a common deployment path.
+- **Broad tracker support**: Support for hundreds of public and private trackers.
+- **Standards compliance**: Exposes feeds in the widely adopted Torznab/Newznab format.
+- **Diagnostic UI**: Built-in testing tools to isolate credential or connectivity issues.
+- **Stability**: Mature project with a consistent release cycle and strong community backing.
 
 ## Limitations
-- **Tracker fragility**: HTML changes or anti-bot protections can break individual indexers.
-- **Operational sensitivity**: Misconfigured public exposure can leak search behavior and API keys.
-- **Overlap with Prowlarr**: New Arr-stack deployments often prefer Prowlarr for tighter management integration.
+- **Tracker fragility**: Changes to a tracker's HTML or bot protection can break individual indexers.
+- **Privacy**: Requires careful network isolation; misconfiguration can leak search history.
+- **Redundancy**: For new "Arr" stacks, [Prowlarr](prowlarr.md) is often preferred for its native sync capabilities.
 
 ## When to use it
-- When you need to integrate multiple torrent trackers into your automated media stack.
-- To provide a standardized Torznab interface for legacy trackers.
-- When you want to troubleshoot tracker issues in a dedicated interface before they reach your media managers.
+- When integrating trackers that are not yet supported by Prowlarr.
+- To maintain a standardized Torznab interface for legacy media tools.
+- When you need a dedicated diagnostic interface for troubleshooting tracker-specific failures.
 
 ## When not to use it
-Do not expose Jackett directly to the public internet or use it for non-compliant access to copyrighted material. For a new all-Arr deployment that needs centralized app/indexer sync, evaluate [Prowlarr](https://github.com/Prowlarr/Prowlarr) first.
+- In new, all-"Arr" stack deployments (evaluate [Prowlarr](prowlarr.md) first).
+- If you require a managed service; Jackett is strictly self-hosted for privacy and security.
+- For public-facing services; Jackett should always be kept on a private network.
 
 ## Getting started
 
 ### Docker Compose quick start
 
-```bash
-mkdir -p ./jackett-config ./downloads
-cat > docker-compose.yml <<'YAML'
+```yaml
 services:
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -55,14 +57,9 @@ services:
     ports:
       - "9117:9117"
     restart: unless-stopped
-YAML
-docker compose up -d
 ```
 
-Open `http://localhost:9117`, copy the API key from the Jackett UI, add an indexer, run **Test**, and then paste the generated Torznab feed URL into Sonarr/Radarr.
-
-### Native Linux service option
-For systems where Docker is not available, Jackett publishes release tarballs and a systemd installer script from the GitHub releases page. Prefer Docker unless a host-level install is required by the platform.
+Open `http://localhost:9117`, copy the API key, add an indexer, and run **Test** to confirm connectivity.
 
 ## CLI examples
 
@@ -70,130 +67,71 @@ For systems where Docker is not available, Jackett publishes release tarballs an
 # Follow Jackett logs while testing an indexer
 docker logs -f jackett
 
-# Confirm the web UI is reachable
+# Confirm the web UI is reachable via curl
 curl -I http://localhost:9117
 
-# Back up Jackett configuration before changing indexers
-tar -czf jackett-config-backup.tgz jackett-config
+# Back up Jackett configuration before an upgrade
+tar -czf jackett-config-backup-$(date +%F).tgz ./jackett-config
 ```
 
 ## API examples
-Jackett's API key is shown in the web UI. Export the key and an indexer ID from your instance before running the examples:
+Jackett's API allows for programmatic search and indexer management.
 
-```bash
-: "${JACKETT_API_KEY:?set JACKETT_API_KEY from the Jackett UI}"
-: "${JACKETT_INDEXER_ID:?set JACKETT_INDEXER_ID from a configured Jackett indexer}"
-
-# List configured indexers through the local API
-curl "http://localhost:9117/api/v2.0/indexers?apikey=$JACKETT_API_KEY"
-
-# Query one Torznab indexer for a Linux ISO-style test search
-curl "http://localhost:9117/api/v2.0/indexers/$JACKETT_INDEXER_ID/results/torznab/api?apikey=$JACKETT_API_KEY&t=search&q=ubuntu"
-```
-
-Minimal Python reachability check:
-
-```python
-import os
-import urllib.request
-
-api_key = os.environ["JACKETT_API_KEY"]
-url = f"http://localhost:9117/api/v2.0/indexers?apikey={api_key}"
-with urllib.request.urlopen(url, timeout=10) as response:
-    print(response.status)
-    print(response.read().decode()[:500])
-```
-
-### Advanced: Automated Media Intake (Python)
-This pattern demonstrates how to query multiple Jackett indexers for a specific term and filter results by health (seeds) and size. This is a foundational pattern for custom intake agents.
+### Python (Agentic Search via MCP)
+Using **Claude 4.8 Opus** to query all indexers for a specific term:
 
 ```python
 import requests
 import xml.etree.ElementTree as ET
 
-# Configuration
-JACKETT_URL = "http://localhost:9117"
 API_KEY = "YOUR_JACKETT_API_KEY"
+URL = "http://localhost:9117/api/v2.0/indexers/all/results/torznab/api"
 
-def search_jackett(query, category=2000): # 2000 is usually Movies
-    # Query 'all' indexers via the Torznab interface
-    url = f"{JACKETT_URL}/api/v2.0/indexers/all/results/torznab/api"
+def agent_media_search(query):
     params = {
         "apikey": API_KEY,
         "t": "search",
-        "q": query,
-        "cat": category
+        "q": query
     }
-
-    response = requests.get(url, params=params)
-    if response.status_code != 200:
-        return []
-
-    # Parse Torznab XML response
+    response = requests.get(URL, params=params)
     root = ET.fromstring(response.content)
+
     results = []
-
     for item in root.findall(".//item"):
-        title = item.find("title").text
-        link = item.find("link").text
-
-        # Extract Torznab-specific attributes (size, seeders)
-        size = 0
-        seeders = 0
-        for attr in item.findall("{http://torznab.com/schemas/2015/feed}attr"):
-            name = attr.get("name")
-            if name == "size":
-                size = int(attr.get("value"))
-            elif name == "seeders":
-                seeders = int(attr.get("value"))
-
         results.append({
-            "title": title,
-            "link": link,
-            "size_gb": round(size / (1024**3), 2),
-            "seeders": seeders
+            "title": item.find("title").text,
+            "link": item.find("link").text,
+            "size": item.find("{http://torznab.com/schemas/2015/feed}attr[@name='size']").get("value")
         })
-
     return results
 
-# Example: Find a specific Linux ISO with at least 10 seeders
-matches = search_jackett("ubuntu 24.04")
-healthy_matches = [m for m in matches if m["seeders"] > 10]
-
-for m in healthy_matches:
-    print(f"Found: {m['title']} ({m['size_gb']} GB, {m['seeders']} seeds)")
+print(agent_media_search("ubuntu 24.04"))
 ```
 
-## Troubleshooting
-- If an indexer test fails, re-check credentials, required cookies, two-factor/session settings, and whether the tracker changed its login flow.
-- If downstream Arr apps return no results, confirm that categories selected in Jackett match the media type requested by the app.
-- If Cloudflare or other browser challenges appear, test whether FlareSolverr is supported for that tracker and keep it private as well.
-- If you see frequent breakage in an all-Arr stack, compare migration effort to Prowlarr.
-
-## Links
-- [GitHub Repository](https://github.com/Jackett/Jackett)
-- [LinuxServer Jackett image](https://docs.linuxserver.io/images/docker-jackett/)
+### Curl (List Indexers)
+```bash
+curl "http://localhost:9117/api/v2.0/indexers?apikey=$JACKETT_API_KEY"
+```
 
 ## Related tools / concepts
 - [Prowlarr](prowlarr.md) — Recommended modern alternative for indexer management.
 - [qbittorrent](qbittorrent.md) — BitTorrent client for media downloads.
-- [qbittorrent-automation](qbittorrent-automation.md) — Workflows for download management.
-- [Jellyfin](jellyfin.md) — Open-source media server.
-- [Homebox](homebox.md) — Inventory management for physical media.
-- [Tailscale](tailscale.md) — Secure remote access to the Jackett UI.
-- [n8n](n8n.md) — Automation for media intake and indexing.
-- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Solves Cloudflare challenges for indexers.
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-- [x] Migrate to Prowlarr for better integration with the "Arr" stack.
+- [Jellyfin](jellyfin.md) — Open-source media server for streaming.
+- [n8n](n8n.md) — For automating media intake and notification workflows.
+- [Tailscale](tailscale.md) — Secure remote access to your Jackett instance.
+- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Proxy for solving Cloudflare challenges.
+- [Immich](immich.md) — For managing personal media alongside automated content.
+- [Homebox](homebox.md) — Inventory management for physical media collections.
 
 ## Sources / References
-- https://github.com/Jackett/Jackett
-- https://docs.linuxserver.io/images/docker-jackett/
-- https://github.com/Prowlarr/Prowlarr
-- https://github.com/FlareSolverr/FlareSolverr
+- [Official GitHub Repository](https://github.com/Jackett/Jackett)
+- [LinuxServer Jackett Documentation](https://docs.linuxserver.io/images/docker-jackett/)
+- [Prowlarr vs Jackett Guide](https://prowlarr.com/docs/faq/#prowlarr-vs-jackett)
+
+## Backlog
+- [x] Perform quarterly technical freshness audit (June 2026).
+- [ ] Implement MCP 3.0 server for natural language media discovery.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18

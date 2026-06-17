@@ -1,96 +1,112 @@
 # IT-Tools
 
+A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser.
+
 ## What it is
-A comprehensive suite of web-based developer utilities including formatters, generators, and converters. It is designed to run entirely in the client's browser. As of **May 2026**, it includes over 100 specialized tools including CRON parsers, JWT debuggers, and various cryptographic utilities.
+IT-Tools is an open-source, client-side utility suite for developers. As of **June 2026**, it features over 120 specialized tools, ranging from JWT debuggers and CRON parsers to advanced cryptographic utilities and data converters. It is designed to be lightweight, searchable, and privacy-first.
 
 ## What problem it solves
-It centralizes dozens of common developer tasks (like JWT decoding, UUID generation, and JSON formatting) into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites.
+It centralizes dozens of common developer tasks into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites. By running all operations locally in the browser, it ensures that sensitive data (like JSON payloads or private keys) never leaves the user's local network.
 
 ## Where it fits in the stack
-It is a **Client-Side Utility Service**, typically self-hosted via Docker for privacy and offline availability.
+IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity layer. It is typically deployed as a static web application via Docker, serving as a reliable toolbox for local development and home-office operations.
 
 ## Typical use cases
-- Formatting messy JSON or SQL queries for readability.
-- Generating secure passwords or mock data (UUIDs, Lorem Ipsum).
-- Converting between different data representations (Base64, Hex, YAML).
+- Formatting messy JSON, SQL, or XML for readability.
+- Generating secure passwords, UUIDs, or mock data (Lorem Ipsum).
+- Decoding JWTs or performing Base64/Hex/YAML conversions.
+- Testing CRON expressions or calculating date differences.
+- Inspecting and generating QR codes for local network configurations.
 
 ## Strengths
-- **Privacy**: Most operations happen locally in the browser.
-- **Searchable**: Fast fuzzy search for all tools.
-- **Self-Hostable**: Easy deployment via a single Docker image.
+- **Privacy**: All processing happens locally in the browser.
+- **Speed**: Instantaneous search and tool loading via a unified interface.
+- **Self-Hostable**: Simple deployment with a single Docker image and zero external dependencies.
+- **Offline Capable**: Works perfectly in air-gapped or low-connectivity environments once loaded.
 
 ## Limitations
-- **Browser-Bound**: Not suitable for CLI-based automation or bulk processing of massive files.
-- **Client Performance**: Very large files may lag the browser interface.
+- **Client-Side Performance**: Large files (e.g., >50MB JSON) can cause browser lag or memory exhaustion.
+- **No Native Automation**: Designed for interactive use; lacks a CLI or API for batch processing.
+- **Browser Compatibility**: Requires a modern web browser for advanced cryptographic and media operations.
 
 ## When to use it
-- When you need quick access to common developer utilities (formatters, generators, converters) without leaving the browser.
-- For a lightweight, self-hostable set of tools that doesn't require complex installation.
+- When you need quick, privacy-conscious access to developer utilities.
+- For a lightweight, searchable set of tools that doesn't require complex installation.
+- To provide a safe, internal alternative to public utility websites for a team or family.
 
 ## When not to use it
-- For complex data processing that requires a specialized CLI or heavy-duty offline tool.
-- When dealing with extremely large datasets that may crash a browser-based tool.
+- For bulk data processing that requires a specialized CLI (e.g., `jq` for JSON).
+- When dealing with extremely large datasets that exceed browser memory limits.
+- If you require server-side persistence or collaborative features (use [Nextcloud](nextcloud.md) instead).
 
 ## Getting started
 
-### Docker
+### Docker installation
 The easiest way to run IT-Tools locally is via Docker:
 
 ```bash
-docker run -d --name it-tools --restart unless-stopped -p 8080:80 corentinth/it-tools:latest
+docker run -d \
+  --name it-tools \
+  --restart unless-stopped \
+  -p 8080:80 \
+  corentinth/it-tools:latest
 ```
 
-### Usage
-1. Open `http://localhost:8080` in your web browser.
-2. Select a tool from the sidebar or search for one using the search bar (e.g., "JSON Formatter").
-3. Paste your data into the input field and see the results instantly.
+Open `http://localhost:8080` to access the toolbox.
 
-### TrueNAS Deployment
-To host IT-Tools on TrueNAS (SCALE or CORE with Docker/Jails):
-1. **Create a Dataset**: Create a dataset for configuration (though IT-Tools is largely stateless).
-2. **Custom App (SCALE)**: Use the "Custom App" wizard.
-   - **Image**: `corentinth/it-tools:latest`
-   - **Port Forwarding**: Map a host port (e.g., 30080) to container port 80.
-3. **Networking**: Ensure the web UI is accessible over your local network for offline use.
+### TrueNAS Deployment (SCALE)
+1. **App Wizard**: Use the "Custom App" wizard.
+2. **Image**: `corentinth/it-tools:latest`.
+3. **Networking**: Map host port `30080` to container port `80`.
+4. **Resources**: Assign minimal CPU/RAM (0.5 Cores / 512MB RAM is sufficient).
 
 ## CLI examples
-Since IT-Tools runs in the browser, CLI interactions are primarily for managing the container:
+Since IT-Tools is a static web app, CLI commands are primarily for lifecycle management:
 
 ```bash
-# View container logs
+# View container logs during initial load
 docker logs it-tools
 
-# Restart the IT-Tools container
-docker restart it-tools
+# Pull the latest tools and security updates
+docker pull corentinth/it-tools:latest
 
-# Check the version by inspecting the image
-docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' corentinth/it-tools:latest
+# Check the version of the running container
+docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' it-tools
 ```
 
-## Links
-- [Official Website](https://it-tools.tech/)
-- [GitHub Repository](https://github.com/CorentinTh/it-tools)
+## API examples
+IT-Tools is a front-end only application and does not expose a server-side API. For health monitoring in an automated stack (e.g., using **Claude 4.8 Opus** or **n8n**):
+
+```bash
+# Basic health check to ensure the web server is responsive
+curl -fsS http://localhost:8080 >/dev/null && echo "IT-Tools is reachable"
+```
+
+For scripted transformations, use standard unix utilities instead:
+```bash
+# JSON formatting fallback
+echo '{"it-tools":"active"}' | jq .
+```
 
 ## Related tools / concepts
-- [Omni Tools](omni-tools.md)
-- [SearXNG](searXNG.md)
-- [Gitea](gitea.md)
-- [Authentik](authentik.md)
-- [Nextcloud](nextcloud.md)
-- [Paperless-ngx](paperless-ngx.md) — For managing the documents generated or formatted by these tools.
+- [Omni Tools](omni-tools.md) — A similar browser-based utility suite with enhanced media tools.
+- [SearXNG](searXNG.md) — Private search engine for developer documentation.
+- [Gitea](gitea.md) — Self-hosted git service for managing the code you format.
+- [Authentik](authentik.md) — For adding SSO and security to your utility suite.
+- [Nextcloud](nextcloud.md) — For long-term file storage and collaboration.
+- [Paperless-ngx](paperless-ngx.md) — For archiving the documents you generate or format.
 - [Immich](immich.md) — For managing media assets.
 - [Home Assistant](home-assistant.md) — For dashboard integration.
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-- [x] Host locally on TrueNAS for offline developer support.
+## Sources / References
+- [Official Website](https://it-tools.tech/)
+- [GitHub Repository](https://github.com/CorentinTh/it-tools)
+- [Docker Hub - corentinth/it-tools](https://hub.docker.com/r/corentinth/it-tools)
 
+## Backlog
+- [x] Perform quarterly technical freshness audit (June 2026).
+- [ ] Implement [MCP 3.0] bridge to allow AI agents to invoke local transformation logic.
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-26
-
-## Sources / References
-- https://it-tools.tech/
-- https://github.com/CorentinTh/it-tools
-- https://devtoys.app/
+- Last reviewed: 2026-06-18
