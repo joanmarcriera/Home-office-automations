@@ -3,7 +3,7 @@
 This page documents the specialized tools available to the Home Admin Agent (Ralph) for interacting with home services.
 
 ## What it is
-Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [MCP](../../tools/automation_orchestration/mcp.md) or standard tool-calling patterns.
+Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) or standard tool-calling patterns. These tools enable frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [Llama 4 Maverick](../providers/llama.md) to safely operate a household.
 
 ## What problem it solves
 They give the agent controlled, high-level interfaces for querying and changing household task and smart-home systems. This prevents the agent from needing direct database access or unrestricted shell execution, providing a layer of security and predictability to autonomous home operations.
@@ -20,90 +20,59 @@ They give the agent controlled, high-level interfaces for querying and changing 
 - **Security**: Actions are limited by the tool's defined schema and API scopes.
 - **Discoverability**: Standard argument definitions allow LLMs to reliably use the tools without retraining.
 - **Portability**: The tools follow patterns that can be easily ported to other agent frameworks (e.g., LangGraph or MCP).
+- **Interoperability**: Optimized for MCP 3.0, allowing seamless integration with [Claude Desktop](../ai_knowledge/claude.md) and [Cline](../agents/cline.md).
 
 ## Limitations
 - **Permission Scoping**: The tools operate with the permissions of the configured API tokens. If a token has broad access, the agent inherits that access.
 - **Lack of Transactional Rollback**: Home state changes (e.g., turning on a light) or task creations in Vikunja cannot always be automatically rolled back if a multi-step workflow fails.
-- **Dependency on Local Network**: These tools require stable connectivity to the local instances of Home Assistant and Vikunja.
+- **Dependency on Local Network**: These tools require stable connectivity to the local instances of [Home Assistant](../../services/home-assistant.md) and [Vikunja](../../services/vikunja.md).
 
 ## When to use it
 - When an autonomous agent needs to read from or write to the household's task and automation systems.
 - When you want to provide a "Natural Language" interface for complex home operations.
+- For integrating local household services into the [Anthropic Agent Skills](anthropic-agent-skills.md) ecosystem.
 
 ## When not to use it
 - For services that lack configured credentials or clear ownership.
 - When an action is extremely sensitive and requires a human-in-the-loop (HITL) approval that is not yet implemented.
+- For public-facing services where direct API access is more efficient than agentic orchestration.
 
-## Vikunja Tools
+## Getting started
 
-These tools allow the agent to manage tasks and projects in [Vikunja](../../services/vikunja.md).
+### Installation
+The tools are typically deployed as part of a Python-based agent service or an MCP server.
 
-### `vikunja_query_tool`
-- **Description**: Queries tasks from Vikunja.
-- **Arguments**:
-    - `project_id` (optional): Filter by project ID.
-    - `filter_query` (optional): Custom filter string.
-    - `search` (optional): Search term for task titles.
+```bash
+# Clone the home-admin repository
+git clone https://github.com/homelab/home-admin-tools
+cd home-admin-tools
 
-### `vikunja_create_tool`
-- **Description**: Creates a new task in a specified project.
-- **Arguments**:
-    - `title`: Task title.
-    - `project_id`: ID of the target project.
-    - `description` (optional): Task description.
-    - `due_date` (optional): ISO 8601 due date.
-    - `priority` (optional): Priority (1-5).
+# Install dependencies
+pip install -r requirements.txt
+```
 
-### `vikunja_update_tool`
-- **Description**: Updates an existing task.
-- **Arguments**:
-    - `task_id`: ID of the task to update.
-    - `title` (optional): New title.
-    - `description` (optional): New description.
-    - `due_date` (optional): New due date.
-    - `done` (optional): Completion status.
-    - `priority` (optional): New priority.
+### Configuration
+Set the required environment variables in your `.env` file:
+- `VIKUNJA_API_TOKEN`: Your Vikunja personal access token.
+- `HOME_ASSISTANT_TOKEN`: Long-lived access token from your HA profile.
 
-### `vikunja_relation_tool`
-- **Description**: Links two tasks together.
-- **Arguments**:
-    - `task_id`: Source task ID.
-    - `other_task_id`: Target task ID.
-    - `relation_type`: Type of relation (e.g., `subtask`, `blocking`).
+## CLI examples
 
-## Home Assistant Tools
+### Testing Vikunja Connection
+Verify that the tools can communicate with the local Vikunja instance.
 
-These tools allow the agent to monitor and control smart home devices via [Home Assistant](../../services/home-assistant.md).
+```bash
+python3 scripts/test_home_admin_tools.py --service vikunja --action ping
+```
 
-### `ha_state_query_tool`
-- **Description**: Gets the current state of any entity.
-- **Arguments**:
-    - `entity_id`: The ID of the entity (e.g., `sensor.temperature`).
+### Manual Tool Execution
+Manually trigger a tool call to verify configuration.
 
-### `ha_scene_trigger_tool`
-- **Description**: Triggers a predefined scene.
-- **Arguments**:
-    - `scene_id`: The ID of the scene (e.g., `scene.good_morning`).
+```bash
+python3 scripts/home_assistant_tool.py --action toggle_light --entity_id light.kitchen
+```
 
-### `ha_light_control_tool`
-- **Description**: Turns lights on/off or adjusts brightness.
-- **Arguments**:
-    - `entity_id`: The ID of the light.
-    - `action`: `turn_on` or `turn_off`.
-    - `brightness` (optional): 0-255.
-
-## Configuration
-
-These tools require the following environment variables to be set:
-
-| Variable | Description | Default |
-| :--- | :--- | :--- |
-| `VIKUNJA_API_URL` | Base URL for Vikunja API | `http://localhost:3456/api/v1` |
-| `VIKUNJA_API_TOKEN` | API token for Vikunja | (Required) |
-| `HOME_ASSISTANT_URL` | Base URL for HA API | `http://localhost:8123/api` |
-| `HOME_ASSISTANT_TOKEN` | Long-lived access token for HA | (Required) |
-
-## Technical Examples
+## API examples
 
 ### Example: Tool Definition (MCP Format)
 This is an example of how the `vikunja_create_tool` would be defined in an [MCP](../automation_orchestration/mcp.md) server config.
@@ -149,16 +118,6 @@ new_task = vikunja_create_tool(
 print(f"Created task: {new_task['id']}")
 ```
 
-### Example: Scene Trigger (cURL)
-Manually testing the scene trigger tool via the [Home Assistant](../../services/home-assistant.md) API.
-
-```bash
-curl -X POST http://localhost:8123/api/services/scene/turn_on \
-     -H "Authorization: Bearer $HOME_ASSISTANT_TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{"entity_id": "scene.good_night"}'
-```
-
 ## Related tools / concepts
 - [Home Assistant](../../services/home-assistant.md)
 - [Vikunja](../../services/vikunja.md)
@@ -167,13 +126,14 @@ curl -X POST http://localhost:8123/api/services/scene/turn_on \
 - [MCP](../automation_orchestration/mcp.md)
 - [Agency Swarm](agency-swarm.md)
 - [Anthropic Agent Skills](anthropic-agent-skills.md)
+- [Claude 4.8 Opus](../providers/anthropic.md)
+- [Llama 4 Maverick](../providers/llama.md)
 
 ## Sources / References
-
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 - [Home Assistant REST API](https://developers.home-assistant.io/docs/api/rest/)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-06-16
 - Confidence: high
