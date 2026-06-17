@@ -1,41 +1,45 @@
 # Paperless-ngx
 
 ## What it is
-Paperless-ngx is a community-supported document management system (DMS) that transforms your physical documents into a searchable online archive.
+Paperless-ngx is a community-supported document management system (DMS) that transforms your physical documents into a searchable digital archive. It provides a web-based interface for managing scanned PDFs and images, utilizing advanced OCR and machine learning for automated organization.
 
 ## What problem it solves
-It eliminates paper clutter by providing a central, digital repository for all your documents. It handles OCR (Optical Character Recognition) automatically, making scanned PDFs and images full-text searchable, and uses machine learning to suggest tags, correspondents, and document types.
+It eliminates paper clutter and "digital fragmentation" by providing a central, private repository for all household and office documents. It solves the problem of unsearchable scanned files by performing automatic Optical Character Recognition (OCR) and uses machine learning to suggest tags, correspondents, and document types based on content.
 
 ## Where it fits in the stack
-**Category**: Services / Document Management. It serves as the primary "Intake & Storage" layer for scanned and digital documents in a homelab or small office.
+**Ingestion & Storage Layer**. It serves as the primary archival system for documents in the homelab, sitting between capture tools (scanners, emails) and consumption tools (AI agents, mobile apps). It integrates with [Authentik](authentik.md) for SSO and [n8n](n8n.md) for automated workflows.
 
 ## Typical use cases
-- Digitizing household bills, receipts, and medical records.
-- Storing and indexing technical manuals and whitepapers.
-- Managing a paperless office with automated tagging and classification.
-- Providing a searchable backend for AI agents to query household data.
+- **Household Digitization**: Storing and indexing medical records, utility bills, and tax documents.
+- **Technical Library Management**: Archiving whitepapers, manuals, and schematics for quick reference.
+- **AI Knowledge Grounding**: Providing a structured, searchable data source for local RAG (Retrieval-Augmented Generation) pipelines.
+- **Automated Expense Tracking**: Ingesting receipts via email and automatically tagging them for financial audits.
 
 ## Strengths
-- **Automated OCR**: High-quality text extraction from images and PDFs.
-- **Machine Learning**: Learns your tagging patterns over time.
-- **Searchable Archive**: Fast full-text search with support for complex queries.
-- **Flexible Ingestion**: Supports consumption folders, email polling, and a REST API.
+- **Automated OCR**: High-quality text extraction from images and PDFs using Tesseract.
+- **Machine Learning Integration**: Learns your tagging patterns over time, reducing manual effort for new documents.
+- **Full-Text Search**: Fast and precise search capabilities with support for complex filters and saved views.
+- **Multi-Channel Ingestion**: Supports consumption folders, email polling (IMAP), and a comprehensive REST API.
 
 ## Limitations
-- **Hardware Intensive**: OCR can be CPU intensive, especially for large backlogs.
-- **Complexity**: Setting up reliable email ingestion or custom workflows requires some configuration.
+- **Resource Intensive**: OCR processing can be CPU-heavy, especially during bulk ingestion of large document backlogs.
+- **Dependency Management**: Requires a stack including Redis and a database (PostgreSQL/MariaDB) for optimal performance.
+- **OCR Limitations**: Handwritten notes or extremely low-resolution scans may have lower extraction accuracy.
 
 ## When to use it
-- When you want to go paperless and need a robust way to organize scanned documents.
-- When you want to host your own document archive privately.
+- When you want to transition to a paperless office and need a robust, self-hosted management system.
+- To maintain a private, searchable archive of sensitive personal or business documents.
+- When you need a structured document source to feed into AI agent workflows.
 
 ## When not to use it
-- For managing highly collaborative real-time documents (use [Nextcloud](../services/nextcloud.md) or Google Docs).
-- If you only have a handful of documents and don't need OCR or advanced searching.
+- For managing real-time collaborative documents (use [Nextcloud](nextcloud.md) or Google Docs instead).
+- If you only have a few dozen documents and don't require OCR or advanced tagging capabilities.
 
 ## Getting started
 
 ### Installation (Docker Compose)
+Paperless-ngx is best deployed using Docker Compose:
+
 ```yaml
 services:
   webserver:
@@ -45,7 +49,6 @@ services:
     volumes:
       - ./data:/usr/src/paperless/data
       - ./media:/usr/src/paperless/media
-      - ./export:/usr/src/paperless/export
       - ./consume:/usr/src/paperless/consume
     environment:
       PAPERLESS_REDIS: redis://redis:6379
@@ -58,65 +61,41 @@ services:
     image: redis:7
 ```
 
-### Hello World (API)
-You can ingest a document via the API using `curl`:
-```bash
-curl -X POST http://localhost:8000/api/documents/post_document/ \
-  -H "Authorization: Token your_api_token" \
-  -F "document=@/path/to/my_document.pdf" \
-  -F "title=My First Document"
-```
+### SSO Integration
+Navigate to the settings to configure OpenID Connect via [Authentik](authentik.md) for centralized authentication.
 
 ## CLI examples
 
-### paperless-ngx manage document_exporter
-Exports all documents and metadata to a directory:
+### Document Export
+Exports all documents and metadata to a specified directory for backup:
 ```bash
 docker exec -it paperless-webserver python3 manage.py document_exporter /usr/src/paperless/export
 ```
 
-### paperless-ngx manage document_renamer
-Renames files based on their current metadata and your storage path template:
+### Document Renaming
+Renames files on disk based on their current metadata and your storage path template:
 ```bash
 docker exec -it paperless-webserver python3 manage.py document_renamer
 ```
 
-### paperless-ngx manage document_index reindex
-Rebuilds the search index, useful after bulk updates or if search seems inconsistent:
+### Reindexing the Search Engine
+Rebuilds the search index, useful after bulk metadata updates:
 ```bash
 docker exec -it paperless-webserver python3 manage.py document_index reindex
 ```
 
 ## API examples
 
-### Python (Listing Documents)
-```python
-import requests
-
-url = "http://localhost:8000/api/documents/"
-headers = {"Authorization": "Token your_api_token"}
-
-response = requests.get(url, headers=headers)
-documents = response.json()
-
-for doc in documents['results']:
-    print(f"ID: {doc['id']}, Title: {doc['title']}, Created: {doc['created']}")
-```
-
-### Python (Fetching Document Metadata)
-```python
-import requests
-
-doc_id = 123
-url = f"http://localhost:8000/api/documents/{doc_id}/"
-headers = {"Authorization": "Token your_api_token"}
-
-response = requests.get(url, headers=headers)
-print(response.json()['content']) # Prints the OCR'd text content
+### Uploading a Document (curl)
+```bash
+curl -X POST http://localhost:8000/api/documents/post_document/ \
+  -H "Authorization: Token your_api_token" \
+  -F "document=@/path/to/invoice.pdf" \
+  -F "title=June 2026 Utility Bill"
 ```
 
 ### n8n (Document Ingestion Workflow)
-This JSON snippet can be imported into n8n to automate document uploads:
+Import this snippet into n8n to automate uploads:
 ```json
 {
   "nodes": [
@@ -146,27 +125,21 @@ This JSON snippet can be imported into n8n to automate document uploads:
 }
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (GPL-3.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
-- [n8n](../services/n8n.md) — Automate document processing and metadata updates.
-- [Vikunja](../services/vikunja.md) — Link tasks to relevant documents for workflow management.
-- [Immich](immich.md) — Manage visual assets alongside document archives.
-- [Tika](tika.md) — Extract text from complex binary formats before ingestion.
-- [Authentik](authentik.md) — Secure DMS access with SSO and MFA.
-- [Nextcloud](../services/nextcloud.md) — Synchronize document folders with mobile devices.
-- [Linkwarden](linkwarden.md) — Archive web pages as PDFs for indexing in Paperless.
+- [n8n](n8n.md) — For automating document processing and multi-service synchronization.
+- [Authentik](authentik.md) — For securing the DMS with enterprise-grade SSO and MFA.
+- [Nextcloud](nextcloud.md) — For syncing the consumption folder across mobile devices and desktops.
+- [Vikunja](vikunja.md) — For linking tasks to specific archived documents.
+- [Changedetection.io](changedetection.md) — For capturing and ingesting web snapshots as PDFs.
+- [Gitea](gitea.md) — For version-controlling scripts that interact with the Paperless API.
+- [Tika](tika.md) — For extracting text from complex binary formats before ingestion.
+- [Ollama](ollama.md) — For local AI analysis of OCR'd text content.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://docs.paperless-ngx.com/)
 - [GitHub Repository](https://github.com/paperless-ngx/paperless-ngx)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit.
+- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-16
 - Confidence: high
-- Last reviewed: 2026-05-26

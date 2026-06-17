@@ -1,41 +1,41 @@
 # Changedetection.io
 
-Changedetection.io is an open-source tool to monitor websites for content changes.
-
 ## What it is
-Changedetection.io is a self-hosted web monitoring tool that tracks changes in website content. It provides a clean web interface to add URLs, set up filters, and configure notification triggers for when specific parts of a page change.
+Changedetection.io is a self-hosted open-source tool designed to monitor websites for content changes. It provides a clean web interface to add URLs, set up filters, and configure notification triggers, allowing users to track modifications in specific parts of a page with high precision. In 2026, it is the standard for triggering agentic workflows based on external web events.
 
 ## What problem it solves
-It eliminates the need for manual checking of websites for updates. Whether it's tracking price drops on e-commerce sites, monitoring software release pages, or watching for new posts on a blog that lacks an RSS feed, Changedetection.io automates the observation process and pushes alerts to you.
+It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs.
 
 ## Where it fits in the stack
-In an automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It can send webhooks to n8n or Apprise, allowing you to kick off complex workflows (like automatically downloading a new software version or updating a budget spreadsheet) based on external website changes.
+In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using Claude 4.8 Opus and GPT-5.5.
 
 ## Typical use cases
-- **Price Tracking**: Monitoring Amazon or specialized retail sites for discounts.
-- **Stock Alerts**: Checking if a "Sold Out" item has come back into stock.
-- **Regulatory Monitoring**: Tracking changes to government or corporate policy pages.
+- **Price Tracking**: Monitoring retail sites for discounts or stock availability.
+- **Software Release Monitoring**: Watching GitHub or product pages for new versions.
+- **Regulatory Monitoring**: Tracking changes to government or corporate legal/policy pages.
 - **Visual Regression**: Capturing screenshots over time to see how a site's design evolves.
+- **AI Dataset Ingestion**: Triggering fresh scraping for local AI knowledge bases when a source updates.
 
 ## Strengths
-- **Multiple Fetchers**: Supports basic fast fetching as well as Playwright/Selenium for Javascript-heavy sites.
-- **Granular Filters**: Use CSS selectors, XPath, or JSONPath to monitor only specific parts of a page.
-- **Snapshot History**: Keeps a history of changes, allowing you to see exactly what was added or removed.
-- **Massive Notification Support**: Integrates with Apprise to support 70+ notification services.
+- **Multiple Fetchers**: Supports fast basic fetching and Playwright/Selenium for JS-heavy Single Page Applications (SPAs).
+- **Granular Filters**: Use CSS selectors, XPath, or JSONPath to monitor only specific, relevant page elements.
+- **Snapshot History**: Keeps a versioned history of changes, allowing for detailed diff analysis.
+- **Extensive Notifications**: Integrates with Apprise to support over 70 notification services (Telegram, Discord, etc.).
 
 ## Limitations
-- **Captcha Blocks**: Can struggle with sites that use aggressive anti-bot measures like Cloudflare Turnstile or reCAPTCHA.
-- **Resource Usage**: Using the Playwright/WebDriver fetchers for many sites can be memory-intensive.
-- **Complexity**: Monitoring complex SPAs (Single Page Applications) may require advanced CSS selector knowledge.
+- **Bot Detection**: Can be blocked by aggressive anti-bot measures like Cloudflare Turnstile without advanced proxy management.
+- **Resource Intensity**: Running multiple Playwright/WebDriver fetchers simultaneously can be memory-intensive on smaller servers.
+- **Configuration Complexity**: Monitoring highly dynamic sites may require deep knowledge of CSS/XPath to avoid false positives.
 
 ## When to use it
-- When you want to monitor websites for content changes or price drops.
-- To receive automated notifications when a specific page updates.
-- For tracking software releases or news without manual checking.
+- When you need to monitor specific website elements for changes without manual effort.
+- To receive automated notifications for price drops or critical software updates.
+- For building automated ingestion pipelines that respond to external web content modifications.
 
 ## When not to use it
-- For high-frequency monitoring of rapidly changing data (consider specialized trading or scraping tools).
-- If you need to monitor content behind complex, multi-step authentication that isn't easily scriptable.
+- For high-frequency, millisecond-level data monitoring (e.g., high-frequency stock trading).
+- If the target site has an official, reliable, and free API that provides the same data.
+- If the content is behind complex, multi-step authentication that Changedetection cannot easily navigate.
 
 ## Getting started
 
@@ -56,84 +56,68 @@ services:
 
 Access the interface at `http://localhost:5000`.
 
+### Filters & Noise Reduction
+Effective website monitoring requires filtering out dynamic content that changes on every load (e.g., timestamps, session IDs, ads).
+- **CSS Selectors**: Use selectors like `main#content` or `article.post` to focus the monitor. Exclude elements like `.sidebar` or `.footer`.
+- **Ignoring Text (Regex)**: Use regex in the "Filters" tab to strip patterns:
+    - `[0-9]{2}:[0-9]{2}:[0-9]{2}` (Timestamps)
+    - `[0-9]+ comments` (Comment counts)
+    - `\d+ views` (View counts)
+- **Visual Filters**: When using Playwright/Selenium, use the "Visual Filter" selector to click and hide elements directly from the rendered preview.
+
 ## CLI examples
-You can monitor the service via Docker:
+The service can be managed and inspected via Docker:
 
 ```bash
-# View service logs
+# View live logs to debug fetcher issues
 docker logs changedetection
 
-# Check the version
+# Check the installed version inside the container
 docker exec changedetection python3 -c "import changedetectionio; print(changedetectionio.__version__)"
 
-# Restart the service
+# Force a restart of the monitoring service
 docker restart changedetection
 ```
 
 ## API examples
-Changedetection.io features a REST API. Authenticate with your API key from the Settings tab:
+Changedetection.io features a REST API for programmatic control. Authenticate using the API key found in the Settings tab.
 
-### curl (List Watches)
+### Listing All Watches (curl)
 ```bash
-# List all watches
 curl http://localhost:5000/api/v1/watch \
      -H "x-api-key: <your_api_key>"
 ```
 
-### Python (Get Watch Status)
+### Checking Watch Status (Python)
 ```python
 import requests
 
 API_URL = "http://localhost:5000/api/v1/watch"
-API_KEY = "your_api_key_here"
+headers = {"x-api-key": "your_api_key_here"}
 
-headers = {"x-api-key": API_KEY}
 response = requests.get(API_URL, headers=headers)
-
 if response.status_code == 200:
-    watches = response.json()
-    for watch_uuid, watch_data in watches.items():
-        print(f"Watch: {watch_data.get('title')} | Last Checked: {watch_data.get('last_checked')}")
-else:
-    print(f"Error: {response.status_code}")
+    for uuid, data in response.json().items():
+        print(f"Watch: {data.get('title')} | Last Checked: {data.get('last_checked')}")
 ```
 
 ## Related tools / concepts
-- [n8n](n8n.md) — Automate workflows based on content changes.
-- [Linkwarden](linkwarden.md) — Archive and manage links found during monitoring.
-- [Authentik](authentik.md) — Secure the Changedetection instance with SSO.
-- [Paperless-ngx](paperless-ngx.md) — Ingest tracked documents for OCR and archival.
-- [Immich](immich.md) — Monitor and archive visual changes to galleries.
-- [Nextcloud](nextcloud.md) — Store snapshots and change logs.
-- [Home Assistant](home-assistant.md) — Trigger home alerts based on web changes.
+- [n8n](n8n.md) — For orchestrating advanced workflows triggered by detected changes.
+- [Linkwarden](linkwarden.md) — For archiving and managing links discovered during monitoring.
+- [Authentik](authentik.md) — For securing Changedetection.io with SSO and MFA.
+- [Paperless-ngx](paperless-ngx.md) — For ingesting and indexing PDF snapshots of changed pages.
+- [Gitea](gitea.md) — For version-controlling configuration or scripts related to monitoring.
+- [Nextcloud](nextcloud.md) — For storing and syncing exported snapshots.
+- [Home Assistant](home-assistant.md) — For triggering physical home alerts based on web content changes.
+- [Playwright](../tools/development_ops/playwright.md) — The underlying engine used for monitoring Javascript-heavy sites.
 - [Apprise](https://github.com/caronc/apprise) — Notification engine for 70+ services.
-- [Playwright](https://playwright.dev/) — Headless browser for JS-heavy sites.
 
-## Filters & Noise Reduction
-Effective website monitoring requires filtering out dynamic content that changes on every load (e.g., timestamps, session IDs, ads) to avoid false positive alerts.
-
-### CSS Selectors
-Use CSS selectors to focus the monitor on specific elements. For example, to monitor only the main article content and ignore sidebars:
-- **Include**: `main#content` or `article.post`
-- **Exclude**: `.sidebar`, `.footer`, `.advertisement`
-
-### Ignoring Text (Regex)
-In the "Filters" tab, use the "Ignore text" field to strip out patterns using regular expressions. Common patterns include:
-- `[0-9]{2}:[0-9]{2}:[0-9]{2}` (Timestamps)
-- `[0-9]+ comments` (Comment counts)
-- `\d+ views` (View counts)
-
-### Visual Filters
-When using the Playwright/Selenium fetcher, you can use the "Visual Filter" selector in the UI to click and hide elements directly from a rendered preview of the site.
-
-## Backlog
-- [x] Perform quarterly technical freshness audit.
+## Sources / references
+- [Official Website](https://changedetection.io/)
+- [GitHub Repository](https://github.com/dgtlmoon/changedetection.io)
+- [Apprise Documentation](https://github.com/caronc/apprise)
+- [Changedetection.io REST API Docs](https://github.com/dgtlmoon/changedetection.io/wiki/API)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-16
 - Confidence: high
-- Last reviewed: 2026-05-26
-
-## Sources / References
-- [Changedetection.io Official Site](https://changedetection.io/)
-- [GitHub Repository](https://github.com/dgtlmoon/changedetection.io)
-- [Huginn GitHub Repository](https://github.com/huginn/huginn)
