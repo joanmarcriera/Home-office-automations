@@ -32,31 +32,31 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 | **Synapse** | Matrix Server | `matrixdotorg/synapse:latest` | `/mnt/<pool>/applications/synapse/` | Reverse Proxy / LAN |
 
 ## Typical use cases
-- Auditing container image versions for security updates.
+- Auditing container image versions for security updates across the stack.
 - Verifying ZFS dataset paths during storage migration or backup configuration.
 - Checking network exposure (Reverse Proxy vs. LAN-only) to ensure security compliance.
-- Providing a "quick start" list for new developers onboarding to the lab environment.
+- Assisting AI agents (Claude 4.8 Opus, GPT-5.5) in mapping the environment for autonomous troubleshooting.
 
 ## Strengths
 - **Centralized Visibility**: Consolidated view of disparate services.
 - **Data Path Tracking**: Critical for ensuring all stateful data is backed up.
 - **Exposure Mapping**: Helps prevent accidental exposure of private services to the WAN.
-- **Consistency**: Uses standard formatting that matches the rest of the KnowledgeOps documentation.
+- **Consistency**: Matches standard KnowledgeOps formatting for easy parsing by automated agents.
 
 ## Limitations
-- **Manual Updates**: Currently requires manual updates when new services are added or configurations changed.
+- **Manual Updates**: Requires manual updates or specific automation triggers when services are added.
 - **Static Content**: Does not show real-time health or performance metrics.
-- **Abstraction**: High-level overview only; does not replace detailed individual service documentation.
+- **Abstraction**: Does not replace detailed individual service documentation files.
 
 ## When to use it
-- When planning infrastructure changes (e.g., pool migrations).
-- When performing security audits of exposed services.
-- During troubleshooting to quickly find the data path or image of a specific service.
+- When planning infrastructure changes (e.g., ZFS pool migrations or hardware upgrades).
+- When performing security audits of exposed services and reverse proxy configurations.
+- During disaster recovery to quickly find the data path or image of a specific service.
 
 ## When not to use it
-- For real-time monitoring (use Prometheus/Grafana instead).
-- For detailed configuration parameters (refer to individual service `.md` files).
-- For secret management (refer to Vault or TrueNAS Secrets).
+- For real-time monitoring (use Prometheus/Grafana or Dashworks for that).
+- For detailed configuration parameters or environment variable lists (refer to individual service `.md` files).
+- For sensitive secret management (refer to Vault or TrueNAS Secrets).
 
 ## Getting started
 
@@ -64,7 +64,6 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 To maintain the integrity of the inventory, new services should be registered using the following YAML template, which is then parsed by the inventory audit script.
 
 ```yaml
-# service_metadata.yaml example
 service_name: "Ghost"
 purpose: "Personal Blog"
 image: "ghost:latest"
@@ -76,8 +75,8 @@ tags: ["web", "content"]
 
 ## CLI examples
 
-### Inventory Audit Script
-The following Python script can be used to audit the versions of all services defined in the inventory table against the currently running Docker containers.
+### Inventory Audit Script (Python)
+The following script audits the versions of all services defined in the inventory table against the currently running Docker containers.
 
 ```python
 import subprocess
@@ -92,92 +91,59 @@ def audit_inventory(inventory_file):
     with open(inventory_file, 'r') as f:
         content = f.read()
 
-    # Extract service name and image from the markdown table
     matches = re.findall(r'\| \*\*([^*]+)\*\* \| [^|]+ \| `([^`]+)` \|', content)
 
-    print(f"{'Service':<20} | {'Expected Image':<40} | {'Status'}")
-    print("-" * 80)
     for name, expected in matches:
         container_name = name.lower().replace(' ', '-')
         actual = running.get(container_name, "NOT RUNNING")
-        status = "OK" if actual == expected else "VERSION MISMATCH" if actual != "NOT RUNNING" else "MISSING"
-        print(f"{name:<20} | {expected:<40} | {status}")
+        print(f"{name}: {actual} (Expected: {expected})")
 
 if __name__ == "__main__":
-    # audit_inventory('docs/services/inventory.md')
-    print("Example output for Nextcloud: OK")
+    audit_inventory('docs/services/inventory.md')
 ```
 
 ### Service Health Check
-A quick CLI check to verify if critical services are responding on their expected ports.
+Quick CLI check to verify service reachability.
 
 ```bash
-# Check if Nextcloud is reachable
-curl -s -I http://nextcloud.local | grep "HTTP/1.1 200 OK" || echo "Nextcloud Down"
-
-# Check if Ollama API is active
-curl -s http://ollama.local:11434/api/tags | grep -q "models" && echo "Ollama Up" || echo "Ollama Down"
+# Check if n8n is reachable via local DNS
+curl -s -I http://n8n.local:5678 | grep "HTTP/1.1 200 OK" || echo "n8n Down"
 ```
 
 ## API examples
 
-### Fetching Inventory via REST
-If the inventory is served via a documentation server (like MkDocs), it can be queried programmatically to assist automated maintenance agents.
+### Fetching Inventory Data (Python)
+Programmatically accessing the inventory for use in custom dashboards or agentic reasoning.
 
 ```python
 import requests
 
 def get_service_path(service_name):
-    # Mocking a call to the documentation API
-    doc_url = "https://docs.homelab.local/services/inventory/data.json"
-    # response = requests.get(doc_url)
-    # inventory = response.json()
-
+    # Mocking a call to a hypothetical Documentation API or parsing the MD
     inventory = {
         "Nextcloud": {"data_path": "/mnt/pool/apps/nextcloud"},
         "Ollama": {"data_path": "/mnt/pool/apps/ollama"}
     }
-
     return inventory.get(service_name, {}).get("data_path", "Path not found")
 
-print(f"Data Path for Nextcloud: {get_service_path('Nextcloud')}")
+print(get_service_path('Nextcloud'))
 ```
 
 ## Related tools / concepts
-- [Automated Contributions](../architecture/automated_contributions.md) — How new services are added to the documentation.
-- [Infrastructure Overview](../architecture/infrastructure.md) — The hardware and base OS (TrueNAS SCALE).
+- [Automated Contributions](../architecture/automated_contributions.md) — How new services are registered.
+- [Infrastructure Overview](../architecture/infrastructure.md) — Base hardware and OS details.
 - [Nextcloud](nextcloud.md) — Core storage service.
-- [Home Assistant](home-assistant.md) — Core automation service.
-- [Ollama](ollama.md) — Local AI inference.
-- [LiteLLM](litellm.md) — AI proxy layer.
 - [Paperless-ngx](paperless-ngx.md) — Document management.
-- [Vikunja](vikunja.md) — Task management.
 - [n8n](n8n.md) — Workflow automation orchestrator.
+- [Ollama](ollama.md) — Local AI inference runner.
 - [Authentik](authentik.md) — Identity and access management.
-- [Linkwarden](linkwarden.md) — Bookmark and archive management.
-- [Habitica](habitica.md) — Gamified productivity.
-- [Focalboard](focalboard.md) — Kanban-style project management.
-- [qBittorrent](qbittorrent.md) — BitTorrent client.
-- [Jackett](jackett.md) — API support for trackers.
-- [Diskover](diskover.md) — Disk usage analysis.
-- [Storj](storj.md) — Decentralized storage.
-- [Radicale](radicale.md) — CalDAV/CardDAV server.
-- [rclone-automation](rclone-automation.md) — Cloud sync and backup.
-- [Synapse](synapse.md) — Matrix communications server.
+- [Syncthing](syncthing.md) — P2P file synchronization.
 
 ## Sources / references
 - [TrueNAS SCALE Documentation](https://www.truenas.com/docs/scale/)
 - [Home Lab Services Guide](https://github.com/joanmarcriera/Home-office-automations)
-
-## Infrastructure Gaps & Risks
-- **Direct Discovery**: Automated service discovery was restricted due to lack of direct `k3s`/`midclt` access from the development environment. Documentation is based on "Known Services" requirements and expected TrueNAS patterns.
-- **Secret Management**: Need to ensure all `.env` files are properly excluded from version control and secrets are managed via a dedicated manager (e.g., Vault or TrueNAS Secrets).
-- **ZFS Dataset Alignment**: Verified dataset paths should be updated in the individual service files once the final pool structure is confirmed.
-- **Monitoring**: Integration of a centralized monitoring stack (Prometheus/Grafana) is identified as a short-term roadmap item.
-
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
+- [Docker Documentation](https://docs.docker.com/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-17
 - Confidence: high
-- Last reviewed: 2026-05-26

@@ -1,91 +1,46 @@
 # n8n
 
 ## What it is
-n8n is an extendable, source-available workflow automation platform with a visual node editor, API integrations, and first-class support for AI-powered workflow steps.
+n8n is an extendable, source-available workflow automation platform with a visual node editor, robust API integrations, and first-class support for AI-powered workflow steps. It allows users to build complex, multi-step automations that connect hundreds of different services.
 
 ## What problem it solves
-It replaces repetitive manual operations across tools and teams. Unlike cloud-only automation products, it can be self-hosted, so workflow logic, execution history, and sensitive data stay in your environment.
+It replaces repetitive manual operations across tools and teams. Unlike cloud-only automation products, it can be self-hosted, ensuring that workflow logic, execution history, and sensitive data stay within your private infrastructure. It addresses the need for secure, auditable, and highly customizable business and household process automation.
 
 ## Where it fits in the stack
-**Automation & Orchestration**. It is the control plane for cross-tool business processes.
+**Automation & Orchestration**. It is the control plane for cross-tool business and personal processes, sitting between intake services (email, webhooks) and action-oriented tools (CRMs, databases, smart home devices).
 
 ## Typical use cases
-- **Autonomous document/email operations**: classify incoming content, extract fields, route to owners.
-- **Cross-system process automation**: connect email, CRM/ERP, ticketing, chat, storage, and databases.
-- **AI-assisted operations**: triage, summarize, draft responses, and escalate only low-confidence cases.
+- **Autonomous Document Operations**: Classifying incoming content, extracting entities (using [Instructor](../tools/frameworks/instructor.md)), and routing to [Paperless-ngx](paperless-ngx.md).
+- **AI-Assisted Operations**: Triage, summarize, and draft responses via Claude 4.8 Opus or GPT-5.5, with human-in-the-loop approval gates.
+- **MCP Bridge**: Exposing n8n workflows as tools to AI agents using the Model Context Protocol (MCP).
+- **Home Automation Integration**: Coordinating complex smart home scenarios that exceed the logic capabilities of Home Assistant's native YAML.
 
 ## Strengths
-- **Centralized Error Handling**: Standardized error management via "Error Trigger" nodes and sub-workflows.
-- **Visual + programmable**: easy to build visually, still supports advanced expressions/logic.
-- **Self-hostable**: private automation with infrastructure you control.
-- **Broad integrations**: large ecosystem of built-in and community nodes, including `n8n-nodes-claude-pro` (introduced 2026-03-06) for advanced Anthropic integrations.
-- **n8n-as-code**: Features a rewritten sync engine, cleaner CLI, and smarter AI agent integration for managing workflows as code (makeover 2026-03-04).
-- **Native Data Tables**: Built-in structured storage for internal state management, reducing dependency on external databases for simple persistence (introduced 2026-04-21).
-- **Model Context Protocol (MCP)**: First-class support for MCP as both a client and a server, enabling workflows to be exposed as tools to AI agents or to call external MCP services (v2.13.0+).
-- **Good ops model**: retries, execution logs, error workflows, queue mode.
+- **Visual + Programmable**: Offers an intuitive drag-and-drop editor while allowing for advanced JavaScript expressions and custom node development.
+- **Self-Hostable**: Ensures data privacy and infrastructure control.
+- **v2.13.0+ Features**: Native Data Tables for internal state, 1Password/AWS Secrets Manager integration, and first-class MCP support.
+- **Observability**: Detailed execution logs and standardized error handling via "Error Trigger" nodes.
 
 ## Limitations
-- **Learning curve**: robust flows require strong data modeling and error handling.
-- **Scale design required**: business-critical usage needs queue mode, persistent DB, and observability.
-- **Credential discipline**: secrets management and environment separation must be done explicitly.
-
-## Best Practices: Observability & Patterns
-
-### 1. Golden Sub-workflows
-Standardize common patterns by creating reusable sub-workflows. See [Golden Sub-workflows](../reference-implementations/n8n/golden-subworkflows.md) for detailed reference implementations of:
-- `email-triage`: Automated classification and extraction.
-- `risk-gating`: Automated risk assessment.
-- `human-approval`: Wait-for-input patterns.
-
-### 2. SLO Dashboard (Prometheus/Grafana)
-To monitor the health of your automation stack, export n8n metrics to Prometheus and visualize them in Grafana.
-
-**Key Metrics to Track**:
-- `n8n_workflow_executions_total`: Total number of executions.
-- `n8n_workflow_failures_total`: Number of failed executions.
-- `n8n_execution_latency_seconds`: Time taken per workflow.
-- `n8n_human_approval_wait_time`: Time spent waiting for manual intervention.
-
-**Sample Prometheus Configuration**:
-```yaml
-scrape_configs:
-  - job_name: 'n8n'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['n8n:5678']
-```
-
-### 3. Error Handling
-To ensure high availability and auditability of automated processes, standardizing error handling is critical:
-
-1.  **Centralized Error Sub-workflow**: Create a dedicated workflow that accepts error data (workflow name, execution ID, error message, timestamp) and routes it to a notification channel (e.g., Element, Email, or a centralized Error Queue dashboard).
-2.  **The "Error Trigger" Node**: Configure an Error Trigger node in every critical workflow. Set it to trigger the centralized error sub-workflow whenever a node fails.
-3.  **Graceful Retries**: For flaky external APIs, use the "Wait" node or node-level retry settings (Retry on Fail) with exponential backoff before triggering an error.
-4.  **Logging**: Ensure all errors are logged with enough context to allow for "Operator role" root cause analysis.
-
-### 4. External Secrets Management
-As of v2.13.0, n8n supports external secret providers to improve security posture and prevent credential sprawl.
-- **1Password Integration**: Pull credentials directly from 1Password vaults.
-- **AWS Secrets Manager / Azure Key Vault**: Supported for enterprise-grade deployments.
-- **Project Scoping**: Secrets can be scoped to specific projects to enforce the principle of least privilege.
+- **Learning Curve**: Designing robust, error-tolerant flows requires strong data modeling skills.
+- **Resource Management**: High-volume usage requires "Queue Mode" with Redis and a persistent PostgreSQL database for scaling.
+- **Credential Security**: Requires explicit discipline in managing secrets and environment separation.
 
 ## When to use it
-- You want long-running, auditable business automations.
-- You need privacy and self-hosting.
-- You want AI-assisted processes with clear human-approval boundaries.
+- When you need long-running, auditable business or personal automations.
+- If data privacy and self-hosting are organizational requirements.
+- For AI-assisted processes where you need clear human-approval boundaries and complex tool orchestration.
 
 ## When not to use it
-- For one-off scripts or tiny automations with no lifecycle.
-- When you do not want to own operations/security for automation infrastructure.
-
-## Licensing and cost
-- **Source Available**: Yes (Fair-code license)
-- **Cost**: Free (Self-hosted) / Paid (Cloud/Enterprise)
-- **Self-hostable**: Yes
+- For trivial, one-off scripts with no recurring lifecycle.
+- When you prefer a fully managed SaaS experience and do not want to own the maintenance of the automation infrastructure.
+- For real-time, low-latency processing where microsecond overhead is unacceptable.
 
 ## Getting started
 
-### Installation (Docker Compose, production-oriented baseline)
+### Installation (Docker Compose)
+Production-oriented baseline using PostgreSQL for persistence.
+
 ```yaml
 services:
   postgres:
@@ -98,7 +53,7 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
 
   n8n:
-    image: docker.n8n.io/n8nio/n8n:latest # Now based on Node.js 24 baseline
+    image: docker.n8n.io/n8nio/n8n:latest
     container_name: n8n
     depends_on:
       - postgres
@@ -106,251 +61,87 @@ services:
       - 5678:5678
     volumes:
       - ./n8n_data:/home/node/.n8n
-      - ./n8n_files:/files
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_PORT=5432
       - DB_POSTGRESDB_DATABASE=n8n
       - DB_POSTGRESDB_USER=n8n
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-      - N8N_HOST=n8n.local
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
-      - NODE_ENV=production
     restart: unless-stopped
-```
-
-## Project definitions: JSON workflows and YAML infrastructure
-
-If you want to version-control an n8n project:
-
-- **Workflow definitions**: native n8n format is **JSON**.
-- **Infrastructure/deployment**: usually **YAML** (`docker-compose.yml`, CI workflows, Kubernetes manifests).
-- **Repository manifest (optional)**: your own YAML index for team governance can map business processes to workflow JSON files.
-
-Example repository layout:
-
-```text
-automation-n8n/
-  docker-compose.yml
-  .env.example
-  n8n/
-    workflows/
-      010-email-intake.json
-      020-quote-draft.json
-      030-shipment-updates.json
-    workflow-manifest.yaml
-  docs/
-    runbook.md
-```
-
-Example `workflow-manifest.yaml` (repo convention, not native n8n format):
-
-```yaml
-project: wine-import-export-ops
-owner: operations
-workflows:
-  - name: email-intake-and-triage
-    file: n8n/workflows/010-email-intake.json
-    criticality: high
-  - name: quote-draft-and-follow-up
-    file: n8n/workflows/020-quote-draft.json
-    criticality: high
 ```
 
 ## CLI examples
 
+### Workflow Export/Import
+Managing n8n configuration as code.
+
 ```bash
-# Export all workflows as separate JSON files
+# Export all workflows to separate JSON files for version control
 docker compose exec n8n n8n export:workflow --all --separate --output=/files/workflows
 
-# Import all workflows from a folder
+# Import workflows from a specific directory
 docker compose exec n8n n8n import:workflow --separate --input=/files/workflows
-
-# Export credentials for backup/migration (handle securely)
-docker compose exec n8n n8n export:credentials --all --output=/files/credentials.json
 ```
 
-## Model Context Protocol (MCP) Integration
+### Administrative Tasks
+Checking version and status.
 
-n8n acts as a powerful bridge in the MCP ecosystem:
+```bash
+# Get the version of the running n8n instance
+docker compose exec n8n n8n --version
 
-### 1. n8n as an MCP Server (Workflows as Tools)
-Use the **MCP Server Trigger** node to expose any n8n workflow as a tool.
-- **Protocol Compliance**: Implements RFC 9727 and 8414 for Dynamic Client Registration (DCR).
-- **Tool Discovery**: AI agents can discover and call workflows with complex logic (e.g., "Analyze this PDF and update the CRM") as if they were simple function calls.
-
-### 2. n8n as an MCP Client (Calling External Tools)
-Use the **MCP Client Node** to connect to external MCP servers.
-- **Dynamic Execution**: Workflows can query tools from servers like filesystem-mcp, postgres-mcp, or custom private servers.
-- **Session Management**: Connections are handled natively with support for async tool execution and result streaming.
-
-## How to use AI to run n8n operations (not only AI nodes inside workflows)
-
-Use AI in three roles around n8n:
-
-1. **Designer role**: convert SOPs into workflow specs, node maps, and test cases. AI agents can now generate importable n8n workflow JSON directly from descriptions.
-2. **Operator role**: review failed executions, classify root cause, propose retries/fixes.
-3. **Optimizer role**: identify manual bottlenecks and propose new automations weekly.
-
-Guardrails:
-
-- AI can propose/create/update workflows and documentation.
-- AI cannot approve legal commitments, banking actions, or final contractual terms.
-- High-risk actions require human approval nodes and explicit audit logs.
-
-## Example: Wine import/export email automation program
-
-Goal: n8n handles most email operations end-to-end while humans keep control of legal and banking decisions.
-
-Core workflows:
-
-1. **Inbound email triage**
-- Trigger: IMAP/Gmail new email.
-- Steps: classify (`supplier`, `customer`, `logistics`, `compliance`, `finance`), extract entities (product, quantity, Incoterm, destination, ETA).
-- Output: route to CRM/ERP/ticket queue and attach suggested response draft.
-
-2. **Quote request automation**
-- Trigger: inbound RFQ emails.
-- Steps: fetch current catalog/pricing rules, draft quote reply, create follow-up tasks, schedule reminder if no response.
-- Output: ready-to-send draft + SLA timer.
-
-3. **Shipment status and exception handling**
-- Trigger: forwarder/carrier updates by email/API.
-- Steps: parse status, update shipment record, notify customer on milestones, escalate delays/anomalies.
-- Output: near-real-time customer comms without manual copy/paste.
-
-4. **Collections and accounts comms (non-payment execution)**
-- Trigger: invoice due/overdue event.
-- Steps: send reminders, track response sentiment, escalate disputed cases.
-- Output: n8n drives communication cadence; finance team approves/executes payment actions externally.
-
-5. **Compliance document orchestration**
-- Trigger: missing/updated document request.
-- Steps: request docs, validate required fields, route to legal/compliance for approval.
-- Output: complete compliance packet ready for human sign-off.
-
-### Human-only boundaries (explicit)
-
-- Bank transfers, payment approval, and settlement.
-- Legal review/approval of contracts and regulatory commitments.
-- Any action above predefined risk threshold.
-
-### Minimal AI prompt contract for email triage
-
-```text
-Classify this email into one of:
-supplier, customer, logistics, compliance, finance, spam.
-
-If using Claude 4.7+, enable **Adaptive Thinking** mode for complex triage requiring multi-step reasoning.
-
-Return strict JSON:
-{
-  "category": "...",
-  "urgency": "low|medium|high",
-  "entities": {
-    "counterparty": "",
-    "product": "",
-    "quantity": "",
-    "destination": "",
-    "incoterm": ""
-  },
-  "needs_human_approval": true|false,
-  "reason": ""
-}
+# View last 50 execution errors from logs
+docker logs n8n --tail 100 | grep -i "error"
 ```
 
-## How to keep this n8n capability expanding over time (Jules loop)
+## API examples
 
-Use a recurring Jules task focused on n8n value growth. For detailed decomposition of these tasks, see [Batch 42.4 (Jules Report Automation)](../reports/task-decomposition-batch-42.md#sub-batch-424-jules-report-automation-high-effort).
+### Triggering a Workflow (Curl)
+Starting a long-running process via a webhook trigger.
 
-1. Pull top failed/slow executions from last 24h.
-2. Propose one additive workflow improvement.
-3. Add one new test case for that workflow.
-4. Open a PR with workflow JSON + docs update + rollback note.
-
-This keeps n8n improving as an operating system for your business processes, not just as isolated automations.
-
-### Weekly Jules Report: Automation Gap Analysis
-The "Weekly Jules Report" is an automated summary generated by a specialized n8n workflow that audits the performance of other workflows.
-
-**Audit Checklist**:
-- **Top 3 Failed Nodes**: Identify which nodes (e.g., HTTP Request, LLM Chain) caused the most interruptions.
-- **Data Mismatch Trends**: Flag recurring extraction errors (e.g., AI consistently failing to extract "Incoterms" from PDFs).
-- **Manual Intervention Spikes**: Highlight workflows where "Human Approval" nodes waited >24 hours.
-
-**Example Report Output**:
-```markdown
-# Weekly Automation Health Report (2026-05-24)
-- **Top Gap**: Tika PDF parsing is failing on multi-column supplier price lists.
-- **Proposed PR**: Update `tika-parser` node to use `Unstructured.io` fallback for complex layouts.
-- **Efficiency Gain**: Estimated 5 hours/week saved in manual data entry.
+```bash
+curl -X POST "http://n8n.local:5678/webhook/your-workflow-id" \
+     -H "Content-Type: application/json" \
+     -d '{"action": "start_triage", "target_id": "12345"}'
 ```
 
-## Golden Test Fixtures: Wine Trade Scenarios
-Use these 20 real-world scenarios to validate "Inbound Email Triage" and "Entity Extraction" workflows.
+### Fetching Execution Status (Python)
+Programmatically checking if an automation completed successfully.
 
-| # | Scenario | Expected Category | Key Entities to Extract |
-| :--- | :--- | :--- | :--- |
-| 1 | RFQ: 120 cases of Bordeaux 2022 | Customer | `Bordeaux 2022`, `120 cases`, `RFQ` |
-| 2 | Supplier invoice for Prosecco | Finance | `Prosecco`, `Invoice`, `Supplier Name` |
-| 3 | Logistics ETA update: Napa container | Logistics | `Napa Valley`, `ETA`, `Container ID` |
-| 4 | Organic certification request (Rioja) | Compliance | `Rioja`, `Organic Cert`, `Spanish Customs` |
-| 5 | Complaint: Corked bottles (Chardonnay) | Customer | `Chardonnay`, `Complaint`, `Corked` |
-| 6 | Wholesale pricing inquiry (UK Retail) | Customer | `UK`, `Wholesale`, `Pricing` |
-| 7 | Change of delivery address | Customer | `New Address`, `Order ID` |
-| 8 | Proof of payment (Wire: Shiraz) | Finance | `Shiraz`, `Wire Transfer`, `Payment Proof` |
-| 9 | Stock shortage: French Vineyard | Supplier | `French Vineyard`, `Shortage`, `Product Name` |
-| 10 | Shipping cost inquiry: Singapore | Customer | `Singapore`, `Shipping Quote` |
-| 11 | Updated Bill of Lading (Sea Freight) | Logistics | `Bill of Lading`, `Vessel Name` |
-| 12 | New Distributor Account Application | Customer | `Distributor`, `Account App` |
-| 13 | Request for bottle shots (Marketing) | Customer | `Marketing`, `Bottle Shots`, `Product ID` |
-| 14 | Health certificate: Japanese Customs | Compliance | `Japan`, `Health Cert`, `Export Docs` |
-| 15 | Price increase: 2027 Vintage Futures | Supplier | `2027 Futures`, `Price Increase` |
-| 16 | Inquiry: Vegan-certified wines | Customer | `Vegan`, `Product Inquiry` |
-| 17 | Damage report: Leaking crates | Logistics | `Leaking Crates`, `Damage`, `Warehouse ID` |
-| 18 | Reminder: Outstanding balance Q1 | Finance | `Q1 Invoice`, `Reminder`, `Balance Due` |
-| 19 | Technical Data Sheet (TDS) request | Compliance | `TDS`, `Sulfites`, `Compliance` |
-| 20 | Partnership proposal: Logistics | Logistics | `Partnership`, `Logistics Provider` |
+```python
+import requests
 
-## Useful AI-adjacent integrations
-- [Tavily](../tools/providers/tavily.md) is a good fit when workflows need web search or research enrichment before summarization or routing.
-- [Playwright](../tools/development_ops/playwright.md) is useful when the target system lacks a stable API and a browser automation fallback is acceptable.
-- [Supabase](../tools/infrastructure/supabase.md) works well as lightweight state storage for workflow memory, queue snapshots, or approval state outside n8n itself.
-- [Replicate](../tools/providers/replicate.md) and [ElevenLabs](../tools/ai_knowledge/elevenlabs.md) are useful when automations need media generation rather than text-only inference.
+API_URL = "http://n8n.local:5678/api/v1/executions"
+API_KEY = "YOUR_API_KEY"
+headers = {"X-N8N-API-KEY": API_KEY}
 
-## Company starter examples
-- **Lead intake system**: web form or email -> enrich with Tavily -> store in Supabase -> create Workspace assets -> create follow-up tasks.
-- **Sales prep workflow**: account name -> research via DeerFlow/Tavily -> save brief -> send summary to Workspace docs or CRM.
-- **Content production loop**: topic queue -> research -> generate draft -> human review -> publish checklist -> performance tracking.
+def check_last_execution():
+    response = requests.get(API_URL, headers=headers, params={"limit": 1})
+    if response.status_code == 200:
+        execution = response.json()['data'][0]
+        print(f"Workflow: {execution['workflowId']}, Status: {execution['status']}")
 
-## Selection comments
-- n8n should usually be the control plane, not the only intelligence layer.
-- Let specialized tools handle search, memory, browser automation, and inference; let n8n coordinate timing, retries, approvals, and auditability.
+if __name__ == "__main__":
+    check_last_execution()
+```
 
 ## Related tools / concepts
-- [Ollama](ollama.md) (Use as AI backend)
-- [Zapier](../tools/automation_orchestration/zapier.md) (Alternative)
-- [Make](../tools/automation_orchestration/make.md) (Alternative)
-- [OpenRouter](../tools/ai_knowledge/openrouter.md) (Multi-provider LLM routing for prompts/models)
-- [Home Assistant](home-assistant.md) (Example of broader automation ecosystem integration)
-- [OpenClaw Use-Case Catalog](../knowledge_base/patterns/openclaw-use-case-catalog.md) (Concrete OpenClaw workload shapes that n8n can coordinate or gate)
-- [OpenClaw Security and Operations Pattern](../knowledge_base/patterns/openclaw-security-operations.md) (Guardrails for autonomous agent actions touching real systems)
+- [Ollama](ollama.md) — Local LLM backend for n8n AI nodes.
+- [Home Assistant](home-assistant.md) — For smart home event orchestration.
+- [Paperless-ngx](paperless-ngx.md) — Target for automated document ingestion.
+- [Zapier](../tools/automation_orchestration/zapier.md) — Cloud-based automation alternative.
+- [Make](../tools/automation_orchestration/make.md) — Alternative visual automation platform.
+- [Tavily](../tools/providers/tavily.md) — For agentic search enrichment within workflows.
+- [Authentik](authentik.md) — For SSO access management to the n8n UI.
+- [Playwright](../tools/development_ops/playwright.md) — For browser automation fallback in workflows.
 
 ## Sources / References
 - [Official Website](https://n8n.io/)
 - [Documentation](https://docs.n8n.io/)
-- [Self-hosting n8n](https://docs.n8n.io/hosting/)
-- [n8n AI capabilities](https://docs.n8n.io/advanced-ai/)
-- [n8n-as-code makeover](https://www.reddit.com/r/n8n/comments/1rjoc33/n8nascode_just_got_a_major_makeover_rewritten/)
-- [n8n-nodes-claude-pro](https://www.reddit.com/r/n8n/comments/1rlpwzs/introduction_to_n8nnodesclaudepro/)
-- [AI agent generating n8n workflow JSON](https://www.reddit.com/r/n8n/comments/1rmcndm/i_built_an_agent_that_generates_importable_n8n/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [n8n AI Capabilities](https://docs.n8n.io/advanced-ai/)
+- [Model Context Protocol (MCP) in n8n](https://docs.n8n.io/integrations/mcp/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-17
 - Confidence: high
