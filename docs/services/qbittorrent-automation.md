@@ -1,131 +1,109 @@
 # qBittorrent Automation
 
-Automated workflows for managing torrent downloads, post-processing, and library maintenance.
-
 ## What it is
-qBittorrent Automation involves using the qBittorrent Web UI API, external scripts, and automation platforms like n8n to manage the lifecycle of downloads.
+qBittorrent Automation encompasses the workflows, scripts, and integrations used to manage the lifecycle of torrent downloads autonomously. In June 2026, it leverages the **v5.2** Web API and Model Context Protocol (MCP 3.0) to allow AI agents like Claude 4.8 Opus to orchestrate content acquisition, categorization, and library maintenance.
 
 ## What problem it solves
-It automates the tedious parts of media acquisition: starting downloads from RSS feeds, categorizing files based on content, renaming files for media centers (like Plex or Jellyfin), and managing disk space by automatically removing old torrents.
+Manual torrent management is time-consuming and prone to organizational chaos. qBittorrent Automation solves the "acquisition overhead" by automatically ingesting content from RSS feeds, categorizing downloads based on content type, renaming files for media servers, and enforcing seeding rules to maintain private tracker ratios without human intervention.
 
 ## Where it fits in the stack
-**Category**: Services / Media Automation. It sits between content discovery (RSS/Indexers) and media consumption (Plex).
+**Category**: Service / Media / Automation. It sits at the **intake orchestration layer**, bridging content discovery (via [SearXNG](searXNG.md) or RSS) with media consumption ([Plex](plex.md), [Jellyfin](jellyfin.md)).
 
 ## Typical use cases
-- **RSS Auto-DL**: Automatically downloading new episodes of TV shows via RSS.
-- **Categorization & Sorting**: Moving completed downloads to specific folders based on their "Category" tag.
-- **Notifications**: Using [n8n](n8n.md) to send a Telegram or Element notification when a large download completes.
-- **Bandwidth Scheduling**: Automatically pausing or slowing down downloads during business hours.
-- **Seed Management**: Automating the cleanup of completed downloads based on share ratios or seeding time.
+- **Agentic Content Retrieval**: Asking an AI agent to "Find and download the latest Debian ISO," which it executes via the qBittorrent API.
+- **Automated Library Maintenance**: Using [n8n](n8n.md) to move completed downloads to specific folders and trigger a media library scan.
+- **Ratio Management**: Automatically pausing or deleting torrents once they reach a predefined seeding ratio or time limit.
+- **Real-Time Notifications**: Sending alerts to [Element](element.md) or [Synapse](synapse.md) when a high-priority download completes.
+- **Dynamic Bandwidth Scaling**: Automatically adjusting download speeds based on home network occupancy or [Speedtest](speedtest.md) results.
 
 ## Strengths
-- **Robust Web API**: Excellent documentation and coverage for almost all client features.
-- **Python Libraries**: Multiple well-maintained wrappers (e.g., `qbittorrent-api`).
-- **Low Overhead**: Automation scripts can run as lightweight cron jobs or n8n nodes.
-- **Category-Level Limits**: As of v5.2 (May 2026), seeding limits can be enforced at the category level, allowing for automated rule sets (e.g., "Public" torrents stop at 2.0 ratio, while "Private" ones seed indefinitely).
+- **Native MCP 3.0 Support**: Allows autonomous agents to securely query and manipulate the download queue.
+- **Comprehensive Web API**: Provides granular control over every aspect of the client, from peer management to transfer settings.
+- **Event-Driven Triggers**: Native support for running external programs on torrent completion.
+- **Category-Level Logic**: v5.2+ allows for different automation rules (seeding, pathing) based on assigned categories.
+- **Extensive Tooling**: Large ecosystem of Python wrappers (`qbittorrent-api`) and automation nodes (n8n, Node-RED).
 
 ## Limitations
-- **Security**: The Web UI API must be secured behind a strong password or VPN.
-- **Complexity**: Setting up complex "If This Then That" logic (e.g., cross-seeding) can require significant scripting.
+- **Security Complexity**: Exposing the Web API for automation requires robust authentication (e.g., via [Authentik](authentik.md)).
+- **Configuration Overhead**: Setting up complex "If-This-Then-That" workflows can require significant initial effort.
+- **Path Mapping**: Ensuring Docker container paths align across multiple services (qBittorrent, n8n, Plex) is a common point of friction.
 
 ## When to use it
-- When you want a "set it and forget it" media stack.
-- To manage a large number of torrents across multiple categories.
-- When integrating your download client with other homelab services.
+- When you want a "set-and-forget" media and data acquisition pipeline.
+- To manage complex seeding requirements for multiple private trackers simultaneously.
+- When integrating content acquisition into a larger AI-driven homelab orchestration.
+- To maintain a highly organized media library without manual file moving.
 
 ## When not to use it
-- If you only download occasional files manually.
-- If you don't have enough storage to handle automated "fire and forget" downloads.
+- If you only download occasional files manually and don't mind manual organization.
+- In environments where the security of the Web API cannot be guaranteed.
+
+## Licensing and cost
+- **Licensing**: Open Source (GPL-2.0 for qBittorrent; scripts/wrappers vary).
+- **Cost**: Free.
+- **Self-hostable**: Yes, typically run alongside [qBittorrent](qbittorrent.md) in a Docker environment.
 
 ## Getting started
 
 ### Prerequisites
-- A running [qBittorrent](qbittorrent.md) instance.
-- Web UI enabled in **Tools > Options > Web UI**.
+1. A running [qBittorrent](qbittorrent.md) instance with Web UI enabled.
+2. An automation engine like [n8n](n8n.md) or a Python environment.
 
-### Basic Python Setup
-Install the `qbittorrent-api` library:
-
-```bash
-pip install qbittorrent-api
-```
-
-### Hello World (Python)
-```python
-import qbittorrentapi
-
-# Connect to the client
-qbt_client = qbittorrentapi.Client(
-    host='localhost',
-    port=8080,
-    username='admin',
-    password='your_password'
-)
-
-# List all downloading torrents
-for torrent in qbt_client.torrents_info(status_filter='downloading'):
-    print(f"{torrent.name} - {torrent.progress * 100:.2f}%")
-```
+### Hello World (n8n Webhook)
+1. In qBittorrent, go to **Options > Downloads > Run external program on torrent completion**.
+2. Set the command to trigger an n8n webhook:
+   `curl -X POST -H "Content-Type: application/json" -d "{\"name\": \"%N\", \"hash\": \"%I\"}" http://n8n:5678/webhook/torrent-done`
+3. In n8n, create a workflow that sends a notification when this webhook is called.
 
 ## CLI examples
-
-Automation often uses `curl` to interact with the Web UI API directly.
+Automate qBittorrent via `curl` and the Web API.
 
 ```bash
-# Login and get a SID cookie (needed for subsequent requests)
+# Login and save session SID
 curl -i -d "username=admin&password=your_password" http://localhost:8080/api/v2/auth/login
 
-# Add a torrent via Magnet link
-curl -b "SID=YOUR_SID" -d "urls=magnet:?xt=urn:btih:..." http://localhost:8080/api/v2/torrents/add
+# Add a torrent with a specific category
+curl -b "SID=YOUR_SID" -F "urls=magnet:?xt=urn:btih:..." -F "category=ISO" http://localhost:8080/api/v2/torrents/add
 
-# Pause all active torrents
-curl -b "SID=YOUR_SID" -X POST http://localhost:8080/api/v2/torrents/pause?hashes=all
+# Pause all torrents in the 'Movies' category
+curl -b "SID=YOUR_SID" -X POST "http://localhost:8080/api/v2/torrents/pause?category=Movies"
 ```
 
 ## API examples
+Use the `qbittorrent-api` Python library for advanced automation.
 
-### n8n Integration (Webhook)
-You can configure qBittorrent to trigger an n8n webhook when a download finishes. In qBittorrent, go to **Options > Downloads > Run external program on torrent completion**:
-
-```bash
-curl -X POST -H "Content-Type: application/json" -d "{\"name\": \"%N\", \"size\": \"%Z\", \"path\": \"%R\"}" http://n8n-server:5678/webhook/torrent-finished
-```
-
-### Advanced Filtering (Python)
+### Python: Automated Cleanup Script
 ```python
-# Remove torrents that have been seeding for more than 7 days
-for torrent in qbt_client.torrents_info(status_filter='seeding'):
-    if torrent.seeding_time > (7 * 24 * 3600):
-        print(f"Removing old seed: {torrent.name}")
-        torrent.delete(delete_files=True)
+import qbittorrentapi
 
-# Automate Category-Level Limits (v5.2 Feature)
-# Set a 2.0 ratio limit for the "Linux-ISOs" category
-qbt_client.torrents_set_share_limits(
-    category='Linux-ISOs',
-    ratio_limit=2.0,
-    seeding_time_limit=-1 # No time limit
-)
+qbt_client = qbittorrentapi.Client(host='localhost', port=8080, username='admin', password='password')
+
+# Delete torrents that have finished seeding (Ratio > 2.0)
+for torrent in qbt_client.torrents_info(status_filter='completed'):
+    if torrent.ratio > 2.0:
+        print(f"Cleaning up: {torrent.name}")
+        torrent.delete(delete_files=False) # Keep files, remove from client
 ```
 
 ## Related tools / concepts
-- [qBittorrent](qbittorrent.md) — The core client.
-- [Jellyfin](jellyfin.md) — Open-source media server for consuming automated downloads.
-- [Plex](plex.md) — Alternative media consumer.
-- [n8n](n8n.md) — Workflow engine for complex "If-This-Then-That" scenarios.
-- [Rclone Automation](rclone-automation.md) — For moving files to cloud storage after download.
-- [SearXNG](searXNG.md) — Can be used to programmatically find torrent links.
-- [Authentik](authentik.md) — For managing secure access to the qBittorrent Web UI.
-- [Tailscale](tailscale.md) — For secure remote access to automation triggers.
-- [Arrr Suite (Sonarr/Radarr)](https://wiki.servarr.com/) — Dedicated media automation stacks.
+- [qBittorrent](qbittorrent.md) — The core download engine.
+- [n8n](n8n.md) — The primary workflow engine for qBittorrent automation.
+- [SearXNG](searXNG.md) — For programmatically finding content.
+- [Plex](plex.md) — Media consumption platform.
+- [Jellyfin](jellyfin.md) — Open-source media server.
+- [Authentik](authentik.md) — Securing the Web API.
+- [Tailscale](tailscale.md) — Secure remote access to the API.
+- [Speedtest](speedtest.md) — Providing metrics for bandwidth automation.
+- [Element](element.md) — Notification endpoint.
+- [Synapse](synapse.md) — Matrix-based notification backbone.
+- [Paperless-ngx](paperless-ngx.md) — Automated ingestion of downloaded documents.
+- [Claude](../tools/ai_knowledge/claude.md) — Agent used for orchestrating acquisition.
 
 ## Sources / References
-- [qBittorrent Web UI API Documentation](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
-- [qbittorrent-api Python Wrapper](https://github.com/rmartin16/qbittorrent-api)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [qBittorrent WebUI API](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
+- [qbittorrent-api Python Library](https://github.com/rmartin16/qbittorrent-api)
+- [Arrr Suite (Sonarr/Radarr)](https://wiki.servarr.com/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-18
 - Confidence: high
-- Last reviewed: 2026-05-27

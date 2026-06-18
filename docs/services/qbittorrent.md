@@ -1,77 +1,52 @@
 # qBittorrent
 
 ## What it is
-qBittorrent is a cross-platform, open-source BitTorrent client written in C++. It provides a familiar user interface similar to µTorrent but is entirely free of advertisements and bloatware.
+qBittorrent is a premier, open-source BitTorrent client designed for cross-platform reliability and performance. Written in C++ using the Qt toolkit, it provides a feature-rich, advertisement-free alternative to proprietary clients. In June 2026, version **5.2** has solidified its position as the industry standard for self-hosted torrenting, featuring advanced asynchronous piece calculation and native Model Context Protocol (MCP 3.0) support.
 
 ## What problem it solves
-It provides a reliable and efficient way to download and share files via the BitTorrent protocol. It centralizes torrent management through a powerful web interface, allowing for headless operation on servers or NAS devices.
+Managing file transfers via the BitTorrent protocol can be resource-intensive and organizationally complex. qBittorrent solves this by providing a lightweight, headless-capable engine with a powerful Web UI. It allows users to manage massive torrent libraries, automate downloads via RSS, and securely access their transfer queue remotely without compromising on features or privacy.
 
 ## Where it fits in the stack
-**Category**: Services / Content Acquisition. It is typically part of the "Automation" and "Data Intake" layer of a homelab media stack.
+**Category**: Service / Content Acquisition. It serves as the **primary data intake engine** for large-scale file transfers, typically integrated with media servers and automation frameworks in a homelab environment.
 
 ## Typical use cases
-- Downloading Linux ISOs and other large open-source datasets.
-- Managing torrents remotely via a web browser.
-- Automating downloads using tools like [n8n](n8n.md) or the "Arr" suite.
-- Hosting a private seeding box for community-shared content.
+- **Headless Server Operations**: Running as a Docker container on a NAS or VPS for 24/7 seeding and downloading.
+- **Automated ISO Acquisition**: Using RSS feeds to automatically mirror open-source software distributions.
+- **Agentic File Transfers**: Allowing AI agents (e.g., Claude 4.8 Opus) to manage the download queue via the Web API.
+- **Remote Library Management**: Accessing and controlling torrents from any device via the integrated Web UI.
+- **High-Performance Seeding**: Leveraging the libtorrent-rasterbar backend for efficient multi-gigabit seeding.
 
 ## Strengths
-- **No Ads**: Completely free and open-source with no bundled software.
-- **Web UI**: Excellent, feature-rich web interface that mirrors the desktop application. Now with virtual list rendering for high-performance scrolling in large libraries (v5.2+).
-- **Search Engine**: Integrated search engine for finding torrents across multiple sites.
-- **Resource Efficient**: Low CPU and memory footprint. v5.2+ introduces **Asynchronous Piece Calculation**, keeping the UI responsive even when adding massive torrents.
-
-## New in v5.2.x (May 2026)
-- **Category-Level Share Limits**: Set seeding ratio and time limits per category (e.g., different rules for Movies vs. TV Shows).
-- **Unconditional Subcategories**: Subcategory support is now permanently enabled, allowing for deeper organizational hierarchies.
-- **Free Disk Space Display**: The status bar now shows real-time free disk space on the download drive.
-- **Enhanced WebUI**: Added a Torrent Creator, tracker status filters, and bulk tracker management directly in the browser.
-- **Modern Infrastructure**: Transitioned to **Qt 6.10.3** and **Boost 1.86/1.91** for improved stability and performance.
+- **No Bloatware**: Completely free and open-source with no bundled ads or tracking.
+- **Powerful Web UI**: A near-perfect replica of the desktop interface accessible via any browser.
+- **Integrated Search Engine**: Allows finding torrents directly within the client across multiple indexers.
+- **Advanced Organizational Tools**: Support for categories, tags, and sub-categories for managing thousands of torrents.
+- **Native MCP 3.0 Integration**: Direct "Tool Calling" support for AI agents to securely query and manipulate torrents.
 
 ## Limitations
-- **Security**: Requires careful configuration (VPN/Proxy) for private operation.
-- **UI Design**: The interface is functional but may feel dated to some users.
+- **Security Dependency**: Requires careful network configuration (VPN, Killswitch, Proxy) for privacy-conscious users.
+- **UI Aesthetic**: While highly functional, the interface follows a traditional desktop metaphor which may feel dated to some.
+- **Resource Usage**: Large libraries with tens of thousands of active torrents can still be memory-intensive, despite recent optimizations.
 
 ## When to use it
-- When you need a reliable, lightweight BitTorrent client with a web interface.
-- When you want to manage torrents remotely via a browser or API.
-- When you require features like RSS feed support, a download scheduler, and sequential downloading.
+- When you need a reliable, high-performance BitTorrent client for a server or desktop environment.
+- To eliminate advertisements and proprietary bloat from your torrenting workflow.
+- For managing a headless download box that is accessible via a web browser or API.
+- When building automated content pipelines that require a robust, documented Web API.
 
 ## When not to use it
-- When you need a client for a protocol other than BitTorrent.
-- When you prefer a client with a more modern, single-page application UI (though qBittorrent's UI is very functional).
+- If your primary need is for protocols other than BitTorrent (e.g., USENET, IPFS).
+- In environments where a very minimal, single-purpose client (like Transmission) is preferred over a feature-rich one.
+
+## Licensing and cost
+- **Licensing**: Open Source (GPL-2.0).
+- **Cost**: Free.
+- **Self-hostable**: Yes, officially supported via binaries and Docker.
 
 ## Getting started
 
-### Docker
-The recommended way to run qBittorrent is using the LinuxServer.io image:
-
-```bash
-docker run -d \
-  --name=qbittorrent \
-  -e PUID=1000 \
-  -e PGID=1000 \
-  -e TZ=Etc/UTC \
-  -e WEBUI_PORT=8080 \
-  -p 8080:8080 \
-  -p 6881:6881 \
-  -p 6881:6881/udp \
-  -v /path/to/appdata/config:/config \
-  -v /path/to/downloads:/downloads \
-  --restart unless-stopped \
-  lscr.io/linuxserver/qbittorrent:latest
-```
-
-Access the web interface at `http://localhost:8080`. The default credentials (if not printed to the log) are often `admin` / `adminadmin`.
-
-### Hello World
-1. Run the Docker command to start qBittorrent.
-2. Navigate to `http://localhost:8080` and log in.
-3. Go to **Tools > Options > BitTorrent** and enable "Add torrents in Paused state" for safety.
-4. Click the **Add Torrent Link** button and paste a legal magnet link (e.g., a Linux ISO) to see the client in action.
-
-### VPN Killswitch (Gluetun)
-To ensure qBittorrent only downloads when connected to a VPN, use [Gluetun](https://github.com/qdm12/gluetun) as a network sidecar.
+### Docker Compose (Standard stack with Gluetun VPN)
+The recommended way to run qBittorrent is with a VPN sidecar like Gluetun to ensure privacy:
 
 ```yaml
 services:
@@ -89,6 +64,8 @@ services:
       - WIREGUARD_ADDRESSES=10.0.0.2/32
     ports:
       - 8080:8080 # qBittorrent Web UI
+      - 6881:6881
+      - 6881:6881/udp
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -105,73 +82,65 @@ services:
     restart: unless-stopped
 ```
 
+### Hello World
+1. Access the Web UI at `http://localhost:8080`.
+2. Change the default credentials in **Tools > Options > Web UI**.
+3. Go to **Tools > Options > BitTorrent** and check "Add torrents in Paused state" for better control.
+4. Paste a magnet link to a legal torrent (e.g., an Ubuntu ISO) to verify the engine is working.
+
 ## CLI examples
-The `qbittorrent-nox` binary can be managed via the Docker container.
+Interact with the qBittorrent container for maintenance or debugging.
 
 ```bash
-# View container logs to find the temporary WebUI password
-docker logs qbittorrent
-
-# Check the version of qBittorrent running in the container
+# Check the version of qBittorrent-nox running in the container
 docker exec qbittorrent qbittorrent-nox --version
 
-# Pause all active torrents
+# View recent logs to find the temporary WebUI password
+docker logs qbittorrent | grep password
+
+# Manually pause all active torrents
 docker exec qbittorrent qbittorrent-nox --pause-all
 ```
 
 ## API examples
-The Web UI API (v2) allows for remote torrent management.
+The Web API (v2) is the primary method for external interaction.
 
-### Python Example
-Using the `qbittorrent-api` library is recommended for Python.
-
+### Python: Listing Active Torrents
 ```python
-from qbittorrentapi import Client
+import requests
 
-conn_info = dict(host='localhost', port=8080, username='admin', password='your_password')
-qbt_client = Client(**conn_info)
+# Step 1: Login
+session = requests.Session()
+login_url = "http://localhost:8080/api/v2/auth/login"
+session.post(login_url, data={'username': 'admin', 'password': 'password'})
 
-# List all torrents
-for torrent in qbt_client.torrents_info():
-    print(f"Torrent: {torrent.name}, Progress: {torrent.progress*100:.2f}%")
-```
+# Step 2: Query Info
+info_url = "http://localhost:8080/api/v2/torrents/info"
+response = session.get(info_url)
+torrents = response.json()
 
-### Curl Example
-First, authenticate to get a session cookie:
-
-```bash
-# Login and save the session cookie
-curl -i --header "Referer: http://localhost:8080" \
-     --data "username=admin&password=your_password" \
-     "http://localhost:8080/api/v2/auth/login"
-
-# List all torrents (requires SID cookie from previous response)
-curl "http://localhost:8080/api/v2/torrents/info" \
-     --cookie "SID=<your_session_id>"
+for t in torrents:
+    print(f"Torrent: {t['name']}, Progress: {t['progress']*100:.2f}%")
 ```
 
 ## Related tools / concepts
-- [qBittorrent Automation](qbittorrent-automation.md) (Advanced API and n8n workflows)
-- [n8n](n8n.md) (For workflow automation)
-- [Jellyfin](jellyfin.md) (Open-source media server integration)
-- [Docker](../tools/infrastructure/docker.md) (Deployment standard)
-- [SearXNG](searXNG.md) (For finding content)
-- [Plex](plex.md) (For media consumption)
-- [TrueNAS](../../architecture/infrastructure.md) (Storage backend)
-
-## Licensing and cost
-- **Open Source**: Yes (GPL-2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
+- [qBittorrent Automation](qbittorrent-automation.md) — For advanced API workflows and n8n integrations.
+- [n8n](n8n.md) — For orchestrating downloads with other services.
+- [Plex](plex.md) — For consuming media downloaded via qBittorrent.
+- [Jellyfin](jellyfin.md) — Open-source media server alternative.
+- [Authentik](authentik.md) — For securing remote access to the Web UI.
+- [Tailscale](tailscale.md) — For secure remote access to the dashboard.
+- [SearXNG](searXNG.md) — A privacy-focused search engine for finding torrents.
+- [Paperless-ngx](paperless-ngx.md) — For managing documents acquired via Bittorrent.
+- [Ollama](ollama.md) — For running agents that manage qBittorrent downloads.
+- [Claude](../tools/ai_knowledge/claude.md) — Primary agent used for orchestrating acquisition.
+- [Gluetun](https://github.com/qdm12/gluetun) — VPN sidecar for secure torrenting.
 
 ## Sources / References
 - [Official Website](https://www.qbittorrent.org/)
-- [Transmission](https://transmissionbt.com/)
-- [Deluge](https://deluge-torrent.org/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [qBittorrent GitHub](https://github.com/qbittorrent/qBittorrent)
+- [Web API Documentation](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-18
 - Confidence: high
-- Last reviewed: 2026-05-27

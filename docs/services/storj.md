@@ -1,53 +1,52 @@
 # Storj
 
 ## What it is
-Storj is a decentralized cloud storage provider that offers S3-compatible object storage. Unlike traditional cloud providers, Storj distributes data across thousands of independent nodes worldwide, ensuring high reliability, security, and performance.
+Storj is a decentralized cloud storage platform that provides high-performance, S3-compatible object storage. Unlike traditional cloud providers, Storj distributes data across a global network of thousands of independent nodes. In the June 2026 landscape, Storj has become a cornerstone of the "Agentic Infrastructure," offering the low-latency, high-availability storage required for frontier AI models and autonomous agents.
 
 ## What problem it solves
-It provides a cost-effective and highly private alternative to centralized object storage (like AWS S3). By using client-side encryption and distributed storage, it eliminates single points of failure and significantly reduces the risk of data breaches or downtime associated with single-region providers.
+Centralized storage providers (AWS S3, Google Cloud Storage) represent single points of failure and often involve high egress costs. Storj eliminates these issues by encrypting, splitting, and distributing data globally. It solves the "egress tax" problem while ensuring maximum privacy and resilience against regional outages, making it ideal for distributed AI workloads and private homelab backups.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Storage. Storj acts as a remote object storage tier for backups, media hosting, or application data.
+**Category**: Service / Infrastructure / Storage. Storj serves as the **distributed persistence layer**, providing a scalable and cost-effective backend for media archives, model weights, and agentic memory stores.
 
 ## Typical use cases
-- Off-site backups for homelab data.
-- Hosting static assets for websites or applications.
-- Sharing large files securely without centralized tracking.
-- Contributing excess local storage to the network to earn rewards.
+- **Distributed Model Storage**: Hosting LLM weights (Llama 4, Mistral) for rapid edge deployment.
+- **Agentic Memory Archival**: Storing long-term reasoning traces and session logs for autonomous agents.
+- **Private Homelab Backups**: Off-site, encrypted backups for [Paperless-ngx](paperless-ngx.md) and [Nextcloud](nextcloud.md).
+- **High-Performance Content Delivery**: Serving media assets for [Plex](plex.md) or [Jellyfin](jellyfin.md) with global low-latency access.
+- **Excess Storage Monetization**: Contributing idle local storage to the Storj network via a Storage Node.
 
 ## Strengths
-- **Decentralized Architecture**: Data is split into encrypted pieces and distributed across 10,000+ nodes globally.
-- **CDN-like Performance**: Distributed nature provides high-speed access from the edge without traditional egress bottlenecks.
-- **S3 Compatibility**: Works with existing S3-compatible tools and libraries (e.g., [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)).
-- **Security**: Zero-knowledge encryption ensures only you have access to your data.
-- **Cost**: Up to 80% cheaper than traditional cloud providers (AWS, Azure, Google).
+- **Decentralized Performance**: Parallel downloads from multiple edge nodes often outperform centralized CDNs.
+- **Zero-Knowledge Encryption**: Data is encrypted on the client-side; only the owner holds the keys.
+- **S3 Compatibility**: Seamless integration with existing tools like [Rclone](rclone-automation.md) and [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html).
+- **High Availability**: Erasure coding (e.g., 29/80) ensures data is retrievable even if dozens of nodes go offline simultaneously.
+- **Cost Efficiency**: Significant savings on storage and egress compared to traditional cloud providers.
 
 ## Limitations
-- **Object Storage Only**: Not suitable for direct block storage or low-latency database files.
-- **Internet Dependency**: Requires a stable internet connection for all operations.
-- **Identity Setup**: Running a node requires generating a unique identity, which can be computationally intensive initially.
+- **Object Storage Focus**: Not designed for low-latency block storage or direct database file mounting.
+- **Client Processing**: Encryption and erasure coding require local CPU cycles during upload/download.
+- **Node Reputation**: Initial node setup requires a "vetting" period before significant traffic is received.
 
 ## When to use it
-- When you need high-performance, decentralized object storage.
-- When you want to reduce storage costs compared to traditional cloud providers.
-- When building applications that require S3 compatibility.
+- When you need high-performance, decentralized object storage with global availability.
+- To reduce cloud storage costs, particularly egress fees for frequently accessed data.
+- For privacy-sensitive data where zero-knowledge encryption is a mandatory requirement.
+- As a resilient off-site backup target for local homelab services.
 
 ## When not to use it
-- When you require block storage or file system mounting (use for object storage).
-- If your workload requires absolute single-region data residency.
+- For workloads requiring block-level storage (e.g., running a live database file).
+- If your environment lacks a stable, high-bandwidth internet connection.
 
-## Edge Services & CDN
-Storj functions as a global CDN by default. Because data is distributed, files are downloaded from the closest available nodes, providing low-latency access worldwide without needing to configure separate CDN regions.
-
-### Key Performance Features
-- **Parallel Downloads**: The `uplink` CLI downloads pieces from multiple nodes simultaneously, saturating available bandwidth.
-- **Managed Passphrases**: A 2026 feature that balances security and simplicity for business users.
-- **Erasure Coding**: Data is reconstructed from only a fraction of the total pieces (e.g., 29 out of 80), ensuring availability even if many nodes go offline.
+## Licensing and cost
+- **Licensing**: Open Source (AGPL-3.0 for core components).
+- **Cost**: Usage-based pricing for storage and egress. Free tier available (often up to 25GB).
+- **Self-hostable**: Yes, by running a Storage Node to contribute to the network.
 
 ## Getting started
 
-### Docker installation
-Running a Storj node via Docker allows you to contribute storage to the network and earn rewards.
+### Docker: Running a Storage Node
+Contribute storage to the network using the official Docker image:
 
 ```bash
 docker run -d --restart unless-stopped --stop-timeout 300 \
@@ -63,114 +62,71 @@ docker run -d --restart unless-stopped --stop-timeout 300 \
   --name storagenode storjlabs/storagenode:latest
 ```
 
-### Installation
-Install the `uplink` CLI tool to manage your Storj buckets and objects:
-
-```bash
-curl -L https://github.com/storj/storj/releases/latest/download/uplink_linux_amd64.zip -o uplink.zip
-unzip uplink.zip
-sudo install uplink /usr/local/bin
-```
-
-### Setup
-Configure the CLI with your Storj access credentials:
-
-```bash
-uplink setup
-```
-
-Follow the prompts to enter your access grant or API key.
-
-### Hello World
-1. Install and setup the `uplink` CLI as described above.
-2. Create a new bucket: `uplink mb sj://hello-world`.
-3. Create a small text file: `echo "Hello Storj" > hello.txt`.
-4. Upload the file: `uplink cp hello.txt sj://hello-world/`.
-5. Verify the upload: `uplink ls sj://hello-world/`.
+### Hello World (CLI)
+1. Install the `uplink` CLI: `curl -L https://github.com/storj/storj/releases/latest/download/uplink_linux_amd64.zip -o uplink.zip && unzip uplink.zip`.
+2. Configure credentials: `uplink setup`.
+3. Create a bucket: `uplink mb sj://my-homelab-backup`.
+4. Upload a file: `uplink cp local-file.txt sj://my-homelab-backup/`.
 
 ## CLI examples
-
-### Rclone Configuration
-To use Storj as a backup target for Rclone (S3-compatible):
-1. **Generate Credentials**: In the Storj console, create an S3 credential.
-2. **Configure Rclone**:
-```ini
-[storj]
-type = s3
-provider = other
-access_key_id = <your_access_key>
-secret_access_key = <your_secret_key>
-endpoint = https://gateway.storjshare.io
-region = us1
-```
-3. **Verify**: `rclone lsd storj:`
-
-The `uplink` tool supports standard object storage operations. Use the `sj://` protocol for buckets.
+The `uplink` tool provides a powerful interface for bucket management.
 
 ```bash
-# Create a new bucket
-uplink mb sj://my-bucket
+# List all buckets
+uplink ls sj://
 
-# Upload a local file with a custom expiration date
-uplink cp my-local-file.txt sj://my-bucket/ --expires 2026-12-31T23:59:59Z
+# Recursively copy a directory to Storj
+uplink cp --recursive ./my-data/ sj://my-bucket/
 
-# List objects and their sizes in a bucket
-uplink ls sj://my-bucket/
+# Create a shareable, public link for an object
+uplink share sj://my-bucket/public-image.png --readonly
 
-# Share a specific path with a new access grant
-uplink share sj://my-bucket/public-folder/ --readonly --not-after 2026-12-31T23:59:59Z
+# Check node status (if running a storage node)
+docker exec -it storagenode /app/dashboard.sh
 ```
 
 ## API examples
-Use the `boto3` library to interact with Storj via its S3-compatible Gateway.
+Storj is fully S3-compatible, allowing use of standard libraries like `boto3`.
 
-### Python (Boto3)
+### Python: S3 Gateway Integration
 ```python
 import boto3
 
-# Configure the client for Storj S3 Gateway
 s3 = boto3.client(
     "s3",
     endpoint_url="https://gateway.storjshare.io",
-    aws_access_key_id="<your_access_key>",
-    aws_secret_access_key="<your_secret_key>"
+    aws_access_key_id="YOUR_ACCESS_KEY",
+    aws_secret_access_key="YOUR_SECRET_KEY"
 )
 
-# Upload a file
-s3.upload_file("local_image.png", "my-bucket", "cloud_image.png")
+# Upload an agent's reasoning trace
+s3.upload_file("trace.json", "agent-memory", "session-42/trace.json")
 
-# List objects in a bucket
-response = s3.list_objects_v2(Bucket="my-bucket")
+# List files in a prefix
+response = s3.list_objects_v2(Bucket="agent-memory", Prefix="session-42/")
 for obj in response.get("Contents", []):
-    print(f"Object: {obj['Key']}, Size: {obj['Size']} bytes")
+    print(f"Stored Object: {obj['Key']}")
 ```
 
-## Links
-- [Official Website](https://www.storj.io/)
-
 ## Related tools / concepts
-- [S3 / S3-Compatible Storage](../tools/intake_storage/s3-storage.md)
-- [Rclone Automation](rclone-automation.md)
-- [Syncthing](syncthing.md)
-- [Nextcloud](nextcloud.md)
-- [n8n](n8n.md)
-- [BorgBackup](borg.md)
-- [MinIO](https://min.io/)
-- [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
+- [Rclone](rclone-automation.md) — The preferred tool for syncing local data to Storj.
+- [Nextcloud](nextcloud.md) — Can use Storj as a primary or external storage backend.
 - [Paperless-ngx](paperless-ngx.md) — For off-site archival of sensitive documents.
-- [Docker](../tools/infrastructure/docker.md)
-- [TrueNAS](../../architecture/infrastructure.md)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
-- [x] Configure as a backup target for Rclone.
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-05-27
+- [Syncthing](syncthing.md) — For peer-to-peer sync that can be complemented by Storj backups.
+- [n8n](n8n.md) — For automating data movement between Storj and other services.
+- [BorgBackup](borg.md) — For deduplicated, encrypted backups that can be stored on Storj via S3.
+- [Authentik](authentik.md) — For securing access to the Storj management console.
+- [Tailscale](tailscale.md) — For secure access to storage nodes in a private mesh.
+- [Plex](plex.md) — Can mount Storj buckets for media streaming.
+- [Jellyfin](jellyfin.md) — Alternative media server for Storj-hosted content.
+- [Ollama](ollama.md) — For running AI models that utilize Storj for weight storage.
 
 ## Sources / References
-- https://www.storj.io/
-- https://aws.amazon.com/s3/
-- https://www.backblaze.com/cloud-storage
-- https://docs.storj.io/
+- [Official Website](https://www.storj.io/)
+- [Storj Documentation](https://docs.storj.io/)
+- [Storj GitHub](https://github.com/storj/storj)
+- [S3 Compatibility Guide](https://docs.storj.io/tools/s3-gateway)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-18
+- Confidence: high

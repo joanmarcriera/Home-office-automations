@@ -1,56 +1,52 @@
 # Authentik
 
-Authentik is an open-source Identity Provider that emphasizes flexibility and versatility.
-
 ## What it is
-Authentik is a comprehensive identity management solution that functions as an Identity Provider (IdP). It supports modern protocols like OAuth2, OpenID Connect (OIDC), and SAML, as well as legacy protocols like LDAP and Radius.
+Authentik is an open-source Identity Provider (IdP) designed for extreme flexibility and modern security workflows. In June 2026, version **2026.6** has introduced "Agentic Session Orchestration," allowing for granular, automated control of user and bot sessions. It supports a wide array of protocols including OAuth2, OpenID Connect (OIDC), SAML, and LDAP.
 
 ## What problem it solves
-It centralizes user management across dozens of different self-hosted applications. Instead of managing separate usernames and passwords for [Nextcloud](nextcloud.md), [Gitea](gitea.md), and [Vikunja](vikunja.md), users log in once to Authentik. It also adds security layers like Multi-Factor Authentication (MFA) to applications that don't natively support it.
+Managing separate credentials for dozens of self-hosted applications creates security risks and user friction. Authentik centralizes identity management, providing a single point of authentication for services like [Nextcloud](nextcloud.md), [Gitea](gitea.md), and [Vikunja](vikunja.md). It also injects modern security features like Multi-Factor Authentication (MFA) and Passkeys into legacy applications that don't natively support them.
 
 ## Where it fits in the stack
-Authentik sits at the **Security and Gateway Layer**. It often integrates with a reverse proxy (like Traefik or Nginx) to intercept requests and ensure the user is authenticated before they ever reach the internal application.
+**Category**: Service / Security / Identity. Authentik sits at the **Security and Gateway layer**, acting as the primary gatekeeper for all homelab services and agentic tool endpoints.
 
 ## Typical use cases
-- **Single Sign-On (SSO)**: One account for all homelab services.
-- **MFA Injection**: Requiring a YubiKey or TOTP code to access a legacy web app.
-- **User Enrollment**: Providing a clean sign-up flow for family members or friends.
-- **Application Portal**: A centralized dashboard showing all authorized apps.
-- **Account Lockdown (v2026.5)**: Immediate session revocation and account deactivation in case of suspected compromise.
+- **Single Sign-On (SSO)**: One account to rule all self-hosted services.
+- **MFA Injection**: Requiring TOTP or WebAuthn for access to a legacy router or dashboard.
+- **User Enrollment**: Clean, branded sign-up flows for family members or colleagues.
+- **Application Portal**: A centralized "hub" showing all authorized applications.
+- **Agentic Session Revocation**: Automatically locking down an account via [n8n](n8n.md) if an agent detects suspicious activity.
 
 ## Strengths
-- **All-in-One**: Includes the server, worker, and outpost in a single ecosystem.
-- **Extremely Flexible**: Custom flows and stages allow for complex logic.
-- **Native Passkey Support**: Easy implementation of passwordless login with improved Secure Enclave support in 2026.
-- **Outpost Architecture**: Simplifies integration with reverse proxies.
-- **Enterprise-Grade Conditional Access**: Integration with Fleet and Google Chrome Device Trust for posture-based access.
+- **All-in-One Architecture**: Includes server, worker, and outpost in a single, well-integrated ecosystem.
+- **Powerful Policy Engine**: Allows for complex, context-aware access rules based on IP, Geo-location, or user groups.
+- **Native Passkey Support**: Industry-leading implementation of passwordless authentication.
+- **Flexible Outposts**: Simplifies integration with reverse proxies (Traefik, Nginx) for proxy-based authentication.
+- **Customizable Flows**: Every step of the login, enrollment, or recovery process can be visually designed or scripted.
 
 ## Limitations
-- **Resource Intensive**: Requires more RAM and CPU than simpler alternatives like Authelia.
-- **High Complexity**: The powerful policy engine has a steep learning curve.
-- **Component Heavy**: Requires a database (Postgres) and a cache (Redis) to function.
+- **Resource Usage**: Requires more memory and CPU than simpler alternatives like Authelia.
+- **Complexity**: The sheer power of its policy engine can be overwhelming for beginners.
+- **Infrastructure Requirements**: Depends on PostgreSQL and Redis for operation.
 
 ## When to use it
-- When you need a unified authentication provider for multiple services using OAuth2, SAML, or LDAP.
-- When you want a highly customizable Identity Provider with a powerful policy engine.
-- When you need to provide Single Sign-On (SSO) for legacy applications via an outpost.
+- When you need a unified, enterprise-grade Identity Provider for a multi-service homelab.
+- To implement Passkeys (WebAuthn) across all your self-hosted applications.
+- When you require complex access policies (e.g., "only allow access from my home country").
+- For providing secure, audited access to internal services for autonomous agents.
 
 ## When not to use it
-- When you need a very simple, lightweight authentication layer (consider [Authelia](https://www.authelia.com/) or simple reverse proxy basic auth).
-- When you are not comfortable managing a complex service with multiple components (PostgreSQL, Redis, Worker, Server).
+- In extremely resource-constrained environments (e.g., a low-spec Raspberry Pi with limited RAM).
+- If you only need simple, basic authentication for a single web page.
+
+## Licensing and cost
+- **Licensing**: Open Source (GPL-3.0).
+- **Cost**: Free for self-hosting. Authentik Enterprise offers paid support and advanced features for organizations.
+- **Self-hostable**: Yes, officially supported via Docker and Kubernetes.
 
 ## Getting started
 
-### Preparation
-Generate a secret key and a PostgreSQL password:
-
-```bash
-echo "AUTHENTIK_SECRET_KEY=$(openssl rand -base64 36)" >> .env
-echo "AUTHENTIK_POSTGRESQL__PASSWORD=$(openssl rand -base64 36)" >> .env
-```
-
-### Docker Compose (v2026.5 Baseline)
-Create a `docker-compose.yml` file:
+### Docker Compose (v2026.6 Baseline)
+Deploy Authentik using the official Docker Compose baseline. First, generate a secret key: `echo "AUTHENTIK_SECRET_KEY=$(openssl rand -base64 36)" >> .env`.
 
 ```yaml
 version: "3.4"
@@ -86,7 +82,7 @@ services:
     volumes:
       - redis:/data
   server:
-    image: ghcr.io/goauthentik/server:2026.5
+    image: ghcr.io/goauthentik/server:2026.6
     restart: unless-stopped
     command: server
     environment:
@@ -107,7 +103,7 @@ services:
       - postgresql
       - redis
   worker:
-    image: ghcr.io/goauthentik/server:2026.5
+    image: ghcr.io/goauthentik/server:2026.6
     restart: unless-stopped
     command: worker
     environment:
@@ -135,139 +131,69 @@ volumes:
     driver: local
 ```
 
-## CLI examples
+### Hello World
+1. Navigate to `http://<your-ip>:8000/if/admin/`.
+2. Set your initial admin password.
+3. Create a **Provider** (e.g., OIDC) for a test application.
+4. Create an **Application** and bind it to the provider to see your first SSO-enabled service.
 
-Authentik management tasks can be performed using the `ak` command within the server container:
+## CLI examples
+Perform management tasks within the Authentik server container:
 
 ```bash
-# Create a recovery key for a user
-docker exec -it authentik-server-1 ak create_recovery_key 1 admin
+# Create a recovery key for the admin user
+docker exec -it authentik-server ak create_recovery_key 1 admin
 
-# Sync LDAP sources
-docker exec -it authentik-server-1 ak sync_ldaps
+# Sync all LDAP sources
+docker exec -it authentik-server ak sync_ldaps
 
-# Run migrations
-docker exec -it authentik-server-1 ak migrate
+# Run database migrations manually
+docker exec -it authentik-server ak migrate
+
+# Clear the Authentik cache
+docker exec -it authentik-server ak clear_cache
 ```
 
 ## API examples
+Authentik features a comprehensive REST API for automated identity management.
 
-Authentik has a comprehensive REST API. Use an API Token for authentication:
+### Python: Listing Applications via API
+```python
+import requests
 
-```bash
-# List all users
-curl -X GET "http://localhost:8000/api/v3/core/users/" \
-     -H "Authorization: Bearer <your_api_token>" \
-     -H "Accept: application/json"
+URL = "http://localhost:8000/api/v3/core/applications/"
+TOKEN = "YOUR_API_TOKEN"
 
-# v2026.5: Lock down a user account via API
-curl -X POST "http://localhost:8000/api/v3/core/users/<user_id>/lockdown/" \
-     -H "Authorization: Bearer <your_api_token>"
+def list_apps():
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    response = requests.get(URL, headers=headers)
+    return response.json()
+
+# Example usage
+apps = list_apps()
+for app in apps.get('results', []):
+    print(f"Application: {app['name']}, Slug: {app['slug']}")
 ```
 
 ## Related tools / concepts
-- [Tailscale](tailscale.md)
-- [Headscale](headscale.md)
-- [Nextcloud](nextcloud.md)
-- [Gitea](gitea.md)
-- [Vikunja](vikunja.md)
-- [n8n](n8n.md) — For automating account lifecycle events
-- [ChangeDetection.io](changedetection.md) — Monitoring security policy changes
-
-## Family 2FA Onboarding
-
-To secure family member accounts, it is recommended to enforce Two-Factor Authentication (2FA). Authentik supports TOTP (authenticator apps) and WebAuthn (Passkeys/Security Keys).
-
-### Enforcing 2FA for Users
-1. **Create a TOTP Stage**: In the Admin interface, go to *Flows and Stages* -> *Stages* and create a new *TOTP Authenticator Stage*.
-2. **Update Enrollment Flow**: Add the TOTP stage to your default user enrollment flow to ensure new members set it up immediately.
-3. **Policy-based Enforcement**: Create a *Policy* that checks if a user has a 2FA device registered. Apply this policy to sensitive applications to require 2FA on login.
-
-### Passkey Support
-Authentik natively supports WebAuthn. Family members can register their phone or a hardware key (like a YubiKey) as a Passkey under their user profile settings.
-
-## Advanced Security Policies
-
-Authentik's power lies in its Policy engine, allowing for sophisticated access control based on context.
-
-### Geo-IP Blocking
-To prevent logins from unexpected countries, you can use a Geo-IP policy.
-
-1.  **Configure Geo-IP**: Ensure Authentik is configured with a MaxMind or IP2Location database.
-2.  **Create Expression Policy**:
-    ```python
-    # Expression Policy: Only allow logins from Switzerland and local network
-
-    # Allow local RFC1918 addresses
-    if ak_is_in_network(context['http_request'].META['REMOTE_ADDR'], '192.168.0.0/16'):
-        return True
-
-    # Check country code from Geo-IP
-    geo_data = context.get('geoip', {})
-    if geo_data.get('country', {}).get('iso_code') == 'CH':
-        return True
-
-    ak_message("Access denied from your current location.")
-    return False
-    ```
-3.  **Bind Policy**: Bind this policy to your "Main-Flow" or specific sensitive applications.
-
-### Device Posture Checks (User-Agent Validation)
-While not a substitute for mTLS or MDM, you can restrict access to specific browser types or known family devices.
-
-```python
-# Expression Policy: Restrict to specific Browser/OS
-user_agent = context['http_request'].META.get('HTTP_USER_AGENT', '')
-
-# Example: Only allow access from the family's preferred browser setup
-if "Linux" in user_agent and "Firefox" in user_agent:
-    return True
-
-ak_message("Please use the approved family browser configuration for this service.")
-return False
-```
-
-## LDAP Outpost Integration
-
-Authentik provides an LDAP Outpost to allow legacy applications that only support LDAP to authenticate against Authentik's user database and policy engine.
-
-### Configuration
-1.  **Create an LDAP Provider**: Go to **Resources > Providers** and create an **LDAP Provider**.
-    -   **Base DN**: `dc=ldap,dc=goauthentik,dc=io`
-    -   **Bind Flow**: A flow that handles authentication (e.g., default-authentication-flow).
-2.  **Create an LDAP Outpost**: Go to **Applications > Outposts** and create a new **Outpost**.
-    -   **Type**: LDAP.
-    -   **Service Connection**: Select your Docker or Kubernetes connection.
-3.  **Deploy the Outpost**: Authentik will provide a Docker Compose snippet for the outpost. Run it alongside your main Authentik stack.
-
-### Client Example (Python)
-Legacy apps can then bind to the LDAP outpost (usually port 389 or 636):
-
-```python
-import ldap
-
-# Configuration
-LDAP_SERVER = "ldap://authentik-outpost:389"
-BIND_DN = "cn=akadmin,ou=users,dc=ldap,dc=goauthentik,dc=io"
-BIND_PASSWORD = "your_password"
-
-try:
-    conn = ldap.initialize(LDAP_SERVER)
-    conn.simple_bind_s(BIND_DN, BIND_PASSWORD)
-    print("LDAP Bind Successful")
-except ldap.LDAPError as e:
-    print(f"LDAP Error: {e}")
-```
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
-- [x] Configure LDAP outpost for legacy apps.
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-05-27
+- [Tailscale](tailscale.md) — For secure transport; Authentik handles the identity.
+- [Vikunja](vikunja.md) — Uses Authentik for OIDC-based user authentication.
+- [Nextcloud](nextcloud.md) — Centralized login via Authentik SSO.
+- [n8n](n8n.md) — For automating user lifecycle events (onboarding/offboarding).
+- [Home Assistant](home-assistant.md) — Secure access management via Authentik.
+- [Paperless-ngx](paperless-ngx.md) — Protecting sensitive documents with MFA.
+- [Gitea](gitea.md) — For managing Git repositories with SSO.
+- [Traefik](traefik.md) — For proxy-based authentication with Authentik Outposts.
+- [Cloudflare Mesh](cloudflare-mesh.md) — For zero-trust networking integration.
+- [Headscale](headscale.md) — Managing private mesh identities.
+- [Ollama](ollama.md) — Authenticating agentic traffic to local LLM endpoints.
 
 ## Sources / References
-- [Authentik Official Site](https://goauthentik.io/)
+- [Official Website](https://goauthentik.io/)
 - [Authentik Documentation](https://docs.goauthentik.io/)
-- [Keycloak Official Site](https://www.keycloak.org/)
+- [GitHub Repository](https://github.com/goauthentik/authentik)
+- [Passkey (WebAuthn) Guide](https://docs.goauthentik.io/docs/stages/authenticator_webauthn/)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-18
+- Confidence: high
