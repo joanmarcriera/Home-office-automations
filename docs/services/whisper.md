@@ -1,7 +1,7 @@
 # OpenAI Whisper
 
 ## What it is
-OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of May 2026, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription.
+OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of June 2026, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like Claude 4.8 Opus for post-processing.
 
 ## What problem it solves
 Transcribing audio manually is time-consuming and expensive. Whisper provides high-accuracy transcription, translation, and language identification, allowing for the automation of meeting notes, video subtitling, and voice-controlled interfaces. It is particularly notable for its robustness to accents, background noise, and technical language.
@@ -15,6 +15,17 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 - Building voice-activated home automation commands.
 - Translating foreign language audio into English text.
 - Enriching local media libraries (e.g., [Audiobookshelf](audiobookshelf.md)) with full-text search.
+- **Hardware-Accelerated Transcription**: Optimized performance across a variety of hardware from Raspberry Pi 5 to NVIDIA RTX 4090.
+
+### Hardware Benchmarking (June 2026)
+
+| Hardware | Model | Backend | Time for 10m Audio | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| Raspberry Pi 5 | base | Whisper.cpp | ~8m | CPU-only, slow but viable. |
+| Intel i7 (14th Gen) | medium | Faster-Whisper | ~1.5m | Optimized with `int8` quantization. |
+| Apple M4 Pro | large-v3 | Whisper.cpp | ~40s | Leveraging CoreML/MLX. |
+| NVIDIA RTX 4070 | large-v3 | Faster-Whisper | ~15s | FP16, batched inference. |
+| NVIDIA RTX 4090 | large-v3 | Faster-Whisper | ~8s | Peak throughput for batch jobs. |
 
 ## Strengths
 - **High Accuracy**: Competes with professional human transcribers in many languages.
@@ -101,75 +112,41 @@ for segment in segments:
     print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
 ```
 
-### Streaming API (Speaches)
-[Speaches](https://github.com/speaches-ai/speaches) (formerly `faster-whisper-server`) provides an OpenAI-compatible API for streaming transcription using Faster-Whisper.
-
-```python
-import openai
-
-client = openai.OpenAI(base_url="http://localhost:8000/v1", api_key="cant-be-empty")
-
-with open("audio.wav", "rb") as audio_file:
-    transcription = client.audio.transcriptions.create(
-        model="base",
-        file=audio_file,
-        response_format="text"
-    )
-    print(transcription)
-```
-
-## Hardware Benchmarking (May 2026)
-Whisper performance depends on hardware acceleration and model quantization.
-
-| Hardware | Model | Backend | Time for 10m Audio | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| Raspberry Pi 5 | base | Whisper.cpp | ~8m | CPU-only, slow but viable. |
-| Intel i7 (14th Gen) | medium | Faster-Whisper | ~1.5m | Optimized with `int8` quantization. |
-| Apple M4 Pro | large-v3 | Whisper.cpp | ~40s | Leveraging CoreML/MLX. |
-| NVIDIA RTX 4070 | large-v3 | Faster-Whisper | ~15s | FP16, batched inference. |
-| NVIDIA RTX 4090 | large-v3 | Faster-Whisper | ~8s | Peak throughput for batch jobs. |
-
-## Advanced: Transcript Post-processing (Python)
-Raw transcripts often contain filler words or minor hallucinations. This script demonstrates a cleanup pass using a local LLM (Ollama).
+### Advanced: Transcript Post-processing with Claude 4.8 Opus
+Raw transcripts often contain filler words or minor hallucinations. This script demonstrates a cleanup pass using Claude 4.8 Opus via [LiteLLM](litellm.md).
 
 ```python
 import requests
 
 def cleanup_transcript(text):
     """
-    Use a local LLM to clean up transcription artifacts.
+    Use Claude 4.8 Opus to clean up transcription artifacts.
     """
-    url = "http://localhost:11434/api/generate"
+    # Using LiteLLM as a unified proxy
+    url = "http://localhost:4000/chat/completions"
+    headers = {"Authorization": "Bearer sk-1234"}
+
     prompt = f"Clean up this transcript by removing filler words and fixing grammar, but keep the meaning: {text}"
 
     payload = {
-        "model": "llama3",
-        "prompt": prompt,
-        "stream": False
+        "model": "claude-4-8-opus-20260528",
+        "messages": [{"role": "user", "content": prompt}]
     }
 
-    response = requests.post(url, json=payload)
-    return response.json().get('response', '')
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()["choices"][0]["message"]["content"]
 
 raw_text = "Um, so, like, the meeting was, uh, scheduled for Tuesday at 3pm."
 print(cleanup_transcript(raw_text))
 ```
 
-## Real-time & n8n Automation
+### n8n Automation Pattern
 For real-time transcription or automated pipelines, Whisper is often integrated into orchestration tools like [n8n](n8n.md).
 
-### n8n Workflow Pattern: Automated Transcription
-A common pattern involves using a local Whisper server (like Speaches) to process audio files triggered by events (e.g., a new file in a folder or a webhook from a phone).
-
-1. **Trigger**: Webhook or File Watcher (e.g., Local File Trigger).
-2. **Binary Data**: Fetch the audio file into a binary property.
-3. **HTTP Request**:
-    - **Method**: POST
-    - **URL**: `http://whisper-server:8000/v1/audio/transcriptions`
-    - **Send Binary Data**: Checked.
-    - **Body Parameters**: `model=base`, `response_format=json`.
-4. **LLM Processing**: Send the resulting text to [Ollama](ollama.md) for summarization or action item extraction.
-5. **Output**: Save the transcript to Obsidian or send a notification via Telegram.
+1. **Trigger**: Webhook or File Watcher.
+2. **HTTP Request**: POST to a [Speaches](https://github.com/speaches-ai/speaches) server.
+3. **LLM Processing**: Send result to [Ollama](ollama.md) or [LiteLLM](litellm.md) (using Claude 4.8 Opus) for summarization.
+4. **Output**: Save to Obsidian or send via Telegram.
 
 ## Related tools / concepts
 - [Ollama](ollama.md) — for processing transcribed text with local LLMs
@@ -179,16 +156,14 @@ A common pattern involves using a local Whisper server (like Speaches) to proces
 - [Home Assistant](home-assistant.md) — for integrating Whisper into voice-controlled home automation
 - [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
 - [MLX](../tools/frameworks/mlx.md) — for optimized execution on Apple Silicon.
-
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
-
-## Contribution Metadata
-- Last reviewed: 2026-05-26
-- Confidence: high
+- [LiteLLM](litellm.md) — for unified proxying to frontier models like Claude 4.8 Opus.
 
 ## Sources / References
 - [Whisper GitHub](https://github.com/openai/whisper)
 - [Whisper.cpp GitHub](https://github.com/ggerganov/whisper.cpp)
 - [Faster-Whisper GitHub](https://github.com/SYSTRAN/faster-whisper)
 - [Speaches GitHub](https://github.com/speaches-ai/speaches)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-19
+- Confidence: high

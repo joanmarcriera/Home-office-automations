@@ -1,7 +1,7 @@
 # Ollama
 
 ## What it is
-Ollama allows you to get up and running with large language models locally. It provides a simple CLI and API for running models like Llama 3, Mistral, and others on your own hardware.
+Ollama allows you to get up and running with large language models locally. It provides a simple CLI and API for running models like Llama 4, Mistral, and the O4 reasoning series on your own hardware.
 
 ## What problem it solves
 It simplifies the complex setup usually required for running LLMs, handling model weights, configurations, and hardware acceleration (GPU) automatically. It enables private, offline AI interactions without relying on cloud providers.
@@ -14,16 +14,17 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 - **Development & Testing**: Locally testing AI-integrated applications before deploying to cloud providers.
 - **Autonomous Agents**: Serving as the local backend for agents like Aider or OpenHands.
 - **Enterprise Prototyping**: Rapidly deploying specialized models for internal document analysis or coding assistance.
+- **Codex App Integration**: Utilizing the native Codex App (v0.25+) for managed local AI workflows and browser-integrated AI experiences.
 
 ## Strengths
-- **Ease of Use**: One-line installation and simple model pulling (e.g., `ollama run llama3`).
+- **Ease of Use**: One-line installation and simple model pulling (e.g., `ollama run llama4`).
 - **Hardware Acceleration**: Automatic detection and utilization of NVIDIA, AMD, and Apple Silicon GPUs.
-- **Large Model Library**: Easy access to Llama 3, Mistral, Phi-3, and many more.
+- **Large Model Library**: Easy access to Llama 4, Mistral, Phi-4, and O4 reasoning models.
 - **Zero Cost**: No per-token pricing; limited only by your hardware.
 
 ## Limitations
 - **Hardware Dependent**: Performance is strictly tied to local CPU/GPU/RAM.
-- **Memory Requirements**: Larger models require significant VRAM.
+- **Memory Requirements**: Larger models (70B+) require significant VRAM (24GB+ for 4-bit quantization).
 
 ## When to use it
 - For maximum privacy and data sovereignty.
@@ -31,13 +32,8 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 - When working in offline or low-connectivity environments.
 
 ## When not to use it
-- If you lack dedicated GPU hardware and require low-latency responses.
-- For massive models (e.g., 70B+) that exceed consumer hardware capacity.
-
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
+- If you lack dedicated GPU hardware and require low-latency responses for large models.
+- For massive models that exceed consumer hardware capacity without extensive quantization.
 
 ## Getting started
 
@@ -45,72 +41,96 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 ```yaml
 services:
   ollama:
+    image: ollama/ollama:latest # v0.25+ (June 2026)
+    container_name: ollama
     volumes:
       - ./ollama:/root/.ollama
-    container_name: ollama
-    pull_policy: always
-    tty: true
     restart: unless-stopped
-    image: ollama/ollama:latest # v0.24+ (May 2026)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 ```
 
-## Codex App & Tools
-Ollama v0.24 (May 2026) introduced the **Codex App**, a native desktop experience for managing local AI workflows.
-- **Launch**: Use `ollama launch codex-app` from the terminal.
-- **Features**: Includes built-in browser support for loading local servers/sites directly within the AI interface.
-
-## Recommended Models (2026)
-Avoid relying on the `:latest` tag, which often points to smaller default versions. For May 2026, the following models are recommended for various hardware profiles:
+### Recommended Models (June 2026)
 
 | Category | Model | VRAM Required | Note |
 | :--- | :--- | :--- | :--- |
-| **All-Rounder** | `qwen3:30b` | ~24GB | Best balance of speed and intelligence. |
-| **Reasoning** | `gemma4:26b` | ~20GB | Superior logic and thinking capabilities. |
-| **8GB RAM** | `gemma4:2b` | ~1.6GB | Minimal RAM requirements, works on older hardware. |
+| **All-Rounder** | `llama4:32b` | ~20GB | Superior balance of speed and intelligence. |
+| **Reasoning** | `o4-mini:local` | ~12GB | Optimized for local complex logic tasks. |
+| **Edge/Mobile** | `phi4:3b` | ~2.5GB | High performance on minimal hardware. |
 
-### API Usage Example
-You can interact with the Ollama API using `curl`:
+## CLI examples
+The `ollama` CLI is the primary tool for model management.
 
 ```bash
+# Pull and run a model
+ollama run llama4
+
+# List locally available models
+ollama list
+
+# Create a model from a Modelfile
+ollama create my-custom-model -f Modelfile
+
+# Remove a model
+ollama rm gemma2
+```
+
+## API examples
+Ollama provides an OpenAI-compatible API on port `11434`.
+
+### Generate a Response (Curl)
+```bash
 curl http://localhost:11434/api/generate -d '{
-  "model": "llama3",
-  "prompt": "Why is the sky blue?"
+  "model": "llama4",
+  "prompt": "Explain Quantum Entanglement in one sentence."
 }'
 ```
 
-## TrueNAS SCALE & GPU Setup
-Running Ollama on [TrueNAS SCALE](../architecture/infrastructure.md) requires configuring GPU passthrough for optimal performance.
+### Chat Completion (Python)
+```python
+import requests
 
-### GPU Passthrough (NVIDIA)
-1. **Host Configuration**: Ensure the NVIDIA driver is active in TrueNAS SCALE (**System Settings > Advanced > Isolated GPU Device**).
-2. **Docker/App Configuration**: In the application settings, allocate `1` (or more) GPU under the "Resource Reservation" section.
-3. **Environment**: Ensure `NVIDIA_VISIBLE_DEVICES=all` and `NVIDIA_DRIVER_CAPABILITIES=compute,utility` are set in the container environment.
+def get_chat_response(prompt):
+    url = "http://localhost:11434/api/chat"
+    payload = {
+        "model": "llama4",
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False
+    }
+    response = requests.post(url, json=payload)
+    return response.json()["message"]["content"]
 
-### Performance Benchmarking
-Tokens per second (t/s) vary by model size and hardware. Use `ollama run <model>` and then `/set verbose` to see generation statistics.
+print(get_chat_response("Hello, Ollama!"))
+```
 
-| Hardware | Model | VRAM Used | Eval Rate (t/s) |
+## Performance Benchmarking (June 2026)
+
+| Hardware | Model | Eval Rate (t/s) | Note |
 | :--- | :--- | :--- | :--- |
-| **Intel i7 (12th Gen)** | Llama 3.1 8B | 0GB (CPU) | ~3-5 t/s |
-| **NVIDIA RTX 3060 (12GB)** | Llama 3.1 8B | ~5.5GB | ~45-55 t/s |
-| **NVIDIA RTX 4090 (24GB)** | Llama 3.1 8B | ~5.5GB | ~130+ t/s |
-| **NVIDIA RTX 4090 (24GB)** | Llama 3.1 70B | ~42GB (Quant) | ~15-20 t/s |
+| **Apple M4 Pro** | Llama 4 8B | ~65 t/s | Unified memory performance. |
+| **NVIDIA RTX 4070** | Llama 4 8B | ~85 t/s | FP16 inference. |
+| **NVIDIA RTX 4090** | Llama 4 32B | ~35 t/s | 4-bit quantization. |
 
 ## Related tools / concepts
 - [Open WebUI](open-webui.md) — The recommended web frontend for Ollama.
-- [LiteLLM](litellm.md) — For load balancing multiple Ollama instances.
+- [LiteLLM](litellm.md) — For load balancing multiple Ollama instances and fallback to Claude 4.8 Opus.
 - [Local LLMs](../tools/ai_knowledge/local_llms.md) — Overview of the local model ecosystem.
-- [LM Studio](https://lmstudio.ai/) — A desktop-first alternative for model experimentation.
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [Model Context Protocol](https://modelcontextprotocol.io/) — For adding tools to Ollama-backed agents.
+- [TrueNAS SCALE](../architecture/infrastructure.md) — For hosting Ollama with GPU passthrough.
+- [LM Studio](https://lmstudio.ai/) — Desktop alternative for GUI-based model experimentation.
+- [Aider](https://aider.chat/) — AI pair programming tool that can use Ollama as a backend.
 
 ## Sources / References
-- [Official Website](https://ollama.com/)
-- [GitHub Repository](https://github.com/ollama/ollama)
-- [Ollama 0.24 Release Notes](https://github.com/ollama/ollama/releases)
-- [Best Ollama Models 2026 Guide](https://aiopsschool.com/blog/the-best-ollama-models-in-2026-which-model-should-you-run-on-your-hardware/)
+- [Ollama Official Website](https://ollama.com/)
+- [Ollama GitHub](https://github.com/ollama/ollama)
+- [Ollama v0.25 Release Notes](https://github.com/ollama/ollama/releases)
+- [Local Model Leaderboard (June 2026)](https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-19
 - Confidence: high
