@@ -1,6 +1,6 @@
 # Omni Tools
 
-Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of May 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities.
+Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of **June 2026**, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities.
 
 ## What it is
 Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue. It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
@@ -98,15 +98,6 @@ python3 -m json.tool input.json > formatted.json
 cat formatted.json
 ```
 
-## Troubleshooting
-- If the page does not load, confirm the container is running with `docker ps --filter name=omni-tools` and that port `8080` is not already in use.
-- If reverse proxy assets fail, verify the proxy forwards the original host and path without stripping static asset prefixes.
-- If large files crash a browser tab, retry with a smaller file or switch to a server-side CLI designed for that media type.
-
-## Links
-- [GitHub Repository](https://github.com/iib0011/omni-tools)
-- [Docker Hub](https://hub.docker.com/r/iib0011/omni-tools)
-
 ## Related tools / concepts
 - [IT-Tools](it-tools.md) — A similar collection of web-based developer tools.
 - [Paperless-ngx](paperless-ngx.md) — For long-term document archival and OCR.
@@ -116,6 +107,7 @@ cat formatted.json
 - [SearXNG](searXNG.md) — For private search when looking up transformation standards.
 - [Whisper](whisper.md) — For server-side audio-to-text processing.
 - [CyberChef](https://github.com/gchq/CyberChef) — The "Swiss Army Knife" of data transformations.
+- [Playwright](../tools/development_ops/playwright.md) — For automating interactions with the Omni Tools UI.
 
 ## Advanced Extensibility
 
@@ -145,7 +137,7 @@ To add your own tools to a self-hosted instance, you can mount custom JS modules
     ```
 
 ### Browser Automation Integration (Playwright)
-Since Omni Tools is a web app, you can automate complex transformations using Playwright or Puppeteer.
+Since Omni Tools is a web app, you can automate complex transformations using Playwright or Puppeteer. Agents using **Claude 4.8 Opus** can utilize the **Playwright MCP Server** to interact with Omni Tools for manual tasks that lack a direct API.
 
 ```python
 # Example: Automating a JSON format and Redaction via Omni Tools UI
@@ -170,11 +162,16 @@ raw_json = '{"user": "Jules", "id": "TEMP_ID_123"}'
 print(automate_redaction(raw_json))
 ```
 
+## Troubleshooting
+- If the page does not load, confirm the container is running with `docker ps --filter name=omni-tools` and that port `8080` is not already in use.
+- If reverse proxy assets fail, verify the proxy forwards the original host and path without stripping static asset prefixes.
+- If large files crash a browser tab, retry with a smaller file or switch to a server-side CLI designed for that media type.
+
 ## Maintenance & Health
 Omni Tools is a static web application, so health monitoring focuses on the availability of the web server and the presence of key transformation modules in the UI.
 
 ### Automated Health Checks (Playwright)
-A reference Playwright script is provided to verify the availability of key modules (JSON, Image, PDF) and confirm the interactive UI is responsive.
+A reference Playwright script is provided to verify the availability of key modules (JSON, Image, PDF) and confirm the interactive UI is responsive. This script can be invoked by a **GPT-5.5** agent to ensure service health.
 
 ```python
 # scripts/test_omni_tools_health.py
@@ -183,15 +180,15 @@ A reference Playwright script is provided to verify the availability of key modu
 
 Run this script as part of your homelab CI/CD or via a scheduled task to ensure your local utility suite is functioning correctly.
 
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
-- [x] Set up automated Playwright health checks for all modules. (Completed 2026-05-24)
-
 ## Sources / References
-- https://github.com/iib0011/omni-tools
-- https://hub.docker.com/r/iib0011/omni-tools
-- https://github.com/gchq/CyberChef
+- [Omni Tools GitHub Repository](https://github.com/iib0011/omni-tools)
+- [Omni Tools Docker Hub](https://hub.docker.com/r/iib0011/omni-tools)
+- [CyberChef GitHub](https://github.com/gchq/CyberChef)
+
+## Backlog
+- [x] Perform quarterly technical freshness audit (June 2026).
+- [x] Set up automated Playwright health checks for all modules.
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-18
 - Confidence: high
-- Last reviewed: 2026-05-26

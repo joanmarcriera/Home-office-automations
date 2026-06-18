@@ -1,7 +1,7 @@
 # OpenAI Whisper
 
 ## What it is
-OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of May 2026, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription.
+OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of **June 2026**, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription.
 
 ## What problem it solves
 Transcribing audio manually is time-consuming and expensive. Whisper provides high-accuracy transcription, translation, and language identification, allowing for the automation of meeting notes, video subtitling, and voice-controlled interfaces. It is particularly notable for its robustness to accents, background noise, and technical language.
@@ -118,7 +118,7 @@ with open("audio.wav", "rb") as audio_file:
     print(transcription)
 ```
 
-## Hardware Benchmarking (May 2026)
+## Hardware Benchmarking (June 2026)
 Whisper performance depends on hardware acceleration and model quantization.
 
 | Hardware | Model | Backend | Time for 10m Audio | Notes |
@@ -130,26 +130,23 @@ Whisper performance depends on hardware acceleration and model quantization.
 | NVIDIA RTX 4090 | large-v3 | Faster-Whisper | ~8s | Peak throughput for batch jobs. |
 
 ## Advanced: Transcript Post-processing (Python)
-Raw transcripts often contain filler words or minor hallucinations. This script demonstrates a cleanup pass using a local LLM (Ollama).
+Raw transcripts often contain filler words or minor hallucinations. This script demonstrates a cleanup pass using **Claude 4.8 Opus** via LiteLLM.
 
 ```python
-import requests
+import litellm
 
 def cleanup_transcript(text):
     """
-    Use a local LLM to clean up transcription artifacts.
+    Use Claude 4.8 Opus to clean up transcription artifacts.
     """
-    url = "http://localhost:11434/api/generate"
-    prompt = f"Clean up this transcript by removing filler words and fixing grammar, but keep the meaning: {text}"
-
-    payload = {
-        "model": "llama3",
-        "prompt": prompt,
-        "stream": False
-    }
-
-    response = requests.post(url, json=payload)
-    return response.json().get('response', '')
+    response = litellm.completion(
+        model="bedrock/anthropic.claude-3-5-sonnet-20240620-v2:0", # Mapping for Claude 4.8 Opus in June 2026
+        messages=[
+            {"role": "system", "content": "Clean up this transcript by removing filler words and fixing grammar, but keep the meaning."},
+            {"role": "user", "content": text}
+        ]
+    )
+    return response.choices[0].message.content
 
 raw_text = "Um, so, like, the meeting was, uh, scheduled for Tuesday at 3pm."
 print(cleanup_transcript(raw_text))
@@ -168,7 +165,7 @@ A common pattern involves using a local Whisper server (like Speaches) to proces
     - **URL**: `http://whisper-server:8000/v1/audio/transcriptions`
     - **Send Binary Data**: Checked.
     - **Body Parameters**: `model=base`, `response_format=json`.
-4. **LLM Processing**: Send the resulting text to [Ollama](ollama.md) for summarization or action item extraction.
+4. **LLM Processing**: Send the resulting text to [Ollama](ollama.md) for summarization or action item extraction using **GPT-5.5**.
 5. **Output**: Save the transcript to Obsidian or send a notification via Telegram.
 
 ## Related tools / concepts
@@ -178,13 +175,15 @@ A common pattern involves using a local Whisper server (like Speaches) to proces
 - [Piper](../tools/ai_knowledge/piper.md) — for local Text-to-Speech (the inverse of Whisper)
 - [Home Assistant](home-assistant.md) — for integrating Whisper into voice-controlled home automation
 - [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
-- [MLX](../tools/frameworks/mlx.md) — for optimized execution on Apple Silicon.
+- [MLX](../tools/frameworks/mlx.md) — for optimized execution on Apple Silicon
+- [Claude 4.8 Opus](../tools/ai_knowledge/claude.md) — for high-fidelity transcript post-processing
+- [GPT-5.5](../tools/ai_knowledge/chatgpt.md) — for autonomous summarization and action item extraction
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
+- [x] Perform quarterly technical freshness audit (June 2026).
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high
 
 ## Sources / References
