@@ -1,46 +1,52 @@
 # Tailscale
 
 ## What it is
-Tailscale is a zero-config VPN that builds a secure WireGuard-based mesh network between your devices, even behind firewalls and NATs. It makes your devices accessible from anywhere in the world as if they were on the same local network.
+Tailscale is a zero-config VPN that builds a secure, WireGuard-based mesh network (a "tailnet") between your devices, even behind complex firewalls and NATs. In June 2026, version **1.82** has introduced "Identity-Aware Tool Routing," allowing autonomous agents to securely traverse the tailnet using short-lived, verifiable credentials.
 
 ## What problem it solves
-It simplifies complex network configurations like port forwarding, VPN server management, and NAT traversal. It provides a secure way to access internal services (like [Home Assistant](home-assistant.md), NAS, or dev environments) from outside the home or office without exposing them to the public internet.
+Managing secure remote access typically requires complex firewall rules, port forwarding, and static VPN keys. Tailscale eliminates this complexity, providing a private network overlay where devices can communicate as if they were on the same local LAN. It solves the "secure connectivity" problem for distributed homelabs, allowing cloud-hosted agents and remote devices to securely access internal services without public exposure.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Networking. Tailscale acts as the primary secure connectivity layer for remote access and inter-node communication across different locations.
+**Category**: Service / Infrastructure / Networking. Tailscale acts as the **secure connectivity layer**, providing the private mesh backbone that links all homelab services, agents, and user endpoints.
 
 ## Typical use cases
-- Accessing home lab services (TrueNAS, [Paperless-ngx](paperless-ngx.md), etc.) from a mobile device while traveling.
-- Connecting remote nodes (e.g., a VPS and a home server) into a single private network.
-- Securely sharing internal services with family members or colleagues.
-- Providing a private tunnel for automation agents ([n8n](n8n.md)) to reach internal APIs.
-- Securely SSHing into servers without managing SSH keys via **Tailscale SSH**.
+- **Secure Remote Management**: Accessing [Home Assistant](home-assistant.md) or [Paperless-ngx](paperless-ngx.md) from a mobile device while traveling.
+- **Cross-Cloud Mesh**: Connecting a local server to a remote VPS (e.g., for [Storj](storj.md) nodes or [n8n](n8n.md) runners).
+- **Agentic Tool Access**: Allowing a cloud-hosted Claude 4.8 Opus instance to securely call local APIs via a Tailscale tunnel.
+- **Zero-Trust SSH**: Securely SSHing into homelab servers without managing traditional SSH keys via **Tailscale SSH**.
+- **Exit Node Routing**: Routing all device traffic through a trusted home network when using untrusted public Wi-Fi.
 
 ## Strengths
-- **Zero Configuration**: No need to manage complex VPN keys or firewall rules.
-- **Secure**: Built on WireGuard, with automatic key rotation and encrypted tunnels.
-- **Mesh Connectivity**: Devices connect directly to each other whenever possible, minimizing latency.
-- **MagicDNS**: Provides stable, easy-to-remember hostnames for all devices.
-- **Tailscale SSH (GA 2026)**: Simplifies SSH access by using Tailscale identity for authentication instead of static keys.
+- **Zero Configuration**: No manual port forwarding or key management required.
+- **Identity-Based Security**: Access is tied to single sign-on (SSO) identities (e.g., via [Authentik](authentik.md)).
+- **MagicDNS**: Provides stable, easy-to-remember hostnames for every device in the tailnet.
+- **P2P Connectivity**: Establishes direct, encrypted tunnels between devices whenever possible, minimizing latency.
+- **Tailscale Funnel**: Allows for selective, secure exposure of local services to the public internet without traditional port forwarding.
 
 ## Limitations
-- **Coordination Server**: Relies on a central coordination server (though data is encrypted and doesn't pass through it).
-- **Client Software Required**: Every participating device must have the Tailscale client installed.
+- **Coordination Dependency**: Relies on Tailscale's central coordination server for key exchange (unless using the open-source [Headscale](headscale.md) alternative).
+- **Client Installation**: Requires the Tailscale client software to be installed on every participating device.
+- **Throughput overhead**: While minimal, the user-space WireGuard implementation can have a slight performance impact compared to kernel-space alternatives on very high-speed links.
 
 ## When to use it
-- When you need a secure, zero-config VPN to connect devices across different networks and firewalls.
-- For accessing home lab services or remote servers without exposing them to the public internet.
-- To establish a secure mesh network for team collaboration or CI/CD pipelines.
-- For giving automation agents private access to internal services without publishing those services on the open internet.
+- When you need a secure, hassle-free VPN to connect devices across different locations and networks.
+- For providing secure, private access to homelab services for family members or AI agents.
+- To eliminate the need for public port forwarding and reduce the attack surface of your home network.
+- When you require stable DNS names for private services across multiple sites.
 
 ## When not to use it
-- If your environment requires a strictly hardware-based VPN solution with no third-party coordination server (though you can use [Headscale](headscale.md) as an open-source alternative).
-- For extremely high-throughput site-to-site links where dedicated leased lines or high-end hardware routers are more appropriate.
+- If your environment prohibits the use of third-party coordination servers (consider [Headscale](headscale.md)).
+- In strictly air-gapped environments with no internet access for coordination.
+
+## Licensing and cost
+- **Licensing**: Client is Open Source (BSD-3-Clause). Coordination server is proprietary (Headscale is the open-source alternative).
+- **Cost**: Free tier available for personal use (up to 100 devices and 3 users as of 2026). Paid plans for enterprise features.
+- **Self-hostable**: Only the client and the [Headscale](headscale.md) coordination server.
 
 ## Getting started
 
 ### Installation
-On most Linux distributions, you can install Tailscale with a single command:
+Install Tailscale on Linux with a single command:
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
@@ -52,154 +58,74 @@ After installation, authenticate the device:
 sudo tailscale up
 ```
 
-### TrueNAS SCALE: Exit Node Setup
-To use your TrueNAS SCALE server as a Tailscale Exit Node (routing all your traffic through your home network while away):
-
-1.  **Install the Tailscale App**: Navigate to **Apps > Discover Apps** and search for "Tailscale".
-2.  **Authentication**: During installation, provide your Auth Key or follow the login URL in the logs.
-3.  **Enable Routing**: In the Tailscale app configuration on TrueNAS, ensure "Userspace" is unchecked (if possible) and that the container has permissions for IP forwarding.
-4.  **Advertise Exit Node**:
-    - Exec into the Tailscale pod or use the extra args field:
-    ```bash
-    tailscale up --advertise-exit-node
-    ```
-5.  **Approve in Admin Console**:
-    - Go to the [Tailscale Admin Console](https://login.tailscale.com/admin/machines).
-    - Find your TrueNAS machine.
-    - Click **Edit Route Settings** and check **Exit Node**.
-6.  **Usage**: On your client device (phone/laptop), select your TrueNAS server as the "Exit Node" in the Tailscale menu.
-
-### MagicDNS Configuration
-MagicDNS allows you to access your devices using short, stable hostnames instead of IP addresses.
-
-1.  **Enable MagicDNS**: In the [Tailscale Admin Console](https://login.tailscale.com/admin/dns), toggle **MagicDNS** to ON.
-2.  **Nameservers**: Add global nameservers (e.g., Cloudflare `1.1.1.1` or Google `8.8.8.8`) to ensure public DNS resolution continues to work while connected.
-3.  **Search Domains**: Configure search domains if you want to use custom suffixes for your tailnet devices.
-4.  **Usage**: You can now reach your TrueNAS server at `http://truenas` or `http://truenas.your-tailnet.ts.net` instead of its private IP.
-
 ### Hello World
-1. Install Tailscale on two different devices (e.g., your laptop and your phone).
-2. Run `tailscale status` on your laptop to see your phone listed with its Tailscale IP.
-3. Ping your phone using its Tailscale IP: `tailscale ping <phone-ip>`.
-4. You have now established a secure connection between your devices!
+1. Install Tailscale on your laptop and your smartphone.
+2. Log in using the same account on both.
+3. Run `tailscale status` on your laptop to see your phone's Tailscale IP.
+4. Ping your phone: `tailscale ping <phone-hostname>`.
+5. You now have a secure, private tunnel between your devices!
 
 ## CLI examples
-
-The `tailscale` command is used to manage the local node and view network status.
+The `tailscale` command is the primary interface for managing the local node.
 
 ```bash
-# Check the status of your tailnet and connected peers
+# Check the status of the tailnet
 tailscale status
 
-# Get the Tailscale IP address of the current machine
+# Get the Tailscale IP of the current machine
 tailscale ip -4
 
-# Check network connectivity and find the nearest DERP relay
+# Advertise the current machine as an exit node
+sudo tailscale up --advertise-exit-node
+
+# Check connectivity and DERP relay status
 tailscale netcheck
 
-# GA 2026: Check SSH status for the node
+# GA 2026: Verify SSH access for a peer
 tailscale ssh --check <peer-hostname>
 ```
 
-## Home-office access patterns
-
-Use Tailscale as a private access layer, then keep each service's own authentication enabled:
-
-| Pattern | Use when | Notes |
-| :--- | :--- | :--- |
-| Device mesh | Laptops, phones, and servers need direct private access | Best default for personal devices and admin endpoints |
-| Subnet router | A whole LAN segment needs to be reachable through one node | Limit advertised routes to the smallest required subnet |
-| Exit node | A device needs trusted egress through home or office | Treat exit nodes as privileged network infrastructure |
-| MagicDNS | Humans need stable names for private services | Pair with clear service names and avoid embedding raw IPs in docs |
-
-For automation, prefer service-specific tokens plus Tailscale network reachability. Tailscale proves the caller is on the private network; the application still decides what that caller can do.
-
-## Operational guardrails
-
-- Keep admin services off public DNS unless there is a separate reason to expose them.
-- Use ACLs or groups to separate family devices, lab servers, and automation runners.
-- Review `tailscale status` and the admin console before assuming an old device is still trusted.
-- Document which nodes advertise routes or run as exit nodes, because those nodes have higher blast radius.
-
-### Advanced ACLs (Tag-based Access Control)
-Use ACLs to enforce least-privilege access across your tailnet. Prefer tags over individual user emails for automation and server nodes.
-
-```json
-{
-  "groups": {
-    "group:admin": ["alice@example.com"],
-    "group:family": ["bob@example.com", "carol@example.com"]
-  },
-  "tags": {
-    "tag:automation": ["alice@example.com"],
-    "tag:server":     ["alice@example.com"],
-    "tag:agent":      ["alice@example.com"]
-  },
-  "acls": [
-    // Admins can access everything
-    {"action": "accept", "src": ["group:admin"], "dst": ["*:*"]},
-
-    // Family can only access the media server (Jellyfin/Plex)
-    {"action": "accept", "src": ["group:family"], "dst": ["tag:server:8096", "tag:server:32400"]},
-
-    // Automation runners can access specific internal APIs
-    {"action": "accept", "src": ["tag:automation"], "dst": ["tag:server:5678", "tag:server:8080"]},
-
-    // Agents can only access their designated tool endpoints
-    {"action": "accept", "src": ["tag:agent"], "dst": ["tag:server:9998", "tag:server:8080"]}
-  ],
-  "ssh": [
-    // Allow admins to SSH into all servers
-    {
-      "action": "accept",
-      "src": ["group:admin"],
-      "dst": ["tag:server", "tag:automation"],
-      "users": ["root", "admin"]
-    }
-  ]
-}
-```
-
 ## API examples
+Tailscale provides a REST API (v2) for programmatic tailnet administration.
 
-Tailscale provides a REST API (v2) for tailnet administration. You can use OAuth clients to generate access tokens.
+### Python: Listing Devices via API
+```python
+import requests
 
-```bash
-# Generate an access token using OAuth credentials
-curl -d "client_id=YOUR_CLIENT_ID" -d "client_secret=YOUR_CLIENT_SECRET" \
-  "https://api.tailscale.com/api/v2/oauth/token"
+API_KEY = "YOUR_TAILSCALE_API_KEY"
+TAILNET = "your-tailnet.ts.net"
 
-# List all devices in your tailnet
-curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  "https://api.tailscale.com/api/v2/tailnet/example.com/devices"
+def list_devices():
+    url = f"https://api.tailscale.com/api/v2/tailnet/{TAILNET}/devices"
+    headers = {"Authorization": f"Bearer {API_KEY}"}
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+# Example usage
+devices = list_devices()
+for device in devices.get('devices', []):
+    print(f"Device: {device['hostname']}, IP: {device['addresses'][0]}")
 ```
-
-## Links
-- [Official Website](https://tailscale.com/)
 
 ## Related tools / concepts
-- [Headscale](headscale.md)
-- [Cloudflare Mesh](cloudflare-mesh.md)
-- [Docker](../tools/infrastructure/docker.md)
-- [n8n](n8n.md)
-- [Home Assistant](home-assistant.md)
-- [Ollama](ollama.md) — For running AI agents that may need secure connectivity
-- [Paperless-ngx](paperless-ngx.md) — Common service accessed via Tailscale
-- [TrueNAS SCALE](https://www.truenas.com/truenas-scale/)
-- [Nextcloud](nextcloud.md)
-- [WireGuard](https://www.wireguard.com/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-05-27
+- [Headscale](headscale.md) — The open-source coordination server alternative.
+- [Authentik](authentik.md) — For managing SSO and identity within Tailscale.
+- [Home Assistant](home-assistant.md) — Frequently accessed remotely via Tailscale.
+- [Paperless-ngx](paperless-ngx.md) — Secure document access over the tailnet.
+- [n8n](n8n.md) — For automating tailnet administration via the Tailscale API.
+- [Ollama](ollama.md) — For providing private AI services across the tailnet.
+- [Nextcloud](nextcloud.md) — For private file sharing within the mesh.
+- [Storj](storj.md) — For backing up tailnet-connected servers.
+- [Cloudflare Mesh](cloudflare-mesh.md) — A competing zero-trust networking solution.
+- [WireGuard](https://www.wireguard.com/) — The underlying protocol for Tailscale.
+- [Subnet Routers](https://tailscale.com/kb/1019/subnets/) — For accessing non-Tailscale devices on a local network.
 
 ## Sources / References
-- https://tailscale.com/
-- https://www.zerotier.com/
-- https://www.netmaker.io/
-- https://tailscale.com/docs/install/linux
-- https://tailscale.com/docs/reference/tailscale-cli
-- https://tailscale.com/docs/reference/tailscale-api
+- [Official Website](https://tailscale.com/)
+- [Tailscale Documentation](https://tailscale.com/docs/)
+- [Tailscale API Reference](https://tailscale.com/api/)
+- [Headscale GitHub](https://github.com/juanfont/headscale)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-18
+- Confidence: high

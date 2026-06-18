@@ -1,140 +1,131 @@
 # Speedtest
 
 ## What it is
-Speedtest is a collection of internet connection speed testing tools and automation scripts. It primarily uses the official Speedtest.net (Ookla) CLI to measure network performance, including download speed, upload speed, latency, and jitter.
+Speedtest encompasses the tools and automated workflows used to measure and log internet connection performance (download/upload bandwidth, latency, and jitter). In June 2026, it primarily utilizes the official **Ookla Speedtest CLI** and self-hosted dashboards like **Speedtest Tracker**, integrated with AI agents for proactive network troubleshooting and service-level monitoring.
 
 ## What problem it solves
-It allows for automated, periodic monitoring of internet performance, providing data-driven evidence of ISP service levels. It helps identify intermittent bandwidth issues, verify performance after network changes, and log historical speed data for long-term analysis.
+Intermittent internet performance issues are difficult to diagnose without historical data. Speedtest solves the "network visibility" problem by providing periodic, objective measurements of ISP performance. It helps users verify if they are receiving the advertised speeds, identify peak-hour throttling, and provide evidence for technical support requests.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Monitoring. It acts as an external probe to verify the primary internet gateway's performance.
+**Category**: Service / Infrastructure / Monitoring. It acts as an **external network probe**, providing the ground-truth performance data required to optimize other services like [Plex](plex.md), [n8n](n8n.md), and autonomous agents that rely on stable connectivity.
 
 ## Typical use cases
-- Monitoring ISP performance for SLA compliance.
-- Logging speed drops during specific hours.
-- Triggering alerts when bandwidth falls below a threshold.
+- **Proactive ISP Monitoring**: Running hourly tests to track long-term bandwidth trends and latency spikes.
+- **Agentic Troubleshooting**: An AI agent (e.g., Claude 4.8 Opus) detects slow n8n execution and triggers a Speedtest to rule out network bottlenecks.
+- **Dynamic QoS Optimization**: Automatically adjusting [qBittorrent](qbittorrent.md) download limits based on current available bandwidth.
+- **SLA Verification**: Logging and reporting speed drops to an ISP for potential service credits.
+- **Gaming/VoIP Readiness**: Verifying jitter and ping before starting high-priority low-latency tasks.
 
 ## Strengths
-- Industry-standard measurement.
-- High-quality CLI tool available for multiple platforms.
-- Supports JSON output for easy parsing.
+- **Industry Standard**: Ookla's global server network ensures reliable and comparable measurement.
+- **Machine-Readable Output**: The CLI supports JSON and CSV for seamless integration with automation scripts.
+- **Low Overhead**: The official CLI is a lightweight binary that can be easily scheduled via cron or Docker.
+- **Persistent Dashboards**: Tools like Speedtest Tracker provide beautiful, historical visualizations of network health.
 
 ## Limitations
-- Consumes significant data during tests.
-- Results can be affected by local network activity.
+- **Data Consumption**: Frequent testing on metered connections (like Starlink or mobile data) can consume significant monthly quota.
+- **Local Interference**: Concurrent high-bandwidth activities on the local network (e.g., 4K streaming) will skew test results.
+- **Server Variability**: Results can vary slightly depending on the proximity and load of the selected test server.
 
 ## When to use it
-- To verify your internet connection speed programmatically.
-- To build a history of network performance.
-- When troubleshooting suspected ISP bandwidth throttling.
+- When you need objective, historical data on your internet connection's performance.
+- To troubleshoot suspected bandwidth throttling or routing issues with your ISP.
+- When building automation that needs to adapt to varying network conditions.
+- To verify the health of your primary internet gateway in a homelab environment.
 
 ## When not to use it
-- On metered or low-bandwidth connections where testing might consume too much quota.
-- During critical low-latency tasks (like gaming or video calls) as it saturates the connection.
+- On extremely low-bandwidth or highly metered connections where data usage is a concern.
+- During critical activities that require full bandwidth (e.g., large backups or video production).
+
+## Licensing and cost
+- **Licensing**: Official CLI is proprietary (EULA). Community wrappers often use MIT/GPL.
+- **Cost**: Free for personal use.
+- **Self-hostable**: Yes, the monitoring stack (Speedtest Tracker, InfluxDB, Grafana) is fully self-hostable.
 
 ## Getting started
 
-### Installation (Official Ookla CLI)
+### Installation: Official Ookla CLI
 ```bash
 # Ubuntu/Debian
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
 sudo apt-get install speedtest
 ```
 
-### Speedtest Tracker (Self-Hosted Dashboard)
-For a persistent dashboard and automated testing, it is recommended to use [Speedtest Tracker](https://github.com/alexjustesen/speedtest-tracker).
+### Self-Hosted Monitoring (Speedtest Tracker)
+Deploy the tracker via Docker Compose for persistent logging:
 
 ```yaml
 services:
   speedtest-tracker:
     container_name: speedtest-tracker
     image: alexjustesen/speedtest-tracker:latest
-    restart: unless-stopped
     ports:
       - 8080:80
-      - 443:443
     environment:
-      - PUID=1000
-      - PGID=1000
       - SPEEDTEST_SCHEDULE=0 * * * * # Every hour
     volumes:
       - ./config:/config
 ```
 
 ## CLI examples
+The `speedtest` command provides granular control over the testing process.
 
-### Run a test
 ```bash
-# Basic test with automatic server selection
+# Run a basic test with automatic server selection
 speedtest
 
-# Run test using a specific server ID
+# List nearby servers and their IDs
+speedtest --servers
+
+# Run a test against a specific server
 speedtest --server-id=1234
-```
 
-### Advanced Formatting
-```bash
-# Output as JSON for programmatic parsing
+# Output results in JSON format for scripts
 speedtest --format=json
-
-# Output as CSV for spreadsheet import
-speedtest --format=csv
 ```
 
 ## API examples
+Integrate Speedtest results into Python scripts for automation.
 
-### Parsing results (Python)
+### Python: Agentic Bandwidth Check
 ```python
 import subprocess
 import json
 
-def run_speedtest():
-    result = subprocess.run(['speedtest', '--format=json'], capture_output=True, text=True)
+def get_network_health():
+    cmd = ["speedtest", "--format=json", "--accept-license", "--accept-gdpr"]
+    result = subprocess.run(cmd, capture_output=True, text=True)
     data = json.loads(result.stdout)
 
-    download = data['download']['bandwidth'] / 125000  # Convert to Mbps
-    upload = data['upload']['bandwidth'] / 125000      # Convert to Mbps
+    # Convert to Mbps
+    down = data['download']['bandwidth'] / 125000
+    up = data['upload']['bandwidth'] / 125000
 
-    print(f"Download: {download:.2f} Mbps")
-    print(f"Upload: {upload:.2f} Mbps")
+    return {"download_mbps": down, "upload_mbps": up, "ping_ms": data['ping']['latency']}
 
-run_speedtest()
+# Agent uses this to decide if it should start a large data transfer
+health = get_network_health()
+print(f"Current Download Speed: {health['download_mbps']:.2f} Mbps")
 ```
-
-### Dashboard Visualization
-To visualize speedtest results over time:
-1. **Data Collection**: Use a script to run `speedtest --format=json` and send the output to InfluxDB.
-2. **Setup InfluxDB**:
-```bash
-# Example curl to write to InfluxDB
-curl -i -XPOST 'http://localhost:8086/write?db=speedtest' --data-binary "download,host=server value=$DOWNLOAD_SPEED"
-```
-3. **Grafana Dashboard**: Connect Grafana to InfluxDB and create a "Time Series" panel using the following query:
-   - `SELECT "value" FROM "download" WHERE $timeFilter`
-4. **Automation**: Schedule the script via cron to run every hour.
 
 ## Related tools / concepts
-- [InfluxDB](influxdb.md)
-- [Grafana](grafana.md)
-- [Prometheus](https://prometheus.io/)
-- [Uptime Kuma](https://uptime.kuma.pet/)
-- [Netdata](https://www.netdata.cloud/)
-- [Home Assistant](home-assistant.md)
-- [n8n](n8n.md)
-- [Rclone Automation](rclone-automation.md) — For ensuring backups don't saturate the connection during speedtests.
-- [Authentik](authentik.md) — For securing the dashboard or Grafana instance.
-- [Portracker](portracker.md) — To monitor ports used by Speedtest Tracker.
-- [Docker](../tools/infrastructure/docker.md)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
-- [x] Create a dashboard for visualizing speedtest results over time.
+- [InfluxDB](influxdb.md) — For storing historical speed data.
+- [Grafana](grafana.md) — For visualizing network performance trends.
+- [n8n](n8n.md) — For triggering alerts based on speed thresholds.
+- [qBittorrent](qbittorrent.md) — Its speed can be dynamically throttled based on results.
+- [Plex](plex.md) — Monitoring remote streaming capability.
+- [Tailscale](tailscale.md) — Measuring performance of private mesh tunnels.
+- [Home Assistant](home-assistant.md) — For displaying speedtest metrics on a home dashboard.
+- [Authentik](authentik.md) — Securing the Speedtest Tracker dashboard.
+- [Uptime Kuma](https://uptime.kuma.pet/) — For complementary connectivity monitoring.
+- [Ollama](ollama.md) — For running agents that analyze network logs.
+- [Claude](../tools/ai_knowledge/claude.md) — Agent used for proactive network troubleshooting.
 
 ## Sources / References
-- [Speedtest CLI Official](https://www.speedtest.net/apps/cli)
-- [Python speedtest-cli (Community)](https://github.com/sivel/speedtest-cli)
+- [Speedtest.net Official CLI](https://www.speedtest.net/apps/cli)
 - [Speedtest Tracker GitHub](https://github.com/alexjustesen/speedtest-tracker)
+- [Ookla Knowledge Base](https://help.speedtest.net/hc/en-us)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-18
 - Confidence: high
-- Last reviewed: 2026-05-27

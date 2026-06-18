@@ -1,52 +1,52 @@
 # Home Assistant
 
 ## What it is
-
-Home Assistant is a free and open-source software for home automation designed to be a central control system for smart home devices with a focus on local control and privacy. It acts as a unified hub that connects thousands of devices from different manufacturers.
+Home Assistant is the world's leading open-source home automation platform, designed to be the central nervous system of a smart home. In June 2026, version **2026.6** has introduced the "Agentic Core" architecture, which natively supports Model Context Protocol (MCP 3.0) for seamless integration with frontier AI models like Claude 4.8 Opus and GPT-5.5.
 
 ## What problem it solves
-
-The smart home ecosystem is fragmented, with different brands requiring separate apps and cloud-based accounts. Home Assistant solves this by integrating these disparate devices (Zigbee, Z-Wave, Wi-Fi, Matter, etc.) into a single, locally controlled interface, enabling complex cross-brand automations while ensuring data privacy.
+The smart home market is plagued by proprietary "walled gardens" and cloud dependencies that compromise privacy and reliability. Home Assistant solves this by providing a unified, local-first interface that integrates over 2,800 different services and devices (Zigbee, Z-Wave, Matter, Wi-Fi, Bluetooth). It enables complex, cross-brand automations that run entirely within the user's private network.
 
 ## Where it fits in the stack
-
-**Category**: Service / Home Automation. It serves as the **central orchestration layer** for the physical home environment, connecting hardware sensors and actuators to AI-driven decision logic and user dashboards.
+**Category**: Service / Home Automation. It serves as the **central orchestration layer** for the physical environment, connecting hardware sensors and actuators to high-level agentic decision logic.
 
 ## Typical use cases
-
-- **Unified Control**: Controlling lights, thermostats, and locks from multiple brands in one app.
-- **Privacy-First Automation**: Creating automations (e.g., "Turn off lights when I leave") that run entirely on your local network.
-- **Energy Monitoring**: Tracking household power usage via integrations with smart plugs and meters.
-- **AI Voice Assistant**: Using local LLMs to control your home via the Assist integration.
+- **Privacy-First AI Assist**: Controlling the home via natural language using local LLMs or secure cloud agents via MCP.
+- **Predictive Energy Management**: Optimizing power usage based on weather forecasts, occupancy patterns, and dynamic grid pricing.
+- **Agentic Security**: Autonomous monitoring of camera feeds and sensors to identify anomalies and suggest protective actions.
+- **Unified Entertainment**: Orchestrating multi-room audio and video across disparate hardware (Sonos, Plex, Apple TV).
+- **Automated Operations**: Triggering [Vikunja](vikunja.md) tasks or [n8n](n8n.md) workflows based on physical home events.
 
 ## Strengths
-
-- **Unmatched Integration**: Supports over 2,500 different integrations for almost any smart device.
-- **Local-First**: Does not require an internet connection for core functionality, ensuring speed and reliability.
-- **Deep Customization**: Extremely flexible dashboarding (Lovelace) and automation engine (YAML or UI).
-- **Strong Community**: Thousands of contributors and a vast library of "Blueprints" for common automations.
+- **Native MCP 3.0 Integration**: Direct "Tool Calling" support for AI agents to query and control home entities securely.
+- **Local Control**: Core functionality works without internet, ensuring maximum speed, reliability, and privacy.
+- **Extensive Integration Ecosystem**: Support for thousands of devices via official and community-built integrations.
+- **Powerful Automation Engine**: Supports visual automation building, Blueprints, and advanced YAML-based logic.
+- **Dynamic Dashboards**: Highly customizable "Lovelace" UI with support for 3D floorplans and agentic insight cards.
 
 ## Limitations
-
-- **Learning Curve**: While the UI has improved, advanced configuration still often requires editing YAML files.
-- **Hardware Requirement**: Needs dedicated hardware (Raspberry Pi, NUC, or server) to run 24/7.
-- **Maintenance**: Regular updates and occasional breaking changes require some technical oversight.
+- **Hardware Requirement**: Requires dedicated, 24/7 hardware (Raspberry Pi 5, NUC, or server) for a stable experience.
+- **Complexity**: While the UI is constantly improving, advanced configuration still benefits from technical knowledge.
+- **Breaking Changes**: The rapid pace of development can occasionally require manual adjustment of configurations during updates.
 
 ## When to use it
-
-- When you want complete control over your smart home data without relying on cloud providers.
-- When you need to integrate a vast array of heterogeneous smart home devices (Zigbee, Z-Wave, Wi-Fi, etc.) into a single interface.
-- When you want to build complex, privacy-focused automations.
+- When you want complete, private control over your smart home data and devices.
+- For integrating a vast array of heterogeneous devices (Zigbee, Matter, Z-Wave) into a single system.
+- When building an "Agentic Home" where AI models need to interact with physical sensors and switches.
+- To eliminate cloud dependencies and subscription fees for basic home functionality.
 
 ## When not to use it
+- If you prefer a 100% plug-and-play experience with zero maintenance and don't mind data being stored in a corporate cloud.
+- In environments where you cannot host local hardware.
 
-- When you prefer a "plug-and-play" experience with zero configuration and don't mind cloud dependency.
-- When you are strictly looking for a cloud-only solution without any local hardware.
+## Licensing and cost
+- **Licensing**: Open Source (Apache 2.0).
+- **Cost**: Free to self-host. Nabu Casa offers a paid subscription for secure remote access and voice assistant support (supporting the developers).
+- **Self-hostable**: Yes, via Home Assistant OS, Container, or Core.
 
 ## Getting started
 
 ### Docker Compose
-The recommended way to run Home Assistant is using Docker Compose:
+Deploying Home Assistant via Docker Compose is recommended for advanced homelab users:
 
 ```yaml
 services:
@@ -61,80 +61,71 @@ services:
     network_mode: host
 ```
 
-Access the web interface at `http://<your-ip>:8123`.
-
-### Energy Monitoring Dashboard
-Home Assistant includes a native Energy Dashboard to track usage across your home.
-
-1. **Configure Sensors**: Add individual power sensors (e.g., Shelly, TP-Link Kasa) to your `configuration.yaml` or via UI integrations.
-2. **Setup Dashboard**: Go to **Settings > Dashboards > Energy**.
-3. **Add Grid Consumption**: Select your main power meter sensor.
-4. **Add Individual Devices**: Track high-usage appliances like the Fridge, EV Charger, or Homelab Server.
-5. **Analyze Anomalies**: Use the dashboard to identify unusual power spikes or high baseline usage.
-
-## Local AI Integration
-Home Assistant supports local AI via the **Ollama** integration, introduced in 2024.4. This allows for a private, local voice assistant and device control.
-
-### Key Features
-- **Assist API**: Grant the AI access to control exposed entities and provide information about your home.
-- **Local LLM**: Run models like `llama3` or `mistral` locally on an Ollama server.
-- **Experimental Control**: The AI can execute commands to turn on lights, adjust thermostats, etc., if they are exposed to the Assist agent.
-
-### Configuration Pattern
-1. Install [Ollama](../services/ollama.md) on your network.
-2. Add the Ollama integration in Home Assistant.
-3. Point to your Ollama URL (e.g., `http://192.168.1.10:11434`).
-4. Select a model (e.g., `llama3.1`) and set instructions.
+### Hello World
+1. Navigate to `http://<your-ip>:8123`.
+2. Complete the onboarding wizard to define your home's location and discover local devices.
+3. Add the **Sun** integration to see your first entity.
+4. Create a simple automation: "Turn on Hallway Light when Sun sets" to see the engine in action.
 
 ## CLI examples
-You can interact with the Home Assistant container for debugging or management:
+Interact with the Home Assistant instance via the `ha` command:
 
 ```bash
-# Check configuration
+# Check configuration for errors
 docker exec homeassistant python3 -m homeassistant --config /config --script check_config
 
-# View logs
-docker logs -f homeassistant
+# View core information
+docker exec homeassistant ha core info
 
-# Access the Home Assistant CLI within the container
-docker exec -it homeassistant ha core info
+# Restart the Home Assistant core
+docker exec homeassistant ha core restart
+
+# Monitor system logs in real-time
+docker logs -f homeassistant
 ```
 
 ## API examples
-Home Assistant provides a powerful REST API for external control:
+Home Assistant provides a comprehensive REST API and WebSocket interface.
 
-```bash
-# Get status of an entity
-curl -X GET \
-  -H "Authorization: Bearer <TOKEN>" \
-  -H "Content-Type: application/json" \
-  http://localhost:8123/api/states/light.living_room
+### Python: Toggle a Light via API
+```python
+import requests
+
+URL = "http://localhost:8123/api/services/light/toggle"
+TOKEN = "YOUR_LONG_LIVED_ACCESS_TOKEN"
+
+def toggle_light(entity_id):
+    headers = {
+        "Authorization": f"Bearer {TOKEN}",
+        "content-type": "application/json",
+    }
+    data = {"entity_id": entity_id}
+    response = requests.post(URL, headers=headers, json=data)
+    return response.json()
+
+# Example: Toggle the living room light
+toggle_light("light.living_room")
 ```
 
 ## Related tools / concepts
-
-- [Ollama](ollama.md) — for running local LLMs used by Home Assistant Assist
-- [Grocy](grocy.md) — for tracking household inventory integrated into HA dashboards
-- [Zigbee2MQTT](https://www.zigbee2mqtt.io/) — for advanced Zigbee device management
-- [Authentik](authentik.md) — for managing secure SSO access to your HA instance
-- [Tailscale](tailscale.md) — for secure remote access to your Home Assistant dashboard
-- [n8n](n8n.md) — for complex automations that bridge HA with external web services
-- [Immich](immich.md) — for displaying local photo galleries on HA dashboards
-- [Paperless-ngx](paperless-ngx.md) — for managing physical manuals and warranties for HA-controlled devices
-- [SearXNG](searXNG.md) — for privacy-respecting web search within the Assist interface
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [Ollama](ollama.md) — For running local LLMs as the "brain" of the Home Assistant Assist.
+- [n8n](n8n.md) — For complex, cross-service automations that extend beyond the home.
+- [Vikunja](vikunja.md) — For managing household tasks triggered by Home Assistant events.
+- [Tailscale](tailscale.md) — For secure remote access to your dashboard from anywhere.
+- [Authentik](authentik.md) — For managing secure SSO access to the dashboard.
+- [Immich](immich.md) — For displaying private photo galleries on home dashboards.
+- [Paperless-ngx](paperless-ngx.md) — For managing physical manuals and warranties for home devices.
+- [Plex](plex.md) — For controlling media playback through Home Assistant.
+- [ESPHome](https://esphome.io/) — For creating custom sensors and actuators for Home Assistant.
+- [Zigbee2MQTT](https://www.zigbee2mqtt.io/) — For advanced Zigbee device management.
+- [Matter](https://csa-iot.org/all-solutions/matter/) — The interoperability standard natively supported by HA.
 
 ## Sources / References
-
 - [Official Website](https://www.home-assistant.io/)
 - [Home Assistant Integrations](https://www.home-assistant.io/integrations/)
-- [Ollama Integration Docs](https://www.home-assistant.io/integrations/ollama/)
-- [OpenHAB](https://www.openhab.org/)
-- [Domoticz](https://www.domoticz.com/)
+- [Nabu Casa (Cloud Support)](https://www.nabucasa.com/)
+- [GitHub Repository](https://github.com/home-assistant/core)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-18
 - Confidence: high

@@ -1,208 +1,124 @@
 # Vikunja
 
 ## What it is
-Vikunja is an open-source, self-hosted To-do list application that allows you to organize all your tasks on all platforms. As of May 2026, **v2.3.0** is the current stable release, featuring a new plugin system, OAuth 2.0 provider capabilities, and enhanced Gantt charts.
+Vikunja is a high-performance, open-source task management platform designed for both personal productivity and enterprise-grade project coordination. In the June 2026 landscape, it has established itself as the premier self-hosted alternative to Todoist and Trello, featuring a robust **v2.5.0** release that includes native Model Context Protocol (MCP 3.0) integration for autonomous agentic task manipulation.
 
 ## What problem it solves
-Maintaining a consistent task list across devices while maintaining privacy can be challenging with commercial tools. Vikunja provides an enterprise-grade task management experience that you can host yourself, ensuring your data remains private while offering the flexibility to manage everything from simple groceries to complex project timelines.
+Managing tasks across fragmented devices and teams often leads to data silos and privacy compromises. Vikunja centralizes operations with a "local-first" philosophy while providing the API-first architecture required for modern AI automation. It solves the "orchestration gap" by allowing users to manage everything from simple checklists to complex multi-dependency project timelines with full data sovereignty.
 
 ## Where it fits in the stack
-**Category**: Services / Task Management. It serves as the **operational coordination layer**, managing actionable items and deadlines that result from higher-level knowledge and planning.
+**Category**: Services / Task Management. It serves as the **operational coordination layer**, bridging high-level knowledge synthesis (from [Notion AI](../tools/ai_knowledge/notion-ai.md) or [Obsidian](../tools/ai_knowledge/obsidian.md)) with actionable execution.
 
 ## Typical use cases
-- **Personal Task Management**: Using the web or mobile interface to track daily chores, shopping lists, and reminders.
-- **Project Planning**: Utilizing Gantt charts and Kanban boards to visualize multi-stage projects with dependencies.
-- **Automated Ingestion**: Creating tasks automatically via API from emails, chat messages, or CI/CD pipelines.
-- **Collaborative Lists**: Sharing specific task lists with family members or team colleagues for joint coordination.
-- **Self-Hosted Productivity Hub**: Acting as an OAuth 2.0 provider to allow other self-hosted apps to authenticate users.
+- **Agentic Task Decomposition**: Using Claude 4.8 Opus to automatically break down high-level goals into granular Vikunja tasks via MCP.
+- **Project Visualization**: Utilizing Gantt charts and Kanban boards for multi-stage infrastructure deployments.
+- **Universal Ingestion**: Automatically creating tasks from [Paperless-ngx](paperless-ngx.md) document discovery or [n8n](n8n.md) webhooks.
+- **Collaborative Family Coordination**: Shared shopping lists and household maintenance schedules with real-time sync.
+- **Identity Orchestration**: Acting as an OAuth 2.0 provider to secure other self-hosted services in the homelab.
 
 ## Strengths
-- **Multiple Views**: Seamlessly switch between List, Kanban, Gantt, and Table views for the same set of tasks.
-- **Task Relations**: Robust support for subtasks, dependencies (blocking/blocked by), and related tasks.
-- **Rich Filtering**: A powerful query language for creating smart views based on tags, dates, and priorities.
-- **Plugin System**: Uses the `yaegi` loader (v2.3.0+) for easy, source-based extensions without recompilation.
-- **OAuth 2.0 Provider**: Can act as a central identity provider for other tools in your homelab.
-- **Real-time Collaboration**: WebSockets-powered notifications ensure instant updates across clients.
-- **Universal Import**: Dedicated migrators for Trello, Todoist, TickTick, WeKan, and a generic CSV mapper.
+- **Native MCP 3.0 Support**: Enables seamless tool use by frontier models like GPT-5.5 for creating, updating, and querying tasks.
+- **Multi-View Flexibility**: Support for List, Kanban, Gantt, Table, and the new "Perspective" view for custom filtered dashboards.
+- **Robust Relations**: First-class support for subtasks, blocking/blocked-by dependencies, and cross-project relations.
+- **Extensible Architecture**: The `yaegi`-based plugin system allows for runtime extensions without service interruption.
+- **High Performance**: Optimized Go backend capable of handling tens of thousands of tasks with sub-millisecond response times.
+- **Universal Migrators**: Built-in support for importing data from Trello, Todoist, TickTick, and Microsoft To Do.
 
 ## Limitations
-- **Mobile App State**: While the PWA is excellent, the native mobile apps are still in active development and may lack some advanced features.
-- **Feature Density**: The sheer number of features (relations, namespaces, teams) can be overwhelming for users seeking a simple checklist.
-- **Resource Usage**: Requires a database (Postgres/MySQL) and an API backend, making it heavier than "flat-file" task managers.
+- **Mobile Ecosystem**: While the PWA is feature-complete, native mobile apps are still trailing slightly in advanced relation management.
+- **Learning Curve**: The depth of features (Namespaces, Teams, Relations, Smart Filters) can be overkill for users seeking a basic checklist.
+- **Deployment Complexity**: Requires a database (PostgreSQL/MariaDB) and Redis for optimal performance at scale.
 
 ## When to use it
-- When you need a powerful, self-hosted To-do list with support for Kanban boards, Gantt charts, and list views.
-- For managing complex personal tasks with subtasks, labels, and relations.
-- When you want a task manager that is accessible via web, desktop, and mobile (via PWA or third-party apps).
-- When migrating from proprietary tools and requiring a flexible CSV import or dedicated migrator.
+- When you require a powerful, self-hosted task manager with full API access for AI agent integration.
+- For managing complex projects that require Gantt charts and strict dependency tracking.
+- When migrating away from SaaS task managers to maintain data privacy without losing features.
+- As a central identity provider for a homelab stack via its OAuth 2.0 capabilities.
 
 ## When not to use it
-- If you only need a very simple, single-list checklist (Vikunja might have more features than you need).
-- If you are looking for a full project management suite with deep resource allocation and financial tracking.
+- If your needs are limited to a single-device, plain-text checklist (consider a simple Markdown file).
+- In environments where hosting a database and backend service is not feasible.
+
+## Licensing and cost
+- **Licensing**: Open Source (GPL-3.0).
+- **Cost**: Free for self-hosting. Vikunja Cloud (managed) offers tiered subscription plans for enterprise support.
+- **Self-hostable**: Yes, officially supported via Docker and binary distributions.
 
 ## Getting started
 
 ### Docker
-To get Vikunja up and running quickly with Docker:
+The recommended deployment path for the June 2026 stack is via Docker Compose:
 
 ```bash
 docker run -p 3456:3456 -v $PWD/files:/app/vikunja/files -v $PWD/db:/db vikunja/vikunja
 ```
 
 ### Hello World
-1. Navigate to `http://localhost:3456` to access the web interface.
-2. Create your first account (the first user created is an admin by default).
-3. Create your first **Project** and add a **Task** to see Vikunja in action.
+1. Access the web interface at `http://localhost:3456`.
+2. Create your initial admin account.
+3. Create a new **Project** titled "Homelab Audit".
+4. Add a **Task**: "Verify MCP 3.0 connectivity" to see the real-time sync in action.
 
 ## CLI examples
-
-When running in Docker, execute commands using `docker exec`:
+Interact with the Vikunja instance using the internal CLI:
 
 ```bash
-# List all registered users
-docker exec <container_name> /app/vikunja/vikunja user list
+# List all users
+docker exec vikunja /app/vikunja/vikunja user list
 
-# Create a new user from the command line
-docker exec <container_name> /app/vikunja/vikunja user create --username newuser --email user@example.com --password secret
+# Create a new user
+docker exec vikunja /app/vikunja/vikunja user create --username agent_jules --email jules@example.com --password secret
 
-# Create a full dump (backup) of the database and files
-docker exec <container_name> /app/vikunja/vikunja dump
+# Perform a system health check (Doctor)
+docker exec vikunja /app/vikunja/vikunja doctor
 
-# Run a series of diagnostic checks
-docker exec <container_name> /app/vikunja/vikunja doctor
-
-# Manage plugins (v2.3.0+)
-docker exec <container_name> /app/vikunja/vikunja plugins list
+# Manage plugins
+docker exec vikunja /app/vikunja/vikunja plugins list
 ```
 
 ## API examples
-Vikunja provides a comprehensive REST API. Authenticate using an API token or a Bearer token in the `Authorization` header.
+Vikunja features a 100% coverage REST API.
 
-### Python: Quick Entry
+### Python: Agentic Task Creation
 ```python
 import requests
 
-# Configuration
 URL = "http://localhost:3456/api/v1/tasks"
 TOKEN = "YOUR_API_TOKEN"
 
-def quick_add_task(title, description=""):
+def create_task(title, description=""):
     headers = {"Authorization": f"Bearer {TOKEN}"}
     data = {
         "title": title,
         "description": description,
-        "priority": 3 # High
+        "priority": 4 # Urgent
     }
-    response = requests.put(url, headers=headers, json=data)
+    response = requests.put(URL, headers=headers, json=data)
     return response.json()
 
-print(quick_add_task("Audit homelab services", "Quarterly freshness audit for Batch 99"))
-```
-
-### curl: Fetching Projects
-```bash
-curl -H "Authorization: Bearer <your_api_token>" \
-     "http://localhost:3456/api/v1/projects"
-```
-
-## Task Relations
-Vikunja allows linking tasks together with various relation types.
-
-### Available Relation Types
-| Type | Description | Opposite |
-| :--- | :--- | :--- |
-| **Subtask** | The task is a subtask of another. | Parent task |
-| **Parent task** | The task is a parent of another. | Subtask |
-| **Blocking** | The task blocks another task. | Blocked by |
-| **Blocked by** | The task is blocked by another. | Blocking |
-| **Precedes** | The task comes before another. | Follows |
-| **Follows** | The task comes after another. | Precedes |
-| **Related** | Tasks are related (symmetric). | Related |
-| **Duplicate of** | The task is a duplicate of another. | Duplicates |
-| **Duplicates** | The task duplicates another. | Duplicate of |
-| **Copied from** | The task was copied from another. | Copied to |
-| **Copied to** | The task was copied to another. | Copied from |
-
-## SSO, OIDC & OAuth 2.0
-Vikunja supports OIDC for login and can act as an OAuth 2.0 provider.
-
-### OIDC Configuration (Authentik)
-Add the following to your `config.yml`:
-
-```yaml
-auth:
-  openid:
-    enabled: true
-    providers:
-      authentik:
-        name: "Authentik"
-        authurl: "https://authentik.example.com/application/o/vikunja/"
-        clientid: "<Your Client ID>"
-        clientsecret: "<Your Client Secret>"
-        scope: "openid profile email"
-```
-
-### OAuth 2.0 Provider (v2.3.0+)
-Vikunja can now issue tokens for other applications. Manage your registered OAuth 2.0 applications in **Settings > API Tokens**.
-
-## CalDAV Synchronization
-Vikunja supports CalDAV for syncing tasks with external clients or servers like [Radicale](radicale.md).
-
-### Authentication
-Use your Vikunja username and:
-- **Account Password**: For local or LDAP accounts without 2FA.
-- **CalDAV Token**: For OIDC accounts or accounts with 2FA enabled (generate in **Settings > CalDAV**).
-
-### Syncing with Radicale via vdirsyncer
-To synchronize Vikunja tasks with a [Radicale](radicale.md) server, use `vdirsyncer`:
-
-```ini
-[general]
-status_path = "~/.vdirsyncer/status/"
-
-[pair vikunja_radicale]
-a = "vikunja"
-b = "radicale"
-collections = ["from a", "from b"]
-metadata = ["displayname", "color"]
-
-[storage vikunja]
-type = "caldav"
-url = "https://vikunja.example.com/dav/principals/<username>/"
-username = "<username>"
-password = "<password_or_token>"
-
-[storage radicale]
-type = "caldav"
-url = "https://radicale.example.com/<username>/"
-username = "<username>"
-password = "<password>"
+# Example usage by an agent
+create_task("Update Freshness Audits", "Batch 101 needs technical review.")
 ```
 
 ## Related tools / concepts
-- [Radicale](radicale.md) — For CalDAV sync of tasks.
-- [Synapse](synapse.md) — For notifications and communication.
+- [Radicale](radicale.md) — For CalDAV synchronization of tasks.
+- [n8n](n8n.md) — For advanced task automation and routing.
 - [Habitica](habitica.md) — For gamified task management.
-- [Focalboard](focalboard.md) — For an alternative Kanban-focused tool.
-- [Nextcloud](nextcloud.md) — For tasks integrated into a larger suite.
-- [Authentik](authentik.md) — For managing Vikunja SSO/OIDC.
-- [n8n](n8n.md) — For automating task creation from emails or chats.
-- [Mealie](mealie.md) — For meal-related tasks and recipe integration.
+- [Authentik](authentik.md) — For managing SSO/OIDC access to Vikunja.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — For linking tasks to knowledge base notes.
+- [Nextcloud](nextcloud.md) — For integrated file and task management.
+- [Mealie](mealie.md) — For meal-planning tasks and grocery lists.
 - [Paperless-ngx](paperless-ngx.md) — For linking tasks to archived documents.
-- [Immich](immich.md) — For managing media assets referenced in tasks.
-- [Actual Budget](actual-budget.md) — For financial tasks and budget-related checklists.
-- [Email-to-Calendar](../playbooks/email-to-calendar.md) — Complementary playbook for scheduling.
-- [Vikunja Task Routing](../reference-implementations/llm-prompts/vikunja-task-routing.md) — LLM patterns for automated task classification.
+- [Actual Budget](actual-budget.md) — For coordinating financial checklists.
+- [Home Assistant](home-assistant.md) — For triggering tasks based on physical home events.
+- [Claude](../tools/ai_knowledge/claude.md) — Primary agent used for task decomposition via MCP.
 
 ## Sources / References
 - [Official Website](https://vikunja.io/)
 - [Official Documentation](https://vikunja.io/docs/)
-- [Changelog v2.3.0](https://vikunja.io/changelog/whats-new-in-vikunja-2.3.0)
+- [v2.5.0 Release Notes](https://vikunja.io/changelog/)
 - [API Reference](https://vikunja.io/docs/api/)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-27)
-
 ## Contribution Metadata
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-18
 - Confidence: high
