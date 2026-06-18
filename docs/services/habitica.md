@@ -1,140 +1,128 @@
 # Habitica
 
-## What it is
-
 Habitica is an open-source habit-building and productivity app that treats your real life like a game. It transforms your daily tasks and habits into RPG quests, rewarding completion with experience points and gold, and penalizing neglect with health loss.
 
-## What problem it solves
+## What it is
+Habitica is a gamified task management platform that leverages RPG mechanics (Experience, Gold, Health, Pets, and Quests) to motivate users toward habit formation and goal completion. In the June 2026 ecosystem, it has evolved into a primary target for agentic habit coaching, with native support for the Model Context Protocol (MCP 3.0).
 
-Traditional to-do lists often lack the motivation required for long-term habit formation. Habitica solves this by using gamification (rewards, social accountability, and RPG mechanics) to make productivity engaging and fun.
+## What problem it solves
+Traditional productivity tools often suffer from "motivation decay." Habitica solves this by applying game theory to real-world tasks, providing immediate feedback loops through virtual rewards and social accountability (Parties and Guilds), which are essential for long-term behavior change.
 
 ## Where it fits in the stack
-**Category**: Service / Productivity
+**Category**: Service / Gamified Productivity. It serves as the **incentive layer** for the personal automation stack, bridging the gap between raw data (e.g., from Home Assistant or n8n) and psychological reward.
 
 ## Typical use cases
-- Gamified habit tracking and task management.
-- Team-based productivity challenges.
-- Automated habit scoring via API.
+- **Gamified Habit Formation**: Tracking daily routines like exercise, meditation, or hydration.
+- **Agentic Coaching**: Using Claude 4.8 Opus to analyze task completion patterns and suggest quest strategies.
+- **Automated Reward Systems**: Linking smart home completions (e.g., finishing a workout on a Peloton) to Habitica XP gain via MCP 3.0.
+- **Social Productivity**: Collaborating with a "Party" to defeat bosses by completing real-world tasks.
 
 ## Strengths
-- Highly engaging gamification mechanics.
-- Strong community and social features.
-- Robust API (v3/v4 stable) for third-party integrations.
-- Extensive cross-platform support (Web, iOS, Android).
+- **Proven Gamification**: Deeply integrated RPG mechanics that provide genuine dopamine hits.
+- **Robust API**: Stable v3/v4 API with extensive documentation and community wrappers.
+- **Extensibility**: Native integration with n8n, Zapier, and now MCP 3.0 for agentic interaction.
+- **Cross-Platform**: Seamless sync between Web, iOS, and Android clients.
 
 ## Limitations
-- Visual style might be too "noisy" for some users.
-- RPG elements can be distracting for pure focus.
+- **Visual Noise**: The pixel-art RPG aesthetic can be distracting for users preferring minimalist interfaces.
+- **Self-Report Bias**: Relies on user honesty unless integrated with automated triggers.
+- **Learning Curve**: Managing equipment, skills, and quests adds overhead compared to simple to-do lists.
 
 ## When to use it
-- When traditional to-do lists fail to motivate you.
-- When you want to combine habit tracking with social accountability.
+- When you struggle with the "boredom" of standard to-do lists.
+- When you want to gamify your self-improvement journey with friends or family.
+- When you need a productivity tool that offers a robust API for automation.
 
 ## When not to use it
-- For strictly professional or minimalist project management.
-- If you find RPG mechanics distracting.
+- For high-stakes corporate project management where RPG elements are inappropriate.
+- If you find pixel art or "gaming" terminology (XP, HP, Mana) confusing or annoying.
 
 ## Getting started
+To begin, create an account at [Habitica.com](https://habitica.com/). Developers should navigate to **Settings > API** to retrieve their `User ID` and `API Token`.
 
-Habitica can be used via the web app, mobile apps, or the API. For developers, getting started involves obtaining your User ID and API Token from **Settings > API**.
-
-### Installation (CLI Tool)
-You can use the community-maintained CLI to interact with Habitica:
+### Integration with Claude 4.8 Opus
+To use Habitica with Claude 4.8 Opus, install the `habitica-mcp` server:
 ```bash
-npm install -g habitica-tools
+npm install -g @habitica/mcp-server
+# Add to your Claude Desktop config
+{
+  "mcpServers": {
+    "habitica": {
+      "command": "habitica-mcp",
+      "env": {
+        "HABITICA_USER_ID": "your-id",
+        "HABITICA_API_TOKEN": "your-token"
+      }
+    }
+  }
+}
 ```
 
 ## CLI examples
 
-### Check status
+### Official/Community CLI
+The community CLI provides quick access to your tasks.
 ```bash
-habitica status
+# Installation
+npm install -g habitica
+
+# Check status and stats
+habitica stats
+
+# List active Dailies
+habitica list dailies
 ```
 
-### List tasks
+### Direct API via Curl
 ```bash
-habitica tasks
+# Score up a task
+curl -X POST "https://habitica.com/api/v3/tasks/TASK_ID/score/up" \
+     -H "x-api-user: YOUR_USER_ID" \
+     -H "x-api-key: YOUR_API_TOKEN"
 ```
 
 ## API examples
 
-### Scoring a task (Python)
+### Python (Scoring a task)
+The `habitica` library is recommended for Python integration.
 ```python
 import requests
 
-USER_ID = 'your-user-id'
-API_TOKEN = 'your-api-token'
-TASK_ID = 'your-task-id'
-
-headers = {
-    'x-api-user': USER_ID,
-    'x-api-key': API_TOKEN
-}
-
-# Score up a task
-response = requests.post(
-    f'https://habitica.com/api/v3/tasks/{TASK_ID}/score/up',
-    headers=headers
-)
-print(response.json())
-```
-
-## n8n Integration: Automated Habit Scoring
-
-Habitica can be integrated with [n8n](n8n.md) to automatically score habits based on external events, such as completing a workout logged in a CSV or finishing a deep work session.
-
-### Workflow Pattern: Automated Task Scoring
-1.  **Trigger**: Watch for a specific event (e.g., a new row in a [Google Sheet](https://n8n.io/integrations/google-sheets/) or a finished [Toggl](https://n8n.io/integrations/toggl/) timer).
-2.  **HTTP Request Node (Habitica API)**:
-    - **Method**: `POST`
-    - **URL**: `https://habitica.com/api/v3/tasks/{{$json["task_id"]}}/score/up`
-    - **Headers**:
-        - `x-api-user`: `{{$env["HABITICA_USER_ID"]}}`
-        - `x-api-key`: `{{$env["HABITICA_API_TOKEN"]}}`
-3.  **Notification Node**: Send a message to [Element](element.md) or [Home Assistant](home-assistant.md) confirming the XP gain.
-
-### Example: Scoring via Python Sub-process (Code Node)
-If you prefer using a specialized Python script within n8n:
-```python
-import requests
-
-def score_habit(user_id, api_token, task_id):
-    url = f"https://habitica.com/api/v3/tasks/{task_id}/score/up"
+def score_task(user_id, api_token, task_id, direction="up"):
+    url = f"https://habitica.com/api/v3/tasks/{task_id}/score/{direction}"
     headers = {
         "x-api-user": user_id,
-        "x-api-key": api_token,
-        "Content-Type": "application/json"
+        "x-api-key": api_token
     }
     response = requests.post(url, headers=headers)
     return response.json()
 
-# n8n input mapping
-user_id = _input.item.json['USER_ID']
-api_token = _input.item.json['API_TOKEN']
-task_id = _input.item.json['TASK_ID']
-
-result = score_habit(user_id, api_token, task_id)
-return {"json": result}
+# Example usage
+# result = score_task("my-id", "my-token", "habit-123")
 ```
 
+### n8n Workflow Integration
+Habitica is a first-class citizen in [n8n](n8n.md). A common pattern is:
+1. **Trigger**: [Home Assistant](home-assistant.md) detects a "Gym Session Complete" event.
+2. **HTTP Request**: POST to `https://habitica.com/api/v3/tasks/:id/score/up`.
+3. **Notification**: Send a message to [Element](element.md) with the XP earned.
+
 ## Related tools / concepts
-- [SuperBetter](https://www.superbetter.com/)
-- [Vikunja](vikunja.md) — For managing the tasks that aren't gamified.
-- [Mealie](mealie.md) — For nutritional habit tracking.
-- [Grocy](grocy.md) — For household chore integration.
-- [Home Assistant](home-assistant.md) — For real-life trigger-based scoring.
-- [Actual Budget](actual-budget.md) — For financial habit gamification.
-- [Authentik](authentik.md) — For managing external access to Habitica data tools.
-- [n8n](n8n.md) — For orchestrating complex automated scoring workflows.
+- [SuperBetter](https://www.superbetter.com/) — Scientific gamification.
+- [Vikunja](vikunja.md) — For professional task management.
+- [Mealie](mealie.md) — Gamifying nutritional habits.
+- [Home Assistant](home-assistant.md) — For automating real-world task triggers.
+- [n8n](n8n.md) — For orchestrating complex habit workflows.
+- [Actual Budget](actual-budget.md) — Gamifying financial discipline.
+- [Element](element.md) — For receiving habit notifications and party chats.
+- [Claude 4.8 Opus](../tools/ai_knowledge/claude.md) — For agentic coaching and strategy.
 
-## Sources / References
-- [Official Website](https://habitica.com/)
-- [Habitica API Documentation](https://github.com/HabitRPG/habitica/blob/develop/API-reference.md)
-- [SuperBetter](https://www.superbetter.com/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+## Sources / references
+- [Official Habitica Website](https://habitica.com/)
+- [Habitica API Reference](https://github.com/HabitRPG/habitica/blob/develop/API-reference.md)
+- [Habitica Wiki](https://habitica.fandom.com/wiki/Habitica_Wiki)
+- [MCP 3.0 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high
