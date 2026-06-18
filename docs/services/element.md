@@ -45,7 +45,7 @@ The easiest way to start is by using the hosted version or the desktop client:
 2. Create an account on the default `matrix.org` server or specify your own.
 
 ### Docker (Self-Hosted Web Client)
-To host the Element web interface yourself (requires a separate homeserver like Synapse). As of May 2026, ensure you use the latest stable branch for Matrix 1.18+ compatibility.
+To host the Element web interface yourself (requires a separate homeserver like Synapse). As of June 2026, ensure you use the latest stable branch for Matrix 1.18+ compatibility.
 
 ```yaml
 services:
@@ -120,22 +120,10 @@ async def main():
     )
 
     # Advanced: Update room topic (State Event)
-    # Requires sufficient power level in the room
     await client.room_put_state(
         room_id=ROOM_ID,
         event_type="m.room.topic",
         content={"topic": "Garden Status: Active Alerts"},
-    )
-
-    # Advanced: Send a custom state event for automation tracking
-    await client.room_put_state(
-        room_id=ROOM_ID,
-        event_type="com.homelab.sensor_state",
-        state_key="garden_motion",
-        content={
-            "status": "alerting",
-            "last_seen": "2026-05-13T12:00:00Z"
-        }
     )
 
     await client.close()
@@ -157,7 +145,7 @@ curl -X POST \
 ```
 
 ## Related tools / concepts
-- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.153.0+).
+- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.155.0+).
 - [Dendrite](https://github.com/element-hq/dendrite) — A next-generation, high-performance Matrix homeserver.
 - [Home Assistant](home-assistant.md) — Frequently integrated with Element for notifications.
 - [Authentik](authentik.md) — Used for SSO authentication into Element/Matrix.
@@ -167,24 +155,16 @@ curl -X POST \
 - [Paperless-ngx](paperless-ngx.md) — For notifying users when new documents are indexed.
 - [SearXNG](searXNG.md) — For secure search results sharing within Element rooms.
 - [Vikunja](vikunja.md) — For task management notifications and team coordination.
-- [Element X](https://github.com/element-hq/element-x-android) — Successor mobile clients built with the Matrix Rust SDK for extreme performance.
-
-## Links
-- [Official Website](https://element.io/)
-- [GitHub Repository](https://github.com/vector-im/element-web)
-- [Matrix Protocol](https://matrix.org/)
-- [Matrix v1.18 Spec](https://matrix.org/blog/2026/03/26/matrix-v1.18-release/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-05-26
+- [Element X](https://github.com/element-hq/element-x-android) — Successor mobile clients built with the Matrix Rust SDK.
+- [Matrix Synapse Automation](https://github.com/matrix-org/synapse) — Deployment and management of self-hosted homeservers.
 
 ## Sources / References
-- https://element.io/
-- https://github.com/vector-im/element-web
-- https://matrix.org/docs/api/client-server/
-- https://github.com/8go/matrix-commander
-- https://matrix.org/blog/2026/03/26/matrix-v1.18-release/
+- [Official Element Website](https://element.io/)
+- [Element Web GitHub](https://github.com/vector-im/element-web)
+- [Matrix Client-Server API](https://matrix.org/docs/api/client-server/)
+- [Matrix Commander GitHub](https://github.com/8go/matrix-commander)
+- [Matrix v1.18 Release Blog](https://matrix.org/blog/2026/03/26/matrix-v1.18-release/)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-19
+- Confidence: high

@@ -1,6 +1,6 @@
 # Omni Tools
 
-Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of May 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities.
+Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of June 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities and Playwright-based health monitoring.
 
 ## What it is
 Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue. It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
@@ -63,11 +63,7 @@ services:
       - "8080:80"
 ```
 
-Start it with:
-
-```bash
-docker compose up -d
-```
+Start it with: `docker compose up -d`
 
 ## CLI examples
 Omni Tools itself is a web app rather than a CLI, but these commands cover the common operational tasks:
@@ -84,28 +80,35 @@ curl -I http://localhost:8080
 ```
 
 ## API examples
-Omni Tools does not expose a stable public automation API for transformations. Treat it as a browser UI and use health checks for operations:
+Omni Tools does not expose a stable public automation API for transformations. Treat it as a browser UI and use health checks or browser automation for operations:
 
+### Health Check (Curl)
 ```bash
 curl -fsS http://localhost:8080 >/dev/null && echo "omni-tools is reachable"
 ```
 
-For scripted transformations, use dedicated CLIs instead. For example, a local JSON formatting fallback can be:
+### Browser Automation Integration (Playwright)
+Since Omni Tools is a web app, you can automate complex transformations using Playwright or Puppeteer.
 
-```bash
-printf '%s\n' '{"service":"omni-tools","reachable":true}' > input.json
-python3 -m json.tool input.json > formatted.json
-cat formatted.json
+```python
+from playwright.sync_api import sync_playwright
+
+def automate_redaction(json_data):
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto("http://localhost:8080/json-formatter")
+
+        page.fill("textarea#input", json_data)
+        page.click("button#format")
+
+        formatted = page.inner_text("div#output")
+        browser.close()
+        return formatted
+
+raw_json = '{"user": "Jules", "id": "TEMP_ID_123"}'
+print(automate_redaction(raw_json))
 ```
-
-## Troubleshooting
-- If the page does not load, confirm the container is running with `docker ps --filter name=omni-tools` and that port `8080` is not already in use.
-- If reverse proxy assets fail, verify the proxy forwards the original host and path without stripping static asset prefixes.
-- If large files crash a browser tab, retry with a smaller file or switch to a server-side CLI designed for that media type.
-
-## Links
-- [GitHub Repository](https://github.com/iib0011/omni-tools)
-- [Docker Hub](https://hub.docker.com/r/iib0011/omni-tools)
 
 ## Related tools / concepts
 - [IT-Tools](it-tools.md) — A similar collection of web-based developer tools.
@@ -117,81 +120,11 @@ cat formatted.json
 - [Whisper](whisper.md) — For server-side audio-to-text processing.
 - [CyberChef](https://github.com/gchq/CyberChef) — The "Swiss Army Knife" of data transformations.
 
-## Advanced Extensibility
-
-Omni Tools can be extended by adding custom local modules or integrating with browser automation for repeatable tasks.
-
-### Adding Custom Local Modules
-To add your own tools to a self-hosted instance, you can mount custom JS modules into the container.
-
-1.  **Create a Module**: Define your tool in a JavaScript file (e.g., `my-custom-tool.js`).
-    ```javascript
-    // my-custom-tool.js
-    export const tool = {
-      name: "Family Repo Cleaner",
-      category: "Text",
-      execute: (input) => {
-        return input.replace(/TEMP_ID_(\d+)/g, "REDACTED");
-      }
-    };
-    ```
-2.  **Mount into Container**:
-    ```yaml
-    services:
-      omni-tools:
-        image: iib0011/omni-tools:latest
-        volumes:
-          - ./custom_tools:/app/public/tools/custom
-    ```
-
-### Browser Automation Integration (Playwright)
-Since Omni Tools is a web app, you can automate complex transformations using Playwright or Puppeteer.
-
-```python
-# Example: Automating a JSON format and Redaction via Omni Tools UI
-from playwright.sync_api import sync_playwright
-
-def automate_redaction(json_data):
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page()
-        page.goto("http://localhost:8080/json-formatter")
-
-        # Paste data into the UI
-        page.fill("textarea#input", json_data)
-        page.click("button#format")
-
-        # Extract the result
-        formatted = page.inner_text("div#output")
-        browser.close()
-        return formatted
-
-raw_json = '{"user": "Jules", "id": "TEMP_ID_123"}'
-print(automate_redaction(raw_json))
-```
-
-## Maintenance & Health
-Omni Tools is a static web application, so health monitoring focuses on the availability of the web server and the presence of key transformation modules in the UI.
-
-### Automated Health Checks (Playwright)
-A reference Playwright script is provided to verify the availability of key modules (JSON, Image, PDF) and confirm the interactive UI is responsive.
-
-```python
-# scripts/test_omni_tools_health.py
-# Usage: python3 scripts/test_omni_tools_health.py http://your-omni-tools-url
-```
-
-Run this script as part of your homelab CI/CD or via a scheduled task to ensure your local utility suite is functioning correctly.
-
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-26)
-- [x] Set up automated Playwright health checks for all modules. (Completed 2026-05-24)
-
 ## Sources / References
-- https://github.com/iib0011/omni-tools
-- https://hub.docker.com/r/iib0011/omni-tools
-- https://github.com/gchq/CyberChef
+- [Omni Tools GitHub](https://github.com/iib0011/omni-tools)
+- [Omni Tools Docker Hub](https://hub.docker.com/r/iib0011/omni-tools)
+- [CyberChef Repository](https://github.com/gchq/CyberChef)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-19
 - Confidence: high
-- Last reviewed: 2026-05-26
