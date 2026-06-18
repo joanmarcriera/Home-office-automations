@@ -1,36 +1,44 @@
 # Fiddler AI
 
+Fiddler is an Enterprise-grade Model Performance Management (MPM) platform that has expanded to include specialized tools for LLM observability and monitoring (Fiddler Auditor and Fiddler AI Observability). In the June 2026 landscape, it is a primary choice for monitoring frontier models like Claude 4.8 Opus and GPT-5.5 in production environments.
+
 ## What it is
-Fiddler is an Enterprise-grade Model Performance Management (MPM) platform that has expanded to include specialized tools for LLM observability and monitoring (Fiddler Auditor and Fiddler AI Observability).
+Fiddler is a comprehensive AI observability platform designed to provide trust and transparency for ML and Generative AI models. It features **Fiddler Auditor**, an open-source library for red-teaming and pre-production evaluation, and **Fiddler AI Observability**, which provides real-time monitoring, drift detection, and explainability for LLMs in production. It specializes in high-fidelity monitoring of complex reasoning chains and multi-modal outputs.
 
 ## What problem it solves
-For enterprises, AI reliability isn't just about accuracy; it's about governance, safety, and bias. Fiddler provides a robust framework for monitoring AI models in production, detecting drift, and ensuring models remain compliant and safe.
+For enterprises, AI reliability isn't just about accuracy; it's about governance, safety, and bias. Fiddler provides a robust framework for monitoring AI models in production, detecting drift, and ensuring models remain compliant and safe. It specifically addresses the "black box" nature of frontier models by providing "Explainable AI" (XAI) for both tabular and unstructured data, helping teams understand *why* an agent made a specific decision.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / Enterprise AI Observability
+It serves as the governance and monitoring layer for agentic workflows, often placed between the Inference Plane (e.g., LiteLLM) and the end application.
 
 ## Typical use cases
-- **LLM Safety Monitoring**: Detecting PII, toxicity, and hallucinations in production LLM traffic.
-- **Drift Detection**: Identifying when model performance begins to degrade over time as real-world data changes.
-- **Root Cause Analysis**: Using "Explainable AI" (XAI) features to understand why a model made a specific prediction or generated a specific response.
-- **Bias Auditing**: Ensuring AI applications are fair and non-discriminatory.
+- **Frontier LLM Safety Monitoring**: Detecting PII, toxicity, and hallucinations in production traffic for models like Claude 4.8 Opus and GPT-5.5.
+- **Drift Detection**: Identifying when model performance begins to degrade over time as real-world data changes or as base models are updated.
+- **Root Cause Analysis**: Using XAI features to understand the reasoning steps of autonomous agents.
+- **Bias Auditing**: Ensuring AI applications in regulated industries (Finance, Healthcare) remain fair and non-discriminatory.
+- **Red-Teaming**: Using Fiddler Auditor to stress-test LLMs before deployment.
 
 ## Strengths
 - **Enterprise-Ready**: Robust security, RBAC, and scalability for large organizations.
-- **Multimodal Support**: Can monitor traditional ML models as well as modern LLMs.
-- **Specialized LLM Metrics**: Includes advanced metrics for faithfulness and grounding.
-- **Focus on Trust**: Strong emphasis on AI ethics and governance.
+- **Multimodal Support**: Can monitor traditional ML models as well as modern LLMs and vision models.
+- **Specialized LLM Metrics**: Includes advanced metrics for faithfulness, grounding, and answer relevance.
+- **Explainability (XAI)**: Industry-leading tools for interpreting model behavior.
+- **Audit Trails**: Provides comprehensive logging for compliance and risk management.
 
 ## Limitations
 - **Target Audience**: Primarily built for large enterprises and data science teams; might be complex for individual developers.
-- **Commercial Focus**: It is a commercial platform, though they offer trials and community tiers.
+- **Commercial Focus**: It is a commercial platform, though they offer trials and a community edition for Fiddler Auditor.
+- **Resource Intensive**: Full monitoring of high-volume LLM traffic can require significant data throughput considerations.
 
 ## When to use it
 - When deploying high-stakes AI models in regulated industries (Finance, Healthcare).
-- When you need enterprise-grade governance and explainability.
+- When you need enterprise-grade governance, explainability, and safety guardrails.
+- When monitoring complex multi-step reasoning agents where hallucination detection is critical.
 
 ## When not to use it
-- For early-stage prototyping or solo hobby projects.
+- For early-stage prototyping or solo hobby projects where simpler tools like LangSmith might suffice.
+- If you are only using local, small-scale models with minimal safety requirements.
 
 ## Getting started
 
@@ -71,33 +79,37 @@ python -m fiddler --version
 
 ## API examples
 
-### Python (Evaluating Answer Relevance)
+### Python (Evaluating Answer Relevance for Claude 4.8)
 ```python
 import fiddler as fdl
 
-# Initialize evaluator
+# Initialize evaluator for high-fidelity responses
 evaluator = fdl.AnswerRelevance()
 
-# Run evaluation
+# Run evaluation on an agent's response
 result = evaluator.evaluate(
-    question="What is Fiddler?",
-    answer="Fiddler is an AI observability platform."
+    question="Explain the implications of MCP 3.0 for local-first agents.",
+    answer="MCP 3.0 allows for bidirectional tool use..."
 )
 print(result)
 ```
 
 ## Related tools / concepts
-- [Arize AI](./arize-ai.md)
-- [Weights & Biases](./wandb-weave.md)
-- [Datadog](./datadog.md)
-- [Sentry](./sentry.md)
-- [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md)
+- [Arize AI](./arize-ai.md) — Direct competitor in the MPM space.
+- [Braintrust](./braintrust.md) — Evaluation and observability for LLMs.
+- [Comet Opik](./comet-opik.md) — Open-source LLM tracing.
+- [AI Auditing Tools](./ai-auditing-tools.md) — Category-level overview of risk classification.
+- [Datadog](./datadog.md) — For general infrastructure monitoring of AI stacks.
+- [Sentry](./sentry.md) — For exception tracking in agentic applications.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for integrating observability tools.
+- [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md) — Core concepts Fiddler helps enforce.
 
 ## Sources / references
 - [Fiddler AI Website](https://www.fiddler.ai/)
 - [Fiddler SDK Documentation](https://docs.fiddler.ai/api)
 - [Fiddler LLM Observability Guide](https://www.fiddler.ai/llm-observability)
+- [Fiddler Auditor GitHub](https://github.com/fiddler-labs/fiddler-auditor)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high
