@@ -1,144 +1,128 @@
 # SearXNG Automation
 
-Patterns and tools for using SearXNG as a programmatic search provider.
+SearXNG Automation provides the patterns and programmatic interfaces for using a self-hosted [SearXNG](searXNG.md) instance as a primary knowledge retrieval layer for AI agents and automated workflows. In the June 2026 landscape, it serves as a privacy-preserving, high-performance alternative to commercial search APIs for "Deep Research" agents.
 
 ## What it is
-SearXNG Automation involves interacting with a self-hosted [SearXNG](searXNG.md) instance via its JSON API to provide web search capabilities to AI agents, scripts, and other services.
+SearXNG Automation is the practice of interacting with SearXNG's JSON API to perform aggregated web searches. It enables local LLMs and agents to browse the live web, bypass corporate tracking, and consolidate results from over 70 engines (including Google, Bing, DuckDuckGo, and Wikipedia) into a single, structured data stream. By 2026, it is frequently exposed via the **Model Context Protocol (MCP 3.0)** to provide frontier models like Claude 4.8 Opus and GPT-5.5 with real-time world knowledge.
 
 ## What problem it solves
-It provides a private, rate-limit-friendly way for local scripts and AI models to access web information. Unlike commercial search APIs (like Google or Bing), SearXNG is free to use once self-hosted and aggregates results from dozens of sources.
+It solves the dependency on expensive, data-hungry commercial search APIs (like Tavily or Google Search API). SearXNG Automation provides a "Search-as-a-Service" layer within a private homelab or enterprise network, offering unlimited queries without per-request costs, while protecting the user's IP and search history from upstream tracking.
 
 ## Where it fits in the stack
-**Category**: Services / Search Automation. It acts as the "Web Retrieval" layer for AI agents and automated research pipelines.
+**Category**: Services / Search Automation
+It serves as the **Retrieval Layer** for RAG (Retrieval-Augmented Generation) systems and the "eyes" for autonomous agents that need to fact-check or research topics beyond their training data.
 
 ## Typical use cases
-- Giving a local LLM (via [Ollama](ollama.md) or [LiteLLM](litellm.md)) the ability to search the live web.
-- Automated brand monitoring or news aggregation scripts.
-- Building a private "Daily Briefing" that searches for specific topics every morning.
-- Programmatically checking for broken links or updated information on specific sites.
+- **AI Deep Research**: Powering local "Perplexity-style" search agents that synthesize information from multiple web sources.
+- **Automated Fact-Checking**: Scripts that verify claims by querying authoritative sources (Wikipedia, Arxiv) via SearXNG.
+- **Privacy-First News Aggregation**: Creating daily custom digests without being profiled by news trackers.
+- **Price and Availability Monitoring**: Programmatically checking for product updates across diverse e-commerce engines.
+- **Agentic Information Retrieval**: Allowing a Claude 4.8 agent to decide when it needs to "look up" information to complete a task.
 
 ## Strengths
-- **No API Keys**: Once hosted, you have full control and no per-query costs.
-- **Aggregated Data**: Access results from Google, Bing, Wikipedia, and 70+ others in one request.
-- **Privacy**: Your automated queries are proxied and stripped of tracking data.
-- **JSON Output**: Results are returned in a clean, machine-readable format.
-- **Agent-Optimized (2026)**: New API metadata including engine health and "trust scores" for individual results.
+- **Privacy-Centric**: Aggregates and proxies requests, stripping all identifying information from upstream engines.
+- **Cost-Effective**: Zero marginal cost per query once the instance is hosted.
+- **Highly Aggregated**: Access to specialized engines (Scientific, Files, Images, Social Media) in a single request.
+- **JSON-Native**: Returns clean, machine-readable results that are easy for LLMs to parse.
+- **Extensible**: Easy to add custom search engines or filter existing ones via `settings.yml`.
 
 ## Limitations
-- **Upstream Blocking**: High-frequency automation can lead to your SearXNG IP being blocked by major search engines (use proxies if needed).
-- **Format Stability**: Changes in upstream engine HTML can occasionally break scrapers, requiring SearXNG updates.
-- **Latency**: Aggregate search latency is limited by the slowest enabled engine.
+- **Upstream Resilience**: High-volume automation can lead to IP blocks if not managed via a rotating proxy pool.
+- **Latency**: The search speed is limited by the slowest upstream engine; timeouts must be carefully tuned.
+- **Scraper Fragility**: Changes to upstream search engine HTML can occasionally break individual engines until the next SearXNG update.
 
 ## When to use it
-- When building AI agents that need to browse the web without expensive API fees.
-- When you want to maintain full privacy for your automated search queries.
-- For niche research tasks that require data from multiple search engines simultaneously.
+- When building private AI agents that require web access.
+- When you need to search multiple specialized engines (e.g., GitHub, StackOverflow, and Reddit) simultaneously.
+- When you want to avoid the cost and tracking associated with commercial search APIs.
 
 ## When not to use it
-- For extremely high-volume (thousands per minute) search tasks without a sophisticated proxy setup.
-- If you need real-time, millisecond-latency search results (SearXNG latency is tied to the slowest upstream engine).
+- For ultra-low latency requirements (sub-200ms) where a single-engine direct API might be faster.
+- For extremely high-volume enterprise traffic without a sophisticated proxy and infrastructure setup.
 
 ## Getting started
 
-### Prerequisites
-- A running [SearXNG](searXNG.md) instance.
-- JSON output enabled in `settings.yml`:
-  ```yaml
-  search:
-    formats:
-      - html
-      - json
-  ```
+### Enable JSON Output
+Ensure the JSON format is enabled in your `settings.yml`:
 
-### Hello World (curl)
-Test the API from your command line:
-```bash
-curl "http://localhost:8080/search?q=open+source+llm&format=json"
+```yaml
+search:
+  formats:
+    - html
+    - json
 ```
 
-### Hello World (Python)
-```python
-import requests
-
-def search_searxng(query):
-    url = "http://localhost:8080/search"
-    params = {"q": query, "format": "json"}
-    response = requests.get(url, params=params)
-    return response.json()
-
-results = search_searxng("Model Context Protocol")
-print(f"Top Result: {results['results'][0]['title']}")
+### Basic API Call (curl)
+```bash
+curl "http://localhost:8080/search?q=Model+Context+Protocol&format=json"
 ```
 
 ## CLI examples
 
-Automation often involves filtering results via command line tools like `jq`.
-
+### Filter Results with jq
+Get the top 3 URLs and titles for a query:
 ```bash
-# Get only the URLs of the top 5 results
-curl -s "http://localhost:8080/search?q=homelab&format=json" | jq -r '.results[:5][].url'
+curl -s "http://localhost:8080/search?q=homelab+automation&format=json" | \
+jq -r '.results[:3][] | "\(.title): \(.url)"'
+```
 
-# Search specifically for images and save the first URL to a file
-curl -s "http://localhost:8080/search?q=sunset&categories=images&format=json" | jq -r '.results[0].img_src' > image_url.txt
+### Search Specific Categories
+Limit the search to the "science" category:
+```bash
+curl -s "http://localhost:8080/search?q=quantum+computing&categories=science&format=json"
+```
 
-# Search Wikipedia via SearXNG
-curl -s "http://localhost:8080/search?q=Python&engines=wikipedia&format=json" | jq -r '.results[0].content'
+### Scripted Engine Selection
+Search only Wikipedia and DuckDuckGo:
+```bash
+curl -s "http://localhost:8080/search?q=Python&engines=wikipedia,duckduckgo&format=json"
 ```
 
 ## API examples
 
-### LangChain Integration
-SearXNG is a first-class tool in the LangChain ecosystem.
+### Python (Simple Search Client)
+```python
+import requests
 
+def search(query, engines=["google", "bing"]):
+    url = "http://localhost:8080/search"
+    params = {
+        "q": query,
+        "format": "json",
+        "engines": ",".join(engines)
+    }
+    response = requests.get(url, params=params)
+    return response.json().get('results', [])
+
+results = search("Best privacy-first LLMs")
+for r in results[:2]:
+    print(f"{r['title']} - {r['url']}")
+```
+
+### LangChain Integration
 ```python
 from langchain_community.utilities import SearxSearchWrapper
 
-# Configure the wrapper
 search = SearxSearchWrapper(searx_host="http://localhost:8080")
-
-# Run a query
-output = search.run("What are the latest features of n8n?")
-print(output)
-```
-
-### n8n Integration (HTTP Request)
-In [n8n](n8n.md), use the **HTTP Request** node to fetch search results:
-- **Method**: GET
-- **URL**: `http://searxng:8080/search`
-- **Query Parameters**:
-  - `q`: `{{ $json["query"] }}`
-  - `format`: `json`
-- This allows your workflows to "research" topics before making decisions or sending notifications.
-
-## Agentic Workflows with Playwright
-For "Deep Search" patterns, use SearXNG to find URLs, then [Playwright](../tools/development_ops/playwright.md) to scrape the content for extraction by [Unstructured.io](../tools/process_understanding/unstructured.md).
-
-```python
-# Pattern: Discover -> Scrape -> Extract
-urls = search_searxng("latest AI news")[:3]
-for url in urls:
-    # Use Playwright to handle SPA/JS-heavy sites
-    # Then send to Unstructured for clean text
-    pass
+result = search.run("What is the latest version of Matrix Synapse?")
+print(result)
 ```
 
 ## Related tools / concepts
-- [SearXNG](searXNG.md) (The core service)
-- [n8n](n8n.md) (To orchestrate search-based workflows)
-- [Ollama](ollama.md) (To process search results with local AI)
-- [LiteLLM](litellm.md) (Unified interface for search-enabled LLMs)
-- [Playwright](../tools/development_ops/playwright.md) (For deep scraping of search results)
-- [Unstructured.io](../tools/process_understanding/unstructured.md) (For cleaning scraped content)
-- [LangChain](../tools/ai_knowledge/langchain.md) (For building search-enabled agents)
-- [Tavily](../tools/providers/tavily.md) (Commercial alternative)
+- [SearXNG](searXNG.md) — The core self-hosted search engine.
+- [n8n](n8n.md) — For orchestrating search-based automation workflows.
+- [LiteLLM](../services/litellm.md) — Unified inference proxy for search-enabled agents.
+- [Ollama](../services/ollama.md) — Local LLM runner that can ingest SearXNG results.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Used to expose SearXNG as a tool for agents.
+- [Playwright](../tools/development_ops/playwright.md) — Used for deep-scraping URLs discovered by SearXNG.
+- [Tavily](../tools/providers/tavily.md) — Commercial alternative for AI-optimized search.
+- [Perplexity Agent API](../tools/agents/perplexity-agent-api.md) — Managed search-as-an-agent service.
 
-## Sources / References
-- [SearXNG API Documentation](https://docs.searxng.org/dev/search_api.html)
-- [LangChain SearXNG Documentation](https://python.langchain.com/docs/integrations/tools/searx_search/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
+## Sources / references
+- [SearXNG Official API Docs](https://docs.searxng.org/dev/search_api.html)
+- [SearXNG Settings Guide](https://docs.searxng.org/admin/settings/settings.html)
+- [Agentic Search Patterns (2026)](https://ai.riera.co.uk/knowledge_base/patterns/agentic-search)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-18
 - Confidence: high
-- Last reviewed: 2026-05-27

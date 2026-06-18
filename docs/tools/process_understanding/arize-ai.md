@@ -1,98 +1,108 @@
 # Arize AI
 
+Arize AI is a foundational platform for AI Observability and Model Performance Management (MPM). In the June 2026 landscape, it serves as a critical "Inference Watchtower" for enterprises deploying complex agents powered by Claude 4.8 Opus and GPT-5.5, ensuring that autonomous reasoning remains grounded, safe, and efficient.
+
 ## What it is
-Arize AI is an AI observability and LLM evaluation platform designed to help teams monitor, troubleshoot, and improve their machine learning models and AI agents. It provides specialized tools for tracing, evaluation, and root-cause analysis of LLM applications.
+Arize AI is an end-to-end AI observability platform that allows teams to monitor, troubleshoot, and evaluate ML models and LLM applications. Its core offering includes **Arize Phoenix**, a local-first, open-source library for agentic tracing and evaluation that has become the industry standard for development-time observability. In 2026, it features native **MCP 3.0** integration, allowing for seamless injection of observability spans into any agentic tool-use cycle.
 
 ## What problem it solves
-It addresses the lack of visibility into complex AI systems (the "black box" problem). It helps identify performance regressions, hallucinations, and data drift in real-time, allowing for faster debugging and more reliable production deployments.
+It addresses the "black box" challenge of generative AI. By providing deep visibility into embedding clusters, retrieval patterns, and agent reasoning steps, Arize AI helps teams identify *why* a model hallucinated or why an agent entered an infinite tool-use loop. It quantifies "vibe checks" into rigorous metrics for faithfulness, relevance, and safety.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Observability
+**Category**: Process & Understanding / AI Observability
+Arize sits in the Monitoring and Governance layer. It consumes traces from the Inference Plane (e.g., LiteLLM) and provides feedback loops to the Evaluation and Fine-tuning stages.
 
 ## Typical use cases
-- **LLM Tracing**: Visualizing the full execution flow of agentic workflows.
-- **Evaluation**: Running automated benchmarks and custom evaluations on model outputs.
-- **Drift Detection**: Monitoring for changes in data distributions or model behavior over time.
-- **Dataset Management**: Curating and managing datasets for fine-tuning and evaluation.
+- **Agent Reasoning Tracing**: Visualizing the multi-step decision process of a Claude 4.8 Opus agent to debug logic errors.
+- **RAG Troubleshooting**: Using embedding visualization to identify "knowledge gaps" in a vector database.
+- **Hallucination Detection**: Automatically scoring production responses for factual grounding against a reference knowledge base.
+- **Drift Monitoring**: Detecting when a model's performance shifts due to changes in user behavior or upstream data sources.
+- **Cost Analytics**: Tracking token usage and ROI across multiple model providers and agent clusters.
 
 ## Strengths
-- **Native OpenRouter Integration**: Directly supports log ingestion from OpenRouter.
-- **Phoenix (Open Source)**: Offers a local-first, open-source version (Arize Phoenix) for development and private hosting.
-- **End-to-End Tracing**: Excellent visualization of complex, multi-step agent actions.
+- **Phoenix Open Source**: The ability to run full tracing locally or on-premise without sending data to a third-party cloud.
+- **Embedding Visualization**: Best-in-class UMAP/t-SNE visualizations for understanding high-dimensional data.
+- **Enterprise-Grade MPM**: Robust tools for traditional ML models (tabular, computer vision) alongside modern LLM tools.
+- **OpenInference Support**: Adherence to open standards for tracing, ensuring compatibility with most AI frameworks.
 
 ## Limitations
-- **Complexity**: Can have a steep learning curve for advanced observability features.
-- **Hosted Cost**: Enterprise features require a paid subscription.
+- **Complexity**: The platform is feature-rich and can be overwhelming for teams just starting with simple LLM wrappers.
+- **Managed Cost**: While Phoenix is free, the full Arize SaaS platform for high-volume production data is a significant enterprise investment.
 
 ## When to use it
-- When moving an LLM application from prototype to production.
-- When you need deep, trace-level visibility into agent decision-making.
+- When you are deploying agents that handle sensitive data or make autonomous decisions in production.
+- When you need to visualize embeddings or troubleshoot complex RAG retrieval failures.
+- When you require a unified observability platform for both traditional ML and LLMs.
 
 ## When not to use it
-- For very simple, single-prompt applications where basic logging is sufficient.
+- For early-stage prototyping where simple logging (e.g., to a local JSON file) is sufficient for debugging.
+- If you have a very simple application that does not involve RAG or multi-step agent logic.
 
 ## Getting started
 
-Install the Arize Phoenix library for local tracing:
+Install Arize Phoenix for local tracing:
 
 ```bash
 pip install arize-phoenix
 ```
 
-Initialize local tracing in your Python code:
+Launch the Phoenix UI locally:
 
 ```python
 import phoenix as px
-px.launch_app()
+session = px.launch_app()
 ```
 
 ## CLI examples
 
-### px.launch_app()
-Starts the local Phoenix UI:
-```bash
-python -c "import phoenix as px; px.launch_app()"
-```
-
 ### phoenix
-If installed via pip, starts the Phoenix server:
+Starts the local Phoenix server for visualization:
 ```bash
 phoenix
 ```
 
-### px project list
-Lists all available projects (requires `@arizeai/phoenix-cli` or similar environment):
+### px.launch_app()
+Equivalent to the CLI command, used within Python scripts or notebooks:
 ```bash
-px project list
+python -c "import phoenix as px; px.launch_app()"
+```
+
+### curl (Exporting Traces)
+Querying the Phoenix API for recent traces:
+```bash
+curl http://localhost:6006/api/v1/traces
 ```
 
 ## API examples
 
 ### Python (Tracing with OpenInference)
-Arize Phoenix uses OpenInference to automatically trace popular frameworks:
+Automatically instrument a LangChain or LlamaIndex application:
 
 ```python
 from phoenix.trace.langchain import LangChainInstrumentor
 
-# Initialize instrumentor
+# Instrument the application
 LangChainInstrumentor().instrument()
 
-# Your LangChain code here...
-# Traces will now be sent to your local Phoenix instance.
+# Now, any LangChain call using GPT-5.5 or Claude 4.8
+# will be automatically visible in the Phoenix UI.
 ```
 
 ## Related tools / concepts
-- [Langfuse](./langfuse.md)
-- [PostHog](./posthog.md)
-- [LangSmith](../benchmarking/langsmith.md)
-- [Weights & Biases](./wandb-weave.md)
-- [AgentOps](./agentops.md)
+- [Braintrust](./braintrust.md) — Evaluation-first observability competitor.
+- [Fiddler AI](./fiddler.md) — Focuses on enterprise explainability and governance.
+- [Comet Opik](./comet-opik.md) — Open-source LLM tracing alternative.
+- [LangSmith](../benchmarking/langsmith.md) — Observability platform for the LangChain ecosystem.
+- [LiteLLM](../../services/litellm.md) — Proxy layer that often serves as the trace source for Arize.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for integrating agent tools and observability.
+- [Langfuse](./langfuse.md) — Open-source observability and analytics platform.
+- [Weights & Biases](./wandb-weave.md) — Experiment tracking and LLM evaluation.
 
 ## Sources / references
-- [Official Website](https://arize.com/)
+- [Arize AI Official Website](https://arize.com/)
 - [Arize Phoenix GitHub](https://github.com/Arize-ai/phoenix)
-- [OpenRouter Logging Guide](https://openrouter.ai/docs/guides/logging)
+- [Arize Documentation](https://docs.arize.com/arize)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high

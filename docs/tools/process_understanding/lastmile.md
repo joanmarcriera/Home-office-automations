@@ -1,101 +1,112 @@
 # LastMile AI
 
+LastMile AI is a specialized platform for the evaluation and reliability engineering of LLM-based applications. In the June 2026 AI stack, it is recognized for its "Evaluation as a Service" (EaaS) model, which provides high-fidelity, automated scoring for the reasoning outputs of frontier models like Claude 4.8 Opus and GPT-5.5.
+
 ## What it is
-LastMile AI is an evaluation and observability platform for LLM applications, with a strong focus on "AI Auto-evals." It provides tools for systematically testing AI outputs and ensuring they meet quality standards before reaching the end user.
+LastMile AI is a comprehensive evaluation workspace that allows developers to design, run, and analyze complex AI test suites. Its primary innovation is the **AI Auto-Eval** framework, which uses specialized "judge" models to grade application outputs on criteria such as factuality, instruction adherence, and safety. By 2026, it has fully integrated with the **Model Context Protocol (MCP 3.0)**, enabling it to evaluate not just final outputs, but the intermediate tool-use steps of autonomous agents.
 
 ## What problem it solves
-Manual evaluation of AI outputs doesn't scale. LastMile AI automates this process by using "evaluators" (small, specialized models or heuristics) to score outputs for factual accuracy, tone, safety, and adherence to instructions.
+It solves the "scalability bottleneck" of manual evaluation. As AI systems become more complex and autonomous, humans can no longer review every response for quality. LastMile AI provides a systematic, repeatable way to measure the impact of changes to prompts, RAG retrieval parameters, or model versions, ensuring that performance improvements in one area don't cause regressions in another.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / AI Evaluation
+LastMile AI fits into the **Validation and Testing** layer of the AI lifecycle. It typically sits between the development environment and the production deployment, serving as a quality gate in the CI/CD pipeline.
 
 ## Typical use cases
-- **Pre-deployment Testing**: Running large-scale evaluations on potential prompt changes.
-- **Production Guardrails**: Using real-time evaluations to block or flag unsafe or low-quality AI responses.
-- **RAG Evaluation**: Specifically measuring the retrieval quality and grounding of RAG systems.
-- **Model Comparison**: Benchmarking different models (e.g., GPT-4 vs. Claude 3) on your specific business data.
+- **Golden Set Benchmarking**: Running every version of a system prompt against a curated set of "perfect" answers to measure accuracy.
+- **RAG Quality Assessment**: Measuring the "grounding" of a response (does the answer only use the provided context?) and "retrieval relevance."
+- **Agentic Logic Validation**: Evaluating whether an agent selected the correct tool and used the correct arguments for a given task.
+- **Red Teaming at Scale**: Automatically generating adversarial inputs to test the safety guardrails of a production model.
+- **Model Comparison (e-vals)**: Running a head-to-head comparison between GPT-5.5 and Claude 4.8 on domain-specific data.
 
 ## Strengths
-- **Extensible Evaluators**: Large library of pre-built evaluators and easy tools for building custom ones.
-- **Integration with CI/CD**: Designed to be part of a modern software development lifecycle.
-- **Detailed Analytics**: Deep dives into why certain evaluations failed.
-- **Agnostic**: Works across various providers and frameworks.
+- **Library of Evaluators**: Dozens of pre-built, science-backed evaluators for common metrics like NER, sentiment, and factuality.
+- **Developer-First CLI**: A powerful command-line interface that allows for running evaluations directly from local code or CI scripts.
+- **Deep RAG Support**: Specialized tools for evaluating the entire RAG pipeline, from retrieval to synthesis.
+- **Visualization Dashboard**: High-quality visual reports that highlight exactly where a model failed a specific evaluation.
 
 ## Limitations
-- **Complexity**: Requires a structured approach to testing that might have a learning curve for smaller projects.
-- **Platform-Centric**: Best experienced through their cloud-based evaluation dashboard.
+- **Cost of Judges**: Running automated evaluations using frontier models (as judges) can incur significant token costs.
+- **Complexity of Setup**: Defining robust "Golden Sets" and custom evaluators requires a structured approach to data engineering.
 
 ## When to use it
-- When you need to automate your AI testing pipeline.
-- When you are scaling a RAG application and need to measure retrieval accuracy.
+- When you are building production-ready RAG applications where accuracy is non-negotiable.
+- When you need to provide stakeholders with quantitative evidence of AI performance improvements.
+- When you want to implement automated "judge" patterns without building your own evaluation infrastructure.
 
 ## When not to use it
-- For very simple, exploratory prompt engineering where manual inspection is sufficient.
+- For early-stage "vibe check" prototyping where manual inspection of a few outputs is sufficient.
+- If you are building a simple chatbot with no retrieval or complex logic that doesn't require rigorous testing.
 
 ## Getting started
 
-Install the LastMile SDK:
+Install the LastMile Python client:
 
 ```bash
 pip install lastmile-ai
 ```
 
-Set up your API token:
+Configure your API credentials:
 
 ```python
 import os
-os.environ["LASTMILE_API_TOKEN"] = "your_token_here"
+os.environ["LASTMILE_API_TOKEN"] = "YOUR_TOKEN"
 ```
 
 ## CLI examples
 
+### lastmile eval run
+Executes a pre-defined evaluation suite and outputs results to the terminal:
+```bash
+lastmile eval run --suite "customer-support-golden-set"
+```
+
+### lastmile dataset upload
+Uploads a local dataset (CSV/JSONL) to be used for evaluations:
+```bash
+lastmile dataset upload ./data/test_cases.jsonl --name "mcp-tool-use-cases"
+```
+
 ### lastmile login
-Authenticates with the LastMile platform:
+Authenticates the CLI with your LastMile AI account:
 ```bash
 lastmile login
 ```
 
-### lastmile eval run
-Executes a defined evaluation suite:
-```bash
-lastmile eval run --suite my-test-suite
-```
-
-### lastmile dataset upload
-Uploads a local CSV or JSONL for evaluation:
-```bash
-lastmile dataset upload data.csv
-```
-
 ## API examples
 
-### Python (Auto-evaluating a response)
+### Python (Auto-Evaluating RAG Grounding)
 ```python
 from lastmile import AutoEval
 
-# Initialize evaluator
 evaluator = AutoEval()
 
-# Evaluate a response against a prompt
-results = evaluator.evaluate(
-    input="What is the capital of France?",
-    output="The capital of France is Paris.",
-    metrics=["factuality", "conciseness"]
+# Check if the output is grounded in the provided context
+result = evaluator.evaluate(
+    input="What are the specs of the 2026 Model X?",
+    context="The 2026 Model X features a 120kWh battery and dual motors.",
+    output="The 2026 Model X has a 120kWh battery.",
+    metrics=["faithfulness"]
 )
-print(results)
+
+print(f"Faithfulness Score: {result.scores['faithfulness']}")
 ```
 
 ## Related tools / concepts
-- [Ragas](./ragas.md)
-- [Promptfoo](../benchmarking/promptfoo.md)
-- [LangSmith](../benchmarking/langsmith.md)
-- [Arize AI](./arize-ai.md)
-- [Braintrust](./braintrust.md)
+- [Ragas](./ragas.md) — Open-source framework for RAG evaluation.
+- [Promptfoo](../benchmarking/promptfoo.md) — CLI tool for testing prompts.
+- [Braintrust](./braintrust.md) — Evaluation and observability platform.
+- [Arize AI](./arize-ai.md) — Observability and MPM platform with Phoenix.
+- [LangSmith](../benchmarking/langsmith.md) — Part of the LangChain ecosystem for evaluation.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for agent tool-use, which LastMile can evaluate.
+- [Glaive](../providers/glaive.md) — Synthetic data provider often used to generate evaluation sets.
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Target for logic and tool-use evaluation.
 
 ## Sources / references
-- [LastMile AI Website](https://lastmileai.dev/)
+- [LastMile AI Official Website](https://lastmileai.dev/)
 - [LastMile AI Documentation](https://docs.lastmileai.dev/)
+- [AI Evaluation Best Practices (2026)](https://lastmileai.dev/blog/eval-as-a-service-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high
