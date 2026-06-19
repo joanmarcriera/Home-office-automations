@@ -19,6 +19,7 @@ Accessing reliable information usually requires an active internet connection. K
 - **Privacy-First Research**: Browsing Wikipedia or Stack Overflow without being tracked by ISPs or site owners.
 - **Low-Bandwidth Environments**: Accessing content at LAN speeds instead of waiting for slow satellite or cellular links.
 - **Developer Documentation**: Using `devdocs2zim` to keep offline copies of programming docs (API reference, MDN, etc.).
+- **Agentic Knowledge Synthesis**: Serving as a grounded, offline corpus for local LLMs (like Llama 4 via [Ollama](ollama.md)) and Claude 4.8 Opus for RAG-based reasoning in disconnected environments.
 
 ## Strengths
 
@@ -57,7 +58,7 @@ docker run -d \
   --name kiwix \
   -p 8080:80 \
   -v /path/to/zims:/data \
-  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-02.zim
+  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-06.zim
 ```
 
 Access the content at `http://localhost:8080`.
@@ -124,15 +125,19 @@ curl -X GET "http://localhost:8080/catalog.xml"
 curl -G "http://localhost:8080/search" --data-urlencode "content=wikipedia" --data-urlencode "pattern=Einstein"
 ```
 
-### Python Example
+### Python Example for RAG Ingestion
 ```python
 import requests
+import xml.etree.ElementTree as ET
 
 # Fetch the library information in XML format
 response = requests.get("http://localhost:8080/catalog.xml")
 if response.status_code == 200:
-    print("Kiwix Library Catalog:")
-    print(response.text[:500] + "...")
+    root = ET.fromstring(response.content)
+    print("Kiwix Library Catalog Entries:")
+    for entry in root.findall('{http://www.w3.org/2005/Atom}entry'):
+        title = entry.find('{http://www.w3.org/2005/Atom}title').text
+        print(f"- {title}")
 ```
 
 ## Related tools / concepts
@@ -144,9 +149,9 @@ if response.status_code == 200:
 - [Nextcloud](nextcloud.md) — For syncing ZIM files across devices for offline use.
 - [Tika](tika.md) — Useful for processing and indexing the content within an offline knowledge base.
 - [SearXNG](searXNG.md) — Can be configured to prioritize local Kiwix results.
-- [Internet-in-a-Box](https://internet-in-a-box.org/) — A full hardware/software stack for offline knowledge.
+- [Ollama](ollama.md) — For local inference using Kiwix as a grounded knowledge source.
 
-## Sources / References
+## Sources / references
 
 - [Official Website](https://www.kiwix.org/)
 - [Kiwix Get (Downloads)](https://get.kiwix.org/)
@@ -155,10 +160,7 @@ if response.status_code == 200:
 - [Xowa](http://xowa.org/)
 - [Aard 2](https://github.com/itkach/aard2-android)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-19
 - Confidence: high

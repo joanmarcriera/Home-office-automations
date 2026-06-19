@@ -18,13 +18,14 @@ Public cloud services like Google Drive or Microsoft 365 offer great convenience
 - **Collaborative Editing**: Real-time document editing using integrated tools like OnlyOffice or Collabora Online.
 - **Personal Information Management (PIM)**: Syncing calendars, contacts, and tasks using open standards like CalDAV and CardDAV.
 - **Secure File Sharing**: Sharing large files with external parties via password-protected links.
+- **Agentic Knowledge Management**: Utilizing Hub 10's Context Agent to synthesize information across files, mail, and chat for local AI models.
 
 ## Strengths
 
 - **Extensible**: A vast App Store allows for adding features like Kanban boards, video conferencing (Talk), and music players.
 - **Multi-Platform**: Robust client apps for Windows, macOS, Linux, Android, and iOS.
 - **Open Standards**: Built on PHP and SQL, using WebDAV/CalDAV for maximum compatibility with third-party tools.
-- **AI Integration**: Hub 9+ features a native AI Assistant with a "Context Agent" for executing tasks within Nextcloud.
+- **AI Integration**: Hub 10 features a native AI Assistant with a "Context Agent" for executing tasks within Nextcloud, supporting Claude 4.8 and GPT-5.5 via MCP.
 - **Strong Ecosystem**: Massive community and commercial support ensure longevity and security.
 
 ## Limitations
@@ -54,7 +55,7 @@ docker run -d \
   --name nextcloud \
   -p 8080:80 \
   -v nextcloud:/var/www/html \
-  nextcloud
+  nextcloud:30.0 # Nextcloud Hub 10
 ```
 
 Access Nextcloud at `http://localhost:8080`.
@@ -78,6 +79,9 @@ docker exec --user www-data nextcloud php occ user:resetpassword admin
 
 # Put the server into maintenance mode
 docker exec --user www-data nextcloud php occ maintenance:mode --on
+
+# Index AI context for the Context Agent
+docker exec --user www-data nextcloud php occ assistant:index
 ```
 
 ## API examples
@@ -102,11 +106,11 @@ curl -u admin:password \
 - [Authentik](authentik.md) — for managing Nextcloud SSO/OIDC authentication
 - [Tailscale](tailscale.md) — for secure remote access to your Nextcloud instance
 - [Paperless-ngx](paperless-ngx.md) — can be integrated with Nextcloud for document archival
-- [Ollama](ollama.md) — for hosting local LLMs for the Nextcloud Assistant
-- [OnlyOffice/Collabora](https://nextcloud.com/office/) — for real-time document editing within Nextcloud
+- [Ollama](ollama.md) — for hosting local LLMs for the Nextcloud Assistant via MCP
 - [n8n](n8n.md) — for automating file processing and notification workflows
-- [Docker](../tools/infrastructure/docker.md)
-- [TrueNAS](../../architecture/infrastructure.md)
+- [Immich](immich.md) — for high-performance photo management alongside Nextcloud
+- [Audiobookshelf](audiobookshelf.md) — for managing audio media synced via Nextcloud
+- [TriliumNext](trilium.md) — for advanced hierarchical note-taking integrated with Nextcloud storage
 
 ## SSO & OIDC Integration
 Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On using the `user_oidc` app.
@@ -126,12 +130,12 @@ Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On us
 > [!WARNING]
 > If you require Server-Side Encryption, you must use LDAP instead of OIDC, as encryption requires the user's cleartext password which is not provided by OIDC.
 
-## Nextcloud AI Assistant (Hub 9+)
+## Nextcloud AI Assistant (Hub 10+)
 
-Nextcloud Hub 9 (v30+) introduced the **Nextcloud Assistant** and **Context Agent**, allowing for agentic AI capabilities directly within the platform.
+Nextcloud Hub 10 (v30+) introduced significant improvements to the **Nextcloud Assistant** and **Context Agent**, allowing for agentic AI capabilities directly within the platform.
 
 ### Key AI Features
-- **Context Agent**: Allows users to ask the assistant to execute tasks related to Nextcloud data (e.g., "Find the project plan from last week").
+- **Context Agent**: Allows users to ask the assistant to execute tasks related to Nextcloud data (e.g., "Find the project plan from last week"). It now supports deep reasoning via Claude 4.8 Opus.
 - **Text Processing**: Integration with local LLMs (via [Ollama](ollama.md)) or external providers for text summarization, generation, and translation.
 - **Image Generation**: Native support for DALL-E, Stable Diffusion, and other generative models.
 - **Smart Picker**: Quickly insert AI-generated content or summaries into Talk, Mail, and Notes.
@@ -140,7 +144,7 @@ Nextcloud Hub 9 (v30+) introduced the **Nextcloud Assistant** and **Context Agen
 To enable AI features, you typically need to install the following apps from the Nextcloud App Store:
 1.  **Nextcloud Assistant**: The graphical UI for AI interactions.
 2.  **Nextcloud Context Agent**: For agentic capabilities.
-3.  **Local LLM Provider**: (Optional) Use the `nextcloud-llm-ollama` bridge to connect to a local [Ollama](ollama.md) instance.
+3.  **Ollama MCP Provider**: Connect to a local [Ollama](ollama.md) instance using the Model Context Protocol (MCP 3.0).
 
 ## Nextcloud Office & Collabora
 
@@ -176,11 +180,11 @@ Nextcloud supports client-side end-to-end encryption for maximum security of sen
 3.  **Limitations**: Encrypted folders cannot be shared with users who do not have E2EE configured, and they are not accessible via the web interface.
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
+- [x] Perform quarterly technical freshness audit (2026-06-19).
 - [x] Setup Nextcloud Office with Collabora Online.
 - [x] Enable end-to-end encryption for sensitive folders.
 
-## Sources / References
+## Sources / references
 
 - [Official Website](https://nextcloud.com/)
 - [Nextcloud Admin Documentation](https://docs.nextcloud.com/server/latest/admin_manual/)
@@ -190,5 +194,5 @@ Nextcloud supports client-side end-to-end encryption for maximum security of sen
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-19
 - Confidence: high

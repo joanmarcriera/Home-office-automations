@@ -4,15 +4,16 @@
 Portracker is a specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments. It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
 
 ## What problem it solves
-It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans.
+It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans. In a June 2026 context, it serves as a critical observability layer for "Agentic Infrastructure" where autonomous agents may spin up or scale services dynamically.
 
 ## Where it fits in the stack
-It is a **Network Observability Tool**, typically deployed at the edge of a home lab network to monitor the Docker host or the local subnet.
+It is a **Network Observability Tool**, typically deployed at the edge of a home lab network to monitor the Docker host or the local subnet. It sits alongside [Home Assistant](home-assistant.md) in the management plane.
 
 ## Typical use cases
 - Monitoring a Docker host for new or exposed services.
 - Mapping port assignments to prevent conflicts during service deployment.
 - Auditing the local network for unintended open ports on IoT devices.
+- Observability for agentic workflows (e.g., [n8n](n8n.md) or [OpenClaw](../development_ops/openclaw.md) auto-deployments).
 
 ## Strengths
 - **Real-time Discovery**: Near-instant discovery of service changes and port mappings.
@@ -122,9 +123,6 @@ if __name__ == '__main__':
     app.run(port=5000)
 ```
 
-## Links
-- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
-
 ## Peer-to-Peer Monitoring
 Portracker supports a decentralized monitoring model where multiple instances can be linked together.
 
@@ -133,28 +131,25 @@ Portracker supports a decentralized monitoring model where multiple instances ca
 - **Consolidated View**: View all your servers, containers, and VMs from a single dashboard without a central server.
 
 ## Related tools / concepts
-- [Home Assistant](home-assistant.md)
-- [Tailscale](tailscale.md)
-- [Gitea](gitea.md)
-- [Syncthing](syncthing.md)
-- [Storj](storj.md)
-- [Netdata](https://www.netdata.cloud/)
-- [Uptime Kuma](https://uptime.kuma.pet/)
-- [n8n](n8n.md)
-- [Rclone Automation](rclone-automation.md)
+- [Home Assistant](home-assistant.md) — For centralized homelab management.
+- [Tailscale](tailscale.md) — For secure access to the Portracker dashboard.
+- [Gitea](gitea.md) — For managing the infrastructure-as-code monitored by Portracker.
+- [Syncthing](syncthing.md) — For syncing Portracker SQLite backups.
+- [Storj](storj.md) — For offsite archival of network audit logs.
+- [n8n](n8n.md) — For automated alerting based on port changes.
 - [Authentik](authentik.md) — For managing SSO access to the dashboard.
 - [Docker](../tools/infrastructure/docker.md)
 - [TrueNAS](../../architecture/infrastructure.md)
-- [nmap](https://nmap.org/)
+- [Rclone Automation](rclone-automation.md) — For backing up Portracker data to cloud storage.
+- [Kiwix](kiwix.md) — For offline access to network documentation.
+- [Nextcloud](nextcloud.md) — For storing historical network maps.
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
+## Sources / references
+- [GitHub Repository](https://github.com/mostafa-wahied/portracker)
+- [Nmap Project](https://nmap.org/)
+- [Netdata](https://www.netdata.cloud/)
+- [Uptime Kuma](https://uptime.kuma.pet/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-19
 - Confidence: high
-- Last reviewed: 2026-05-27
-
-## Sources / References
-- https://github.com/mostafa-wahied/portracker
-- https://nmap.org/
-- https://www.netdata.cloud/
