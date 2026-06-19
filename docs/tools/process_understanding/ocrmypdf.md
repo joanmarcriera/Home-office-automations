@@ -1,47 +1,54 @@
 # OCRmyPDF
 
 ## What it is
-OCRmyPDF adds an OCR text layer to scanned PDF files, allowing them to be searched. It uses the Tesseract OCR engine and is highly configurable for various languages and document types.
+OCRmyPDF adds an OCR text layer to scanned PDF files, allowing them to be searched. It uses the Tesseract OCR engine and is highly configurable for various languages and document types. In the 2026 agentic ecosystem, it serves as a critical pre-processor for multimodal LLMs like Claude 4.8 and GPT-5.5.
 
 ## What problem it solves
-Makes scanned PDF documents searchable and indexable by adding a hidden text layer, which is essential for document management systems like Paperless-ngx.
+Makes scanned PDF documents searchable and indexable by adding a hidden text layer. This is essential for document management systems like Paperless-ngx and for feeding high-fidelity context into RAG (Retrieval-Augmented Generation) pipelines.
 
 ## Where it fits in the stack
-**Infrastructure**. Serves as the OCR processing layer for the document management pipeline, typically used alongside Paperless-ngx.
+**Infrastructure / Ingestion**. Serves as the OCR processing layer for the document management pipeline, typically used alongside Paperless-ngx and agentic scraping tools.
 
 ## Typical use cases
-- Adding searchable text layers to scanned PDFs for Paperless-ngx ingestion
-- Batch processing scanned documents for archival and indexing
-- Preparing documents for full-text search in document management systems
+- Adding searchable text layers to scanned PDFs for Paperless-ngx ingestion.
+- Batch processing scanned documents for archival and indexing in a private knowledge base.
+- Pre-processing documents for LLM analysis in agentic workflows (e.g., invoice extraction).
+- Converting image-only PDFs into accessible formats for screen readers.
 
 ## Strengths
-- Produces high-quality OCR output using the Tesseract engine
-- Supports multiple languages and configurable processing options
-- Preserves the original PDF structure while adding the text layer
+- **High Quality**: Produces high-quality OCR output using the Tesseract engine.
+- **Standards Compliant**: Generates valid PDF/A files for long-term archival.
+- **Efficiency**: Preserves the original PDF structure while adding the text layer (no loss of original images).
+- **Scalability**: Can be containerized and run in parallel for large document volumes.
 
 ## Limitations
-- OCR quality depends on scan quality and document complexity
-- Processing large batches can be CPU-intensive
-- Tesseract may struggle with handwritten text or unusual fonts
+- **Image Quality**: OCR quality depends heavily on scan quality and document complexity.
+- **Resource Intensive**: Processing large batches can be CPU-intensive and requires significant VRAM if using advanced neural models.
+- **Handwriting**: Tesseract may struggle with handwritten text or highly unusual fonts.
 
 ## When to use it
-- When you need to make scanned PDFs searchable in a document management system
-- When batch-processing scanned documents for archival
+- When you need to make scanned PDFs searchable in a document management system.
+- When preparing high-volume document archives for agentic ingestion.
+- When you need a reliable, open-source bridge between physical scans and digital search.
 
 ## When not to use it
-- When documents are already digital-native PDFs with embedded text
-- When you need OCR for non-PDF formats (use Tesseract directly or other tools)
+- When documents are already digital-native PDFs with embedded text layers.
+- When you need OCR for non-PDF formats (use Tesseract directly or [Unstructured.io](https://unstructured.io/)).
+- For complex visual-to-layout tasks where specialized models like Docling or LayoutLM are required.
 
 ## Getting started
 
 ### Installation
 ```bash
-# Using pip
+# Using pip (requires system dependencies like tesseract, ghostscript, unpaper)
 pip install ocrmypdf
 
 # Using Docker (recommended to avoid dependency issues)
 docker pull jbarlow83/ocrmypdf
 ```
+
+### Basic Setup
+Ensure you have the required language packs installed for Tesseract if running locally.
 
 ## CLI examples
 
@@ -72,29 +79,33 @@ ocrmypdf --deskew --clean --language eng input.pdf output.pdf
 ### Modern Python API
 ```python
 import ocrmypdf
-from ocrmypdf import OcrOptions
 
 if __name__ == '__main__':
-    options = OcrOptions(
-        input_file='input.pdf',
-        output_file='output.pdf',
+    # Simple OCR call using the ocrmypdf module
+    ocrmypdf.ocr(
+        'input.pdf',
+        'output.pdf',
         deskew=True,
-        languages=['eng'],
+        optimize=1,
+        sidecar='output.txt'
     )
-    ocrmypdf.ocr(options)
 ```
 
 ## Related tools / concepts
-- [Paperless AI](../../services/paperless-ai.md)
-- [Tesseract CLI](tesseract.md)
-- [Docling](docling.md)
-- [Firecrawl](firecrawl.md)
-- [RAGFlow](ragflow.md)
+- [Paperless-ngx](../../services/paperless-ngx.md) (The primary destination for OCR'd docs)
+- [Tesseract CLI](tesseract.md) (The underlying OCR engine)
+- [Docling](docling.md) (Advanced document layout analysis)
+- [Firecrawl](firecrawl.md) (Web scraping to PDF)
+- [RAGFlow](ragflow.md) (Document-focused RAG platform)
+- [Paperless AI](../../services/paperless-ai.md) (Agentic integration for Paperless)
+- [Apache Tika](../../services/tika.md) (Content analysis and extraction)
+- [Jules Agent](../ai_knowledge/jules.md) (Automation orchestration)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/ocrmypdf/OCRmyPDF)
 - [OCRmyPDF Documentation](https://ocrmypdf.readthedocs.io/)
+- [Tesseract OCR Home](https://tesseract-ocr.github.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-19
 - Confidence: high

@@ -1,86 +1,100 @@
 # Multi-Calendar Conflict Detection Research
 
-Research into techniques and tools for identifying scheduling conflicts across multiple calendars (Google Calendar and CalDAV).
-
 ## What it is
-A set of methods to aggregate availability data from multiple sources (e.g., family members' calendars) and calculate overlapping "busy" periods to find suitable meeting or event times.
+Research and technical methodology for identifying and resolving scheduling conflicts across multiple disparate calendar systems (e.g., Google Calendar, CalDAV, iCloud). In 2026, this research underpins the "Proactive AI Scheduling" pattern, where agents manage availability across professional and personal boundaries.
 
 ## What problem it solves
-Prevents double-booking and simplifies scheduling in a multi-user or multi-account environment by automating the check for availability across disparate calendar systems.
+Prevents double-booking and optimizes time allocation in multi-user or multi-account environments. It automates the complex task of aggregating availability data while preserving privacy and handling time-zone/recurrence edge cases.
 
 ## Where it fits in the stack
-**Knowledge Base / Pattern**. It informs the logic used in automation tools like [n8n](../services/n8n.md) to orchestrate calendar events.
+**Knowledge Base / Pattern**. It informs the logic used in orchestration tools like [n8n](../services/n8n.md) and provides the architectural blueprint for custom [MCP servers](../tools/frameworks/microsoft-agent-framework.md) specialized in time management.
 
 ## Typical use cases
-- Husband and wife coordinating family events.
-- Scheduling personal tasks without conflicting with work meetings.
-- Automated appointment booking agents checking multiple providers.
-
-## 2026 State of the Industry: The Shift to Proactive Agents
-
-As of May 2026, calendar management has shifted from manual conflict detection to **Proactive AI Scheduling Agents**. These agents don't just find free slots; they actively protect "Focus Time" and adapt to changing circumstances in real-time.
-
-### Key 2026 Patterns
-- **Adaptive Rescheduling**: Agents monitor actual vs. planned progress and automatically reschedule tasks when priorities shift or meetings run over.
-- **Energy-Aware Scheduling**: Tasks are scheduled based on individual productivity patterns and chronotypes (e.g., complex tasks in the morning, admin in the afternoon).
-- **Cross-Platform Coordination**: Seamlessly integrating work and personal calendars to ensure holistic availability without exposing private details.
-- **Document-Driven Inputs**: Agents can analyze syllabi, project plans, or requirement documents to automatically generate time-blocked schedules.
+- **Household Coordination**: Harmonizing calendars between family members to find common free time.
+- **Deep Work Protection**: Automatically blocking focus time on a work calendar based on personal commitments.
+- **Agentic Appointment Booking**: Enabling AI agents to schedule meetings by checking multiple providers' real-time availability.
+- **Event-Driven Rescheduling**: Triggering re-optimization when a high-priority event creates a conflict.
 
 ## Strengths
-- **Privacy-First**: Using Free/Busy APIs allows checking availability without exposing event details (titles, descriptions).
-- **Interoperability**: Can combine data from Google Calendar and self-hosted CalDAV servers.
-- **Proactive Management**: Modern agents can resolve conflicts before they appear on the user's radar.
+- **Privacy-Preserving**: Can utilize "Free/Busy" status without requiring full event details (titles, descriptions).
+- **Interoperability**: Bridges the gap between cloud providers (Google/O365) and self-hosted CalDAV solutions (Nextcloud/Radicale).
+- **Holistic View**: Provides a single "source of truth" for availability without needing to merge data into one physical calendar.
+- **Automation Ready**: High-quality JSON outputs from Free/Busy APIs are easily consumed by LLM agents.
 
 ## Limitations
-- **Latency**: Multiple API calls are required to fetch data from different providers.
-- **Complexity**: Timezone handling and recurring event expansion must be managed correctly by the logic layer.
-- **Privacy Trust**: Requires significant access to personal data for energy-aware optimization.
+- **API Latency**: Fetching data from multiple providers can introduce delays in real-time agentic responses.
+- **Recurrence Complexity**: Handling varied "recurring event" logic across different standards (iCal vs. GCal) remains technically challenging.
+- **Write-Back Complexity**: Identifying a conflict is easier than automatically resolving it in a way that satisfies all stakeholders.
 
 ## When to use it
-- When scheduling requires coordination between two or more independent calendar accounts.
-- When an AI agent needs to suggest non-conflicting time slots.
-- When you want to automate the balancing of deep work and collaborative tasks.
+- When you manage more than two independent calendar accounts.
+- When an AI agent needs to act as a personal scheduler or executive assistant.
+- When you want to automate "energy-aware" scheduling based on diverse life commitments.
 
 ## When not to use it
-- For simple, single-account scheduling where a native "Check Availability" feature already exists.
-- In low-trust environments where providing broad calendar access to an agent is not permissible.
+- For simple, single-account scheduling where native "Find a Time" features are sufficient.
+- When users have low trust in providing an agent with broad (even read-only) calendar access.
 
-## Implementation Details
+## Getting started
 
-### Google Calendar Free/Busy API
-The Google Calendar API provides a `freebusy.query` method that returns blocks of busy time for one or more calendars.
+### Key Concepts
+1.  **Aggregation**: Collecting events from all sources into a unified timeline.
+2.  **Normalization**: Converting all events to UTC and expanding recurrences.
+3.  **Conflict Matrix**: Calculating overlapping busy intervals.
 
-**Example Request (Python):**
-```python
-body = {
-  "timeMin": "2026-05-01T00:00:00Z",
-  "timeMax": "2026-05-02T00:00:00Z",
-  "items": [{"id": "user1@gmail.com"}, {"id": "user2@gmail.com"}]
-}
-eventsResult = service.freebusy().query(body=body).execute()
+### Recommended Tooling
+- **Chronos MCP**: For CalDAV integration.
+- **Google Calendar API**: For cloud-native integration.
+- **n8n Calendar Nodes**: For visual orchestration.
+
+## CLI examples
+
+### Querying Google Free/Busy (via gcloud/curl)
+```bash
+# Example of querying the freebusy endpoint for two calendars
+curl -X POST "https://www.googleapis.com/calendar/v3/freeBusy" \
+     -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "timeMin": "2026-06-20T00:00:00Z",
+           "timeMax": "2026-06-21T00:00:00Z",
+           "items": [{"id": "work@company.com"}, {"id": "home@gmail.com"}]
+         }'
 ```
 
-### Chronos MCP (CalDAV)
-[Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) supports multi-account management for CalDAV servers (Nextcloud, Fastmail, etc.). It can be used to query multiple calendars simultaneously and aggregate their events for conflict analysis.
+## API examples
 
-## Best Practices for AI Scheduling (2026)
-1.  **Define Hard Constraints**: Explicitly state "non-negotiables" (e.g., "no meetings before 9 AM") to guide agentic decisions.
-2.  **Feedback Loops**: Rate scheduled blocks to help the AI learn your preferences over time.
-3.  **Built-in Buffer Time**: Configure agents to automatically insert 10-15 minute buffers between transitions.
-4.  **Syllabus Integration**: Use agents to parse educational or project timelines to pre-populate study/work blocks.
+### Conflict Detection Logic (Python)
+```python
+def find_conflicts(calendar_a_busy, calendar_b_busy):
+    conflicts = []
+    for interval_a in calendar_a_busy:
+        for interval_b in calendar_b_busy:
+            # Simple overlap check
+            if interval_a['start'] < interval_b['end'] and interval_b['start'] < interval_a['end']:
+                conflicts.append({
+                    'start': max(interval_a['start'], interval_b['start']),
+                    'end': min(interval_a['end'], interval_b['end'])
+                })
+    return conflicts
+```
 
 ## Related tools / concepts
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md)
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md)
 - [n8n](../services/n8n.md)
-- [Motion](../tools/calendar_tasks/motion.md) (AI day planning)
-- [Reclaim AI](../tools/calendar_tasks/reclaim-ai.md) (Smart focus blocks)
+- [Motion](../tools/calendar_tasks/motion.md) (AI-driven scheduling)
+- [Reclaim AI](../tools/calendar_tasks/reclaim-ai.md) (Automated focus blocks)
+- [Radicale Automation](../services/radicale-automation.md) (Self-hosted CalDAV)
+- [Home Assistant](../services/home-assistant.md) (Calendar-triggered automations)
+- [Jules Agent](../tools/ai_knowledge/jules.md) (Agentic orchestration)
 
 ## Sources / references
 - [Google Calendar Free/Busy API Documentation](https://developers.google.com/calendar/api/v3/reference/freebusy/query)
-- [Cronofy Free/Busy API Notes](https://docs.cronofy.com/developers/api/events/free-busy/)
-- [Awesome Time Tracking: AI Scheduling Agents 2026](https://github.com/ever-works/awesome-time-tracking/blob/develop/details/ai-scheduling-agents-2026.md)
+- [CalDAV (RFC 4791) Specification](https://datatracker.ietf.org/doc/html/rfc4791)
+- [Cronofy: The State of AI Scheduling 2026](https://docs.cronofy.com/developers/api/events/free-busy/)
+- [Awesome Time Tracking: AI Scheduling Patterns](https://github.com/ever-works/awesome-time-tracking)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-19
 - Confidence: high
