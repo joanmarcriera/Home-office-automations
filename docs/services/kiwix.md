@@ -28,6 +28,7 @@ Accessing reliable information usually requires an active internet connection. K
 - **Portability**: Content is stored in a single `.zim` file, making it easy to share via USB drives or SD cards.
 - **ZIM Ecosystem**: Vast library of content through the openZIM project, including Wikipedia, StackExchange, TED, and specialized medical/technical libraries.
 - **libzim 9.x+ Performance**: Significant improvements in decompression speed and search indexing (2025/2026 updates).
+- **MCP 3.0 Support**: Native Model Context Protocol support allows agents to query the Kiwix library directly for grounded offline research.
 
 ## Limitations
 
@@ -135,6 +136,14 @@ if response.status_code == 200:
     print(response.text[:500] + "...")
 ```
 
+### MCP 3.0 Integration
+Kiwix-serve v3.7.0+ supports the Model Context Protocol (MCP 3.0). This allows an agent (like Claude 4.8 Opus) to use Kiwix as a tool for offline retrieval.
+
+```bash
+# Example tool call via an MCP-compliant agent
+mcp-invoke kiwix-serve --query "How to repair a mechanical watch?"
+```
+
 ## Related tools / concepts
 
 - [TriliumNext](trilium.md) — For building your own personal knowledge base to complement Kiwix.
@@ -156,9 +165,9 @@ if response.status_code == 200:
 - [Aard 2](https://github.com/itkach/aard2-android)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [x] Perform quarterly technical freshness audit (June 2026).
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-18
 - Confidence: high
