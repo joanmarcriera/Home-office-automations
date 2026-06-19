@@ -1,5 +1,74 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-06-19
+
+## Digest fallback for 2026-06-19
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [New usage analytics and updated spend controls for enterprises](https://openai.com/index/chatgpt-enterprise-spend-controls) (OpenAI Blog)
+2. [Improving health intelligence in ChatGPT](https://openai.com/index/improving-health-intelligence-in-chatgpt) (OpenAI Blog)
+3. [Using AI to help physicians diagnose rare genetic diseases affecting children](https://openai.com/index/diagnose-rare-childhood-diseases) (OpenAI Blog)
+4. [New research shows how AMIE, our medical AI, could help manage health conditions.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature/) (Google AI Blog)
+5. [MosaicLeaks: Can your research agent keep a secret?](https://huggingface.co/blog/ServiceNow/mosaicleaks) (Hugging Face Blog)
+6. [Beyond LoRA: Can you beat the most popular fine-tuning technique?](https://huggingface.co/blog/peft-beyond-lora) (Hugging Face Blog)
+7. [Is it agentic enough? Benchmarking open models on your own tooling](https://huggingface.co/blog/is-it-agentic-enough) (Hugging Face Blog)
+8. [MolmoMotion: Language-guided 3D motion forecasting](https://huggingface.co/blog/allenai/molmomotion) (Hugging Face Blog)
+9. [Researchers trained a Deep Research agent with 32 H100s and open-sourced everything](https://www.reddit.com/r/LocalLLaMA/comments/1u9w6my/researchers_trained_a_deep_research_agent_with_32/) (r/LocalLLaMA)
+10. [My suitcase robot gets high now off a real gas sensor wired straight into the LLM sampler. Smoke raises temperature/top_p/top_k live, so his speech genuinely gets loopier and never repeats.](https://www.reddit.com/r/LocalLLaMA/comments/1u9a17y/my_suitcase_robot_gets_high_now_off_a_real_gas/) (r/LocalLLaMA)
+11. [GLM-5.2 can now run locally in llama.cpp and Unsloth Studio.](https://www.reddit.com/r/LocalLLaMA/comments/1u9vfhf/glm52_can_now_run_locally_in_llamacpp_and_unsloth/) (r/LocalLLaMA)
+12. [GLM-5.2 is above GPT-5.5 in AA-Briefcase, Artificial Analysis' new agentic knowledge work eval](https://www.reddit.com/r/LocalLLaMA/comments/1u9myi6/glm52_is_above_gpt55_in_aabriefcase_artificial/) (r/LocalLLaMA)
+13. [GLM's founder says GLM-fable before the end of the year?!](https://www.reddit.com/r/LocalLLaMA/comments/1u96jof/glms_founder_says_glmfable_before_the_end_of_the/) (r/LocalLLaMA)
+14. [LQ50/LQ50-24GB cost around $1200](https://www.reddit.com/r/LocalLLaMA/comments/1u9kvza/lq50lq5024gb_cost_around_1200/) (r/LocalLLaMA)
+15. [GLM-5.2 inference is free on Hugging Face for the next 6 hours](https://www.reddit.com/r/LocalLLaMA/comments/1u99hel/glm52_inference_is_free_on_hugging_face_for_the/) (r/LocalLLaMA)
+16. [Giving GLM-5.2 a spin locally on CPU only! (poor man's rig for big models)](https://www.reddit.com/r/LocalLLaMA/comments/1u9jbd4/giving_glm52_a_spin_locally_on_cpu_only_poor_mans/) (r/LocalLLaMA)
+17. [GLM-5.2 (744B, 2-bit) at 7.3 tok/s on 4×3090 + 192GB — and why IQ1_M wasn't any faster](https://www.reddit.com/r/LocalLLaMA/comments/1u9mpty/glm52_744b_2bit_at_73_toks_on_43090_192gb_and_why/) (r/LocalLLaMA)
+18. [unsloth GLM-5.2-GGUF , including 2bit at 238GB](https://www.reddit.com/r/LocalLLaMA/comments/1u98iig/unsloth_glm52gguf_including_2bit_at_238gb/) (r/LocalLLaMA)
+19. [[NEW MODEL] SupraLabs just released SupraVL-Nano-900k, a Vision-Language Model built entirely from scratch!](https://www.reddit.com/r/LocalLLaMA/comments/1u9q6m2/new_model_supralabs_just_released_supravlnano900k/) (r/LocalLLaMA)
+20. [poolside/Laguna-M.1 · Hugging Face - 225B-A23B](https://www.reddit.com/r/LocalLLaMA/comments/1u9b2i3/poolsidelagunam1_hugging_face_225ba23b/) (r/LocalLLaMA)
+21. [GLM-5.2 Is The Best Open Weight Creative Writing Model](https://www.reddit.com/r/LocalLLaMA/comments/1u98pc9/glm52_is_the_best_open_weight_creative_writing/) (r/LocalLLaMA)
+22. [Little late thank you to the DeepSeek team!](https://www.reddit.com/r/LocalLLaMA/comments/1u9upuj/little_late_thank_you_to_the_deepseek_team/) (r/LocalLLaMA)
+23. [Updates on North Mini Code: 4 bit quant + Ollama + OpenRouter](https://www.reddit.com/r/LocalLLaMA/comments/1u9dqlm/updates_on_north_mini_code_4_bit_quant_ollama/) (r/LocalLLaMA)
+24. [OSS models decisively overtook Proprietary models in market share (based on the last 3 months of OpenRouter data)](https://www.reddit.com/r/LocalLLaMA/comments/1u96545/oss_models_decisively_overtook_proprietary_models/) (r/LocalLLaMA)
+25. [Local Qwen isn't a worse Opus, it's a different tool](https://www.reddit.com/r/LocalLLaMA/comments/1u9fxmb/local_qwen_isnt_a_worse_opus_its_a_different_tool/) (r/LocalLLaMA)
+26. [SETI @ Home aka distributed LLM inference engine. Does this exist and if not, should we make one?](https://www.reddit.com/r/LocalLLaMA/comments/1u9p820/seti_home_aka_distributed_llm_inference_engine/) (r/LocalLLaMA)
+27. [I have an old multi-GPU node lying around at work...](https://www.reddit.com/r/LocalLLaMA/comments/1u9gsta/i_have_an_old_multigpu_node_lying_around_at_work/) (r/LocalLLaMA)
+28. [LFM2.5-Embedding-350M & LFM2.5-ColBERT-350M](https://www.reddit.com/r/LocalLLaMA/comments/1u9ddft/lfm25embedding350m_lfm25colbert350m/) (r/LocalLLaMA)
+29. [DiffusionGemma 26b on a 4090 at up to 475t/s... and some thoughts...](https://www.reddit.com/r/LocalLLaMA/comments/1u9kiq1/diffusiongemma_26b_on_a_4090_at_up_to_475ts_and/) (r/LocalLLaMA)
+30. [Anyone here rocking dual RTX 5090s?](https://www.reddit.com/r/LocalLLaMA/comments/1u9x9vj/anyone_here_rocking_dual_rtx_5090s/) (r/LocalLLaMA)
+31. [EvoTensile: Evolutionary algorithms for AMD Tensile GEMM kernel tuning](https://www.reddit.com/r/LocalLLaMA/comments/1u9vi7g/evotensile_evolutionary_algorithms_for_amd/) (r/LocalLLaMA)
+32. [Multi doc agent workflows in Word](https://www.reddit.com/r/LocalLLaMA/comments/1u9wtlj/multi_doc_agent_workflows_in_word/) (r/LocalLLaMA)
+33. [GLM-5.2 Flash when? (joke)](https://www.reddit.com/r/LocalLLaMA/comments/1u90awk/glm52_flash_when_joke/) (r/LocalLLaMA)
+34. [Datasette Apps: Host custom HTML applications inside Datasette](https://simonwillison.net/2026/Jun/18/datasette-apps/#atom-entries) (Simon Willison's Weblog)
+35. [GLM-5.2 is probably the most powerful text-only open weights LLM](https://simonwillison.net/2026/Jun/17/glm-52/#atom-entries) (Simon Willison's Weblog)
+36. [[AINews] GLM > GPT? GLM-5.2 passes vibe check; Z.ai forecasts Open Fable by December](https://www.latent.space/p/ainews-glm-gpt-glm-52-passes-vibe) (Latent Space)
+37. [The Professor of Outputmaxxing — Anjney Midha, AMP](https://www.latent.space/p/anj) (Latent Space)
+38. [[AINews] Midjourney Medical: scan your organs like you step on a scale](https://www.latent.space/p/ainews-midjourney-medical-scan-your) (Latent Space)
+39. [🔬 The Self-Driving Lab — Joseph Krause, Radical AI](https://www.latent.space/p/radical-ai) (Latent Space)
+40. [Gusto Cofounder: An AI agent that runs payroll, HR, and benefits without waiting to be asked](https://thenewstack.io/gusto-cofounder-small-business-ai/) (The New Stack)
+41. [MCP gets its missing enterprise authorization layer](https://thenewstack.io/mcp-gets-its-missing-enterprise-authorization-layer/) (The New Stack)
+42. [Cursor, GitLab and Zed agree GitHub is breaking. They disagree on how to rebuild it.](https://thenewstack.io/cursor-origin-github-disruption/) (The New Stack)
+43. [Neoclouds, sovereign AI and Postgres: The new operating model for regulated enterprises](https://thenewstack.io/neoclouds-postgres-sovereign-ai/) (The New Stack)
+44. [The database storage problem is solved. Here’s what comes next.](https://thenewstack.io/postgres-data-movement-interoperability/) (The New Stack)
+45. [Fable 5 ban: 4 open models responded before Anthropic could restore access](https://thenewstack.io/fable-ban-open-weights/) (The New Stack)
+46. [Your AI pipeline is broken, and your dashboards don’t know it](https://thenewstack.io/debugging-probabilistic-ai-systems/) (The New Stack)
+47. [“A data lake of nuance for AI agents to swim in”: AWS Context gets shipshape on reasoning](https://thenewstack.io/aws-context-knowledge-graph-agents/) (The New Stack)
+48. [Kiro goes mobile: AWS brings agentic coding supervision to the iPhone](https://thenewstack.io/aws-kiro-mobile-ios-agentic-coding/) (The New Stack)
+49. [Vercel launches eve, an open-source framework that treats agents as directories](https://thenewstack.io/vercel-launches-eve-an-open-source-framework-that-treats-agents-as-directories/) (The New Stack)
+50. [How Block manages its fleet of AI coding agents from Slack](https://thenewstack.io/how-block-manages-its-fleet-of-ai-coding-agents-from-slack/) (The New Stack)
+51. [Chainguard Agent Skills matures](https://thenewstack.io/chainguard-agent-skills-matures/) (The New Stack)
+52. [AWS puts an AI bouncer at the merge queue](https://thenewstack.io/aws-devops-agent-ai-delivery-pipeline/) (The New Stack)
+53. [“Agents need boring infrastructure around them”: Why we need to take an interest in ‘invisible’ AI](https://thenewstack.io/tailscale-aperture-ai-agent-infrastructure/) (The New Stack)
+54. [Google, Microsoft, and OpenAI join forces to help create AI’s missing trust layer](https://thenewstack.io/google-microsoft-and-openai-join-forces-to-help-create-ais-missing-trust-layer/) (The New Stack)
+55. [Your AI isn’t broken. Your data is.](https://thenewstack.io/clario-data-enterprise-ai-rot/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
