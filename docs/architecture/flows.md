@@ -1,94 +1,114 @@
-# Automation Flows
+# Automation Flows & Agentic Orchestration
 
 ## What it is
-
-Automation Flows represent the orchestration logic and sequential "pipelines" that connect disparate services in the home lab. They define how data moves from ingestion points (like scanners or email) through processing engines (OCR, LLMs) to final storage and notification sinks.
+Automation Flows represent the orchestration logic, state management strategies, and sequential "pipelines" that connect disparate services in the Home-Office AI Hub. In June 2026, these have evolved from simple linear triggers to **Agentic Flows**, where autonomous agents (e.g., Claude 4.8 Opus, GPT-5.5) use the **Model Context Protocol (MCP 3.0)** to dynamically select tools, manage long-running state, and handle edge cases without hardcoded logic.
 
 ## What problem it solves
-
-In a complex home lab with dozens of services, manual data entry and disjointed tool usage lead to "information silos" and cognitive load. Automation flows bridge these gaps by creating autonomous loops that handle repetitive tasks—like filing documents or updating calendars—without human intervention, ensuring consistency and saving time.
+In a complex ecosystem with 500+ documented tools, hardcoded "if-this-then-that" rules become unmaintainable. Agentic flows solve this by replacing brittle logic with "intent-based" orchestration. They bridge the gap between ingestion (scanners, webhooks) and action (calendar updates, task creation), ensuring that data is not just moved, but understood and acted upon with human-like reasoning.
 
 ## Where it fits in the stack
-
-**Category**: Architecture / Orchestration. Flows sit above individual services (like [Paperless-ngx](../services/paperless-ngx.md) or [Ollama](../services/ollama.md)), acting as the **connective tissue** that uses tools like [n8n](../services/n8n.md) or [Home Assistant](../services/home-assistant.md) to manage the lifecycle of an event or document.
+**Orchestration Layer** — Flows sit above individual services (like [Paperless-ngx](../services/paperless-ngx.md) or [Ollama](../services/ollama.md)) and are primarily managed by [n8n](../services/n8n.md) (visual workflows) or [Home Assistant](../services/home-assistant.md) (event-driven). They utilize the **MCP 3.0 Inference Plane** to delegate complex reasoning to frontier models.
 
 ## Typical use cases
 
-### 1. School Activity Extraction
-**Goal**: Automatically add school activities mentioned in emails to the family calendar.
-1. **Ingest**: A new email arrives from the school domain.
-2. **Store**: [n8n](../services/n8n.md) triggers on the email, extracts the PDF attachment, and uploads it to [Paperless-ngx](../services/paperless-ngx.md).
-3. **Understand**: [Paperless-AI](../services/paperless-ai.md) (using [Ollama](../services/ollama.md)) scans the document for dates and event descriptions.
-4. **Decide**: The AI determines if the document contains a calendar event. If yes, it formats the data (JSON).
-5. **Act**: [n8n](../services/n8n.md) receives the JSON and creates an event in [Google Calendar](../tools/calendar_tasks/google_calendar.md).
+### 1. Agentic School Activity Extraction
+- **Trigger**: New email received via IMAP.
+- **Reasoning**: [Claude 4.8](../tools/ai_knowledge/claude-opus.md) analyzes the email body and PDF attachments for events.
+- **Tool Use**: Agent uses `mcp-google-calendar` to check for conflicts and `mcp-paperless` to store the notice.
+- **Action**: Event is created only if no "Family" conflict exists; otherwise, it flags for human review in [Vikunja](../services/vikunja.md).
 
-### 2. Physical Mail to Action
-**Goal**: Digitizing physical mail and creating follow-up tasks.
-1. **Ingest**: Physical document is scanned using a mobile scanner app.
-2. **Store**: The scan is saved to a folder monitored by [Syncthing](../services/syncthing.md).
-3. **Process**: [OCRmyPDF](../tools/process_understanding/ocrmypdf.md) adds a searchable text layer.
-4. **Understand**: [Paperless-ngx](../services/paperless-ngx.md) applies tags (e.g., "urgent").
-5. **Act**: [Home Assistant](../services/home-assistant.md) sends a notification to the family chat.
-6. **Sync**: A task is created in [Vikunja](../services/vikunja.md) with the document link.
+### 2. Autonomous Physical Mail Pipeline
+- **Ingest**: Document scanned to a [Syncthing](../services/syncthing.md) folder.
+- **Process**: [OCRmyPDF](../tools/process_understanding/ocrmypdf.md) creates a searchable layer.
+- **Understand**: [Paperless-AI](../services/paperless-ai.md) extracts "Bill Amount" and "Due Date".
+- **Flow**: [n8n](../services/n8n.md) triggers a payment agent that checks [Actual Budget](../services/actual-budget.md) and schedules a reminder.
 
-### 3. Local Development to Automated Deployment
-**Goal**: Streamlining the build and deployment of home scripts.
-1. **Dev**: Use [Cursor](../tools/development_ops/cursor.md) or [Aider](../tools/development_ops/aider.md) to build a new script.
-2. **Reason**: [Jules](../tools/ai_knowledge/jules.md) assists in writing tests and refactoring.
-3. **Act**: Code is committed to a local [Gitea](../services/gitea.md) repository.
-4. **Sync**: [n8n](../services/n8n.md) detects the commit and triggers a deployment to a Docker host.
-
-### 4. KnowledgeOps Maintenance (The Ralph-loop)
-**Goal**: Autonomous repository self-improvement and documentation freshness.
-1. **Ingest**: Daily scripts scan for new tool releases, GitHub stars, and stale documentation.
-2. **Bridge**: Qualifying items are staged in [`docs/new-sources/`](new-sources.md).
-3. **Trigger**: GitHub Actions open a "Jules" issue with the `jules` label.
-4. **Execute**: [Jules](../tools/ai_knowledge/jules.md) follows the Ralph-loop (Work, Link, or Decompose) to resolve the issue.
-5. **Verify**: Automated quality gates (`audit_docs_quality.py`, `check_docs_contract.py`) validate the changes before merge.
+### 3. KnowledgeOps Ralph-loop
+- **Trigger**: [find_oldest_issues.py](../../scripts/find_oldest_issues.py) identifies a stale doc.
+- **Action**: Jules agent (Action A) performs a freshness audit.
+- **Gate**: [check_docs_contract.py](../../scripts/check_docs_contract.py) validates the PR.
+- **Merge**: Autonomous merge via GitHub Actions once all KnowledgeOps gates pass.
 
 ## Strengths
-
-- **Consistency**: Ensures every document or event is handled according to the same rules every time.
-- **Speed**: Processing happens in seconds or minutes, much faster than manual sorting.
-- **Traceability**: Audit logs in [n8n](../services/n8n.md) or [Home Assistant](../services/home-assistant.md) provide a clear history of how data was processed.
-- **Integration**: Combines "dumb" storage with "smart" AI reasoning engines seamlessly.
+- **Resilience**: Agentic flows can "self-heal" by retrying with different prompts or tools if a step fails.
+- **Scalability**: New services can be added to the hub and immediately used by agents via MCP 3.0 discovery.
+- **State Awareness**: Modern flows utilize "Long-Term Memory" (Vector DBs) to maintain context across multi-day tasks.
+- **Intent-Based**: Users define the *outcome*, and the flow determines the *path*.
 
 ## Limitations
-
-- **Brittle**: Changes in external APIs (like school email formats) can break extraction logic.
-- **Complexity**: Debugging a flow that spans five different services requires significant technical knowledge.
-- **Resource Heavy**: Complex AI-driven flows can spike CPU/RAM usage on the home server.
+- **Latency**: Agentic reasoning steps add seconds or minutes compared to sub-second hardcoded triggers.
+- **Non-Deterministic**: The same input may occasionally result in different flow paths due to LLM variance.
+- **Cost**: Frequent calls to frontier models (Claude 4.8) can incur significant API costs if not optimized.
 
 ## When to use it
-
-- When you have repetitive tasks that involve moving data between two or more services.
-- When you want to apply "intelligence" (like LLM classification) to incoming data automatically.
-- When you need to ensure that physical records are reliably digitized and indexed.
+- When tasks require "judgment" (e.g., determining if a document is "urgent").
+- For multi-step processes involving more than three disparate services.
+- When you want to build a "Self-Improving" system (like the Ralph-loop).
 
 ## When not to use it
+- For simple, time-critical triggers (e.g., "turn on light when motion is detected").
+- For one-off tasks that take less than 2 minutes to perform manually.
+- When the data is extremely sensitive and local-only processing ([Ollama](../services/ollama.md)) is unavailable.
 
-- For one-off tasks that take less time to do manually than to automate.
-- When the data is highly sensitive and you are uncomfortable with an LLM (even a local one) processing it.
-- If the "cost" of automation failure (e.g., missing a medical appointment) outweighs the benefit of autonomy.
+## Getting started
+
+### 1. Choose Your Engine
+- **n8n**: Best for complex, multi-service API orchestration and long-running state.
+- **Home Assistant**: Best for real-time, event-driven automation of physical hardware.
+- **Custom Scripts**: Best for specialized maintenance tasks (see `scripts/`).
+
+### 2. Connect via MCP 3.0
+Ensure your workflow engine can speak to the hub's MCP servers. This allows your flows to use repository tools natively.
+
+### 3. Implement "Human-in-the-Loop"
+Always include a "Wait for Approval" or "Review" step for high-stakes actions (like financial payments or deleting files).
+
+## CLI examples
+Trigger and monitor flows using the hub's utility scripts:
+
+```bash
+# Trigger the Ralph-loop maintenance flow manually
+python3 scripts/find_oldest_issues.py --trigger-jules
+
+# Check the status of the daily digest flow
+python3 scripts/n8n_log_aggregator.py --flow daily-digest
+
+# Validate the output of a document extraction flow
+python3 scripts/validate_new_sources.py --last-24h
+```
+
+## API examples
+Orchestrate flows programmatically using Python and the n8n API:
+
+```python
+import requests
+
+# Trigger an n8n workflow with a specific payload
+N8N_WEBHOOK_URL = "http://n8n:5678/webhook/school-extraction"
+payload = {"source": "imap", "subject": "School Calendar Update"}
+
+response = requests.post(N8N_WEBHOOK_URL, json=payload)
+if response.status_code == 200:
+    print(f"Flow triggered: {response.json()['workflow_id']}")
+```
 
 ## Related tools / concepts
+- [n8n](../services/n8n.md) — The primary workflow orchestration engine.
+- [Home Assistant](../services/home-assistant.md) — Event-driven automation hub.
+- [Paperless-ngx](../services/paperless-ngx.md) — Document storage and metadata sink.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — The communication standard for agentic tools.
+- [Jules Agent](../tools/ai_knowledge/jules.md) — The primary executor of maintenance flows.
+- [Multi-Agent KnowledgeOps](./multi_agent_knowledgeops.md) — Governance for parallel agent flows.
+- [Automated Contributions](./automated_contributions.md) — The Ralph-loop flow implementation.
+- [Vikunja](../services/vikunja.md) — Task management sink for agentic actions.
 
-- [n8n](../services/n8n.md) — The primary workflow engine for complex multi-step logic.
-- [Home Assistant](../services/home-assistant.md) — For event-driven automation and notifications.
-- [Paperless-ngx](../services/paperless-ngx.md) — The central repository for digitized documents.
-- [Ollama](../services/ollama.md) — Provides the local reasoning power for understanding content.
-- [Vikunja](../services/vikunja.md) — The target destination for actionable tasks derived from flows.
-- [Syncthing](../services/syncthing.md) — For moving files from mobile devices into the ingestion pipeline.
-- [Gitea](../services/gitea.md) — For versioning the scripts that power these automations.
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Often used within flows to provide context to the processing LLM.
+## Sources / references
+- [n8n: Agentic Workflows Guide](https://n8n.io/blog/agentic-workflows/)
+- [Anthropic: Agentic Design Patterns](https://www.anthropic.com/research/building-effective-agents)
+- [MCP 3.0 Documentation](https://modelcontextprotocol.io/)
+- [Home Assistant: Automation Blueprinting](https://www.home-assistant.io/docs/automation/blueprints/)
 
+---
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high
-
-## Sources / References
-
-- [n8n Documentation](https://docs.n8n.io/)
-- [Home Assistant Automation Docs](https://www.home-assistant.io/docs/automation/)
-- [Local LLM Workflow Patterns](https://github.com/joanmarcriera/Home-office-automations)

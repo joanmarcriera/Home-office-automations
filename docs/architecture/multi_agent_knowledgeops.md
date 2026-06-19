@@ -1,181 +1,131 @@
 # Multi-Agent KnowledgeOps Governance
 
 ## What it is
+Multi-Agent KnowledgeOps Governance is a structured framework and operating contract that defines how multiple autonomous AI agents (e.g., Claude 4.8 Opus, GPT-5.5) can safely, consistently, and concurrently grow a shared knowledge repository. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.0)** to coordinate between specialized agents while preserving canonical ownership, source traceability, and freshness signals.
 
-Multi-Agent KnowledgeOps Governance is a structured framework that defines how multiple AI agents (e.g., Google Jules) can safely and consistently grow a shared knowledge repository. It establishes a "durable documentation system" where agents contribute in parallel while preserving canonical ownership, source traceability, and freshness signals.
+### Multi-Agent KnowledgeOps Contract (Mandatory)
+All AI-authored documentation and repository updates must satisfy this contract:
+1. **Respect Canonical Ownership**: Search for existing tool/topic names and aliases before creating new pages.
+2. **Use Repository Taxonomy**: Adhere to the structure defined in `docs/standards.md` and use standard templates.
+3. **Include Auditable Metadata**: Every AI-authored page must include `Last reviewed` (ISO format), `Confidence` level, and `Sources / References`.
+4. **Limit PR Intent**: Each PR should have one clear intent (Intake, Curation, or Audit).
+5. **Verified with KnowledgeOps Tools**: All changes must pass `check_docs_contract.py` and `audit_docs_quality.py`.
 
 ## What problem it solves
-
-The primary scaling risk in AI-augmented documentation is not a lack of content, but rather the rapid accumulation of low-quality, duplicate, or stale information. Without a shared operating contract, multiple agents eventually create conflicting guidance and redundant pages. This governance model provides a common contract and quality gates to keep throughput high while preventing entropy and information decay.
+The primary scaling risk in AI-augmented documentation is "agentic entropy"—the rapid accumulation of low-quality, duplicate, or conflicting information produced by multiple agents working in parallel. This governance model provides a common "policy engine" and quality gates to keep throughput high while preventing information decay and maintaining a "High Confidence" standard.
 
 ## Where it fits in the stack
-
-KnowledgeOps Governance sits in the **Process and Governance** layer of the repository architecture. It acts as the "policy engine" for the [Automated Contribution System](./automated_contributions.md), ensuring that all automated updates comply with repository [standards](../standards.md) and [taxonomies](../standards.md).
+**Governance & Orchestration Layer** — It acts as the policy layer for the [Automated Contribution System](./automated_contributions.md). It leverages **MCP 3.0** to expose repository standards and validation tools as discoverable skills for any agent entering the environment.
 
 ## Typical use cases
-
-- **Parallel Documentation Scaling**: Managing multiple agent lanes (Intake, Curation, Audit) working on different parts of the repository simultaneously.
-- **Consistency Maintenance**: Ensuring every AI-authored page includes mandatory sections, metadata, and verifiable sources.
-- **Conflict Resolution**: Preventing "PR collisions" by defining clear file boundaries and sequencing rules for autonomous workers.
-- **Quality Auditing**: Using automated scripts (e.g., `audit_docs_quality.py`) to enforce the governance contract.
+- **Parallel Documentation Scaling**: Managing multiple agent lanes (Intake, Curation, Audit) working simultaneously.
+- **Federated Knowledge Ingestion**: Using specialized agents to monitor different source feeds (Reddit, GitHub, Arxiv) and integrate them into a central hub.
+- **Autonomous Quality Auditing**: Continuous background agents identifying stale content or broken links using the `audit_docs_quality.py` suite.
+- **Cross-Agent Conflict Resolution**: Sequencing PRs and rebasing state to prevent merge collisions in high-activity files like `mkdocs.yml`.
 
 ## Strengths
-
-- **Predictable Growth**: Ensures all contributions meet the "High Confidence" standard regardless of which agent authored them.
-- **Scalability**: Allows the knowledge base to expand rapidly without a linear increase in human review effort.
-- **Traceability**: Every fact in the repository is tied to a specific source and review date, creating a verifiable audit trail.
-- **Deduplication**: Built-in rules for canonical ownership prevent the fragmentation of information across multiple pages.
+- **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of authorship.
+- **MCP 3.0 Integration**: Standardizes how agents "understand" the repository rules via structured tool-calling.
+- **Traceability**: Creates a verifiable audit trail for every fact, tied to a specific agent, source, and review date.
+- **Conflict Avoidance**: Clear "Ralph-loop" strategies for different agent roles minimize repository-wide friction.
 
 ## Limitations
-
-- **Process Overhead**: Requires agents to perform extra checks (duplication searches, metadata validation) which can increase per-task token costs.
-- **Rigidity**: Highly structured templates may sometimes struggle to accommodate very unique or non-standard documentation needs.
-- **Review Lag**: While it automates many gates, final high-stakes architectural alignment still requires human "North Star" guidance.
+- **Token Overhead**: Requires agents to perform exhaustive duplication checks and metadata validation, increasing operational costs.
+- **Rigidity**: Strict section requirements may struggle with non-standard research papers or experimental architecture notes.
+- **Bootstrap Complexity**: Requires initial setup of MCP servers and validation scripts to be effective.
 
 ## When to use it
-
-- When operating a repository that receives contributions from more than one automated agent or worker lane.
-- When the goal is to maintain a "High Confidence" knowledge base with 100+ pages of technical documentation.
-- To provide a clear "Role Model" for AI agents to follow during autonomous sprints.
+- When operating a knowledge base that receives contributions from more than one automated agent or worker lane.
+- When maintaining a "High Confidence" technical repository with 500+ pages of documentation.
+- To provide a clear "Role Model" and operating contract for frontier models (Claude 4.8, GPT-5.5) during autonomous sprints.
 
 ## When not to use it
+- For small, personal repositories with a single human contributor and low update frequency.
+- For "scratchpad" projects where strict structure, taxonomy, and metadata are not required.
 
-- For small, personal repositories where the volume of change is low and human review is instantaneous.
-- For informal, low-stakes "scratchpad" projects where strict structure and metadata are unnecessary.
+## Getting started
 
-## Multi-Agent KnowledgeOps Contract (Mandatory)
+### 1. Configure the KnowledgeOps MCP Server
+Agents should connect to the local KnowledgeOps MCP server which provides tools for:
+- `search_canonical_pages(query)`
+- `validate_metadata(filepath)`
+- `run_quality_audit(path)`
 
-All AI-authored documentation PRs must satisfy the contract below.
+### 2. Identify Your Role Model
+Agents must adopt a specific persona to reduce overlap:
+- **Intake Agent**: Scans `docs/new-sources/`, stages candidates, and updates indexes.
+- **Curation Agent**: Deepens documentation to "High Confidence" standards and normalizes structure.
+- **Audit Agent**: Verifies metadata, links, and completeness; flags stale pages for refresh.
 
-1. Respect canonical ownership.
-   - Before creating a page, search for existing tool/topic names and aliases.
-   - Update an existing canonical page when possible.
-2. Use repository templates and taxonomy.
-   - `docs/templates/tool_template.md` for tools/frameworks/providers.
-   - `docs/templates/article_template.md` for papers/articles.
-   - Place files in the taxonomy defined in `docs/standards.md`.
-3. Include auditable metadata in every AI-authored knowledge page update.
-   - `Last reviewed` date in ISO format (`YYYY-MM-DD`)
-   - `Confidence` level (`high`, `medium`, or `low`)
-   - `Sources / References` with at least one URL
-4. Limit each PR to one intent.
-   - Intake integration, curation pass, or audit fix.
-   - Avoid mixed PRs that combine unrelated tasks.
-5. Leave clear review context.
-   - State what was added, why it belongs, and what was deduplicated.
-
-## Role Model for Agents
-
-Use role-specific behavior to reduce overlap and improve predictability.
-
-### Intake Agent
-
-- Scans sources and stages candidates in `docs/new-sources.md`
-- Proposes canonical destination and taxonomy tags
-- Does not perform broad refactors
-
-### Curation Agent
-
-- Integrates staged items into canonical pages
-- Normalizes structure to template and standards
-- Updates `data/all_tools.json` and `mkdocs.yml` when required
-
-### Audit Agent
-
-- Verifies metadata, links, and section completeness
-- Flags stale pages for refresh
-- Fixes low-risk quality issues in small PRs
-
-## Parallel Lane Rules: The Ralph-loop Strategy
-
-When multiple agents are active simultaneously, they must adhere to the **Ralph-loop** strategy for conflict avoidance and task closure.
-
+### 3. The Ralph-loop Strategy (Parallel Lanes)
 | Lane | Primary Scope | Strategy |
 | :--- | :--- | :--- |
-| **Intake** | `docs/new-sources*`, `data/all_tools.json`, `mkdocs.yml` | **Action B (Link)**: Focus on staging new items and updating indexes. |
-| **Curation** | `docs/tools/`, `docs/services/` | **Action A (Work)**: Deepen documentation to "High Confidence" standards. |
-| **Maintenance** | Entire repository | **Action A (Work)**: Execute batch audits and automated fixes (Batch 100+ patterns). |
-| **Decomposition** | `docs/reports/` | **Action C (Decompose)**: Triage complex issues into smaller sub-batches. |
+| **Intake** | `docs/new-sources*`, `data/all_tools.json` | **Action B (Link)**: Focus on staging and indexing. |
+| **Curation** | `docs/tools/`, `docs/services/` | **Action A (Work)**: Documentation deepening. |
+| **Maintenance**| Entire repository | **Action A (Work)**: Batch audits and automated fixes. |
+| **Decomposition**| `docs/reports/` | **Action C (Decompose)**: Triage complex tasks. |
 
-### Conflict Mitigation
-- **File Locks**: Agents should treat `mkdocs.yml` and `data/all_tools.json` as shared resources; avoid concurrent edits by checking for open PRs touching these files.
-- **Rebase First**: Always run `git fetch origin main && git rebase origin/main` before starting work to avoid stale state.
-- **Narrow Focus**: Prefer one changed canonical page per PR to minimize merge conflicts.
+### 4. PR Sequencing & Conflict Mitigation
+- **Rebase First**: Always run `git fetch origin main && git rebase origin/main`.
+- **Narrow Focus**: Prefer one changed canonical page per PR.
+- **Wait for Gate**: Do not pile changes onto a dirty branch; wait for CI validation to pass.
 
-## PR Sequencing for Automation
+### 5. Phased Rollout & DoD
+- **Phase 1**: Establish Contract (Done).
+- **Phase 2**: Enable CI Gates (In Progress).
+- **Phase 3**: Automated Stale-Audit Cycles (Planned).
+- **Definition of Done**: A PR is complete only when metadata is valid, no duplicates exist, and KnowledgeOps scripts pass with 100% compliance.
 
-For autonomous sprint work:
+## CLI examples
+Agents and maintainers use the following commands to enforce governance:
 
-1. Open one PR per issue or worker lane.
-2. Enable automerge only after local validation has passed.
-3. Wait for the merge queue or automerge workflow before opening another PR that touches overlapping files.
-4. If a PR becomes conflict-dirty, do not keep piling new changes onto the branch. Rebase or replace it with a fresh branch from `main`.
-5. Close or supersede duplicate branches once a newer PR has already landed the same issue scope.
+```bash
+# Verify the KnowledgeOps contract for a specific file
+python3 scripts/check_docs_contract.py docs/architecture/multi_agent_knowledgeops.md
 
-This keeps the repository moving without turning `main`, `mkdocs.yml`, or `data/all_tools.json` into shared conflict points.
+# Run a full repository quality audit
+python3 scripts/audit_docs_quality.py
 
-## CI Quality Gates
+# Check for navigation and catalog consistency
+python3 scripts/check_catalog_consistency.py
+```
 
-To make the contract enforceable, PR automation should check:
+## API examples
+The KnowledgeOps framework can be integrated into multi-agent workflows via Python:
 
-1. Required metadata exists on changed knowledge pages.
-2. `Sources / References` exists and includes at least one URL.
-3. Confidence label is present and valid.
-4. Last reviewed date is valid ISO format.
+```python
+from scripts.check_docs_contract import validate_file
+from pathlib import Path
 
-These checks are implemented by `scripts/check_docs_contract.py` and run on pull requests.
+# Programmatic metadata validation
+target_file = Path("docs/architecture/multi_agent_knowledgeops.md")
+errors = validate_file(target_file)
 
-In this repository, the practical gate stack also includes catalog consistency, intake validation, link health, and generated-content checks depending on which files changed.
-
-## Phased Rollout Plan
-
-### Phase 1: Contract and Structure
-
-- Publish this governance document.
-- Add contract language to `docs/CONTRIBUTING.md`.
-- Add metadata requirements to `docs/standards.md`.
-
-### Phase 2: Enforcement
-
-- Enable CI quality gate for changed Markdown docs.
-- Block merges when required metadata/sources are missing.
-
-### Phase 3: Reliability and Auditability
-
-- Add periodic audit runs for stale pages.
-- Track common failure modes and update agent prompts.
-
-## Definition of Done for AI-Authored PRs
-
-A PR is complete only when:
-
-1. Target pages follow template/section expectations.
-2. Metadata and sources are present and valid.
-3. Canonical duplication checks were performed.
-4. Navigation/data indexes were updated when required.
-5. The PR body lists the checks run and names any unavailable local tools.
-
-## Sources / References
-
-- [AI Hub Standards](../standards.md)
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Automated Contributions](./automated_contributions.md)
-- [GitHub Actions Documentation](https://docs.github.com/actions)
-- [Ralph-loop Execution Reports](reports/)
+if errors:
+    print(f"Contract violation in {target_file}:")
+    for error in errors:
+        print(f"  - {error}")
+else:
+    print("Document is contract-compliant.")
+```
 
 ## Related tools / concepts
+- [Automated Contributions](./automated_contributions.md) — Deep dive into the Ralph-loop implementation.
+- [Jules Agent](../tools/ai_knowledge/jules.md) — The primary Ralph-loop executor.
+- [KnowledgeOps Standards](../standards.md) — Repository taxonomy and metadata conventions.
+- [Contributing Guide](../CONTRIBUTING.md) — The operational manual for humans and agents.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic tool-use.
+- [Data Copilot Architecture](./data-copilot-text-to-sql.md) — Text-to-SQL agent patterns.
+- [Quality Audit Script](../../scripts/audit_docs_quality.py) — Core validation engine.
+- [Contract Check Script](../../scripts/check_docs_contract.py) — CI gate implementation.
 
-- [Automated Contribution System](./automated_contributions.md)
-- [Jules Agent](../tools/ai_knowledge/jules.md)
-- [KnowledgeOps Standards](../standards.md)
-- [Data Copilot Architecture](data-copilot-text-to-sql.md)
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Quality Audit Script](../../scripts/audit_docs_quality.py)
-- [Check Docs Contract Script](../../scripts/check_docs_contract.py)
-- [Catalog Consistency Script](../../scripts/check_catalog_consistency.py)
-- [Ralph-loop Implementation](../CONTRIBUTING.md)
+## Sources / references
+- [KnowledgeOps Manifesto](https://github.com/joanmarcriera/Home-office-automations/blob/main/docs/architecture/multi_agent_knowledgeops.md)
+- [MCP 3.0 Specification](https://modelcontextprotocol.io/specification)
+- [Ralph-loop Implementation Reports](../reports/)
+- [Anthropic: Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
 
+---
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high

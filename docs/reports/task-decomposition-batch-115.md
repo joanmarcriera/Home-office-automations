@@ -10,9 +10,9 @@ This report implements **Action C** for the oldest remaining technical freshness
 
 ### Architecture & Standards
 - [x] `docs/CONTRIBUTING.md`: Technical freshness audit. Update Ralph-loop and KnowledgeOps sections to June 2026 standards.
-- [ ] `docs/architecture/multi_agent_knowledgeops.md`: Technical freshness audit. Refine the operating model for multi-agent environments using MCP 3.0.
-- [ ] `docs/architecture/flows.md`: Technical freshness audit. Update with June 2026 agentic flow patterns and state management strategies.
-- [ ] `docs/architecture/data-copilot-text-to-sql.md`: Technical freshness audit. Update with latest Text-to-SQL benchmarks and agentic synthesis patterns.
+- [x] `docs/architecture/multi_agent_knowledgeops.md`: Technical freshness audit. Refine the operating model for multi-agent environments using MCP 3.0.
+- [x] `docs/architecture/flows.md`: Technical freshness audit. Update with June 2026 agentic flow patterns and state management strategies.
+- [x] `docs/architecture/data-copilot-text-to-sql.md`: Technical freshness audit. Update with latest Text-to-SQL benchmarks and agentic synthesis patterns.
 
 ### Knowledge Base Research
 - [ ] `docs/knowledge_base/multi-calendar-conflict-research.md`: Technical freshness audit. Incorporate agentic calendar orchestration patterns (Claude 4.8/GPT-5.5) and MCP 3.0 server integrations.
