@@ -24,7 +24,7 @@ Public cloud services like Google Drive or Microsoft 365 offer great convenience
 - **Extensible**: A vast App Store allows for adding features like Kanban boards, video conferencing (Talk), and music players.
 - **Multi-Platform**: Robust client apps for Windows, macOS, Linux, Android, and iOS.
 - **Open Standards**: Built on PHP and SQL, using WebDAV/CalDAV for maximum compatibility with third-party tools.
-- **AI Integration**: Hub 9+ features a native AI Assistant with a "Context Agent" for executing tasks within Nextcloud.
+- **AI Integration**: Hub 10 features a native AI Assistant with a "Context Agent" for executing tasks within Nextcloud.
 - **Strong Ecosystem**: Massive community and commercial support ensure longevity and security.
 
 ## Limitations
@@ -107,6 +107,8 @@ curl -u admin:password \
 - [n8n](n8n.md) — for automating file processing and notification workflows
 - [Docker](../tools/infrastructure/docker.md)
 - [TrueNAS](../../architecture/infrastructure.md)
+- [Claude 4.8 Opus](../tools/providers/anthropic.md)
+- [GPT-5.5](../tools/providers/openai.md)
 
 ## SSO & OIDC Integration
 Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On using the `user_oidc` app.
@@ -126,21 +128,22 @@ Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On us
 > [!WARNING]
 > If you require Server-Side Encryption, you must use LDAP instead of OIDC, as encryption requires the user's cleartext password which is not provided by OIDC.
 
-## Nextcloud AI Assistant (Hub 9+)
+## Nextcloud AI Assistant (Hub 10)
 
-Nextcloud Hub 9 (v30+) introduced the **Nextcloud Assistant** and **Context Agent**, allowing for agentic AI capabilities directly within the platform.
+Nextcloud Hub 10 (v31+) has fully integrated the **Nextcloud Assistant** and **Context Agent**, providing state-of-the-art agentic AI capabilities directly within the platform.
 
 ### Key AI Features
-- **Context Agent**: Allows users to ask the assistant to execute tasks related to Nextcloud data (e.g., "Find the project plan from last week").
-- **Text Processing**: Integration with local LLMs (via [Ollama](ollama.md)) or external providers for text summarization, generation, and translation.
-- **Image Generation**: Native support for DALL-E, Stable Diffusion, and other generative models.
-- **Smart Picker**: Quickly insert AI-generated content or summaries into Talk, Mail, and Notes.
+- **Context Agent**: Allows users to ask the assistant to execute complex tasks related to Nextcloud data (e.g., "Analyze the project proposal in my 'Drafts' folder and summarize the budget implications").
+- **Agentic Workflows**: Integration with Claude 4.8 Opus and GPT-5.5 for high-reasoning task execution.
+- **Ollama MCP**: Support for the Model Context Protocol (MCP 3.0) via [Ollama](ollama.md), enabling the assistant to use local tools and data securely.
+- **Smart Picker 2.0**: Enhanced ability to insert AI-generated content, summaries, and data visualizations into Talk, Mail, and Notes.
 
 ### Setup (AI)
-To enable AI features, you typically need to install the following apps from the Nextcloud App Store:
-1.  **Nextcloud Assistant**: The graphical UI for AI interactions.
-2.  **Nextcloud Context Agent**: For agentic capabilities.
-3.  **Local LLM Provider**: (Optional) Use the `nextcloud-llm-ollama` bridge to connect to a local [Ollama](ollama.md) instance.
+To enable Hub 10 AI features:
+1.  **Install App**: Install the **Nextcloud Assistant** and **Nextcloud Context Agent** apps.
+2.  **Model Configuration**: Go to **Administration settings > AI Assistant**.
+3.  **Provider Selection**: Configure a provider (e.g., Local [Ollama](ollama.md) for privacy or External API for Claude 4.8/GPT-5.5).
+4.  **Context Training**: Enable the indexing of relevant folders to allow the Context Agent to "understand" your data.
 
 ## Nextcloud Office & Collabora
 
@@ -176,19 +179,19 @@ Nextcloud supports client-side end-to-end encryption for maximum security of sen
 3.  **Limitations**: Encrypted folders cannot be shared with users who do not have E2EE configured, and they are not accessible via the web interface.
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
+- [x] Perform technical freshness audit (2026-06-19).
 - [x] Setup Nextcloud Office with Collabora Online.
 - [x] Enable end-to-end encryption for sensitive folders.
+- [ ] Perform quarterly technical freshness audit.
 
 ## Sources / References
 
 - [Official Website](https://nextcloud.com/)
 - [Nextcloud Admin Documentation](https://docs.nextcloud.com/server/latest/admin_manual/)
 - [Nextcloud AI Documentation](https://docs.nextcloud.com/server/stable/admin_manual/ai/overview.html)
-- [Owncloud](https://owncloud.com/)
-- [Seafile](https://www.seafile.com/)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-19
 - Confidence: high

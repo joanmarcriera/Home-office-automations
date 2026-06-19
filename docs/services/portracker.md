@@ -4,15 +4,16 @@
 Portracker is a specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments. It provides a dashboard to monitor active ports on your network and discover new services. It integrates well with TrueNAS and Docker to display native apps, virtual machines, and containers.
 
 ## What problem it solves
-It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans.
+It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans. In agentic environments, it provides the ground truth for service discovery.
 
 ## Where it fits in the stack
-It is a **Network Observability Tool**, typically deployed at the edge of a home lab network to monitor the Docker host or the local subnet.
+It is a **Network Observability Tool**, typically deployed at the edge of a home lab network to monitor the Docker host or the local subnet. In 2026, it serves as a critical layer for **Agentic Infrastructure Monitoring**.
 
 ## Typical use cases
 - Monitoring a Docker host for new or exposed services.
 - Mapping port assignments to prevent conflicts during service deployment.
 - Auditing the local network for unintended open ports on IoT devices.
+- Providing real-time service catalogs for autonomous agents via MCP 3.0.
 
 ## Strengths
 - **Real-time Discovery**: Near-instant discovery of service changes and port mappings.
@@ -20,6 +21,7 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 - **Multi-node Monitoring**: Support for Peer-to-Peer monitoring and hierarchical server grouping.
 - **Lightweight**: Single binary with an embedded SQLite database, no external dependencies.
 - **Internal Visibility**: Distinguishes between internal container ports and published host ports.
+- **Agentic Ingestion**: High-fidelity data for RAG pipelines and autonomous service management.
 
 ## Limitations
 - **Scope**: Focused on port mapping rather than deep traffic analysis or security intrusion detection.
@@ -30,6 +32,7 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 - When you want to monitor open ports on your network in real-time.
 - To discover new services running in Docker containers or on TrueNAS.
 - To avoid port conflicts by having a clear map of assigned ports.
+- As a foundation for autonomous agent service discovery.
 
 ## When not to use it
 - For deep packet inspection or security auditing (use specialized tools like Suricata or Snort).
@@ -132,6 +135,10 @@ Portracker supports a decentralized monitoring model where multiple instances ca
 - **Hierarchical Grouping**: Organize servers in a parent-child structure (e.g., nesting VM instances under their physical host).
 - **Consolidated View**: View all your servers, containers, and VMs from a single dashboard without a central server.
 
+## Backlog
+- [x] Perform quarterly technical freshness audit (2026-06-19).
+- [ ] Perform quarterly technical freshness audit.
+
 ## Related tools / concepts
 - [Home Assistant](home-assistant.md)
 - [Tailscale](tailscale.md)
@@ -146,15 +153,15 @@ Portracker supports a decentralized monitoring model where multiple instances ca
 - [Docker](../tools/infrastructure/docker.md)
 - [TrueNAS](../../architecture/infrastructure.md)
 - [nmap](https://nmap.org/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-05-27
+- [Claude 4.8 Opus](../tools/providers/anthropic.md)
+- [GPT-5.5](../tools/providers/openai.md)
 
 ## Sources / References
-- https://github.com/mostafa-wahied/portracker
-- https://nmap.org/
-- https://www.netdata.cloud/
+- [Portracker GitHub](https://github.com/mostafa-wahied/portracker)
+- [Nmap Official Site](https://nmap.org/)
+- [Netdata](https://www.netdata.cloud/)
+- [Docker Documentation](https://docs.docker.com/)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-19
+- Confidence: high

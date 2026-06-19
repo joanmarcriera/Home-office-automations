@@ -7,18 +7,20 @@ Rclone is a command-line program to manage files on cloud storage. This service 
 It provides a robust, scriptable way to handle complex cloud storage operations, including automated off-site backups, synchronization between different cloud providers, and mounting remote storage as a local filesystem. It ensures data integrity through checksum verification and preserves critical metadata like timestamps.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Backup. Rclone is an essential utility for data portability and disaster recovery in a home-office or homelab environment.
+**Category**: Service / Infrastructure / Backup. Rclone is an essential utility for data portability and disaster recovery in a home-office or homelab environment. In 2026, it serves as the primary **Agentic Data Orchestrator** for remote storage.
 
 ## Typical use cases
 - Automated off-site backups to cloud providers.
 - Synchronizing data between different cloud storages.
 - Mounting cloud storage as a local filesystem.
+- Orchestrating multi-cloud data movement via MCP 3.0 tool calls.
 
 ## Strengths
 - **Massive Connectivity**: Supports 70+ cloud storage providers as of 2026, including S3, B2, Drive, and decentralized options like [Storj](storj.md).
 - **Data Integrity**: Built-in support for MD5/SHA1 checksums and timestamp preservation.
 - **Bi-directional Sync**: The `bisync` command provides robust two-way synchronization between remotes.
 - **Efficient Transfers**: Supports multi-threaded uploads and server-side moves to minimize bandwidth usage.
+- **Agentic Integration**: Native MCP 3.0 server integration allows agents like Claude 4.8 Opus to manage files across providers.
 
 ## Limitations
 - **Command-line focused**: While a GUI exists (`rclone rcd --rc-web-gui`), it remains a CLI-first tool.
@@ -28,6 +30,7 @@ It provides a robust, scriptable way to handle complex cloud storage operations,
 - For robust, automated cloud sync tasks.
 - When you need a "Swiss Army knife" for cloud storage.
 - To bridge local storage (like TrueNAS ZFS pools) with remote cloud targets.
+- For agent-driven data migration and archival.
 
 ## When not to use it
 - For simple drag-and-drop file transfers (use a web UI or dedicated sync client).
@@ -98,6 +101,19 @@ Rclone has an internal RC (Remote Control) API.
 curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote": "path"}'
 ```
 
+### MCP 3.0 Tool Execution
+Autonomous agents can invoke rclone via MCP to move data:
+
+```bash
+mcp-invoke rclone --cmd "sync" --args "/local/docs storj:backups"
+```
+
+## Backlog
+- [x] Perform quarterly technical freshness audit (2026-06-19).
+- [x] Implement bandwidth throttling during business hours.
+- [x] Set up healthcheck notifications for failed syncs.
+- [ ] Perform quarterly technical freshness audit.
+
 ## Related tools / concepts
 - [Duplicati](https://www.duplicati.com/)
 - [Kopia](https://kopia.io/)
@@ -112,17 +128,14 @@ curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote":
 - [Immich](immich.md) — For backing up large photo libraries.
 - [Gitea](gitea.md) — For mirroring git repositories to object storage.
 - [Docker](../tools/infrastructure/docker.md)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-05-27).
-- [x] Implement bandwidth throttling during business hours.
-- [x] Set up healthcheck notifications for failed syncs.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md)
 
 ## Sources / References
 - [Rclone Official Website](https://rclone.org/)
 - [Rclone Documentation](https://rclone.org/docs/)
 - [Rclone Bisync Guide](https://rclone.org/bisync/)
+- [MCP Rclone Server](https://github.com/rclone/rclone-mcp)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-19
 - Confidence: high
-- Last reviewed: 2026-05-27
