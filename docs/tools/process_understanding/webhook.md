@@ -1,96 +1,116 @@
 # Webhook
 
 ## What it is
-A Webhook is a standard method for an application to provide other applications with real-time information. It delivers data to other applications as it happens, meaning you get data immediately, rather than polling for it.
+A Webhook is a standard method for an application to provide other applications with real-time information. It delivers data to other applications as it happens, meaning you get data immediately, rather than polling for it. In the June 2026 agentic ecosystem, webhooks serve as the "nervous system" for event-driven automation, enabling Claude 4.8 Opus and GPT-5.5 agents to react to external triggers instantly.
 
 ## What problem it solves
-It enables event-driven architectures and real-time integrations between disparate systems without the need for constant, resource-heavy API polling. In the context of AI, it allows providers to "push" events (like log completion or trace generation) directly to your custom processing logic.
+It enables event-driven architectures and real-time integrations between disparate systems without the need for constant, resource-heavy API polling. For autonomous agents, webhooks solve the "latency gap" in multi-step reasoning, allowing a long-running process (like a deep research task) to notify the agent or a downstream service as soon as results are available.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Integration Pattern
+**Category**: Process & Understanding / Integration Pattern. It sits between the **Inference Plane** (LLMs) and the **Execution Plane** (Automations), facilitating asynchronous communication.
 
 ## Typical use cases
-- **Real-Time Log Streaming**: Receiving JSON payloads from OpenRouter immediately after an LLM call is completed.
-- **CI/CD Triggers**: Starting an automated test run when an AI agent pushes code to a repository.
-- **Notifications**: Sending alerts to Discord or Slack when an anomaly is detected in an AI agent's performance.
-- **Data Ingestion Pipelines**: Triggering a document parsing job when a new file is uploaded to S3.
+- **Real-Time Log Streaming**: Receiving JSON payloads from OpenRouter immediately after an LLM call is completed for observability.
+- **Agentic CI/CD**: Triggering an [OpenHands](../development_ops/openhands.md) environment when a webhook signals a new PR on Gitea.
+- **Proactive Maintenance**: Sending alerts to [Sentry](sentry.md) when an AI agent's self-healing script fails.
+- **Automated Ingestion**: Triggering [OCRmyPDF](ocrmypdf.md) when a document is uploaded to [MinIO](../intake_storage/minio.md).
 
 ## Strengths
-- **Real-Time**: Low latency between the event and the notification.
-- **Efficiency**: Reduces network traffic and server load compared to polling.
-- **Simple Implementation**: Most webhooks use standard HTTP POST requests with JSON payloads.
-- **Universal Support**: Almost every modern SaaS and AI tool supports webhooks.
+- **Instantaneous**: Eliminates the delay inherent in polling intervals.
+- **Resource Efficient**: Only consumes compute resources when an actual event occurs.
+- **Scalable**: Modern providers like OpenRouter and Cloudflare support high-throughput webhook broadcasting.
+- **Standardized**: Uses universal HTTP POST/JSON patterns compatible with all major frameworks.
 
 ## Limitations
-- **Security**: Endpoint must be protected (e.g., via shared secrets or IP whitelisting) to prevent unauthorized data injection.
-- **Reliability**: If the receiving server is down, the data may be lost (unless the provider implements retries).
-- **One-Way**: Webhooks are typically "fire and forget"; the sender doesn't wait for a complex response.
+- **Exposed Surface**: Receiving endpoints must be public or reachable via a tunnel, requiring strict security (HMAC signatures).
+- **Delivery Guarantees**: Without a retry mechanism on the sender's side, transient network failures can lead to missed events.
+- **Statelessness**: Individual webhooks carry no state; the receiver must handle session management or persistence.
 
 ## When to use it
-- When you need real-time data synchronization between two independent systems.
-- When building event-driven architectures where actions (e.g., starting a build, sending an email) should be triggered by external events.
-- To avoid the performance and resource costs associated with constant API polling.
+- When you need real-time data synchronization between independent systems.
+- For long-running agentic tasks where the model cannot wait for a synchronous response.
+- When building event-driven workflows in [n8n](../../services/n8n.md) or [Zapier](../automation_orchestration/zapier.md).
 
 ## When not to use it
-- When the order of events is critical and the provider does not guarantee delivery order.
-- For high-frequency data streams where the overhead of individual HTTP requests is too high (consider WebSockets or a message bus like Kafka instead).
-- If the receiving system cannot handle sudden bursts of traffic (spiky loads).
+- For high-frequency streaming (e.g., raw audio/video frames) where WebSockets or gRPC are more efficient.
+- When strict ordering of events is required and not guaranteed by the provider.
+- If the receiving system cannot handle spiky, unpredictable bursts of traffic.
 
 ## Getting started
 
-Webhooks are passive receivers. To use them, you typically provide an endpoint URL to a service provider (like OpenRouter or GitHub).
+### Local Setup
+For local development, you need a way to receive webhooks behind a firewall.
+```bash
+# Install localtunnel to expose a local port
+npm install -g localtunnel
+lt --port 8000
+```
+
+### Docker Setup
+Use a generic webhook receiver like `adnanh/webhook` for simple shell script execution:
+```bash
+docker run -d -p 9000:9000 -v /path/to/config:/etc/webhook adnanh/webhook:latest
+```
 
 ## CLI examples
+
+### Testing an Endpoint
 ```bash
-# Test a local webhook endpoint with a mock JSON payload
+# Mock a webhook delivery to a local FastAPI server
 curl -X POST http://localhost:8000/webhook \
      -H "Content-Type: application/json" \
-     -H "X-Webhook-Secret: my-secret" \
-     -d '{"event": "test", "data": "hello world"}'
+     -H "X-Hub-Signature-256: sha256=..." \
+     -d '{"event": "agent_task_completed", "agent_id": "claude-4.8-opus"}'
+```
 
-# Use localtunnel to expose a local port for receiving external webhooks
-npx localtunnel --port 8000
-
-# Use ngrok to expose a local port (alternative to localtunnel)
+### Exposing Local Ports
+```bash
+# Use ngrok for more advanced features like inspection and replay
 ngrok http 8000
 ```
 
 ## API examples
 
-### Basic Receiver (Python/FastAPI)
+### Secure Receiver (Python/FastAPI)
+Using HMAC verification for June 2026 security standards.
 ```python
+import hmac
+import hashlib
 from fastapi import FastAPI, Request, Header, HTTPException
 
 app = FastAPI()
-
-SECRET_TOKEN = "your-shared-secret"
+WEBHOOK_SECRET = b"your_secure_secret"
 
 @app.post("/webhook")
-async def receive_webhook(request: Request, x_webhook_secret: str = Header(None)):
-    # Simple security check using a shared secret header
-    if x_webhook_secret != SECRET_TOKEN:
-        raise HTTPException(status_code=403, detail="Invalid secret")
+async def handle_webhook(request: Request, x_signature: str = Header(None)):
+    payload = await request.body()
 
-    # Process the incoming JSON payload
-    payload = await request.json()
-    print(f"Received event: {payload}")
-    return {"status": "success"}
+    # Verify HMAC signature
+    signature = hmac.new(WEBHOOK_SECRET, payload, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(f"sha256={signature}", x_signature or ""):
+        raise HTTPException(status_code=403, detail="Invalid signature")
+
+    data = await request.json()
+    print(f"Verified event: {data['event']}")
+    return {"status": "accepted"}
 ```
 
 ## Related tools / concepts
-- [n8n](../../services/n8n.md) (Excellent for receiving and processing webhooks)
-- [Zapier](../automation_orchestration/zapier.md)
-- [Make](../automation_orchestration/make.md)
-- [OpenRouter](../ai_knowledge/openrouter.md) (Log streaming destination)
-- [Event-Driven Architecture](../../knowledge_base/patterns/index.md)
-- [REST API](../../standards.md)
-- [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
-- [FastAPI](https://fastapi.tiangolo.com/) (Popular framework for receiving webhooks)
+- [n8n](../../services/n8n.md) — Primary platform for webhook-driven agentic workflows.
+- [Zapier](../automation_orchestration/zapier.md) — Enterprise-grade webhook orchestration.
+- [Make](../automation_orchestration/make.md) — Visual workflow automation with native webhook support.
+- [OpenRouter](../ai_knowledge/openrouter.md) — Supports real-time broadcast of agent logs.
+- [Sentry](sentry.md) — Observability via error-triggered webhooks.
+- [Gitea](../../services/gitea.md) — Source control with extensive webhook integration for CI/CD.
+- [REST API](../../standards.md) — The underlying protocol for most webhook deliveries.
+- [Event-Driven Architecture](../../knowledge_base/patterns/index.md) — The design pattern powered by webhooks.
+- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Model Context Protocol, often integrated with webhook notifications.
 
 ## Sources / references
-- [Webhooks.fyi](https://webhooks.fyi/)
-- [OpenRouter Webhook Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/webhook)
+- [Webhooks.fyi Guide](https://webhooks.fyi/)
+- [OpenRouter Webhook Features (June 2026)](https://openrouter.ai/docs/guides/features/broadcast)
+- [FastAPI Webhook Documentation](https://fastapi.tiangolo.com/advanced/using-request-directly/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-27
+- Last reviewed: 2026-06-19
 - Confidence: high
