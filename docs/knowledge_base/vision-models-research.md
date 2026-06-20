@@ -1,116 +1,135 @@
-# Local Vision Models Research
+# Vision Models Research
+
+Technical research into local and frontier vision-language models (VLMs) for agentic scene understanding, document parsing, and multi-modal reasoning as of June 2026.
 
 ## What it is
-A research summary of local vision-language models (VLMs) and multi-modal models capable of running on homelab hardware. These models allow AI agents to "see" images and videos, providing semantic descriptions, object detection, and visual reasoning as of May 2026.
+A research document evaluating the landscape of vision-capable AI models (VLMs) optimized for both local deployment (InternVL2, Florence-2) and frontier API access (Claude 4.8 Opus, Gemini 3.5). It covers models capable of image captioning, object detection, OCR, and complex visual reasoning within agentic pipelines.
 
 ## What problem it solves
-Automates the tagging, captioning, and searchability of home video and image archives (e.g., "Find the video of the birthday party") without relying on cloud services. This ensures family memories remain private while gaining the benefit of modern semantic search and agentic visual understanding.
+It enables AI agents to "see" and interpret the physical and digital world, automating the extraction of structured data from images, videos, and complex PDFs. This reduces the need for manual data entry and allows for semantic search over vast personal media archives while preserving privacy through local-first processing.
 
 ## Where it fits in the stack
-Processes raw video and image files stored on [TrueNAS](../architecture/infrastructure.md) or managed by [Immich](../services/immich.md). It acts as the **Inference Layer** for visual data, feeding structured descriptions into the [Vector Database Comparison](./vector-db-comparison.md) for long-term memory.
+Vision models act as the **Perception Layer** within the [Home-Office Architecture](../architecture/README.md). They process raw data from [Immich](../services/immich.md) or [Paperless-ngx](../services/paperless-ngx.md) and feed semantic descriptions into the [Memory Plane](./vector-db-comparison.md) (Vector DBs) for agentic retrieval.
 
 ## Typical use cases
-- **Automated Metadata Generation**: Generating descriptions for home video frames and images.
-- **Semantic Media Search**: Natural language search over video content (e.g., "scenes with the dog in the garden").
-- **Agentic Visual Reasoning**: Allowing a [Home Admin Agent](./home-admin-agent-architecture.md) to answer questions about the physical world (e.g., "Is the garage door closed in this photo?").
-- **Document Analysis**: Advanced OCR and table extraction from complex document images using models like Florence-2.
-
-## Top Local Vision Models (2026)
-
-| Model | Size | Strengths | Best For |
-| :--- | :--- | :--- | :--- |
-| **InternVL2** | 1B - 76B | State-of-the-art visual reasoning, excellent OCR. | High-accuracy document & scene analysis. |
-| **Llama 3.2 Vision** | 11B / 90B | Broad knowledge, excellent instruction following. | General-purpose assistant with vision. |
-| **Florence-2** | 0.2B - 0.7B | Extremely fast object detection, segmentation, OCR. | High-throughput metadata tagging. |
-| **Moondream2** | 1.6B | Compact, efficient, runs on almost any hardware. | Fast, simple image captioning on CPUs. |
-| **Qwen2-VL** | 2B - 72B | Exceptional at document understanding and multi-image. | Multi-page PDF analysis and video-as-images. |
+- **Automated Media Tagging**: Generating high-fidelity metadata for thousands of home photos and videos in [Immich](../services/immich.md).
+- **Agentic Scene Reasoning**: Answering complex questions about the household (e.g., "Check the 2 PM camera feed for the delivery package").
+- **Document Ingestion**: High-accuracy extraction of tables, handwritten notes, and structural data from scanned documents in [Paperless-ngx](../services/paperless-ngx.md).
+- **Visual RAG**: Retrieving specific visual memories by searching for semantic descriptions (e.g., "the blue car in the driveway").
 
 ## Strengths
-- **Privacy**: Zero-egress processing of sensitive personal media.
-- **Cost**: No per-token or per-image costs common with cloud APIs like GPT-4o.
-- **Native Integration**: Directly integrates with local storage and n8n workflows.
-- **Low Latency**: High-speed processing on local NVIDIA/Apple Silicon hardware.
+- **InternVL2**: State-of-the-art local reasoning; excels at high-resolution OCR and multi-page document understanding.
+- **Florence-2**: Exceptional speed and efficiency for "dense" tasks like object detection and regional segmentation.
+- **Claude 4.8 Opus**: Market-leading visual reasoning and document parsing for complex, high-stakes tasks.
+- **Gemini 3.5**: Superior "infinite context" for video understanding, allowing agents to reason across hours of footage.
+- **Moondream2**: Minimal resource footprint; ideal for real-time captioning on edge devices.
 
 ## Limitations
-- **VRAM Intensive**: 11B+ models require 12GB+ VRAM for comfortable inference.
-- **Sequential Processing**: Analyzing high-FPS video requires significant compute; pooling or keyframe extraction is mandatory.
-- **Accuracy**: While competitive, local models may still lag behind flagship cloud models in extreme edge cases or high-resolution details.
+- **High VRAM Requirements**: High-performance local VLMs (20B+) require 24GB+ VRAM for optimal inference.
+- **Temporal Complexity**: Most VLMs still process video as a series of sampled frames, potentially missing fine-grained temporal events.
+- **Hallucination Risk**: Agents may "over-interpret" visual noise, requiring robust confidence-scoring and human-in-the-loop (HITL) checks.
+- **Computational Cost**: High-resolution image processing is significantly slower than pure text inference.
 
 ## When to use it
-- Use **Whisper** for all audio transcription needs in the homelab.
-- Use **CLIP** or **SigLIP** for implementing "search by description" in image/video galleries.
-- Use **Florence-2** for specialized tasks like object detection, OCR, and regional captioning.
-- Use **Moondream2** for generating quick, natural language captions for personal photos.
-- Use **InternVL2** or **Llama 3.2 Vision** when complex reasoning about an image is required.
+- Use **Florence-2** for high-throughput tagging and simple OCR where speed is the primary metric.
+- Use **InternVL2** for deep reasoning about local data where privacy and high accuracy are required.
+- Use **Claude 4.8 Opus** for mission-critical document extraction where precision outweighs per-token costs.
+- Use **Gemini 3.5** for projects requiring long-form video analysis or multi-modal context windows (up to 2M tokens).
+- Use **CLIP/SigLIP** for basic "search-by-text" indexing in large image galleries.
 
 ## When not to use it
-- Do not use for real-time video surveillance analysis on low-power CPU-only nodes.
-- Do not rely on 100% accuracy for critical forensic identification without human verification.
-- Avoid using for long-form video understanding without a robust keyframe extraction or pooling pipeline.
-
-## Implementation Patterns
-
-### 1. Keyframe Extraction (Efficient)
-Extract one frame every X seconds or only when significant motion/scene change is detected.
-```bash
-# Extract one frame every 10 seconds
-ffmpeg -i input.mp4 -vf "fps=1/10" frame_%04d.jpg
-```
-
-### 2. Video Token Pooling (Advanced)
-Some 2026 models support "Video Input" natively by sampling frames and pooling their tokens into a single context window, allowing for better temporal understanding than individual frame analysis.
-
-### 3. Visual RAG
-Store image descriptions in a [Vector DB](./vector-db-comparison.md). When a user asks "Where are the photos of the lake?", the agent searches the descriptions to find relevant timestamps/filenames.
+- For real-time, low-latency safety monitoring (e.g., collision avoidance) where milliseconds matter (use dedicated CV models).
+- On devices without a dedicated NPU or NVIDIA/Apple GPU (inference will be prohibitively slow).
+- For processing highly sensitive data that cannot legally or ethically be sent to cloud providers (use local-only InternVL2/Llama 3.2).
 
 ## Getting started
 
-### Running InternVL2 via Ollama
-InternVL2 is often the 2026 recommendation for high-accuracy local vision.
+### Local Deployment: InternVL2 (Ollama)
+The recommended high-performance local VLM for 2026.
 
 ```bash
-# Pull the InternVL2 model (assuming 8B variant)
-ollama pull internvl2:8b
+# Pull the InternVL2 model (assuming 26B variant for high accuracy)
+ollama pull internvl2:26b
 
-# Query with an image
-ollama run internvl2:8b "What is in this image?" --image ./kitchen.jpg
+# Query an image via the CLI
+ollama run internvl2:26b "Extract all the text from this receipt" --image ./receipt.png
 ```
 
-### Python: Regional Captioning with Florence-2
-Florence-2 is superior for finding *where* things are in a frame.
+### Video Frame Sampling (FFmpeg)
+Before processing video with a VLM, sample keyframes to reduce token load.
+```bash
+# Extract one high-quality frame every 5 seconds
+ffmpeg -i input.mp4 -vf "fps=1/5" -q:v 2 frame_%04d.jpg
+```
+
+## CLI examples
+
+```bash
+# Run a quick Moondream2 captioning test
+moondream-cli --image sample.jpg --prompt "Describe this image in one sentence."
+
+# Verify the CUDA availability for vision model inference
+python3 -c "import torch; print(f'GPU: {torch.cuda.get_device_name(0)}' if torch.cuda.is_available() else 'No GPU')"
+
+# Use tesseract for legacy fast OCR (fallback)
+tesseract document.png output_text
+```
+
+## API examples
+
+### Gemini 3.5 Video Analysis (Python)
+Utilizing Gemini's massive context window for video understanding.
 
 ```python
-from transformers import AutoProcessor, AutoModelForVision2Seq
-from PIL import Image
+import google.generativeai as genai
 
-model_id = "microsoft/Florence-2-large"
-model = AutoModelForVision2Seq.from_pretrained(model_id, trust_remote_code=True)
-processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
+video_file = genai.upload_file(path="homelab_tour.mp4")
+model = genai.GenerativeModel(model_name="gemini-3.5-flash")
 
-image = Image.open("backyard.jpg")
-prompt = "<DETAILED_CAPTION>"
+response = model.generate_content([
+    video_file,
+    "List every piece of networking equipment visible in this video with timestamps."
+])
+print(response.text)
+```
 
-inputs = processor(text=prompt, images=image, return_tensors="pt")
-generated_ids = model.generate(input_ids=inputs["input_ids"], pixel_values=inputs["pixel_values"])
-results = processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
-print(results)
+### Claude 4.8 Opus Document Parsing
+Optimized for high-fidelity structural extraction.
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+message = client.messages.create(
+    model="claude-4-8-opus-202606",
+    max_tokens=2048,
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": "..."}},
+            {"type": "text", "text": "Convert this table to a structured JSON format."}
+        ]
+    }]
+)
 ```
 
 ## Related tools / concepts
-- [Immich](../services/immich.md) — primary gallery for local media.
-- [Whisper](../services/whisper.md) — for the audio half of video analysis.
-- [Ollama](../services/ollama.md) — the standard for running local VLMs.
-- [Paperless-ngx](../services/paperless-ngx.md) — for document-centric vision tasks.
-- [Architecture](../architecture/README.md) — for high-level service placement.
-- [Home Admin Agent Architecture](./home-admin-agent-architecture.md) — for agentic reasoning over visual data.
-- [Vector DB Comparison](./vector-db-comparison.md) — for storing visual embeddings.
+- [Immich](../services/immich.md) — Media storage and organization.
+- [Ollama](../services/ollama.md) — Local model hosting for VLMs.
+- [Paperless-ngx](../services/paperless-ngx.md) — Document management and OCR.
+- [Vector DB Comparison](./vector-db-comparison.md) — Storing visual embeddings.
+- [Home Admin Agent Architecture](./home-admin-agent-architecture.md) — Agentic reasoning.
+- [LLM Security and Privacy](./llm_security_privacy.md) — Data sovereignty.
+- [Voice-to-Task Research](./voice-to-task-research.md) — Multi-modal synthesis.
+- [Tool Calling and MCP](./patterns/tool-calling-and-mcp.md) — Actionable vision.
+- [Architecture](../architecture/README.md) — Overall system placement.
 
 ## Sources / references
-- [Open-GVLab/InternVL GitHub](https://github.com/Open-GVLab/InternVL)
-- [Microsoft Florence-2 on Hugging Face](https://huggingface.co/microsoft/Florence-2-large)
-- [Meta Llama 3.2 Documentation](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_2/)
-- [Moondream GitHub](https://github.com/vikhyat/moondream)
+- [InternVL2 Model Card](https://huggingface.co/Open-GVLab/InternVL2-26B)
+- [Florence-2: A Unified Vision Foundation Model](https://arxiv.org/abs/2311.06242)
+- [Gemini API Documentation](https://ai.google.dev/docs)
+- [Anthropic Vision Capabilities](https://docs.anthropic.com/claude/docs/vision)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high
