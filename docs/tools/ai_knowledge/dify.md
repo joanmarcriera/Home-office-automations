@@ -1,77 +1,87 @@
 # Dify
 
+Dify is an open-source LLM application development platform that allows you to visually create and operate AI applications based on various LLMs.
+
 ## What it is
-Dify is an open-source LLM application development platform. It allows you to visually create and operate AI applications based on various LLMs, and includes tools for prompt engineering, RAG, and agent orchestration.
+
+Dify is an open-source LLM application development platform. It allows you to visually create and operate AI applications based on various LLMs, and includes tools for prompt engineering, RAG, and agent orchestration. It provides a full-stack experience from model management to application deployment.
 
 ## What problem it solves
-Lowers the barrier to building LLM-powered applications by providing a visual interface for designing prompts, RAG pipelines, and agent workflows without writing extensive code.
+
+Lowers the barrier to building LLM-powered applications by providing a visual interface for designing prompts, RAG pipelines, and agent workflows without writing extensive code. It addresses the complexity of managing multiple model providers, vector databases, and application states.
 
 ## Where it fits in the stack
-AI & Knowledge — serves as a visual platform for building and deploying LLM applications, potentially connecting to the local Ollama instance.
+
+**AI & Knowledge / Application Orchestration**. Serves as a visual platform for building and deploying LLM applications, typically connecting to local inference engines like Ollama or frontier models like Claude 4.8.
 
 ## Typical use cases
-- Building RAG applications with a visual drag-and-drop interface
-- Rapid prototyping of prompt chains and agent workflows
-- Setting up local RAG pipelines with Ollama and private data
+
+- **Visual RAG Construction**: Building RAG applications with a visual drag-and-drop interface.
+- **Agent Orchestration**: Rapid prototyping of complex agent workflows with tool-calling and multi-step reasoning.
+- **Prompt IDE**: Collaborative prompt engineering and versioning within a team.
+- **Enterprise AI Gateway**: Providing a unified API for internal applications to access multiple LLMs with usage tracking.
 
 ## Strengths
-- Open-source and self-hostable, aligning with the privacy-first approach
-- Visual interface makes LLM app development accessible to non-developers
-- Supports multiple LLM backends including local models via Ollama
+
+- **Privacy-First**: Open-source and self-hostable, allowing for complete data sovereignty.
+- **User Friendly**: Visual interface makes LLM app development accessible to non-developers.
+- **Batteries Included**: Comes with built-in support for multiple vector databases (Pinecone, Weaviate, Milvus) and model providers.
+- **Scalable**: Supports multi-user organizations and production-grade monitoring.
 
 ## Limitations
-- Requires running an additional service with its own dependencies
-- Less flexible than code-first frameworks for highly custom workflows
-- Smaller community and ecosystem compared to LangChain
+
+- **Infrastructure Heavy**: Requires running an additional service stack (Redis, PostgreSQL, Vector DB) with its own resource overhead.
+- **Extensibility**: Less flexible than code-first frameworks (like LangChain) for highly custom, non-standard orchestration logic.
+- **Version Drift**: Rapid development of the core platform can sometimes lead to breaking changes in YAML configurations.
 
 ## When to use it
-- When you want a visual environment to prototype and deploy LLM applications
-- When building RAG or agent applications that connect to local LLM infrastructure
+
+- When you want a visual environment to prototype and deploy LLM applications.
+- When building RAG or agent applications that need to connect to local LLM infrastructure.
+- In team environments where non-technical stakeholders need to participate in prompt tuning.
 
 ## When not to use it
-- When you need fine-grained programmatic control over LLM pipelines
-- When the overhead of running another service is not justified for simple tasks
+
+- When you need absolute, fine-grained programmatic control over LLM pipelines.
+- When the overhead of running a full Dify stack is not justified for simple, single-script tasks.
 
 ## Getting started
 
-### Installation (Docker Compose)
 Dify is best deployed using Docker Compose for self-hosting.
 
-```bash
-git clone https://github.com/langgenius/dify.git
-cd dify/docker
-cp .env.example .env
-docker compose up -d
-```
-
-### Accessing the Dashboard
-Once the containers are running, navigate to `http://localhost/install` in your browser to complete the initial setup and create your admin account.
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/langgenius/dify.git
+    cd dify/docker
+    ```
+2.  **Environment Setup**:
+    ```bash
+    cp .env.example .env
+    ```
+3.  **Deploy**:
+    ```bash
+    docker compose up -d
+    ```
+4.  **Setup Admin**: Navigate to `http://localhost/install` in your browser to create the admin account and initialize the database.
 
 ## CLI examples
 
-### 1. Start Dify Infrastructure
-```bash
-docker compose up -d
-```
+Managing the Dify infrastructure via the command line:
 
-### 2. View Service Logs
 ```bash
+# View the health of all Dify services
+docker compose ps
+
+# Access the logs for the main API service
 docker compose logs -f api
-```
 
-### 3. Database Migration (Maintenance)
-```bash
-docker exec -it dify-api-1 flask db upgrade
+# Perform a database migration manually (usually automated on startup)
+docker exec -it dify-api flask db upgrade
 ```
 
 ## API examples
 
-### Calling a Dify Chat Application (Python)
-Dify provides an official Python SDK for interacting with your deployed applications.
-
-```bash
-pip install dify-client
-```
+Interacting with a deployed Dify application using the official Python SDK:
 
 ```python
 from dify_client import ChatClient
@@ -79,31 +89,36 @@ from dify_client import ChatClient
 # Initialize the ChatClient with your App's API Key
 client = ChatClient(api_key="app-xxxxxxxxxxxxxx")
 
-# Create a chat message
+# Send a message to your agent or RAG application
 response = client.create_chat_message(
-    inputs={},
-    query="How can I optimize my local RAG pipeline?",
-    user="user_123",
+    inputs={"user_context": "home-office"},
+    query="How do I integrate Dify with my local Ollama instance?",
+    user="jules_agent",
     response_mode="blocking"
 )
 
-print(response.json())
+# Extract and print the answer
+print(f"Dify Response: {response.json().get('answer')}")
 ```
 
 ## Related tools / concepts
-- [Flowise](flowise.md)
-- [LangChain](langchain.md)
-- [LlamaIndex](llamaindex.md)
-- [Langflow](../frameworks/langflow.md)
-- [AnythingLLM](anythingllm.md)
-- [Ollama](../../services/ollama.md)
+
+- [Flowise](flowise.md) — Alternative visual LLM orchestration.
+- [LangChain](langchain.md) — The code-first foundation for many Dify patterns.
+- [LlamaIndex](llamaindex.md) — Advanced RAG capabilities often integrated into Dify.
+- [Langflow](../frameworks/langflow.md) — Visual interface specifically for LangChain.
+- [Ollama](../../services/ollama.md) — Primary local model backend for Dify.
+- [n8n](../../services/n8n.md) — General-purpose automation often used to trigger Dify APIs.
+- [Model Context Protocol (MCP)](../../architecture/multi_agent_knowledgeops.md) — Emerging standard for tool discovery in agentic platforms.
+- [AnythingLLM](anythingllm.md) — Simpler alternative for personal RAG.
 
 ## Sources / references
-- [Official Website](https://dify.ai/)
-- [GitHub Repository](https://github.com/langgenius/dify)
+
+- [Dify Official Website](https://dify.ai/)
 - [Dify Documentation](https://docs.dify.ai/)
+- [Dify GitHub Repository](https://github.com/langgenius/dify)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high

@@ -1,30 +1,98 @@
 # OpenClaw Use-Case Catalog
 
+The OpenClaw Use-Case Catalog is a categorized directory of recurring automation and assistant workflows optimized for the OpenClaw agent runtime.
+
 ## What it is
+
 The OpenClaw Use-Case Catalog is a categorized directory of recurring automation and assistant workflows optimized for the [OpenClaw](../../tools/development_ops/openclaw.md) agent runtime. It distills real-world implementation notes from the community into a selection guide for users looking to deploy autonomous agents in their personal or professional environments.
 
 ## What problem it solves
+
 New users often find OpenClaw's flexibility overwhelming, leading to "blank canvas" syndrome. This catalog solves that by translating abstract agent capabilities into concrete workload shapes, providing the necessary guardrails and implementation notes to ensure workflows are reliable and safe.
 
 ## Where it fits in the stack
+
 This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem. It helps users decide when OpenClaw is the appropriate runtime versus using a simpler script, an [n8n](../../services/n8n.md) flow, or a dedicated tool like [OpenHands](../../tools/development_ops/openhands.md).
 
 ## Typical use cases
+
 - **Morning Briefing Assistant**: Aggregating weather, calendar events, and task lists into a single conversational summary.
 - **"Second Brain" Capture**: Processing bookmarks, notes, and links from various sources into a unified knowledge base.
 - **Nightly Research Digest**: Scheduled agents that search the web for specific topics and synthesize findings into a daily report.
-- **Email Triage**: Classifying incoming emails and drafting replies in the user's specific tone and style.
 - **Infrastructure Monitoring**: Performing periodic SSH-backed system checks and reporting anomalies to a chat channel.
+- **Development Orchestration**: Coordinating multi-file changes and test runs via [Prompt Requests](prompt_requests.md).
 
 ## Strengths
+
 - **Practicality**: Based on long-running, real-world workflows rather than theoretical possibilities.
 - **Safety-First**: Provides specific "Guardrails" for every use case to prevent unintended side effects.
 - **Comparative Guidance**: Clearly defines when the agent is a "good fit" versus a "poor fit" for a task.
+- **Extensibility**: Skills are defined in YAML, making it easy to share and adapt catalog patterns.
 
 ## Limitations
+
 - **User Bias**: Community examples often reflect the needs of "power users" and may be too complex for beginners.
 - **Reliability Variance**: Not all documented workflows have the same level of production-grade stability.
 - **Maintenance Overhead**: As the OpenClaw API and integrations evolve, these use cases require periodic refreshing.
+- **Token Usage**: Complex recursive workflows in the catalog can quickly consume LLM token budgets.
+
+## When to use it
+
+- Use when designing a new agentic workflow and looking for established patterns and safety boundaries.
+- Use to prioritize which agent capabilities to build first based on proven community success.
+- Use when evaluating whether a complex automation task belongs in an autonomous agent or a traditional workflow tool.
+
+## When not to use it
+
+- Don't use if the workflow is purely deterministic and better suited for a simple Python script or [n8n](../../services/n8n.md).
+- Don't use for mission-critical industrial automation where human-in-the-loop (HITL) is not possible.
+- Avoid when the primary requirement is absolute auditability with zero autonomous interpretation.
+
+## Getting started
+
+To begin using the patterns in this catalog:
+
+1.  **Clone the Skill Repository**: Most catalog items reference skills available in the official OpenClaw skill library.
+2.  **Select a Pattern**: Identify a use case (e.g., "Nightly Research Digest") from the table in the `Categorized use cases` section below.
+3.  **Configure Environment**: Set the required API keys (e.g., Search, LLM) in your `.env` file.
+4.  **Dry Run**: Run the skill with `dry_run: true` to inspect the proposed plan without executing actions.
+
+## CLI examples
+
+Interacting with catalog-inspired skills via the `openclaw` CLI:
+
+```bash
+# Execute the morning briefing skill
+openclaw run morning_briefing --param city="London"
+
+# List all available skills derived from the catalog
+openclaw skills list
+
+# Audit a skill for security guardrail compliance
+openclaw audit skills/research_digest.yaml
+```
+
+## API examples
+
+Programmatically invoking a use-case pattern via the OpenClaw Python SDK:
+
+```python
+from openclaw import OpenClawClient
+
+client = OpenClawClient(api_key="your_key")
+
+# Trigger a "Second Brain" capture workflow
+response = client.execute_skill(
+    skill_name="second_brain_capture",
+    inputs={
+        "url": "https://example.com/article",
+        "tags": ["ai", "patterns"],
+        "target": "obsidian"
+    }
+)
+
+print(f"Workflow status: {response.status}")
+```
 
 ## Categorized use cases
 
@@ -36,98 +104,28 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 | Content | Idea capture and content machine | Useful for capturing rough ideas, organizing them, and expanding into reusable drafts | Draft-only before publishing |
 | Web work | URL summary and link processing | Efficient when a lightweight skill can summarize an article, PDF, or video from a link | Keep browsing isolated |
 | Infrastructure | Server and service monitoring | Works well for SSH-backed checks plus human-readable reporting in chat | Require approval for fixes and restarts |
-| Development | Coding from phone / remote PR prep | Helpful when conversational requests must turn into branch, commit, and PR actions | Never auto-merge without review |
+| Development | Coding remote PR prep | Helpful when conversational requests must turn into branch, commit, and PR actions | Never auto-merge without review |
 | Communications | Email triage and draft replies | Good for classifying inbox traffic and drafting responses in the user's tone | Draft-only mode, never send directly |
-| Calendar and family | Scheduling and reminder coordination | Useful when the same assistant handles calendar checks, event creation, and reminders | Require confirmation for sensitive events |
-| Operations | Daily life admin and recurring checklists | Strong fit for errands, reminders, recurring personal tasks, and follow-up loops | Keep external side effects explicit |
-| Reporting | Scheduled reporting and anomaly detection | Good for pulling routine metrics and calling out patterns humans might miss | Separate reporting from action-taking |
-
-## Advanced Patterns (2026)
-
-### Moltbook: Interactive Agent Notebooks
-**Moltbook** is a specialized interface for OpenClaw that treats agent interactions as a collaborative notebook. Instead of a linear chat, users can branch agent thoughts, edit intermediate outputs, and "rerun" specific skill executions with different parameters.
-- **Pattern**: Use Moltbook for complex research and debugging where the agent's internal reasoning needs human steering.
-
-### ClawdHub Distribution
-**ClawdHub** has evolved into a full package manager for OpenClaw skills. In 2026, it supports private registries and versioned dependencies.
-- **Pattern**: Use ClawdHub to manage organizational skill-sets, ensuring all agents in a team use the same vetted security and data-ingestion tools.
-
-### Native Vector Memory
-OpenClaw 2026.3+ includes **Native Vector Memory**, removing the external dependency on Pinecone or Milvus for basic long-term context.
-- **Pattern**: Leverage native memory for "Second Brain" use cases to simplify the self-hosting stack while maintaining semantic recall capabilities.
-
-## Implementation notes
-- Use [LiteLLM](../../services/litellm.md) or a similar router to separate cheap routine jobs from expensive deep-thinking tasks.
-- Keep destructive skills out of the default assistant loop.
-- Put draft-first boundaries around email, publishing, and customer-facing actions.
-- Use [n8n](../../services/n8n.md) or another workflow system when timing, retries, approvals, and auditability matter more than conversation.
-- Start with one or two well-bounded skills before layering more channels or capabilities.
-
-## Technical implementation example (YAML)
-OpenClaw uses YAML-based skill definitions. Below is an example of a "Morning Briefing" skill that aggregates data from multiple sources:
-
-```yaml
-# skills/morning_briefing.yaml
-name: morning_briefing
-description: "Aggregates weather, calendar, and tasks for a daily summary."
-trigger: "morning briefing"
-parameters:
-  location:
-    type: string
-    description: "The city for weather lookup"
-    default: "San Francisco"
-actions:
-  - name: get_weather
-    skill: weather_provider
-    args:
-      city: "{{location}}"
-  - name: get_calendar
-    skill: google_calendar
-    args:
-      view: "day"
-  - name: get_tasks
-    skill: todoist
-    args:
-      filter: "today"
-prompt_template: |
-  You are a helpful morning assistant. Based on the following data:
-  Weather: {{actions.get_weather.output}}
-  Calendar: {{actions.get_calendar.output}}
-  Tasks: {{actions.get_tasks.output}}
-
-  Provide a concise, motivating summary of the user's day.
-```
-
-## Security and Guardrails
-When deploying these use cases, consider the following security patterns:
-- **Credential Isolation**: Store API keys in environment variables or a secure vault, never in the YAML definitions.
-- **Sandbox Execution**: For development use cases, ensure OpenClaw is running in a [Docker](../../tools/infrastructure/docker.md) container to isolate filesystem access.
-- **Human-in-the-loop (HITL)**: For "Content" or "Communications" use cases, enforce a `draft_only: true` flag in the skill configuration.
-
-## When to use it
-- Use when designing a new agentic workflow and looking for established patterns and safety boundaries.
-- Use to prioritize which agent capabilities to build first based on proven community success.
-- Use when evaluating whether a complex automation task belongs in an autonomous agent or a traditional workflow tool.
-
-## When not to use it
-- Don't use if the workflow is purely deterministic and better suited for a simple Python script or [n8n](../../services/n8n.md).
-- Don't use for mission-critical industrial automation where human-in-the-loop (HITL) is not possible.
-- Avoid when the primary requirement is absolute auditability with zero autonomous interpretation.
+| Operations | Daily life admin | Strong fit for errands, reminders, recurring personal tasks, and follow-up loops | Keep external side effects explicit |
 
 ## Related tools / concepts
-- [OpenClaw](../../tools/development_ops/openclaw.md)
-- [n8n](../../services/n8n.md)
-- [OpenHands](../../tools/development_ops/openhands.md)
-- [Daily Briefing](../../reference-implementations/llm-prompts/daily-briefing.md)
-- [Agentic Workflows](agentic-workflows.md)
-- [Agent Protocols](../agent_protocols.md)
-- [Skills Best Practices](skills-best-practices.md)
+
+- [OpenClaw](../../tools/development_ops/openclaw.md) — The primary runtime for these use cases.
+- [n8n](../../services/n8n.md) — Visual workflow automation for deterministic paths.
+- [OpenHands](../../tools/development_ops/openhands.md) — Specialized agent for coding-centric use cases.
+- [Daily Briefing](../../reference-implementations/llm-prompts/daily-briefing.md) — Prompt template for the briefing use case.
+- [Agentic Workflows](agentic-workflows.md) — Theoretical foundation for these patterns.
+- [Prompt Requests](prompt_requests.md) — The preferred interface for development-centric use cases.
+- [Skills Best Practices](skills-best-practices.md) — Guidelines for authoring the skills used in this catalog.
+- [Software Factories](software-factories.md) — High-scale pattern for autonomous code generation.
 
 ## Sources / References
+
 - [OpenClaw automation examples and workflow notes](https://gist.github.com/ANcpLua/4ba21cd7f0bf08e0b483f3187dd93308)
 - [OpenClaw after 50 days: all prompts for 20 real workflows](https://gist.github.com/velvet-shark/b4c6724c391f612c4de4e9a07b0a74b6)
 - [awesome-openclaw-usecases](https://github.com/hesamsheikh/awesome-openclaw-usecases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+
+- Last reviewed: 2026-06-20
 - Confidence: high
