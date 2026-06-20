@@ -3,33 +3,31 @@
 Research into local speech-to-text (STT) and its integration with Home Assistant for hands-free task creation.
 
 ## What it is
-A system that captures voice commands, transcribes them using local models, and routes the resulting text to a task management system (e.g., Vikunja). It utilizes the Wyoming protocol for efficient, low-latency communication between the voice assistant and the transcription engine. As of 2026, it increasingly incorporates Large Language Models (LLMs) to handle complex intent parsing and multi-step task decomposition.
+A system that captures voice commands, transcribes them using local models, and routes the resulting text to a task management system (e.g., Vikunja). It utilizes the Wyoming protocol for efficient, low-latency communication between the voice assistant and the transcription engine. In June 2026, this utilizes Whisper v1.2.x (Faster-Whisper) and Claude 4.8 for intent synthesis.
 
 ## What problem it solves
-Enables "heads-up, hands-free" task capture, reducing friction for recording chores, reminders, and shopping list items without needing to open an app. This is particularly useful in "dirty hands" environments like kitchens or workshops. It bridges the gap between raw audio and structured data.
+Enables "heads-up, hands-free" task capture, reducing friction for recording chores, reminders, and shopping list items without needing to open an app. This is particularly useful in "dirty hands" environments like kitchens or workshops. It bridges the gap between raw audio and structured data while maintaining 100% data sovereignty.
 
 ## Where it fits in the stack
 **Knowledge Base / Pattern**. It connects [Home Assistant](../services/home-assistant.md) voice pipelines with [n8n](../services/n8n.md) for task processing. It sits in the **Interaction Layer** of the [Home-Office Architecture](../architecture/README.md).
 
 ## Typical use cases
-- "Hey Assist, remind me to take out the trash tonight."
-- "Add milk to the grocery list."
-- "Start a task for cleaning the gutters on Saturday."
-- Hands-free logging of maintenance activities during homelab repairs.
-- Dictating complex notes that require LLM-based summarization before storage.
+- **Household Management**: "Hey Assist, remind me to take out the trash tonight."
+- **Inventory/Shopping**: "Add milk to the grocery list."
+- **Maintenance Logging**: Hands-free logging of maintenance activities during homelab repairs.
+- **Deep Thought Capture**: Dictating complex notes that require LLM-based summarization before storage in [Obsidian](../tools/ai_knowledge/obsidian.md).
+- **Agentic Task Decomposition**: "I need to plan a party for Saturday," which the agent decomposes into sub-tasks in [Vikunja](../services/vikunja.md).
 
 ## Strengths
 - **Privacy**: No audio data is sent to the cloud when using local Whisper.
 - **Low Latency**: Local processing on powerful hardware (Intel NUC/Apple Silicon) can provide sub-second responses.
 - **Reliability**: Works without an internet connection, provided the local network is up.
-- **Customizability**: Allows for custom "wake words" and specific "intents" tailored to the household.
-- **Agentic Integration**: Deep integration with [Ollama](../services/ollama.md) allows for sophisticated reasoning over voice inputs.
+- **Agentic Integration**: Deep integration with [Ollama](../services/ollama.md) and [Claude 4.8](../tools/ai_knowledge/claude.md) allows for sophisticated reasoning over voice inputs.
 
 ## Limitations
-- **Hardware Requirements**: Running Whisper locally requires significant CPU/GPU resources for acceptable performance.
+- **Hardware Requirements**: Running Whisper v1.2.x locally requires significant CPU/GPU resources (NVIDIA GPU recommended for `large-v3` models).
 - **Accuracy**: Noise and accents can affect transcription quality, especially with smaller models (e.g., `tiny` or `base`).
 - **Complexity**: Setting up the Wyoming protocol and Assist pipelines requires technical overhead compared to cloud solutions.
-- **Vocal Fatigue**: Not suitable for long-form dictation without robust error correction.
 
 ## When to use it
 - When privacy is a top priority for household conversations.
@@ -38,26 +36,33 @@ Enables "heads-up, hands-free" task capture, reducing friction for recording cho
 - When pairing voice with local RAG workflows for information retrieval.
 
 ## When not to use it
-- On extremely low-power hardware like a Raspberry Pi 3 or 4 (latency will be high, often 5-10s per command).
+- On extremely low-power hardware like a Raspberry Pi 4 (latency will be high, often 5-10s per command).
 - If cloud-based STT reliability and accuracy (e.g., Google Assistant or Alexa) are preferred over privacy.
-- If you don't have a reliable local network to handle the Wyoming protocol traffic.
 - For safety-critical systems where voice command misinterpretation could lead to physical harm.
 
 ## Getting started
 
-### Docker Compose for Wyoming-Whisper
+### Docker Compose for Wyoming-Whisper (Faster-Whisper)
 Deploying the STT engine as a container is the recommended path for homelabs.
 
 ```yaml
 services:
   whisper:
-    image: rhasspy/wyoming-whisper
+    image: rhasspy/wyoming-whisper:latest
     container_name: wyoming-whisper
-    command: --model base --language en
+    # Use 'base' for speed or 'large-v3' for accuracy
+    command: --model base --language en --device cuda
     volumes:
       - ./whisper-data:/data
     ports:
       - "10300:10300"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     restart: unless-stopped
 
   piper:
@@ -71,46 +76,27 @@ services:
     restart: unless-stopped
 ```
 
-## Implementation Details
-
-### Whisper and Wyoming Protocol
-Home Assistant uses the **Wyoming protocol** to communicate with local STT and TTS services. This small-footprint protocol allows the transcription engine to be hosted on a separate, more powerful node than the Home Assistant instance itself. [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) or `faster-whisper` can be run in a container that exposes a Wyoming-compatible endpoint.
-
-**Key Components:**
-- **Wyoming-Whisper**: A service that runs the Whisper model and communicates via the Wyoming protocol.
-- **Home Assistant Assist**: The voice pipeline that manages the STT -> Intent -> TTS flow.
-- **openWakeWord**: For local, low-power wake word detection (e.g., "Hey Jarvis").
-
-### Integration Steps
-1. **Deploy Wyoming-Whisper**: Run the `rhasspy/wyoming-whisper` Docker container on a node with sufficient CPU/GPU.
-2. **Configure Home Assistant**: Add the "Wyoming Protocol" integration and point it to the Whisper container's IP and port (default 10300).
-3. **Set Up Pipeline**: In Home Assistant, create a new "Assist" pipeline using the Wyoming STT service.
-4. **Intent Handling**: Define intents in `conversations.yaml` or use the Assist integration to trigger n8n webhooks.
-5. **n8n Routing**: Use a Home Assistant trigger in n8n (or a webhook) to catch successful voice intents and route them to [Vikunja](../services/vikunja.md).
-
-## Advanced Intent Processing (LLM)
-In 2026, the standard for sophisticated voice assistants has shifted from regex-based intent matching to LLM-based interpretation.
-
-1. **Raw Transcription**: Whisper converts audio to "I need to fix the sink and then buy some milk".
-2. **LLM Contextualization**: The text is sent to a local [Ollama](../services/ollama.md) instance with a system prompt like: *"Extract tasks and items from this voice command. Format as JSON."*
-3. **Tool Calling**: The LLM identifies that `fix the sink` is a task for [Vikunja](../services/vikunja.md) and `milk` is an item for the grocery list. It uses [Tool Calling patterns](./patterns/tool-calling-and-mcp.md) to execute these actions via n8n.
-
 ## CLI examples
 
+### Testing the Wyoming Endpoint
 ```bash
 # Verify the Wyoming service is listening
 nc -zv 192.168.1.50 10300
 
 # Check logs of the Whisper container during a voice command
 docker logs -f wyoming-whisper
+```
 
-# Test Piper TTS output to a file
-echo "Task created successfully." | docker exec -i wyoming-piper \
-  python3 -m wyoming_piper --voice en_US-lessac-medium --output_file /data/test.wav
+### Manual Transcription via Faster-Whisper CLI
+```bash
+# Transcribe a local audio file using the faster-whisper model
+faster-whisper-cli --model base --language en audio_sample.wav
 ```
 
 ## API examples
-The Wyoming protocol is primarily used internally by Home Assistant, but you can interact with the Assist API to send text for intent processing:
+
+### Home Assistant Assist API
+You can interact with the Assist API to send text for intent processing:
 
 ```bash
 # Send a transcribed text to Home Assistant for intent processing
@@ -121,23 +107,37 @@ curl -X POST \
   "http://homeassistant.local:8123/api/conversation/process"
 ```
 
+### Agentic Synthesis Pattern (Python)
+Using [Ollama](../services/ollama.md) to parse raw transcription into structured tasks.
+
+```python
+import ollama
+
+def parse_voice_command(transcript):
+    prompt = f"Extract tasks from this transcript: '{transcript}'. Return JSON list."
+    response = ollama.chat(model='llama4', messages=[{'role': 'user', 'content': prompt}])
+    return response['message']['content']
+
+print(parse_voice_command("I need to fix the sink and then buy some milk"))
+```
+
 ## Related tools / concepts
-- [OpenAI Whisper](../services/whisper.md)
-- [Home Assistant](../services/home-assistant.md)
-- [n8n](../services/n8n.md)
-- [Vikunja](../services/vikunja.md)
-- [Ollama](../services/ollama.md) — for advanced natural language understanding of voice commands.
-- [Standards](../standards.md) — for naming conventions in task management.
-- [Architecture](../architecture/README.md) — for the high-level placement of voice services.
-- [Home Admin Agent Architecture](./home-admin-agent-architecture.md) — for the reasoning layer behind voice intents.
-- [Tool Calling and MCP](./patterns/tool-calling-and-mcp.md) — for how agents interact with services.
+- [OpenAI Whisper](../services/whisper.md) - The core STT engine.
+- [Home Assistant](../services/home-assistant.md) - The orchestration hub for voice.
+- [n8n](../services/n8n.md) - For complex task routing logic.
+- [Vikunja](../services/vikunja.md) - Self-hosted task management.
+- [Ollama](../services/ollama.md) - For local LLM-based intent parsing.
+- [Obsidian](../tools/ai_knowledge/obsidian.md) - For long-form dictation storage.
+- [Architecture](../architecture/README.md) - For the high-level placement of voice services.
+- [Home Admin Agent Architecture](./home-admin-agent-architecture.md) - The reasoning layer.
+- [Tool Calling and MCP](./patterns/tool-calling-and-mcp.md) - For agentic tool execution.
 
 ## Sources / references
 - [Home Assistant Whisper Integration](https://www.home-assistant.io/integrations/whisper/)
-- [Getting Started with Local Voice - Home Assistant](https://www.home-assistant.io/voice_control/voice_remote_local_assistant/)
 - [Wyoming Protocol Specification](https://github.com/rhasspy/wyoming)
 - [Faster-Whisper Project](https://github.com/SYSTRAN/faster-whisper)
+- [Home Assistant Assist: Local Voice Control](https://www.home-assistant.io/voice_control/voice_remote_local_assistant/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high
