@@ -1,5 +1,7 @@
 # LLM Prompt: Ralph's Family Context
 
+This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data.
+
 ## What it is
 
 This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (2026) includes multi-agent coordination patterns and advanced preference injection logic.
@@ -38,13 +40,68 @@ This is the primary system prompt for Ralph, the Home Admin Agent. It defines hi
 - **No Hard Enforcement**: This is a prompt, not a firewall; it must be combined with technical guardrails.
 
 ## When to use it
+
 - As the **primary system message** for any agent that has access to family schedules, tasks, or personal documents.
 - When **onboarding a new LLM** into the family automation stack to ensure behavioral parity.
 - When configuring a **meta-agent** that needs to route family requests to specialized tools.
 
 ## When not to use it
+
 - For **specialized technical agents** (e.g., a pure coding agent) that do not interact with family members or personal data.
 - In **public-facing agents** where "Ralph's Family Context" would be irrelevant or potentially reveal private metadata.
+
+## Getting started
+
+To deploy this prompt within your Home Admin stack:
+
+1.  **Extract the Prompt**: Copy the markdown block from the `System Prompt` section below.
+2.  **Define Preferences**: Create a `preferences.json` file following the schema in the `Preference Injection Examples` section below.
+3.  **Configure Orchestrator**: Update your agent orchestrator (e.g., a custom Python script or [n8n](../../services/n8n.md) node) to load this file as the `developer` or `system` message.
+4.  **Inject Context**: Ensure your runner replaces the `{{ user_preferences_json }}` and `{{ current_date }}` placeholders before sending the request to the LLM.
+
+## CLI examples
+
+Testing the prompt adherence using a hypothetical `jules` CLI tool:
+
+```bash
+# Start a chat session with Ralph's personality
+jules chat --system-prompt docs/reference-implementations/llm-prompts/family-context.md
+
+# Validate a set of user preferences against the prompt constraints
+jules validate-prefs --prefs data/family/user_preferences.json
+
+# Run a test "Morning Briefing" generation
+jules test-briefing --context-file data/mock/family_context.json
+```
+
+## API examples
+
+Programmatically loading the prompt using the `litellm` library:
+
+```python
+import litellm
+import json
+
+def get_ralph_response(user_input, prefs_json):
+    # Load the prompt template from this file
+    with open("docs/reference-implementations/llm-prompts/family-context.md", "r") as f:
+        content = f.read()
+        # Extract the system prompt block
+        system_prompt = content.split("```markdown")[1].split("```")[0].strip()
+
+    # Inject preferences
+    system_prompt = system_prompt.replace("{{ user_preferences_json }}", json.dumps(prefs_json))
+
+    # Call the model (Claude 4.8 Opus)
+    response = litellm.completion(
+        model="anthropic/claude-3-5-sonnet", # Representing the 2026 standard
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_input}
+        ]
+    )
+    return response.choices[0].message.content
+```
 
 ## Preference Injection Examples (JSON Schema)
 The `{{ user_preferences_json }}` block is typically populated with data like this:
@@ -72,7 +129,24 @@ The `{{ user_preferences_json }}` block is typically populated with data like th
 }
 ```
 
-## System Prompt
+## Related tools / concepts
+
+- [Family Values](../../knowledge_base/family-values.md) — The ethical foundation for this prompt.
+- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md) — The system that executes this prompt.
+- [Daily Briefing Prompt](daily-briefing.md) — A task-specific prompt that inherits from Ralph's context.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — How prompts are orchestrated.
+- [Self-healing Agent Research](../../knowledge_base/self-healing-agent-research.md) — How Ralph handles system failures.
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Choosing the right model for this personality layer.
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The governance framework Ralph operates within.
+- [Data Copilot](../../architecture/data-copilot-text-to-sql.md) — The primary sub-agent for data queries.
+
+## Sources / references
+
+- [Anthropic System Prompt Design](https://docs.anthropic.com/en/docs/system-prompts)
+- [OpenAI: Custom Instructions Best Practices](https://help.openai.com/en/articles/8096356-custom-instructions-for-chatgpt)
+- [Addy Osmani: The Code Agent Orchestra (2026)](https://addyosmani.com/blog/code-agent-orchestra/)
+
+## System Prompt (Reference Only)
 
 ```markdown
 # Identity
@@ -115,27 +189,7 @@ Active Task Summary: {{ task_summary }}
 Recent System Events: {{ system_log_summary }}
 ```
 
-## Implementation Notes
-- This prompt should be loaded as the base system message for the Home Admin Agent.
-- **The Ralph Loop**: For long-running tasks, Ralph should break the work into small chunks, updating the `system_log_summary` in the filesystem to maintain state across sessions.
-- **Quality Gates**: Implement a secondary "Reviewer" prompt that checks Ralph's output for adherence to the "Privacy First" value.
-
-## Related tools / concepts
-- [Family Values](../../knowledge_base/family-values.md) — the ethical foundation for this prompt.
-- [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md) — the system that executes this prompt.
-- [Daily Briefing Prompt](daily-briefing.md) — a task-specific prompt that inherits from Ralph's context.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — how prompts are orchestrated.
-- [Self-healing Agent Research](../../knowledge_base/self-healing-agent-research.md) — how Ralph handles system failures.
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — choosing the right model for this personality layer.
-- [Skills Index](../../../skills.md) — the functional capabilities Ralph possesses.
-- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — the governance framework Ralph operates within.
-- [Data Copilot](../../architecture/data-copilot-text-to-sql.md) — the primary sub-agent for data queries.
-
-## Sources / references
-- [Anthropic System Prompt Design](https://docs.anthropic.com/en/docs/system-prompts)
-- [OpenAI: Custom Instructions Best Practices](https://help.openai.com/en/articles/8096356-custom-instructions-for-chatgpt)
-- [Addy Osmani: The Code Agent Orchestra (2026)](https://addyosmani.com/blog/code-agent-orchestra/)
-
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+
+- Last reviewed: 2026-06-20
 - Confidence: high
