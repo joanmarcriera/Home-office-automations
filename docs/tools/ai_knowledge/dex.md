@@ -7,7 +7,7 @@ Dex is a personal CRM (Customer Relationship Management) and networking tool des
 Maintaining meaningful connections becomes increasingly difficult as professional networks grow. Traditional CRMs are often built for sales teams and are too complex for individual use, while spreadsheets are static and manual. Dex automates contact sync and provides reminders to "keep in touch," reducing the cognitive overhead of networking.
 
 ## Where it fits in the stack
-Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specifically within personal information management. It recently expanded its capabilities with the **Dex MCP Server** and **AI Skills**, allowing AI agents (like Claude) to interact directly with a user's contact database.
+Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specifically within personal information management. It recently expanded its capabilities with the **Dex MCP Server** and **AI Skills**, allowing AI agents (like Claude 4.8 and GPT-5.5) to interact directly with a user's contact database via MCP 3.0.
 
 ## Typical use cases
 - **Professional Networking:** Tracking follow-ups after conferences or meetings.
@@ -17,7 +17,7 @@ Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specif
 - **Agentic CRM Management:** Using AI agents to clean data, merge duplicates, and draft personalized outreach.
 
 ## Strengths
-- **Agentic Integration:** Native support for the Model Context Protocol (MCP) and AI Skills. Works out-of-the-box with [Claude Code](../development_ops/claude-code.md).
+- **Agentic Integration:** Native support for the Model Context Protocol (MCP 3.0) and AI Skills. Works out-of-the-box with [Claude Code](../development_ops/claude-code.md).
 - **Cross-Platform:** Available as a web app, mobile app, and browser extension.
 - **Automation:** Two-way sync with Google Calendar, Outlook, and LinkedIn.
 - **Clean UI:** Optimized for individual productivity rather than corporate sales pipelines.
@@ -35,7 +35,7 @@ Avoid Dex if you prefer a fully self-hosted, offline-first approach to personal 
 
 ## Getting started
 
-### MCP Server Configuration
+### Local Setup (MCP Server)
 To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md)) to access Dex, add the following to your configuration:
 
 #### Standard Stdio Configuration
@@ -53,8 +53,8 @@ To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md)
 }
 ```
 
-#### Remote HTTP Configuration (New in 2026)
-For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex now supports Streamable HTTP transport:
+#### Remote HTTP Configuration (June 2026)
+For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex now supports Streamable HTTP transport via MCP 3.0:
 
 ```json
 {
@@ -75,6 +75,48 @@ For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex no
 3. Enable the **AI Skills** toggle.
 4. Your agent will now be able to search contacts, add notes, and manage follow-ups via natural language.
 
+## CLI examples
+
+### Installation
+The Dex CLI is part of the MCP server package:
+```bash
+npm install -g @dex-crm/mcp-server
+```
+
+### Usage
+```bash
+# List tools available via the Dex MCP server
+dex-mcp list-tools
+
+# Test contact search via CLI
+dex-mcp call search_contacts --query "Jules"
+```
+
+## API examples
+
+### Python (MCP Client)
+Using the MCP SDK to interact with Dex:
+
+```python
+from mcp.client import Client
+
+async with Client("https://api.getdex.com/mcp", token="YOUR_DEX_API_KEY") as client:
+    contacts = await client.call_tool("search_contacts", {"query": "Jules"})
+    for contact in contacts:
+        print(f"Found: {contact['name']} ({contact['email']})")
+```
+
+### JavaScript (Fetch)
+```javascript
+const response = await fetch('https://api.getdex.com/v1/contacts', {
+  headers: {
+    'Authorization': 'Bearer YOUR_DEX_API_KEY'
+  }
+});
+const data = await response.json();
+console.log(data);
+```
+
 ## Related tools / concepts
 - [Monica CRM](../../services/radicale.md) (Self-hosted alternative)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
@@ -93,5 +135,5 @@ For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex no
 - [ClawHub Dex Skill](https://www.clawhub.ai/skills/dex)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high

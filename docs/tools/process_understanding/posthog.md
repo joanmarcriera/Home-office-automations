@@ -1,30 +1,29 @@
 # PostHog
 
 ## What it is
-An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing.
+An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing. It provides a comprehensive suite for monitoring user behavior and system performance in real-time.
 
 ## What problem it solves
-It helps teams understand how users interact with their applications and allows for data-driven product decisions.
+It helps teams understand how users interact with their applications and allows for data-driven product decisions. For AI teams, it provides visibility into how LLM responses affect user conversion and retention.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Product Analytics
+**Category**: [Process & Understanding](index.md) / Product Analytics. It serves as the primary observability layer for user-facing applications and agentic workflows.
 
 ## Typical use cases
 - **Full-Funnel Analytics**: Tracking user behavior from the first click to the final AI-generated response.
-- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs using feature flags.
-- **Session Replay**: Watching recordings of users interacting with AI agents to identify friction points.
+- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., GPT-5.5 vs Claude 4.8) using feature flags.
+- **Session Replay**: Watching recordings of users interacting with AI agents to identify friction points and hallucination impacts.
 - **Conversion Tracking**: Measuring how AI features impact key business metrics like signups or purchases.
 
 ## Strengths
 - **All-in-One**: Combines analytics, session recording, and feature flagging in a single platform.
-- **AI Observability Dashboard**: Specialized views for cost, latency, and error rates across different LLM providers.
+- **AI Observability Dashboard**: Specialized views for cost, latency, and error rates across different LLM providers via MCP 3.0.
 - **Integrated Session Recordings**: Visualize UI changes triggered by LLM responses directly in the trace timeline.
-- **MCP Native**: Supports the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) for querying product metrics from AI assistants.
-- **HogQL**: Powerful, SQL-like query language for advanced data analysis.
+- **HogQL**: Powerful, SQL-like query language for advanced data analysis and custom dashboarding.
 
 ## Limitations
 - **Indexing Latency**: In high-volume environments, there can be a slight delay before traces appear in the dashboard.
-- **Complexity**: The sheer number of features can make the learning curve steeper for new users.
+- **Complexity**: The sheer number of features can make the learning curve steeper for new users compared to point solutions.
 
 ## When to use it
 - When you want to see the "big picture" of how AI features affect your overall product metrics.
@@ -35,12 +34,6 @@ It helps teams understand how users interact with their applications and allows 
 - If you only need deep, low-level AI engineering traces and don't care about broader product analytics.
 - For extremely simple applications where a basic log aggregator (like Papertrail) would be enough.
 
-## LLM Features
-- **Cost Analysis**: Granular tracking of LLM spend by model, user, feature, and time period.
-- **Trace Management**: Full interaction timelines including generation and span events with multi-turn history.
-- **Model Comparison**: Side-by-side performance and cost metrics for different models (e.g., GPT-5 vs Claude 4).
-- **OpenRouter Integration**: Native support for receiving event logs from OpenRouter sessions to monitor model performance and costs.
-
 ## Getting started
 
 ### Installation
@@ -48,7 +41,7 @@ It helps teams understand how users interact with their applications and allows 
 pip install posthog
 ```
 
-### Capturing LLM Events
+### Basic Capture
 ```python
 import posthog
 
@@ -56,7 +49,7 @@ posthog.project_api_key = '<ph_project_api_key>'
 posthog.host = 'https://us.i.posthog.com'
 
 posthog.capture('user_id', 'llm_interaction', {
-    'model': 'gpt-4o',
+    'model': 'claude-4-8-opus',
     'prompt_tokens': 150,
     'completion_tokens': 200,
     'total_cost': 0.005,
@@ -73,13 +66,13 @@ posthog-cli login
 ```
 
 ### posthog-cli query
-Executes a HogQL (SQL) query against your PostHog data directly from the terminal:
+Executes a HogQL (SQL) query against your PostHog data:
 ```bash
 posthog-cli query "SELECT event, count() FROM events GROUP BY event"
 ```
 
 ### posthog-cli capture
-Sends a manual event to PostHog for testing purposes:
+Sends a manual event for testing:
 ```bash
 posthog-cli capture --distinct-id user_123 --event test_event --properties '{"source": "cli"}'
 ```
@@ -87,14 +80,14 @@ posthog-cli capture --distinct-id user_123 --event test_event --properties '{"so
 ## API examples
 
 ### Python (AI Trace Instrumentation)
-PostHog now supports a more structured trace API for LLM monitoring:
+PostHog supports a structured trace API for LLM monitoring (v2026.6+):
 
 ```python
 import posthog
 
 # Capture a full LLM generation trace
 posthog.capture('user_123', '$ai_generation', {
-    '$ai_model': 'claude-3-5-sonnet',
+    '$ai_model': 'claude-4-8-opus',
     '$ai_provider': 'anthropic',
     '$ai_input_tokens': 150,
     '$ai_output_tokens': 200,
@@ -106,19 +99,18 @@ posthog.capture('user_123', '$ai_generation', {
 })
 ```
 
-### Python (Feature Flag Evaluation)
-```python
-import posthog
+### JavaScript (Feature Flag Evaluation)
+```javascript
+import posthog from 'posthog-js'
 
-posthog.project_api_key = '<ph_project_api_key>'
+posthog.init('<ph_project_api_key>', { api_host: 'https://us.i.posthog.com' })
 
-# Check if a new AI model feature flag is enabled for a user
-if posthog.feature_enabled('use-new-llm-model', 'user_123'):
-    # Logic for new model
-    pass
-else:
-    # Logic for fallback model
-    pass
+// Check if a new AI model feature flag is enabled
+if (posthog.isFeatureEnabled('use-new-llm-model')) {
+    // Use Claude 4.8
+} else {
+    // Use fallback model
+}
 ```
 
 ## Related tools / concepts
@@ -133,9 +125,9 @@ else:
 
 ## Sources / references
 - [PostHog Website](https://posthog.com/)
-- [PostHog AI Observability](https://posthog.com/llm-analytics)
-- [PostHog CLI Documentation](https://posthog.com/docs/endpoints/cli)
+- [PostHog AI Observability Documentation](https://posthog.com/docs/ai-analytics)
+- [PostHog CLI Repository](https://github.com/PostHog/posthog-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high

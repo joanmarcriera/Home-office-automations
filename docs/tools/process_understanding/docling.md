@@ -4,10 +4,10 @@
 Docling is an open-source Python library and CLI tool developed by IBM Research that simplifies document processing by parsing diverse formats into structured, machine-readable data. It excels at layout analysis, table recognition, and multi-modal document understanding.
 
 ## What problem it solves
-Traditional document extraction often loses structural information (headers, table relationships, reading order) or fails on complex layouts. Docling uses specialized models (e.g., GraniteDocling) to preserve document structure, making it ideal for high-fidelity Retrieval-Augmented Generation (RAG) and agentic workflows.
+Traditional document extraction often loses structural information (headers, table relationships, reading order) or fails on complex layouts. Docling uses specialized models to preserve document structure, making it ideal for high-fidelity Retrieval-Augmented Generation (RAG) and agentic workflows using Claude 4.8 and GPT-5.5.
 
 ## Where it fits in the stack
-**Category**: [Process Understanding](index.md). It acts as the core parsing engine for ingestion pipelines, [Docling MCP](docling-mcp.md), and Knowledge Graph construction via [Docling-Graph](#advanced-knowledge-graph-construction-docling-graph).
+**Category**: [Process & Understanding](index.md). It acts as the core parsing engine for ingestion pipelines, [Docling MCP](docling-mcp.md), and Knowledge Graph construction via native graph export features.
 
 ## Typical use cases
 - **Multi-format Conversion**: Converting PDFs, DOCX, PPTX, HTML, and more into structured Markdown or JSON.
@@ -17,14 +17,23 @@ Traditional document extraction often loses structural information (headers, tab
 
 ## Strengths
 - **Superior Table Recognition**: Handles nested, borderless, and complex tables with high accuracy.
-- **Native VLM Support**: (v2.70+) Integrated support for GraniteDocling and other VLMs for visual document understanding.
+- **Native VLM Support**: Integrated support for GraniteDocling and other VLMs for visual document understanding (v2.70+).
 - **Local & Hybrid Execution**: Runs entirely on local hardware (CPU/GPU) or integrates with local LLMs ([vLLM](../infrastructure/vllm.md), [Ollama](../../services/ollama.md)) and APIs.
 - **Extensive Integration**: Seamlessly works with LangChain, LlamaIndex, and [CrewAI](../frameworks/crewai.md).
 
 ## Limitations
-- **Python 3.10+ Requirement**: Support for Python 3.9 was dropped in version 2.70.0 (May 2026).
-- **Resource Intensive**: High-fidelity VLM parsing requires significant VRAM or powerful CPUs.
+- **Python 3.10+ Requirement**: Support for Python 3.9 was dropped in early 2026.
+- **Resource Intensive**: High-fidelity VLM parsing requires significant VRAM or powerful CPUs for local execution.
 - **Learning Curve**: Advanced pipeline customization (e.g., custom chunking, hybrid strategies) requires understanding the internal object model.
+
+## When to use it
+- When you need to preserve the logical and visual layout of complex documents for AI ingestion.
+- For high-fidelity RAG where header-paragraph relationships and table data are critical.
+- When transforming technical document collections into structured knowledge formats.
+
+## When not to use it
+- For simple plain-text extraction where speed and resource efficiency are prioritized over structure.
+- If you are restricted to Python 3.9 or older environments.
 
 ## Getting started
 
@@ -49,48 +58,52 @@ result = converter.convert(source)
 print(result.document.export_to_markdown())
 ```
 
-## CLI Reference
-Docling provides a versatile CLI for batch processing:
+## CLI examples
 
+### Basic Conversion
 ```bash
 # Convert a local PDF to Markdown
 docling report.pdf
 
 # Convert a URL and output to JSON
 docling https://arxiv.org/pdf/2206.01062 --to json
+```
 
+### Advanced Parsing
+```bash
 # Use a specific VLM for enhanced layout understanding
 docling report.pdf --model-id GraniteDocling
+
+# Export as a structured Knowledge Graph (requires docling-graph)
+docling-graph convert technical_spec.pdf --output-format cypher
 ```
 
-## Advanced: Knowledge Graph Construction (Docling-Graph)
-Released in 2026, **Docling-Graph** converts unstructured documents into validated NetworkX Directed Graphs with rich edge metadata.
+## API examples
 
+### Multi-modal Extraction
 ```python
-from docling_graph import DoclingGraphConverter
+from docling.document_converter import DocumentConverter
+from docling.datamodel.base_models import InputFormat
 
-# Convert a document into a semantic knowledge graph
-converter = DoclingGraphConverter(llm_provider="ollama")
-graph = converter.convert("technical_spec.pdf")
-
-# Export to Cypher for Neo4j import
-graph.export_to_cypher("output.cypher")
+converter = DocumentConverter(allowed_formats=[InputFormat.PDF, InputFormat.IMAGE])
+result = converter.convert("chart_diagram.png")
+# Extract data points from a chart
+print(result.document.export_to_dict())
 ```
 
-## Features (2026 Update)
-- **Chart Understanding**: Native extraction of data points and insights from charts and diagrams using VLMs.
-- **Docling-Graph**: Transformation of text into precise semantic relationships for explainable reasoning.
-- **Hybrid Chunking**: Leverages Docling's segmentation with semantic LLM chunking for context-aware RAG.
-- **Trace System**: Unified logging and visualization of the extraction pipeline.
+### MCP 3.0 Integration
+Docling can be exposed as an MCP 3.0 tool for agentic document parsing:
 
-## When to use it
-- When you need to preserve the logical and visual layout of complex documents.
-- For high-fidelity RAG where header-paragraph relationships and table data are critical.
-- When transforming technical document collections into knowledge graphs.
-
-## When not to use it
-- For simple plain-text extraction where speed is prioritized over structure.
-- If you are restricted to Python 3.9 or older environments.
+```json
+{
+  "mcpServers": {
+    "docling": {
+      "command": "npx",
+      "args": ["-y", "@docling/mcp-server"]
+    }
+  }
+}
+```
 
 ## Related tools / concepts
 - [Docling MCP](docling-mcp.md)
@@ -100,14 +113,14 @@ graph.export_to_cypher("output.cypher")
 - [Firecrawl](firecrawl.md)
 - [vLLM](../infrastructure/vllm.md)
 - [Ollama](../../services/ollama.md)
-- [NetworkX](https://networkx.org/)
+- [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
-## Sources / References
+## Sources / references
 - [Official Website (GitHub)](https://github.com/docling-project/docling)
 - [Docling Documentation](https://docling-project.github.io/docling/)
 - [Docling-Graph Repository](https://github.com/docling-project/docling-graph)
-- [IBM Think 2026 Announcements](https://www.ibm.com/new/announcements/ibm-think-2026)
+- [IBM Research AI Blogs](https://research.ibm.com/blog/docling-ibm-granite-document-parsing)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-28
+- Last reviewed: 2026-06-20
 - Confidence: high
