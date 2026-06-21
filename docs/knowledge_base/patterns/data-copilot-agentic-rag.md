@@ -9,7 +9,7 @@ The Agentic RAG (Retrieval-Augmented Generation) and Hybrid Retrieval pattern is
 Traditional RAG often fails at complex diagnostic questions (e.g., "Why did revenue drop?") because the answer is split across multiple systems. Structured data provides the "what" (the numbers), while unstructured documents provide the "why" (policy changes, meeting notes, project logs). This pattern bridges that gap, providing a unified, causal explanation.
 
 ## Where it fits in the stack
-This pattern resides at the **Reasoning & Orchestration Layer** of the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md). it serves as the intelligence layer above the raw [MCP Tooling](data-copilot-mcp-tooling.md) and database connectors.
+This pattern resides at the **Reasoning & Orchestration Layer** of the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md). It serves as the intelligence layer above the raw [MCP Tooling](data-copilot-mcp-tooling.md) and database connectors.
 
 ## Typical use cases
 - **Root Cause Analysis**: Diagnosing business metric fluctuations by correlating data spikes with project logs.
@@ -71,107 +71,85 @@ flowchart TD
 ## Multi-hop Investigation Flow
 For complex root-cause "Why" questions, the agent performs a recursive 5-step investigation:
 
-1.  **Step 1: Quantitative Baseline (Structured)**:
-    - **Action**: Query SQL to establish the exact delta.
-    - **Example**: "Net revenue for 'Smart Home' category fell by £12k (15%) week-over-week starting Tuesday."
-2.  **Step 2: Event Correlation (Unstructured)**:
-    - **Action**: Search RAG (Project Logs, GitHub PRs, Change logs) for events matching the "Tuesday" timestamp.
-    - **Example**: Found PR #442: "Update pricing logic for Smart Home sensors."
-3.  **Step 3: Hypothesis Generation (Reasoning)**:
-    - **Action**: Use an LLM to link the revenue drop to the pricing change.
-    - **Hypothesis**: "The new pricing logic might have increased the price beyond a psychological threshold ($99 -> $105)."
-4.  **Step 4: Targeted Validation (Structured/Hybrid)**:
-    - **Action**: Perform a specific SQL query to check the conversion rate vs. price change.
-    - **Example**: "Compare conversion rate for sensors priced >$100 vs <$100."
-5.  **Step 5: Root Cause Synthesis**:
-    - **Action**: Combine SQL proof with document context into a final report.
-    - **Result**: "Revenue dropped because the Tuesday deployment (PR #442) moved 5 top-selling sensors above the $100 price point, where conversion fell by 40%."
+1.  **Step 1: Quantitative Baseline (Structured)**: Establish the exact delta via SQL.
+2.  **Step 2: Event Correlation (Unstructured)**: Search RAG (Project Logs, GitHub PRs) for matching timestamps.
+3.  **Step 3: Hypothesis Generation (Reasoning)**: Link the quantitative proof to the qualitative context.
+4.  **Step 4: Targeted Validation (Structured/Hybrid)**: Run specific SQL/RAG queries to prove/disprove the hypothesis.
+5.  **Step 5: Root Cause Synthesis**: Combine proof into a final report with citations.
 
-## Retrieval Sufficiency & Confidence Scoring
+## Getting started
+Implementing Agentic RAG requires an orchestration framework and access to both structured and unstructured data sources.
 
-### Retrieval Sufficiency Matrix
-Before synthesis, the agent must evaluate the retrieved data against this matrix:
+### Prerequisites
+- **Orchestration**: [n8n](../../services/n8n.md) or a Python-based framework like [LangGraph](https://www.langchain.com/langgraph).
+- **Structured Data**: Postgres or SQLite with an [MCP SQL Server](../../tools/automation_orchestration/mcp.md).
+- **Unstructured Data**: Markdown files indexed in a vector DB or served via an [MCP Filesystem Server](../../tools/automation_orchestration/mcp.md).
 
-| Component | Sufficient | Partially Sufficient | Insufficient |
-| :--- | :--- | :--- | :--- |
-| **Quantification** | Exact delta found in SQL. | General trend found, no exact numbers. | No data found in SQL. |
-| **Causality** | Event found in RAG matching timestamp. | Event found, but timestamp is off. | No related logs found. |
-| **Traceability** | Every claim has a source ID. | Some claims rely on model "general knowledge". | No citations available. |
+### Basic Configuration
+1.  Initialize your **Planner Agent** with a prompt that defines the `SourceCheck` logic.
+2.  Connect your **SQL Agent** to your database using the [SQL Validation Playbook](../../playbooks/data-copilot-sql-validation.md).
+3.  Connect your **RAG Agent** to your document store.
+4.  Implement the **Synthesis Agent** using the [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md).
 
-**Action**: If "Insufficient" is reached in any category, the agent must trigger a **"Knowledge Gap" alert** or a **"BrowseComp Plus" search task** (May 2026 standard for automated deep research).
+## CLI examples
+While Agentic RAG is typically an API-driven workflow, you can test retrieval steps using CLI tools.
 
-### Sufficiency Check
-Before synthesis, the planner must ask: "Do I have enough information to answer the user's specific diagnostic question without guessing?"
+```bash
+# Test SQL retrieval via MCP CLI
+mcp-cli call sqlite_server query "SELECT SUM(amount) FROM transactions WHERE date > '2026-06-01'"
 
-**Criteria for Sufficiency**:
-- **Source grounding**: Every claim in the synthesis must be traceable to a specific SQL row or document snippet.
-- **Dimensional alignment**: If the SQL identifies a drop in a specific category (e.g., "Kitchen"), the RAG retrieval must have explicitly searched for that category.
-- **Temporal alignment**: The quantitative change and the qualitative event must occur within a logical timeframe (e.g., event precedes or coincides with the change).
-
-- **Low Sufficiency**: "I found the metric drop, but no corresponding notes in the logs."
-- **Action**: Report findings but state the missing link.
-
-### Confidence Scoring
-The final score is calculated using these penalty weights:
-- **Baseline**: 1.0
-- **No direct causal link**: -0.3
-- **Ambiguous SQL results**: -0.2
-- **Old document context (>90 days)**: -0.15
-- **Single source only**: -0.1
-
-- **High (0.8 - 1.0)**: Direct match in SQL + explicit reason found in RAG.
-- **Medium (0.5 - 0.7)**: Metric drop found, but reason is inferred from general policy.
-- **Low (0.0 - 0.4)**: Correlating data found but no causal links.
-
-## Example Q&A: Diagnostic
-
-### Example 1: Home Finance
-**Question**: "Why did my grocery spending spike last week?"
-
-**Agent Logic**:
-1.  **SQL Query**: Finds top categories for last week. (Result: 'Dining Out' is 3x higher than average).
-2.  **RAG Query**: Search for "Dining", "Restaurants", or "Guests" in family logs/calendar. (Result: Found "Anniversary Dinner" on April 20).
-3.  **Synthesis**: "Your spending spiked by £150 last week primarily due to 'Dining Out'. This is explained by the 'Anniversary Dinner' event found in your calendar for April 20."
-4.  **Confidence**: 0.95 (Direct causal link found).
-
-### Example 2: Business Metric
-**Question**: "Why did conversion rate (Metric X) drop for the 'Outdoor' category?"
-
-**Agent Logic**:
-1.  **Step 1 (SQL)**: Compares conversion rate per category. (Result: 'Outdoor' category conversion fell from 3.2% to 1.8% starting Tuesday).
-2.  **Step 2 (RAG)**: Searches project logs for "Outdoor category". (Result: Found entry in `dev_log.md`: "Deployed new image gallery component for Outdoor category on Tuesday morning").
-3.  **Step 3 (Refined SQL)**: Queries for error rates in the Outdoor category. (Result: 404 errors on image assets spiked on Tuesday).
-4.  **Synthesis**: "Conversion rate (Metric X) for the 'Outdoor' category dropped from 3.2% to 1.8% due to a buggy deployment of the new image gallery component on Tuesday, which caused image asset failures."
-5.  **Confidence**: 0.90 (Strong correlation between deployment event and error spike).
+# Test RAG retrieval via MCP CLI
+mcp-cli call filesystem_server search_docs "revenue drop meeting notes"
+```
 
 ## When to use it
 - Use when the answer requires synthesizing data from disparate silos (e.g., Jira + Postgres).
-- Use for complex "Why" questions that require multiple reasoning steps.
-- Use when high traceability and confidence scoring are required for business decisions.
+- Use for complex "Why" questions that require multiple reasoning steps and causal linking.
+- Use when high traceability and confidence scoring are required for business or financial decisions.
 
 ## When not to use it
-- Don't use for simple fact retrieval (e.g., "What is the capital of France?").
-- Don't use for pure data aggregation tasks (e.g., "Total sales by region").
-- Avoid when low latency is the primary requirement and a simpler RAG setup would suffice.
+- Don't use for simple fact retrieval (e.g., "What is the capital of France?") where a basic RAG setup is faster.
+- Don't use for pure data aggregation tasks (e.g., "Total sales by region") where Text-to-SQL alone is sufficient.
+- Avoid when ultra-low latency is the primary requirement and synthesis overhead is unacceptable.
+
+## API examples
+The following example shows a simplified "Planner" logic in Python.
+
+```python
+def planner_route(query: str) -> str:
+    structured_keywords = ["total", "count", "average", "highest"]
+    unstructured_keywords = ["why", "policy", "process", "reason"]
+
+    if any(k in query.lower() for k in structured_keywords) and any(k in query.lower() for k in unstructured_keywords):
+        return "hybrid"
+    elif any(k in query.lower() for k in unstructured_keywords):
+        return "rag"
+    else:
+        return "sql"
+
+# Example usage
+route = planner_route("Why did grocery spending spike last week?")
+print(f"Routing to: {route}") # Output: hybrid
+```
 
 ## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md)
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
-- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
-- [n8n Automation](../../services/n8n.md)
-- [RAG Pattern](rag-pattern.md)
-- [Agentic Workflows](agentic-workflows.md)
-- [OpenCode](../../tools/development_ops/opencode.md)
-- [GraphRAG Pattern](../../architecture/README.md)
-- [Self-RAG Loops](../self-healing-agent-research.md)
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) — The foundation for structured data access.
+- [Data Copilot MCP Tooling](data-copilot-mcp-tooling.md) — The tool layer for agentic retrieval.
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — For ensuring SQL accuracy.
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md) — Standard for the final output.
+- [n8n Automation](../../services/n8n.md) — Preferred orchestration engine for low-code environments.
+- [RAG Pattern](rag-pattern.md) — The baseline for unstructured retrieval.
+- [Agentic Workflows](agentic-workflows.md) — The broader concept of LLMs-as-Planners.
+- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — Standard for tool-agent communication.
+- [Self-Healing Agents](../self-healing-agent-research.md) — For autonomous remediation of retrieval failures.
+- [Late Interaction (ColBERT)](rag-pattern.md) — Advanced retrieval mechanism.
 
 ## Sources / References
 - [LangChain: Agentic RAG](https://python.langchain.com/docs/tutorials/rag/#agentic-rag)
 - [Multi-hop RAG Strategies](https://github.com/langchain-ai/rag-from-scratch)
 - [Agentic RAG Guide 2026](https://jobsbyculture.com/blog/agentic-rag-guide-2026)
+- [ColBERTv2: Effective and Efficient Retrieval](https://arxiv.org/abs/2112.01488)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-31
+- Last reviewed: 2026-06-21
 - Confidence: high
-- Related Issues: #188
