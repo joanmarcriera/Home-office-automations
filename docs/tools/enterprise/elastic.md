@@ -1,49 +1,44 @@
 # Elastic (Elasticsearch)
 
-Elasticsearch is a distributed, RESTful search and analytics engine designed for horizontal scalability, real-time search, and advanced data analysis. As of May 2026, **Elasticsearch v9.4+** is the industry standard for production-grade Retrieval-Augmented Generation (RAG) and hybrid search, featuring the powerful **ES|QL** (Elasticsearch Query Language) and native vector database capabilities.
-
 ## What it is
-Elasticsearch is the core of the Elastic Stack (ELK). It is a schema-flexible, JSON-document-based database built on Apache Lucene. It excels at full-text search, structured search, and vector search, making it a "Swiss Army Knife" for data intelligence.
+Elasticsearch is a distributed, RESTful search and analytics engine designed for horizontal scalability, real-time search, and advanced data analysis. As of June 2026, **Elasticsearch v9.4+** is the industry standard for production-grade Retrieval-Augmented Generation (RAG) and hybrid search, featuring the powerful **ES|QL** (Elasticsearch Query Language) and native vector database capabilities.
+- **Licensing**: Elastic License 2.0 (Source-available) / SSPL / AGPL-3.0
+- **Cost**: Free (Self-hosted) / Paid (Elastic Cloud managed service)
+- **Self-hostable**: Yes
 
 ## What problem it solves
-It solves the problem of finding "needles in haystacks" across massive datasets. Traditional databases struggle with fuzzy matching, relevance ranking, and multi-modal (text + vector) queries. Elasticsearch provides a unified infrastructure for logs, metrics, application search, and AI-driven retrieval.
+It solves the problem of finding "needles in haystacks" across massive datasets. Traditional databases struggle with fuzzy matching, relevance ranking, and multi-modal (text + vector) queries. Elasticsearch provides a unified infrastructure for logs, metrics, application search, and AI-driven retrieval, eliminating the need for separate keyword and vector stores.
 
 ## Where it fits in the stack
-- **Category**: [Enterprise AI](../enterprise/index.md) / Search & Infrastructure
-- **Layer**: [Data & Storage Layer](../../architecture/README.md)
+**Data & Storage Layer / Enterprise AI Search**. It acts as the primary "Context Layer" for agentic workflows, providing high-performance retrieval of both structured and unstructured data.
 
 ## Typical use cases
-- **Production RAG**: Storing and retrieving chunks of data for LLM context using hybrid search (BM25 + Vector).
-- **ES|QL Analytics**: Using the pipe-based query language to filter, transform, and aggregate data in a single command.
-- **Observability**: Centralizing logs and metrics from a homelab/enterprise cluster for real-time monitoring.
-- **Application Search**: Implementing fast, type-ahead search with sophisticated relevance tuning.
+- **Production RAG**: Storing and retrieving chunks of data for LLM context using hybrid search (BM25 + kNN).
+- **ES|QL Analytics**: Using the pipe-based query language to filter, transform, and aggregate data in a single command, now supporting **subqueries** in v9.4.
+- **Observability**: Centralizing logs, metrics, and traces from a homelab or enterprise cluster for real-time monitoring and AI-driven root cause analysis.
+- **Semantic Search**: Implementing natural language search that understands intent rather than just keywords, powered by native embedding models.
 
 ## Strengths
-- **Hybrid Retrieval**: Native support for combining keyword search (BM25) with dense vector search for maximum RAG accuracy.
-- **ES|QL**: A modern, easy-to-learn query language that replaces complex JSON DSL for many use cases.
-- **Scalability**: Capable of handling petabytes of data across hundreds of nodes with automatic rebalancing.
-- **Semantic Text**: Native `semantic_text` field type that handles chunking and embedding automatically within the database.
-- **Mature Ecosystem**: Seamless integration with Kibana (visualization) and LangChain/LlamaIndex (AI orchestration).
+- **Hybrid Retrieval**: Native support for Reciprocal Rank Fusion (RRF) to combine keyword search (BM25) with dense vector search for maximum RAG accuracy.
+- **ES|QL**: A modern, easy-to-learn query language that replaces complex JSON DSL; v9.4 adds subqueries and JSON function extraction.
+- **Scalability**: Capable of handling petabytes of data across hundreds of nodes with automatic rebalancing and shard management.
+- **Semantic Text**: Native `semantic_text` field type that handles chunking and embedding automatically within the database using internal inference.
+- **Mature Ecosystem**: Seamless integration with Kibana (visualization) and LangChain/LlamaIndex/MCP (AI orchestration).
 
 ## Limitations
 - **Operational Complexity**: Managing a multi-node cluster requires significant knowledge of heap tuning, sharding, and index lifecycle management (ILM).
-- **Resource Intensive**: High RAM and CPU requirements, especially for vector search and high-ingest observability workloads.
-- **Cost**: Managed Elastic Cloud can become expensive; self-hosting requires robust infrastructure.
+- **Resource Intensive**: High RAM and CPU requirements, particularly for vector search and high-ingest observability workloads.
+- **Cost**: Managed Elastic Cloud can become expensive; self-hosting requires robust infrastructure (at least 4GB+ RAM for a minimal dev node).
 
 ## When to use it
 - When building production-ready RAG systems that require more than just a simple vector store.
-- When you need to search across structured and unstructured data simultaneously.
-- When you require a centralized logging and monitoring solution (ELK stack).
+- When you need to search across structured (SQL-like) and unstructured (text/vector) data simultaneously.
+- When you require a centralized logging and monitoring solution (the "Search AI" platform).
 
 ## When not to use it
 - For simple keyword search on small datasets where [SQLite FTS](../../services/navidrome.md) or a lighter tool would suffice.
 - If you are constrained by low-memory hardware (e.g., a single Raspberry Pi with 2GB RAM).
-- For primary relational data storage where ACID transactions across multiple tables are critical.
-
-## Licensing and cost
-- **Open Source**: Elastic License (Source-available).
-- **Cost**: Free (Self-hosted) / Paid (Elastic Cloud managed service).
-- **Self-hostable**: Yes.
+- For primary relational data storage where strict multi-table ACID transactions are the primary requirement.
 
 ## Getting started
 
@@ -52,7 +47,7 @@ It solves the problem of finding "needles in haystacks" across massive datasets.
 docker run -p 9200:9200 \
   -e "discovery.type=single-node" \
   -e "xpack.security.enabled=false" \
-  -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
+  -e "ES_JAVA_OPTS=-Xms2g -Xmx2g" \
   docker.elastic.co/elasticsearch/elasticsearch:9.4.2
 ```
 
@@ -61,23 +56,24 @@ docker run -p 9200:9200 \
 curl -X GET "localhost:9200/_cluster/health?pretty"
 ```
 
-## ES|QL Examples
-ES|QL is the modern way to query Elastic. It uses a pipe syntax similar to Unix shells.
+## CLI examples
+The Elastic stack provides several CLI tools, but most interaction happens via the REST API or the `elasticsearch-sql-cli`.
 
-```sql
-# Search for logs, filter by error, and count by host
-FROM logs-*
-| WHERE level == "error"
-| STATS count = COUNT(*) BY host
-| SORT count DESC
-| LIMIT 10
+```bash
+# Check cluster version and health
+curl -u elastic:password -X GET "https://localhost:9200/" -k
+
+# Use the ES|QL CLI to run a query (v9.4+)
+./bin/elasticsearch-esql-cli --query "FROM logs-* | WHERE level == 'error' | LIMIT 5"
+
+# Manage indices via the 'dev tools' in Kibana or curl
+curl -X DELETE "localhost:9200/old-index"
 ```
 
-## RAG & Vector Search
+## API examples
+Elasticsearch v9.4 emphasizes **ES|QL** for both analytics and retrieval.
 
-### 1. Hybrid Search (BM25 + kNN)
-Combining traditional text matching with vector similarity (Dense Vector).
-
+### 1. Hybrid Search (BM25 + kNN) via API
 ```json
 POST /my-index/_search
 {
@@ -92,9 +88,12 @@ POST /my-index/_search
         {
           "knn": {
             "field": "vector_field",
-            "query_vector": [0.1, -0.2, ...],
-            "k": 10,
-            "num_candidates": 100
+            "query_vector_builder": {
+              "text_embedding": {
+                "model_id": "my-embedding-model",
+                "model_text": "how to scale k3s"
+              }
+            }
           }
         }
       ]
@@ -103,42 +102,38 @@ POST /my-index/_search
 }
 ```
 
-### 2. Automatic Chunking & Embedding (Python)
-Using the `semantic_text` field type available in v9.x.
-
-```python
-# Define mapping with native inference
-mapping = {
-    "properties": {
-        "content": {
-            "type": "semantic_text",
-            "inference_id": "my-huggingface-model"
-        }
-    }
-}
+### 2. ES|QL with Subquery (v9.4+)
+```sql
+FROM (
+  FROM kibana_sample_data_ecommerce
+  | WHERE taxful_total_price >= 1000
+  | EVAL domain = "business"
+  | KEEP order_date, domain, customer_full_name
+), (
+  FROM kibana_sample_data_logs
+  | WHERE response >= "500"
+  | EVAL domain = "operations"
+  | KEEP @timestamp, domain, request
+)
+| SORT order_date DESC
+| LIMIT 10
 ```
 
 ## Related tools / concepts
-- [Coveo](coveo.md) — Enterprise-scale AI search.
-- [Supabase](../infrastructure/supabase.md) — Vector search via pgvector.
+- [Kibana](https://www.elastic.co/kibana) — The visualization and management layer for Elastic.
+- [Supabase](../infrastructure/supabase.md) — Vector search via pgvector (lighter alternative).
 - [RAG Patterns](../../knowledge_base/patterns/rag.md) — For implementation strategies.
-- [Kibana](https://www.elastic.co/kibana) — The visualization layer for Elastic.
-- [Qdrant](../../knowledge_base/vector-db-comparison.md) — Specialized vector database.
-
-## Links
-- [Official Website](https://www.elastic.co/)
-- [ES|QL Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/esql.html)
-- [Search Labs Blog](https://www.elastic.co/search-labs)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-05-31
+- [Qdrant](../../knowledge_base/vector-db-comparison.md) — Specialized high-performance vector database.
+- [LiteLLM](../../services/litellm.md) — For integrating model providers with Elastic inference.
+- [Coveo](coveo.md) — Enterprise-scale AI search alternative.
+- [MCP Registry](../../architecture/multi_agent_knowledgeops.md) — For agentic context injection.
 
 ## Sources / References
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/release-notes.html
-- https://www.elastic.co/search-labs/blog/dense-vector-search-elasticsearch-query-language
-- https://blog.devops.dev/building-production-ready-rag-with-elasticsearch-a-real-world-implementation-guide-c3ef353cc0d3
-- KnowledgeOps Triage (2026-05-31)
+- [Elasticsearch 9.4 Release Notes](https://www.elastic.co/guide/en/elasticsearch/reference/current/release-notes.html)
+- [ES|QL Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/esql.html)
+- [Elastic Search Labs: RAG Guide](https://www.elastic.co/search-labs/blog)
+- [Elasticsearch End of Life Dates](https://endoflife.date/elasticsearch)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-21
+- Confidence: high

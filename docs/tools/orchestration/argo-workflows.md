@@ -1,59 +1,63 @@
 # Argo Workflows
 
 ## What it is
-Argo Workflows is an open-source, container-native workflow engine for orchestrating parallel jobs on Kubernetes. As of May 2026, **v3.7.x** is the current stable release, featuring enhanced multi-controller locking, smarter caching, and improved security postures.
+Argo Workflows is an open-source, container-native workflow engine for orchestrating parallel jobs on Kubernetes. It is implemented as a Kubernetes Custom Resource Definition (CRD), allowing for native integration with the K8s ecosystem. As of June 2026, **v4.0.6** is the stable release, featuring **Artifact Drivers as Plugins**, dynamic parallelism updates without controller restarts, and improved CEL (Common Expression Language) validations.
+- **Licensing**: Apache License 2.0 (Open Source)
+- **Cost**: Free
+- **Self-hostable**: Yes (CNCF Graduated Project)
 
 ## What problem it solves
-It brings simple, YAML-based workflow orchestration to Kubernetes. Each task in a workflow is executed as a separate container, allowing for massive parallelism, resource isolation, and native integration with the K8s ecosystem without needing a separate infrastructure stack.
+Argo Workflows brings powerful, containerized orchestration to Kubernetes, solving the complexity of managing parallel, multi-step pipelines. Each task runs in its own isolated container, which eliminates "dependency hell" and allows for massive scalability. It enables developers to define complex workflows using YAML (or Python via Hera) that are fully integrated with Kubernetes' resource management and security models.
 
 ## Where it fits in the stack
-**Orchestration / Kubernetes-Native Workflow Engine**. It is the standard for building complex pipelines directly on K3s, EKS, or GKE.
+**Orchestration / Kubernetes-Native Workflow Engine**. It serves as the backbone for container-native pipelines on K3s, EKS, GKE, and on-premise Kubernetes clusters.
 
 ## Typical use cases
-- **Machine Learning Pipelines**: Coordinating data preprocessing, model training (with GPU scheduling), and deployment.
-- **CI/CD Pipelines**: Running multi-stage builds, tests, and deployments in isolated containers.
-- **Data Processing (ETL)**: Orchestrating large-scale batch processing tasks using K8s resource management.
-- **Infrastructure Automation**: Automating the lifecycle of K8s resources and cloud-native services.
+- **Machine Learning Pipelines**: Coordinating high-performance data preprocessing, GPU-accelerated model training, and batch evaluation.
+- **CI/CD Workflows**: Running multi-stage builds, automated testing, and secure deployments in isolated environments.
+- **Data Processing (ETL)**: Orchestrating large-scale batch processing and data transformation tasks using K8s native scaling.
+- **Infrastructure Automation**: Automating the lifecycle of cloud-resources and Kubernetes components via GitOps (Argo CD integration).
 
 ## Strengths
-- **Kubernetes-Native**: Implemented as a Custom Resource Definition (CRD), fitting perfectly into GitOps workflows (Argo CD).
-- **Massive Parallelism**: Capable of running thousands of containers in parallel, limited only by cluster capacity.
-- **v3.7 Features**: Smarter caching/memoization, multi-controller locking for cross-namespace scaling, and non-root execution for improved security.
-- **Dynamic Parallelism**: Fine-grained control over resource usage per namespace.
+- **Kubernetes-Native**: Deeply integrated with K8s RBAC, namespaces, and resource quotas; fits perfectly into GitOps workflows.
+- **Massive Parallelism**: Orchestrates thousands of concurrent containers, limited only by cluster capacity.
+- **v4.0 Features**: Extensible Artifact Plugins (GRPC-based), dynamic parallelism (update global limits via ConfigMap without restarts), and server-side validations.
+- **Python-Friendly**: Excellent support for the [Hera Python SDK](https://github.com/argoproj-labs/hera), allowing for complex logic without "YAML soup."
+- **Observability**: Robust UI for visualizing workflow execution, logs, and artifact lineage in real-time.
 
 ## Limitations
-- **Kubernetes Dependent**: Requires a K8s cluster to run; cannot be used as a standalone library or service on bare OS.
-- **YAML Overhead**: Large, complex workflows can result in "YAML soup," though this can be mitigated with the Python SDK (Hera).
-- **Latency**: Container startup overhead makes it less suitable for low-latency, real-time request handling.
+- **Kubernetes Dependency**: Cannot run standalone; requires a functioning Kubernetes cluster (even a local K3s/Kind instance).
+- **YAML Complexity**: Large workflows can become difficult to manage in pure YAML, though Hera mitigates this.
+- **Overhead**: Container startup latency makes it less suitable for ultra-low-latency, real-time request/response workflows.
 
 ## When to use it
 - Your infrastructure is already Kubernetes-centric.
 - You need to run complex, containerized tasks with specific resource requirements (e.g., GPU, high memory).
-- You want a GitOps-compatible way to manage your workflows.
+- You want a GitOps-compatible way to manage your workflows using tools like Argo CD.
+- You are building large-scale ML or data pipelines that require container-level isolation.
 
 ## When not to use it
-- You do not use Kubernetes and don't want the overhead of managing a cluster.
-- You need a simple, single-machine script or a micro-orchestrator (consider Hamilton).
-
-## Licensing and cost
-- **Open Source**: Yes (Apache License 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes (CNCF Graduate Project)
+- You do not use Kubernetes and want a lightweight, single-server solution (consider [Prefect](prefect.md) or [n8n](../../services/n8n.md)).
+- You need a simple, single-file script orchestrator with minimal overhead (consider [Hamilton](apache-hamilton.md)).
+- Your workflows are mostly interactive or involve frequent manual human-in-the-loop steps better suited for [Temporal](temporal.md).
 
 ## Getting started
 
-### Installation (Quickstart)
-Deploy Argo Workflows to your local K3s or development cluster:
+### Quickstart Installation
+Deploy the Argo Workflows controller and UI to your K3s or development cluster:
 
 ```bash
+# Create namespace and install
 kubectl create namespace argo
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.0/install.yaml
+kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v4.0.6/install.yaml
+
+# Patch the server to use 'server' auth mode for local development
+kubectl patch deployment argo-server -n argo --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": ["server", "--auth-mode=server"]}]'
 ```
 
 ### Submit a Hello World Workflow
 ```bash
-# Create a simple hello-world workflow
-cat <<EOF > hello-world.yaml
+cat <<EOF > hello.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -68,60 +72,64 @@ spec:
       args: ["hello world"]
 EOF
 
-# Submit the workflow
-argo submit -n argo hello-world.yaml --watch
+argo submit -n argo hello.yaml --watch
 ```
 
 ## CLI examples
-The `argo` CLI is the primary tool for interacting with the workflow controller.
+The `argo` CLI is the primary management tool for workflows and cron jobs.
 
 ```bash
 # List workflows in the 'argo' namespace
 argo list -n argo
 
-# Get details and logs for a specific workflow
-argo get -n argo hello-world-xxxxx
-argo logs -n argo hello-world-xxxxx
-
-# Delete all completed workflows
-argo delete -n argo --status Completed
+# Get logs for a specific workflow (supports follow)
+argo logs -n argo hello-world-xxxxx -f
 
 # Suspend/Resume a running workflow
-argo suspend -n argo my-long-running-wf
-argo resume -n argo my-long-running-wf
+argo suspend -n argo my-workflow
+argo resume -n argo my-workflow
+
+# Delete completed workflows to free up cluster resources
+argo delete -n argo --status Completed
+
+# Watch the progress of a specific workflow
+argo watch -n argo hello-world-xxxxx
 ```
 
 ## API examples
-Argo provides a robust REST API (typically exposed via the Argo Server).
+Argo Server provides a robust REST API (gRPC and HTTP).
 
 ```bash
-# Get the Argo Server version
-curl -X GET "https://argo-server:2746/api/v1/version" \
+# Get information about the Argo Server
+curl -X GET "https://argo-server:2746/api/v1/info" \
      -H "Authorization: Bearer <TOKEN>" -k
 
 # List workflows via API
 curl -X GET "https://argo-server:2746/api/v1/workflows/argo" \
      -H "Authorization: Bearer <TOKEN>" -k
+
+# Submit a workflow via API
+curl -X POST "https://argo-server:2746/api/v1/workflows/argo" \
+     -H "Authorization: Bearer <TOKEN>" \
+     -d @hello.json -k
 ```
 
 ## Related tools / concepts
-- [Argo CD](https://argoproj.github.io/argo-cd/) — For GitOps-based deployment of Argo Workflows.
-- [Apache Airflow](apache-airflow.md) — For enterprise-wide batch scheduling.
+- [Argo CD](https://argoproj.github.io/argo-cd/) — For GitOps-based deployment of workflows.
+- [Hera Python SDK](https://github.com/argoproj-labs/hera) — The standard for building Argo workflows in Python.
+- [K3s](../../services/k3s.md) — A lightweight Kubernetes distribution ideal for running Argo locally.
+- [Apache Airflow](apache-airflow.md) — For enterprise-wide batch scheduling (often integrated with Argo).
+- [Flyte](flyte.md) — A container-native orchestrator focused on ML lifecycle.
 - [Kestra](kestra.md) — For event-driven declarative orchestration.
-- [Hamilton](apache-hamilton.md) — For micro-orchestration of tasks within containers.
-- [Hera](https://github.com/argoproj-labs/hera) — Python SDK for Argo Workflows.
-- [Flyte](flyte.md) — For machine-learning specific container orchestration.
-- [Temporal](temporal.md) — For durable, long-running stateful workflows.
-
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
-
-## Contribution Metadata
-- Last reviewed: 2026-05-31
-- Confidence: high
+- [Temporal](temporal.md) — For stateful, durable workflows with long-running state.
 
 ## Sources / References
 - [Argo Workflows Official Documentation](https://argoproj.github.io/argo-workflows/)
-- [GitHub Repository](https://github.com/argoproj/argo-workflows)
+- [GitHub: Argo Workflows](https://github.com/argoproj/argo-workflows)
 - [Hera: Argo Workflows Python SDK](https://github.com/argoproj-labs/hera)
-- [v3.7.0 Release Notes](https://github.com/argoproj/argo-workflows/releases/tag/v3.7.0)
+- [Argo Workflows v4.0.0 Release Notes](https://github.com/argoproj/argo-workflows/releases/tag/v4.0.0)
+- [Argo Workflows endoflife.date](https://endoflife.date/argo-workflows)
+
+## Contribution Metadata
+- Last reviewed: 2026-06-21
+- Confidence: high
