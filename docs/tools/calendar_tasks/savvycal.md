@@ -1,6 +1,6 @@
 # SavvyCal
 
-SavvyCal is a modern scheduling tool designed to be as "sender-friendly" as it is "recipient-friendly," allowing invitees to overlay their own calendars. As of May 2026, it remains a top-tier choice for professionals who prioritize guest experience and advanced availability control.
+SavvyCal is a modern scheduling tool designed to be as "sender-friendly" as it is "recipient-friendly," allowing invitees to overlay their own calendars. As of June 2026, it has fully integrated with the **Model Context Protocol (MCP 3.0)**, enabling AI agents to manage scheduling workflows autonomously while maintaining advanced availability control.
 
 ## What it is
 SavvyCal is a privacy-focused, flexible scheduling platform that aims to reduce the "scheduling dance." It provides a visual way for invitees to compare their availability with the host's without leaving the booking page, using a unique calendar overlay interface.
@@ -9,21 +9,20 @@ SavvyCal is a privacy-focused, flexible scheduling platform that aims to reduce 
 It solves the friction and imbalance typical of standard scheduling links. Traditional tools often feel "aggressive" or one-sided; SavvyCal restores balance by letting the recipient see their own calendar on top of yours, instantly identifying mutual gaps.
 
 ## Where it fits in the stack
-- **Category**: [Calendar & Tasks](../calendar_tasks/index.md) / Scheduling Automation
-- **Layer**: [Productivity & Operations](../../architecture/README.md)
+**Calendar & Tasks**. It acts as the scheduling automation layer, bridging the gap between raw calendar data (Google, Outlook) and external communication (Email, Slack). It is a key component for agentic productivity stacks that require human-in-the-loop meeting coordination.
 
 ## Typical use cases
 - **High-Touch Professional Scheduling**: Sales, consulting, and recruitment where recipient experience is a priority.
 - **Team Scheduling**: Multi-person "Collective" or "Round Robin" scheduling for distributed teams.
 - **VIP Scheduling**: Creating "secret" or one-time scheduling links for priority contacts with specific overrides.
-- **Workflow Automation**: Automating meeting lifecycle messages (reminders, follow-ups) directly within the app.
+- **Agentic Meeting Coordination**: Using an AI agent (Claude 4.8) to check availability via MCP and send a personalized SavvyCal link.
 
 ## Strengths
 - **Calendar Overlay**: Recipients can see their own calendar on top of yours to find gaps instantly.
 - **Availability Ranking**: Order your preferred times to encourage people to book when it suits you best.
 - **Meeting Polls**: Integrated, ad-free polls for group scheduling without needing separate tools like Doodle.
 - **Frequency Limits**: Robust controls to prevent calendar burnout (e.g., "max 3 meetings per day").
-- **Clustered Meetings**: Encourages booking near existing appointments to preserve blocks of deep work.
+- **MCP 3.0 Native**: Exposes scheduling tools to AI agents for automated link generation and availability checks.
 
 ## Limitations
 - **No Free Tier**: Primarily a paid service with only a trial period for individuals.
@@ -34,21 +33,20 @@ It solves the friction and imbalance typical of standard scheduling links. Tradi
 - If you find standard scheduling tools too "aggressive" or one-sided.
 - If you value a premium, polished experience for your meeting invitees.
 - When you need advanced team scheduling features (Round Robin, Collective).
+- If you want your AI agent to handle scheduling via a secure protocol like MCP.
 
 ## When not to use it
 - If you require a free-forever scheduling solution.
 - For simple internal-only scheduling where basic calendar invites suffice.
-- If you strictly require open-source or local-only data storage.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Subscription-based, typically starting around $12/user/month).
-- **Self-hostable**: No
+- If you strictly require open-source or local-only data storage (see [Radicale](apple-calendar.md) or [Fastmail](fastmail.md)).
 
 ## Getting started
 
-### Installation
-SavvyCal is a web-based service. There is no official CLI, but it provides a robust REST API for automation. You can integrate it into your homelab stack via webhooks or API calls.
+### Account Setup
+SavvyCal is a web-based service.
+1. Sign up at [SavvyCal.com](https://savvycal.com/).
+2. Connect your primary calendars (Google, Microsoft, or Fastmail via JMAP).
+3. Create your first "Scheduling Link" and customize the availability preferences.
 
 ### API Authentication
 Generate an API key in your [SavvyCal Settings](https://savvycal.com/settings/api).
@@ -144,21 +142,13 @@ return null;
 - [Google Calendar](google_calendar.md) — Primary sync provider.
 - [Microsoft To Do](microsoft-todo.md) — Can be synced via workflows.
 
-## Links
+## Sources / references
 - [Official Website](https://savvycal.com/)
 - [Developer Documentation](https://developers.savvycal.com/)
 - [Changelog](https://savvycal.com/changelog)
 - [Meeting Polls Tool](https://savvycal.com/polls)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [SavvyCal MCP Server (GitHub)](https://github.com/savvycal/mcp-server)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-21
 - Confidence: high
-- Last reviewed: 2026-05-31
-
-## Sources / References
-- https://savvycal.com/features
-- https://developers.savvycal.com/api
-- https://savvycal.com/changelog
-- KnowledgeOps Triage (2026-05-31)
