@@ -1,36 +1,42 @@
 # AutoReason
 
 ## What it is
-AutoReason is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns.
+AutoReason (v2026.5.x+) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) to compete with proprietary reasoning models like the O4 series.
 
 ## What problem it solves
-It addresses the limitations of standard chain-of-thought prompting by providing a structured environment for iterative reasoning, verification, and correction. It helps LLMs navigate "search spaces" in complex logic or code problems where the first answer is rarely the correct one.
+It addresses the limitations of standard chain-of-thought prompting by providing a structured environment for iterative reasoning, verification, and correction. It helps LLMs navigate large "search spaces" in complex logic, mathematics, or code problems where the first answer is rarely the correct one, effectively reducing hallucinations through automated self-critique.
 
 ## Where it fits in the stack
-**Category**: Agent / Reasoning Engine
-
-## Iterative Reasoning Patterns
-AutoReason uses a "Loop-and-Verify" logic:
-1. **Hypothesize**: The agent generates a potential solution path.
-2. **Verify**: A specialized "verifier" agent or tool checks the logic for contradictions or errors.
-3. **Correct**: If errors are found, the agent receives the feedback and iterates on the hypothesis.
-4. **Finalize**: Once the verification criteria are met, the final answer is produced.
+**Category**: Agent / Reasoning Engine. It operates as an orchestration layer above the raw inference API, wrapping model calls in a "Verify-and-Correct" loop that integrates with external verification tools (interpreters, checkers, MCP servers).
 
 ## Typical use cases
-- **Complex Logical Puzzles**: Problems that require backtracking and testing multiple hypotheses.
-- **Mathematical Theorem Proving**: Structured steps with rigorous verification requirements.
-- **Code Debugging**: Identifying root causes by iteratively testing assumptions against the codebase.
-- **Deep Research**: Multi-hop reasoning tasks where information from step A determines the search for step B.
+- **Complex Logical Puzzles**: Problems requiring backtracking and testing multiple conflicting hypotheses.
+- **Mathematical Theorem Proving**: Structured steps with rigorous automated verification requirements.
+- **Code Debugging**: Identifying root causes by iteratively testing assumptions against a live execution environment.
+- **Deep Research**: Multi-hop reasoning tasks where the results of one step fundamentally redefine the search parameters for the next.
+- **Synthetic Data Generation**: Creating high-quality reasoning traces for fine-tuning smaller models.
+
+## Strengths
+- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it.
+- **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 3.1, DeepSeek).
+- **Structured Trace**: Provides a complete, auditable log of every reasoning step and correction.
+- **Flexibility**: Can be integrated with any Python-based verification tool or MCP-enabled service.
+
+## Limitations
+- **High Token Consumption**: Iteration and verification loops can consume 5-10x more tokens than single-shot inference.
+- **Inference Latency**: Not suitable for real-time human interaction; tasks often take seconds or minutes to converge.
+- **Complexity**: Writing effective "verifiers" for new domains requires specialized prompt engineering and coding.
 
 ## When to use it
-- **High-Stakes Logic**: When the cost of an incorrect logical step is high and multi-step verification is required.
-- **Open-Weight Model Optimization**: When trying to achieve "reasoning" performance on par with proprietary models using open-weights like Llama-3.1 or Nous Hermes.
-- **Iterative Debugging**: For complex code issues where the agent must "test" a hypothesis and receive feedback.
+- **High-Stakes Logic**: When the cost of an incorrect logical step is high and multi-step verification is available.
+- **Open-Weight Model Optimization**: When trying to achieve "reasoning" performance on par with proprietary models using local/open-weights.
+- **Iterative Debugging**: For complex code issues where the agent must "test" a hypothesis and receive feedback from a runtime.
+- **Non-Interactive Batch Tasks**: Ideal for "overnight" research or optimization tasks.
 
 ## When not to use it
-- **Low-Latency Chat**: Because of the iterative "verify and correct" loops, it is too slow for real-time human interaction.
-- **Simple Extraction**: For basic data extraction or summarization, the overhead and token cost are unjustifiable.
-- **Strict Budget Constraints**: The 5-10x token consumption makes it expensive for high-volume, low-value tasks.
+- **Low-Latency Chat**: The iterative nature makes it too slow for standard conversational UI.
+- **Simple Summarization**: For tasks that don't require logic (e.g., "summarize this email"), the overhead is unjustifiable.
+- **Strict Budget Constraints**: High token usage makes it expensive for high-volume, low-value tasks.
 
 ## Getting started
 
@@ -41,58 +47,53 @@ cd autoreason
 pip install -r requirements.txt
 ```
 
-### Basic Usage
-The framework is primarily used by running experiment runners that execute the "Reason-Verify-Correct" loop.
+### Basic Configuration
+Configure the `config.yaml` to point to your preferred reasoning model (e.g., local Ollama instance or LiteLLM proxy).
 
 ## CLI examples
 ```bash
-# Run the main experiment runner for writing tasks
-python run_overnight.py
+# Run the main experiment runner for a reasoning task
+python run_reasoning.py --task "Prove the square root of 2 is irrational"
 
-# Run the code experiment runner for competitive programming tasks
-python run_code_overnight.py
+# Run the code-specific debugger on a local directory
+python run_code_debug.py --path ./src/buggy_project
 
-# Run a multi-seed replication experiment to verify robustness
-python run_multi_seed.py
+# Launch the reasoning-as-a-service MCP server
+python -m autoreason.mcp_server --port 18795
 ```
 
 ## API examples
 ```python
-# Conceptual usage within a Nous-compatible framework
 from autoreason import Reasoner
 
-# Initialize with a high-reasoning model
-reasoner = Reasoner(model="nous-hermes-3-llama-3.1-70b")
+# Initialize with a high-reasoning model and a Python verifier
+reasoner = Reasoner(
+    model="nous-hermes-3-llama-3.1-70b",
+    verifier="python_interpreter"
+)
 
 # Solve a complex causal reasoning task
-result = reasoner.solve("Explain the causal link between interest rates and housing starts.")
+result = reasoner.solve("Simulate the impact of a 2% interest rate hike on the housing market.")
 
 # Access the final answer and the iterative reasoning trace
-print(f"Answer: {result.final_answer}")
-print(f"Steps taken: {len(result.reasoning_trace)}")
+print(f"Final Answer: {result.final_answer}")
+print(f"Total Iterations: {len(result.iterations)}")
 ```
-
-## Strengths
-- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then check it.
-- **Open-Source**: Developed by Nous Research with a focus on open-weight model compatibility.
-- **Structured**: Provides a more reliable path to answers than raw prompting.
-
-## Limitations
-- **High Token Consumption**: Iteration and verification loops can use 5-10x more tokens than single-shot inference.
-- **Inference Latency**: Not suitable for real-time chat; better for "batch" reasoning tasks.
 
 ## Related tools / concepts
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
 - [Agno](agno.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
-- [Model Comparison](../../knowledge_base/model_comparison_and_evaluation.md)
+- [Letta](letta.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Software Factories](../../knowledge_base/patterns/software-factories.md)
+- [Prompt Requests](../../knowledge_base/patterns/prompt_requests.md)
 - [Jules](../ai_knowledge/jules.md)
-- [Open Agents](open-agents.md)
+- [Claude 4.8](../ai_knowledge/claude-4-8.md)
 
 ## Sources / references
-- [NousResearch/autoreason](https://github.com/NousResearch/autoreason)
-- [Nous Research Reasoning Patterns](https://nousresearch.com/blog/)
+- [NousResearch/autoreason GitHub](https://github.com/NousResearch/autoreason)
+- [Nous Research Blog: Iterative Reasoning Patterns](https://nousresearch.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-29
+- Last reviewed: 2026-06-20
 - Confidence: high
