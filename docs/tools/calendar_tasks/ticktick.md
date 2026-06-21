@@ -1,6 +1,6 @@
 # TickTick
 
-TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of May 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summaries, and Model Context Protocol (MCP) support for AI agent integration.
+TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of June 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summaries, and **Model Context Protocol (MCP 3.0)** support for seamless AI agent integration.
 
 ## What it is
 TickTick is a multi-platform productivity suite that consolidates essential tools into a single application. It is designed for individuals who want to manage their entire life—tasks, habits, focus, and schedule—without context switching between separate apps.
@@ -9,25 +9,24 @@ TickTick is a multi-platform productivity suite that consolidates essential tool
 It reduces "app sprawl" and cognitive load by providing a unified interface for the Getting Things Done (GTD) methodology, Eisenhower Matrix prioritization, and time-blocking. It solves the fragmentation problem by keeping tasks and their associated calendar events and timers in one place.
 
 ## Where it fits in the stack
-- **Category**: [Calendar & Tasks](../calendar_tasks/index.md) / Task Management
-- **Layer**: Human-Facing Personal Intelligence
+**Calendar & Tasks**. It serves as a unified human-facing interface for personal intelligence and task management. It sits between low-level calendar providers and the user, offering a rich set of capture and organization tools.
 
 ## Typical use cases
 - **Unified GTD**: Capturing, clarifying, and organizing life and work tasks.
 - **Time Blocking**: Dragging tasks onto the integrated calendar to schedule the day.
 - **Habit Formation**: Tracking daily routines with the built-in Habit Tracker.
 - **Deep Work**: Using the integrated Pomodoro timer with white noise and task-specific timers.
-- **Eisenhower Matrix**: Visualizing task priority across four quadrants for better decision making.
+- **Agentic Task Management**: Using Claude 4.8 via MCP to create tasks from meeting transcripts or code reviews.
 
 ## Strengths
-- **Feature Density**: Includes calendar, timer, habits, and notes at a lower price point than competitors like Todoist + Fantastical.
-- **AI Voice & Transcription**: Native ability to transcribe voice recordings into tasks and summarize meeting audio.
-- **Persistent Reminders**: "Nag" alerts that continue until a task is completed or snoozed, excellent for high-priority items.
+- **Feature Density**: Includes calendar, timer, habits, and notes at a lower price point than most competitors.
+- **AI Voice & Transcription**: Native ability to transcribe voice recordings into tasks and summarize meeting audio using frontier models.
+- **Persistent Reminders**: "Nag" alerts that continue until a task is completed or snoozed.
 - **Superior Calendar**: Full multi-project calendar view (Month, Week, Day) built directly into the task manager.
-- **MCP Integration**: Exposes task management tools to AI agents via the Model Context Protocol.
+- **MCP 3.0 Integration**: Exposes task management tools to AI agents for automated planning and execution.
 
 ## Limitations
-- **API Maturity**: The official public API remains less robust than Todoist's, often requiring community-maintained wrappers.
+- **API Maturity**: The official public API remains less robust than competitors like Todoist, often requiring community wrappers for advanced automation.
 - **Closed Ecosystem**: Proprietary and not self-hostable.
 - **Privacy**: No local-only mode; all data is synced to TickTick's servers.
 
@@ -35,41 +34,34 @@ It reduces "app sprawl" and cognitive load by providing a unified interface for 
 - If you want a single app to handle tasks, habits, and time-boxing.
 - If you find Todoist too minimalist or find the cost of a multi-app stack prohibitive.
 - If you need persistent, aggressive reminders for task completion.
+- If you want an agent-ready task manager via MCP.
 
 ## When not to use it
 - If you strictly require open-source or local-first data storage (see [Vikunja](../../services/vikunja.md)).
 - If you need enterprise-level project management features with complex permission hierarchies.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Freemium. Pro subscription is ~$36/year (May 2026) and is required for calendar views and advanced filtering.
-- **Self-hostable**: No
+- If you prefer a minimalist, text-only interface.
 
 ## Getting started
 
 ### Installation
-TickTick is available on iOS, Android, macOS, Windows, Linux, and the Web. For automation, the `ticktick-py` library is the most popular community choice.
+TickTick is available on iOS, Android, macOS, Windows, Linux, and the Web.
+- **Web**: [TickTick.com](https://ticktick.com/)
+- **CLI (Python Library)**: `pip install ticktick-py`
 
-```bash
-# Install the community Python client
-pip install ticktick-py
-```
-
-### Hello World (Python)
+### Basic Automation (Python)
 ```python
 from ticktick.api import TickTickClient
 
-# Initialize client (requires user credentials or OAuth)
+# Initialize client
 client = TickTickClient('your_email', 'your_password')
 
-# Create a task in the Inbox with a Pomodoro duration
+# Create a task
 task = client.task.builder(
     title='Record meeting summary',
     content='Use TickTick AI to transcribe the audio',
-    priority=3 # High priority
+    priority=3
 )
 client.task.create(task)
-print(f"Task created: {task['title']}")
 ```
 
 ## CLI examples
@@ -80,7 +72,7 @@ While no official binary exists, you can use `curl` for automation via the Open 
 curl -X GET "https://api.ticktick.com/open/v1/project" \
   -H "Authorization: Bearer ${TICKTICK_ACCESS_TOKEN}"
 
-# Create a task with natural language due date parsing (if supported by integration)
+# Create a task
 curl -X POST "https://api.ticktick.com/open/v1/task" \
   -H "Authorization: Bearer ${TICKTICK_ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -90,16 +82,12 @@ curl -X POST "https://api.ticktick.com/open/v1/task" \
   }'
 ```
 
-## AI & Agent Integration
+## API examples
 
-### AI Voice Add
-Create tasks instantly by speaking. TickTick's AI will parse the due date, priority, and list automatically.
-
-### TickTick MCP (Model Context Protocol)
-TickTick can now be used as a tool for AI agents (like Claude Desktop). This allows agents to:
+### AI & Agent Integration (MCP)
+TickTick can be used as a tool for AI agents (like Claude Desktop). This allows agents to:
 - `create_task`: Create a new task with specific parameters.
 - `list_all_tasks`: Retrieve open tasks for context-aware planning.
-- `get_project_by_id`: Fetch specific project data.
 
 **Sample MCP Config (Claude Desktop):**
 ```json
@@ -119,22 +107,16 @@ TickTick can now be used as a tool for AI agents (like Claude Desktop). This all
 - [Any.do](any-do.md) — Mobile-first task management.
 - [Habitica](../../services/habitica.md) — Gamified task management.
 - [Vikunja](../../services/vikunja.md) — Self-hosted open-source alternative.
-- [Composio](https://composio.dev/toolkits/ticktick) — For advanced agentic toolsets.
+- [Composio](../agents/composio.md) — For advanced agentic toolsets.
+- [n8n](../../services/n8n.md) — For connecting TickTick to external workflows.
+- [Make](../automation_orchestration/make.md) — Visual automation for task syncing.
 
-## Links
+## Sources / references
 - [Official Website](https://ticktick.com/)
 - [TickTick Developer Portal](https://developer.ticktick.com/)
 - [AI Features Overview](https://help.ticktick.com/articles/7444685542580551680)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [TickTick MCP Server (GitHub)](https://github.com/alexarevalo/mcp-server-ticktick)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-21
 - Confidence: high
-- Last reviewed: 2026-05-31
-
-## Sources / References
-- https://help.ticktick.com/articles/7444685542580551680
-- https://2sync.com/blog/ticktick-vs-todoist
-- https://composio.dev/toolkits/ticktick
-- KnowledgeOps Triage (2026-05-31)
