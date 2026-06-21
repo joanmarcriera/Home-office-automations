@@ -10,13 +10,13 @@ This report implements **Action A** (Technical Freshness Audit) for the 10 oldes
 - [x] `docs/tools/automation_orchestration/codegraphcontext.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
 
 ## Sub-Batch 118.2: Agent Frameworks (Pending)
-- [ ] `docs/tools/agents/nemo-retriever.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
-- [ ] `docs/tools/agents/letta.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
-- [ ] `docs/tools/agents/autoreason.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
-- [ ] `docs/tools/agents/gpt-researcher.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
-- [ ] `docs/tools/agents/bee-agent-framework.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
+- [x] `docs/tools/agents/nemo-retriever.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
+- [x] `docs/tools/agents/letta.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
+- [x] `docs/tools/agents/autoreason.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
+- [x] `docs/tools/agents/gpt-researcher.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
+- [x] `docs/tools/agents/bee-agent-framework.md`: Upgrade to 13-section 'High Confidence' standard and incorporate June 2026 context.
 
 ---
-- Status: Batch 118.1 Completed.
+- Status: Batch 118 Completed.
 - Date: 2026-06-20
 - Created by: Jules
