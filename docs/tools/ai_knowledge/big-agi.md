@@ -10,12 +10,12 @@ It allows users to simultaneously use, compare, and merge outputs from multiple 
 **Category**: AI Assistants & Knowledge / Professional AI Workspace. It acts as a high-performance orchestration layer between users and various [LLM Providers](../providers/index.md).
 
 ## Typical use cases
-- **Multi-Model Intelligence (Beam)**: Querying several models (e.g., Claude 4.7, GPT-5.5, Gemini 3.5) simultaneously to find the best response.
+- **Multi-Model Intelligence (Beam)**: Querying several models (e.g., Claude 4.8, GPT-5.5, Gemini 3.5) simultaneously to find the best response.
 - **Deep Research**: Using "Gemini Deep Research" (now fully resumable) and web search with citations for technical validation.
 - **Agentic Workflows**: Leveraging "Anthropic Containers" for persistent files, bash sessions, and skills that span multiple turns.
 - **Creative Production**: Image generation and editing via Nano Banana and GPT-Image-2.
 
-## Key Features (May 2026 Update)
+## Key Features (June 2026 Update)
 - **Beam 2**: Multi-modal, program-based reasoning with follow-ups and saveable presets.
 - **Anthropic Containers**: 1-hour persistent sandbox for files and code execution (Bash) that maintains state across turns.
 - **Gemini Antigravity Support**: Integration with the latest agentic models featuring Linux sandbox support.
@@ -63,6 +63,9 @@ docker run -p 3000:3000 ghcr.io/enricoros/big-agi
 - [OpenRouter](../providers/openrouter.md): The recommended backend for big-AGI.
 - [LiteLLM](../../services/litellm.md): Ideal for managing local model fallbacks.
 - [Claude Code](../development_ops/claude-code.md): Complementary CLI-based agentic workflow.
+- [PydanticAI](../frameworks/pydantic-ai.md): For building production-grade agents that can integrate with big-AGI.
+- [Documentation Writer](../agents/documentation-writer.md): For maintaining the documentation of your big-AGI-based projects.
+- [Superpowers](../agents/superpowers.md): Curated skill bundles that can be used within big-AGI via MCP.
 
 ## Sources / References
 - [big-AGI Official Site](https://big-agi.com/)
@@ -71,5 +74,5 @@ docker run -p 3000:3000 ghcr.io/enricoros/big-agi
 - [OpenRouter](https://openrouter.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-21
 - Confidence: high

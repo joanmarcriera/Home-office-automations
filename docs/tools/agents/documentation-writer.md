@@ -15,13 +15,14 @@ Documentation rot is a major issue in fast-moving projects. This skill ensures t
 - **KnowledgeOps Sync**: Updating repository indexes and site navigation (e.g., `mkdocs.yml`) based on new files.
 - **Visual Mapping**: Generating Mermaid or Excalidraw diagram definitions to visualize architecture.
 
-## Key Features (May 2026 Update)
+## Key Features (June 2026 Update)
 - **Universal SKILL.md Support**: Compatible with the latest cross-agent skill standard used by Claude Code, Cursor, and Antigravity IDE.
 - **Symbolic Analysis**: Uses LSP (Language Server Protocol) data to provide deeper, more accurate code explanations than raw text analysis.
 - **Documentation Linting**: Automatically checks for broken relative links, missing metadata, and taxonomy violations.
 - **Multi-Format Export**: Generates documentation in Markdown, PDF, and interactive HTML.
 
 ## Strengths
+- **Frontier Intelligence**: Optimized for **Claude 4.8** and **GPT-5.5**, ensuring deep understanding of complex architectural patterns.
 - **Workflow Integration**: Can be triggered as a post-commit hook or as part of a CI/CD pipeline.
 - **Taxonomy Compliance**: Enforces project-specific documentation standards (e.g., [KnowledgeOps](../../standards-and-conventions.md)).
 - **Zero Drift**: Detects when code changes without corresponding documentation updates.
@@ -74,6 +75,10 @@ Audit existing documentation for freshness:
 - [Claude Skills Ecosystem](claude-skills-ecosystem.md): The broader collection of agent enhancements.
 - [Superpowers](superpowers.md): Curated skill bundles for developers.
 - [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md): The philosophy of managing knowledge like code.
+- [Claude Code](../development_ops/claude-code.md): The CLI agent that frequently uses this skill.
+- [PydanticAI](../frameworks/pydantic-ai.md): For creating agents that require high-quality documentation.
+- [big-AGI](../ai_knowledge/big-agi.md): A GUI that can orchestrate documentation-heavy workflows.
+- [agentic-workflows](../../knowledge_base/patterns/agentic-workflows.md): Patterns for building autonomous documentation pipelines.
 
 ## Sources / references
 - [Documentation Writer Skill (GitHub)](https://github.com/awesome-copilot/documentation-writer)
@@ -81,5 +86,5 @@ Audit existing documentation for freshness:
 - [10 Must-Have Skills for 2026](https://medium.com/@unicodeveloper/10-must-have-skills-for-claude-and-any-coding-agent-in-2026-b5451b013051)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-21
 - Confidence: high
