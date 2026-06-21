@@ -1,38 +1,38 @@
 # AG2 (formerly AutoGen)
 
 ## What it is
-AG2 is the next-generation evolution of the AutoGen framework. It is an open-source framework for building multi-agent AI applications that can converse with each other and interact with tools and environments. As of May 2026, it represents the rebranded and technically advanced successor to the original Microsoft AutoGen project.
+AG2 is the next-generation evolution of the AutoGen framework. It is an open-source framework for building multi-agent AI applications that can converse with each other and interact with tools and environments. As of June 2026, it serves as a universal runtime (AG2 AgentOS) for orchestrating specialized agents from various frameworks including Google ADK, OpenAI, and LangChain.
 
 ## What problem it solves
-It simplifies the development of complex AI systems where multiple agents need to collaborate, reason, and act to solve sophisticated problems. It addresses the overhead of managing agent state, conversation history, and tool-calling coordination in multi-agent environments.
+It simplifies the development of complex AI systems where multiple agents need to collaborate, reason, and act. AG2 addresses "islands of intelligence" by providing a universal runtime for framework interoperability, unified state management ("shared brain"), and standardized protocols (A2A and MCP) for secure agent-to-agent and agent-to-tool communication.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator**.
+**Framework / Multi-Agent Orchestrator / Agent Runtime**.
 
 ## Typical use cases
-- **Multi-agent Collaboration**: Building teams of agents to perform research, coding, and review in a coordinated loop.
-- **Complex Problem Solving**: Breaking down difficult tasks into smaller parts handled by specialized agents with different roles.
-- **Human-Agent Interaction**: Creating applications where humans can step in to provide feedback or approval within an agentic workflow.
-- **Cross-Platform Agents**: Deploying agents that can operate across different environments (local, cloud, or edge).
+- **Multi-Framework Orchestration**: Connecting agents built in different frameworks (e.g., a LangChain researcher and an OpenAI analyst) into a single cohesive team.
+- **Cross-Platform Coordination**: Assembling dynamic teams of specialized personas that can operate across local and cloud environments.
+- **Unified State Management**: Maintaining consistent context and task state across long-running agentic workflows.
+- **Visual Team Composition**: Using **Waldiez** (the community-led visual companion) to design and debug multi-agent group chats.
 
 ## Strengths
-- **Conversational Design**: Native support for complex natural language interactions and multi-party conversations.
-- **Flexible Orchestration**: Supports various patterns such as group chats, round-robin, and custom state-based transitions.
-- **Large Community**: Inherits a massive and active community from the AutoGen project, ensuring rapid bug fixes and updates.
-- **Tool-Call Management**: Robust handling of complex tool-calling sequences across multiple agents.
+- **Protocol-First Interoperability**: Built-in support for **A2A (Agent-to-Agent)** and **MCP (Model Context Protocol)**.
+- **Flexible Conversational Design**: Native support for group chats, hierarchical orchestration, and custom state-based transitions.
+- **Enterprise-Ready Security**: Features like Agent Cards and secure tool-calling guards for production deployments.
+- **Shared Brain Architecture**: Advanced state management that prevents context loss in complex multi-step tasks.
 
 ## Limitations
-- **Evolving API**: The transition from AutoGen to AG2 involves significant API refinements that may require migration efforts for older codebases.
-- **Abstraction Depth**: The high level of abstraction can sometimes make it challenging to debug fine-grained agent behaviors without deep framework knowledge.
+- **Transition Complexity**: Migrating from the legacy Microsoft AutoGen (v0.2) to the AG2 AgentOS architecture requires significant refactoring of orchestration logic.
+- **Orchestration Overhead**: The high level of abstraction can make fine-grained control over individual LLM parameters more complex than using low-level SDKs.
 
 ## When to use it
-- When you want to build sophisticated multi-agent systems based on a proven and mature foundation.
-- When you need a framework that natively supports complex, conversational AI workflows and human-in-the-loop patterns.
-- When you want to leverage a wide range of pre-built agent types and coordination strategies.
+- When you need to build sophisticated multi-agent systems involving agents from multiple different providers or frameworks.
+- When you require a proven, enterprise-grade foundation for collaborative AI workflows.
+- When building AI-native organizations where specialized agents must discover and delegate to each other dynamically.
 
 ## When not to use it
-- For simple, single-agent tasks where a lighter SDK (like the OpenAI SDK directly) would suffice.
-- If you prefer a more rigid, non-conversational orchestration model (e.g., simple DAG-based workflows).
+- For simple, single-agent tasks where a direct SDK call is sufficient.
+- If you prefer a rigid DAG-based workflow without conversational flexibility.
 
 ## Getting started
 
@@ -41,65 +41,74 @@ It simplifies the development of complex AI systems where multiple agents need t
 pip install ag2
 ```
 
-### Basic Multi-Agent Example
+### Basic Multi-Agent Setup
+AG2 maintains compatibility with the `autogen` package name:
 ```python
-import autogen # The package name remains autogen for compatibility
+import autogen
+from ag2 import AgentOS
 
-config_list = [{"model": "gpt-4o", "api_key": "YOUR_API_KEY"}]
+# Initialize the universal runtime
+runtime = AgentOS.init()
 
-# Define specialized agents
-researcher = autogen.AssistantAgent(
-    "researcher",
-    system_message="You are a researcher who finds relevant data.",
-    llm_config={"config_list": config_list}
-)
+# Define agents
+assistant = autogen.AssistantAgent("helper", llm_config={"model": "gpt-4o"})
+user_proxy = autogen.UserProxyAgent("user", code_execution_config={"use_docker": False})
 
-writer = autogen.AssistantAgent(
-    "writer",
-    system_message="You are a writer who summarizes data from the researcher.",
-    llm_config={"config_list": config_list}
-)
+# Orchestrate
+user_proxy.initiate_chat(assistant, message="Analyze our cross-framework dependencies.")
+```
 
-user_proxy = autogen.UserProxyAgent(
-    "user_proxy",
-    code_execution_config={"work_dir": "workspace", "use_docker": False},
-    human_input_mode="NEVER"
-)
+## CLI examples
 
-# Start a group chat
-groupchat = autogen.GroupChat(agents=[user_proxy, researcher, writer], messages=[], max_round=12)
-manager = autogen.GroupChatManager(groupchat=groupchat, llm_config={"config_list": config_list})
+### Initializing a Project
+```bash
+ag2 init my-agent-org
+```
 
-user_proxy.initiate_chat(
-    manager,
-    message="Research the latest features of AG2 and summarize them."
+### Running in Studio Mode
+```bash
+ag2 studio --port 8081
+```
+
+## API examples
+
+### Cross-Framework Delegation (A2A)
+```python
+from ag2.protocols import A2A
+
+# Delegate a task to an external Google ADK agent
+result = await A2A.delegate(
+    target_agent_id="google-adk-analyst",
+    task="Perform financial sentiment analysis",
+    context=shared_brain.get_context()
 )
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0 License)
-- **Cost**: Free (OSS)
-- **Self-hostable**: Yes
+### Unified State Access
+```python
+# Access the 'shared brain' across the team
+state = runtime.get_state("workflow-id-123")
+print(state.history)
+```
 
 ## Related tools / concepts
-- [AutoGen](autogen.md)
-- [CrewAI](crewai.md)
-- [Semantic Kernel](semantic-kernel.md)
-- [LangGraph](langgraph.md)
-- [Langflow](langflow.md)
-- [Rivet](rivet.md)
-- [Temporal](../orchestration/temporal.md)
-- [PydanticAI](pydantic-ai.md)
-- [Mastra](mastra.md)
+- [AutoGen](autogen.md) — The original legacy framework.
+- [CrewAI](crewai.md) — Role-based multi-agent framework.
+- [LangGraph](langgraph.md) — Graph-based agent orchestration.
+- [Mastra](mastra.md) — TypeScript-native agent framework.
+- [Rivet](rivet.md) — Visual AI programming environment.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool-calling protocol supported by AG2.
+- [PydanticAI](pydantic-ai.md) — Type-safe agent framework.
+- [Semantic Kernel](semantic-kernel.md) — Microsoft's agentic framework.
 
 ## Sources / References
 - [Official Website](https://ag2.ai/)
-- [GitHub](https://github.com/ag2-ai/ag2)
-- [AutoGen Documentation](https://microsoft.github.io/autogen/)
+- [GitHub Repository](https://github.com/ag2ai/ag2)
+- [AG2 vs AutoGen Comparison](https://www.ag2.ai/compare/autogen)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-06-21)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-31
+- Last reviewed: 2026-06-21
 - Confidence: high

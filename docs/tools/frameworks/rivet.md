@@ -1,38 +1,38 @@
 # Rivet
 
 ## What it is
-Rivet is an open-source visual AI programming environment and TypeScript library. It allows developers to build, test, and debug complex multi-agent AI systems using a node-based editor. As of May 2026, it has expanded into a comprehensive "Infrastructure for the agentic era" with the launch of **agentOS**.
+Rivet is an open-source visual AI programming environment and TypeScript library developed by Ironclad. It allows developers to build, test, and debug complex multi-agent AI systems using a node-based editor. As of June 2026, it has evolved into a comprehensive agent infrastructure provider with the launch of **agentOS**, **Rivet Actors**, and a full Rust-based rewrite of its core libraries (RivetKit 2.3).
 
 ## What problem it solves
-It provides a powerful visual interface for designing AI logic, making it easier to manage complex flows, debug issues, and collaborate on agentic behaviors. With **agentOS**, it solves the high cost and slow cold-starts of traditional sandboxed environments for agentic code execution.
+It provides a powerful visual interface for designing AI logic, making it easier to manage complex flows and collaborate on agentic behaviors. It solves the performance and cost bottlenecks of traditional sandboxed environments through **agentOS**, which uses Wasm and V8 isolates for near-instant cold starts. Additionally, **Rivet Actors** address the need for stateful, distributed agent execution with million-scale isolated databases via **SQLite for Rivet Actors**.
 
 ## Where it fits in the stack
-**Framework / Visual Orchestrator / Agent Runtime**.
+**Framework / Visual Orchestrator / Agent Runtime / Edge Infrastructure**.
 
 ## Typical use cases
-- **Agent Design**: Crafting intricate logic for autonomous or semi-autonomous AI agents using a node-based editor.
-- **Stateful Workflows**: Implementing durable, replayable workflows for TypeScript that support sleep, join, and human-in-the-loop.
-- **Sandboxed Code Execution**: Running untrusted AI-generated code in **agentOS** (Wasm/V8 isolates) with ~6ms cold starts.
-- **Edge Data Storage**: Utilizing **SQLite for Rivet Actors** to manage millions of isolated databases at the edge.
+- **Visual Agent Design**: Designing intricate logic for autonomous or semi-autonomous AI agents using a node-based editor.
+- **Stateful Edge Computing**: Deploying millions of isolated, stateful actors that run at the edge with built-in SQLite persistence.
+- **High-Performance Sandboxing**: Running untrusted AI-generated code in **agentOS** with ~6ms cold starts, significantly faster than traditional Docker-based sandboxes.
+- **Serverless Agent Hosting**: Utilizing **Rivet Compute** to host and scale agent actors without managing underlying infrastructure.
 
 ## Strengths
-- **Developer-Centric**: Built for developers with a focus on extensibility and powerful visual debugging.
-- **Performance**: agentOS provides a full POSIX environment that is 32x cheaper than traditional sandboxes.
-- **Durable Execution**: Rivet Workflows provide robust state management and replayability.
-- **Unified Agent API**: The **Sandbox Agent SDK** provides a single API for integrating with various coding agents like Claude Code or Amp.
+- **Developer-Centric Debugging**: Real-time visual inspection of prompt chains and agent execution.
+- **Extreme Performance**: agentOS provides a full POSIX environment that is 32x cheaper and significantly faster than traditional VMs.
+- **Stateful Concurrency**: Native support for stateful actors using the **Rust SDK** or **Effect SDK** for Rivet Actors.
+- **Local-First / Edge-Native**: SQLite-per-actor architecture allows for massive horizontal scaling at the edge.
 
 ## Limitations
-- **Learning Curve**: The visual editor and its various node types can take some time to master.
-- **Transitioning Ecosystem**: Rapidly evolving from a visual editor into a full-stack agent infrastructure provider.
+- **Visual Overhead**: For extremely simple prompt calls, the visual graph overhead may be unnecessary.
+- **Ecosystem Velocity**: The rapid shift towards a Rust-based core and Actor model requires keeping up with frequent breaking changes in the SDKs.
 
 ## When to use it
 - When building sophisticated AI agents that require complex logic, state management, and durable workflows.
 - When you need a high-performance, low-cost sandbox for executing AI-generated code.
-- When you value high-quality visual debugging and inspection tools.
+- When you want to deploy stateful AI services at the edge that scale to zero.
 
 ## When not to use it
-- For trivial AI tasks where a simple API call is sufficient.
-- If you are not comfortable with node-based visual programming for logic design.
+- For trivial, single-prompt AI tasks.
+- If you prefer purely code-based orchestration without any visual design or debugging components.
 
 ## Getting started
 
@@ -42,9 +42,30 @@ To use Rivet in your project:
 npm install @ironclad/rivet-node
 ```
 
-### Running a Graph
-You can load and run a `.rivet-project` file in your Node.js application:
+### Rivet Actors Setup
+To create a new stateful actor using the Rust SDK:
+```bash
+cargo add rivet-actor
+```
 
+### Local Development
+Download the Rivet desktop application from the [Official Website](https://rivet.ironcladapp.com/) to start building graphs visually.
+
+## CLI examples
+
+### Running a Graph via CLI
+```bash
+rivet run my-project.rivet-project --graph "Main Graph" --input userInput="Hello AI"
+```
+
+### Deploying to Rivet Compute
+```bash
+rivet deploy --actor my-agent-actor
+```
+
+## API examples
+
+### Running a Graph in Node.js
 ```typescript
 import { runGraph, loadProject, NodeId } from '@ironclad/rivet-node';
 
@@ -56,51 +77,44 @@ async function runRivetGraph() {
     inputs: {
       userInput: { type: 'string', value: 'Hello Rivet!' }
     },
-    // Required if using OpenAI nodes
     openAiKey: process.env.OPENAI_API_KEY,
   });
 
   console.log(results.output.value);
 }
-
-runRivetGraph();
 ```
 
-### Rivet Workflows Example
-```typescript
-import { workflow } from '@ironclad/rivet-node';
+### Creating an Actor (Rust SDK)
+```rust
+use rivet_actor::prelude::*;
 
-const myWorkflow = workflow('example', async (c) => {
-  const result = await c.callAgent('researcher', { query: 'May 2026 AI trends' });
-  await c.sleep('1 day'); // Durable sleep
-  return await c.callAgent('writer', { data: result });
-});
+#[actor]
+async fn my_actor(ctx: Context, input: String) -> Result<String> {
+    let state: MyState = ctx.get_state().await?;
+    let response = ctx.call_llm("gpt-4o", input).await?;
+    Ok(response)
+}
 ```
-
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free (OSS version); Usage-based for Rivet Cloud/agentOS.
-- **Self-hostable**: Yes
 
 ## Related tools / concepts
-- [Langflow](langflow.md)
-- [Flowise](../ai_knowledge/flowise.md)
-- [AutoGen](autogen.md)
-- [Promptfoo](../benchmarking/promptfoo.md)
-- [LangGraph](langgraph.md)
-- [PydanticAI](pydantic-ai.md)
-- [Temporal](../orchestration/temporal.md)
-- [Claude Code](../development_ops/claude-code.md) — Supported via Sandbox Agent SDK.
+- [Langflow](langflow.md) — Visual workflow builder.
+- [Flowise](../ai_knowledge/flowise.md) — Node-based UI for LLM flows.
+- [AutoGen](ag2.md) — Rebranded as AG2, focused on multi-agent conversation.
+- [Promptfoo](../benchmarking/promptfoo.md) — Evaluation and testing for Rivet graphs.
+- [LangGraph](langgraph.md) — Code-centric multi-agent orchestration.
+- [PydanticAI](pydantic-ai.md) — Type-safe agent framework from Pydantic.
+- [Temporal](../orchestration/temporal.md) — Durable execution often compared with Rivet Workflows.
+- [Claude Code](../development_ops/claude-code.md) — Supported via Sandbox Agent SDK integration.
 
 ## Sources / References
 - [Official Website](https://rivet.ironcladapp.com/)
-- [Changelog](https://rivet.dev/changelog/)
-- [GitHub](https://github.com/Ironclad/rivet)
-- [Sandbox Agent SDK](https://sandboxagent.dev/)
+- [Rivet Developer Blog](https://rivet.dev/blog/)
+- [GitHub Repository](https://github.com/Ironclad/rivet)
+- [agentOS Documentation](https://sandboxagent.dev/)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-05-31)
+- [x] Perform quarterly technical freshness audit. (Completed: 2026-06-21)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-31
+- Last reviewed: 2026-06-21
 - Confidence: high
