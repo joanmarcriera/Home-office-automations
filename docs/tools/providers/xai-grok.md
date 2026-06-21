@@ -1,19 +1,13 @@
 # xAI Grok
 
 ## What it is
-**Grok** is a family of large language models (LLMs) developed by **xAI**, founded by Elon Musk. Architected to be a "truth-seeking AI," Grok is known for its "rebellious streak," witty personality, and native, real-time access to the **X (formerly Twitter)** data stream.
+**Grok** is a family of large language models (LLMs) developed by **xAI**, founded by Elon Musk. Architected to be a "truth-seeking AI," Grok is known for its "rebellious streak," witty personality, and native, real-time access to the **X (formerly Twitter)** data stream. As of June 2026, it represents a top-tier reasoning engine competing directly with Claude 4.8 and GPT-5.5.
 
 ## What problem it solves
-Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in standard LLMs. By leveraging the **X platform's real-time firehose**, Grok provides insights into breaking news, current social sentiment, and emerging trends before they are indexed by traditional search engines. It also aims to provide a more unfiltered and conversational experience.
+Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in standard LLMs. By leveraging the **X platform's real-time firehose**, Grok provides insights into breaking news, current social sentiment, and emerging trends before they are indexed by traditional search engines. It also aims to provide a more unfiltered and conversational experience for research and monitoring.
 
 ## Where it fits in the stack
-**Category**: Tool / Provider / Intelligence Layer. It acts as a primary reasoning engine for developers and a real-time information synthesizer for research and monitoring.
-
-## Key Model Family (May 2026)
-- **Grok-3**: The flagship reasoning model, optimized for complex mathematics, coding, and multi-step logic.
-- **Grok-3 Fast**: A low-latency version of Grok-3, ideal for real-time applications and high-throughput agents.
-- **Grok-3 Vision**: Multimodal capabilities for advanced image and video understanding.
-- **Grok-3 Mini**: A highly efficient, cost-effective model for simple tasks and high-volume processing.
+**Category**: Tool / Provider / Intelligence Layer. It acts as a primary reasoning engine for developers and a real-time information synthesizer for research, OSINT, and agentic workflows that require live web grounding.
 
 ## Typical use cases
 - **Real-time Trend Synthesis**: Extracting public sentiment and key takeaways from breaking news on the X platform.
@@ -24,10 +18,10 @@ Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in s
 
 ## Strengths
 - **Live Knowledge**: Unmatched freshness due to X platform integration.
-- **Large Context Support**: Handles long-form documents and massive conversation histories (up to 1M+ tokens in some tiers).
-- **Multimodal Native**: Strong performance in image understanding and visual reasoning.
+- **Large Context Support**: Handles long-form documents and massive conversation histories (up to 1M+ tokens in flagship tiers).
+- **Multimodal Native**: Strong performance in image understanding and visual reasoning (Grok-3 Vision).
 - **Personality**: A "Fun Mode" that allows for a more colorful and engaging user experience.
-- **Performance**: Grok-3 consistently ranks in the top tier of benchmarks like MMLU, HumanEval, and GSM8K.
+- **Open-Weights Legacy**: Open-sourced weights for Grok-1 and parts of the Grok-2 family provide a foundation for the open-weights community.
 
 ## Limitations
 - **Ecosystem Lock-in**: The best real-time features are heavily tied to the X platform ecosystem.
@@ -38,28 +32,47 @@ Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in s
 ## When to use it
 - When your application requires **up-to-the-minute** information on global events.
 - For **social sentiment analysis** where the X data stream is the primary source of truth.
-- When building **AI agents** that need a high-performance, OpenAI-compatible reasoning engine.
+- When building **AI agents** that need a high-performance, OpenAI-compatible reasoning engine with a "truth-seeking" priority.
 
 ## When not to use it
 - For **neutral or academic** research that requires avoidance of social media biases.
 - If you need a model with a **strictly polite and subservient** "assistant" persona.
 - In environments where **data privacy policies** prohibit integration with X-related infrastructure.
+- If your project requires a completely open-source/local-only flagship model (Grok-3 is proprietary API-first).
 
-## Licensing and cost
-- **Open Source**: The weights for Grok-1 and parts of the Grok-2 family have been open-sourced (Apache 2.0).
-- **API Cost**: Paid via the xAI Console (e.g., ~$10/1M tokens for flagship models as of May 2026).
-- **X Premium**: Grok is available to X Premium/Premium+ subscribers for interactive use.
+## Getting started (including Docker/Local setup)
+xAI offers Grok via the xAI Console API. For local development, it is often used via an OpenAI-compatible SDK.
 
-## Getting started (API)
+### API Access
+1. Create an account at the [xAI Console](https://console.x.ai/).
+2. Generate an API Key.
+3. Use the key in your preferred SDK or integration tool (e.g., [LiteLLM](../../services/litellm.md)).
 
-The xAI API is fully compatible with the OpenAI SDK, making it easy to swap into existing workflows.
-
-### Installation
+### Local Testing with Docker
+While Grok-3 is an API, you can use a local proxy like **LiteLLM** in Docker to unify your Grok access with other models:
 ```bash
-pip install openai
+docker run -p 4000:4000 ghcr.io/berriai/litellm:main-latest \
+  --model grok-3-latest \
+  --api_key "your-xai-api-key"
 ```
 
-### Python Example (Standard Chat)
+## CLI examples
+The xAI API is fully compatible with the OpenAI SDK, making it easy to swap into existing workflows.
+
+```bash
+# Using curl to hit the xAI completions endpoint
+curl https://api.x.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $XAI_API_KEY" \
+  -d '{
+    "model": "grok-3-latest",
+    "messages": [{"role": "user", "content": "What is the current state of the Agentic Era on X?"}]
+  }'
+```
+
+## API examples (Python)
+Grok can be used with the standard `openai` Python library.
+
 ```python
 from openai import OpenAI
 
@@ -72,28 +85,11 @@ completion = client.chat.completions.create(
     model="grok-3-latest",
     messages=[
         {"role": "system", "content": "You are Grok, a chatbot inspired by the Hitchhiker's Guide to the Galaxy."},
-        {"role": "user", "content": "Analyze the current sentiment about the 'Agentic Era' on X."}
+        {"role": "user", "content": "Analyze the current sentiment about MCP 3.0 on X."}
     ]
 )
 
 print(completion.choices[0].message.content)
-```
-
-### Vision API Example
-```python
-# Grok-3 Vision can process image URLs directly
-completion = client.chat.completions.create(
-    model="grok-3-vision-latest",
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": "What is happening in this chart?"},
-                {"type": "image_url", "image_url": {"url": "https://example.com/growth-chart.png"}}
-            ]
-        }
-    ]
-)
 ```
 
 ## Related tools / concepts
@@ -102,6 +98,9 @@ completion = client.chat.completions.create(
 - [Anthropic](anthropic.md) — Competitor focused on safety and "Constitutional AI."
 - [Google Gemini](../ai_knowledge/google-gemini.md) — Multimodal competitor with Google ecosystem integration.
 - [DeepSeek](deepseek.md) — High-performance open-weights alternative.
+- [Mistral](mistral.md) — European open-weights leader.
+- [OpenRouter](../ai_knowledge/openrouter.md) — Unified API aggregator including Grok models.
+- [LiteLLM](../../services/litellm.md) — Inference plane for managing Grok and other providers.
 
 ## Sources / References
 - [xAI Official Site](https://x.ai/)
@@ -110,5 +109,5 @@ completion = client.chat.completions.create(
 - [Portkey: xAI Models & Pricing](https://portkey.ai/models/x-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-29
+- Last reviewed: 2026-06-20
 - Confidence: high
