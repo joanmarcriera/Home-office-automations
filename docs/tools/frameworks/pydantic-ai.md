@@ -10,7 +10,7 @@ It addresses the fragility and lack of structure often found in early AI agent f
 **Framework / Agentic Workflow / Development & Ops**.
 
 ## Typical use cases
-- **Structured Data Extraction**: Using agents to parse unstructured text into validated Pydantic models.
+- **Structured Data Extraction**: Using **Claude 4.8** or **GPT-5.5** agents to parse unstructured text into validated Pydantic models.
 - **Production Agents**: Building agents that require strict adherence to schemas for tool usage and response formatting.
 - **Multi-Agent Orchestration**: Coordinating multiple specialized agents with clear handoffs and state management.
 - **Observability Integration**: Seamlessly integrating with tools like Pydantic Logfire for detailed tracing and monitoring.
@@ -101,7 +101,7 @@ result = agent.run_sync("I want to order 5 coffee filters. Order #12345.")
 # result.data is an instance of OrderDetails
 ```
 
-### Agent Graph Iteration (May 2026)
+### Agent Graph Iteration (June 2026)
 Access and iterate over the internal agent graph nodes during execution for fine-grained monitoring or UI state management.
 
 ```python
@@ -127,6 +127,10 @@ with agent.capture_run() as run:
 - [LangGraph](langgraph.md) — Alternative graph-based orchestration framework.
 - [CrewAI](crewai.md) — Focuses on role-playing and collaborative agents.
 - [Agentic Design Patterns](../../knowledge_base/patterns/agentic-workflows.md) — Strategic patterns for reliable agent systems.
+- [Documentation Writer](../agents/documentation-writer.md): For creating technical documentation for PydanticAI agents.
+- [big-AGI](../ai_knowledge/big-agi.md): Professional workspace that can interface with PydanticAI backends.
+- [Claude Code](../development_ops/claude-code.md): The primary CLI agent used for building PydanticAI apps.
+- [Agentic Calendar Orchestration](../../knowledge_base/patterns/agentic-workflows.md): Patterns for building complex calendar agents.
 
 ## Sources / References
 - [Official GitHub](https://github.com/pydantic/pydantic-ai)
@@ -134,5 +138,5 @@ with agent.capture_run() as run:
 - [Pydantic AI Skills](https://github.com/DougTrajano/pydantic-ai-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-21
 - Confidence: high

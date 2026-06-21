@@ -34,10 +34,11 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 - Do not use it for real-time live captioning (streaming transcription), as this research focuses on batch processing of files.
 - Do not use it for music-to-sheet-music conversion (see specialized audio analysis tools).
 
-## Getting started (2026 Baseline)
+## Getting started (June 2026 Baseline)
 1. Assess your hardware (CPU only vs. NVIDIA GPU vs. Apple Silicon).
 2. Choose a model variant from the **Comparison Table** below based on your language needs (English only vs. Multilingual).
 3. Implement the chosen model using **Faster-Whisper v1.3** or **SenseVoice Small** for the best balance of speed and diarization.
+4. Integrate with **Claude 4.8** or **GPT-5.5** for post-transcription reasoning and action extraction.
 4. For a reference implementation, see the `scripts/transcribe_audio.py` script in this repository.
 
 ## Performance Benchmarking (Faster-Whisper v1.3)
@@ -86,7 +87,7 @@ segments, _ = model.transcribe(
 )
 ```
 
-## Comparison Table (May 2026)
+## Comparison Table (June 2026)
 
 | Model Variant | Engine | Speed (vs. Large-v3) | Memory (Approx.) | Multilingual | Best For |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -97,7 +98,7 @@ segments, _ = model.transcribe(
 | **Whisper Turbo** | Transformers | ~8x | ~6GB VRAM | Yes | Fast multilingual (Official OpenAI) |
 | **Whisper.cpp (Q5_K)** | C++ | ~5x | ~4GB RAM | Yes | Low-power / Apple Silicon |
 
-## Key Findings (2026)
+## Key Findings (June 2026)
 
 ### 1. SenseVoice Integration
 - **Diarization**: SenseVoice Small provides native speaker diarization and emotion/event detection (e.g., laughter, applause) at inference time.
@@ -123,6 +124,8 @@ segments, _ = model.transcribe(
 - [Paperless-ngx](../services/paperless-ngx.md) — For storing and indexing markdown transcripts.
 - [Audiobookshelf](../services/audiobookshelf.md) — For source audio management.
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — Canonical destination for transcribed knowledge.
+- [Voice-to-Task Research](voice-to-task-research.md) — The broader context for voice-driven automation.
+- [n8n](../services/n8n.md) — For orchestrating transcription pipelines with AI.
 
 ## Sources / references
 - [Faster-Whisper v1.3 Release Notes](https://github.com/SYSTRAN/faster-whisper/releases/tag/v1.3.0)
@@ -131,5 +134,5 @@ segments, _ = model.transcribe(
 - [MLX Whisper (Apple Silicon Optimization)](https://github.com/ml-explore/mlx-examples/tree/main/whisper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-21
 - Confidence: high

@@ -37,11 +37,11 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 - **Critical Data Integrity**: Do not automate remediation for services where a restart during a write operation could cause corruption.
 - **Infrastructure Core**: Do not automate self-healing for the networking layer (Tailscale/BGP) unless you have an out-of-band management channel.
 
-## Monitoring & Reasoning Strategy (2026)
+## Monitoring & Reasoning Strategy (June 2026)
 
 ### 1. Log-Based Reasoning (The "Observer" Pattern)
-Instead of simple regex, the agent uses an LLM (e.g., Gemini 3.5 Flash) to analyze log chunks.
-- **Method**: Forward logs via **OpenTelemetry** or specialized **Managed Agents API**.
+Instead of simple regex, the agent uses an LLM (e.g., Claude 4.8 Opus or Gemini 3.5 Flash) to analyze log chunks.
+- **Method**: Forward logs via **OpenTelemetry** or specialized **Managed Agents API (MCP 3.0)**.
 - **Reasoning**: "Is this 'Connection Refused' error caused by the DB being down or a bad API key?"
 
 ### 2. Service Health Checks
@@ -100,8 +100,8 @@ def main():
 ### n8n Remediation Workflow
 1. **Trigger**: Uptime Kuma Webhook (Down).
 2. **Action**: Fetch last 100 lines of logs from the service.
-3. **Reasoning**: AI Node (Gemini 3.5 Flash) - "What is the likely fix?"
-4. **Execution**: Execute SSH or K8s command based on AI output.
+3. **Reasoning**: AI Node (Claude 4.8 or Gemini 3.5 Flash) - "What is the likely fix?"
+4. **Execution**: Execute SSH or K8s command via **MCP 3.0** based on AI output.
 5. **Verification**: Wait 60s, check health again.
 6. **Notification**: Send result to Telegram.
 
@@ -118,17 +118,18 @@ def main():
 - [n8n](../services/n8n.md) — automation platform for recovery workflows.
 - [Uptime Kuma](../services/uptime-kuma.md) — for service monitoring and triggers.
 
-## Implementation Roadmap (2026)
+## Implementation Roadmap (June 2026)
 1. **Phase 1 (Baseline)**: Set up n8n "Health Check" loop and Telegram alerts.
 2. **Phase 2 (Reactive)**: Implement SSH-based `docker restart` commands.
-3. **Phase 3 (Agentic)**: Integrate Gemini 3.5 Flash for log analysis before acting.
-4. **Phase 4 (Infrastructure)**: Move to K8s `rollout restart` and Git-based config rollback.
+3. **Phase 3 (Agentic)**: Integrate Claude 4.8 or Gemini 3.5 Flash for log analysis before acting.
+4. **Phase 4 (Infrastructure)**: Move to K8s `rollout restart` and Git-based config rollback with MCP 3.0 verification.
 
 ## Sources / References
 - [Kubernetes Self-Healing Patterns (CNCF)](https://www.cncf.io/blog/2026/02/10/self-healing-kubernetes-agentic-patterns/)
 - [Gemini 3.5 Flash for Ops (Google Cloud Blog)](https://cloud.google.com/blog/products/ai-machine-learning/gemini-flash-ops)
 - [n8n AI Node Documentation](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.ai-agent/)
+- [MCP 3.0 Specification](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-21
 - Confidence: high

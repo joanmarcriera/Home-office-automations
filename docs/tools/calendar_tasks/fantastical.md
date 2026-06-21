@@ -1,25 +1,25 @@
 # Fantastical
 
 ## What it is
-A premium calendar and tasks application for macOS, iOS, iPadOS, and watchOS, widely recognized for its best-in-class natural language processing and elegant design.
+A premium calendar and tasks application for macOS, iOS, iPadOS, and watchOS, widely recognized for its best-in-class natural language processing and elegant design. In June 2026, it serves as a primary interface for **Agentic Calendar Orchestration**.
 
 ## What problem it solves
-Simplifies event and task creation through natural language input (e.g., "Lunch with John at 1pm tomorrow at Blue Bottle") and provides a beautiful, unified interface for multiple calendar and task accounts.
+Simplifies event and task creation through natural language input and provides a beautiful, unified interface for multiple calendar and task accounts. It solves the "scheduling friction" by allowing users to speak or type their intent without navigating complex forms.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Personal Productivity. It acts as the primary user interface (GUI) for the [Apple Calendar](apple-calendar.md) ecosystem and beyond.
+**Category**: Calendar & Tasks / Personal Productivity. It acts as the primary user interface (GUI) for the [Apple Calendar](apple-calendar.md) ecosystem, Google Calendar, and Microsoft 365, often enhanced by **Claude 4.8** or **GPT-5.5** via MCP 3.0.
 
 ## Typical use cases
 - **Rapid Scheduling**: Creating complex events with alerts and locations using simple sentences.
 - **Unified Management**: Managing iCloud, Google, Microsoft 365 (Graph), and Exchange accounts in one view.
-- **Calendar Sets**: Automatically switching visible calendars based on location or Focus mode (e.g., hiding work calendars when at home).
-- **Agentic Scheduling (2026)**: Using the **Fantastical MCP Connector** for [Claude Code](../development_ops/claude-code.md) to manage events via chat.
+- **Calendar Sets**: Automatically switching visible calendars based on location or Focus mode.
+- **Agentic Scheduling (June 2026)**: Using the **Fantastical MCP 3.0 Connector** for [Claude Code](../development_ops/claude-code.md) to manage events via chat.
 
 ## Strengths
 - **Superior Natural Language Parsing**: Handles complex recurring rules and attendee invites via text.
-- **Flexibits Premium**: A single subscription that includes both Fantastical and Cardhop (contacts).
+- **Flexibits Premium**: Includes both Fantastical and Cardhop (contacts) for a unified productivity suite.
 - **Ecosystem Integration**: Deep support for Apple-specific features like widgets, Menubar icon, and Handoff.
-- **Advanced Features (v4.x)**: Support for combining events from [Reclaim.ai](https://reclaim.ai/) on Microsoft 365 accounts and native proposal management.
+- **MCP 3.0 Support**: Native integration with agentic frameworks, allowing AI to read/write events with user-in-the-loop verification.
 
 ## Limitations
 - **Subscription-Based**: Most core productivity features require a Flexibits Premium subscription.
@@ -34,18 +34,12 @@ Simplifies event and task creation through natural language input (e.g., "Lunch 
 ## When not to use it
 - On non-Apple platforms.
 - If you prefer a free, basic calendar experience (use [Apple Calendar](apple-calendar.md)).
-- If you require a local-first, open-source calendar client.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Subscription required for Premium features), Free (Basic)
-- **Self-hostable**: No
+- If you require a local-first, open-source calendar client (consider [Radicale](../../services/radicale.md)).
 
 ## Getting started
-
-### Installation
 Fantastical is a client-side application. Install it via the Mac App Store or direct download from the Flexibits website.
 
+### Installation
 ```bash
 # On macOS via Homebrew Cask
 brew install --cask fantastical
@@ -56,7 +50,7 @@ After installation, open Fantastical and use the natural language parser (**Cmd+
 `Meeting with Jules at 2pm tomorrow /Work` (The `/Work` suffix automatically assigns it to the "Work" calendar).
 
 ## CLI examples
-While Fantastical does not provide a dedicated CLI binary, it can be controlled on macOS using the `open` command and its custom URL scheme. This is ideal for integration with [n8n](../../services/n8n.md) or local automation scripts.
+While Fantastical does not provide a dedicated CLI binary, it can be controlled on macOS using the `open` command and its custom URL scheme.
 
 ```bash
 # Create a new event using natural language
@@ -67,9 +61,6 @@ open "x-fantastical3://parse?sentence=todo%20Buy%20milk%20at%205pm"
 
 # Navigate to a specific date in the calendar
 open "x-fantastical3://show?date=2026-12-25"
-
-# Search for a specific event
-open "x-fantastical3://search?query=Batch%20109"
 ```
 
 ## API examples
@@ -84,24 +75,32 @@ tell application "Fantastical"
 end tell
 ```
 
-### Fantastical MCP Connector (Claude Code)
-In May 2026, you can use the MCP connector to allow [Claude Code](../development_ops/claude-code.md) to manage your schedule:
+### Fantastical MCP 3.0 Connector
+In June 2026, you can use the MCP connector to allow [Claude Code](../development_ops/claude-code.md) to manage your schedule:
 ```bash
-# Example agent command
-/ask "Claude, what does my Friday afternoon look like in Fantastical?"
+# Example agent command via Claude Code
+claude "What does my Friday afternoon look like in Fantastical? If I have a gap, schedule a 1h deep work session."
 ```
 
 ## Related tools / concepts
-- [Apple Calendar](apple-calendar.md) — The underlying system database.
-- [Notion Calendar](notion-calendar.md) — Cross-platform alternative.
-- [Morgen](morgen.md) — Privacy-focused alternative with task integration.
-- [Cardhop](https://flexibits.com/cardhop) — Included contacts app for managing attendees.
+- [Apple Calendar](apple-calendar.md) — The underlying system database on macOS.
+- [Fastmail](fastmail.md) — High-performance backend provider often used with Fantastical.
+- [Microsoft To Do](microsoft-todo.md) — Task backend supported by Fantastical.
+- [Google Calendar](google_calendar.md) — Another major backend provider.
+- [Claude Code](../development_ops/claude-code.md) — CLI agent that can orchestrate Fantastical via MCP.
+- [Radicale](../../services/radicale.md) — Self-hosted CalDAV backend alternative.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Patterns for autonomous scheduling.
+
+## Licensing and cost
+- **Open Source**: No
+- **Cost**: Paid (Subscription required for Premium features), Free (Basic)
+- **Self-hostable**: No
 
 ## Sources / References
 - [Flexibits Fantastical Official Site](https://flexibits.com/fantastical)
-- [Fantastical Release Notes (v4.0.13)](https://flexibits.com/fantastical/releasenotes)
+- [Fantastical Release Notes (June 2026)](https://flexibits.com/fantastical/releasenotes)
 - [Fantastical URL Scheme Documentation](https://flexibits.com/fantastical-ios/help/integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-21
 - Confidence: high

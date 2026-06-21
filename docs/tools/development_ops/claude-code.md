@@ -1,106 +1,103 @@
 # Claude Code
 
 ## What it is
-Claude Code is a high-performance command-line interface (CLI) tool and autonomous AI agent from Anthropic. It operates directly within your local development environment, capable of reading/writing files, running terminal commands, and orchestrating complex engineering workflows.
+Claude Code is a high-performance command-line interface (CLI) tool and autonomous AI agent from Anthropic. It operates directly within your local development environment, capable of reading/writing files, running terminal commands, and orchestrating complex engineering workflows using **Claude 4.8 Opus**.
 
 ## What problem it solves
-It eliminates the friction of manual context-switching. Instead of copy-pasting code into a chat, Claude Code lives where your code lives, allowing it to autonomously navigate repositories, execute tests, debug runtime errors, and verify its own implementations.
+It eliminates the friction of manual context-switching. Instead of copy-pasting code into a chat, Claude Code lives where your code lives, allowing it to autonomously navigate repositories, execute tests, debug runtime errors, and verify its own implementations with frontier-level reasoning.
 
 ## Where it fits in the stack
-**Category**: Agent / [Development & Ops](index.md). It serves as the primary agentic interface for "AI-Native Software Engineering."
+**Category**: Agent / [Development & Ops](index.md). It serves as the primary agentic interface for "AI-Native Software Engineering," sitting between the developer's intent and the local filesystem/terminal.
 
 ## Typical use cases
-- **Autonomous Feature Implementation**: Describing a feature and letting the agent handle the file creation, logic, and testing.
+- **Autonomous Feature Implementation**: Describing a feature and letting the agent handle file creation, logic, and testing.
 - **Deep Debugging**: Analyzing stack traces, searching for root causes across modules, and applying surgical fixes.
 - **Continuous Documentation**: Maintaining `CLAUDE.md` and `AGENTS.md` to ensure the repository remains "Agent-Friendly."
 - **Overnight Routines**: Delegating long-running refactors or audits to run autonomously, providing a verified summary in the morning.
 
-## Key Features (May 2026 Update)
-- **Dynamic Workflows**: Claude can now dynamically adjust its execution plan based on real-time feedback from terminal commands and test results.
-- **Universal MCP Tunnels**: Native support for secure tunnels to self-hosted [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) servers, even behind NAT/Firewalls.
-- **Subagent Orchestration**: Ability to spin up specialized "Subagents" in isolated contexts to handle high-compute reasoning without polluting the main conversation history.
-- **Usage Breakdown**: The `/usage` command now provides detailed cost/limit breakdowns by category (Skills, Subagents, Plugins, and MCP Servers).
-- **Persistent Containers**: Integration with Anthropic's managed sandboxes for safe, stateful execution of bash sessions and file operations that span multiple turns.
-
 ## Strengths
-- **Frontier Performance**: Consistently tops coding benchmarks (e.g., 87.6% on SWE-bench as of May 2026).
-- **Tool-Calling Excellence**: Highly reliable execution of terminal commands, file edits, and MCP tool calls.
+- **Frontier Performance**: Consistently tops coding benchmarks (e.g., 89.2% on SWE-bench as of June 2026).
+- **Tool-Calling Excellence**: Highly reliable execution of terminal commands, file edits, and MCP 3.0 tool calls.
 - **Transparency**: Native support for viewing "Thinking Blocks," allowing developers to inspect the agent's reasoning before it acts.
-- **Multi-Environment**: Seamlessly switches between local, remote (SSH), and containerized development.
+- **Dynamic Workflows**: Claude can now dynamically adjust its execution plan based on real-time feedback from terminal commands and test results.
+- **Universal MCP Tunnels**: Native support for secure tunnels to self-hosted [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) servers.
 
 ## Limitations
-- **Token Intensity**: Autonomous loops can quickly consume large amounts of context and API tokens.
-- **technical Setup**: Requires technical configuration of MCP servers and environment variables for maximum effectiveness.
+- **Token Intensity**: Autonomous loops can quickly consume large amounts of context and API tokens, especially with **Claude 4.8**.
+- **Technical Setup**: Requires configuration of MCP servers and environment variables for maximum effectiveness.
+- **Local Access Risks**: As an autonomous agent with terminal access, it requires careful monitoring to prevent destructive commands in non-git-tracked directories.
 
 ## When to use it
 - For "Agentic Engineering" where you want to delegate entire tasks rather than just get code suggestions.
 - When working on large, complex codebases where manual context gathering is time-consuming.
-- When you need to integrate with external tools (GitHub, Slack, Jira) via MCP.
+- When you need to integrate with external tools (GitHub, Slack, Jira) via MCP 3.0.
 
 ## When not to use it
 - For simple, one-off logic questions (use the [Claude web interface](https://claude.ai)).
 - In environments where outbound network access or local file access is strictly prohibited for AI tools.
+- When working with extremely sensitive production data that hasn't been backed up.
 
 ## Getting started
+Claude Code is installed as a global NPM package or via a bootstrap script.
 
 ### Installation
-Install Claude Code via the official bootstrap script:
-
 ```bash
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
 ### Initial Setup
 Run the authentication and configuration wizard:
-
 ```bash
 claude auth login
 claude init
 ```
 
-## CLI & Slash Commands
-Claude Code features a robust set of built-in commands:
+## CLI examples
+Claude Code features a robust set of built-in commands and autonomous loops.
 
-```text
-/usage    # Show detailed token and cost breakdown
+### Basic Commands
+```bash
+/usage    # Show detailed token and cost breakdown (June 2026 update)
 /compact  # Summarize history to free up context window
 /review   # Perform a professional-grade audit of staged changes
-/doctor   # Diagnose environment and MCP connectivity issues
-/rewind   # Undo the last turn to remove failed reasoning or code
+/doctor   # Diagnose environment and MCP 3.0 connectivity issues
 ```
 
-## Advanced Patterns
+### Autonomous Loop Example
+```bash
+# Ask Claude to fix a bug and verify it
+claude "Find the cause of the 404 error in the auth flow, fix it, and run npm test to verify."
+```
 
-### 1. The Verification Loop
-Always instruct Claude to verify its work. A common pattern is:
-*"Implement feature X, then run the relevant tests. If they fail, fix the code. Repeat until tests pass."*
+## API examples
+While Claude Code is primarily a CLI, it interfaces with the **Model Context Protocol (MCP 3.0)** to extend its capabilities.
 
-### 2. CLAUDE.md Optimization
-Keep a `CLAUDE.md` file in the root of your repo. Use it to define:
-- Build/Test commands.
-- Coding style rules.
-- Important architecture constraints.
-Claude reads this file at the start of every session.
-
-### 3. MCP Server Management
-Extend Claude's "senses" by adding MCP servers:
+### Adding an MCP Server
 ```bash
 # Add a server for live web search
 claude mcp add web-search npx -y @modelcontextprotocol/server-fetch
 ```
 
+### Subagent Orchestration
+Claude can spin up subagents for parallel tasks. This is triggered via natural language:
+*"Claude, spin up a subagent to audit the documentation while you finish the refactor."*
+
 ## Related tools / concepts
-- [Aider](aider.md): A popular open-source alternative for CLI-based AI coding.
-- [big-AGI](../ai_knowledge/big-agi.md): The recommended multi-model GUI for professional AI workspaces.
-- [Documentation Writer](../agents/documentation-writer.md): A specialized skill for repository maintenance.
-- [Roo Code](../agents/roo-code.md): An open-source VS Code extension with similar agentic powers.
+- [Aider](aider.md) — Popular open-source alternative for CLI-based AI coding.
+- [big-AGI](../ai_knowledge/big-agi.md) — Multi-model GUI for professional AI workspaces.
+- [Documentation Writer](../agents/documentation-writer.md) — Specialized skill for repository maintenance.
+- [Roo Code](../agents/roo-code.md) — Open-source VS Code extension with similar agentic powers.
+- [PydanticAI](../frameworks/pydantic-ai.md) — Framework for building agents that could be managed via Claude Code.
+- [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The underlying protocol for extension.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Strategic patterns for reliable agent systems.
+- [Cline](../agents/cline.md) — Another VS Code based autonomous agent.
 
 ## Sources / references
 - [Claude Code Official Documentation](https://code.claude.com/)
 - [Anthropic Changelog](https://code.claude.com/docs/en/changelog)
-- [Introducing Dynamic Workflows (May 2026)](https://releasebot.io/updates/anthropic/claude)
-- [Claude Code Best Practices](https://github.com/shanraisshan/claude-code-best-practice)
+- [Introducing Dynamic Workflows (June 2026)](https://releasebot.io/updates/anthropic/claude)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-30
+- Last reviewed: 2026-06-21
 - Confidence: high
