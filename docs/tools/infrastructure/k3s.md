@@ -31,17 +31,18 @@ It simplifies the operation of Kubernetes by bundling necessary components into 
 - In extremely large enterprise environments where a managed service (EKS, GKE) or a full distribution (RKE, OpenShift) is preferred.
 
 ## Getting started
+K3s is designed for easy installation and low overhead.
 
-### Installation
-The simplest way to install K3s on a Linux host:
+### 1. Installation
+The simplest way to install K3s on a Linux host is via the official install script:
 ```bash
 curl -sfL https://get.k3s.io | sh -
 # Check node status
 sudo k3s kubectl get node
 ```
 
-### Deploying a Simple Workload
-Create a file named `whoami.yaml`:
+### 2. Hello World (Deploying a Workload)
+Create a file named `whoami.yaml` to deploy a simple web service:
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -77,6 +78,43 @@ spec:
 Apply the manifest:
 ```bash
 sudo k3s kubectl apply -f whoami.yaml
+```
+
+## CLI examples
+
+### Check Cluster Configuration
+Verify if your host meets the requirements for running K3s:
+```bash
+k3s check-config
+```
+
+### Manage Nodes
+List all nodes in the cluster with additional details:
+```bash
+sudo k3s kubectl get nodes -o wide
+```
+
+### View Server Logs
+Monitor the K3s server process logs for troubleshooting:
+```bash
+sudo journalctl -u k3s -f
+```
+
+## API examples
+K3s is fully compatible with the standard Kubernetes API. You can use any Kubernetes client, such as the official Python client.
+
+### List Pods (Python)
+```python
+from kubernetes import client, config
+
+# Load config from the default K3s location
+config.load_kube_config(config_file="/etc/rancher/k3s/k3s.yaml")
+
+v1 = client.CoreV1Api()
+print("Listing pods with their IPs:")
+ret = v1.list_pod_for_all_namespaces(watch=False)
+for i in ret.items:
+    print(f"{i.status.pod_ip}\t{i.metadata.namespace}\t{i.metadata.name}")
 ```
 
 ## Licensing and cost

@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-06-21",
+  "snapshot_date": "2026-06-22",
   "total_docs": 426,
   "tool_docs": 373,
   "service_docs": 53,
@@ -18,8 +18,8 @@
     "process_understanding": 30,
     "providers": 23
   },
-  "docs_with_code_examples": 419,
-  "docs_without_code_examples": 7,
+  "docs_with_code_examples": 420,
+  "docs_without_code_examples": 6,
   "shallow_docs": [],
   "underdeveloped_categories": [],
   "weekly_additions": 0,

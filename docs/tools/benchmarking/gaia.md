@@ -33,16 +33,61 @@ Existing benchmarks often focus on narrow tasks or synthetic reasoning. GAIA tar
 - For lightweight testing where a simpler benchmark (like MMLU) suffices.
 
 ## Getting started
-GAIA evaluations are often run using frameworks like `inspect-ai`.
+GAIA evaluations are primarily executed using the `inspect-ai` framework, which provides a standardized environment for agentic benchmarks.
 
 ### 1. Installation
 ```bash
-pip install inspect-evals[gaia]
+pip install inspect-ai inspect-evals
 ```
 
-### 2. Running GAIA with Inspect
+### 2. Basic Evaluation
+Run the full GAIA validation set against a model:
 ```bash
 inspect eval inspect_evals/gaia --model openai/gpt-4o
+```
+
+## CLI examples
+
+### Run Specific Difficulty Levels
+GAIA is divided into levels 1, 2, and 3. You can run them individually:
+```bash
+# Run only Level 1 (easiest)
+inspect eval inspect_evals/gaia_level1 --model anthropic/claude-3-5-sonnet-20240620
+
+# Run only Level 3 (hardest)
+inspect eval inspect_evals/gaia_level3 --model anthropic/claude-3-5-sonnet-20240620
+```
+
+### Limit Samples and Parallelism
+For faster testing, limit the number of samples and control connection limits:
+```bash
+inspect eval inspect_evals/gaia --limit 10 --max-connections 5 --model openai/gpt-4o
+```
+
+### Use Custom Prompts
+Override the default prompt template to test different agent instructions:
+```bash
+inspect eval inspect_evals/gaia --model openai/gpt-4o -K input_prompt="Answer this: {question} using the provided file: {file}"
+```
+
+## API examples
+You can integrate GAIA into your own Python evaluation pipelines using the Inspect API.
+
+### Minimal Evaluation Script
+```python
+from inspect_ai import eval
+from inspect_evals.gaia import gaia
+
+# Run GAIA validation set
+results = eval(
+    gaia(split="validation", subset="2023_all"),
+    model="openai/gpt-4o",
+    limit=5
+)
+
+# Access results
+for result in results:
+    print(f"Task ID: {result.sample_id}, Score: {result.scores['accuracy'].value}")
 ```
 
 ## Related tools / concepts
