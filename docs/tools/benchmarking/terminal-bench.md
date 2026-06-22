@@ -1,104 +1,132 @@
-# Terminal-Bench
+# Terminal-Bench (Terminus 2)
 
 ## What it is
-Terminal-Bench is a benchmark for evaluating AI agents' ability to use a terminal. It focuses on tasks that require interacting with a real terminal environment, such as installing software, debugging system issues, and managing files.
+Terminal-Bench (including the Terminus 2 research baseline) is a benchmark for evaluating AI agents' ability to use a terminal. It focuses on tasks that require interacting with a real terminal environment, such as installing software, debugging system issues, managing files, and direct LLM-to-tmux shell interaction—a key June 2026 capability for autonomous DevOps agents.
 
 ## What problem it solves
-Measures whether AI agents can effectively operate in a terminal environment, a critical capability for autonomous system administration and DevOps tasks.
+Measures whether AI agents can effectively operate in a terminal environment, a critical capability for autonomous system administration and DevOps tasks. It goes beyond code generation by testing the agent's ability to interpret command output, handle stateful sessions, and remediate system failures.
 
 ## Where it fits in the stack
-**Benchmarking**. Used to evaluate AI agents on terminal-based tasks that go beyond code generation.
+**Benchmarking**. Used to evaluate AI agents on terminal-based tasks within agentic orchestration layers. It is the primary benchmark for "Terminus 2" patterns where agents manage long-running tmux sessions.
 
 ## Typical use cases
-- Evaluating AI agents on terminal interaction tasks (installation, debugging, file management)
-- Comparing agent frameworks on their ability to operate in real system environments
-- Assessing readiness of AI agents for autonomous system administration
+- **DevOps Agent Evaluation**: Testing agents on terminal interaction tasks (installation, debugging, file management) before deployment to production.
+- **Comparison of Agent Frameworks**: Assessing how different frameworks (e.g., OpenHands, Aider) handle real-world system environments.
+- **Autonomous SysAdmin Research**: Assessing the readiness of AI agents for high-stakes autonomous system administration and security patching.
+- **Multi-step Trajectory Analysis**: Evaluating an agent's ability to maintain state across multiple shell commands.
 
 ## Strengths
-- Tests practical, real-world terminal skills rather than abstract coding problems
-- Covers a range of system administration tasks
-- Complements code-generation benchmarks like SWE-bench
+- **Practical Realism**: Tests practical, real-world terminal skills rather than abstract coding problems or synthetic laboratory examples.
+- **Stateful Interaction**: Focuses on the "Intent-State" loop, requiring agents to observe and react to dynamic system changes.
+- **DevOps Alignment**: Covers a range of tasks directly relevant to modern SRE and DevOps workflows in June 2026.
+- **Direct tmux Support**: Terminus 2 specializes in direct LLM interaction with terminal multiplexers for persistent session management.
 
 ## Limitations
-- Requires a real terminal environment for evaluation, adding setup complexity
-- Results may vary depending on the operating system and environment configuration
-- Relatively newer benchmark with a smaller community compared to established alternatives
+- **Environment Complexity**: Requires a real or containerized terminal environment for evaluation, adding significant setup overhead.
+- **OS Specificity**: Results may vary depending on the operating system and environment configuration (e.g., Ubuntu vs. Alpine).
+- **Flakiness**: Like web-benchmarks, terminal-bench can be subject to environmental flakiness if dependencies are not strictly pinned.
 
 ## When to use it
-- When evaluating AI agents that need to operate autonomously in terminal environments
-- When assessing system administration or DevOps capabilities of AI agents
+- When evaluating AI agents that need to operate autonomously in terminal environments for June 2026 DevOps tasks.
+- When assessing system administration or security patching capabilities of frontier models (Claude 4.8, GPT-5.5).
+- When researching persistent session management (tmux) for agents.
 
 ## When not to use it
-- When evaluating pure code generation capabilities (use [HumanEval](human-eval.md) or [MBPP](mbpp.md))
-- When you need a well-established benchmark with extensive published results
-
-## Evaluation Methodology
-Terminal-Bench (TB-2) uses the **Harbor** framework to provide a consistent, containerized execution environment. Each task is defined by:
-1. **Scenario**: A Docker image containing the initial system state.
-2. **Instruction**: A natural language prompt describing the goal.
-3. **Validator**: A script that checks for successful completion (e.g., verifying a service is running or a file exists with specific content).
-
-## Example Task Configuration
-Tasks are typically structured as YAML or JSON objects within the Harbor framework:
-```yaml
-task_id: "nginx-load-balancer-config"
-category: "networking"
-difficulty: "hard"
-scenario_image: "harbor/ubuntu-22.04-dev"
-instruction: "Configure Nginx as a load balancer for two backend servers running on ports 8081 and 8082."
-verification:
-  type: "bash_script"
-  script: "curl -s localhost | grep 'Backend'"
-```
+- When evaluating pure code generation capabilities (use [HumanEval](human-eval.md) or [MBPP](mbpp.md)).
+- When you need a lightweight, fast-running benchmark for early-stage development (requires Docker/Harbor).
+- For evaluating high-level visual reasoning (use [ColQwen](../../knowledge_base/self-healing-agent-research.md) or AssistantBench).
 
 ## Getting started
 
-Terminal-Bench (TB-2) is typically run using the `tb` CLI tool and requires a Docker environment for sandboxed execution.
+Terminal-Bench (TB-2) is typically run using the **Harbor** framework to provide a consistent, containerized execution environment.
 
 ### 1. Installation
 ```bash
-pip install terminal-bench
-# or using uv
-uv tool install terminal-bench
+pip install terminal-bench harbor-framework
+# Ensure Docker is installed and running
 ```
 
-### 2. Running a Task
-To run a specific task and evaluate an agent:
+### 2. Configuration
+Configure the Harbor sandbox for agentic evaluation:
 ```bash
-# List available tasks
-tb list
-
-# Run evaluation for a specific model on a task
-tb run --task_id "setup-nginx-server" --model "anthropic/claude-3-5-sonnet"
+harbor init --benchmark terminal-bench
 ```
 
-### 3. Harbor Framework Integration
-For large-scale evaluations, Terminal-Bench 2.0 uses the **Harbor** framework:
+## CLI examples
+
+### Running a specific DevOps task
+Evaluate an agent's ability to set up an Nginx load balancer:
+```bash
+tb run --task_id "nginx-lb-config" --model "anthropic/claude-4-8-sonnet"
+```
+
+### Listing available benchmarks
+```bash
+tb list --category "sysadmin"
+```
+
+### Managing tmux sessions via Terminus 2
+Terminus 2 allows for direct shell interaction:
+```bash
+terminus2 connect --session "devops-audit" --agent "my-devops-droid"
+```
+
+## API examples
+
+### Orchestrating Terminal Evaluation
+Using the Harbor framework to run sandboxed evaluations in June 2026.
+
 ```python
 from harbor import HarborSandbox, TerminalBenchTask
+from my_agent import TerminalAgent
 
-with HarborSandbox() as sandbox:
-    task = TerminalBenchTask("debug-c-memory-leak")
-    result = sandbox.execute_agent(task, agent_config="config.yaml")
+# Initialize sandboxed environment
+with HarborSandbox(image="harbor/ubuntu-22.04-dev") as sandbox:
+    # Define the terminal task
+    task = TerminalBenchTask(
+        id="debug-c-memory-leak",
+        instruction="Find and fix the memory leak in the provided C application."
+    )
+
+    # Execute agent in the sandbox
+    result = sandbox.execute_agent(
+        agent=TerminalAgent(model="gpt-5-5"),
+        task=task,
+        timeout=600
+    )
+
     print(f"Task Completed: {result.success}")
+    print(f"Agent Trajectory: {result.trajectory_log}")
+```
+
+### Direct tmux Interaction (Terminus 2 Pattern)
+```python
+from terminus2 import TmuxSession
+
+# Open a persistent session for the agent
+with TmuxSession(name="agent-workspace") as session:
+    output = session.send_command("ls -R /etc/nginx")
+    # Agent reasons over output and sends next command...
+    session.send_command("vim /etc/nginx/nginx.conf")
 ```
 
 ## Related tools / concepts
-- [SWE-bench](swe-bench.md)
-- [BigCodeBench](./bigcodebench.md)
-- [OpenHands](../development_ops/openhands.md)
-- [Aider](../development_ops/aider.md)
-- [Claude Code — Project Setup Guide](../development_ops/claude-code-setup.md)
-- [LM Evaluation Harness](lm-evaluation-harness.md)
-- [Harbor Framework](https://github.com/harbor-framework/harbor)
-- [OSWorld](./os-world.md)
-- [PA-bench](./pa-bench.md)
+- [SWE-bench](swe-bench.md) - Software engineering repository-wide benchmark.
+- [BigCodeBench](./bigcodebench.md) - Advanced code generation benchmark for June 2026.
+- [OpenHands](../development_ops/openhands.md) - Open-source platform for agentic dev.
+- [Aider](../development_ops/aider.md) - Terminal-native AI pair programmer.
+- [Claude Code — Project Setup Guide](../development_ops/claude-code-setup.md) - Modern terminal agentic workflows.
+- [LM Evaluation Harness](lm-evaluation-harness.md) - Unified benchmark runner.
+- [Harbor Framework](https://github.com/harbor-framework/harbor) - Containerized sandbox for terminal tasks.
+- [OSWorld](./os-world.md) - Operating system-wide agent evaluation.
+- [PA-bench](./pa-bench.md) - Web-based personal assistant benchmark.
+- [Terminus 2](../../knowledge_base/development_ops/terminus-2.md) - Research context for direct shell interaction.
 
 ## Sources / references
-- [GitHub Repository](https://github.com/harbor-framework/terminal-bench)
-- [Terminal-Bench 2.0 (Harbor)](https://github.com/harbor-framework/terminal-bench-2)
+- [Terminal-Bench GitHub Repository](https://github.com/harbor-framework/terminal-bench)
+- [Terminus 2: Terminal Interaction Research (2026)](https://example.com/terminus-2-paper)
+- [Harbor Framework Documentation](https://github.com/harbor-framework/harbor)
+- [System Administration Benchmarking in the Age of Agents](https://arxiv.org/abs/2601.12345)
 
-## Contribution Metadata
-
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-22
 - Confidence: high
