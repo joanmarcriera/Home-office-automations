@@ -31,29 +31,29 @@ This report decomposes the technical freshness audits for the 10 oldest issues i
   - Research June 2026 status (Terminus 2 context, direct LLM-to-tmux shell interaction).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/benchmarking/ollama-benchmark-cli.md`**
+- [x] **Freshness audit for `docs/tools/benchmarking/ollama-benchmark-cli.md`**
   - Research June 2026 status (Local model throughput benchmarks, agentic latency metrics).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/benchmarking/llmperf.md`**
+- [x] **Freshness audit for `docs/tools/benchmarking/llmperf.md`**
   - Research June 2026 status (Inference operational metrics, token-per-second benchmarks for agentic loops).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
 
 ### Calendar and Tasks
-- [ ] **Freshness audit for `docs/tools/calendar_tasks/google_calendar.md`**
+- [x] **Freshness audit for `docs/tools/calendar_tasks/google_calendar.md`**
   - Research June 2026 status (Agentic Calendar Orchestration, MCP 3.0 Graph API integration).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
 
 ### Orchestration
-- [ ] **Freshness audit for `docs/tools/orchestration/temporal.md`**
+- [x] **Freshness audit for `docs/tools/orchestration/temporal.md`**
   - Research June 2026 status (Durable agentic workflows, long-running state management).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
 
 ### Infrastructure
-- [ ] **Freshness audit for `docs/tools/infrastructure/aphrodite-engine.md`**
+- [x] **Freshness audit for `docs/tools/infrastructure/aphrodite-engine.md`**
   - Research June 2026 status (High-throughput inference for agentic clusters).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
