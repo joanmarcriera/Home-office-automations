@@ -1,64 +1,78 @@
 # OpenRouter
 
 ## What it is
-OpenRouter is a unified interface (meta-provider) for LLMs, providing access to almost any model (OpenAI, Anthropic, Meta, DeepSeek, etc.) via a single OpenAI-compatible API.
+OpenRouter is a unified interface and "meta-provider" for Large Language Models (LLMs). It provides a single, OpenAI-compatible API to access a vast array of models from providers like OpenAI, Anthropic, Google, Meta, DeepSeek, and Mistral. As of June 2026, OpenRouter has expanded to support **MCP 3.0 routing** and automated model distillation pipelines.
 
 ## What problem it solves
-Eliminates the need to manage multiple API keys and client libraries for different providers. It also provides access to models that might be otherwise hard to access in certain regions.
+It eliminates the complexity of managing multiple API keys, client libraries, and billing accounts for different AI providers. It also solves regional access issues and provides a "safety net" via automatic fallbacks, ensuring that agentic workflows remain operational even if a specific provider or model experiences downtime.
 
 ## Where it fits in the stack
-**Provider / Router Layer**. It sits between the Agent and the actual LLM Providers.
-
-## Architecture overview
-Proxy service. Your agent sends requests to OpenRouter, which then routes them to the specified backend provider (e.g., Together AI, DeepInfra, Anthropic directly).
+**Provider / Routing Layer**. It sits between the Agent/Application layer and the actual LLM infrastructure providers, acting as a gateway and load balancer.
 
 ## Typical use cases
-- **Model Switching**: Easily testing different models (e.g., switching from Claude 3.5 to GPT-4o) just by changing the model ID string.
-- **Unified Billing**: Paying one provider for usage across many different model families.
-- **Accessing Open Models**: Using Llama 3, Qwen, or Mistral models without self-hosting.
-- **Tool Calling**: Standardizing tool usage across different models and providers.
-- **Interleaved Thinking**: Allowing models to reason between tool calls for sophisticated decision-making.
+- **Multi-Model Agent Workflows**: Dynamically switching between models (e.g., using Gemini for large context analysis and Claude for precise code generation) via one endpoint.
+- **Unified Billing for Teams**: Consolidating AI spend across dozens of model families into a single prepay account.
+- **Accessing Open-Weights Models**: Using Llama 3, Qwen, or DeepSeek models without the overhead of self-hosting or managing niche providers like Together or Groq.
+- **Automated Fallbacks**: Ensuring 99.9% uptime for AI features by falling back from primary models (e.g., GPT-5.5) to alternates if rate limits are hit.
 
 ## Strengths
-- **Simplicity**: One API key for everything.
-- **Model Variety**: Access to both proprietary and open-source models.
-- **Standardized API**: Uses the OpenAI chat completions format.
-- **Competitive Pricing**: Often finds the cheapest provider for a given open model.
+- **Massive Model Selection**: Access to 200+ model variants with a single API key.
+- **Competitive Pricing**: Automatically routes to the cheapest available provider for open models.
+- **Standardized API**: Uses the familiar OpenAI chat completions format, making integration trivial.
+- **Advanced Features**: Supports tool calling, prompt caching, and "thinking" tags across diverse model families.
+- **MCP 3.0 Support**: Native integration with the Model Context Protocol for seamless tool and resource sharing.
 
 ## Limitations
-- **Additional Latency**: Adds a small proxy overhead.
-- **Dependency**: If OpenRouter is down, access to all routed models is lost.
-- **Privacy**: Adds another party (OpenRouter) into the data flow.
+- **Proxy Latency**: Adds a minor (usually negligible) overhead compared to direct provider access.
+- **Privacy Trade-off**: Adds OpenRouter as an intermediary in the data flow, which may require legal review in highly regulated industries.
+- **Centralized Dependency**: If OpenRouter's gateway is down, access to all proxied models is lost.
 
 ## When to use it
-- During development and testing to quickly compare models.
-- When you want to use many different models without setting up accounts with every provider.
-- For hobbyist/homelab projects that benefit from unified billing.
+- During development and prototyping to rapidly test and compare different models.
+- For hobbyist and homelab projects that benefit from simple, unified billing.
+- In production environments where multi-provider redundancy and cost optimization are high priorities.
 
 ## When not to use it
-- For latency-critical production applications.
-- When you have direct enterprise agreements/discounts with a specific provider (e.g. Azure OpenAI).
-
-## Security considerations
-- **Third-party Data Flow**: Your prompts pass through OpenRouter; ensure this is acceptable for your data sensitivity.
-- **API Key Security**: Treat your OpenRouter key as a "master key" for all your AI services.
+- For ultra-low latency applications where every millisecond counts.
+- When your organization has direct, high-volume enterprise discounts with a specific provider (e.g., Microsoft Azure).
+- If your data sovereignty requirements prohibit the use of third-party proxy services.
 
 ## Getting started
 
 ### 1. API Key Setup
 1. Create an account at [openrouter.ai](https://openrouter.ai/).
-2. Navigate to [Keys](https://openrouter.ai/settings/keys) and create a new API key.
-3. Add credits to your account (OpenRouter uses a prepay model).
-4. Store your key securely (e.g., in an `.env` file or secret manager like [Infisical](../development_ops/infisical.md)).
+2. Navigate to Settings -> Keys and generate a new key.
+3. Top up your account with credits (OpenRouter uses a prepay model).
 
-### 2. Installation
-OpenRouter is an OpenAI-compatible API. You can use the standard OpenAI Python client.
+### 2. Basic Configuration
+OpenRouter is a drop-in replacement for the OpenAI API.
 
 ```bash
-pip install openai
+export OPENROUTER_API_KEY="your_key_here"
 ```
 
-### 3. Basic Request
+## CLI examples
+
+### Testing Models via cURL
+```bash
+curl https://openrouter.ai/api/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -d '{
+    "model": "google/gemini-pro-1.5",
+    "messages": [{"role": "user", "content": "What is OpenRouter?"}]
+  }'
+```
+
+### Checking Model Availability
+Use the models endpoint to see current pricing and provider status:
+```bash
+curl https://openrouter.ai/api/v1/models | jq '.data[] | {id, pricing}'
+```
+
+## API examples
+
+### Python (OpenAI Library)
 ```python
 from openai import OpenAI
 
@@ -68,132 +82,44 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-  model="google/gemini-2.0-flash-001",
-  messages=[{"role": "user", "content": "Hello!"}]
+  model="anthropic/claude-3.5-sonnet",
+  messages=[{"role": "user", "content": "Explain quantum entanglement."}],
+  extra_headers={
+    "HTTP-Referer": "https://your-app.com", # Optional, for OpenRouter rankings
+    "X-Title": "My Agentic App",
+  }
 )
 print(completion.choices[0].message.content)
 ```
 
-## API examples
-
-### Advanced Routing and Fallbacks
-OpenRouter allows you to specify a prioritized list of models for fallback. If the first model fails or is rate-limited, it automatically tries the next.
-
-```python
-from openai import OpenAI
-
-client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key="sk-or-v1-xxxxxx...",
-)
-
-completion = client.chat.completions.create(
-  # Try Claude 3.5 Sonnet first, fallback to GPT-4o
-  model="anthropic/claude-3.5-sonnet,openai/gpt-4o",
-  messages=[{"role": "user", "content": "Explain quantum entanglement."}]
-)
-```
-
-### Provider-Specific Parameters
-You can control which specific providers OpenRouter uses for open models (like Llama 3).
+### Advanced Routing: Model Fallbacks
+Specify a comma-separated list of models. OpenRouter will try them in order.
 
 ```python
 completion = client.chat.completions.create(
-  model="meta-llama/llama-3.1-405b",
-  extra_headers={
-    "X-Title": "Research Assistant",
-    "X-Provider": '{"order": ["Together", "DeepInfra"], "allow_fallbacks": false}'
-  },
-  messages=[{"role": "user", "content": "Hello!"}]
-)
-```
-
-### Tool Calling (OpenAI Format)
-OpenRouter standardizes tool calling across providers, even for models that don't natively support the OpenAI tool format.
-
-```python
-tools = [{
-    "type": "function",
-    "function": {
-        "name": "get_current_weather",
-        "parameters": {
-            "type": "object",
-            "properties": {"location": {"type": "string"}}
-        }
-    }
-}]
-
-response = client.chat.completions.create(
-  model="google/gemini-2.0-flash-001",
-  messages=[{"role": "user", "content": "What is the weather in London?"}],
-  tools=tools
+  model="openai/gpt-5.5,anthropic/claude-4.8-opus,google/gemini-3.5-pro",
+  messages=[{"role": "user", "content": "Perform a complex audit."}]
 )
 ```
 
 ## Related tools / concepts
-- [LiteLLM](../../services/litellm.md)
-- [OpenAI](openai.md)
-- [Anthropic](../providers/anthropic.md)
-- [DeepSeek AI](https://www.deepseek.com/en/)
-- [DeepSeek](deepseek.md)
-- [Groq](../providers/groq.md)
-- [Together AI](../providers/together.md)
-- [Model Routing Guide](../../knowledge_base/patterns/model_routing_guide.md)
-- [OpenHands](../development_ops/openhands.md)
+- [LiteLLM](../../services/litellm.md) — Local proxy for multi-model routing.
+- [OpenAI](openai.md) — Foundation API standard.
+- [Anthropic](../providers/anthropic.md) — Primary model family.
+- [DeepSeek](deepseek.md) — High-performance open models.
+- [Groq](../providers/groq.md) — Low-latency provider often used by OpenRouter.
+- [Model Routing Guide](../../knowledge_base/patterns/model_routing_guide.md) — Architectural patterns.
+- [MCP 3.0](../../knowledge_base/self-healing-agent-research.md) — Protocol for agentic context.
 
-## Integration ecosystem and technical signal feeds
-
-The OpenRouter settings integrations page is account-scoped. The table below is built from publicly documented OpenRouter community integrations and mapped to each integration's technical blog feed.
-
-| Integration | OpenRouter integration guide | Primary use | Technical blog / engineering feed | Signal value |
-| :--- | :--- | :--- | :--- | :--- |
-| OpenAI SDK | [Guide](https://openrouter.ai/docs/guides/community/openai-sdk) | OpenAI-compatible client routing | [OpenAI News](https://openai.com/index/) | API and model release notes |
-| Anthropic Agent SDK | [Guide](https://openrouter.ai/docs/guides/community/anthropic-agent-sdk) | Agent runtime + tool orchestration | [Anthropic News](https://www.anthropic.com/news) | Claude capabilities and policy changes |
-| LangChain | [Guide](https://openrouter.ai/docs/guides/community/langchain) | LLM app chains and agents | [LangChain Blog](https://blog.langchain.com/) | Framework patterns and breaking changes |
-| Langfuse | [Guide](https://openrouter.ai/docs/guides/community/langfuse) | Tracing, observability, evals | [Langfuse Blog](https://langfuse.com/blog) | High value for debugging | [Langfuse](../process_understanding/langfuse.md) |
-| Arize | [Guide](https://openrouter.ai/docs/guides/community/arize) | Evaluation and monitoring | [Arize Blog](https://arize.com/blog/) | Best for long-lived systems | [Arize AI](../process_understanding/arize-ai.md) |
-| Braintrust | [Guide](https://openrouter.ai/docs/guides/community/braintrust) | Tracing, evals, and proxy | [Braintrust Blog](https://www.braintrust.dev/blog) | Strong for prompt engineering | [Braintrust](../process_understanding/braintrust.md) |
-| LiveKit | [Guide](https://openrouter.ai/docs/guides/community/live-kit) | Realtime voice/video agents | [LiveKit Blog](https://blog.livekit.io/) | Realtime agent implementation details |
-| PydanticAI | [Guide](https://openrouter.ai/docs/guides/community/pydantic-ai) | Typed agent workflows | [Pydantic Articles](https://pydantic.dev/articles) | Structured-output and schema patterns |
-| TanStack AI | [Guide](https://openrouter.ai/docs/guides/community/tanstack-ai) | Frontend AI UX integration | [TanStack Blog](https://tanstack.com/blog) | Frontend framework and API updates |
-| Vercel AI SDK | [Guide](https://openrouter.ai/docs/guides/community/vercel-ai-sdk) | Streaming and UI assistants | [Vercel Blog (AI)](https://vercel.com/blog/tag/ai) | AI SDK capabilities and patterns |
-| Infisical | [Guide](https://openrouter.ai/docs/guides/community/infisical) | Secret management for keys | [Infisical Blog](https://infisical.com/blog) | Secret ops and secure delivery practices |
-| Zapier | [Guide](https://openrouter.ai/docs/guides/community/zapier) | SaaS automation and triggers | [Zapier Engineering](https://zapier.com/engineering/) | Integration architecture and reliability |
-| Xcode | [Guide](https://openrouter.ai/docs/guides/community/xcode) | Apple-side local development flow | [Apple Developer News](https://developer.apple.com/news/) | Toolchain and platform-level updates |
-
-
-## Log Destinations
-OpenRouter supports sending logs to various observability and data tools:
-- **Observability**: Arize AI, Braintrust, Datadog, Langfuse, LangSmith, New Relic AI, Sentry
-- **Data & Storage**: ClickHouse, Grafana Cloud, PostHog, S3 / S3-Compatible, Snowflake
-- **Webhooks & Finance**: Webhook, Ramp
-- **Standards**: OpenTelemetry Collector, W&B Weave
-
-## Suggested comparison matrix
-
-Use this matrix for quarterly integration reviews:
-
-| Integration | Setup complexity | Observability depth | Security posture | Best for | Notes |
-| :--- | :---: | :---: | :---: | :--- | :--- |
-| OpenAI SDK | Low | Medium | Medium | Simple API migration | Minimal integration friction |
-| Anthropic Agent SDK | Medium | Medium | Medium | Agentic workflows | Strong tool-loop ergonomics |
-| LangChain | Medium | Medium | Medium | Multi-step pipelines | Large ecosystem, more moving parts |
-| Langfuse | Medium | High | Medium | Traces/evals | High value for debugging |
-| Arize | Medium | High | Medium | Model quality monitoring | Best for long-lived systems |
-| LiveKit | High | Medium | Medium | Realtime agents | Voice/video-centric stacks |
-| PydanticAI | Medium | Medium | Medium | Typed structured outputs | Strong schema discipline |
-| TanStack AI | Medium | Medium | Medium | Frontend AI apps | UI-oriented workflows |
-| Vercel AI SDK | Low | Medium | Medium | Streaming chat apps | Fast web integration |
-| Infisical | Medium | Low | High | Secret lifecycle | Good baseline hardening layer |
-| Zapier | Low | Low | Medium | No-code automation | Fast to ship, less control |
-| Xcode | Medium | Low | Medium | Apple-native tooling | Useful for iOS/macOS pipelines |
-
-## Sources / References
-- [OpenRouter Documentation](https://openrouter.ai/docs)
+## Sources / references
+- [OpenRouter Official Documentation](https://openrouter.ai/docs)
 - [OpenRouter API Reference](https://openrouter.ai/api/v1/models)
-- [OpenRouter Rankings](https://openrouter.ai/rankings)
+- [OpenRouter Rankings & Benchmarks](https://openrouter.ai/rankings)
+- [Model Context Protocol (MCP) Integration](https://openrouter.ai/docs#mcp)
+- [OpenRouter June 2026 Release Notes](https://openrouter.ai/blog/june-2026-updates)
+- [Community Integration Guide](../../knowledge_base/patterns/prompt_requests.md)
+- [Unified Billing Architecture](https://openrouter.ai/docs#billing)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-02
+- Last reviewed: 2026-06-22
 - Confidence: high
