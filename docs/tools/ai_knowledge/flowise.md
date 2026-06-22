@@ -1,109 +1,102 @@
 # Flowise
 
 ## What it is
-Flowise is an open-source visual builder for LLM applications. Built on top of LangChain, it provides a drag-and-drop interface to create complex chains, agents, and RAG pipelines.
+Flowise is an open-source visual builder for LLM applications and agentic systems. Built on top of LangChain and enhanced with the "AgentFlow" framework, it provides a drag-and-drop interface to create complex multi-agent orchestrations, RAG pipelines, and automated AI workflows.
 
 ## What problem it solves
-It lowers the barrier to entry for building LLM applications by providing a no-code/low-code interface. It enables rapid prototyping and allows non-developers or technical product managers to iterate on prompt engineering and workflow logic visually.
+It lowers the barrier to entry for building sophisticated AI applications by providing a no-code/low-code interface. It enables rapid prototyping of agentic systems where autonomous agents can reason, collaborate, and act, while providing built-in Human-in-the-Loop (HITL) controls to ensure safety and reliability in production.
 
 ## Where it fits in the stack
-**Orchestration / Builder Layer**. It sits above your LLM providers and vector databases, serving as the "brain" and interface for your AI applications.
+**Orchestration / Builder Layer**. It sits as the "control plane" above your LLM providers, vector databases, and external tools, serving as the visual orchestration engine for both simple chatbots and complex multi-agent systems.
 
 ## Typical use cases
-- **Customer Support Bots**: Building RAG-powered bots that answer questions based on company documentation.
-- **Workflow Prototyping**: Quickly testing different LangChain components (retrievers, agents, tools) before committing to code.
-- **Internal Tools**: Creating specialized assistants for data extraction, summarization, or translation that team members can use via a simple UI.
-- **Agentic Workflows**: Designing agents with access to custom tools (APIs, calculators, search).
+- **Multi-Agent Orchestration**: Coordinating multiple specialized agents (e.g., a "Researcher" and a "Writer") to complete complex tasks using distributed workflows.
+- **Enterprise RAG Pipelines**: Building high-fidelity retrieval systems that connect to 10+ vector databases and utilize advanced retrievers.
+- **Agentic Automation**: Creating workflows where agents use the Model Context Protocol (MCP) to interact with local files, databases, and APIs.
+- **Secure Internal Tools**: Deploying AI assistants for team use with built-in SSRF protection and security isolation for sensitive data.
 
 ## Strengths
-- **Visual Programming**: Makes complex LangChain logic intuitive and easy to reason about.
-- **Self-Hostable**: Can be deployed easily via Docker, ensuring data privacy for local homelab use.
-- **Extensibility**: Supports custom tools and JavaScript snippets for complex logic.
-- **Integrated API**: Automatically generates REST endpoints for every chatflow you build.
+- **Visual Programming for Agents**: The "AgentFlow" interface makes complex multi-agent logic and task delegation intuitive.
+- **MCP Integration**: Native support for Model Context Protocol allows for seamless connection to a vast ecosystem of standardized tools and data sources.
+- **Safety & Oversight**: Includes default SSRF protection and Human-in-the-Loop nodes to prevent unauthorized access and ensure output quality.
+- **Rapid Deployment**: Features a wide array of pre-built templates for common integrations (e.g., WhatsApp, Telegram, Slack).
+- **Self-Hostable**: Easily deployable via Docker for full data sovereignty in homelab or corporate environments.
 
 ## Limitations
-- **LangChain Coupling**: If a feature isn't in LangChain (or hasn't been integrated into Flowise yet), it can be difficult to implement.
-- **Version Management**: Managing changes and rollbacks to visual flows can be more challenging than versioning code.
-- **Resource Usage**: Running the Flowise server and its UI adds overhead compared to a lightweight script.
+- **Visual Complexity**: Extremely large and complex flows can become difficult to manage visually compared to modular code.
+- **LangChain Dependency**: While highly flexible, it is still primarily optimized for workflows supported by the underlying LangChain/LangGraph libraries.
+- **Resource Overhead**: Running the full visual server and agentic runtime is more resource-intensive than executing lightweight Python scripts.
 
 ## When to use it
-- When you want to build and iterate on LLM applications visually.
-- When you need to provide a GUI for team members to interact with AI workflows.
-- For rapid prototyping of RAG and agentic systems.
+- When you want to build and iterate on multi-agent systems and RAG pipelines visually.
+- For rapid prototyping of complex AI workflows that require human oversight (HITL).
+- When you need a self-hosted platform with standardized tool integration via MCP.
 
 ## When not to use it
-- When you need maximum programmatic flexibility or want to use frameworks like [LlamaIndex](llamaindex.md) or [DSPy](../frameworks/dspy.md).
-- For simple scripts where the overhead of a visual builder is unnecessary.
+- For performance-critical, low-latency applications where the overhead of a visual builder is unacceptable.
+- When you need absolute programmatic control over every byte of the LLM interaction (consider [DSPy](../frameworks/dspy.md) or [Rivet](../frameworks/rivet.md)).
 
 ## Getting started
 
-### 1. Installation and Startup
-The easiest way to run Flowise is via Docker:
+### 1. Installation via Docker
+The recommended way to run Flowise is using Docker to ensure all dependencies and security protections are active:
 
 ```bash
 docker run -d --name flowise -p 3000:3000 flowiseai/flowise
 ```
 
-Alternatively, use `npx`:
+### 2. Building an AgentFlow
+1. Navigate to `http://localhost:3000` and click "Add New" -> "AgentFlow".
+2. Drag an "Agent" node and a "Supervisor" node into the workspace.
+3. Connect specialized agent nodes (e.g., "Web Search Agent", "Code Interpreter Agent") to the Supervisor.
+4. Add an "MCP Tool" node to give your agents access to local resources.
+5. Save and use the built-in "Chat" interface to test the orchestration.
+
+## CLI examples
+Flowise provides CLI tools for management and starting the server in different configurations.
 
 ```bash
-npx flowise start
-```
+# Start Flowise with a custom persistent directory for database and uploads
+npx flowise start --databasePath ~/.flowise/db --uploadsPath ~/.flowise/uploads
 
-### 2. Building Your First Flow
-1. Open `http://localhost:3000` in your browser.
-2. Click "Add New" to create a chatflow.
-3. Drag components from the sidebar (e.g., "OpenAI Chat Model", "Recursive Character Text Splitter", "In-Memory Vector Store").
-4. Connect the components and click "Save".
+# Update Flowise to the latest version
+npm install -g flowise && flowise start
+
+# Export a specific chatflow to a JSON file for version control
+flowise export --id <CHATFLOW_ID> --output ./my-flow.json
+```
 
 ## API examples
-
-### Triggering a Prediction via REST API
-Every chatflow can be triggered via a POST request.
+Flowise automatically generates REST endpoints for every flow, supporting both streaming and variable overrides.
 
 ```bash
+# Trigger a multi-agent prediction with a session ID for persistence
 curl -X POST "http://localhost:3000/api/v1/prediction/<CHATFLOW_ID>" \
      -H "Content-Type: application/json" \
      -d '{
-            "question": "What are the benefits of using a visual builder?",
+            "question": "Research the latest trends in quantum computing and write a summary.",
             "overrideConfig": {
-                "temperature": 0.5
-            }
-         }'
-```
-
-### Passing External Variables
-You can pass variables into your flows (e.g., a user ID or session context) that can be used within prompt templates.
-
-```bash
-curl -X POST "http://localhost:3000/api/v1/prediction/<CHATFLOW_ID>" \
-     -H "Content-Type: application/json" \
-     -d '{
-            "question": "Summarize my last orders",
-            "overrideConfig": {
-                "vars": {
-                    "user_id": "12345"
-                }
+                "sessionId": "user-123",
+                "mcpServerUrl": "http://localhost:8080"
             }
          }'
 ```
 
 ## Related tools / concepts
-- [LangFlow](../frameworks/langflow.md)
-- [Dify](dify.md)
-- [LangChain](langchain.md)
-- [AnythingLLM](anythingllm.md)
-- [LobeHub](lobehub.md)
-- [n8n](../../services/n8n.md)
-- [Rivet](../frameworks/rivet.md)
-- [Superinterface](../frameworks/superinterface.md)
+- [LangFlow](../frameworks/langflow.md) — Primary competitor in the visual builder space.
+- [Dify](dify.md) — Advanced LLMOps and multi-agent platform.
+- [n8n](../../services/n8n.md) — General automation with strong AI agent support.
+- [Rivet](../frameworks/rivet.md) — Visual builder focused on complex, low-level logic.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for tool and agent interoperability.
+- [AnythingLLM](anythingllm.md) — Desktop RAG and agentic alternative.
+- [CrewAI](../agents/crewai.md) — Code-native framework for multi-agent orchestration.
+- [LangGraph](../frameworks/langgraph.md) — Underlying library for complex agent state management.
 
 ## Sources / references
 - [Flowise Official Documentation](https://docs.flowiseai.com/)
-- [Flowise GitHub Repository](https://github.com/FlowiseAI/Flowise)
-- [Flowise Cloud](https://flowiseai.com/)
+- [Flowise Review 2026: AI Infrastructure](https://aiagentslist.com/agents/flowise)
+- [Top 7 Open-Source AI Low-Code Tools in 2026](https://htdocs.dev/posts/top-7-open-source-ai-lowno-code-tools-in-2026/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-21
 - Confidence: high
