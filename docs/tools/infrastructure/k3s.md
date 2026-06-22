@@ -1,117 +1,111 @@
 # Kubernetes (K3s)
 
 ## What it is
-K3s is a highly available, certified Kubernetes distribution designed for production workloads in resource-constrained environments like edge devices, IoT, and homelabs. It is developed by Rancher (now SUSE).
+K3s is a highly available, certified Kubernetes distribution designed for production workloads in resource-constrained environments like edge devices, IoT, and homelabs. Developed by Rancher (now SUSE), it is the industry standard for lightweight container orchestration as of June 2026.
 
 ## What problem it solves
-It simplifies the operation of Kubernetes by bundling necessary components into a single, lightweight binary (~50MB) and automating common tasks like certificate rotation and storage provisioning.
+It simplifies the operation of Kubernetes by bundling necessary components into a single, lightweight binary (~50MB) and automating complex tasks like certificate rotation, storage provisioning, and multi-architecture cluster management. It removes the "Kubernetes tax" for small-to-medium deployments.
 
 ## Where it fits in the stack
-**Infrastructure / Deployment**.
+**Infrastructure / Deployment**. It serves as the foundational orchestration layer for hosting agentic services, databases, and workflow engines (n8n, Langflow) in private or edge clouds.
 
 ## Typical use cases
-- **Homelab Orchestration**: Running containerized services (n8n, Paperless, etc.) with high availability.
-- **Edge Computing**: Deploying applications on low-power devices like Raspberry Pis.
-- **Local Development**: Testing Kubernetes manifests in a lightweight local cluster.
+- **Homelab Orchestration**: Running containerized services like Home Assistant, Paperless-ngx, and Nextcloud with high availability.
+- **Edge AI Deployment**: Running lightweight inference engines (Ollama, vLLM) on low-power devices.
+- **Local Development**: Testing production-grade Kubernetes manifests on a laptop without the overhead of Minikube.
+- **Agentic Clusters**: Managing fleets of specialized agents across multiple Raspberry Pi or Jetson nodes.
 
 ## Strengths
-- **Low Footprint**: Minimal resource usage, making it ideal for home servers.
-- **Easy Installation**: Can be installed with a single command.
-- **Production Grade**: Fully CNCF certified Kubernetes distribution.
+- **Low Footprint**: Minimal resource usage (under 512MB RAM for the server), ideal for home servers.
+- **Single Binary**: Easy installation and updates via a single executable.
+- **Production Grade**: Fully CNCF certified; what runs on K3s will run on EKS/GKE.
+- **Integrated Storage/Networking**: Comes with Flannel (networking), CoreDNS, and Local Storage Provisioner out of the box.
 
 ## Limitations
-- **Single Binary**: While convenient, it differs slightly from "vanilla" Kubernetes in how some components are packaged.
-- **Networking**: Uses Flannel by default, which may need replacement for advanced networking requirements.
+- **Single-Node DB by Default**: Uses SQLite for state by default; requires external DB (Postgres/ETCD) for true high availability.
+- **Networking Constraints**: The default Flannel CNI may lack advanced features found in Cilium or Calico (though these can be swapped).
+- **Manual Scaling**: Unlike managed cloud services, hardware scaling and cluster expansion require manual node provisioning.
 
 ## When to use it
-- For managing multi-container home automation stacks that require auto-scaling or self-healing.
-- When you want to learn Kubernetes without the overhead of a full enterprise distribution.
+- When managing a multi-container home automation stack that requires auto-scaling or self-healing.
+- When deploying agentic workflows that need to survive hardware failures.
+- When running Kubernetes on ARM64 or other non-x86 architectures.
 
 ## When not to use it
-- In extremely large enterprise environments where a managed service (EKS, GKE) or a full distribution (RKE, OpenShift) is preferred.
+- For massive, thousands-of-nodes enterprise deployments where a full ETCD-backed distribution (RKE2, K8s) is standard.
+- If you require deep, out-of-the-box integration with proprietary cloud APIs (use managed services like EKS instead).
 
 ## Getting started
-K3s is designed for easy installation and low overhead.
 
-### 1. Installation
-The simplest way to install K3s on a Linux host is via the official install script:
+### Installation
+The standard installation uses the official script:
 ```bash
 curl -sfL https://get.k3s.io | sh -
-# Check node status
-sudo k3s kubectl get node
+# Verify installation
+sudo k3s kubectl get nodes
 ```
 
-### 2. Hello World (Deploying a Workload)
-Create a file named `whoami.yaml` to deploy a simple web service:
+### Deploying a Service
+Create a file `deployment.yaml`:
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: whoami
+  name: web-agent
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: whoami
+      app: web-agent
   template:
     metadata:
       labels:
-        app: whoami
+        app: web-agent
     spec:
       containers:
-      - name: whoami
-        image: traefik/whoami
-        ports:
-        - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: whoami
-spec:
-  ports:
-  - port: 80
-  selector:
-    app: whoami
+      - name: web-agent
+        image: nginx:alpine
 ```
-
-Apply the manifest:
+Apply to the cluster:
 ```bash
-sudo k3s kubectl apply -f whoami.yaml
+sudo k3s kubectl apply -f deployment.yaml
 ```
 
 ## CLI examples
 
-### Check Cluster Configuration
-Verify if your host meets the requirements for running K3s:
+### Cluster Health Check
 ```bash
+# Check if host is ready for K3s
 k3s check-config
 ```
 
-### Manage Nodes
-List all nodes in the cluster with additional details:
+### Resource Management
 ```bash
-sudo k3s kubectl get nodes -o wide
+# Get all pods across all namespaces
+sudo k3s kubectl get pods -A
+
+# Describe a specific node to check resource pressure
+sudo k3s kubectl describe node <node-name>
 ```
 
-### View Server Logs
-Monitor the K3s server process logs for troubleshooting:
+### Log Monitoring
 ```bash
+# Follow server process logs
 sudo journalctl -u k3s -f
 ```
 
 ## API examples
-K3s is fully compatible with the standard Kubernetes API. You can use any Kubernetes client, such as the official Python client.
+K3s is fully compatible with the standard Kubernetes API.
 
-### List Pods (Python)
+### Listing Pods (Python)
 ```python
 from kubernetes import client, config
 
-# Load config from the default K3s location
+# Load config from the standard K3s location
 config.load_kube_config(config_file="/etc/rancher/k3s/k3s.yaml")
 
 v1 = client.CoreV1Api()
-print("Listing pods with their IPs:")
+print("Cluster Pods:")
 ret = v1.list_pod_for_all_namespaces(watch=False)
 for i in ret.items:
     print(f"{i.status.pod_ip}\t{i.metadata.namespace}\t{i.metadata.name}")
@@ -123,18 +117,22 @@ for i in ret.items:
 - **Self-hostable**: Yes.
 
 ## Related tools / concepts
-- [Docker](docker.md)
-- [Home Assistant (via HASS-K8s)](../../services/home-assistant.md)
-- [TrueNAS SCALE (Uses K3s internally)](../../architecture/infrastructure.md)
-- [Talos OS](../../knowledge_base/talos-vs-ubuntu-k3s.md)
-- [Longhorn](https://longhorn.io/)
+- [Docker](docker.md) — The underlying container technology.
+- [Home Assistant (via HASS-K8s)](../../services/home-assistant.md) — Common workload.
+- [Talos OS](../../knowledge_base/talos-vs-ubuntu-k3s.md) — Immutable alternative for K3s.
+- [Longhorn](https://longhorn.io/) — Distributed block storage for K3s.
+- [Ollama](../../services/ollama.md) — Local LLM runner often deployed on K3s.
+- [n8n](../../services/n8n.md) — Workflow automation runner.
+- [Argo Workflows](../orchestration/argo-workflows.md) — Kubernetes-native workflow engine.
+- [Kestra](../orchestration/kestra.md) — Event-driven orchestrator compatible with K3s.
 
-## Sources / References
-- [Official Website](https://k3s.io/)
-- [K3s GitHub](https://github.com/k3s-io/k3s)
+## Sources / references
+- [K3s Official Website](https://k3s.io/)
+- [K3s GitHub Repository](https://github.com/k3s-io/k3s)
 - [K3s Documentation](https://docs.k3s.io/)
-- [Longhorn Storage](https://longhorn.io/)
+- [SUSE Rancher](https://www.rancher.com/)
+- [CNCF Landscape](https://landscape.cncf.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-02
+- Last reviewed: 2026-06-22
 - Confidence: high
