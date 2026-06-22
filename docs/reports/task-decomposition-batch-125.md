@@ -23,11 +23,11 @@ This report decomposes the technical freshness audits for the five oldest issues
   - Research June 2026 status (Integration with Gemini Code Assist, support for GKE Autopilot, enhanced Cloud Run debugging).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/development_ops/custom_agents.md`**
+- [x] **Freshness audit for `docs/tools/development_ops/custom_agents.md`**
   - Research June 2026 status (Native MCP 3.0 support, secure SSH tunneling patterns).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/development_ops/gpt_engineer.md`**
+- [x] **Freshness audit for `docs/tools/development_ops/gpt_engineer.md`**
   - Research June 2026 status (v2.x, integration with WebContainer, full-stack preview capabilities).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
