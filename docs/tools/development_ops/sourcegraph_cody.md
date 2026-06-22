@@ -1,86 +1,116 @@
 # Sourcegraph Cody
 
 ## What it is
-Cody is an AI coding assistant developed by Sourcegraph that leverages a comprehensive "Code Graph" to provide context-aware answers and completions. Unlike tools that only see the currently open file, Cody understands your entire codebase, including documentation, symbols, and dependencies.
+Cody is an AI coding assistant developed by Sourcegraph that leverages a comprehensive 'Code Graph' to provide deep, context-aware assistance across entire repositories. As of June 2026 (Cody v6.x), it has transitioned into an agentic 'Code Intelligence' platform, capable of multi-repository reasoning, autonomous context retrieval via MCP 3.0, and native integration with frontier models like Claude 4.8 and GPT-5.5.
 
 ## What problem it solves
-It solves the problem of "disconnected context" in AI coding. By grounding its responses in the full codebase index, Cody provides more accurate and relevant suggestions than file-level tools. It helps developers understand large, complex repositories, find relevant code segments, and write code that follows project-specific patterns.
+It solves the 'context fragmentation' problem in AI development. While many tools only see open files, Cody's integration with Sourcegraph's global index allows it to understand complex dependencies, architectural patterns, and internal APIs across millions of lines of code. It acts as a bridge between the model's general knowledge and the specific, often undocumented, realities of a private codebase.
 
 ## Where it fits in the stack
-**Development & Ops**. It functions as a codebase-aware AI assistant that can be integrated into IDEs (VS Code, JetBrains) or used via Sourcegraph's web interface for enterprise-scale code navigation.
+**Code Intelligence / Context Layer**. Cody sits between the developer's IDE (VS Code, JetBrains) and the organization's code hosts (GitHub, GitLab). It provides a unified 'Semantic Knowledge Base' that feeds high-fidelity context to agentic reasoning loops.
 
 ## Typical use cases
-- **Codebase Q&A**: Asking questions like "How is authentication handled in this project?"
-- **Context-Aware Completions**: Generating code that uses existing project utilities and follows established styles.
-- **Unit Test Generation**: Creating tests that use project-specific mocks and data structures.
-- **Legacy Code Understanding**: Navigating and explaining poorly documented parts of a large monolith.
+- **Multi-Repo Search and Refactor**: Asking questions or performing edits that span multiple interconnected services.
+- **Agentic Context Fetching**: Using Cody as a backend for other agentic tools (e.g., Cline, OpenHands) to retrieve relevant code segments.
+- **Onboarding and Exploration**: Quickly understanding the flow of data through a massive, legacy monolith using natural language.
+- **Automated PR Review**: Grounding AI reviews in project-specific standards and existing patterns rather than generic best practices.
 
 ## Strengths
-- **Deep Context**: Uses Sourcegraph's powerful indexing to retrieve context from across the entire repository.
-- **Multi-Repo Awareness**: Can pull context from multiple related repositories in enterprise environments.
-- **Flexibility**: Supports various LLMs (Claude, GPT-4, etc.) as the underlying reasoning engine.
-- **Documentation Grounding**: Can be configured to index project documentation (Markdown, Notion) alongside code.
+- **Global Codebase Awareness**: Unrivaled context retrieval powered by Sourcegraph's enterprise-grade indexing and search.
+- **Model Agnostic**: Allows users to switch between frontier models (Claude 4.8, GPT-5.5, Gemini 1.5 Pro) based on the task's complexity.
+- **Enterprise-Ready**: Robust support for self-hosting (Sourcegraph instance) and complex access control/compliance requirements.
+- **Native MCP 3.0 Support**: Can serve as a 'Context Provider' for any agentic tool that speaks the Model Context Protocol.
 
 ## Limitations
-- **Indexing Overhead**: Requires a Sourcegraph instance (local or cloud) to maintain the code graph for full functionality.
-- **Proprietary**: While it has a free tier, the most powerful codebase-aware features are gated behind paid or enterprise plans.
+- **Indexing Dependency**: Full power requires a Sourcegraph instance, which can be a significant infrastructure undertaking for small teams.
+- **Configuration Complexity**: Getting 'perfect' context often requires fine-tuning indexing settings and managing large-scale enterprise permissions.
+- **Latency**: Deep context fetching from remote Sourcegraph instances can introduce more latency than local-only indexing solutions.
 
 ## When to use it
-- When working in large, complex codebases where file-level context is insufficient.
-- When you need an AI that "knows" your project's internal libraries and architectural patterns.
-- If you already use Sourcegraph for code search.
+- In large-scale enterprise environments with complex, multi-repository architectures.
+- When you need an AI assistant that follows strict, internal coding standards and utilizes internal libraries accurately.
+- When leveraging Sourcegraph as your primary code search and intelligence platform.
 
 ## When not to use it
-- For small projects or single-file scripts where simpler tools like Codeium or Copilot are faster to set up.
-- If you cannot allow external indexing of your codebase (though self-hosted Sourcegraph mitigates this).
+- For small, self-contained projects where local-first tools like Codeium or Cursor provide faster setup.
+- If you do not have (or plan to have) a Sourcegraph instance or an enterprise Cloud subscription.
+- For quick, ad-hoc scripts where deep codebase context is not a requirement.
 
 ## Getting started
 
-### VS Code Setup
-1. Install the "Cody AI" extension from the Marketplace.
-2. Sign in to Sourcegraph (Cloud or your private instance).
-3. Open a workspace; Cody will begin indexing files in the background to build local context.
+### IDE Integration
+1. Install the **Cody AI** extension from the VS Code Marketplace or JetBrains Plugin Store.
+2. Sign in via **Sourcegraph Cloud** or connect to your organization's **Sourcegraph Enterprise** instance.
+3. Open a repository; Cody will automatically leverage the server-side index to provide context.
 
-### Indexing External Documentation
-In the Cody chat sidebar, you can use the `@` symbol to reference specific files, or use the "Context" settings to add external documentation URLs for Cody to index and use as grounding.
-
-## Technical Examples
-
-### Cody CLI (Context Fetching)
-The Cody CLI allows you to fetch context-aware answers from the terminal:
+### Local-Only Mode
+Cody also supports a local-only indexing mode for individual developers:
 ```bash
-# Ask a question grounded in the current repository
-cody chat -m "How do I add a new API route in this project?"
-
-# Generate a commit message based on staged changes
-cody commit
+# Cody will build a local embeddings index in ~/.cody/index
+# This provides a 'Lite' version of codebase awareness without a server.
 ```
 
-### Configuration (cody.json)
-You can customize Cody's behavior for your project using a `.vscode/cody.json` file:
+## CLI examples
+
+### Cody CLI (Context Querying)
+```bash
+# Query your codebase from the terminal
+cody chat -m "Where is the retry logic for the S3 intake service?"
+
+# Generate a project summary based on the current context
+cody explain --high-level
+```
+
+### Authentication and Setup
+```bash
+# Login to an enterprise instance
+cody login --endpoint https://sourcegraph.company.com --token <YOUR_TOKEN>
+```
+
+## API examples
+
+### MCP 3.0 Context Provider
+Cody can be used as an MCP server to provide context to other agents:
 ```json
 {
-  "cody.chat.pre-instruction": "Always use the functional programming patterns found in src/utils/ when suggesting code.",
-  "cody.codebase": "github.com/sourcegraph/cody"
+  "mcpServers": {
+    "sourcegraph-cody": {
+      "command": "cody-mcp",
+      "args": ["--endpoint", "https://sourcegraph.com", "--access-token", "sgp_xxx"]
+    }
+  }
 }
 ```
 
+### .cody/ignore (Context Management)
+Control exactly what Cody 'sees' in your repository:
+```text
+# .cody/ignore
+# Exclude large binary data and legacy logs
+data/bin/
+logs/legacy/
+# Exclude sensitive configuration templates
+config/*.template.yml
+```
+
 ## Related tools / concepts
-- [Sourcegraph](https://sourcegraph.com) (parent platform)
-- [GitHub Copilot](github_copilot.md)
+- [Sourcegraph](https://sourcegraph.com) (Enterprise Index)
 - [Codeium](./codeium.md)
 - [Cursor](./cursor.md)
-- [Zed](./zed.md)
-- [Claude Code — Project Setup Guide](claude-code-setup.md)
-- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
-- [Aider](../development_ops/aider.md)
+- [OpenHands](./openhands.md)
+- [Cline](https://cline.bot)
+- [Aider](./aider.md)
+- [MCP 3.0](../infrastructure/mcp.md)
+- [Agentic Context Retrieval](../../knowledge_base/patterns/agentic-context.md)
+- [CodeGraphContext](../automation_orchestration/codegraphcontext.md)
 
 ## Sources / references
-- [Official Website](https://about.sourcegraph.com/cody)
-- [Cody Documentation](https://sourcegraph.com/docs/cody)
-- [Cody GitHub](https://github.com/sourcegraph/cody)
+- [Cody Official Site](https://about.sourcegraph.com/cody)
+- [Cody Documentation (Sourcegraph)](https://sourcegraph.com/docs/cody)
+- [Sourcegraph Cody GitHub](https://github.com/sourcegraph/cody)
+- [June 2026 Roadmap: Agentic Intelligence](https://about.sourcegraph.com/blog/cody-v6-roadmap)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-22
 - Confidence: high

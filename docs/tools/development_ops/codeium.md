@@ -1,97 +1,115 @@
 # Codeium
 
 ## What it is
-Codeium is a free, AI-powered code completion and search tool that provides extensions for various IDEs and supports 70+ programming languages. It offers high-quality completions, an intelligent chat interface, and codebase-aware search to accelerate development workflows.
+Codeium is a high-performance, AI-native developer productivity platform that provides real-time autocomplete, intelligent search, and agentic chat across 70+ programming languages and all major IDEs. As of June 2026, Codeium has evolved from a simple completion engine into a core component of the 'Agentic IDE' ecosystem, most notably as the foundational intelligence behind the **Windsurf** editor and its **Cascade** interaction model.
 
 ## What problem it solves
-It accelerates coding by providing AI-driven autocomplete, unit test generation, and intelligent search across a wide range of languages and editors. It serves as a high-performance, free alternative to GitHub Copilot for individual developers and offers enterprise-grade security for teams.
+It eliminates coding friction by providing low-latency, context-aware completions and an intelligent chat interface that understands the entire codebase. It solves the context-sharing gap between humans and AI, allowing for seamless 'Agent Mode' transitions where the AI can autonomously navigate, edit, and verify code within the developer's local environment.
 
 ## Where it fits in the stack
-**Development & Ops**. It acts as an AI code completion and assistant layer directly integrated into the developer's IDE (VS Code, JetBrains, Vim/Neovim, etc.).
+**Development / IDE Layer**. Codeium acts as the primary 'Inference Plane' for the developer's local workflow. It integrates directly into VS Code, JetBrains, Vim/Neovim, and standalone editors like Windsurf, providing a unified AI interface for coding, debugging, and refactoring.
 
 ## Typical use cases
-- **AI Autocomplete**: Real-time code suggestions as you type.
-- **Intelligent Search**: Searching through large codebases using natural language queries.
-- **Code Refactoring**: Using the chat interface to suggest improvements or modernizations for existing code.
-- **Unit Test Generation**: Automatically creating boilerplate tests for functions.
+- **Cascade/Agentic Coding**: Using 'Agent Mode' in Windsurf to perform multi-file refactors or feature implementations autonomously.
+- **Context-Aware Search**: Navigating large, unfamiliar codebases using natural language queries that understand semantic relationships.
+- **Polyglot Development**: Providing consistent AI assistance across diverse stacks (e.g., Rust, TypeScript, Python, Clojure) without switching tools.
+- **Enterprise-Grade AI**: Deploying local-only or VPC-hosted AI coding assistants to meet strict compliance and security requirements.
 
 ## Strengths
-- **Free for Individuals**: Offers a robust free tier that is comparable to paid competitors.
-- **Extensive IDE Support**: One of the broadest sets of extensions, including Vim, Emacs, and specialized IDEs.
-- **Fast Performance**: Low-latency completions powered by specialized hardware.
-- **Security-First**: Offers an Enterprise tier with self-hosting and VPC options to ensure code never leaves the perimeter.
+- **Windsurf & Cascade**: Native integration with the Cascade model allows for a high degree of agentic autonomy and 'flow' state maintenance.
+- **Exceptional IDE Support**: Best-in-class extensions for Vim, Neovim, and specialized environments, ensuring AI assistance is available in any terminal.
+- **Ultra-Low Latency**: Custom inference hardware (Exafunction) ensures that completions feel instantaneous even on large files.
+- **Free for Individuals**: Maintains a robust, unrestricted free tier for individual developers that rivals or exceeds paid alternatives.
 
 ## Limitations
-- **Cloud-Based by Default**: The individual tier requires sending code to Codeium's servers for inference.
-- **Context Window**: While codebase-aware, the free tier has limitations on the total context it can ingest compared to high-end enterprise solutions.
+- **Cloud Dependency (Individual Tier)**: The free and Pro tiers require cloud connectivity for inference, which may not be suitable for all security profiles.
+- **Model Transparency**: Codeium uses proprietary models optimized for latency, which can sometimes result in different reasoning patterns compared to general-purpose frontier models like Claude 4.8.
+- **Resource Usage**: Running the agentic 'Windsurf' environment can be demanding on local system resources (RAM/CPU) during large indexing tasks.
 
 ## When to use it
-- When you want a powerful, free AI code assistant across multiple editors.
-- When you are a Neovim/Vim user looking for a top-tier AI integration.
-- When evaluating AI coding tools before committing to a paid subscription.
+- When you want the most seamless 'Agentic IDE' experience via Windsurf and Cascade.
+- When working in terminal-based environments like Vim or Neovim where top-tier AI integration is required.
+- When you need a powerful, free alternative to GitHub Copilot with superior codebase awareness.
 
 ## When not to use it
-- When strict local-only processing is required without an Enterprise license.
-- When working on extremely sensitive IP where even anonymized telemetry is prohibited by policy.
+- In environments requiring 100% air-gapped or local-only processing without an Enterprise license.
+- If your workflow is strictly dependent on a specific niche IDE that Codeium does not yet support (though this is rare).
 
 ## Getting started
 
-### VS Code Installation
-1. Open VS Code and go to the Extensions view (`Ctrl+Shift+X`).
-2. Search for "Codeium".
-3. Click Install and follow the prompts to log in (required for the free tier).
+### Windsurf Installation (Recommended)
+1. Download Windsurf from the [Codeium website](https://codeium.com/windsurf).
+2. Install and log in to your Codeium account.
+3. Open a project and trigger 'Cascade' (`Cmd+L` or `Ctrl+L`) to start an agentic session.
 
-### Neovim Installation (via lazy.nvim)
+### Neovim Installation (lazy.nvim)
 ```lua
 {
   "Exafunction/codeium.vim",
   event = "BufRead",
   config = function()
-    -- Change the default keybinding
+    -- Enable Codeium and set keybindings
     vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
   end
 }
 ```
 
-## Technical Examples
+## CLI examples
 
-### CLI usage (codeium-auth)
-For headless environments or remote servers, you can authenticate via the CLI:
+### Authentication and Health
 ```bash
-# Download the codeium binary for your architecture
+# Download and authenticate via the standalone binary (useful for remote servers)
 curl -Lo codeium https://github.com/Exafunction/codeium/releases/latest/download/codeium-linux-x64
 chmod +x codeium
-
-# Authenticate
 ./codeium auth
+
+# Check connection and indexing status
+./codeium status
 ```
 
-### Context Configuration (.codeiumignore)
-Similar to `.gitignore`, you can prevent Codeium from indexing specific files or directories:
+### Headless Indexing
+For large enterprise repositories, you can pre-index the codebase via CLI to improve initial agentic performance:
+```bash
+./codeium index --path /path/to/repo --exclude-git-ignored
+```
+
+## API examples
+
+### .codeiumignore Configuration
+Maintain repository hygiene and security by preventing sensitive files from being indexed:
 ```text
 # .codeiumignore
-secrets/
-*.pem
-node_modules/
-dist/
+# Exclude secrets and build artifacts
+**/secrets/
+**/*.pem
+**/node_modules/
+**/dist/
+# Exclude specific internal tools
+scripts/private/
 ```
 
+### Integration with Agentic Tools
+Codeium context can be leveraged by other agentic tools via its local language server (LSP) protocols, allowing external agents to 'query' the codebase through Codeium's optimized index.
+
 ## Related tools / concepts
-- [GitHub Copilot](github_copilot.md)
+- [Windsurf](./windsurf.md) (Native IDE)
 - [Sourcegraph Cody](./sourcegraph_cody.md)
-- [Tabnine](tabnine.md)
-- [Claude Code — Project Setup Guide](claude-code-setup.md)
-- [OpenCode (Oh My OpenCode Ecosystem)](opencode.md)
+- [GitHub Copilot](github_copilot.md)
 - [Cursor](./cursor.md)
+- [Aider](./aider.md)
+- [Claude Code — Project Setup Guide](claude-code-setup.md)
+- [Cline](https://cline.bot)
 - [Zed](./zed.md)
-- [Melty](./melty.md)
+- [Agentic IDEs](../../knowledge_base/patterns/agentic-ides.md)
+- [Cascade Model Architecture](../../knowledge_base/patterns/cascade-model.md)
 
 ## Sources / references
-- [Official Website](https://codeium.com/)
+- [Codeium Official Site](https://codeium.com/)
+- [Windsurf: The First Agentic IDE](https://codeium.com/blog/windsurf-agentic-ide)
 - [Codeium Documentation](https://docs.codeium.com/)
 - [Codeium GitHub](https://github.com/Exafunction)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-22
 - Confidence: high

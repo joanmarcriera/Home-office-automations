@@ -1,118 +1,140 @@
 # RAGFlow
 
 ## What it is
-RAGFlow is an open-source Retrieval-Augmented Generation (RAG) engine that integrates deep document understanding with agentic capabilities. It is designed to handle complex, unstructured data and provide a high-fidelity context layer for LLMs. It features a vision-based "DeepDoc" parser that understands document structure (tables, headers, footnotes) as a human would.
+RAGFlow is a vision-native, open-source Retrieval-Augmented Generation (RAG) engine that prioritizes deep document understanding (DeepDoc) for complex, unstructured data. As of June 2026 (v0.32.x), it has evolved into a comprehensive 'Knowledge Engine' for agentic workflows, featuring multi-modal reasoning, native integration with frontier models like Claude 4.8 and GPT-5.5, and a modular architecture for enterprise-grade RAG pipelines.
 
 ## What problem it solves
-It solves the "garbage in, garbage out" problem in RAG systems by using advanced document parsing (DeepDoc) to extract structured knowledge from complicated PDF formats, tables, and images. It minimizes hallucinations by ensuring retrieval is grounded in well-parsed evidence and provides explicit citations back to the source document segments.
+It eliminates the "garbage in, garbage out" failure mode of standard RAG systems by using layout-aware parsing (DeepDoc) instead of naive text chunking. It accurately extracts structured information from multi-column PDFs, nested tables, and embedded charts, ensuring that agentic retrieval is grounded in high-fidelity evidence with precise, pixel-level citations.
 
 ## Where it fits in the stack
-**Tool / Infra**: It serves as a specialized RAG infrastructure and toolset for document processing and retrieval. It acts as the "Cognitive Engine" for agents that need to reason over large, complex document corpora.
+**Knowledge / Inference Layer**. RAGFlow serves as the specialized 'Cognitive Memory' in the agentic stack. It sits between raw data storage (S3, MinIO) and the orchestration layer (n8n, AG2, Flowise), providing a high-confidence context window for frontier models.
 
 ## Typical use cases
-- **Complex PDF Parsing**: Extracting accurate information from financial reports, legal documents, and technical manuals that contain complex layouts.
-- **Agentic Knowledge Retrieval**: Serving as the knowledge backend for agents that need to perform multi-step reasoning over large document collections.
-- **Enterprise Search**: Building a private, self-hosted search engine across heterogeneous data sources like Notion, Google Drive, and S3.
-- **Automated Data Intake**: Parsing incoming invoices or technical specs via n8n for structured storage.
+- **Complex Document Analysis**: Parsing financial statements (10-Ks, 10-Qs) and technical manuals where table structure and image context are critical.
+- **Agentic RAG Pipelines**: Providing a high-fidelity knowledge source for agents built on Claude 4.8 or Gemini 3.5.
+- **Multi-modal Knowledge Extraction**: Reasoning over diagrams, flowcharts, and handwritten notes in scanned documents.
+- **Enterprise-Grade Grounding**: Building self-hosted search systems with strict citation requirements and data sovereignty constraints.
 
 ## Strengths
-- **DeepDoc Parsing**: Superior extraction of knowledge from unstructured data compared to simple text chunking; handles OCR and layout analysis natively.
-- **Template-based Chunking**: Provides intelligent and explainable options for segmenting data based on document type (e.g., Book, Laws, Presentation).
-- **Multi-modal Capabilities**: Can reason over images and charts within documents using vision models.
-- **Agent Integration**: Fuses RAG with agentic workflows for more dynamic task execution and self-correction.
+- **Vision-Based Parsing (DeepDoc)**: Superior handling of complex layouts and tables compared to OCR-only or text-only extractors.
+- **Template-Driven Chunking**: Intelligent segmentation based on document intent (e.g., Q&A, Paper, Manual, Resume).
+- **Multi-modal Native**: Integrated support for VLM-based reasoning (e.g., InternVL2, Qwen3-VL) directly within the RAG pipeline.
+- **Agentic Hooks**: Features native MCP 3.0 support for seamless integration with agentic tool-use protocols.
 
 ## Limitations
-- **Hardware Requirements**: High resource consumption (minimum 4 cores, 16GB RAM recommended for production).
-- **Setup Complexity**: Requires multiple services (Elasticsearch/Infinity, Redis, MySQL, MinIO) making it more complex to deploy than lightweight RAG wrappers.
-- **Latency**: Deep document parsing (especially with OCR) is computationally intensive and slower than simple text extraction.
+- **Resource Intensive**: Requires significant GPU/CPU resources (32GB+ RAM recommended for production DeepDoc parsing).
+- **Initial Indexing Latency**: Vision-based parsing is significantly slower than traditional text extraction methods.
+- **Configuration Depth**: The high degree of parsing control requires a learning curve to optimize for specific document types.
 
 ## When to use it
-- When document layouts are too complex for standard RAG systems (e.g., multi-column PDFs with embedded tables).
-- When production-grade grounding and citation accuracy are critical.
-- When building agents that require a deep, well-structured knowledge base.
+- When documents contain complex tables, multi-column layouts, or critical visual information.
+- When you need a self-hosted, vision-native RAG solution that integrates with MCP 3.0.
+- When high-confidence citations and grounding are the primary system requirements.
 
 ## When not to use it
-- For simple, text-only RAG tasks where lightweight solutions like a basic vector DB would suffice.
-- In resource-constrained environments (e.g., low-power edge devices).
-- When near-instantaneous indexing of new documents is required (due to parsing overhead).
+- For simple, structured text data (JSON, CSV) where a basic vector database or Postgres (pgvector) is sufficient.
+- In low-latency scenarios where indexing speed is prioritized over parsing fidelity.
+- On hardware with less than 16GB of RAM or no access to specialized inference engines.
 
 ## Getting started
 
-### Installation
+### Installation (Docker Compose)
+RAGFlow recommends a multi-container deployment for its cognitive services (Elasticsearch/Infinity, Redis, MySQL, MinIO).
+
 ```bash
 # Clone the repository
 git clone https://github.com/infiniflow/ragflow.git
 cd ragflow/docker
 
-# Increase vm.max_map_count for Elasticsearch (required)
+# Increase system map count (required for Elasticsearch)
 sudo sysctl -w vm.max_map_count=262144
 
-# Start the server using Docker Compose
+# Start the cluster
 docker compose up -d
 ```
 
-### Basic usage
-Access the RAGFlow UI at `http://localhost` (default port 80). Log in and configure your LLM API keys in the "Model Providers" settings. Create a new "Knowledge Base," choose a parsing template (e.g., "General"), and upload your first PDF.
+### Basic Workflow
+1. Access the UI at `http://localhost:80`.
+2. Configure your model providers (Claude 4.8 / GPT-5.5 / local Ollama).
+3. Create a 'Knowledge Base' and select the 'DeepDoc' parser template.
+4. Upload documents and monitor the parsing queue in the 'Files' tab.
 
 ## CLI examples
-```bash
-# Pull the latest RAGFlow image
-docker pull infiniflow/ragflow:v0.25.1
 
-# Check backend logs for parsing status
+### Health and Log Monitoring
+```bash
+# Check status of RAGFlow cognitive services
+docker compose ps
+
+# Follow parsing server logs
 docker logs -f ragflow-server
 
-# Enter the backend container to check connectivity to Elasticsearch
+# Verify Infinity/Elasticsearch connectivity
 docker exec -it ragflow-server curl -X GET "http://ragflow-es:9200/_cluster/health?pretty"
+```
+
+### Image Management
+```bash
+# Pull the latest June 2026 production image
+docker pull infiniflow/ragflow:v0.32.1-cuda
 ```
 
 ## API examples
 
-### Python SDK (Document Management)
+### Python SDK: Agentic Document Intake
 ```python
-# RAGFlow provides a Python SDK for programmatic access
 from ragflow_sdk import RAGFlow
 
-# Initialize the client
-ragflow = RAGFlow(api_key="YOUR_API_KEY", base_url="http://localhost:9337")
+# Initialize with June 2026 API standards
+ragflow = RAGFlow(api_key="rf-your-key", base_url="http://localhost:9337")
 
-# Create a dataset (Knowledge Base)
-dataset = ragflow.create_dataset(name="Project Documentation")
+# Create an agent-aware dataset
+dataset = ragflow.create_dataset(name="Legal Intelligence", parsing_template="Law")
 
-# Upload and start parsing a document
-document = dataset.upload_document(filepath="manual.pdf")
+# Upload and parse
+document = dataset.upload_document(filepath="./contract_v4.pdf")
 dataset.parse_document(document_ids=[document.id])
 
-# Query the dataset
-results = dataset.retrieve(question="How do I reset the device?", top_k=3)
-for res in results:
-    print(f"Content: {res['content_with_weight']}\nSource: {res['doc_name']}\n")
+# Query with VLM grounding
+results = dataset.retrieve(
+    question="What are the indemnification limits in section 4.2?",
+    top_k=5,
+    visual_grounding=True
+)
 ```
 
-### n8n Integration Pattern
-RAGFlow can be integrated into n8n using the **HTTP Request** node to trigger document ingestion:
-- **Method**: `POST`
-- **URL**: `http://<ragflow-ip>/api/v1/document/upload`
-- **Headers**: `Authorization: Bearer <API_KEY>`
-- **Body (Form-Data)**:
-    - `file`: (Binary data from previous node)
-    - `kb_id`: `<YOUR_KB_ID>`
+### MCP 3.0 Integration (Agentic Context)
+RAGFlow exposes knowledge bases via MCP 3.0, allowing agents to query the document store directly:
+```json
+{
+  "mcpServers": {
+    "ragflow": {
+      "command": "npx",
+      "args": ["@ragflow/mcp-server", "--base-url", "http://ragflow:9337", "--api-key", "rf-key"]
+    }
+  }
+}
+```
 
 ## Related tools / concepts
 - [Dify](../ai_knowledge/dify.md)
-- [PageIndex](./pageindex.md)
-- [OCRmyPDF](./ocrmypdf.md)
 - [Docling](./docling.md)
-- [Firecrawl](./firecrawl.md)
+- [OCRmyPDF](./ocrmypdf.md)
 - [Unstructured](../intake_storage/unstructured.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
+- [Firecrawl](./firecrawl.md)
+- [AG2](../frameworks/ag2.md)
+- [Flowise](../frameworks/flowise.md)
+- [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
 
 ## Sources / references
-- [Official Website](https://ragflow.io/)
-- [GitHub Repository](https://github.com/infiniflow/ragflow)
-- [RAGFlow Documentation](https://ragflow.io/docs/dev/)
+- [RAGFlow Official Site](https://ragflow.io/)
+- [GitHub: infiniflow/ragflow](https://github.com/infiniflow/ragflow)
+- [DeepDoc Architecture Deep Dive](https://ragflow.io/docs/dev/deepdoc)
+- [June 2026 Release Notes (v0.32)](https://github.com/infiniflow/ragflow/releases/tag/v0.32.0)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-22
 - Confidence: high
