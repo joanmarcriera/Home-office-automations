@@ -32,16 +32,57 @@ It addresses the limitation of benchmarks that focus on atomic actions or single
 - For evaluating models in a sandbox without internet access.
 
 ## Getting started
-AssistantBench is supported by the `inspect-ai` framework.
+AssistantBench is integrated into the `inspect-ai` framework via the `inspect-evals` package.
 
 ### 1. Installation
 ```bash
-pip install inspect-evals
+pip install inspect-ai inspect-evals
 ```
 
-### 2. Running AssistantBench
+### 2. Basic Usage
+Run the evaluation using the `inspect` CLI:
 ```bash
 inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-4o
+```
+
+## CLI examples
+
+### Run with Sample Limit
+Test the agent on a small subset (e.g., 5 tasks) to verify the environment setup:
+```bash
+inspect eval inspect_evals/assistant_bench_web_browser --model anthropic/claude-3-5-sonnet-20240620 --limit 5
+```
+
+### Compare Multiple Models
+Run AssistantBench across different models to compare performance:
+```bash
+inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-4o,anthropic/claude-3-5-sonnet-20240620
+```
+
+### Visualize Results
+Launch the Inspect log viewer to inspect the agent's step-by-step trajectories:
+```bash
+inspect view
+```
+
+## API examples
+You can also trigger AssistantBench evaluations programmatically using the Inspect Python API.
+
+### Minimal Evaluation Script
+```python
+from inspect_ai import eval
+from inspect_evals import assistant_bench_web_browser
+
+# Run AssistantBench on a specific model
+results = eval(
+    assistant_bench_web_browser(),
+    model="openai/gpt-4o",
+    limit=10  # Optional: limit to 10 samples for testing
+)
+
+# Output the accuracy and scores
+for result in results:
+    print(f"Model: {result.model}, Accuracy: {result.metrics['accuracy'].value}")
 ```
 
 ## Related tools / concepts

@@ -32,6 +32,98 @@ Use Nano Banana when you need quick, high-quality image edits or generations and
 ## When not to use it
 Avoid it for highly sensitive or professional-grade design work that requires absolute precision, or if you require an offline, privacy-first image editing workflow.
 
+## Getting started
+Nano Banana is accessible via the Google AI Studio interface or programmatically through the Google Gen AI SDK.
+
+### 1. Installation
+```bash
+pip install google-genai
+```
+
+### 2. Hello World (Python)
+```python
+from google import genai
+import base64
+
+client = genai.Client(api_key="YOUR_API_KEY")
+
+# Simple image generation
+interaction = client.interactions.create(
+    model="gemini-3.1-flash-image",
+    input="A futuristic city in the style of cyberpunk, with neon lights and flying cars.",
+)
+
+# Save the generated image
+with open("output.png", "wb") as f:
+    f.write(base64.b64decode(interaction.output_image.data))
+```
+
+## CLI examples
+Programmatic access is primarily via REST. You can use `curl` to interact with the models directly.
+
+### Generate Image from Text
+```bash
+curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.1-flash-image",
+    "input": [{"type": "text", "text": "A minimal logo for a tech startup called BananaNano"}]
+  }'
+```
+
+### Edit Existing Image
+```bash
+curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.1-flash-image",
+    "input": [
+      {"type": "text", "text": "Change the color of the shirt to blue"},
+      {"type": "image", "mime_type": "image/png", "data": "'"$(base64 -w 0 image.png)"'"}
+    ]
+  }'
+```
+
+### High-Resolution Generation
+```bash
+curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3-pro-image",
+    "input": "A cinematic wide shot of a desert landscape at sunset",
+    "response_format": {"type": "image", "image_size": "4K"}
+  }'
+```
+
+## API examples
+The Interactions API supports multi-turn conversations and advanced "Thinking" processes.
+
+### Multi-turn Image Editing
+```python
+from google import genai
+
+client = genai.Client()
+
+# Step 1: Generate initial image
+interaction = client.interactions.create(
+    model="gemini-3.1-flash-image",
+    input="Create a vibrant infographic about photosynthesis."
+)
+
+# Step 2: Refine the image using the previous interaction ID
+interaction_v2 = client.interactions.create(
+    model="gemini-3.1-flash-image",
+    input="Now translate all text in the image to Spanish.",
+    previous_interaction_id=interaction.id
+)
+
+# Access the refined image
+print(interaction_v2.output_image.mime_type)
+```
+
 ## Related tools / concepts
 - [Gemini](gemini.md)
 - [Runway ML](runwayml.md)
