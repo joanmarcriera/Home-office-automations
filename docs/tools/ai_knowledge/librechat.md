@@ -1,90 +1,93 @@
 # LibreChat
 
 ## What it is
-LibreChat is a free, open-source AI conversation platform that provides a unified interface for multiple AI models. It is designed to be a highly customizable and privacy-centric alternative to proprietary chat interfaces like ChatGPT.
+LibreChat is a free, open-source AI conversation platform that provides a unified interface for multiple AI models. As of June 2026, it has matured into a comprehensive "Agentic Data Analytics" platform following its acquisition by ClickHouse, offering multi-agent support, native multimodality, and robust administrative controls.
 
 ## What problem it solves
-It eliminates the need to switch between multiple chat interfaces for different AI providers. It also provides a self-hosted option for organizations and individuals who want full control over their data and conversation history.
+It eliminates the need to switch between multiple chat interfaces for different AI providers and solves the "interface fragmentation" problem for organizations. It provides a self-hosted, privacy-centric alternative to proprietary UIs, now enhanced with native "Agents" that can perform complex data analytics and handle multi-modal files (video, PDF, etc.) locally or via cloud providers.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Self-hosted Chat UI. It serves as a front-end that connects to various LLM backends (OpenAI, Anthropic, Google, local models via Ollama, etc.).
+**Category**: AI Assistants & Knowledge / Self-hosted Chat UI. It serves as the primary "Front-End Operating System" for AI in a homelab or enterprise environment, orchestrating multiple LLM backends and MCP servers.
 
 ## Typical use cases
-- **Unified AI Hub**: A single interface for accessing GPT-4, Claude 3, and local Llama models.
-- **Enterprise AI Portal**: Providing a secure, authenticated chat interface for employees with SSO integration.
-- **Agentic Workflows**: Utilizing built-in agents with file handling and API actions.
-- **Local AI Interface**: Serving as a polished UI for models running locally on a home lab server.
+- **Unified AI Hub**: Accessing frontier models (GPT-5, Claude 4.8) and local models (Llama 3.1) through a single, polished UI.
+- **Agentic Data Analytics**: Utilizing the ClickHouse-backed infrastructure to run complex queries and visualizations over large datasets via specialized agents.
+- **Multimodal Document Processing**: Using native OCR and video understanding to analyze diverse file types in-situ.
+- **Organizational AI Gateway**: Providing secure, SSO-enabled access to AI tools with fine-grained Access Control Lists (ACLs) and an Admin Panel.
 
 ## Strengths
-- **Open Source**: Community-driven and fully transparent.
-- **Multi-Model Support**: Native support for almost every major AI provider and local inference engine.
-- **Advanced Features**: Includes Artifacts (React/HTML/Mermaid), Code Interpreter, and Model Context Protocol (MCP) support.
-- **Customizable**: Extensive configuration options for themes, plugins, and system prompts.
-- **Privacy-First**: Can be entirely self-hosted with no data sent to third parties (when using local models).
+- **Native Multi-Agent Framework**: Supports app-agnostic agents that can share prompts and MCP servers between users.
+- **Rich Multimodality**: Native handling for video understanding, PDFs, and inline Mermaid diagrams for visualization.
+- **Persistence & Personalization**: Features "Resumable Chats" (preserving context through disconnects) and "User Memories" for long-term personalization.
+- **Enterprise Ready**: Includes a robust Admin Panel (introduced in Q1 2026), ACLs, and seamless SSO integration.
+- **Open Source Transparency**: Remains community-driven with over 33,000 GitHub stars and extensive customization options.
 
 ## Limitations
-- **Self-Hosting Overhead**: Requires technical knowledge to set up and maintain via Docker.
-- **Complexity**: The vast number of configuration options can be overwhelming for casual users.
+- **Deployment Complexity**: Setting up the full stack (including ClickHouse for advanced analytics) requires significant Docker and networking expertise.
+- **Hardware Requirements**: Running the full suite of multimodal agents locally requires substantial GPU and memory resources.
 
 ## When to use it
-- When you want a single, polished UI for all your AI models.
-- When privacy and data ownership are top priorities.
-- When building a shared AI platform for a team or organization.
+- When you need a professional, single UI for a team or organization to access multiple AI models.
+- When your workflow requires multi-agent collaboration and advanced data visualization.
+- If you value "User Memories" and "Resumable Chats" for a persistent AI experience.
 
 ## When not to use it
-- If you prefer a turnkey, zero-configuration SaaS experience.
-- If you only use a single AI provider and don't mind their native interface.
+- For very simple, single-user local chat where a lightweight app like Jan.ai or Ollama CLI would suffice.
+- If you prefer a zero-maintenance SaaS experience over a self-hosted platform.
 
 ## Getting started
-1. Clone the repository: `git clone https://github.com/danny-avila/LibreChat.git`.
-2. Create a `.env` file from the provided `example.env` and add your API keys.
-3. (Optional) Customize `librechat.yaml` to configure specific endpoints, models, and MCP servers.
-4. Run the stack: `docker compose up -d`.
-5. Access the UI at `http://localhost:3080`.
+1. **Clone**: `git clone https://github.com/danny-avila/LibreChat.git`.
+2. **Environment**: Configure `.env` with your API keys; use `example.env` as a template.
+3. **Configuration**: Edit `librechat.yaml` to define your MCP servers, custom endpoints, and ACLs.
+4. **Deploy**: Run `docker compose up -d` to start the core services and the analytics engine.
+5. **Access**: Navigate to `http://localhost:3080` and use the Admin Panel for initial setup.
 
 ## CLI examples
-LibreChat is primarily managed via Docker Compose and environment variables, but it includes utility commands for maintenance.
+LibreChat is primarily managed via Docker Compose, but includes utility scripts for database maintenance and versioning.
 
 ```bash
-# Update the LibreChat stack to the latest version
+# Update LibreChat and its dependencies to the latest release
 docker compose pull && docker compose up -d
 
-# Check logs for the server container
+# View logs for the Agents framework to debug MCP connections
 docker compose logs -f api
 
-# Execute a command inside the running API container to clear cache
+# Clear the global model cache inside the API container
 docker compose exec api npm run clear-cache
 ```
 
 ## API examples
-LibreChat provides a REST API for management and can also act as a proxy. Configuration is handled via `librechat.yaml`.
+LibreChat features an OpenAI-compatible "Agents API" (Beta) for external integrations.
 
 ```yaml
-# Example configuration for a custom OpenAI-compatible endpoint in librechat.yaml
+# Example configuration for a custom MCP-enabled endpoint in librechat.yaml
 endpoints:
   custom:
-    - name: "Local Inference"
-      apiKey: "${LOCAL_API_KEY}"
-      baseURL: "http://host.docker.internal:11434/v1"
+    - name: "Agentic Analytics"
+      apiKey: "${ANALYTICS_API_KEY}"
+      baseURL: "http://host.docker.internal:3080/v1"
       models:
-        default: ["llama3", "mistral"]
+        default: ["agents-analytics-v1"]
         fetch: true
+      mcpServers:
+        - name: "clickhouse-mcp"
+          url: "http://clickhouse-server:8000"
 ```
 
 ## Related tools / concepts
-- [Open WebUI](../../services/open-webui.md)
-- [AnythingLLM](../ai_knowledge/anythingllm.md)
-- [Ollama](../../services/ollama.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [TypingMind](typingmind.md)
-- [LobeHub](lobehub.md)
-- [Jan.ai](../infrastructure/jan-ai.md)
+- [Open WebUI](../../services/open-webui.md) — Main open-source competitor.
+- [AnythingLLM](../ai_knowledge/anythingllm.md) — Focused on local RAG and desktop use.
+- [Ollama](../../services/ollama.md) — Preferred local inference backend.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Core standard for LibreChat tool integration.
+- [LobeHub](lobehub.md) — High-performance AI interface alternative.
+- [Jan.ai](../infrastructure/jan-ai.md) — Local-first desktop alternative.
+- [Dify](dify.md) — Alternative for building complex agentic workflows.
 
 ## Sources / references
-- [Official Website](https://www.librechat.ai/)
-- [GitHub Repository](https://github.com/danny-avila/LibreChat)
-- [LibreChat Configuration Guide](https://www.librechat.ai/docs/configuration/librechat_yaml)
+- [LibreChat Official Site](https://www.librechat.ai/)
+- [LibreChat 2026 Roadmap](https://www.librechat.ai/blog/2026-02-18_2026_roadmap)
+- [LibreChat Documentation: Configuration Guide](https://www.librechat.ai/docs/configuration/librechat_yaml)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-21
 - Confidence: high

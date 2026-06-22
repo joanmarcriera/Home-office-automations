@@ -11,25 +11,25 @@ This report decomposes the remaining technical freshness audits identified in th
 ## Identified Tasks (Action A: Freshness Audits)
 
 ### Infrastructure Tools
-- [ ] **Freshness audit for `docs/tools/infrastructure/msty.md`**
+- [x] **Freshness audit for `docs/tools/infrastructure/msty.md`**
   - Research Msty v2026.6 features (e.g., Knowledge Stacks, Matchmaker updates).
   - Upgrade to 13-section standard with June 2026 context.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/infrastructure/jan-ai.md`**
+- [x] **Freshness audit for `docs/tools/infrastructure/jan-ai.md`**
   - Research Jan AI v2026.x features and Nitro engine updates.
   - Upgrade to 13-section standard with June 2026 context.
   - Verify with `check_docs_contract.py`.
 
 ### AI Knowledge Tools
-- [ ] **Freshness audit for `docs/tools/ai_knowledge/google-gemini.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/google-gemini.md`**
   - Research Gemini 1.5 Pro/Flash updates (June 2026) and context window expansions.
   - Upgrade to 13-section standard with June 2026 context.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/ai_knowledge/librechat.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/librechat.md`**
   - Research LibreChat v2026.x features, multi-modal support, and plugin ecosystem.
   - Upgrade to 13-section standard with June 2026 context.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/ai_knowledge/flowise.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/flowise.md`**
   - Research Flowise v2026.x features, new agentic nodes, and MCP integration.
   - Upgrade to 13-section standard with June 2026 context.
   - Verify with `check_docs_contract.py`.
