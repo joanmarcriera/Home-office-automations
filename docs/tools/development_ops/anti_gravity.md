@@ -1,78 +1,130 @@
 # Anti-Gravity
 
 ## What it is
-An experimental AI engineering framework from Google that provides high-level abstractions for building autonomous agents capable of navigating and modifying complex software systems.
+Anti-Gravity (v2026.4.x+) is Google's premier agentic development framework, designed to build and orchestrate autonomous AI agents capable of navigating, reasoning about, and modifying complex software ecosystems. It provides high-level abstractions for "Missions" (long-horizon tasks) and "Surfaces" (the agent's operational context), leveraging Gemini 3.5 Ultra/Flash for advanced reasoning and native code execution.
 
 ## What problem it solves
-Simplifies the development of autonomous coding agents by offering pre-built abstractions, reducing the effort needed to build agents that can understand and refactor large codebases.
+Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering. It simplifies the creation of agents that can safely refactor multi-million line codebases, handle cross-repository dependencies, and maintain state over long-running asynchronous tasks, reducing the boilerplate associated with manual LLM orchestration and tool-calling loops.
 
 ## Where it fits in the stack
-**Development & Ops**. Serves as a framework for building autonomous software engineering agents.
+**Development & Ops**. It serves as the primary framework for building "Antigravity Agents" within the Google Cloud and Vertex AI ecosystems. It bridges the gap between raw LLM capabilities and production-grade autonomous agent deployments.
 
 ## Typical use cases
-- Building autonomous agents that navigate complex software systems
-- Automated codebase refactoring via agent orchestration
-- Prototyping AI-driven development workflows
+- **Autonomous Refactoring**: Large-scale migrations (e.g., Python 3.10 to 3.13) across multiple microservices.
+- **Agentic CI/CD**: Integrating agents into the deployment pipeline to automatically fix test failures or security vulnerabilities.
+- **Legacy Modernization**: Systematically analyzing and rewriting legacy COBOL or Java services into modern Go/Python architectures.
+- **Architectural Discovery**: Autonomous mapping of undocumented system dependencies and data flows.
 
 ## Strengths
-- High-level abstractions reduce boilerplate for agent development
-- Focused on autonomous navigation and modification of software systems
-- Native integration with Google's development ecosystem
+- **Native Gemini Integration**: Optimized for Gemini's 2M+ token context window and native code execution capabilities.
+- **Mission Abstraction**: Sophisticated handling of multi-step, stateful operations with built-in checkpointing and recovery.
+- **Enterprise Security**: Native integration with Google Cloud IAM, VPC Service Controls, and SHARP-compliant security guardrails.
+- **Advanced Observability**: Detailed tracing of agent reasoning steps via integration with Google Cloud Operations (formerly Stackdriver).
 
 ## Limitations
-- Experimental status; not production-ready
-- Limited community and documentation compared to established frameworks
-- Primarily accessible through waitlists and developer previews
+- **Ecosystem Lock-in**: Deeply tied to Google Cloud and Vertex AI infrastructure.
+- **Experimental Features**: Some high-level "Autonomous Surface" capabilities remain in developer preview.
+- **Cost**: High-frequency use of Gemini Ultra for complex reasoning can be expensive compared to local models.
 
 ## When to use it
-- When building custom autonomous agents for software engineering tasks
-- When exploring agent-based approaches to codebase management
-- When participating in Google's developer preview programs
+- When building production-grade autonomous agents for enterprise-scale software engineering.
+- When your organization is already standardized on Google Cloud Platform (GCP).
+- For tasks requiring massive context (e.g., auditing an entire repository in a single prompt).
 
 ## When not to use it
-- When you need a stable, production-grade agent framework (use [OpenHands](./openhands.md) or [CrewAI](../frameworks/crewai.md))
-- When general-purpose LLM orchestration (e.g., [LangChain](../ai_knowledge/langchain.md)) is sufficient
+- For small, local-only coding tasks where [Aider](./aider.md) or [Cline](./cline.md) is sufficient.
+- When working in a multi-cloud or AWS/Azure-centric environment (consider [OpenHands](./openhands.md)).
+- If you require full transparency and local execution of the agent framework's logic (consider [LangGraph](../frameworks/langgraph.md)).
 
-## Agent Mission Architecture
-In Anti-Gravity, work is organized into "Missions". A Mission consists of:
-1. **Goal**: The high-level objective in natural language.
-2. **Surface Context**: The relevant parts of the codebase the agent has "sight" of.
-3. **Execution Steps**: A series of autonomous actions taken by the agent to reach the goal.
+## Getting started
+Anti-Gravity is accessed via the Vertex AI Agent Builder or the `antigravity` Python SDK.
 
-## Conceptual Workflow
-- **Manager Surface**: Used for spawning and observing autonomous agents.
-- **Editor View**: A familiar IDE experience for synchronous AI-assisted coding.
-- **Mission Control**: The central interface for defining "Missions" (long-horizon tasks).
-
-## Defining a Mission
-Missions are typically defined in natural language via the Manager Surface:
-```text
-Mission: Implement a new REST endpoint for user profile updates.
-1. Create the Pydantic schema in models/user.py.
-2. Implement the route in api/routes/users.py.
-3. Launch the server in the terminal to verify.
-4. Use the browser to test the API docs (Swagger).
+### 1. Installation
+```bash
+pip install google-cloud-antigravity==2026.4.2
 ```
 
-## Rule and Workflow Customization
-Anti-Gravity allows defining project-level constraints and standards via "Rules" that agents must follow during execution, similar to [Cline's .clinerules](cline.md).
+### 2. Authentication
+```bash
+gcloud auth application-default login
+```
+
+### 3. Basic Mission Definition
+Define a `mission.yaml` to specify the agent's goal and constraints:
+```yaml
+mission:
+  goal: "Migrate all legacy unittest cases to pytest"
+  surface:
+    repo: "git@github.com:my-org/core-service.git"
+    branch: "agent/pytest-migration"
+  rules:
+    - "Do not modify the CI configuration"
+    - "Ensure 100% test parity"
+```
+
+## CLI examples
+- **Spawn a new mission**:
+  ```bash
+  antigravity missions launch --config mission.yaml --mode autonomous
+  ```
+- **Inspect agent reasoning**:
+  ```bash
+  antigravity missions trace <mission_id> --format=live
+  ```
+- **Intervene in an active mission**:
+  ```bash
+  antigravity missions feedback <mission_id> "Focus on the auth module first"
+  ```
+- **List active surfaces**:
+  ```bash
+  antigravity surfaces list --project my-gcp-project
+  ```
+
+## API examples
+The Anti-Gravity SDK allows for programmatic mission orchestration:
+
+```python
+from google.cloud import antigravity
+
+client = antigravity.AgentServiceClient()
+
+# Define the operational surface
+surface = antigravity.Surface(
+    repository="https://source.developers.google.com/p/my-proj/r/my-repo",
+    context_depth="high"
+)
+
+# Launch an autonomous mission
+mission = client.create_mission(
+    parent="projects/my-proj/locations/us-central1",
+    mission={
+        "goal": "Identify and fix all potential memory leaks in the ingestion service",
+        "surface": surface,
+        "mode": antigravity.MissionMode.AUTONOMOUS
+    }
+)
+
+print(f"Mission launched: {mission.name}")
+```
 
 ## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [CrewAI](../frameworks/crewai.md)
+- [Gemini](../ai_knowledge/google-gemini.md)
 - [OpenHands](./openhands.md)
-- [Claude Code — Project Setup Guide](claude-code-setup.md)
-- [Cline](https://cline.bot)
-- [Windsurf](./windsurf.md)
-- [Cursor](./cursor.md)
+- [Cline](./cline.md)
+- [LangGraph](../frameworks/langgraph.md)
 - [Aider](./aider.md)
+- [Windsurf](./windsurf.md)
+- [Claude Code](./claude-code.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [SHARP Security Benchmark](../../knowledge_base/patterns/llm_security_privacy.md)
+- [Vertex AI Agent Builder](https://cloud.google.com/products/agent-builder)
 
 ## Sources / references
 - [Build with Google Anti-Gravity (Google Developers Blog)](https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/)
-- [Getting Started with Google Anti-Gravity (Codelabs)](https://codelabs.developers.google.com/getting-started-google-antigravity)
+- [Vertex AI Antigravity Documentation](https://cloud.google.com/vertex-ai/docs/agent-builder/antigravity-overview)
+- [Google Cloud Agentic Architecture Guide (June 2026)](https://cloud.google.com/architecture/ai-agents)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-22
 - Confidence: high

@@ -1,107 +1,100 @@
 # Cloud Code
 
 ## What it is
-A set of IDE plugins for VS Code and IntelliJ that help developers develop, deploy, and debug cloud-native applications. It provides tools for working with Kubernetes, Google Cloud, and other cloud providers directly from the IDE.
+Cloud Code (June 2026 Edition) is a powerful suite of IDE extensions (VS Code, IntelliJ) from Google Cloud that accelerates the development, deployment, and management of cloud-native applications. It features deep integration with Gemini Code Assist for AI-driven Kubernetes YAML generation, Terraform authoring, and real-time debugging of services running on GKE (Google Kubernetes Engine) and Cloud Run.
 
 ## What problem it solves
-Reduces context switching by bringing cloud-native development workflows (Kubernetes management, deployment, debugging) directly into the IDE.
+Cloud Code eliminates the "Context Switching Tax" by bringing complex cloud operations directly into the developer's primary workspace. It simplifies the management of Kubernetes clusters, automates the "inner loop" development cycle via Skaffold, and provides secure, integrated access to Google Cloud services like Secret Manager and Cloud Logging without leaving the IDE.
 
 ## Where it fits in the stack
-**Development & Ops**. Bridges the gap between local development and cloud infrastructure management.
+**Development & Ops**. Cloud Code acts as the primary interface for developers working within the Google Cloud ecosystem, bridging the gap between local code and remote infrastructure.
 
 ## Typical use cases
-- Developing and debugging Kubernetes applications from the IDE
-- Deploying applications to Google Cloud or other providers
-- Setting up Kubernetes development environments
+- **Kubernetes Inner Loop**: Real-time iterative development where code changes are automatically built, pushed, and deployed to GKE.
+- **AI-Assisted Infrastructure-as-Code**: Using Gemini to generate and validate Terraform or Kubernetes manifests.
+- **Remote Debugging**: Setting breakpoints and inspecting state in services running live on Cloud Run or GKE.
+- **Cloud Native Security**: Managing secrets and IAM roles directly from the IDE during development.
 
 ## Strengths
-- Deep integration with VS Code and IntelliJ
-- Native support for Kubernetes and Google Cloud workflows
-- Reduces context switching between IDE and cloud consoles
+- **Gemini Integration**: Native AI assistance for cloud-specific tasks (e.g., "Add a sidecar for logging to this deployment").
+- **Skaffold-Powered**: Best-in-class support for real-time application updates on Kubernetes.
+- **Deep GCP Integration**: Seamless authentication and management for nearly all Google Cloud services.
+- **Rich Debugging**: Integrated support for Cloud Run and GKE debugging workflows.
 
 ## Limitations
-- Primarily oriented toward Google Cloud; less useful for other providers
-- Requires familiarity with Kubernetes concepts
-- Plugin overhead may affect IDE performance on lower-end hardware
+- **GCP Focus**: While it supports generic Kubernetes, its most advanced features (Gemini, Secret Manager) are Google-specific.
+- **Resource Heavy**: IDE extensions can be demanding on system memory during large cluster synchronizations.
+- **Learning Curve**: Mastering all features requires a solid understanding of Kubernetes and cloud-native architecture.
 
 ## When to use it
-- When developing cloud-native applications targeting Kubernetes or Google Cloud
-- When you want to manage deployments without leaving the IDE
-- When you need integrated secret management via Secret Manager
+- When developing applications targeting GKE, Cloud Run, or App Engine.
+- When you want an AI-assisted workflow for managing Kubernetes YAML and Terraform.
+- For teams that want to standardize their cloud-native development environment.
 
 ## When not to use it
-- When working on projects that do not involve cloud infrastructure
-- When a standalone Kubernetes management tool (e.g., [Lens](https://k8slens.dev/)) is preferred
-- When working exclusively in AWS or Azure (use their respective toolkits)
-
-## Key Features
-- **Kubernetes Explorer**: Browse, manage, and view logs for clusters, nodes, and workloads.
-- **Cloud Run Support**: Develop and debug serverless applications locally and in the cloud.
-- **Secret Manager Integration**: Create and manage secrets directly within the IDE.
-- **Cloud Code AI**: Assist in writing Kubernetes YAML and Cloud Run service definitions.
-
-## Inner Loop Development with Skaffold
-Cloud Code integrates with [Skaffold](./skaffold.md) for real-time rebuilds:
-1. Open the "Cloud Code" status bar menu.
-2. Select **Run on Kubernetes**.
-3. Cloud Code will build your image, push it to a registry, and deploy it to your cluster (local or remote), then stream logs back to the IDE.
+- When working primarily in AWS (use AWS Toolkit) or Azure (use Azure Tools).
+- For projects that do not involve containerization or cloud infrastructure.
+- If you prefer a standalone, UI-heavy cluster management tool like [Lens](https://k8slens.dev/).
 
 ## Getting started
+Cloud Code is installed as an extension from the VS Code Marketplace or JetBrains Marketplace.
 
-Cloud Code is primarily used via its VS Code or IntelliJ extensions to accelerate Kubernetes and Cloud Build workflows.
+### 1. Installation (VS Code)
+Search for "Cloud Code" in the Extensions view (`Ctrl+Shift+X`) and click **Install**.
 
-### 1. Kubernetes YAML Authoring
-Cloud Code provides smart snippets for Kubernetes resources. In a YAML file, trigger the completion (e.g., `Ctrl+Space`) and select a snippet:
-```yaml
-# Example: Using a Cloud Code snippet for a Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: my-app
-  template:
-    metadata:
-      labels:
-        app: my-app
-    spec:
-      containers:
-      - name: my-app
-        image: gcr.io/my-project/my-app:v1
-```
+### 2. Connect to GCP
+Click on the Cloud Code icon in the status bar or activity bar and select **Sign in to Google Cloud**.
 
-### 2. Secret Manager Integration
-Cloud Code allows you to inject secrets into your code without exposing them in version control.
+### 3. Initialize a Project
+Use the **Cloud Code: New Application** command to bootstrap a production-ready Kubernetes or Cloud Run template.
+
+## CLI examples
+While Cloud Code is primarily an IDE tool, it manages and interacts with several CLI tools:
+- **Deploy via Skaffold**:
+  ```bash
+  skaffold dev --port-forward
+  ```
+- **Manage Clusters with gcloud**:
+  ```bash
+  gcloud container clusters get-credentials my-cluster --region us-central1
+  ```
+- **Inspect Logs via Cloud Code Console**:
+  (Use the IDE's Output window to view structured logs streamed from GKE).
+
+## API examples
+Cloud Code integrates with the Gemini API to provide intelligent code generation:
+
 ```python
-# Cloud Code can help generate the client code for Secret Manager
-from google.cloud import secretmanager
+# Gemini Code Assist can generate Kubernetes client code within the IDE
+from kubernetes import client, config
 
-client = secretmanager.SecretManagerServiceClient()
-name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
-response = client.access_secret_version(request={"name": name})
-payload = response.payload.data.decode("UTF-8")
+# Generated snippet: Setup k8s client for a GKE cluster
+config.load_kube_config()
+v1 = client.CoreV1Api()
+print("Listing pods in default namespace:")
+ret = v1.list_namespaced_pod(namespace="default")
+for i in ret.items:
+    print(f"{i.status.pod_ip} - {i.metadata.name}")
 ```
 
 ## Related tools / concepts
-- [Skaffold](https://skaffold.dev/)
+- [Skaffold](./skaffold.md)
+- [Gemini](../ai_knowledge/google-gemini.md)
 - [Docker](../infrastructure/docker.md)
 - [Helm](https://helm.sh/)
-- [Claude Code — Project Setup Guide](claude-code-setup.md)
-- [Windsurf](./windsurf.md)
-- [Cursor](./cursor.md)
+- [Terraform](https://www.terraform.io/)
+- [Claude Code](./claude-code.md)
 - [Aider](./aider.md)
-- [Kubernetes Architecture](../../architecture/infrastructure.md)
-- [Lens](https://k8slens.dev/)
+- [Windsurf](./windsurf.md)
+- [GKE Autopilot](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview)
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / references
-- [Official Website](https://cloud.google.com/code)
+- [Official Cloud Code Website](https://cloud.google.com/code)
 - [Cloud Code for VS Code Documentation](https://cloud.google.com/code/docs/vscode)
-- [YAML Editing in Cloud Code](https://cloud.google.com/code/docs/vscode/yaml-editing)
+- [Gemini Code Assist in Cloud Code](https://cloud.google.com/gemini/docs/codeassist/overview)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-06-22
 - Confidence: high
