@@ -11,27 +11,27 @@ This report decomposes the technical freshness audits for the 10 oldest issues i
 ## Identified Tasks (Action A: Freshness Audits)
 
 ### Agent Interfaces
-- [ ] **Freshness audit for `docs/tools/ai_knowledge/lobehub.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/lobehub.md`**
   - Research June 2026 status (LobeChat v3.x, MCP 3.0 support).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/ai_knowledge/anythingllm.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/anythingllm.md`**
   - Research June 2026 status (AnythingLLM Agentic RAG enhancements).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
 
 ### Multi-modal & Voice
-- [ ] **Freshness audit for `docs/tools/ai_knowledge/personaplex.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/personaplex.md`**
   - Research June 2026 status (PersonaPlex low-latency audio patterns).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [ ] **Freshness audit for `docs/tools/ai_knowledge/heygen.md`**
+- [x] **Freshness audit for `docs/tools/ai_knowledge/heygen.md`**
   - Research June 2026 status (HeyGen Interactive Avatars, API v3).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
 
 ### Frameworks
-- [ ] **Freshness audit for `docs/tools/frameworks/google-adk.md`**
+- [x] **Freshness audit for `docs/tools/frameworks/google-adk.md`**
   - Research June 2026 status (Google Agent Development Kit GA).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
