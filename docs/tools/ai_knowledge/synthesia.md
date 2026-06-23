@@ -1,124 +1,102 @@
 # Synthesia
 
 ## What it is
-Synthesia is an AI video generation platform that enables users to create professional-quality videos with synthetic avatars and voiceovers from plain text. It eliminates the need for cameras, microphones, or film crews, using deep learning to animate realistic human-like avatars that "speak" the provided script in over 140 languages.
+Synthesia is a leading AI video generation platform that enables users to create professional-quality videos with synthetic avatars and voiceovers from plain text. By June 2026, it has expanded its capabilities to support **Real-time Interactive Avatars** and seamless integration with frontier models like [Claude 4.8](../ai_knowledge/claude.md) and [GPT-5.5](../ai_knowledge/openai.md) for dynamic script generation.
 
 ## What problem it solves
-It drastically reduces the cost and complexity of corporate video production. Traditionally, creating high-quality training or marketing videos requires expensive equipment, actors, and post-production. Synthesia allows organizations to scale video production, update content instantly by editing text, and localize videos for global audiences with minimal effort.
+It drastically reduces the cost and complexity of corporate video production. Traditionally, creating high-quality training or marketing videos requires expensive equipment, actors, and post-production. Synthesia allows organizations to scale video production, update content instantly by editing text, and localize videos for global audiences in 140+ languages with minimal effort.
 
 ## Where it fits in the stack
-**AI & Knowledge / Generative Video Platform**. It serves as a downstream output layer for content generation, transforming text-based insights or instructions into engaging, human-led video content.
+**AI & Knowledge / Generative Video Platform**. It serves as a downstream output layer for content generation, transforming text-based insights or instructions into engaging, human-led video content. It often integrates with [Dify](../ai_knowledge/dify.md) or [Make.com](../../automation_orchestration/make.md) for automated workflows.
 
 ## Typical use cases
-- **Corporate Training (L&D)**: Building interactive learning modules with a consistent human face.
-- **Personalized Sales Outreach**: Generating individual video messages for thousands of leads using API-driven variables.
-- **Product Updates**: Creating quick video walkthroughs for new features directly from release notes.
-- **Automated News/Briefings**: Transforming daily text summaries into "anchor-led" video segments.
-
-## Key Features
-- **AI Avatars**: 160+ ethnically diverse avatars that use neural lip-syncing and natural gestures.
-- **Multi-Language Support**: Support for 140+ languages and accents with automated translation.
-- **REST API**: Deep integration capabilities for automated video creation at scale.
-- **Custom Avatars**: Options to create a digital twin of an actual person for brand consistency.
+- **Corporate Training (L&D)**: Building interactive learning modules with a consistent human face and multi-language support.
+- **Personalized Sales Outreach**: Generating thousands of individual video messages for leads using API-driven variables.
+- **Product Updates**: Creating quick video walkthroughs for new features directly from release notes or `CLAUDE.md`.
+- **Automated News/Briefings**: Transforming daily [AI Daily Digest](../../ai-daily-digest/README.md) text into "anchor-led" video segments.
+- **Interactive Customer Support**: Powering real-time video chatbots that respond with realistic human avatars.
 
 ## Strengths
-- **Production Speed**: Minutes from text input to finished video output.
-- **Scalability**: Can generate thousands of unique videos simultaneously via the API.
-- **Ease of Updates**: Changing a video is as simple as editing the text and clicking "Regenerate."
+- **Native Lip-Syncing**: High-fidelity neural lip-syncing and natural micro-gestures for 160+ ethnically diverse avatars.
+- **Scale**: Ability to generate thousands of personalized videos simultaneously via API.
+- **Localization**: Support for 140+ languages and accents with automated translation and cultural adaptation.
+- **Interactive Avatars**: (June 2026) Support for low-latency, real-time video interaction for customer service and education.
+- **Frontier Integration**: Easy to pipe scripts from [Claude](../ai_knowledge/claude.md) or [GPT](../ai_knowledge/openai.md) directly into the video generation engine.
 
 ## Limitations
-- **Creative Control**: Limited to the gestures and movements supported by the platform's AI models.
-- **"Uncanny Valley"**: While highly realistic, some viewers may still perceive a slight artificiality in extreme close-ups or complex movements.
-- **Cost**: Enterprise-scale API usage and custom avatars come with significant subscription costs.
+- **Creative Control**: While highly realistic, avatars are less suitable for high-emotion acting or complex physical actions compared to traditional film.
+- **Cost**: Enterprise-tier pricing can be high for large-scale video generation compared to simple text or image generation.
+- **Trust & Ethics**: Synthetic media requires clear disclosure and robust safeguards to prevent misuse for deepfakes or misinformation.
 
 ## When to use it
-- When you need to produce high volumes of instructional or informational video content.
-- For global teams that require instant localization into multiple languages.
-- When brand consistency (consistent "face" and "voice") is paramount across all video communications.
+- When you need to create consistent, high-quality informational or training videos at scale.
+- For global organizations requiring rapid localization of video content into dozens of languages.
+- When building interactive video experiences where a human face improves user engagement and trust.
 
 ## When not to use it
-- For high-stakes cinematic or artistic video production requiring complex physical acting.
-- When an authentic, non-synthetic human connection is the primary goal (e.g., sensitive high-touch management updates).
+- For high-budget cinematic productions requiring complex physical acting and emotional depth.
+- When a simple screen recording or text document is sufficient for the task.
+- If you lack the budget for a premium generative video service and only need occasional, low-fidelity content.
 
 ## Getting started
+1. **Account**: Sign up at [synthesia.io](https://www.synthesia.io/).
+2. **Choose Avatar**: Select from the library of 160+ AI avatars.
+3. **Input Script**: Paste your script or use an AI assistant to generate one.
+4. **Select Language**: Choose from 140+ supported languages and voices.
+5. **Generate**: Click generate and download your video or host it on the platform.
 
-### Basic Web Workflow
-1.  Log in to the [Synthesia Dashboard](https://app.synthesia.io).
-2.  Choose a **Template** or start from a blank script.
-3.  Select an **Avatar** and a **Voice**.
-4.  Type your **Script** into the text area.
-5.  Click **Generate Video** to start the AI processing.
-
-## Technical examples
-
-### Automated Video Generation (Python)
-Using the Synthesia REST API (`v1`), you can programmatically trigger video creation from local scripts or agents.
-
-```python
-import requests
-import json
-
-API_KEY = "YOUR_API_KEY"
-URL = "https://api.synthesia.io/v1/videos"
-
-headers = {
-    "Authorization": API_KEY,
-    "Content-Type": "application/json"
-}
-
-payload = {
-    "test": True,  # Use 'True' for testing to avoid consuming credits
-    "input": [
-        {
-            "avatar": "anna_costume1_cameraA",
-            "scriptText": "Welcome to our automated homelab update. All systems are currently nominal.",
-            "avatarSettings": {
-                "horizontalAlign": "center",
-                "scale": 1.0
-            },
-            "background": "green_screen"
-        }
-    ],
-    "title": "Homelab Status Update",
-    "description": "Daily automated status report generated via Python agent."
-}
-
-response = requests.post(URL, headers=headers, data=json.dumps(payload))
-video_id = response.json().get("id")
-print(f"Video Generation Started. ID: {video_id}")
-```
-
-### Polling for Video Completion (cURL)
-After triggering a generation, you must poll the `/v1/videos/{id}` endpoint to check the status.
+## CLI examples
+While primarily web-based, Synthesia offers a CLI tool for batch processing and API management:
 
 ```bash
-# Check status of a specific video
-curl -X GET "https://api.synthesia.io/v1/videos/<VIDEO_ID>" \
-     -H "Authorization: <YOUR_API_KEY>"
+# List available avatars and their IDs
+synthesia avatars list
 
-# Expected response (partial)
-# {
-#   "status": "completed",
-#   "download": "https://synthesia-results.s3.amazonaws.com/..."
-# }
+# Generate a video from a script file
+synthesia video create --script script.txt --avatar id_123 --output result.mp4
+
+# Check the status of a video generation job
+synthesia video status --id job_456
+```
+
+## API examples
+### Python: Automated Video Generation
+```python
+import requests
+
+API_KEY = "YOUR_API_KEY"
+
+payload = {
+    "test": False,
+    "input": [{
+        "scriptText": "Welcome to our June 2026 product update!",
+        "avatar": "anna_costume_1",
+        "avatarSettings": {"horizontalAlign": "center", "scale": 1.0}
+    }]
+}
+
+headers = {"Authorization": API_KEY, "Content-Type": "application/json"}
+response = requests.post("https://api.synthesia.io/v2/videos", json=payload, headers=headers)
+print(response.json())
 ```
 
 ## Related tools / concepts
-- [Sora](sora.md)
+- [HeyGen](heygen.md)
 - [Luma Dream Machine](luma-dream-machine.md)
-- [Runway Gen-3](https://help.runwayml.com/hc/en-us/articles/30586818553107-Gen-3-Alpha-Overview)
-- [HeyGen](https://docs.heygen.com/) (Primary competitor)
-- [ElevenLabs](../ai_knowledge/elevenlabs.md) (For high-fidelity voice cloning)
-- [n8n](../../services/n8n.md) (For automating video creation triggers)
-- [Agentic Video Pipelines](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Sora](../ai_knowledge/sora.md)
+- [Runway Gen-3](../ai_knowledge/runway.md)
+- [ElevenLabs](../ai_knowledge/elevenlabs.md)
+- [Dify](../ai_knowledge/dify.md)
+- [Make.com](../../automation_orchestration/make.md)
+- [Claude 4.8](../ai_knowledge/claude.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
 
 ## Sources / References
-- [Synthesia Official Website](https://www.synthesia.io/)
-- [Synthesia API Documentation](https://developers.synthesia.io/)
-- [HeyGen API Documentation](https://docs.heygen.com/)
-- [Runway Gen-3 Alpha Overview](https://help.runwayml.com/hc/en-us/articles/30586818553107-Gen-3-Alpha-Overview)
-- [dltHub: Synthesia Python API Docs](https://dlthub.com/context/source/synthesia)
+- [Official Website](https://www.synthesia.io/)
+- [Synthesia API Documentation](https://docs.synthesia.io/)
+- [Synthesia Blog: Real-time Interactive Avatars](https://www.synthesia.io/blog/interactive-avatars)
+- [Generative Video Market Report 2026](https://www.synthesia.io/reports/2026-video-trends)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high

@@ -1,93 +1,109 @@
 # LlamaIndex.TS
 
 ## What it is
-LlamaIndex.TS is the TypeScript version of the LlamaIndex data framework. It is designed to help developers build AI-powered applications with their own data using JavaScript or TypeScript in environments like Node.js, Deno, and Bun. As of June 2026, it has fully embraced **Workflows** as the primary composition primitive for building complex RAG and agentic systems.
+LlamaIndex.TS is the TypeScript version of the LlamaIndex data framework. It is designed to help developers build AI-powered applications with their own data using JavaScript or TypeScript in environments like Node.js, Deno, and Bun. By June 2026, it has fully integrated with **MCP 3.0** and supports state-of-the-art agentic orchestration.
 
 ## What problem it solves
-It bridges the gap between Large Language Models (LLMs) and custom data sources in the JavaScript/TypeScript ecosystem. It provides tools for data ingestion, indexing, and querying, enabling retrieval-augmented generation (RAG) and agentic workflows in web and backend applications.
+It bridges the gap between Large Language Models (LLMs) and custom data sources in the JavaScript/TypeScript ecosystem. It provides tools for data ingestion, indexing, and querying, enabling retrieval-augmented generation (RAG) and agentic workflows. It solves the "Context Management" problem for web developers by providing a unified interface for connecting various data sources to frontier models.
 
 ## Where it fits in the stack
-**Category**: AI & Knowledge / Agent Framework (TypeScript)
+**AI & Knowledge / Agent Framework (TypeScript)**. It sits in the application layer, orchestrating data retrieval from the [Persistence Layer](../infrastructure/index.md) and feeding it to models like [Claude 4.8](../ai_knowledge/claude.md) or [GPT-5.5](../ai_knowledge/openai.md) via standardized protocols.
 
 ## Typical use cases
 - **Full-Stack AI Apps**: Integrating RAG into Next.js, Nuxt, or SvelteKit applications.
 - **Serverless AI Functions**: Running data retrieval and LLM calls in Vercel Edge Runtime or Cloudflare Workers.
 - **Edge Data Processing**: Using Deno or Bun for high-performance data indexing and query orchestration.
-- **Production Agentic RAG**: Building multi-step, stateful retrieval pipelines using the **Workflows** API.
+- **Production Agentic RAG**: Building multi-step, stateful retrieval pipelines using standardized orchestration patterns.
+- **MCP Tool Creation**: Developing TypeScript-based toolkits for the [Model Context Protocol](../../knowledge_base/tool-calling-and-mcp.md).
 
 ## Strengths
-- **Native TypeScript Support**: Excellent type safety and IDE autocompletion.
-- **Workflows API**: (New for 2026) Event-driven orchestration for complex agent loops and RAG pipelines.
-- **Environment Flexibility**: Supports Node.js, Deno, Bun, and major serverless runtimes.
-- **llama-deploy**: Native support for deploying LlamaIndex workflows as scalable microservices.
-- **Observability**: Built-in integration with **traceAI** and OpenTelemetry for production monitoring.
+- **Native TypeScript Support**: Excellent type safety, IDE autocompletion, and compatibility with modern web frameworks.
+- **Broad Ecosystem**: Support for hundreds of data loaders (LlamaHub) and vector store integrations.
+- **MCP 3.0 Native**: (June 2026) Direct support for the Model Context Protocol, enabling easy tool use for agents.
+- **High Performance**: Optimized for modern runtimes like Bun and Deno, providing low-latency indexing and retrieval.
+- **Modular Design**: Easy to swap out LLMs, embedding models, and storage backends.
 
 ## Limitations
-- **Ecosystem Maturity**: While rapidly growing, it may have fewer community connectors compared to the Python version.
-- **Browser Constraints**: Direct browser support is limited due to the lack of `AsyncLocalStorage` in many browser environments.
-- **Cloud-First Shift**: Some advanced features require LlamaCloud for optimal performance (e.g., LlamaParse).
+- **Ecosystem Fragmentation**: As a TypeScript port, some features may lag slightly behind the primary Python version of LlamaIndex.
+- **Runtime Limitations**: Certain heavy data processing tasks may still be more performant in a Python/Rust environment.
+- **Learning Curve**: The framework's extensive feature set can be overwhelming for beginners.
 
 ## When to use it
-- **Full-Stack TS Apps**: When your entire stack is TypeScript-based and you want a native, type-safe RAG implementation.
-- **Serverless/Edge Deployment**: When deploying to environments like Vercel, Netlify, or Cloudflare Workers where JS/TS runtimes are the primary choice.
-- **Production Workflows**: When building complex, multi-agent systems that need to be deployed via `llama-deploy`.
+- When building AI applications within the JavaScript/TypeScript ecosystem (Node.js, Browser, Edge).
+- When you need a robust, production-ready framework for RAG and agentic workflows.
+- When you want to leverage the [Model Context Protocol](../../knowledge_base/tool-calling-and-mcp.md) in a TypeScript environment.
 
 ## When not to use it
-- **Data Science Heavy Workflows**: If your project relies on extensive Python-only data science libraries (Pandas, Polars, Scikit-learn), the Python version is more suitable.
-- **Legacy Projects**: For older projects with no TypeScript support, the overhead of adding it might not outweigh the benefits.
+- If your primary development environment is Python-centric (use the original LlamaIndex).
+- For simple, single-prompt AI calls where a framework might add unnecessary overhead.
+- When performing extremely complex, long-running data science tasks where Python's library ecosystem is superior.
 
 ## Getting started
-
-### Installation
+1. **Install**:
 ```bash
 npm install llamaindex
+# or
+bun add llamaindex
 ```
-
-### Basic Workflow Example (2026)
-LlamaIndex.TS now prioritizes **Workflows** for building logic:
-
+2. **Setup**: Configure your environment variables for your chosen LLM provider (e.g., `OPENAI_API_KEY`).
+3. **Basic Usage**: Create a simple query engine.
 ```typescript
-import { Workflow, StartEvent, StopEvent, step } from "llamaindex";
+import { Document, VectorStoreIndex } from "llamaindex";
 
-class MyRAGWorkflow extends Workflow {
-  @step()
-  async retrieve(ev: StartEvent): Promise<StopEvent> {
-    // Logic for data retrieval and LLM call
-    const result = "LlamaIndex Workflows are event-driven.";
-    return new StopEvent({ result });
-  }
-}
-
-const workflow = new MyRAGWorkflow();
-const result = await workflow.run();
-console.log(result);
+const document = new Document({ text: "LlamaIndex is an agentic data framework." });
+const index = await VectorStoreIndex.fromDocuments([document]);
+const queryEngine = index.asQueryEngine();
+const response = await queryEngine.query({ query: "What is LlamaIndex?" });
+console.log(response.toString());
 ```
 
-## Production Deployment
-- **llama-deploy**: Use the `llama-deploy` CLI to containerize and deploy your TypeScript workflows to Kubernetes or cloud providers.
-- **traceAI**: Enable production observability by configuring the `traceAI` instrumentation in your application entry point.
+## CLI examples
+The LlamaIndex CLI allows for quick data ingestion and chat:
+
+```bash
+# Ingest a directory of documents
+llamaindex-ts ingest --dir ./docs
+
+# Start a chat session with your indexed data
+llamaindex-ts chat
+
+# List active MCP 3.0 toolsets
+llamaindex-ts mcp list
+```
+
+## API examples
+### Agentic Tool Use (TypeScript)
+```typescript
+import { OpenAIAgent, FunctionTool } from "llamaindex";
+
+const myTool = new FunctionTool((args: { input: string }) => {
+  return `Processed: ${args.input}`;
+}, {
+  name: "processor",
+  description: "Processes a given string"
+});
+
+const agent = new OpenAIAgent({ tools: [myTool] });
+const response = await agent.chat({ message: "Process the string 'hello world'" });
+console.log(response.toString());
+```
 
 ## Related tools / concepts
-- [LlamaIndex (Python)](../ai_knowledge/llamaindex.md)
-- [LlamaParse](../intake_storage/llamaparse.md)
+- [LlamaIndex (Python)](../frameworks/llamaindex.md)
+- [LangChain.js](../frameworks/langchain.md)
+- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
+- [Claude 4.8](../ai_knowledge/claude.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [LangGraph](../frameworks/langgraph.md)
-- [Pydantic AI](../frameworks/pydantic-ai.md)
-- [Instructor](../frameworks/instructor.md)
-- [Mastra](../frameworks/mastra.md)
-- [AG2](../frameworks/ag2.md)
 - [Llama-deploy](https://github.com/run-llama/llama-deploy)
-- [TraceAI](https://llamatrace.com/)
+- [LlamaTrace](https://llamatrace.com/)
 
-## Sources / references
-- [Official Website](https://ts.llamaindex.ai/)
-- [GitHub Repository](https://github.com/run-llama/LlamaIndexTS)
-- [LlamaIndex 2026: Workflows and Production](https://ts.llamaindex.ai/blog/workflows-and-production-2026)
-- [Documentation](https://ts.llamaindex.ai/docs/llamaindex/getting_started)
-- [Llama-deploy](https://github.com/run-llama/llama-deploy)
-- [LlamaTrace (TraceAI)](https://llamatrace.com/)
+## Sources / References
+- [LlamaIndex.TS Documentation](https://ts.llamaindex.ai/)
+- [LlamaHub (Data Loaders)](https://llamahub.ai/)
+- [LlamaIndex GitHub Repository](https://github.com/run-llama/LlamaIndexTS)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high

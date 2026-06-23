@@ -1,163 +1,126 @@
 # OpenAI
 
 ## What it is
-OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs), including the GPT-5.4 and GPT-5.3 families and coding-specialized model lines.
+OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs). By June 2026, the series has matured into the **GPT-5.5** family, including **GPT-5.5 Ultra**, **GPT-5.5 Flash**, and specialized reasoning models (formerly code-named "Strawberry").
 
 ## What problem it solves
-Provides state-of-the-art reasoning, coding, and instruction-following capabilities via a reliable API, enabling complex automation and agentic workflows.
+It provides state-of-the-art reasoning, coding, and instruction-following capabilities via a reliable, high-throughput API. It enables complex automation, multi-step agentic workflows, and human-like interaction by processing text, code, audio, and images natively within a unified model architecture.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine**. It serves as the "brain" that processes information, plans actions, and generates code or commands for agents to execute.
-
-## Architecture overview
-Cloud-hosted API service. Agents send prompts (context + instructions) to OpenAI's endpoints and receive structured or natural language responses.
+**LLM / Reasoning Engine**. It serves as the primary intelligence layer for agentic systems, available via the OpenAI API and as the engine behind [ChatGPT](chatgpt.md). It supports standardized tool calling via [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md).
 
 ## Typical use cases
-- **Code Generation**: Used by agents like Aider or OpenHands to write and refactor code.
-- **Infrastructure Planning**: Reasoning about system state and proposing shell commands.
-- **Data Extraction**: Converting unstructured documents (scans, emails) into structured JSON.
+- **Autonomous Coding**: Powering agents like [Claude Code](../development_ops/claude-code.md) or [Windsurf](../development_ops/codeium.md) for complex software engineering tasks.
+- **Real-time Voice Interaction**: Utilizing the Realtime API for low-latency, multimodal human-AI communication.
+- **Enterprise Automation**: Automating customer support, data extraction, and report generation at scale.
+- **Scientific Research**: Leveraging advanced reasoning models for hypothesis generation and data analysis.
+- **Agentic Orchestration**: Serving as the "brain" for multi-agent systems built with frameworks like [AG2](../frameworks/ag2.md).
 
 ## Strengths
-- **State-of-the-art performance**: Strong reasoning, coding, and tool-use capabilities across the GPT-5 family.
-- **Large context windows**: Support for processing large codebases or multiple documents.
-- **Tool use (Function Calling)**: Robust support for structured output and calling external tools.
-- **Reliability**: Highly available API with predictable latency.
+- **Frontier Intelligence**: Consistently ranks at the top of reasoning and coding benchmarks with the GPT-5.5 series.
+- **Multimodal Native**: Processes text, image, audio, and video in a single, high-fidelity reasoning engine.
+- **Realtime API**: Industry-leading low-latency multimodal streaming for voice and vision applications.
+- **Strong Ecosystem**: Broadest adoption across developer tools, libraries, and enterprise integrations.
+- **MCP 3.0 Support**: Native integration with the Model Context Protocol for seamless tool and context access.
 
 ## Limitations
-- **Privacy**: Data is processed on OpenAI servers (though API data is generally not used for training by default on enterprise/tier accounts).
-- **Cost**: Can become expensive with high-volume agentic loops.
-- **Dependency**: Requires active internet connection and relies on a third-party provider.
+- **Closed Source**: Model weights and training data are proprietary, limiting transparency and local fine-tuning.
+- **Privacy & Compliance**: Data handling policies may not meet the requirements for highly regulated or air-gapped environments.
+- **Cost**: High-reasoning models (GPT-5.5 Ultra) remain expensive for high-volume or low-complexity tasks compared to local SLMs.
 
 ## When to use it
-- When maximum reasoning power is required for complex tasks.
-- For production-grade automations where reliability is paramount.
-- When needing to process very large contexts that local models can't handle yet.
-
-## Effort-level routing
-
-### GPT-5.4 `low`
-- Use for: straightforward serious work where you still want GPT-5.4 quality
-- Default? No
-- Comment: good first pass when latency and cost matter
-
-### GPT-5.4 `medium`
-- Use for: the default OpenAI lane for planning, debugging, analysis, and non-trivial implementation help.
-- Default? Yes
-- Comment: best general OpenAI default. Includes the "Thinking" system for improved reasoning.
-
-### GPT-5.4 `high`
-- Use for: hard reasoning, difficult debugging, deeper architecture analysis
-- Default? No
-- Comment: use when `medium` is not holding up
-
-### GPT-5.4 `xhigh`
-- Use for: explicit last-step escalation on very hard or very important reasoning tasks
-- Default? No
-- Comment: avoid using this as background default because it adds cost and latency quickly
-
-### GPT-5.3 Instant
-- Use for: faster, smoother everyday conversations.
-- Default? No
-- Comment: optimized for lower latency and more natural interaction.
-
-### GPT-5.3 Codex
-- Use for: code-specialized generation and editing.
-- Default? Only for code-centric lanes
-- Comment: use this when the task is mostly code, not broad general reasoning. Includes updated security research preview.
-
-See the central routing guide: [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
+- When you require the absolute highest level of logical reasoning and logical precision.
+- For building real-time, low-latency voice and multimodal assistants.
+- When you need a highly reliable, managed API with world-class throughput and availability.
+- When developing complex agentic missions that require advanced planning and self-correction.
 
 ## When not to use it
-- For processing highly sensitive/private data that must remain on-premises.
-- When working offline or in air-gapped environments.
-- For high-frequency, simple tasks where a cheaper or local model would suffice.
+- For strictly local or offline applications (use [Local LLMs](local_llms.md) instead).
+- When data privacy requirements prohibit sending information to a third-party cloud provider.
+- For extremely high-volume, low-complexity tasks where [Ollama](../../services/ollama.md) or small local models are more cost-effective.
 
 ## Getting started
-
-### CLI Example
-The `openai` CLI tool allows for quick testing of models and endpoints.
-
+1. **API Key**: Create an account and obtain an API key from the [OpenAI Platform](https://platform.openai.com/).
+2. **Install SDK**:
 ```bash
-# Install the CLI
 pip install openai
-
-# Export your API key
-export OPENAI_API_KEY='your-api-key-here'
-
-# List available models
-openai models list
-
-# Run a simple completion
-openai chat completions create -m gpt-5.4-medium --message user "Hello, how can I automate my home office?"
 ```
-
-### Python API Example (Structured Outputs)
-Using Pydantic with the OpenAI SDK ensures that the model returns data in a strictly validated schema.
-
+3. **Initialize Client**:
 ```python
 from openai import OpenAI
-from pydantic import BaseModel
-
-client = OpenAI()
-
-class HomeTask(BaseModel):
-    task_name: str
-    priority: int
-    estimated_minutes: int
-
-class TaskPlan(BaseModel):
-    tasks: list[HomeTask]
-    reasoning: str
-
-completion = client.beta.chat.completions.parse(
-    model="gpt-5.4-medium",
-    messages=[
-        {"role": "system", "content": "You are a home office manager."},
-        {"role": "user", "content": "I need to clean my desk, water the plants, and reply to 5 emails."}
-    ],
-    response_format=TaskPlan,
+client = OpenAI(api_key="YOUR_API_KEY")
+```
+4. **Create Completion**:
+```python
+response = client.chat.completions.create(
+  model="gpt-5.5-flash",
+  messages=[{"role": "user", "content": "What is the future of agentic workflows?"}]
 )
-
-plan = completion.choices[0].message.parsed
-print(f"Reasoning: {plan.reasoning}")
-for task in plan.tasks:
-    print(f"- {task.task_name} (Priority: {task.priority})")
+print(response.choices[0].message.content)
 ```
 
-## Security considerations
-- **API Key Management**: Never hardcode keys; use environment variables or secret managers.
-- **Data Privacy**: Review OpenAI's data usage policy; ensure sensitive PII is redacted if necessary.
-- **Prompt Injection**: Be aware that models can be manipulated via input; implement output validation.
+## CLI examples
+Using the OpenAI CLI for quick interactions and model management:
+
+```bash
+# Basic chat completion
+openai api chat.completions.create -m gpt-5.5-flash -g user "Hello!"
+
+# List available models
+openai api models.list
+
+# Uploading a file for fine-tuning
+openai api files.create -f my_data.jsonl -p fine-tune
+```
+
+## API examples
+### Realtime API (Voice/Vision)
+```python
+# Utilizing the low-latency Realtime API for multimodal streaming
+from openai import OpenAI
+client = OpenAI()
+
+# Streaming audio/text events (simplified example)
+with client.beta.realtime.connect(model="gpt-5.5-realtime") as connection:
+    connection.send_event({"type": "response.create", "response": {"modalities": ["audio", "text"]}})
+    for event in connection:
+        print(event)
+```
+
+### Tool Calling (MCP 3.0 compatible)
+```python
+# GPT-5.5 performing a tool call
+response = client.chat.completions.create(
+    model="gpt-5.5-flash",
+    messages=[{"role": "user", "content": "What's the weather in San Francisco?"}],
+    tools=[{
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "parameters": {"type": "object", "properties": {"location": {"type": "string"}}}
+        }
+    }]
+)
+```
 
 ## Related tools / concepts
-- [Promptfoo](../benchmarking/index.md) (Acquisition announced 2026-03-11)
-- [Anthropic](../providers/anthropic.md)
-- [Mistral AI](../providers/mistral.md)
+- [ChatGPT](chatgpt.md)
+- [Claude](../ai_knowledge/claude.md)
+- [Gemini](../ai_knowledge/gemini.md)
+- [Local LLMs](local_llms.md)
 - [OpenRouter](openrouter.md)
-- [Aider](../development_ops/aider.md)
-- [OpenHands](../development_ops/openhands.md)
-- [SSH Execution Patterns](../../architecture/ssh_execution_patterns.md)
-- [OpenAI Codex](../development_ops/codex.md)
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
-- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
-- [SQL Validation Playbook](../../playbooks/data-copilot-sql-validation.md)
-- [Pydantic AI Framework](../frameworks/pydantic-ai.md)
-- [Ollama](../../services/ollama.md)
-- [LangChain](https://python.langchain.com/v0.2/docs/integrations/chat/openai/)
+- [AG2](../frameworks/ag2.md)
 - [LangChain](../frameworks/langchain.md)
+- [LlamaIndex](../frameworks/llamaindex.md)
+- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
 
 ## Sources / References
-
-- [LangChain OpenAI Integration Guide](https://python.langchain.com/v0.2/docs/integrations/chat/openai/)
-- [Introducing GPT-5.4](https://openai.com/index/introducing-gpt-5-4)
-- [GPT-5.3 Instant](https://openai.com/index/gpt-5-3-instant)
-- [GPT-5.3 Instant System Card](https://openai.com/index/gpt-5-3-instant-system-card)
-- [Instruction Hierarchy Challenge](https://openai.com/index/instruction-hierarchy-challenge)
-- [Improving instruction hierarchy in frontier LLMs](https://openai.com/index/instruction-hierarchy-challenge)
-- [OpenAI to acquire Promptfoo](https://openai.com/index/openai-to-acquire-promptfoo)
-- [Codex Security Research Preview](https://openai.com/index/codex-security-now-in-research-preview)
+- [OpenAI Platform Documentation](https://platform.openai.com/docs/)
+- [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
+- [GPT-5.5 Technical Overview](https://openai.com/news/gpt-5-5-announcement/)
+- [Realtime API Guide](https://platform.openai.com/docs/guides/realtime)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high
