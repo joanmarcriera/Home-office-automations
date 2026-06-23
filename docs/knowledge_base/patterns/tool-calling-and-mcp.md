@@ -3,359 +3,119 @@
 ## What it is
 **Tool calling** (also known as function calling) is a standardized pattern where Large Language Models (LLMs) generate structured data (typically JSON) to signal their intent to invoke external functions, rather than just generating text. This allows the model to act as a "reasoning engine" that can decide when and how to use external capabilities.
 
-**Model Context Protocol (MCP)** is an open, universal standard introduced by Anthropic that provides a unified way to connect LLMs to external tools and data sources. It decouples the model from the specific implementations of tools, allowing a single MCP server to provide capabilities to any compatible LLM host (IDE, agent framework, or chat interface).
+**Model Context Protocol (MCP)** is an open, universal standard introduced by Anthropic that provides a unified way to connect LLMs to external tools and data sources. In June 2026, **MCP 3.0** has become the foundation for 'Agentic Calendar Orchestration' and 'Self-Healing Agents', enabling Claude 4.8 and GPT-5.5 to manage schedules across providers using JMAP and Graph APIs.
+
+### Native Tool Calling vs. MCP-hosted Tools
+- **Native Tool Calling**: Tools are defined and registered directly within a specific model's API (e.g., OpenAI's `tools` parameter). It is often tightly coupled to the provider's SDK.
+- **MCP-hosted Tools**: Tools reside in a standalone **MCP Server**. The LLM host (client) connects and discovers tools dynamically. This decouples the model from the implementation, allowing one tool to serve many models and IDEs.
 
 ## What problem it solves
-LLMs are traditionally "isolated" from the real world, limited by their training data and the text-based interface of their context window. Tool calling and MCP solve several critical limitations:
+LLMs are traditionally "isolated" from the real world, limited by their training data. Tool calling and MCP 3.0 solve several critical limitations:
 - **Dynamic Data Access**: Allows LLMs to query databases, search the web, or read local files to get up-to-date information.
 - **Real-World Actions**: Enables LLMs to perform operations like sending emails, updating Jira tickets, or controlling a browser.
-- **Complex Logic**: Offloads tasks like mathematical calculations, data processing, or code execution to specialized software.
-- **Ecosystem Portability**: MCP specifically solves the "N-to-M" problem where every agent framework needs its own integration for every tool. With MCP, you build a tool once and it works everywhere.
+- **Agentic Orchestration**: MCP specifically solves the "N-to-M" problem where every agent framework needs its own integration. With MCP 3.0, a tool built once works across any compatible host (Zed, Cursor, Windsurf, or custom agent).
+- **Autonomous Remediation**: Self-healing agents use MCP to autonomous remediate homelab service failures by reasoning over system logs.
 
 ## Where it fits in the stack
-Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocols & Standards)**. They serve as the critical interface between Layer 2/3 (Models and Inference) and Layer 5/6 (Frameworks and Agents), enabling standardized communication between the "brain" and its "hands."
+Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocols & Standards)**. They serve as the critical interface between Layer 2/3 (Models and Inference) and Layer 5/6 (Frameworks and Agents).
 
 ## Typical use cases
-- **Personal Assistants**: Checking calendars, sending messages, and setting reminders.
-- **Developer Tools**: Searching codebases, running tests, and managing Git repositories (e.g., via Claude Code or Aider).
-- **Data Analysis**: Querying SQL databases or internal APIs to generate reports based on real-time data.
+- **Agentic Calendar Orchestration**: Managing schedules across Fastmail (JMAP), Apple, and Microsoft (Graph API) via unified MCP servers.
+- **Developer Tools**: Searching codebases, running tests, and managing Git repositories (e.g., via Claude Code).
 - **Enterprise Integration**: Connecting AI agents to legacy systems like Jira, ServiceNow, or Slack.
-- **Autonomous Research**: Allowing agents to browse the web, extract content, and synthesize information.
+- **Self-Healing Homelabs**: Autonomous monitoring and remediation of service failures using LLM-based log reasoning.
+- **Personal Assistants**: Checking calendars, sending messages, and setting reminders via the `nemo-mcp-server`.
 
 ## Strengths
-- **Interoperability**: MCP allows one tool implementation to serve multiple LLMs and applications.
+- **Interoperability**: MCP 3.0 allows one tool implementation to serve multiple LLMs and applications.
 - **Grounding**: Reduces hallucinations by forcing the model to rely on external, verifiable data.
-- **Decoupling**: Separates the "reasoning" (LLM) from the "execution" (tool code), making systems easier to maintain and secure.
-- **Dynamic Discovery**: MCP servers can describe their capabilities to the host at runtime, allowing for flexible, plug-and-play architectures.
+- **Decoupling**: Separates the "reasoning" (LLM) from the "execution" (tool code).
+- **Dynamic Discovery**: MCP servers describe their capabilities at runtime, allowing for flexible architectures.
 
 ## Limitations
-- **Latency**: Each tool call requires at least one extra round-trip to the model, increasing total response time.
-- **Token Cost**: Tool definitions and result data consume space in the context window, increasing cost.
+- **Latency**: Each tool call requires an extra round-trip, increasing total response time.
+- **Token Cost**: Tool definitions and result data consume space in the context window.
 - **Reliability**: The LLM may fail to generate valid JSON, or the external tool/API itself may be unavailable.
-- **Security**: Granting an LLM the ability to execute code or access data requires careful sandboxing and permission management.
+- **Security**: Granting an LLM the ability to execute code requires careful sandboxing (e.g., using WebContainers or E2B).
 
 ## When to use it
-- **Factual Accuracy**: When you need the model to use real-time or verified data instead of hallucinating answers.
-- **Action-Oriented Agents**: When the purpose of the LLM is to perform tasks, not just provide information.
-- **Standardizing Toolkits**: Use MCP when building tools that need to be shared across different AI environments (Zed, Cursor, Claude).
-- **Security & Control**: When you want to strictly control what actions the LLM can take by defining a rigid API (tool schema).
+- **Factual Accuracy**: When you need the model to use real-time or verified data instead of hallucinating.
+- **Action-Oriented Agents**: When the purpose is to perform tasks, not just provide information.
+- **Standardizing Toolkits**: Use MCP when building tools that need to be shared across different AI environments.
+- **Agentic Calendar/Scheduling**: When orchestrating complex schedules across disparate providers.
 
 ## When not to use it
-- **Simple Creative Writing**: When the task is purely linguistic (e.g., "Write a poem about a cat").
-- **High Latency Concerns**: If the external API or database is slow and real-time response is required.
-- **Static Knowledge**: If the information is common knowledge and the training data is sufficient.
-- **Over-Complexity**: If the task can be solved more reliably by simple prompt engineering or fixed data insertion.
-
-## Native Tool Calling vs. MCP-hosted Tools
-
-While both patterns enable models to use tools, they differ in their architecture and portability:
-
-- **Native Tool Calling**:
-    - **Implementation**: Tools are defined and registered directly within a specific model's API (e.g., OpenAI's `tools` parameter or Anthropic's `tool_use`).
-    - **Coupling**: The tool definitions are often tightly coupled to the specific SDK or API of the model provider.
-    - **Maintenance**: Adding a new tool requires updating the application code for every model integration.
-- **MCP-hosted Tools**:
-    - **Implementation**: Tools reside in a standalone **MCP Server**. The LLM host (client) connects to the server and discovers tools dynamically.
-    - **Decoupling**: The model is abstracted from the tool's implementation. A single server can provide tools to multiple models (Claude, GPT-4, Llama) and multiple IDEs (Cursor, Zed).
-    - **Extensibility**: New tools can be added to an MCP server without changing the model's configuration or the host application's core logic.
-
-## How tool calling works
-The tool calling cycle typically follows these steps:
-1.  **Tool Definition**: The developer provides the LLM with a list of available tools, defined using a structured schema (usually JSON Schema) that includes names, descriptions, and parameter types.
-2.  **LLM Decision**: Based on the user prompt, the LLM determines if a tool is needed. If so, it generates a structured call (JSON) instead of a text response.
-3.  **Client Execution**: The application (the "host" or "client") receives the JSON, validates it, and executes the corresponding function in its environment.
-4.  **Result Feedback**: The tool's output is sent back to the LLM as a new message in the conversation history.
-5.  **Final Response**: The LLM incorporates the tool result into its reasoning to provide a final answer to the user.
-
-### Example: Tool Definition (JSON Schema)
-```json
-{
-  "name": "get_weather",
-  "description": "Get the current weather in a given location",
-  "parameters": {
-    "type": "object",
-    "properties": {
-      "location": {
-        "type": "string",
-        "description": "The city and state, e.g. San Francisco, CA"
-      },
-      "unit": {
-        "type": "string",
-        "enum": ["celsius", "fahrenheit"]
-      }
-    },
-    "required": ["location"]
-  }
-}
-```
-
-### Example: LLM Response (Tool Call)
-```json
-{
-  "tool_calls": [
-    {
-      "id": "call_12345abc",
-      "type": "function",
-      "function": {
-        "name": "get_weather",
-        "arguments": "{\"location\": \"San Francisco, CA\", \"unit\": \"celsius\"}"
-      }
-    }
-  ]
-}
-```
-
-## MCP architecture
-MCP uses a client-server architecture to standardize the connection between AI applications and data/tools.
-
-### Core Components
-- **Hosts**: The primary application where the LLM is running (e.g., Claude Desktop, Zed, Cursor, or a custom agent). The host manages the LLM's lifecycle.
-- **Clients**: Reside within the host and maintain 1:1 connections with MCP servers.
-- **Servers**: Lightweight programs that expose specific capabilities (tools, resources, or prompts) through the MCP protocol.
-- **Transport Layer**: The communication medium between client and server.
-    - **stdio**: Standard input/output (most common for local tools).
-    - **SSE**: Server-Sent Events (used for remote servers over HTTP).
-    - **HTTP/TCP**: Direct socket-based communication.
-- **Capabilities**:
-    - **Resources**: Read-only data (e.g., a file's content, a database schema).
-    - **Tools**: Executable functions (e.g., "create_file", "search_web").
-    - **Prompts**: Reusable prompt templates (e.g., "analyze_codebase").
-    - **Sampling**: Allows a server to ask the client to run an LLM completion (agentic servers).
-
-### MCP Client-Server Flow
-```text
-  ┌──────────────┐             ┌──────────────┐             ┌──────────────┐
-  │     Host     │             │  MCP Client  │             │  MCP Server  │
-  │ (IDE, Agent) │             │ (in context) │             │ (Local/Remote)│
-  └──────┬───────┘             └──────┬───────┘             └──────┬───────┘
-         │                            │                            │
-         │  Initialize Connection     │                            │
-         ├───────────────────────────>│      List Capabilities     │
-         │                            ├───────────────────────────>│
-         │                            │    Tools, Resources, etc.  │
-         │                            |<───────────────────────────┤
-         │                            │                            │
-         │    User Request            │                            │
-         ├───────────────────────────>│                            │
-         │   (LLM decides tool use)   │                            │
-         │                            │      Call Tool (args)      │
-         │                            ├───────────────────────────>│
-         │                            │      Execute Function      │
-         │                            │                            │
-         │                            │      Tool Result           │
-         │                            |<───────────────────────────┤
-         │    Process Result          │                            │
-         |<───────────────────────────┤                            │
-         │                            │                            │
-  ┌──────┴───────┐             ┌──────┴───────┘             ┌──────┴───────┐
-```
+- **Simple Creative Writing**: When the task is purely linguistic and requires no external data.
+- **High Latency Requirements**: If the external API is slow and real-time response is mandatory.
+- **Static Knowledge**: If the information is common knowledge and training data is sufficient.
 
 ## Getting started
+To begin using MCP 3.0, you can use the `mcp` Python SDK and `FastMCP` for a high-level API.
 
-### 1. Basic Tool Calling
+### Installation
+```bash
+pip install mcp[cli]
+```
 
-=== "Anthropic Python SDK"
-    ```python
-    import anthropic
-
-    client = anthropic.Anthropic()
-
-    # (1) Define tools
-    tools = [{
-        "name": "get_stock_price",
-        "description": "Retrieves the current stock price for a given ticker symbol.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "ticker": {"type": "string", "description": "The stock ticker, e.g. AAPL"}
-            },
-            "required": ["ticker"]
-        }
-    }]
-
-    # (2) Request completion with tools
-    message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=1024,
-        tools=tools,
-        messages=[{"role": "user", "content": "What is the price of AAPL?"}]
-    )
-
-    # (3) Process the tool_use content block
-    print(message.content)
-    ```
-
-=== "OpenAI Python SDK"
-    ```python
-    from openai import OpenAI
-
-    client = OpenAI()
-
-    # (1) Define functions
-    tools = [{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get the current weather",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "location": {"type": "string", "description": "The city and state"}
-                },
-                "required": ["location"]
-            }
-        }
-    }]
-
-    # (2) Request chat completion
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": "What's the weather in London?"}],
-        tools=tools
-    )
-
-    # (3) Access tool_calls from the message
-    print(response.choices[0].message.tool_calls)
-    ```
-
-### 2. Simple MCP Server (Python SDK)
-
-To build a server, use the `mcp` Python SDK and `FastMCP` for a high-level API.
-
+### Creating a Server
 ```python
-# pip install mcp
 from mcp.server.fastmcp import FastMCP
 
-# Create an MCP server instance
-mcp = FastMCP("WeatherService")
+mcp = FastMCP("ServiceRemediator")
 
 @mcp.tool()
-def get_weather(location: str) -> str:
-    """Get the weather for a specific location.
-
-    Args:
-        location: The city and state (e.g., London, UK)
-    """
-    # In a real implementation, you'd call a weather API here
-    return f"The weather in {location} is currently sunny, 22°C."
+def restart_service(service_name: str) -> str:
+    """Restarts a failing homelab service."""
+    # Logic to restart service via Docker/Systemd
+    return f"Service {service_name} restarted successfully."
 
 if __name__ == "__main__":
-    # Runs the server using the stdio transport by default
     mcp.run()
 ```
 
-### 3. Specialized MCP Server Examples
-Modern MCP servers go beyond simple API wrappers, providing specialized compute, verification, and deep-system interaction capabilities.
+## CLI examples
+The MCP CLI tool allows for inspecting and testing servers:
 
-#### A. Property-Based Fuzzing
-The [Fuzzing MCP Server](../../tools/development_ops/fuzzing-mcp-server.md) uses the Hypothesis library to hunt for edge cases. It generates hundreds of diverse test cases to find inputs that cause a function to fail.
+```bash
+# List tools available on a local server
+mcp list-tools --transport stdio --command "python my_server.py"
 
-**Example: Finding a ZeroDivisionError**
-```json
-{
-  "tool": "fuzz_function",
-  "arguments": {
-    "code": "def test_division(x: int, y: int):\n    return x / y != 0",
-    "strategy": "integers()"
-  }
-}
+# Call a specific tool with arguments
+mcp call-tool restart_service '{"service_name": "home-assistant"}'
 ```
 
-#### B. Formal Symbolic Verification
-The [Symbolic MCP](../../tools/development_ops/symbolic-mcp.md) uses the Z3 theorem prover to algebraically explore all possible execution paths. It provides mathematical guarantees that a property holds for *all* possible inputs.
+## API examples
+Using the MCP Client in a Python agent:
 
-**Example: Proving Refactoring Equivalence**
-```json
-{
-  "tool": "verify_equivalence",
-  "arguments": {
-    "original_code": "def logic(x):\n    return x * 2",
-    "new_code": "def logic(x):\n    return x + x"
-  }
-}
+```python
+from mcp import Client, StdioServerParameters
+
+server_params = StdioServerParameters(command="python", args=["server.py"])
+
+async with Client(server_params) as client:
+    # Discover available tools
+    tools = await client.list_tools()
+
+    # Call a tool to remediate an issue
+    result = await client.call_tool("restart_service", {"service_name": "plex"})
+    print(result.content)
 ```
-
-#### C. Local File System & System Interaction
-The [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md) allows agents to interact safely with the host OS.
-
-**Example: Codebase Search**
-```json
-{
-  "tool": "search_code",
-  "arguments": {
-    "query": "class DatabaseConnection",
-    "directory": "./src"
-  }
-}
-```
-
-## Patterns
-
-### Single Tool Use
-The model identifies that a specific tool is required to satisfy the user request, generates the call, and waits for the result. This is the simplest implementation, used for queries like "Check the weather" or "Look up this user's email."
-
-### Multi-tool Chaining
-The LLM uses multiple tools in sequence, where the output of one tool serves as the input (or part of the reasoning) for the next call.
-- **Example**: An agent first calls `search_files` to find a specific document, then calls `read_file` using the path returned, and finally calls `summarize_text` on the content.
-
-### Parallel Tool Calls
-Modern LLMs can generate multiple tool calls in a single turn. This is highly efficient for fetching independent pieces of information.
-- **Example**: When asked to "compare the stock prices of Apple, Nvidia, and Microsoft," the model can return three `get_stock_price` calls at once. The runtime executes them in parallel and returns all results to the model simultaneously.
-
-### Agentic MCP (Sampling)
-The **Sampling** capability in MCP allows a server to act as an agent itself. When a server encounters a problem it cannot solve with its local tools, it can "sample" the client's LLM to generate a new completion, effectively allowing for recursive agentic reasoning where tools can call other tools across different servers.
-
-### Tool Use with Confirmation (Human-in-the-Loop)
-For sensitive operations (writing files, deleting data, sending emails), the runtime intercepts the tool call and prompts the user for approval.
-- **Implementation**: The host application renders the proposed tool arguments to the user. The tool is only executed if the user confirms; otherwise, a "user canceled" error is sent back to the model.
-
-### MCP Server Composition
-A core benefit of MCP is the ability for a single client (like Claude Desktop or an agent) to connect to many independent servers. This creates a "composable brain" where specialized servers for Google Calendar, Slack, GitHub, and local databases can be aggregated into a single assistant without code changes.
 
 ## Related tools / concepts
-- [Agent Protocols](../agent_protocols.md) — Broader context for MCP and ACP.
-- [Dify](../../tools/ai_knowledge/dify.md) — LLM app development platform with agent workflows.
-- [LangChain](../../tools/ai_knowledge/langchain.md) — Multi-model library for tool calling.
-- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) — Data framework for indexing, retrieval, and tool-augmented agents.
-- [OpenRouter](../../tools/ai_knowledge/openrouter.md) — Unified API for accessing multiple tool-calling models.
-- [Browser Use](../../tools/automation_orchestration/browser-use.md) — Agentic browser control via tool calling.
-- [Composio](../../tools/agents/composio.md) — Tool integration platform.
+- [Agent Protocols](../agent_protocols.md) — Broader context for MCP/ACP.
+- [nemo-mcp-server](../../tools/agents/nemo-retriever.md) — NVIDIA's search integration.
+- [Claude Code](../../tools/development_ops/claude-code.md) — CLI agent using MCP.
+- [Dify](../../tools/ai_knowledge/dify.md) — Low-code agent platform.
+- [LangGraph](../../tools/frameworks/langgraph.md) — Agentic orchestration.
+- [Self-Healing Agents](../self-healing-agent-research.md) — Research into autonomous remediation.
+- [JMAP & Graph API](../../tools/providers/microsoft-graph.md) — Protocols for calendar orchestration.
 
-### Agent Frameworks
-- [Agency Swarm](../../tools/agents/agency-swarm.md)
-- [Agno](../../tools/agents/agno.md)
-- [Bee Agent Framework](../../tools/agents/bee-agent-framework.md)
-- [LangGraph](../../tools/agents/langgraph.md)
-- [Phidata](../../tools/agents/phidata.md)
-- [AutoGen](../../tools/frameworks/autogen.md)
-- [CrewAI](../../tools/frameworks/crewai.md)
-- [DSPy](../../tools/frameworks/dspy.md)
-- [Haystack](../../tools/frameworks/haystack.md)
-- [Mycelium](../../tools/frameworks/mycelium.md)
-- [Semantic Kernel](../../tools/frameworks/semantic-kernel.md)
-- [Smolagents](../../tools/frameworks/smolagents.md)
-
-### Specific MCP Implementations
-- [Atlassian Jira MCP](../../tools/automation_orchestration/atlassian-jira-mcp.md)
-- [Chronos MCP](../../tools/automation_orchestration/chronos-mcp.md)
-- [Docling MCP](../../tools/process_understanding/docling-mcp.md)
-- [Claude Code Container MCP](../../tools/development_ops/claude-code-container-mcp.md)
-- [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md)
-- [Free Will MCP](../../tools/development_ops/free-will-mcp.md)
-- [Fuzzing MCP Server](../../tools/development_ops/fuzzing-mcp-server.md)
-- [Jupyter Kernel MCP](../../tools/development_ops/jupyter-kernel-mcp.md)
-- [Makefile MCP](../../tools/automation_orchestration/makefile-mcp.md)
-- [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)
-- [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md)
-- [Symbolic MCP Server](../../tools/development_ops/symbolic-mcp.md)
-- [Vault MCP Server](../../tools/automation_orchestration/vault-mcp.md)
-- [Vikunja MCP Server](../../tools/automation_orchestration/vikunja-mcp.md)
-
-## Sources / references
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [Anthropic Tool Use Documentation](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
-- [OpenAI Function Calling Guide](https://platform.openai.com/docs/guides/function-calling)
+## Sources / References
+- [Model Context Protocol Specification v3.0](https://modelcontextprotocol.io/)
+- [Anthropic: Tool Use Documentation](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
+- [OpenClaw: MCP 3.0 Gateway Updates](https://github.com/OpenClaw/OpenClaw)
+- [NVIDIA: nemo-mcp-server Integration Guide](https://developer.nvidia.com/nemo-mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high
