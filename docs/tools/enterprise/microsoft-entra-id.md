@@ -1,99 +1,117 @@
 # Microsoft Entra ID
 
 ## What it is
-Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. it is the backbone of identity for the Microsoft 365 ecosystem and thousands of third-party SaaS applications. It is a fundamental [provider](../providers/README.md) for enterprise [agents](../agents/README.md).
+Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. As of June 2026, it is the foundational identity layer for the Microsoft 365 ecosystem and thousands of SaaS applications, featuring native support for [Agentic Identity](../../knowledge_base/agentic-identity.md) and [MCP 3.0](../../knowledge_base/mcp.md) authentication.
 
 ## What problem it solves
-It provides a unified identity system for managing users, groups, and applications. It enables Secure Single Sign-On (SSO), Multi-Factor Authentication (MFA), and Conditional Access policies, ensuring that only authorized users and devices can access sensitive enterprise resources. It is a key component for [SSO Comparison](../../knowledge_base/sso-comparison.md).
+It provides a unified, secure identity system for managing users, groups, applications, and **autonomous agents**. It solves the complexity of enterprise-wide Single Sign-On (SSO), Multi-Factor Authentication (MFA), and Conditional Access, ensuring that only authorized entities (human or agentic) can access sensitive resources.
 
 ## Where it fits in the stack
-**Providers / Identity & Access Management**. It sits at the security and identity layer, controlling access to [Microsoft Graph](../providers/microsoft-graph.md) and other enterprise services.
+**Providers / Identity & Access Management**. It sits at the security and authentication layer of the enterprise stack, controlling access to [Microsoft Graph](../providers/microsoft-graph.md), SharePoint, and other Microsoft 365 services.
 
 ## Typical use cases
-- Managing user identities and access rights for [Enterprise Suites](../enterprise/README.md).
-- Implementing Secure Single Sign-On (SSO) for internal and external applications.
-- Automating user provisioning and de-provisioning via [n8n](../../services/n8n.md) or [Make](../automation_orchestration/make.md).
-- Enforcing security policies like MFA and location-based access.
-
-## Key Features
-- **Single Sign-On (SSO)**: Access all your apps with one set of credentials.
-- **Conditional Access**: Automated access control decisions based on conditions (e.g., user, device, location).
-- **Identity Governance**: Manage the identity lifecycle at scale.
-- **Application Proxy**: Securely access on-premises web applications from the cloud.
+- **Agentic Authentication**: Providing [Autonomous Agents](../agents/README.md) with secure, time-bound access to enterprise data.
+- **Enterprise SSO**: Implementing Single Sign-On across a disparate toolset of thousands of applications.
+- **Identity Governance**: Automating the lifecycle of user and service principal identities.
+- **Conditional Access**: Enforcing security policies based on location, device health, and risk levels.
 
 ## Strengths
-- **Ubiquity**: Integrated into almost every enterprise using Microsoft 365.
-- **Security**: Robust, built-in security features like MFA and Identity Protection.
-- **Scalability**: Capable of managing millions of identities across global organizations.
-- **Developer Friendly**: Comprehensive APIs via [Microsoft Graph](../providers/microsoft-graph.md).
+- **Ubiquity**: The standard for identity in the global enterprise market.
+- **Agent-Ready**: Native support for Workload Identities and managed service principals for AI agents.
+- **Security Depth**: Robust features including Identity Protection, Privileged Identity Management (PIM), and Verified ID.
+- **Graph Integration**: Deeply coupled with [Microsoft Graph](../providers/microsoft-graph.md) for rich data orchestration.
 
 ## Limitations
-- **Licensing Complexity**: Features are split across multiple tiers (Free, P1, P2), which can be confusing.
-- **Configuration Overhead**: Setting up complex conditional access and governance policies requires expertise.
-- **Cloud-Centric**: While it supports hybrid setups, its full potential is realized in the cloud.
+- **Licensing Complexity**: Features are fragmented across multiple tiers (P1, P2, Governance), often leading to high costs for advanced features.
+- **Configuration Overhead**: Complex policies (Conditional Access) require significant expertise to manage without causing service disruptions.
+- **Ecosystem Lock-in**: While it supports multi-cloud, its deepest integrations are exclusively within the Microsoft ecosystem.
 
 ## When to use it
-- When managing identities for an organization using Microsoft 365.
-- When building [Custom Agents](../agents/custom_agents.md) that require secure, authenticated access to enterprise data.
+- When managing identities for an organization using Microsoft 365 or Azure.
+- When building [Custom Agents](../agents/custom_agents.md) that require authenticated access to enterprise data via Microsoft APIs.
+- When implementing Zero Trust architectures in a corporate environment.
 
 ## When not to use it
-- For small, personal projects that don't require enterprise-grade IAM.
-- When you are entirely outside the Microsoft ecosystem and prefer other providers like Okta or Auth0.
+- For small, personal projects that do not require enterprise-grade IAM (use simpler OAuth providers).
+- In environments entirely committed to AWS/Google stacks where native identity providers (IAM / Google Identity) are already in place.
 
 ## Getting started
+1. **Register Application**: Create a new App Registration in the [Entra Admin Center](https://entra.microsoft.com/).
+2. **Configure Permissions**: Assign API permissions (e.g., `User.Read`, `Mail.Read`) to the application.
+3. **Obtain Credentials**: Secure a Client ID and Client Secret/Certificate.
+4. **Authenticate**: Use MSAL (Microsoft Authentication Library) to acquire tokens.
 
-### App Registration
-To integrate your agent with Entra ID, you must first register an application in the Entra admin center to obtain a Client ID and Client Secret.
+## CLI examples
 
+### Using Azure CLI
 ```bash
-# Example: Using Azure CLI to create a service principal
-az ad sp create-for-rbac --name "MyAgentServicePrincipal"
+# Login to Entra ID
+az login
+
+# Create a service principal for an agent
+az ad sp create-for-rbac --name "MyAutonomousAgent" --role Reader --scopes /subscriptions/{id}
+
+# List users in the tenant
+az ad user list --upn "user@example.com"
 ```
 
-## Technical examples
+### Using Microsoft Graph CLI
+```bash
+# Get current user profile
+mgc users get --user-id me
 
-### Authenticating with MSAL (Python)
-Using the Microsoft Authentication Library (MSAL) to get a token.
+# List groups the agent has access to
+mgc groups list
+```
 
+## API examples
+
+### Python (using MSAL)
 ```python
 import msal
 
+# Initialize the MSAL app
 app = msal.ConfidentialClientApplication(
     client_id="YOUR_CLIENT_ID",
     client_credential="YOUR_CLIENT_SECRET",
     authority="https://login.microsoftonline.com/YOUR_TENANT_ID"
 )
 
+# Acquire token for Microsoft Graph
 result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
 
 if "access_token" in result:
-    print("Token acquired successfully")
+    print("Successfully acquired access token for Microsoft Graph")
+else:
+    print(f"Error: {result.get('error_description')}")
 ```
 
-### Checking User Groups (cURL)
-Once authenticated, you can use the token to query [Microsoft Graph](../providers/microsoft-graph.md).
-
+### cURL (Token Exchange)
 ```bash
-curl -X GET "https://graph.microsoft.com/v1.0/me/memberOf" \
-     -H "Authorization: Bearer <access_token>"
+curl -X POST https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "client_id={client_id}" \
+     -d "scope=https://graph.microsoft.com/.default" \
+     -d "client_secret={client_secret}" \
+     -d "grant_type=client_credentials"
 ```
-
-## Maintenance & Troubleshooting
-- **Secret Rotation**: Ensure you have a process for rotating Client Secrets before they expire.
-- **Audit Logs**: Regularly review sign-in and audit logs to detect anomalous activity.
 
 ## Related tools / concepts
 - [Microsoft Graph API](../providers/microsoft-graph.md)
 - [SSO Comparison](../../knowledge_base/sso-comparison.md)
-- [Enterprise Suite Overview](../enterprise/README.md)
-- [n8n Automation](../../services/n8n.md)
-- [Make](../automation_orchestration/make.md)
+- [Agentic Identity](../../knowledge_base/agentic-identity.md)
+- [MCP 3.0](../../knowledge_base/mcp.md)
+- [n8n](../../services/n8n.md)
+- [Okta](../enterprise/okta.md)
+- [Auth0](../enterprise/auth0.md)
+- [Microsoft To Do](../calendar_tasks/microsoft-todo.md)
+- [Workload Identity](../../knowledge_base/patterns/workload-identity.md)
 
-## Sources / references
+## Sources / References
 - [Microsoft Entra ID Documentation](https://learn.microsoft.com/en-us/entra/fundamentals/)
 - [Microsoft Entra Admin Center](https://entra.microsoft.com/)
-- [Microsoft Authentication Library (MSAL)](https://learn.microsoft.com/en-us/entra/msal/)
+- [Microsoft Authentication Library (MSAL) Overview](https://learn.microsoft.com/en-us/entra/msal/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-05
+- Last reviewed: 2026-06-23
 - Confidence: high
