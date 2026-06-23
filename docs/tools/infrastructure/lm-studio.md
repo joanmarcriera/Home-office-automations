@@ -1,96 +1,81 @@
 # LM Studio
 
 ## What it is
-LM Studio is a desktop application for discovering, downloading, running, and chatting with local models.
+LM Studio is a desktop application for discovering, downloading, running, and chatting with local models. It provides a user-friendly interface for managing GGUF and MLX models on local hardware, including a native inference server.
 
 ## What problem it solves
-It lowers the barrier to local LLM experimentation by packaging model discovery, downloads, chat, and an OpenAI-compatible local server into one desktop workflow.
+It lowers the barrier to local LLM experimentation by packaging model discovery, downloads, chat, and an OpenAI-compatible local server into one desktop workflow. It eliminates the need for complex CLI setups for users who want to quickly evaluate models or run private inference on their workstations.
 
 ## Where it fits in the stack
-**AI & Knowledge / Local Model Workbench**. It is a practical bridge between end-user experimentation and local inference.
+**AI & Knowledge / Local Model Workbench**. It is a practical bridge between end-user experimentation and local inference, sitting above the [Inference Engine](../infrastructure/index.md) layer.
 
 ## Typical use cases
-- Testing local models without a CLI-heavy setup
-- Running a local OpenAI-compatible endpoint for development
-- Comparing small and medium models on a laptop or workstation
+- **Model Evaluation**: Testing local models (Llama 3.3, Qwen 3.5) without a CLI-heavy setup.
+- **Local API Endpoint**: Running a local OpenAI-compatible endpoint for development of agentic applications.
+- **Hardware Benchmarking**: Comparing performance of small and medium models on Apple Silicon or NVIDIA hardware.
+- **Private Chat**: Interacting with LLMs locally to ensure data privacy for sensitive workflows.
 
 ## Strengths
-- Easy local-model onboarding
-- Friendly UI for experimentation
-- Useful stepping stone before deeper infrastructure choices
+- **Native Apple Silicon Support**: (June 2026) Fully optimized for M4/M5 unified memory architecture, allowing the M5 (48 GB) to host models up to 70B (Q4_K_M) with excellent performance.
+- **Integrated Model Browser**: Direct access to Hugging Face GGUF models with one-click downloads.
+- **Multi-Backend**: Supports both `llama.cpp` (GGUF) and native MLX backends (v0.3.6+).
+- **Zero-Config Server**: Instantly spin up an OpenAI-compatible API server.
+- **In-App Monitoring**: Real-time visualization of VRAM usage, token throughput, and system resource consumption.
 
 ## Limitations
-- Less flexible than lower-level inference stacks for production
-- Desktop-first workflow is not ideal for multi-user deployment
-
-## Apple Silicon / Metal backend
-
-LM Studio v0.3.0+ ships with a native Metal inference backend for Apple Silicon, using llama.cpp under the hood. All 48 GB of the M5's unified memory is addressable by Metal — there is no separate VRAM pool. This makes the M5 MacBook a better local LLM host than any single consumer NVIDIA GPU for models in the 30-40B range.
-
-**M5 48 GB model ceiling:**
-
-| Model | Quantization | Approx. RAM | Notes |
-|---|---|---|---|
-| Llama 3.3 70B | Q4_K_M | ~40 GB | Fits, leaves ~8 GB headroom |
-| Qwen3.5 32B | Q5_K_M | ~22 GB | Comfortable, excellent quality |
-| Llama 3.2 11B | Q8_0 | ~12 GB | Near full precision |
-| Llama 3.2 3B | Q8_0 | ~3.5 GB | Fast; good for local agents |
-
-**CLI launch with Metal:**
-```bash
-lms server start --port 1234 --gpu-layers auto
-```
-The `auto` flag lets LM Studio calculate the optimal number of layers to offload to Metal based on available unified memory.
-
-In the **Settings → GPU** panel, ensure the **Apple Metal** or **llama.cpp Metal** backend is selected. Use the GGUF model filter when browsing — MLX-format models require the separate MLX backend available in LM Studio 0.3.6+.
+- **Desktop-Centric**: Designed as a GUI application; not ideal for headless server-grade or multi-user production deployments.
+- **Closed Source**: The application itself is proprietary, although it utilizes open-source backends.
+- **Resource Competition**: Running the GUI consumes system resources that could otherwise be dedicated to inference.
 
 ## When to use it
-- When you want the fastest path to trying local models
-- When you need a simple local server for app development or evaluation
+- When you want the fastest path to trying local models on macOS, Windows, or Linux.
+- When you need a simple, reliable local server for app development or evaluation.
+- When you are utilizing Apple Silicon and want to leverage unified memory via the native MLX or Metal backends.
 
 ## When not to use it
-- When you need multi-user, server-grade inference
-- When you already operate [Ollama](../../services/ollama.md) or [vLLM](../infrastructure/vllm.md) successfully
+- When you need a multi-user, production-ready inference cluster (use [vLLM](../infrastructure/vllm.md) or [SGLang](../infrastructure/sglang.md) instead).
+- When you require a headless environment with zero GUI overhead (use [Ollama](../../services/ollama.md)).
 
 ## Getting started
-1. Download and install LM Studio from [lmstudio.ai](https://lmstudio.ai/).
-2. Open the app and search for a model (e.g., `Meta-Llama-3-8B-Instruct-GGUF`).
-3. Click "Download" on the desired version.
-4. Go to the "AI Chat" tab to interact with the model immediately, or the "Local Server" tab to start an API.
+1. **Download**: Install LM Studio from [lmstudio.ai](https://lmstudio.ai/).
+2. **Search**: Use the "Search" tab to find a model (e.g., `Meta-Llama-3.3-70B-Instruct-GGUF`).
+3. **Download**: Choose a quantization level (e.g., `Q4_K_M`) and click download.
+4. **Load**: Go to the "AI Chat" tab, select the model from the top dropdown, and wait for it to load into VRAM/Unified Memory.
+5. **Configure GPU**: In **Settings → GPU**, ensure **Apple Metal** or **NVIDIA CUDA** is selected for acceleration.
 
 ## CLI examples
-The `lms` CLI is bundled with the desktop application (requires version 0.4.0+).
+The `lms` CLI (v0.4.x+) allows for headless management of the LM Studio backend.
 
 ```bash
 # Check status and loaded models
 lms status
 
 # Search for and download a model
-lms get meta-llama-3-8b
+lms get meta-llama-3.3-70b
 
-# Start the local OpenAI-compatible API server
-lms server start --port 1234
+# Start the local OpenAI-compatible API server on a specific port
+lms server start --port 1234 --gpu-layers auto
+
+# List all downloaded models
+lms ls
 ```
 
 ## API examples
-LM Studio provides an OpenAI-compatible local server.
+LM Studio provides a local server that is a drop-in replacement for the OpenAI API.
 
 ```python
 from openai import OpenAI
 
+# Point to the local LM Studio endpoint
 client = OpenAI(base_url="http://localhost:1234/v1", api_key="lmstudio")
 
 response = client.chat.completions.create(
-    model="meta-llama-3-8b",
-    messages=[{"role": "user", "content": "Explain quantum entanglement."}]
+    model="meta-llama-3.3-70b",
+    messages=[{"role": "user", "content": "Explain the benefit of unified memory for LLMs."}]
 )
+
 print(response.choices[0].message.content)
 ```
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Free desktop app
-- **Self-hostable**: Local desktop runtime only
 
 ## Related tools / concepts
 - [Local LLMs (Ollama, MLX, llama.cpp)](../ai_knowledge/local_llms.md)
@@ -99,12 +84,17 @@ print(response.choices[0].message.content)
 - [Msty](msty.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [llama.cpp](../infrastructure/llama-cpp.md)
-- [MLX](mlx.md) — Lower-level Apple Silicon inference framework that LM Studio wraps
+- [MLX](mlx.md)
+- [vLLM](../infrastructure/vllm.md)
+- [SGLang](../infrastructure/sglang.md)
+- [Inference Engines](../infrastructure/index.md)
 
 ## Sources / References
 - [Official Website](https://lmstudio.ai/)
 - [LM Studio CLI Documentation](https://lmstudio.ai/docs/cli)
+- [LM Studio v0.3.x Release Notes](https://lmstudio.ai/blog/v0.3.0)
+- [Apple Silicon Unified Memory for LLMs](https://developer.apple.com/metal/tensorflow-plugin/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high

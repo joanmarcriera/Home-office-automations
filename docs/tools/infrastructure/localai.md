@@ -1,17 +1,17 @@
 # LocalAI
 
 ## What it is
-LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio.
+LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio. By June 2026, it has expanded to support [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md) directly, enabling local models to call tools natively.
 
 ## What problem it solves
-It gives teams a local or self-hosted way to serve models behind a familiar API surface, which reduces vendor dependence and ensures data privacy. It unifies disparate local inference backends (llama.cpp, diffusers, whisper.cpp) under a single, standard API.
+It gives teams a local or self-hosted way to serve models behind a familiar API surface, which reduces vendor dependence and ensures data privacy. It unifies disparate local inference backends (llama.cpp, diffusers, whisper.cpp) under a single, standard API, solving the fragmentation problem in the local AI ecosystem.
 
 ## Where it fits in the stack
-**Infrastructure / Local Inference Platform**. It is the primary serving layer for private model access, sitting between your hardware and your agentic applications.
+**Infrastructure / Local Inference Platform**. It is the primary serving layer for private model access, sitting between your hardware and your agentic applications (like [Claude Code](../development_ops/claude-code.md) or [Windsurf](../development_ops/codeium.md)).
 
 ## Typical use cases
 - **Privacy-First AI APIs**: Serving models to internal applications where data must remain on-premise.
-- **Hybrid Cloud/Local Stacks**: Using LocalAI as a fallback or for low-risk tasks alongside cloud providers.
+- **Hybrid Cloud/Local Stacks**: Using LocalAI as a fallback or for low-risk tasks alongside cloud providers like [OpenRouter](../ai_knowledge/openrouter.md).
 - **Multi-Modal Agents**: Powering agents that need vision, speech, and text capabilities from a single endpoint.
 - **Homelab Automation**: Integrating LLMs into [Home Assistant](../../services/home-assistant.md) or [n8n](../../services/n8n.md) workflows locally.
 
@@ -19,23 +19,24 @@ It gives teams a local or self-hosted way to serve models behind a familiar API 
 - **Standardized API**: Drop-in replacement for OpenAI, making it easy to use with any existing SDK or tool.
 - **Multi-Backend Support**: Can run GGUF, EXL2, Diffusers, and more.
 - **Hardware Agnostic**: Supports CPU-only, NVIDIA CUDA, Intel OneAPI, and AMD ROCm.
-- **Feature Rich**: Supports image generation (Stable Diffusion), speech (Whisper/Piper), and vector embeddings.
+- **Feature Rich**: Supports image generation (Stable Diffusion), speech (Whisper/Piper), and vector embeddings out of the box.
+- **Agentic Ready**: (June 2026) Native tool-calling support and [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md) integration.
 
 ## Limitations
 - **Complexity**: Can be more difficult to configure than [Ollama](../../services/ollama.md) due to its extensive feature set and manual model management options.
-- **Resource Intensive**: Multi-modal "All-In-One" (AIO) images are very large and require significant RAM/VRAM.
+- **Resource Intensive**: Multi-modal "All-In-One" (AIO) images are very large (40GB+) and require significant RAM/VRAM.
+- **Update Frequency**: The rapid evolution of backends sometimes leads to temporary incompatibilities with the latest GGUF versions.
 
 ## When to use it
 - When you need a single API for multiple types of AI tasks (text, image, audio).
-- When data locality, cost control, or self-hosting is a requirement.
+- When data locality, cost control, or self-hosting is a requirement for enterprise compliance.
 - When you want to use existing OpenAI-native tools with local models.
 
 ## When not to use it
 - When you only need simple text inference (Ollama may be simpler).
-- When you are not prepared to manage model files and configuration YAMLs.
+- When you are not prepared to manage model files and configuration YAMLs for fine-grained control.
 
 ## Getting started
-
 ### 1. Docker Compose Setup (Recommended)
 Create a `docker-compose.yml` to run LocalAI with CUDA support:
 
@@ -60,13 +61,16 @@ services:
               capabilities: [gpu]
 ```
 
-### 2. Hardware Acceleration
-- **NVIDIA**: Set `image` to a `-cuda` variant and ensure `nvidia-container-toolkit` is installed.
-- **Intel**: Use `-openvino` or `-oneapi` variants.
-- **CPU Only**: Use `-cpu` variants.
+### 2. Model Installation
+LocalAI can automatically download models via the API or by placing YAML files in the `/models` directory.
+```bash
+# Download a model via API
+curl http://localhost:8080/models/apply -H "Content-Type: application/json" -d '{
+  "id": "llama-3-8b-instruct"
+}'
+```
 
 ## CLI examples
-
 ### List Available Models
 ```bash
 curl http://localhost:8080/v1/models
@@ -91,7 +95,6 @@ curl http://localhost:8080/v1/audio/transcriptions \
 ```
 
 ## API examples
-
 ### Python (OpenAI SDK)
 LocalAI is a drop-in replacement for OpenAI's API.
 
@@ -104,7 +107,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gpt-4", # Or your local model name
+    model="llama-3-8b-instruct",
     messages=[{"role": "user", "content": "Explain RAG in one sentence."}]
 )
 
@@ -122,13 +125,14 @@ print(response.choices[0].message.content)
 - [n8n](../../services/n8n.md)
 - [Open WebUI](../../services/open-webui.md)
 - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
+- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [LocalAI Documentation](https://localai.io/)
- - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
 - [LocalAI GitHub Repository](https://github.com/mudler/LocalAI)
 - [Model Gallery](https://localai.io/models/)
+- [LocalAI Blog: Announcing MCP Support](https://localai.io/blog/mcp-support/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high
