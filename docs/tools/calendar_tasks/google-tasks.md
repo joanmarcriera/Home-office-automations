@@ -1,91 +1,114 @@
 # Google Tasks
 
 ## What it is
-Google Tasks is a simple task management service developed by Google that allows users to create, manage, and edit tasks across Google Workspace. It is deeply integrated with Gmail, Google Calendar, and Google Drive.
+Google Tasks is a lightweight task management service integrated into Google Workspace. As of June 2026, it serves as a primary "Surface" for agentic task execution via the [Model Context Protocol (MCP 3.0)](../../knowledge_base/mcp.md) and the Google Graph API, enabling autonomous agents to manage to-do items across Gmail, Calendar, and mobile devices.
 
 ## What problem it solves
-It provides a lightweight, focused way to capture to-do items without the complexity of full-scale project management tools. It solves the fragmentation of tasks by allowing users to turn emails into tasks directly within the Gmail interface.
+It provides a minimalist, centralized capture point for tasks within the Google ecosystem. It solves task fragmentation by allowing [Autonomous Agents](../agents/README.md) and users to convert emails or calendar events into actionable items that synchronize across all Google surfaces.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Task Management. It serves as a personal capture point within the Google ecosystem, often used as a source or destination for automation workflows.
+**Category**: Calendar & Tasks / Task Management. It acts as the "Durable Task Layer" for Google-native agentic workflows, sitting between the [Inference Layer](../ai_knowledge/README.md) and the user's daily productivity interface.
 
 ## Typical use cases
-- Creating to-do lists from emails in Gmail.
-- Scheduling tasks with due dates that appear in [Google Calendar](google_calendar.md).
-- Quick capture of personal errands via the mobile app.
-- Programmatic task creation from automation tools like [n8n](../../services/n8n.md).
+- **Agentic Orchestration**: An agent like [Gemini Spark](../ai_knowledge/gemini.md) identifying a task in an email and creating it in Google Tasks.
+- **Workflow Automation**: Using [n8n](../../services/n8n.md) to sync [GitHub Issues](../development_ops/github.md) to a personal Google Tasks list.
+- **Contextual Capture**: Turning [Google Calendar](google_calendar.md) event follow-ups into tasks automatically.
+- **Smart Reminders**: Programmatic creation of time-sensitive reminders via the [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md).
 
 ## Strengths
-- **Seamless Integration**: Native to Google Workspace (Gmail, Calendar).
-- **Simplicity**: Minimalist interface focused on speed.
-- **Cross-Platform**: Synchronizes across web and mobile apps.
-- **API Support**: Robust REST API for developers.
+- **Ecosystem Integration**: Native, deep integration with Gmail, Calendar, and Drive.
+- **MCP 3.0 Support**: Fully compatible with the Google MCP server for direct tool-calling by LLMs.
+- **Low Friction**: Minimalist interface optimized for rapid capture and completion.
+- **Reliability**: Highly available service with robust synchronization across web and mobile.
 
 ## Limitations
-- **Lacks Advanced Features**: No subtasks (nested only one level), labels, or complex dependencies.
-- **Minimal Collaboration**: Difficult to share task lists with others compared to [Todoist](todoist.md) or [Any.do](any-do.md).
-- **Formatting**: Very limited support for rich text or Markdown in task notes.
+- **Feature Set**: Lacks advanced project management features like subtask nesting (limited to one level), complex dependencies, or custom labels.
+- **Collaboration**: Sharing task lists is limited compared to enterprise tools like [Todoist](todoist.md) or [TickTick](ticktick.md).
+- **Formatting**: Limited support for rich text or Markdown in task notes.
 
 ## When to use it
-- When you are already heavily invested in the Google Workspace ecosystem.
-- For simple personal tasks that don't require complex project management features.
-- When you want your tasks to be visible alongside your events in [Google Calendar](google_calendar.md).
+- When you are deeply integrated into the Google Workspace ecosystem.
+- For simple, personal to-do lists that require visibility in [Google Calendar](google_calendar.md).
+- When building agents that need a low-latency, reliable task storage backend.
 
 ## When not to use it
-- For team project management (use [Gitea](../../services/gitea.md) or similar).
-- If you need deep Markdown support (consider [Obsidian](../ai_knowledge/obsidian.md) or [Logseq](../ai_knowledge/logseq.md)).
-- If you require advanced task organization like filters, tags, and priority levels.
+- For complex team project management (use [Gitea](../../services/gitea.md) or [Linear](../enterprise/linear.md)).
+- If you require advanced organization like tags, filters, or Kanban views.
+- If your workflow is primarily Markdown-based (consider [Obsidian](../ai_knowledge/obsidian.md) or [Logseq](../ai_knowledge/logseq.md)).
 
-## API and Automation
-Google Tasks is a popular target for "Smart Task" patterns.
+## Getting started
+1. **Access**: Open Google Tasks in the Gmail or Calendar sidebar.
+2. **Setup API**: Enable the Google Tasks API in the [Google Cloud Console](https://console.cloud.google.com/).
+3. **Agentic Use**: Configure the Google MCP server to allow your agent to read/write tasks.
 
-### 1. Python SDK Example
-Creating a task using the `google-api-python-client`.
+## CLI examples
 
+### Using Google Workspace CLI
+```bash
+# List all tasks in the default list
+gworkspace tasks list
+
+# Create a new task
+gworkspace tasks create --title "Review architectural diagrams" --notes "Focus on MCP 3.0 implementation" --due "2026-07-01T10:00:00Z"
+```
+
+### Using MCP 3.0 (within an agent prompt)
+```text
+/call google_tasks.create_task(title="Renew home-office domain", notes="Check Google Domains status")
+```
+
+## API examples
+
+### Python (Google API Client)
 ```python
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
-def add_task(title, notes=None, due=None):
+def create_google_task(title, notes=None):
     creds = Credentials.from_authorized_user_file('token.json')
     service = build('tasks', 'v1', credentials=creds)
 
     task = {
         'title': title,
-        'notes': notes,
-        'due': due # ISO 8601 format: 2026-06-01T12:00:00Z
+        'notes': notes
     }
 
     result = service.tasks().insert(tasklist='@default', body=task).execute()
     print(f"Task created: {result['title']} (ID: {result['id']})")
 ```
 
-### 2. n8n Integration
-The **Google Tasks** node in [n8n](../../services/n8n.md) allows for:
-- **Trigger**: New task created or task completed.
-- **Action**: Create, Update, or List tasks.
-- **Workflow**: Automatically create a task when a high-priority email is received in Gmail.
-
-## Getting started
-1. Access Google Tasks via the sidebar in Gmail or Google Calendar.
-2. Download the mobile app for iOS or Android.
-3. For developers, enable the Tasks API in the [Google Cloud Console](https://console.cloud.google.com/).
+### Node.js (MCP Tool Definition)
+```javascript
+export const createTaskTool = {
+  name: "google_tasks_create",
+  description: "Create a new task in Google Tasks",
+  parameters: {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      notes: { type: "string" }
+    },
+    required: ["title"]
+  }
+};
+```
 
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md)
 - [Todoist](todoist.md)
-- [Any.do](any-do.md)
-- [Microsoft To Do](microsoft-todo.md)
 - [TickTick](ticktick.md)
 - [n8n](../../services/n8n.md)
-- [Home Assistant](../../services/home-assistant.md)
 - [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md)
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md)
+- [Gemini](../ai_knowledge/gemini.md)
+- [MCP 3.0](../../knowledge_base/mcp.md)
+- [Microsoft To Do](microsoft-todo.md)
 
-## Sources / references
-- [Google Tasks Official Overview](https://support.google.com/tasks/answer/7675772)
-- [Google Tasks API Documentation](https://developers.google.com/workspace/tasks)
+## Sources / References
+- [Google Tasks Official Support](https://support.google.com/tasks/answer/7675772)
+- [Google Tasks API Reference](https://developers.google.com/workspace/tasks)
+- [Google Cloud Console](https://console.cloud.google.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-05
+- Last reviewed: 2026-06-23
 - Confidence: high
