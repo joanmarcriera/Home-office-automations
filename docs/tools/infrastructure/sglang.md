@@ -1,83 +1,81 @@
 # SGLang
 
 ## What it is
-SGLang is a fast serving framework for large language models and vision-language models. It makes your interaction with models faster and more controllable by optimizing the runtime with features like RadixAttention.
+SGLang is a fast serving framework for large language models and vision-language models. It makes your interaction with models faster and more controllable by optimizing the runtime with features like RadixAttention. By June 2026, it has become a leading choice for complex multi-agent orchestration due to its superior KV cache management.
 
 ## What problem it solves
-LLM applications often involve repetitive prompting, structured output requirements, and complex chaining. SGLang addresses these by providing a high-performance runtime that significantly reduces latency through aggressive caching (RadixAttention) and optimized kernels for constrained generation.
+LLM applications often involve repetitive prompting, structured output requirements, and complex chaining. SGLang addresses these by providing a high-performance runtime that significantly reduces latency through aggressive caching (RadixAttention) and optimized kernels for constrained generation. It specifically solves the "First Token Latency" problem in long-context multi-turn conversations.
 
 ## Where it fits in the stack
-**Infra**. It sits in the serving layer, specifically optimized for complex agentic workflows and vision-language tasks.
+**Infrastructure / Inference Engine**. It sits in the serving layer, specifically optimized for complex agentic workflows and vision-language tasks, competing directly with [vLLM](../infrastructure/vllm.md) and [Aphrodite Engine](../infrastructure/aphrodite-engine.md).
 
 ## Typical use cases
-- **Multi-turn Chat & Agents**: High-performance serving where prompt history is reused.
-- **Structured Data Extraction**: Applications requiring complex, multi-turn JSON or regex-constrained generation.
-- **Vision-Language Applications**: Serving models like LLaVA or Qwen-VL with high throughput.
+- **Multi-turn Chat & Agents**: High-performance serving where prompt history (system prompts, context) is reused across multiple turns.
+- **Structured Data Extraction**: Applications requiring complex, multi-turn JSON or regex-constrained generation (e.g., [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)).
+- **Vision-Language Applications**: Serving models like LLaVA, Qwen-VL, or Gemini-compatible open weights with high throughput.
+- **Agentic Workflows**: Powering frameworks like [AG2](../../tools/frameworks/ag2.md) or [Langflow](../../tools/frameworks/langflow.md) where state persistence is critical.
 
 ## Strengths
 - **RadixAttention**: Automatically caches and reuses KV cache across different requests with shared prefixes, essential for agents.
-- **Fast Structured Generation**: Optimized engine for constrained generation (JSON Schema, regex).
-- **Chunked Prefill**: Efficiently handles large prompt processing without blocking small generation tasks.
-- **Comprehensive VLM Support**: Native support and high performance for vision-based models.
-- **Native Interpreter**: Includes a high-level Python interface (SGLang runtime) for complex LLM programming.
+- **Fast Structured Generation**: Optimized engine for constrained generation (JSON Schema, regex) using compressed finite state machines.
+- **Chunked Prefill**: Efficiently handles large prompt processing without blocking small generation tasks, improving overall system throughput.
+- **Comprehensive VLM Support**: Native support and high performance for vision-based models with multi-image processing.
+- **Native Interpreter**: Includes a high-level Python interface (SGLang runtime) for complex LLM programming and state management.
 
 ## Limitations
-- **Hardware**: Primarily targets NVIDIA GPUs (CUDA).
-- **Ecosystem**: Newer than vLLM; integration with some third-party orchestrators may require custom adapters.
-
-## Hardware requirements
-
-SGLang requires NVIDIA GPU (CUDA). Its RadixAttention cache benefit scales with model size and concurrency — most valuable for 13B+ models with many parallel requests. No Apple Silicon support — use [MLX](mlx.md) or [Ollama](../../services/ollama.md) on macOS.
-
-| Model size | Precision | Min VRAM | RTX 4060 8 GB | Notes |
-|---|---|---|---|---|
-| 7-8B | fp16 | 14-16 GB | ❌ Not viable | |
-| 7-8B | AWQ 4-bit | 4-5 GB | ✅ Comfortable | `--quantization awq` |
-| 7-8B | fp8 | 7-8 GB | ⚠️ Tight | Ampere/Ada required |
-| 13-14B | AWQ 4-bit | 7-8 GB | ⚠️ Tight | Use `--mem-fraction-static 0.80` |
-| 30B+ | any | 20 GB+ | ❌ Not viable | Multi-GPU only |
-
-**Recommended launch for RTX 4060:**
-```bash
-python -m sglang.launch_server \
-    --model-path TheBloke/Mistral-7B-Instruct-v0.2-AWQ \
-    --quantization awq \
-    --port 30000 \
-    --mem-fraction-static 0.80
-```
+- **Hardware Bound**: Primarily targets NVIDIA GPUs (CUDA); support for other accelerators (ROCm, Gaudi) is trailing.
+- **Ecosystem Maturity**: While rapidly growing, it has fewer community-contributed adapters compared to vLLM.
+- **Complexity**: The native interpreter introduces a learning curve for developers used to simple OpenAI-style API calls.
 
 ## When to use it
 - When your application relies on multi-turn interactions or shared prompt prefixes.
-- When you need low-latency, reliable structured generation.
-- When serving VLMs at production scale.
+- When you need low-latency, reliable structured generation (e.g., for [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)).
+- When serving VLMs at production scale with high concurrency.
 
 ## When not to use it
-- For basic, single-prompt text generation where vLLM might be more widely documented.
-- On non-NVIDIA hardware or platforms where CUDA is not available.
-
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
+- For basic, single-prompt text generation where [vLLM](vllm.md) might be more widely documented.
+- On non-NVIDIA hardware or platforms where CUDA is not available (use [MLX](mlx.md) on Apple Silicon).
 
 ## Getting started
-
 ### Installation
 ```bash
+# Install with all dependencies for local serving
 pip install "sglang[all]"
 ```
 
-### Advanced Server Configuration
-Launch the server with chunked prefill and RadixAttention enabled (default):
-
+### Basic Server Launch
 ```bash
 python -m sglang.launch_server \
     --model-path meta-llama/Llama-3.1-8B-Instruct \
     --port 30000 \
-    --chunked-prefill-size 512 \
     --mem-fraction-static 0.8
 ```
 
+### Hardware Verification (RTX 4060 8 GB)
+| Model size | Precision | VRAM Needed | Status | Notes |
+|---|---|---|---|---|
+| 7-8B | fp16 | 14-16 GB | ❌ | Exceeds VRAM |
+| 7-8B | AWQ 4-bit | 4-5 GB | ✅ | Use `--quantization awq` |
+| 13-14B | AWQ 4-bit | 7-8 GB | ⚠️ | Use `--mem-fraction-static 0.80` |
+
+## CLI examples
+### Launching with Quantization
+```bash
+# Launching an AWQ model for low-memory environments
+python -m sglang.launch_server \
+    --model-path TheBloke/Mistral-7B-Instruct-v0.2-AWQ \
+    --quantization awq \
+    --port 30000
+```
+
+### Monitoring via CLI
+```bash
+# Check server health and stats
+curl http://localhost:30000/health
+curl http://localhost:30000/stats
+```
+
+## API examples
 ### Structured Generation (Python SDK)
 SGLang allows for highly efficient constrained generation using its native interpreter.
 
@@ -85,24 +83,28 @@ SGLang allows for highly efficient constrained generation using its native inter
 import sglang as sgl
 
 @sgl.function
-def multi_turn_question(s, question):
-    s += sgl.user(question)
-    s += sgl.assistant(sgl.gen("answer", max_tokens=100))
-    s += sgl.user("Summarize that in 10 words.")
-    s += sgl.assistant(sgl.gen("summary", max_tokens=50))
+def extract_user_info(s):
+    s += sgl.user("Extract name and age from: John is a 30-year-old developer.")
+    s += sgl.assistant(sgl.gen("json_output", regex=r'\{"name": ".*", "age": \d+\}'))
 
-# Execute
-state = multi_turn_question.run(
-    question="What is RadixAttention?",
-    backend=sgl.RuntimeEndpoint("http://localhost:30000")
-)
-
-print(state["answer"])
-print(state["summary"])
+# Execute via runtime endpoint
+runtime = sgl.RuntimeEndpoint("http://localhost:30000")
+state = extract_user_info.run(backend=runtime)
+print(state["json_output"])
 ```
 
-## Core Architecture: RadixAttention
-Unlike traditional LRU caching, **RadixAttention** manages the KV cache as a radix tree. When multiple requests share a prefix (e.g., a system prompt or a long document), SGLang identifies the shared node in the tree and reuses the pre-computed KV cache, eliminating redundant computation and significantly reducing time-to-first-token (TTFT).
+### OpenAI Compatible API
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:30000/v1", api_key="sglang")
+
+response = client.chat.completions.create(
+    model="default",
+    messages=[{"role": "user", "content": "What is RadixAttention?"}]
+)
+print(response.choices[0].message.content)
+```
 
 ## Related tools / concepts
 - [vLLM](vllm.md)
@@ -111,14 +113,17 @@ Unlike traditional LRU caching, **RadixAttention** manages the KV cache as a rad
 - [llama.cpp](llama-cpp.md)
 - [Inference engines](index.md)
 - [JSON Schema](https://json-schema.org/)
-- [Python SDK](https://github.com/sgl-project/sglang/tree/main/python/sglang)
+- [AG2](../../tools/frameworks/ag2.md)
+- [Langflow](../../tools/frameworks/langflow.md)
+- [Data Copilot Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
 
 ## Sources / References
 - [Official Website](https://sgl-project.github.io/)
-- [SGLang Python SDK](https://github.com/sgl-project/sglang/tree/main/python/sglang)
-- [GitHub](https://github.com/sgl-project/sglang)
+- [SGLang GitHub Repository](https://github.com/sgl-project/sglang)
 - [RadixAttention Technical Paper](https://arxiv.org/abs/2312.04515)
+- [SGLang Blog: Optimization for Agents](https://sgl-project.github.io/blog/agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high
