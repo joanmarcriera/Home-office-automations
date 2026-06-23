@@ -1,240 +1,154 @@
 # Retrieval-Augmented Generation (RAG)
 
 ## What it is
-
-Retrieval-Augmented Generation (RAG) is an architectural pattern that optimizes the output of a Large Language Model (LLM) by referencing an authoritative knowledge base outside of its training data sources before generating a response. It bridges the gap between the generative power of LLMs and the need for factual, up-to-date, and private information.
+Retrieval-Augmented Generation (RAG) is an architectural pattern that optimizes the output of a Large Language Model (LLM) by referencing an authoritative knowledge base outside of its training data before generating a response. In June 2026, RAG has evolved into **Agentic RAG**, where models use [Tool Calling](tool-calling-and-mcp.md) to dynamically plan and execute multi-step retrieval strategies across heterogeneous data sources.
 
 ## What problem it solves
-
-*   **Hallucination Reduction:** Grounding models in retrieved facts significantly reduces the likelihood of the LLM generating "plausible-sounding" but incorrect information.
-*   **Knowledge Freshness:** Enables models to access the latest information without the prohibitive cost and time of retraining or fine-tuning.
-*   **Domain Specificity:** Allows general-purpose models to answer questions about proprietary or niche datasets (e.g., internal company wikis, technical manuals).
-*   **Cost Efficiency:** Updating a vector database is orders of magnitude cheaper and faster than fine-tuning a model on new data.
-*   **Explainability:** RAG systems can provide citations for the sources used to generate a response, increasing user trust.
+It bridges the gap between the generative power of LLMs and the need for factual, up-to-date, and private information.
+- **Hallucination Reduction**: Grounding models in retrieved facts significantly reduces incorrect "plausible-sounding" generation.
+- **Knowledge Freshness**: Enables access to real-time data (e.g., stock prices, news) without the cost of retraining.
+- **Explainability**: RAG systems provide citations, enabling users to verify the source of information.
+- **Data Sovereignty**: Allows general-purpose models to reason over private datasets (e.g., company wikis, legal archives) without exposing that data during the model training phase.
 
 ## Where it fits in the stack
-
-RAG is a core **Reasoning Engine** pattern (Layer 3 in the [AI Tooling Landscape](../ai_tooling_landscape.md)). It sits between the raw **Infrastructure/Models** (Layer 0-2) and the **Orchestration/Frameworks** (Layer 5-6) that implement the retrieval logic.
-
-## Architecture
-
-The RAG architecture consists of a disconnected ingestion pipeline and a real-time retrieval-generation loop.
-
-```text
-                                     +-----------------------+
-                                     |  Ingestion Pipeline   |
-                                     +----------+------------+
-                                                |
-          +----------+      +-----------+       v       +------------+       +--------------+
-          | Documents| ---> | Load/Parse| ---> [Chunk] ---> [Embed]  | ---> | Vector Store |
-          +----------+      +-----------+               +-----+------+       +--------------+
-                                                              ^
-                                                              |
-                                                     +--------+---------+
-                                                     | Embedding Model  |
-                                                     +------------------+
-
-                                     +-----------------------+
-                                     |  Retrieval Pipeline   |
-                                     +----------+------------+
-                                                |
-          +----------+      +-----------+       v       +------------+
-          |User Query| ---> |  Rewrite  | ---> [Embed] | Vector DB  |
-          +----------+      +-----------+       |       +-----+------+
-                                                |             |
-                                                |      (Similarity Search)
-                                                |             |
-                                                v             v
-          +----------+      +-----------+    +--------+    +----------+       +--------------+
-          | Response | <--- | Generative| <--- [Augment] <--- [Re-rank] <--- | Top-K Chunks |
-          +----------+      |    LLM    |    +--------+    +----------+       +--------------+
-                            +-----------+
-```
-
-### Core Pipeline
-1.  **Document Loading:** Importing data from sources like PDFs, Markdown, SQL databases, or APIs.
-2.  **Chunking:** Splitting documents into smaller, semantically meaningful pieces (chunks) to respect LLM context limits.
-3.  **Embedding:** Using a model (e.g., `nomic-embed-text`) to convert text chunks into numerical vectors.
-4.  **Vector Store:** A specialized database (e.g., Chroma, Qdrant, pgvector) for storing and performing similarity searches on vectors.
-5.  **Retrieval:** Fetching the most relevant chunks based on the vector similarity of the query.
-6.  **Generation:** The LLM synthesizes the answer using the retrieved context and the user's query.
-
-## Variants
-
-*   **Naive RAG:** The traditional "retrieve-and-read" flow. Highly effective for simple queries but struggles with complex reasoning or multi-hop questions across multiple documents.
-*   **Advanced RAG:** Improves on Naive RAG by adding sophisticated pre- and post-retrieval steps:
-    *   **Pre-retrieval:** Query expansion (generating multiple versions of the query) and Query Transformation (rewriting for better search compatibility).
-    *   **Post-retrieval:** Re-ranking (scoring chunks with a precise cross-encoder) and Context Compression (removing irrelevant noise from chunks).
-*   **Modular RAG:** A flexible architecture where components are added as needed:
-    *   **Routing:** Directing queries to the most relevant data silo (e.g., SQL vs Vector DB).
-    *   **Iterative Retrieval:** Retrieving, generating a partial answer, then retrieving again based on the partial answer.
-    *   **Self-RAG:** The model critiques its own retrieved chunks and generated response for relevance, support, and utility.
-*   **GraphRAG:** Augments vector retrieval with a Knowledge Graph. It extracts entities and relationships to provide both global context (summarizing entire datasets) and local context (finding specific facts), solving the "blindness" of vector search to broad themes.
-*   **Agentic RAG:** An agent-driven approach where the LLM is equipped with retrieval tools. The agent plans its search strategy, chooses between multiple data sources, and performs multi-step reasoning before delivering the final answer.
-- **Contextual Retrieval**: Introduced by Anthropic in late 2024, this technique prepends a "situational context" to every chunk before embedding it (e.g., "This chunk is from the Q3 earnings report of Company X, specifically discussing their data center expansion"). This significantly improves retrieval accuracy for ambiguous queries by 49-67% in production benchmarks.
-
-## Stateless RAG vs. Persistent Context
-
-As context windows expand, a new architectural decision emerges between traditional RAG and persistent "Long-Context" patterns:
-
-- **Stateless RAG (Traditional)**:
-    - **Mechanism**: Retrieval is performed per-query. Context is injected into the prompt and then "forgotten" by the model after the turn.
-    - **Best for**: Massive datasets (Petabytes) that cannot fit in any context window, or when strict per-query data isolation is required.
-    - **Pros**: Cost-effective for large datasets; highly scalable.
-- **Persistent Context (Long-Context)**:
-    - **Mechanism**: Large amounts of data (up to 2M+ tokens) are loaded into the model's active memory or KV cache (e.g., via [Google Gemini](../../tools/providers/google-gemini.md) 1.5 Pro).
-    - **Best for**: Working intensely with a specific set of documents (e.g., a codebase, a single legal case, or a book).
-    - **Pros**: Superior reasoning across the entire dataset; avoids chunking-related context loss.
+RAG is a core **Reasoning Engine** pattern. It sits between the raw **Infrastructure/Models** (Layer 0-2) and the **Orchestration/Frameworks** (Layer 5-6) that implement the retrieval logic. It is often the primary mechanism for [Personal AI Assistants](../../knowledge_base/self-healing-agent-research.md) to access user-specific context.
 
 ## Typical use cases
+- **Personal Knowledge Management**: Querying a private library of notes, emails, and documents (e.g., via [NotebookLM](../../tools/ai_knowledge/notebooklm.md)).
+- **Technical Support**: Answering complex configuration questions based on product manuals and GitHub issues.
+- **Automated Financial Analysis**: Reasoning over real-time market data and historical earnings reports.
+- **Legal & Compliance**: Searching through vast repositories of contracts and regulations to identify specific clauses or risks.
+- **Medical Diagnostics Support**: Referencing the latest clinical research and patient history in a secure, RAG-grounded environment.
 
-*   **Technical Support:** Answering questions based on product manuals and documentation.
-*   **Internal Knowledge Base:** Querying company wikis, HR policies, or project notes.
-*   **Legal/Compliance:** Searching through large volumes of contracts or regulations.
-*   **Personal Finance:** Reasoning over bank statements and expense logs (e.g., in [Actual Budget](../../services/actual-budget.md)).
+## Strengths
+- **Factual Reliability**: High accuracy for knowledge-intensive tasks compared to base LLMs.
+- **Resource Efficiency**: Updating a vector database is orders of magnitude cheaper than fine-tuning a model.
+- **Transparency**: Citations and "source-grounding" increase user trust and auditability.
+- **Flexibility**: Can be easily adapted to new domains by swapping the underlying document store.
+
+## Limitations
+- **Retrieval Fragility**: The answer is only as good as the retrieved chunks ("Garbage In, Garbage Out").
+- **Latency**: The retrieval, re-ranking, and context-augmentation steps add time to the overall response.
+- **Context Window Management**: Despite RAG, models still have limits on how much retrieved context they can effectively process in a single turn.
+- **Semantic Drift**: Vector search can occasionally retrieve semantically similar but factually irrelevant "noise."
+
+## When to use it
+- When the model needs access to private, proprietary, or rapidly changing information.
+- When factual accuracy and citation of sources are mandatory requirements.
+- When you need to scale knowledge access to millions of documents without fine-tuning costs.
+- When building [Agentic Workflows](agentic-workflows.md) that require long-term memory.
+
+## When not to use it
+- For purely creative writing (fiction, poetry) where external facts are unnecessary.
+- When the entire dataset fits within a frontier model's massive context window (e.g., Gemini 3.5 Pro's 10M tokens) and cost is not a primary constraint.
+- When sub-100ms latency is required for a simple, non-factual interaction.
+- When the LLM's base training data is already sufficient and up-to-date for the task.
 
 ## Getting started
 
-The following examples demonstrate a minimal local RAG setup using **Ollama** for both embeddings (`nomic-embed-text`) and generation (`llama3`).
+### Minimal Agentic RAG Setup (Python)
+In 2026, [Smolagents](../../tools/frameworks/smolagents.md) is a popular way to build lightweight Agentic RAG.
 
-=== "LangChain"
+```python
+from smolagents import CodeAgent, DuckDuckGoSearchTool, HfApiModel
 
-    ```python
-    from langchain_community.document_loaders import TextLoader
-    from langchain_text_splitters import RecursiveCharacterTextSplitter
-    from langchain_community.embeddings import OllamaEmbeddings
-    from langchain_community.vectorstores import Chroma
-    from langchain_community.chat_models import ChatOllama
-    from langchain_core.prompts import ChatPromptTemplate
-    from langchain.chains import create_retrieval_chain
-    from langchain.chains.combine_documents import create_stuff_documents_chain
+# 1. Define the agent with a search tool (Retrieval)
+agent = CodeAgent(
+    tools=[DuckDuckGoSearchTool()],
+    model=HfApiModel()
+)
 
-    # 1. Load and Chunk
-    loader = TextLoader("docs/my_data.txt")
-    docs = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    splits = text_splitter.split_documents(docs)
+# 2. Run the agentic retrieval loop
+response = agent.run("What is the current status of the MCP 3.0 specification?")
+print(response)
+```
 
-    # 2. Embed and Store
-    vectorstore = Chroma.from_documents(
-        documents=splits,
-        embedding=OllamaEmbeddings(model="nomic-embed-text")
-    )
-    retriever = vectorstore.as_retriever()
+### Local RAG with Ollama and LlamaIndex
+```python
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
+from llama_index.embeddings.ollama import OllamaEmbedding
+from llama_index.llms.ollama import Ollama
 
-    # 3. Create Retrieval Chain
-    model = ChatOllama(model="llama3")
+# Setup local models
+Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
+Settings.llm = Ollama(model="llama3.1", request_timeout=360.0)
 
-    prompt = ChatPromptTemplate.from_template("""
-    Answer the question based only on the following context:
-    {context}
+# Load data and index
+documents = SimpleDirectoryReader("./my_docs").load_data()
+index = VectorStoreIndex.from_documents(documents)
 
-    Question: {input}
-    """)
+# Query
+query_engine = index.as_query_engine()
+print(query_engine.query("Summarize the Q2 highlights."))
+```
 
-    combine_docs_chain = create_stuff_documents_chain(model, prompt)
-    rag_chain = create_retrieval_chain(retriever, combine_docs_chain)
+## CLI examples
 
-    # 4. Invoke
-    response = rag_chain.invoke({"input": "What is the primary conclusion of the report?"})
-    print(response["answer"])
-    ```
+### Indexing a Directory
+Using the `ragflow-cli` (v2026.5) to prepare a knowledge base:
 
-=== "LlamaIndex"
+```bash
+# Parse and index all PDFs in a directory with layout awareness
+ragflow-cli index --path ./manuals --parser deepdoc --output-collection manuals_v1
+```
 
-    ```python
-    from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
-    from llama_index.embeddings.ollama import OllamaEmbedding
-    from llama_index.llms.ollama import Ollama
+### Testing Retrieval Quality
+```bash
+# Query the vector store directly and view top-K similarity scores
+ragflow-cli search --query "How do I reset the device?" --collection manuals_v1 --top-k 5
+```
 
-    # 1. Setup Local Models via Settings
-    Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
-    Settings.llm = Ollama(model="llama3", request_timeout=360.0)
+## API examples
 
-    # 2. Load Documents and Create Index
-    # SimpleDirectoryReader reads all files in the specified directory
-    documents = SimpleDirectoryReader("data/").load_data()
-    index = VectorStoreIndex.from_documents(documents)
+### Contextual Retrieval (Anthropic SDK)
+Prepending situational context to chunks to improve retrieval accuracy.
 
-    # 3. Query the Index
-    query_engine = index.as_query_engine()
-    response = query_engine.query("What are the key findings?")
-    print(response)
-    ```
+```python
+import anthropic
 
-## Key decisions
+client = anthropic.Anthropic()
 
-*   **Chunking Strategy:**
-    *   *Fixed-size:* Simple and fast, but may cut off context mid-sentence.
-    *   *Recursive:* Splits on hierarchy (paragraphs, sentences) to preserve meaning.
-    *   *Semantic:* Uses embeddings to find natural break points between topics.
-*   **Embedding Model Selection:**
-    *   *Local:* Use [Ollama](../../services/ollama.md) with `nomic-embed-text` or BGE models for privacy and cost.
-    *   *API:* OpenAI `text-embedding-3-small` or Cohere `embed-english-v3.0` for high performance.
-*   **Vector Store Selection:**
-    *   Local: Chroma, Qdrant (local mode), [pgvector](../../tools/infrastructure/index.md#sub-categories).
-    *   Cloud: Pinecone, Weaviate, Milvus.
-*   **Retrieval Strategy:**
-    *   *Similarity Search:* Basic cosine similarity for fast, direct matching.
-    *   *Maximum Marginal Relevance (MMR):* Balances relevance with diversity to avoid redundant information in the context window.
-    *   *Hybrid Search:* Combines vector search with keyword (BM25) search to capture both semantic meaning and specific terminology.
-*   **Re-ranking:**
-    *   *Cross-Encoders:* Use a model (e.g., Cohere Rerank) to score the relationship between query and chunk directly, significantly improving precision over vector similarity alone.
+# Every chunk is augmented with its position in the larger document
+contextual_chunk = """
+<situational_context>
+This chunk is from the 'Troubleshooting' section of the 'Model X' manual, specifically discussing battery issues.
+</situational_context>
+To reset the battery, hold the power button for 15 seconds until the LED flashes red.
+"""
 
-## Strengths
+# Embed the contextualized chunk...
+```
 
-*   **Factual Accuracy:** Grounding in real data reduces hallucinations.
-*   **Transparency:** Citations provide a way to verify the model's output.
-*   **Efficiency:** Much faster and cheaper than fine-tuning for knowledge updates.
-*   **Privacy:** Can be run entirely locally with tools like Ollama and local vector DBs.
+### Hybrid Search with Weaviate (MCP)
+```python
+import weaviate
 
-## Limitations
+client = weaviate.connect_to_local()
+collection = client.collections.get("Manuals")
 
-*   **Retrieval Quality:** The answer is only as good as the retrieved context (Garbage In, Garbage Out).
-*   **Context Window:** Even with RAG, LLMs have limits on how much context they can process effectively.
-*   **Complexity:** Managing chunking strategies and vector database indexes adds architectural overhead.
-*   **Latency:** The retrieval and potential re-ranking steps add time to the overall response generation.
-
-## When to use it
-
-*   When the model needs access to private or internal documentation.
-*   When factual accuracy is more important than creative flair.
-*   When knowledge needs to be updated frequently (daily or hourly).
-*   When you need to verify the source of information via citations.
-
-## When not to use it
-
-*   When the entire dataset fits within a massive context window (e.g., Gemini 1.5 Pro's 2M tokens) and cost is not a primary concern.
-*   For purely creative tasks (poetry, fiction) where external facts are unnecessary.
-*   When latency requirements are extremely tight (sub-100ms), as RAG adds retrieval time.
-*   When the LLM's base training data is already sufficient and up-to-date for the domain.
-
-## Implementation Case Studies
-
-### 1. High-Precision Parsing (RAGFlow)
-[RAGFlow](../../tools/process_understanding/ragflow.md) utilizes the **'DeepDoc'** engine, which employs vision-based deep learning models to recognize document layout (tables, charts, headers) rather than relying on simple text extraction. This ensures that the relationship between data points is preserved during the chunking phase, preventing the loss of structural context.
-
-### 2. Multi-Modal Retrieval (Verba)
-[Verba](../../tools/intake_storage/verba.md) provides a standardized RAG architecture built natively on **Weaviate**. It leverages Weaviate's multi-modal capabilities to index not just text, but also images and structured data, enabling a "Unified Context" where an agent can reason across different media types using a single vector search interface.
+# Combine vector search with keyword (BM25) search
+result = collection.query.hybrid(
+    query="battery reset",
+    alpha=0.5, # Balance between vector and keyword
+    limit=3
+)
+```
 
 ## Related tools / concepts
-
-*   **RAG Platforms:** [Dify](../../tools/ai_knowledge/dify.md), [Flowise](../../tools/ai_knowledge/flowise.md), [RAGFlow](../../tools/process_understanding/ragflow.md), [Verba](../../tools/intake_storage/verba.md)
-*   **Orchestration:** [LlamaIndex](../../tools/ai_knowledge/llamaindex.md), [LangChain](../../tools/ai_knowledge/langchain.md), [Haystack](../../tools/frameworks/haystack.md)
-*   **Infrastructure:** [Vector Databases](../../tools/infrastructure/index.md), [Embedding Models](../../tools/infrastructure/index.md)
-*   **Data Extraction:** [Crawl4AI](../../tools/process_understanding/crawl4ai.md), [Firecrawl](../../tools/process_understanding/firecrawl.md), [OCRmyPDF](../../tools/process_understanding/ocrmypdf.md)
-*   **Local Solutions:** [Paperless-AI](../../services/paperless-ai.md), [PageIndex](../../tools/process_understanding/pageindex.md)
-*   **Evaluation:** RAGAS, DeepEval, TruLens
-*   **Concepts:** [Tool Calling & MCP](tool-calling-and-mcp.md), [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Agentic RAG](data-copilot-agentic-rag.md) — Multi-step retrieval and reasoning.
+- [Tool Calling & MCP](tool-calling-and-mcp.md) — The mechanism for agent-driven retrieval.
+- [RAGFlow](../../tools/process_understanding/ragflow.md) — Vision-native knowledge engine.
+- [ColQwen](../../tools/process_understanding/colqwen.md) — Multi-modal RAG using late interaction.
+- [Docling](../../tools/process_understanding/docling.md) — High-fidelity document parsing for RAG.
+- [Vector Databases](../../tools/infrastructure/index.md#sub-categories) — The storage layer for RAG.
+- [GraphRAG](../../knowledge_base/patterns/agentic-workflows.md) — RAG using knowledge graphs for global context.
+- [Self-Healing Agents](../../knowledge_base/self-healing-agent-research.md) — Using RAG for autonomous system remediation.
 
 ## Sources / references
-
-*   [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (Lewis et al. 2020)](https://arxiv.org/abs/2005.11401) - The foundational RAG paper.
-*   [Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection (Akari et al. 2023)](https://arxiv.org/abs/2310.11511)
-*   [RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval (Sarthi et al. 2024)](https://arxiv.org/abs/2401.18059)
-*   [From Local to Global: A GraphRAG Approach to Query-Focused Summarization (Edge et al. 2024)](https://arxiv.org/abs/2404.16130)
+- [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (Lewis et al. 2020)](https://arxiv.org/abs/2005.11401)
+- [Anthropic: Contextual Retrieval Guide (2025)](https://www.anthropic.com/news/contextual-retrieval)
+- [IBM Research: The Evolution of Agentic RAG (2026)](https://research.ibm.com/blog/evolution-agentic-rag)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-22
 - Confidence: high
