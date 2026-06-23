@@ -1,103 +1,123 @@
-# Agent Development Kit (ADK)
+# Google Agent Development Kit (ADK)
 
 ## What it is
-The Agent Development Kit (ADK) is an open-source framework by Google for building, debugging, and deploying reliable AI agents at enterprise scale. It is the same framework Google uses internally for production-grade AI agents.
+The Google Agent Development Kit (ADK) is an open-source framework designed for building, debugging, and deploying enterprise-grade AI agents at scale. As of June 2026, the ADK is in General Availability (GA), serving as the unified orchestration layer for Google's agentic ecosystem, including Gemini 3.5 and Vertex AI.
 
 ## What problem it solves
-It simplifies the transition from LLM prototyping to enterprise-grade agent deployment. It provides standardized orchestration, evaluation, and scaling tools, allowing developers to build everything from personal assistants to complex, mission-critical business workflows.
+It addresses the "Prototype-to-Production" gap. While many frameworks excel at simple chat loops, the ADK provides the rigorous state-machine orchestration, standardized "Skills" (tool-calling), and robust evaluation frameworks required for mission-critical, multi-agent business workflows.
 
 ## Where it fits in the stack
-**Category**: Frameworks / Enterprise Agent Framework
+**Category**: Frameworks / Enterprise Agent Framework. It sits between the frontier models (Gemini, Claude) and the application layer, providing a structured runtime for agentic logic.
 
 ## Typical use cases
-- **Enterprise Multi-Agent Systems**: Coordinating complex tasks across multiple specialized agents.
-- **Mission-Critical Workflows**: Building agents that require high reliability and predictable execution paths.
-- **Skill-Based Agents**: Extending agent capabilities using "Skills" (pre-defined action packages).
-- **Scale-Out Deployment**: Deploying agents to Google Cloud (Cloud Run, GKE) with built-in scaling and management.
-
-## Technical Capabilities
-- **State-Machine Orchestration**: Explicitly define transitions between agent states for high reliability and auditability.
-- **Skill Discovery**: Automatic registration and discovery of tools via standardized decorators.
-- **Traceability**: Native integration with Vertex AI's evaluation and monitoring tools (AI Evaluation Service).
-- **Cross-Language Support**: Standardized interfaces allow Go or Java agents to utilize Python-based skills via gRPC.
+- **Multi-Agent Enterprise Orchestration**: Coordinating complex, multi-step tasks across specialized agents (e.g., an "Accountant Agent" and a "Legal Agent").
+- **Mission-Critical Workflows**: Building agents where execution paths must be predictable, auditable, and reliable.
+- **Skill-Based Capability Extension**: Rapidly adding new tools to agents using standardized, cross-language Skill definitions.
+- **Vertex AI Deployment**: Scaling agents to production using Google Cloud's native infrastructure (Cloud Run, GKE).
 
 ## Strengths
-- **Production-Grade**: Based on Google's internal agent infrastructure.
-- **Multi-Language**: Available in Python, TypeScript, Go, and Java.
-- **Comprehensive Tooling**: Includes built-in support for debugging, evaluating, and monitoring agents.
-- **Google Cloud Native**: Deep integration with Vertex AI and Gemini, while remaining open-source.
+- **Production-Grade Reliability**: Based on the same infrastructure Google uses for internal AI services.
+- **Multi-Language Native**: Full, first-class support for Python, TypeScript, Go, and Java.
+- **General Availability (GA)**: (June 2026) Fully supported with enterprise SLAs and comprehensive documentation.
+- **Native MCP 3.0 Integration**: Seamlessly connects to any Model Context Protocol server for tool and data access.
+- **Standardized "Skills"**: A robust pattern for defining and discovering agent capabilities across different projects.
 
 ## Limitations
-- **Enterprise Complexity**: May have a steeper learning curve compared to simpler frameworks like smolagents.
-- **Ecosystem Maturity**: As a relatively new open-source release (late 2025/early 2026), the community ecosystem is still maturing.
+- **Architectural Complexity**: The emphasis on state-machines and explicit orchestration may feel overly complex for simple, linear agents.
+- **Cloud-Centric Optimization**: While open-source, it is heavily optimized for the Google Cloud/Vertex AI ecosystem.
 
 ## When to use it
-- When building large-scale, enterprise-grade AI agents that require high reliability and professional-grade orchestration.
-- If you are heavily invested in the Google Cloud/Vertex AI ecosystem and want to use the same tools Google uses internally.
-- For multi-agent systems where clear boundaries, standardized skills, and robust evaluation are critical.
+- When building large-scale, multi-agent systems that require high reliability and clear state management.
+- For enterprise projects where cross-language compatibility (e.g., a Go orchestrator with Python skills) is a requirement.
+- When you are already utilizing the Vertex AI ecosystem and want native integration with its evaluation and monitoring tools.
 
 ## When not to use it
-- For quick, experimental prototypes or small personal projects where a lightweight framework like `smolagents` or `instructor` would be faster to set up.
-- If you want a framework with a massive, long-standing community ecosystem (consider LangChain or LlamaIndex instead).
+- For quick, experimental prototypes where a lighter framework like [smolagents](https://github.com/huggingface/smolagents) or `instructor` would be faster.
+- If you prefer a purely "vibe-based" or non-deterministic agent loop over structured state-machines.
 
 ## Getting started
+The ADK is available via standard package managers.
 
-### Installation (Python)
-Detailed installation steps are provided in the Google Cloud Documentation and the GEAR (Google Developer Program).
-
+### Python Installation
 ```bash
 pip install google-adk
 ```
 
-### Key Concepts
-- **Workflow Agents**: Define predictable, state-machine-like pipelines.
-- **Skills**: Composable capabilities that agents can use to interact with external systems.
-- **Runtime**: Local and cloud execution environments for ADK agents.
+### TypeScript Installation
+```bash
+npm install @google/adk
+```
 
-## API: Building a Skill-Based Agent
-The ADK uses a decorator-based approach to define skills that agents can then discover and use.
+## CLI examples
+
+### 1. Initialize a New Project
+```bash
+adk init my-agentic-service --language python
+```
+
+### 2. Run Local Debugger
+```bash
+adk debug agent.yaml
+```
+
+### 3. Deploy to Vertex AI
+```bash
+adk deploy --project my-gcp-project --region us-central1
+```
+
+## API examples
+
+### Defining a Standardized Skill (Python)
+The ADK uses decorators to transform functions into discoverable agent skills.
 
 ```python
-from google_adk import Agent, Skill
+from google_adk import Skill
 
-# 1. Define a Skill
 @Skill.define(
-    name="query_crm",
-    description="Queries the internal CRM for user status."
+    name="get_stock_price",
+    description="Fetches real-time stock pricing from the internal financial API."
 )
-def query_crm(user_id: str) -> str:
-    # Logic to query an internal database
-    return f"User {user_id} is a premium customer."
+def fetch_stock(ticker: str) -> float:
+    # Logic to query internal API
+    return 150.25
 
-# 2. Initialize the Agent with the Skill
-agent = Agent(
-    name="SupportAgent",
-    model="gemini-1.5-pro",
-    skills=[query_crm]
-)
+# Registering the skill with an agent
+from google_adk import Agent
+agent = Agent(name="FinanceAgent", model="gemini-1.5-pro", skills=[fetch_stock])
+```
 
-# 3. Run a Task
-response = agent.run("Check the status of user 12345")
-print(response.content)
+### Orchestrating a State-Machine Agent (TypeScript)
+```typescript
+import { Agent, StateMachine } from '@google/adk';
+
+const sm = new StateMachine();
+sm.addState('INITIAL', async (context) => {
+  return context.input.includes('help') ? 'SUPPORT' : 'ROUTING';
+});
+
+const agent = new Agent({
+  name: 'Orchestrator',
+  workflow: sm
+});
 ```
 
 ## Related tools / concepts
-- [Gemini](../ai_knowledge/gemini.md)
-- [Microsoft Agent Framework](microsoft-agent-framework.md)
-- [LangGraph](langgraph.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [Firebase Genkit](firebase-genkit.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [CrewAI](crewai.md)
-- [Autogen](autogen.md)
-- [Jules](../ai_knowledge/jules.md)
-- [MCP](../automation_orchestration/mcp.md)
+- [Gemini](../ai_knowledge/gemini.md) — The primary model backbone for ADK agents.
+- [LangGraph](../frameworks/langgraph.md) — Competitive framework for stateful multi-agent systems.
+- [CrewAI](../frameworks/crewai.md) — Popular alternative for multi-agent role-playing.
+- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md) — Integrated standard for tool connectivity.
+- [Vertex AI](../infrastructure/supabase.md) — Google Cloud's AI platform for deployment.
+- [Jules](../ai_knowledge/jules.md) — Advanced agentic assistant developed by Google.
+- [Firebase Genkit](../frameworks/firebase-genkit.md) — Google's framework for AI-integrated web apps.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The fundamental pattern the ADK implements.
 
 ## Sources / references
-- [Google Cloud Documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk)
-- [GEAR Program](https://developers.google.com/program/gear)
-- [Launch Announcement](https://www.reddit.com/r/vibecoding/comments/1raamgk/google_officially_launches_the_agent_development/)
+- [Google Cloud ADK Documentation](https://cloud.google.com/vertex-ai/docs/adk)
+- [ADK GitHub Repository](https://github.com/google/adk)
+- [Google Developers Blog: ADK General Availability](https://developers.googleblog.com/2026/06/adk-ga-launch)
+- [Vertex AI Agent Runtime Guide](https://cloud.google.com/vertex-ai/docs/agents/runtime)
+- [June 2026 Framework Comparison](../../knowledge_base/landscape-overview.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-03
+- Last reviewed: 2026-06-23
 - Confidence: high
