@@ -50,6 +50,13 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
+          # Use a real-identity PAT (or GitHub App token) so the resulting PR
+          # TRIGGERS the on:pull_request check workflows. PRs opened with the
+          # default GITHUB_TOKEN are intentionally inert (GitHub recursion guard),
+          # which leaves checks stuck in "action_required". Falls back to
+          # GITHUB_TOKEN when the secret is absent (PR still opens; the
+          # "Trigger PR gate workflows" step below dispatches checks manually).
+          token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
           branch: automation/weekly-rollup
           delete-branch: true
           title: "chore: automation rollup"
