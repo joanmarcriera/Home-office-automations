@@ -38,7 +38,7 @@ def canonical_nav_paths() -> set[str]:
 
 def tool_catalog_paths() -> set[str]:
     payload = json.loads(TOOLS_JSON_PATH.read_text(encoding="utf-8"))
-    return {entry["doc_path"] for entry in payload.get("tools", [])}
+    return {entry["doc_path"] for entry in payload.get("tools", []) if entry.get("doc_path")}
 
 
 def main() -> int:

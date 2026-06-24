@@ -35,7 +35,9 @@ def expand_paths(raw_paths: list[str]) -> list[str]:
 
 
 def extract_last_reviewed(path: Path) -> dt.date | None:
-    text = path.read_text(encoding="utf-8")
+    # errors="ignore": a single doc with invalid UTF-8 must not crash the whole
+    # freshness gate (this runs with --fail-on-stale in generated-content-gates).
+    text = path.read_text(encoding="utf-8", errors="ignore")
     match = LAST_REVIEWED_RE.search(text)
     if not match:
         return None

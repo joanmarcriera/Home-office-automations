@@ -92,6 +92,87 @@
       "offline_capable": true,
       "tags": ["emerging", "code-execution", "local"],
       "why": "Local code-executing agent that can drive a machine with local models; relevant to home-automation agent patterns."
+    },
+    {
+      "name": "Qdrant",
+      "aliases": ["qdrant"],
+      "suggested_category": "Infrastructure",
+      "priority": "high",
+      "offline_capable": true,
+      "tags": ["offline-first", "vector-db", "rag"],
+      "why": "De-facto self-hosted vector database for local RAG. The catalog only has heavyweight Milvus/Weaviate and cloud-only Pinecone — the lightweight local vector layer that makes offline RAG work is undocumented."
+    },
+    {
+      "name": "Chroma",
+      "aliases": ["chroma", "chromadb"],
+      "suggested_category": "Infrastructure",
+      "priority": "high",
+      "offline_capable": true,
+      "tags": ["offline-first", "vector-db", "rag"],
+      "why": "Lightweight embedded vector DB, the default for quick local RAG prototypes; pairs with local embeddings to deliver the repo's offline-RAG thesis."
+    },
+    {
+      "name": "LanceDB",
+      "aliases": ["lancedb", "lance db"],
+      "suggested_category": "Infrastructure",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["offline-first", "vector-db", "embedded"],
+      "why": "Embedded, file-based, zero-server vector store ideal for air-gapped single-box home labs."
+    },
+    {
+      "name": "Local embedding models",
+      "aliases": ["nomic-embed-text", "bge-m3", "gte", "sentence-transformers", "local embeddings"],
+      "suggested_category": "Infrastructure",
+      "priority": "high",
+      "offline_capable": true,
+      "tags": ["offline-first", "embeddings", "rag"],
+      "why": "The embedding side of offline RAG (nomic-embed, bge, gte). Nothing in the catalog documents running embeddings locally, leaving the RAG pattern pages without an offline backend."
+    },
+    {
+      "name": "Llama (model family)",
+      "aliases": ["llama", "llama 3", "llama 4", "meta llama", "meta_llama"],
+      "suggested_category": "AI Assistants & Knowledge",
+      "priority": "high",
+      "offline_capable": true,
+      "tags": ["offline-first", "local-llm", "model-family"],
+      "why": "The most-referenced missing page: ~15 inbound 'Related tools' links point to a Llama model-family page that does not exist, despite 10+ Llama-adjacent runtime pages."
+    },
+    {
+      "name": "Gemma (model family)",
+      "aliases": ["gemma", "gemma 3"],
+      "suggested_category": "AI Assistants & Knowledge",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["offline-first", "local-llm", "model-family"],
+      "why": "Google's open local model family, commonly run via Ollama/llama.cpp; referenced by several docs with no canonical page."
+    },
+    {
+      "name": "Inspect AI",
+      "aliases": ["inspect-ai", "inspect ai", "ukaisi inspect"],
+      "suggested_category": "Benchmarking",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["emerging", "evals", "local"],
+      "why": "Open eval framework (UK AISI) gaining adoption; can evaluate local models offline. ~5 inbound links expect a page."
+    },
+    {
+      "name": "llama-swap",
+      "aliases": ["llama swap", "llamaswap"],
+      "suggested_category": "Infrastructure",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["offline-first", "local-llm", "model-routing"],
+      "why": "Hot-swaps local GGUF models behind one OpenAI-compatible endpoint — key for running many local models on constrained home-lab hardware."
+    },
+    {
+      "name": "Ramalama",
+      "aliases": ["ramalama"],
+      "suggested_category": "Infrastructure",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["offline-first", "local-llm", "containers"],
+      "why": "Container-native (Podman/OCI) local model runner; emerging reproducible-serving alternative to Ollama for air-gapped boxes."
     }
   ]
 }

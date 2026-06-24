@@ -32,7 +32,10 @@ def load_tool_pages() -> dict[str, str]:
     tools = {}
     for tool in data.get("tools", []):
         name = tool.get("name", "").strip()
-        page = tool.get("page", "").strip()
+        # Catalog uses "doc_path" (e.g. "docs/services/ollama.md"); the old "page"
+        # key no longer exists, which silently emptied this map and made the whole
+        # scanner a no-op.
+        page = tool.get("doc_path", "").strip()
         if name and page:
             tools[name.lower()] = page
     return tools

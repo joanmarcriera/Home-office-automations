@@ -85,6 +85,6 @@ jobs:
           set -euo pipefail
           gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label jules || true
           gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
-            "OpenRouter auto-fix could not complete this issue in CI. Falling back to Jules (`jules`) for handling."
+            'OpenRouter auto-fix could not complete this issue in CI. Falling back to the Jules pipeline for handling.'
 
       # Auto-merge removed — all PRs require human review
