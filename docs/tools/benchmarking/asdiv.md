@@ -84,6 +84,7 @@ import openai
 
 # Mock evaluation loop for a Claude 4.8 model
 def evaluate_asdiv(problem):
+    # This example uses a model version as per June 2026 project context
     response = openai.ChatCompletion.create(
         model="claude-4-8-opus-20260528",
         messages=[{"role": "user", "content": f"Solve this math problem: {problem}"}]
@@ -92,17 +93,18 @@ def evaluate_asdiv(problem):
 
 # Example problem from ASDiv
 problem = "If a recipe calls for 3 cups of flour and 2 cups of sugar, how many more cups of flour than sugar are needed?"
-print(evaluate_asdiv(problem))
+# print(evaluate_asdiv(problem))
 ```
 
 ## Related tools / concepts
-- [GSM8K](../benchmarking/gsm8k.md) — High-quality elementary math word problems.
-- [MATH Benchmark](math-benchmark.md) — More challenging mathematics benchmark.
-- [MMLU](../benchmarking/mmlu.md) — Multi-task knowledge benchmark.
-- [EvalPlus](../benchmarking/evalplus.md) — Enhanced code generation evaluation.
-- [DREAM](../benchmarking/dream.md) — Agentic research evaluation framework.
-- [Claude Code](../development_ops/claude-code.md) — Agentic coding tool using these benchmarks for self-correction.
-- [DeepSeek R1](../ai_knowledge/deepseek-r1.md) — A model optimized for reasoning tasks like those in ASDiv.
+- [GSM8K](../benchmarking/gsm8k.md)
+- [MATH Benchmark](math-benchmark.md)
+- [HumanEval](../benchmarking/human-eval.md)
+- [MMLU](../benchmarking/mmlu.md)
+- [GPQA](../benchmarking/gpqa.md)
+- [OpenCompass](../benchmarking/opencompass.md)
+- [HELM](../benchmarking/helm.md)
+- [DREAM](../benchmarking/dream.md)
 
 ## Sources / references
 - [ASDiv GitHub Repository](https://github.com/chiahsuan/ASDiv)
@@ -110,5 +112,5 @@ print(evaluate_asdiv(problem))
 - [Hugging Face Dataset Page](https://huggingface.co/datasets/chiahsuan/asdiv)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-24
 - Confidence: high
