@@ -11,8 +11,9 @@ Axion sits at the **Compute Infrastructure Layer**, providing the physical (or v
 
 ## Typical use cases
 - **GKE Workloads**: Running containerized applications with multi-architecture support.
-- **AI Inference**: Powering CPU-based inference for smaller models (e.g., Llama 3.5 8B) or as part of a hybrid GPU/CPU pipeline.
+- **AI Inference**: Powering CPU-based inference for smaller models (e.g., Llama 4 8B) or as part of a hybrid GPU/CPU pipeline.
 - **Data Analytics**: Accelerating memory-intensive databases and analytics engines.
+- **Energy-Efficient Agentic Infrastructure**: Powering large-scale reasoning loops where performance-per-watt is a critical constraint.
 
 ## Strengths
 - **Energy Efficiency**: Up to 60% better energy efficiency than comparable x86 instances.
@@ -37,9 +38,22 @@ To start using Axion on Google Cloud:
 2.  **Select N4A Instances**: Choose the Axion-based N4A machine series when creating VM instances or GKE node pools.
 3.  **Configure GKE Compute Classes**: Use GKE's compute classes to prioritize Axion nodes while maintaining x86 as a fallback.
 
-## Technical Example: GKE Compute Class with Axion
+## CLI examples
+Using the Google Cloud SDK to deploy Axion-based instances:
 
-The following YAML snippet demonstrates how to configure a GKE Compute Class that prioritizes Axion-based N4A instances:
+```bash
+# Create a GKE node pool using Axion N4A instances
+gcloud container node-pools create axion-pool \
+    --cluster=my-cluster \
+    --machine-type=n4a-standard-8 \
+    --num-nodes=3
+
+# Build a multi-architecture Docker image
+docker buildx build --platform linux/amd64,linux/arm64 -t gcr.io/my-project/my-app:v1 --push .
+```
+
+## API examples
+The following YAML snippet demonstrates how to configure a GKE Compute Class that prioritizes Axion-based N4A instances via the Kubernetes API:
 
 ```yaml
 apiVersion: cloud.google.com/v1
@@ -88,12 +102,14 @@ For homelab environments, the Axion trend mirrors the adoption of:
 - [NFS CSI Setup](../playbooks/nfs-csi-setup.md)
 - [Model Classes](model_classes.md)
 - [Model Comparison and Evaluation](model_comparison_and_evaluation.md)
+- [Google Cloud Platform](../tools/providers/google-cloud.md)
 
 ## Sources / References
 - [A year in, Google wants its Axion processors to feel like a scheduling decision (The New Stack, 2026-04-15)](https://thenewstack.io/google-axion-kubernetes-arm/)
 - [Google Axion (Google Cloud Product Page)](https://cloud.google.com/blog/products/compute/introducing-google-axion)
 - [Arm Neoverse V3 Performance Report (Arm.com, May 2026)](https://www.arm.com/products/silicon-ip-cpu/neoverse/neoverse-v3)
+- [GKE Compute Classes Documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/compute-classes)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-24
 - Confidence: high

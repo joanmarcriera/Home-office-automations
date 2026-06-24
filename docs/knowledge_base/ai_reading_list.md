@@ -52,6 +52,33 @@ To build your AI intelligence system using this list:
 3. **The Fundamentals**: Read everything on [Andrej Karpathy's](https://karpathy.ai/) site and [Lil'Log](https://lilianweng.github.io/posts/).
 4. **The Visual Layer**: Bookmark [Jay Alammar](https://jalammar.github.io) for when you need to "see" how a model works.
 
+## CLI examples
+
+```bash
+# Monitor AI News feed via terminal
+curl -s https://buttondown.com/ainews/rss | grep "<title>" | head -n 10
+
+# Search for practical LLM patterns from Simon Willison via CLI (hypothetical tool)
+search-simon "MCP servers"
+```
+
+## API examples
+
+The following snippet shows how to define an n8n RSS intake node for a reading list source:
+
+```json
+{
+  "parameters": {
+    "url": "https://simonwillison.net/atom/entries/",
+    "options": {}
+  },
+  "name": "Simon Willison RSS",
+  "type": "n8n-nodes-base.rssFeedRead",
+  "typeVersion": 1,
+  "position": [250, 300]
+}
+```
+
 ## Blogs & Personal Sites
 - **Simon Willison** ([simonwillison.net](https://simonwillison.net)) — Essential for tracking the fast-moving practical side of LLM tooling, prompt engineering, and open-source integration.
 - **Lilian Weng** ([lilianweng.github.io](https://lilianweng.github.io/posts/)) — Unrivaled for thorough, well-cited technical deep dives on AI architectures, memory, and reasoning methods.
@@ -80,11 +107,11 @@ To build your AI intelligence system using this list:
 
 ## Research Labs to Follow
 - **OpenAI Research** — Setting the pace for state-of-the-art model capabilities and safety evaluations, particularly with the release of GPT-5.5.
-- **Anthropic Research** — Pioneers of constitutional AI and mechanistic interpretability, leading research into how models think and how to align them through structural constraints, as seen in Claude 4.7.
+- **Anthropic Research** — Pioneers of constitutional AI and mechanistic interpretability, leading research into how models think and how to align them through structural constraints, as seen in Claude 4.8.
 - **Google DeepMind** — Historical powerhouse of fundamental AI breakthroughs and scientific applications, continuing to produce foundational research spanning from LLMs to AI for science.
 - **Meta FAIR** — Leading the charge in high-quality open-source models and fundamental research, a crucial source for open-weights models that democratize AI access.
 - **Mistral** — Proving that small, efficient models can rival giants in performance, essential for tracking the efficiency frontier and high-performance local inference.
-- **DeepSeek** — Leading the way in cost-efficient, high-performance open models, particularly in reasoning and coding domains.
+- **DeepSeek** — Leading the way in cost-efficient, high-performance open models, particularly with DeepSeek-V4.
 - **Allen AI (AI2)** — Non-profit research focusing on AI for the common good and open science, important for open-dataset initiatives and research unbiased by commercial interests.
 
 ## Aggregators & Communities
@@ -107,9 +134,9 @@ To build your AI intelligence system using this list:
 - [Agent Framework Learning Map](agent_framework_learning_map.md)
 - [AI and the Economy](ai_economic_impact.md)
 - [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md)
-- [Context7](../tools/development_ops/context7.md)
 - [Starred AI Agent Repositories](starred_ai_agent_repos.md)
 - [Model routing guide](model_routing_guide.md)
+- [AI Signal Sources](ai_signal_sources.md)
 
 ## Sources / References
 - [Simon Willison's Weblog](https://simonwillison.net/)
@@ -122,19 +149,13 @@ To build your AI intelligence system using this list:
 - [Vicki Boykis's Blog](https://vickiboykis.com/)
 - [Hamel Husain's Blog](https://hamel.dev/)
 - [Fast.ai](https://www.fast.ai/)
-- [François Chollet's Website](https://fchollet.com/)
 - [The Batch](https://www.deeplearning.ai/the-batch/)
 - [AI News](https://buttondown.com/ainews)
 - [Latent Space](https://www.latent.space/)
 - [Import AI](https://jack-clark.net/)
-- [The Gradient](https://thegradient.pub/)
 - [TLDR AI](https://tldr.tech/ai)
-- [Ben's Bites](https://www.bensbites.co/)
 - [Interconnects](https://www.interconnects.ai/)
-- [AlphaSignal](https://alphasignal.ai/)
-- [TheSequence](https://thesequence.ai)
-- [No Priors Podcast](https://www.nopriors.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-24
 - Confidence: high
