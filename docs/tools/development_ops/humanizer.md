@@ -50,7 +50,7 @@ git clone https://github.com/blader/humanizer.git ~/.config/opencode/skills/huma
 ```
 
 ## CLI examples
-The skill is invoked using the `/humanizer` slash command.
+The skill is invoked using the `/humanizer` slash command within supported agentic terminals.
 
 ### Basic Humanization
 ```bash
@@ -67,12 +67,19 @@ Now humanize:
 [Paste AI text]
 ```
 
-## How it works
-Humanizer audits text against **25+ patterns** of "AI-isms" and performs a multi-pass rewrite:
-- **Significance Inflation**: Removing phrases like "marking a pivotal moment" or "testament to."
-- **Formulaic Structure**: Breaking up repetitive "Not only X, but also Y" sentence patterns.
-- **AI Vocabulary**: Replacing overused words like "delve," "landscape," "showcasing," and "additionally."
-- **Chatbot Artifacts**: Removing sycophantic pleasantries ("I hope this helps!").
+## API examples
+
+### Programmatic Invocation (Markdown Skill pattern)
+While Humanizer is a text-based skill, it can be invoked programmatically by injecting the skill definition into a system prompt.
+
+```python
+# Conceptual example of injecting Humanizer skill into a system prompt
+with open("~/.claude/skills/humanizer/SKILL.md", "r") as f:
+    humanizer_skill = f.read()
+
+system_prompt = f"You are a helpful assistant. Use the following skill when requested:\n{humanizer_skill}"
+# Then call the model with "/humanizer <text>" in the user prompt
+```
 
 ## Related tools / concepts
 - [Claude Code](claude-code.md)
@@ -80,11 +87,14 @@ Humanizer audits text against **25+ patterns** of "AI-isms" and performs a multi
 - [Andrej Karpathy Skills](../ai_knowledge/karpathy-skills.md)
 - [AITMPL](../ai_knowledge/aitmpl.md)
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
+- [Aider](aider.md)
+- [GPT Engineer](gpt_engineer.md)
+- [Style Transfer](https://en.wikipedia.org/wiki/Style_transfer)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/blader/humanizer)
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-06
+- Last reviewed: 2026-06-21
 - Confidence: high

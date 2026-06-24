@@ -23,9 +23,9 @@ It standardizes the integration of Large Language Models (LLMs) across multiple 
 - **AI RSC Support**: Specialized hooks and primitives for streaming React Server Components.
 - **Observability**: Built-in OpenTelemetry instrumentation for monitoring and tracing.
 
-## Comparison: AI SDK vs. TanStack AI
-- **AI SDK**: Best for full-stack AI applications. Treats AI development as a cohesive problem, providing agent abstractions, multi-modal primitives, and deep Vercel/Next.js integration.
-- **TanStack AI**: Best for library-focused composition. Prioritizes per-model type inference and minimal bundle footprints, following the design principles of TanStack Query.
+## Limitations
+- **TypeScript First**: Optimized primarily for TypeScript; JS support exists but is less ergonomic.
+- **Rapid Versioning**: As of 2026, the ecosystem moves quickly (v4+), requiring developers to keep dependencies (like `ai` and `@ai-sdk/provider-utils`) updated to the latest canary for the newest features.
 
 ## When to use it
 - When building production-grade AI web applications with TypeScript that require multi-provider support.
@@ -36,16 +36,27 @@ It standardizes the integration of Large Language Models (LLMs) across multiple 
 - In Python-only backend environments (use [Pydantic AI](../frameworks/pydantic-ai.md) or [LangChain](../frameworks/langchain.md)).
 - If you require a library with a minimal bundle footprint for a simple single-provider project (consider [TanStack AI](https://tanstack.com/ai)).
 
-## Limitations
-- **TypeScript First**: Optimized primarily for TypeScript; JS support exists but is less ergonomic.
-- **Rapid Versioning**: As of 2026, the ecosystem moves quickly (v4+), requiring developers to keep dependencies (like `ai` and `@ai-sdk/provider-utils`) updated to the latest canary for the newest features.
-
 ## Getting started
 
 ### Installation
 ```bash
 npm install ai
 ```
+
+## CLI examples
+The AI SDK does not provide a standalone CLI, but it is often used in conjunction with the Vercel CLI for deployment and environment management.
+
+### Initialize a Next.js AI Project
+```bash
+npx create-next-app@latest my-ai-app --example https://github.com/vercel/ai-chatbot
+```
+
+### Environment Setup
+```bash
+vercel env add OPENAI_API_KEY
+```
+
+## API examples
 
 ### Basic Text Generation
 ```typescript
@@ -85,13 +96,16 @@ export default function Chat() {
 - [LangChain](../frameworks/langchain.md)
 - [Pydantic AI](../frameworks/pydantic-ai.md)
 - [Model Context Protocol (MCP)](../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Firebase Genkit](../frameworks/firebase-genkit.md)
+- [TanStack AI](https://tanstack.com/ai)
+- [OpenTelemetry](https://opentelemetry.io/)
 
-## Sources / references
+## Sources / References
 - [Official Website](https://sdk.vercel.ai/)
 - [GitHub Repository](https://github.com/vercel/ai)
 - [Documentation](https://sdk.vercel.ai/docs/introduction)
 - [Vercel AI SDK vs TanStack AI](https://vercel.com/kb/guide/vercel-ai-sdk-vs-tanstack-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-06
+- Last reviewed: 2026-06-21
 - Confidence: high

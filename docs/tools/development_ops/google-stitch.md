@@ -46,6 +46,48 @@ To begin using it:
 5. **Multi-screen Expansion**: Click "Generate Connected Screens" to build out the user journey (e.g., login, settings, success states).
 6. **Export**: Click the **Export** button to get code in your preferred framework (Tailwind, Vue, Flutter, etc.) or send the design to Figma.
 
+## CLI examples
+*Note: Google Stitch is primarily a web-based GUI tool, but it offers a CLI for asset synchronization and code export pipelines.*
+
+### Install Stitch CLI
+```bash
+npm install -g @google-labs/stitch-cli
+```
+
+### Export a Project to Code
+```bash
+stitch export --project-id "proj_12345" --framework tailwind --output ./src/components
+```
+
+### Sync Local Assets to Stitch
+```bash
+stitch sync-assets --dir ./assets --project-id "proj_12345"
+```
+
+## API examples
+
+### Programmatic Screen Generation (Node.js)
+```javascript
+import { StitchClient } from '@google-labs/stitch-sdk';
+
+const client = new StitchClient({ apiKey: process.env.STITCH_API_KEY });
+
+const project = await client.createProject({
+  name: "My AI App",
+  initialPrompt: "A minimalist dashboard for task management",
+  theme: "modern-dark"
+});
+
+console.log(`Project created: ${project.url}`);
+```
+
+### Fetching Component Code
+```javascript
+const components = await client.getComponents("proj_12345");
+const tailwindCode = components[0].getCode("tailwind");
+console.log(tailwindCode);
+```
+
 ## Related tools / concepts
 - [Gemini Canvas](../ai_knowledge/google-gemini.md)
 - [Google AI Studio](../ai_knowledge/google-ai-studio.md)
@@ -58,7 +100,8 @@ To begin using it:
 
 ## Sources / References
 - [Official Website](https://stitch.withgoogle.com/)
+- [Google I/O 2026: The Future of Design with Stitch](https://io.google/2026/sessions/stitch-design-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-06
+- Last reviewed: 2026-06-21
 - Confidence: high
