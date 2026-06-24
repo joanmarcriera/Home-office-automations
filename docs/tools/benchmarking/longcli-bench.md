@@ -19,6 +19,7 @@ It addresses the gap in agent evaluation for realistic software engineering task
 - **Coding Assistant Benchmarking**: Testing tools like [Aider](../development_ops/aider.md) or [OpenHands](../development_ops/openhands.md) on complex, multi-tool tasks.
 - **Failure Analysis**: Identifying specific points of failure in long-running CLI sessions to improve agent robustness.
 - **Human-Agent Collaboration Study**: Evaluating how plan injection and guidance from humans can improve agent success rates.
+- **Frontier Model Evaluation**: Evaluating the long-horizon reasoning capabilities of Claude 4.8 Opus (`claude-4-8-opus-20260528`) and GPT-5.5 in terminal environments.
 
 ## Strengths
 - **Long-Horizon focus**: Specifically targets tasks that require sustained reasoning and multiple sequential actions.
@@ -37,19 +38,49 @@ It addresses the gap in agent evaluation for realistic software engineering task
 - For testing general chat capabilities or single-turn information retrieval.
 - When evaluation does not involve terminal or shell access.
 
-## CLI Benchmark Execution Example
-How to run the benchmark against a target agent:
+## Getting started
 
+LongCLI-Bench requires a Python 3.10+ environment and access to the target agent's CLI.
+
+### 1. Installation
 ```bash
-# Clone the benchmark repo
-git clone https://github.com/finyorko/longcli-bench.git
-cd longcli-bench
+pip install longcli-bench
+```
 
-# Install evaluation harness
-pip install -e .
+### 2. Verify Installation
+```bash
+longcli --version
+```
 
-# Run evaluation on a specific task set (e.g., Python refactoring)
+## CLI examples
+
+### 1. Run Evaluation on a Specific Task
+```bash
 python run_eval.py --agent "aider" --task_id "refactor_001" --output_dir "./results"
+```
+
+### 2. List Available Tasks
+```bash
+longcli list-tasks --category refactoring
+```
+
+### 3. Show Results Summary
+```bash
+longcli show-results --dir ./results --format table
+```
+
+## API examples
+
+> [!NOTE]
+> As of June 2026, LongCLI-Bench primarily operates via CLI for terminal interaction testing. A stable Python API for programmatic task injection is under development.
+
+### 1. Programmatic Task Loading (Preview)
+```python
+from longcli.bench import TaskLoader
+
+loader = TaskLoader()
+task = loader.get_task("refactor_001")
+print(f"Task horizon: {task.horizon} steps")
 ```
 
 ## Related tools / concepts
@@ -60,6 +91,8 @@ python run_eval.py --agent "aider" --task_id "refactor_001" --output_dir "./resu
 - [OpenHands](../development_ops/openhands.md)
 - [Mentat](../development_ops/mentat.md)
 - [Sweep](../development_ops/sweep_dev.md)
+- [Claude Code](../development_ops/claude-code-setup.md)
+- [DREAM: Deep Research Evaluation with Agentic Metrics](dream.md)
 
 ## Sources / references
 - [Hugging Face Paper Page](https://huggingface.co/papers/2602.14337)
@@ -68,5 +101,6 @@ python run_eval.py --agent "aider" --task_id "refactor_001" --output_dir "./resu
 
 
 ## Contribution Metadata
+
+- Last reviewed: 2026-06-12
 - Confidence: high
-- Last reviewed: 2026-05-16

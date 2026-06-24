@@ -14,6 +14,7 @@ It enables AI assistants to securely interact with HashiCorp Vault for managing 
 - Managing Vault policies (ACLs).
 - Performing health checks and verifying Vault configurations.
 - Generating policy strings for specific access requirements.
+- Secure secret injection for Claude 4.8 Opus and GPT-5.5 agent workflows.
 
 ## Strengths
 - **Full Secret Management**: Supports both KV v1 and v2 with automatic detection.
@@ -75,6 +76,38 @@ path "secret/data/my-app/*" {
 }
 ```
 
+## CLI examples
+
+### 1. Server Status
+```bash
+vault-mcp status --addr https://vault.example.com:8200
+```
+
+### 2. List Available Tools
+```bash
+vault-mcp list-tools --token <your-token>
+```
+
+### 3. Help and Configuration
+```bash
+vault-mcp --help
+```
+
+## API examples
+
+### 1. Python hvac Integration
+The underlying client for many Vault MCP implementations.
+
+```python
+import hvac
+
+client = hvac.Client(url='https://vault.example.com:8200', token='your-token')
+
+# Read a secret
+read_response = client.secrets.kv.v2.read_secret_version(path='my-secret-password')
+print(read_response['data']['data']['password'])
+```
+
 ## Related tools / concepts
 - [HashiCorp Vault](https://www.vaultproject.io/)
 - [Model Context Protocol](../../knowledge_base/agent_protocols.md)
@@ -84,6 +117,8 @@ path "secret/data/my-app/*" {
 - [Tailscale](../../services/tailscale.md)
 - [Headscale](../../services/headscale.md)
 - [hvac (Python Vault Client)](https://github.com/hvac/hvac)
+- [Claude Code](../development_ops/claude-code-setup.md)
+- [Atlassian Jira MCP](atlassian-jira-mcp.md)
 
 ## Sources / References
 - [Vault MCP GitHub](https://github.com/democratize-technology/vault-mcp)
@@ -91,5 +126,5 @@ path "secret/data/my-app/*" {
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high

@@ -15,6 +15,7 @@ Benchmarking / Observability
 - Monitoring production applications for cost, latency, and quality.
 - Collaborative prompt engineering and testing.
 - Managing agent lifecycles via LangSmith Deployment (Fleet).
+- Evaluating frontier model performance (Claude 4.8 Opus, GPT-5.5) across large-scale datasets.
 
 ## Technical Capabilities
 - **Traces**: Hierarchical logs of every LLM call, tool use, and logic step.
@@ -43,7 +44,41 @@ Benchmarking / Observability
 - For very simple, single-call LLM scripts where a full observability platform is overkill.
 - If strict data privacy requirements forbid sending traces to a third-party SaaS (and enterprise self-hosting is not feasible).
 
-## Implementation: Automated Evaluation
+## Getting started
+
+LangSmith requires an API key and a project setup in the LangSmith dashboard.
+
+### 1. Installation
+```bash
+pip install -U langsmith
+```
+
+### 2. Environment Setup
+```bash
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=<your-api-key>
+```
+
+## CLI examples
+
+### 1. Authentication
+```bash
+langsmith login
+```
+
+### 2. List Projects
+```bash
+langsmith projects list
+```
+
+### 3. List Datasets
+```bash
+langsmith datasets list
+```
+
+## API examples
+
+### 1. Automated Evaluation
 The following Python example shows how to run an automated evaluation on a dataset using an LLM-as-a-judge.
 
 ```python
@@ -90,6 +125,7 @@ Fleet allows for no-code/low-code agent deployment. When enabled on a self-hoste
 - [OpenPipe](../infrastructure/openpipe.md)
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
 - [RAGFlow](../process_understanding/ragflow.md)
+- [Claude Code](../development_ops/claude-code-setup.md)
 
 ## Sources / References
 - [Official Website](https://www.langchain.com/langsmith)
@@ -98,5 +134,6 @@ Fleet allows for no-code/low-code agent deployment. When enabled on a self-hoste
 - [LangSmith Deployment Guide](https://docs.langchain.com/langsmith/deploy-self-hosted-full-platform)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+
+- Last reviewed: 2026-06-12
 - Confidence: high

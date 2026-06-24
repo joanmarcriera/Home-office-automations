@@ -15,6 +15,7 @@ Jira MCP implementations are fragmented across many repositories. This page prov
 - Let Claude create, update, or close Jira issues from a chat interface
 - Build a custom MCP server that bridges an internal system to Jira
 - Drive browser-based Jira actions via Playwright MCP when no REST API exists
+- Assist frontier models (Claude 4.8 Opus, GPT-5.5) in project management tasks
 
 ## Strengths
 - No custom integration code needed for common Jira operations
@@ -55,12 +56,11 @@ Jira MCP implementations are fragmented across many repositories. This page prov
 - [TypeScript SDK: @modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk)
 - [.NET SDK package: ModelContextProtocol](https://www.nuget.org/packages/ModelContextProtocol)
 
----
+## Getting started
 
-## Practical examples
+Atlassian MCP requires an API token and can be configured in Claude Desktop.
 
-### 1 — Configure the Atlassian MCP in Claude Desktop
-
+### 1. Configure the Atlassian MCP in Claude Desktop
 Add the following block to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS).
 Replace the placeholder values with your actual Atlassian credentials.
 
@@ -82,50 +82,39 @@ Replace the placeholder values with your actual Atlassian credentials.
 
 Generate an API token at: `https://id.atlassian.com/manage-profile/security/api-tokens`
 
----
+### 2. Verify Connection
+Once connected, try a simple prompt to verify:
+`claude --prompt "Show me the details of PROJ-123"`
 
-### 2 — Useful prompts once the MCP is connected
+## CLI examples
 
-The MCP exposes Jira as tools that Claude can call directly.
-These natural-language prompts map to real tool calls:
+### 1. Useful prompts once the MCP is connected
+The MCP exposes Jira as tools that Claude can call directly via terminal-like prompts:
 
-| Goal | Example prompt |
-|---|---|
-| Fetch a specific issue | `Show me the details of PROJ-123` |
-| Search with JQL | `Find all open bugs in project PROJ assigned to me` |
-| Create an issue | `Create a Jira story in PROJ titled "Add dark mode toggle" with description "..."` |
-| Transition an issue | `Move PROJ-456 to "In Progress"` |
-| Add a comment | `Add a comment to PROJ-789: "Blocked on API access, following up tomorrow"` |
-| Sprint report | `List all issues completed in the last sprint of PROJ` |
+```bash
+# Fetch a specific issue
+claude --prompt "Show me the details of PROJ-123"
 
----
+# Search with JQL
+claude --prompt "Find all open bugs in project PROJ assigned to me"
 
-### 3 — JQL cheat-sheet for MCP search calls
-
-The `searchJiraIssuesUsingJql` tool accepts standard JQL.
-Copy-paste these into a prompt or pass them directly to the tool:
-
-```jql
--- Open bugs assigned to me
-project = PROJ AND issuetype = Bug AND assignee = currentUser() AND status != Done ORDER BY priority DESC
-
--- Issues updated in the last 7 days
-project = PROJ AND updated >= -7d ORDER BY updated DESC
-
--- Unresolved issues in the current sprint
-project = PROJ AND sprint in openSprints() AND resolution = Unresolved
-
--- High-priority blockers
-project = PROJ AND priority in (Highest, High) AND issueType = Bug AND status != Done
-
--- Issues created this week by me
-project = PROJ AND created >= startOfWeek() AND reporter = currentUser()
+# Create an issue
+claude --prompt "Create a Jira story in PROJ titled 'Add dark mode toggle' with description '...'"
 ```
 
----
+### 2. JQL search via CLI
+```bash
+claude --prompt "Search Jira using JQL: project = PROJ AND issuetype = Bug AND status != Done"
+```
 
-### 4 — Minimal custom MCP server (TypeScript)
+### 3. Transition an issue
+```bash
+claude --prompt "Move PROJ-456 to 'In Progress'"
+```
 
+## API examples
+
+### 1. Minimal custom MCP server (TypeScript)
 Use this as a starting point to expose any internal system to Claude as an MCP tool.
 
 ```typescript
@@ -159,67 +148,20 @@ server.tool(
   }
 );
 
-// Tool: run a JQL search
-server.tool(
-  "search_issues",
-  { jql: z.string().describe("JQL query string") },
-  async ({ jql }) => {
-    const res = await fetch(
-      `https://your-org.atlassian.net/rest/api/3/search?jql=${encodeURIComponent(jql)}&maxResults=20`,
-      {
-        headers: {
-          Authorization: `Basic ${Buffer.from(
-            `${process.env.JIRA_EMAIL}:${process.env.JIRA_TOKEN}`
-          ).toString("base64")}`,
-        },
-      }
-    );
-    const data = await res.json();
-    const summary = data.issues.map((i: any) => `${i.key}: ${i.fields.summary}`);
-    return {
-      content: [{ type: "text", text: summary.join("\n") }],
-    };
-  }
-);
-
 const transport = new StdioServerTransport();
 await server.connect(transport);
 ```
 
-Run with:
-
+### 2. Playwright MCP: browser automation
 ```bash
-JIRA_EMAIL=you@example.com JIRA_TOKEN=xxx npx ts-node index.ts
+# Register Playwright MCP
+claude mcp add playwright -- npx -y @playwright/mcp
 ```
 
-Register it in `claude_desktop_config.json` the same way as the hosted server (section 1), pointing `command` to `npx ts-node` and `args` to the script path.
-
----
-
-### 5 — Playwright MCP: browser automation examples
-
-The Playwright MCP (`@playwright/mcp`) lets Claude drive a real browser.
-Configure it alongside the Atlassian MCP:
-
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp"]
-    }
-  }
-}
+### 3. Screenshot a page via API/Tool call
+```bash
+claude --prompt "Take a screenshot of https://your-org.atlassian.net"
 ```
-
-Useful prompts once connected:
-
-| Goal | Example prompt |
-|---|---|
-| Screenshot a page | `Take a screenshot of https://example.com` |
-| Fill and submit a form | `Go to the login page at <url>, fill in the username and password fields, and click Login` |
-| Extract table data | `Navigate to <url> and extract the data from the main table as JSON` |
-| End-to-end test flow | `Open <url>, add item to cart, proceed to checkout, and confirm the order total shown` |
 
 ---
 
@@ -251,5 +193,5 @@ Useful prompts once connected:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-12
 - Confidence: high
