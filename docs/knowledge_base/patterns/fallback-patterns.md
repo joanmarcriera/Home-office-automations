@@ -1,7 +1,7 @@
 # Fallback Patterns
 
 ## What it is
-Fallback and failover patterns are architectural strategies designed to ensure the resilience and availability of AI applications. They involve automatically switching between different Large Language Model (LLM) providers, models, or configurations when the primary system encounters an error, rate limit, or performance degradation. In 2026, these have evolved into **Self-Healing Agentic Loops**, where the agent itself detects failures and negotiates alternatives via the Model Control Protocol (MCP 3.0).
+Fallback and failover patterns are architectural strategies designed to ensure the resilience and availability of AI applications. They involve automatically switching between different Large Language Model (LLM) providers, models, or configurations when the primary system encounters an error, rate limit, or performance degradation. In June 2026, these have evolved into **Self-Healing Agentic Loops**, where the agent itself detects failures and negotiates alternatives via the Model Control Protocol (MCP 3.0).
 
 ## What problem it solves
 The LLM ecosystem is prone to several types of failures that can disrupt service:
@@ -12,7 +12,7 @@ The LLM ecosystem is prone to several types of failures that can disrupt service
 - **Tool Selection Failure**: An agent might fail to select the correct MCP tool, requiring a fallback to a reasoning-heavy model to re-evaluate the plan.
 
 ## Where it fits in the stack
-Fallback patterns reside in the **Middleware or Gateway layer**, but increasingly also within the **Agent Orchestration layer**. They sit between the application logic and the various inference providers, acting as a programmable traffic controller that ensures durable execution.
+Fallback patterns typically reside in the **Middleware or Gateway layer**, but increasingly also within the **Agent Orchestration layer**. They sit between the application logic and the various inference providers, acting as a programmable traffic controller that ensures durable execution.
 
 ## Typical use cases
 - **Frontier Failover**: Switching to GPT-5.5 if Claude 4.8 is down or rate-limited.
