@@ -111,6 +111,28 @@ This report documents the triage of open GitHub issues and ongoing maintenance t
 | **Batch 113** | Technical Freshness Audits | **Verified & Closed** | Audited Rivet, AG2, Mastra, Langflow, and Superinterface. Verified 2026-06-03. |
 | **Batch 114** | Technical Freshness Audits | **Verified & Closed** | Audited Ripgrep, Temporal, Ansigpt, Gemini, and LlamaIndex.TS. Verified 2026-06-03. |
 | **Batch 115** | Technical Freshness Audits | **Verified & Closed** | Audited k3s-cluster-setup, infrastructure, prompt-catalogue, parea, and llmware. Verified 2026-06-07. |
+| **Batch 116** | AI Knowledge Freshness | **Verified & Closed** | Audited google-search, deepseek-r1, perplexity, etc. Verified 2026-06-20. |
+| **Batch 117** | Infrastructure & Auth | **Verified & Closed** | Audited tailscale, authentik, headscale. Verified 2026-06-21. |
+| **Batch 118** | Agent Frameworks | **Verified & Closed** | Audited nemo-retriever, letta, autoreason, gpt-researcher, bee-agent-framework. Verified 2026-06-20. |
+| **Batch 119** | Agentic Benchmarking | **Verified & Closed** | Audited sharp-ai, windsurf, etc. Verified 2026-06-21. |
+| **Batch 120** | Service Health & Audits | **Verified & Closed** | Audited matrix, element, syncthing. Verified 2026-06-21. |
+| **Batch 121** | Frameworks & Orchestration | **Verified & Closed** | Audited rivet, ag2, mastra, langflow. Verified 2026-06-21. |
+| **Batch 122** | Calendar & Task Orchestration | **Verified & Closed** | Audited amie, savvycal, sunsama, ticktick. Verified 2026-06-21. |
+| **Batch 123** | Workflow & Data Pipelines | **Verified & Closed** | Audited prefect, dagster, kestra, flyte. Verified 2026-06-21. |
+| **Batch 124** | Multi-Agent KnowledgeOps | **Verified & Closed** | Audited core architecture docs. Verified 2026-06-22. |
+| **Batch 125** | Knowledge Base Patterns | **Verified & Closed** | Audited learning-map, builder-index. Verified 2026-06-22. |
+| **Batch 126** | Playbook Freshness | **Verified & Closed** | Audited dev-workflow, scan-to-task. Verified 2026-06-22. |
+| **Batch 127** | Enterprise Tooling | **Verified & Closed** | Audited glean, hebbia, ramp. Verified 2026-06-22. |
+| **Batch 128** | Infrastructure & CLI | **Verified & Closed** | Audited exllamav2, gemini-cli, openrouter. Verified 2026-06-22. |
+| **Batch 129** | Local Inference & Providers | **Verified & Closed** | Audited lm-studio, sglang, localai, openai, gemini. Verified 2026-06-23. |
+| **Batch 130** | Agentic Workbenches | **Verified & Closed** | Audited lobehub, personaplex, anythingllm, heygen. Verified 2026-06-23. |
+| **Batch 131** | Search & Infrastructure | **Verified & Closed** | Audited exa_ai, weaviate, python, multion, giskard. Verified 2026-06-23. |
+| **Batch 132** | Specialized Benchmarking | **Verified & Closed** | Audited lakera-guard, assistant-bench, gaia, os-world. Verified 2026-06-23. |
+| **Batch 133** | Identity & Model Routing | **Verified & Closed** | Audited codestral, google-tasks, entra-id, model-routing. Verified 2026-06-23. |
+| **Batch 134** | AI Architectural Patterns | **Verified & Closed** | Audited fallback, search, extraction patterns. Verified 2026-06-23. |
+| **Batch 135** | High-Impact Tools | **Verified & Closed** | Audited milvus, pinecone, claude-desktop, goose, instructor. Verified 2026-06-24. |
+| **Batch 136** | Development Ops | **Verified & Closed** | Audited genkit, stitch, llmfit, vercel-ai-sdk. Verified 2026-06-21. |
+| **Batch 137** | Providers & Automation | **Resolved** | Audited pageindex, portkey, tavily, pipedream, puppeteer. (2026-06-24). |
 
 ## Action Plan for Remaining Work (Action C)
 The following tasks are identified for future Ralph-loop runs to maintain the "High Confidence" standard:

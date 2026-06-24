@@ -1,91 +1,105 @@
 # PageIndex
 
 ## What it is
-PageIndex is a vectorless, reasoning-based RAG framework that builds hierarchical tree indices from long documents. It enables human-like retrieval by allowing LLMs to reason over document structure instead of relying on traditional vector similarity.
+PageIndex is a vectorless, reasoning-based RAG framework that builds hierarchical tree indices from long documents. Developed by Vectify AI, it enables human-like retrieval by allowing LLMs to reason over document structure instead of relying on traditional vector similarity. As of June 2026 (v2.0), it supports a "Hybrid Tree-Vector" mode for massive corpora and native integration with Claude 4.8 and Gemini 3.5.
 
 ## What problem it solves
-It addresses the inaccuracies of vector similarity search in professional documents where semantic similarity does not always equal relevance. By simulating how human experts navigate complex PDFs, PageIndex provides higher precision (98.7% on FinanceBench) and better explainability for domain-specific retrieval.
+It addresses the inherent inaccuracies of vector similarity search in professional documents where semantic similarity does not always equal relevance. By simulating how human experts navigate complex PDFs (using headers, context, and visual cues), PageIndex provides higher precision (98.7% on FinanceBench) and superior explainability compared to traditional chunk-and-embed strategies.
 
 ## Where it fits in the stack
-**Tool / Agent**: It acts as a specialized retrieval tool and an agentic framework for document navigation.
-
-## Technical Capabilities
-- **Hierarchical Tree Indexing**: Converts documents into semantic TOC-like trees for structured navigation.
-- **Vision-Aware Retrieval**: Supports multimodal analysis for documents with complex charts and tables.
-- **Reasoning-Based Search**: Uses LLM logic to decide which sections are most relevant to a query.
-- **Vector-Free RAG**: Operates without the need for embedding generation or vector database management.
+PageIndex sits in the **Process Understanding** and **Retrieval** layer. It acts as an intelligent middleware between raw documents (PDFs, Markdown) and Frontier Models, providing a structured "map" of the document for agentic navigation.
 
 ## Typical use cases
-- **Professional Analysis**: Analyzing SEC filings, insurance policies, or dense textbooks where precise section retrieval is required.
-- **Tree-based Navigation**: Managing very long documents that exceed standard context limits by navigating a semantic "Table of Contents" tree.
-- **Vision-based Retrieval**: Performing RAG directly on page images for documents where OCR is unreliable or layouts are highly visual.
+- **Complex Financial Analysis**: Analyzing SEC filings, audit reports, or insurance policies with dense nested sections.
+- **Multimodal Document RAG**: Navigating documents where charts, tables, and page layouts are critical for understanding.
+- **Long-Context Management**: Handling documents exceeding 1M tokens by using a semantic "Table of Contents" tree to prune search paths.
+- **Explainable Retrieval**: Providing exact reasoning steps and structural references for every retrieved fragment.
 
 ## Strengths
-- **No Vector DB Required**: Eliminates the overhead and performance bottlenecks of vector indices.
-- **No Artificial Chunking**: Preserves natural document hierarchy and context.
-- **High Explainability**: Retrieval steps are based on explicit reasoning and provide clear references.
-- **Superior Accuracy**: State-of-the-art performance on benchmarks like FinanceBench.
+- **No Vector DB Required**: Operates directly on semantic tree structures, eliminating embedding drift and database overhead.
+- **Preserves Context**: Maintains the natural document hierarchy, preventing the "lost in the middle" problem of arbitrary chunking.
+- **Superior Precision**: State-of-the-art performance on domain-specific benchmarks (FinanceBench, PolicyBench).
+- **Vision-Native**: Uses vision-aware LLMs to "see" document layouts, charts, and diagrams during retrieval.
+- **MCP 3.0 Support**: Native integration with the Model Context Protocol for seamless use by agentic workbenches.
 
 ## Limitations
-- **LLM Cost/Latency**: Heavy reliance on multiple LLM reasoning calls can increase operational costs and latency.
-- **Model Optimization**: Currently primarily optimized for high-end models like GPT-4o.
+- **High Reasoning Latency**: Multiple LLM calls for tree navigation result in higher latency than simple vector lookups.
+- **Operational Cost**: Increased token consumption due to the iterative reasoning steps required for structural navigation.
+- **Model Sensitivity**: Requires high-reasoning models (Claude 4.8, GPT-5.5) for optimal performance.
 
 ## When to use it
-- When working with high-value professional documents where retrieval precision is paramount.
-- When you need traceable, interpretable evidence for model answers.
-- When document structure (headings, sections) is a strong signal for relevance.
+- When retrieval precision is more important than millisecond latency.
+- When working with high-value, structured professional documents (Legal, Finance, Engineering).
+- When you need a "Self-Correction" loop where the agent can re-navigate the document if the first answer is insufficient.
 
 ## When not to use it
-- For simple semantic searches where "vibe-based" retrieval is sufficient.
-- When extremely low latency is required for a massive number of concurrent queries.
+- For high-volume, low-latency applications (e.g., real-time customer support chat on simple FAQs).
+- When the document corpus consists of unstructured "brain dumps" with no internal hierarchy.
+- For extremely large collections where initial tree generation cost is prohibitive without the Hybrid mode.
 
 ## Getting started
 
 ### Installation
+PageIndex v2.0 requires Python 3.12+ and high-reasoning model access.
+
 ```bash
-# Clone the repository
+# Install from PyPI
+pip install pageindex
+
+# Or clone for latest features
 git clone https://github.com/VectifyAI/PageIndex.git
 cd PageIndex
-
-# Install dependencies
-pip install -r requirements.txt
+pip install -e .
 ```
 
-### Basic usage
+### Initial Setup
 ```python
-# Create a .env with your OPENAI_API_KEY
-# Run the PageIndex structure generation
-python run_pageindex.py --pdf_path example.pdf
+from pageindex import PageIndexManager
+
+# Initialize with vision-aware provider
+manager = PageIndexManager(
+    provider="anthropic",
+    model="claude-4-8-opus-20260528"
+)
 ```
 
 ## CLI examples
 ```bash
-# Generate tree structure for a local PDF
-python run_pageindex.py --pdf_path document.pdf
+# Build a hierarchical index for a complex PDF
+pageindex build --pdf report_2026.pdf --output ./index_dir
 
-# Generate structure for a Markdown file
-python run_pageindex.py --md_path document.md
+# Query the index using reasoning-based retrieval
+pageindex query --index ./index_dir "What are the specific risk factors for AI supply chains?"
 
-# Customize extraction (max pages per node)
-python run_pageindex.py --pdf_path doc.pdf --max-pages-per-node 5
+# Export the semantic tree as Markdown
+pageindex export --index ./index_dir --format md
 ```
 
-## API & MCP Configuration
-PageIndex provides an MCP server for seamless integration with AI agents like Claude.
+## API examples
+PageIndex provides a unified Python API and an MCP server.
 
-### MCP Configuration Example (`claude_desktop_config.json`)
+### Basic Retrieval API
+```python
+import pageindex
+
+# Load index and query with reasoning
+idx = pageindex.load("./my_index")
+result = idx.navigate("Extract all data points from the ESG chart on page 42.")
+
+print(result.answer)
+print(result.reasoning_path) # Shows the tree nodes visited
+```
+
+### MCP 3.0 Configuration (`claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
     "pageindex": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@vectify/pageindex-mcp"
-      ],
+      "args": ["-y", "@vectify/pageindex-mcp@latest"],
       "env": {
-        "PAGEINDEX_API_KEY": "your_api_key_here",
-        "OPENAI_API_KEY": "your_openai_key_here"
+        "PAGEINDEX_API_KEY": "YOUR_KEY",
+        "ANTHROPIC_API_KEY": "YOUR_KEY"
       }
     }
   }
@@ -93,22 +107,21 @@ PageIndex provides an MCP server for seamless integration with AI agents like Cl
 ```
 
 ## Related tools / concepts
+- [RAGFlow](./ragflow.md) - Deep document parsing and RAG orchestration.
+- [Retrieval-Augmented Generation (RAG)](../../knowledge_base/patterns/rag.md) - The core pattern PageIndex optimizes.
+- [Docling MCP](docling-mcp.md) - Document transformation for agentic use.
+- [Crawl4AI](crawl4ai.md) - Web crawling optimized for LLM consumption.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) - Data framework for LLM applications.
+- [Unstructured](../intake_storage/unstructured.md) - Library for document pre-processing.
+- [LlamaParse](../intake_storage/llamaparse.md) - Advanced PDF parsing by LlamaIndex.
+- [Agentic RAG](../../knowledge_base/patterns/rag.md#agentic-rag) - The paradigm of using agents for iterative retrieval.
 
-- [RAGFlow](./ragflow.md)
-- [Retrieval-Augmented Generation (RAG)](../../knowledge_base/patterns/rag.md)
-- [Firecrawl](firecrawl.md)
-- [Docling MCP](docling-mcp.md)
-- [Crawl4AI](crawl4ai.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Unstructured](../intake_storage/unstructured.md)
-- [LlamaParse](../intake_storage/llamaparse.md)
-
-## Sources / references
+## Sources / References
 - [Official Website](https://pageindex.ai/)
 - [GitHub Repository](https://github.com/VectifyAI/PageIndex)
-- [PageIndex Framework Introduction](https://pageindex.ai/blog/pageindex-intro)
-
+- [Vectify AI Blog: Reasoning over Structure](https://pageindex.ai/blog/reasoning-vs-vectors)
+- [PageIndex v2.0 Release Notes](https://github.com/VectifyAI/PageIndex/releases/tag/v2.0.0)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-24

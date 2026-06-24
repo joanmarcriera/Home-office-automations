@@ -1,105 +1,121 @@
 # Tavily
 
 ## What it is
-Tavily is a search and web-extraction provider built specifically for AI agents and LLM applications. As of February 2026, it is a part of **Nebius Group** following a $275M+ acquisition. It provides a specialized API that returns structured, cleaned, and LLM-ready content from the live web.
+Tavily is a search and web-extraction provider built specifically for AI agents and LLM applications. As of June 2026, it operates as a core component of the **Nebius Group** AI cloud ecosystem. It provides a specialized API that returns structured, cleaned, and LLM-ready content from the live web, optimized for RAG (Retrieval-Augmented Generation) and agentic research.
 
 ## What problem it solves
-It gives agents a reliable way to search the web and retrieve grounded results without the "glue code" burden of generic search scraping. It handles JavaScript rendering, proxy rotation, and content extraction automatically, delivering citation-ready results with minimal latency.
+It gives agents a reliable way to search the web and retrieve grounded results without the "glue code" burden of generic search scraping or parsing raw HTML. Tavily handles JavaScript rendering, proxy rotation, and content deduplication automatically, delivering context-rich, citation-ready results with minimal latency.
 
 ## Where it fits in the stack
-**Provider / Search API**. It sits at the **Retrieval Layer**, acting as the primary gateway for agents to access real-time information outside their training data.
+Tavily sits in the **Providers / Search** layer. It acts as the primary "Agentic Search" interface, allowing autonomous models to access real-time information and external knowledge to augment their static training data.
 
 ## Typical use cases
-- **Agentic Research**: Powering multi-step research loops that search from multiple angles and synthesize findings.
-- **Real-time RAG**: Providing fresh web context for retrieval-augmented generation in production applications.
-- **Competitive Intelligence**: Automated monitoring of news, trends, and competitor activity with high-fidelity extraction.
-- **Automated Fact-Checking**: Grounding LLM outputs in verified web sources to reduce hallucinations.
+- **Agentic Research**: Powering multi-step loops (like [DeerFlow](../agents/deerflow.md)) that search, evaluate, and synthesize complex findings.
+- **Real-time RAG**: Providing fresh web context for grounding LLM outputs in production applications.
+- **Fact-Checking & Verification**: Automatically verifying claims by searching high-authority sources in real-time.
+- **Competitor Monitoring**: Automated tracking of market trends, news, and product launches with structured extraction.
 
 ## Strengths
-- **RAG-Native Structured Retrieval**: Returns results in JSON with summaries, citations, and highlights optimized for LLM consumption.
-- **Nebius Cloud Integration**: Now part of a larger AI cloud ecosystem (Nebius), ensuring enterprise-grade scale and performance.
-- **Managed Research Endpoint**: The `/research` endpoint allows generating entire research reports in a single API call.
-- **Official Vercel AI SDK Support**: Native integration with the Vercel AI SDK for building streaming agentic web apps.
-- **Citation Ready**: Results include high-confidence provenance and source metadata by default.
+- **LLM-Optimized Results**: Returns results in structured JSON with summaries, citations, and highlights that models can immediately process.
+- **RAG-First Features**: Specialized endpoints like `get_search_context` return a single combined string of relevant context to minimize token usage.
+- **Nebius Cloud Scale**: Deep integration with Nebius infrastructure ensures high availability and enterprise-grade performance.
+- **Built-in Research Logic**: The `/research` endpoint can generate comprehensive research reports across multiple sources in a single call.
+- **Native MCP 3.0 Support**: Provides an official Model Context Protocol server for seamless integration with Claude Desktop and other agentic workbenches.
 
 ## Limitations
-- **Acquisition Uncertainty**: Following the 2026 acquisition by Nebius, the pricing and product roadmap for the free/indie tier may evolve.
-- **Search Latency**: While advanced search depth is thorough, it can introduce latency (often ~1s) that needs to be managed in real-time loops.
+- **API Latency**: Advanced search depth (which uses multiple scrapers) can introduce 1-3 seconds of latency.
+- **Cost for Scale**: High-volume automated research loops can become expensive compared to self-hosted alternatives like [SearXNG](../../services/searXNG.md).
+- **Nebius Ecosystem Tie-in**: roadmap is increasingly aligned with the broader Nebius AI platform.
 
 ## When to use it
-- When agents need current web results as part of their loop.
-- When you want a purpose-built search layer rather than managing generic scraping.
-- For production-grade agents requiring high reliability and performance.
+- When your agents need high-quality, real-time web information with zero scraping management.
+- For production RAG systems where grounding and citation accuracy are critical.
+- When you need a "set and forget" search layer with native integration into frameworks like LangChain or Vercel AI SDK.
 
 ## When not to use it
-- When your corpus is entirely internal and web search is unnecessary.
-- When you need a self-hosted search engine such as [SearXNG](../../services/searXNG.md).
-- For very high-volume search tasks where cost becomes prohibitive.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Freemium / Paid API (Free tier typically includes 1,000 searches/month)
-- **Self-hostable**: No
+- For basic web searches where a free, generic search API is sufficient.
+- When you need to host your own search infrastructure due to privacy or cost (use [SearXNG](../../services/searXNG.md)).
+- When document retrieval is limited to a closed, internal knowledge base.
 
 ## Getting started
 
-Install the Tavily Python SDK:
-
+### Installation
 ```bash
 pip install tavily-python
+# Or for Node.js
+npm install @tavily/core
 ```
 
-Initialize and run a basic search:
-
+### Quick Search
 ```python
 from tavily import TavilyClient
 
-# Initialize the client with your API key
 tavily = TavilyClient(api_key="tvly-YOUR_API_KEY")
+response = tavily.search(query="Current status of the Claude 4.8 release")
 
-# Perform a search
-response = tavily.search(query="What happened in the AI world today?")
-
-# Print the results
 for result in response['results']:
-    print(f"Title: {result['title']}")
-    print(f"URL: {result['url']}")
-    print(f"Content: {result['content']}\n")
+    print(f"[{result['score']}] {result['title']}: {result['url']}")
+```
+
+## CLI examples
+Tavily provides a CLI for quick research and configuration.
+
+```bash
+# Research a topic and output a report
+tavily research "Impact of GPT-5.5 on enterprise automation" --format markdown
+
+# Search and get context-only output
+tavily search "Nebius Tavily integration 2026" --context-only
+
+# Verify API key and usage
+tavily usage
 ```
 
 ## API examples
 
-### Context-based Search
-Used for RAG applications to get a single string of context.
-
+### Agentic Research Endpoint (v3.0)
 ```python
-context = tavily.get_search_context(query="Latest news on Claude 3.5", search_depth="advanced")
-print(context)
+research_report = tavily.research(
+    query="Comprehensive audit of 2026 vector database performance",
+    search_depth="advanced",
+    max_results=20
+)
+
+# Output includes synthesized report and all source citations
+print(research_report['report'])
 ```
 
-### Q&A Search
-Returns a direct answer to a question based on web results.
-
-```python
-answer = tavily.qna_search(query="Who won the Nobel Prize in Physics 2024?")
-print(answer)
+### MCP 3.0 Configuration (`claude_desktop_config.json`)
+```json
+{
+  "mcpServers": {
+    "tavily": {
+      "command": "npx",
+      "args": ["-y", "@tavily/mcp-server"],
+      "env": {
+        "TAVILY_API_KEY": "YOUR_KEY"
+      }
+    }
+  }
+}
 ```
 
 ## Related tools / concepts
-- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [DeerFlow](../agents/deerflow.md)
-- [SearXNG](../../services/searXNG.md)
-- [Firecrawl](../process_understanding/firecrawl.md)
-- [Crawl4AI](../process_understanding/crawl4ai.md)
-- [Perplexity API](../ai_knowledge/perplexity.md)
-- [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
-- [Exa AI](../providers/exa_ai.md)
+- [Exa AI](../providers/exa_ai.md) - Embedding-based search for agentic retrieval.
+- [Perplexity API](../ai_knowledge/perplexity.md) - Conversational search and grounding.
+- [SearXNG](../../services/searXNG.md) - Self-hosted search aggregator.
+- [Firecrawl](../process_understanding/firecrawl.md) - Web crawling optimized for LLM use.
+- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) - Unified framework with native Tavily support.
+- [Agentic Search](../../knowledge_base/patterns/search-patterns.md) - The architectural pattern Tavily powers.
+- [DeerFlow](../agents/deerflow.md) - Agentic research framework using Tavily.
+- [Nebius Group](https://nebius.com) - The parent company and AI cloud provider.
 
 ## Sources / References
-- [Official Website](https://www.tavily.com/)
-- [Documentation](https://docs.tavily.com/)
-- [Nebius to acquire Tavily (Calcalist)](https://www.calcalistech.com/ctechnews/article/r168bhodbe)
+- [Official Website](https://tavily.com/)
+- [Tavily Documentation](https://docs.tavily.com/)
+- [Nebius Acquisition Announcement](https://nebius.com/news/tavily-acquisition)
+- [Tavily v3.0 Release Notes (June 2026)](https://docs.tavily.com/release-notes/v3)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-06
 - Confidence: high
+- Last reviewed: 2026-06-24
