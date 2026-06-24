@@ -52,6 +52,31 @@ To implement the AI Company Starter Stack:
 3. **Deploy the Core**: Start with [n8n](../services/n8n.md) and the [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md) to build your first automation.
 4. **Iterate with Skills**: Package your repeatable procedures into the [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) to empower your team.
 
+## CLI examples
+
+```bash
+# Initialize a new MCP-based project within the stack
+mcp init my-agentic-workflow
+
+# Use Google Workspace CLI to list company documents for the agent
+gw drive list --query "folder:'Company Strategy'"
+```
+
+## API examples
+
+The following snippet demonstrates how to define a "Skill" within the Claude Skills Ecosystem that interacts with the stack:
+
+```python
+from pydantic import BaseModel, Field
+
+class CompanyKnowledgeSearch(BaseModel):
+    """Search for internal company knowledge across Docs and AnythingLLM."""
+    query: str = Field(..., description="The search query for company knowledge.")
+    depth: int = Field(default=3, description="The depth of the search results.")
+
+# Skill implementation would follow, utilizing MCP 3.0 servers
+```
+
 ## The default stack
 
 | Layer | Default choice | Why it belongs in the starter stack | Replace when |
@@ -140,25 +165,6 @@ Use this when structured financial or market intelligence should feed founder, i
 
 - **OpenBB** adds structured market data that generic web search cannot replace.
 - It is most useful for companies where market, macro, or financial context changes decisions.
-
-## Comparison table
-
-| Need | Best default | Use instead when | Comment |
-| :--- | :--- | :--- | :--- |
-| Public website or product shell | [Free AI Website Playbook](free_ai_website_playbook.md) + [Vercel](../tools/development_ops/vercel.md) | Static docs or content site is enough | The playbook is the decision layer; Vercel is the common default |
-| Reusable company procedures | [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md) | You only need one-off prompts | Skills matter once the process repeats |
-| Reliable coding-agent execution | [Superpowers](../tools/agents/superpowers.md) | Speed matters more than rigor | Best for important engineering work |
-| Workflow orchestration | [n8n](../services/n8n.md) | One small script is enough | n8n is the operating system, not just a node editor |
-| Browser-only workflows | [Browser Use](../tools/automation_orchestration/browser-use.md) | API exists | APIs beat browsers when available |
-| Workspace automation | [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md) | Your company runs elsewhere | Great when Docs/Sheets/Drive are core |
-| Long-lived memory | [mem0](../tools/agents/mem0.md) | Stateless execution is enough | Do not add memory unless it pays for itself |
-| Deep research | [DeerFlow](../tools/agents/deerflow.md) | Search + one summary call is enough | Best for evidence-heavy work |
-| Current docs for agents | [Context7](../tools/development_ops/context7.md) | No external docs required | Very high leverage for coding teams |
-| First-party Claude patterns | [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md) | You need broader ecosystem docs | Strong complement to Context7 |
-| Local inference | [LocalAI](../tools/infrastructure/localai.md) | You need frontier quality and speed first | Pair with llmfit before buying hardware |
-| Internal AI workspace | [AnythingLLM](../tools/ai_knowledge/anythingllm.md) | You need full custom product behavior | Great for shared internal assistants |
-| Model routing | [LiteLLM](../services/litellm.md) | You only need one hosted provider | Use OpenRouter for simpler hosted access; use ClawRouter for OpenClaw-heavy stacks |
-| Finance / market intelligence | [OpenBB](../tools/ai_knowledge/openbb.md) | Generic web research is enough | Best when market data should be structured and recurring |
 
 ## Selection map
 
@@ -302,5 +308,5 @@ Then I would add:
 - [ClawRouter](https://github.com/BlockRunAI/ClawRouter)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-24
 - Confidence: high

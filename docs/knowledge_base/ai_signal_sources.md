@@ -47,6 +47,30 @@ The most effective way to "consume" these signals is via RSS or Atom feeds.
 - **Weekly**: Review independent analysis (Simon Willison, Interconnects) for implementation implications.
 - **Monthly**: Refresh canonical docs and [Tool Access Matrix](ai_tool_access_matrix.md) based on what changed materially.
 
+## CLI examples
+Interacting with signal sources via terminal-based tools:
+
+```bash
+# Fetch latest entries from a signal source RSS feed
+curl -s https://simonwillison.net/atom/entries/ | grep "<title>" | head -n 5
+
+# Archive a high-signal article to Linkwarden
+linkwarden-cli add --url "https://openai.com/research/gpt-5-5-multi-agent-scaling"
+```
+
+## API examples
+Example of an n8n node configuration for monitoring a signal source:
+
+```json
+{
+  "parameters": {
+    "url": "https://www.anthropic.com/news/rss"
+  },
+  "name": "Anthropic RSS",
+  "type": "n8n-nodes-base.rssFeedRead"
+}
+```
+
 ## Company Engineering and Research Blogs
 
 | Source | Focus | URL |
@@ -83,47 +107,31 @@ The most effective way to "consume" these signals is via RSS or Atom feeds.
 | Tyler Rockwood | Applied LLM security analysis with practical trust-boundary experiments | https://rockwotj.com/blog/ |
 
 ## Curation Rules
-
 - Prefer primary sources over reposts.
 - Track only sources with clear technical signal.
 - Remove sources that become mostly marketing content.
 
 ## Related tools / concepts
-- [AI Tool Access Matrix](ai_tool_access_matrix.md) — For tracking the state of model capabilities across providers.
-- [AI Reading List](ai_reading_list.md) — For foundational research and long-form education.
-- [Agent Protocols](agent_protocols.md) — For the standards that enable the tools discussed in these blogs.
-- [System Prompts](system_prompts.md) — For tracking the "instructions" behind the models.
-- [Linkwarden](../services/linkwarden.md) — For archiving high-signal articles found in these sources.
-- [n8n](../services/n8n.md) — For automating the ingestion and filtering of these signal sources.
-- [Ollama](../services/ollama.md) — For testing the local models often announced in these blogs.
-- [SearXNG](../services/searXNG.md) — For private search to discover new signal sources.
+- [AI Tool Access Matrix](ai_tool_access_matrix.md)
+- [AI Reading List](ai_reading_list.md)
+- [Agent Protocols](agent_protocols.md)
+- [System Prompts](system_prompts.md)
+- [Linkwarden](../services/linkwarden.md)
+- [n8n](../services/n8n.md)
+- [Ollama](../services/ollama.md)
+- [SearXNG](../services/searXNG.md)
 
 ## Sources / References
 
 - [OpenAI Research](https://openai.com/research/)
-- [OpenAI Index](https://openai.com/index/)
 - [Anthropic News](https://www.anthropic.com/news)
 - [Mistral News](https://mistral.ai/news)
-- [Google DeepMind on Google Blog](https://blog.google/technology/google-deepmind/)
-- [Meta AI Blog](https://ai.meta.com/blog/)
-- [Microsoft Research Blog](https://www.microsoft.com/en-us/research/blog/)
-- [NVIDIA Developer Blog](https://developer.nvidia.com/blog/)
-- [Hugging Face Blog](https://huggingface.co/blog)
-- [Cohere Blog](https://cohere.com/blog)
+- [Google DeepMind Blog](https://blog.google/technology/google-deepmind/)
 - [Simon Willison's Weblog](https://simonwillison.net/)
-- [Lil'Log](https://lilianweng.github.io/)
-- [Chip Huyen](https://huyenchip.com/)
-- [Sebastian Raschka Blog](https://sebastianraschka.com/blog/)
-- [Interconnects](https://www.interconnects.ai/welcome)
+- [Lil'Log (Lilian Weng)](https://lilianweng.github.io/)
+- [Interconnects (Nathan Lambert)](https://www.interconnects.ai/)
 - [Latent Space](https://www.latent.space/)
-- [Daniel Saewitz's Blog](https://saewitz.com/)
-- [Dmitri Sotnikov's Blog (yogthos.net)](https://yogthos.net/)
-- [Tyler Rockwood's Blog](https://rockwotj.com/blog/)
-- [System Prompts Leaks GitHub](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
-- [The AI Agent Tools Landscape: 120+ Tools Mapped [2026]](https://stackone.com/blog/ai-agent-tools-landscape-2026/)
-- [Claude 4.7 Performance Analysis on Maverick Hardware](https://www.anthropic.com/news/claude-4-7-maverick) (Standard for June 2026)
-- [GPT-5.5 Multi-Agent System Scaling](https://openai.com/index/gpt-5-5-multi-agent-scaling) (Standard for June 2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-24
 - Confidence: high
