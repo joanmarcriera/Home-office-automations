@@ -32,84 +32,50 @@ It helps developers transition from experimentation to production-ready AI by pr
 
 ## Getting started
 
-### Installation
-Install the Opik library via `pip`:
+Install the Opik library:
 
 ```bash
 pip install opik
 ```
 
-### Hello-world example
-Configure the Opik client and run a simple tracked function:
+Configure the Opik client:
 
 ```bash
 opik configure
-```
-
-```python
-from opik import track
-
-@track
-def hello_world():
-    return "Hello from Opik!"
-
-print(hello_world())
 ```
 
 ## CLI examples
 
 ### opik configure
-Initializes the Opik configuration and sets up your API key:
+Sets up your API key and project settings:
 ```bash
 opik configure
 ```
 
 ### opik harbor run
-Executes a benchmark using the Harbor evaluation framework with Opik tracking:
+Runs a benchmark with Opik tracking:
 ```bash
 opik harbor run -d terminal-bench@head -a my_agent
 ```
 
 ### comet login
-Authenticates with the broader Comet ML platform for production sync:
+Login to the broader Comet platform (required for cloud sync):
 ```bash
 comet login
 ```
 
 ## API examples
 
-### Manual Tracing
-For fine-grained control, you can create spans manually without decorators.
-
+### Python (Tracing a function)
 ```python
-from opik import Opik
+from opik import track
 
-client = Opik(project_name="my-llm-project")
-trace = client.trace(name="chat-completion")
+@track
+def call_llm(prompt):
+    # Your LLM call here
+    return "Response"
 
-span = trace.span(name="llm-call", input={"prompt": "Translate 'hello' to Spanish"})
-# ... perform LLM call ...
-span.update(output={"response": "hola"})
-trace.update(output={"final_response": "hola"})
-```
-
-### Automated Evaluation
-Run an evaluation on a dataset using LLM-as-a-judge metrics.
-
-```python
-from opik.evaluation import evaluate
-from opik.evaluation.metrics import Hallucination
-
-def my_agent(input):
-    return {"output": "Agent response", "context": ["Context 1"]}
-
-metrics = [Hallucination()]
-
-evaluate(
-    dataset_name="my-test-set",
-    task=my_agent,
-    metrics=metrics
-)
+call_llm("Analyze this code")
 ```
 
 ## Related tools / concepts

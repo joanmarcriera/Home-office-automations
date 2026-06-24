@@ -32,56 +32,16 @@ It addresses the limitation of benchmarks that focus on atomic actions or single
 - For evaluating models in a sandbox without internet access.
 
 ## Getting started
+AssistantBench is supported by the `inspect-ai` framework.
 
-### Installation
-AssistantBench is primarily used through the `inspect-ai` framework for evaluation.
-
+### 1. Installation
 ```bash
-pip install inspect-ai inspect-evals
+pip install inspect-evals
 ```
 
-### Hello-world example
-To run a single sample of AssistantBench to verify your environment setup:
-
-```bash
-inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-4o --limit 1
-```
-
-## CLI examples
-
-### Run full evaluation
-Execute the entire benchmark against a specific model:
+### 2. Running AssistantBench
 ```bash
 inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-4o
-```
-
-### Run with Anthropic Claude
-Evaluate using a different provider:
-```bash
-inspect eval inspect_evals/assistant_bench_web_browser --model anthropic/claude-3-5-sonnet-20240620
-```
-
-### View evaluation results
-Open the Inspect view to see detailed logs of the trajectories:
-```bash
-inspect view
-```
-
-## API examples
-
-### Loading the dataset via Hugging Face
-You can interact with the benchmark data directly using the `datasets` library.
-
-```python
-from datasets import load_dataset
-
-# Load the development set
-dataset = load_dataset("AssistantBench/AssistantBench", split="dev")
-
-# Access a specific task
-example = dataset[0]
-print(f"Task: {example['task']}")
-print(f"Answer: {example['answer']}")
 ```
 
 ## Related tools / concepts

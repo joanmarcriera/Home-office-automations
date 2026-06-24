@@ -32,40 +32,22 @@ It simplifies the execution of recurring AI-driven tasks by allowing them to be 
 - If you prefer to use non-Chromium browsers.
 
 ## Getting started
-
 > [!NOTE]
 > Skills in Chrome is a built-in consumer feature of Google Chrome and does not have official developer documentation, CLI, or a public API.
 
-There is no separate installation required for this feature, as it is integrated directly into the browser.
-
-### Hello-world example
-To create your first skill:
+There is no separate installation required. To use it:
 1. Open Google Chrome and sign in to your Google account.
-2. Open the Gemini side panel (click the Gemini icon next to the address bar) or type `@gemini` in the address bar.
-3. Type a prompt like: `"Summarize the key points of this page into a 3-bullet list."`
-4. Once the response is generated, click the **Save as Skill** button.
-5. Give it a name (e.g., `Quick Summary`) and save it.
+2. Open the Gemini side panel or type `@gemini` in the address bar.
+3. **Hello-world example**: Type a prompt like "Summarize the key points of this page" and, once the response is generated, click the **Save as Skill** button to store it for one-click access later.
+4. Access your saved skills anytime by typing `/` in the Gemini chat box.
 
 ## CLI examples
-
 > [!NOTE]
-> This feature is a browser-native UI component and does not currently offer an official CLI.
-
-Interaction is performed via the Chrome address bar ("Omnibox"):
-- **Trigger Gemini**: Type `@gemini` followed by your prompt.
-- **Trigger a Skill**: Type `@gemini` followed by `/` and the skill name.
-- **Manage Skills**: Type `@gemini`, press `/`, and click the compass icon to open the Skills management interface.
+> This feature does not currently offer an official CLI.
 
 ## API examples
-
 > [!NOTE]
-> This feature does not currently offer an official public API for external programmatic access.
-
-However, users can "remix" skills from the official library:
-1. Open the **Skills Library** via the compass icon in the Gemini panel.
-2. Select a pre-built skill (e.g., "Ingredient Breakdown").
-3. Click **Add to my skills**.
-4. You can now modify the underlying prompt (the "code" of the skill) to customize its behavior.
+> This feature does not currently offer an official public API.
 
 ## Related tools / concepts
 - [HoloTab](holotab.md)
