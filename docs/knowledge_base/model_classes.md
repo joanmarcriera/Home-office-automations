@@ -31,67 +31,47 @@ It belongs to the **Intelligence Layer** of the AI stack. It serves as the taxon
 - For very simple, low-stakes chat applications where a single general-purpose model is sufficient.
 - If your infrastructure only supports a single API provider with limited model variety.
 
-## 1. Chat & Conversational Models
-General-purpose models optimized for dialogue and following instructions.
-- **Purpose**: General assistance, creative writing, Q&A.
-- **Examples**: GPT-5.5, Claude 4.7 Sonnet, Llama 4 Maverick.
+## Getting started
+To select the correct model class for your project:
+1. **Identify the Primary Task**: Is it coding, reasoning, summarization, or image generation?
+2. **Evaluate Constraints**: Do you need low latency (mini models) or high reasoning depth (frontier models)?
+3. **Check Data Modality**: Do you need multimodal support (Vision-Language Models)?
+4. **Consult the Routing Guide**: Use the [Model Routing Guide](model_routing_guide.md) to find the best current model for that class.
 
-## 2. Reasoning & Logic Models
-Models specifically designed or fine-tuned for complex multi-step reasoning, mathematical problem-solving, and logic.
-- **Purpose**: Scientific research, complex coding, advanced mathematics.
-- **Examples**: OpenAI o2-preview, o2-mini, Claude 4.7 Opus.
+## CLI examples
+You can identify model classes using various CLI interfaces to local and hosted providers.
 
-## 3. Mixture of Experts (MoE)
-Architecture that uses a sparse execution path, activating only a subset of parameters for each token.
-- **Purpose**: Efficiency and high performance without the cost of a full dense model.
-- **Examples**: Mixtral 8x7B, DeepSeek-V2, GPT-4 (widely believed to be MoE).
+```bash
+# Identify model details in Ollama
+ollama show llama4-maverick
 
-## 4. Code Generation & Analysis Models
-Models specialized in programming languages, debugging, and software architecture.
-- **Purpose**: AI coding assistants, automated code review.
-- **Examples**: CodeLlama, StarCoder2, DeepSeek-Coder-V2.
+# List available model classes in OpenRouter
+curl https://openrouter.ai/api/v1/models | jq '.data[] | {id, architecture}'
+```
 
-## 5. Vision-Language Models (Multimodal)
-Models that can process and understand both text and images.
-- **Purpose**: Image captioning, visual Q&A, document analysis (OCR).
-- **Examples**: GPT-4o, Claude 3.5 Sonnet, Llama 3.2-Vision.
+## API examples
+When using APIs, you can filter for specific model classes or architectures.
 
-## 6. Audio-Native & Multimodal Audio Models
-Models that can directly process or generate audio/speech without intermediate text conversion.
-- **Purpose**: Real-time translation, emotion-aware voice assistants.
-- **Examples**: GPT-4o (Advanced Voice), Gemini 1.5 Pro.
-- **Sources**: [Current Large Audio Language Models largely transcribe rather than listen](https://arxiv.org/abs/2510.10444) (Analysis of auditory understanding vs transcription).
+### Filtering by Architecture (Pseudo-code)
+```python
+import openrouter_api
 
-## 7. State Space Models (SSM) & Hybrids
-Alternatives to the Transformer architecture (like Mamba) designed for very long context and linear scaling.
-- **Purpose**: Processing extremely long documents, efficient inference.
-- **Examples**: Jamba (Hybrid Transformer-Mamba), Mamba-2.
+# Request models with 'moe' architecture for cost-efficiency
+efficient_models = openrouter_api.get_models(architecture="moe")
+for model in efficient_models:
+    print(f"Model: {model.name}, Price: {model.price_per_token}")
+```
 
-## 8. Embedding Models
-Models that represent text as high-dimensional vectors.
-- **Purpose**: Semantic search, RAG, document clustering.
-- **Examples**: text-embedding-3-small, Voyage AI, BGE-M3.
+### Selecting a Reasoning Model
+```python
+import litellm
 
-## 9. Small Language Models (SLM)
-Highly optimized models with fewer parameters (typically <10B) designed to run on-device.
-- **Purpose**: Edge computing, privacy-sensitive local tasks.
-- **Examples**: Phi-3.5, Gemma 2 2B, Llama 3.2 1B/3B.
-
-## 10. Long-Context Models
-Models specifically optimized to handle 100K+ tokens in their active window.
-- **Purpose**: Analyzing entire codebases, long novels, or legal documents.
-- **Examples**: Gemini 1.5 Pro (2M context), Claude 3 (200K context).
-
-## 11. Tool-Use & Agentic Models
-Models fine-tuned for reliable function calling and tool interaction.
-- **Purpose**: Autonomous agents, complex workflow automation.
-- **Examples**: NexusRaven-V2, Berkeley Function Calling Leaderboard (BFCL) top models.
-- **Sources**: [The First Fully General Computer Action Model](https://si.inc/posts/fdm1) (Shift towards autonomous system interaction).
-
-## 12. Variational Autoencoders (VAE)
-Generative models that learn a compressed latent representation of data, often used for image and video synthesis.
-- **Purpose**: Image/video reconstruction, generative diversity, latent space exploration.
-- **Sources**: [Learnings from 4 months of Image-Video VAE experiments](https://www.linum.ai/field-notes/vae-reconstruction-vs-generation).
+# Explicitly route to a reasoning-native model
+response = litellm.completion(
+    model="openai/o4-preview",
+    messages=[{"role": "user", "content": "Solve this complex logic puzzle: ..."}]
+)
+```
 
 ## Related tools / concepts
 - [Model Routing Guide](model_routing_guide.md)
@@ -100,13 +80,11 @@ Generative models that learn a compressed latent representation of data, often u
 - [Claude](../tools/ai_knowledge/claude.md)
 - [Gemini](../tools/ai_knowledge/gemini.md)
 - [Qwen](../tools/ai_knowledge/qwen.md)
-- [DeepSeek](../tools/ai_knowledge/deepseek-r1.md)
+- [DeepSeek](../tools/providers/deepseek.md)
 - [Mistral](../tools/providers/mistral.md)
-- [Llama 3](../tools/ai_knowledge/llama-3.md)
-
-## Backlog
-- Add comparison table of model architectures (Dense vs MoE vs SSM).
-- Include details on "Reasoning Tokens" and "Chain of Thought" native models.
+- [Llama 4](../tools/ai_knowledge/local_llms.md)
+- [API Pricing & Free Tiers](api_pricing_free_tiers.md)
+- [MCP 3.0 Standard](../tools/automation_orchestration/mcp.md)
 
 ## Sources / References
 - [Current Large Audio Language Models largely transcribe rather than listen](https://arxiv.org/abs/2510.10444)
@@ -114,5 +92,5 @@ Generative models that learn a compressed latent representation of data, often u
 - [Learnings from 4 months of Image-Video VAE experiments](https://www.linum.ai/field-notes/vae-reconstruction-vs-generation)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-24
 - Confidence: high
-- Last reviewed: 2026-06-07

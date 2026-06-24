@@ -52,38 +52,37 @@ To understand the economic impact of AI as documented here:
 3. **Analyze Productivity Gains**: Look at the findings on "Knowledge-Worker Productivity" to see where the ROI is most immediate.
 4. **Follow the Sector Guides**: If you are in Healthcare or Manufacturing, review the specific training models listed in the "Workforce Development" section.
 
-## Overview
+## CLI examples
+Economic data can be fetched and analyzed using the following CLI patterns.
 
-As AI agents and generative models become integrated into the global economy, understanding their impact on jobs, productivity, and economic mobility is critical. The "AI for the Economy Forum" (April 2026), co-hosted by Google and MIT FutureTech, established that AI's impact is not automatic but shaped by policy, partnership, and training.
+```bash
+# Fetch latest AI economic indicators using OpenBB CLI
+openbb economy get-indicators --sector "Technology" --indicator "Productivity"
 
-## Key Research Initiatives
+# Search for latest Google AI & Economy research papers
+google-search --query "Google AI & Economy Forum April 2026 findings"
+```
 
-### Google AI & Economy Research Program
-A collaborative effort with external experts to investigate pressing economic questions:
-- **Visiting Fellows**: Leading economists (e.g., David Autor) producing original research on AI's labor market effects.
-- **Digital Futures Project**: Research into how firms can encourage AI tool adoption that benefits both workers and companies, focusing on minimizing drudgery and fostering collaboration.
-- **Global Research Cohort**: Funding for institutions investigating AI's impact on manufacturing, healthcare, and global labor markets.
+## API examples
+Organizations can integrate economic impact monitoring into their dashboards.
 
-### Productivity Gains
-Internal research at major tech firms (Google, Microsoft, Anthropic) focuses on:
-- **Knowledge-Worker Productivity**: Real-world impact of reasoning-native models (Claude 4.7, GPT-5.5) on daily workflows. Research indicates a 40% reduction in time-to-completion for complex multi-step reasoning tasks.
-- **Economics of AI Agents**: Analyzing the cost-benefit and scaling laws of agentic automation.
-- **Reasoning-First Economics**: The introduction of Claude 4.7 and GPT-5.5 has shifted the economic focus from "generative speed" to "reasoning depth." Organizations are now measuring Autonomous Task Completion Rates for 8+ hour workflows and the impact of Llama 4 Maverick on synthetic data economics.
+### Fetching Productivity Metrics (Pseudo-code)
+```python
+import openbb_sdk
 
-## Workforce Development and Training
+# Fetch AI-driven productivity gains in the manufacturing sector
+impact_data = openbb_sdk.economy.ai_impact(sector="manufacturing", year=2026)
+print(f"Productivity Gain: {impact_data.productivity_percentage}%")
+```
 
-To ensure equitable benefits from AI, large-scale training programs have been launched:
-- **AI Professional Certificate**: Designed to move workers from basic literacy to AI fluency.
-- **Sector-Specific Training**:
-    - **Healthcare**: Training rural healthcare workers in AI literacy to reduce administrative burden.
-    - **Manufacturing**: Equipping 40,000+ manufacturing employees with AI skills and expanding apprenticeship models.
-- **Global AI Opportunity Fund**: A $120M fund to make AI education accessible globally.
+### Accessing Global AI Opportunity Fund Data
+```python
+import requests
 
-## Policy and Governance
-Realizing AI's economic potential requires "smart governance":
-- **Assessing Impact**: Continuous monitoring of AI's effect on various economic sectors.
-- **Equipping Workforce**: Policies that incentivize lifelong learning and AI skill acquisition.
-- **Empowering Workers**: Encouraging AI adoption patterns that augment rather than just replace human labor.
+# Get latest funding allocations for AI education
+response = requests.get("https://api.google.org/v1/ai-opportunity-fund/stats")
+print(response.json()['total_allocated'])
+```
 
 ## Related tools / concepts
 
@@ -100,6 +99,38 @@ Realizing AI's economic potential requires "smart governance":
 - [Bringing people together at AI for the Economy Forum (Google Blog, 2026-04-14)](https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/ai-economy-forum/)
 - [AI for the Economy Forum - Innovation and Adaptation](http://ai.google/economy/)
 
+---
+
+## Overview
+As AI agents and generative models become integrated into the global economy, understanding their impact on jobs, productivity, and economic mobility is critical. The "AI for the Economy Forum" (April 2026), co-hosted by Google and MIT FutureTech, established that AI's impact is not automatic but shaped by policy, partnership, and training.
+
+## Key Research Initiatives
+### Google AI & Economy Research Program
+A collaborative effort with external experts to investigate pressing economic questions:
+- **Visiting Fellows**: Leading economists (e.g., David Autor) producing original research on AI's labor market effects.
+- **Digital Futures Project**: Research into how firms can encourage AI tool adoption that benefits both workers and companies, focusing on minimizing drudgery and fostering collaboration.
+- **Global Research Cohort**: Funding for institutions investigating AI's impact on manufacturing, healthcare, and global labor markets.
+
+### Productivity Gains
+Internal research at major tech firms focuses on:
+- **Knowledge-Worker Productivity**: Real-world impact of reasoning-native models (Claude 4.8, GPT-5.5) on daily workflows. Research indicates a 40% reduction in time-to-completion for complex multi-step reasoning tasks.
+- **Economics of AI Agents**: Analyzing the cost-benefit and scaling laws of agentic automation.
+- **Reasoning-First Economics**: The introduction of Claude 4.8 and GPT-5.5 has shifted the economic focus from "generative speed" to "reasoning depth."
+
+## Workforce Development and Training
+To ensure equitable benefits from AI, large-scale training programs have been launched:
+- **AI Professional Certificate**: Designed to move workers from basic literacy to AI fluency.
+- **Sector-Specific Training**:
+    - **Healthcare**: Training rural healthcare workers in AI literacy to reduce administrative burden.
+    - **Manufacturing**: Equipping 40,000+ manufacturing employees with AI skills and expanding apprenticeship models.
+- **Global AI Opportunity Fund**: A $120M fund to make AI education accessible globally.
+
+## Policy and Governance
+Realizing AI's economic potential requires "smart governance":
+- **Assessing Impact**: Continuous monitoring of AI's effect on various economic sectors.
+- **Equipping Workforce**: Policies that incentivize lifelong learning and AI skill acquisition.
+- **Empowering Workers**: Encouraging AI adoption patterns that augment rather than just replace human labor.
+
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-24
 - Confidence: high
