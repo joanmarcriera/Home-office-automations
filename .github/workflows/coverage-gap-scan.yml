@@ -1,0 +1,59 @@
+name: Coverage Gap Scan
+
+# Self-evolution lane: instead of only re-auditing existing pages, this scans for
+# what the knowledge base is MISSING and opens a throttled gap-fill issue so the
+# Jules pipeline expands coverage toward the industry frontier.
+#
+#   - Frontier gaps  : data/frontier_watchlist.json entries with no canonical page
+#   - Dangling refs  : "Related tools" links pointing to pages that do not exist
+#   - Thin categories: taxonomy buckets with too few pages
+#
+# Fully offline-computable (catalog + watchlist + docs all live in-repo). The
+# scanner self-throttles: it will not open a second issue while one is still open.
+
+on:
+  schedule:
+    - cron: "0 4 * * 2" # Tuesday 04:00 UTC (offset from other weekly lanes)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Set to "true" to report only, not open an issue'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: coverage-gap-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate watchlist JSON
+        run: python3 -c "import json; json.load(open('data/frontier_watchlist.json')); print('watchlist OK')"
+
+      - name: Run coverage gap scan
+        run: |
+          set -euo pipefail
+          if [ "$DRY_RUN" = "true" ]; then
+            python3 scripts/coverage_gap_scan.py
+          else
+            python3 scripts/coverage_gap_scan.py --create-issue
+          fi

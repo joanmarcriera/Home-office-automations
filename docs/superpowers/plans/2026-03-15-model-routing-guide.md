@@ -17,7 +17,7 @@ It provides architectural continuity for [Autonomous Agents](../../tools/agents/
 ## Strengths
 - **Historical Context**: Preserves the original March 2026 goals while providing June 2026 updates.
 - **Traceability**: Directly links implementation steps to final documentation artifacts.
-- **Adaptive Strategy**: Shows how the plan evolved to incorporate [MCP 3.0](../../knowledge_base/mcp.md).
+- **Adaptive Strategy**: Shows how the plan evolved to incorporate [MCP 3.0](../../tools/automation_orchestration/mcp.md).
 
 ## Limitations
 - **Temporal Specificity**: Highly tied to the mid-2026 model release cycle.
@@ -42,7 +42,7 @@ It provides architectural continuity for [Autonomous Agents](../../tools/agents/
 - [x] Upgrade guide to include Claude 4.8 (Haiku, Sonnet, Opus).
 - [x] Integrate GPT-5.5 explicit "Reasoning Effort" parameters.
 - [x] Add Gemini 3.5 Flash/Pro context-based routing.
-- [x] Align with [MCP 3.0](../../knowledge_base/mcp.md) tool-calling standards.
+- [x] Align with [MCP 3.0](../../tools/automation_orchestration/mcp.md) tool-calling standards.
 
 ## CLI examples
 
@@ -75,7 +75,7 @@ def route_v2(task, effort="medium"):
 - [OpenAI](../../tools/ai_knowledge/openai.md)
 - [Gemini](../../tools/ai_knowledge/gemini.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [MCP 3.0](../../knowledge_base/mcp.md)
+- [MCP 3.0](../../tools/automation_orchestration/mcp.md)
 - [Fallback Patterns](../../knowledge_base/patterns/fallback-patterns.md)
 - [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md)
 

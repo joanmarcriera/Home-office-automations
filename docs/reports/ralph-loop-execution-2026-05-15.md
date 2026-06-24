@@ -17,7 +17,7 @@ This report documents the resolution of Batch 51 (the 5 oldest "Medium Confidenc
 
 - **pa-bench.md**: Deepened with details on simulated environments for email/calendar and provided a functional Python SDK "Getting Started" block. Expanded links to include other web-agent benchmarks (WebArena, Mind2Web).
 - **terminal-bench.md**: Updated to reflect the evolution to TB-2/Harbor. Provided CLI examples (`tb run`) and explained the containerized sandbox architecture.
-- **google_calendar.md**: Standardized as the canonical Google Calendar page. Added a practical Python SDK snippet for event creation and linked to [Chronos MCP](../automation_orchestration/chronos-mcp.md) for agentic use.
+- **google_calendar.md**: Standardized as the canonical Google Calendar page. Added a practical Python SDK snippet for event creation and linked to [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) for agentic use.
 - **anti_gravity.md**: Transitioned from a placeholder to a detailed doc on Google's agentic development platform. Explained "Missions" and "Rules" for autonomous software engineering.
 - **cloud_code.md**: Highlighted its value for Kubernetes developers, specifically its IDE-native Skaffold integration and smart YAML snippets.
 

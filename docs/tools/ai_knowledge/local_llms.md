@@ -7,7 +7,7 @@ Tools and frameworks that allow running Large Language Models directly on your o
 It provides **100% data sovereignty**, eliminates recurring token costs, and ensures availability during internet outages. It allows for the processing of sensitive personal or corporate data that cannot be sent to cloud providers like OpenAI or Anthropic due to privacy, security, or compliance requirements. It also enables high-frequency agentic loops without the latency or cost of cloud APIs.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine (Self-hosted)**. It serves as the local intelligence layer in the [KnowledgeOps](../../architecture/README.md) stack, replacing or augmenting cloud providers. It interacts with the [Persistence Layer](../infrastructure/index.md) and provides tools to agents via [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md).
+**LLM / Reasoning Engine (Self-hosted)**. It serves as the local intelligence layer in the [KnowledgeOps](../../architecture/README.md) stack, replacing or augmenting cloud providers. It interacts with the [Persistence Layer](../infrastructure/index.md) and provides tools to agents via [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
 - **Private Coding Assistance**: Running code-specialized models locally via [Claude Code](../development_ops/claude-code.md) or [Windsurf](../development_ops/codeium.md).
@@ -32,7 +32,7 @@ It provides **100% data sovereignty**, eliminates recurring token costs, and ens
 - When handling PII, health records, or proprietary corporate IP.
 - For high-volume tasks like summarization, formatting, or basic data extraction.
 - When building "local-first" or air-gapped agentic systems.
-- For development and debugging of [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md) tools and agentic loops.
+- For development and debugging of [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) tools and agentic loops.
 
 ## When not to use it
 - When the task requires the absolute frontier of logical reasoning or world knowledge (prefer [Claude 4.8](../ai_knowledge/claude.md) or [GPT-5.5](../ai_knowledge/openai.md)).
@@ -43,7 +43,7 @@ It provides **100% data sovereignty**, eliminates recurring token costs, and ens
 1. **Ollama**: Install the standard for local management: `curl -fsSL https://ollama.com/install.sh | sh`.
 2. **Run a Model**: Start your first model: `ollama run llama3.2`.
 3. **GUI Interface**: For a visual experience, install [LM Studio](../infrastructure/lm-studio.md) or [Jan.ai](../infrastructure/jan-ai.md).
-4. **Tool Access**: Configure an [Model Context Protocol (MCP) 3.0](../../knowledge_base/tool-calling-and-mcp.md) server to give your local models tool-calling capabilities.
+4. **Tool Access**: Configure an [Model Context Protocol (MCP) 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) server to give your local models tool-calling capabilities.
 
 ## CLI examples
 ```bash
@@ -85,7 +85,7 @@ print(response.choices[0].message.content)
 - [Jan.ai](../infrastructure/jan-ai.md)
 - [Msty](../infrastructure/msty.md)
 - [Claude Code](../development_ops/claude-code.md)
-- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
+- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Open WebUI](../../services/open-webui.md)
 - [AnythingLLM](https://docs.useanything.com/introduction)
 

@@ -20,7 +20,7 @@ It simplifies the coordination of multiple AI agents performing complex, interde
 - **Workflow Focused**: Specifically tuned for the tools developers use most (Linear, GitHub).
 - **Open Source**: Allows for community customization and extension.
 - **Scalable**: Can manage a "swarm" of agents working in parallel on different parts of a project.
-- **Frontier Model Ready**: Optimized for [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md).
+- **Frontier Model Ready**: Optimized for [Claude 4.8 Opus](../ai_knowledge/claude.md) and [GPT-5.5](../ai_knowledge/openai.md).
 
 ## Limitations
 - **Narrow Ecosystem**: Primarily focused on Linear and GitHub; may require custom work for other integrations.

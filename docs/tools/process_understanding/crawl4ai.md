@@ -102,8 +102,8 @@ if __name__ == "__main__":
 - [Playwright](https://playwright.dev/)
 - [RAGFlow](ragflow.md)
 - [Valyu](../ai_knowledge/valyu.md)
-- [LangChain](./langchain.md)
-- [LlamaIndex](./llamaindex.md)
+- [LangChain](../ai_knowledge/langchain.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
 
 ## Sources / references
 - [Crawl4AI Official Documentation](https://docs.crawl4ai.com/)

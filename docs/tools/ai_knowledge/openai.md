@@ -7,7 +7,7 @@ OpenAI is a leading AI research and deployment company that provides high-perfor
 It provides state-of-the-art reasoning, coding, and instruction-following capabilities via a reliable, high-throughput API. It enables complex automation, multi-step agentic workflows, and human-like interaction by processing text, code, audio, and images natively within a unified model architecture.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine**. It serves as the primary intelligence layer for agentic systems, available via the OpenAI API and as the engine behind [ChatGPT](chatgpt.md). It supports standardized tool calling via [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md).
+**LLM / Reasoning Engine**. It serves as the primary intelligence layer for agentic systems, available via the OpenAI API and as the engine behind [ChatGPT](chatgpt.md). It supports standardized tool calling via [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
 - **Autonomous Coding**: Powering agents like [Claude Code](../development_ops/claude-code.md) or [Windsurf](../development_ops/codeium.md) for complex software engineering tasks.
@@ -110,9 +110,9 @@ response = client.chat.completions.create(
 - [Local LLMs](local_llms.md)
 - [OpenRouter](openrouter.md)
 - [AG2](../frameworks/ag2.md)
-- [LangChain](../frameworks/langchain.md)
-- [LlamaIndex](../frameworks/llamaindex.md)
-- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
+- [LangChain](langchain.md)
+- [LlamaIndex](llamaindex.md)
+- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [OpenAI Platform Documentation](https://platform.openai.com/docs/)

@@ -32,7 +32,7 @@ Droid solves the "Execution Gap" in AI-assisted development by moving beyond sim
 - To augment a small engineering team with specialized AI agents for security or infrastructure.
 
 ## When not to use it
-- For simple, single-file edits where [Aider](./aider.md) or [Cline](./cline.md) is faster.
+- For simple, single-file edits where [Aider](./aider.md) or [Cline](../agents/cline.md) is faster.
 - In air-gapped environments that cannot reach the Factory AI inference plane.
 - If you prefer a fully open-source, locally-hosted agent framework (see [OpenHands](./openhands.md)).
 
@@ -111,7 +111,7 @@ runAudit();
 - [Claude Code](./claude-code.md)
 - [Aider](./aider.md)
 - [OpenHands](./openhands.md)
-- [Cline](./cline.md)
+- [Cline](../agents/cline.md)
 - [Software Factories](../../knowledge_base/patterns/software-factories.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)

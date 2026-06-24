@@ -92,7 +92,7 @@ print(response.json()["answer"])
 - [Obsidian](../ai_knowledge/obsidian.md) — Can be used as a data source via Markdown export.
 - [LangChain](../ai_knowledge/langchain.md) — Often used in conjunction with Weaviate for custom pipelines.
 - [Ollama](../../services/ollama.md) — Supported as a local inference backend.
-- [GPT-5.5](../providers/openai.md) — Large language model often used with Verba.
+- [GPT-5.5](../ai_knowledge/openai.md) — Large language model often used with Verba.
 
 ## Sources / References
 - [Official Website](https://verba.weaviate.io/)

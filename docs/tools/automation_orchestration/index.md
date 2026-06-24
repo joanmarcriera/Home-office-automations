@@ -13,7 +13,7 @@ Tools and protocols for automating repetitive tasks, connecting disparate servic
 | [CliHub](clihub.md) | Repository for reusable CLI commands and agent prompts |
 | [GNU Make](gnu-make.md) | Classic build automation tool used for task orchestration |
 | [Google Workspace CLI](google-workspace-cli.md) | Automate Drive, Gmail, and Calendar from the terminal |
-| [Goose](goose.md) | Open-source agent that can use the terminal and browser |
+| [Goose](../agents/goose.md) | Open-source agent that can use the terminal and browser |
 | [Gumloop](gumloop.md) | No-code platform for building complex AI workflows |
 | [Lightpanda Browser](lightpanda.md) | Lightweight browser optimized for agentic use |
 | [LLMWare](llmware.md) | Framework for building local, private RAG and automation |

@@ -14,7 +14,7 @@ Performed technical freshness audits for five services as part of the Batch 99 m
 ### Portracker
 - Updated with Peer-to-Peer monitoring and hierarchical grouping features.
 - Added TrueNAS API integration for enhanced discovery.
-- Linked to [Docker](../tools/infrastructure/docker.md) and [TrueNAS](../../architecture/infrastructure.md).
+- Linked to [Docker](../tools/infrastructure/docker.md) and [TrueNAS](../architecture/infrastructure.md).
 - Verified 'High Confidence' standards (14 headers, 10 internal links).
 
 ### Speedtest
@@ -24,7 +24,7 @@ Performed technical freshness audits for five services as part of the Batch 99 m
 
 ### Nextcloud
 - Integrated Nextcloud Hub 9 (v30) features: AI Assistant and Context Agent.
-- Added [Ollama](ollama.md) as a recommended local LLM provider.
+- Added [Ollama](../services/ollama.md) as a recommended local LLM provider.
 - Verified 'High Confidence' standards (17 headers, 12 internal links).
 
 ### Storj

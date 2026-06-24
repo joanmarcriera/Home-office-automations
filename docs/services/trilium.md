@@ -110,8 +110,8 @@ api.log(`Data retrieved: ${data.message}`);
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — The primary markdown-based alternative.
 - [Logseq](../tools/ai_knowledge/logseq.md) — For privacy-first outliner-based knowledge.
 - [Joplin](../tools/ai_knowledge/joplin.md) — For a simpler, cross-platform notebook experience.
-- [AnyType](../tools/ai_knowledge/anytype.md) — A decentralized, object-based alternative.
-- [SilverBullet](../tools/ai_knowledge/silverbullet.md) — A hackable, markdown-based knowledge base.
+- [AnyType](../tools/intake_storage/anytype.md) — A decentralized, object-based alternative.
+- [SilverBullet](../tools/intake_storage/silverbullet.md) — A hackable, markdown-based knowledge base.
 - [n8n](n8n.md) — For automating data ingestion into Trilium.
 - [Paperless-ngx](paperless-ngx.md) — For dedicated document management and advanced OCR workflows.
 - [Excalidraw](excalidraw.md) — For embedding hand-drawn diagrams into notes.

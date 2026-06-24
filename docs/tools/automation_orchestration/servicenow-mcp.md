@@ -149,7 +149,7 @@ Directly updating ServiceNow business logic from an agent:
 - [Model Context Protocol (MCP)](mcp.md)
 - [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
 - [Service Inventory](../../services/inventory.md)
-- [Claude Desktop](../agents/claude-desktop.md)
+- [Claude Desktop](../ai_knowledge/claude-desktop.md)
 - [Goose](../agents/goose.md)
 - [Anthropic](../providers/anthropic.md)
 - [Claude 4.8](../providers/anthropic.md)

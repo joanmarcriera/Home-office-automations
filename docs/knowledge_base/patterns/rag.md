@@ -138,7 +138,7 @@ result = collection.query.hybrid(
 - [Agentic RAG](data-copilot-agentic-rag.md) — Multi-step retrieval and reasoning.
 - [Tool Calling & MCP](tool-calling-and-mcp.md) — The mechanism for agent-driven retrieval.
 - [RAGFlow](../../tools/process_understanding/ragflow.md) — Vision-native knowledge engine.
-- [ColQwen](../../tools/process_understanding/colqwen.md) — Multi-modal RAG using late interaction.
+- [ColQwen](../../tools/ai_knowledge/colqwen.md) — Multi-modal RAG using late interaction.
 - [Docling](../../tools/process_understanding/docling.md) — High-fidelity document parsing for RAG.
 - [Vector Databases](../../tools/infrastructure/index.md#sub-categories) — The storage layer for RAG.
 - [GraphRAG](../../knowledge_base/patterns/agentic-workflows.md) — RAG using knowledge graphs for global context.

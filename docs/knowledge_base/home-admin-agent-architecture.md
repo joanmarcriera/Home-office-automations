@@ -125,7 +125,7 @@ class AgentState(TypedDict):
 - [Paperless-ngx](../services/paperless-ngx.md)
 - [Vikunja](../services/vikunja.md)
 - [LangGraph](../tools/frameworks/langgraph.md)
-- [LangChain](../tools/frameworks/langchain.md)
+- [LangChain](../tools/ai_knowledge/langchain.md)
 - [Pydantic](../tools/development_ops/pydantic.md)
 
 ## Sources / References

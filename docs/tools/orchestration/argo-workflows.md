@@ -117,7 +117,7 @@ curl -X POST "https://argo-server:2746/api/v1/workflows/argo" \
 ## Related tools / concepts
 - [Argo CD](https://argoproj.github.io/argo-cd/) — For GitOps-based deployment of workflows.
 - [Hera Python SDK](https://github.com/argoproj-labs/hera) — The standard for building Argo workflows in Python.
-- [K3s](../../services/k3s.md) — A lightweight Kubernetes distribution ideal for running Argo locally.
+- [K3s](../infrastructure/k3s.md) — A lightweight Kubernetes distribution ideal for running Argo locally.
 - [Apache Airflow](apache-airflow.md) — For enterprise-wide batch scheduling (often integrated with Argo).
 - [Flyte](flyte.md) — A container-native orchestrator focused on ML lifecycle.
 - [Kestra](kestra.md) — For event-driven declarative orchestration.

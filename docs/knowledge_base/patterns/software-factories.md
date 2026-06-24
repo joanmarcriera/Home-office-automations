@@ -9,7 +9,7 @@ The Software Factory is a "dark factory" approach to development where autonomou
 It eliminates the human review bottleneck in traditional PR workflows and mitigates "inhuman mistakes" through exhaustive automated validation. It addresses the economic challenge of building and maintaining complex digital twins, legacy system migrations, and specialized tooling that was previously too expensive for manual development.
 
 ## Where it fits in the stack
-The Software Factory resides in the **Orchestration and Quality Layer** of the [Home-Office Architecture](../../architecture/README.md). It serves as the primary engine for [Jules](../../tools/agents/jules.md) and other coding agents, utilizing [MCP 3.0](../../tools/orchestration/mcp.md) for tool-use and [Docker](../../tools/infrastructure/docker.md) for isolated validation environments.
+The Software Factory resides in the **Orchestration and Quality Layer** of the [Home-Office Architecture](../../architecture/README.md). It serves as the primary engine for [Jules](../../tools/ai_knowledge/jules.md) and other coding agents, utilizing [MCP 3.0](../../tools/automation_orchestration/mcp.md) for tool-use and [Docker](../../tools/infrastructure/docker.md) for isolated validation environments.
 
 ## Typical use cases
 - **Autonomous Maintenance**: Agents that monitor, debug, and patch production codebases without human intervention.
@@ -112,8 +112,8 @@ if result.score > 0.98:
 ```
 
 ## Related tools / concepts
-- [Jules](../../tools/agents/jules.md) — The primary autonomous coding agent.
-- [MCP 3.0](../../tools/orchestration/mcp.md) — The protocol for agent-tool interaction.
+- [Jules](../../tools/ai_knowledge/jules.md) — The primary autonomous coding agent.
+- [MCP 3.0](../../tools/automation_orchestration/mcp.md) — The protocol for agent-tool interaction.
 - [Agentic Flows](../../architecture/flows.md) — The underlying workflow patterns.
 - [LLM Security and Privacy](../llm_security_privacy.md) — Sandbox security.
 - [Qwen 2.5 Coder](../../tools/ai_knowledge/qwen.md) — Local coding models.

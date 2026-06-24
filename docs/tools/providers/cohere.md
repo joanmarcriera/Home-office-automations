@@ -145,9 +145,9 @@ for res in results.results:
 - [Mistral](mistral.md) — Performance-oriented open-weights provider.
 - [DeepSeek](deepseek.md) — Efficient retrieval and reasoning models.
 - [Elasticsearch](../../services/elasticsearch.md) — Often used as the first stage before Cohere Rerank.
-- [Pinecone](../../services/pinecone.md) — Vector database for storing Cohere Embeddings.
-- [LangChain](../frameworks/langchain.md) — Framework with deep Cohere integrations.
-- [LlamaIndex](../frameworks/llamaindex.md) — Framework optimized for RAG using Cohere.
+- [Pinecone](../infrastructure/pinecone.md) — Vector database for storing Cohere Embeddings.
+- [LangChain](../ai_knowledge/langchain.md) — Framework with deep Cohere integrations.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Framework optimized for RAG using Cohere.
 - [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Industry standard for tool integration.
 
 ## Sources / references

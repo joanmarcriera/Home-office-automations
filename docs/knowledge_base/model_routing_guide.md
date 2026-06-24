@@ -98,7 +98,7 @@ print(f"Routing to: {model}")
 - [Claude](../tools/ai_knowledge/claude.md)
 - [OpenAI](../tools/ai_knowledge/openai.md)
 - [Gemini](../tools/ai_knowledge/gemini.md)
-- [MCP 3.0](mcp.md)
+- [MCP 3.0](../tools/automation_orchestration/mcp.md)
 - [Fallback Patterns](patterns/fallback-patterns.md)
 
 ## Sources / References

@@ -106,7 +106,7 @@ export const mutators = {
 - [Invisible Kubernetes](invisible_kubernetes.md) — Automating the backend infrastructure for sync engines.
 - [Supabase](../tools/infrastructure/supabase.md) — Provides "Realtime" sync as a core service.
 - [Dify](../tools/ai_knowledge/dify.md) — Can use sync engines for real-time agentic collaboration state.
-- [LiteLLM](../../services/litellm.md) — Used in sync-heavy agent workbenches for multi-model inference.
+- [LiteLLM](../services/litellm.md) — Used in sync-heavy agent workbenches for multi-model inference.
 - [Wasm](../tools/development_ops/vscode.md) — (Technology context) Enabling databases like PGlite in the browser.
 - [OpenAI](../tools/ai_knowledge/openai.md) — Often the intelligence layer acting upon the synced state.
 

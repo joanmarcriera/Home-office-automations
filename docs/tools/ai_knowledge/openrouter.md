@@ -106,9 +106,9 @@ completion = client.chat.completions.create(
 - [LiteLLM](../../services/litellm.md) — Local proxy for multi-model routing.
 - [OpenAI](openai.md) — Foundation API standard.
 - [Anthropic](../providers/anthropic.md) — Primary model family.
-- [DeepSeek](deepseek.md) — High-performance open models.
+- [DeepSeek](../providers/deepseek.md) — High-performance open models.
 - [Groq](../providers/groq.md) — Low-latency provider often used by OpenRouter.
-- [Model Routing Guide](../../knowledge_base/patterns/model_routing_guide.md) — Architectural patterns.
+- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Architectural patterns.
 - [MCP 3.0](../../knowledge_base/self-healing-agent-research.md) — Protocol for agentic context.
 
 ## Sources / references

@@ -82,7 +82,7 @@ for chunk in interpreter.chat("List my top 5 most memory-intensive processes.", 
 - [Claude Code](../development_ops/claude-code.md) — Anthropic's CLI agent with similar capabilities.
 - [Aider](../development_ops/aider.md) — Specialized coding tool for git-based workflows.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Implementation patterns for execution agents.
-- [Goose](goose.md) — Alternative local execution environment.
+- [Goose](../agents/goose.md) — Alternative local execution environment.
 - [Cline](../agents/cline.md) — IDE-native agent with terminal access.
 - [OpenHands](../development_ops/openhands.md) — Web-based autonomous engineering platform.
 - [Model Context Protocol](mcp.md) — For exposing local tools to remote agents.

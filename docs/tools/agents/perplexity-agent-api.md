@@ -127,9 +127,9 @@ print(response.json()['choices'][0]['message']['tool_calls'])
 - [Crawl4AI](../process_understanding/crawl4ai.md)
 - [Exa AI](../providers/exa_ai.md)
 - [Google Search](../ai_knowledge/google-search.md)
-- [OpenRouter](../providers/openrouter.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 - [Claude 4.8 Opus](../providers/anthropic.md)
-- [GPT-5.5](../providers/openai.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
 
 ## Sources / References
 - [Perplexity API Documentation](https://docs.perplexity.ai/)

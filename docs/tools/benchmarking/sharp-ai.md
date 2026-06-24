@@ -10,7 +10,7 @@ As AI agents move from "chatting" to "acting" (executing code, calling APIs, man
 **Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data, sitting alongside CI/CD and monitoring tools.
 
 ## Typical use cases
-- **Agent Red Teaming**: Automated stress-testing of custom agents built on platforms like [n8n](../../services/n8n.md) or [Dify](../frameworks/dify.md).
+- **Agent Red Teaming**: Automated stress-testing of custom agents built on platforms like [n8n](../../services/n8n.md) or [Dify](../ai_knowledge/dify.md).
 - **Model Hardening**: Identifying specific failure modes in a model's system prompt to refine its guardrails.
 - **Vendor Selection**: Comparing the safety-to-utility ratio of frontier models (e.g., Claude 4.8 vs GPT-5.5).
 - **Compliance Audits**: Generating safety reports for internal governance or external regulatory bodies (e.g., EU AI Act compliance).

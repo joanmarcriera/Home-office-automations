@@ -118,7 +118,7 @@ return { formattedDate: cleanDate, timestamp: Date.now() };
 - [Browser Use](browser-use.md)
 - [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
 - [Claude 4.8](../providers/anthropic.md)
-- [GPT-5.5](../providers/openai.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
 - [Model Context Protocol (MCP)](mcp.md)
 - [Home Assistant](../../services/home-assistant.md)
 

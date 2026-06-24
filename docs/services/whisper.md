@@ -155,7 +155,7 @@ For real-time transcription or automated pipelines, Whisper is often integrated 
 - [Piper](../tools/ai_knowledge/piper.md) — for local Text-to-Speech (the inverse of Whisper)
 - [Home Assistant](home-assistant.md) — for integrating Whisper into voice-controlled home automation
 - [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
-- [MLX](../tools/frameworks/mlx.md) — for optimized execution on Apple Silicon.
+- [MLX](../tools/infrastructure/mlx.md) — for optimized execution on Apple Silicon.
 - [LiteLLM](litellm.md) — for unified proxying to frontier models like Claude 4.8 Opus.
 
 ## Sources / References

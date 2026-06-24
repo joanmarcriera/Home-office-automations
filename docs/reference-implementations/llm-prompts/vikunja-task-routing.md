@@ -95,7 +95,7 @@ Return a JSON object:
 5. **Feedback**: Agent confirms to the user: "I've added 'Fix kitchen sink' to your Maintenance list for tomorrow with medium priority."
 
 ## Related tools / concepts
-- [Vikunja](../../tools/calendar_tasks/vikunja.md): The target task management system.
+- [Vikunja](../../services/vikunja.md): The target task management system.
 - [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The overall framework for this implementation.
 - [n8n](../../services/n8n.md): Common orchestration platform for these workflows.
 - [System Prompts](../../knowledge_base/system_prompts.md): Best practices for designing agent personas.

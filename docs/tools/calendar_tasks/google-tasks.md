@@ -1,7 +1,7 @@
 # Google Tasks
 
 ## What it is
-Google Tasks is a lightweight task management service integrated into Google Workspace. As of June 2026, it serves as a primary "Surface" for agentic task execution via the [Model Context Protocol (MCP 3.0)](../../knowledge_base/mcp.md) and the Google Graph API, enabling autonomous agents to manage to-do items across Gmail, Calendar, and mobile devices.
+Google Tasks is a lightweight task management service integrated into Google Workspace. As of June 2026, it serves as a primary "Surface" for agentic task execution via the [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) and the Google Graph API, enabling autonomous agents to manage to-do items across Gmail, Calendar, and mobile devices.
 
 ## What problem it solves
 It provides a minimalist, centralized capture point for tasks within the Google ecosystem. It solves task fragmentation by allowing [Autonomous Agents](../agents/README.md) and users to convert emails or calendar events into actionable items that synchronize across all Google surfaces.
@@ -101,7 +101,7 @@ export const createTaskTool = {
 - [Google Workspace CLI](../automation_orchestration/google-workspace-cli.md)
 - [Chronos MCP](../automation_orchestration/chronos-mcp.md)
 - [Gemini](../ai_knowledge/gemini.md)
-- [MCP 3.0](../../knowledge_base/mcp.md)
+- [MCP 3.0](../automation_orchestration/mcp.md)
 - [Microsoft To Do](microsoft-todo.md)
 
 ## Sources / References

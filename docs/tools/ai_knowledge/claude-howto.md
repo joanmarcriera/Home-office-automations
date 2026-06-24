@@ -109,7 +109,7 @@ if __name__ == "__main__":
 - [Cline](../agents/cline.md) — An alternative agentic interface for VS Code.
 - [Aider](../development_ops/aider.md) — A popular terminal-based AI coding assistant.
 - [Prompt Caching](../../knowledge_base/patterns/prompt-caching.md) — A critical pattern for cost-efficient agent usage.
-- [GPT-5.5](../providers/openai.md) — The industry baseline for comparison.
+- [GPT-5.5](openai.md) — The industry baseline for comparison.
 - [Llama 4](../ai_knowledge/llama.md) — The open-weights alternative for local agentic workflows.
 
 ## Sources / references

@@ -69,7 +69,7 @@ Once the relevant tool ID is found, the agent calls the specific tool with the r
 To implement this pattern, you first need a centralized tool registry. As of June 2026, the [Model Context Protocol (MCP)](tool-calling-and-mcp.md) is the recommended standard.
 
 1.  **Define Tool Metadata**: Ensure every tool has a descriptive `description` field for semantic search.
-2.  **Index Tools**: Use a vector database like [ChromaDB](../../docs/knowledge_base/vector-db-comparison.md) to store tool schemas and descriptions.
+2.  **Index Tools**: Use a vector database like [ChromaDB](../vector-db-comparison.md) to store tool schemas and descriptions.
 3.  **Create the Search Tool**: Implement a tool that performs a semantic search over the index.
 
 ## CLI examples

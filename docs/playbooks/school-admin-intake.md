@@ -7,7 +7,7 @@ A specialized administrative automation playbook designed to handle the high vol
 It tackles the "backpack black hole" and "email fatigue" faced by parents and guardians. By automating the extraction of dates, consent requirements, and action items from school documents, it reduces manual data entry and prevents scheduling conflicts or missed field trip deadlines.
 
 ## Where it fits in the stack
-**Category**: Personal Productivity / Family Admin. It integrates [Document Management](../../services/paperless-ngx.md) with [Workflow Automation](../../services/n8n.md) and [Calendar Services](../../tools/calendar_tasks/google_calendar.md).
+**Category**: Personal Productivity / Family Admin. It integrates [Document Management](../services/paperless-ngx.md) with [Workflow Automation](../services/n8n.md) and [Calendar Services](../tools/calendar_tasks/google_calendar.md).
 
 ## Workflow Architecture
 
@@ -64,7 +64,7 @@ Effective school document processing in June 2026 relies on high-quality RAG (Re
 
 ## When to use it
 - When you have multiple children in school and are overwhelmed by the volume of digital and physical paperwork.
-- When you already use a self-hosted document management system like [Paperless-ngx](../../services/paperless-ngx.md).
+- When you already use a self-hosted document management system like [Paperless-ngx](../services/paperless-ngx.md).
 - When you need a highly reliable way to ensure consent forms are signed on time.
 
 ## When not to use it
@@ -73,13 +73,13 @@ Effective school document processing in June 2026 relies on high-quality RAG (Re
 - If you have strict privacy requirements that forbid processing school documents via third-party LLMs.
 
 ## Related tools / concepts
-- [Paperless-ngx](../../services/paperless-ngx.md) (Document storage)
-- [n8n](../../services/n8n.md) (Workflow engine)
-- [Vikunja](../../services/vikunja.md) (Task management)
-- [Google Calendar](../../tools/calendar_tasks/google_calendar.md) (Scheduling)
-- [Paperless-AI](../../services/paperless-ai.md) (RAG for documents)
-- [Morgen](../../tools/calendar_tasks/morgen.md) (Unified calendar view)
-- [Akiflow](../../tools/calendar_tasks/akiflow.md) (Consolidated task/calendar)
+- [Paperless-ngx](../services/paperless-ngx.md) (Document storage)
+- [n8n](../services/n8n.md) (Workflow engine)
+- [Vikunja](../services/vikunja.md) (Task management)
+- [Google Calendar](../tools/calendar_tasks/google_calendar.md) (Scheduling)
+- [Paperless-AI](../services/paperless-ai.md) (RAG for documents)
+- [Morgen](../tools/calendar_tasks/morgen.md) (Unified calendar view)
+- [Akiflow](../tools/calendar_tasks/akiflow.md) (Consolidated task/calendar)
 
 ## Data Contract
 Defined in [Classification Standards](../standards.md).

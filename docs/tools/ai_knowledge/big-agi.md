@@ -60,7 +60,7 @@ docker run -p 3000:3000 ghcr.io/enricoros/big-agi
 
 ## Related tools / concepts
 - [LobeHub](lobehub.md): Another powerful multi-model UI.
-- [OpenRouter](../providers/openrouter.md): The recommended backend for big-AGI.
+- [OpenRouter](openrouter.md): The recommended backend for big-AGI.
 - [LiteLLM](../../services/litellm.md): Ideal for managing local model fallbacks.
 - [Claude Code](../development_ops/claude-code.md): Complementary CLI-based agentic workflow.
 - [PydanticAI](../frameworks/pydantic-ai.md): For building production-grade agents that can integrate with big-AGI.

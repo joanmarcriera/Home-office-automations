@@ -100,7 +100,7 @@ agent_run("Latest news on GPT-5.5")
 - [PostHog](./posthog.md) — Product analytics with LLM observability features.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Used for standardized tool integration and monitoring.
 - [LiteLLM](../../services/litellm.md) — Unified inference proxy often used with Opik.
-- [ClickHouse](../../services/clickhouse.md) — The underlying database often used for high-volume Opik traces.
+- [ClickHouse](clickhouse.md) — The underlying database often used for high-volume Opik traces.
 
 ## Sources / references
 - [Opik Official Documentation](https://www.comet.com/docs/opik/)

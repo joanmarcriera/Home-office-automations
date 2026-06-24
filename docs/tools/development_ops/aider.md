@@ -4,7 +4,7 @@
 Aider is a leading command-line AI pair programmer that allows developers to edit code across multiple files directly within their local Git repository. It utilizes a sophisticated "repository map" to provide LLMs with relevant context while managing the Git lifecycle, including automated commits with high-quality messages.
 
 ## What problem it solves
-Aider eliminates the friction of copying and pasting code between a chat interface and an IDE. It solves the "context management" problem by automatically selecting the most relevant code snippets for a given task, enabling models like [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md) to reason accurately about large, complex codebases without exceeding token limits.
+Aider eliminates the friction of copying and pasting code between a chat interface and an IDE. It solves the "context management" problem by automatically selecting the most relevant code snippets for a given task, enabling models like [Claude 4.8 Opus](../ai_knowledge/claude.md) and [GPT-5.5](../ai_knowledge/openai.md) to reason accurately about large, complex codebases without exceeding token limits.
 
 ## Where it fits in the stack
 **Development & Ops / AI Coding Assistant**. It serves as a terminal-native operator that bridges high-level intent with local file system execution and Git version control.
@@ -20,7 +20,7 @@ Aider eliminates the friction of copying and pasting code between a chat interfa
 - **Native Git Integration**: Every successful edit is followed by a descriptive Git commit.
 - **Language Agnostic**: Supports over 100 programming languages with optimized context gathering.
 - **Advanced Context**: The repository map uses ctags to build a concise map of the entire project.
-- **Frontier Model Support**: Day-zero support for [Claude 4.8](claude.md), [GPT-5.5](openai.md), and [Llama 4 Maverick](qwen.md).
+- **Frontier Model Support**: Day-zero support for [Claude 4.8](../ai_knowledge/claude.md), [GPT-5.5](../ai_knowledge/openai.md), and [Llama 4 Maverick](../ai_knowledge/qwen.md).
 - **Interactive & Batch Modes**: Equally effective for real-time pair programming and automated scripts.
 
 ## Limitations

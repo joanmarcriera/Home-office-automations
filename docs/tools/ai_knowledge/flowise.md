@@ -89,7 +89,7 @@ curl -X POST "http://localhost:3000/api/v1/prediction/<CHATFLOW_ID>" \
 - [Rivet](../frameworks/rivet.md) — Visual builder focused on complex, low-level logic.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for tool and agent interoperability.
 - [AnythingLLM](anythingllm.md) — Desktop RAG and agentic alternative.
-- [CrewAI](../agents/crewai.md) — Code-native framework for multi-agent orchestration.
+- [CrewAI](../frameworks/crewai.md) — Code-native framework for multi-agent orchestration.
 - [LangGraph](../frameworks/langgraph.md) — Underlying library for complex agent state management.
 
 ## Sources / references

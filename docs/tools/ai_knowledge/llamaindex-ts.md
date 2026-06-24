@@ -14,7 +14,7 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 - **Serverless AI Functions**: Running data retrieval and LLM calls in Vercel Edge Runtime or Cloudflare Workers.
 - **Edge Data Processing**: Using Deno or Bun for high-performance data indexing and query orchestration.
 - **Production Agentic RAG**: Building multi-step, stateful retrieval pipelines using standardized orchestration patterns.
-- **MCP Tool Creation**: Developing TypeScript-based toolkits for the [Model Context Protocol](../../knowledge_base/tool-calling-and-mcp.md).
+- **MCP Tool Creation**: Developing TypeScript-based toolkits for the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Strengths
 - **Native TypeScript Support**: Excellent type safety, IDE autocompletion, and compatibility with modern web frameworks.
@@ -31,7 +31,7 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 ## When to use it
 - When building AI applications within the JavaScript/TypeScript ecosystem (Node.js, Browser, Edge).
 - When you need a robust, production-ready framework for RAG and agentic workflows.
-- When you want to leverage the [Model Context Protocol](../../knowledge_base/tool-calling-and-mcp.md) in a TypeScript environment.
+- When you want to leverage the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) in a TypeScript environment.
 
 ## When not to use it
 - If your primary development environment is Python-centric (use the original LlamaIndex).
@@ -89,9 +89,9 @@ console.log(response.toString());
 ```
 
 ## Related tools / concepts
-- [LlamaIndex (Python)](../frameworks/llamaindex.md)
-- [LangChain.js](../frameworks/langchain.md)
-- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
+- [LlamaIndex (Python)](llamaindex.md)
+- [LangChain.js](langchain.md)
+- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Claude 4.8](../ai_knowledge/claude.md)
 - [GPT-5.5](../ai_knowledge/openai.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)

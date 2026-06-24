@@ -1,7 +1,7 @@
 # Microsoft Entra ID
 
 ## What it is
-Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. As of June 2026, it is the foundational identity layer for the Microsoft 365 ecosystem and thousands of SaaS applications, featuring native support for [Agentic Identity](../../knowledge_base/agentic-identity.md) and [MCP 3.0](../../knowledge_base/mcp.md) authentication.
+Microsoft Entra ID (formerly Azure Active Directory) is a cloud-based identity and access management (IAM) service. As of June 2026, it is the foundational identity layer for the Microsoft 365 ecosystem and thousands of SaaS applications, featuring native support for [Agentic Identity](../../knowledge_base/agentic-identity.md) and [MCP 3.0](../automation_orchestration/mcp.md) authentication.
 
 ## What problem it solves
 It provides a unified, secure identity system for managing users, groups, applications, and **autonomous agents**. It solves the complexity of enterprise-wide Single Sign-On (SSO), Multi-Factor Authentication (MFA), and Conditional Access, ensuring that only authorized entities (human or agentic) can access sensitive resources.
@@ -28,7 +28,7 @@ It provides a unified, secure identity system for managing users, groups, applic
 
 ## When to use it
 - When managing identities for an organization using Microsoft 365 or Azure.
-- When building [Custom Agents](../agents/custom_agents.md) that require authenticated access to enterprise data via Microsoft APIs.
+- When building [Custom Agents](../development_ops/custom_agents.md) that require authenticated access to enterprise data via Microsoft APIs.
 - When implementing Zero Trust architectures in a corporate environment.
 
 ## When not to use it
@@ -100,7 +100,7 @@ curl -X POST https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token \
 - [Microsoft Graph API](../providers/microsoft-graph.md)
 - [SSO Comparison](../../knowledge_base/sso-comparison.md)
 - [Agentic Identity](../../knowledge_base/agentic-identity.md)
-- [MCP 3.0](../../knowledge_base/mcp.md)
+- [MCP 3.0](../automation_orchestration/mcp.md)
 - [n8n](../../services/n8n.md)
 - [Okta](../enterprise/okta.md)
 - [Auth0](../enterprise/auth0.md)

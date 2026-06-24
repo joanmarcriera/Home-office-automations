@@ -124,7 +124,7 @@ RAGFlow exposes knowledge bases via MCP 3.0, allowing agents to query the docume
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Firecrawl](./firecrawl.md)
 - [AG2](../frameworks/ag2.md)
-- [Flowise](../frameworks/flowise.md)
+- [Flowise](../ai_knowledge/flowise.md)
 - [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
 

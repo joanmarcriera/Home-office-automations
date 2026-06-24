@@ -101,7 +101,7 @@ print(f"Author: {data[0].get('dc:creator', 'Unknown')}")
 - [Ollama](ollama.md) — For processing Tika-extracted text with local LLMs.
 - [Nextcloud](nextcloud.md) — For managing the files being processed by Tika.
 - [Whisper](whisper.md) — For complementary audio/video transcription.
-- [Unstructured.io](../tools/process_understanding/unstructured.md) — A modern alternative for document extraction in AI pipelines.
+- [Unstructured.io](../tools/intake_storage/unstructured.md) — A modern alternative for document extraction in AI pipelines.
 - [Supabase](../tools/infrastructure/supabase.md) — For storing vector embeddings of Tika-extracted text.
 - [Authentik](authentik.md) — For securing access to Tika endpoints.
 - [Tailscale](tailscale.md) — For secure remote access to Tika servers.

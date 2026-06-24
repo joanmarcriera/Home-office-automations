@@ -131,11 +131,11 @@ for index in indices:
 - [Elasticsearch](https://www.elastic.co/elasticsearch/) — The underlying search engine for Diskover metadata.
 - [Paperless-ngx](paperless-ngx.md) — Complementary metadata management for OCR'd documents.
 - [Authentik](authentik.md) — Secure access to the Diskover web interface.
-- [TrueNAS SCALE](../../architecture/infrastructure.md) — Common infrastructure for Diskover crawlers.
+- [TrueNAS SCALE](../architecture/infrastructure.md) — Common infrastructure for Diskover crawlers.
 - [ncdu](https://dev.yorhel.nl/ncdu) — Local interactive disk usage analyzer.
 
 ## TrueNAS SCALE & NFS Integration
-To index data residing on a [TrueNAS SCALE](../../architecture/infrastructure.md) server, you must mount the datasets to the Diskover host via NFS. This allows the crawler to access the file metadata directly.
+To index data residing on a [TrueNAS SCALE](../architecture/infrastructure.md) server, you must mount the datasets to the Diskover host via NFS. This allows the crawler to access the file metadata directly.
 
 ### Host Configuration (Linux)
 Install the NFS client and mount the TrueNAS dataset:

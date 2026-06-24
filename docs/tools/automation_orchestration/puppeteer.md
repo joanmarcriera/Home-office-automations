@@ -7,7 +7,7 @@ Puppeteer is a Node.js library which provides a high-level API to control Chrome
 It automates tasks that are typically performed manually in a web browser. This includes generating screenshots and PDFs of pages, crawling a Single Page Application (SPA) and generating pre-rendered content (SSR), and automating form submission, UI testing, and keyboard input.
 
 ## Where it fits in the stack
-**Development & Ops / Automation**. Similar to [Playwright](playwright.md), it is a foundational tool for browser-based automation. While Playwright is often preferred for multi-browser support, Puppeteer remains a standard for Chromium-centric automation and deep integration with Chrome-specific features.
+**Development & Ops / Automation**. Similar to [Playwright](../development_ops/playwright.md), it is a foundational tool for browser-based automation. While Playwright is often preferred for multi-browser support, Puppeteer remains a standard for Chromium-centric automation and deep integration with Chrome-specific features.
 
 ## Typical use cases
 - **Automated UI Testing**: Ensuring that web applications behave correctly across different Chromium versions.
@@ -25,7 +25,7 @@ It automates tasks that are typically performed manually in a web browser. This 
 ## Limitations
 - **Chromium-Centric**: While experimental support for Firefox exists, it is primarily designed for Chrome/Chromium.
 - **Node.js Only**: The official library is restricted to the Node.js environment.
-- **No Native Multi-Browser**: Does not provide the same level of unified API for WebKit or Firefox as [Playwright](playwright.md) does.
+- **No Native Multi-Browser**: Does not provide the same level of unified API for WebKit or Firefox as [Playwright](../development_ops/playwright.md) does.
 
 ## When to use it
 - When your automation is strictly targeted at Chrome or Chromium.
@@ -34,7 +34,7 @@ It automates tasks that are typically performed manually in a web browser. This 
 - When working within an existing Node.js codebase that already uses Puppeteer.
 
 ## When not to use it
-- When you need to test or automate across multiple browser engines (use [Playwright](playwright.md) instead).
+- When you need to test or automate across multiple browser engines (use [Playwright](../development_ops/playwright.md) instead).
 - When working in non-JavaScript environments (though unofficial ports exist).
 - For simple web scraping that doesn't require JavaScript execution (use `Cheerio` or [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) for efficiency).
 
@@ -82,7 +82,7 @@ await page.pdf({path: 'hn.pdf', format: 'a4'});
 ```
 
 ## Related tools / concepts
-- [Playwright](playwright.md)
+- [Playwright](../development_ops/playwright.md)
 - [Playwright MCP Server](playwright-mcp.md)
 - [Browser Use](browser-use.md)
 - [Stagehand](stagehand.md)

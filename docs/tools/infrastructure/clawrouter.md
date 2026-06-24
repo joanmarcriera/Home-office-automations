@@ -136,7 +136,7 @@ curl -X POST http://localhost:8402/v1/voice/call \
 - [LiteLLM](../../services/litellm.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Claude 4.8](../providers/anthropic.md)
-- [GPT-5.5](../providers/openai.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
 - [Llama 4 Maverick](../providers/nvidia.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Aider](../development_ops/aider.md)

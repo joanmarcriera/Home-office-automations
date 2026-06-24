@@ -29,7 +29,7 @@ It eliminates the need for manual note-taking and ensures that meeting knowledge
 3.  **Review**: After the meeting, access the dashboard to view the transcript and AI summary.
 
 ### Integration Example
-tl;dv can be integrated with [Notion](../../ai_knowledge/notion-ai.md) to automatically create a database entry for every meeting.
+tl;dv can be integrated with [Notion](../ai_knowledge/notion-ai.md) to automatically create a database entry for every meeting.
 
 ```bash
 # While the integration is typically configured via the tl;dv dashboard:

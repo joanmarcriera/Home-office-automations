@@ -26,7 +26,7 @@ It addresses the lack of discipline and engineering rigor in standard AI coding 
 ## Limitations
 - Higher process overhead for trivial tasks.
 - Requires an agent environment that supports the skills framework or MCP.
-- May require significant prompt tokens for complex planning cycles (addressed by [Everything Claude Code](../../knowledge_base/patterns/everything-claude-code.md) optimizations).
+- May require significant prompt tokens for complex planning cycles (addressed by [Everything Claude Code](../ai_knowledge/everything-claude-code.md) optimizations).
 - Learning curve for developers to define custom skill YAMLs.
 
 ## When to use it

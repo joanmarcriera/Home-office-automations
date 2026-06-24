@@ -33,7 +33,7 @@ MiniMax addresses the high cost and latency of traditional transformer-based mod
 
 ## When not to use it
 - If your workload requires local execution on private hardware (consider [Llama 4](../ai_knowledge/llama.md) instead).
-- For simple, low-volume tasks where a pay-as-you-go provider like [OpenRouter](../providers/openrouter.md) is simpler to manage.
+- For simple, low-volume tasks where a pay-as-you-go provider like [OpenRouter](../ai_knowledge/openrouter.md) is simpler to manage.
 
 ## Getting started
 1. **Account Creation**: Register at the [MiniMax Open Platform](https://platform.minimaxi.com/).
@@ -101,7 +101,7 @@ response.stream_to_file("output.mp3")
 - [Cline](../agents/cline.md) — Popular VS Code agent often paired with MiniMax.
 - [Aider](../development_ops/aider.md) — CLI coding assistant compatible with MiniMax endpoints.
 - [Anthropic (Claude)](anthropic.md) — The primary architectural benchmark for MiniMax.
-- [OpenRouter](../providers/openrouter.md) — Aggregator often used to access MiniMax via a unified API.
+- [OpenRouter](../ai_knowledge/openrouter.md) — Aggregator often used to access MiniMax via a unified API.
 - [Everything Claude Code](../ai_knowledge/everything-claude-code.md) — Optimization guide for agentic workflows.
 - [Llama 4](../ai_knowledge/llama.md) — Open-source alternative for local inference.
 - [DeepSeek](deepseek.md) — Primary regional competitor in the high-performance LLM space.

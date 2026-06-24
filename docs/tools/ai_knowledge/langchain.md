@@ -94,7 +94,7 @@ print(result)
 - [Flowise](flowise.md)
 - [Deep Agents](https://www.langchain.com/deep-agents)
 - [Claude 4.8](../providers/anthropic.md)
-- [GPT-5.5](../providers/openai.md)
+- [GPT-5.5](openai.md)
 - [Model Context Protocol](../automation_orchestration/mcp.md)
 
 ## Sources / references

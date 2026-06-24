@@ -33,7 +33,7 @@ It standardizes the integration of Large Language Models (LLMs) across multiple 
 - When looking for the de facto standard in the Vercel/Next.js ecosystem.
 
 ## When not to use it
-- In Python-only backend environments (use [Pydantic AI](../frameworks/pydantic-ai.md) or [LangChain](../frameworks/langchain.md)).
+- In Python-only backend environments (use [Pydantic AI](../frameworks/pydantic-ai.md) or [LangChain](../ai_knowledge/langchain.md)).
 - If you require a library with a minimal bundle footprint for a simple single-provider project (consider [TanStack AI](https://tanstack.com/ai)).
 
 ## Getting started
@@ -93,9 +93,9 @@ export default function Chat() {
 ## Related tools / concepts
 - [Vercel AI Gateway](../providers/vercel-ai-gateway.md)
 - [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md)
-- [LangChain](../frameworks/langchain.md)
+- [LangChain](../ai_knowledge/langchain.md)
 - [Pydantic AI](../frameworks/pydantic-ai.md)
-- [Model Context Protocol (MCP)](../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Firebase Genkit](../frameworks/firebase-genkit.md)
 - [TanStack AI](https://tanstack.com/ai)
 - [OpenTelemetry](https://opentelemetry.io/)

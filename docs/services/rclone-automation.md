@@ -121,7 +121,7 @@ mcp-invoke rclone --cmd "sync" --args "/local/docs storj:backups"
 - [Storj](storj.md) — A primary decentralized target for Rclone backups.
 - [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html)
 - [AWS S3](https://aws.amazon.com/s3/)
-- [TrueNAS SCALE](../../architecture/infrastructure.md)
+- [TrueNAS SCALE](../architecture/infrastructure.md)
 - [ZFS](https://openzfs.org/)
 - [Nextcloud](nextcloud.md) — For synchronizing user data to the cloud.
 - [Paperless-ngx](paperless-ngx.md) — For off-site archival of digitized documents.

@@ -59,7 +59,7 @@ To implement a basic RAG pipeline:
 - [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md)
 - [Agentic RAG](data-copilot-agentic-rag.md)
 - [Docling](../../tools/process_understanding/docling.md)
-- [LlamaIndex](../../tools/frameworks/llamaindex.md)
+- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md)
 - [LangChain](../../tools/ai_knowledge/langchain.md)
 - [Embeddings Guide](../model_classes.md#embeddings)
 - [Agentic Workflows](agentic-workflows.md)

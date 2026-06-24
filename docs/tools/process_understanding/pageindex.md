@@ -100,8 +100,8 @@ PageIndex provides an MCP server for seamless integration with AI agents like Cl
 - [Docling MCP](docling-mcp.md)
 - [Crawl4AI](crawl4ai.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Unstructured](../ai_knowledge/unstructured.md)
-- [LlamaParse](../ai_knowledge/llamaparse.md)
+- [Unstructured](../intake_storage/unstructured.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
 
 ## Sources / references
 - [Official Website](https://pageindex.ai/)

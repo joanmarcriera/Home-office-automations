@@ -4,7 +4,7 @@
 Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap [Claude Code](claude-code.md) sessions with deterministic guardrails. By defining `PreToolUse` and `PostToolUse` logic, teams can enforce security policies, run automated linting, and trigger external notifications without altering the agent's core reasoning.
 
 ## What problem it solves
-Autonomous agents like [Claude 4.8 Opus](claude.md) can occasionally overlook repo-specific rules or security constraints. Claude Hooks solve this by providing an "interceptor" layer that can block or modify tool calls based on hard-coded conditions (e.g., preventing a commit if secrets are detected).
+Autonomous agents like [Claude 4.8 Opus](../ai_knowledge/claude.md) can occasionally overlook repo-specific rules or security constraints. Claude Hooks solve this by providing an "interceptor" layer that can block or modify tool calls based on hard-coded conditions (e.g., preventing a commit if secrets are detected).
 
 ## Where it fits in the stack
 **Development & Ops / [Workflow Guardrails](index.md)**. It acts as a configuration and orchestration layer sitting directly between the agent and the operating system.

@@ -18,7 +18,7 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 ## Strengths
 - Deep integration with GitHub ecosystem (Issues, PRs, Actions).
 - Supported in many popular IDEs (VS Code, JetBrains, Visual Studio, Neovim).
-- Support for multiple frontier models, including [GPT-5.5](openai.md) and [Claude 4.8 Opus](claude.md).
+- Support for multiple frontier models, including [GPT-5.5](../ai_knowledge/openai.md) and [Claude 4.8 Opus](../ai_knowledge/claude.md).
 - Enterprise-grade security and compliance features.
 
 ## Limitations

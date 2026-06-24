@@ -7,7 +7,7 @@ Synthesia is a leading AI video generation platform that enables users to create
 It drastically reduces the cost and complexity of corporate video production. Traditionally, creating high-quality training or marketing videos requires expensive equipment, actors, and post-production. Synthesia allows organizations to scale video production, update content instantly by editing text, and localize videos for global audiences in 140+ languages with minimal effort.
 
 ## Where it fits in the stack
-**AI & Knowledge / Generative Video Platform**. It serves as a downstream output layer for content generation, transforming text-based insights or instructions into engaging, human-led video content. It often integrates with [Dify](../ai_knowledge/dify.md) or [Make.com](../../automation_orchestration/make.md) for automated workflows.
+**AI & Knowledge / Generative Video Platform**. It serves as a downstream output layer for content generation, transforming text-based insights or instructions into engaging, human-led video content. It often integrates with [Dify](../ai_knowledge/dify.md) or [Make.com](../automation_orchestration/make.md) for automated workflows.
 
 ## Typical use cases
 - **Corporate Training (L&D)**: Building interactive learning modules with a consistent human face and multi-language support.
@@ -87,7 +87,7 @@ print(response.json())
 - [Runway Gen-3](../ai_knowledge/runway.md)
 - [ElevenLabs](../ai_knowledge/elevenlabs.md)
 - [Dify](../ai_knowledge/dify.md)
-- [Make.com](../../automation_orchestration/make.md)
+- [Make.com](../automation_orchestration/make.md)
 - [Claude 4.8](../ai_knowledge/claude.md)
 - [GPT-5.5](../ai_knowledge/openai.md)
 

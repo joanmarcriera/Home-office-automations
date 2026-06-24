@@ -7,7 +7,7 @@ Aphrodite Engine is a high-performance inference engine for Large Language Model
 While [vLLM](vllm.md) is excellent for data center serving, the local community often uses a wider variety of quantization formats (like GPTQ, AWQ, EXL2, and GGUF) and specific API requirements (like KoboldAI compatibility). Aphrodite maintains vLLM's high-throughput PagedAttention backend while adding support for these formats and advanced sampling features like DRY and XTC, which are critical for stable and creative agentic output.
 
 ## Where it fits in the stack
-**Infrastructure**. It serves as a high-performance model server that exposes an OpenAI-compatible API. It sits between the raw model weights (Hugging Face) and the agentic orchestration layer (e.g., [LangChain](../frameworks/langchain.md) or [Mastra](../frameworks/mastra.md)).
+**Infrastructure**. It serves as a high-performance model server that exposes an OpenAI-compatible API. It sits between the raw model weights (Hugging Face) and the agentic orchestration layer (e.g., [LangChain](../ai_knowledge/langchain.md) or [Mastra](../frameworks/mastra.md)).
 
 ## Typical use cases
 - **Local Chat Communities**: High-throughput serving for multi-user chat backends and roleplay.

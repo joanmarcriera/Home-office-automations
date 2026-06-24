@@ -14,7 +14,7 @@ Inference engines, serving stacks, quantisation tools, vector databases, and dep
 | [LiteLLM](../../services/litellm.md) | Unified LLM API proxy |
 | [LocalAI](localai.md) | Self-hosted OpenAI-compatible local inference platform |
 | [MLX](mlx.md) | Apple's array framework for ML on Apple Silicon |
-| [Msty](../ai_knowledge/msty.md) | Local-first AI desktop app with model hub |
+| [Msty](msty.md) | Local-first AI desktop app with model hub |
 | [OpenPipe](openpipe.md) | Data-driven fine-tuning platform |
 | [Ollama](../../services/ollama.md) | Local LLM inference server |
 | [SGLang](sglang.md) | Fast structured generation runtime from LMSYS |

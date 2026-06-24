@@ -7,7 +7,7 @@ Heretic (distributed as `heretic-llm` on PyPI) is an open-source command-line to
 It addresses the issue of "refusal alignment" in large language models, where models frequently refuse to answer harmless or contextually relevant queries due to over-zealous safety guardrails. Unlike manual abliteration, Heretic automates the process to achieve minimal refusal rates with significantly less "capability damage" (lower KL divergence) to the underlying model's reasoning.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Local Models**. It is a researcher-centric tool used to modify the weights of models like [Gemma 3](../providers/gemma.md), [Qwen](../providers/qwen.md), or [Llama 4](../providers/llama.md) before they are deployed in local inference engines.
+**AI Assistants & Knowledge / Local Models**. It is a researcher-centric tool used to modify the weights of models like [Gemma 3](../providers/gemma.md), [Qwen](qwen.md), or [Llama 4](../providers/llama.md) before they are deployed in local inference engines.
 
 ## Typical use cases
 - **Research and Analysis**: Exploring model behavior without safety-induced bias.
@@ -89,8 +89,8 @@ ablated_model.save_pretrained("./abliterated-model")
 ```
 
 ## Related tools / concepts
-- [Qwen](../providers/qwen.md)
-- [Local LLMs](../../knowledge_base/local_llms.md)
+- [Qwen](qwen.md)
+- [Local LLMs](local_llms.md)
 - [llama.cpp](../infrastructure/llama-cpp.md)
 - [Ollama](../../services/ollama.md)
 - [AnythingLLM](anythingllm.md)

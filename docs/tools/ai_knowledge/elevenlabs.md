@@ -122,7 +122,7 @@ audio_generator = client.generate(
 - [Claude 4.8 Opus](../providers/anthropic.md) — High-reasoning model often used for agent logic.
 - [GPT-5.5](openai.md) — Frontier model for generating expressive dialogue.
 - [CrewAI](../frameworks/crewai.md) — Multi-agent orchestration.
-- [RunwayML](../providers/runwayml.md) — Video generation integration.
+- [RunwayML](runwayml.md) — Video generation integration.
 
 ## Sources / references
 - [Official Website](https://elevenlabs.io/)

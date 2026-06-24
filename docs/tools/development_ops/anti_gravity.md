@@ -32,7 +32,7 @@ Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering.
 - For tasks requiring massive context (e.g., auditing an entire repository in a single prompt).
 
 ## When not to use it
-- For small, local-only coding tasks where [Aider](./aider.md) or [Cline](./cline.md) is sufficient.
+- For small, local-only coding tasks where [Aider](./aider.md) or [Cline](../agents/cline.md) is sufficient.
 - When working in a multi-cloud or AWS/Azure-centric environment (consider [OpenHands](./openhands.md)).
 - If you require full transparency and local execution of the agent framework's logic (consider [LangGraph](../frameworks/langgraph.md)).
 
@@ -110,13 +110,13 @@ print(f"Mission launched: {mission.name}")
 ## Related tools / concepts
 - [Gemini](../ai_knowledge/google-gemini.md)
 - [OpenHands](./openhands.md)
-- [Cline](./cline.md)
+- [Cline](../agents/cline.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Aider](./aider.md)
 - [Windsurf](./windsurf.md)
 - [Claude Code](./claude-code.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [SHARP Security Benchmark](../../knowledge_base/patterns/llm_security_privacy.md)
+- [SHARP Security Benchmark](../../knowledge_base/llm_security_privacy.md)
 - [Vertex AI Agent Builder](https://cloud.google.com/products/agent-builder)
 
 ## Sources / references

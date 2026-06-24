@@ -89,7 +89,7 @@ while (true) {
 
 ## Related tools / concepts
 - [Open Interpreter](open-interpreter.md)
-- [Goose](goose.md)
+- [Goose](../agents/goose.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [Model Context Protocol (MCP)](mcp.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)

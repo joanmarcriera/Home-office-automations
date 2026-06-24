@@ -306,7 +306,7 @@ Based on community analysis (April 2026), models are categorized by their effici
 - [OpenRouter](../tools/ai_knowledge/openrouter.md) — The primary provider used in this repo for multi-model access.
 - [Groq](../tools/providers/groq.md) — Recommended for ultra-fast, low-latency free-tier inference.
 - [Mistral](../tools/providers/mistral.md) — A key open-weights provider with a strong experiment plan.
-- [DeepSeek](../tools/ai_knowledge/deepseek.md) — High-value Chinese provider often leading on cost-per-token.
+- [DeepSeek](../tools/providers/deepseek.md) — High-value Chinese provider often leading on cost-per-token.
 - [Benchmarking](../tools/benchmarking/index.md) — How we verify the "Intelligence" part of the value equation.
 
 ## Sources / References

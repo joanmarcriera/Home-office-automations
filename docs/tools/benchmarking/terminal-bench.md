@@ -120,7 +120,7 @@ with TmuxSession(name="agent-workspace") as session:
 - [Harbor Framework](https://github.com/harbor-framework/harbor) - Containerized sandbox for terminal tasks.
 - [OSWorld](./os-world.md) - Operating system-wide agent evaluation.
 - [PA-bench](./pa-bench.md) - Web-based personal assistant benchmark.
-- [Terminus 2](../../knowledge_base/development_ops/terminus-2.md) - Research context for direct shell interaction.
+- [Terminus 2](../development_ops/terminus-2.md) - Research context for direct shell interaction.
 
 ## Sources / references
 - [Terminal-Bench GitHub Repository](https://github.com/harbor-framework/terminal-bench)

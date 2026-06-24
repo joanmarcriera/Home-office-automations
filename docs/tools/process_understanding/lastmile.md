@@ -99,7 +99,7 @@ print(f"Faithfulness Score: {result.scores['faithfulness']}")
 - [Arize AI](./arize-ai.md) — Observability and MPM platform with Phoenix.
 - [LangSmith](../benchmarking/langsmith.md) — Part of the LangChain ecosystem for evaluation.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for agent tool-use, which LastMile can evaluate.
-- [Glaive](../providers/glaive.md) — Synthetic data provider often used to generate evaluation sets.
+- [Glaive](../ai_knowledge/glaive.md) — Synthetic data provider often used to generate evaluation sets.
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Target for logic and tool-use evaluation.
 
 ## Sources / references

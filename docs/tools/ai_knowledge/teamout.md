@@ -87,7 +87,7 @@ for venue in retreat.recommendations:
 - [AI Agents](../agents/index.md)
 - [ChatGPT](./chatgpt.md)
 - [Claude 4.8](../providers/anthropic.md)
-- [GPT-5.5](../providers/openai.md)
+- [GPT-5.5](openai.md)
 - [Event Management Automation](../automation_orchestration/index.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
 - [LangChain](./langchain.md)

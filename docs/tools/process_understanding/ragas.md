@@ -104,7 +104,7 @@ print(f"Vision Relevance: {score}")
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [Langfuse](langfuse.md)
 - [Claude 4.8 Opus](../providers/anthropic.md)
-- [GPT-5.5](../providers/openai.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
 
 ## Sources / references
 - [Ragas Documentation](https://docs.ragas.io/)

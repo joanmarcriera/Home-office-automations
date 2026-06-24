@@ -515,9 +515,11 @@ nav:
           - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
           - ClawRouter: tools/infrastructure/clawrouter.md
           - ExLlamaV2: tools/infrastructure/exllamav2.md
+          - GPT4All: tools/infrastructure/gpt4all.md
           - Jan.ai: tools/infrastructure/jan-ai.md
           - Kubernetes (K3s): tools/infrastructure/k3s.md
           - llama.cpp: tools/infrastructure/llama-cpp.md
+          - Llamafile: tools/infrastructure/llamafile.md
           - LM Studio: tools/infrastructure/lm-studio.md
           - LocalAI: tools/infrastructure/localai.md
           - Milvus: tools/infrastructure/milvus.md
@@ -545,6 +547,7 @@ nav:
           - Datadog: tools/process_understanding/datadog.md
           - Docling: tools/process_understanding/docling.md
           - Docling MCP: tools/process_understanding/docling-mcp.md
+          - faster-whisper: tools/process_understanding/faster-whisper.md
           - Fiddler AI: tools/process_understanding/fiddler.md
           - Firecrawl: tools/process_understanding/firecrawl.md
           - Grafana Cloud: tools/process_understanding/grafana-cloud.md

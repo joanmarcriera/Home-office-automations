@@ -246,16 +246,16 @@
       "doc_path": "docs/tools/providers/aws-bedrock.md"
     },
     {
-      "id": "axolotl",
-      "name": "Axolotl",
-      "category": "Frameworks",
-      "doc_path": "docs/tools/frameworks/axolotl.md"
-    },
-    {
       "id": "axiom-guardian",
       "name": "Axiom Guardian",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/axiom-guardian.md"
+    },
+    {
+      "id": "axolotl",
+      "name": "Axolotl",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/axolotl.md"
     },
     {
       "id": "azure-openai",
@@ -348,12 +348,6 @@
       "doc_path": "docs/tools/ai_knowledge/claude.md"
     },
     {
-      "id": "claude-desktop",
-      "name": "Claude Desktop",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/claude-desktop.md"
-    },
-    {
       "id": "claude-code",
       "name": "Claude Code",
       "category": "Development & Ops",
@@ -388,6 +382,12 @@
       "name": "Claude Cookbooks",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/claude-cookbooks.md"
+    },
+    {
+      "id": "claude-desktop",
+      "name": "Claude Desktop",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/claude-desktop.md"
     },
     {
       "id": "claude-hooks",
@@ -474,16 +474,16 @@
       "doc_path": "docs/tools/development_ops/codeium.md"
     },
     {
-      "id": "codex",
-      "name": "Codex (OpenAI)",
-      "category": "Development & Ops",
-      "doc_path": "docs/tools/development_ops/codex.md"
-    },
-    {
       "id": "codestral",
       "name": "Codestral",
       "category": "Providers",
       "doc_path": "docs/tools/providers/codestral.md"
+    },
+    {
+      "id": "codex",
+      "name": "Codex (OpenAI)",
+      "category": "Development & Ops",
+      "doc_path": "docs/tools/development_ops/codex.md"
     },
     {
       "id": "cohere",
@@ -504,16 +504,16 @@
       "doc_path": "docs/tools/ai_knowledge/colqwen.md"
     },
     {
-      "id": "comfyui",
-      "name": "ComfyUI",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/comfyui.md"
-    },
-    {
       "id": "comet-opik",
       "name": "Comet Opik",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/comet-opik.md"
+    },
+    {
+      "id": "comfyui",
+      "name": "ComfyUI",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/comfyui.md"
     },
     {
       "id": "composio",
@@ -798,6 +798,12 @@
       "doc_path": "docs/tools/frameworks/fastapi.md"
     },
     {
+      "id": "faster-whisper",
+      "name": "faster-whisper",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/faster-whisper.md"
+    },
+    {
       "id": "fastmail",
       "name": "Fastmail",
       "category": "Calendar & Tasks",
@@ -1013,16 +1019,16 @@
       "doc_path": "docs/tools/ai_knowledge/google-search.md"
     },
     {
-      "id": "google-tasks",
-      "name": "Google Tasks",
-      "category": "Calendar & Tasks",
-      "doc_path": "docs/tools/calendar_tasks/google-tasks.md"
-    },
-    {
       "id": "google-stitch",
       "name": "Google Stitch",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/google-stitch.md"
+    },
+    {
+      "id": "google-tasks",
+      "name": "Google Tasks",
+      "category": "Calendar & Tasks",
+      "doc_path": "docs/tools/calendar_tasks/google-tasks.md"
     },
     {
       "id": "google-workspace-cli",
@@ -1053,6 +1059,12 @@
       "name": "GPT Researcher",
       "category": "Agents",
       "doc_path": "docs/tools/agents/gpt-researcher.md"
+    },
+    {
+      "id": "gpt4all",
+      "name": "GPT4All",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/gpt4all.md"
     },
     {
       "id": "grafana-cloud",
@@ -1330,6 +1342,12 @@
       "doc_path": "docs/tools/ai_knowledge/kumo-ai.md"
     },
     {
+      "id": "lakera-guard",
+      "name": "Lakera Guard",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/lakera-guard.md"
+    },
+    {
       "id": "langchain",
       "name": "LangChain",
       "category": "AI Assistants & Knowledge",
@@ -1352,12 +1370,6 @@
       "name": "LangGraph",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/langgraph.md"
-    },
-    {
-      "id": "lakera-guard",
-      "name": "Lakera Guard",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/lakera-guard.md"
     },
     {
       "id": "langsmith",
@@ -1424,6 +1436,12 @@
       "name": "LLaMA Factory",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/llama-factory.md"
+    },
+    {
+      "id": "llamafile",
+      "name": "Llamafile",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/llamafile.md"
     },
     {
       "id": "llamaindex",
@@ -1564,12 +1582,6 @@
       "doc_path": "docs/tools/automation_orchestration/mcp-registry.md"
     },
     {
-      "id": "milvus",
-      "name": "Milvus",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/milvus.md"
-    },
-    {
       "id": "mealie",
       "name": "Mealie",
       "category": "Intake & Storage",
@@ -1594,16 +1606,16 @@
       "doc_path": "docs/tools/development_ops/mentat.md"
     },
     {
-      "id": "microsoft-entra-id",
-      "name": "Microsoft Entra ID",
-      "category": "Enterprise AI",
-      "doc_path": "docs/tools/enterprise/microsoft-entra-id.md"
-    },
-    {
       "id": "microsoft-agent-framework",
       "name": "Microsoft Agent Framework",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/microsoft-agent-framework.md"
+    },
+    {
+      "id": "microsoft-entra-id",
+      "name": "Microsoft Entra ID",
+      "category": "Enterprise AI",
+      "doc_path": "docs/tools/enterprise/microsoft-entra-id.md"
     },
     {
       "id": "microsoft-graph",
@@ -1616,6 +1628,12 @@
       "name": "Microsoft To Do",
       "category": "Calendar & Tasks",
       "doc_path": "docs/tools/calendar_tasks/microsoft-todo.md"
+    },
+    {
+      "id": "milvus",
+      "name": "Milvus",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/milvus.md"
     },
     {
       "id": "minimax",
@@ -1825,12 +1843,6 @@
       "doc_path": "docs/tools/benchmarking/ollama-benchmark-cli.md"
     },
     {
-      "id": "os-world",
-      "name": "OSWorld",
-      "category": "Benchmarking",
-      "doc_path": "docs/tools/benchmarking/os-world.md"
-    },
-    {
       "id": "omni-tools",
       "name": "Omni Tools",
       "category": "Process & Understanding",
@@ -1921,6 +1933,12 @@
       "doc_path": "docs/tools/process_understanding/opentelemetry-collector.md"
     },
     {
+      "id": "os-world",
+      "name": "OSWorld",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/os-world.md"
+    },
+    {
       "id": "outlook-calendar",
       "name": "Outlook Calendar",
       "category": "Calendar & Tasks",
@@ -1987,16 +2005,16 @@
       "doc_path": "docs/tools/agents/phidata.md"
     },
     {
-      "id": "pinecone",
-      "name": "Pinecone",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/pinecone.md"
-    },
-    {
       "id": "picnic",
       "name": "Picnic",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/picnic.md"
+    },
+    {
+      "id": "pinecone",
+      "name": "Pinecone",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/pinecone.md"
     },
     {
       "id": "pipedream",

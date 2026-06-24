@@ -18,6 +18,22 @@ from pathlib import Path
 LAST_REVIEWED_RE = re.compile(r"^\s*-\s*Last reviewed:\s*(\d{4}-\d{2}-\d{2})\s*$", re.MULTILINE)
 
 
+def expand_paths(raw_paths: list[str]) -> list[str]:
+    """Expand any directory arguments into their contained Markdown files.
+
+    Accepting directories (recursively) keeps callers — and CI workflows — from
+    crashing with IsADirectoryError when handed a folder like ``docs``.
+    """
+    expanded: list[str] = []
+    for raw in raw_paths:
+        path = Path(raw)
+        if path.is_dir():
+            expanded.extend(str(p) for p in sorted(path.rglob("*.md")))
+        else:
+            expanded.append(raw)
+    return expanded
+
+
 def extract_last_reviewed(path: Path) -> dt.date | None:
     text = path.read_text(encoding="utf-8")
     match = LAST_REVIEWED_RE.search(text)
@@ -56,7 +72,7 @@ def main() -> int:
     stale_any = False
     report_lines: list[str] = []
 
-    for raw in args.paths:
+    for raw in expand_paths(args.paths):
         path = Path(raw)
         if not path.exists():
             report_lines.append(f"{raw}: missing file")
