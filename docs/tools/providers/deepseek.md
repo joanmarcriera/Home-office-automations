@@ -1,54 +1,76 @@
 # DeepSeek
 
 ## What it is
-DeepSeek is an AI research company that provides a suite of high-performance LLMs, including specialized models for coding and reasoning.
+DeepSeek is a leading AI research company that provides a suite of high-performance LLMs, including specialized models for coding and reasoning. In June 2026, their flagship **DeepSeek-V4** and **DeepSeek-R2** reasoning models represent the global standard for cost-efficient, high-performance intelligence, frequently utilized as a baseline for model-agnostic agentic workflows.
 
 ## What problem it solves
-It offers a cost-effective, high-quality alternative to Western LLM providers, often outperforming much larger models on benchmarks like HumanEval and GSM8K.
+It addresses the high cost and accessibility barriers of frontier AI. By providing models that achieve performance parity with models like **Claude 4.8 Opus** and **GPT-5.5** at a fraction of the price, it enables massive-scale autonomous engineering and complex research tasks that would be cost-prohibitive on other platforms.
 
 ## Where it fits in the stack
-**Category**: Provider / AI Assistants & Knowledge
+**Model Provider / Reasoning Engine**. It is a primary choice for high-volume coding tasks, mathematical reasoning, and as a backbone for open-weights self-hosted infrastructures.
 
 ## Typical use cases
-- Code generation and assistance (DeepSeek Coder).
-- Mathematical reasoning and problem solving.
-- Cost-efficient LLM inference via API.
+- **Massive-Scale Code Refactoring**: Using DeepSeek-V4 to refactor large codebases where token volume is high.
+- **Advanced Mathematical Reasoning**: Leveraging DeepSeek-R2 for solving complex symbolic logic and architectural planning tasks.
+- **Autonomous Agent Backbone**: Serving as the primary inference engine for agents like [Roo Code](../agents/roo-code.md) and [Cline](../agents/cline.md) in cost-sensitive environments.
+- **Local/Private Cloud Deployment**: Deploying open-weights versions of DeepSeek models for secure, air-gapped development.
 
 ## Strengths
-- State-of-the-art performance on coding and math tasks.
-- Highly competitive pricing compared to GPT-4o or Claude 3.5.
-- Open-weights versions available for many models.
+- **Unmatched Price-to-Performance**: Industry-leading efficiency, offering frontier-level intelligence at significantly lower costs.
+- **Reasoning Excellence**: The R-series (R1, R2) models excel at "System 2" thinking, outperforming many larger models on math and logic benchmarks.
+- **Open Weights Heritage**: A strong commitment to releasing model weights, fostering a robust community of self-hosted and fine-tuned versions.
+- **API Compatibility**: Full OpenAI-compatible API makes integration into existing agentic frameworks seamless.
 
 ## Limitations
-- Latency can be variable depending on geographic region.
-- Subject to local regulations that may differ from Western standards.
+- **Geographic Latency**: Native API latency can vary depending on the user's location relative to DeepSeek's primary clusters (mitigated via providers like [OpenRouter](../ai_knowledge/openrouter.md)).
+- **Regulatory Environment**: Subject to local jurisdiction regulations which may influence model behavior or availability in certain markets.
+- **Context Window Management**: While expanding, earlier versions required more careful context management compared to some Western competitors.
 
 ## When to use it
-- When you need top-tier coding performance at a fraction of the cost.
-- When you want to experiment with open-weights SOTA models.
+- When you need top-tier coding and reasoning performance for high-volume automated tasks.
+- When budget efficiency is a primary driver for your AI infrastructure.
+- When you require the ability to self-host or fine-tune model weights on your own hardware.
+- For "agentic research" where a reasoning model is required for multi-step planning.
 
 ## When not to use it
-- If your data residency requirements strictly forbid processing in certain jurisdictions.
-
-## What changed
-- **DeepSeek R1 Launch**: DeepSeek released R1, a reasoning model that achieves performance parity with OpenAI's o1-preview on math, code, and logic benchmarks.
-- **V3 Model Updates**: Improvements to the V3 model architecture for better instruction following and lower latency.
-
+- If your data residency or compliance requirements strictly forbid processing data through specific global regions.
+- When you require the specific multimodal or ecosystem-locked features of **Claude 4.8** or **GPT-5.5**.
 
 ## Getting started
 
-### API Key
-1. Create an account at [DeepSeek Platform](https://platform.deepseek.com/).
-2. Generate an API key from the "API Keys" section.
+### API Access
+1. Create an account at the [DeepSeek Platform](https://platform.deepseek.com/).
+2. Generate an API key from the dashboard.
+3. DeepSeek uses a standard credit-based billing system with extremely low per-token rates.
 
-### Installation (Python)
-DeepSeek provides an OpenAI-compatible API, allowing you to use the standard `openai` library.
-
+### Installation
+DeepSeek is fully compatible with the OpenAI Python and Node.js SDKs.
 ```bash
 pip install openai
 ```
 
-### Usage (Hello World)
+## CLI examples
+
+### Using curl for Quick Inference
+```bash
+curl https://api.deepseek.com/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+  -d '{
+    "model": "deepseek-chat",
+    "messages": [
+      {"role": "system", "content": "You are a professional software engineer."},
+      {"role": "user", "content": "Write a thread-safe singleton in Rust."}
+    ],
+    "stream": false
+  }'
+```
+
+## API examples
+
+### Reasoning with DeepSeek-R2 (June 2026)
+Utilizing the reasoning model for complex architectural decisions.
+
 ```python
 from openai import OpenAI
 
@@ -57,72 +79,43 @@ client = OpenAI(
     base_url="https://api.deepseek.com"
 )
 
+# DeepSeek-R2 provides chain-of-thought reasoning
 response = client.chat.completions.create(
-    model="deepseek-chat",
+    model="deepseek-reasoner",
     messages=[
-        {"role": "system", "content": "You are a helpful assistant"},
-        {"role": "user", "content": "Hello!"},
-    ],
-    stream=False
+        {"role": "user", "content": "Design a globally distributed KV store with strong consistency."}
+    ]
 )
 
 print(response.choices[0].message.content)
 ```
 
-## CLI examples
-
-### Using curl
-You can interact with the DeepSeek API directly using `curl`:
-
-```bash
-curl https://api.deepseek.com/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer $DEEPSEEK_API_KEY"   -d '{
-        "model": "deepseek-chat",
-        "messages": [
-          {"role": "system", "content": "You are a helpful assistant"},
-          {"role": "user", "content": "Explain quantum entanglement in one sentence."}
-        ],
-        "stream": false
-      }'
-```
-
-## API examples
-
-### Model Selection
-DeepSeek offers several models optimized for different tasks:
-- `deepseek-chat`: General purpose chat model (V3).
-- `deepseek-reasoner`: Reasoning-focused model (R1).
-
+### High-Volume Code Generation
 ```python
-# Example for R1 Reasoning model
 response = client.chat.completions.create(
-    model="deepseek-reasoner",
+    model="deepseek-chat", # Points to V4 in June 2026
     messages=[
-        {"role": "user", "content": "Solve for x: 2x + 5 = 15"}
+        {"role": "user", "content": "Implement a full-stack CRUD app using Next.js 16 and Supabase."}
     ]
 )
 ```
 
-## Licensing and cost
-- **Open Source**: Open-weights (DeepSeek License)
-- **Cost**: Paid API (Freemium tier often available)
-- **Self-hostable**: Yes (for open-weights models)
-
 ## Related tools / concepts
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Qwen](../ai_knowledge/qwen.md)
-- [Anthropic](anthropic.md)
+- [Anthropic (Claude)](anthropic.md)
+- [Minimax](minimax.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Roo Code](../agents/roo-code.md)
 - [Cline](../agents/cline.md)
 - [Aider](../development_ops/aider.md)
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.deepseek.com/)
-- [DeepSeek API Docs](https://platform.deepseek.com/)
-- [GitHub](https://github.com/deepseek-ai)
-- [DeepSeek-R1 Release Blog](https://api-docs.deepseek.com/news/news250120)
+- [DeepSeek API Documentation](https://platform.deepseek.com/api-docs/)
+- [DeepSeek GitHub Organization](https://github.com/deepseek-ai)
+- [DeepSeek-V4 Technical Report](https://deepseek.com/v4-report)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high

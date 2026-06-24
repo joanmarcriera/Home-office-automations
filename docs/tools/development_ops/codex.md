@@ -1,156 +1,112 @@
-# OpenAI Codex (and Evolution to GPT-4o/O1/O3)
+# OpenAI Codex (and Evolution to GPT-5.5)
 
 ## What it is
-OpenAI's coding-specialized model line (Codex) and its successors. While the specific "Codex" models (like `code-davinci-002`) are largely deprecated, their capabilities have been integrated and surpassed by newer frontier models like GPT-4o, O1, and O3. In current routing terms, this is the lane to use when the task is strongly code-centric.
+OpenAI's coding-specialized model lineage (Codex) and its successors. While the original "Codex" models (like `code-davinci-002`) are legacy, their capabilities have been integrated and surpassed by newer frontier models. In June 2026, **GPT-5.5** and the **O-series** (O3, O4) represent the pinnacle of OpenAI's code-centric reasoning, powering the most advanced autonomous engineering workflows.
 
 ## What problem it solves
-Provides a specialized language model and tooling surface for code generation, editing, and implementation-oriented coding assistance. It reduces the cognitive load of syntax, boilerplate, and routine implementation tasks.
+It addresses the cognitive load and error rate associated with manual code generation, debugging, and architectural planning. By providing a specialized lane for software engineering, it enables high-fidelity implementation, rapid prototyping, and complex codebase refactoring that general-purpose models often struggle to maintain at scale.
 
 ## Where it fits in the stack
-**Development & Ops**. Functions as the underlying model powering several AI coding assistants, including [GitHub Copilot](github-copilot-cli.md), [Cursor](cursor.md), and [Aider](aider.md).
+**Development & Ops / Foundation Model**. It serves as the primary inference engine for IDE-native agents, autonomous coding harnesses, and CI/CD automation pipelines.
 
 ## Typical use cases
-- Powering code completion tools in the IDE.
-- Generating code from natural language descriptions or design specs.
-- Translating between programming languages (e.g., Python to Rust).
-- Editing, refactoring, or optimizing an existing codebase.
-- Writing unit tests and implementation scaffolds.
-- Debugging and explaining complex code blocks.
-
-## Evolution of OpenAI Coding Models
-1. **Codex (2021)**: The original specialized coding model.
-2. **GPT-4 (2023)**: Integrated coding expertise with broad reasoning.
-3. **GPT-4o (2024)**: Faster, multimodal, and highly efficient for real-time IDE completions.
-4. **O1 (2024)**: The first reasoning model, excelling at complex debugging and logic.
-5. **O3 (2025)**: The current frontier for software engineering, optimized for long-horizon planning and architectural reasoning.
-
-## API Usage Example (Chat Completion)
-Most modern coding tasks use the standard Chat Completions API with a coding-specific system prompt.
-
-```python
-from openai import OpenAI
-client = OpenAI()
-
-response = client.chat.completions.create(
-  model="gpt-4o",
-  messages=[
-    {"role": "system", "content": "You are an expert software engineer. Provide only high-quality, commented code."},
-    {"role": "user", "content": "Write a Python script to perform a BFS on a graph."}
-  ]
-)
-
-print(response.choices[0].message.content)
-```
-
-### Advanced Example: Code-Centric Tool Calling (O3)
-Reasoning models like O3 are highly effective at using tools to navigate and modify codebases.
-
-```python
-import openai
-
-response = openai.ChatCompletion.create(
-  model="o3",
-  messages=[
-    {"role": "user", "content": "Refactor the authentication module to use JWT instead of sessions."}
-  ],
-  tools=[
-    {
-      "type": "function",
-      "function": {
-        "name": "read_file",
-        "description": "Reads a file from the repository.",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "filepath": {"type": "string"}
-          }
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "write_file",
-        "description": "Writes content to a file.",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "filepath": {"type": "string"},
-            "content": {"type": "string"}
-          }
-        }
-      }
-    }
-  ]
-)
-```
+- **Autonomous Feature Implementation**: Driving agents like [Aider](aider.md) or [Cursor](cursor.md) to build entire features from natural language specs.
+- **Complex Debugging**: Utilizing reasoning models (O3/O4) to trace and fix deep-seated logic errors in distributed systems.
+- **Legacy Code Migration**: Automating the translation of aging codebases (e.g., COBOL, legacy Java) to modern frameworks like Rust or Go.
+- **Architectural Scaffolding**: Generating entire project structures, including infrastructure-as-code (Terraform/Pulumi) and API definitions.
+- **Automated Test Generation**: Creating comprehensive unit, integration, and end-to-end test suites (Playwright/Cypress) from implementation code.
 
 ## Strengths
-- Unmatched code-specialized behavior in frontier models.
-- Deep understanding of modern libraries, frameworks, and patterns.
-- Strong fit for code generation, refactors, and test-writing loops.
-- Excellent performance in [SWE-bench](../benchmarking/swe-bench.md) and other coding benchmarks.
+- **Superior Reasoning**: The O-series models (O3/O4) provide deep "System 2" thinking for architectural planning and complex bug resolution.
+- **Massive Context**: Support for 256K+ token windows, allowing for the analysis of large repositories in a single pass.
+- **Tool-Use Proficiency**: Highly optimized for function calling and interacting with repository-level tools (read/write/grep).
+- **Benchmark Leadership**: Consistently leads in coding benchmarks like [SWE-bench](../benchmarking/swe-bench.md) and EvalPlus.
 
 ## Limitations
-- Proprietary; no self-hosted option.
-- API costs can scale quickly for large codebase indexing.
-- Knowledge cutoff may affect very recent library updates.
-- Best used as a specialized lane, not a universal default for all reasoning tasks.
+- **Closed Source**: Proprietary models that require internet connectivity and API access; no local weights available for high-security environments.
+- **Cost Scaling**: High-reasoning models (O3/O4) can be significantly more expensive per token than general-purpose models like GPT-5.5-mini.
+- **Non-Deterministic**: Like all LLMs, it can occasionally produce "hallucinated" APIs or subtly incorrect logic that requires expert review.
 
 ## When to use it
-- When using GitHub Copilot or other tools built on OpenAI's coding models.
-- When evaluating code-specialized models against general-purpose LLMs.
-- When the task is code-centric enough to justify a specialized coding lane.
-- For complex refactors that require a high degree of logical reasoning (O1/O3).
+- When you need the highest possible precision for complex software engineering tasks.
+- When performing architectural refactors that require understanding cross-module dependencies.
+- When utilizing top-tier coding assistants like [GitHub Copilot](github-copilot-cli.md) or [Cursor](cursor.md).
+- For long-horizon planning tasks where "reasoning" is more important than raw speed.
 
 ## When not to use it
-- When you need a self-hosted or open-source code model.
-- When the task is not primarily code-related.
-- When you require a model with an absolute up-to-the-minute knowledge base of very niche new libraries.
+- For simple documentation tasks or broad research where a cheaper model (GPT-5.5-mini) or [Claude 4.8 Opus](../providers/anthropic.md) might be more cost-effective.
+- When strict data privacy requirements mandate local-only execution (use Llama 4 or DeepSeek-V4 instead).
+- For very high-frequency, low-latency completions where a specialized SLM (Small Language Model) is faster.
 
-## Model routing
+## Getting started
 
-Use `gpt-4o`, `o1`, or `o3` when:
-- The task is mostly code and requires high precision.
-- You want source-editing behavior.
-- You are building inside an IDE, CLI, or code agent flow.
-- You need complex architectural changes (prefer `o3`).
-
-Do not use it when:
-- The task is mainly broad research without implementation.
-- You need a local/offline model for privacy reasons.
-- You actually need the broader deliberate reasoning of GPT-5.4 for non-code planning.
-
-Best pairings:
-- Default coding lane: [Anthropic Sonnet](../providers/anthropic.md) (highly competitive with GPT-4o for code).
-- Central policy: [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
-- Local fallback: [Llama 3](../ai_knowledge/llama-3.md) (fine-tuned for code).
-
-## Implementation Example: CLI Integration
-Many developers use these models via CLI tools for rapid prototyping.
+### API Access
+Coding capabilities are accessed via the OpenAI `chat/completions` endpoint. Ensure you have an API key and the `openai` library installed.
 
 ```bash
-# Example using a tool like Aider
-aider --model gpt-4o
+pip install openai
+```
 
-# Example using OpenAI CLI directly
-openai api chat.completions.create -m gpt-4o -g user "Implement a thread-safe singleton in Java"
+### Initial Setup
+Configure your environment to use the latest coding flagship:
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+```
+
+## CLI examples
+
+### Using Aider with GPT-5.5
+Aider is the preferred way to interact with OpenAI coding models via the terminal.
+```bash
+# Start an editing session with the latest flagship
+aider --model gpt-5.5
+
+# Perform a specific refactor task
+aider --message "Refactor the database module to use SQLAlchemy 3.0"
+```
+
+### OpenAI CLI
+```bash
+# Direct generation via the CLI
+openai api chat.completions.create -m gpt-5.5 -g user "Write a Rust function for async file I/O"
+```
+
+## API examples
+
+### Autonomous Refactoring Loop (O3)
+Reasoning models are used in loops to navigate and edit codebases.
+
+```python
+response = client.chat.completions.create(
+  model="o3-20260528",
+  messages=[
+    {"role": "user", "content": "Update the auth logic to support passkeys."}
+  ],
+  tools=[
+    {"type": "function", "function": {"name": "read_file", "parameters": {"type": "object", "properties": {"path": {"type": "string"}}}}},
+    {"type": "function", "function": {"name": "write_file", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}}}}
+  ]
+)
 ```
 
 ## Related tools / concepts
 - [GitHub Copilot](github-copilot-cli.md)
 - [Cursor](cursor.md)
 - [Aider](aider.md)
-- [OpenAI](../ai_knowledge/openai.md)
-- [Anthropic](../providers/anthropic.md)
+- [Claude 4.8 Opus](../providers/anthropic.md)
+- [DeepSeek-V4](../providers/deepseek.md)
 - [SWE-bench](../benchmarking/swe-bench.md)
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md)
 
 ## Sources / references
-- [OpenAI Models Overview](https://platform.openai.com/docs/models)
-- [OpenAI Codex (Legacy)](https://openai.com/blog/openai-codex)
-- [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
+- [OpenAI Models Documentation](https://platform.openai.com/docs/models)
+- [OpenAI Blog: The Future of Coding Agents](https://openai.com/blog)
+- [GitHub Copilot Official Site](https://github.com/features/copilot)
+- [EvalPlus Leaderboard](https://evalplus.github.io/leaderboard.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-21
+- Last reviewed: 2026-06-16
 - Confidence: high
