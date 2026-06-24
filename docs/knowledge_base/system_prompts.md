@@ -23,7 +23,7 @@ It belongs to the **Interface & Configuration Layer** of the AI stack. It is the
 ## Limitations
 - **Prompt Injection**: Sophisticated user prompts can sometimes "bypass" or "jailbreak" system instructions.
 - **Instruction Fatigue**: Very long system prompts can lead to "forgetting" earlier instructions or reduced performance on the core task.
-- **Model Sensitivity**: Different models respond differently to the same system prompt; what works for GPT-4o may fail for Claude 3.5 Sonnet.
+- **Model Sensitivity**: Different models respond differently to the same system prompt; what works for GPT-5.5 may fail for Claude 4.8 Opus.
 
 ## When to use it
 - When building any production-grade AI application where consistent behavior is required.
@@ -33,30 +33,55 @@ It belongs to the **Interface & Configuration Layer** of the AI stack. It is the
 - For quick, throwaway chat sessions where the model's default "Helpful Assistant" persona is sufficient.
 - If you are using a base model (non-instruct) that is not trained to follow system instructions.
 
-## Why They Matter
-- **Persona & Tone**: They establish how the model interacts (e.g., helpful assistant, technical expert, concise reporter).
-- **Capability Disclosure**: They inform the model about the tools it has access to (e.g., Python execution, web search, specific APIs).
-- **Constraint Enforcement**: They set hard boundaries on what the model can and cannot do (e.g., no medical advice, no sensitive data handling).
-- **Instruction Following**: A well-engineered system prompt improves the reliability and quality of the model's output.
+## Getting started
+To begin engineering system prompts:
+1. **Define the Role**: Clearly state who the model is (e.g., "You are an expert at YAML configuration").
+2. **Set the Objective**: Explain the primary goal of the interaction.
+3. **Establish Constraints**: List negative constraints (e.g., "Do not use external libraries").
+4. **Format Requirements**: Specify the desired output structure (e.g., "Always return a valid JSON object").
+5. **Test with Different Models**: Verify behavior across Claude 4.8, GPT-5.5, and Llama 4 Maverick.
 
-## High Engineering Examples
-Studying the system prompts of frontier models like Claude, GPT-4, and Gemini provides deep insight into how these models are aligned and how they handle complex tasks.
+## CLI examples
+While system prompts are typically passed via API, you can test them using various CLI tools.
 
-### System Prompt Collections
-A curated collection of extracted system prompts from popular chatbots and frontier models.
-- [System Prompts Leaks (asgeirtj/system_prompts_leaks)](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
+```bash
+# Testing a system prompt with Ollama (Llama 4 Maverick)
+ollama run llama4-maverick "You are a concise technical writer. Explain MCP."
 
-### Claude System Prompt
-Anthropic's system prompt for Claude is a prime example of "high engineering" prompt design, featuring detailed instructions for tool use and response formatting.
-- [Claude System Prompt](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude.ai-human-readable.md)
+# Testing with the OpenAI CLI (GPT-5.5)
+openai chat create --model gpt-5.5 --message system "Act as a Python security auditor." --message user "Analyze this script: ..."
+```
 
-### GPT-5.5 Multi-Agent System Prompt
-OpenAI's latest system prompt for GPT-5.5 includes specific instructions for coordinating with sub-agents and managing persistent memory across sessions.
-- [GPT-5.5 System Prompt Analysis](https://openai.com/index/gpt-5-5-system-prompt-analysis)
+## API examples
+Most modern APIs use a list of message objects where the first message is often the system prompt.
 
-### Model Context Protocol (MCP) Prompt Integration
-Modern system prompts now include standardized blocks for MCP server discovery and tool use, allowing models to dynamically understand their available environment.
-- [MCP Prompting Patterns](patterns/tool-calling-and-mcp.md)
+### OpenAI / LiteLLM Pattern (GPT-5.5)
+```python
+import openai
+
+response = openai.ChatCompletion.create(
+    model="gpt-5.5",
+    messages=[
+        {"role": "system", "content": "You are a senior DevOps engineer specializing in K3s."},
+        {"role": "user", "content": "How do I secure my node?"}
+    ]
+)
+```
+
+### Anthropic Pattern (Claude 4.8)
+Anthropic treats the system prompt as a separate top-level parameter.
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+message = client.messages.create(
+    model="claude-4-8-opus-20260528",
+    system="You are a helpful assistant that always responds in Haiku.",
+    messages=[
+        {"role": "user", "content": "Tell me about the sun."}
+    ]
+)
+```
 
 ## Related tools / concepts
 - [Agent Protocols](agent_protocols.md)
@@ -67,11 +92,13 @@ Modern system prompts now include standardized blocks for MCP server discovery a
 - [OpenAI](../tools/ai_knowledge/openai.md)
 - [Claude](../tools/ai_knowledge/claude.md)
 - [Prompt Catalogue](../architecture/prompt-catalogue.md)
+- [MCP Prompting Patterns](patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [System Prompts Leaks GitHub](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
 - [Claude System Prompt Leak](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude.ai-human-readable.md)
+- [GPT-5.5 System Prompt Analysis](https://openai.com/index/gpt-5-5-system-prompt-analysis)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-24
 - Confidence: high

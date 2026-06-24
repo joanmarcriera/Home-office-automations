@@ -17,7 +17,7 @@ This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry po
 
 ## Strengths
 - **Comprehensive**: Covers the entire lifecycle from raw compute to finished application.
-- **Interoperable**: Focuses on the "glue" (protocols like MCP) that connects layers.
+- **Interoperable**: Focuses on the "glue" (protocols like MCP 3.0) that connects layers.
 - **Homelab-Centric**: Prioritizes tools that can be run locally or self-hosted.
 
 ## Limitations
@@ -40,6 +40,62 @@ This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry po
 3. Consult the **Key Patterns** section to understand how these layers are typically connected in production.
 4. For a hands-on start, see the **How to use this repo** section at the bottom.
 
+## CLI examples
+The following CLI tools are essential for navigating and managing the different layers of the landscape.
+
+```bash
+# Infrastructure Layer (Layer 0): Check GPU status
+nvidia-smi
+
+# Inference & Serving Layer (Layer 3): List local models
+ollama list
+
+# Development Layer (Layer 7): Run an AI coding session
+aider --model claude-4-8-sonnet
+```
+
+## API examples
+Most layers are connected via standardized APIs and protocols like MCP 3.0.
+
+### Discovery via MCP 3.0
+```python
+# Connecting to an MCP 3.0 server to discover tools at Layer 4
+from mcp import Client
+
+client = Client("http://mcp-registry.local")
+tools = client.list_tools()
+for tool in tools:
+    print(f"Tool: {tool.name}, Layer: {tool.metadata['layer']}")
+```
+
+### Routing across Layer 1 Providers
+```python
+import litellm
+
+# Route to the most cost-effective model at Layer 2
+response = litellm.completion(
+    model="openrouter/google/gemini-3.5-flash",
+    messages=[{"role": "user", "content": "Analyze this landscape."}]
+)
+```
+
+## Related tools / concepts
+- [Model Classes](model_classes.md) — Understanding the different "tiers" of models within the landscape.
+- [Agent Protocols](agent_protocols.md) — Deep dive into MCP 3.0 and ACP.
+- [Home Lab Architecture](../architecture/infrastructure.md) — How the physical layer (Layer 0) is implemented in this repo.
+- [OpenRouter](../tools/ai_knowledge/openrouter.md) — A key Layer 1 provider that bridges many models.
+- [n8n](../services/n8n.md) — A primary Layer 6 orchestration tool used in this stack.
+- [Ollama](../services/ollama.md) — The recommended Layer 3 serving solution for local use.
+- [MCP Registry](../tools/automation_orchestration/mcp-registry.md) — A catalog of tools available via the Layer 4 standard.
+- [API Pricing & Free Tiers](api_pricing_free_tiers.md) — The economic context for provider selection.
+
+## Sources / References
+- [Sequoia: Generative AI's Act Two](https://www.sequoiacap.com/article/generative-ai-act-two/)
+- [A16Z: Emerging Architectures for LLM Applications](https://a16z.com/emerging-architectures-for-llm-applications/)
+- [MAD Landscape 2024](https://mad.firstmark.com/)
+
+---
+
 ## The Stack (layered view)
 
 ```text
@@ -50,11 +106,11 @@ This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry po
 ├───────────────────────────────────────────────────────────────────────────┤
 │ Layer 5: Frameworks (LangChain, LlamaIndex, Haystack, DSPy)               │
 ├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 4: Protocols & Standards (MCP, Tool Calling, A2A)                   │
+│ Layer 4: Protocols & Standards (MCP 3.0, Tool Calling, A2A)               │
 ├───────────────────────────────────────────────────────────────────────────┤
 │ Layer 3: Inference & Serving (vLLM, TGI, Ollama, SGLang)                  │
 ├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 2: Models (GPT-4, Claude, Llama, Mistral, Gemini, Qwen)             │
+│ Layer 2: Models (GPT-5.5, Claude 4.8, Llama 4, Gemini 3.5, Qwen 3.6)      │
 ├───────────────────────────────────────────────────────────────────────────┤
 │ Layer 1: Providers (OpenAI, Anthropic, Google, Meta, Mistral, OpenRouter) │
 ├───────────────────────────────────────────────────────────────────────────┤
@@ -70,40 +126,37 @@ User-facing interfaces and platforms where humans interact with AI. These provid
 ### Layer 6: Agents & Orchestration
 Systems that coordinate multiple steps, tools, and agents to achieve complex goals. This layer handles reasoning, planning, and task execution using underlying models and frameworks.
 - **Relevant Pages**: [Mistral Agents](../tools/providers/mistral.md), [CrewAI](../tools/frameworks/crewai.md), [AutoGen](../tools/frameworks/autogen.md), [LangGraph](../tools/frameworks/langgraph.md), [n8n](../services/n8n.md), [Agency Swarm](../tools/agents/agency-swarm.md), [Agentic Automation Canvas](../tools/agents/agentic-automation-canvas.md), [Agno](../tools/agents/agno.md), [Bee Agent Framework](../tools/agents/bee-agent-framework.md), [Composio](../tools/agents/composio.md), [Phidata](../tools/agents/phidata.md), [OpenHands](../tools/development_ops/openhands.md), [Droid](../tools/development_ops/droid.md), [Plandex](../tools/development_ops/plandex.md), [OpenSwarm](../tools/development_ops/openswarm.md), [OpenClaw](../tools/development_ops/openclaw.md), [Jules](../tools/ai_knowledge/jules.md), [Browser Use](../tools/automation_orchestration/browser-use.md), [Zapier](../tools/automation_orchestration/zapier.md), [Make](../tools/automation_orchestration/make.md), [Skyvern](../tools/automation_orchestration/skyvern.md), [Atlassian Jira MCP](../tools/automation_orchestration/atlassian-jira-mcp.md), [ServiceNow MCP](../tools/automation_orchestration/servicenow-mcp.md), [CliHub](../tools/automation_orchestration/clihub.md).
-Systems that coordinate multiple steps, tools, and agents to achieve complex goals. This layer handles reasoning, planning, and task execution using underlying models and frameworks. It is where autonomous decision-making and environment interaction are managed.
 - **Key Trends**: Shift from linear chains to complex, stateful multi-agent graphs.
 
 ### Layer 5: Frameworks
-Development libraries used to build AI applications, handling prompt management, tool integration, and RAG logic. They provide the abstraction layer between models and applications. These frameworks simplify the process of constructing complex AI workflows and integrating various data sources.
+Development libraries used to build AI applications, handling prompt management, tool integration, and RAG logic. They provide the abstraction layer between models and applications.
 - **Relevant Pages**: [LangChain](../tools/ai_knowledge/langchain.md), [LlamaIndex](../tools/ai_knowledge/llamaindex.md), [Haystack](../tools/frameworks/haystack.md), [DSPy](../tools/frameworks/dspy.md), [Semantic Kernel](../tools/frameworks/semantic-kernel.md), [Smolagents](../tools/frameworks/smolagents.md), [Mycelium](../tools/frameworks/mycelium.md), [Dify](../tools/ai_knowledge/dify.md), [Flowise](../tools/ai_knowledge/flowise.md), [RAGFlow](../tools/process_understanding/ragflow.md).
 - **Key Trends**: Increased focus on programmatic prompt optimization and modular RAG.
 
 ### Layer 4: Protocols & Standards
-The "glue" that allows models to interact with tools and other agents consistently. These standards ensure interoperability across the ecosystem. By establishing common interfaces, they prevent vendor lock-in and enable tool reuse across different frameworks.
+The "glue" that allows models to interact with tools and other agents consistently.
 - **Relevant Pages**: [Model Context Protocol (MCP)](agent_protocols.md), [Agent Client Protocol (ACP)](agent_protocols.md), [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md), [Mistral AI (Native MCP)](../tools/providers/mistral.md), [MCP Registry](../tools/automation_orchestration/mcp-registry.md).
 - **Key Trends**: Rapid adoption of MCP as the standard for model-to-tool communication.
 
 ### Layer 3: Inference & Serving
-Engines that run model weights and provide APIs for applications to consume. This layer is responsible for the actual execution of model inference. It optimizes performance, handles concurrency, and provides the necessary scaling for production deployments.
+Engines that run model weights and provide APIs for applications to consume.
 - **Relevant Pages**: [vLLM](../tools/infrastructure/vllm.md), [Text Generation Inference (TGI)](../tools/infrastructure/tgi.md), [Ollama](../services/ollama.md), [SGLang](../tools/infrastructure/sglang.md), [Aphrodite Engine](../tools/infrastructure/aphrodite-engine.md), [ExLlamaV2](../tools/infrastructure/exllamav2.md), [llama.cpp](../tools/infrastructure/llama-cpp.md), [MLX](../tools/infrastructure/mlx.md), [LiteLLM](../services/litellm.md).
 - **Key Trends**: Layer 3 is consolidating around vLLM and SGLang for high-performance serving.
 
 ### Layer 2: Models
-The core reasoning engines (LLMs, VLMs) that process information and generate text or actions. These are the fundamental units of intelligence in the stack. This layer includes both general-purpose foundation models and specialized models for coding, reasoning, or multimodality.
+The core reasoning engines (LLMs, VLMs) that process information and generate text or actions.
 - **Relevant Pages**: [OpenAI Models](../tools/ai_knowledge/openai.md), [Anthropic Claude](../tools/providers/anthropic.md), [Meta Llama](../tools/ai_knowledge/local_llms.md), [Mistral](../tools/providers/mistral.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md), [DeepSeek](../tools/providers/deepseek.md), [Model Classes](model_classes.md).
-- **Key Trends**: Rise of specialized reasoning models using test-time compute (e.g., GPT-5.5, Claude 4.7, Llama 4 Maverick).
+- **Key Trends**: Rise of specialized reasoning models using test-time compute.
 
 ### Layer 1: Providers
-Companies and platforms that host models and provide them as-a-service via API. They handle the scale and infrastructure required for model access. These providers offer varying levels of cost, speed, and privacy, allowing users to choose the best fit for their needs.
+Companies and platforms that host models and provide them as-a-service via API.
 - **Relevant Pages**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Groq](../tools/providers/groq.md), [Fireworks AI](../tools/providers/fireworks.md), [Together AI](../tools/providers/together.md), [Replicate](../tools/providers/replicate.md), [Mistral AI](../tools/providers/mistral.md), [Cohere](../tools/providers/cohere.md).
 - **Key Trends**: Providers are competing on speed (tokens/sec) and lower costs.
 
 ### Layer 0: Infrastructure
-The underlying hardware, storage, and low-level optimizations like quantization and vector databases that power the entire stack. This foundation ensures that higher-level services run efficiently and securely. It also includes the critical data supply chain components for ingestion and preparation.
+The underlying hardware, storage, and low-level optimizations.
 - **Relevant Pages**: [Home Lab Architecture](../architecture/infrastructure.md), [TrueNAS SCALE](../architecture/infrastructure.md), [Tailscale](../services/tailscale.md), [OpenPipe (Fine-tuning)](../tools/infrastructure/openpipe.md), [Crawl4AI](../tools/process_understanding/crawl4ai.md), [Firecrawl](../tools/process_understanding/firecrawl.md), [OCRmyPDF](../tools/process_understanding/ocrmypdf.md), [PageIndex](../tools/process_understanding/pageindex.md), [CalDAV](../tools/intake_storage/caldav.md), [ZSE](../tools/infrastructure/zse.md).
 - **Key Trends**: Move towards hybrid infrastructure combining local GPU power with cloud scaling.
-
----
 
 ## Key Patterns
 - **[Retrieval-Augmented Generation (RAG)](patterns/rag.md)**: Grounding models with external data to improve accuracy.
@@ -124,20 +177,6 @@ The underlying hardware, storage, and low-level optimizations like quantization 
 - **"I want the shortest practical stack for an AI-driven company"** → [AI Company Starter Stack](ai_company_starter_stack.md)
 - **"I want to build a website or small app on free infrastructure"** → [AI Builder Index](ai_builder_index.md) and [Free AI Website Playbook](free_ai_website_playbook.md)
 
-## Related tools / concepts
-- [Model Classes](model_classes.md) — Understanding the different "tiers" of models within the landscape.
-- [Agent Protocols](agent_protocols.md) — Deep dive into MCP and ACP.
-- [Home Lab Architecture](../architecture/infrastructure.md) — How the physical layer (Layer 0) is implemented in this repo.
-- [OpenRouter](../tools/ai_knowledge/openrouter.md) — A key Layer 1 provider that bridges many models.
-- [n8n](../services/n8n.md) — A primary Layer 6 orchestration tool used in this stack.
-- [Ollama](../services/ollama.md) — The recommended Layer 3 serving solution for local use.
-- [MCP Registry](../tools/automation_orchestration/mcp-registry.md) — A catalog of tools available via the Layer 4 standard.
-
-## Sources / references
-- [Sequoia: Generative AI's Act Two](https://www.sequoiacap.com/article/generative-ai-act-two/)
-- [A16Z: Emerging Architectures for LLM Applications](https://a16z.com/emerging-architectures-for-llm-applications/)
-- [MAD Landscape 2024](https://mad.firstmark.com/)
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-24
 - Confidence: high
