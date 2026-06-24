@@ -1,120 +1,118 @@
-# Model Comparison and Evaluation (June 2026)
+# Model Comparison and Evaluation
 
 ## What it is
-Model comparison and evaluation is the systematic process of measuring the performance, reliability, and cost-effectiveness of Large Language Models (LLMs). This involves using standardized benchmarks, human preference arenas, and operational metrics to determine which model is best suited for a specific technical or creative task. In June 2026, the focus has shifted toward **Agentic Reasoning** and **Expert-Level Frontiers**.
+Model comparison and evaluation is the systematic process of measuring the performance, reliability, and cost-effectiveness of Large Language Models (LLMs). This involves using standardized benchmarks, human preference arenas, and operational metrics to determine which model is best suited for a specific technical or creative task.
 
 ## What problem it solves
-It solves the "black box" problem of AI by providing objective data to guide model selection. Without evaluation, developers and users might overpay for "frontier" models when a smaller, faster model (like **Gemini 3.5 Flash** or **Claude 3.5 Haiku**) would suffice, or they might rely on a model that is prone to hallucination in their specific domain.
+It solves the "black box" problem of AI by providing objective data to guide model selection. Without evaluation, developers and users might overpay for "frontier" models when a smaller, faster model (like Haiku or Flash) would suffice, or they might rely on a model that is prone to hallucination in their specific domain.
 
 ## Where it fits in the stack
 Evaluation sits at the **Quality & Governance Layer** of the AI stack. It informs the logic in the [Model Routing Guide](model_routing_guide.md) and helps define the performance baselines for [Agentic Workflows](patterns/agentic-workflows.md).
 
 ## Typical use cases
-- **Model Selection**: Choosing between frontier models like **GPT-5.5**, **Claude 4.8**, or **Gemini 3.5 Ultra** for complex reasoning.
-- **Reasoning vs. Chat**: Evaluating "Thinking" models (like **DeepSeek R1** or **OpenAI o3**) using specialized "Reasoning Benchmarks" that measure chain-of-thought depth.
-- **Agentic Orchestration**: Measuring an agent's ability to operate in a shell or manage a calendar using **Terminal-Bench (TB-2)** and **PA-bench**.
-- **Expert-Level Testing**: Verifying frontier intelligence using **Humanity's Last Exam (HLE)**.
-- **Cost Optimization**: Identifying tasks that can be safely downgraded to cheaper models.
+- **Model Selection**: Choosing between frontier models like **GPT-4o**, **o1**, or **o3** for complex reasoning vs. smaller "flash" models for high-speed tasks.
+- **Reasoning vs. Chat**: Evaluating "Thinking" models (like **OpenAI o1/o3** or **DeepSeek R1**) using specialized "Reasoning Benchmarks" that measure chain-of-thought depth rather than just final answer accuracy.
+- **Regression Testing**: Ensuring that a fine-tuned model or a new system prompt hasn't degraded performance.
+- **Cost Optimization**: Identifying tasks that can be safely downgraded to cheaper, smaller models.
+- **Accuracy Verification**: Measuring the hallucination rate in RAG (Retrieval-Augmented Generation) systems.
 
 ## Strengths
 - **Objectivity**: Moves beyond "vibes" to data-driven decision making.
 - **Performance Benchmarking**: Identifies exactly where a model excels (e.g., coding vs. creative writing).
 - **Economic Efficiency**: Directs spend to the most efficient model for the job.
-- **Verification-Driven**: New benchmarks like **MBPP** now use 'Satisfaction-Based Validation' to ensure code actually works.
 
 ## Limitations
-- **Data Contamination**: Models may have been trained on benchmark questions, leading to artificially high scores.
-- **Static Nature**: Evaluations can become outdated quickly (monthly or even weekly in the current cycle).
-- **Human Subjectivity**: Preference arenas can be influenced by model verbosity or "politeness" rather than actual accuracy.
+- **Data Contamination**: Models may have been trained on the benchmark questions themselves, leading to artificially high scores.
+- **Static Benchmarks**: Evaluations can become outdated quickly as new models and techniques emerge.
+- **Human Subjectivity**: Preference arenas (like Chatbot Arena) can be influenced by model verbosity or "politeness" rather than actual accuracy.
 
 ## Side-by-side Comparison Platforms
-- **[Chatbot Arena (LMSYS)](../tools/benchmarking/chatbot-arena.md)**: The definitive crowdsourced platform for "blind" human preference testing.
-- **[OpenRouter Playground](https://openrouter.ai/playground)**: Allows for direct comparison across dozens of models (supporting MCP 3.0 routing).
+
+Interactive platforms allow users to test multiple models on the same prompt simultaneously, providing direct insight into their different reasoning styles and output qualities.
+
+- **[Chatbot Arena (LMSYS)](../tools/benchmarking/chatbot-arena.md)**: A crowdsourced open platform where users chat with two anonymous models and vote on which one is better. This provides a "blind" test of human preference, which is often a more reliable indicator of general helpfulness than automated benchmarks.
+- **[OpenRouter Playground](https://openrouter.ai/playground)**: While primarily an API aggregator, OpenRouter provides a playground where you can quickly switch between dozens of different models to compare their responses to the same prompt.
 
 ## Public Leaderboards
-- **[LMSYS Arena Leaderboard](https://chat.lmsys.org/?leaderboard)**: Standard for general helpfulness.
-- **[Hugging Face Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)**: Standard for open-source (open-weight) models.
-- **[LiveCodeBench](https://livecodebench.github.io/leaderboard.html)**: Periodic competitive programming contests to prevent contamination.
 
-## Common Evaluation Metrics (June 2026)
+Leaderboards aggregate results from multiple benchmarks to provide a macro view of the AI landscape.
 
-### Reasoning and Expert Knowledge
-- **MMLU**: General knowledge across 57 subjects.
-- **[GPQA](../tools/benchmarking/gpqa.md)**: PhD-level questions in science.
-- **[Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md)**: The current frontier for expert-level reasoning across hundreds of fields.
+- **[LMSYS Arena Leaderboard](https://chat.lmsys.org/?leaderboard)**: The definitive leaderboard for human preference. It uses an Elo rating system (similar to chess) to rank models based on thousands of pairwise comparisons.
+- **[Hugging Face Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)**: The primary leaderboard for open-source (open-weight) models. It evaluates models on a battery of automated benchmarks including MMLU, ARC, and GSM8K.
+- **[LiveCodeBench](https://livecodebench.github.io/leaderboard.html)**: A leaderboard focused on code generation that uses problems from periodic competitive programming contests to prevent data contamination (where the model might have seen the test problems during training).
+
+## Common Evaluation Metrics
+
+When reviewing benchmark results, you will encounter several standardized metrics. Each focuses on a different aspect of model capability.
+
+### General Knowledge and Reasoning
+- **MMLU (Massive Multitask Language Understanding)**: Tests a model's knowledge across 57 subjects in STEM, the humanities, social sciences, and more. It is the most common "all-purpose" benchmark.
+- **[GPQA (Graduate-Level Google-Proof Q&A)](../tools/benchmarking/gpqa.md)**: A very difficult benchmark written by experts (PhDs) in biology, physics, and chemistry. Designed to be hard even for non-expert humans with internet access.
+
+### Mathematics
+- **[GSM8K (Grade School Math 8K)](../tools/benchmarking/gsm8k.md)**: 8,500 grade-school math word problems. It tests multi-step arithmetic reasoning.
+- **MATH**: More advanced mathematics problems ranging from algebra to calculus.
 
 ### Coding
-- **[HumanEval](../tools/benchmarking/human-eval.md)**: Basic algorithmic tasks.
-- **[MBPP](../tools/benchmarking/mbpp.md)**: Uses 'Satisfaction-Based Validation' to verify functional code generation.
-- **[SWE-bench](../tools/benchmarking/swe-bench.md)**: Real-world GitHub issue resolution.
+- **[HumanEval](../tools/benchmarking/human-eval.md)**: 164 handwritten programming problems from OpenAI. Measures the ability to solve basic algorithmic tasks.
+- **[MBPP (Mostly Basic Python Problems)](../tools/benchmarking/mbpp.md)**: Around 1,000 entry-level Python programming problems.
+- **[SWE-bench](../tools/benchmarking/swe-bench.md)**: A high-bar benchmark where models must resolve real GitHub issues by providing functional code patches.
+- **[Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md)**: A frontier-difficulty benchmark containing expert-level questions across hundreds of fields, designed to be the "final" challenge for reasoning models as they approach human-level performance.
 
 ### Web and Agentic Workflows
-- **[PA-bench](../tools/benchmarking/pa-bench.md)**: Evaluates web agents on long-horizon workflows (Email, Calendar, Travel).
-- **[Terminal-Bench (TB-2)](../tools/benchmarking/terminal-bench.md)**: Direct LLM-to-tmux shell interaction and system remediation.
-- **[Ollama Benchmark CLI](../tools/benchmarking/ollama-benchmark-cli.md)**: Measures 'Agentic Latency' (multi-step tool call speed).
+- **[PA-bench (Personal Assistant Bench)](../tools/benchmarking/pa-bench.md)**: Evaluates web agents on long-horizon, multi-application workflows (e.g., Email, Calendar, Travel Planning) using its `SimulationManager` and `ExperimentOrchestrator`.
+- **[Terminal-Bench (TB-2)](../tools/benchmarking/terminal-bench.md)**: Uses the `tb` CLI and Docker-based sandboxes to evaluate an agent's ability to operate directly in a shell environment.
 
-### Operational Performance
-- **[LLMperf](../tools/benchmarking/llmperf.md)**: Measures 'Agentic TPS' and TTFT across federated inference endpoints.
+### Performance and Efficiency
+- **Tokens per Second (TPS)**: A measure of inference speed.
+- **Time to First Token (TTFT)**: How quickly the model starts generating a response after receiving a prompt.
+- **[LLMperf](../tools/benchmarking/llmperf.md)**: A tool for measuring these operational metrics across different API providers.
+
+### Core Metrics Defined
+While benchmarks provide a score, they often rely on these underlying statistical metrics:
+- **Accuracy / Exact Match (EM)**: The percentage of responses that are exactly correct (common in math and multiple-choice).
+- **F1 Score**: A balance between precision (correctness) and recall (completeness), often used in classification or extraction tasks.
+- **BLEU / ROUGE**: Automated metrics that measure text similarity between a model's output and a reference "gold standard" (common in translation and summarization).
+- **Pass@k**: Used in coding benchmarks like [HumanEval](../tools/benchmarking/human-eval.md) to measure the probability that at least one of *k* generated samples passes all tests.
+
+## Practical Interpretation
+
+To choose the best model for your practical scenario, consider the following:
+
+1.  **Define your "North Star" Metric**: If you are building a coding assistant, prioritize **SWE-bench** or **HumanEval** over general MMLU scores.
+2.  **Look for Contamination-Resistance**: Be wary of models that show suspiciously high scores on older benchmarks like GSM8K while performing poorly on newer, private, or "live" benchmarks (like LiveCodeBench).
+3.  **Human Preference vs. Automation**: A model might have a high MMLU score but feel "robotic" or overly verbose. Check the **Chatbot Arena Elo** for a sense of how the model actually feels to interact with.
+4.  **Cost-Performance Tradeoff**: Use the **[API Pricing & Free Tier Matrix](api_pricing_free_tiers.md)** alongside these benchmarks to find the model that provides the necessary capability at the lowest cost.
+
+For task-level routing decisions such as when to use Haiku vs Sonnet vs Opus, or GPT-5.4 `low` vs `medium` vs `high` vs `xhigh`, use the dedicated [Model Routing Guide](model_routing_guide.md).
 
 ## When to use it
 - Use systematic comparison when choosing a foundational model for a new product.
-- Use evaluation metrics when running [Prompt Engineering](patterns/prompt_requests.md) experiments.
-- Use leaderboards to stay informed about the rapidly changing open-source landscape.
+- Use evaluation metrics when running [Prompt Engineering](patterns/prompt_requests.md) experiments to measure improvement.
+- Use leaderboards to stay informed about the rapidly changing open-source model landscape.
 
 ## When not to use it
-- Don't rely solely on public benchmarks for domain-specific tasks (medical, legal) without custom evals.
-- Don't use evaluation as a substitute for real-world user testing.
-
-## Getting started
-To begin evaluating models:
-1. Select a benchmark relevant to your task (e.g., SWE-bench for coding).
-2. Use a tool like `inspect-ai` to run standardized evaluations.
-3. Compare results against the current state-of-the-art on LMSYS or Hugging Face.
-
-## CLI examples
-Using the `inspect` CLI to run a benchmark:
-
-```bash
-# Run a GPQA evaluation on Gemini 3.5 Pro
-inspect eval gpqa --model vertex/gemini-3.5-pro
-
-# Run a Terminal-Bench task
-inspect eval terminal-bench --model claude/claude-4.8-sonnet
-```
-
-## API examples
-Using the `inspect-evals` Python package:
-
-```python
-from inspect_ai import eval
-from inspect_evals import gpqa
-
-# Run evaluation and save results
-results = eval(
-    tasks=gpqa(),
-    model="openai/gpt-5.5-preview",
-    limit=10
-)
-print(f"Model Score: {results[0].metrics['accuracy']}")
-```
+- Don't rely solely on public benchmarks for domain-specific tasks (e.g., medical or legal advice) without running your own [Custom Eval](../tools/benchmarking/index.md).
+- Don't use evaluation as a substitute for real-world user testing; human preference in a production environment often differs from benchmark scores.
 
 ## Related tools / concepts
 - [Benchmarking Tool Catalogue](../tools/benchmarking/index.md)
 - [Model Classes](model_classes.md)
 - [LM Evaluation Harness](../tools/benchmarking/lm-evaluation-harness.md)
+- [Qwen](../tools/ai_knowledge/qwen.md)
 - [Model Routing Guide](model_routing_guide.md)
-- [GAIA](../tools/benchmarking/gaia.md)
-- [AssistantBench](../tools/benchmarking/assistant-bench.md)
-- [VAKRA](../tools/benchmarking/vakra.md)
-- [HELM](../tools/benchmarking/helm.md)
-- [OpenCompass](../tools/benchmarking/opencompass.md)
+- [Chatbot Arena](../tools/benchmarking/chatbot-arena.md)
+- [GPQA](../tools/benchmarking/gpqa.md)
+- [SWE-bench](../tools/benchmarking/swe-bench.md)
+- [PA-bench](../tools/benchmarking/pa-bench.md)
+- [Humanity's Last Exam](../tools/benchmarking/humanitys-last-exam.md)
+- [Terminal-bench](../tools/benchmarking/terminal-bench.md)
 
 ## Sources / References
 - [Chatbot Arena (LMSYS)](https://chat.lmsys.org/)
 - [Hugging Face Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)
-- [Terminal-Bench Research Paper (2026)](https://arxiv.org/abs/2602.12345)
-- [Humanity's Last Exam Technical Report](https://hle.ai/report)
+- [LiveCodeBench](https://livecodebench.github.io/leaderboard.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-06-03
 - Confidence: high

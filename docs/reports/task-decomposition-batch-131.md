@@ -1,9 +1,9 @@
-# Task Decomposition - Batch 129
+# Task Decomposition - Batch 131
 
 This report decomposes the technical freshness audits for the top 5 oldest issues identified in the June 23, 2026, session. These tasks aim to upgrade the documentation to the 13-section 'High Confidence' standard and incorporate June 2026 technical context.
 
 ## Batch Overview
-- **Batch ID**: 129
+- **Batch ID**: 131
 - **Created**: 2026-06-23
 - **Focus**: AI Knowledge, Patterns, and Knowledge Base
 - **Standard**: 13-section 'High Confidence'
@@ -17,19 +17,19 @@ This report decomposes the technical freshness audits for the top 5 oldest issue
   - Verify with `check_docs_contract.py`.
 
 ### Knowledge Base & Patterns
-- [x] **Freshness audit for `docs/knowledge_base/google_one_plans_comparison.md`**
+- [ ] **Freshness audit for `docs/knowledge_base/google_one_plans_comparison.md`**
   - Research June 2026 status (Gemini 3.5 Pro/Ultra, Spark agents, Antigravity integration).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [x] **Freshness audit for `docs/knowledge_base/model_comparison_and_evaluation.md`**
+- [ ] **Freshness audit for `docs/knowledge_base/model_comparison_and_evaluation.md`**
   - Research June 2026 status (HLE, PA-bench, Terminal-Bench TB-2).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [x] **Freshness audit for `docs/knowledge_base/patterns/tool-calling-and-mcp.md`**
+- [ ] **Freshness audit for `docs/knowledge_base/patterns/tool-calling-and-mcp.md`**
   - Research June 2026 status (MCP 3.0, Agentic Calendar Orchestration, JMAP).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
-- [x] **Freshness audit for `docs/knowledge_base/patterns/rag.md`**
+- [ ] **Freshness audit for `docs/knowledge_base/patterns/rag.md`**
   - Research June 2026 status (Agentic RAG, ColQwen/ColBERT late interaction).
   - Upgrade to 13-section standard.
   - Verify with `check_docs_contract.py`.
