@@ -82,8 +82,47 @@ jobs:
             echo "⏸️ Non-automation Jules backlog detected ($OPEN_NON_AUTOMATION). Sprint seeding skipped."
           fi
 
-      - name: Seed/maintain sprint worker issues
+      - name: Check for live Jules PRs (throttle)
         if: steps.window.outputs.in_window == 'true' && steps.backlog.outputs.open_non_automation == '0'
+        id: pr_throttle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Like the other Jules lanes: don't seed a sprint while real PRs are in
+          # flight, and ignore CONFLICTING orphans so they can't stall seeding.
+          # Without this, a sprint could flood the Jules daily quota with up to
+          # TARGET_WORKERS issues regardless of how much work is already open.
+          CANDIDATES=$(gh pr list \
+            --repo "$REPO" \
+            --state open \
+            --json number,title,body,labels,headRefName,author \
+            --jq '[.[] | select(
+              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit"; "i")) or
+              ((.body // "") | test("PR created automatically by Jules"; "i")) or
+              (.labels[]?.name == "jules") or
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
+              (.author.login == "google-labs-jules[bot]")
+            ) | .number]')
+
+          OPEN_PRS=0
+          for PR in $(echo "$CANDIDATES" | jq -r '.[]'); do
+            STATE=$(gh pr view "$PR" --repo "$REPO" --json mergeable --jq '.mergeable' 2>/dev/null || echo UNKNOWN)
+            if [ "$STATE" = "CONFLICTING" ]; then
+              echo "Ignoring conflicting orphan PR #$PR for throttle."
+              continue
+            fi
+            OPEN_PRS=$((OPEN_PRS + 1))
+          done
+
+          echo "open_prs=$OPEN_PRS" >> "$GITHUB_OUTPUT"
+          if [ "$OPEN_PRS" != "0" ]; then
+            echo "⏸️ Throttled: $OPEN_PRS live Jules PR(s). Sprint seeding skipped."
+          fi
+
+      - name: Seed/maintain sprint worker issues
+        if: steps.window.outputs.in_window == 'true' && steps.backlog.outputs.open_non_automation == '0' && steps.pr_throttle.outputs.open_prs == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

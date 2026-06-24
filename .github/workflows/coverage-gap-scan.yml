@@ -46,8 +46,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Validate watchlist JSON
-        run: python3 -c "import json; json.load(open('data/frontier_watchlist.json')); print('watchlist OK')"
+      - name: Validate data JSON (watchlist + catalog)
+        run: |
+          python3 -c "import json; json.load(open('data/frontier_watchlist.json')); print('watchlist OK')"
+          python3 -c "import json; json.load(open('data/all_tools.json')); print('catalog OK')"
 
       - name: Run coverage gap scan
         run: |

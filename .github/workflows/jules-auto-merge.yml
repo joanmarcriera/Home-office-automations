@@ -80,10 +80,10 @@ jobs:
             --json number,title,body,labels,headRefName,author \
             --jq '[.[] | select(
               (.headRefName != "automation/weekly-rollup") and (
-              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
+              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit"; "i")) or
               ((.body // "") | test("PR created automatically by Jules"; "i")) or
               (.labels[]?.name == "jules") or
-              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix"; "i")) or
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
               (.author.login == "google-labs-jules[bot]")
             ))] | map(.number) | join(",")')
 

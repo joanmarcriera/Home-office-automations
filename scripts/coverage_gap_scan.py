@@ -56,10 +56,19 @@ def normalize(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", name.lower())
 
 
+def _load_json(path: Path) -> dict:
+    """Load JSON, degrading to {} with a warning instead of crashing a scheduled run."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"WARNING: could not parse {path}: {exc}", file=sys.stderr)
+        return {}
+
+
 def load_catalog() -> tuple[list[dict], set[str], dict[str, int]]:
     if not CATALOG_PATH.exists():
         return [], set(), {}
-    data = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+    data = _load_json(CATALOG_PATH)
     tools = data.get("tools", [])
     names = {normalize(t.get("name", "")) for t in tools if t.get("name")}
     category_counts: dict[str, int] = {}
@@ -71,8 +80,7 @@ def load_catalog() -> tuple[list[dict], set[str], dict[str, int]]:
 def load_watchlist() -> list[dict]:
     if not WATCHLIST_PATH.exists():
         return []
-    data = json.loads(WATCHLIST_PATH.read_text(encoding="utf-8"))
-    return data.get("entries", [])
+    return _load_json(WATCHLIST_PATH).get("entries", [])
 
 
 def find_frontier_gaps(watchlist: list[dict], catalog_names: set[str]) -> list[dict]:
@@ -147,7 +155,7 @@ def build_report(frontier: list[dict], thin: list[dict], dangling: list[dict]) -
             tags = ", ".join(e.get("tags", []))
             offline = "🔌 offline" if e.get("offline_capable") else "☁️ cloud"
             lines.append(
-                f"- **{e['name']}** ({e.get('suggested_category', '?')}, {e.get('priority', 'medium')} priority, {offline})"
+                f"- **{e.get('name', '?')}** ({e.get('suggested_category', '?')}, {e.get('priority', 'medium')} priority, {offline})"
                 f" — {e.get('why', '')}" + (f" _[{tags}]_" if tags else "")
             )
     else:
@@ -187,7 +195,7 @@ def create_issue(report: str, frontier: list[dict]) -> bool:
         print("No frontier gaps to fill. Skipping issue creation.")
         return False
 
-    top = ", ".join(e["name"] for e in frontier[:5])
+    top = ", ".join(e.get("name", "?") for e in frontier[:5])
     title = f"Coverage gap fill: {top}"
     body = (
         report
