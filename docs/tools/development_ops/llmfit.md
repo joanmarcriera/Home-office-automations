@@ -30,6 +30,10 @@ It prevents wasted time trying to run models that do not fit your hardware or pe
 - When choosing the optimal quantization level for a specific model on your machine.
 - To compare real-world performance data from the community before downloading large models.
 
+## When not to use it
+- When you already know you will use hosted frontier APIs (OpenAI, Anthropic, etc.) and have no interest in local execution.
+- If you require a tool that actually benchmarks the model on your hardware by running it (see `llm-checker`).
+
 ## Getting started
 
 ### Installation
@@ -54,7 +58,7 @@ curl -fsSL https://llmfit.axjns.dev/install.sh | sh
 ### Initial Run
 Simply type `llmfit` to launch the interactive TUI. It will automatically detect your CPU, RAM, and GPU/VRAM to provide tailored recommendations.
 
-## CLI and TUI examples
+## CLI examples
 
 ### Interactive TUI (Default)
 ```bash
@@ -84,7 +88,7 @@ llmfit recommend --use-case coding --limit 5 --json
 llmfit plan "meta-llama/Llama-3.1-8B" --context 8192 --json
 ```
 
-## API and Integration
+## API examples
 llmfit can run as a background service to provide fit data via a REST API or integrate directly as an **OpenClaw Skill**.
 
 ### Starting the Server
@@ -105,10 +109,6 @@ for model in models:
     print(f"Recommended: {model['name']} (Score: {model['score']})")
 ```
 
-## When not to use it
-- When you already know you will use hosted frontier APIs (OpenAI, Anthropic, etc.) and have no interest in local execution.
-- If you require a tool that actually benchmarks the model on your hardware by running it (see `llm-checker`).
-
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md)
 - [LM Studio](../infrastructure/lm-studio.md)
@@ -125,5 +125,5 @@ for model in models:
 - [Release Notes v0.9.30](https://github.com/AlexsJones/llmfit/releases/tag/v0.9.30)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-06
+- Last reviewed: 2026-06-21
 - Confidence: high

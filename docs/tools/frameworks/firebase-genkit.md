@@ -47,6 +47,25 @@ npm install -g genkit
 genkit init
 ```
 
+## CLI examples
+
+### Start the Developer UI
+```bash
+genkit start
+```
+
+### Run a Flow from CLI
+```bash
+genkit flow:run myFlow '"input data"'
+```
+
+### Deploy to Cloud Functions
+```bash
+firebase deploy --only functions
+```
+
+## API examples
+
 ### Basic Flow Example (TypeScript)
 ```typescript
 import { genkit, z } from 'genkit';
@@ -101,12 +120,12 @@ print(f"Generated text: {response.text}")
 - [Dify](../ai_knowledge/dify.md)
 - [Instructor](instructor.md)
 
-## Sources / references
+## Sources / References
 - [Official Website](https://genkit.dev/)
 - [Genkit Documentation](https://firebase.google.com/docs/genkit)
 - [Genkit Introduction](https://firebase-genkit.mintlify.app/introduction)
 - [Firebase AI Codelab](https://firebase.google.com/codelabs/ai-genkit-rag)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-06
+- Last reviewed: 2026-06-21
 - Confidence: high
