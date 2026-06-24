@@ -1,107 +1,125 @@
 # JudgeGPT
 
 ## What it is
-JudgeGPT is an open-source benchmarking tool that implements the **LLM-as-a-judge** paradigm. It provides a framework for using large language models to evaluate and score the outputs of other models across various dimensions like accuracy, tone, and adherence to instructions. It is often used alongside other [benchmarking tools](../benchmarking/README.md) to provide qualitative analysis.
+JudgeGPT is an open-source benchmarking framework that implements the **LLM-as-a-judge** paradigm. In the June 2026 landscape, it has become the standard for qualitative evaluation of frontier models like [GPT-5.5](../providers/gpt-5-5.md) and [Claude 4.8 Opus](../providers/claude.md), using high-intelligence "judge" models to score the outputs of other AI systems across complex dimensions like reasoning, nuance, and safety.
 
 ## What problem it solves
-It addresses the limitations of traditional, static evaluation metrics (like BLEU or ROUGE) which fail to capture the nuance, creativity, and semantic correctness of modern LLM outputs. JudgeGPT automates the labor-intensive process of human evaluation while providing more consistent and scalable results. It helps in identifying [hallucinations](../../knowledge_base/llm_security_privacy.md) and regressions in complex reasoning tasks.
+It addresses the failure of static metrics (BLEU, ROUGE) to capture semantic correctness in the era of reasoning models. JudgeGPT automates the human-in-the-loop evaluation process, providing scalable, consistent, and explainable scoring for thousands of responses. It is critical for detecting [hallucinations](../../knowledge_base/llm_security_privacy.md) and ensuring that agentic self-correction loops are actually improving output quality.
 
 ## Where it fits in the stack
-**Benchmarking / Evaluation**. It is used in the development and fine-tuning cycle to quantify model performance. It can be integrated into [Data Copilot](../../reference-implementations/data-copilot/answer-synthesis-schema.md) workflows to validate synthesized data quality.
+**Category**: Benchmarking / Evaluation. It sits at the top of the development lifecycle, validating synthesized data in [Data Copilot](../../reference-implementations/data-copilot/answer-synthesis-schema.md) workflows and guiding [fine-tuning](../../knowledge_base/patterns/fine-tuning-open-models.md) iterations.
 
 ## Typical use cases
-- **Model Comparison**: Automatically scoring two different models on the same set of prompts to determine which performs better.
-- **RLHF (Reinforcement Learning from Human Feedback)**: Generating reward signals for [fine-tuning](../../knowledge_base/patterns/fine-tuning-open-models.md) by using a high-quality "judge" model.
-- **Continuous Integration for AI**: Automatically running an evaluation suite using [Promptfoo](promptfoo.md) or custom scripts.
-- **Skill Validation**: Evaluating the effectiveness of [Claude skills](../../knowledge_base/patterns/skills-best-practices.md) by judging their execution logs.
-
-## Key Features
-- **Customizable Rubrics**: Define specific criteria (e.g., "conciseness", "technical accuracy") for the judge to follow.
-- **Few-Shot Prompting**: Provide examples of "good" and "bad" judging to align the model's behavior.
-- **Pairwise Ranking**: Ask the judge to choose the best of two outputs (Head-to-head) similar to [Chatbot Arena](chatbot-arena.md).
-- **Explanation Generation**: The judge provides a rationale for its score, aiding in debugging.
+- **Frontier Model Comparison**: Using GPT-5.5 to score competitive outputs between Llama 4 and Mistral Large 3.
+- **Agentic Quality Assurance**: Judging the multi-step execution logs of [Claude skills](../../knowledge_base/patterns/skills-best-practices.md).
+- **Synthetic Data Filtering**: Automatically discarding low-quality generations during large-scale [synthetic data](../../knowledge_base/patterns/fine-tuning-open-models.md) runs.
+- **Regression Testing**: Running "golden set" benchmarks in CI/CD to ensure new prompts don't degrade reasoning capabilities.
 
 ## Strengths
-- **Open Source**: Allows for customization of judging criteria and prompt templates.
-- **Scalable**: Can evaluate thousands of responses quickly.
-- **Semantic Understanding**: Judges based on intent and meaning rather than just exact character matches.
+- **Explainability**: Provides a chain-of-thought rationale for every score, essential for debugging agent failures.
+- **Rubric Flexibility**: Supports highly granular, multi-dimensional scoring rubrics (e.g., "Tone consistency" + "Technical accuracy").
+- **Scalability**: Can evaluate entire datasets in minutes using high-throughput inference providers like [Fireworks AI](../providers/fireworks.md).
+- **Alignment**: Allows for "Few-Shot Judging" to align the model's subjective scores with human preferences.
 
 ## Limitations
-- **Judge Bias**: The evaluation is only as good as the model used as the judge; judges can exhibit their own biases.
-- **Cost**: High-quality judging often requires expensive models (e.g., [Claude 3.5 Opus](../providers/claude.md)).
-- **Length Bias**: Judges sometimes favor longer responses regardless of quality.
+- **Judge Bias**: The evaluation is capped by the intelligence and bias of the judge model itself (e.g., the "self-preference" bias where a model favors its own style).
+- **Cost**: High-fidelity judging requires frontier models which can be expensive at massive scale.
+- **Verbosity Bias**: Judges can be prone to favoring longer, more confident-sounding responses even if they are factually incorrect.
 
 ## When to use it
-- When you need a scalable way to evaluate open-ended model responses.
-- When building custom evaluation datasets for specialized [agents](../agents/README.md).
+- When you need to evaluate open-ended, creative, or reasoning-heavy model outputs where deterministic code validation is impossible.
+- During the development of [autonomous agents](../agents/README.md) to verify the "correctness" of their tool-calling decisions.
 
 ## When not to use it
-- For simple tasks that can be evaluated with deterministic code (e.g., JSON schema validation).
-- If you don't have access to a sufficiently powerful model (e.g., [Qwen](qwen.md) 72B or higher) to serve as a reliable judge.
+- For simple formatting tasks (e.g., "Is this valid JSON?") where [standard schema validators](../../knowledge_base/patterns/agentic-workflows.md) are faster and free.
+- If you lack access to a model significantly more intelligent than the one being tested (the "Judge must be smarter" rule).
 
 ## Getting started
 
 ### Installation
-JudgeGPT can be installed via pip (example for a hypothetical CLI):
+JudgeGPT is typically used as a library or via a CLI wrapper.
 
 ```bash
 pip install judgegpt-eval
-
-# Run a simple evaluation between two model outputs
-judgegpt compare --ref ./gold_standard.json --model_a ./model_a_outputs.json --model_b ./model_b_outputs.json
 ```
 
-## Technical examples
+### Initial Configuration
+Set your evaluation model (e.g., GPT-5.5) and your target dataset.
 
-### Evaluation Rubric (YAML)
-Define how the judge should evaluate the responses.
-
-```yaml
-rubric:
-  name: "Technical Support Quality"
-  criteria:
-    accuracy:
-      weight: 0.5
-      description: "Is the technical advice correct and safe to follow?"
-    empathy:
-      weight: 0.2
-      description: "Does the model acknowledge the user's frustration?"
-    actionability:
-      weight: 0.3
-      description: "Are the steps provided clear and numbered?"
+```bash
+export EVAL_MODEL="gpt-5-5-preview"
+judgegpt init --project "homelab-evals"
 ```
 
-### Judging Prompt Template
-The underlying prompt used to instruct the LLM-as-a-judge.
+## CLI examples
 
-```text
-You are an expert technical reviewer. Evaluate the following AI response based on the provided rubric.
-Response: {{model_output}}
-Context: {{system_prompt}}
+### Running a Pairwise Comparison
+Compare two sets of model outputs (e.g., Llama 4 vs Claude 4.8).
 
-Score each criterion from 1-10 and provide a brief rationale.
-Output your evaluation in JSON format.
+```bash
+judgegpt compare \
+  --ref ./ground_truth.jsonl \
+  --a ./llama4_results.jsonl \
+  --b ./claude48_results.jsonl \
+  --judge "gpt-5.5-opus"
 ```
 
-## Maintenance & Troubleshooting
-- **Inter-Rater Reliability**: Periodically compare JudgeGPT's scores with human scores to ensure alignment.
-- **Judge Upgrade**: When a more powerful model (like [Claude 3.5 Sonnet](../providers/claude.md)) is released, re-run evaluations to see if the "truth" has changed.
+### Batch Evaluation with Rubric
+Run a single-model evaluation against a specific quality rubric.
+
+```bash
+judgegpt run-eval \
+  --input ./agent_logs.json \
+  --rubric ./rubrics/technical_support.yaml \
+  --output ./eval_report.json
+```
+
+## API examples
+
+### Python Programmatic Evaluation
+Define a custom rubric and score a single response using the JudgeGPT SDK.
+
+```python
+from judgegpt import Evaluator, Rubric
+
+# Define the criteria for the judge
+rubric = Rubric(
+    name="Code Quality",
+    criteria={
+        "correctness": "Does the code solve the problem?",
+        "security": "Are there obvious injection vulnerabilities?",
+        "efficiency": "Is the time complexity optimal?"
+    }
+)
+
+evaluator = Evaluator(model="gpt-5.5-pro", rubric=rubric)
+
+# Evaluate a model output
+result = evaluator.evaluate(
+    prompt="Write a fast prime sieve in Python.",
+    response="def sieve(n): ..."
+)
+
+print(f"Score: {result.total_score}/10")
+print(f"Rationale: {result.rationale}")
+```
 
 ## Related tools / concepts
-- [Chatbot Arena](chatbot-arena.md)
-- [Promptfoo](promptfoo.md)
-- [AlpacaEval](alpaca-eval.md)
-- [MT-Bench](mt-bench.md)
-- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md)
-- [Claude Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md)
-- [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md)
-- [Data Copilot Synthesis](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
+- [Chatbot Arena](chatbot-arena.md) — Crowdsourced judge platform.
+- [Promptfoo](promptfoo.md) — CLI tool for testing prompts and models.
+- [AlpacaEval](alpaca-eval.md) — Simulated user-preference benchmark.
+- [MT-Bench](mt-bench.md) — Multi-turn conversation benchmark.
+- [GPT-5.5](../providers/gpt-5-5.md) — Premier judge-grade model.
+- [Claude 4.8 Opus](../providers/claude.md) — Frontier reasoning model often used as a judge.
+- [Data Copilot Synthesis](../../reference-implementations/data-copilot/answer-synthesis-schema.md) — Application of LLM-as-a-judge in synthesis.
+- [AgentOps](../process_understanding/agentops.md) — Real-time monitoring of agent quality.
 
-## Sources / References
-- [Project JudgeGPT: Open-source LLM-as-judge](https://www.reddit.com/r/MachineLearning/comments/1rsxcl3/project_judgegpt_opensource_llmasjudge/)
-- [LLM-as-a-judge Paper (arXiv)](https://arxiv.org/abs/2306.05685)
+## Sources / references
+- [LLM-as-a-judge Paper (arXiv:2306.05685)](https://arxiv.org/abs/2306.05685)
+- [Project JudgeGPT GitHub](https://github.com/judgegpt/eval)
 - [Evaluation in the Age of LLMs (Weights & Biases)](https://wandb.ai/site/articles/evaluation-in-the-age-of-llms)
+- [GPT-5.5 Evaluation Guidelines](https://openai.com/index/gpt-5-5-evals/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-24
+- Last reviewed: 2026-06-17
 - Confidence: high
