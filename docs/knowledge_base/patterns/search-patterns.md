@@ -1,78 +1,105 @@
 # Search Patterns
 
 ## What it is
-Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. This includes traditional lexical search, semantic vector search, and advanced hybrid retrieval methods.
+Search patterns in AI represent the architectural strategies used to retrieve relevant information from large datasets to augment Large Language Model (LLM) responses. In June 2026, this has shifted from simple Retrieval-Augmented Generation (RAG) to **Agentic Search**, where autonomous agents iteratively refine queries and navigate knowledge graphs using the [Model Context Protocol (MCP 3.0)](../../tools/automation_orchestration/mcp.md).
 
 ## What problem it solves
-As the volume of unstructured data grows, simple keyword search often fails to capture the underlying meaning or intent of a user's query. Conversely, purely semantic search can miss exact matches for technical terms or product IDs. Search patterns provide a framework for combining these methods to ensure high-quality, accurate context for AI agents.
+As the volume of unstructured data grows, simple keyword search often fails to capture the underlying meaning or intent of a user's query. Conversely, purely semantic search can miss exact matches for technical terms or product IDs. Search patterns provide a framework for:
+- **Retrieval Quality**: Combining lexical and semantic methods to ensure high-quality context.
+- **Hallucination Mitigation**: Grounding model responses in verified facts rather than internal training data.
+- **Multimodal Discovery**: Searching across text, images, and video using unified embedding spaces (e.g., [ColQwen](../../knowledge_base/patterns/data-copilot-agentic-rag.md)).
+- **Real-Time Synthesis**: Synthesizing answers from rapidly changing web data via Agentic Search providers like [Exa AI](../../tools/providers/exa_ai.md).
 
 ## Where it fits in the stack
-**Category**: Knowledge Base / AI Patterns
+**Category**: Knowledge Base / AI Patterns. These patterns reside in the **Retrieval layer** of an application, sitting between the [Vector Database](../../tools/infrastructure/index.md) and the [Inference Engine](../../tools/infrastructure/index.md).
 
 ## Typical use cases
-- **Retrieval-Augmented Generation (RAG)**: Providing context to an LLM for answering questions about specific documents.
-- **Enterprise Search**: Building intelligent search engines for corporate wikis or technical documentation.
-- **Semantic Recommendation**: Suggesting similar products or articles based on user interest and intent.
+- **Agentic RAG**: Providing a multi-step retrieval loop for an agent to answer complex diagnostic questions.
+- **Enterprise Semantic Search**: Building intelligent search engines for corporate wikis that understand domain-specific jargon.
+- **Multimodal Product Discovery**: Finding products based on visual similarity or natural language descriptions.
+- **Autonomous Research**: Using agents to scour the web and internal docs to generate comprehensive market reports.
 
 ## Strengths
-- **Improved Relevance**: Combines multiple retrieval strategies to cover different types of queries.
-- **Semantic Understanding**: Handles synonyms and complex natural language intent.
-- **Scalability**: Can be applied across billions of documents using efficient vector databases.
+- **Precision and Recall**: Hybrid methods capture both exact matches and semantic intent.
+- **Scalability**: Can be applied across billions of documents using efficient vector stores like [Milvus](../../tools/infrastructure/milvus.md) or [Pinecone](../../tools/infrastructure/pinecone.md).
+- **Interpretability**: Provides "citations" or "sources" for LLM outputs, increasing user trust.
+- **Dynamism**: Can pull from live APIs and databases rather than static training sets.
 
 ## Limitations
-- **Complexity**: Advanced patterns like hybrid search and re-ranking require more complex infrastructure and orchestration.
-- **Latency**: Multiple retrieval and re-ranking stages can increase the overall response time of the AI system.
+- **Orchestration Complexity**: Advanced patterns like re-ranking and multi-query expansion add significant architectural overhead.
+- **Latency**: Multiple retrieval stages (retrieval -> re-ranking -> synthesis) increase response time.
+- **Embedding Mismatch**: Using an embedding model that wasn't trained on your specific domain can lead to poor semantic matches.
+- **Cost**: High-frequency embedding generation and re-ranking can increase operational spend.
 
 ## When to use it
 - When building production-grade RAG applications that require high retrieval accuracy.
-- If your users interact with your data using complex, natural language questions.
-- When your data contains both technical terms (requiring precision) and descriptive content (requiring semantic understanding).
+- For AI agents that need to navigate complex, fragmented knowledge bases.
+- When your data contains both technical terms (requiring lexical precision) and descriptive content (requiring semantic understanding).
+- For implementing [Agentic Search](../../tools/providers/exa_ai.md) workflows.
 
 ## When not to use it
-- For very small datasets where a simple keyword search or even a flat file read would suffice.
-- If retrieval accuracy is not a critical factor in your application's performance.
+- For very small datasets (< 100 documents) where a simple keyword search or flat file read is faster.
+- When the LLM's internal training data is sufficient for the task (e.g., general knowledge questions).
+- In extremely low-latency applications where the overhead of a retrieval loop is unacceptable.
 
-## Core Search Modalities
+## Getting started
+1. **Define the Data Source**: Identify whether you are searching internal docs ([MinIO](../../tools/intake_storage/minio.md)), structured databases, or the web.
+2. **Select an Embedding Model**: Choose a model compatible with your domain (e.g., OpenAI `text-embedding-3-small` or a local BGE model).
+3. **Initialize a Vector Store**: Deploy [Milvus](../../tools/infrastructure/milvus.md) or use a managed service like [Pinecone](../../tools/infrastructure/pinecone.md).
+4. **Implement a Hybrid Pipeline**: Use a framework like [LlamaIndex](../../tools/frameworks/index.md) or [LangChain](../../tools/frameworks/index.md) to combine BM25 (lexical) and Vector (semantic) search.
+5. **Add a Re-ranker**: Integrate a Cross-Encoder (e.g., Cohere Re-rank) to prune the final results for the LLM.
 
-### 1. Lexical (Keyword) Search
-- **Mechanism**: Matches exact words or phrases using algorithms like BM25.
-- **Strengths**: Excellent for exact matches (SKUs, names, technical terms) and very fast.
-- **Weaknesses**: Cannot handle synonyms or semantic meaning.
+## CLI examples
+Using the [Ollama](../../services/ollama.md) CLI to generate embeddings for a local document:
 
-### 2. Semantic (Vector) Search
-- **Mechanism**: Converts data into high-dimensional vectors (embeddings) and finds the nearest neighbors using distance metrics (Cosine Similarity, Euclidean Distance).
-- **Strengths**: Understands intent and relationships; finds semantically similar content.
-- **Weaknesses**: Can miss exact matches if the embedding model is "fuzzy".
+```bash
+# Generate embeddings for a text snippet using a local model
+curl http://localhost:11434/api/embeddings -d '{
+  "model": "mxbai-embed-large",
+  "prompt": "Llama 3 is a powerful open-source model."
+}'
+```
 
-### 3. Graph-Based Search
-- **Mechanism**: Traverses relationships in a Knowledge Graph to find connected entities.
-- **Strengths**: Captures structural relationships (e.g., "Which drugs treat this specific enzyme?").
+Querying an agentic search provider like [Exa AI](../../tools/providers/exa_ai.md) via CLI (conceptual):
+```bash
+# Search for recent papers on agentic search patterns
+exa search "latest research on hybrid RAG patterns 2026" --use-autoprompt --num-results 5
+```
 
-## Advanced Search Patterns
+## API examples
+Implementation of a Hybrid Search query using [LlamaIndex TS](../../tools/frameworks/llamaindex-ts.md):
 
-### Hybrid Search
-Hybrid search combines Lexical and Semantic search into a single pipeline. Results from both are merged using a fusion algorithm like **Reciprocal Rank Fusion (RRF)**.
+```typescript
+import { VectorStoreIndex, QueryMode } from "llamaindex";
 
-### Re-ranking (Two-Stage Retrieval)
-1. **Retrieval (Stage 1)**: Use a fast but less precise method (like vector search) to pull candidate documents.
-2. **Re-ranking (Stage 2)**: Use a more powerful model (a **Cross-Encoder**) to score the relevance of each candidate against the query and pick the top results.
+async function hybridSearch(query: string) {
+  const index = await VectorStoreIndex.fromDocuments(documents);
+  const retriever = index.asRetriever({
+    similarityTopK: 5,
+    mode: QueryMode.HYBRID, // Combines vector and keyword search
+  });
 
-### Query Expansion & Transformation
-- **HyDE (Hypothetical Document Embeddings)**: The LLM generates a "fake" answer to the query, and that answer is used to search the vector DB.
-- **Multi-Query**: The LLM generates variation of the user's question to capture different perspectives.
+  const results = await retriever.retrieve(query);
+  return results;
+}
+```
 
 ## Related tools / concepts
-- [RAG Pattern](rag-pattern.md) — broader architecture for retrieval-augmented generation.
-- [Vector DB Comparison](../vector-db-comparison.md) — choosing storage for these patterns.
-- [Tool Calling & MCP](tool-calling-and-mcp.md) — how agents use search as a tool.
-- [Pinecone](../../tools/infrastructure/pinecone.md) — managed vector database.
-- [Milvus](../../tools/infrastructure/milvus.md) — high-performance open-source vector store.
+- [RAG Pattern](rag-pattern.md) — The foundational pattern for retrieval-augmented generation.
+- [Exa AI](../../tools/providers/exa_ai.md) — Neural search engine for AI agents.
+- [Milvus](../../tools/infrastructure/milvus.md) — High-performance open-source vector store.
+- [Pinecone](../../tools/infrastructure/pinecone.md) — Managed vector database with native hybrid search.
+- [ColBERT / ColQwen](../../knowledge_base/patterns/data-copilot-agentic-rag.md) — Advanced late-interaction retrieval models.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for agents to access search tools.
+- [OpenRouter](../../tools/ai_knowledge/openrouter.md) — Used for routing search-related LLM calls.
+- [MinIO](../../tools/intake_storage/minio.md) — Storage for raw documents before indexing.
 
-## Sources / references
-- [Hybrid Search and Reranking - Ubuntu](https://ubuntu.com/blog/hybrid-search-and-reranking-a-deeper-look-at-rag)
-- [What is Hybrid Search? - FalkorDB](https://www.falkordb.com/blog/what-is-hybrid-search-in-ai/)
-- [Cross-Encoders for Re-ranking - SBERT](https://www.sbert.net/examples/applications/retrieve_rerank/README.html)
+## Sources / References
+- [LlamaIndex: Hybrid Search Implementation Guide](https://docs.llamaindex.ai/en/stable/examples/vector_stores/HybridSearch/)
+- [Exa AI Documentation: Agentic Search Patterns](https://docs.exa.ai/docs/agentic-search)
+- [Pinecone: What is Hybrid Search?](https://www.pinecone.io/learn/hybrid-search/)
+- [ColBERT v2: Effective and Efficient Late Interaction](https://arxiv.org/abs/2112.01488)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-06
+- Last reviewed: 2026-06-23
 - Confidence: high
