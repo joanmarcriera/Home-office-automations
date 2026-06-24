@@ -129,7 +129,7 @@ Closing an incident via tool call from **GPT-5.5**:
 - [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) — Common schema for agent tasks.
 - [Service Inventory](../../services/inventory.md) — Context for enterprise services.
 
-## Sources / references
+## Sources / References
 - [ServiceNow MCP Server listing](https://mcpservers.org/servers/michaelbuckner/servicenow-mcp)
 - [ServiceNow MCP GitHub repository](https://github.com/michaelbuckner/servicenow-mcp)
 - [ServiceNow Table API Documentation](https://developer.servicenow.com/dev.do#!/reference/api/vancouver/rest/c_TableAPI)
