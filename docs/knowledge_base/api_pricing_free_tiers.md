@@ -104,15 +104,44 @@ This section is grouped by provider with compact four-column tables for narrower
 Capability tags: <span class="cap-tag cap-code">CODE</span> <span class="cap-tag cap-verify">VERIFY</span> <span class="cap-tag cap-reason">REASON</span> <span class="cap-tag cap-longctx">LONGCTX</span> <span class="cap-tag cap-fast">FAST</span> <span class="cap-tag cap-budget">BUDGET</span> <span class="cap-tag cap-open">OPEN</span>
 
 <!-- BEGIN AUTO-CAPABILITY-SUMMARY -->
-#### Capability Capacity Summary (auto-generated)
-##### Leaderboard By Capability (known daily token caps)
+
+### Capability Capacity Summary (auto-generated)
+
+These summaries are generated from the model rows on this page using `scripts/update_api_pricing_capability_summary.py`.
+Only rows with a numeric daily token cap are included in the capacity math.
+
+#### Leaderboard By Capability (known daily token caps)
+
 | Capability | Top models | Highest known daily cap | Known models |
 | :--- | :--- | :--- | :--- |
-| Coding | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Groq — Llama 4 Maverick 17B (500K) | 1M | 8 |
-| Reasoning | Groq — GPT OSS 120B (200K) | 200K | 1 |
-| Low-latency | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 8 |
-| Budget/free-value | Cerebras — Llama 3.1 8B (1M); Groq — Llama 4 Maverick 17B (500K); Groq — Qwen3 32B (500K) | 1M | 6 |
-| Open-model ecosystem | Cerebras — Llama 4 Maverick 400B (1M); Cerebras — Qwen3 Coder 235B (1M); Cerebras — Llama 3.1 8B (1M) | 1M | 8 |
+| Coding | n/a | n/a | 0 |
+| Verification | n/a | n/a | 0 |
+| Reasoning | n/a | n/a | 0 |
+| Long-context | n/a | n/a | 0 |
+| Low-latency | n/a | n/a | 0 |
+| Budget/free-value | n/a | n/a | 0 |
+| Open-model ecosystem | n/a | n/a | 0 |
+
+#### 80% Shortlist (known-cap coverage)
+
+| Capability | Models to reach >=80% of known capacity | Coverage | Total known daily cap |
+| :--- | :--- | :--- | :--- |
+| Coding | n/a | n/a | n/a |
+| Verification | n/a | n/a | n/a |
+| Reasoning | n/a | n/a | n/a |
+| Long-context | n/a | n/a | n/a |
+| Low-latency | n/a | n/a | n/a |
+| Budget/free-value | n/a | n/a | n/a |
+| Open-model ecosystem | n/a | n/a | n/a |
+
+#### Fast Recommendation (80% rule, known-cap data)
+
+| Goal | Recommended free-first models | Why this set |
+| :--- | :--- | :--- |
+| Coding | n/a | No numeric daily-cap data available for this capability. |
+| Verification | n/a | No numeric daily-cap data available for this capability. |
+| Reasoning | n/a | No numeric daily-cap data available for this capability. |
+
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
 ## CLI examples
