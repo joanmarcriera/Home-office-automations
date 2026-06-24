@@ -48,6 +48,10 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
+          # Real-identity token so the PR triggers on:pull_request checks; falls
+          # back to GITHUB_TOKEN (inert PR) when the secret is absent. See
+          # weekly-planner.yml for the full rationale.
+          token: ${{ secrets.AUTOMATION_PAT || secrets.GITHUB_TOKEN }}
           branch: automation/weekly-rollup
           delete-branch: true
           title: "chore: automation rollup"
