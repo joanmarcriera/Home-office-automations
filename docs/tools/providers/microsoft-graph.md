@@ -28,7 +28,7 @@ It simplifies developer interaction with Microsoft services by providing a singl
 
 ## When to use it
 - When building applications or [agents](../agents/index.md) that need to read or write data within the Microsoft 365 ecosystem.
-- When creating [Custom Agents](../agents/custom_agents.md) that require access to corporate knowledge and communication channels.
+- When creating [Custom Agents](../development_ops/custom_agents.md) that require access to corporate knowledge and communication channels.
 - To enable AI-driven productivity tools that operate on calendar, email, and document data.
 
 ## When not to use it

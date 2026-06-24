@@ -4,7 +4,7 @@
 Cursor is an AI-native fork of VS Code, redesigned to facilitate seamless human-AI collaboration. It features deep codebase indexing, a native "Composer" for multi-file edits, and a built-in agentic ecosystem that can run tests, debug errors, and review PRs.
 
 ## What problem it solves
-It solves the "context gap" in traditional IDEs by maintaining a persistent, high-fidelity index of the entire codebase. This allows models like [Claude 4.8 Opus](claude.md) and [GPT-5.5](openai.md) to perform complex, multi-file refactors with minimal hallucination, eliminating the need to manually supply file context to the AI.
+It solves the "context gap" in traditional IDEs by maintaining a persistent, high-fidelity index of the entire codebase. This allows models like [Claude 4.8 Opus](../ai_knowledge/claude.md) and [GPT-5.5](../ai_knowledge/openai.md) to perform complex, multi-file refactors with minimal hallucination, eliminating the need to manually supply file context to the AI.
 
 ## Where it fits in the stack
 **Development & Ops / [Development Environment](index.md)**. It serves as the primary interface for AI-augmented engineering, acting as a successor to traditional VS Code setups.

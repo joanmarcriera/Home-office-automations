@@ -109,7 +109,7 @@ agent.run("What's the weather like in Seattle?")
 - [Haystack](haystack.md)
 - [LangGraph](langgraph.md)
 - [Semantic Kernel](semantic-kernel.md)
-- [vLLM](../benchmarking/vllm.md)
+- [vLLM](../infrastructure/vllm.md)
 
 ## Sources / References
 - [GitHub](https://github.com/huggingface/smolagents)

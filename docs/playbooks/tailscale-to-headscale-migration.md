@@ -1,7 +1,7 @@
 # Playbook: Tailscale to Headscale Migration
 
 ## What it is
-This playbook is a step-by-step operational guide for migrating a mesh network from the Tailscale SaaS coordination server to [Headscale](../../services/headscale.md), an open-source, self-hosted implementation of the Tailscale control server.
+This playbook is a step-by-step operational guide for migrating a mesh network from the Tailscale SaaS coordination server to [Headscale](../services/headscale.md), an open-source, self-hosted implementation of the Tailscale control server.
 
 ## What problem it solves
 It eliminates dependency on Tailscale's proprietary coordination server, providing 100% data sovereignty over your network topology. It solves the "proprietary lock-in" problem for users who require a fully self-hosted, sovereign VPN solution for their homelab.
@@ -17,7 +17,7 @@ It sits in the **Operational Playbook Layer**, specifically under **Infrastructu
 ## Strengths
 - **Sovereignty**: Complete control over your coordination server.
 - **Cost**: No per-device or per-user fees (limited only by your hardware).
-- **Integration**: Seamlessly integrates with [Authentik](../../services/authentik.md) for OIDC-based identity management.
+- **Integration**: Seamlessly integrates with [Authentik](../services/authentik.md) for OIDC-based identity management.
 
 ## Limitations
 - **Operational Burden**: You are responsible for the availability and security of the Headscale server.
@@ -33,7 +33,7 @@ It sits in the **Operational Playbook Layer**, specifically under **Infrastructu
 
 ## Getting started
 To begin the migration:
-1.  **Deploy Headscale**: Follow the [Headscale Service](../../services/headscale.md) guide to set up the server.
+1.  **Deploy Headscale**: Follow the [Headscale Service](../services/headscale.md) guide to set up the server.
 2.  **Back up Tailscale**: Document your existing node names and ACLs.
 3.  **Perform a Pilot**: Migrate a single non-critical node first using the steps in this playbook.
 
@@ -41,7 +41,7 @@ To begin the migration:
 Modern agents can significantly simplify the migration process. Use a June 2026-class agent (e.g., [Claude 4.7](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md)) to:
 - **Translate ACLs**: Convert Tailscale `policy.hujson` to Headscale-compatible YAML/ACL formats.
 - **Automate Client Rollout**: Script the `tailscale logout` and `tailscale up --login-server` commands across a fleet of Linux nodes via SSH.
-- **Validate OIDC Config**: Verify the `config.yaml` parameters against your [Authentik](../../services/authentik.md) provider metadata.
+- **Validate OIDC Config**: Verify the `config.yaml` parameters against your [Authentik](../services/authentik.md) provider metadata.
 
 ## Migration Workflow
 
@@ -62,12 +62,12 @@ flowchart TD
 ## Migration Steps
 
 ### Prerequisites
-- A functional [Authentik](../../services/authentik.md) instance for OIDC.
+- A functional [Authentik](../services/authentik.md) instance for OIDC.
 - A public FQDN with valid SSL certificates (e.g., via Let's Encrypt) pointing to your Headscale server.
 - Tailscale clients installed on target nodes.
 
 ### Step 1: Headscale Deployment
-1. Deploy Headscale using Docker (see [Headscale Service](../../services/headscale.md) for compose snippet).
+1. Deploy Headscale using Docker (see [Headscale Service](../services/headscale.md) for compose snippet).
 2. Configure `config.yaml` with your `server_url`.
 3. Integrate with Authentik for OIDC to allow family members to join easily.
 
@@ -135,12 +135,12 @@ tailscale up
 ```
 
 ## Related tools / concepts
-- [Headscale Service](../../services/headscale.md)
-- [Authentik Service](../../services/authentik.md)
-- [Invisible Kubernetes](../../knowledge_base/invisible_kubernetes.md)
+- [Headscale Service](../services/headscale.md)
+- [Authentik Service](../services/authentik.md)
+- [Invisible Kubernetes](../knowledge_base/invisible_kubernetes.md)
 - [K3s Cluster Setup](k3s-cluster-setup.md)
-- [Infrastructure Architecture](../../architecture/infrastructure.md)
-- [SSO Comparison](../../knowledge_base/sso-comparison.md)
+- [Infrastructure Architecture](../architecture/infrastructure.md)
+- [SSO Comparison](../knowledge_base/sso-comparison.md)
 - [Family Admin Automation](family-admin-automation.md)
 
 ## Troubleshooting Migration Issues

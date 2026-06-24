@@ -133,13 +133,13 @@ m.add("User prefers Claude 4.8 for coding tasks", user_id="jules")
 - [AI Tool Access Matrix](ai_tool_access_matrix.md) — real-time availability and status of these tools.
 - [Model Routing Guide](model_routing_guide.md) — deciding which model to use with these repositories.
 - [Agentic Workflows](patterns/agentic-workflows.md) — patterns for operationalizing these repos.
-- [Claude Code](../../tools/development_ops/claude-code.md) — a primary consumer of many of these tools.
-- [n8n](../../services/n8n.md) — the automation engine often used to bridge these libraries.
+- [Claude Code](../tools/development_ops/claude-code.md) — a primary consumer of many of these tools.
+- [n8n](../services/n8n.md) — the automation engine often used to bridge these libraries.
 - [Skills Index](../../skills.md) — the functional capabilities these repos provide.
 - [Architecture Overview](../../ARCHITECTURE.md) — how these tools fit into the global stack.
-- [Aider](../../tools/development_ops/aider.md) — terminal-based AI coding.
-- [Zed](../../tools/development_ops/zed.md) — high-performance AI editor.
-- [Tabnine](../../tools/development_ops/tabnine.md) — privacy-first AI completions.
+- [Aider](../tools/development_ops/aider.md) — terminal-based AI coding.
+- [Zed](../tools/development_ops/zed.md) — high-performance AI editor.
+- [Tabnine](../tools/development_ops/tabnine.md) — privacy-first AI completions.
 
 ## Sources / references
 

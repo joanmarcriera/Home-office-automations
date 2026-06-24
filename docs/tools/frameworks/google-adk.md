@@ -105,7 +105,7 @@ const agent = new Agent({
 - [Gemini](../ai_knowledge/gemini.md) — The primary model backbone for ADK agents.
 - [LangGraph](../frameworks/langgraph.md) — Competitive framework for stateful multi-agent systems.
 - [CrewAI](../frameworks/crewai.md) — Popular alternative for multi-agent role-playing.
-- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md) — Integrated standard for tool connectivity.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Integrated standard for tool connectivity.
 - [Vertex AI](../infrastructure/supabase.md) — Google Cloud's AI platform for deployment.
 - [Jules](../ai_knowledge/jules.md) — Advanced agentic assistant developed by Google.
 - [Firebase Genkit](../frameworks/firebase-genkit.md) — Google's framework for AI-integrated web apps.

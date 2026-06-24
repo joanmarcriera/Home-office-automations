@@ -123,7 +123,7 @@ jobs:
 - [Aider](../development_ops/aider.md) — Alternative terminal-based agent.
 - [Claude Code](../development_ops/claude-code.md) — Anthropic's CLI-native agent.
 - [Vertex AI](../providers/google-vertex-ai.md) — Enterprise-grade hosting.
-- [Antigravity](../frameworks/anti_gravity.md) — Google's agentic framework.
+- [Antigravity](../development_ops/anti_gravity.md) — Google's agentic framework.
 - [Nano Banana](nano-banana.md) — Gemini 3.1 Flash/Pro Image models.
 - [Gemini Flash TTS](gemini-flash-tts.md) — Speech synthesis model.
 

@@ -7,7 +7,7 @@ Data Copilot is a high-performance, cost-optimized pipeline architecture for con
 Traditional "one-shot" Text-to-SQL approaches often fail on complex schemas (100+ tables), ambiguous intents, or large-scale data environments, often leading to "context window exhaustion" and high token costs. Data Copilot solves this by breaking the problem into modular steps—routing, intent extraction, table selection, column pruning, and SQL generation—drastically reducing token usage and increasing query accuracy through aggressive schema pruning.
 
 ## Where it fits in the stack
-**Data Access & Analytics Layer** — It acts as an intelligent intermediary between natural language interfaces (Chat Assistants) and relational databases (SQLite, Postgres, BigQuery). It sits above the [Inference Plane](../tools/ai_knowledge/litellm.md) and integrates with the [Automated Contribution System](./automated_contributions.md) for self-healing metadata updates.
+**Data Access & Analytics Layer** — It acts as an intelligent intermediary between natural language interfaces (Chat Assistants) and relational databases (SQLite, Postgres, BigQuery). It sits above the [Inference Plane](../services/litellm.md) and integrates with the [Automated Contribution System](./automated_contributions.md) for self-healing metadata updates.
 
 ## Typical use cases
 - **Natural Language BI**: Allowing non-technical users to query metrics like "weekly growth" or "inventory turnover".
@@ -49,7 +49,7 @@ Define your database connections and high-level descriptions in your workspace c
 ```
 
 ### 2. Configure Model Routing
-Assign models to each layer (Router, Intent, Table, Prune, SQL) in your [LiteLLM](../tools/ai_knowledge/litellm.md) config. Prefer local models for Routing/Pruning.
+Assign models to each layer (Router, Intent, Table, Prune, SQL) in your [LiteLLM](../services/litellm.md) config. Prefer local models for Routing/Pruning.
 
 ### 3. Initialize the SQL Validator
 Ensure `scripts/sql_validator.py` is configured with your table allowlists and mutation blocking policies.
@@ -93,10 +93,10 @@ if result.is_safe:
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — Detailed safety playbook.
 - [Multi-Agent KnowledgeOps](./multi_agent_knowledgeops.md) — Governance for agentic pipelines.
 - [Automated Contribution System](./automated_contributions.md) — Metadata ingestion flows.
-- [LiteLLM Proxy](../../tools/ai_knowledge/litellm.md) — Unified inference plane for routing.
-- [Home Assistant](../../services/home-assistant.md) — Primary data source for automation.
-- [Actual Budget](../../services/actual-budget.md) — Primary data source for finance.
-- [Jules Agent](../../tools/ai_knowledge/jules.md) — Core execution agent for the hub.
+- [LiteLLM Proxy](../services/litellm.md) — Unified inference plane for routing.
+- [Home Assistant](../services/home-assistant.md) — Primary data source for automation.
+- [Actual Budget](../services/actual-budget.md) — Primary data source for finance.
+- [Jules Agent](../tools/ai_knowledge/jules.md) — Core execution agent for the hub.
 - [SQLGlot](../../tools/development_ops/sqlglot.md) — Engine for SQL parsing and safety.
 
 ## Sources / references

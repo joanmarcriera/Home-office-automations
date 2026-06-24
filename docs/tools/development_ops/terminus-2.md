@@ -108,9 +108,9 @@ sysadmin_agent = Agent(
 - [Devin](devin.md)
 - [Codeium](./codeium.md)
 - [Aider](./aider.md)
-- [Goose](../automation_orchestration/goose.md)
+- [Goose](../agents/goose.md)
 - [AG2](../frameworks/ag2.md)
-- [Model Context Protocol (MCP 3.0)](../infrastructure/mcp.md)
+- [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md)
 - [tmux (Terminal Multiplexer)](https://github.com/tmux/tmux)
 - [Agentic Benchmarking](../../knowledge_base/patterns/agent-benchmarking.md)
 

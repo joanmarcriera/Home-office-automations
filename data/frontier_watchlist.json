@@ -1,0 +1,97 @@
+{
+  "description": "Curated, version-controlled list of industry-frontier and offline-first tools/topics this knowledge base should track. scripts/coverage_gap_scan.py diffs this against data/all_tools.json and surfaces entries that lack a canonical page. This file IS the 'where the industry is going' signal, kept offline and in-repo so the automation keeps evolving the repo even with no network access. Add entries as the landscape shifts; the scanner stops flagging an entry automatically once it is catalogued. Keep aliases populated to avoid false gaps from naming variations.",
+  "last_updated": "2026-06-24",
+  "maintained_by": "scripts/coverage_gap_scan.py + manual curation",
+  "entries": [
+    {
+      "name": "GPT4All",
+      "aliases": ["gpt4all", "nomic gpt4all"],
+      "suggested_category": "Infrastructure",
+      "priority": "high",
+      "offline_capable": true,
+      "tags": ["offline-first", "local-llm", "desktop"],
+      "why": "Popular fully-offline desktop LLM runner with a local document-chat (LocalDocs) feature; a natural privacy-first alternative to cloud chat for the home lab."
+    },
+    {
+      "name": "Llamafile",
+      "aliases": ["llamafile", "mozilla llamafile"],
+      "suggested_category": "Infrastructure",
+      "priority": "high",
+      "offline_capable": true,
+      "tags": ["offline-first", "local-llm", "single-binary"],
+      "why": "Ships an entire model + runtime as one cross-platform executable — the simplest way to run an LLM air-gapped with zero install."
+    },
+    {
+      "name": "faster-whisper",
+      "aliases": ["faster whisper", "fasterwhisper", "ctranslate2 whisper"],
+      "suggested_category": "Process & Understanding",
+      "priority": "high",
+      "offline_capable": true,
+      "tags": ["offline-first", "speech-to-text", "local"],
+      "why": "CTranslate2 reimplementation of Whisper that is 4x faster and lighter; the default for offline transcription pipelines feeding Paperless/Obsidian."
+    },
+    {
+      "name": "PrivateGPT",
+      "aliases": ["privategpt", "private gpt"],
+      "suggested_category": "AI Assistants & Knowledge",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["offline-first", "rag", "privacy"],
+      "why": "Self-hosted, fully-local RAG over private documents; directly aligned with the repo's privacy-first home-lab thesis."
+    },
+    {
+      "name": "text-generation-webui",
+      "aliases": ["oobabooga", "text generation webui", "textgen webui"],
+      "suggested_category": "Infrastructure",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["offline-first", "local-llm", "web-ui"],
+      "why": "Mature local web UI supporting many backends (llama.cpp, ExLlama, Transformers); a power-user alternative to Open WebUI for self-hosting."
+    },
+    {
+      "name": "Docling",
+      "aliases": ["docling", "ibm docling"],
+      "suggested_category": "Process & Understanding",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["offline-first", "document-parsing", "rag-prep"],
+      "why": "Fast local document-to-structured-text parser (PDF, DOCX, tables) that runs offline; strong feeder for local RAG and Paperless ingestion."
+    },
+    {
+      "name": "Model Context Protocol Servers",
+      "aliases": ["mcp servers", "mcp server registry", "modelcontextprotocol servers"],
+      "suggested_category": "Automation & Orchestration",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["emerging", "mcp", "interop"],
+      "why": "The MCP server ecosystem is the fastest-moving interop layer for agent tooling; a canonical index of self-hostable MCP servers keeps the stack current."
+    },
+    {
+      "name": "Promptfoo",
+      "aliases": ["promptfoo"],
+      "suggested_category": "Benchmarking",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["emerging", "evals", "local"],
+      "why": "Local-first prompt/LLM eval and red-teaming harness; lets the home lab benchmark local models offline without a SaaS account."
+    },
+    {
+      "name": "DSPy",
+      "aliases": ["dspy", "stanford dspy"],
+      "suggested_category": "Frameworks",
+      "priority": "medium",
+      "offline_capable": true,
+      "tags": ["emerging", "prompt-optimization", "framework"],
+      "why": "Programmatic prompt/program optimization framework gaining rapid adoption; works against local models, fitting the offline thesis."
+    },
+    {
+      "name": "Open Interpreter",
+      "aliases": ["open interpreter", "openinterpreter"],
+      "suggested_category": "Agents",
+      "priority": "low",
+      "offline_capable": true,
+      "tags": ["emerging", "code-execution", "local"],
+      "why": "Local code-executing agent that can drive a machine with local models; relevant to home-automation agent patterns."
+    }
+  ]
+}

@@ -131,7 +131,7 @@ In TrueNAS Apps (v3.7.x baseline), Radicale is often deployed with specific capa
 - [Tailscale](tailscale.md) — Secure remote access to your Radicale instance.
 - [Home Assistant](home-assistant.md) — For integrating calendars into home automation.
 - [n8n](n8n.md) — For automating scheduling workflows (e.g., meeting reminders).
-- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — To expose CalDAV data to AI agents.
+- [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) — To expose CalDAV data to AI agents.
 - [DAVx⁵](https://www.davx5.com/) — The industry-standard Android synchronization client.
 
 ## Sources / References

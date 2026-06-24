@@ -104,7 +104,7 @@ def execute_mcp_tool(tool_name: str, args: dict):
 - [Ragas](ragas.md)
 - [Weights & Biases (Core)](https://wandb.ai/)
 - [Claude 4.8 Opus](../providers/anthropic.md)
-- [GPT-5.5](../providers/openai.md)
+- [GPT-5.5](../ai_knowledge/openai.md)
 
 ## Sources / references
 - [W&B Weave Website](https://wandb.ai/site/weave/)

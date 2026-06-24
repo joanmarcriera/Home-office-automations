@@ -7,7 +7,7 @@ Google One is a unified subscription service providing expanded cloud storage ac
 It addresses the "AI action gap" by bundling frontier intelligence with the storage required for large-scale data processing. It eliminates subscription fatigue by consolidating storage, advanced AI reasoning, multimodal generation, and agentic development credits into a single monthly fee. It also solves the latency and cost barriers for developers by providing high-limit access to Gemini 3.5 Flash for agentic loops.
 
 ## Where it fits in the stack
-Google One sits at the **Subscription & Access Layer** of the personal AI stack. It provides the financial and resource backbone (storage and compute credits) for the [Google Gemini](../tools/providers/google-gemini.md) ecosystem, [NotebookLM](../tools/ai_knowledge/notebooklm.md) research workflows, and the [Google Antigravity](../tools/agents/agno.md) agentic platform.
+Google One sits at the **Subscription & Access Layer** of the personal AI stack. It provides the financial and resource backbone (storage and compute credits) for the [Google Gemini](../tools/ai_knowledge/google-gemini.md) ecosystem, [NotebookLM](../tools/ai_knowledge/notebooklm.md) research workflows, and the [Google Antigravity](../tools/agents/agno.md) agentic platform.
 
 ## Typical use cases
 - **Agentic Productivity**: Utilizing **Gemini Spark** to autonomously manage calendars, draft complex responses, and clean up datasets across Google Workspace.
@@ -30,11 +30,11 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 - When your primary digital life is centered on Google Drive, Photos, and Gmail.
 - When you require the highest context window (10M tokens) available for analyzing massive datasets.
 - When you need a "set and forget" personal agent (Gemini Spark) that can take actions on your behalf.
-- For developers needing a cost-effective way to access the [Managed Agents API](../../tools/agents/agno.md).
+- For developers needing a cost-effective way to access the [Managed Agents API](../tools/agents/agno.md).
 
 ## When not to use it
 - If you have strict data sovereignty requirements that forbid processing personal data in public cloud AI models.
-- If your workflow is strictly localized and you utilize tools like [LocalAI](../../tools/infrastructure/localai.md) or [Ollama](../../services/ollama.md).
+- If your workflow is strictly localized and you utilize tools like [LocalAI](../tools/infrastructure/localai.md) or [Ollama](../services/ollama.md).
 - If you only require basic storage and have no need for agentic or generative capabilities.
 
 ## Getting started
@@ -109,11 +109,11 @@ spark.execute("Reschedule my 'Project Alpha' meeting to Friday afternoon.")
 ```
 
 ## Related tools / concepts
-- [Gemini 3.5 Pro](../tools/providers/google-gemini.md): The flagship model for Pro/Ultra tiers.
+- [Gemini 3.5 Pro](../tools/ai_knowledge/google-gemini.md): The flagship model for Pro/Ultra tiers.
 - [Google Antigravity](../tools/agents/agno.md): The agent-first development platform.
 - [Jules](../tools/ai_knowledge/jules.md): Autonomous software engineering agent (Elite tier access).
 - [NotebookLM](../tools/ai_knowledge/notebooklm.md): Research and source-heavy analysis.
-- [Gemini Spark](../../tools/agents/agno.md): The autonomous "Action" layer for Workspace.
+- [Gemini Spark](../tools/agents/agno.md): The autonomous "Action" layer for Workspace.
 - [Model Routing Guide](model_routing_guide.md): Guidance on when to use Flash vs Pro.
 - [MCP 3.0](patterns/tool-calling-and-mcp.md): The protocol used for Spark and Antigravity tool calling.
 - [Terminal-Bench](../tools/benchmarking/terminal-bench.md): The benchmark where Gemini 3.5 Pro sets the standard.

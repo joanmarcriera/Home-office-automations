@@ -1,7 +1,7 @@
 # LocalAI
 
 ## What it is
-LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio. By June 2026, it has expanded to support [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md) directly, enabling local models to call tools natively.
+LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio. By June 2026, it has expanded to support [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) directly, enabling local models to call tools natively.
 
 ## What problem it solves
 It gives teams a local or self-hosted way to serve models behind a familiar API surface, which reduces vendor dependence and ensures data privacy. It unifies disparate local inference backends (llama.cpp, diffusers, whisper.cpp) under a single, standard API, solving the fragmentation problem in the local AI ecosystem.
@@ -20,7 +20,7 @@ It gives teams a local or self-hosted way to serve models behind a familiar API 
 - **Multi-Backend Support**: Can run GGUF, EXL2, Diffusers, and more.
 - **Hardware Agnostic**: Supports CPU-only, NVIDIA CUDA, Intel OneAPI, and AMD ROCm.
 - **Feature Rich**: Supports image generation (Stable Diffusion), speech (Whisper/Piper), and vector embeddings out of the box.
-- **Agentic Ready**: (June 2026) Native tool-calling support and [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md) integration.
+- **Agentic Ready**: (June 2026) Native tool-calling support and [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) integration.
 
 ## Limitations
 - **Complexity**: Can be more difficult to configure than [Ollama](../../services/ollama.md) due to its extensive feature set and manual model management options.
@@ -125,7 +125,7 @@ print(response.choices[0].message.content)
 - [n8n](../../services/n8n.md)
 - [Open WebUI](../../services/open-webui.md)
 - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
-- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
+- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [LocalAI Documentation](https://localai.io/)

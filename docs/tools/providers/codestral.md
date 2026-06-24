@@ -1,7 +1,7 @@
 # Codestral
 
 ## What it is
-Codestral is a generative AI model explicitly designed for code generation tasks by [Mistral AI](mistral.md). As of June 2026, it remains a frontier open-weight model (22B parameters) optimized for over 80 programming languages, featuring advanced Fill-In-the-Middle (FIM) capabilities and native integration with the [Model Context Protocol (MCP 3.0)](../../knowledge_base/mcp.md).
+Codestral is a generative AI model explicitly designed for code generation tasks by [Mistral AI](mistral.md). As of June 2026, it remains a frontier open-weight model (22B parameters) optimized for over 80 programming languages, featuring advanced Fill-In-the-Middle (FIM) capabilities and native integration with the [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md).
 
 ## What problem it solves
 It provides a high-performance, specialized model for coding tasks that can be run locally or via API. It solves the "generalist fatigue" where broad LLMs may hallucinate syntax for niche languages or fail to maintain long-range architectural consistency in complex codebases.

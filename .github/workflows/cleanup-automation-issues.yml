@@ -57,3 +57,41 @@ jobs:
               --comment "Superseded by a newer automation control issue; closing automatically."
             echo "Closed superseded automation issue #$n"
           done
+
+      - name: Close stale singleton control issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          STALE_DAYS: '10'
+        run: |
+          set -euo pipefail
+
+          # The step above only closes WITHIN-family duplicates (keeps newest).
+          # A lone control issue that is never acted on (e.g. a "Daily Maintenance
+          # Run" with no resulting work) would otherwise live forever. Expire any
+          # auto-generated control issue older than STALE_DAYS regardless of count.
+          CUTOFF=$(date -u -d "-${STALE_DAYS} days" +%s)
+
+          STALE=$(gh issue list \
+            --repo "$REPO" \
+            --state open \
+            --label jules \
+            --author "app/github-actions" \
+            --limit 200 \
+            --json number,title,createdAt \
+            --jq '[.[]
+              | select(.title | test("^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -)"))
+              | {number, createdAt}]')
+
+          echo "$STALE" | jq -c '.[]' | while read -r row; do
+            n=$(echo "$row" | jq -r '.number')
+            created=$(echo "$row" | jq -r '.createdAt')
+            created_ts=$(date -u -d "$created" +%s 2>/dev/null || echo 0)
+            if [ "$created_ts" -lt "$CUTOFF" ] && [ "$created_ts" != "0" ]; then
+              age=$(( ( $(date -u +%s) - created_ts ) / 86400 ))
+              gh issue close "$n" \
+                --repo "$REPO" \
+                --comment "Auto-closed: stale automation control issue (idle ${age} days, threshold ${STALE_DAYS}). No resulting work; closing to keep the queue clean." \
+                && echo "Closed stale control issue #$n (${age}d old)"
+            fi
+          done

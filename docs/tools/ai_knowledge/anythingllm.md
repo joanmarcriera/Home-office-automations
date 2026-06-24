@@ -32,7 +32,7 @@ It solves the "Knowledge Fragmentation" problem by providing a unified interface
 
 ## When not to use it
 - For simple chat-only applications where no document grounding is required.
-- If you are building a custom-branded AI product and need total control over the UI components (consider [Flowise](../frameworks/langflow.md) or [Dify](../frameworks/dify.md)).
+- If you are building a custom-branded AI product and need total control over the UI components (consider [Flowise](../frameworks/langflow.md) or [Dify](dify.md)).
 
 ## Getting started
 AnythingLLM offers Desktop, Docker, and Enterprise versions.
@@ -97,11 +97,11 @@ print(f"Document ID: {response.json()['id']}")
 ## Related tools / concepts
 - [LobeHub](lobehub.md) — Multi-agent UI and framework.
 - [Open WebUI](../../services/open-webui.md) — Extensible web interface for LLMs.
-- [Dify](../frameworks/dify.md) — LLM application development platform.
+- [Dify](dify.md) — LLM application development platform.
 - [Ollama](../../services/ollama.md) — Local model serving.
 - [Weaviate](../infrastructure/weaviate.md) — High-performance vector database.
 - [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md) — The core architectural pattern of AnythingLLM.
-- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md) — Support for external tool integration.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Support for external tool integration.
 - [Self-Healing Agents](../../knowledge_base/self-healing-agent-research.md) — Research on agents that correct their own retrieval errors.
 
 ## Sources / references

@@ -17,7 +17,7 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 
 ## Strengths
 - **Real-time Discovery**: Near-instant discovery of service changes and port mappings.
-- **Platform Collectors**: Specialized collectors for [Docker](../tools/infrastructure/docker.md) and [TrueNAS](../../architecture/infrastructure.md).
+- **Platform Collectors**: Specialized collectors for [Docker](../tools/infrastructure/docker.md) and [TrueNAS](../architecture/infrastructure.md).
 - **Multi-node Monitoring**: Support for Peer-to-Peer monitoring and hierarchical server grouping.
 - **Lightweight**: Single binary with an embedded SQLite database, no external dependencies.
 - **Internal Visibility**: Distinguishes between internal container ports and published host ports.
@@ -151,10 +151,10 @@ Portracker supports a decentralized monitoring model where multiple instances ca
 - [Rclone Automation](rclone-automation.md)
 - [Authentik](authentik.md) — For managing SSO access to the dashboard.
 - [Docker](../tools/infrastructure/docker.md)
-- [TrueNAS](../../architecture/infrastructure.md)
+- [TrueNAS](../architecture/infrastructure.md)
 - [nmap](https://nmap.org/)
 - [Claude 4.8 Opus](../tools/providers/anthropic.md)
-- [GPT-5.5](../tools/providers/openai.md)
+- [GPT-5.5](../tools/ai_knowledge/openai.md)
 
 ## Sources / References
 - [Portracker GitHub](https://github.com/mostafa-wahied/portracker)

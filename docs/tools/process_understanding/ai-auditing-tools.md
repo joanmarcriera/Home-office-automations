@@ -141,7 +141,7 @@ audit_action("research-agent", "docker_restart", params, thought)
 - [Helicone](helicone.md)
 - [SharpAI Security Benchmark](../benchmarking/sharp-ai.md)
 - [Datadog](datadog.md)
-- [Comet Opik](../benchmarking/comet-opik.md)
+- [Comet Opik](comet-opik.md)
 
 ## Sources / references
 - [Top LLM Observability Tools in 2026: A Pro Guide](https://mlflow.org/articles/top-llm-observability-tools-in-2026-a-pro-guide/)

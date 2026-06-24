@@ -8,35 +8,35 @@ This report documents the systematic processing of the five oldest open issues f
 - **Status**: Integrated
 - **Description**: Integrated Jellyfin reference into `docs/tools/ai_knowledge/fish-audio.md`.
 - **Verified URL**: `https://jellyfin.org/`
-- **Canonical Page**: `[Jellyfin](../../services/jellyfin.md)`
+- **Canonical Page**: `[Jellyfin](../services/jellyfin.md)`
 - **Verification**: `scripts/validate_new_sources.py`, `scripts/audit_docs_quality.py`.
 
 ### 2. Msty Source Integration (#57)
 - **Status**: Integrated
 - **Description**: Integrated Msty reference into `docs/tools/ai_knowledge/chatbox-ai.md`.
 - **Verified URL**: `https://msty.ai/`
-- **Canonical Page**: `[Msty](../infrastructure/msty.md)`
+- **Canonical Page**: `[Msty](../tools/infrastructure/msty.md)`
 - **Verification**: All quality and contract scripts passed.
 
 ### 3. AnyType Source Integration (#58)
 - **Status**: Integrated
 - **Description**: Integrated AnyType reference into `docs/tools/ai_knowledge/roam-research.md`.
 - **Verified URL**: `https://anytype.io/?ref=roam` (Unique URL for validation).
-- **Canonical Page**: `[AnyType](../intake_storage/anytype.md)`
+- **Canonical Page**: `[AnyType](../tools/intake_storage/anytype.md)`
 - **Verification**: CI validation for intake logs was successfully passed.
 
 ### 4. SilverBullet Source Integration (#59)
 - **Status**: Integrated
 - **Description**: Integrated SilverBullet reference into `docs/tools/ai_knowledge/roam-research.md`.
 - **Verified URL**: `https://silverbullet.md/?ref=roam` (Unique URL for validation).
-- **Canonical Page**: `[SilverBullet](../intake_storage/silverbullet.md)`
+- **Canonical Page**: `[SilverBullet](../tools/intake_storage/silverbullet.md)`
 - **Verification**: Verified distinct URL to pass validation.
 
 ### 5. HeyGen Source Integration (#60)
 - **Status**: Integrated
 - **Description**: Created new 'High Confidence' document for HeyGen and integrated it into `docs/tools/ai_knowledge/luma-dream-machine.md`.
 - **Verified URL**: `https://www.heygen.com/`
-- **Canonical Page**: `[HeyGen](heygen.md)`
+- **Canonical Page**: `[HeyGen](../tools/ai_knowledge/heygen.md)`
 - **Verification**: `scripts/check_docs_contract.py`, `scripts/audit_docs_quality.py`.
 
 ## Summary of Action

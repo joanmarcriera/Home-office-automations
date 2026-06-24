@@ -102,10 +102,10 @@ response = agent.generate_content("Research the latest developments in Blackwell
 - [Gemini CLI](gemini-cli.md)
 - [OpenAI](openai.md)
 - [Mistral AI](../providers/mistral.md)
-- [LangChain](../frameworks/langchain.md)
-- [LlamaIndex](../frameworks/llamaindex.md)
+- [LangChain](langchain.md)
+- [LlamaIndex](llamaindex.md)
 - [Antigravity Agent](antigravity-agent.md)
-- [Model Context Protocol (MCP) 3.0](../../knowledge_base/tool-calling-and-mcp.md)
+- [Model Context Protocol (MCP) 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [Official Website](https://gemini.google.com/)

@@ -89,7 +89,7 @@ print(query_engine.query("What are the quarterly growth metrics in the table?"))
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Unstructured.io](../intake_storage/unstructured.md)
 - [RAG Patterns](../../knowledge_base/patterns/rag.md)
-- [LlamaIndex](./llamaindex.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
 
 ## Sources / references
 - [OpenDataLoader GitHub Repository](https://github.com/opendataloader-project/opendataloader-pdf)

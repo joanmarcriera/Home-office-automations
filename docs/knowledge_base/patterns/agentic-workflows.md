@@ -17,7 +17,7 @@ It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above t
 
 ## Typical use cases
 - **Autonomous Coding Assistants**: Agents that can write, test, and debug code (e.g., [Claude Code](../../tools/development_ops/claude-code.md), [Aider](../../tools/development_ops/aider.md)).
-- **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/process_understanding/tavily.md), synthesize information with [Claude 4.7](../../tools/ai_knowledge/claude.md), and write reports.
+- **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/providers/tavily.md), synthesize information with [Claude 4.7](../../tools/ai_knowledge/claude.md), and write reports.
 - **Personal Assistants**: Agents that can manage calendars, book flights, and handle emails using [GPT-5.5](../../tools/ai_knowledge/openai.md) and [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md).
 
 ## Strengths

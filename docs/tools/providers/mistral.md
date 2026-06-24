@@ -160,7 +160,7 @@ print(response.choices[0].message.content)
 - [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Standardization for tool use.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Unified API for accessing Mistral and other models.
 - [Claude](../development_ops/claude-code.md) — Anthropic's frontier model suite for comparison.
-- [Everything Claude Code](everything-claude-code.md) — Optimization ecosystem for agent harnesses.
+- [Everything Claude Code](../ai_knowledge/everything-claude-code.md) — Optimization ecosystem for agent harnesses.
 
 ## Sources / references
 - [Official Website](https://mistral.ai/)

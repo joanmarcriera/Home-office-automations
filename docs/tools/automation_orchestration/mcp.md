@@ -121,7 +121,7 @@ Clients can interact with MCP servers via the defined protocol over various tran
 - [MCP Registry](mcp-registry.md) — Central catalog of MCP servers.
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) — Specific implementation pattern.
 - [Cline](../agents/cline.md) — IDE agent with MCP support.
-- [GPT-5.5](../providers/openai.md) — Integrated with MCP via third-party gateways.
+- [GPT-5.5](../ai_knowledge/openai.md) — Integrated with MCP via third-party gateways.
 - [n8n](../../services/n8n.md) — Supports MCP for workflow tool execution.
 - [OpenWebUI](../../services/open-webui.md) — Integrated with MCP for tool discovery.
 - [Python SDK](https://github.com/modelcontextprotocol/python-sdk) — Official Python implementation.

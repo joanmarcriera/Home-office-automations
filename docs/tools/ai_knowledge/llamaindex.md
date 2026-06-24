@@ -113,10 +113,10 @@ Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
 - [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
 - [LlamaHub](https://llamahub.ai/)
 - [ChromaDB](../../services/chromadb.md)
-- [OpenPipe](../development_ops/openpipe.md)
+- [OpenPipe](../infrastructure/openpipe.md)
 - [Haystack](../frameworks/haystack.md)
-- [Unstructured](../process_understanding/unstructured.md)
-- [LlamaParse](../process_understanding/llamaparse.md)
+- [Unstructured](../intake_storage/unstructured.md)
+- [LlamaParse](../intake_storage/llamaparse.md)
 
 ## Sources / references
 - [LlamaIndex Documentation](https://docs.llamaindex.ai/)

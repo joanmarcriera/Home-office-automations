@@ -9,7 +9,7 @@ The "Filesystem-as-Interface" (or "Context Engineering via Filesystem") pattern 
 It solves the "Black Box" problem of AI memory and configuration. Traditional SaaS-based agents store user preferences and project context in proprietary databases, making it difficult for users to audit, migrate, or version-control their agent's behavior. This pattern ensures that context is transparent, portable, and version-controlled via Git, preventing "Context Drift" in multi-agent systems.
 
 ## Where it fits in the stack
-This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the [Model Layer](../model_classes.md) and the local development environment, providing a standardized way for tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) and [Windsurf](../../tools/development_ops/codeium.md) to understand project boundaries and rules via [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md).
+This pattern resides at the **Persistence & Context Layer** of the agentic stack. It acts as the bridge between the [Model Layer](../model_classes.md) and the local development environment, providing a standardized way for tools like [Claude Code](../../tools/development_ops/claude-code-setup.md) and [Windsurf](../../tools/development_ops/codeium.md) to understand project boundaries and rules via [MCP 3.0](tool-calling-and-mcp.md).
 
 ## Typical use cases
 - **Project Rules (CLAUDE.md)**: Storing build commands, linting rules, and architectural constraints for an engineering agent.
@@ -45,7 +45,7 @@ This pattern resides at the **Persistence & Context Layer** of the agentic stack
 ## Getting started
 1. **Initialize Rules**: Create a `CLAUDE.md` in your project root to define build, test, and style guidelines.
 2. **Define Agency**: Add an `AGENTS.md` to specify the roles and responsibilities of autonomous assistants.
-3. **Configure MCP**: Set up a [Model Context Protocol (MCP) 3.0](../../knowledge_base/tool-calling-and-mcp.md) server to provide the agent with filesystem access tools.
+3. **Configure MCP**: Set up a [Model Context Protocol (MCP) 3.0](tool-calling-and-mcp.md) server to provide the agent with filesystem access tools.
 4. **Agentic Ingestion**: Ensure `ripgrep` (v14.1.1+) is installed to allow agents to search the codebase efficiently.
 
 ## CLI examples
@@ -96,8 +96,8 @@ Reading codebase hierarchy:
 - [Agent Skills](../../tools/agents/anthropic-agent-skills.md)
 - [NanoClaw](../../tools/development_ops/nanoclaw.md)
 - [CodeGraphContext](../../tools/automation_orchestration/codegraphcontext.md)
-- [MCP 3.0](../../knowledge_base/tool-calling-and-mcp.md)
-- [Agentic Ingestion](../../knowledge_base/rag.md)
+- [MCP 3.0](tool-calling-and-mcp.md)
+- [Agentic Ingestion](rag.md)
 
 ## Sources / References
 

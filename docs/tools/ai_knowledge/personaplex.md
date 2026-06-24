@@ -107,7 +107,7 @@ asyncio.run(start_session())
 - [HeyGen](heygen.md) — Video avatar generation platform.
 - [Whisper](../../services/whisper.md) — Standard for high-accuracy offline transcription.
 - [Low-Latency Audio Patterns](../../knowledge_base/learning-map.md) — Research on optimizing audio pipelines.
-- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md) — Connecting voice agents to external tools.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Connecting voice agents to external tools.
 - [Real-time Sync Engines](../../knowledge_base/real_time_sync_engines.md) — Synchronizing state across voice interactions.
 
 ## Sources / references

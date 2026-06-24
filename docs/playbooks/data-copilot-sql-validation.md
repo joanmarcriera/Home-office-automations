@@ -128,7 +128,7 @@ Stop the automated flow and notify a human if:
 - **Small Model Judge**: Use a small local model (Qwen 2.5 7B) specifically to check the generated SQL against the policy checklist.
 
 ## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
+- [Data Copilot Architecture](../architecture/data-copilot-text-to-sql.md)
 - [Data Copilot MCP Tooling](../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [Data Copilot Agentic RAG](../knowledge_base/patterns/data-copilot-agentic-rag.md)
 - [Answer Synthesis Schema](../reference-implementations/data-copilot/answer-synthesis-schema.md)

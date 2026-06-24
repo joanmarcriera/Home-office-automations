@@ -56,20 +56,35 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          OPEN_PRS=$(gh pr list \
+          # List candidate bot PRs, then exclude permanently-CONFLICTING orphans
+          # from the throttle count. A conflicting orphan can never merge, so
+          # counting it would jam the pipeline forever (the bug that produced the
+          # June 2026 21-PR pileup). pr-hygiene.yml closes those separately.
+          CANDIDATES=$(gh pr list \
             --repo "$REPO" \
             --state open \
             --json number,title,body,labels,headRefName,author \
             --jq '[.[] | select(
-              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution"; "i")) or
+              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit"; "i")) or
               ((.body // "") | test("PR created automatically by Jules"; "i")) or
               (.labels[]?.name == "jules") or
-              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix"; "i")) or
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
               (.author.login == "google-labs-jules[bot]")
-            )] | length')
+            ) | .number]')
+
+          OPEN_PRS=0
+          for PR in $(echo "$CANDIDATES" | jq -r '.[]'); do
+            STATE=$(gh pr view "$PR" --repo "$REPO" --json mergeable --jq '.mergeable' 2>/dev/null || echo UNKNOWN)
+            if [ "$STATE" = "CONFLICTING" ]; then
+              echo "Ignoring conflicting orphan PR #$PR for throttle."
+              continue
+            fi
+            OPEN_PRS=$((OPEN_PRS + 1))
+          done
+
           echo "open_prs=$OPEN_PRS" >> "$GITHUB_OUTPUT"
           if [ "$OPEN_PRS" != "0" ]; then
-            echo "⏸️ Throttled: $OPEN_PRS open Jules PR(s). Skipping backlog issue creation."
+            echo "⏸️ Throttled: $OPEN_PRS live (non-conflicting) Jules PR(s). Skipping backlog issue creation."
           fi
 
       - name: Check open Jules backlog status

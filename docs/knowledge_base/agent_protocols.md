@@ -111,7 +111,7 @@ The Agent Client Protocol (ACP) enables any AI agent to integrate seamlessly wit
 
 ## Related tools / concepts
 - [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md)
-- [LangGraph](../tools/agents/langgraph.md)
+- [LangGraph](../tools/frameworks/langgraph.md)
 - [Bee Agent Framework](../tools/agents/bee-agent-framework.md)
 - [Composio](../tools/agents/composio.md)
 - [Agno](../tools/agents/agno.md)

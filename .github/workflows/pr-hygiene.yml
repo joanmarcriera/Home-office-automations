@@ -1,0 +1,111 @@
+name: PR Hygiene (close orphaned bot PRs)
+
+# Prevents the recurring pileup of orphaned, permanently-conflicting bot PRs.
+#
+# Root cause this addresses:
+#   Multiple parallel freshness-audit batch branches are opened from the same
+#   base and edit overlapping docs. Only one batch merges per file; the rest
+#   become CONFLICTING orphans that can never merge and accumulate forever,
+#   jamming the backlog throttle and cluttering the board.
+#
+# This workflow closes bot PRs that are either:
+#   1. CONFLICTING (dirty merge state) AND older than CONFLICT_GRACE_HOURS, or
+#   2. stale beyond STALE_DAYS with no successful checks / no recent activity.
+#
+# It is conservative: it only ever touches PRs that match the Jules/ralph-loop
+# bot heuristics, never human PRs.
+
+on:
+  schedule:
+    - cron: "10 1 * * *" # Daily at 01:10 UTC, before cleanup-automation-issues (01:20)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Set to "true" to only report, not close'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-hygiene
+  cancel-in-progress: false
+
+jobs:
+  close-orphaned-bot-prs:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      CONFLICT_GRACE_HOURS: '12'   # give a fresh conflict time to be rebased
+      STALE_DAYS: '7'              # close bot PRs idle this long regardless of state
+    steps:
+      - name: Identify and close orphaned bot PRs
+        run: |
+          set -euo pipefail
+
+          # Bot-PR heuristic, kept in sync with jules-auto-merge.yml / process-jules-backlog.yml.
+          BOT_FILTER='select(
+            (.headRefName != "automation/weekly-rollup") and (
+              (.title | test("daily maintenance|daily knowledge|weekly|cross-link|primer|automated resolution|freshness audit|freshness audits"; "i")) or
+              ((.body // "") | test("PR created automatically by Jules"; "i")) or
+              (.labels[]?.name == "jules") or
+              (.headRefName | test("jules|daily-maintenance|daily-knowledge|jules-sprint|weekly-deepen|cross-link|primer|auto-fix|ralph-loop|freshness-audit|audit-batch|batch-"; "i")) or
+              (.author.login == "google-labs-jules[bot]")
+            )
+          )'
+
+          NOW=$(date -u +%s)
+          CONFLICT_GRACE=$(( CONFLICT_GRACE_HOURS * 3600 ))
+          STALE_SECS=$(( STALE_DAYS * 86400 ))
+
+          # mergeable/mergeStateStatus aren't available from `gh pr list`; fetch per-PR below.
+          CANDIDATES=$(gh pr list --repo "$REPO" --state open --limit 200 \
+            --json number,title,body,labels,headRefName,author,updatedAt \
+            --jq "[.[] | $BOT_FILTER | {number, title, updatedAt}]")
+
+          COUNT=$(echo "$CANDIDATES" | jq 'length')
+          echo "Found $COUNT candidate bot PR(s)."
+          [ "$COUNT" = "0" ] && exit 0
+
+          echo "$CANDIDATES" | jq -c '.[]' | while read -r row; do
+            PR=$(echo "$row" | jq -r '.number')
+            TITLE=$(echo "$row" | jq -r '.title')
+            UPDATED=$(echo "$row" | jq -r '.updatedAt')
+
+            # Merge state can report UNKNOWN briefly; retry a few times.
+            STATE=UNKNOWN
+            for attempt in 1 2 3; do
+              STATE=$(gh pr view "$PR" --repo "$REPO" --json mergeable --jq '.mergeable')
+              [ "$STATE" != "UNKNOWN" ] && break
+              sleep 8
+            done
+
+            UPDATED_TS=$(date -u -d "$UPDATED" +%s 2>/dev/null || echo 0)
+            AGE=$(( NOW - UPDATED_TS ))
+
+            REASON=""
+            if [ "$STATE" = "CONFLICTING" ] && [ "$AGE" -ge "$CONFLICT_GRACE" ]; then
+              REASON="permanently CONFLICTING and idle for $(( AGE / 3600 ))h"
+            elif [ "$AGE" -ge "$STALE_SECS" ]; then
+              REASON="stale: no activity for $(( AGE / 86400 )) days"
+            fi
+
+            if [ -z "$REASON" ]; then
+              echo "Keeping #$PR ($TITLE) — state=$STATE age=$(( AGE / 3600 ))h"
+              continue
+            fi
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "[dry-run] Would close #$PR ($TITLE) — $REASON"
+              continue
+            fi
+
+            echo "Closing #$PR ($TITLE) — $REASON"
+            gh pr close "$PR" --repo "$REPO" --delete-branch \
+              --comment "Auto-closed by PR Hygiene: $REASON. Orphaned bot freshness-audit PRs cannot cleanly merge and clutter the queue; the freshness goal is served by the batch that did merge. Reopen if this branch held unique content." \
+              || echo "Failed to close #$PR (continuing)"
+          done

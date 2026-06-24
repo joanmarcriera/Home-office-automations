@@ -90,7 +90,7 @@ Return a JSON object:
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The document source and OCR engine.
 - [Tag Taxonomy](../../reference-implementations/paperless/tag-taxonomy.md): Organizing documents for extraction.
-- [Vikunja](../../tools/calendar_tasks/vikunja.md): Destination for warranty reminders.
+- [Vikunja](../../services/vikunja.md): Destination for warranty reminders.
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md): Using extracted metadata to enhance document retrieval.
 - [n8n](../../services/n8n.md): Orchestrating the extraction and alerting workflow.
 - [Metadata Schemas](../../reference-implementations/metadata-schemas/manuals.md): Related schemas for household documents.

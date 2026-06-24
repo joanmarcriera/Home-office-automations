@@ -9,7 +9,7 @@ Radicale Automation refers to the set of scripts, n8n workflows, and Model Conte
 It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents.
 
 ## Where it fits in the stack
-**Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management, acting as the integration layer for the [Chronos MCP](../automation_orchestration/chronos-mcp.md) server.
+**Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management, acting as the integration layer for the [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) server.
 
 ## Typical use cases
 - **Natural Language Scheduling**: Using Claude 4.8 Opus to book appointments by simply describing them.
@@ -20,7 +20,7 @@ It reduces the manual effort required to manage self-hosted calendars and contac
 ## Strengths
 - **Simple File Format**: Since Radicale stores data as plain text files, automation via standard filesystem tools is straightforward.
 - **REST-like API**: Supports standard HTTP methods for easy integration with tools like `curl` and n8n.
-- **MCP Compatibility**: Seamlessly exposes data to agents via the [Chronos MCP](../automation_orchestration/chronos-mcp.md).
+- **MCP Compatibility**: Seamlessly exposes data to agents via the [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md).
 - **Python-Based**: Easy to extend with custom Python scripts.
 
 ## Limitations
@@ -42,7 +42,7 @@ It reduces the manual effort required to manage self-hosted calendars and contac
 ### Prerequisites
 - A running [Radicale](radicale.md) instance.
 - Access to the Radicale storage directory (usually `~/.var/lib/radicale/collections`).
-- (Optional) [Chronos MCP](../automation_orchestration/chronos-mcp.md) for agentic access.
+- (Optional) [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) for agentic access.
 
 ### Automated Backup Script
 Create a simple bash script to backup your collections:
@@ -123,7 +123,7 @@ curl -u user:pass "http://localhost:5232/user/calendar/" -o my_calendar.ics
 ## Related tools / concepts
 - [Radicale](radicale.md) (The core service)
 - [n8n](n8n.md) (Primary automation engine)
-- [Chronos MCP](../automation_orchestration/chronos-mcp.md) (To expose CalDAV to AI)
+- [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) (To expose CalDAV to AI)
 - [Rclone Automation](rclone-automation.md) (For cloud backups)
 - [Home Assistant](home-assistant.md) (For calendar-based triggers)
 - [Nextcloud](nextcloud.md) — For federated calendar and contact synchronization.

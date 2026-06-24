@@ -91,7 +91,7 @@ print(completion.choices[0].message.content)
 - [Perplexity](../ai_knowledge/perplexity.md)
 - [DeepSeek](deepseek.md)
 - [MiniMax](minimax.md)
-- [Kimi Code CLI](../development_ops/kimi-cli.md)
+- [Kimi Code CLI](../ai_knowledge/kimi-cli.md)
 
 ## Sources / references
 - [Official Website](https://www.moonshot.cn/)

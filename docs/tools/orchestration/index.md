@@ -24,7 +24,7 @@ Orchestration tools manage the execution flow of AI workloads, from simple linea
 | [Temporal](temporal.md) | Durable Workflows | 🟢 | 🟢 | Mission-critical, stateful execution and durable functions. |
 | [ZenML](zenml.md) | MLOps Pipelines | 🟢 | 🟢 | Portable ML and agent pipelines across infrastructure stacks. |
 | [Zapier](../automation_orchestration/zapier.md) | SaaS Integration | 🟢 | 🔴 | Rapidly connecting cloud apps via AI actions. |
-| [Goose](../automation_orchestration/goose.md) | Local Agentic | 🟢 | 🟢 | Terminal-friendly local agent orchestration. |
+| [Goose](../agents/goose.md) | Local Agentic | 🟢 | 🟢 | Terminal-friendly local agent orchestration. |
 | [Vellum](../automation_orchestration/vellum.md) | Prompt/Workflow Ops | 🟢 | 🔴 | Collaborative prompt engineering and hosting. |
 
 ## Related Tools / Concepts

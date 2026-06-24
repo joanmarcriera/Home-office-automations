@@ -100,7 +100,7 @@ config/*.template.yml
 - [OpenHands](./openhands.md)
 - [Cline](https://cline.bot)
 - [Aider](./aider.md)
-- [MCP 3.0](../infrastructure/mcp.md)
+- [MCP 3.0](../automation_orchestration/mcp.md)
 - [Agentic Context Retrieval](../../knowledge_base/patterns/agentic-context.md)
 - [CodeGraphContext](../automation_orchestration/codegraphcontext.md)
 

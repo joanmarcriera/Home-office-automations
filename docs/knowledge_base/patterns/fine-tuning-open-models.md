@@ -140,7 +140,7 @@ trainer.train()
 - [Ollama](../../services/ollama.md) — For serving fine-tuned models locally.
 - [vLLM](../../tools/infrastructure/vllm.md) — High-throughput serving engine.
 - [llama.cpp](../../tools/infrastructure/llama-cpp.md) — For edge deployment of fine-tuned models.
-- [LLaMA-Factory](../../tools/infrastructure/llama-factory.md) — Unified training suite.
+- [LLaMA-Factory](../../tools/frameworks/llama-factory.md) — Unified training suite.
 - [axolotl](../../tools/frameworks/axolotl.md) — Reproducible training pipelines.
 - [Distilabel](../../tools/frameworks/distilabel.md) — Synthetic data generation for fine-tuning.
 - [Agent Skills Best Practices](skills-best-practices.md) — Behaviors targeted by fine-tuning.

@@ -109,7 +109,7 @@ with tracer.trace("agent.task", resource="research-summary") as span:
 - [New Relic AI](new-relic-ai.md)
 - [AgentOps](agentops.md)
 - [LangSmith](../benchmarking/langsmith.md)
-- [OpenRouter](../../providers/openrouter.md)
+- [OpenRouter](../ai_knowledge/openrouter.md)
 
 ## Sources / References
 - [Datadog Official Website](https://www.datadoghq.com/)

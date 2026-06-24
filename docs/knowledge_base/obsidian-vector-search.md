@@ -111,14 +111,14 @@ D, I = index.search(np.array(model.encode(["home lab setup"])).astype('float32')
 ```
 
 ## Related tools / concepts
-- [Obsidian](../../tools/ai_knowledge/obsidian.md)
+- [Obsidian](../tools/ai_knowledge/obsidian.md)
 - [Vector DB Comparison](./vector-db-comparison.md)
-- [RAG Patterns](../patterns/rag.md)
-- [Khoj](../../tools/ai_knowledge/khoj.md)
-- [Verba](../../tools/ai_knowledge/verba.md)
-- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md)
-- [LocalAI](../../tools/ai_knowledge/localai.md)
-- [Ollama](../../tools/ai_knowledge/ollama.md)
+- [RAG Patterns](patterns/rag.md)
+- [Khoj](../tools/intake_storage/khoj.md)
+- [Verba](../tools/intake_storage/verba.md)
+- [LlamaIndex](../tools/ai_knowledge/llamaindex.md)
+- [LocalAI](../tools/infrastructure/localai.md)
+- [Ollama](../services/ollama.md)
 
 ## Sources / references
 - [Obsidian Smart Connections](https://github.com/brianpetro/obsidian-smart-connections)

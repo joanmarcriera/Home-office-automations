@@ -108,7 +108,7 @@ When Jules detects a failure during a pre-commit step, it enters a self-correcti
 - [OpenHands](../development_ops/openhands.md) — Specialized software engineering agent.
 - [Aider](../development_ops/aider.md) — CLI tool for AI-assisted coding.
 - [Claude Code](../development_ops/claude-code.md) — Agentic CLI for engineering.
-- [Everything Claude Code](../development_ops/everything-claude-code.md) — Autonomous engineering framework.
+- [Everything Claude Code](everything-claude-code.md) — Autonomous engineering framework.
 - [OpenClaw](../development_ops/openclaw.md) — The underlying agent platform.
 - [LiteLLM](../../services/litellm.md) — Proxy for Jules' model access.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard Jules uses for tool-calling.

@@ -88,11 +88,11 @@ async def search_manual(query: str, manufacturer: str, model: str):
 ```
 
 ## Related tools / concepts
-- [ChromaDB](../../docs/knowledge_base/vector-db-comparison.md)
+- [ChromaDB](../../knowledge_base/vector-db-comparison.md)
 - [scripts/process_manuals.py](../../scripts/process_manuals.py)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Ollama](../../services/ollama.md)
-- [FastAPI](../../tools/development_ops/fastapi.md)
+- [FastAPI](../../tools/frameworks/fastapi.md)
 - [n8n](../../services/n8n.md)
 - [Open WebUI](../../services/open-webui.md)
 - [Manual Troubleshooting Research](../../knowledge_base/manual-troubleshooting-research.md)

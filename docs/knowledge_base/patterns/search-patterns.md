@@ -67,7 +67,7 @@ exa search "latest research on hybrid RAG patterns 2026" --use-autoprompt --num-
 ```
 
 ## API examples
-Implementation of a Hybrid Search query using [LlamaIndex TS](../../tools/frameworks/llamaindex-ts.md):
+Implementation of a Hybrid Search query using [LlamaIndex TS](../../tools/ai_knowledge/llamaindex-ts.md):
 
 ```typescript
 import { VectorStoreIndex, QueryMode } from "llamaindex";

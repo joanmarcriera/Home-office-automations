@@ -7,7 +7,7 @@ Oh My OpenAgent (previously oh-my-opencode) is an open-source agent harness desi
 It solves the "harness problem" where models fail not because of intelligence, but because of poor edit tools and narrow context. It provides reliable multi-model orchestration, surgical editing via Hashline (content hashes), and a "Discipline Agent" system that ensures tasks are driven to 100% completion.
 
 ## Where it fits in the stack
-**Development & Ops / Agent Harness**. It is the open-source alternative to proprietary "walled garden" agents like [Claude Code](claude-code.md) or [AmpCode](../infrastructure/ampcode.md).
+**Development & Ops / Agent Harness**. It is the open-source alternative to proprietary "walled garden" agents like [Claude Code](claude-code.md) or [AmpCode](../enterprise/ampcode.md).
 
 ## Typical use cases
 - **Complex Feature Building**: Using the `ultrawork` command to trigger a multi-agent plan-and-execute loop.

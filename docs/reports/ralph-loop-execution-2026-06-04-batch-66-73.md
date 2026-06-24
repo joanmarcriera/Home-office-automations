@@ -7,7 +7,7 @@ This report documents the integration of 6 sources from the daily intake log (`d
 
 | Title | URL | Canonical Page |
 | :--- | :--- | :--- |
-| MCP | https://modelcontextprotocol.io/?ref=2026-06-01 | [MCP](../tools/knowledge_base/patterns/tool-calling-and-mcp.md) |
+| MCP | https://modelcontextprotocol.io/?ref=2026-06-01 | [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md) |
 | Local LLMs | https://github.com/OpenClaw/OpenClaw/blob/main/docs/tools/ai_knowledge/local_llms.md?ref=2026-06-01 | [Local LLMs](../tools/ai_knowledge/local_llms.md) |
 | MMLU | https://github.com/hendrycks/test?ref=2026-06-01 | [MMLU](../tools/benchmarking/mmlu.md) |
 | OpenRouter | https://openrouter.ai/?ref=2026-06-01 | [OpenRouter](../tools/ai_knowledge/openrouter.md) |

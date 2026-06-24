@@ -94,9 +94,9 @@ In the LobeChat settings or via the Agent configuration:
 ## Related tools / concepts
 - [AnythingLLM](anythingllm.md) — All-in-one RAG and agent workspace.
 - [Open WebUI](../../services/open-webui.md) — Popular alternative UI for LLMs.
-- [LibreChat](../infrastructure/librechat.md) — Enterprise-grade chat platform.
+- [LibreChat](librechat.md) — Enterprise-grade chat platform.
 - [Ollama](../../services/ollama.md) — Local model serving backend.
-- [MCP](../knowledge_base/patterns/tool-calling-and-mcp.md) — Standard for connecting agents to tools.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standard for connecting agents to tools.
 - [OpenClaw](../development_ops/openclaw.md) — Primary MCP 3.0 gateway.
 - [Claude Code](../development_ops/claude-code.md) — CLI-native agentic development tool.
 - [Agentic Workbench](../../knowledge_base/patterns/agentic-workbench.md) — Architectural pattern for AI interfaces.

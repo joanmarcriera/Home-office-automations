@@ -106,9 +106,9 @@ curl -u admin:password \
 - [OnlyOffice/Collabora](https://nextcloud.com/office/) — for real-time document editing within Nextcloud
 - [n8n](n8n.md) — for automating file processing and notification workflows
 - [Docker](../tools/infrastructure/docker.md)
-- [TrueNAS](../../architecture/infrastructure.md)
+- [TrueNAS](../architecture/infrastructure.md)
 - [Claude 4.8 Opus](../tools/providers/anthropic.md)
-- [GPT-5.5](../tools/providers/openai.md)
+- [GPT-5.5](../tools/ai_knowledge/openai.md)
 
 ## SSO & OIDC Integration
 Nextcloud can be integrated with [Authentik](authentik.md) for Single Sign-On using the `user_oidc` app.

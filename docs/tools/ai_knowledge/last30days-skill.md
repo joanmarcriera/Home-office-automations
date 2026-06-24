@@ -105,7 +105,7 @@ fetch('http://localhost:3000/skills/last30days/run', {
 - [Everything Claude Code](everything-claude-code.md) (Broader performance system)
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) (Community context)
 - [OpenRouter](openrouter.md) (API provider used for web search components)
-- [Exa Search](../automation_orchestration/goose.md) (Similar neural search concept)
+- [Exa Search](../agents/goose.md) (Similar neural search concept)
 - [AI Signal Sources](../../knowledge_base/ai_signal_sources.md) (Inventory of social platforms searched)
 - [OpenClaw](../development_ops/openclaw.md) (Alternative host for the skill)
 - [Perplexity](perplexity.md) (Context on neural search competitors)

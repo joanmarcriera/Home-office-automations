@@ -130,7 +130,7 @@ result = service.freebusy().query(body=body).execute()
 - [Radicale](../services/radicale.md) — Self-hosted CalDAV server for local aggregation.
 - [Nextcloud](../services/nextcloud.md) — Comprehensive suite with built-in multi-calendar support.
 - [Home Assistant](../services/home-assistant.md) — Using calendar triggers for home automation.
-- [Claude](../ai_knowledge/claude.md) — Frontier model used for schedule negotiation.
+- [Claude](../tools/ai_knowledge/claude.md) — Frontier model used for schedule negotiation.
 
 ## Sources / references
 - [Google Calendar Free/Busy API Documentation](https://developers.google.com/calendar/api/v3/reference/freebusy/query)

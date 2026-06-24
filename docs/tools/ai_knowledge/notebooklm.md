@@ -32,7 +32,7 @@ It solves the "hallucination" and context window problems for researchers by ens
 - When the accuracy of citations is paramount for academic or professional research.
 
 ## When not to use it
-- When you need to automate document processing into a broader company workflow (use [LlamaIndex](../frameworks/llamaindex.md) or [n8n](../automation_orchestration/n8n.md) instead).
+- When you need to automate document processing into a broader company workflow (use [LlamaIndex](llamaindex.md) or [n8n](../../services/n8n.md) instead).
 - When the data is extremely sensitive and requires a fully air-gapped or self-hosted solution.
 - For complex software engineering tasks where [Claude 4.8 Opus](../ai_knowledge/claude.md) or [GPT-5.5](../ai_knowledge/chatgpt.md) provide better native tool-use.
 
@@ -63,14 +63,14 @@ Once sources are added, the **Source Guide** provides:
 
 ## API examples
 > [!NOTE]
-> There is currently no public API for NotebookLM. Developers looking for similar functionality programmatically should use the [Gemini API](../providers/google-gemini.md) with System Instructions for grounding, or [LlamaIndex](../frameworks/llamaindex.md) to build a custom RAG pipeline.
+> There is currently no public API for NotebookLM. Developers looking for similar functionality programmatically should use the [Gemini API](google-gemini.md) with System Instructions for grounding, or [LlamaIndex](llamaindex.md) to build a custom RAG pipeline.
 
 ## Related tools / concepts
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [LlamaIndex](../frameworks/llamaindex.md)
-- [Google Gemini](../providers/google-gemini.md)
+- [LlamaIndex](llamaindex.md)
+- [Google Gemini](google-gemini.md)
 - [Perplexity](../ai_knowledge/perplexity.md)
-- [LangChain](../frameworks/langchain.md)
+- [LangChain](langchain.md)
 - [Claude](../ai_knowledge/claude.md)
 - [ChatGPT](../ai_knowledge/chatgpt.md)
 - [DSPy](../frameworks/dspy.md)

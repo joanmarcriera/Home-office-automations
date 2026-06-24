@@ -23,7 +23,7 @@ It addresses the limitations of traditional, static evaluation metrics (like BLE
 
 ## Limitations
 - **Judge Bias**: The evaluation is only as good as the model used as the judge; judges can exhibit their own biases or "self-preference."
-- **Cost**: High-quality judging requires expensive models (e.g., [Claude 4.8 Opus](../providers/claude.md) or GPT-5.5).
+- **Cost**: High-quality judging requires expensive models (e.g., [Claude 4.8 Opus](../ai_knowledge/claude.md) or GPT-5.5).
 - **Length Bias**: Judges sometimes favor longer responses regardless of quality, requiring careful rubric calibration.
 
 ## When to use it

@@ -696,7 +696,7 @@ code sections. Commit all changes in a single PR.
 Scan all tool docs in docs/tools/. For each doc, check its
 ## Related tools / concepts section. If it's empty or says 'TBD',
 find 3-5 related tools that already exist in the repo and add them
-as markdown links (e.g., [n8n](../orchestration/n8n.md)). Also check
+as markdown links (e.g., [n8n](../services/n8n.md)). Also check
 that every tool mentioned in Related sections actually has a doc — if
 not, add a row to today's docs/new-sources/YYYY-MM-DD.md with
 Status: new. Commit all changes.
@@ -751,10 +751,10 @@ Fix all issues found and commit in a single PR titled
 - [Multi-Agent KnowledgeOps](multi_agent_knowledgeops.md) — The governance framework that guides these automations.
 - [Automated Contributions](automated_contributions.md) — Details on how Jules is set up and integrated.
 - [GitHub Actions](https://github.com/features/actions) — The execution platform for the recurring workflows.
-- [OpenRouter](../tools/providers/openrouter.md) — The API gateway used to access the models that run these prompts.
+- [OpenRouter](../tools/ai_knowledge/openrouter.md) — The API gateway used to access the models that run these prompts.
 - [Standards & Conventions](../../standards-and-conventions.md) — The rules that these prompts are designed to enforce.
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Often used by agents to find relevant context before executing a prompt.
-- [MCP](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) — The protocol used by agents to interact with the repository and external tools.
+- [RAG Pattern](../knowledge_base/patterns/rag-pattern.md) — Often used by agents to find relevant context before executing a prompt.
+- [MCP](../knowledge_base/patterns/data-copilot-mcp-tooling.md) — The protocol used by agents to interact with the repository and external tools.
 
 ## Contribution Metadata
 
