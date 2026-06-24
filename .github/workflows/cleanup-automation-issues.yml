@@ -83,15 +83,27 @@ jobs:
               | select(.title | test("^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -)"))
               | {number, createdAt}]')
 
-          echo "$STALE" | jq -c '.[]' | while read -r row; do
+          CHECKED=$(echo "$STALE" | jq 'length')
+          echo "Evaluated $CHECKED open control issue(s) against the ${STALE_DAYS}-day threshold."
+
+          CLOSED=0
+          # Process substitution (not a pipe) so the loop runs in this shell and
+          # the counter survives for the summary line below.
+          while read -r row; do
             n=$(echo "$row" | jq -r '.number')
             created=$(echo "$row" | jq -r '.createdAt')
             created_ts=$(date -u -d "$created" +%s 2>/dev/null || echo 0)
             if [ "$created_ts" -lt "$CUTOFF" ] && [ "$created_ts" != "0" ]; then
               age=$(( ( $(date -u +%s) - created_ts ) / 86400 ))
-              gh issue close "$n" \
+              if gh issue close "$n" \
                 --repo "$REPO" \
-                --comment "Auto-closed: stale automation control issue (idle ${age} days, threshold ${STALE_DAYS}). No resulting work; closing to keep the queue clean." \
-                && echo "Closed stale control issue #$n (${age}d old)"
+                --comment "Auto-closed: stale automation control issue (idle ${age} days, threshold ${STALE_DAYS}). No resulting work; closing to keep the queue clean."; then
+                echo "Closed stale control issue #$n (${age}d old)"
+                CLOSED=$((CLOSED + 1))
+              else
+                echo "WARNING: failed to close #$n (continuing)"
+              fi
             fi
-          done
+          done < <(echo "$STALE" | jq -c '.[]')
+
+          echo "Stale-singleton sweep complete: closed $CLOSED of $CHECKED control issue(s)."
