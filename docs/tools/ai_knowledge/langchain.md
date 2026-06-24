@@ -1,75 +1,50 @@
 # LangChain
 
 ## What it is
-LangChain is a framework for developing applications powered by large language models. It provides a set of tools and abstractions for working with LLMs, including chain of thought, retrieval augmented generation, and agentic workflows.
+LangChain is a comprehensive framework for developing applications powered by large language models. It provides a modular set of tools and abstractions for working with LLMs, including prompt templates, memory, retrieval-augmented generation (RAG) pipelines, and agentic workflows.
 
 ## What problem it solves
-Provides reusable building blocks and standardized abstractions for common LLM application patterns, so developers do not have to implement prompt chaining, RAG, or agent loops from scratch.
+It provides reusable building blocks and standardized abstractions for common LLM application patterns. Developers can focus on high-level logic rather than implementing prompt chaining, document chunking, or agent loops from scratch, significantly reducing time-to-market for complex AI products.
 
 ## Where it fits in the stack
-AI & Knowledge — serves as a foundational framework that other tools in the stack (such as [Flowise](flowise.md)) build upon for LLM application development.
+**AI Assistants & Knowledge / Frameworks**. It serves as a foundational layer that other tools in the stack (such as [Flowise](flowise.md)) build upon for LLM application development and orchestration.
 
 ## Typical use cases
-- Building retrieval-augmented generation (RAG) pipelines over private data.
-- Creating multi-step agent workflows with tool use and memory.
-- Exploring [LangGraph](https://langchain-ai.github.io/langgraph/) for complex, stateful multi-agent orchestration.
-- Using Deep Agents for autonomous, long-running tasks requiring planning and subagents.
-- Evaluating LLM applications using LangSmith for tracing and performance monitoring.
+- **RAG Pipelines**: Building retrieval systems over private data sources (PDFs, SQL, Notion).
+- **Agent Orchestration**: Creating multi-step agent workflows with tool use and memory.
+- **Complex Logic Chaining**: Using LangChain Expression Language (LCEL) to compose granular model steps.
+- **Observability**: Evaluating and tracing LLM applications using [LangSmith](../benchmarking/langsmith.md).
 
 ## Framework selection notes
-
-LangChain now has a clearer split between its layers:
-
-- **LangChain**: the quick-start framework for standardized agent and app patterns.
-- **Deep Agents**: the opinionated harness for autonomous, long-running, non-deterministic tasks where planning, memory, and subagents matter.
-- **LangGraph**: the lower-level stateful runtime when you want tighter control over workflow shape and execution semantics.
-
-That distinction matters in practice. Many teams start with LangChain for fast prototyping, move to Deep Agents when the task needs more autonomy, and drop to LangGraph when they need explicit state-machine style control.
-
-## Advanced Patterns
-
-### LangGraph (Stateful Orchestration)
-LangGraph allows you to build agents as state machines. This is essential for complex loops where an agent needs to reflect on its own work, retry failed steps, or coordinate with other agents in a multi-turn conversation.
-
-### LangSmith (Observability & Evaluation)
-LangSmith provides a unified platform for debugging, testing, and monitoring LangChain applications. It allows you to trace every step of a chain's execution, identify bottlenecks, and run automated evaluations against test datasets.
+LangChain now has a clearer split between its architectural layers:
+- **LangChain**: The quick-start framework for standardized agent and app patterns.
+- **Deep Agents**: The opinionated harness for autonomous, long-running, non-deterministic tasks requiring planning and subagents.
+- **LangGraph**: The lower-level stateful runtime when you want tighter control over workflow shape and execution semantics.
 
 ## Strengths
-- Large and active open-source community with extensive documentation.
-- Wide range of integrations with LLM providers, vector stores, and tools.
-- Supports both Python and JavaScript/TypeScript.
-- Robust ecosystem including LangSmith for observability and LangServe for deployment.
+- **Massive Ecosystem**: Large and active open-source community with extensive documentation and third-party integrations.
+- **Provider Agnostic**: Supports a wide range of LLM providers (Anthropic, OpenAI, Google) and vector stores.
+- **Multi-Language**: Robust support for both Python and JavaScript/TypeScript.
+- **Production Ready**: Integrated ecosystem including LangSmith for observability and LangServe for deployment.
 
 ## Limitations
-- Abstractions can add complexity and make debugging harder ("abstraction soup").
-- Rapid pace of change can lead to breaking changes between versions.
-- Can be overkill for simple LLM interactions where a direct SDK call suffices.
+- **Abstraction Density**: The high level of abstraction can add complexity and make debugging harder ("abstraction soup").
+- **Volatility**: The rapid pace of change can occasionally lead to breaking changes between minor versions.
+- **Overhead**: Can be overkill for simple LLM interactions where a direct SDK call suffices.
 
 ## When to use it
 - When building complex LLM applications that require chaining, RAG, or agent patterns.
 - When you need integrations with many different LLM providers and data sources.
-- When you want to leverage a mature ecosystem for production-grade LLM ops (tracing, eval).
+- When you want to leverage a mature ecosystem for production-grade LLM ops (tracing, evaluation).
 
 ## When not to use it
 - When the use case is a simple single-prompt LLM call.
 - When you prefer a data-centric framework like [LlamaIndex](llamaindex.md) for pure RAG workloads.
 - When you need a minimal, low-overhead framework for edge or resource-constrained environments.
 
-## Related tools / concepts
-
-- [LlamaIndex](llamaindex.md)
-- [Haystack](../frameworks/haystack.md)
-- [AI Templates](aitmpl.md)
-- [Google Gemini](google-gemini.md)
-- [Google Opal](google-opal.md)
-- [Flowise](flowise.md)
-- [Mastra](../frameworks/mastra.md)
-- [AG2](../frameworks/ag2.md)
-
 ## Getting started
 
 ### Installation
-
 Install the core LangChain package and the OpenAI integration:
 
 ```bash
@@ -77,8 +52,7 @@ pip install langchain langchain-openai
 ```
 
 ### Minimal Python Example
-
-Minimal example to call an LLM:
+Minimal example to call an LLM using the standardized interface:
 
 ```python
 from langchain_openai import ChatOpenAI
@@ -88,10 +62,28 @@ response = llm.invoke("Hello, how are you?")
 print(response.content)
 ```
 
+## CLI examples
+
+### LangGraph CLI
+Manage and deploy stateful agents using the [LangGraph](../frameworks/langgraph.md) CLI:
+```bash
+# Install the CLI
+pip install langgraph-cli
+
+# Check the version
+langgraph --version
+```
+
+### LangSmith Login
+Authenticate your local environment for tracing:
+```bash
+export LANGSMITH_TRACING="true"
+export LANGSMITH_API_KEY="your-api-key"
+```
+
 ## API examples
 
-### Simple Chain with Prompt Template, LLM, and Output Parser
-
+### LCEL Chain Composition
 This example demonstrates the recommended way to compose components using LangChain Expression Language (LCEL).
 
 ```python
@@ -142,6 +134,17 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 agent_executor.invoke({"input": "What is the weather in Tokyo?"})
 ```
 
+## Related tools / concepts
+- [LlamaIndex](llamaindex.md) — Data-centric RAG framework.
+- [Haystack](../frameworks/haystack.md) — Alternative orchestration library.
+- [Google Gemini](google-gemini.md) — Supported model provider.
+- [Google Opal](google-opal.md) — No-code builder in the same ecosystem.
+- [Flowise](flowise.md) — Visual UI for LangChain.
+- [Mastra](../frameworks/mastra.md) — High-performance agent framework.
+- [AG2](../frameworks/ag2.md) — Multi-agent conversation framework.
+- [LangSmith](../benchmarking/langsmith.md) — Tracing and evaluation platform.
+- [LangGraph](../frameworks/langgraph.md) — Stateful agent runtime.
+
 ## Sources / references
 - [Official Website](https://www.langchain.com/)
 - [GitHub Repository](https://github.com/langchain-ai/langchain)
@@ -149,6 +152,5 @@ agent_executor.invoke({"input": "What is the weather in Tokyo?"})
 - [LangChain Expression Language (LCEL) Documentation](https://python.langchain.com/docs/concepts/lcel/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-24
 - Confidence: high

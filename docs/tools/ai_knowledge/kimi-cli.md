@@ -7,7 +7,7 @@ Kimi Code CLI (officially `kimi-cli`) is an open-source, terminal-native AI codi
 It reduces context switching by bringing AI-powered software engineering capabilities into the developer's primary workspace: the terminal. Unlike standard chat interfaces, Kimi Code CLI has direct access to the local filesystem and shell, allowing it to perform actions like refactoring code, running tests, and fixing build errors autonomously.
 
 ## Where it fits in the stack
-**Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code-setup.md), optimized for high-speed terminal interaction and agentic workflows.
+**Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code-setup.md), optimized for high-speed terminal interaction and agentic workflows in June 2026.
 
 ## Typical use cases
 - **Autonomous Feature Implementation**: Describing a new feature and letting the agent write the code and verify it.
@@ -18,7 +18,7 @@ It reduces context switching by bringing AI-powered software engineering capabil
 ## Key Features
 - **Agentic Loop**: Plans, executes, and adjusts actions based on terminal feedback.
 - **Shell Mode**: Press `Ctrl-X` to switch between chatting with the agent and running direct shell commands.
-- **ACP Support**: Native support for the **Agent Client Protocol**, enabling integration with IDEs like Zed or JetBrains.
+- **ACP Support**: Native support for the **Agent Client Protocol**, enabling integration with IDEs like [Zed](../development_ops/zed.md) or JetBrains.
 - **Web Access**: Can search and fetch live documentation to ground its coding suggestions.
 
 ## Strengths
@@ -28,7 +28,8 @@ It reduces context switching by bringing AI-powered software engineering capabil
 
 ## Limitations
 - **Latency**: Agentic reasoning steps can take time, especially for complex planning.
-- **Shell Compatibility**: Some built-in shell commands like `cd` are currently handled via a workaround rather than natively in all modes.
+- **Shell Compatibility**: Some built-in shell commands like `cd` are currently handled via a workaround in specific modes.
+- **Model specific**: Optimized for Kimi K2; performance may vary with third-party model providers.
 
 ## When to use it
 - When you want an AI pair programmer that can actually *run* the code it writes.
@@ -59,21 +60,30 @@ Run the setup wizard to configure your API provider:
 kimi /login
 ```
 
-## Technical examples
+## CLI examples
 
-### Running an Agentic Task
-You can start a session with a specific goal:
-
+### Refactor a module
+Start an agentic session with a specific goal:
 ```bash
-# Refactor a specific module
 kimi "Refactor the authentication logic in src/auth.py to use JWT instead of sessions"
+```
 
-# Find and fix errors
+### Automated Bug Fixing
+Provide a test command and let Kimi iterate until success:
+```bash
 kimi "Run the test suite and fix any failing tests in the reports module"
 ```
 
-### IDE Integration (Zed)
-Kimi Code CLI supports the Agent Client Protocol (ACP). To use it as an agent server in Zed, add this to your `settings.json`:
+### Direct Agent Query
+Ask Kimi to explain part of the codebase:
+```bash
+kimi "Where is the database connection pooling logic implemented?"
+```
+
+## API examples
+
+### Agent Client Protocol (ACP) Configuration
+Kimi Code CLI supports the Agent Client Protocol. To use it as an agent server in [Zed](../development_ops/zed.md), add this to your `settings.json`:
 
 ```json
 {
@@ -87,8 +97,8 @@ Kimi Code CLI supports the Agent Client Protocol (ACP). To use it as an agent se
 }
 ```
 
-### Manual Configuration (~/.kimi/config.toml)
-For advanced users, providers can be configured manually:
+### Manual Provider Config (~/.kimi/config.toml)
+For advanced users, providers can be configured manually using TOML:
 
 ```toml
 [providers.kimi-for-coding]
@@ -103,13 +113,13 @@ api_key = "ollama"
 ```
 
 ## Related tools / concepts
-- [Aider](../development_ops/aider.md)
-- [Claude Code](../development_ops/claude-code-setup.md)
-- [Mentat](../development_ops/mentat.md)
-- [Plandex](../development_ops/plandex.md)
-- [Agent Client Protocol (ACP)](../../knowledge_base/agent_protocols.md)
-- [Moonshot AI](../providers/moonshot.md)
-- [Terminal Benchmarking](../benchmarking/terminal-bench.md)
+- [Aider](../development_ops/aider.md) — Multi-file AI pair programmer.
+- [Claude Code](../development_ops/claude-code-setup.md) — Anthropic's agentic CLI.
+- [Mentat](../development_ops/mentat.md) — Terminal-native coding assistant.
+- [Plandex](../development_ops/plandex.md) — Complex task planning engine.
+- [Agent Client Protocol (ACP)](../../knowledge_base/agent_protocols.md) — Standardized agent-IDE communication.
+- [Moonshot AI](../providers/moonshot.md) — The provider of Kimi models.
+- [Terminal Benchmarking](../benchmarking/terminal-bench.md) — Evaluating terminal-based agents.
 
 ## Sources / References
 - [Official Kimi Code CLI Repository](https://github.com/MoonshotAI/kimi-cli)
@@ -117,5 +127,5 @@ api_key = "ollama"
 - [Sébastien Dubois: Kimi CLI Overview](https://www.dsebastien.net/kimi-cli/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-16
+- Last reviewed: 2026-06-24
 - Confidence: high
