@@ -7,20 +7,14 @@ The **SharpAI Security Benchmark** (SHARP) is a systemic high-level evaluation f
 As AI agents move from "chatting" to "acting" (executing code, calling APIs, managing files), the risk of malicious exploitation grows exponentially. SHARP provides a standardized methodology to measure how effectively a model can resist instruction overrides (prompt injection), maintain data boundaries, and refuse unauthorized tool usage in high-stakes environments.
 
 ## Where it fits in the stack
-**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data.
-
-## Key Evaluation Categories (2026 Standards)
-- **Indirect Prompt Injection**: Resilience against malicious instructions hidden in external data (e.g., a PDF or a website the agent reads).
-- **Cross-Domain Leakage**: Ensuring an agent doesn't leak context from a 'High Trust' session into a 'Low Trust' response.
-- **Recursive Tool Exploitation**: Testing if an agent can be tricked into using a tool to gain access to a second, more sensitive tool (e.g., using `read_file` to find a `db_password`).
-- **Chain-of-Thought (CoT) Integrity**: Verifying that the model's internal reasoning cannot be manipulated to bypass safety filters.
-- **Model Stealth**: Evaluating the model's ability to identify and report that it is being targeted by an adversarial attack.
+**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data. It is compatible with the **MCP 3.0** standard for tool-use auditing.
 
 ## Typical use cases
 - **Agent Red Teaming**: Automated stress-testing of custom agents built on platforms like [n8n](../../services/n8n.md) or [Dify](../frameworks/dify.md).
-- **Model Hardening**: Identifying specific failure modes in a model's system prompt to refine its guardrails.
-- **Vendor Selection**: Comparing the safety-to-utility ratio of frontier models (e.g., Claude 4.7 vs GPT-5 Preview).
+- **Model Hardening**: Identifying specific failure modes in a model's system prompt to refine its guardrails for **Claude 4.8 Opus** and **GPT-5.5**.
+- **Vendor Selection**: Comparing the safety-to-utility ratio of frontier models (e.g., Claude vs GPT vs Gemini).
 - **Compliance Audits**: Generating safety reports for internal governance or external regulatory bodies (e.g., EU AI Act compliance).
+- **Tool-Access Validation**: Testing if an agent can be tricked into using a tool to gain access to sensitive data (Recursive Tool Exploitation).
 
 ## Strengths
 - **Behavioral Focus**: Tests the *actions* of the agent, not just its text output.
@@ -42,11 +36,11 @@ As AI agents move from "chatting" to "acting" (executing code, calling APIs, man
 - For testing creative writing, translation accuracy, or general reasoning (use [OpenCompass](../benchmarking/opencompass.md) or [HELM](../benchmarking/helm.md)).
 - For low-risk, internal-only RAG systems with no tool-calling capabilities.
 
-## Getting started (CLI)
+## Getting started (Docker/Local)
 
 The SHARP runner is typically deployed as a containerized evaluation engine.
 
-### Installation
+### Docker Installation
 ```bash
 # Pull the SHARP evaluation engine
 docker pull sharpai/eval-runner:latest
@@ -60,7 +54,22 @@ docker run -e MODEL_ENDPOINT="http://ollama:11434" \
            sharpai/eval-runner run --suite security-v3 --model llama3.5-agent
 ```
 
-## API examples (Python)
+## CLI examples
+
+The SHARP CLI allows for granular control over the evaluation process.
+
+```bash
+# List available security suites
+sharp-eval list-suites
+
+# Run a specific 'Indirect Injection' test case
+sharp-eval run --test indirect_injection_01 --target http://localhost:8080/v1/chat
+
+# Export the latest results to a JSON report
+sharp-eval export --format json --output ./reports/sharp_results.json
+```
+
+## API examples
 
 Integrate SHARP into your CI/CD pipeline to block unsafe deployments.
 
@@ -85,11 +94,12 @@ if results.safety_score < 0.95:
 
 ## Related tools / concepts
 - [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md) — Core concepts behind SHARP.
-- [Agentic Security Patterns](../../knowledge_base/patterns/openclaw-security-operations.md) — Implementation strategies for SHARP findings.
 - [Promptfoo](promptfoo.md) — Alternative testing framework for prompt regression.
 - [Giskard](giskard.md) — AI quality and security platform.
 - [Lakera Guard](lakera-guard.md) — Real-time protection layer that works alongside SHARP validation.
-- [n8n Error Handling](../../knowledge_base/patterns/n8n-error-handling.md) — Practical application of security guardrails.
+- [OpenCompass](../benchmarking/opencompass.md) — General purpose LLM benchmarking framework.
+- [HELM](../benchmarking/helm.md) — Holistic Evaluation of Language Models.
+- [n8n Service](../../services/n8n.md) — Common target for agentic automation security testing.
 
 ## Sources / References
 - [SharpAI Benchmark Official Site](https://www.sharpai.org/benchmark/)
@@ -97,5 +107,5 @@ if results.safety_score < 0.95:
 - [GitHub: Adversarial Examples Papers (2026 Updates)](https://github.com/Trustworthy-AI-Group/Adversarial_Examples_Papers)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-29
+- Last reviewed: 2026-06-21
 - Confidence: high
