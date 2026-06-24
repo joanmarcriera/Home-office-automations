@@ -9,30 +9,34 @@ Habitica is an open-source habit-building and productivity app that treats your 
 Traditional to-do lists often lack the motivation required for long-term habit formation. Habitica solves this by using gamification (rewards, social accountability, and RPG mechanics) to make productivity engaging and fun.
 
 ## Where it fits in the stack
-**Category**: Service / Productivity
+**Category**: Service / Productivity. It serves as the **gamified behavioral layer** of the personal organization stack.
 
 ## Typical use cases
 - Gamified habit tracking and task management.
-- Team-based productivity challenges.
-- Automated habit scoring via API.
+- Team-based productivity challenges and social accountability.
+- Automated habit scoring via API based on external triggers (e.g., GitHub commits).
+- Visualizing productivity progress through RPG-style character development.
 
 ## Strengths
-- Highly engaging gamification mechanics.
-- Strong community and social features.
-- Robust API (v3/v4 stable) for third-party integrations.
-- Extensive cross-platform support (Web, iOS, Android).
+- **Engaging Gamification**: Highly effective for users motivated by rewards and social mechanics.
+- **Robust Community**: Strong social features including parties, guilds, and global challenges.
+- **Stable API**: (v3/v4) Allows for deep integration with automation tools and custom clients.
+- **Cross-Platform**: Consistent experience across Web, iOS, and Android.
 
 ## Limitations
-- Visual style might be too "noisy" for some users.
-- RPG elements can be distracting for pure focus.
+- **Visual Noise**: The RPG interface may be too cluttered for users seeking a minimalist workflow.
+- **RPG Distraction**: Game mechanics can occasionally overshadow the actual tasks.
+- **Manual Overhead**: Requires consistent manual updates unless heavily automated via API.
 
 ## When to use it
-- When traditional to-do lists fail to motivate you.
-- When you want to combine habit tracking with social accountability.
+- When traditional productivity tools fail to maintain long-term motivation.
+- When you enjoy RPG mechanics and want to integrate them into your daily routine.
+- For groups or families looking for a shared, gamified productivity experience.
 
 ## When not to use it
-- For strictly professional or minimalist project management.
-- If you find RPG mechanics distracting.
+- For strictly professional project management requiring Gantt charts or complex dependencies.
+- If you find RPG elements and "game-like" notifications distracting.
+- When a local-first, offline-primary tool is required (Habitica is cloud-sync primary).
 
 ## Getting started
 
@@ -81,10 +85,10 @@ print(response.json())
 
 ## n8n Integration: Automated Habit Scoring
 
-Habitica can be integrated with [n8n](n8n.md) to automatically score habits based on external events, such as completing a workout logged in a CSV or finishing a deep work session.
+Habitica can be integrated with [n8n](n8n.md) to automatically score habits based on external events. This allows for "invisible" habit tracking where your character levels up as you perform real-world actions.
 
 ### Workflow Pattern: Automated Task Scoring
-1.  **Trigger**: Watch for a specific event (e.g., a new row in a [Google Sheet](https://n8n.io/integrations/google-sheets/) or a finished [Toggl](https://n8n.io/integrations/toggl/) timer).
+1.  **Trigger**: Watch for a specific event (e.g., a new row in a Google Sheet, a finished Toggl timer, or a [GitHub](gitea.md) commit).
 2.  **HTTP Request Node (Habitica API)**:
     - **Method**: `POST`
     - **URL**: `https://habitica.com/api/v3/tasks/{{$json["task_id"]}}/score/up`
@@ -93,48 +97,25 @@ Habitica can be integrated with [n8n](n8n.md) to automatically score habits base
         - `x-api-key`: `{{$env["HABITICA_API_TOKEN"]}}`
 3.  **Notification Node**: Send a message to [Element](element.md) or [Home Assistant](home-assistant.md) confirming the XP gain.
 
-### Example: Scoring via Python Sub-process (Code Node)
-If you prefer using a specialized Python script within n8n:
-```python
-import requests
-
-def score_habit(user_id, api_token, task_id):
-    url = f"https://habitica.com/api/v3/tasks/{task_id}/score/up"
-    headers = {
-        "x-api-user": user_id,
-        "x-api-key": api_token,
-        "Content-Type": "application/json"
-    }
-    response = requests.post(url, headers=headers)
-    return response.json()
-
-# n8n input mapping
-user_id = _input.item.json['USER_ID']
-api_token = _input.item.json['API_TOKEN']
-task_id = _input.item.json['TASK_ID']
-
-result = score_habit(user_id, api_token, task_id)
-return {"json": result}
-```
-
 ## Related tools / concepts
-- [SuperBetter](https://www.superbetter.com/)
+- [SuperBetter](https://www.superbetter.com/) — Alternative gamification framework.
 - [Vikunja](vikunja.md) — For managing the tasks that aren't gamified.
-- [Mealie](mealie.md) — For nutritional habit tracking.
-- [Grocy](grocy.md) — For household chore integration.
+- [Mealie](mealie.md) — For nutritional habit tracking and meal planning.
+- [Grocy](grocy.md) — For household chore integration and inventory.
 - [Home Assistant](home-assistant.md) — For real-life trigger-based scoring.
 - [Actual Budget](actual-budget.md) — For financial habit gamification.
 - [Authentik](authentik.md) — For managing external access to Habitica data tools.
 - [n8n](n8n.md) — For orchestrating complex automated scoring workflows.
+- [Element](element.md) — For receiving habit-related notifications.
 
 ## Sources / References
 - [Official Website](https://habitica.com/)
 - [Habitica API Documentation](https://github.com/HabitRPG/habitica/blob/develop/API-reference.md)
-- [SuperBetter](https://www.superbetter.com/)
+- [Habitica Wiki](https://habitica.fandom.com/wiki/Habitica_Wiki)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [x] Perform quarterly technical freshness audit (June 2026).
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high

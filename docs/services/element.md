@@ -3,20 +3,19 @@
 Element is a secure, decentralized communication app built on the [Matrix](../knowledge_base/patterns/communication.md) protocol.
 
 ## What it is
-Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers. As of **June 2026**, Element is fully optimized for **Matrix 1.18+**, featuring enhanced trust and safety layers.
+Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
 
 ## What problem it solves
 It solves the problem of "walled gardens" in communication (like WhatsApp or Slack) by using an open standard. It provides sovereign control over data without sacrificing modern features like multi-device sync, rich media sharing, and integrations.
 
 ## Where it fits in the stack
-Element sits in the **Communication and Collaboration** layer. It serves as the primary interface for both human-to-human communication and bot-to-human notifications within a self-hosted ecosystem. In an agentic stack, it acts as the **primary notification and verification channel** for agents using **Claude 4.8 Opus** or **GPT-5.5**.
+Element sits in the **Communication and Collaboration** layer. It serves as the primary interface for both human-to-human communication and bot-to-human notifications within a self-hosted ecosystem.
 
 ## Typical use cases
 - **Personal Messaging**: Secure, E2EE alternative to commercial messaging apps.
 - **Team Collaboration**: Organizing projects and discussions into "Spaces" and "Rooms".
 - **Home Automation Notifications**: Receiving alerts from services like Home Assistant or custom scripts.
 - **Bridging**: Acting as a unified interface for Discord, Telegram, and Slack via Matrix bridges.
-- **Agentic Human-in-the-Loop**: Providing a terminal or chat interface for approving agentic actions via **MCP 3.0**.
 
 ## Strengths
 - **Sovereignty**: Full control over your data when self-hosted.
@@ -46,7 +45,7 @@ The easiest way to start is by using the hosted version or the desktop client:
 2. Create an account on the default `matrix.org` server or specify your own.
 
 ### Docker (Self-Hosted Web Client)
-To host the Element web interface yourself (requires a separate homeserver like Synapse). As of **June 2026**, ensure you use the latest stable branch for Matrix 1.18+ compatibility.
+To host the Element web interface yourself (requires a separate homeserver like Synapse). As of May 2026, ensure you use the latest stable branch for Matrix 1.18+ compatibility.
 
 ```yaml
 services:
@@ -158,28 +157,34 @@ curl -X POST \
 ```
 
 ## Related tools / concepts
-- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.155.0+).
+- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.153.0+).
 - [Dendrite](https://github.com/element-hq/dendrite) — A next-generation, high-performance Matrix homeserver.
 - [Home Assistant](home-assistant.md) — Frequently integrated with Element for notifications.
 - [Authentik](authentik.md) — Used for SSO authentication into Element/Matrix.
+- [Bridges](https://matrix.org/bridges/) — Connect Matrix to other services like Telegram and Discord.
 - [Nextcloud](nextcloud.md) — For file storage and cloud services alongside communication.
 - [Gitea](gitea.md) — For hosting code and triggering notifications to Element.
 - [Paperless-ngx](paperless-ngx.md) — For notifying users when new documents are indexed.
 - [SearXNG](searXNG.md) — For secure search results sharing within Element rooms.
 - [Vikunja](vikunja.md) — For task management notifications and team coordination.
 - [Element X](https://github.com/element-hq/element-x-android) — Successor mobile clients built with the Matrix Rust SDK for extreme performance.
-- [Matrix Synapse v1.155.0](synapse.md) — Documentation for the optimized homeserver backend.
 
-## Sources / References
-- [Element Official Website](https://element.io/)
-- [Element GitHub Repository](https://github.com/vector-im/element-web)
+## Links
+- [Official Website](https://element.io/)
+- [GitHub Repository](https://github.com/vector-im/element-web)
 - [Matrix Protocol](https://matrix.org/)
-- [Matrix v1.18 Spec Release](https://matrix.org/blog/2026/03/26/matrix-v1.18-release/)
-- [Matrix Client-Server API](https://matrix.org/docs/api/client-server/)
+- [Matrix v1.18 Spec](https://matrix.org/blog/2026/03/26/matrix-v1.18-release/)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
+- [x] Perform quarterly technical freshness audit (May 2026).
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
 - Confidence: high
+- Last reviewed: 2026-05-26
+
+## Sources / References
+- https://element.io/
+- https://github.com/vector-im/element-web
+- https://matrix.org/docs/api/client-server/
+- https://github.com/8go/matrix-commander
+- https://matrix.org/blog/2026/03/26/matrix-v1.18-release/

@@ -12,32 +12,33 @@ Managing thousands of notes with complex inter-relationships is difficult in sta
 **Category**: Services / Knowledge Management. It serves as the **core intellectual repository** for structured long-term knowledge, research, and documentation.
 
 ## Typical use cases
-- Building a Personal Knowledge Base (PKB).
-- Journaling and daily logs.
+- Building a Personal Knowledge Base (PKB) with deep hierarchical organization.
+- Journaling and daily logs with automated metadata tagging.
 - Technical documentation and code snippet management.
-- Structured data management using the new **Spreadsheet** note type.
-- Digitizing paper notes via built-in **OCR**.
+- Complex information management using the powerful JavaScript scripting engine.
+- Visualizing knowledge maps and relationship graphs.
 
 ## Strengths
-- Extremely flexible hierarchical structure.
-- Built-in scripting (JavaScript) and automation.
-- Self-hostable with strong sync capabilities.
-- Native support for **Spreadsheets** (Excel-like editing via Univer Sheets).
-- Built-in **OCR support** for images, PDFs, and Office documents.
+- **Extreme Flexibility**: Deeply nested hierarchical structure with no practical limit on depth.
+- **Automation-Ready**: Built-in JavaScript scripting allows for advanced note lifecycle automation.
+- **Local-First**: Self-hostable with strong synchronization between desktop and server instances.
+- **Modern Fork**: TriliumNext provides active maintenance, improved security, and performance optimizations.
+- **Extensible**: Powerful API and "Widget" system for creating custom UI components.
 
 ## Limitations
-- Steeper learning curve compared to simple note apps.
-- UI can feel cluttered due to high feature density.
-- Transitioning from `api.axios` to `fetch()` in legacy scripts.
+- **Steeper Learning Curve**: The high feature density and scripting requirements can be intimidating for new users.
+- **UI Density**: The interface is functional but can feel cluttered compared to modern minimalist note apps.
+- **Legacy Migration**: Transitioning older scripts from `api.axios` to `fetch()` in newer versions of the fork.
 
 ## When to use it
-- When you need more than just flat tags or shallow folders for your notes.
-- When you want to automate your knowledge base with scripts.
-- When you need integrated spreadsheet and document search capabilities.
+- When you need a highly structured, hierarchical knowledge base that goes beyond simple folders and tags.
+- When you want to automate your documentation workflows using JavaScript.
+- When data sovereignty and local-first execution are primary requirements.
 
 ## When not to use it
-- For quick, ephemeral notes (use a simple scratchpad).
-- If you prefer a "polished" SaaS interface over a powerful, local-first tool.
+- For quick, ephemeral notes (consider a simple scratchpad or mobile-first app).
+- If you prefer a highly polished, minimalist "SaaS-like" user interface.
+- If you have no need for scripting or advanced automation in your notes.
 
 ## Getting started
 
@@ -100,25 +101,15 @@ const data = await response.json();
 api.log(data.message);
 ```
 
-## Advanced Features
-### Spreadsheets
-TriliumNext introduces a native spreadsheet note type powered by Univer Sheets. This allows for complex calculations, formulas, and structured data entry directly within the note hierarchy.
-
-### OCR & Text Extraction
-The built-in OCR engine (configured in Media options) automatically extracts text from:
-- Images (PNG, JPG)
-- PDF Documents
-- Office Files (Word, Excel, PowerPoint)
-This text is indexed and becomes fully searchable within the Trilium global search.
-
 ## Related tools / concepts
-- [Obsidian](../tools/ai_knowledge/obsidian.md)
-- [Logseq](../tools/ai_knowledge/logseq.md)
-- [Joplin](../tools/ai_knowledge/joplin.md)
-- [AnyType](../tools/ai_knowledge/anytype.md) — for a decentralized alternative
-- [SilverBullet](../tools/ai_knowledge/silverbullet.md) — for a hackable, markdown-based knowledge base
-- [n8n](n8n.md) — for automating note creation from external events
-- [Paperless-ngx](paperless-ngx.md) — for advanced document management and OCR
+- [Obsidian](../tools/ai_knowledge/obsidian.md) — For a Markdown-first personal knowledge base.
+- [Logseq](../tools/ai_knowledge/logseq.md) — For privacy-first, local-first outliner notes.
+- [Joplin](../tools/ai_knowledge/joplin.md) — For a cross-platform, E2EE alternative.
+- [AnyType](../tools/ai_knowledge/anytype.md) — For a decentralized, local-first knowledge operating system.
+- [SilverBullet](../tools/ai_knowledge/silverbullet.md) — For a hackable, markdown-based knowledge base with integrated query engine.
+- [n8n](n8n.md) — For automating note creation and intake from external events.
+- [Paperless-ngx](paperless-ngx.md) — For professional-grade document management and archival.
+- [Habitica](habitica.md) — For integrating note-taking with gamified productivity.
 
 ## Sources / References
 - [Official Website (TriliumNext)](https://github.com/TriliumNext/TriliumNext)
@@ -126,8 +117,8 @@ This text is indexed and becomes fully searchable within the Trilium global sear
 - [Trilium Wiki](https://github.com/zadam/trilium/wiki)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (Completed 2026-05-26).
+- [x] Perform quarterly technical freshness audit (June 2026).
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high

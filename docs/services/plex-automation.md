@@ -13,27 +13,29 @@ It eliminates manual library management. It ensures that new media is scanned an
 
 ## Typical use cases
 - Automatically refreshing library sections when a new file is detected via filesystem watcher.
-- Using **Plex Meta Manager (PMM)** to create dynamic collections (e.g., "Top IMDB Movies").
-- Sending a Discord/Telegram message whenever a new movie is added to the server (via Tautulli).
-- Automatically killing transcoding streams that have been paused for too long to save CPU.
+- Using **Plex Meta Manager (PMM)** to create dynamic collections (e.g., "Top IMDB Movies") and custom poster overlays.
+- Sending notifications whenever a new item is added to the server via [n8n](n8n.md).
+- Automatically killing transcoding streams that have been paused for too long to save server resources.
+- Synchronizing watch states between different media server instances.
 
 ## Strengths
 - **Comprehensive API**: Almost every action in the Plex Web UI can be performed via the API.
-- **Strong Ecosystem**: Tools like Tautulli and Plex Meta Manager provide advanced automation out of the box.
-- **Python Integration**: The `plexapi` library is mature and very easy to use.
+- **Strong Ecosystem**: Mature community tools like Plex Meta Manager provide advanced automation out of the box.
+- **Python Integration**: The `plexapi` library is mature, stable, and very easy to use for custom scripting.
 
 ## Limitations
-- **Token Management**: Requires a `X-Plex-Token`, which can be tricky to retrieve for some users.
-- **Complexity**: Advanced metadata automation (like custom overlays on posters) can be difficult to set up.
+- **Token Management**: Requires a `X-Plex-Token`, which can be difficult for non-technical users to retrieve.
+- **Complexity**: Advanced metadata automation (like custom overlays on posters) can have a steep learning curve.
+- **Service Dependency**: Many automations depend on external metadata providers being reachable.
 
 ## When to use it
 - When you have a large media library that is difficult to manage manually.
-- To provide a "premium" streaming experience for family and friends.
-- When you want to integrate your media server with other homelab notification systems.
+- To provide a high-end, "premium" streaming experience for family and friends.
+- When you want to integrate your media server with other homelab notification systems like Element or Discord.
 
 ## When not to use it
 - If you have a small library and only use Plex occasionally.
-- If you don't care about metadata consistency or posters.
+- If you don't care about metadata consistency, collections, or custom posters.
 
 ## Getting started
 
@@ -94,21 +96,22 @@ for episode in trash_library.search(viewed=True):
 ## Related tools / concepts
 - [Plex](plex.md) — The core media server.
 - [Jellyfin](jellyfin.md) — Open-source media server alternative.
-- [n8n](n8n.md) — Workflow orchestration for media ingestion.
+- [n8n](n8n.md) — Workflow orchestration for media ingestion and notifications.
 - [qbittorrent-automation](qbittorrent-automation.md) — Automating content acquisition.
 - [Home Assistant](home-assistant.md) — For notifications and playback-based automations.
 - [Changedetection.io](changedetection.md) — Monitoring trackers or metadata sources.
 - [Nextcloud](nextcloud.md) — For off-server backups of configuration and metadata.
-- [Tautulli](https://tautulli.com/) — Monitoring and notification system.
-- [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata automation.
+- [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata automation and collection management.
+- [Element](element.md) — For receiving media-related notifications.
 
 ## Sources / References
 - [Official Plex API Documentation (Community Maintained)](https://github.com/Arcanemagus/plex-api/wiki)
 - [Python-PlexAPI Documentation](https://python-plexapi.readthedocs.io/en/latest/introduction.html)
+- [Plex Meta Manager Documentation](https://metamanager.wiki/)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
+- [x] Perform quarterly technical freshness audit (June 2026).
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-18
 - Confidence: high
-- Last reviewed: 2026-05-26

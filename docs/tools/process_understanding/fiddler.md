@@ -7,30 +7,33 @@ Fiddler is an Enterprise-grade Model Performance Management (MPM) platform that 
 For enterprises, AI reliability isn't just about accuracy; it's about governance, safety, and bias. Fiddler provides a robust framework for monitoring AI models in production, detecting drift, and ensuring models remain compliant and safe.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / Enterprise AI Observability
+**Category**: Process & Understanding / Enterprise AI Observability. It serves as the **governance and reliability layer** for models deployed in regulated or high-stakes environments.
 
 ## Typical use cases
 - **LLM Safety Monitoring**: Detecting PII, toxicity, and hallucinations in production LLM traffic.
 - **Drift Detection**: Identifying when model performance begins to degrade over time as real-world data changes.
 - **Root Cause Analysis**: Using "Explainable AI" (XAI) features to understand why a model made a specific prediction or generated a specific response.
-- **Bias Auditing**: Ensuring AI applications are fair and non-discriminatory.
+- **Bias Auditing**: Ensuring AI applications are fair and non-discriminatory across different demographic groups.
 
 ## Strengths
-- **Enterprise-Ready**: Robust security, RBAC, and scalability for large organizations.
-- **Multimodal Support**: Can monitor traditional ML models as well as modern LLMs.
-- **Specialized LLM Metrics**: Includes advanced metrics for faithfulness and grounding.
-- **Focus on Trust**: Strong emphasis on AI ethics and governance.
+- **Enterprise-Ready**: Robust security, RBAC, and scalability designed for large-scale deployments.
+- **Multimodal Support**: Can monitor traditional machine learning models as well as modern Large Language Models (LLMs).
+- **Specialized LLM Metrics**: Includes advanced metrics for faithfulness, grounding, and instruction-following.
+- **Focus on Trust**: Strong emphasis on AI ethics, governance, and transparent model behavior.
 
 ## Limitations
-- **Target Audience**: Primarily built for large enterprises and data science teams; might be complex for individual developers.
-- **Commercial Focus**: It is a commercial platform, though they offer trials and community tiers.
+- **Target Audience**: Primarily built for large enterprises and data science teams; may be overly complex for individual developers or small projects.
+- **Commercial Focus**: It is a commercial platform, with community tiers and trials that may have limited features.
+- **Integration Overhead**: Requires instrumenting model code with the Fiddler SDK for full observability.
 
 ## When to use it
-- When deploying high-stakes AI models in regulated industries (Finance, Healthcare).
-- When you need enterprise-grade governance and explainability.
+- When deploying high-stakes AI models in regulated industries such as Finance, Healthcare, or Legal.
+- When you need enterprise-grade governance, audit trails, and model explainability.
+- To monitor model performance and safety for frontier models like Claude 4.8 Opus or GPT-5.5.
 
 ## When not to use it
-- For early-stage prototyping or solo hobby projects.
+- For early-stage prototyping, solo hobby projects, or personal research where simple logging suffices.
+- If you prefer a strictly open-source observability stack without a commercial vendor.
 
 ## Getting started
 
@@ -87,17 +90,22 @@ print(result)
 ```
 
 ## Related tools / concepts
-- [Arize AI](./arize-ai.md)
-- [Weights & Biases](./wandb-weave.md)
-- [Datadog](./datadog.md)
-- [Sentry](./sentry.md)
-- [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md)
+- [Arize AI](./arize-ai.md) — Alternative AI observability platform.
+- [Weights & Biases](./wandb-weave.md) — For experiment tracking and model monitoring.
+- [Datadog](./datadog.md) — Unified monitoring and security for cloud applications.
+- [Sentry](./sentry.md) — Application performance monitoring and error tracking.
+- [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md) — Architectural patterns for secure AI.
+- [LangSmith](../benchmarking/langsmith.md) — Platform for debugging and testing LLM applications.
+- [Comet Opik](./comet-opik.md) — Open-source platform for LLM tracing and observability.
 
 ## Sources / references
 - [Fiddler AI Website](https://www.fiddler.ai/)
 - [Fiddler SDK Documentation](https://docs.fiddler.ai/api)
 - [Fiddler LLM Observability Guide](https://www.fiddler.ai/llm-observability)
 
+## Backlog
+- [x] Perform quarterly technical freshness audit (June 2026).
+
 ## Contribution Metadata
-- Last reviewed: 2026-05-26
+- Last reviewed: 2026-06-18
 - Confidence: high

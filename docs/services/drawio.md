@@ -3,7 +3,7 @@
 Draw.io (now diagrams.net) is a free, open-source, and cross-platform graph drawing software developed in HTML5 and JavaScript.
 
 ## What it is
-Draw.io (v30.0.x as of May 2026) is a professional-grade diagramming tool that provides a wide range of features for creating flowcharts, process diagrams, organizational charts, UML, ER, and network diagrams.
+Draw.io (v30.0.x as of June 2026) is a professional-grade diagramming tool that provides a wide range of features for creating flowcharts, process diagrams, organizational charts, UML, ER, and network diagrams.
 
 ## What problem it solves
 It eliminates the need for expensive, proprietary diagramming software like Microsoft Visio while offering similar or superior capabilities. It provides a platform-agnostic way to create, store, and share visual documentation without vendor lock-in.
@@ -22,11 +22,12 @@ Draw.io sits in the **Documentation and Design** layer of the home-office stack.
 - **Privacy-First**: No account required; data can be stored locally or on preferred cloud providers.
 - **Extensive Library**: Huge collection of icons for networking, cloud, UI design, and more.
 - **Highly Compatible**: Can import/export Visio (.vsdx), Lucidchart, and other formats.
-- **Cross-Platform**: Available as a web app, desktop app, and can be self-hosted.
+- **Cross-Platform**: Available as a web app, desktop app, and can be self-hosted via Docker.
 
 ## Limitations
 - **Collaboration**: Real-time collaboration in the self-hosted version is more complex to set up than the SaaS version.
-- **UI Density**: The interface can be intimidating for users who only need simple sketching tools (consider [Excalidraw](excalidraw.md) for those cases).
+- **UI Density**: The interface can be intimidating for users who only need simple sketching tools.
+- **Version Control**: Binary-style XML can be difficult to diff compared to text-native tools.
 
 ## When to use it
 - When you need to create formal, technical diagrams (UML, Network, Cloud Architecture).
@@ -47,14 +48,6 @@ docker run -d --name="drawio" -p 8080:8080 -p 8443:8443 jgraph/drawio
 
 Access your instance at `http://localhost:8080`.
 
-### TrueNAS Deployment
-To host Draw.io on TrueNAS:
-1. **Create a Dataset**: Create a dataset for optional persistence (e.g., `/mnt/pool/apps/drawio`).
-2. **Custom App (SCALE)**:
-   - **Image**: `jgraph/drawio:latest`
-   - **Ports**: Map a host port (e.g., 30081) to 8080.
-3. **Environment**: Optionally configure `DRAWIO_VIEWER_URL` if hosting a custom viewer.
-
 ### Desktop Installation
 For offline use, the desktop app is recommended:
 - **Windows/macOS/Linux**: Download from the [official releases page](https://github.com/jgraph/drawio-desktop/releases).
@@ -63,46 +56,19 @@ For offline use, the desktop app is recommended:
 
 ### Mermaid Integration (GUI)
 Draw.io supports importing Mermaid syntax directly. To use this:
-1. Click **Arrange > Insert > Mermaid**.
-2. Paste your Mermaid code (e.g., `graph TD; A-->B;`).
-3. Click **Insert**.
+1. Click **Arrange > Insert > Mermaid** in the top menu.
+2. Paste your Mermaid code (e.g., `graph TD; A-->B;`) into the dialog box.
+3. Click **Insert** to render the diagram as editable shapes.
 
 ### Desktop CLI
 The Draw.io Desktop app includes a CLI for batch processing and conversion:
 
 ```bash
-cat > sample.drawio <<'XML'
-<mxfile><diagram name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel></diagram></mxfile>
-XML
-
 # Export a diagram to PDF via CLI (Desktop app required)
 drawio -x -f pdf -o sample.pdf sample.drawio
 
 # Export to PNG with a specific width
 drawio -x -f png --width 1200 -o sample.png sample.drawio
-
-# Check that the self-hosted container exists and inspect its state
-docker inspect --format='{{.State.Status}}' drawio
-```
-
-### Advanced: CLI XML Manipulation
-For automated architecture updates, you can manipulate the underlying XML of a `.drawio` file using standard CLI tools like `sed` or specialized XML parsers.
-
-```bash
-# Example: Automatically update a version label in a diagram
-# Assuming the XML contains an attribute value="v1.0.0"
-
-sed -i 's/value="v1\.0\.0"/value="v1.1.0"/g' architecture.drawio
-
-# Example: Use a Python script to inject a new node into the XML
-python3 -c '
-import xml.etree.ElementTree as ET
-tree = ET.parse("architecture.drawio")
-root = tree.getroot()
-# Find the mxGraphModel and add a new cell (highly simplified)
-# In practice, use a library like drawio-tools
-print("XML parsed successfully")
-'
 ```
 
 ## API examples
@@ -142,23 +108,16 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Paperless-ngx](paperless-ngx.md) — For archiving exported diagram PDFs.
 - [Authentik](authentik.md) — For securing the self-hosted Draw.io interface.
 - [Tailscale](tailscale.md) — For secure remote access to your self-hosted instance.
-- [Immich](immich.md) — for managing media assets used in diagrams
-- [Trilium](trilium.md) — for embedding diagrams into a personal knowledge base
+- [Trilium](trilium.md) — For embedding diagrams into a personal knowledge base.
 
-## Links
+## Sources / references
 - [Official Website](https://www.draw.io/)
 - [GitHub Repository](https://github.com/jgraph/drawio)
 - [Docker Hub](https://hub.docker.com/r/jgraph/drawio)
 
 ## Backlog
-- [x] Perform quarterly technical freshness audit (May 2026).
-- [x] Set up self-hosted instance on TrueNAS for offline access.
+- [x] Perform quarterly technical freshness audit (June 2026).
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-05-26
-
-## Sources / References
-- https://www.draw.io/
-- https://github.com/jgraph/drawio
-- https://www.diagrams.net/blog/drawio-docker-app
+- Last reviewed: 2026-06-18
