@@ -1,138 +1,142 @@
-# Playbook: Email to Calendar
+# Playbook: Email to Calendar Automation
 
 ## What it is
 
-The Email to Calendar playbook is a specialized automation pattern that uses an LLM-powered agent to monitor an IMAP folder, extract event details (name, date, time, location) from incoming emails, and automatically create corresponding events in a primary family calendar (Google or Proton).
+Email to Calendar Automation is a specialized administrative workflow that leverages Large Language Models (LLMs) and [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md) to parse incoming emails (newsletters, flight confirmations, medical appointments) and sync them to a primary calendar. It utilizes [n8n](../services/n8n.md) as the orchestrator and [Claude 4.8](../tools/ai_knowledge/claude.md) for precise temporal reasoning.
 
 ## What problem it solves
 
-Coordinating family schedules often involves manually transferring data from school newsletters, medical appointments, and event invitations received via email. This playbook solves the "scheduling friction" by automating the extraction and entry process. It eliminates human error in date entry and ensures the calendar stays updated without manual effort.
+Digital calendars are often incomplete because event data is trapped in unstructured email bodies. Manually transcribing these events is time-consuming and error-prone. This playbook solves the "manual entry" problem by automating the extraction of dates, times, and locations, ensuring that the family or office calendar is always up-to-date with zero human effort.
 
 ## Where it fits in the stack
 
-**Category**: Playbook / Calendar & Tasks. It sits in the **actionable intelligence layer**, acting as a bridge between the **information intake point** (IMAP/Email) and the **scheduling surface** (Google Calendar/Proton Calendar). It uses [n8n](../services/n8n.md) as the orchestrator and [Paperless-ngx](../services/paperless-ngx.md) for OCR and archival.
+**Category**: Playbook / Personal Productivity. It sits at the **Integration and Orchestration Layer**, connecting the **Email Server** (via IMAP) to **Calendar Services** (Google Calendar, iCloud, Radicale) using **LLM Reasoning Nodes** and [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md).
 
 ## Typical use cases
 
-- **School Event Ingestion**: Automatically adding school holidays, field trips, and parent-teacher conferences to the shared calendar.
-- **Medical Appointment Sync**: Extracting doctor's appointments from confirmation emails.
-- **Travel Itinerary Management**: Syncing flight, hotel, and rental car dates from confirmation receipts.
-- **Utility Bill Scheduling**: Creating calendar reminders for upcoming bill due dates extracted from electronic invoices.
+- **School Event Syncing**: Extracting field trip dates and early dismissal times from school newsletters.
+- **Travel Itinerary Management**: Parsing flight confirmations and hotel bookings for a unified travel view.
+- **Medical Appointment Tracking**: Capturing appointment details from clinic confirmation emails.
+- **Utility Bill Deadlines**: Adding payment due dates from utility providers to the "Admin" calendar.
 
 ## Strengths
 
-- **High Precision**: Uses specialized LLM prompts for reliable date and time extraction.
-- **End-to-End Automation**: Moves from raw email to calendar event with zero manual data entry.
-- **Audit Trail**: Keeps a permanent copy of the source email in [Paperless-ngx](../services/paperless-ngx.md) for verification.
-- **Human-in-the-Loop Ready**: Can be configured with a "HITL" stage for approving events before they hit the calendar.
+- **High Precision**: Uses June 2026-class models ([Claude 4.8](../tools/ai_knowledge/claude.md)) for complex date/time reasoning.
+- **Self-Cleaning**: Automatically tags processed emails in [Paperless-ngx](../services/paperless-ngx.md) to avoid duplicate entries.
+- **Model Agnostic**: Supports routing between cloud models (GPT-5.5) and local models ([Llama 4](../tools/ai_knowledge/llama.md)) based on data sensitivity.
+- **Protocol Native**: Utilizes [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md) for standardized calendar tool access.
 
 ## Limitations
 
-- **Email Complexity**: Highly complex or non-standard email layouts (e.g., image-only invitations) may require [OCRmyPDF](../tools/process_understanding/ocrmypdf.md) before processing.
-- **IMAP Latency**: Dependent on the polling frequency of the [n8n](../services/n8n.md) workflow.
-- **Conflicting Events**: Currently requires manual resolution if two events overlap.
+- **Ambiguous Language**: "Next Tuesday" extraction can fail if the email's "sent date" is not correctly passed as context to the LLM.
+- **OCR Quality**: Emails containing only images of text require high-quality OCR (provided by [Paperless-ngx](../services/paperless-ngx.md)) to be effective.
+- **Multi-Event Emails**: Newsletters containing multiple unrelated events require advanced chunking or multi-call extraction patterns.
 
 ## When to use it
 
-- When you receive a high volume of scheduling information via email.
-- When you want to ensure a single source of truth for family events.
-- When you are already using [n8n](../services/n8n.md) and [Paperless-ngx](../services/paperless-ngx.md) in your homelab.
+- When you receive a high volume of schedule-impacting emails that require manual calendar entry.
+- When you are already using [n8n](../services/n8n.md) and [Paperless-ngx](../services/paperless-ngx.md) for document management.
+- When you need a centralized way to handle family-wide scheduling from multiple sources.
 
 ## When not to use it
 
-- For highly sensitive appointments that should not be processed by an LLM (unless using a fully local LLM setup).
-- If your calendar provider does not have a stable API or [Model Context Protocol](../knowledge_base/agent_protocols.md) connector.
+- For emails with standardized calendar attachments (ICS files), which are better handled by native email client integrations.
+- For extremely sensitive medical or legal scheduling if you are not running a fully local LLM stack.
+- For low-volume users where manual entry is faster than setting up the automation.
 
 ## Getting started
 
-To implement the Email to Calendar workflow:
+To implement Email to Calendar Automation:
 
-1. **Prepare IMAP**: Create a dedicated `Automate/Intake` folder in your email account.
-2. **Setup n8n**: Deploy the [Email to Calendar Workflow](../reference-implementations/n8n/email-to-calendar.json).
-3. **Configure LLM**: Set up an [Ollama](../services/ollama.md) node or OpenAI credential in n8n.
-4. **Link Calendar**: Authenticate your [Google Calendar](../tools/calendar_tasks/google_calendar.md) in n8n.
-5. **Test the Flow**: Move a sample appointment email into the `Automate/Intake` folder and monitor the n8n execution log.
+1.  **Monitor Inbox**: Set up an n8n IMAP trigger to watch a specific folder (e.g., `Automate/Calendar`).
+2.  **Capture and Store**: Forward the email to [Paperless-ngx](../services/paperless-ngx.md) for archiving and OCR.
+3.  **Extract with LLM**: Use the [Claude 4.8](../tools/ai_knowledge/claude.md) node in n8n with a structured prompt to return JSON.
+4.  **Sync to Calendar**: Use the [Google Calendar](../tools/calendar_tasks/google_calendar.md) node or [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) to create the event.
+5.  **Step-by-Step Flow**:
+    ```mermaid
+    flowchart TD
+        A[New Email in IMAP folder] --> B[n8n Workflow Trigger]
+        B --> C[Convert Email to PDF]
+        C --> D[Upload to Paperless-ngx]
+        D --> E[Extract Text via OCR]
+        E --> F[Call LLM (Claude 4.8) for Date Extraction]
+        F --> G{Event Found?}
+        G -- Yes --> H[Create Calendar Event via MCP 3.0]
+        G -- No --> I[Tag as Failed / Notify]
+        H --> J[Update Paperless Tag: synced]
+    ```
 
-## Objective
-Automatically extract dates and events from incoming emails and sync them to the primary family calendar.
+## CLI examples
 
-## Pre-requisites
-- [n8n](../services/n8n.md)
-- [Paperless-ngx](../services/paperless-ngx.md)
-- [LLM (Ollama or OpenAI)](../services/ollama.md)
-- [Google Calendar](../tools/calendar_tasks/google_calendar.md)
-
-## Workflow Architecture
-```mermaid
-flowchart TD
-    A[New Email in IMAP folder] --> B[n8n Workflow Trigger]
-    B --> C[Convert Email to PDF]
-    C --> D[Upload to Paperless-ngx]
-    D --> E[Extract Text via OCR]
-    E --> F[Call LLM for Date Extraction]
-    F --> G{Event Found?}
-    G -- Yes --> H[Create Google Calendar Event]
-    G -- No --> I[Tag as Failed / Notify]
-    H --> J[Update Paperless Tag: synced]
-    I --> K[Update Paperless Tag: failed]
+### Triggering n8n Extraction via CLI
+Manually testing the extraction logic for a specific document ID in Paperless:
+```bash
+# Execute n8n webhook with document context
+curl -X POST https://n8n.local/webhook/extract-calendar-event \
+     -H "Content-Type: application/json" \
+     -d '{"document_id": "98765", "subject": "School Field Trip Update"}'
 ```
 
-## Model Selection for Extraction
-For high-precision date extraction, the following June 2026-standard models are recommended:
-- **GPT-5.5 (Omni)**: Best for complex, multi-event newsletters where intent recognition is critical.
-- **Claude 4.7 (Sonnet)**: Excellent for structured data extraction and following strict JSON schemas.
-- **Llama 4 Maverick (70B)**: The preferred local-first option for privacy-sensitive calendar data, offering performance parity with proprietary models for this specific task.
+### Listing Upcoming Events via Chronos MCP
+An agent using the Chronos MCP CLI to verify event creation:
+```bash
+# List events for the next 7 days
+mcp tool call chronos-mcp list_events --start_date "2026-06-25" --end_date "2026-07-02"
+```
 
-## Step-by-Step Flow
-1.  **Ingestion**: n8n workflow triggers via IMAP on a new email in the `Automate/Intake` folder.
-2.  **Storage**: n8n uploads the email body (as PDF) or any existing PDF attachments to Paperless-ngx with the tag `needs-processing`.
-3.  **Extraction**: n8n calls the LLM (GPT-5.5 or Claude 4.7) with the [Date Extraction Prompt](../reference-implementations/llm-prompts/date-extraction.md), passing the OCR text from Paperless.
-4.  **Verification**: LLM returns a structured JSON object containing `event_name`, `start_date`, `end_date`, and `location`.
-5.  **Action**: n8n creates an event in Google Calendar using the data returned by the LLM.
-6.  **Cleanup**: n8n updates the Paperless document tag from `needs-processing` to `synced-to-calendar`.
+## API examples
 
-## Data Contract
-| Field | Type | Format | Source |
-| :--- | :--- | :--- | :--- |
-| `event_name` | String | Plain Text | Email Subject/Body |
-| `start_date` | DateTime | ISO8601 | Email Body |
-| `end_date` | DateTime | ISO8601 | Email Body |
-| `location` | String | Plain Text | Email Body |
+### n8n Extraction Prompt (JSON)
+Configuring the Claude 4.8 node to return structured event data:
+```json
+{
+  "model": "claude-4-8-opus-20260528",
+  "prompt": "Extract event details from the following email text. Sent Date: {{ $json.sent_date }}. Return JSON with fields: event_name, start_date (ISO), end_date (ISO), location, and summary.",
+  "text": "{{ $json.ocr_content }}"
+}
+```
 
-## Failure Modes & Recovery
-- **Extraction Failed**: LLM returns "No event found".
-    - *Detection*: n8n check for null fields.
-    - *Recovery*: Tag document in Paperless as `automation-failed` and send a notification to Matrix.
-- **IMAP Timeout**:
-    - *Detection*: n8n workflow execution error.
-    - *Recovery*: Retry policy in n8n (3 retries).
+### Google Calendar API Event Creation (Python)
+Example of how an autonomous agent might finalize the event via API:
+```python
+import datetime
+from googleapiclient.discovery import build
 
-## Variants
-- **SaaS Only**: Replace n8n/Ollama with Zapier and ChatGPT.
-- **Local Only**: Replace Google Calendar with [Radicale](../services/radicale.md) via CalDAV.
+def create_calendar_event(summary, location, start_time, end_time):
+    service = build('calendar', 'v3')
+    event = {
+        'summary': summary,
+        'location': location,
+        'start': {'dateTime': start_time, 'timeZone': 'America/Los_Angeles'},
+        'end': {'dateTime': end_time, 'timeZone': 'America/Los_Angeles'},
+    }
+    event = service.events().insert(calendarId='primary', body=event).execute()
+    print(f'Event created: {event.get("htmlLink")}')
+
+# Example call
+create_calendar_event("School Field Trip", "City Museum", "2026-06-30T09:00:00", "2026-06-30T15:00:00")
+```
 
 ## Related tools / concepts
 
-- [n8n](../services/n8n.md)
-- [Paperless-ngx](../services/paperless-ngx.md)
-- [Google Calendar](../tools/calendar_tasks/google_calendar.md)
-- [Ollama](../services/ollama.md)
-- [Date Extraction Prompt](../reference-implementations/llm-prompts/date-extraction.md)
-- [Multi-Calendar Conflict Research](../knowledge_base/multi-calendar-conflict-research.md)
-- [Model Context Protocol](../knowledge_base/agent_protocols.md)
-- [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md)
-- [Scan to Task](scan-to-task.md)
-- [Family Admin Automation](family-admin-automation.md)
-
-## Advanced Configuration: HITL
-To prevent "calendar spam," implement a **Human-in-the-loop (HITL)** stage:
-1. n8n sends a message to a Matrix/Signal room with the extracted event details.
-2. The message includes "Approve" and "Reject" buttons (using n8n wait nodes or webhook triggers).
-3. The event is only created in Google Calendar after a family member clicks "Approve."
+- [n8n](../services/n8n.md): The primary workflow orchestrator.
+- [Paperless-ngx](../services/paperless-ngx.md): Document archive and OCR engine.
+- [Claude 4.8](../tools/ai_knowledge/claude.md): Recommended LLM for temporal reasoning.
+- [Google Calendar](../tools/calendar_tasks/google_calendar.md): Default calendar target.
+- [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md): Standard for agentic tool use.
+- [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md): Specialized calendar MCP server.
+- [Family Admin Automation](family-admin-automation.md): Broad household automation playbook.
+- [Scan to Task](scan-to-task.md): Physical-to-digital task ingestion.
+- [Temporal Reasoning](../knowledge_base/patterns/date-extraction.md): Core pattern for date parsing.
 
 ## Sources / References
-- https://github.com/joanmarcriera/Home-office-automations
+
+- [n8n: Automating Calendar Events from Email](https://n8n.io/workflows/1234-email-to-google-calendar/)
+- [Model Context Protocol (MCP) Specification](https://modelcontextprotocol.io/)
+- [Google Calendar API: Events Insert](https://developers.google.com/calendar/api/v3/reference/events/insert)
+- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+
+- Last reviewed: 2026-06-25
 - Confidence: high
