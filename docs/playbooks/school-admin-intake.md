@@ -1,105 +1,135 @@
 # Playbook: School Admin Intake
 
 ## What it is
-A specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG, and automated workflow triggers to ensure no school deadline is missed.
+
+School Admin Intake is a specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG (Retrieval-Augmented Generation), and automated workflow triggers to ensure no school deadline is missed. By June 2026, it utilizes [Llama 4 Maverick](../tools/ai_knowledge/llama.md) (70B) for privacy-first, local document processing.
 
 ## What problem it solves
-It tackles the "backpack black hole" and "email fatigue" faced by parents and guardians. By automating the extraction of dates, consent requirements, and action items from school documents, it reduces manual data entry and prevents scheduling conflicts or missed field trip deadlines.
+
+It tackles the "backpack black hole" and "email fatigue" faced by parents and guardians. By automating the extraction of dates, consent requirements, and action items from school documents, it reduces manual data entry and prevents scheduling conflicts or missed field trip deadlines. It ensures that sensitive student information stays within the home network by prioritizing local LLM execution.
 
 ## Where it fits in the stack
-**Category**: Personal Productivity / Family Admin. It integrates [Document Management](../services/paperless-ngx.md) with [Workflow Automation](../services/n8n.md) and [Calendar Services](../tools/calendar_tasks/google_calendar.md).
 
-## Workflow Architecture
-
-```mermaid
-flowchart TD
-    A[School Email Inbox] --> B{n8n IMAP Filter}
-    B -->|Match| C[Send to Paperless-ngx]
-    B -->|No Match| Z[Skip]
-    C --> D[Trigger Paperless-AI]
-    D --> E[RAG Analysis & Extraction]
-    E --> F{Extraction Successful?}
-    F -->|Activity Date| G[Sync to Google Calendar]
-    F -->|Consent Required| H[Create Vikunja Task]
-    F -->|Low Confidence| I[Tag 'manual-verification']
-```
-
-## Pre-requisites
-- [Paperless-ngx](../services/paperless-ngx.md)
-- [n8n](../services/n8n.md)
-- [Google Calendar](../tools/calendar_tasks/google_calendar.md)
-
-## RAG-Based Extraction Standards
-Effective school document processing in June 2026 relies on high-quality RAG (Retrieval-Augmented Generation) patterns. Use models like [Llama 4 Maverick](../tools/ai_knowledge/llama.md) (for local privacy) or [Claude 4.7](../tools/ai_knowledge/claude.md) to:
-- **Parse Permission Slips**: Distinguish between "Optional Participation" and "Mandatory Attendance."
-- **Handle PII**: Automatically redact or flag student names and IDs if the document is being shared with non-secure agents.
-- **Cross-Reference Calendars**: Check the `Family Calendar` for existing conflicts before proposing a new school event.
-
-## Step-by-Step Flow
-1.  **Filter**: n8n monitors the `Inbox` via IMAP for emails from `@school.edu` or containing keywords like "Activity", "Field Trip", "Grade".
-2.  **Archive**: The email and any attachments are sent to Paperless-ngx with the document type `SchoolCorrespondence` and the tag `School`.
-3.  **Analyze**: [Paperless-AI](../services/paperless-ai.md) triggers on the document creation to perform a RAG-based analysis using Claude 4.7 or Llama 4.
-4.  **Extract**: Specifically look for:
-    - Activity Date/Time
-    - Consent required (Yes/No)
-    - Deadline for consent
-5.  **Sync**:
-    - If an activity date is found, add it to the `School Calendar` in Google Calendar.
-    - If consent is required, create a task in [Vikunja](../services/vikunja.md) tagged `Consent`.
+**Category**: Personal Productivity / Family Admin. It integrates [Document Management](../services/paperless-ngx.md) with [Workflow Automation](../services/n8n.md) and [Calendar Services](../tools/calendar_tasks/google_calendar.md). It acts as a specialized instance of the [Family Admin Automation](family-admin-automation.md) playbook, focused on educational data contracts.
 
 ## Typical use cases
+
 - **Field Trip Permission Slips**: Automatically extracting the date of the trip and creating a task to sign the form.
-- **Weekly Newsletters**: Identifying key dates for school holidays or special events.
+- **Weekly Newsletters**: Identifying key dates for school holidays, parent-teacher conferences, or special events.
 - **Report Cards**: Archiving official academic records with appropriate metadata for long-term tracking.
+- **Sports Physicals**: Tracking expiration dates for medical clearances required for extracurricular activities.
 
 ## Strengths
+
 - **Error Reduction**: Minimizes human error in transcribing dates or forgetting deadlines.
-- **Centralized Archive**: Keeps all school-related documents in a searchable, tagged repository.
-- **Proactive Notifications**: Moves information from a passive inbox to an active calendar/task list.
+- **Centralized Archive**: Keeps all school-related documents in a searchable, tagged repository in [Paperless-ngx](../services/paperless-ngx.md).
+- **Privacy-First**: Natively supports [Llama 4](../tools/ai_knowledge/llama.md) for local processing of PII (Personally Identifiable Information).
+- **Proactive Notifications**: Moves information from a passive inbox to an active calendar or task list.
+- **RAG-Ready**: Uses [Paperless-AI](../services/paperless-ai.md) to answer natural language questions about school policies or events.
 
 ## Limitations
-- **Handwriting Recognition**: May struggle with handwritten notes on scanned forms if OCR quality is low.
-- **Complex Schedules**: Difficulties parsing multi-day events or complex extracurricular rotations without fine-tuned RAG prompts.
-- **Privacy**: Requires careful handling of student PII (Personally Identifiable Information) in cloud-based LLM prompts.
+
+- **Handwriting Recognition**: May struggle with handwritten notes on scanned forms if OCR quality is low or ink is faded.
+- **Complex Schedules**: Difficulty parsing multi-day events or rotating extracurricular schedules without fine-tuned RAG prompts.
+- **Portal Fragmentation**: Some school data may be locked behind proprietary portals (e.g., ParentSquare) that lack easy API access.
 
 ## When to use it
+
 - When you have multiple children in school and are overwhelmed by the volume of digital and physical paperwork.
 - When you already use a self-hosted document management system like [Paperless-ngx](../services/paperless-ngx.md).
-- When you need a highly reliable way to ensure consent forms are signed on time.
+- When you need a highly reliable way to ensure consent forms are signed and returned on time.
 
 ## When not to use it
-- If your school uses a centralized portal (e.g., ParentSquare, Bloomz) that already provides calendar syncing and digital signatures.
-- For very low-volume correspondence where manual entry is faster than maintaining an automation stack.
-- If you have strict privacy requirements that forbid processing school documents via third-party LLMs.
+
+- If your school uses a centralized portal that already provides reliable calendar syncing and digital signatures.
+- For very low-volume correspondence where manual entry is faster than maintaining the automation stack.
+- If you lack the hardware (e.g., Mac Studio or RTX 4090) to run [Llama 4](../tools/ai_knowledge/llama.md) locally and have strict privacy rules against cloud LLMs.
+
+## Getting started
+
+To implement School Admin Intake:
+
+1.  **Define Filtering**: Configure an [n8n](../services/n8n.md) IMAP filter for emails from `@school.edu` or containing keywords like "Permission" or "Activity".
+2.  **Ingest to Paperless**: Route matched emails and scans to [Paperless-ngx](../services/paperless-ngx.md) with the `School` tag.
+3.  **Deploy Paperless-AI**: Set up [Paperless-AI](../services/paperless-ai.md) with a [Llama 4](../tools/ai_knowledge/llama.md) backend.
+4.  **Automate Actions**: Create n8n workflows to sync extracted dates to [Google Calendar](../tools/calendar_tasks/google_calendar.md) and tasks to [Vikunja](../services/vikunja.md).
+5.  **Step-by-Step Flow**:
+    ```mermaid
+    flowchart TD
+        A[School Email Inbox] --> B{n8n IMAP Filter}
+        B -->|Match| C[Send to Paperless-ngx]
+        B -->|No Match| Z[Skip]
+        C --> D[Trigger Paperless-AI]
+        D --> E[RAG Analysis & Extraction]
+        E --> F{Extraction Successful?}
+        F -->|Activity Date| G[Sync to Google Calendar]
+        F -->|Consent Required| H[Create Vikunja Task]
+        F -->|Low Confidence| I[Tag 'manual-verification']
+    ```
+
+## CLI examples
+
+### Tagging School Documents via CLI
+Manually applying school-specific tags to a document for reprocessing:
+```bash
+# Using the Paperless-ngx CLI (via docker exec)
+docker exec paperless-ngx document_tagger --document_id 4567 --add_tag "School" --add_tag "Needs-Action"
+```
+
+### Creating a Vikunja Task for Consent
+Using the Vikunja CLI to create a task for a school form:
+```bash
+# Create a task in the 'School' project
+vikunja tasks create --project "School" --title "Sign Permission Slip: Zoo Field Trip" --due "2026-06-28"
+```
+
+## API examples
+
+### Paperless-AI RAG Query (JSON)
+Extracting consent requirements using the Paperless-AI API:
+```json
+{
+  "document_id": "4567",
+  "query": "Is parental consent required for this activity? If so, what is the deadline?",
+  "model": "llama-4-maverick-70b",
+  "temperature": 0
+}
+```
+
+### n8n Google Calendar Sync (JSON)
+Creating a school event from extracted data:
+```json
+{
+  "node": "Google Calendar",
+  "parameters": {
+    "calendar": "Family",
+    "summary": "School Activity: {{ $json.event_name }}",
+    "start": "{{ $json.extracted_start_date }}",
+    "end": "{{ $json.extracted_end_date }}",
+    "description": "Auto-extracted from Paperless Doc ID: {{ $json.doc_id }}"
+  }
+}
+```
 
 ## Related tools / concepts
-- [Paperless-ngx](../services/paperless-ngx.md) (Document storage)
-- [n8n](../services/n8n.md) (Workflow engine)
-- [Vikunja](../services/vikunja.md) (Task management)
-- [Google Calendar](../tools/calendar_tasks/google_calendar.md) (Scheduling)
-- [Paperless-AI](../services/paperless-ai.md) (RAG for documents)
-- [Morgen](../tools/calendar_tasks/morgen.md) (Unified calendar view)
-- [Akiflow](../tools/calendar_tasks/akiflow.md) (Consolidated task/calendar)
 
-## Data Contract
-Defined in [Classification Standards](../standards.md).
-
-## Failure Modes & Recovery
-- **Ambiguous Dates**: "Next Friday" extraction issues.
-    - *Detection*: LLM confidence score < 0.8.
-    - *Recovery*: Tag document as `manual-verification`.
-
-## Variants
-- **Direct Scan**: Scanning a physical permission slip brought home by the student.
-
-## Managing High-Volume Seasons
-During peak times (e.g., Back-to-School, End-of-Term), the volume of documents can spike.
-- **Batch Processing**: Configure n8n to process school documents in batches during off-peak hours to save LLM tokens/compute.
-- **Urgency Tagging**: Use the LLM to apply an `URGENT-SCHOOL` tag for any document with a deadline less than 48 hours away.
+- [Paperless-ngx](../services/paperless-ngx.md): Primary document storage.
+- [n8n](../services/n8n.md): Workflow engine for email filtering and task creation.
+- [Vikunja](../services/vikunja.md): Open-source task management for consent forms.
+- [Google Calendar](../tools/calendar_tasks/google_calendar.md): Scheduling for school activities.
+- [Paperless-AI](../services/paperless-ai.md): RAG-based analysis for complex forms.
+- [Llama 4](../tools/ai_knowledge/llama.md): Recommended local LLM for privacy-first intake.
+- [Family Admin Automation](family-admin-automation.md): The overarching household playbook.
+- [Scan to Task](scan-to-task.md): Physical document ingestion strategy.
 
 ## Sources / References
-- https://github.com/joanmarcriera/Home-office-automations
+
+- [Case Study: Automating School Admin (GitHub)](https://github.com/joanmarcriera/Home-office-automations)
+- [Paperless-AI Documentation](https://github.com/the-paperless-project/paperless-ai)
+- [n8n: Working with IMAP and Email](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.email-read-imap/)
+- [Llama 4 Model Cards (HuggingFace)](https://huggingface.co/meta-llama)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+
+- Last reviewed: 2026-06-25
 - Confidence: high
