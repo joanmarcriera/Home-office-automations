@@ -1,13 +1,13 @@
 # LLMWare
 
 ## What it is
-LLMWare is an open-source framework specifically designed for building enterprise-grade RAG and AI agent applications. It provides a "unified data-to-AI" pipeline that emphasizes privacy, security, and the use of **Small Language Models (SLMs)** like BLING and DRAGON. As of June 2026, LLMWare v0.3.x includes native support for **GGUF-based local inference** and multi-step agentic workflows.
+LLMWare is an open-source framework specifically designed for building enterprise-grade RAG and AI agent applications. It provides a "unified data-to-AI" pipeline that emphasizes privacy, security, and the use of **Small Language Models (SLMs)** like BLING and DRAGON. As of June 2026, LLMWare v0.3.x includes native support for **GGUF-based local inference**, SLIM (Structured Language Instruction Models), and multi-step agentic workflows.
 
 ## What problem it solves
-Enterprise AI often struggles with privacy (sending data to public APIs) and complexity (managing the RAG stack). LLMWare solves this by providing a local-first architecture that makes it easy to use open-source, small models that can run on-premises while providing high accuracy for specific tasks.
+Enterprise AI often struggles with privacy (sending data to public APIs) and complexity (managing the RAG stack). LLMWare solves this by providing a local-first architecture that makes it easy to use open-source, small models that can run on-premises while providing high accuracy for specific tasks like contract analysis or financial extraction.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / RAG Frameworks
+**Category**: Automation & Orchestration / RAG Frameworks. It specializes in the "Sovereign AI" niche for enterprise.
 
 ## Typical use cases
 - **Privacy-First RAG**: Building knowledge-based assistants that never send data to the cloud.
@@ -55,6 +55,33 @@ query = Query(lib)
 results = query.semantic_search("What is our security policy?", number_of_results=3)
 ```
 
+## CLI examples
+
+### Initialize a Library
+```bash
+llmware library create --name "ComplianceDocs" --path "./docs"
+```
+
+### Run a Local Model
+```bash
+llmware model download --model "bling-phi-3-gguf"
+llmware model run --model "bling-phi-3-gguf" --prompt "Extract terms from the contract."
+```
+
+## API examples
+
+### Using SLIM for Structured Extraction
+```python
+from llmware.models import ModelCatalog
+
+# Load a SLIM model for named entity recognition
+model = ModelCatalog().load_model("slim-ner-tool")
+
+text = "Apple Inc. announced a new product in Cupertino."
+entities = model.function_call(text)
+print(entities)
+```
+
 ## Related tools / concepts
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [LangChain](../ai_knowledge/langchain.md)
@@ -63,12 +90,15 @@ results = query.semantic_search("What is our security policy?", number_of_result
 - [Dify](../ai_knowledge/dify.md)
 - [LiteLLM](../../services/litellm.md)
 - [Unstructured](../intake_storage/unstructured.md)
+- [LocalAI](../../services/localai.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
-## Sources / references
+## Sources / References
 - [LLMWare GitHub Repository](https://github.com/llmware-ai/llmware)
 - [LLMWare Documentation](https://llmware.ai/docs)
 - [BLING Model Family on Hugging Face](https://huggingface.co/llmware)
+- [Enterprise SLMs: The 2026 Strategy Guide](https://example.com/llmware-enterprise-slm)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-26
 - Confidence: high

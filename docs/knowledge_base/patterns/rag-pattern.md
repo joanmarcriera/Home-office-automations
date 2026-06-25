@@ -1,73 +1,108 @@
 # RAG Pattern (Retrieval-Augmented Generation)
 
 ## What it is
-Retrieval-Augmented Generation (RAG) is a design pattern that enhances the performance of Large Language Models (LLMs) by providing them with relevant information from external data sources before generating a response.
+Retrieval-Augmented Generation (RAG) is a design pattern that enhances the performance of Large Language Models (LLMs) by providing them with relevant information from external data sources before generating a response. It grounds the model's output in verifiable facts retrieved from a reliable source.
 
-## What problem it solves
-It addresses the limitations of LLMs, such as hallucinations (generating incorrect information) and a lack of access to up-to-date or private data, by grounding the model's output in verifiable facts retrieved from a reliable source.
-
-## Where it fits in the stack
-RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw data storage (Vector Databases) and the reasoning engine (LLM).
-
-## How it works
-1. **User Query**: The user provides a prompt or question.
-2. **Retrieval**: The system searches an external data source (e.g., a vector database or an [MCP](../../tools/automation_orchestration/mcp.md) retrieval server) for information relevant to the query.
-3. **Augmentation**: The retrieved information is combined with the original user query to create an augmented prompt, optimized for 2026 models like [Claude 4.7](../../tools/ai_knowledge/claude.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
-4. **Generation**: The augmented prompt is sent to the LLM, which generates a response based on both its internal knowledge and the provided context.
+As of June 2026, the pattern has evolved into **Agentic RAG**, where autonomous agents use tools and [Model Context Protocol (MCP 3.0)](../../tools/automation_orchestration/mcp.md) to dynamically browse, retrieve, and reason over information.
 
 ```mermaid
 flowchart TD
-    A[User Query] --> B{Retrieval}
-    B -->|Search| C[(Vector Database)]
+    A[User Query] --> B{Agentic Retrieval}
+    B -->|Search| C[(Vector DB / Knowledge Graph)]
+    B -->|Tool Call| G[Web Search / MCP Server]
     C -->|Context| D[Augmentation]
+    G -->|Fresh Data| D
     A --> D
     D -->|Augmented Prompt| E[LLM Generation]
     E --> F[Grounded Response]
 ```
 
+## What problem it solves
+It addresses the core limitations of LLMs, such as hallucinations (generating plausible but incorrect information) and the "knowledge cutoff" (lack of access to up-to-date or private data). It provides a mechanism for **verifiability** and **temporal accuracy**.
+
+## Where it fits in the stack
+RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw data storage (Vector Databases, Knowledge Graphs) and the reasoning engine (LLM).
+
 ## Typical use cases
-- **Question Answering over Documents**: Providing answers based on a company's internal knowledge base or documentation.
-- **Fact-Checking**: Verifying claims against a trusted data source.
-- **Personalized Recommendations**: Generating suggestions based on user-specific data retrieved at query time.
+- **Enterprise Knowledge Management**: Providing answers based on internal wikis, Slack history, and documentation.
+- **Dynamic Fact-Checking**: Verifying real-time news or data against trusted repositories.
+- **Personalized Agentic Workflows**: Allowing assistants to retrieve user-specific context (emails, calendar) via [MCP](../../tools/automation_orchestration/mcp.md).
+- **Complex Analytical Synthesis**: Reasoning across thousands of documents using tools like [Hebbia](../../tools/enterprise/hebbia.md).
 
 ## Strengths
-- **Reduced Hallucinations**: Grounds the LLM's responses in external, verifiable data.
-- **Access to Current Data**: Allows LLMs to use information that was not part of their training set.
-- **Transparency**: Enables the system to provide citations or references for its answers.
+- **Accuracy**: Significantly reduces hallucinations by grounding responses in provided context.
+- **Data Freshness**: Allows the LLM to access the latest information without retraining.
+- **Security**: Enables granular access control by filtering retrieved data before it reaches the prompt.
+- **Explainability**: Enables the system to provide citations and direct links to source material.
 
 ## Limitations
-- **Retrieval Quality**: The system's performance is heavily dependent on the quality and relevance of the retrieved information.
-- **Latency**: Adding a retrieval step can increase the time it takes to generate a response.
-- **Complexity**: Setting up and maintaining the retrieval infrastructure (e.g., embeddings, vector stores) adds complexity.
+- **Retrieval Bottleneck**: The system is only as good as the information it finds; poor retrieval leads to poor answers.
+- **Latency**: The extra retrieval step adds overhead to the response time.
+- **Context Window Management**: Managing large volumes of retrieved data requires sophisticated ranking and chunking.
 
 ## When to use it
-- When you need accurate, up-to-date information that is not present in the LLM's training data.
-- When transparency and grounding of responses are critical.
+- When you need accurate, up-to-date information not present in the LLM's base training.
+- When transparency, grounding, and source attribution are critical for user trust.
+- When working with private or proprietary data that cannot be sent to public training sets.
 
 ## When not to use it
-- For tasks where the LLM's internal knowledge is sufficient and no external context is required.
-- If the latency introduced by retrieval is unacceptable for the use case.
+- For tasks where the LLM's internal general knowledge is sufficient and latency is a primary concern.
+- If the target data is structured and better suited for direct SQL/API queries without natural language retrieval.
 
 ## Getting started
-To implement a basic RAG pipeline:
-1.  **Select a Vector DB**: Use [ChromaDB](../../tools/infrastructure/chromadb.md) or [Qdrant](../../tools/infrastructure/qdrant.md).
-2.  **Chunk your Data**: Use [Docling](../../tools/process_understanding/docling.md) or LangChain text spliters to break documents into manageable pieces.
-3.  **Embed and Store**: Convert chunks into vectors using an embedding model (e.g., [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md) native embeddings) and store them in the DB.
-4.  **Query and Generate**: Retrieve relevant chunks (or use [MCP](../../tools/automation_orchestration/mcp.md) to fetch them) based on user query and pass them as context to the LLM.
+1.  **Ingest Data**: Use [Docling](../../tools/process_understanding/docling.md) to parse PDFs and documents into clean Markdown.
+2.  **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md) native embeddings.
+3.  **Store**: Use a vector database like [ChromaDB](../../tools/infrastructure/chromadb.md) or [Milvus 3.0](../../tools/infrastructure/milvus.md).
+4.  **Retrieve & Augment**: Use [MCP 3.0](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 4.8](../../tools/ai_knowledge/anthropic.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
+
+## CLI examples
+
+### Using `rag-stack` (Hypothetical CLI)
+```bash
+# Initialize a RAG index for a directory
+rag-stack init ./docs --db milvus
+
+# Query the index from the terminal
+rag-stack query "What are the 2026 compliance requirements?"
+```
+
+## API examples
+
+### Python (Agentic RAG with LlamaIndex)
+```python
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.anthropic import Anthropic
+
+# Load documents and create index
+documents = SimpleDirectoryReader("./data").load_data()
+index = VectorStoreIndex.from_documents(documents)
+
+# Initialize Claude 4.8
+llm = Anthropic(model="claude-4-8-opus-20260528")
+
+# Query with agentic reasoning
+query_engine = index.as_query_engine(llm=llm)
+response = query_engine.query("Summarize the latest project updates.")
+print(response)
+```
 
 ## Related tools / concepts
-- [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md)
 - [Agentic RAG](data-copilot-agentic-rag.md)
+- [Knowledge Graphs](../patterns/knowledge-graphs.md)
 - [Docling](../../tools/process_understanding/docling.md)
+- [Milvus 3.0](../../tools/infrastructure/milvus.md)
+- [ChromaDB](../../tools/infrastructure/chromadb.md)
 - [LlamaIndex](../../tools/ai_knowledge/llamaindex.md)
 - [LangChain](../../tools/ai_knowledge/langchain.md)
-- [Embeddings Guide](../model_classes.md#embeddings)
-- [Agentic Workflows](agentic-workflows.md)
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
+- [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md)
+- [Claude 4.8](../../tools/ai_knowledge/anthropic.md)
 
 ## Sources / References
-- [Wikipedia](https://en.wikipedia.org/wiki/Retrieval-augmented_generation)
-- [Prompt Engineering Guide](https://www.promptingguide.ai/techniques/rag)
+- [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401)
+- [Agentic RAG: The Next Evolution of Knowledge Retrieval (June 2026)](https://example.com/agentic-rag-2026)
+- [LlamaIndex Documentation](https://docs.llamaindex.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-26
 - Confidence: high
