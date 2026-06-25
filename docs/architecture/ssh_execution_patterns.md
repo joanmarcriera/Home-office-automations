@@ -35,50 +35,69 @@ It belongs in the **Architecture** layer. Specifically, it defines the interface
 - For extremely high-security production environments where no automated agent should ever have shell access.
 
 ## Getting started
-
-### Pre-requisites
-- A target machine with an SSH server enabled.
-- A dedicated service user (e.g., `ai-agent`) on the target machine.
-- An agent framework (like [Aider](../tools/development_ops/aider.md) or [Claude Code](../tools/development_ops/claude-code.md)) capable of executing local commands that wrap SSH.
-- Support for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for standardized tool-calling.
+To implement secure agentic SSH, follow the "Three Planes" architecture.
 
 ### Architecture: The Three Planes
-A robust automation stack separates concerns into three distinct layers:
-
-1.  **Reasoning Plane (LLM)**: The "Brain." Models like [Claude 4.7](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), or [Llama 4 Maverick](../tools/ai_knowledge/meta_llama.md) analyze the current state and decide *what* needs to be done. It should never have direct access to SSH keys or credentials.
-2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., [MCP](../tools/automation_orchestration/mcp.md) server) that manages the loop, handles the LLM interaction, and initiates connections.
-3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed. Access is strictly controlled and audited.
+1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 4.8, GPT-5.5). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
+2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., MCP server) that manages the loop and initiates connections.
+3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed.
 
 ### Implementation Patterns
-
-#### 1. Tool-Based Execution
-The agent is provided with a "tool" (function) like `run_ssh_command(host, cmd)`.
-- **Workflow**: Agent sends command to controller -> Controller executes via SSH library (e.g., Paramiko, Fabric) -> Output is returned to the agent.
-
-#### 2. Wrapper Script Execution
-The agent calls a local wrapper script (e.g., `pi_exec "reboot"`) instead of raw SSH.
-- **Workflow**: Agent executes a local command -> Local script handles SSH connection and pre-command validation.
-
-#### 3. Restricted Sudo Example
-If the agent needs root privileges, use `/etc/sudoers.d/ai-agent` to restrict it to specific commands:
+1.  **Tool-Based Execution**: The agent is provided with a "tool" (function) like `run_ssh_command(host, cmd)`. Output is returned to the agent.
+2.  **Wrapper Script Execution**: The agent calls a local wrapper script (e.g., `pi_exec "reboot"`) instead of raw SSH.
+3.  **Restricted Sudo**: Restrict the service user (e.g., `ai-agent`) to specific commands in `/etc/sudoers.d/ai-agent`:
 ```text
 ai-agent ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx, /usr/bin/apt update
 ```
 
+## CLI examples
+```bash
+# Example of a local wrapper script the agent might call
+# usage: ./remote_exec.sh <host> <command>
+ssh -i /path/to/ai_key -o BatchMode=yes ai-agent@$1 "$2"
+
+# Generating a dedicated SSH key for an agent
+ssh-keygen -t ed25519 -f ~/.ssh/ai_agent_key -C "ai-agent-ssh"
+
+# Testing agent access to a restricted command
+ssh ai-agent@target-host "sudo systemctl restart nginx"
+```
+
+## API examples
+Agents often interact with SSH via libraries like Paramiko in Python.
+
+```python
+import paramiko
+
+# Example: Running a command on a remote host via SSH
+def run_remote_command(host, user, key_path, command):
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username=user, key_filename=key_path)
+
+    stdin, stdout, stderr = client.exec_command(command)
+    output = stdout.read().decode('utf-8')
+    client.close()
+    return output
+
+# print(run_remote_command("192.168.1.50", "ai-agent", "/path/to/key", "uptime"))
+```
+
 ## Related tools / concepts
-- [Raspberry Pi Kiosk Automation](../playbooks/raspberry-pi-kiosk-automation.md) — A primary application of these SSH patterns.
-- [Aider](../tools/development_ops/aider.md) — A tool that implements many of these patterns for remote repository editing.
-- [Claude Code](../tools/development_ops/claude-code.md) — An agent that uses terminal access to interact with systems.
-- [Tailscale](../services/tailscale.md) — Often used to provide the secure network layer for SSH connections.
-- [Custom Agents](../tools/development_ops/custom_agents.md) — For building controllers that implement custom validation logic.
-- [LLM Trust Boundaries](../knowledge_base/patterns/llm-trust-boundaries.md) — The theoretical framework for the security model used here.
-- [Infrastructure Overview](infrastructure.md) — Where these servers live in the homelab.
-- [Standards and Conventions](../standards.md) — The general rules governing documentation and implementation in this repo.
+- [Raspberry Pi Kiosk Automation](../playbooks/raspberry-pi-kiosk-automation.md)
+- [Aider](../tools/development_ops/aider.md)
+- [Claude Code](../tools/development_ops/claude-code.md)
+- [Tailscale](../services/tailscale.md)
+- [Custom Agents](../tools/development_ops/custom_agents.md)
+- [Infrastructure Overview](infrastructure.md)
+- [Standards and Conventions](../standards.md)
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
 
 ## Sources / References
 - [OpenSSH Official Documentation](https://www.openssh.com/)
 - [NIST Guide to SSH](https://csrc.nist.gov/publications/detail/sp/800-41/rev-1/final)
+- [Teleport: Agentless SSH](https://goteleport.com/ssh-server/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-26
 - Confidence: high
