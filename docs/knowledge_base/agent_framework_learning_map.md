@@ -1,49 +1,48 @@
 # Agent Framework Learning Map
 
 ## What it is
-
 The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment.
 
 ## What problem it solves
-
 The explosion of agentic tools has created a "choice overload" problem where every framework is marketed as a general-purpose solution. This map solves that by differentiating between tools optimized for research, rapid prototyping, autonomous coding, or high-reliability production orchestration. It prevents "framework fatigue" by recommending a specific learning order based on the desired outcome.
 
 ## Where it fits in the stack
-
 **Category**: Knowledge Base / Learning Path. It sits in the **architectural decision layer**, serving as a meta-framework that informs the selection of specific tools like [LangGraph](../tools/frameworks/langgraph.md), [CrewAI](../tools/frameworks/crewai.md), or [AutoGen](../tools/frameworks/autogen.md).
 
 ## Typical use cases
-
 - **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
-- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 4.7.
+- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 4.8.
 - **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
 - **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
 
 ## Strengths
-
 - **Outcome-Oriented**: Focuses on what the tool is *best for*, not just what it can do.
 - **Classification Clarity**: Separates libraries (SDKs) from environments (Operating Systems) and specialized modules.
 - **Local-First Friendly**: Prioritizes stacks that work well with local models and privacy-conscious architectures.
-- **Model Agnostic**: Explicitly supports routing between Claude 4.7 (reasoning), GPT-5.5 (speed), and Llama 4 Maverick (local).
+- **Model Agnostic**: Explicitly supports routing between Claude 4.8 (reasoning), GPT-5.5 (speed), and Llama 4 Maverick (local).
 
 ## Limitations
-
 - **Fast-Moving Field**: New frameworks emerge weekly, requiring frequent updates to maintain relevance.
 - **Subjective "Defaults"**: Recommendations for "production-ready" tools reflect current repository standards and may vary by specific use case.
 - **Depth vs Breadth**: Provides a high-level map rather than deep technical tutorials for every individual framework.
 
 ## When to use it
-
 - When you are starting a new agentic project and need to choose an architecture.
 - When you are overwhelmed by the number of GitHub repos claiming to be "the best" agent framework.
 - When you want to understand the difference between an Agent SDK and an Agent Operating System.
 
 ## When not to use it
-
 - If you have already standardized on a specific stack and only need deep API documentation.
 - If you are building a simple, stateless chatbot that does not require agentic reasoning or tool use.
 
-## Quick classification
+## Getting started
+To begin your journey with agent frameworks, follow this path:
+1. **The Hello World of Agents**: Start by reading the [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) documentation. It provides the simplest abstraction for tool calling and handoffs.
+2. **Master the State**: Move to [LangGraph](../tools/frameworks/langgraph.md). Build a simple circular workflow (e.g., a "Correction Loop" where one agent writes and another audits).
+3. **Explore Multi-Agent Dynamics**: Deploy a [CrewAI](../tools/frameworks/crewai.md) team of three agents (Researcher, Writer, Editor) to see how role-playing affects output quality.
+4. **Autonomous Execution**: Install [Aider](../tools/development_ops/aider.md) or explore the [OpenHands](../tools/development_ops/openhands.md) codebase to see how agents interact with a real terminal and file system.
+
+### Quick classification
 
 | Tool | Type | Learn from it | Use in production | Best reason to study or adopt |
 | :--- | :--- | :---: | :---: | :--- |
@@ -58,64 +57,82 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 | [Letta](../tools/agents/letta.md) | Memory-first agent framework | Important ideas | Emerging | Persistent memory architecture for long-lived agents and personal assistants. |
 | [DeerFlow](../tools/agents/deerflow.md) | Multi-agent research and coding harness | Excellent | Emerging | Modern sub-agent, tool-routing, sandbox, and long-horizon workflow patterns. |
 
-## Frameworks
+## CLI examples
+Working with agent frameworks often starts with initialization or CLI-based interaction.
 
-Use this bucket when the goal is to build custom agent workflows in code.
+```bash
+# Initialize a LangGraph project using the LangChain CLI
+langchain app new my-agent --template langgraph
 
-- [LangGraph](../tools/frameworks/langgraph.md) is the best default to study first when reliability matters. Its graph model makes state, loops, and checkpoints explicit enough for production agent engineering.
-- [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) is the cleanest small surface for teams that want tools, handoffs, sessions, and tracing without adopting a heavy framework.
-- [CrewAI](../tools/frameworks/crewai.md) is useful for learning role-based collaboration quickly, especially for business-process prototypes.
-- [AutoGen](../tools/frameworks/autogen.md) remains important for research and design literacy around conversational multi-agent systems, but production use needs discipline around complexity and observability.
+# Start an OpenHands development session
+docker run -it --pull always \
+    -e SANDBOX_USER_ID=$(id -u) \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v $(pwd)/workspace:/opt/workspace \
+    ghcr.io/all-hands-ai/openhands:0.12
 
-## Agent Products And Operating Environments
+# Run an Aider session with Claude 4.8
+aider --model anthropic/claude-3-5-sonnet-20241022  # Update to 4.8 alias when available
+```
 
-Use this bucket when the goal is to run a full agent environment, not just import a library.
+## API examples
+Integration examples for common frameworks.
 
-- [OpenHands](../tools/development_ops/openhands.md) is the strongest reference for autonomous software engineering loops because it combines planning, editing, command execution, browser use, and verification.
-- [OpenClaw](../tools/development_ops/openclaw.md) is the most relevant experimental operating system for personal agents, especially where messaging channels, skills, memory, and scheduled tasks matter.
-- [DeerFlow](../tools/agents/deerflow.md) is a useful modern harness to study for coordinated research/coding flows with sub-agents and tool routing.
+```python
+# OpenAI Agents SDK (June 2026 pattern)
+from openai_agents import Agent, Runner
 
-## Specialised Agents And Components
+agent = Agent(
+    name="Researcher",
+    instructions="Find the latest trends in Agentic AI.",
+    tools=[search_tool]
+)
 
-Use this bucket when the tool solves one important slice of a larger workflow.
+# Handoff pattern
+agent.add_handoff(target="Writer")
 
-- [Browser Use](../tools/automation_orchestration/browser-use.md) should be treated as a browser capability layer. Prefer APIs first, then use browser automation for websites that do not expose reliable machine interfaces.
-- [GPT Researcher](../tools/agents/gpt-researcher.md) is strongest as a research and report-generation reference implementation.
-- [Letta](../tools/agents/letta.md) is worth studying when the hard problem is persistent memory, not simply tool calling.
+# LangGraph stateful graph
+from langgraph.graph import StateGraph
 
-## Recommended Learning Order (June 2026 Update)
+builder = StateGraph(MyState)
+builder.add_node("research", research_node)
+builder.add_node("write", write_node)
+builder.set_entry_point("research")
+builder.add_edge("research", "write")
+graph = builder.compile()
+```
 
-### Fundamentals
+## Related tools / concepts
+- [LangGraph](../tools/frameworks/langgraph.md)
+- [CrewAI](../tools/frameworks/crewai.md)
+- [AutoGen](../tools/frameworks/autogen.md)
+- [OpenHands](../tools/development_ops/openhands.md)
+- [OpenClaw](../tools/development_ops/openclaw.md)
+- [LiteLLM](../services/litellm.md)
+- [Model Context Protocol](agent_protocols.md)
+- [Agentic Workflows](patterns/agentic-workflows.md)
+- [AI Tooling Landscape](ai_tooling_landscape.md)
+- [Browser Use](../tools/automation_orchestration/browser-use.md)
 
-1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 4.7 for reasoning)
+### Recommended Learning Order (June 2026 Update)
+
+**Fundamentals**
+1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 4.8 for reasoning)
 2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5)
 3. [CrewAI](../tools/frameworks/crewai.md)
 4. [AutoGen](../tools/frameworks/autogen.md)
 
-### Coding Agents
-
-1. [OpenHands](../tools/development_ops/openhands.md) (with Claude 4.7 / Aider)
+**Coding Agents**
+1. [OpenHands](../tools/development_ops/openhands.md) (with Claude 4.8 / Aider)
 2. [OpenClaw](../tools/development_ops/openclaw.md)
 
-### Specialised Patterns
-
+**Specialised Patterns**
 1. [Browser Use](../tools/automation_orchestration/browser-use.md)
 2. [GPT Researcher](../tools/agents/gpt-researcher.md)
 3. [Letta](../tools/agents/letta.md)
 4. [DeerFlow](../tools/agents/deerflow.md)
 
-## Getting started
-
-To begin your journey with agent frameworks, follow this path:
-
-1. **The Hello World of Agents**: Start by reading the [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) documentation. It provides the simplest abstraction for tool calling and handoffs.
-2. **Master the State**: Move to [LangGraph](../tools/frameworks/langgraph.md). Build a simple circular workflow (e.g., a "Correction Loop" where one agent writes and another audits).
-3. **Explore Multi-Agent Dynamics**: Deploy a [CrewAI](../tools/frameworks/crewai.md) team of three agents (Researcher, Writer, Editor) to see how role-playing affects output quality.
-4. **Autonomous Execution**: Install [Aider](../tools/development_ops/aider.md) or explore the [OpenHands](../tools/development_ops/openhands.md) codebase to see how agents interact with a real terminal and file system.
-
-## Narrow Stack For OpenClaw-Style Local Orchestration
-
-For a low-cost, local-model-friendly agent stack with GitHub Actions and personal workflow automation, prioritise:
+### Narrow Stack For OpenClaw-Style Local Orchestration
 
 | Layer | Recommended tool | Why |
 | :--- | :--- | :--- |
@@ -127,28 +144,13 @@ For a low-cost, local-model-friendly agent stack with GitHub Actions and persona
 | Automation shell | [n8n](../services/n8n.md) | Human-visible workflow gates, approvals, retries, and integrations. |
 | Model routing | [LiteLLM](../services/litellm.md) | OpenAI-compatible routing across local and hosted models. |
 
-## Practical Adoption Notes
-
-- **Model Selection**: As of mid-2026, Claude 4.7 is the preferred model for complex architectural planning and LangGraph orchestration, while GPT-5.5 excels at high-throughput tool calling.
+### Practical Adoption Notes
+- **Model Selection**: Claude 4.8 is preferred for complex architectural planning and LangGraph orchestration, while GPT-5.5 excels at high-throughput tool calling.
 - Do not choose by popularity alone. Choose by workflow shape: coding, research, browser operation, personal assistant, or production application runtime.
 - Treat "good to study" and "good to run" as different decisions. AutoGen and OpenClaw are valuable to study even when LangGraph or OpenAI Agents SDK is the safer production default.
 - Keep specialised tools composable. Browser Use, GPT Researcher, and Letta are often better as components in a broader system than as the whole architecture.
-- Use [Model Context Protocol](agent_protocols.md) and [LiteLLM](../services/litellm.md) as stabilising layers when combining local models, cloud models, and tool access.
-
-## Related tools / concepts
-
-- [AI Tooling Landscape](ai_tooling_landscape.md)
-- [AI Builder Index](ai_builder_index.md)
-- [Agent Protocols](agent_protocols.md)
-- [Agentic Workflows](patterns/agentic-workflows.md)
-- [OpenClaw Workflow Prompts](patterns/openclaw-workflow-prompts.md)
-- [Data Copilot Text-to-SQL Architecture](../architecture/data-copilot-text-to-sql.md)
-- [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
-- [Flows](../architecture/flows.md)
-- [Infrastructure](../architecture/infrastructure.md)
 
 ## Sources / References
-
 - [LangGraph documentation](https://langchain-ai.github.io/langgraph/)
 - [OpenAI Agents SDK documentation](https://openai.github.io/openai-agents-python/)
 - [CrewAI documentation](https://docs.crewai.com/)
@@ -161,6 +163,5 @@ For a low-cost, local-model-friendly agent stack with GitHub Actions and persona
 - [DeerFlow GitHub](https://github.com/bytedance/deer-flow)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-25
 - Confidence: high
