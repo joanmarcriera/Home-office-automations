@@ -15,7 +15,7 @@ Traditional software development is often slowed by repetitive tasks, context sw
 ## Typical use cases
 
 - **Bootstrapping New Scripts**: Rapidly generating Python automation scripts for homelab infrastructure using GPT-5.5.
-- **Legacy Code Refactoring**: Using [Jules](../tools/ai_knowledge/jules.md) (powered by Claude 4.7) to modernize old scripts with current best practices and better test coverage.
+- **Legacy Code Refactoring**: Using [Jules](../tools/ai_knowledge/jules.md) (powered by Claude 4.8) to modernize old scripts with current best practices and better test coverage.
 - **Large-Scale Maintenance**: Automating documentation audits and repository-wide consistency checks.
 - **Continuous Verification**: Running autonomous test loops to ensure infrastructure changes don't break complex Home Assistant or K3s configurations.
 
@@ -25,7 +25,7 @@ Traditional software development is often slowed by repetitive tasks, context sw
 - **Layered Defense**: Uses different agents for different tasks (drafting vs. implementation vs. refactoring) to minimize errors.
 - **Local-First Ready**: Fully compatible with local models like `Llama 4 Maverick` for private, zero-cost development.
 - **Reviewable Autonomy**: Includes a "PR-readiness gate" to ensure AI-generated work remains human-understandable.
-- **Protocol Native**: Natively supports the Model Context Protocol (MCP) for tool discovery and execution.
+- **Protocol Native**: Natively supports the Model Context Protocol (MCP 3.0) for tool discovery and execution.
 
 ## Limitations
 
@@ -50,95 +50,78 @@ To adopt the AI-Assisted Dev Workflow:
 
 1. **Setup the Environment**: Install [Cursor](../tools/development_ops/cursor.md) and [Aider](../tools/development_ops/aider.md).
 2. **Draft the Outline**: Use Cursor to define the high-level architecture and data contracts (GPT-5.5 is excellent for this).
-3. **Run the Implementation**: Start an Aider session: `aider --model claude-4.7 <file-to-edit>`.
+3. **Run the Implementation**: Start an Aider session: `aider --model claude-4.8 <file-to-edit>`.
 4. **Trigger the Audit**: Once the implementation is complete, run the verification scripts listed in the "Verification Checklist" below.
 5. **Review the Gate**: Complete the "PR-readiness gate" before merging your changes.
 
-## Objective
-Accelerate homelab infrastructure development using a hierarchy of AI coding agents.
-
-## Pre-requisites
-- [VS Code](../tools/development_ops/vscode.md) or [Cursor](../tools/development_ops/cursor.md)
-- [Aider](../tools/development_ops/aider.md)
-- [Ollama](../services/ollama.md)
-- [Jules (Google)](../tools/ai_knowledge/jules.md)
-- Claude 4.7 (for complex reasoning)
-- GPT-5.5 (for rapid drafting)
-
-## Workflow Architecture (June 2026)
+### Workflow Architecture (June 2026)
 
 ```mermaid
 flowchart TD
-    A[Drafting: Cursor / GPT-5.5] -->|Outline & Python script| B[Implementation: Aider / Claude 4.7]
-    B -->|Complex functions| C[Refactoring: Jules / Claude 4.7]
-    C -->|Best practices & Unit tests| D[Verification: Anti-Gravity / MCP]
+    A[Drafting: Cursor / GPT-5.5] -->|Outline & Python script| B[Implementation: Aider / Claude 4.8]
+    B -->|Complex functions| C[Refactoring: Jules / Claude 4.8]
+    C -->|Best practices & Unit tests| D[Verification: Anti-Gravity / MCP 3.0]
     D -->|Plan-Code-Test loop| E[Audit: Human Review]
     E -->|Approved| F[Merge to main]
     B -.->|Linter errors| B
     D -.->|Test failures| B
 ```
 
-## Step-by-Step Flow
-1.  **Drafting**: Use Cursor with GPT-5.5 to outline a new automation script in Python.
-2.  **Implementation**: Use Aider with Claude 4.7 to perform targeted code generation for complex functions.
-3.  **Refactoring**: Assign [Jules](../tools/ai_knowledge/jules.md) (using Claude 4.7) to refactor the repository asynchronously, focusing on best practices and unit test coverage.
-4.  **Verification**: [Anti-Gravity](../tools/development_ops/anti_gravity.md) runs a plan-code-test loop, utilizing MCP to interact with the local environment.
-5.  **Audit**: Review AI-generated commits before merging into the `main` branch.
+## CLI examples
 
-## Data Contract
-- **Input**: Natural language prompt + Codebase context.
-- **Output**: Git diff + Commit message.
-
-## PR-readiness gate
-
-Before opening a pull request, require the agent or operator to record:
-
-1. **Scope**: the exact issue number, target files, and any files intentionally left unchanged.
-2. **Discovery**: the search commands or repository references used to choose the edited files.
-3. **Validation**: lint, tests, docs checks, or manual verification that match the files changed.
-4. **Risk**: known limitations, missing dependencies, or areas that still need human review.
-5. **Rollback path**: the branch name and whether the change is isolated enough to revert cleanly.
-
-This keeps autonomous work reviewable even when the implementation is correct. A passing test suite is not enough if the PR does not explain why those files were touched.
-
-## Failure Modes & Recovery
-- **Hallucination**: AI generates non-existent API calls.
-    - *Detection*: Linter or compiler errors.
-    - *Recovery*: Feed error logs back to Aider for automated fixing.
-- **Context Limit**: Large repositories exceed LLM context window.
-    - *Recovery*: Use Aider's repository map feature and Claude 4.7's 500k+ context window where available.
-
-## Local-First Setup
-A fully local-first development workflow ensures complete privacy and zero per-token costs.
-
-- **Reasoning**: Use `Llama 4 Maverick` via [Ollama](../services/ollama.md). This model is highly optimized for coding tasks and can be run on consumer hardware with 16GB+ VRAM.
-- **Agent**: [Aider](../tools/development_ops/aider.md) configured to use the local Ollama endpoint.
-- **Context Management**: Leverage Aider's **repository map** to provide the LLM with a concise overview of your codebase, ensuring high relevance while staying within local context limits.
-- **Verification**: Run local unit tests and linting autonomously after each AI-generated change.
-
-## Token-Efficiency & Value
-- **Differential Context**: Only send files that are directly related to the task. Use Aider's `/add` and `/drop` commands to manage context manually if the auto-selection is too broad.
-- **Commit Summaries**: Use the LLM to generate concise git commit messages, but review them to ensure they provide technical value without fluff.
-- **Local Routing**: Use [LiteLLM](../services/litellm.md) to route simple tasks (like docstring generation) to smaller, faster local models while reserving larger models (Claude 4.7) for complex logic.
-- **Search Before Reading**: Use [ripgrep](../tools/development_ops/ripgrep.md) or the repository's code search before asking a model to inspect whole directories.
-- **Escalate Late**: Start with local or cheaper models for discovery, summarization, and candidate patch planning. Use stronger hosted models (Claude 4.7) for final design review, complex debugging, or risky cross-module changes.
-
-## Verification Checklist
-
-For this repository, docs-oriented PRs should normally include:
-
+### Starting an Aider Session
+Launching Aider with a specific model and file context.
 ```bash
-python3 scripts/check_catalog_consistency.py
-python3 scripts/check_docs_contract.py
-python3 scripts/validate_new_sources.py
-ruby -ryaml -e 'YAML.load_file("mkdocs.yml"); puts "mkdocs.yml OK"'
+# Start Aider with Claude 4.8 Opus
+aider --model claude-4-8-opus-20260528 docs/playbooks/dev-workflow-ai-assisted.md
 ```
 
-For code-heavy repositories, replace those with the project-native checks, such as unit tests, type checks, and formatters. The important rule is to write down the exact checks in the PR body so future agents can reproduce them.
+### Running Repository Validation
+Executing the standard verification suite for this repository.
+```bash
+# Run consistency and contract checks
+python3 scripts/check_catalog_consistency.py
+python3 scripts/check_docs_contract.py
+```
 
-## Variants
-- **Cloud-Based**: Use Claude 4.7 and GPT-5.5 via [LiteLLM](../services/litellm.md) for better reasoning.
-- **Privacy-First**: Use local Llama 4 Maverick models in Ollama.
+## API examples
+
+### Triggering an Anti-Gravity Test Loop
+Example of an agentic script initiating a verification loop via an API endpoint.
+```python
+import requests
+
+def trigger_verification_loop(branch_name):
+    url = "http://anti-gravity.local/api/v1/verify"
+    payload = {
+        "branch": branch_name,
+        "suites": ["unit", "lint", "docs-contract"],
+        "mcp_enabled": True
+    }
+    response = requests.post(url, json=payload)
+    return response.json()
+
+# Result includes real-time logs and pass/fail status
+status = trigger_verification_loop("feature/agent-audit")
+print(f"Verification status: {status['summary']}")
+```
+
+### Automated PR Gate Entry
+An agent recording its discovery and validation process.
+```python
+import json
+
+gate_entry = {
+    "scope": "Updated dev-workflow playbook for June 2026.",
+    "discovery": "ripgrep search for 'Claude 4.7' to replace with 'Claude 4.8'.",
+    "validation": "Passed check_docs_contract.py locally.",
+    "risk": "Low. Documentation update only.",
+    "rollback_path": "git checkout main"
+}
+
+with open("docs/reports/pr-gate-feature-audit.json", "w") as f:
+    json.dump(gate_entry, f, indent=2)
+```
 
 ## Related tools / concepts
 
@@ -152,6 +135,7 @@ For code-heavy repositories, replace those with the project-native checks, such 
 - [Agentic Workflows](../knowledge_base/patterns/agentic-workflows.md)
 - [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
 - [Flows](../architecture/flows.md)
+- [Anti-Gravity](../tools/development_ops/anti_gravity.md)
 
 ## Sources / References
 - https://blog.cloudflare.com/vinext
@@ -160,5 +144,5 @@ For code-heavy repositories, replace those with the project-native checks, such 
 - [ripgrep](../tools/development_ops/ripgrep.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-25
 - Confidence: high

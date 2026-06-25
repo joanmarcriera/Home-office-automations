@@ -7,7 +7,7 @@ Raspberry Pi Kiosk Automation is an agentic pattern for transforming a standard 
 Setting up a reliable Raspberry Pi kiosk manually involves multiple steps: configuring autologin, installing window managers, managing display power settings, and ensuring the browser restarts on failure. This playbook automates these steps, reducing human error and ensuring a consistent, reproducible setup across multiple devices.
 
 ## Where it fits in the stack
-This playbook sits in the **Operations / Playbooks** layer. It coordinates tools from the **Infrastructure** (Raspberry Pi, SSH), **Development & Ops** (Agents), and **Services** (Dashboards) layers to create a functional hardware endpoint.
+This playbook sits in the **Operations / Playbooks** layer. It coordinates tools from the **Infrastructure** (Raspberry Pi, SSH) and **Development & Ops** (Agents) layers to create a functional hardware endpoint.
 
 ## Typical use cases
 - **Home Dashboard**: Displaying Home Assistant or Grafana metrics in a kitchen or hallway.
@@ -18,20 +18,21 @@ This playbook sits in the **Operations / Playbooks** layer. It coordinates tools
 ## Strengths
 - **Consistency**: Ensures the same configuration is applied every time, eliminating "it works on my Pi" issues.
 - **Resilience**: Configures systemd services to automatically recover from browser crashes or reboots.
-- **Agentic Recovery**: LLM-powered agents can detect and fix common installation errors (e.g., missing dependencies or network timeouts) autonomously.
+- **Agentic Recovery**: LLM-powered agents (Claude 4.8) can detect and fix common installation errors autonomously.
+- **Remote-First**: Optimized for headless setup via SSH and Tailscale.
 
 ## Limitations
 - **Hardware Bound**: Specifically tailored for the Raspberry Pi hardware and Raspberry Pi OS (Debian-based).
 - **Network Dependency**: Initial setup requires SSH access, typically over a local network or [Tailscale](../services/tailscale.md).
-- **Resource Constraints**: Running a full Chromium browser in kiosk mode can be memory-intensive on older Pi models (e.g., Pi 3 or Zero).
+- **Resource Constraints**: Running a full Chromium browser in kiosk mode can be memory-intensive on older Pi models.
 
 ## When to use it
 - When you need to deploy one or more dedicated dashboard displays quickly and reliably.
 - When you want to ensure your kiosk setup is documented and reproducible via an automated agent.
-- When you are using other tools in this stack (like [Tailscale](../services/tailscale.md) or [Home Assistant](../services/home-assistant.md)) and want to integrate the display.
+- When you are using other tools in this stack (like [Tailscale](../services/tailscale.md) or [Home Assistant](../services/home-assistant.md)).
 
 ## When not to use it
-- For high-security environments where the kiosk must be completely air-gapped (initial agent setup requires a connection).
+- For high-security environments where the kiosk must be completely air-gapped.
 - If you only need a temporary display that doesn't require persistence or automatic recovery.
 
 ## Getting started
@@ -39,7 +40,7 @@ This playbook sits in the **Operations / Playbooks** layer. It coordinates tools
 ### Pre-requisites
 - A Raspberry Pi with Raspberry Pi OS installed (Bookworm or newer recommended).
 - SSH access enabled via [SSH Execution Patterns](../architecture/ssh_execution_patterns.md).
-- A June 2026-class agent like [Claude Code](../tools/development_ops/claude-code.md) (v4.7), [Aider](../tools/development_ops/aider.md) (with GPT-5.5), or [Llama 4 Maverick](../tools/ai_knowledge/llama.md) configured for remote execution.
+- A June 2026-class agent like [Claude Code](../tools/development_ops/claude-code.md) (v4.8), [Aider](../tools/development_ops/aider.md), or [Llama 4 Maverick](../tools/ai_knowledge/llama.md).
 
 ### Typical Automation Workflow
 
@@ -61,66 +62,71 @@ flowchart TD
     end
 ```
 
-The agent follows an iterative "Propose-Execute-Observe" loop to configure the Pi:
+## CLI examples
 
-1.  **OS Preparation**: Agent checks the OS version and updates packages.
-    - *Command*: `lsb_release -a && sudo apt update && sudo apt upgrade -y`
-2.  **Environment Setup**: Agent installs necessary kiosk dependencies (X11, Chromium, Matchbox window manager).
-    - *Command*: `sudo apt install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox chromium-browser unclutter`
-3.  **Autologin Configuration**: Agent modifies `/etc/lightdm/lightdm.conf` or uses `raspi-config` non-interactively to ensure the `pi` user logs in automatically to the desktop.
-4.  **Kiosk Script Creation**: Agent writes a startup script (`/home/pi/kiosk.sh`):
-    ```bash
-    #!/bin/bash
-    xset s noblank
-    xset s off
-    xset -dpms
-    unclutter -idle 0.5 -root &
-    sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' /home/pi/.config/chromium/Default/Preferences
-    sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium/Default/Preferences
-    /usr/bin/chromium-browser --noerrdialogs --disable-infobars --kiosk http://your-dashboard-url.local
-    ```
-5.  **Service Persistence**: Agent creates a systemd service (`/etc/systemd/system/kiosk.service`):
-    ```ini
-    [Unit]
-    Description=Raspberry Pi Kiosk
-    After=network.target
+### Installing Kiosk Dependencies
+An agent running commands on a remote Pi via SSH.
+```bash
+# Update and install core kiosk requirements
+sudo apt update && sudo apt install -y --no-install-recommends \
+    xserver-xorg x11-xserver-utils xinit openbox \
+    chromium-browser unclutter
+```
 
-    [Service]
-    ExecStart=/usr/bin/xinit /home/pi/kiosk.sh -- :0
-    Restart=always
-    User=pi
-    Group=pi
-    Environment=DISPLAY=:0
-    Environment=XAUTHORITY=/home/pi/.Xauthority
+### Checking Kiosk Service Logs
+Diagnosing startup failures via systemd.
+```bash
+# View the last 50 lines of the kiosk service log
+journalctl -u kiosk.service -n 50 --no-pager
+```
 
-    [Install]
-    WantedBy=graphical.target
-    ```
+## API examples
+
+### Remotely Updating the Kiosk URL
+An agent utilizing a management API or SSH to update the target dashboard.
+```python
+import subprocess
+
+def update_kiosk_url(pi_host, new_url):
+    # Remote command to update the kiosk script URL
+    remote_cmd = f"sed -i 's|--kiosk .*|--kiosk {new_url}|' /home/pi/kiosk.sh"
+    subprocess.run(["ssh", f"pi@{pi_host}", remote_cmd])
+
+    # Restart the service to apply changes
+    subprocess.run(["ssh", f"pi@{pi_host}", "sudo systemctl restart kiosk"])
+
+# Update kitchen dashboard to new Home Assistant view
+update_kiosk_url("kitchen-pi.local", "http://ha.local:8123/dashboard-kitchen")
+```
+
+### Kiosk Startup Script (kiosk.sh)
+The core script executed by Xinit to launch the browser.
+```bash
+#!/bin/bash
+xset s noblank
+xset s off
+xset -dpms
+unclutter -idle 0.5 -root &
+# Clear crash flags to avoid Chromium "Restore pages" popup
+sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' /home/pi/.config/chromium/Default/Preferences
+sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium/Default/Preferences
+/usr/bin/chromium-browser --noerrdialogs --disable-infobars --kiosk http://your-dashboard-url.local
+```
 
 ## Related tools / concepts
-- [SSH Execution Patterns](../architecture/ssh_execution_patterns.md) — The underlying security and execution model for this playbook.
-- [Tailscale](../services/tailscale.md) — Recommended for secure remote access and management of the kiosk.
-- [Home Assistant](../services/home-assistant.md) — A common dashboard target for kiosk displays.
-- [Custom Agents](../tools/development_ops/custom_agents.md) — For building specialized agents to manage large kiosk fleets.
-- [Aider](../tools/development_ops/aider.md) — A CLI-based agent capable of performing this setup via SSH.
-- [Claude Code](../tools/development_ops/claude-code.md) — Another powerful agent for autonomous infrastructure tasks.
-- [Paperless-ngx](../services/paperless-ngx.md) — Can be used to store and display digitized documents on the kiosk.
-- [Grafana](../services/grafana.md) — For displaying high-density infrastructure monitoring dashboards.
-
-## Security Considerations
-- **SSH Key Management**: Ensure the agent uses a dedicated, restricted SSH key for kiosk configuration.
-- **Kiosk User Lockdown**: The `pi` user should have restricted permissions, especially if the kiosk is in a public area.
-- **Network Isolation**: Place kiosks on a dedicated IoT VLAN where possible, using [Tailscale](../services/tailscale.md) for management.
-
-## Troubleshooting with Agents
-If the kiosk fails to start, modern agents like Claude 4.7 can be pointed at the logs to diagnose issues:
-- `journalctl -u kiosk.service -n 50`
-- `cat /home/pi/.xsession-errors`
+- [SSH Execution Patterns](../architecture/ssh_execution_patterns.md) — The underlying security and execution model.
+- [Tailscale](../services/tailscale.md) — Recommended for secure remote access.
+- [Home Assistant](../services/home-assistant.md) — A common dashboard target.
+- [Aider](../tools/development_ops/aider.md) — A CLI-based agent for performing this setup.
+- [Claude Code](../tools/development_ops/claude-code.md) — Agent for autonomous infrastructure tasks.
+- [Paperless-ngx](../services/paperless-ngx.md) — For displaying digitized documents.
+- [Grafana](../services/grafana.md) — For high-density monitoring dashboards.
 
 ## Sources / References
 - [Official Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/)
 - https://github.com/joanmarcriera/Home-office-automations
+- [Chromium Command Line Switches](https://peter.sh/experiments/chromium-command-line-switches/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-25
 - Confidence: high
