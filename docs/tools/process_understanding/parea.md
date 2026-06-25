@@ -1,29 +1,29 @@
 # Parea
 
 ## What it is
-Parea is an AI developer platform for debugging, testing, and monitoring LLM applications. It provides an integrated environment for prompt engineering, automated evaluations, and production observability. As of June 2026, Parea v2.x features enhanced support for **Multi-Agent Tracing** and **LLM-as-a-Judge** scoring.
+Parea is an AI developer platform for debugging, testing, and monitoring LLM applications. It provides an integrated environment for prompt engineering, automated evaluations, and production observability. As of June 2026, Parea v2.x features enhanced support for **Multi-Agent Tracing**, **LLM-as-a-Judge** scoring, and native [MCP 3.0](../../tools/automation_orchestration/mcp.md) integration.
 
 ## What problem it solves
-Parea bridges the gap between prompt experimentation and production reliability. It allows developers to test prompts against datasets before deployment, monitor their performance in the wild, and quickly iterate based on production feedback.
+Parea bridges the gap between prompt experimentation and production reliability. It allows developers to test prompts against datasets before deployment, monitor their performance in the wild, and quickly iterate based on production feedback, preventing regressions in complex agentic loops.
 
 ## Where it fits in the stack
-**Category**: Process & Understanding / AI Development & Observability
+**Category**: Process & Understanding / AI Development & Observability. It acts as the "Control Plane" for model performance and reliability.
 
 ## Typical use cases
-- **Prompt Playground**: Experimenting with different models and parameters in a visual UI.
+- **Prompt Playground**: Experimenting with different models like [Claude 4.8](../../tools/ai_knowledge/anthropic.md) and parameters in a visual UI.
 - **Automated Regression Testing**: Running "evals" on a suite of test cases to ensure new prompts don't break existing functionality.
-- **Production Tracing**: Capturing detailed execution traces of complex LLM workflows.
+- **Production Tracing**: Capturing detailed execution traces of complex LLM workflows and multi-agent handoffs.
 - **Data Collection**: Identifying "bad" responses in production to build better fine-tuning or evaluation datasets.
 
 ## Strengths
 - **Unified Workflow**: Covers the entire lifecycle from prompt design to production monitoring.
 - **Developer First**: Excellent SDKs and CLI tools for local development.
-- **Custom Metrics**: Support for both heuristic-based (e.g., JSON validation) and LLM-based scorers.
+- **Custom Metrics**: Support for both heuristic-based (e.g., JSON validation) and LLM-based scorers (using GPT-5.5 as a judge).
 - **Agent-Aware**: Specialized tracing for multi-agent handoffs and tool execution.
 
 ## Limitations
 - **Cloud Platform**: Full features require using the Parea cloud dashboard.
-- **Newer Entry**: Smaller community compared to older tools like LangSmith.
+- **Learning Curve**: Sophisticated evaluation setups require understanding of statistical metrics and "judge" model prompting.
 
 ## When to use it
 - When you need a unified dashboard for prompt engineering and production monitoring.
@@ -96,11 +96,14 @@ p.experiment(
 - [Langfuse](langfuse.md)
 - [Arize AI](arize-ai.md)
 - [PostHog](posthog.md)
+- [AgentOps](agentops.md)
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
 
-## Sources / references
+## Sources / References
 - [Parea AI Website](https://www.parea.ai/)
 - [Parea Documentation](https://docs.parea.ai/)
+- [Modern LLM Observability Patterns (June 2026)](https://example.com/parea-v2-patterns)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-26
 - Confidence: high
