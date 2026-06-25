@@ -32,18 +32,20 @@ It sits in the **Operational Playbook Layer**, specifically under **Infrastructu
 - If you don't have the technical expertise to manage a critical piece of networking infrastructure.
 
 ## Getting started
+
+### Deployment
 To begin the migration:
 1.  **Deploy Headscale**: Follow the [Headscale Service](../services/headscale.md) guide to set up the server.
 2.  **Back up Tailscale**: Document your existing node names and ACLs.
 3.  **Perform a Pilot**: Migrate a single non-critical node first using the steps in this playbook.
 
-## Agent-Assisted Migration
-Modern agents can significantly simplify the migration process. Use a June 2026-class agent (e.g., [Claude 4.7](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md)) to:
+### Agent-Assisted Migration
+Modern agents can significantly simplify the migration process. Use a June 2026-class agent (e.g., [Claude 4.8](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md)) to:
 - **Translate ACLs**: Convert Tailscale `policy.hujson` to Headscale-compatible YAML/ACL formats.
 - **Automate Client Rollout**: Script the `tailscale logout` and `tailscale up --login-server` commands across a fleet of Linux nodes via SSH.
 - **Validate OIDC Config**: Verify the `config.yaml` parameters against your [Authentik](../services/authentik.md) provider metadata.
 
-## Migration Workflow
+### Migration Workflow
 
 ```mermaid
 flowchart TD
@@ -59,43 +61,34 @@ flowchart TD
     Verify --> End[Target: Self-hosted Mesh]
 ```
 
-## Migration Steps
+### Migration Steps
 
-### Prerequisites
+#### Prerequisites
 - A functional [Authentik](../services/authentik.md) instance for OIDC.
 - A public FQDN with valid SSL certificates (e.g., via Let's Encrypt) pointing to your Headscale server.
 - Tailscale clients installed on target nodes.
 
-### Step 1: Headscale Deployment
+#### Step 1: Headscale Deployment
 1. Deploy Headscale using Docker (see [Headscale Service](../services/headscale.md) for compose snippet).
 2. Configure `config.yaml` with your `server_url`.
 3. Integrate with Authentik for OIDC to allow family members to join easily.
 
-### Step 2: Client Migration (Manual)
+#### Step 2: Client Migration (Manual)
 On each node currently running Tailscale, perform the following:
 
-#### Linux
+##### Linux
 You can use the provided migration script:
 ```bash
 ./scripts/headscale_migration.sh https://<headscale-fqdn>
 ```
 
-Or manually:
-```bash
-# Logout from Tailscale SaaS
-tailscale logout
-
-# Login to Headscale
-tailscale up --login-server https://<headscale-fqdn>
-```
-
-#### MacOS / Windows
+##### MacOS / Windows
 1. Hold the **Alt** (or Option) key and click the Tailscale icon in the menu bar/system tray.
 2. Select **Change Server...**.
 3. Enter your Headscale FQDN: `https://<headscale-fqdn>`.
 4. Follow the OIDC login flow.
 
-### Step 3: Headscale Node Approval
+#### Step 3: Headscale Node Approval
 If not using OIDC or if a node requires manual registration:
 1. Run `tailscale up --login-server https://<headscale-fqdn>` on the client.
 2. Copy the provided URL.
@@ -104,34 +97,89 @@ If not using OIDC or if a node requires manual registration:
    headscale nodes register --user <username> --key <node-key>
    ```
 
-### Step 4: Node-Specific Checklists
+#### Step 4: Node-Specific Checklists
 
-#### TrueNAS SCALE NAS
+##### TrueNAS SCALE NAS
 - [x] SSH into TrueNAS.
 - [x] Run `tailscale logout`.
 - [x] Run `tailscale up --login-server https://<headscale-fqdn>`.
 - [x] Verify NAS is reachable via Tailscale IP in Headscale.
 
-#### K3s Compute Node
+##### K3s Compute Node
 - [x] Ensure `tailscale` is running on the host.
 - [x] Run migration script or manual commands.
 - [x] Update any K3s service advertisements if using Tailscale IPs for cluster communication.
 
-#### Home Assistant VM
+##### Home Assistant VM
 - [x] Use the HA Terminal & SSH add-on.
 - [x] Execute `tailscale logout` followed by `tailscale up --login-server ...`.
 - [x] Re-verify HA external access if proxied through Tailscale.
 
-### Step 5: Verification
+#### Step 5: Verification
 1. List nodes on Headscale: `headscale nodes list`.
 2. Verify connectivity between nodes: `tailscale ping <other-node-ip>`.
 3. Ensure ACLs are correctly migrated if using a custom `policy.hujson`.
 
-## Rollback Plan
+### Rollback Plan
 If migration fails, logout from Headscale and login back to Tailscale:
 ```bash
 tailscale logout
 tailscale up
+```
+
+### Troubleshooting Migration Issues
+- **OIDC Redirect Loops**: Often caused by mismatched `server_url` in Headscale and `redirect_uris` in Authentik. Use Claude 4.8 to inspect the logs: `docker logs headscale`.
+- **Node Name Conflicts**: Headscale requires unique node names per user. If a migration fails due to naming, use `headscale nodes rename`.
+- **Pre-Auth Key Expiry**: If migrating headless nodes, ensure the pre-auth keys generated on the server have sufficient TTL.
+
+## CLI examples
+
+### Client Migration (Linux)
+```bash
+# Logout from Tailscale SaaS
+tailscale logout
+
+# Connect to a Headscale instance
+tailscale up --login-server https://headscale.example.com
+```
+
+### Headscale Server Management
+```bash
+# Register a node manually
+headscale nodes register --user jules --key nodekey:abcdef123456
+
+# List nodes and their status
+headscale nodes list
+
+# Create a pre-authenticated key for headless nodes
+headscale preauthkeys create -u jules --expiration 24h
+```
+
+## API examples
+
+### Querying Node Status via REST API
+Agents can use the Headscale REST API to verify migration status across the fleet.
+
+```bash
+# Fetch all nodes from Headscale
+curl -X GET \
+  -H "Authorization: Bearer $HEADSCALE_API_KEY" \
+  https://headscale.example.com/api/v1/node
+```
+
+### Scripted Node Approval
+```python
+import requests
+
+def approve_node(headscale_url, api_key, user, node_key):
+    endpoint = f"{headscale_url}/api/v1/node/register"
+    headers = {"Authorization": f"Bearer {api_key}"}
+    payload = {"user": user, "key": node_key}
+    response = requests.post(endpoint, headers=headers, json=payload)
+    return response.status_code == 200
+
+# Example usage
+# approve_node("https://headscale.local", "secret", "admin", "mkey:123")
 ```
 
 ## Related tools / concepts
@@ -142,16 +190,13 @@ tailscale up
 - [Infrastructure Architecture](../architecture/infrastructure.md)
 - [SSO Comparison](../knowledge_base/sso-comparison.md)
 - [Family Admin Automation](family-admin-automation.md)
-
-## Troubleshooting Migration Issues
-- **OIDC Redirect Loops**: Often caused by mismatched `server_url` in Headscale and `redirect_uris` in Authentik. Use Claude 4.7 to inspect the logs: `docker logs headscale`.
-- **Node Name Conflicts**: Headscale requires unique node names per user. If a migration fails due to naming, use `headscale nodes rename`.
-- **Pre-Auth Key Expiry**: If migrating headless nodes, ensure the pre-auth keys generated on the server have sufficient TTL.
+- [Tailscale Service](../services/tailscale.md)
 
 ## Sources / References
 - [Headscale Documentation](https://github.com/juanfont/headscale/blob/main/docs/ref/registration.md)
 - [Tailscale CLI Reference](https://tailscale.com/kb/1080/cli/)
+- [Headscale v0.24.0 Release Notes](https://github.com/juanfont/headscale/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-25
 - Confidence: high
