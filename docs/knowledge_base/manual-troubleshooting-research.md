@@ -3,39 +3,32 @@
 ## What it is
 This research evaluates the user interface and orchestration layer for a chat-based assistant designed to troubleshoot household appliances using scanned manuals. It leverages Retrieval-Augmented Generation (RAG) over a local vector database.
 
+Key components evaluated in June 2026:
+- **UI Frameworks**: Comparison between Open WebUI and Streamlit for family use.
+- **RAG Orchestration**: Integration with Ollama and local embedding models.
+- **Agentic Loops**: Implementation of self-healing loops for autonomous remediation.
+
 ## What problem it solves
-Scanned manuals are often long, poorly indexed, and difficult to search during a "household emergency" (e.g., a leaking dishwasher). This assistant provides immediate, natural language answers to specific troubleshooting questions.
+Scanned manuals are often long, poorly indexed, and difficult to search during a "household emergency" (e.g., a leaking dishwasher). This assistant provides immediate, natural language answers to specific troubleshooting questions, reducing time-to-fix.
 
 ## Where it fits in the stack
-It sits in the **User Interface / Orchestration** layer, connecting the user to the local LLM and the Vector DB containing chunked manual data.
+**User Interface / Orchestration Layer**. It connects the user to local LLMs (Claude 4.8 or GPT-5.5) and the Vector DB containing chunked manual data.
 
 ## Typical use cases
 - Interpreting cryptic error codes on the oven or washing machine.
 - Finding maintenance schedules (e.g., "how often to clean the dryer vent?").
 - Step-by-step guidance for minor repairs or setup.
-- Comparing troubleshooting steps across different model generations (e.g., using Claude 4.7 for reasoning).
-
-## Comparison: Open WebUI vs. Streamlit
-
-| Feature | Open WebUI | Streamlit |
-| :--- | :--- | :--- |
-| **User Experience** | Polished, ChatGPT-like interface. Multi-user support with history. | Highly customizable but requires more frontend effort for "chat" feel. |
-| **Built-in RAG** | Native support for document ingestion and vector search. | Must be implemented manually using LangChain/LlamaIndex. |
-| **Family Ease-of-Use**| High. Mobile-friendly and familiar interface. | Moderate. Can be tailored, but lacks out-of-the-box user management. |
-| **Extensibility** | Supports "Tools", "Functions", and MCP servers. | Infinite (it's Python), but everything is a custom build. |
-| **Authentication** | Built-in RBAC and OIDC (Authentik). | Requires additional libraries (e.g., `streamlit-authenticator`). |
-
-**Recommendation**: For a family-centric "Home Admin Agent", **Open WebUI** is the preferred choice due to its lower maintenance overhead and superior multi-user experience.
+- Comparing troubleshooting steps across different model generations.
 
 ## Strengths
 - **Accessibility**: Family members can ask questions via phone or tablet without technical knowledge.
 - **Privacy**: Entirely self-hosted when using local LLMs and embeddings.
 - **Accuracy**: RAG reduces hallucinations by grounding the LLM in the actual text of the manual.
-- **Frontier Support**: Compatible with latest models like GPT-5.5 and Llama 4 Maverick.
+- **Frontier Support**: Optimized for Claude 4.8 and GPT-5.5 reasoning patterns.
 
 ## Limitations
 - **OCR Quality**: Poorly scanned manuals may lead to incorrect information retrieval.
-- **Complex Diagrams**: LLMs may struggle to interpret "Figure 1.2" if the diagram isn't correctly indexed.
+- **Complex Diagrams**: LLMs may struggle to interpret "Figure 1.2" if the diagram isn't correctly indexed or provided as VLM context.
 
 ## When to use it
 - For any household appliance with a digital or physical manual.
@@ -74,58 +67,33 @@ python3 scripts/verify_manual_retrieval.py "E24 error code meaning"
 ## API examples
 The assistant can be integrated into larger workflows via API.
 
-### Querying the Assistant (Python)
 ```python
 import requests
 
 def get_troubleshooting_help(query):
-    # Example endpoint for the home admin agent
+    # Example endpoint for the home admin agent (June 2026 pattern)
     response = requests.post(
         "http://localhost:8000/api/chat",
         json={"message": query, "context_tags": ["manuals"]}
     )
     return response.json()["answer"]
-
-# get_troubleshooting_help("How do I reset the filter on my dryer?")
 ```
-
-## System Prompt Templates
-
-### Troubleshooting Assistant
-```text
-You are the Riera Family's Home Troubleshooting Assistant. Your goal is to help family members fix household issues using the provided manuals and knowledge base.
-
-Rules:
-1. Always check the manual for the specific model if provided in the context.
-2. If the answer is not in the manual, state it clearly and offer general troubleshooting tips based on common knowledge, but add a disclaimer.
-3. Be concise and use bullet points for instructions.
-4. If a repair seems dangerous (e.g., involving high voltage or gas), advise calling a professional.
-```
-
-## Implementation Patterns
-
-### n8n Automation: Manual Ingestion
-A common pattern for ingesting manuals from Paperless-ngx into a vector database:
-
-1. **Trigger**: Paperless-ngx webhook on document creation.
-2. **Filter**: Check for tags like `manual` or `appliance`.
-3. **Extraction**: Retrieve the document content (or OCR text).
-4. **Embedding**: Send text chunks to an embedding model (e.g., via Ollama).
-5. **Storage**: Upsert chunks into ChromaDB or similar.
 
 ## Related tools / concepts
-- [Open WebUI](../services/open-webui.md) — Primary UI choice.
-- [Ollama](../services/ollama.md) — Local inference engine.
-- [Paperless-ngx](../services/paperless-ngx.md) — Source of manual files.
-- [RAG (Retrieval-Augmented Generation)](./patterns/rag-pattern.md) — Underlying pattern.
-- [n8n](../services/n8n.md) — For orchestrating manual ingestion pipelines.
-- [ChromaDB](./vector-db-comparison.md) — Vector storage.
-- [Manual Assistant Implementation](../reference-implementations/manual-assistant/manual-assistant-implementation.md) — Reference backend code.
+- [Open WebUI](../services/open-webui.md)
+- [Ollama](../services/ollama.md)
+- [Paperless-ngx](../services/paperless-ngx.md)
+- [RAG Pattern](./patterns/rag-pattern.md)
+- [n8n](../services/n8n.md)
+- [ChromaDB](./vector-db-comparison.md)
+- [Self-Healing Agent](./self-healing-agent-research.md)
+- [Home Admin Agent Architecture](./home-admin-agent-architecture.md)
 
-## Sources / references
+## Sources / References
 - [Open WebUI Documentation](https://docs.openwebui.com/)
 - [Streamlit Documentation](https://docs.streamlit.io/)
+- [Self-Healing Agentic Loops for Homelab Automation](https://riera.co.uk/blog/self-healing-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high
