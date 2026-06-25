@@ -33,9 +33,10 @@ This playbook belongs to the **Governance and Maintenance** layer. It provides t
 - For very small, personal repositories where formal governance processes are overkill.
 - For temporary "scratchpad" notes that are not intended to be part of the canonical knowledge base.
 
-## Objective
-Maintain content quality, freshness, and discoverability across the knowledge base through regular audits and automated checks.
+## Getting started
+The objective of this playbook is to maintain content quality, freshness, and discoverability across the knowledge base through regular audits and automated checks.
 
+### Process Flow
 ```mermaid
 flowchart TD
     A[Start Audit] --> B[Run audit_docs_quality.py]
@@ -49,7 +50,7 @@ flowchart TD
     H --> I[End Audit]
 ```
 
-## Pre-requisites
+### Pre-requisites
 - [Quality audit script](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/audit_docs_quality.py) (`scripts/audit_docs_quality.py`)
 - [Docs contract checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_docs_contract.py) (`scripts/check_docs_contract.py`)
 - [Catalog consistency checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_catalog_consistency.py) (`scripts/check_catalog_consistency.py`)
@@ -59,7 +60,7 @@ flowchart TD
 - [Starred repo intake checker](https://github.com/joanmarcriera/Home-office-automations/blob/main/scripts/check_starred_repo_intake.py) (`scripts/check_starred_repo_intake.py`)
 - [Standards reference](../standards.md)
 
-## Review cadence
+### Review cadence
 
 | Check | Frequency | Owner | How |
 |:---|:---|:---|:---|
@@ -70,20 +71,19 @@ flowchart TD
 | API pricing maintenance | Weekly | CI | `api-pricing-maintenance.yml` refreshes capacity summaries and flags stale review metadata |
 | External link health | Weekly + docs PRs | CI | `docs-link-health.yml` (Lychee) checks markdown links |
 | Model-account routing policy gate | PRs touching policy file | CI | `model-account-policy-gates.yml` validates multi-account routing rules |
-| Vikunja bidirectional sync | Disabled | Maintainer | Workflow intentionally removed from CI until the integration is reviewed and re-enabled safely |
 | Full quality audit | Weekly (manual) | Maintainer | `python3 scripts/audit_docs_quality.py` |
 | Starred repo drift check | Weekly (manual/local) | Maintainer | `python3 scripts/check_starred_repo_intake.py --ai-only --min-stars 5000` |
 | Staleness review (docs >90 days old) | Monthly | Maintainer | See "Staleness check" below |
 | Taxonomy alignment | Quarterly | Maintainer | Verify category dirs match `standards.md` |
 
-## Step-by-step: weekly quality audit
+### Step-by-step: weekly quality audit
 
 1. **Run the audit script**:
    ```bash
    python3 scripts/audit_docs_quality.py
    ```
 2. **Review the output**:
-    - **Legacy-format docs**: prioritise upgrading high-traffic pages first (tools you reference in playbooks or architecture docs).
+    - **Legacy-format docs**: prioritise upgrading high-traffic pages first.
     - **Missing metadata**: add `Last reviewed` / `Confidence` / `Sources` blocks.
     - **Per-category breakdown**: identify categories with the lowest compliance rate.
 3. **Fix the top 5 issues**: focus on the docs that will fail CI the next time they are touched.
@@ -93,9 +93,8 @@ flowchart TD
    ```bash
    python3 scripts/check_starred_repo_intake.py --ai-only --min-stars 5000
    ```
-   - If repos are missing, add them to today's intake log before documenting them.
 
-## Step-by-step: staleness check
+### Step-by-step: staleness check
 
 1. **Find docs not reviewed in 90+ days**:
    ```bash
@@ -107,9 +106,7 @@ flowchart TD
     - **Needs refresh** — update content and bump the date.
     - **Obsolete** — remove from `mkdocs.yml`, `data/all_tools.json`, and the category `index.md`.
 
-## Quality metrics
-
-Track these over time to measure knowledge base health:
+### Quality metrics
 
 | Metric | Target | How to measure |
 |:---|:---|:---|
@@ -120,13 +117,42 @@ Track these over time to measure knowledge base health:
 | Catalog consistency (nav ↔ JSON) | 100% | `check_catalog_consistency.py` exit code |
 | Intake queue backlog | 0 `new` items | `grep "new" docs/new-sources/*.md` |
 
-## Common failure modes
+### Common failure modes
 
-- **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`. Fix: update the index file whenever adding a nav entry.
-- **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains. Fix: always update both when removing a page.
-- **Duplicate pages**: two pages document the same tool. Fix: merge into the canonical page and redirect/remove the duplicate.
-- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 4.7"). Fix: search-and-replace during staleness reviews.
-- **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`. Fix: run `check_starred_repo_intake.py` locally and append any real candidates to today's daily log.
+- **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`.
+- **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains.
+- **Duplicate pages**: two pages document the same tool.
+- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 4.8").
+- **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`.
+
+## CLI examples
+```bash
+# Run the full quality audit across the repository
+python3 scripts/audit_docs_quality.py
+
+# Verify the KnowledgeOps contract for a specific file
+python3 scripts/check_docs_contract.py docs/tools/ai_knowledge/claude.md
+
+# Find documentation pages that are stale or missing metadata
+python3 scripts/check_doc_freshness.py
+```
+
+## API examples
+The health of the knowledge base can be checked programmatically via the following scripts.
+
+```python
+import subprocess
+
+# Example: Programmatic check of catalog consistency
+def check_catalog():
+    result = subprocess.run(["python3", "scripts/check_catalog_consistency.py"], capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"Catalog mismatch found: {result.stdout}")
+    else:
+        print("Catalog is consistent.")
+
+# check_catalog()
+```
 
 ## Related tools / concepts
 - [Standards](../standards.md)
@@ -138,12 +164,12 @@ Track these over time to measure knowledge base health:
 - [KnowledgeOps Standards](../standards.md)
 - [Jules Agent](../tools/ai_knowledge/jules.md)
 
-## Sources / references
+## Sources / References
 - [Project standards](../standards.md)
 - [MkDocs Material docs](https://squidfunk.github.io/mkdocs-material/)
 - [GitHub CLI](https://cli.github.com/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-07
+- Last reviewed: 2026-06-26
 - Confidence: high
