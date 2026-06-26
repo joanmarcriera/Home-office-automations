@@ -1,13 +1,13 @@
 # Snowflake
 
 ## What it is
-Snowflake is a cloud-based data warehousing platform that allows for the storage, processing, and analysis of vast amounts of data. As of June 2026, it has evolved into a comprehensive AI Data Cloud, providing a highly scalable and flexible architecture for modern data needs, including native LLM processing.
+Snowflake is a cloud-based data warehousing platform that allows for the storage, processing, and analysis of vast amounts of data. As of June 2026, it has evolved into a comprehensive AI Data Cloud, providing a highly scalable and flexible architecture for modern data needs, including native LLM processing. It is a cloud-only, proprietary SaaS offering.
 
 ## What problem it solves
 It eliminates the complexities of managing traditional on-premises data warehouses. Snowflake provides a unified platform for data engineering, data lakes, data science, and data sharing, enabling organizations to gain insights from their data more efficiently. It particularly excels at:
-- **Centralizing AI Telemetry**: Consolidating traces from models like **Claude 4.7**, **GPT-5.5**, and **Llama 4 Maverick**.
-- **Model Context Integration**: Using **MCP (Model Context Protocol)** to bridge enterprise data in Snowflake with agentic workflows.
-- **In-place AI Processing**: Running inference directly on sensitive data without egressing to external providers via **Snowflake Cortex**.
+- **Centralizing AI Telemetry**: Consolidating traces from models like **Claude 4.8**, **GPT-5.5**, and **Llama 4 Maverick**.
+- **Model Context Integration**: Using **MCP 3.0 (Model Context Protocol)** to bridge enterprise data in Snowflake with agentic workflows.
+- **In-place AI Processing**: Running inference directly on sensitive data without egressing to external providers via **Snowflake Cortex** and **Gemini 3.5** integration.
 
 ## Where it fits in the stack
 Snowflake sits in the **Data Storage and Analytics** layer. It serves as the enterprise-grade back-end for storing and querying logs, traces, and metrics, and increasingly as a compute provider for LLM-based data transformations.
@@ -115,13 +115,13 @@ ctx = snowflake.connector.connect(
     schema='PUBLIC'
 )
 
-# Execute a query to compare Claude 4.7 vs GPT-5.5 usage
+# Execute a query to compare Claude 4.8 vs GPT-5.5 usage
 try:
     cursor = ctx.cursor()
     cursor.execute("""
         SELECT MODEL, SUM(TOTAL_COST), AVG(LATENCY)
         FROM OPENROUTER_TRACES
-        WHERE MODEL IN ('anthropic/claude-4.7', 'openai/gpt-5.5')
+        WHERE MODEL IN ('anthropic/claude-4-8-opus-20260528', 'openai/gpt-5.5')
         GROUP BY MODEL
     """)
     for (model, cost, latency) in cursor:
@@ -159,6 +159,7 @@ summary_df.show()
 - [OpenAI](../ai_knowledge/openai.md) - Supported Cortex LLM provider.
 - [Claude](../ai_knowledge/claude.md) - Supported Cortex LLM provider.
 - [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Protocol for connecting Snowflake data to agents.
+- [Gemini](../ai_knowledge/gemini.md) - Integration with Snowflake Cortex.
 
 ## Sources / references
 - [Official Website](https://www.snowflake.com/)
@@ -167,5 +168,5 @@ summary_df.show()
 - [Snowflake Cortex AI](https://www.snowflake.com/en/product/features/cortex/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high
