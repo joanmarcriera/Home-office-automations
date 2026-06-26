@@ -22,7 +22,7 @@ This implementation sits in the **LLM reasoning layer** of the ingestion pipelin
 ## Limitations
 - **Hallucination Risk**: LLMs may occasionally "invent" dates if the OCR text is highly garbled or ambiguous.
 - **Token Usage**: Long documents with a lot of irrelevant text can consume significant prompt tokens.
-- **Relative Date Complexity**: Highly complex relative dates (e.g., "the third Thursday after the first full moon") may still confuse smaller models. Frontier models like **GPT-5.5** or **Claude 4.7** have significantly improved reasoning for complex temporal logic.
+- **Relative Date Complexity**: Highly complex relative dates may still confuse smaller models. Frontier models like **GPT-5.5** or **Claude 4.8** have significantly improved reasoning for complex temporal logic.
 
 ## When to use it
 - When you need to extract dates from unstructured documents where the layout is not consistent.
@@ -32,13 +32,21 @@ This implementation sits in the **LLM reasoning layer** of the ingestion pipelin
 - For documents with a fixed, known layout where simple regex or positional scraping is 100% reliable and cheaper.
 - For high-volume, low-latency applications where the cost/time of LLM inference is prohibitive.
 
-## Prompt Template
+## Getting started
+1. Set up an OCR engine (e.g., Tesseract or Paperless-ngx) to convert your documents to text.
+2. Configure an n8n workflow to receive the OCR text.
+3. Use the prompt template provided below in an LLM node (Ollama, OpenAI, or Anthropic).
+4. Ensure you inject the current ISO date into the prompt to resolve relative temporal references.
+
+### Prompt Template
 ```text
 You are a precision administrative assistant.
 Analyze the provided OCR text from a document and extract any upcoming events or deadlines.
 
 Text:
 {{ocr_text}}
+
+Current Date: {{current_date}}
 
 Return ONLY a JSON object with the following fields:
 {
@@ -51,22 +59,33 @@ Return ONLY a JSON object with the following fields:
 If no event is found, return {"event_name": null}.
 ```
 
-## Implementation Notes
-- **Context injection**: Always provide the current year and date to the LLM to resolve relative terms like "next Tuesday".
-- **Validation**: Pass the result through a JSON validator node in n8n before reaching the calendar tool.
-- **MCP Integration**: Use the **Model Context Protocol (MCP)** to allow the model to query the current calendar state directly before proposing new events, reducing conflicts.
+## CLI examples
+You can test extraction from a text file using the `openai` CLI tool.
 
-## Few-Shot Examples (Token-Efficient)
-Providing 1-2 examples helps local models (like **Llama 4 Maverick**) understand the expected JSON structure without significantly increasing the token count.
+```bash
+# Extract dates from a text file using GPT-5.5
+cat ocr_output.txt | openai api chat.completions.create \
+  -m gpt-5.5-preview \
+  -g system "You are a precision administrative assistant. Return JSON." \
+  -g user
+```
 
-```text
-Example 1:
-Input: "Your dentist appointment is on March 15th at 2 PM."
-Output: {"event_name": "Dentist Appointment", "start_date": "2026-03-15T14:00:00", "end_date": "2026-03-15T15:00:00", "location": null, "reasoning": "Direct mention of date and time."}
+## API examples
+Integration via Python for automated pipelines using the `openai` library.
 
-Example 2:
-Input: "The school play is next Friday evening."
-Output: {"event_name": "School Play", "start_date": "2026-03-13T18:00:00", "end_date": null, "location": "School", "reasoning": "Relative date 'next Friday' resolved from current date 2026-03-08."}
+```python
+import openai
+
+def extract_dates(ocr_text, current_date):
+    response = openai.chat.completions.create(
+        model="gpt-5.5-preview",
+        messages=[
+            {"role": "system", "content": "You are a precision administrative assistant."},
+            {"role": "user", "content": f"Text: {ocr_text}\nCurrent Date: {current_date}"}
+        ],
+        response_format={"type": "json_object"}
+    )
+    return response.choices[0].message.content
 ```
 
 ## Related tools / concepts
@@ -79,10 +98,11 @@ Output: {"event_name": "School Play", "start_date": "2026-03-13T18:00:00", "end_
 - [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — Related patterns for validating LLM outputs.
 - [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
-## Sources / References
-- [Home Office Automations](https://github.com/joanmarcriera/Home-office-automations)
+## Sources / references
 - [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering)
+- [Anthropic Prompt Library](https://docs.anthropic.com/claude/docs/prompt-library)
+- [ISO 8601 Date Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-26
 - Confidence: high
-- Last reviewed: 2026-06-08

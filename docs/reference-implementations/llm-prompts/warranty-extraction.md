@@ -15,7 +15,7 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 - **Insurance Audits**: Providing a structured list of covered household items and their protection status.
 
 ## Strengths
-- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5** or **Claude 4.7**.
+- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5** or **Claude 4.8**.
 - **Standardized Schema**: Outputs are ready for consumption by databases and calendar APIs.
 - **Calculation Logic**: Moves the burden of date math (e.g., "12 months from today") from the user to the LLM.
 
@@ -32,10 +32,13 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 - For low-value items where the cost of LLM processing exceeds the benefit of tracking.
 - If the document is already in a structured digital format (e.g., an invoice JSON).
 
-## Purpose
-Extract warranty-specific metadata from scanned receipts or warranty cards to ensure automated tracking of coverage periods and easier troubleshooting.
+## Getting started
+1. Enable OCR in Paperless-ngx or your chosen ingestion tool.
+2. Configure a webhook or n8n workflow to trigger when a document is tagged as `Warranty`.
+3. Use the **Anthropic Claude 4.8** or **OpenAI GPT-5.5** API to process the OCR text using the prompt template below.
+4. Parse the JSON output and create a task in Vikunja with a due date 30 days before the warranty expiration.
 
-## Prompt Template
+### Prompt Template
 ```text
 You are an expert at analyzing household documents. Extract warranty information from the following text.
 
@@ -61,31 +64,34 @@ Return a JSON object:
 }
 ```
 
-## JSON Schema for Constrained Output
-```json
-{
-  "type": "object",
-  "properties": {
-    "product_name": { "type": "string" },
-    "manufacturer": { "type": "string" },
-    "purchase_date": { "type": "string", "format": "date" },
-    "warranty_duration_months": { "type": "integer" },
-    "expiration_date": { "type": "string", "format": "date" },
-    "is_extended_warranty": { "type": "boolean" },
-    "notes": { "type": "string" }
-  },
-  "required": ["product_name", "manufacturer", "purchase_date", "expiration_date"]
-}
+## CLI examples
+Test the extraction logic using the `anthropic` CLI.
+
+```bash
+# Test warranty extraction with Claude 4.8
+cat receipt_ocr.txt | anthropic messages create \
+  --model claude-4-8-opus-20260528 \
+  --system "You are an expert document analyzer. Output JSON only." \
+  --user
 ```
 
-## n8n Workflow Integration Pattern
-1. **Trigger**: Paperless-ngx Webhook (Document Added with tag `Admin/Warranty`).
-2. **OCR Pull**: Fetch the full OCR text from the Paperless API.
-3. **LLM Node**: Use the prompt above with **Ollama**, **GPT-5.5**, or **Claude 4.7**. **Model Context Protocol (MCP)** can be used here to dynamically fetch the required schema or update external databases.
-4. **Logic**:
-    - If `expiration_date` is found, calculate reminder date (e.g., `expiration_date - 30 days`).
-5. **Target**: Create a task in **Vikunja** or an event in **Google Calendar** titled "Warranty Expiring: [Product Name]".
-6. **Tagging**: Update the Paperless document metadata with the extracted product and manufacturer.
+## API examples
+Example of structured output enforcement using the OpenAI Python library.
+
+```python
+import openai
+
+def get_warranty_info(ocr_text):
+    completion = openai.chat.completions.create(
+        model="gpt-5.5-preview",
+        messages=[
+            {"role": "system", "content": "You extract warranty info in JSON."},
+            {"role": "user", "content": ocr_text}
+        ],
+        response_format={"type": "json_object"}
+    )
+    return completion.choices[0].message.content
+```
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The document source and OCR engine.
@@ -97,10 +103,11 @@ Return a JSON object:
 - [Scan-to-Task Playbook](../../playbooks/scan-to-task.md): End-to-end guide for this workflow.
 - [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
-## Sources / References
-- [Paperless-ngx Documentation](https://docs.paperless-ngx.com/)
+## Sources / references
+- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 - [OpenAI Structured Outputs Guide](https://platform.openai.com/docs/guides/structured-outputs)
+- [Anthropic JSON Mode](https://docs.anthropic.com/claude/docs/test-and-evaluate-prompts#json-mode)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high
