@@ -1,81 +1,93 @@
 # Reference Implementation: Calendar Mapping Rules
 
 ## What it is
-This document defines the logic and formatting rules for mapping extracted metadata from LLMs to specific fields in a digital calendar (e.g., Google Calendar or Proton Calendar). It serves as a data contract for automation workflows.
+This document defines the logic and formatting rules for mapping extracted metadata from LLMs to specific fields in a digital calendar (e.g., Google Calendar or Proton Calendar). It serves as a data contract for automation workflows, ensuring that AI-generated events are structured and searchable.
+
+As of June 2026, these rules are the foundation for the **Chronos MCP** server, which provides a unified interface for calendar management.
 
 ## What problem it solves
-LLM extraction outputs are often unstructured or follow inconsistent naming conventions. This reference implementation ensures that data is sanitized, formatted, and enriched correctly before being pushed to the calendar API, preventing "trash" data from cluttering the user's schedule.
+LLM extraction outputs are often unstructured or follow inconsistent naming conventions. This reference implementation ensures that data is sanitized, formatted, and enriched correctly before being pushed to the calendar API, preventing "trash" data from cluttering the user's schedule and maintaining the integrity of the family's temporal source of truth.
 
 ## Where it fits in the stack
-This logic resides in the **Data Transformation** step of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like n8n or via an MCP server.
+This logic resides in the **Data Transformation step** of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like **n8n** or via an **MCP server**.
 
-## Model Context Protocol (MCP) Integration: Chronos MCP
-As of June 2026, calendar mappings are increasingly handled by the **Chronos MCP** server, which provides a unified interface for CalDAV (Proton, Nextcloud) and Google Calendar.
+## Typical use cases
+- **Automatic Bill Reminders**: Mapping the due date of a scanned PDF bill to a calendar reminder with a link to the source document.
+- **Appointment Scheduling**: Extracting dates from confirmation emails and creating events across different providers (Fastmail, Apple, Microsoft).
+- **School Schedule Integration**: Processing school newsletters to add holidays and parent-teacher meetings to the family calendar.
+- **Unified Event Creation**: Using a single tool call to create events across multiple calendar providers via the Chronos MCP server.
 
-- **Unified Event Creation**: Chronos MCP allows agents (using **Claude 4.7** or **GPT-5.5**) to create events across different providers using a single standardized tool call.
-- **Dynamic Mapping**: The MCP server can apply these mapping rules automatically during the event creation process, ensuring consistency across the entire homelab.
+## Strengths
+- **Consistency**: Ensures every AI-generated event follows the same structural pattern (e.g., Summary, Start/End, Description).
+- **Enrichment**: Adds value by linking back to the source document in **Paperless-ngx** using the `doc_id`.
+- **Flexibility**: The logic can be easily extended to support additional fields like "reminders", "visibility", or custom labels.
+- **MCP Native**: Fully compatible with Model Context Protocol 3.0 for agent-driven scheduling.
 
-## Mapping Table
+## Limitations
+- **Timezone Sensitivity**: Requires the extraction pipeline to be aware of the user's local timezone to avoid off-by-one errors during conversion to UTC.
+- **Static Logic**: Complex "recurring" events (e.g., "second Tuesday of every month") are difficult to map via simple table-based rules and may require advanced reasoning.
+- **API Constraints**: Limited by the target calendar's API capabilities (e.g., Proton's encrypted fields vs. Google's HTML descriptions).
 
-How extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/google_calendar.md) and Chronos MCP event fields.
+## When to use it
+- When automating the ingestion of documents that contain actionable dates or deadlines.
+- When building a "Family Daily Briefing" system that relies on structured calendar data from various sources.
+- When you need a clear audit trail between a calendar event and its source document in the homelab.
 
+## When not to use it
+- For manual event creation where the user provides all fields directly and logic is unnecessary.
+- For extremely high-volume synchronization tasks where per-event enrichment might hit API rate limits.
+- If the source data is already in a standard structured format like an iCal (.ics) feed.
+
+## Getting started
+
+### 1. Extraction
+Use **Claude 4.8** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
+
+### 2. Implementation
+Pass the JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the **Chronos MCP** server. The server will apply these mapping rules automatically during the event creation process.
+
+## CLI examples
+Use the following commands to test and apply calendar mappings.
+
+```bash
+# Test a mapping rule against a sample JSON file
+python3 scripts/gcal_sync_reference.py --dry-run --input extracted_data.json
+
+# Synchronize extracted data to Google Calendar
+python3 scripts/gcal_sync_reference.py --input extracted_data.json --provider google
+
+# Use Chronos MCP to list events for a specific day
+mcp-client chronos list-events --date 2026-06-26
+```
+
+## API examples
+The following table defines how extracted LLM fields map to [Google Calendar](../../tools/calendar_tasks/google_calendar.md) and Chronos MCP event fields.
+
+### Mapping Table
 | Extracted Field | Calendar Field | Logic / Format |
 | :--- | :--- | :--- |
 | `event_name` | Summary | Title Case |
-| `start_date` | Start Time | ISO8601 string |
+| `start_date` | Start Time | ISO8601 string (UTC) |
 | `end_date` | End Time | If null, set to `start_date` + 1 hour |
 | `location` | Location | Plain Text |
 | `reasoning` | Description | Prepend "Auto-generated by AI:" |
 | `doc_id` | Description | Append direct link to [Paperless-ngx](../../services/paperless-ngx.md) |
 
-## Typical use cases
-- **Automatic Bill Reminders**: Mapping the due date of a scanned PDF bill to a calendar reminder.
-- **Appointment Scheduling**: Extracting dates from confirmation emails and creating events.
-- **School Schedule Integration**: Processing school newsletters to add holidays and parent-teacher meetings to the family calendar.
-
-## Getting started
-
-### 1. Extract Metadata
-Use **Claude 4.7** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object from a document.
+### JSON Payload Example
 ```json
 {
   "event_name": "Water Bill Due",
   "start_date": "2026-06-20T12:00:00Z",
   "location": "Online Portal",
-  "doc_id": "12345"
+  "doc_id": "12345",
+  "reasoning": "Detected 'due date' in scanned utility bill."
 }
 ```
-
-### 2. Apply Mapping Rules
-Pass this JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the Chronos MCP server.
-
-### 3. Verify in Calendar
-Check your primary calendar for the new event, ensuring the description contains the source link and reasoning.
-
-## Strengths
-- **Consistency**: Ensures every AI-generated event follows the same structural pattern.
-- **Enrichment**: Adds value by linking back to the source document in Paperless-ngx.
-- **Flexibility**: The logic can be easily extended to support additional fields like "reminders" or "visibility".
-
-## Limitations
-- **Timezone Sensitivity**: Requires the extraction pipeline to be aware of the user's local timezone to avoid off-by-one errors.
-- **Static Logic**: Complex "recurring" events are difficult to map via simple table-based rules and may require more advanced LLM prompting.
-- **API Dependencies**: Limited by the target calendar's API capabilities (e.g., HTML support in descriptions).
-
-## When to use it
-- When automating the ingestion of documents that contain actionable dates.
-- When building a "Family Daily Briefing" system that relies on structured calendar data.
-- When you need a clear audit trail between a calendar event and its source document.
-
-## When not to use it
-- For manual event creation where the user provides all fields directly.
-- For extremely high-volume synchronization tasks where per-event enrichment might hit API rate limits.
-- If the source data is already in a structured format (like iCal feeds).
 
 ## Related tools / concepts
 - [Google Calendar](../../tools/calendar_tasks/google_calendar.md): The primary target for these mapping rules.
 - [Paperless-ngx](../../services/paperless-ngx.md): The source of documents and `doc_id` references.
-- [n8n](../../services/n8n.md): The orchestration engine that implements these rules.
+- [n8n](../../services/n8n.md): The orchestration engine that implements these rules in workflows.
 - [Date Extraction Prompt](../llm-prompts/date-extraction.md): The LLM prompt used to generate the input for these rules.
 - [HITL UI Design](../hitl-ui-design.md): The interface for reviewing these mappings before they are committed.
 - [Vikunja](../../services/vikunja.md): Alternative target for task-based "events".
@@ -84,10 +96,10 @@ Check your primary calendar for the new event, ensuring the description contains
 - [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): For unified calendar event creation.
 
 ## Sources / references
-- [Google Calendar API Reference](https://developers.google.com/calendar/api/v3/reference/events/insert)
+- [Google Calendar API Events Reference](https://developers.google.com/calendar/api/v3/reference/events/insert)
 - [n8n Google Calendar Node Documentation](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googlecalendar/)
-- [Home Office Automations (GitHub)](https://github.com/joanmarcriera/Home-office-automations)
+- [JMAP for Calendars (RFC 8984)](https://datatracker.ietf.org/doc/html/rfc8984)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high

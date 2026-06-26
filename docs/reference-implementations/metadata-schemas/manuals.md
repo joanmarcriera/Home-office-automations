@@ -3,28 +3,69 @@
 ## What it is
 A YAML-based metadata schema that defines the structure for indexing, tagging, and retrieving scanned household manuals. It ensures that technical documentation is stored with enough context to be useful for both human reference and automated AI retrieval.
 
+As of June 2026, this schema enables agents like **Claude 4.8** and **GPT-5.5** to navigate complex physical documents by providing a semantic "table of contents."
+
 ## What problem it solves
-Scanned manuals are often large, unsearchable PDFs. Without a schema, finding specific information (like the "Troubleshooting" section for a specific dishwasher model) is difficult. This schema enables "Section-Aware" indexing, making it possible for an AI agent to pinpoint exactly where the relevant information is located.
+Scanned manuals are often large, unsearchable PDFs. Without a schema, finding specific information (like the "Troubleshooting" section for a specific dishwasher model) is difficult. This schema enables "Section-Aware" indexing, making it possible for an AI agent to pinpoint exactly where the relevant information is located, reducing hallucinations and retrieval latency.
 
 ## Where it fits in the stack
-The schema sits at the **Data Management layer**. It is used by **Document Management Systems** (like Paperless-ngx) to organize files and by **Vector Databases** (like Chroma or Pinecone) to structure metadata for Retrieval-Augmented Generation (RAG).
+The schema sits at the **Data Management Layer**. It is used by **Document Management Systems** (like Paperless-ngx) to organize files and by **Vector Databases** (like Chroma or Pinecone) to structure metadata for Retrieval-Augmented Generation (RAG).
 
 ## Typical use cases
 - **Automated Troubleshooting**: An agent reads the "Error Codes" section of a manual to explain a blinking light on an appliance.
 - **Maintenance Reminders**: Extracting service intervals from a car manual to create calendar events.
 - **Home Inventory**: Building a digital twin of a home's appliances with direct links to their manuals.
-
-## Model Context Protocol (MCP) Integration
-As of June 2026, manuals are increasingly queried via **MCP servers** that interface with local vector databases.
-
-- **Direct Querying**: Agents can use MCP tools to ask specific questions about a manual (e.g., "How do I clean the filter on my Bosch dishwasher?") and receive precisely chunked sections.
 - **Auto-Discovery**: MCP servers can expose tools to list all available manuals and their associated metadata (manufacturer, model) to autonomous agents.
 
-## Purpose
-This schema defines how scanned household manuals should be tagged and indexed in Paperless-ngx and subsequently stored in a vector database for RAG.
+## Strengths
+- **Granularity**: Section-aware page ranges allow for precise retrieval of technical instructions.
+- **Consistency**: Standardizes how model numbers and manufacturers are recorded across the entire library.
+- **LLM-Friendly**: Structured metadata makes it easier for LLMs to filter results before reading content.
+- **MCP Native**: Integrates with Model Context Protocol 3.0 for querying via agentic tools.
 
-## Schema (YAML)
+## Limitations
+- **Manual Effort**: Initially requires identifying page ranges for key sections (unless automated via VLM/OCR post-processing).
+- **Schema Evolution**: May need updates as new types of appliances or specialized technical documents are added.
+- **OCR Quality**: Reliability is strictly dependent on the quality of the underlying OCR (e.g., Tesseract vs. Omni Tools VLM).
 
+## When to use it
+- When building a "Household Manual RAG" system for local troubleshooting.
+- For high-stakes appliances where troubleshooting speed is critical (HVAC, solar inverters, security systems).
+- When digitizing a large physical library of paper manuals to ensure they remain actionable.
+
+## When not to use it
+- For simple, one-page quick start guides that don't have multiple sections.
+- If the manufacturer provides a robust, searchable online portal that the agent can already access via a specialized MCP tool.
+- For ephemeral or disposable product documentation.
+
+## Getting started
+
+### 1. Tagging in Paperless-ngx
+Ensure the following custom fields and tags are configured:
+- **Custom Fields**: `Manufacturer`, `Model Number`, `Product Name`.
+- **Tags**: Apply the `Admin/Manual` tag to trigger the ingestion pipeline.
+
+### 2. Ingestion Pipeline
+Use the [process_manuals.py](../../scripts/process_manuals.py) script to extract text and sections. The script uses "Section-Aware" chunking where each section (e.g., "Troubleshooting") is treated as a coherent unit.
+
+## CLI examples
+Use the following commands to process and query manuals.
+
+```bash
+# Process a PDF manual and store in ChromaDB
+python3 scripts/process_manuals.py /path/to/manual.pdf --output processed_manual.json --chroma-dir ./chroma_db
+
+# Query the manuals database for a specific problem
+python3 scripts/process_manuals.py --query "How do I clean the filter on my Bosch dishwasher?"
+
+# Export metadata for a specific model
+grep "SMS6ZCI42E" processed_manual.json -A 10
+```
+
+## API examples
+The schema is typically defined in YAML and consumed by Python-based processors.
+
+### Schema Definition (YAML)
 ```yaml
 manual_metadata:
   document_type: "Manual"
@@ -41,45 +82,8 @@ manual_metadata:
     - "Appliance/Kitchen" # Example category
 ```
 
-## Getting started
-
-### 1. Process a Manual
-Use the reference implementation to extract text and sections from a PDF.
-```bash
-python3 scripts/process_manuals.py /path/to/manual.pdf --output processed_manual.json --chroma-dir ./chroma_db
-```
-
-### 2. Configure Paperless-ngx
-1. **Custom Fields**:
-   - `Manufacturer`: Text
-   - `Model Number`: Text
-   - `Product Name`: Text
-2. **Tags**: Apply the `Admin/Manual` tag to trigger the RAG ingestion pipeline.
-
-### 3. Query via RAG
-The [process_manuals.py](../../scripts/process_manuals.py) script integrates with ChromaDB. Use **Claude 4.7** or **GPT-5.5** to query the collection based on the stored metadata.
-
-## Ingestion Pipeline Logic
-- **Chunking Strategy**: Use "Section-Aware" chunking. Each section (e.g., "Troubleshooting," "Maintenance") should be treated as a coherent unit.
-- **Embedding Metadata**: Include `manufacturer` and `model_number` in every vector's metadata to allow filtered retrieval.
-
-## Strengths
-- **Granularity**: Section-aware page ranges allow for precise retrieval.
-- **Consistency**: Standardizes how model numbers and manufacturers are recorded across the library.
-- **LLM-Friendly**: Structured metadata makes it easier for LLMs to filter results before reading content.
-
-## Limitations
-- **Manual Effort**: Initially requires identifying page ranges for key sections (unless automated via LLM).
-- **Schema Evolution**: May need updates as new types of appliances or technical documents are added.
-
-## When to use it
-- When building a "Household Manual RAG" system.
-- For high-stakes appliances where troubleshooting speed is critical (HVAC, security systems).
-- When digitizing a large physical library of paper manuals.
-
-## When not to use it
-- For simple, one-page quick start guides.
-- If the manufacturer provides a robust, searchable online portal that the agent can already access.
+### Metadata Integration
+Include `manufacturer` and `model_number` in every vector's metadata in the Vector DB to allow for high-precision filtered retrieval during agentic loops.
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The primary storage engine for these documents.
@@ -94,8 +98,9 @@ The [process_manuals.py](../../scripts/process_manuals.py) script integrates wit
 
 ## Sources / References
 - [Paperless-ngx Custom Fields](https://docs.paperless-ngx.com/usage/#custom-fields)
-- [YAML Standard](https://yaml.org/spec/1.2.2/)
+- [YAML Standard Specification](https://yaml.org/spec/1.2.2/)
+- [Model Context Protocol (MCP) 3.0](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high
