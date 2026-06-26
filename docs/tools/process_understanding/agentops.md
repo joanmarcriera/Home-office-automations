@@ -11,7 +11,7 @@ Developing autonomous agents is uniquely challenging due to their non-determinis
 - **Benchmarking**: Evaluation metrics to measure agent success and performance over time.
 
 ## Where it fits in the stack
-AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
+AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the **Model Context Protocol (MCP 3.0)**.
 
 ## Typical use cases
 - **Multi-Agent Orchestration**: Monitoring interactions and handoffs between multiple agents in frameworks like [CrewAI](../frameworks/crewai.md) or AG2 ([AutoGen](../frameworks/autogen.md)).
@@ -41,12 +41,6 @@ AgentOps sits in the **AI Observability and Developer Tooling** layer. It is spe
 - For basic chat applications where standard request/response logging (like [Helicone](helicone.md)) is sufficient.
 - If you require a purely local, offline observability tool without any cloud component.
 - If your application does not follow agentic patterns (no autonomous tool use or multi-step reasoning).
-
-## Agent Ecosystem Standard (June 2026)
-As part of the repository's standardized June 2026 benchmark, AgentOps is the recommended platform for monitoring reasoning-heavy models including:
-- **Claude 4.7**: Optimized for long-horizon agentic tasks and MCP-based tool use.
-- **GPT-5.5**: High-performance multi-modal reasoning and complex planning.
-- **Llama 4 Maverick**: Frontier-grade open model performance for local or sovereign deployments.
 
 ## Getting started
 
@@ -89,10 +83,51 @@ class ResearchAgent:
         # Implementation logic...
         return f"Results for {query}"
 
-@agentops.sdk.decorators.session
 def run_research():
     my_agent = ResearchAgent("Researcher")
     return my_agent.search_topic("Latest AI trends")
+```
+
+## CLI examples
+
+### Initializing AgentOps Project
+```bash
+# Set your API key in the environment
+export AGENTOPS_API_KEY="your_key"
+```
+
+### Checking Agent Health
+```bash
+# List all active agent sessions (via CLI if supported or SDK call)
+python -c "import agentops; print(agentops.get_api_key())"
+```
+
+### Exporting Session Data
+```bash
+# Exporting session data for local evaluation
+agentops export --session_id <id> --format json
+```
+
+## API examples
+
+### Recording Tool Usage
+```python
+import agentops
+
+@agentops.sdk.decorators.operation
+def use_mcp_tool(tool_name, params):
+    # Log specific MCP 3.0 tool interactions
+    agentops.record_action(f"Calling MCP Tool: {tool_name}", params=params)
+    # ... execution logic
+```
+
+### Handling Multi-Model Sessions
+Track performance across **Claude 4.8** and **GPT-5.5** within the same session.
+
+```python
+agentops.init(tags=["multi-model-test"])
+# ... model logic
+agentops.end_session('Success')
 ```
 
 ## Related tools / concepts
@@ -112,5 +147,5 @@ def run_research():
 - [AgentOps GitHub Repository](https://github.com/AgentOps-AI/agentops)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

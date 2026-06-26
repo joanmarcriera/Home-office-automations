@@ -1,7 +1,7 @@
 # Helicone
 
 ## What it is
-Helicone is an open-source AI Gateway and LLM observability platform that acts as a proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, and Groq). As of June 2026, it has expanded to support the **Model Context Protocol (MCP)**, allowing agents to query observability data directly within their execution context.
+Helicone is an open-source AI Gateway and LLM observability platform that acts as a proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, and Groq). As of June 2026, it has expanded to support the **Model Context Protocol (MCP 3.0)**, allowing agents to query observability data directly within their execution context.
 
 ## What problem it solves
 Developing LLM applications often lacks transparency regarding what is happening "under the hood." Helicone addresses several critical pain points:
@@ -9,7 +9,7 @@ Developing LLM applications often lacks transparency regarding what is happening
 - **Cost and Latency Tracking**: Provides real-time metrics on token usage, financial spend, and performance bottlenecks across different models.
 - **Reliability Issues**: Offers intelligent routing, retries, and automatic fallbacks to ensure application uptime even when a specific provider is down.
 - **Prompt Iteration**: Decouples prompts from code with a centralized management system and version control.
-- **Agentic Debugging**: Solves the difficulty of tracing multi-step reasoning loops in models like **Claude 4.7** and **GPT-5.5**.
+- **Agentic Debugging**: Solves the difficulty of tracing multi-step reasoning loops in models like **Claude 4.8** and **GPT-5.5**.
 
 ## Where it fits in the stack
 Helicone sits in the **AI Gateway and Observability** layer. It is positioned between the application code and the inference providers, acting as an intelligent intermediary that manages telemetry and request flow.
@@ -20,7 +20,7 @@ Helicone sits in the **AI Gateway and Observability** layer. It is positioned be
 - **Prompt Engineering**: Testing and versioning prompts in a UI-based playground using production data.
 - **Fine-tuning Preparation**: Tagging and exporting specific request/response pairs to fine-tuning partners like OpenPipe.
 - **Caching**: Implementing proxy-level caching to reduce costs and latency for repetitive LLM queries.
-- **MCP Integration**: Using an MCP server to allow **Llama 4 Maverick** to self-audit its own performance logs.
+- **MCP Integration**: Using an MCP 3.0 server to allow **Llama 4 Maverick** to self-audit its own performance logs.
 
 ## Strengths
 - **Low-Friction Integration**: Usually requires changing only the `baseURL` and adding a Helicone API key header.
@@ -48,7 +48,14 @@ Helicone sits in the **AI Gateway and Observability** layer. It is positioned be
 
 ## Getting started
 
-### Basic Integration (OpenAI Python)
+### Installation
+To use Helicone with the OpenAI Python SDK, no special installation is required beyond the standard SDK.
+
+```bash
+pip install openai
+```
+
+### Basic Integration
 Updating an existing OpenAI integration to use Helicone is straightforward:
 
 ```python
@@ -61,27 +68,6 @@ client = OpenAI(
   base_url="https://gateway.helicone.ai/v1",
   default_headers={
     "Helicone-Auth": f"Bearer {os.environ.get('HELICONE_API_KEY')}"
-  }
-)
-
-response = client.chat.completions.create(
-  model="gpt-4o",
-  messages=[{"role": "user", "content": "Explain quantum entanglement in one sentence."}]
-)
-
-print(response.choices[0].message.content)
-```
-
-### Logging Custom Properties
-You can add custom properties to your requests to enable advanced filtering and analytics in the Helicone dashboard:
-
-```python
-response = client.chat.completions.create(
-  model="gpt-4o",
-  messages=[{"role": "user", "content": "Summarize this document."}],
-  extra_headers={
-    "Helicone-Property-User-Plan": "premium",
-    "Helicone-Property-Source": "mobile-app"
   }
 )
 ```
@@ -108,15 +94,53 @@ curl https://gateway.helicone.ai/v1/chat/completions \
   }'
 ```
 
+## API examples
+
+### Completion with Custom Properties
+You can add custom properties to your requests to enable advanced filtering and analytics in the Helicone dashboard:
+
+```python
+response = client.chat.completions.create(
+  model="gpt-5.5-preview",
+  messages=[{"role": "user", "content": "Summarize this document."}],
+  extra_headers={
+    "Helicone-Property-User-Plan": "premium",
+    "Helicone-Property-Source": "mobile-app"
+  }
+)
+
+print(response.choices[0].message.content)
+```
+
+### Async Integration (Python)
+Helicone supports asynchronous requests natively via the standard OpenAI async client.
+
+```python
+import asyncio
+import os
+from openai import AsyncOpenAI
+
+async def main():
+    client = AsyncOpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        base_url="https://gateway.helicone.ai/v1",
+        default_headers={
+            "Helicone-Auth": f"Bearer {os.environ.get('HELICONE_API_KEY')}"
+        }
+    )
+    # ... execution logic
+```
+
 ## Related tools / concepts
 - [Langfuse](langfuse.md) - Open-source LLM engineering platform with strong evaluation tools.
 - [AgentOps](agentops.md) - Specialized observability for autonomous agent workflows.
 - [Portkey AI Gateway](../providers/portkey.md) - Enterprise-grade AI gateway and observability.
 - [LiteLLM](../../services/litellm.md) - Lightweight LLM proxy that can also export to Helicone.
 - [OpenRouter](../ai_knowledge/openrouter.md) - Aggregator that provides its own unified API and logging.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) - Enabling agents to query their own observability data.
-- [Claude 4.7 Performance Tracing](../ai_knowledge/claude.md)
-- [GPT-5.5 Optimization](../ai_knowledge/openai.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) - Protocol for connecting agents to data/tools.
+- [Claude](../ai_knowledge/claude.md) - Primary frontier model for agentic workflows.
+- [GPT-5.5 Optimization](../ai_knowledge/openai.md) - Reference for OpenAI model performance tuning.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Frontier-grade open model for local deployments.
 
 ## Sources / references
 - [Helicone Official Website](https://www.helicone.ai/)
@@ -124,5 +148,5 @@ curl https://gateway.helicone.ai/v1/chat/completions \
 - [Helicone GitHub Repository](https://github.com/Helicone/helicone)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high
