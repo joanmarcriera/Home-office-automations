@@ -1,7 +1,7 @@
 # OpenTelemetry Collector
 
 ## What it is
-The OpenTelemetry (OTel) Collector is a vendor-agnostic proxy designed to receive, process, and export telemetry data, including traces, metrics, and logs. As of June 2026, it serves as the backbone for AI observability, enabling seamless data flow between agentic frameworks (using **Claude 4.7**, **GPT-5.5**, or **Llama 4 Maverick**) and various storage or analysis backends.
+The OpenTelemetry (OTel) Collector is a vendor-agnostic proxy designed to receive, process, and export telemetry data, including traces, metrics, and logs. As of June 2026, it serves as the backbone for AI observability, enabling seamless data flow between agentic frameworks (using **Claude 4.8**, **GPT-5.5**, or **Llama 4 Maverick**) and various storage or analysis backends.
 
 ## What problem it solves
 Managing telemetry in complex AI and cloud architectures often leads to "agent fatigue" and vendor lock-in. The Collector addresses these issues by:
@@ -9,7 +9,7 @@ Managing telemetry in complex AI and cloud architectures often leads to "agent f
 - **Data Transformation**: Allowing for real-time processing, such as scrubbing PII (Personally Identifiable Information), adding metadata (e.g., environment, version), and filtering noise before data is exported.
 - **Multi-Destination Routing**: Enabling a "send once, route many" pattern where data can be simultaneously sent to multiple backends (e.g., [Datadog](datadog.md) for production monitoring and a local [ClickHouse](clickhouse.md) for long-term audit logs).
 - **Protocol Translation**: Converting legacy formats into modern OTLP.
-- **MCP Support**: Bridging telemetry from **Model Context Protocol (MCP)** sessions into standard observability pipelines.
+- **MCP 3.0 Support**: Bridging telemetry from **Model Context Protocol (MCP)** sessions into standard observability pipelines.
 
 ## Where it fits in the stack
 The OpenTelemetry Collector sits in the **Observability Infrastructure** layer. It is positioned between the instrumented application (or streaming sources like [OpenRouter](../ai_knowledge/openrouter.md)) and the final observability backends.
@@ -107,7 +107,7 @@ otelcol --version
 ## API examples
 
 ### Python (OTLP Trace Export)
-Configure your Python application (e.g., a **Claude 4.7** agent) to send data to the local Collector:
+Configure your Python application (e.g., a **Claude 4.8** agent) to send data to the local Collector:
 
 ```python
 from opentelemetry import trace
@@ -161,6 +161,7 @@ tokenCounter.add(150, { 'model': 'gpt-5.5-preview' });
 - [Grafana Cloud](grafana-cloud.md) - Unified visualization for OTel metrics and traces.
 - [PostHog](posthog.md) - Product analytics that can ingest OTel events.
 - [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Protocol that can be instrumented via OTel.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Local model monitored via OTel.
 
 ## Sources / references
 - [OpenTelemetry Collector Documentation](https://opentelemetry.io/docs/collector/)
@@ -168,5 +169,5 @@ tokenCounter.add(150, { 'model': 'gpt-5.5-preview' });
 - [OpenRouter OTel Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/otel-collector)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high
