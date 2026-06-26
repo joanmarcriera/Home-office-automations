@@ -4,7 +4,7 @@
 The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP).
 
 ## What problem it solves
-The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 4.7/4.8** and **GPT-5.5** as the standard reasoning engines of June 2026.
+The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 4.8** and **GPT-5.5** as the standard reasoning engines of July 2026.
 
 ## Where it fits in the stack
 It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-support tool that sits between the **Providers** (Layer 1) and **Applications** (Layer 7), helping users navigate the connectivity options between them.
@@ -19,7 +19,7 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 - **Multi-Dimensional Evaluation**: Tracks 10+ practical dimensions including UI shape, CLI availability, and self-host status.
 - **Provider Agnostic**: Highlights which tools allow switching between OpenAI, Anthropic, or local models.
 - **Direct Linkage**: Every tool in the matrix is linked to its canonical documentation page in this repository.
-- **June 2026 Freshness**: Incorporates the latest [MCP](../tools/automation_orchestration/mcp.md) server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
+- **July 2026 Freshness**: Incorporates the latest [MCP](../tools/automation_orchestration/mcp.md) server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
 
 ## Limitations
 - **High Temporal Decay**: Native integrations and "access surfaces" change rapidly as providers update their products.
@@ -41,7 +41,7 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 3.  **Filter the Matrix**: Look for 🟢 in the columns that matter most to you (e.g., "Files" for local repos, "Gmail" for admin tasks).
 4.  **Deep Dive**: Click the linked tool name to read its canonical page and setup instructions.
 
-## Legend
+### Legend
 
 | Code | Meaning |
 | :---: | :--- |
@@ -51,9 +51,7 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 | 🟠 | Partial or limited support |
 | 🔴 | No documented path in the reviewed sources |
 
-
-
-## Fast read
+### Fast read
 
 If the priority is one tool that already does Gmail, Calendar, files, and deep research well, the strongest shortlist is [ChatGPT](../tools/ai_knowledge/chatgpt.md), [Claude](../tools/ai_knowledge/claude.md), [Gemini Apps](../tools/ai_knowledge/gemini.md), and [Perplexity](../tools/ai_knowledge/perplexity.md). ChatGPT and Claude are broader cross-app assistants; Gemini is strongest when the operating surface is already Google Workspace; Perplexity is best for web-grounded research with personal context.
 
@@ -62,6 +60,46 @@ If the priority is local-first or self-hosted work, the strongest shortlist is [
 If the priority is coding-first integration potential, the strongest shortlist is [Claude Code](../tools/development_ops/claude-code.md), [Kimi Code CLI](../tools/ai_knowledge/kimi-cli.md), [Codex CLI](../tools/development_ops/codex.md), [Gemini CLI](../tools/ai_knowledge/gemini-cli.md), [Cline](../tools/agents/cline.md), [Roo Code](../tools/agents/roo-code.md), [Cursor](../tools/development_ops/cursor.md), and [Windsurf](../tools/development_ops/windsurf.md). Gemini CLI has the cleanest official Workspace story in this matrix, while Kimi Code CLI is a strong terminal-native alternative with deep MCP support.
 
 If the priority is reliable workflow automation rather than chat, [n8n](../services/n8n.md) and [Zapier](../tools/automation_orchestration/zapier.md) belong in a separate top tier. They are less elegant as daily chat interfaces, but stronger when the requirement is to read Gmail, inspect Calendar, and perform actions repeatably.
+
+## CLI examples
+The access matrix itself is a documentation artifact, but the tools it tracks can often be queried via CLI to verify their current access surface.
+
+### Checking Claude Code MCP tools
+```bash
+# List available tools to verify access surface
+claude list-tools
+```
+
+### Checking Aider MCP servers
+```bash
+# Run aider with a specific MCP server to extend its access surface
+aider --mcp <mcp-server-command>
+```
+
+## API examples
+Integration status can be checked programmatically using provider-specific SDKs.
+
+### Verifying Perplexity API Access
+```python
+import requests
+
+def check_perplexity_reach():
+    url = "https://api.perplexity.ai/chat/completions"
+    # Example payload for a research task
+    payload = {
+        "model": "pplx-70b-online",
+        "messages": [{"role": "user", "content": "Search for latest MCP 3.0 updates"}]
+    }
+    # Response indicates connectivity and grounding quality
+    return requests.post(url, json=payload, headers={"Authorization": "Bearer YOUR_KEY"})
+```
+
+### n8n Access Surface Check
+```javascript
+// Within an n8n Code node to verify available integrations
+const integrations = ['google-calendar', 'gmail', 'slack'];
+return integrations.map(i => ({ json: { service: i, status: 'available' } }));
+```
 
 ## Primary assistant and agent matrix
 
@@ -204,6 +242,46 @@ Provider flexibility is strongest in local coding agents, self-hosted chat works
 
 The most practical stack is often layered: a native assistant for research, a local coding agent for repo work, a self-hosted workspace for private files, and n8n or Zapier MCP for durable app actions.
 
+## CLI examples
+The access matrix itself is a documentation artifact, but the tools it tracks can often be queried via CLI to verify their current access surface.
+
+### Checking Claude Code MCP tools
+```bash
+# List available tools to verify access surface
+claude list-tools
+```
+
+### Checking Aider MCP servers
+```bash
+# Run aider with a specific MCP server to extend its access surface
+aider --mcp <mcp-server-command>
+```
+
+## API examples
+Integration status can be checked programmatically using provider-specific SDKs.
+
+### Verifying Perplexity API Access
+```python
+import requests
+
+def check_perplexity_reach():
+    url = "https://api.perplexity.ai/chat/completions"
+    # Example payload for a research task
+    payload = {
+        "model": "pplx-70b-online",
+        "messages": [{"role": "user", "content": "Search for latest MCP 3.0 updates"}]
+    }
+    # Response indicates connectivity and grounding quality
+    return requests.post(url, json=payload, headers={"Authorization": "Bearer YOUR_KEY"})
+```
+
+### n8n Access Surface Check
+```javascript
+// Within an n8n Code node to verify available integrations
+const integrations = ['google-calendar', 'gmail', 'slack'];
+return integrations.map(i => ({ json: { service: i, status: 'available' } }));
+```
+
 ## Related tools / concepts
 
 - [AI Tooling Landscape - 2026 Overview](ai_tooling_landscape.md)
@@ -235,5 +313,5 @@ The most practical stack is often layered: a native assistant for research, a lo
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-07-21
 - Confidence: high

@@ -1,127 +1,108 @@
 # HITL UI for Document Extraction
 
 ## What it is
-A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-driven metadata extraction and the final system of record (e.g., Google Calendar, Vikunja, Paperless-ngx). It allows users to review, correct, and approve data before it is permanently committed to the database.
+A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-driven metadata extraction and the final system of record (e.g., Google Calendar, Vikunja, Paperless-ngx). It allows users to review, correct, and approve data before it is permanently committed to the database. It leverages **Claude 4.8** and **GPT-5.5** for initial processing, with a human gatekeeper for final validation.
 
 ## What problem it solves
-LLMs occasionally hallucinate or misinterpret dates and priorities in scanned documents. Automatically pushing these to a calendar can lead to cluttered or incorrect schedules. This UI provides a "staging area" for human verification, ensuring 100% accuracy for critical data like bill due dates or medical appointments.
+LLMs occasionally hallucinate or misinterpret dates and priorities in scanned documents. Automatically pushing these to a calendar can lead to cluttered or incorrect schedules. This UI provides a "staging area" for human verification, ensuring 100% accuracy for critical data like bill due dates or medical appointments. It eliminates the risk of "silent failures" in autonomous workflows.
 
 ## Where it fits in the stack
-This interface sits in the **Interaction** layer of the AI-augmented home office. It acts as an optional "gatekeeper" within a workflow, triggered after the **AI Service** layer (using **Claude 4.7** or **GPT-5.5**) has processed a document but before the **Productivity API** layer has written the final result.
-
-## Architecture
-- **Backend**: FastAPI (Python) or the built-in logic in [Home Admin Agent](../../scripts/home_admin_agent.py).
-- **Frontend**: Streamlit (see [Home Admin UI](../../scripts/home_admin_ui.py)) for rapid prototyping and Python-native integration.
-- **Storage**: SQLite (standard) or PostgreSQL for the staging database.
-
-## Model Context Protocol (MCP) Integration
-As of June 2026, HITL actions are increasingly exposed via **MCP servers**.
-
-- **Agentic Review**: An agent (like Claude Code) can detect that a document requires human verification and use an MCP tool to "stage" the document and notify the user.
-- **Human Response**: Once the human approves the data in the UI, the MCP server can emit an event or update a status that the autonomous agent can then act upon to complete the workflow.
-
-## Backend API Endpoints
-
-### 1. List Staged Documents
-`GET /staged-docs`
-- **Description**: Returns a list of all documents awaiting review.
-- **Response**:
-  ```json
-  [
-    {
-      "id": "uuid",
-      "staged_at": "ISO8601",
-      "source_document_url": "https://paperless.home/...",
-      "original_metadata": {
-        "title": "Water Bill",
-        "due_date": "2026-06-20",
-        "amount": 45.50
-      }
-    }
-  ]
-  ```
-
-### 2. Approve Document
-`POST /approve/{id}`
-- **Description**: Approves the metadata and triggers the integration workflow (e.g., n8n webhook).
-- **Body**: (Optional) JSON object with corrected metadata if changes were made in the UI.
-- **Action**: Marks record as `approved` and moves it to the final destination.
-
-### 3. Reject/Delete Document
-`POST /reject/{id}`
-- **Description**: Discards the staged extraction without taking further action.
-
-### 4. Update Staged Data (Optional)
-`PUT /staged-docs/{id}`
-- **Description**: Saves intermediate corrections without final approval.
-
-## Database Schema (Staging Area)
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Primary Key |
-| `staged_at` | Timestamp | When the extraction hit the staging area |
-| `source_ref` | String | Reference ID from source (e.g., Paperless document ID) |
-| `source_url` | String | Direct link to the original document for visual verification |
-| `original_metadata` | JSONB | The raw output from the LLM extraction |
-| `corrected_metadata` | JSONB | Data as edited by the user (defaults to original) |
-| `status` | String | `pending`, `approved`, `rejected` |
+This interface sits in the **Interaction** layer of the AI-augmented home office. It acts as an optional "gatekeeper" within a workflow, triggered after the **AI Service** layer (using **Claude 4.8** or **GPT-5.5**) has processed a document but before the **Productivity API** layer has written the final result. It is often implemented as a Streamlit app or integrated into the [Home Admin UI](../../scripts/home_admin_ui.py).
 
 ## Typical use cases
 - **Financial Document Ingestion**: Reviewing extracted amounts and account numbers from scanned invoices.
 - **Appointment Capture**: Confirming dates and times extracted from medical or school correspondence.
 - **Data Labeling**: Using the corrections made in the UI to create a "golden dataset" for fine-tuning future LLM extractions.
-
-## Getting started
-
-### 1. Set up the Environment
-Ensure you have the required dependencies for the Home Admin UI.
-```bash
-pip install streamlit fastapi pydantic
-```
-
-### 2. Run the UI
-Launch the reference Streamlit implementation.
-```bash
-streamlit run scripts/home_admin_ui.py
-```
-
-### 3. Integrate with n8n
-Configure your n8n workflow to send extracted metadata to the `POST /staged-docs` endpoint instead of directly to the final service.
-
-## Frontend Design (Streamlit)
-- **Sidebar**: Filter by date or document type.
-- **Main View**:
-    - **Visual Reference**: Embedded PDF viewer or image of the document.
-    - **Form**: Side-by-side view of "AI Suggestion" vs "Editable Fields".
-    - **Actions**: Large "Approve" (Green) and "Reject" (Red) buttons.
+- **Complex Task Delegation**: Reviewing a multi-step project plan generated by an agent before it is added to a task manager.
 
 ## Strengths
-- **Accuracy**: Human verification eliminates AI hallucinations.
-- **Speed**: Streamlit allows for an extremely fast development-to-deployment cycle.
-- **Feedback Loop**: Provides a mechanism to capture "ground truth" data for system improvement.
+- **Accuracy**: Human verification eliminates AI hallucinations for high-stakes data.
+- **Speed**: Streamlit allows for an extremely fast development-to-deployment cycle for the review interface.
+- **Feedback Loop**: Provides a mechanism to capture "ground truth" data for system improvement and future model fine-tuning.
+- **Transparency**: Gives the user a clear view of how the AI is interpreting their documents.
 
 ## Limitations
 - **Manual Effort**: Requires user time, which can become a bottleneck if document volume is very high.
 - **Latency**: The final action (e.g., adding to calendar) is delayed until the human review is complete.
-- **UI Constraints**: Streamlit is excellent for functional internal tools but less flexible for complex, highly custom UX/UI designs.
+- **UI Constraints**: Reference implementations (like Streamlit) are excellent for functional internal tools but less flexible for complex, highly custom UX/UI designs.
 
 ## When to use it
-- For high-stakes data where errors have financial or legal consequences.
+- For high-stakes data where errors have financial or legal consequences (e.g., taxes, medical).
 - When the LLM confidence score for a specific extraction is below a certain threshold.
 - During the initial "pilot" phase of an automation to build trust in the AI's performance.
 
 ## When not to use it
 - For low-priority data where an occasional error is acceptable (e.g., tagging a recipe).
 - When the extraction logic is proven to be 99%+ accurate over a long period.
-- For high-velocity automated systems where human intervention is physically impossible.
+- For high-velocity automated systems where human intervention is physically impossible or creates unacceptable delays.
 
-## Integration Flow
-1. **n8n** extracts data from a new document using **Claude 4.7**.
-2. Instead of calling the Calendar API, n8n calls `POST /staged-docs`.
-3. User receives a notification (Telegram/Mobile) to check the HITL UI.
-4. User reviews data in Streamlit.
-5. On **Approve**, the HITL Backend sends the finalized data to the target service.
+## Getting started
+1. **Set up the Environment**: Ensure you have the required dependencies for the Home Admin UI.
+   ```bash
+   pip install streamlit fastapi pydantic
+   ```
+2. **Run the UI**: Launch the reference Streamlit implementation.
+   ```bash
+   streamlit run scripts/home_admin_ui.py
+   ```
+3. **Integrate with n8n**: Configure your n8n workflow to send extracted metadata to the staging database instead of directly to the final service.
+4. **Agentic Review (MCP)**: As of July 2026, HITL actions are increasingly exposed via **MCP 3.0** servers. An agent (like Claude Code) can detect that a document requires human verification and use an MCP tool to "stage" the document.
+
+## CLI examples
+
+### Running the HITL Backend
+```bash
+# Start the FastAPI staging server
+uvicorn scripts.hitl_backend:app --reload --port 8000
+```
+
+### Staging a document via cURL
+```bash
+curl -X POST http://localhost:8000/staged-docs \
+     -H "Content-Type: application/json" \
+     -d '{
+       "source_ref": "DOC_123",
+       "original_metadata": {"title": "Water Bill", "due_date": "2026-06-20", "amount": 45.50}
+     }'
+```
+
+## API examples
+
+### Approve Document Endpoint (FastAPI)
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class MetadataUpdate(BaseModel):
+    corrected_metadata: dict
+
+@app.post("/approve/{doc_id}")
+async def approve_doc(doc_id: str, update: MetadataUpdate):
+    # Logic to move data to Vikunja/Google Calendar
+    # Then mark as 'approved' in staging DB
+    print(f"Approving {doc_id} with data: {update.corrected_metadata}")
+    return {"status": "committed"}
+```
+
+### Streamlit HITL Interface Snippet
+```python
+import streamlit as st
+
+st.title("HITL Document Review")
+doc = get_next_staged_doc()
+
+if doc:
+    st.image(doc['source_url'])
+    with st.form("review_form"):
+        title = st.text_input("Title", doc['original_metadata']['title'])
+        due_date = st.date_input("Due Date", doc['original_metadata']['due_date'])
+
+        if st.form_submit_button("Approve"):
+            approve_doc(doc['id'], {"title": title, "due_date": str(due_date)})
+            st.success("Approved!")
+```
 
 ## Related tools / concepts
 - [FastAPI](../tools/frameworks/fastapi.md): The recommended backend framework for the HITL service.
@@ -129,8 +110,6 @@ Configure your n8n workflow to send extracted metadata to the `POST /staged-docs
 - [Paperless-ngx](../services/paperless-ngx.md): The primary source of document images and metadata.
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md): A typical final destination for verified data.
 - [Vikunja](../services/vikunja.md): For creating tasks after human verification.
-- [Habitica](../services/habitica.md): For gamifying the document review process.
-- [Nextcloud](../services/nextcloud.md): For storing the final verified documents and their metadata.
 - [Home Admin UI](../../scripts/home_admin_ui.py): The reference Streamlit implementation.
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md): For exposing HITL actions to autonomous agents.
 
@@ -138,7 +117,8 @@ Configure your n8n workflow to send extracted metadata to the `POST /staged-docs
 - [KnowledgeOps Documentation](../../docs/standards.md)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Streamlit Documentation](https://docs.streamlit.io/)
+- [Human-in-the-loop (Wikipedia)](https://en.wikipedia.org/wiki/Human-in-the-loop)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-07-21
 - Confidence: high
