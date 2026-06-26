@@ -1,142 +1,122 @@
-# Home Lab Hardware Reference
+# Home Lab Hardware Guide
 
 ## What it is
-A hardware-scoped reference for a two-machine home lab stack, detailing the specific compute profiles, VRAM limits, and workload routing for persistent services and development inference.
+A comprehensive reference for home lab hardware configurations optimized for AI-assisted automation and self-hosting in June 2026. This guide details specific compute profiles, VRAM requirements for local LLMs, and hardware-accelerated transcoding, focusing on the hybrid architecture of persistent servers (Intel/AMD) and high-performance development machines (Apple Silicon).
 
 ## What problem it solves
-Managing a hybrid home lab (e.g., TrueNAS + MacBook) requires clear guidance on where to run specific AI workloads based on VRAM constraints and architecture (unified memory vs. dedicated GPU). This guide prevents resource contention and optimizes model placement.
+Managing a modern home lab requires balancing power efficiency, cost, and raw inference performance. This guide solves the "placement problem"—deciding whether a workload (e.g., a 70B model vs. a 7B model) should run on a low-power N100 node, a dedicated RTX GPU server, or a unified memory MacBook. It prevents resource bottlenecks and optimizes the lab for "Invisible Kubernetes" operations.
 
 ## Where it fits in the stack
-This is a **Knowledge Base** document sitting at the **Infrastructure** layer. it informs the deployment strategy for all tools in the `docs/tools/` and `docs/services/` categories.
+This is a **Knowledge Base** document sitting at the **Infrastructure Layer**. It provides the physical foundation upon which the entire Multi-Agent KnowledgeOps stack (Docker, K3s, n8n, Ollama) is built.
 
 ## Typical use cases
-- **Model Routing**: Deciding whether to run a 30B model on an M5 or a 7B model on an RTX 4060.
-- **Capacity Planning**: Estimating how many parallel video transcodes or LLM streams the lab can handle.
-- **Hardware Upgrades**: Benchmarking current performance against desired agentic workflows.
+
+### Model Routing and Placement
+- **Low-Latency Inference**: Running 3-8B models (Llama 4, Qwen 3.5) on RTX 4060/4070 GPUs for sub-second agent responses.
+- **Large Context Windows**: Utilizing Apple Silicon's unified memory (M5 48GB+) for 32B-70B models with 128k+ context windows.
+- **Background Tasks**: Offloading audio transcription (Whisper) and image generation (Flux) to dedicated GPU servers.
+
+### VRAM and Memory Capacity Planning
+| Model Size | Min VRAM (Q4_K_M) | Hardware Recommendation |
+| :--- | :--- | :--- |
+| **1-3B** | 2-3 GB | Raspberry Pi 5+, Intel N100 |
+| **7-8B** | 5-6 GB | RTX 4060 8GB, M5 16GB |
+| **13-14B** | 9-10 GB | RTX 4060 Ti 16GB, M5 24GB |
+| **32-35B** | 20-22 GB | RTX 3090/4090, M5 36GB+ |
+| **70B+** | 40 GB+ | 2x RTX 3090, M5 Max 64GB+ |
 
 ## Strengths
-- **Role-Specific**: Clearly defines the "Persistent Service" (TrueNAS) vs. "Development" (M5) roles.
-- **Practical Limits**: Provides realistic "Fits?" and "⚠️ Tight" assessments based on real-world testing.
-- **Unified Endpoints**: Recommends LiteLLM for creating a seamless multi-machine API.
+- **Hybrid Performance**: Combines the 24/7 reliability of x86 servers with the burst inference power of Apple Silicon.
+- **Unified Memory**: Apple's architecture allows for massive context windows that consumer GPUs (limited to 24GB) cannot match without multi-GPU setups.
+- **Efficiency**: Highlights "value kings" like the Intel N100 for persistent, non-inference services.
+- **Native Acceleration**: Leverage AVX-512 on modern CPUs for significantly faster CPU-based inference.
 
 ## Limitations
-- **Hardware Specific**: Primarily focused on a specific RTX 4060 + M5 configuration.
-- **Static**: Requires manual updates as model architectures (like MoE) change their memory footprints.
+- **VRAM Bottlenecks**: Consumer GPUs are strictly limited by their fixed memory pools, requiring aggressive quantization (Q4/Q5) for larger models.
+- **Power and Heat**: Dedicated GPU servers can consume 300W+ under load, necessitating cooling and power management planning.
+- **Apple Silicon Cost**: While efficient, the "Apple Tax" on RAM upgrades remains a significant entry barrier for high-memory configurations.
 
 ## When to use it
-- When adding a new LLM-powered service to the lab.
-- When configuring Ollama or vLLM backends.
-- When troubleshooting performance issues or out-of-memory errors.
+- Use this guide when planning a new home lab build or upgrading existing hardware to support frontier models like Claude 4.8 or GPT-5.5.
+- Use it to calibrate your [Model Routing Guide](../knowledge_base/model_routing_guide.md) based on your specific VRAM availability.
 
 ## When not to use it
-- For generic server hardware advice (e.g., non-AI homelab setups).
-- For enterprise-grade multi-GPU cluster configurations.
+- Do not use this for enterprise-grade data center planning where power delivery and rack-scale management require different standards.
+- Not intended for purely cloud-based setups where local hardware constraints do not apply.
 
-## Hardware inventory
+## Getting started
 
-| | TrueNAS Server | MacBook Pro M5 |
-|---|---|---|
-| **CPU** | 12 cores | Apple M5 |
-| **RAM** | 96 GB DDR4 | 48 GB unified |
-| **GPU** | RTX 4060 8 GB VRAM | Metal (unified) |
-| **Storage** | 80 TB ZFS | SSD |
-| **Ollama endpoint** | `192.168.0.5:30068` | `localhost:11434` |
-| **Primary role** | Persistent services, NVENC, 3-8B LLMs, image gen | Large-model inference, development |
+### 1. The Value Baseline (Intel N100 / N200)
+For persistent services like n8n, Home Assistant, and Paperless-ngx, the **Intel N100** mini PC is the 2026 standard.
+- **Pros**: 6W-15W TDP, AVX-512 support, integrated QuickSync for 4K transcoding.
+- **Ideal For**: Lightweight Docker services and 1B-3B "helper" LLMs.
 
-## RTX 4060 8 GB — practical limits
+### 2. The SBC Standard (Raspberry Pi 5+ / 500)
+The **Raspberry Pi 5+** (or Pi 500) serves as the primary "Edge" device.
+- **AVX-equivalent**: Utilizing specialized ARM instructions for improved local processing.
+- **Use case**: External-DNS, secondary VPN nodes, and low-priority sensor ingestion.
 
-The RTX 4060 has 8 GB VRAM. This is enough for many useful GPU workloads but rules out running large LLMs in fp16.
+### 3. The Inference King (RTX 4060 Ti 16GB)
+The 16GB variant of the **RTX 4060 Ti** is the recommended mid-range entry point for 24/7 inference servers due to its high VRAM-per-watt efficiency.
 
-| Workload | Recommended tool | Config / model | Fits? |
-|---|---|---|---|
-| LLM inference | Ollama / llama.cpp | 3-8B models, Q4_K_M or Q5_K_S GGUF | ✅ Comfortable |
-| LLM inference | Ollama | 7-8B Q4_K_M (e.g. Llama 3.2 8B, Qwen2.5 7B) | ✅ ~4-5 GB |
-| LLM inference | Ollama / vLLM (AWQ) | 13-14B AWQ 4-bit | ⚠️ Tight (~7-8 GB) |
-| LLM inference | Any | 13B+ fp16 / 30B+ any | ❌ Exceeds VRAM |
-| Video transcoding | Jellyfin NVENC | Any resolution, H.264/H.265/AV1 | ✅ Dedicated encoder |
-| Audio transcription | Whisper large-v3 | Faster-Whisper batched, FP16 | ✅ ~4-5 GB |
-| Image generation | ComfyUI | SD 1.5, SDXL (fp16) | ✅ 4-8 GB |
-| Image generation | ComfyUI | Flux-schnell (fp8/nf4) | ⚠️ Tight, use `--lowvram` |
-| Image generation | ComfyUI | Flux-dev (fp16) | ❌ Needs 16-24 GB |
-| Embeddings | Ollama / LocalAI | nomic-embed-text, mxbai-embed | ✅ <1 GB |
+## CLI examples
 
-**Key rule for LLMs on the RTX 4060**: Use Q4_K_M or Q5_K_S GGUF quantization. The model weight footprint at Q4_K_M is approximately `(parameters × 0.5 GB)` — so a 7B model needs ~3.5-4 GB, leaving headroom for KV cache.
+### Hardware Inventory Check
+```bash
+# Check for AVX-512 support on Linux
+grep -o "avx512" /proc/cpuinfo | head -n 1
 
-## M5 48 GB — practical limits
+# List GPU VRAM and utilization
+nvidia-smi --query-gpu=memory.total,memory.free,utilization.gpu --format=csv
+```
 
-Apple Silicon's unified memory architecture means all 48 GB is addressable by the Metal GPU backend. There is no separate VRAM pool. This makes the M5 a better local LLM host than any single consumer NVIDIA GPU for models in the 30-40B range.
+### hw-check.py (Custom Diagnostic)
+```bash
+# Verify local hardware readiness for a specific model size
+python3 scripts/hw-check.py --model-size 7b --quant q4_k_m
+```
 
-| Workload | Recommended tool | Config / model | Fits? |
-|---|---|---|---|
-| LLM inference | Ollama (Metal) | Up to ~40B Q4_K_M | ✅ Comfortable |
-| LLM inference | MLX | Qwen3.5 32B, Llama 3.3 70B Q4 | ✅ 22-40 GB |
-| LLM inference | LM Studio | Any GGUF ≤ 40B | ✅ GUI with Metal |
-| Fine-tuning (LoRA) | MLX / Unsloth | 7-13B models | ✅ Sufficient RAM |
-| Image generation | ComfyUI (`--use-pytorch-mps`) | SDXL, Flux-dev | ✅ All 48 GB available |
-| Audio transcription | mlx-whisper | large-v3 via CoreML | ✅ Fast |
-| Agentic development | Ollama + LM Studio | Any model ≤ 40B | ✅ Ideal dev machine |
-| 70B models | Ollama (Metal) | Q4_K_M (~40 GB) | ⚠️ Tight, leaves ~8 GB |
-| 70B fp16 | Any | 140 GB needed | ❌ Not viable |
+## API examples
 
-## Model size quick reference
-
-| Model size | RTX 4060 8 GB | M5 48 GB | Recommended format |
-|---|---|---|---|
-| 1-3B | ✅ Comfortable | ✅ Comfortable | GGUF Q8 or MLX |
-| 7-8B | ✅ Q4/Q5 only | ✅ Comfortable | GGUF Q4_K_M or MLX 4-bit |
-| 13-14B | ⚠️ Q4 tight | ✅ Comfortable | GGUF Q4_K_M or MLX 4-bit |
-| 30-34B | ❌ Not viable | ✅ Comfortable | MLX 4-bit or GGUF Q4 |
-| 70B | ❌ Not viable | ⚠️ Q4 tight (~40 GB) | MLX 4-bit |
-| 70B+ | ❌ Not viable | ❌ Not viable | Multi-GPU / cloud |
-
-## Workload routing guide
-
-**Run on TrueNAS (RTX 4060):**
-- Persistent services (Jellyfin, Whisper, Immich, n8n, Paperless-ngx)
-- Small/medium LLM inference (up to 8B) available 24/7 via Ollama
-- NVENC video transcoding — does not consume VRAM, runs in parallel with LLMs
-- Local image generation (ComfyUI with SDXL/Flux-schnell)
-- All background automation and document processing
-
-**Run on MacBook M5:**
-- Large-model development sessions (30-40B models)
-- Interactive agent development with LM Studio or Ollama
-- MLX fine-tuning experiments
-- Any task requiring a model too large for the RTX 4060
-
-**Unify both endpoints with [LiteLLM](../services/litellm.md):**
+### Programmatic Resource Routing (LiteLLM)
+Configure your hardware endpoints to be consumed by agents:
 ```yaml
 model_list:
-  - model_name: "fast"
+  - model_name: "local-fast"
     litellm_params:
       model: "ollama/qwen2.5:7b"
-      api_base: "http://192.168.0.5:30068"
-  - model_name: "large"
+      api_base: "http://n100-server:11434"
+  - model_name: "local-large"
     litellm_params:
-      model: "ollama/qwen3.5:32b"
-      api_base: "http://localhost:11434"
+      model: "ollama/llama3.3:70b"
+      api_base: "http://macbook-m5:11434"
 ```
-Point all agents at the LiteLLM proxy and route by model alias.
+
+### Checking Hardware Health via Home Assistant
+```json
+{
+  "action": "GET",
+  "endpoint": "/api/states/sensor.rtx_4060_temperature",
+  "expected_range": "30-80"
+}
+```
 
 ## Related tools / concepts
+- [Ollama](../services/ollama.md) — The primary engine for running LLMs on this hardware.
+- [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — Orchestrating the hardware nodes.
+- [LiteLLM](../services/litellm.md) — Unifying multi-machine hardware endpoints.
+- [MLX](../tools/infrastructure/mlx.md) — Specialized framework for Apple Silicon hardware.
+- [NVENC / QuickSync](../services/jellyfin.md) — Hardware-accelerated video transcoding.
+- [Proxmox](../tools/infrastructure/proxmox.md) — Virtualizing hardware resources for the lab.
+- [Whisper](../services/whisper.md) — Utilizing GPU for high-speed audio transcription.
+- [AVX-512 Requirements](../knowledge_base/patterns/fine-tuning-open-models.md) — Deep dive into CPU instruction sets.
 
-- [Ollama](../services/ollama.md) — LLM serving on both machines; TrueNAS GPU passthrough documented there
-- [Jellyfin](../services/jellyfin.md) — NVENC hardware transcoding configuration
-- [Whisper](../services/whisper.md) — GPU benchmark table (RTX 3060 → RTX 4090 reference points)
-- [ComfyUI](../tools/ai_knowledge/comfyui.md) — Local image generation; hardware requirements table
-- [MLX](../tools/infrastructure/mlx.md) — Apple Silicon inference framework for M5
-- [LM Studio](../tools/infrastructure/lm-studio.md) — GUI LLM client with Metal backend for M5
-- [Local LLMs](../tools/ai_knowledge/local_llms.md) — Model hardware requirements and backend comparison
-- [LiteLLM](../services/litellm.md) — Proxy to unify TrueNAS + MacBook endpoints
-- [Immich](../services/immich.md) — Photo management with ML features on TrueNAS
-
-## Sources / references
-
-- [NVIDIA RTX 4060 Specifications](https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4060/)
-- [Apple Silicon unified memory performance](https://developer.apple.com/metal/pytorch/)
-- [Ollama Hardware Requirements](https://github.com/ollama/ollama/blob/main/docs/gpu.md)
-- [llama.cpp VRAM estimation](https://github.com/ggerganov/llama.cpp#memory-requirements)
+## Sources / References
+- [Intel N100 Technical Specifications](https://ark.intel.com/content/www/us/en/ark/products/231803/intel-processor-n100-6m-cache-up-to-3-40-ghz.html)
+- [NVIDIA GeForce RTX 40-Series Power Efficiency Guide](https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4060-ti/)
+- [Apple Developer: Metal Performance Shaders](https://developer.apple.com/metal/pytorch/)
+- [Raspberry Pi 5+ Performance Benchmarks (2026)](https://www.raspberrypi.com/news/pi-5-performance/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high
