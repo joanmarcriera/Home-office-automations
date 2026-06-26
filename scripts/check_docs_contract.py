@@ -18,6 +18,7 @@ TARGET_PREFIXES = (
     "docs/architecture/",
     "docs/playbooks/",
     "docs/reference-implementations/",
+    "docs/superpowers/",
 )
 
 EXCLUDED_PREFIXES = ("docs/templates/",)

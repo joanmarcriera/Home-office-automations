@@ -1,90 +1,97 @@
-# Design: Cherry-Pick Major Gains from Closed PRs
+# Cherry-Pick Major Gains Design Spec
 
-**Date**: 2026-06-08  
-**Status**: Approved  
-**Branch**: `feat/cherry-pick-major-gains-from-closed-prs`
+## What it is
+The Cherry-Pick Major Gains Design Spec defines the technical architecture and selection criteria for a "harvest" operation that recovers high-value documentation and script content from 16 closed or conflicting Pull Requests. It establishes a protocol for using file snapshots to ensure significant content enrichment (≥20 lines) is merged into the main branch.
 
-## Goal
+## What problem it solves
+It solves the problem of effort loss in a high-concurrency agentic environment. When multiple agents work on similar files, traditional git merges often result in closed PRs and "knowledge rot." This spec provides a robust, non-destructive alternative to recover the "richest" version of a file regardless of git history conflicts.
 
-Extract the most valuable documentation and script changes from 16 closed/conflicting PRs and apply them cleanly on top of current `main` as a single new PR.
+## Where it fits in the stack
+**Architecture Layer** — provides the design blueprint for the recovery operations defined in the [Cherry-Pick Major Gains Plan](../plans/2026-06-08-cherry-pick-major-gains.md). It is a key component of the repository's self-healing and content consolidation strategy.
 
-## Selection Criteria
+## Typical use cases
+- **Conflict Resolution Design**: Designing the workflow for an agent to recover from a "stale" PR by snapshots.
+- **Content Consolidation**: Architecting a single "megadiff" that pulls the best parts of several failed branches.
+- **Repository Auditing**: Providing the criteria for determining what constitutes a "major gain" (e.g., ≥20 lines of enrichment).
 
-- Files where the branch version has ≥20 more lines than current `main` (genuine content enrichment, not noise)
-- Files entirely new to `main` (heygen.md)
-- New utility scripts not present in `main`
+## Strengths
+- **Resilience**: Operates outside the constraints of traditional git rebase/merge logic.
+- **Data Integrity**: Uses a strict "File Inventory" to ensure only verified, enriched content is harvested.
+- **Clarity**: Establishes unambiguous criteria for "major gains" and "new content."
 
-## File Inventory (34 files)
+## Limitations
+- **Selective Recovery**: Only recovers specified files, not the entire state of the source branch.
+- **Manual Mapping**: Requires careful inventory management to ensure all target files and source branches are correctly mapped.
+- **History Loss**: Does not preserve individual commit lineage from source branches.
 
-### New file
-| File | Source branch |
-|---|---|
-| `docs/tools/ai_knowledge/heygen.md` | `origin/ralph-loop-batch-56-60-14332896274658620492` |
+## When to use it
+- When implementing the recovery of enriched content from the 16 specified closed PRs.
+- To document the logic behind why certain files were chosen for recovery over others.
+- When establishing the "inventory-first" approach for multi-agent synchronization in Batch 145.
 
-### Enriched service docs (+20 to +176 lines)
-| File | Delta | Source branch |
-|---|---|---|
-| `docs/services/tubearchivist.md` | +176 | `origin/ralph-loop-batch-99-sub-1-media-freshness-audit-14838447504829357713` |
-| `docs/services/jellyfin.md` | +78 | same |
-| `docs/services/navidrome.md` | +75 | same |
-| `docs/services/jackett.md` | +67 | same |
-| `docs/services/plex.md` | +21 | same |
-| `docs/services/plex-automation.md` | +7 | same |
-| `docs/services/grocy.md` | +44 | `origin/ralph-loop-batch-99-sub-2-7429795985516843168` |
-| `docs/services/actual-budget.md` | +34 | same |
-| `docs/services/focalboard.md` | +21 | same |
-| `docs/services/habitica.md` | +48 | same |
-| `docs/services/it-tools.md` | +33 | same |
-| `docs/services/vikunja.md` | +74 | `origin/ralph-loop-freshness-batch-99-sub-2-vikunja-1589986518803363299` |
-| `docs/services/syncthing.md` | +68 | `origin/ralph-loop-batch-94-resolution-4332415108223708556` |
-| `docs/services/gitea.md` | +61 | same |
-| `docs/services/trilium.md` | +48 | `origin/trilium-freshness-audit-2529060529777763237` |
+## When not to use it
+- For simple design changes that can be handled through standard feature branching.
+- When the goal is to preserve full commit lineage for regulatory or compliance reasons.
 
-### Enriched tool docs
-| File | Delta | Source branch |
-|---|---|---|
-| `docs/tools/development_ops/llmfit.md` | +87 | `origin/issue-resolution-batch-freshness-audit-10508511053722809236` |
-| `docs/tools/benchmarking/helm.md` | +76 | `origin/ralph-loop-batch-100-12179161220186892849` |
-| `docs/tools/benchmarking/evalplus.md` | +52 | `origin/docs/batch-77-issue-1-evalplus-7788724441553733546` |
-| `docs/tools/frameworks/firebase-genkit.md` | +40 | `origin/issue-resolution-batch-freshness-audit-10508511053722809236` |
-| `docs/tools/frameworks/instructor.md` | +38 | same |
-| `docs/tools/development_ops/google-stitch.md` | +23 | same |
-| `docs/tools/infrastructure/aphrodite-engine.md` | +19 | `origin/ralph-loop-maintenance-2026-06-02-3871319807512746608` |
-| `docs/tools/ai_knowledge/elevenlabs.md` | +15 | `origin/ralph-loop-batch-74-deepening-elevenlabs-10952158861147126697` |
+## Getting started
+1. **Selection Criteria**: Use the "≥20 lines" rule as the baseline for a "major gain."
+2. **File Inventory**: Audit closed PRs (identified in the Plan) to identify files meeting criteria.
+3. **Branch Creation**: Create `feat/cherry-pick-major-gains-from-closed-prs` from `main`.
+4. **Content Extraction**: Use `git show <source-branch>:<path>` to overwrite local files.
 
-### Enriched knowledge base / patterns
-| File | Delta | Source branch |
-|---|---|---|
-| `docs/knowledge_base/patterns/data-copilot-agentic-rag.md` | +64 | `origin/ralph-loop-batch-111-4109746271122170512` |
-| `docs/knowledge_base/ai_company_starter_stack.md` | +61 | `origin/jules/audit-batch-june-07-9101608677968828562` |
-| `docs/knowledge_base/ai_reading_list.md` | +60 | same |
-| `docs/knowledge_base/patterns/openclaw-use-case-catalog.md` | +37 | `origin/ralph-loop-batch-100-12179161220186892849` |
-| `docs/knowledge_base/home-admin-agent-architecture.md` | +42 | `origin/jules/audit-batch-june-07-9101608677968828562` |
-| `docs/reference-implementations/data-copilot/skeleton-guide.md` | +57 | `origin/ralph-loop-batch-111-4109746271122170512` |
-| `docs/playbooks/knowledge-base-health.md` | +38 | `origin/jules/audit-batch-june-07-9101608677968828562` |
+## CLI examples
 
-### New scripts
-| File | Source branch |
-|---|---|
-| `scripts/sql_validator.py` | `origin/ralph-loop-batch-94-resolution-4332415108223708556` |
-| `scripts/test_sql_validator.py` | same |
-| `scripts/verify_node_headscale.py` | same |
-| `find_oldest_docs.py` | `origin/ralph-loop-batch-100-12179161220186892849` |
-| `find_oldest_issues.py` | `origin/issue-resolution-batch-freshness-audit-10508511053722809236` |
+### Inventory Audit
+```bash
+# Analyze a specific closed branch for potential gains
+git diff main...origin/closed-branch --stat | grep ".md" | awk '$3 > 20 {print $1}'
+```
 
-## mkdocs.yml
+### Navigation Verification
+```bash
+# Ensure new tools are properly indexed in mkdocs.yml
+grep "heygen.md" mkdocs.yml
+```
 
-Add `heygen.md` entry under the `ai_knowledge` nav section.
+## API examples
 
-## Method
+### Selection Criteria Logic (Python)
+```python
+def is_major_gain(delta_lines, is_new=False):
+    """Determines if a file change qualifies as a major gain."""
+    if is_new:
+        return True
+    return delta_lines >= 20
 
-1. Create branch `feat/cherry-pick-major-gains-from-closed-prs` from `main`
-2. For each file: `git show <source-branch>:<path>` → overwrite local file
-3. For new scripts/files: create parent dirs as needed, write file
-4. Update `mkdocs.yml` for heygen.md
-5. Commit in logical groups (services, tools, KB, scripts)
-6. Open PR against `main`
+# Example usage
+# if is_major_gain(176): harvest_file(...)
+```
+
+### Harvest Map (JSON)
+```json
+{
+  "harvest_map": [
+    {
+      "file": "docs/services/tubearchivist.md",
+      "source": "origin/media-freshness-audit",
+      "delta": 176
+    }
+  ]
+}
+```
+
+## Related tools / concepts
+- [Cherry-Pick Major Gains Plan](../plans/2026-06-08-cherry-pick-major-gains.md)
+- [Ralph-loop Protocol](../../architecture/automated_contributions.md)
+- [KnowledgeOps Standards](../../standards.md)
+- [scripts/check_docs_contract.py](../../scripts/check_docs_contract.py)
+- [Claude 4.8](../../tools/ai_knowledge/claude.md)
+- [GPT-5.5](../../tools/ai_knowledge/openai.md)
+
+## Sources / references
+- [KnowledgeOps Audit Report](../../reports/audit_log_2026-05-16.txt)
+- [Git Diff Documentation](https://git-scm.com/docs/git-diff)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-07-21
 - Confidence: high
