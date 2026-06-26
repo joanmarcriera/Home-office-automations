@@ -1,7 +1,7 @@
 # Langfuse
 
 ## What it is
-Langfuse is an open-source LLM engineering platform designed for tracing, observability, metrics, and evaluation. As of June 2026, it serves as a central hub for teams to collaboratively debug, analyze, and iterate on their LLM applications (including those powered by **Claude 4.7**, **GPT-5.5**, and **Llama 4 Maverick**) throughout the entire development lifecycle.
+Langfuse is an open-source LLM engineering platform designed for tracing, observability, metrics, and evaluation. As of June 2026, it serves as a central hub for teams to collaboratively debug, analyze, and iterate on their LLM applications (including those powered by **Claude 4.8**, **GPT-5.5**, and **Llama 4 Maverick**) throughout the entire development lifecycle.
 
 ## What problem it solves
 LLM applications involve complex, non-deterministic interactions that are difficult to monitor using traditional software tools. Langfuse solves these challenges by providing:
@@ -9,7 +9,7 @@ LLM applications involve complex, non-deterministic interactions that are diffic
 - **Cost and Latency Management**: Precise tracking of token usage, model costs, and performance bottlenecks across diverse providers.
 - **Quality Assurance**: Tools for measuring output quality via LLM-as-a-judge, user feedback, and manual labeling.
 - **Prompt Fragmentation**: Centralized prompt management to decouple prompts from code and enable version control.
-- **MCP Integration**: Enhanced support for monitoring **Model Context Protocol (MCP)** sessions and resource retrieval.
+- **MCP Integration**: Enhanced support for monitoring **Model Context Protocol (MCP 3.0)** sessions and resource retrieval.
 
 ## Where it fits in the stack
 Langfuse sits in the **Observability and Evaluation** layer of the AI stack. It integrates directly with LLM providers, frameworks (like LangChain and LlamaIndex), and gateways (like [LiteLLM](../../services/litellm.md)) to capture telemetry data. It often uses [ClickHouse](clickhouse.md) as a high-performance backend for analytical queries.
@@ -19,7 +19,7 @@ Langfuse sits in the **Observability and Evaluation** layer of the AI stack. It 
 - **Regression Testing**: Using datasets and experiments to ensure a new prompt version or model doesn't degrade performance.
 - **Production Monitoring**: Tracking real-world usage, user feedback, and cost across different models and versions.
 - **Prompt Engineering**: Collaboratively iterating on prompts in a UI-based playground and deploying them via API without redeploying code.
-- **MCP Session Audit**: Tracing the lifecycle of MCP connections and the context provided to models.
+- **MCP Session Audit**: Tracing the lifecycle of MCP 3.0 connections and the context provided to models.
 
 ## Strengths
 - **Open Source and Self-hostable**: Complete control over data and infrastructure, with a community-driven development model.
@@ -90,7 +90,7 @@ langfuse health
 ### Exporting Traces
 Export traces for a specific period for offline analysis:
 ```bash
-langfuse export --from 2026-06-01 --to 2026-06-07 --format csv > traces.csv
+langfuse export --from 2026-06-01 --to 2026-06-28 --format csv > traces.csv
 ```
 
 ## API examples
@@ -130,7 +130,7 @@ async function submitFeedback(traceId, score, comment) {
 
 ## Related tools / concepts
 - [AgentOps](agentops.md) - Specialized agent monitoring and session tracking.
-- [Helicone](helicone.md) - Proxy-based observability for LLM requests.
+- [Helicone](helicone.md) - Proxy-based LLM observability.
 - [ClickHouse](clickhouse.md) - Analytical database often used as a backend for Langfuse.
 - [Arize AI](arize-ai.md) - Enterprise-grade ML observability and evaluation.
 - [W&B Weave](wandb-weave.md) - Lightweight tracing and versioning for AI developers.
@@ -146,5 +146,5 @@ async function submitFeedback(traceId, score, comment) {
 - [Langfuse SDK Reference](https://langfuse.com/docs/sdk/overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

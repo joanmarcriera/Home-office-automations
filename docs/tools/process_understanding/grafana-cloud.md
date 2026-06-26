@@ -35,11 +35,6 @@ It centralizes monitoring from disparate sources into a single dashboarding inte
 - For simple applications where basic logging is sufficient.
 - If you prefer a purely local, lightweight observability stack.
 
-## Licensing and cost
-- **Open Source**: The core components (Grafana, Loki, etc.) are open source (AGPLv3); the Cloud service is proprietary.
-- **Cost**: Freemium (generous free tier, then usage-based).
-- **Self-hostable**: Yes (via the LGTM stack).
-
 ## Getting started
 
 ### Installation
@@ -78,7 +73,7 @@ grafana-cli plugins ls
 ## API examples
 
 ### Shipping LLM Metrics with OpenTelemetry (Python)
-Grafana Cloud supports OpenTelemetry natively. You can use the OpenTelemetry SDK to track token usage for models like **Claude 4.7** or **GPT-5.5**.
+Grafana Cloud supports OpenTelemetry natively. You can use the OpenTelemetry SDK to track token usage for models like **Claude 4.8** or **GPT-5.5**.
 
 ```python
 from opentelemetry import metrics
@@ -106,47 +101,23 @@ response = requests.get(API_URL, params=params)
 print(response.json())
 ```
 
-## Model Context Protocol (MCP) Integration
-As of June 2026, Grafana provides a native **MCP Server** that allows AI assistants like **Claude Code** to interact with your observability data.
-
-### MCP Configuration
-Add the following to your MCP client configuration (e.g., `claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "grafana": {
-      "command": "uvx",
-      "args": ["mcp-grafana"],
-      "env": {
-        "GRAFANA_URL": "https://your-instance.grafana.net",
-        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "your-token"
-      }
-    }
-  }
-}
-```
-
-This enables tools like:
-- `search_dashboards`: Find relevant dashboards by title.
-- `get_dashboard_summary`: Get a compact overview of panel types and variables.
-- `query_metrics`: Execute PromQL queries directly from the AI assistant.
-
 ## Related tools / concepts
-- [Datadog](datadog.md)
-- [New Relic AI](new-relic-ai.md)
-- [OpenTelemetry Collector](opentelemetry-collector.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude](../ai_knowledge/claude.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml)
+- [Datadog](datadog.md) - Enterprise-grade observability and security.
+- [New Relic AI](new-relic-ai.md) - Full-stack AI monitoring and alerting.
+- [OpenTelemetry Collector](opentelemetry-collector.md) - Vendor-neutral telemetry proxy.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) - Standard for connecting agents to data.
+- [Claude](../ai_knowledge/claude.md) - Frontier LLM for orchestration.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) - Data framework for LLM applications.
+- [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml) - Standard for k8s monitoring.
+- [Loki](../../services/loki.md) - Horizontally scalable log aggregation.
+- [Tempo](../../services/tempo.md) - High-volume distributed tracing.
 
-## Sources / References
+## Sources / references
 - [Grafana AI Observability Documentation](https://grafana.com/docs/grafana-cloud/monitor-applications/ai-observability/)
 - [Grafana MCP Server](https://grafana.com/docs/grafana/latest/developer-resources/mcp/)
 - [Actually Useful AI™ in Grafana Cloud](https://grafana.com/products/cloud/ai-observability/)
 - [Llama 4 Maverick Observability Patterns](https://grafana.com/blog/2026/05/monitoring-llama-4-maverick/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high
