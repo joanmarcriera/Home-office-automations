@@ -13,18 +13,18 @@ This implementation sits at the **Intake/Ingress layer**. It connects **External
 - **Mobile Scan-to-Cloud**: A shortcut on a phone that captures an image and POSTs it directly to the server.
 - **Email Gateway**: A script that monitors an "invoices@" inbox and pushes attachments to Paperless.
 - **Automated Web Downloads**: A script that downloads monthly utility bills and uploads them with pre-applied tags.
-- **Real-time Agent Analysis**: Triggering a Claude 4.7 or GPT-5.5 agent to analyze a document the moment it is scanned.
+- **Real-time Agent Analysis**: Triggering a **Claude 4.8** or **GPT-5.5** agent to analyze a document the moment it is scanned.
 
 ## Strengths
 - **Low Latency**: Near-instantaneous ingestion.
 - **Direct Metadata Injection**: Allows applying tags, titles, and dates at the moment of upload.
 - **Improved Reliability**: Provides immediate HTTP success/failure codes to the sending system.
-- **Agent Integration**: Seamlessly connects to the Model Context Protocol (MCP) for automated processing.
+- **Agent Integration**: Seamlessly connects to the **Model Context Protocol (MCP 3.0)** for automated processing.
 
 ## Limitations
 - **Token Management**: Requires secure handling of API tokens.
 - **Complexity**: Slightly more complex to set up than a simple shared folder.
-- **Payload Limits**: Large files may require tuning of the web server (e.g., Nginx) client_max_body_size.
+- **Payload Limits**: Large files may require tuning of the web server (e.g., Nginx) `client_max_body_size`.
 
 ## When to use it
 - When building automated intake pipelines in n8n or Node-RED.
@@ -35,78 +35,40 @@ This implementation sits at the **Intake/Ingress layer**. It connects **External
 - For simple home setups where a 5-minute polling delay is acceptable.
 - If the source system does not support multipart form-data POST requests.
 
-## Configuration
+## Getting started
+1. Generate an API token in the Paperless-ngx Django admin panel.
+2. Ensure your Paperless instance is accessible via HTTPS or a secure tunnel (Tailscale).
+3. Test connectivity using the `curl` example provided in the CLI section.
+4. Integrate the upload logic into your mobile app, script, or n8n workflow.
 
-### API Endpoint
-`POST /api/documents/post_document/`
+## CLI examples
+Use `curl` to perform a manual upload for testing.
 
-### Authentication
-Requires an `Authorization: Token <YOUR_API_TOKEN>` header.
-
-### Multipart Form Data Fields
-- `document`: The file to upload.
-- `title` (optional): Override the filename.
-- `created` (optional): ISO8601 date.
-- `tags` (optional): List of tag IDs (integers).
-- `correspondent` (optional): Correspondent ID.
-- `document_type` (optional): Document type ID.
-
-## cURL Example
 ```bash
+# Upload a PDF with metadata
 curl -H "Authorization: Token your_token_here" \
      -F "document=@/path/to/your/document.pdf" \
      -F "title=Utility Bill" \
      -F "tags=1,2,3" \
-     -X POST http://your-paperless-ip:8000/api/documents/post_document/
+     -X POST https://your-paperless-url/api/documents/post_document/
 ```
 
-## MCP Tool Integration (Python)
-The repository includes a reference tool for agents to perform this upload via the Model Context Protocol (MCP).
+## API examples
+The **Model Context Protocol (MCP 3.0)** provides a standardized way for agents to perform this upload.
 
+### Python Integration
 ```python
-# From scripts/paperless_tool.py
-from paperless_tool import PaperlessUploadTool
+# Using paperless_tool.py
+from scripts.paperless_tool import PaperlessUploadTool
 
-async def upload_invoice(path):
+async def upload_document(file_path):
     tool = PaperlessUploadTool()
     result = await tool.run(
-        file_path=path,
-        title="Automated Upload via Claude 4.7",
+        file_path=file_path,
+        title="Automated Upload via Claude 4.8",
         tags=[12] # e.g., 'needs-action'
     )
-    print(result)
-```
-
-## n8n Implementation
-Use the **HTTP Request** node:
-- **Method**: POST
-- **URL**: `http://paperless:8000/api/documents/post_document/`
-- **Authentication**: Header Auth (`Authorization`)
-- **Send Binary Data**: Yes
-- **Body Content Type**: Multipart Form-Data
-
-## Security Considerations
-- **API Token Scope**: Use a dedicated "Service Account" token in Paperless-ngx with minimal required permissions.
-- **TLS/SSL**: Always use HTTPS for the API endpoint, especially if exposed over the internet.
-- **Network Isolation**: If possible, keep the ingestion webhook on a private VLAN or accessible only via Tailscale/Headscale.
-
-## Error Handling
-- **400 Bad Request**: Often indicates missing `document` field or malformed metadata (e.g., tags not being integers).
-- **403 Forbidden**: Token is invalid or has insufficient permissions.
-- **413 Request Entity Too Large**: File exceeds the Nginx or Paperless upload limit.
-
-## Advanced Automation Patterns
-- **Cascading Tags**: Use an initial `inbox` tag to trigger an n8n workflow that then applies more granular tags based on LLM analysis.
-- **Parallel Processing**: Upload the document to Paperless while simultaneously sending a copy to a vector database for RAG (Retrieval-Augmented Generation).
-
-## Testing the Webhook
-You can use the local `scripts/paperless_tool.py` to test your configuration before deploying to a production n8n workflow:
-
-```bash
-# Ensure PAPERLESS_API_TOKEN is set
-export PAPERLESS_API_URL="http://your-ip:8000/api"
-export PAPERLESS_API_TOKEN="your-token"
-python3 scripts/paperless_tool.py # List available tools
+    return result
 ```
 
 ## Related tools / concepts
@@ -118,12 +80,13 @@ python3 scripts/paperless_tool.py # List available tools
 - [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The system that monitors for new documents.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md): Triggering agent actions upon successful ingestion.
 - [Claude Code](../../tools/development_ops/claude-code.md): The CLI tool used to manage these integrations.
+- [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
-## Sources / References
-- [Paperless-ngx API Docs](https://docs.paperless-ngx.com/api/)
+## Sources / references
+- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 - [n8n HTTP Request Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
-- [RFC 7578: Returning Values from Forms: multipart/form-data](https://datatracker.ietf.org/doc/html/rfc7578)
+- [Tailscale API Security Guide](https://tailscale.com/blog/api-security/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high

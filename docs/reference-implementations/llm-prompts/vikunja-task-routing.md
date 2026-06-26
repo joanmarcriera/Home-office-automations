@@ -21,7 +21,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 
 ## Limitations
 - **Project Overlap**: Ambiguous tasks might be routed to the 'Inbox' if project descriptions are not distinct.
-- **Model Dependency**: Requires a model capable of reliable JSON output (e.g., **GPT-5.5**, **Claude 4.7**, or **Llama 4 Maverick**).
+- **Model Dependency**: Requires a model capable of reliable JSON output (e.g., **GPT-5.5**, **Claude 4.8**, or **Llama 4 Maverick**).
 
 ## When to use it
 - When you have more than 3-5 distinct projects in Vikunja.
@@ -32,10 +32,13 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 - For very simple setups with only one list (a simple prompt would suffice).
 - If the agent does not have real-time access to the current project IDs (risk of hallucinating IDs).
 
-## Purpose
-Guide the Home Admin Agent in categorizing and routing extracted tasks to the appropriate Vikunja projects, setting priorities, and establishing dependencies.
+## Getting started
+To implement this pattern, you need a Vikunja instance, an LLM provider (e.g., Anthropic Claude 4.8), and an orchestration tool (n8n).
+1. Define your core project names and IDs in Vikunja.
+2. Configure your system prompt using the template provided below.
+3. Set up an n8n workflow that triggers on user input and calls the LLM with the project list.
 
-## Prompt Template
+### Prompt Template
 ```markdown
 You are the Home Admin Agent, responsible for managing the family's task list in Vikunja.
 Your goal is to route new tasks into the correct project and set appropriate metadata based on the context.
@@ -70,7 +73,26 @@ Return a JSON object:
 }
 ```
 
-## JSON Schema for Constrained Output
+## CLI examples
+You can test the prompt logic using a CLI tool like `llm` or `curl` to interact with your LLM provider.
+
+```bash
+# Example using curl to test the routing logic with Claude 4.8
+curl https://api.anthropic.com/v1/messages \
+     -H "x-api-key: $ANTHROPIC_API_KEY" \
+     -H "anthropic-version: 2023-06-01" \
+     -H "content-type: application/json" \
+     -d '{
+       "model": "claude-4-8-opus-20260528",
+       "max_tokens": 1024,
+       "messages": [{"role": "user", "content": "Remind me to fix the kitchen sink tomorrow"}]
+     }'
+```
+
+## API examples
+Integration via the **Model Context Protocol (MCP 3.0)** allows for direct tool calling into Vikunja.
+
+### JSON Schema for Constrained Output
 ```json
 {
   "type": "object",
@@ -87,12 +109,18 @@ Return a JSON object:
 }
 ```
 
-## Agent Integration Pattern
-1. **Intake**: User sends a message (e.g., "Remind me to fix the kitchen sink tomorrow").
-2. **Tool Call**: Agent calls `vikunja_query_tool` to get the list of active projects and their IDs. **Model Context Protocol (MCP)** can be used here to provide the agent with real-time access to the Vikunja API.
-3. **Reasoning**: Agent uses the prompt above to determine the correct project (Maintenance) and priority (3 or 5).
-4. **Execution**: Agent calls `vikunja_create_tool` with the determined metadata.
-5. **Feedback**: Agent confirms to the user: "I've added 'Fix kitchen sink' to your Maintenance list for tomorrow with medium priority."
+### Agent Integration Pattern (Python)
+```python
+# Using vikunja_tool.py for execution
+from scripts.vikunja_tool import VikunjaTool
+
+async def route_task(user_input):
+    vikunja = VikunjaTool()
+    # Logic to call LLM with the routing prompt and then execute
+    # result = await llm.generate_json(prompt, schema)
+    # await vikunja.create_task(result)
+    pass
+```
 
 ## Related tools / concepts
 - [Vikunja](../../services/vikunja.md): The target task management system.
@@ -104,10 +132,11 @@ Return a JSON object:
 - [Email-to-Calendar Playbook](../../playbooks/email-to-calendar.md): A similar pattern for scheduling.
 - [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
-## Sources / References
+## Sources / references
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 - [JSON Schema Standard](https://json-schema.org/)
+- [Anthropic Claude Documentation](https://docs.anthropic.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-26
 - Confidence: high
