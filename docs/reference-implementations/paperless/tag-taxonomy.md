@@ -1,69 +1,83 @@
 # Reference Implementation: Paperless Tag Taxonomy
 
 ## What it is
-A hierarchical tagging system designed for Paperless-ngx that organizes personal and household documents into actionable categories. It balances organizational needs (folders/categories) with workflow states (status/actions). As of June 2026, it is optimized for high-reasoning models like **Claude 4.7** and **GPT-5.5** to perform autonomous classification.
+A hierarchical tagging system designed for Paperless-ngx that organizes personal and household documents into actionable categories. It balances organizational needs (folders/categories) with workflow states (status/actions). As of June 2026, it is optimized for high-reasoning models like **Claude 4.8** and **GPT-5.5** to perform autonomous classification and lifecycle management.
 
 ## What problem it solves
-Flat document storage quickly becomes unmanageable as volume grows. Without a standardized taxonomy, users struggle to find files, and automated agents cannot reliably trigger specific workflows (like paying a bill or extracting a warranty). This taxonomy provides the "semantic hooks" necessary for both humans and machines to navigate the archive.
+Flat document storage quickly becomes unmanageable as volume grows. Without a standardized taxonomy, users struggle to find files, and automated agents cannot reliably trigger specific workflows (like paying a bill or extracting a warranty). This taxonomy provides the "semantic hooks" necessary for both humans and machines to navigate the archive, ensuring that "Invisible Kubernetes" and "Agentic Workflows" have structured data to act upon.
 
 ## Where it fits in the stack
-The taxonomy sits at the **Organization/Metadata layer** of the document management system. It acts as the primary index used by **Search**, **Automated Workflows** (n8n, Python scripts), and **AI Agents** (leveraging **Model Context Protocol**) to filter and process documents.
+The taxonomy sits at the **Organization/Metadata layer** of the document management system. It acts as the primary index used by **Search**, **Automated Workflows** (n8n, Python scripts), and **AI Agents** (leveraging **Model Context Protocol 3.0**) to filter and process documents.
 
 ## Typical use cases
-- **Workflow Automation**: Moving a document from `inbox` to `needs-action` to trigger a reminder.
-- **Tax Preparation**: Quickly retrieving all documents tagged with `Keep-7-years` or `Finance/Bill`.
-- **Legacy Preservation**: Categorizing scanned physical photos and historical records for long-term archiving.
-- **Agentic Routing**: Using **Llama 4 Maverick** to analyze document sentiment and apply urgent status tags.
+- **Workflow Automation**: Moving a document from `inbox` to `needs-action` to trigger a reminder in [Vikunja](../../services/vikunja.md).
+- **Tax Preparation**: Quickly retrieving all documents tagged with `Keep-7-years` or `Finance/Bill` for annual audits.
+- **Legacy Preservation**: Categorizing scanned physical photos and historical records for long-term archiving using [Immich](../../services/immich.md) integration patterns.
+- **Agentic Routing**: Using **Llama 4 Maverick** to analyze document sentiment and apply urgent status tags for immediate human attention.
 
 ## Strengths
 - **Action-Oriented**: Clearly separates "State" (what needs to be done) from "Category" (what the document is).
-- **Extensible**: The `Category/Subcategory` pattern allows for infinite growth without breaking existing logic.
-- **Machine-Readable**: Simple, consistent naming conventions are easy for LLMs and scripts to parse.
-- **MCP Compatibility**: Designed to be exposed via MCP servers to agentic IDEs and assistants.
+- **Extensible**: The `Category/Subcategory` pattern allows for infinite growth without breaking existing logic or n8n workflows.
+- **Machine-Readable**: Simple, consistent naming conventions are easy for LLMs and scripts to parse via the Paperless REST API.
+- **MCP 3.0 Compatibility**: Designed to be exposed via MCP servers to agentic IDEs and autonomous household assistants.
 
 ## Limitations
-- **Maintenance**: Requires discipline to ensure every document is tagged correctly (unless fully automated).
-- **Tool Support**: While ideal for Paperless-ngx, other DMS tools may have different tagging limitations.
-- **Over-Categorization**: Risk of creating too many niche tags that humans won't remember to use.
+- **Maintenance**: Requires discipline to ensure every document is tagged correctly, though June 2026 auto-tagging has mitigated this significantly.
+- **Tool Support**: While ideal for Paperless-ngx, other DMS tools may have different tagging limitations or lack hierarchical support.
+- **Over-Categorization**: Risk of creating too many niche tags that humans won't remember to use, necessitating agentic "Tag Cleanup" routines.
 
 ## When to use it
-- When setting up a new Paperless-ngx instance.
-- When designing automated "Scan-to-Action" pipelines.
-- For managing multi-generational family archives with high-volume ingest.
+- When setting up a new Paperless-ngx instance for household or small office use.
+- When designing automated "Scan-to-Action" pipelines that require high-precision routing.
+- For managing multi-generational family archives with high-volume ingest from scanners and email.
 
 ## When not to use it
-- For extremely small document sets (under 100 files) where a simple search is sufficient.
-- If using a DMS that relies entirely on full-text search without robust tagging support.
+- For extremely small document sets (under 100 files) where a simple full-text search is sufficient.
+- If using a DMS that relies entirely on vector-based search without robust tagging support.
 
-## Agentic Implementation (June 2026)
-With the release of **Claude 4.7** and **GPT-5.5**, tagging is no longer a manual chore.
-- **Autonomous Inbox Management**: Agents monitor the `inbox` tag and apply category tags based on visual and text analysis.
-- **MCP Integration**: The [Paperless Tool](../../scripts/paperless_tool.py) allows agents to query documents by tag and update taxonomy programmatically.
-- **Llama 4 Maverick Optimization**: Local models can now perform high-accuracy tagging on-device, preserving privacy for sensitive financial documents.
+## Getting started
+1. **Initial Tag Creation**: Create the core status tags (`inbox`, `needs-action`, `processed`) in the Paperless-ngx UI or via API.
+2. **Category Hierarchy**: Establish top-level categories using the `Category/Subcategory` naming convention (e.g., `Finance/Bill`).
+3. **Matching Rules**: Configure Paperless-ngx "Matching Algorithms" to automatically apply tags based on document content (e.g., "Any" match for "Invoice" applies `Finance/Bill`).
+4. **Agentic Onboarding**: Point your Home Admin Agent to the taxonomy documentation so it understands the routing logic.
 
-## Core Status Tags
-- `inbox`: Document just arrived, needs manual or auto review.
-- `needs-action`: Requires a human to perform a task (e.g. pay bill).
-- `processed`: Automation has finished its work (e.g. calendar event created).
-- `automation-failed`: LLM or script hit an error.
+## CLI examples
+These commands are executed within the Paperless-ngx environment to maintain the taxonomy integrity.
 
-## Category Tags
-- `Admin/Warranty` (receipts/consumer protection)
-- `Admin/Manual` (product manuals/troubleshooting)
-- `Finance/Bill`
-- `School/Correspondence`
-- `Health/Record`
-- `Admin/Government`
+```bash
+# Rename files on disk based on the new taxonomy and storage templates
+docker exec -it paperless-webserver python3 manage.py document_renamer
 
-## History & Archive Tags
-- `History/Family-Record`: Letters, journals, family trees.
-- `History/Photo-Archive`: Scanned physical photos.
-- `History/Genealogy`: Birth/Death certificates (historic), census records.
+# Reindex the search engine after a bulk tag migration or update
+docker exec -it paperless-webserver python3 manage.py document_index reindex
 
-## Retention Tags
-- `Keep-7-years`: Tax related.
-- `Keep-forever`: Birth certificates, deeds.
-- `Ephemeral`: Coupons, flyers.
+# Sanity check for documents without any tags (taxonomy gaps)
+docker exec -it paperless-webserver python3 manage.py document_index --tags=none
+```
+
+## API examples
+The Paperless-ngx REST API is the primary interface for agents to interact with the taxonomy.
+
+### List all tags
+```bash
+curl -X GET http://localhost:8000/api/tags/ \
+  -H "Authorization: Token your_api_token"
+```
+
+### Filter documents by status and category
+```bash
+# Find all bills that still need action
+curl -X GET "http://localhost:8000/api/documents/?tags__name__all=needs-action,Finance/Bill" \
+  -H "Authorization: Token your_api_token"
+```
+
+### Update document tags programmatically
+```bash
+curl -X PATCH http://localhost:8000/api/documents/123/ \
+  -H "Authorization: Token your_api_token" \
+  -H "Content-Type: application/json" \
+  -d '{"tags": [1, 5, 10]}'
+```
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The implementation platform for this taxonomy.
@@ -73,12 +87,14 @@ With the release of **Claude 4.7** and **GPT-5.5**, tagging is no longer a manua
 - [Webhook Ingestion](../../reference-implementations/paperless/webhook-ingestion.md): How documents and tags enter the system.
 - [n8n](../../services/n8n.md): The engine that processes tags and triggers actions.
 - [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md): The "brain" that interacts with the tagged archive.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md): The interface for agents to interact with Paperless.
+- [Vikunja](../../services/vikunja.md): The task manager used for `needs-action` routing.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md): The interface for agents to interact with Paperless.
 
 ## Sources / References
 - [Paperless-ngx Tags Documentation](https://docs.paperless-ngx.com/usage/#tags)
 - [Tagging Strategies for Personal Documents](https://github.com/joanmarcriera/Home-office-automations)
+- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-28
 - Confidence: high
-- Last reviewed: 2026-06-08
