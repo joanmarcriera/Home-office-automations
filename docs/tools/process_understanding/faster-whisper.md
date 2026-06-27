@@ -36,6 +36,75 @@ Reference Whisper is accurate but slow and memory-hungry, which makes large tran
 - For real-time, ultra-low-latency streaming at scale (specialized streaming ASR may fit better).
 - When the highest possible accuracy on difficult audio outweighs local/offline constraints.
 
+## Getting started
+
+### Installation
+```bash
+pip install faster-whisper
+```
+
+### Basic Usage
+```python
+from faster_whisper import WhisperModel
+
+# Initialize model (downloads on first run)
+model = WhisperModel("base", device="cpu", compute_type="int8")
+
+# Transcribe audio file
+segments, info = model.transcribe("audio.mp3", beam_size=5)
+
+print(f"Detected language '{info.language}' with probability {info.language_probability:.2f}")
+
+for segment in segments:
+    print(f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
+```
+
+## CLI examples
+
+### 1. Simple Transcription via Python one-liner
+```bash
+python3 -c "from faster_whisper import WhisperModel; m=WhisperModel('base'); s,_=m.transcribe('audio.mp3'); [print(seg.text) for seg in s]"
+```
+
+### 2. Using community CLI (whisper-ctranslate2)
+```bash
+# Install CLI tool
+pip install whisper-ctranslate2
+
+# Transcribe with the CLI
+whisper-ctranslate2 audio.mp3 --model base --device cpu
+```
+
+## API examples
+
+### 1. Word-level Timestamps
+```python
+from faster_whisper import WhisperModel
+
+model = WhisperModel("small", device="cpu")
+segments, _ = model.transcribe("audio.mp3", word_timestamps=True)
+
+for segment in segments:
+    for word in segment.words:
+        print(f"[{word.start:.2f}s -> {word.end:.2f}s] {word.word}")
+```
+
+### 2. Voice Activity Detection (VAD) Filtering
+```python
+from faster_whisper import WhisperModel
+
+model = WhisperModel("medium", device="cpu")
+# Enable VAD filter to skip non-speech parts
+segments, _ = model.transcribe(
+    "audio.mp3",
+    vad_filter=True,
+    vad_parameters=dict(min_silence_duration_ms=500)
+)
+
+for segment in segments:
+    print(segment.text)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT)
 - **Cost**: Free
@@ -50,6 +119,7 @@ Reference Whisper is accurate but slow and memory-hungry, which makes large tran
 - [Docling](docling.md) — Local document parser for the text side of ingestion.
 - [Audiobookshelf](../../services/audiobookshelf.md) — Self-hosted audio library that benefits from transcripts.
 - [Apache Tika](../../services/tika.md) — Content/text extraction companion in ingestion pipelines.
+- [Ragas](ragas.md) — Evaluating the quality of transcription-fed RAG pipelines.
 
 ## Sources / references
 - [faster-whisper GitHub](https://github.com/SYSTRAN/faster-whisper)
