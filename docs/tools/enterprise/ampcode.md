@@ -23,8 +23,9 @@ It provides the infrastructure needed to transition from experimental agent prot
 
 ## Limitations
 - **Closed Ecosystem**: Proprietary software that requires an enterprise license for full features.
-- **Target Audience**: Less optimized for individual developers or small open-source projects compared to tools like [Aider](../development_ops/aider.md).
+- **Target Audience**: Less optimized for individual developers or small open-source projects compared to such as [Aider](../development_ops/aider.md).
 - **Complexity**: Enterprise-scale features require significant configuration and infrastructure (e.g., Sourcegraph instance).
+- **Cost**: Paid (Enterprise subscription) and typically co-located with Sourcegraph.
 
 ## When to use it
 - In corporate environments where security and scalability are the top priorities for AI-assisted engineering.
@@ -34,11 +35,6 @@ It provides the infrastructure needed to transition from experimental agent prot
 ## When not to use it
 - For personal projects or small teams where free, open-source alternatives like [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md) are sufficient.
 - If you require a fully transparent, open-weight model stack for all operations.
-
-## Licensing and cost
-- **Open Source**: No (Proprietary)
-- **Cost**: Paid (Enterprise subscription)
-- **Self-hostable**: Yes (for Enterprise customers, typically co-located with Sourcegraph)
 
 ## Getting started
 
@@ -77,7 +73,7 @@ amp agents list
 ```
 
 ## API examples
-Amp functionality is primarily exposed through its CLI and its integration with [MCP](../automation_orchestration/mcp.md) servers. Configuration can be managed via environment variables for automation. You can also interact with the underlying Sourcegraph API that Amp utilizes for deeper repository insights.
+Amp functionality is primarily exposed through its CLI and its integration with [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) servers. Configuration can be managed via environment variables for automation. You can also interact with the underlying Sourcegraph API that Amp utilizes for deeper repository insights.
 
 ### Python Example: Fetching Repository Context (via GraphQL)
 Amp leverages Sourcegraph's GraphQL API for deep code search and context retrieval.
@@ -153,5 +149,5 @@ def get_amp_repo_context(repo_name, query_text):
 - [AmpCode Release Notes - June 2026](https://releasebot.io/updates/ampcode)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

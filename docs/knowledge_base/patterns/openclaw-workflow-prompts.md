@@ -15,6 +15,17 @@ Prompts & AI Layer — serves as the "software interface" between human intent a
 - **Scheduled Reporting**: Weekly briefs that aggregate data from multiple sources (GitHub, Vikunja, n8n) into a cohesive summary.
 - **Resource Cleanup**: Automated "janitor" prompts for identifying and deleting temporary files or old cloud resources.
 
+### Core Prompt Library Patterns
+
+#### 1. The "Observer" (Monitoring)
+> "Review the last 50 lines of the `syslog` and `n8n_output.log`. Identify any unique error codes and correlate them with any recent service restarts. Summarize the impact on the `Paperless-ngx` service."
+
+#### 2. The "Archivist" (Cleanup)
+> "Identify all files in the `tmp/` directory older than 30 days. List their sizes and last access times. If they are not in the `ignore_list.txt`, propose a deletion script."
+
+#### 3. The "Sync-Master" (Reporting)
+> "Compare the 'Completed Tasks' in Vikunja for the last 7 days against the 'GitHub PRs Merged' in the same period. Generate a bulleted 'Weekly Achievement' report for the family newsletter."
+
 ## Strengths
 - **Reduced Hallucinations**: Structured templates guide models toward specific data sources and formats.
 - **Faster Setup**: Drastically reduces the time required to bootstrap new automation workflows.
@@ -33,17 +44,6 @@ Prompts & AI Layer — serves as the "software interface" between human intent a
 ## When not to use it
 - For extremely simple, one-line commands that don't benefit from structured instructions.
 - When a task is so unique that a template would provide no value or could introduce bias.
-
-## Core Prompt Library Patterns
-
-### 1. The "Observer" (Monitoring)
-> "Review the last 50 lines of the `syslog` and `n8n_output.log`. Identify any unique error codes and correlate them with any recent service restarts. Summarize the impact on the `Paperless-ngx` service."
-
-### 2. The "Archivist" (Cleanup)
-> "Identify all files in the `tmp/` directory older than 30 days. List their sizes and last access times. If they are not in the `ignore_list.txt`, propose a deletion script."
-
-### 3. The "Sync-Master" (Reporting)
-> "Compare the 'Completed Tasks' in Vikunja for the last 7 days against the 'GitHub PRs Merged' in the same period. Generate a bulleted 'Weekly Achievement' report for the family newsletter."
 
 ## Getting started
 To start using the OpenClaw Workflow Prompt pattern, clone the standard library and integrate it into your agent's system prompt or tool-calling logic.
@@ -92,12 +92,12 @@ def execute_workflow(prompt_id: str, context: dict):
 - [Prompt Requests](prompt_requests.md)
 - [Jules Weekly Gap Analysis](../../reference-implementations/llm-prompts/jules-gap-analysis.md)
 - [Family Context Prompt](../../reference-implementations/llm-prompts/family-context.md)
-- [Model Context Protocol (MCP)](tool-calling-and-mcp.md)
+- [Model Context Protocol (MCP 3.0)](tool-calling-and-mcp.md)
 
 ## Sources / References
 - [OpenClaw after 50 days: all prompts for 20 real workflows](https://gist.github.com/velvet-shark/b4c6724c391f612c4de4e9a07b0a74b6)
 - [OpenClaw Foundation Documentation (June 2026)](https://openclaw.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

@@ -35,38 +35,8 @@ Orchestration Layer — sits in the agentic loop, specifically at the intersecti
 - When ultra-low latency is the primary performance metric.
 - In scenarios where tool execution is strictly sequential and pre-defined.
 
-## Technical Implementation Example
-
-A common implementation involves a two-stage approach:
-
-### Phase 1: Tool Discovery
-The agent is given a `search_tools` tool that allows it to query a tool registry (e.g., [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)).
-
-```json
-{
-  "name": "search_tools",
-  "description": "Searches the tool registry for tools matching the query.",
-  "parameters": {
-    "query": "search for calendar management tools"
-  }
-}
-```
-
-### Phase 2: Targeted Execution
-Once the relevant tool ID is found, the agent calls the specific tool with the required parameters.
-
-```json
-{
-  "name": "gcal_create_event",
-  "parameters": {
-    "summary": "Meeting with Team",
-    "start_time": "2026-05-14T10:00:00Z"
-  }
-}
-```
-
 ## Getting started
-To implement this pattern, you first need a centralized tool registry. As of June 2026, the [Model Context Protocol (MCP)](tool-calling-and-mcp.md) is the recommended standard.
+To implement this pattern, you first need a centralized tool registry. As of June 2026, the [Model Context Protocol (MCP 3.0)](tool-calling-and-mcp.md) is the recommended standard.
 
 1.  **Define Tool Metadata**: Ensure every tool has a descriptive `description` field for semantic search.
 2.  **Index Tools**: Use a vector database like [ChromaDB](../vector-db-comparison.md) to store tool schemas and descriptions.
@@ -112,10 +82,39 @@ response = client.messages.create(
 )
 ```
 
+### Technical Implementation Example
+A common implementation involves a two-stage approach:
+
+#### Phase 1: Tool Discovery
+The agent is given a `search_tools` tool that allows it to query a tool registry (e.g., [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)).
+
+```json
+{
+  "name": "search_tools",
+  "description": "Searches the tool registry for tools matching the query.",
+  "parameters": {
+    "query": "search for calendar management tools"
+  }
+}
+```
+
+#### Phase 2: Targeted Execution
+Once the relevant tool ID is found, the agent calls the specific tool with the required parameters.
+
+```json
+{
+  "name": "gcal_create_event",
+  "parameters": {
+    "summary": "Meeting with Team",
+    "start_time": "2026-05-14T10:00:00Z"
+  }
+}
+```
+
 ## Related tools / concepts
 - [Anthropic Claude](../../tools/providers/anthropic.md)
 - [Agentic Workflows](agentic-workflows.md)
-- [Model Context Protocol (MCP)](tool-calling-and-mcp.md)
+- [Model Context Protocol (MCP 3.0)](tool-calling-and-mcp.md)
 - [MCP Registry](../../tools/automation_orchestration/mcp-registry.md)
 - [Agent Protocols](../agent_protocols.md)
 - [Skills Best Practices](skills-best-practices.md)
@@ -129,5 +128,5 @@ response = client.messages.create(
 - [MCP Foundation Specification v3.0 (June 2026)](https://mcp-foundation.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

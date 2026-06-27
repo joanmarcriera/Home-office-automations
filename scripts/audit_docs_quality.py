@@ -42,12 +42,15 @@ REQUIRED_SECTIONS = [
     "Limitations",
     "When to use it",
     "When not to use it",
+    "Getting started",
+    "CLI examples",
+    "API examples",
     "Related tools / concepts",
     "Sources / references",
 ]
 
 # Pre-compiled patterns
-HEADING_RE = re.compile(r"^##\s+", re.MULTILINE)
+HEADING_RE = re.compile(r"^##\s+(.+)$", re.MULTILINE)
 SOURCE_HEADER_RE = re.compile(r"^##\s*Sources\s*/\s*References\s*$", re.IGNORECASE | re.MULTILINE)
 LAST_REVIEWED_RE = re.compile(r"^\s*-\s*Last reviewed:\s*\d{4}-\d{2}-\d{2}", re.IGNORECASE | re.MULTILINE)
 CONFIDENCE_RE = re.compile(r"^\s*-\s*Confidence:\s*(high|medium|low)", re.IGNORECASE | re.MULTILINE)
@@ -113,6 +116,7 @@ class FileReport:
     def __init__(self, path: Path) -> None:
         self.path = path
         self.missing_sections: list[str] = []
+        self.order_violations: list[str] = []
         self.has_metadata = True
         self.has_source_url = True
         self.is_legacy = False
@@ -121,6 +125,7 @@ class FileReport:
     def is_compliant(self) -> bool:
         return (
             not self.missing_sections
+            and not self.order_violations
             and self.has_metadata
             and self.has_source_url
             and not self.is_legacy
@@ -131,10 +136,26 @@ def audit_file(path: Path) -> FileReport:
     report = FileReport(path)
     text = path.read_text(encoding="utf-8")
 
-    # Required sections
+    # Required sections and order
+    found_sections = []
+    section_positions = {}
+
     for name, pattern in SECTION_PATTERNS.items():
-        if not pattern.search(text):
+        match = pattern.search(text)
+        if not match:
             report.missing_sections.append(name)
+        else:
+            section_positions[name] = match.start()
+            found_sections.append(name)
+
+    # Verify order of sections that WERE found
+    # They should appear in the same relative order as REQUIRED_SECTIONS
+    sorted_found = sorted(found_sections, key=lambda n: section_positions[n])
+
+    expected_order_for_found = [s for s in REQUIRED_SECTIONS if s in found_sections]
+
+    if sorted_found != expected_order_for_found:
+        report.order_violations.append("Sections are not in the mandatory order.")
 
     # Contribution metadata
     if not LAST_REVIEWED_RE.search(text) or not CONFIDENCE_RE.search(text):
@@ -237,6 +258,8 @@ def main() -> int:
             issues: list[str] = []
             if r.missing_sections:
                 issues.append(f"missing sections: {', '.join(r.missing_sections)}")
+            if r.order_violations:
+                issues.extend(r.order_violations)
             if not r.has_metadata:
                 issues.append("missing contribution metadata")
             if not r.has_source_url:
