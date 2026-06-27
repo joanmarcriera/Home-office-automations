@@ -42,6 +42,9 @@ REQUIRED_SECTIONS = [
     "Limitations",
     "When to use it",
     "When not to use it",
+    "Getting started",
+    "CLI examples",
+    "API examples",
     "Related tools / concepts",
     "Sources / references",
 ]

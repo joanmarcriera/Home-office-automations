@@ -1,76 +1,89 @@
 # Vellum
 
 ## What it is
-Vellum is a personal AI assistant designed specifically for macOS. It lives on the user's computer and integrates deeply with local files, email, calendar, and other desktop applications. It aims to be a "proactive" assistant that learns user patterns and takes action on their behalf.
+Vellum is a proactive, personal AI assistant designed specifically for macOS. As of June 2026, it serves as a central orchestrator for a user's local digital workspace, integrating deeply with files, email, calendar, and desktop applications. It is a proprietary managed desktop application that prioritizes local reasoning and deep OS integration.
 
 ## What problem it solves
-It bridges the gap between conversational AI and practical task execution. Unlike web-based chat tools, Vellum can see the user's screen (with permission), manage local files, and interact with other macOS apps directly to automate repetitive workflows. It leverages reasoning models like **Claude 4.7** and **GPT-5.5** for high-autonomy task completion.
+It bridges the gap between conversational AI and practical task execution. Unlike web-based chat tools, Vellum can see the user's screen (with permission), manage local files, and interact with other macOS apps directly to automate repetitive workflows. It solves the "context gap" by leveraging reasoning models like **Claude 4.8 Opus** and **GPT-5.5** for high-autonomy task completion.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / Personal AI Assistant. It is a local agent that orchestrates various tools and services, often serving as the central hub for a user's [AI Tool Access Matrix](../../knowledge_base/ai_tool_access_matrix.md).
+**Category**: Automation & Orchestration / Personal AI Assistant. It acts as the local agent layer that orchestrates various tools and services, often serving as the central hub for the [AI Tool Access Matrix](../../knowledge_base/ai_tool_access_matrix.md).
 
 ## Typical use cases
-- **Inbox Management**: Automatically triaging and drafting replies to emails in Gmail using native connectors.
-- **Backlog Grooming**: Auto-labeling and triaging GitHub issues or Linear tasks based on team rules.
-- **Meeting Preparation**: Summarizing Slack conversations and documents to provide a briefing before a meeting.
-- **Local Automation**: Cleaning up a cluttered desktop or organizing local files based on natural language commands.
-- **Cross-App Orchestration**: Using [Model Context Protocol (MCP)](mcp.md) to bridge data between specialized tools.
+- **Inbox Management**: Automatically triaging and drafting replies to emails in Gmail or Apple Mail using native connectors.
+- **Backlog Grooming**: Auto-labeling and triaging GitHub issues or Linear tasks based on natural language team rules.
+- **Meeting Preparation**: Summarizing Slack conversations and documents across apps to provide a briefing before a meeting.
+- **Local Automation**: Cleaning up a cluttered desktop or organizing local files based on complex natural language commands.
+- **Cross-App Orchestration**: Using [Model Context Protocol (MCP 3.0)](mcp.md) to bridge data between specialized tools like [Aider](../development_ops/aider.md) and [Linear](../calendar_tasks/index.md).
 
 ## Strengths
-- **Deep macOS Integration**: Leverages accessibility and screen recording for "computer use" capabilities.
+- **Deep macOS Integration**: Leverages accessibility and screen recording for high-fidelity "computer use" capabilities.
 - **Privacy-First Architecture**: Stores credentials in macOS Keychain; memories and workspace data remain local.
-- **Proactive Intelligence**: Designed to act before being asked by noticing patterns in user behavior.
-- **June 2026 Ready**: Native support for **Claude 4.7** reasoning, **GPT-5.5** canvas, and a broad [MCP](mcp.md) skill catalog.
+- **Proactive Intelligence**: Designed to act before being asked by noticing patterns in user behavior and suggesting automations.
+- **June 2026 Ready**: Native support for **Claude 4.8** reasoning, **GPT-5.5** multi-modal canvas, and a broad [MCP 3.0](mcp.md) skill catalog.
 
 ## Limitations
-- **Platform Restricted**: Currently only available for macOS (Apple Silicon and Intel).
-- **Cost**: Uses a prepaid credit system for AI model usage or a subscription for managed features.
-- **Resource Intensive**: Running a deep-integration assistant can impact system performance on older hardware.
+- **Platform Restricted**: Only available for macOS (Apple Silicon recommended).
+- **Cost**: Uses a subscription-based model or a prepaid credit system for premium model usage.
+- **Resource Intensive**: High system overhead when using real-time screen analysis and local embedding models.
+- **Proprietary**: The core orchestration engine is closed-source, which may not suit "sovereign-only" users.
 
 ## When to use it
-- If you are a macOS user looking for a deeply integrated personal AI agent.
-- If you want to automate routine digital tasks like email triage or issue management.
-- If you value local data storage and privacy in your AI interactions.
+- If you are a macOS power user looking for a deeply integrated personal AI agent that can "see" and "do."
+- If you want to automate routine digital tasks like email triage, issue management, or file organization.
+- If you value local data storage and privacy in your primary AI interactions.
+- When utilizing **Claude 4.8** or **GPT-5.5** for high-autonomy personal assistance.
 
 ## When not to use it
 - If you are on Windows or Linux (consider [OpenHands](../development_ops/openhands.md) or [Aider](../development_ops/aider.md)).
 - If you prefer a fully open-source, community-managed agent like [OpenClaw](../development_ops/openclaw.md).
-
-## Licensing and cost
-- **Open Source**: No (Proprietary)
-- **Cost**: Paid (Prepaid credits / Subscription)
-- **Self-hostable**: No (Managed desktop app)
+- If your hardware lacks the resources (minimum 16GB RAM) for smooth background operation.
 
 ## Getting started
-Install the Vellum CLI globally:
+### Installation
+Download the latest `.dmg` from the [Vellum Portal](https://www.vellum.ai/download). Alternatively, install the CLI:
+
 ```bash
-pip install -g vellum
+# Install the Vellum CLI
+pip install vellum-cli
 ```
 
-Initialize your assistant:
+### Initial Setup
 ```bash
-# This begins the onboarding and hatch process
+# This begins the onboarding and secure 'hatch' process
 vellum hatch
 ```
 
 **Hello-world example**:
 1. Run `vellum client` to open the terminal interface.
-2. Type "Introduce yourself and tell me what you can see on my screen."
-3. Vellum will analyze your active window and respond with its personality and a summary of your workspace.
+2. Type "Summarize my active windows and suggest a task list based on my current work."
+3. Vellum will analyze your workspace and provide a proactive response.
 
 ## CLI examples
-The CLI is the primary way to manage and interact with the Vellum runtime.
+The Vellum CLI is the primary way to manage the background runtime and MCP skills.
 
+### Runtime Management
 ```bash
-vellum wake        # Start background services
-vellum ps          # List all running assistant instances
-vellum client      # Open the interactive terminal client
-vellum mcp add     # Add an MCP server to Vellum's skill set (June 2026)
+# Start background services
+vellum wake
+
+# List all active assistant personas
+vellum ps
+
+# Open the interactive terminal client
+vellum client
+```
+
+### Skill Management (MCP 3.0)
+```bash
+# Add a new MCP server to Vellum's skill set
+vellum mcp add --name chronos-sync --transport stdio --command "npx @openclaw/chronos-mcp"
 ```
 
 ## API examples
-Vellum exposes a real-time SSE (Server-Sent Events) stream for programmatic interaction.
+Vellum exposes a local real-time stream for programmatic integration.
 
+### Listening to Assistant Events (JavaScript)
 ```javascript
 const response = await fetch('http://localhost:3001/v1/events', {
   headers: { 'Authorization': 'Bearer YOUR_JWT_TOKEN' }
@@ -83,19 +96,24 @@ while (true) {
   const { done, value } = await reader.read();
   if (done) break;
   const chunk = decoder.decode(value);
-  console.log('Received event:', chunk);
+  console.log('Vellum Event:', chunk);
 }
 ```
 
+### Health Check (Bash)
+```bash
+curl -X GET http://localhost:3001/v1/health
+```
+
 ## Related tools / concepts
-- [Open Interpreter](open-interpreter.md)
-- [Goose](../agents/goose.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [Model Context Protocol (MCP)](mcp.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
-- [Claude 4.7](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
+- [Open Interpreter](open-interpreter.md) — Local-first code execution assistant.
+- [Goose](../agents/goose.md) — Multi-agent orchestrator for technical tasks.
+- [Claude Code](../development_ops/claude-code.md) — High-fidelity coding agent from Anthropic.
+- [Model Context Protocol (MCP)](mcp.md) — The standard for tool-based agent integration.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Design patterns for autonomous agents.
+- [Claude](../ai_knowledge/claude.md) — Primary reasoning model for Vellum.
+- [GPT-5.5](../ai_knowledge/openai.md) — Supported frontier model for multi-modal tasks.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Recommended local model for private reasoning.
 
 ## Sources / references
 - [Vellum Official Website](https://www.vellum.ai/)
@@ -103,5 +121,5 @@ while (true) {
 - [Vellum AI Assistant Review 2026](https://www.vellum.ai/llm-leaderboard/ai-assistants/vellum)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-27
 - Confidence: high

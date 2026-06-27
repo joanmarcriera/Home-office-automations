@@ -1,57 +1,44 @@
 # LlamaParse
 
 ## What it is
-A specialized PDF parsing service from LlamaIndex designed to extract structured data from complex documents (tables, diagrams, nested layouts). It is a key component for high-fidelity RAG pipelines.
+LlamaParse is a specialized PDF parsing service from LlamaIndex designed to extract structured data from complex documents (tables, diagrams, nested layouts). It is a key component for high-fidelity RAG pipelines. As of June 2026, it is the standard for vision-aware document ingestion. It is a proprietary service (freemium) but offers an Enterprise Docker version for self-hosting.
 
 ## What problem it solves
-Overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics. It ensures that frontier models like **Claude 4.7** and **GPT-5.5** can reason over complex visual data such as multi-column financial reports.
+It overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics. It ensures that frontier models like **Claude 4.8 Opus** and **GPT-5.5** can reason over complex visual data such as multi-column financial reports, which typically "break" with traditional OCR.
 
 ## Where it fits in the stack
-**Category**: Intake & Storage / Data Processing. It provides the "structural grounding" layer for agents and RAG applications.
+**Category**: Intake & Storage / Data Processing. It provides the "structural grounding" layer for agents and RAG applications, sitting between raw document storage and the vector database.
 
 ## Typical use cases
 - **Complex PDF Extraction**: Parsing documents with multi-column layouts, nested tables, and embedded diagrams.
 - **Markdown-first RAG**: Converting PDFs directly to high-quality Markdown for [LlamaIndex](../ai_knowledge/llamaindex.md) ingestion.
-- **Financial Report Analysis**: Extracting tabular data from annual reports and statements with high fidelity.
+- **Financial Report Analysis**: Extracting tabular data from annual reports with tiered precision levels (Fast, Agentic, Agentic Plus).
 - **Agentic Document Processing**: Using the [LlamaParse MCP server](../automation_orchestration/mcp.md) for real-time document understanding in [Claude Desktop](../../knowledge_base/ai_tool_access_matrix.md).
 
 ## Strengths
 - **Vision-Aware**: Uses advanced vision models to understand document layout better than traditional OCR.
 - **Markdown Output**: Optimized for LLMs, preserving hierarchies and table structures in clean Markdown.
-- **June 2026 Optimized**: Fully supports **Llama 4 Maverick**'s extended context and [MCP](../automation_orchestration/mcp.md) integration via `mcp.llamaindex.ai`.
+- **Tiered Precision**: Offers multiple processing tiers (Fast to Agentic Plus) to balance cost, latency, and accuracy.
+- **June 2026 Optimized**: Fully supports **Llama 4 Maverick**'s extended context and [MCP 3.0](../automation_orchestration/mcp.md) integration.
 - **Ecosystem Integration**: Seamlessly connects with [LlamaIndex](../ai_knowledge/llamaindex.md) and [LangChain](../ai_knowledge/langchain.md).
 
-## Parsing Tiers
-LlamaParse offers four tiers that trade off cost, latency, and accuracy:
-
-| Tier | Best For | Cost (Credits/Page) |
-| :--- | :--- | :---: |
-| **Fast** | Plain text, single column, no tables. | 0.5 |
-| **Cost Effective** | Text with simple tables; clean markdown. | 3 |
-| **Agentic** | Scanned pages, multi-column, charts. | 10 |
-| **Agentic Plus** | Dense financial reports, mission-critical accuracy. | 45 |
-
 ## Limitations
-- **Cloud Dependency**: Primarily a cloud-based service, which may not suit air-gapped environments.
-- **Latency**: High-accuracy vision-based parsing can be slower than simple text extraction.
-- **Cost at Scale**: Beyond the free tier, it operates on a credit-based system that can become significant for massive datasets.
+- **Cloud Dependency**: Primarily a cloud-based service, which may not suit strictly air-gapped environments.
+- **Latency**: High-accuracy "Agentic Plus" vision-based parsing can be slower than simple text extraction.
+- **Cost at Scale**: Beyond the free tier (1,000 pages/month), the credit-based system can become expensive for massive datasets.
 
 ## When to use it
 - When traditional PDF parsers fail on complex layouts or tables.
 - When you want "LLM-ready" Markdown output without manual cleaning.
 - When you are building agentic workflows that require structural document understanding.
+- When utilizing **Claude 4.8** or **GPT-5.5** for high-fidelity document reasoning.
 
 ## When not to use it
 - For simple, text-only PDFs where `PyPDF2` or `marker` would be faster and cheaper.
-- If your data cannot leave your local environment (though local versions are evolving).
-
-## Licensing and cost
-- **Open Source**: No (Proprietary service)
-- **Cost**: Freemium (1,000 pages per month free)
-- **Self-hostable**: Limited (Docker image available for enterprise)
+- If your data cannot leave your local environment (though enterprise self-hosting is available).
+- For simple note-taking apps that don't require high-precision table extraction.
 
 ## Getting started
-
 ### Installation
 ```bash
 pip install llama-parse
@@ -77,7 +64,7 @@ for doc in documents:
 ```
 
 ### Agentic Tier Example (Vision-Aware Parsing)
-The agentic tier uses advanced reasoning to handle messy layouts and tables.
+The agentic tier uses advanced reasoning to handle messy layouts.
 
 ```python
 from llama_parse import LlamaParse
@@ -85,35 +72,34 @@ from llama_parse import LlamaParse
 parser = LlamaParse(
     api_key=os.environ["LLAMA_CLOUD_API_KEY"],
     result_type="markdown",
-    parsing_instruction="""
-    This is a financial report with complex tables.
-    Please extract all tables into clear Markdown format,
-    ensuring that nested headers are correctly represented.
-    """,
+    parsing_instruction="Extract all financial tables accurately.",
     gpt4o_mode=True, # Use GPT-4o vision for maximum accuracy
     premium_mode=True, # Required for Agentic tiers
 )
 
-# Using the sync parser for high-priority documents
 documents = parser.load_data("complex_report.pdf")
-full_markdown = "\n\n".join([doc.text for doc in documents])
-
-with open("output.md", "w") as f:
-    f.write(full_markdown)
 ```
 
 ## CLI examples
-```bash
-# Example of using a LlamaIndex RAG CLI that might use LlamaParse internally
-llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+LlamaParse can be integrated into CLI workflows and used via MCP 3.0.
 
+### MCP 3.0 Configuration
+```bash
 # Configure the LlamaParse MCP server for Claude Code (June 2026)
 claude mcp add --transport http llamaparse https://mcp.llamaindex.ai/mcp
 ```
 
-## API examples
+### LlamaIndex CLI
 ```bash
-# Create a parse job using the REST API (v2)
+# Using a LlamaIndex RAG CLI with LlamaParse tiering
+llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+```
+
+## API examples
+LlamaParse offers a robust REST API (v2) for asynchronous document processing.
+
+### Create a Parse Job
+```bash
 curl -X POST 'https://api.cloud.llamaindex.ai/api/v2/parse' \
   -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY" \
@@ -122,26 +108,23 @@ curl -X POST 'https://api.cloud.llamaindex.ai/api/v2/parse' \
     "tier": "agentic",
     "version": "latest"
   }'
+```
 
-# Retrieve results (Markdown)
+### Retrieve Results
+```bash
 curl 'https://api.cloud.llamaindex.ai/api/v2/parse/{job_id}?expand=markdown' \
-  -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY"
-
-# List completed jobs
-curl 'https://api.cloud.llamaindex.ai/api/v2/parse?page_size=10&status=COMPLETED' \
   -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY"
 ```
 
 ## Related tools / concepts
-
-- [Unstructured.io](unstructured.md)
-- [Docling](../process_understanding/docling.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude 4.7](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
+- [Unstructured](unstructured.md) — Multi-format document partitioning library.
+- [Docling](../process_understanding/docling.md) — High-performance PDF parsing alternative.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Primary ecosystem for LlamaParse.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Underlying architectural concept for document retrieval.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Used for real-time document tool access.
+- [Claude](../ai_knowledge/claude.md) — Recommended frontier model for reasoning over LlamaParse output.
+- [GPT-5.5](../ai_knowledge/openai.md) — Supported frontier model for document analysis.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Local model optimized for structural grounding.
 
 ## Sources / references
 - [LlamaParse (LlamaIndex)](https://www.llamaindex.ai/llamaparse)
@@ -149,5 +132,5 @@ curl 'https://api.cloud.llamaindex.ai/api/v2/parse?page_size=10&status=COMPLETED
 - [LlamaParse MCP: Agentic OCR tools](https://www.llamaindex.ai/blog/llamaparse-mcp-the-tooling-layer-for-your-document-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-27
 - Confidence: high
