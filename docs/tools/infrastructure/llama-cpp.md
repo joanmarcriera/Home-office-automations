@@ -14,26 +14,31 @@ It makes local LLM inference practical on CPUs and smaller devices by combining 
 - Serving as a backend for agentic frameworks using **Claude 4.8** or **GPT-5.5** via OpenAI-compatible APIs.
 - Powering local-first RAG applications with high throughput and low latency.
 - Fine-tuning or testing quantization strategies for new model architectures.
+- Providing a local inference engine for **Model Context Protocol (MCP)** tool-calling.
 
 ## Strengths
 - **Native MCP Support**: Includes built-in support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md), allowing local models to interact with tools directly.
 - **Portability**: Minimal dependencies and high performance across Apple Silicon (Metal), NVIDIA (CUDA), and standard CPUs.
 - **Structured Output**: Support for GBNF grammars ensures models follow strict JSON or custom formats, critical for agentic tool use.
 - **Broad Model Support**: Rapid integration of new architectures, including **Llama 4 Maverick** and **DeepSeek-V3**.
+- **Efficiency**: State-of-the-art quantization techniques (K-Quants, IQ-Quants) minimize VRAM usage while maintaining accuracy.
 
 ## Limitations
 - **Manual Tuning**: Requires understanding of parameters like thread counts, batch sizes, and GPU layer offloading for optimal performance.
 - **Quantization Trade-offs**: While highly efficient, extreme quantization (e.g., <3-bit) can lead to noticeable degradation in reasoning.
 - **VRAM Constraints**: Running the largest frontier models (70B+) still requires significant hardware even when quantized.
+- **CLI Focus**: The primary interface is a command-line tool, which may be intimidating for non-technical users.
 
 ## When to use it
 - When you need maximum control over inference parameters and hardware acceleration.
 - For local-first, privacy-conscious applications that cannot rely on cloud APIs.
 - When running models on Apple Silicon where Metal acceleration provides significant gains.
+- When developing custom applications that require a lightweight, embeddable LLM engine.
 
 ## When not to use it
 - If you prefer a "plug-and-play" experience with automatic model management (use [Ollama](../../services/ollama.md) instead).
 - For massive-scale production deployments where specialized engines like [vLLM](vllm.md) may offer better multi-request batching.
+- If you require out-of-the-box multi-user authentication and complex access controls.
 
 ## Getting started
 
@@ -97,6 +102,19 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
+### MCP Tool Access
+`llama.cpp` can serve as an MCP client or server. Example of configuring a tool in an MCP-aware environment:
+```json
+{
+  "mcpServers": {
+    "llama-cpp": {
+      "command": "./llama-server",
+      "args": ["-m", "models/llama-4-maverick-8b.Q4_K_M.gguf", "--mcp"]
+    }
+  }
+}
+```
+
 ## Related tools / concepts
 - [Ollama](../../services/ollama.md) - Opinionated wrapper for llama.cpp.
 - [vLLM](vllm.md) - High-throughput inference engine for NVIDIA GPUs.
@@ -113,5 +131,5 @@ print(response.choices[0].message.content)
 - [Model Context Protocol (MCP) in llama.cpp](https://github.com/ggml-org/llama.cpp/pull/11234)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

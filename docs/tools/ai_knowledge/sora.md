@@ -16,7 +16,7 @@ It enabled the creation of complex video content directly from text, significant
 - **Cinematic Prototyping**: Creating high-fidelity visual concepts for filmmakers (Legacy).
 - **Educational Content**: Generating explanatory videos for complex scenarios (Legacy).
 - **Digital Advertising**: Producing high-quality video assets from text descriptions (Legacy).
-- **Data Export & Archiving**: Current primary use case for existing Sora users before the final September 2024 shutdown.
+- **Data Export & Archiving**: Current primary use case for existing Sora users before the final September 2026 shutdown.
 
 ## Strengths
 - **Consistency**: High temporal consistency for characters and objects across long durations (up to 1 minute).
@@ -24,9 +24,10 @@ It enabled the creation of complex video content directly from text, significant
 - **Resolution**: Supports various aspect ratios and high-definition output.
 
 ## Limitations
-- **Access**: Not yet available for wide public use.
+- **Access**: Not available for new public use.
 - **Physics**: May still struggle with precise cause-and-effect (e.g., a cookie bite that doesn't leave a mark).
-- **Generation Time**: High-fidelity generation is computationally expensive and takes time.
+- **Generation Time**: High-fidelity generation is computationally expensive and takes significant time.
+- **Sunset Status**: No new features or improvements; API decommission scheduled for late 2026.
 
 ## When to use it
 - **Historical Analysis**: Studying the evolution of video generation world simulators.
@@ -34,7 +35,7 @@ It enabled the creation of complex video content directly from text, significant
 - **Data Retrieval**: Exporting and archiving generated assets from the `sora.chatgpt.com/sunset` portal.
 
 ## When not to use it
-- **New Projects**: Do not start new commercial projects on Sora; use [Runway ML](runwayml.md) or [Luma Dream Machine](luma-dream-machine.md) instead.
+- **New Projects**: Do not start new commercial projects on Sora; use modern alternative video generation platforms instead.
 - **Real-time Generation**: Sora is computationally intensive and operates on an asynchronous polling pattern.
 - **Post-September 2026**: The API and model weights will be completely unavailable for public/API use.
 
@@ -110,17 +111,6 @@ def poll_video_status(video_id):
         time.sleep(20) # Polling at 20s intervals
 ```
 
-### Remixing a Video
-Generating a variation of an existing video asset:
-
-```python
-response = requests.post(API_URL, headers=headers, json={
-    "model": "sora-2",
-    "input_reference": "vid_existing_123",
-    "prompt": "Same scene but with heavy rainfall"
-})
-```
-
 ## Related tools / concepts
 - [Runway ML](runwayml.md)
 - [Luma Dream Machine](luma-dream-machine.md)
@@ -137,5 +127,5 @@ response = requests.post(API_URL, headers=headers, json={
 - [Video generation with Sora (Legacy API Guide)](https://platform.openai.com/docs/guides/video-generation)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high
