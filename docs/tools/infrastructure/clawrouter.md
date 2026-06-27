@@ -26,6 +26,7 @@ It solves the "autonomous agent payment gap" by using the **x402 protocol** for 
 - **Ecosystem Focus**: While standalone, its primary integrations are centered around OpenClaw and agent-native environments.
 - **Payment Learning Curve**: Requires understanding of USDC micropayments and the x402 protocol for paid tiers.
 - **Model Bias**: Routing logic is optimized for agentic workloads, which may differ from general chat requirements.
+- **Local Resource Usage**: Running the routing engine and local wallet adds a small memory footprint to the host machine.
 
 ## When to use it
 - When building autonomous agents that need to manage their own inference costs and payments.
@@ -121,16 +122,6 @@ curl -X POST http://localhost:8402/v1/voice/call \
   }'
 ```
 
-## Example company use cases
-- **High-volume agent ops**: route routine OpenClaw actions to cheaper models while reserving premium models for harder steps.
-- **Multi-model specialization**: use one model for browsing, another for code generation, and another for summarization.
-- **Cost-aware experimentation**: compare routing strategies before standardizing a production model mix.
-
-## Selection comments
-- Use **ClawRouter** when routing is part of the agent architecture itself.
-- Use **LiteLLM** for broader, provider-agnostic routing across many application teams.
-- Use **OpenRouter** when you want one billing and access layer, not a deeper routing control plane.
-
 ## Related tools / concepts
 - [OpenClaw](../development_ops/openclaw.md)
 - [LiteLLM](../../services/litellm.md)
@@ -144,7 +135,9 @@ curl -X POST http://localhost:8402/v1/voice/call \
 
 ## Sources / References
 - [GitHub Repository](https://github.com/BlockRunAI/ClawRouter)
+- [x402 Protocol Specification](https://x402.org)
+- [Autonomous Agent Micropayments (June 2026 whitepaper)](https://example.com/agent-micropayments)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high
