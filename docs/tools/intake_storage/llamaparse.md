@@ -4,10 +4,10 @@
 A specialized PDF parsing service from LlamaIndex designed to extract structured data from complex documents (tables, diagrams, nested layouts). It is a key component for high-fidelity RAG pipelines.
 
 ## What problem it solves
-Overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics. It ensures that frontier models like **Claude 4.7** and **GPT-5.5** can reason over complex visual data such as multi-column financial reports.
+Overcomes the limitations of standard PDF text extraction by using vision-aware parsing to maintain document semantics. It ensures that frontier models like **Claude 4.8** and **GPT-5.5** can reason over complex visual data such as multi-column financial reports and technical manuals.
 
 ## Where it fits in the stack
-**Category**: Intake & Storage / Data Processing. It provides the "structural grounding" layer for agents and RAG applications.
+**Category**: Intake & Storage / Data Processing. It provides the "structural grounding" layer for agents and RAG applications, converting raw PDFs into LLM-optimized Markdown.
 
 ## Typical use cases
 - **Complex PDF Extraction**: Parsing documents with multi-column layouts, nested tables, and embedded diagrams.
@@ -18,40 +18,26 @@ Overcomes the limitations of standard PDF text extraction by using vision-aware 
 ## Strengths
 - **Vision-Aware**: Uses advanced vision models to understand document layout better than traditional OCR.
 - **Markdown Output**: Optimized for LLMs, preserving hierarchies and table structures in clean Markdown.
-- **June 2026 Optimized**: Fully supports **Llama 4 Maverick**'s extended context and [MCP](../automation_orchestration/mcp.md) integration via `mcp.llamaindex.ai`.
+- **June 2026 Optimized**: Fully supports **Llama 4 Maverick**'s extended context and [MCP 3.0](../automation_orchestration/mcp.md) integration via `mcp.llamaindex.ai`.
 - **Ecosystem Integration**: Seamlessly connects with [LlamaIndex](../ai_knowledge/llamaindex.md) and [LangChain](../ai_knowledge/langchain.md).
 
-## Parsing Tiers
-LlamaParse offers four tiers that trade off cost, latency, and accuracy:
-
-| Tier | Best For | Cost (Credits/Page) |
-| :--- | :--- | :---: |
-| **Fast** | Plain text, single column, no tables. | 0.5 |
-| **Cost Effective** | Text with simple tables; clean markdown. | 3 |
-| **Agentic** | Scanned pages, multi-column, charts. | 10 |
-| **Agentic Plus** | Dense financial reports, mission-critical accuracy. | 45 |
-
 ## Limitations
-- **Cloud Dependency**: Primarily a cloud-based service, which may not suit air-gapped environments.
-- **Latency**: High-accuracy vision-based parsing can be slower than simple text extraction.
+- **Cloud Dependency**: Primarily a cloud-based service, which may not suit strictly air-gapped environments.
+- **Latency**: High-accuracy vision-based parsing (Agentic tiers) can be slower than simple text extraction.
 - **Cost at Scale**: Beyond the free tier, it operates on a credit-based system that can become significant for massive datasets.
 
 ## When to use it
 - When traditional PDF parsers fail on complex layouts or tables.
 - When you want "LLM-ready" Markdown output without manual cleaning.
-- When you are building agentic workflows that require structural document understanding.
+- When building agentic workflows that require structural document understanding.
+- To handle scanned documents or those with poor text layers.
 
 ## When not to use it
 - For simple, text-only PDFs where `PyPDF2` or `marker` would be faster and cheaper.
 - If your data cannot leave your local environment (though local versions are evolving).
-
-## Licensing and cost
-- **Open Source**: No (Proprietary service)
-- **Cost**: Freemium (1,000 pages per month free)
-- **Self-hostable**: Limited (Docker image available for enterprise)
+- For massive, low-complexity datasets where the credit cost outweighs the layout accuracy benefits.
 
 ## Getting started
-
 ### Installation
 ```bash
 pip install llama-parse
@@ -76,9 +62,29 @@ for doc in documents:
     print(doc.text)
 ```
 
-### Agentic Tier Example (Vision-Aware Parsing)
-The agentic tier uses advanced reasoning to handle messy layouts and tables.
+## CLI examples
+LlamaParse can be used via the LlamaIndex CLI and integrated into agentic environments.
 
+```bash
+# Example of using a LlamaIndex RAG CLI that might use LlamaParse internally
+llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+
+# Configure the LlamaParse MCP server for Claude Code (June 2026)
+claude mcp add --transport http llamaparse https://mcp.llamaindex.ai/mcp
+```
+
+## API examples
+The LlamaParse API supports multiple tiers for different accuracy needs.
+
+### Parsing Tiers (June 2026)
+| Tier | Best For | Cost (Credits/Page) |
+| :--- | :--- | :---: |
+| **Fast** | Plain text, single column, no tables. | 0.5 |
+| **Cost Effective** | Text with simple tables; clean markdown. | 3 |
+| **Agentic** | Scanned pages, multi-column, charts. | 10 |
+| **Agentic Plus** | Dense financial reports, mission-critical accuracy. | 45 |
+
+### Advanced Usage (Python)
 ```python
 from llama_parse import LlamaParse
 
@@ -90,58 +96,24 @@ parser = LlamaParse(
     Please extract all tables into clear Markdown format,
     ensuring that nested headers are correctly represented.
     """,
-    gpt4o_mode=True, # Use GPT-4o vision for maximum accuracy
+    gpt4o_mode=True, # Use frontier vision models for maximum accuracy
     premium_mode=True, # Required for Agentic tiers
 )
 
 # Using the sync parser for high-priority documents
 documents = parser.load_data("complex_report.pdf")
 full_markdown = "\n\n".join([doc.text for doc in documents])
-
-with open("output.md", "w") as f:
-    f.write(full_markdown)
-```
-
-## CLI examples
-```bash
-# Example of using a LlamaIndex RAG CLI that might use LlamaParse internally
-llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
-
-# Configure the LlamaParse MCP server for Claude Code (June 2026)
-claude mcp add --transport http llamaparse https://mcp.llamaindex.ai/mcp
-```
-
-## API examples
-```bash
-# Create a parse job using the REST API (v2)
-curl -X POST 'https://api.cloud.llamaindex.ai/api/v2/parse' \
-  -H 'Content-Type: application/json' \
-  -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY" \
-  --data '{
-    "file_id": "cafe1337-e0dd-4762-b5f5-769fef112558",
-    "tier": "agentic",
-    "version": "latest"
-  }'
-
-# Retrieve results (Markdown)
-curl 'https://api.cloud.llamaindex.ai/api/v2/parse/{job_id}?expand=markdown' \
-  -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY"
-
-# List completed jobs
-curl 'https://api.cloud.llamaindex.ai/api/v2/parse?page_size=10&status=COMPLETED' \
-  -H "Authorization: Bearer $LLAMA_CLOUD_API_KEY"
 ```
 
 ## Related tools / concepts
-
-- [Unstructured.io](unstructured.md)
-- [Docling](../process_understanding/docling.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude 4.7](../providers/anthropic.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
+- [Unstructured.io](unstructured.md) — Alternative document partitioning tool.
+- [Docling](../process_understanding/docling.md) — Fast local document parser.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — The primary framework for LlamaParse.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architecture utilizing parsed output.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agent-tool communication (v3.0).
+- [Claude 4.8](../providers/anthropic.md) — Recommended model for reasoning over parsed data.
+- [GPT-5.5](../ai_knowledge/openai.md) — High-performance alternative for document synthesis.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Local model for processing LlamaParse outputs.
 
 ## Sources / references
 - [LlamaParse (LlamaIndex)](https://www.llamaindex.ai/llamaparse)
@@ -149,5 +121,5 @@ curl 'https://api.cloud.llamaindex.ai/api/v2/parse?page_size=10&status=COMPLETED
 - [LlamaParse MCP: Agentic OCR tools](https://www.llamaindex.ai/blog/llamaparse-mcp-the-tooling-layer-for-your-document-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

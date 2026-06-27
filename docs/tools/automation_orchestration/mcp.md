@@ -1,41 +1,44 @@
 # Model Context Protocol (MCP)
 
 ## What it is
-The Model Context Protocol (MCP) is an open standard that enables developers to build secure, two-way connections between their data sources and AI models. It was introduced by Anthropic to standardize how models interact with external tools and information.
+The Model Context Protocol (MCP) is an open standard that enables developers to build secure, two-way connections between their data sources and AI models. It was introduced by Anthropic to standardize how models interact with external tools and information. As of June 2026, **MCP 3.0** is the industry standard for agentic tool discovery.
 
 ## What problem it solves
-It eliminates the need to write custom integration code for every tool/LLM combination. By providing a universal interface, an MCP-compliant server can work with any MCP-compliant client (like Claude Desktop or Roo Code).
+It eliminates the need to write custom integration code for every tool/LLM combination. By providing a universal interface, an MCP-compliant server can work with any MCP-compliant client (like Claude Desktop, Roo Code, or Vellum). It solves the "tool fragmentation" problem in the AI ecosystem.
 
 ## Where it fits in the stack
-**Protocol / Automation & Orchestration / Pattern**.
+**Category**: Protocol / Automation & Orchestration / Pattern. It serves as the "Resource Glue" and "Tool Interface" between the Reasoning Layer (LLMs) and the Action/Data Layer (Databases, APIs, Filesystems).
 
 ## Typical use cases
 - **Universal Tool Access**: Giving an LLM access to a local filesystem, database, or API through a standard server.
-- **Dynamic Context Injection**: Allowing models to pull in relevant documentation or code snippets as needed.
-- **Cross-Platform Agents**: Writing a tool once and using it in multiple agent frameworks.
-- **Agent Orchestration**: Coordinating multiple specialized agents (e.g., using Claude 4.7 for reasoning and Llama 4 Maverick for task execution) via a shared protocol.
+- **Dynamic Context Injection**: Allowing models to pull in relevant documentation or code snippets as needed via "Resources".
+- **Cross-Platform Agents**: Writing a tool once and using it in multiple agent frameworks (e.g., [Goose](../agents/goose.md) and [Cline](../agents/cline.md)).
+- **Agent Orchestration**: Coordinating multiple specialized agents (e.g., using **Claude 4.8** for reasoning and **Llama 4 Maverick** for task execution) via a shared protocol.
 
 ## Strengths
-- **Ecosystem Neutrality**: Designed to be used by any model provider or agent developer.
-- **Security**: Focuses on secure, locally-controlled execution of tools.
-- **Extensibility**: Growing library of community-contributed MCP servers (Google Maps, GitHub, Postgres, etc.).
-- **Performance**: Standardized transport layers (Stdio, HTTP/SSE) ensure low-latency communication.
+- **Ecosystem Neutrality**: Designed to be used by any model provider or agent developer (Standardized by Anthropic but vendor-agnostic).
+- **Security**: Focuses on secure, locally-controlled execution of tools with fine-grained capability negotiation.
+- **Extensibility**: Massive library of community-contributed MCP servers available via the [MCP Registry](mcp-registry.md).
+- **Performance**: Standardized transport layers (Stdio, HTTP/SSE, and the June 2026 **X402** micropayment transport) ensure low-latency communication.
 
 ## Limitations
-- **Adoption**: While growing rapidly, it is still a relatively new standard.
-- **Client Support**: Requires specific support in the LLM client or agent framework.
+- **Client Support**: Requires native support in the LLM client or agent framework to fully leverage capability negotiation.
+- **Complexity for Beginners**: Designing robust, secure MCP servers requires understanding of JSON-RPC and asynchronous capability handshakes.
+- **State Management**: MCP is primarily stateless; complex multi-turn state must be managed at the application layer.
 
 ## When to use it
 - To provide LLMs with access to local or private data sources in a standardized way.
-- When building tools that you want to be reusable across different AI environments.
+- When building tools that you want to be reusable across different AI environments (IDEs, desktop assistants, web apps).
+- When implementing "Agentic RAG" patterns where the model needs to decide which context to retrieve.
 
 ## When not to use it
-- For very simple, one-off tool implementations where a basic API call is sufficient.
+- For very simple, one-off tool implementations where a basic API call is sufficient and reusability is not a concern.
+- If the target model or platform does not yet support the MCP standard (though gateways exist).
 
 ## Getting started
 
 ### MCP Architecture
-MCP uses a client-server architecture. A **Client** (like Claude Desktop) connects to a **Server** (a small program that exposes tools) over a transport layer like Stdio or HTTP/SSE.
+MCP uses a client-server architecture. A **Client** (like Claude Desktop) connects to a **Server** (a small program that exposes tools) over a transport layer.
 
 ### Example: Using a Local MCP Server (Claude Desktop)
 To add a local MCP server to Claude Desktop, edit your `claude_desktop_config.json`:
@@ -63,9 +66,9 @@ import { ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 
 const server = new Server({
   name: "example-server",
-  version: "1.0.0"
+  version: "3.0.0" // Updated to MCP 3.0
 }, {
-  capabilities: { tools: {} }
+  capabilities: { tools: {}, resources: {} }
 });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -87,13 +90,13 @@ await server.connect(transport);
 MCP servers and clients can be managed and tested via CLI tools.
 
 ```bash
-# Test an MCP server using the MCP Inspector
+# Test an MCP server using the MCP Inspector (June 2026 version)
 npx @modelcontextprotocol/inspector <command-to-run-server>
 
 # List available tools on a local server (via Stdio)
 echo '{"jsonrpc":"2.0","method":"tools/list","id":1,"params":{}}' | node my-mcp-server.js
 
-# Use the MCP CLI to connect to a server
+# Use the MCP CLI to connect to a server and interact
 mcp-cli connect stdio --command node --args my-mcp-server.js
 ```
 
@@ -116,22 +119,22 @@ Clients can interact with MCP servers via the defined protocol over various tran
 ```
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md) — Uses MCP for tool interaction.
-- [Roo Code](../agents/roo-code.md) — Open-source agent supporting MCP.
+- [Claude Code](../development_ops/claude-code.md) — Uses MCP for all tool interaction.
+- [Roo Code](../agents/roo-code.md) — Open-source agent supporting MCP v3.0.
 - [MCP Registry](mcp-registry.md) — Central catalog of MCP servers.
 - [Data Copilot MCP Tooling](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) — Specific implementation pattern.
-- [Cline](../agents/cline.md) — IDE agent with MCP support.
-- [GPT-5.5](../ai_knowledge/openai.md) — Integrated with MCP via third-party gateways.
+- [Cline](../agents/cline.md) — IDE agent with deep MCP integration.
+- [GPT-5.5](../ai_knowledge/openai.md) — Integrated with MCP via standardized gateways.
 - [n8n](../../services/n8n.md) — Supports MCP for workflow tool execution.
-- [OpenWebUI](../../services/open-webui.md) — Integrated with MCP for tool discovery.
-- [Python SDK](https://github.com/modelcontextprotocol/python-sdk) — Official Python implementation.
+- [Vellum](vellum.md) — macOS assistant utilizing MCP for desktop automation.
+- [Chronos MCP](chronos-mcp.md) — Standard for agentic calendar orchestration.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://modelcontextprotocol.io/)
 - [Anthropic MCP Announcement](https://www.anthropic.com/news/model-context-protocol)
 - [MCP Documentation](https://modelcontextprotocol.io/docs/concepts/architecture)
-- [MCP SDKs](https://github.com/modelcontextprotocol)
+- [MCP SDKs (GitHub)](https://github.com/modelcontextprotocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high
