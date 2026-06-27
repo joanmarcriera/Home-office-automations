@@ -1,7 +1,7 @@
 # Todoist
 
 ## What it is
-A popular task management application that helps individuals and teams organize, plan, and collaborate on projects. As of 2026, it features advanced AI capabilities through the **Ramble AI** voice engine and native Model Context Protocol (MCP 3.0) support.
+A popular task management application that helps individuals and teams organize, plan, and collaborate on projects. As of 2026, it features advanced AI capabilities through the **Ramble AI** voice engine and native Model Context Protocol (MCP 3.0) support. It is a closed-source platform available as a SaaS offering with various subscription tiers.
 
 ## What problem it solves
 Provides a simple yet powerful interface for capturing tasks, setting deadlines, and organizing work into projects and sub-tasks. It excels at natural language parsing, allowing users to schedule complex recurring tasks via text or voice.
@@ -98,18 +98,13 @@ Integrate Todoist with agents like **Claude 4.8** or **Llama 4 Maverick** using 
 - `update_task`: Modify existing entries.
 - `get_stats`: View productivity metrics and completed task counts.
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Freemium (Personal) / Paid (Pro/Business)
-- **Self-hostable**: No
-
 ## Related tools / concepts
 - [Reclaim.ai](reclaim.md) — Automatically time-blocks Todoist tasks.
 - [Akiflow](akiflow.md) — Aggregates tasks into a unified command center.
 - [Vikunja](../../services/vikunja.md) — Self-hosted alternative.
 - [n8n](../../services/n8n.md) — Used for advanced Todoist automations.
 - [Google Calendar](google_calendar.md) — Two-way sync partner.
-- [Chronos MCP](../automation_orchestration/mcp.md)
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md)
 - [Microsoft To Do](microsoft-todo.md)
 
 ## Sources / references

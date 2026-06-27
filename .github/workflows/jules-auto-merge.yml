@@ -105,20 +105,39 @@ jobs:
           set -euo pipefail
           IFS=',' read -ra PRS <<< "$PR_NUMBERS"
 
+          # Helper for retrying gh commands
+          retry_gh() {
+            local n=1
+            local max=3
+            local delay=15
+            while true; do
+              "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                  ((n++))
+                  echo "Command failed. Attempt $n/$max in ${delay}s..."
+                  sleep $delay
+                else
+                  echo "The command has failed after $n attempts."
+                  return 1
+                fi
+              }
+            done
+          }
+
           for PR in "${PRS[@]}"; do
             echo "--- Checking PR #$PR ---"
 
             STATUS=UNKNOWN
             IS_MERGEABLE=UNKNOWN
             for attempt in 1 2 3 4 5; do
-              MERGEABLE=$(gh pr view "$PR" --repo "$REPO" --json mergeable,mergeStateStatus \
-                --jq '{mergeable: .mergeable, status: .mergeStateStatus}')
+              MERGEABLE=$(retry_gh gh pr view "$PR" --repo "$REPO" --json mergeable,mergeStateStatus \
+                --jq '{mergeable: .mergeable, status: .mergeStateStatus}') || continue
               echo "Merge state attempt $attempt: $MERGEABLE"
 
               STATUS=$(echo "$MERGEABLE" | jq -r '.status')
               IS_MERGEABLE=$(echo "$MERGEABLE" | jq -r '.mergeable')
 
-              if [ "$IS_MERGEABLE" != "UNKNOWN" ] || [ "$STATUS" != "UNKNOWN" ]; then
+              if [ "$IS_MERGEABLE" != "UNKNOWN" ] && [ "$STATUS" != "UNKNOWN" ]; then
                 break
               fi
 
@@ -130,9 +149,9 @@ jobs:
               continue
             fi
 
-            HEAD_SHA=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq '.headRefOid')
-            REQUIRED_CHECKS=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs" \
-              --jq '[.check_runs[] | select(.name == "knowledgeops-contract" or .name == "link-check") | {name, status, conclusion}]')
+            HEAD_SHA=$(retry_gh gh pr view "$PR" --repo "$REPO" --json headRefOid --jq '.headRefOid') || continue
+            REQUIRED_CHECKS=$(retry_gh gh api "repos/$REPO/commits/$HEAD_SHA/check-runs" \
+              --jq '[.check_runs[] | select(.name == "knowledgeops-contract" or .name == "link-check") | {name, status, conclusion}]') || continue
             echo "Required checks: $REQUIRED_CHECKS"
 
             PRESENT_CHECKS=$(echo "$REQUIRED_CHECKS" | jq 'length')
@@ -152,7 +171,7 @@ jobs:
 
             if [ "$NON_PASSING" = "0" ] && [ "$STATUS" != "BLOCKED" ] && [ "$IS_MERGEABLE" = "MERGEABLE" ]; then
               echo "✅ PR #$PR checks are passing — merging now."
-              gh pr merge "$PR" \
+              retry_gh gh pr merge "$PR" \
                 --repo "$REPO" \
                 --merge \
                 --delete-branch \
@@ -160,7 +179,7 @@ jobs:
               echo "Merged PR #$PR successfully."
             else
               echo "ℹ️ PR #$PR is still waiting on merge requirements — arming auto-merge."
-              gh pr merge "$PR" \
+              retry_gh gh pr merge "$PR" \
                 --repo "$REPO" \
                 --merge \
                 --auto \

@@ -1,7 +1,7 @@
 # Notion Calendar
 
 ## What it is
-A high-performance calendar app (formerly Cron) that serves as the unified time-management layer for Notion. As of 2026, it is the primary interface for **Notion Agents** and **Skills**, allowing for automated scheduling and database-driven time blocking.
+A high-performance calendar app (formerly Cron) that serves as the unified time-management layer for Notion. As of 2026, it is the primary interface for **Notion Agents** and **Skills**, allowing for automated scheduling and database-driven time blocking. It is a closed-source product integrated into the Notion ecosystem.
 
 ## What problem it solves
 Bridges the gap between notes/tasks in Notion and time management in a calendar. It provides a fast, keyboard-centric interface that synchronizes Google Calendar events with Notion database items in real-time.
@@ -87,17 +87,12 @@ Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` o
 - `notion_read_page`: Extract context from a specific event's linked Notion page.
 - `notion_update_item`: Reschedule or modify Notion database entries.
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Free (with Notion subscription tiers for advanced AI/Agent features)
-- **Self-hostable**: No
-
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md) — The underlying backend.
 - [Reclaim.ai](reclaim.md) — Intelligent time blocking for Notion users.
 - [Vimcal](vimcal.md) — Keyboard-focused speed-calendar competitor.
 - [n8n](../../services/n8n.md) — For complex database-to-calendar automation.
-- [Chronos MCP](../automation_orchestration/mcp.md)
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md)
 - [Akiflow](akiflow.md)
 - [Todoist](todoist.md)
 

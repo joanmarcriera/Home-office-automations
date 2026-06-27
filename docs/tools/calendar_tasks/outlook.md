@@ -1,7 +1,7 @@
 # Microsoft Outlook Calendar
 
 ## What it is
-The enterprise-standard calendar application for Microsoft 365. As of 2026, it is deeply integrated with **Microsoft Work IQ**, a shared intelligence layer that exposes mail, calendar, and meeting data to AI agents via the Model Context Protocol (MCP 3.0).
+The enterprise-standard calendar application for Microsoft 365. As of 2026, it is deeply integrated with **Microsoft Work IQ**, a shared intelligence layer that exposes mail, calendar, and meeting data to AI agents via the Model Context Protocol (MCP 3.0). It is a closed-source, cloud-native and on-premises solution.
 
 ## What problem it solves
 Provides professional-grade scheduling, meeting management, and resource booking integrated with email and corporate directories. It handles complex enterprise needs like delegated access, cross-tenant availability, and automated meeting transcription/summarization via Copilot.
@@ -101,18 +101,13 @@ Microsoft provides official **Work IQ MCP servers** for enterprise tenants.
 - `mcp_outlook_create_event`: Schedule new meetings with intelligent conflict resolution.
 - `mcp_outlook_find_meeting_times`: Identify the best time for multiple attendees.
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Microsoft 365), Free (Outlook.com)
-- **Self-hostable**: No (Cloud), Yes (Exchange Server - Legacy)
-
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md)
 - [Microsoft Graph](../providers/microsoft-graph.md)
 - [Microsoft Work IQ](../automation_orchestration/mcp.md)
 - [Microsoft To Do](microsoft-todo.md)
 - [Reclaim](reclaim.md) — Excellent for AI-driven Outlook scheduling.
-- [Chronos MCP](../automation_orchestration/mcp.md)
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md)
 - [n8n](../../services/n8n.md)
 
 ## Sources / references

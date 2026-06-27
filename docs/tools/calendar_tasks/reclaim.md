@@ -1,7 +1,7 @@
 # Reclaim.ai
 
 ## What it is
-An AI-powered scheduling automation tool that syncs with Google Calendar and Microsoft Outlook to find the best time for tasks, habits, and meetings. Following its acquisition by **Dropbox** in July 2024, it has expanded its enterprise capabilities while remaining a favorite for individual power users.
+An AI-powered scheduling automation tool that syncs with Google Calendar and Microsoft Outlook to find the best time for tasks, habits, and meetings. Following its acquisition by **Dropbox** in July 2024, it has expanded its enterprise capabilities while remaining a favorite for individual power users. It is a closed-source, cloud-native platform offering freemium and paid tiers.
 
 ## What problem it solves
 Solves "calendar tetris" by automatically blocking time for deep work and habits while staying flexible for incoming meetings. It dynamically adjusts your schedule in real-time as priorities shift.
@@ -80,11 +80,6 @@ You can use the community-maintained MCP server to manage tasks via agents like 
 - `reclaim_create_task`: Add a task with duration and deadline.
 - `reclaim_add_time`: Add more time to an existing task.
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Freemium (Personal/Starter) / Paid (Business/Enterprise)
-- **Self-hostable**: No (Cloud-native)
-
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md)
 - [Microsoft Outlook](outlook.md)
@@ -93,7 +88,7 @@ You can use the community-maintained MCP server to manage tasks via agents like 
 - [Todoist](todoist.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [n8n](../../services/n8n.md)
-- [Chronos MCP](../automation_orchestration/mcp.md)
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md)
 
 ## Sources / references
 - [Reclaim.ai Official Site](https://reclaim.ai/)
