@@ -4,7 +4,7 @@
 An open-source library and platform for pre-processing and "unstructuring" messy data (PDFs, HTML, Word docs) into AI-ready formats. It is a foundational tool for building high-quality RAG pipelines.
 
 ## What problem it solves
-It automates the ingestion of diverse document types, handling complex layouts and extracting clean text and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that LLMs like **Claude 4.7** and **GPT-5.5** receive structured, high-signal context.
+It automates the ingestion of diverse document types, handling complex layouts and extracting clean text and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that LLMs like **Claude 4.8 Opus** and **GPT-5.5** receive structured, high-signal context.
 
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing. It acts as the "ETL for LLMs," sitting between raw data sources and vector databases.
@@ -13,13 +13,13 @@ It automates the ingestion of diverse document types, handling complex layouts a
 - **RAG Pipelines**: Extracting text and metadata from varied document sets for ingestion into [Weaviate](../infrastructure/weaviate.md) or [Pinecone](../infrastructure/pinecone.md).
 - **Data Lake Hydration**: Normalizing disparate document formats (PDF, Word, Email) into a standard JSON/Markdown format.
 - **Knowledge Graph Construction**: Extracting structured elements and relationships from messy documents.
-- **Agentic Workflows**: Using the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) to give agents real-time parsing capabilities.
+- **Agentic Workflows**: Using the [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) to give agents real-time parsing capabilities.
 
 ## Strengths
 - **Broad Format Support**: Handles 20+ file types including PDF, HTML, Word, and PowerPoint.
 - **Open-Source & Local**: Can be run fully offline without data leaving your infrastructure.
 - **Layout Awareness**: Not just OCR; it understands headers, lists, and tables.
-- **June 2026 Optimized**: Fully supports **Llama 4 Maverick** tokenization and native [MCP](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
+- **June 2026 Optimized**: Fully supports **Llama 4 Maverick** tokenization and native [MCP 3.0](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
 
 ## Limitations
 - **Resource Intensive**: Complex partitioning (especially with vision models) requires significant CPU/GPU.
@@ -34,11 +34,6 @@ It automates the ingestion of diverse document types, handling complex layouts a
 ## When not to use it
 - For very simple text files or clean Markdown where standard readers suffice.
 - If you need real-time, low-latency parsing (it is optimized for batch ETL).
-
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free (Self-hosted) / Paid (Unstructured API / Platform)
-- **Self-hostable**: Yes
 
 ## Partitioning Strategies
 The Unstructured library offers several strategies for preprocessing documents, specified via the `strategy` parameter.
@@ -157,17 +152,22 @@ response = requests.post(url, headers=headers, files=files, data=data)
 print(response.json())
 ```
 
-## Related tools / concepts
+## Licensing and cost
+- **Open Source**: Yes (Apache 2.0)
+- **Cost**: Free (Self-hosted) / Paid (Unstructured API / Platform)
+- **Self-hostable**: Yes
 
+## Related tools / concepts
 - [LlamaParse](llamaparse.md)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Docling](../process_understanding/docling.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude 4.7](../providers/anthropic.md)
+- [Claude 4.8](../providers/anthropic.md)
 - [GPT-5.5](../ai_knowledge/openai.md)
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 - [Weaviate](../infrastructure/weaviate.md)
+- [Khoj](khoj.md)
 
 ## Sources / references
 - [Unstructured.io Website](https://unstructured.io/)
@@ -176,5 +176,5 @@ print(response.json())
 - [Unstructured MCP Server (UNS-MCP)](https://github.com/Unstructured-IO/UNS-MCP)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

@@ -12,7 +12,7 @@ Bridges the gap between notes/tasks in Notion and time management in a calendar.
 ## Typical use cases
 - **Unified workspace view**: See Notion database entries (tasks, project milestones) alongside Google Calendar events.
 - **High-speed scheduling**: Use keyboard shortcuts and scheduling links to manage a busy calendar.
-- **Agentic time-blocking**: Use **Notion Agents** (powered by **Claude 4.7** or **GPT-5.5**) to automatically find slots for Notion tasks.
+- **Agentic time-blocking**: Use **Notion Agents** (powered by **Claude 4.8 Opus** or **GPT-5.5**) to automatically find slots for Notion tasks.
 - **Cross-timezone coordination**: Manage global teams with integrated timezone columns.
 
 ## Strengths
@@ -33,11 +33,6 @@ Bridges the gap between notes/tasks in Notion and time management in a calendar.
 ## When not to use it
 - If you don't use Notion (prefer [Reclaim.ai](reclaim.md) or [Fantastical](fantastical.md)).
 - If you require native support for Microsoft Exchange (prefer [Outlook](outlook.md)).
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Free (with Notion subscription tiers for advanced AI/Agent features)
-- **Self-hostable**: No
 
 ## Getting started
 1. Download the app from the [Notion website](https://www.notion.so/product/calendar).
@@ -84,25 +79,33 @@ response = requests.post(API_URL, headers=headers, json=filter_data)
 print(response.json())
 ```
 
-## Model Context Protocol (MCP) Integration
-Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` or official `Doist/todoist-ai` equivalent) that agents use to interact with the calendar.
+## Model Context Protocol (MCP 3.0) Integration
+Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` or official `Doist/todoist-ai` equivalent) that agents use to interact with the calendar via MCP 3.0.
 
 **Agent Capabilities (via MCP):**
 - `notion_find`: Search for pages and calendar entries.
 - `notion_read_page`: Extract context from a specific event's linked Notion page.
 - `notion_update_item`: Reschedule or modify Notion database entries.
 
+## Licensing and cost
+- **Open Source**: No
+- **Cost**: Free (with Notion subscription tiers for advanced AI/Agent features)
+- **Self-hostable**: No
+
 ## Related tools / concepts
 - [Google Calendar](google_calendar.md) — The underlying backend.
 - [Reclaim.ai](reclaim.md) — Intelligent time blocking for Notion users.
 - [Vimcal](vimcal.md) — Keyboard-focused speed-calendar competitor.
 - [n8n](../../services/n8n.md) — For complex database-to-calendar automation.
+- [Chronos MCP](../automation_orchestration/mcp.md)
+- [Akiflow](akiflow.md)
+- [Todoist](todoist.md)
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.notion.so/product/calendar)
 - [Notion 3.5 Developer Platform Release](https://www.notion.com/releases/2026-05-13)
 - [Notion MCP Server (GitHub)](https://github.com/suekou/mcp-notion-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

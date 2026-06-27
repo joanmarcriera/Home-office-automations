@@ -19,7 +19,7 @@ Solves "calendar tetris" by automatically blocking time for deep work and habits
 - Dynamic rescheduling based on calendar priority.
 - Excellent multi-calendar sync to protect personal time.
 - Integration with task managers like Todoist, Linear, and Asana.
-- **MCP Native**: Can be controlled via AI agents using the Model Context Protocol.
+- **MCP 3.0 Native**: Can be controlled via AI agents using the Model Context Protocol.
 
 ## Limitations
 - Autopilot can feel overwhelming for users who prefer manual control.
@@ -29,7 +29,7 @@ Solves "calendar tetris" by automatically blocking time for deep work and habits
 ## When to use it
 - When you have a busy schedule and struggle to find time for deep work.
 - When you need to sync multiple calendars (personal/work) across Google and Outlook.
-- If you use AI agents like **Claude 4.7** or **GPT-5.5** and want them to manage your schedule.
+- If you use AI agents like **Claude 4.8 Opus** (`claude-4-8-opus-20260528`) or **GPT-5.5** and want them to manage your schedule.
 
 ## When not to use it
 - If you prefer manual, fixed-time scheduling without AI interference.
@@ -40,7 +40,7 @@ To begin using Reclaim.ai:
 1. Sign up at [Reclaim.ai](https://reclaim.ai/).
 2. Connect your Google or Outlook calendars during onboarding.
 3. **Hello-world example**: Create your first "Habit" (e.g., "Daily Review") by selecting **Habits** in the sidebar. Reclaim will find the best slot in your schedule.
-4. **Agent Setup**: Connect Reclaim to your AI agent using an MCP server (see below).
+4. **Agent Setup**: Connect Reclaim to your AI agent using an MCP 3.0 server (see below).
 
 ## CLI examples
 > [!NOTE]
@@ -48,7 +48,7 @@ To begin using Reclaim.ai:
 
 The primary ways to interact with Reclaim from the command line or desktop are:
 - **Raycast Extension**: Use `Create Task` or `View Schedule` directly from the Raycast palette.
-- **MCP Server**: Use `npx -y @jj3ny/reclaim-mcp-server` to give your AI agent access.
+- **MCP Server**: Use `npx -y @jj3ny/reclaim-mcp-server` to give your AI agent access via MCP 3.0.
 
 ## API examples
 Reclaim provides a REST API for managing tasks and schedules.
@@ -72,8 +72,8 @@ for task in tasks:
     print(f"{task['title']} - {task['status']}")
 ```
 
-### Model Context Protocol (MCP) Integration
-You can use the community-maintained MCP server to manage tasks via agents like **Claude 4.7** or **Llama 4 Maverick**.
+### Model Context Protocol (MCP 3.0) Integration
+You can use the community-maintained MCP server to manage tasks via agents like **Claude 4.8** or **Llama 4 Maverick**.
 
 **Tools exposed**:
 - `reclaim_list_tasks`: View your current queue.
@@ -93,12 +93,13 @@ You can use the community-maintained MCP server to manage tasks via agents like 
 - [Todoist](todoist.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [n8n](../../services/n8n.md)
+- [Chronos MCP](../automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
 - [Reclaim.ai Official Site](https://reclaim.ai/)
 - [Dropbox Acquisition Announcement](https://reclaim.ai/blog/dropbox-acquisition)
 - [Reclaim MCP Server (GitHub)](https://github.com/jj3ny/reclaim-mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

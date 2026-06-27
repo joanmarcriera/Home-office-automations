@@ -1,7 +1,7 @@
 # Microsoft Outlook Calendar
 
 ## What it is
-The enterprise-standard calendar application for Microsoft 365. As of 2026, it is deeply integrated with **Microsoft Work IQ**, a shared intelligence layer that exposes mail, calendar, and meeting data to AI agents via the Model Context Protocol (MCP).
+The enterprise-standard calendar application for Microsoft 365. As of 2026, it is deeply integrated with **Microsoft Work IQ**, a shared intelligence layer that exposes mail, calendar, and meeting data to AI agents via the Model Context Protocol (MCP 3.0).
 
 ## What problem it solves
 Provides professional-grade scheduling, meeting management, and resource booking integrated with email and corporate directories. It handles complex enterprise needs like delegated access, cross-tenant availability, and automated meeting transcription/summarization via Copilot.
@@ -11,14 +11,14 @@ Provides professional-grade scheduling, meeting management, and resource booking
 
 ## Typical use cases
 - **Enterprise scheduling**: Manage complex team calendars and physical resource (room) bookings.
-- **AI-assisted coordination**: Use **Work IQ** to allow agents like **Claude 4.7** or **GPT-5.5** to schedule meetings based on organizational context.
+- **AI-assisted coordination**: Use **Work IQ** to allow agents like **Claude 4.8 Opus** or **GPT-5.5** to schedule meetings based on organizational context.
 - **Hybrid work management**: Automatically coordinate in-person vs. remote attendance.
 - **Meeting lifecycle**: From scheduling to automated action item extraction using Microsoft 365 Copilot.
 
 ## Strengths
 - Deep integration with Microsoft 365, Teams, and the wider Graph ecosystem.
 - Robust enterprise security, compliance, and centralized IT governance.
-- **Work IQ Native**: First-party MCP servers allow agents to "reason" over calendar data securely.
+- **Work IQ Native**: First-party MCP 3.0 servers allow agents to "reason" over calendar data securely.
 
 ## Limitations
 - Can be complex to configure for personal/independent use cases outside Microsoft 365.
@@ -52,7 +52,7 @@ The official CLI now includes an **MCP server mode**.
 ## CLI examples
 The CLI is the primary tool for administrators and power users.
 
-### Run as an MCP Server
+### Run as an MCP 3.0 Server
 You can start the CLI in MCP mode to give your AI assistant immediate access:
 ```bash
 m365 mcp start
@@ -93,7 +93,7 @@ response = requests.post(API_URL, headers=headers, json=event_data)
 print(response.json())
 ```
 
-## Model Context Protocol (MCP) Integration
+## Model Context Protocol (MCP 3.0) Integration
 Microsoft provides official **Work IQ MCP servers** for enterprise tenants.
 
 **Available Tools (via Work IQ):**
@@ -112,13 +112,15 @@ Microsoft provides official **Work IQ MCP servers** for enterprise tenants.
 - [Microsoft Work IQ](../automation_orchestration/mcp.md)
 - [Microsoft To Do](microsoft-todo.md)
 - [Reclaim](reclaim.md) — Excellent for AI-driven Outlook scheduling.
+- [Chronos MCP](../automation_orchestration/mcp.md)
+- [n8n](../../services/n8n.md)
 
-## Sources / References
+## Sources / references
 - [Microsoft Outlook](https://outlook.live.com/)
 - [Microsoft Graph API](https://developer.microsoft.com/en-us/graph)
 - [Work IQ MCP Overview (Microsoft Learn)](https://learn.microsoft.com/en-us/microsoft-agent-365/tooling-servers-overview)
 - [CLI for Microsoft 365](https://pnp.github.io/cli-microsoft365/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high

@@ -1,7 +1,7 @@
 # Todoist
 
 ## What it is
-A popular task management application that helps individuals and teams organize, plan, and collaborate on projects. As of 2026, it features advanced AI capabilities through the **Ramble AI** voice engine and native Model Context Protocol (MCP) support.
+A popular task management application that helps individuals and teams organize, plan, and collaborate on projects. As of 2026, it features advanced AI capabilities through the **Ramble AI** voice engine and native Model Context Protocol (MCP 3.0) support.
 
 ## What problem it solves
 Provides a simple yet powerful interface for capturing tasks, setting deadlines, and organizing work into projects and sub-tasks. It excels at natural language parsing, allowing users to schedule complex recurring tasks via text or voice.
@@ -12,14 +12,14 @@ Provides a simple yet powerful interface for capturing tasks, setting deadlines,
 ## Typical use cases
 - **Daily task management**: Capture and organize personal work using the "Inbox" and "Today" views.
 - **AI-assisted planning**: Use the **Ramble AI** voice-to-task feature for hands-free capture in 38+ languages.
-- **Agentic workflows**: Connect Todoist to **Claude 4.7** or **GPT-5.5** via MCP to automate task sorting and breakdown.
+- **Agentic workflows**: Connect Todoist to **Claude 4.8 Opus** or **GPT-5.5** via MCP 3.0 to automate task sorting and breakdown.
 - **Maintenance patterns**: Use recurring tasks for system health checks and routine admin.
 
 ## Strengths
 - Clean, intuitive interface across all platforms (including Linux and wearables).
 - Best-in-class natural language parsing for deadlines (e.g., "every second Thursday at 3pm").
 - Two-way sync with Google Calendar and Reclaim.ai.
-- **MCP Native**: Supports the Model Context Protocol for seamless integration with AI agents.
+- **MCP 3.0 Native**: Supports the Model Context Protocol for seamless integration with AI agents.
 
 ## Limitations
 - Advanced features like reminders and filters require a Pro subscription.
@@ -33,11 +33,6 @@ Provides a simple yet powerful interface for capturing tasks, setting deadlines,
 ## When not to use it
 - For complex software development projects with strict dependencies (prefer Jira or GitHub Issues).
 - If you require a fully local-first or open-source solution (consider [Vikunja](../../services/vikunja.md)).
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Freemium (Personal) / Paid (Pro/Business)
-- **Self-hostable**: No
 
 ## Getting started
 ### Official Integration
@@ -92,8 +87,8 @@ response = requests.post(API_URL, headers=headers, json=data)
 print(response.json())
 ```
 
-### Model Context Protocol (MCP) Integration
-Integrate Todoist with agents like **Claude 4.7** or **Llama 4 Maverick** using an MCP server.
+### Model Context Protocol (MCP 3.0) Integration
+Integrate Todoist with agents like **Claude 4.8** or **Llama 4 Maverick** using an MCP 3.0 server.
 
 **Recommended Server**: `Doist/todoist-ai` (Official) or `shockedrope/todoist-mcp` (Community).
 
@@ -103,19 +98,26 @@ Integrate Todoist with agents like **Claude 4.7** or **Llama 4 Maverick** using 
 - `update_task`: Modify existing entries.
 - `get_stats`: View productivity metrics and completed task counts.
 
+## Licensing and cost
+- **Open Source**: No
+- **Cost**: Freemium (Personal) / Paid (Pro/Business)
+- **Self-hostable**: No
+
 ## Related tools / concepts
 - [Reclaim.ai](reclaim.md) — Automatically time-blocks Todoist tasks.
 - [Akiflow](akiflow.md) — Aggregates tasks into a unified command center.
 - [Vikunja](../../services/vikunja.md) — Self-hosted alternative.
 - [n8n](../../services/n8n.md) — Used for advanced Todoist automations.
 - [Google Calendar](google_calendar.md) — Two-way sync partner.
+- [Chronos MCP](../automation_orchestration/mcp.md)
+- [Microsoft To Do](microsoft-todo.md)
 
-## Sources / References
+## Sources / references
 - [Official Website](https://todoist.com/)
 - [Todoist API v2 Documentation](https://developer.todoist.com/rest/v2/)
 - [Todoist 2026 Changelog](https://www.todoist.com/help/articles/2026-changelog)
 - [Todoist AI MCP Server](https://github.com/Doist/todoist-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-28
 - Confidence: high
