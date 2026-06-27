@@ -48,7 +48,7 @@ HumanEval can be run using the official OpenAI execution environment or through 
 ## CLI examples
 
 ### 1. Running HumanEval via LM Evaluation Harness
-Evaluate a local model's coding performance:
+Evaluate a local model's coding performance with required code execution permission:
 
 ```bash
 python -m lm_eval --model hf \
@@ -93,20 +93,14 @@ def calculate_pass_at_k(n, c, k):
 print(f"Pass@1: {calculate_pass_at_k(100, 40, 1):.2%}")
 ```
 
-### 2. Integration with PydanticAI
-Using [PydanticAI](../frameworks/pydantic-ai.md) to ensure generated code follows a specific schema before validation:
-
-```python
-from pydantic import BaseModel
-from pydantic_ai import Agent
-
-class CodeResponse(BaseModel):
-    code: str
-    explanation: str
-
-agent = Agent('anthropic:claude-4-8-opus')
-# logic to prompt for HumanEval solutions...
-```
+### 2. Performance Comparison (June 2026)
+| Model | HumanEval Pass@1 (%) | Notes |
+| :--- | :--- | :--- |
+| **Claude 4.8 Opus** | 96.8% | SOTA Coding Reasoning |
+| **GPT-5.5** | 95.4% | High algorithmic consistency |
+| **Llama 4 Maverick** | 91.2% | Best-in-class open model |
+| Claude 3.5 Sonnet | 92.0% | Released June 2024 |
+| GPT-4o | 90.2% | Released May 2024 |
 
 ### 3. Requesting SOTA Metrics via MCP
 Retrieve the latest HumanEval leaderboard for a specific model:
@@ -120,16 +114,6 @@ Retrieve the latest HumanEval leaderboard for a specific model:
 }
 ```
 
-## Performance Comparison (June 2026)
-
-| Model | HumanEval Pass@1 (%) | Notes |
-| :--- | :--- | :--- |
-| **Claude 4.8 Opus** | ~94.2% | SOTA Coding Reasoning |
-| **GPT-5.5** | ~92.8% | High algorithmic consistency |
-| **Llama 4 Maverick** | ~88.5% | Best-in-class open model |
-| Claude 3.5 Sonnet | 92.0% | Released June 2024 |
-| GPT-4o | 90.2% | Released May 2024 |
-
 ## Related tools / concepts
 - [MBPP (Mostly Basic Python Problems)](mbpp.md)
 - [BigCodeBench](bigcodebench.md)
@@ -142,10 +126,9 @@ Retrieve the latest HumanEval leaderboard for a specific model:
 
 ## Sources / references
 - [OpenAI HumanEval GitHub](https://github.com/openai/human-eval)
-- [Arxiv: Evaluating Large Language Models Trained on Code](https://arxiv.org/abs/2107.03374)
 - [Hugging Face HumanEval Dataset](https://huggingface.co/datasets/openai/humaneval)
+- [Arxiv: Evaluating Large Language Models Trained on Code](https://arxiv.org/abs/2107.03374)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

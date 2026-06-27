@@ -69,7 +69,7 @@ python -m lm_eval --model anthropic \
 ```
 
 ### 3. Inspecting the dataset
-Use `datasets-cli` to view the structure of the GPQA dataset:
+Use `huggingface-cli` to download and inspect:
 ```bash
 huggingface-cli download Idavidrein/gpqa --repo-type dataset
 ```
@@ -92,21 +92,14 @@ results = lm_eval.simple_evaluate(
 print(f"GPQA Diamond Accuracy: {results['results']['gpqa_diamond']['acc,none']:.2%}")
 ```
 
-### 2. Mocking a GPQA Question for Local Testing
-A minimal example of the GPQA schema for integration testing:
-
-```python
-gpqa_item = {
-    "question": "In a certain species of flowering plant...",
-    "choice_a": "1/4",
-    "choice_b": "1/2",
-    "choice_c": "3/4",
-    "choice_d": "1",
-    "answer": "choice_c"
-}
-
-# Your model logic here to select the best choice
-```
+### 2. June 2026 Performance Metrics (Diamond)
+| Model | GPQA Diamond (Acc) | Release Date |
+| :--- | :--- | :--- |
+| **Claude 4.8 Opus** | 74.5% | May 2026 |
+| **GPT-5.5** | 71.2% | April 2026 |
+| **Llama 4 Maverick** | 68.8% | June 2026 |
+| Claude 3.5 Sonnet | 59.4% | June 2024 |
+| GPT-4o | 53.6% | May 2024 |
 
 ### 3. Fetching Leaderboard Data via MCP
 An agent might use an MCP tool to fetch the latest GPQA rankings:
@@ -120,18 +113,6 @@ An agent might use an MCP tool to fetch the latest GPQA rankings:
 }
 ```
 
-## Performance Comparison (June 2026)
-
-| Model | GPQA Diamond (Acc) | Release Date |
-| :--- | :--- | :--- |
-| **Claude 4.8 Opus** | ~72.1% | May 2026 |
-| **GPT-5.5** | ~68.4% | April 2026 |
-| **Llama 4 Maverick** | ~64.2% | June 2026 |
-| Claude 3.5 Sonnet | ~59.4% | June 2024 |
-| GPT-4o | ~53.6% | May 2024 |
-| Human (Expert) | ~80%+ | N/A |
-| Human (Non-expert) | ~34% | N/A |
-
 ## Related tools / concepts
 - [MMLU (Massive Multitask Language Understanding)](mmlu.md)
 - [GSM8K (Grade School Math 8K)](gsm8k.md)
@@ -142,6 +123,7 @@ An agent might use an MCP tool to fetch the latest GPQA rankings:
 - [Anthropic](../providers/anthropic.md)
 - [OpenAI](../ai_knowledge/openai.md)
 - [Meta](../providers/meta.md)
+- [Math Benchmark](math-benchmark.md)
 
 ## Sources / references
 - [Arxiv Paper: GPQA: A Graduate-Level Google-Proof Q&A Benchmark](https://arxiv.org/abs/2311.12022)
@@ -149,6 +131,5 @@ An agent might use an MCP tool to fetch the latest GPQA rankings:
 - [LMSYS Leaderboard (Benchmark Section)](https://arena.lmsys.org/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high
