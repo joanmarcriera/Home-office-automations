@@ -35,6 +35,62 @@ It removes every barrier to local inference for non-experts: no command line, no
 - For programmatic, always-on serving to multiple clients — prefer [Ollama](../../services/ollama.md) or [LocalAI](localai.md).
 - For maximum inference performance or batching at scale — use [vLLM](vllm.md) or [llama.cpp](llama-cpp.md) directly.
 
+## Getting started
+
+### Installation
+The Python SDK allows you to integrate GPT4All into your own applications.
+```bash
+pip install gpt4all
+```
+
+### Basic Usage
+```python
+from gpt4all import GPT4All
+
+# Initialize model (will download if not present)
+model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf")
+
+# Generate a simple response
+output = model.generate("The capital of France is ", max_tokens=3)
+print(output)
+```
+
+## CLI examples
+
+### 1. Listing Available Models
+Since GPT4All is primarily a library, you can use a Python one-liner to see available models.
+```bash
+python3 -c "from gpt4all import GPT4All; print(GPT4All.list_models())"
+```
+
+### 2. Basic Generation via Python CLI
+```bash
+python3 -c "from gpt4all import GPT4All; m=GPT4All('orca-mini-3b-gguf2-q4_0.gguf'); print(m.generate('Hello world'))"
+```
+
+## API examples
+
+### 1. Chat Session with Streaming
+```python
+from gpt4all import GPT4All
+
+model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf")
+with model.chat_session():
+    tokens = model.generate("Explain quantum computing in one sentence.", streaming=True)
+    for token in tokens:
+        print(token, end="", flush=True)
+```
+
+### 2. Embedding Generation
+```python
+from gpt4all import Embed4All
+
+embedder = Embed4All()
+text = "The quick brown fox jumps over the lazy dog"
+output = embedder.embed(text)
+print(output) # List of floats
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (MIT-licensed application)
 - **Cost**: Free

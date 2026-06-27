@@ -118,6 +118,7 @@ results = index.query(
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — data framework for LLM applications.
 - [OpenAI](../ai_knowledge/openai.md) — providing embedding models often used with Pinecone.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — standard for agent-to-vector-store communication.
+- [LlamaParse](../intake_storage/llamaparse.md) — high-precision document parsing for Pinecone ingestion.
 
 ## Sources / references
 - [Pinecone Documentation](https://docs.pinecone.io/)

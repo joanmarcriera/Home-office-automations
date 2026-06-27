@@ -104,6 +104,7 @@ res = client.search(
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — architectural overview of retrieval systems.
 - [Search Patterns](../../knowledge_base/patterns/search-patterns.md) — implementing effective search strategies.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — standard for connecting agents to Milvus.
+- [LLMWare](../automation_orchestration/llmware.md) — unified framework for building RAG pipelines with Milvus.
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — the overarching architectural framework.
 - [Zilliz](https://zilliz.com/) — the commercial entity behind Milvus, providing Zilliz Cloud.
 

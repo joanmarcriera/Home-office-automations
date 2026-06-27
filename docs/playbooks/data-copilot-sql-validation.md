@@ -41,6 +41,13 @@ It operates within the **Inference Pipeline**, specifically between the **SQL Ge
 
 To implement basic static validation, use the `sqlglot` library to parse and inspect generated queries.
 
+### Installation
+```bash
+pip install sqlglot
+```
+
+### Basic Usage
+
 ```python
 import sqlglot
 from sqlglot import exp
@@ -121,6 +128,73 @@ Stop the automated flow and notify a human if:
 2.  **Permission Denied**: The query attempts to access a restricted schema.
 3.  **Repair Timeout**: Max retries reached without a valid query.
 4.  **Complex Logic**: The intent requires a logic depth the current model cannot reliably produce.
+
+## CLI examples
+
+### 1. Static Validation
+```bash
+python3 -c "import sqlglot; print(sqlglot.transpile('SELECT * FROM users', read='postgres', write='sqlite')[0])"
+```
+
+### 2. Formatted SQL
+```bash
+python3 -c "import sqlglot; print(sqlglot.parse_one('SELECT * FROM users WHERE id=1').sql(pretty=True))"
+```
+
+## API examples
+
+### 1. Parsing Expressions
+```python
+import sqlglot
+from sqlglot import exp
+
+sql = "SELECT a, b FROM table"
+for expression in sqlglot.parse(sql):
+    for column in expression.find_all(exp.Column):
+        print(column.name)
+```
+
+### 2. Dialect Conversion
+```python
+import sqlglot
+
+# Convert Postgres to DuckDB
+duckdb_sql = sqlglot.transpile("SELECT * FROM x LIMIT 10", read="postgres", write="duckdb")[0]
+print(duckdb_sql)
+```
+
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    A[AI-Generated SQL Query] --> B{Syntactic Validation}
+    B -- Pass --> C{Policy Validation}
+    B -- Fail --> R[Capture Error & Repair Loop]
+
+    C -- Pass --> D{Semantic Validation}
+    C -- Fail --> R
+
+    D -- Pass --> E[Database Execution]
+    D -- Fail --> R
+
+    R --> F{Max Retries Reached?}
+    F -- No --> G[LLM Repair Prompt]
+    G --> B
+    F -- Yes --> H[Stop and Escalate]
+
+    subgraph "Validation Layers"
+    B
+    C
+    D
+    end
+
+    subgraph "Error Recovery"
+    R
+    F
+    G
+    H
+    end
+```
 
 ## Low-Cost Implementation Options
 - **SQLGlot (Local Static Analysis)**: Use SQLGlot to parse the generated SQL and check for structural issues (e.g., cross-joins) or forbidden keywords without requiring a live database or an LLM call.
