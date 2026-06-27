@@ -31,6 +31,7 @@ Enables non-developers to create complex multi-step automations connecting diffe
 - When you need a no-code automation platform with a strong visual editor for SaaS-to-SaaS workflows.
 - When the required integrations are already available as official modules.
 - When you need a reliable, managed service that handles OAuth and API maintenance automatically.
+- For orchestrating complex agentic loops that span across multiple cloud providers.
 
 ## When not to use it
 - When privacy requires self-hosted automation or local data processing (use [n8n](../../services/n8n.md) or [LocalFlow](../frameworks/langflow.md) instead).
@@ -54,7 +55,7 @@ Make provides a unique URL for every webhook trigger. You can send data to this 
 # Sending JSON data to a Make webhook
 curl -X POST https://hook.eu1.make.com/your-unique-id \
      -H "Content-Type: application/json" \
-     -d '{"event": "door_open", "sensor": "back_gate", "timestamp": "2026-06-10T10:00:00Z"}'
+     -d '{"event": "door_open", "sensor": "back_gate", "timestamp": "2026-06-28T10:00:00Z"}'
 ```
 
 ### 2. Triggering via GitHub Actions
@@ -107,36 +108,32 @@ response = requests.post(API_URL, headers=headers)
 print(f"Triggered Scenario: {response.status_code}")
 ```
 
-### 3. Integrating with n8n (Hybrid Flow)
-An [n8n](../../services/n8n.md) workflow can call a Make scenario to handle a specific SaaS integration:
-```json
-{
-  "node": "HTTP Request",
-  "parameters": {
-    "url": "https://hook.make.com/...",
-    "method": "POST",
-    "body": "={{$json}}"
-  }
-}
+### 3. Agentic Handoff via MCP
+An agent using [MCP](mcp.md) can trigger a Make scenario to perform complex SaaS actions:
+```python
+# Conceptual Python snippet for an MCP tool
+def trigger_saas_automation(payload):
+    webhook_url = "https://hook.make.com/your-agent-hook"
+    res = requests.post(webhook_url, json=payload)
+    return res.status_code
 ```
 
 ## Related tools / concepts
 - [n8n](../../services/n8n.md) - The primary self-hosted alternative.
 - [Zapier](zapier.md) - The largest no-code integration competitor.
 - [Pipedream](pipedream.md) - Developer-first automation platform.
-- [IFTTT](https://ifttt.com/) - Simple "If This Then That" automation.
 - [Skyvern](skyvern.md) - Browser-based agentic automation.
 - [Browser Use](browser-use.md) - Agentic web interaction.
-- [Webhook Ingestion](../../reference-implementations/paperless/webhook-ingestion.md) - Pattern for intake.
-- [Home Assistant](../../services/home-assistant.md) - Local smart home automation.
 - [MCP (Model Context Protocol)](mcp.md) - Standard for connecting tools to agents.
+- [Home Assistant](../../services/home-assistant.md) - Local smart home automation.
+- [Zapier Central](zapier.md) - AI-native automation workspace.
+- [Pipedream Agentic Workflow Builder](pipedream.md) - AI-powered workflow creation.
 
 ## Sources / references
-- [Official Website](https://www.make.com/)
-- [Make Academy (Training)](https://academy.make.com/)
+- [Make Official Website](https://www.make.com/)
 - [Make API Documentation](https://www.make.com/en/api-documentation)
+- [Make Academy (Training)](https://academy.make.com/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

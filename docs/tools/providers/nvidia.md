@@ -1,7 +1,7 @@
 # NVIDIA
 
 ## What it is
-NVIDIA is a global leader in AI hardware and software, providing an extensive ecosystem for model training, deployment, and inference through its GPU technology and the NVIDIA AI Enterprise platform. As of June 2026, NVIDIA dominates the inference landscape with **NIM (NVIDIA Inference Microservices)** and optimized support for frontier models like **Llama 4 Maverick**.
+NVIDIA is a global leader in AI hardware and software, providing an extensive ecosystem for model training, deployment, and inference through its GPU technology and the NVIDIA AI Enterprise platform. As of June 2026, NVIDIA dominates the inference landscape with the **Rubin architecture** GPUs and **NIM (NVIDIA Inference Microservices)**, which are now in General Availability (GA) across all major cloud and on-premises platforms.
 
 ## What problem it solves
 NVIDIA provides the high-performance compute infrastructure necessary for modern AI. Through the NVIDIA API Catalog and NVIDIA NIM, it offers optimized, scalable inference for a wide range of open and proprietary models, reducing the "time to first token" for real-time agentic applications.
@@ -16,10 +16,10 @@ NVIDIA provides the high-performance compute infrastructure necessary for modern
 - **Omniverse Simulation**: Integrating AI agents into 3D simulations for industrial automation.
 
 ## Strengths
-- **Performance**: Industry-leading inference speeds through hardware-software co-optimization.
+- **Performance**: Industry-leading inference speeds through hardware-software co-optimization (Rubin/Blackwell).
 - **Ecosystem**: Optimized NIMs available for almost all popular open-weights models (Llama, Qwen, Mistral).
 - **Enterprise-Ready**: Focus on security, manageability, and 24/7 support through NVIDIA AI Enterprise.
-- **Scale**: Seamless transition from local RTX workstations to multi-node H100/B200 clusters.
+- **Scale**: Seamless transition from local RTX workstations to multi-node H100/B200/R100 clusters.
 
 ## Limitations
 - **Hardware Lock-in**: Many software optimizations (TensorRT) are specific to NVIDIA GPU architectures.
@@ -63,7 +63,7 @@ curl -X POST "https://integrate.api.nvidia.com/v1/chat/completions" \
 ```
 
 ### 2. Running a Local NIM with Docker
-Deploy a pre-optimized model microservice on your local GPU:
+Deploy a pre-optimized model microservice on your local GPU (Rubin/Blackwell optimized):
 
 ```bash
 docker run -it --rm --runtime=nvidia --gpus all \
@@ -132,20 +132,20 @@ response = client.chat.completions.create(
 ## Related tools / concepts
 - [NVIDIA Nemotron-3 Super](../ai_knowledge/nemotron.md)
 - [NVIDIA NeMo Retriever](../agents/nemo-retriever.md)
-- [NVIDIA PersonaPlex](../ai_knowledge/personaplex.md)
 - [Groq](groq.md)
 - [Together AI](together.md)
+- [TGI (Text Generation Inference)](../infrastructure/tgi.md)
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md)
-- [TensorRT-LLM](../infrastructure/tgi.md)
 - [Model Context Protocol](../automation_orchestration/mcp.md)
+- [Google Axion](../knowledge_base/google_axion.md)
 
 ## Sources / references
 - [NVIDIA Official Website](https://www.nvidia.com/)
 - [NVIDIA API Catalog](https://build.nvidia.com/)
 - [NVIDIA NIM Documentation](https://docs.nvidia.com/nim/)
-- [NVIDIA NGC Catalog](https://catalog.ngc.nvidia.com/)
+- [NVIDIA Rubin Architecture Whitepaper](https://www.nvidia.com/en-us/data-center/rubin-architecture/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high
