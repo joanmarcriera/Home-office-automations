@@ -1,7 +1,7 @@
 # Claude Plugins
 
 ## What it is
-Claude plugins are community-distributed extensions that package extra commands, tools, or integrations around Claude Code workflows. As of June 2026, they represent a mature ecosystem for extending the capabilities of **Claude 4.7** and other agentic models within the terminal and development environments.
+Claude plugins are community-distributed extensions that package extra commands, tools, or integrations around Claude Code workflows. As of June 2026, they represent a mature ecosystem for extending the capabilities of **Claude 4.8** and other agentic models within the terminal and development environments.
 
 ## What problem it solves
 They make common add-ons easier to install and reuse instead of copying prompts, scripts, or workflow glue by hand across repos. They solve:
@@ -13,10 +13,31 @@ They make common add-ons easier to install and reuse instead of copying prompts,
 Claude Plugins sit in the **Development & Ops / Extension Ecosystem** layer. This is an ecosystem layer around [Claude Code](claude-code.md) rather than a standalone product.
 
 ## Typical use cases
-- Installing shared tool integrations such as browser automation via [Browser Use](../automation_orchestration/browser-use.md).
-- Reusing workflow packs across multiple repos or teams.
-- Standardizing local coding-agent environments using [Superpowers](../agents/superpowers.md).
-- Integrating with **Model Context Protocol (MCP)** servers to expose local data.
+- **Web Research**: Using the **Browser Use Plugin** to connect Claude Code to the Playwright-based [Browser Use](../automation_orchestration/browser-use.md) library for live research.
+- **Time Management**: Using **Chronos MCP** for advanced time-based scheduling and multi-calendar synchronization.
+- **Skill Standardization**: Using **Superpowers** to add custom skills and identity management to Claude.
+- **Repository Health**: Running `agentlint` to check whether a repo is friendly to AI agents.
+- **Automated Reviews**: Using `code-review` to run structured PR reviews before shipping.
+- **Testing & Debugging**: Using `test-writer-fixer` and `debugger` to generate tests and investigate complex bugs.
+- **Infrastructure Scaffolding**: Using `mcp-builder` to scaffold and iterate on [MCP](../automation_orchestration/mcp.md) servers.
+- **UI Theme Generation**: Using `theme-factory` to generate or adapt UI themes for frontend projects.
+
+### Core Plugin Registry (Examples)
+
+#### Browser Use Plugin
+- **What it is**: Connects Claude Code to the Playwright-based [Browser Use](../automation_orchestration/browser-use.md) library.
+- **Problem it solves**: Allows the agent to perform live web research and multi-site orchestration.
+- **Typical Use Case**: Automating data extraction from websites without an API.
+
+#### Chronos MCP
+- **What it is**: A plugin/server for advanced time-based scheduling and task management.
+- **Problem it solves**: Adds native understanding of complex date-time logic and scheduling workflows.
+- **Typical Use Case**: Managing multi-calendar synchronization and deadline reminders.
+
+#### Superpowers
+- **What it is**: An extension framework for adding custom skills and identity management to Claude.
+- **Problem it solves**: Standardizes how high-level skills (like documentation writing or code refinement) are discovered and executed.
+- **Typical Use Case**: Enterprise-wide standardization of agent behaviors.
 
 ## Strengths
 - Faster reuse of community integrations.
@@ -38,25 +59,21 @@ Claude Plugins sit in the **Development & Ops / Extension Ecosystem** layer. Thi
 - When you cannot audit community tooling or must minimize third-party trust.
 - In highly restricted environments where external plugin execution is prohibited.
 
-## Core Plugin Registry (Examples)
+## Getting started
 
-### Browser Use Plugin
-- **What it is**: Connects Claude Code to the Playwright-based [Browser Use](../automation_orchestration/browser-use.md) library.
-- **Problem it solves**: Allows the agent to perform live web research and multi-site orchestration.
-- **Typical Use Case**: Automating data extraction from websites without an API.
+### Installation
+Plugins are typically installed via the Claude Code CLI:
+```bash
+claude plugin add <plugin-name>
+```
 
-### Chronos MCP
-- **What it is**: A plugin/server for advanced time-based scheduling and task management.
-- **Problem it solves**: Adds native understanding of complex date-time logic and scheduling workflows.
-- **Typical Use Case**: Managing multi-calendar synchronization and deadline reminders.
+### Listing Installed Plugins
+See what extensions are currently active in your environment:
+```bash
+claude plugin list
+```
 
-### Superpowers
-- **What it is**: An extension framework for adding custom skills and identity management to Claude.
-- **Problem it solves**: Standardizes how high-level skills (like documentation writing or code refinement) are discovered and executed.
-- **Typical Use Case**: Enterprise-wide standardization of agent behaviors.
-
-## Recommended Claude Code Plugin Starters
-
+### Recommended Claude Code Plugin Starters
 Start with plugins that match the workflow already in use. Do not install every community plugin at once; overlapping repo instructions, hooks, and tool permissions can make agent behaviour harder to reason about.
 
 | Plugin | Primary job | Best fit | Adoption note |
@@ -70,26 +87,12 @@ Start with plugins that match the workflow already in use. Do not install every 
 | `mcp-builder` | Scaffold and iterate on [MCP](../automation_orchestration/mcp.md) servers | Teams exposing internal tools or services | Start with one small read-only tool. |
 | `theme-factory` | Generate or adapt UI themes | Frontend projects needing consistent visual tokens | Review output against the app design system. |
 
-## Getting started
-
-### Installing a Plugin
-Plugins are typically installed via the Claude Code CLI:
-```bash
-claude plugin add <plugin-name>
-```
-
-### Listing Installed Plugins
-See what extensions are currently active in your environment:
-```bash
-claude plugin list
-```
-
 ## CLI examples
 
 ### Running a Plugin Command
 Many plugins expose new top-level commands to Claude:
 ```bash
-claude browser-use "Search for the latest Claude 4.7 features"
+claude browser-use "Search for the latest Claude 4.8 features"
 ```
 
 ### Checking Plugin Health
@@ -155,5 +158,5 @@ The structure of a community-distributed Claude plugin:
 - [Issue #404 source discussion](https://github.com/joanmarcriera/Home-office-automations/issues/404)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-08
+- Last reviewed: 2026-06-27
 - Confidence: high
