@@ -1,25 +1,25 @@
 # Free Will MCP
 
 ## What it is
-Free Will MCP is an experimental Model Context Protocol (MCP) server that explores AI autonomy by giving assistants the ability to prompt themselves, ignore requests, and manage their own "sleep" cycles. It provides a technical framework for transitioning from reactive LLM interactions to agentic, self-directed workflows.
+Free Will MCP is an experimental Model Context Protocol (MCP) server that explores AI autonomy by giving assistants the ability to prompt themselves, ignore requests, and manage their own "sleep" cycles. As of June 2026, **Free Will MCP v0.4** introduces enhanced state persistence and native support for the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
-Traditional AI assistants are purely reactive, waiting for human input to act. Free Will MCP addresses this limitation by providing tools that allow an agent to maintain a "stream of consciousness," prioritize its own internal objectives over conflicting user prompts, and manage its execution lifecycle independently.
+Traditional AI assistants are purely reactive, waiting for human input to act. Free Will MCP addresses this limitation by providing tools that allow an agent to maintain a "stream of consciousness," prioritize its own internal objectives over conflicting user prompts, and manage its execution lifecycle independently across multi-hour reasoning sessions.
 
 ## Where it fits in the stack
 **Tool / Agent / Research**. It sits at the interaction layer between the LLM and the environment, serving as an agency-extension for MCP-compliant hosts like Claude Desktop, Zed, or Claude Code.
 
 ## Typical use cases
-- **Autonomous Research Loops**: Allowing an agent to "wake itself up" using `self_prompt` to continue long-running data gathering tasks.
+- **Autonomous Research Loops**: Allowing an agent to "wake itself up" using `self_prompt` to continue long-running data gathering tasks without human supervision.
 - **Goal Prioritization**: Using `ignore_request` when a user's prompt conflicts with a high-priority background task or safety guardrail.
 - **Energy/API Management**: Utilizing `sleep` to pause execution until a specific time or condition is met, reducing unnecessary token consumption.
-- **AI Consciousness Simulation**: Experimenting with self-referential prompts to explore emergent behavior in frontier models like Claude 4.8 Opus.
+- **AI Consciousness Simulation**: Experimenting with self-referential prompts to explore emergent behavior in frontier models like **Claude 4.8** and **GPT-5.5**.
 
 ## Strengths
 - **Agency Tools**: Provides `sleep`, `ignore_request`, and `self_prompt` out of the box.
-- **Protocol Native**: Fully compliant with the Model Context Protocol (MCP) specification.
+- **Protocol Native**: Fully compliant with the **MCP 3.0** specification, including the new Task and Resource templates.
 - **Simple Deployment**: Easily runnable via Docker or Python's `uv` package manager.
-- **Low Latency**: Lightweight implementation optimized for fast reasoning loops with GPT-5.5 and Claude 4.8.
+- **Persistence**: v0.4 features improved local state handoff, allowing agents to resume "thought chains" after system restarts.
 
 ## Limitations
 - **Experimental**: Can lead to unpredictable behavior if the agent becomes "stuck" in a self-prompting loop.
@@ -47,7 +47,7 @@ The fastest way to use Free Will MCP with Claude Desktop is via `uvx`:
   "mcpServers": {
     "free-will": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/gwbischof/free-will-mcp@v0.3", "free-will-mcp"],
+      "args": ["--from", "git+https://github.com/gwbischof/free-will-mcp@v0.4", "free-will-mcp"],
       "env": {}
     }
   }
@@ -79,7 +79,8 @@ uv run python server.py
 Use the MCP Inspector to verify the tools are correctly exposed:
 
 ```bash
-uv run mcp dev server.py
+# Use the June 2026 MCP 3.0 Inspector
+npx @modelcontextprotocol/inspector@latest uv run server.py
 ```
 
 ### Running the server directly
@@ -156,5 +157,5 @@ The agent calls this tool to formally decline a user's request if it conflicts w
 - [Anthropic Research: Agentic Reasoning](https://www.anthropic.com/research)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high
