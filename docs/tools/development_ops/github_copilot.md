@@ -14,6 +14,7 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 - Generating boilerplate and repetitive patterns.
 - CLI-based command explanation and script generation.
 - Full-project reasoning via the `@workspace` agent.
+- **Enterprise Inference**: Integration with [NVIDIA NIM](../providers/nvidia.md) (NVIDIA Inference Microservices) for self-hosted, high-performance model serving in hybrid environments.
 
 ## Strengths
 - Deep integration with GitHub ecosystem (Issues, PRs, Actions).
@@ -99,5 +100,5 @@ export async function handleRequest(request) {
 - [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high

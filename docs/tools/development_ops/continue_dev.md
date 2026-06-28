@@ -128,6 +128,8 @@ export async function getCustomContext(query: string) {
 - [VS Code](vscode.md) — The primary host IDE.
 - [Tabnine](tabnine.md) — Alternative autocomplete-focused extension.
 - [Windsurf](windsurf.md) — IDE with persistent context "Flows".
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — For agentic calendar orchestration.
+- [Free Will MCP](free-will-mcp.md) — For AI autonomy and self-prompting.
 
 ## Sources / references
 - [Continue Official Site](https://www.continue.dev/)
@@ -136,5 +138,5 @@ export async function getCustomContext(query: string) {
 - [MCP Integration Guide](https://docs.continue.dev/customization/context-providers#mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high
