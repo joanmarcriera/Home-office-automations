@@ -11,9 +11,9 @@ It addresses the "abstraction soup" and boilerplate associated with LLM developm
 
 ## Typical use cases
 - **Retrieval-Augmented Generation (RAG)**: Connecting LLMs to private data for context-aware answering.
-- **Autonomous Agents**: Building loops where the LLM uses tools (like search or calculators) to solve complex tasks.
-- **Chatbots with Memory**: Maintaining state across long-running conversations.
-- **LangGraph Orchestration**: Designing complex, stateful multi-agent systems with cycles and fine-grained control.
+- **Autonomous Agents**: Building loops where the LLM uses tools (like search or calculators) to solve complex tasks using MCP 3.0.
+- **Chatbots with Memory**: Maintaining state across long-running conversations with persistent persistence.
+- **LangGraph Orchestration**: Designing complex, stateful multi-agent systems with cycles and fine-grained control for Claude 4.8 and GPT-5.5.
 
 ## Strengths
 - **Massive Ecosystem**: Thousands of integrations for vector stores, LLMs (including native Claude 4.8 support), and data loaders.
@@ -95,13 +95,15 @@ print(result)
 - [Deep Agents](https://www.langchain.com/deep-agents)
 - [Claude 4.8](../providers/anthropic.md)
 - [GPT-5.5](openai.md)
-- [Model Context Protocol](../automation_orchestration/mcp.md)
+- [Model Context Protocol](../../tools/automation_orchestration/mcp.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references
 - [LangChain Official Documentation](https://python.langchain.com/)
 - [LangChain GitHub](https://github.com/langchain-ai/langchain)
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [MCP 3.0 Integration Guide](https://python.langchain.com/docs/integrations/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

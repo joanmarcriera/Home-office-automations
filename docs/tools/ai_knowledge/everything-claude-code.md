@@ -4,7 +4,7 @@
 Everything Claude Code (ECC) is a comprehensive performance optimization system designed for AI agent harnesses, primarily [Claude Code](../development_ops/claude-code.md). It is not just a configuration pack but a complete ecosystem of specialized agents, skills, hooks, and rules evolved from intensive daily production use.
 
 ## What problem it solves
-It bridges the gap between a raw AI CLI and a production-ready autonomous engineering environment. ECC addresses context window management, security risks, memory persistence across sessions, and language-specific coding standards through automated enforcement and optimized prompt engineering. It is specifically tuned to maximize the reasoning efficiency of frontier models like `claude-4-8-opus-20260528` and GPT-5.5.
+It bridges the gap between a raw AI CLI and a production-ready autonomous engineering environment. ECC addresses context window management, security risks, memory persistence across sessions, and language-specific coding standards through automated enforcement and optimized prompt engineering. It is specifically tuned to maximize the reasoning efficiency of frontier models like `claude-4-8-opus-20260528` and GPT-5.5 using MCP 3.0.
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Developer Tooling
@@ -33,7 +33,7 @@ It bridges the gap between a raw AI CLI and a production-ready autonomous engine
 - **Rules (34+)**: Standardized, language-specific guidelines (TypeScript, Python, Go, Swift, PHP) that ensure consistency across the codebase.
 
 ### AgentShield — Security Auditor
-A dedicated auditor that scans Claude Code configurations (`.claude/` directory) for vulnerabilities. It uses adversarial reasoning (Red Team/Blue Team agents) to evaluate protection layers and synthesize risk assessments.
+A dedicated auditor (v2.0 as of June 2026) that scans Claude Code configurations (`.claude/` directory) for vulnerabilities. It uses adversarial reasoning (Red Team/Blue Team agents) to evaluate protection layers and synthesize risk assessments.
 
 ### Skill Creator
 Analyzes local Git history to automatically generate `SKILL.md` files and instinct collections, allowing the agent to "learn" from the existing codebase patterns.
@@ -116,12 +116,14 @@ module.exports = async ({ file, content }) => {
 - [last30days-skill](last30days-skill.md) (Integrated social research skill)
 - [AgentShield](#agentshield) (Integrated security auditor)
 - [Skill Creator](#skill-creator) (Integrated pattern extractor)
+- [Claude Hooks](../development_ops/claude-hooks.md) (Integrated lifecycle hooks)
 
 ## Sources / references
 - [Everything Claude Code (GitHub)](https://github.com/affaan-m/everything-claude-code)
 - [ECC Documentation / Guides](https://ecc.tools/)
 - [Anthropic Claude Code Documentation](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code)
+- [AgentShield v2 Release](https://ecc.tools/blog/agentshield-v2)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

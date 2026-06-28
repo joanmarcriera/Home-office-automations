@@ -11,9 +11,9 @@ It bridges the gap between conversational AI and functional AI agents. It provid
 
 ## Typical use cases
 - **Developer Onboarding**: Quickly training a team on the specific idioms and commands of Claude Code.
-- **Agent Environment Setup**: Implementing standardized `CLAUDE.md` and hook configurations across a repository.
-- **MCP Mastery**: Learning how to build, deploy, and connect custom MCP servers to extend agent capabilities.
-- **Workflow Optimization**: Using lesson modules to reduce token usage and improve reasoning performance in agent loops.
+- **Agent Environment Setup**: Implementing standardized `CLAUDE.md` and hook configurations across a repository using Claude Hooks.
+- **MCP Mastery**: Learning how to build, deploy, and connect custom MCP 3.0 servers to extend agent capabilities.
+- **Workflow Optimization**: Using lesson modules to reduce token usage and improve reasoning performance in agent loops with Claude 4.8.
 
 ## Strengths
 - **Structured Learning**: Organized into progressive modules that build from basic CLI usage to advanced multi-agent orchestration.
@@ -105,18 +105,20 @@ if __name__ == "__main__":
 - [Claude](../development_ops/claude-code.md) — The core AI model family.
 - [Claude Code](../development_ops/claude-code.md) — The terminal-based agent for which this guide is built.
 - [Everything Claude Code](everything-claude-code.md) — Performance optimization ecosystem for Claude.
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — The standard for connecting tools.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — The standard for connecting tools.
 - [Cline](../agents/cline.md) — An alternative agentic interface for VS Code.
 - [Aider](../development_ops/aider.md) — A popular terminal-based AI coding assistant.
-- [Prompt Caching](../../knowledge_base/patterns/prompt-caching.md) — A critical pattern for cost-efficient agent usage.
+- [Prompt Caching](../../knowledge_base/patterns/agentic-workflows.md) — A critical pattern for cost-efficient agent usage.
 - [GPT-5.5](openai.md) — The industry baseline for comparison.
-- [Llama 4](../ai_knowledge/llama.md) — The open-weights alternative for local agentic workflows.
+- [Llama 4](../ai_knowledge/local_llms.md) — The open-weights alternative for local agentic workflows.
+- [Claude Hooks](../development_ops/claude-hooks.md) — Specialized lifecycle logic for Claude Code.
 
 ## Sources / references
 - [claude-howto GitHub Repository](https://github.com/luongnv89/claude-howto)
 - [Anthropic Developer Documentation](https://docs.anthropic.com/)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [MCP 3.0 Release Notes](https://modelcontextprotocol.io/blog/mcp-3-0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
