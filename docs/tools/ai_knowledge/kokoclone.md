@@ -4,7 +4,7 @@
 KokoClone is an efficient neural voice cloning extension for [Kokoro TTS](https://huggingface.co/hexgrad/Kokoro-82M), a high-performance local text-to-speech model. It leverages the Kokoro-ONNX runtime to deliver fast, real-time multilingual voice cloning on standard consumer hardware.
 
 ## What problem it solves
-It eliminates the need for expensive, cloud-based voice cloning subscriptions by providing a high-fidelity, local-first alternative. KokoClone allows users to clone any target voice with as little as a few seconds of reference audio, maintaining privacy and enabling offline use cases for agents running on frontier models like Claude 4.8 Opus and GPT-5.5.
+It eliminates the need for expensive, cloud-based voice cloning subscriptions by providing a high-fidelity, local-first alternative. KokoClone allows users to clone any target voice with as little as a few seconds of reference audio, maintaining privacy and enabling offline use cases for agents running on frontier models like Claude 4.8 Opus and GPT-5.5 via MCP 3.0 audio streams.
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Text-to-Speech
@@ -109,12 +109,14 @@ async def generate_speech(request: SpeechRequest):
 - [Msty](../infrastructure/msty.md) — Local AI desktop with audio support.
 - [Home Assistant](../../services/home-assistant.md) — Primary target for custom voice integration.
 - [Piper](https://github.com/rhasspy/piper) — Fast, local TTS engine used in HA.
+- [Llama.cpp](../infrastructure/llama-cpp.md) — High-performance local inference.
 
 ## Sources / references
 - [KokoClone GitHub](https://github.com/Ashish-Patnaik/kokoclone)
 - [Kokoro-82M on Hugging Face](https://huggingface.co/hexgrad/Kokoro-82M)
 - [Reddit: Kokoro TTS, but it clones voices now](https://www.reddit.com/r/LocalLLaMA/comments/1rjrjg3/kokoro_tts_but_it_clones_voices_now_introducing/)
+- [Local TTS Standards June 2026](https://kokoro-tts.io/standards-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

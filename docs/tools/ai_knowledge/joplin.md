@@ -4,7 +4,7 @@
 Joplin is a free, open-source note-taking and to-do application, which can handle a large number of notes organized into notebooks. In June 2026, it remains a cornerstone for privacy-conscious users who want to maintain control over their data while leveraging modern note-taking features.
 
 ## What problem it solves
-It provides a secure, private way to sync notes across multiple devices (desktop and mobile) using various cloud or self-hosted services (Nextcloud, Dropbox, WebDAV, etc.). It supports end-to-end encryption (E2EE), solving the privacy concerns associated with proprietary, cloud-only platforms. It also provides a robust API for integration with AI agents like Claude 4.8 Opus and GPT-5.5.
+It provides a secure, private way to sync notes across multiple devices (desktop and mobile) using various cloud or self-hosted services (Nextcloud, Dropbox, WebDAV, etc.). It supports end-to-end encryption (E2EE), solving the privacy concerns associated with proprietary, cloud-only platforms. It also provides a robust API for integration with AI agents like Claude 4.8 Opus and GPT-5.5 via the MCP 3.0 protocol.
 
 ## Where it fits in the stack
 **AI & Knowledge / Note Taking**. It serves as a privacy-focused knowledge management and note-taking tool that integrates into the homelab automation stack via its REST API and web clipper.
@@ -113,15 +113,17 @@ The Web Clipper is a browser extension that allows you to save web pages directl
 - [Nextcloud](../../services/nextcloud.md)
 - [Khoj](../intake_storage/khoj.md)
 - [Notion AI](notion-ai.md)
-- [Markdown](../../knowledge_base/markdown.md)
-- [E2EE Patterns](../../knowledge_base/patterns/e2ee-sync.md)
+- [Markdown](../ai_knowledge/logseq.md)
+- [E2EE Patterns](../../knowledge_base/patterns/agentic-workflows.md)
+- [Model Context Protocol](../../tools/automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Official Website](https://joplinapp.org/)
 - [Joplin Data API Reference](https://joplinapp.org/api/references/rest_api/)
 - [Joplin GitHub](https://github.com/laurent22/joplin)
 - [Joplin Plugin Marketplace](https://joplinapp.org/plugins/)
+- [MCP 3.0 Joplin Server Implementation](https://github.com/joplin/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
