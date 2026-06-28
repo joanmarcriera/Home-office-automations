@@ -1,13 +1,13 @@
 # Unsloth
 
 ## What it is
-Unsloth is an open-source framework designed to significantly accelerate the fine-tuning of Large Language Models (LLMs). As of June 2026, it is the industry standard for memory-efficient and high-speed training of open-weights models like Llama 4, Mistral, and Qwen on consumer-grade and enterprise hardware.
+Unsloth is an open-source framework designed to significantly accelerate the fine-tuning of Large Language Models (LLMs). As of June 2026, it is the industry standard for memory-efficient and high-speed training of open-weights models like Llama 4, Mistral, and Qwen 3.6 on consumer-grade and enterprise hardware.
 
 ## What problem it solves
 Fine-tuning LLMs traditionally requires massive VRAM and long training times. Unsloth solves this by using hand-written Triton kernels and optimized memory management, allowing users to fine-tune frontier-class models on a single GPU (e.g., 8GB - 24GB VRAM) while achieving up to 2x faster training speeds compared to standard Hugging Face implementations.
 
 ## Where it fits in the stack
-**Infrastucture / Fine-tuning**. Unsloth acts as the core engine in the fine-tuning layer, sitting between raw datasets and the inference stage. It produces specialized models that are then served by engines like [vLLM](vllm.md) or [Ollama](../../services/ollama.md).
+**Infrastructure / Fine-tuning**. Unsloth acts as the core engine in the fine-tuning layer, sitting between raw datasets and the inference stage. It produces specialized models that are then served by engines like [vLLM](vllm.md) or [Ollama](../../services/ollama.md).
 
 ## Typical use cases
 - **Memory-Constrained Fine-tuning**: Training 8B or 14B models on consumer GPUs with limited VRAM.
@@ -23,15 +23,15 @@ Fine-tuning LLMs traditionally requires massive VRAM and long training times. Un
 - **Native Export**: Built-in support for GGUF, Ollama, and vLLM-compatible formats.
 
 ## Limitations
-- **Hardware Lock-in**: Primarily optimized for NVIDIA GPUs (Ampere and newer for best results).
-- **Architecture Support**: Focuses on popular architectures (Llama, Mistral, Qwen, Gemma); very new or niche architectures may have delayed support.
+- **Hardware Lock-in**: Primarily optimized for NVIDIA GPUs (Ampere, Ada, and the latest Rubin architecture for best results).
+- **Architecture Support**: Focuses on popular architectures (Llama, Mistral, Qwen 3.6 A3B, Gemma); very new or niche architectures may have delayed support.
 - **Single-Node Focus**: While expanding, its primary strength is maximizing performance on a single node rather than massive multi-node clusters.
 
 ## When to use it
 - When you have limited VRAM and want to fine-tune 8B-70B models.
 - When training time is a bottleneck in your development cycle.
 - When you plan to deploy the final model to local environments like Ollama or LM Studio.
-- For fine-tuning open-weights models (Llama 4, Mistral) on task-specific datasets.
+- For fine-tuning open-weights models (Llama 4, Mistral, Qwen 3.6) on task-specific datasets.
 
 ## When not to use it
 - If you are using AMD or Apple Silicon (for Mac, use [MLX](mlx.md)).
@@ -117,7 +117,8 @@ tokenizer.batch_decode(outputs)
 - [Triton](../infrastructure/triton.md) — The underlying language used for kernel optimizations.
 - [PEFT](../frameworks/peft.md) — The library Unsloth extends for parameter-efficient fine-tuning.
 - [Llama 4](../ai_knowledge/llama.md) — The frontier model family often tuned with Unsloth.
-- [Qwen](../ai_knowledge/qwen.md) — High-performance model architecture supported by Unsloth.
+- [Qwen 3.6](../ai_knowledge/qwen.md) — High-performance model architecture (A3B) supported by Unsloth.
+- [NVIDIA Rubin architecture](../providers/nvidia.md) — Next-generation GPU architecture.
 
 ## Sources / references
 - [Unsloth AI Official Site](https://unsloth.ai/)
@@ -126,5 +127,5 @@ tokenizer.batch_decode(outputs)
 - [Unsloth Documentation](https://docs.unsloth.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

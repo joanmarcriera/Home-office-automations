@@ -17,8 +17,8 @@ It lowers the barrier to entry for building AI applications by eliminating the n
 ## Strengths
 - **No-Code Interface**: Accessible to non-technical users and designers.
 - **Speed**: Extremely fast path from idea to usable, hosted application.
-- **Ecosystem Integration**: Native access to Google Workspace data via official **Google Workspace Agents**.
-- **Gemini Integration**: Leverages Google's latest Gemini 3.1+ models for reasoning and expressive generation.
+- **Ecosystem Integration**: Native access to Google Workspace data via official Google Workspace Agents.
+- **Gemini Integration**: Leverages Google's latest Gemini 3.5 models for reasoning and expressive generation.
 
 ## Limitations
 - **Platform Lock-in**: Capabilities and data flow are limited to the Google Labs/Workspace managed environment.
@@ -100,12 +100,13 @@ print(response.text)
 - [Dify](dify.md)
 - [Prompt Engineering](../../knowledge_base/patterns/openclaw-workflow-prompts.md)
 - [No-Code AI Patterns](../../knowledge_base/learning-map.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
 - [Google Labs: Opal Project Home](https://labs.google/projects/opal/)
 - [Vertex AI: Managed Gems Documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/gems/overview)
-- [Gemini 3.1 Release Notes](https://blog.google/technology/ai/gemini-update-june-2026/)
+- [Gemini 3.5 Release Notes](https://blog.google/technology/ai/gemini-update-june-2026/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

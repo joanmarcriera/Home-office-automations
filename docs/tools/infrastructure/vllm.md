@@ -7,7 +7,7 @@ vLLM is a high-throughput and memory-efficient inference and serving engine for 
 LLM serving is often bottlenecked by KV cache memory management. Traditional systems suffer from significant memory fragmentation and over-reservation. vLLM's PagedAttention allows KV cache memory to be stored in non-contiguous memory spaces, reducing waste to near-zero and enabling much higher batch sizes and overall throughput, making it a critical infrastructure component for matching the performance of frontier models like Claude 4.8 Opus and GPT-5.5 in self-hosted environments.
 
 ## Where it fits in the stack
-**Category**: Infrastructure / Model Serving
+**Infrastructure / Model Serving**. It provides the high-performance inference layer for serving open-weights models and specialized fine-tuned adapters.
 
 ## Typical use cases
 - **High-Concurrency Serving**: Powering production LLM endpoints for thousands of simultaneous users.
@@ -22,25 +22,16 @@ LLM serving is often bottlenecked by KV cache memory management. Traditional sys
 - **Broad Ecosystem Support**: Native support for Llama 4, Mistral, Gemma, and deep integration with [SGLang](../infrastructure/sglang.md).
 
 ## Limitations
-- **Hardware Specificity**: Primarily optimized for NVIDIA GPUs (Ampere, Ada, Hopper); support for AMD and TPUs is secondary.
+- **Hardware Specificity**: Primarily optimized for NVIDIA GPUs (Ampere, Ada, Hopper, and Rubin); support for AMD and TPUs is secondary.
 - **Resource Intensive**: Requires significant VRAM for large models unless aggressive quantization (AWQ/FP8) is used.
 - **Complexity**: Tuning configurations like `--gpu-memory-utilization` and `--max-model-len` for specific hardware can be non-trivial.
-
-## Hardware requirements
-vLLM requires NVIDIA GPU (CUDA). fp16 (default) exceeds 8 GB for 7B+ models; use AWQ 4-bit or fp8 quantization on the RTX 4060. vLLM does not support Apple Silicon — use [MLX](mlx.md) or [Ollama](../../services/ollama.md) on macOS.
-
-| Model size | Precision | Min VRAM | RTX 4060 8 GB | Notes |
-|---|---|---|---|---|
-| 7-8B | fp16 | 14-16 GB | ❌ Not viable | Exceeds 8 GB |
-| 7-8B | AWQ 4-bit | 4-5 GB | ✅ Comfortable | `--quantization awq` |
-| 7-8B | fp8 (W8A8) | 7-8 GB | ⚠️ Tight | Requires Ampere/Ada (RTX 30/40xx) |
-| 13-14B | AWQ 4-bit | 7-8 GB | ⚠️ Tight | Near ceiling |
-| 30B+ | AWQ 4-bit | 16 GB+ | ❌ Not viable | Multi-GPU required |
+- **NVIDIA GPU Required (CUDA)**: fp16 (default) exceeds 8 GB for 7B+ models; use AWQ 4-bit or fp8 quantization on the RTX 4060. vLLM does not support Apple Silicon — use [MLX](mlx.md) or [Ollama](../../services/ollama.md) on macOS.
 
 ## When to use it
 - When you need to serve LLMs with maximum possible throughput on NVIDIA hardware.
 - When you require a robust, OpenAI-compatible API for your local or private cloud deployment.
 - When using advanced features like speculative decoding or prefix caching to reduce latency for long-context reasoning.
+- When integrating with NVIDIA NIM (General Availability) for enterprise-grade inference microservices.
 
 ## When not to use it
 - For low-resource environments (e.g., consumer laptops without high-end NVIDIA GPUs) — use [llama.cpp](llama-cpp.md) or [Ollama](../../services/ollama.md).
@@ -68,6 +59,15 @@ outputs = llm.generate(prompts, sampling_params)
 for output in outputs:
     print(f"Generated text: {output.outputs[0].text}")
 ```
+
+### Hardware requirements
+| Model size | Precision | Min VRAM | RTX 4060 8 GB | Notes |
+|---|---|---|---|---|
+| 7-8B | fp16 | 14-16 GB | ❌ Not viable | Exceeds 8 GB |
+| 7-8B | AWQ 4-bit | 4-5 GB | ✅ Comfortable | `--quantization awq` |
+| 7-8B | fp8 (W8A8) | 7-8 GB | ⚠️ Tight | Requires Ampere/Ada (RTX 30/40xx) |
+| 13-14B | AWQ 4-bit | 7-8 GB | ⚠️ Tight | Near ceiling |
+| 30B+ | AWQ 4-bit | 16 GB+ | ❌ Not viable | Multi-GPU required |
 
 ## CLI examples
 
@@ -129,6 +129,7 @@ for output in outputs:
 - [llama.cpp](llama-cpp.md) — Portable, CPU-focused inference engine.
 - [Ollama](../../services/ollama.md) — Desktop-friendly wrapper for local LLMs.
 - [Aphrodite Engine](aphrodite-engine.md) — High-performance vLLM fork with specialized features.
+- [NVIDIA NIM](../providers/nvidia.md) — Enterprise inference microservices.
 - [SGLang RadixAttention](./sglang.md) — Efficient prefix sharing concept.
 - [TGI Quantization Patterns](./tgi.md) — Comparison for model compression.
 
@@ -139,5 +140,5 @@ for output in outputs:
 - [PagedAttention: High-Throughput LLM Serving with vLLM](https://arxiv.org/abs/2309.06180)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
