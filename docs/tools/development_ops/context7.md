@@ -106,6 +106,8 @@ def fetch_package_docs(package_name, query):
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The underlying architecture for Context7.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — Used for indexing and retrieval patterns.
 - [FastMCP](../automation_orchestration/mcp.md) — Standard for high-speed MCP server development.
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — For agentic calendar orchestration.
+- [Free Will MCP](free-will-mcp.md) — For AI autonomy and self-prompting.
 
 ## Sources / References
 - [Context7 GitHub Repository](https://github.com/upstash/context7)
@@ -113,5 +115,5 @@ def fetch_package_docs(package_name, query):
 - [Upstash Documentation](https://docs.upstash.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high
