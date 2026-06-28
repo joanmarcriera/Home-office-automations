@@ -107,6 +107,7 @@ jobs:
 - [Superconductor](./superconductor.md) — High-speed parallel agent sessions.
 - [Jules](../ai_knowledge/jules.md) — Internal repository agent for maintenance and triage.
 - [Codeium](codeium.md) — For general-purpose IDE AI assistance.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — For connecting Sweep to external data sources.
 
 ## Sources / references
 - [Official Website](https://sweep.dev/)
@@ -114,5 +115,5 @@ jobs:
 - [GitHub Repository](https://github.com/sweepai/sweep)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high

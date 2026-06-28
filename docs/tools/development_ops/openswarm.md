@@ -103,11 +103,12 @@ await swarm.dispatch('linear', 'triage', { team: 'ENG' });
 - [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
 - [Superconductor](./superconductor.md) — Parallel agent sessions for rapid development.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — For extending agent capabilities.
+- [Free Will MCP](free-will-mcp.md) — For experimental autonomous agentic loops.
 
-## Sources / References
+## Sources / references
 - [OpenSwarm GitHub](https://github.com/Intrect-io/OpenSwarm)
 - [Anthropic Claude CLI Documentation](https://docs.anthropic.com/claude/docs/claude-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high

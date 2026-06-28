@@ -18,7 +18,7 @@ Continue solves the problem of vendor lock-in by providing a flexible, open-sour
 
 ## Strengths
 - **Model Agnostic**: Seamlessly switch between local and cloud providers.
-- **Extensible Context**: High-performance "Context Providers" for codebases, docs, terminal, and [MCP](../automation_orchestration/mcp.md).
+- **Extensible Context**: High-performance "Context Providers" for codebases, docs, terminal, and [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md).
 - **Open Source**: Fully transparent and community-driven, under the Apache 2.0 license.
 - **IDE Support**: Native extensions for both VS Code and the full JetBrains suite.
 - **Customizable**: Deep configuration via a standard `config.json` for team-wide consistency.
@@ -124,7 +124,9 @@ export async function getCustomContext(query: string) {
 - [Zed](zed.md) — High-performance Rust editor with native AI features.
 - [Aider](aider.md) — Terminal-native pair programmer.
 - [Ollama](../../services/ollama.md) — Recommended for local model serving with Continue.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Supported for context extension.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Supported for context extension and MCP 3.0 tool calling.
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — For agentic calendar orchestration within the IDE.
+- [Free Will MCP](free-will-mcp.md) — For experimental autonomous agentic loops.
 - [VS Code](vscode.md) — The primary host IDE.
 - [Tabnine](tabnine.md) — Alternative autocomplete-focused extension.
 - [Windsurf](windsurf.md) — IDE with persistent context "Flows".
@@ -136,5 +138,5 @@ export async function getCustomContext(query: string) {
 - [MCP Integration Guide](https://docs.continue.dev/customization/context-providers#mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high

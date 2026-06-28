@@ -1,0 +1,103 @@
+============================================================
+  Docs Quality Audit Report
+============================================================
+
+Total docs scanned:  525
+Compliant:           495 (94.3%)
+Legacy-format:       0
+Missing metadata:    0
+
+--- Per-category breakdown ---
+  docs/architecture                              6/8  (75%)
+  docs/knowledge_base                            30/36  (83%)
+  docs/knowledge_base/patterns                   19/21  (90%)
+  docs/playbooks                                 12/12  (100%)
+  docs/reference-implementations                 1/1  (100%)
+  docs/reference-implementations/calendar        1/1  (100%)
+  docs/reference-implementations/data-copilot    1/2  (50%)
+  docs/reference-implementations/llm-prompts     7/7  (100%)
+  docs/reference-implementations/manual-assistant  1/1  (100%)
+  docs/reference-implementations/metadata-schemas  3/3  (100%)
+  docs/reference-implementations/n8n             1/1  (100%)
+  docs/reference-implementations/paperless       2/2  (100%)
+  docs/services                                  54/54  (100%)
+  docs/tools/agents                              26/27  (96%)
+  docs/tools/ai_knowledge                        69/73  (95%)
+  docs/tools/automation_orchestration            28/29  (97%)
+  docs/tools/benchmarking                        35/37  (95%)
+  docs/tools/calendar_tasks                      20/21  (95%)
+  docs/tools/development_ops                     56/57  (98%)
+  docs/tools/enterprise                          11/12  (92%)
+  docs/tools/frameworks                          23/24  (96%)
+  docs/tools/infrastructure                      23/24  (96%)
+  docs/tools/intake_storage                      7/9  (78%)
+  docs/tools/orchestration                       8/9  (89%)
+  docs/tools/process_understanding               31/31  (100%)
+  docs/tools/providers                           20/23  (87%)
+
+--- Non-compliant doc details ---
+  docs/architecture/automated_contributions.md
+    - missing sections: API examples
+  docs/architecture/component_map.md
+    - missing sections: Getting started, CLI examples, API examples
+  docs/knowledge_base/agent_protocols.md
+    - missing sections: CLI examples, API examples
+  docs/knowledge_base/ai_builder_index.md
+    - missing sections: CLI examples, API examples
+  docs/knowledge_base/audio-transcription-research.md
+    - missing sections: Getting started, CLI examples, API examples
+  docs/knowledge_base/model_routing_guide.md
+    - missing sections: Getting started
+  docs/knowledge_base/patterns/data-copilot-agentic-rag.md
+    - Sections are not in the mandatory order.
+  docs/knowledge_base/patterns/data-copilot-mcp-tooling.md
+    - missing sections: Getting started, CLI examples, API examples
+  docs/knowledge_base/real_time_sync_engines.md
+    - missing sections: Getting started, API examples
+  docs/knowledge_base/self-healing-agent-research.md
+    - missing sections: Getting started, CLI examples, API examples
+  docs/reference-implementations/data-copilot/answer-synthesis-schema.md
+    - missing sections: CLI examples, API examples
+  docs/tools/agents/documentation-writer.md
+    - missing sections: CLI examples, API examples
+  docs/tools/ai_knowledge/big-agi.md
+    - missing sections: CLI examples, API examples
+  docs/tools/ai_knowledge/claude-mythos.md
+    - missing sections: CLI examples, API examples
+  docs/tools/ai_knowledge/gemini-macos.md
+    - missing sections: CLI examples, API examples
+  docs/tools/ai_knowledge/llamaindex.md
+    - missing sections: CLI examples
+  docs/tools/automation_orchestration/lightpanda.md
+    - missing sections: Getting started, API examples
+  docs/tools/benchmarking/helm.md
+    - missing sections: API examples
+  docs/tools/benchmarking/sharp-ai.md
+    - missing sections: Getting started
+  docs/tools/calendar_tasks/akiflow.md
+    - missing sections: CLI examples, API examples
+  docs/tools/development_ops/windsurf.md
+    - missing sections: Getting started
+  docs/tools/enterprise/curiosity.md
+    - missing sections: CLI examples
+  docs/tools/frameworks/pydantic-ai.md
+    - missing sections: CLI examples, API examples
+  docs/tools/infrastructure/llamafile.md
+    - missing sections: Getting started, CLI examples, API examples
+  docs/tools/intake_storage/anytype.md
+    - missing sections: CLI examples, API examples
+  docs/tools/intake_storage/silverbullet.md
+    - missing sections: CLI examples, API examples
+  docs/tools/orchestration/apache-hamilton.md
+    - missing sections: API examples
+  docs/tools/providers/azure-openai.md
+    - missing sections: CLI examples, API examples
+    - Sections are not in the mandatory order.
+  docs/tools/providers/vercel-ai-gateway.md
+    - missing sections: CLI examples, API examples
+  docs/tools/providers/xai-grok.md
+    - missing sections: Getting started, API examples
+
+============================================================
+  Audit complete.
+============================================================

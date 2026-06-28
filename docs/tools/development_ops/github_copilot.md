@@ -92,6 +92,7 @@ export async function handleRequest(request) {
 - [Zed](zed.md) — High-performance editor with native Copilot support.
 - [Cursor](cursor.md) — AI-native IDE with deep code intelligence.
 - [Sourcegraph Cody](sourcegraph_cody.md) — Context-aware AI coding assistant.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — For extending Copilot with custom tools.
 
 ## Sources / references
 - [Official Website](https://github.com/features/copilot)
@@ -99,5 +100,5 @@ export async function handleRequest(request) {
 - [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high
