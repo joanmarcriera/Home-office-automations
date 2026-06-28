@@ -155,6 +155,7 @@ Directly updating ServiceNow business logic from an agent:
 - [Claude 4.8](../providers/anthropic.md)
 - [FastMCP 3.0](mcp.md)
 - [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [ServiceNow MCP Server listing](https://mcpservers.org/servers/michaelbuckner/servicenow-mcp)
@@ -162,5 +163,5 @@ Directly updating ServiceNow business logic from an agent:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

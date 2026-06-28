@@ -121,6 +121,7 @@ return { formattedDate: cleanDate, timestamp: Date.now() };
 - [GPT-5.5](../ai_knowledge/openai.md)
 - [Model Context Protocol (MCP)](mcp.md)
 - [Home Assistant](../../services/home-assistant.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 
 ## Sources / references
 - [Official Website](https://zapier.com/)
@@ -131,5 +132,5 @@ return { formattedDate: cleanDate, timestamp: Date.now() };
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

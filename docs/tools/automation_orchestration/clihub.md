@@ -134,6 +134,7 @@ Instead of configuring complex MCP nodes, use the "Execute Command" node to call
 - [Agent Protocols](../../knowledge_base/agent_protocols.md) - Conceptual background.
 - [Claude Code](../development_ops/claude-code.md) - A high-level consumer of MCP.
 - [n8n](../../services/n8n.md) - Orchestrator that can use generated binaries.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Target model for static binaries.
 
 ## Sources / References
 - [CliHub Repository](https://github.com/thellimist/clihub)
@@ -142,5 +143,5 @@ Instead of configuring complex MCP nodes, use the "Execute Command" node to call
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high
