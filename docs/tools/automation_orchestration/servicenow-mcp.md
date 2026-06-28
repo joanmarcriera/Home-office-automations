@@ -156,11 +156,11 @@ Directly updating ServiceNow business logic from an agent:
 - [FastMCP 3.0](mcp.md)
 - [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md)
 
-## Sources / References
+## Sources / references
 - [ServiceNow MCP Server listing](https://mcpservers.org/servers/michaelbuckner/servicenow-mcp)
 - [ServiceNow MCP GitHub repository](https://github.com/michaelbuckner/servicenow-mcp)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

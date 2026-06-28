@@ -127,6 +127,7 @@ Instead of configuring complex MCP nodes, use the "Execute Command" node to call
 
 ## Related tools / concepts
 - [Model Context Protocol (MCP)](mcp.md) - The underlying protocol.
+- [FastMCP 3.0](mcp.md) - The standard for building MCP servers.
 - [MCP Registry](mcp-registry.md) - For finding MCP servers to compile.
 - [ServiceNow MCP Server](servicenow-mcp.md) - A target for compilation.
 - [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md) - A target for compilation.
@@ -135,12 +136,12 @@ Instead of configuring complex MCP nodes, use the "Execute Command" node to call
 - [Claude Code](../development_ops/claude-code.md) - A high-level consumer of MCP.
 - [n8n](../../services/n8n.md) - Orchestrator that can use generated binaries.
 
-## Sources / References
+## Sources / references
 - [CliHub Repository](https://github.com/thellimist/clihub)
 - [I Made MCP 94% Cheaper (And It Only Took One Command)](https://kanyilmaz.me/2026/02/23/cli-vs-mcp.html)
 - [MCP Official Documentation](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

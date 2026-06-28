@@ -92,6 +92,7 @@ for tool in tools:
 - [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md) — Sandbox environment.
 - [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) — OS-level automation.
 - [Claude 4.8 (Opus)](../providers/anthropic.md) — Primary consumer of MCP tools.
+- [GPT-5.5](../ai_knowledge/openai.md) — Frontier model with native MCP 3.0 support.
 
 ## Sources / references
 - [Official MCP Registry](https://registry.modelcontextprotocol.io/)
@@ -101,5 +102,5 @@ for tool in tools:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high

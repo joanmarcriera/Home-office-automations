@@ -131,5 +131,5 @@ return { formattedDate: cleanDate, timestamp: Date.now() };
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-10
+- Last reviewed: 2026-06-28
 - Confidence: high
