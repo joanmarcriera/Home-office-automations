@@ -1,62 +1,52 @@
 # Cursor
 
 ## What it is
-Cursor is an AI-native fork of VS Code, redesigned to facilitate seamless human-AI collaboration. It features deep codebase indexing, a native "Composer" for multi-file edits, and a built-in agentic ecosystem that can run tests, debug errors, and review PRs.
+Cursor is an AI-native fork of VS Code that integrates large language models directly into the editor's core. As of June 2026, **Cursor 3.0** introduces **Composer 3.0**, **Design Mode**, and native **MCP 3.0** support, making it the standard for high-velocity AI engineering.
 
 ## What problem it solves
-It solves the "context gap" in traditional IDEs by maintaining a persistent, high-fidelity index of the entire codebase. This allows models like [Claude 4.8 Opus](../ai_knowledge/claude.md) and [GPT-5.5](../ai_knowledge/openai.md) to perform complex, multi-file refactors with minimal hallucination, eliminating the need to manually supply file context to the AI.
+It eliminates the "context-switching" penalty of moving between an editor and an LLM chat interface. Cursor deeply indexes your entire codebase (locally and securely), allowing the AI to provide relevant code suggestions, perform complex refactors, and answer architectural questions with full awareness of your project's structure.
 
 ## Where it fits in the stack
-**Development & Ops / [Development Environment](index.md)**. It serves as the primary interface for AI-augmented engineering, acting as a successor to traditional VS Code setups.
+**Development & Ops / AI-Native IDE**. It is the primary environment for most AI-assisted development, serving as the "cockpit" for both human developers and their agentic counterparts.
 
 ## Typical use cases
-- **Multi-File Refactoring**: Using "Composer" mode to apply architectural changes across many files simultaneously.
-- **Visual UI Design**: Utilizing "Design Mode" in the Cursor browser to describe or draw UI changes by voice or click.
-- **Pre-Push Security Audits**: Running `/review-security` to find vulnerabilities before opening a PR.
-- **Autonomous Bug Hunting**: Tasking the "Bugbot" agent with identifying and fixing intermittent test failures.
-- **Onboarding & Q&A**: Asking complex questions about a new codebase ("How is the database migration handled?") and receiving context-aware answers.
+- **Multi-File Refactoring**: Using `Ctrl+K` or `Composer` to refactor logic across dozens of files simultaneously.
+- **Codebase Indexing**: Asking high-level questions like "Where is the authentication logic handled?" and getting precise answers.
+- **Automated Bug Fixing**: Providing an error message and letting Cursor suggest and apply the fix.
+- **UI Prototyping**: Using **Design Mode** to generate and refine React/Vue components from natural language descriptions or wireframes.
 
 ## Strengths
-- **VS Code Native**: Full compatibility with all VS Code extensions, themes, and settings.
-- **Composer 3.0**: High-speed, multi-agent editing engine that can orchestrate complex changes across hundreds of files.
-- **Codebase Awareness**: Sophisticated RAG system that uses local embeddings for lightning-fast retrieval of relevant code.
-- **Native MCP Support**: Direct integration with [Model Context Protocol](../automation_orchestration/mcp.md) servers for extended tool capabilities.
-- **Design Mode**: Revolutionary UI-editing experience using voice input and element selection in a live browser.
+- **Native Indexing**: Extremely fast and accurate codebase awareness via local embeddings.
+- **Composer 3.0**: A powerful "multi-agent" workspace that can plan and execute complex features autonomously.
+- **VS Code Compatibility**: Supports all existing VS Code extensions and keybindings.
+- **Privacy First**: Offers "Local Mode" where code never leaves your machine (requires a local model like **Llama 4 Maverick**).
 
 ## Limitations
-- **Subscription Lock-in**: Advanced features and frontier model access require a monthly subscription.
-- **Closed Source Core**: The orchestration and indexing layers are proprietary.
-- **Telemetry**: Requires a cloud connection for many AI features, which may be a concern for highly sensitive environments.
+- **Subscription Required**: Advanced features like Composer 3.0 require a paid subscription.
+- **Closed Source Core**: While based on VS Code, the AI integration layer is proprietary.
+- **Memory Usage**: Deep indexing of very large projects (multi-million lines) can be resource-intensive.
 
 ## When to use it
-- When you want the most polished, integrated AI coding experience available.
-- For complex projects where maintaining manual context in a chat window is overwhelming.
-- If you rely on the VS Code ecosystem but want "agentic" powers (terminal execution, multi-file editing).
+- When working on large, complex codebases where context is difficult to maintain manually.
+- For "flow-state" coding where you want to minimize the gap between thought and implementation.
+- When you need a balance between full IDE power and AI-first simplicity.
 
 ## When not to use it
-- In strictly offline or air-gapped environments.
-- If you prefer a minimal, terminal-only workflow (use [Aider](aider.md) or [Claude Code](claude-code.md)).
-- If your organization has a "no-AI-fork" policy and requires using official VS Code only.
+- If your organization forbids the use of proprietary AI-integrated IDEs.
+- For extremely lightweight editing (consider **Vim** or **Zed** instead).
+- If you prefer a pure terminal experience (consider **Aider** or **Claude Code**).
 
 ## Getting started
 
 ### Installation
-Download the Cursor binary for your operating system:
-
-```bash
-# MacOS/Linux/Windows
-# Visit https://cursor.com/download
-```
+Download the latest version from the [Cursor website](https://cursor.com/) and follow the installation wizard.
 
 ### Initial Configuration
-Upon first run, Cursor will index your project. You can guide this process with a `.cursorrules` file in the root of your repository:
+Upon first launch, Cursor will offer to index your current project. This is highly recommended for full feature support:
 
-```markdown
-# .cursorrules
-- Prefer functional components over classes.
-- Use Tailwind for styling.
-- All database queries must go through the repository pattern in `/src/db`.
-```
+1. Open a folder.
+2. Click the `Index` button in the bottom-right status bar.
+3. Select your preferred model (e.g., **Claude 4.8** or **GPT-5.5**).
 
 ## CLI examples
 
@@ -68,73 +58,66 @@ cursor .
 ```
 
 ### Using the Cursor CLI Agent (June 2026)
-Cursor now includes a CLI agent for headless operations:
+Execute AI-assisted tasks directly from your shell using the new `cursor-agent` binary:
 
 ```bash
-cursor agent /review-bugbot --branch feature/auth
+cursor-agent "Update all API endpoints to use the v3 schema"
 ```
 
 ### Managing MCP Servers
-Configure [MCP Servers](../automation_orchestration/mcp.md) via the Cursor settings or CLI:
+Cursor 3.0 allows you to manage **MCP 3.0** servers via the CLI:
 
 ```bash
-cursor mcp add postgres npx @modelcontextprotocol/server-postgres
+cursor-mcp add-server "npx @modelcontextprotocol/server-postgres"
 ```
 
 ## API examples
 
 ### Cursor SDK (TypeScript)
-Cursor provides an SDK for building custom agents and tools that run natively within the editor:
+Developers can now extend Cursor using its internal SDK for custom agentic behaviors.
 
 ```typescript
-import { CursorAgent } from "@cursor/sdk";
+import { cursor } from 'cursor-sdk';
 
-const myAgent = new CursorAgent({
-  name: "DocUpdater",
-  tools: [
-    {
-      name: "update_readme",
-      handler: async (context) => {
-        // Custom logic to update documentation
-      }
-    }
-  ]
-});
-
-myAgent.run();
+export async function onFileSave(file: string) {
+  if (file.endsWith('.ts')) {
+    await cursor.chat.ask(`Please lint this file: ${file}`);
+  }
+}
 ```
 
 ### Exposing Custom Tools
-You can expose local functions to the Cursor agent as tools via the `cursor-config.json`:
+Expose local scripts as tools that Cursor can use in Composer sessions:
 
 ```json
+// .cursor/tools.json
 {
   "tools": [
     {
-      "name": "run_internal_audit",
-      "command": "sh scripts/audit.sh",
-      "description": "Runs the project's internal security audit script."
+      "name": "run-tests",
+      "command": "npm test",
+      "description": "Run the project test suite"
     }
   ]
 }
 ```
 
 ## Related tools / concepts
-- [VS Code](vscode.md) — The foundation of Cursor.
-- [Claude Code](claude-code.md) — The primary terminal-based alternative.
+- [VS Code](../development_ops/vscode.md) — The foundation for Cursor.
+- [Windsurf](../development_ops/windsurf.md) — A direct competitor with "Flow" based orchestration.
+- [Zed](../development_ops/zed.md) — High-performance Rust-based editor.
 - [Aider](aider.md) — Terminal-native pair programmer.
-- [Windsurf](windsurf.md) — Alternative AI-native IDE with "Flows".
-- [Model Context Protocol](../automation_orchestration/mcp.md) — Supported for tool extensions.
-- [Zed](zed.md) — High-performance Rust-based editor.
-- [Continue](continue_dev.md) — VS Code extension for those who don't want a fork.
-- [Bugbot](../agents/autoreason.md) — The native debugging agent in Cursor.
+- [Claude Code](claude-code.md) — Anthropic's official CLI agent.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Native protocol for tool extensions.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Often used as a local model provider for Cursor.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Underlying patterns.
+- [Claude Hooks](claude-hooks.md) — For adding guardrails to Cursor's autonomous features.
 
 ## Sources / references
-- [Cursor Official Site](https://cursor.com/)
-- [Cursor Changelog](https://cursor.com/changelog)
-- [Cursor SDK Documentation](https://cursor.com/docs/sdk)
-- [What's New in Cursor - June 2026](https://releasebot.io/updates/cursor)
+- [Cursor Official Website](https://cursor.com/)
+- [Cursor Forum / Community](https://forum.cursor.com/)
+- [Documentation: Composer 3.0](https://docs.cursor.com/composer)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high
