@@ -131,12 +131,12 @@ mentat --model gpt-5.5-preview src/
 - [Continue](./continue_dev.md) — An open-source IDE extension for AI assistance.
 - [Sweep](./sweep_dev.md) — For automating GitHub issues into PRs.
 - [Superconductor](./superconductor.md) — Parallel agent sessions for rapid development.
-- [Llama 4 Maverick](../providers/meta.md) — High-performance open-source model support.
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — High-performance open-source model support.
 
 ## Sources / references
 - [Official Website](https://www.mentat.ai/)
 - [GitHub Repository](https://github.com/AbanteAI/mentat)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high
