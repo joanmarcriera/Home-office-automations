@@ -15,12 +15,6 @@ It allows agents to search beyond just the current web, providing structured, hi
 - **Medical/Scientific Agents**: Searching PubMed or clinical trials for verified medical information.
 - **RAG Enrichment**: Feeding high-fidelity, citation-backed data into retrieval-augmented generation pipelines.
 
-## Technical Capabilities
-- **Search API**: Core semantic search across 36+ proprietary sources and the open web.
-- **Answer API**: Returns AI-synthesized answers grounded in search results with inline citations.
-- **Deep Research API**: Performs multi-step, autonomous research plans and returns structured reports.
-- **Content API**: High-quality Markdown extraction and structured data parsing from URLs.
-
 ## Strengths
 - **Unified API**: Access to licensed repositories (PubMed, SEC, Wiley) in a single request.
 - **Agent-Ready**: Returns structured, LLM-ready data rather than just a list of links.
@@ -36,7 +30,7 @@ It allows agents to search beyond just the current web, providing structured, hi
 ## When to use it
 - When an agent needs high-accuracy, verified data from scientific, financial, or legal sources.
 - For building specialized agents (e.g., a "Scientific Research Agent") that require more than just web results.
-- To provide frontier models like `claude-4-8-opus-20260528` or GPT-5.5 with grounded, verifiable context for deep reasoning tasks.
+- To provide frontier models like `claude-4-8-opus-20260528` or GPT-5.5 with grounded, verifiable context for deep reasoning tasks using high-signal research patterns.
 
 ## When not to use it
 - For general, low-stakes web search where free or cheaper alternatives suffice.
@@ -74,6 +68,14 @@ for result in results:
 ## CLI examples
 > [!NOTE]
 > Official CLI examples for Valyu are primarily managed through SDK integrations or direct API calls. A standalone CLI for end-users is not currently promoted in the official 2026 documentation.
+
+```bash
+# Example of using the Valyu API with curl
+curl -X POST https://api.valyu.ai/v1/search \
+  -H "Authorization: Bearer $VALYU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Latest breakthroughs in fusion energy 2026", "source": "valyu/valyu-arxiv"}'
+```
 
 ## API examples
 
@@ -120,11 +122,6 @@ with open("solid_state_research.md", "w") as f:
     f.write(report.content)
 ```
 
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Usage-based pricing with free tier)
-- **Self-hostable**: No
-
 ## Related tools / concepts
 - [Perplexity](perplexity.md)
 - [OpenRouter](openrouter.md)
@@ -135,14 +132,14 @@ with open("solid_state_research.md", "w") as f:
 - [Tavily](../providers/tavily.md)
 - [DeepSeek R1](../providers/deepseek.md)
 - [Search-as-a-Service Patterns](../../knowledge_base/patterns/claude-tool-search.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.valyu.ai/)
 - [Official Docs](https://docs.valyu.ai/)
 - [Valyu API Reference](https://docs.valyu.ai/api-reference)
 - [Deep Research Guide (2026)](https://dev.to/valyuai/deep-research-api-for-ai-agents-the-complete-guide-2026-5bkl)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

@@ -11,8 +11,8 @@ It eliminates the "it works on my machine" problem by providing consistent envir
 
 ## Typical use cases
 - **AI Agent Sandboxing**: Providing isolated environments for agents to run and test code (e.g., Claude Code Container MCP).
-- **Self-Hosted AI Services**: Deploying inference engines like vLLM or TGI.
-- **MCP Server Deployment**: Hosting Model Context Protocol servers in a standardized environment.
+- **Self-Hosted AI Services**: Deploying inference engines like vLLM or TGI for Llama 4 Maverick.
+- **MCP Server Deployment**: Hosting Model Context Protocol (MCP 3.0) servers in a standardized environment.
 - **Microservices Orchestration**: Running multi-container applications with Docker Compose.
 - **CI/CD Pipelines**: Standardizing build and test environments.
 
@@ -53,7 +53,7 @@ Follow the official guides for:
 
 ## CLI examples
 ```bash
-# Run an MCP server in a container
+# Run an MCP 3.0 server in a container
 docker run -d --name mcp-server -e API_KEY=$API_KEY my-mcp-image
 
 # List running containers
@@ -128,6 +128,7 @@ services:
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Sandboxed Code Execution](../../knowledge_base/patterns/sandboxed-execution.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 
 ## Sources / references
 - [Official Website](https://www.docker.com/)
@@ -136,5 +137,5 @@ services:
 - [Docker Engine API Reference](https://docs.docker.com/engine/api/v1.45/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
