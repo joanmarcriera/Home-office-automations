@@ -4,7 +4,7 @@
 Text Generation Inference (TGI) is a specialized toolkit for deploying and serving Large Language Models (LLMs). Developed by Hugging Face, it is designed for high-performance text generation in production environments. It is written in Rust and Python, offering a robust solution for serving the most popular open-weight models.
 
 ## What problem it solves
-TGI addresses the engineering challenges of serving LLMs at scale. It implements advanced optimizations like tensor parallelism for multi-GPU inference, dynamic batching to maximize throughput, and custom Rust kernels for faster generation. By June 2026, it has become a critical backend for developers benchmarking their self-hosted models against frontier services like **Claude 4.8 Opus** and **GPT-5.5**, providing a performance baseline for local inference.
+TGI addresses the engineering challenges of serving LLMs at scale. It implements advanced optimizations like tensor parallelism for multi-GPU inference, dynamic batching to maximize throughput, and custom Rust kernels for faster generation. By June 2026, it serves as a high-performance alternative to **NVIDIA NIM** (now in General Availability), optimized for the **NVIDIA Rubin** architecture, and provides a critical backend for developers benchmarking self-hosted models against frontier services like **Claude 4.8 Opus** and **GPT-5.5**.
 
 ## Where it fits in the stack
 **Infra**. It provides the high-performance serving layer for Hugging Face models, bridging the gap between raw weights and a production-ready API.
@@ -114,6 +114,8 @@ curl 127.0.0.1:8080/generate_stream \
 ```
 
 ## Related tools / concepts
+- [NVIDIA NIM](../../tools/providers/nvidia.md) — Enterprise inference microservices.
+- [Aphrodite Engine](aphrodite-engine.md) — High-performance inference engine.
 - [vLLM](vllm.md) — High-throughput alternative using PagedAttention.
 - [SGLang](sglang.md) — Optimized for structured generation.
 - [llama.cpp](llama-cpp.md) — The standard for CPU and local inference.
@@ -130,5 +132,5 @@ curl 127.0.0.1:8080/generate_stream \
 - [Hugging Face Optimized Inference License](https://huggingface.co/docs/text-generation-inference/conceptual/license)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

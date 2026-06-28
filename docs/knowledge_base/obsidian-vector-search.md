@@ -45,9 +45,9 @@ The most popular "chat with your notes" plugin for Obsidian.
 3. Allow the plugin to index your vault.
 
 ### Option 2: Khoj (Self-hosted)
-A robust AI assistant that integrates with Obsidian and supports multiple platforms.
-1. Run the Khoj server (Docker recommended).
-2. Point Khoj to your Obsidian vault directory.
+A robust AI assistant that integrates with Obsidian and supports multiple platforms. By June 2026, the Khoj ecosystem includes the **Pipali v2.0** desktop coworker and the **Open Paper** research workbench.
+1. Run the Khoj server (Docker recommended) or use the Pipali desktop app.
+2. Point Khoj to your Obsidian vault directory for automated semantic indexing.
 
 ## CLI examples
 
@@ -112,6 +112,8 @@ D, I = index.search(np.array(model.encode(["home lab setup"])).astype('float32')
 
 ## Related tools / concepts
 - [Obsidian](../tools/ai_knowledge/obsidian.md)
+- [SilverBullet](../tools/intake_storage/silverbullet.md)
+- [Anytype](../tools/intake_storage/anytype.md)
 - [Vector DB Comparison](./vector-db-comparison.md)
 - [RAG Patterns](patterns/rag.md)
 - [Khoj](../tools/intake_storage/khoj.md)
@@ -126,5 +128,5 @@ D, I = index.search(np.array(model.encode(["home lab setup"])).astype('float32')
 - [Anthropic: Long Context Optimization](https://docs.anthropic.com/claude/docs/long-context-window-tips)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
