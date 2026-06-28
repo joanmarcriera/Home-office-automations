@@ -119,6 +119,8 @@ services:
 
 ## Related tools / concepts
 - [VS Code](vscode.md): The most common platform for Tabnine.
+- [Superconductor](superconductor.md): Cloud-native parallel agent orchestration.
+- [OpenCode](opencode.md): Open-source alternative for AI coding assistance.
 - [Zed](zed.md): A high-performance editor with native AI capabilities.
 - [Cursor](cursor.md): An AI-native IDE that prioritizes integrated features.
 - [Codeium](codeium.md): A leading privacy-conscious competitor with a generous free tier.
@@ -135,5 +137,5 @@ services:
 - [Tabnine for Enterprise](https://www.tabnine.com/enterprise)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high

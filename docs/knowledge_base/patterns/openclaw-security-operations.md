@@ -46,7 +46,7 @@ Before deploying OpenClaw in an "always-on" mode, complete these steps:
 
 ## Technical Implementation: Claude Hooks & Trust Tagging
 
-Modern security operations utilize **Claude Hooks** (Middleware) to intercept tool calls before execution.
+Modern security operations utilize **Claude Hooks** (Middleware) to intercept tool calls before execution. By June 2026, Claude Hooks include specialized `PreToolUse` and `PostToolUse` logic for Claude 4.8, enabling granular control over the full tool-calling lifecycle.
 
 ### 1. PreToolUse Hook (Approval Gate)
 Configure a middleware layer that pauses execution for high-risk tools.
@@ -124,6 +124,8 @@ Use a webhook to confirm or deny an agent's requested action.
 
 ## Related tools / concepts
 - [OpenClaw](../../tools/development_ops/openclaw.md)
+- [Promptfoo](../../tools/benchmarking/promptfoo.md)
+- [LLM Trust Boundaries](llm-trust-boundaries.md)
 - [LiteLLM](../../services/litellm.md)
 - [n8n](../../services/n8n.md)
 - [OpenClaw Use-Case Catalog](openclaw-use-case-catalog.md)
@@ -138,5 +140,5 @@ Use a webhook to confirm or deny an agent's requested action.
 - [Anthropic: Tool Use Security Best Practices](https://docs.anthropic.com/claude/docs/tool-use-security)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

@@ -4,7 +4,7 @@
 Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux. It comes with built-in support for JavaScript, TypeScript and Node.js and has a rich ecosystem of extensions for other languages and runtimes.
 
 ## What problem it solves
-It provides a highly extensible "middle ground" between a simple text editor and a heavy Integrated Development Environment (IDE). Its vast extension ecosystem makes it the primary platform for AI-powered development tools, allowing developers to mix and match different AI assistants and productivity tools.
+It provides a highly extensible "middle ground" between a simple text editor and a heavy Integrated Development Environment (IDE). Its vast extension ecosystem makes it the primary platform for AI-powered development tools, allowing developers to mix and match different AI assistants and productivity tools. By June 2026, it serves as the reference implementation for the **Model Context Protocol (MCP 3.0) Task Protocol**, enabling seamless agentic orchestration between the editor and external tools.
 
 ## Where it fits in the stack
 **Development & Ops / Editor**. It serves as the primary interface for coding and serves as the "host" for various AI extensions like GitHub Copilot, Continue, and Codeium.
@@ -86,6 +86,7 @@ To ensure AI extensions don't interfere with standard IDE features or each other
 ```
 
 ## Related tools / concepts
+- [Windsurf](windsurf.md): AI-powered IDE from Codeium.
 - [Zed](zed.md): A high-performance, Rust-based alternative.
 - [Cursor](cursor.md): A fork of VS Code with deep AI integration.
 - [Aider](aider.md): Terminal-based AI coding assistant.
@@ -101,5 +102,5 @@ To ensure AI extensions don't interfere with standard IDE features or each other
 - [Remote Development in VS Code](https://code.visualstudio.com/docs/remote/remote-overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-06-28
 - Confidence: high
