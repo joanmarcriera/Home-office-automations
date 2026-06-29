@@ -1,13 +1,13 @@
 # TeamOut
 
 ## What it is
-TeamOut is an AI-native platform designed for the end-to-end planning and logistics of company retreats, offsites, and corporate events. It utilizes specialized agents to automate venue sourcing, budget management, and itinerary generation.
+TeamOut is an AI-native platform designed for the end-to-end planning and logistics of company retreats, offsites, and corporate events. It utilizes specialized agents to automate venue sourcing, budget management, and itinerary generation, fully supporting the MCP 3.0 protocol.
 
 ## What problem it solves
-Planning large-scale corporate events is traditionally a manual, months-long process involving thousands of emails. TeamOut reduces this to minutes by using AI to match company requirements (budget, team size, activities) with a global database of retreat-vetted venues.
+Planning large-scale corporate events is traditionally a manual, months-long process involving thousands of emails. TeamOut reduces this to minutes by using AI to match company requirements (budget, team size, activities) with a global database of retreat-vetted venues. It leverages Claude 4.8 and GPT-5.5 for high-precision semantic matching and reasoning.
 
 ## Where it fits in the stack
-**AI & Knowledge / Agents**. It is a verticalized AI agent specialized in the corporate travel and logistics domain.
+**AI & Knowledge / Agents**. It is a verticalized AI agent specialized in the corporate travel and logistics domain, integrating with the home-office stack via [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **Automated Venue Sourcing**: Finding retreats that specifically accommodate 50+ people with high-speed internet and breakout rooms.
@@ -16,7 +16,7 @@ Planning large-scale corporate events is traditionally a manual, months-long pro
 
 ## Strengths
 - **Domain-Specific Logic**: Unlike general-purpose agents, TeamOut is pre-trained on travel logistics and corporate venue data.
-- **Workflow Integration**: Integrates directly with Slack and Google Calendar for team coordination.
+- **Workflow Integration**: Integrates directly with Slack, Google Calendar, and MCP 3.0-compliant clients for team coordination.
 - **High Signal Data**: Uses proprietary datasets of "retreat-ready" hotels that aren't always prioritized in general search engines.
 
 ## Limitations
@@ -84,18 +84,19 @@ for venue in retreat.recommendations:
 ```
 
 ## Related tools / concepts
-- [AI Agents](../agents/index.md)
-- [ChatGPT](./chatgpt.md)
-- [Claude 4.8](../providers/anthropic.md)
-- [GPT-5.5](openai.md)
-- [Event Management Automation](../automation_orchestration/index.md)
-- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [LangChain](./langchain.md)
+- [AI Agents](../agents/agency-agents.md) — Broader context on AI agent frameworks.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agentic communication.
+- [Claude 4.8](../providers/anthropic.md) — Frontier model used for retreat reasoning.
+- [GPT-5.5](openai.md) — LLM provider for travel logistics synthesis.
+- [Make](../automation_orchestration/make.md) — Used for automating retreat workflows.
+- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — Framework for building agentic travel apps.
+- [LangChain](../frameworks/langchain.md) — Library for orchestrating travel planning agents.
+- [Event Management Automation](../automation_orchestration/index.md) — General category for event tools.
 
 ## Sources / references
 - [Official TeamOut AI Page](https://app.teamout.com/ai)
 - [TeamOut API Documentation (Preview)](https://docs.teamout.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

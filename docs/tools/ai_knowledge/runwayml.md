@@ -1,13 +1,13 @@
 # Runway ML
 
 ## What it is
-Runway is a comprehensive AI-powered creative platform specializing in high-fidelity generative video and professional media production. Its flagship **Gen-4** model represents the 2026 state-of-the-art in text-to-video, image-to-video, and video-to-video generation, supporting up to 60 seconds of continuous 4K footage.
+Runway is a comprehensive AI-powered creative platform specializing in high-fidelity generative video and professional media production. Its flagship **Gen-4** model represents the 2026 state-of-the-art in text-to-video, image-to-video, and video-to-video generation, supporting up to 60 seconds of continuous 4K footage and MCP 3.0 integration.
 
 ## What problem it solves
-Drastically reduces the cost and technical complexity of professional-grade video production and visual effects. It enables creators to generate cinematic footage, perform complex rotoscoping, and reimagining existing video content through AI-assisted workflows that previously required massive render farms and manual labor.
+Drastically reduces the cost and technical complexity of professional-grade video production and visual effects. It enables creators to generate cinematic footage and perform complex rotoscoping using NVIDIA Rubin architecture and NIM microservices for accelerated rendering. It provides a robust endpoint for agents using Claude 4.8 and GPT-5.5.
 
 ## Where it fits in the stack
-**AI & Knowledge / Generative Media**. It is the primary engine for high-end AI video generation, creative automation, and temporal diffusion research.
+**AI & Knowledge / Generative Media**. It is the primary engine for high-end AI video generation, creative automation, and temporal diffusion research, fully compatible with [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **Cinematic Generation**: Creating 4K B-roll and atmospheric scenes from text prompts or static images using Gen-4.
@@ -17,19 +17,19 @@ Drastically reduces the cost and technical complexity of professional-grade vide
 
 ## Strengths
 - **Gen-4 Fidelity**: Exceptional temporal consistency and 4K visual fidelity, supporting clips up to 60 seconds.
-- **Motion Brush 3.0**: Precise vector control over specific areas of an image to direct movement with granular speed settings.
+- **NVIDIA Rubin Optimization**: Leverages the latest GPU architecture for ultra-fast rendering via NIM GA microservices.
 - **Director Mode**: Node-based interface for dynamic camera control (zoom, pan, tilt, truck) and lighting physics.
 - **Professional Suite**: Includes industry-standard tools like Alpha Channel export (ProRes 4444) and AI-driven inpainting.
 
 ## Limitations
 - **Operational Cost**: High-fidelity Gen-4 generation is credit-intensive and requires premium subscriptions for professional use.
-- **Render Time**: While optimized, high-resolution 4K generations can still take several minutes per clip.
+- **Render Time**: While optimized, high-resolution 4K generations can still take several minutes per clip depending on queue depth.
 - **Consistency**: Character identity can still drift over long clips exceeding 30 seconds without fine-tuned models.
 
 ## When to use it
 - When you need cinematic-quality AI video for filmmaking, advertising, or high-end social media content.
 - For building automated video pipelines that require a robust, enterprise-ready Python/Node.js SDK.
-- To provide frontier models like `claude-4-8-opus-20260528` or GPT-5.5 with a high-fidelity visual generation endpoint.
+- To provide frontier models like Claude 4.8 or GPT-5.5 with a high-fidelity visual generation endpoint.
 
 ## When not to use it
 - For simple video hosting or standard non-AI editing tasks (use Premiere or DaVinci).
@@ -112,21 +112,21 @@ scene_script = {
 ```
 
 ## Related tools / concepts
-- [Sora (OpenAI)](sora.md)
-- [Luma Dream Machine](luma-dream-machine.md)
-- [Synthesia](synthesia.md)
-- [Project Genie](project-genie.md)
-- [ComfyUI](comfyui.md)
-- [Groq](../providers/groq.md) (for high-speed model control)
-- [Exa AI](../providers/exa_ai.md) (for visual research)
-- [AI Templates](aitmpl.md)
+- [Sora (OpenAI)](sora.md) — Main competitor in high-fidelity video.
+- [Luma Dream Machine](luma-dream-machine.md) — High-fidelity video generation.
+- [Synthesia](synthesia.md) — Avatar-based video generation.
+- [ComfyUI](comfyui.md) — Node-based interface for stable diffusion and video.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for agentic integration.
+- [NVIDIA](../providers/nvidia.md) — Provider of Rubin architecture and NIM GA.
+- [Groq](../providers/groq.md) — High-speed inference for model control.
+- [Exa AI](../providers/exa_ai.md) — Neural search for visual research.
+- [Make](../automation_orchestration/make.md) — Automation hub for video workflows.
 
 ## Sources / references
 - [Official Website](https://runwayml.com/)
 - [Runway API Documentation](https://docs.runwayml.com/)
 - [Runway Research: Gen-4 Latent Diffusion](https://runwayml.com/research/gen-4)
-- [Runway Gen-4 Guide 2026](https://aitoolsdevpro.com/ai-tools/runway-guide/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
