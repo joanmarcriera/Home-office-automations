@@ -4,16 +4,16 @@
 FastAPI is a modern, high-performance web framework for building APIs with Python 3.8+ based on standard Python type hints. It is designed to be easy to use, fast to code, and ready for production.
 
 ## What problem it solves
-It allows for rapid development of robust, high-performance APIs with automatic interactive documentation (Swagger UI/ReDoc). It significantly reduces developer error through type validation via [Pydantic](https://docs.pydantic.dev/) and provides native support for asynchronous programming (async/await), making it ideal for I/O-bound tasks like calling frontier LLM APIs like [Claude 4.8 Opus](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md).
+It allows for rapid development of robust, high-performance APIs with automatic interactive documentation (Swagger UI/ReDoc). It significantly reduces developer error through type validation via Pydantic and provides native support for asynchronous programming (async/await), making it ideal for I/O-bound tasks like calling frontier LLM APIs such as Claude 4.8 Opus and GPT-5.5.
 
 ## Where it fits in the stack
-**Framework / Backend**. Often used as the orchestration or serving layer for AI agents, [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) servers, and custom homelab microservices. It bridges the gap between Python's data science ecosystem and web-standard production environments.
+**Framework / Backend**. Often used as the orchestration or serving layer for AI agents, [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers, and custom homelab microservices. It bridges the gap between Python's data science ecosystem and web-standard production environments.
 
 ## Typical use cases
 - Building RESTful APIs for AI agents and tools (e.g., [CrewAI](crewai.md) or [LangGraph](langgraph.md)).
-- Serving machine learning models with low latency.
+- Serving machine learning models with low latency using [NVIDIA NIM](../providers/nvidia.md).
 - Creating backends for internal dashboards and automation triggers.
-- Building custom [MCP servers](../../knowledge_base/agent_protocols.md) for specialized data sources.
+- Building custom [MCP servers](../automation_orchestration/mcp.md) for specialized data sources.
 - Implementing webhook handlers for services like [Supabase](../infrastructure/supabase.md).
 
 ## Strengths
@@ -22,6 +22,7 @@ It allows for rapid development of robust, high-performance APIs with automatic 
 - **Validation**: Automatic data validation and serialization using Pydantic v2.
 - **Documentation**: Automatic interactive API documentation (OpenAPI and JSON Schema).
 - **Dependency Injection**: Powerful and easy-to-use dependency injection system for managing database sessions, security, and shared resources.
+- **Native Async**: First-class support for `async/await`, crucial for high-concurrency LLM interactions.
 
 ## Limitations
 - **Python Ecosystem**: Limited to the Python ecosystem (though this is a strength for AI/ML).
@@ -63,17 +64,17 @@ async def root():
 
 Run the server:
 ```bash
-uvicorn main:app --reload
+fastapi dev main.py
 ```
 
 ## CLI examples
 
 ```bash
 # Run a FastAPI app with Uvicorn (development mode with hot-reload)
-uvicorn main:app --reload --port 8000
+fastapi dev main.py
 
-# Run in production with multiple workers
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+# Run in production
+fastapi run main.py
 
 # Generate OpenAPI schema to a file
 python -c "import json; from main import app; print(json.dumps(app.openapi()))" > openapi.json
@@ -117,63 +118,6 @@ async def secure_route(key: str = Depends(get_api_key)):
     return {"data": "protected"}
 ```
 
-## Testing
-FastAPI provides a `TestClient` based on `httpx` for easy integration testing.
-
-```python
-from fastapi.testclient import TestClient
-from .main import app
-
-client = TestClient(app)
-
-def test_read_main():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"message": "Hello World", "framework": "FastAPI"}
-```
-
-## Deployment
-
-### Docker Integration
-FastAPI is typically deployed using [Docker](../infrastructure/docker.md).
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
-```
-
-### K3s / Kubernetes
-For scaled deployments, FastAPI apps are often orchestrated using [K3s](../infrastructure/k3s.md).
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: fastapi-agent
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: fastapi-agent
-  template:
-    metadata:
-      labels:
-        app: fastapi-agent
-    spec:
-      containers:
-      - name: fastapi-agent
-        image: my-agent-api:latest
-        ports:
-        - containerPort: 80
-```
-
 ## Related tools / concepts
 - [Pydantic AI](pydantic-ai.md) — Agentic framework built on Pydantic and FastAPI.
 - [Agno](../agents/agno.md) — Multi-agent framework that integrates well with FastAPI.
@@ -183,7 +127,7 @@ spec:
 - [Docker](../infrastructure/docker.md) — Containerization standard.
 - [K3s](../infrastructure/k3s.md) — Lightweight Kubernetes for orchestration.
 - [Supabase](../infrastructure/supabase.md) — Backend-as-a-service often used as a FastAPI database.
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Standardized tool-calling protocol.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling protocol.
 
 ## Sources / references
 - [Official Website](https://fastapi.tiangolo.com/)
@@ -192,5 +136,5 @@ spec:
 - [Starlette Framework](https://www.starlette.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
