@@ -7,7 +7,7 @@ Firecrawl is an API-first web scraping and crawling service that converts entire
 It eliminates the "scraping tax" for AI developers. Instead of managing Playwright/Puppeteer clusters, proxy rotations, and complex HTML cleaning, developers can use a single API call to get high-fidelity Markdown from any URL, optimized for RAG and agentic tools.
 
 ## Where it fits in the stack
-**Ingest / Process & Understanding**. It serves as the primary gateway for AI agents (like Claude 4.8 and GPT-5.5) to "see" the live web through clean, structured data.
+**Ingest / Process & Understanding**. It serves as the primary gateway for AI agents (like Claude 4.8 and GPT-5.5) to "see" the live web through clean, structured data, now featuring native **MCP 3.0** support.
 
 ## Typical use cases
 - **Agent Web Access**: Giving an MCP-enabled agent the ability to read documentation or news in real-time.
@@ -17,9 +17,9 @@ It eliminates the "scraping tax" for AI developers. Instead of managing Playwrig
 
 ## Strengths
 - **Clean Markdown Native**: Output is specifically formatted for LLM context windows, reducing token waste.
-- **MCP Native**: Provides an official Model Context Protocol server for instant integration with Claude.
+- **MCP Native**: Provides an official Model Context Protocol server (MCP 3.0) for instant integration with Claude.
 - **High Reliability**: Sophisticated bypasses for Cloudflare and other advanced anti-bot systems.
-- **Scalable Extraction**: v1/v2 endpoints support high-concurrency batch processing.
+- **Scalable Extraction**: v1/v2 endpoints support high-concurrency batch processing and advanced extraction logic.
 
 ## Limitations
 - **Latency**: Deep crawls of large sites (1,000+ pages) can take significant time.
@@ -27,34 +27,38 @@ It eliminates the "scraping tax" for AI developers. Instead of managing Playwrig
 - **Complexity of Self-Hosting**: Requires a robust Docker/Redis/Postgres stack for self-hosted production.
 
 ## When to use it
-- When your AI agent needs reliable, real-time access to web content.
+- When your AI agent needs reliable, real-time access to web content in an LLM-friendly format.
 - When you need to extract specific JSON schemas from hundreds of different web layouts.
-- When using tools that support MCP, like [Claude Code](../development_ops/claude-code.md) or [Zed](../development_ops/zed.md).
+- When using tools that support MCP, like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), or [Zed](../development_ops/zed.md).
 
 ## When not to use it
 - For trivial, single-page scrapes where `curl` or `BeautifulSoup` would suffice.
 - When the data is available through a structured REST API (e.g., GitHub API).
+- For internal, private websites that are not accessible via the public internet (unless self-hosting).
 
 ## Getting started
 
-### Installation
+### 1. Installation
+Install the Firecrawl Python SDK to begin scraping.
 ```bash
 pip install firecrawl-py
 ```
 
-### Basic Scrape (Python)
+### 2. Basic Scrape
+Initialize the app and scrape a URL to clean Markdown.
 ```python
 from firecrawl import FirecrawlApp
 
 app = FirecrawlApp(api_key="fc-YOUR_API_KEY")
-
-# Scrape a URL to clean Markdown
 doc = app.scrape_url("https://example.com", params={"formats": ["markdown"]})
 print(doc["markdown"])
 ```
 
+### 3. MCP Configuration
+Add the Firecrawl MCP server to your `claude_desktop_config.json` to enable web access for Claude.
+
 ## CLI examples
-The `firecrawl` CLI (via NPM) allows for rapid testing.
+The `firecrawl` CLI allows for rapid testing and mapping.
 
 ```bash
 # Scrape a single page to the terminal
@@ -102,6 +106,7 @@ print(data["json"])
 - [Claude Code](../development_ops/claude-code.md)
 - [RAGFlow](ragflow.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
+- [Cursor](../development_ops/cursor.md)
 
 ## Sources / references
 - [Firecrawl Documentation](https://docs.firecrawl.dev/)
@@ -109,5 +114,5 @@ print(data["json"])
 - [MCP Server for Firecrawl](https://github.com/firecrawl/mcp-server-firecrawl)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

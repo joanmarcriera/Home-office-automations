@@ -1,111 +1,63 @@
 # Superpowers
 
 ## What it is
-Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
+Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). In June 2026, it enforces a rigorous engineering process through composable skills, optimized for frontier models including Claude 4.8 and GPT-5.5.
 
 ## What problem it solves
-It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents common failure modes like "hallucinating" file paths, circular refactoring, and code rot, ensuring high performance on benchmarks like [SWE-bench](../benchmarking/swe-bench.md).
+It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents failure modes like hallucinating file paths and circular refactoring, ensuring high performance on complex engineering tasks.
 
 ## Where it fits in the stack
-**Agents / Workflow Framework**. It sits on top of coding agents to provide process-level guardrails and skills. It is often used in conjunction with the [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) for direct filesystem and terminal control.
+**Agents / Workflow Framework**. It sits on top of coding agents to provide process-level guardrails and skills, now featuring **MCP 3.0 Task Protocol** support for robust, verifiable task management.
 
 ## Typical use cases
-- Enforcing Test-Driven Development (TDD) and plan-first development in agentic workflows.
-- Breaking down complex engineering tasks into verifiable sub-tasks.
-- Managing long-running autonomous coding sessions that span multiple files.
-- Maintaining code quality in large, complex repositories.
-- Standardizing agent behavior across a distributed engineering team.
+- **Engineering Discipline**: Enforcing Test-Driven Development (TDD) and design-first planning in autonomous agentic workflows.
+- **Complex Refactoring**: Breaking down large-scale codebase changes into verifiable sub-tasks with automated review gates.
+- **Long-Horizon Autonomy**: Managing multi-hour coding sessions where the agent must maintain state and verify progress against a plan.
+- **Visual Verification**: Using Gemini 3.5's visual reasoning capabilities within Superpowers to verify UI/UX changes and layout consistency.
 
 ## Strengths
-- Enforces high-quality engineering standards (TDD, YAGNI, DRY).
-- Increases agent autonomy and reliability through explicit verification steps.
-- Composable skills-based architecture that can be extended with project-specific logic.
-- Seamless integration with [Anthropic Agent Skills](anthropic-agent-skills.md) and [FastMCP](../../knowledge_base/agent_protocols.md).
-- Native support for [Claude 4.8 Opus](../providers/anthropic.md)'s 2.5M token context window.
+- **Engineering Standards**: Strictly enforces high-quality standards like TDD, YAGNI, and DRY through automated checks.
+- **MCP 3.0 Integration**: Native support for the Model Context Protocol (MCP 3.0) for seamless skill discovery and task orchestration.
+- **High Autonomy**: Increases agent reliability by requiring explicit verification steps for every task completion.
+- **Composable Architecture**: Skills can be easily extended or specialized for project-specific logic using YAML definitions.
+- **Visual Reasoning**: Integrates with vision-capable models (e.g., Gemini 3.5) for multi-modal verification of frontend changes.
 
 ## Limitations
-- Higher process overhead for trivial tasks.
-- Requires an agent environment that supports the skills framework or MCP.
-- May require significant prompt tokens for complex planning cycles (addressed by [Everything Claude Code](../ai_knowledge/everything-claude-code.md) optimizations).
-- Learning curve for developers to define custom skill YAMLs.
+- **Process Overhead**: The rigorous workflow can be slower for trivial, single-line edits.
+- **Tooling Requirements**: Requires an agent environment that supports the skills framework or MCP (e.g., Claude Code).
+- **Token Consumption**: Complex planning cycles can consume significant tokens, requiring efficient context management.
+- **Configuration Complexity**: Defining custom skill YAMLs and project-specific guardrails has a learning curve.
 
 ## When to use it
-- To enforce high-quality engineering standards (TDD, YAGNI, DRY) in agent-driven development.
-- When you want agents to work autonomously for extended periods (hours) without deviating from a plan.
-- For complex projects that require a systematic approach to design, planning, and implementation, as described in the [AI-Assisted Dev Workflow](../../playbooks/dev-workflow-ai-assisted.md).
+- To enforce high-quality engineering standards in production-grade, agent-driven development.
+- When you want agents to work autonomously for extended periods without deviating from a baseline design.
+- For complex projects requiring a systematic approach to design, planning, and implementation.
+- When multi-modal verification (e.g., visual layout checks) is required as part of the CI/CD pipeline.
 
 ## When not to use it
-- For trivial code changes or simple questions.
-- If you prefer an ad-hoc, conversational approach to coding without structured planning.
-- In environments where agents lack terminal or filesystem access (though remote MCP can bridge this).
-
-## Key Workflow Components
-1. **Brainstorming**: Socratic design refinement before writing code.
-2. **Isolated Workspaces**: Uses Git worktrees to ensure a clean baseline.
-3. **Bite-sized Planning**: Breaks work into 2-5 minute tasks with exact file paths and verification steps.
-4. **Subagent-Driven Development**: Dispatches fresh subagents per task with two-stage reviews.
-5. **Strict TDD**: Enforces RED-GREEN-REFACTOR cycle.
-6. **Formal Code Review**: Automated reviews against the plan before merging.
-
-## Technical Implementation: Skill YAML Example
-Superpowers skills are defined using a structured YAML format that specifies the tool's signature, implementation, and description for the LLM.
-
-```yaml
-# example_skill.yaml
-name: "run_tests"
-description: "Executes the test suite for the current project and returns results."
-parameters:
-  type: "object"
-  properties:
-    path:
-      type: "string"
-      description: "Path to the test directory or file."
-    filter:
-      type: "string"
-      description: "Optional regex to filter tests."
-implementation: |
-  # The actual shell command or script to run
-  pytest {{path}} -k {{filter}}
-```
-
-## Advanced Usage: Custom Task Verification
-For complex refactors, you can define custom verification steps in your `superpowers.json` or `.claudestatus` files to ensure the agent doesn't just "complete" the task but actually fixes the underlying issue.
-
-```json
-{
-  "tasks": [
-    {
-      "id": "refactor-auth-logic",
-      "description": "Move auth logic to middleware",
-      "files": ["src/middleware/auth.js", "src/routes/user.js"],
-      "verification": "npm test src/tests/auth.test.js && curl -I http://localhost:3000/api/user"
-    }
-  ]
-}
-```
+- For trivial code changes, simple documentation fixes, or ad-hoc questions.
+- If you prefer a purely conversational, "quick and dirty" approach to coding.
+- In environments where agents lack the necessary terminal or filesystem permissions to execute skills.
 
 ## Getting started
 
-### Installation (Claude Code)
-Superpowers is typically installed as a plugin or set of skills:
+### 1. Installation
+Superpowers is typically installed as a plugin within a supported agent runtime like Claude Code.
 
 ```bash
 /plugin marketplace add obra/superpowers-marketplace
 /plugin install superpowers@superpowers-marketplace
 ```
 
-### Hello-world (Custom Skill)
-Create a `hello_world.yaml` skill file:
+### 2. Initializing a Plan
+Start a new engineering session by providing a high-level goal. Superpowers will guide the brainstorming and planning phase.
 
-```yaml
-name: "hello_world"
-description: "Prints a greeting to the console."
-implementation: |
-  echo "Hello from Superpowers!"
+```bash
+superpowers plan "Refactor authentication to use JWT middleware"
 ```
 
-### Configuring Task Guardrails
-Add a `superpowers.json` to your project root to enforce verification:
+### 3. Configuring Guardrails
+Create a `superpowers.json` in your project root to enforce specific engineering standards.
 
 ```json
 {
@@ -118,71 +70,55 @@ Add a `superpowers.json` to your project root to enforce verification:
 ## CLI examples
 
 ```bash
-# List all active Superpowers skills
+# List all active Superpowers skills and their status
 superpowers list --active
 
-# Initialize a new engineering plan for a task
-superpowers plan "Refactor authentication logic to use JWT"
+# Execute verification steps for the current sub-task
+superpowers verify --task-id 123
 
-# Execute verification steps for a specific sub-task
-superpowers verify --task-id 123 --file tests/auth_test.py
+# View the current engineering plan and progress
+superpowers status --verbose
 ```
 
 ## API examples
 
-### Defining a Verification Skill
-Skills are defined in YAML and consumed by the agent's tool-calling logic.
+### Defining a Custom Skill (YAML)
+Skills are defined in YAML to specify parameters and shell-based implementation.
 
 ```yaml
-# verify_test_coverage.yaml
-name: "verify_coverage"
-description: "Ensures test coverage is above a certain threshold."
+# verify_ui_layout.yaml
+name: "verify_layout"
+description: "Uses visual reasoning to check if the UI matches the design spec."
 parameters:
   type: "object"
   properties:
-    threshold:
-      type: "integer"
-      default: 80
+    screenshot_path:
+      type: "string"
+    model:
+      type: "string"
+      default: "gemini-3-5-flash-202606"
 implementation: |
-  coverage run -m pytest && coverage report --fail-under={{threshold}}
+  # Internal logic to dispatch visual reasoning task
+  python3 scripts/vision_check.py {{screenshot_path}} --model {{model}}
 ```
-
-## Example company use cases
-- **Product engineering**: enforce design-first planning and verification for every AI-generated pull request.
-- **Agency delivery**: keep client repos consistent even when different agents or contractors are contributing.
-- **Internal automation team**: standardize how agents propose, implement, verify, and hand off workflow changes.
-
-## Example workflow
-```text
-Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Review -> Merge
-```
-
-## Ecosystem notes
-- Superpowers sits inside the broader [Claude Skills Ecosystem](claude-skills-ecosystem.md) alongside Anthropic's reference [skills repository](https://github.com/anthropics/skills).
-- It is often paired with other coding tools like [Mentat](../development_ops/mentat.md) or [Plandex](../development_ops/plandex.md) for specialized refactoring tasks.
-- Community variants such as `ui-ux-pro-max-skill` are useful specialization examples, but they should be reviewed like code because they encode process, tools, and risk assumptions.
-
-## Selection comments
-- Superpowers is strongest when quality and repeatability matter more than raw speed.
-- Use it by default for code that affects production systems, shared libraries, or client deliverables.
-- Do not force it on trivial one-off edits where the process overhead outweighs the risk.
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md) — The primary runtime for Superpowers.
-- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) — For hardware/OS-level skills.
-- [Aider](../development_ops/aider.md) — Multi-file editing agent.
-- [Plandex](../development_ops/plandex.md) — Long-horizon planning engine.
+- [Claude Code](../development_ops/claude-code.md) — The primary runtime environment.
+- [Cursor](../development_ops/cursor.md) — AI-native IDE with deep indexing.
+- [Aider](../development_ops/aider.md) — Multi-file pair programmer.
 - [Mentat](../development_ops/mentat.md) — Context-aware coding assistant.
-- [SWE-bench](../benchmarking/swe-bench.md) — Evaluation for autonomous engineering.
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Standard for skills/tools.
-- [Anthropic Agent Skills](anthropic-agent-skills.md) — Reference skills implementation.
+- [Plandex](../development_ops/plandex.md) — Long-horizon planning engine.
+- [Model Context Protocol](../../knowledge_base/agent_protocols.md) — Standards for agentic tools.
+- [Agency Agents](agency-agents.md) — Specialized personas for agentic teams.
+- [SWE-bench](../benchmarking/swe-bench.md) — Benchmarking autonomous engineering.
+- [FastMCP](../../knowledge_base/agent_protocols.md) — High-performance MCP implementation.
 
 ## Sources / references
 - [Official GitHub Repository](https://github.com/obra/superpowers)
 - [Superpowers for Claude Code (Blog Post)](https://blog.fsck.com/2025/10/09/superpowers/)
 - [Anthropic Agent Skills Specification](https://agentskills.io/)
-- [awesome-skills.com](https://awesome-skills.com/)
+- [Awesome Skills Marketplace](https://awesome-skills.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

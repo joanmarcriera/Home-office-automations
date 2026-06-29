@@ -1,33 +1,37 @@
 # Jasper
 
 ## What it is
-Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. In June 2026, it specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer, optimized for frontier reasoning models like `claude-4-8-opus-20260528` and GPT-5.5.
+Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. In June 2026, it specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer, optimized for frontier reasoning models like Claude 4.8 and GPT-5.5.
 
 ## What problem it solves
-Automates the production of marketing assets while ensuring strict adherence to brand voice, style guides, and product knowledge. It eliminates content silos by allowing teams to plan and execute multi-channel campaigns from a single source of truth.
+Automates the production of marketing assets while ensuring strict adherence to brand voice, style guides, and product knowledge. It eliminates content silos by allowing teams to plan and execute multi-channel campaigns from a single source of truth using agentic workflows.
 
 ## Where it fits in the stack
-**AI & Knowledge / Marketing Orchestration**. It functions as a centralized "Brand Brain" that powers content creation across CMS, email, and social platforms.
+**AI & Knowledge / Marketing Orchestration**. It functions as a centralized "Brand Brain" that powers content creation across CMS, email, and social platforms, now featuring native MCP 3.0 support for tool-calling integration.
 
 ## Typical use cases
 - **Multi-channel Campaigns**: Planning and generating landing pages, email sequences, search ads, and social posts from a single campaign brief.
 - **Brand Voice Alignment**: Training AI on your company's style guide and tone to ensure consistent communication across all departments.
 - **Enterprise Content Ops**: Scaling content production for large marketing teams with integrated approval workflows and plagiarism detection.
 - **SEO Optimization**: Generating blog articles grounded in specific keywords and scored for SEO performance.
+- **Agentic Orchestration**: Using Jasper as an MCP-enabled agent to autonomously manage content tasks within a broader agentic ecosystem.
 
 ## Strengths
 - **Jasper IQ**: An integrated intelligence layer that combines Brand Voice, Knowledge Base (private data), and Style Guides for grounded outputs.
 - **Campaign Agent**: A purpose-built agent that handles omnichannel planning, generating tailored assets for each platform in a single workflow.
 - **Enterprise API**: Robust API support for integrating Jasper's generation and brand-voice capabilities directly into custom CMS or marketing tools.
+- **MCP 3.0 Support**: Native integration with the Model Context Protocol for seamless connection to agentic tools and resources.
 - **Reliability**: Built for enterprise-scale with 99.99% uptime and SOC2 compliance.
 
 ## Limitations
 - **Cost**: Primarily targeted at professional and enterprise teams; lacks a permanent free-to-use tier.
 - **Human-in-the-Loop**: While highly automated, high-stakes marketing content still requires human review for nuance and strategy.
+- **Context Window**: While optimized for large context, extremely deep knowledge bases require efficient partitioning.
 
 ## When to use it
 - When you need to scale content production across multiple channels (Web, Email, Social) while maintaining a unified brand identity.
 - For enterprise marketing operations that require deep integration with existing CMS and SEO workflows.
+- When you want to leverage brand voice profiles within an MCP-compliant agentic stack.
 
 ## When not to use it
 - For simple personal tasks or one-off hobbyist content where a general-purpose model is sufficient.
@@ -43,13 +47,13 @@ Upload your brand's style guide, product manuals, and previous top-performing co
 ### 2. Campaign Creation
 Navigate to the **Campaigns** tab and select "New Campaign". Provide a brief and select your target channels.
 
-### 3. API Setup
-For developers, generate an API key from the **Settings > Developer** section to begin programmatically generating content.
+### 3. MCP Integration
+Configure your Jasper API key in your MCP host (e.g., Claude Code or Cursor) to enable Jasper tools in your agentic workflows.
 
 ## CLI examples
 
 > [!NOTE]
-> As of June 2026, Jasper does not provide a standalone CLI. Terminal testing and integration are performed via `curl` against the Jasper REST API.
+> As of June 2026, Jasper does not provide a standalone CLI. Terminal testing and integration are performed via `curl` against the Jasper REST API or via MCP-enabled tools.
 
 ### 1. Generate Content via API
 ```bash
@@ -103,13 +107,15 @@ def generate_brand_summary(text, voice_id):
 ## Related tools / concepts
 - [Copy.ai](copy-ai.md)
 - [ChatGPT](chatgpt.md)
-- [Claude](../development_ops/claude-hooks.md)
+- [Claude](../providers/anthropic.md)
 - [AI Templates](aitmpl.md)
 - [Google Opal](google-opal.md)
 - [NotebookLM](notebooklm.md)
 - [LangChain](../ai_knowledge/langchain.md)
 - [CrewAI](../frameworks/crewai.md)
 - [n8n](../../services/n8n.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
+- [Claude Code](../development_ops/claude-code.md)
 
 ## Sources / references
 - [Official Website](https://www.jasper.ai/)
@@ -117,5 +123,5 @@ def generate_brand_summary(text, voice_id):
 - [Jasper API Documentation](https://help.jasper.ai/hc/en-us/articles/18618701173659-Jasper-s-API)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
