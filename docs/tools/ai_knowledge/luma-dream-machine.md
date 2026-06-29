@@ -1,13 +1,13 @@
 # Luma Dream Machine
 
 ## What it is
-Luma Dream Machine is a high-fidelity video generation model developed by Luma AI. In June 2026, it is recognized as a leading tool for generating realistic, cinematic video content from text and images. It utilizes advanced diffusion transformer architectures to maintain high temporal consistency and physical accuracy.
+Luma Dream Machine is a high-fidelity video generation model developed by Luma AI. In June 2026, it is recognized as a leading tool for generating realistic, cinematic video content from text and images. It utilizes advanced diffusion transformer architectures to maintain high temporal consistency and physical accuracy, with native support for MCP 3.0 tool calls.
 
 ## What problem it solves
-It allows users to create professional-quality video content quickly, reducing the time and cost associated with traditional video production, 3D animation, and manual VFX. It bridges the gap between static creative concepts and dynamic visual storytelling for individuals and small teams.
+It allows users to create professional-quality video content quickly, reducing the time and cost associated with traditional video production, 3D animation, and manual VFX. It bridges the gap between static creative concepts and dynamic visual storytelling, leveraging NVIDIA Rubin architecture for accelerated inference via NVIDIA NIM microservices.
 
 ## Where it fits in the stack
-**AI & Knowledge / Generative Media**. It sits alongside other frontier video generation models like Runway Gen-4 and Sora, providing a high-performance option for creative media pipelines.
+**AI & Knowledge / Generative Media**. It sits alongside other frontier video generation models like Runway Gen-4 and Sora, providing a high-performance option for creative media pipelines and integrating with [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) for automated workflows.
 
 ## Typical use cases
 - **Text-to-Video**: Generating cinematic clips from detailed text descriptions.
@@ -17,9 +17,9 @@ It allows users to create professional-quality video content quickly, reducing t
 
 ## Strengths
 - **Physical Accuracy**: Strong understanding of lighting, fluid dynamics, and physics-based motion.
-- **Cinematic Quality**: Delivers high-resolution outputs (up to 4K in 2026) with artistic composition.
+- **Cinematic Quality**: Delivers high-resolution outputs (up to 4K) with artistic composition.
 - **Temporal Consistency**: High stability across frames, minimizing flickering and "morphing" artifacts.
-- **Performance**: Capable of generating high-quality 5-10 second clips in under two minutes.
+- **NVIDIA Acceleration**: Optimized for NVIDIA Rubin GPUs, significantly reducing generation time via NIM microservices.
 
 ## Limitations
 - **Complexity Cap**: Very complex multi-subject interactions may still exhibit occasional artifacts.
@@ -96,15 +96,15 @@ Effective prompts for Dream Machine often follow this structural pattern:
 *Example:* "A group of futuristic explorers entering a crystalline cave, luminescence reflecting off the walls, soft teal lighting, slow cinematic push-in."
 
 ## Related tools / concepts
-- [Runway ML](runwayml.md)
-- [Sora (OpenAI)](sora.md)
-- [Synthesia](synthesia.md)
-- [Project Genie](project-genie.md)
-- [ElevenLabs](elevenlabs.md)
-- [Replicate](../providers/replicate.md)
-- [HeyGen](heygen.md)
-- [Video-to-Video Synthesis](../../knowledge_base/patterns/video-synthesis.md)
-- [Temporal Consistency](../../knowledge_base/concepts/temporal-consistency.md)
+- [Runway ML](runwayml.md) — Direct competitor in generative video.
+- [Sora (OpenAI)](sora.md) — Frontier video generation model.
+- [Synthesia](synthesia.md) — AI video for avatars and presentations.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standards for agentic tool use.
+- [NVIDIA](../providers/nvidia.md) — Provider of Rubin architecture and NIM GA.
+- [ElevenLabs](elevenlabs.md) — Audio generation for video soundtracks.
+- [Replicate](../providers/replicate.md) — Hosting for open-source video models.
+- [HeyGen](heygen.md) — Video generation for marketing and spokespeople.
+- [Temporal Consistency](../../knowledge_base/patterns/video-synthesis.md) — Core concept in AI video.
 
 ## Sources / references
 - [Luma AI Dream Machine](https://lumalabs.ai/dream-machine)
@@ -112,5 +112,5 @@ Effective prompts for Dream Machine often follow this structural pattern:
 - [Luma AI Blog: Temporal Consistency in Video Models](https://lumalabs.ai/blog/dream-machine-v2)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

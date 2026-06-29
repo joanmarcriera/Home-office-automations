@@ -1,13 +1,13 @@
 # last30days-skill
 
 ## What it is
-`last30days-skill` is a sophisticated AI agent skill for [Claude Code](../development_ops/claude-code.md), OpenClaw, and Gemini CLI. It acts as a specialized search and research engine that prioritizes real-time social signals (Reddit upvotes, X likes, YouTube transcripts, Polymarket odds) over traditional SEO-optimized web results.
+`last30days-skill` is a sophisticated AI agent skill for [Claude Code](../development_ops/claude-code.md), OpenClaw, and Gemini CLI. It acts as a specialized search and research engine that prioritizes real-time social signals (Reddit upvotes, X likes, YouTube transcripts, Polymarket odds) over traditional SEO-optimized web results, supporting the MCP 3.0 protocol.
 
 ## What problem it solves
-Traditional search engines often surface stale editorial content or SEO-spam. In the fast-moving AI ecosystem, critical information first appears in community discussions. `/last30days` bridges a dozen disconnected platforms, allowing an AI agent to search, score, and synthesize current trends, tool comparisons, and "unfiltered" community feedback from the last 30 days. It is a vital tool for agents using `claude-4-8-opus-20260528` and GPT-5.5 to stay current with the weekly shifts in the AI landscape.
+Traditional search engines often surface stale editorial content or SEO-spam. In the fast-moving AI ecosystem, critical information first appears in community discussions. `/last30days` bridges a dozen disconnected platforms, allowing an AI agent to search, score, and synthesize current trends, tool comparisons, and "unfiltered" community feedback from the last 30 days. It is a vital tool for agents using Claude 4.8 Opus and GPT-5.5 to stay current with weekly shifts.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Claude Code Skills
+**Category**: AI Assistants & Knowledge / Claude Code Skills. It functions as an MCP 3.0 server or native skill for development environments, integrating with [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) for dynamic resource retrieval.
 
 ## Typical use cases
 - **Deep Tool Comparison**: Asking `/last30days OpenClaw vs Hermes` to see real-world performance reports and GitHub velocity instead of marketing pages.
@@ -17,7 +17,7 @@ Traditional search engines often surface stale editorial content or SEO-spam. In
 
 ## Strengths
 - **Social Scoring**: Ranks information based on actual engagement (upvotes, engagement rates) rather than keyword density.
-- **Parallel Search**: Executes entity-aware subqueries across multiple platforms (Reddit, X, HN, GitHub, TikTok, etc.) simultaneously.
+- **Parallel Search**: Executes entity-aware subqueries across multiple platforms simultaneously, optimized for NVIDIA NIM inference.
 - **Intelligent Pre-Research**: The v3 engine resolves relevant handles, subreddits, and hashtags before searching, ensuring high-signal discovery.
 - **Shareable Artifacts**: Can emit self-contained, dark-mode HTML briefs for easy distribution in Slack or Notion.
 
@@ -101,19 +101,20 @@ fetch('http://localhost:3000/skills/last30days/run', {
 ```
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md) (Primary harness)
-- [Everything Claude Code](everything-claude-code.md) (Broader performance system)
-- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) (Community context)
-- [OpenRouter](openrouter.md) (API provider used for web search components)
-- [Exa Search](../agents/goose.md) (Similar neural search concept)
-- [AI Signal Sources](../../knowledge_base/ai_signal_sources.md) (Inventory of social platforms searched)
-- [OpenClaw](../development_ops/openclaw.md) (Alternative host for the skill)
-- [Perplexity](perplexity.md) (Context on neural search competitors)
+- [Claude Code](../development_ops/claude-code.md) — Primary harness for the skill.
+- [Everything Claude Code](everything-claude-code.md) — Broader performance system.
+- [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Community context for skill sharing.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for skill interaction.
+- [OpenRouter](openrouter.md) — API provider used for web search components.
+- [Exa Search](../agents/goose.md) — Neural search engine with similar capabilities.
+- [AI Signal Sources](../../knowledge_base/ai_signal_sources.md) — Inventory of social platforms searched.
+- [OpenClaw](../development_ops/openclaw.md) — Alternative host for the skill.
+- [Perplexity](perplexity.md) — Neural search competitor.
 
 ## Sources / references
 - [last30days-skill GitHub Repository](https://github.com/mvanhorn/last30days-skill)
 - [SKILL.md (Runtime Spec)](https://github.com/mvanhorn/last30days-skill/blob/main/SKILL.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
