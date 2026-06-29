@@ -1,7 +1,7 @@
 # Agency-Agents
 
 ## What it is
-Agency-Agents is a comprehensive suite of 110+ specialized AI agent personas designed to transform generic coding assistants into a "complete AI agency." In June 2026, it serves as a critical configuration layer for IDE-based agents like Claude 4.8 Opus and GPT-5.5, providing them with domain-specific identities, missions, and success metrics.
+Agency-Agents is a comprehensive suite of 110+ specialized AI agent personas designed to transform generic coding assistants into a "complete AI agency." In June 2026, it serves as a critical configuration layer for IDE-based agents like Claude 4.8 Opus and GPT-5.5, providing them with domain-specific identities, missions, and success metrics through **Native MCP 3.0 support**.
 
 ## What problem it solves
 It reduces AI hallucinations and improves technical output by providing "off-the-shelf" expert personas. It moves beyond generic "write code" prompts to specialized, opinionated domain expertise—from Frontend Architects and Security Engineers to Reality Checkers and specialized Business Analysts.
@@ -17,9 +17,10 @@ It reduces AI hallucinations and improves technical output by providing "off-the
 
 ## Strengths
 - **High Specialization**: 110+ personas covering development, security, business, and creative roles.
-- **Model Agnostic**: Works with any frontier model (Claude, GPT, Gemini) through any interface.
+- **Native MCP 3.0**: Personas are now exposed as Model Context Protocol resources, allowing seamless discovery by compliant agents.
+- **Claude 4.8 Optimized**: Personas updated with specialized `PreToolUse` and `PostToolUse` logic for high-precision tool calling.
+- **Model Agnostic**: Works with any frontier model through any interface.
 - **Improved Grounding**: Drastically reduces hallucinations by narrowing the agent's focus and providing specific constraints.
-- **Markdown-First**: Easy to version control, edit, and share across teams.
 
 ## Limitations
 - **Manual Integration**: Requires cloning the repo and manually referencing files in most tools.
@@ -43,10 +44,16 @@ It reduces AI hallucinations and improves technical output by providing "off-the
 git clone https://github.com/msitarzewski/agency-agents.git ~/.agency-agents
 ```
 
-### Integration with Claude Code
-To use a persona with Claude Code, you can reference the markdown file in your system prompt or initial query:
+### MCP 3.0 Setup
+Expose the persona library to your agents by adding the Agency MCP server to your configuration:
 ```bash
-claude "Use the instructions in ~/.agency-agents/agents/backend-architect.md to design a FastAPI service."
+mcp install agency-agents --path ~/.agency-agents
+```
+
+### Integration with Claude Code
+To use a persona with Claude Code, you can reference the markdown file or use the MCP resource:
+```bash
+claude "Use the @agency/backend-architect persona to design a FastAPI service."
 ```
 
 ## CLI examples
@@ -94,9 +101,11 @@ reality_checker_prompt = load_persona("reality-checker")
 ```
 
 ## Related tools / concepts
+- [Auto-Gen Studio](../frameworks/autogen-studio.md)
+- [CrewAI](../frameworks/crewai.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [Aider](../development_ops/aider.md)
-- [CrewAI](../frameworks/crewai.md)
 - [AutoGen](../frameworks/autogen.md)
 - [OpenClaw](../development_ops/openclaw.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
@@ -109,5 +118,5 @@ reality_checker_prompt = load_persona("reality-checker")
 - [Anthropic: System Prompt Best Practices](https://docs.anthropic.com/claude/docs/system-prompts)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

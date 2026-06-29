@@ -1,7 +1,7 @@
 # Superpowers
 
 ## What it is
-Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
+Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) while utilizing **Gemini 3.5 visual reasoning** for complex UI tasks.
 
 ## What problem it solves
 It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents common failure modes like "hallucinating" file paths, circular refactoring, and code rot, ensuring high performance on benchmarks like [SWE-bench](../benchmarking/swe-bench.md).
@@ -17,11 +17,11 @@ It addresses the lack of discipline and engineering rigor in standard AI coding 
 - Standardizing agent behavior across a distributed engineering team.
 
 ## Strengths
-- Enforces high-quality engineering standards (TDD, YAGNI, DRY).
-- Increases agent autonomy and reliability through explicit verification steps.
-- Composable skills-based architecture that can be extended with project-specific logic.
-- Seamless integration with [Anthropic Agent Skills](anthropic-agent-skills.md) and [FastMCP](../../knowledge_base/agent_protocols.md).
-- Native support for [Claude 4.8 Opus](../providers/anthropic.md)'s 2.5M token context window.
+- **MCP 3.0 Task Protocol**: Native implementation of the standardized task protocol for multi-agent handoffs and verifiable progress.
+- **Visual Reasoning**: Integration with **Gemini 3.5** for automated UI/UX verification and visual regression testing.
+- **Process Rigor**: Enforces high-quality engineering standards (TDD, YAGNI, DRY).
+- **Agent Autonomy**: Increases reliability through explicit verification steps and self-correction loops.
+- **Context Handling**: Optimized for [Claude 4.8 Opus](../providers/anthropic.md)'s 2.5M token context window.
 
 ## Limitations
 - Higher process overhead for trivial tasks.
@@ -87,11 +87,17 @@ For complex refactors, you can define custom verification steps in your `superpo
 ## Getting started
 
 ### Installation (Claude Code)
-Superpowers is typically installed as a plugin or set of skills:
+Superpowers is typically installed as a plugin or set of skills using the MCP 3.0 protocol:
 
 ```bash
 /plugin marketplace add obra/superpowers-marketplace
 /plugin install superpowers@superpowers-marketplace
+```
+
+### Enabling Visual Reasoning
+To enable visual verification with Gemini 3.5:
+```bash
+superpowers config set vision_provider gemini-3.5-pro
 ```
 
 ### Hello-world (Custom Skill)
@@ -168,14 +174,15 @@ Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Re
 - Do not force it on trivial one-off edits where the process overhead outweighs the risk.
 
 ## Related tools / concepts
-- [Claude Code](../development_ops/claude-code.md) — The primary runtime for Superpowers.
-- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md) — For hardware/OS-level skills.
-- [Aider](../development_ops/aider.md) — Multi-file editing agent.
-- [Plandex](../development_ops/plandex.md) — Long-horizon planning engine.
-- [Mentat](../development_ops/mentat.md) — Context-aware coding assistant.
-- [SWE-bench](../benchmarking/swe-bench.md) — Evaluation for autonomous engineering.
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Standard for skills/tools.
-- [Anthropic Agent Skills](anthropic-agent-skills.md) — Reference skills implementation.
+- [Agency-Agents](agency-agents.md)
+- [Claude Code](../development_ops/claude-code.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Desktop Commander MCP](../development_ops/desktop-commander-mcp.md)
+- [Aider](../development_ops/aider.md)
+- [Plandex](../development_ops/plandex.md)
+- [Mentat](../development_ops/mentat.md)
+- [SWE-bench](../benchmarking/swe-bench.md)
+- [Anthropic Agent Skills](anthropic-agent-skills.md)
 
 ## Sources / references
 - [Official GitHub Repository](https://github.com/obra/superpowers)
@@ -184,5 +191,5 @@ Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Re
 - [awesome-skills.com](https://awesome-skills.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

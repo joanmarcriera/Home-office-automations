@@ -1,7 +1,7 @@
 # Jasper
 
 ## What it is
-Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. In June 2026, it specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer, optimized for frontier reasoning models like `claude-4-8-opus-20260528` and GPT-5.5.
+Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. In June 2026, it specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer and **Advanced Brand Voice Profiles**, optimized for frontier reasoning models like `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## What problem it solves
 Automates the production of marketing assets while ensuring strict adherence to brand voice, style guides, and product knowledge. It eliminates content silos by allowing teams to plan and execute multi-channel campaigns from a single source of truth.
@@ -17,7 +17,9 @@ Automates the production of marketing assets while ensuring strict adherence to 
 
 ## Strengths
 - **Jasper IQ**: An integrated intelligence layer that combines Brand Voice, Knowledge Base (private data), and Style Guides for grounded outputs.
+- **Brand Voice Profiles**: Granular control over tone, style, and messaging across different departments or product lines.
 - **Campaign Agent**: A purpose-built agent that handles omnichannel planning, generating tailored assets for each platform in a single workflow.
+- **MCP 3.0 Support**: Native integration with the Model Context Protocol for agentic tool discovery and data resource connection.
 - **Enterprise API**: Robust API support for integrating Jasper's generation and brand-voice capabilities directly into custom CMS or marketing tools.
 - **Reliability**: Built for enterprise-scale with 99.99% uptime and SOC2 compliance.
 
@@ -37,8 +39,8 @@ Automates the production of marketing assets while ensuring strict adherence to 
 
 Jasper is most effective when integrated into your team's existing content operations through its platform or API.
 
-### 1. Training Jasper IQ
-Upload your brand's style guide, product manuals, and previous top-performing content to create a unique **Brand Voice** and **Knowledge Base**.
+### 1. Training Jasper IQ & Brand Profiles
+Upload your brand's style guide, product manuals, and previous top-performing content to create unique **Brand Voice Profiles** and a unified **Knowledge Base**.
 
 ### 2. Campaign Creation
 Navigate to the **Campaigns** tab and select "New Campaign". Provide a brief and select your target channels.
@@ -102,8 +104,10 @@ def generate_brand_summary(text, voice_id):
 
 ## Related tools / concepts
 - [Copy.ai](copy-ai.md)
+- [Claude](claude.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [ChatGPT](chatgpt.md)
-- [Claude](../development_ops/claude-hooks.md)
+- [Claude Hooks](../development_ops/claude-hooks.md)
 - [AI Templates](aitmpl.md)
 - [Google Opal](google-opal.md)
 - [NotebookLM](notebooklm.md)
@@ -117,5 +121,5 @@ def generate_brand_summary(text, voice_id):
 - [Jasper API Documentation](https://help.jasper.ai/hc/en-us/articles/18618701173659-Jasper-s-API)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
