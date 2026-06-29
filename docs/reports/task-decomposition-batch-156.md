@@ -11,11 +11,11 @@ This report decomposes the next five oldest issues identified in the repository 
 
 ### 1. Freshness Audit: Copy.ai (`docs/tools/ai_knowledge/copy-ai.md`)
 **Context**: AI marketing and sales platform for content generation.
-- [ ] Upgrade to the exact 13-section 'High Confidence' standard.
-- [ ] Research and incorporate June 2026 updates (Claude 4.8/GPT-5.5 integration, specialized workflows).
-- [ ] Ensure 7+ unique relative markdown links (e.g., `jasper.md`, `claude-code.md`, `mcp.md`).
-- [ ] Update `Last reviewed` to 2026-06-28.
-- [ ] Verify with `scripts/check_docs_contract.py`.
+- [x] Upgrade to the exact 13-section 'High Confidence' standard.
+- [x] Research and incorporate June 2026 updates (Claude 4.8/GPT-5.5 integration, specialized workflows).
+- [x] Ensure 7+ unique relative markdown links (e.g., `jasper.md`, `claude-code.md`, `mcp.md`).
+- [x] Update `Last reviewed` to 2026-06-28.
+- [x] Verify with `scripts/check_docs_contract.py`.
 
 ### 2. Freshness Audit: Jasper (`docs/tools/ai_knowledge/jasper.md`)
 **Context**: Enterprise-grade AI content and campaign platform.
