@@ -7,7 +7,7 @@ Semantic Kernel is an open-source SDK from Microsoft that allows developers to i
 It bridges the gap between AI models and traditional software engineering. It provides a structured way to manage prompts, state, and tool-calling (native functions) while maintaining type safety, standard development practices, and enterprise-grade scalability.
 
 ## Where it fits in the stack
-**Framework / Enterprise SDK**. It acts as the orchestration layer for integrating frontier models like `claude-4-8-opus-20260528` and GPT-5.5 into established software ecosystems, particularly the Microsoft stack.
+**Framework / Enterprise SDK**. It acts as the orchestration layer for integrating frontier models like Claude 4.8 and GPT-5.5 into established software ecosystems, particularly the Microsoft stack.
 
 ## Typical use cases
 - **Enterprise App Integration**: Adding AI features to existing .NET or Python applications.
@@ -21,6 +21,7 @@ It bridges the gap between AI models and traditional software engineering. It pr
 - **Microsoft Ecosystem**: Native integration with Azure OpenAI, Microsoft Graph, and Azure AI Search.
 - **Planner Evolution**: Support for advanced planning mechanisms like `FunctionCallingStepwisePlanner` to solve complex requests.
 - **Type Safety**: Strong typing in C# and structured schemas in Python/Java ensure reliable tool interactions.
+- **MCP 3.0 Compliance**: Seamless integration with the Model Context Protocol for cross-platform tool use.
 
 ## Limitations
 - **Complexity**: The "Kernel" and "Plugin" abstractions can feel heavy for small projects or simple scripts.
@@ -109,20 +110,20 @@ result = await planner.execute(kernel, "Analyze the sales data and provide a sum
 
 ## Related tools / concepts
 - [AutoGen](autogen.md)
-- [LangChain](../ai_knowledge/langchain.md)
+- [LangChain](../../tools/ai_knowledge/langchain.md)
 - [DSPy](dspy.md)
 - [Haystack](haystack.md)
 - [Smolagents](smolagents.md)
 - [LangGraph](langgraph.md)
-- [Microsoft Graph](../providers/microsoft.md)
-- [Azure OpenAI](../providers/azure.md)
+- [Microsoft Graph](../../tools/providers/microsoft.md)
+- [Azure OpenAI](../../tools/providers/azure.md)
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
 - [GitHub](https://github.com/microsoft/semantic-kernel)
 - [Microsoft Documentation](https://learn.microsoft.com/en-us/semantic-kernel/)
 - [Semantic Kernel Blog](https://devblogs.microsoft.com/semantic-kernel/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high

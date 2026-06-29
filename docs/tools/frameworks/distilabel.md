@@ -1,17 +1,17 @@
 # Distilabel
 
 ## What it is
-Distilabel is an open-source framework designed for scalable and reliable synthetic data generation and AI feedback. As of June 2026, it is the industry standard for creating high-quality datasets for fine-tuning frontier models like `claude-4-8-opus-20260528` and GPT-5.5. It allows developers to build complex pipelines that leverage Large Language Models (LLMs) to generate, augment, and filter datasets, incorporating "LLM-as-a-judge" patterns to ensure data quality.
+Distilabel is an open-source framework designed for scalable and reliable synthetic data generation and AI feedback. As of June 2026, it is the industry standard for creating high-quality datasets for fine-tuning frontier models like Claude 4.8 and GPT-5.5. It allows developers to build complex pipelines that leverage Large Language Models (LLMs) to generate, augment, and filter datasets, incorporating "LLM-as-a-judge" patterns to ensure data quality.
 
 ## What problem it solves
 Creating high-quality datasets for LLM training remains a significant bottleneck. Manual labeling is slow and expensive, while naive synthetic generation often produces noisy or repetitive data. Distilabel addresses these challenges by:
 - **Standardizing Pipeline Construction**: Providing a declarative way to define data generation and labeling steps.
-- **Scaling Generation**: Natively supporting parallel execution and integration with various LLM providers (Anthropic, OpenAI, [vLLM](../infrastructure/vllm.md), [Ollama](../../services/ollama.md)).
+- **Scaling Generation**: Natively supporting parallel execution and integration with various LLM providers (Anthropic, OpenAI, [vLLM](../../tools/infrastructure/vllm.md), [Ollama](../../services/ollama.md)).
 - **Ensuring Data Quality**: Built-in components for filtering, scoring, and verifying synthetic samples using advanced reasoning models.
 - **Reducing Alignment Costs**: Streamlining the creation of preference datasets for DPO and RLHF workflows.
 
 ## Where it fits in the stack
-Distilabel sits in the **Frameworks/Data-Generation** layer. It is the primary engine for data preparation that precedes the fine-tuning stage, serving as the "upstream" source for tools like [Unsloth](../infrastructure/unsloth.md), [Axolotl](axolotl.md), or [LLaMA Factory](llama-factory.md).
+Distilabel sits in the **Frameworks/Data-Generation** layer. It is the primary engine for data preparation that precedes the fine-tuning stage, serving as the "upstream" source for tools like [Unsloth](../../tools/infrastructure/unsloth.md), [Axolotl](axolotl.md), or [LLaMA Factory](llama-factory.md).
 
 ## Typical use cases
 - **Instruction Data Generation**: Generating thousands of varied prompts and responses from a few seed examples (Self-Instruct).
@@ -26,6 +26,7 @@ Distilabel sits in the **Frameworks/Data-Generation** layer. It is the primary e
 - **Rich Component Library**: Includes pre-built tasks for common patterns (e.g., UltraFeedback, Evol-Instruct, DEITA).
 - **Integration with Hugging Face**: Direct support for loading from and pushing to the Hugging Face Hub.
 - **Scalability**: Designed to handle millions of samples via distributed processing.
+- **MCP 3.0 Integration**: Supports the Model Context Protocol for automated tool discovery during generation.
 
 ## Limitations
 - **Cost Management**: Generating large datasets via frontier APIs (e.g., GPT-5.5) can be extremely expensive.
@@ -106,13 +107,13 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — The primary beneficiary of distilabel output.
-- [Unsloth](../infrastructure/unsloth.md) — For training on the generated data.
-- [axolotl](axolotl.md) — For training on the generated data.
-- [vLLM](../infrastructure/vllm.md) — Often used as the high-speed generation backend for distilabel.
+- [Unsloth](../../tools/infrastructure/unsloth.md) — For training on the generated data.
+- [Axolotl](axolotl.md) — For training on the generated data.
+- [vLLM](../../tools/infrastructure/vllm.md) — Often used as the high-speed generation backend for distilabel.
 - [Ollama](../../services/ollama.md) — Can be used for local, private data generation.
-- [glaive](../ai_knowledge/glaive.md) — A platform for generating synthetic agentic data.
-- [Hugging Face Datasets](https://huggingface.co/docs/datasets/index) — The ecosystem where distilabel data is typically shared.
-- [Instructor](instructor.md) — For structured data extraction which can be used within distilabel tasks.
+- [Glaive](../../tools/ai_knowledge/glaive.md) — A platform for generating synthetic agentic data.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — For agentic tool calling in pipelines.
+- [Instructor](instructor.md) — For structured data extraction.
 
 ## Sources / references
 - [Distilabel Documentation](https://distilabel.argilla.io/)
@@ -120,5 +121,5 @@ if __name__ == "__main__":
 - [Synthetic Data Generation for LLMs (Guide)](https://distilabel.argilla.io/latest/sections/getting_started/quickstart/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high

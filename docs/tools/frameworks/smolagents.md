@@ -13,7 +13,7 @@ Many agent frameworks are heavy and introduce significant abstraction overhead. 
 - **Personal Assistants**: Small agents for local task automation.
 - **Edge Computing**: Running agents on devices with limited resources using quantized models.
 - **Micro-Agents**: Specialized agents within a larger multi-agent architecture.
-- **Rapid Prototyping**: Testing tool-calling capabilities of frontier models like `claude-4-8-opus-20260528`.
+- **Rapid Prototyping**: Testing tool-calling capabilities of frontier models like Claude 4.8 and GPT-5.5.
 
 ## Strengths
 - **Lightweight**: Minimal dependencies and small code footprint.
@@ -21,6 +21,7 @@ Many agent frameworks are heavy and introduce significant abstraction overhead. 
 - **Hugging Face Integration**: Seamlessly works with the `transformers` ecosystem and HF Hub models.
 - **CodeAgent**: Unique capability where agents solve tasks by writing and executing Python code.
 - **Local Model Friendly**: Optimized for local providers like Ollama or vLLM.
+- **MCP 3.0 Support**: Native integration with the Model Context Protocol for tool discovery and resource connection.
 
 ## Limitations
 - **Feature Set**: Less comprehensive than larger frameworks like LangChain or AutoGen.
@@ -31,6 +32,7 @@ Many agent frameworks are heavy and introduce significant abstraction overhead. 
 - When you want a simple, transparent agent implementation.
 - For building specialized, single-purpose agents.
 - When working primarily with Hugging Face models and libraries.
+- For edge deployment where resource efficiency is paramount.
 
 ## When not to use it
 - For extremely complex, multi-crew enterprise orchestrations.
@@ -102,21 +104,21 @@ agent.run("What's the weather like in Seattle?")
 ```
 
 ## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [Hugging Face Hub](../providers/huggingface.md)
+- [LangChain](../../tools/ai_knowledge/langchain.md)
+- [Hugging Face Hub](../../tools/providers/huggingface.md)
 - [AutoGen](autogen.md)
 - [DSPy](dspy.md)
 - [Haystack](haystack.md)
 - [LangGraph](langgraph.md)
 - [Semantic Kernel](semantic-kernel.md)
-- [vLLM](../infrastructure/vllm.md)
+- [vLLM](../../tools/infrastructure/vllm.md)
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
 - [GitHub](https://github.com/huggingface/smolagents)
 - [Blog Post](https://huggingface.co/blog/smolagents)
 - [Hugging Face Agents Documentation](https://huggingface.co/docs/smolagents/index)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
