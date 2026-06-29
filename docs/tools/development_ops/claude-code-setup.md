@@ -1,25 +1,25 @@
 # Claude Code — Project Setup Guide
 
 ## What it is
-A reproducible configuration guide for the Claude Code CLI setup used in this repository. It defines the specific environment where Claude 4.8 Opus (`claude-4-8-opus-20260528`) and GPT-5.5 operate, including plugins, global skills, MCP servers, and project-level automation hooks.
+A reproducible configuration guide for the Claude Code CLI setup used in this repository. It defines the specific environment where Claude 4.8 Opus (`claude-4-8-opus-20260528`) and GPT-5.5 operate, including plugins, global skills, MCP servers, and project-level automation hooks. As of June 2026, it supports the **MCP 3.0** standard for agentic tool discovery and resource connection.
 
 ## What problem it solves
-Claude Code's power in this repo comes from project-specific hooks, agents, and skills. This guide solves the "it works on my machine" problem for AI agents by providing a standardized blueprint for reproducing the full engineering environment from scratch.
+Claude Code's power in this repo comes from project-specific hooks, agents, and skills. This guide solves the "it works on my machine" problem for AI agents by providing a standardized blueprint for reproducing the full engineering environment from scratch. It ensures that the specialized **Claude Hooks** (Pre/PostToolUse) are correctly configured for real-time validation.
 
 ## Where it fits in the stack
-**Category**: Development & Ops / Tooling Configuration. It acts as the "bootstrap" layer for the [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) used to maintain this repository.
+**Category**: Development & Ops / Tooling Configuration. It acts as the "bootstrap" layer for the [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) used to maintain this repository, integrating the Reasoning Layer with local execution capabilities.
 
 ## Typical use cases
 - Setting up a local environment for contributing to this repository.
 - Reproducing project-specific agent behaviors and automated verification loops.
 - Standardizing the developer experience for both human and AI contributors.
-- Debugging MCP connectivity or plugin conflicts in the local workspace.
+- Debugging MCP 3.0 connectivity or plugin conflicts in the local workspace.
 
 ## Strengths
 - **Reproducible Engineering**: Guaranteed consistency across different workstations.
 - **Deep Automation**: Leverages project-level hooks for real-time validation (e.g., `mkdocs.yml` syntax).
-- **Extensible Architecture**: Easily integrates new MCP servers and global skills.
-- **Optimized for Claude 4.8**: Specifically tuned for the high-reasoning capabilities of the June 2026 model generation.
+- **Extensible Architecture**: Easily integrates new MCP 3.0 servers and global skills.
+- **Optimized for Claude 4.8**: Specifically tuned for the high-reasoning capabilities and hook lifecycles of the June 2026 model generation.
 
 ## Limitations
 - **Manual Bootstrapping**: Requires initial manual steps for global skill installation.
@@ -49,7 +49,7 @@ claude auth login
 Verify the installation by checking the version and active project context:
 ```bash
 claude --version
-claude --prompt "Status check: are project-level hooks active?"
+claude --prompt "Status check: are project-level hooks and MCP 3.0 active?"
 ```
 
 ## CLI examples
@@ -61,7 +61,7 @@ claude plugin install github@claude-plugins-official playwright@claude-plugins-o
 ```
 
 ### 2. MCP Server Configuration
-Add the required context layers for documentation and automation:
+Add the required context layers for documentation and automation (MCP 3.0):
 ```bash
 claude mcp add context7 -- npx -y @upstash/context7-mcp
 claude mcp add github -- npx @anthropic-ai/mcp-server-github
@@ -77,10 +77,13 @@ claude /doctor
 ## API examples
 
 ### 1. Project-Level Hook (`.claude/settings.json`)
-A minimal snippet demonstrating how post-edit validation is enforced:
+A snippet demonstrating how **Claude Hooks** (`PreToolUse` and `PostToolUse`) are enforced for real-time validation:
 ```json
 {
   "hooks": {
+    "preToolUse": {
+      "edit": "python3 scripts/security_audit.py {{file}}"
+    },
     "postToolUse": {
       "edit": "python3 scripts/sql_validator.py {{file}}"
     }
@@ -107,6 +110,7 @@ You are a specialist agent. Verify:
 - [Mentat](./mentat.md)
 - [Cursor](./cursor.md)
 - [Zed](./zed.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Claude Code Official Documentation](https://docs.anthropic.com/claude-code)
@@ -115,5 +119,5 @@ You are a specialist agent. Verify:
 - [Project-Specific Claude Config (GitHub Repo)](https://github.com/shanraisshan/claude-code-best-practice)
 
 ## Contribution Metadata
+- Last reviewed: 2026-06-29
 - Confidence: high
-- Last reviewed: 2026-06-12
