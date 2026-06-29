@@ -1,13 +1,13 @@
 # Crawl4AI
 
 ## What it is
-Crawl4AI is an open-source, high-performance web crawler designed specifically for LLM applications. It provides a robust, asynchronous interface for converting complex web pages into clean, structured Markdown or JSON.
+Crawl4AI is an open-source, high-performance web crawler designed specifically for LLM applications. It provides a robust, asynchronous interface for converting complex web pages into clean, structured Markdown or JSON. In June 2026, it is a primary tool for feeding `claude-4-8-opus-20260528` and GPT-5.5 with real-time web data.
 
 ## What problem it solves
 It solves the "LLM context clutter" problem. Modern web pages are filled with ads, tracking scripts, and complex layouts that waste tokens. Crawl4AI uses advanced filtering and layout-aware parsing to ensure that only relevant content is extracted, making it ideal for RAG pipelines and agentic search.
 
 ## Where it fits in the stack
-**Ingest / Process & Understanding**. It provides a self-hosted, local-first alternative to managed services like [Firecrawl](firecrawl.md).
+**Ingest / Process & Understanding**. It provides a self-hosted, local-first alternative to managed services like [Firecrawl](firecrawl.md), supporting MCP 3.0 for seamless agentic integration.
 
 ## Typical use cases
 - **Local RAG Ingestion**: Crawling entire documentation sets for local vector indexing.
@@ -104,11 +104,13 @@ if __name__ == "__main__":
 - [Valyu](../ai_knowledge/valyu.md)
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
+- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references
 - [Crawl4AI Official Documentation](https://docs.crawl4ai.com/)
 - [GitHub Repository](https://github.com/unclecode/crawl4ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

@@ -1,13 +1,13 @@
 # Firecrawl
 
 ## What it is
-Firecrawl is an API-first web scraping and crawling service that converts entire websites into clean, structured, and LLM-ready data (Markdown or JSON). It handles the complexities of modern web browsing, including JS rendering and anti-bot measures.
+Firecrawl is an API-first web scraping and crawling service that converts entire websites into clean, structured, and LLM-ready data (Markdown or JSON). In June 2026, it serves as a primary ingestion engine for `claude-4-8-opus-20260528` and GPT-5.5, handling the complexities of modern web browsing, including JS rendering and anti-bot measures.
 
 ## What problem it solves
 It eliminates the "scraping tax" for AI developers. Instead of managing Playwright/Puppeteer clusters, proxy rotations, and complex HTML cleaning, developers can use a single API call to get high-fidelity Markdown from any URL, optimized for RAG and agentic tools.
 
 ## Where it fits in the stack
-**Ingest / Process & Understanding**. It serves as the primary gateway for AI agents (like Claude 4.8 and GPT-5.5) to "see" the live web through clean, structured data.
+**Ingest / Process & Understanding**. It serves as the primary gateway for AI agents (like Claude 4.8 and GPT-5.5) to "see" the live web through clean, structured data, often integrated via MCP 3.0.
 
 ## Typical use cases
 - **Agent Web Access**: Giving an MCP-enabled agent the ability to read documentation or news in real-time.
@@ -17,7 +17,7 @@ It eliminates the "scraping tax" for AI developers. Instead of managing Playwrig
 
 ## Strengths
 - **Clean Markdown Native**: Output is specifically formatted for LLM context windows, reducing token waste.
-- **MCP Native**: Provides an official Model Context Protocol server for instant integration with Claude.
+- **MCP 3.0 Native**: Provides an official Model Context Protocol server for instant integration with Claude 4.8.
 - **High Reliability**: Sophisticated bypasses for Cloudflare and other advanced anti-bot systems.
 - **Scalable Extraction**: v1/v2 endpoints support high-concurrency batch processing.
 
@@ -98,10 +98,10 @@ print(data["json"])
 - [Crawl4AI](crawl4ai.md)
 - [Docling](docling.md)
 - [Valyu](../ai_knowledge/valyu.md)
-- [Model Context Protocol](../automation_orchestration/mcp.md)
+- [Model Context Protocol](../../automation_orchestration/mcp.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [RAGFlow](ragflow.md)
-- [Browser Use](../automation_orchestration/browser-use.md)
+- [Browser Use](../../automation_orchestration/browser-use.md)
 
 ## Sources / references
 - [Firecrawl Documentation](https://docs.firecrawl.dev/)
@@ -109,5 +109,5 @@ print(data["json"])
 - [MCP Server for Firecrawl](https://github.com/firecrawl/mcp-server-firecrawl)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

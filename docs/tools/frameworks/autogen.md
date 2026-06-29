@@ -4,7 +4,7 @@
 AutoGen is an open-source framework from Microsoft Research that enables the development of LLM applications using multiple agents that can converse with each other to solve tasks. In June 2026, it is a leading framework for orchestrating complex multi-agent workflows involving `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## What problem it solves
-It enables complex workflows that require multiple turns of conversation, code generation and execution, and human-in-the-loop feedback. It automates the "chat" between agents to reach a goal, providing built-in support for conversational patterns and tool use.
+It enables complex workflows that require multiple turns of conversation, code generation and execution, and human-in-the-loop feedback. It automates the "chat" between agents to reach a goal, providing built-in support for conversational patterns and tool use through MCP 3.0.
 
 ## Where it fits in the stack
 **Framework / Multi-Agent Orchestrator**. It sits between the foundation models and the application layer, managing agent interactions and execution environments.
@@ -98,11 +98,12 @@ user_proxy.initiate_chat(manager, message="Build a simple dashboard.")
 - [LangGraph](langgraph.md)
 - [Semantic Kernel](semantic-kernel.md)
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md)
-- [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Plandex](../development_ops/plandex.md)
 - [OpenSwarm](../development_ops/openswarm.md)
 - [Smolagents](smolagents.md)
 - [DSPy](dspy.md)
+- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/microsoft/autogen)
@@ -110,5 +111,5 @@ user_proxy.initiate_chat(manager, message="Build a simple dashboard.")
 - [AutoGen Blog: FSM for Agentic Workflows](https://microsoft.github.io/autogen/blog/2024/02/11/FSM-GroupChat/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

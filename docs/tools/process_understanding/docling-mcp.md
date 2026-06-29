@@ -1,7 +1,7 @@
 # Docling MCP
 
 ## What it is
-Docling MCP is a document processing service that implements the Model Context Protocol (MCP) to provide advanced document conversion, processing, and generation tools to AI agents. In June 2026, it is the primary bridge for feeding high-fidelity document data to `claude-4-8-opus-20260528` and GPT-5.5.
+Docling MCP is a document processing service that implements the Model Context Protocol (MCP 3.0) to provide advanced document conversion, processing, and generation tools to AI agents. In June 2026, it is the primary bridge for feeding high-fidelity document data to `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## What problem it solves
 It simplifies the integration of sophisticated document understanding capabilities into AI workflows. By providing a standardized MCP interface, it allows agents to convert complex PDFs into structured formats, handle large documents via memory management, and integrate directly with RAG pipelines without custom integration code for every application.
@@ -15,7 +15,7 @@ It simplifies the integration of sophisticated document understanding capabiliti
 - **Multi-source Processing**: Handling documents from both local file systems and remote URLs seamlessly.
 
 ## Strengths
-- **Protocol Standardized**: Native MCP support ensures compatibility with any MCP-compliant host (Claude Desktop, IDEs, etc.), allowing for "zero-code" document processing integration.
+- **Protocol Standardized**: Native MCP 3.0 support ensures compatibility with any MCP-compliant host (Claude Desktop, IDEs, etc.), allowing for "zero-code" document processing integration.
 - **High Fidelity**: Leverages the Docling library's layout-aware parsing for accurate conversion of complex document layouts, including tables and hierarchical headers.
 - **Performance Optimized**: Includes local document caching and efficient memory management for handling large-scale processing of enterprise-sized documents.
 - **RAG Integration**: Specifically designed to streamline RAG pipelines by providing clean, structured markdown or JSON that is easy to chunk and embed.
@@ -101,10 +101,10 @@ def convert_to_md(source_url):
 ```
 
 ## Related tools / concepts
-- [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Model Context Protocol](../../automation_orchestration/mcp.md)
 - [Docling](docling.md)
 - [OCRmyPDF](ocrmypdf.md)
-- [Milvus](https://milvus.io/)
+- [Milvus](../infrastructure/milvus.md)
 - [RAGFlow](ragflow.md)
 - [LangGraph](../frameworks/langgraph.md)
 - [Smolagents](../frameworks/smolagents.md)
@@ -117,5 +117,5 @@ def convert_to_md(source_url):
 - [MCP Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
