@@ -38,6 +38,18 @@ It simplifies the operational overhead of running LLM-powered apps by providing 
 
 ## Getting started
 
+### 1. Installation
+Install the Vercel CLI to manage AI Gateway resources:
+```bash
+npm install -g vercel
+```
+
+### 2. Quick Setup
+Create a new AI Gateway and get your Gateway ID:
+```bash
+vercel ai-gateway create --name my-gateway
+```
+
 ### Minimal Concepts
 1.  **Gateway ID**: A unique identifier for your specific gateway configuration.
 2.  **Provider Mapping**: Configuring which API keys map to which upstream providers.
@@ -72,6 +84,50 @@ curl https://gateway.ai.vercel.com/v1/gateways/YOUR_GATEWAY_ID/anthropic/v1/mess
     "max_tokens": 1024,
     "messages": [{"role": "user", "content": "Hello, Claude"}]
   }'
+```
+
+## CLI examples
+The Vercel CLI allows managing AI Gateway resources directly from the terminal.
+
+```bash
+# List all AI Gateways for the current team
+vercel ai-gateway list
+
+# Create a new AI Gateway API key with a budget
+vercel ai-gateway api-keys create --name "Production Key" --budget 500 --refresh-period monthly
+
+# Add a routing rule to rewrite models (e.g., fallback/upgrade)
+vercel ai-gateway rules add --type rewrite \
+  --source "openai/gpt-4" \
+  --destination "openai/gpt-4o"
+```
+
+## API examples
+Vercel AI Gateway supports universal model routing and provider-specific headers via its REST interface.
+
+### Model Routing with Fallback (Python)
+```python
+import requests
+import os
+
+gateway_url = f"https://gateway.ai.vercel.com/v1/gateways/{os.environ['VERCEL_GATEWAY_ID']}/openai"
+
+payload = {
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "What is the capital of France?"}],
+    "gateway": {
+        "cache": True,
+        "retry": {"count": 3}
+    }
+}
+
+headers = {
+    "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(f"{gateway_url}/chat/completions", json=payload, headers=headers)
+print(response.json()['choices'][0]['message']['content'])
 ```
 
 ## Related tools / concepts

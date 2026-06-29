@@ -36,6 +36,58 @@ It collapses the usual local-LLM setup (install runtime, fetch weights, configur
 - When you juggle many models and want central management — use [Ollama](../../services/ollama.md).
 - For scaled, multi-user, high-throughput serving — use [vLLM](vllm.md).
 
+## Getting started
+
+### 1. Download and Execute
+Download a pre-built llamafile (e.g., Qwen3.5 0.8B) and run it immediately:
+```bash
+# Download the model
+curl -LO https://huggingface.co/mozilla-ai/llamafile_0.10/resolve/main/Qwen3.5-0.8B-Q8_0.llamafile
+
+# Make it executable (macOS/Linux)
+chmod +x Qwen3.5-0.8B-Q8_0.llamafile
+
+# Start the local server
+./Qwen3.5-0.8B-Q8_0.llamafile
+```
+
+### 2. Access the UI
+Once running, open your browser to `http://127.0.0.1:8080` to interact with the model via a built-in web interface.
+
+## CLI examples
+Llamafile binaries support standard llama.cpp flags for advanced configuration.
+
+```bash
+# Run in text-generation mode (no server)
+./model.llamafile -p "The capital of France is" --temp 0.7
+
+# Run as a server on a specific port with GPU offloading
+./model.llamafile --server --port 9000 -ngl 99
+
+# Specify the number of CPU threads to use
+./model.llamafile -t 8 -p "Explain quantum physics:"
+```
+
+## API examples
+Llamafile provides an OpenAI-compatible API on its default port.
+
+### Chat Completions (Python)
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8080/v1",
+    api_key="sk-no-key-required"
+)
+
+response = client.chat.completions.create(
+    model="llamafile",
+    messages=[{"role": "user", "content": "Tell me a joke about llamas."}]
+)
+
+print(response.choices[0].message.content)
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0 tooling; model weights carry their own licenses)
 - **Cost**: Free

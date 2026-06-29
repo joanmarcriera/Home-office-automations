@@ -37,8 +37,21 @@ It provides a unified "operating system for your life," allowing you to store no
 
 ## Getting started
 
-### Installation
-You can download the desktop client for your platform from the [official downloads page](https://anytype.io/download).
+### 1. Installation
+Install the Anytype CLI to run a headless server for automation:
+```bash
+/usr/bin/env bash -c "$(curl -fsSL https://raw.githubusercontent.com/anyproto/anytype-cli/HEAD/install.sh)"
+```
+
+### 2. Basic Setup
+Initialize a bot account and verify the connection:
+```bash
+# Create a bot account for automation
+anytype auth create my-automation-bot
+
+# Start the headless server
+anytype serve
+```
 
 ### Self-Hosting (Anysync)
 For advanced users who want full control over their sync environment, AnyType allows self-hosting the synchronization nodes.
@@ -53,6 +66,40 @@ docker run -d \
 ```
 
 Detailed self-hosting instructions for the Anysync protocol components (node, filenode, coordinator) are available in the [Anyproto GitHub](https://github.com/anyproto).
+
+## CLI examples
+The Anytype CLI allows running Anytype as a headless server for automation.
+
+```bash
+# Start the headless server
+anytype serve
+
+# Create a bot account for automation
+anytype auth create my-automation-bot
+
+# Generate an API key
+anytype auth apikey create "Local Integration"
+```
+
+## API examples
+Anytype exposes an HTTP API (typically at `http://127.0.0.1:31012`) when running via the CLI or desktop app with API access enabled.
+
+### List Spaces (Python)
+```python
+import requests
+
+url = "http://127.0.0.1:31012/spaces"
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Anytype-Version": "2025-11-08"
+}
+
+response = requests.get(url, headers=headers)
+spaces = response.json()
+
+for space in spaces.get("spaces", []):
+    print(f"Space: {space['name']} (ID: {space['id']})")
+```
 
 ## Licensing and cost
 - **Open Source**: Yes (Any Source Code License / GPL-3.0)

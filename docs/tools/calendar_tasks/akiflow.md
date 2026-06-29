@@ -48,6 +48,14 @@ It solves the "scattered tasks" problem where actionable items are spread across
 ### Using the Command Bar
 Press `Alt+Space` (Windows) or `Option+Space` (macOS) to open the command bar from anywhere and capture a task instantly.
 
+## CLI examples
+> [!NOTE]
+> Akiflow does not currently provide an official command-line interface. All task capture and management are handled via the desktop/mobile applications or the global Command Bar.
+
+## API examples
+> [!NOTE]
+> Akiflow does not currently expose an official public API or developer documentation. Automation is supported through third-party platforms like [Zapier](../automation_orchestration/zapier.md) and [Make](../automation_orchestration/make.md).
+
 ## Licensing and cost
 - **Open Source**: No
 - **Cost**: Paid (Subscription-based with a free trial).
