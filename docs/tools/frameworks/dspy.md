@@ -7,13 +7,13 @@ DSPy (Declarative Self-improving Language Programs, Pythonically) is a framework
 Traditional LLM development involves manual prompt engineering ("prompt hacking"), which is brittle and doesn't scale. DSPy replaces this with a programming model where you define signatures and modules, and an optimizer automatically generates high-quality prompts or fine-tunes models to satisfy your requirements.
 
 ## Where it fits in the stack
-**Framework / LLM Programming Layer**. It acts as a compiler for language model programs, bridging the gap between high-level logic and low-level prompt optimization.
+**Framework / LLM Programming Layer**. It acts as a compiler for language model programs, bridging the gap between high-level logic and low-level prompt optimization. It is increasingly used to optimize [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tool selection and parameter generation.
 
 ## Typical use cases
-- **Complex RAG Pipelines**: Optimizing retrieval and generation steps together.
+- **Complex RAG Pipelines**: Optimizing retrieval and generation steps together using tools like [LlamaIndex](../ai_knowledge/llamaindex.md).
 - **Multi-hop Question Answering**: Managing state and logic across multiple LLM calls.
-- **Self-Improving Agents**: Automatically refining agent prompts based on few-shot examples.
-- **Agentic Workflows**: Building robust systems for frontier models like `claude-4-8-opus-20260528`.
+- **Self-Improving Agents**: Automatically refining agent prompts based on few-shot examples for [Claude 4.8 Opus](../providers/anthropic.md).
+- **Agentic Workflows**: Building robust systems for frontier models that require high precision in structured output.
 
 ## Strengths
 - **Programmatic Control**: Define logic in Python rather than raw strings using **Signatures** (declarative specifications) and **Modules** (reusable components like `ChainOfThought` or `ReAct`).
@@ -21,6 +21,7 @@ Traditional LLM development involves manual prompt engineering ("prompt hacking"
 - **Advanced Reasoning**: Support for `ProgramOfThought` where the model generates code to solve problems.
 - **Assertions and Constraints**: Built-in `dspy.Assert` and `dspy.Suggest` to enforce runtime constraints on LLM outputs.
 - **Model Agnostic**: Easily switch between different LMs and re-optimize the pipeline.
+- **June 2026 Optimizers**: Integration of new 'Adaptive-Spectral' optimizers for ultra-low-shot performance.
 
 ## Limitations
 - **Learning Curve**: Requires a shift in mindset from manual prompting to systematic programming.
@@ -28,13 +29,13 @@ Traditional LLM development involves manual prompt engineering ("prompt hacking"
 - **Complexity**: Debugging compiled programs can be more difficult than debugging raw prompts.
 
 ## When to use it
-- When you are tired of manual prompt engineering.
+- When you are tired of manual prompt engineering and want a more scientific approach.
 - When you need a robust, reproducible, and optimizable LLM pipeline.
 - When building production-grade RAG or agent systems that must adapt to different models.
 
 ## When not to use it
-- For very simple, single-prompt applications.
-- If you don't have even a small dataset to use for optimization.
+- For very simple, single-prompt applications where manual tuning is faster.
+- If you don't have even a small dataset (5-10 examples) to use for optimization.
 - For purely experimental "chat-with-pdf" scripts that don't require high reliability.
 
 ## Getting started
@@ -71,7 +72,7 @@ python -m dspy.utils.cache_viewer --port 8080
 # Example: Running a DSPy script with specific environment variables
 DSPY_CACHEDIR=./cache python my_dspy_app.py
 
-# Example: Using the DSPy CLI for model benchmarking (if installed via extensions)
+# Example: Using the DSPy CLI for model benchmarking
 dspy-bench --model claude-4-8-opus-20260528 --task my_task.py
 ```
 
@@ -113,15 +114,15 @@ optimized_app = tp.compile(MyModule(), trainset=trainset)
 ```
 
 ## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [AutoGen](autogen.md)
-- [Haystack](haystack.md)
-- [Smolagents](smolagents.md)
-- [RAG Patterns](../../knowledge_base/patterns/rag.md)
-- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md)
-- [Agentic RAG Flow](../process_understanding/ragflow.md)
-- [Model Evaluation](../benchmarking/lm-evaluation-harness.md)
+- [LangChain](../ai_knowledge/langchain.md) — Traditional chain-based framework.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Data-centric LLM framework.
+- [AutoGen](autogen.md) — Multi-agent orchestration.
+- [Haystack](haystack.md) — Modular LLM pipelines.
+- [Smolagents](smolagents.md) — Minimalist agent library.
+- [RAG Patterns](../../knowledge_base/patterns/rag-pattern.md) — Core optimization target.
+- [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — Alternative to DSPy optimization.
+- [Model Evaluation](../benchmarking/chatbot-arena.md) — Benchmarking optimized programs.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for tool use in DSPy modules.
 
 ## Sources / References
 - [Official Website](https://dspy-docs.vercel.app/)
@@ -130,6 +131,5 @@ optimized_app = tp.compile(MyModule(), trainset=trainset)
 - [DSPy 2026 Roadmap](https://dspy-docs.vercel.app/roadmap)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high

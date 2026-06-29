@@ -1,34 +1,36 @@
 # Haystack
 
 ## What it is
-Haystack is an end-to-end open-source framework for building applications powered by LLMs, Transformer models, and vector search. It is developed by deepset and designed to handle large-scale RAG and agentic workflows.
+Haystack is an end-to-end open-source framework for building applications powered by LLMs, Transformer models, and vector search. It is developed by deepset and designed to handle large-scale RAG and agentic workflows using models like Claude 4.8 and GPT-5.5.
 
 ## What problem it solves
-It simplifies the construction of complex LLM pipelines by providing modular components for document loading, indexing, retrieval, and generation. Its "Pipeline" abstraction allows for flexible, DAG-based architectures that can handle non-linear logic and conditional routing.
+It simplifies the construction of complex LLM pipelines by providing modular components for document loading, indexing, retrieval, and generation. Its "Pipeline" abstraction allows for flexible, DAG-based architectures that can handle non-linear logic and conditional routing. It addresses the need for production-grade, serialized pipelines that are easy to maintain and scale.
 
 ## Where it fits in the stack
-**Framework / RAG Orchestrator**. It specializes in production-grade retrieval-augmented generation and modular AI pipeline design.
+**Framework / RAG Orchestrator**. It specializes in production-grade retrieval-augmented generation and modular AI pipeline design. In June 2026, it serves as a primary framework for building [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) compatible RAG services.
 
 ## Typical use cases
 - **Enterprise RAG**: Building search systems over millions of documents.
 - **Conversational Agents**: Creating chatbots that use tools and access external data.
 - **Extracted Metadata**: Using LLMs to structure unstructured data from various sources.
-- **Multi-model Orchestration**: Routing tasks between `claude-4-8-opus-20260528` and GPT-5.5 based on cost or complexity.
+- **Multi-model Orchestration**: Routing tasks between Claude 4.8 Opus and GPT-5.5 based on cost or complexity.
+- **MCP Tool Generation**: Automatically creating tool definitions for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers.
 
 ## Strengths
 - **Modular Architecture**: Easy to swap out components (e.g., changing from Elasticsearch to Pinecone).
 - **Production Ready**: Designed with scaling, deployment, and serialization (YAML/JSON) in mind.
-- **Haystack 2.0**: Modern, simplified API with explicit connections and runtime validation.
+- **Haystack 2.x Features**: Enhanced support for dynamic components and runtime validation.
 - **Advanced Routing**: `ConditionalRouter` allows for complex, logic-driven data flows.
+- **Native MCP 3.0 Support**: Seamlessly connects to MCP servers for tool and resource discovery.
 - **Secrets Management**: Standardized `Secret` type for secure handling of API keys.
 
 ## Limitations
-- **Ecosystem Size**: While growing, it has fewer community integrations than LangChain.
-- **Transitioning**: Users of Haystack 1.x may find the shift to 2.0 requires significant code changes.
-- **Learning Curve**: Mastering the explicit connection paradigm in 2.0 takes time.
+- **Ecosystem Size**: While growing, it has fewer community integrations than LangChain for niche edge cases.
+- **Transitioning**: Users of Haystack 1.x may find the shift to 2.0+ requires significant code changes.
+- **Learning Curve**: Mastering the explicit connection paradigm in the modern API takes time.
 
 ## When to use it
-- When building production-grade RAG systems.
+- When building production-grade RAG systems that require strict architectural control.
 - If you prefer a modular, component-based approach to pipeline design.
 - When you need to serialize pipelines for cross-environment deployment.
 
@@ -53,7 +55,7 @@ from haystack.components.generators import OpenAIGenerator
 prompt_template = "What is the capital of {{country}}?"
 pipeline = Pipeline()
 pipeline.add_component("prompt_builder", PromptBuilder(template=prompt_template))
-pipeline.add_component("llm", OpenAIGenerator(model="gpt-4o"))
+pipeline.add_component("llm", OpenAIGenerator(model="gpt-5.5-preview"))
 pipeline.connect("prompt_builder", "llm")
 
 result = pipeline.run({"prompt_builder": {"country": "France"}})
@@ -66,7 +68,7 @@ print(result["llm"]["replies"][0])
 # Exporting a pipeline to YAML
 python my_pipeline.py --export pipeline.yaml
 
-# Running a serialized pipeline from the CLI (if wrapper script is present)
+# Running a serialized pipeline from the CLI
 haystack-run --pipeline pipeline.yaml --input "What is AI?"
 
 # Validating a pipeline configuration
@@ -112,15 +114,15 @@ yaml_str = pipeline.dumps()
 ```
 
 ## Related tools / concepts
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [AutoGen](autogen.md)
-- [DSPy](dspy.md)
-- [Smolagents](smolagents.md)
-- [RAGFlow](../process_understanding/ragflow.md)
-- [Knowledge Base Patterns](../../knowledge_base/patterns/rag.md)
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Semantic Kernel](semantic-kernel.md)
+- [LangChain](../ai_knowledge/langchain.md) — The largest LLM framework.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — RAG-first framework.
+- [AutoGen](autogen.md) — Multi-agent orchestration.
+- [DSPy](dspy.md) — Programmatic prompt optimization.
+- [Smolagents](smolagents.md) — Minimalist agent library.
+- [RAG Patterns](../../knowledge_base/patterns/rag-pattern.md) — Reference implementations.
+- [Semantic Kernel](semantic-kernel.md) — Microsoft's enterprise AI framework.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Integrated tool protocol.
+- [NVIDIA NIM](../providers/nvidia.md) — Optimized inference backend.
 
 ## Sources / References
 - [Official Website](https://haystack.deepset.ai/)
@@ -129,6 +131,5 @@ yaml_str = pipeline.dumps()
 - [Haystack 2.0 Release Notes](https://haystack.deepset.ai/blog/haystack-2-release)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
