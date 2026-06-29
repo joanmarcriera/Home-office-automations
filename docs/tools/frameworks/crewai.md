@@ -7,7 +7,7 @@ CrewAI is an open-source framework for orchestrating role-playing, collaborative
 It simplifies the creation of multi-agent systems where agents need to collaborate and follow a specific workflow (sequential, hierarchical, consensual). It manages the communication, task hand-offs, and shared context between agents automatically.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator**. It sits at the top of the agentic stack, coordinating multiple specialized models (like `claude-4-8-opus-20260528` and GPT-5.5) to achieve high-level objectives.
+**Framework / Multi-Agent Orchestrator**. It sits at the top of the agentic stack, coordinating multiple specialized models (like Claude 4.8 and GPT-5.5) to achieve high-level objectives.
 
 ## Typical use cases
 - **Content Creation Pipelines**: A writer agent, a researcher agent, and an editor agent working together.
@@ -18,9 +18,10 @@ It simplifies the creation of multi-agent systems where agents need to collabora
 ## Strengths
 - **Role-Based Design**: Intuitive way to define agent personas with backstories and goals.
 - **Flexible Processes**: Supports different workflows including `Process.sequential`, `Process.hierarchical`, and `Process.consensual`.
-- **Sophisticated Memory**: Integrated short-term, long-term, and entity memory systems (using LanceDB).
+- **Sophisticated Memory**: Integrated short-term, long-term, and entity memory systems.
 - **Task Delegation**: Built-in mechanisms for agents to delegate sub-tasks to other crew members.
 - **Self-Correction**: Agents can learn from past executions and improve their performance over time.
+- **MCP 3.0 Support**: Native integration with the Model Context Protocol for tool discovery and cross-agent resource sharing.
 
 ## Limitations
 - **Token Usage**: Multi-agent loops and hierarchical reviews can quickly consume many tokens.
@@ -118,22 +119,21 @@ agent = Agent(
 
 ## Related tools / concepts
 - [AutoGen](autogen.md)
-- [LangChain](../ai_knowledge/langchain.md)
+- [LangChain](../../tools/ai_knowledge/langchain.md)
 - [LangGraph](./langgraph.md)
 - [Multi-Agent Systems](../../architecture/multi_agent_knowledgeops.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
 - [Claude Code Router](../development_ops/claude-code-router.md)
-- [OpenClaw Security Patterns](../../knowledge_base/patterns/openclaw-security-operations.md)
 - [Smolagents](smolagents.md)
 - [Plandex](../development_ops/plandex.md)
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.crewai.com/)
 - [GitHub](https://github.com/joaomdmoura/crewAI)
 - [Documentation](https://docs.crewai.com/)
 - [CrewAI 2026 Enterprise Features](https://www.crewai.com/enterprise)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
