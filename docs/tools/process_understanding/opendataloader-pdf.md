@@ -1,13 +1,13 @@
 # OpenDataLoader PDF
 
 ## What it is
-OpenDataLoader PDF is a specialized, open-source ingestion engine designed for high-fidelity conversion of complex PDF documents into AI-ready data formats (Markdown and JSON). It focuses on preserving semantic structure, including tables, multi-column layouts, and mathematical formulas.
+OpenDataLoader PDF is a specialized, open-source ingestion engine designed for high-fidelity conversion of complex PDF documents into AI-ready data formats (Markdown and JSON). It focuses on preserving semantic structure, including tables, multi-column layouts, and mathematical formulas. In June 2026, it is a key component for feeding accurate data to `claude-4-8-opus-20260528` and GPT-5.5.
 
 ## What problem it solves
-It solves the "garbage-in, garbage-out" problem in RAG pipelines. Standard PDF parsers often fail on complex layouts, resulting in jumbled text that causes hallucinations in LLMs like Claude 4.8 or GPT-5.5. OpenDataLoader uses vision-aware layout detection to ensure that text is extracted in the correct reading order.
+It solves the "garbage-in, garbage-out" problem in RAG pipelines. Standard PDF parsers often fail on complex layouts, resulting in jumbled text that causes hallucinations in LLMs. OpenDataLoader uses vision-aware layout detection to ensure that text is extracted in the correct reading order.
 
 ## Where it fits in the stack
-**Ingest / Process & Understanding**. It acts as the bridge between legacy PDF archives and modern agentic knowledge bases.
+**Ingest / Process & Understanding**. It acts as the bridge between legacy PDF archives and modern agentic knowledge bases, often integrated with MCP 3.0 for real-time document processing.
 
 ## Typical use cases
 - **Archive Migration**: Converting thousands of historical PDF reports into a clean, searchable Markdown repository.
@@ -88,13 +88,15 @@ print(query_engine.query("What are the quarterly growth metrics in the table?"))
 - [Crawl4AI](crawl4ai.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Unstructured.io](../intake_storage/unstructured.md)
-- [RAG Patterns](../../knowledge_base/patterns/rag.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
+- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references
 - [OpenDataLoader GitHub Repository](https://github.com/opendataloader-project/opendataloader-pdf)
 - [PDF to AI-Ready Data Best Practices](https://github.com/opendataloader-project/opendataloader-pdf/docs/best-practices.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
