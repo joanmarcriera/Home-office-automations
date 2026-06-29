@@ -1,22 +1,22 @@
 # Glaive
 
 ## What it is
-Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. It focuses on creating datasets that improve a model's ability to use tools, call APIs, and reason through complex, multi-step tasks, which are critical capabilities for autonomous agents like [Claude Code](../development_ops/claude-code.md).
+Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. In June 2026, it is a critical tool for creating datasets that improve a model's ability to use [MCP 3.0](../../tools/automation_orchestration/mcp.md) tools, call APIs, and reason through complex, multi-step tasks, which are foundational capabilities for autonomous agents like [Claude Code](../development_ops/claude-code.md).
 
 ## What problem it solves
 Generic synthetic data generation often fails to capture the nuances of real-world tool use and API interactions. Glaive addresses this by:
-- **Generating Functional Data**: Creating datasets that specifically target function calling and structured output.
-- **Improving SLM Performance**: Enabling smaller, more efficient models to punch above their weight in agentic workflows.
+- **Generating Functional Data**: Creating datasets that specifically target function calling and structured output according to the latest [MCP 3.0](../../tools/automation_orchestration/mcp.md) specifications.
+- **Improving SLM Performance**: Enabling smaller models like [Llama 4 Maverick](../ai_knowledge/local_llms.md) to punch above their weight in agentic workflows.
 - **Reducing Dependency on Frontier Models**: Providing a way to distill the reasoning capabilities of [Claude 4.8 Opus](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md) into smaller, more cost-effective specialized models.
 
 ## Where it fits in the stack
-Glaive sits in the **AI & Knowledge/Synthetic-Data** layer. It provides the high-quality training signals used to adapt base models for agentic behavior, often being paired with fine-tuning tools like [Unsloth](../infrastructure/unsloth.md) or [LLaMA Factory](../frameworks/llama-factory.md).
+Glaive sits in the **AI & Knowledge / Synthetic Data** layer. It provides high-quality training signals used to adapt base models for agentic behavior, often being paired with fine-tuning tools like [Unsloth](../infrastructure/unsloth.md) or [LLaMA Factory](../frameworks/llama-factory.md).
 
 ## Typical use cases
-- **Agentic Tool-Use Training**: Generating datasets of natural language prompts followed by correct tool calls (JSON/Python).
-- **Function Calling Distillation**: Training a 7B or 8B model to be as reliable at function calling as GPT-4o or Claude 3.5 Sonnet.
-- **Multi-Step Reasoning**: Creating synthetic examples of "Chain of Thought" reasoning for complex problem solving.
-- **API Sandbox Data**: Generating realistic API responses and error states to train models on robust error handling.
+- **Agentic Tool-Use Training**: Generating datasets of natural language prompts followed by correct tool calls using the [MCP 3.0](../../tools/automation_orchestration/mcp.md) Task Protocol.
+- **Function Calling Distillation**: Training a 7B or 8B model to be as reliable at function calling as [Claude 4.8 Opus](../providers/anthropic.md).
+- **Multi-Step Reasoning**: Creating synthetic examples of "Chain of Thought" reasoning for complex problem solving in autonomous loops.
+- **API Sandbox Data**: Generating realistic API responses and error states to train models on robust error handling and self-correction.
 
 ## Strengths
 - **Focus on Agents**: Specifically designed for the agentic and tool-use era of AI.
@@ -125,16 +125,18 @@ weather_tool = {
 - [Fine-tuning Open Models](../../knowledge_base/patterns/fine-tuning-open-models.md) — The target workflow for Glaive data.
 - [distilabel](../frameworks/distilabel.md) — An open-source alternative for synthetic data generation.
 - [Unsloth](../infrastructure/unsloth.md) — Frequently used to train on Glaive-generated agent data.
-- [llama-factory](../frameworks/llama-factory.md) — For orchestrating the fine-tuning run.
-- [axolotl](../frameworks/axolotl.md) — For config-based training on Glaive datasets.
-- [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The core capability Glaive aims to improve.
+- [LLaMA Factory](../frameworks/llama-factory.md) — For orchestrating the fine-tuning run.
+- [Axolotl](../frameworks/axolotl.md) — For config-based training on Glaive datasets.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The core protocol Glaive aims to support.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The architectural pattern Glaive supports.
+- [Llama 4 Maverick](local_llms.md) — Primary target for SLM distillation using Glaive data.
 
 ## Sources / references
 - [Glaive AI Official Website](https://glaive.ai/)
+- [Glaive AI Documentation](https://docs.glaive.ai/)
 - [Glaive AI on X/Twitter](https://x.com/glaiveai)
 - [Training Small Models for Tool Use (Blog)](https://glaive.ai/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
