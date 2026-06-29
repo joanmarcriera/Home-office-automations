@@ -4,29 +4,24 @@
 ElevenLabs is an AI audio research and deployment company that specializes in high-fidelity speech synthesis, voice cloning, and text-to-speech (TTS) technology. It is a critical component for building expressive multi-modal agents that interact naturally with users.
 
 ## What problem it solves
-It provides remarkably human-like AI voices for content creators, developers, and businesses, solving the issue of robotic-sounding synthetic speech. It enables frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) to have a voice that matches their high reasoning capabilities.
+It provides remarkably human-like AI voices for content creators, developers, and businesses, solving the issue of robotic-sounding synthetic speech. It enables frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) to have a voice that matches their high reasoning capabilities through **Multilingual v3** and **low-latency MCP 3.0 streaming**.
 
 ## Where it fits in the stack
 **AI & Knowledge / Multi-modal**. It provides the audio synthesis layer for AI agents, avatars, and automated media production. It is often the "voice" of an agent system powered by orchestration frameworks like [CrewAI](../frameworks/crewai.md).
 
 ## Typical use cases
-- Generating narrations for audiobooks and podcasts
-- Providing voices for AI avatars and video game characters
-- Dubbing content into multiple languages while preserving the original speaker's tone
-- Accessibility tools for the visually impaired
-- Real-time voice interaction for autonomous agents
-
-## Example company use cases
-- **Media Production**: Automating the creation of localized marketing videos with consistent brand voices.
-- **Customer Experience**: Powering high-fidelity voice assistants for phone-based support systems.
-- **Gaming**: Generating dynamic dialogue for NPCs that can respond to player actions in real-time.
+- **Global Content Creation**: Generating narrations for audiobooks and podcasts in 30+ languages using Multilingual v3.
+- **AI Avatars & Gaming**: Providing expressive voices for characters and NPCs that respond in real-time.
+- **Automated Dubbing**: Localizing marketing videos and films while preserving the original speaker's unique vocal characteristics.
+- **Agentic Interaction**: Real-time voice interaction for autonomous agents using low-latency MCP 3.0 streaming protocols.
+- **Accessibility**: Powering high-fidelity tools for the visually impaired and localized customer support systems.
 
 ## Strengths
-- Exceptional emotional range and realistic prosody in synthetic voices
-- Powerful voice cloning capabilities (Instant and Professional)
-- Support for a wide array of languages and accents
-- Low latency API for real-time applications
-- High-fidelity dubbing with original voice preservation
+- **Multilingual v3**: State-of-the-art cross-lingual voice synthesis with near-perfect accent preservation.
+- **Emotional Range**: Exceptional prosody and realistic emotional expression in synthetic speech.
+- **MCP 3.0 Integration**: Native support for the Model Context Protocol, enabling low-latency streaming for agentic handoffs.
+- **Voice Cloning**: Powerful Instant and Professional voice cloning (PVC) capabilities.
+- **High-fidelity Dubbing**: Intelligent content localization with original voice preservation.
 
 ## Limitations
 - Ethical concerns regarding voice cloning and potential misuse
@@ -41,14 +36,10 @@ It provides remarkably human-like AI voices for content creators, developers, an
 - When building a premium, multi-modal interface for an AI agent.
 
 ## When not to use it
-- When simple, functional TTS (like built-in OS voices) is sufficient.
-- When strict offline, local processing is a requirement for privacy or latency (consider [Fish Audio](../ai_knowledge/fish-audio.md)).
-- For low-priority internal alerts where costs would outweigh the benefit of high-quality speech.
-
-## Selection comments
-- ElevenLabs is the industry leader for emotional expression and "naturalness" in synthetic speech.
-- Use it as the default choice for client-facing or public-facing media.
-- For internal alerts or simple logging, stick to cheaper or local TTS alternatives.
+- When simple, functional TTS (like built-in OS voices) is sufficient for the task.
+- When strict offline, local processing is required for privacy or extreme latency (consider [Fish Audio](../ai_knowledge/fish-audio.md)).
+- For low-priority internal alerts where the cost of premium synthesis outweighs the benefits.
+- When a local-first neural cloning solution is preferred (consider [KokoClone](kokoclone.md)).
 
 ## Getting started
 
@@ -115,10 +106,11 @@ audio_generator = client.generate(
 ```
 
 ## Related tools / concepts
-- [Synthesia](synthesia.md) — For video generation paired with audio.
-- [Whisper](../../services/whisper.md) — The speech-to-text counterpart.
 - [Fish Audio](fish-audio.md) — A local-first, high-fidelity TTS alternative.
 - [KokoClone](kokoclone.md) — For local neural voice cloning.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For agentic streaming.
+- [Synthesia](synthesia.md) — For video generation paired with audio.
+- [Whisper](../../services/whisper.md) — The speech-to-text counterpart.
 - [Claude 4.8 Opus](../providers/anthropic.md) — High-reasoning model often used for agent logic.
 - [GPT-5.5](openai.md) — Frontier model for generating expressive dialogue.
 - [CrewAI](../frameworks/crewai.md) — Multi-agent orchestration.
@@ -130,5 +122,5 @@ audio_generator = client.generate(
 - [ElevenLabs Blog](https://elevenlabs.io/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-28
 - Confidence: high
