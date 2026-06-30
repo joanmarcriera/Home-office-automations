@@ -1,7 +1,7 @@
 # MMLU (Massive Multitask Language Understanding)
 
 ## What it is
-MMLU is a comprehensive benchmark designed to measure the general knowledge and problem-solving abilities of Large Language Models. It consists of approximately 16,000 multiple-choice questions across 57 subjects, including STEM, the humanities, social sciences, and more. As of June 2026, it remains a foundational metric for comparing frontier models like `claude-4-8-opus-20260528` and GPT-5.5, which have reached near-expert human performance on most categories.
+MMLU is a comprehensive benchmark designed to measure the general knowledge and problem-solving abilities of Large Language Models. It consists of approximately 16,000 multiple-choice questions across 57 subjects, including STEM, the humanities, social sciences, and more. As of June 2026, it remains a foundational metric for comparing frontier models like `claude-4-8-opus-20260528` and GPT-5.5. Modern evaluation pipelines often utilize the [MCP 3.0](../../tools/automation_orchestration/mcp.md) Task Protocol for automated orchestration and [ClickHouse](../../tools/process_understanding/clickhouse.md) for high-volume OLAP telemetry of benchmark results.
 
 ## What problem it solves
 It provides a standardized way to evaluate a model's "world knowledge" and academic proficiency across a vast array of disciplines, moving beyond narrow tasks to assess broad intellectual capability.
@@ -14,6 +14,7 @@ It provides a standardized way to evaluate a model's "world knowledge" and acade
 - **Academic Proficiency Analysis**: Breaking down performance across STEM (19 subjects), Humanities (13), Social Sciences (14), and professional categories like Medicine and Law.
 - **Model Regression Testing**: Measuring if general knowledge is lost during specialized fine-tuning.
 - **Foundation Model Comparison**: Assessing the "reasoning baseline" of a model before applying it to agentic tasks.
+- **Observability Integration**: Using [AgentOps](../../tools/process_understanding/agentops.md) to visualize the execution graph during complex multi-subject evaluations.
 
 ## Strengths
 - **Breadth**: Covers a massive range of subjects, from elementary mathematics to professional law and medicine.
@@ -67,7 +68,7 @@ lm_eval --model hf \
 ```
 
 ### Full MMLU Evaluation
-To run the full 57-subject benchmark using [vLLM](../infrastructure/vllm.md) for faster inference:
+To run the full 57-subject benchmark using [vLLM](../infrastructure/vllm.md) for faster inference on models like [Llama 4 Maverick](../ai_knowledge/local_llms.md):
 
 ```bash
 lm_eval --model vllm \
@@ -113,6 +114,9 @@ python run.py --models claude-4-8-opus --datasets mmlu_gen
 - [Humanity's Last Exam (HLE)](humanitys-last-exam.md) — a frontier benchmark designed to follow MMLU.
 - [ARC (AI2 Reasoning Challenge)](arc.md) — reasoning-focused benchmark.
 - [ASDiv](asdiv.md) — adversarial math word problems.
+- [MCP](../../tools/automation_orchestration/mcp.md) — protocol for agentic tool and task orchestration.
+- [ClickHouse](../../tools/process_understanding/clickhouse.md) — high-performance OLAP database for telemetry.
+- [AgentOps](../../tools/process_understanding/agentops.md) — observability for agentic workflows.
 
 ## Sources / References
 - [Original Paper: Measuring Massive Multitask Language Understanding (Hendrycks et al. arXiv 2009.03300)](https://arxiv.org/abs/2009.03300)
@@ -120,5 +124,5 @@ python run.py --models claude-4-8-opus --datasets mmlu_gen
 - [Hugging Face Dataset Card](https://huggingface.co/datasets/cais/mmlu)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high
