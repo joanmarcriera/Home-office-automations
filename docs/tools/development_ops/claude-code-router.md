@@ -1,31 +1,33 @@
 # Claude Code Router
 
 ## What it is
-Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./claude-code.md) CLI. It intercepts API requests from Claude Code and redirects them to various LLM providers (OpenRouter, DeepSeek, Gemini, Ollama, etc.) based on user-defined rules. As of June 2026, it is frequently used to benchmark `claude-4-8-opus-20260528` against GPT-5.5 and DeepSeek-V4.
+Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./claude-code.md) CLI. It intercepts API requests from Claude Code and redirects them to various LLM providers (OpenRouter, DeepSeek, Gemini, Ollama, etc.) based on user-defined rules. As of June 2026, it is the standard for benchmarking `claude-4-8-opus-20260528` against GPT-5.5 and DeepSeek-V4, providing a unified interface for model-agnostic agentic workflows.
 
 ## What problem it solves
 - **Cost Optimization**: Redirects expensive Claude 3.5/4.8 Sonnet requests to cheaper alternatives like DeepSeek-V3 or local models for background tasks.
 - **Regional Access**: Enables users in regions where Anthropic is restricted to use Claude Code by proxying through other providers.
 - **Model Flexibility**: Allows mixing and matching models for different tasks (e.g., reasoning vs. coding) within the same Claude Code session.
 - **Compatibility Smoothing**: Uses a "Transformer" system to fix subtle differences between provider APIs (e.g., forcing tool usage or reasoning tags).
+- **Latency Management**: Implements smart routing based on provider health and response times in June 2026's crowded inference market.
 
 ## Where it fits in the stack
-**Router / Gateway**. It sits between the agent (Claude Code) and the inference provider, acting as a programmable middleware.
+**Router / Gateway**. It sits between the agent (Claude Code) and the inference provider, acting as a programmable middleware. It is often used alongside [LiteLLM](../../services/litellm.md) for enterprise-grade load balancing.
 
 ## Typical use cases
 - **DeepSeek Integration**: Using `DeepSeek-V3` for coding and `DeepSeek-R1` for "Plan Mode" at a fraction of the cost of Claude 4.8.
 - **Local Dev Loop**: Routing background tasks to a local [Ollama instance](../../services/ollama.md) (e.g., `qwen2.5-coder`) to save tokens.
 - **Enterprise Proxying**: Centralizing API key management and logging for teams using Claude Code via [OpenRouter](../ai_knowledge/openrouter.md).
+- **Automated Benchmarking**: Running identical coding tasks across Claude 4.8, GPT-5.5, and Gemini 2.0 to evaluate performance regressions.
 
 ## Strengths
 - **Dynamic Switching**: Change models on-the-fly using the `/model` command within Claude Code.
 - **Transformer System**: Built-in logic to enhance tool usage for models that struggle with instruction following (like DeepSeek).
 - **Ease of Use**: Includes a web UI (`ccr ui`) and an interactive CLI (`ccr model`) for configuration.
 - **GitHub Actions Support**: Built-in `NON_INTERACTIVE_MODE` for CI/CD workflows.
-- **MCP Discovery**: Integrated discovery of [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) tools and routing patterns.
+- **MCP 3.0 Discovery**: Integrated discovery of [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tools and routing patterns using the MCP 3.0 Task Protocol.
 
 ## Limitations
-- **Latency**: Adding a proxy layer introduces minor network overhead.
+- **Latency**: Adding a proxy layer introduces minor network overhead (typically <50ms).
 - **Complexity**: Requires managing a configuration file and a local service.
 - **Instruction Adherence**: While transformers help, non-Claude models may still struggle with Claude Code's complex multi-step prompts compared to native `claude-4-8-opus-20260528` performance.
 
@@ -33,10 +35,12 @@ Claude Code Router (CCR) is a proxy and routing layer for the [Claude Code](./cl
 - Use when you want to use Claude Code with cheaper models (e.g., DeepSeek) to save costs.
 - Use if you are in a region where direct access to Anthropic's API is restricted.
 - Use when you need to route different types of tasks (background vs. planning) to different LLM providers like GPT-5.5.
+- Use for multi-model developer environments where different features (like reasoning vs. speed) are required for different sub-tasks.
 
 ## When not to use it
 - Not necessary if you have a Claude Code Max plan and don't mind the cost.
 - Not for users who prefer a zero-configuration setup, as it requires managing a proxy service.
+- When working in highly air-gapped environments where external proxies are prohibited.
 
 ## Getting started
 Ensure Claude Code is installed:
@@ -54,6 +58,11 @@ Start the service:
 ccr start
 ```
 
+Configure your first model:
+```bash
+ccr model openrouter/anthropic/claude-4-8-opus
+```
+
 ## CLI examples
 ```bash
 # Set the active model for the router
@@ -64,6 +73,9 @@ ccr code
 
 # Open the web-based configuration UI
 ccr ui
+
+# Check provider health and latency
+ccr health
 ```
 
 ## API examples
@@ -112,7 +124,7 @@ If a model fails to call tools, enable the `tooluse` transformer:
 - [Claude Code](./claude-code.md)
 - [Aider](./aider.md)
 - [LiteLLM](../../services/litellm.md)
-- [MCP](../../knowledge_base/agent_protocols.md)
+- [MCP](../automation_orchestration/mcp.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [Ollama](../../services/ollama.md)
 - [DeepSeek](../providers/deepseek.md)
@@ -124,5 +136,5 @@ If a model fails to call tools, enable the `tooluse` transformer:
 - [Transformers & Tool Usage Blog Post](https://github.com/musistudio/claude-code-router/blob/main/blog/en/maybe-we-can-do-more-with-the-route.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high

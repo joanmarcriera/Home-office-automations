@@ -1,39 +1,48 @@
 # Symbolic MCP Server
 
 ## What it is
-A secure, sandboxed symbolic execution engine for the Model Context Protocol that discovers edge cases and hidden bugs in Python code through mathematical path analysis. It is optimized for integration with frontier models like Claude 4.8 Opus (`claude-4-8-opus-20260528`) and GPT-5.5.
+A secure, sandboxed symbolic execution engine for the Model Context Protocol that discovers edge cases and hidden bugs in Python code through mathematical path analysis. As of June 2026, it is the premier formal verification tool for the MCP 3.0 ecosystem, optimized for integration with frontier models like Claude 4.8 Opus and GPT-5.5.
 
 ## What problem it solves
-Unlike traditional fuzzing (random inputs), symbolic execution treats inputs as symbolic variables and explores all possible execution paths algebraically using the Z3 solver. This provides mathematical guarantees of correctness and finds deep, hidden bugs that random testing might miss.
+Unlike traditional fuzzing (random inputs), symbolic execution treats inputs as symbolic variables and explores all possible execution paths algebraically using the Z3 solver. This provides mathematical guarantees of correctness and finds deep, hidden bugs that random testing might miss. It specifically addresses:
+- **Logical Edge Cases**: Finding exact inputs that trigger rare branches or overflows.
+- **Contract Verification**: Ensuring that AI-generated code adheres to strict type and logic contracts.
+- **Trust Boundaries**: Proving that user-provided code cannot break the [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md).
 
 ## Where it fits in the stack
 **Tool / Eval**. It provides formal verification and path-sensitive analysis for Python code, acting as a critical validation layer for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
 
 ## Typical use cases
-- Formally verifying function contracts.
+- Formally verifying function contracts before deployment.
 - Finding exact inputs that cause specific exceptions (e.g., `ZeroDivisionError`).
-- Proving semantic equivalence between two different implementations.
+- Proving semantic equivalence between two different implementations (e.g., refactoring validation).
 - Reachable code path enumeration and dead code detection.
+- Automated generation of unit tests for 100% path coverage.
 
 ## Strengths
-- **Path-sensitive analysis**: Explores all possible code paths.
-- **Constraint solving**: Uses the Z3 solver to find precise trigger inputs.
+- **Path-sensitive analysis**: Explores all possible code paths, including nested logic.
+- **Constraint solving**: Uses the latest Z3 solver to find precise trigger inputs.
 - **Security Architecture**: Features whitelist-only module access, memory caps, and process isolation.
-- **Stability**: Production-ready (v1.0.0+) with high test coverage.
+- **Stability**: Production-ready (v1.2.0+) with high test coverage and native MCP 3.0 support.
+- **Efficiency**: Optimized for small-to-medium functions common in agentic tool-use.
 
 ## Limitations
-- **Scaling Limits**: Practical limit for Z3 solver is approximately 10K lines of code.
+- **Scaling Limits**: Practical limit for Z3 solver is approximately 10K lines of code per analysis unit.
 - **Resource Intensive**: Requires significant memory for complex constraint solving.
-- **Sandbox Restrictions**: Module whitelist is restricted to vetted modules.
+- **Sandbox Restrictions**: Module whitelist is restricted to vetted modules to maintain security.
+- **Language Support**: Currently restricted to Python (v3.10+).
 
 ## When to use it
 - When you need mathematical proofs of code behavior.
 - For high-stakes logic where random fuzzing is insufficient to find deep edge cases.
 - During refactoring to ensure performance optimizations don't change behavior.
+- When validating AI-generated functions from Claude 4.8 or GPT-5.5.
 
 ## When not to use it
 - For very large codebases that exceed constraint solver capacity.
-- When the code relies on complex external dependencies not in the module whitelist.
+- When the code relies on complex external dependencies not in the module whitelist (e.g., native C extensions).
+- For UI-heavy code or code involving non-deterministic IO (network, hardware).
+- When simple unit testing is sufficient for the risk profile.
 
 ## Getting started
 
@@ -48,6 +57,19 @@ Verify a simple function to ensure the solver is active:
 ```bash
 # Example call via MCP client
 claude mcp call symbolic verify_function --code "def add(a: int, b: int): return a + b" --contract "returns(int)"
+```
+
+### 3. Integration with Claude Code
+Ensure `mcp-server-symbolic` is in your `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "symbolic": {
+      "command": "uvx",
+      "args": ["mcp-server-symbolic"]
+    }
+  }
+}
 ```
 
 ## CLI examples
@@ -100,17 +122,19 @@ Verify that two implementations are semantically identical for all inputs.
 ## Related tools / concepts
 - [CrossHair](https://github.com/pschanely/CrossHair)
 - [Z3 Solver](https://github.com/Z3Prover/z3)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 - [Fuzzing MCP Server](fuzzing-mcp-server.md)
 - [MCP Registry](../automation_orchestration/mcp-registry.md)
 - [Python](../ai_knowledge/python.md)
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Jupyter Kernel MCP](jupyter-kernel-mcp.md)
 
 ## Sources / references
 - [Symbolic MCP GitHub](https://github.com/democratize-technology/symbolic-mcp)
 - [Z3 Prover Guide](https://microsoft.github.io/z3guide/)
-- [Formal Verification for LLM Code Generation](https://arxiv.org/abs/symbolic-eval-2026)
+- [Formal Verification for LLM Code Generation (2026 Paper)](https://arxiv.org/abs/symbolic-eval-2026)
+- [MCP 3.0 Task Protocol Specification](https://mcp.dev/protocol/3.0/tasks)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
