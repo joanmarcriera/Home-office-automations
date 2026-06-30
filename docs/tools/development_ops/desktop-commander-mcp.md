@@ -1,37 +1,40 @@
 # Desktop Commander MCP
 
 ## What it is
-A privacy-first Model Context Protocol (MCP) server that provides AI assistants with terminal control, filesystem access, and surgical text editing capabilities.
+A privacy-first Model Context Protocol (MCP 3.0) server that provides AI assistants with terminal control, filesystem access, and surgical text editing capabilities. It is built to be the "local hands" for frontier models like **Claude 4.8 Opus** and **GPT-5.5**.
 
 ## What problem it solves
-It enables AI assistants (like Claude 4.8 Opus or GPT-5.5) to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools.
+It enables AI assistants to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools. It solves the "trust gap" in agentic workflows by ensuring no data leaves the local environment except through explicitly defined MCP tool calls.
 
 ## Where it fits in the stack
-**Tool / Agent**. It provides the "hands" for an agent to operate on a local machine, serving as a secure alternative to cloud-based execution environments.
+**Development & Ops / Tool Layer**. It serves as a secure bridge between an LLM-based agent (running in an MCP-compliant host like Claude Desktop or Cursor 3.0) and the local OS.
 
 ## Typical use cases
 - Reading and writing files in a local development environment.
-- Executing terminal commands and managing local processes.
-- Searching code using `ripgrep` integrations.
-- Applying targeted search/replace operations (edit blocks).
+- Executing terminal commands and managing local processes for **Llama 4 Maverick** fine-tuning.
+- Searching code using `ripgrep` integrations for complex refactoring.
+- Applying targeted search/replace operations (edit blocks) across multiple files.
 
 ## Strengths
-- **Privacy-First**: No telemetry, analytics, or external connections.
-- **Surgical Editing**: Includes a tool for precise text replacements.
-- **Comprehensive Controls**: Covers filesystem, terminal, and system process management.
-- **Configurable Security**: Allows blocking specific commands and restricting access to directories.
+- **Privacy-First**: No telemetry, analytics, or external connections; operates entirely on-device.
+- **MCP 3.0 Native**: Full support for the latest Task Protocol and resource discovery.
+- **Surgical Editing**: Includes the `edit_block` tool for precise, idempotent text replacements.
+- **Configurable Security**: Allows blocking specific commands and restricting access to white-listed directories.
 
 ## Limitations
-- Operates with the permissions of the user running the server.
-- Requires manual configuration of allowed directories for security.
+- **Permission Bound**: Operates with the permissions of the user running the server; lacks its own sandboxing.
+- **Manual Config**: Requires manual configuration of allowed directories for security.
+- **Local Only**: Not designed for remote or cloud-based execution without additional tunneling.
 
 ## When to use it
 - When you want to give an agent access to your local dev environment but are concerned about privacy or data leakage.
 - When you need a lightweight, reliable bridge for filesystem and terminal operations for `claude-4-8-opus-20260528`.
+- In highly regulated environments where telemetry is strictly prohibited.
 
 ## When not to use it
 - In untrusted environments where the agent could perform destructive actions (unless strictly configured).
-- If you require cloud-based orchestration or telemetry for team auditing.
+- If you require cloud-native orchestration (consider [Superconductor](superconductor.md) instead).
+- If you need native browser automation (use [Playwright](playwright.md) for those tasks).
 
 ## Getting started
 
@@ -111,7 +114,7 @@ Apply precise text replacements using SEARCH/REPLACE blocks.
 ```
 
 ### 3. Terminal Control (start_process)
-Start a background process and manage its lifecycle.
+Start a background process and manage its lifecycle using MCP 3.0 protocols.
 
 ```json
 {
@@ -126,19 +129,18 @@ Start a background process and manage its lifecycle.
 ## Related tools / concepts
 - [Claude Code](claude-code-setup.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [ripgrep](ripgrep.md)
 - [Claude Code Container MCP](claude-code-container-mcp.md)
 - [Aider](aider.md)
 - [VS Code](vscode.md)
 - [Zed](zed.md)
 - [MCP Registry](../automation_orchestration/mcp-registry.md)
 - [Agent Protocols](../../knowledge_base/agent_protocols.md)
+- [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Desktop Commander MCP GitHub](https://github.com/democratize-technology/DesktopCommanderMCP)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high
