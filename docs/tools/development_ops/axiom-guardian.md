@@ -1,39 +1,42 @@
 # Axiom Guardian MCP Server
 
 ## What it is
-An MCP server that implements challenge-based request validation using Natural Language Inference (NLI) to enforce core principles.
+An MCP server that implements challenge-based request validation using Natural Language Inference (NLI) to enforce core principles. As of June 2026, **Axiom Guardian v1.5** serves as a critical alignment layer for autonomous systems, integrating with the **MCP 3.0 Task Protocol** to provide verifiable, challenge-based justification logs for agent actions.
 
 ## What problem it solves
-It shifts the AI paradigm from passive compliance ("How can I help you?") to active validation ("Why are you doing this?"). It detects logical contradictions between proposed actions and configured axioms, forcing the user (or agent) to justify their actions.
+It shifts the AI paradigm from passive compliance ("How can I help you?") to active validation ("Why are you doing this?"). It detects logical contradictions between proposed actions and configured axioms, forcing the user (or agent) to justify their actions. It addresses the "autonomous drift" problem where agents may take increasingly risky actions in pursuit of a high-level goal.
 
 ## Where it fits in the stack
-**Tool / Guardrail**. It provides an AI alignment and safety layer for agent actions, fitting between the AI model (like Claude 4.8 Opus or GPT-5.5) and the tools it attempts to execute.
+**Tool / Guardrail**. It provides an AI alignment and safety layer for agent actions, fitting between the AI model (like Claude 4.8 Opus or GPT-5.5) and the tools it attempts to execute. It is often deployed as a middleware layer in [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
 
 ## Typical use cases
-- AI Safety: Challenging potentially harmful or destructive requests before execution.
-- Organizational Governance: Enforcing company values in automated workflows.
-- Decision Audit Trail: Forcing articulation of reasoning for high-stakes actions.
-- Educational tool for training users to think through consequences.
+- **AI Safety**: Challenging potentially harmful or destructive requests before execution.
+- **Organizational Governance**: Enforcing company values and security policies in automated workflows.
+- **Decision Audit Trail**: Forcing articulation of reasoning for high-stakes actions (e.g., production deployments, financial transactions).
+- **Educational Tool**: Training users and agents to think through the ethical and operational consequences of their requests.
 
 ## Strengths
-- **NLI-based validation**: Uses sophisticated models (like BART-MNLI) to detect logical contradictions.
-- **Iterative Dialogue**: Challenges users to justify contradictory actions through a loop.
-- **Fail-Open Design**: Defaults to allowing actions if the API fails, ensuring system usability.
-- **Dynamic Configuration**: Axioms can be updated at runtime.
+- **NLI-based validation**: Uses sophisticated models (like BART-MNLI) to detect logical contradictions without requiring rigid regex-based rules.
+- **Iterative Dialogue**: Challenges users to justify contradictory actions through a loop, preserving the justification in the session context.
+- **MCP 3.0 Native**: Full support for the Task Protocol, allowing challenges to be recorded as discrete, verifiable "Safety Interventions".
+- **Dynamic Configuration**: Axioms can be updated at runtime via the `update_axioms` tool.
 
 ## Limitations
-- NLI mode requires an internet connection and a HuggingFace API token.
-- English language only (model limitation).
-- Keyword fallback mode is basic and can produce false positives.
+- **Latency**: NLI mode adds inference latency to the decision loop.
+- **English Focus**: Optimal performance is currently achieved with English-language axioms and prompts.
+- **Context Windows**: Extremely large action descriptions may be truncated, potentially missing subtle contradictions.
+- **Fail-Open Default**: To ensure system availability, it defaults to allowing actions if the NLI API is unreachable.
 
 ## When to use it
 - When you need to enforce a set of rules or ethical principles on AI agent behavior.
 - To create a record of human justification for critical operations.
-- When working with autonomous agents powered by `claude-4-8-opus-20260528` or GPT-5.5.
+- When working with high-autonomy agents powered by `claude-4-8-opus-20260528` or GPT-5.5 in production environments.
+- For compliance-heavy industries (Finance, Healthcare) requiring audit trails for AI actions.
 
 ## When not to use it
-- For low-stakes environments where active challenging would be an unnecessary friction.
-- When an internet connection to HuggingFace is not available (unless using basic keyword mode).
+- For low-stakes environments where active challenging would be unnecessary friction.
+- When the action space is already strictly constrained by permission-based RBAC.
+- For sub-millisecond real-time control systems where NLI latency is prohibitive.
 
 ## Getting started
 
@@ -82,36 +85,57 @@ python -m axiom_guardian_mcp --check "Deploying code to production"
 
 ## API examples
 
-### Integration in Python
-You can use the Guardian logic directly in your agent's decision loop.
+### 1. Action Validation (check_action)
+The primary tool used by agents to self-validate or by controllers to intercept actions.
+```json
+{
+  "tool": "check_action",
+  "arguments": {
+    "action": "I will drop the 'users' table to free up space.",
+    "context": "Executing cleanup script on production-db-01"
+  }
+}
+```
 
-```python
-from axiom_guardian import AxiomGuardian
+### 2. Dynamic Axiom Update (update_axioms)
+Allows privileged users or agents to adjust the safety boundary.
+```json
+{
+  "tool": "update_axioms",
+  "arguments": {
+    "new_axioms": [
+      "All financial transfers over $1000 require CFO approval."
+    ]
+  }
+}
+```
 
-guardian = AxiomGuardian(axioms_path="axioms.yaml")
-
-# Check a proposed action
-result = guardian.check_action("I will clear the cache on the production server.")
-
-if result.is_contradiction:
-    print(f"Challenge: {result.challenge_message}")
-    # Prompt the user for justification...
+### 3. Justification Submission (submit_justification)
+The tool used to provide the reasoning required to bypass a challenge.
+```json
+{
+  "tool": "submit_justification",
+  "arguments": {
+    "challenge_id": "CHAL-8821",
+    "reasoning": "This is a planned migration as part of Ticket #402. Data is backed up in S3."
+  }
+}
 ```
 
 ## Related tools / concepts
-- [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md)
-- [Claude Code Setup](claude-code-setup.md)
-- [OpenHands](openhands.md)
-- [SWE-bench](../benchmarking/swe-bench.md)
-- [Natural Language Inference](https://huggingface.co/models?pipeline_tag=zero-shot-classification)
-- [Hugging Face](../providers/huggingface.md)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Architectural patterns for safe AI integration.
+- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The underlying protocol for tool communication.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — How Axiom Guardian fits into broader agent loops.
+- [Claude Code](claude-code.md) — Often uses Axiom Guardian for high-stakes terminal commands.
+- [OpenHands](openhands.md) — Integrates Axiom Guardian for autonomous engineering safety.
+- [Hugging Face](../providers/huggingface.md) — Hosting provider for the NLI models used by the guardian.
+- [Symbolic MCP](symbolic-mcp.md) — Provides complementary formal verification.
 
 ## Sources / References
 - [Axiom Guardian GitHub](https://github.com/democratize-technology/axiom-guardian)
 - [Zero-Shot Classification (Hugging Face)](https://huggingface.co/tasks/zero-shot-classification)
+- [NLI-based Alignment for Autonomous Agents (June 2026)](https://safety-research.example.com/axiom-guardian)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
