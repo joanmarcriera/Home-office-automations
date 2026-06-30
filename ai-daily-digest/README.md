@@ -1,5 +1,55 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-06-30
+
+## Digest fallback for 2026-06-30
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Mapping Europe’s AI Workforce Opportunity](https://openai.com/index/mapping-ai-jobs-transition-eu) (OpenAI Blog)
+2. [HP Inc. launches Frontier strategic partnership with OpenAI](https://openai.com/index/hp-frontier-partnership) (OpenAI Blog)
+3. [Unlocking Britain’s next era of productivity: Building a nation of AI trailblazers](https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/unlocking-britains-next-era-of-productivity-building-a-nation-of-ai-trailblazers/) (Google AI Blog)
+4. [Ask an AI expert: What exactly is the full stack?](https://blog.google/innovation-and-ai/technology/ai/full-stack-ai-explainer/) (Google AI Blog)
+5. [DiScoFormer: One transformer for density and score, across distributions](https://huggingface.co/blog/allenai/discoformer) (Hugging Face Blog)
+6. [on Dario’s statement](https://www.reddit.com/r/LocalLLaMA/comments/1uj2yym/on_darios_statement/) (r/LocalLLaMA)
+7. [I Hate Dario Amodei, and everything he stands for.](https://www.reddit.com/r/LocalLLaMA/comments/1uj7xcs/i_hate_dario_amodei_and_everything_he_stands_for/) (r/LocalLLaMA)
+8. [Why Dario is on fire: lesson from dotcom bubble.](https://www.reddit.com/r/LocalLLaMA/comments/1ujgw8a/why_dario_is_on_fire_lesson_from_dotcom_bubble/) (r/LocalLLaMA)
+9. [Effect of GLM 5.2 !!](https://www.reddit.com/r/LocalLLaMA/comments/1uiv8e4/effect_of_glm_52/) (r/LocalLLaMA)
+10. [It’s time, Sam, it’s time.](https://www.reddit.com/r/LocalLLaMA/comments/1uj1kna/its_time_sam_its_time/) (r/LocalLLaMA)
+11. [Introducing LongCat-2.0 - , a large-scale MoE language model with 1.6 trillion total parameters and ~48 billion activated per token. This was the stealth model that was on Openrouter under the name 'owl-alpha'.](https://www.reddit.com/r/LocalLLaMA/comments/1uj7egu/introducing_longcat20_a_largescale_moe_language/) (r/LocalLLaMA)
+12. [Microsoft has taken down fastcontext model from everywhere](https://www.reddit.com/r/LocalLLaMA/comments/1ujjk9s/microsoft_has_taken_down_fastcontext_model_from/) (r/LocalLLaMA)
+13. [DeepSeek V4, PR merged into llama.cpp !](https://www.reddit.com/r/LocalLLaMA/comments/1uj0fkw/deepseek_v4_pr_merged_into_llamacpp/) (r/LocalLLaMA)
+14. [Been running Qwen3.6-27B through a 3-critic harness. The harness matters more than I thought](https://www.reddit.com/r/LocalLLaMA/comments/1uj9viw/been_running_qwen3627b_through_a_3critic_harness/) (r/LocalLLaMA)
+15. [InternScience/Agents-A1 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1ujhk93/internscienceagentsa1_hugging_face/) (r/LocalLLaMA)
+16. [RAMpocalypse payback](https://www.reddit.com/r/LocalLLaMA/comments/1ujgbng/rampocalypse_payback/) (r/LocalLLaMA)
+17. [Anthropic's Amodei: "Open Source models [could take us to] a very dangerous place."](https://www.reddit.com/r/LocalLLaMA/comments/1uixcof/anthropics_amodei_open_source_models_could_take/) (r/LocalLLaMA)
+18. [Anyone using Gemma4:31b over Qwen3.6:27b or 35b(a10)](https://www.reddit.com/r/LocalLLaMA/comments/1ujfqtz/anyone_using_gemma431b_over_qwen3627b_or_35ba10/) (r/LocalLLaMA)
+19. [Tesla V100 16GB local LLMs, single and dual NVLink benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1ujhtl9/tesla_v100_16gb_local_llms_single_and_dual_nvlink/) (r/LocalLLaMA)
+20. [Samsung, SK hynix, Micron Sued in US Over Memory Price Fixing](https://www.reddit.com/r/LocalLLaMA/comments/1uiwtd7/samsung_sk_hynix_micron_sued_in_us_over_memory/) (r/LocalLLaMA)
+21. [ascend-tribe/openPangu-2.0-Flash (They haven't uploaded it to Huggingface yet）](https://www.reddit.com/r/LocalLLaMA/comments/1ujjxda/ascendtribeopenpangu20flash_they_havent_uploaded/) (r/LocalLLaMA)
+22. [Krea-2-Turbo Image Model - Easy to be fully uncensored, but it can also EDIT Images!](https://www.reddit.com/r/LocalLLaMA/comments/1uj638x/krea2turbo_image_model_easy_to_be_fully/) (r/LocalLLaMA)
+23. [Any good uses for a 192 GB DDR3 Server in the LLM world?](https://www.reddit.com/r/LocalLLaMA/comments/1uiqiei/any_good_uses_for_a_192_gb_ddr3_server_in_the_llm/) (r/LocalLLaMA)
+24. [Best local linux sysadmin?](https://www.reddit.com/r/LocalLLaMA/comments/1ujhkw8/best_local_linux_sysadmin/) (r/LocalLLaMA)
+25. [NPC Engine Using Local Models](https://www.reddit.com/r/LocalLLaMA/comments/1uibt9o/npc_engine_using_local_models/) (r/LocalLLaMA)
+26. [Notes on Microsoft's FastContext, and a small SWE-QA experiment with retrieval hints](https://www.reddit.com/r/LocalLLaMA/comments/1uji3q9/notes_on_microsofts_fastcontext_and_a_small_sweqa/) (r/LocalLLaMA)
+27. [NASA testing local LLM inference for future space missions](https://www.reddit.com/r/LocalLLaMA/comments/1uisspl/nasa_testing_local_llm_inference_for_future_space/) (r/LocalLLaMA)
+28. [Going from single GPU to dual GPU is nice but not in the way I expected](https://www.reddit.com/r/LocalLLaMA/comments/1uiuyyp/going_from_single_gpu_to_dual_gpu_is_nice_but_not/) (r/LocalLLaMA)
+29. [Kimi and GLM on frontier code](https://www.reddit.com/r/LocalLLaMA/comments/1uir5u3/kimi_and_glm_on_frontier_code/) (r/LocalLLaMA)
+30. [[AINews] not much happened today](https://www.latent.space/p/ainews-not-much-happened-today-07e) (Latent Space)
+31. [IdentityServer4 is dead. Here’s what comes next.](https://thenewstack.io/rsk-forks-open-identityserver/) (The New Stack)
+32. [Base44 bets a narrow model beats frontier AI for vibe coding](https://thenewstack.io/base44-base-one-model/) (The New Stack)
+33. [JetBrains kills Kotlin Notebook months after Microsoft’s Polyglot exit. But Jupyter is doing just fine.](https://thenewstack.io/kotlin-notebook-jupyter-python-retreat/) (The New Stack)
+34. [Palantir and Nvidia want to change who owns government AI](https://thenewstack.io/palantir-nvidia-sovereign-ai/) (The New Stack)
+35. [“Bring it to our shop”: Workday’s pitch for keeping AI agents close to your most valuable data](https://thenewstack.io/workday-ai-inference-guardrails/) (The New Stack)
+36. [Okta is the first to bring AI agent governance inside FedRAMP boundaries](https://thenewstack.io/okta-ai-agents-fedramp/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
