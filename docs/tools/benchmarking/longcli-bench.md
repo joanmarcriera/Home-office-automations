@@ -1,7 +1,7 @@
 # LongCLI-Bench
 
 ## What it is
-LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows that span dozens of terminal turns. As of June 2026, it is a key metric for evaluating high-autonomy tools like [Claude Code](../development_ops/claude-code-setup.md).
+LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows that span dozens of terminal turns. As of June 2026, it is a key metric for evaluating high-autonomy tools like [Claude Code](../development_ops/claude-code-setup.md) which utilize [MCP 3.0](../automation_orchestration/mcp.md) for tool interaction.
 
 ## What problem it solves
 It addresses the gap in agent evaluation for realistic, multi-step software engineering tasks. Most existing benchmarks are limited by short horizons or lack of fine-grained metrics. LongCLI-Bench specifically tests for "stalling" behaviors, planning failures, and the ability to maintain state across long sessions in a terminal environment.
@@ -109,5 +109,5 @@ print(f"Step Success Rate: {result.step_accuracy:.2%}")
 - [Hugging Face Paper Page](https://huggingface.co/papers/2602.14337)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high

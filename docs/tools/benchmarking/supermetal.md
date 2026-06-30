@@ -5,7 +5,7 @@ Supermetal is a high-performance data movement and processing tool designed for 
 
 ## What problem it solves
 It addresses the latency and complexity bottlenecks in Change Data Capture (CDC) pipelines. Traditionally, moving data from production databases (like Postgres) to analytics platforms (like Apache Iceberg) required complex setups involving Flink, Kafka Connect, or Spark. Supermetal simplifies this by:
-- **Reducing Latency**: Benchmarks show Postgres-to-Iceberg synchronization in as little as 13 minutes for massive datasets.
+- **Reducing Latency**: Benchmarks show Postgres-to-Iceberg synchronization in as little as 13 minutes for massive datasets, providing high-freshness data for [Claude 4.8](../providers/anthropic.md) RAG systems.
 - **Simplifying Infrastructure**: Replacing multi-component distributed stacks with a single, high-performance process.
 - **Ensuring Consistency**: Maintaining transactional integrity and data accuracy via Apache Arrow's type system.
 
@@ -89,6 +89,7 @@ curl -X POST "https://your-supermetal-instance/api/v1/connectors/my-pg-to-iceber
 
 ## Related tools / concepts
 - [Data Stack Consolidation](../../knowledge_base/landscape-overview.md) — The movement towards simpler, faster data architectures.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Used for discovery of Supermetal-managed datasets.
 - [AirOps](../automation_orchestration/airops.md) — For orchestrating the results of Supermetal data syncs.
 - [Temporal](../orchestration/temporal.md) — For managing long-running data workflow state.
 - [Grafana Cloud](../process_understanding/grafana-cloud.md) — For monitoring Supermetal synchronization performance.
@@ -103,5 +104,5 @@ curl -X POST "https://your-supermetal-instance/api/v1/connectors/my-pg-to-iceber
 - [Apache Arrow and the Future of Data Movement](https://arrow.apache.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high
