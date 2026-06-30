@@ -4,7 +4,7 @@
 SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of June 2026, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
 
 ## What problem it solves
-Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment.
+Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment, often leveraging [MCP 3.0](../automation_orchestration/mcp.md) for tool-discovery.
 
 ## Where it fits in the stack
 **Benchmarking / Eval**. It is used as a reference benchmark for evaluating real-world software engineering capabilities of AI agents and coding assistants.
@@ -113,6 +113,7 @@ print(f"Issue Resolved: {result['resolved']}")
 - [OpenHands](../development_ops/openhands.md) — Open-source agentic platform.
 - [Terminal-Bench](terminal-bench.md) — Evaluating tool use in CLI environments.
 - [Benchmarking](index.md) — Overview of AI evaluation frameworks.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for agentic tool discovery.
 
 ## Sources / references
 - [Official Website](https://www.swebench.com/)
@@ -121,5 +122,5 @@ print(f"Issue Resolved: {result['resolved']}")
 - [SWE-bench Verified Announcement](https://openai.com/index/introducing-swe-bench-verified/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high

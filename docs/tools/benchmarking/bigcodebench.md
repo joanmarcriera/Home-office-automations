@@ -1,7 +1,7 @@
 # BigCodeBench
 
 ## What it is
-BigCodeBench is a comprehensive benchmark for evaluating the code generation capabilities of LLMs in realistic software engineering scenarios. It features 1,140 programming tasks that require the use of diverse libraries (139 unique libraries) and complex function calls. As of June 2026, it serves as a critical performance differentiator for frontier models like `claude-4-8-opus-20260528` and GPT-5.5.
+BigCodeBench is a comprehensive benchmark for evaluating the code generation capabilities of LLMs in realistic software engineering scenarios. It features 1,140 programming tasks that require the use of diverse libraries (139 unique libraries) and complex function calls. As of June 2026, it serves as a critical performance differentiator for frontier models like `claude-4-8-opus-20260528` and GPT-5.5, often utilizing [MCP 3.0](../automation_orchestration/mcp.md) for dynamic tool-discovery.
 
 ## What problem it solves
 Simple benchmarks like HumanEval or MBPP focus on basic algorithmic tasks that don't reflect real-world programming. BigCodeBench evaluates "tool-use" and the ability to follow complex, multi-step instructions using common Python libraries, addressing the "instruction-following" gap in code generation.
@@ -37,6 +37,8 @@ BigCodeBench is a core tool in the **Benchmarking** layer for code-specialized m
 - For evaluating non-Python coding performance.
 
 ## Getting started
+
+BigCodeBench requires a secure execution environment, typically provided by [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md) or similar sandboxing solutions.
 
 ### Installation
 It is recommended to use the BigCodeBench CLI within a sandboxed environment.
@@ -111,5 +113,5 @@ print(f"Instruction: {sample['instruction']}")
 - [BigCodeBench Leaderboard](https://bigcode-bench.github.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high
