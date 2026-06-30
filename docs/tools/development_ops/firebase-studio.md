@@ -1,7 +1,7 @@
 # Firebase Studio
 
 ## What it is
-Firebase Studio is a cloud-based, AI-assisted development environment designed for full-stack app development and rapid prototyping. It is integrated into the Google Developer Program, providing persistent workspaces in the cloud. In June 2026, it is optimized for generating code for frontier models like `claude-4-8-opus-20260528` and GPT-5.5.
+Firebase Studio is a cloud-based, AI-assisted development environment designed for full-stack app development and rapid prototyping. It is integrated into the Google Developer Program, providing persistent workspaces in the cloud. In June 2026, it is optimized for generating code for frontier models like `claude-4-8-opus-20260528`, GPT-5.5, and Gemini 3.5.
 
 ## What problem it solves
 It reduces the friction of setting up local development environments for full-stack applications. By providing AI-assisted workspaces in the cloud, it allows developers to quickly prototype tools and scale them within the Firebase ecosystem without worrying about infrastructure parity.
@@ -12,18 +12,20 @@ It reduces the friction of setting up local development environments for full-st
 
 ## Typical use cases
 - **Rapid Prototyping**: Quickly spinning up full-stack environments to test new tool ideas.
-- **AI-Assisted Development**: Leveraging integrated Gemini capabilities for code generation and architectural guidance.
+- **AI-Assisted Development**: Leveraging integrated Gemini 3.5 capabilities for code generation and architectural guidance.
 - **Cloud-First Development**: Developing apps entirely in the browser with persistent, shared workspaces.
+- **Agentic CI/CD**: Integrating with [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) for automated deployment and monitoring.
 
 ## Strengths
 - **Seamless Integration**: Deeply integrated with Firebase services (Firestore, Auth, Functions, etc.).
-- **AI-Powered**: Native integration with Gemini for code assistance.
-- **Zero Setup**: Cloud-hosted workspaces eliminate the need for local environment configuration.
-- **Scalability**: Designed to handle projects from initial prototype to full-stack production apps.
+- **AI-Powered**: Native integration with Gemini for real-time code assistance and refactoring.
+- **Zero Setup**: Cloud-hosted workspaces eliminate the need for local environment configuration and dependency management.
+- **Scalability**: Designed to handle projects from initial prototype to full-stack production apps with one-click deployment.
 
 ## Limitations
 - **Proprietary**: Tied exclusively to the Google/Firebase ecosystem.
 - **Workspace Limits**: Number of workspaces is capped based on Google Developer Program tier (e.g., 10 for Standard, 30 for Premium).
+- **Offline Access**: Requires a persistent internet connection for both the IDE and AI capabilities.
 
 ## When to use it
 - When you need to quickly prototype a tool that requires a full-stack backend.
@@ -36,10 +38,17 @@ It reduces the friction of setting up local development environments for full-st
 - For highly sensitive data that cannot be hosted in public cloud development environments.
 
 ## Getting started
-1.  Log in to [Firebase Console](https://console.firebase.google.com/).
-2.  Select **Firebase Studio** from the side navigation.
-3.  Click **"New Workspace"** and select a template (e.g., Next.js + Firebase Auth).
-4.  Describe your app to the Gemini assistant to bootstrap the initial structure.
+### 1. Access
+Log in to [Firebase Console](https://console.firebase.google.com/).
+
+### 2. Workspace Setup
+Select **Firebase Studio** from the side navigation, click **"New Workspace"**, and select a template (e.g., Next.js + Firebase Auth).
+
+### 3. AI Bootstrapping
+Describe your app to the Gemini assistant to bootstrap the initial structure:
+```text
+"Create a multi-user task management app with real-time Firestore updates and Google Auth."
+```
 
 ## CLI examples
 Firebase Studio is primarily a web-based IDE, but it interacts with the Firebase CLI:
@@ -53,12 +62,15 @@ firebase deploy --only functions,hosting
 
 # List all active Firebase Studio workspaces
 firebase studio:list
+
+# Open a specific workspace in the browser
+firebase studio:open <workspace-id>
 ```
 
 ## API examples
 
 ### Automated Cloud Function Generation
-Describe the logic, and Firebase Studio generates the corresponding SDK code.
+Describe the logic, and Firebase Studio generates the corresponding SDK code using Gemini 3.5.
 
 ```javascript
 /**
@@ -92,14 +104,15 @@ Firebase Studio will then propose the specific `firestore.rules` and Pydantic/Ty
 - [Google Opal](../ai_knowledge/google-opal.md)
 - [Gemini Canvas](../ai_knowledge/gemini-canvas.md)
 - [Vercel](vercel.md)
-- [Netlify](netlify.md)
-- [Cloudflare Pages](cloudflare-pages.md)
 - [Google Stitch](google-stitch.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
+- [Firebase CLI](https://github.com/firebase/firebase-tools)
 
 ## Sources / references
 - [Google Developer Program Plans & Pricing](https://developers.google.com/program/plans-and-pricing)
 - [Firebase Official Website](https://firebase.google.com/)
+- [Firebase Studio Release Notes (June 2026)](https://firebase.google.com/support/release-notes/studio)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-06-30
 - Confidence: high
