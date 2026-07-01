@@ -1,10 +1,10 @@
 # Groq
 
 ## What it is
-Groq is an AI infrastructure company that developed the Language Processing Unit (LPU), a new type of processor designed specifically for the extreme high-speed requirements of LLMs. As of June 2026, Groq is the industry benchmark for low-latency inference, supporting Llama 4 Maverick and Mixtral 10x22B.
+Groq is an AI infrastructure company that developed the Language Processing Unit (LPU), a new type of processor designed specifically for the extreme high-speed requirements of LLMs. As of July 2026, Groq is the industry benchmark for low-latency inference, supporting Llama 4 Maverick, Mixtral 10x22B, and the newly released Gemma 3 models.
 
 ## What problem it solves
-Solves the "bottleneck" of slow LLM inference, providing near-instantaneous responses that enable real-time applications and highly interactive agents. It is frequently compared to `claude-4-8-opus-20260528` and GPT-5.5 for high-speed agentic reasoning.
+Solves the "bottleneck" of slow LLM inference, providing near-instantaneous responses that enable real-time applications and highly interactive agents. It eliminates the latency hurdles that often hinder complex agentic workflows, particularly those utilizing the MCP 3.0 Task Protocol for multi-step reasoning.
 
 ## Where it fits in the stack
 **Inference Provider / Infrastructure**. It provides a high-speed API for the most popular open-source models (Llama, Mixtral, Gemma).
@@ -13,10 +13,11 @@ Solves the "bottleneck" of slow LLM inference, providing near-instantaneous resp
 - **Real-time Agents**: Voice assistants or interactive chatbots that require sub-second response times.
 - **High-Volume Processing**: Summarizing or analyzing large quantities of text at hundreds of tokens per second.
 - **Interactive Coding**: Powering coding assistants where immediate, fluid feedback is essential.
+- **Autonomous Task Execution**: Serving as the fast inference backend for agents executing complex tasks via MCP 3.0.
 
 ## Strengths
 - **Extreme Speed**: Often 10x+ faster than traditional GPU-based providers (400-800+ tokens/sec).
-- **Open Model Support**: Focuses on the best open-weights models like Llama 4 and Mixtral.
+- **Open Model Support**: Focuses on the best open-weights models like Llama 4 and Gemma 3.
 - **Low Latency**: Unmatched time-to-first-token (TTFT) and overall throughput.
 - **LPU Efficiency**: Unlike GPUs which excel at parallel pixel processing, LPUs are optimized for the serial nature of text generation, eliminating the "memory wall" that slows down standard hardware.
 
@@ -46,8 +47,8 @@ from groq import Groq
 client = Groq()
 
 chat_completion = client.chat.completions.create(
-    messages=[{"role": "user", "content": "Explain LPU speed."}],
-    model="llama-4-70b",
+    messages=[{"role": "user", "content": "Explain LPU speed with Gemma 3."}],
+    model="gemma-3-27b",
 )
 print(chat_completion.choices[0].message.content)
 ```
@@ -92,6 +93,7 @@ for chunk in stream:
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [LiteLLM](../../services/litellm.md)
 - [Anthropic](anthropic.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Official Website](https://groq.com/)
@@ -99,5 +101,5 @@ for chunk in stream:
 - [Groq Documentation](https://docs.groq.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high

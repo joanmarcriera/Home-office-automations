@@ -1,18 +1,19 @@
 # Together AI
 
 ## What it is
-Together AI is a cloud platform for building and running generative AI, offering high-performance inference for a wide range of open-source models. As of June 2026, it supports the full Llama 4 family, Qwen 3.5, and specialized coding models.
+Together AI is a cloud platform for building and running generative AI, offering high-performance inference for a wide range of open-source models. As of July 2026, it supports the full Llama 4 family, Gemma 3, Qwen 3.5, and specialized coding models, all running on the latest NVIDIA Rubin architecture.
 
 ## What problem it solves
-Simplifies the deployment of open-source models by providing a fast, serverless API, eliminating the need to manage complex GPU infrastructure for models. It provides a performance-optimized alternative to cloud giants, often compared to `claude-4-8-opus-20260528` and GPT-5.5 for specific vertical tasks.
+Simplifies the deployment of open-source models by providing a fast, serverless API, eliminating the need to manage complex GPU infrastructure for models. It provides a performance-optimized alternative to cloud giants, often compared to `claude-4-8-opus-20260528` and GPT-5.5 for specific vertical tasks and high-throughput agentic workflows.
 
 ## Where it fits in the stack
-**Inference Provider**. It acts as the backend for applications using open-weights models.
+**Inference Provider**. It acts as the backend for applications using open-weights models and custom fine-tuned adapters.
 
 ## Typical use cases
 - **Multi-Model Testing**: Quickly switching between different open models to find the best fit for a specific task.
 - **Cost Optimization**: Using Together's efficient inference to lower API costs compared to proprietary flagship models.
 - **Fine-Tuning**: Training and deploying custom LoRA adapters of open models on proprietary data.
+- **Agentic Orchestration**: Serving as a reliable backend for agents using MCP 3.0 for tool-integrated reasoning.
 
 ## Strengths
 - **Model Variety**: Supports hundreds of open-source models across text, image, and code (LLMs, Diffusion, etc.).
@@ -47,7 +48,7 @@ client = Together()
 
 response = client.chat.completions.create(
     model="meta-llama/Llama-4-70b-chat-hf",
-    messages=[{"role": "user", "content": "Benefits of open source AI?"}],
+    messages=[{"role": "user", "content": "Benefits of open source AI in July 2026?"}],
 )
 print(response.choices[0].message.content)
 ```
@@ -106,6 +107,7 @@ response = client.chat.completions.create(
 - [TGI](../infrastructure/tgi.md)
 - [ExLlamaV2](../infrastructure/exllamav2.md)
 - [Hugging Face](huggingface.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Official Website](https://www.together.ai/)
@@ -113,5 +115,5 @@ response = client.chat.completions.create(
 - [Together AI Models](https://www.together.ai/models)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high

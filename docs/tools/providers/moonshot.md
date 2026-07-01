@@ -1,10 +1,10 @@
 # Moonshot AI (Kimi)
 
 ## What it is
-Moonshot AI (also known as Yuezhianmian) is a leading Chinese AI startup that developed the **Kimi** LLM family. As of June 2026, their flagship model is **Kimi K2.6**, which features trillion-parameter reasoning and native support for 256K token context windows.
+Moonshot AI (also known as Yuezhianmian) is a leading Chinese AI startup that developed the **Kimi** LLM family. As of July 2026, their flagship model is **Kimi K2.6**, which features trillion-parameter reasoning and native support for 256K token context windows.
 
 ## What problem it solves
-Enables the processing and analysis of massive documents, entire codebases, or long conversation histories. It serves as a high-performance alternative to `claude-4-8-opus-20260528` and GPT-5.5 for long-context reasoning tasks, particularly in Chinese-language environments.
+Enables the processing and analysis of massive documents, entire codebases, or long conversation histories. It serves as a high-performance alternative to `claude-4-8-opus-20260528` and GPT-5.5 for long-context reasoning tasks, particularly in Chinese-language environments. In July 2026, it is frequently used with the MCP 3.0 Task Protocol for complex, multi-modal reasoning.
 
 ## Where it fits in the stack
 **LLM / Reasoning Engine / Provider**. Often used for "Chat with Document" applications, long-form content synthesis, and complex codebase navigation.
@@ -13,12 +13,13 @@ Enables the processing and analysis of massive documents, entire codebases, or l
 - **Large Document Analysis**: Summarizing and querying hundreds of pages of technical, legal, or medical text.
 - **Codebase Navigation**: Providing context from an entire repository in a single prompt for better architectural understanding.
 - **Intelligent Dialogue**: High-fidelity reasoning and visual reasoning (multimodal) in Chinese and English.
+- **Automated Research**: Leveraging Kimi's long context for deep-dive literature reviews and data synthesis.
 
 ## Strengths
 - **Native Long Context**: A pioneer in reliable 128k to 256k context windows, maintaining high retrieval accuracy (needle-in-a-haystack).
 - **OpenAI Compatibility**: Kimi provides an OpenAI-compatible HTTP API, allowing developers to use the standard OpenAI SDKs by simply changing the `base_url`.
 - **Trillion-Parameter Reasoning**: The K2.6 models offer state-of-the-art performance in complex logic and professional code generation.
-- **Tool Calling**: Robust support for function calling and external tool integration.
+- **Tool Calling**: Robust support for function calling and external tool integration, now optimized for MCP 3.0.
 
 ## Limitations
 - **Regional Optimization**: While globally accessible via API, the web interface and primary optimizations are centered on mainland China.
@@ -92,6 +93,7 @@ print(completion.choices[0].message.content)
 - [DeepSeek](deepseek.md)
 - [MiniMax](minimax.md)
 - [Kimi Code CLI](../ai_knowledge/kimi-cli.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Official Website](https://www.moonshot.cn/)
@@ -100,5 +102,5 @@ print(completion.choices[0].message.content)
 - [Quickstart Guide](https://platform.kimi.ai/docs/guide/start-using-kimi-api)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high

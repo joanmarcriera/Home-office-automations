@@ -1,7 +1,7 @@
 # Mistral AI
 
 ## What it is
-Mistral AI is a European AI company that develops both open-weight and commercial large language models, including the Mistral, Mixtral, and Codestral families. As of June 2026, it has evolved into a full agentic platform with native support for tool calling, persistent conversations, and standardized protocols like the Model Context Protocol (MCP).
+Mistral AI is a European AI company that develops both open-weight and commercial large language models, including the Mistral, Mixtral, and Codestral families. As of July 2026, it has evolved into a full agentic platform with native support for tool calling, persistent conversations, and standardized protocols like the Model Context Protocol (MCP) 3.0.
 
 ## What problem it solves
 Mistral provides a high-performance, efficient alternative to American providers, offering some of the best-performing open-weight models for self-hosting and a robust API for agentic workflows. It addresses the need for data sovereignty in Europe and provides models that "punch above their weight" in parameter-to-performance ratios.
@@ -18,7 +18,7 @@ Mistral provides a high-performance, efficient alternative to American providers
 ## Strengths
 - **Efficiency**: Mistral models are known for high performance relative to their size, making them ideal for both API use and local hosting.
 - **Open Weights**: Many models (Mistral 7B, Mixtral 8x7B) are released under Apache 2.0, enabling full control over deployment.
-- **Native MCP Support**: Direct integration with the Model Context Protocol standard allows agents to easily access external tools.
+- **Native MCP 3.0 Support**: Direct integration with the Model Context Protocol standard allows agents to easily access external tools and data sources.
 - **European Sovereignty**: High-performance AI hosted and developed in the EU, complying with strict data privacy standards.
 - **Agentic Capabilities**: Features like built-in tool use, code interpreter, and web search connectors are optimized for autonomous workflows.
 
@@ -29,7 +29,7 @@ Mistral provides a high-performance, efficient alternative to American providers
 
 ## When to use it
 - When you want to avoid vendor lock-in by using open-weight models that can be self-hosted.
-- For building agents that require standardized tool access via MCP.
+- For building agents that require standardized tool access via MCP 3.0.
 - For high-performance requirements where European data sovereignty is a priority.
 - When seeking a cost-effective alternative to frontier models like GPT-5.5.
 
@@ -54,7 +54,7 @@ client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
 
 response = client.chat.complete(
     model="mistral-large-latest",
-    messages=[{"role": "user", "content": "Hello Mistral!"}]
+    messages=[{"role": "user", "content": "Hello Mistral in July 2026!"}]
 )
 print(response.choices[0].message.content)
 ```
@@ -157,7 +157,7 @@ print(response.choices[0].message.content)
 - [DeepSeek](deepseek.md) — Performance-competitive provider of open-weight models.
 - [Groq](groq.md) — Low-latency inference for Mistral and Mixtral.
 - [Together AI](together.md) — Serverless inference for Mistral models.
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Standardization for tool use.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standardization for tool use.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Unified API for accessing Mistral and other models.
 - [Claude](../development_ops/claude-code.md) — Anthropic's frontier model suite for comparison.
 - [Everything Claude Code](../ai_knowledge/everything-claude-code.md) — Optimization ecosystem for agent harnesses.
@@ -169,5 +169,5 @@ print(response.choices[0].message.content)
 - [Mistral Agents Introduction](https://docs.mistral.ai/agents/introduction/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high
