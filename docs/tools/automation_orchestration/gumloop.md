@@ -1,62 +1,63 @@
 # Gumloop
 
 ## What it is
-Gumloop is a "no-code" automation platform that specifically focuses on making it easy to build and deploy AI-powered workflows. It provides a visual canvas for connecting different AI models, tools, and data sources into automated "flows."
+Gumloop is a "no-code" AI automation platform designed for building, testing, and deploying complex agentic workflows through a visual interface. It provides a drag-and-drop canvas to connect various AI models, SaaS tools, and data sources into automated "flows." As of July 2026, it fully supports the **MCP 3.0 Task Protocol**, allowing for seamless integration with Model Context Protocol servers and standardized task execution across diverse environments.
 
 ## What problem it solves
-It bridges the gap between complex AI capabilities and non-technical (or time-constrained) users. Instead of writing complex Python scripts or managing API infrastructure, users can visually map out an AI process, such as "Extract data from this PDF, summarize it with GPT-5.5, and email it to me." It simplifies multi-step agentic reasoning for production use cases.
+Gumloop bridges the gap between sophisticated AI capabilities and production-ready automation. It eliminates the need for managing complex Python infrastructure, manual API handling, or custom retry logic. It simplifies multi-step agentic reasoning, enabling users to move from a prompt to a deployed, scalable AI process—such as automated data extraction from PDFs followed by structured analysis with [Gemma 3](../ai_knowledge/local_llms.md)—in minutes rather than days.
 
 ## Where it fits in the stack
-**Automation & Orchestration / No-code AI**. It serves as the orchestration layer for connecting frontier models like `claude-4-8-opus-20260528` with diverse SaaS tools and data sources.
+**Automation & Orchestration / No-code AI**. It serves as the orchestration layer connecting frontier models (e.g., Claude 4.8 Opus, GPT-5.5) with the broader ecosystem of SaaS tools and the [Model Context Protocol (MCP)](mcp.md) toolset.
 
 ## Typical use cases
-- **Lead Generation**: Automatically finding and summarizing info about potential customers.
-- **Content Operations**: Repurposing long-form content into social media posts across multiple platforms.
-- **Document Processing**: Bulk processing of invoices or reports with AI-driven extraction and validation.
-- **Personal Productivity**: Building custom AI assistants for specific, repetitive tasks without coding.
-- **Agentic Routing**: Creating complex branching logic for AI requests based on content analysis.
+- **AI-Driven Lead Generation**: Automatically identifying, summarizing, and qualifying leads from web sources.
+- **Content Supply Chain**: Automating the transformation of raw research or long-form video into multi-platform social content.
+- **Intelligent Document Processing (IDP)**: Bulk processing of complex financial or legal documents with high-accuracy AI extraction.
+- **Custom Agentic Assistants**: Building specialized AI workers for repetitive business tasks like customer support triage or bug report analysis.
+- **Enterprise RAG Workflows**: Implementing sophisticated Retrieval-Augmented Generation patterns with human-in-the-loop validation steps.
 
 ## Strengths
-- **Visual Interface**: Drag-and-drop canvas for building complex AI logic without writing code.
-- **Fast Iteration**: Quickly test and modify flows in a sandbox environment before deployment.
-- **Managed Infrastructure**: Handles hosting, scaling, and retry logic for your automation scripts.
-- **Native AI Tooling**: Includes built-in nodes for common AI tasks (summarization, extraction, RAG, etc.).
-- **Integration**: Strong connectivity to a wide range of SaaS tools (Google Workspace, Slack, Discord, etc.).
+- **Visual Logic Builder**: A powerful drag-and-drop canvas for mapping out complex branching and conditional AI logic.
+- **MCP 3.0 Native**: Direct support for the [Model Context Protocol (MCP)](mcp.md) Task Protocol for standardized tool and agent interaction.
+- **Fast Prototyping**: Immediate testing of flows in a sandbox environment with real-time logging and debugging.
+- **Managed Reliability**: Handles all infrastructure, scaling, and robust retry logic for long-running AI tasks.
+- **Extensive Node Library**: Pre-built nodes for RAG, image generation, data transformation, and hundreds of SaaS integrations.
 
 ## Limitations
-- **Platform Lock-in**: Workflows are tied to the Gumloop platform and cannot be easily exported as raw code.
-- **Customization**: While powerful, it may have limits compared to writing raw code for extremely niche or low-level logic.
-- **Data Residency**: As a managed platform, users must trust Gumloop with the data passing through their flows.
+- **Platform Dependency**: Workflows created within Gumloop are proprietary to the platform and cannot be exported as standalone code.
+- **Granular Customization**: While flexible, it may reach limits for extremely niche, low-level system optimizations compared to raw code.
+- **Data Residency**: As a managed SaaS, data processed through flows resides on Gumloop's infrastructure, which may require vetting for strict compliance.
 
 ## When to use it
-- When you need to build and deploy complex AI-driven workflows quickly without writing custom infrastructure code.
-- For business users or small teams that want to leverage LLMs for data extraction, lead gen, or content operations.
-- When you need a managed environment that handles scaling and connectivity to various SaaS tools out of the box.
-- For prototyping agentic workflows that require human-in-the-loop validation.
+- When you need to build and scale complex AI-driven workflows rapidly without maintaining custom backend infrastructure.
+- For teams that require a visual, collaborative environment to design and iterate on prompt chains and agentic logic.
+- When you want to leverage the **MCP 3.0** ecosystem for standardized tool usage within an automation platform.
+- For workflows requiring human-in-the-loop checkpoints before executing critical actions.
 
 ## When not to use it
-- For highly latency-sensitive applications that require sub-millisecond response times.
-- If you have strict data residency requirements that forbid using a third-party managed automation platform (use [n8n](../../services/n8n.md) self-hosted instead).
-- For extremely simple tasks that can be handled by a basic shell script or a single prompt in a chat interface.
+- For ultra-low latency applications requiring sub-100ms response times.
+- If you have strict regulatory requirements that mandate self-hosting (consider [n8n](../../services/n8n.md) or [Dify](../ai_knowledge/dify.md) self-hosted).
+- For very simple, single-step tasks that are more efficiently handled by a basic CLI script or direct chat interface.
 
 ## Getting started
 
 ### Installation
-Install the Gumloop Python SDK via `pip`:
+Integrate with the Gumloop ecosystem using the official Python SDK:
 
 ```bash
 pip install gumloop
 ```
 
 ### Setup
-1. Obtain your `api_key` and `user_id` from the Gumloop dashboard.
-2. Identify the `flow_id` of the automation you wish to run.
-3. Configure your flow in the Gumloop Studio visual canvas.
+1. Create an account at the [Gumloop Studio](https://www.gumloop.com/).
+2. Retrieve your `api_key` and `user_id` from the dashboard settings.
+3. Define your first workflow on the visual canvas and note the `flow_id`.
+4. (Optional) Configure an [MCP 3.0](mcp.md) server to provide custom tools to your flows.
 
 ## CLI examples
 
 ```bash
-# Trigger a workflow via CURL (using the Webhook node)
+# Trigger a workflow run via the official API
 curl -X POST https://api.gumloop.com/api/v1/runs \
   -H "Authorization: Bearer $GUMLOOP_API_KEY" \
   -H "Content-Type: application/json" \
@@ -64,52 +65,57 @@ curl -X POST https://api.gumloop.com/api/v1/runs \
     "user_id": "your_user_id",
     "saved_item_id": "your_flow_id",
     "pipeline_inputs": [
-      {"input_name": "url", "value": "https://example.com"}
+      {"input_name": "source_url", "value": "https://example.com/report.pdf"}
     ]
   }'
 
-# Check the status of a run
-curl -X GET "https://api.gumloop.com/api/v1/runs/your_run_id?user_id=your_user_id" \
+# Monitor run status and retrieve outputs
+curl -X GET "https://api.gumloop.com/api/v1/runs/RUN_ID?user_id=your_user_id" \
   -H "Authorization: Bearer $GUMLOOP_API_KEY"
 ```
 
 ## API examples
 
-### Run a workflow via Python SDK
+### Executing a Flow with the Python SDK
 ```python
 from gumloop import GumloopClient
 
-# Initialize the client
+# Initialize the client with July 2026 standards
 client = GumloopClient(
     api_key="your_api_key",
     user_id="your_user_id"
 )
 
-# Run a workflow and wait for outputs
-output = client.run_flow(
+# Trigger a specific flow and await the structured result
+# Supports complex input types and MCP 3.0 task context
+run_result = client.run_flow(
     flow_id="your_flow_id",
     inputs={
-        "input_name": "input_value"
+        "document_path": "research/july_2026_market_audit.pdf",
+        "analysis_depth": "comprehensive"
     }
 )
 
-print(f"Flow Output: {output}")
+print(f"Flow Status: {run_result['status']}")
+print(f"Analysis Output: {run_result['outputs']['summary']}")
 ```
 
 ## Related tools / concepts
-- [n8n](../../services/n8n.md) — Self-hosted alternative for automation.
-- [AirOps](airops.md) — Enterprise-focused AI workflow platform.
-- [Zapier](zapier.md) — General-purpose automation with AI features.
-- [Make](make.md) — Visual automation with deep customizability.
-- [Langflow](../frameworks/langflow.md) — Visual IDE for LangChain.
-- [Dify](../ai_knowledge/dify.md) — Open-source LLM app development platform.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Patterns for multi-step AI logic.
+- [n8n](../../services/n8n.md) — The leading self-hosted alternative for workflow automation.
+- [AirOps](airops.md) — Enterprise-focused AI platform for scaling business workflows.
+- [Model Context Protocol (MCP)](mcp.md) — The standard for connecting AI agents to tools.
+- [Dify](../ai_knowledge/dify.md) — Open-source LLM application development platform.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Architectural patterns for multi-step AI reasoning.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Frontier open model often orchestrated via Gumloop.
+- [Make](make.md) — General-purpose visual automation platform with deep AI nodes.
+- [Langflow](../frameworks/langflow.md) — Low-code IDE for building LangChain-based agents.
 
 ## Sources / references
-- [Gumloop Official Website](https://www.gumloop.com/)
-- [Gumloop Documentation](https://docs.gumloop.com/)
+- [Gumloop Official Site](https://www.gumloop.com/)
+- [Gumloop Product Documentation](https://docs.gumloop.com/)
 - [Gumloop API Reference](https://docs.gumloop.com/api-reference)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
