@@ -1,19 +1,19 @@
 # ARC (AI2 Reasoning Challenge)
 
 ## What it is
-The AI2 Reasoning Challenge (ARC) is a question-answering dataset consisting of 7,787 multiple-choice science questions, primarily sourced from grade-school standardized assessments. It is divided into an **ARC-Easy** set and a more rigorous **ARC-Challenge** set. As of June 2026, it remains a critical test for "System 2" reasoning in frontier models like `claude-4-8-opus-20260528` and GPT-5.5.
+The AI2 Reasoning Challenge (ARC) is a question-answering dataset consisting of 7,787 multiple-choice science questions, primarily sourced from grade-school standardized assessments. It is divided into an **ARC-Easy** set and a more rigorous **ARC-Challenge** set. As of July 2026, it remains a critical test for "System 2" reasoning in frontier models like `claude-4-8-opus-20260528`, GPT-5.5, and Gemma 3.
 
 ## What problem it solves
-Traditional QA benchmarks often include questions that can be solved via simple information retrieval or statistical pattern matching. ARC's "Challenge Set" specifically filters out these types of questions, requiring models to perform multi-hop reasoning and utilize commonsense background knowledge.
+Traditional QA benchmarks often include questions that can be solved via simple information retrieval or statistical pattern matching. ARC's "Challenge Set" specifically filters out these types of questions, requiring models to perform multi-hop reasoning and utilize commonsense background knowledge. It prevents models from appearing intelligent merely by memorizing facts.
 
 ## Where it fits in the stack
-ARC is part of the **Benchmarking** layer, used to evaluate the reasoning and natural language understanding (NLU) capabilities of large language models. It is a staple in the [Open LLM Leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard).
+ARC is part of the **Benchmarking** layer, used to evaluate the reasoning and natural language understanding (NLU) capabilities of large language models. It is a staple in the [Open LLM Leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard) and is often integrated into automated evaluation pipelines via the [MCP 3.0](../../tools/automation_orchestration/mcp.md) Task Protocol.
 
 ## Typical use cases
 - **Reasoning Evaluation**: Evaluating the zero-shot or few-shot reasoning performance of LLMs.
 - **Architecture Comparison**: Comparing the "deep inference" capabilities of different model architectures (e.g., Transformer vs. Mamba-2).
 - **Fine-tuning Validation**: Validating the impact of specialized reasoning fine-tuning (e.g., Chain-of-Thought).
-- **Small Model Testing**: Testing "small" models (SLMs) like Llama 4 Maverick to see if they possess emergent reasoning capabilities.
+- **Small Model Testing**: Testing "small" models (SLMs) like Llama 4 Maverick and Gemma 3 to see if they possess emergent reasoning capabilities.
 
 ## Strengths
 - **Reasoning-Focus**: The Challenge Set is explicitly designed to resist simple retrieval-based solutions.
@@ -30,12 +30,12 @@ ARC is part of the **Benchmarking** layer, used to evaluate the reasoning and na
 ## When to use it
 - When you want a rigorous evaluation of an LLM's general reasoning abilities beyond simple factoid retrieval.
 - To compare the multi-hop inference performance of foundation models.
-- As a benchmark for Chain-of-Thought (CoT) prompting effectiveness.
+- As a benchmark for Chain-of-Thought (CoT) prompting effectiveness in July 2026.
 
 ## When not to use it
 - For specialized domains like law or medicine (use [MMLU](mmlu.md) instead).
-- For testing code generation (use [HumanEval](human-eval.md) or [BigCodeBench](bigcodebench.md)).
-- For vision-based reasoning (use MMMU).
+- For testing code generation (use [HumanEval](human-eval.md) or [EvalPlus](evalplus.md)).
+- For vision-based reasoning (use MMMU or [Superpowers](../enterprise/superpowers.md)).
 
 ## Getting started
 
@@ -61,7 +61,7 @@ Evaluate a model in 0-shot mode to test raw reasoning capability:
 
 ```bash
 lm_eval --model hf \
-    --model_args pretrained=meta-llama/Llama-4-Maverick-8B \
+    --model_args pretrained=google/gemma-3-27b-it \
     --tasks arc_challenge \
     --device cuda:0 \
     --batch_size 8
@@ -94,23 +94,34 @@ print(f"Choices: {sample['choices']}")
 print(f"Correct Answer: {sample['answerKey']}")
 ```
 
-### Example Reasoning Task
-The following is an example question from ARC-Challenge that requires multi-step reasoning:
+### MCP 3.0 Task Protocol Integration
+Using the MCP 3.0 Task Protocol to trigger an ARC evaluation task (July 2026 standard):
 
-> "Which property of a mineral can be determined just by looking at it?"
-> (A) luster (B) mass (C) weight (D) hardness
->
-> *Reasoning: Mass and weight require measurement tools. Hardness requires a scratch test. Luster is the only visual property.*
+```python
+import mcp_client
+
+client = mcp_client.connect("http://benchmarking-server:8080")
+task_id = client.create_task(
+    type="eval",
+    benchmark="arc_challenge",
+    model="google/gemma-3-7b",
+    shots=0
+)
+
+result = client.wait_for_task(task_id)
+print(f"ARC Score: {result['metrics']['acc_norm']}")
+```
 
 ## Related tools / concepts
 - [GPQA](../benchmarking/gpqa.md) — expert-level reasoning.
 - [MMLU](../benchmarking/mmlu.md) — broad academic knowledge.
 - [GSM8K](../benchmarking/gsm8k.md) — grade school math reasoning.
+- [EvalPlus](../benchmarking/evalplus.md) — rigorous code generation evaluation.
 - [OpenCompass](../benchmarking/opencompass.md) — comprehensive evaluation platform.
 - [HELM](../benchmarking/helm.md) — holistic evaluation framework.
 - [Chatbot Arena](../benchmarking/chatbot-arena.md) — human-preference evaluation.
-- [Math Benchmark](../benchmarking/math-benchmark.md) — mathematical proof and reasoning.
 - [LM Evaluation Harness](../benchmarking/lm-evaluation-harness.md) — the standard runner for ARC.
+- [MCP 3.0](../../tools/automation_orchestration/mcp.md) — standard for task orchestration.
 
 ## Sources / references
 - [ARC GitHub Repository](https://github.com/allenai/ARC-benchmark)
@@ -118,5 +129,5 @@ The following is an example question from ARC-Challenge that requires multi-step
 - [Think You Have Solved Question Answering? (Original Paper arXiv 1803.05457)](https://arxiv.org/abs/1803.05457)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high
