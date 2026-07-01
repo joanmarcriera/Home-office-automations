@@ -1,7 +1,7 @@
 # CalDAV
 
 ## What it is
-CalDAV (Calendaring Extensions to WebDAV) is an internet standard allowing a client to access scheduling information on a remote server. It extends the WebDAV (Web Distributed Authoring and Versioning) protocol and uses the iCalendar format for data exchange.
+CalDAV (Calendaring Extensions to WebDAV) is an internet standard allowing a client to access scheduling information on a remote server. It extends the WebDAV (Web Distributed Authoring and Versioning) protocol and uses the iCalendar format for data exchange. As of July 2026, it remains the primary open standard for cross-vendor calendar synchronization in sovereign AI stacks.
 
 ## What problem it solves
 It provides an open, standardized protocol for calendar synchronization, enabling interoperability between different calendar clients (e.g., Apple Calendar, Thunderbird, Android apps) and servers (e.g., Nextcloud, Radicale, Baïkal, Google Calendar) without vendor lock-in. It allows users to own their scheduling data while maintaining cross-device availability.
@@ -12,14 +12,16 @@ It provides an open, standardized protocol for calendar synchronization, enablin
 ## Typical use cases
 - **Multi-Device Sync**: Keeping your personal schedule in sync across phone, laptop, and tablet.
 - **Shared Calendars**: Coordinating schedules within a family or team using a self-hosted server.
-- **Automation Triggers**: Using n8n or custom scripts to watch a CalDAV calendar and trigger actions.
+- **Automation Triggers**: Using [n8n](../../services/n8n.md) or custom scripts to watch a CalDAV calendar and trigger actions.
 - **Task Management**: Many CalDAV servers also support VTODO (tasks), allowing for synchronized todo lists via the same protocol.
+- **Agentic Scheduling**: Giving AI agents the ability to read and write to your schedule via standardized [MCP 3.0](../automation_orchestration/mcp.md) servers.
 
 ## Strengths
 - **Sovereignty**: Complete control over your private schedule when self-hosted.
 - **Interoperability**: Works with nearly every major calendar application.
 - **Open Standard**: Not dependent on the survival or pricing changes of a single company.
 - **Simplicity**: Based on HTTP and XML, making it relatively easy to debug with standard web tools.
+- **Task Support**: Native support for task synchronization (VTODO) alongside events.
 
 ## Limitations
 - **Discovery Complexity**: Finding the correct URL for a specific calendar can be frustrating (varies by server).
@@ -27,9 +29,9 @@ It provides an open, standardized protocol for calendar synchronization, enablin
 - **Authentication**: Modern OAuth2 flows can be difficult to implement for some legacy CalDAV clients.
 
 ## When to use it
-- When building a self-hosted "sovereign" personal cloud.
+- When building a self-hosted "sovereign" personal cloud using [Nextcloud](../../services/nextcloud.md) or [Radicale](../../services/radicale.md).
 - When you need to integrate calendar data into custom automation workflows.
-- When you want to avoid proprietary "walled garden" calendar services.
+- When you want to avoid proprietary "walled garden" calendar services like [Google Calendar](../calendar_tasks/google_calendar.md).
 
 ## When not to use it
 - If your entire organization is already on Google Workspace or Microsoft 365 and you don't need external integration.
@@ -101,8 +103,8 @@ if calendars:
     calendar = calendars[0]
     # Fetch events for today
     events = calendar.date_search(
-        start=datetime(2026, 6, 12),
-        end=datetime(2026, 6, 13)
+        start=datetime(2026, 7, 21),
+        end=datetime(2026, 7, 22)
     )
     for event in events:
         print(f"Summary: {event.vobject_instance.vevent.summary.value}")
@@ -116,13 +118,15 @@ if calendars:
 - [Paperless-ngx](../../services/paperless-ngx.md): Trigger calendar events from documents.
 - [Home Assistant](../../services/home-assistant.md): Scheduling automation.
 - [Authentik](../../services/authentik.md): SSO for CalDAV servers.
-- [Radicale](../../services/radicale-automation.md): Lightweight CalDAV/CardDAV server.
+- [Radicale](../../services/radicale.md): Lightweight CalDAV/CardDAV server.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md): Standard for tool use including scheduling.
 
 ## Sources / references
 - [RFC 4791: CalDAV Specification](https://tools.ietf.org/html/rfc4791)
 - [CalDAV.org](http://caldav.org/)
 - [Radicale Documentation](https://radicale.org/v3.html)
+- [MCP 3.0 Task Protocol for Calendaring](https://modelcontextprotocol.io/3.0/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
