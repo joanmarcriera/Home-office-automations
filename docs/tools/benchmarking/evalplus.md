@@ -1,7 +1,7 @@
 # EvalPlus
 
 ## What it is
-EvalPlus is a rigorous evaluation framework for Large Language Models (LLMs) focused on code generation (LLM4Code). It significantly expands existing benchmarks like HumanEval and MBPP with more comprehensive test cases to improve evaluation accuracy. As of June 2026, it is the industry standard for verifying the coding robustness of frontier models like `claude-4-8-opus-20260528` and GPT-5.5.
+EvalPlus is a rigorous evaluation framework for Large Language Models (LLMs) focused on code generation (LLM4Code). It significantly expands existing benchmarks like HumanEval and MBPP with more comprehensive test cases to improve evaluation accuracy. As of July 2026, it is the industry standard for verifying the coding robustness of frontier models like `claude-4-8-opus-20260528`, GPT-5.5, and Llama 4 Maverick.
 
 ## What problem it solves
 Original coding benchmarks like [HumanEval](human-eval.md) often have very few test cases, allowing fragile or incorrect code to pass. EvalPlus addresses this "under-testing" problem by adding 80x more tests to HumanEval and 35x more tests to MBPP, revealing model weaknesses that simpler benchmarks miss.
@@ -13,14 +13,14 @@ Original coding benchmarks like [HumanEval](human-eval.md) often have very few t
 - **Rigorous Coding Evaluation**: Testing a model's true coding ability beyond simple benchmarks.
 - **Fragility Detection**: Identifying if a model's generated code is robust across many different inputs.
 - **Code Efficiency Benchmarking**: Using the EvalPerf extension to measure the execution speed of LLM-generated code.
-- **Frontier Model Verification**: Confirming the coding reliability of Claude 4.8 Opus and GPT-5.5.
+- **Frontier Model Verification**: Confirming the coding reliability of Claude 4.8 Opus, GPT-5.5, and Gemma 3.
 
 ## Strengths
 - **High Rigor**: Expanded test suites (HumanEval+, MBPP+) significantly reduce false positives.
 - **Multi-backend Support**: Supports evaluation via vLLM, Hugging Face, OpenAI, Anthropic, Gemini, and Ollama.
 - **Security**: Supports safe code execution within Docker containers to protect the host system.
 - **Performance Evaluation**: Includes EvalPerf for measuring code efficiency.
-- **Open Source**: Licensed under Apache 2.0.
+- **MCP 3.0 Integration**: Supports [MCP 3.0](../../tools/automation_orchestration/mcp.md) for automated benchmarking workflows.
 
 ## Limitations
 - **Focus**: Primarily limited to Python and coding-specific tasks.
@@ -119,5 +119,5 @@ print(f"Number of Test Cases: {len(first_task['test_setup'])}")
 - [NeurIPS 2023 Paper (arXiv 2305.01210)](https://arxiv.org/abs/2305.01210)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high
