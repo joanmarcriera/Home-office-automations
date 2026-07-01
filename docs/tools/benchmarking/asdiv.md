@@ -1,16 +1,16 @@
 # ASDiv (Academia Sinica Diverse MWP Dataset)
 
 ## What it is
-ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed for evaluating the natural language understanding and problem-solving capabilities of AI solvers. As of June 2026, it remains a foundational benchmark for measuring the semantic reasoning of frontier models like `claude-4-8-opus-20260528` and GPT-5.5. It is structured to provide high diversity in both linguistic expression and mathematical problem types, specifically targeting the "lexicon" variety that often trips up less robust models.
+ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed for evaluating the natural language understanding and problem-solving capabilities of AI solvers. As of July 2026, it remains a foundational benchmark for measuring the semantic reasoning of frontier models like `claude-4-8-opus-20260528`, GPT-5.5, and Gemma 3. It is structured to provide high diversity in both linguistic expression and mathematical problem types, specifically targeting the "lexicon" variety that often trips up less robust models.
 
 ## What problem it solves
-Many existing MWP datasets suffer from limited diversity in language patterns or problem types, often allowing models to "cheat" by learning statistical shortcuts or over-fitting to specific phrasing. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school (K-6), requiring actual semantic understanding to map natural language descriptions to formal mathematical operations.
+Many existing MWP datasets suffer from limited diversity in language patterns or problem types, often allowing models to "cheat" by learning statistical shortcuts or over-fitting to specific phrasing. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school (K-6), requiring actual semantic understanding to map natural language descriptions to formal mathematical operations. With the release of MCP 3.0 in July 2026, ASDiv is increasingly used to validate the mathematical tool-use capabilities of agents via the Task Protocol.
 
 ## Where it fits in the stack
 ASDiv belongs to the **Benchmarking** category, specifically focusing on mathematical reasoning and lexicon usage diversity. It acts as a specialized check within an evaluation suite, alongside broader benchmarks like [MMLU](../benchmarking/mmlu.md) and [GSM8K](../benchmarking/gsm8k.md).
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Benchmarking Claude 4.8 and GPT-5.5 on elementary-level mathematical reasoning.
+- **Frontier Model Evaluation**: Benchmarking Claude 4.8, GPT-5.5, and Gemma 3 on elementary-level mathematical reasoning.
 - **Robustness Testing**: Measuring how variations in linguistic phrasing affect a model's ability to solve math problems.
 - **Specialized Solver Development**: Training and testing specialized Math Word Problem (MWP) solvers.
 - **Prompt Engineering**: Validating the effectiveness of "Chain of Thought" (CoT) and "System 2" reasoning prompts across varied problem structures.
@@ -29,7 +29,7 @@ ASDiv belongs to the **Benchmarking** category, specifically focusing on mathema
 ## When to use it
 - Use ASDiv to verify that a model can handle varied phrasing in math problems without relying on superficial pattern matching.
 - When you want to specifically test "Word Problem" solving rather than pure arithmetic or high-level calculus.
-- When performing technical freshness audits of model reasoning capabilities in June 2026.
+- When performing technical freshness audits of model reasoning capabilities in July 2026.
 
 ## When not to use it
 - Do not use it for evaluating high-level mathematics (calculus, linear algebra).
@@ -91,6 +91,9 @@ print(f"Found {len(multiplication_probs)} multiplication problems.")
 - [MMLU](../benchmarking/mmlu.md) — Massive Multitask Language Understanding.
 - [DREAM](../benchmarking/dream.md) — Deep Research Evaluation with Agentic Metrics.
 - [Claude 4.8 Opus](../../knowledge_base/patterns/claude-4-8-patterns.md) — Frontier model often benchmarked with ASDiv.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for connecting models to data and tools.
+- [Llamafile](../infrastructure/llamafile.md) — Simple way to run LLMs locally.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Guide to running models on your own hardware.
 
 ## Sources / references
 - [ASDiv GitHub Repository](https://github.com/chiahsuan/ASDiv)
@@ -98,5 +101,5 @@ print(f"Found {len(multiplication_probs)} multiplication problems.")
 - [Hugging Face ASDiv Dataset Card](https://huggingface.co/datasets/asdiv)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high

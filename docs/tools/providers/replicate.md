@@ -7,10 +7,10 @@ Replicate is a cloud platform that makes it easy to run open-source machine lear
 Eliminates the significant complexity of managing GPU infrastructure, Docker containers (Cog), and model weights for a vast library of open-source AI models. It provides a standardized interface for accessing cutting-edge research models without local hardware requirements.
 
 ## Where it fits in the stack
-**Inference Provider / Multi-modal Hub**. It is an "everything store" for running almost any open-source AI model in the cloud, serving as a critical infrastructure layer for frontier models like `claude-4-8-opus-20260528` to orchestrate multi-modal tasks.
+**Inference Provider / Multi-modal Hub**. It is an "everything store" for running almost any open-source AI model in the cloud, serving as a critical infrastructure layer for frontier models like `claude-4-8-opus-20260528` and GPT-5.5 to orchestrate multi-modal tasks.
 
 ## Typical use cases
-- **Multi-modal Pipelines**: Combining an LLM (Llama 4) with an image generator (Flux.1) and a video generator in a single automated workflow.
+- **Multi-modal Pipelines**: Combining an LLM (Llama 4) with an image generator (Flux.1) and a video generator in a single automated workflow. As of July 2026, Replicate's native support for MCP 3.0 allows these pipelines to be triggered directly from agentic tools.
 - **Rapid Prototyping**: Testing new research models or niche adapters without any local setup.
 - **Scaling Custom Models**: Moving from a local experiment to a production-ready API instantly using their Cog tool.
 - **AI Agent Tool-Use**: Providing agents with the ability to generate or transform media via a unified API.
@@ -35,7 +35,7 @@ Eliminates the significant complexity of managing GPU infrastructure, Docker con
 
 ## When not to use it
 - For high-volume, low-latency LLM-only applications where serverless providers like [Groq](groq.md) or [Together AI](together.md) excel.
-- If you need the extreme proprietary reasoning of models like GPT-5.5 or Claude 4.8 Opus for the core logic (use those providers directly).
+- If you need the extreme proprietary reasoning of models like GPT-5.5 or Claude 4.8 Opus for the core logic (use those providers directly via [Model Context Protocol](../automation_orchestration/mcp.md) if necessary).
 - If you have zero connectivity to cloud services and need purely local, file-system based storage or inference.
 
 ## Getting started
@@ -116,5 +116,5 @@ print(video)
 
 ## Contribution Metadata
 - **Licensing and Cost**: Paid (Per-second / Usage-based). Cog is open-source and models can be self-hosted via Cog.
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high

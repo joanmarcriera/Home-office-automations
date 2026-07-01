@@ -1,7 +1,7 @@
 # Hugging Face
 
 ## What it is
-Hugging Face is the central hub for the machine learning community, providing a platform where users can share, discover, and collaborate on models, datasets, and ML applications. As of June 2026, it is the undisputed "GitHub of AI," hosting millions of repositories including frontier models optimized for `claude-4-8-opus-20260528` and GPT-5.5.
+Hugging Face is the central hub for the machine learning community, providing a platform where users can share, discover, and collaborate on models, datasets, and ML applications. As of July 2026, it is the undisputed "GitHub of AI," hosting millions of repositories including frontier models optimized for `claude-4-8-opus-20260528`, GPT-5.5, and Gemma 3.
 
 ## What problem it solves
 It simplifies the process of finding, downloading, and deploying state-of-the-art machine learning models. It provides standardized libraries (like `transformers`, `diffusers`, and `datasets`) that allow developers to work with models from many different providers using a unified API, effectively eliminating the friction of model-specific implementation details.
@@ -10,8 +10,8 @@ It simplifies the process of finding, downloading, and deploying state-of-the-ar
 **Provider and Model Hub**. It serves as the primary source for models used by [Ollama](../../services/ollama.md), [LiteLLM](../../services/litellm.md), and [vLLM](../infrastructure/vllm.md). It is the upstream source for nearly all open-weight model deployments.
 
 ## Typical use cases
-- **Model Discovery**: Finding the latest open-weight LLMs (e.g., Llama 4 Maverick, Qwen 3.5, Mistral Large 3).
-- **Application Development**: Using the `transformers` library to integrate AI into Python applications.
+- **Model Discovery**: Finding the latest open-weight LLMs (e.g., Llama 4 Maverick, Qwen 3.5, Mistral Large 3, Gemma 3).
+- **Application Development**: Using the `transformers` library to integrate AI into Python applications. In July 2026, Hugging Face introduced native MCP 3.0 endpoints for all Inference API models, enabling seamless tool-calling.
 - **Data Management**: Hosting and versioning large-scale datasets for training and evaluation.
 - **Collaboration**: Hosting private models and datasets for team collaboration within organizations.
 - **Rapid Prototyping**: Running quick experiments using Hugging Face Spaces (Gradio/Streamlit).
@@ -123,6 +123,9 @@ api.upload_folder(
 - [vLLM](../infrastructure/vllm.md) — High-performance inference engine for HF models.
 - [Unsloth](../infrastructure/unsloth.md) — Fast fine-tuning library integrated with HF.
 - [Distilabel](../frameworks/distilabel.md) — Synthetic data generation that pushes to HF Hub.
+- [Replicate](replicate.md) — Alternative model provider and hub.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for connecting models to tools, supported by HF Inference API.
+- [Llamafile](../infrastructure/llamafile.md) — Run LLMs as single-file executables.
 - [Hugging Face Storage Buckets](https://huggingface.co/blog/storage-buckets) — S3-compatible storage for ML artifacts.
 
 ## Sources / references
@@ -132,5 +135,5 @@ api.upload_folder(
 - [Hugging Face GitHub](https://github.com/huggingface)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high
