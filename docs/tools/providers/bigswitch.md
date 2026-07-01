@@ -1,19 +1,19 @@
 # BigSwitch
 
 ## What it is
-BigSwitch is a community-driven directory focused on European alternatives to Big Tech. It promotes digital sovereignty by highlighting GDPR-compliant, EU-owned, and often open-source tools. It serves as a curation engine for developers and organizations who prioritize jurisdictional safety and data residency within the European Union.
+BigSwitch is a community-driven directory focused on European alternatives to Big Tech. It promotes digital sovereignty by highlighting GDPR-compliant, EU-owned, and often open-source tools. As of July 2026, it serves as a critical curation engine for developers and organizations who prioritize jurisdictional safety and data residency within the European Union, particularly for high-stakes AI applications.
 
 ## What problem it solves
-It helps individuals and organizations navigate the transition from US-centric SaaS platforms to European alternatives, addressing concerns around digital sovereignty, data residency, and GDPR compliance. It mitigates the risk of "Cloud Act" exposure by identifying providers that operate entirely under European law, which is increasingly critical for frontier models like `claude-4-8-opus-20260528` and GPT-5.5 when processing sensitive EU data.
+It helps individuals and organizations navigate the transition from US-centric SaaS platforms to European alternatives, addressing concerns around digital sovereignty, data residency, and GDPR compliance. It mitigates the risk of "Cloud Act" exposure by identifying providers that operate entirely under European law, which is essential for frontier models like `claude-4-8-opus-20260528` and GPT-5.5 when processing sensitive EU data.
 
 ## Where it fits in the stack
-**Providers / Discovery Directory**. It is a selection and vetting resource for European tech providers, influencing the choice of infrastructure, storage, and communication layers in the [Knowledge Base](../../knowledge_base/README.md).
+**Providers / Discovery Directory**. It is a selection and vetting resource for European tech providers, influencing the choice of infrastructure, storage, and communication layers. In July 2026, it also informs the routing logic for sovereign agents using MCP 3.0.
 
 ## Typical use cases
 - **Sourcing GDPR-compliant alternatives**: Finding business communication and cloud storage solutions that guarantee data residency in the EU.
 - **Identifying EU-based AI**: Discovering infrastructure providers like [Mistral](mistral.md) or Scaleway.
-- **Auditing a tech stack**: Evaluating existing services for digital sovereignty and jurisdictional risk using the [Sovereignty Audit Pattern](#sovereignty-audit-pattern).
-- **Privacy-First Procurement**: Using the directory to find tools that prioritize user privacy and open standards.
+- **Auditing a tech stack**: Evaluating existing services for digital sovereignty and jurisdictional risk.
+- **Sovereign Agent Routing**: Using BigSwitch data to configure model routers that prioritize EU-based endpoints for specific task classes.
 
 ## Strengths
 - **Sovereignty Focus**: Prioritizes tools owned and operated within the EU.
@@ -74,7 +74,7 @@ resource "hcloud_server" "sovereign_node" {
 ```
 
 ## API examples
-Developers can use the BigSwitch directory concepts to perform a jurisdictional audit. Below is the **Sovereignty Audit Pattern** for automating a basic sovereignty check.
+Developers can use BigSwitch directory concepts to perform a jurisdictional audit. Below is an automated sovereignty check logic.
 
 ```python
 import json
@@ -105,12 +105,12 @@ print(f"Sovereignty Audit Results: {json.dumps(audit_results, indent=2)}")
 ## Related tools / concepts
 - [Mistral](mistral.md) — Premier European LLM provider.
 - [Hugging Face](huggingface.md) — European-headquartered AI community hub.
-- [Hetzner](https://www.hetzner.com/) — German cloud provider often recommended by BigSwitch.
 - [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Critical for sovereignty audits.
 - [DeepSeek](deepseek.md) — Cross-jurisdictional alternative.
 - [Replicate](replicate.md) — Multi-modal hub with diverse hosting.
 - [Together AI](together.md) — Serverless endpoints for open models.
-- [AWS Bedrock](aws-bedrock.md) — Comparison for trust boundaries.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for agentic tool use.
+- [Groq](groq.md) — Low-latency inference provider.
 
 ## Sources / references
 - [Official Website](https://bigswitch.eu/)
@@ -118,5 +118,5 @@ print(f"Sovereignty Audit Results: {json.dumps(audit_results, indent=2)}")
 - [EU Digital Sovereignty Strategy](https://ec.europa.eu/info/strategy/priorities-2019-2024/europe-fit-digital-age_en)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high
