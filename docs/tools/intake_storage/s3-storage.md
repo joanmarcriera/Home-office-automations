@@ -1,10 +1,10 @@
 # S3 / S3-Compatible Storage
 
 ## What it is
-S3 (Simple Storage Service) is a scalable object storage service pioneered by AWS. "S3-compatible" refers to other storage services and software (like Cloudflare R2, MinIO, or Google Cloud Storage) that use the same API for data management.
+S3 (Simple Storage Service) is a scalable object storage service pioneered by AWS. "S3-compatible" refers to other storage services and software (like Cloudflare R2, MinIO, or Google Cloud Storage) that use the same API for data management. As of July 2026, it is the universal backbone for AI data persistence and federated storage across hybrid cloud environments.
 
 ## What problem it solves
-It provides virtually unlimited, durable, and highly available storage for unstructured data (images, videos, documents, backups, and logs). It allows AI agents and applications to store and retrieve data from any location via simple HTTP/HTTPS calls, serving as the primary "data lake" for agentic workflows.
+It provides virtually unlimited, durable, and highly available storage for unstructured data (images, videos, documents, backups, and logs). It allows AI agents and applications to store and retrieve data from any location via simple HTTP/HTTPS calls, serving as the primary "data lake" for agentic workflows and long-term memory.
 
 ## Where it fits in the stack
 **Intake & Storage / Object Storage**. It acts as the foundational persistence layer for raw intake data and agent traces before they are processed into vector databases or knowledge bases.
@@ -15,18 +15,19 @@ It provides virtually unlimited, durable, and highly available storage for unstr
 - **Model Checkpoint Storage**: Saving and versioning large LLM weights and fine-tuning artifacts for Llama 4 or Mistral.
 - **Data Backups**: Storing automated backups of home-office services and knowledge bases.
 - **Agent Memory Persistence**: Saving long-term context files for frontier models like `claude-4-8-opus-20260528`.
+- **OIDC-Auth Storage**: Implementing secure, identity-based access for AI agents to private data buckets.
 
 ## Strengths
 - **Extreme Scalability**: Handles everything from a few bytes to petabytes of data.
 - **High Durability**: Designed for 99.999999999% (11 nines) of durability.
 - **Industry Standard API**: The S3 API is supported by almost every AI tool and framework, including LangChain, LlamaIndex, and AutoGen.
 - **Cost-Effective**: Pay-as-you-go pricing with tiered storage options (Hot, Cold, Archive).
-- **Interoperability**: Easily integrates with compute layers for data processing and inference.
+- **Security**: Granular access control using IAM policies and modern **OIDC (OpenID Connect)** integrations.
 
 ## Limitations
 - **Object Latency**: Not suitable for applications requiring extremely low-latency block storage (e.g., high-performance databases).
-- **Complexity at Scale**: Managing access policies (IAM), versioning, and lifecycle rules can become complex as the data lake grows.
-- **Data Egress Costs**: Cloud providers often charge for data transferred out of their network.
+- **Complexity at Scale**: Managing access policies, versioning, and lifecycle rules can become complex as the data lake grows.
+- **Data Egress Costs**: Cloud providers often charge for data transferred out of their network (Cloudflare R2 is a notable exception).
 
 ## When to use it
 - When you need a highly scalable, durable place to store large amounts of unstructured AI data (logs, datasets, media).
@@ -35,9 +36,9 @@ It provides virtually unlimited, durable, and highly available storage for unstr
 - As the backend for [Paperless-ngx](../../services/paperless-ngx.md) or other document management systems.
 
 ## When not to use it
-- For high-frequency, low-latency database operations (use a relational database or NoSQL instead).
+- For high-frequency, low-latency database operations (use a relational database like [Supabase](../infrastructure/supabase.md) instead).
 - If you have zero connectivity to cloud services and need purely local, file-system based storage for a single machine (use local SSDs).
-- For structured data that requires complex querying and indexing (use [Supabase](../infrastructure/supabase.md) or [PostgreSQL](../../services/postgresql.md)).
+- For structured data that requires complex querying and indexing (see [ClickHouse](../process_understanding/clickhouse.md)).
 
 ## Getting started
 
@@ -60,10 +61,10 @@ Cloudflare R2 is a popular S3-compatible choice due to zero egress fees.
 aws s3 cp my-logs.json s3://my-ai-bucket/logs/
 
 # List daily traces
-aws s3 ls s3://my-ai-bucket/openrouter-traces/2026/06/12/
+aws s3 ls s3://my-ai-bucket/openrouter-traces/2026/07/21/
 
 # Download a specific trace for local analysis
-aws s3 cp s3://my-ai-bucket/openrouter-traces/2026/06/12/abc123.json .
+aws s3 cp s3://my-ai-bucket/openrouter-traces/2026/07/21/abc123.json .
 
 # Sync a local directory of datasets to S3
 aws s3 sync ./datasets/ s3://my-ai-bucket/datasets/
@@ -86,7 +87,7 @@ s3 = boto3.client(
 
 # Fetch and parse an AI trace
 bucket = 'my-ai-traces'
-key = 'openrouter-traces/2026/06/12/example-trace.json'
+key = 'openrouter-traces/2026/07/21/example-trace.json'
 
 response = s3.get_object(Bucket=bucket, Key=key)
 trace_data = json.loads(response['Body'].read().decode('utf-8'))
@@ -104,13 +105,15 @@ print(f"Total tokens: {trace_data['total_tokens']}")
 - [Snowflake](../process_understanding/snowflake.md) — Data warehouse that can ingest from S3.
 - [ClickHouse](../process_understanding/clickhouse.md) — OLAP database with S3 integration.
 - [Filesystem Context](../../knowledge_base/patterns/filesystem-context.md) — Pattern for giving agents access to files.
+- [Authentik](../../services/authentik.md) — Can provide OIDC for S3-compatible storage like MinIO.
 
 ## Sources / references
 - [AWS S3 Official Site](https://aws.amazon.com/s3/)
 - [MinIO (Self-hosted S3)](https://min.io/)
 - [OpenRouter S3 Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/s3)
 - [Cloudflare R2 Documentation](https://developers.cloudflare.com/r2/)
+- [OIDC for S3 access](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high

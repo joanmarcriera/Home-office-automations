@@ -1,10 +1,10 @@
 # Cohere
 
 ## What it is
-Cohere is an enterprise-focused AI platform providing large language models (including the Command R family), embeddings, and reranking models. As of June 2026, it is a leader in high-fidelity Retrieval-Augmented Generation (RAG) and multilingual search, known for its focus on data privacy and sovereign deployment options.
+Cohere is an enterprise-focused AI platform providing large language models (Command R family), embeddings, and reranking models. As of July 2026, it is a leader in high-fidelity Retrieval-Augmented Generation (RAG) and multilingual search, known for its focus on data privacy, sovereign deployment options, and native **MCP 3.0** support for enterprise tool orchestration.
 
 ## What problem it solves
-Cohere provides high-performance models specifically optimized for RAG, complex tool use, and multilingual applications. It solves the "hallucination problem" in RAG systems through native, automated citations and addresses the difficulty of high-precision search with its industry-standard reranking endpoint.
+Cohere provides high-performance models specifically optimized for RAG, complex tool use, and multilingual applications. It solves the "hallucination problem" in RAG systems through native, automated citations and addresses the difficulty of high-precision search with its industry-standard reranking endpoint. It also streamlines enterprise agent deployment via standardized protocols.
 
 ## Where it fits in the stack
 **Provider / Embedding / Reranking**. Cohere sits at the core of the reasoning and retrieval layer. While it competes with providers like OpenAI and Anthropic, it is often used as a specialized retrieval-enhancement layer (via Rerank) alongside models like `claude-4-8-opus-20260528` or GPT-5.5.
@@ -13,14 +13,14 @@ Cohere provides high-performance models specifically optimized for RAG, complex 
 - **Enterprise RAG**: Using Command R+ for complex retrieval-augmented generation with native citation grounding.
 - **Multilingual Search**: Using Cohere Embed to power semantic search across 100+ languages with a single vector space.
 - **Search Relevance Optimization**: Using Cohere Rerank as a "cross-encoder" step to significantly improve the accuracy of initial keyword or vector search results.
-- **Multi-step Tool Use**: Building agents that need to orchestrate complex sequences of tool calls with high reliability.
+- **Agentic Workflows**: Leveraging **MCP 3.0** to build agents that orchestrate complex enterprise tool calls with high reliability.
 
 ## Strengths
 - **RAG Native**: Command R family is specifically trained for RAG, offering high citation accuracy and better handling of "noisy" retrieval results.
 - **Multilingual Excellence**: Industry-leading embedding and reranking models supporting over 100 languages with state-of-the-art performance.
 - **Enterprise Deployment**: Offers flexible hosting models, including Public Cloud, VPC (on AWS, Azure, GCP), and Private Cloud/On-prem for maximum data sovereignty.
 - **Search Optimization**: The Rerank API is widely considered the industry benchmark for "second-stage" search ranking.
-- **Optimized Tool Use**: High reliability in following complex tool schemas and executing multi-step reasoning.
+- **Optimized Tool Use**: High reliability in following complex tool schemas and executing multi-step reasoning using standard protocols.
 
 ## Limitations
 - **Creativity**: Generally less focused on creative writing or artistic tasks compared to models like GPT-4o.
@@ -34,7 +34,7 @@ Cohere provides high-performance models specifically optimized for RAG, complex 
 - For enterprise applications requiring deployment in restricted VPC or private environments.
 
 ## When not to use it
-- For general-purpose consumer applications where a generic, low-cost model like GPT-4o-mini is sufficient.
+- For general-purpose consumer applications where a generic, low-cost model is sufficient.
 - When native multi-modal capabilities (like complex image-to-text or image generation) are the primary requirement.
 - If you are building on a stack that is 100% committed to a different provider's proprietary ecosystem (e.g., Google Vertex AI exclusive).
 
@@ -144,18 +144,20 @@ for res in results.results:
 - [Anthropic](anthropic.md) — Known for Claude 4.8 and high-reasoning models.
 - [Mistral](mistral.md) — Performance-oriented open-weights provider.
 - [DeepSeek](deepseek.md) — Efficient retrieval and reasoning models.
-- [Elasticsearch](../../services/elasticsearch.md) — Often used as the first stage before Cohere Rerank.
 - [Pinecone](../infrastructure/pinecone.md) — Vector database for storing Cohere Embeddings.
 - [LangChain](../ai_knowledge/langchain.md) — Framework with deep Cohere integrations.
 - [LlamaIndex](../ai_knowledge/llamaindex.md) — Framework optimized for RAG using Cohere.
-- [Model Context Protocol (MCP)](../../knowledge_base/agent_protocols.md) — Industry standard for tool integration.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized agent communication protocol.
+- [ClickHouse](../process_understanding/clickhouse.md) — OLAP database often used with Cohere for telemetry.
+- [Snowflake](../process_understanding/snowflake.md) — Enterprise data platform with Cohere integrations.
 
 ## Sources / references
 - [Official Website](https://cohere.com/)
 - [Cohere Documentation](https://docs.cohere.com/)
 - [Cohere Rerank Overview](https://cohere.com/rerank)
 - [Command R+ Model Details](https://cohere.com/blog/command-r-plus-microsoft-azure)
+- [MCP 3.0 Integration Guide](https://docs.cohere.com/docs/mcp-integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
