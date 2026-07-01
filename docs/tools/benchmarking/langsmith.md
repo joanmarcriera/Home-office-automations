@@ -1,10 +1,10 @@
 # LangSmith
 
 ## What it is
-LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of June 2026, it serves as the industry-standard "control plane" for complex agentic fleets.
+LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of July 2026, it serves as the industry-standard "control plane" for complex agentic fleets, featuring native support for [MCP 3.0](../../tools/automation_orchestration/mcp.md) observability.
 
 ## What problem it solves
-It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions.
+It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions. With the July 2026 update, it now utilizes **ClickHouse** for high-volume OLAP telemetry, enabling sub-second analytics on millions of traces.
 
 ## Where it fits in the stack
 **Benchmarking / Observability**. It is the primary tool for managing the lifecycle of LLM applications from prototype to production.
@@ -15,12 +15,14 @@ It addresses the "black box" nature of LLMs by providing full visibility into th
 - **Production Monitoring**: Real-time tracking of token usage, cost, and latency across large-scale deployments.
 - **Collaborative Prompting**: Version-controlled prompt engineering with team-wide testing support.
 - **Fleet Management**: Deploying and managing agent "fleets" via LangSmith Deployment (Fleet).
+- **Agentic Session Replay**: Utilizing [AgentOps](../benchmarking/agentops.md) integration for visual execution graphs and step-by-step session replays.
 
 ## Strengths
 - **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.0.
 - **High-Fidelity Tracing**: Visualizes hierarchical execution paths including nested tool calls and parallel branches.
 - **Advanced Evaluators**: Native support for complex automated grading using frontier models like [Claude 4.8 Opus](../providers/anthropic.md).
 - **Polly AI Integration**: Embedded assistant for natural language analysis of failure patterns and performance trends.
+- **Scalable Telemetry**: Powered by ClickHouse for real-time OLAP queries on massive agentic datasets.
 
 ## Limitations
 - **SaaS Lock-in**: While self-hosting is available for enterprise, the primary experience is a proprietary SaaS.
@@ -129,13 +131,16 @@ print(summary.findings)
 - [Claude Code](../development_ops/claude-code-setup.md) — Can be traced using LangSmith.
 - [OpenPipe](../infrastructure/openpipe.md) — For fine-tuning based on LangSmith traces.
 - [Plandex](../development_ops/plandex.md) — Complex agent that benefits from deep tracing.
+- [AgentOps](../benchmarking/agentops.md) — Specialized agent observability integration.
+- [ClickHouse](../infrastructure/clickhouse.md) — Underlying OLAP engine for telemetry.
 
 ## Sources / references
 - [Official Website](https://www.langchain.com/langsmith)
 - [LangSmith Documentation](https://docs.smith.langchain.com/)
 - [Polly Release Announcement](https://www.langchain.com/blog/polly-langsmith-ga)
 - [LangSmith Self-Hosting Guide](https://docs.smith.langchain.com/self-hosting)
+- [ClickHouse Integration for Observability](https://clickhouse.com/blog/observability-with-clickhouse)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-01
 - Confidence: high
