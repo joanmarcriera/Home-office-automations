@@ -19,11 +19,11 @@ This report decomposes the next five oldest issues identified in the repository 
 
 ### 2. Freshness Audit: ARC (`docs/tools/benchmarking/arc.md`)
 **Context**: AI2 Reasoning Challenge for evaluating QA and commonsense reasoning.
-- [ ] Upgrade to the exact 13-section 'High Confidence' standard.
-- [ ] Research and incorporate July 2026 context (Claude 4.8, GPT-5.5, MCP 3.0).
-- [ ] Ensure 7+ unique relative markdown links.
-- [ ] Update `Last reviewed` to 2026-07-01.
-- [ ] Verify with `scripts/check_docs_contract.py`.
+- [x] Upgrade to the exact 13-section 'High Confidence' standard.
+- [x] Research and incorporate July 2026 context (Claude 4.8, GPT-5.5, MCP 3.0).
+- [x] Ensure 7+ unique relative markdown links.
+- [x] Update `Last reviewed` to 2026-07-01.
+- [x] Verify with `scripts/check_docs_contract.py`.
 
 ### 3. Freshness Audit: ASDiv (`docs/tools/benchmarking/asdiv.md`)
 **Context**: Diverse corpus of math word problems for semantic reasoning evaluation.
