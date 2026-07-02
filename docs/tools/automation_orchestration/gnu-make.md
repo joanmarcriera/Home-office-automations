@@ -1,10 +1,10 @@
 # GNU Make
 
 ## What it is
-GNU Make is a foundational build automation tool that controls the generation of executables and other non-source files from a project's source files. It is the industry standard for managing complex build dependencies and is increasingly utilized as a universal task runner for AI-agentic workflows.
+GNU Make is a foundational build automation tool that controls the generation of executables and other non-source files from a project's source files. It is the industry standard for managing complex build dependencies and is increasingly utilized as a universal task runner for AI-agentic workflows, supporting frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and GPT-5.5.
 
 ## What problem it solves
-In large-scale software projects and multi-tool AI pipelines, manually tracking which files need recompilation or which tasks need execution is error-prone and inefficient. GNU Make automates this by intelligently determining which targets are out-of-date based on file modification timestamps, ensuring consistent and reproducible environments for models like Claude 4.8 Opus and GPT-5.5.
+In large-scale software projects and multi-tool AI pipelines, manually tracking which files need recompilation or which tasks need execution is error-prone and inefficient. GNU Make automates this by intelligently determining which targets are out-of-date based on file modification timestamps, ensuring consistent and reproducible environments for complex agentic loops and the **MCP 3.0 Task Protocol**.
 
 ## Where it fits in the stack
 **Orchestration / Tooling**. GNU Make serves as the "glue" layer between raw source code/data and final artifacts, providing a unified entry point for compilers, linters, and AI agents.
@@ -13,8 +13,8 @@ In large-scale software projects and multi-tool AI pipelines, manually tracking 
 - **Automated Compilation**: Managing C/C++, Go, and Rust build pipelines.
 - **Task Orchestration**: Providing a standard interface for `lint`, `test`, `deploy`, and `audit` commands.
 - **Data Pipeline Management**: Triggering data extraction and preprocessing only when source files change.
-- **Agentic Environment Setup**: Bootstrapping sandboxed environments for tools like Claude Code and Aider.
-- **Cross-Tool Glue**: Coordinating between n8n webhooks, Paperless-ngx ingestion, and local LLM inference.
+- **Agentic Environment Setup**: Bootstrapping sandboxed environments for tools like [Claude Code](../development_ops/claude-code.md) and [Aider](../development_ops/aider.md).
+- **Cross-Tool Glue**: Coordinating between [n8n](../../services/n8n.md) webhooks, [Paperless-ngx](../../services/paperless-ngx.md) ingestion, and local LLM inference.
 
 ## Strengths
 - **Ubiquity**: Pre-installed on virtually all Unix-like systems, including Docker containers and WSL2.
@@ -32,12 +32,12 @@ In large-scale software projects and multi-tool AI pipelines, manually tracking 
 - When you need a "standard entry point" for a project (e.g., `make install`, `make test`).
 - For managing build artifacts that depend on a hierarchy of source files.
 - When working in resource-constrained or offline environments where lightweight automation is required.
-- To simplify complex Docker or AI agent commands for human and LLM operators.
+- To simplify complex [Docker](../infrastructure/docker.md) or AI agent commands for human and LLM operators.
 
 ## When not to use it
 - For very simple, linear scripts where a single `.sh` or `.py` file is more readable.
 - In language-specific ecosystems where a native tool (like `npm`, `cargo`, or `poetry`) is already the established standard.
-- When high-level logic or complex branching is required (prefer a dedicated workflow engine like n8n).
+- When high-level logic or complex branching is required (prefer a dedicated workflow engine like [n8n](../../services/n8n.md)).
 
 ## Getting started
 
@@ -88,7 +88,7 @@ help: ## Display this help screen
 test: ## Run unit tests
 	pytest tests/
 
-lint: ## Run code linters
+lint: ## Run code linter
 	flake8 .
 ```
 
@@ -126,7 +126,7 @@ run_make_target('build')
 ```
 
 ### Makefile MCP Integration
-As of June 2026, agents like Claude 4.8 Opus utilize the **Makefile MCP Server** to parse and execute targets directly:
+As of July 2026, agents utilizing the [MCP 3.0 Task Protocol](mcp.md) can interact with the [Makefile MCP](makefile-mcp.md) server to parse and execute targets directly:
 
 ```json
 {
@@ -142,19 +142,21 @@ As of June 2026, agents like Claude 4.8 Opus utilize the **Makefile MCP Server**
 - [Makefile MCP](makefile-mcp.md) — Model Context Protocol server for Make.
 - [n8n](../../services/n8n.md) — High-level workflow automation.
 - [Make (formerly Integromat)](make.md) — Cloud-based automation platform.
+- [Model Context Protocol (MCP)](mcp.md) — Standard for agent-tool communication.
 - [Task](https://taskfile.dev/) — Modern YAML-based alternative.
 - [Just](https://github.com/casey/just) — Command runner focused on simplicity.
 - [Docker](../infrastructure/docker.md) — Containerization standard.
 - [Claude Code](../development_ops/claude-code.md) — Official CLI agent.
 - [Aider](../development_ops/aider.md) — Agentic coding assistant.
-- [Poetry](../ai_knowledge/python.md) — Python dependency management.
+- [Python](../ai_knowledge/python.md) — Language for scripting and AI.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Context for Gemma 3 and other models.
 
 ## Sources / references
 - [GNU Make Official Site](https://www.gnu.org/software/make/)
 - [GNU Make Manual](https://www.gnu.org/software/make/manual/make.html)
 - [Makefile Tutorial](https://makefiletutorial.com/)
-- [Anthropic Claude 4.8 Tool Use Patterns](https://docs.anthropic.com/claude/docs/tool-use)
+- [MCP 3.0 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-02
 - Confidence: high
