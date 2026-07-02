@@ -1,110 +1,129 @@
 # Chronos MCP
 
 ## What it is
-A comprehensive Model Context Protocol (MCP) server for CalDAV calendar management, built with FastMCP 2.0. It enables AI assistants like Claude 4.8 Opus and GPT-5.5 to manage events, tasks, and journals across multiple CalDAV accounts.
+Chronos MCP is a high-performance Model Context Protocol (MCP) server for CalDAV calendar and task management. As of July 2026, it is built on **FastMCP 3.0** and supports the **MCP 3.0** Task Protocol, enabling frontier models like **Gemma 3**, Claude 4.8 Opus, and GPT-5.5 to perform deep orchestration across multiple CalDAV-compliant servers including Nextcloud, iCloud, and Fastmail.
 
 ## What problem it solves
-It provides advanced calendar management capabilities with multi-account support, allowing AI agents to interact with any CalDAV-compliant server (Nextcloud, iCloud, Fastmail, etc.). It solves the "agent-calendar gap" by exposing full CRUD operations and advanced search features.
+It bridges the gap between autonomous AI agents and standard calendar protocols (RFC 4791, RFC 4918). Chronos allows agents to manage complex scheduling, task lists (VTODO), and journals (VJOURNAL) without needing bespoke integrations for every calendar provider, while maintaining high security through system-level keyring integration.
 
 ## Where it fits in the stack
-**Tool / Automation**. It acts as a bridge between frontier AI models and personal/enterprise calendar services.
+**Automation & Orchestration Layer**. It serves as a specialized tool for agents requiring persistent, multi-account access to temporal and task-based data, sitting between the LLM reasoning engine and the DAV storage layer.
 
 ## Typical use cases
-- Scheduling and managing recurring events across personal and work calendars.
-- Managing tasks (VTODO) and journal entries (VJOURNAL) via natural language.
-- Searching for calendar data using full-text or field-specific criteria.
-- Bulk creating or deleting calendar entries for project synchronization.
+- **Multi-Account Orchestration**: Coordinating events between a personal Fastmail account and a corporate Nextcloud instance.
+- **Agentic Task Management**: Allowing AI assistants to create, update, and prioritize VTODO tasks based on conversation context.
+- **Search & Synthesis**: Performing complex, ranked searches across years of calendar data to answer "When was the last time I met with X?".
+- **Automated Logging**: Using VJOURNAL entries to maintain an agentic work log or technical journal.
 
 ## Strengths
-- **Multi-account Support**: Manages multiple servers and accounts simultaneously.
-- **Full VTODO/VJOURNAL Support**: Comprehensive task and journal management (v2.0.0+).
-- **Secure Storage**: Supports system keyring (Keychain, Windows Credential Locker) for password security.
-- **Advanced Search**: Features relevance ranking and multiple match types (regex, contains, etc.).
+- **Native FastMCP 3.0**: Leverages the latest MCP features for improved tool discovery and type safety.
+- **Advanced Search Engine**: Includes relevance-ranked search with regex and fuzzy-match capabilities.
+- **Keyring Security**: Securely stores credentials using OS-native secret managers (Keychain, Windows Credential Locker).
+- **Comprehensive VObject Support**: Handles Events, Tasks, and Journals with full CRUD operations.
 
 ## Limitations
-- Requires a CalDAV-compliant server.
-- Built-in synchronization between accounts is not yet implemented.
-- iCalendar format import/export is in the roadmap.
+- **CalDAV Only**: Does not support proprietary APIs (e.g., Google Calendar, Microsoft Graph) directly.
+- **No Conflict Resolution**: Concurrent edits on the server-side may lead to standard CalDAV sync conflicts that the agent must handle.
+- **Network Dependency**: Requires a stable connection to the remote CalDAV server for real-time operations.
 
 ## When to use it
-- When you need an AI agent to manage calendars across different providers.
-- When you require advanced search and bulk operation capabilities for CalDAV data.
-- When security (system keyring) is a priority for calendar credentials.
+- When an agent needs to manage calendars or tasks across multiple providers simultaneously.
+- When you require a standardized MCP interface for CalDAV data.
+- When security and credential isolation are top priorities.
 
 ## When not to use it
-- If your calendar provider does not support CalDAV (e.g., Google Calendar use [gws](google-workspace-cli.md)).
-- For simple, single-account scheduling that doesn't require an MCP interface.
+- For Google Workspace environments (use [Google Workspace CLI](google-workspace-cli.md) or the native Google MCP).
+- If your calendar provider does not support standard CalDAV (e.g., older Outlook versions).
+- For simple, non-agentic calendar access where a basic CLI or UI suffices.
 
 ## Getting started
 
 ### 1. Installation
-Install via `pip`:
+Chronos MCP is available via `pip` with optional security features:
 ```bash
 pip install chronos-mcp[secure]
 ```
 
 ### 2. Configuration
-Create `~/.chronos/accounts.json` or set environment variables:
+Configure accounts in `~/.chronos/accounts.yaml` or via environment variables:
 ```yaml
-# Example chronos_config.yaml
+# ~/.chronos/accounts.yaml
 accounts:
-  - name: "Nextcloud"
-    url: "https://nextcloud.example.com/remote.php/dav"
-    username: "user"
+  - name: "Home"
+    url: "https://dav.example.com/remote.php/dav"
+    username: "jules"
+    calendars: ["work", "personal"]
 ```
 
-### 3. Run
-Start the server for your MCP client:
+### 3. Execution
+Start the server for your MCP client (e.g., Claude Desktop, Gemma CLI):
 ```bash
 python -m chronos_mcp
 ```
 
 ## CLI examples
 ```bash
-# Start the server with a specific config path
-CHRONOS_CONFIG_PATH=/path/to/config.yaml python -m chronos_mcp
+# Verify configuration and server health
+CHRONOS_CONFIG_PATH=/path/to/config.yaml python -m chronos_mcp --check
 
-# Migrate existing plain-text passwords to secure keyring
-python scripts/migrate_to_keyring.py
+# List all available tools in the current MCP session
+mcp list-tools --server chronos-mcp
 
-# List all configured accounts (via MCP call)
-mcp call list_accounts
+# Migrate legacy plain-text passwords to secure keyring storage
+chronos-mcp-migrate-keyring
 ```
 
 ## API examples
-Agents interact with Chronos via specific tools:
-```json
-// Create a new task (VTODO)
-create_task({
-  "calendar_uid": "work",
-  "summary": "Complete 2026 Freshness Audit",
-  "due": "2026-06-12T23:59:59Z",
-  "priority": 1
-})
+Agents interact with Chronos via the following standard MCP tools:
 
-// Search for an event
-list_events({
-  "calendar_uid": "personal",
-  "search_query": "Doctor appointment",
-  "start_date": "2026-01-01"
-})
+### Create a Task (VTODO)
+```json
+{
+  "method": "call_tool",
+  "params": {
+    "name": "create_task",
+    "arguments": {
+      "account": "Nextcloud",
+      "summary": "Implement MCP 3.0 Routing Logic",
+      "due": "2026-07-20T17:00:00Z",
+      "priority": 1
+    }
+  }
+}
+```
+
+### Search Events
+```json
+{
+  "method": "call_tool",
+  "params": {
+    "name": "search_events",
+    "arguments": {
+      "query": "Project Gemma",
+      "start_date": "2026-07-01",
+      "end_date": "2026-07-31"
+    }
+  }
+}
 ```
 
 ## Related tools / concepts
-- [CalDAV](../intake_storage/caldav.md)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
-- [Nextcloud](../../services/nextcloud.md)
-- [Fastmail](../calendar_tasks/fastmail.md)
-- [Vikunja MCP](vikunja-mcp.md)
-- [Google Workspace CLI](google-workspace-cli.md)
-- [MCP Registry](mcp-registry.md)
-- [Claude Code](../development_ops/claude-code.md)
+- [Model Context Protocol](mcp.md) — The underlying communication standard.
+- [CalDAV](../intake_storage/caldav.md) — The target calendar protocol.
+- [Nextcloud](../../services/nextcloud.md) — Common open-source CalDAV provider.
+- [Fastmail](../calendar_tasks/fastmail.md) — Enterprise-grade CalDAV and email service.
+- [Vikunja MCP](vikunja-mcp.md) — Specialized task management MCP server.
+- [Google Workspace CLI](google-workspace-cli.md) — Comparison tool for Google ecosystems.
+- [Claude Code](../development_ops/claude-code.md) — Agentic CLI that utilizes Chronos.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Native support for MCP 3.0 tool calling.
+- [MCP Registry](mcp-registry.md) — Discover other servers.
 
-## Sources / References
-- [Chronos MCP GitHub](https://github.com/democratize-technology/chronos-mcp)
+## Sources / references
+- [Chronos MCP GitHub Repository](https://github.com/democratize-technology/chronos-mcp)
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
+- [RFC 4791 - CalDAV Specification](https://datatracker.ietf.org/doc/html/rfc4791)
+- [MCP 3.0 Release Notes](../../knowledge_base/agent_protocols.md)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-02
 - Confidence: high
