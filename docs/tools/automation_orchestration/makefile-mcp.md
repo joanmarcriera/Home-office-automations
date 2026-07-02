@@ -1,13 +1,13 @@
 # Makefile MCP
 
 ## What it is
-An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants like Claude 4.8 Opus and GPT-5.5.
+An MCP server that auto-discovers Makefile targets and exposes them as individual, documented tools for AI assistants like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5.
 
 ## What problem it solves
 Traditional Makefile MCP implementations often expose a single generic `make` tool, which prevents LLMs from "seeing" available targets in their tool list. `makefile-mcp` parses the Makefile to register each documented target as its own tool with descriptions, improving discoverability and ease of use in agentic workflows.
 
 ## Where it fits in the stack
-**Tool / Automation**. It provides a discovery and execution layer for project-specific automation, bridging the gap between local build systems and frontier models.
+**Tool / Automation**. It provides a discovery and execution layer for project-specific automation, bridging the gap between local build systems and frontier models using the [Model Context Protocol](mcp.md).
 
 ## Typical use cases
 - Exposing build, test, lint, and deploy workflows to coding agents.
@@ -18,7 +18,7 @@ Traditional Makefile MCP implementations often expose a single generic `make` to
 - **Target Discovery**: Automatically parses `##` comments to provide tool descriptions.
 - **Dynamic Configuration**: Allows changing the working directory at runtime via a dedicated tool.
 - **Security**: No shell expansion used; supports strict inclusion/exclusion of targets.
-- **Built with FastMCP**: High compatibility and performance for Claude 4.8 and GPT-5.5 environments.
+- **Built with FastMCP**: Full support for MCP 3.0 routing logic and task protocol.
 
 ## Limitations
 - Requires targets to be documented with `##` to be exposed as tools.
@@ -88,13 +88,14 @@ set_working_directory({
 
 ## Related tools / concepts
 - [GNU Make](gnu-make.md)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol](mcp.md)
 - [Aider](../development_ops/aider.md)
 - [Plandex](../development_ops/plandex.md)
 - [Zapier](zapier.md)
 - [FastMCP](https://github.com/jlowin/fastmcp)
 - [MCP Registry](mcp-registry.md)
 - [Claude Code](../development_ops/claude-code.md)
+- [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Makefile MCP GitHub](https://github.com/democratize-technology/makefile-mcp)
@@ -102,5 +103,5 @@ set_working_directory({
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
