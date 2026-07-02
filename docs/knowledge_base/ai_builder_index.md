@@ -1,219 +1,112 @@
 # AI Builder Index
 
 ## What it is
-
-The AI Builder Index is the primary discovery portal for the homelab automation and AI engineering stack documented in this repository. It serves as a high-signal directory that routes users to the appropriate playbooks, tools, and architectural patterns based on their desired outcomes, whether they are building public websites, internal company operations, or specialized research agents.
+The AI Builder Index is the primary discovery portal for the automation and AI engineering stack documented in this repository. It serves as a high-signal directory that routes builders to the appropriate playbooks, tools, and architectural patterns based on their desired outcomes. As of July 2026, it is optimized for the **MCP 3.0 Task Protocol** ecosystem, helping users navigate the complex landscape of frontier models like [Gemma 3](../tools/ai_knowledge/local_llms.md) and enterprise-grade agentic frameworks.
 
 ## What problem it solves
-
-The repository contains a vast array of tools and patterns, which can be overwhelming for new users. The AI Builder Index solves this "discovery friction" by organizing the content into logical "outcome buckets." Instead of browsing a flat file list, builders can start with a goal (e.g., "Build a website for free") and immediately find the curated set of tools and instructions needed to achieve it.
+The repository contains a vast array of specialized tools, which can be overwhelming for new users. The AI Builder Index solves "discovery friction" by organizing technical documentation into logical "outcome buckets." Instead of browsing a flat file list, builders can start with a goal (e.g., "Build a private RAG system") and immediately find the curated set of tools and standards needed to achieve it, reducing decision fatigue and implementation errors.
 
 ## Where it fits in the stack
-
-**Category**: Knowledge Base / Entry Point. It is the **navigational layer** of the KnowledgeOps system, sitting between the [Home Index](../index.md) and the detailed technical documentation for individual services and tools.
+**Knowledge Base / Navigation Layer**. It sits at the top of the documentation hierarchy, acting as the bridge between the [Home Index](../../index.md) and the deep technical specifications in `docs/tools/`, `docs/services/`, and `docs/playbooks/`. It defines the "Practical Defaults" for the entire KnowledgeOps system.
 
 ## Typical use cases
-
-- **New User Onboarding**: Quickly finding the "Starter Stack" to begin automating a home or small business.
-- **Project Selection**: Deciding between a local-first approach (Ollama/LocalAI) or a hosted approach (OpenRouter/Vercel) for a new AI application.
-- **Research Workflow Design**: Identifying the right combination of browsing (Browser Use) and memory (mem0) tools for market intelligence.
-- **Rapid Prototyping**: Using the [Free AI Website Playbook](free_ai_website_playbook.md) to launch an MVP in a single weekend.
+- **New User Onboarding**: Rapidly identifying the "Starter Stack" for home or small business automation.
+- **Agentic Workflow Design**: Selecting the right framework (e.g., [LangGraph](../tools/frameworks/langgraph.md)) and protocol (MCP 3.0) for multi-step tasks.
+- **Enterprise RAG Implementation**: Navigating the tools required for high-signal retrieval, such as [Tavily](../tools/providers/tavily.md) and [mem0](../tools/agents/mem0.md).
+- **Rapid Prototyping**: Launching MVPs using the [Free AI Website Playbook](free_ai_website_playbook.md) and hosted providers like [Vercel](../tools/development_ops/vercel.md).
+- **Local AI Orchestration**: Setting up private, secure environments with [LocalAI](../tools/infrastructure/localai.md) and [Ollama](../../services/ollama.md).
 
 ## Strengths
-
-- **Signal-to-Noise**: Filters the entire repository into the most impactful tools and paths.
-- **Outcome-Driven**: Focuses on "Jobs to be Done" rather than tool features.
-- **Highly Visual**: Uses Mermaid diagrams and grid cards for rapid mental mapping.
-- **Opinionated Defaults**: Provides clear "Practical Defaults" to reduce decision fatigue.
+- **Outcome-Driven Navigation**: Focuses on "Jobs to be Done" rather than individual tool features.
+- **MCP 3.0 Alignment**: Explicitly highlights tools that support the latest Model Context Protocol standards for agentic interoperability.
+- **Visual Mapping**: Utilizes Mermaid diagrams and grid cards for rapid mental model formation.
+- **Opinionated Defaults**: Provides clear "Practical Defaults" to help builders ship faster with proven tool combinations.
 
 ## Limitations
-
-- **Index Lag**: Requires manual updates when new high-impact tools are added to the repository.
-- **Abstraction Layer**: Points to documentation but does not contain the deep technical implementation details itself.
-- **Path Dependency**: Assumes users are following the repository's core philosophy of AI-assisted development and automation.
+- **Manual Indexing**: Requires proactive updates as the AI ecosystem (e.g., new [Gemma 3](../tools/ai_knowledge/local_llms.md) variants) evolves.
+- **Abstraction Layer**: Provides the roadmap but does not contain the low-level implementation details found in specific tool docs.
+- **Path Dependency**: Highly optimized for the repository's core philosophy of AI-assisted development and automation.
 
 ## When to use it
-
-- When you are new to the repository and don't know where to start.
-- When you have a specific goal (e.g., "Set up an internal knowledge base") and need a curated stack.
-- When you need a high-level overview of how the various architectural pieces (Agents, Infrastructure, Flows) fit together.
+- When you are new to the repository and need a structured entry point.
+- When starting a new project and deciding on an architecture (e.g., Agentic vs. Flow-based).
+- When you need a high-level overview of how [Agentic Workflows](patterns/agentic-workflows.md) and [Infrastructure](../architecture/infrastructure.md) components integrate.
 
 ## When not to use it
-
-- If you already know exactly which tool you need (use the global search or specific category indices).
-- If you are looking for low-level API references or installation logs (go to the specific tool page).
+- If you already know the specific tool you need (use the global search or category indices).
+- When seeking low-level API reference documentation (go directly to the tool page in `docs/tools/`).
+- For tracking daily repository changes (use the [AI Daily Digest](../../ai-daily-digest/index.md) instead).
 
 ## Getting started
 
-To get the most out of the AI Builder Index:
+To get the most out of the AI Builder Index, follow these steps:
 
 1. **Identify your Goal**: Scan the "Start by outcome" table below.
 2. **Follow the Path**: Click the link in the "Start here" column for your chosen goal.
-3. **Adopt Defaults**: If you are unsure, look at the "My practical defaults" section to see the recommended baseline stack.
-4. **Explore the Map**: Use the "Navigation map" at the bottom of the page to understand the structural hierarchy of the documentation.
+3. **Adopt Defaults**: If unsure, reference the "Recommended entry paths" grid.
 
-## Start by outcome
+### Start by outcome
 
 | Goal | Start here | Then go to | Best for |
 | :--- | :--- | :--- | :--- |
-| Build a website or app for free | [Free AI Website Playbook](free_ai_website_playbook.md) | [Vercel](../tools/development_ops/vercel.md), [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md), [GitHub Pages](../tools/development_ops/github-pages.md), [Supabase](../tools/infrastructure/supabase.md) | Founders, consultants, internal builders |
-| Set up an AI-driven company stack | [AI Company Starter Stack](ai_company_starter_stack.md) | [n8n](../services/n8n.md), [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md), [mem0](../tools/agents/mem0.md) | Teams building operating leverage |
-| Build AI products | [AI Tooling Landscape](ai_tooling_landscape.md) | [Context7](../tools/development_ops/context7.md), [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md), [OpenRouter](../tools/ai_knowledge/openrouter.md) | Product builders and engineers |
-| Choose an agent framework or agent stack | [Agent Framework Learning Map](agent_framework_learning_map.md) | [LangGraph](../tools/frameworks/langgraph.md), [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md), [OpenClaw](../tools/development_ops/openclaw.md) | Builders deciding what to study vs what to use |
-| Research markets, leads, or targets | [AI Company Starter Stack](ai_company_starter_stack.md) | [DeerFlow](../tools/agents/deerflow.md), [Tavily](../tools/providers/tavily.md), [Browser Use](../tools/automation_orchestration/browser-use.md) | Agencies, sales, strategy work |
-| Build internal knowledge assistants | [AI Company Starter Stack](ai_company_starter_stack.md) | [AnythingLLM](../tools/ai_knowledge/anythingllm.md), [LocalAI](../tools/infrastructure/localai.md), [Ollama](../services/ollama.md) | Internal enablement and knowledge access |
-| Run local or private AI | [AI Company Starter Stack](ai_company_starter_stack.md) | [LocalAI](../tools/infrastructure/localai.md), [llmfit](../tools/development_ops/llmfit.md), [Ollama](../services/ollama.md) | Privacy-sensitive or cost-conscious teams |
+| Build a website or app for free | [Free AI Website Playbook](free_ai_website_playbook.md) | [Vercel](../tools/development_ops/vercel.md), [GitHub Pages](../tools/development_ops/github-pages.md), [Supabase](../tools/infrastructure/supabase.md) | Founders, consultants |
+| Set up an AI-driven company | [AI Company Starter Stack](ai_company_starter_stack.md) | [n8n](../../services/n8n.md), [mem0](../tools/agents/mem0.md), [Vault](../tools/automation_orchestration/hashicorp-vault.md) | Teams building leverage |
+| Choose an agent stack | [Agent Framework Learning Map](agent_framework_learning_map.md) | [LangGraph](../tools/frameworks/langgraph.md), [OpenClaw](../tools/development_ops/openclaw.md) | Builders deciding on frameworks |
+| Research markets & leads | [AI Company Starter Stack](ai_company_starter_stack.md) | [Tavily](../tools/providers/tavily.md), [Browser Use](../tools/automation_orchestration/browser-use.md) | Sales and strategy teams |
+| Run private / local AI | [AI Company Starter Stack](ai_company_starter_stack.md) | [LocalAI](../tools/infrastructure/localai.md), [Ollama](../../services/ollama.md) | Privacy-sensitive teams |
 
-## Recommended entry paths
+### Recommended entry paths
 
 <div class="grid cards" markdown>
 
 -   **Build Websites**
-
     ---
-
-    Start with the [Free AI Website Playbook](free_ai_website_playbook.md).
-
-    Use this when you need to decide:
-    - what site to build,
-    - what free host fits it,
-    - and how to prompt the LLM correctly.
+    Start with [Free AI Website Playbook](free_ai_website_playbook.md). Best for rapid deployment on [GitHub Pages](../tools/development_ops/github-pages.md).
 
 -   **Ship AI Products**
-
     ---
-
-    Start with the [AI Tooling Landscape](ai_tooling_landscape.md).
-
-    Use this when you need the broader map of providers, agents, frameworks, and serving layers before choosing implementation tools.
+    Start with [AI Tooling Landscape](ai_tooling_landscape.md). Navigate providers and [Agentic Workflows](patterns/agentic-workflows.md).
 
 -   **Run Operations**
-
     ---
-
-    Start with the [AI Company Starter Stack](ai_company_starter_stack.md).
-
-    Use this when the real goal is not the app itself but the company operating system behind it.
-
--   **Research And Leads**
-
-    ---
-
-    Start with the [Research and lead-intel pack](ai_company_starter_stack.md#expansion-packs).
-
-    Use this when you need repeatable account research, market synthesis, or lead-generation workflows.
-
--   **Internal Knowledge**
-
-    ---
-
-    Start with [AnythingLLM](../tools/ai_knowledge/anythingllm.md) and the [Knowledge workspace pack](ai_company_starter_stack.md#expansion-packs).
-
-    Use this when the company needs a usable internal assistant before it needs a custom AI product.
+    Start with [AI Company Starter Stack](ai_company_starter_stack.md). Optimize with [n8n](../../services/n8n.md) and [Vault](../tools/automation_orchestration/hashicorp-vault.md).
 
 -   **Private / Local AI**
-
     ---
-
-    Start with [LocalAI](../tools/infrastructure/localai.md) and [llmfit](../tools/development_ops/llmfit.md).
-
-    Use this when control, privacy, or cost discipline matters more than convenience.
+    Start with [LocalAI](../tools/infrastructure/localai.md) and [llmfit](../tools/development_ops/llmfit.md) for secure, off-grid intelligence.
 
 </div>
 
-## Curated buckets
+## CLI examples
+The AI Builder Index is a documentation portal and does not have a direct CLI. However, you can search the index and related docs using standard terminal tools:
 
-### Website builders and launch stack
+```bash
+# Search for specific outcomes within the knowledge base
+grep -r "Build a website" docs/knowledge_base/
 
-Use this bucket when the main question is, "What can I launch this week without paying for infrastructure yet?"
-
-- [Free AI Website Playbook](free_ai_website_playbook.md)
-- [Vercel](../tools/development_ops/vercel.md)
-- [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md)
-- [Netlify](../tools/development_ops/netlify.md)
-- [GitHub Pages](../tools/development_ops/github-pages.md)
-- [Supabase](../tools/infrastructure/supabase.md)
-
-### Product implementation stack
-
-Use this bucket when the main question is, "How do I build the AI product itself without making architecture mistakes?"
-
-- [AI Tooling Landscape](ai_tooling_landscape.md)
-- [Agent Framework Learning Map](agent_framework_learning_map.md)
-- [Context7](../tools/development_ops/context7.md)
-- [Claude Cookbooks](../tools/development_ops/claude-cookbooks.md)
-- [OpenRouter](../tools/ai_knowledge/openrouter.md)
-- [Playwright](../tools/development_ops/playwright.md)
-
-### Company operations stack
-
-Use this bucket when the main question is, "How do I make the company itself run better with AI?"
-
-- [AI Company Starter Stack](ai_company_starter_stack.md)
-- [n8n](../services/n8n.md)
-- [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md)
-- [Claude Skills Ecosystem](../tools/agents/claude-skills-ecosystem.md)
-- [Superpowers](../tools/agents/superpowers.md)
-
-### Research and intelligence stack
-
-Use this bucket when the main question is, "How do I create a machine for lead research, market synthesis, or target-account intelligence?"
-
-- [DeerFlow](../tools/agents/deerflow.md)
-- [Tavily](../tools/providers/tavily.md)
-- [Browser Use](../tools/automation_orchestration/browser-use.md)
-- [mem0](../tools/agents/mem0.md)
-- [OpenBB](../tools/ai_knowledge/openbb.md)
-
-### Internal knowledge and workspace stack
-
-Use this bucket when the main question is, "How do I give the team an internal assistant they will actually use?"
-
-- [AnythingLLM](../tools/ai_knowledge/anythingllm.md)
-- [Ollama](../services/ollama.md)
-- [LocalAI](../tools/infrastructure/localai.md)
-- [Supabase](../tools/infrastructure/supabase.md)
-
-## My practical defaults
-
-If I had to route most people quickly:
-
-1. Public product or marketing site: [Free AI Website Playbook](free_ai_website_playbook.md) -> [Vercel](../tools/development_ops/vercel.md) -> [Supabase](../tools/infrastructure/supabase.md) if needed.
-2. Docs-heavy site or repo project: [Free AI Website Playbook](free_ai_website_playbook.md) -> [GitHub Pages](../tools/development_ops/github-pages.md).
-3. AI-driven company ops: [AI Company Starter Stack](ai_company_starter_stack.md).
-4. Product implementation questions: [AI Tooling Landscape](ai_tooling_landscape.md).
-
-## Navigation map
-
-```mermaid
-flowchart TD
-    A["Home"] --> B["Knowledge Base"]
-    B --> C["AI Builder Index"]
-    C --> D["Free AI Website Playbook"]
-    C --> E["AI Company Starter Stack"]
-    C --> F["AI Tooling Landscape"]
-    D --> G["Hosting pages"]
-    E --> H["Operations and research stack"]
-    F --> I["Broader ecosystem map"]
+# Find all tools mentioned in the builder index
+grep -o "\[.*\](.*)" docs/knowledge_base/ai_builder_index.md
 ```
 
+## API examples
+The AI Builder Index does not provide a public API. It is designed to be consumed as a static documentation resource within the KnowledgeOps framework. For programmatic access to the underlying data, consider parsing the repository's [mkdocs.yml](../../mkdocs.yml).
+
 ## Related tools / concepts
+- [Free AI Website Playbook](free_ai_website_playbook.md) — Step-by-step launch guide.
+- [AI Company Starter Stack](ai_company_starter_stack.md) — The operational blueprint.
+- [AI Tooling Landscape](ai_tooling_landscape.md) — The broader ecosystem map.
+- [Agent Framework Learning Map](agent_framework_learning_map.md) — Comparing [LangGraph](../tools/frameworks/langgraph.md) and [OpenClaw](../tools/development_ops/openclaw.md).
+- [Agentic Workflows](patterns/agentic-workflows.md) — Designing multi-step [Gemma 3](../tools/ai_knowledge/local_llms.md) tasks.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — The communication standard.
+- [Home Index](../../index.md) — Root of the documentation tree.
+- [Infrastructure](../architecture/infrastructure.md) — The hardware and software foundation.
 
-- [Knowledge Base Overview](README.md)
-- [Free AI Website Playbook](free_ai_website_playbook.md)
-- [AI Company Starter Stack](ai_company_starter_stack.md)
-- [AI Tooling Landscape](ai_tooling_landscape.md)
-- [Agent Framework Learning Map](agent_framework_learning_map.md)
-- [Agent Protocols](agent_protocols.md)
-- [Agentic Workflows](patterns/agentic-workflows.md)
-- [Home](../index.md)
-- [Infrastructure](../architecture/infrastructure.md)
-- [System Prompts](system_prompts.md)
-
-## Sources / References
-- [awesomeclaude.ai](https://awesomeclaude.ai/)
-- [Free AI Website Playbook sources](free_ai_website_playbook.md#sources--references)
+## Sources / references
+- [KnowledgeOps Documentation Standards](../../standards-and-conventions.md)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/docs/concepts/tasks)
+- [Awesome Claude AI Curated List](https://awesomeclaude.ai/)
+- [Gemma 3 Technical Report](https://storage.googleapis.com/deepmind-media/gemma/gemma-3-report.pdf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-05-10
+- Last reviewed: 2026-07-21
 - Confidence: high

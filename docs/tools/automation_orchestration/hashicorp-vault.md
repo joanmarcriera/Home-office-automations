@@ -1,141 +1,136 @@
 # HashiCorp Vault
 
 ## What it is
-HashiCorp Vault is an identity-based secrets and data protection service that allows you to centrally store, access, and deploy secrets like API keys, passwords, and certificates. As of June 2026, it is the industry standard for managing sensitive credentials in agentic workflows, often serving as the secure backend for models like `claude-4-8-opus-20260528` and GPT-5.5.
+HashiCorp Vault is an identity-based secrets and data protection service designed to centrally store, access, and deploy sensitive credentials such as API keys, passwords, and certificates. As of July 2026, it serves as the foundational security layer for agentic workflows, providing secure backend storage for frontier models like [Gemma 3](../ai_knowledge/local_llms.md) and [Claude 4.8 Opus](../providers/anthropic.md) via standardized [Vault MCP](vault-mcp.md) integrations.
 
 ## What problem it solves
-Managing secrets in plain text (environment variables, configuration files) is a major security risk. Vault provides a single, secure source of truth for all secrets, with strict access control and detailed audit logs. It enables "secret sprawl" prevention by centralizing where sensitive information lives and who (or what) can access it.
+Managing secrets in plain text, environment variables, or unprotected configuration files creates significant security vulnerabilities. Vault provides a single, secure source of truth with strict access control, automated secret rotation, and granular auditing. It eliminates "secret sprawl" by centralizing credential management and ensuring that only authorized agents and services can access specific sensitive information.
 
 ## Where it fits in the stack
-**Infrastructure / Security Layer**. It is the "vault" for the homelab and enterprise alike, protecting credentials used by [n8n](../../services/n8n.md), [Home Assistant](../../services/home-assistant.md), and [OpenClaw](../development_ops/openclaw.md). It often integrates with [Vault MCP](../automation_orchestration/vault-mcp.md) to provide AI agents with time-limited access to tools.
+**Infrastructure / Security Layer**. It is the primary security engine for both homelab and enterprise environments, protecting credentials used by [n8n](../../services/n8n.md), [Home Assistant](../../services/home-assistant.md), and [Aider](../development_ops/aider.md). It integrates deeply with the [Model Context Protocol (MCP)](mcp.md) ecosystem via [Vault MCP](vault-mcp.md) to provide AI agents with secure, time-limited access to tools.
 
 ## Typical use cases
-- **Centralized Secret Storage**: Storing database passwords and API keys securely.
-- **Dynamic Credentials**: Generating on-demand credentials for AWS, Postgres, or Google Cloud that expire automatically.
-- **Encryption as a Service**: Encrypting sensitive data in transit/at rest without exposing encryption keys to the application.
-- **PKI (Public Key Infrastructure)**: Generating and managing SSL/TLS certificates for internal services.
-- **Agentic Secret Injection**: Securely providing API keys to autonomous agents at runtime.
+- **Centralized Secret Management**: Securely storing and managing API keys for providers like [Fireworks AI](../providers/fireworks.md) and [Cohere](../providers/cohere.md).
+- **Dynamic Credentials**: On-demand generation of temporary credentials for AWS, Postgres, or Google Cloud that expire automatically after use.
+- **Encryption as a Service**: Offloading data encryption tasks to Vault to ensure that encryption keys never leave the secure environment.
+- **Agentic Secret Injection**: Securely injecting credentials into autonomous agent environments at runtime via [Vault MCP](vault-mcp.md).
+- **Identity-Based Access**: Leveraging [Authentik](../../services/authentik.md) or OIDC for secure, role-based access to infrastructure secrets.
 
 ## Strengths
-- **Secure by Design**: All data is encrypted at rest and in transit; memory is locked to prevent swapping.
-- **Detailed Auditing**: Every interaction with a secret is logged, providing a clear trail for compliance.
-- **Ephemeral Secrets**: Reduces the "blast radius" of a leak by using short-lived, dynamically generated credentials.
-- **Multi-cloud Support**: Robust integrations with AWS, Azure, GCP, Kubernetes, and OIDC providers.
+- **Hardened Security**: Data is encrypted at rest and in transit using industry-standard algorithms (AES-256-GCM); memory is locked to prevent swapping.
+- **Detailed Audit Logs**: Every interaction—successful or denied—is logged, providing a complete audit trail for compliance and security forensics.
+- **Ephemeral Secrets**: Minimizes the risk of credential theft by using short-lived, dynamically generated secrets that are automatically revoked.
+- **Multi-Cloud Native**: Robust support for secret management across AWS, Azure, GCP, Kubernetes, and on-premise infrastructure.
 
 ## Limitations
-- **Operational Complexity**: Initial setup, unsealing processes, and complex policy management can have a steep learning curve.
-- **High Dependency**: If Vault is unavailable, all downstream services that depend on it for credentials may fail (the "locked door" problem).
-- **Resource Overhead**: Requires careful resource planning for high availability in production environments.
+- **Operational Overhead**: Requires careful management of initialization, unsealing processes, and complex HCL policy design.
+- **Single Point of Failure**: If the Vault instance is unavailable or sealed, all downstream services depending on it for secrets will fail.
+- **Resource Intensity**: High-availability production deployments require significant planning and infrastructure resources compared to simpler secret managers.
 
 ## When to use it
-- When you have a complex homelab or enterprise environment with multiple services requiring secure credential management.
-- If you want to move away from hardcoded secrets in your automation scripts and Docker Compose files.
-- When you need to provide AI agents with restricted, auditable access to sensitive APIs.
+- In complex environments where multiple AI agents and automated services require secure, auditable access to sensitive credentials.
+- When moving towards a "Zero Trust" architecture for agentic infrastructure.
+- When you need to provide AI assistants (e.g., [Claude Code](../development_ops/claude-code-setup.md)) with restricted, temporary access to privileged system APIs.
 
 ## When not to use it
-- For very simple, single-server setups where basic `.env` files or native service secret management (e.g., Docker Secrets) is sufficient.
-- If the operational overhead of managing a dedicated security service outweighs the security benefits of a small-scale project.
+- For very simple, single-server projects where basic `.env` files or native platform secret management (e.g., GitHub Secrets) is sufficient.
+- In resource-constrained environments where the operational cost of managing a dedicated security service outweighs the security benefits.
 
 ## Getting started
 
-### Installation
-Vault can be run as a standalone binary or via Docker:
+### 1. Installation
+Deploy Vault via Docker for rapid setup in a development environment:
 
 ```bash
-# Docker-based installation (Development mode)
+# Start Vault in development mode with a fixed root token
 docker run --cap-add=IPC_LOCK -e 'VAULT_DEV_ROOT_TOKEN_ID=myroot' -p 8200:8200 hashicorp/vault
 ```
 
-### Initializing and Unsealing
-In a production-like setup, Vault starts in a sealed state and must be initialized:
+### 2. Initializing and Unsealing
+For production-like environments, Vault must be initialized and unsealed:
 
 ```bash
-# Initialize Vault (returns unseal keys and root token)
+# Initialize to generate unseal keys and the initial root token
 vault operator init
 
-# Unseal Vault (requires a quorum of keys, e.g., 3 out of 5)
+# Unseal Vault (requires a quorum of keys, typically 3 out of 5)
 vault operator unseal <unseal-key-1>
 vault operator unseal <unseal-key-2>
 vault operator unseal <unseal-key-3>
 ```
 
+### 3. Configure Agent Access
+Set up [Vault MCP](vault-mcp.md) to bridge your Vault instance with your AI agents.
+
 ## CLI examples
 
-### Authentication
+### Authentication and Engine Setup
 ```bash
-# Login with the root token or an auth method (e.g., GitHub, AppRole)
+# Login with your token
 vault login <token>
-```
 
-### Key-Value (KV) Secret Management
-Vault uses a filesystem-like path for secrets:
-
-```bash
-# Enable the KV engine v2
+# Enable the Key-Value (KV) version 2 secrets engine
 vault secrets enable -path=secret kv-v2
-
-# Write a secret (e.g., for n8n)
-vault kv put secret/n8n api_key="sk_live_12345"
-
-# Read the secret
-vault kv get secret/n8n
-
-# List all secrets in a path
-vault kv list secret/
 ```
 
-### Policy Management
+### Managing Secrets
 ```bash
-# Create a policy from a file to restrict access
-vault policy write n8n-readonly-policy - <<EOF
-path "secret/data/n8n" {
-  capabilities = ["read"]
-}
-EOF
+# Write a secret for an agentic workflow
+vault kv put secret/agents/config api_key="sk_prod_54321"
+
+# Retrieve the secret
+vault kv get secret/agents/config
+
+# List available secrets in a specific path
+vault kv list secret/agents/
 ```
 
 ## API examples
 
-### Reading a Secret via CURL
-Applications (or agents) can interact with Vault via its REST API:
+### Reading Secrets via REST API
+Agents can interact with Vault using standard HTTP requests:
 
 ```bash
 curl --header "X-Vault-Token: <token>" \
      --request GET \
-     http://127.0.0.1:8200/v1/secret/data/n8n
+     http://127.0.0.1:8200/v1/secret/data/agents/config
 ```
 
-### Python Integration (hvac)
-Using the `hvac` library for programmatic secret retrieval in June 2026:
+### Python Integration with hvac (July 2026 Standards)
+The `hvac` library remains the standard for programmatic Vault interaction:
 
 ```python
 import hvac
 
-# Initialize client
+# Initialize the client with July 2026 security standards
 client = hvac.Client(url='http://127.0.0.1:8200', token='myroot')
 
-# Read secret from KV v2 engine
+# Programmatic secret retrieval from KV v2
 try:
-    read_response = client.secrets.kv.v2.read_secret_version(path='n8n')
-    api_key = read_response['data']['data']['api_key']
-    print(f"Retrieved API Key: {api_key}")
+    response = client.secrets.kv.v2.read_secret_version(path='agents/config')
+    credentials = response['data']['data']
+    print(f"Agent API Key: {credentials['api_key']}")
 except Exception as e:
-    print(f"Error retrieving secret: {e}")
+    print(f"Error accessing Vault: {e}")
 ```
 
 ## Related tools / concepts
-- [Vault MCP Server](../automation_orchestration/vault-mcp.md) — The bridge for AI agents.
-- [Authentik](../../services/authentik.md) — For OIDC-based authentication to Vault.
-- [Tailscale](../../services/tailscale.md) — For secure networking to the Vault instance.
-- [Docker](../infrastructure/docker.md) — Primary deployment method.
-- [Axiom Guardian](../development_ops/axiom-guardian.md) — For validating requests to sensitive systems.
+- [Vault MCP](vault-mcp.md) — The Model Context Protocol interface for HashiCorp Vault.
+- [Model Context Protocol (MCP)](mcp.md) — The standardized protocol for agent-tool communication.
+- [Authentik](../../services/authentik.md) — Identity provider for managing Vault access.
+- [Aider](../development_ops/aider.md) — Agentic IDE that can leverage Vault-stored credentials.
+- [n8n](../../services/n8n.md) — Automation platform that often requires secure secret management.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Frontier model used for orchestrating secure workflows.
+- [Axiom Guardian](../development_ops/axiom-guardian.md) — For validating requests and managing security boundaries.
+- [Docker](../infrastructure/docker.md) — The preferred method for containerized Vault deployment.
 
 ## Sources / references
-- [HashiCorp Vault Official Website](https://www.vaultproject.io/)
-- [Vault Documentation](https://developer.hashicorp.com/vault/docs)
-- [hvac Python Library GitHub](https://github.com/hvac/hvac)
-- [Vault MCP GitHub](https://github.com/modelcontextprotocol/servers/tree/main/src/vault)
+- [HashiCorp Vault Official Site](https://www.vaultproject.io/)
+- [Vault Documentation Portal](https://developer.hashicorp.com/vault/docs)
+- [hvac Python Client Library](https://hvac.readthedocs.io/)
+- [Official MCP Specification](https://modelcontextprotocol.io/)
+- [Vault MCP Repository](https://github.com/democratize-technology/vault-mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
