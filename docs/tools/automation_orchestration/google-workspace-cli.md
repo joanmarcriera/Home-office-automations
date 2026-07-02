@@ -1,13 +1,13 @@
 # Google Workspace CLI (gws)
 
 ## What it is
-Google Workspace CLI (`gws`) is a dynamic command-line tool for interacting with all Google Workspace services (Drive, Gmail, Calendar, Sheets, etc.), built for both humans and AI agents like Claude 4.8 Opus and GPT-5.5.
+Google Workspace CLI (`gws`) is a dynamic command-line tool for interacting with all Google Workspace services (Drive, Gmail, Calendar, Sheets, etc.), built for both humans and AI agents like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5.
 
 ## What problem it solves
 It eliminates the need to write custom `curl` calls or complex API glue code for Google Workspace tasks. By building its command surface dynamically from Google's Discovery Service, it ensures 100% API coverage and provides structured JSON output that is perfect for agentic consumption.
 
 ## Where it fits in the stack
-**Automation & Orchestration / SaaS Automation CLI**. It acts as a bridge between terminal workflows, CI/CD pipelines, and frontier AI agents needing direct access to Workspace data.
+**Automation & Orchestration / SaaS Automation CLI**. It acts as a bridge between terminal workflows, CI/CD pipelines, and frontier AI agents needing direct access to Workspace data via the [Model Context Protocol](mcp.md).
 
 ## Typical use cases
 - Automating Workspace administration (user management, permissions).
@@ -18,7 +18,7 @@ It eliminates the need to write custom `curl` calls or complex API glue code for
 ## Strengths
 - **Full API Coverage**: Dynamically generated from Google's Discovery Service.
 - **Agent-Ready**: Structured JSON output and 100+ included "skills" for LLM integration.
-- **Helper Commands**: Includes high-level helpers (prefixed with `+`) for common tasks like `+agenda` or `+send`.
+- **MCP 3.0 Support**: Can be exposed as an MCP server using specialized adapters.
 - **Security**: Supports OAuth 2.0, service accounts, and encrypted credential storage.
 
 ## Limitations
@@ -85,6 +85,8 @@ gws schema drive.files.list
 - [Chronos MCP](chronos-mcp.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [OpenClaw](../development_ops/openclaw.md)
+- [Model Context Protocol](mcp.md)
+- [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Google Workspace CLI GitHub](https://github.com/googleworkspace/cli)
@@ -92,5 +94,5 @@ gws schema drive.files.list
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high

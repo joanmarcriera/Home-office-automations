@@ -1,7 +1,7 @@
 # Playwright MCP Server
 
 ## What it is
-The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of June 2026, it is the primary tool for enabling frontier models like `claude-4-8-opus-20260528` and GPT-5.5 to interact with the live web, navigate complex SPAs (Single Page Applications), and perform multi-step browser-based tasks.
+The Playwright MCP Server is a Model Context Protocol (MCP) implementation that provides AI agents with a "headless browser" interface. As of July 2026, it is the primary tool for enabling frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 to interact with the live web.
 
 ## What problem it solves
 Most LLMs lack direct access to the web or can only "see" through static screenshots or text-only scrapers. Playwright MCP provides structured access to the DOM and the **Accessibility Tree**, allowing agents to click buttons, fill forms, and extract data from JavaScript-heavy sites reliably without needing a dedicated REST API.
@@ -16,15 +16,15 @@ Most LLMs lack direct access to the web or can only "see" through static screens
 - **Visual Verification**: Generating screenshots and PDFs of web pages for agentic review and reporting.
 
 ## Strengths
-- **Accessibility Tree Focus**: Emphasizes semantic structure over raw pixels, making interaction faster and more robust against minor CSS changes.
+- **Accessibility Tree Focus**: Emphasizes semantic structure over raw pixels, making interaction faster and more robust.
 - **Cross-Browser Support**: Leverages Playwright's native support for Chromium, Firefox, and WebKit.
-- **Standardized Protocol**: Compatible with any MCP host (Claude Desktop, [Claude Code](../development_ops/claude-code-setup.md), etc.).
-- **Sandboxed Execution**: Can be easily run in [Docker](../infrastructure/docker.md) to isolate browser sessions from the host system.
+- **MCP 3.0 Standard**: Fully compatible with the MCP 3.0 Task Protocol for standardized benchmarking and execution.
+- **Sandboxed Execution**: Can be easily run in [Docker](../infrastructure/docker.md) to isolate browser sessions.
 
 ## Limitations
-- **High Resource Usage**: Running a browser instance (even headless) consumes significantly more CPU and RAM than lightweight MCP servers.
-- **Latency**: Each browser interaction (navigate, click, wait) introduces substantial delay compared to direct API calls.
-- **Detection Risk**: Headless browsers are frequently flagged by anti-bot systems (Cloudflare, Akamai) without sophisticated stealth plugins.
+- **High Resource Usage**: Running a browser instance consumes significantly more CPU and RAM than lightweight MCP servers.
+- **Latency**: Each browser interaction introduces substantial delay compared to direct API calls.
+- **Detection Risk**: Headless browsers are frequently flagged by anti-bot systems without sophisticated stealth plugins.
 
 ## When to use it
 - When an AI agent needs to perform actions on a website that lacks a public API.
@@ -34,7 +34,7 @@ Most LLMs lack direct access to the web or can only "see" through static screens
 ## When not to use it
 - If a stable and documented REST/GraphQL API is available for the target service.
 - For high-throughput scraping where the overhead of a full browser is prohibitive.
-- In low-memory environments (e.g., small VPS or edge devices) where browser instances might cause OOM errors.
+- In low-memory environments where browser instances might cause OOM errors.
 
 ## Getting started
 
@@ -118,6 +118,8 @@ An agent might then click the "new" link based on the accessibility tree:
 - [Skyvern](skyvern.md) — A platform for automating browser-based workflows.
 - [Puppeteer](puppeteer.md) — The primary alternative to Playwright.
 - [Claude Code](../development_ops/claude-code-setup.md) — A terminal-based agent that frequently uses this MCP.
+- [Model Context Protocol](mcp.md) — The standard for connecting tools to LLMs.
+- [Local LLMs](../ai_knowledge/local_llms.md) — Self-hosted models that can host this MCP.
 
 ## Sources / references
 - [Playwright MCP GitHub Repository](https://github.com/modelcontextprotocol/servers/tree/main/src/playwright)
@@ -125,5 +127,5 @@ An agent might then click the "new" link based on the accessibility tree:
 - [Playwright Official Documentation](https://playwright.dev)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high

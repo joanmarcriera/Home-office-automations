@@ -4,7 +4,7 @@
 Picnic is a structured, project-centered GUI built on top of [OpenClaw](../development_ops/openclaw.md) for managing notes, files, goals, and AI-assisted workflows in a calm environment.
 
 ## What problem it solves
-Raw agent environments can be chaotic and overwhelming. Picnic provides a human-friendly interface for [OpenClaw](../development_ops/openclaw.md), allowing users to organize work into projects and keep sensitive browsing behavior isolated within Picnic's own built-in browser. It makes AI collaboration safer and more deliberate for Claude 4.8 Opus and GPT-5.5 users.
+Raw agent environments can be chaotic and overwhelming. Picnic provides a human-friendly interface for [OpenClaw](../development_ops/openclaw.md), allowing users to organize work into projects and keep sensitive browsing behavior isolated within Picnic's own built-in browser. It makes AI collaboration safer and more deliberate for [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 users.
 
 ## Where it fits in the stack
 **Automation runtime / desktop orchestration layer**. Picnic sits above the [OpenClaw](../development_ops/openclaw.md) core, providing a structured workspace for business, personal, and family work.
@@ -20,6 +20,7 @@ Raw agent environments can be chaotic and overwhelming. Picnic provides a human-
 - **Built-in Browser**: Isolates agent browsing from your primary browser session.
 - **Gradual Structure**: Start with a blank page and add context cards only when needed.
 - **Open Source Core**: Leverages the power and public scrutiny of [OpenClaw](../development_ops/openclaw.md).
+- **MCP 3.0 Integration**: Native support for [MCP](mcp.md) tool discovery and execution.
 
 ## Limitations
 - Still in beta; features and project structures are subject to change.
@@ -73,6 +74,8 @@ openclaw --version
 - [ClawRouter](../infrastructure/clawrouter.md)
 - [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md)
 - [Claude Code](../development_ops/claude-code.md)
+- [Model Context Protocol](mcp.md)
+- [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Picnic Official Site](https://picnicos.com/)
@@ -80,5 +83,5 @@ openclaw --version
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high

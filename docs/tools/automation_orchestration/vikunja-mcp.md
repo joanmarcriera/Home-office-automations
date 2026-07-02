@@ -1,13 +1,13 @@
 # Vikunja MCP Server
 
 ## What it is
-A Model Context Protocol (MCP) server that enables AI assistants like Claude 4.8 Opus and GPT-5.5 to interact with Vikunja task management instances.
+A Model Context Protocol (MCP) server that enables AI assistants like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 to interact with Vikunja task management instances.
 
 ## What problem it solves
 It allows agents to manage tasks, projects, labels, and teams directly within a Vikunja instance, bridging the gap between autonomous assistants and self-hosted productivity tools. It supports both API token and JWT authentication for varying levels of access.
 
 ## Where it fits in the stack
-**Tool / Automation**. It provides a domain-specific interface for task management operations within the MCP ecosystem.
+**Tool / Automation**. It provides a domain-specific interface for task management operations within the [MCP](mcp.md) ecosystem.
 
 ## Typical use cases
 - Managing personal task lists and projects via natural language.
@@ -19,7 +19,7 @@ It allows agents to manage tasks, projects, labels, and teams directly within a 
 - **Subcommand-based tools**: Provides an intuitive structure for AI interaction.
 - **Session-based authentication**: Automatically handles token management.
 - **Production-ready resilience**: Uses circuit breakers and Zod-based validation for stability.
-- **Hybrid Filtering**: Optimizes performance by combining server-side and client-side filtering.
+- **MCP 3.0 Compatible**: Supports the latest Task Protocol and routing logic.
 
 ## Limitations
 - User-specific endpoints require JWT authentication (browser-extracted).
@@ -93,13 +93,14 @@ vikunja_tasks.create({
 
 ## Related tools / concepts
 - [Vikunja](../../services/vikunja.md)
-- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol](mcp.md)
 - [Nextcloud](../../services/nextcloud.md)
 - [Gitea](../../services/gitea.md)
 - [Paperless-ngx](../../services/paperless-ngx.md)
 - [Google Calendar](../calendar_tasks/google_calendar.md)
 - [MCP Registry](mcp-registry.md)
 - [Chronos MCP](chronos-mcp.md)
+- [Local LLMs](../ai_knowledge/local_llms.md)
 
 ## Sources / References
 - [Vikunja MCP GitHub](https://github.com/democratize-technology/vikunja-mcp)
@@ -107,5 +108,5 @@ vikunja_tasks.create({
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-12
+- Last reviewed: 2026-07-21
 - Confidence: high
