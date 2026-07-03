@@ -1,25 +1,27 @@
 # Claude Skills Ecosystem
 
 ## What it is
-The Claude skills ecosystem is the growing collection of reusable skill packs, command libraries, and workflow repositories built around [Claude Code](../development_ops/claude-code.md) and related coding-agent tools. It leverages Anthropic's native tool-calling capabilities to provide high-level "skills" that can be imported into an agent's runtime.
+The Claude skills ecosystem is the growing collection of reusable skill packs, command libraries, and workflow repositories built around [Claude Code](../development_ops/claude-code.md) and related coding-agent tools. It leverages Anthropic's native tool-calling capabilities to provide high-level "skills" that can be imported into an agent's runtime. As of July 2026, the ecosystem has expanded to include cross-platform skills compatible with **Gemma 3** and other frontier models via the **Model Context Protocol (MCP) 3.0**.
 
 ## What problem it solves
-It makes operational know-how reusable and modular. Instead of rediscovering the same prompting, planning, debugging, or repository conventions, teams can package them as skills. This addresses the "cold start" problem for agents by providing them with a predefined library of capabilities for specific domains.
+It makes operational know-how reusable and modular. Instead of rediscovering the same prompting, planning, debugging, or repository conventions, teams can package them as skills. This addresses the "cold start" problem for agents by providing them with a predefined library of capabilities for specific domains. The adoption of MCP 3.0 has further solved the interoperability problem, allowing "Claude Skills" to be used by a wider range of agentic orchestrators.
 
 ## Where it fits in the stack
-**Agents / Reusable Agent Capabilities**. Skills are composable behavior packages for coding agents, sitting between the raw model (Claude 4.8 Opus) and the specific application code.
+**Agents / Reusable Agent Capabilities**. Skills are composable behavior packages for coding agents, sitting between the raw model (Claude 4.8 Opus, **Gemma 3**) and the specific application code.
 
 ## Typical use cases
 - **UI Prototyping**: Using the `frontend-design` skill for production-grade React/Next.js generation following modern design systems.
 - **Web Automation**: Using the `browser-use` skill for live web research and multi-site automation via [Playwright](../development_ops/playwright.md).
 - **Autonomous Security**: Using the `shannon` skill for automated pen-testing and vulnerability scanning.
 - **Code Refinement**: Using the `simplify` skill for automated quality reviews and architectural simplification.
+- **Cross-Model Skills**: Utilizing MCP-compliant skills that work identically across Claude 4.8 and **Gemma 3** runtimes.
 
 ## Strengths
 - **Modular Design**: Reuse of proven workflows across different projects and teams.
 - **Onboarding Speed**: Faster transition for engineering teams adopting [Claude Code](../development_ops/claude-code.md) by leveraging community-vetted patterns.
 - **Consistency**: Enforces standardized execution patterns (e.g., how to write tests or handle migrations) across a fleet of agents.
 - **Extensibility**: Easily allows adding new capabilities to an agent without retraining or complex fine-tuning.
+- **MCP 3.0 Interoperability**: Skills are increasingly developed as MCP servers, making them portable across different agent platforms like [Roo Code](roo-code.md) and [Cline](cline.md).
 
 ## Limitations
 - **Varied Quality**: Skill quality and maintenance levels vary significantly across community-contributed repositories.
@@ -46,7 +48,7 @@ npx skills@latest add awesome-copilot/documentation-writer
 ```
 
 ### Usage
-Once installed, Claude or other compatible agents (like [Cline](cline.md)) can be directed to use these skills via their command-line interface or by referencing them in the system prompt.
+Once installed, Claude or other compatible agents (like [Cline](cline.md) or [Gemma 3](local_llms.md) based agents) can be directed to use these skills via their command-line interface or by referencing them in the system prompt.
 
 ## CLI examples
 ```bash
@@ -83,6 +85,7 @@ When interacting with an agent that supports a skills-aware runtime, you can tri
 - [Aider](../development_ops/aider.md)
 - [Cline](cline.md)
 - [Roo Code](roo-code.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md)
 
 ## Sources / references
@@ -90,7 +93,8 @@ When interacting with an agent that supports a skills-aware runtime, you can tri
 - [Awesome Claude Skills](https://github.com/BehiSecc/awesome-claude-skills)
 - [Superpowers - Composable Skills](https://github.com/obra/superpowers)
 - [Skill Seekers Community](https://github.com/yusufkaraaslan/Skill_Seekers)
+- [MCP 3.0 Ecosystem Update](https://modelcontextprotocol.io/ecosystem)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-03
 - Confidence: high
