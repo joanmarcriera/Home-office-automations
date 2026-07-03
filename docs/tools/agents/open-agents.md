@@ -1,10 +1,10 @@
 # Open Agents
 
 ## What it is
-Open Agents is an open-source framework and collection of deployable AI agents developed by Vercel Labs. It is designed to enable "Computer Use" and "Web Use" capabilities, allowing agents to navigate the web, interact with authenticated applications, and perform complex tasks across different software ecosystems. As of June 2026, it serves as a primary reference implementation for building autonomous browser-based agents that are optimized for serverless deployment.
+Open Agents is an open-source framework and collection of deployable AI agents developed by Vercel Labs. It is designed to enable "Computer Use" and "Web Use" capabilities, allowing agents to navigate the web, interact with authenticated applications, and perform complex tasks across different software ecosystems. As of July 2026, it serves as a primary reference implementation for building autonomous browser-based agents that are optimized for serverless deployment and now features native support for the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
-It bridges the gap between static LLM text generation and actionable web-based automation. Open Agents solves the complexity of managing browser sessions, handling authentication in agentic workflows, and providing a reliable feedback loop for "Computer Use" tasks. It allows developers to build agents that can book travel, manage SaaS dashboards, or synchronize data between platforms that lack direct API integrations.
+It bridges the gap between static LLM text generation and actionable web-based automation. Open Agents solves the complexity of managing browser sessions, handling authentication in agentic workflows, and providing a reliable feedback loop for "Computer Use" tasks. By adopting MCP 3.0, it also standardizes how web-based agents discover and execute tasks, making them more interoperable with other agentic systems.
 
 ## Where it fits in the stack
 **Agent / Web Automation / Developer Platform**. It functions as an orchestration layer that combines the Vercel AI SDK with headless browser controllers (Playwright/Puppeteer) and sandboxed execution environments.
@@ -14,12 +14,13 @@ It bridges the gap between static LLM text generation and actionable web-based a
 - **SaaS Task Execution**: Performing administrative tasks across platforms like HubSpot, Jira, or AWS Console.
 - **Dynamic Data Ingestion**: Scraping and structuring data from complex, JavaScript-heavy web applications.
 - **Computer-as-a-Service**: Deploying agents that can execute terminal and browser tasks in isolated Vercel Sandboxes.
+- **Standardized Task Execution**: Using the MCP 3.0 Task Protocol to receive and report on tasks from parent orchestrators.
 
 ## Strengths
 - **Optimized for Vercel Ecosystem**: Seamless integration with Next.js, Vercel AI SDK, and Vercel Functions.
 - **Reliable Computer Use**: Built-in patterns for high-fidelity browser interaction and visual feedback processing.
 - **Serverless Ready**: Designed to operate within ephemeral environments, minimizing infrastructure management.
-- **Frontier Model Native**: Optimized for the latest "Computer Use" capabilities in Claude 4.8 Opus and GPT-5.5.
+- **Frontier Model Native**: Optimized for the latest "Computer Use" capabilities in Claude 4.8 Opus and GPT-5.5, while maintaining compatibility with **Gemma 3** for local/hybrid workflows.
 - **Modular Skills**: Features a composable architecture where agents can be granted specific "skills" (e.g., search, email, browser).
 
 ## Limitations
@@ -96,17 +97,21 @@ const result = await generateText({
 ```
 
 ## Related tools / concepts
-- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [Playwright](../development_ops/playwright.md)
-- [Stagehand](../automation_orchestration/stagehand.md)
-- [Claude Code](../development_ops/claude-code.md)
-- [Browser Use](../automation_orchestration/browser-use.md)
+- [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — The core integration framework.
+- [Playwright](../development_ops/playwright.md) — Underlying browser controller.
+- [Stagehand](../automation_orchestration/stagehand.md) — Higher-level web agent framework.
+- [Claude Code](../development_ops/claude-code.md) — Reference for agentic tool use.
+- [Browser Use](../automation_orchestration/browser-use.md) — Alternative computer-use library.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Interoperability standard.
+- [Crawl4AI](../development_ops/crawl4ai.md) — Optimized scraping alternative.
+- [Firecrawl](../development_ops/firecrawl.md) — API-first web extraction.
 
 ## Sources / references
 - [Vercel Labs Open Agents GitHub](https://github.com/vercel-labs/open-agents)
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
 - [Vercel Sandbox Guide](https://vercel.com/docs/functions/sandboxes)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-03
 - Confidence: high
