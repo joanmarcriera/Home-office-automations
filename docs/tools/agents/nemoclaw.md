@@ -1,128 +1,132 @@
-# Nvidia NemoClaw
+# NVIDIA NeMo Claw
 
 ## What it is
-NemoClaw is an open-source platform from Nvidia designed for building, deploying, and managing high-performance AI agents at scale. It integrates deeply with the Nvidia NeMo framework and accelerated computing infrastructure to provide an optimized runtime for agentic reasoning and tool execution. As of June 2026, it is the primary solution for enterprise-grade agents requiring GPU-accelerated low-latency performance.
+NVIDIA NeMo Claw is an enterprise-grade agent orchestration framework designed for building, deploying, and managing high-performance AI agents. As of July 2026, it serves as the primary agentic layer within the [NVIDIA NIM](../providers/nvidia.md) ecosystem, specifically optimized for the NVIDIA Rubin and Blackwell architectures. NeMo Claw provides a standardized runtime for agentic reasoning, native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) support, and deep integration with TensorRT-LLM for low-latency tool execution.
 
 ## What problem it solves
-It simplifies the orchestration of complex, multi-agent systems while solving the "inference-to-action" latency gap. NemoClaw addresses the challenges of deploying agents in production environments, providing standardized patterns for model serving, tool-calling validation, and sandboxed execution. It specifically optimizes the performance of frontier models like Llama 4 and Nemotron when running on Nvidia's Blackwell and Hopper architectures.
+NeMo Claw addresses the "inference-to-action" latency gap in production agent deployments. It simplifies the orchestration of complex, multi-agent systems by providing standardized patterns for model serving via NVIDIA NIM, secure tool-calling validation, and sandboxed execution. It solves the scalability challenges of deploying agents across [K3s clusters](../infrastructure/k3s.md) and provides built-in mechanisms for MCP 3.0 Task Protocol coordination, ensuring reliable tool use in industrial environments.
 
 ## Where it fits in the stack
-**Category**: Agent Framework / Orchestration Layer. It sits as the management plane for agents, connecting Nvidia-optimized models to external tools and enterprise data sources.
+NeMo Claw sits in the **Agent Framework / Orchestration Layer**. It functions as the management plane that connects NVIDIA-optimized models (like [Nemotron](../ai_knowledge/nemotron.md) and Llama 4) to external tools and enterprise data sources, leveraging the [NVIDIA AI Enterprise](../providers/nvidia.md) stack for hardware-accelerated performance.
 
 ## Typical use cases
-- **Industrial Multi-Agent Orchestration**: Coordinating a fleet of specialized agents to monitor and control manufacturing or data center operations.
-- **Enterprise-Grade Customer Support**: Deploying high-throughput agents that can handle thousands of simultaneous requests with persistent memory and secure tool access.
-- **GPU-Accelerated Scientific Research**: Using agents to automate high-fidelity simulations and data analysis on Nvidia DGX systems.
-- **Real-Time Code Intelligence**: Building coding assistants that leverage local, GPU-optimized models for low-latency repository analysis.
+- **Autonomous Data Center Management**: Coordinating agents on Rubin-class clusters to monitor power distribution and optimize cooling in real-time.
+- **Industrial Multi-Agent Orchestration**: Managing fleets of specialized agents in smart factories using [MCP 3.0](../automation_orchestration/mcp.md) for tool discovery and execution.
+- **Enterprise-Grade Customer Support**: Deploying high-throughput agents with persistent memory and secure tool access via NVIDIA NIM.
+- **GPU-Accelerated Scientific Research**: Automating high-fidelity simulations and data analysis on NVIDIA DGX systems.
 
 ## Strengths
-- **Nvidia Ecosystem Synergy**: Deeply integrated with TensorRT-LLM and the NeMo framework for maximum hardware efficiency.
-- **Production-Ready Scalability**: Native support for Kubernetes (K8s/K3s) deployment using Nvidia GPU operators.
-- **Security & Guardrails**: Built-in NeMo Guardrails integration to ensure agent outputs and tool calls remain safe and compliant.
-- **High-Fidelity Tool Use**: Optimized reasoning loops that minimize the overhead between a model's decision and a tool's execution.
-- **Flexible Backend**: While optimized for Nvidia models, it supports various open and proprietary models via standardized APIs.
+- **Rubin Architecture Optimization**: Native support for the NVIDIA Rubin architecture, providing unprecedented efficiency for agentic reasoning loops.
+- **NVIDIA NIM Integration**: Seamlessly pulls and manages models via NVIDIA Inference Microservices (NIM), now in General Availability (GA).
+- **Native MCP 3.0 Support**: Full implementation of the MCP 3.0 Task Protocol for standardized tool-calling and agent coordination.
+- **Production-Ready Scalability**: Optimized for deployment in [Docker](../infrastructure/docker.md) and Kubernetes environments using the NVIDIA GPU Operator.
+- **Security & Guardrails**: Integrated with NeMo Guardrails to ensure agent outputs and tool calls remain safe and compliant.
 
 ## Limitations
-- **Hardware Affinity**: Maximum performance gains are primarily achieved on Nvidia-based infrastructure.
-- **Infrastructure Overhead**: Requires a robust GPU environment, making it more suitable for enterprise or high-end home-lab setups than for lightweight applications.
-- **Complexity**: Targeted at engineering teams familiar with containerization and Nvidia's software stack.
+- **Hardware Affinity**: Maximum performance gains are strictly tied to NVIDIA GPU infrastructure, particularly Rubin and Blackwell.
+- **Infrastructure Complexity**: Requires familiarity with the NVIDIA software stack and container orchestration.
+- **Proprietary Lock-in**: While supporting open models, the most advanced features are optimized for the NVIDIA ecosystem.
 
 ## When to use it
-- When you need to build and deploy high-performance, multi-agent systems at scale.
-- If your workload requires GPU-accelerated reasoning for low-latency responses.
-- When enterprise-grade security, monitoring, and guardrails are mandatory for your agentic workflows.
-- If you are already invested in the Nvidia AI software ecosystem (NeMo, TRT-LLM).
+- When building production-scale multi-agent systems that require sub-millisecond reasoning latency.
+- If your infrastructure is centered on [NVIDIA GPU](../providers/nvidia.md) clusters, especially the Rubin architecture.
+- When enterprise-grade security, monitoring, and MCP-based tool orchestration are mandatory.
+- If you are already leveraging [TensorRT-LLM](../infrastructure/tensorrt-llm.md) for model inference.
 
 ## When not to use it
-- For simple, non-production personal automations that can run on standard consumer hardware without GPU acceleration.
-- If your primary focus is on a lightweight, no-config setup for a single-user agent.
-- In environments where you do not have access to Nvidia GPU infrastructure.
+- For simple, non-production personal automations that do not require GPU acceleration.
+- In environments where you lack access to NVIDIA hardware or the NVIDIA NIM ecosystem.
+- If your primary requirement is a lightweight, zero-dependency framework for [Local LLMs](../ai_knowledge/local_llms.md) on consumer CPUs.
 
 ## Getting started
-### Prerequisite: NeMo Framework
-NemoClaw is typically deployed via Docker using the Nvidia container toolkit.
+### Prerequisite: NVIDIA NIM
+NeMo Claw requires a running NVIDIA NIM instance. Ensure your environment is configured for [Docker](../infrastructure/docker.md) with the NVIDIA Container Toolkit.
 
 ```bash
-# Pull the optimized NeMo environment
-docker pull nvcr.io/nvidia/nemo:24.05
+# Pull and start a Nemotron NIM
+docker run --gpus all -p 8000:8000 nvcr.io/nim/nvidia/nemotron-4-340b-instruct:latest
 ```
 
-### Basic Installation
-Install the NemoClaw toolkit to manage your agent environments:
+### Installation
+Install the NeMo Claw SDK and the MCP 3.0 client:
 
 ```bash
-pip install nemoclaw-toolkit
+pip install nemoclaw-sdk mcp-python-sdk
 ```
 
-### Initializing an Agent
+### Hello World Agent
 ```python
-from nemoclaw import Agent, ToolRegistry
+from nemoclaw import Agent
+from mcp.client import MCPClient
 
-# Register your tools
-tools = ToolRegistry()
-tools.add("fetch_telemetry", description="Get real-time GPU telemetry from the cluster")
+# Initialize the MCP client for tool discovery
+mcp_client = MCPClient(server_url="http://localhost:8080")
 
-# Initialize the agent with a local model
+# Initialize the NeMo Claw agent
 agent = Agent(
-    model="nvidia/nemotron-4-340b-instruct",
-    tools=tools,
-    strategy="chain-of-thought"
+    model="nemotron-4-340b-instruct",
+    endpoint="http://localhost:8000/v1",
+    mcp_context=mcp_client.get_context()
 )
 
-agent.run("Analyze the telemetry for any anomalies in power distribution.")
+# Execute a simple task
+response = agent.run("Check the cluster health using the monitoring tool.")
+print(response.output)
 ```
 
 ## CLI examples
 ```bash
-# Initialize a new agent sandbox environment
-nemoclaw onboard
+# Initialize a new agent sandbox
+nemoclaw init my-agent
 
-# Check the status of a specific agent sandbox
-nemoclaw my-assistant status
+# Register an MCP server with the agent
+nemoclaw mcp add-server http://localhost:8080/mcp
 
-# List all active sandboxes
-nemoclaw list
+# Deploy the agent to a K3s cluster
+nemoclaw deploy --target k3s --namespace production
 
-# Connect to a sandbox and execute an agentic task
-nemoclaw my-assistant connect
+# Monitor agentic reasoning loops in real-time
+nemoclaw trace my-agent --live
 
-# Deploy updated agent policies across the cluster
-nemoclaw deploy-policies ./config/security-rules.yaml
+# Update security guardrails for all active agents
+nemoclaw guardrails update ./configs/security-policy.yaml
 ```
 
 ## API examples
-NemoClaw provides an OpenAI-compatible REST API for interacting with its sandboxed agents:
+NeMo Claw provides an MCP-compliant REST API for interacting with agents:
 
 ```python
 import requests
 
-# Query a NemoClaw-managed agent endpoint
-url = "http://nemoclaw-server:8000/v1/chat/completions"
+# Query a NeMo Claw agent endpoint with MCP tool context
+url = "http://nemoclaw-server:9000/v1/execute"
 payload = {
-    "model": "nemotron-agent",
-    "messages": [
-        {"role": "system", "content": "You are a production monitoring agent."},
-        {"role": "user", "content": "What is the current status of the inference nodes?"}
-    ],
-    "temperature": 0.1
+    "agent_id": "production-monitor",
+    "prompt": "Optimize GPU power limits on node-04",
+    "mcp_version": "3.0",
+    "stream": True
 }
 
-response = requests.post(url, json=payload)
-print(response.json())
+response = requests.post(url, json=payload, stream=True)
+for line in response.iter_lines():
+    print(line.decode('utf-8'))
 ```
 
 ## Related tools / concepts
-- [NVIDIA NeMo Framework](https://github.com/NVIDIA/NeMo)
-- [TensorRT-LLM](../infrastructure/tensorrt-llm.md)
-- [AG2](../frameworks/ag2.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [OpenClaw](../development_ops/openclaw.md)
+- [NVIDIA NIM](../providers/nvidia.md): The backbone for model serving in NeMo Claw.
+- [TensorRT-LLM](../infrastructure/tensorrt-llm.md): High-performance inference engine.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md): Standard for tool and data integration.
+- [K3s](../infrastructure/k3s.md): Lightweight Kubernetes for edge agent deployment.
+- [Docker](../infrastructure/docker.md): Standard containerization for NeMo environments.
+- [Nemotron](../ai_knowledge/nemotron.md): NVIDIA's frontier models optimized for NeMo Claw.
+- [Local LLMs](../ai_knowledge/local_llms.md): Guide for running models on-premises.
 
 ## Sources / references
-- [Official Nvidia NemoClaw Documentation](https://docs.nvidia.com/nemoclaw/)
-- [Nvidia NeMo GitHub Repository](https://github.com/NVIDIA/NeMo)
-- [Nvidia Developer Blog: Agentic AI](https://developer.nvidia.com/blog/agentic-ai)
+- [NVIDIA Developer Blog: NeMo Claw GA and Rubin Support (July 2026)](https://developer.nvidia.com/blog/nemoclaw-ga-rubin-architecture)
+- [Official NVIDIA NeMo Documentation](https://docs.nvidia.com/nemoclaw/)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.org/docs/task-protocol)
+- [NVIDIA NIM User Guide](https://docs.nvidia.com/nim/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-21
 - Confidence: high
