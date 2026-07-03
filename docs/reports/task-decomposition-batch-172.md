@@ -27,11 +27,11 @@ This report decomposes the next five oldest issues identified in the repository 
 
 ### 3. Freshness Audit: Agentic Automation Canvas (`docs/tools/agents/agentic-automation-canvas.md`)
 **Context**: Visual framework for designing agentic workflows and automation.
-- [ ] Research and incorporate July 2026 context (MCP 3.0 visual design patterns).
-- [ ] Upgrade to the exact 13-section 'High Confidence' standard.
-- [ ] Ensure 7+ unique relative markdown links to canonical internal pages.
-- [ ] Update `Last reviewed` to 2026-07-21.
-- [ ] Verify with `scripts/check_docs_contract.py`.
+- [x] Research and incorporate July 2026 context (MCP 3.0 visual design patterns).
+- [x] Upgrade to the exact 13-section 'High Confidence' standard.
+- [x] Ensure 7+ unique relative markdown links to canonical internal pages.
+- [x] Update `Last reviewed` to 2026-07-21.
+- [x] Verify with `scripts/check_docs_contract.py`.
 
 ### 4. Freshness Audit: Agno (`docs/tools/agents/agno.md`)
 **Context**: The evolved ecosystem for Phidata v2+.
