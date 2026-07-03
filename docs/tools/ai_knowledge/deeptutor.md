@@ -1,38 +1,40 @@
 # DeepTutor
 
 ## What it is
-DeepTutor is an AI-powered educational framework designed for personalized learning and intelligent tutoring. It leverages advanced reasoning models, such as **Claude 4.8 Opus** and **GPT-5.5**, to guide students through complex topics by identifying knowledge gaps and providing scaffolding rather than direct answers.
+DeepTutor is an AI-powered educational framework designed for personalized learning and intelligent tutoring. As of July 2026, it leverages advanced reasoning models like **Claude 4.8 Opus** and **GPT-5.5** to guide students through complex topics using a pedagogical layer that focuses on scaffolding rather than providing direct answers.
 
 ## What problem it solves
-It addresses the "tutor's dilemma"—the challenge of helping a student without doing the work for them. Standard LLMs often provide answers too quickly; DeepTutor implements a pedagogical layer that "teaches how to think," using multi-turn reasoning to probe student understanding and correct misconceptions incrementally.
+It addresses the "tutor's dilemma"—the challenge of helping a student without doing the work for them. Standard LLMs often provide answers too quickly, which can hinder deep learning. DeepTutor implements a structured, multi-turn reasoning system that probes student understanding, identifies specific misconceptions, and provides incremental guidance to help the student "learn how to think."
 
 ## Where it fits in the stack
-**Agentic Education Layer**. It sits between the user interface and the foundational reasoning models, providing a structured framework for educational agents. It is often integrated with knowledge bases to provide domain-specific expertise.
+**Agentic Education Layer**. It sits between the user interface and the foundational reasoning models, providing a framework for deploying educational agents. It integrates with knowledge bases and **MCP 3.0** servers to provide domain-specific expertise grounded in verified curriculum data.
 
 ## Typical use cases
-- **Personalized Coding Tutor**: Helping developers learn new frameworks (e.g., Mojo or Rust) by solving errors interactively.
-- **Academic Research Assistant**: Guiding graduate students through the synthesis of complex literature.
-- **Enterprise Upskilling**: Automating the onboarding and technical training of new employees in a homelab or corporate environment.
+- **Personalized STEM Tutor**: Guiding students through complex physics or calculus problems with step-by-step Socratic questioning.
+- **Coding Mentor**: Helping developers learn new languages (e.g., Mojo, Rust) by analyzing their logic and suggesting architectural improvements rather than just fixing syntax.
+- **Professional Upskilling**: Automating technical onboarding for engineers in enterprise environments using grounded internal documentation.
+- **Visual Reasoning**: Analyzing student-drawn diagrams or handwritten equations via multimodal vision models (GPT-5.5, Claude 4.8).
 
 ## Strengths
-- **Pedagogy-First**: Designed around established educational theories (e.g., Vygotsky's Zone of Proximal Development).
-- **Reasoning-Native**: Specifically optimized for high-reasoning models that can maintain complex state across long conversations.
-- **Multi-Modal Support**: Can analyze student-drawn diagrams or handwritten math (via GPT-5.5 Vision).
+- **Pedagogical Scaffolding**: Specifically designed to follow established educational theories (e.g., Zone of Proximal Development).
+- **Misconception Detection**: Uses multi-step reasoning to pinpoint exactly where a student's mental model is flawed.
+- **Model Agnostic**: Supports all major reasoning-native frontier models.
+- **Extensible**: Native support for **MCP 3.0**, allowing the tutor to pull context from local files, databases, or external educational APIs.
 
 ## Limitations
-- **Latency**: The multi-step reasoning required for pedagogical interventions can be slower than standard chat.
-- **Cost**: Requires high-end models (Opus tier) for the most effective tutoring interactions.
-- **Framework Complexity**: Requires significant configuration to set up custom "Souls" and knowledge bases.
+- **Interaction Latency**: The deep reasoning required for pedagogical interventions can result in slower response times compared to standard chat.
+- **High Resource Cost**: Effective tutoring requires high-tier reasoning models (Opus/GPT-5.5), which may be cost-prohibitive for large-scale deployments.
+- **Configuration Complexity**: Setting up custom "Souls" and specialized knowledge bases requires technical expertise in prompt engineering and RAG.
 
 ## When to use it
-- When building an educational platform that requires a "Socratic" approach to learning.
-- When you need an agent that can track student progress and adapt its teaching style over time.
-- In research settings exploring the intersection of AI and intelligent tutoring systems (ITS).
+- When building a platform that requires a "Socratic" or guided approach to learning rather than simple information retrieval.
+- When you need an agent that can track a student's progress and adapt its teaching style over time.
+- For research and development in the field of Intelligent Tutoring Systems (ITS) and agentic education.
 
 ## When not to use it
-- For simple question-answering tasks where the user just wants the facts.
-- In low-latency environments where immediate responses are prioritized over educational depth.
-- If using low-reasoning models that cannot follow complex pedagogical instructions.
+- For simple question-answering tasks where the user only needs a fast, direct fact.
+- In low-latency environments where immediate speed is more important than educational depth.
+- If using low-reasoning "small" models that cannot maintain the complex state required for multi-turn pedagogical loops.
 
 ## Getting started
 
@@ -46,11 +48,11 @@ DeepTutor requires Python 3.12+ and Node.js 22+.
     python3 -m venv .venv && source .venv/bin/activate
     pip install -e ".[server,reasoning]"
     ```
-2.  **Configuration**:
+2.  **API Keys**:
     Create a `.env` file with your `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`.
 3.  **Launch**:
     ```bash
-    python scripts/start_tutor.py --model claude-4-8-opus
+    python scripts/start_tutor.py --model claude-4-8-opus-20260528
     ```
 
 ### Docker Deployment
@@ -60,61 +62,65 @@ docker compose up -d deeptutor-server
 
 ## CLI examples
 
-### Interactive Tutoring Session
+### Start a Socratic Session
 ```bash
-deeptutor chat --subject "Quantum Mechanics" --mode socratic
+deeptutor chat --subject "Thermodynamics" --mode socratic --model gpt-5.5-preview
 ```
 
-### Knowledge Base Management
+### Knowledge Base Ingestion
 ```bash
-# Ingest a textbook into the tutor's memory
-deeptutor kb ingest ./docs/textbooks/physics_vol1.pdf --name physics-101
+# Ingest educational materials using MCP 3.0 protocols
+deeptutor kb ingest ./curriculum/advanced_math/ --name math-advanced
 ```
 
-### Evaluating Student Intent
+### Analyze Student Intent
 ```bash
-# Analyze a student's response for misconceptions
-deeptutor analyze "The electron orbits the nucleus like a planet"
+# Analyze a student response for latent misconceptions
+deeptutor analyze "The heavier object falls faster because of its mass"
 ```
 
 ## API examples
 
-### Python (Agent Setup)
+### Python (Agent Initialization)
 ```python
 from deeptutor import TutorAgent
 
-# Initialize an agent with a specific "Soul" (personality)
+# Initialize an agent with a specific "Soul" and knowledge grounding
 tutor = TutorAgent(
     model="claude-4-8-opus-20260528",
     soul="encouraging-mentor",
-    kb="advanced-calculus"
+    kb="organic-chemistry-v2"
 )
 
-# Conduct a tutoring turn
-response = tutor.step("I don't understand why we use the chain rule here.")
-print(response.content)
+# Perform a pedagogical turn
+response = tutor.step("I don't see why the reaction is exothermic.")
+print(f"Tutor Response: {response.content}")
 ```
 
-### Knowledge Retrieval
+### Custom Scaffolding Pattern
 ```python
-# Query the educational knowledge base
-context = tutor.kb.retrieve("chain rule derivation", top_k=3)
+# Define a custom intervention pattern for the agent
+tutor.add_pattern(
+    name="logic-check",
+    prompt="If the student makes a logical leap, ask them to explain the intermediate step."
+)
 ```
 
 ## Related tools / concepts
+- [NotebookLM](notebooklm.md) — For knowledge synthesis and grounded research.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For connecting tutors to external datasets.
+- [Claude](claude.md) — The primary reasoning model for pedagogical depth.
+- [ChatGPT](chatgpt.md) — Alternative reasoning model provider.
 - [AutoReason](../agents/autoreason.md) — Multi-agent reasoning framework.
-- [GPT Researcher](../agents/gpt-researcher.md) — Autonomous research assistant.
-- [NotebookLM](notebooklm.md) — Google's knowledge synthesis tool.
-- [Claude](claude.md) — Primary reasoning model for DeepTutor.
-- [ChatGPT](chatgpt.md) — Alternative model provider.
-- [DeepSeek R1](deepseek-r1.md) — Open-weight reasoning alternative.
-- [Model Context Protocol](../../knowledge_base/patterns/mcp-patterns.md) — For connecting tutors to external tools.
+- [GPT Researcher](../agents/gpt-researcher.md) — For generating the grounded content used by tutors.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The architectural pattern behind DeepTutor.
+- [Local LLMs](local_llms.md) — For running tutoring sessions with open-weights models like Llama 4.
 
 ## Sources / references
 - [DeepTutor GitHub Repository](https://github.com/HKUDS/DeepTutor)
-- [DeepTutor Paper (arXiv 2026)](https://arxiv.org/abs/2604.26962)
-- [Official Documentation](https://deeptutor.ai/docs)
+- [DeepTutor: Agentic Scaffolding in STEM Education (arXiv 2026)](https://arxiv.org/abs/2604.26962)
+- [Official Documentation and Soul Gallery](https://deeptutor.ai/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-02
 - Confidence: high
