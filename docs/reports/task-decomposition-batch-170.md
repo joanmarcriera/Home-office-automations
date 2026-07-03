@@ -27,11 +27,11 @@ This report decomposes the next five oldest issues identified in the repository 
 
 ### 3. Freshness Audit: Claude (`docs/tools/ai_knowledge/claude.md`)
 **Context**: Anthropic's flagship LLM family.
-- [ ] Research and incorporate July 2026 context (Claude 4.8 updates, Gemma 3 comparison).
-- [ ] Upgrade to the exact 13-section 'High Confidence' standard.
-- [ ] Ensure 7+ unique relative markdown links.
-- [ ] Update `Last reviewed` to 2026-07-02.
-- [ ] Verify with `scripts/check_docs_contract.py`.
+- [x] Research and incorporate July 2026 context (Claude 4.8 updates, Gemma 3 comparison).
+- [x] Upgrade to the exact 13-section 'High Confidence' standard.
+- [x] Ensure 7+ unique relative markdown links.
+- [x] Update `Last reviewed` to 2026-07-02.
+- [x] Verify with `scripts/check_docs_contract.py`.
 
 ### 4. Freshness Audit: Genspark (`docs/tools/ai_knowledge/genspark.md`)
 **Context**: AI agentic search engine.
