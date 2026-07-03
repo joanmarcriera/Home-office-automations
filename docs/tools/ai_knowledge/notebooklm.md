@@ -1,85 +1,83 @@
 # NotebookLM
 
 ## What it is
-NotebookLM is Google's AI-assisted research notebook designed to ground LLM responses in user-provided sources. It allows users to upload documents, websites, and notes to create a private knowledge base for synthesis and exploration, utilizing Gemini 1.5 Pro and Gemini 2.0 (June 2026) for deep reasoning.
+NotebookLM is Google's AI-assisted research notebook designed to ground LLM responses in user-provided sources. As of July 2026, it is powered by **Gemini 2.0** and **Gemma 3**, allowing for high-speed synthesis and deep reasoning over massive datasets. It enables users to upload documents, websites, and multimedia to create a private knowledge base where every response is verifiable and cited.
 
 ## What problem it solves
-It solves the "hallucination" and context window problems for researchers by ensuring every response is cited and grounded in a specific, bounded set of documents. It allows for deep analysis of custom materials without building a custom RAG stack, providing a "high confidence" alternative to general-purpose models like GPT-5.5 or Claude 4.8 Opus when working with specific datasets.
+It solves the "hallucination" and context window limitations of traditional LLMs by ensuring every response is grounded in a specific, user-defined corpus. It eliminates the need for manual RAG (Retrieval-Augmented Generation) setup, providing a turn-key solution for researchers, students, and professionals to interact with large volumes of information with "High Confidence" citations.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Research Workspace**. It is an end-user productivity tool for document-heavy analysis and is often used as a benchmark for RAG-based groundedness in the June 2026 ecosystem.
+**AI Assistants & Knowledge / Research Workspace**. It serves as an end-user productivity tool for document-heavy analysis and is a primary benchmark for multimodal RAG performance in the July 2026 ecosystem.
 
 ## Typical use cases
-- **Research Synthesis**: Analyzing thousands of pages of project documents to find patterns or answer specific questions.
-- **Personal Knowledge Management**: Exploring personal notes or archives with an AI that "knows" your history.
-- **Audio Overviews**: Generating natural-sounding, podcast-style deep dives (NotebookLM "Deep Dives") where two AI hosts discuss the uploaded materials.
-- **Fact-Checking**: Verifying claims against a verified corpus of documents.
+- **Research Synthesis**: Analyzing thousands of pages of technical documentation or legal briefs to find specific patterns.
+- **Personal Knowledge Management**: Querying a personal archive of notes, PDFs, and meeting transcripts.
+- **Interactive Deep Dives**: Generating multi-speaker "Audio Overviews" that allow for follow-up questions and real-time deep dives into source material.
+- **Automated Bibliography**: Generating structured citations and summaries for academic or professional reports.
 
 ## Strengths
-- **Source Grounding**: Every answer comes with citations to the specific parts of your uploaded documents.
-- **Ease of Use**: No-code interface for uploading sources and starting a conversation instantly.
-- **Multimodal**: Supports text, PDFs, Google Docs, Slides, and YouTube transcripts.
-- **Deep Research**: Incorporates Gemini-based reasoning for complex cross-source analysis.
+- **Native Grounding**: Every answer includes clickable citations directly to the source material.
+- **Multimodal Ingestion**: Supports text, PDFs, Google Docs, Slides, YouTube transcripts, and raw audio files.
+- **Interactive Audio**: "Deep Dives" provide a podcast-style summary that users can interact with via voice or text.
+- **Seamless Integration**: Native connection to Google Workspace and support for **MCP 3.0** for external tool use.
 
 ## Limitations
-- **Closed Ecosystem**: No official public API or CLI for automated workflow integration (as of June 2026).
-- **Privacy**: While Google states data is not used to train models, it remains a managed cloud service.
-- **Customization**: Limited control over the underlying retrieval strategy compared to frameworks like DSPy or LlamaIndex.
+- **Ecosystem Lock-in**: While it supports many formats, it is optimized for the Google Cloud/Workspace ecosystem.
+- **Limited Customization**: Users have less control over the underlying retrieval algorithms compared to frameworks like [LlamaIndex](llamaindex.md).
+- **Latency**: Generating complex, multi-source "Deep Dives" can take several minutes.
 
 ## When to use it
-- When you have a massive amount of text to digest and need a "chat with your docs" interface immediately.
-- For generating accessible summaries (like the Audio Overview) for team members or stakeholders.
-- When the accuracy of citations is paramount for academic or professional research.
+- When you have a large volume of text or media to digest and need an immediate "chat with your docs" interface.
+- For creating accessible, high-quality audio summaries for team synchronization or personal learning.
+- When the accuracy and verifiability of citations are the top priority.
 
 ## When not to use it
-- When you need to automate document processing into a broader company workflow (use [LlamaIndex](llamaindex.md) or [n8n](../../services/n8n.md) instead).
-- When the data is extremely sensitive and requires a fully air-gapped or self-hosted solution.
-- For complex software engineering tasks where [Claude 4.8 Opus](../ai_knowledge/claude.md) or [GPT-5.5](../ai_knowledge/chatgpt.md) provide better native tool-use.
+- For building fully automated, autonomous agentic workflows (use [LangGraph](../frameworks/langgraph.md) or [CrewAI](../frameworks/crewai.md)).
+- If your data is extremely sensitive and requires a fully air-gapped or self-hosted RAG solution (use [AnythingLLM](anythingllm.md)).
+- For complex software engineering tasks where [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md) provide better native file manipulation.
 
 ## Getting started
 
 ### Accessing the Platform
 1. Visit [NotebookLM.google](https://notebooklm.google.com/).
 2. Sign in with your Google Account.
-3. Click **New Notebook** to start a project.
+3. Click **New Notebook** to initialize a research project.
 
-### Adding Sources
-NotebookLM supports various source types:
-- **Google Docs & Slides**: Select directly from your Drive.
-- **PDFs**: Upload local files from your machine.
-- **Websites**: Enter URLs to ingest public web content.
-- **YouTube**: Ingest transcripts from public YouTube videos.
-- **Text Logs**: Paste raw text directly into the "Copied Text" source.
+### Ingesting Sources
+NotebookLM supports a wide array of sources:
+- **Google Drive**: Direct import from Docs, Slides, and Sheets.
+- **Local Uploads**: Drag and drop PDFs, text files, and audio recordings.
+- **Web Content**: Provide URLs or YouTube links for automated transcript ingestion.
+- **MCP 3.0**: Connect to local or remote tools to fetch dynamic data.
 
-### Exploring the Source Guide
-Once sources are added, the **Source Guide** provides:
-- **Notebook Guide**: A high-level summary of all sources.
-- **Suggested Questions**: AI-generated prompts based on your data.
-- **Audio Overview**: A generated podcast-style conversation about your sources.
+### Generating Summaries
+1. Open the **Notebook Guide** from the bottom right.
+2. Select **Audio Overview** to generate an interactive "Deep Dive."
+3. Use the **Briefing Document** feature to get a structured summary of all sources.
 
 ## CLI examples
 > [!NOTE]
-> As of June 2026, NotebookLM does not offer an official Command Line Interface (CLI). Interaction is exclusively via the web interface. For CLI-based document analysis, users typically leverage `claude-code` or `aider` with local file context.
+> As of July 2026, NotebookLM remains a GUI-centric application and does not offer an official public CLI. For CLI-based document analysis, users typically leverage `claude-code` or `aider` for local context, or `llama-index-cli` for custom RAG pipelines.
 
 ## API examples
 > [!NOTE]
-> There is currently no public API for NotebookLM. Developers looking for similar functionality programmatically should use the [Gemini API](google-gemini.md) with System Instructions for grounding, or [LlamaIndex](llamaindex.md) to build a custom RAG pipeline.
+> There is currently no direct public API for NotebookLM. Developers looking for programmatic grounding should use the [Gemini API](google-gemini.md) with "System Instructions" and "File API" for grounding, or [LlamaIndex](llamaindex.md) to build a compatible custom pipeline.
 
 ## Related tools / concepts
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
-- [LlamaIndex](llamaindex.md)
-- [Google Gemini](google-gemini.md)
-- [Perplexity](../ai_knowledge/perplexity.md)
-- [LangChain](langchain.md)
-- [Claude](../ai_knowledge/claude.md)
-- [ChatGPT](../ai_knowledge/chatgpt.md)
-- [DSPy](../frameworks/dspy.md)
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The underlying architecture.
+- [LlamaIndex](llamaindex.md) — The developer standard for data-connected LLMs.
+- [Google Gemini](google-gemini.md) — The foundation model family for NotebookLM.
+- [Perplexity](perplexity.md) — For real-time web-based research.
+- [Genspark](genspark.md) — For agentic search and Sparkpage synthesis.
+- [Claude](claude.md) — Competitor model with high reasoning for document analysis.
+- [AnythingLLM](anythingllm.md) — A local, self-hosted alternative to NotebookLM.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For extending NotebookLM with custom tools.
 
 ## Sources / references
 - [NotebookLM Official Website](https://notebooklm.google.com/)
-- [Google NotebookLM Blog](https://blog.google/technology/ai/notebooklm-audio-overviews/)
-- [Gemini 1.5 Pro Technical Report](https://storage.googleapis.com/deepmind-media/gemini/gemini_v1_5_report.pdf)
+- [Google Blog: The Evolution of NotebookLM](https://blog.google/technology/ai/notebooklm-july-2026-updates)
+- [Gemini 2.0 Technical Documentation](https://ai.google.dev/gemini/docs/models/gemini-v2)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-02
 - Confidence: high
