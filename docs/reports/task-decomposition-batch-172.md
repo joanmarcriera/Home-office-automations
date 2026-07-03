@@ -19,11 +19,11 @@ This report decomposes the next five oldest issues identified in the repository 
 
 ### 2. Freshness Audit: NVIDIA NeMo Claw (`docs/tools/agents/nemoclaw.md`)
 **Context**: NVIDIA's framework for building agentic workflows on the NeMo platform.
-- [ ] Research and incorporate July 2026 context (NVIDIA Rubin architecture support, NIM GA integration).
-- [ ] Upgrade to the exact 13-section 'High Confidence' standard.
-- [ ] Ensure 7+ unique relative markdown links to canonical internal pages.
-- [ ] Update `Last reviewed` to 2026-07-21.
-- [ ] Verify with `scripts/check_docs_contract.py`.
+- [x] Research and incorporate July 2026 context (NVIDIA Rubin architecture support, NIM GA integration).
+- [x] Upgrade to the exact 13-section 'High Confidence' standard.
+- [x] Ensure 7+ unique relative markdown links to canonical internal pages.
+- [x] Update `Last reviewed` to 2026-07-21.
+- [x] Verify with `scripts/check_docs_contract.py`.
 
 ### 3. Freshness Audit: Agentic Automation Canvas (`docs/tools/agents/agentic-automation-canvas.md`)
 **Context**: Visual framework for designing agentic workflows and automation.
@@ -51,6 +51,6 @@ This report decomposes the next five oldest issues identified in the repository 
 
 ---
 - **Status**: In Progress
-- **Next Step**: Conduct technical freshness audit for `nemoclaw.md`.
+- **Next Step**: Conduct technical freshness audit for `agentic-automation-canvas.md`.
 - **Date**: 2026-07-21
 - **Auditor**: Jules
