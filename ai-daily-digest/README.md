@@ -1,5 +1,55 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-04
+
+## Digest fallback for 2026-07-04
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Uh.. Honey, how do you feel about takeout?](https://www.reddit.com/r/LocalLLaMA/comments/1umokhj/uh_honey_how_do_you_feel_about_takeout/) (r/LocalLLaMA)
+2. [GLM5.2 on 5x Pro 6000s and a 5090, an expensive journey](https://www.reddit.com/r/LocalLLaMA/comments/1umcr5m/glm52_on_5x_pro_6000s_and_a_5090_an_expensive/) (r/LocalLLaMA)
+3. [Qwen3.6-27b-mtp-q8 successfully created an A* pathfinding implementation on a test game built in Java from scratch.](https://www.reddit.com/r/LocalLLaMA/comments/1umvwb9/qwen3627bmtpq8_successfully_created_an_a/) (r/LocalLLaMA)
+4. [Mistral released Leanstral-1.5-119B-A6B](https://www.reddit.com/r/LocalLLaMA/comments/1umgdhx/mistral_released_leanstral15119ba6b/) (r/LocalLLaMA)
+5. [Longcat 2 model weights have been published](https://www.reddit.com/r/LocalLLaMA/comments/1umo8zu/longcat_2_model_weights_have_been_published/) (r/LocalLLaMA)
+6. [Palantir is a free org on HF with 0 open-source models and 0 public datasets shared](https://www.reddit.com/r/LocalLLaMA/comments/1umbw0v/palantir_is_a_free_org_on_hf_with_0_opensource/) (r/LocalLLaMA)
+7. [Deepseek drops another HUGE breakthrough - DSpark. Waaay faster than MTP [Video explaining it]](https://www.reddit.com/r/LocalLLaMA/comments/1um9j5q/deepseek_drops_another_huge_breakthrough_dspark/) (r/LocalLLaMA)
+8. [According to Bernstein, SK Hynix has 90% profit margin on dram](https://www.reddit.com/r/LocalLLaMA/comments/1umgsu2/according_to_bernstein_sk_hynix_has_90_profit/) (r/LocalLLaMA)
+9. [gemma4 e2b is really good, what other small models work on crappy computers?](https://www.reddit.com/r/LocalLLaMA/comments/1umpxhg/gemma4_e2b_is_really_good_what_other_small_models/) (r/LocalLLaMA)
+10. [Portugal just released their own LLM Amalia (9B)!](https://www.reddit.com/r/LocalLLaMA/comments/1umhrn8/portugal_just_released_their_own_llm_amalia_9b/) (r/LocalLLaMA)
+11. [Qwen 27B](https://www.reddit.com/r/LocalLLaMA/comments/1umk3ax/qwen_27b/) (r/LocalLLaMA)
+12. [Deepseek V4 Flash running on RTX 5090 MoE](https://www.reddit.com/r/LocalLLaMA/comments/1umsik8/deepseek_v4_flash_running_on_rtx_5090_moe/) (r/LocalLLaMA)
+13. [GLM5.2 performance.](https://www.reddit.com/r/LocalLLaMA/comments/1umtiw4/glm52_performance/) (r/LocalLLaMA)
+14. [Looking for thoughts on card purchase: V620, MI50, V100](https://www.reddit.com/r/LocalLLaMA/comments/1un28zb/looking_for_thoughts_on_card_purchase_v620_mi50/) (r/LocalLLaMA)
+15. [This 3 slot 3080 20GB with 12v2x6 I got for €422,45](https://www.reddit.com/r/LocalLLaMA/comments/1umrcbi/this_3_slot_3080_20gb_with_12v2x6_i_got_for_42245/) (r/LocalLLaMA)
+16. [Follow-up: DeepSeek V4 Flash on 2x RTX PRO 6000 finishes real coding tasks faster than Sonnet and Opus, at about Sonnet quality](https://www.reddit.com/r/LocalLLaMA/comments/1um84bd/followup_deepseek_v4_flash_on_2x_rtx_pro_6000/) (r/LocalLLaMA)
+17. [Whats the catch with SwiReasoning?](https://www.reddit.com/r/LocalLLaMA/comments/1ump3nw/whats_the_catch_with_swireasoning/) (r/LocalLLaMA)
+18. [Any idea why bartowski claims DeepSeek-V4-Flash is MXFP4?](https://www.reddit.com/r/LocalLLaMA/comments/1umka9t/any_idea_why_bartowski_claims_deepseekv4flash_is/) (r/LocalLLaMA)
+19. [My DeepSeek V4 Pro at home got faster again](https://www.reddit.com/r/LocalLLaMA/comments/1umdjxd/my_deepseek_v4_pro_at_home_got_faster_again/) (r/LocalLLaMA)
+20. [Particle Scattering Sampler for llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1umqgnl/particle_scattering_sampler_for_llamacpp/) (r/LocalLLaMA)
+21. [It's officially over. One of the fathers of AI at Nvidia doesn't believe in AGI and compares OpenAI and Anthropic's closed models to AOL and Prodigy's closed internets. Says the future is every business having a customized open source model.](https://www.reddit.com/r/LocalLLaMA/comments/1ult0f4/its_officially_over_one_of_the_fathers_of_ai_at/) (r/LocalLLaMA)
+22. [Claude Desktop (code) but use local API?](https://www.reddit.com/r/LocalLLaMA/comments/1ums14f/claude_desktop_code_but_use_local_api/) (r/LocalLLaMA)
+23. [llamacpp patch - DeepSeek V4 Flash running with full 1M token context locally on RTX 5090](https://www.reddit.com/r/LocalLLaMA/comments/1ulymml/llamacpp_patch_deepseek_v4_flash_running_with/) (r/LocalLLaMA)
+24. [Micro-World - Action-controlled Interactive world model - AMD](https://www.reddit.com/r/LocalLLaMA/comments/1umey6p/microworld_actioncontrolled_interactive_world/) (r/LocalLLaMA)
+25. [Gemma Avatar: Talk to Gemma 4-31B face to face](https://www.reddit.com/r/LocalLLaMA/comments/1umee2i/gemma_avatar_talk_to_gemma_431b_face_to_face/) (r/LocalLLaMA)
+26. [AIEWF Daily Dispatch: The great loops debate and the state of AI engineering](https://www.latent.space/p/aiewf-daily-dispatch-locomotives) (Latent Space)
+27. [Vercel's Andrew Qu on why agents are a new kind of software](https://www.latent.space/p/vercel-agents-new-software) (Latent Space)
+28. [The website of the future may assemble itself for every visitor](https://www.latent.space/p/the-website-of-the-future) (Latent Space)
+29. [Skill engineering and the case against one-shot AI design](https://www.latent.space/p/skill-engineering-design) (Latent Space)
+30. [Apple just turned Safari into something AI agents can control](https://thenewstack.io/safari-mcp-platform-infrastructure/) (The New Stack)
+31. [The $1.3 million theft that exposed AI’s blind spot](https://thenewstack.io/ai-infrastructure-cargo-theft/) (The New Stack)
+32. [Microsoft just admitted its biggest AI mistake — and spent $2.5 billion fixing it](https://thenewstack.io/enterprise-ai-model-routing/) (The New Stack)
+33. [“AI contributions are demoralizing”: Godot bans coding agents to save its mentoring model](https://thenewstack.io/godot-bans-ai-coding-agents/) (The New Stack)
+34. [What comes after attention? This startup says it already knows.](https://thenewstack.io/subquadratic-sparse-attention-no-attention/) (The New Stack)
+35. [Your social login buttons run on third-party cookies. FedCM doesn’t.](https://thenewstack.io/fedcm-federated-login-standard/) (The New Stack)
+36. [Why traditional CI/CD fails for LLMs (and the release gates we built to fix it)](https://thenewstack.io/why-cicd-fails-llms/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
