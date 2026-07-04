@@ -1,50 +1,50 @@
 # AWS Bedrock
 
 ## What it is
-AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI. In June 2026, it is the primary enterprise gateway for deploying models like Claude 4.8 Opus and Llama 4 Maverick at scale.
+AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI. In July 2026, it is a primary enterprise gateway for deploying models like Claude 4.8 Opus, [Gemma 3](../ai_knowledge/local_llms.md), and Llama 4 Maverick, now featuring native support for the NVIDIA Rubin architecture and [MCP 3.0](../../automation_orchestration/mcp.md) tool integration.
 
 ## What problem it solves
-It simplifies the process of building and scaling generative AI applications by removing the need to manage underlying infrastructure. It provides a unified API for multiple models, along with tools for fine-tuning, RAG (Knowledge Bases for Amazon Bedrock), and agentic workflows (Agents for Amazon Bedrock). It addresses enterprise concerns regarding data privacy, security, and compliance.
+It simplifies the process of building and scaling generative AI applications by removing the need to manage underlying infrastructure. It provides a unified API for multiple models, along with tools for fine-tuning, RAG (Knowledge Bases for Amazon Bedrock), and agentic workflows (Agents for Amazon Bedrock). It addresses enterprise concerns regarding data privacy, security, and high-performance execution on next-generation hardware.
 
 ## Where it fits in the stack
-**Provider / Infrastructure**. It serves as an enterprise-grade gateway and orchestration layer for multiple high-performance LLMs.
+**Provider / Infrastructure**. It serves as an enterprise-grade gateway and orchestration layer for high-performance LLMs, often paired with [Docker](../infrastructure/docker.md) for specialized containerized deployments.
 
 ## Typical use cases
 - **Enterprise AI Applications**: Building secure, scalable AI solutions within the AWS ecosystem.
 - **Retrieval-Augmented Generation (RAG)**: Using "Knowledge Bases for Amazon Bedrock" to connect models to proprietary S3-hosted data.
-- **Agentic Workflows**: Deploying autonomous agents that can execute multi-step tasks using AWS Lambda and other resources.
-- **Model Fine-tuning**: Customizing foundation models with private data in a secure environment.
+- **Agentic Workflows**: Deploying autonomous agents that leverage the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol to execute multi-step tasks across AWS resources.
+- **Hardware-Accelerated Inference**: Utilizing NVIDIA Rubin GPUs for ultra-low latency inference of frontier models.
 
 ## Strengths
 - **Enterprise-Grade Security**: Strong data privacy and compliance features (HIPAA, GDPR, etc.). Data is not used to train the underlying foundation models.
-- **Model Variety**: Access to a broad range of frontier models (Claude 4.8, Llama 4, Mistral Large 3) through a single API.
-- **Serverless Experience**: No infrastructure to manage; scales automatically with demand.
-- **AWS Integration**: Seamless integration with S3, Lambda, IAM, CloudWatch, and other AWS services.
-- **Knowledge Bases**: Built-in support for managed RAG with automated vectorization and retrieval.
+- **Model Variety**: Access to [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and Llama 4 through a single API.
+- **NVIDIA Rubin Support**: Optimized for the latest GPU architectures to provide superior price-performance.
+- **AWS Integration**: Seamless integration with S3, Lambda, IAM, and [MCP 3.0](../../automation_orchestration/mcp.md) servers.
+- **Managed RAG**: Built-in support for automated vectorization and retrieval via Knowledge Bases.
 
 ## Limitations
-- **AWS Ecosystem Lock-in**: Deeply tied to AWS; moving to another provider requires significant re-engineering of the integration.
-- **Complexity**: AWS's extensive configuration options (IAM, VPC, etc.) can be daunting for simple projects.
-- **Regional Availability**: Not all models or features are available in all AWS regions simultaneously.
-- **Latency**: API overhead can be higher than direct provider APIs for some use cases.
+- **AWS Ecosystem Lock-in**: Deeply tied to AWS; moving to another provider requires significant re-engineering (unless using [LiteLLM](../../services/litellm.md)).
+- **Configuration Complexity**: AWS's extensive IAM and VPC requirements can be daunting for smaller teams.
+- **Regional Availability**: Newest models (e.g., [Gemma 3](../ai_knowledge/local_llms.md)) and Rubin-based instances may not be available in all regions simultaneously.
+- **API Latency**: Managed service overhead can be slightly higher than direct-to-metal self-hosting via [vLLM](../infrastructure/vllm.md).
 
 ## When to use it
-- When building enterprise-scale AI applications that require high security, compliance, and scalability.
-- If your organization is already heavily invested in the AWS ecosystem.
-- When you need a managed RAG or agent framework that integrates natively with cloud resources.
-- For multi-model applications where you want a unified billing and security model.
+- When building enterprise-scale AI applications requiring high security, compliance, and AWS-native scalability.
+- If your organization is already standardized on the AWS ecosystem.
+- When you need a managed RAG or agent framework that integrates natively with cloud resources via [MCP 3.0](../../automation_orchestration/mcp.md).
+- For multi-model applications requiring a unified billing and security model.
 
 ## When not to use it
-- For simple, low-volume projects where a direct API like OpenAI or Anthropic might be simpler and faster.
-- If you require a provider-agnostic solution that can easily move between clouds (consider [LiteLLM](../../services/litellm.md)).
-- If you need the absolute lowest latency possible for real-time applications.
+- For simple, low-volume projects where a direct API (OpenAI/Anthropic) is faster to implement.
+- If you require a provider-agnostic solution (consider [LiteLLM](../../services/litellm.md)).
+- When you need the absolute lowest latency possible for real-time applications (consider [vLLM](../infrastructure/vllm.md) on EC2).
 
 ## Getting started
 
 ### 1. Prerequisites
-- An AWS account with Bedrock access enabled for the desired models.
+- An AWS account with Bedrock model access enabled.
 - AWS CLI configured with appropriate credentials.
-- Python 3.9+ for SDK usage.
+- Python 3.9+ and `boto3`.
 
 ### 2. Installation
 ```bash
@@ -58,8 +58,8 @@ import json
 
 bedrock = boto3.client(service_name='bedrock-runtime', region_name='us-east-1')
 
-prompt = "Explain the benefit of AWS Bedrock in one sentence."
-# Note: Model IDs follow the June 2026 technical context of this repository.
+# Note: Model IDs follow the July 2026 technical context.
+prompt = "Explain the benefit of MCP 3.0 in one sentence."
 body = json.dumps({
     "anthropic_version": "bedrock-2023-05-31",
     "max_tokens": 100,
@@ -79,24 +79,24 @@ print(response_body['content'][0]['text'])
 Commonly used commands for inspecting model availability and performing quick tests.
 
 ```bash
-# List available foundation models in a region
+# List available foundation models (including Gemma 3)
 aws bedrock list-foundation-models --region us-east-1
 
-# Get details for a specific model (e.g., Claude 4.8)
-aws bedrock get-foundation-model --model-identifier anthropic.claude-4-8-opus-20260528-v1:0
+# Get details for a specific model
+aws bedrock get-foundation-model --model-identifier google.gemma-3-27b-it-v1:0
 
 # Invoke a model via CLI and save output
 aws bedrock-runtime invoke-model \
-  --model-id anthropic.claude-3-5-sonnet-20240620-v1:0 \
+  --model-id anthropic.claude-4-8-opus-20260528-v1:0 \
   --body '{"anthropic_version": "bedrock-2023-05-31", "max_tokens": 1024, "messages": [{"role": "user", "content": "Hello Bedrock!"}]}' \
   output.txt
 
-# List Knowledge Bases
+# List Knowledge Bases for RAG
 aws bedrock-agent list-knowledge-bases
 ```
 
 ## API examples
-Using the `boto3` SDK for streaming responses and Knowledge Base retrieval.
+Using the `boto3` SDK for streaming responses and [MCP 3.0](../../automation_orchestration/mcp.md) tool integration.
 
 ### Streaming Response
 ```python
@@ -105,8 +105,7 @@ import json
 
 client = boto3.client(service_name='bedrock-runtime')
 
-def stream_claude(prompt):
-    # Note: Model IDs follow the June 2026 technical context of this repository.
+def stream_response(prompt):
     body = json.dumps({
         "anthropic_version": "bedrock-2023-05-31",
         "max_tokens": 512,
@@ -123,7 +122,7 @@ def stream_claude(prompt):
         if chunk['type'] == 'content_block_delta':
             print(chunk['delta']['text'], end='', flush=True)
 
-stream_claude("Write a short poem about AWS Bedrock.")
+stream_response("Write a short poem about the NVIDIA Rubin architecture.")
 ```
 
 ### Knowledge Base Retrieval
@@ -138,32 +137,24 @@ def retrieve_from_kb(kb_id, query):
         retrievalQuery={'text': query}
     )
     return response['results']
-
-# results = retrieve_from_kb('KB12345678', 'What are our data retention policies?')
 ```
-
-## Technical Architecture
-AWS Bedrock operates as a serverless orchestrator between the user and the hosted models.
-- **Bedrock Runtime**: The data plane API for model invocation and streaming.
-- **Bedrock Control Plane**: The API for managing model access, custom models, and provisioning throughput.
-- **Provisioned Throughput**: Allows for dedicated capacity for specific models to ensure consistent latency.
-- **Knowledge Bases**: Integrates with vector databases (like Amazon OpenSearch or Aurora) for managed RAG.
 
 ## Related tools / concepts
 - [Anthropic (Claude)](anthropic.md)
-- [Meta (Llama)](../ai_knowledge/local_llms.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
 - [Mistral AI](mistral.md)
-- [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md)
-- [Docker](../infrastructure/docker.md)
-- [LiteLLM](../../services/litellm.md) - Preferred for multi-cloud abstraction.
-- [vLLM](../infrastructure/vllm.md) - Open-source alternative for self-hosting.
-- [OpenCompass](../benchmarking/opencompass.md) - For evaluating Bedrock-hosted models.
+- [MCP 3.0](../../automation_orchestration/mcp.md) - Protocol for tool-calling integration.
+- [Docker](../infrastructure/docker.md) - For consistent deployment.
+- [LiteLLM](../../services/litellm.md) - Multi-cloud abstraction.
+- [vLLM](../infrastructure/vllm.md) - Self-hosting alternative.
+- [Claude Code Container MCP](../development_ops/claude-code-container-mcp.md) - Tooling for Bedrock agents.
 
 ## Sources / references
 - [Official AWS Bedrock Page](https://aws.amazon.com/bedrock/)
 - [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
 - [Boto3 Bedrock Runtime Reference](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime.html)
+- [AWS News: NVIDIA Rubin Support on Bedrock](https://aws.amazon.com/blogs/aws/nvidia-rubin-support-announcement/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-21
 - Confidence: high
