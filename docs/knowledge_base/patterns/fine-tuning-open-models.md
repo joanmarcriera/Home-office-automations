@@ -1,7 +1,7 @@
 # Fine-tuning Open Models
 
 ## What it is
-Fine-tuning is the process of continuing the training of a pre-trained language model on a curated dataset to adapt its behaviour, tone, knowledge, or task performance for a specific domain. Unlike Retrieval-Augmented Generation (RAG), fine-tuning modifies the model weights themselves, baking knowledge and behavioural patterns into the model rather than retrieving them at inference time. In June 2026, this is primarily performed on models like Llama 4, Qwen 2.5/3, and Mistral using parameter-efficient techniques.
+Fine-tuning is the process of continuing the training of a pre-trained language model on a curated dataset to adapt its behaviour, tone, knowledge, or task performance for a specific domain. Unlike Retrieval-Augmented Generation (RAG), fine-tuning modifies the model weights themselves, baking knowledge and behavioural patterns into the model rather than retrieving them at inference time. In July 2026, this is primarily performed on models like **Gemma 3**, Llama 4, Qwen 2.5/3, and Mistral using parameter-efficient techniques.
 
 ## What problem it solves
 Pre-trained open models are generalist and may:
@@ -30,7 +30,7 @@ Fine-tuning addresses these gaps without replacing the base model's general capa
 - **Works with small models**: A fine-tuned 7B model can outperform a general 70B on narrow tasks.
 
 ## Limitations
-- **Compute cost**: Training run requires significant GPU resources (NVIDIA Blackwell/Hopper) or high-memory Apple Silicon.
+- **Compute cost**: Training run requires significant GPU resources (NVIDIA Rubin/Blackwell/Hopper) or high-memory Apple Silicon.
 - **Static knowledge**: Model does not learn new facts after training cutoff; RAG is needed for dynamic data.
 - **Expensive to update**: Retraining needed to incorporate new knowledge or updated schemas.
 - **Risk of catastrophic forgetting**: Heavy fine-tuning can degrade general capabilities.
@@ -65,13 +65,13 @@ Fine-tuning addresses these gaps without replacing the base model's general capa
 **Rule of thumb**: Use RAG first for factual knowledge. Use fine-tuning when you need the model to **behave** differently.
 
 ### Environment Setup (NVIDIA)
-Most fine-tuning workflows in 2026 utilize `unsloth` for NVIDIA hardware.
+Most fine-tuning workflows in July 2026 utilize [unsloth](../../tools/infrastructure/unsloth.md) for NVIDIA hardware, optimized for **NVIDIA Rubin** architectures and **Gemma 3**.
 ```python
 from unsloth import FastLanguageModel
 import torch
 
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="unsloth/Qwen2.5-7B-Instruct",
+    model_name="unsloth/gemma-3-12b-it", # July 2026 SOTA for open weights
     max_seq_length=4096,
     dtype=torch.bfloat16,
     load_in_4bit=True,
@@ -152,5 +152,5 @@ trainer.train()
 - [MLX Examples — LoRA fine-tuning](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-04
 - Confidence: high
