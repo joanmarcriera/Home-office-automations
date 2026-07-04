@@ -1,41 +1,44 @@
 # Radicale Automation
 
-Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server, optimized for the June 2026 agentic ecosystem.
+Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server, optimized for the July 2026 agentic ecosystem.
 
 ## What it is
-Radicale Automation refers to the set of scripts, n8n workflows, and Model Context Protocol (MCP) integrations used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md). In June 2026, this increasingly involves the use of autonomous agents like Claude 4.8 Opus and GPT-5.5 to perform natural language scheduling and contact deduplication.
+Radicale Automation refers to the set of scripts, [n8n](n8n.md) workflows, and [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) integrations used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md). In July 2026, this increasingly involves the use of autonomous agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md) to perform natural language scheduling and contact deduplication.
 
 ## What problem it solves
-It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents.
+It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md).
 
 ## Where it fits in the stack
-**Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management, acting as the integration layer for the [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) server.
+**Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management, acting as the integration layer for the [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) server. It sits alongside other automation tools like [n8n](n8n.md) and [Home Assistant](home-assistant.md).
 
 ## Typical use cases
-- **Natural Language Scheduling**: Using Claude 4.8 Opus to book appointments by simply describing them.
-- **Automated Contact Enrichment**: Periodically updating contact cards with information from LinkedIn or company directories via n8n.
-- **Multi-Source Synchronization**: Keeping family contacts from a shared Google Sheet in sync with Radicale CardDAV.
-- **Proactive Health Monitoring**: Monitoring Radicale service availability and alerting via Telegram or Home Assistant.
+- **Natural Language Scheduling**: Using [Gemma 3](../tools/ai_knowledge/local_llms.md) to book appointments by simply describing them in chat.
+- **Automated Contact Enrichment**: Periodically updating contact cards with information from LinkedIn or company directories via [n8n](n8n.md).
+- **Multi-Source Synchronization**: Keeping family contacts from a shared [Nextcloud](nextcloud.md) instance in sync with Radicale CardDAV.
+- **Proactive Health Monitoring**: Monitoring Radicale service availability and alerting via Telegram or [Home Assistant](home-assistant.md).
+- **Conflict Resolution**: Using an AI agent to identify and suggest resolutions for double-booked appointments.
 
 ## Strengths
 - **Simple File Format**: Since Radicale stores data as plain text files, automation via standard filesystem tools is straightforward.
-- **REST-like API**: Supports standard HTTP methods for easy integration with tools like `curl` and n8n.
+- **REST-like API**: Supports standard HTTP methods for easy integration with tools like `curl` and [n8n](n8n.md).
 - **MCP Compatibility**: Seamlessly exposes data to agents via the [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md).
-- **Python-Based**: Easy to extend with custom Python scripts.
+- **Idempotency**: Plain-text storage makes it easy to write idempotent sync scripts that don't duplicate entries.
 
 ## Limitations
 - **No Native Webhooks**: Relies on polling or filesystem watchers for change detection.
 - **Authentication Complexity**: Requires handling `htpasswd` or LDAP credentials in automation scripts.
-- **Scaling**: While fine for individuals and families, large-scale automation may hit filesystem lock contention.
+- **Scaling**: While fine for individuals and families, large-scale automation may hit filesystem lock contention if multiple scripts write simultaneously.
 
 ## When to use it
 - To ensure your self-hosted calendar data is regularly backed up and synchronized.
-- When you need to integrate your private calendar with other automation tools like n8n or Home Assistant.
-- To enable agentic scheduling via Claude 4.8 Opus or GPT-5.5.
+- When you need to integrate your private calendar with other automation tools like [n8n](n8n.md) or [Home Assistant](home-assistant.md).
+- To enable agentic scheduling via [Claude 4.8](../tools/providers/anthropic.md) or [Gemma 3](../tools/ai_knowledge/local_llms.md).
+- For maintaining a private, air-gapped scheduling system.
 
 ## When not to use it
 - If you only have a single user and a single device, manual management might be sufficient.
-- If you require millisecond-level real-time synchronization across hundreds of users.
+- If you require millisecond-level real-time synchronization across hundreds of concurrent users.
+- If you are already fully committed to an integrated suite like [Nextcloud](nextcloud.md) which handles its own internal automation.
 
 ## Getting started
 
@@ -57,11 +60,11 @@ rm -rf "$BACKUP_DIR"
 ```
 
 ### Hello World (n8n)
-1. Add an **HTTP Request** node in n8n.
+1. Add an **HTTP Request** node in [n8n](n8n.md).
 2. Set the Method to `PROPFIND`.
 3. URL: `http://your-radicale-server:5232/user/`.
 4. Authentication: Basic Auth (Radicale credentials).
-5. This node will return the list of available collections.
+5. This node will return the list of available collections in XML format.
 
 ## CLI examples
 
@@ -87,7 +90,7 @@ curl -u user:pass -X MKCOL \
 ### Agentic Interaction via MCP
 ```bash
 # If using the Chronos MCP server, an agent can list events:
-mcp-client chronos list-events --calendar "personal" --start "2026-06-01"
+mcp-client chronos list-events --calendar "personal" --start "2026-07-01"
 ```
 
 ## API examples
@@ -124,20 +127,17 @@ curl -u user:pass "http://localhost:5232/user/calendar/" -o my_calendar.ics
 - [Radicale](radicale.md) (The core service)
 - [n8n](n8n.md) (Primary automation engine)
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) (To expose CalDAV to AI)
-- [Rclone Automation](rclone-automation.md) (For cloud backups)
 - [Home Assistant](home-assistant.md) (For calendar-based triggers)
 - [Nextcloud](nextcloud.md) — For federated calendar and contact synchronization.
 - [Authentik](authentik.md) — For centralized authentication and identity management.
 - [Vikunja](vikunja.md) — For task-based coordination often synced with Radicale.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic scheduling.
 
 ## Sources / References
 - https://radicale.org/v3.html
 - https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/
 - https://agentskills.io/spec/chronos-caldav/
 
-## Backlog
-- [x] Perform technical freshness audit (June 2026).
-
 ## Contribution Metadata
+- Last reviewed: 2026-07-21
 - Confidence: high
-- Last reviewed: 2026-06-16

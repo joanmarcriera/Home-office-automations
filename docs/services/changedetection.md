@@ -1,13 +1,13 @@
 # Changedetection.io
 
 ## What it is
-Changedetection.io is a self-hosted open-source tool designed to monitor websites for content changes. It provides a clean web interface to add URLs, set up filters, and configure notification triggers, allowing users to track modifications in specific parts of a page with high precision. In 2026, it is the standard for triggering agentic workflows based on external web events.
+Changedetection.io is a self-hosted open-source tool designed to monitor websites for content changes. It provides a clean web interface to add URLs, set up filters, and configure notification triggers, allowing users to track modifications in specific parts of a page with high precision. In July 2026, it is the standard for triggering agentic workflows based on external web events, featuring deep integration with the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md).
 
 ## What problem it solves
-It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs.
+It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs. It allows [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md) agents to stay updated on web-based information without constant polling.
 
 ## Where it fits in the stack
-In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using Claude 4.8 Opus and GPT-5.5.
+In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using autonomous agents. It can also be controlled via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) to dynamically add or modify watches based on agentic requirements.
 
 ## Typical use cases
 - **Price Tracking**: Monitoring retail sites for discounts or stock availability.
@@ -15,12 +15,14 @@ In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**.
 - **Regulatory Monitoring**: Tracking changes to government or corporate legal/policy pages.
 - **Visual Regression**: Capturing screenshots over time to see how a site's design evolves.
 - **AI Dataset Ingestion**: Triggering fresh scraping for local AI knowledge bases when a source updates.
+- **Security Auditing**: Monitoring critical infrastructure login pages for unauthorized changes.
 
 ## Strengths
 - **Multiple Fetchers**: Supports fast basic fetching and Playwright/Selenium for JS-heavy Single Page Applications (SPAs).
 - **Granular Filters**: Use CSS selectors, XPath, or JSONPath to monitor only specific, relevant page elements.
 - **Snapshot History**: Keeps a versioned history of changes, allowing for detailed diff analysis.
 - **Extensive Notifications**: Integrates with Apprise to support over 70 notification services (Telegram, Discord, etc.).
+- **Visual Filtering**: Easy-to-use interface for selecting specific areas of a page to monitor or ignore.
 
 ## Limitations
 - **Bot Detection**: Can be blocked by aggressive anti-bot measures like Cloudflare Turnstile without advanced proxy management.
@@ -31,6 +33,7 @@ In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**.
 - When you need to monitor specific website elements for changes without manual effort.
 - To receive automated notifications for price drops or critical software updates.
 - For building automated ingestion pipelines that respond to external web content modifications.
+- To provide real-time web awareness to local AI models like [Gemma 3](../tools/ai_knowledge/local_llms.md).
 
 ## When not to use it
 - For high-frequency, millisecond-level data monitoring (e.g., high-frequency stock trading).
@@ -63,7 +66,7 @@ Effective website monitoring requires filtering out dynamic content that changes
     - `[0-9]{2}:[0-9]{2}:[0-9]{2}` (Timestamps)
     - `[0-9]+ comments` (Comment counts)
     - `\d+ views` (View counts)
-- **Visual Filters**: When using Playwright/Selenium, use the "Visual Filter" selector to click and hide elements directly from the rendered preview.
+- **Visual Filters**: When using [Playwright](../tools/development_ops/playwright.md), use the "Visual Filter" selector to click and hide elements directly from the rendered preview.
 
 ## CLI examples
 The service can be managed and inspected via Docker:
@@ -111,6 +114,7 @@ if response.status_code == 200:
 - [Home Assistant](home-assistant.md) — For triggering physical home alerts based on web content changes.
 - [Playwright](../tools/development_ops/playwright.md) — The underlying engine used for monitoring Javascript-heavy sites.
 - [Apprise](https://github.com/caronc/apprise) — Notification engine for 70+ services.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic control of web monitoring.
 
 ## Sources / references
 - [Official Website](https://changedetection.io/)
@@ -119,5 +123,5 @@ if response.status_code == 200:
 - [Changedetection.io REST API Docs](https://github.com/dgtlmoon/changedetection.io/wiki/API)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
