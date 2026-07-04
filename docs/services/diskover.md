@@ -1,29 +1,30 @@
 # Diskover
 
-Diskover is an open-source file indexer and data management tool that uses Elasticsearch to index and manage data across heterogeneous storage systems, providing critical storage intelligence for agentic workflows in June 2026.
+Diskover is an open-source file indexer and data management tool that uses Elasticsearch to index and manage data across heterogeneous storage systems, providing critical storage intelligence for agentic workflows in July 2026.
 
 ## What it is
-Diskover is a high-performance file system crawler and disk space analyzer. It crawls your storage (local drives, NFS, SMB) and stores the metadata in Elasticsearch, providing a powerful web interface and API to search, filter, and visualize your data. In the June 2026 ecosystem, it serves as the ground truth for agents managing large-scale data archives.
+Diskover is a high-performance file system crawler and disk space analyzer. It crawls your storage (local drives, NFS, SMB) and stores the metadata in Elasticsearch, providing a powerful web interface and API to search, filter, and visualize your data. In the July 2026 ecosystem, it serves as the ground truth for agents managing large-scale data archives, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for automated storage queries.
 
 ## What problem it solves
-It solves the problem of "Data Sprawl" across large storage arrays. When you have terabytes of data across multiple servers, finding old versions of files, identifying duplicate data, or seeing which user is consuming the most space becomes difficult. Diskover makes your entire storage infrastructure searchable and quantifiable, allowing tools like Claude 4.8 Opus to make informed decisions about data retention.
+It solves the problem of "Data Sprawl" across large storage arrays. When you have terabytes of data across multiple servers, finding old versions of files, identifying duplicate data, or seeing which user is consuming the most space becomes difficult. Diskover makes your entire storage infrastructure searchable and quantifiable, allowing tools like [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md) to make informed decisions about data retention.
 
 ## Where it fits in the stack
-In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides the metadata that allows automation scripts and autonomous agents to identify which files should be archived, moved to cold storage (like Storj), or deleted to free up space.
+In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides the metadata that allows automation scripts and autonomous agents to identify which files should be archived, moved to cold storage (like [Storj](storj.md)), or deleted to free up space. It integrates with [n8n](n8n.md) for automated lifecycle management.
 
 ## Typical use cases
 - **Data Cleanup**: Finding and deleting files that haven't been accessed in over 2 years.
 - **Duplicate Identification**: Using file hashes to find exact duplicates across different mounts.
 - **Cost Analysis**: Calculating the cost of storage per department or user.
 - **Dark Data Discovery**: Finding large log files or temp files that were forgotten.
-- **Agentic Archival**: Providing a list of candidates for cold-storage migration to an n8n workflow.
+- **Agentic Archival**: Providing a list of candidates for cold-storage migration to an [n8n](n8n.md) workflow.
+- **Infrastructure Auditing**: Verifying that backup routines are actually capturing all intended data.
 
 ## Strengths
 - **Massive Scalability**: Leverages Elasticsearch to handle millions of file records with sub-second search times.
-- **Extensible**: Supports custom plugins for metadata extraction.
+- **Extensible**: Supports custom plugins for metadata extraction and classification.
 - **Powerful Visualization**: Includes treemaps and charts for disk usage analysis.
 - **Heterogeneous**: Can index anything that can be mounted as a file system.
-- **API-First**: Easy to query via Elasticsearch's native REST API.
+- **API-First**: Easy to query via Elasticsearch's native REST API or specialized [MCP](../tools/automation_orchestration/mcp.md) tools.
 
 ## Limitations
 - **Infrastructure Heavy**: Requires a running Elasticsearch instance, which is resource-intensive (baseline 4GB+ RAM).
@@ -34,12 +35,12 @@ In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides t
 - When you need to gain visibility into large, heterogeneous storage environments.
 - To identify "dark data," such as old, large, or duplicate files that are wasting space.
 - When you want a searchable index of your files without having to scan the live file system every time.
-- To provide storage-context to AI agents like Claude 4.8 Opus or GPT-5.5.
+- To provide storage-context to AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) or [Claude 4.8](../tools/providers/anthropic.md).
 
 ## When not to use it
 - If you only need a simple, real-time disk usage visualizer for a single local drive (consider `ncdu` or WizTree).
 - If you don't have the resources to run Elasticsearch, which is a mandatory requirement for Diskover.
-- For real-time file monitoring or real-time file system events.
+- For real-time file monitoring or real-time file system events (use `inotify` or specialized watchers).
 
 ## Getting started
 
@@ -82,7 +83,7 @@ volumes:
 
 ## CLI examples
 
-Indexing and management tasks are performed using the `diskover.py` script.
+Indexing and management tasks are performed using the `diskover.py` script inside the container.
 
 ```bash
 # Index a specific directory into a new index
@@ -125,14 +126,13 @@ for index in indices:
 
 ## Related tools / concepts
 - [Storj](storj.md) — Targeted off-site storage for large, cold datasets identified by Diskover.
-- [Rclone Automation](rclone-automation.md) — Automate the movement of dark data to cloud targets.
 - [n8n](n8n.md) — Orchestrate cleanup workflows based on Elasticsearch query results.
 - [Syncthing](syncthing.md) — Track synchronization state and identify orphaned replicas.
-- [Elasticsearch](https://www.elastic.co/elasticsearch/) — The underlying search engine for Diskover metadata.
 - [Paperless-ngx](paperless-ngx.md) — Complementary metadata management for OCR'd documents.
-- [Authentik](authentik.md) — Secure access to the Diskover web interface.
-- [TrueNAS SCALE](../architecture/infrastructure.md) — Common infrastructure for Diskover crawlers.
-- [ncdu](https://dev.yorhel.nl/ncdu) — Local interactive disk usage analyzer.
+- [Authentik](authentik.md) — Secure access to the Diskover web interface via SSO.
+- [Gitea](gitea.md) — Version control for storage management scripts.
+- [Nextcloud](nextcloud.md) — User-facing storage that can be indexed by Diskover.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic storage intelligence.
 
 ## TrueNAS SCALE & NFS Integration
 To index data residing on a [TrueNAS SCALE](../architecture/infrastructure.md) server, you must mount the datasets to the Diskover host via NFS. This allows the crawler to access the file metadata directly.
@@ -164,15 +164,12 @@ Once mounted, you can trigger a crawl of the TrueNAS data from within the contai
 docker exec -it diskover python3 /app/diskover/diskover.py -i truenas-index /data/truenas
 ```
 
-## Sources / References
+## Sources / references
 - [Diskover GitHub Repository](https://github.com/diskoverdata/diskover-community)
 - [Diskover Official Site](https://diskoverdata.com/)
 - [LinuxServer.io Diskover Image](https://docs.linuxserver.io/images/docker-diskover/)
 - [Elasticsearch Documentation](https://www.elastic.co/guide/index.html)
 
-## Backlog
-- [x] Perform technical freshness audit (June 2026).
-
 ## Contribution Metadata
+- Last reviewed: 2026-07-21
 - Confidence: high
-- Last reviewed: 2026-06-16

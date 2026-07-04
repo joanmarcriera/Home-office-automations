@@ -1,22 +1,22 @@
 # Gitea
 
 ## What it is
-Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance. It is a painless self-hosted Git service that serves as the backbone for private DevOps ecosystems in the June 2026 era.
+Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance. It is a painless self-hosted Git service that serves as the backbone for private DevOps ecosystems in the July 2026 era, featuring native support for the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for agentic integration.
 
 ## What problem it solves
-It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of public cloud providers like GitHub. In 2026, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize Claude 4.8 Opus and GPT-5.5. It provides a central hub for code collaboration and automation that can run on low-power hardware.
+It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of public cloud providers like GitHub. In 2026, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md). It provides a central hub for code collaboration and automation that can run on low-power hardware.
 
 ## Where it fits in the stack
-Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack.
+Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
 
 ## Typical use cases
 - **Private Code Hosting**: Maintaining internal tools and projects away from public eyes.
 - **GitOps**: Storing infrastructure-as-code (Ansible, Terraform, K3s manifests) and triggering deployments.
-- **AI Dataset Management**: Hosting versioned datasets for fine-tuning local models.
+- **AI Dataset Management**: Hosting versioned datasets for fine-tuning local models like [Gemma 3](../tools/ai_knowledge/local_llms.md).
 - **Local CI/CD**: Running Gitea Actions for automated testing and deployment.
 - **Documentation**: Hosting project documentation via Gitea's built-in wiki or Markdown support.
 - **Mirrors**: Maintaining local mirrors of critical public repositories for offline access.
-- **SSO Integration**: Using OIDC for centralized authentication via Authentik.
+- **SSO Integration**: Using OIDC for centralized authentication via [Authentik](authentik.md).
 
 ## Strengths
 - **Performance**: Extremely lightweight and fast; runs comfortably on a Raspberry Pi 5 or low-power NAS.
@@ -29,7 +29,7 @@ Gitea sits in the **Development & DevOps** layer. It serves as the primary sourc
 ## Limitations
 - **Ecosystem**: Smaller plugin and integration ecosystem compared to GitHub or GitLab.
 - **Scaling**: Lacks the massive horizontal scaling capabilities (like GitLab Geo) for multi-region global teams.
-- **Native AI Features**: Lacks deeply integrated, first-party AI coding assistants found in GitHub (Copilot), though it is easily extended via custom Actions and local LLMs (e.g., Ollama).
+- **Native AI Features**: While it supports local LLM integration via Actions, it lacks the deeply integrated, first-party AI coding assistants found in GitHub (Copilot).
 
 ## When to use it
 - When you want a lightweight, self-hosted alternative to GitHub or GitLab.
@@ -111,13 +111,13 @@ curl -X GET "http://localhost:3000/api/v1/repos/owner/repo" \
 curl -X POST "http://localhost:3000/api/v1/repos/owner/repo/issues" \
   -H "Authorization: token <YOUR_TOKEN>" \
   -H "Content-Type: application/json" \
-  -d '{"title": "Bug Report", "body": "Observed in June 2026 build."}'
+  -d '{"title": "Bug Report", "body": "Observed in July 2026 build."}'
 
 # Automated Code Review Pattern (Ollama Integration)
 # Trigger a local LLM to review a pull request
 CODE_DIFF=$(git diff origin/main)
 PAYLOAD=$(jq -n --arg diff "$CODE_DIFF" '{
-  model: "codellama",
+  model: "gemma3",
   prompt: ("Review this diff and suggest improvements:\n\n" + $diff),
   stream: false
 }')
@@ -134,7 +134,7 @@ curl http://ollama-server:11434/api/generate -d "$PAYLOAD"
 - [Paperless-ngx](paperless-ngx.md) — For archiving documentation generated from Git repositories.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for integrating Gitea into AI agent workflows.
 - [Forgejo](https://forgejo.org/) — A community-driven fork of Gitea focusing on software freedom.
-- [Argocd](https://argoproj.github.io/cd/) — For Kubernetes-native GitOps using Gitea as a source.
+- [Argo CD](https://argoproj.github.io/cd/) — For Kubernetes-native GitOps using Gitea as a source.
 
 ## Sources / references
 - [Official Website](https://gitea.io/)
@@ -143,5 +143,5 @@ curl http://ollama-server:11434/api/generate -d "$PAYLOAD"
 - [Gitea 1.26.0 Release Blog](https://blog.gitea.com/release-of-1.26.0/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
