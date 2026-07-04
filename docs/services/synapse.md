@@ -1,20 +1,20 @@
 # Matrix Synapse
 
-Matrix Synapse is the reference "homeserver" implementation for Matrix, providing a decentralized, real-time communication backbone for the June 2026 agentic ecosystem.
+Matrix Synapse is the reference "homeserver" implementation for Matrix, providing a decentralized, real-time communication backbone for the July 2026 agentic ecosystem.
 
 ## What it is
-Synapse is the reference "homeserver" implementation for Matrix, an open standard for decentralized, real-time communication. As of June 2026, **v1.155.0** is the current stable release, featuring Matrix 1.12 compatibility, native support for Room v12, and optimized federation for low-latency agentic messaging.
+Synapse is the reference "homeserver" implementation for Matrix, an open standard for decentralized, real-time communication. As of July 2026, **v1.156.0** is the current stable release, featuring Matrix 1.12 compatibility, native support for Room v12, and optimized federation for low-latency agentic messaging and autonomous agent federation.
 
 ## What problem it solves
-It allows you to own your communication infrastructure. By hosting your own Synapse server, you control your messages, identity, and data, while remaining part of the global Matrix federation. It specifically solves the privacy and control issues associated with centralized platforms like Discord or Slack.
+It allows you to own your communication infrastructure. By hosting your own Synapse server, you control your messages, identity, and data, while remaining part of the global Matrix federation. It specifically solves the privacy and control issues associated with centralized platforms, providing a secure substrate for agent-to-agent coordination without reliance on third-party API providers.
 
 ## Where it fits in the stack
-**Category**: Services / Communication. It is the **backend coordination layer** for the [Element](element.md) client and Matrix-based automations. It serves as the primary transport layer for autonomous agents to communicate across different homelabs and organizations.
+**Category**: Services / Communication. It is the **backend coordination layer** for the [Element](element.md) client and Matrix-based automations. It serves as the primary transport layer for autonomous agents to communicate across different homelabs and organizations, often integrated with [Local LLMs](../tools/ai_knowledge/local_llms.md) for private inference.
 
 ## Typical use cases
 - **Private Communication**: Hosting a secure, end-to-end encrypted (E2EE) chat server for families or teams.
-- **Agentic Messaging**: Allowing agents like Claude 4.8 Opus to send reports or receive instructions via Matrix.
-- **Federated Automation**: Coordinating workflows across different homeservers using Matrix bots.
+- **Agentic Messaging**: Allowing agents like Claude 4.8 or Gemma 3 to send reports or receive instructions via Matrix.
+- **Federated Automation**: Coordinating workflows across different homeservers using Matrix bots and the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md).
 - **Home Automation Hub**: Receiving notifications from [Home Assistant](home-assistant.md) or [n8n](n8n.md).
 
 ## Strengths
@@ -22,7 +22,7 @@ It allows you to own your communication infrastructure. By hosting your own Syna
 - **Robust Federation**: Reliable communication across the decentralized Matrix network.
 - **Extensive Integration**: Support for bridges (Telegram, Discord, Slack) and numerous bots.
 - **OIDC Support**: Native integration with [Authentik](authentik.md) for enterprise-grade identity management.
-- **Scalability**: Supports worker-based scaling for high-concurrency environments.
+- **Agent Friendly**: Standardized APIs for automated message routing and room management.
 
 ## Limitations
 - **Resource Intensive**: Requires significant RAM (1GB+ baseline) and a dedicated PostgreSQL database for production usage.
@@ -32,11 +32,11 @@ It allows you to own your communication infrastructure. By hosting your own Syna
 ## When to use it
 - When you want to self-host your own Matrix homeserver with full feature support.
 - When you need a reliable, federated communication backend for your homelab.
-- When you want to integrate with [Authentik](authentik.md) for SSO across your chat infrastructure.
+- When coordinating multi-agent workflows using [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) over decentralized channels.
 
 ## When not to use it
-- On very low-resource hardware like a Raspberry Pi 3 (consider [Conduit](https://conduit.rs/) instead).
-- If you only need simple, non-federated notifications (a simple Telegram bot might suffice).
+- On very low-resource hardware like a Raspberry Pi 3 (consider Conduit instead).
+- If you only need simple, non-federated notifications where a lightweight [ntfy](https://ntfy.sh/) instance would suffice.
 
 ## Getting started
 
@@ -133,12 +133,11 @@ oidc_providers:
 ## Related tools / concepts
 - [Element](element.md) — The recommended client for Synapse.
 - [Authentik](authentik.md) — For SSO and identity management.
-- [Matrix Protocol](https://matrix.org/) — The underlying communication standard.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — For agentic task execution over Matrix.
 - [n8n](n8n.md) — For sending automated notifications to Matrix rooms.
 - [Home Assistant](home-assistant.md) — For integrating smart home alerts.
 - [Vikunja](vikunja.md) — For task-based coordination often synced via Matrix.
-- [PostgreSQL](https://www.postgresql.org/) — The required database for performance.
-- [Redis](https://redis.io/) — For high-performance worker scaling.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — For private inference-driven agents on Matrix.
 
 ## Sources / References
 - [Synapse GitHub Repository](https://github.com/element-hq/synapse)
@@ -146,9 +145,6 @@ oidc_providers:
 - [Matrix.org](https://matrix.org/)
 - [Synapse Workers Documentation](https://element-hq.github.io/synapse/latest/workers.html)
 
-## Backlog
-- [x] Perform technical freshness audit (June 2026).
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-04
