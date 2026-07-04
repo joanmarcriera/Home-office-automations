@@ -29,12 +29,12 @@ Status: In Progress
 ### 3. Freshness audit for `docs/services/excalidraw.md`
 - **Goal**: Update `excalidraw.md` to the 13-section 'High Confidence' standard with July 2026 context.
 - **Tasks**:
-  - [ ] Incorporate July 2026 context (AI-native visual reasoning, MCP 3.0 visual design patterns).
-  - [ ] Ensure all 13 required sections are present and correctly ordered.
-  - [ ] Verify >= 7 unique relative markdown links to other canonical pages.
-  - [ ] Update "Last reviewed" metadata to 2026-07-04.
-  - [ ] Validate with `scripts/check_docs_contract.py`.
-- **Status**: Pending
+  - [x] Incorporate July 2026 context (AI-native visual reasoning, MCP 3.0 visual design patterns).
+  - [x] Ensure all 13 required sections are present and correctly ordered.
+  - [x] Verify >= 7 unique relative markdown links to other canonical pages.
+  - [x] Update "Last reviewed" metadata to 2026-07-04.
+  - [x] Validate with `scripts/check_docs_contract.py`.
+- **Status**: Completed
 
 ### 4. Freshness audit for `docs/knowledge_base/patterns/fine-tuning-open-models.md`
 - **Goal**: Update `fine-tuning-open-models.md` to the 13-section 'High Confidence' standard with July 2026 context.

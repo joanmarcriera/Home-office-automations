@@ -1,44 +1,44 @@
 # Excalidraw
 
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic, optimized for rapid visual communication in the June 2026 agentic ecosystem.
+Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic, optimized for rapid visual communication and AI-native reasoning in the July 2026 agentic ecosystem.
 
 ## What it is
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration. As of June 2026, it features deep AI integration, allowing for "Sketch to Code" and "Sketch to Architecture" workflows.
+Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration. As of July 2026, it serves as a primary canvas for **AI-native visual reasoning**, where autonomous agents use the whiteboard to externalize complex logic and architectural designs.
 
 ## What problem it solves
-It lowers the barrier to creating visual documentation and brainstorming. Unlike complex CAD or formal diagramming tools, Excalidraw encourages "lo-fi" sketching which is often better for early-stage ideas and quick explanations where formal notation would be a distraction. It also provides a structured JSON format that is easily parseable by LLMs.
+It lowers the barrier to creating visual documentation and brainstorming. Unlike complex CAD or formal diagramming tools, Excalidraw encourages "lo-fi" sketching which is often better for early-stage ideas and quick explanations where formal notation would be a distraction. It provides a structured JSON format that is easily parseable by LLMs, facilitating seamless human-AI co-creation.
 
 ## Where it fits in the stack
-Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is often used for documentation in READMEs and internal wikis, and serves as a visual playground for agents like Claude 4.8 Opus to "draw" their reasoning or architecture proposals.
+Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is often used for documentation in READMEs and internal wikis, and serves as a visual playground for agents (e.g., GPT-5.5, Claude 4.8) to "draw" their reasoning or architecture proposals using **MCP 3.0 visual design patterns**.
 
 ## Typical use cases
+- **AI-Native Visual Reasoning**: Agents generating and modifying diagrams to explain multi-step planning.
 - **UI/UX Wireframing**: Quickly sketching interface ideas for new agent-driven apps.
-- **Process Brainstorming**: Mapping out high-level agentic workflows or n8n logic.
+- **Process Brainstorming**: Mapping out high-level agentic workflows or [n8n](n8n.md) logic.
 - **Visual Documentation**: Creating explanatory diagrams for software architecture in a "whiteboard" style.
-- **Remote Collaboration**: Using the E2EE live collaboration feature to brainstorm with human and AI participants.
-- **Sketch-to-Code**: Using the native "Diagram to Code" feature to generate React/Tailwind code from a drawing.
+- **MCP 3.0 Task Visualization**: Representing complex tool-calling sequences and task graphs visually.
 
 ## Strengths
 - **Simplicity**: Extremely intuitive interface with no learning curve.
 - **Aesthetic**: Hand-drawn look makes diagrams feel approachable and "work-in-progress".
 - **Portable**: Diagrams are stored as JSON and can be easily embedded or shared.
 - **E2EE Collaboration**: Live sessions are end-to-end encrypted.
-- **AI-Powered**: Native support for AI-assisted diagram generation and image-to-sketch conversion.
+- **AI-Powered**: Native support for AI-assisted diagram generation, including "Diagram to Code" and "Sketch to Architecture" workflows.
 
 ## Limitations
 - **No Formal Notation**: Not suitable for strict UML, ERD, or complex technical specifications requiring precise alignment.
-- **Manual Layout**: Lacks the auto-layout capabilities found in tools like [Draw.io](drawio.md) or [Mermaid](../knowledge_base/patterns/diagramming.md).
+- **Manual Layout**: Lacks the auto-layout capabilities found in tools like [Draw.io](drawio.md) or Mermaid.
 - **Versioning**: Native version control for diagrams is limited compared to Git-based Mermaid.
 
 ## When to use it
 - When you need to quickly sketch a diagram during a meeting or brainstorming session.
 - For creating approachable visuals for blog posts, documentation, or social media.
-- When you want a lightweight, browser-based tool without a complex setup.
-- If you use Obsidian and want a powerful, integrated sketching solution.
+- When an agent needs a "scratchpad" to visualize its internal planning or state.
+- If you use [Obsidian](../tools/ai_knowledge/obsidian.md) and want a powerful, integrated sketching solution.
 
 ## When not to use it
 - For professional engineering diagrams that require strict adherence to industry standards (UML, SysML).
-- When you need automatic layout of nodes and edges (use Mermaid instead).
+- When you need automatic layout of nodes and edges (use Mermaid or [Gumloop](../tools/automation_orchestration/gumloop.md) visual flows).
 - If you require a deep hierarchy of objects or complex multi-page document management.
 
 ## Getting started
@@ -103,10 +103,11 @@ Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) 
 
 ## Related tools / concepts
 - [Draw.io](drawio.md) — For professional-grade, formal technical diagrams.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standardized protocol for agent-tool interaction, including visual reasoning.
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent integration via the Excalidraw plugin.
-- [Mermaid](../knowledge_base/patterns/diagramming.md) — Text-to-diagram alternative with native support.
+- [Gumloop](../tools/automation_orchestration/gumloop.md) — Visual AI automation platform.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — Used for local AI-assisted sketching.
 - [Nextcloud](nextcloud.md) — Can be used to store and sync `.excalidraw` files.
-- [tldraw](https://www.tldraw.com/) — A similar lightweight sketching alternative.
 - [Paperless-ngx](paperless-ngx.md) — For archiving exported diagram assets.
 - [Authentik](authentik.md) — For securing the local Excalidraw instance.
 - [N8N](n8n.md) — For automating the archival of Excalidraw JSON files to Git.
@@ -117,9 +118,6 @@ Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) 
 - [Excalidraw+ Changelog](https://plus.excalidraw.com/changelog)
 - [Obsidian Excalidraw Documentation](https://github.com/zsviczian/obsidian-excalidraw-plugin)
 
-## Backlog
-- [x] Perform technical freshness audit (June 2026).
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-04
