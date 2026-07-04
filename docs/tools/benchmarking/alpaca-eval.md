@@ -1,41 +1,43 @@
 # AlpacaEval
 
 ## What it is
-AlpacaEval is an automatic evaluator for instruction-following language models. It is designed to be fast, cheap, and highly correlated with human preferences. As of June 2026, it serves as a critical performance baseline for models like Claude 4.8 Opus and GPT-5.5, measuring the win rate of a model's outputs against a reference model (typically GPT-4 Turbo or GPT-5.5) using an LLM-based automatic annotator.
+AlpacaEval is an automatic evaluator for instruction-following language models. It is designed to be fast, cheap, and highly correlated with human preferences. As of July 2026, it serves as a critical performance baseline for frontier models like **Claude 4.8 Opus**, **GPT-5.5**, and **Gemma 3**, measuring the win rate of a model's outputs against a reference model using an LLM-based automatic annotator.
 
 ## What problem it solves
-Evaluation of instruction-following models typically requires human interaction, which is time-consuming, expensive, and difficult to replicate. AlpacaEval provides a replicable, automated proxy that allows developers to iterate quickly on model development by simulating human preference judgments. It specifically addresses "verbosity bias" through length-controlled metrics.
+Evaluation of instruction-following models typically requires human interaction, which is time-consuming, expensive, and difficult to replicate. AlpacaEval provides a replicable, automated proxy that allows developers to iterate quickly by simulating human preference judgments. It specifically addresses "verbosity bias" through length-controlled metrics and now incorporates the **MCP 3.0 Task Protocol** for automated benchmarking across diverse environments.
 
 ## Where it fits in the stack
-**Benchmarking**. It serves as a middle-ground evaluation tool between static, objective benchmarks (like MMLU) and slow, expensive human evaluations (like Chatbot Arena).
+[Layer 7: Evaluation & Guardrails](../../knowledge_base/ai_tooling_landscape.md#layer-7-evaluation-guardrails) — specifically as an **Automated Instruction-Following Benchmark**.
 
 ## Typical use cases
 - **Model Development**: Running frequent evaluations during the training or fine-tuning process.
-- **Comparative Analysis**: Measuring how a new model performs against established baselines like Claude 4.8 or GPT-5.5.
+- **Comparative Analysis**: Measuring how a new model performs against established baselines like **Gemma 3** or **GPT-5.5**.
 - **Prompt Engineering**: Testing the impact of different system prompts on model performance.
-- **Leaderboard Submission**: Providing verified results for the official AlpacaEval leaderboard.
+- **Automated Benchmarking**: Using the **MCP 3.0 Task Protocol** to trigger evaluations across distributed compute clusters.
 
 ## Strengths
 - **Speed and Cost**: Can run in less than 5 minutes for under $10.
-- **Human Correlation**: AlpacaEval 2.0 has a 0.98 Spearman correlation with Chatbot Arena.
+- **Human Correlation**: AlpacaEval 2.0 maintains a high Spearman correlation (>0.98) with Chatbot Arena.
 - **Length Normalization**: Effectively mitigates the bias toward longer outputs using length-controlled win rates.
-- **Reproducibility**: Uses fixed evaluation sets and cached annotations to ensure consistent results.
+- **MCP 3.0 Compatibility**: Allows for standardized task execution and telemetry collection during evaluation.
 
 ## Limitations
 - **Style over Substance**: Like many LLM-based evaluators, it may favor the style and tone of a response over its factual accuracy.
 - **Instruction Breadth**: The evaluation set might not be representative of extremely complex or niche professional tasks.
 - **Safety**: It does not measure model safety, toxicity, or potential for harm.
-- **Judge Bias**: The choice of "judge" model can influence the results.
+- **Judge Bias**: The choice of "judge" model (e.g., using GPT-5.5 to judge GPT-5.5) can influence the results.
 
 ## When to use it
 - When you need quick, automated feedback on model quality during development.
 - When you want to see how a model's conversational performance aligns with human-perceived quality.
 - For initial screening of model checkpoints before human evaluation.
+- When benchmarking **Gemma 3** or other open-weights models against proprietary leaders.
 
 ## When not to use it
 - For high-stakes decisions regarding model safety or final production release.
 - When you need to evaluate specific technical domains (e.g., medical, legal) that require expert verification.
 - When evaluating non-instruction-following base models.
+- For measuring factual correctness in extremely narrow or data-sensitive domains.
 
 ## Getting started
 
@@ -72,8 +74,8 @@ alpaca_eval --model_outputs 'outputs.json' --annotator_config 'weighted_alpaca_e
 # Specify output directory
 alpaca_eval --model_outputs 'outputs.json' --output_path './results'
 
-# Evaluate against a custom reference
-alpaca_eval --model_outputs 'outputs.json' --reference_outputs 'references.json'
+# Run via MCP 3.0 Task Protocol
+alpaca_eval run-task --task-file 'benchmarking_task.json' --protocol mcp3.0
 ```
 
 ## API examples
@@ -85,8 +87,8 @@ from alpaca_eval import evaluate
 # Perform evaluation programmatically
 results = evaluate(
     model_outputs='path/to/your_model_outputs.json',
-    annotator_config='weighted_alpaca_eval_gpt4_turbo',
-    name='my_model_experiment'
+    annotator_config='weighted_alpaca_eval_gpt5_5',
+    name='gemma-3-audit-v1'
 )
 
 # Print the win rate
@@ -98,41 +100,24 @@ AlpacaEval 2.0 uses a length-controlled win rate to address the "verbosity bias"
 - **Reference Outputs**: Uses a gold standard set of responses from a strong model (GPT-4 Turbo or GPT-5.5).
 - **Annotator**: A powerful LLM (the "judge") is given the prompt and two anonymized responses, then asked to pick the better one.
 - **LC Win Rate**: Applies a statistical correction to ensure models aren't rewarded just for being wordy.
-
-## Leaderboard Integration
-Results are typically compared against the [official AlpacaEval leaderboard](https://tatsu-lab.github.io/alpaca_eval/), which ranks both open-source and proprietary models.
-- **Verified vs. Unverified**: Official rankings are verified by the Tatsu Lab team, but users can run local "unverified" evals for internal benchmarking.
-
-## Evaluation Data Format
-Input file should be a list of dictionaries:
-```json
-[
-  {
-    "instruction": "Explain quantum entanglement to a 5-year-old.",
-    "output": "Imagine you have two magic socks..."
-  },
-  {
-    "instruction": "Write a Python function to sort a list.",
-    "output": "def sort_list(my_list):\n    return sorted(my_list)"
-  }
-]
-```
+- **MCP 3.0 Task Protocol**: Standardizes the execution environment to ensure consistent benchmarking results.
 
 ## Related tools / concepts
-- [Chatbot Arena](chatbot-arena.md) - The "ground truth" human preference leaderboard.
-- [MT-Bench](mt-bench.md) - Multi-turn conversation benchmark.
-- [MMLU](mmlu.md) - Knowledge-based benchmark.
-- [GPQA](gpqa.md) - Expert-level reasoning benchmark.
-- [LM Evaluation Harness](lm-evaluation-harness.md) - Framework for running many benchmarks.
-- [OpenCompass](opencompass.md) - Comprehensive evaluation platform.
-- [HELM](helm.md) - Holistic evaluation framework.
-- [EvalPlus](evalplus.md) - Robust code generation testing.
+- [Chatbot Arena](./chatbot-arena.md) - The "ground truth" human preference leaderboard.
+- [MT-Bench](./mt-bench.md) - Multi-turn conversation benchmark.
+- [MMLU](./mmlu.md) - Knowledge-based benchmark.
+- [GPQA](./gpqa.md) - Expert-level reasoning benchmark.
+- [LM Evaluation Harness](./lm-evaluation-harness.md) - Framework for running many benchmarks.
+- [EvalPlus](./evalplus.md) - Robust code generation testing.
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude](../ai_knowledge/claude.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/tatsu-lab/alpaca_eval)
 - [AlpacaEval 2.0 Paper (Dubois et al., 2024)](https://arxiv.org/abs/2404.04475)
 - [Official Leaderboard](https://tatsu-lab.github.io/alpaca_eval/)
+- [MCP 3.0 Task Protocol for Benchmarking](https://mcp.dev/protocols/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-21
 - Confidence: high
