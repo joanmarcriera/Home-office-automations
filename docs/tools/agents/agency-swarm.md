@@ -1,38 +1,40 @@
 # Agency Swarm
 
 ## What it is
-Agency Swarm is a multi-agent orchestration framework built on top of the OpenAI Assistants API. It allows you to create "Agencies" where specialized agents (like a CEO, Developer, or Researcher) communicate and collaborate to solve complex tasks. In June 2026, it remains the primary choice for developers heavily invested in the OpenAI ecosystem for building structured multi-agent systems.
+Agency Swarm is a multi-agent orchestration framework that simplifies the creation of collaborative agent teams. While originally built on the OpenAI Assistants API, by July 2026 it has evolved into a provider-agnostic system with first-class support for local deployments using **Gemma 3** and **Llama 4**. It utilizes the **FastMCP 3.0** protocol for high-performance tool communication and agent discovery.
 
 ## What problem it solves
-It simplifies the creation of multi-agent systems by providing a structured way for agents to communicate via a "send_message" tool and by leveraging OpenAI's managed infrastructure for threads, files, and state management. It solves the complexity of manually managing conversation history and tool-calling loops between multiple specialized agents.
+It simplifies the creation of multi-agent systems by providing a structured way for agents to communicate via a "send_message" tool. It solves the complexity of manually managing conversation history, role-playing, and tool-calling loops between multiple specialized agents, while now enabling low-latency, privacy-preserving local swarms.
 
 ## Where it fits in the stack
-[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — A high-level orchestration layer for multi-agent collaboration using the OpenAI Assistants API.
+[Layer 6: Agents & Orchestration](../../knowledge_base/ai_tooling_landscape.md#layer-6-agents-orchestration) — A high-level orchestration layer for multi-agent collaboration, supporting both managed cloud services and local-first execution.
 
 ## Typical use cases
 - **Automated software development agencies**: Defining roles for requirement analysis, coding (Developer), and testing (QA).
 - **Enterprise-grade content teams**: Orchestrating agents for research, drafting, and multi-platform distribution.
-- **Complex business process automation**: Managing workflows that require coordination between multiple departmental agents (e.g., Sales <-> Legal <-> Finance).
+- **Local-first Research Swarms**: Deploying a team of [Gemma 3](../ai_knowledge/local_llms.md) agents on-premise to analyze sensitive data.
+- **Complex business process automation**: Managing workflows that require coordination between multiple departmental agents.
 
 ## Strengths
 - **Organizational Structure**: Designed around real-world agency roles, making it intuitive to design and visualize agent teams.
-- **Managed State**: Leverages OpenAI Assistants API for thread management, persistence, and vector store integration.
+- **Local Execution**: Optimized for high-performance local swarms using [Gemma 3](../ai_knowledge/local_llms.md) and [FastMCP](../automation_orchestration/mcp.md).
 - **Type-Safe Tools**: Built-in support for Pydantic-based tool definitions, ensuring robust data validation for tool calls.
-- **Simplified Communication**: Provides a high-level API for agent-to-agent messaging without manual prompt engineering.
+- **FastMCP 3.0 Support**: Implements the latest Task Protocol for standardized tool hosting and agent discovery.
 
 ## Limitations
-- **Provider Lock-in**: Primarily tied to OpenAI's Assistants API, making it difficult to switch to other providers like Anthropic.
-- **Cost**: Depends on OpenAI Assistant pricing (including token costs and storage fees), which can be higher than raw chat completions for high-volume use.
-- **Latency**: The overhead of the Assistants API and the "send_message" tool-call loop can result in higher latency compared to lightweight alternatives.
+- **Orchestration Overhead**: The structured communication loop can introduce slight latency compared to raw prompt-based chaining.
+- **Complexity**: Setting up a large agency with many agents requires careful design of communication paths to avoid "agent loops."
+- **Local Hardware Requirements**: Running a full swarm of [Gemma 3](../ai_knowledge/local_llms.md) agents locally requires significant VRAM resources.
 
 ## When to use it
 - When you want to build a "company" of agents with clear roles and communication paths.
-- If you prefer using OpenAI's managed infrastructure for assistant state and vector storage.
-- For projects where the structure and ease of development outweigh the need for provider agnosticism.
+- For projects requiring both cloud-based power ([GPT-5.5](../ai_knowledge/chatgpt.md)) and local-first privacy.
+- If you need a framework that provides high-level abstractions for agent-to-agent messaging.
 
 ## When not to use it
-- If you need a provider-agnostic framework (consider [CrewAI](../frameworks/crewai.md) or [LangGraph](../frameworks/langgraph.md)).
-- For very low-latency requirements or applications where minimizing token overhead is the primary constraint.
+- For very low-latency requirements where a single, simple agent loop is sufficient.
+- When minimizing token overhead is the primary constraint and you prefer raw chat completions.
+- For simple, stateless tasks that don't benefit from multi-agent collaboration.
 
 ## Getting started
 ### Installation
@@ -40,13 +42,14 @@ It simplifies the creation of multi-agent systems by providing a structured way 
 pip install agency-swarm
 ```
 
-### Basic Usage
+### Basic Usage (Local Gemma 3 Swarm)
 ```python
-from agency_swarm import Agent, Agency, set_openai_key
+from agency_swarm import Agent, Agency, set_model
 
-set_openai_key("YOUR_API_KEY")
+# 1. Configure for local Gemma 3 via FastMCP
+set_model("gemma3-27b", provider="ollama")
 
-# 1. Define specialized agents
+# 2. Define specialized agents
 ceo = Agent(name="CEO",
             description="Responsible for coordinating the agency.",
             instructions="Direct the developer to complete coding tasks.")
@@ -55,11 +58,11 @@ developer = Agent(name="Developer",
                  description="Responsible for writing and debugging code.",
                  instructions="Provide implementation for requested features.")
 
-# 2. Create the agency (Communication: CEO <-> Developer)
+# 3. Create the agency (Communication: CEO <-> Developer)
 agency = Agency([ceo, [ceo, developer]],
                 shared_instructions="Collaborate to build high-quality software.")
 
-# 3. Run a query
+# 4. Run a query
 response = agency.get_completion("CEO, please ask the developer to implement a FastAPI endpoint.")
 print(response)
 ```
@@ -72,8 +75,8 @@ agency-swarm create-space --name my_agency
 # Run a specific agent within your agency (manual execution)
 python -m my_agency.run_agent --agent_name CEO
 
-# List all available tools in your current agency space
-python -m my_agency.list_tools
+# List all available FastMCP tools in your current agency space
+python -m my_agency.list_tools --protocol fastmcp
 ```
 
 ## API examples
@@ -100,19 +103,21 @@ developer = Agent(
 ```
 
 ## Related tools / concepts
-- [OpenAI Assistants](../ai_knowledge/openai.md)
-- [Agent Protocols (MCP)](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [CrewAI](../frameworks/crewai.md)
 - [LangGraph](../frameworks/langgraph.md)
-- [Agno](agno.md)
-- [Phidata](phidata.md)
-- [Composio](composio.md)
+- [Agno](./agno.md)
+- [Phidata](./phidata.md)
+- [Composio](./composio.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude](../ai_knowledge/claude.md)
 
 ## Sources / references
 - [GitHub Repository](https://github.com/VRSEN/agency-swarm)
 - [Official Website](https://agency-swarm.ai/)
 - [Documentation](https://vrsen.github.io/agency-swarm/)
+- [FastMCP Integration Guide](https://vrsen.github.io/agency-swarm/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-21
 - Confidence: high
