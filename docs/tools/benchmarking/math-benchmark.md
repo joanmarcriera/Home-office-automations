@@ -1,39 +1,40 @@
 # MATH Benchmark
 
 ## What it is
-The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. The problems range from introductory algebra to calculus and are drawn from various high school math competitions (AMC 10, AMC 12, AIME, etc.). In June 2026, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like Claude 4.8 Opus and GPT-5.5.
+The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. In the July 2026 landscape, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5, often executed via the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol for automated verification.
 
 ## What problem it solves
-Traditional math benchmarks (like GSM8K) often focus on elementary arithmetic and simple word problems. The MATH benchmark provides a much higher "ceiling" for evaluation, testing a model's ability to perform complex symbolic reasoning, multi-step proofs, and advanced problem-solving across diverse mathematical fields. It effectively differentiates models that "calculate" from those that "reason."
+Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary arithmetic. The MATH benchmark provides a much higher "ceiling" for evaluation, testing a model's ability to perform complex symbolic reasoning, multi-step proofs, and advanced problem-solving across diverse mathematical fields. It is essential for differentiating models that perform simple calculation from those capable of "System 2" reasoning.
 
 ## Where it fits in the stack
-**Benchmarking**. It is the gold standard for evaluating high-level mathematical reasoning and symbolic logic in LLMs, often used as a proxy for a model's general intelligence and planning ability.
+**Benchmarking**. It is the gold standard for evaluating high-level mathematical reasoning and symbolic logic, frequently used to validate the reasoning modules of [autonomous agents](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
-- **Deep Reasoning Evaluation**: Testing a model's ability to solve problems that require more than just arithmetic (e.g., number theory, geometry).
+- **Deep Reasoning Evaluation**: Testing a model's ability to solve problems in number theory, geometry, and intermediate algebra.
 - **Prompt Engineering for Logic**: Evaluating the effectiveness of Chain-of-Thought (CoT) or program-aided reasoning (PoT) on difficult tasks.
-- **Model Specialized Training**: Using the MATH dataset to fine-tune models for mathematical proficiency or "System 2" reasoning.
+- **Model Specialized Training**: Using the MATH dataset to fine-tune models for mathematical proficiency or scientific reasoning.
+- **Automated Verification**: Using the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol to automate the solving and checking of competition-level problems.
 
 ## Strengths
 - **High Difficulty**: Challenges even the most capable models, providing a clear differentiation in reasoning ability.
 - **Diverse Subjects**: Includes Algebra, Counting & Probability, Geometry, Number Theory, Prealgebra, Precalculus, and Intermediate Algebra.
-- **Rich Context**: Every problem includes a full step-by-step human-written solution, enabling multi-stage evaluation.
-- **Symbolic Rigor**: Requires models to produce exact LaTeX-formatted answers, testing precision.
+- **Rich Context**: Every problem includes a full step-by-step human-written solution.
+- **Symbolic Rigor**: Requires exact LaTeX-formatted answers, testing model precision and formatting adherence.
 
 ## Limitations
-- **Format Sensitivity**: Models often struggle with the exact LaTeX formatting required for answers, leading to "false negatives."
-- **Data Contamination**: As a widely used public dataset, there is a high risk that problems and solutions have leaked into the training data.
-- **Rigid Scoring**: Standard Exact Match (EM) scoring can penalize models for mathematically correct but differently formatted answers.
-- **English-Centric**: Most problems are phrased in English, which may not reflect a model's reasoning in other languages.
+- **Format Sensitivity**: Models often provide correct logic but fail the exact LaTeX formatting required for "Exact Match" scoring.
+- **Data Contamination**: As a widely used public dataset, there is a high risk that problems have leaked into the training data of newer models.
+- **Rigid Scoring**: Standard Exact Match (EM) scoring can penalize mathematically correct but differently formatted answers.
+- **Parsing Challenges**: Identifying symbolic equivalence (e.g., `$1/2$` vs `$0.5$`) requires specialized math-aware logic like `SymPy`.
 
 ## When to use it
-- When comparing the reasoning capabilities of "frontier" models (e.g., Claude 4.8 vs. GPT-5.5).
+- When comparing the reasoning capabilities of "frontier" models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs. GPT-5.5).
 - When evaluating models specifically for scientific, engineering, or mathematical applications.
 - To measure progress in automated theorem proving and symbolic logic.
 
 ## When not to use it
 - For evaluating general conversational quality or creative writing.
-- When testing basic arithmetic (use [GSM8K](gsm8k.md) instead).
+- When testing basic arithmetic (use [GSM8K](gsm8k.md) or [ASDiv](asdiv.md) instead).
 - When high-throughput, low-latency performance is more important than deep reasoning.
 
 ## Getting started
@@ -53,13 +54,12 @@ print(dataset['test'][0])
 The easiest way to run the MATH benchmark is using the [LM Evaluation Harness](lm-evaluation-harness.md).
 
 ```bash
-# Evaluate a model on the MATH benchmark
+# Evaluate a Gemma 3 model on the MATH benchmark
 python main.py \
     --model hf \
-    --model_args pretrained=meta-llama/Llama-4-Maverick-70B \
+    --model_args pretrained=google/gemma-3-27b-it \
     --tasks math \
-    --device cuda:0 \
-    --batch_size 8
+    --device cuda:0
 ```
 
 ### 3. Manual Verification (Example Problem)
@@ -70,7 +70,7 @@ Solution: Substituting x = 3 into the expression, we get 3^2 + 2(3) + 1 = 9 + 6 
 ```
 
 ## CLI examples
-Using the LM Evaluation Harness CLI to run MATH evaluations:
+Using the [LM Evaluation Harness](lm-evaluation-harness.md) CLI to run MATH evaluations:
 
 ```bash
 # Run MATH benchmark with 5-shot prompts
@@ -79,10 +79,10 @@ python main.py --model hf --tasks math --num_fewshot 5
 # Filter MATH results by subject (e.g., Geometry)
 python main.py --model hf --tasks math_geometry
 
-# Run with Chain-of-Thought (CoT) enabled
+# Run with Chain-of-Thought (CoT) enabled (Recommended for Gemma 3)
 python main.py --model hf --tasks math --model_args use_cot=True
 
-# Output results to a specific JSON file
+# Output results to a specific JSON file for MCP 3.0 ingestion
 python main.py --model hf --tasks math --output_path results_math.json
 ```
 
@@ -100,25 +100,11 @@ def extract_boxed_answer(text):
 # Load dataset
 math_test = load_dataset("competition_math", split="test")
 
-# Process an entry
+# Process an entry (e.g., testing Gemma 3 reasoning)
 entry = math_test[0]
 print(f"Problem: {entry['problem']}")
-print(f"Correct Answer: {entry['solution']}")
-
-# Extract the target string for evaluation
-target = extract_boxed_answer(entry['solution'])
-print(f"Target: {target}")
+print(f"Target: {extract_boxed_answer(entry['solution'])}")
 ```
-
-## Technical Methodology
-- **Subject Categorization**: Problems are divided into 7 subjects: Prealgebra, Algebra, Intermediate Algebra, Counting & Probability, Geometry, Number Theory, and Precalculus.
-- **Difficulty Levels**: Problems are ranked from Level 1 (easiest) to Level 5 (hardest).
-- **Evaluation Metric**: Typically use **Exact Match (EM)**. A model's output is parsed for the `\boxed{...}` content and compared to the ground truth.
-
-## Challenges in Math Evaluation
-- **Parsing**: LLMs often provide the correct logic but fail to format the final answer in the exact LaTeX string expected by the evaluator.
-- **Symbolic Equivalence**: Identifying that `$1/2$` and `$0.5$` are equivalent requires specialized math-aware parsing logic (often using `SymPy`).
-- **Chain of Thought (CoT)**: Performance on MATH is significantly higher when models are allowed to "think" or use a scratchpad before providing the final answer.
 
 ## Related tools / concepts
 - [GSM8K](gsm8k.md) - Grade school math word problems.
@@ -128,13 +114,14 @@ print(f"Target: {target}")
 - [BigCodeBench](bigcodebench.md) - Complex coding tasks.
 - [LM Evaluation Harness](lm-evaluation-harness.md) - The standard runner for this benchmark.
 - [OpenCompass](opencompass.md) - Includes MATH in its reasoning evaluation suite.
-- [EvalPlus](evalplus.md) - Enhanced code generation testing.
+- [MCP 3.0](../../automation_orchestration/mcp.md) - Protocol for automated task execution and verification.
 
 ## Sources / references
 - [GitHub Repository (Hendrycks)](https://github.com/hendrycks/math)
 - [MATH Dataset Paper: "Measuring Mathematical Problem Solving" (Hendrycks et al., 2021)](https://arxiv.org/abs/2103.03874)
 - [Hugging Face Dataset (competition_math)](https://huggingface.co/datasets/competition_math)
+- [Gemma 3 Technical Report](https://storage.googleapis.com/deepmind-media/gemma/gemma-3-report.pdf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-15
+- Last reviewed: 2026-07-21
 - Confidence: high
