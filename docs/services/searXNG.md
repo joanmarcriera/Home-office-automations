@@ -1,12 +1,12 @@
 # SearXNG
 
-SearXNG is a free internet metasearch engine which aggregates results from more than 70 search services, providing a privacy-preserving and agent-friendly search infrastructure in June 2026.
+SearXNG is a free internet metasearch engine which aggregates results from more than 70 search services, providing a privacy-preserving and agent-friendly search infrastructure in July 2026.
 
 ## What it is
 SearXNG is a free internet metasearch engine which aggregates results from more than 70 search services (engines). It provides a private, decentralized search experience by acting as a proxy between you and major search engines like Google, Bing, and DuckDuckGo.
 
 ## What problem it solves
-It strips tracking cookies and personal data from your requests, preventing search engines from profiling you. It also solves the "fragmentation" problem by combining results from multiple niche and general engines into a single, structured interface, which is particularly valuable for LLMs and autonomous agents like Claude 4.8 Opus.
+It strips tracking cookies and personal data from your requests, preventing search engines from profiling you. It also solves the "fragmentation" problem by combining results from multiple niche and general engines into a single, structured interface, which is particularly valuable for LLMs like Gemma 3 and autonomous agents like Claude 4.8 Opus.
 
 ## Where it fits in the stack
 **Category**: Services / Search & Discovery. It serves as a privacy-preserving front-end for web search and acts as a **primary data retrieval tool** for local AI agents. It often sits behind a reverse proxy like Nginx or Traefik and is secured via [Authentik](authentik.md).
@@ -23,7 +23,7 @@ It strips tracking cookies and personal data from your requests, preventing sear
 - **Aggregated Results**: Combines results from 70+ engines.
 - **Customizable**: Extensive settings for engines, categories, and UI.
 - **Self-Hostable**: Easy to deploy via Docker.
-- **Open API**: Provides search results in JSON format, ideal for MCP (Model Context Protocol) integration.
+- **Open API**: Provides search results in JSON format, ideal for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.0 integration.
 - **Cost**: Free and Open Source (AGPL-3.0).
 
 ## Limitations
@@ -116,7 +116,7 @@ for result in results.get('results', []):
 ```
 
 ### Advanced: RAG Pipeline Pattern (Python)
-This example demonstrates using SearXNG in a retrieval-augmented generation (RAG) loop with custom weighting for specific engines.
+This example demonstrates using SearXNG in a retrieval-augmented generation (RAG) loop with custom weighting for specific engines, utilizing [Gemma 3](../ai_knowledge/local_llms.md) for local inference.
 
 ```python
 import requests
@@ -154,15 +154,12 @@ def rag_search(query, search_domain="tech"):
 - [Crawl4AI](../tools/process_understanding/crawl4ai.md) — For high-performance scraping of search results.
 - [Authentik](authentik.md) — For securing the SearXNG web interface.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://searxng.org/)
 - [GitHub Repository](https://github.com/searxng/searxng)
 - [Documentation](https://docs.searxng.org/)
 - [LangChain SearXNG Integration](https://python.langchain.com/docs/integrations/tools/searxng_search)
 
-## Backlog
-- [x] Perform technical freshness audit (June 2026).
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-04
