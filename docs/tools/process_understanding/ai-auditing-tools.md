@@ -1,25 +1,27 @@
 # AI Auditing Tools
 
 ## What it is
-AI Auditing Tools are a specialized category of observability and security platforms designed to monitor, trace, and audit the actions of autonomous AI agents. By 2026, this category has matured with tools like **AgentOps**, **LangSmith**, and **Langfuse** providing high-fidelity records of an agent's reasoning, tool use, and interactions with external systems.
+AI Auditing Tools are a specialized category of observability and security platforms designed to monitor, trace, and audit the actions of autonomous AI agents. By July 2026, this category has matured with tools like **AgentOps**, **LangSmith**, and **Langfuse** providing high-fidelity records of an agent's reasoning, tool use, and interactions with external systems. It increasingly incorporates the **MCP 3.0 Task Protocol** for standardized task auditing.
 
 ## What problem it solves
-As AI agents move from "chatting" to "acting," traditional observability (standard logs and metrics) is insufficient. These tools solve the problem of "black box" agent behavior by providing a transparent audit trail necessary for security, compliance, and debugging of non-deterministic systems. They help prevent "hallucinated actions" and ensure accountability for agentic decisions.
+As AI agents move from "chatting" to "acting," traditional observability (standard logs and metrics) is insufficient. These tools solve the problem of "black box" agent behavior by providing a transparent audit trail necessary for security, compliance, and debugging of non-deterministic systems. They help prevent "hallucinated actions" and ensure accountability for agentic decisions, especially when using models like **Gemma 3** or **Claude 4.8 Opus**.
 
 ## Where it fits in the stack
-**Observability / Security**. They act as the "black box flight recorder" for autonomous systems, often sitting alongside inference engines and agent frameworks.
+**Observability / Security**. They act as the "black box flight recorder" for autonomous systems, often sitting alongside inference engines and agent frameworks. They are a core component of the **MCP 3.0** ecosystem, ensuring that every tool call and task execution is verifiable.
 
 ## Typical use cases
 - **Security Auditing**: Detecting unauthorized actions, privilege escalation, or prompt injection attempts by an autonomous agent.
 - **Compliance**: Maintaining a permanent, searchable record of AI-driven decisions for regulatory or legal requirements.
 - **Debugging Agent Loops**: Identifying where an agent enters an infinite loop, fails a tool call, or deviates from its planned path during multi-step tasks.
 - **Token Spend Management**: Real-time tracking and auditing of the cost associated with specific high-autonomy workflows.
+- **Task Verification**: Auditing the execution of tasks against the MCP 3.0 Task Protocol.
 
 ## Strengths
 - **Context-Aware Tracing**: Captures the full "chain of thought" and multi-turn context alongside low-level technical logs.
 - **Risk Classification**: Automatically flags high-risk agent actions such as file deletions, financial transactions, or external API calls.
 - **Non-Deterministic Support**: Built specifically to handle the variability and semantic nature of LLM-driven outputs.
 - **Framework Native**: Deep integrations with [LangGraph](../frameworks/langgraph.md), [CrewAI](../frameworks/crewai.md), and [MCP](../automation_orchestration/mcp.md).
+- **Task Protocol Support**: Native integration with MCP 3.0 for structured task auditing.
 
 ## Limitations
 - **Integration Overhead**: Requires instrumenting agent frameworks and every tool call, which can introduce slight latency (up to 15% in some cases like Langfuse).
@@ -30,11 +32,12 @@ As AI agents move from "chatting" to "acting," traditional observability (standa
 - For any production deployment of autonomous AI agents with write access to critical data or production systems.
 - When you need to guarantee accountability and "traceback" for AI-driven actions in a business context.
 - During development to perform "time-travel debugging" on complex agent failures.
+- When implementing automated workflows that require strict compliance with the MCP 3.0 Task Protocol.
 
 ## When not to use it
 - For simple, non-autonomous LLM wrappers (basic chat) where standard logging (e.g., [Sentry](sentry.md)) is sufficient.
 - During early-stage prototyping where the friction of instrumentation outweighs the need for an audit trail.
-- In 100% air-gapped environments without a self-hosted auditing option available.
+- In 100% air-gapped environments without a self-hosted auditing option available (though local alternatives for [Gemma 3](../ai_knowledge/local_llms.md) are emerging).
 
 ## Getting started
 
@@ -80,7 +83,7 @@ Most auditing tools standardize agent actions into a structured format for easy 
 ```json
 {
   "trace_id": "agent-7x92-12345",
-  "timestamp": "2026-06-16T14:30:00Z",
+  "timestamp": "2026-07-21T14:30:00Z",
   "agent_id": "ralph-home-admin",
   "action": {
     "tool": "ha_light_control_tool",
@@ -95,7 +98,7 @@ Most auditing tools standardize agent actions into a structured format for easy 
     "violations": []
   },
   "metadata": {
-    "model": "claude-4-8-opus",
+    "model": "gemma-3-27b",
     "token_usage": 150
   }
 }
@@ -142,6 +145,8 @@ audit_action("research-agent", "docker_restart", params, thought)
 - [SharpAI Security Benchmark](../benchmarking/sharp-ai.md)
 - [Datadog](datadog.md)
 - [Comet Opik](comet-opik.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / references
 - [Top LLM Observability Tools in 2026: A Pro Guide](https://mlflow.org/articles/top-llm-observability-tools-in-2026-a-pro-guide/)
@@ -149,5 +154,5 @@ audit_action("research-agent", "docker_restart", params, thought)
 - [15 AI Agent Observability Tools in 2026: AgentOps & Langfuse](https://aimultiple.com/agentic-monitoring)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
