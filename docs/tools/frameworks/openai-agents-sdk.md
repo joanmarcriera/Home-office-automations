@@ -1,13 +1,13 @@
 # OpenAI Agents SDK
 
 ## What it is
-The OpenAI Agents SDK is a framework designed to build and orchestrate AI agents. It introduces a separation between the "harness" (the control logic) and the "compute" (the LLM reasoning), allowing for more flexible and scalable agent architectures. By June 2026, it has become the standard for deploying high-autonomy agents within the OpenAI ecosystem.
+The OpenAI Agents SDK is a framework designed to build and orchestrate AI agents. It introduces a separation between the "harness" (the control logic) and the "compute" (the LLM reasoning), allowing for more flexible and scalable agent architectures. By July 2026, it has become a standard for deploying high-autonomy agents, often compared against **Gemma 3** based agentic workflows for cross-platform versatility.
 
 ## What problem it solves
 It simplifies the process of creating agents that can use tools, maintain state, and perform complex multi-step tasks. By separating the harness from the compute, it enables better resource management, sandboxed execution, and multi-tenant scaling, solving the security and reliability challenges of early autonomous agent implementations.
 
 ## Where it fits in the stack
-**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5** and the **O4 reasoning series**.
+**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5** and the **O4 reasoning series**, while supporting the **MCP 3.0 Task Protocol** for standardized tool execution.
 
 ## Typical use cases
 - **Multi-step Reasoning**: Agents that need to perform a sequence of actions to reach a goal.
@@ -23,7 +23,7 @@ It simplifies the process of creating agents that can use tools, maintain state,
 - **Autonomous Excellence**: Optimized for high-autonomy tasks using the **O4 series**.
 
 ## Limitations
-- **Platform Dependency**: Primarily optimized for OpenAI models.
+- **Platform Dependency**: Primarily optimized for OpenAI models, though Gemma 3 integrations are emerging via third-party bridges.
 - **Complexity**: The harness/compute separation adds a layer of abstraction that may be unnecessary for simple tasks.
 - **Ecosystem Maturity**: While standard, it requires deep integration with specific OpenAI API features.
 
@@ -129,6 +129,7 @@ final_report = orchestrator.run("Research and write a report on MCP.")
 ## Related tools / concepts
 - [Symphony (OpenAI)](../agents/symphony.md) — Multi-agent framework.
 - [LangGraph](./langgraph.md) — Cyclic agent graphs.
+- [CrewAI](./crewai.md) — Collaborative agent framework.
 - [Agency Swarm](../agents/agency-swarm.md) — Collaborative agents.
 - [Agentic Automation Canvas (AAC)](../agents/agentic-automation-canvas.md) — Design framework.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling.
@@ -142,5 +143,5 @@ final_report = orchestrator.run("Research and write a report on MCP.")
 - **Licensing**: Open-source SDK (MIT).
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-05
 - Confidence: high
