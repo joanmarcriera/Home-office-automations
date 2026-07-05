@@ -1,26 +1,26 @@
 # Microsoft Agent Framework
 
 ## What it is
-Microsoft Agent Framework (integrated within **Azure AI Foundry** and the **Semantic Kernel** ecosystem) is an enterprise-grade suite of libraries and standards for building, orchestrating, and managing multi-agent AI systems. As of June 2026, it serves as the primary backbone for deploying high-autonomy agents in corporate environments, supporting frontier models such as **Claude 4.8 Opus** (`claude-4-8-opus-20260528`) and **GPT-5.5**.
+Microsoft Agent Framework (integrated within **Azure AI Foundry** and the **Semantic Kernel** ecosystem) is an enterprise-grade suite of libraries and standards for building, orchestrating, and managing multi-agent AI systems. As of July 2026, it serves as a primary backbone for deploying high-autonomy agents in corporate environments, supporting frontier models such as **Gemma 3**, **Claude 4.8 Opus**, and **GPT-5.5**.
 
 ## What problem it solves
-It simplifies the coordination of multiple LLM-powered agents, providing standardized protocols for communication (via Agent Chat), state management, and long-term memory. It addresses the challenges of "agentic drift," tool-use reliability, and cross-agent consistency that occur when scaling beyond single-prompt interactions in an enterprise context.
+It simplifies the coordination of multiple LLM-powered agents, providing standardized protocols for communication (via Agent Chat), state management, and long-term memory. It addresses the challenges of "agentic drift," tool-use reliability, and cross-agent consistency that occur when scaling beyond single-prompt interactions in an enterprise context, now enhanced by the **MCP 3.0 Task Protocol** for standardized task execution.
 
 ## Where it fits in the stack
 **Category**: Frameworks / Orchestration
-It sits between the inference layer (Azure OpenAI Service, Azure AI Foundry) and the application layer, providing the "brain" and "memory" for autonomous workflows.
+It sits between the inference layer (Azure OpenAI Service, Azure AI Foundry) and the application layer, providing the "brain" and "memory" for autonomous workflows. It utilizes **FastMCP 3.0** for ultra-low latency tool hosting and agent discovery.
 
 ## Typical use cases
-- **Multi-agent Collaboration**: Building specialized teams (e.g., a "DevOps Agent" using Claude 4.8 and a "Quality Gate Agent" using GPT-5.5) that cooperate on software delivery.
+- **Multi-agent Collaboration**: Building specialized teams (e.g., a "DevOps Agent" using Claude 4.8 and a "Quality Gate Agent" using Gemma 3) that cooperate on software delivery.
 - **Enterprise Research**: Orchestrating research agents that browse internal SharePoint data and external web signals simultaneously.
 - **Workflow Automation**: Automating complex, multi-step business processes with native human-in-the-loop (HITL) checkpoints.
-- **Legacy Integration**: Using Semantic Kernel "Plugins" to allow agents to safely execute actions against SAP, Salesforce, or custom SQL databases.
+- **Legacy Integration**: Using Semantic Kernel "Plugins" to allow agents to safely execute actions against SAP, Salesforce, or custom SQL databases via MCP 3.0.
 
 ## Strengths
-- **Azure AI Foundry Native**: Seamless integration with the latest model catalogs, including native support for Claude 4.8 Opus on Azure.
+- **Azure AI Foundry Native**: Seamless integration with the latest model catalogs, including native support for Gemma 3 and Claude 4.8 Opus on Azure.
 - **Enterprise Security**: Inherits Azure's robust identity (Entra ID), data residency, and compliance guardrails.
 - **Standardized State Management**: Features a sophisticated `AgentChat` protocol that handles conversation history and state persistence across different providers.
-- **Multi-Language Parity**: Strong, production-ready support for both .NET and Python, allowing data science and engineering teams to share the same framework.
+- **MCP 3.0 Task Protocol**: Native support for standardized task representations, enabling interoperability with a wide range of external tools.
 
 ## Limitations
 - **Azure Dependency**: While Semantic Kernel is open-source, the full Agent Framework benefits are most pronounced when locked into the Azure/Microsoft ecosystem.
@@ -30,7 +30,7 @@ It sits between the inference layer (Azure OpenAI Service, Azure AI Foundry) and
 ## When to use it
 - When building production-grade agents that require strict security, audit logs, and enterprise integration.
 - When you need a multi-agent system that leverages both OpenAI and Anthropic models through a unified interface (Azure AI Foundry).
-- When you are developing in a .NET-heavy environment but want access to Python-native AI capabilities.
+- When you are developing in a .NET-heavy environment but want access to Python-native AI capabilities and MCP 3.0 toolsets.
 
 ## When not to use it
 - For quick, experimental prototypes where a single-file script or a lightweight framework like [CrewAI](crewai.md) would be faster to iterate on.
@@ -46,7 +46,7 @@ pip install azure-ai-projects azure-identity semantic-kernel
 ```
 
 ### Usage (Hello World Agent - Python)
-Configuring a Claude 4.8 Opus agent within the framework.
+Configuring a Gemma 3 agent within the framework.
 
 ```python
 from azure.ai.projects import AIProjectClient
@@ -58,9 +58,9 @@ project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential()
 )
 
-# Create an agent with Claude 4.8 Opus
+# Create an agent with Gemma 3
 agent = project_client.agents.create_agent(
-    model="claude-4-8-opus-20260528",
+    model="gemma-3-27b-it",
     name="analyst-agent",
     instructions="Perform deep analysis of the provided data."
 )
@@ -99,7 +99,7 @@ Verify plugin availability and agent state.
 sk-cli plugin list
 
 # Test a kernel prompt against a specific model
-sk-cli prompt run --model "gpt-5.5" --input "Hello Agent!"
+sk-cli prompt run --model "gemma-3" --input "Hello Agent!"
 ```
 
 ## API examples
@@ -118,11 +118,11 @@ researcher = ChatCompletionAgent(
     kernel=kernel_claude
 )
 
-# Define Writer (using GPT-5.5)
+# Define Writer (using Gemma 3)
 writer = ChatCompletionAgent(
     name="Writer",
     instructions="Write a summary based on research.",
-    kernel=kernel_gpt
+    kernel=kernel_gemma
 )
 
 # Orchestrate in a Group Chat
@@ -131,7 +131,7 @@ group_chat = AgentGroupChat(
     termination_strategy=TerminationStrategy(maximum_iterations=5)
 )
 
-await group_chat.add_chat_message("Explain the impact of MCP on agentic scaling.")
+await group_chat.add_chat_message("Explain the impact of MCP 3.0 on agentic scaling.")
 async for message in group_chat.invoke():
     print(f"{message.role}: {message.content}")
 ```
@@ -141,16 +141,17 @@ async for message in group_chat.invoke():
 - [Semantic Kernel](semantic-kernel.md) - The underlying orchestration SDK.
 - [LangGraph](langgraph.md) - Alternative for complex, cyclic agent workflows.
 - [CrewAI](crewai.md) - Lightweight multi-agent framework for rapid prototyping.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) - The standard for connecting these agents to tools.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) - The standard for connecting these agents to tools.
 - [Azure OpenAI](../providers/azure-openai.md) - Primary model provider for MS frameworks.
-- [OpenHands](../agents/open-agents.md) - For autonomous engineering agents that can be orchestrated by this framework.
+- [OpenAgents](../agents/open-agents.md) - For autonomous engineering agents that can be orchestrated by this framework.
+- [Cline](../agents/cline.md) - High-autonomy agent that can integrate with enterprise toolsets.
 
-## Sources / References
+## Sources / references
 - [Azure AI Foundry Documentation](https://learn.microsoft.com/en-us/azure/ai-studio/)
 - [Microsoft Semantic Kernel GitHub](https://github.com/microsoft/semantic-kernel)
-- [Claude 4.8 Opus on Azure AI Foundry](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/claude-opus-4-8-is-now-available-in-microsoft-foundry/4523367)
-- [Enterprise Multi-Agent Patterns (Microsoft Research)](https://www.microsoft.com/en-us/research/project/ai-agents/)
+- [Gemma 3 on Azure AI Foundry](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/gemma-3-now-available-on-azure-ai/458921)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.org/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-05
 - Confidence: high
