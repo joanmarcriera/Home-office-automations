@@ -1,7 +1,7 @@
 # Notion AI
 
 ## What it is
-Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, and summarizing information directly where they work. By 2026, it has evolved into a comprehensive agentic assistant capable of cross-workspace reasoning and multi-step automation.
+Notion AI is a suite of integrated artificial intelligence features within the Notion workspace. It assists users with writing, brainstorming, and summarizing information directly where they work. By July 2026, it has evolved into a comprehensive agentic assistant capable of cross-workspace reasoning, multi-step automation, and native integration with the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
 Bridges the gap between a knowledge base and an AI assistant, allowing users to interact with their data, automate routine writing tasks, and organize information more effectively without leaving their productivity environment. It eliminates the friction of switching between a chat interface and a system of record.
@@ -15,13 +15,14 @@ Bridges the gap between a knowledge base and an AI assistant, allowing users to 
 - **Extracting action items from unstructured text**: Automating follow-ups and task creation.
 - **Custom Agents**: Building specialized agents that triage email, enrich applicants with web search, and write structured data to databases.
 - **Q&A and Agentic Search**: Natural language search over the entire workspace knowledge base, optimized for agent retrieval (Top-K over CTR).
+- **Multi-Step Orchestration**: Using Notion AI to coordinate tasks across other integrated apps via the **MCP 3.0** standard.
 
 ## Strengths
 - **Seamless Integration**: AI lives where collaboration data (pages, databases) already exists.
 - **Agent-Native System of Record**: Pages and databases serve as "memory" for agents, accessible by both humans and LLMs.
 - **Usage-Based Credits**: A pricing model (Notion Credits) that allows customers to pay for what they use across different model tiers and tool capabilities.
 - **Context-Awareness**: Agents can reference other pages and data within Notion for high-fidelity multi-hop reasoning.
-- **Frontier Model Support**: Leverages **GPT-5.5** and **Claude 4.8 Opus** for advanced reasoning tasks.
+- **Frontier Model Support**: Leverages **Gemma 3**, **GPT-5.5**, and **Claude 4.8 Opus** for advanced reasoning tasks.
 
 ## Limitations
 - Requires a paid add-on to the standard Notion subscription.
@@ -37,7 +38,7 @@ Bridges the gap between a knowledge base and an AI assistant, allowing users to 
 ## When not to use it
 - For heavy-duty coding tasks or advanced creative media generation.
 - If you prefer a standalone AI assistant that isn't tied to a specific workspace platform.
-- When local-only data privacy is a strict requirement (consider [Obsidian](./obsidian.md)).
+- When local-only data privacy is a strict requirement (consider [Obsidian](./obsidian.md) or [AnyType](../intake_storage/anytype.md)).
 
 ## Getting started
 Users can trigger AI features directly in the Notion UI:
@@ -45,10 +46,11 @@ Users can trigger AI features directly in the Notion UI:
 2. Highlight text and select **Ask AI** to edit, summarize, or translate.
 3. Use **Notion Q&A** (the sparkle icon in the sidebar) to ask questions across your entire workspace.
 4. **Agent Templates**: Use the Notion Template Gallery to deploy pre-built AI agents for common workflows.
+5. **MCP Integration**: Enable the MCP 3.0 connector in Settings > Integrations to allow external agents to interact with your workspace.
 
 ## CLI examples
 > [!NOTE]
-> As of June 2026, Notion does not provide an official standalone CLI for Notion AI. Interaction is managed via the Notion UI, browser extensions, or the REST API.
+> As of July 2026, Notion does not provide an official standalone CLI for Notion AI. Interaction is managed via the Notion UI, browser extensions, or the REST API. However, developers often use the [Claude Code](../development_ops/claude-code.md) CLI with an MCP connector to interact with Notion data.
 
 ## API examples
 You can programmatically trigger Notion AI or enrich content using the Notion API (supported via the `notion-client` Python SDK).
@@ -100,13 +102,14 @@ Notion AI is frequently used in multi-step automation pipelines using [n8n](../.
 - [AnyType](../intake_storage/anytype.md) — Privacy-first workspace.
 - [Roam Research](./roam-research.md) — Networked thought.
 - [SilverBullet](../intake_storage/silverbullet.md) — Extensible markdown-based workspace.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agent tool-calling.
 
 ## Sources / references
 - [Official Website](https://www.notion.so/product/ai)
+- [Notion Developers API](https://developers.notion.com/)
 - [Latent Space: Notion's Token Town & The Software Factory Future](https://www.latent.space/p/notion)
-- [SmartAIToolsHub](https://www.smartaitoolshub.online/2026/03/ai-tools-replacing-human-jobs-2026.html)
 - **Licensing**: Paid add-on (typically $10/member/month).
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
