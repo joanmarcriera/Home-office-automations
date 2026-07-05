@@ -2,7 +2,7 @@
 
 Date: 2026-07-04
 Batch: 176
-Status: In Progress
+Status: Resolved
 
 ## Decomposed Issues
 
@@ -49,9 +49,9 @@ Status: In Progress
 ### 5. Freshness audit for `docs/knowledge_base/patterns/skills-best-practices.md`
 - **Goal**: Update `skills-best-practices.md` to the 13-section 'High Confidence' standard with July 2026 context.
 - **Tasks**:
-  - [ ] Incorporate July 2026 context (MCP 3.0 Task Protocol for skill execution).
-  - [ ] Ensure all 13 required sections are present and correctly ordered.
-  - [ ] Verify >= 7 unique relative markdown links to other canonical pages.
-  - [ ] Update "Last reviewed" metadata to 2026-07-04.
-  - [ ] Validate with `scripts/check_docs_contract.py`.
-- **Status**: Pending
+  - [x] Incorporate July 2026 context (MCP 3.0 Task Protocol for skill execution).
+  - [x] Ensure all 13 required sections are present and correctly ordered.
+  - [x] Verify >= 7 unique relative markdown links to other canonical pages.
+  - [x] Update "Last reviewed" metadata to 2026-07-04.
+  - [x] Validate with `scripts/check_docs_contract.py`.
+- **Status**: Completed
