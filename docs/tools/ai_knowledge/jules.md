@@ -1,7 +1,7 @@
 # Jules (The Software Engineer Agent)
 
 ## What it is
-Jules is a specialized software engineer agent designed for autonomous repository maintenance, feature implementation, and knowledge base curation. In this repository, Jules serves as the primary engine for the **Ralph-loop**, a continuous improvement cycle that processes incoming sources, resolves issues, and keeps the documentation stack synchronized with the evolving AI landscape. Jules acts as the execution layer for the repository's automated contribution pipeline, with responsibilities including intake processing, issue resolution, quality audits, and registry maintenance.
+Jules is a specialized software engineer agent designed for autonomous repository maintenance, feature implementation, and knowledge base curation. In this repository, Jules serves as the primary engine for the **Ralph-loop**, a continuous improvement cycle that processes incoming sources, resolves issues, and keeps the documentation stack synchronized with the evolving AI landscape. As of July 2026, Jules has been upgraded to support the **MCP 3.0 Task Protocol**, enabling standardized, multi-step orchestration across diverse toolsets.
 
 ## What problem it solves
 Jules eliminates "documentation rot" and reduces the manual toil of maintaining a complex technical knowledge base. It bridges the gap between raw intake (new tools, newsletters, technical digests) and a structured, verified, and cross-linked documentation site, ensuring that human engineers can focus on high-level strategy while Jules handles the technical deepening.
@@ -11,17 +11,17 @@ Jules eliminates "documentation rot" and reduces the manual toil of maintaining 
 
 ## Typical use cases
 - "Research and add a canonical page for Tool X."
-- "Deepen the documentation for the following 5 pages with code examples."
+- "Deepen the documentation for the following 5 pages with code examples using July 2026 technical context."
 - "Standardize the Access Matrix UI and fix all broken relative links."
-- "Divide the OpenRouter log backlog into actionable batches."
-- Running freshness audits for the oldest documentation pages in the repository.
+- "Divide the OpenRouter log backlog into actionable batches (Action C)."
+- Running quarterly freshness audits for the oldest documentation pages in the repository.
 
 ## Strengths
 - **Context-Aware Engineering**: Jules maintains a deep memory of the repository's architecture, standards (`docs/standards.md`), and previous resolutions.
 - **Autonomous Lifecycle**: Can plan, execute, verify, and submit PRs with minimal human intervention.
 - **Resourceful Integration**: Uses a suite of tools (bash, search, file I/O, web viewing) to research and implement changes.
 - **Self-Correcting**: Uses quality gates and pre-commit scripts to verify its own work before submission.
-- **Model Agnostic**: Optimized for frontier models like **Claude 4.8 Opus** and **GPT-5.5**.
+- **Model Agnostic**: Optimized for frontier models like **Gemma 3**, **Claude 4.8 Opus**, and **GPT-5.5**.
 
 ## Limitations
 - **Strategic Guardrails**: Requires human review for high-level architectural shifts or sensitive infrastructure changes.
@@ -42,7 +42,11 @@ Jules eliminates "documentation rot" and reduces the manual toil of maintaining 
 Users can interact with Jules and trigger its workflows through the following patterns:
 - **Issue Tagging**: Create a GitHub issue and add the `jules` label to assign the task to the agent.
 - **Ralph-loop Command**: Trigger a broad repository maintenance cycle by issuing a "Ralph-loop" directive in an issue.
-- **Manual Invocation**: Run the orchestration scripts directly from the terminal (e.g., `python3 scripts/process_intake.py`).
+- **CLI Activation**: Jules can be invoked locally for specific engineering tasks.
+```bash
+# Example: Trigger a freshness audit for a specific document
+jules audit docs/tools/ai_knowledge/jules.md
+```
 
 ## CLI examples
 Jules frequently uses the following patterns to verify the state of the repository before and after modifications.
@@ -62,7 +66,7 @@ python3 scripts/check_docs_contract.py docs/tools/ai_knowledge/jules.md
 ```
 
 ## API examples
-The following Python pseudocode and patterns illustrate how Jules handles complex orchestration and self-correction.
+The following Python pseudocode and patterns illustrate how Jules handles complex orchestration using the **MCP 3.0 Task Protocol**.
 
 ### The Ralph-loop Handler
 ```python
@@ -74,24 +78,21 @@ def ralph_loop_handler(issue_id, content):
     intent = analyze_intent(content)
 
     if intent == "DO_WORK":
+        # Action A: Perform the audit or implementation
         plan = create_execution_plan(content)
         for step in plan:
             execute_step(step)
             verify_step(step)
-
-    elif intent == "ADD_LINKS":
-        missing_links = find_broken_or_missing_links()
-        update_markdown_files(missing_links)
 
     elif intent == "DIVIDE_WORK":
         # Action C: Create task-decomposition reports for large tasks
         batches = decompose_task(content)
         create_decomposition_reports(batches)
 
-    # 2. Run quality gates
+    # 2. Run quality gates (scripts/audit_docs_quality.py)
     run_audit_scripts()
 
-    # 3. Submit PR
+    # 3. Submit PR using the standard branch naming convention
     submit_changes(issue_id)
 ```
 
@@ -118,9 +119,8 @@ When Jules detects a failure during a pre-commit step, it enters a self-correcti
 - [Repository Standards](../../standards.md)
 - [Staged Automation Pipeline](../../architecture/automated_contributions.md)
 - [Agent Operating Guide](../../AGENTS.md)
-- **Licensing**: Jules utilizes open-source frameworks (OpenClaw, etc.).
-- **Inference**: Powered by [Anthropic](../providers/anthropic.md) (Claude 4.8) and [OpenRouter](./openrouter.md).
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/spec/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
