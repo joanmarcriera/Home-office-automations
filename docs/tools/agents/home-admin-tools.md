@@ -3,7 +3,7 @@
 This page documents the specialized tools available to the Home Admin Agent (Ralph) for interacting with home services.
 
 ## What it is
-Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) or standard tool-calling patterns. These tools enable frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [Llama 4 Maverick](../providers/llama.md) to safely operate a household.
+Home Admin Agent Tools are the local service adapters exposed to the Ralph home-admin agent. They wrap the complex REST APIs of household services into simplified, agent-discoverable tools following the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) or standard tool-calling patterns. These tools enable frontier models like [Claude 4.8 Opus](../providers/anthropic.md), [Gemma 3](../ai_knowledge/local_llms.md), and [Llama 4 Maverick](../ai_knowledge/local_llms.md) to safely operate a household.
 
 ## What problem it solves
 They give the agent controlled, high-level interfaces for querying and changing household task and smart-home systems. This prevents the agent from needing direct database access or unrestricted shell execution, providing a layer of security and predictability to autonomous home operations.
@@ -15,12 +15,14 @@ They give the agent controlled, high-level interfaces for querying and changing 
 - **Automated Morning Briefing**: Querying Vikunja for today's tasks and Home Assistant for the current weather/house state.
 - **Scene Management**: Triggering "Good Night" or "Away" scenes based on family schedule or manual intent.
 - **Task Delegation**: Automatically creating maintenance tasks in Vikunja when Home Assistant detects a sensor alert (e.g., "Fridge door left open").
+- **Autonomous Resource Optimization**: Scaling home services based on predicted usage patterns using [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## Strengths
 - **Security**: Actions are limited by the tool's defined schema and API scopes.
 - **Discoverability**: Standard argument definitions allow LLMs to reliably use the tools without retraining.
 - **Portability**: The tools follow patterns that can be easily ported to other agent frameworks (e.g., LangGraph or MCP).
-- **Interoperability**: Optimized for MCP 3.0, allowing seamless integration with [Claude Desktop](../ai_knowledge/claude.md) and [Cline](../agents/cline.md).
+- **Interoperability**: Optimized for MCP 3.0 and the **MCP 3.0 Task Protocol**, allowing seamless integration with [Claude Desktop](../ai_knowledge/claude.md) and [Cline](cline.md).
+- **Performance**: Support for **FastMCP 3.0** ensures ultra-low latency execution for real-time home automation.
 
 ## Limitations
 - **Permission Scoping**: The tools operate with the permissions of the configured API tokens. If a token has broad access, the agent inherits that access.
@@ -31,6 +33,7 @@ They give the agent controlled, high-level interfaces for querying and changing 
 - When an autonomous agent needs to read from or write to the household's task and automation systems.
 - When you want to provide a "Natural Language" interface for complex home operations.
 - For integrating local household services into the [Anthropic Agent Skills](anthropic-agent-skills.md) ecosystem.
+- When leveraging **Gemma 3** for low-latency, local-first home orchestration.
 
 ## When not to use it
 - For services that lack configured credentials or clear ownership.
@@ -127,7 +130,9 @@ print(f"Created task: {new_task['id']}")
 - [Agency Swarm](agency-swarm.md)
 - [Anthropic Agent Skills](anthropic-agent-skills.md)
 - [Claude 4.8 Opus](../providers/anthropic.md)
-- [Llama 4 Maverick](../providers/llama.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
+- [Cline](cline.md)
 
 ## Sources / References
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
@@ -135,5 +140,5 @@ print(f"Created task: {new_task['id']}")
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-05
 - Confidence: high
