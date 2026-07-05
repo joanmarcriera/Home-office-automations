@@ -1,7 +1,7 @@
 # Agent Skills Best Practices
 
 ## What it is
-An agent **skill** is a self-contained, named behaviour module that an autonomous agent can discover, trigger, and execute. Skills define *what* to do (instructions), *when* to do it (triggers), *what tools* are available, and *what permissions* are required. Well-authored skills are the foundation of reliable agentic workflows using Claude 4.8 Opus and GPT-5.5. This document covers authoring for **Claude Code** and **OpenClaw** runtimes.
+An agent **skill** is a self-contained, named behaviour module that an autonomous agent can discover, trigger, and execute. Skills define *what* to do (instructions), *when* to do it (triggers), *what tools* are available, and *what permissions* are required. Well-authored skills are the foundation of reliable agentic workflows using Claude 4.8 Opus and GPT-5.5. In July 2026, the **MCP 3.0 Task Protocol** has standardized how these skills are advertised and executed across heterogeneous agent swarms. This document covers authoring for **Claude Code** and **OpenClaw** runtimes.
 
 ## What problem it solves
 Poorly authored skills lead to:
@@ -22,6 +22,7 @@ Poorly authored skills lead to:
 
 ## Strengths
 - **Deterministic Routing**: Clear trigger definitions (keywords, slash commands, schedules) reduce "routing hallucinations".
+- **MCP 3.0 Interoperability**: Adherence to the Task Protocol ensures skills are discoverable and executable by any MCP-compliant agent (e.g., Gemma 3, Llama 4).
 - **Lean Instructions**: Step-by-step, deterministic instructions minimize token usage and improve reliability.
 - **Reusability**: Skills can be shared across different agent runtimes and projects.
 - **Auditability**: Encapsulated skills make it easier to audit exactly what an agent is allowed to do.
