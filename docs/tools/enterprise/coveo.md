@@ -1,110 +1,110 @@
 # Coveo
 
 ## What it is
-Coveo is an enterprise AI platform that provides intelligent search, recommendations, and generative AI capabilities (Coveo Relevance Generative Answering) to power digital experiences across e-commerce, customer service, and the digital workplace.
+Coveo is an enterprise AI platform that provides intelligent search, personalized recommendations, and advanced generative AI capabilities (Coveo Relevance Generative Answering) to power digital experiences across e-commerce, customer service, and the digital workplace. As of July 2026, Coveo has integrated the **MCP 3.0 Task Protocol**, allowing its unified search index to be exposed as a high-fidelity resource for agentic workflows powered by **Gemma 3**, **Claude 4.8**, and **GPT-5.5**.
 
 ## What problem it solves
-It addresses the challenge of information fragmentation and relevance at scale. By unifying data from disparate sources, Coveo ensures that users (customers or employees) receive the most relevant information or products based on their intent, context, and historical behavior.
+It addresses the critical challenge of information fragmentation and lack of relevance at enterprise scale. By unifying data from hundreds of disparate siloed sources, Coveo ensures that users (customers, employees, or AI agents) receive the most relevant information or products based on their real-time intent, visual context, and historical behavior, thereby reducing "search fatigue" and increasing operational efficiency.
 
 ## Where it fits in the stack
-**Category**: Enterprise AI / Search & Recommendations
-It sits at the discovery and personalization layer of the enterprise stack, typically integrating with content sources (ServiceNow, Salesforce, SharePoint) and delivering results through front-end interfaces or AI agents like GPT-5.5.
+**Category**: Enterprise AI / Search & Recommendations. It sits at the discovery and personalization layer of the enterprise stack, typically integrating with content sources like ServiceNow, Salesforce, and SharePoint, while delivering results through front-end interfaces, mobile apps, or headless agentic clients.
 
 ## Typical use cases
-- **AI-Powered Customer Self-Service**: Reducing support ticket volume by providing precise answers in help centers using RAG-based generative answering.
-- **Personalized E-commerce Discovery**: Driving conversion rates through intelligent product ranking and individualized recommendations.
-- **Unified Workplace Search**: Boosting employee productivity by surfacing relevant internal knowledge across siloed platforms like Slack, Confluence, and Jira.
+- **AI-Powered Customer Self-Service**: Automating support by providing precise, grounded answers in help centers using RAG-based generative answering to deflect tickets.
+- **Personalized E-commerce Discovery**: Driving conversion and average order value (AOV) through intelligent product ranking and individualized "you might also like" recommendations.
+- **Unified Workplace Knowledge Search**: Boosting employee productivity by surfacing relevant internal knowledge across platforms like Slack, Confluence, Jira, and GitHub.
+- **Agentic Resource Retrieval**: Serving as the primary knowledge provider for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) that require secure access to enterprise-grade facts.
 
 ## Strengths
-- **Relevance at Scale**: Advanced machine learning models that automatically tune search results based on user outcomes.
-- **Enterprise Connectivity**: Robust set of native connectors for major enterprise platforms.
-- **Hybrid Search**: Combines traditional keyword search with vector-based semantic search for optimal precision and recall.
-- **Low-Code Generative AI**: Tools to deploy enterprise-grade RAG (Retrieval-Augmented Generation) with built-in security and source attribution.
+- **Intelligent Relevance at Scale**: State-of-the-art machine learning models that automatically tune ranking based on user outcomes and visual cues.
+- **Expansive Enterprise Connectivity**: Over 100 robust native connectors for major SaaS and on-premise enterprise platforms.
+- **Semantic Vector Search**: Combines traditional keyword-based indexing with dense vector retrieval for superior precision across natural language queries.
+- **Built-in Security & Governance**: Enforces source-level permissions and provides detailed audit trails for all data access and generative responses.
 
 ## Limitations
-- **Implementation Complexity**: Requires significant planning and configuration for complex enterprise environments.
-- **Premium Pricing**: Positioned as a high-end enterprise solution, which may be prohibitive for smaller organizations.
-- **Index Management**: Large-scale indexing requires careful monitoring of content processing and API usage.
+- **High Implementation Effort**: Requires significant upfront planning for metadata mapping and connector configuration in complex environments.
+- **Enterprise-Tier Pricing**: Positioned as a premium solution, making it less accessible for startups or smaller organizations compared to basic vector DBs.
+- **Resource Intensity**: Maintaining large-scale, high-frequency indexing requires dedicated monitoring of processing pipelines and API quotas.
 
 ## When to use it
-- When managing millions of documents or products where relevance directly impacts the bottom line.
-- If you need a secure, compliant way to deploy Generative AI over sensitive enterprise data.
-- For organizations requiring deep analytics into search behavior and content gaps.
+- When managing millions of complex documents or products where search relevance directly impacts revenue or support costs.
+- For organizations requiring a secure, SOC2-compliant way to deploy Generative AI (RAG) over sensitive, permissioned data.
+- When you need deep analytics into user search behavior to identify content gaps and optimize business outcomes.
 
 ## When not to use it
-- For small-scale websites or simple internal search requirements where basic tools suffice.
-- If you are looking for a completely open-source search engine with no licensing costs (consider Elastic or Solr).
-- For personal knowledge management or small team projects.
+- For simple, small-scale website search where basic tools like [Elastic](elastic.md) or Algolia provide sufficient functionality at lower cost.
+- If looking for a purely open-source search engine with no licensing overhead (consider Solr or OpenSearch).
+- For individual or small-team knowledge management where lightweight tools like [Obsidian](../ai_knowledge/obsidian.md) are more appropriate.
 
 ## Getting started
-Coveo is a cloud-native SaaS platform. Developers typically start by creating an organization in the Coveo Administration Console, configuring sources via the Push API or native connectors, and building search interfaces using the Coveo Atomic library or Headless SDK.
+Coveo is a cloud-native SaaS platform. Developers typically begin by:
+1. Creating a Coveo organization via the Administration Console.
+2. Configuring "Sources" using the Push API or native connectors.
+3. Building a search experience using the Coveo Atomic (Web Component) library or the Coveo Headless SDK.
+4. Enabling **MCP 3.0** support to allow AI agents to securely query the index.
 
 ## CLI examples
-The Coveo CLI (`coveo`) allows developers to manage organizations, resources, and indexing from the command line.
+The Coveo CLI (`coveo`) is the primary tool for resource management and development lifecycle automation.
 
 ```bash
-# Log in to the Coveo platform
-coveo auth:login
+# Authenticate the CLI with your Coveo organization
+coveo auth:login --orgId my-enterprise-org
 
-# List all available search indexes (sources) in the organization
-coveo source:list
+# Create a new Push source for indexing custom JSON data
+coveo source:push:create "Agent-Knowledge-Base"
 
-# Push a local JSON document to a push source
-coveo source:push:json MY_SOURCE_ID --file ./document.json
+# List and monitor the status of all active indexing sources
+coveo source:list --columns id,name,status
 ```
 
 ## API examples
-Coveo's Search and Push APIs are the primary touchpoints for programmatic integration, often used by agents like Claude 4.8 Opus to retrieve grounded facts for enterprise queries.
+Coveo's RESTful Search and Push APIs are used for programmatic integration, frequently serving as the "grounding" layer for frontier models.
 
 ```python
 import requests
 import os
 
-# API configuration
-API_KEY = os.getenv("COVEO_API_KEY")
-ORG_ID = os.getenv("COVEO_ORG_ID")
+# Configuration from environment variables
+COVEO_API_KEY = os.environ.get("COVEO_API_KEY")
+COVEO_ORG_ID = os.environ.get("COVEO_ORG_ID")
 
-def get_ai_recommendations(user_id, context):
-    """
-    Fetches personalized recommendations using Coveo's Recommendation API.
-    """
-    url = f"https://platform.cloud.coveo.com/rest/search/v2?organizationId={ORG_ID}"
+def query_enterprise_knowledge(query_text, user_context):
+    """Retrieves grounded results from Coveo for agentic reasoning."""
+    url = f"https://platform.cloud.coveo.com/rest/search/v2?organizationId={COVEO_ORG_ID}"
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": f"Bearer {COVEO_API_KEY}",
         "Content-Type": "application/json"
     }
 
     payload = {
-        "recommendation": "default",
-        "context": context,
-        "mlParameters": {
-            "userId": user_id
-        }
+        "q": query_text,
+        "context": user_context,
+        "pipeline": "default"
     }
 
     response = requests.post(url, json=payload, headers=headers)
-    response.raise_for_status()
-    return response.json()
+    return response.json().get('results', [])
 
-# Example usage: Context-aware recommendation for an enterprise portal
-context = {"role": "Engineer", "project": "Blackwell-Optimization"}
-results = get_ai_recommendations("user_88", context)
+# Example: Finding technical specs for an internal hardware project
+context = {"department": "R&D", "clearance": "level-4"}
+results = query_enterprise_knowledge("Rubin GPU architecture specs", context)
 ```
 
 ## Related tools / concepts
-- [Elastic](elastic.md) — the foundational search and analytics engine.
-- [Glean](glean.md) — focused on employee search and workspace discovery.
-- [Dashworks](dashworks.md) — unified AI search for team-scale applications.
-- [Pinecone](../infrastructure/pinecone.md) — vector database for building custom AI search.
-- [Milvus](../infrastructure/milvus.md) — open-source alternative for vector-based retrieval.
-- [RAG Patterns](../../knowledge_base/patterns/search-patterns.md) — architectural patterns for generative search.
-- [ServiceNow](../process_understanding/datadog.md) — common enterprise data source for Coveo.
+- [Elastic](elastic.md) — The foundational engine often used for lower-level search requirements.
+- [Glean](glean.md) — A direct competitor focused on workplace discovery and employee AI.
+- [Dashworks](dashworks.md) — A unified AI search platform for high-velocity teams.
+- [Pinecone](../infrastructure/pinecone.md) — A vector database for custom-built RAG implementations.
+- [Milvus](../infrastructure/milvus.md) — An open-source vector database alternative.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For standardizing search index access for agents.
+- [Search Patterns](../../knowledge_base/patterns/search-patterns.md) — Design patterns for implementing high-relevance search.
+- [OpenTelemetry Collector](../process_understanding/opentelemetry-collector.md) — For monitoring Coveo integration performance.
 
 ## Sources / references
 - [Coveo Official Website](https://www.coveo.com/)
-- [Coveo Developer Documentation](https://docs.coveo.com/)
-- [Coveo CLI GitHub](https://github.com/coveo/cli)
+- [Coveo Developer Hub](https://docs.coveo.com/)
+- [Coveo MCP Integration Guide](https://github.com/coveo/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high

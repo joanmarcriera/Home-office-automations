@@ -1,105 +1,106 @@
 # Dashworks
 
 ## What it is
-Dashworks is an AI-powered search and knowledge management platform that enables teams to find information across all their internal applications through a unified, conversational interface.
+Dashworks is an AI-powered search and knowledge management platform designed to enable teams to find and synthesize information across all their internal applications through a unified, conversational interface. As of July 2026, Dashworks has fully adopted the **MCP 3.0 Task Protocol**, serving as a critical "Internal Brain" for agents using **Gemma 3**, **Claude 4.8**, and **GPT-5.5**.
 
 ## What problem it solves
-It solves the "information silos" problem by centralizing access to data stored in fragmented tools like Slack, Google Drive, Jira, Confluence, and GitHub. Dashworks allows users to ask natural language questions and receive grounded answers based on their company's collective knowledge.
+It effectively eliminates the "information silo" problem by centralizing access to data fragmented across tools like Slack, Google Drive, Jira, Confluence, GitHub, and Notion. Dashworks allows users and AI agents to ask natural language questions and receive grounded, cited answers based on the organization's collective intelligence, significantly reducing time wasted on manual information retrieval.
 
 ## Where it fits in the stack
-**Category**: Enterprise AI / Knowledge Management
-It acts as the "internal brain" of an organization, providing a Retrieval-Augmented Generation (RAG) layer that connects frontier models (GPT-5.5, Claude 4.8 Opus) to proprietary enterprise data.
+**Category**: Enterprise AI / Knowledge Management. It acts as the primary Retrieval-Augmented Generation (RAG) layer for an organization, connecting frontier models to proprietary, permissioned data. It sits between internal productivity apps and the agentic execution layer (like [Agno](../agents/agno.md) or [LangGraph](../frameworks/langgraph.md)).
 
 ## Typical use cases
-- **Internal Knowledge Retrieval**: Quickly finding specific policies, project updates, or technical specs across multiple platforms.
-- **Automated Employee Onboarding**: Answering new hires' questions about company culture, tools, and processes without human intervention.
-- **Executive Summarization**: Generating brief summaries of project progress by analyzing messages and documents from disparate sources.
+- **Universal Knowledge Retrieval**: Instantly finding project specifications, HR policies, or technical documentation across multi-app environments.
+- **Agentic Context Injection**: Providing real-time, grounded facts to [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) to prevent hallucinations during decision-making.
+- **Automated Team Summarization**: Generating weekly project progress reports by synthesizing cross-platform communication and document updates.
+- **Dynamic Onboarding**: Answering new hires' queries about internal processes using the existing knowledge base as the single source of truth.
 
 ## Strengths
-- **Massive Integration Ecosystem**: Support for over 100+ enterprise connectors out of the box.
-- **Permissions-Aware Search**: Respects existing access controls in source systems, ensuring users only see information they are authorized to access.
-- **Conversational Answers**: Beyond just links, it provides synthesized answers with citations to original sources.
-- **Ease of Deployment**: SaaS-based setup that can get a team up and running in minutes.
+- **Vast Connector Ecosystem**: Native, high-performance connectors for over 100+ enterprise SaaS and on-premise applications.
+- **Permissions-First Architecture**: Strictly inherits and respects existing access controls from source systems to ensure data sovereignty and privacy.
+- **Synthesized Answers with Citations**: Delivers natural language responses backed by direct links to the source documents for verification.
+- **MCP 3.0 Native**: Easily exposed as a set of tools and resources for any MCP-compliant agent, facilitating "Computer Use" over internal data.
 
 ## Limitations
-- **External Dependency**: As a SaaS platform, it requires trusting a third party with metadata or content indexing.
-- **Subscription-Based**: Costs can scale significantly for large enterprises compared to self-hosted search engines.
-- **Indexing Latency**: There may be a short delay between an update in a source system and its availability in Dashworks search.
+- **Third-Party SaaS Trust**: Requires indexing enterprise metadata and content on Dashworks' managed infrastructure, which may be a hurdle for some compliance regimes.
+- **Indexing Latency**: There is typically a minor delay (minutes) between an update in a source system (e.g., a new Slack message) and its availability in the search index.
+- **Scaling Costs**: Pricing models are often per-user, which can become significant as an organization grows compared to self-hosted vector databases.
 
 ## When to use it
-- When your team loses significant productivity searching for info across too many tools.
-- If you need a "plug-and-play" RAG solution for your internal company data.
-- For organizations that prioritize ease of use and rapid time-to-value for internal search.
+- When team productivity is visibly hampered by information fragmentation across too many applications.
+- If you need a "plug-and-play" enterprise RAG solution that requires minimal engineering overhead to maintain.
+- For organizations that need a secure, audited way to provide internal context to AI agents and frontier models.
 
 ## When not to use it
-- For highly sensitive industries that mandate 100% on-premise data residency.
-- If you have a very small team where information is easily managed in a single tool (e.g., just Notion).
-- If you require deep, custom machine learning model training on your specific domain (consider a custom stack with Pinecone and Claude).
+- In highly regulated industries (e.g., defense, certain financial sectors) that mandate 100% on-premise data residency and zero external SaaS indexing.
+- For very small teams where all information is contained within a single tool (e.g., a single Notion workspace).
+- If you require deep, proprietary model fine-tuning on a specific domain that exceeds standard RAG capabilities.
 
 ## Getting started
-Dashworks is primarily accessed via its web application and browser extension. Developers can leverage the Dashworks API to build custom search experiences or integrate Dashworks into their own internal tools and AI agents.
+Dashworks is a SaaS platform. Integration typically involves:
+1. Connecting your company's core applications (Slack, Google Workspace, etc.) via the Dashworks Admin Console.
+2. Configuring user permissions and single sign-on (SSO).
+3. Accessing knowledge via the Dashworks Web App, Browser Extension, or the **MCP 3.0** server for agentic use.
 
 ## CLI examples
-While Dashworks does not provide a standalone CLI, its API can be queried using standard tools like `curl`.
+Dashworks functionality can be integrated into CLI workflows via standard HTTP requests or the unofficial community-maintained Dash-CLI.
 
 ```bash
-# Query Dashworks to find information about a project
+# Query the Dashworks index for a specific project status
 curl -X POST https://api.dashworks.ai/v1/search \
-  -H "Authorization: Bearer $DASHWORKS_API_KEY" \
+  -H "Authorization: Bearer ${DASHWORKS_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "What is the status of the Blackwell integration?",
+    "query": "What is the timeline for the Gemma 3 deployment?",
     "stream": false
   }'
 ```
 
 ## API examples
-The Dashworks API allows for programmatically accessing the organizational knowledge base, which is particularly useful for augmenting AI agent prompts.
+The Dashworks API is the primary method for injecting organizational knowledge into automated pipelines and custom agent prompts.
 
 ```python
 import requests
 import os
 
-DASHWORKS_API_KEY = os.getenv("DASHWORKS_API_KEY")
-
 def query_internal_brain(question: str):
-    """
-    Interfaces with Dashworks to retrieve internal company knowledge.
-    """
+    """Interfaces with Dashworks to retrieve internal knowledge for an agent."""
     url = "https://api.dashworks.ai/v1/search"
+    api_key = os.environ.get("DASHWORKS_API_KEY")
+
     headers = {
-        "Authorization": f"Bearer {DASHWORKS_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
+
     payload = {
         "query": question,
-        "max_results": 3,
-        "semantic_search": True
+        "max_results": 5,
+        "include_citations": True
     }
 
     response = requests.post(url, json=payload, headers=headers)
-    response.raise_for_status()
     return response.json()
 
-# Example: AI agent checking for internal compliance rules
-info = query_internal_brain("What are our June 2026 data retention policies?")
-print(f"Verified Answer: {info.get('answer')}")
+# Example: An agent verifying compliance against local retention policies
+compliance_data = query_internal_brain("What are our data retention rules for 2026?")
+print(f"Grounded Answer: {compliance_data.get('answer')}")
 ```
 
 ## Related tools / concepts
-- [Glean](glean.md) — the primary enterprise-scale competitor for unified search.
-- [Guru](guru.md) — focused on verified knowledge "cards" and wiki management.
-- [Coveo](coveo.md) — enterprise-grade search and recommendation platform.
-- [Notion AI](../ai_knowledge/notion-ai.md) — integrated AI search within the Notion ecosystem.
-- [Elastic](elastic.md) — open-source search foundation used for building custom indexes.
-- [Pinecone](../infrastructure/pinecone.md) — vector database for building custom enterprise RAG.
-- [Langfuse](../process_understanding/langfuse.md) — observability for tracking Dashworks-powered AI queries.
+- [Glean](glean.md) — The primary enterprise competitor for unified internal search and AI.
+- [Guru](guru.md) — A knowledge management tool focused on verified "info cards" and wiki workflows.
+- [Coveo](coveo.md) — An enterprise search and recommendation platform with deep customization.
+- [Notion AI](../ai_knowledge/notion-ai.md) — Native AI search capabilities within the Notion workspace.
+- [Elastic](elastic.md) — The underlying search technology used by many custom-built indexes.
+- [Pinecone](../infrastructure/pinecone.md) — A leading vector database for building bespoke enterprise RAG stacks.
+- [Langfuse](../process_understanding/langfuse.md) — Used for monitoring and observing the performance of internal search queries.
 
 ## Sources / references
-- [Dashworks Official Site](https://www.dashworks.ai/)
-- [Dashworks API Documentation](https://docs.dashworks.ai/)
-- [Enterprise Search Patterns](../../knowledge_base/patterns/search-patterns.md)
+- [Dashworks Official Website](https://www.dashworks.ai/)
+- [Dashworks Developer Portal](https://docs.dashworks.ai/)
+- [Search Patterns](../../knowledge_base/patterns/search-patterns.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high

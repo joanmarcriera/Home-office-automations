@@ -1,105 +1,104 @@
 # Skyvern
 
 ## What it is
-Skyvern is an open-source browser automation platform that leverages LLMs and Computer Vision to automate complex workflows on any website. Unlike traditional automation tools that rely on the DOM (Document Object Model), Skyvern uses visual reasoning to interact with websites. As of June 2026, it is widely used for enterprise-scale browser automation where reliability across diverse and changing UIs is paramount.
+Skyvern is an open-source browser automation platform that leverages Large Language Models (LLMs) and advanced Computer Vision to automate complex workflows on any website. Unlike traditional automation tools that rely on the underlying DOM (Document Object Model), Skyvern utilizes visual reasoning to interact with web elements. As of July 2026, Skyvern is a premier solution for enterprise-scale browser automation, offering native support for the **MCP 3.0 Task Protocol** and optimized integration with **Gemma 3** and **Claude 4.8 Opus**.
 
 ## What problem it solves
-It solves the "fragility" problem of web automation. Traditional scripts (Playwright, Selenium) break whenever a website's CSS classes, IDs, or internal structure changes. Skyvern "sees" the page like a human, allowing it to find buttons, fields, and information based on visual appearance and context, making it extremely resilient to UI updates and redesigns.
+It effectively addresses the "fragility" problem inherent in web automation. Traditional frameworks (like Playwright or Selenium) often fail when a website's internal CSS classes, IDs, or HTML structures are updated. Skyvern "sees" the page exactly as a human does, identifying buttons, fields, and informational elements based on their visual appearance and semantic context. This approach makes it exceptionally resilient to UI redesigns and anti-bot measures that obfuscate the DOM.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / Web Automation. It provides a robust, visual-reasoning layer for agents, often integrated into larger business process automation (BPA) pipelines or used alongside tools like [n8n](../../services/n8n.md).
+**Category**: Automation & Orchestration / Web Automation. It provides a robust, visual-reasoning execution layer for autonomous agents. Skyvern is frequently integrated into Business Process Automation (BPA) pipelines and orchestrated via tools like [n8n](../../services/n8n.md) or [Agno](../agents/agno.md).
 
 ## Typical use cases
-- **Cross-Platform Workflows**: Executing the same task (e.g., "Extract monthly invoice") across dozens of different vendor portals with unique UIs.
-- **Legacy System Integration**: Automating interaction with old web-based systems that lack APIs and have inconsistent DOM structures.
-- **Visual Data Gathering**: Extracting information from websites where the data is presented visually (e.g., charts, maps) or in heavily obfuscated HTML.
-- **Automated Compliance Audits**: Visually verifying that certain elements or disclosures are present across a large number of web pages.
+- **Cross-Vendor Workflow Standardization**: Executing identical tasks (e.g., "Download the May 2026 invoice") across hundreds of distinct vendor portals, each with a unique UI.
+- **Legacy Interface Automation**: Automating interactions with aged web-based systems that lack modern APIs and possess inconsistent or legacy DOM structures.
+- **Semantic Visual Extraction**: Gathering data from websites where information is presented visually (e.g., interactive charts, dynamic maps) rather than in static HTML.
+- **Automated Visual Compliance**: Verifying the presence and correct visual placement of legal disclosures or specific UI elements across a vast array of web properties.
 
 ## Strengths
-- **Visual Resilience**: Doesn't break on DOM changes; relies on what the user actually sees.
-- **Zero-Shot Automation**: Can often automate a new website without any prior training or selector mapping.
-- **Workflow Builder**: Includes a low-code interface for designing complex multi-step automations.
-- **Observability**: Provides detailed logs and video recordings of every step the agent takes for auditability.
+- **Inherent Visual Resilience**: Operates independently of the DOM; if a human can find it, Skyvern can too.
+- **Zero-Shot Task Execution**: Capable of automating tasks on entirely new websites without prior selector mapping or manual training.
+- **Enterprise Observability**: Features a comprehensive dashboard with detailed logs, step-by-step screenshots, and video recordings for full auditability.
+- **MCP 3.0 Compliance**: Seamlessly integrates into standardized agentic ecosystems, allowing Skyvern "Goals" to be called as standard MCP tools.
 
 ## Limitations
-- **Computational Cost**: Visual reasoning requires significant GPU resources for local inference or expensive vision-LLM calls.
-- **Latency**: Processing screenshots and reasoning visually is slower than direct DOM interaction.
-- **Complex UI Hurdles**: May still struggle with extremely non-standard interactive elements like complex 3D canvases or highly unconventional navigation patterns.
+- **Substantial Resource Requirements**: Visual reasoning and screenshot processing necessitate significant GPU acceleration or high-cost vision-LLM API calls.
+- **Execution Latency**: The pipeline of capturing screenshots, visual processing, and LLM reasoning is naturally slower than direct script-based interaction.
+- **Highly Complex Interactivity**: May still encounter difficulties with non-standard elements like nested iframe-based editors or complex 3D WebGL canvases.
 
 ## When to use it
-- When you need to automate a task across many different, unrelated websites.
-- For websites where the internal HTML structure is intentionally obfuscated or frequently changed.
-- When reliability is more important than raw execution speed.
+- When you need to automate tasks across a wide variety of unrelated and frequently changing websites.
+- For services where the HTML is intentionally obfuscated (anti-scraping) or where DOM-based selectors are unreliable.
+- When automation reliability and "human-like" interaction are more critical than raw speed.
 
 ## When not to use it
-- For simple scraping of a single, stable website where a basic CSS selector or API would be faster and cheaper.
-- In high-throughput scenarios where thousands of pages must be processed per minute.
-- When running on hardware without sufficient GPU acceleration for visual processing.
+- For high-speed data scraping of a single, stable website where a simple [Crawl4AI](../process_understanding/crawl4ai.md) setup or direct API would be more cost-effective.
+- In low-latency scenarios where tasks must be completed in milliseconds.
+- On hardware environments that lack the necessary compute power for vision-based reasoning.
 
 ## Getting started
 
 ### Installation
-Skyvern is typically deployed via Docker.
+Skyvern is best deployed using Docker to manage its vision and browser dependencies.
 
 ```bash
 git clone https://github.com/Skyvern-AI/skyvern.git
 cd skyvern
-docker-compose up
+docker-compose up -d
 ```
 
-### Basic Usage
-After deployment, the Skyvern UI is accessible at `http://localhost:8000`. You can define a "Goal" (e.g., "Log in to my bank and download the statement") and Skyvern will attempt to execute it autonomously.
+### Basic Usage with MCP 3.0
+Once deployed, Skyvern exposes an MCP server. You can connect it to a client like [Claude Desktop](../ai_knowledge/claude-desktop.md) or a custom [FastMCP](../automation_orchestration/mcp.md) host:
+
+1. Add the Skyvern MCP endpoint to your configuration.
+2. Provide a natural language goal: "Log in to my utility portal and report my current usage."
 
 ## CLI examples
 ```bash
-# Start Skyvern infrastructure
+# Start the Skyvern stack in detached mode
 docker-compose up -d
 
-# Check worker health
+# View the status of the Skyvern workers and vision processors
 docker-compose ps
 
-# Monitor real-time logs from the worker
-docker-compose logs -f worker
+# Tail logs for a specific Skyvern worker to debug visual reasoning
+docker-compose logs -f skyvern-worker
 ```
 
 ## API examples
 ```python
 import requests
 
-# Triggering a goal via the Skyvern API
+# Submitting a visual automation goal via the Skyvern REST API
 response = requests.post(
     "http://localhost:8000/api/v1/goals",
     json={
-        "url": "https://portal.example.com",
-        "goal": "Find the 'Billing' section and extract the balance due",
-        "proxy_config": {"use_residential": True}
+        "url": "https://shipping.example.com",
+        "goal": "Find the tracking number for the last order and update the status",
+        "vision_model": "gemma-3-27b",
+        "proxy_config": {"type": "residential"}
     },
-    headers={"Authorization": "Bearer YOUR_SECRET_KEY"}
+    headers={"Authorization": "Bearer ${SKYVERN_API_KEY}"}
 )
 
-print(f"Goal ID: {response.json()['goal_id']}")
+print(f"Goal queued: {response.json()['id']}")
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (AGPL-3.0)
-- **Cost**: Free (Self-hosted) / Paid (Skyvern Cloud for managed infrastructure).
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
-- [Browser Use](browser-use.md) — Python-based agentic browser framework.
-- [Stagehand](stagehand.md) — TypeScript-based semantic browser automation.
-- [Crawl4AI](../process_understanding/crawl4ai.md) — Efficient scraper for LLM data ingestion.
-- [n8n](../../services/n8n.md) — For scheduling and orchestrating Skyvern tasks.
-- [Playwright](../development_ops/playwright.md) — The underlying driver for browser interaction.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Best practices for browser-based agents.
-- [Model Context Protocol](mcp.md) — For standardizing tool access for agents.
-- [Lightpanda](lightpanda.md) — A lightweight, high-performance browser alternative.
+- [Browser Use](browser-use.md) — A Python-based framework for agentic browser interaction.
+- [Stagehand](stagehand.md) — A TypeScript equivalent focusing on semantic web automation.
+- [Crawl4AI](../process_understanding/crawl4ai.md) — Optimized web crawling and scraping for LLMs.
+- [n8n](../../services/n8n.md) — For orchestrating Skyvern within broader multi-app workflows.
+- [Playwright](../development_ops/playwright.md) — The underlying automation driver for Skyvern.
+- [Model Context Protocol (MCP)](mcp.md) — The protocol used for standardized tool integration.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Design patterns for autonomous browser agents.
+- [Agno](../agents/agno.md) — A multi-agent framework that can utilize Skyvern as a tool.
 
 ## Sources / References
-- [Skyvern GitHub](https://github.com/Skyvern-AI/skyvern)
-- [Official Website](https://www.skyvern.com/)
-- [Skyvern Documentation](https://docs.skyvern.com/)
+- [Skyvern GitHub Repository](https://github.com/Skyvern-AI/skyvern)
+- [Official Skyvern Website](https://www.skyvern.com/)
+- [Skyvern Technical Documentation](https://docs.skyvern.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
