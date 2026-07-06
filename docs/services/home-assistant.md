@@ -1,32 +1,32 @@
 # Home Assistant
 
 ## What it is
-Home Assistant is the world's leading open-source home automation platform, designed to be the central nervous system of a smart home. In June 2026, version **2026.6** has introduced the "Agentic Core" architecture, which natively supports Model Context Protocol (MCP 3.0) for seamless integration with frontier AI models like Claude 4.8 Opus and GPT-5.5.
+Home Assistant is the world's leading open-source home automation platform, designed to be the central nervous system of a smart home. In July 2026, version **2026.7** has solidified its "Agentic Core" architecture, which natively supports **Model Context Protocol (MCP 3.0)** and **FastMCP 3.0** for near-instant integration with multimodal AI models like **Gemma 3** and **Claude 4.8**.
 
 ## What problem it solves
-The smart home market is plagued by proprietary "walled gardens" and cloud dependencies that compromise privacy and reliability. Home Assistant solves this by providing a unified, local-first interface that integrates over 2,800 different services and devices (Zigbee, Z-Wave, Matter, Wi-Fi, Bluetooth). It enables complex, cross-brand automations that run entirely within the user's private network.
+The smart home market is plagued by proprietary "walled gardens" and cloud dependencies that compromise privacy and reliability. Home Assistant solves this by providing a unified, local-first interface that integrates over 3,000 different services and devices (Matter, Zigbee, Z-Wave, Wi-Fi, Bluetooth). It enables complex, cross-brand automations that run entirely within the user's private network, shielding the home from cloud outages and data harvesting.
 
 ## Where it fits in the stack
-**Category**: Service / Home Automation. It serves as the **central orchestration layer** for the physical environment, connecting hardware sensors and actuators to high-level agentic decision logic.
+**Category**: Service / Home Automation. It serves as the **Physical Orchestration Layer**, connecting hardware sensors and actuators to high-level agentic decision logic. It is the "Body" controlled by the LLM "Brain".
 
 ## Typical use cases
-- **Privacy-First AI Assist**: Controlling the home via natural language using local LLMs or secure cloud agents via MCP.
+- **Multimodal Home Control**: Using **Gemma 3**'s vision to control the home by pointing at devices or describing visual scenes through a camera feed.
 - **Predictive Energy Management**: Optimizing power usage based on weather forecasts, occupancy patterns, and dynamic grid pricing.
-- **Agentic Security**: Autonomous monitoring of camera feeds and sensors to identify anomalies and suggest protective actions.
+- **Agentic Security**: Autonomous monitoring of camera feeds and sensors where the LLM can identify complex anomalies (e.g., "The cat is in the garden at night") and suggest actions.
 - **Unified Entertainment**: Orchestrating multi-room audio and video across disparate hardware (Sonos, Plex, Apple TV).
 - **Automated Operations**: Triggering [Vikunja](vikunja.md) tasks or [n8n](n8n.md) workflows based on physical home events.
 
 ## Strengths
-- **Native MCP 3.0 Integration**: Direct "Tool Calling" support for AI agents to query and control home entities securely.
-- **Local Control**: Core functionality works without internet, ensuring maximum speed, reliability, and privacy.
-- **Extensive Integration Ecosystem**: Support for thousands of devices via official and community-built integrations.
-- **Powerful Automation Engine**: Supports visual automation building, Blueprints, and advanced YAML-based logic.
-- **Dynamic Dashboards**: Highly customizable "Lovelace" UI with support for 3D floorplans and agentic insight cards.
+- **Native MCP 3.0 / FastMCP Support**: Low-latency "Tool Calling" support for AI agents to query and control thousands of home entities securely.
+- **Privacy-First Design**: All data remains local; Home Assistant Assist allows for completely offline voice and text control via [Ollama](ollama.md).
+- **Extensive Integration Ecosystem**: The largest open-source integration library in the world.
+- **Visual & Code-Based Logic**: Supports visual automation building, Blueprints, and advanced YAML/Jinja2 logic.
+- **Dynamic 3D Dashboards**: "Lovelace" UI supports 3D floorplans and agent-generated "Insight Cards" for home health.
 
 ## Limitations
 - **Hardware Requirement**: Requires dedicated, 24/7 hardware (Raspberry Pi 5, NUC, or server) for a stable experience.
-- **Complexity**: While the UI is constantly improving, advanced configuration still benefits from technical knowledge.
-- **Breaking Changes**: The rapid pace of development can occasionally require manual adjustment of configurations during updates.
+- **Complexity**: While the UI is constantly improving, advanced configuration still benefits from technical knowledge of YAML and networking.
+- **State Management**: Managing thousands of entities can lead to "dashboard fatigue" if not carefully organized using Views and Areas.
 
 ## When to use it
 - When you want complete, private control over your smart home data and devices.
@@ -37,11 +37,6 @@ The smart home market is plagued by proprietary "walled gardens" and cloud depen
 ## When not to use it
 - If you prefer a 100% plug-and-play experience with zero maintenance and don't mind data being stored in a corporate cloud.
 - In environments where you cannot host local hardware.
-
-## Licensing and cost
-- **Licensing**: Open Source (Apache 2.0).
-- **Cost**: Free to self-host. Nabu Casa offers a paid subscription for secure remote access and voice assistant support (supporting the developers).
-- **Self-hostable**: Yes, via Home Assistant OS, Container, or Core.
 
 ## Getting started
 
@@ -59,6 +54,8 @@ services:
     restart: unless-stopped
     privileged: true
     network_mode: host
+    environment:
+      - MCP_ENABLED=true # Enable native MCP 3.0 support
 ```
 
 ### Hello World
@@ -74,41 +71,64 @@ Interact with the Home Assistant instance via the `ha` command:
 # Check configuration for errors
 docker exec homeassistant python3 -m homeassistant --config /config --script check_config
 
-# View core information
+# View core information and version
 docker exec homeassistant ha core info
 
 # Restart the Home Assistant core
 docker exec homeassistant ha core restart
 
-# Monitor system logs in real-time
-docker logs -f homeassistant
+# Manage add-ons (if using HAOS/Supervised)
+docker exec homeassistant ha addons list
 ```
 
 ## API examples
-Home Assistant provides a comprehensive REST API and WebSocket interface.
 
-### Python: Toggle a Light via API
+### FastMCP 3.0 Home Tool (TypeScript)
+Connecting Home Assistant entities to a July 2026 agent.
+
+```typescript
+import { FastMCP } from 'fastmcp';
+
+const mcp = new FastMCP("home-control");
+
+mcp.addTool({
+  name: "toggle_device",
+  description: "Toggle a home assistant device (light, switch, etc.)",
+  parameters: {
+    entityId: { type: "string", description: "The entity_id to toggle" }
+  },
+  execute: async ({ entityId }) => {
+    const res = await fetch(`http://homeassistant:8123/api/services/homeassistant/toggle`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${process.env.HA_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ entity_id: entityId })
+    });
+    return res.json();
+  }
+});
+
+mcp.serve();
+```
+
+### Python: Querying State
 ```python
 import requests
 
-URL = "http://localhost:8123/api/services/light/toggle"
-TOKEN = "YOUR_LONG_LIVED_ACCESS_TOKEN"
+def get_entity_state(entity_id):
+    url = f"http://homeassistant:8123/api/states/{entity_id}"
+    headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+    r = requests.get(url, headers=headers)
+    return r.json()['state']
 
-def toggle_light(entity_id):
-    headers = {
-        "Authorization": f"Bearer {TOKEN}",
-        "content-type": "application/json",
-    }
-    data = {"entity_id": entity_id}
-    response = requests.post(URL, headers=headers, json=data)
-    return response.json()
-
-# Example: Toggle the living room light
-toggle_light("light.living_room")
+# Example: Check if the front door is locked
+status = get_entity_state("lock.front_door")
+print(f"Front Door Status: {status}")
 ```
 
 ## Related tools / concepts
 - [Ollama](ollama.md) — For running local LLMs as the "brain" of the Home Assistant Assist.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Primary multimodal model for reasoning over home state and visual feeds.
+- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Standard protocol for connecting Home Assistant to agentic workflows.
 - [n8n](n8n.md) — For complex, cross-service automations that extend beyond the home.
 - [Vikunja](vikunja.md) — For managing household tasks triggered by Home Assistant events.
 - [Tailscale](tailscale.md) — For secure remote access to your dashboard from anywhere.
@@ -116,16 +136,13 @@ toggle_light("light.living_room")
 - [Immich](immich.md) — For displaying private photo galleries on home dashboards.
 - [Paperless-ngx](paperless-ngx.md) — For managing physical manuals and warranties for home devices.
 - [Plex](plex.md) — For controlling media playback through Home Assistant.
-- [ESPHome](https://esphome.io/) — For creating custom sensors and actuators for Home Assistant.
-- [Zigbee2MQTT](https://www.zigbee2mqtt.io/) — For advanced Zigbee device management.
-- [Matter](https://csa-iot.org/all-solutions/matter/) — The interoperability standard natively supported by HA.
 
 ## Sources / References
 - [Official Website](https://www.home-assistant.io/)
 - [Home Assistant Integrations](https://www.home-assistant.io/integrations/)
-- [Nabu Casa (Cloud Support)](https://www.nabucasa.com/)
-- [GitHub Repository](https://github.com/home-assistant/core)
+- [FastMCP Framework](https://github.com/jlowin/fastmcp)
+- [MCP 3.0 Specification](https://modelcontextprotocol.io/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high

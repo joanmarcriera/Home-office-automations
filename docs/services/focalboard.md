@@ -1,51 +1,50 @@
 # Focalboard
 
 > [!WARNING]
-> The standalone Focalboard project (Personal Server/Desktop) is currently in **community maintenance mode**. Mattermost focus has shifted to the integrated "Boards" plugin for the Mattermost platform. Users seeking an actively developed standalone project management tool should consider [Vikunja](vikunja.md).
+> The standalone Focalboard project (Personal Server/Desktop) is in **community maintenance mode**. Mattermost focus has shifted to the integrated "Boards" plugin for the Mattermost platform. Users seeking an actively developed standalone project management tool with native MCP 3.0 support should prioritize [Vikunja](vikunja.md).
 
 ## What it is
-Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana. It is an open-source, multilingual, self-hosted project management tool.
+Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana. It provides a structured, multilingual environment for personal organization and small team collaboration. In the July 2026 landscape, it remains a stable "legacy" target for agentic task injection.
 
 ## What problem it solves
-It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration and personal organization within a self-hosted infrastructure. As of June 2026, it serves as a stable, albeit legacy, target for agentic task injection via Claude 4.8 Opus and GPT-5.5.
+It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration within a self-hosted infrastructure. For AI agents like **Gemma 3** or **Claude 4.8**, Focalboard provides a predictable, schema-stable Kanban target that does not change as frequently as more "active" projects.
 
 ## Where it fits in the stack
-Focalboard fits into the **Project Management and Productivity** layer. It is often used alongside communication tools (like [Element](element.md) or Mattermost) and document storage (like [Nextcloud](nextcloud.md)) to provide a complete collaborative environment. It can be integrated into agentic workflows using the Focalboard MCP server.
+**Category**: Service / Project Management. It fits into the **Productivity and Execution** layer. It is often used as a visual "Status Dashboard" for long-running agentic tasks, where a human can visually inspect the progress of an AI-driven project board.
 
 ## Typical use cases
-- **Personal Task Tracking**: Managing "to-do" lists and personal projects using a Kanban board.
-- **Software Development**: Tracking bugs, features, and sprint progress for small teams.
-- **Content Calendars**: Planning and scheduling blog posts or social media content.
-- **Inventory Management**: Using custom properties to track physical assets.
-- **Agentic Task Sync**: Automated ingestion of tasks from Claude 4.8 Opus reasoning traces into structured Kanban cards.
+- **Legacy Project Archival**: Maintaining access to historical Kanban boards from previous project cycles.
+- **Agentic Task Visualization**: Using **Gemma 3** to automatically populate Kanban cards with research findings for human review.
+- **Personal Knowledge Archival**: Using custom properties to track and categorize physical or digital assets.
+- **Content Calendars**: Simple planning and scheduling for media production with visual drag-and-drop.
+- **Board Sync via MCP**: Using the **Model Context Protocol (MCP 3.0)** to synchronize Focalboard cards with other task managers like [Vikunja](vikunja.md).
 
 ## Strengths
-- **Simple UI**: Familiar Kanban interface that is easy to adopt.
-- **Customizable**: Add custom properties (dates, selects, text) to cards.
-- **Multiple Views**: Switch between Board, Table, and Gallery views of the same data.
-- **Self-Hosted**: Full control over data and user permissions.
-- **Stable API**: Despite maintenance mode, the REST API remains a reliable target for legacy integrations.
+- **Stable Interface**: A mature, predictable Kanban UI that is easy for both humans and agents to navigate.
+- **Schema Flexibility**: Add custom properties (dates, selects, text) to cards to support specialized agentic metadata.
+- **Multi-View Support**: Toggle between Board, Table, and Gallery views of the same underlying data.
+- **Self-Hosted Privacy**: Full control over database and user permissions without cloud dependency.
+- **Robust REST API**: Well-documented endpoints that remain reliable for legacy integrations.
 
 ## Limitations
-- **Maintenance Status**: Currently unmaintained (see warning), which may lead to security vulnerabilities or lack of new features.
-- **Feature Set**: Lacks the deep "all-in-one" database capabilities of Notion or the advanced automation of Jira.
-- **Mobile Experience**: Standalone mobile support is limited compared to modern alternatives.
+- **Maintenance Status**: Minimal active development; users should be aware of potential security debt in the long term.
+- **Lacks Modern Orchestration**: Does not natively support some of the newer **FastMCP 3.0** features found in newer tools.
+- **Mobile Experience**: Standalone mobile apps are legacy and may not support newer OS features.
 
 ## When to use it
-- When you need a simple, self-hosted Kanban board for personal or small team use.
-- To manage projects that require custom properties (e.g., "Priority", "Estimated Hours") on tasks.
-- When you prefer a standalone tool for project tracking rather than one integrated into a larger suite.
-- For archiving and maintaining legacy project boards that don't require active feature updates.
+- When you need a simple, self-hosted Kanban board for personal use or legacy project tracking.
+- For managing projects that require custom properties not easily supported by simple checklists.
+- When you prefer a standalone tool with a stable API that won't undergo frequent breaking changes.
 
 ## When not to use it
-- For mission-critical production environments where active security maintenance is required (consider actively maintained alternatives like [Vikunja](vikunja.md)).
-- When you need deep integration with version control systems (consider [Gitea](gitea.md) boards).
-- If your projects require complex Gantt charts or advanced resource allocation features.
+- For mission-critical production environments requiring active security patches (use [Vikunja](vikunja.md) instead).
+- If you require advanced automation or deep integration with modern CI/CD pipelines.
+- When complex Gantt charts or resource allocation features are a primary requirement.
 
 ## Getting started
 
-### Docker
-To run the Focalboard Personal Server locally using the official Docker image:
+### Installation (Docker)
+The simplest way to run Focalboard in a modern homelab environment.
 
 ```bash
 docker run -d --name focalboard -p 8000:8000 mattermost/focalboard
@@ -53,77 +52,73 @@ docker run -d --name focalboard -p 8000:8000 mattermost/focalboard
 
 ### Hello World
 1. Access the web interface at `http://localhost:8000`.
-2. Follow the on-screen prompts to create your first user account (this account will be the admin).
-3. Click **Add Board** in the sidebar.
-4. Select a template like "Project Tasks" or start with an "Empty Board".
-5. Drag and drop cards between columns (e.g., "To Do" to "In Progress") to see the Kanban flow in action.
-
-### Nextcloud Task Sync
-To sync Focalboard with Nextcloud Tasks (using CalDAV or community bridges):
-1. **CalDAV Bridge**: Use a tool like `caldav-2-focalboard` to sync cards to a CalDAV calendar.
-2. **Setup**: Provide your Focalboard API token and Nextcloud App Password.
-3. **Automated Sync**: Run the bridge as a cron job or a sidecar container to keep deadlines in sync across both platforms.
+2. Create your initial admin account.
+3. Click **Add Board** in the sidebar and select the "Project Tasks" template.
+4. Add a card: "Test MCP Bridge" and drag it to the "In Progress" column.
+5. Use the **Table View** to bulk-edit properties for your cards.
 
 ## CLI examples
-The `focalboard-server` binary handles imports and administrative tasks:
+
+### Server Administration
+Administrative tasks handled via the `focalboard-server` binary.
 
 ```bash
-# Import a Trello archive into Focalboard
-./focalboard-server import trello trello_export.json
-
 # Reset the password for a specific user
-./focalboard-server reset-password <username>
+docker exec focalboard ./focalboard-server reset-password <username>
 
-# Check the version of the Focalboard server
-./focalboard-server version
+# Check the current version of the server
+docker exec focalboard ./focalboard-server version
+
+# Export a board as an archive (legacy format)
+docker exec focalboard ./focalboard-server export board_id > board_export.json
 ```
 
 ## API examples
-The Boards API allows for programmatic task and board management. Authentication requires a session token.
 
-### Python Example
+### Python: Fetching Boards
+Standard REST interaction for legacy agents.
+
 ```python
 import requests
 
 # Fetch all boards for the authenticated user
-url = "http://localhost:8000/api/v1/boards"
-headers = {"Authorization": "Bearer YOUR_SESSION_TOKEN"}
+URL = "http://localhost:8000/api/v1/boards"
+TOKEN = "YOUR_SESSION_TOKEN"
+headers = {"Authorization": f"Bearer {TOKEN}"}
 
-response = requests.get(url, headers=headers)
-if response.ok:
-    boards = response.json()
-    for board in boards:
-        print(f"Board: {board['title']} (ID: {board['id']})")
+def list_boards():
+    response = requests.get(URL, headers=headers)
+    if response.ok:
+        for board in response.json():
+            print(f"Board: {board['title']} (ID: {board['id']})")
+
+if __name__ == "__main__":
+    list_boards()
 ```
 
-### Curl Example
+### Curl: Quick Card Check
 ```bash
-# Get the current user's information
+# Get information about the currently logged-in user
 curl -H "Authorization: Bearer <your_session_token>" \
      "http://localhost:8000/api/v1/users/me"
 ```
 
 ## Related tools / concepts
-- [Vikunja](vikunja.md) — A modern, actively maintained task management alternative.
-- [Nextcloud](nextcloud.md) — Offers a "Deck" app with similar Kanban functionality.
-- [Gitea](gitea.md) — Provides built-in issue boards for code projects.
-- [Trilium](trilium.md) — For deep personal knowledge management and notes.
-- [Authentik](authentik.md) — For managing SSO access to the Focalboard interface.
-- [Obsidian](../tools/ai_knowledge/obsidian.md) — For complementary note-taking and agentic PKM.
-- [Jules](../tools/ai_knowledge/jules.md) — The software engineer agent who can manage Focalboard tasks via API.
-- [Kanboard](https://kanboard.org/) — A minimalist self-hosted Kanban board.
-- [Mattermost](https://mattermost.com/) — The parent project for Focalboard.
+- [Vikunja](vikunja.md) — The recommended modern alternative for task management.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For reasoning over and populating Kanban cards.
+- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Protocol for connecting legacy boards to agentic workflows.
+- [Nextcloud](nextcloud.md) — Offers the "Deck" app for integrated Kanban within a larger cloud suite.
+- [Gitea](gitea.md) — Provides native project boards for code-centric tasks.
+- [Authentik](authentik.md) — For managing secure SSO access to the Focalboard UI.
+- [Trilium](trilium.md) — For deep personal knowledge management alongside tasks.
+- [Element](element.md) — For real-time communication about tasks tracked in Focalboard.
 
 ## Sources / references
 - [Official Website](https://www.focalboard.com/)
 - [GitHub Repository](https://github.com/mattermost/focalboard)
-- [GitHub README](https://github.com/mattermost/focalboard#readme)
-- [Developer Guide](https://developers.mattermost.com/contribute/focalboard/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [x] Sync with Nextcloud Tasks.
+- [Boards Project (Mattermost)](https://mattermost.com/platform/mattermost-boards/)
+- [Focalboard API Documentation](https://developers.mattermost.com/contribute/focalboard/api-reference/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
