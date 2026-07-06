@@ -45,14 +45,7 @@ Install using `uv` (recommended) or `pip`:
 uv pip install makefile-mcp
 ```
 
-### 2. Documenting your Makefile
-Add `##` comments to your targets to expose them:
-```makefile
-test: ## Run the test suite
-	pytest tests/
-```
-
-### 3. Configuration (Claude Desktop)
+### 2. Configuration (Claude Desktop)
 Configure your MCP client to run the server:
 ```json
 {
@@ -65,22 +58,29 @@ Configure your MCP client to run the server:
 }
 ```
 
+### Hello World Example
+Preview which targets will be discovered as tools in your current directory:
+```bash
+makefile-mcp --list
+```
+
 ## CLI examples
 ```bash
-# List discovered targets and exit
-makefile-mcp --list
-
 # Start server with specific include/exclude patterns
 makefile-mcp --include "test,lint" --exclude "deploy"
 
 # Set a custom tool prefix to avoid collisions
 makefile-mcp --prefix "myproj_"
+
+# Use a specific Makefile and working directory
+makefile-mcp --makefile ./build/Makefile --cwd ./build
 ```
 
 ## API examples
-AI agents can interact with the server's configuration tool:
+AI agents use the `set_working_directory` tool to switch context between projects at runtime:
+
 ```json
-// Change the working directory at runtime
+// Change the working directory to a new project
 set_working_directory({
   "path": "/absolute/path/to/new/project"
 })

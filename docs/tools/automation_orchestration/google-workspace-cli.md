@@ -43,34 +43,36 @@ Install via `npm` or download a pre-built binary:
 npm install -g @googleworkspace/cli
 ```
 
-### 2. Setup
-Initialize and create your Google Cloud project credentials:
+### 2. Setup & Login
+Initialize your Google Cloud project and authenticate:
 ```bash
 gws auth setup
+gws auth login
 ```
 
-### 3. Login
-Authenticate your session:
+### Hello World Example
+List your most recent Google Drive files to verify the connection:
 ```bash
-gws auth login
+gws drive files list --params '{"pageSize": 5}'
 ```
 
 ## CLI examples
 ```bash
-# Show today's agenda using the helper command
+# Show today's calendar agenda
 gws calendar +agenda
 
-# Send an email with a helper command
-gws gmail +send --to user@example.com --subject "2026 Audit" --body "Draft attached."
+# Send a quick email via Gmail
+gws gmail +send --to user@example.com --subject "Hello" --body "Sent via gws CLI"
 
-# List files in a specific Drive folder
-gws drive files list --params '{"q": "'\''folder-id'\'' in parents"}'
+# Append a row to a Google Sheet
+gws sheets +append --spreadsheet SPREADSHEET_ID --values "Name,Score"
 ```
 
 ## API examples
-While primarily a CLI, agents use the structured JSON output to reason about Workspace state:
+AI agents use the `schema` command to introspect API requirements and structured JSON output for reasoning:
+
 ```bash
-# Agents can introspect schemas
+# Introspect request/response schema for an API method
 gws schema drive.files.list
 ```
 > [!NOTE]
