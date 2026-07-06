@@ -1,10 +1,10 @@
 # Consolidated Services Inventory
 
 ## What it is
-The Consolidated Services Inventory is a centralized registry and status dashboard for all services running in the TrueNAS SCALE home lab environment. It provides a high-level overview of the service purpose, container images, data persistence paths, and network exposure.
+The Consolidated Services Inventory is a centralized registry and status dashboard for all services running in the TrueNAS SCALE home lab environment. As of July 2026, it serves as the ground truth for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) agents to discover and interact with the homelab infrastructure.
 
 ## What problem it solves
-In a complex home lab with dozens of interconnected services (Nextcloud, Home Assistant, Ollama, etc.), it becomes difficult to track where data is stored, which images are in use, and how each service is exposed. This inventory serves as the single source of truth for administrative oversight and disaster recovery planning.
+In a complex home lab with dozens of interconnected services (Nextcloud, Home Assistant, Ollama, etc.), it becomes difficult to track where data is stored, which images are in use, and how each service is exposed. This inventory provides a machine-readable map (via the MCP 3.0 Task Protocol) for administrative oversight, automated maintenance, and disaster recovery planning.
 
 ## Where it fits in the stack
 **Infrastructure Management / Documentation**. It sits above the individual service configurations, providing a map of the entire self-hosted ecosystem.
@@ -17,36 +17,29 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 | **Home Assistant** | Smart Home Control | `homeassistant/home-assistant` | `/mnt/<pool>/applications/home-assistant/` | Reverse Proxy / LAN |
 | **Ollama** | Local LLM Runner | `ollama/ollama` | `/mnt/<pool>/applications/ollama/` | LAN / Tailscale |
 | **Jellyfin** | Media Streaming | `jellyfin/jellyfin` | `/mnt/<pool>/applications/jellyfin/` | Reverse Proxy / LAN |
+| **Immich** | Photo Management | `ghcr.io/immich-app/immich-server` | `/mnt/<pool>/applications/immich/` | Reverse Proxy / LAN |
+| **Navidrome** | Music Streaming | `ghcr.io/navidrome/navidrome` | `/mnt/<pool>/applications/navidrome/` | Reverse Proxy / LAN |
 | **Vikunja** | Task Management | `vikunja/vikunja` | Private dataset path | Private network / reverse proxy |
 | **Linkwarden** | Bookmark Manager | `ghcr.io/linkwarden/linkwarden` | `/mnt/<pool>/applications/linkwarden/` | Reverse Proxy / LAN |
-| **Habitica** | Gamified Tasks | `habitica/habitica` | `/mnt/<pool>/applications/habitica/` | LAN / Tailscale |
-| **Focalboard** | Project Management | `mattermost/focalboard` | `/mnt/<pool>/applications/focalboard/` | LAN / Tailscale |
-| **qBittorrent** | Torrent Client | `linuxserver/qbittorrent` | `/mnt/<pool>/applications/qbittorrent/` | LAN (VPN) |
-| **Jackett** | Tracker Proxy | `linuxserver/jackett` | `/mnt/<pool>/applications/jackett/` | LAN |
-| **Diskover** | Disk Analysis | `diskover/diskover` | `/mnt/<pool>/applications/diskover/` | LAN |
-| **Storj Node** | Decentralized Storage | `storjlabs/storagenode` | `/mnt/<pool>/applications/storj/` | WAN (Port Forward) |
-| **Radicale** | CalDAV Server | `tomschroeder/radicale` | `/mnt/<pool>/applications/radicale/` | Reverse Proxy / LAN |
-| **LiteLLM** | LLM Proxy | `ghcr.io/berriai/litellm` | `/mnt/<pool>/applications/litellm/` | LAN / Tailscale |
-| **rclone** | Cloud Sync | `rclone/rclone` | `/mnt/<pool>/applications/rclone/` | N/A (CLI/Cron) |
 | **Authentik** | IDP / SSO | `ghcr.io/goauthentik/server` | `/mnt/<pool>/applications/authentik/` | Reverse Proxy / LAN |
 | **Synapse** | Matrix Server | `matrixdotorg/synapse:latest` | `/mnt/<pool>/applications/synapse/` | Reverse Proxy / LAN |
 
 ## Typical use cases
-- Auditing container image versions for security updates across the stack.
-- Verifying ZFS dataset paths during storage migration or backup configuration.
-- Checking network exposure (Reverse Proxy vs. LAN-only) to ensure security compliance.
-- Assisting AI agents (Claude 4.8 Opus, GPT-5.5) in mapping the environment for autonomous troubleshooting.
+- **Security Updates**: Auditing container image versions across the stack for July 2026 security patches.
+- **Storage Planning**: Verifying ZFS dataset paths during storage migration to new NVMe pools.
+- **Exposure Auditing**: Ensuring private services (like [Ollama](ollama.md)) are not accidentally exposed to the WAN.
+- **MCP Discovery**: Providing a service map for Gemma 3 agents to perform autonomous troubleshooting and health checks.
 
 ## Strengths
-- **Centralized Visibility**: Consolidated view of disparate services.
-- **Data Path Tracking**: Critical for ensuring all stateful data is backed up.
-- **Exposure Mapping**: Helps prevent accidental exposure of private services to the WAN.
-- **Consistency**: Matches standard KnowledgeOps formatting for easy parsing by automated agents.
+- **Centralized Visibility**: Consolidated view of disparate services across multiple Docker nodes.
+- **Data Path Tracking**: Critical for ensuring all stateful data is captured by [rclone](rclone-automation.md) backups.
+- **Exposure Mapping**: Visual representation of the attack surface.
+- **Consistency**: Matches the high-confidence KnowledgeOps standard for easy parsing by automated agents.
 
 ## Limitations
-- **Manual Updates**: Requires manual updates or specific automation triggers when services are added.
-- **Static Content**: Does not show real-time health or performance metrics.
-- **Abstraction**: Does not replace detailed individual service documentation files.
+- **Manual Updates**: Requires strict discipline to update the MD file when services are added/removed.
+- **Static Content**: Does not show real-time CPU/RAM usage (refer to [Dashworks](dashworks.md)).
+- **Abstraction**: High-level only; detailed configuration remains in individual service docs.
 
 ## When to use it
 - When planning infrastructure changes (e.g., ZFS pool migrations or hardware upgrades).
@@ -54,9 +47,9 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 - During disaster recovery to quickly find the data path or image of a specific service.
 
 ## When not to use it
-- For real-time monitoring (use Prometheus/Grafana or Dashworks for that).
-- For detailed configuration parameters or environment variable lists (refer to individual service `.md` files).
-- For sensitive secret management (refer to Vault or TrueNAS Secrets).
+- For real-time monitoring (use Prometheus/Grafana or [Dashworks](dashworks.md)).
+- For managing secrets or environment variables (use [Vault](hashicorp-vault.md)).
+- For temporary, development-only services that are not part of the production lab.
 
 ## Getting started
 
@@ -102,18 +95,10 @@ if __name__ == "__main__":
     audit_inventory('docs/services/inventory.md')
 ```
 
-### Service Health Check
-Quick CLI check to verify service reachability.
-
-```bash
-# Check if n8n is reachable via local DNS
-curl -s -I http://n8n.local:5678 | grep "HTTP/1.1 200 OK" || echo "n8n Down"
-```
-
 ## API examples
 
-### Fetching Inventory Data (Python)
-Programmatically accessing the inventory for use in custom dashboards or agentic reasoning.
+### Fetching Inventory Data (Python + MCP)
+Programmatically accessing the inventory for use in custom dashboards or agentic reasoning via MCP tools.
 
 ```python
 import requests
@@ -122,11 +107,11 @@ def get_service_path(service_name):
     # Mocking a call to a hypothetical Documentation API or parsing the MD
     inventory = {
         "Nextcloud": {"data_path": "/mnt/pool/apps/nextcloud"},
-        "Ollama": {"data_path": "/mnt/pool/apps/ollama"}
+        "Immich": {"data_path": "/mnt/pool/apps/immich"}
     }
     return inventory.get(service_name, {}).get("data_path", "Path not found")
 
-print(get_service_path('Nextcloud'))
+print(get_service_path('Immich'))
 ```
 
 ## Related tools / concepts
@@ -138,12 +123,16 @@ print(get_service_path('Nextcloud'))
 - [Ollama](ollama.md) — Local AI inference runner.
 - [Authentik](authentik.md) — Identity and access management.
 - [Syncthing](syncthing.md) — P2P file synchronization.
+- [Immich](immich.md) — Photo management service.
+- [Navidrome](navidrome.md) — Music streaming service.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standardized interface for infrastructure interaction.
 
 ## Sources / references
 - [TrueNAS SCALE Documentation](https://www.truenas.com/docs/scale/)
 - [Home Lab Services Guide](https://github.com/joanmarcriera/Home-office-automations)
 - [Docker Documentation](https://docs.docker.com/)
+- [MCP 3.0 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-17
+- Last reviewed: 2026-07-21
 - Confidence: high
