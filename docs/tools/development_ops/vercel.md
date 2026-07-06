@@ -1,16 +1,16 @@
 # Vercel
 
 ## What it is
-Vercel is a cloud platform for deploying frontend websites and web applications, optimized for modern React, Next.js, and agentic streaming architectures. It provides a seamless transition from code to a globally distributed, high-performance production environment with native support for Edge Functions and AI-native workflows.
+Vercel is a cloud platform for deploying frontend websites and web applications, optimized for modern React, Next.js 16+, and agentic streaming architectures with AI-native infrastructure. It provides a seamless transition from code to a globally distributed, high-performance production environment with native support for Edge Functions and AI-native workflows.
 
 ## What problem it solves
-It eliminates the operational complexity of publishing and scaling modern web apps. Vercel automates SSL, CI/CD, global routing, and cache invalidation, allowing developers to focus on product logic. In the era of Claude 4.8 and GPT-5.5, it solves the challenge of low-latency token streaming through its optimized Edge Network.
+It eliminates the operational complexity of publishing and scaling modern web apps. Vercel automates SSL, CI/CD, global routing, and cache invalidation, allowing developers to focus on product logic. In the era of Claude 4.8, GPT-5.5, and Gemma 3, it solves the challenge of low-latency token streaming through its optimized Edge Network.
 
 ## Where it fits in the stack
 **Development & Ops / Frontend Hosting Platform**. It is the primary deployment layer for frontend-heavy applications and AI demos, sitting above infrastructure providers (AWS/GCP) to provide a specialized, developer-first experience.
 
 ## Typical use cases
-- **AI-Native Web Apps**: Hosting chat interfaces and agentic dashboards using the [Vercel AI SDK 5.0](vercel-oss.md).
+- **AI-Native Web Apps**: Hosting chat interfaces and agentic dashboards using the [Vercel AI SDK 5.x](vercel-oss.md) and MCP 3.0 Task Protocol.
 - **Edge-First Applications**: Running logic at the edge for sub-100ms response times globally.
 - **Rapid Prototyping**: Going from a local `git push` to a production-ready preview URL in seconds.
 - **Enterprise Frontends**: Scaling Next.js applications with built-in observability and performance monitoring.
@@ -112,5 +112,5 @@ export function middleware(request: NextRequest) {
 - [Vercel API Reference](https://vercel.com/docs/rest-api)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-05
 - Confidence: high

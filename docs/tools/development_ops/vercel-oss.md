@@ -1,7 +1,7 @@
 # Vercel OSS
 
 ## What it is
-Vercel OSS is Vercel's open-source ecosystem and showcase of projects, templates, and reference tooling. It centers on high-profile libraries like the [Vercel AI SDK 5.0](https://sdk.vercel.ai/) and [v0.dev](https://v0.dev/), providing the foundational components for building agentic, streaming web applications. It serves as the primary reference hub for Next.js-native implementation patterns optimized for frontier models like Claude 4.8 Opus and GPT-5.5.
+Vercel OSS is Vercel's open-source ecosystem and showcase of projects, templates, and reference tooling. It centers on high-profile libraries like the [Vercel AI SDK 5.x](https://sdk.vercel.ai/) and [v0.dev](https://v0.dev/), providing the foundational components for building agentic, streaming web applications. It serves as the primary reference hub for Next.js-native implementation patterns optimized for frontier models like Claude 4.8 Opus, GPT-5.5, and Gemma 3.
 
 ## What problem it solves
 It provides production-ready, benchmarked implementations for common AI-web integration challenges. Instead of building from scratch, developers can leverage battle-tested patterns for streaming, generative UI, and tool-calling, reducing the gap between a local LLM experiment and a globally distributed production application.
@@ -19,7 +19,7 @@ It provides production-ready, benchmarked implementations for common AI-web inte
 - **Optimized for Streaming**: Native support for token-by-token streaming, essential for the latency requirements of GPT-5.5 and Claude 4.8.
 - **Generative UI First**: Deep integration between v0 and the AI SDK allows for seamless "AI-to-Component" workflows.
 - **Massive Community Adoption**: Thousands of production-ready templates and "starters" available.
-- **Performance**: High-performance defaults for Next.js and Tailwind CSS.
+- **Performance**: High-performance defaults for Next.js 16+ and Tailwind CSS.
 
 ## Limitations
 - **Ecosystem Lock-in**: While open-source, many patterns are heavily optimized for [Vercel](vercel.md) and Next.js.
@@ -35,7 +35,7 @@ It provides production-ready, benchmarked implementations for common AI-web inte
 ## When not to use it
 - For non-web applications (CLI tools, mobile native, etc.).
 - When the backend is strictly Python (consider [FastAPI](../frameworks/fastapi.md) or [Agno](../agents/agno.md) instead).
-- For purely static documentation sites where [GitHub Pages](../development_ops/github-pages.md) is sufficient.
+- For purely static documentation sites where [GitHub Pages](github-pages.md) is sufficient.
 
 ## Getting started
 To start building with Vercel OSS tools:
@@ -62,7 +62,7 @@ vercel link
 ```
 
 ## API examples
-The Vercel AI SDK 5.0 provides a unified interface for model interaction.
+The Vercel AI SDK 5.x provides a unified interface for model interaction.
 
 ### Text Streaming with Claude 4.8 Opus
 ```typescript
@@ -116,5 +116,5 @@ const result = await streamUI({
 - [Turborepo Documentation](https://turbo.build/repo/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-05
 - Confidence: high
