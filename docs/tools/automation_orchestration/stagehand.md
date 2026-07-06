@@ -1,13 +1,13 @@
 # Stagehand
 
 ## What it is
-Stagehand is a specialized library for "browser-use" automation, designed to make web interactions for AI agents reliable, resilient, and easy to script. As of June 2026, it is maintained by Browserbase and serves as a high-level abstraction over Playwright, specifically optimized for how frontier models like **Claude 4.8 Opus** and **GPT-5.5** perceive and interact with web pages using both text and vision.
+Stagehand is a specialized library for "browser-use" automation, designed to make web interactions for AI agents reliable, resilient, and easy to script. As of July 2026, it is maintained by Browserbase and serves as a high-level abstraction over Playwright, specifically optimized for how frontier models like **Claude 4.8 Opus**, **GPT-5.5**, and **Gemma 3** perceive and interact with web pages using both text and vision.
 
 ## What problem it solves
 Traditional web automation (vanilla Playwright, Selenium) is notoriously brittle, often breaking when CSS selectors or DOM structures change. Stagehand solves this by allowing agents to interact with elements based on semantic meaning and visual layout. It leverages LLMs to "heal" broken paths and interpret the UI dynamically, significantly reducing the maintenance overhead of web-based agentic workflows.
 
 ## Where it fits in the stack
-**Category**: Automation & Orchestration / Web Automation. It sits between the LLM orchestration layer (like LangGraph or Agency Swarm) and the browser execution engine (Playwright/Browserbase), providing the "semantic bridge" for reliable navigation.
+**Category**: Automation & Orchestration / Web Automation. It sits between the LLM orchestration layer (like LangGraph or Agency Swarm) and the browser execution engine (Playwright/Browserbase), providing the "semantic bridge" for reliable navigation. In July 2026, it integrates with FastMCP 3.0 for ultra-low latency browser tool hosting.
 
 ## Typical use cases
 - **Agentic Web Browsing**: Enabling an agent to perform multi-step tasks on arbitrary websites (e.g., "Find the cheapest direct flight to Tokyo in October").
@@ -101,6 +101,7 @@ await stagehand.close();
 - [Browser Use](browser-use.md) — Python-based alternative for agentic browsing.
 - [Skyvern](skyvern.md) — Visual-reasoning based automation platform.
 - [Crawl4AI](../process_understanding/crawl4ai.md) — LLM-friendly web scraping library.
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Canonical guide for vision-capable local models.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns for web agents.
 - [Multi-On](../agents/multion.md) — Managed agentic browsing service.
 - [Tavily](../providers/tavily.md) — Agentic search engine for data gathering.
@@ -112,5 +113,5 @@ await stagehand.close();
 - [Stagehand Documentation](https://docs.browserbase.com/stagehand)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
