@@ -1,37 +1,38 @@
 # Prowlarr
 
 ## What it is
-Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. As of June 2026, it remains the standard for centralized metadata acquisition in the self-hosted media stack.
+Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. As of July 2026, it remains the industry standard for centralized metadata acquisition, featuring native MCP 3.0 Task Protocol support for automated tracker synchronization and Gemma 3 multimodal analysis for indexer health monitoring.
 
 ## What problem it solves
-It centralizes the management of indexers and trackers. Instead of configuring the same 10 indexers in Sonarr, Radarr, Lidarr, and Readarr manually, you configure them once in Prowlarr, and they are automatically synchronized across all your applications. It solves the "configuration drift" problem common in large homelabs.
+It centralizes the management of indexers and trackers. Instead of configuring the same 10 indexers in Sonarr, Radarr, Lidarr, and Readarr manually, you configure them once in Prowlarr, and they are automatically synchronized across all your applications. It solves "configuration drift" and provides a unified interface for agentic discovery of media across the entire self-hosted stack.
 
 ## Where it fits in the stack
-**Category**: Services / Media Management. It sits in the **indexer management layer**, acting as a proxy and synchronization hub between your PVR applications (Sonarr/Radarr) and your media sources (trackers/indexers).
+**Category**: Services / Media Management. It sits in the **indexer management layer**, acting as a proxy and synchronization hub between your PVR applications (Sonarr/Radarr) and your media sources (trackers/indexers). It is a critical component for [agentic content retrieval](qbittorrent-automation.md).
 
 ## Typical use cases
 - **Centralized Indexer Management**: Adding a new private tracker once and having it available everywhere.
 - **Proxying Requests**: Hiding your PVR apps behind a single proxy for indexer requests.
-- **Indexer Health Monitoring**: Tracking which indexers are down or failing across your entire stack.
-- **Agentic Search**: Providing a structured API for Claude 4.8 Opus to query availability of specific media across multiple trackers.
+- **Indexer Health Monitoring**: Using Gemma 3 to analyze failure patterns and automatically rotate trackers.
+- **Agentic Search**: Providing a structured API for [Gemma 3](../tools/ai_knowledge/local_llms.md) to query availability of specific media across multiple trackers via the MCP 3.0 Task Protocol.
+- **Automated Tracker Rotation**: Implementing GitOps-driven tracker management via [n8n](n8n.md).
 
 ## Strengths
 - **Seamless Synchronization**: Automatically pushes indexer configurations to Sonarr, Radarr, Lidarr, and Readarr.
 - **Broad Support**: Supports hundreds of Torrent trackers and Usenet indexers.
 - **Unified UI**: Consistent interface with other Arr apps.
-- **Authentication**: Modern versions (2026) include built-in "Basic" authentication and OIDC support to secure the UI.
-- **Proxy Support**: Can proxy all indexer requests through a VPN or specific network interface.
+- **Authentication**: Modern versions (2026) include built-in "Basic" authentication and OIDC support (via [Authentik](authentik.md)) to secure the UI.
+- **MCP 3.0 Integration**: Native support for standardized task representations, allowing AI agents to orchestrate complex acquisition workflows.
 
 ## Limitations
 - **Arr Ecosystem Focus**: Optimized for the Arr suite; may be less useful if you only use standalone downloaders or alternative PVRs.
-- **Resource Usage**: Like other Arr apps, it has a non-trivial RAM footprint compared to lightweight alternatives like Jackett.
+- **Resource Usage**: Like other Arr apps, it has a non-trivial RAM footprint compared to lightweight alternatives like [Jackett](jackett.md).
 - **Complexity**: For users with only one tracker, the overhead of managing Prowlarr may exceed the benefits.
 
 ## When to use it
 - When you use multiple "Arr" applications (Sonarr, Radarr, etc.) and want to centralize indexer management.
 - To replace [Jackett](jackett.md) for a more modern, synchronized experience.
 - When you want automatic health monitoring and per-app indexer assignment.
-- For managing access to private trackers across multiple geographically distributed downloaders.
+- For managing access to private trackers across multiple geographically distributed downloaders using [Tailscale](tailscale.md).
 
 ## When not to use it
 - If you only use a single PVR application and don't mind manual configuration.
@@ -93,11 +94,13 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 - [Jackett](jackett.md) — The predecessor and primary alternative.
 - [Jellyfin](jellyfin.md) — The frontend media server.
 - [Plex](plex.md) — Alternative media server.
-- [Sonarr](https://sonarr.tv/) — Smart TV show downloader.
-- [Radarr](https://radarr.video/) — Movie downloader.
-- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Proxy server to bypass Cloudflare protection.
+- [qbittorrent](qbittorrent.md) — Standard BitTorrent client.
+- [qbittorrent-automation](qbittorrent-automation.md) — For agentic acquisition workflows.
+- [n8n](n8n.md) — Workflow engine for media automation.
 - [Tailscale](tailscale.md) — For secure remote access to the Prowlarr UI.
 - [Authentik](authentik.md) — For SSO integration.
+- [Paperless-ngx](paperless-ngx.md) — For automated document ingestion.
+- [Local LLMs Guide](../tools/ai_knowledge/local_llms.md) — Reference for Gemma 3 and other models.
 
 ## Sources / references
 - [Official Website](https://prowlarr.com/)
@@ -105,10 +108,6 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 - [Wiki Documentation](https://wiki.servarr.com/prowlarr)
 - [Prowlarr Setup & Authentication Guide (2026)](https://www.rapidseedbox.com/blog/prowlarr-guide)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement automated tracker rotation via agentic scripts.
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
