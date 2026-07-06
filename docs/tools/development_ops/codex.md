@@ -1,13 +1,13 @@
 # OpenAI Codex (Evolution to GPT-5.5 / O4)
 
 ## What it is
-OpenAI Codex was the original specialized coding model that paved the way for modern AI-assisted engineering. While the standalone Codex models (e.g., `code-davinci-002`) are deprecated, their legacy lives on in the coding-optimized architectures of **GPT-5.5** and the **O4 reasoning series**. These models serve as the "brain" for the industry's most advanced IDEs and autonomous agents.
+OpenAI Codex was the original specialized coding model that paved the way for modern AI-assisted engineering. While the standalone Codex models (e.g., `code-davinci-002`) are deprecated, their legacy lives on in the coding-optimized architectures of **GPT-5.5** and the **O4 reasoning series**. In July 2026, these models represent the frontier of closed-source coding intelligence, competing with open-weight alternatives like **Gemma 3** for developer mindshare.
 
 ## What problem it solves
-It bridges the gap between natural language intent and executable source code. By understanding complex syntax, design patterns, and cross-file dependencies, these models reduce the cognitive load of boilerplate implementation, complex refactoring, and debugging, enabling "flow-state" engineering for both human developers and autonomous agents.
+It bridges the gap between natural language intent and executable source code. By understanding complex syntax, design patterns, and cross-file dependencies, these models reduce the cognitive load of boilerplate implementation, complex refactoring, and debugging. The O4 series specifically solves the "reasoning gap" in complex architectural migrations that previously required senior human intervention.
 
 ## Where it fits in the stack
-**Development & Ops / Core Reasoning Layer**. It functions as the underlying model powering the [GitHub Copilot Ecosystem](github-copilot-cli.md), [Cursor](cursor.md), and [Aider](aider.md).
+**Development & Ops / Core Reasoning Layer**. It functions as the underlying model powering the [GitHub Copilot Ecosystem](github-copilot-cli.md), [Cursor](cursor.md), and [Aider](aider.md). It serves as the high-intelligence "brain" for autonomous agents.
 
 ## Typical use cases
 - **Autonomous Software Engineering**: Powering agents like [Devin](devin.md) or [OpenHands](openhands.md) to solve complex Jira issues or SWE-bench tasks.
@@ -19,13 +19,13 @@ It bridges the gap between natural language intent and executable source code. B
 ## Strengths
 - **Unmatched Logic (O4 Series)**: Deep "System 2" reasoning for complex debugging and architectural planning.
 - **Multimodal Context (GPT-5.5)**: Ability to reason over UI screenshots, system diagrams, and terminal output simultaneously.
-- **Massive Context Windows**: Support for up to 2M tokens in select models, enabling reasoning over entire repositories.
-- **Ecosystem Integration**: Native support in virtually every major AI coding tool.
+- **Massive Context Windows**: Support for up to 2M tokens, enabling reasoning over entire repositories.
+- **Ecosystem Integration**: Native support in virtually every major AI coding tool and [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) implementation.
 
 ## Limitations
 - **Closed Ecosystem**: Proprietary models with no self-hosted or weight-available options.
 - **Inference Latency**: High-reasoning models (O4) are significantly slower than "Flash" models like GPT-5.5-Flash.
-- **Cost**: Premium reasoning tokens remain the most expensive in the market as of June 2026.
+- **Cost**: Premium reasoning tokens remain the most expensive in the market as of July 2026.
 - **Privacy Concerns**: Enterprise requirements often necessitate complex "Zero Data Retention" (ZDR) agreements.
 
 ## When to use it
@@ -36,7 +36,7 @@ It bridges the gap between natural language intent and executable source code. B
 
 ## When not to use it
 - For simple, repetitive boilerplate where [Claude 4.8 Haiku](../ai_knowledge/claude.md) or GPT-5.5-Flash is more cost-effective.
-- When strict data privacy requirements mandate a local model like [Llama 4 Maverick](../ai_knowledge/llama.md).
+- When strict data privacy requirements mandate a local model like [Gemma 3](../ai_knowledge/local_llms.md).
 - When the task is primarily non-technical research or creative writing.
 
 ## Getting started
@@ -99,20 +99,21 @@ response = openai.beta.chat.completions.parse(
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — The parent organization and platform provider.
-- [GPT-5.5](../ai_knowledge/chatgpt.md) — The flagship multimodal model family.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agent-tool communication.
 - [Cursor](cursor.md) — The leading AI-native IDE powered by these models.
 - [Aider](aider.md) — The standard CLI-based AI coding assistant.
 - [GitHub Copilot](github-copilot-cli.md) — Enterprise-grade coding assistant ecosystem.
 - [Claude 4.8 Opus](../ai_knowledge/claude.md) — The primary industry competitor for coding reasoning.
 - [Devin](devin.md) — High-autonomy agent utilizing OpenAI reasoning models.
+- [OpenHands](openhands.md) — Open-source alternative to autonomous software engineering.
 - [SWE-bench](../benchmarking/swe-bench.md) — The primary benchmark for evaluating these models.
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategies for choosing between models.
 
 ## Sources / references
 - [OpenAI Models Documentation](https://platform.openai.com/docs/models)
 - [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
-- [GitHub Copilot: The evolution of Codex](https://github.blog/2023-03-22-github-copilot-x-the-ai-powered-developer-experience/)
+- [GPT-5.5 and O4 Release Notes](https://openai.com/news/)
+- [Gemma 3 for Coding Comparison](https://blog.google/technology/ai/gemma-3-report/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
