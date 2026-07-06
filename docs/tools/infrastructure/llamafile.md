@@ -36,6 +36,48 @@ It collapses the usual local-LLM setup (install runtime, fetch weights, configur
 - When you juggle many models and want central management — use [Ollama](../../services/ollama.md).
 - For scaled, multi-user, high-throughput serving — use [vLLM](vllm.md).
 
+## Getting started
+
+### Installation
+Download a pre-built llamafile for a specific model (e.g., Llama 3 or Qwen) from the [Mozilla-Ocho Hugging Face](https://huggingface.co/mozilla-ai) repository.
+
+### Hello World Example
+```bash
+# 1. Download the executable
+curl -LO https://huggingface.co/mozilla-ai/llamafile_0.10/resolve/main/Qwen3.5-0.8B-Q8_0.llamafile
+
+# 2. Make it executable
+chmod +x Qwen3.5-0.8B-Q8_0.llamafile
+
+# 3. Run the local chat server
+./Qwen3.5-0.8B-Q8_0.llamafile
+```
+Windows users should rename the file to end in `.exe` before running.
+
+## CLI examples
+```bash
+# Start the server on a specific port
+./model.llamafile --port 9000
+
+# Run in text completion mode (no server)
+./model.llamafile -p "Write a hello world script in Python:" -n 128
+
+# Offload layers to GPU (if available)
+./model.llamafile --n-gpu-layers 35
+```
+
+## API examples
+Llamafile provides an OpenAI-compatible API. Once the llamafile is running, you can interact with it using standard tools:
+
+```bash
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "LLaMA_CPP",
+    "messages": [{"role": "user", "content": "Say hello!"}]
+  }'
+```
+
 ## Licensing and cost
 - **Open Source**: Yes (Apache 2.0 tooling; model weights carry their own licenses)
 - **Cost**: Free
@@ -57,5 +99,5 @@ It collapses the usual local-LLM setup (install runtime, fetch weights, configur
 - [Introducing Llamafile (Mozilla blog)](https://hacks.mozilla.org/2023/11/introducing-llamafile/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-24
+- Last reviewed: 2026-07-21
 - Confidence: high

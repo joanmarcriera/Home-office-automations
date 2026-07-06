@@ -40,48 +40,27 @@ npx claude-code-templates@latest
 npm install -g claude-code-templates
 ```
 
-### Initial Setup
-Run the health check to verify your environment:
+### Hello World Example
+Install your first agent (e.g., a frontend developer specialist) to verify the installation:
 ```bash
-cct --health-check
+cct --agent frontend-developer --yes
 ```
 
 ## CLI examples
-
-### Search and Install
 ```bash
-# Install a specific agent
-cct --agent frontend-developer
+# Search and install a specific agent
+cct --agent security-auditor
 
-# Install multiple components at once
-cct --agent security-auditor --command security-audit --mcp github-integration
-
-# Install with default project detection
-cct --yes
-```
-
-### Analytics and Monitoring
-```bash
-# Launch the real-time analytics dashboard
+# Launch the real-time session analytics dashboard
 cct --analytics
 
-# Enable remote access via Cloudflare Tunnel
-cct --chats --tunnel
-```
-
-### Global Agent Management
-```bash
-# Create a globally accessible agent
-cct --create-agent customer-support
-
-# Invoke the global agent from anywhere
-customer-support "How do I handle refund requests?"
+# Verify your environment and Claude Code configuration
+cct --health-check
 ```
 
 ## API examples
-The AI Templates API is primarily used for download tracking and Discord integration.
+The AI Templates API supports download tracking for custom integrations:
 
-### Track a Component Download
 ```python
 import requests
 
@@ -116,5 +95,5 @@ print(response.status_code)
 - [AI Templates Twitter](https://twitter.com/aitmpl)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-27
+- Last reviewed: 2026-07-21
 - Confidence: high

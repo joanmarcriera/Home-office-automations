@@ -36,17 +36,24 @@ It solves the "scattered tasks" problem where actionable items are spread across
 
 ## Getting started
 
-### Account Setup
-1. Create an account at [Akiflow.com](https://akiflow.com/).
-2. Download the desktop app (available for macOS and Windows).
+### Installation
+1.  **Account**: Create an account at [Akiflow.com](https://akiflow.com/).
+2.  **Desktop**: Download and install the desktop app for macOS or Windows.
+3.  **Integrations**: Open Settings > Integrations and connect your primary tools (Gmail, Slack, etc.).
 
-### Connecting Integrations
-- Open the settings and navigate to the "Integrations" tab.
-- Authorize the platforms you use (e.g., Gmail, Slack, GitHub).
-- Configure the "Import" rules for each tool to determine which items appear in your Akiflow inbox.
+### Hello World Example
+Capture your first task using the global command bar:
+1.  Press `Alt+Space` (Windows) or `Option+Space` (macOS).
+2.  Type "Review KnowledgeOps documentation" and press `Enter`.
+3.  The task appears in your **Inbox**, ready to be dragged onto the calendar.
 
-### Using the Command Bar
-Press `Alt+Space` (Windows) or `Option+Space` (macOS) to open the command bar from anywhere and capture a task instantly.
+## CLI examples
+> [!NOTE]
+> Akiflow does not currently provide an official CLI.
+
+## API examples
+> [!NOTE]
+> Akiflow does not currently offer a public-facing developer API. Automation is primarily handled via native integrations, Zapier, or the [Model Context Protocol](https://akiflow.com/mcp).
 
 ## Licensing and cost
 - **Open Source**: No
@@ -68,5 +75,5 @@ Press `Alt+Space` (Windows) or `Option+Space` (macOS) to open the command bar fr
 - [Akiflow Help Center](https://help.akiflow.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-20
+- Last reviewed: 2026-07-21
 - Confidence: high
