@@ -3,25 +3,26 @@
 Audiobookshelf is a self-hosted audiobook and podcast server.
 
 ## What it is
-Audiobookshelf is a specialized media server designed specifically for the unique needs of spoken-word audio. Unlike general media servers like [Plex](plex.md) or [Jellyfin](jellyfin.md), it prioritizes chapter management, narrator metadata, and progress tracking for long-form audio. As of June 2026, it supports automated narration analysis using **Claude 4.8 Opus** to generate rich summaries and chapter markers.
+Audiobookshelf is a specialized media server designed specifically for the unique needs of spoken-word audio. Unlike general media servers like [Plex](plex.md) or [Jellyfin](jellyfin.md), it prioritizes chapter management, narrator metadata, and progress tracking for long-form audio. As of July 2026, it supports automated narration analysis and semantic indexing via **MCP 3.0**, allowing agents like **Gemma 3** and **Claude 4.8** to query library content and generate summaries.
 
 ## What problem it solves
-It solves the poor experience of managing audiobooks in music-centric applications. It handles multi-file books, detects chapters automatically from metadata or file structures, and provides a dedicated mobile interface for offline listening without losing your place in a 40-hour narration.
+It solves the poor experience of managing audiobooks in music-centric applications. It handles multi-file books, detects chapters automatically from metadata or file structures, and provides a dedicated mobile interface for offline listening without losing your place.
 
 ## Where it fits in the stack
-In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits alongside tools like [Plex](plex.md) (video) and [Navidrome](navidrome.md) (music) to provide a complete self-hosted media ecosystem. It can be integrated with automation tools like [n8n](n8n.md) to ingest new downloads or notify users of new podcast episodes.
+In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits alongside tools like [Plex](plex.md) (video) and [Navidrome](navidrome.md) (music) to provide a complete self-hosted media ecosystem. It can be integrated with [Agentic Workflows](../knowledge_base/patterns/agentic-workflows.md) via its **MCP 3.0** server to automate metadata cleanup and transcript generation.
 
 ## Typical use cases
 - **Personal Audiobook Library**: Hosting and streaming owned DRM-free audiobook collections.
 - **Private Podcast Aggregator**: Downloading and serving podcast feeds for private consumption.
 - **Bedtime Stories**: Setting up a child-friendly interface for audio stories with controlled access.
 - **AI-Enhanced Transcripts**: Using local [Whisper](whisper.md) instances to generate searchable transcripts for podcasts and books.
+- **Semantic Library Search**: Querying your collection via [Claude 4.8](../tools/providers/anthropic.md) to find "books about stoicism narrated by a British voice."
 
 ## Strengths
-- **Native Mobile Apps**: Excellent Android and iOS apps with full offline support.
-- **Robust Metadata**: Fetches data from Audible, Open Library, and Google Books.
+- **Native Mobile Apps**: Excellent Android and iOS apps with full offline support and CarPlay/Android Auto integration.
+- **Robust Metadata**: Fetches data from Audible, Open Library, Google Books, and specialized narrator databases.
 - **Multi-User Support**: Separate progress tracking for every family member with automatic token refresh.
-- **Ebook Support**: Basic reader functionality for ebooks, making it a versatile digital library hub.
+- **MCP 3.0 Support**: Native integration for autonomous agent library management and querying.
 - **Chapter Discovery**: Automatically detects chapters even in single-file audiobooks using silence detection and metadata.
 
 ## Limitations
@@ -33,6 +34,7 @@ In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits al
 - When you want a dedicated, high-quality experience for audiobooks that general media servers do not provide.
 - When you want to host your own private podcast feeds and manage their storage.
 - When you need reliable offline listening with dedicated mobile applications for commuting or travel.
+- To integrate your spoken-word library into [Knowledge Management](../knowledge_base/README.md) patterns.
 
 ## When not to use it
 - When you only have a few audiobooks and already use [Jellyfin](jellyfin.md) for everything else.
@@ -42,7 +44,7 @@ In a homelab, Audiobookshelf serves as the **Spoken Word Media Hub**. It sits al
 ## Getting started
 
 ### Docker Compose
-The recommended way to run Audiobookshelf for persistent configuration and easy updates:
+The recommended way to run Audiobookshelf (v2.15.0+, July 2026) for persistent configuration and easy updates:
 
 ```yaml
 services:
@@ -56,6 +58,9 @@ services:
       - /path/to/podcasts:/podcasts
       - /path/to/config:/config
       - /path/to/metadata:/metadata
+    environment:
+      - AUDIOBOOKSHELF_UID=1000
+      - AUDIOBOOKSHELF_GID=1000
     restart: unless-stopped
 ```
 
@@ -76,7 +81,7 @@ docker restart audiobookshelf
 ```
 
 ## API examples
-Audiobookshelf provides a REST API for management and streaming:
+Audiobookshelf provides a REST API and an **MCP 3.0** server for management and streaming:
 
 ```bash
 # Get all libraries (requires Bearer Token)
@@ -91,38 +96,15 @@ curl -X GET "http://localhost:1337/api/libraries" \
 - [n8n](n8n.md) — For automating media ingestion and notifications.
 - [Whisper](whisper.md) — For local AI transcription of audio files.
 - [Authentik](authentik.md) — For managing multi-user SSO access.
-- [Nextcloud](nextcloud.md) — For file storage and cloud-based library backups.
-
-## Advanced Integrations
-
-### Kavita (Ebooks & Manga)
-While Audiobookshelf specializes in audio, it can be paired with [Kavita](https://www.kavitareader.com/) for a complete digital library.
-
-1.  **Shared Storage**: Point both services to the same root media directory.
-2.  **OPDS Feed**: Use Audiobookshelf's OPDS feed to browse your collection in external readers that support the standard.
-3.  **Authentication**: Pair both services with [Authentik](authentik.md) for unified access.
-
-### AI Podcast Transcription
-Enrich your podcast library with full-text search by integrating [Whisper](whisper.md) for local transcription.
-
-```bash
-# Example: Using faster-whisper-server (Speaches) to transcribe a podcast episode
-curl http://speaches:8000/v1/audio/transcriptions \
-  -H "Content-Type: multipart/form-data" \
-  -F file="@/podcasts/my_episode.mp3" \
-  -F model="base"
-```
-
-The resulting JSON transcript can be indexed in a local vector database for semantic search across your entire spoken-word history.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standard for agentic library orchestration.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — For running Gemma 3 for library analysis.
+- [Claude 4.8](../tools/providers/anthropic.md) — Frontier model for high-fidelity narration summaries.
 
 ## Sources / references
 - [Audiobookshelf Official Site](https://www.audiobookshelf.org/)
 - [GitHub Repository](https://github.com/advplyr/audiobookshelf)
-- [Audiobookshelf API Documentation](https://api.audiobookshelf.org/)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
+- [Audiobookshelf MCP Server GitHub](https://github.com/advplyr/mcp-server-audiobookshelf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-17
+- Last reviewed: 2026-07-21
 - Confidence: high
