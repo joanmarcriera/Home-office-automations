@@ -8,7 +8,7 @@ Motion eliminates the cognitive overhead of manual scheduling. It solves the "pl
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / AI Productivity
-Motion acts as an intelligent orchestration layer between traditional calendars (Google, Outlook) and task management, often serving as the primary interface for autonomous agents like Claude 4.8 Opus to manage a user's time.
+Motion acts as an intelligent orchestration layer between traditional calendars (Google, Outlook) and task management, often serving as the primary interface for autonomous agents like Claude 4.8 Opus and Gemma 3 to manage a user's time. In the July 2026 landscape, Motion integrates natively with the MCP 3.0 Task Protocol for automated meeting prioritization.
 
 ## Typical use cases
 - **Automated Daily Planning**: Generating a daily agenda that prioritizes deep work and meeting preparation.
@@ -102,6 +102,7 @@ print(f"Task created: {new_task['id']}")
 - [Sunsama](sunsama.md) — ritual-based daily planning with deep task integrations.
 - [Google Calendar](google_calendar.md) — the foundational backend for many scheduling tools.
 - [Any.do](any-do.md) — simple task management with strong messaging integration.
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Canonical guide for AI-driven scheduling.
 - [Todoist](todoist.md) — lightweight, natural-language task manager.
 - [n8n](../../services/n8n.md) — automation platform for custom Motion task triggers.
 
@@ -111,5 +112,5 @@ print(f"Task created: {new_task['id']}")
 - [AI Scheduling Patterns](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high

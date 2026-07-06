@@ -1,13 +1,13 @@
 # DeepSeek
 
 ## What it is
-DeepSeek is a leading AI research organization specializing in high-performance, cost-effective large language models (LLMs). As of June 2026, their flagship model is **DeepSeek-V4**, which utilizes a sophisticated Mixture-of-Experts (MoE) architecture to provide frontier-level reasoning and coding capabilities. DeepSeek is known for its "open-weights" philosophy and for pushing the boundaries of what is possible with efficient model training and inference.
+DeepSeek is a leading AI research organization specializing in high-performance, cost-effective large language models (LLMs). As of July 2026, their flagship model is **DeepSeek-V4**, which utilizes a sophisticated Mixture-of-Experts (MoE) architecture to provide frontier-level reasoning and coding capabilities. DeepSeek is known for its "open-weights" philosophy and for pushing the boundaries of what is possible with efficient model training and inference. In July 2026 benchmarks, DeepSeek-V4 maintains a significant lead in coding efficiency and mathematical reasoning, often outperforming frontier models like Gemma 3 in specific software engineering tasks.
 
 ## What problem it solves
 It addresses the high cost and "black box" nature of proprietary frontier models. DeepSeek provides models that rival the performance of GPT-5.5 and Claude 4.8 Opus in specific domains—particularly mathematics, logic, and software engineering—at a significantly lower price point. It allows developers to use state-of-the-art AI without being locked into a single ecosystem.
 
 ## Where it fits in the stack
-**Category**: Provider / AI Assistants & Knowledge. It serves as a foundational inference layer, often used as a primary or fallback model in multi-model routing systems like OpenRouter or within autonomous coding agents.
+**Category**: Provider / AI Assistants & Knowledge. It serves as a foundational inference layer, often used as a primary or fallback model in multi-model routing systems like OpenRouter or within autonomous coding agents. Its July 2026 API updates include native support for the MCP 3.0 Task Protocol, facilitating standardized tool execution across agentic ecosystems.
 
 ## Typical use cases
 - **Autonomous Engineering**: Powering agents like [Cline](../agents/cline.md) and [Roo Code](../agents/roo-code.md) for complex codebase modifications.
@@ -113,6 +113,7 @@ print(response.choices[0].message.content)
 - [OpenRouter](../ai_knowledge/openrouter.md) — Multi-model gateway including DeepSeek.
 - [Qwen](../ai_knowledge/qwen.md) — Competitive open-weights models from Alibaba.
 - [Anthropic](anthropic.md) — Primary competitor for high-reasoning tasks.
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Comparative benchmark for July 2026 open-weights performance.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for switching between models.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Implementation patterns for autonomous agents.
 - [Roo Code](../agents/roo-code.md) — IDE agent with deep DeepSeek integration.
@@ -126,5 +127,5 @@ print(response.choices[0].message.content)
 - [DeepSeek-R1 Release Blog](https://api-docs.deepseek.com/news/news250120)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high

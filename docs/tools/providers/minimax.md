@@ -1,7 +1,7 @@
 # MiniMax
 
 ## What it is
-MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation. Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing, making it a favorite for agentic software engineering.
+MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation. Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing. As of July 2026, it remains a top-tier choice for agentic software engineering, maintaining competitive reasoning parity with frontier models like Gemma 3 and Claude 4.8 while offering superior throughput for long-horizon tasks.
 
 ## What problem it solves
 MiniMax addresses the high cost and latency of traditional transformer-based models through its optimized M3 architecture. By offering a "Token Plan" subscription model that decouples cost from usage, it solves the "token anxiety" for heavy users of autonomous agents and coding assistants, providing a cost-effective alternative to global providers like Anthropic and OpenAI.
@@ -17,7 +17,7 @@ MiniMax addresses the high cost and latency of traditional transformer-based mod
 
 ## Strengths
 - **Predictable Cost (Token Plan)**: Subscription-based pricing (Starter/Plus/Max) with rolling request resets, ideal for 24/7 autonomous agents.
-- **Architectural Efficiency**: High-speed inference for coding tasks, rivaling [Claude 4.8 Sonnet](../ai_knowledge/claude.md) in speed and accuracy.
+- **Architectural Efficiency**: High-speed inference for coding tasks; in July 2026 benchmarks, it continues to rival [Claude 4.8 Sonnet](../ai_knowledge/claude.md) and Gemma 3 in reasoning accuracy while maintaining lower latency for large-scale repository edits.
 - **Native Dual-Compatibility**: Offers both OpenAI-compatible and Anthropic-compatible endpoints out of the box.
 - **Advanced Multimodality**: Leading performance in non-text domains, specifically cinematic video generation via Hailuo.
 
@@ -103,6 +103,7 @@ response.stream_to_file("output.mp3")
 - [Anthropic (Claude)](anthropic.md) — The primary architectural benchmark for MiniMax.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Aggregator often used to access MiniMax via a unified API.
 - [Everything Claude Code](../ai_knowledge/everything-claude-code.md) — Optimization guide for agentic workflows.
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Canonical guide for local inference alternatives.
 - [Llama 4](../ai_knowledge/llama.md) — Open-source alternative for local inference.
 - [DeepSeek](deepseek.md) — Primary regional competitor in the high-performance LLM space.
 - [Hailuo AI](https://hailuo.ai) — MiniMax's flagship video generation platform.
@@ -114,5 +115,5 @@ response.stream_to_file("output.mp3")
 - [Linear Attention Architecture Paper](https://arxiv.org/abs/2312.00752) (Background)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high

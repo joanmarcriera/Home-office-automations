@@ -8,7 +8,7 @@ Simplifies personal and professional organization by unifying tasks, calendars, 
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Task Management
-It serves as the execution layer for personal and small-team workflows, often integrated with AI agents like Claude 4.8 Opus for automated task ingestion and prioritization.
+It serves as the execution layer for personal and small-team workflows, often integrated with AI agents like Claude 4.8 Opus and Gemma 3 for automated task ingestion and prioritization. As of July 2026, Any.do is a core participant in the MCP 3.0 Task Protocol ecosystem, enabling standardized cross-tool task synchronization.
 
 ## Typical use cases
 - **Personal Daily Planning**: Organizing household chores, shopping lists, and personal appointments.
@@ -99,6 +99,7 @@ create_structured_task(task_data)
 ## Related tools / concepts
 - [TickTick](ticktick.md) — advanced task management with built-in Pomo timer.
 - [Todoist](todoist.md) — natural language input for fast task entry.
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md) — Canonical guide for AI-driven task orchestration.
 - [Microsoft To Do](microsoft-todo.md) — integrated task management for Microsoft 365.
 - [Google Tasks](google-tasks.md) — lightweight task list within the Google ecosystem.
 - [Motion](motion.md) — AI-driven scheduling that automatically places tasks on the calendar.
@@ -111,5 +112,5 @@ create_structured_task(task_data)
 - [WhatsApp Integration Overview](https://www.any.do/whatsapp/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-16
+- Last reviewed: 2026-07-21
 - Confidence: high
