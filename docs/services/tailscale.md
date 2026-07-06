@@ -1,47 +1,42 @@
 # Tailscale
 
 ## What it is
-Tailscale is a zero-config VPN that builds a secure, WireGuard-based mesh network (a "tailnet") between your devices, even behind complex firewalls and NATs. In June 2026, version **1.82** has introduced "Identity-Aware Tool Routing," allowing autonomous agents to securely traverse the tailnet using short-lived, verifiable credentials.
+Tailscale is a zero-config VPN that builds a secure, WireGuard-based mesh network (a "tailnet") between your devices. In July 2026, it has introduced **Identity-Aware Tool Routing**, allowing autonomous agents to securely traverse the tailnet using short-lived, verifiable credentials. It provides the secure backbone for distributed homelabs, enabling cloud-hosted agents to interact with local services as if they were on the same network.
 
 ## What problem it solves
-Managing secure remote access typically requires complex firewall rules, port forwarding, and static VPN keys. Tailscale eliminates this complexity, providing a private network overlay where devices can communicate as if they were on the same local LAN. It solves the "secure connectivity" problem for distributed homelabs, allowing cloud-hosted agents and remote devices to securely access internal services without public exposure.
+Managing secure remote access traditionally involves complex firewall rules, manual port forwarding, and static VPN keys. Tailscale eliminates this complexity, providing a private network overlay that works across complex firewalls and NATs. It solves the "secure connectivity" problem for distributed environments, allowing **Gemma 3** agents and remote users to securely access services like [Home Assistant](home-assistant.md) without public exposure.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Networking. Tailscale acts as the **secure connectivity layer**, providing the private mesh backbone that links all homelab services, agents, and user endpoints.
+**Category**: Service / Infrastructure / Networking. Tailscale acts as the **secure connectivity layer**, providing the private mesh backbone that links all homelab services, agents, and user endpoints. It integrates with **FastMCP 3.0** for secure, low-latency tool discovery across distributed nodes.
 
 ## Typical use cases
-- **Secure Remote Management**: Accessing [Home Assistant](home-assistant.md) or [Paperless-ngx](paperless-ngx.md) from a mobile device while traveling.
-- **Cross-Cloud Mesh**: Connecting a local server to a remote VPS (e.g., for [Storj](storj.md) nodes or [n8n](n8n.md) runners).
-- **Agentic Tool Access**: Allowing a cloud-hosted Claude 4.8 Opus instance to securely call local APIs via a Tailscale tunnel.
-- **Zero-Trust SSH**: Securely SSHing into homelab servers without managing traditional SSH keys via **Tailscale SSH**.
-- **Exit Node Routing**: Routing all device traffic through a trusted home network when using untrusted public Wi-Fi.
+- **Secure Remote Management**: Accessing [Paperless-ngx](paperless-ngx.md) or [Nextcloud](nextcloud.md) from any device while traveling.
+- **Cross-Cloud Mesh**: Connecting local servers to remote VPS instances for [Storj](storj.md) nodes or [n8n](n8n.md) runners.
+- **Agentic Tool Access**: Allowing a cloud-hosted Claude 4.8 instance to securely call local APIs via a Tailscale tunnel.
+- **Zero-Trust SSH**: Securely accessing homelab servers without traditional SSH keys via **Tailscale SSH**.
+- **Exit Node Routing**: Routing traffic through a trusted home network when using untrusted public Wi-Fi.
 
 ## Strengths
 - **Zero Configuration**: No manual port forwarding or key management required.
-- **Identity-Based Security**: Access is tied to single sign-on (SSO) identities (e.g., via [Authentik](authentik.md)).
+- **Identity-Based Security**: Access is tied to single sign-on (SSO) identities via [Authentik](authentik.md).
 - **MagicDNS**: Provides stable, easy-to-remember hostnames for every device in the tailnet.
-- **P2P Connectivity**: Establishes direct, encrypted tunnels between devices whenever possible, minimizing latency.
-- **Tailscale Funnel**: Allows for selective, secure exposure of local services to the public internet without traditional port forwarding.
+- **P2P Connectivity**: Establishes direct, encrypted tunnels between devices whenever possible.
+- **Tailscale Funnel**: Selective, secure exposure of local services to the public internet without traditional port forwarding.
 
 ## Limitations
-- **Coordination Dependency**: Relies on Tailscale's central coordination server for key exchange (unless using the open-source [Headscale](headscale.md) alternative).
-- **Client Installation**: Requires the Tailscale client software to be installed on every participating device.
-- **Throughput overhead**: While minimal, the user-space WireGuard implementation can have a slight performance impact compared to kernel-space alternatives on very high-speed links.
+- **Coordination Dependency**: Relies on Tailscale's central coordination server (unless using [Headscale](headscale.md)).
+- **Client Installation**: Requires the Tailscale client software on every participating device.
+- **Throughput overhead**: Minimal, but user-space WireGuard can have a slight performance impact on high-speed links.
 
 ## When to use it
 - When you need a secure, hassle-free VPN to connect devices across different locations and networks.
-- For providing secure, private access to homelab services for family members or AI agents.
-- To eliminate the need for public port forwarding and reduce the attack surface of your home network.
+- For providing private access to homelab services for family members or **Gemma 3** agents.
+- To eliminate public port forwarding and reduce the attack surface of your network.
 - When you require stable DNS names for private services across multiple sites.
 
 ## When not to use it
-- If your environment prohibits the use of third-party coordination servers (consider [Headscale](headscale.md)).
-- In strictly air-gapped environments with no internet access for coordination.
-
-## Licensing and cost
-- **Licensing**: Client is Open Source (BSD-3-Clause). Coordination server is proprietary (Headscale is the open-source alternative).
-- **Cost**: Free tier available for personal use (up to 100 devices and 3 users as of 2026). Paid plans for enterprise features.
-- **Self-hostable**: Only the client and the [Headscale](headscale.md) coordination server.
+- If your environment strictly prohibits third-party coordination servers (consider [Headscale](headscale.md)).
+- In air-gapped environments with no internet access for coordination.
 
 ## Getting started
 
@@ -78,9 +73,6 @@ tailscale ip -4
 # Advertise the current machine as an exit node
 sudo tailscale up --advertise-exit-node
 
-# Check connectivity and DERP relay status
-tailscale netcheck
-
 # GA 2026: Verify SSH access for a peer
 tailscale ssh --check <peer-hostname>
 ```
@@ -107,6 +99,27 @@ for device in devices.get('devices', []):
     print(f"Device: {device['hostname']}, IP: {device['addresses'][0]}")
 ```
 
+### FastMCP 3.0 Secure Tool Routing
+Exposing a local service to a tailnet-connected agent.
+
+```typescript
+import { FastMCP } from 'fastmcp';
+
+const mcp = new FastMCP("tailscale-tool-router");
+
+mcp.addTool({
+  name: "get_node_status",
+  description: "Get status of a specific tailnet node",
+  parameters: { hostname: { type: "string" } },
+  execute: async ({ hostname }) => {
+    // Logic to query Tailscale API or local CLI
+    return { status: "online", tailscaleIP: "100.x.y.z" };
+  }
+});
+
+mcp.serve();
+```
+
 ## Related tools / concepts
 - [Headscale](headscale.md) — The open-source coordination server alternative.
 - [Authentik](authentik.md) — For managing SSO and identity within Tailscale.
@@ -116,9 +129,8 @@ for device in devices.get('devices', []):
 - [Ollama](ollama.md) — For providing private AI services across the tailnet.
 - [Nextcloud](nextcloud.md) — For private file sharing within the mesh.
 - [Storj](storj.md) — For backing up tailnet-connected servers.
-- [Cloudflare Mesh](cloudflare-mesh.md) — A competing zero-trust networking solution.
-- [WireGuard](https://www.wireguard.com/) — The underlying protocol for Tailscale.
-- [Subnet Routers](https://tailscale.com/kb/1019/subnets/) — For accessing non-Tailscale devices on a local network.
+- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Protocol for agentic tool discovery over Tailscale.
+- [FastMCP 3.0](../tools/automation_orchestration/mcp.md) — High-performance tool hosting for distributed agents.
 
 ## Sources / References
 - [Official Website](https://tailscale.com/)
@@ -127,5 +139,5 @@ for device in devices.get('devices', []):
 - [Headscale GitHub](https://github.com/juanfont/headscale)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-06
 - Confidence: high
