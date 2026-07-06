@@ -1,5 +1,50 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-06
+
+## Digest fallback for 2026-07-06
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [🤗 Kernels: Major Updates](https://huggingface.co/blog/revamped-kernels) (Hugging Face Blog)
+2. [Best Local VLMs - July 2026](https://www.reddit.com/r/LocalLLaMA/comments/1uoalfq/best_local_vlms_july_2026/) (r/LocalLLaMA)
+3. [If trends hold, Mythos-class capability may be running on high-end consumer hardware within ~2 years](https://www.reddit.com/r/LocalLLaMA/comments/1uoij3s/if_trends_hold_mythosclass_capability_may_be/) (r/LocalLLaMA)
+4. [New open model from Tencent Hy: Hy3 (295B total 21B active - apache 2.0)](https://www.reddit.com/r/LocalLLaMA/comments/1uoozt4/new_open_model_from_tencent_hy_hy3_295b_total_21b/) (r/LocalLLaMA)
+5. [Qwen & Gemma on deadlock situation (For Benchmarks Numbers)?](https://www.reddit.com/r/LocalLLaMA/comments/1uoppuz/qwen_gemma_on_deadlock_situation_for_benchmarks/) (r/LocalLLaMA)
+6. [If trends hold, SK-Hynix capability may be building dyson spheres within ~2 years](https://www.reddit.com/r/LocalLLaMA/comments/1uopgf5/if_trends_hold_skhynix_capability_may_be_building/) (r/LocalLLaMA)
+7. [As promised, here is the GitHub link for my 100% local voice-to-voice assistant](https://www.reddit.com/r/LocalLLaMA/comments/1uom9zb/as_promised_here_is_the_github_link_for_my_100/) (r/LocalLLaMA)
+8. [Is DeepSeek v4 (Flash) really extremely cheap to run? If yes, how?](https://www.reddit.com/r/LocalLLaMA/comments/1uoq1wi/is_deepseek_v4_flash_really_extremely_cheap_to/) (r/LocalLLaMA)
+9. [I developed a 270 million parameter language model entirely from scratch as an independent research project](https://www.reddit.com/r/LocalLLaMA/comments/1uoauvk/i_developed_a_270_million_parameter_language/) (r/LocalLLaMA)
+10. [New toy to test.](https://www.reddit.com/r/LocalLLaMA/comments/1uoebnj/new_toy_to_test/) (r/LocalLLaMA)
+11. [ggml-hip: enable -ffast-math for HIP builds by a-huk · Pull Request #23862 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1uoqdxj/ggmlhip_enable_ffastmath_for_hip_builds_by_ahuk/) (r/LocalLLaMA)
+12. [Is the current Open Weight LLM model viable in the long term?](https://www.reddit.com/r/LocalLLaMA/comments/1uo9m72/is_the_current_open_weight_llm_model_viable_in/) (r/LocalLLaMA)
+13. [Llama-Server is Throwing Away Your Perfectly Good KV Caches, and How to Fix It](https://www.reddit.com/r/LocalLLaMA/comments/1uohsov/llamaserver_is_throwing_away_your_perfectly_good/) (r/LocalLLaMA)
+14. [I wrote a GGUF inferencer from scratch, AMA](https://www.reddit.com/r/LocalLLaMA/comments/1uoj0um/i_wrote_a_gguf_inferencer_from_scratch_ama/) (r/LocalLLaMA)
+15. [longcat 2.0 (1.6T, ~48B active) weights are now open under MIT license](https://www.reddit.com/r/LocalLLaMA/comments/1unyvnz/longcat_20_16t_48b_active_weights_are_now_open/) (r/LocalLLaMA)
+16. [Who Has The “Jankiest” Local LLM Setup? | Non-Official | Fun Contest | No Prizes](https://www.reddit.com/r/LocalLLaMA/comments/1uoa1t3/who_has_the_jankiest_local_llm_setup_nonofficial/) (r/LocalLLaMA)
+17. [What do you guys use local models for?](https://www.reddit.com/r/LocalLLaMA/comments/1uohu6j/what_do_you_guys_use_local_models_for/) (r/LocalLLaMA)
+18. [LivePortrait distilled model that can run at 25fps in the browser](https://www.reddit.com/r/LocalLLaMA/comments/1uodoli/liveportrait_distilled_model_that_can_run_at/) (r/LocalLLaMA)
+19. [Who've told you that distributed training is impossible? Democratizing AI: The Psyche Network Architecture](https://www.reddit.com/r/LocalLLaMA/comments/1uoay98/whove_told_you_that_distributed_training_is/) (r/LocalLLaMA)
+20. [I asked Codex to optimize DeepSeek V4 Flash 8-bit MLX on oMLX. Got ~1.6x prefill and ~3x decode speedup.](https://www.reddit.com/r/LocalLLaMA/comments/1uogebv/i_asked_codex_to_optimize_deepseek_v4_flash_8bit/) (r/LocalLLaMA)
+21. [Qwen 3.6 27B - VLLM Performance Benchmark Results (BF16, FP8, NVFP4)](https://www.reddit.com/r/LocalLLaMA/comments/1uo32yw/qwen_36_27b_vllm_performance_benchmark_results/) (r/LocalLLaMA)
+22. [[RELEASE] Supra-Router-51M - a tiny prompt routing model/orchestrator](https://www.reddit.com/r/LocalLLaMA/comments/1uo826q/release_suprarouter51m_a_tiny_prompt_routing/) (r/LocalLLaMA)
+23. [I benchmarked 13 models at 65K-128K context to find out what actually matters for agentic workloads](https://www.reddit.com/r/LocalLLaMA/comments/1unrse9/i_benchmarked_13_models_at_65k128k_context_to/) (r/LocalLLaMA)
+24. [Qualcomm launches GenieX to run LLMs on their Windows Laptops](https://www.reddit.com/r/LocalLLaMA/comments/1uo9z3c/qualcomm_launches_geniex_to_run_llms_on_their/) (r/LocalLLaMA)
+25. [Any word on Qwen 3.7 9B? (Also looking for 9B-class alternatives to Qwen 3.5)](https://www.reddit.com/r/LocalLLaMA/comments/1uny822/any_word_on_qwen_37_9b_also_looking_for_9bclass/) (r/LocalLLaMA)
+26. [How a 128gb ddr5 ram + 16gb vram, would work for a Moe model like Qwen 3.5 122b?](https://www.reddit.com/r/LocalLLaMA/comments/1uo85td/how_a_128gb_ddr5_ram_16gb_vram_would_work_for_a/) (r/LocalLLaMA)
+27. [sqlite-utils 4.0rc2, mostly written by Claude Fable (for about $149.25)](https://simonwillison.net/2026/Jul/5/sqlite-utils-fable/#atom-entries) (Simon Willison's Weblog)
+28. [Microsoft, AWS and Anthropic are spending billions — and not on better models](https://thenewstack.io/microsoft-frontier-forward-deployed/) (The New Stack)
+29. [10 moments that defined AI’s turbulent first half of 2026](https://thenewstack.io/biggest-ai-moments-2026/) (The New Stack)
+30. [The AI revolution will not be televised — it’ll be quantized](https://thenewstack.io/chinese-frontier-models-quantization/) (The New Stack)
+31. [Why cheaper models alone won’t save your AI budget](https://thenewstack.io/agentic-ai-token-costs/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
