@@ -2,7 +2,7 @@
 
 ## What it is
 
-Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file.
+Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file. In July 2026, it serves as a critical retrieval layer for local agents using Gemma 3 via the MCP 3.0 Task Protocol.
 
 ## What problem it solves
 
@@ -27,7 +27,7 @@ Accessing reliable information usually requires an active internet connection. K
 - **Multi-Platform**: Available for Windows, macOS, Linux, Android, iOS, and as a server (kiwix-serve).
 - **Portability**: Content is stored in a single `.zim` file, making it easy to share via USB drives or SD cards.
 - **ZIM Ecosystem**: Vast library of content through the openZIM project, including Wikipedia, StackExchange, TED, and specialized medical/technical libraries.
-- **libzim 9.x+ Performance**: Significant improvements in decompression speed and search indexing (2025/2026 updates).
+- **libzim 9.x+ Performance**: Significant improvements in decompression speed and search indexing (July 2026 updates).
 - **MCP 3.0 Support**: Native Model Context Protocol support allows agents to query the Kiwix library directly for grounded offline research.
 
 ## Limitations
@@ -58,7 +58,7 @@ docker run -d \
   --name kiwix \
   -p 8080:80 \
   -v /path/to/zims:/data \
-  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-02.zim
+  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-07.zim
 ```
 
 Access the content at `http://localhost:8080`.
@@ -137,7 +137,7 @@ if response.status_code == 200:
 ```
 
 ### MCP 3.0 Integration
-Kiwix-serve v3.7.0+ supports the Model Context Protocol (MCP 3.0). This allows an agent (like Claude 4.8 Opus) to use Kiwix as a tool for offline retrieval.
+Kiwix-serve v3.8.0+ supports the Model Context Protocol (MCP 3.0). This allows an agent (like Gemma 3 or Claude 4.8 Opus) to use Kiwix as a tool for offline retrieval via the Task Protocol.
 
 ```bash
 # Example tool call via an MCP-compliant agent
@@ -164,10 +164,7 @@ mcp-invoke kiwix-serve --query "How to repair a mechanical watch?"
 - [Xowa](http://xowa.org/)
 - [Aard 2](https://github.com/itkach/aard2-android)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
