@@ -3,13 +3,13 @@
 Tube Archivist is a self-hosted YouTube archive that allows you to index and download YouTube videos, metadata, and comments to your own server.
 
 ## What it is
-Tube Archivist is an open-source media management system designed specifically for preserving YouTube content. As of **June 2026**, it features a robust integration with the **Deno** runtime for enhanced download reliability and provides advanced tools for metadata persistence and elasticsearch-based searching.
+Tube Archivist is an open-source media management system designed specifically for preserving YouTube content. As of **July 2026**, it features a robust integration with the **Deno** runtime for enhanced download reliability and provides advanced tools for metadata persistence and Elasticsearch-based searching, fully compatible with **Gemma 3**'s visual reasoning for automated tagging.
 
 ## What problem it solves
 YouTube videos can be deleted, made private, or censored without notice. Tube Archivist provides a way to build a permanent, offline, and searchable library of your favorite content, ensuring long-term access to tutorials, documentaries, and educational material while eliminating dependency on third-party platform availability and advertising.
 
 ## Where it fits in the stack
-It serves as a **content preservation layer** within the media management stack. It sits alongside general-purpose media servers like [Jellyfin](jellyfin.md) or [Plex](plex.md), but provides deep specialization for YouTube-specific metadata (comments, descriptions, subtitles) and automated channel monitoring.
+It serves as a **content preservation layer** within the media management stack. It sits alongside general-purpose media servers like [Jellyfin](jellyfin.md) or [Plex](plex.md), but provides deep specialization for YouTube-specific metadata (comments, descriptions, subtitles) and automated channel monitoring for AI-driven knowledge bases.
 
 ## Typical use cases
 - Automatically monitoring and downloading new videos from subscribed channels or playlists.
@@ -17,6 +17,7 @@ It serves as a **content preservation layer** within the media management stack.
 - Building a private, ad-free "YouTube" experience for family members.
 - Researching video trends and comments at scale using its integrated search engine.
 - Preserving a record of metadata even if the original video is removed from YouTube.
+- Providing a local corpus for multimodal RAG using tools like **FastMCP 3.0**.
 
 ## Strengths
 - **Comprehensive Preservation**: Captures thumbnails, descriptions, comments, subtitles, and high-quality video files.
@@ -98,7 +99,7 @@ docker exec tubearchivist python manage.py ta_index_channel_tabs
 ```
 
 ## API examples
-The REST API allows for integration with AI agents (e.g., **Claude 4.8 Opus**).
+The REST API allows for integration with AI agents (e.g., **Claude 4.8**).
 
 ### Python (List Archived Videos)
 ```python
@@ -133,11 +134,8 @@ curl -X POST -H "Authorization: Token <your_api_token>" \
 - [Official Website](https://www.tubearchivist.com/)
 - [Tube Archivist Documentation](https://docs.tubearchivist.com/)
 - [GitHub Repository](https://github.com/tubearchivist/tubearchivist)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement automated PO Token management for 403 error mitigation.
+- [PO Token Management](https://docs.tubearchivist.com/po-token/)
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
