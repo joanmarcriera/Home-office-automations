@@ -1,26 +1,26 @@
 # Draw.io (diagrams.net)
 
-Draw.io (now diagrams.net) is a free, open-source, and cross-platform graph drawing software developed in HTML5 and JavaScript. In the 2026 agentic era, it has evolved into a primary interface for AI-driven architecture visualization through native Model Context Protocol (MCP 3.0) support.
+Draw.io (now diagrams.net) is a free, open-source, and cross-platform graph drawing software developed in HTML5 and JavaScript. In the July 2026 agentic era, it has evolved into a primary interface for AI-driven architecture visualization through native Model Context Protocol (MCP 3.0) support and the MCP 3.0 Task Protocol for automated execution of visual changes.
 
 ## What it is
-Draw.io (v30.0.x as of May 2026) is a professional-grade diagramming tool that provides a wide range of features for creating flowcharts, process diagrams, organizational charts, UML, ER, and network diagrams. It supports both a web-based interface and a standalone desktop application, with deep integration for local-first and cloud storage.
+Draw.io (v31.0.x as of July 2026) is a professional-grade diagramming tool that provides a wide range of features for creating flowcharts, process diagrams, organizational charts, UML, ER, and network diagrams. It supports both a web-based interface and a standalone desktop application, with deep integration for local-first and cloud storage, now featuring AI-native visual reasoning patterns.
 
 ## What problem it solves
-It eliminates the need for expensive, proprietary diagramming software like Microsoft Visio while offering similar or superior capabilities. It provides a platform-agnostic way to create, store, and share visual documentation without vendor lock-in. For AI agents like Claude 4.8 Opus and GPT-5.5, it provides a structured XML-based target (mxGraph) for automated diagram generation and manipulation.
+It eliminates the need for expensive, proprietary diagramming software like Microsoft Visio while offering similar or superior capabilities. It provides a platform-agnostic way to create, store, and share visual documentation without vendor lock-in. For AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) and Claude 4.8 Opus, it provides a structured XML-based target (mxGraph) for automated diagram generation and manipulation via the MCP 3.0 Task Protocol.
 
 ## Where it fits in the stack
-Draw.io sits in the **Documentation and Design** layer of the home-office stack. It serves as the primary tool for visualizing architecture, workflows, and complex systems. With the introduction of `@drawio/mcp`, it now acts as a "visual output device" for LLMs to communicate complex structural designs to human operators.
+Draw.io sits in the **Documentation and Design** layer of the home-office stack. It serves as the primary tool for visualizing architecture, workflows, and complex systems. With the introduction of `@drawio/mcp` and FastMCP 3.0 hosting, it now acts as a "visual output device" for LLMs to communicate complex structural designs and agentic session states to human operators.
 
 ## Typical use cases
 - **Network Architecture**: Designing and documenting home lab or enterprise network layouts.
 - **Software Design**: Creating UML diagrams, ER diagrams for databases, and software flowcharts.
-- **Agentic Diagram Generation**: Using Claude 4.8 Opus to generate complex system diagrams from natural language or CSV data via MCP.
+- **Agentic Diagram Generation**: Using [Gemma 3](../tools/ai_knowledge/local_llms.md) or Claude 4.8 Opus to generate complex system diagrams from natural language or CSV data via MCP.
 - **Text-to-Diagram**: Generating visuals from [Mermaid](../knowledge_base/patterns/diagramming.md) or PlantUML syntax directly within the GUI.
-- **Cloud Infrastructure**: Visualizing AWS, Azure, or GCP deployments using built-in icon sets.
+- **Cloud Infrastructure**: Visualizing AWS, Azure, or GCP deployments using built-in icon sets and AI-assisted layout optimization.
 
 ## Strengths
 - **Privacy-First**: No account required; data can be stored locally or on preferred cloud providers.
-- **MCP 3.0 Support**: Native integration with the `@drawio/mcp` server allows agents to open, edit, and export diagrams.
+- **MCP 3.0 Support**: Native integration with the `@drawio/mcp` server allows agents to open, edit, and export diagrams using the MCP 3.0 Task Protocol.
 - **Extensive Library**: Huge collection of icons for networking, cloud, UI design, and more.
 - **Highly Compatible**: Can import/export Visio (.vsdx), Lucidchart, and other formats.
 - **Cross-Platform**: Available as a web app, desktop app, and can be self-hosted via Docker.
@@ -34,10 +34,10 @@ Draw.io sits in the **Documentation and Design** layer of the home-office stack.
 - When you need to create formal, technical diagrams (UML, Network, Cloud Architecture).
 - When you want a professional Visio alternative that works across Windows, macOS, and Linux.
 - When you need to export diagrams to multiple formats (PDF, PNG, SVG, XML) for documentation.
-- When orchestrating automated architecture updates via AI agents.
+- When orchestrating automated architecture updates via AI agents using MCP 3.0.
 
 ## When not to use it
-Draw.io is not the best fit for text-native diagrams that must be reviewed primarily in pull requests, generated from code, or diffed line-by-line; use Mermaid or PlantUML for those cases. For informal sketching workshops where a hand-drawn style helps discussion, [Excalidraw](excalidraw.md) may be faster.
+Draw.io is not the best fit for text-native diagrams that must be reviewed primarily in pull requests, generated from code, or diffed line-by-line; use [Mermaid](../knowledge_base/patterns/diagramming.md) or PlantUML for those cases. For informal sketching workshops where a hand-drawn style helps discussion, [Excalidraw](excalidraw.md) may be faster.
 
 ## Getting started
 
@@ -106,8 +106,8 @@ docker inspect --format='{{.State.Status}}' drawio
 
 ## API examples
 
-### MCP Tool Usage (Claude 4.8 Opus)
-The `@drawio/mcp` server provides tools that agents can call:
+### MCP Tool Usage (Gemma 3)
+The `@drawio/mcp` server provides tools that agents can call via the MCP 3.0 Task Protocol:
 
 - `open_diagram`: Opens a `.drawio` file or XML string in the editor.
 - `import_csv`: Converts CSV data (e.g., an org chart) into a diagram.
@@ -134,6 +134,7 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Authentik](authentik.md) — For securing the self-hosted Draw.io interface.
 - [Tailscale](tailscale.md) — For secure remote access to your self-hosted instance.
 - [Trilium](trilium.md) — For embedding diagrams into a hierarchical personal knowledge base.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic tool use and integration.
 
 ## Sources / references
 - [Official Website](https://www.draw.io/)
@@ -142,5 +143,5 @@ iframe.contentWindow.postMessage(JSON.stringify({
 - [Docker Hub - jgraph/drawio](https://hub.docker.com/r/jgraph/drawio)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-07
 - Confidence: high

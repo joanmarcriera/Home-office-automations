@@ -1,31 +1,32 @@
 # Comet Opik
 
-Comet Opik is an open-source platform designed for evaluating, testing, and monitoring LLM applications. In the June 2026 landscape, Opik has become a cornerstone of the "Evaluation-Driven Development" (EDD) workflow, providing developers with a streamlined, self-hostable alternative to proprietary observability suites for frontier models like Claude 4.8 Opus and GPT-5.5.
+Comet Opik is an open-source platform designed for evaluating, testing, and monitoring LLM applications. In the July 2026 landscape, Opik has become a cornerstone of the "Evaluation-Driven Development" (EDD) workflow, providing developers with a streamlined, self-hostable alternative to proprietary observability suites for frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 using FastMCP 3.0.
 
 ## What it is
-Opik is a purpose-built LLM observability tool that focuses on tracing, automated evaluation, and dataset management. It allows developers to capture the semantic behavior of their agents, score them using specialized LLM-as-a-judge patterns, and manage production logs for continuous improvement. It is part of the broader Comet ML ecosystem but operates as a lightweight, independent library for LLM-centric workflows.
+Opik is a purpose-built LLM observability tool that focuses on tracing, automated evaluation, and dataset management. It allows developers to capture the semantic behavior of their agents, score them using specialized LLM-as-a-judge patterns, and manage production logs for continuous improvement. It is part of the broader Comet ML ecosystem but operates as a lightweight, independent library for LLM-centric workflows, now featuring native MCP 3.0 Task Protocol support.
 
 ## What problem it solves
-It bridges the gap between a prompt working once in a playground and it working reliably at scale. Opik provides the infrastructure to catch regressions, quantify performance across model updates, and debug complex reasoning traces by visualizing the exact flow of data between an agent and its tools.
+It bridges the gap between a prompt working once in a playground and it working reliably at scale. Opik provides the infrastructure to catch regressions, quantify performance across model updates, and debug complex reasoning traces by visualizing the exact flow of data between an agent and its tools via Agentic Session Orchestration.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / Observability
-Opik acts as the "Flight Recorder" for LLM applications. It sits alongside the agent runtime (e.g., LangChain, Autogen) and reports traces to either a local instance or the Comet cloud.
+Opik acts as the "Flight Recorder" for LLM applications. It sits alongside the agent runtime (e.g., LangChain, Autogen) and reports traces to either a local instance or the Comet cloud, utilizing FastMCP 3.0 for high-performance tool hosting.
 
 ## Typical use cases
 - **Unit Testing for Prompts**: Running "Golden Sets" of inputs through a prompt and scoring them before deployment.
-- **Production Flight Recording**: Capturing every interaction with GPT-5.5 or Claude 4.8 to identify edge cases and failures.
+- **Production Flight Recording**: Capturing every interaction with GPT-5.5, [Gemma 3](../ai_knowledge/local_llms.md), or Claude 4.8 to identify edge cases and failures.
 - **Experiment Tracking**: Comparing different versions of a RAG pipeline to see which retrieval strategy yields better grounding.
 - **Red Teaming**: Managing datasets of adversarial prompts and evaluating model robustness.
 
 ## Strengths
 - **Self-Hostable**: Can be run entirely on-premise, ensuring data privacy for sensitive enterprise applications.
-- **Low Friction**: Minimal code changes required to instrument existing applications via decorators or automatic integration.
+- **FastMCP 3.0 Support**: High-performance tool hosting for ultra-low latency execution and agent discovery.
 - **Integrated Evaluators**: Includes a library of pre-built scorers for common metrics like faithfulness, answer relevance, and toxicity.
 - **Comet Integration**: Seamlessly syncs with Comet's experiment tracking for a holistic view of the AI development lifecycle.
+- **MCP 3.0 Task Protocol**: Standardized automated benchmarking and execution of evaluation tasks.
 
 ## Limitations
-- **Community Maturity**: While growing rapidly, its third-party plugin ecosystem is slightly smaller than more established competitors like Arize Phoenix or LangSmith.
+- **Community Maturity**: While growing rapidly, its third-party plugin ecosystem is slightly smaller than more established competitors like [Arize AI](./arize-ai.md) or [LangSmith](../benchmarking/langsmith.md).
 - **Resource Management**: When self-hosting, the user is responsible for managing the underlying storage (PostgreSQL/ClickHouse) for high-volume traces.
 
 ## When to use it
@@ -54,9 +55,9 @@ opik configure
 ## CLI examples
 
 ### opik harbor run
-Runs a benchmark suite against a target agent or model:
+Runs a benchmark suite against a target agent or model using the MCP 3.0 Task Protocol:
 ```bash
-opik harbor run -d reasoning-bench -a my-claude-agent
+opik harbor run -d reasoning-bench -a my-gemma-agent
 ```
 
 ### opik configure
@@ -74,13 +75,13 @@ docker-compose up opik-server
 
 ## API examples
 
-### Python (Tracing an Agent Task)
+### Python (Tracing a Gemma 3 Agent Task)
 ```python
 from opik import track
 
 @track
 def call_tool(name, args):
-    # Tool logic here
+    # Tool logic here via FastMCP 3.0
     return "Output"
 
 @track
@@ -89,7 +90,7 @@ def agent_run(input_text):
     search_result = call_tool("search", {"q": input_text})
     return f"Processed: {search_result}"
 
-agent_run("Latest news on GPT-5.5")
+agent_run("Latest news on Gemma 3 capabilities")
 ```
 
 ## Related tools / concepts
@@ -108,5 +109,5 @@ agent_run("Latest news on GPT-5.5")
 - [Open-Source LLM Observability Guide](https://www.comet.com/site/blog/opik-open-source-llm-observability/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-07
 - Confidence: high
