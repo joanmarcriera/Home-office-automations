@@ -1,31 +1,33 @@
 # Speedtest
 
 ## What it is
-Speedtest encompasses the tools and automated workflows used to measure and log internet connection performance (download/upload bandwidth, latency, and jitter). In June 2026, it primarily utilizes the official **Ookla Speedtest CLI** and self-hosted dashboards like **Speedtest Tracker**, integrated with AI agents for proactive network troubleshooting and service-level monitoring.
+Speedtest encompasses the tools and automated workflows used to measure and log internet connection performance (download/upload bandwidth, latency, and jitter). In **July 2026**, it primarily utilizes the official **Ookla Speedtest CLI** and self-hosted dashboards like **Speedtest Tracker**, integrated with AI agents via **MCP 3.0** for proactive network troubleshooting and service-level monitoring.
 
 ## What problem it solves
-Intermittent internet performance issues are difficult to diagnose without historical data. Speedtest solves the "network visibility" problem by providing periodic, objective measurements of ISP performance. It helps users verify if they are receiving the advertised speeds, identify peak-hour throttling, and provide evidence for technical support requests.
+Intermittent internet performance issues are difficult to diagnose without historical data. Speedtest solves the "network visibility" problem by providing periodic, objective measurements of ISP performance. It helps users verify if they are receiving the advertised speeds, identify peak-hour throttling, and provide evidence for technical support requests using an immutable audit trail of performance logs.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Monitoring. It acts as an **external network probe**, providing the ground-truth performance data required to optimize other services like [Plex](plex.md), [n8n](n8n.md), and autonomous agents that rely on stable connectivity.
+**Category**: Service / Infrastructure / Monitoring. It acts as an **external network probe**, providing the ground-truth performance data required to optimize other services like [Plex](plex.md), [n8n](n8n.md), and autonomous agents that rely on stable, high-bandwidth connectivity for large-scale data ingestion.
 
 ## Typical use cases
 - **Proactive ISP Monitoring**: Running hourly tests to track long-term bandwidth trends and latency spikes.
-- **Agentic Troubleshooting**: An AI agent (e.g., Claude 4.8 Opus) detects slow n8n execution and triggers a Speedtest to rule out network bottlenecks.
+- **Agentic Troubleshooting**: An AI agent (e.g., **Gemma 3**) detects slow n8n execution and triggers a Speedtest to rule out network bottlenecks.
 - **Dynamic QoS Optimization**: Automatically adjusting [qBittorrent](qbittorrent.md) download limits based on current available bandwidth.
 - **SLA Verification**: Logging and reporting speed drops to an ISP for potential service credits.
 - **Gaming/VoIP Readiness**: Verifying jitter and ping before starting high-priority low-latency tasks.
 
 ## Strengths
 - **Industry Standard**: Ookla's global server network ensures reliable and comparable measurement.
-- **Machine-Readable Output**: The CLI supports JSON and CSV for seamless integration with automation scripts.
+- **Machine-Readable Output**: The CLI supports JSON and CSV for seamless integration with automation scripts and AI tools.
 - **Low Overhead**: The official CLI is a lightweight binary that can be easily scheduled via cron or Docker.
 - **Persistent Dashboards**: Tools like Speedtest Tracker provide beautiful, historical visualizations of network health.
+- **Open Licensing**: The monitoring stack (Speedtest Tracker, InfluxDB, Grafana) is fully self-hostable and free for personal use.
 
 ## Limitations
 - **Data Consumption**: Frequent testing on metered connections (like Starlink or mobile data) can consume significant monthly quota.
 - **Local Interference**: Concurrent high-bandwidth activities on the local network (e.g., 4K streaming) will skew test results.
 - **Server Variability**: Results can vary slightly depending on the proximity and load of the selected test server.
+- **Proprietary CLI**: The underlying official CLI binary is proprietary and requires EULA acceptance.
 
 ## When to use it
 - When you need objective, historical data on your internet connection's performance.
@@ -36,11 +38,7 @@ Intermittent internet performance issues are difficult to diagnose without histo
 ## When not to use it
 - On extremely low-bandwidth or highly metered connections where data usage is a concern.
 - During critical activities that require full bandwidth (e.g., large backups or video production).
-
-## Licensing and cost
-- **Licensing**: Official CLI is proprietary (EULA). Community wrappers often use MIT/GPL.
-- **Cost**: Free for personal use.
-- **Self-hostable**: Yes, the monitoring stack (Speedtest Tracker, InfluxDB, Grafana) is fully self-hostable.
+- In environments where proprietary binaries are strictly prohibited.
 
 ## Getting started
 
@@ -119,7 +117,7 @@ print(f"Current Download Speed: {health['download_mbps']:.2f} Mbps")
 - [Authentik](authentik.md) — Securing the Speedtest Tracker dashboard.
 - [Uptime Kuma](https://uptime.kuma.pet/) — For complementary connectivity monitoring.
 - [Ollama](ollama.md) — For running agents that analyze network logs.
-- [Claude](../tools/ai_knowledge/claude.md) — Agent used for proactive network troubleshooting.
+- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for proactive network troubleshooting.
 
 ## Sources / References
 - [Speedtest.net Official CLI](https://www.speedtest.net/apps/cli)
@@ -127,5 +125,5 @@ print(f"Current Download Speed: {health['download_mbps']:.2f} Mbps")
 - [Ookla Knowledge Base](https://help.speedtest.net/hc/en-us)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
 - Confidence: high
+- Last reviewed: 2026-07-21

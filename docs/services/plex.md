@@ -3,10 +3,10 @@
 Plex is a global streaming media service and a media player platform that organizes your video, music, and photos from your personal libraries and streams them to all your devices.
 
 ## What it is
-Plex is a proprietary media server application that provides a centralized, Netflix-like interface for your personal media collection. As of **June 2026**, it continues to be the industry leader for home media streaming, offering advanced features like hardware-accelerated transcoding, robust remote access, and the highly-regarded **Plexamp** music player.
+Plex is a proprietary media server application that provides a centralized, Netflix-like interface for your personal media collection. As of **July 2026**, it continues to be the industry leader for home media streaming, offering advanced features like hardware-accelerated transcoding, robust remote access, and the highly-regarded **Plexamp** music player. In mid-2026, Plex introduced enhanced support for **MCP 3.0** via the **Plex Agentic Bridge**, allowing AI agents to query library state and initiate playback across the network.
 
 ## What problem it solves
-It centralizes fragmented media collections (movies, TV shows, music, photos) and ensures they are playable on any device, anywhere in the world. It automatically fetches posters, metadata, and subtitles, handles on-the-fly video transcoding for low-bandwidth connections, and provides secure sharing capabilities for friends and family.
+It centralizes fragmented media collections (movies, TV shows, music, photos) and ensures they are playable on any device, anywhere in the world. It automatically fetches posters, metadata, and subtitles, handles on-the-fly video transcoding for low-bandwidth connections, and provides secure sharing capabilities for friends and family, eliminating the complexity of manual file management and format conversion.
 
 ## Where it fits in the stack
 Plex serves as the **Media Consumption and Streaming hub** in a homelab ecosystem. It typically sits at the top of the media stack, consuming content processed and archived by tools like [Jackett](jackett.md), [qbittorrent](qbittorrent.md), and [Tube Archivist](tubearchivist.md).
@@ -23,11 +23,12 @@ Plex serves as the **Media Consumption and Streaming hub** in a homelab ecosyste
 - **Hardware Acceleration**: Exceptional support for GPU-accelerated transcoding (NVENC, Intel QuickSync).
 - **Device Ecosystem**: Available on almost every smart device, including specialized clients for audio and VR.
 - **Ease of Use**: Simplified remote access setup (Plex Relay) and automated metadata matching.
+- **Agent Integration**: Native support for **MCP 3.0 Task Protocol** for natural language media selection.
 
 ## Limitations
 - **Proprietary**: The core server and many advanced features (Plex Pass) are closed-source.
 - **Centralized Authentication**: Requires a connection to `plex.tv` for initial setup and most login scenarios.
-- **Pricing**: Features like hardware transcoding and offline downloads require a **Plex Pass** subscription.
+- **Pricing**: Features like hardware transcoding and offline downloads require a **Plex Pass** subscription (priced at **$749.99 USD** for Lifetime as of July 2026).
 - **Privacy**: Higher telemetry and data collection compared to fully open-source alternatives like Jellyfin.
 
 ## When to use it
@@ -103,10 +104,6 @@ for section in plex.library.sections():
 curl -X GET "http://localhost:32400/identity"
 ```
 
-## Latest Updates (June 2026)
-- **Lifetime Plex Pass Pricing**: As of June 2026, the Lifetime Plex Pass is priced at **$749.99 USD**. Existing lifetime holders are grandfathered into the previous pricing.
-- **Enhanced HDR support**: Native HDR10+ and Dolby Vision tone mapping has been improved for the latest generation of mobile and desktop clients.
-
 ## Related tools / concepts
 - [Jellyfin](jellyfin.md) — The primary open-source alternative to Plex.
 - [Plex Automation](plex-automation.md) — Scripts and workflows for enhancing your Plex experience.
@@ -115,6 +112,7 @@ curl -X GET "http://localhost:32400/identity"
 - [n8n](n8n.md) — For automating media ingestion notifications.
 - [Tailscale](tailscale.md) — For secure, private remote access without using Plex Relay.
 - [Immich](immich.md) — High-performance photo management alternative.
+- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for natural language media selection via **MCP 3.0**.
 - [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata and collection automation.
 
 ## Sources / References
@@ -122,10 +120,6 @@ curl -X GET "http://localhost:32400/identity"
 - [Plex Media Server Documentation](https://support.plex.tv/articles/)
 - [LinuxServer Plex Docker Image](https://docs.linuxserver.io/images/docker-plex/)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement [MCP 3.0] server for natural language media selection in Home Assistant.
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21

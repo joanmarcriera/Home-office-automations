@@ -1,13 +1,13 @@
 # Apache Tika
 
 ## What it is
-Apache Tika is a versatile, open-source content analysis toolkit that detects and extracts metadata and text from over a thousand different file types (e.g., PDF, PPT, XLS, DOCX). In June 2026, version **3.0** has become the industry standard for "Agentic Ingestion," providing the structured text extraction layer required for high-fidelity RAG (Retrieval-Augmented Generation) pipelines.
+Apache Tika is a versatile, open-source content analysis toolkit that detects and extracts metadata and text from over a thousand different file types (e.g., PDF, PPT, XLS, DOCX). In **July 2026**, version **3.0.x** is the industry standard for "Agentic Ingestion," providing the structured text extraction layer required for high-fidelity RAG (Retrieval-Augmented Generation) pipelines and autonomous document understanding.
 
 ## What problem it solves
-Diverse file formats require specialized libraries for text extraction, leading to fragmented and complex ingestion pipelines. Tika simplifies this by providing a unified "parser of parsers." It solves the "dark data" problem by allowing autonomous agents to "read" inside binary files, extract deeply embedded metadata, and identify the language of the content automatically.
+Diverse file formats require specialized libraries for text extraction, leading to fragmented and complex ingestion pipelines. Tika simplifies this by providing a unified "parser of parsers." It solves the "dark data" problem by allowing autonomous agents to "read" inside binary files, extract deeply embedded metadata, and identify the language of the content automatically without requiring specific format expertise.
 
 ## Where it fits in the stack
-**Category**: Service / Data Processing. It sits in the **data ingestion and extraction layer**, acting as a critical pre-processor that converts unstructured binary documents into the clean text and metadata required by search engines and LLMs.
+**Category**: Service / Data Processing. It sits in the **data ingestion and extraction layer**, acting as a critical pre-processor that converts unstructured binary documents into the clean text and metadata required by search engines, vector databases, and LLMs like **Gemma 3**.
 
 ## Typical use cases
 - **Agentic RAG Pipelines**: Converting local PDF archives into structured text for indexing in vector databases.
@@ -21,7 +21,7 @@ Diverse file formats require specialized libraries for text extraction, leading 
 - **Unified REST API**: Simplifies integration with any language or automation tool via a single HTTP interface.
 - **Deep Metadata Extraction**: Retrieves author, creation date, GPS coordinates, and more from embedded file headers.
 - **Native OCR Integration**: Can automatically trigger Tesseract OCR for images or "image-only" PDFs during extraction.
-- **High Performance (v3.0)**: Optimized JVM settings and modular parser configurations for high-throughput batch processing.
+- **Open Source (Apache 2.0)**: Fully free for personal and commercial use without licensing costs.
 
 ## Limitations
 - **JVM Dependency**: Requires a Java runtime environment (Java 17+ for v3.0), which can be memory-intensive in small containers.
@@ -38,11 +38,6 @@ Diverse file formats require specialized libraries for text extraction, leading 
 - For very simple plain-text or Markdown processing where a lightweight library suffices.
 - In extremely memory-constrained environments where a JVM-based service is not feasible.
 - If you require pixel-perfect visual preservation of document layouts.
-
-## Licensing and cost
-- **Licensing**: Open Source (Apache 2.0).
-- **Cost**: Free.
-- **Self-hostable**: Yes, officially supported via Docker and binary JAR files.
 
 ## Getting started
 
@@ -105,7 +100,7 @@ print(f"Author: {data[0].get('dc:creator', 'Unknown')}")
 - [Supabase](../tools/infrastructure/supabase.md) — For storing vector embeddings of Tika-extracted text.
 - [Authentik](authentik.md) — For securing access to Tika endpoints.
 - [Tailscale](tailscale.md) — For secure remote access to Tika servers.
-- [Claude](../tools/ai_knowledge/claude.md) — Agent used for processing extracted text.
+- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for processing extracted text.
 - [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) — The underlying engine used by Tika for images.
 
 ## Sources / References
@@ -115,5 +110,5 @@ print(f"Author: {data[0].get('dc:creator', 'Unknown')}")
 - [Tika Server Wiki](https://cwiki.apache.org/confluence/display/TIKA/TikaServer)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
 - Confidence: high
+- Last reviewed: 2026-07-21
