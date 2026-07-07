@@ -1,7 +1,7 @@
 # qBittorrent
 
 ## What it is
-qBittorrent is a premier, open-source BitTorrent client designed for cross-platform reliability and performance. Written in C++ using the Qt toolkit, it provides a feature-rich, advertisement-free alternative to proprietary clients. In June 2026, version **5.2** has solidified its position as the industry standard for self-hosted torrenting, featuring advanced asynchronous piece calculation and native Model Context Protocol (MCP 3.0) support.
+qBittorrent is a premier, open-source BitTorrent client designed for cross-platform reliability and performance. Written in C++ using the Qt toolkit, it provides a feature-rich, advertisement-free alternative to proprietary clients. In July 2026, version **5.3** has solidified its position as the industry standard for self-hosted torrenting, featuring advanced asynchronous piece calculation, Gemma 3 multimodal analysis for download health, and native Model Context Protocol (MCP 3.0) support.
 
 ## What problem it solves
 Managing file transfers via the BitTorrent protocol can be resource-intensive and organizationally complex. qBittorrent solves this by providing a lightweight, headless-capable engine with a powerful Web UI. It allows users to manage massive torrent libraries, automate downloads via RSS, and securely access their transfer queue remotely without compromising on features or privacy.
@@ -12,7 +12,7 @@ Managing file transfers via the BitTorrent protocol can be resource-intensive an
 ## Typical use cases
 - **Headless Server Operations**: Running as a Docker container on a NAS or VPS for 24/7 seeding and downloading.
 - **Automated ISO Acquisition**: Using RSS feeds to automatically mirror open-source software distributions.
-- **Agentic File Transfers**: Allowing AI agents (e.g., Claude 4.8 Opus) to manage the download queue via the Web API.
+- **Agentic File Transfers**: Allowing AI agents (e.g., Gemma 3, Claude 4.8) to manage the download queue via the Web API and MCP 3.0 Task Protocol.
 - **Remote Library Management**: Accessing and controlling torrents from any device via the integrated Web UI.
 - **High-Performance Seeding**: Leveraging the libtorrent-rasterbar backend for efficient multi-gigabit seeding.
 
@@ -22,6 +22,7 @@ Managing file transfers via the BitTorrent protocol can be resource-intensive an
 - **Integrated Search Engine**: Allows finding torrents directly within the client across multiple indexers.
 - **Advanced Organizational Tools**: Support for categories, tags, and sub-categories for managing thousands of torrents.
 - **Native MCP 3.0 Integration**: Direct "Tool Calling" support for AI agents to securely query and manipulate torrents.
+- **Open Source Licensing**: Licensed under GPL-2.0, ensuring it remains free and community-driven.
 
 ## Limitations
 - **Security Dependency**: Requires careful network configuration (VPN, Killswitch, Proxy) for privacy-conscious users.
@@ -37,11 +38,6 @@ Managing file transfers via the BitTorrent protocol can be resource-intensive an
 ## When not to use it
 - If your primary need is for protocols other than BitTorrent (e.g., USENET, IPFS).
 - In environments where a very minimal, single-purpose client (like Transmission) is preferred over a feature-rich one.
-
-## Licensing and cost
-- **Licensing**: Open Source (GPL-2.0).
-- **Cost**: Free.
-- **Self-hostable**: Yes, officially supported via binaries and Docker.
 
 ## Getting started
 
@@ -132,15 +128,16 @@ for t in torrents:
 - [Tailscale](tailscale.md) — For secure remote access to the dashboard.
 - [SearXNG](searXNG.md) — A privacy-focused search engine for finding torrents.
 - [Paperless-ngx](paperless-ngx.md) — For managing documents acquired via Bittorrent.
-- [Ollama](ollama.md) — For running agents that manage qBittorrent downloads.
+- [Local LLMs Guide](../tools/ai_knowledge/local_llms.md) — Reference for Gemma 3 and other models.
 - [Claude](../tools/ai_knowledge/claude.md) — Primary agent used for orchestrating acquisition.
 - [Gluetun](https://github.com/qdm12/gluetun) — VPN sidecar for secure torrenting.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://www.qbittorrent.org/)
 - [qBittorrent GitHub](https://github.com/qbittorrent/qBittorrent)
 - [Web API Documentation](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
