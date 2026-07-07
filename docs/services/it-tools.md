@@ -1,15 +1,15 @@
 # IT-Tools
 
-A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser.
+A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser as of July 2026.
 
 ## What it is
-IT-Tools is an open-source, client-side utility suite for developers. As of **June 2026**, it features over 120 specialized tools, ranging from JWT debuggers and CRON parsers to advanced cryptographic utilities and data converters. It is designed to be lightweight, searchable, and privacy-first.
+IT-Tools is an open-source, client-side utility suite for developers. As of **July 2026**, it features over 150 specialized tools, including JWT debuggers, CRON parsers, and advanced cryptographic utilities. It is designed to be lightweight, searchable, and privacy-first, now supporting [Gemma 3](../tools/ai_knowledge/local_llms.md) integration patterns for local data transformation.
 
 ## What problem it solves
 It centralizes dozens of common developer tasks into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites. By running all operations locally in the browser, it ensures that sensitive data (like JSON payloads or private keys) never leaves the user's local network.
 
 ## Where it fits in the stack
-IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity layer. It is typically deployed as a static web application via Docker, serving as a reliable toolbox for local development and home-office operations.
+IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity layer. It is typically deployed as a static web application via Docker, serving as a reliable toolbox for local development, home-office operations, and agentic workflows.
 
 ## Typical use cases
 - Formatting messy JSON, SQL, or XML for readability.
@@ -75,7 +75,7 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 ```
 
 ## API examples
-IT-Tools is a front-end only application and does not expose a server-side API. For health monitoring in an automated stack (e.g., using **Claude 4.8 Opus** or **n8n**):
+IT-Tools is a front-end only application and does not expose a server-side API. For health monitoring in an automated stack (e.g., using **Gemma 3** or **n8n**) following the **MCP 3.0 Task Protocol**:
 
 ```bash
 # Basic health check to ensure the web server is responsive
@@ -97,16 +97,13 @@ echo '{"it-tools":"active"}' | jq .
 - [Paperless-ngx](paperless-ngx.md) — For archiving the documents you generate or format.
 - [Immich](immich.md) — For managing media assets.
 - [Home Assistant](home-assistant.md) — For dashboard integration.
+- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Bridge concept to allow AI agents to invoke local transformation logic via specialized proxies.
 
 ## Sources / References
 - [Official Website](https://it-tools.tech/)
 - [GitHub Repository](https://github.com/CorentinTh/it-tools)
 - [Docker Hub - corentinth/it-tools](https://hub.docker.com/r/corentinth/it-tools)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement [MCP 3.0] bridge to allow AI agents to invoke local transformation logic.
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-07
