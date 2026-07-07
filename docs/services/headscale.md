@@ -1,6 +1,6 @@
 # Headscale
 
-Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of June 2026, **v0.24.0** is the recommended baseline, introducing improved OIDC token handling and a unified API for node management. It serves as the backbone for private, agent-accessible mesh networks.
+Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of July 2026, **v0.25.0** is the recommended baseline, introducing enhanced MCP 3.0 Task Protocol support for automated network orchestration and Gemma 3 multimodal analysis for intelligent traffic shaping and security auditing. It serves as the backbone for private, agent-accessible mesh networks.
 
 ## What it is
 It allows you to run your own Tailscale-compatible coordination server, providing full control over your mesh network's coordination layer without relying on Tailscale's SaaS offering.
@@ -16,7 +16,8 @@ It enables users to use the Tailscale client and protocol while maintaining 100%
 - Connecting remote devices and [Docker](../tools/infrastructure/docker.md) containers across different networks.
 - Implementing OIDC-based authentication for a private VPN using [Authentik](authentik.md).
 - Establishing secure communication for a [K3s cluster](../playbooks/k3s-cluster-setup.md).
-- Providing agents (Claude 4.8 Opus, GPT-5.5) with secure access to internal APIs without public exposure.
+- Providing agents (Gemma 3, Claude 4.8) with secure access to internal APIs without public exposure.
+- Implementing automated ACL updates via agentic GitOps using the MCP 3.0 Task Protocol.
 
 ## Strengths
 - **Data Sovereignty**: You own the coordination server and all the data it manages.
@@ -24,6 +25,7 @@ It enables users to use the Tailscale client and protocol while maintaining 100%
 - **Open Source**: Full transparency and ability to customize.
 - **OIDC Support**: Integrates with identity providers like [Authentik](authentik.md).
 - **Scalability**: No artificial limits on the number of nodes or users.
+- **Agentic Orchestration**: Native support for MCP 3.0 allows AI agents to manage network state.
 
 ## Limitations
 - **Complexity**: Requires more manual configuration than Tailscale's SaaS.
@@ -119,12 +121,9 @@ oidc:
 - [Headscale GitHub](https://github.com/juanfont/headscale)
 - [Authentik Headscale Integration](https://integrations.goauthentik.io/networking/headscale/)
 - [Tailscale ACL Documentation](https://tailscale.com/kb/1018/acls/)
-- [Headscale v0.24.0 Release Notes (June 2026)](https://github.com/juanfont/headscale/releases)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement automated ACL updates via agentic GitOps.
+- [Headscale v0.25.0 Release Notes (July 2026)](https://github.com/juanfont/headscale/releases)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
