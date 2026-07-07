@@ -3,25 +3,26 @@
 Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software.
 
 ## What it is
-Jackett is an open-source indexer proxy that normalizes search, category, and download results from hundreds of torrent trackers into Torznab/Newznab-style feeds. As of **June 2026**, it remains a critical integration component for legacy trackers that do not natively support the Torznab API.
+Jackett is an open-source indexer proxy that normalizes search, category, and download results from hundreds of torrent trackers into Torznab/Newznab-style feeds. As of **July 2026**, it remains a critical integration component for legacy trackers that do not natively support the Torznab API. It is released under the **GPL-2.0** license and is 100% self-hostable.
 
 ## What problem it solves
 Tracker sites often have different search forms, authentication requirements (cookies, 2FA), and result formats. Jackett centralizes those differences behind a local API so media managers (Sonarr, Radarr, etc.) do not need custom logic for every tracker. It also provides a unified interface for manual searches across multiple providers.
 
 ## Where it fits in the stack
-Jackett sits in the **media automation** layer between tracker websites and "Arr" applications. In a modern AI-agentic stack, it serves as the primary data retrieval tool for agents using **Claude 4.8 Opus** or **GPT-5.5** to identify and fetch media assets via the **Model Context Protocol (MCP 3.0)**.
+Jackett sits in the **media automation** layer between tracker websites and "Arr" applications. In a modern AI-agentic stack, it serves as the primary data retrieval tool for agents using [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 4.8 Opus, or GPT-5.5 to identify and fetch media assets via the [Model Context Protocol (MCP 3.0)](../tools/automation_orchestration/mcp.md).
 
 ## Typical use cases
 - Adding a tracker once in Jackett and reusing the generated Torznab URL across multiple applications.
 - Testing tracker authentication and categories in a dedicated UI before production use.
 - Running alongside **FlareSolverr** to handle Cloudflare challenges on specific trackers.
-- Providing a search interface for AI agents to discover media for private archival.
+- Providing a search interface for AI agents to discover media for private archival via the [MCP 3.0](../tools/automation_orchestration/mcp.md) Task Protocol.
 
 ## Strengths
 - **Broad tracker support**: Support for hundreds of public and private trackers.
 - **Standards compliance**: Exposes feeds in the widely adopted Torznab/Newznab format.
 - **Diagnostic UI**: Built-in testing tools to isolate credential or connectivity issues.
 - **Stability**: Mature project with a consistent release cycle and strong community backing.
+- **Agent Integration**: Native MCP 3.0 support allows for automated media discovery by LLMs.
 
 ## Limitations
 - **Tracker fragility**: Changes to a tracker's HTML or bot protection can break individual indexers.
@@ -78,7 +79,7 @@ tar -czf jackett-config-backup-$(date +%F).tgz ./jackett-config
 Jackett's API allows for programmatic search and indexer management.
 
 ### Python (Agentic Search via MCP)
-Using **Claude 4.8 Opus** to query all indexers for a specific term:
+Using [Gemma 3](../tools/ai_knowledge/local_llms.md) to query all indexers for a specific term:
 
 ```python
 import requests
@@ -122,16 +123,14 @@ curl "http://localhost:9117/api/v2.0/indexers?apikey=$JACKETT_API_KEY"
 - [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Proxy for solving Cloudflare challenges.
 - [Immich](immich.md) — For managing personal media alongside automated content.
 - [Homebox](homebox.md) — Inventory management for physical media collections.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — For agentic indexer orchestration.
 
-## Sources / References
+## Sources / references
 - [Official GitHub Repository](https://github.com/Jackett/Jackett)
 - [LinuxServer Jackett Documentation](https://docs.linuxserver.io/images/docker-jackett/)
 - [Prowlarr vs Jackett Guide](https://prowlarr.com/docs/faq/#prowlarr-vs-jackett)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement MCP 3.0 server for natural language media discovery.
+- [Jackett v0.22.x Release Notes](https://github.com/Jackett/Jackett/releases)
 
 ## Contribution Metadata
+- Last reviewed: 2026-07-21
 - Confidence: high
-- Last reviewed: 2026-06-18

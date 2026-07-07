@@ -3,13 +3,13 @@
 A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser.
 
 ## What it is
-IT-Tools is an open-source, client-side utility suite for developers. As of **June 2026**, it features over 120 specialized tools, ranging from JWT debuggers and CRON parsers to advanced cryptographic utilities and data converters. It is designed to be lightweight, searchable, and privacy-first.
+IT-Tools is an open-source, client-side utility suite for developers. As of **July 2026**, it features over 130 specialized tools, ranging from JWT debuggers and CRON parsers to advanced cryptographic utilities and data converters. It is designed to be lightweight, searchable, and privacy-first. It is released under the **GPL-3.0** license and is fully self-hostable.
 
 ## What problem it solves
 It centralizes dozens of common developer tasks into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites. By running all operations locally in the browser, it ensures that sensitive data (like JSON payloads or private keys) never leaves the user's local network.
 
 ## Where it fits in the stack
-IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity layer. It is typically deployed as a static web application via Docker, serving as a reliable toolbox for local development and home-office operations.
+IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity layer. It is typically deployed as a static web application via [Docker](../tools/infrastructure/docker.md), serving as a reliable toolbox for local development and home-office operations.
 
 ## Typical use cases
 - Formatting messy JSON, SQL, or XML for readability.
@@ -21,7 +21,7 @@ IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity la
 ## Strengths
 - **Privacy**: All processing happens locally in the browser.
 - **Speed**: Instantaneous search and tool loading via a unified interface.
-- **Self-Hostable**: Simple deployment with a single Docker image and zero external dependencies.
+- **Self-Hostable**: Simple deployment with a single [Docker](../tools/infrastructure/docker.md) image and zero external dependencies.
 - **Offline Capable**: Works perfectly in air-gapped or low-connectivity environments once loaded.
 
 ## Limitations
@@ -42,7 +42,7 @@ IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity la
 ## Getting started
 
 ### Docker installation
-The easiest way to run IT-Tools locally is via Docker:
+The easiest way to run IT-Tools locally is via [Docker](../tools/infrastructure/docker.md):
 
 ```bash
 docker run -d \
@@ -75,7 +75,7 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 ```
 
 ## API examples
-IT-Tools is a front-end only application and does not expose a server-side API. For health monitoring in an automated stack (e.g., using **Claude 4.8 Opus** or **n8n**):
+IT-Tools is a front-end only application and does not expose a server-side API. For health monitoring in an automated stack (e.g., using [Gemma 3](../tools/ai_knowledge/local_llms.md) or [n8n](n8n.md)):
 
 ```bash
 # Basic health check to ensure the web server is responsive
@@ -97,16 +97,15 @@ echo '{"it-tools":"active"}' | jq .
 - [Paperless-ngx](paperless-ngx.md) — For archiving the documents you generate or format.
 - [Immich](immich.md) — For managing media assets.
 - [Home Assistant](home-assistant.md) — For dashboard integration.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — AI agent used for identifying developer tasks.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — For orchestrating utility workflows.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://it-tools.tech/)
 - [GitHub Repository](https://github.com/CorentinTh/it-tools)
 - [Docker Hub - corentinth/it-tools](https://hub.docker.com/r/corentinth/it-tools)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement [MCP 3.0] bridge to allow AI agents to invoke local transformation logic.
+- [IT-Tools 2026.07 Release Notes](https://github.com/CorentinTh/it-tools/releases)
 
 ## Contribution Metadata
+- Last reviewed: 2026-07-21
 - Confidence: high
-- Last reviewed: 2026-06-18

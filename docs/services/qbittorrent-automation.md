@@ -1,7 +1,7 @@
 # qBittorrent Automation
 
 ## What it is
-qBittorrent Automation encompasses the workflows, scripts, and integrations used to manage the lifecycle of torrent downloads autonomously. In June 2026, it leverages the **v5.2** Web API and Model Context Protocol (MCP 3.0) to allow AI agents like Claude 4.8 Opus to orchestrate content acquisition, categorization, and library maintenance.
+qBittorrent Automation encompasses the workflows, scripts, and integrations used to manage the lifecycle of torrent downloads autonomously. As of July 2026, it leverages the **v5.2.0** Web API and [Model Context Protocol (MCP 3.0)](../tools/automation_orchestration/mcp.md) Task Protocol to allow AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) and Claude 4.8 Opus to orchestrate content acquisition, categorization, and library maintenance. It is released under the **GPL-2.0** license and is fully self-hostable.
 
 ## What problem it solves
 Manual torrent management is time-consuming and prone to organizational chaos. qBittorrent Automation solves the "acquisition overhead" by automatically ingesting content from RSS feeds, categorizing downloads based on content type, renaming files for media servers, and enforcing seeding rules to maintain private tracker ratios without human intervention.
@@ -10,14 +10,14 @@ Manual torrent management is time-consuming and prone to organizational chaos. q
 **Category**: Service / Media / Automation. It sits at the **intake orchestration layer**, bridging content discovery (via [SearXNG](searXNG.md) or RSS) with media consumption ([Plex](plex.md), [Jellyfin](jellyfin.md)).
 
 ## Typical use cases
-- **Agentic Content Retrieval**: Asking an AI agent to "Find and download the latest Debian ISO," which it executes via the qBittorrent API.
+- **Agentic Content Retrieval**: Asking an AI agent to "Find and download the latest Debian ISO," which it executes via the qBittorrent API and [MCP 3.0](../tools/automation_orchestration/mcp.md) tools.
 - **Automated Library Maintenance**: Using [n8n](n8n.md) to move completed downloads to specific folders and trigger a media library scan.
 - **Ratio Management**: Automatically pausing or deleting torrents once they reach a predefined seeding ratio or time limit.
 - **Real-Time Notifications**: Sending alerts to [Element](element.md) or [Synapse](synapse.md) when a high-priority download completes.
 - **Dynamic Bandwidth Scaling**: Automatically adjusting download speeds based on home network occupancy or [Speedtest](speedtest.md) results.
 
 ## Strengths
-- **Native MCP 3.0 Support**: Allows autonomous agents to securely query and manipulate the download queue.
+- **Native MCP 3.0 Support**: Allows autonomous agents to securely query and manipulate the download queue using standardized task protocols.
 - **Comprehensive Web API**: Provides granular control over every aspect of the client, from peer management to transfer settings.
 - **Event-Driven Triggers**: Native support for running external programs on torrent completion.
 - **Category-Level Logic**: v5.2+ allows for different automation rules (seeding, pathing) based on assigned categories.
@@ -26,7 +26,7 @@ Manual torrent management is time-consuming and prone to organizational chaos. q
 ## Limitations
 - **Security Complexity**: Exposing the Web API for automation requires robust authentication (e.g., via [Authentik](authentik.md)).
 - **Configuration Overhead**: Setting up complex "If-This-Then-That" workflows can require significant initial effort.
-- **Path Mapping**: Ensuring Docker container paths align across multiple services (qBittorrent, n8n, Plex) is a common point of friction.
+- **Path Mapping**: Ensuring [Docker](../tools/infrastructure/docker.md) container paths align across multiple services (qBittorrent, n8n, Plex) is a common point of friction.
 
 ## When to use it
 - When you want a "set-and-forget" media and data acquisition pipeline.
@@ -37,11 +37,6 @@ Manual torrent management is time-consuming and prone to organizational chaos. q
 ## When not to use it
 - If you only download occasional files manually and don't mind manual organization.
 - In environments where the security of the Web API cannot be guaranteed.
-
-## Licensing and cost
-- **Licensing**: Open Source (GPL-2.0 for qBittorrent; scripts/wrappers vary).
-- **Cost**: Free.
-- **Self-hostable**: Yes, typically run alongside [qBittorrent](qbittorrent.md) in a Docker environment.
 
 ## Getting started
 
@@ -97,13 +92,14 @@ for torrent in qbt_client.torrents_info(status_filter='completed'):
 - [Element](element.md) — Notification endpoint.
 - [Synapse](synapse.md) — Matrix-based notification backbone.
 - [Paperless-ngx](paperless-ngx.md) — Automated ingestion of downloaded documents.
-- [Claude](../tools/ai_knowledge/claude.md) — Agent used for orchestrating acquisition.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Agent used for orchestrating acquisition.
 
-## Sources / References
+## Sources / references
 - [qBittorrent WebUI API](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
 - [qbittorrent-api Python Library](https://github.com/rmartin16/qbittorrent-api)
 - [Arrr Suite (Sonarr/Radarr)](https://wiki.servarr.com/)
+- [qBittorrent v5.2.0 Release Notes](https://github.com/qbittorrent/qBittorrent/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high

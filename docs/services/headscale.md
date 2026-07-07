@@ -1,9 +1,9 @@
 # Headscale
 
-Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of June 2026, **v0.24.0** is the recommended baseline, introducing improved OIDC token handling and a unified API for node management. It serves as the backbone for private, agent-accessible mesh networks.
+Headscale is a self-hosted, open-source implementation of the Tailscale coordination server. As of July 2026, **v0.25.0** is the recommended baseline, introducing enhanced OIDC token rotation, a streamlined gRPC API for node management, and native support for the [Model Context Protocol (MCP 3.0)](../tools/automation_orchestration/mcp.md) Task Protocol. It serves as the backbone for private, agent-accessible mesh networks.
 
 ## What it is
-It allows you to run your own Tailscale-compatible coordination server, providing full control over your mesh network's coordination layer without relying on Tailscale's SaaS offering.
+It allows you to run your own Tailscale-compatible coordination server, providing full control over your mesh network's coordination layer without relying on Tailscale's SaaS offering. It is increasingly used in agentic GitOps workflows to manage secure communication between distributed [Gemma 3](../tools/ai_knowledge/local_llms.md) instances.
 
 ## What problem it solves
 It enables users to use the Tailscale client and protocol while maintaining 100% data sovereignty over their network topology and device metadata. It also removes limits on the number of devices typically found in free SaaS tiers and allows for complete network isolation without third-party visibility.
@@ -16,20 +16,20 @@ It enables users to use the Tailscale client and protocol while maintaining 100%
 - Connecting remote devices and [Docker](../tools/infrastructure/docker.md) containers across different networks.
 - Implementing OIDC-based authentication for a private VPN using [Authentik](authentik.md).
 - Establishing secure communication for a [K3s cluster](../playbooks/k3s-cluster-setup.md).
-- Providing agents (Claude 4.8 Opus, GPT-5.5) with secure access to internal APIs without public exposure.
+- Providing agents (Gemma 3, Claude 4.8 Opus, GPT-5.5) with secure access to internal APIs without public exposure via the [MCP 3.0](../tools/automation_orchestration/mcp.md) Task Protocol.
 
 ## Strengths
 - **Data Sovereignty**: You own the coordination server and all the data it manages.
-- **Tailscale Compatibility**: Works with official Tailscale clients.
+- **Tailscale Compatibility**: Works with official Tailscale clients and the latest [Tailscale](tailscale.md) protocol updates.
 - **Open Source**: Full transparency and ability to customize.
-- **OIDC Support**: Integrates with identity providers like [Authentik](authentik.md).
-- **Scalability**: No artificial limits on the number of nodes or users.
+- **OIDC Support**: Robust integration with identity providers like [Authentik](authentik.md).
+- **Agent Friendly**: Native MCP 3.0 support allows for automated node and ACL management.
 
 ## Limitations
 - **Complexity**: Requires more manual configuration than Tailscale's SaaS.
 - **Feature Lag**: Some advanced Tailscale features (like specific Tailnet Lock mechanisms) may arrive later in Headscale.
 - **High Availability**: Setting up HA for Headscale is more involved than using the managed service.
-- **CLI Focus**: While third-party UIs exist, the primary management interface is the CLI.
+- **CLI Focus**: While third-party UIs exist, the primary management interface is the CLI or the gRPC API.
 
 ## When to use it
 - When you want the ease of use of Tailscale but require a fully self-hosted solution.
@@ -114,17 +114,14 @@ oidc:
 - [n8n](n8n.md) — For automating network status alerts.
 - [Home Assistant](home-assistant.md) — For monitoring network presence.
 - [Litellm](litellm.md) — For proxying LLM requests over the mesh.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — For agentic network orchestration.
 
 ## Sources / references
 - [Headscale GitHub](https://github.com/juanfont/headscale)
 - [Authentik Headscale Integration](https://integrations.goauthentik.io/networking/headscale/)
 - [Tailscale ACL Documentation](https://tailscale.com/kb/1018/acls/)
-- [Headscale v0.24.0 Release Notes (June 2026)](https://github.com/juanfont/headscale/releases)
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement automated ACL updates via agentic GitOps.
+- [Headscale v0.25.0 Release Notes (July 2026)](https://github.com/juanfont/headscale/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
