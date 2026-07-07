@@ -1,7 +1,7 @@
 # Cloudflare Mesh (Cloudflare Zero Trust)
 
 ## What it is
-Cloudflare Mesh is a purpose-built private networking solution (part of the Cloudflare Zero Trust suite) designed for secure, low-latency communication between agents, tools, and internal services. In June 2026, it features enhanced "Agentic Tunneling" which allows autonomous AI models like Claude 4.8 Opus and GPT-5.5 to securely traverse corporate and home firewalls using verified machine identities.
+Cloudflare Mesh is a purpose-built private networking solution (part of the Cloudflare Zero Trust suite) designed for secure, low-latency communication between agents, tools, and internal services. In July 2026, it features enhanced "Agentic Tunneling" which allows autonomous AI models like Gemma 3 and Claude 4.8 to securely traverse corporate and home firewalls using verified machine identities and the MCP 3.0 Task Protocol.
 
 ## What problem it solves
 As agentic workflows become increasingly distributed, agents frequently need to access internal resources (databases, local APIs, file stores) that are not exposed to the public internet. Traditional VPNs are often too rigid for the dynamic, multi-cloud nature of AI agents. Cloudflare Mesh provides a high-performance overlay network that allows cloud-hosted agents to interact with local resources using secure, machine-verifiable identities, effectively eliminating the perimeter-security bottleneck.
@@ -13,7 +13,7 @@ As agentic workflows become increasingly distributed, agents frequently need to 
 - **Agentic Database Access**: Allowing a cloud agent to securely query a local PostgreSQL instance for RAG context.
 - **Cross-Cloud Orchestration**: Linking n8n runners on AWS with local services in a home office.
 - **Secure API Ingress**: Exposing local [Home Assistant](home-assistant.md) or [Paperless-ngx](paperless-ngx.md) APIs to authorized agents without public DNS exposure.
-- **Audited Tool Execution**: Every network request made by an agent is logged and verifiable via Cloudflare Zero Trust auditing.
+- **Audited Tool Execution**: Every network request made by an agent is logged and verifiable via Cloudflare Zero Trust auditing and MCP 3.0.
 - **Zero-Trust Device Access**: Connecting remote development machines to internal homelab infrastructure via WARP.
 
 ## Strengths
@@ -22,6 +22,7 @@ As agentic workflows become increasingly distributed, agents frequently need to 
 - **No Inbound Ports**: Uses outbound-only "Tunnels" (cloudflared), meaning no firewall ports need to be opened.
 - **Granular Access Control**: Access policies can be restricted to specific agent IDs, time windows, or geographic regions.
 - **High Observability**: Comprehensive logging of every request, crucial for debugging complex multi-step agent reasoning traces.
+- **Licensing and Cost**: Client (`cloudflared`) is Open Source (Apache 2.0). The Zero Trust service is proprietary but offers a generous free tier for up to 50 users (as of July 2026).
 
 ## Limitations
 - **Cloud Dependency**: Requires a managed Cloudflare account and relies on their global coordination infrastructure.
@@ -37,11 +38,6 @@ As agentic workflows become increasingly distributed, agents frequently need to 
 ## When not to use it
 - In 100% local-only environments with no cloud integration requirements.
 - If you prefer a strictly open-source, self-hosted solution with no third-party infrastructure dependency (consider [Headscale](headscale.md)).
-
-## Licensing and cost
-- **Licensing**: Client (`cloudflared`) is Open Source (Apache 2.0). The Zero Trust service is proprietary.
-- **Cost**: Generous "Free" tier for personal and small team use (often up to 50 users as of 2026). Paid plans for enterprise scale.
-- **Self-hostable**: Only the `cloudflared` agent; the coordination and edge network are managed by Cloudflare.
 
 ## Getting started
 
@@ -100,8 +96,8 @@ def create_agent_token(name):
     response = requests.post(url, headers=headers, json=data)
     return response.json()
 
-# Example: Create a token for a new Claude 4.8 deployment
-token_data = create_agent_token("claude-4.8-home-agent")
+# Example: Create a token for a new Gemma 3 deployment
+token_data = create_agent_token("gemma-3-home-agent")
 print(f"Token Client ID: {token_data['result']['client_id']}")
 ```
 
@@ -115,8 +111,8 @@ print(f"Token Client ID: {token_data['result']['client_id']}")
 - [Ollama](ollama.md) — Providing private AI endpoints over the mesh.
 - [Nextcloud](nextcloud.md) — Secure file access for remote agents.
 - [Storj](storj.md) — For backing up mesh-connected nodes.
-- [Traefik](https://traefik.io/) — Often used as a local ingress controller behind a Cloudflare Tunnel.
-- [Claude](../tools/ai_knowledge/claude.md) — Primary consumer of Mesh-protected tools.
+- [Local LLMs](../tools/ai_knowledge/local_llms.md) — Running models like Gemma 3 over the mesh.
+- [Claude](../tools/ai_knowledge/claude.md) — High-performance agentic integration via Mesh.
 
 ## Sources / References
 - [Cloudflare Zero Trust Documentation](https://developers.cloudflare.com/cloudflare-one/)
@@ -125,5 +121,5 @@ print(f"Token Client ID: {token_data['result']['client_id']}")
 - [Cloudflared GitHub](https://github.com/cloudflare/cloudflared)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high

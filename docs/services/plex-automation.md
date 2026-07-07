@@ -3,10 +3,10 @@
 Workflows and scripts for managing Plex media libraries, metadata, and user activity.
 
 ## What it is
-Plex Automation involves using the Plex Media Server API, the Plex Media Scanner CLI, and third-party tools to automate library updates, metadata refinement, and notifications. As of **June 2026**, this ecosystem has evolved to include native **Model Context Protocol (MCP 3.0)** support for agentic media management via Claude 4.8 Opus and GPT-5.5.
+Plex Automation involves using the Plex Media Server API, the Plex Media Scanner CLI, and third-party tools to automate library updates, metadata refinement, and notifications. As of **July 2026**, this ecosystem has evolved to include native **Model Context Protocol (MCP 3.0)** support for agentic media management via Gemma 3, Claude 4.8 Opus, and GPT-5.5.
 
 ## What problem it solves
-It eliminates manual library management. It ensures that new media is scanned and matched immediately, library metadata (like posters and collections) is kept clean and consistent, and users are notified when new content they are interested in becomes available. It also enables natural language discovery and orchestration through autonomous agents.
+It eliminates manual library management. It ensures that new media is scanned and matched immediately, library metadata (like posters and collections) is kept clean and consistent, and users are notified when new content they are interested in becomes available. It also enables natural language discovery and orchestration through autonomous agents and the MCP 3.0 Task Protocol.
 
 ## Where it fits in the stack
 **Category**: Services / Media Automation. It is the "Maintenance & Notification" layer for the [Plex](plex.md) media server, acting as the bridge between raw file storage and the user-facing streaming interface.
@@ -15,7 +15,7 @@ It eliminates manual library management. It ensures that new media is scanned an
 - Automatically refreshing library sections when a new file is detected via filesystem watcher.
 - Using **Plex Meta Manager (PMM)** to create dynamic collections (e.g., "Top IMDB Movies").
 - Sending a Discord/Telegram message whenever a new movie is added to the server (via Tautulli).
-- Agentic maintenance: Using Claude 4.8 Opus to identify and fix metadata mismatches or low-quality posters across a 10,000+ item library.
+- Agentic maintenance: Using Gemma 3 or Claude 4.8 Opus to identify and fix metadata mismatches or low-quality posters across a 10,000+ item library.
 - Automatically killing transcoding streams that have been paused for too long to save CPU.
 
 ## Strengths
@@ -106,6 +106,8 @@ for episode in trash_library.search(viewed=True):
 - [Tube Archivist](tubearchivist.md) — For preserving YouTube content.
 - [Tautulli](https://tautulli.com/) — Monitoring and notification system.
 - [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata automation.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For local media reasoning and management.
+- [Claude 4.8](../tools/ai_knowledge/claude.md) — For high-performance agentic media orchestration.
 
 ## Sources / References
 - [Official Plex API Documentation (Community Maintained)](https://github.com/Arcanemagus/plex-api/wiki)
@@ -113,5 +115,5 @@ for episode in trash_library.search(viewed=True):
 - [Plex Webhooks Overview](https://support.plex.tv/articles/115002267687-webhooks/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high

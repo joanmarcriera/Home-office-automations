@@ -3,7 +3,7 @@
 Habitica is an open-source habit-building and productivity app that treats your real life like a game. It transforms your daily tasks and habits into RPG quests, rewarding completion with experience points and gold, and penalizing neglect with health loss.
 
 ## What it is
-Habitica is a gamified task management platform that leverages RPG mechanics (Experience, Gold, Health, Pets, and Quests) to motivate users toward habit formation and goal completion. In the June 2026 ecosystem, it has evolved into a primary target for agentic habit coaching, with native support for the Model Context Protocol (MCP 3.0).
+Habitica is a gamified task management platform that leverages RPG mechanics (Experience, Gold, Health, Pets, and Quests) to motivate users toward habit formation and goal completion. In the July 2026 ecosystem, it has evolved into a primary target for agentic habit coaching, with native support for the Model Context Protocol (MCP 3.0).
 
 ## What problem it solves
 Traditional productivity tools often suffer from "motivation decay." Habitica solves this by applying game theory to real-world tasks, providing immediate feedback loops through virtual rewards and social accountability (Parties and Guilds), which are essential for long-term behavior change.
@@ -13,7 +13,7 @@ Traditional productivity tools often suffer from "motivation decay." Habitica so
 
 ## Typical use cases
 - **Gamified Habit Formation**: Tracking daily routines like exercise, meditation, or hydration.
-- **Agentic Coaching**: Using Claude 4.8 Opus to analyze task completion patterns and suggest quest strategies.
+- **Agentic Coaching**: Using Gemma 3 or Claude 4.8 Opus to analyze task completion patterns and suggest quest strategies.
 - **Automated Reward Systems**: Linking smart home completions (e.g., finishing a workout on a Peloton) to Habitica XP gain via MCP 3.0.
 - **Social Productivity**: Collaborating with a "Party" to defeat bosses by completing real-world tasks.
 
@@ -40,11 +40,11 @@ Traditional productivity tools often suffer from "motivation decay." Habitica so
 ## Getting started
 To begin, create an account at [Habitica.com](https://habitica.com/). Developers should navigate to **Settings > API** to retrieve their `User ID` and `API Token`.
 
-### Integration with Claude 4.8 Opus
-To use Habitica with Claude 4.8 Opus, install the `habitica-mcp` server:
+### Integration with Gemma 3
+To use Habitica with Gemma 3 or Claude 4.8 Opus, install the `habitica-mcp` server:
 ```bash
 npm install -g @habitica/mcp-server
-# Add to your Claude Desktop config
+# Add to your Agent config
 {
   "mcpServers": {
     "habitica": {
@@ -97,8 +97,7 @@ def score_task(user_id, api_token, task_id, direction="up"):
     response = requests.post(url, headers=headers)
     return response.json()
 
-# Example usage
-# result = score_task("my-id", "my-token", "habit-123")
+# Example usage: score_task("my-id", "my-token", "habit-123")
 ```
 
 ### n8n Workflow Integration
@@ -115,7 +114,8 @@ Habitica is a first-class citizen in [n8n](n8n.md). A common pattern is:
 - [n8n](n8n.md) — For orchestrating complex habit workflows.
 - [Actual Budget](actual-budget.md) — Gamifying financial discipline.
 - [Element](element.md) — For receiving habit notifications and party chats.
-- [Claude 4.8 Opus](../tools/ai_knowledge/claude.md) — For agentic coaching and strategy.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For agentic coaching and strategy in July 2026.
+- [Claude 4.8 Opus](../tools/ai_knowledge/claude.md) — For advanced behavior analysis.
 
 ## Sources / references
 - [Official Habitica Website](https://habitica.com/)
@@ -124,5 +124,5 @@ Habitica is a first-class citizen in [n8n](n8n.md). A common pattern is:
 - [MCP 3.0 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
