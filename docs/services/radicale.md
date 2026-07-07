@@ -3,25 +3,27 @@
 Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight, standards-compliant, and easy to set up.
 
 ## What it is
-Radicale is an open-source CalDAV and CardDAV server that allows you to host your own calendars and contacts. As of **June 2026**, the stable version is **v3.7.x**, which continues to focus on a simple, file-based storage format (iCalendar and vCard), making backups and data ownership straightforward.
+Radicale is an open-source CalDAV and CardDAV server that allows you to host your own calendars and contacts. As of **July 2026**, the stable version is **v3.7.x**, which continues to focus on a simple, file-based storage format (iCalendar and vCard), making backups and data ownership straightforward. It is a cornerstone of privacy-first personal information management.
 
 ## What problem it solves
-It provides a private, self-hosted alternative to cloud-based synchronization services (like Google Calendar or iCloud). By using standard protocols, it allows for seamless syncing across a wide variety of devices and applications while keeping the user in full control of their scheduling and contact data.
+It provides a private, self-hosted alternative to cloud-based synchronization services (like Google Calendar or iCloud). By using standard protocols, it allows for seamless syncing across a wide variety of devices and applications while keeping the user in full control of their scheduling and contact data, eliminating third-party tracking.
 
 ## Where it fits in the stack
-Radicale serves as the **Intake & Storage layer** for personal information management (PIM) within a home-office or homelab ecosystem. It is often integrated with **Claude 4.8 Opus** or **GPT-5.5** via the **Chronos MCP** to allow AI agents to manage appointments and contacts using natural language.
+Radicale serves as the **Intake & Storage layer** for personal information management (PIM) within a home-office or homelab ecosystem. It is often integrated with **Gemma 3** or **Claude 4.8** via the **MCP 3.0 Task Protocol** to allow AI agents to manage appointments and contacts using natural language and standardized execution patterns.
 
 ## Typical use cases
 - Syncing personal and family calendars across desktops (Thunderbird) and mobile devices (Android/iOS via DAVx⁵).
 - Hosting a private address book that is accessible from multiple devices.
 - Serving as a backend for task management tools that support the CalDAV protocol.
 - Providing an automated audit trail for scheduling changes via Git-based versioning.
+- Exposing scheduling data to agentic workflows for automated meeting preparation.
 
 ## Strengths
 - **Lightweight**: Minimal resource footprint, suitable for Raspberry Pi or low-power containers.
 - **Simple Storage**: Uses standard `.ics` and `.vcf` files on disk, ensuring no vendor lock-in.
 - **Extensible**: Supports multiple authentication backends (htpasswd, LDAP, remote user).
 - **Standards-Compliant**: High compatibility with various CalDAV/CardDAV clients.
+- **Git Integration**: Native support for versioning collections via git hooks.
 
 ## Limitations
 - **No Built-in Web Client**: Lacks a full-featured web interface for managing events (primarily an admin UI).
@@ -32,10 +34,12 @@ Radicale serves as the **Intake & Storage layer** for personal information manag
 - When you want a simple, privacy-focused solution for syncing calendars and contacts.
 - If you value owning your data in a transparent, file-based format.
 - For small teams or families needing a shared scheduling backend.
+- When integrating calendar data into local AI agent memory via MCP.
 
 ## When not to use it
 - If you require integrated email, document collaboration, or a native web calendar (consider [Nextcloud](nextcloud.md)).
 - In environments requiring complex resource booking or advanced delegation features.
+- If you prefer a database-backed storage for high-concurrency write operations.
 
 ## Getting started
 
@@ -60,6 +64,13 @@ services:
       - ./config:/config:ro
     restart: unless-stopped
     user: "1000:1000"
+```
+
+### Git-based Versioning
+Radicale can automatically version your collections using Git. Initialize a git repo in your collections directory and add the following to your `config.ini`:
+```ini
+[hook]
+after_save = git add . && git commit -m "Radicale change"
 ```
 
 ### Hello World
@@ -104,26 +115,6 @@ print(response.text)
 curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/event-uuid.ics"
 ```
 
-## Advanced Configuration & Storage
-
-### Git-based Versioning
-Radicale can automatically version your collections using Git, providing a durable history of changes.
-
-1. Initialize a git repo in your collections directory:
-   ```bash
-   cd /var/lib/radicale/collections && git init
-   ```
-2. Add the following to your `config.ini`:
-   ```ini
-   [hook]
-   after_save = git add . && git commit -m "Radicale change"
-   ```
-
-### Security Capabilities (TrueNAS Context)
-In TrueNAS Apps (v3.7.x baseline), Radicale is often deployed with specific capabilities for secure file management:
-- **CHOWN/SETUID/SETGID**: For managing ownership of mounted datasets.
-- **KILL**: For internal process management.
-
 ## Related tools / concepts
 - [Nextcloud](nextcloud.md) — Comprehensive alternative with built-in web calendar.
 - [Vikunja](vikunja.md) — Task management that can sync with Radicale.
@@ -132,6 +123,7 @@ In TrueNAS Apps (v3.7.x baseline), Radicale is often deployed with specific capa
 - [Home Assistant](home-assistant.md) — For integrating calendars into home automation.
 - [n8n](n8n.md) — For automating scheduling workflows (e.g., meeting reminders).
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) — To expose CalDAV data to AI agents.
+- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model often used for agentic scheduling.
 - [DAVx⁵](https://www.davx5.com/) — The industry-standard Android synchronization client.
 
 ## Sources / References
@@ -139,10 +131,6 @@ In TrueNAS Apps (v3.7.x baseline), Radicale is often deployed with specific capa
 - [GitHub Repository](https://github.com/Kozea/Radicale)
 - [Radicale Documentation (v3)](https://radicale.org/v3.html)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit (June 2026).
-- [ ] Implement [Chronos MCP] integration for natural language scheduling.
-
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
