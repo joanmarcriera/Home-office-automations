@@ -1,30 +1,30 @@
 # Braintrust
 
-Braintrust is an enterprise-grade platform for evaluating, logging, and improving AI applications. In the June 2026 landscape, it has established itself as the premier solution for "Agent Observability," providing the infrastructure necessary to monitor complex reasoning chains and multi-step tool interactions in frontier models like Claude 4.8 Opus and GPT-5.5.
+Braintrust is an enterprise-grade platform for evaluating, logging, and improving AI applications. In the July 2026 landscape, it has established itself as the premier solution for "Agent Observability," providing the infrastructure necessary to monitor complex reasoning chains and multi-step tool interactions in frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5.
 
 ## What it is
-Braintrust is a comprehensive AI development platform that combines automated evaluation, high-fidelity tracing, and prompt management into a single, cohesive workflow. It provides specialized SDKs and a hosted platform designed to move AI applications from "vibe-based" testing to rigorous, data-driven engineering. By June 2026, it features native support for **MCP 3.0**, allowing agents to automatically report their own reasoning steps and tool executions directly to Braintrust spans.
+Braintrust is a comprehensive AI development platform that combines automated evaluation, high-fidelity tracing, and prompt management into a single, cohesive workflow. It provides specialized SDKs and a hosted platform designed to move AI applications from "vibe-based" testing to rigorous, data-driven engineering. By July 2026, it features native support for **MCP 3.0**, allowing agents to automatically report their own reasoning steps and tool executions directly to Braintrust spans via Agentic Session Orchestration.
 
 ## What problem it solves
 It solves the fundamental challenge of AI reliability: knowing whether a change to a prompt, model, or retrieval strategy actually made the system better or worse. Braintrust eliminates the "black box" of agentic behavior by providing structured, nested tracing that captures every decision point, tool call, and state transition, making it possible to debug autonomous agents that might otherwise fail silently in production.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / Evaluation & Observability
-Braintrust sits at the intersection of the development environment and production monitoring. It acts as the "source of truth" for prompt versions and the "evaluation plane" that scores performance across the entire lifecycle of an AI product.
+Braintrust sits at the intersection of the development environment and production monitoring. It acts as the "source of truth" for prompt versions and the "evaluation plane" that scores performance across the entire lifecycle of an AI product, now featuring seamless integration with FastMCP 3.0 for tool discovery.
 
 ## Typical use cases
 - **Agent Tracing**: Capturing nested execution graphs of multi-agent systems to identify exactly where a reasoning chain broke down.
 - **Automated Regression Testing**: Running "Golden Sets" of evaluations in CI/CD whenever a prompt or model version is updated.
 - **Prompt Management**: Versioning and deploying prompts as code, allowing for instant rollbacks and A/B testing.
 - **Production Feedback Loops**: Automatically identifying low-confidence production traces and promoting them to the evaluation suite for fine-tuning.
-- **Cost & Latency Optimization**: Analyzing token usage and execution time across different model providers (e.g., comparing GPT-5.5 vs. Claude 4.8 Opus).
+- **Cost & Latency Optimization**: Analyzing token usage and execution time across different model providers (e.g., comparing [Gemma 3](../ai_knowledge/local_llms.md) vs. Claude 4.8 Opus).
 
 ## Strengths
 - **Developer Experience**: Highly ergonomic SDKs (Python/TypeScript) and a powerful CLI that integrates seamlessly with existing codebases.
-- **High-Fidelity Tracing**: Best-in-class visualization for complex, nested agent spans.
+- **High-Fidelity Tracing**: Best-in-class visualization for complex, nested agent spans using the MCP 3.0 Task Protocol.
 - **OpenRouter/LiteLLM Integration**: Native support for logging traffic from unified inference proxies.
 - **Real-time Evaluation**: Capability to run automated scorers (LLM-as-a-judge) on production data with minimal latency.
-- **Enterprise Controls**: Robust RBAC, SSO, and SOC2 compliance for large-scale deployments.
+- **Agentic Session Orchestration**: Advanced tools for managing long-running agent sessions and their associated state traces.
 
 ## Limitations
 - **Cost**: Primarily a commercial service; the free tier has limits on spans and evaluation scores.
@@ -59,7 +59,7 @@ logger = init_logger(project="My AI Agent")
 
 @traced
 def call_agent(input):
-    # Logic for Claude 4.8 / GPT-5.5 interaction
+    # Logic for Gemma 3 / Claude 4.8 interaction
     return "Agent Response"
 
 call_agent("Analyze this data")
@@ -87,14 +87,14 @@ bt eval --file evals/test_reasoning.py
 
 ## API examples
 
-### Python (Nested Agent Tracing)
+### Python (Nested Agent Tracing with MCP 3.0)
 ```python
 from braintrust import traced, current_span
 
 @traced
 def tool_use_step(tool_name, args):
-    # Log specific metadata to the current span
-    current_span().log(metadata={"tool": tool_name, "args": args})
+    # Log specific metadata to the current span via MCP 3.0 Task Protocol
+    current_span().log(metadata={"tool": tool_name, "args": args, "protocol": "mcp-3.0"})
     return "Tool output"
 
 @traced
@@ -104,7 +104,7 @@ def agent_reasoning_loop(task):
     step2 = tool_use_step("summarize", {"text": step1})
     return step2
 
-agent_reasoning_loop("Latest trends in MCP 3.0")
+agent_reasoning_loop("Latest trends in FastMCP 3.0")
 ```
 
 ## Related tools / concepts
@@ -124,5 +124,5 @@ agent_reasoning_loop("Latest trends in MCP 3.0")
 - [Braintrust GitHub Organization](https://github.com/braintrustdata)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-07
 - Confidence: high
