@@ -1,5 +1,68 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-08
+
+## Digest fallback for 2026-07-08
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Australian Payments Plus moves faster with ChatGPT and Codex](https://openai.com/index/australian-payments-plus) (OpenAI Blog)
+2. [MUFG aims to become AI-native with OpenAI](https://openai.com/index/mufg) (OpenAI Blog)
+3. [Expanding Managed Agents in Gemini API:  background tasks, remote MCP and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api/) (Google AI Blog)
+4. [From Hugging Face to Amazon SageMaker Studio in one click](https://huggingface.co/blog/amazon/one-click-to-sagemaker-studio) (Hugging Face Blog)
+5. [Hugging Face Models on Foundry Managed Compute](https://huggingface.co/blog/microsoft/foundry-managed-compute) (Hugging Face Blog)
+6. [Run AI workloads on any cloud, store on Hugging Face: zero-egress storage with SkyPilot](https://huggingface.co/blog/skypilot-hf-storage) (Hugging Face Blog)
+7. [LeRobot v0.6.0: Imagine, Evaluate, Improve](https://huggingface.co/blog/lerobot-release-v060) (Hugging Face Blog)
+8. [PRX Part 4: Our Data Strategy](https://huggingface.co/blog/Photoroom/prx-part4-data) (Hugging Face Blog)
+9. [Unsloth has uploaded several sizes of Deepseek-V4-Flash GGUF's](https://www.reddit.com/r/LocalLLaMA/comments/1uq9krm/unsloth_has_uploaded_several_sizes_of/) (r/LocalLLaMA)
+10. [Beijing IS NOT looking at curbing overseas access to China's top AI models (Debunking the Reuters report)](https://www.reddit.com/r/LocalLLaMA/comments/1upvw37/beijing_is_not_looking_at_curbing_overseas_access/) (r/LocalLLaMA)
+11. [This is what Hy3 is capable of. Mother of god.](https://www.reddit.com/r/LocalLLaMA/comments/1uqbug5/this_is_what_hy3_is_capable_of_mother_of_god/) (r/LocalLLaMA)
+12. [Introducing Horus Hiero | A Hieroglyphic Language Translation Model](https://www.reddit.com/r/LocalLLaMA/comments/1uqk69n/introducing_horus_hiero_a_hieroglyphic_language/) (r/LocalLLaMA)
+13. [I tested Anthropic’s new Jacobian Lens on open models, then it turned into a local-model hallucination router](https://www.reddit.com/r/LocalLLaMA/comments/1upy31x/i_tested_anthropics_new_jacobian_lens_on_open/) (r/LocalLLaMA)
+14. [I need an adult: J-Space-Aware Pruning/Merging/Distillation](https://www.reddit.com/r/LocalLLaMA/comments/1uqd8i7/i_need_an_adult_jspaceaware/) (r/LocalLLaMA)
+15. [Beijing is looking at curbing overseas access to China's top AI models (Reuters)](https://www.reddit.com/r/LocalLLaMA/comments/1uprmso/beijing_is_looking_at_curbing_overseas_access_to/) (r/LocalLLaMA)
+16. [local already feels good enough](https://www.reddit.com/r/LocalLLaMA/comments/1uq2ouy/local_already_feels_good_enough/) (r/LocalLLaMA)
+17. [GLM-5.2 on 8xB200: the deployment math nobody spells out - NVFP4 + 2x TP=4 replicas should beat TP=8 by ~2x. Full config guidance inside.](https://www.reddit.com/r/LocalLLaMA/comments/1uq4oeg/glm52_on_8xb200_the_deployment_math_nobody_spells/) (r/LocalLLaMA)
+18. [Qwen3.6-27B - Effect of KV quantization on KLD - Q8, Q6, Q5 (bartowski)](https://www.reddit.com/r/LocalLLaMA/comments/1uq0fpe/qwen3627b_effect_of_kv_quantization_on_kld_q8_q6/) (r/LocalLLaMA)
+19. [nvidia/NVIDIA-Nemotron-Labs-3-Puzzle-75B-A9B-BF16 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1upsdmi/nvidianvidianemotronlabs3puzzle75ba9bbf16_hugging/) (r/LocalLLaMA)
+20. [Gepard : 0.6B streaming TTS built for real-time dialogue - 20× realtime factor, ~50ms time-to-first-audio, vLLM-native, Apache 2.0](https://www.reddit.com/r/LocalLLaMA/comments/1uq10cw/gepard_06b_streaming_tts_built_for_realtime/) (r/LocalLLaMA)
+21. [Chinese AI models are gaining ground with U.S. companies as OpenAI, Anthropic costs surge](https://www.reddit.com/r/LocalLLaMA/comments/1upsezw/chinese_ai_models_are_gaining_ground_with_us/) (r/LocalLLaMA)
+22. [What is the current Memory Meta?](https://www.reddit.com/r/LocalLLaMA/comments/1uqfh7r/what_is_the_current_memory_meta/) (r/LocalLLaMA)
+23. [I built a tiny proxy that gives GLM 5.2 vision (or any text LLM) – MIT](https://www.reddit.com/r/LocalLLaMA/comments/1uq5qqs/i_built_a_tiny_proxy_that_gives_glm_52_vision_or/) (r/LocalLLaMA)
+24. [Literature Review: LLM Inference at the Edge: Mobile, NPU, and GPU Performance Efficiency Trade-offs Under Sustained Load | Bnechmarking LLMs on Phones [R]](https://www.reddit.com/r/LocalLLaMA/comments/1uqmbv7/literature_review_llm_inference_at_the_edge/) (r/LocalLLaMA)
+25. [I tested freshly merged DFlash in llama.cpp on Qwen 3.6 27B Local AI win. 4.44x faster at 36K context. Here are my findings RTX 6000 PRO.](https://www.reddit.com/r/LocalLLaMA/comments/1uq0h4o/i_tested_freshly_merged_dflash_in_llamacpp_on/) (r/LocalLLaMA)
+26. [Anthropic Research - "Verbalizable Representations Form a Global Workspace in Language Models"](https://www.reddit.com/r/LocalLLaMA/comments/1uq4as2/anthropic_research_verbalizable_representations/) (r/LocalLLaMA)
+27. [So... anyone copped one of these?](https://www.reddit.com/r/LocalLLaMA/comments/1up9x38/so_anyone_copped_one_of_these/) (r/LocalLLaMA)
+28. [Tutorial: Learning FlashAttention the Hard Way. The Algebraic Foundation](https://www.reddit.com/r/LocalLLaMA/comments/1uqcl5b/tutorial_learning_flashattention_the_hard_way_the/) (r/LocalLLaMA)
+29. [Liquid AI - Antidoom (the doom loop remover)](https://www.reddit.com/r/LocalLLaMA/comments/1upxqq0/liquid_ai_antidoom_the_doom_loop_remover/) (r/LocalLLaMA)
+30. [mistral.rs v0.9.0: up to 1.8x faster CPU decode than llama.cpp on x86 and ARM!](https://www.reddit.com/r/LocalLLaMA/comments/1upynpt/mistralrs_v090_up_to_18x_faster_cpu_decode_than/) (r/LocalLLaMA)
+31. [HuggingBay](https://www.reddit.com/r/LocalLLaMA/comments/1upmvb3/huggingbay/) (r/LocalLLaMA)
+32. [llama.cpp: Hy3 PR + GGUFs](https://www.reddit.com/r/LocalLLaMA/comments/1upv8bp/llamacpp_hy3_pr_ggufs/) (r/LocalLLaMA)
+33. [sqlite-utils 4.0, now with database schema migrations](https://simonwillison.net/2026/Jul/7/sqlite-utils-4/#atom-entries) (Simon Willison's Weblog)
+34. [[AINews] Lilian Weng summarizes 35 papers on Harness Engineering for RSI](https://www.latent.space/p/ainews-lilian-weng-summarizes-35) (Latent Space)
+35. [[AINews] The Field Guide to Fable](https://www.latent.space/p/ainews-the-field-guide-to-fable) (Latent Space)
+36. [Coinbase runs 1,200 agents and just slashed its AI bill in half](https://thenewstack.io/multi-model-ai-infrastructure/) (The New Stack)
+37. [Watch AWS engineers troubleshoot agentic AI with OpenTelemetry and OpenSearch](https://thenewstack.io/opentelemetry-opensearch-agent-observability/) (The New Stack)
+38. [Vercel acquires Better Auth to give AI agents their own identity](https://thenewstack.io/vercel-acquires-better-auth/) (The New Stack)
+39. [Anthropic gives Claude subscribers five more days with Fable 5](https://thenewstack.io/anthropic-extends-fable-5/) (The New Stack)
+40. [Anthropic’s Claude Cowork now keeps working when you close your laptop](https://thenewstack.io/claude-cowork-cloud-mobile/) (The New Stack)
+41. [The organizational iceberg: the invisible data breaking your AI agents](https://thenewstack.io/invisible-data-ai-agents/) (The New Stack)
+42. [How to kill the code review](https://thenewstack.io/killing-the-code-review/) (The New Stack)
+43. [A new study just debunked the biggest fear about AI and open source](https://thenewstack.io/ai-open-source-newcomers-study/) (The New Stack)
+44. [Microsoft, Google and Cloudflare just made 2029 the new quantum deadline](https://thenewstack.io/post-quantum-cryptography-deadline-2029/) (The New Stack)
+45. [Getting Claude Code to grunt in Caveman-speak might not save as many tokens as you think](https://thenewstack.io/caveman-mode-token-savings/) (The New Stack)
+46. [Why most AI projects fail: It’s infrastructure and people](https://thenewstack.io/why-most-ai-projects-fail-its-infrastructure-and-people/) (The New Stack)
+47. [Palantir’s Alex Karp and Mistral’s Arthur Mensch agree: AI lock-in is coming for enterprises](https://thenewstack.io/karp-mensch-ai-lockin/) (The New Stack)
+48. [Andrej Karpathy, Google and Garry Tan agree Markdown is the answer, but they’re not solving the same problem](https://thenewstack.io/markdown-agent-memory-moat/) (The New Stack)
+49. [The code review bug hunt is dead. Here’s what developers get wrong.](https://thenewstack.io/code-review-catches-maintainability-bugs/) (The New Stack)
+
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
