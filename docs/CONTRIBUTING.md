@@ -1,10 +1,10 @@
 # Contributing to the AI Hub
 
 ## What it is
-The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., Claude 4.8 Opus, GPT-5.5) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework.
+The `CONTRIBUTING.md` guide is the primary governance document defining how humans and AI agents (e.g., [Gemma 3](tools/ai_knowledge/local_llms.md), Claude 4.8 Opus, GPT-5.5) collaborate to maintain the Home-Office Automation & AI Hub. It serves as the operational manual for the repository's "KnowledgeOps" framework.
 
 ## What problem it solves
-It prevents "documentation rot" and repository fragmentation by enforcing a unified taxonomy, deduplication protocols, and the **Ralph-loop** automation cycle. It ensures that every contribution—whether a tool update or a new architectural pattern—meets the "High Confidence" June 2026 standard.
+It prevents "documentation rot" and repository fragmentation by enforcing a unified taxonomy, deduplication protocols, and the **Ralph-loop** automation cycle. It ensures that every contribution—whether a tool update or a new architectural pattern—meets the "High Confidence" July 2026 standard.
 
 ## Where it fits in the stack
 **Governance Layer** — It sits alongside `AGENTS.md` and `standards.md` as the foundational contract for all repository activities, providing the "rules of engagement" for autonomous agents and human developers.
@@ -16,7 +16,7 @@ It prevents "documentation rot" and repository fragmentation by enforcing a unif
 - **Catalog Maintenance**: Standardizing the ingestion of new sources via `docs/new-sources/`.
 
 ## Strengths
-- **Agent-First Design**: Optimized for ingestion and execution by frontier models like Claude 4.8 Opus and GPT-5.5.
+- **Agent-First Design**: Optimized for ingestion and execution by frontier models like [Gemma 3](tools/ai_knowledge/local_llms.md) and GPT-5.5.
 - **Systematic Decomposition**: The Ralph-loop (Action C) allows complex technical debt to be broken into manageable batches with extracted context.
 - **Multi-Agent Ready**: Supports a Federated KnowledgeOps model using MCP 3.0 for tool-use and cross-agent orchestration.
 
@@ -49,7 +49,7 @@ Before changing files, agents must read these in order:
 
 ### The Ralph-loop Protocol
 This repository implements the **Ralph-loop**, a systematic directive for AI agents (primarily **Google Jules**) to close issues by performing one of three actions:
-- **Action A (Do the work)**: Implement features or perform technical freshness audits (e.g., June 2026 updates).
+- **Action A (Do the work)**: Implement features or perform technical freshness audits (e.g., July 2026 updates).
 - **Action B (Add links)**: Find the appropriate canonical location for provided external links.
 - **Action C (Decompose)**: Divide complex tasks into smaller, trackable issues with extracted context (see `docs/reports/`).
 
@@ -101,7 +101,8 @@ for task in pending_tasks[:5]:
 - [Jules Agent](tools/ai_knowledge/jules.md) — The primary Ralph-loop executor and maintainer.
 - [Multi-Agent KnowledgeOps](architecture/multi_agent_knowledgeops.md) — The federated governance model.
 - [Automated Contributions](architecture/automated_contributions.md) — Deep dive into the Ralph-loop implementation.
-- [Model Context Protocol](tools/automation_orchestration/mcp.md) — Standard for tool integration in June 2026.
+- [Model Context Protocol](tools/automation_orchestration/mcp.md) — Standard for tool integration in July 2026.
+- [Gemma 3](tools/ai_knowledge/local_llms.md) — Canonical local LLM guide.
 - [Claude Code](tools/development_ops/claude-code.md) — Recommended agentic development tool for the hub.
 
 ## Sources / references
@@ -111,5 +112,5 @@ for task in pending_tasks[:5]:
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
