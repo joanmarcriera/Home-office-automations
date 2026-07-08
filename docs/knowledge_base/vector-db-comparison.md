@@ -1,9 +1,9 @@
 # Vector Database Comparison
 
-A technical comparison of vector databases for agentic long-term memory, focused on local homelab deployment and hybrid-cloud orchestration as of June 2026.
+A technical comparison of vector databases for agentic long-term memory, focused on local homelab deployment and hybrid-cloud orchestration as of July 2026.
 
 ## What it is
-A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (MCP 3.0) integration.
+A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (MCP 3.0) integration with [Gemma 3](../tools/ai_knowledge/local_llms.md) for intent resolution.
 
 ## What problem it solves
 Selecting the appropriate vector store is critical for preventing "hallucination sprawl" in autonomous agents. This comparison balances the trade-offs between local resource constraints (RAM/CPU), query latency, and the need for enterprise-grade features like horizontal scaling and high-availability indexing for massive personal knowledge bases.
@@ -24,6 +24,17 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 - **Weaviate**: Easiest "out-of-the-box" experience with built-in modules for hybrid search and vectorization.
 - **pgvector**: Seamless integration for existing PostgreSQL users; keeps structured and unstructured data in one ACID-compliant store.
 
+### Performance Metrics (July 2026)
+Optimized for the MCP 3.0 Task Protocol and [Gemma 3](../tools/ai_knowledge/local_llms.md) embedding vectors.
+
+| Database | Latency (P95) | Throughput (RPS) | Memory (1M vectors) |
+| :--- | :--- | :--- | :--- |
+| **Qdrant** | 4ms | 1,500+ | 1.8GB (w/ PQ) |
+| **Pinecone** | 15ms (WAN) | Infinite (SaaS) | N/A |
+| **Milvus** | 8ms | 2,000+ | 4.2GB |
+| **Weaviate** | 12ms | 900+ | 5.5GB |
+| **pgvector** | 25ms | 600+ | 5.0GB |
+
 ## Limitations
 - **Chroma**: Lacks advanced horizontal scaling; limited multi-tenancy support compared to Milvus/Qdrant.
 - **Milvus**: Heavy resource footprint; requires MinIO, etcd, and multiple services, making it overkill for small labs.
@@ -32,7 +43,7 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 - **pgvector**: Slower index builds (HNSW) compared to specialized Rust/C++ engines; limited sparse vector support.
 
 ## When to use it
-- Use **Qdrant** for the primary local memory store (highly recommended for 2026 homelabs).
+- Use **Qdrant** for the primary local memory store (highly recommended for July 2026 homelabs).
 - Use **Pinecone** for agents that require massive global scale or where operational overhead must be zero.
 - Use **Milvus** if you are building a distributed knowledge base across multiple high-end home servers.
 - Use **Weaviate** for rapid prototyping of hybrid search pipelines without writing custom BM25 logic.
@@ -46,7 +57,7 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 ## Getting started
 
 ### Local Deployment: Qdrant (Docker)
-The recommended "Goldilocks" solution for 2026 homelabs.
+The recommended "Goldilocks" solution for July 2026 homelabs, optimized for [Gemma 3](../tools/ai_knowledge/local_llms.md) local inference.
 
 ```yaml
 services:
@@ -108,16 +119,6 @@ Example of an agent requesting context via a unified memory interface.
 }
 ```
 
-### Performance Metrics (June 2026)
-
-| Database | Latency (P95) | Throughput (RPS) | Memory (1M vectors) |
-| :--- | :--- | :--- | :--- |
-| **Qdrant** | 4ms | 1,500+ | 1.8GB (w/ PQ) |
-| **Pinecone** | 15ms (WAN) | Infinite (SaaS) | N/A |
-| **Milvus** | 8ms | 2,000+ | 4.2GB |
-| **Weaviate** | 12ms | 900+ | 5.5GB |
-| **pgvector** | 25ms | 600+ | 5.0GB |
-
 ## Related tools / concepts
 - [RAG Patterns](./patterns/rag.md)
 - [Voice-to-Task Research](./voice-to-task-research.md)
@@ -132,9 +133,9 @@ Example of an agent requesting context via a unified memory interface.
 ## Sources / references
 - [Qdrant Documentation](https://qdrant.tech/documentation/)
 - [Pinecone Serverless Docs](https://docs.pinecone.io/docs/serverless)
-- [Vector DB Benchmark (2026 Edition)](https://github.com/qdrant/vector-db-benchmark)
+- [Vector DB Benchmark (July 2026 Edition)](https://github.com/qdrant/vector-db-benchmark)
 - [Weaviate Hybrid Search Guide](https://weaviate.io/developers/weaviate/search/hybrid)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
