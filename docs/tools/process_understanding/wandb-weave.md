@@ -4,17 +4,17 @@
 W&B Weave is a lightweight toolkit for building and evaluating LLM applications, developed by Weights & Biases. It provides tools for tracing, versioning, and rigorous evaluation of AI workflows and agents.
 
 ## What problem it solves
-It addresses the difficulty of debugging and optimizing complex, multi-step LLM chains and agents. Weave allows developers to capture every step of an AI interaction, compare model outputs side-by-side, and run automated evaluations to improve quality, cost, and latency. In 2026, it is a primary tool for **Agent Tracing** and performance optimization for frontier models.
+It addresses the difficulty of debugging and optimizing complex, multi-step LLM chains and agents. Weave allows developers to capture every step of an AI interaction, compare model outputs side-by-side, and run automated evaluations to improve quality, cost, and latency. In July 2026, it is a primary tool for **Agent Tracing** and performance optimization for frontier models.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / AI Observability & Evaluation. It acts as the "black box recorder" for agentic reasoning and tool execution.
 
 ## Typical use cases
-- **Agent Tracing**: Visualizing the inner "thinking" steps and tool calls of autonomous agents like Claude 4.8 or GPT-5.5.
+- **Agent Tracing**: Visualizing the inner "thinking" steps and tool calls of autonomous agents like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, or GPT-5.5.
 - **LLM Application Debugging**: Identifying where a prompt chain failed or where latency is accumulating.
 - **Automated Evaluations**: Running scorers (e.g., toxicity, relevance, factual accuracy) against a dataset of model outputs.
 - **Prompt Engineering**: Testing and versioning different prompt templates with visual comparisons.
-- **MCP Trace Analysis**: Auditing Model Context Protocol (MCP) tool executions and response fidelity.
+- **MCP 3.0 Trace Analysis**: Auditing Model Context Protocol (MCP) tool executions and response fidelity using the MCP 3.0 Task Protocol.
 
 ## Strengths
 - **Easy Integration**: Start tracing with a single line of code (`weave.init`).
@@ -32,7 +32,7 @@ It addresses the difficulty of debugging and optimizing complex, multi-step LLM 
 - When building complex LLM applications where tracing internal state and tool calls is critical.
 - When you need a lightweight way to run evaluations and score model performance across datasets.
 - If you are already using Weights & Biases for traditional machine learning and want a unified observability platform.
-- To audit the behavior of autonomous agents in production.
+- To audit the behavior of autonomous agents in production using FastMCP 3.0.
 
 ## When not to use it
 - For simple, single-prompt applications where the overhead of tracing outweighs the benefits.
@@ -71,7 +71,7 @@ weave.init("my-llm-app")
 def call_llm(prompt: str):
     client = openai.OpenAI()
     response = client.chat.completions.create(
-        model="gpt-5.5", # Optimized for June 2026 models
+        model="gpt-5.5", # Optimized for July 2026 models
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content
@@ -80,19 +80,15 @@ def call_llm(prompt: str):
 print(call_llm("What is AI observability?"))
 ```
 
-### Tracing MCP Tool Calls
+### Tracing MCP 3.0 Tool Calls
 ```python
 @weave.op()
 def execute_mcp_tool(tool_name: str, args: dict):
-    # Tracing the tool execution step
+    # Tracing the tool execution step using MCP 3.0 Task Protocol
     print(f"Executing {tool_name} with {args}")
     # ... execution logic ...
     return "Tool output"
 ```
-
-## Backlog
-- [x] Perform quarterly technical freshness audit (2026-06-19).
-- [ ] Perform quarterly technical freshness audit.
 
 ## Related tools / concepts
 - [Langfuse](langfuse.md)
@@ -102,6 +98,7 @@ def execute_mcp_tool(tool_name: str, args: dict):
 - [OpenRouter](../ai_knowledge/openrouter.md) (Streams traces to Weave)
 - [Arize AI](arize-ai.md)
 - [Ragas](ragas.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
 - [Weights & Biases (Core)](https://wandb.ai/)
 - [Claude 4.8 Opus](../providers/anthropic.md)
 - [GPT-5.5](../ai_knowledge/openai.md)
@@ -112,5 +109,5 @@ def execute_mcp_tool(tool_name: str, args: dict):
 - [OpenRouter Weave Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/wandb-weave)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high

@@ -1,7 +1,7 @@
 # Real-time Sync Engines
 
 ## What it is
-Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles and Conflict-free Replicated Data Types (CRDTs). As of June 2026, they are the foundation for the "Agentic Workbench" pattern.
+Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles and Conflict-free Replicated Data Types (CRDTs). As of July 2026, they are the foundation for the "Agentic Workbench" pattern.
 
 ## What problem it solves
 Developing collaborative applications (like Google Docs or Trello) is notoriously difficult due to race conditions, network latency, and conflict resolution. Sync engines abstract these challenges, allowing developers to treat remote data as if it were local while the engine handles background synchronization, partial replication, and deterministic conflict merging. They eliminate the "loading spinner" and "network error" friction in high-interactivity apps.
@@ -12,7 +12,7 @@ Sync engines sit between the **Application** layer and the **Data/Database** lay
 ## Typical use cases
 - **Multiplayer Workspaces**: Tools like Notion, Linear, or Figma.
 - **Edge-Heavy Apps**: Mobile tools used in transit (trains, planes) with intermittent connectivity.
-- **Agentic Workbenches**: Real-time coordination between human operators and multiple AI agents working on the same state.
+- **Agentic Workbenches**: Real-time coordination between human operators and multiple AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) working on the same state.
 - **Local-First AI**: Running local LLMs against a synced local vector store (e.g., using `pgvector` in PGlite).
 - **Collaborative IDEs**: Shared coding environments where agents and humans refactor code simultaneously.
 
@@ -40,7 +40,7 @@ Sync engines sit between the **Application** layer and the **Data/Database** lay
 - Purely server-side workloads (e.g., batch processing, internal reporting).
 - Applications where the dataset is so large and unstructured that local caching provides no benefit.
 
-## Getting started (including Docker/Local setup)
+## Getting started
 Most sync engines require a server-side component (usually connected to Postgres) and a client-side SDK.
 
 ### Example: Running Zero (Rocicorp) with Docker
@@ -71,7 +71,7 @@ zero-cli status --server http://localhost:4848
 await pg.exec("SELECT * FROM tasks WHERE status = 'pending'");
 ```
 
-## API examples (TypeScript)
+## API examples
 ### Defining a Sync Shape
 Instead of syncing the whole DB, the client requests a "Shape".
 ```typescript
@@ -109,8 +109,10 @@ export const mutators = {
 - [LiteLLM](../services/litellm.md) — Used in sync-heavy agent workbenches for multi-model inference.
 - [Wasm](../tools/development_ops/vscode.md) — (Technology context) Enabling databases like PGlite in the browser.
 - [OpenAI](../tools/ai_knowledge/openai.md) — Often the intelligence layer acting upon the synced state.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Frequently used in local-first agentic workbenches.
+- [MCP 3.0](patterns/tool-calling-and-mcp.md) — Protocol for agent-tool interaction, often synced in real-time.
 
-## Sources / References
+## Sources / references
 - [Local-first web development (RethinkDB blog, 2026 update)](https://rethinkdb.com/blog/local-first-2026/)
 - [Zero Sync Documentation](https://zero.rocicorp.dev/docs)
 - [ElectricSQL PGlite v1.0 Release Notes](https://electric-sql.com/blog/2026/01/15/pglite-stable)
@@ -118,5 +120,5 @@ export const mutators = {
 - [Jazz: Collaborative Data Layer](https://jazz.tools/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

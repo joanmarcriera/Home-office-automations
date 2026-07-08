@@ -1,7 +1,7 @@
 # OCRmyPDF
 
 ## What it is
-OCRmyPDF adds an OCR text layer to scanned PDF files, allowing them to be searched. It uses the Tesseract OCR engine (or alternative plugins like EasyOCR) and is highly configurable for various languages and document types. In the 2026 agentic stack, it serves as a critical pre-processor for turning physical paper into structured, LLM-ready knowledge.
+OCRmyPDF adds an OCR text layer to scanned PDF files, allowing them to be searched. It uses the Tesseract OCR engine (or alternative plugins like EasyOCR) and is highly configurable for various languages and document types. In the July 2026 agentic stack, it serves as a critical pre-processor for turning physical paper into structured, LLM-ready knowledge.
 
 ## What problem it solves
 It makes scanned PDF documents searchable and indexable by adding a hidden text layer. This eliminates "dark data" in the homelab—documents that exist but cannot be searched or reasoned over by AI agents without expensive vision-based parsing on every access.
@@ -10,9 +10,10 @@ It makes scanned PDF documents searchable and indexable by adding a hidden text 
 **Ingestion & Processing**. Serves as the primary OCR processing layer for the document management pipeline, typically used as a sidecar or pre-processor for [Paperless-ngx](../../services/paperless-ngx.md).
 
 ## Typical use cases
-- **Agentic Ingestion**: Automatically adding searchable text to scanned invoices for an LLM to categorize.
+- **Agentic Ingestion**: Automatically adding searchable text to scanned invoices for a [Gemma 3](../ai_knowledge/local_llms.md) agent to categorize.
 - **Archival**: Batch processing legacy scanned documents to meet PDF/A long-term storage standards.
 - **Pre-processing for RAG**: Ensuring high-quality text extraction before documents are chunked and vectorized in [RAGFlow](ragflow.md).
+- **MCP 3.0 Integration**: Serving as a tool for agents using the MCP 3.0 Task Protocol to process documents on-demand.
 
 ## Strengths
 - **PDF/A Support**: Produces standardized archival-grade files by default.
@@ -94,6 +95,7 @@ if __name__ == "__main__":
 - [Unstructured](../intake_storage/unstructured.md) — Broad-spectrum document partitioning.
 - [LlamaParse](../intake_storage/llamaparse.md) — Advanced cloud-based PDF parsing.
 - [Instructor](../frameworks/instructor.md) — Structured extraction from processed text.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local LLM for reasoning over processed documents.
 
 ## Sources / references
 - [Official Documentation](https://ocrmypdf.readthedocs.io/)
@@ -101,5 +103,5 @@ if __name__ == "__main__":
 - [v17.4 Release Notes](https://github.com/ocrmypdf/OCRmyPDF/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high

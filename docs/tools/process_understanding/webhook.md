@@ -1,10 +1,10 @@
 # Webhook
 
 ## What it is
-A Webhook is a standard method for an application to provide other applications with real-time information. It delivers data to other applications as it happens, meaning you get data immediately, rather than polling for it. In the June 2026 agentic ecosystem, webhooks serve as the "nervous system" for event-driven automation, enabling Claude 4.8 Opus and GPT-5.5 agents to react to external triggers instantly.
+A Webhook is a standard method for an application to provide other applications with real-time information. It delivers data to other applications as it happens, meaning you get data immediately, rather than polling for it. In the July 2026 agentic ecosystem, webhooks serve as the "nervous system" for event-driven automation, enabling [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5 agents to react to external triggers instantly.
 
 ## What problem it solves
-It enables event-driven architectures and real-time integrations between disparate systems without the need for constant, resource-heavy API polling. For autonomous agents, webhooks solve the "latency gap" in multi-step reasoning, allowing a long-running process (like a deep research task) to notify the agent or a downstream service as soon as results are available.
+It enables event-driven architectures and real-time integrations between disparate systems without the need for constant, resource-heavy API polling. For autonomous agents, webhooks solve the "latency gap" in multi-step reasoning, allowing a long-running process (like a deep research task) to notify the agent or a downstream service as soon as results are available via the MCP 3.0 Task Protocol.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding / Integration Pattern. It sits between the **Inference Plane** (LLMs) and the **Execution Plane** (Automations), facilitating asynchronous communication.
@@ -72,7 +72,7 @@ ngrok http 8000
 ## API examples
 
 ### Secure Receiver (Python/FastAPI)
-Using HMAC verification for June 2026 security standards.
+Using HMAC verification for July 2026 security standards.
 ```python
 import hmac
 import hashlib
@@ -105,6 +105,7 @@ async def handle_webhook(request: Request, x_signature: str = Header(None)):
 - [REST API](../../standards.md) — The underlying protocol for most webhook deliveries.
 - [Event-Driven Architecture](../../knowledge_base/patterns/index.md) — The design pattern powered by webhooks.
 - [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Model Context Protocol, often integrated with webhook notifications.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local LLM capable of triggering and responding to webhooks.
 
 ## Sources / references
 - [Webhooks.fyi Guide](https://webhooks.fyi/)
@@ -112,5 +113,5 @@ async def handle_webhook(request: Request, x_signature: str = Header(None)):
 - [FastAPI Webhook Documentation](https://fastapi.tiangolo.com/advanced/using-request-directly/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high
