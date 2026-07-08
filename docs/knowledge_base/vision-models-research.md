@@ -1,9 +1,9 @@
 # Vision Models Research
 
-Technical research into local and frontier vision-language models (VLMs) for agentic scene understanding, document parsing, and multi-modal reasoning as of June 2026.
+Technical research into local and frontier vision-language models (VLMs) for agentic scene understanding, document parsing, and multi-modal reasoning as of July 2026.
 
 ## What it is
-A research document evaluating the landscape of vision-capable AI models (VLMs) optimized for both local deployment (InternVL2, Florence-2) and frontier API access (Claude 4.8 Opus, Gemini 3.5). It covers models capable of image captioning, object detection, OCR, and complex visual reasoning within agentic pipelines.
+A research document evaluating the landscape of vision-capable AI models (VLMs) optimized for both local deployment (InternVL2, Florence-2, [Gemma 3](../tools/ai_knowledge/local_llms.md)) and frontier API access (Claude 4.8 Opus, Gemini 3.5). It covers models capable of image captioning, object detection, OCR, and complex visual reasoning within agentic pipelines using the [MCP 3.0 Task Protocol](./patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 It enables AI agents to "see" and interpret the physical and digital world, automating the extraction of structured data from images, videos, and complex PDFs. This reduces the need for manual data entry and allows for semantic search over vast personal media archives while preserving privacy through local-first processing.
@@ -19,6 +19,7 @@ Vision models act as the **Perception Layer** within the [Home-Office Architectu
 
 ## Strengths
 - **InternVL2**: State-of-the-art local reasoning; excels at high-resolution OCR and multi-page document understanding.
+- **Gemma 3**: Exceptional multi-modal reasoning in a compact footprint, supporting AI-native visual reasoning for home-office tasks.
 - **Florence-2**: Exceptional speed and efficiency for "dense" tasks like object detection and regional segmentation.
 - **Claude 4.8 Opus**: Market-leading visual reasoning and document parsing for complex, high-stakes tasks.
 - **Gemini 3.5**: Superior "infinite context" for video understanding, allowing agents to reason across hours of footage.
@@ -65,14 +66,14 @@ ffmpeg -i input.mp4 -vf "fps=1/5" -q:v 2 frame_%04d.jpg
 ## CLI examples
 
 ```bash
+# Run a quick Gemma 3 vision test via Ollama
+ollama run gemma3:27b "Describe this scene" --image living_room.jpg
+
 # Run a quick Moondream2 captioning test
 moondream-cli --image sample.jpg --prompt "Describe this image in one sentence."
 
 # Verify the CUDA availability for vision model inference
 python3 -c "import torch; print(f'GPU: {torch.cuda.get_device_name(0)}' if torch.cuda.is_available() else 'No GPU')"
-
-# Use tesseract for legacy fast OCR (fallback)
-tesseract document.png output_text
 ```
 
 ## API examples
@@ -131,5 +132,5 @@ message = client.messages.create(
 - [Anthropic Vision Capabilities](https://docs.anthropic.com/claude/docs/vision)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
