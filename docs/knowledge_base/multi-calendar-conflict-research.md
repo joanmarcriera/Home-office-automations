@@ -1,7 +1,7 @@
 # Multi-Calendar Conflict Detection Research
 
 ## What it is
-Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). In June 2026, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 4.8 and GPT-5.5 use MCP 3.0 (Model Context Protocol) to negotiate schedules across multiple personal and professional accounts.
+Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). In July 2026, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 4.8 and [Gemma 3](../tools/ai_knowledge/local_llms.md) use the **MCP 3.0 Task Protocol** to negotiate schedules across multiple personal and professional accounts with standardized execution.
 
 ## What problem it solves
 It prevents double-booking and "calendar sprawl" by providing a unified view of availability. It solves the fragmentation problem in multi-user environments (e.g., family scheduling) and multi-role contexts (e.g., freelancer juggling multiple client calendars), automating the labor-intensive task of manual cross-referencing.
@@ -85,14 +85,14 @@ curl -X REPORT -u 'user:pass' -H "Content-Type: text/xml" \
 
 ## API examples
 
-### Agentic Conflict Detection (MCP 3.0 / Python)
-In June 2026, agents use MCP 3.0 to query calendars. This example demonstrates how an agent might use a "Calendar Tool" to detect conflicts.
+### Agentic Conflict Detection (MCP 3.0 Task Protocol)
+In July 2026, agents use the MCP 3.0 Task Protocol to query calendars and execute scheduling tasks. This example demonstrates how an agent might use a "Calendar Tool" to detect conflicts.
 
 ```python
 import mcp_client
 
 async def detect_calendar_conflicts(agent, start_time, end_time):
-    # Agent calls the 'list_busy_times' tool via MCP 3.0
+    # Agent calls the 'list_busy_times' tool via MCP 3.0 Task Protocol
     busy_blocks = await agent.call_tool(
         "chronos-mcp",
         "list_busy_times",
@@ -126,18 +126,19 @@ result = service.freebusy().query(body=body).execute()
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) — Agentic CalDAV orchestration.
 - [n8n](../services/n8n.md) — Workflow automation for cross-calendar syncing.
 - [Motion](../tools/calendar_tasks/motion.md) — AI-driven day planning and conflict resolution.
-- [Reclaim AI](../tools/calendar_tasks/reclaim-ai.md) — Automated focus time and habit scheduling.
+- [Reclaim](../tools/calendar_tasks/reclaim.md) — Automated focus time and habit scheduling.
 - [Radicale](../services/radicale.md) — Self-hosted CalDAV server for local aggregation.
 - [Nextcloud](../services/nextcloud.md) — Comprehensive suite with built-in multi-calendar support.
 - [Home Assistant](../services/home-assistant.md) — Using calendar triggers for home automation.
 - [Claude](../tools/ai_knowledge/claude.md) — Frontier model used for schedule negotiation.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Local model for privacy-preserving negotiation.
 
 ## Sources / references
 - [Google Calendar Free/Busy API Documentation](https://developers.google.com/calendar/api/v3/reference/freebusy/query)
 - [RFC 4791: CalDAV Scheduling Extensions](https://datatracker.ietf.org/doc/html/rfc4791)
-- [MCP 3.0 Specification: Calendar Tooling](https://modelcontextprotocol.io/spec/3.0/calendar)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/spec/3.0/task-protocol)
 - [Awesome Time Tracking: AI Scheduling Agents 2026](https://github.com/ever-works/awesome-time-tracking/blob/develop/details/ai-scheduling-agents-2026.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
