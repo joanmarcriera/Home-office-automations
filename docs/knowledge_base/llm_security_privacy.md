@@ -1,9 +1,9 @@
 # LLM Security and Privacy
 
-Research into the evolving landscape of AI security, focused on deanonymization, agentic vulnerabilities (the Lethal Trifecta), and sovereign privacy protocols as of June 2026.
+Research into the evolving landscape of AI security, focused on deanonymization, agentic vulnerabilities (the Lethal Trifecta), and sovereign privacy protocols as of July 2026.
 
 ## What it is
-A comprehensive security framework for managing Large Language Model (LLM) risks, including prompt injection, credential escalation, and data exfiltration. It addresses the unique privacy challenges posed by agentic workflows where autonomous systems have access to sensitive toolsets and private knowledge bases.
+A comprehensive security framework for managing Large Language Model (LLM) risks, including prompt injection, credential escalation, and data exfiltration. It addresses the unique privacy challenges posed by agentic workflows where autonomous systems (powered by [Gemma 3](../tools/ai_knowledge/local_llms.md) or Claude 4.8) have access to sensitive toolsets and private knowledge bases via the [MCP 3.0 Task Protocol](./patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 It mitigates the risk of "Agentic Compromise," where an autonomous system is coerced into leaking PII (Personally Identifiable Information), bypassing security sandboxes, or executing unauthorized actions via its tool-calling capabilities. It provides a blueprint for secure "Home-Office" AI orchestration.
@@ -14,14 +14,15 @@ This document resides in the **Governance and Security Layer** of the [Home-Offi
 ## Typical use cases
 - **Privacy Auditing**: Ensuring local LLM instances (Ollama) are not leaking context across multi-user environments.
 - **Agent Sandboxing**: Configuring [Docker](../tools/infrastructure/docker.md) and [Tailscale](../services/tailscale.md) to isolate high-risk agents.
-- **Prompt Injection Defense**: Implementing "System/User" role separation and instruction delimiters in [LLM Prompts](../reference-implementations/llm-prompts/README.md).
+- **Prompt Injection Defense**: Implementing "System/User" role separation and instruction delimiters in [LLM Prompts](../reference-implementations/llm-prompts/).
 - **Credential Rotation**: Automating the lifecycle of API keys used by agents to prevent long-term exposure.
 
 ## Strengths
-- **stylometric Protection**: LLMs can be used to "de-style" writing to prevent deanonymization.
+- **Stylometric Protection**: LLMs can be used to "de-style" writing to prevent deanonymization.
 - **Automated Red-Teaming**: Using one agent to stress-test the security boundaries of another.
 - **Fine-Grained Auditing**: Agentic logs provide a high-fidelity "black box recorder" for every reasoning step.
-- **Privacy Sovereignty**: Local-first models allow for enterprise-grade reasoning without sharing data with frontier providers.
+- **Privacy Sovereignty**: Local-first models like [Gemma 3](../tools/ai_knowledge/local_llms.md) allow for enterprise-grade reasoning without sharing data with frontier providers.
+- **FastMCP 3.0 Integration**: High-performance tool hosting with identity-aware routing ensures that tools are only accessible to authorized agentic sessions.
 
 ## Limitations
 - **Model Inherent Risks**: No model is 100% immune to sophisticated, jailbreak-oriented prompt injections.
@@ -82,8 +83,8 @@ gcloud iam service-accounts keys list --account=ai-agent@project.iam.gserviceacc
 
 ## API examples
 
-### Agentic Session Orchestration (Authentik)
-Using Authentik to gate agent access to specific tools based on session risk.
+### Agentic Session Orchestration (Authentik & FastMCP)
+Using Authentik and FastMCP 3.0 to gate agent access to specific tools based on session risk and identity-aware routing.
 
 ```bash
 curl -X POST https://authentik.local/api/v3/outposts/rpc/ \
@@ -134,5 +135,5 @@ Example of a secure tool-call using [MCP 3.0](./patterns/tool-calling-and-mcp.md
 - [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
