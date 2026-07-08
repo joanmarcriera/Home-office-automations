@@ -1,9 +1,9 @@
 # LastMile AI
 
-LastMile AI is a specialized platform for the evaluation and reliability engineering of LLM-based applications. In the June 2026 AI stack, it is recognized for its "Evaluation as a Service" (EaaS) model, which provides high-fidelity, automated scoring for the reasoning outputs of frontier models like Claude 4.8 Opus and GPT-5.5.
+LastMile AI is a specialized platform for the evaluation and reliability engineering of LLM-based applications. In the July 2026 AI stack, it is recognized for its "Evaluation as a Service" (EaaS) model, which provides high-fidelity, automated scoring for the reasoning outputs of frontier models like Claude 4.8 Opus, GPT-5.5, and [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## What it is
-LastMile AI is a comprehensive evaluation workspace that allows developers to design, run, and analyze complex AI test suites. Its primary innovation is the **AI Auto-Eval** framework, which uses specialized "judge" models to grade application outputs on criteria such as factuality, instruction adherence, and safety. By 2026, it has fully integrated with the **Model Context Protocol (MCP 3.0)**, enabling it to evaluate not just final outputs, but the intermediate tool-use steps of autonomous agents.
+LastMile AI is a comprehensive evaluation workspace that allows developers to design, run, and analyze complex AI test suites. Its primary innovation is the **AI Auto-Eval** framework, which uses specialized "judge" models to grade application outputs on criteria such as factuality, instruction adherence, and safety. By July 2026, it has fully integrated with the **Model Context Protocol (MCP 3.0)** and **FastMCP 3.0**, enabling it to evaluate not just final outputs, but the high-speed, intermediate tool-use steps and task execution of autonomous agents using the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
 It solves the "scalability bottleneck" of manual evaluation. As AI systems become more complex and autonomous, humans can no longer review every response for quality. LastMile AI provides a systematic, repeatable way to measure the impact of changes to prompts, RAG retrieval parameters, or model versions, ensuring that performance improvements in one area don't cause regressions in another.
@@ -17,7 +17,8 @@ LastMile AI fits into the **Validation and Testing** layer of the AI lifecycle. 
 - **RAG Quality Assessment**: Measuring the "grounding" of a response (does the answer only use the provided context?) and "retrieval relevance."
 - **Agentic Logic Validation**: Evaluating whether an agent selected the correct tool and used the correct arguments for a given task.
 - **Red Teaming at Scale**: Automatically generating adversarial inputs to test the safety guardrails of a production model.
-- **Model Comparison (e-vals)**: Running a head-to-head comparison between GPT-5.5 and Claude 4.8 on domain-specific data.
+- **Model Comparison (e-vals)**: Running a head-to-head comparison between GPT-5.5, Claude 4.8, and [Gemma 3](../ai_knowledge/local_llms.md) on domain-specific data.
+- **FastMCP Benchmarking**: Measuring the latency and reliability of tool-use sequences in ultra-low latency agentic sessions.
 
 ## Strengths
 - **Library of Evaluators**: Dozens of pre-built, science-backed evaluators for common metrics like NER, sentiment, and factuality.
@@ -101,6 +102,8 @@ print(f"Faithfulness Score: {result.scores['faithfulness']}")
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for agent tool-use, which LastMile can evaluate.
 - [Glaive](../ai_knowledge/glaive.md) — Synthetic data provider often used to generate evaluation sets.
 - [Claude Skills Ecosystem](../agents/claude-skills-ecosystem.md) — Target for logic and tool-use evaluation.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Key target for local model evaluation and reliability engineering.
+- [Comet Opik](./comet-opik.md) — Open-source evaluation platform with deep integration for agentic logic.
 
 ## Sources / references
 - [LastMile AI Official Website](https://lastmileai.dev/)
@@ -108,5 +111,5 @@ print(f"Faithfulness Score: {result.scores['faithfulness']}")
 - [AI Evaluation Best Practices (2026)](https://lastmileai.dev/blog/eval-as-a-service-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-18
+- Last reviewed: 2026-07-21
 - Confidence: high
