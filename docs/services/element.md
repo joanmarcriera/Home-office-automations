@@ -3,7 +3,7 @@
 Element is a secure, decentralized communication app built on the [Matrix](../knowledge_base/patterns/communication.md) protocol.
 
 ## What it is
-Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
+Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of July 2026, it supports **Matrix v1.156.0**, featuring advanced metadata protection and native **MCP 3.0** tool routing for agentic participation in rooms. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
 
 ## What problem it solves
 It solves the problem of "walled gardens" in communication (like WhatsApp or Slack) by using an open standard. It provides sovereign control over data without sacrificing modern features like multi-device sync, rich media sharing, and integrations.
@@ -16,6 +16,7 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 - **Team Collaboration**: Organizing projects and discussions into "Spaces" and "Rooms".
 - **Home Automation Notifications**: Receiving alerts from services like Home Assistant or custom scripts.
 - **Bridging**: Acting as a unified interface for Discord, Telegram, and Slack via Matrix bridges.
+- **Agentic Room Participation**: Integrating [Gemma 3](../tools/ai_knowledge/local_llms.md) as a room participant for real-time summarization and task extraction via MCP.
 
 ## Strengths
 - **Sovereignty**: Full control over your data when self-hosted.
@@ -145,7 +146,7 @@ curl -X POST \
 ```
 
 ## Related tools / concepts
-- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.155.0+).
+- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.156.0+).
 - [Dendrite](https://github.com/element-hq/dendrite) — A next-generation, high-performance Matrix homeserver.
 - [Home Assistant](home-assistant.md) — Frequently integrated with Element for notifications.
 - [Authentik](authentik.md) — Used for SSO authentication into Element/Matrix.
@@ -156,15 +157,15 @@ curl -X POST \
 - [SearXNG](searXNG.md) — For secure search results sharing within Element rooms.
 - [Vikunja](vikunja.md) — For task management notifications and team coordination.
 - [Element X](https://github.com/element-hq/element-x-android) — Successor mobile clients built with the Matrix Rust SDK.
-- [Matrix Synapse Automation](https://github.com/matrix-org/synapse) — Deployment and management of self-hosted homeservers.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Local LLM for agentic room participation and summarization.
 
 ## Sources / References
 - [Official Element Website](https://element.io/)
 - [Element Web GitHub](https://github.com/vector-im/element-web)
 - [Matrix Client-Server API](https://matrix.org/docs/api/client-server/)
 - [Matrix Commander GitHub](https://github.com/8go/matrix-commander)
-- [Matrix v1.18 Release Blog](https://matrix.org/blog/2026/03/26/matrix-v1.18-release/)
+- [Matrix v1.156 Release Blog](https://matrix.org/blog/2026/06/26/matrix-v1.156-release/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high

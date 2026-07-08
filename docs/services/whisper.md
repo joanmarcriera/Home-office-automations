@@ -1,7 +1,7 @@
 # OpenAI Whisper
 
 ## What it is
-OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of June 2026, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like Claude 4.8 Opus for post-processing.
+OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of July 2026, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like Claude 4.8 Opus and [Gemma 3](../tools/ai_knowledge/local_llms.md) for post-processing and reasoning.
 
 ## What problem it solves
 Transcribing audio manually is time-consuming and expensive. Whisper provides high-accuracy transcription, translation, and language identification, allowing for the automation of meeting notes, video subtitling, and voice-controlled interfaces. It is particularly notable for its robustness to accents, background noise, and technical language.
@@ -16,8 +16,9 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 - Translating foreign language audio into English text.
 - Enriching local media libraries (e.g., [Audiobookshelf](audiobookshelf.md)) with full-text search.
 - **Hardware-Accelerated Transcription**: Optimized performance across a variety of hardware from Raspberry Pi 5 to NVIDIA RTX 4090.
+- **MCP 3.0 Integration**: Whisper services can now be exposed as MCP 3.0 tools, allowing autonomous agents to request on-demand transcription of local media.
 
-### Hardware Benchmarking (June 2026)
+### Hardware Benchmarking (July 2026)
 
 | Hardware | Model | Backend | Time for 10m Audio | Notes |
 | :--- | :--- | :--- | :--- | :--- |
@@ -157,6 +158,8 @@ For real-time transcription or automated pipelines, Whisper is often integrated 
 - [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
 - [MLX](../tools/infrastructure/mlx.md) — for optimized execution on Apple Silicon.
 - [LiteLLM](litellm.md) — for unified proxying to frontier models like Claude 4.8 Opus.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Canonical local LLM for transcript reasoning and cleanup.
+- [Speaches](https://github.com/speaches-ai/speaches) — OpenAI-compatible Whisper API server.
 
 ## Sources / References
 - [Whisper GitHub](https://github.com/openai/whisper)
@@ -165,5 +168,5 @@ For real-time transcription or automated pipelines, Whisper is often integrated 
 - [Speaches GitHub](https://github.com/speaches-ai/speaches)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high

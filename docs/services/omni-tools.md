@@ -1,6 +1,6 @@
 # Omni Tools
 
-Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of June 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities and Playwright-based health monitoring.
+Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of July 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities and native **MCP 3.0** discovery for local tool execution.
 
 ## What it is
 Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue. It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
@@ -16,6 +16,7 @@ Omni Tools belongs in the **self-hosted productivity utilities** layer, next to 
 - Convert images, videos, PDFs, and other local files without uploading them to third-party web tools.
 - Generate hashes, UUIDs, QR codes, passwords, date calculations, and developer helpers.
 - Provide a safe internal fallback when SaaS utility sites are blocked or untrusted.
+- **Agentic Utility Ingestion**: Allowing agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) to use Omni Tools' transformation logic via MCP 3.0.
 
 ## Strengths
 - **Low-friction deployment**: A single lightweight container can serve the toolbox.
@@ -119,6 +120,8 @@ print(automate_redaction(raw_json))
 - [SearXNG](searXNG.md) — For private search when looking up transformation standards.
 - [Whisper](whisper.md) — For server-side audio-to-text processing.
 - [CyberChef](https://github.com/gchq/CyberChef) — The "Swiss Army Knife" of data transformations.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Local LLM that can utilize these tools via MCP.
+- [Stirling PDF](https://github.com/Stirling-Tools/Stirling-PDF) — Robust self-hosted PDF manipulation.
 
 ## Sources / References
 - [Omni Tools GitHub](https://github.com/iib0011/omni-tools)
@@ -126,5 +129,5 @@ print(automate_redaction(raw_json))
 - [CyberChef Repository](https://github.com/gchq/CyberChef)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high

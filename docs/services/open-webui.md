@@ -1,7 +1,7 @@
 # Open WebUI
 
 ## What it is
-Open WebUI is a user-friendly WebUI for Large Language Models (LLMs), designed to provide a feature-rich, self-hosted chat interface. As of June 2026, it serves as a central hub for multi-model orchestration, featuring native Model Context Protocol (MCP 3.0) support and seamless integration with frontier models like Claude 4.8 Opus and GPT-5.5.
+Open WebUI is a user-friendly WebUI for Large Language Models (LLMs), designed to provide a feature-rich, self-hosted chat interface. As of July 2026, it serves as a central hub for multi-model orchestration, featuring native Model Context Protocol (MCP 3.0) support, **FastMCP 3.0** discovery, and seamless integration with frontier models like Claude 4.8 Opus, GPT-5.5, and [Gemma 3](../tools/ai_knowledge/local_llms.md). Open WebUI is open source (MIT License) and free to self-host.
 
 ## What problem it solves
 It provides a polished, ChatGPT-like interface for local LLMs (via Ollama) and external APIs, making them accessible to non-technical users. It adds features like RAG, multi-user support, tool execution, and image generation that basic CLIs lack.
@@ -14,6 +14,7 @@ It provides a polished, ChatGPT-like interface for local LLMs (via Ollama) and e
 - **Local RAG**: Uploading documents to chat with them using local embeddings and LLMs.
 - **Model Comparison**: Chatting with multiple models side-by-side to compare performance.
 - **Agentic Workflows**: Utilizing MCP 3.0 tools to interact with local files, databases, and APIs directly from the chat interface.
+- **Agentic Session Orchestration**: Coordinating multi-tool sessions using the **MCP 3.0 Task Protocol** for complex, long-running agent tasks.
 
 ## Strengths
 - **Beautiful UI**: Modern, responsive, and customizable.
@@ -34,11 +35,6 @@ It provides a polished, ChatGPT-like interface for local LLMs (via Ollama) and e
 ## When not to use it
 - If you prefer a minimal CLI-only workflow.
 - If you have extremely limited system resources.
-
-## Licensing and cost
-- **Open Source**: Yes (MIT License)
-- **Cost**: Free
-- **Self-hostable**: Yes
 
 ## Getting started
 
@@ -121,10 +117,13 @@ for model in models.json()["data"]:
 - [Ollama](ollama.md) — Primary inference engine for chat and embeddings.
 - [LiteLLM](litellm.md) — For connecting Open WebUI to external APIs and frontier models like Claude 4.8 Opus.
 - [RAG (Retrieval Augmented Generation)](../knowledge_base/patterns/rag-pattern.md) — The underlying architecture for chatting with documents.
-- [Model Context Protocol](https://modelcontextprotocol.io/) — The standard for tool integration supported by Open WebUI.
+- [Model Context Protocol](../automation_orchestration/mcp.md) — The standard for tool integration supported by Open WebUI.
 - [Everything MCP](https://github.com/punkpeye/awesome-mcp) — A curated list of MCP servers that can be used with Open WebUI.
 - [ChromaDB](https://www.trychroma.com/) — The default vector database used for local RAG.
 - [n8n](n8n.md) — For building complex workflows that Open WebUI can trigger via webhooks.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Powerful local model for use with Open WebUI.
+- [Authentik](authentik.md) — For adding SSO and security to self-hosted utilities.
+- [FastMCP](https://github.com/jlowin/fastmcp) — High-performance MCP server framework for ultra-low latency tool execution.
 
 ## Sources / References
 - [Open WebUI Official Docs](https://docs.openwebui.com/)
@@ -132,5 +131,5 @@ for model in models.json()["data"]:
 - [MCP 3.0 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high
