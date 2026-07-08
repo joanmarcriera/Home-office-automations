@@ -1,7 +1,7 @@
 # Ollama
 
 ## What it is
-Ollama allows you to get up and running with large language models locally. It provides a simple CLI and API for running models like Llama 4, Mistral, and the O4 reasoning series on your own hardware.
+Ollama allows you to get up and running with large language models locally. It provides a simple CLI and API for running models like Llama 4, Mistral, and the O4 reasoning series on your own hardware. In July 2026, it remains the premier choice for local inference, featuring full support for [Gemma 3](../tools/ai_knowledge/local_llms.md) and the MCP 3.0 Task Protocol.
 
 ## What problem it solves
 It simplifies the complex setup usually required for running LLMs, handling model weights, configurations, and hardware acceleration (GPU) automatically. It enables private, offline AI interactions without relying on cloud providers.
@@ -12,7 +12,7 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 ## Typical use cases
 - **Private Chat**: Interacting with LLMs without data leaving your local network.
 - **Development & Testing**: Locally testing AI-integrated applications before deploying to cloud providers.
-- **Autonomous Agents**: Serving as the local backend for agents like Aider or OpenHands.
+- **Autonomous Agents**: Serving as the local backend for agents like OpenHands.
 - **Enterprise Prototyping**: Rapidly deploying specialized models for internal document analysis or coding assistance.
 - **Codex App Integration**: Utilizing the native Codex App (v0.25+) for managed local AI workflows and browser-integrated AI experiences.
 
@@ -21,6 +21,10 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 - **Hardware Acceleration**: Automatic detection and utilization of NVIDIA, AMD, and Apple Silicon GPUs.
 - **Large Model Library**: Easy access to Llama 4, Mistral, Phi-4, and O4 reasoning models.
 - **Zero Cost**: No per-token pricing; limited only by your hardware.
+- **High Performance**:
+    - **Apple M4 Pro**: Llama 4 8B at ~65 t/s (Unified memory).
+    - **NVIDIA RTX 4070**: Llama 4 8B at ~85 t/s (FP16 inference).
+    - **NVIDIA RTX 4090**: Llama 4 32B at ~35 t/s (4-bit quantization).
 
 ## Limitations
 - **Hardware Dependent**: Performance is strictly tied to local CPU/GPU/RAM.
@@ -41,7 +45,7 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 ```yaml
 services:
   ollama:
-    image: ollama/ollama:latest # v0.25+ (June 2026)
+    image: ollama/ollama:latest # v0.25+ (July 2026)
     container_name: ollama
     volumes:
       - ./ollama:/root/.ollama
@@ -55,13 +59,14 @@ services:
               capabilities: [gpu]
 ```
 
-### Recommended Models (June 2026)
+### Recommended Models (July 2026)
 
 | Category | Model | VRAM Required | Note |
 | :--- | :--- | :--- | :--- |
 | **All-Rounder** | `llama4:32b` | ~20GB | Superior balance of speed and intelligence. |
 | **Reasoning** | `o4-mini:local` | ~12GB | Optimized for local complex logic tasks. |
 | **Edge/Mobile** | `phi4:3b` | ~2.5GB | High performance on minimal hardware. |
+| **Gemma** | `gemma3:8b` | ~6GB | State-of-the-art open model from Google. |
 
 ## CLI examples
 The `ollama` CLI is the primary tool for model management.
@@ -108,29 +113,23 @@ def get_chat_response(prompt):
 print(get_chat_response("Hello, Ollama!"))
 ```
 
-## Performance Benchmarking (June 2026)
-
-| Hardware | Model | Eval Rate (t/s) | Note |
-| :--- | :--- | :--- | :--- |
-| **Apple M4 Pro** | Llama 4 8B | ~65 t/s | Unified memory performance. |
-| **NVIDIA RTX 4070** | Llama 4 8B | ~85 t/s | FP16 inference. |
-| **NVIDIA RTX 4090** | Llama 4 32B | ~35 t/s | 4-bit quantization. |
-
 ## Related tools / concepts
 - [Open WebUI](open-webui.md) — The recommended web frontend for Ollama.
 - [LiteLLM](litellm.md) — For load balancing multiple Ollama instances and fallback to Claude 4.8 Opus.
 - [Local LLMs](../tools/ai_knowledge/local_llms.md) — Overview of the local model ecosystem.
-- [Model Context Protocol](https://modelcontextprotocol.io/) — For adding tools to Ollama-backed agents.
 - [TrueNAS SCALE](../architecture/infrastructure.md) — For hosting Ollama with GPU passthrough.
+- [Docker](../tools/infrastructure/docker.md) — Containerization for Ollama.
+- [Portracker](portracker.md) — For monitoring Ollama's API port (11434).
+- [Nextcloud](nextcloud.md) — For integrating local AI models into the Nextcloud Assistant.
+- [Model Context Protocol](https://modelcontextprotocol.io/) — For adding tools to Ollama-backed agents.
 - [LM Studio](https://lmstudio.ai/) — Desktop alternative for GUI-based model experimentation.
-- [Aider](https://aider.chat/) — AI pair programming tool that can use Ollama as a backend.
 
 ## Sources / References
 - [Ollama Official Website](https://ollama.com/)
 - [Ollama GitHub](https://github.com/ollama/ollama)
 - [Ollama v0.25 Release Notes](https://github.com/ollama/ollama/releases)
-- [Local Model Leaderboard (June 2026)](https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard)
+- [Local Model Leaderboard (July 2026)](https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-19
+- Last reviewed: 2026-07-21
 - Confidence: high
