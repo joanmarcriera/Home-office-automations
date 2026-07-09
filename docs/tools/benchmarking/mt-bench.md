@@ -112,7 +112,7 @@ answers = load_model_answers("fastchat/llm_judge/data/mt_bench/model_answer/gemm
 - [LM Evaluation Harness](lm-evaluation-harness.md) - Standard framework for single-turn benchmarks.
 - [OpenCompass](opencompass.md) - Comprehensive evaluation platform.
 - [BigCodeBench](bigcodebench.md) - Realistic code generation benchmark.
-- [MCP 3.0](../../automation_orchestration/mcp.md) - Protocol used for automated benchmarking tasks.
+- [MCP 3.0](../automation_orchestration/mcp.md) - Protocol used for automated benchmarking tasks.
 
 ## Sources / references
 - [FastChat GitHub (LLM Judge)](https://github.com/lm-sys/FastChat/tree/main/fastchat/llm_judge)
