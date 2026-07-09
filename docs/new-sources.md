@@ -6,6 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-07-09 | [2026-07-09](/new-sources/2026-07-09/) | 0 | 1 | Integrated SQLGlot for agentic SQL synthesis. |
 | 2026-06-01 | [2026-06-01](/new-sources/2026-06-01/) | 0 | 173 | Logged missing tools referenced in related sections. |
 | 2026-05-07 | [2026-05-07](/new-sources/2026-05-07/) | 0 | 6 | Integrated 6 agent frameworks for Batch 2. |
 | 2026-05-06 | [2026-05-06](/new-sources/2026-05-06/) | 0 | 10 | Expanded orchestration category for #468, added agent learning map for #407, and integrated Claude plugin starters for #404. |

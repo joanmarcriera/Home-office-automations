@@ -1,7 +1,7 @@
 # Data Copilot: Layered Text-to-SQL Architecture
 
 ## What it is
-Data Copilot is a high-performance, cost-optimized pipeline architecture for converting natural language questions into executable SQL queries. It employs a **Layered Multi-Agent** approach to decompose complex Text-to-SQL tasks into specialized stages. In June 2026, it utilizes **MCP 3.0** for database discovery and **Claude 4.8/GPT-5.5** for high-fidelity reasoning, while maintaining local-first execution for simpler queries via **Llama 4 (8B/70B)**.
+Data Copilot is a high-performance, cost-optimized pipeline architecture for converting natural language questions into executable SQL queries. It employs a **Layered Multi-Agent** approach to decompose complex Text-to-SQL tasks into specialized stages. In July 2026, it utilizes **MCP 3.0 Task Protocol** for standardized execution and **Gemma 3** via **FastMCP 3.0** for high-fidelity reasoning, maintaining local-first execution for simpler queries.
 
 ## What problem it solves
 Traditional "one-shot" Text-to-SQL approaches often fail on complex schemas (100+ tables), ambiguous intents, or large-scale data environments, often leading to "context window exhaustion" and high token costs. Data Copilot solves this by breaking the problem into modular steps—routing, intent extraction, table selection, column pruning, and SQL generation—drastically reducing token usage and increasing query accuracy through aggressive schema pruning.
@@ -13,13 +13,13 @@ Traditional "one-shot" Text-to-SQL approaches often fail on complex schemas (100
 - **Natural Language BI**: Allowing non-technical users to query metrics like "weekly growth" or "inventory turnover".
 - **Home Lab Observability**: Querying [Home Assistant](../services/home-assistant.md) or [Actual Budget](../services/actual-budget.md) databases for historical trends.
 - **Automated Data Reporting**: Generating on-demand reports from [Homebox](../services/homebox.md) or [Grocy](../services/grocy.md) without manual SQL.
-- **Autonomous Error Correction**: Agents using Text-to-SQL to verify their own database-backed task state.
+- **Agentic SQL Synthesis**: Agents using Text-to-SQL to verify their own database-backed task state autonomously.
 
 ## Strengths
 - **Token Efficiency**: Reduces prompt size by >90% by only sending pruned schema cards to the final generator.
 - **Accuracy**: Specialized agents (Table Agent, Prune Agent) minimize hallucinations by focusing on narrow sub-tasks.
-- **Cost-Optimized Routing**: Routes simple steps to local models (**Llama 4 8B**) and escalates to frontier models only when needed.
-- **Governance**: Integrated **SQL Policy Validators** (using `sqlglot`) prevent unsafe or mutation-based queries.
+- **FastMCP 3.0 Integration**: Uses high-performance tool hosting for ultra-low latency execution and agent discovery.
+- **Governance**: Integrated **SQL Policy Validators** (using [SQLGlot](../tools/development_ops/sqlglot.md)) prevent unsafe or mutation-based queries.
 
 ## Limitations
 - **Sequential Latency**: Multi-agent pipelines introduce more overhead than single-shot prompts.
@@ -49,7 +49,7 @@ Define your database connections and high-level descriptions in your workspace c
 ```
 
 ### 2. Configure Model Routing
-Assign models to each layer (Router, Intent, Table, Prune, SQL) in your [LiteLLM](../services/litellm.md) config. Prefer local models for Routing/Pruning.
+Assign models to each layer (Router, Intent, Table, Prune, SQL) in your [LiteLLM](../services/litellm.md) config. Prefer [Gemma 3](../tools/ai_knowledge/local_llms.md) for local Routing/Pruning.
 
 ### 3. Initialize the SQL Validator
 Ensure `scripts/sql_validator.py` is configured with your table allowlists and mutation blocking policies.
@@ -90,14 +90,15 @@ if result.is_safe:
 ```
 
 ## Related tools / concepts
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — Detailed safety playbook.
+- [Data Copilot SQL Validation](../playbooks/data-copilot-sql-validation.md) — Detailed safety playbook.
 - [Multi-Agent KnowledgeOps](./multi_agent_knowledgeops.md) — Governance for agentic pipelines.
 - [Automated Contribution System](./automated_contributions.md) — Metadata ingestion flows.
 - [LiteLLM Proxy](../services/litellm.md) — Unified inference plane for routing.
 - [Home Assistant](../services/home-assistant.md) — Primary data source for automation.
 - [Actual Budget](../services/actual-budget.md) — Primary data source for finance.
 - [Jules Agent](../tools/ai_knowledge/jules.md) — Core execution agent for the hub.
-- [SQLGlot](../../tools/development_ops/sqlglot.md) — Engine for SQL parsing and safety.
+- [SQLGlot](../tools/development_ops/sqlglot.md) — Engine for SQL parsing and safety.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Canonical local LLM guide.
 
 ## Sources / references
 - [Uber Engineering: Text-to-SQL at Scale](https://www.uber.com/en-GB/blog/text-to-sql-at-scale/)
@@ -107,5 +108,5 @@ if result.is_safe:
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-09
 - Confidence: high
