@@ -16,11 +16,19 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 
 ## Typical use cases
 
-- **Morning Briefing Assistant**: Aggregating weather, calendar events, and task lists into a single conversational summary.
-- **"Second Brain" Capture**: Processing bookmarks, notes, and links from various sources into a unified knowledge base.
-- **Nightly Research Digest**: Scheduled agents that search the web for specific topics and synthesize findings into a daily report.
-- **Infrastructure Monitoring**: Performing periodic SSH-backed system checks and reporting anomalies to a chat channel.
-- **Development Orchestration**: Coordinating multi-file changes and test runs via [Prompt Requests](prompt_requests.md).
+The following table summarizes proven patterns for OpenClaw deployment in July 2026:
+
+| Category | Use case | Why OpenClaw fits | Guardrail |
+|---|---|---|---|
+| Home-office | Morning briefing assistant | Good for collecting tasks, weather, reminders, and daily summaries across tools | Keep it read-only |
+| Knowledge management | "Second brain" capture and recall | Works well when a conversational layer needs memory and retrieval over bookmarks, notes, and saved links | Make note-writing explicit |
+| Research | Nightly research digest | Strong fit for scheduled search, summary, and digest workflows | Verify sources before external sharing |
+| Content | Idea capture and content machine | Useful for capturing rough ideas, organizing them, and expanding into reusable drafts | Draft-only before publishing |
+| Web work | URL summary and link processing | Efficient when a lightweight skill can summarize an article, PDF, or video from a link | Keep browsing isolated |
+| Infrastructure | Server and service monitoring | Works well for SSH-backed checks plus human-readable reporting in chat | Require approval for fixes and restarts |
+| Development | Coding remote PR prep | Helpful when conversational requests must turn into branch, commit, and PR actions | Never auto-merge without review |
+| Communications | Email triage and draft replies | Good for classifying inbox traffic and drafting responses in the user's tone | Draft-only mode, never send directly |
+| Operations | Daily life admin | Strong fit for errands, reminders, recurring personal tasks, and follow-up loops | Keep external side effects explicit |
 
 ## Strengths
 
@@ -33,7 +41,7 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 
 - **User Bias**: Community examples often reflect the needs of "power users" and may be too complex for beginners.
 - **Reliability Variance**: Not all documented workflows have the same level of production-grade stability.
-- **Maintenance Overhead**: As the OpenClaw API and integrations evolve, these use cases require periodic refreshing.
+- **Maintenance Overhead**: As the OpenClaw API and [MCP 3.0](../../tools/automation_orchestration/mcp.md) integrations evolve, these use cases require periodic refreshing.
 - **Token Usage**: Complex recursive workflows in the catalog can quickly consume LLM token budgets.
 
 ## When to use it
@@ -53,7 +61,7 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 To begin using the patterns in this catalog:
 
 1.  **Clone the Skill Repository**: Most catalog items reference skills available in the official OpenClaw skill library.
-2.  **Select a Pattern**: Identify a use case (e.g., "Nightly Research Digest") from the table in the `Categorized use cases` section below.
+2.  **Select a Pattern**: Identify a use case (e.g., "Nightly Research Digest") from the table in the `Typical use cases` section.
 3.  **Configure Environment**: Set the required API keys (e.g., Search, LLM) in your `.env` file.
 4.  **Dry Run**: Run the skill with `dry_run: true` to inspect the proposed plan without executing actions.
 
@@ -94,20 +102,6 @@ response = client.execute_skill(
 print(f"Workflow status: {response.status}")
 ```
 
-## Categorized use cases
-
-| Category | Use case | Why OpenClaw fits | Guardrail |
-|---|---|---|---|
-| Home-office | Morning briefing assistant | Good for collecting tasks, weather, reminders, and daily summaries across tools | Keep it read-only |
-| Knowledge management | "Second brain" capture and recall | Works well when a conversational layer needs memory and retrieval over bookmarks, notes, and saved links | Make note-writing explicit |
-| Research | Nightly research digest | Strong fit for scheduled search, summary, and digest workflows | Verify sources before external sharing |
-| Content | Idea capture and content machine | Useful for capturing rough ideas, organizing them, and expanding into reusable drafts | Draft-only before publishing |
-| Web work | URL summary and link processing | Efficient when a lightweight skill can summarize an article, PDF, or video from a link | Keep browsing isolated |
-| Infrastructure | Server and service monitoring | Works well for SSH-backed checks plus human-readable reporting in chat | Require approval for fixes and restarts |
-| Development | Coding remote PR prep | Helpful when conversational requests must turn into branch, commit, and PR actions | Never auto-merge without review |
-| Communications | Email triage and draft replies | Good for classifying inbox traffic and drafting responses in the user's tone | Draft-only mode, never send directly |
-| Operations | Daily life admin | Strong fit for errands, reminders, recurring personal tasks, and follow-up loops | Keep external side effects explicit |
-
 ## Related tools / concepts
 
 - [OpenClaw](../../tools/development_ops/openclaw.md) — The primary runtime for these use cases.
@@ -118,6 +112,8 @@ print(f"Workflow status: {response.status}")
 - [Prompt Requests](prompt_requests.md) — The preferred interface for development-centric use cases.
 - [Skills Best Practices](skills-best-practices.md) — Guidelines for authoring the skills used in this catalog.
 - [Software Factories](software-factories.md) — High-scale pattern for autonomous code generation.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Recommended local model for catalog workflow execution.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for tool integration in July 2026.
 
 ## Sources / References
 
@@ -127,5 +123,5 @@ print(f"Workflow status: {response.status}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

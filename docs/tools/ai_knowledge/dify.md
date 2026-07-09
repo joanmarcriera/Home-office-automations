@@ -12,7 +12,7 @@ Lowers the barrier to building LLM-powered applications by providing a visual in
 
 ## Where it fits in the stack
 
-**AI & Knowledge / Application Orchestration**. Serves as a visual platform for building and deploying LLM applications, typically connecting to local inference engines like Ollama or frontier models like Claude 4.8.
+**AI & Knowledge / Application Orchestration**. Serves as a visual platform for building and deploying LLM applications, typically connecting to local inference engines like [Ollama](../../services/ollama.md) or frontier models like [Claude 4.8](../ai_knowledge/claude.md).
 
 ## Typical use cases
 
@@ -20,18 +20,19 @@ Lowers the barrier to building LLM-powered applications by providing a visual in
 - **Agent Orchestration**: Rapid prototyping of complex agent workflows with tool-calling and multi-step reasoning.
 - **Prompt IDE**: Collaborative prompt engineering and versioning within a team.
 - **Enterprise AI Gateway**: Providing a unified API for internal applications to access multiple LLMs with usage tracking.
+- **MCP Tool Integration**: Connecting [Model Context Protocol (MCP)](../../architecture/multi_agent_knowledgeops.md) servers to provide agents with real-world tools.
 
 ## Strengths
 
 - **Privacy-First**: Open-source and self-hostable, allowing for complete data sovereignty.
 - **User Friendly**: Visual interface makes LLM app development accessible to non-developers.
-- **Batteries Included**: Comes with built-in support for multiple vector databases (Pinecone, Weaviate, Milvus) and model providers.
+- **Batteries Included**: Comes with built-in support for multiple vector databases ([Pinecone](../infrastructure/pinecone.md), [Weaviate](../infrastructure/weaviate.md), [Milvus](../infrastructure/milvus.md)) and model providers.
 - **Scalable**: Supports multi-user organizations and production-grade monitoring.
 
 ## Limitations
 
 - **Infrastructure Heavy**: Requires running an additional service stack (Redis, PostgreSQL, Vector DB) with its own resource overhead.
-- **Extensibility**: Less flexible than code-first frameworks (like LangChain) for highly custom, non-standard orchestration logic.
+- **Extensibility**: Less flexible than code-first frameworks (like [LangChain](../ai_knowledge/langchain.md)) for highly custom, non-standard orchestration logic.
 - **Version Drift**: Rapid development of the core platform can sometimes lead to breaking changes in YAML configurations.
 
 ## When to use it
@@ -103,14 +104,15 @@ print(f"Dify Response: {response.json().get('answer')}")
 
 ## Related tools / concepts
 
-- [Flowise](flowise.md) — Alternative visual LLM orchestration.
-- [LangChain](langchain.md) — The code-first foundation for many Dify patterns.
-- [LlamaIndex](llamaindex.md) — Advanced RAG capabilities often integrated into Dify.
+- [Flowise](../ai_knowledge/flowise.md) — Alternative visual LLM orchestration.
+- [LangChain](../ai_knowledge/langchain.md) — The code-first foundation for many Dify patterns.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Advanced RAG capabilities often integrated into Dify.
 - [Langflow](../frameworks/langflow.md) — Visual interface specifically for LangChain.
 - [Ollama](../../services/ollama.md) — Primary local model backend for Dify.
 - [n8n](../../services/n8n.md) — General-purpose automation often used to trigger Dify APIs.
-- [Model Context Protocol (MCP)](../../architecture/multi_agent_knowledgeops.md) — Emerging standard for tool discovery in agentic platforms.
-- [AnythingLLM](anythingllm.md) — Simpler alternative for personal RAG.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Emerging standard for tool discovery in agentic platforms.
+- [AnythingLLM](../ai_knowledge/anythingllm.md) — Simpler alternative for personal RAG.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Recommended local model for Dify-hosted agents.
 
 ## Sources / references
 
@@ -120,5 +122,5 @@ print(f"Dify Response: {response.json().get('answer')}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

@@ -1,24 +1,25 @@
 # Ubuntu 26.04 AI Snaps
 
-Ubuntu 26.04 (Noble Numbat successor) includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes.
+Ubuntu 26.04 (Noble Numbat) includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes.
 
 ## What it is
 
-Ubuntu 26.04 includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes. These snaps provide a pre-configured, isolated environment for running AI inference and training workloads on NVIDIA and AMD hardware respectively.
+Ubuntu 26.04 includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes. These snaps provide a pre-configured, isolated environment for running AI inference and training workloads on NVIDIA and AMD hardware respectively. Canonical maintains these snaps to ensure they are optimized for the Noble Numbat LTS release.
 
 ## What problem it solves
 
-Managing CUDA or ROCm versions and their dependencies on Linux can be a significant "dependency hell" challenge. AI Snaps simplify this by packaging the runtimes, drivers (where appropriate), and necessary libraries into a single, versioned, and easily updatable package.
+Managing CUDA or ROCm versions and their dependencies on Linux can be a significant "dependency hell" challenge. AI Snaps simplify this by packaging the runtimes, drivers (where appropriate), and necessary libraries into a single, versioned, and easily updatable package. This ensures that a library update for one tool doesn't break the environment for another.
 
 ## Where it fits in the stack
 
-**Infrastructure / OS Layer**. It provides the foundational software environment for higher-level tools like Ollama, llama.cpp, or PyTorch to run efficiently on local hardware.
+**Infrastructure / OS Layer**. It provides the foundational software environment for higher-level tools like [Ollama](../../services/ollama.md), [llama.cpp](llama-cpp.md), or [PyTorch](../ai_knowledge/python.md) to run efficiently on local hardware.
 
 ## Typical use cases
 
-- **Homelab AI Server**: Quickly setting up a stable Ubuntu server for LLM inference without manual driver/CUDA configuration.
+- **Homelab AI Server**: Quickly setting up a stable Ubuntu server for [LLM inference](../ai_knowledge/local_llms.md) without manual driver/CUDA configuration.
 - **Reproducible ML Environments**: Ensuring consistent runtime versions across multiple development machines.
 - **Edge Inference**: Deploying AI-capable apps on Ubuntu-based edge devices with guaranteed hardware acceleration.
+- **GPU-Accelerated Containers**: Providing the underlying hardware access for [Docker](docker.md) containers running AI workloads.
 
 ## Strengths
 
@@ -52,7 +53,7 @@ In Ubuntu 26.04, these can be installed via the standard `snap` command:
 # Install NVIDIA CUDA runtime snap
 sudo snap install cuda-runtime
 
-# Install AMD ROCm runtime snap
+# Install AMD ROCm runtime snap (ROCm 6.2+)
 sudo snap install rocm-runtime
 
 # Verify installation and hardware access
@@ -99,6 +100,8 @@ else:
 - [NVIDIA Security Bulletin May 2026](https://nvidia.custhelp.com/app/answers/detail/a_id/5821) — Critical security context for drivers.
 - [Infrastructure Index](index.md) — Overview of the home-office stack.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Patterns for running models on Ubuntu AI snaps.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Recommended local model optimized for Ubuntu AI snaps.
+- [DuckDB](duckdb.md) — Embedded analytical database that can leverage GPU acceleration via snaps.
 
 ## Sources / References
 
@@ -108,5 +111,5 @@ else:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
