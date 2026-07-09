@@ -1,24 +1,25 @@
 # Ubuntu 26.04 AI Snaps
 
-Ubuntu 26.04 (Noble Numbat successor) includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes.
+Ubuntu 26.04 LTS (Noble Numbat successor) includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes.
 
 ## What it is
 
-Ubuntu 26.04 includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes. These snaps provide a pre-configured, isolated environment for running AI inference and training workloads on NVIDIA and AMD hardware respectively.
+Ubuntu 26.04 includes first-party support for AI-optimized Snaps, specifically targeting CUDA and ROCm runtimes. These snaps provide a pre-configured, isolated environment for running AI inference and training workloads on NVIDIA and AMD hardware respectively. The July 2026 update (v26.04.1) includes optimized support for the latest [Gemma 3](../ai_knowledge/local_llms.md) weights and NVIDIA Rubin architecture.
 
 ## What problem it solves
 
-Managing CUDA or ROCm versions and their dependencies on Linux can be a significant "dependency hell" challenge. AI Snaps simplify this by packaging the runtimes, drivers (where appropriate), and necessary libraries into a single, versioned, and easily updatable package.
+Managing CUDA or ROCm versions and their dependencies on Linux can be a significant "dependency hell" challenge. AI Snaps simplify this by packaging the runtimes, drivers (where appropriate), and necessary libraries into a single, versioned, and easily updatable package. It ensures that the underlying infrastructure is ready for high-performance agentic loops without manual configuration.
 
 ## Where it fits in the stack
 
-**Infrastructure / OS Layer**. It provides the foundational software environment for higher-level tools like Ollama, llama.cpp, or PyTorch to run efficiently on local hardware.
+**Infrastructure / OS Layer**. It provides the foundational software environment for higher-level tools like [Ollama](../../services/ollama.md), [vLLM](vllm.md), or [PyTorch](../ai_knowledge/index.md) to run efficiently on local hardware. It integrates with [FastMCP 3.0](../../architecture/multi_agent_knowledgeops.md) for optimized hardware discovery.
 
 ## Typical use cases
 
 - **Homelab AI Server**: Quickly setting up a stable Ubuntu server for LLM inference without manual driver/CUDA configuration.
 - **Reproducible ML Environments**: Ensuring consistent runtime versions across multiple development machines.
 - **Edge Inference**: Deploying AI-capable apps on Ubuntu-based edge devices with guaranteed hardware acceleration.
+- **Agentic Infrastructure**: Providing the compute backend for [Ralph's Family Context](../../reference-implementations/llm-prompts/family-context.md).
 
 ## Strengths
 
@@ -42,7 +43,7 @@ Managing CUDA or ROCm versions and their dependencies on Linux can be a signific
 ## When not to use it
 
 - If you require extremely low-level control over your driver and CUDA versions for specific research purposes.
-- In environments where Snaps are explicitly forbidden or replaced by other containerization technologies like Flatpak or raw Docker.
+- In environments where Snaps are explicitly forbidden or replaced by other containerization technologies like [Docker](docker.md).
 
 ## Getting started
 
@@ -96,17 +97,19 @@ else:
 - [Kubernetes (K3s)](k3s.md) — Orchestrating AI workloads across Ubuntu nodes.
 - [Invisible Kubernetes](../../knowledge_base/invisible_kubernetes.md) — Higher-level abstraction for AI infrastructure.
 - [Talos vs Ubuntu K3s](../../knowledge_base/talos-vs-ubuntu-k3s.md) — Comparative OS research for AI clusters.
-- [NVIDIA Security Bulletin May 2026](https://nvidia.custhelp.com/app/answers/detail/a_id/5821) — Critical security context for drivers.
 - [Infrastructure Index](index.md) — Overview of the home-office stack.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Patterns for running models on Ubuntu AI snaps.
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The governance framework for AI infrastructure.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Standard model for local execution on Ubuntu.
 
 ## Sources / References
 
 - [Ubuntu 26.04 to include Cuda, Rocm snaps and inference models optimised for your hardware](https://www.reddit.com/r/LocalLLaMA/comments/1rnmo3n/ubuntu_2604_to_include_cuda_rocm_snaps_and/)
 - [Canonical / Ubuntu Blog](https://ubuntu.com/blog)
+- [NVIDIA Security Bulletin May 2026](https://nvidia.custhelp.com/app/answers/detail/a_id/5821)
 - [GamingOnLinux: NVIDIA reveal more GPU driver security flaws for May 2026](https://www.gamingonlinux.com/2026/05/nvidia-reveal-more-gpu-driver-security-flaws-for-may-2026/)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

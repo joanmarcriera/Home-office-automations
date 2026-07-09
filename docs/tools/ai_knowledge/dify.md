@@ -4,34 +4,34 @@ Dify is an open-source LLM application development platform that allows you to v
 
 ## What it is
 
-Dify is an open-source LLM application development platform. It allows you to visually create and operate AI applications based on various LLMs, and includes tools for prompt engineering, RAG, and agent orchestration. It provides a full-stack experience from model management to application deployment.
+Dify is an open-source LLM application development platform. It allows you to visually create and operate AI applications based on various LLMs, and includes tools for prompt engineering, RAG, and agent orchestration. The July 2026 update (v1.2+) includes native support for the [MCP 3.0 Task Protocol](../../architecture/multi_agent_knowledgeops.md) and [FastMCP 3.0](../../architecture/multi_agent_knowledgeops.md) for tool hosting.
 
 ## What problem it solves
 
-Lowers the barrier to building LLM-powered applications by providing a visual interface for designing prompts, RAG pipelines, and agent workflows without writing extensive code. It addresses the complexity of managing multiple model providers, vector databases, and application states.
+Lowers the barrier to building LLM-powered applications by providing a visual interface for designing prompts, RAG pipelines, and agent workflows without writing extensive code. It addresses the complexity of managing multiple model providers, vector databases, and application states. It serves as a visual bridge for [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) governance.
 
 ## Where it fits in the stack
 
-**AI & Knowledge / Application Orchestration**. Serves as a visual platform for building and deploying LLM applications, typically connecting to local inference engines like Ollama or frontier models like Claude 4.8.
+**AI & Knowledge / Application Orchestration**. Serves as a visual platform for building and deploying LLM applications, typically connecting to local inference engines like [Ollama](../../services/ollama.md) or frontier models like [Gemma 3](local_llms.md).
 
 ## Typical use cases
 
 - **Visual RAG Construction**: Building RAG applications with a visual drag-and-drop interface.
 - **Agent Orchestration**: Rapid prototyping of complex agent workflows with tool-calling and multi-step reasoning.
 - **Prompt IDE**: Collaborative prompt engineering and versioning within a team.
-- **Enterprise AI Gateway**: Providing a unified API for internal applications to access multiple LLMs with usage tracking.
+- **Enterprise AI Gateway**: Providing a unified API for internal applications to access multiple LLMs with usage tracking via [Authentik](../../services/authentik.md).
 
 ## Strengths
 
 - **Privacy-First**: Open-source and self-hostable, allowing for complete data sovereignty.
 - **User Friendly**: Visual interface makes LLM app development accessible to non-developers.
-- **Batteries Included**: Comes with built-in support for multiple vector databases (Pinecone, Weaviate, Milvus) and model providers.
+- **Batteries Included**: Comes with built-in support for multiple vector databases ([Milvus](../infrastructure/milvus.md), [Weaviate](../infrastructure/weaviate.md)) and model providers.
 - **Scalable**: Supports multi-user organizations and production-grade monitoring.
 
 ## Limitations
 
 - **Infrastructure Heavy**: Requires running an additional service stack (Redis, PostgreSQL, Vector DB) with its own resource overhead.
-- **Extensibility**: Less flexible than code-first frameworks (like LangChain) for highly custom, non-standard orchestration logic.
+- **Extensibility**: Less flexible than code-first frameworks (like [LangChain](langchain.md)) for highly custom, non-standard orchestration logic.
 - **Version Drift**: Rapid development of the core platform can sometimes lead to breaking changes in YAML configurations.
 
 ## When to use it
@@ -42,7 +42,7 @@ Lowers the barrier to building LLM-powered applications by providing a visual in
 
 ## When not to use it
 
-- When you need absolute, fine-grained programmatic control over LLM pipelines.
+- When you need absolute, fine-grained programmatic control over LLM pipelines (use [PydanticAI](../frameworks/pydantic-ai.md) instead).
 - When the overhead of running a full Dify stack is not justified for simple, single-script tasks.
 
 ## Getting started
@@ -109,8 +109,9 @@ print(f"Dify Response: {response.json().get('answer')}")
 - [Langflow](../frameworks/langflow.md) — Visual interface specifically for LangChain.
 - [Ollama](../../services/ollama.md) — Primary local model backend for Dify.
 - [n8n](../../services/n8n.md) — General-purpose automation often used to trigger Dify APIs.
-- [Model Context Protocol (MCP)](../../architecture/multi_agent_knowledgeops.md) — Emerging standard for tool discovery in agentic platforms.
+- [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The governance framework Dify integrates with.
 - [AnythingLLM](anythingllm.md) — Simpler alternative for personal RAG.
+- [Gemma 3](local_llms.md) — Canonical local model for Dify applications.
 
 ## Sources / references
 
@@ -120,5 +121,5 @@ print(f"Dify Response: {response.json().get('answer')}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

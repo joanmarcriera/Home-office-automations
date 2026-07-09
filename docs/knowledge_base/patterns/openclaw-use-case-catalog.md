@@ -4,30 +4,30 @@ The OpenClaw Use-Case Catalog is a categorized directory of recurring automation
 
 ## What it is
 
-The OpenClaw Use-Case Catalog is a categorized directory of recurring automation and assistant workflows optimized for the [OpenClaw](../../tools/development_ops/openclaw.md) agent runtime. It distills real-world implementation notes from the community into a selection guide for users looking to deploy autonomous agents in their personal or professional environments.
+The OpenClaw Use-Case Catalog is a categorized directory of recurring automation and assistant workflows optimized for the [OpenClaw](../../tools/development_ops/openclaw.md) agent runtime. It distills real-world implementation notes from the community into a selection guide for users looking to deploy autonomous agents in their personal or professional environments. The July 2026 update includes deep integration with the [MCP 3.0 Task Protocol](../../architecture/multi_agent_knowledgeops.md) for standardized execution.
 
 ## What problem it solves
 
-New users often find OpenClaw's flexibility overwhelming, leading to "blank canvas" syndrome. This catalog solves that by translating abstract agent capabilities into concrete workload shapes, providing the necessary guardrails and implementation notes to ensure workflows are reliable and safe.
+New users often find OpenClaw's flexibility overwhelming, leading to "blank canvas" syndrome. This catalog solves that by translating abstract agent capabilities into concrete workload shapes, providing the necessary guardrails and implementation notes to ensure workflows are reliable and safe. It standardizes the hand-off between users and agents for common household and development tasks.
 
 ## Where it fits in the stack
 
-This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem. It helps users decide when OpenClaw is the appropriate runtime versus using a simpler script, an [n8n](../../services/n8n.md) flow, or a dedicated tool like [OpenHands](../../tools/development_ops/openhands.md).
+This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem. It helps users decide when OpenClaw is the appropriate runtime versus using a simpler script, an [n8n](../../services/n8n.md) flow, or a dedicated tool like [OpenHands](../../tools/development_ops/openhands.md). It leverages [FastMCP 3.0](../../architecture/multi_agent_knowledgeops.md) for low-latency tool discovery across these use cases.
 
 ## Typical use cases
 
-- **Morning Briefing Assistant**: Aggregating weather, calendar events, and task lists into a single conversational summary.
-- **"Second Brain" Capture**: Processing bookmarks, notes, and links from various sources into a unified knowledge base.
+- **Morning Briefing Assistant**: Aggregating weather, calendar events, and task lists into a single conversational summary using [Ralph's Family Context](../../reference-implementations/llm-prompts/family-context.md).
+- **"Second Brain" Capture**: Processing bookmarks, notes, and links from various sources into a unified knowledge base via [SilverBullet](../../tools/intake_storage/silverbullet.md).
 - **Nightly Research Digest**: Scheduled agents that search the web for specific topics and synthesize findings into a daily report.
-- **Infrastructure Monitoring**: Performing periodic SSH-backed system checks and reporting anomalies to a chat channel.
-- **Development Orchestration**: Coordinating multi-file changes and test runs via [Prompt Requests](prompt_requests.md).
+- **Infrastructure Monitoring**: Performing periodic SSH-backed system checks and reporting anomalies to a chat channel like [Matrix](../../services/synapse.md).
+- **Development Orchestration**: Coordinating multi-file changes and test runs via [Prompt Requests](prompt_requests.md) and [Gemma 3](../../tools/ai_knowledge/local_llms.md).
 
 ## Strengths
 
 - **Practicality**: Based on long-running, real-world workflows rather than theoretical possibilities.
 - **Safety-First**: Provides specific "Guardrails" for every use case to prevent unintended side effects.
-- **Comparative Guidance**: Clearly defines when the agent is a "good fit" versus a "poor fit" for a task.
-- **Extensibility**: Skills are defined in YAML, making it easy to share and adapt catalog patterns.
+- **Standardized Execution**: Uses MCP 3.0 Task Protocol to ensure skills work across different agent host environments.
+- **Extensibility**: Skills are defined in YAML, making it easy to share and adapt catalog patterns for [Software Factories](software-factories.md).
 
 ## Limitations
 
@@ -40,7 +40,7 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 
 - Use when designing a new agentic workflow and looking for established patterns and safety boundaries.
 - Use to prioritize which agent capabilities to build first based on proven community success.
-- Use when evaluating whether a complex automation task belongs in an autonomous agent or a traditional workflow tool.
+- Use when evaluating whether a complex automation task belongs in an autonomous agent or a traditional workflow tool like [n8n](../../services/n8n.md).
 
 ## When not to use it
 
@@ -116,8 +116,9 @@ print(f"Workflow status: {response.status}")
 - [Daily Briefing](../../reference-implementations/llm-prompts/daily-briefing.md) — Prompt template for the briefing use case.
 - [Agentic Workflows](agentic-workflows.md) — Theoretical foundation for these patterns.
 - [Prompt Requests](prompt_requests.md) — The preferred interface for development-centric use cases.
-- [Skills Best Practices](skills-best-practices.md) — Guidelines for authoring the skills used in this catalog.
 - [Software Factories](software-factories.md) — High-scale pattern for autonomous code generation.
+- [MCP 3.0 Task Protocol](../../architecture/multi_agent_knowledgeops.md) — The standardized execution layer for catalog skills.
+- [Gemma 3](../../tools/ai_knowledge/local_llms.md) — Recommended local reasoning engine for catalog use cases.
 
 ## Sources / References
 
@@ -127,5 +128,5 @@ print(f"Workflow status: {response.status}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

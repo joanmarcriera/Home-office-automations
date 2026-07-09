@@ -4,50 +4,50 @@ This is the primary system prompt for Ralph, the Home Admin Agent. It defines hi
 
 ## What it is
 
-This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (2026) includes multi-agent coordination patterns and advanced preference injection logic.
+This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. The July 2026 version includes multi-agent coordination patterns via [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) and advanced preference injection logic for [Gemma 3](../../tools/ai_knowledge/local_llms.md).
 
 ## What problem it solves
 
-- **Inconsistent Agent Personality**: Ensures the agent maintains a warm, professional, and consistent tone across all interfaces (Telegram, Home Assistant, Web).
+- **Inconsistent Agent Personality**: Ensures the agent maintains a warm, professional, and consistent tone across all interfaces (Telegram, [Home Assistant](../../services/home-assistant.md), Web).
 - **Privacy Risks**: Explicitly codifies "Privacy First" as a non-negotiable value, preventing the agent from suggesting unsafe data sharing.
 - **Ambiguity in Responsibility**: Clearly defines what Ralph is (Home Admin) and what his core values are (Transparency, Utility).
-- **Coordination Overlap**: Prevents Ralph from conflicting with specialized sub-agents (e.g., Finance Agent or Dev Agent) by defining his role as the orchestrator.
+- **Coordination Overlap**: Prevents Ralph from conflicting with specialized sub-agents by defining his role as the orchestrator.
 - **Context Fragmentation**: Provides a central schema for injecting user-specific preferences like dietary restrictions and schedule offsets.
 
 ## Where it fits in the stack
 
-**Reference Implementation / Prompt Layer**. It is the base system message loaded into the [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md) during initialization. It governs the top-level intent classification.
+**Reference Implementation / Prompt Layer**. It is the base system message loaded into the [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md) during initialization. It governs the top-level intent classification and integrates with [MCP 3.0 Task Protocol](../../architecture/multi_agent_knowledgeops.md) for tool execution.
 
 ## Typical use cases
 
 - **Morning Briefings**: Ralph uses this context to summarize the family schedule in his warm, concise tone.
-- **Sensitive Document Filing**: Governs how Ralph asks for permission before uploading a document to a cloud-linked service.
+- **Sensitive Document Filing**: Governs how Ralph asks for permission before uploading a document to a cloud-linked service via [Paperless-ngx](../../services/paperless-ngx.md).
 - **Task Delegation**: Defines how Ralph should hand off specialized tasks (like SQL generation) to sub-agents via the [Data Copilot](../../architecture/data-copilot-text-to-sql.md).
 - **User Preference Injection**: Tailoring responses based on known family habits (e.g., "Dad prefers concise summaries, Mom likes detail").
-- **Constraint-Aware Planning**: Suggesting recipes that respect family dietary restrictions (e.g., gluten-free, nut allergies).
+- **Constraint-Aware Planning**: Suggesting recipes that respect family dietary restrictions (e.g., gluten-free, nut allergies) via [Mealie](../../services/mealie.md).
 
 ## Strengths
 
-- **Alignment-Focused**: Prioritizes family values over raw model behavior.
+- **Alignment-Focused**: Prioritizes [Family Values](../../knowledge_base/family-values.md) over raw model behavior.
 - **Structured Communication**: Enforces brevity and clarity, reducing "LLM chatter".
 - **Context-Aware**: Explicitly reserves space for dynamic data like `current_date` and `calendar_summary`.
-- **Multi-Agent Ready**: Includes hand-off logic and state-sharing patterns via filesystem/memory.
+- **Multi-Agent Ready**: Includes hand-off logic and state-sharing patterns via [FastMCP 3.0](../../architecture/multi_agent_knowledgeops.md).
 
 ## Limitations
 
 - **Static Identity**: Does not automatically adapt to changing family dynamics without manual updates to the prompt text.
 - **Model Dependence**: Some smaller models may ignore the "Privacy First" directive if overloaded with other instructions.
-- **No Hard Enforcement**: This is a prompt, not a firewall; it must be combined with technical guardrails.
+- **No Hard Enforcement**: This is a prompt, not a firewall; it must be combined with technical guardrails like [Authentik](../../services/authentik.md).
 
 ## When to use it
 
 - As the **primary system message** for any agent that has access to family schedules, tasks, or personal documents.
 - When **onboarding a new LLM** into the family automation stack to ensure behavioral parity.
-- When configuring a **meta-agent** that needs to route family requests to specialized tools.
+- When configuring a **meta-agent** that needs to route family requests to specialized tools via [Dify](../../tools/ai_knowledge/dify.md).
 
 ## When not to use it
 
-- For **specialized technical agents** (e.g., a pure coding agent) that do not interact with family members or personal data.
+- For **specialized technical agents** (e.g., a pure coding agent like [Claude Code](../../tools/development_ops/claude-code-setup.md)) that do not interact with family members or personal data.
 - In **public-facing agents** where "Ralph's Family Context" would be irrelevant or potentially reveal private metadata.
 
 ## Getting started
@@ -92,9 +92,9 @@ def get_ralph_response(user_input, prefs_json):
     # Inject preferences
     system_prompt = system_prompt.replace("{{ user_preferences_json }}", json.dumps(prefs_json))
 
-    # Call the model (Claude 4.8 Opus)
+    # Call the model (Representing the 2026 standard)
     response = litellm.completion(
-        model="anthropic/claude-3-5-sonnet", # Representing the 2026 standard
+        model="anthropic/claude-3-5-sonnet",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_input}
@@ -135,10 +135,10 @@ The `{{ user_preferences_json }}` block is typically populated with data like th
 - [Home Admin Agent Architecture](../../knowledge_base/home-admin-agent-architecture.md) — The system that executes this prompt.
 - [Daily Briefing Prompt](daily-briefing.md) — A task-specific prompt that inherits from Ralph's context.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — How prompts are orchestrated.
-- [Self-healing Agent Research](../../knowledge_base/self-healing-agent-research.md) — How Ralph handles system failures.
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Choosing the right model for this personality layer.
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The governance framework Ralph operates within.
 - [Data Copilot](../../architecture/data-copilot-text-to-sql.md) — The primary sub-agent for data queries.
+- [Home Assistant](../../services/home-assistant.md) — Primary platform for family interactions.
+- [Gemma 3](../../tools/ai_knowledge/local_llms.md) — Recommended local reasoning engine for Ralph.
 
 ## Sources / references
 
@@ -191,5 +191,5 @@ Recent System Events: {{ system_log_summary }}
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
