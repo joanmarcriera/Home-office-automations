@@ -12,11 +12,11 @@ This report decomposes the five oldest issues identified on 2026-07-09 into gran
    - [x] Verify via `scripts/check_docs_contract.py` and `scripts/audit_docs_quality.py`.
 
 2. **[docs/architecture/flows.md] Freshness audit for docs/architecture/flows.md**
-   - [ ] Perform technical freshness audit (Action A).
-   - [ ] Upgrade to 13-section 'High Confidence' standard.
-   - [ ] Update with July 2026 context (Gemma 3, MCP 3.0 Task Protocol, FastMCP 3.0, AI-native visual reasoning).
-   - [ ] Ensure >=7 unique relative markdown links.
-   - [ ] Verify via `scripts/check_docs_contract.py` and `scripts/audit_docs_quality.py`.
+   - [x] Perform technical freshness audit (Action A).
+   - [x] Upgrade to 13-section 'High Confidence' standard.
+   - [x] Update with July 2026 context (Gemma 3, MCP 3.0 Task Protocol, FastMCP 3.0, AI-native visual reasoning).
+   - [x] Ensure >=7 unique relative markdown links.
+   - [x] Verify via `scripts/check_docs_contract.py` and `scripts/audit_docs_quality.py`.
 
 3. **[docs/architecture/data-copilot-text-to-sql.md] Freshness audit for docs/architecture/data-copilot-text-to-sql.md**
    - [ ] Perform technical freshness audit (Action A).
@@ -41,4 +41,4 @@ This report decomposes the five oldest issues identified on 2026-07-09 into gran
 
 ## Status
 - **Batch Status**: In Progress
-- **Resolved**: 0/5
+- **Resolved**: 2/5
