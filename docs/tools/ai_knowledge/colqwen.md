@@ -1,14 +1,14 @@
 # ColQwen / ColPali Engine
 
 ## What it is
-ColQwen is a series of state-of-the-art multi-modal document retrieval models within the **ColPali** ecosystem. Based on the Qwen architecture (including Qwen2-VL, Qwen2.5-VL, and the latest Qwen3-VL as of June 2026), it utilizes the **ColBERT** (Contextualized Late Interaction over BERT) strategy. Unlike traditional models that convert images to text via OCR, ColQwen represents document pages as multi-vector embeddings of image patches, enabling direct "visual" retrieval.
+ColQwen is a series of state-of-the-art multi-modal document retrieval models within the **ColPali** ecosystem. Based on the Qwen architecture (including Qwen2-VL, Qwen2.5-VL, and the latest Qwen3-VL as of July 2026), it utilizes the **ColBERT** (Contextualized Late Interaction over BERT) strategy. Unlike traditional models that convert images to text via OCR, ColQwen represents document pages as multi-vector embeddings of image patches, enabling direct "visual" retrieval.
 
 ## What problem it solves
 Traditional RAG pipelines often fail on documents with complex visual layouts, such as multi-column PDFs, financial charts, tables, and technical diagrams. By bypassing brittle OCR and layout recognition steps, ColQwen eliminates errors introduced during text extraction and preserves the semantic relationship between visual elements and their context.
 
 ## Where it fits in the stack
 **Category**: Multi-modal Retrieval / RAG Engine
-ColQwen acts as the "Vision-first" retrieval layer in Vision-RAG (V-RAG) architectures. It sits between document storage and the generative LLM (e.g., Claude 4.8 or Gemini 3.5), providing high-fidelity context for multi-modal reasoning.
+ColQwen acts as the "Vision-first" retrieval layer in Vision-RAG (V-RAG) architectures. It sits between document storage and the generative LLM (e.g., [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, or Gemini 3.5), providing high-fidelity context for multi-modal reasoning.
 
 ## Typical use cases
 - **Complex Document RAG**: Searching through scanned manuals, legal filings, and academic papers with heavy formatting.
@@ -41,7 +41,7 @@ ColQwen acts as the "Vision-first" retrieval layer in Vision-RAG (V-RAG) archite
 ## Getting started
 
 ### Installation
-The `colpali-engine` library is the standard implementation for ColQwen models.
+The `colpali-engine` library is the standard implementation for ColQwen models, integrated with [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ```bash
 pip install colpali-engine
@@ -87,10 +87,16 @@ Byaldi is a popular simplified wrapper for ColPali/ColQwen models.
 colpali-search --index ./my_docs --query "Annual report 2025" --top_k 5
 ```
 
+### 3. Check Retrieval Stats
+```bash
+# Verify index health and embedding dimensions
+colpali-admin stats --index ./my_docs
+```
+
 ## API examples
 
 ### Multi-vector Scoring API
-Integrating ColQwen with custom vector stores requires handling multi-vector similarity.
+Integrating ColQwen with custom vector stores requires handling multi-vector similarity, often managed via [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ```python
 from colpali_engine.utils.scoring import score_multi_vector
@@ -117,20 +123,21 @@ maps = get_similarity_maps_from_embeddings(
 
 ## Related tools / concepts
 - [Qwen](qwen.md) — The underlying model family for ColQwen.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Google's latest open-weights VLM family.
 - [RAG Pattern](../../knowledge_base/patterns/rag.md) — Fundamental retrieval architecture.
 - [Vision Models Research](../../knowledge_base/vision-models-research.md) — Broader context on VLM evolution.
 - [Tesseract OCR](../process_understanding/tesseract.md) — Legacy alternative for text-based retrieval.
 - [OCRmyPDF](../process_understanding/ocrmypdf.md) — Tool for adding searchable layers to PDFs.
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — Strategy for managing knowledge with agents.
 - [Vector DB Comparison](../../knowledge_base/vector-db-comparison.md) — Choosing a store for multi-vector data.
-- [Byaldi](https://github.com/AnswerDotAI/byaldi) — Simplified wrapper for ColPali/ColQwen.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Tool interaction standard.
 
 ## Sources / references
 - [ColPali: Efficient Document Retrieval with VLMs (arXiv)](https://arxiv.org/abs/2407.01449)
 - [illuin-tech/colpali GitHub](https://github.com/illuin-tech/colpali)
 - [ViDoRe: Vision Document Retrieval Leaderboard](https://huggingface.co/spaces/vidore/vidore-leaderboard)
-- [Model Context Protocol (MCP) Official Documentation](https://modelcontextprotocol.io/)
+- [FastMCP 3.0 Documentation](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

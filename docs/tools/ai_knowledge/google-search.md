@@ -1,16 +1,16 @@
 # Google Search
 
 ## What it is
-Google Search is the world's most widely used web search engine. As of June 2026, it has fully matured into an "Agentic Search" platform, powered by the **Gemini 3.5 Ultra** and **Flash** models. It utilizes the **Antigravity** orchestration layer to provide "AI Mode," which synthesizes real-time web data, generates dynamic UIs, and executes complex multi-step workflows directly within the search interface or via API.
+Google Search is the world's most widely used web search engine. As of July 2026, it has fully matured into an "Agentic Search" platform, powered by the **Gemini 3.5 Ultra** and **Flash** models. It utilizes the **Antigravity** orchestration layer to provide "AI Mode," which synthesizes real-time web data, generates dynamic UIs, and executes complex multi-step workflows directly within the search interface or via API.
 
 ## What problem it solves
 It reduces the cognitive load of information retrieval by transitioning from "link providing" to "answer synthesis." It solves the "search-to-action" gap, allowing users and autonomous agents to execute tasks (like booking services, comparing complex datasets, or summarizing technical documentation) without leaving the search context.
 
 ## Where it fits in the stack
-**AI & Knowledge / Discovery**. In the [Home-Office Architecture](../../architecture/README.md), it serves as the primary **External Grounding Layer**. It provides real-time web context to local agents and is often integrated via the [Model Context Protocol (MCP 3.0)](../../knowledge_base/patterns/tool-calling-and-mcp.md) for secure, tool-augmented research.
+**AI & Knowledge / Discovery**. In the [Home-Office Architecture](../../architecture/README.md), it serves as the primary **External Grounding Layer**. It provides real-time web context to local agents and is often integrated via the [Model Context Protocol (MCP 3.0)](../../knowledge_base/patterns/tool-calling-and-mcp.md) or [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) for secure, tool-augmented research.
 
 ## Typical use cases
-- **Agentic Grounding**: Providing real-time technical context to local LLMs like Claude 4.8 or GPT-5.5.
+- **Agentic Grounding**: Providing real-time technical context to local LLMs like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, or GPT-5.5.
 - **V-RAG (Vision RAG)**: Using Google's multi-modal capabilities to search and retrieve information from visual documents and charts.
 - **Automated Research**: Utilizing Antigravity agents to perform longitudinal studies or market analysis.
 - **Dynamic Dashboarding**: Generating real-time visual summaries of fluctuating data (e.g., "track energy prices across 5 providers").
@@ -57,7 +57,7 @@ To integrate Google Search into your local agentic stack:
 ### Using the Antigravity CLI
 ```bash
 # Perform an agentic search with a specific research persona
-antigravity search "Compare the power efficiency of Llama 4 vs GPT-5.5 for local hosting" --agent deep-research
+antigravity search "Compare the power efficiency of Gemma 3 vs GPT-5.5 for local hosting" --agent deep-research
 
 # Generate a visual report from search data
 antigravity report "Solar panel ROI in Seattle 2026" --format markdown > report.md
@@ -93,6 +93,7 @@ print(response.candidates[0].grounding_metadata.search_entry_point)
 - [Perplexity](perplexity.md) — Persistent research-focused search.
 - [SearXNG](../../services/searXNG.md) — Privacy-first, self-hosted search aggregator.
 - [Gemini](gemini.md) — The underlying model family.
+- [Gemma 3](../ai_knowledge/local_llms.md) — SOTA open-weights model from Google.
 - [Antigravity Ecosystem](https://antigravity.google) — Google's 2026 agent platform.
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for agent-tool communication.
 - [Grounding Patterns](../../knowledge_base/patterns/rag.md) — How search is used in RAG pipelines.
@@ -105,5 +106,5 @@ print(response.candidates[0].grounding_metadata.search_entry_point)
 - [Antigravity Developer Portal](https://developers.google.com/antigravity)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

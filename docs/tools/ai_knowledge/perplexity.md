@@ -1,14 +1,14 @@
 # Perplexity AI
 
 ## What it is
-Perplexity is a leading AI-powered conversational search engine that provides real-time information with verifiable citations. As of June 2026, it utilizes a sophisticated orchestration layer to route queries between frontier models like Gemini 3.5, Claude 4.8, and their own fine-tuned "Sonar" models. It is designed to bridge the gap between static LLM knowledge and the live web.
+Perplexity is a leading AI-powered conversational search engine that provides real-time information with verifiable citations. As of July 2026, it utilizes a sophisticated orchestration layer to route queries between frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and their own fine-tuned "Sonar" models. It is designed to bridge the gap between static LLM knowledge and the live web.
 
 ## What problem it solves
 Perplexity addresses the "hallucination" and "knowledge cutoff" problems of traditional LLMs by grounding every response in current web data. It provides users with direct links to sources, allowing for rapid verification of facts, technical specifications, and current events. It serves as a more efficient alternative to traditional keyword-based search by synthesizing multiple sources into a single, cohesive answer.
 
 ## Where it fits in the stack
 **Category**: AI & Knowledge / Agentic Search
-Perplexity serves as the primary "Knowledge Retrieval" layer for researchers and developers. It is often integrated into agentic workflows via its OpenAI-compatible API to provide real-time grounding for autonomous agents.
+Perplexity serves as the primary "Knowledge Retrieval" layer for researchers and developers. It is often integrated into agentic workflows via its OpenAI-compatible API to provide real-time grounding for autonomous agents using [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) or [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
 - **Technical Research**: Discovering the latest stable versions of libraries, APIs, and frameworks with cited documentation.
@@ -35,7 +35,7 @@ Perplexity serves as the primary "Knowledge Retrieval" layer for researchers and
 - When conducting rapid research on topics outside your immediate expertise.
 
 ## When not to use it
-- When working with **private, air-gapped, or highly confidential data**.
+- When working with **private, air-gapped, or highly confidential data** (use [Local LLMs](local_llms.md)).
 - When you require absolute deterministic outputs (search results can vary over time).
 - When offline access is a requirement.
 
@@ -45,7 +45,7 @@ Perplexity serves as the primary "Knowledge Retrieval" layer for researchers and
 Sign up at [perplexity.ai](https://www.perplexity.ai/) to access the conversational interface. API keys can be generated in the [API Settings](https://www.perplexity.ai/settings/api).
 
 ### API Installation
-Perplexity provides an OpenAI-compatible API.
+Perplexity provides an OpenAI-compatible API, easily manageable via [LiteLLM](../../services/litellm.md).
 
 ```bash
 pip install openai
@@ -59,7 +59,7 @@ client = OpenAI(api_key="YOUR_PPLX_API_KEY", base_url="https://api.perplexity.ai
 
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
-    messages=[{"role": "user", "content": "What is the status of MCP 3.0 adoption in June 2026?"}]
+    messages=[{"role": "user", "content": "What is the status of FastMCP 3.0 adoption in July 2026?"}]
 )
 print(response.choices[0].message.content)
 ```
@@ -93,6 +93,11 @@ curl -X POST https://api.perplexity.ai/chat/completions \
   }'
 ```
 
+### 3. Integration with LiteLLM CLI
+```bash
+litellm --model perplexity/sonar-reasoning-pro --messages '{"role": "user", "content": "Compare Gemma 3 vs Llama 4 for home-office automation."}'
+```
+
 ## API examples
 
 ### Python (OpenAI SDK with citations)
@@ -115,7 +120,7 @@ print(f"Citations and Analysis: {content}")
 ```
 
 ### Integration with Agentic Frameworks
-Perplexity can be used as a `tool` or `skill` within agentic frameworks to provide external knowledge.
+Perplexity can be used as a `tool` or `skill` within agentic frameworks to provide external knowledge, following [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) standards.
 
 ```python
 # Simplified pseudocode for agentic tool use
@@ -129,6 +134,7 @@ def web_search(query: str):
 ## Related tools / concepts
 - [Google Search](google-search.md) — Traditional search with agentic overlays.
 - [Genspark](genspark.md) — AI-driven research and custom page generation.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical local LLM guide.
 - [ChatGPT](chatgpt.md) — Competitor with integrated "SearchGPT" features.
 - [Claude](claude.md) — High-reasoning model often used to process Perplexity outputs.
 - [Gemini](gemini.md) — Google's multi-modal model with deep search integration.
@@ -140,7 +146,8 @@ def web_search(query: str):
 - [Perplexity Official Website](https://www.perplexity.ai/)
 - [Perplexity API Documentation](https://docs.perplexity.ai/)
 - [Official Model Context Protocol (MCP) Website](https://modelcontextprotocol.io/)
+- [FastMCP 3.0 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
