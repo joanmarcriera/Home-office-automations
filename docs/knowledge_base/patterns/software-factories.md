@@ -1,15 +1,15 @@
 # Software Factories Pattern
 
-An architectural pattern for high-autonomy, non-interactive software engineering where agents spec, code, and verify work through rigorous validation harnesses as of June 2026.
+An architectural pattern for high-autonomy, non-interactive software engineering where agents spec, code, and verify work through rigorous validation harnesses as of July 2026.
 
 ## What it is
-The Software Factory is a "dark factory" approach to development where autonomous agents (Claude 4.8 Opus, GPT-5.5) operate within closed-loop environments. It shifts the human role from writing code to defining the "seeds" (specifications) and "validation harnesses" (test scenarios), treating code generation as a high-volume, low-marginal-cost industrial process.
+The Software Factory is a "dark factory" approach to development where autonomous agents (Claude 4.8 Opus, GPT-5.5, [Gemma 3](../../tools/ai_knowledge/local_llms.md)) operate within closed-loop environments. It shifts the human role from writing code to defining the "seeds" (specifications) and "validation harnesses" (test scenarios), treating code generation as a high-volume, low-marginal-cost industrial process using **AI-native software assembly**.
 
 ## What problem it solves
 It eliminates the human review bottleneck in traditional PR workflows and mitigates "inhuman mistakes" through exhaustive automated validation. It addresses the economic challenge of building and maintaining complex digital twins, legacy system migrations, and specialized tooling that was previously too expensive for manual development.
 
 ## Where it fits in the stack
-The Software Factory resides in the **Orchestration and Quality Layer** of the [Home-Office Architecture](../../architecture/README.md). It serves as the primary engine for [Jules](../../tools/ai_knowledge/jules.md) and other coding agents, utilizing [MCP 3.0](../../tools/automation_orchestration/mcp.md) for tool-use and [Docker](../../tools/infrastructure/docker.md) for isolated validation environments.
+The Software Factory resides in the **Orchestration and Quality Layer** of the [Home-Office Architecture](../../architecture/README.md). It serves as the primary engine for [Jules](../../tools/ai_knowledge/jules.md) and other coding agents, utilizing [MCP 3.0](../../tools/automation_orchestration/mcp.md) (with **FastMCP 3.0** for low-latency tool hosting) for tool-use and [Docker](../../tools/infrastructure/docker.md) for isolated validation environments.
 
 ## Typical use cases
 - **Autonomous Maintenance**: Agents that monitor, debug, and patch production codebases without human intervention.
@@ -43,14 +43,14 @@ The Software Factory resides in the **Orchestration and Quality Layer** of the [
 ## Getting started
 
 ### Local Factory Orchestration (Ollama + vLLM)
-Implement a software factory using local, high-performance coding models to minimize costs.
+Implement a software factory using local, high-performance coding models like [Gemma 3](../../tools/ai_knowledge/local_llms.md) to minimize costs.
 
 ```yaml
 services:
   factory_agent:
     image: jules-factory-node:latest
     environment:
-      - MODEL=qwen2.5-coder:72b
+      - MODEL=gemma3-27b-it
       - BACKEND=vllm
     volumes:
       - ./seeds:/seeds
@@ -78,16 +78,16 @@ docker exec -it factory_mock_okta status
 
 ## API examples
 
-### Factory Validation Request (MCP 3.0)
-Example of an agent requesting a validation run within the software factory.
+### Factory Validation Request (MCP 3.0 Task Protocol)
+Example of an agent requesting a validation run within the software factory using the **MCP 3.0 Task Protocol**.
 
 ```json
 {
   "mcp_version": "3.0",
-  "method": "tools/call",
+  "method": "tasks/run",
   "params": {
-    "name": "factory_run_validation",
-    "arguments": {
+    "task_id": "factory_run_validation",
+    "input": {
       "code_path": "/src/auth_handler.go",
       "test_harness": "security_scan_v4",
       "max_iterations": 5,
@@ -112,6 +112,7 @@ if result.score > 0.98:
 ```
 
 ## Related tools / concepts
+- [Prompt Requests](prompt_requests.md) — Post-PR development workflows.
 - [Jules](../../tools/ai_knowledge/jules.md) — The primary autonomous coding agent.
 - [MCP 3.0](../../tools/automation_orchestration/mcp.md) — The protocol for agent-tool interaction.
 - [Agentic Flows](../../architecture/flows.md) — The underlying workflow patterns.
@@ -128,5 +129,5 @@ if result.score > 0.98:
 - [Deloitte Tech Trends 2026: The Agentic Reality Check](https://www.deloitte.com/us/en/insights/topics/technology-management/tech-trends.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

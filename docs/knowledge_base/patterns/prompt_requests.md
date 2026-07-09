@@ -1,10 +1,10 @@
 # Prompt Requests: Post-PR Development Workflows
 
-This document outlines the transition from traditional Git-based "Pull Requests" to agent-centric "Prompt Requests" and reputation-based systems for post-human development.
+This document outlines the transition from traditional Git-based "Pull Requests" to agent-centric "Prompt Requests" and reputation-based systems for post-human development as of July 2026.
 
 ## What it is
 
-The "RIP Pull Requests (2005-2026)" analysis highlights a fundamental shift in software engineering. As AI agents (Claude 4.8 Opus, GPT-5.5) handle an increasing percentage of code generation and modification, traditional human-centric collaboration tools like Pull Requests (PRs) and Code Reviews are being superseded by workflows optimized for speed, safety, and agentic autonomy.
+The "RIP Pull Requests (2005-2026)" analysis highlights a fundamental shift in software engineering. As AI agents (Claude 4.8 Opus, GPT-5.5, [Gemma 3](../../tools/ai_knowledge/local_llms.md)) handle an increasing percentage of code generation and modification, traditional human-centric collaboration tools like Pull Requests (PRs) and Code Reviews are being superseded by workflows optimized for speed, safety, and agentic autonomy through **Agentic Prompt Engineering**.
 
 A **Prompt Request** is a structured specification of intent that an agent uses to generate, validate, and merge code independently. This pattern often involves **Agent-to-Agent Collaboration**, where stateless orchestrators operate in stateful, durable workspaces (e.g., OpenAI Agents SDK, Cloudflare Project Think), using files as the primary communication medium ("File-as-Bus").
 
@@ -17,7 +17,7 @@ A **Prompt Request** is a structured specification of intent that an agent uses 
 
 ## Where it fits in the stack
 
-**Workflow Pattern**. Operates at the **Development / CI layer**. It replaces or augments the standard GitHub Flow (branch -> commit -> PR -> merge) with an **Agentic Flow** (spec/prompt -> agent execution -> validation -> reputation-based auto-merge). It utilizes the **Model Context Protocol (MCP 3.0)** for tool discovery and execution.
+**Workflow Pattern**. Operates at the **Development / CI layer**. It replaces or augments the standard GitHub Flow (branch -> commit -> PR -> merge) with an **Agentic Flow** (spec/prompt -> agent execution -> validation -> reputation-based auto-merge). It utilizes the **Model Context Protocol (MCP 3.0)** (leveraging **FastMCP 3.0** for low-latency tool hosting and **MCP 3.0 Task Protocol** for standardized execution) for tool discovery and execution.
 
 ## Typical use cases
 
@@ -82,21 +82,23 @@ jules reputation check agent-alpha-7
 
 ## API examples
 
-Using the Model Context Protocol (MCP 3.0) to programmatically trigger a Prompt Request via an orchestrator:
+Using the **MCP 3.0 Task Protocol** to programmatically trigger a Prompt Request via an orchestrator:
 
 ```python
 import mcp.client
 
 async def submit_prompt_request():
     async with mcp.client.connect("https://mcp-server.internal") as client:
-        # Register the prompt request
+        # Register the prompt request using the tasks/run method
         response = await client.call_tool(
-            "knowledgeops/submit_prompt",
+            "tasks/run",
             arguments={
-                "id": "PR-2026-0620",
-                "intent": "Refactor legacy axios calls to fetch API in TriliumNext",
-                "constraints": ["No external dependencies", "Maintain TS types"],
-                "verification_suites": ["npm test", "npm run lint"]
+                "task_id": "PR-2026-0620",
+                "input": {
+                    "intent": "Refactor legacy axios calls to fetch API in TriliumNext",
+                    "constraints": ["No external dependencies", "Maintain TS types"],
+                    "verification_suites": ["npm test", "npm run lint"]
+                }
             }
         )
         print(f"Prompt Request submitted: {response['status']}")
@@ -105,8 +107,7 @@ async def submit_prompt_request():
 await submit_prompt_request()
 ```
 
-## Implementation (YAML Template Example)
-
+### Implementation (YAML Template Example)
 A "Prompt Request" often takes the form of a structured JSON or YAML file that defines the intent, allowing different agents to attempt the implementation.
 
 ```yaml
@@ -143,5 +144,5 @@ prompt_request:
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
