@@ -7,7 +7,7 @@ Skills in Chrome is a native browser feature (v145+) that transforms AI prompts 
 It eliminates "prompt fatigue" and the friction of repetitive typing for recurring AI tasks. By bridging the gap between static LLM chats and actionable browser workflows, it enables users to treat AI as a set of specialized, context-aware browser extensions without needing to write code.
 
 ## Where it fits in the stack
-**AI Knowledge / Browser Agentic Layer**. It sits at the edge of the user's interaction with the web, providing a "Sidecar Agent" capability that can observe page DOM, summarize content, and interact with web elements as part of an integrated agentic ecosystem.
+**AI Knowledge / Browser Agentic Layer**. It sits at the edge of the user's interaction with the web, providing a "Sidecar Agent" capability that can observe page DOM, summarize content, and interact with web elements as part of an integrated agentic ecosystem using [Gemma 3](../ai_knowledge/local_llms.md) for local processing.
 
 ## Typical use cases
 - **Automated Research**: One-click "TL;DR" and key takeaway extraction for long technical documents or research papers.
@@ -48,10 +48,6 @@ It eliminates "prompt fatigue" and the friction of repetitive typing for recurri
    - After the response, click the **Save as Skill** button.
    - Name the skill (e.g., `Event Extractor`) and assign a shortcut (e.g., `/events`).
 
-### Basic Usage
-- **Via Omnibox**: Type `@gemini /events` and press Enter.
-- **Via Context Menu**: Highlight text, right-click, and select `Skills > Event Extractor`.
-
 ## CLI examples
 While Skills in Chrome is primarily a UI-driven feature, developers can interact with the underlying agentic engine via the Chrome DevTools Protocol (CDP).
 
@@ -64,10 +60,18 @@ curl -X POST http://localhost:9222/json/rpc \
     "method": "AI.executeSkill",
     "params": { "skillId": "event-extractor", "tabId": 123 }
   }'
+
+# List available AI skills via CDP
+curl -X POST http://localhost:9222/json/rpc \
+  -d '{ "id": 2, "method": "AI.listSkills" }'
+
+# Set an agentic hook for specific URL pattern
+curl -X POST http://localhost:9222/json/rpc \
+  -d '{ "id": 3, "method": "AI.setHook", "params": { "pattern": "github.com/*", "skillId": "pr-review" } }'
 ```
 
 ## API examples
-Extensions can call saved skills or define new ones using the experimental `chrome.ai` API.
+Extensions can call saved skills or define new ones using the experimental `chrome.ai` API, integrated with [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ```javascript
 // Example: Extension calling a Chrome Skill
@@ -83,19 +87,21 @@ chrome.ai.skills.execute({
 ## Related tools / concepts
 - [Google Search](google-search.md) — The underlying "Agentic Search" platform.
 - [Gemini](gemini.md) — The frontier model powering the skills.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Google's latest open-weights model family.
 - [Nano Banana](nano-banana.md) — On-device small language model integration in Chrome.
 - [HoloTab](holotab.md) — Advanced browser-based AI visualization.
 - [Browser Use](../automation_orchestration/browser-use.md) — Playwright-based agentic browser control.
 - [Stagehand](../automation_orchestration/stagehand.md) — AI-first browser automation framework.
 - [Claude Desktop](claude-desktop.md) — Alternative desktop-sidecar agent.
-- [Open WebUI](../../services/open-webui.md) — Local interface for multiple model orchestration.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for agent-tool communication.
 - [n8n](../../services/n8n.md) — Workflow automation for complex agentic pipelines.
 
 ## Sources / References
 - [Google I/O 2026: Powering the Agentic Web](https://developer.chrome.com/blog/chrome-at-io26)
 - [Turn AI prompts into one-click tools in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/)
 - [Chrome Developer: The AI-Powered Browser](https://developer.chrome.com/docs/ai/)
+- [FastMCP 3.0 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

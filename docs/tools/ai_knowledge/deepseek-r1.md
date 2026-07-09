@@ -1,17 +1,17 @@
 # DeepSeek R1
 
 ## What it is
-DeepSeek R1 is a state-of-the-art (SOTA) open-weights reasoning model developed by DeepSeek. It utilizes large-scale reinforcement learning (RL) to achieve high-level performance in complex reasoning tasks, including mathematics, coding, and logical deduction. As of June 2026, it remains a primary benchmark for open-weights "thinking" models, rivaling proprietary architectures like OpenAI's o1 and Gemini 3.5.
+DeepSeek R1 is a state-of-the-art (SOTA) open-weights reasoning model developed by DeepSeek. It utilizes large-scale reinforcement learning (RL) to achieve high-level performance in complex reasoning tasks, including mathematics, coding, and logical deduction. As of July 2026, it remains a primary benchmark for open-weights "thinking" models, rivaling proprietary architectures like OpenAI's o1 and Gemini 3.5.
 
 ## What problem it solves
 It provides an accessible, high-reasoning alternative to proprietary "black box" models. DeepSeek R1 addresses the need for transparent "Chain of Thought" (CoT) processing, allowing developers and researchers to audit the model's reasoning steps. It enables complex multi-step planning and validation without the high operational costs or data privacy concerns associated with closed-source reasoning APIs.
 
 ## Where it fits in the stack
 **Category**: Tool / AI Assistants & Knowledge
-DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orchestrated by LiteLLM or OpenRouter and integrated into workflows via MCP 3.0.
+DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orchestrated by [LiteLLM](../../services/litellm.md) or [OpenRouter](openrouter.md) and integrated into workflows via [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) or [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
-- **Complex Code Orchestration**: Generating, debugging, and refactoring sophisticated multi-file software architectures.
+- **Complex Code Orchestration**: Generating, debugging, and refactoring sophisticated multi-file software architectures using [Claude Code](everything-claude-code.md).
 - **Advanced Mathematical Reasoning**: Solving high-level symbolic logic and competitive mathematics problems.
 - **Agentic Planning**: Serving as the "Brain" for autonomous agents requiring long-horizon planning and self-correction.
 - **Knowledge Synthesis**: Summarizing and connecting disparate technical concepts with high logical consistency.
@@ -21,7 +21,7 @@ DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orches
 - **Transparent Reasoning**: Native support for visible "thinking" tokens, enabling better debugging and trust.
 - **Cost-Effective**: Significantly lower token costs via API (DeepSeek/OpenRouter) compared to competitors.
 - **Licensing**: Released under the DeepSeek License, allowing for broad commercial use and self-hosting.
-- **Distilled Variants**: Offers smaller models (e.g., Llama/Qwen-based distillations) that run on consumer-grade hardware.
+- **Distilled Variants**: Offers smaller models (e.g., Llama/Qwen-based distillations) that run on consumer-grade hardware via [Ollama](../../services/ollama.md).
 
 ## Limitations
 - **High Latency**: The "thinking" process introduces a delay (~10-60s) before final output generation begins.
@@ -34,14 +34,14 @@ DeepSeek R1 serves as the "Reasoning Engine" within agentic stacks, often orches
 - When you need to self-host a top-tier reasoning model for privacy or compliance reasons.
 
 ## When not to use it
-- **Low-Latency Chat**: For simple conversational tasks or basic Q&A where a fast model like Llama 3.2-3B or Gemini 3.5 Flash is more efficient.
+- **Low-Latency Chat**: For simple conversational tasks or basic Q&A where a fast model like [Gemma 3](../ai_knowledge/local_llms.md) or Gemini 3.5 Flash is more efficient.
 - **Resource-Constrained Environments**: If you cannot access the full model via API or lack the 40GB+ VRAM required for distilled local versions.
 - **Basic Summarization**: Where heavy reasoning is not required to extract key points.
 
 ## Getting started
 
 ### Local Setup (Ollama)
-DeepSeek R1 distilled versions are highly optimized for local execution.
+DeepSeek R1 distilled versions are highly optimized for local execution on [Local LLMs](local_llms.md).
 
 ```bash
 # Run a distilled 14B version locally
@@ -49,7 +49,7 @@ ollama run deepseek-r1:14b
 ```
 
 ### API Access (OpenRouter)
-As of June 2026, OpenRouter remains the preferred gateway for accessing the full R1-671B model with unified billing.
+As of July 2026, [OpenRouter](openrouter.md) remains the preferred gateway for accessing the full R1-671B model with unified billing.
 
 ```bash
 # Ensure your environment variable is set
@@ -85,10 +85,15 @@ curl https://api.deepseek.com/chat/completions \
       }'
 ```
 
+### 3. Using LiteLLM CLI
+```bash
+litellm --model deepseek/deepseek-reasoner --messages '{"role": "user", "content": "Plan a 5-day agentic system rollout strategy."}'
+```
+
 ## API examples
 
 ### Python (OpenAI SDK with Thinking)
-Using the standard OpenAI client to capture the reasoning content specifically.
+Using the standard OpenAI client to capture the reasoning content specifically, integrated with [Gemma 3](../ai_knowledge/local_llms.md) local verification.
 
 ```python
 from openai import OpenAI
@@ -122,7 +127,7 @@ print(response.choices[0].message.content)
 ## Related tools / concepts
 - [OpenRouter](openrouter.md) — Unified API access for R1 and competitors.
 - [Ollama](../../services/ollama.md) — Local runner for distilled R1 versions.
-- [ChatGPT](chatgpt.md) — Comparison model (OpenAI o1).
+- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical local LLM guide.
 - [Claude](claude.md) — Comparison model (Claude 4.8 Opus).
 - [Gemini](gemini.md) — Comparison model (Gemini 3.5 Ultra).
 - [Local LLMs](local_llms.md) — Overview of open-weights alternatives.
@@ -130,13 +135,14 @@ print(response.choices[0].message.content)
 - [LiteLLM](../../services/litellm.md) — Proxy for managing DeepSeek API keys.
 - [Perplexity](perplexity.md) — Agentic search tool often used alongside R1.
 - [Google Search](google-search.md) — Integrated search for grounding R1 outputs.
+- [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) — High-performance tool protocol.
 
 ## Sources / references
 - [DeepSeek Official Site](https://www.deepseek.com/)
 - [DeepSeek R1 Technical Report (GitHub)](https://github.com/deepseek-ai/DeepSeek-R1)
 - [DeepSeek API Documentation](https://api-docs.deepseek.com/)
-- [Model Context Protocol (MCP) Integration](https://modelcontextprotocol.io/)
+- [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
