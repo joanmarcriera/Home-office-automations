@@ -114,7 +114,7 @@ print(f"Target: {extract_boxed_answer(entry['solution'])}")
 - [BigCodeBench](bigcodebench.md) - Complex coding tasks.
 - [LM Evaluation Harness](lm-evaluation-harness.md) - The standard runner for this benchmark.
 - [OpenCompass](opencompass.md) - Includes MATH in its reasoning evaluation suite.
-- [MCP 3.0](../../automation_orchestration/mcp.md) - Protocol for automated task execution and verification.
+- [MCP 3.0](../automation_orchestration/mcp.md) - Protocol for automated task execution and verification.
 
 ## Sources / references
 - [GitHub Repository (Hendrycks)](https://github.com/hendrycks/math)

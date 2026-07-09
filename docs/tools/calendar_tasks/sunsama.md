@@ -46,35 +46,70 @@ It solves the problem of "to-do list overwhelm" and fragmented workflows. By for
 
 ### Installation
 Sunsama is available as a web app, desktop app (macOS, Windows, Linux), and mobile app.
-- **macOS**: `brew install --cask sunsama`
+
+```bash
+# macOS Installation
+brew install --cask sunsama
+```
+
 - **Web**: Visit [Sunsama.com](https://sunsama.com/)
 
-### Sunny the AI Assistant
-Enable Sunny in **Settings > Integrations > AI Assistant**. Once enabled, you can use the sparkle (✦) button or `Cmd + K` to:
-- "Plan my day based on my calendar and backlog."
-- "What did I accomplish last Tuesday?"
-- "Braindump these tasks into my project folder: [list]"
+### Sunny the AI Assistant (Hello World)
+Enable Sunny in **Settings > Integrations > AI Assistant**. Once enabled, you can use the sparkle (✦) button or `Cmd + K` to verify your agentic planning setup:
+
+```markdown
+"Plan my day based on my calendar and backlog."
+```
+
+Sunny will then analyze your workload and suggest an optimal schedule.
 
 ## CLI examples
-Sunsama does not have an official CLI. However, it supports global keyboard shortcuts in the desktop app for fast capture:
-- `A`: Add task to today.
-- `B`: Open backlog.
-- `P`: Start daily planning.
-- `F`: Enter Focus Mode on the selected task.
-- `Cmd + K`: Open the Command Palette for Sunny AI commands.
+Sunsama does not have an official CLI. However, it supports global keyboard shortcuts in the desktop app for fast capture and navigation:
+
+```text
+A: Add task to today
+B: Open backlog
+P: Start daily planning
+F: Enter Focus Mode on the selected task
+Cmd + K: Open the Command Palette for Sunny AI commands
+```
 
 ## API examples
-Sunsama does not offer a public REST API for general development as of June 2026. Automation is handled through:
+Sunsama does not offer a public REST API for general development as of June 2026. Automation is handled through webhooks or the Sunny MCP:
 
-### 1. Zapier / Make.com
-Use the official Sunsama connector to create tasks from external triggers.
-- **Action**: Create Task
-- **Data**: Title, Note, Planned Date, Channel.
+### 1. Webhook-based Task Creation (Zapier/Make)
+While there is no direct API, you can trigger task creation via the official Zapier connector or custom webhooks:
+
+```python
+import requests
+
+# Example of a custom webhook trigger to create a task
+webhook_url = "https://hooks.zapier.com/v1/event/..."
+payload = {
+    "title": "Analyze Ralph-loop Batch 196",
+    "notes": "Automated task from KnowledgeOps agent.",
+    "planned_date": "2026-07-21"
+}
+
+response = requests.post(webhook_url, json=payload)
+print(f"Status: {response.status_code}")
+```
 
 ### 2. Sunny MCP (Model Context Protocol)
 For developers using [Claude Desktop](../development_ops/claude-code.md) or other MCP-compatible agents, Sunsama now exposes tools via Sunny:
-- `get_task_by_id`: Fetch full details of a specific task.
-- `list_today_tasks`: Get the current day's plan for context-aware coding assistance.
+
+```json
+// Example: get_task_by_id call
+{
+  "method": "tools/call",
+  "params": {
+    "name": "get_task_by_id",
+    "arguments": {
+      "id": "task_123abc"
+    }
+  }
+}
+```
 
 ## Related tools / concepts
 - [Akiflow](akiflow.md) — For faster, keyboard-driven triage.

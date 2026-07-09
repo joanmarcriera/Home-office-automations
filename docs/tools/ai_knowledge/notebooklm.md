@@ -38,10 +38,16 @@ It solves the "hallucination" and context window limitations of traditional LLMs
 
 ## Getting started
 
-### Accessing the Platform
-1. Visit [NotebookLM.google](https://notebooklm.google.com/).
-2. Sign in with your Google Account.
-3. Click **New Notebook** to initialize a research project.
+### Installation
+NotebookLM is a cloud-based service and does not require local installation. Access is managed via the web interface.
+- **Web Interface**: [notebooklm.google](https://notebooklm.google.com/)
+
+### Hello World Example (Prompting)
+Once you have uploaded your sources (e.g., a PDF of this KnowledgeOps documentation), you can use the chat interface to verify your setup:
+
+```markdown
+"Based on the provided sources, what are the primary goals of the KnowledgeOps framework, and how does it utilize MCP 3.0 for automation?"
+```
 
 ### Ingesting Sources
 NotebookLM supports a wide array of sources:
@@ -57,11 +63,38 @@ NotebookLM supports a wide array of sources:
 
 ## CLI examples
 > [!NOTE]
-> As of July 2026, NotebookLM remains a GUI-centric application and does not offer an official public CLI. For CLI-based document analysis, users typically leverage `claude-code` or `aider` for local context, or `llama-index-cli` for custom RAG pipelines.
+> As of July 2026, NotebookLM remains a GUI-centric application and does not offer an official public CLI. For CLI-based document analysis, users typically leverage `llama-index-cli` for custom RAG pipelines:
+
+```bash
+# Install the LlamaIndex CLI alternative
+pip install llama-index
+
+# Create a local document index
+llama-index-cli ingest --directory ./my_docs
+
+# Query the local index via terminal
+llama-index-cli query "Summarize the key findings in my_docs"
+```
 
 ## API examples
 > [!NOTE]
-> There is currently no direct public API for NotebookLM. Developers looking for programmatic grounding should use the [Gemini API](google-gemini.md) with "System Instructions" and "File API" for grounding, or [LlamaIndex](llamaindex.md) to build a compatible custom pipeline.
+> There is currently no direct public API for NotebookLM. Developers looking for programmatic grounding should use the [Gemini API](google-gemini.md):
+
+```python
+import google.generativeai as genai
+
+# Configure the API key
+genai.configure(api_key="YOUR_GEMINI_API_KEY")
+
+# Upload a file for grounding
+sample_file = genai.upload_file(path="path/to/research_paper.pdf")
+
+# Generate a response grounded in the uploaded file
+model = genai.GenerativeModel("gemini-1.5-flash")
+response = model.generate_content([sample_file, "Summarize this paper in 3 bullets."])
+
+print(response.text)
+```
 
 ## Related tools / concepts
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The underlying architecture.

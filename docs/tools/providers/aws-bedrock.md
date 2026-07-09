@@ -143,7 +143,7 @@ def retrieve_from_kb(kb_id, query):
 - [Anthropic (Claude)](anthropic.md)
 - [Gemma 3](../ai_knowledge/local_llms.md)
 - [Mistral AI](mistral.md)
-- [MCP 3.0](../../automation_orchestration/mcp.md) - Protocol for tool-calling integration.
+- [MCP 3.0](../automation_orchestration/mcp.md) - Protocol for tool-calling integration.
 - [Docker](../infrastructure/docker.md) - For consistent deployment.
 - [LiteLLM](../../services/litellm.md) - Multi-cloud abstraction.
 - [vLLM](../infrastructure/vllm.md) - Self-hosting alternative.

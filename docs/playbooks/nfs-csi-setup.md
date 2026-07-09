@@ -12,6 +12,29 @@ Standard local path provisioning in K3s is limited to the storage available on i
 
 **Category**: Playbook / Infrastructure. It sits in the **storage abstraction layer**, connecting the **compute cluster** (K3s) to the **data persistence layer** (TrueNAS SCALE). It integrates with [EKS Auto Mode](../knowledge_base/invisible_kubernetes.md) patterns for automated node scaling via native [Karpenter](../knowledge_base/invisible_kubernetes.md) integration.
 
+## Workflow Architecture
+
+```mermaid
+flowchart TD
+    subgraph K3s_Cluster [K3s Cluster]
+        Pod[Kubernetes Pod]
+        PVC[PersistentVolumeClaim]
+        CSI[NFS CSI Driver]
+    end
+
+    subgraph Storage_Backend [Storage Backend]
+        TrueNAS[TrueNAS SCALE]
+        Dataset[(ZFS Dataset)]
+        NFS[NFS Share]
+    end
+
+    Pod --> PVC
+    PVC --> CSI
+    CSI -- "Mount Request (v4.1)" --> NFS
+    NFS --> Dataset
+    Dataset --> TrueNAS
+```
+
 ## Typical use cases
 
 - **Clustered App Storage**: Providing shared persistent volumes for applications like Nextcloud or Plex that may run on any cluster node.
