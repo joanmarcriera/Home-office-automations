@@ -696,6 +696,12 @@
       "doc_path": "docs/tools/infrastructure/docker.md"
     },
     {
+      "id": "duckdb",
+      "name": "DuckDB",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/duckdb.md"
+    },
+    {
       "id": "docling",
       "name": "Docling",
       "category": "Process & Understanding",

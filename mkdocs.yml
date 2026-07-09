@@ -510,6 +510,7 @@ nav:
           - ZenML: tools/orchestration/zenml.md
       - Infrastructure:
           - Docker: tools/infrastructure/docker.md
+          - DuckDB: tools/infrastructure/duckdb.md
           - Headscale: services/headscale.md
           - Overview: tools/infrastructure/index.md
           - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md

@@ -4,7 +4,7 @@ This is the primary system prompt for Ralph, the Home Admin Agent. It defines hi
 
 ## What it is
 
-This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (2026) includes multi-agent coordination patterns and advanced preference injection logic.
+This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (July 2026) includes multi-agent coordination patterns, [MCP 3.0](../../tools/automation_orchestration/mcp.md) tool routing, and advanced preference injection logic optimized for [Gemma 3](../../tools/ai_knowledge/local_llms.md).
 
 ## What problem it solves
 
@@ -61,7 +61,7 @@ To deploy this prompt within your Home Admin stack:
 
 ## CLI examples
 
-Testing the prompt adherence using a hypothetical `jules` CLI tool:
+Testing the prompt adherence using the `jules` CLI tool:
 
 ```bash
 # Start a chat session with Ralph's personality
@@ -92,41 +92,15 @@ def get_ralph_response(user_input, prefs_json):
     # Inject preferences
     system_prompt = system_prompt.replace("{{ user_preferences_json }}", json.dumps(prefs_json))
 
-    # Call the model (Claude 4.8 Opus)
+    # Call the model (Gemma 3 27B)
     response = litellm.completion(
-        model="anthropic/claude-3-5-sonnet", # Representing the 2026 standard
+        model="google/gemma-3-27b-it",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_input}
         ]
     )
     return response.choices[0].message.content
-```
-
-## Preference Injection Examples (JSON Schema)
-The `{{ user_preferences_json }}` block is typically populated with data like this:
-
-```json
-{
-  "members": {
-    "User_A": {
-      "style": "concise, technical",
-      "dietary": ["gluten-free", "no shellfish"],
-      "schedule_buffer": 15,
-      "morning_start": "06:30"
-    },
-    "User_B": {
-      "style": "detailed, empathetic",
-      "dietary": ["vegetarian"],
-      "schedule_buffer": 0,
-      "morning_start": "08:00"
-    }
-  },
-  "global": {
-    "weekend_policy": "no notifications before 10am unless urgent",
-    "grocery_day": "Sunday"
-  }
-}
 ```
 
 ## Related tools / concepts
@@ -139,6 +113,7 @@ The `{{ user_preferences_json }}` block is typically populated with data like th
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Choosing the right model for this personality layer.
 - [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The governance framework Ralph operates within.
 - [Data Copilot](../../architecture/data-copilot-text-to-sql.md) — The primary sub-agent for data queries.
+- [Gemma 3](../../tools/ai_knowledge/local_llms.md) — Canonical model for local family agent execution.
 
 ## Sources / references
 
@@ -191,5 +166,5 @@ Recent System Events: {{ system_log_summary }}
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
