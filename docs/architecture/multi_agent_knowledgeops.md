@@ -1,7 +1,7 @@
 # Multi-Agent KnowledgeOps Governance
 
 ## What it is
-Multi-Agent KnowledgeOps Governance is a structured framework and operating contract that defines how multiple autonomous AI agents (e.g., Claude 4.8 Opus, GPT-5.5) can safely, consistently, and concurrently grow a shared knowledge repository. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.0)** to coordinate between specialized agents while preserving canonical ownership, source traceability, and freshness signals.
+Multi-Agent KnowledgeOps Governance is a structured framework and operating contract that defines how multiple autonomous AI agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 4.8 Opus, GPT-5.5) can safely, consistently, and concurrently grow a shared knowledge repository. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.0)** and **FastMCP 3.0** to coordinate between specialized agents while preserving canonical ownership, source traceability, and freshness signals via the **MCP 3.0 Task Protocol**.
 
 ### Multi-Agent KnowledgeOps Contract (Mandatory)
 All AI-authored documentation and repository updates must satisfy this contract:
@@ -12,10 +12,10 @@ All AI-authored documentation and repository updates must satisfy this contract:
 5. **Verified with KnowledgeOps Tools**: All changes must pass `check_docs_contract.py` and `audit_docs_quality.py`.
 
 ## What problem it solves
-The primary scaling risk in AI-augmented documentation is "agentic entropy"—the rapid accumulation of low-quality, duplicate, or conflicting information produced by multiple agents working in parallel. This governance model provides a common "policy engine" and quality gates to keep throughput high while preventing information decay and maintaining a "High Confidence" standard.
+The primary scaling risk in AI-augmented documentation is "agentic entropy"—the rapid accumulation of low-quality, duplicate, or conflicting information produced by multiple agents working in parallel. This governance model provides a common "policy engine" and quality gates to keep throughput high while preventing information decay and maintaining a "High Confidence" standard across 500+ documentation pages.
 
 ## Where it fits in the stack
-**Governance & Orchestration Layer** — It acts as the policy layer for the [Automated Contribution System](./automated_contributions.md). It leverages **MCP 3.0** to expose repository standards and validation tools as discoverable skills for any agent entering the environment.
+**Governance & Orchestration Layer** — It acts as the policy layer for the [Automated Contribution System](./automated_contributions.md). It leverages **FastMCP 3.0** to expose repository standards, validation tools, and **Agentic Session Orchestration** as discoverable skills for any agent (local or frontier) entering the environment.
 
 ## Typical use cases
 - **Parallel Documentation Scaling**: Managing multiple agent lanes (Intake, Curation, Audit) working simultaneously.
@@ -25,7 +25,8 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 
 ## Strengths
 - **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of authorship.
-- **MCP 3.0 Integration**: Standardizes how agents "understand" the repository rules via structured tool-calling.
+- **MCP 3.0 Task Protocol**: Standardizes how agents "understand" and execute repository tasks via structured benchmarks.
+- **FastMCP 3.0 Efficiency**: Features high-performance tool hosting for ultra-low latency execution and agent discovery.
 - **Traceability**: Creates a verifiable audit trail for every fact, tied to a specific agent, source, and review date.
 - **Conflict Avoidance**: Clear "Ralph-loop" strategies for different agent roles minimize repository-wide friction.
 
@@ -37,7 +38,7 @@ The primary scaling risk in AI-augmented documentation is "agentic entropy"—th
 ## When to use it
 - When operating a knowledge base that receives contributions from more than one automated agent or worker lane.
 - When maintaining a "High Confidence" technical repository with 500+ pages of documentation.
-- To provide a clear "Role Model" and operating contract for frontier models (Claude 4.8, GPT-5.5) during autonomous sprints.
+- To provide a clear "Role Model" and operating contract for models like [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 4.8, or GPT-5.5 during autonomous sprints.
 
 ## When not to use it
 - For small, personal repositories with a single human contributor and low update frequency.
@@ -83,8 +84,8 @@ Agents and maintainers use the following commands to enforce governance:
 # Verify the KnowledgeOps contract for a specific file
 python3 scripts/check_docs_contract.py docs/architecture/multi_agent_knowledgeops.md
 
-# Run a full repository quality audit
-python3 scripts/audit_docs_quality.py
+# Run a full repository quality audit using the Task Protocol
+python3 scripts/audit_docs_quality.py --protocol task-v1
 
 # Check for navigation and catalog consistency
 python3 scripts/check_catalog_consistency.py
@@ -115,6 +116,7 @@ else:
 - [KnowledgeOps Standards](../standards.md) — Repository taxonomy and metadata conventions.
 - [Contributing Guide](../CONTRIBUTING.md) — The operational manual for humans and agents.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic tool-use.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Canonical local LLM for KnowledgeOps tasks.
 - [Data Copilot Architecture](./data-copilot-text-to-sql.md) — Text-to-SQL agent patterns.
 - [Quality Audit Script](../../scripts/audit_docs_quality.py) — Core validation engine.
 - [Contract Check Script](../../scripts/check_docs_contract.py) — CI gate implementation.
@@ -124,8 +126,9 @@ else:
 - [MCP 3.0 Specification](https://modelcontextprotocol.io/specification)
 - [Ralph-loop Implementation Reports](../reports/)
 - [Anthropic: Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
+- [FastMCP 3.0: High-Performance Tool Hosting](https://fastmcp.io/)
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-09
 - Confidence: high
