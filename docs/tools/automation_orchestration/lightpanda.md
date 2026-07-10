@@ -1,13 +1,13 @@
 # Lightpanda Browser
 
 ## What it is
-**Lightpanda** is a high-performance headless browser built from scratch in **Zig**, specifically architected for AI agents, web scraping, and scalable automation. Unlike most modern headless browsers, it is not a fork of Chromium, Blink, or WebKit. It uses its own lightweight engine to provide a massive performance boost for agentic workflows.
+**Lightpanda** is a high-performance headless browser built from scratch in **Zig**, specifically architected for AI agents, web scraping, and scalable automation. Unlike most modern headless browsers, it is not a fork of Chromium, Blink, or WebKit. It uses its own lightweight engine to provide a massive performance boost for agentic workflows. As of July 2026, it is a preferred execution environment for [Gemma 3](../ai_knowledge/local_llms.md) based agents using the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
-Traditional headless browsers (like Chrome) are extremely resource-intensive, often consuming 500MB+ of RAM per instance. Lightpanda provides a lightweight alternative that uses up to **9x less memory** and runs up to **11x faster** than Headless Chrome, making it possible to run hundreds of browser instances on modest hardware. It solves the scalability bottleneck for browser-based AI agents.
+Traditional headless browsers (like Chrome) are extremely resource-intensive, often consuming 500MB+ of RAM per instance. Lightpanda provides a lightweight alternative that uses up to **9x less memory** and runs up to **11x faster** than Headless Chrome, making it possible to run hundreds of browser instances on modest hardware. It solves the scalability bottleneck for browser-based AI agents and high-frequency RAG ingestion pipelines.
 
 ## Where it fits in the stack
-**Category**: Tool / Automation Orchestration / Browser Infrastructure. It serves as the "execution engine" for agents that need to navigate and interact with the web, sitting below orchestration layers like [Browser Use](browser-use.md) and [Skyvern](skyvern.md).
+**Category**: Tool / Automation Orchestration / Browser Infrastructure. It serves as the "execution engine" for agents that need to navigate and interact with the web, sitting below orchestration layers like [Browser Use](browser-use.md) and [Skyvern](skyvern.md). It integrates natively with **FastMCP 3.0** for low-latency browser-tool interaction.
 
 ## Typical use cases
 - **Agentic Web Navigation**: Powering agents that need to interact with complex SPAs (Single Page Applications).
@@ -41,7 +41,7 @@ Traditional headless browsers (like Chrome) are extremely resource-intensive, of
 - If you need 100% pixel-perfect visual rendering (e.g., for automated layout design audits).
 - If you are targeting sites with extremely aggressive anti-bot protections that require specialized evasive browsers.
 
-## Getting started (including Docker/Local setup)
+## Getting started
 Lightpanda can be installed via a one-line script or run as a Docker container.
 
 ### Local Installation
@@ -68,12 +68,9 @@ lightpanda fetch --dump markdown https://news.ycombinator.com
 
 # Execute a custom script and output the result
 lightpanda fetch --script "Array.from(document.querySelectorAll('h1')).map(e => e.innerText)" https://example.com
-
-# Take a screenshot of a specific element
-lightpanda screenshot --selector "#main-content" --output screenshot.png https://example.com
 ```
 
-## API examples (Python)
+## API examples
 Lightpanda is compatible with the **Chrome DevTools Protocol (CDP)**, allowing it to work with standard libraries like Playwright.
 
 ```python
@@ -86,12 +83,6 @@ with sync_playwright() as p:
     page.goto("https://lightpanda.io")
     # Native Zig browser title
     print(f"Page Title: {page.title()}")
-
-    # Extract page content as markdown via Lightpanda's CDP extension
-    # (Assuming the integration provides a direct call or use standard selector)
-    content = page.content()
-    print(f"Content Length: {len(content)}")
-
     browser.close()
 ```
 
@@ -99,18 +90,18 @@ with sync_playwright() as p:
 - [Browser Use](browser-use.md) — Orchestration framework for LLMs to control Lightpanda.
 - [n8n](../../services/n8n.md) — Automation platform with native Lightpanda nodes.
 - [Skyvern](skyvern.md) — Browser automation agent that can leverage Lightpanda.
-- [Make](make.md) — Cloud automation with Lightpanda integration possibilities.
-- [Zapier](zapier.md) — No-code automation connector.
 - [Playwright](../development_ops/playwright.md) — High-level API compatible with Lightpanda CDP.
 - [MultiOn](../agents/multion.md) — Agentic browser API for autonomous web tasks.
-- [Zig](https://ziglang.org/) — The language Lightpanda is built with.
+- [Gemma 3](../ai_knowledge/local_llms.md) — High-performance local LLM often paired with Lightpanda for edge automation.
+- [MCP (Model Context Protocol)](mcp.md) — The protocol used to expose Lightpanda capabilities to agents.
+- [Claude Code](../development_ops/claude-code.md) — Agentic CLI that can utilize Lightpanda via MCP servers.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://lightpanda.io/)
 - [GitHub Repository](https://github.com/lightpanda-io/browser)
 - [Lightpanda Documentation](https://docs.lightpanda.io/)
 - [ScrapingBee: Lightpanda vs Chrome Headless](https://www.scrapingbee.com/blog/lightpanda-headless-browser/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
