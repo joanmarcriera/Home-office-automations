@@ -1,10 +1,10 @@
 # Letta
 
 ## What it is
-Letta (v1.5.x+, June 2026) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting MCP 3.0 for tool and context orchestration.
+Letta (v1.5.x+, July 2026) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting MCP 3.0 for tool and context orchestration.
 
 ## What problem it solves
-Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from Claude 4.8 to GPT-5.5).
+Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from Claude 4.8 to [Gemma 3](../ai_knowledge/local_llms.md)).
 
 ## Where it fits in the stack
 **Category**: Agent / Memory Layer. It sits as a stateful middleware between the Model (Inference) layer and the Application layer, providing persistent "Virtual Context" via a database backend (PostgreSQL/VectorDB).
@@ -56,21 +56,31 @@ letta create-agent --name "DurableCoder" --model "claude-3-5-sonnet-20240620"
 ```
 
 ## CLI examples
+
+### Interaction
 ```bash
 # Start the interactive Letta CLI to talk to your agent
 letta run --agent DurableCoder
+```
 
+### Management
+```bash
 # List all persistent agents
 letta list-agents
 
 # Export agent state for migration
 letta export --agent DurableCoder --output coder_state.json
+```
 
+### MCP Integration
+```bash
 # Run a query with a specific MCP tool source
 letta run --agent DurableCoder --mcp-server http://localhost:18789
 ```
 
 ## API examples
+
+### Python (Stateful Agent)
 ```python
 from letta import create_client
 
@@ -91,7 +101,10 @@ response = client.user_message(
 
 # 3. The agent will remember this in subsequent calls
 print(f"Agent Response: {response[0].text}")
+```
 
+### Memory Access
+```python
 # 4. Access agent's core memory
 core_memory = client.get_core_memory(agent_id=agent.id)
 print(f"Current Memory: {core_memory}")
@@ -106,6 +119,7 @@ print(f"Current Memory: {core_memory}")
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [MCP 3.0](../../knowledge_base/patterns/data-copilot-mcp-tooling.md)
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
 
 ## Sources / references
 - [Letta Official Site](https://www.letta.com/)
@@ -113,5 +127,5 @@ print(f"Current Memory: {core_memory}")
 - [Official Documentation](https://docs.letta.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-10
 - Confidence: high

@@ -1,7 +1,7 @@
 # AutoReason
 
 ## What it is
-AutoReason (v2026.5.x+) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) to compete with proprietary reasoning models like the O4 series.
+AutoReason (v2026.5.x+) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) and [Gemma 3](../ai_knowledge/local_llms.md) to compete with proprietary reasoning models like the O4 series.
 
 ## What problem it solves
 It addresses the limitations of standard chain-of-thought prompting by providing a structured environment for iterative reasoning, verification, and correction. It helps LLMs navigate large "search spaces" in complex logic, mathematics, or code problems where the first answer is rarely the correct one, effectively reducing hallucinations through automated self-critique.
@@ -18,7 +18,7 @@ It addresses the limitations of standard chain-of-thought prompting by providing
 
 ## Strengths
 - **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it.
-- **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 3.1, DeepSeek).
+- **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 3.1, DeepSeek, Gemma 3).
 - **Structured Trace**: Provides a complete, auditable log of every reasoning step and correction.
 - **Flexibility**: Can be integrated with any Python-based verification tool or MCP-enabled service.
 
@@ -51,18 +51,28 @@ pip install -r requirements.txt
 Configure the `config.yaml` to point to your preferred reasoning model (e.g., local Ollama instance or LiteLLM proxy).
 
 ## CLI examples
+
+### Reasoning Task
 ```bash
 # Run the main experiment runner for a reasoning task
 python run_reasoning.py --task "Prove the square root of 2 is irrational"
+```
 
+### Code Debugging
+```bash
 # Run the code-specific debugger on a local directory
 python run_code_debug.py --path ./src/buggy_project
+```
 
+### MCP Server
+```bash
 # Launch the reasoning-as-a-service MCP server
 python -m autoreason.mcp_server --port 18795
 ```
 
 ## API examples
+
+### Python (Reasoner)
 ```python
 from autoreason import Reasoner
 
@@ -80,6 +90,14 @@ print(f"Final Answer: {result.final_answer}")
 print(f"Total Iterations: {len(result.iterations)}")
 ```
 
+### Async Usage
+```python
+# Async example for integration into larger agentic flows
+async def run_reasoning():
+    result = await reasoner.solve_async("Find the bug in this complex async loop.")
+    return result.final_answer
+```
+
 ## Related tools / concepts
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
 - [Agno](agno.md)
@@ -89,11 +107,12 @@ print(f"Total Iterations: {len(result.iterations)}")
 - [Prompt Requests](../../knowledge_base/patterns/prompt_requests.md)
 - [Jules](../ai_knowledge/jules.md)
 - [Claude 4.8](../ai_knowledge/claude-4-8.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
 
 ## Sources / references
 - [NousResearch/autoreason GitHub](https://github.com/NousResearch/autoreason)
 - [Nous Research Blog: Iterative Reasoning Patterns](https://nousresearch.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-10
 - Confidence: high
