@@ -7,7 +7,7 @@ HoloTab is an AI browser companion developed by HCompany. It is designed to assi
 It addresses the need for a more integrated and proactive AI assistant within the browser, helping users find information, summarize content, and automate simple browser tasks without switching contexts.
 
 ## Where it fits in the stack
-**AI & Knowledge / Browser Companion**. It sits at the interface between the user, the browser (Chrome v145+), and the web, often integrating with [Claude 4.8 and GPT-5.5](https://huggingface.co/blog/Hcompany/holotab) for complex reasoning tasks.
+**AI & Knowledge / Browser Companion**. It sits at the interface between the user, the browser (Chrome v145+), and the web, often integrating with [Claude 4.8, GPT-5.5, and Gemma 3](https://huggingface.co/blog/Hcompany/holotab) for complex reasoning tasks.
 
 ## Typical use cases
 - **Assisted Browsing**: Getting context or summaries of websites as you visit them.
@@ -17,7 +17,7 @@ It addresses the need for a more integrated and proactive AI assistant within th
 ## Strengths
 - **Proactive Assistance**: Designed to assist as you browse rather than just responding to prompts.
 - **Integrated Experience**: Aims for a seamless fit within the browser workflow via the sidebar and context menus.
-- **MCP 3.0 Support**: Native integration with the Model Context Protocol (MCP 3.0) for tool-use across the web.
+- **MCP 3.0 Support**: Native integration with the **MCP 3.0 Task Protocol** for tool-use across the web.
 
 ## Limitations
 - **New Tool**: As a relatively new entry, its feature set and stability may be evolving.
@@ -41,8 +41,8 @@ HoloTab is currently available as a browser extension (Chrome, Edge).
 3.  **Activate**: Click the HoloTab icon or use the shortcut `Alt + H` to open the sidebar.
 4.  **Prompt**: Ask the assistant to help with your current page.
 
-### Configuration (MCP 3.0)
-To enable HoloTab to use local tools via MCP 3.0, configure the bridge in the extension settings:
+### Configuration (MCP 3.0 Task Protocol)
+To enable HoloTab to use local tools via the **MCP 3.0 Task Protocol**, configure the bridge in the extension settings:
 ```json
 {
   "mcpBridge": {
@@ -78,6 +78,7 @@ chrome.runtime.sendMessage("holotab-extension-id", {
 ```
 
 ## Related tools / concepts
+- [Gemma 3](local_llms.md)
 - [Skills in Chrome](skills-in-chrome.md)
 - [Perplexity](perplexity.md)
 - [Genspark](genspark.md)
@@ -91,5 +92,5 @@ chrome.runtime.sendMessage("holotab-extension-id", {
 - [HCompany Documentation](https://h.company/docs/holotab)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

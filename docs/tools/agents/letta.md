@@ -1,10 +1,10 @@
 # Letta
 
 ## What it is
-Letta (v1.5.x+, June 2026) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting MCP 3.0 for tool and context orchestration.
+Letta (v1.5.x+, July 2026) is a framework for creating stateful AI agents with "infinite" memory. It manages memory as a tiered system (long-term, short-term) to overcome LLM context window limits by treating the context window as a "cache" for a larger, persistent memory store, now natively supporting the **MCP 3.0 Task Protocol** for tool and context orchestration.
 
 ## What problem it solves
-Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from Claude 4.8 to GPT-5.5).
+Standard LLMs suffer from "forgetfulness" once their context window is exceeded. Letta enables long-lived agents that remember past interactions, user preferences, and project details over extended periods. It specifically solves the state management problem in autonomous, multi-session agentic workflows where context must persist across system restarts or model switches (e.g., transitioning from [Claude](../ai_knowledge/claude.md) to GPT-5.5 or [Gemma 3](../ai_knowledge/local_llms.md)).
 
 ## Where it fits in the stack
 **Category**: Agent / Memory Layer. It sits as a stateful middleware between the Model (Inference) layer and the Application layer, providing persistent "Virtual Context" via a database backend (PostgreSQL/VectorDB).
@@ -19,7 +19,7 @@ Standard LLMs suffer from "forgetfulness" once their context window is exceeded.
 - **State Persistence**: State is stored in a database, allowing agents to survive process restarts and migrate between models.
 - **Infinite Context**: Automatically manages what stays in the active LLM context and what goes to long-term storage using "Virtual Context".
 - **Self-Editing Memory**: Agents can be given tools to "write" to and "edit" their own core memory.
-- **MCP 3.0 Support**: Native integration for Model Context Protocol, enabling agents to use standardized tools and context sources.
+- **MCP 3.0 Support**: Native integration for the **MCP 3.0 Task Protocol**, enabling agents to use standardized tools and context sources.
 
 ## Limitations
 - **Latency**: Tiered memory management and database lookups add overhead to each inference step.
@@ -99,6 +99,7 @@ print(f"Current Memory: {core_memory}")
 
 ## Related tools / concepts
 - [Mem0](mem0.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
 - [Agno](agno.md)
 - [Phidata](phidata.md)
 - [LangGraph](../frameworks/langgraph.md)
@@ -113,5 +114,5 @@ print(f"Current Memory: {core_memory}")
 - [Official Documentation](https://docs.letta.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

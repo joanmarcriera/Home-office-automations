@@ -7,7 +7,7 @@ Dex is a personal CRM (Customer Relationship Management) and networking tool des
 Maintaining meaningful connections becomes increasingly difficult as professional networks grow. Traditional CRMs are often built for sales teams and are too complex for individual use, while spreadsheets are static and manual. Dex automates contact sync and provides reminders to "keep in touch," reducing the cognitive overhead of networking.
 
 ## Where it fits in the stack
-Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specifically within personal information management. It recently expanded its capabilities with the **Dex MCP Server** and **AI Skills**, allowing AI agents (like Claude 4.8 and GPT-5.5) to interact directly with a user's contact database via MCP 3.0.
+Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specifically within personal information management. It recently expanded its capabilities with the **Dex MCP Server** and **AI Skills**, allowing AI agents (like Claude 4.8, GPT-5.5, and [Gemma 3](local_llms.md)) to interact directly with a user's contact database via the **MCP 3.0 Task Protocol**.
 
 ## Typical use cases
 - **Professional Networking:** Tracking follow-ups after conferences or meetings.
@@ -17,7 +17,7 @@ Dex sits in the **AI Assistants & Knowledge** layer of the homelab stack, specif
 - **Agentic CRM Management:** Using AI agents to clean data, merge duplicates, and draft personalized outreach.
 
 ## Strengths
-- **Agentic Integration:** Native support for the Model Context Protocol (MCP 3.0) and AI Skills. Works out-of-the-box with [Claude Code](../development_ops/claude-code.md).
+- **Agentic Integration:** Native support for the **MCP 3.0 Task Protocol** and AI Skills. Works out-of-the-box with [Claude Code](../development_ops/claude-code.md).
 - **Cross-Platform:** Available as a web app, mobile app, and browser extension.
 - **Automation:** Two-way sync with Google Calendar, Outlook, and LinkedIn.
 - **Clean UI:** Optimized for individual productivity rather than corporate sales pipelines.
@@ -36,7 +36,7 @@ Avoid Dex if you prefer a fully self-hosted, offline-first approach to personal 
 ## Getting started
 
 ### Local Setup (MCP Server)
-To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md)) to access Dex, add the following to your configuration:
+To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md) or [Gemma 3](local_llms.md)) to access Dex, add the following to your configuration:
 
 #### Standard Stdio Configuration
 ```json
@@ -53,8 +53,8 @@ To allow your AI agent (like [Claude Desktop](../development_ops/claude-code.md)
 }
 ```
 
-#### Remote HTTP Configuration (June 2026)
-For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex now supports Streamable HTTP transport via MCP 3.0:
+#### Remote HTTP Configuration (July 2026)
+For headless agents or [OpenClaw](../development_ops/openclaw.md) setups, Dex now supports Streamable HTTP transport via the **MCP 3.0 Task Protocol**:
 
 ```json
 {
@@ -119,6 +119,7 @@ console.log(data);
 
 ## Related tools / concepts
 - [Monica CRM](../../services/radicale.md) (Self-hosted alternative)
+- [Gemma 3](local_llms.md)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [OpenClaw](../development_ops/openclaw.md)
@@ -135,5 +136,5 @@ console.log(data);
 - [ClawHub Dex Skill](https://www.clawhub.ai/skills/dex)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
