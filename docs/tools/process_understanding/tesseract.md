@@ -1,23 +1,23 @@
 # Tesseract CLI
 
 ## What it is
-Tesseract is an open-source Optical Character Recognition (OCR) engine (v5.3.0+ as of June 2026). It can be used directly via the command line (CLI) to extract text from images and PDF files. It is the primary engine for [OCRmyPDF](ocrmypdf.md) and serves as a fundamental building block for agentic document ingestion pipelines.
+Tesseract is an open-source Optical Character Recognition (OCR) engine (v5.4.0+ as of July 2026). It can be used directly via the command line (CLI) to extract text from images and PDF files. It is the primary engine for [OCRmyPDF](ocrmypdf.md) and serves as a fundamental building block for agentic document ingestion pipelines using [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## What problem it solves
-It converts images containing text (like scans, screenshots, or camera photos) into machine-readable text. This is a critical component for searchable document archives, automated data extraction, and providing vision-impaired accessibility. In the June 2026 stack, it is frequently combined with Claude 4.8 Opus for high-fidelity transcript correction.
+It converts images containing text (like scans, screenshots, or camera photos) into machine-readable text. This is a critical component for searchable document archives, automated data extraction, and providing vision-impaired accessibility. In the July 2026 stack, it is frequently combined with [Gemma 3](../ai_knowledge/local_llms.md) or Claude 4.8 for high-fidelity transcript correction and [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md).
 
 ## Where it fits in the stack
 **Category**: Process & Understanding. It serves as the core OCR engine for higher-level tools like [OCRmyPDF](ocrmypdf.md) and is integrated into services like [Paperless-ngx](../../services/paperless-ngx.md) for automated document organization.
 
 ## Typical use cases
-- **Agentic Ingestion**: Powering automated workflows that require text analysis of image-based inputs before passing them to an LLM like Claude 4.8.
+- **Agentic Ingestion**: Powering automated workflows that require text analysis of image-based inputs before passing them to an LLM like [Gemma 3](../ai_knowledge/local_llms.md).
 - **Legacy Archival**: Batch processing legacy scanned documents to enable full-text search.
 - **Accessibility**: Converting non-text-based documents into formats compatible with screen readers.
 - **Metadata Extraction**: Extracting specific data fields (dates, amounts) from receipts or forms using [Instructor](../frameworks/instructor.md).
 
 ## Strengths
 - **Language Support**: Supports over 100 languages, including complex scripts like Arabic and Chinese.
-- **Performance**: v5.3.0+ features significant performance improvements via LSTM-based recognition and SIMD optimizations.
+- **Performance**: v5.4.0+ features significant performance improvements via LSTM-based recognition and enhanced SIMD optimizations.
 - **Extensibility**: Open-source (Apache 2.0) and highly scriptable; can be trained for custom fonts.
 - **Offline Processing**: Operates entirely locally, ensuring data privacy for sensitive documents.
 
@@ -71,9 +71,6 @@ tesseract --list-langs
 
 # Extract text and output as HOCR (HTML-based OCR)
 tesseract image.png output hocr
-
-# Run on a multi-page TIFF
-tesseract input.tiff output -l eng
 ```
 
 ## API examples
@@ -84,27 +81,21 @@ The most common way to integrate Tesseract into Python-based agentic workflows:
 import pytesseract
 from PIL import Image
 
-# Integration with Claude 4.8 Opus for correction
+# Integration with Gemma 3 for correction
 def agentic_ocr(image_path):
     img = Image.open(image_path)
     raw_text = pytesseract.image_to_string(img, lang='eng')
 
-    # Example: Pass to Claude for post-processing/correction
-    # processed_text = claude_client.messages.create(
-    #     model="claude-4.8-opus",
-    #     system="Correct OCR errors in the following text...",
-    #     messages=[{"role": "user", "content": raw_text}]
+    # Example: Pass to Gemma 3 for post-processing/correction via Ollama
+    # processed_text = ollama_client.generate(
+    #     model="gemma-3-27b",
+    #     prompt=f"Correct OCR errors in the following text: {raw_text}"
     # )
     return raw_text
 
 if __name__ == "__main__":
     print(agentic_ocr('scan.png'))
 ```
-
-## Licensing and cost
-- **Open Source**: Yes (Apache License 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
 
 ## Related tools / concepts
 - [OCRmyPDF](ocrmypdf.md) — Advanced PDF wrapper for Tesseract.
@@ -117,12 +108,14 @@ if __name__ == "__main__":
 - [Instructor](../frameworks/instructor.md) — Structured data extraction from OCR-processed text.
 - [Paperless-AI](../../services/paperless-ai.md) — AI-driven document processing for Paperless-ngx.
 - [Claude](../ai_knowledge/claude.md) — Frontier model for post-OCR text correction.
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
+- [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
 
-## Sources / references
+## Sources / References
 - [Tesseract OCR GitHub](https://github.com/tesseract-ocr/tesseract)
 - [Tesseract Documentation](https://tesseract-ocr.github.io/)
-- [v5.3.0 Release Notes](https://github.com/tesseract-ocr/tesseract/releases)
+- [v5.4.0 Release Notes](https://github.com/tesseract-ocr/tesseract/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
