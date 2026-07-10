@@ -1,10 +1,10 @@
 # Bee Agent Framework
 
 ## What it is
-The Bee Agent Framework (v1.x+, June 2026) is an open-source framework by IBM Research for building, deploying, and orchestrating production-grade AI agents. It provides complete feature parity between TypeScript and Python, allowing for robust multi-agent systems with native Model Context Protocol (MCP 3.0) support.
+The Bee Agent Framework (v1.x+, July 2026) is an open-source framework by IBM Research for building, deploying, and orchestrating production-grade AI agents. It provides complete feature parity between TypeScript and Python, allowing for robust multi-agent systems with native Model Context Protocol (MCP 3.0) and [MCP 3.0 Task Protocol](../../knowledge_base/agent_protocols.md) support.
 
 ## What problem it solves
-It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirement Agents" that enforce runtime policies and "Observability-by-Design" via detailed execution traces, Bee ensures that complex multi-step agentic workflows remain predictable, auditable, and production-ready.
+It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirement Agents" that enforce runtime policies and "Observability-by-Design" via detailed execution traces, Bee ensures that complex multi-step agentic workflows remain predictable, auditable, and production-ready. It is specifically optimized for [Gemma 3](../ai_knowledge/local_llms.md) and other frontier models.
 
 ## Where it fits in the stack
 **Category**: Agent Orchestration Framework. It sits between the Model/Inference layer (supporting 10+ providers like Watsonx, Ollama, and OpenAI) and the Tool/Infrastructure layer, managing state, memory, and tool execution.
@@ -13,13 +13,13 @@ It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirem
 - **Enterprise Automation**: Workflows requiring strict governance, policy enforcement, and audit trails.
 - **Multi-Agent Orchestration**: Systems where specialized agents (Planner, Executor, Reviewer) must collaborate on complex tasks.
 - **Cross-Platform Development**: Projects that require shared agent logic between TypeScript (web/frontend) and Python (data/backend) environments.
-- **Hybrid Cloud Agents**: Deploying agents that bridge local Ollama models with enterprise Watsonx.ai instances.
+- **Hybrid Cloud Agents**: Deploying agents that bridge local [Gemma 3](../ai_knowledge/local_llms.md) instances with enterprise Watsonx.ai models.
 
 ## Strengths
 - **Reliability**: Built-in safeguards and policy enforcement agents to minimize agent drift and failure.
 - **Observability**: Industry-leading execution tracing and OpenTelemetry integration.
 - **Language Parity**: Simultaneous support for TypeScript and Python with identical architectural patterns.
-- **Protocol Native**: Full, first-class support for MCP 3.0, enabling seamless tool and context integration.
+- **Protocol Native**: Full, first-class support for MCP 3.0 and the Agentic Session Orchestration pattern.
 - **Governance**: Hosted by the Linux Foundation under open governance for long-term stability.
 
 ## Limitations
@@ -51,7 +51,7 @@ It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirem
     ```
 
 ### Basic Agent Setup
-Initialize a Bee agent with a provider (e.g., Watsonx or OpenAI) and a set of tools.
+Initialize a Bee agent with a provider (e.g., Watsonx or OpenAI) and a set of tools. Bee also supports local execution with [Gemma 3](../ai_knowledge/local_llms.md) via [Ollama](../../services/ollama.md).
 
 ## CLI examples
 ```bash
@@ -61,8 +61,8 @@ beeai init my-enterprise-agent
 # Start the Bee development server with live-reloading
 beeai dev --port 18788
 
-# Validate MCP server connectivity
-beeai mcp verify http://localhost:18790
+# Validate MCP server connectivity using Task Protocol
+beeai mcp verify http://localhost:18790 --protocol task
 ```
 
 ## API examples
@@ -109,12 +109,13 @@ beeai mcp verify http://localhost:18790
 - [Superpowers](superpowers.md)
 - [Agno](agno.md)
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
 
-## Sources / references
+## Sources / References
 - [BeeAI Framework GitHub Repository](https://github.com/i-am-bee/beeai-framework)
 - [Official BeeAI Documentation](https://i-am-bee.github.io/beeai-framework/)
 - [IBM Research: AI Agent Reliability with BeeAI](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

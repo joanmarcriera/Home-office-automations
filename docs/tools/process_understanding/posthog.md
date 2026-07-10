@@ -1,17 +1,17 @@
 # PostHog
 
 ## What it is
-An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing. It provides a comprehensive suite for monitoring user behavior and system performance in real-time.
+An all-in-one product OS that includes product analytics, session replay, feature flags, and A/B testing. In July 2026, it serves as a critical observability hub for [Gemma 3](../ai_knowledge/local_llms.md) and other frontier models, providing a comprehensive suite for monitoring user behavior and system performance in real-time.
 
 ## What problem it solves
-It helps teams understand how users interact with their applications and allows for data-driven product decisions. For AI teams, it provides visibility into how LLM responses affect user conversion and retention.
+It helps teams understand how users interact with their applications and allows for data-driven product decisions. For AI teams, it provides visibility into how LLM responses affect user conversion and retention, with deep integration for [MCP 3.0](../../knowledge_base/patterns/data-copilot-mcp-tooling.md) based tool-calling traces.
 
 ## Where it fits in the stack
-**Category**: [Process & Understanding](index.md) / Product Analytics. It serves as the primary observability layer for user-facing applications and agentic workflows.
+**Category**: [Process & Understanding](index.md) / Product Analytics. It serves as the primary observability layer for user-facing applications and agentic workflows, sitting alongside [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md) components.
 
 ## Typical use cases
 - **Full-Funnel Analytics**: Tracking user behavior from the first click to the final AI-generated response.
-- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., GPT-5.5 vs Claude 4.8) using feature flags.
+- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs Claude 4.8) using feature flags.
 - **Session Replay**: Watching recordings of users interacting with AI agents to identify friction points and hallucination impacts.
 - **Conversion Tracking**: Measuring how AI features impact key business metrics like signups or purchases.
 
@@ -32,7 +32,7 @@ It helps teams understand how users interact with their applications and allows 
 
 ## When not to use it
 - If you only need deep, low-level AI engineering traces and don't care about broader product analytics.
-- For extremely simple applications where a basic log aggregator (like Papertrail) would be enough.
+- For extremely simple applications where a basic log aggregator would be enough.
 
 ## Getting started
 
@@ -49,7 +49,7 @@ posthog.project_api_key = '<ph_project_api_key>'
 posthog.host = 'https://us.i.posthog.com'
 
 posthog.capture('user_id', 'llm_interaction', {
-    'model': 'claude-4-8-opus',
+    'model': 'gemma-3-27b',
     'prompt_tokens': 150,
     'completion_tokens': 200,
     'total_cost': 0.005,
@@ -80,22 +80,23 @@ posthog-cli capture --distinct-id user_123 --event test_event --properties '{"so
 ## API examples
 
 ### Python (AI Trace Instrumentation)
-PostHog supports a structured trace API for LLM monitoring (v2026.6+):
+PostHog supports a structured trace API for LLM monitoring (v2026.7+):
 
 ```python
 import posthog
 
-# Capture a full LLM generation trace
+# Capture a full LLM generation trace with MCP context
 posthog.capture('user_123', '$ai_generation', {
-    '$ai_model': 'claude-4-8-opus',
-    '$ai_provider': 'anthropic',
+    '$ai_model': 'gemma-3-27b',
+    '$ai_provider': 'ollama',
     '$ai_input_tokens': 150,
     '$ai_output_tokens': 200,
     '$ai_latency': 1.2,
-    '$ai_cost': 0.003,
+    '$ai_cost': 0.0,
     '$ai_trace_id': 'trace-uuid-456',
     '$ai_input': 'Summarize the latest sales data.',
-    '$ai_output': 'Summary: Sales are up 20%...'
+    '$ai_output': 'Summary: Sales are up 20%...',
+    '$mcp_protocol_version': '3.0'
 })
 ```
 
@@ -106,8 +107,8 @@ import posthog from 'posthog-js'
 posthog.init('<ph_project_api_key>', { api_host: 'https://us.i.posthog.com' })
 
 // Check if a new AI model feature flag is enabled
-if (posthog.isFeatureEnabled('use-new-llm-model')) {
-    // Use Claude 4.8
+if (posthog.isFeatureEnabled('use-gemma-3-model')) {
+    // Use Gemma 3
 } else {
     // Use fallback model
 }
@@ -122,12 +123,14 @@ if (posthog.isFeatureEnabled('use-new-llm-model')) {
 - [Helicone](helicone.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Local LLMs (Gemma 3)](../ai_knowledge/local_llms.md)
+- [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
 
-## Sources / references
+## Sources / References
 - [PostHog Website](https://posthog.com/)
 - [PostHog AI Observability Documentation](https://posthog.com/docs/ai-analytics)
 - [PostHog CLI Repository](https://github.com/PostHog/posthog-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
