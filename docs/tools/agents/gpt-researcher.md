@@ -1,13 +1,13 @@
 # GPT Researcher
 
 ## What it is
-GPT Researcher (v3.x+, June 2026) is an autonomous agent designed for comprehensive online research on any given topic. It plans the research, browses the web, and synthesizes a final report with deep citations. It uses a "master-agent" and "research-agent" pattern to break down complex queries into manageable sub-tasks, now supporting multi-modal search and MCP 3.0 integration.
+GPT Researcher (v4.0+, July 2026) is an autonomous agent designed for comprehensive online research on any given topic. It plans the research, browses the web, and synthesizes a final report with deep citations. It uses a "master-agent" and "research-agent" pattern to break down complex queries into manageable sub-tasks, now supporting multi-modal search and the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
 It automates the time-consuming process of manual research, gathering information from multiple sources and producing high-quality, grounded summaries. It specifically addresses LLM hallucinations by grounding every claim in a retrieved web source (via Tavily/SearXNG) and providing a verifiable bibliography.
 
 ## Where it fits in the stack
-**Category**: Agent / Research Automation. It serves as a specialized "Knowledge Acquisition" layer in an agentic stack, feeding structured data and reports into other agents or long-term memory stores like Letta.
+**Category**: Agent / Research Automation. It serves as a specialized "Knowledge Acquisition" layer in an agentic stack, feeding structured data and reports into other agents or long-term memory stores like [Letta](letta.md).
 
 ## Typical use cases
 - **Market Research**: Analyzing industry trends, competitor offerings, and financial reports.
@@ -20,7 +20,7 @@ It automates the time-consuming process of manual research, gathering informatio
 - **High Recall**: Scrapes dozens of sources per task, far exceeding standard "search" tools or single-shot RAG.
 - **Citation-First**: Every report includes a comprehensive bibliography with direct links to sources.
 - **Customizable**: Allows defining specific "research tasks", tones, and report formats (PDF, Markdown, JSON).
-- **Agentic Tooling**: Native support for MCP 3.0, allowing it to be used as a tool by other agents (Claude 4.8/GPT-5.5).
+- **Agentic Tooling**: Native support for **MCP 3.0**, allowing it to be used as a tool by other agents like [Claude 4.8](../ai_knowledge/claude.md) or [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## Limitations
 - **Cost**: Scraping and synthesizing many sources can consume significant LLM tokens and API credits (Tavily).
@@ -73,7 +73,7 @@ import asyncio
 async def main():
     # 1. Initialize the researcher with a specific query
     researcher = GPTResearcher(
-        query="Evolution of agentic frameworks in June 2026",
+        query="Evolution of agentic frameworks in July 2026",
         report_type="research_report",
         tone="technical"
     )
@@ -97,6 +97,8 @@ if __name__ == "__main__":
 - [SearXNG Automation](../../services/searXNG-automation.md)
 - [Letta](letta.md)
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude 4.8](../ai_knowledge/claude.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Search Patterns](../../knowledge_base/patterns/search-patterns.md)
 
@@ -105,5 +107,5 @@ if __name__ == "__main__":
 - [GPT Researcher Official Documentation](https://docs.gptr.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
