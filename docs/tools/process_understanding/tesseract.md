@@ -1,10 +1,10 @@
 # Tesseract CLI
 
 ## What it is
-Tesseract is an open-source Optical Character Recognition (OCR) engine (v5.3.0+ as of June 2026). It can be used directly via the command line (CLI) to extract text from images and PDF files. It is the primary engine for [OCRmyPDF](ocrmypdf.md) and serves as a fundamental building block for agentic document ingestion pipelines.
+Tesseract is an open-source Optical Character Recognition (OCR) engine (v5.3.0+ as of July 2026). It can be used directly via the command line (CLI) to extract text from images and PDF files. It is the primary engine for [OCRmyPDF](ocrmypdf.md) and serves as a fundamental building block for agentic document ingestion pipelines using the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
-It converts images containing text (like scans, screenshots, or camera photos) into machine-readable text. This is a critical component for searchable document archives, automated data extraction, and providing vision-impaired accessibility. In the June 2026 stack, it is frequently combined with Claude 4.8 Opus for high-fidelity transcript correction.
+It converts images containing text (like scans, screenshots, or camera photos) into machine-readable text. This is a critical component for searchable document archives, automated data extraction, and providing vision-impaired accessibility. In the July 2026 stack, it is frequently combined with models like [Gemma 3](../ai_knowledge/local_llms.md) and [Claude 4.8](../ai_knowledge/claude.md) for high-fidelity transcript correction.
 
 ## Where it fits in the stack
 **Category**: Process & Understanding. It serves as the core OCR engine for higher-level tools like [OCRmyPDF](ocrmypdf.md) and is integrated into services like [Paperless-ngx](../../services/paperless-ngx.md) for automated document organization.
@@ -101,12 +101,8 @@ if __name__ == "__main__":
     print(agentic_ocr('scan.png'))
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (Apache License 2.0)
-- **Cost**: Free
-- **Self-hostable**: Yes
-
 ## Related tools / concepts
+- **Licensing and cost**: Open Source (Apache License 2.0), Free, Self-hostable.
 - [OCRmyPDF](ocrmypdf.md) — Advanced PDF wrapper for Tesseract.
 - [Paperless-ngx](../../services/paperless-ngx.md) — Document management system using Tesseract.
 - [Docling](docling.md) — High-performance document parser for RAG.
@@ -117,6 +113,7 @@ if __name__ == "__main__":
 - [Instructor](../frameworks/instructor.md) — Structured data extraction from OCR-processed text.
 - [Paperless-AI](../../services/paperless-ai.md) — AI-driven document processing for Paperless-ngx.
 - [Claude](../ai_knowledge/claude.md) — Frontier model for post-OCR text correction.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local LLM for offline transcript correction.
 
 ## Sources / references
 - [Tesseract OCR GitHub](https://github.com/tesseract-ocr/tesseract)
@@ -124,5 +121,5 @@ if __name__ == "__main__":
 - [v5.3.0 Release Notes](https://github.com/tesseract-ocr/tesseract/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

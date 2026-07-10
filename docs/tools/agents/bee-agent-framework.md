@@ -1,10 +1,10 @@
 # Bee Agent Framework
 
 ## What it is
-The Bee Agent Framework (v1.x+, June 2026) is an open-source framework by IBM Research for building, deploying, and orchestrating production-grade AI agents. It provides complete feature parity between TypeScript and Python, allowing for robust multi-agent systems with native Model Context Protocol (MCP 3.0) support.
+The Bee Agent Framework (v1.x+, July 2026) is an open-source framework by IBM Research for building, deploying, and orchestrating production-grade AI agents. It provides complete feature parity between TypeScript and Python, allowing for robust multi-agent systems with native Model Context Protocol (MCP 3.0) and the **MCP 3.0 Task Protocol** support.
 
 ## What problem it solves
-It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirement Agents" that enforce runtime policies and "Observability-by-Design" via detailed execution traces, Bee ensures that complex multi-step agentic workflows remain predictable, auditable, and production-ready.
+It focuses on the "Reliability Gap" in autonomous agents. By providing "Requirement Agents" that enforce runtime policies and "Observability-by-Design" via detailed execution traces, Bee ensures that complex multi-step agentic workflows using models like [Gemma 3](../ai_knowledge/local_llms.md) or [Claude 4.8](../ai_knowledge/claude.md) remain predictable, auditable, and production-ready.
 
 ## Where it fits in the stack
 **Category**: Agent Orchestration Framework. It sits between the Model/Inference layer (supporting 10+ providers like Watsonx, Ollama, and OpenAI) and the Tool/Infrastructure layer, managing state, memory, and tool execution.
@@ -109,6 +109,8 @@ beeai mcp verify http://localhost:18790
 - [Superpowers](superpowers.md)
 - [Agno](agno.md)
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude 4.8](../ai_knowledge/claude.md)
 
 ## Sources / references
 - [BeeAI Framework GitHub Repository](https://github.com/i-am-bee/beeai-framework)
@@ -116,5 +118,5 @@ beeai mcp verify http://localhost:18790
 - [IBM Research: AI Agent Reliability with BeeAI](https://research.ibm.com/blog/ai-agent-reliability-beeai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

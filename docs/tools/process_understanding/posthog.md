@@ -11,13 +11,13 @@ It helps teams understand how users interact with their applications and allows 
 
 ## Typical use cases
 - **Full-Funnel Analytics**: Tracking user behavior from the first click to the final AI-generated response.
-- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., GPT-5.5 vs Claude 4.8) using feature flags.
+- **A/B Testing AI Models**: Comparing the performance and user satisfaction of different LLMs (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs [Claude 4.8](../ai_knowledge/claude.md)) using feature flags.
 - **Session Replay**: Watching recordings of users interacting with AI agents to identify friction points and hallucination impacts.
 - **Conversion Tracking**: Measuring how AI features impact key business metrics like signups or purchases.
 
 ## Strengths
 - **All-in-One**: Combines analytics, session recording, and feature flagging in a single platform.
-- **AI Observability Dashboard**: Specialized views for cost, latency, and error rates across different LLM providers via MCP 3.0.
+- **AI Observability Dashboard**: Specialized views for cost, latency, and error rates across different LLM providers via MCP 3.0 and the **MCP 3.0 Task Protocol**.
 - **Integrated Session Recordings**: Visualize UI changes triggered by LLM responses directly in the trace timeline.
 - **HogQL**: Powerful, SQL-like query language for advanced data analysis and custom dashboarding.
 
@@ -122,6 +122,8 @@ if (posthog.isFeatureEnabled('use-new-llm-model')) {
 - [Helicone](helicone.md)
 - [OpenRouter](../ai_knowledge/openrouter.md)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude 4.8](../ai_knowledge/claude.md)
 
 ## Sources / references
 - [PostHog Website](https://posthog.com/)
@@ -129,5 +131,5 @@ if (posthog.isFeatureEnabled('use-new-llm-model')) {
 - [PostHog CLI Repository](https://github.com/PostHog/posthog-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

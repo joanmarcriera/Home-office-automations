@@ -4,7 +4,7 @@
 Docling is an open-source Python library and CLI tool developed by IBM Research that simplifies document processing by parsing diverse formats into structured, machine-readable data. It excels at layout analysis, table recognition, and multi-modal document understanding.
 
 ## What problem it solves
-Traditional document extraction often loses structural information (headers, table relationships, reading order) or fails on complex layouts. Docling uses specialized models to preserve document structure, making it ideal for high-fidelity Retrieval-Augmented Generation (RAG) and agentic workflows using Claude 4.8 and GPT-5.5.
+Traditional document extraction often loses structural information (headers, table relationships, reading order) or fails on complex layouts. Docling uses specialized models to preserve document structure, making it ideal for high-fidelity Retrieval-Augmented Generation (RAG) and agentic workflows using [Gemma 3](../ai_knowledge/local_llms.md) and [Claude 4.8](../ai_knowledge/claude.md).
 
 ## Where it fits in the stack
 **Category**: [Process & Understanding](index.md). It acts as the core parsing engine for ingestion pipelines, [Docling MCP](docling-mcp.md), and Knowledge Graph construction via native graph export features.
@@ -114,6 +114,8 @@ Docling can be exposed as an MCP 3.0 tool for agentic document parsing:
 - [vLLM](../infrastructure/vllm.md)
 - [Ollama](../../services/ollama.md)
 - [MCP (Model Context Protocol)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude 4.8](../ai_knowledge/claude.md)
 
 ## Sources / references
 - [Official Website (GitHub)](https://github.com/docling-project/docling)
@@ -122,5 +124,5 @@ Docling can be exposed as an MCP 3.0 tool for agentic document parsing:
 - [IBM Research AI Blogs](https://research.ibm.com/blog/docling-ibm-granite-document-parsing)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

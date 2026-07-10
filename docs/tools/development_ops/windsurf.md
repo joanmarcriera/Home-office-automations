@@ -1,10 +1,10 @@
 # Windsurf IDE
 
 ## What it is
-**Windsurf** is the world's first agentic IDE, developed by **Codeium** (and now deeply integrated with **Cognition's Devin** technology as of 2026). It is built on top of the VS Code core but features a completely reimagined AI interaction model called **Cascade**, which moves beyond simple chat interfaces into autonomous, multi-file execution and real-time environment management.
+**Windsurf** (v2.0+, July 2026) is the world's first agentic IDE, developed by **Codeium** (and now deeply integrated with **Cognition's Devin** technology). It is built on top of the VS Code core but features a completely reimagined AI interaction model called **Cascade**, which moves beyond simple chat interfaces into autonomous, multi-file execution and real-time environment management with native support for the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
-Traditional AI assistants in IDEs are "passive observers" that can only suggest text. Windsurf solves the "context gap" and the "execution gap" by allowing its agent (Cascade) to not only see the entire codebase but also autonomously navigate files, run terminal commands, manage dependencies, and perform complex, cross-file refactors. It addresses the high cognitive load of manual context-switching between the editor and the terminal.
+Traditional AI assistants in IDEs are "passive observers" that can only suggest text. Windsurf solves the "context gap" and the "execution gap" by allowing its agent (Cascade) to not only see the entire codebase but also autonomously navigate files, run terminal commands, manage dependencies, and perform complex, cross-file refactors using models like [Gemma 3](../ai_knowledge/local_llms.md) and [Claude 4.8](../ai_knowledge/claude.md).
 
 ## Where it fits in the stack
 **Category**: Tool / Development & Ops / Agentic IDE. It serves as the primary "Command Center" for developers who want to transition from manual coding to AI-augmented engineering, sitting at the intersection of the editor, terminal, and autonomous agent orchestration.
@@ -40,7 +40,7 @@ Traditional AI assistants in IDEs are "passive observers" that can only suggest 
 - If you have a strong preference for non-VS Code based editors (e.g., Vim, Emacs, JetBrains).
 - If you require a completely open-source toolchain for both the IDE and the LLM orchestration.
 
-## Getting started (including Docker/Local setup)
+## Getting started
 Windsurf is primarily a local desktop application. Download the latest version from the official website.
 
 ### Local Installation
@@ -117,13 +117,15 @@ await server.connect(transport);
 - [Continue](continue_dev.md) — Open-source alternative for building custom AI IDE experiences.
 - [OpenClaw](openclaw.md) — Gateway for agentic workflows and tool-calling security.
 - [NanoClaw](nanoclaw.md) — Secure, containerized personal assistant framework.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Supported local model for agentic coding.
+- [Claude 4.8](../ai_knowledge/claude.md) — Frontier model powering Cascade reasoning.
 
 ## Sources / References
 - [Windsurf Official Documentation](https://docs.windsurf.com/)
-- [Codeium Release Notes (June 2026)](https://codeium.com/blog/windsurf-v2-devin-integration)
+- [Codeium Release Notes (July 2026)](https://codeium.com/blog/windsurf-v2-devin-integration)
 - [Windsurf MCP Guide](https://docs.windsurf.com/windsurf/cascade/mcp)
 - [Cognition AI: Devin in Windsurf](https://www.cognition.ai/blog/windsurf-integration)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
