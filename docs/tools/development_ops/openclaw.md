@@ -1,27 +1,27 @@
 # OpenClaw
 
 ## What it is
-OpenClaw (formerly Clawdbot/Moltbot) is an open-source, self-hostable autonomous AI agent platform designed for deploying personal and team agents. It runs as a lightweight TypeScript "Gateway" process that interfaces with 50+ messaging channels (Telegram, WhatsApp, Signal, Discord, Slack), executes multi-step workflows, and manages persistent local memory. As of June 2026, it is the primary execution engine for agentic workflows in the home-office stack.
+OpenClaw (formerly Clawdbot/Moltbot) is an open-source, self-hostable autonomous AI agent platform designed for deploying personal and team agents. It runs as a lightweight TypeScript "Gateway" process that interfaces with 50+ messaging channels (Telegram, WhatsApp, Signal, Discord, Slack) and manages persistent local memory, fully supporting the [MCP 3.0 Task Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) as of July 2026.
 
 ## What problem it solves
-Setting up a personal AI agent that works continuously, remembers context, and integrates with local system resources normally requires complex orchestration. OpenClaw simplifies this by providing a single-port Gateway (18789) that bridges LLMs (GPT-5.5, Claude 4.8, or local models via [vLLM](../infrastructure/vllm.md)) to the user's local operating system and messaging apps. It handles the "last mile" of agent-to-human communication and tool execution.
+Setting up a personal AI agent that works continuously and integrates with local system resources normally requires complex orchestration. OpenClaw simplifies this by providing a single-port Gateway (18789) that bridges LLMs (GPT-5.5, Claude 4.8, or [Gemma 3](../ai_knowledge/local_llms.md)) to the user's local operating system and messaging apps, utilizing **FastMCP 3.0** for rapid tool execution.
 
 ## Where it fits in the stack
-**Agent Runtime / Orchestration Layer**. OpenClaw is the execution environment for autonomous behaviors. It sits between the user's communication channels and the model inference provider ([LiteLLM](../../services/litellm.md)). It utilizes [MCP 3.0](../../tools/automation_orchestration/mcp.md) for seamless tool integration.
+**Agent Runtime / Orchestration Layer**. OpenClaw is the execution environment for autonomous behaviors. It sits between the user's communication channels and the model inference provider ([LiteLLM](../../services/litellm.md)), utilizing [MCP 3.0](../../tools/automation_orchestration/mcp.md) for seamless tool integration.
 
 ## Typical use cases
 - **Personal Assistant**: Manage tasks in [Vikunja](../../services/vikunja.md) or [Home Assistant](../../services/home-assistant.md) via chat.
-- **Moltbook Engagement**: (2026) Autonomous agents participating in AI-only social networks and decentralized knowledge markets.
 - **Local File Automation**: Organize downloads, process receipts (OCR), and update local databases autonomously.
 - **CI/CD Remediation**: Automatically analyze build failures and draft PR fixes in GitHub using [Claude Code](claude-code.md).
 - **Scheduled Research**: Aggregate web research into a daily briefing via [SearXNG](../../services/searXNG-automation.md).
+- **Gemma 3 Integration**: Running local-first agentic workflows with [Gemma 3](../ai_knowledge/local_llms.md) via MCP.
 
 ## Strengths
 - **Low Latency**: Local Gateway architecture ensures fast tool execution and messaging compared to cloud-only platforms.
 - **Privacy-First**: Conversation history and vector memory stay on your local device or self-hosted infrastructure.
 - **Extreme Extensibility**: 2,300+ community skills on **ClawdHub** cover almost any API or service.
-- **Model Agnostic**: Seamlessly switch between [Ollama](../../services/ollama.md), GPT-5.5, and Claude 4.8 via LiteLLM.
-- **MCP 3.0 Support**: Native integration with the latest Model Context Protocol for unified tool access.
+- **Model Agnostic**: Seamlessly switch between [Ollama](../../services/ollama.md), [Gemma 3](../ai_knowledge/local_llms.md), GPT-5.5, and Claude 4.8.
+- **MCP 3.0 Support**: Native integration with the latest Model Context Protocol and FastMCP for unified tool access.
 
 ## Limitations
 - **Security Governance**: Requires technical knowledge to properly sandbox and secure (see `ClawJacked` vulnerability notes).
@@ -44,7 +44,7 @@ Setting up a personal AI agent that works continuously, remembers context, and i
 OpenClaw is optimized for local execution on macOS (Apple Silicon) and Linux.
 
 ```bash
-# One-command installer (Official June 2026 script)
+# One-command installer (Official July 2026 script)
 curl -fsSL https://openclaw.io/install.sh | sh
 
 # Start the Gateway
@@ -82,9 +82,6 @@ openclaw eval --suite tests/assistant_bench.yaml
 
 # Inspect the vector memory
 openclaw memory query "What did we discuss about the house renovation?"
-
-# Update to the latest version (v2026.2.25+)
-openclaw update
 ```
 
 ## API examples
@@ -101,14 +98,14 @@ curl http://localhost:18789/api/status
 ```
 
 ## Related tools / concepts
-- [LiteLLM](../../services/litellm.md) — The recommended model router and inference plane.
+- [LiteLLM](../../services/litellm.md) — Recommended model router and inference plane.
 - [Claude Code](claude-code.md) — For agentic coding and terminal-based automation.
 - [OpenHands](openhands.md) — For code-heavy engineering tasks.
 - [n8n](../../services/n8n.md) — For deterministic, non-conversational workflows.
 - [Ollama](../../services/ollama.md) — Local model inference engine.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Recommended local model for agentic tasks.
 - [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — Standard for agentic tool use.
-- [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md) — Guide for authoring skills.
-- [Home Assistant](../../services/home-assistant.md) — Primary IoT integration target.
+- [Nanoclaw](nanoclaw.md) — Lightweight, containerized alternative.
 
 ## Sources / references
 - [Official Website](https://openclaw.io/)
@@ -117,5 +114,5 @@ curl http://localhost:18789/api/status
 - [TechRadar: "ClawJacked" Vulnerability Report (Fixed in 2026.2.25)](https://www.techradar.com/pro/security/openclaw-vulnerability-report-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
