@@ -1,7 +1,7 @@
 # AutoReason
 
 ## What it is
-AutoReason (v2026.5.x+) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) to compete with proprietary reasoning models like the O4 series.
+AutoReason (v2026.7.x+, July 2026) is an autonomous reasoning framework by Nous Research designed to enable LLMs to perform complex, multi-step logical tasks with minimal human intervention. It implements advanced "Reasoning-as-a-Service" patterns, allowing models like Nous Hermes 3 (Llama 3.1 based) and [Gemma 3](../ai_knowledge/local_llms.md) to compete with proprietary reasoning models like the O4 series.
 
 ## What problem it solves
 It addresses the limitations of standard chain-of-thought prompting by providing a structured environment for iterative reasoning, verification, and correction. It helps LLMs navigate large "search spaces" in complex logic, mathematics, or code problems where the first answer is rarely the correct one, effectively reducing hallucinations through automated self-critique.
@@ -14,11 +14,11 @@ It addresses the limitations of standard chain-of-thought prompting by providing
 - **Mathematical Theorem Proving**: Structured steps with rigorous automated verification requirements.
 - **Code Debugging**: Identifying root causes by iteratively testing assumptions against a live execution environment.
 - **Deep Research**: Multi-hop reasoning tasks where the results of one step fundamentally redefine the search parameters for the next.
-- **Synthetic Data Generation**: Creating high-quality reasoning traces for fine-tuning smaller models.
+- **Synthetic Data Generation**: Creating high-quality reasoning traces for fine-tuning smaller models like [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## Strengths
-- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it.
-- **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 3.1, DeepSeek).
+- **Self-Correction**: Significantly reduces hallucinations by requiring the model to "show its work" and then programmatically check it via the **MCP 3.0 Task Protocol**.
+- **Open-Source**: Developed with a focus on open-weight model compatibility (Nous Hermes, Llama 3.1, DeepSeek, [Gemma 3](../ai_knowledge/local_llms.md)).
 - **Structured Trace**: Provides a complete, auditable log of every reasoning step and correction.
 - **Flexibility**: Can be integrated with any Python-based verification tool or MCP-enabled service.
 
@@ -82,18 +82,19 @@ print(f"Total Iterations: {len(result.iterations)}")
 
 ## Related tools / concepts
 - [DeepSeek R1](../ai_knowledge/deepseek-r1.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
 - [Agno](agno.md)
 - [Letta](letta.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 - [Software Factories](../../knowledge_base/patterns/software-factories.md)
 - [Prompt Requests](../../knowledge_base/patterns/prompt_requests.md)
 - [Jules](../ai_knowledge/jules.md)
-- [Claude 4.8](../ai_knowledge/claude-4-8.md)
+- [Claude](../ai_knowledge/claude.md)
 
 ## Sources / references
 - [NousResearch/autoreason GitHub](https://github.com/NousResearch/autoreason)
 - [Nous Research Blog: Iterative Reasoning Patterns](https://nousresearch.com/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
