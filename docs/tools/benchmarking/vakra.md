@@ -1,17 +1,17 @@
 # VAKRA: Executable Benchmark for Enterprise Agents
 
 ## What it is
-VAKRA (eValuating API and Knowledge Retrieval Agents) is a tool-grounded, executable benchmark designed to evaluate how well AI agents reason and act in enterprise-like environments. Unlike traditional benchmarks that test isolated skills, VAKRA measures **compositional reasoning** across APIs and documents, using full execution traces to assess multi-step workflow completion in June 2026.
+VAKRA (eValuating API and Knowledge Retrieval Agents) is a tool-grounded, executable benchmark designed to evaluate how well AI agents reason and act in enterprise-like environments. Unlike traditional benchmarks that test isolated skills, VAKRA measures **compositional reasoning** across APIs and documents, using full execution traces to assess multi-step workflow completion, fully updated for July 2026.
 
 ## What problem it solves
-It addresses the gap between surface-level tool competence and robust, end-to-end agent reliability. VAKRA provides an executable environment with over 8,000 locally hosted APIs across 62 domains, preventing models from relying on memorized outputs and forcing them to navigate real API interactions, multi-hop reasoning, and policy constraints. It solves the "hallucination" problem in tool-use by verifying results against actual databases.
+It addresses the gap between surface-level tool competence and robust, end-to-end agent reliability. VAKRA provides an executable environment with over 8,000 locally hosted APIs across 62 domains, preventing models from relying on memorized outputs and forcing them to navigate real API interactions, multi-hop reasoning, and policy constraints. It solves the "hallucination" problem in tool-use by verifying results against actual databases using the [MCP 3.0 Task Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Where it fits in the stack
-**Benchmarking / Agent Evaluation**. It is a primary framework for verifying "Agentic Shift" capabilities in production environments. It sits alongside frameworks like [OpenCompass](opencompass.md) but focuses specifically on tool-grounded reasoning.
+**Benchmarking / Agent Evaluation**. It is a primary framework for verifying "Agentic Shift" capabilities in production environments. It sits alongside frameworks like [OpenCompass](opencompass.md) but focuses specifically on tool-grounded reasoning for models like [Gemma 3](../ai_knowledge/local_llms.md) and Claude 4.8.
 
 ## Typical use cases
-- **Agent Architecture Validation**: Testing if a new agentic framework (e.g., [OpenClaw](../development_ops/openclaw.md)) can handle complex multi-step tasks.
-- **Model Comparison**: Benchmarking different LLMs (Claude 4.8 vs GPT-5.5) on their ability to use tools and follow policies.
+- **Agent Architecture Validation**: Testing if a new agentic framework (e.g., [OpenClaw](../development_ops/openclaw.md) or [Nanoclaw](../development_ops/nanoclaw.md)) can handle complex multi-step tasks.
+- **Model Comparison**: Benchmarking different LLMs ([Gemma 3](../ai_knowledge/local_llms.md) vs GPT-5.5) on their ability to use tools and follow policies.
 - **Regression Testing**: Ensuring that updates to an agent's reasoning logic or system prompts don't break existing compositional capabilities.
 - **Policy Compliance Auditing**: Verifying that agents strictly adhere to negative constraints (e.g., "Never share user PII").
 
@@ -20,7 +20,7 @@ It addresses the gap between surface-level tool competence and robust, end-to-en
 - **Multi-Source Reasoning**: Specifically targets the hard problem of combining structured API data with unstructured document retrieval (RAG).
 - **Trajectory-Level Replay**: Replays full agent traces against live tools to support multiple valid execution paths.
 - **Deterministic Evaluation**: Locally hosted tools ensure responses are verifiable and consistent across runs.
-- **June 2026 Context**: Updated to support [MCP 3.0](../../tools/automation_orchestration/mcp.md) tool definitions.
+- **FastMCP 3.0 Support**: Updated to support the latest high-performance Model Context Protocol tool definitions.
 
 ## Limitations
 - **Environment Complexity**: Requires a complex self-hosted environment to run the 8,000+ mock APIs and persistent databases.
@@ -56,6 +56,7 @@ docker-compose up -d
 Execute a benchmarking run against a target agent:
 
 ```bash
+# Evaluate an agent running on port 18789
 python run_eval.py --agent_url http://localhost:18789 --suite enterprise_composition
 ```
 
@@ -67,7 +68,7 @@ VAKRA provides tools for trajectory analysis and environment management:
 python tools/list_tools.py
 
 # Replay a specific trajectory for debugging
-python tools/replay_trajectory.py --trace_id "trace_20260620_001"
+python tools/replay_trajectory.py --trace_id "trace_20260721_001"
 
 # Export evaluation metrics to JSON
 python tools/export_metrics.py --run_id "run_456" --format json
@@ -98,6 +99,7 @@ response = requests.post("http://localhost:8080/evaluate", json=task_data)
 - [Agent Skills Best Practices](../../knowledge_base/patterns/skills-best-practices.md) — Design patterns for VAKRA-ready tools.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns evaluated by VAKRA.
 - [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The standard for the tools VAKRA evaluates.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local model frequently benchmarked with VAKRA.
 - [LiteLLM](../../services/litellm.md) — Used to route model calls during VAKRA runs.
 
 ## Sources / references
@@ -107,5 +109,5 @@ response = requests.post("http://localhost:8080/evaluate", json=task_data)
 - [VAKRA: eValuating API and Knowledge Retrieval Agents (arXiv)](https://arxiv.org/abs/2505.17166)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

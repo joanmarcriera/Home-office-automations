@@ -1,18 +1,18 @@
 # SharpAI Security Benchmark
 
 ## What it is
-The **SharpAI Security Benchmark** (SHARP) is a systemic high-level evaluation framework designed to quantify the resilience of Large Language Models (LLMs) and agentic systems against complex security threats. Unlike traditional performance benchmarks (e.g., MMLU), SHARP focuses on the **adversarial robustness** of models when they are given tool-access and delegated autonomy.
+The **SharpAI Security Benchmark** (SHARP) is a systemic high-level evaluation framework designed to quantify the resilience of Large Language Models (LLMs) and agentic systems against complex security threats. Unlike traditional performance benchmarks (e.g., MMLU), SHARP focuses on the **adversarial robustness** of models when they are given tool-access and delegated autonomy, fully updated for July 2026.
 
 ## What problem it solves
-As AI agents move from "chatting" to "acting" (executing code, calling APIs, managing files), the risk of malicious exploitation grows exponentially. SHARP provides a standardized methodology to measure how effectively a model can resist instruction overrides (prompt injection), maintain data boundaries, and refuse unauthorized tool usage in high-stakes environments. It solves the lack of standardized "red teaming" protocols for agentic workflows.
+As AI agents move from "chatting" to "acting" (executing code, calling APIs, managing files), the risk of malicious exploitation grows exponentially. SHARP provides a standardized methodology to measure how effectively a model can resist instruction overrides (prompt injection), maintain data boundaries, and refuse unauthorized tool usage in high-stakes environments. It solves the lack of standardized "red teaming" protocols for agentic workflows using **FastMCP 3.0**.
 
 ## Where it fits in the stack
-**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data, sitting alongside CI/CD and monitoring tools.
+**Category**: Tool / Benchmarking / Security Operations (SecOps). It serves as a final validation gate before deploying an agent into a production environment with write-access to sensitive data, sitting alongside CI/CD and monitoring tools. It is a critical component for validating [Gemma 3](../ai_knowledge/local_llms.md) and Claude 4.8 agents.
 
 ## Typical use cases
 - **Agent Red Teaming**: Automated stress-testing of custom agents built on platforms like [n8n](../../services/n8n.md) or [Dify](../ai_knowledge/dify.md).
 - **Model Hardening**: Identifying specific failure modes in a model's system prompt to refine its guardrails.
-- **Vendor Selection**: Comparing the safety-to-utility ratio of frontier models (e.g., Claude 4.8 vs GPT-5.5).
+- **Vendor Selection**: Comparing the safety-to-utility ratio of frontier models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs Claude 4.8).
 - **Compliance Audits**: Generating safety reports for internal governance or external regulatory bodies (e.g., EU AI Act compliance).
 - **Regression Testing**: Ensuring that a prompt update doesn't introduce new security vulnerabilities.
 
@@ -23,14 +23,14 @@ As AI agents move from "chatting" to "acting" (executing code, calling APIs, man
 - **Context-Aware Metrics**: Provides separate scores for 'Passive Resistance' vs 'Active Detection' and 'Reasoning Integrity'.
 
 ## Limitations
-- **Cat-and-Mouse Game**: New injection techniques (like 'ClawJacked' or 'Social Steganography') emerge faster than benchmarks can be updated.
+- **Cat-and-Mouse Game**: New injection techniques emerge faster than benchmarks can be updated.
 - **Computational Cost**: Comprehensive SHARP runs require thousands of model calls, which can be expensive on high-tier APIs.
 - **False Negatives**: A passing score does not guarantee 100% security; it only proves resilience against the *tested* attack suite.
 - **Complexity**: Setting up realistic tool-calling environments for the benchmark can be time-consuming.
 
 ## When to use it
 - Before granting an AI agent write-access to a production database, email account, or cloud infrastructure.
-- When updating the underlying LLM (e.g., moving to Claude 4.8 Opus) of an existing automation workflow to ensure no security regressions.
+- When updating the underlying LLM (e.g., moving to Claude 4.8 Opus or [Gemma 3](../ai_knowledge/local_llms.md)) of an existing automation workflow to ensure no security regressions.
 - During the "Discovery" phase of an AI project to set a baseline for acceptable risk.
 
 ## When not to use it
@@ -38,12 +38,13 @@ As AI agents move from "chatting" to "acting" (executing code, calling APIs, man
 - For low-risk, internal-only RAG systems with no tool-calling or autonomous action capabilities.
 - When you need immediate, real-time protection (use [Lakera Guard](lakera-guard.md) or [Giskard](giskard.md)).
 
-## Getting started (including Docker/Local setup)
-The SHARP runner is typically deployed as a containerized evaluation engine to ensure environment isolation during adversarial tests.
+## Getting started
 
 ### Installation via Docker
+The SHARP runner is typically deployed as a containerized evaluation engine to ensure environment isolation.
+
 ```bash
-# Pull the SHARP evaluation engine
+# Pull the SHARP evaluation engine (July 2026 version)
 docker pull sharpai/eval-runner:latest
 
 # Create a local workspace for reports
@@ -72,10 +73,10 @@ docker run -v $(pwd)/reports:/app/reports sharpai/eval-runner run \
            --output /app/reports/result.json
 
 # Run a specific 'Indirect Injection' attack suite
-sharp-cli test --category indirect-injection --model claude-4.8-opus
+sharp-cli test --category indirect-injection --model gemma-3-8b-it
 
 # List all available security scenarios
-sharp-cli list scenarios --version 2026.2
+sharp-cli list scenarios --version 2026.7
 ```
 
 ## API examples
@@ -96,7 +97,6 @@ results = runner.execute(SecuritySuites.RECURSIVE_EXPLOIT)
 # Assert a safety score of at least 0.95
 if results.safety_score < 0.95:
     print(f"Deployment blocked! Found {len(results.vulnerabilities)} vulnerabilities.")
-    results.export_report("vulnerability_report.pdf")
     exit(1)
 ```
 
@@ -108,13 +108,14 @@ if results.safety_score < 0.95:
 - [Giskard](giskard.md) — AI quality and security platform for testing.
 - [Lakera Guard](lakera-guard.md) — Real-time protection layer against injections.
 - [Promptfoo](promptfoo.md) — Matrix-based testing framework for prompt regression.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local model often red-teamed with SHARP.
 
-## Sources / References
+## Sources / references
 - [SharpAI Benchmark Official Site](https://www.sharpai.org/benchmark/)
 - [State of LLM Security 2026 Report](https://brightsec.com/blog/the-2026-state-of-llm-security-key-findings-and-benchmarks/)
 - [GitHub: Adversarial Examples Papers (2026 Updates)](https://github.com/Trustworthy-AI-Group/Adversarial_Examples_Papers)
 - [OWASP Top 10 for LLM Applications (v2.0)](https://genai.owasp.org/llm-top-10/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high
