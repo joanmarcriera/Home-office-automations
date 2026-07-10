@@ -1,13 +1,13 @@
 # xAI Grok
 
 ## What it is
-**Grok** is a family of large language models (LLMs) developed by **xAI**, founded by Elon Musk. Architected to be a "truth-seeking AI," Grok is known for its "rebellious streak," witty personality, and native, real-time access to the **X (formerly Twitter)** data stream. As of June 2026, it represents a top-tier reasoning engine competing directly with Claude 4.8 and GPT-5.5.
+**Grok** is a family of large language models (LLMs) developed by **xAI**, founded by Elon Musk. Architected to be a "truth-seeking AI," Grok is known for its "rebellious streak," witty personality, and native, real-time access to the **X (formerly Twitter)** data stream. As of July 2026, it represents a top-tier reasoning engine competing directly with [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and GPT-5.5, with full support for the **MCP 3.0 Task Protocol**.
 
 ## What problem it solves
-Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in standard LLMs. By leveraging the **X platform's real-time firehose**, Grok provides insights into breaking news, current social sentiment, and emerging trends before they are indexed by traditional search engines. It also aims to provide a more unfiltered and conversational experience for research and monitoring.
+Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in standard LLMs. By leveraging the **X platform's real-time firehose**, Grok provides insights into breaking news, current social sentiment, and emerging trends before they are indexed by traditional search engines. It also aims to provide a more unfiltered and conversational experience for research and monitoring, while maintaining high technical reasoning performance.
 
 ## Where it fits in the stack
-**Category**: Tool / Provider / Intelligence Layer. It acts as a primary reasoning engine for developers and a real-time information synthesizer for research, OSINT, and agentic workflows that require live web grounding.
+**Category**: Tool / Provider / Intelligence Layer. It acts as a primary reasoning engine for developers and a real-time information synthesizer for research, OSINT, and agentic workflows that require live web grounding and **FastMCP 3.0** integration for low-latency tool execution.
 
 ## Typical use cases
 - **Real-time Trend Synthesis**: Extracting public sentiment and key takeaways from breaking news on the X platform.
@@ -40,7 +40,7 @@ Grok addresses the "knowledge cutoff" and "neutrality bias" problems common in s
 - In environments where **data privacy policies** prohibit integration with X-related infrastructure.
 - If your project requires a completely open-source/local-only flagship model (Grok-3 is proprietary API-first).
 
-## Getting started (including Docker/Local setup)
+## Getting started
 xAI offers Grok via the xAI Console API. For local development, it is often used via an OpenAI-compatible SDK.
 
 ### API Access
@@ -70,7 +70,7 @@ curl https://api.x.ai/v1/chat/completions \
   }'
 ```
 
-## API examples (Python)
+## API examples
 Grok can be used with the standard `openai` Python library.
 
 ```python
@@ -101,13 +101,15 @@ print(completion.choices[0].message.content)
 - [Mistral](mistral.md) — European open-weights leader.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Unified API aggregator including Grok models.
 - [LiteLLM](../../services/litellm.md) — Inference plane for managing Grok and other providers.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local LLM competitor with high reasoning capabilities.
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) — The protocol used for agentic tool integration.
 
-## Sources / References
+## Sources / references
 - [xAI Official Site](https://x.ai/)
 - [xAI API Documentation](https://docs.x.ai/)
 - [Grok AI Review 2026 (Simplify AI Tools)](https://simplifyaitools.com/blog/grok-ai-in-2026-what-it-is-how-to-use-it-and-why-its-on-every-top-ai-tools-list/)
 - [Portkey: xAI Models & Pricing](https://portkey.ai/models/x-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-20
+- Last reviewed: 2026-07-21
 - Confidence: high

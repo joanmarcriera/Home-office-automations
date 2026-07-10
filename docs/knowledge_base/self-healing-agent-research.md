@@ -1,7 +1,7 @@
 # Self-Healing Homelab Agent Research
 
 ## What it is
-A specialized monitoring and remediation agent (implemented via n8n, custom Python scripts, or **Agent Platform** managed agents) designed to detect failures in the homelab stack and take autonomous corrective actions using log-based reasoning.
+A specialized monitoring and remediation agent (implemented via n8n, custom Python scripts, or **Agent Platform** managed agents) designed to detect failures in the homelab stack and take autonomous corrective actions using log-based reasoning. As of July 2026, these agents leverage **MCP 3.0 Task Protocol** for direct infrastructure manipulation and [Gemma 3](../tools/ai_knowledge/local_llms.md) for low-latency edge reasoning.
 
 ## What problem it solves
 - **Manual Monitoring Overhead**: Reduces the need for humans to constantly check dashboards.
@@ -10,7 +10,7 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 - **Root Cause Analysis (RCA)**: Using LLMs to reason about log patterns rather than just reacting to status codes.
 
 ## Where it fits in the stack
-**Observability / Automation Layer**. It sits "above" the services (Home Assistant, Paperless, etc.) and "beside" the infrastructure (TrueNAS, K3s), using webhooks, SSH, and the Kubernetes API to bridge the gap between detection and action.
+**Observability / Automation Layer**. It sits "above" the services (Home Assistant, Paperless, etc.) and "beside" the infrastructure (TrueNAS, K3s), using webhooks, SSH, and the Kubernetes API to bridge the gap between detection and action. It utilizes **FastMCP 3.0** for real-time tool orchestration.
 
 ## Typical use cases
 - **Hung Web Services**: Restarting a Docker container that is technically "running" but not responding to HTTP requests.
@@ -19,7 +19,7 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 - **Log-Based Remediation**: Detecting a specific database lock pattern in logs and running a cleanup script.
 
 ## Strengths
-- **Low Latency**: Responses happen in seconds, not minutes.
+- **Low Latency**: Responses happen in seconds, not minutes, especially when using local models like [Gemma 3](../tools/ai_knowledge/local_llms.md).
 - **Intelligent Recovery**: LLM-based reasoning can distinguish between a transient network blip and a persistent config error.
 - **Traceability**: Every action is logged, providing a clear history of system stability.
 
@@ -37,99 +37,58 @@ A specialized monitoring and remediation agent (implemented via n8n, custom Pyth
 - **Critical Data Integrity**: Do not automate remediation for services where a restart during a write operation could cause corruption.
 - **Infrastructure Core**: Do not automate self-healing for the networking layer (Tailscale/BGP) unless you have an out-of-band management channel.
 
-## Monitoring & Reasoning Strategy (June 2026)
+## Getting started
+Implementing a self-healing agent involves setting up monitoring triggers and connecting them to an AI-driven remediation loop.
 
-### 1. Log-Based Reasoning (The "Observer" Pattern)
-Instead of simple regex, the agent uses an LLM (e.g., Claude 4.8 Opus or Gemini 3.5 Flash) to analyze log chunks.
-- **Method**: Forward logs via **OpenTelemetry** or specialized **Managed Agents API (MCP 3.0)**.
-- **Reasoning**: "Is this 'Connection Refused' error caused by the DB being down or a bad API key?"
+### 1. Monitoring Setup
+Configure **Uptime Kuma** or **Prometheus** to send webhooks to your agent (e.g., n8n or a custom Python script) when a service goes down.
 
-### 2. Service Health Checks
-| Service | Endpoint / Method | Success Indicator |
-| :--- | :--- | :--- |
-| **Home Assistant** | `GET /api/` | `{"message": "API running."}` (Requires Token) |
-| **Paperless-ngx** | `GET /` | HTTP 200 (Login page or Dashboard) |
-| **n8n** | `GET /healthz` | HTTP 200 |
-| **Vikunja** | `GET /api/v1/info` | HTTP 200 |
+### 2. Remediation Logic
+Integrate an LLM (local [Gemma 3](../tools/ai_knowledge/local_llms.md) via [Ollama](../services/ollama.md) or cloud-based Claude 4.8) to analyze the failure and decide on an action.
 
-## Remediation Logic (Restart Strategies)
+## CLI examples
+The agent can use CLI tools like `kubectl` or `docker` via MCP tools to execute remediation.
 
-### Kubernetes (K3s) Rollout
-Using the native K8s API for safer, zero-downtime restarts.
 ```bash
-# Force a rollout restart of a deployment
+# Force a rollout restart of a deployment via K8s API
 kubectl rollout restart deployment/paperless-ngx -n apps
+
+# Check logs of a failing container for AI analysis
+docker logs --tail 100 paperless-ngx
+
+# Revert a configuration change in a Git-ops repo
+git revert HEAD && git push origin main
 ```
 
-### Agentic Config Rollback
-If the agent detects a failure immediately following a config change (detected via Git/Gitea webhooks), it can revert the change.
-1. Detect health failure.
-2. Check recent Git commits in the `homelab-ops` repo.
-3. If commit < 5 mins ago, `git revert HEAD` and push.
-4. Trigger redeploy.
-
-## Technical Examples
-
-### Agentic Recovery Loop (Python + Ollama)
-This script uses a local LLM to decide whether to restart or escalate.
+## API examples
+Remediation can be orchestrated using the MCP Python SDK to call system tools safely.
 
 ```python
-import subprocess
-import requests
-import json
-
-def get_ai_decision(error_logs):
-    # Ask local LLM to reason about the log
-    prompt = f"Analyze these logs and choose [RESTART, RECONFIG, ESCALATE]. Logs: {error_logs}"
-    # Implementation using Ollama or LiteLLM
-    # response = ...
-    return "RESTART" # Simplified for example
-
-def remediate(service_name, action):
-    if action == "RESTART":
-        subprocess.run(["kubectl", "rollout", "restart", f"deployment/{service_name}"])
-    elif action == "ESCALATE":
-        send_telegram_alert(f"Critical failure in {service_name}. Manual intervention required.")
-
-def main():
-    # Monitor loop
-    # ...
-    pass
+# Example MCP tool call for service restart
+async with McpClient(server_config) as client:
+    await client.call_tool(
+        "restart_service",
+        {"service_name": "home-assistant", "namespace": "default"}
+    )
 ```
 
-### n8n Remediation Workflow
-1. **Trigger**: Uptime Kuma Webhook (Down).
-2. **Action**: Fetch last 100 lines of logs from the service.
-3. **Reasoning**: AI Node (Claude 4.8 or Gemini 3.5 Flash) - "What is the likely fix?"
-4. **Execution**: Execute SSH or K8s command via **MCP 3.0** based on AI output.
-5. **Verification**: Wait 60s, check health again.
-6. **Notification**: Send result to Telegram.
-
-## Automated Alerts
-- **High Priority**: (Hardware failure, ZFS pool issues, AI Remediation failed) -> Telegram/Pushover.
-- **Medium Priority**: (Self-healing successful) -> Slack/Log entry only.
-
 ## Related tools / concepts
-- [n8n Error Handling](patterns/n8n-error-handling.md) — specific patterns for building resilient workflows.
-- [Agentic Workflows](patterns/agentic-workflows.md) — broader context for autonomous agent logic.
-- [Invisible Kubernetes](invisible_kubernetes.md) — the infrastructure layer these agents often manage.
-- [Home Admin Agent Architecture](home-admin-agent-architecture.md) — integration with the primary family assistant.
-- [Gitea](../services/gitea.md) — for config rollback patterns.
-- [n8n](../services/n8n.md) — automation platform for recovery workflows.
-- [Uptime Kuma](../services/uptime-kuma.md) — for service monitoring and triggers.
+- [n8n Error Handling](patterns/n8n-error-handling.md) — Specific patterns for building resilient workflows.
+- [Agentic Workflows](patterns/agentic-workflows.md) — Broader context for autonomous agent logic.
+- [Invisible Kubernetes](invisible_kubernetes.md) — The infrastructure layer these agents often manage.
+- [Home Admin Agent Architecture](home-admin-agent-architecture.md) — Integration with the primary family assistant.
+- [Gitea](../services/gitea.md) — For config rollback patterns.
+- [n8n](../services/n8n.md) — Automation platform for recovery workflows.
+- [Uptime Kuma](../services/uptime-kuma.md) — For service monitoring and triggers.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Preferred local reasoning engine for edge remediation.
+- [MCP (Model Context Protocol)](../tools/automation_orchestration/mcp.md) — The protocol enabling secure tool access for agents.
 
-## Implementation Roadmap (June 2026)
-1. **Phase 1 (Baseline)**: Set up n8n "Health Check" loop and Telegram alerts.
-2. **Phase 2 (Reactive)**: Implement SSH-based `docker restart` commands.
-3. **Phase 3 (Agentic)**: Integrate Claude 4.8 or Gemini 3.5 Flash for log analysis before acting.
-4. **Phase 4 (Infrastructure)**: Move to K8s `rollout restart` and Git-based config rollback with MCP 3.0 verification.
-
-## Sources / References
+## Sources / references
 - [Kubernetes Self-Healing Patterns (CNCF)](https://www.cncf.io/blog/2026/02/10/self-healing-kubernetes-agentic-patterns/)
-- [Gemini 3.5 Flash for Ops (Google Cloud Blog)](https://cloud.google.com/blog/products/ai-machine-learning/gemini-flash-ops)
+- [Gemma 3 for Ops (Google AI Blog)](https://ai.google.dev/gemma)
 - [n8n AI Node Documentation](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.ai-agent/)
 - [MCP 3.0 Specification](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
