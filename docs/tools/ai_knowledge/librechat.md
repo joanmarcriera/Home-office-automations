@@ -1,16 +1,16 @@
 # LibreChat
 
 ## What it is
-LibreChat is a free, open-source AI conversation platform that provides a unified interface for multiple AI models. As of June 2026, it has matured into a comprehensive "Agentic Data Analytics" platform following its acquisition by ClickHouse, offering multi-agent support, native multimodality, and robust administrative controls.
+LibreChat is a free, open-source AI conversation platform that provides a unified interface for multiple AI models. As of July 2026, it has matured into a comprehensive "Agentic Data Analytics" platform following its acquisition by ClickHouse, offering multi-agent support, native multimodality, and robust administrative controls.
 
 ## What problem it solves
 It eliminates the need to switch between multiple chat interfaces for different AI providers and solves the "interface fragmentation" problem for organizations. It provides a self-hosted, privacy-centric alternative to proprietary UIs, now enhanced with native "Agents" that can perform complex data analytics and handle multi-modal files (video, PDF, etc.) locally or via cloud providers.
 
 ## Where it fits in the stack
-**Category**: AI Assistants & Knowledge / Self-hosted Chat UI. It serves as the primary "Front-End Operating System" for AI in a homelab or enterprise environment, orchestrating multiple LLM backends and MCP servers.
+**Category**: AI Assistants & Knowledge / Self-hosted Chat UI. It serves as the primary "Front-End Operating System" for AI in a homelab or enterprise environment, orchestrating multiple LLM backends and [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol servers.
 
 ## Typical use cases
-- **Unified AI Hub**: Accessing frontier models (GPT-5, Claude 4.8) and local models (Llama 3.1) through a single, polished UI.
+- **Unified AI Hub**: Accessing frontier models (GPT-5, Claude 4.8) and local models like [Gemma 3](local_llms.md) through a single, polished UI.
 - **Agentic Data Analytics**: Utilizing the ClickHouse-backed infrastructure to run complex queries and visualizations over large datasets via specialized agents.
 - **Multimodal Document Processing**: Using native OCR and video understanding to analyze diverse file types in-situ.
 - **Organizational AI Gateway**: Providing secure, SSO-enabled access to AI tools with fine-grained Access Control Lists (ACLs) and an Admin Panel.
@@ -20,7 +20,7 @@ It eliminates the need to switch between multiple chat interfaces for different 
 - **Rich Multimodality**: Native handling for video understanding, PDFs, and inline Mermaid diagrams for visualization.
 - **Persistence & Personalization**: Features "Resumable Chats" (preserving context through disconnects) and "User Memories" for long-term personalization.
 - **Enterprise Ready**: Includes a robust Admin Panel (introduced in Q1 2026), ACLs, and seamless SSO integration.
-- **Open Source Transparency**: Remains community-driven with over 33,000 GitHub stars and extensive customization options.
+- **Open Source Transparency**: Remains community-driven with over 35,000 GitHub stars and extensive customization options.
 
 ## Limitations
 - **Deployment Complexity**: Setting up the full stack (including ClickHouse for advanced analytics) requires significant Docker and networking expertise.
@@ -32,7 +32,7 @@ It eliminates the need to switch between multiple chat interfaces for different 
 - If you value "User Memories" and "Resumable Chats" for a persistent AI experience.
 
 ## When not to use it
-- For very simple, single-user local chat where a lightweight app like Jan.ai or Ollama CLI would suffice.
+- For very simple, single-user local chat where a lightweight app like [Jan.ai](../infrastructure/jan-ai.md) or Ollama CLI would suffice.
 - If you prefer a zero-maintenance SaaS experience over a self-hosted platform.
 
 ## Getting started
@@ -89,5 +89,5 @@ endpoints:
 - [LibreChat Documentation: Configuration Guide](https://www.librechat.ai/docs/configuration/librechat_yaml)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-11
 - Confidence: high

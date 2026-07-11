@@ -1,13 +1,13 @@
 # NVIDIA Nemotron
 
 ## What it is
-NVIDIA Nemotron is a family of open-source language models designed specifically for agentic AI, enterprise workflows, and high-precision reasoning. As of June 2026, the family includes the flagship **Nemotron 4** family, co-developed with the **Nemotron Coalition**, which optimizes for multi-agent coordination and high-throughput Blackwell inference.
+NVIDIA Nemotron is a family of open-source language models designed specifically for agentic AI, enterprise workflows, and high-precision reasoning. As of July 2026, the family includes the flagship **Nemotron 4** family, which optimizes for multi-agent coordination and high-throughput Blackwell inference, often benchmarked alongside [Gemma 3](local_llms.md).
 
 ## What problem it solves
 It addresses the "thinking tax" and "context explosion" inherent in multi-agent systems. By using a hybrid Mamba-Transformer backbone and Latent MoE (Mixture-of-Experts), it provides high-capacity reasoning and a massive 1M-token context window with significantly higher throughput efficiency compared to traditional dense models on NVIDIA hardware.
 
 ## Where it fits in the stack
-**Model Provider / Intelligence Layer**. It serves as the "brain" for long-running autonomous agents, particularly in software development, cybersecurity triaging, and complex RAG pipelines.
+**Model Provider / Intelligence Layer**. It serves as the "brain" for long-running autonomous agents, particularly in software development, cybersecurity triaging, and complex RAG pipelines using the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol.
 
 ## Typical use cases
 - **Software Engineering Agents**: Handling complex codebase reasoning and multi-step merge requests (e.g., used by Cursor and Sarvam).
@@ -33,7 +33,7 @@ It addresses the "thinking tax" and "context explosion" inherent in multi-agent 
 
 ## When not to use it
 - On **consumer hardware** with low VRAM (unless using heavily quantized versions or smaller Nano variants).
-- For **simple, short-context chat** tasks where lighter models like Llama 3 8B are faster and more cost-effective.
+- For **simple, short-context chat** tasks where lighter models like [Gemma 3](local_llms.md) 8B are faster and more cost-effective.
 - When working on **non-NVIDIA hardware** (e.g., AMD, Apple Silicon), as many core optimizations will not be available.
 
 ## Getting started
@@ -91,17 +91,17 @@ for output in outputs:
 - [NVIDIA NeMo Retriever](../agents/nemo-retriever.md) — Agentic RAG framework optimized for Nemotron.
 - [vLLM](../infrastructure/vllm.md) — Recommended inference engine for high-throughput serving.
 - [SGLang](../infrastructure/sglang.md) — High-performance runtime for agentic tool-calling.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — For connecting Nemotron agents to local tools.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For connecting Nemotron agents to local tools.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The primary architectural pattern for Nemotron.
 - [Claude Code Agent](../development_ops/claude-code.md) — A comparable developer-focused agentic model.
 - [OpenCode](../development_ops/opencode.md) — Open-source alternative for agentic coding tasks.
 - [Llama 4 Maverick](../ai_knowledge/llama.md) — Competitive open-weights frontier model.
 
-## Sources / References
+## Sources / references
 - [NVIDIA Launches Nemotron Coalition (March 2026)](https://nvidianews.nvidia.com/news/nvidia-launches-nemotron-coalition-of-leading-global-ai-labs-to-advance-open-frontier-models)
 - [NVIDIA Nemotron-4 340B Technical Report](https://arxiv.org/abs/2406.11704)
 - [Optimizing Nemotron for Blackwell Architecture (NVIDIA Developer Blog)](https://developer.nvidia.com/blog/optimizing-nemotron-for-blackwell/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-11
 - Confidence: high
