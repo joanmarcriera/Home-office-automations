@@ -1,7 +1,7 @@
 # Data Copilot: Reference Implementation
 
 ## What it is
-This reference implementation provides a Python-based skeleton for the layered Text-to-SQL pipeline. It demonstrates how to use Pydantic for structured data exchange between the different agent layers, where to insert human corrections, and how to keep model routing configurable for free/cheap-first deployments.
+This reference implementation provides a Python-based skeleton for the layered Text-to-SQL pipeline. By July 2026, it has been optimized to leverage [Gemma 3](../../tools/ai_knowledge/local_llms.md) for low-cost schema pruning and the **MCP 3.0 Task Protocol** for standardized tool orchestration. It demonstrates how to use Pydantic for structured data exchange between the different agent layers, where to insert human corrections, and how to keep model routing configurable for free/cheap-first deployments.
 
 ## What problem it solves
 - **Complexity in Text-to-SQL**: Breaks down a complex single-shot prompt into manageable agentic layers.
@@ -10,7 +10,7 @@ This reference implementation provides a Python-based skeleton for the layered T
 - **Cost Management**: Enables routing different tasks to different models (e.g., local Ollama for pruning, Claude 4.8 for generation).
 
 ## Where it fits in the stack
-**Reference Implementation**. It serves as a blueprint for building data-focused agents within the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) and integrates with the [Model Routing Guide](../../knowledge_base/model_routing_guide.md).
+**Reference Implementation**. It serves as a blueprint for building data-focused agents within the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) and integrates with the [Model Routing Guide](../../knowledge_base/model_routing_guide.md). It utilizes **FastMCP 3.0** for high-performance communication between the orchestration layer and database-specific MCP servers.
 
 ## Typical use cases
 - **Self-Service Analytics**: Allowing non-technical users to query business databases using natural language.
@@ -54,12 +54,21 @@ pip install pydantic asyncio requests
 3.  Define your schema in the format expected by the `TableAgent`.
 4.  Run the main loop to process a natural language query.
 
-## Implementation Skeleton
+## CLI examples
+You can run the reference implementation from the command line to test different queries and model routes.
 
-The following script defines the interfaces for the Workspace Router, Intent Agent, Table Agent, Column Prune Agent, and SQL Generator.
+```bash
+# Run a test query against the skeleton
+python3 skeleton.py --query "Total sales in London last month" --model-route "gpt-4o-mini"
+
+# Run with human review enabled
+python3 skeleton.py --query "Show me top users" --hitl
+```
+
+## API examples
+The skeleton exposes an asynchronous `process_query` function that can be integrated into larger agentic workflows. The following defines the Pydantic interfaces for the Workspace Router, Intent Agent, Table Agent, Column Prune Agent, and SQL Generator.
 
 ```python
-# Simplified skeleton showing the Pydantic interfaces
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -76,29 +85,12 @@ class PrunedSchema(BaseModel):
     tables: List[TableMetadata]
     intent_summary: str
 
-# Example Agent Call
+# Example Agent Call for Column Pruning
 async def prune_columns(table: TableMetadata, intent: str) -> List[str]:
-    # Logic to call LLM and filter relevant columns
+    # Logic to call LLM (e.g., Gemma 3) and filter relevant columns
     pass
-```
 
-> **Note**: For the full implementation including model routing and HITL hooks, refer to the source `skeleton.py` in the repository.
-
-## CLI examples
-You can run the reference implementation from the command line to test different queries and model routes.
-
-```bash
-# Run a test query against the skeleton
-python3 skeleton.py --query "Total sales in London last month" --model-route "gpt-4o-mini"
-
-# Run with human review enabled
-python3 skeleton.py --query "Show me top users" --hitl
-```
-
-## API examples
-The skeleton exposes an asynchronous `process_query` function that can be integrated into larger agentic workflows.
-
-```python
+# Main Processing Loop
 import asyncio
 from skeleton import process_query
 
@@ -112,6 +104,8 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+> **Note**: For the full implementation including model routing and HITL hooks, refer to the source `skeleton.py` in the repository.
 
 ## Related tools / concepts
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The broader framework this skeleton follows.
@@ -132,5 +126,5 @@ if __name__ == "__main__":
 - [LangGraph: Stateful Agentic RAG (2026)](https://medium.com/@vinodkrane/next-generation-agentic-rag-with-langgraph-2026-edition-d1c4c068d2b8)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
