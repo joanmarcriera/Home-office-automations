@@ -17,10 +17,11 @@ It reduces the friction of building production-ready AI apps by providing a unif
 
 ## Strengths
 - **App Developer Centric**: Uses paradigms and tooling familiar to mobile and web developers.
-- **Unified API**: Support for Gemini, OpenAI, Ollama, DeepSeek, and more.
+- **Unified API**: Support for Gemini, OpenAI, Ollama, DeepSeek, and [Gemma 3](../ai_knowledge/local_llms.md).
 - **Developer Experience (DX)**: Includes a local Developer UI for testing prompts, flows, and tool calls in real-time.
 - **Observability**: Built-in support for traces, logs, and token usage metrics.
 - **Seamless Firebase Integration**: Works out-of-the-box with Firebase Auth, Firestore, and Cloud Functions.
+- **MCP 3.0 Support**: Native integration with the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) for extensible tool usage.
 
 ## Limitations
 - **Ecosystem Focus**: While open-source, it is optimized for the Google Cloud/Firebase stack.
@@ -119,6 +120,7 @@ print(f"Generated text: {response.text}")
 - [Langflow](langflow.md)
 - [Dify](../ai_knowledge/dify.md)
 - [Instructor](instructor.md)
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [Official Website](https://genkit.dev/)
@@ -127,5 +129,5 @@ print(f"Generated text: {response.text}")
 - [Firebase AI Codelab](https://firebase.google.com/codelabs/ai-genkit-rag)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
