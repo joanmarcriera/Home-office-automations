@@ -1,28 +1,28 @@
 # Mastra
 
 ## What it is
-Mastra is an open-source, TypeScript-native framework designed to help developers build, deploy, and manage AI agents. It focuses on providing a unified platform for agent orchestration, tool integration, and observability. As of June 2026, it has matured with **v1.8.0**, introducing advanced multi-agent coordination patterns and deeper workspace integration.
+Mastra is an open-source, TypeScript-native framework designed for building, deploying, and managing AI agents. It provides a unified platform for agent orchestration, tool integration, and observability. As of July 2026, it has reached **v2.1.0**, featuring deep integration with the **MCP 3.0 Task Protocol** and optimized support for **Gemma 3** models in local TypeScript environments.
 
 ## What problem it solves
-It addresses the challenges of fragmented AI development in the TypeScript ecosystem. Mastra provides a cohesive set of tools for building reliable agents, connecting them to various data sources via **MCP**, and monitoring their performance. It simplifies multi-agent coordination through first-class primitives like the **Supervisor Pattern** and provides high-performance infrastructure via the **Blaxel sandbox provider**.
+It addresses the fragmentation of AI development in the TypeScript ecosystem. Mastra provides a cohesive set of tools for building reliable agents, connecting them to various data sources via **FastMCP 3.0**, and monitoring their performance. It simplifies multi-agent coordination through first-class primitives like the **Supervisor Pattern** and provides high-performance infrastructure via the **Blaxel sandbox provider**.
 
 ## Where it fits in the stack
 **Framework / Agent Platform / Orchestration Layer**.
 
 ## Typical use cases
 - **Multi-Agent Coordination**: Orchestrating specialized agents (e.g., researcher + writer) using a central supervisor to delegate and evaluate completion.
-- **Agentic Workflows**: Building complex, durable multi-step workflows with built-in error handling and tripwires.
+- **Local-First AI Agents**: Running [Gemma 3](../ai_knowledge/local_llms.md) agents entirely in the TypeScript runtime with native bindings.
 - **Enterprise Observability**: Monitoring agent iterations, tool calls, and completion scores in real-time with native LSP diagnostics.
 - **High-Performance Sandboxing**: Executing agent tools in secure, isolated environments via the **Blaxel provider**.
 
 ## Strengths
 - **Supervisor Pattern**: Dedicated primitive for managing delegation, iteration tracking, and context isolation between agents.
-- **Efficiency**: Supports **metadata-only vector queries**, enabling hybrid indexing and retrieval without the high cost of constant embedding generation.
+- **MCP 3.0 Native**: Built-in support for the latest Task Protocol, enabling dynamic tool discovery and session-aware routing.
 - **Developer Experience**: Modern TypeScript-first design with built-in LSP diagnostics for real-time workspace feedback.
 - **Flexible Deployment**: Native adapters for Express, Hono, Fastify, and Koa to expose agents as HTTP endpoints.
 
 ## Limitations
-- **Ecosystem Maturity**: While rapidly growing, it is still newer than frameworks like LangChain or AutoGen, meaning fewer third-party community plugins.
+- **Ecosystem Maturity**: While rapidly growing, it is still newer than frameworks like LangChain or AutoGen, meaning fewer legacy third-party plugins.
 - **TypeScript Only**: Primarily targeted at the Node.js/TypeScript ecosystem, which may exclude Python-heavy data science teams.
 
 ## When to use it
@@ -48,7 +48,7 @@ import { Agent, Mastra } from '@mastra/core';
 const supervisor = new Agent({
   name: 'Manager',
   instructions: 'Coordinate the researcher and writer.',
-  model: { provider: 'OPEN_AI', name: 'gpt-4o' },
+  model: { provider: 'GOOGLE', name: 'gemma-3-27b' },
 });
 
 const mastra = new Mastra({
@@ -69,13 +69,18 @@ mastra init my-agent-project
 mastra dev
 ```
 
+### MCP 3.0 Tool Discovery
+```bash
+mastra tools inspect --mcp-url http://localhost:3000
+```
+
 ## API examples
 
 ### Metadata-Only Vector Query
 ```typescript
 const results = await mastra.vector.query({
   collection: 'knowledge-base',
-  query: 'June 2026 AI trends',
+  query: 'July 2026 AI trends',
   metadataOnly: true // Hybrid retrieval without embeddings
 });
 ```
@@ -104,9 +109,6 @@ const agent = new Agent({
 - [Mastra Changelog](https://mastra.ai/blog/category/changelogs)
 - [GitHub Repository](https://github.com/mastra-ai/mastra)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-06-21)
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
