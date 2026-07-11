@@ -1,7 +1,7 @@
 # Rivet
 
 ## What it is
-Rivet is an open-source visual AI programming environment and TypeScript library developed by Ironclad. It allows developers to build, test, and debug complex multi-agent AI systems using a node-based editor. As of June 2026, it has evolved into a comprehensive agent infrastructure provider with the launch of **agentOS**, **Rivet Actors**, and a full Rust-based rewrite of its core libraries (RivetKit 2.3).
+Rivet is an open-source visual AI programming environment and TypeScript library developed by Ironclad. It allows developers to build, test, and debug complex multi-agent AI systems using a node-based editor. As of July 2026, it has fully integrated with the **MCP 3.0 Task Protocol** and **Gemma 3** for high-performance visual reasoning and autonomous multi-agent coordination.
 
 ## What problem it solves
 It provides a powerful visual interface for designing AI logic, making it easier to manage complex flows and collaborate on agentic behaviors. It solves the performance and cost bottlenecks of traditional sandboxed environments through **agentOS**, which uses Wasm and V8 isolates for near-instant cold starts. Additionally, **Rivet Actors** address the need for stateful, distributed agent execution with million-scale isolated databases via **SQLite for Rivet Actors**.
@@ -13,13 +13,13 @@ It provides a powerful visual interface for designing AI logic, making it easier
 - **Visual Agent Design**: Designing intricate logic for autonomous or semi-autonomous AI agents using a node-based editor.
 - **Stateful Edge Computing**: Deploying millions of isolated, stateful actors that run at the edge with built-in SQLite persistence.
 - **High-Performance Sandboxing**: Running untrusted AI-generated code in **agentOS** with ~6ms cold starts, significantly faster than traditional Docker-based sandboxes.
-- **Serverless Agent Hosting**: Utilizing **Rivet Compute** to host and scale agent actors without managing underlying infrastructure.
+- **Agentic Visual Reasoning**: Leveraging [Gemma 3](../ai_knowledge/local_llms.md) for processing complex visual inputs within agentic graphs.
 
 ## Strengths
 - **Developer-Centric Debugging**: Real-time visual inspection of prompt chains and agent execution.
 - **Extreme Performance**: agentOS provides a full POSIX environment that is 32x cheaper and significantly faster than traditional VMs.
 - **Stateful Concurrency**: Native support for stateful actors using the **Rust SDK** or **Effect SDK** for Rivet Actors.
-- **Local-First / Edge-Native**: SQLite-per-actor architecture allows for massive horizontal scaling at the edge.
+- **FastMCP 3.0 Integration**: Built-in support for the latest Model Context Protocol for seamless tool and context sharing.
 
 ## Limitations
 - **Visual Overhead**: For extremely simple prompt calls, the visual graph overhead may be unnecessary.
@@ -63,6 +63,11 @@ rivet run my-project.rivet-project --graph "Main Graph" --input userInput="Hello
 rivet deploy --actor my-agent-actor
 ```
 
+### Running a Rivet Actor locally
+```bash
+rivet-actor run --port 8080
+```
+
 ## API examples
 
 ### Running a Graph in Node.js
@@ -99,7 +104,7 @@ async fn my_actor(ctx: Context, input: String) -> Result<String> {
 ## Related tools / concepts
 - [Langflow](langflow.md) — Visual workflow builder.
 - [Flowise](../ai_knowledge/flowise.md) — Node-based UI for LLM flows.
-- [AutoGen](ag2.md) — Rebranded as AG2, focused on multi-agent conversation.
+- [AG2](ag2.md) — Multi-agent conversation framework.
 - [Promptfoo](../benchmarking/promptfoo.md) — Evaluation and testing for Rivet graphs.
 - [LangGraph](langgraph.md) — Code-centric multi-agent orchestration.
 - [PydanticAI](pydantic-ai.md) — Type-safe agent framework from Pydantic.
@@ -112,9 +117,6 @@ async fn my_actor(ctx: Context, input: String) -> Result<String> {
 - [GitHub Repository](https://github.com/Ironclad/rivet)
 - [agentOS Documentation](https://sandboxagent.dev/)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-06-21)
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
