@@ -1,7 +1,7 @@
 # Flowise
 
 ## What it is
-Flowise is an open-source visual builder for LLM applications and agentic systems. Built on top of LangChain and enhanced with the "AgentFlow" framework, it provides a drag-and-drop interface to create complex multi-agent orchestrations, RAG pipelines, and automated AI workflows.
+Flowise is an open-source visual builder for LLM applications and agentic systems. Built on top of LangChain and enhanced with the "AgentFlow" framework, it provides a drag-and-drop interface to create complex multi-agent orchestrations, RAG pipelines, and automated AI workflows. As of July 2026, it features deep integration with [Gemma 3](local_llms.md) and the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol.
 
 ## What problem it solves
 It lowers the barrier to entry for building sophisticated AI applications by providing a no-code/low-code interface. It enables rapid prototyping of agentic systems where autonomous agents can reason, collaborate, and act, while providing built-in Human-in-the-Loop (HITL) controls to ensure safety and reliability in production.
@@ -12,12 +12,12 @@ It lowers the barrier to entry for building sophisticated AI applications by pro
 ## Typical use cases
 - **Multi-Agent Orchestration**: Coordinating multiple specialized agents (e.g., a "Researcher" and a "Writer") to complete complex tasks using distributed workflows.
 - **Enterprise RAG Pipelines**: Building high-fidelity retrieval systems that connect to 10+ vector databases and utilize advanced retrievers.
-- **Agentic Automation**: Creating workflows where agents use the Model Context Protocol (MCP) to interact with local files, databases, and APIs.
+- **Agentic Automation**: Creating workflows where agents use the [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) to interact with local files, databases, and APIs.
 - **Secure Internal Tools**: Deploying AI assistants for team use with built-in SSRF protection and security isolation for sensitive data.
 
 ## Strengths
 - **Visual Programming for Agents**: The "AgentFlow" interface makes complex multi-agent logic and task delegation intuitive.
-- **MCP Integration**: Native support for Model Context Protocol allows for seamless connection to a vast ecosystem of standardized tools and data sources.
+- **MCP 3.0 Integration**: Native support for Model Context Protocol allows for seamless connection to a vast ecosystem of standardized tools and data sources.
 - **Safety & Oversight**: Includes default SSRF protection and Human-in-the-Loop nodes to prevent unauthorized access and ensure output quality.
 - **Rapid Deployment**: Features a wide array of pre-built templates for common integrations (e.g., WhatsApp, Telegram, Slack).
 - **Self-Hostable**: Easily deployable via Docker for full data sovereignty in homelab or corporate environments.
@@ -30,7 +30,7 @@ It lowers the barrier to entry for building sophisticated AI applications by pro
 ## When to use it
 - When you want to build and iterate on multi-agent systems and RAG pipelines visually.
 - For rapid prototyping of complex AI workflows that require human oversight (HITL).
-- When you need a self-hosted platform with standardized tool integration via MCP.
+- When you need a self-hosted platform with standardized tool integration via MCP 3.0.
 
 ## When not to use it
 - For performance-critical, low-latency applications where the overhead of a visual builder is unacceptable.
@@ -49,7 +49,7 @@ docker run -d --name flowise -p 3000:3000 flowiseai/flowise
 1. Navigate to `http://localhost:3000` and click "Add New" -> "AgentFlow".
 2. Drag an "Agent" node and a "Supervisor" node into the workspace.
 3. Connect specialized agent nodes (e.g., "Web Search Agent", "Code Interpreter Agent") to the Supervisor.
-4. Add an "MCP Tool" node to give your agents access to local resources.
+4. Add an "MCP Tool" node to give your agents access to local resources via [MCP 3.0](../automation_orchestration/mcp.md).
 5. Save and use the built-in "Chat" interface to test the orchestration.
 
 ## CLI examples
@@ -98,5 +98,5 @@ curl -X POST "http://localhost:3000/api/v1/prediction/<CHATFLOW_ID>" \
 - [Top 7 Open-Source AI Low-Code Tools in 2026](https://htdocs.dev/posts/top-7-open-source-ai-lowno-code-tools-in-2026/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-11
 - Confidence: high
