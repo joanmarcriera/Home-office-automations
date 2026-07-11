@@ -1,13 +1,13 @@
 # Google Gemini
 
 ## What it is
-Google Gemini is a family of multimodal large language models developed by Google DeepMind. As of June 2026, it represents Google's most capable AI ecosystem, spanning from mobile-optimized models (Nano) to high-performance frontier models (1.5 Pro and Flash 2.0). It is uniquely characterized by its massive context window and native multimodal reasoning.
+Google Gemini is a family of multimodal large language models developed by Google DeepMind. As of July 2026, it represents Google's most capable AI ecosystem, spanning from mobile-optimized models (Nano) to high-performance frontier models (1.5 Pro and Gemini 2.0 Flash). It is uniquely characterized by its massive context window and native multimodal reasoning, now fully integrated with **MCP 3.0** for agentic tool use.
 
 ## What problem it solves
 It provides state-of-the-art reasoning across text, code, images, audio, and video. Notably, Gemini 1.5 Pro features a massive 2-million token context window, solving the problem of analyzing extremely large documents, hour-long videos, or massive codebases in a single pass. It also introduces context caching and native code execution to mitigate input costs and improve technical reasoning.
 
 ## Where it fits in the stack
-**Provider / LLM**. It serves as a primary reasoning engine for agents and applications requiring deep multimodal understanding, extremely large context processing, or integration with the Google Cloud (Vertex AI) ecosystem.
+**Provider / LLM**. It serves as a primary reasoning engine for agents and applications requiring deep multimodal understanding, extremely large context processing, or integration with the Google Cloud (Vertex AI) ecosystem. It supports the **MCP 3.0 Task Protocol** for distributed tool execution.
 
 ## Typical use cases
 - **Long Context Analysis**: Processing entire books, hour-long videos, or large repositories in one prompt.
@@ -29,30 +29,31 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 ## When to use it
 - When your task requires processing contexts larger than 200k tokens (e.g., analyzing a 2,000-page PDF).
 - For complex multimodal tasks involving video, audio, or multi-image reasoning.
-- When you need a highly efficient, low-latency model with significant reasoning power (Gemini 1.5 Flash).
+- When you need a highly efficient, low-latency model with significant reasoning power (Gemini 2.0 Flash).
+- When leveraging the **MCP 3.0 Task Protocol** for cloud-based tool orchestration.
 
 ## When not to use it
-- For strictly local or air-gapped tasks requiring 100% data sovereignty.
+- For strictly local or air-gapped tasks requiring 100% data sovereignty (consider [Gemma 3](./local_llms.md) instead).
 - For simple, low-token text tasks where a cheaper or specialized local model (like Llama 3.1) would be more efficient.
 
 ## Getting started
 1. **Access**: Visit [Google AI Studio](https://aistudio.google.com/) for a developer-friendly playground and API access.
 2. **Key Generation**: Create an API Key in the "Get API Key" section.
 3. **Exploration**: Use the Studio to experiment with multimodal inputs (upload videos/audio) and test the 2M token limit.
-4. **Integration**: For enterprise-scale needs, integrate via [Google Cloud Vertex AI](https://cloud.google.com/vertex-ai).
+4. **Integration**: For enterprise-scale needs, integrate via [Google Cloud Vertex AI](https://cloud.google.com/vertex-ai) and configure **MCP 3.0** endpoints.
 
 ## CLI examples
 The `gcloud` CLI and specialized SDK wrappers provide terminal-based interaction with Gemini models.
 
 ```bash
-# Generate content via curl using your API key (1.5 Flash example)
-curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GOOGLE_API_KEY" \
+# Generate content via curl using your API key (Gemini 2.0 Flash example)
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GOOGLE_API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{ "contents": [{ "parts":[{"text": "Analyze this log file for security threats."}]}] }'
 
-# List available Gemini models via gcloud
-gcloud ai models list --region=us-central1 --project=$PROJECT_ID
+# List available Gemini models via gcloud in 2026
+gcloud ai models list --region=us-central1 --project=$PROJECT_ID --filter="display_name:gemini"
 
 # Use context caching for a large document
 curl -X POST "https://generativelanguage.googleapis.com/v1beta/cachedContents?key=$GOOGLE_API_KEY" \
@@ -69,10 +70,10 @@ import os
 
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
-# Initialize the model with code execution enabled
+# Initialize the model with code execution and MCP tool use enabled
 model = genai.GenerativeModel(
-    model_name='gemini-1.5-pro',
-    tools='code_execution'
+    model_name='gemini-2.0-flash',
+    tools=['code_execution', 'mcp_tool_provider']
 )
 
 # Multimodal prompt with a video file
@@ -86,15 +87,16 @@ print(response.text)
 - [Anthropic](../providers/anthropic.md) — Primary competitor (Claude 3.5/4.8).
 - [DeepSeek](../providers/deepseek.md) — Open-weights competitor with high efficiency.
 - [OpenRouter](./openrouter.md) — Unified API for accessing Gemini and other models.
-- [Gemma](../infrastructure/gemma.md) — Google's open-weights model family.
+- [Gemma 3](./local_llms.md) — Google's open-weights model family for local use.
 - [Vertex AI](../providers/vertex-ai.md) — Google Cloud's enterprise AI platform.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for integrating Gemini into agentic workflows.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for integrating Gemini into agentic workflows (MCP 3.0).
 
 ## Sources / references
-- [Google DeepMind: Gemini 1.5](https://deepmind.google/technologies/gemini/v1-5/)
+- [Google DeepMind: Gemini Ecosystem](https://deepmind.google/technologies/gemini/)
 - [Gemini API: Context Caching and 2M Token Window](https://ai.google.dev/gemini-api/docs/caching)
-- [Google Developers Blog: Gemini API New Features](https://developers.googleblog.com/en/new-features-for-the-gemini-api-and-google-ai-studio/)
+- [Google Developers Blog: Gemini 2.0 Flash Release](https://developers.googleblog.com/en/gemini-2-0-flash-release/)
+- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
