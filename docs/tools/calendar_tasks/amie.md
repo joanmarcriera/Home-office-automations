@@ -1,6 +1,6 @@
 # Amie
 
-Amie is a high-velocity, design-centric productivity platform that unifies calendar, tasks, and email into a single "joyful" interface. As of June 2026, it has deepened its integration with frontier models like Claude 4.8 and GPT-5.5 to provide autonomous daily planning and proactive time-blocking.
+Amie is a high-velocity, design-centric productivity platform that unifies calendar, tasks, and email into a single "joyful" interface. As of July 2026, it has deepened its integration with frontier models like [Claude 5.1](../ai_knowledge/claude.md) and [Gemma 3](../ai_knowledge/local_llms.md) to provide autonomous daily planning and proactive time-blocking.
 
 ## What it is
 Amie is an all-in-one AI-powered productivity app that combines your calendar, tasks, and emails into a single, cohesive interface. It focuses on reducing friction in the planning process through natural language and high-performance design.
@@ -15,10 +15,10 @@ It reduces context-switching by unifying personal and professional scheduling wi
 - **AI-Powered Time Blocking**: Automatically scheduling tasks based on priority and typical user behavior patterns.
 - **Natural Language Event Creation**: Using the `Cmd + K` palette to create complex events like "Coffee with Alex this Friday at 4pm at Starbucks".
 - **Unified Email-to-Task**: Dragging emails onto the calendar to instantly convert them into time-blocked tasks.
-- **Agentic Scheduling**: Using Claude 4.8 via MCP to query availability and propose meeting times to external partners.
+- **Agentic Scheduling**: Using [Claude 5.1](../ai_knowledge/claude.md) via MCP 3.0 to query availability and propose meeting times to external partners.
 
 ## Strengths
-- **Frontier AI Integration (2026)**: Native support for Claude 4.8 and GPT-5.5 for advanced natural language scheduling.
+- **Frontier AI Integration (2026)**: Native support for [Claude 5.1](../ai_knowledge/claude.md) and [Gemma 3](../ai_knowledge/local_llms.md) for advanced natural language scheduling.
 - **Design-First UX**: Extremely polished interface with smooth animations and intuitive keyboard shortcuts.
 - **High Performance**: One of the fastest applications in the productivity space for search and event creation.
 - **Deep Integrations**: Robust connectors for Jira, GitHub, Slack, and Linear.
@@ -51,13 +51,13 @@ Amie does not provide a traditional command-line binary. However, its "Command B
 
 ```bash
 # Natural Language Commands in Cmd + K
-"Plan my week" -> Triggers GPT-5.5 to distribute backlog tasks.
+"Plan my week" -> Triggers Gemma 3 to distribute backlog tasks.
 "Meet with @Sarah tomorrow" -> Opens a scheduling link for Sarah.
 "Remind me to call the bank at 10am" -> Creates a task with a reminder.
 ```
 
 ## API examples
-As of June 2026, Amie has expanded its developer access through a limited Beta API and MCP server integration.
+As of July 2026, Amie has expanded its developer access through a limited Beta API and MCP 3.0 server integration.
 
 **Triggering a Task Sync (cURL):**
 ```bash
@@ -67,14 +67,14 @@ curl -X POST "https://api.amie.so/v1/sync" \
   -d '{"source": "github", "scope": "assigned_issues"}'
 ```
 
-**Querying Availability via MCP (Claude Desktop):**
+**Querying Availability via MCP 3.0 (Claude Desktop):**
 Amie now supports a "Read-Only Calendar" tool for AI agents:
 ```json
 {
   "name": "amie_list_availability",
   "arguments": {
-    "start_time": "2026-06-22T09:00:00Z",
-    "end_time": "2026-06-22T17:00:00Z"
+    "start_time": "2026-07-22T09:00:00Z",
+    "end_time": "2026-07-22T17:00:00Z"
   }
 }
 ```
@@ -94,5 +94,5 @@ Amie now supports a "Read-Only Calendar" tool for AI agents:
 - [AI-Powered Planning Trends 2026](https://www.usecarly.com/blog/best-ai-tools-daily-planning/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
