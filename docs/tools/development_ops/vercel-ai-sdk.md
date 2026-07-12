@@ -1,10 +1,10 @@
 # AI SDK (by Vercel)
 
 ## What it is
-The AI SDK (v4+) is a TypeScript toolkit designed to help developers build AI-powered applications and agents with React, Next.js, Vue, Svelte, Node.js, and more. It provides a unified API for interacting with 20+ LLM providers and building generative user interfaces.
+The AI SDK (v4.x) is a TypeScript toolkit designed to help developers build AI-powered applications and agents with React, Next.js, Vue, Svelte, Node.js, and more. As of **July 2026**, it provides a unified API for interacting with 25+ LLM providers, including [Gemma 3](../ai_knowledge/local_llms.md) and Claude 5.1.
 
 ## What problem it solves
-It standardizes the integration of Large Language Models (LLMs) across multiple providers (OpenAI, Anthropic, Gemini, DeepSeek, etc.), reducing the technical overhead and boilerplate code required to build AI-driven features like streaming chat, structured data extraction, and autonomous agents.
+It standardizes the integration of Large Language Models (LLMs) across multiple providers, reducing the technical overhead and boilerplate code required to build AI-driven features like streaming chat, structured data extraction, and autonomous agents using the [MCP 3.0](../../knowledge_base/mcp.md) Task Protocol.
 
 ## Where it fits in the stack
 **Category**: Development & Ops / AI App SDK. It sits at the **Application Layer**, bridging the gap between frontier models and user interfaces.
@@ -25,7 +25,7 @@ It standardizes the integration of Large Language Models (LLMs) across multiple 
 
 ## Limitations
 - **TypeScript First**: Optimized primarily for TypeScript; JS support exists but is less ergonomic.
-- **Rapid Versioning**: As of 2026, the ecosystem moves quickly (v4+), requiring developers to keep dependencies (like `ai` and `@ai-sdk/provider-utils`) updated to the latest canary for the newest features.
+- **Rapid Versioning**: As of July 2026, the ecosystem moves quickly (v4.x), requiring developers to keep dependencies (like `ai` and `@ai-sdk/provider-utils`) updated to the latest canary for the newest features.
 
 ## When to use it
 - When building production-grade AI web applications with TypeScript that require multi-provider support.
@@ -61,11 +61,29 @@ vercel env add OPENAI_API_KEY
 ### Basic Text Generation
 ```typescript
 import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
 
 const { text } = await generateText({
-  model: openai("gpt-4o"),
+  model: google("gemma3-27b-it"),
   prompt: "What is the best way to learn TypeScript?",
+});
+```
+
+### Structured Data Extraction
+```typescript
+import { generateObject } from "ai";
+import { openai } from "@ai-sdk/openai";
+import { z } from "zod";
+
+const { object } = await generateObject({
+  model: openai("gpt-4o"),
+  schema: z.object({
+    recipe: z.object({
+      name: z.string(),
+      ingredients: z.array(z.string()),
+    }),
+  }),
+  prompt: "Generate a lasagna recipe.",
 });
 ```
 
@@ -95,10 +113,13 @@ export default function Chat() {
 - [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md)
 - [LangChain](../ai_knowledge/langchain.md)
 - [Pydantic AI](../frameworks/pydantic-ai.md)
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Model Context Protocol (MCP)](../../knowledge_base/mcp.md)
 - [Firebase Genkit](../frameworks/firebase-genkit.md)
 - [TanStack AI](https://tanstack.com/ai)
 - [OpenTelemetry](https://opentelemetry.io/)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude](../ai_knowledge/claude.md)
+- [Next.js](../frameworks/nextjs.md)
 
 ## Sources / References
 - [Official Website](https://sdk.vercel.ai/)
@@ -107,5 +128,5 @@ export default function Chat() {
 - [Vercel AI SDK vs TanStack AI](https://vercel.com/kb/guide/vercel-ai-sdk-vs-tanstack-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
