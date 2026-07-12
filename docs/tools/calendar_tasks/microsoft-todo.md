@@ -1,10 +1,10 @@
 # Microsoft To Do
 
 ## What it is
-A cloud-based task management application developed by Microsoft, serving as the central hub for individual task tracking within the Microsoft 365 ecosystem. In June 2026, it features deep **Agentic Calendar Orchestration** via **GPT-5.5** and **Claude 4.8**.
+A cloud-based task management application developed by Microsoft, serving as the central hub for individual task tracking within the Microsoft 365 ecosystem. In July 2026, it features advanced **Agentic Calendar Orchestration** via **Claude 5.1** and [Gemma 3](../ai_knowledge/local_llms.md), utilizing **MCP 3.0** for cross-service tool routing.
 
 ## What problem it solves
-Helps users stay organized and manage their day-to-day tasks with features like "My Day" and seamless, native synchronization with Outlook, Teams, and Microsoft Planner. It solves the fragmentation of enterprise tasks by centralizing them in a single, mobile-first interface.
+Helps users stay organized and manage their day-to-day tasks with features like "My Day" and seamless, native synchronization with Outlook, Teams, and Microsoft Planner. It solves the fragmentation of enterprise tasks by centralizing them in a single, mobile-first interface with AI-native prioritization.
 
 ## Where it fits in the stack
 **Category**: Calendar & Tasks / Task Management. It acts as the personal task layer for the enterprise-grade Microsoft 365 stack, bridging the gap between communication (Teams/Outlook) and execution.
@@ -13,7 +13,7 @@ Helps users stay organized and manage their day-to-day tasks with features like 
 - **Personal Productivity**: Managing daily to-do lists via the "My Day" smart list.
 - **Enterprise Integration**: Capturing tasks directly from flagged Outlook emails and Microsoft Teams chats.
 - **Shared Collaboration**: Managing family shopping lists or small team project tasks with real-time sync.
-- **Agentic Automation (June 2026)**: Using **Copilot 2.0** to autonomously prioritize, schedule, and execute tasks via natural language.
+- **Agentic Automation (July 2026)**: Using [Gemma 3](../ai_knowledge/local_llms.md) via **MCP 3.0** to autonomously prioritize, schedule, and execute tasks via natural language.
 
 ## Strengths
 - **Ecosystem Synergy**: Deep integration with Outlook Tasks, Flagged Emails, and Microsoft Planner.
@@ -54,9 +54,9 @@ mgc login
 # List all your To Do task lists
 mgc users todo lists list --user-id me
 
-# Create a high-priority task in a specific list (June 2026 Syntax)
+# Create a high-priority task in a specific list (July 2026 Syntax)
 mgc users todo lists tasks create --user-id me --todo-task-list-id <list-id> \
-  --body '{"title": "Verify Batch 120 Metadata", "importance": "high"}'
+  --body '{"title": "Verify Batch 210 Metadata", "importance": "high"}'
 ```
 
 ## API examples
@@ -75,10 +75,10 @@ headers = {
 }
 
 task_data = {
-    "title": "Document June 2026 Graph API Patterns",
+    "title": "Document July 2026 Graph API Patterns",
     "categories": ["Work", "Documentation"],
     "dueDateTime": {
-        "dateTime": "2026-06-30T17:00:00",
+        "dateTime": "2026-07-31T17:00:00",
         "timeZone": "UTC"
     }
 }
@@ -95,17 +95,13 @@ print(f"Task Created: {response.json()['id']}")
 - [Outlook](outlook.md) — The underlying mail and calendar provider.
 - [n8n](../../services/n8n.md) — For automating task creation via AI workflows.
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The strategy behind Microsoft's Copilot orchestration.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Free (with Microsoft account); included with Microsoft 365 subscriptions.
-- **Self-hostable**: No
+- **Licensing**: Free for personal use; included with Microsoft 365 business and enterprise plans.
 
 ## Sources / References
 - [Microsoft To Do Official Site](https://todo.microsoft.com/)
 - [Microsoft Graph API Documentation (Tasks)](https://learn.microsoft.com/en-us/graph/api/resources/todo-overview)
-- [Power Automate June 2026 Feature Update](https://www.microsoft.com/en-us/power-platform/blog/2026/06/14/whats-new-in-power-platform-june-2026-feature-update/)
+- [Microsoft 365 July 2026 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
