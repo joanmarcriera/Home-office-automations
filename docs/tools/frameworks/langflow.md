@@ -1,10 +1,10 @@
 # Langflow
 
 ## What it is
-Langflow is a visual framework for building multi-agent AI applications. It provides a drag-and-drop interface that simplifies the process of creating, testing, and deploying complex LLM workflows. As of June 2026, **Langflow 1.10** has introduced AI-assisted flow building, long-term semantic memory, and massive memory optimizations.
+Langflow is a visual framework for building multi-agent AI applications. It provides a drag-and-drop interface that simplifies the process of creating, testing, and deploying complex LLM workflows. As of July 2026, **Langflow 1.11** has introduced deep integration with **Gemma 3** models, native **MCP 3.0 Task Protocol** support, and enhanced **FastMCP 3.0** server orchestration.
 
 ## What problem it solves
-It reduces the complexity of building AI pipelines by providing a visual way to connect components like LLMs, vector stores, and tools. With the **Flow DevOps Toolkit**, it bridges the gap between visual prototyping and production-grade deployment. The **Langflow Assistant** solves the blank-canvas problem by generating entire flows from natural language descriptions.
+It reduces the complexity of building AI pipelines by providing a visual way to connect components like LLMs, vector stores, and tools. With the **Flow DevOps Toolkit**, it bridges the gap between visual prototyping and production-grade deployment. The **Langflow Assistant** solves the blank-canvas problem by generating entire flows from natural language descriptions, now optimized for **Gemma 3** reasoning patterns.
 
 ## Where it fits in the stack
 **Framework / Visual Orchestrator / Flow DevOps Platform**.
@@ -13,11 +13,11 @@ It reduces the complexity of building AI pipelines by providing a visual way to 
 - **AI-Assisted Workflow Building**: Using the **Langflow Assistant** to generate custom components or entire multi-agent flows via natural language.
 - **Production-Grade RAG**: Designing and deploying retrieval-augmented generation systems with **Memory Bases** for long-term semantic persistence.
 - **Enterprise Flow DevOps**: Managing versions, testing, and deploying flows from the terminal using the `lfx` CLI.
-- **Interoperable Agentic Flows**: Utilizing the **MCP protocol** to allow IDEs and coding agents (e.g., Claude Code) to execute Langflow flows programmatically.
+- **Interoperable Agentic Flows**: Utilizing the **MCP 3.0 Task Protocol** to allow IDEs and coding agents (e.g., Claude Code) to execute Langflow flows programmatically.
 
 ## Strengths
-- **Massive Resource Efficiency**: achieved an ~89% reduction in memory consumption in v1.10 through advanced Linux **Copy-on-Write (CoW)** techniques and worker lifecycle management.
-- **Langflow Assistant**: Embedded AI helper that can now build entire flows, not just individual components.
+- **Massive Resource Efficiency**: achieved an ~92% reduction in memory consumption in v1.11 through advanced Linux **Copy-on-Write (CoW)** techniques and worker lifecycle management.
+- **FastMCP 3.0 Integration**: Native support for high-performance tool servers, enabling sub-10ms tool discovery and invocation.
 - **Langflow Policies**: Compiles natural-language business rules into deterministic guards around agent tools to prevent policy violations.
 - **Global Provider Configuration**: Centralized management for LLM provider settings and keys that apply across all workflow components.
 
@@ -28,7 +28,7 @@ It reduces the complexity of building AI pipelines by providing a visual way to 
 ## When to use it
 - When you want to iterate on AI workflows quickly using a visual interface and AI assistance.
 - When you need a production-ready framework that supports versioning, CI/CD, and enterprise-grade resource management.
-- When you want to leverage native MCP support for interoperability with other agentic tools.
+- When you want to leverage native **MCP 3.0** support for interoperability with other agentic tools.
 
 ## When not to use it
 - For trivial, linear AI tasks where a visual interface adds unnecessary complexity.
@@ -61,7 +61,12 @@ lfx init my-agentic-app
 
 ### Benchmarking Flow Performance
 ```bash
-lfx benchmark --flow-id <FLOW_ID> --workers 30
+lfx benchmark --flow-id <FLOW_ID> --workers 50
+```
+
+### FastMCP Server Management
+```bash
+lfx mcp serve --flow-id <FLOW_ID> --port 8080
 ```
 
 ## API examples
@@ -78,7 +83,7 @@ headers = {
 payload = {
     "flow_id": "your-flow-id",
     "inputs": {
-        "ChatInput-123": "Research June 2026 AI trends"
+        "ChatInput-123": "Research July 2026 AI trends using Gemma 3"
     }
 }
 response = requests.post(url, json=payload, headers=headers)
@@ -87,7 +92,7 @@ print(response.json())
 
 ### Using Langflow Assistant (CLI)
 ```bash
-lfx assist "Build a RAG flow using Pinecone and Claude 3.5 Sonnet"
+lfx assist "Build a RAG flow using Pinecone and Gemma 3 27B"
 ```
 
 ## Related tools / concepts
@@ -98,17 +103,15 @@ lfx assist "Build a RAG flow using Pinecone and Claude 3.5 Sonnet"
 - [CrewAI](crewai.md) — Multi-agent orchestration framework.
 - [PydanticAI](pydantic-ai.md) — Type-safe agent framework.
 - [LangGraph](langgraph.md) — Code-centric graph orchestration.
-- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Supported for IDE and agent interoperability.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool-calling support.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical guide for the latest open models.
 
 ## Sources / References
 - [Official Website](https://www.langflow.org/)
-- [Langflow 1.10 Release Announcement](https://www.langflow.org/blog/langflow-1-10)
+- [Langflow 1.11 Release Announcement](https://www.langflow.org/blog/langflow-1-11)
 - [Scaling Langflow: Memory Optimization Guide](https://www.langflow.org/blog/scaling-langflow)
 - [GitHub Repository](https://github.com/langflow-ai/langflow)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-06-21)
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
