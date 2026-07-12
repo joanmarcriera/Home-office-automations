@@ -10,7 +10,7 @@ This report tracks the technical freshness audits (Action A) for the five oldest
 | 2 | `docs/tools/frameworks/ag2.md` | Freshness Audit | Resolved |
 | 3 | `docs/tools/frameworks/mastra.md` | Freshness Audit | Resolved |
 | 4 | `docs/tools/frameworks/firebase-genkit.md` | Freshness Audit | Resolved |
-| 5 | `docs/tools/frameworks/langflow.md` | Freshness Audit | Open |
+| 5 | `docs/tools/frameworks/langflow.md` | Freshness Audit | Resolved |
 
 ## Progress Log
 
@@ -20,3 +20,4 @@ This report tracks the technical freshness audits (Action A) for the five oldest
 - Completed freshness audit for Issue 2: `docs/tools/frameworks/ag2.md`.
 - Completed freshness audit for Issue 3: `docs/tools/frameworks/mastra.md`.
 - Completed freshness audit for Issue 4: `docs/tools/frameworks/firebase-genkit.md`.
+- Completed freshness audit for Issue 5: `docs/tools/frameworks/langflow.md`. Batch 207 is now fully Resolved.

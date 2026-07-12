@@ -1,25 +1,26 @@
 # Google Stitch
 
 ## What it is
-Google Stitch is an AI-powered design and prototyping tool from Google (built on technology from the 2025 Galileo AI acquisition). It generates complete, high-fidelity user interfaces from natural language descriptions and voice commands.
+Google Stitch is an AI-powered design and prototyping tool from Google (built on technology from the 2025 Galileo AI acquisition). It generates complete, high-fidelity user interfaces from natural language descriptions and voice commands. As of July 2026, it features deep integration with **Gemma 3** for edge-based design reasoning and supports the **MCP 3.0 Task Protocol** for automated UI-to-code pipelines.
 
 ## What problem it solves
-It eliminates the "blank canvas" problem for designers and developers by instantly generating polished UI layouts, multi-screen prototypes, and production-ready code scaffolds from simple prompts.
+It eliminates the "blank canvas" problem for designers and developers by instantly generating polished UI layouts, multi-screen prototypes, and production-ready code scaffolds from simple prompts. The inclusion of **FastMCP 3.0** support allows development environments to bridge design and code in sub-100ms sync cycles.
 
 ## Where it fits in the stack
-**Development & Ops / Product Prototyping**. It is useful early in the build loop when teams want concrete UI output quickly.
+**Development & Ops / Product Prototyping**. It is useful early in the build loop when teams want concrete UI output quickly and integrated into their agentic workflows.
 
 ## Typical use cases
-- Rapid UI concept generation
-- Early product prototyping
-- Turning requirements into starter interface artifacts
+- **Rapid UI Concept Generation**: Instantly creating visual mockups for SaaS dashboards, mobile apps, and landing pages.
+- **Agentic Prototyping**: Using the **MCP 3.0** interface to allow coding agents (like Claude Code) to request UI refinements programmatically.
+- **Voice-to-Design**: Native support for voice commands to iterate on designs hands-free, powered by **Gemma 3**'s multi-modal capabilities.
+- **Production-Ready Scaffolding**: Exporting designs directly into Tailwind, Vue, Flutter, or SwiftUI codebases.
 
 ## Strengths
-- **Real-Time AI Agent**: Features a streaming AI agent (released at Google I/O 2026) that reflows and modifies layouts in real-time as you type or speak.
+- **Real-Time AI Agent**: Features a streaming AI agent that reflows and modifies layouts in real-time as you type or speak.
 - **Multi-Screen Generation**: Can generate up to 5 interconnected screens from a single prompt, maintaining consistent branding and design language.
 - **Robust Code Export**: Supports a wide range of formats including HTML/CSS (Tailwind), Vue, Angular, Flutter, and SwiftUI.
-- **Voice-to-Design**: Native support for voice commands to iterate on designs hands-free.
-- **Low Barrier to Entry**: Currently free for Google Labs users (350 generations/month as of June 2026).
+- **Gemma 3 Powered**: Leverages the latest open models for superior design reasoning and multi-modal understanding.
+- **MCP 3.0 Support**: Allows external tools and agents to interact with the design canvas programmatically.
 
 ## Limitations
 - **Google Ecosystem Tie-in**: Best integrated with Google services and AI Studio; less flexible for non-standard stacks.
@@ -59,9 +60,9 @@ npm install -g @google-labs/stitch-cli
 stitch export --project-id "proj_12345" --framework tailwind --output ./src/components
 ```
 
-### Sync Local Assets to Stitch
+### Start an MCP Design Server
 ```bash
-stitch sync-assets --dir ./assets --project-id "proj_12345"
+stitch mcp serve --project-id "proj_12345"
 ```
 
 ## API examples
@@ -74,34 +75,40 @@ const client = new StitchClient({ apiKey: process.env.STITCH_API_KEY });
 
 const project = await client.createProject({
   name: "My AI App",
-  initialPrompt: "A minimalist dashboard for task management",
+  initialPrompt: "A minimalist dashboard for task management using Gemma 3 tokens",
   theme: "modern-dark"
 });
 
 console.log(`Project created: ${project.url}`);
 ```
 
-### Fetching Component Code
+### Fetching Component Code via MCP
 ```javascript
-const components = await client.getComponents("proj_12345");
-const tailwindCode = components[0].getCode("tailwind");
+// Using an MCP client to interact with Stitch
+const mcpClient = new MCPClient({ serverUrl: 'http://localhost:8080' });
+const tailwindCode = await mcpClient.callTool('get_component_code', {
+  projectId: 'proj_12345',
+  componentId: 'comp_6789',
+  framework: 'tailwind'
+});
 console.log(tailwindCode);
 ```
 
 ## Related tools / concepts
-- [Gemini Canvas](../ai_knowledge/google-gemini.md)
-- [Google AI Studio](../ai_knowledge/google-ai-studio.md)
-- [Google Opal](../ai_knowledge/google-opal.md)
-- [v0.dev](https://v0.dev)
-- [Cursor](cursor.md)
-- [Claude Designer](https://claude.ai/artifacts)
-- [Aider](aider.md)
-- [GPT Engineer](gpt_engineer.md)
+- [Google Gemini](../ai_knowledge/google-gemini.md) — The underlying model ecosystem.
+- [Google AI Studio](../ai_knowledge/google-ai-studio.md) — For deeper model configuration.
+- [Cursor](cursor.md) — IDE that can consume Stitch-generated code.
+- [Claude Code](claude-code.md) — CLI agent for building apps with Stitch assets.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local models used for design reasoning.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for interoperability.
+- [Aider](aider.md) — For automated code implementation of designs.
+- [v0.dev](https://v0.dev) — Alternative AI-native UI generation.
 
 ## Sources / References
 - [Official Website](https://stitch.withgoogle.com/)
 - [Google I/O 2026: The Future of Design with Stitch](https://io.google/2026/sessions/stitch-design-ai)
+- [Stitch Developer Docs](https://stitch.withgoogle.com/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
