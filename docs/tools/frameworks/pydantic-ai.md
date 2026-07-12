@@ -1,7 +1,7 @@
 # PydanticAI
 
 ## What it is
-PydanticAI is a Python agent framework from the Pydantic team, designed for building production-grade Generative AI applications and workflows. It brings the same rigor, type-safety, and validation to AI agents that Pydantic brought to data modeling.
+PydanticAI is a Python agent framework from the Pydantic team, designed for building production-grade Generative AI applications and workflows. It brings the same rigor, type-safety, and validation to AI agents that Pydantic brought to data modeling. As of July 2026, it features native support for **Gemma 3** via the **FastMCP 3.0** adapter.
 
 ## What problem it solves
 It addresses the fragility and lack of structure often found in early AI agent frameworks. By leveraging Python type hints and Pydantic validation, it ensures that tool calls, agent responses, and complex multi-agent workflows are type-safe and reliable.
@@ -10,7 +10,7 @@ It addresses the fragility and lack of structure often found in early AI agent f
 **Framework / Agentic Workflow / Development & Ops**.
 
 ## Typical use cases
-- **Structured Data Extraction**: Using **Claude 4.8** or **GPT-5.5** agents to parse unstructured text into validated Pydantic models.
+- **Structured Data Extraction**: Using **Gemma 3** or **Claude 4.8** agents to parse unstructured text into validated Pydantic models.
 - **Production Agents**: Building agents that require strict adherence to schemas for tool usage and response formatting.
 - **Multi-Agent Orchestration**: Coordinating multiple specialized agents with clear handoffs and state management.
 - **Observability Integration**: Seamlessly integrating with tools like Pydantic Logfire for detailed tracing and monitoring.
@@ -19,7 +19,7 @@ It addresses the fragility and lack of structure often found in early AI agent f
 - **Type Safety**: Full support for Python type hints throughout the agent lifecycle.
 - **Validation**: Automatic validation of tool arguments and agent outputs.
 - **Model Agnostic**: Supports multiple LLM providers (OpenAI, Anthropic, Gemini, etc.) through a unified interface.
-- **Modular Design**: Encourages the use of "Capabilities" and "Skills" that can be shared across agents.
+- **Dependency Injection**: Allows for runtime injection of external objects (database connections, user context) into system prompts and tools.
 - **Integration with Pydantic Ecosystem**: Built-in support for Logfire and other Pydantic-related tools.
 
 ## Limitations
@@ -56,36 +56,36 @@ result = agent.run_sync('What is the capital of France?')
 print(result.data)
 ```
 
-## Advanced Patterns
-
-### Dependency Injection (DI)
-PydanticAI allows for runtime injection of external objects (database connections, user context, config) into system prompts, tools, and validators.
-
+### Running with Gemma 3 (July 2026)
 ```python
-from dataclasses import dataclass
-from pydantic_ai import Agent, RunContext
+from pydantic_ai import Agent
+from pydantic_ai.models.gemini import GeminiModel
 
-@dataclass
-class MyDeps:
-    user_name: str
-    db_conn: any
-
-agent = Agent('anthropic:claude-3-5-sonnet', deps_type=MyDeps)
-
-@agent.system_prompt
-def get_system_prompt(ctx: RunContext[MyDeps]) -> str:
-    return f"Hello {ctx.deps.user_name}, I am your assistant."
-
-@agent.tool
-def get_user_data(ctx: RunContext[MyDeps], query: str) -> str:
-    return ctx.deps.db_conn.execute(query)
-
-result = agent.run_sync("Tell me about my orders", deps=MyDeps(user_name="Jules", db_conn=my_db))
+model = GeminiModel('gemma-3-27b')
+agent = Agent(model=model)
 ```
 
-### Structured Result Validation
-You can force an agent to return a specific Pydantic model with automatic retry on validation failure.
+## CLI examples
 
+### Initializing a Project
+```bash
+pydantic-ai init my-agent-app
+```
+
+### Testing Agents
+```bash
+pydantic-ai test --agent my_agent.py
+```
+
+### Viewing Logs (via Logfire)
+```bash
+logfire auth login
+logfire view
+```
+
+## API examples
+
+### Structured Result Validation
 ```python
 from pydantic import BaseModel
 from pydantic_ai import Agent
@@ -101,24 +101,23 @@ result = agent.run_sync("I want to order 5 coffee filters. Order #12345.")
 # result.data is an instance of OrderDetails
 ```
 
-### Agent Graph Iteration (June 2026)
-Access and iterate over the internal agent graph nodes during execution for fine-grained monitoring or UI state management.
-
+### Dependency Injection (DI)
 ```python
-from pydantic_ai import Agent
+from dataclasses import dataclass
+from pydantic_ai import Agent, RunContext
 
-agent = Agent('openai:gpt-4o')
+@dataclass
+class MyDeps:
+    user_name: str
 
-with agent.capture_run() as run:
-    result = agent.run_sync("Analyze this data...")
-    for node in run.nodes:
-        print(f"Executing node: {node.name}")
+agent = Agent('anthropic:claude-3-5-sonnet', deps_type=MyDeps)
+
+@agent.tool
+def get_user_data(ctx: RunContext[MyDeps], query: str) -> str:
+    return f"Data for {ctx.deps.user_name}: {query}"
+
+result = agent.run_sync("Get info", deps=MyDeps(user_name="Jules"))
 ```
-
-## Licensing and cost
-- **Open Source**: Yes (MIT).
-- **Cost**: Free (Framework) + LLM API costs.
-- **Self-hostable**: Yes.
 
 ## Related tools / concepts
 - [Pydantic](https://docs.pydantic.dev/) — Core data validation library.
@@ -127,10 +126,8 @@ with agent.capture_run() as run:
 - [LangGraph](langgraph.md) — Alternative graph-based orchestration framework.
 - [CrewAI](crewai.md) — Focuses on role-playing and collaborative agents.
 - [Agentic Design Patterns](../../knowledge_base/patterns/agentic-workflows.md) — Strategic patterns for reliable agent systems.
-- [Documentation Writer](../agents/documentation-writer.md): For creating technical documentation for PydanticAI agents.
-- [big-AGI](../ai_knowledge/big-agi.md): Professional workspace that can interface with PydanticAI backends.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical guide for the Gemma 3 model family.
 - [Claude Code](../development_ops/claude-code.md): The primary CLI agent used for building PydanticAI apps.
-- [Agentic Calendar Orchestration](../../knowledge_base/patterns/agentic-workflows.md): Patterns for building complex calendar agents.
 
 ## Sources / References
 - [Official GitHub](https://github.com/pydantic/pydantic-ai)
@@ -138,5 +135,5 @@ with agent.capture_run() as run:
 - [Pydantic AI Skills](https://github.com/DougTrajano/pydantic-ai-skills)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high

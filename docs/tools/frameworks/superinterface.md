@@ -1,7 +1,7 @@
 # Superinterface
 
 ## What it is
-Superinterface is an open-source framework and platform for building and deploying AI assistants with production-ready user interfaces. It provides a set of React components and a backend infrastructure to handle streaming, tool calls, and conversation state. As of June 2026, it supports advanced agentic features including **Computer Use**, native **MCP 3.0** integration, and **Interactive Components**.
+Superinterface is an open-source framework and platform for building and deploying AI assistants with production-ready user interfaces. It provides a set of React components and a backend infrastructure to handle streaming, tool calls, and conversation state. As of July 2026, it supports advanced agentic features including **Computer Use**, native **MCP 3.0** integration, and **Interactive Components** powered by the **Gemma 3** model family.
 
 ## What problem it solves
 It bridges the gap between AI agents and the end-user by providing a structured way to build conversational and interactive interfaces. It eliminates the need to build custom UI components for complex agentic behaviors like file handling, multi-modal streaming, and **Computer Use** (controlling virtual environments).
@@ -11,7 +11,7 @@ It bridges the gap between AI agents and the end-user by providing a structured 
 
 ## Typical use cases
 - **AI-Powered Customer Portals**: Building chat interfaces that support **Interactive Components** like forms, surveys, and cards for structured data entry.
-- **Agentic Desktop Controls**: Utilizing **Computer Use** (via Anthropic or OpenRouter) to allow assistants to control virtual machines or browsers.
+- **Agentic Desktop Controls**: Utilizing **Computer Use** (via Anthropic or [OpenRouter](../ai_knowledge/openrouter.md)) to allow assistants to control virtual machines or browsers.
 - **Enterprise Assistant Backend**: Deploying a self-hosted backend (using `@superinterface/server`) that integrates with internal **MCP 3.0** tool servers.
 - **Real-time Voice Assistants**: Implementing low-latency voice interactions using the OpenAI **Realtime API**.
 
@@ -62,6 +62,11 @@ superinterface deploy --assistant-id <ASSISTANT_ID>
 superinterface tools add web_search
 ```
 
+### Starting Local Development
+```bash
+superinterface dev --port 3001
+```
+
 ## API examples
 
 ### Creating a Tool via REST API
@@ -88,6 +93,7 @@ curl -X POST https://api.superinterface.ai/api/cloud/assistants/{assistantId}/to
 - [Langflow](langflow.md) — Visual workflow builder.
 - [Mastra](mastra.md) — TypeScript-native agent framework.
 - [Rivet](rivet.md) — Visual AI programming environment.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical guide for the Gemma 3 model family.
 
 ## Sources / References
 - [Official Website](https://superinterface.ai/)
@@ -95,9 +101,6 @@ curl -X POST https://api.superinterface.ai/api/cloud/assistants/{assistantId}/to
 - [GitHub Repository](https://github.com/superinterface/superinterface)
 - [Self-hosting Documentation](https://superinterface.ai/docs/self-hosting)
 
-## Backlog
-- [x] Perform quarterly technical freshness audit. (Completed: 2026-06-21)
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high

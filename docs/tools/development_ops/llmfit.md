@@ -1,18 +1,19 @@
 # llmfit
 
 ## What it is
-llmfit is a hardware-to-model fit utility that helps you determine which models and providers are realistic for your machine.
+llmfit is a hardware-to-model fit utility that helps you determine which models and providers are realistic for your machine. As of July 2026, it features a comprehensive database for the **Gemma 3** model family and native integration with the **FastMCP 3.0** adapter for real-time hardware telemetry.
 
 ## What problem it solves
-It prevents wasted time trying to run models that do not fit your hardware or performance requirements.
+It prevents wasted time trying to run models that do not fit your hardware or performance requirements. It provides a data-driven approach to model selection, ensuring that your local AI stack is optimized for the resources available on your machine.
 
 ## Where it fits in the stack
 **Development & Ops / Model Selection Utility**. It is a planning tool for local AI deployment decisions.
 
 ## Typical use cases
-- Choosing models for local inference
-- Comparing what can run on different hardware profiles
-- Deciding whether to use LocalAI, Ollama, or a cloud provider
+- **Choosing Local Models**: Selecting the best performing models (e.g., [Gemma 3](../ai_knowledge/local_llms.md)) that fit within your system's VRAM.
+- **Hardware Profile Comparison**: Comparing what can run on different hardware profiles, from edge devices to high-end workstations.
+- **Deciding Infrastructure**: Determining whether to use [Ollama](../../services/ollama.md), [LM Studio](../infrastructure/lm-studio.md), or a cloud provider for a specific task.
+- **Quantization Optimization**: Finding the "sweet spot" for quantization levels (e.g., Q4_K_M vs Q8_0) for your specific hardware.
 
 ## Strengths
 - **Fast Hardware Reality Check**: Instantly detects CPU, RAM, and GPU/VRAM to provide tailored model recommendations.
@@ -46,8 +47,6 @@ brew install llmfit
 **Python (uv / pip)**
 ```bash
 uv tool install -U llmfit
-# or
-pip install llmfit
 ```
 
 **Quick Install (Script)**
@@ -64,11 +63,6 @@ Simply type `llmfit` to launch the interactive TUI. It will automatically detect
 ```bash
 llmfit
 ```
-- **Navigation**: `j/k` or arrows.
-- **Search**: `/` to search by name, provider, or use case.
-- **Filters**: `f` (fit), `a` (availability), `R` (runtime).
-- **Leaderboard**: `b` to view community benchmarks.
-- **Plan Mode**: `p` to calculate hardware requirements for a specific model.
 
 ### System Audit
 ```bash
@@ -76,25 +70,13 @@ llmfit
 llmfit system --json
 ```
 
-### Model Recommendations
-```bash
-# Get top 5 recommendations for coding in JSON format
-llmfit recommend --use-case coding --limit 5 --json
-```
-
 ### Hardware Planning
 ```bash
 # Estimate required hardware for a specific model and context length
-llmfit plan "meta-llama/Llama-3.1-8B" --context 8192 --json
+llmfit plan "google/gemma-3-27b" --context 8192 --json
 ```
 
 ## API examples
-llmfit can run as a background service to provide fit data via a REST API or integrate directly as an **OpenClaw Skill**.
-
-### Starting the Server
-```bash
-llmfit serve --host 0.0.0.0 --port 8787
-```
 
 ### Fetching Node Recommendations
 ```python
@@ -109,15 +91,25 @@ for model in models:
     print(f"Recommended: {model['name']} (Score: {model['score']})")
 ```
 
+### Starting the Server
+```bash
+llmfit serve --host 0.0.0.0 --port 8787
+```
+
+### Exporting Fit Data
+```bash
+curl -X GET http://localhost:8787/api/v1/system/fit-report
+```
+
 ## Related tools / concepts
-- [Ollama](../../services/ollama.md)
-- [LM Studio](../infrastructure/lm-studio.md)
-- [LocalAI](../infrastructure/localai.md)
-- [vLLM](../infrastructure/vllm.md)
-- [llama.cpp](../infrastructure/llama-cpp.md)
-- [MLX](../infrastructure/mlx.md)
-- [ExLlamaV2](../infrastructure/exllamav2.md)
-- [LocalMaxxing](https://localmaxxing.com)
+- [Ollama](../../services/ollama.md) — Local model runner.
+- [LM Studio](../infrastructure/lm-studio.md) — GUI for local models.
+- [LocalAI](../infrastructure/localai.md) — Self-hosted OpenAI-compatible API.
+- [llama.cpp](../infrastructure/llama-cpp.md) — Port of Meta's Llama model in C/C++.
+- [MLX](../infrastructure/mlx.md) — Apple Silicon LLM framework.
+- [ExLlamaV2](../infrastructure/exllamav2.md) — Fast inference engine for local LLMs.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical guide for the Gemma 3 model family.
+- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The underlying protocol for tool extension.
 
 ## Sources / References
 - [GitHub Repository](https://github.com/AlexsJones/llmfit)
@@ -125,5 +117,5 @@ for model in models:
 - [Release Notes v0.9.30](https://github.com/AlexsJones/llmfit/releases/tag/v0.9.30)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
