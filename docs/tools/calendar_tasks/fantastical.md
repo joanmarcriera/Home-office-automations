@@ -1,19 +1,19 @@
 # Fantastical
 
 ## What it is
-A premium calendar and tasks application for macOS, iOS, iPadOS, and watchOS, widely recognized for its best-in-class natural language processing and elegant design. In June 2026, it serves as a primary interface for **Agentic Calendar Orchestration**.
+A premium calendar and tasks application for macOS, iOS, iPadOS, and watchOS, widely recognized for its best-in-class natural language processing and elegant design. As of July 21, 2026, it serves as a primary interface for **Agentic Calendar Orchestration**, leveraging **MCP 3.0** for seamless integration with advanced AI models.
 
 ## What problem it solves
-Simplifies event and task creation through natural language input and provides a beautiful, unified interface for multiple calendar and task accounts. It solves the "scheduling friction" by allowing users to speak or type their intent without navigating complex forms.
+Simplifies event and task creation through natural language input and provides a beautiful, unified interface for multiple calendar and task accounts. It solves the "scheduling friction" by allowing users to speak or type their intent without navigating complex forms, now enhanced by [Gemma 3](../ai_knowledge/local_llms.md) for local intent parsing.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Personal Productivity. It acts as the primary user interface (GUI) for the [Apple Calendar](apple-calendar.md) ecosystem, Google Calendar, and Microsoft 365, often enhanced by **Claude 4.8** or **GPT-5.5** via MCP 3.0.
+**Category**: Calendar & Tasks / Personal Productivity. It acts as the primary user interface (GUI) for the [Apple Calendar](apple-calendar.md) ecosystem, Google Calendar, and Microsoft 365, often orchestrated by [Claude 5.1](../ai_knowledge/claude.md) via the **MCP 3.0 Task Protocol**.
 
 ## Typical use cases
 - **Rapid Scheduling**: Creating complex events with alerts and locations using simple sentences.
 - **Unified Management**: Managing iCloud, Google, Microsoft 365 (Graph), and Exchange accounts in one view.
 - **Calendar Sets**: Automatically switching visible calendars based on location or Focus mode.
-- **Agentic Scheduling (June 2026)**: Using the **Fantastical MCP 3.0 Connector** for [Claude Code](../development_ops/claude-code.md) to manage events via chat.
+- **Agentic Scheduling**: Using the **Fantastical MCP 3.0 Connector** for [Claude Code](../development_ops/claude-code.md) to manage events via autonomous agents.
 
 ## Strengths
 - **Superior Natural Language Parsing**: Handles complex recurring rules and attendee invites via text.
@@ -29,7 +29,7 @@ Simplifies event and task creation through natural language input and provides a
 ## When to use it
 - If you are a power user on Apple devices and value speed of entry.
 - When you need to manage multiple diverse calendar accounts (Work/Personal) seamlessly.
-- If you want a more intuitive, visual way to interact with your schedule.
+- If you want a more intuitive, visual way to interact with your schedule via [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
 
 ## When not to use it
 - On non-Apple platforms.
@@ -60,7 +60,7 @@ open "x-fantastical3://parse?sentence=Lunch%20with%20Alice%20at%201pm"
 open "x-fantastical3://parse?sentence=todo%20Buy%20milk%20at%205pm"
 
 # Navigate to a specific date in the calendar
-open "x-fantastical3://show?date=2026-12-25"
+open "x-fantastical3://show?date=2026-07-21"
 ```
 
 ## API examples
@@ -76,7 +76,7 @@ end tell
 ```
 
 ### Fantastical MCP 3.0 Connector
-In June 2026, you can use the MCP connector to allow [Claude Code](../development_ops/claude-code.md) to manage your schedule:
+In July 2026, you can use the MCP connector to allow [Claude Code](../development_ops/claude-code.md) to manage your schedule:
 ```bash
 # Example agent command via Claude Code
 claude "What does my Friday afternoon look like in Fantastical? If I have a gap, schedule a 1h deep work session."
@@ -89,18 +89,14 @@ claude "What does my Friday afternoon look like in Fantastical? If I have a gap,
 - [Google Calendar](google_calendar.md) — Another major backend provider.
 - [Claude Code](../development_ops/claude-code.md) — CLI agent that can orchestrate Fantastical via MCP.
 - [Radicale](../../services/radicale.md) — Self-hosted CalDAV backend alternative.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Patterns for autonomous scheduling.
-
-## Licensing and cost
-- **Open Source**: No
-- **Cost**: Paid (Subscription required for Premium features), Free (Basic)
-- **Self-hostable**: No
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local LLM used for privacy-preserving NLP parsing.
+- **Licensing**: Proprietary subscription (Flexibits Premium) for full features.
 
 ## Sources / References
 - [Flexibits Fantastical Official Site](https://flexibits.com/fantastical)
-- [Fantastical Release Notes (June 2026)](https://flexibits.com/fantastical/releasenotes)
-- [Fantastical URL Scheme Documentation](https://flexibits.com/fantastical-ios/help/integration)
+- [Fantastical Release Notes (July 2026)](https://flexibits.com/fantastical/releasenotes)
+- [Fantastical MCP 3.0 specification](https://mcp-registry.com/flexibits/fantastical)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
