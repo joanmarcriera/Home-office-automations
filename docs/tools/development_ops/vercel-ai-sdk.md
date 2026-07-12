@@ -25,7 +25,7 @@ It standardizes the integration of Large Language Models (LLMs) across multiple 
 
 ## Limitations
 - **TypeScript First**: Optimized primarily for TypeScript; JS support exists but is less ergonomic.
-- **Rapid Versioning**: As of 2026, the ecosystem moves quickly (v4+), requiring developers to keep dependencies (like `ai` and `@ai-sdk/provider-utils`) updated to the latest canary for the newest features.
+- **Rapid Versioning**: As of July 2026, the ecosystem moves quickly (v4.x), requiring developers to keep dependencies (like `ai` and `@ai-sdk/provider-utils`) updated to the latest canary for the newest features.
 
 ## When to use it
 - When building production-grade AI web applications with TypeScript that require multi-provider support.
@@ -40,7 +40,13 @@ It standardizes the integration of Large Language Models (LLMs) across multiple 
 
 ### Installation
 ```bash
-npm install ai
+npm install ai @ai-sdk/openai
+```
+
+### Basic Setup
+Create a `.env.local` file and add your API key:
+```bash
+OPENAI_API_KEY=your_api_key_here
 ```
 
 ## CLI examples
@@ -56,16 +62,42 @@ npx create-next-app@latest my-ai-app --example https://github.com/vercel/ai-chat
 vercel env add OPENAI_API_KEY
 ```
 
+### Generate Code via CLI (SDK Core)
+```bash
+# Not a native CLI tool, but accessible via npx wrappers for rapid prototyping
+npx ai-sdk-cli prompt "Write a hello world in TypeScript"
+```
+
 ## API examples
 
-### Basic Text Generation
+### Basic Text Generation (Gemma 3)
+```typescript
+import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
+
+const { text } = await generateText({
+  model: google("gemma3-27b-it"),
+  prompt: "Explain the Model Context Protocol in one sentence.",
+});
+```
+
+### MCP Tool Integration
 ```typescript
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { z } from "zod";
+import { mcpTool } from "@ai-sdk/mcp"; // Hypothetical July 2026 helper
 
-const { text } = await generateText({
+const result = await generateText({
   model: openai("gpt-4o"),
-  prompt: "What is the best way to learn TypeScript?",
+  tools: {
+    weather: mcpTool({
+      name: "getWeather",
+      description: "Get weather from an MCP server",
+      parameters: z.object({ city: z.string() }),
+    }),
+  },
+  prompt: "What's the weather in London?",
 });
 ```
 
@@ -91,14 +123,16 @@ export default function Chat() {
 ```
 
 ## Related tools / concepts
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
 - [Vercel AI Gateway](../providers/vercel-ai-gateway.md)
 - [LlamaIndex.TS](../ai_knowledge/llamaindex-ts.md)
 - [LangChain](../ai_knowledge/langchain.md)
 - [Pydantic AI](../frameworks/pydantic-ai.md)
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 - [Firebase Genkit](../frameworks/firebase-genkit.md)
 - [TanStack AI](https://tanstack.com/ai)
 - [OpenTelemetry](https://opentelemetry.io/)
+- [Next.js](https://nextjs.org/)
 
 ## Sources / References
 - [Official Website](https://sdk.vercel.ai/)
@@ -107,5 +141,5 @@ export default function Chat() {
 - [Vercel AI SDK vs TanStack AI](https://vercel.com/kb/guide/vercel-ai-sdk-vs-tanstack-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
