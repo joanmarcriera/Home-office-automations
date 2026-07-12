@@ -8,7 +8,7 @@ This report tracks the technical freshness audits (Action A) for the five oldest
 | :--- | :--- | :--- | :--- |
 | 1 | `docs/tools/development_ops/vercel-ai-sdk.md` | Freshness Audit | Resolved |
 | 2 | `docs/tools/development_ops/humanizer.md` | Freshness Audit | Resolved |
-| 3 | `docs/tools/calendar_tasks/microsoft-todo.md` | Freshness Audit | Pending |
+| 3 | `docs/tools/calendar_tasks/microsoft-todo.md` | Freshness Audit | Resolved |
 | 4 | `docs/tools/calendar_tasks/amie.md` | Freshness Audit | Pending |
 | 5 | `docs/tools/calendar_tasks/fantastical.md` | Freshness Audit | Pending |
 
@@ -19,3 +19,4 @@ This report tracks the technical freshness audits (Action A) for the five oldest
 - Started freshness audit for Issue 1: `docs/tools/development_ops/vercel-ai-sdk.md`.
 - Completed freshness audit for Issue 1: `docs/tools/development_ops/vercel-ai-sdk.md`. Document upgraded to 13-section standard with July 2026 context (Gemma 3, MCP 3.0).
 - Completed freshness audit for Issue 2: `docs/tools/development_ops/humanizer.md`. Document upgraded to 13-section standard with July 2026 context (Gemma 3, MCP 3.0, Claude 5.1).
+- Completed freshness audit for Issue 3: `docs/tools/calendar_tasks/microsoft-todo.md`. Document upgraded to 13-section standard with July 2026 context (Claude 5.1, Gemma 3, MCP 3.0).
