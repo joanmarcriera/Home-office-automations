@@ -1,25 +1,27 @@
 # llmfit
 
 ## What it is
-llmfit is a hardware-to-model fit utility that helps you determine which models and providers are realistic for your machine.
+llmfit is a hardware-to-model fit utility that helps you determine which models and providers are realistic for your machine, now updated with support for **July 2026** hardware and model releases including [Gemma 3](../ai_knowledge/local_llms.md) and [Claude 5.1](../ai_knowledge/claude.md).
 
 ## What problem it solves
-It prevents wasted time trying to run models that do not fit your hardware or performance requirements.
+It prevents wasted time trying to run models that do not fit your hardware or performance requirements. It provides instant feasibility checks for the latest frontier and local models.
 
 ## Where it fits in the stack
-**Development & Ops / Model Selection Utility**. It is a planning tool for local AI deployment decisions.
+**Development & Ops / Model Selection Utility**. It is a planning tool for local AI deployment decisions and [MCP 3.0](../../knowledge_base/mcp.md) task protocol resource allocation.
 
 ## Typical use cases
-- Choosing models for local inference
-- Comparing what can run on different hardware profiles
-- Deciding whether to use LocalAI, Ollama, or a cloud provider
+- Choosing models for local inference (e.g., deciding between [Gemma 3](../ai_knowledge/local_llms.md) 4B or 27B).
+- Comparing what can run on different hardware profiles.
+- Deciding whether to use LocalAI, Ollama, or a cloud provider.
+- Benchmarking [MCP](../../knowledge_base/mcp.md) server overhead on local hardware.
 
 ## Strengths
 - **Fast Hardware Reality Check**: Instantly detects CPU, RAM, and GPU/VRAM to provide tailored model recommendations.
 - **Vim-like TUI**: Powerful interactive interface with search, filtering, and bulk comparison modes.
 - **Community Benchmarks**: Integration with [localmaxxing.com](https://localmaxxing.com) (press `b`) to see real-world performance data from other users.
-- **Hardware Simulation**: Press `S` to override your system specs and see what models would run on a target upgrade (e.g., RTX 5090).
+- **Hardware Simulation**: Press `S` to override your system specs and see what models would run on a target upgrade (e.g., RTX 6090).
 - **Download Manager**: Native management of model downloads and local cache for Ollama, llama.cpp, and LM Studio.
+- **Protocol Awareness**: Support for estimating memory overhead of [MCP 3.0](../../knowledge_base/mcp.md) Task Protocol runtimes.
 
 ## Limitations
 - **Estimation vs. Execution**: Provides theoretical speed and fit estimates; actual performance may vary based on concurrent system load.
@@ -85,7 +87,7 @@ llmfit recommend --use-case coding --limit 5 --json
 ### Hardware Planning
 ```bash
 # Estimate required hardware for a specific model and context length
-llmfit plan "meta-llama/Llama-3.1-8B" --context 8192 --json
+llmfit plan "google/gemma-3-27b-it" --context 32768 --json
 ```
 
 ## API examples
@@ -117,13 +119,15 @@ for model in models:
 - [llama.cpp](../infrastructure/llama-cpp.md)
 - [MLX](../infrastructure/mlx.md)
 - [ExLlamaV2](../infrastructure/exllamav2.md)
-- [LocalMaxxing](https://localmaxxing.com)
+- [MCP 3.0](../../knowledge_base/mcp.md)
+- [Gemma 3](../ai_knowledge/local_llms.md)
+- [Claude 5.1](../ai_knowledge/claude.md)
 
 ## Sources / References
 - [GitHub Repository](https://github.com/AlexsJones/llmfit)
 - [Official Website](https://llmfit.axjns.dev/)
-- [Release Notes v0.9.30](https://github.com/AlexsJones/llmfit/releases/tag/v0.9.30)
+- [Release Notes v1.0.5](https://github.com/AlexsJones/llmfit/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
