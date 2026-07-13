@@ -54,6 +54,14 @@ jobs:
           BODY=$(echo "$ISSUE_JSON" | jq -r '.body // ""' | tr '[:upper:]' '[:lower:]')
           HAS_JULES=$(echo "$ISSUE_JSON" | jq '[.labels[].name | ascii_downcase] | index("jules") != null')
           HAS_AUTOFIX=$(echo "$ISSUE_JSON" | jq '[.labels[].name | ascii_downcase] | index("autofix") != null')
+          HAS_HEALTH=$(echo "$ISSUE_JSON" | jq '[.labels[].name | ascii_downcase] | index("automation-health") != null')
+
+          # The watchdog's singleton health report must never be fed back into
+          # an automation lane (it is a report FOR Marc, not work for a bot).
+          if [[ "$HAS_HEALTH" == "true" ]] || [[ "$TITLE" == automation\ health:* ]]; then
+            echo "Automation health report issue; no routing changes."
+            exit 0
+          fi
 
           # Do not mutate automation-generated control issues.
           if [[ "$TITLE" == process\ jules\ backlog\ -* ]] || [[ "$TITLE" == daily\ knowledge\ expansion\ -* ]] || [[ "$TITLE" == daily\ maintenance\ run\ -* ]] || [[ "$TITLE" == \[w* ]]; then

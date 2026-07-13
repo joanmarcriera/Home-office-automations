@@ -26,6 +26,7 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 | **Web Automation** | Live web research and multi-site orchestration. | `docs/research/**`, `.claude/session.log` | Verify URL reachability, content extraction quality |
 | **Autonomous Security** | Automated pen-testing and vulnerability scanning. | `src/**`, `package.json`, `.github/workflows/**` | Run security audit, verify no new vulnerabilities |
 | **Code Refinement** | Architectural simplification and quality reviews. | `src/**`, `docs/architecture/**` | Maintain test coverage, run complexity analysis |
+| **Automation Health Triage** | A lane is failing/stalled, or the `automation-health` issue is open. | `.github/workflows/automation-health.yml`, `scripts/automation_health.py` | Dry-run the watchdog, confirm issue reflects reality |
 
 ## Skill Playbooks
 
@@ -88,6 +89,28 @@ Pick the skill that matches your task. Execute its steps in order. Apply the lis
 2. Propose architectural simplifications that maintain existing behavior.
 3. Implement changes surgically, matching the surrounding style exactly.
 4. Verify no regressions using existing test suites.
+
+### 10) Automation Health Triage
+
+The watchdog (`automation-health.yml`, daily 05:40 UTC) scans every scheduled
+lane, auto-reruns a failed run's failed jobs once, and maintains ONE
+`automation-health`-labelled issue (updated in place, auto-closed when green).
+
+1. Read the open `Automation health:` issue — it lists which lanes fail/stall and why.
+2. A `❌ latest run concluded failure` after "already rerun once" means the failure is
+   NOT transient: open the run log and fix the root cause; do not just re-dispatch.
+3. A `💤`/stalled or `disabled_*` lane means the schedule itself stopped — re-enable the
+   workflow (`gh workflow enable <file>`) or fix/retire the lane.
+4. Never add `jules`/`autofix` to the health issue; it is a report, not bot work
+   (the router skips it by label and title).
+5. Verify a fix with `python3 scripts/automation_health.py --dry-run`, then let the next
+   scheduled scan close the issue itself.
+
+Lesson learned (2026-07): `jules-sprint-workers.yml` hit its hardcoded
+`SPRINT_END` (2026-06-07) and silently no-oped every 4 hours for five weeks —
+retired along with `scripts/open_jules_sprint_issues.py` (both recoverable from
+git history for the next sprint). Time-bounded lanes must fail LOUDLY when
+their window lapses; the watchdog now exists to surface that class of death.
 
 ## Completion Template
 
