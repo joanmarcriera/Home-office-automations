@@ -1,18 +1,29 @@
 # Model Routing Guide
 
 ## What it is
-The Model Routing Guide is a technical framework for selecting the optimal Large Language Model (LLM) for a given task based on June 2026 capability tiers. It provides source-backed decision logic considering cost, latency, reasoning depth (effort levels), and task-specific performance.
+The Model Routing Guide is a technical framework for selecting the optimal Large Language Model (LLM) for a given task based on July 2026 capability tiers. It provides source-backed decision logic considering cost, latency, reasoning depth (effort levels), and task-specific performance.
+
+### Capability Tiers by Provider
+
+| Provider | Model Family | Key Tiers / Features |
+| :--- | :--- | :--- |
+| **Anthropic** | Claude 4.8 | Haiku (Speed), Sonnet (Balanced), Opus (Nuance) |
+| **OpenAI** | GPT-5.5 | Reasoning Effort Levels (None, Medium, High, X-High) |
+| **Google** | Gemini 3.5 | Flash (Efficient), Pro (2M+ Context), Spark (Specialized) |
+| **Meta** | Llama 4 | 70B (Orchestration), 405B (Distillation source) |
+| **Google** | [Gemma 3](../tools/ai_knowledge/local_llms.md) | High-performance open weights for local routing. |
 
 ## What problem it solves
 Frontier models in 2026 vary wildly in operational cost and reasoning capabilities. This guide prevents "over-engineering" (using a high-cost reasoning model like GPT-5.5 for simple summaries) and "under-engineering" (using a low-latency model for complex multi-step logic), ensuring token-efficiency and cost-effectiveness across [Agentic Workflows](patterns/agentic-workflows.md).
 
 ## Where it fits in the stack
-It is the **Decision Layer** of the AI stack, informing [Autonomous Agents](../tools/agents/README.md) and orchestration frameworks on which model to invoke for specific nodes in a computational graph.
+It is the **Decision Layer** of the AI stack, informing [Autonomous Agents](../tools/agents/README.md) and orchestration frameworks on which model to invoke for specific nodes in a computational graph. It integrates with [MCP 3.0](../tools/automation_orchestration/mcp.md) for tool-aware routing.
 
 ## Typical use cases
 - **Multi-Model Orchestration**: Routing a user query to a cheap classifier (Claude 4.8 Haiku) first, then to a high-reasoning model (GPT-5.5) only if complex logic is required.
 - **Cost Optimization**: Dynamic switching between [Gemini 3.5 Flash](../tools/ai_knowledge/gemini.md) for high-volume extraction and [Claude 4.8 Sonnet](../tools/ai_knowledge/claude.md) for tool-intensive orchestration.
 - **Latency-Critical Applications**: Selecting [GPT-5.3 Codex Transition](../tools/development_ops/codex.md) for sub-second code completion.
+- **Context-Heavy Analysis**: Routing to Gemini 3.5 Pro for 1M+ token ingestion tasks.
 
 ## Strengths
 - **Granular Effort Control**: Leverages OpenAI's "Reasoning Effort" levels for precision accuracy vs. speed trade-offs.
@@ -32,40 +43,23 @@ It is the **Decision Layer** of the AI stack, informing [Autonomous Agents](../t
 - For trivial, single-turn chat interfaces where latency and cost are negligible.
 - If your application is locked into a single provider for compliance or security reasons.
 
-## Anthropic (Claude 4.8)
+## Getting started
 
-Anthropic categorizes its models into three tiers. Choosing the right tier depends on the complexity of the reasoning and required nuance.
+### 1. Identify Task Complexity
+Assess the task based on the reasoning effort required (None, Medium, High, or X-High).
 
-| Tier | Model | Best For | Decision Logic |
-| :--- | :--- | :--- | :--- |
-| **Haiku** | Claude 4.8 Haiku | High-volume, low-latency | Use for classification, basic extraction, and initial query triage. |
-| **Sonnet** | Claude 4.8 Sonnet | General knowledge work, coding | The default choice for tool-calling and agentic orchestration. |
-| **Opus** | Claude 4.8 Opus | Deep reasoning, creative nuance | Use for high-stakes strategy, complex logic, and high-fidelity writing. |
+### 2. Configure Your Router
+Install a routing middleware or implement the selection logic in your application.
+```bash
+npm install @ai-sdk/provider-utils # Example for Vercel AI SDK routing
+```
 
-## OpenAI (GPT-5.5)
-
-GPT-5.5 introduces explicit **Reasoning Effort** levels, allowing developers to trade compute time for accuracy.
-
-| Level | Latency | Reasoning Depth | Recommended Use Case |
-| :--- | :--- | :--- | :--- |
-| **None** | Ultra-low | Surface-level | Rapid parsing, simple chat, high-speed classification. |
-| **Medium** | Moderate | Balanced | Standard coding, multi-step tool orchestration. |
-| **High** | High | Deep | Complex bug fixes, architectural reviews, logic verification. |
-| **X-High** | Very High | Maximum | Frontier scientific reasoning, high-stakes logic puzzles. |
-
-## Google (Gemini 3.5)
-
-Gemini excels in multimodal tasks and massive context handling.
-
-| Model | Key Strength | Best For |
-| :--- | :--- | :--- |
-| **Gemini 3.5 Flash** | Speed & Efficiency | High-volume multimodal extraction and summarization. |
-| **Gemini 3.5 Pro** | 2M+ Context Window | Ingesting entire repositories or long-form video for analysis. |
-| **Gemini Spark** | Autonomous Missions | Small, fast, specialized tasks within the Google ecosystem. |
+### 3. Set Fallbacks
+Ensure [Fallback Patterns](patterns/fallback-patterns.md) are in place if the primary routed model fails.
 
 ## CLI examples
 
-### Using a Router CLI (Hypothetical June 2026)
+### Using a Router CLI (Hypothetical July 2026)
 ```bash
 # Route a task based on complexity
 model-router "Refactor this 50-file repository" --preference "context"
@@ -107,5 +101,5 @@ print(f"Routing to: {model}")
 - [Google DeepMind - Gemini 3.5 Capabilities](https://deepmind.google/technologies/gemini/3-5/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-21
 - Confidence: high
