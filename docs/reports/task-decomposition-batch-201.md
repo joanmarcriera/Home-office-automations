@@ -7,10 +7,10 @@ This report tracks the technical freshness audits and issue resolutions for Ralp
 | Issue | Task | Action | Status |
 |-------|------|--------|--------|
 | 1 | `docs/tools/agents/gpt-researcher.md` | Action A: Technical Freshness Audit | Resolved |
-| 2 | `docs/tools/agents/bee-agent-framework.md` | Action A: Technical Freshness Audit | Pending |
-| 3 | `docs/tools/process_understanding/posthog.md` | Action A: Technical Freshness Audit | Pending |
-| 4 | `docs/tools/process_understanding/docling.md` | Action A: Technical Freshness Audit | Pending |
-| 5 | `docs/tools/process_understanding/tesseract.md` | Action A: Technical Freshness Audit | Pending |
+| 2 | `docs/tools/agents/bee-agent-framework.md` | Action A: Technical Freshness Audit | Resolved |
+| 3 | `docs/tools/process_understanding/posthog.md` | Action A: Technical Freshness Audit | Resolved |
+| 4 | `docs/tools/process_understanding/docling.md` | Action A: Technical Freshness Audit | Resolved |
+| 5 | `docs/tools/process_understanding/tesseract.md` | Action A: Technical Freshness Audit | Resolved |
 
 ## Details
 
