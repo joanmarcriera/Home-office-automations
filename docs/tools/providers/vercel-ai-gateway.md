@@ -38,11 +38,37 @@ It simplifies the operational overhead of running LLM-powered apps by providing 
 
 ## Getting started
 
-### Minimal Concepts
-1.  **Gateway ID**: A unique identifier for your specific gateway configuration.
-2.  **Provider Mapping**: Configuring which API keys map to which upstream providers.
+### 1. Installation
+Install the Vercel CLI to manage your gateway resources:
+```bash
+npm install -g vercel
+```
 
-### Python Example (OpenAI SDK)
+### 2. Create a Gateway
+Create a new gateway via the [Vercel Dashboard](https://vercel.com/dashboard/ai) or CLI. Note your **Gateway ID**.
+
+### Hello World Example
+Test your gateway by listing available models through the proxy:
+```bash
+curl https://ai-gateway.vercel.sh/v1/models
+```
+
+## CLI examples
+```bash
+# List all AI Gateways for your team
+vercel ai-gateway list
+
+# Create a new AI Gateway resource
+vercel ai-gateway create --name my-prod-gateway
+
+# Manage API keys for a specific gateway
+vercel ai-gateway keys list my-prod-gateway
+```
+
+## API examples
+
+### Python (OpenAI SDK Mapping)
+Route OpenAI requests through the gateway for caching and observability:
 ```python
 from openai import OpenAI
 import os
@@ -57,11 +83,21 @@ completion = client.chat.completions.create(
   model="gpt-4o",
   messages=[{"role": "user", "content": "How do I implement a fallback in Vercel AI Gateway?"}]
 )
-
-print(completion.choices[0].message.content)
 ```
 
-### cURL Example (Direct API)
+### TypeScript (REST API for Discovery)
+Discover available models and their provider endpoints dynamically:
+```typescript
+const response = await fetch('https://ai-gateway.vercel.sh/v1/models', {
+  headers: {
+    'Authorization': `Bearer ${process.env.VERCEL_AI_GATEWAY_KEY}`
+  }
+});
+const { data: models } = await response.json();
+console.log(models.map(m => m.id));
+```
+
+### cURL (Direct Anthropic Proxy)
 ```bash
 curl https://gateway.ai.vercel.com/v1/gateways/YOUR_GATEWAY_ID/anthropic/v1/messages \
   -H "X-API-Key: $ANTHROPIC_API_KEY" \

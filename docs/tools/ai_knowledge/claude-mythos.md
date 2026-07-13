@@ -40,14 +40,52 @@ It addresses the reliability gap in autonomous agents by providing a "simulation
 
 ## Getting started
 
-Accessing Claude Mythos via the Anthropic Python SDK:
+### 1. Installation
+Install the official Anthropic SDK:
+```bash
+pip install anthropic
+```
 
+### 2. API Access
+Obtain an API key from the [Anthropic Console](https://console.anthropic.com/). Claude Mythos is typically restricted to "Tier 4" and above accounts.
+
+### 3. Integration
+Use the official Anthropic SDKs (Python or TypeScript) or the [Model Context Protocol](../automation_orchestration/mcp.md) to integrate Mythos into your workflows.
+
+### Hello World Example
+Test access using a simple `curl` command to verify the Mythos endpoint:
+```bash
+curl https://api.anthropic.com/v1/messages \
+     -H "x-api-key: $ANTHROPIC_API_KEY" \
+     -H "anthropic-version: 2023-06-01" \
+     -H "content-type: application/json" \
+     -d '{
+       "model": "claude-mythos-2026-05",
+       "max_tokens": 1024,
+       "messages": [{"role": "user", "content": "Hello, Mythos. Initialize simulation."}]
+     }'
+```
+
+## CLI examples
+```bash
+# Chat with Mythos using the official Anthropic CLI
+anthropic chat --model claude-mythos-2026-05
+
+# Use Claude Code to analyze a repository with Mythos-grade reasoning
+claude --model mythos
+
+# Run a specific simulation script via the CLI
+python -m anthropic.simulations --model mythos --scenario cyber-defense
+```
+
+## API examples
+
+### Python (Multi-Agent Simulation)
+Initialize a high-stakes orchestration loop using the Mythos model:
 ```python
 import anthropic
 
-client = anthropic.Anthropic(
-    api_key="my_api_key",
-)
+client = anthropic.Anthropic(api_key="my_api_key")
 
 message = client.messages.create(
     model="claude-mythos-2026-05",
@@ -57,16 +95,31 @@ message = client.messages.create(
     messages=[
         {
             "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": "Initialize a simulation for migrating our legacy monolith to a microservices architecture. Identify the first 5 sub-agents required."
-                }
-            ]
+            "content": "Initialize a simulation for migrating our legacy monolith. Identify the first 5 sub-agents required."
         }
     ]
 )
 print(message.content)
+```
+
+### TypeScript (Long Context Analysis)
+Process a massive codebase or document set using the 2M+ window:
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const anthropic = new Anthropic();
+
+async function analyzeCodebase() {
+  const msg = await anthropic.messages.create({
+    model: "claude-mythos-2026-05",
+    max_tokens: 8192,
+    messages: [{
+      role: "user",
+      content: "Ingest the attached technical debt report and architectural diagrams. Identify security vulnerabilities across all modules."
+    }]
+  });
+  console.log(msg.content);
+}
 ```
 
 ## Related tools / concepts

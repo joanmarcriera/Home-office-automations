@@ -38,9 +38,8 @@ It combines the simplicity of Markdown with the power of a programmable database
 
 ## Getting started
 
-### Installation (Docker)
+### 1. Installation
 The easiest way to run SilverBullet is via Docker:
-
 ```bash
 docker run -d \
   --name silverbullet \
@@ -48,18 +47,39 @@ docker run -d \
   -v ./space:/space \
   zefhemel/silverbullet:latest
 ```
+Alternatively, install via `npm`: `npm install -g @silverbulletmd/silverbullet`.
 
-### Installation (Node.js)
-Alternatively, you can install it via npm:
+### 2. Space Initialization
+Once running, navigate to `http://localhost:3030`. SilverBullet will automatically generate an **Index Page** with sections for quick notes and tasks.
 
+### Hello World Example
+Create a new page (e.g., `Hello`) and add your first "Space Script" to verify the environment:
+1. Create a page with `Hello` title.
+2. Add the following block:
+```javascript
+#script
+silverbullet.registerFunction("hello", (name) => {
+  return `Hello, ${name}!`;
+});
+```
+3. You can now use `{{hello("World")}}` in any page.
+
+## CLI examples
 ```bash
-npm install -g @silverbulletmd/silverbullet
-silverbullet ./my_space
+# Start SilverBullet in a specific directory
+silverbullet ./my_notes_space
+
+# Specify a custom port for the server
+silverbullet --port 8080 ./my_space
+
+# Run in "read-only" mode for public sharing
+silverbullet --readonly ./my_space
 ```
 
-### Live Query Example
-You can embed a live query in any Markdown page to list recent tasks:
+## API examples
 
+### Integrated Query (SQL-like)
+Embed live queries directly in your Markdown files to aggregate data:
 ```markdown
 <!-- #query task where done = false limit 5 -->
 | Name | Page |
@@ -68,13 +88,24 @@ You can embed a live query in any Markdown page to list recent tasks:
 <!-- /query -->
 ```
 
-### Space Script Example
-Define a custom function in a page tagged with `#script`:
-
+### Space Script (JavaScript)
+Register custom commands that can be invoked from the command palette:
 ```javascript
-silverbullet.registerFunction("hello", (name) => {
-  return `Hello, ${name}!`;
+#script
+silverbullet.registerCommand({
+  name: "Current Date",
+  callback: () => {
+    const date = new Date().toLocaleDateString();
+    editor.insertAtCursor(`Today is ${date}`);
+  }
 });
+```
+
+### Direct API (HTTP)
+SilverBullet exposes a REST API for space manipulation (requires authentication if configured):
+```bash
+# Fetch the content of a specific page
+curl http://localhost:3030/api/pages/Index/content
 ```
 
 ## Licensing and cost
