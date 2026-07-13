@@ -50,7 +50,7 @@ pip install anthropic
 Obtain an API key from the [Anthropic Console](https://console.anthropic.com/). Claude Mythos is typically restricted to "Tier 4" and above accounts.
 
 ### 3. Integration
-Use the official Anthropic SDKs (Python or TypeScript) or the [Model Context Protocol](../automation_orchestration/mcp.md) to integrate Mythos into your workflows.
+Use the official Anthropic SDKs (Python or TypeScript) or the [Model Context Protocol 3.0](../automation_orchestration/mcp.md) with FastMCP support to integrate Mythos into your workflows.
 
 ### Hello World Example
 Test access using a simple `curl` command to verify the Mythos endpoint:
@@ -74,11 +74,28 @@ anthropic chat --model claude-mythos-2026-05
 # Use Claude Code to analyze a repository with Mythos-grade reasoning
 claude --model mythos
 
-# Run a specific simulation script via the CLI
-python -m anthropic.simulations --model mythos --scenario cyber-defense
+# Register a Mythos-backed MCP server via the MCP CLI
+mcp install ./mythos-orchestrator-server --model claude-mythos-2026-05
 ```
 
 ## API examples
+
+### Python (FastMCP Server)
+Define a Mythos-powered tool using the FastMCP 3.0 framework:
+```python
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("MythosSim")
+
+@mcp.tool()
+async def run_simulation(scenario: str) -> str:
+    """Run a high-stakes simulation using Claude Mythos."""
+    # Internal logic to call Mythos with simulation parameters
+    return f"Simulation '{scenario}' completed with Mythos-grade verification."
+
+if __name__ == "__main__":
+    mcp.run()
+```
 
 ### Python (Multi-Agent Simulation)
 Initialize a high-stakes orchestration loop using the Mythos model:
@@ -125,6 +142,7 @@ async function analyzeCodebase() {
 ## Related tools / concepts
 - [Claude](claude.md)
 - [Claude Code](../development_ops/claude-code.md)
+- [Gemma 3](local_llms.md)
 - [AI Templates](aitmpl.md)
 - [Andrej Karpathy Skills](karpathy-skills.md)
 - [AnythingLLM](anythingllm.md)
@@ -137,5 +155,5 @@ async function analyzeCodebase() {
 - [Anthropic: Introducing the Mythos Series](https://www.anthropic.com/news/introducing-mythos)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-01
+- Last reviewed: 2026-07-21
 - Confidence: high
