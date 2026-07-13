@@ -24,8 +24,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Important if workflow needs to trigger other workflows, otherwise default GITHUB_TOKEN is fine
-          fetch-depth: 1 
+          fetch-depth: 0 # full history so the pending-rollup merge below has a base
+
+      - name: Preserve pending rollup work
+        # See weekly-planner.yml for the rationale: without this merge, a lane
+        # with no changes of its own resets the shared rollup branch to main
+        # and closes the PR, discarding other lanes' pending work.
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch origin automation/weekly-rollup 2>/dev/null; then
+            if git merge --no-edit FETCH_HEAD; then
+              echo "Merged pending rollup work from automation/weekly-rollup."
+            else
+              git merge --abort
+              echo "::warning::Pending rollup branch conflicts with main; continuing from clean main."
+            fi
+          else
+            echo "No pending rollup branch to preserve."
+          fi
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
