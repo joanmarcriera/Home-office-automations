@@ -37,22 +37,54 @@ It provides a unified "operating system for your life," allowing you to store no
 
 ## Getting started
 
-### Installation
-You can download the desktop client for your platform from the [official downloads page](https://anytype.io/download).
+### 1. Installation
+Download the desktop client for your platform from the [official downloads page](https://anytype.io/download).
 
-### Self-Hosting (Anysync)
-For advanced users who want full control over their sync environment, AnyType allows self-hosting the synchronization nodes.
+### 2. Enable API Access
+Anytype provides a local API (typically on port 31009). To use it with AI agents:
+1. Open Anytype Settings > API Keys.
+2. Create a new API Key.
+3. Use the provided credentials to connect via [Model Context Protocol](../automation_orchestration/mcp.md).
 
+### Hello World Example
+Verify your local API is reachable and retrieve your API key via the CLI:
 ```bash
-# Example: Deploying an AnyType node via Docker (Conceptual)
-docker run -d \
-  --name anytype-node \
-  -v ./config:/anytype/config \
-  -p 8080:8080 \
-  anyproto/any-sync-node:latest
+npx -y @anyproto/anytype-mcp get-key
 ```
 
-Detailed self-hosting instructions for the Anysync protocol components (node, filenode, coordinator) are available in the [Anyproto GitHub](https://github.com/anyproto).
+## CLI examples
+```bash
+# Start the Anytype MCP server (requires ANYTYPE_API_BASE_URL and OPENAPI_MCP_HEADERS)
+npx -y @anyproto/anytype-mcp
+
+# List available spaces via the local CLI tool (if installed)
+anytype-cli spaces list
+
+# Sync local data with your self-hosted node
+any-sync-node --config ./config.yml
+```
+
+## API examples
+Anytype is best automated via its [MCP server](https://github.com/anyproto/anytype-mcp). Below is a conceptual tool call for an AI agent:
+
+```json
+// Create a new 'Note' object in a specific space
+anytype.create_object({
+  "spaceId": "YOUR_SPACE_ID",
+  "body": {
+    "name": "Meeting Notes 2026-07-21",
+    "type": "Note",
+    "folder": "Work"
+  }
+})
+```
+
+For direct local API access (REST):
+```bash
+curl -X GET "http://127.0.0.1:31009/api/v1/spaces" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Anytype-Version: 2025-11-08"
+```
 
 ## Licensing and cost
 - **Open Source**: Yes (Any Source Code License / GPL-3.0)

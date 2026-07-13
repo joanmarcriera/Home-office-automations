@@ -9,31 +9,76 @@ It allows enterprise organizations to use advanced LLMs with improved security, 
 ## Where it fits in the stack
 **Model Provider / Infrastructure Layer**. It serves as the primary endpoint for LLM capabilities in enterprise or hybrid-cloud environments.
 
-## Authentication Patterns
-
-### 1. API Key Authentication
-The simplest method, using a secret key provided in the Azure Portal.
-- **Header**: `api-key: YOUR_KEY`
-- **Use Case**: Quick prototyping or services that do not support OAuth.
-
-### 2. Entra ID (Formerly Azure AD) Authentication
-The recommended method for production environments, leveraging managed identities and service principals.
-- **Mechanism**: OAuth 2.0 Bearer tokens.
-- **Benefit**: No long-lived secrets; audit trails linked to identities; automatic rotation.
-
 ## Typical use cases
 - **Enterprise RAG**: Securely querying private data indexed in Azure AI Search.
 - **Internal Tools**: Powering internal company agents with corporate identity integration.
 - **Compliance-Heavy Apps**: Building AI features that must adhere to strict regulatory standards (HIPAA, GDPR).
 
+## Strengths
+- **Security**: Integration with Azure VNet, Private Link, and Entra ID.
+- **SLA**: Enterprise-grade availability and performance guarantees.
+- **Data Privacy**: Customer data is not used to train global OpenAI models.
+
+## Limitations
+- **Latency**: Can sometimes be higher than direct OpenAI API due to regional routing.
+- **Complexity**: Resource/Deployment management adds overhead compared to simple API keys.
+
+## When to use it
+- When you require enterprise-grade security, data privacy, and compliance (HIPAA, SOC2, etc.).
+- When you need to integrate LLMs with existing Azure infrastructure and Entra ID (Azure AD).
+- When you need predictable performance and availability guaranteed by Microsoft SLAs.
+
+## When not to use it
+- For simple, non-enterprise projects where a low-latency direct API key is sufficient.
+- If you prefer to avoid the complexity of managing Azure resources and deployments.
+- If you need immediate access to new OpenAI models that may take time to roll out to all Azure regions.
+
 ## Getting started
 
-### Minimal Concepts
-1.  **Resource**: The Azure OpenAI instance created in your subscription.
-2.  **Deployment**: A specific model instance (e.g., `gpt-4o-2024-05-13`) that has its own capacity limits.
-3.  **Endpoint**: The unique URL for your resource (e.g., `https://my-resource.openai.azure.com/`).
+### 1. Installation
+Install the official Azure OpenAI and identity libraries:
+```bash
+pip install openai azure-identity
+```
 
-### Python Example (Entra ID)
+### 2. Resource Creation
+Create an Azure OpenAI resource in the [Azure Portal](https://portal.azure.com/). Note your **Endpoint** (e.g., `https://my-resource.openai.azure.com/`) and **Key**.
+
+### 3. Model Deployment
+Deploy a model (e.g., `gpt-4o`) within your resource. The **Deployment Name** is required for all API calls.
+
+### Hello World Example
+Test your deployment using `curl`:
+```bash
+curl "https://YOUR_RESOURCE_NAME.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/chat/completions?api-version=2024-02-15-preview" \
+  -H "Content-Type: application/json" \
+  -H "api-key: YOUR_API_KEY" \
+  -d '{"messages": [{"role": "user", "content": "Hello world"}]}'
+```
+
+## CLI examples
+```bash
+# List all Azure OpenAI resources in your subscription
+az cognitiveservices account list --kind OpenAI
+
+# Create a new deployment via Azure CLI
+az cognitiveservices account deployment create \
+   --name my-resource-name \
+   --resource-group my-resource-group \
+   --deployment-name my-gpt4-deployment \
+   --model-name gpt-4 \
+   --model-version "0613" \
+   --model-format OpenAI
+
+# Get the endpoint and keys for a resource
+az cognitiveservices account show --name my-resource-name --resource-group my-resource-group --query "properties.endpoint"
+az cognitiveservices account keys list --name my-resource-name --resource-group my-resource-group
+```
+
+## API examples
+
+### Python (Entra ID / Recommended)
+Uses managed identities to avoid long-lived secrets:
 ```python
 import os
 from openai import AzureOpenAI
@@ -55,24 +100,23 @@ response = client.chat.completions.create(
 )
 ```
 
-## Strengths
-- **Security**: Integration with Azure VNet, Private Link, and Entra ID.
-- **SLA**: Enterprise-grade availability and performance guarantees.
-- **Data Privacy**: Customer data is not used to train global OpenAI models.
+### Node.js (Standard API Key)
+```javascript
+const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
 
-## Limitations
-- **Latency**: Can sometimes be higher than direct OpenAI API due to regional routing.
-- **Complexity**: Resource/Deployment management adds overhead compared to simple API keys.
+const client = new OpenAIClient(
+  "https://YOUR_RESOURCE_NAME.openai.azure.com/",
+  new AzureKeyCredential("YOUR_API_KEY")
+);
 
-## When to use it
-- When you require enterprise-grade security, data privacy, and compliance (HIPAA, SOC2, etc.).
-- When you need to integrate LLMs with existing Azure infrastructure and Entra ID (Azure AD).
-- When you need predictable performance and availability guaranteed by Microsoft SLAs.
-
-## When not to use it
-- For simple, non-enterprise projects where a low-latency direct API key is sufficient.
-- If you prefer to avoid the complexity of managing Azure resources and deployments.
-- If you need immediate access to new OpenAI models that may take time to roll out to all Azure regions.
+async function main() {
+  const { choices } = await client.getChatCompletions("YOUR_DEPLOYMENT_NAME", [
+    { role: "user", content: "Hello from Node.js" }
+  ]);
+  console.log(choices[0].message.content);
+}
+main();
+```
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md)
