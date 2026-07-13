@@ -84,3 +84,56 @@
   type: reddit
   url: https://www.reddit.com/r/LLMDevs/.rss
   tags: [llm, tools, development]
+
+# --- Expansion 2026-07: research analysis, self-hosting, core stack ---
+# Every feed below was verified to return valid RSS/Atom before being added.
+
+- name: Google DeepMind Blog
+  type: rss
+  url: https://deepmind.google/blog/rss.xml
+  tags: [llm, research, industry]
+
+- name: Import AI (Jack Clark)
+  type: rss
+  url: https://importai.substack.com/feed
+  tags: [research, policy, llm]
+
+- name: Interconnects (Nathan Lambert)
+  type: rss
+  url: https://www.interconnects.ai/feed
+  tags: [research, open-source, llm]
+
+- name: Ahead of AI (Sebastian Raschka)
+  type: rss
+  url: https://magazine.sebastianraschka.com/feed
+  tags: [research, llm, education]
+
+- name: Eugene Yan
+  type: rss
+  url: https://eugeneyan.com/rss/
+  tags: [llm, engineering, applied]
+
+- name: Lobsters — AI tag
+  type: rss
+  url: https://lobste.rs/t/ai.rss
+  tags: [engineering, curated, discussion]
+
+- name: InfoQ — AI, ML & Data Engineering
+  type: rss
+  url: https://feed.infoq.com/ai-ml-data-eng/
+  tags: [engineering, industry, ai]
+
+- name: Self-Host Weekly (selfh.st)
+  type: rss
+  url: https://selfh.st/rss/
+  tags: [self-hosted, infrastructure, tools]
+
+- name: n8n Blog
+  type: rss
+  url: https://blog.n8n.io/rss/
+  tags: [automation, orchestration, tools]
+
+- name: r/homeassistant
+  type: reddit
+  url: https://www.reddit.com/r/homeassistant/.rss
+  tags: [home-automation, self-hosted]
