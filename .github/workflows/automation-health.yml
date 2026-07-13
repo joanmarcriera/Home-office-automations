@@ -1,0 +1,54 @@
+name: Automation Health Watchdog
+
+# Observability + transient-failure recovery for the unattended pipeline.
+# Scans every scheduled lane (discovered from cron triggers, so new lanes are
+# covered automatically), auto-reruns a failed run's failed jobs once, and
+# maintains ONE singleton `automation-health` issue: opened/updated while
+# lanes fail or stall, closed automatically when everything is green.
+
+on:
+  schedule:
+    - cron: "40 5 * * *" # Daily 05:40 UTC, after the overnight lanes settle
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Set to "true" to report only (no reruns, no issue writes)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+  actions: write # gh run rerun
+  issues: write
+
+concurrency:
+  group: automation-health
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run health scan
+        run: |
+          set -euo pipefail
+          if [ "$DRY_RUN" = "true" ]; then
+            python3 scripts/automation_health.py --dry-run
+          else
+            python3 scripts/automation_health.py
+          fi
