@@ -1,6 +1,6 @@
 # SavvyCal
 
-SavvyCal is a modern scheduling tool designed to be as "sender-friendly" as it is "recipient-friendly," allowing invitees to overlay their own calendars. As of June 2026, it has fully integrated with the **Model Context Protocol (MCP 3.0)**, enabling AI agents to manage scheduling workflows autonomously while maintaining advanced availability control.
+SavvyCal is a modern scheduling tool designed to be as "sender-friendly" as it is "recipient-friendly," allowing invitees to overlay their own calendars. As of July 2026, it has fully integrated with the **Model Context Protocol (MCP 3.0)** and the **MCP Task Protocol**, enabling AI agents like [Claude 5.1](../ai_knowledge/claude.md) and [Gemma 3](../ai_knowledge/local_llms.md) to manage scheduling workflows autonomously while maintaining advanced availability control.
 
 ## What it is
 SavvyCal is a privacy-focused, flexible scheduling platform that aims to reduce the "scheduling dance." It provides a visual way for invitees to compare their availability with the host's without leaving the booking page, using a unique calendar overlay interface.
@@ -15,14 +15,14 @@ It solves the friction and imbalance typical of standard scheduling links. Tradi
 - **High-Touch Professional Scheduling**: Sales, consulting, and recruitment where recipient experience is a priority.
 - **Team Scheduling**: Multi-person "Collective" or "Round Robin" scheduling for distributed teams.
 - **VIP Scheduling**: Creating "secret" or one-time scheduling links for priority contacts with specific overrides.
-- **Agentic Meeting Coordination**: Using an AI agent (Claude 4.8) to check availability via MCP and send a personalized SavvyCal link.
+- **Agentic Meeting Coordination**: Using an AI agent (Claude 5.1) to check availability via MCP and send a personalized SavvyCal link.
 
 ## Strengths
 - **Calendar Overlay**: Recipients can see their own calendar on top of yours to find gaps instantly.
 - **Availability Ranking**: Order your preferred times to encourage people to book when it suits you best.
 - **Meeting Polls**: Integrated, ad-free polls for group scheduling without needing separate tools like Doodle.
 - **Frequency Limits**: Robust controls to prevent calendar burnout (e.g., "max 3 meetings per day").
-- **MCP 3.0 Native**: Exposes scheduling tools to AI agents for automated link generation and availability checks.
+- **MCP 3.0 & Task Protocol Native**: Exposes scheduling tools to AI agents for automated link generation and availability checks.
 
 ## Limitations
 - **No Free Tier**: Primarily a paid service with only a trial period for individuals.
@@ -38,7 +38,7 @@ It solves the friction and imbalance typical of standard scheduling links. Tradi
 ## When not to use it
 - If you require a free-forever scheduling solution.
 - For simple internal-only scheduling where basic calendar invites suffice.
-- If you strictly require open-source or local-only data storage (see [Radicale](apple-calendar.md) or [Fastmail](fastmail.md)).
+- If you strictly require open-source or local-only data storage (see [Radicale](../../services/radicale.md) or [Fastmail](fastmail.md)).
 
 ## Getting started
 
@@ -141,6 +141,8 @@ return null;
 - [Zapier](../automation_orchestration/zapier.md) — Official integration available.
 - [Google Calendar](google_calendar.md) — Primary sync provider.
 - [Microsoft To Do](microsoft-todo.md) — Can be synced via workflows.
+- [Fastmail](fastmail.md) — Privacy-focused backend provider.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Local intelligence for scheduling.
 
 ## Sources / references
 - [Official Website](https://savvycal.com/)
@@ -150,5 +152,5 @@ return null;
 - [SavvyCal MCP Server (GitHub)](https://github.com/savvycal/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
