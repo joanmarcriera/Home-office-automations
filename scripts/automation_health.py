@@ -180,6 +180,38 @@ def assess_lane(lane: dict, state: str | None, runs: list[dict],
     return result
 
 
+ROLLUP_BRANCH = "automation/weekly-rollup"
+
+
+def check_rollup_flow(now: datetime) -> dict:
+    """Detect rollup PRs closed without merging — pending work being discarded.
+
+    This failure class is invisible to run conclusions: every producer lane
+    stays green while a zero-diff run of one of them closes the shared PR and
+    throws away the others' commits (this silently killed the pipeline
+    Apr-Jul 2026). Watch the PR flow itself, not the runs.
+    """
+    lane = {"name": "Weekly rollup PR flow", "file": f"head:{ROLLUP_BRANCH}",
+            "cadence": "weekly", "crons": [],
+            "threshold": STALL_THRESHOLDS["weekly"]}
+    result = {"lane": lane, "status": "ok", "notes": [], "rerun": None}
+    out = run_gh(["pr", "list", "--head", ROLLUP_BRANCH, "--state", "closed",
+                  "--limit", "15", "--json", "number,closedAt,mergedAt"])
+    prs = json.loads(out) if out.strip() else []
+    cutoff = now - timedelta(days=8)
+    discarded = [p for p in prs
+                 if not p.get("mergedAt") and p.get("closedAt")
+                 and parse_ts(p["closedAt"]) > cutoff]
+    if discarded:
+        nums = ", ".join(f"#{p['number']}" for p in discarded[:7])
+        result["status"] = "problem"
+        result["notes"].append(
+            f"{len(discarded)} rollup PR(s) closed UNMERGED in the last 8 days ({nums}) "
+            "— pending automation work is being discarded; check the producer lanes' "
+            "'Preserve pending rollup work' steps")
+    return result
+
+
 def build_report(results: list[dict], now: datetime) -> str:
     icon = {"ok": "✅", "problem": "❌"}
     lines = [ISSUE_MARKER, "# Automation health report",
@@ -269,6 +301,7 @@ def main() -> int:
         state = states.get(lane["file"])
         runs = recent_runs(lane["file"]) if state is not None else []
         results.append(assess_lane(lane, state, runs, now, args.dry_run))
+    results.append(check_rollup_flow(now))
 
     report = build_report(results, now)
     print(report)
