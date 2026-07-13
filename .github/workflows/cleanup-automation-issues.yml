@@ -37,9 +37,10 @@ jobs:
                 elif (.title | startswith("Process Jules Backlog -")) then "process-backlog"
                 elif (.title | startswith("Category gap fill:")) then "category-gap-fill"
                 elif (.title | startswith("Weekly deepening:")) then "weekly-deepening"
+                elif (.title | startswith("Weekly cross-link fix:")) then "weekly-cross-link"
                 else empty
                 end;
-              map(select(.title | test("^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -|Category gap fill:|Weekly deepening:)"))
+              map(select(.title | test("^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -|Category gap fill:|Weekly deepening:|Weekly cross-link fix:)"))
                   | . + {family: family})
               | group_by(.family)
               | map(sort_by(.createdAt) | reverse | .[1:] | .[]?.number)
@@ -80,7 +81,7 @@ jobs:
             --limit 200 \
             --json number,title,createdAt \
             --jq '[.[]
-              | select(.title | test("^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -)"))
+              | select(.title | test("^(Daily Maintenance Run -|Daily Knowledge Expansion -|Process Jules Backlog -|Weekly cross-link fix:)"))
               | {number, createdAt}]')
 
           CHECKED=$(echo "$STALE" | jq 'length')
