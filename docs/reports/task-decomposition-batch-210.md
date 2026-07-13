@@ -4,23 +4,23 @@ This report tracks the technical freshness audits (Action A) for non-compliant d
 
 ## Issues to Address
 
-| Issue | Target File | Action | Status |
-| :--- | :--- | :--- | :--- |
-| 1 | `docs/architecture/automated_contributions.md` | Freshness Audit | Resolved |
-| 2 | `docs/architecture/component_map.md` | Freshness Audit | Resolved |
-| 3 | `docs/knowledge_base/agent_protocols.md` | Freshness Audit | Resolved |
-| 4 | `docs/knowledge_base/model_routing_guide.md` | Freshness Audit | Resolved |
-| 5 | `docs/knowledge_base/patterns/data-copilot-mcp-tooling.md` | Freshness Audit | Pending |
-| 6 | `docs/reference-implementations/data-copilot/answer-synthesis-schema.md` | Freshness Audit | Pending |
-| 7 | `docs/tools/ai_knowledge/claude-mythos.md` | Freshness Audit | Pending |
-| 8 | `docs/tools/ai_knowledge/gemini-macos.md` | Freshness Audit | Pending |
-| 9 | `docs/tools/ai_knowledge/llamaindex.md` | Freshness Audit | Pending |
-| 10 | `docs/tools/enterprise/curiosity.md` | Freshness Audit | Pending |
-| 11 | `docs/tools/intake_storage/anytype.md` | Freshness Audit | Pending |
-| 12 | `docs/tools/intake_storage/silverbullet.md` | Freshness Audit | Pending |
-| 13 | `docs/tools/orchestration/apache-hamilton.md` | Freshness Audit | Pending |
-| 14 | `docs/tools/providers/azure-openai.md` | Freshness Audit | Pending |
-| 15 | `docs/tools/providers/vercel-ai-gateway.md` | Freshness Audit | Pending |
+| Issue | Target File | Action | Status | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | `docs/architecture/automated_contributions.md` | Freshness Audit | Resolved | |
+| 2 | `docs/architecture/component_map.md` | Freshness Audit | Resolved | |
+| 3 | `docs/knowledge_base/agent_protocols.md` | Freshness Audit | Resolved | |
+| 4 | `docs/knowledge_base/model_routing_guide.md` | Freshness Audit | Resolved | |
+| 5 | `docs/knowledge_base/patterns/data-copilot-mcp-tooling.md` | Freshness Audit | Resolved | Upgraded to 13-section standard. |
+| 6 | `docs/reference-implementations/data-copilot/answer-synthesis-schema.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
+| 7 | `docs/tools/ai_knowledge/claude-mythos.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
+| 8 | `docs/tools/ai_knowledge/gemini-macos.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
+| 9 | `docs/tools/ai_knowledge/llamaindex.md` | Freshness Audit | Pending | Missing: CLI examples |
+| 10 | `docs/tools/enterprise/curiosity.md` | Freshness Audit | Pending | Missing: CLI examples |
+| 11 | `docs/tools/intake_storage/anytype.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
+| 12 | `docs/tools/intake_storage/silverbullet.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
+| 13 | `docs/tools/orchestration/apache-hamilton.md` | Freshness Audit | Pending | Missing: API examples |
+| 14 | `docs/tools/providers/azure-openai.md` | Freshness Audit | Pending | Missing: CLI examples, API examples; incorrect order |
+| 15 | `docs/tools/providers/vercel-ai-gateway.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
 
 ## Progress Log
 
@@ -28,3 +28,4 @@ This report tracks the technical freshness audits (Action A) for non-compliant d
 - Initiated Batch 210 based on repository-wide documentation audit findings.
 - Identified 15 documents requiring standard section upgrades and formatting corrections.
 - Completed technical freshness audit for `docs/architecture/component_map.md` (Issue 2).
+- Completed technical freshness audit for `docs/knowledge_base/patterns/data-copilot-mcp-tooling.md` (Issue 5); enriched pending items with specific audit findings.

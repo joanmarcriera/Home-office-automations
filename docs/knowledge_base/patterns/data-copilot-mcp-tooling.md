@@ -1,148 +1,182 @@
 # Data Copilot: MCP Tool & Data Standardization
 
-This document outlines the standardization of tool and data access for the Data Copilot using the Model Context Protocol (MCP). By adopting MCP, we ensure that specialized agents in the Text-to-SQL pipeline can interact with diverse data sources (SQL, docs, APIs) through a unified, machine-parseable interface.
+This document outlines the standardization of tool and data access for the Data Copilot using the Model Context Protocol (MCP 3.0). By adopting MCP, we ensure that specialized agents in the Text-to-SQL pipeline can interact with diverse data sources (SQL, docs, APIs) through a unified, machine-parseable interface.
 
 ## What it is
-The Model Context Protocol (MCP) serves as the universal interface for the Data Copilot, abstracting the complexities of direct database connections, document parsing, and API calls into a standardized set of resources and tools.
+The Model Context Protocol (MCP) serves as the universal interface for the Data Copilot, abstracting the complexities of direct database connections, document parsing, and API calls into a standardized set of resources and tools. It provides a unified interface for AI agents, such as [Gemma 3](../../tools/ai_knowledge/local_llms.md), to interact with various data sources and tools, acting as a secure proxy that translates agentic intent into technical execution.
 
 ## What problem it solves
-It eliminates the "N+1 connector problem" where every new data source requires a custom integration. It also decouples the reasoning engine (LLM) from the data implementation details, allowing for safer, audited, and cost-effective data access.
+In a complex Data Copilot architecture, agents often need to access diverse data sources (SQL databases, internal documentation, KPI glossaries, etc.). Traditionally, this requires hard-coding connectors for each source, leading to brittle code and difficult scaling (the "N+1 connector problem"). MCP standardization solves this by providing a single protocol for all data interactions, making the system more modular, secure, and easier to extend while decoupling the reasoning engine from implementation details.
 
 ## Where it fits in the stack
-It sits between the **Orchestration Layer** (n8n, LangGraph) and the **Data Layer** (PostgreSQL, SQLite, Markdown docs). It acts as a secure proxy that translates agentic intent into technical execution.
+It sits in the **Orchestration and Tooling layer**, between the reasoning agents (e.g., Intent Agent, SQL Generator) and the data storage or service providers (e.g., SQLite, PostgreSQL, Home Assistant, local files). It effectively bridges the gap between the [Orchestration Layer](../../architecture/data-copilot-text-to-sql.md) and the raw **Data Layer**.
 
 ## Typical use cases
-- Exposing a local SQLite database to a cloud-based LLM without exposing the full database.
-- Providing real-time documentation retrieval for agentic RAG workflows.
-- Standardizing metric definitions across different business units using a shared KPI glossary resource.
-
-## Strengths
-- **Decoupling**: Agents don't need to know if they are talking to SQL or a REST API.
-- **Security**: Granular control over what resources/tools are exposed.
-- **Portability**: MCP servers can be moved or swapped without changing the agent logic.
-
-## Limitations
-- **Overhead**: Adds a lightweight network layer between the agent and the data.
-- **Maturity**: Ecosystem is still evolving; some specialized databases may lack off-the-shelf MCP servers.
-
-## When to use it
-- When building a multi-agent system that needs to access diverse data types.
-- When security and auditing of data access are high priorities.
-- For "free/cheap-first" architectures where local data sources must be integrated with cloud LLMs.
-
-## When not to use it
-- For extremely simple, single-script automations where a direct DB connection is faster to implement.
-- When the data source already provides a native, highly optimized agentic interface that meets all security needs.
-
-## Goal
-Design a "free/cheap-first" standardization layer that allows the Data Copilot to scale across new domains without hard-coding database connectors or API clients.
-
-## What it is
-MCP Tool & Data Standardization for Data Copilot is a pattern that uses the Model Context Protocol (MCP) to provide a unified interface for AI agents to interact with various data sources and tools. It abstracts the underlying complexities of database connections, document retrieval, and API calls into a standardized set of resources and tools.
-
-## What problem it solves
-In a complex Data Copilot architecture, agents often need to access diverse data sources (SQL databases, internal documentation, KPI glossaries, etc.). Traditionally, this requires hard-coding connectors for each source, leading to brittle code and difficult scaling. MCP standardization solves this by providing a single protocol for all data interactions, making the system more modular, secure, and easier to extend.
-
-## Where it fits in the stack
-It sits in the **Orchestration and Tooling layer**, acting as the bridge between the AI agents (e.g., Intent Agent, SQL Generator) and the data storage or service providers (e.g., SQLite, Home Assistant, local files).
-
-## Typical use cases
-- Exposing a local SQLite database to a Text-to-SQL agent.
-- Providing a search interface for technical documentation to a RAG-enabled agent.
-- Standardizing access to a centralized KPI glossary across different analysts.
-- Integrating live data from smart home devices via the Home Assistant API.
+- **Database Access**: Exposing a local SQLite database to a Text-to-SQL agent via `mcp-server-sqlite`.
+- **Documentation RAG**: Providing a search interface for technical documentation to a RAG-enabled agent.
+- **KPI Standardization**: Accessing a centralized KPI glossary resource to prevent calculation hallucinations.
+- **Live State Integration**: Querying real-time data from IoT devices or external APIs via the Home Assistant MCP server.
+- **Agentic Workflows**: Allowing agents to perform actions like creating Jira tickets or sending Slack messages through a unified tool interface.
 
 ## Strengths
 - **Decoupling**: Agents are no longer tied to specific database dialects or API implementations.
-- **Security**: Allows for fine-grained access control and auditing at the protocol level.
-- **Portability**: MCP servers can be easily swapped or moved without changing the agent logic.
-- **Unified Interface**: Reduces the complexity of building and maintaining multiple custom connectors.
+- **Security**: Allows for fine-grained access control, auditing, and "least privilege" enforcement at the protocol level.
+- **Portability**: MCP servers can be easily swapped or moved without changing the agent reasoning logic.
+- **Unified Interface**: Reduces the complexity of building and maintaining multiple custom connectors for diverse data types.
 
 ## Limitations
-- **Overhead**: Introducing an abstraction layer can add slight latency to requests.
-- **Protocol Maturity**: MCP is a relatively new protocol, and the ecosystem of servers is still growing.
-- **Configuration**: Requires setting up and managing separate MCP server instances.
+- **Overhead**: Introducing an abstraction layer can add slight network latency to requests.
+- **Protocol Maturity**: While MCP 3.0 is a significant milestone, the ecosystem of servers for specialized databases is still growing.
+- **Configuration**: Requires setting up and managing separate MCP server instances, which adds initial setup complexity.
 
 ## When to use it
-- When building a Data Copilot that needs to access multiple, diverse data sources.
+- When building a multi-agent system that needs to access multiple, diverse data sources.
 - When you want to ensure a clean separation between agent logic and data access.
 - When you need a scalable and secure way to expose local tools to AI agents.
+- For "free/cheap-first" architectures where local data sources must be integrated with cloud LLMs.
 
 ## When not to use it
 - For very simple, single-source applications where the overhead of MCP isn't justified.
 - If your environment already has a well-established and standardized data access layer that isn't compatible with MCP.
+- When the data source already provides a native, highly optimized agentic interface that meets all security needs.
 
-## MCP Integration Matrix
+## Getting started
 
-| Tool Type | MCP Capability | Cost Profile | Implementation |
-| :--- | :--- | :--- | :--- |
-| **SQL Database** | Query/Resource | Free (OSS) | `mcp-server-sqlite` or `mcp-server-postgres` |
-| **Documentation** | Resource (Text) | Free (Local) | `mcp-server-files` over Markdown docs |
-| **KPI Glossary** | Resource (JSON) | Free (Local) | Custom JSON Resource server |
-| **External APIs** | Tool (REST) | Low (API Keys) | `fetch` or specialized MCP servers (e.g., Jira, Slack) |
-| **Metadata** | Resource (Schema) | Free (Local) | SQL introspection MCP server |
+### 1. Install an MCP Server
+The easiest way to start is by installing a standard server, such as the SQLite server.
 
-## Resource vs Tool Patterns
+```bash
+# Install the MCP SQLite server globally
+npm install -g @modelcontextprotocol/server-sqlite
+```
 
-When designing MCP servers for Data Copilots, follow these patterns:
-- **Resources**: Use for static or slowly changing context (e.g., Schema, KPI definitions, archived SOPs). The agent "reads" these to build its world model.
-- **Tools**: Use for actions or live data retrieval (e.g., `execute_query`, `fetch_current_weather`, `create_jira_ticket`). The agent "calls" these to interact with the world.
+### 2. Configure the Server
+Create a configuration for your agent host (e.g., Claude Desktop or a custom orchestrator) to point to your database.
 
-## Concrete MCP Integration Examples
+```json
+{
+  "mcpServers": {
+    "sqlite": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "--db",
+        "/path/to/your/database.db"
+      ]
+    }
+  }
+}
+```
 
-### 1. SQL Query Server
-- **Role**: Provides the `execute_query` tool to the SQL Generator agent.
-- **Example**: `mcp-server-sqlite --db inventory.db`.
-- **Standardization**: Ensures all SQL generators receive schema context in the same format.
+### 3. Initialize MCP Client
+Use the MCP SDK to connect your Data Copilot agents to the server.
 
-### 2. Documentation RAG (Docs Retrieval)
-- **Role**: Allows the Intent Agent to look up domain definitions in the "Knowledge Base".
-- **Example**: MCP server exposing `docs/services/` as searchable resources.
-- **Benefit**: No need for a heavy Vector DB for small, high-density SOP documents.
+```python
+from mcp import Client, StdioServerParameters
 
-### 3. KPI & Metric Glossary
-- **Role**: Centralized source of truth for metric definitions (e.g., "What is Net Margin?").
-- **Example**: A JSON-file resource server mapped to `data/kpi_glossary.json`.
-- **Standardization**: Prevents LLMs from hallucinating calculation logic.
+# Define connection parameters
+server_params = StdioServerParameters(
+    command="npx",
+    args=["-y", "@modelcontextprotocol/server-sqlite", "--db", "inventory.db"]
+)
 
-### 4. Home Assistant API Tool
-- **Role**: Enables the Copilot to query live state (e.g., current power usage) for hybrid diagnostic queries.
-- **Example**: MCP server wrapping Home Assistant REST API.
+# Initialize client and connect
+async with Client(server_params) as client:
+    await client.initialize()
+    # Now tools and resources are available to the agent
+```
 
-### 5. Metadata/Schema Inspector
-- **Role**: Provides the Table and Column Prune agents with up-to-date schema information.
-- **Benefit**: Decouples the agent from the specific DB dialect (SQLite vs Postgres).
+## CLI examples
 
-## Minimal MCP Server Set for Small Teams
-For a home-office or small team setup, start with these:
-1.  **Filesystem MCP**: Exposes Markdown docs and JSON configurations.
-2.  **SQL MCP**: Specific to your primary database (e.g., SQLite).
-3.  **Fetch MCP**: For lightweight web requests/API integrations.
+### Listing Available Tools
+Check which tools are exposed by an MCP server to the Data Copilot.
+```bash
+mcp-cli tools list --server sqlite
+```
 
-## Migration Path from Hard-coded Connectors
-1.  **Phase 1 (Shadow)**: Deploy MCP servers alongside existing Python connectors.
-2.  **Phase 2 (Abstraction)**: Update Pydantic models in the Data Copilot pipeline to accept MCP resource URIs instead of raw connection strings.
-3.  **Phase 3 (Cutover)**: Replace direct `sqlite3` or `requests` calls with `mcp_client.call_tool()`.
+### Reading a Resource
+Access a specific resource, such as a schema definition or KPI glossary.
+```bash
+mcp-cli resources read mcp://sqlite/schema/main
+```
 
-## Security & Auth Boundaries
-- **Least Privilege**: SQL MCP servers should use read-only credentials with `LIMIT` enforcement.
-- **Auditability**: All MCP tool calls are logged by the agent orchestrator (n8n or LangGraph).
-- **Authentication**: MCP servers should be restricted to the local network/Tailscale mesh with token-based access.
-- **Network Isolation**: For high-security home labs, run MCP servers in a dedicated "Automation" VLAN or a Tailscale "tag" group that only allows connections from the agent orchestrator node.
+### Executing a Tool Call
+Manually trigger a tool call for testing the data pipeline.
+```bash
+mcp-cli tools call sqlite execute_query --params '{"sql": "SELECT count(*) FROM users"}'
+```
+
+## API examples
+
+### Calling a Tool from an Agent (TypeScript)
+Example of an agentic tool call to fetch data via MCP.
+
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+
+async function runQuery(client: Client, sql: string) {
+  const result = await client.callTool({
+    name: "execute_query",
+    arguments: { sql }
+  });
+
+  console.log("Query Results:", result.content);
+}
+```
+
+### Serving a Custom Resource (Python)
+Standardizing a KPI Glossary as an MCP resource.
+
+```python
+from mcp.server import Server
+
+server = Server("kpi-glossary")
+
+@server.list_resources()
+async def list_resources():
+    return [
+        {
+            "uri": "glossary://metrics",
+            "name": "Corporate KPI Glossary",
+            "mimeType": "application/json"
+        }
+    ]
+
+@server.read_resource("glossary://metrics")
+async def read_resource(uri):
+    return "{\"net_margin\": \"(Revenue - Expenses) / Revenue\"}"
+
+server.run()
+```
+
+### Multi-Server Orchestration
+Connecting a Data Copilot agent to multiple MCP servers simultaneously.
+
+```python
+async with MultiServerClient() as manager:
+    await manager.add_server("db", server_params_sqlite)
+    await manager.add_server("docs", server_params_files)
+
+    # Agent can now reason across both SQL and Documentation
+    response = await agent.think("Find the Net Margin formula in docs and then calculate it for Q2")
+```
 
 ## Related tools / concepts
-- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md)
-- [Data Copilot Agentic RAG](data-copilot-agentic-rag.md)
-- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md)
-- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md)
-- [Tool Calling & Model Context Protocol (MCP)](tool-calling-and-mcp.md)
-- [Claude Tool Search](claude-tool-search.md)
+- [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) — The primary orchestration framework.
+- [Agent Protocols](../agent_protocols.md) — Broader context on MCP and other standards.
+- [Data Copilot Agentic RAG](data-copilot-agentic-rag.md) — Using MCP for document retrieval.
+- [Data Copilot SQL Validation](../../playbooks/data-copilot-sql-validation.md) — Validating queries generated via MCP tools.
+- [Answer Synthesis Schema](../../reference-implementations/data-copilot/answer-synthesis-schema.md) — Standardizing output formats.
+- [Tool Calling & Model Context Protocol (MCP)](tool-calling-and-mcp.md) — Deep dive into the protocol itself.
+- [Claude Tool Search](claude-tool-search.md) — Discovery patterns for MCP tools.
 
-## Sources / References
+## Sources / references
 - [Model Context Protocol (MCP) Official Site](https://modelcontextprotocol.io/)
 - [Anthropic: Introducing MCP](https://www.anthropic.com/news/model-context-protocol)
+- [MCP Python SDK (GitHub)](https://github.com/modelcontextprotocol/python-sdk)
+- [MCP TypeScript SDK (GitHub)](https://github.com/modelcontextprotocol/typescript-sdk)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-15
+- Last reviewed: 2026-07-21
 - Confidence: high
-- Related Issues: #187
