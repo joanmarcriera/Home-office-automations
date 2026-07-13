@@ -29,7 +29,7 @@ SOURCE_SCORES_PATH = Path("data/source-scores.json")
 
 MODEL_STRING = os.environ.get(
     "OPENROUTER_MODEL",
-    "google/gemma-3-27b-it:free,google/gemma-3-12b-it:free",
+    "google/gemma-4-31b-it:free,meta-llama/llama-3.3-70b-instruct:free,openai/gpt-oss-120b:free",
 )
 MODELS = [m.strip() for m in MODEL_STRING.split(",")]
 

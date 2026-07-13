@@ -23,7 +23,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0 # full history so the pending-rollup merge below has a base
+
+      - name: Preserve pending rollup work
+        # Producers share the automation/weekly-rollup branch, but
+        # peter-evans/create-pull-request rebuilds it from main on every run —
+        # a lane arriving with no changes of its own would otherwise reset the
+        # branch, see zero diff, and close the shared PR, silently discarding
+        # the other lanes' pending work (this killed the pipeline Apr-Jul 2026).
+        # Merging the pending branch first makes every lane additive.
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch origin automation/weekly-rollup 2>/dev/null; then
+            if git merge --no-edit FETCH_HEAD; then
+              echo "Merged pending rollup work from automation/weekly-rollup."
+            else
+              git merge --abort
+              echo "::warning::Pending rollup branch conflicts with main; continuing from clean main."
+            fi
+          else
+            echo "No pending rollup branch to preserve."
+          fi
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5

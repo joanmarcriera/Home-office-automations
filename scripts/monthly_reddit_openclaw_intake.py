@@ -173,7 +173,7 @@ def fetch_top_posts(subreddit: str, timeframe: str, limit: int) -> list[dict[str
 
 def select_with_openrouter(posts: list[dict[str, Any]], max_items: int) -> list[Candidate]:
     api_key = env_required("OPENROUTER_API_KEY")
-    model = os.environ.get("OPENROUTER_MODEL", "").strip() or "qwen/qwen-2.5-7b-instruct:free"
+    model = os.environ.get("OPENROUTER_MODEL", "").strip() or "google/gemma-4-31b-it:free"
 
     # Imported lazily to keep script import-safe without dependency pre-install.
     from openai import OpenAI
