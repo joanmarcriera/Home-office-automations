@@ -35,7 +35,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 ## When to use it
 
 - When you want to host your own "private cloud" for family or small business use.
-- When you need a high-performance environment for running local AI models ([Ollama](../services/ollama.md), [LiteLLM](../tools/development_ops/litellm.md)).
+- When you need a high-performance environment for running local AI models ([Ollama](../services/ollama.md), [LiteLLM](../services/litellm.md)).
 - When you prioritize data ownership and privacy over the convenience of public cloud services.
 
 ## When not to use it

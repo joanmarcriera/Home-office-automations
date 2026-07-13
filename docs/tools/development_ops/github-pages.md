@@ -17,7 +17,7 @@ It eliminates the friction between code development and documentation deployment
 - Documentation sites for open-source projects (e.g., MkDocs, Docusaurus).
 - Personal portfolios and technical blogs.
 - Automated [Playwright](playwright.md) test reports and execution logs.
-- Landing pages for [MCP](mcp.md) servers and AI agent projects.
+- Landing pages for [MCP](../automation_orchestration/mcp.md) servers and AI agent projects.
 - Hosting [JSON](https://www.json.org/) schemas or static API specifications.
 
 ## Strengths

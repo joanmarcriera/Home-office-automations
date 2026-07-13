@@ -90,7 +90,7 @@ for venue in retreat.recommendations:
 - [GPT-5.5](openai.md) — LLM provider for travel logistics synthesis.
 - [Make](../automation_orchestration/make.md) — Used for automating retreat workflows.
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — Framework for building agentic travel apps.
-- [LangChain](../frameworks/langchain.md) — Library for orchestrating travel planning agents.
+- [LangChain](langchain.md) — Library for orchestrating travel planning agents.
 - [Event Management Automation](../automation_orchestration/index.md) — General category for event tools.
 
 ## Sources / references

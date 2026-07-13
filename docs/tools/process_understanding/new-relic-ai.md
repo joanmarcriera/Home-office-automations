@@ -16,7 +16,7 @@ It addresses the unique challenges of AI monitoring, such as tracking non-determ
 - **Cost Management**: Real-time tracking of LLM spend with per-user or per-project attribution.
 
 ## Strengths
-- **Low Effort**: Easy integration with popular AI frameworks like [LangChain](../frameworks/langchain.md) and [LlamaIndex](../frameworks/llamaindex.md).
+- **Low Effort**: Easy integration with popular AI frameworks like [LangChain](../ai_knowledge/langchain.md) and [LlamaIndex](../ai_knowledge/llamaindex.md).
 - **Holistic View**: Connects AI metrics with the underlying infrastructure (CPU, Memory, Network).
 - **Security & Privacy**: Features to redact PII from logs before they are stored.
 - **Native MCP 3.0 Support**: Official Model Context Protocol server for direct AI assistant interaction.
@@ -93,7 +93,7 @@ newrelic-admin server-config
 ## API examples
 
 ### Monitoring a LangChain Application
-The New Relic agent automatically instruments [LangChain](../frameworks/langchain.md) when initialized.
+The New Relic agent automatically instruments [LangChain](../ai_knowledge/langchain.md) when initialized.
 
 ```python
 import newrelic.agent
@@ -132,8 +132,8 @@ print(response.json())
 - [Arize Phoenix](arize-ai.md)
 - [Parea](parea.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [LangChain](../frameworks/langchain.md)
-- [LlamaIndex](../frameworks/llamaindex.md)
+- [LangChain](../ai_knowledge/langchain.md)
+- [LlamaIndex](../ai_knowledge/llamaindex.md)
 - [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml)
 
 ## Sources / references

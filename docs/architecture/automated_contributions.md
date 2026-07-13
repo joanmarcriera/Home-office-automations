@@ -91,8 +91,8 @@ if not audit_results.is_compliant:
 - [Jules Agent](../tools/ai_knowledge/jules.md)
 - [KnowledgeOps Standards](../standards.md)
 - [Local LLMs (Gemma 3)](../tools/ai_knowledge/local_llms.md)
-- [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Agentic Session Orchestration](../../knowledge_base/agent_protocols.md)
+- [Model Context Protocol](../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Agentic Session Orchestration](../knowledge_base/agent_protocols.md)
 - [Data Copilot Architecture](data-copilot-text-to-sql.md)
 - [Contributing Guide](../CONTRIBUTING.md)
 

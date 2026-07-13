@@ -10,7 +10,7 @@ It eliminates the friction of traditional expense reporting and manual data entr
 **Category**: Enterprise AI / Finance Automation. It sits at the intersection of corporate spend and automated accounting workflows, acting as an "Agentic Finance" layer.
 
 ## Typical use cases
-- **AI Spend Intelligence**: Consolidating token usage and costs from providers like [Anthropic](../../tools/ai_knowledge/anthropic.md) and [OpenAI](../../tools/ai_knowledge/openai.md) into a single finance dashboard.
+- **AI Spend Intelligence**: Consolidating token usage and costs from providers like [Anthropic](../providers/anthropic.md) and [OpenAI](../../tools/ai_knowledge/openai.md) into a single finance dashboard.
 - **Automated Expense Management**: Using Ramp Intelligence to automatically match receipts to transactions and categorize spend.
 - **Smart Bill Pay**: Using OCR and AI to extract invoice details and automate approval workflows.
 - **Agentic Reconciliations**: Deploying **Ramp Agents** that handle journal entries and variance analysis end-to-end.
@@ -80,7 +80,7 @@ for tx in ai_spend:
 - [n8n](../../services/n8n.md)
 - [Langfuse](../process_understanding/langfuse.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Anthropic](../../tools/ai_knowledge/anthropic.md)
+- [Anthropic](../providers/anthropic.md)
 - [OpenAI](../../tools/ai_knowledge/openai.md)
 
 ## Sources / References

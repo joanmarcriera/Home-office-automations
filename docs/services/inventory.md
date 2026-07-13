@@ -38,7 +38,7 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 
 ## Limitations
 - **Manual Updates**: Requires strict discipline to update the MD file when services are added/removed.
-- **Static Content**: Does not show real-time CPU/RAM usage (refer to [Dashworks](dashworks.md)).
+- **Static Content**: Does not show real-time CPU/RAM usage (refer to [Dashworks](../tools/enterprise/dashworks.md)).
 - **Abstraction**: High-level only; detailed configuration remains in individual service docs.
 
 ## When to use it
@@ -47,8 +47,8 @@ In a complex home lab with dozens of interconnected services (Nextcloud, Home As
 - During disaster recovery to quickly find the data path or image of a specific service.
 
 ## When not to use it
-- For real-time monitoring (use Prometheus/Grafana or [Dashworks](dashworks.md)).
-- For managing secrets or environment variables (use [Vault](hashicorp-vault.md)).
+- For real-time monitoring (use Prometheus/Grafana or [Dashworks](../tools/enterprise/dashworks.md)).
+- For managing secrets or environment variables (use [Vault](../tools/automation_orchestration/hashicorp-vault.md)).
 - For temporary, development-only services that are not part of the production lab.
 
 ## Getting started

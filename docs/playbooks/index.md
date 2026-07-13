@@ -18,6 +18,11 @@ Step-by-step execution guides for recurring workflows. Each playbook is self-con
 | Deploy a 3-node HA cluster for resilient workloads | [K3s Cluster Setup](k3s-cluster-setup.md) |
 | Validate AI-generated SQL queries for safety and performance | [Data Copilot SQL Validation](data-copilot-sql-validation.md) |
 | Migrate from Tailscale to a self-hosted Headscale instance | [Tailscale to Headscale Migration](tailscale-to-headscale-migration.md) |
+| Deploy a private, air-gapped AI stack locally | [Fully Offline Assistant](fully-offline-assistant.md) |
+| Configure automatic cloud-to-local failover | [Graceful Degradation](graceful-degradation.md) |
+| Protect critical data with a 3-2-1 backup strategy | [Backup & Disaster Recovery](backup-disaster-recovery.md) |
+| Transfer models and ZIMs to air-gapped servers | [Air-gapped Provisioning](air-gapped-provisioning.md) |
+| Transcribe audio and extract tasks locally | [Offline Transcription Pipeline](offline-transcription-pipeline.md) |
 
 ---
 
@@ -104,6 +109,41 @@ Outlines the steps required to migrate homelab nodes from the Tailscale SaaS coo
 Step-by-step operational guide for deploying a lightweight, 3-node highly available Kubernetes cluster using K3s with embedded etcd.
 
 **Stack**: K3s · Ubuntu/Talos OS · etcd
+
+---
+
+### [Fully Offline Assistant](fully-offline-assistant.md)
+Operates a private AI stack on local hardware. Integrates inference, interface, local embeddings, and offline knowledge.
+
+**Stack**: Ollama · Open WebUI · Qdrant · Kiwix
+
+---
+
+### [Graceful Degradation](graceful-degradation.md)
+Operationalizes cloud-to-local failover for LLM services during outages or rate-limiting events.
+
+**Stack**: LiteLLM · Open WebUI · Ollama
+
+---
+
+### [Backup & Disaster Recovery](backup-disaster-recovery.md)
+Comprehensive strategy for protecting homelab data using a 3-2-1 approach with deduplicated, encrypted snapshots.
+
+**Stack**: restic · BorgBackup · Kopia · S3
+
+---
+
+### [Air-gapped Provisioning](air-gapped-provisioning.md)
+Workflow for securely transferring and verifying models and knowledge artifacts onto disconnected servers.
+
+**Stack**: Ollama · Kiwix · Docker · sha256sum
+
+---
+
+### [Offline Transcription Pipeline](offline-transcription-pipeline.md)
+Privacy-first workflow for converting audio to text and tasks without cloud exposure.
+
+**Stack**: faster-whisper · Paperless-ngx · Vikunja · n8n
 
 ---
 

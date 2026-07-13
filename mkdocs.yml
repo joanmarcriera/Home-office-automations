@@ -107,6 +107,11 @@ nav:
       - Tailscale to Headscale Migration: playbooks/tailscale-to-headscale-migration.md
       - Knowledge Base Health: playbooks/knowledge-base-health.md
       - Data Copilot SQL Validation: playbooks/data-copilot-sql-validation.md
+      - Fully Offline Assistant: playbooks/fully-offline-assistant.md
+      - Graceful Degradation: playbooks/graceful-degradation.md
+      - Backup & Disaster Recovery: playbooks/backup-disaster-recovery.md
+      - Air-gapped Provisioning: playbooks/air-gapped-provisioning.md
+      - Offline Transcription Pipeline: playbooks/offline-transcription-pipeline.md
   - Services:
       - Overview: services/README.md
       - Inventory: services/inventory.md
@@ -229,7 +234,6 @@ nav:
           - OpenAI: tools/ai_knowledge/openai.md
           - OpenBB: tools/ai_knowledge/openbb.md
           - OpenRouter: tools/ai_knowledge/openrouter.md
-          - Perplexity: tools/ai_knowledge/perplexity.md
           - Project Genie: tools/ai_knowledge/project-genie.md
           - Python: tools/ai_knowledge/python.md
           - Qwen: tools/ai_knowledge/qwen.md

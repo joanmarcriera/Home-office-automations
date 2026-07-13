@@ -38,7 +38,7 @@ It eliminates "information silos" by providing a centralized gateway to institut
 
 ## When not to use it
 - For very small teams (e.g., <20 people) where information is easily managed in one or two tools.
-- If you only need to search public web data (use [Perplexity](../ai_knowledge/perplexity.md) instead).
+- If you only need to search public web data (use [Perplexity](../providers/perplexity.md) instead).
 - If your primary knowledge base is exclusively in [Notion](../ai_knowledge/notion-ai.md) or [Confluence](https://www.atlassian.com/software/confluence).
 
 ## Getting started
@@ -84,7 +84,7 @@ def search_glean(query):
 
 ## Related tools / concepts
 - [Notion AI](../ai_knowledge/notion-ai.md)
-- [Perplexity](../ai_knowledge/perplexity.md)
+- [Perplexity](../providers/perplexity.md)
 - [Hebbia](hebbia.md)
 - [Fyxer AI](fyxer.md)
 - [Ramp](ramp.md)

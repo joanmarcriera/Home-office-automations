@@ -98,10 +98,10 @@ print(data["json"])
 - [Crawl4AI](crawl4ai.md)
 - [Docling](docling.md)
 - [Valyu](../ai_knowledge/valyu.md)
-- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 - [Claude Code](../development_ops/claude-code.md)
 - [RAGFlow](ragflow.md)
-- [Browser Use](../../automation_orchestration/browser-use.md)
+- [Browser Use](../automation_orchestration/browser-use.md)
 
 ## Sources / references
 - [Firecrawl Documentation](https://docs.firecrawl.dev/)
