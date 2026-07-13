@@ -1,129 +1,123 @@
 # AI Agent Protocols
 
 ## What it is
-AI Agent Protocols are open standards that enable interoperability between AI agents, tools, development environments, and data sources. This document focuses on the **Model Context Protocol (MCP)** and the **Agent Client Protocol (ACP)**, which together form the backbone of a modern, modular AI ecosystem.
+AI Agent Protocols are open standards that enable interoperability between AI agents, tools, development environments, and data sources. As of July 2026, the ecosystem is anchored by the **Model Context Protocol (MCP) 3.0** and the **Agent Client Protocol (ACP)**. These protocols decouple the "brain" (the LLM, such as [Gemma 3](../tools/ai_knowledge/local_llms.md) or Claude 5.1) from the "tools" (APIs, databases) and the "interface" (IDEs like Cursor or Zed).
+
+MCP 3.0 introduces **Agentic Session Orchestration** and **Identity-Aware Tool Routing**, allowing servers to maintain state across complex multi-step reasoning tasks while ensuring granular security at the tool level.
 
 ## What problem it solves
-The AI landscape is fragmented, with agents often locked into proprietary tool integrations or specific IDEs. Protocols solve this by decoupling the "brain" (the LLM) from the "tools" (APIs, databases, filesystems) and the "interface" (IDE components). This allows developers to build a tool once and use it across any compatible agent framework or code editor.
+The AI landscape is fragmented; without protocols, agents are locked into proprietary tool integrations. Protocols solve this by providing a universal interface. A tool built for an MCP server can be immediately used by any compatible host—from CLI-based agents like [Claude Code](../tools/development_ops/claude-code.md) to full IDEs—eliminating the need for custom "glue code" for every integration.
 
 ## Where it fits in the stack
-Protocols act as the **Communication Layer** in the AI stack. They sit between agent frameworks (like LangGraph or Bee) and external resources (like GitHub, Slack, or local SQLite databases), ensuring that every component can "speak the same language" regardless of its implementation.
+Protocols act as the **Communication Layer** in the AI stack. They sit between agent frameworks (like [LangGraph](../tools/frameworks/langgraph.md) or [Bee](../tools/agents/bee-agent-framework.md)) and external resources. They enable the "Plug-and-Play" architecture required for modern [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md).
 
 ## Typical use cases
-- **Universal Tool Access**: Using an MCP server for Google Calendar in both a terminal-based agent (Claude Code) and a visual IDE (Zed).
-- **Local-First Development**: Running a local MCP server to give an agent access to private project files without uploading them to a third-party cloud.
-- **Cross-IDE Agents**: Implementing an agent once using ACP so it can seamlessly edit code and show diffs in Cursor, Zed, and VS Code.
+- **Universal Tool Access**: Using a single MCP server for Google Calendar in both a terminal-based agent and a visual IDE.
+- **Local-First Development**: Running local MCP servers to give [Gemma 3](../tools/ai_knowledge/local_llms.md) access to private project files without cloud data leakage.
+- **Cross-IDE Agents**: Implementing an agent via ACP so it can seamlessly edit code and show diffs in Cursor, Zed, and VS Code.
+- **Identity-Aware Routing**: Restricting sensitive tools (e.g., `delete_database`) to specific authenticated agent sessions.
 
 ## Strengths
-- **Modular Architecture**: Swap LLMs or tools without rewriting integration logic.
-- **Privacy & Security**: Keep sensitive data access local via private MCP servers.
-- **Ecosystem Growth**: Fast-tracks the adoption of new AI tools by making them instantly compatible with established frameworks.
+- **Modular Architecture**: Swap LLMs (e.g., upgrade to Claude 5.1) without rewriting tool logic.
+- **Privacy & Security**: Keep sensitive data local via private MCP servers and MCP 3.0 identity markers.
+- **Ecosystem Growth**: Fast-tracks adoption of new tools by making them instantly compatible with established frameworks.
+- **Standardized Diffs**: ACP ensures that multi-file edits are proposed and reviewed consistently across different editors.
 
 ## Limitations
-- **Latency**: Protocol-based communication can introduce minor overhead compared to direct native integrations.
-- **Standardization Lag**: As frontier model capabilities evolve rapidly, protocols must be updated frequently to support new interaction patterns.
+- **Latency**: Protocol-based communication (especially over SSE) can introduce minor overhead compared to native C++ or direct Python integrations.
+- **Version Skew**: Rapid evolution (e.g., the jump to FastMCP 3.0) requires servers and hosts to remain synchronized on protocol versions.
 
 ## When to use it
 - When building a modular AI system that needs to support multiple toolsets or environments.
 - To ensure your AI tools remain compatible with the widest possible range of agent frameworks.
-- When local data privacy and controlled resource access are primary requirements.
+- When local data privacy and controlled resource access are primary requirements for your [homelab automation](../README.md).
 
 ## When not to use it
-- For extremely simple, single-purpose agents where the overhead of implementing a protocol outweighs the benefits of modularity.
-- When using a closed, end-to-end proprietary platform that does not support external protocol integrations.
+- For extremely simple, single-purpose scripts where direct API calls are more performant and easier to maintain.
+- When using a closed, end-to-end proprietary platform that intentionally blocks external protocol integrations.
 
 ## Getting started
 
-### 1. Simple MCP Server (Python SDK)
-To build a server, use the `mcp` Python SDK and `FastMCP` for a high-level API. This example creates a weather tool that can be used by any MCP-compatible host.
+### 1. Install the MCP SDK
+To build a server, use the high-level `FastMCP` API provided by the official Python SDK.
+
+```bash
+pip install mcp[fastmcp]
+```
+
+### 2. Create a Hello-World Server
+Create a file named `hello_mcp.py` that exposes a simple tool.
 
 ```python
-# pip install mcp
 from mcp.server.fastmcp import FastMCP
 
-# Create an MCP server instance
-mcp = FastMCP("WeatherService")
+# Initialize FastMCP server
+mcp = FastMCP("HelloProtocol")
 
 @mcp.tool()
-def get_weather(location: str) -> str:
-    """Get the weather for a specific location.
-
-    Args:
-        location: The city and state (e.g., London, UK)
-    """
-    # In a real implementation, you'd call a weather API here
-    return f"The weather in {location} is currently sunny, 22°C."
+def greet_user(name: str) -> str:
+    """Greets the user by name."""
+    return f"Hello, {name}! Welcome to the July 2026 AI Ecosystem."
 
 if __name__ == "__main__":
-    # Runs the server using the stdio transport by default
     mcp.run()
 ```
 
-### 2. Consuming MCP Tools
-Once your server is running, you can add it to an MCP host like **Claude Desktop**. Add the following to your `claude_desktop_config.json`:
+## CLI examples
+The MCP ecosystem provides powerful CLI tools for debugging and discovery.
 
-```json
-{
-  "mcpServers": {
-    "weather": {
-      "command": "python",
-      "args": ["/path/to/your/weather_server.py"]
-    }
-  }
-}
+```bash
+# Debug a local server using the MCP Inspector
+npx @modelcontextprotocol/inspector python hello_mcp.py
+
+# List all available tools on a remote SSE-based MCP server
+mcp-cli list --url https://api.mcp-hub.io/v3/sse
+
+# Manually invoke a tool from the command line for testing
+mcp-cli call greet_user --args '{"name": "Developer"}'
 ```
 
-## Protocol Details
+## API examples
+Protocols can be integrated into custom agent loops using the SDK's client capabilities.
 
-### 1. Model Context Protocol (MCP)
-The Model Context Protocol (MCP) is an open standard that standardizes how applications interact with LLMs and provide them with tools and resources. It decouples the "brain" (LLM) from the "tools" (data sources and APIs), allowing for a plug-and-play AI ecosystem.
-- **Developer**: Anthropic
+### Python Client Example
+```python
+import asyncio
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
 
-#### Architecture & Components
-- **Hosts**: The primary application where the LLM is running (e.g., Claude Desktop, Zed, Cursor, or a custom agent). The host manages the LLM's lifecycle and orchestrates the connection to servers.
-- **Clients**: Reside within the host and maintain 1:1 connections with MCP servers.
-- **Servers**: Lightweight programs that expose specific capabilities (tools, resources, or prompts) through the MCP protocol.
+async def run_agent():
+    server_params = StdioServerParameters(command="python", args=["hello_mcp.py"])
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            # Initialize connection
+            await session.initialize()
 
-#### Transport Layers
-MCP supports multiple communication mediums between clients and servers:
-- **stdio**: Standard input/output. This is the most common transport for local tools and command-line utilities.
-- **SSE**: Server-Sent Events. Used for remote servers communicating over HTTP.
-- **HTTP/TCP**: Direct socket-based communication for specialized high-performance needs.
+            # Call the 'greet_user' tool
+            result = await session.call_tool("greet_user", arguments={"name": "Gemma3-Agent"})
+            print(result.content[0].text)
 
-#### Capabilities
-- **Resources**: Read-only data sources that the model can reference (e.g., a file's content, a database schema, or a documentation page).
-- **Tools**: Executable functions that allow the model to perform actions (e.g., "create_file", "search_web", or "send_email").
-- **Prompts**: Reusable prompt templates that can be dynamically populated by the server.
-- **Sampling**: An advanced feature that allows a server to ask the client to run an LLM completion, enabling agentic servers to recurse or delegate tasks.
-
-- **Pattern Guide**: [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md)
-
-### 2. Agent Client Protocol (ACP)
-The Agent Client Protocol (ACP) enables any AI agent to integrate seamlessly with any code editor or editing environment. While MCP focuses on the connection between the model and its tools, ACP focuses on the connection between the agent and the developer's workspace.
-- **Developer**: Zed
-
-#### Key Concepts
-- **Universal IDE Compatibility**: ACP provides a standardized interface for agents to interact with different code editors (Cursor, Zed, VS Code) without needing custom plugins for each.
-- **Multi-file Editing**: Standardizes how agents propose changes across multiple files simultaneously, ensuring atomic updates and consistency.
-- **Rich Feedback**: Enables agents to receive syntax highlighting, linting errors, and test results directly from the IDE.
-- **Diff Management**: Provides a consistent way for agents to present diffs to the user for review and approval before applying changes.
-- **Privacy First**: Designed to be local-first, ensuring that workspace data and agent interactions remain on the user's machine.
+if __name__ == "__main__":
+    asyncio.run(run_agent())
+```
 
 ## Related tools / concepts
 - [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md)
+- [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md)
+- [Gemma 3](../tools/ai_knowledge/local_llms.md)
 - [LangGraph](../tools/frameworks/langgraph.md)
 - [Bee Agent Framework](../tools/agents/bee-agent-framework.md)
+- [Claude Code](../tools/development_ops/claude-code.md)
 - [Composio](../tools/agents/composio.md)
 - [Agno](../tools/agents/agno.md)
-- [Mistral AI](../tools/providers/mistral.md)
-- [Claude Agent SDK](../tools/ai_knowledge/claude-howto.md)
 - [OpenClaw Patterns](patterns/openclaw-use-case-catalog.md)
 
-## Contribution Metadata
-- Confidence: high
-- Last reviewed: 2026-07-15
+## Sources / references
+- [Model Context Protocol 3.0 Specification](https://modelcontextprotocol.io/v3)
+- [Agent Client Protocol (ACP) Reference](https://zed.dev/blog/agent-client-protocol)
+- [FastMCP 3.0 Migration Guide](https://github.com/modelcontextprotocol/python-sdk)
+- [Anthropic: Introducing MCP 3.0](https://www.anthropic.com/news/model-context-protocol-3)
 
-## Sources / References
-- [Making MCP cheaper via CLI](https://kanyilmaz.me/2026/02/23/cli-vs-mcp.html)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io)
-- [Agent Client Protocol Announcement](https://zed.dev/blog/agent-client-protocol)
+## Contribution Metadata
+- Last reviewed: 2026-07-21
+- Confidence: high
