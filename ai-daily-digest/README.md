@@ -1,5 +1,62 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-13
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Apple vs. OpenAI**: Apple has filed a lawsuit against OpenAI alleging a systemic scheme to steal trade secrets "at every level."
+* 📌 **Local AI Hardware Leap**: Rumors suggest a future Apple M7 Ultra chip could feature up to 1.5 TB of unified memory, potentially revolutionizing local LLM deployment.
+* 🚀 **Model Compression Breakthroughs**: New efforts in "compressed reasoning" (Flint) and PrismML's claim of running Qwen-3.6-27B on an iPhone signal a strong trend toward high-performance edge AI.
+* 🏢 **Enterprise Shift**: Companies are increasingly turning to Chinese open-weight models to reduce costs, while Anthropic expands its enterprise footprint through massive training partnerships.
+
+---
+
+## 🚀 Models & Releases
+* **Moondream 3.1-9B-A2B**: A new vision language model using a Mixture-of-Experts (MoE) architecture (9B total, 2B active) focusing on structured visual reasoning and detection. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uunqcz/moondream319ba2b/)
+* **OvisOCR2**: A promising 0.8B local document parser based on Qwen3.5-0.8B for efficient end-to-end OCR. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uv88co/ovisocr2_a_promising_08b_local_document_parser/)
+* **Qwen-3.6-27B (Compressed)**: PrismML claims a breakthrough in shrinking this model to run on an iPhone. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uv54fv/compressed_version_of_qwen3627b_coming_from/)
+* **Mellum 2**: Discussions regarding the extraction of MTP weights from JetBrains' Mellum 2 to improve latency. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uv4y2n/mellum2_with_mtp/)
+
+---
+
+## 🛠️ Tools & Agents
+* **Modelr**: A new local Image-to-3D app for Apple Silicon and iPhone, porting Hunyuan3D-Paint/Shape via MLX. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uuga40/local_image_to_3d_2gb_ram_20s_apple_silicon_iphone/)
+* **Colibri-Hy3**: A port of Colibri streaming to Hy3, allowing the model to run on as little as 10GB VRAM. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uv8orn/colibri_streaming_for_hy3_run_hy3_on_10gb_vram/)
+* **llama.cpp Update**: Release `b9978` fixes a critical checkpoint bug that previously slowed down agentic tool-calling loops. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uuue5p/llamacpp_agentic_workflows_ctx_checkpoints_fix/)
+* **MCP (Model Context Protocol)**: 
+    * DoorDash is utilizing MCP-based tooling for its new AI shopping assistant to improve conversion rates. [InfoQ](https://www.infoq.com/news/2026/07/doordash-ai-ask-assistant/)
+    * Debate continues on whether MCP should be a service or a package library to simplify permission management. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvaqxp/mcp_is_bad/)
+    * Analysis on how MCP fits alongside traditional APIs. [The New Stack](https://thenewstack.io/api-vs-mcp-incident-management/)
+
+---
+
+## 🔬 Research & Papers
+* **Flint**: A study on "compressing reasoning" by training models (Qwen3.5-4B, Gemma-4-12B) on self-distilled reasoning traces, matching original performance with 2-3x less compute. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uv9o2u/studymodels_flint_compressing_reasoning_without/)
+* **J-Space (Silent Reasoning)**: Researchers applied the "Jacobian lens" to Qwen3-8B to detect "silent" internal reasoning (J-space) that doesn't appear in text, using it to prevent prose drift in agents. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uugulk/anthropic_found_claude_reasoning_in_silence/)
+* **Flash-MSA**: A new method to accelerate million-token training using sparse attention kernels. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uv1f1q/flashmsa_accelerating_milliontoken_training_with/)
+* **Wan-Dancer**: A hierarchical framework for generating coherent, minute-scale music-to-dance videos. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvdaq7/wandancer_a_hierarchical_framework_for/)
+
+---
+
+## 🏢 Industry News
+* **Legal Battle**: Apple is suing OpenAI for trade secret theft, alleging a widespread scheme to acquire proprietary information. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uus189/apple_sues_openai_alleging_trade_secret_theft/)
+* **Hardware Rumors**: The planned Apple M7 Ultra chip may support up to 1.5 TB of unified memory, a massive leap for local LLM capacity. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvbzul/apple_m7_ultra_chip_planned_with_up_to_15_tb_of/)
+* **Market Trends**: 
+    * Companies are shifting toward Chinese open-weight models to cut operational costs. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvenf1/ft_companies_turn_to_chinese_open_weight_models/)
+    * Anthropic is training 20,000 people on Claude via a new Global Premier Partner. [The New Stack](https://thenewstack.io/ust-anthropic-enterprise-ai-stack/)
+* **Azure Brain**: Microsoft revealed "Brain," an internal AI system that monitors Azure's health and determines official outage status. [The New Stack](https://thenewstack.io/inside-azure-brain/)
+
+---
+
+## 🛠️ Local LLM Tips & Experiments
+* **Gemma 4 in Godot**: A developer successfully ran Gemma 4 inside the Godot engine using only GDScript and Vulkan compute shaders. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uv66by/i_got_gemma_4_running_directly_inside_godot_using/)
+* **Mac Studio Optimization**: A user fixed three bugs in their serving stack to make long-context inference with Qwen3.5-122B usable on a 96GB M3 Ultra. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uuwrc0/running_qwen35122b_on_mac_studio_96gb_fixed_3/)
+* **GPU Benchmarking**: A detailed benchmark of 15 "e-waste" enterprise GPUs (like P100/V100) to see their viability for modern workloads. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvcjd0/i_benchmarked_15_ewaste_gpus_with_modern_workloads/)
+
+---
+
+
 ## 📅 Digest for 2026-04-16
 
 ## Digest fallback for 2026-04-16
