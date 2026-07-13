@@ -6,6 +6,7 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-07-13 | [2026-07-13](/new-sources/2026-07-13/) | 0 | 0 | Bridge auto-discovery |
 | 2026-07-21 | [2026-07-21](/new-sources/2026-07-21/) | 1 | 0 | Logged missing tools referenced in sqlglot.md. |
 | 2026-06-01 | [2026-06-01](/new-sources/2026-06-01/) | 0 | 173 | Logged missing tools referenced in related sections. |
 | 2026-05-07 | [2026-05-07](/new-sources/2026-05-07/) | 0 | 6 | Integrated 6 agent frameworks for Batch 2. |
