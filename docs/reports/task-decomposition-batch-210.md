@@ -6,7 +6,7 @@ This report tracks the technical freshness audits (Action A) for non-compliant d
 
 | Issue | Target File | Action | Status |
 | :--- | :--- | :--- | :--- |
-| 1 | `docs/architecture/automated_contributions.md` | Freshness Audit | Pending |
+| 1 | `docs/architecture/automated_contributions.md` | Freshness Audit | Resolved |
 | 2 | `docs/architecture/component_map.md` | Freshness Audit | Pending |
 | 3 | `docs/knowledge_base/agent_protocols.md` | Freshness Audit | Pending |
 | 4 | `docs/knowledge_base/model_routing_guide.md` | Freshness Audit | Pending |

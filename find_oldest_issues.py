@@ -14,10 +14,17 @@ def find_open_tasks():
             with open(filepath, 'r') as f:
                 lines = f.readlines()
                 for line in lines:
-                    if line.strip().startswith('- [ ]'):
+                    line_strip = line.strip()
+                    # Check for checklist tasks or table rows with Pending/Open status
+                    is_open = line_strip.startswith('- [ ]')
+                    if not is_open and '|' in line_strip:
+                        if re.search(r'\|\s*(Pending|Open)\s*\|', line_strip, re.IGNORECASE):
+                            is_open = True
+
+                    if is_open:
                         batch_match = re.search(r'batch-(\d+)', filename)
                         batch_num = int(batch_match.group(1)) if batch_match else 0
-                        tasks.append({'source': filename, 'task': line.strip(), 'priority': batch_num})
+                        tasks.append({'source': filename, 'task': line_strip, 'priority': batch_num})
     return tasks
 
 def find_new_sources():
