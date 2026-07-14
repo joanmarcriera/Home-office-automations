@@ -104,7 +104,7 @@ if __name__ == "__main__":
 - [Valyu](../ai_knowledge/valyu.md)
 - [LangChain](../ai_knowledge/langchain.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references

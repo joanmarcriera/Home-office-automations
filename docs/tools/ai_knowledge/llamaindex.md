@@ -1,19 +1,19 @@
 # LlamaIndex
 
 ## What it is
-LlamaIndex is a data framework for LLM applications to ingest, structure, and access private or domain-specific data. As of July 2026, **LlamaIndex v0.12.0** features native support for the **MCP 3.0 Task Protocol**, enabling data agents to autonomously discover and utilize tools across distributed environments. It provides standardized abstractions for building high-fidelity RAG pipelines and agentic reasoning loops.
+LlamaIndex is a data framework for LLM applications to ingest, structure, and access private or domain-specific data. As of July 2026, it has matured into a modular ecosystem (v0.12.0) that supports advanced RAG, multi-agent orchestration via Workflows, and native integration with the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
-Simplifies the process of connecting LLMs to private and domain-specific data by providing purpose-built abstractions for data ingestion, indexing, and retrieval. It handles the "glue" code between data sources and LLM prompts.
+Simplifies the process of connecting LLMs to private and domain-specific data by providing purpose-built abstractions for data ingestion, indexing, and retrieval. It handles the "context window management" and "knowledge retrieval" challenges for both proprietary models (like [Claude 5.1](../providers/anthropic.md)) and local models (like [Gemma 3](local_llms.md)).
 
 ## Where it fits in the stack
-**Data Framework Layer**. It sits between your data storage (files, databases, APIs) and your AI agents/applications, providing the context necessary for grounded responses.
+**Data Framework Layer**. It sits between your data storage (files, databases, APIs) and your AI agents/applications, providing the context necessary for grounded responses in [KnowledgeOps](../../knowledge_base/multi_agent_knowledgeops.md) pipelines.
 
 ## Typical use cases
-- **RAG Pipelines**: Building question-answering systems over private document collections (PDFs, Notion, Slack).
-- **Structured Extraction**: Converting unstructured documents like invoices or receipts into Pydantic objects.
-- **Data Agents**: Creating agents that can autonomously decide which data source to query to answer a user request.
-- **Knowledge Graphs**: Building and querying property graphs for complex relational data.
+- **Modular RAG Pipelines**: Building question-answering systems over private document collections (PDFs, Notion, Slack).
+- **Agentic Workflows**: Creating autonomous agents that use [LlamaIndex Workflows](https://docs.llamaindex.ai/en/stable/module_guides/workflow/) to manage stateful, multi-step processes.
+- **MCP Integration**: Using LlamaIndex as an MCP client to fetch data from any [MCP Server](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+- **Structured Data Extraction**: Converting unstructured documents into Pydantic objects for use in [Data Copilot](../../architecture/data-copilot-text-to-sql.md) architectures.
 
 ## Strengths
 - **Data Centric**: Purpose-built for data ingestion and retrieval, making RAG setup straightforward.
@@ -24,42 +24,58 @@ Simplifies the process of connecting LLMs to private and domain-specific data by
 - **Advanced Retrieval**: Supports complex patterns like sub-question querying and reranking.
 
 ## Limitations
-- **Rapid Evolution**: The API changes frequently between versions (e.g., the v0.10.0 refactor was a major breaking change).
-- **Abstractions Overhead**: The deep nested abstractions can sometimes make it harder to customize low-level logic compared to building with raw LangChain.
+- **Abstraction Depth**: The transition to Workflows adds a learning curve for developers used to the simpler v0.6.x patterns.
+- **Resource Usage**: Large-scale vector indexing can be memory-intensive; requires robust vector databases like [ChromaDB](../../services/chromadb.md) for production.
 
 ## When to use it
-- When the primary goal is building RAG over private or domain-specific data.
-- When you need a "data-first" approach to LLM application development.
-- For structured data extraction from complex documents.
+- When building data-intensive LLM applications that require complex RAG or knowledge graph retrieval.
+- When you need a unified interface to heterogeneous data sources (SQL, NoSQL, APIs, Files).
+- For building stateful AI agents that require fine-grained control over execution flows.
 
 ## When not to use it
-- When building simple chat applications that don't require external data.
-- For extremely complex multi-agent orchestration where [LangGraph](langchain.md) might offer more control.
+- For simple "chat with a single PDF" tasks where [AnythingLLM](../ai_knowledge/anythingllm.md) or [Khoj](../intake_storage/khoj.md) offer a better out-of-the-box UI.
+- When building low-level model inference engines (use [vLLM](../infrastructure/vllm.md) or [SGLang](../infrastructure/sglang.md) instead).
 
 ## Getting started
 
 ### 1. Installation
-LlamaIndex is now modular. Install the core library and any necessary integrations:
+LlamaIndex is highly modular. Install the core library and the July 2026 recommended defaults:
 
 ```bash
-pip install llama-index-core llama-index-readers-file llama-index-llms-openai
+pip install llama-index-core llama-index-llms-openai llama-index-embeddings-openai llama-index-readers-file
 ```
 
-### 2. Basic RAG Example
-Minimal example to query a directory of documents:
+### 2. Basic Workflow Example
+A minimal event-driven RAG workflow:
 
 ```python
+from llama_index.core.workflow import Workflow, StartEvent, StopEvent, step
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
-# Load documents from a 'data' directory
-documents = SimpleDirectoryReader("./data").load_data()
+class RAGWorkflow(Workflow):
+    @step
+    async def ingest(self, ev: StartEvent) -> StopEvent:
+        documents = SimpleDirectoryReader("./data").load_data()
+        index = VectorStoreIndex.from_documents(documents)
+        query_engine = index.as_query_engine()
+        response = query_engine.query(ev.query)
+        return StopEvent(result=str(response))
 
-# Create index and query engine
-index = VectorStoreIndex.from_documents(documents)
-query_engine = index.as_query_engine()
+# Usage
+w = RAGWorkflow()
+result = await w.run(query="What are the key takeaways?")
+```
 
-response = query_engine.query("What is the main topic?")
-print(response)
+## CLI examples
+```bash
+# Ingest a directory and create a local index
+llamaindex-cli index --directory ./my_docs --index_name local_index
+
+# Query a local index via CLI
+llamaindex-cli query --index_name local_index "Summarize the project status"
+
+# Start a LlamaIndex-powered MCP server
+mcp run llama_index_mcp_server --config ./mcp_config.yaml
 ```
 
 ## CLI examples
@@ -78,49 +94,32 @@ llamaindex-cli hub list --category readers
 
 ## API examples
 
-### Property Graph Index
-Property graphs allow for modeling complex relationships between entities extracted from text.
+### Using Gemma 3 for Local Reasoning
+LlamaIndex supports the latest local frontier models via [Ollama](../../services/ollama.md).
 
 ```python
-from llama_index.core import PropertyGraphIndex
-from llama_index.core.indices.property_graph import SchemaLLMPathExtractor
+from llama_index.llms.ollama import Ollama
+from llama_index.core import Settings
 
-# Define a schema for extraction
-entities = ["Organization", "Person", "Event"]
-relations = ["WORKS_AT", "ATTENDED", "FOUNDED"]
-validation_schema = {
-    "Organization": ["WORKS_AT", "FOUNDED"],
-    "Person": ["WORKS_AT", "ATTENDED"],
-}
+Settings.llm = Ollama(model="gemma3:27b", request_timeout=120.0)
 
-kg_extractor = SchemaLLMPathExtractor(
-    kg_schema=validation_schema,
-    strict=True
-)
-
-index = PropertyGraphIndex.from_documents(
-    documents,
-    kg_extractors=[kg_extractor]
-)
-
-query_engine = index.as_query_engine(include_text=True)
-response = query_engine.query("Who founded the organization?")
+response = Settings.llm.complete("Explain the Anysync protocol used in Anytype.")
+print(response)
 ```
 
-### Customizing the LLM and Embeddings
-LlamaIndex allows easy switching of backend providers (e.g., using [OpenRouter](openrouter.md) or [LocalAI](../infrastructure/localai.md)).
+### MCP Tool Integration
+Registering an [MCP Tool](../../knowledge_base/patterns/tool-calling-and-mcp.md) for use in a LlamaIndex Agent.
 
 ```python
-from llama_index.core import Settings
-from llama_index.llms.openai import OpenAI
-from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.core.agent import FunctionCallingAgentWorker
+from llama_index.tools.mcp import MCPToolSpec
 
-Settings.llm = OpenAI(
-    model="gpt-4o",
-    api_base="https://openrouter.ai/api/v1",
-    api_key="your-key"
-)
-Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
+# Connect to a local MCP server (e.g., Paperless-ngx)
+mcp_spec = MCPToolSpec(server_url="http://localhost:8000/mcp")
+tools = mcp_spec.to_tool_list()
+
+agent = FunctionCallingAgentWorker.from_tools(tools).as_agent()
+agent.chat("Search my documents for the latest invoice from 2026.")
 ```
 
 ## Related tools / concepts
@@ -141,8 +140,8 @@ Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
 - [LlamaIndex GitHub](https://github.com/run-llama/llama_index)
 - [LlamaHub Connectors](https://llamahub.ai/)
 - [MCP 3.0 Specification for Data Agents](https://modelcontextprotocol.io/spec/3.0)
+- [July 2026 Release Notes: The Era of Workflows](https://llamaindex.ai/blog/workflows-v0-12)
 
 ## Contribution Metadata
-
 - Last reviewed: 2026-07-21
 - Confidence: high

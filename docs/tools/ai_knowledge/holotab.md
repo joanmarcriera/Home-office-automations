@@ -80,7 +80,7 @@ chrome.runtime.sendMessage("holotab-extension-id", {
 ## Related tools / concepts
 - [Gemma 3](local_llms.md)
 - [Skills in Chrome](skills-in-chrome.md)
-- [Perplexity](perplexity.md)
+- [Perplexity](../providers/perplexity.md)
 - [Genspark](genspark.md)
 - [Browser Use](../automation_orchestration/browser-use.md)
 - [Open Agents](../agents/open-agents.md)

@@ -94,7 +94,7 @@ print(completion.choices[0].message.content)
 
 ## Related tools / concepts
 - [OpenAI](../ai_knowledge/openai.md) — Direct competitor and API standard.
-- [Perplexity](../ai_knowledge/perplexity.md) — Alternative for real-time search and synthesis.
+- [Perplexity](../providers/perplexity.md) — Alternative for real-time search and synthesis.
 - [Anthropic](anthropic.md) — Competitor focused on safety and "Constitutional AI."
 - [Google Gemini](../ai_knowledge/google-gemini.md) — Multimodal competitor with Google ecosystem integration.
 - [DeepSeek](deepseek.md) — High-performance open-weights alternative.

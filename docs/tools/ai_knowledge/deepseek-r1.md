@@ -133,7 +133,7 @@ print(response.choices[0].message.content)
 - [Local LLMs](local_llms.md) — Overview of open-weights alternatives.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for routing reasoning tasks to R1.
 - [LiteLLM](../../services/litellm.md) — Proxy for managing DeepSeek API keys.
-- [Perplexity](perplexity.md) — Agentic search tool often used alongside R1.
+- [Perplexity](../providers/perplexity.md) — Agentic search tool often used alongside R1.
 - [Google Search](google-search.md) — Integrated search for grounding R1 outputs.
 - [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) — High-performance tool protocol.
 

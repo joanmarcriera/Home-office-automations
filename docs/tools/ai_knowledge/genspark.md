@@ -89,7 +89,7 @@ for source in research.sources:
 ```
 
 ## Related tools / concepts
-- [Perplexity](perplexity.md) — The primary conversational search competitor.
+- [Perplexity](../providers/perplexity.md) — The primary conversational search competitor.
 - [Google Search](google-search.md) — Traditional search with AI overviews.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The standard for agent-tool communication.
 - [Gemma 3](local_llms.md) — One of the models used in the Spark swarm.

@@ -1,7 +1,7 @@
 # AWS Bedrock
 
 ## What it is
-AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI. In July 2026, it is a primary enterprise gateway for deploying models like Claude 4.8 Opus, [Gemma 3](../ai_knowledge/local_llms.md), and Llama 4 Maverick, now featuring native support for the NVIDIA Rubin architecture and [MCP 3.0](../../automation_orchestration/mcp.md) tool integration.
+AWS Bedrock is a fully managed service from Amazon Web Services that makes foundational models (FMs) available through an API. It provides a single interface to access models from leading AI providers including Amazon, Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, and Stability AI. In July 2026, it is a primary enterprise gateway for deploying models like Claude 4.8 Opus, [Gemma 3](../ai_knowledge/local_llms.md), and Llama 4 Maverick, now featuring native support for the NVIDIA Rubin architecture and [MCP 3.0](../automation_orchestration/mcp.md) tool integration.
 
 ## What problem it solves
 It simplifies the process of building and scaling generative AI applications by removing the need to manage underlying infrastructure. It provides a unified API for multiple models, along with tools for fine-tuning, RAG (Knowledge Bases for Amazon Bedrock), and agentic workflows (Agents for Amazon Bedrock). It addresses enterprise concerns regarding data privacy, security, and high-performance execution on next-generation hardware.
@@ -12,14 +12,14 @@ It simplifies the process of building and scaling generative AI applications by 
 ## Typical use cases
 - **Enterprise AI Applications**: Building secure, scalable AI solutions within the AWS ecosystem.
 - **Retrieval-Augmented Generation (RAG)**: Using "Knowledge Bases for Amazon Bedrock" to connect models to proprietary S3-hosted data.
-- **Agentic Workflows**: Deploying autonomous agents that leverage the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol to execute multi-step tasks across AWS resources.
+- **Agentic Workflows**: Deploying autonomous agents that leverage the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol to execute multi-step tasks across AWS resources.
 - **Hardware-Accelerated Inference**: Utilizing NVIDIA Rubin GPUs for ultra-low latency inference of frontier models.
 
 ## Strengths
 - **Enterprise-Grade Security**: Strong data privacy and compliance features (HIPAA, GDPR, etc.). Data is not used to train the underlying foundation models.
 - **Model Variety**: Access to [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and Llama 4 through a single API.
 - **NVIDIA Rubin Support**: Optimized for the latest GPU architectures to provide superior price-performance.
-- **AWS Integration**: Seamless integration with S3, Lambda, IAM, and [MCP 3.0](../../automation_orchestration/mcp.md) servers.
+- **AWS Integration**: Seamless integration with S3, Lambda, IAM, and [MCP 3.0](../automation_orchestration/mcp.md) servers.
 - **Managed RAG**: Built-in support for automated vectorization and retrieval via Knowledge Bases.
 
 ## Limitations
@@ -31,7 +31,7 @@ It simplifies the process of building and scaling generative AI applications by 
 ## When to use it
 - When building enterprise-scale AI applications requiring high security, compliance, and AWS-native scalability.
 - If your organization is already standardized on the AWS ecosystem.
-- When you need a managed RAG or agent framework that integrates natively with cloud resources via [MCP 3.0](../../automation_orchestration/mcp.md).
+- When you need a managed RAG or agent framework that integrates natively with cloud resources via [MCP 3.0](../automation_orchestration/mcp.md).
 - For multi-model applications requiring a unified billing and security model.
 
 ## When not to use it
@@ -96,7 +96,7 @@ aws bedrock-agent list-knowledge-bases
 ```
 
 ## API examples
-Using the `boto3` SDK for streaming responses and [MCP 3.0](../../automation_orchestration/mcp.md) tool integration.
+Using the `boto3` SDK for streaming responses and [MCP 3.0](../automation_orchestration/mcp.md) tool integration.
 
 ### Streaming Response
 ```python

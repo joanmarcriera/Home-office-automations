@@ -102,7 +102,7 @@ print(research_report['report'])
 
 ## Related tools / concepts
 - [Exa AI](../providers/exa_ai.md) - Embedding-based search for agentic retrieval.
-- [Perplexity API](../ai_knowledge/perplexity.md) - Conversational search and grounding.
+- [Perplexity API](../providers/perplexity.md) - Conversational search and grounding.
 - [SearXNG](../../services/searXNG.md) - Self-hosted search aggregator.
 - [Firecrawl](../process_understanding/firecrawl.md) - Web crawling optimized for LLM use.
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) - Unified framework with native Tavily support.

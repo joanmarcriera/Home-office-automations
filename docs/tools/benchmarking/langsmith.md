@@ -15,7 +15,7 @@ It addresses the "black box" nature of LLMs by providing full visibility into th
 - **Production Monitoring**: Real-time tracking of token usage, cost, and latency across large-scale deployments.
 - **Collaborative Prompting**: Version-controlled prompt engineering with team-wide testing support.
 - **Fleet Management**: Deploying and managing agent "fleets" via LangSmith Deployment (Fleet).
-- **Agentic Session Replay**: Utilizing [AgentOps](../benchmarking/agentops.md) integration for visual execution graphs and step-by-step session replays.
+- **Agentic Session Replay**: Utilizing [AgentOps](../process_understanding/agentops.md) integration for visual execution graphs and step-by-step session replays.
 
 ## Strengths
 - **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.0.
@@ -131,8 +131,8 @@ print(summary.findings)
 - [Claude Code](../development_ops/claude-code-setup.md) — Can be traced using LangSmith.
 - [OpenPipe](../infrastructure/openpipe.md) — For fine-tuning based on LangSmith traces.
 - [Plandex](../development_ops/plandex.md) — Complex agent that benefits from deep tracing.
-- [AgentOps](../benchmarking/agentops.md) — Specialized agent observability integration.
-- [ClickHouse](../infrastructure/clickhouse.md) — Underlying OLAP engine for telemetry.
+- [AgentOps](../process_understanding/agentops.md) — Specialized agent observability integration.
+- [ClickHouse](../process_understanding/clickhouse.md) — Underlying OLAP engine for telemetry.
 
 ## Sources / references
 - [Official Website](https://www.langchain.com/langsmith)

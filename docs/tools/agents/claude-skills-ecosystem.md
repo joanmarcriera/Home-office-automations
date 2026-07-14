@@ -48,7 +48,7 @@ npx skills@latest add awesome-copilot/documentation-writer
 ```
 
 ### Usage
-Once installed, Claude or other compatible agents (like [Cline](cline.md) or [Gemma 3](local_llms.md) based agents) can be directed to use these skills via their command-line interface or by referencing them in the system prompt.
+Once installed, Claude or other compatible agents (like [Cline](cline.md) or [Gemma 3](../ai_knowledge/local_llms.md) based agents) can be directed to use these skills via their command-line interface or by referencing them in the system prompt.
 
 ## CLI examples
 ```bash

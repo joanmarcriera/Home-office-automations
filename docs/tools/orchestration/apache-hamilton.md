@@ -1,6 +1,6 @@
 # Hamilton
 
-Hamilton is a general-purpose micro-orchestration framework for creating dataflows from simple Python functions. Unlike traditional macro-orchestrators (like Airflow), Hamilton focuses on how code is structured *inside* a task, rather than how tasks are scheduled on a cluster. As of June 2026, it is widely used for managing complex **agentic reasoning chains** where modularity and testability are paramount.
+Hamilton is a general-purpose micro-orchestration framework for creating dataflows from simple Python functions. Unlike traditional macro-orchestrators (like Airflow), Hamilton focuses on how code is structured *inside* a task, rather than how tasks are scheduled on a cluster. As of July 2026, it is a core component for managing complex **agentic reasoning chains** and **MCP-based tool execution** where modularity and testability are paramount.
 
 ## What it is
 Hamilton is a micro-orchestration framework that maps function names to output artifacts. By defining your dataflow as a collection of Python functions where the function signatures define the DAG, Hamilton ensures that your logic is modular, self-documenting, and easy to test.
@@ -13,9 +13,10 @@ It solves the "unmaintainable spaghetti code" problem in data and ML pipelines. 
 
 ## Typical use cases
 - **LLM Reasoning Chains**: Orchestrating complex prompt chains, retrieval steps, and model calls with clear modularity.
+- **MCP 3.0 Tool Execution**: Managing the internal logic of complex tools registered with the Model Context Protocol.
 - **Feature Engineering**: Creating versioned features for ML models with baked-in lineage.
 - **Web Request Logic**: Breaking down complex API response generation into manageable functions.
-- **Agentic Workflows**: Providing a structured framework for agents to execute multi-step reasoning processes that are easy to audit.
+- **Agentic Workflows**: Providing a structured framework for agents (like those powered by Gemma 3) to execute multi-step reasoning processes that are easy to audit.
 
 ## Strengths
 - **Lineage as Code**: The DAG is defined by function signatures, ensuring transparent dependencies.
@@ -78,21 +79,31 @@ hamilton visualize my_functions --output dag.png
 
 # Scaffolding a new Hamilton project
 hamilton init my_new_project
+
+# Registering a Hamilton-based agent as an MCP 3.0 server (hypothetical July 2026 CLI)
+hamilton mcp-register --module my_agent_logic --port 8080
 ```
 
-## Python examples
+## API examples
 Hamilton's power comes from its Driver and Builder API.
 
 ```python
 from hamilton import driver
+import my_functions
 
 # Building a driver with multiple modules
 dr = driver.Builder() \
-    .with_modules(my_functions, extra_logic) \
+    .with_modules(my_functions) \
     .build()
 
 # Execute and visualize inline
 dr.display_all_functions()
+
+# Programmatic execution for an agentic step (Gemma 3)
+results = dr.execute(
+    ["cost_per_signup"],
+    inputs={"raw_marketing_data": {"spend": 100, "signups": 10}}
+)
 ```
 
 ## Related tools / concepts
@@ -103,6 +114,8 @@ dr.display_all_functions()
 - [Flyte](flyte.md) — Large-scale ML orchestration.
 - [Argo Workflows](argo-workflows.md) — Kubernetes-native macro-orchestrator.
 - [Temporal](temporal.md) — For durable stateful functions.
+- [ZenML](zenml.md) — Portable MLOps framework often compared with Hamilton.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Framework for connecting tools to agents.
 
 ## Sources / references
 - [Hamilton Official Documentation](https://hamilton.dagworks.io/)
@@ -111,5 +124,5 @@ dr.display_all_functions()
 - [Burr: Stateful Python Applications](https://github.com/DAGWorks-Inc/burr)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high

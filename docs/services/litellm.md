@@ -31,7 +31,7 @@ Managing multiple agents (Aider, OpenHands, n8n) against various local and cloud
 ## When to use it
 - When running multiple AI agents with different LLM backends (e.g., local **Gemma 3** and cloud Claude 4.8).
 - To track and limit AI spend across a team or an automated agent cluster.
-- When tools only support OpenAI APIs but you want to utilize [Ollama](ollama.md) or [Bedrock](aws-bedrock.md).
+- When tools only support OpenAI APIs but you want to utilize [Ollama](ollama.md) or [Bedrock](../tools/providers/aws-bedrock.md).
 - For resilient systems requiring automatic model failover.
 
 ## When not to use it

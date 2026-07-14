@@ -107,7 +107,7 @@ response = client.chat.completions.create(
 ## Related tools / concepts
 - [Claude](claude.md) — The primary reasoning competitor from Anthropic.
 - [Gemini](gemini.md) — Google's multimodal AI family.
-- [Perplexity](perplexity.md) — AI search focused on citations and sources.
+- [Perplexity](../providers/perplexity.md) — AI search focused on citations and sources.
 - [Everything Claude Code](everything-claude-code.md) — Comparison with agentic workflows.
 - [OpenAI](openai.md) — Provider overview and corporate history.
 - [Model Routing](../../knowledge_base/model_routing_guide.md) — Strategy for choosing between GPT, Claude, and Gemini.

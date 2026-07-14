@@ -18,7 +18,7 @@ This report documents the integration of 6 sources from the daily intake log (`d
 
 ### Deepening & Link Repairs
 - **`docs/tools/agents/agency-agents.md`**: Fixed broken internal link to Claude Code and added official external reference.
-- **`docs/tools/ai_knowledge/perplexity.md`**: Fixed relative path for MCP and added official website link.
+- **`docs/tools/providers/perplexity.md`**: Fixed relative path for MCP and added official website link.
 - **`docs/tools/ai_knowledge/heretic-ara.md`**: Fixed relative path for MMLU and added official dataset link.
 - **`docs/tools/ai_knowledge/big-agi.md`**: Added official OpenRouter website link to sources.
 

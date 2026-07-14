@@ -53,7 +53,7 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 
 ### Fast read
 
-If the priority is one tool that already does Gmail, Calendar, files, and deep research well, the strongest shortlist is [ChatGPT](../tools/ai_knowledge/chatgpt.md), [Claude](../tools/ai_knowledge/claude.md), [Gemini Apps](../tools/ai_knowledge/gemini.md), and [Perplexity](../tools/ai_knowledge/perplexity.md). ChatGPT and Claude are broader cross-app assistants; Gemini is strongest when the operating surface is already Google Workspace; Perplexity is best for web-grounded research with personal context.
+If the priority is one tool that already does Gmail, Calendar, files, and deep research well, the strongest shortlist is [ChatGPT](../tools/ai_knowledge/chatgpt.md), [Claude](../tools/ai_knowledge/claude.md), [Gemini Apps](../tools/ai_knowledge/gemini.md), and [Perplexity](../tools/providers/perplexity.md). ChatGPT and Claude are broader cross-app assistants; Gemini is strongest when the operating surface is already Google Workspace; Perplexity is best for web-grounded research with personal context.
 
 If the priority is local-first or self-hosted work, the strongest shortlist is [AnythingLLM](../tools/ai_knowledge/anythingllm.md), [LibreChat](../tools/ai_knowledge/librechat.md), [Open WebUI](../services/open-webui.md), [Jan](../tools/infrastructure/jan-ai.md), and [Goose](../tools/agents/goose.md). These give better control over local models, self-hosting, and private files, but Gmail and Calendar usually arrive through MCP or external integrations rather than first-party connectors.
 
@@ -110,7 +110,7 @@ return integrations.map(i => ({ json: { service: i, status: 'available' } }));
 | [Gemini Apps](../tools/ai_knowledge/gemini.md) | General assistant | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Strongest Google-native fit for Gmail and Calendar workflows. |
 | [Gemini for macOS](../tools/ai_knowledge/gemini-macos.md) | Desktop Agent | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Native macOS integration with screen awareness and local files. |
 | [Gemini Canvas](../tools/ai_knowledge/gemini-canvas.md) | Creation Workspace | 🔴 | 🔴 | 🔴 | ⚪ | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Structured drafting and real-time code previews for Workspace. |
-| [Perplexity](../tools/ai_knowledge/perplexity.md) | Research/search | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Excellent web research; now with native Gmail/Calendar connectors. |
+| [Perplexity](../tools/providers/perplexity.md) | Research/search | 🔴 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🟢 | Excellent web research; now with native Gmail/Calendar connectors. |
 | [NotebookLM](../tools/ai_knowledge/notebooklm.md) | Research/notebooks | 🔴 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | Best for source-grounded research on owned materials; less of an action agent. |
 | [GitHub Copilot](../tools/development_ops/github_copilot.md) | Coding assistant | 🔴 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Good code agent in IDE; external app access is mainly via MCP. |
 | [Cursor](../tools/development_ops/cursor.md) | AI IDE | 🟢 | 🔵 | 🔵 | 🟢 | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | Strong coding IDE; external systems mainly through MCP. |

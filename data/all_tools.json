@@ -624,6 +624,36 @@
       "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
     },
     {
+      "id": "fully-offline-assistant",
+      "name": "Fully Offline Assistant",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/fully-offline-assistant.md"
+    },
+    {
+      "id": "graceful-degradation",
+      "name": "Graceful Degradation",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/graceful-degradation.md"
+    },
+    {
+      "id": "backup-disaster-recovery",
+      "name": "Backup & Disaster Recovery",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/backup-disaster-recovery.md"
+    },
+    {
+      "id": "air-gapped-provisioning",
+      "name": "Air-gapped Provisioning",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/air-gapped-provisioning.md"
+    },
+    {
+      "id": "offline-transcription-pipeline",
+      "name": "Offline Transcription Pipeline",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/offline-transcription-pipeline.md"
+    },
+    {
       "id": "datadog",
       "name": "Datadog",
       "category": "Process & Understanding",
@@ -1991,12 +2021,6 @@
       "name": "Perplexity Agent API",
       "category": "Agents",
       "doc_path": "docs/tools/agents/perplexity-agent-api.md"
-    },
-    {
-      "id": "perplexity-ai",
-      "name": "Perplexity AI",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/perplexity.md"
     },
     {
       "id": "personaplex",

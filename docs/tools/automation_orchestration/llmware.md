@@ -90,7 +90,7 @@ print(entities)
 - [Dify](../ai_knowledge/dify.md)
 - [LiteLLM](../../services/litellm.md)
 - [Unstructured](../intake_storage/unstructured.md)
-- [LocalAI](../../services/localai.md)
+- [LocalAI](../infrastructure/localai.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / References

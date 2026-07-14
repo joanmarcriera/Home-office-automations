@@ -109,7 +109,7 @@ fetch('http://localhost:3000/skills/last30days/run', {
 - [Exa Search](../agents/goose.md) — Neural search engine with similar capabilities.
 - [AI Signal Sources](../../knowledge_base/ai_signal_sources.md) — Inventory of social platforms searched.
 - [OpenClaw](../development_ops/openclaw.md) — Alternative host for the skill.
-- [Perplexity](perplexity.md) — Neural search competitor.
+- [Perplexity](../providers/perplexity.md) — Neural search competitor.
 
 ## Sources / references
 - [last30days-skill GitHub Repository](https://github.com/mvanhorn/last30days-skill)

@@ -41,7 +41,7 @@ A curated index of AI tools, platforms, and knowledge bases for research, conten
 | [OpenAI](openai.md) | Overview of OpenAI models and API capabilities |
 | [OpenBB](openbb.md) | Investment research platform with AI Terminal |
 | [OpenRouter](openrouter.md) | Unified API gateway for hundreds of open and proprietary models |
-| [Perplexity](perplexity.md) | AI-powered research and search engine |
+| [Perplexity](../providers/perplexity.md) | AI-powered research and search engine |
 | [Runway ML](runwayml.md) | AI-powered video and image generation platform |
 | [Synthesia](synthesia.md) | AI video generation platform with realistic avatars |
 | [TeamOut](teamout.md) | AI-assisted team collaboration and scheduling |

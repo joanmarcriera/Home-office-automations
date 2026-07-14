@@ -1,7 +1,7 @@
 # DREAM: Deep Research Evaluation with Agentic Metrics
 
 ## What it is
-DREAM (Deep Research Evaluation with Agentic Metrics) is an agentic evaluation framework for deep research agents. It uses tool-calling agents to independently verify the factual correctness and temporal validity of research reports. As of June 2026, it is the primary method for evaluating the "research depth" of models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../../ai_knowledge/openai.md).
+DREAM (Deep Research Evaluation with Agentic Metrics) is an agentic evaluation framework for deep research agents. It uses tool-calling agents to independently verify the factual correctness and temporal validity of research reports. As of June 2026, it is the primary method for evaluating the "research depth" of models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
 
 ## What problem it solves
 It addresses the "Mirage of Synthesis"—a defect in static LLM evaluation where fluent writing and plausible citations hide factual errors or reasoning flaws. Static judges cannot verify claims against real-world evidence; DREAM solves this by making the evaluator as capable (agentic) as the agent it is testing, utilizing [MCP 3.0](../automation_orchestration/mcp.md) for tool discovery.

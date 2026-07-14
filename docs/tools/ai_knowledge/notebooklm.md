@@ -100,7 +100,7 @@ print(response.text)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — The underlying architecture.
 - [LlamaIndex](llamaindex.md) — The developer standard for data-connected LLMs.
 - [Google Gemini](google-gemini.md) — The foundation model family for NotebookLM.
-- [Perplexity](perplexity.md) — For real-time web-based research.
+- [Perplexity](../providers/perplexity.md) — For real-time web-based research.
 - [Genspark](genspark.md) — For agentic search and Sparkpage synthesis.
 - [Claude](claude.md) — Competitor model with high reasoning for document analysis.
 - [AnythingLLM](anythingllm.md) — A local, self-hosted alternative to NotebookLM.
