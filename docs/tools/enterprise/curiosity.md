@@ -1,7 +1,7 @@
 # Curiosity
 
 ## What it is
-Curiosity is a desktop-first AI search application and knowledge assistant that provides a unified interface for searching across local files, emails, and cloud storage. As of June 2026, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama) and multi-model vector indexing.
+Curiosity is a desktop-first AI search application and knowledge assistant that provides a unified interface for searching across local files, emails, and cloud storage. As of July 2026, it has expanded into the **Curiosity Workspace** platform, offering enhanced enterprise features, SSO support (OIDC/SAML), and deep integration with local LLMs (via Ollama) and multi-model vector indexing.
 - **Licensing**: Proprietary (Freemium)
 - **Cost**: Free (Personal) / Paid (Pro & Workspace)
 - **Self-hostable**: Desktop app (Local data) / Workspace (On-premise option)
@@ -22,7 +22,7 @@ It solves the problem of "information fragmentation" where data is scattered acr
 - **Privacy-First Architecture**: Most indexing and AI processing (with local LLMs) occur on the user's machine.
 - **Native Desktop Experience**: High-performance, keyboard-driven interface with instant "Launcher" access.
 - **Extensive Connectors**: Supports 50+ cloud and local sources including Microsoft 365, Google Workspace, GitHub, and Notion.
-- **June 2026 Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support).
+- **July 2026 Features**: **LLM Usage Dashboard** (cost/token tracking), **Multi-Model Vector Indexing** (run embedding models side-by-side), and **Agentic Questioning** (human-in-the-loop support).
 - **Advanced Filtering**: Robust inline filters (e.g., `@file`, `ext:`, `src:`) for precision search.
 
 ## Limitations
@@ -52,36 +52,53 @@ Download the installer for your platform from [curiosity.ai](https://curiosity.a
 1. Ensure [Ollama](../../services/ollama.md) is running on your machine.
 2. In Curiosity, navigate to **Settings > AI Assistant**.
 3. Select **Local LLM (Ollama)** as the provider.
-4. Choose your preferred model (e.g., `llama3.1:8b`) and click **Connect**.
+4. Choose your preferred model (e.g., `gemma3:27b`) and click **Connect**.
 
-## CLI & Keyboard Shortcuts
-Curiosity is primarily GUI-driven but emphasizes "keyboard-first" efficiency.
+## CLI examples
+Curiosity Workspace includes a CLI for administrative tasks, and it supports the [Model Context Protocol](../../architecture/multi_agent_knowledgeops.md) for agentic integration.
 
-```text
-# Launcher Shortcuts
-Alt + Space (Win/Linux) or Cmd + Space (Mac): Toggle Global Search Launcher.
+```bash
+# Register Curiosity as an MCP server for an agent (July 2026)
+mcp register curiosity-server --command "curiosity-mcp" --args "--workspace-url https://my-org.curiosity.ai"
 
-# App Shortcuts
-Cmd + K: Open Command Palette.
-/ : Start a command or search filter (e.g., /type:pdf).
+# Trigger a re-index of a specific source via Workspace CLI
+curiosity-cli index trigger --source "google-drive-shared" --workspace "enterprise-docs"
 
-# Inline Filter Examples
-@slack "Project Alpha"  # Search only in Slack
-src:github ext:py       # Search Python files in GitHub
-modified:today          # Find items changed today
+# Launcher Shortcuts (Keyboard-first productivity)
+# Alt + Space (Win/Linux) or Cmd + Space (Mac): Toggle Launcher.
+# / : Start a command or search filter (e.g., /type:pdf).
 ```
 
 ## API examples
-Curiosity Workspace provides an API for automating data ingestion and triggering AI tasks.
+Curiosity Workspace provides a REST API for automated data ingestion and triggering AI tasks using models like [Gemma 3](local_llms.md) or [Claude 5.1](../providers/anthropic.md).
 
+### Triggering AI Tasks (Python)
+```python
+import requests
+
+API_TOKEN = "YOUR_WORKSPACE_TOKEN"
+API_URL = "https://your-workspace.curiosity.ai/api/v1/tasks/summarize"
+
+headers = {
+    "Authorization": f"Bearer {API_TOKEN}",
+    "Content-Type": "application/json"
+}
+
+payload = {
+    "node_id": "slack-thread-12345",
+    "prompt_template": "Executive Summary",
+    "model_override": "gemma3-27b-it"
+}
+
+response = requests.post(API_URL, headers=headers, json=payload)
+print(response.json())
+```
+
+### Searching the Knowledge Base
 ```bash
-# Trigger an AI summarization task via Workspace API
-curl -X POST "https://your-workspace.curiosity.ai/api/v1/tasks/summarize" \
-     -H "Authorization: Bearer <API_TOKEN>" \
-     -d '{
-       "node_id": "slack-thread-12345",
-       "prompt_template": "Executive Summary"
-     }'
+# Search for specific documents via API
+curl -X GET "https://your-workspace.curiosity.ai/api/v1/search?q=roadmap+2026" \
+     -H "Authorization: Bearer <API_TOKEN>"
 ```
 
 ## Related tools / concepts
@@ -96,9 +113,9 @@ curl -X POST "https://your-workspace.curiosity.ai/api/v1/tasks/summarize" \
 ## Sources / References
 - [Curiosity.ai Official Site](https://curiosity.ai/)
 - [Curiosity Documentation](https://docs.curiosity.ai/)
-- [Curiosity Blog: June 2026 Release Overview](https://blog.curiosity.ai/blog/release-overview-june-2026)
+- [Curiosity Blog: July 2026 Release Overview](https://blog.curiosity.ai/blog/release-overview-july-2026)
 - [Curiosity Platform Release Notes](https://knowledge.curiositysoftware.ie/docs/curiosity-platform-release-notes)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
