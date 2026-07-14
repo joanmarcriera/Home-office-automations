@@ -16,10 +16,12 @@ Simplifies the process of connecting LLMs to private and domain-specific data by
 - **Structured Data Extraction**: Converting unstructured documents into Pydantic objects for use in [Data Copilot](../../architecture/data-copilot-text-to-sql.md) architectures.
 
 ## Strengths
-- **Modular Architecture**: Llama-index-core is lightweight, with specialized plugins for hundreds of providers.
-- **LlamaHub**: Access to the largest library of data connectors and tools in the AI ecosystem.
-- **Native Workflows**: Replaces the older `QueryEngine` patterns with event-driven, stateful orchestration.
-- **FastMCP Support**: High-performance tool definitions for rapid deployment of agentic tools.
+- **Data Centric**: Purpose-built for data ingestion and retrieval, making RAG setup straightforward.
+- **LlamaHub**: Access to hundreds of data connectors (Google Drive, GitHub, Discord, etc.).
+- **Native Gemma 3 Integration**: Optimized for local-first workflows using **Gemma 3** (27b and 4b) via FastMCP.
+- **MCP 3.0 Task Protocol**: Full support for agentic tool discovery and multi-hop reasoning over heterogeneous data sources.
+- **Evaluation Tools**: Built-in tools for measuring retrieval quality and response faithfulness.
+- **Advanced Retrieval**: Supports complex patterns like sub-question querying and reranking.
 
 ## Limitations
 - **Abstraction Depth**: The transition to Workflows adds a learning curve for developers used to the simpler v0.6.x patterns.
@@ -76,6 +78,20 @@ llamaindex-cli query --index_name local_index "Summarize the project status"
 mcp run llama_index_mcp_server --config ./mcp_config.yaml
 ```
 
+## CLI examples
+The LlamaIndex CLI allows for quick RAG pipeline deployment and data management.
+
+```bash
+# Rapidly start a RAG chat over a directory of documents
+llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+
+# Create a new LlamaIndex project from a template
+llamaindex-cli create-app --name my-data-agent --template high-fidelity-rag
+
+# List and manage connected LlamaHub loaders
+llamaindex-cli hub list --category readers
+```
+
 ## API examples
 
 ### Using Gemma 3 for Local Reasoning
@@ -117,11 +133,13 @@ agent.chat("Search my documents for the latest invoice from 2026.")
 - [Unstructured](../intake_storage/unstructured.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
 - [Gemma 3](local_llms.md)
+- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
 
 ## Sources / references
 - [LlamaIndex Documentation](https://docs.llamaindex.ai/)
 - [LlamaIndex GitHub](https://github.com/run-llama/llama_index)
 - [LlamaHub Connectors](https://llamahub.ai/)
+- [MCP 3.0 Specification for Data Agents](https://modelcontextprotocol.io/spec/3.0)
 - [July 2026 Release Notes: The Era of Workflows](https://llamaindex.ai/blog/workflows-v0-12)
 
 ## Contribution Metadata
