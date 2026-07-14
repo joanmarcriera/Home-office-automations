@@ -87,7 +87,7 @@ To start with Fyxer, a user typically connects their Google Workspace or Outlook
 - [Coveo](coveo.md)
 - [Hebbia](hebbia.md)
 - [Notion AI](../ai_knowledge/notion-ai.md)
-- [Perplexity](../ai_knowledge/perplexity.md)
+- [Perplexity](../providers/perplexity.md)
 - [n8n](../../services/n8n.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 

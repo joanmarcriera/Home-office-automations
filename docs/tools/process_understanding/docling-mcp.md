@@ -101,7 +101,7 @@ def convert_to_md(source_url):
 ```
 
 ## Related tools / concepts
-- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 - [Docling](docling.md)
 - [OCRmyPDF](ocrmypdf.md)
 - [Milvus](../infrastructure/milvus.md)

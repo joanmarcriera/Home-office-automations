@@ -14,7 +14,7 @@ The repository contains a vast array of specialized tools, which can be overwhel
 - **Agentic Workflow Design**: Selecting the right framework (e.g., [LangGraph](../tools/frameworks/langgraph.md)) and protocol (MCP 3.0) for multi-step tasks.
 - **Enterprise RAG Implementation**: Navigating the tools required for high-signal retrieval, such as [Tavily](../tools/providers/tavily.md) and [mem0](../tools/agents/mem0.md).
 - **Rapid Prototyping**: Launching MVPs using the [Free AI Website Playbook](free_ai_website_playbook.md) and hosted providers like [Vercel](../tools/development_ops/vercel.md).
-- **Local AI Orchestration**: Setting up private, secure environments with [LocalAI](../tools/infrastructure/localai.md) and [Ollama](../../services/ollama.md).
+- **Local AI Orchestration**: Setting up private, secure environments with [LocalAI](../tools/infrastructure/localai.md) and [Ollama](../services/ollama.md).
 
 ## Strengths
 - **Outcome-Driven Navigation**: Focuses on "Jobs to be Done" rather than individual tool features.
@@ -50,10 +50,10 @@ To get the most out of the AI Builder Index, follow these steps:
 | Goal | Start here | Then go to | Best for |
 | :--- | :--- | :--- | :--- |
 | Build a website or app for free | [Free AI Website Playbook](free_ai_website_playbook.md) | [Vercel](../tools/development_ops/vercel.md), [GitHub Pages](../tools/development_ops/github-pages.md), [Supabase](../tools/infrastructure/supabase.md) | Founders, consultants |
-| Set up an AI-driven company | [AI Company Starter Stack](ai_company_starter_stack.md) | [n8n](../../services/n8n.md), [mem0](../tools/agents/mem0.md), [Vault](../tools/automation_orchestration/hashicorp-vault.md) | Teams building leverage |
+| Set up an AI-driven company | [AI Company Starter Stack](ai_company_starter_stack.md) | [n8n](../services/n8n.md), [mem0](../tools/agents/mem0.md), [Vault](../tools/automation_orchestration/hashicorp-vault.md) | Teams building leverage |
 | Choose an agent stack | [Agent Framework Learning Map](agent_framework_learning_map.md) | [LangGraph](../tools/frameworks/langgraph.md), [OpenClaw](../tools/development_ops/openclaw.md) | Builders deciding on frameworks |
 | Research markets & leads | [AI Company Starter Stack](ai_company_starter_stack.md) | [Tavily](../tools/providers/tavily.md), [Browser Use](../tools/automation_orchestration/browser-use.md) | Sales and strategy teams |
-| Run private / local AI | [AI Company Starter Stack](ai_company_starter_stack.md) | [LocalAI](../tools/infrastructure/localai.md), [Ollama](../../services/ollama.md) | Privacy-sensitive teams |
+| Run private / local AI | [AI Company Starter Stack](ai_company_starter_stack.md) | [LocalAI](../tools/infrastructure/localai.md), [Ollama](../services/ollama.md) | Privacy-sensitive teams |
 
 ### Recommended entry paths
 
@@ -69,7 +69,7 @@ To get the most out of the AI Builder Index, follow these steps:
 
 -   **Run Operations**
     ---
-    Start with [AI Company Starter Stack](ai_company_starter_stack.md). Optimize with [n8n](../../services/n8n.md) and [Vault](../tools/automation_orchestration/hashicorp-vault.md).
+    Start with [AI Company Starter Stack](ai_company_starter_stack.md). Optimize with [n8n](../services/n8n.md) and [Vault](../tools/automation_orchestration/hashicorp-vault.md).
 
 -   **Private / Local AI**
     ---

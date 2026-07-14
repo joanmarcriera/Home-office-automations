@@ -123,7 +123,7 @@ with open("solid_state_research.md", "w") as f:
 ```
 
 ## Related tools / concepts
-- [Perplexity](perplexity.md)
+- [Perplexity](../providers/perplexity.md)
 - [OpenRouter](openrouter.md)
 - [LlamaIndex](llamaindex.md)
 - [Crawl4AI](../process_understanding/crawl4ai.md)

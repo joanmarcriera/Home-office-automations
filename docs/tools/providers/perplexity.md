@@ -1,102 +1,125 @@
 # Perplexity
 
 ## What it is
-Perplexity is an AI-powered search engine and LLM provider that specializes in real-time information retrieval and cited answers. It operates as a proprietary cloud service with usage-based API pricing (Sonar), though Perplexity Pro subscribers receive some API credits.
+Perplexity is an AI-powered conversational search engine and LLM provider that specializes in real-time information retrieval and cited answers. As of July 2026, it utilizes a sophisticated orchestration layer to route queries between frontier models like [Gemma 3](../ai_knowledge/local_llms.md), [Claude 4.8](../ai_knowledge/claude.md), and its own fine-tuned "Sonar" models. It operates as a proprietary cloud service with usage-based API pricing, bridging the gap between static LLM knowledge and the live web.
 
 ## What problem it solves
-It bridges the gap between static LLM knowledge and the live web. Traditional LLMs have knowledge cutoffs, but Perplexity can search the internet in real-time to provide up-to-date information with verifiable citations, solving the "stale knowledge" problem for agentic research.
+It addresses the "hallucination" and "knowledge cutoff" problems of traditional LLMs by grounding every response in current web data. Perplexity can search the internet in real-time to provide up-to-date information with verifiable citations, allowing for rapid verification of facts, technical specifications, and market trends.
 
 ## Where it fits in the stack
-**Category**: Provider / AI Search. It acts as a specialized inference provider for tasks that require live data, such as news analysis, market research, or technical troubleshooting for new releases.
+**Category**: Provider / AI Search. It acts as a specialized inference retrieval layer for tasks that require live data, such as news analysis, market research, or technical troubleshooting for new releases. It is often integrated into agentic workflows via its OpenAI-compatible API to provide real-time grounding for autonomous agents using [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) or [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
+- **Technical Research**: Discovering the latest stable versions of libraries, APIs, and frameworks with cited documentation.
+- **Market Intelligence**: Tracking real-time financial data, product launches, and industry trends.
+- **Fact-Checking**: Verifying claims by reviewing primary sources cited in the response.
 - **Research Agents**: Automating the collection of cited information for reports and technical audits.
-- **Support Bots**: Providing accurate, up-to-date answers about products or services using live documentation.
-- **Technical Research**: Finding the latest documentation or API changes that occurred after an LLM's cutoff date.
-- **Financial Analysis**: Using the `finance_search` tool to pull structured market data and transcripts.
 - **Autonomous Browsing**: Leveraging the "Computer" orchestration layer for multi-step web research.
 
-### Model Routing (June 2026)
+### Model Routing (July 2026)
 | Model | Primary Use Case | Default? |
 | :--- | :--- | :--- |
 | **Sonar Small / Medium** | Fast, high-volume search tasks and simple extraction | No |
 | **Sonar Reasoning** | Standard research tasks requiring a balance of speed and depth | Yes |
 | **Sonar Reasoning Pro** | Complex, multi-step research, deep analysis, and high-stakes reasoning | No (Premium) |
-| **Agent API** | Supports third-party models like [Claude 4.8](anthropic.md) for tool-calling | No |
+| **Agent API** | Supports third-party models like [Claude 4.8](../ai_knowledge/claude.md) for tool-calling | No |
 
 ## Strengths
-- **Live Web Access**: Exceptional at fetching and summarizing real-time data from the entire internet.
-- **Citations**: Automatically provides verifiable links to the sources used to generate answers.
+- **Verifiable Citations**: Every claim is linked to a source, drastically reducing hallucinations.
+- **Live Web Access**: Exceptional at fetching and summarizing real-time data with no knowledge cutoff.
+- **Model Choice**: Pro users can toggle between different frontier models for varied reasoning styles.
 - **OpenAI Compatibility**: Its API is compatible with the OpenAI SDK, making it a drop-in replacement for search tasks.
-- **Reasoning Models**: **Sonar Reasoning Pro** combines deep chain-of-thought with live search.
-- **Tool Integration**: Native support for financial data connectors (FactSet, Morningstar, etc.).
+- **Tool Integration**: Native support for financial data connectors and [n8n](../../services/n8n.md) workflows.
 
 ## Limitations
-- **Rate Limits**: API rate limits can be restrictive for high-volume enterprise applications.
-- **Latency**: Search-augmented reasoning takes longer than a simple LLM inference call.
-- **Proprietary**: No self-hosted option; requires persistent internet connection.
+- **External Dependency**: As a cloud-based service, it requires internet access and third-party data processing.
+- **Privacy Concerns**: Not suitable for processing highly sensitive data that cannot leave the local network.
+- **API Cost**: High-volume usage via API can be more expensive than self-hosted RAG solutions.
+- **Latency**: Search-augmented reasoning takes longer than simple LLM inference.
 
 ## When to use it
-- When the accuracy of real-time information is more important than raw inference speed.
-- When you need to verify the sources of an AI-generated answer.
-- For "Daily Briefing" or "Market Analysis" workflows.
+- When you need the most up-to-date information available on the web.
+- When source verification and citations are critical for your work.
+- For conductng rapid research on topics outside your immediate expertise.
 - For [n8n](../../services/n8n.md) workflows using the native Perplexity node.
 
 ## When not to use it
-- For general creative writing or purely local processing tasks.
-- When latency is a critical factor (e.g., real-time low-latency chat UI).
+- When working with **private, air-gapped, or highly confidential data** (use [Local LLMs](../ai_knowledge/local_llms.md)).
+- When you require absolute deterministic outputs.
+- When offline access is a requirement.
 
 ## Getting started
 
-### API Setup
-1. Get an API key from the [Perplexity Settings](https://www.perplexity.ai/settings/api).
-2. Install the OpenAI SDK: `pip install openai`.
+### Account Setup
+Sign up at [perplexity.ai](https://www.perplexity.ai/) to access the conversational interface. API keys can be generated in the [API Settings](https://www.perplexity.ai/settings/api).
 
-### Initial Configuration
+### API Setup
+Perplexity provides an OpenAI-compatible API, easily manageable via [LiteLLM](../../services/litellm.md).
+
 ```bash
+pip install openai
 export PPLX_API_KEY="your-api-key"
+```
+
+### Minimal API Example (Python)
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_PPLX_API_KEY", base_url="https://api.perplexity.ai")
+
+response = client.chat.completions.create(
+    model="sonar-reasoning-pro",
+    messages=[{"role": "user", "content": "What is the status of FastMCP 3.0 adoption in July 2026?"}]
+)
+print(response.choices[0].message.content)
 ```
 
 ## CLI examples
 
-### Using a Curl Command
-Perplexity's OpenAI-compatible API can be tested easily via terminal:
+### 1. Basic Search (curl)
 ```bash
-curl https://api.perplexity.ai/chat/completions \
+curl -X POST https://api.perplexity.ai/chat/completions \
   -H "Authorization: Bearer $PPLX_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "sonar-reasoning-pro",
-    "messages": [{"role": "user", "content": "Latest AI news June 2026"}]
+    "messages": [
+      {"role": "user", "content": "Latest stable version of Kubernetes as of July 2026."}
+    ]
   }'
 ```
 
-### Checking Model Availability
+### 2. Integration with LiteLLM CLI
+```bash
+litellm --model perplexity/sonar-reasoning-pro --messages '{"role": "user", "content": "Compare Gemma 3 vs Llama 4 for home-office automation."}'
+```
+
+### 3. Checking Model Availability
 Verify the current active models in the Sonar catalog:
 ```bash
-# Example logic using the sonar-cli tool (community)
+# Using the sonar-cli tool (community)
 sonar-cli models list
 ```
 
 ## API examples
 
-### Python Example (OpenAI SDK)
+### Python (OpenAI SDK with citations)
 ```python
 from openai import OpenAI
-import os
 
-client = OpenAI(api_key=os.getenv("PPLX_API_KEY"), base_url="https://api.perplexity.ai")
+client = OpenAI(api_key="YOUR_API_KEY", base_url="https://api.perplexity.ai")
 
-# Chat completion with search-augmented reasoning
+# Using 'sonar-reasoning-pro' for complex research tasks
 response = client.chat.completions.create(
     model="sonar-reasoning-pro",
     messages=[
         {"role": "system", "content": "Be precise and cited."},
-        {"role": "user", "content": "What are the latest developments in MCP 3.0 as of June 2026?"}
+        {"role": "user", "content": "Research the current status of EKS Auto Mode in July 2026."}
     ]
 )
 
-print(response.choices[0].message.content)
+content = response.choices[0].message.content
+print(f"Citations and Analysis: {content}")
 ```
 
 ### Structured Output (JSON Mode)
@@ -105,28 +128,40 @@ response = client.chat.completions.create(
     model="sonar-reasoning",
     messages=[
         {"role": "system", "content": "Return a JSON object with 'summary' and 'sources'."},
-        {"role": "user", "content": "Research the current status of EKS Auto Mode."}
+        {"role": "user", "content": "Research the latest developments in MCP 3.0."}
     ],
     response_format={ "type": "json_object" }
 )
 ```
 
+### Integration with Agentic Frameworks
+Perplexity can be used as a `tool` within agentic frameworks following [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) standards.
+
+```python
+# Simplified pseudocode for agentic tool use
+def web_search(query: str):
+    return client.chat.completions.create(
+        model="sonar-pro",
+        messages=[{"role": "user", "content": query}]
+    ).choices[0].message.content
+```
+
 ## Related tools / concepts
+- [Google Search](../ai_knowledge/google-search.md) — Traditional search alternative.
+- [Genspark](../ai_knowledge/genspark.md) — AI-driven research and custom page generation.
 - [Tavily](tavily.md) — Search-optimized API for LLM agents.
 - [OpenRouter](../ai_knowledge/openrouter.md) — Access Perplexity models via a unified gateway.
-- [Google Search](../ai_knowledge/google-search.md) — Traditional search alternative.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Canonical local LLM guide.
 - [n8n](../../services/n8n.md) — Workflow automation with native Perplexity support.
-- [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategic model placement.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Patterns for search-augmented agents.
-- [Daily Briefing Prompt](../../reference-implementations/llm-prompts/daily-briefing.md) — Implementation using search.
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Local alternative for non-search tasks.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for connecting search tools to agents.
+- [LiteLLM](../../services/litellm.md) — Proxy for managing Perplexity API access.
 
 ## Sources / References
 - [Perplexity Official Website](https://www.perplexity.ai/)
 - [Perplexity API Documentation](https://docs.perplexity.ai/)
 - [Perplexity Model Catalog](https://docs.perplexity.ai/docs/model-cards)
-- [Sonar Reasoning Pro Reference](https://docs.perplexity.ai/docs/sonar/models/sonar-reasoning-pro)
+- [FastMCP 3.0 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-21
 - Confidence: high

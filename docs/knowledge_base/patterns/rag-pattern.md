@@ -53,7 +53,7 @@ RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw 
 1.  **Ingest Data**: Use [Docling](../../tools/process_understanding/docling.md) to parse PDFs and documents into clean Markdown.
 2.  **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md) native embeddings.
 3.  **Store**: Use a vector database like [ChromaDB](../../tools/infrastructure/chromadb.md) or [Milvus 3.0](../../tools/infrastructure/milvus.md).
-4.  **Retrieve & Augment**: Use [MCP 3.0](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 4.8](../../tools/ai_knowledge/anthropic.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
+4.  **Retrieve & Augment**: Use [MCP 3.0](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 4.8](../../tools/providers/anthropic.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
 
 ## CLI examples
 
@@ -96,7 +96,7 @@ print(response)
 - [LangChain](../../tools/ai_knowledge/langchain.md)
 - [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
 - [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md)
-- [Claude 4.8](../../tools/ai_knowledge/anthropic.md)
+- [Claude 4.8](../../tools/providers/anthropic.md)
 
 ## Sources / References
 - [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401)

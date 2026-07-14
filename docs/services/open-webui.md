@@ -117,7 +117,7 @@ for model in models.json()["data"]:
 - [Ollama](ollama.md) — Primary inference engine for chat and embeddings.
 - [LiteLLM](litellm.md) — For connecting Open WebUI to external APIs and frontier models like Claude 4.8 Opus.
 - [RAG (Retrieval Augmented Generation)](../knowledge_base/patterns/rag-pattern.md) — The underlying architecture for chatting with documents.
-- [Model Context Protocol](../automation_orchestration/mcp.md) — The standard for tool integration supported by Open WebUI.
+- [Model Context Protocol](../tools/automation_orchestration/mcp.md) — The standard for tool integration supported by Open WebUI.
 - [Everything MCP](https://github.com/punkpeye/awesome-mcp) — A curated list of MCP servers that can be used with Open WebUI.
 - [ChromaDB](https://www.trychroma.com/) — The default vector database used for local RAG.
 - [n8n](n8n.md) — For building complex workflows that Open WebUI can trigger via webhooks.

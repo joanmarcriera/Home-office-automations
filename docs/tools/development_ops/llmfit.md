@@ -7,13 +7,13 @@ llmfit is a hardware-to-model fit utility that helps you determine which models 
 It prevents wasted time trying to run models that do not fit your hardware or performance requirements. It provides instant feasibility checks for the latest frontier and local models.
 
 ## Where it fits in the stack
-**Development & Ops / Model Selection Utility**. It is a planning tool for local AI deployment decisions and [MCP 3.0](../../knowledge_base/mcp.md) task protocol resource allocation.
+**Development & Ops / Model Selection Utility**. It is a planning tool for local AI deployment decisions and [MCP 3.0](../automation_orchestration/mcp.md) task protocol resource allocation.
 
 ## Typical use cases
 - Choosing models for local inference (e.g., deciding between [Gemma 3](../ai_knowledge/local_llms.md) 4B or 27B).
 - Comparing what can run on different hardware profiles.
 - Deciding whether to use LocalAI, Ollama, or a cloud provider.
-- Benchmarking [MCP](../../knowledge_base/mcp.md) server overhead on local hardware.
+- Benchmarking [MCP](../automation_orchestration/mcp.md) server overhead on local hardware.
 
 ## Strengths
 - **Fast Hardware Reality Check**: Instantly detects CPU, RAM, and GPU/VRAM to provide tailored model recommendations.
@@ -21,7 +21,7 @@ It prevents wasted time trying to run models that do not fit your hardware or pe
 - **Community Benchmarks**: Integration with [localmaxxing.com](https://localmaxxing.com) (press `b`) to see real-world performance data from other users.
 - **Hardware Simulation**: Press `S` to override your system specs and see what models would run on a target upgrade (e.g., RTX 6090).
 - **Download Manager**: Native management of model downloads and local cache for Ollama, llama.cpp, and LM Studio.
-- **Protocol Awareness**: Support for estimating memory overhead of [MCP 3.0](../../knowledge_base/mcp.md) Task Protocol runtimes.
+- **Protocol Awareness**: Support for estimating memory overhead of [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol runtimes.
 
 ## Limitations
 - **Estimation vs. Execution**: Provides theoretical speed and fit estimates; actual performance may vary based on concurrent system load.
@@ -119,7 +119,7 @@ for model in models:
 - [llama.cpp](../infrastructure/llama-cpp.md)
 - [MLX](../infrastructure/mlx.md)
 - [ExLlamaV2](../infrastructure/exllamav2.md)
-- [MCP 3.0](../../knowledge_base/mcp.md)
+- [MCP 3.0](../automation_orchestration/mcp.md)
 - [Gemma 3](../ai_knowledge/local_llms.md)
 - [Claude 5.1](../ai_knowledge/claude.md)
 

@@ -1,7 +1,7 @@
 # MATH Benchmark
 
 ## What it is
-The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. In the July 2026 landscape, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5, often executed via the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol for automated verification.
+The MATH benchmark is a dataset of 12,500 challenging competition mathematics problems. Each problem has a step-by-step solution and a final answer formatted in LaTeX. In the July 2026 landscape, it remains a critical stress-test for the symbolic reasoning capabilities of frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5, often executed via the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol for automated verification.
 
 ## What problem it solves
 Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary arithmetic. The MATH benchmark provides a much higher "ceiling" for evaluation, testing a model's ability to perform complex symbolic reasoning, multi-step proofs, and advanced problem-solving across diverse mathematical fields. It is essential for differentiating models that perform simple calculation from those capable of "System 2" reasoning.
@@ -13,7 +13,7 @@ Traditional math benchmarks (like [GSM8K](gsm8k.md)) often focus on elementary a
 - **Deep Reasoning Evaluation**: Testing a model's ability to solve problems in number theory, geometry, and intermediate algebra.
 - **Prompt Engineering for Logic**: Evaluating the effectiveness of Chain-of-Thought (CoT) or program-aided reasoning (PoT) on difficult tasks.
 - **Model Specialized Training**: Using the MATH dataset to fine-tune models for mathematical proficiency or scientific reasoning.
-- **Automated Verification**: Using the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol to automate the solving and checking of competition-level problems.
+- **Automated Verification**: Using the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol to automate the solving and checking of competition-level problems.
 
 ## Strengths
 - **High Difficulty**: Challenges even the most capable models, providing a clear differentiation in reasoning ability.

@@ -10,7 +10,7 @@ Parea bridges the gap between prompt experimentation and production reliability.
 **Category**: Process & Understanding / AI Development & Observability. It acts as the "Control Plane" for model performance and reliability.
 
 ## Typical use cases
-- **Prompt Playground**: Experimenting with different models like [Claude 4.8](../../tools/ai_knowledge/anthropic.md) and parameters in a visual UI.
+- **Prompt Playground**: Experimenting with different models like [Claude 4.8](../providers/anthropic.md) and parameters in a visual UI.
 - **Automated Regression Testing**: Running "evals" on a suite of test cases to ensure new prompts don't break existing functionality.
 - **Production Tracing**: Capturing detailed execution traces of complex LLM workflows and multi-agent handoffs.
 - **Data Collection**: Identifying "bad" responses in production to build better fine-tuning or evaluation datasets.

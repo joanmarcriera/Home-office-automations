@@ -90,7 +90,7 @@ print(query_engine.query("What are the quarterly growth metrics in the table?"))
 - [Unstructured.io](../intake_storage/unstructured.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / references

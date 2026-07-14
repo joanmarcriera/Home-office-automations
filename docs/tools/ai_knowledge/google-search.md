@@ -34,7 +34,7 @@ It reduces the cognitive load of information retrieval by transitioning from "li
 ## When not to use it
 - For queries involving highly sensitive personal data (use [SearXNG](../../services/searXNG.md)).
 - When a purely local, private search is required.
-- For deep, thread-persistent research where [Perplexity](perplexity.md) might offer better continuity.
+- For deep, thread-persistent research where [Perplexity](../providers/perplexity.md) might offer better continuity.
 
 ## Getting started
 
@@ -90,7 +90,7 @@ print(response.candidates[0].grounding_metadata.search_entry_point)
 ```
 
 ## Related tools / concepts
-- [Perplexity](perplexity.md) — Persistent research-focused search.
+- [Perplexity](../providers/perplexity.md) — Persistent research-focused search.
 - [SearXNG](../../services/searXNG.md) — Privacy-first, self-hosted search aggregator.
 - [Gemini](gemini.md) — The underlying model family.
 - [Gemma 3](../ai_knowledge/local_llms.md) — SOTA open-weights model from Google.

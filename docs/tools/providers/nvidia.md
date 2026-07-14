@@ -138,7 +138,7 @@ response = client.chat.completions.create(
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 - [Model Context Protocol](../automation_orchestration/mcp.md)
-- [Google Axion](../knowledge_base/google_axion.md)
+- [Google Axion](../../knowledge_base/google_axion.md)
 
 ## Sources / references
 - [NVIDIA Official Website](https://www.nvidia.com/)

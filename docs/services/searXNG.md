@@ -23,7 +23,7 @@ It strips tracking cookies and personal data from your requests, preventing sear
 - **Aggregated Results**: Combines results from 70+ engines.
 - **Customizable**: Extensive settings for engines, categories, and UI.
 - **Self-Hostable**: Easy to deploy via Docker.
-- **Open API**: Provides search results in JSON format, ideal for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.0 integration.
+- **Open API**: Provides search results in JSON format, ideal for [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) 3.0 integration.
 - **Cost**: Free and Open Source (AGPL-3.0).
 
 ## Limitations
@@ -116,7 +116,7 @@ for result in results.get('results', []):
 ```
 
 ### Advanced: RAG Pipeline Pattern (Python)
-This example demonstrates using SearXNG in a retrieval-augmented generation (RAG) loop with custom weighting for specific engines, utilizing [Gemma 3](../ai_knowledge/local_llms.md) for local inference.
+This example demonstrates using SearXNG in a retrieval-augmented generation (RAG) loop with custom weighting for specific engines, utilizing [Gemma 3](../tools/ai_knowledge/local_llms.md) for local inference.
 
 ```python
 import requests
@@ -145,7 +145,7 @@ def rag_search(query, search_domain="tech"):
 ```
 
 ## Related tools / concepts
-- [Perplexity](../tools/ai_knowledge/perplexity.md) — AI-powered search engine.
+- [Perplexity](../tools/providers/perplexity.md) — AI-powered search engine.
 - [n8n](n8n.md) — For automating search workflows.
 - [Ollama](ollama.md) — To use search results with local LLMs.
 - [Paperless-ngx](paperless-ngx.md) — For archiving and managing documents.

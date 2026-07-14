@@ -112,7 +112,7 @@ print(f"Workflow status: {response.status}")
 - [Prompt Requests](prompt_requests.md) — The preferred interface for development-centric use cases.
 - [Skills Best Practices](skills-best-practices.md) — Guidelines for authoring the skills used in this catalog.
 - [Software Factories](software-factories.md) — High-scale pattern for autonomous code generation.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Recommended local model for catalog workflow execution.
+- [Gemma 3](../../tools/ai_knowledge/local_llms.md) — Recommended local model for catalog workflow execution.
 - [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for tool integration in July 2026.
 
 ## Sources / References

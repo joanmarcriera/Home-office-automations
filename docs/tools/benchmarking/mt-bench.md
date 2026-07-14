@@ -1,18 +1,18 @@
 # MT-Bench
 
 ## What it is
-MT-Bench is a benchmark designed to evaluate the multi-turn conversational capabilities of Large Language Models (LLMs). It consists of 80 high-quality, multi-turn questions across eight categories: writing, roleplay, extraction, reasoning, math, coding, knowledge I (STEM), and knowledge II (humanities/social science). In the July 2026 landscape, it is increasingly integrated with the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol to automate complex, stateful evaluation loops across frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5.
+MT-Bench is a benchmark designed to evaluate the multi-turn conversational capabilities of Large Language Models (LLMs). It consists of 80 high-quality, multi-turn questions across eight categories: writing, roleplay, extraction, reasoning, math, coding, knowledge I (STEM), and knowledge II (humanities/social science). In the July 2026 landscape, it is increasingly integrated with the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol to automate complex, stateful evaluation loops across frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8 Opus, and GPT-5.5.
 
 ## What problem it solves
 Many traditional benchmarks only evaluate single-turn responses, failing to capture a model's ability to maintain context, follow instructions across multiple exchanges, and handle the dynamic nature of real-world conversations. MT-Bench specifically tests the "follow-up" capability of models, addressing the "goldfish memory" problem and verifying instruction adherence in deep, multi-turn dialogues.
 
 ## Where it fits in the stack
-**Benchmarking**. It is a core component of the LMSYS FastChat evaluation framework and is often used alongside the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol to benchmark autonomous agent persistence and context management.
+**Benchmarking**. It is a core component of the LMSYS FastChat evaluation framework and is often used alongside the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol to benchmark autonomous agent persistence and context management.
 
 ## Typical use cases
 - **Conversational AI Evaluation**: Assessing how well a chatbot handles follow-up questions and maintains context.
 - **Model Comparison**: Ranking chat-tuned models (e.g., [Gemma 3](../ai_knowledge/local_llms.md) vs. Claude 4.8) based on their ability to handle multi-step instructions.
-- **LLM-as-a-Judge Validation**: MT-Bench uses strong models as judges to provide automated, scalable scoring, now enhanced by the [MCP 3.0](../../automation_orchestration/mcp.md) standardized task representations.
+- **LLM-as-a-Judge Validation**: MT-Bench uses strong models as judges to provide automated, scalable scoring, now enhanced by the [MCP 3.0](../automation_orchestration/mcp.md) standardized task representations.
 - **Agentic Workflow Stress-Testing**: Verifying that agents can maintain state across long-running tasks.
 
 ## Strengths

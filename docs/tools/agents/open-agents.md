@@ -103,8 +103,8 @@ const result = await generateText({
 - [Claude Code](../development_ops/claude-code.md) — Reference for agentic tool use.
 - [Browser Use](../automation_orchestration/browser-use.md) — Alternative computer-use library.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Interoperability standard.
-- [Crawl4AI](../development_ops/crawl4ai.md) — Optimized scraping alternative.
-- [Firecrawl](../development_ops/firecrawl.md) — API-first web extraction.
+- [Crawl4AI](../process_understanding/crawl4ai.md) — Optimized scraping alternative.
+- [Firecrawl](../process_understanding/firecrawl.md) — API-first web extraction.
 
 ## Sources / references
 - [Vercel Labs Open Agents GitHub](https://github.com/vercel-labs/open-agents)

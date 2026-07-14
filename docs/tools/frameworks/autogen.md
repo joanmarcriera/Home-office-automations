@@ -102,7 +102,7 @@ user_proxy.initiate_chat(manager, message="Build a simple dashboard.")
 - [OpenSwarm](../development_ops/openswarm.md)
 - [Smolagents](smolagents.md)
 - [DSPy](dspy.md)
-- [Model Context Protocol](../../automation_orchestration/mcp.md)
+- [Model Context Protocol](../automation_orchestration/mcp.md)
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
 
 ## Sources / References

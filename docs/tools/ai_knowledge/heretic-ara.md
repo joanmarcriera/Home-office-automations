@@ -37,7 +37,7 @@ It addresses the issue of "refusal alignment" in large language models, where mo
 ## When not to use it
 - In production environments with untrusted users where safety guardrails are mandatory.
 - If you lack the compute resources (high-VRAM GPUs) to perform the required optimization loops.
-- If you require the most stable and predictable model behavior as provided by original vendors like [Anthropic](../providers/anthropic.md) or [OpenAI](../providers/openai.md).
+- If you require the most stable and predictable model behavior as provided by original vendors like [Anthropic](../providers/anthropic.md) or [OpenAI](openai.md).
 
 ## Getting started
 

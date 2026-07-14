@@ -100,7 +100,7 @@ print(result)
 - [Comet Opik](./comet-opik.md) — Open-source LLM tracing.
 - [AI Auditing Tools](./ai-auditing-tools.md) — Category-level overview of risk classification.
 - [Datadog](./datadog.md) — For general infrastructure monitoring of AI stacks.
-- [Sentry](../../services/sentry.md) — For exception tracking in agentic applications.
+- [Sentry](sentry.md) — For exception tracking in agentic applications.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for integrating observability tools.
 - [LLM Security & Privacy](../../knowledge_base/llm_security_privacy.md) — Core concepts Fiddler helps enforce.
 - [LiteLLM](../../services/litellm.md) — Unified inference proxy for multi-model observability.

@@ -1,7 +1,7 @@
 # PulseMCP
 
 ## What it is
-PulseMCP is a community-driven registry and framework for the [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md). It provides a platform for discovering, exploring, and sharing MCP servers and integrations. In July 2026, it is the primary discovery engine for expanding the capabilities of agents like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and GPT-5.5, now featuring full support for [FastMCP 3.0](mcp.md) and the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol.
+PulseMCP is a community-driven registry and framework for the [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md). It provides a platform for discovering, exploring, and sharing MCP servers and integrations. In July 2026, it is the primary discovery engine for expanding the capabilities of agents like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and GPT-5.5, now featuring full support for [FastMCP 3.0](mcp.md) and the [MCP 3.0](mcp.md) Task Protocol.
 
 ## What problem it solves
 The MCP ecosystem is rapidly expanding, with thousands of servers being developed across various platforms. PulseMCP solves the discovery problem by providing a centralized, searchable repository of MCP-compliant tools, complete with metadata, usage examples, and community ratings. It prevents duplication of effort and enables [autonomous agents](../../knowledge_base/patterns/tool-calling-and-mcp.md) to dynamically find and propose new tools to users.
@@ -11,7 +11,7 @@ The MCP ecosystem is rapidly expanding, with thousands of servers being develope
 
 ## Typical use cases
 - **Tool Discovery**: Finding specific MCP servers for tasks like web scraping, database interaction, or specialized API management.
-- **Integration Research**: Exploring how different MCP servers can be combined to form complex agentic workflows using the [MCP 3.0](../../automation_orchestration/mcp.md) Task Protocol.
+- **Integration Research**: Exploring how different MCP servers can be combined to form complex agentic workflows using the [MCP 3.0](mcp.md) Task Protocol.
 - **Community Contribution**: Publishing and sharing custom-built [FastMCP](mcp.md) servers with the global developer community.
 - **Agent Self-Expansion**: Allowing autonomous agents to programmatically search for and propose new capabilities.
 
@@ -19,7 +19,7 @@ The MCP ecosystem is rapidly expanding, with thousands of servers being develope
 - **Centralized Discovery**: Significantly reduces the time to find and implement new agent capabilities.
 - **Community Ecosystem**: Leverages the "wisdom of the crowd" to identify high-quality, reliable tools through stars and ratings.
 - **FastMCP 3.0 Support**: Optimized for the latest high-performance tool hosting standards.
-- **Task Protocol Integration**: Ensures discovered servers are compatible with standardized [MCP 3.0](../../automation_orchestration/mcp.md) execution loops.
+- **Task Protocol Integration**: Ensures discovered servers are compatible with standardized [MCP 3.0](mcp.md) execution loops.
 
 ## Limitations
 - **Varying Quality**: As a community registry, the reliability and security of individual servers can vary; users should prioritize "verified" listings.
@@ -29,7 +29,7 @@ The MCP ecosystem is rapidly expanding, with thousands of servers being develope
 
 ## When to use it
 - When looking for pre-built MCP servers to extend the capabilities of an AI agent or client like [Claude Desktop](../../tools/development_ops/claude-context-mode.md).
-- When wanting to explore the variety of tools available in the [MCP 3.0](../../automation_orchestration/mcp.md) ecosystem.
+- When wanting to explore the variety of tools available in the [MCP 3.0](mcp.md) ecosystem.
 - When you have built a useful [FastMCP](mcp.md) server and want to share it.
 - For researchers analyzing trends within the Model Context Protocol ecosystem.
 
@@ -81,7 +81,7 @@ mcp-cli --command "npx @pulsemcp/weather-server" --env "API_KEY=xxx"
 ```
 
 ## API examples
-PulseMCP provides a registry API for programmatic discovery and [MCP 3.0](../../automation_orchestration/mcp.md) integration.
+PulseMCP provides a registry API for programmatic discovery and [MCP 3.0](mcp.md) integration.
 
 ```python
 import requests
@@ -102,7 +102,7 @@ for tool in db_tools:
 
 ## Related tools / concepts
 - [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) - The underlying protocol.
-- [MCP 3.0](../../automation_orchestration/mcp.md) - Protocol for automated task execution.
+- [MCP 3.0](mcp.md) - Protocol for automated task execution.
 - [FastMCP](mcp.md) - High-performance tool hosting framework.
 - [Claude Desktop](../../tools/development_ops/claude-context-mode.md) - A primary client for MCP servers.
 - [Aider](../../tools/development_ops/aider.md) - AI coding tool with MCP support.

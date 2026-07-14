@@ -1,7 +1,7 @@
 # Hebbia
 
 ## What it is
-Hebbia is an AI-powered intelligence platform built for sophisticated reasoning and analysis over massive volumes of documents. It is specifically designed for high-stakes industries like finance, law, and corporate strategy where precision and cross-document synthesis are critical. As of June 2026, it serves as a primary "Reasoning Engine" for enterprise data using models like [Claude 4.8](../../tools/ai_knowledge/anthropic.md).
+Hebbia is an AI-powered intelligence platform built for sophisticated reasoning and analysis over massive volumes of documents. It is specifically designed for high-stakes industries like finance, law, and corporate strategy where precision and cross-document synthesis are critical. As of June 2026, it serves as a primary "Reasoning Engine" for enterprise data using models like [Claude 4.8](../providers/anthropic.md).
 
 ## What problem it solves
 It addresses the "synthesis bottleneck." Instead of users manually reviewing thousands of pages of filings, transcripts, or contracts to find signals, Hebbia uses LLMs to reason across entire document sets simultaneously, providing structured answers with direct citations, significantly reducing time-to-insight for due diligence.
@@ -32,7 +32,7 @@ It addresses the "synthesis bottleneck." Instead of users manually reviewing tho
 - When you need a reasoning engine (Claude 4.8 or GPT-5.5 based) that understands professional terminology and complex financial structures.
 
 ## When not to use it
-- For simple web-based questions that don't require deep document analysis (use [Perplexity](../ai_knowledge/perplexity.md)).
+- For simple web-based questions that don't require deep document analysis (use [Perplexity](../providers/perplexity.md)).
 - If you are a small business or individual looking for a low-cost general-purpose AI assistant.
 - For creative writing, marketing copy, or general brainstorming tasks.
 
@@ -69,7 +69,7 @@ def run_matrix_analysis(project_id, skill_id):
 
 ## Related tools / concepts
 - [Bloomberg Terminal](https://www.bloomberg.com/professional/solution/bloomberg-terminal/)
-- [Perplexity](../ai_knowledge/perplexity.md)
+- [Perplexity](../providers/perplexity.md)
 - [Glean](glean.md)
 - [Fyxer AI](fyxer.md)
 - [tldv](tldv.md)
@@ -77,7 +77,7 @@ def run_matrix_analysis(project_id, skill_id):
 - [AgentOps](../process_understanding/agentops.md)
 - [n8n](../../services/n8n.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude 4.8](../../tools/ai_knowledge/anthropic.md)
+- [Claude 4.8](../providers/anthropic.md)
 
 ## Sources / References
 - [Hebbia Official Website](https://www.hebbia.ai/)

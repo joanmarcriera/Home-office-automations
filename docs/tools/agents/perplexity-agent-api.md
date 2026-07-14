@@ -123,7 +123,7 @@ print(response.json()['choices'][0]['message']['tool_calls'])
 ```
 
 ## Related tools / concepts
-- [Perplexity](../ai_knowledge/perplexity.md)
+- [Perplexity](../providers/perplexity.md)
 - [Tavily](../providers/tavily.md)
 - [SearXNG](../../services/searXNG.md)
 - [Firecrawl](../process_understanding/firecrawl.md)

@@ -95,7 +95,7 @@ system_prompt = f"You are a helpful assistant. Use the following skill when requ
 - [Andrej Karpathy Skills](../ai_knowledge/karpathy-skills.md)
 - [AITMPL](../ai_knowledge/aitmpl.md)
 - [Gemma 3](../ai_knowledge/local_llms.md)
-- [MCP (Model Context Protocol)](../ai_knowledge/mcp.md)
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md)
 - [Aider](aider.md)
 - [GPT Engineer](gpt_engineer.md)
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
