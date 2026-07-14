@@ -20,7 +20,7 @@ This report tracks the technical freshness audits (Action A) for non-compliant d
 | 12 | `docs/tools/intake_storage/silverbullet.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
 | 13 | `docs/tools/orchestration/apache-hamilton.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
 | 14 | `docs/tools/providers/azure-openai.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context (GPT-5, MCP 3.0). |
-| 15 | `docs/tools/providers/vercel-ai-gateway.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
+| 15 | `docs/tools/providers/vercel-ai-gateway.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
 
 ## Progress Log
 

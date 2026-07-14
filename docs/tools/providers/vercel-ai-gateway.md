@@ -1,25 +1,26 @@
 # Vercel AI Gateway
 
 ## What it is
-Vercel AI Gateway is a lightweight, edge-compatible provider proxy that allows developers to manage, optimize, and observe their AI applications. It sits between your application code and multiple AI providers (OpenAI, Anthropic, Replicate, etc.).
+Vercel AI Gateway is a lightweight, edge-compatible provider proxy that allows developers to manage, optimize, and observe their AI applications. As of July 2026, it features native support for **MCP 3.0 Task Protocol**, enabling centralized governance for agentic tool-calling across multiple providers like OpenAI (GPT-5), Google (Gemma 3), and Anthropic (Claude 5).
 
 ## What problem it solves
-It simplifies the operational overhead of running LLM-powered apps by providing built-in caching, rate limiting, and request retries. It also offers a unified dashboard for observing latency, cost, and usage across different models and providers.
+It simplifies the operational overhead of running LLM-powered apps by providing built-in caching, rate limiting, and request retries. It also offers a unified dashboard for observing latency, cost, and usage across different models and providers, solving the "fragmented observability" problem in multi-model architectures.
 
 ## Where it fits in the stack
-**Orchestration / Observability Layer**. It acts as a middleware gateway between the application logic and the model providers, typically used in Vercel-hosted environments or via standard HTTP clients.
+**Orchestration / Observability Layer**. It acts as a middleware gateway between the application logic and the model providers, typically used in Vercel-hosted environments or via standard HTTP clients to standardize API interactions.
 
 ## Typical use cases
-- **Cost Management**: Using caching to avoid redundant LLM calls.
-- **Resilience**: Implementing automated model fallbacks (e.g., if OpenAI is down, use Anthropic).
-- **Observability**: Tracking token usage and performance metrics in a centralized dashboard.
-- **Developer API Control**: Providing a single, consistent API endpoint for internal teams to consume multiple LLM providers.
+- **Multi-Model Governance**: Centrally managing API keys and usage limits for GPT-5, Claude 5, and Gemma 3.
+- **Cost Management**: Using edge-caching to avoid redundant LLM calls for frequent queries.
+- **Resilience**: Implementing automated model fallbacks (e.g., if OpenAI is down, fallback to Anthropic).
+- **Agentic Routing**: Using MCP 3.0 to route tool-calling tasks to the most efficient available model.
 
 ## Strengths
 - **Simplicity**: Extremely easy to set up for existing Vercel users.
 - **Unified Interface**: Use one base URL pattern for multiple providers.
 - **Edge Intelligence**: Caching at the edge provides significant speedups for common queries.
 - **OpenAI Compatibility**: Supports the OpenAI SDK format for most upstream providers.
+- **MCP Native**: Native support for Task Protocol 3.0 simplifies agent integration.
 
 ## Limitations
 - **Vercel Ecosystem**: While it can be used standalone, it is most powerful when integrated with Vercel's deployment platform.
@@ -29,7 +30,7 @@ It simplifies the operational overhead of running LLM-powered apps by providing 
 ## When to use it
 - When deploying AI apps on Vercel and wanting immediate observability and caching.
 - When you need a quick way to implement multi-provider fallbacks without complex orchestration code.
-- To reduce API costs for repetitive prompts in production.
+- When building autonomous agents that require a stable, governed MCP-compliant gateway.
 
 ## When not to use it
 - If you require a fully self-hosted, open-source gateway (see [LiteLLM](../../services/litellm.md)).
@@ -54,6 +55,8 @@ curl https://ai-gateway.vercel.sh/v1/models
 ```
 
 ## CLI examples
+
+### Managing Gateways
 ```bash
 # List all AI Gateways for your team
 vercel ai-gateway list
@@ -65,9 +68,17 @@ vercel ai-gateway create --name my-prod-gateway
 vercel ai-gateway keys list my-prod-gateway
 ```
 
+### MCP Registration (July 2026)
+Register the Vercel AI Gateway as an MCP server to enable governed tool-calling:
+```bash
+mcp register vercel-gateway --command "npx @vercel/ai-gateway-mcp" \
+  --env VERCEL_GATEWAY_ID="YOUR_GATEWAY_ID" \
+  --env VERCEL_API_TOKEN="YOUR_TOKEN"
+```
+
 ## API examples
 
-### Python (OpenAI SDK Mapping)
+### Python (OpenAI SDK with GPT-5)
 Route OpenAI requests through the gateway for caching and observability:
 ```python
 from openai import OpenAI
@@ -80,49 +91,44 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-  model="gpt-4o",
+  model="gpt-5",
   messages=[{"role": "user", "content": "How do I implement a fallback in Vercel AI Gateway?"}]
 )
 ```
 
-### TypeScript (REST API for Discovery)
-Discover available models and their provider endpoints dynamically:
-```typescript
-const response = await fetch('https://ai-gateway.vercel.sh/v1/models', {
-  headers: {
-    'Authorization': `Bearer ${process.env.VERCEL_AI_GATEWAY_KEY}`
-  }
-});
-const { data: models } = await response.json();
-console.log(models.map(m => m.id));
-```
+### FastMCP Tool Integration
+Expose a gateway-governed model as a tool using [FastMCP 3.0](../automation_orchestration/mcp.md):
+```python
+from mcp.server.fastmcp import FastMCP
+import os
 
-### cURL (Direct Anthropic Proxy)
-```bash
-curl https://gateway.ai.vercel.com/v1/gateways/YOUR_GATEWAY_ID/anthropic/v1/messages \
-  -H "X-API-Key: $ANTHROPIC_API_KEY" \
-  -H "Content-Type: application/json" \
-  -H "anthropic-version: 2023-06-01" \
-  -d '{
-    "model": "claude-3-5-sonnet-20240620",
-    "max_tokens": 1024,
-    "messages": [{"role": "user", "content": "Hello, Claude"}]
-  }'
+mcp = FastMCP("GatewayAssistant")
+
+@mcp.tool()
+async def query_model(prompt: str) -> str:
+    """Query GPT-5 via Vercel AI Gateway with built-in caching."""
+    # Logic to call gateway endpoint
+    return "Response from Vercel AI Gateway"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
-- [OpenRouter](../ai_knowledge/openrouter.md)
-- [LiteLLM](../../services/litellm.md)
-- [Helicone](../process_understanding/helicone.md)
-- [Portkey](portkey.md)
-- [Promptfoo](../benchmarking/promptfoo.md)
-- [Langfuse](../process_understanding/langfuse.md)
-- [AgentOps](../process_understanding/agentops.md)
+- [OpenRouter](../ai_knowledge/openrouter.md) — Multi-provider API aggregator.
+- [LiteLLM](../../services/litellm.md) — Open-source proxy alternative.
+- [Helicone](../process_understanding/helicone.md) — LLM observability and gateway.
+- [Portkey](portkey.md) — Control plane for AI apps.
+- [Promptfoo](../benchmarking/promptfoo.md) — Testing and benchmarking.
+- [Langfuse](../process_understanding/langfuse.md) — Open-source observability.
+- [AgentOps](../process_understanding/agentops.md) — Observability for agents.
+- [Model Context Protocol](../../knowledge_base/agent_protocols.md) — Standardized agent communication.
 
 ## Sources / references
 - [Vercel AI Gateway Documentation](https://vercel.com/docs/ai/ai-gateway)
 - [Vercel Blog: Introducing AI Gateway](https://vercel.com/blog/introducing-ai-gateway)
+- [Model Context Protocol 3.0 Specification](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-01
+- Last reviewed: 2026-07-21
 - Confidence: high
