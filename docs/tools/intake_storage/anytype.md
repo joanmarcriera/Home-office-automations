@@ -1,7 +1,7 @@
 # AnyType
 
 ## What it is
-AnyType is an open-source, decentralized, and local-first personal knowledge management application. It is built on the Anysync protocol, which enables peer-to-peer data synchronization and end-to-end encryption.
+AnyType is an open-source, decentralized, and local-first personal knowledge management application. It is built on the Anysync protocol, which enables peer-to-peer data synchronization and end-to-end encryption. As of July 2026, it is a primary target for **Agentic Knowledge Management** due to its local-first API and support for the [Model Context Protocol](../automation_orchestration/mcp.md).
 
 ## What problem it solves
 It provides a unified "operating system for your life," allowing you to store notes, tasks, files, and data in a structured, private environment. It eliminates reliance on centralized cloud providers by keeping your data on your own devices while still offering seamless synchronization.
@@ -38,10 +38,10 @@ It provides a unified "operating system for your life," allowing you to store no
 ## Getting started
 
 ### 1. Installation
-Download the desktop client for your platform from the [official downloads page](https://anytype.io/download).
+Download the desktop client for your platform from the [official downloads page](https://anytype.io/download). For headless use in July 2026, the `any-sync-node` can be deployed via Docker.
 
 ### 2. Enable API Access
-Anytype provides a local API (typically on port 31009). To use it with AI agents:
+Anytype provides a local API (typically on port 31009). To use it with AI agents like [Gemma 3](../ai_knowledge/google-gemini.md) or [Claude 5.1](../ai_knowledge/claude-mythos.md):
 1. Open Anytype Settings > API Keys.
 2. Create a new API Key.
 3. Use the provided credentials to connect via [Model Context Protocol](../automation_orchestration/mcp.md).
@@ -86,19 +86,18 @@ curl -X GET "http://127.0.0.1:31009/api/v1/spaces" \
      -H "Anytype-Version: 2025-11-08"
 ```
 
-## Licensing and cost
-- **Open Source**: Yes (Any Source Code License / GPL-3.0)
-- **Cost**: Free for local use and basic sync; paid tiers for increased encrypted backup storage.
-- **Self-hostable**: Yes (Anysync protocol components).
-
 ## Related tools / concepts
 - [Obsidian](../ai_knowledge/obsidian.md) (Markdown-based alternative)
 - [Logseq](../ai_knowledge/logseq.md) (Privacy-focused outliner)
 - [SilverBullet](silverbullet.md) (Markdown-based programmable wiki)
+- [Google Gemini / Gemma 3](../ai_knowledge/google-gemini.md) (Models compatible with AnyType MCP)
+- [Claude 5.1 / Mythos](../ai_knowledge/claude-mythos.md) (Advanced reasoning for local knowledge)
+- [Component Map](../../architecture/component_map.md) (How local storage fits in the architecture)
 - [Nextcloud](../../services/nextcloud.md) (Self-hosted cloud suite)
 - [Syncthing](../../services/syncthing.md) (P2P file synchronization)
 - [Local LLMs](../ai_knowledge/local_llms.md) (Can be used to process local AnyType data)
 - [KnowledgeOps Standards](../../standards.md) (Governance for local knowledge)
+- **Licensing**: Open Source (GPL-3.0). Free for local use with paid encrypted sync tiers.
 
 ## Sources / References
 - [Official Website](https://anytype.io/)
@@ -106,5 +105,5 @@ curl -X GET "http://127.0.0.1:31009/api/v1/spaces" \
 - [AnyType Documentation](https://doc.anytype.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-20
+- Last reviewed: 2026-07-21
 - Confidence: high
