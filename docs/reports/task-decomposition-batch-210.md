@@ -18,7 +18,7 @@ This report tracks the technical freshness audits (Action A) for non-compliant d
 | 10 | `docs/tools/enterprise/curiosity.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
 | 11 | `docs/tools/intake_storage/anytype.md` | Freshness Audit | Resolved | Upgraded to July 2026 standard (MCP 3.0, Gemma 3, Claude 5.1). |
 | 12 | `docs/tools/intake_storage/silverbullet.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
-| 13 | `docs/tools/orchestration/apache-hamilton.md` | Freshness Audit | Pending | Missing: API examples |
+| 13 | `docs/tools/orchestration/apache-hamilton.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
 | 14 | `docs/tools/providers/azure-openai.md` | Freshness Audit | Pending | Missing: CLI examples, API examples; incorrect order |
 | 15 | `docs/tools/providers/vercel-ai-gateway.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
 
