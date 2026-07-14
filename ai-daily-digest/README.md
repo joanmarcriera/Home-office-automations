@@ -1,5 +1,61 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-14
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🚀 **Local LLM Momentum**: Significant community activity around Qwen 3.6 and DeepSeek v4, with new uncensored GGUF releases and hardware "Frankenbox" builds to support larger models.
+* 🛠️ **New Tooling**: Launch of **CPTR** (open-webui/computer) for remote computer control and a FOSS alternative to NotebookLM with expanded social media integrations.
+* 🏢 **Industry Shifts**: Prefect acquires Dagster in a major consolidation of the workflow orchestration space; Anthropic extends access to "Fable 5."
+* 🔬 **Technical Breakthroughs**: New FP4 attention kernels for B300 GPUs claim up to 1.69x speedup over FA4.
+
+---
+
+## 🚀 Models & Releases
+
+* 📌 **Qwen 3.6-35B-A3B-Uncensored-Genesis-Hermes-V2-GGUF**: A new uncensored GGUF version of Qwen 3.6 is now available on HuggingFace, featuring "thinking" capabilities and recommended APEX quantization. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvk1if/qwen3635ba3buncensoredgenesishermesv2gguf/)
+* **Tencent Hy3 Support**: `llama.cpp` has added support for Tencent's Hy3 (299B MoE), including its multi-token-prediction (MTP) head for speculative decoding. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvwbb2/model_add_hy3_hy_v3_support_with_mtp_speculative/)
+* **Claude Fable 5**: Anthropic has extended enhanced access to Fable 5 for paid subscribers through July 19. [The New Stack](https://thenewstack.io/fable-5-honeycomb-opus/)
+* **GLM 5.2 on Mac**: Community reports of GLM 5.2 running on MacBook Pro M5 (48GB RAM) at 2-2.8 t/s using Flash MOE. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvlhxl/glm_52_running_on_macbook_pro_m5_48_gb_ram_at/)
+
+---
+
+## 🛠️ Tools & Agents
+
+* 🔥 **CPTR (open-webui/computer)**: A new project allowing users to control their computer from anywhere via an open-webui interface. [GitHub](https://github.com/open-webui/computer) | [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvwlym/cptr_is_wonderful_openwebuicomputer_your_computer/)
+* **FOSS NotebookLM**: A community-driven alternative to Google's NotebookLM that removes source limits and adds connections to Reddit, YouTube, IG, and TikTok. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uw214g/foss_notebooklm_connected_to/)
+* **J-Wash**: A novel method to customize and "brainwash" LLMs based on Anthropic's Jacobian-Lens. [GitHub](https://github.com/Extraltodeus/J-Wash) | [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvq1i3/jwash_a_novel_way_to_brainwash_and_customize/)
+
+---
+
+## 🔬 Research & Hardware
+
+* **FP4 Attention Kernels**: New kernels for B300 GPUs achieving up to 1.69x speedup over FA4. [Source](https://x.com/haoailab/status/2074244199143362925)
+* **Hardware Hacks**:
+    * A user successfully configured a dual RTX 6000 setup to run DeepSeek v4 Flash. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvmon5/joined_the_dual_rtx_6000_club/)
+    * A "Frankenbox" build featuring 3 GPUs (9070xt, 1080 ti, 5700xt) using Oculink and 3D printed mounts. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uvws08/my_frankenbox_i_mounted_3_gpus_in_and_ontop_of_my/)
+
+---
+
+## 🏢 Industry News
+
+* **M&A**: **Prefect** has acquired **Dagster**, merging two major rivals in the data pipeline and workflow orchestration space. [The New Stack](https://thenewstack.io/prefect-acquires-dagster-orchestrator/)
+* **Microsoft Insights**: CEO Satya Nadella discusses the "reverse information paradox," suggesting enterprises are paying for AI twice—once for the tool and once for the hidden cost of managing the resulting data noise. [The New Stack](https://thenewstack.io/nadella-reverse-information-paradox/)
+* **Codex Growth**: Reports indicate Codex usage has increased over 10x in 6 months, reaching 7 million users. [Latent Space](https://www.latent.space/p/ainews-codex-usage-up-10x-in-6-months)
+* **Google DeepMind**: Launched **ATL Saathi**, a Gemini-powered tool designed to assist educators in Indian robotics labs. [DeepMind Blog](https://deepmind.google/blog/empowering-indias-next-generation-of-innovators-with-atl-saathi/)
+
+---
+
+## 💬 Community Discussions
+
+* **Open Source vs. Closed**: Heated debates on r/LocalLLaMA regarding the "fear-mongering" of frontier AI dangers by private companies to maintain a technology moat. [Link](https://www.reddit.com/r/LocalLLaMA/comments/1uvll20/if_frontier_ai_is_so_dangerous_why_should_private/)
+* **Global Benchmarks**: Discussion on why American open-source labs are currently lagging behind Chinese labs in top-tier benchmarks. [Link](https://www.reddit.com/r/LocalLLaMA/comments/1uvw2b3/why_arent_any_american_opensource_ai_labs_even/)
+* **Mistral Feedback**: Mistral is conducting a community survey regarding local model sizes, with users pushing for more 30B-120B open-weight models. [Link](https://www.reddit.com/r/LocalLLaMA/comments/1uvlhii/mistral_community_feedback_survey/)
+
+---
+
+
 ## 📅 Digest for 2026-07-13
 
 # AI & Technology Daily Digest
