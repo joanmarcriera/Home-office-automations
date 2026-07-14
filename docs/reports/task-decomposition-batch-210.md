@@ -14,7 +14,7 @@ This report tracks the technical freshness audits (Action A) for non-compliant d
 | 6 | `docs/reference-implementations/data-copilot/answer-synthesis-schema.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
 | 7 | `docs/tools/ai_knowledge/claude-mythos.md` | Freshness Audit | Resolved | Upgraded to July 2026 standard (MCP 3.0, FastMCP, Gemma 3). |
 | 8 | `docs/tools/ai_knowledge/gemini-macos.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
-| 9 | `docs/tools/ai_knowledge/llamaindex.md` | Freshness Audit | Pending | Missing: CLI examples |
+| 9 | `docs/tools/ai_knowledge/llamaindex.md` | Freshness Audit | Resolved | Upgraded to 13-section standard with July 2026 context. |
 | 10 | `docs/tools/enterprise/curiosity.md` | Freshness Audit | Pending | Missing: CLI examples |
 | 11 | `docs/tools/intake_storage/anytype.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |
 | 12 | `docs/tools/intake_storage/silverbullet.md` | Freshness Audit | Pending | Missing: CLI examples, API examples |

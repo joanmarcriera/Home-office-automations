@@ -1,7 +1,7 @@
 # LlamaIndex
 
 ## What it is
-LlamaIndex is a data framework for LLM applications to ingest, structure, and access private or domain-specific data. It provides tools for building RAG applications, including data connectors, indexes, and query engines.
+LlamaIndex is a data framework for LLM applications to ingest, structure, and access private or domain-specific data. As of July 2026, **LlamaIndex v0.12.0** features native support for the **MCP 3.0 Task Protocol**, enabling data agents to autonomously discover and utilize tools across distributed environments. It provides standardized abstractions for building high-fidelity RAG pipelines and agentic reasoning loops.
 
 ## What problem it solves
 Simplifies the process of connecting LLMs to private and domain-specific data by providing purpose-built abstractions for data ingestion, indexing, and retrieval. It handles the "glue" code between data sources and LLM prompts.
@@ -18,6 +18,8 @@ Simplifies the process of connecting LLMs to private and domain-specific data by
 ## Strengths
 - **Data Centric**: Purpose-built for data ingestion and retrieval, making RAG setup straightforward.
 - **LlamaHub**: Access to hundreds of data connectors (Google Drive, GitHub, Discord, etc.).
+- **Native Gemma 3 Integration**: Optimized for local-first workflows using **Gemma 3** (27b and 4b) via FastMCP.
+- **MCP 3.0 Task Protocol**: Full support for agentic tool discovery and multi-hop reasoning over heterogeneous data sources.
 - **Evaluation Tools**: Built-in tools for measuring retrieval quality and response faithfulness.
 - **Advanced Retrieval**: Supports complex patterns like sub-question querying and reranking.
 
@@ -58,6 +60,20 @@ query_engine = index.as_query_engine()
 
 response = query_engine.query("What is the main topic?")
 print(response)
+```
+
+## CLI examples
+The LlamaIndex CLI allows for quick RAG pipeline deployment and data management.
+
+```bash
+# Rapidly start a RAG chat over a directory of documents
+llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+
+# Create a new LlamaIndex project from a template
+llamaindex-cli create-app --name my-data-agent --template high-fidelity-rag
+
+# List and manage connected LlamaHub loaders
+llamaindex-cli hub list --category readers
 ```
 
 ## API examples
@@ -117,13 +133,16 @@ Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
 - [Haystack](../frameworks/haystack.md)
 - [Unstructured](../intake_storage/unstructured.md)
 - [LlamaParse](../intake_storage/llamaparse.md)
+- [Gemma 3](local_llms.md)
+- [Model Context Protocol](../../knowledge_base/agent_protocols.md)
 
 ## Sources / references
 - [LlamaIndex Documentation](https://docs.llamaindex.ai/)
 - [LlamaIndex GitHub](https://github.com/run-llama/llama_index)
 - [LlamaHub Connectors](https://llamahub.ai/)
+- [MCP 3.0 Specification for Data Agents](https://modelcontextprotocol.io/spec/3.0)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-01
+- Last reviewed: 2026-07-21
 - Confidence: high
