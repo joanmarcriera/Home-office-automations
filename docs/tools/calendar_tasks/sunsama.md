@@ -1,6 +1,6 @@
 # Sunsama
 
-Sunsama is a mindful daily planner designed to help professionals stay focused and realistic about their workload. As of June 2026, it has introduced **Sunny AI (v2.0)**, an agentic planning assistant that can autonomously triage backlogs and suggest optimal daily schedules based on energy levels and historical velocity.
+Sunsama is a mindful daily planner designed to help professionals stay focused and realistic about their workload. As of July 2026, it features **Sunny AI (v2.5)**, an agentic planning assistant that leverages **Gemma 3** and **Claude 5.1** to autonomously triage backlogs and suggest optimal daily schedules based on energy levels and historical velocity.
 
 ## What it is
 Sunsama is an all-in-one daily planner that pulls tasks from various tools (GitHub, Linear, Trello, Slack, Email) into a single, unified view. It emphasizes a "ritualized" approach to planning, guiding users through a morning setup and evening shutdown routine.
@@ -22,7 +22,7 @@ It solves the problem of "to-do list overwhelm" and fragmented workflows. By for
 - **Mindful Workflow**: Forces you to be realistic about what you can actually achieve in a day.
 - **Deep Integrations**: Best-in-class support for pulling tasks from external tools while maintaining back-links.
 - **Sunny AI (2026)**: A powerful assistant that can plan your day, estimate tasks, and interact with your backlog.
-- **MCP Support**: Allows for advanced technical context (e.g., GitHub repo details, Linear issue numbers) to be visible and actionable within the app.
+- **MCP 3.0 Support**: Native integration with the **Model Context Protocol (MCP 3.0)** allows for advanced technical context (e.g., GitHub repo details, Linear issue numbers) to be visible and actionable within the app.
 - **High-Quality UI**: A calm, distraction-free interface that supports both light and dark modes.
 
 ## Limitations
@@ -75,7 +75,7 @@ Cmd + K: Open the Command Palette for Sunny AI commands
 ```
 
 ## API examples
-Sunsama does not offer a public REST API for general development as of June 2026. Automation is handled through webhooks or the Sunny MCP:
+Sunsama does not offer a public REST API for general development as of July 2026. Automation is handled through webhooks or the Sunny MCP:
 
 ### 1. Webhook-based Task Creation (Zapier/Make)
 While there is no direct API, you can trigger task creation via the official Zapier connector or custom webhooks:
@@ -96,10 +96,10 @@ print(f"Status: {response.status_code}")
 ```
 
 ### 2. Sunny MCP (Model Context Protocol)
-For developers using [Claude Desktop](../development_ops/claude-code.md) or other MCP-compatible agents, Sunsama now exposes tools via Sunny:
+For developers using [Claude Desktop](../ai_knowledge/claude-desktop.md) or other **MCP 3.0** compatible agents, Sunsama now exposes tools via Sunny:
 
 ```json
-// Example: get_task_by_id call
+// Example: get_task_by_id call using MCP 3.0 Task Protocol
 {
   "method": "tools/call",
   "params": {
@@ -119,6 +119,8 @@ For developers using [Claude Desktop](../development_ops/claude-code.md) or othe
 - [n8n](../../services/n8n.md) — Can be used via Zapier-bridge or email-ingestion.
 - [TickTick](ticktick.md) — All-in-one alternative with habit tracking.
 - [Notion Calendar](notion-calendar.md) — Scheduling for Notion users.
+- [Chronos MCP](../automation_orchestration/chronos-mcp.md) — For cross-platform scheduling orchestration.
+- [Amie](amie.md) — A "joyful" productivity alternative.
 
 ## Sources / references
 - [Official Website](https://sunsama.com/)
@@ -127,5 +129,5 @@ For developers using [Claude Desktop](../development_ops/claude-code.md) or othe
 - [Sunsama Help Center](https://help.sunsama.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
