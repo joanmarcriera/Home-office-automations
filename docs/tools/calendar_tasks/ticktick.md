@@ -1,6 +1,6 @@
 # TickTick
 
-TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of June 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summaries, and **Model Context Protocol (MCP 3.0)** support for seamless AI agent integration.
+TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of July 2026, it remains the most feature-dense choice for personal productivity, having fully transitioned to the **Model Context Protocol (MCP 3.0)** and the **MCP Task Protocol** for seamless orchestration by AI agents like [Claude 5.1](../ai_knowledge/claude.md) and [Gemma 3](../ai_knowledge/local_llms.md).
 
 ## What it is
 TickTick is a multi-platform productivity suite that consolidates essential tools into a single application. It is designed for individuals who want to manage their entire life—tasks, habits, focus, and schedule—without context switching between separate apps.
@@ -16,14 +16,14 @@ It reduces "app sprawl" and cognitive load by providing a unified interface for 
 - **Time Blocking**: Dragging tasks onto the integrated calendar to schedule the day.
 - **Habit Formation**: Tracking daily routines with the built-in Habit Tracker.
 - **Deep Work**: Using the integrated Pomodoro timer with white noise and task-specific timers.
-- **Agentic Task Management**: Using Claude 4.8 via MCP to create tasks from meeting transcripts or code reviews.
+- **Agentic Task Management**: Using Claude 5.1 via MCP to create tasks from meeting transcripts or code reviews.
 
 ## Strengths
 - **Feature Density**: Includes calendar, timer, habits, and notes at a lower price point than most competitors.
 - **AI Voice & Transcription**: Native ability to transcribe voice recordings into tasks and summarize meeting audio using frontier models.
 - **Persistent Reminders**: "Nag" alerts that continue until a task is completed or snoozed.
 - **Superior Calendar**: Full multi-project calendar view (Month, Week, Day) built directly into the task manager.
-- **MCP 3.0 Integration**: Exposes task management tools to AI agents for automated planning and execution.
+- **MCP 3.0 & Task Protocol Native**: Exposes task management tools to AI agents for automated planning and execution.
 
 ## Limitations
 - **API Maturity**: The official public API remains less robust than competitors like Todoist, often requiring community wrappers for advanced automation.
@@ -110,6 +110,10 @@ TickTick can be used as a tool for AI agents (like Claude Desktop). This allows 
 - [Composio](../agents/composio.md) — For advanced agentic toolsets.
 - [n8n](../../services/n8n.md) — For connecting TickTick to external workflows.
 - [Make](../automation_orchestration/make.md) — Visual automation for task syncing.
+- [SavvyCal](savvycal.md) — Advanced scheduling with calendar overlay.
+- [Morgen](morgen.md) — Unified calendar and task manager.
+- [Akiflow](akiflow.md) — Time-blocking and task consolidation.
+- [Apple Calendar](apple-calendar.md) — Native macOS/iOS integration.
 
 ## Sources / references
 - [Official Website](https://ticktick.com/)
@@ -118,5 +122,5 @@ TickTick can be used as a tool for AI agents (like Claude Desktop). This allows 
 - [TickTick MCP Server (GitHub)](https://github.com/alexarevalo/mcp-server-ticktick)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
