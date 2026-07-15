@@ -564,6 +564,7 @@ nav:
           - OCRmypdf: tools/process_understanding/ocrmypdf.md
           - OpenDataLoader PDF: tools/process_understanding/opendataloader-pdf.md
           - OpenTelemetry Collector: tools/process_understanding/opentelemetry-collector.md
+          - OvisOCR2: tools/process_understanding/ovisocr2.md
           - PageIndex: tools/process_understanding/pageindex.md
           - Parea: tools/process_understanding/parea.md
           - PostHog: tools/process_understanding/posthog.md
