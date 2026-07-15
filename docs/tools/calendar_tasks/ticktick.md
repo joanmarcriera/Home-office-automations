@@ -1,6 +1,6 @@
 # TickTick
 
-TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of June 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summaries, and **Model Context Protocol (MCP 3.0)** support for seamless AI agent integration.
+TickTick is a powerful, all-in-one task management app that integrates a calendar, Pomodoro timer, habit tracker, and Markdown notes. As of July 2026, it remains the most feature-dense choice for personal productivity, having added native AI transcription, summaries, and **Model Context Protocol (MCP 3.0)** support for seamless AI agent integration.
 
 ## What it is
 TickTick is a multi-platform productivity suite that consolidates essential tools into a single application. It is designed for individuals who want to manage their entire life—tasks, habits, focus, and schedule—without context switching between separate apps.
@@ -16,7 +16,7 @@ It reduces "app sprawl" and cognitive load by providing a unified interface for 
 - **Time Blocking**: Dragging tasks onto the integrated calendar to schedule the day.
 - **Habit Formation**: Tracking daily routines with the built-in Habit Tracker.
 - **Deep Work**: Using the integrated Pomodoro timer with white noise and task-specific timers.
-- **Agentic Task Management**: Using Claude 4.8 via MCP to create tasks from meeting transcripts or code reviews.
+- **Agentic Task Management**: Using Claude 5.1 or Gemma 3 via MCP to create tasks from meeting transcripts or code reviews.
 
 ## Strengths
 - **Feature Density**: Includes calendar, timer, habits, and notes at a lower price point than most competitors.
@@ -105,6 +105,9 @@ TickTick can be used as a tool for AI agents (like Claude Desktop). This allows 
 ## Related tools / concepts
 - [Todoist](todoist.md) — The primary minimalist competitor.
 - [Any.do](any-do.md) — Mobile-first task management.
+- [Akiflow](akiflow.md) — Consolidation-focused task and calendar management.
+- [Amie](amie.md) — High-aesthetic "joyful" productivity suite.
+- [Morgen](morgen.md) — Unified calendar and task integration for desktop.
 - [Habitica](../../services/habitica.md) — Gamified task management.
 - [Vikunja](../../services/vikunja.md) — Self-hosted open-source alternative.
 - [Composio](../agents/composio.md) — For advanced agentic toolsets.
@@ -118,5 +121,5 @@ TickTick can be used as a tool for AI agents (like Claude Desktop). This allows 
 - [TickTick MCP Server (GitHub)](https://github.com/alexarevalo/mcp-server-ticktick)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
