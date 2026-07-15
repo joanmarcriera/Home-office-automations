@@ -1,13 +1,13 @@
 # Fastmail
 
 ## What it is
-An independent, privacy-focused email and calendar provider that serves as a high-performance alternative to Gmail and Outlook, built on modern, open standards. In June 2026, it is a leading provider for **JMAP-based** agentic workflows.
+An independent, privacy-focused email and calendar provider that serves as a high-performance alternative to Gmail and Outlook, built on modern, open standards. In July 2026, it is a leading provider for **JMAP-based** agentic workflows, often orchestrated via **Chronos MCP**.
 
 ## What problem it solves
 Provides a fast, ad-free, and private interface for email, calendar, and contacts without the data mining common in free services. It solves the "proprietary protocol" problem by being a primary driver of the **JMAP** protocol, ensuring high interoperability for AI agents.
 
 ## Where it fits in the stack
-**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack, often interfaced via **Claude 4.8** or **GPT-5.5**.
+**Category**: Calendar & Tasks / Ecosystem Provider. It acts as the "Source of Truth" for email and scheduling data in a [de-Googled](../../playbooks/family-admin.md) stack, often interfaced via **Claude 5.1**, **Gemma 3**, or specialized **MCP 3.0** agents.
 
 ## Typical use cases
 - **Primary Communication Hub**: High-speed personal or business email and calendar hosting.
@@ -19,7 +19,7 @@ Provides a fast, ad-free, and private interface for email, calendar, and contact
 - **Speed**: The web and mobile interfaces are exceptionally fast and bloat-free.
 - **Privacy**: No tracking or ads; data is never sold.
 - **Standards-First**: Strong support for JMAP, CalDAV, and CardDAV, making it "Agent-Ready" by design.
-- **Masked Email (June 2026 Update)**: Improved integration with password managers and browser-based agents for instant alias generation.
+- **Masked Email (July 2026 Update)**: Deep integration with password managers and browser-based agents for instant, context-aware alias generation.
 
 ## Limitations
 - **Subscription-Based**: No free tier; subscription is required for all features.
@@ -72,7 +72,7 @@ fastmail contacts create "Jane Doe" --email "jane@example.com"
 Fastmail is a primary driver of the **JMAP** standard, which is much more agent-friendly than IMAP.
 
 ### Fetch Calendar Events (Python via JMAP)
-This pattern is used by agents (e.g., **Claude 4.8**) to synchronize schedules without the overhead of CalDAV.
+This pattern is used by agents (e.g., **Claude 5.1**) to synchronize schedules without the overhead of CalDAV, utilizing the **MCP 3.0** Task Protocol for reliable execution.
 ```python
 import requests
 
@@ -104,17 +104,14 @@ events = response.json()['methodResponses'][0][1]['list']
 - [Claude Code](../development_ops/claude-code.md) — CLI agent that can interface with JMAP APIs.
 - [n8n](../../services/n8n.md) — For orchestrating email-driven AI workflows.
 - [Proton Calendar](proton_calendar.md) — Alternative privacy-focused provider.
-
-## Licensing and cost
-- **Open Source**: No (Server side), but contributes to open standards.
-- **Cost**: Paid (Subscription)
-- **Self-hostable**: No
+- **Licensing**: Proprietary (SaaS), driven by open standards (JMAP).
+- **Cost**: Subscription-based.
 
 ## Sources / References
 - [Fastmail Official Site](https://www.fastmail.com/)
 - [Fastmail Developer Documentation](https://www.fastmail.com/developer/)
-- [JMAP Specification (June 2026 Update)](https://jmap.io/spec-mail.html)
+- [JMAP Specification (July 2026 Update)](https://jmap.io/spec-mail.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
