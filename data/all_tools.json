@@ -1624,6 +1624,12 @@
       "doc_path": "docs/services/mealie.md"
     },
     {
+      "id": "mellum2",
+      "name": "Mellum2",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/mellum2.md"
+    },
+    {
       "id": "melty",
       "name": "Melty",
       "category": "Development & Ops",
