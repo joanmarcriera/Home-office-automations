@@ -1,0 +1,40 @@
+============================================================
+  Docs Quality Audit Report
+============================================================
+
+Total docs scanned:  531
+Compliant:           531 (100.0%)
+Legacy-format:       0
+Missing metadata:    0
+
+--- Per-category breakdown ---
+  docs/architecture                              8/8  (100%)
+  docs/knowledge_base                            36/36  (100%)
+  docs/knowledge_base/patterns                   21/21  (100%)
+  docs/playbooks                                 17/17  (100%)
+  docs/reference-implementations                 1/1  (100%)
+  docs/reference-implementations/calendar        1/1  (100%)
+  docs/reference-implementations/data-copilot    2/2  (100%)
+  docs/reference-implementations/llm-prompts     7/7  (100%)
+  docs/reference-implementations/manual-assistant  1/1  (100%)
+  docs/reference-implementations/metadata-schemas  3/3  (100%)
+  docs/reference-implementations/n8n             1/1  (100%)
+  docs/reference-implementations/paperless       2/2  (100%)
+  docs/services                                  54/54  (100%)
+  docs/tools/agents                              27/27  (100%)
+  docs/tools/ai_knowledge                        72/72  (100%)
+  docs/tools/automation_orchestration            29/29  (100%)
+  docs/tools/benchmarking                        37/37  (100%)
+  docs/tools/calendar_tasks                      21/21  (100%)
+  docs/tools/development_ops                     58/58  (100%)
+  docs/tools/enterprise                          12/12  (100%)
+  docs/tools/frameworks                          24/24  (100%)
+  docs/tools/infrastructure                      25/25  (100%)
+  docs/tools/intake_storage                      9/9  (100%)
+  docs/tools/orchestration                       9/9  (100%)
+  docs/tools/process_understanding               31/31  (100%)
+  docs/tools/providers                           23/23  (100%)
+
+============================================================
+  Audit complete.
+============================================================
