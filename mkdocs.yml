@@ -521,6 +521,7 @@ nav:
           - Overview: tools/infrastructure/index.md
           - Aphrodite Engine: tools/infrastructure/aphrodite-engine.md
           - ClawRouter: tools/infrastructure/clawrouter.md
+          - Colibri: tools/infrastructure/colibri.md
           - ExLlamaV2: tools/infrastructure/exllamav2.md
           - GPT4All: tools/infrastructure/gpt4all.md
           - Jan.ai: tools/infrastructure/jan-ai.md
