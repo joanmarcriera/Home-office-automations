@@ -444,6 +444,12 @@
       "doc_path": "docs/tools/agents/cline.md"
     },
     {
+      "id": "colibri",
+      "name": "Colibri",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/colibri.md"
+    },
+    {
       "id": "cloud-code",
       "name": "Cloud Code",
       "category": "Development & Ops",
