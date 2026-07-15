@@ -1987,6 +1987,12 @@
       "doc_path": "docs/tools/calendar_tasks/outlook.md"
     },
     {
+      "id": "ovisocr2",
+      "name": "OvisOCR2",
+      "category": "Process & Understanding",
+      "doc_path": "docs/tools/process_understanding/ovisocr2.md"
+    },
+    {
       "id": "pa-bench",
       "name": "PA-bench",
       "category": "Benchmarking",
