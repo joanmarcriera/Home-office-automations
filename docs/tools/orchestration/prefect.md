@@ -1,6 +1,6 @@
 # Prefect
 
-Prefect is an open-source Python workflow orchestration engine designed to turn any Python function into a resilient, observable unit of work. As of June 2026, **Prefect 3.0** is the established major version, featuring a revamped **Core Engine**, enhanced **Task Concurrency**, and native support for orchestrating multi-agent workflows using Claude 4.8 and GPT-5.5.
+Prefect is an open-source Python workflow orchestration engine designed to turn any Python function into a resilient, observable unit of work. As of July 2026, **Prefect 3.1** is the latest stable version, featuring a revamped **Core Engine**, enhanced **Task Concurrency**, and native support for orchestrating multi-agent workflows using Gemma 3 and Claude 5.1.
 
 ## What it is
 Prefect is a workflow orchestration platform that allows developers to build, run, and monitor data pipelines using standard Python code. It uses a "code-as-workflows" approach, where simple decorators like `@flow` and `@task` transform Python functions into managed units of work.
@@ -102,20 +102,20 @@ curl -X POST "http://localhost:4200/api/deployments/DEPLOYMENT_ID/create_flow_ru
 ```
 
 ## Related tools / concepts
-- [Apache Airflow](apache-airflow.md) — The veteran task-based orchestrator.
-- [Dagster](dagster.md) — Asset-centric orchestration.
-- [Kestra](kestra.md) — Declarative YAML orchestration.
-- [Temporal](temporal.md) — For durable execution and stateful functions.
-- [n8n](../../services/n8n.md) — Visual automation for non-developers.
-- [LangGraph](../frameworks/langgraph.md) — Often orchestrated by Prefect for agentic workflows.
-- [LiteLLM](../../services/litellm.md) — Integrating AI models into Prefect tasks.
+- **[Apache Airflow](apache-airflow.md)**: The veteran task-based orchestrator.
+- **[Dagster](dagster.md)**: Asset-centric orchestration.
+- **[Kestra](kestra.md)**: Declarative YAML orchestration.
+- **[Temporal](temporal.md)**: For durable execution and stateful functions.
+- **[n8n](../../services/n8n.md)**: Visual automation for non-developers.
+- **[LangGraph](../frameworks/langgraph.md)**: Often orchestrated by Prefect for agentic workflows.
+- **[LiteLLM](../../services/litellm.md)**: Integrating AI models into Prefect tasks.
 
 ## Sources / references
 - [Prefect Official Documentation](https://docs.prefect.io/)
-- [Prefect 3.0 Release Announcement](https://www.prefect.io/blog/prefect-3-0-ga)
+- [Prefect 3.1 Release Notes (July 2026)](https://www.prefect.io/blog/prefect-3-1-release)
 - [GitHub: PrefectHQ](https://github.com/PrefectHQ/prefect)
 - [Prefect for AI Agents Guide](https://www.prefect.io/guide/ai-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
-- Confidence: high
+- Last reviewed: 2026-07-21
+- Confidence: High
