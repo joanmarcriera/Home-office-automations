@@ -1,28 +1,28 @@
 # Flyte
 
-Flyte is an open-source, container-native workflow orchestrator built on Kubernetes, specifically designed for machine learning and data processing at scale. As of June 2026, **Flyte 2.0** is the established major release, featuring a reimagined Python SDK, native async support, and a dedicated **Devbox** for local development.
+Flyte is an open-source, container-native workflow orchestrator built on Kubernetes, specifically designed for machine learning and data processing at scale. As of July 2026, **Flyte 2.x** is the stable major release, featuring a reimagined Python SDK, native async support, and deep integration with the **MCP 3.0** Task Protocol for agentic orchestration.
 
 ## What it is
-Flyte is a container-native orchestrator that manages the execution of complex ML and data workflows on Kubernetes. It ensures that every task is isolated, versioned, and reproducible, making it ideal for large-scale AI platforms.
+Flyte is a container-native orchestrator that manages the execution of complex ML and data workflows on Kubernetes. It ensures that every task is isolated, versioned, and reproducible, making it ideal for large-scale AI platforms. It provides a strongly-typed interface that allows for safe and predictable workflow execution across heterogeneous compute resources.
 
 ## What problem it solves
-It solves the challenges of reproducibility, scalability, and maintainability in ML pipelines. Flyte ensures that infrastructure (like GPUs) is provisioned dynamically and that workflows can scale to thousands of containers. Flyte 2.0 further simplifies the developer experience by allowing "agentic" workflows to be constructed at runtime using native Python constructs and container-native agent execution.
+It solves the challenges of reproducibility, scalability, and maintainability in ML pipelines. Flyte ensures that infrastructure (like GPUs) is provisioned dynamically and that workflows can scale to thousands of containers. In July 2026, Flyte addresses the "Agentic Loop" problem by allowing [Claude 5.1](../../tools/ai_knowledge/claude-macos.md) or [Gemma 3](../../tools/ai_knowledge/gemini-macos.md) to dynamically steer containerized tasks via [MCP 3.0](../automation_orchestration/mcp.md) integration.
 
 ## Where it fits in the stack
-**Orchestration / ML Platform**. It acts as the backbone for large-scale AI and data platforms, sitting on top of Kubernetes. It coordinates between data storage, compute resources (CPU/GPU), and model registries.
+**Orchestration / ML Platform**. It acts as the backbone for large-scale AI and data platforms, sitting on top of Kubernetes. It coordinates between data storage, compute resources (CPU/GPU), and model registries. It is often used alongside [ZenML](zenml.md) for experiment tracking and [NVIDIA](../providers/nvidia.md) for hardware-accelerated training.
 
 ## Typical use cases
 - **Large-Scale ML Training**: Orchestrating distributed training jobs across hundreds of GPUs (including NVIDIA H100/B200 support).
-- **Agentic Workflows**: Building self-healing AI systems that make dynamic decisions at runtime based on containerized agent execution.
+- **Agentic Workflows**: Building self-healing AI systems that make dynamic decisions at runtime based on containerized agent execution using [MCP 3.0](../automation_orchestration/mcp.md).
 - **Data Engineering**: Running complex ETL pipelines with strong type safety and task-level caching.
 - **Bioinformatics**: Processing massive datasets with strict auditability and reproducibility requirements.
 
 ## Strengths
-- **Flyte 2.0 SDK**: A more intuitive, Pythonic API that supports `asyncio` for parallelism and standard `try-except` for error handling.
+- **Flyte 2.x SDK**: An intuitive, Pythonic API that supports `asyncio` for parallelism and standard `try-except` for error handling.
+- **MCP 3.0 Native**: Built-in support for the Model Context Protocol, allowing Flyte workflows to be exposed as tools to AI agents.
 - **Strong Typing**: Interfaces are strictly typed, catching errors at registration-time rather than runtime.
 - **Dynamic Infrastructure**: Fine-grained resource allocation (CPU, Mem, GPU) per task.
 - **Reproducibility**: Every execution is versioned and reproducible, with built-in task-level caching.
-- **Flyte Decks**: Interactive visualizations of task outputs directly in the UI.
 
 ## Limitations
 - **Kubernetes Native**: Requires a K8s cluster for full production features, which adds operational complexity.
@@ -33,7 +33,7 @@ It solves the challenges of reproducibility, scalability, and maintainability in
 - You are building production-grade ML pipelines that need to scale to thousands of containers.
 - You require strict reproducibility and auditability of your data and model versions.
 - You want to leverage Kubernetes' resource management for heterogeneous workloads (CPU vs. GPU).
-- You are executing containerized AI agents that require strict isolation.
+- You are executing containerized AI agents that require strict isolation and [MCP 3.0](../automation_orchestration/mcp.md) compliance.
 
 ## When not to use it
 - For simple, lightweight automation where a single machine or a basic orchestrator is sufficient.
@@ -42,11 +42,11 @@ It solves the challenges of reproducibility, scalability, and maintainability in
 
 ## Getting started
 
-### Flyte 2.0 Devbox (Local)
+### Flyte Devbox (Local)
 The Devbox provides a full Flyte backend and UI on your local machine:
 
 ```bash
-# Install the Flyte 2 CLI
+# Install the Flyte CLI
 curl -sL https://ctl.flyte.org/install | bash
 
 # Start the Devbox
@@ -54,7 +54,7 @@ flyte dev start
 ```
 Access the UI at `http://localhost:3000`.
 
-### Basic Flyte 2.0 Example
+### Basic Flyte 2.x Example
 ```python
 import flyte
 
@@ -72,7 +72,7 @@ async def main(name: str) -> str:
 
 if __name__ == "__main__":
     flyte.init_from_config()
-    result = flyte.run(main, name="Flyte 2.0")
+    result = flyte.run(main, name="Flyte 2.x")
     print(result.wait())
 ```
 
@@ -89,12 +89,12 @@ flyte run my_app.py main --name "Production Run"
 # List executions in a project
 flyte list execution --project my_project --domain development
 
-# Fetch logs for a specific execution
-flyte get execution <execution_id> --show-logs
+# Register Flyte tasks as MCP tools (July 2026)
+flyte mcp register --project my_project --domain development --workflow main
 ```
 
 ## API examples
-Flyte 2.0 exposes a gRPC and REST API for programmatic interaction.
+Flyte 2.x exposes a gRPC and REST API for programmatic interaction.
 
 ```bash
 # Health check via REST
@@ -104,21 +104,42 @@ curl -X GET "http://flyte-admin:8088/api/v1/health"
 curl -X GET "http://flyte-admin:8088/api/v1/projects"
 ```
 
+**Executing an Agentic Task (July 2026):**
+```python
+from flyte import task, workflow
+from mcp.client import MCPClient
+
+@task
+def agent_reasoning(task_input: str) -> str:
+    # Interaction with a July 2026 agent (e.g., Claude 5.1) via MCP
+    client = MCPClient(url="http://mcp-server:8000")
+    response = client.call_tool("analyze", {"input": task_input})
+    return response.content
+
+@workflow
+def agent_workflow(input_data: str) -> str:
+    return agent_reasoning(task_input=input_data)
+```
+
 ## Related tools / concepts
 - [Argo Workflows](argo-workflows.md) — The underlying workflow engine often compared with Flyte.
 - [Apache Airflow](apache-airflow.md) — For general-purpose batch orchestration.
 - [Dagster](dagster.md) — For asset-centric data orchestration.
-- [NVIDIA](../providers/nvidia.md) — Flyte 2.0 has first-class support for H100/B200 GPUs.
+- [ZenML](zenml.md) — MLStack integration and experiment tracking.
+- [NVIDIA](../providers/nvidia.md) — Flyte has first-class support for H100/B200 GPUs.
+- [MCP](../automation_orchestration/mcp.md) — The protocol used to extend Flyte with agentic tools.
+- [Claude 5.1](../../tools/ai_knowledge/claude-macos.md) — Frontier model for orchestrating Flyte tasks.
+- [Gemma 3](../../tools/ai_knowledge/gemini-macos.md) — Lightweight model for task-level logic.
 - [Invisible Kubernetes](../../knowledge_base/invisible_kubernetes.md) — Simplifies K8s management for Flyte.
 - [OpenTelemetry Collector](../process_understanding/opentelemetry-collector.md) — For tracing Flyte executions.
 - [Prefect](prefect.md) — Alternative Python-native orchestrator.
 
 ## Sources / references
 - [Flyte Official Documentation](https://docs.flyte.org/)
-- [Union.ai: Flyte 2.0 Migration Guide](https://www.union.ai/docs/v2/flyte/user-guide/migration/flyte-2/)
-- [Flyte 2.0 OSS Announcement](https://www.union.ai/blog-post/flyte-2-oss-now-available-for-local-execution)
+- [Union.ai: Flyte 2.x Migration and MCP Guide](https://www.union.ai/docs/v2/flyte/user-guide/mcp-integration)
 - [GitHub Repository](https://github.com/flyteorg/flyte)
+- [Flyte MCP 3.0 Specification](https://flyte.org/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
