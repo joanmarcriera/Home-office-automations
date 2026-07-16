@@ -899,6 +899,12 @@
       "doc_path": "docs/tools/ai_knowledge/fish-audio.md"
     },
     {
+      "id": "flint",
+      "name": "Flint",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/flint.md"
+    },
+    {
       "id": "flowise",
       "name": "Flowise",
       "category": "AI Assistants & Knowledge",
