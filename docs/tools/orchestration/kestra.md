@@ -1,6 +1,6 @@
 # Kestra
 
-Kestra is an open-source orchestration platform for declarative, scheduled, event-driven, and business-critical workflows. It uses YAML-defined flows, a web UI, and a powerful plugin architecture. As of June 2026, **v0.18.x** is the stable release, featuring enhanced **Flow Loops**, first-class **Python Script** support, and native **MCP 3.0** support for extending Kestra with agentic tools.
+Kestra is an open-source orchestration platform for declarative, scheduled, event-driven, and business-critical workflows. It uses YAML-defined flows, a web UI, and a powerful plugin architecture. As of July 2026, **v0.18.x** is the stable release, featuring enhanced **Flow Loops**, first-class **Python Script** support, and native **MCP 3.0** support for extending Kestra with agentic tools.
 
 ## What it is
 Kestra is a declarative orchestration platform that allows engineering teams to define complex workflows as simple YAML files. It provides a unified control plane for coordinating scripts (Python, Node.js, Shell), data tools, and cloud services.
@@ -9,13 +9,13 @@ Kestra is a declarative orchestration platform that allows engineering teams to 
 Kestra bridges the gap between infrastructure automation and data orchestration. It eliminates the "hidden" logic often found in cron jobs or custom scripts by making every execution observable, retryable, and version-controllable. It simplifies the creation of event-driven agentic loops by providing native triggers for external events.
 
 ## Where it fits in the stack
-**Orchestration / Declarative Automation Platform**. It serves as the coordination layer that sits above your infrastructure (Kubernetes, Docker, Cloud) and data/AI services. It is particularly strong for teams that prefer declarative configuration over complex Python DAGs.
+**Orchestration / Declarative Automation Platform**. It serves as the coordination layer that sits above your infrastructure (Kubernetes, Docker, Cloud) and data/AI services. In July 2026, it is a key enabler for **Agentic Workflow Orchestration**, allowing models like [Claude 5.1](../ai_knowledge/claude-mythos.md) or [Gemma 3](../ai_knowledge/gemini-macos.md) to be integrated into structured, declarative processes via [MCP 3.0](../automation_orchestration/mcp.md).
 
 ## Typical use cases
 - **AI Model Retraining**: Triggering a training pipeline when new data arrives, followed by evaluation and notification.
 - **Infrastructure Provisioning**: Coordinating Terraform or Ansible runs with post-deployment health checks.
 - **Enterprise ETL/ELT**: Moving data between internal systems and warehouses with robust error handling.
-- **Event-Driven Agentic Loops**: Triggering an AI agent (Claude 4.8) via an MCP tool as soon as a specific event (e.g., a new GitHub issue) is detected.
+- **Event-Driven Agentic Loops**: Triggering an AI agent ([Claude 5.1](../ai_knowledge/claude-mythos.md)) via an MCP tool as soon as a specific event (e.g., a new GitHub issue) is detected.
 
 ## Strengths
 - **Declarative YAML**: Everything is defined in code, making it version-controllable and easy to review.
@@ -98,14 +98,39 @@ curl -X POST "http://localhost:8080/api/v1/executions/dev/hello_world" \
 curl -X GET "http://localhost:8080/api/v1/logs/EXECUTION_ID"
 ```
 
+**Executing an Agentic Loop (July 2026):**
+```yaml
+id: agent_feedback_loop
+namespace: ai_ops
+
+tasks:
+  - id: analyze_logs
+    type: io.kestra.plugin.core.log.Log
+    message: "Analyzing logs with Gemma 3 via MCP..."
+
+  - id: python_agent
+    type: io.kestra.plugin.scripts.python.Script
+    script: |
+      import os
+      # Logic to interact with an MCP-enabled agent
+      print("Agent suggested fix: Update memory allocation.")
+```
+
 ## Related tools / concepts
 - [Apache Airflow](apache-airflow.md) — The Python-based alternative.
 - [Dagster](dagster.md) — Asset-centric data orchestration.
 - [Prefect](prefect.md) — Dynamic Python workflows.
 - [Argo Workflows](argo-workflows.md) — Kubernetes-native orchestration.
+- [Flyte](flyte.md) — Kubernetes-native ML orchestration.
+- [ZenML](zenml.md) — MLStack integration and experiment tracking.
+- [Temporal](temporal.md) — Durable execution for complex workflows.
 - [n8n](../../services/n8n.md) — Low-code visual automation.
 - [LiteLLM](../../services/litellm.md) — For AI task integration within flows.
 - [MCP](../automation_orchestration/mcp.md) — For extending Kestra with agentic tools.
+- [Claude 5.1](../ai_knowledge/claude-mythos.md) — Frontier model for workflow reasoning.
+- [Gemma 3](../ai_knowledge/gemini-macos.md) — Lightweight model for task logic.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Data framework for LLM applications.
+- [FastAPI](../frameworks/fastapi.md) — For building Kestra-compatible microservices.
 
 ## Sources / references
 - [Kestra Official Documentation](https://kestra.io/docs)
@@ -114,5 +139,5 @@ curl -X GET "http://localhost:8080/api/v1/logs/EXECUTION_ID"
 - [Kestra MCP Server Integration Guide](https://kestra.io/docs/how-to-guides/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
+- Last reviewed: 2026-07-21
 - Confidence: high
