@@ -248,6 +248,7 @@ nav:
           - TeamOut: tools/ai_knowledge/teamout.md
           - TypingMind: tools/ai_knowledge/typingmind.md
           - Valyu: tools/ai_knowledge/valyu.md
+          - Wan-Dancer: tools/ai_knowledge/wan-dancer.md
       - Automation & Orchestration:
           - Overview: tools/automation_orchestration/index.md
           - AirOps: tools/automation_orchestration/airops.md
@@ -524,6 +525,7 @@ nav:
           - ClawRouter: tools/infrastructure/clawrouter.md
           - Colibri: tools/infrastructure/colibri.md
           - ExLlamaV2: tools/infrastructure/exllamav2.md
+          - Flash-MSA: tools/infrastructure/flash-msa.md
           - GPT4All: tools/infrastructure/gpt4all.md
           - Jan.ai: tools/infrastructure/jan-ai.md
           - Kubernetes (K3s): tools/infrastructure/k3s.md

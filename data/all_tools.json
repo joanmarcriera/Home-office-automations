@@ -899,6 +899,12 @@
       "doc_path": "docs/tools/ai_knowledge/fish-audio.md"
     },
     {
+      "id": "flash-msa",
+      "name": "Flash-MSA",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/flash-msa.md"
+    },
+    {
       "id": "flint",
       "name": "Flint",
       "category": "AI Assistants & Knowledge",
@@ -2644,6 +2650,12 @@
       "name": "Vault MCP Server",
       "category": "Automation & Orchestration",
       "doc_path": "docs/tools/automation_orchestration/vault-mcp.md"
+    },
+    {
+      "id": "wan-dancer",
+      "name": "Wan-Dancer",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/wan-dancer.md"
     },
     {
       "id": "vector-db-comparison",

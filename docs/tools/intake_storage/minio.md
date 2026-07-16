@@ -13,9 +13,9 @@ It provides a way to host your own S3-compatible storage on-premises or in priva
 - **AI/ML Data Lake**: Storing large datasets (Terabytes to Petabytes) for AI model training and fine-tuning.
 - **Self-Hosted Backend**: Providing S3-compatible storage for applications like [Nextcloud](../../services/nextcloud.md), [Gitea](../../services/gitea.md), or [Authentik](../../services/authentik.md).
 - **Private Cloud Infrastructure**: Building a scalable data layer for enterprise Kubernetes clusters.
-- **Agentic Model Management (2026)**: Using MCP 3.0 to allow agents to autonomously version and deploy LLM weights from MinIO buckets.
+- **Agentic Model Management (2026)**: Using MCP 3.0 to allow agents (Gemma 3, Claude 5.1) to autonomously version and deploy LLM weights from MinIO buckets.
 
-## Key Technical Innovations (June 2026 Update)
+## Key Technical Innovations (July 2026 Update)
 - **Object Lambda**: Perform on-the-fly data transformations (e.g., PII redaction, image resizing, format conversion) using custom Python or Go functions triggered during `GET` requests.
 - **AI Hub Integration**: Native support for managing LLM weights and dataset versioning with built-in observability for AI training pipelines.
 - **Blackwell Optimizations**: Native support for NVIDIA NVLink-integrated storage protocols, enabling 10x faster model weight loading on Blackwell-based clusters.
@@ -129,22 +129,22 @@ if __name__ == "__main__":
 ```
 
 ## Related tools / concepts
-- [Storj](../../services/storj.md) — Decentralized S3-compatible storage for edge distribution.
-- [rclone Automation](../../services/rclone-automation.md) — The "Swiss Army Knife" for moving data to/from MinIO.
-- [Nextcloud](../../services/nextcloud.md) — Can use MinIO as primary storage.
-- [Authentik](../../services/authentik.md) — For OIDC-based identity management for MinIO.
-- [Gitea](../../services/gitea.md) — Uses MinIO for Git LFS and artifact storage.
-- [Paperless-ngx](../../services/paperless-ngx.md) — For managing the documents stored in MinIO.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — For agentic bucket orchestration.
-- [Apache Tika](../../services/tika.md) — For parsing documents retrieved from MinIO.
-- [n8n Automation](../../services/n8n.md) — For orchestrating file-based workflows.
+- **[Storj](../../services/storj.md)**: Decentralized S3-compatible storage for edge distribution.
+- **[rclone Automation](../../services/rclone-automation.md)**: The "Swiss Army Knife" for moving data to/from MinIO.
+- **[Nextcloud](../../services/nextcloud.md)**: Can use MinIO as primary storage.
+- **[Authentik](../../services/authentik.md)**: For OIDC-based identity management for MinIO.
+- **[Gitea](../../services/gitea.md)**: Uses MinIO for Git LFS and artifact storage.
+- **[Paperless-ngx](../../services/paperless-ngx.md)**: For managing the documents stored in MinIO.
+- **[MCP](../../tools/automation_orchestration/mcp.md)**: For agentic bucket orchestration.
+- **[Apache Tika](../../services/tika.md)**: For parsing documents retrieved from MinIO.
+- **[n8n](../../services/n8n.md)**: For orchestrating file-based workflows.
 
 ## Sources / References
 - [MinIO Official Website](https://min.io/)
 - [MinIO Documentation](https://min.io/docs/minio/linux/index.html)
 - [MinIO GitHub](https://github.com/minio/minio)
-- [MinIO Blackwell Performance Benchmarks (2026)](https://www.min.io/blog/blackwell-storage-performance)
+- [MinIO Blackwell Performance Benchmarks (July 2026 Update)](https://www.min.io/blog/blackwell-storage-performance)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
-- Confidence: high
+- Last reviewed: 2026-07-21
+- Confidence: High

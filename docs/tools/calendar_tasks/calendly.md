@@ -13,7 +13,7 @@ Solves scheduling friction by allowing others to book meetings based on your rea
 - **Professional Outreach**: Providing a friction-free way for external clients to book discovery calls.
 - **Recruitment**: Coordinating multi-stage interviews across different team members' schedules using Round Robin or Collective events.
 - **Routing Forms**: Using logic to direct invitees to specific event types or team members based on their responses.
-- **Agentic Calendar Orchestration (2026)**: Using MCP 3.0 to allow autonomous agents (Claude 4.8, GPT-5.5) to negotiate meeting times directly on behalf of the host.
+- **Agentic Calendar Orchestration (2026)**: Using MCP 3.0 to allow autonomous agents (Gemma 3, Claude 5.1) to negotiate meeting times directly on behalf of the host.
 
 ## Strengths
 - **Simplicity**: Extremely easy for both the host and the invitee to use with a polished, mobile-responsive UI.
@@ -115,21 +115,21 @@ response = requests.post("https://api.calendly.com/webhook_subscriptions",
 ```
 
 ## Related tools / concepts
-- [SavvyCal](../calendar_tasks/savvycal.md) — Direct competitor with better "link-less" scheduling and overlay features.
-- [Akiflow](../calendar_tasks/akiflow.md) — For consolidating tasks and calendars into a single view.
-- [Morgen](../calendar_tasks/morgen.md) — Privacy-focused scheduling and local-first calendar client.
-- [Amie](../calendar_tasks/amie.md) — For a more social, unified scheduling experience.
-- [n8n](../../services/n8n.md) — For complex scheduling automation and CRM synchronization.
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The foundation for agentic scheduling in 2026.
-- [Agentic Calendar Orchestration](../../knowledge_base/patterns/agentic-workflows.md) — Pattern for AI-managed availability.
-- [JMAP](../../knowledge_base/patterns/agentic-workflows.md) — Modern protocol for calendar and mail sync used by agents.
+- **[SavvyCal](../calendar_tasks/savvycal.md)**: Direct competitor with better "link-less" scheduling and overlay features.
+- **[Akiflow](../calendar_tasks/akiflow.md)**: For consolidating tasks and calendars into a single view.
+- **[Morgen](../calendar_tasks/morgen.md)**: Privacy-focused scheduling and local-first calendar client.
+- **[Amie](../calendar_tasks/amie.md)**: For a more social, unified scheduling experience.
+- **[n8n](../../services/n8n.md)**: For complex scheduling automation and CRM synchronization.
+- **[MCP](../automation_orchestration/mcp.md)**: The foundation for agentic scheduling in July 2026.
+- **[Chronos MCP](../automation_orchestration/chronos-mcp.md)**: Orchestration layer for multi-calendar agentic scheduling.
+- **[Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)**: Pattern for AI-managed availability.
 
 ## Sources / References
 - [Calendly Official Site](https://calendly.com/)
 - [Calendly Developer Portal (API v2)](https://developer.calendly.com/)
 - [Calendly MCP Server GitHub](https://github.com/calendly/mcp-server)
-- [Agentic Scheduling Benchmarks 2026](https://calendly.com/blog/agentic-scheduling-benchmarks)
+- [Agentic Scheduling Benchmarks (July 2026 Update)](https://calendly.com/blog/agentic-scheduling-benchmarks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-21
-- Confidence: high
+- Last reviewed: 2026-07-21
+- Confidence: High
