@@ -1,5 +1,58 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-16
+
+## Digest fallback for 2026-07-16
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [The US is advancing AI safety through state and federal action](https://openai.com/index/advancing-ai-safety-through-state-and-federal-action) (OpenAI Blog)
+2. [GPT-Red: Unlocking Self-Improvement for Robustness](https://openai.com/index/unlocking-self-improvement-gpt-red) (OpenAI Blog)
+3. [Linus Torvalds tells people to stop attacking others for using AI](https://www.reddit.com/r/LocalLLaMA/comments/1uxbrw4/linus_torvalds_tells_people_to_stop_attacking/) (r/LocalLLaMA)
+4. [Thinking Machines releases first open-weight model “Inkling”](https://www.reddit.com/r/LocalLLaMA/comments/1uxdv34/thinking_machines_releases_first_openweight_model/) (r/LocalLLaMA)
+5. [The best model is the one you can actually run](https://www.reddit.com/r/LocalLLaMA/comments/1ux9xze/the_best_model_is_the_one_you_can_actually_run/) (r/LocalLLaMA)
+6. [Google is updating Gemma 4's chat templates, bringing major fixes to tool calling and reducing "laziness", and enabling Flash Attention 4 on Hopper GPUs, plus an interactive guide on how to work with and improve its vision!](https://www.reddit.com/r/LocalLLaMA/comments/1uxfu4k/google_is_updating_gemma_4s_chat_templates/) (r/LocalLLaMA)
+7. [Grok Build open sourced under Apache 2.0 license](https://www.reddit.com/r/LocalLLaMA/comments/1uxi5mf/grok_build_open_sourced_under_apache_20_license/) (r/LocalLLaMA)
+8. [Inkling by Thinking Machines is the #1 US open weight model now](https://www.reddit.com/r/LocalLLaMA/comments/1uxhpws/inkling_by_thinking_machines_is_the_1_us_open/) (r/LocalLLaMA)
+9. [Hy3 1Bit 89-93 GB](https://www.reddit.com/r/LocalLLaMA/comments/1uxm2d8/hy3_1bit_8993_gb/) (r/LocalLLaMA)
+10. [PSA: Nvidia's CMP 170HX Full Compute and Memory(80GB) may be unlockable via exploit](https://www.reddit.com/r/LocalLLaMA/comments/1uxqccx/psa_nvidias_cmp_170hx_full_compute_and_memory80gb/) (r/LocalLLaMA)
+11. [Qwen3.5 122B-A10B · ROCmFP4 iMatrix](https://www.reddit.com/r/LocalLLaMA/comments/1uxqgke/qwen35_122ba10b_rocmfp4_imatrix/) (r/LocalLLaMA)
+12. [German AI consortium releases Soofi S, an open 30B model that tops benchmarks in both English and German](https://www.reddit.com/r/LocalLLaMA/comments/1uxao7y/german_ai_consortium_releases_soofi_s_an_open_30b/) (r/LocalLLaMA)
+13. [kimi.ai teasing a video with lots of 3's in it](https://www.reddit.com/r/LocalLLaMA/comments/1uxm627/kimiai_teasing_a_video_with_lots_of_3s_in_it/) (r/LocalLLaMA)
+14. [Qwen 3.6 27B is solid up to 262K context. How high have you guys gone above that using Rope/Yarn scaling?](https://www.reddit.com/r/LocalLLaMA/comments/1uxstxs/qwen_36_27b_is_solid_up_to_262k_context_how_high/) (r/LocalLLaMA)
+15. [NVIDIA-Nemotron-Labs-3-Puzzle-75B-A9B on 2x3090s](https://www.reddit.com/r/LocalLLaMA/comments/1uxuf99/nvidianemotronlabs3puzzle75ba9b_on_2x3090s/) (r/LocalLLaMA)
+16. [Apple in talks with startup PrismML that shrinks AI models to run on an iPhone](https://www.reddit.com/r/LocalLLaMA/comments/1ux4cn2/apple_in_talks_with_startup_prismml_that_shrinks/) (r/LocalLLaMA)
+17. [AMD ROCm 7.14 "TheRock" tech preview tagged for latest AMD GPU compute stack](https://www.reddit.com/r/LocalLLaMA/comments/1uxq4kb/amd_rocm_714_therock_tech_preview_tagged_for/) (r/LocalLLaMA)
+18. [RL post-training on 14 Macs across 4 countries](https://www.reddit.com/r/LocalLLaMA/comments/1uxb3zn/rl_posttraining_on_14_macs_across_4_countries/) (r/LocalLLaMA)
+19. [The Benchmarks of Thinking Machine's first open-source model Inkling](https://www.reddit.com/r/LocalLLaMA/comments/1uxgi4c/the_benchmarks_of_thinking_machines_first/) (r/LocalLLaMA)
+20. [Bonsai-27B & Ternary-Bonsai-27B - Updates (on PRs)](https://www.reddit.com/r/LocalLLaMA/comments/1ux4wrx/bonsai27b_ternarybonsai27b_updates_on_prs/) (r/LocalLLaMA)
+21. [New wave of miniboss models you can run on dual DGX Spark](https://www.reddit.com/r/LocalLLaMA/comments/1uxkl8u/new_wave_of_miniboss_models_you_can_run_on_dual/) (r/LocalLLaMA)
+22. [Has anyone using antirez ds4 compared to the unsloth GGUF?](https://www.reddit.com/r/LocalLLaMA/comments/1uxil7b/has_anyone_using_antirez_ds4_compared_to_the/) (r/LocalLLaMA)
+23. [Current efficient frontier of open models](https://www.reddit.com/r/LocalLLaMA/comments/1ux41ue/current_efficient_frontier_of_open_models/) (r/LocalLLaMA)
+24. [cuda: extract Q1_0 elements via __byte_perm by dfriehs · Pull Request #25628 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1uxsaim/cuda_extract_q1_0_elements_via_byte_perm_by/) (r/LocalLLaMA)
+25. [tencent/Hy-Embodied-RxBrain-1.0 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1ux0x0v/tencenthyembodiedrxbrain10_hugging_face/) (r/LocalLLaMA)
+26. [[AINews] Thinky's Inkling: 975B-A41B multimodal, new best American Apache 2.0 open model (with Inkling-Small, 276B-A12B)](https://www.latent.space/p/ainews-thinkys-inkling-975b-a41b) (Latent Space)
+27. [Kubernetes won the container decade. Google’s Agent Substrate wants the next one.](https://thenewstack.io/kubernetes-ai-agent-runtime/) (The New Stack)
+28. [Trust, transactions and tokenomics: AI agent infrastructure begins to standardize](https://thenewstack.io/x402-foundation-ai-agents-standards/) (The New Stack)
+29. [Elon Musk: “We will make the entire codebase of X open source, with no exceptions.”](https://thenewstack.io/x-open-source-codebase/) (The New Stack)
+30. [Atlassian wants developers to finally like Jira](https://thenewstack.io/atlassian-jira-coding-agents/) (The New Stack)
+31. [OpenAI’s first gadget is the $230 Codex Micro macropad](https://thenewstack.io/openai-codex-micro-macropad/) (The New Stack)
+32. [Anaconda buys Kilo, the open source coding agent that answers to no single model maker](https://thenewstack.io/anaconda-kilo-open-source-acquisition/) (The New Stack)
+33. [Meta and the rise of the accidental cloud](https://thenewstack.io/meta-compute-supply-fragmentation/) (The New Stack)
+34. [“The database is the product”: What breaks when memory devices scale](https://thenewstack.io/ai-notetaker-database-architecture/) (The New Stack)
+35. [AI Data Centers and the Concentration of Wealth](https://www.schneier.com/blog/archives/2026/07/ai-data-centers-and-the-concentration-of-wealth.html) (Lobsters — AI tag)
+36. [Inventing ELIZA - How the First Chatbot Shaped the Future of AI](https://mitpress.mit.edu/9780262052481/inventing-eliza/) (Lobsters — AI tag)
+37. [Stripe Benchmark Shows AI Agents Build Integrations but Struggle with Validation](https://www.infoq.com/news/2026/07/stripe-ai-agents-benchmark/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+38. [Presentation: Postgres for Production Agents: Your Relational Foundation for Enterprise AI](https://www.infoq.com/presentations/postgres-ai-agents/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+39. [AWS Ships Claude Apps Gateway as Self-Hosted Control Plane for Claude Code and Claude Desktop](https://www.infoq.com/news/2026/07/claude-apps-gateway-aws/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
 ## 📅 Digest for 2026-07-15
 
 # AI & Technology Daily Digest
