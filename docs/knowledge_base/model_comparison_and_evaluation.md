@@ -1,38 +1,38 @@
 # Model Comparison and Evaluation
 
 ## What it is
-Model comparison and evaluation is the systematic process of measuring the performance, reliability, and cost-effectiveness of Large Language Models (LLMs). In June 2026, this extends beyond simple text accuracy to include "Agentic Latency," "Chain-of-Thought Depth," and "Tool-Use Reliability" (MCP compliance). It involves using standardized benchmarks (MMLU, SWE-bench), human preference arenas (Chatbot Arena), and specialized agentic tests (Terminal-Bench) to guide model selection for specific technical tasks.
+Model comparison and evaluation is the systematic process of measuring the performance, reliability, and cost-effectiveness of Large Language Models (LLMs). In July 2026, this extends beyond simple text accuracy to include "Agentic Latency," "Chain-of-Thought Depth," and "Tool-Use Reliability" (under the **Model Context Protocol (MCP) 3.0** standard). It involves using standardized benchmarks (MMLU, SWE-bench), human preference arenas (Chatbot Arena), and specialized agentic tests (Terminal-Bench) to guide model selection for specific technical tasks across various families (e.g., Gemma 3, Claude 5.1, and GPT-5).
 
 ## What problem it solves
-It solves the "black box" problem of AI by providing objective data to guide model selection. Without systematic evaluation, organizations risk overpaying for "frontier" models (like Claude 4.8 or GPT-5.5) when a smaller, faster model (like Gemini 3.5 Flash) would suffice. It also mitigates the risk of deploying models that are prone to hallucination or lack the reasoning depth required for complex [Agentic Workflows](patterns/agentic-workflows.md).
+It solves the "black box" problem of AI by providing objective data to guide model selection. Without systematic evaluation, organizations risk overpaying for "frontier" models (like Claude 5.1 or GPT-5) when a smaller, highly efficient open-weights model (like Gemma 3-27B or Gemma 3-12B) would suffice. It also mitigates the risk of deploying models that are prone to hallucination or lack the reasoning depth required for complex [Agentic Workflows](patterns/agentic-workflows.md).
 
 ## Where it fits in the stack
 Evaluation sits at the **Quality & Governance Layer** of the AI stack. It informs the logic in the [Model Routing Guide](model_routing_guide.md) and provides the success metrics for [Prompt Engineering](patterns/prompt_requests.md). It is the critical feedback loop that enables "Satisfaction-Based Validation" in automated software factories.
 
 ## Typical use cases
-- **Model Selection**: Choosing between frontier models (GPT-5.5, Claude 4.8) for complex reasoning vs. smaller "flash" models for high-speed, low-cost tasks.
-- **Agentic Benchmarking**: Evaluating how well a model operates in a shell using **Terminal-Bench (Terminus 2)** or manages multi-step web workflows using **PA-bench**.
-- **Reasoning Depth Analysis**: Measuring chain-of-thought (CoT) transparency and accuracy in "Thinking" models like DeepSeek R1 or OpenAI o3.
-- **Regression Testing**: Ensuring that a fine-tuned model or a new system prompt hasn't degraded performance on core tasks.
-- **Cost Optimization**: Identifying tasks that can be safely downgraded to cheaper, smaller models without losing accuracy.
+- **Model Selection**: Choosing between frontier reasoning models (GPT-5, Claude 5.1) for complex coding or reasoning vs. smaller, highly optimized models (such as Gemma 3-4B) for high-speed, low-cost tasks.
+- **Agentic Benchmarking**: Evaluating how well a model operates in terminal shells or developer workspaces using **Terminal-Bench (Terminus 2)** or manages multi-step web workflows using **PA-bench**.
+- **Reasoning Depth Analysis**: Measuring chain-of-thought (CoT) transparency and correctness in reasoning models like DeepSeek R1 or OpenAI o3/o5.
+- **Regression Testing**: Ensuring that fine-tuned local models or modified system prompts haven't degraded core performance.
+- **Cost Optimization**: Identifying tasks that can be safely downgraded from expensive closed API models to cheaper, fast open-weights models.
 
 ## Strengths
-- **Data-Driven Decisions**: Replaces "vibes" with hard metrics like Elo ratings and Pass@k.
-- **Benchmark Specialization**: Targeted tests for coding (SWE-bench), math (GSM8K), and expert reasoning (GPQA).
+- **Data-Driven Decisions**: Replaces subjective "vibes" with objective metrics like Elo ratings and Pass@k.
+- **Benchmark Specialization**: Targeted tests for developer tasks (SWE-bench, LiveCodeBench), math (GSM8K), and expert reasoning (GPQA, HLE).
 - **Economic Efficiency**: Minimizes inference spend by routing to the most efficient model for the task.
-- **Agentic Insight**: Benchmarks like **Terminal-Bench** provide a direct measure of how a model will perform in an autonomous environment.
+- **Agentic Insight**: Benchmarks like **Terminal-Bench** provide a direct measure of how a model will perform in an autonomous, tool-driven shell environment.
 
 ## Limitations
-- **Data Contamination**: Frontier models may have been trained on the benchmark questions themselves, leading to inflated scores.
+- **Data Contamination**: Frontier models may be trained on the benchmark questions themselves, leading to inflated scores.
 - **Benchmark Decay**: Static tests become easier as models evolve, requiring constant updates like **Humanity's Last Exam (HLE)**.
 - **Latency of Evaluation**: Complex benchmarks like SWE-bench can take hours to run and require significant compute resources.
 - **Human Subjectivity**: Preference arenas (Chatbot Arena) can be biased toward models that are polite or verbose rather than accurate.
 
 ## When to use it
-- When selecting a foundational model for a new product or agentic system.
+- When selecting a foundational model for a new product, local agentic stack, or enterprise pipeline.
 - During the development of [Agentic RAG](patterns/data-copilot-agentic-rag.md) to measure retrieval and generation accuracy.
 - When evaluating the impact of [MCP 3.0](patterns/tool-calling-and-mcp.md) tool definitions on model performance.
-- When deciding whether to upgrade to a newly released frontier model (e.g., Claude 4.8).
+- When deciding whether to upgrade to a newly released frontier model (e.g., Claude 5.1).
 
 ## When not to use it
 - For purely creative writing where the "best" output is subjective and user-dependent.
@@ -41,7 +41,7 @@ Evaluation sits at the **Quality & Governance Layer** of the AI stack. It inform
 
 ## Getting started
 
-### Key Benchmarks (June 2026)
+### Key Benchmarks (July 2026)
 1.  **[Chatbot Arena (LMSYS)](../tools/benchmarking/chatbot-arena.md)**: The "Gold Standard" for human preference and general helpfulness.
 2.  **[Terminal-Bench (Terminus 2)](../tools/benchmarking/terminal-bench.md)**: The primary benchmark for evaluating LLM interaction with a Linux shell and tmux.
 3.  **[Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md)**: A frontier-difficulty benchmark designed for models approaching human-level reasoning.
@@ -55,8 +55,8 @@ Using the `inspect-ai` framework (standard in 2026):
 # Install the inspection tool
 pip install inspect-evals
 
-# Run a Terminal-Bench evaluation on Claude 4.8
-inspect eval terminal_bench --model anthropic/claude-4-8-sonnet
+# Run a Terminal-Bench evaluation on Claude 5.1
+inspect eval terminal_bench --model anthropic/claude-5-1-sonnet
 ```
 
 ## CLI examples
@@ -65,8 +65,8 @@ inspect eval terminal_bench --model anthropic/claude-4-8-sonnet
 Using the `llmperf` CLI to measure TPS and TTFT:
 
 ```bash
-# Compare GPT-5.5 and Claude 4.8 on a 1000-token generation task
-llmperf compare --models openai/gpt-5.5-pro,anthropic/claude-4.8-sonnet --tokens 1000
+# Compare GPT-5 and Claude 5.1 on a 1000-token generation task
+llmperf compare --models openai/gpt-5,anthropic/claude-5.1-sonnet --tokens 1000
 ```
 
 ### Checking Leaderboard Status
@@ -91,11 +91,11 @@ data_samples = {
     'contexts': [['The MCP 3.0 specification emphasizes...']]
 }
 
-# Evaluate the samples using GPT-5.5 as the judge
+# Evaluate the samples using GPT-5 as the judge
 result = evaluate(
     data_samples,
     metrics=[faithfulness, answer_relevancy],
-    llm="openai/gpt-5.5-pro"
+    llm="openai/gpt-5"
 )
 
 print(f"RAG Faithfulness: {result['faithfulness']}")
@@ -128,5 +128,5 @@ print(f"Recommended Coding Model: {best_model}")
 - [NVIDIA GenEditEvalKit (2026) for VLM Evaluation](https://github.com/NVIDIA/GenEditEvalKit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
