@@ -13,9 +13,9 @@ This report implements **Action C** for the oldest remaining stale documentation
 | `docs/tools/orchestration/kestra.md` | Resolved | Upgrade to v0.18+, declarative agentic loops, MCP 3.0. |
 | `docs/tools/orchestration/flyte.md` | Resolved | Kubernetes-native ML orchestration with July 2026 context. |
 | `docs/tools/orchestration/apache-airflow.md` | Resolved | Airflow 3.0 readiness and agentic task orchestration. |
-| `docs/tools/orchestration/zenml.md` | Pending | MLStack integration and experiment tracking in July 2026. |
+| `docs/tools/orchestration/zenml.md` | Resolved | MLStack integration and experiment tracking in July 2026. |
 
 ---
-- Status: Open.
+- Status: Resolved.
 - Date: 2026-07-21
 - Created by: Jules
