@@ -1,7 +1,7 @@
 # Google One AI Subscriptions
 
 ## What it is
-Google One is a unified subscription service providing expanded cloud storage across Google Drive, Gmail, and Google Photos. In June 2026, it has transitioned from a storage-centric model to a tiered AI-enablement platform. It serves as the primary gateway to the **Gemini 3.5** ecosystem, offering tiered access to frontier reasoning models (Gemini 3.5 Pro), autonomous agents (**Gemini Spark**), and generative media tools (**Gemini Omni**).
+Google One is a unified subscription service providing expanded cloud storage across Google Drive, Gmail, and Google Photos. As of July 2026, it has transitioned from a storage-centric model to a tiered AI-enablement platform. It serves as the primary gateway to the **Gemini 3.5** ecosystem, offering tiered access to frontier reasoning models (Gemini 3.5 Pro), autonomous agents (**Gemini Spark**), and generative media tools (**Gemini Omni**).
 
 ## What problem it solves
 It addresses the "AI action gap" by bundling frontier intelligence with the storage required for large-scale data processing. It eliminates subscription fatigue by consolidating storage, advanced AI reasoning, multimodal generation, and agentic development credits into a single monthly fee. It also solves the latency and cost barriers for developers by providing high-limit access to Gemini 3.5 Flash for agentic loops.
@@ -17,7 +17,7 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 
 ## Strengths
 - **Native Ecosystem Integration**: Seamless "Agentic Hooks" across Android (v17+) and Google Workspace.
-- **Frontier Performance**: Gemini 3.5 Pro (released June 2026) features a **10M token context window** for Ultra subscribers.
+- **Frontier Performance**: Gemini 3.5 Pro (updated July 2026) features a **10M token context window** for Ultra subscribers.
 - **Unified Value**: Combines YouTube Premium, high-capacity storage, and $50/month in Antigravity cloud credits (Ultra tier).
 - **Security**: All generative outputs are protected by **SynthID** watermarking and processed within secure, SOC2-compliant environments.
 
@@ -39,7 +39,7 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 
 ## Getting started
 
-### Subscription Tiers (June 2026)
+### Subscription Tiers (July 2026)
 
 | Feature | AI Plus | AI Pro | AI Ultra |
 | :--- | :--- | :--- | :--- |
@@ -59,7 +59,7 @@ Google One sits at the **Subscription & Access Layer** of the personal AI stack.
 ## CLI examples
 
 ### Checking AI Usage Quota
-Using the `gemini-cli` (v2026.6) to monitor your Google One AI Ultra limits:
+Using the `gemini-cli` (v2026.7) to monitor your Google One AI Ultra limits:
 
 ```bash
 # Check remaining agentic tokens and Antigravity credits
@@ -113,10 +113,16 @@ spark.execute("Reschedule my 'Project Alpha' meeting to Friday afternoon.")
 - [Google Antigravity](../tools/agents/agno.md): The agent-first development platform.
 - [Jules](../tools/ai_knowledge/jules.md): Autonomous software engineering agent (Elite tier access).
 - [NotebookLM](../tools/ai_knowledge/notebooklm.md): Research and source-heavy analysis.
-- [Gemini Spark](../tools/agents/agno.md): The autonomous "Action" layer for Workspace.
 - [Model Routing Guide](model_routing_guide.md): Guidance on when to use Flash vs Pro.
+- [Model Comparison and Evaluation](model_comparison_and_evaluation.md): Systematic process of measuring and comparing LLMs.
 - [MCP 3.0](patterns/tool-calling-and-mcp.md): The protocol used for Spark and Antigravity tool calling.
 - [Terminal-Bench](../tools/benchmarking/terminal-bench.md): The benchmark where Gemini 3.5 Pro sets the standard.
+- [Google Calendar](../tools/calendar_tasks/google_calendar.md): Calendar service integrated natively into Workspace and Gemini Spark.
+- [Google Tasks](../tools/calendar_tasks/google-tasks.md): Unified task management integrated with Workspace.
+- [Google Workspace CLI](../tools/automation_orchestration/google-workspace-cli.md): Command line interface for automating Workspace services.
+- [Google Lyria](../tools/ai_knowledge/google-lyria.md): Multimodal audio generation model for YouTube/Omni.
+- [Google Opal](../tools/ai_knowledge/google-opal.md): Edge-optimized lightweight assistant for offline productivity.
+- [Google Search](../tools/ai_knowledge/google-search.md): Core search engine integrated with Gemini for real-time retrieval grounding.
 
 ## Sources / references
 - [Innovations from Google I/O 26 (Google Cloud Blog)](https://cloud.google.com/blog/products/ai-machine-learning/innovations-from-google-io-26-on-google-cloud)
@@ -124,5 +130,5 @@ spark.execute("Reschedule my 'Project Alpha' meeting to Friday afternoon.")
 - [100 things we announced at I/O 2026 (Google Blog)](https://blog.google/innovation-and-ai/technology/ai/google-io-2026-all-our-announcements/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
