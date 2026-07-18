@@ -12,7 +12,7 @@ This report implements **Action C** for the 5 oldest remaining stale documentati
 | `docs/knowledge_base/patterns/tool-calling-and-mcp.md` | Resolved | Upgraded to July 2026 SOTA; added comparison table and host Python API example. |
 | `docs/knowledge_base/patterns/rag.md` | Resolved | Upgraded to July 2026 SOTA; added contextual retrieval & modern local LlamaIndex/Smolagents. |
 | `docs/tools/infrastructure/aphrodite-engine.md` | Resolved | Upgraded to July 2026 standard (Gemma 3, MCP 3.0), added 13-section high confidence structures and 8 valid relative links. |
-| `docs/tools/infrastructure/openpipe.md` | Pending | Perform quarterly technical freshness audit. |
+| `docs/tools/infrastructure/openpipe.md` | Resolved | Upgraded to July 2026 standard (Gemma 3, Llama 4, Mistral, Qwen 3.6, GRPO/ART); added 11 unique relative markdown links. |
 | `docs/tools/infrastructure/supabase.md` | Pending | Perform quarterly technical freshness audit. |
 
 ---

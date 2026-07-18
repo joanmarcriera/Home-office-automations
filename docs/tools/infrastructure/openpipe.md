@@ -1,65 +1,70 @@
 # OpenPipe
 
 ## What it is
-OpenPipe is a data-driven fine-tuning platform that allows developers to replace generic, expensive LLMs (like GPT-5.5 or Claude 4.8) with smaller, faster, and cheaper specialized models. It works by capturing requests and completions from existing models and using them to train custom models through automated distillation.
+OpenPipe is an enterprise-grade, data-driven fine-tuning and model distillation platform. As of July 2026, it is the standard for converting expensive, high-latency frontier model calls (like GPT-5.5 or Claude 4.8) into optimized, specialized, open-weights student models (such as Llama 4, Mistral, or Qwen 3.6). It integrates production data logging, automated dataset curation, supervised fine-tuning (SFT), and reinforcement learning for agents into a unified, developer-friendly workflow.
 
 ## What problem it solves
-It lowers the cost and latency of LLM applications without sacrificing quality by automating the process of distillation and fine-tuning. It simplifies the pipeline from production data collection to model deployment, solving the "data fly-wheel" challenge for specialized AI tasks.
+Frontier models are highly capable but introduce significant API costs, token overhead, and latency bottlenecks for repetitive or structured production tasks. OpenPipe solves these issues by automating the distillation pipeline. It continuously captures production input-output traces, intelligently filters and prunes the dataset, and trains smaller student models that match or exceed teacher performance on targeted tasks at a fraction of the cost. Additionally, it addresses agentic reasoning failure rates by offering native reinforcement learning workflows on multi-step tool-use trajectories.
 
 ## Where it fits in the stack
-**Infrastructure / Fine-tuning**. It sits between the production inference layer and the training pipeline, acting as both a data logger and a model provider.
+**Infrastructure / Fine-tuning**. It acts as an orchestrator and data logger sitting between the application client/gateway and frontier LLM providers. Once training is complete, OpenPipe serves the resulting model adapters or exports them to high-performance inference engines in the deployment layer.
 
 ## Typical use cases
-- **Cost Reduction**: Distilling GPT-5.5 level performance into a specialized Llama-3-8B or Mistral model.
-- **Latency Optimization**: Replacing heavy frontier models with 4-bit quantized local models for real-time extraction.
-- **Dataset Generation**: Creating "Golden Datasets" from production traffic for RAG evaluation.
-- **Quality Improvement**: Fine-tuning on specialized domains (legal, medical, or internal codebase) where general models underperform.
+- **Cost and Latency Distillation**: Replacing complex multi-shot prompts sent to expensive frontier APIs with a specialized, single-shot 8B or 14B model hosted locally or on optimized endpoints.
+- **Agent Policy Optimization (ART & GRPO)**: Reinforcement learning via the open-source Agent Reinforcement Trainer (ART) library and Group Relative Policy Optimization (GRPO) to train agent models to use tools and reason with high reliability.
+- **Production Data Collection & Pruning**: Capturing production traffic under real user distribution while removing redundant prompts, duplicates, and system overhead.
+- **Structured Data Extraction**: Fine-tuning specialized models to produce highly complex JSON schemas consistently, eliminating structural formatting failures.
 
 ## Strengths
-- **Drop-in SDK**: Wraps the official OpenAI/Anthropic SDKs with zero code changes to core application logic.
-- **Automated Data Curation**: Advanced pruning algorithms remove duplicate system prompts and redundant context.
-- **Integrated Evaluation**: Side-by-side comparison of "Teacher" vs. "Student" performance using standardized benchmarks.
-- **Provider Agnostic**: Supports fine-tuning Llama, Mistral, and specialized open-weights models for deployment on [vLLM](vllm.md) or [Together AI](../providers/together.md).
+- **Drop-in SDK Integration**: Wraps standard OpenAI or Anthropic SDK clients with minimal changes to core application logic.
+- **Automated Curation & Deduplication**: Employs context-aware pruning algorithms to extract high-value diversity and filter out low-utility logs.
+- **Agentic Reinforcement Learning**: Built-in support for reinforcement learning on agentic execution, optimizing tool-calling and self-correction paths.
+- **Native Evaluation Suites**: Provides side-by-side performance benchmarks (Teacher vs. Student) with automated test sets and blind evaluations.
+- **Multi-Cloud Deployment**: Supports exporting fine-tuned weights directly or serving them on high-throughput, dedicated server fleets.
 
 ## Limitations
-- **Cold Start**: Requires an initial "Teacher" model to generate high-quality ground truth data.
-- **Specialization vs. Generalization**: Fine-tuned models excel at specific tasks but lose general-purpose chat capabilities.
-- **Token Volume**: Requires sufficient production volume (typically 1,000+ examples) to achieve significant performance gains over few-shot prompting.
+- **Cold Start Dependency**: Requires a working "Teacher" model configuration to generate high-quality initial data and ground-truth completions.
+- **Narrow Specialization**: Fine-tuned student models are highly optimized for specific tasks and lose the general conversational and multi-domain reasoning capabilities of frontier models.
+- **Hardware & Scale Requirements**: Achievable performance gains typically require a minimum volume of 1,000 to 5,000 distinct production traces before training becomes highly effective.
 
 ## When to use it
-- When you have a stable, high-volume production task (e.g., classification, extraction, or summarization).
-- When you want to own your model weights while maintaining frontier-grade performance.
-- When latency requirements necessitate moving from API-based models to local/edge inference.
+- When you have a stable, high-volume production task (e.g., classification, extraction, or specific structured generation).
+- When you want to transition from commercial APIs to owned, open-weights models to ensure data privacy, security, and lower operating costs.
+- When latency requirements necessitate moving to local, edge-based, or high-throughput specialized model endpoints.
+- When optimizing multi-step agent actions where standard prompting fails to achieve >95% reliability.
 
 ## When not to use it
-- For exploratory tasks where the prompt or schema changes daily.
-- For extremely low-volume applications where the engineering overhead of fine-tuning exceeds the cost savings.
-- If the task requires broad general knowledge or reasoning across multiple unrelated domains simultaneously.
+- For exploratory, rapidly evolving applications where prompts, system instructions, or output schemas change daily.
+- For extremely low-volume tasks where the developer overhead of fine-tuning and evaluation outweighs potential cost savings.
+- When a task inherently requires broad, multi-domain background knowledge or general-purpose, unstructured conversation.
 
 ## Getting started
 
 ### Installation
+Install the official OpenPipe Python SDK via pip:
 ```bash
 pip install openpipe
 ```
 
 ### Initial Configuration
-Set your OpenPipe API key in your environment:
+Set your OpenPipe API key as an environment variable:
 ```bash
-export OPENPIPE_API_KEY="op_..."
+export OPENPIPE_API_KEY="op_test_key_abc123"
 ```
 
-### Simple Implementation
+### Minimal SDK Wrapper
+To begin capturing production logs automatically, wrap your standard OpenAI client initialization with the OpenPipe SDK.
+
 ```python
 from openpipe import OpenAI
 
-# OpenPipe wraps the standard OpenAI client
+# The OpenPipe SDK intercepts standard OpenAI calls
 client = OpenAI()
 
 completion = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "Extract the invoice number: INV-2026-001"}],
-    openpipe={"tags": {"purpose": "invoice-extraction"}}
+    model="gpt-5.5-preview",
+    messages=[{"role": "user", "content": "Extract SKU: Item-99X-Red"}],
+    openpipe={"tags": {"pipeline": "extraction-v1"}}
 )
 
 print(completion.choices[0].message.content)
@@ -68,26 +73,32 @@ print(completion.choices[0].message.content)
 ## CLI examples
 
 ### Authentication
+Authenticate your local CLI environment with your platform credentials:
 ```bash
-openpipe login --api-key your_api_key_here
+openpipe login --api-key op_live_prod_key_789xyz
 ```
 
-### Dataset Management
-List your captured datasets and their current sample counts:
+### Dataset Operations
+List captured dataset groups and view sample counts:
 ```bash
 openpipe datasets list
 ```
 
-### Model Status
-Check the status of an ongoing fine-tuning job:
+Download a specific dataset slice for offline inspection or local training:
 ```bash
-openpipe models status --job-id ft-12345
+openpipe datasets download --id ds_987abc --output-dir ./data/
+```
+
+### Fine-Tuning Jobs
+Monitor the status and progress of an active training run:
+```bash
+openpipe jobs status --job-id ft-job-456
 ```
 
 ## API examples
 
-### Capturing Production Data
-OpenPipe captures "Teacher" completions automatically for future training.
+### Capturing Production Traces for Distillation
+This example demonstrates logging standard API calls to OpenPipe with custom metadata tags to facilitate downstream dataset curation.
 
 ```python
 import os
@@ -98,48 +109,67 @@ client = OpenAI(
     openpipe={"api_key": os.environ.get("OPENPIPE_API_KEY")}
 )
 
-# This request is logged to OpenPipe with the associated tags
+# Call the frontier teacher model; OpenPipe automatically logs this request-response pair
 response = client.chat.completions.create(
     model="gpt-5.5-preview",
-    messages=[{"role": "user", "content": "Summarize this ticket..."}],
+    messages=[
+        {"role": "system", "content": "You are a precise JSON medical transcriptionist."},
+        {"role": "user", "content": "Patient reports mild chest tightness after exercise."}
+    ],
     openpipe={
         "tags": {
-            "department": "support",
-            "priority": "high"
+            "department": "cardiology",
+            "environment": "production",
+            "doctor_id": "doc_90210"
         },
         "log_request": True
     }
 )
 ```
 
-### Deploying the Student Model
-Switching from the expensive teacher to the optimized student requires changing only the model identifier.
+### Deploying and Call the Distilled Student Model
+Once the student model is trained and active, replace the teacher's model identifier with your distilled OpenPipe model path.
 
 ```python
-# The student model is hosted on OpenPipe's optimized infrastructure
+import os
+from openpipe import OpenAI
+
+client = OpenAI()
+
+# Call your highly optimized, distilled model served on OpenPipe
 response = client.chat.completions.create(
-    model="openpipe:support-summarizer-v1",
-    messages=[{"role": "user", "content": "Summarize this ticket..."}]
+    model="openpipe:medical-transcriber-llama4-8b-v1",
+    messages=[
+        {"role": "system", "content": "You are a precise JSON medical transcriptionist."},
+        {"role": "user", "content": "Patient reports mild chest tightness after exercise."}
+    ]
 )
+
+print(response.choices[0].message.content)
 ```
 
 ## Related tools / concepts
-- [vLLM](vllm.md) — High-throughput inference for hosting OpenPipe-trained models.
-- [Mistral AI](../providers/mistral.md) — Common base model for distillation.
-- [Together AI](../providers/together.md) — Inference provider for fine-tuned open-weights models.
-- [Weights & Biases](../process_understanding/wandb-weave.md) — Experiment tracking for model training.
-- [Unstructured](../intake_storage/unstructured.md) — Pre-processing data for the distillation pipeline.
-- [Llama Factory](../frameworks/llama-factory.md) — Alternative local fine-tuning framework.
-- [LM Evaluation Harness](../benchmarking/lm-evaluation-harness.md) — Standardized testing for fine-tuned models.
+- [vLLM](vllm.md) — High-throughput engine for hosting exported OpenPipe model weights.
+- [Unsloth](unsloth.md) — Extremely fast local fine-tuning engine optimized for single-node GPUs.
+- [Mistral AI](../providers/mistral.md) — Common open-weights base model family for high-quality distillation.
+- [Together AI](../providers/together.md) — Managed cloud provider frequently used for serving OpenPipe models.
+- [Anthropic](../providers/anthropic.md) — Maker of Claude models often leveraged as teachers for training datasets.
+- [Weights & Biases](../process_understanding/wandb-weave.md) — SOTA experiment and evaluation tracking tool for machine learning.
+- [Unstructured](../intake_storage/unstructured.md) — Document pre-processing library to ingestion-ready formats for training pipelines.
+- [Llama Factory](../frameworks/llama-factory.md) — Comprehensive framework for visual and CLI-based local model tuning.
+- [Axolotl](../frameworks/axolotl.md) — YAML-driven multi-GPU fine-tuning framework for advanced open models.
+- [Distilabel](../frameworks/distilabel.md) — Pipeline framework for generating high-quality synthetic instruction and preference datasets.
+- [LM Evaluation Harness](../benchmarking/lm-evaluation-harness.md) — Industry-standard benchmark runner for evaluating distilled models.
 
 ## Sources / references
 - [OpenPipe Official Website](https://openpipe.ai/)
 - [OpenPipe Documentation](https://docs.openpipe.ai/)
 - [OpenPipe GitHub Repository](https://github.com/openpipe/openpipe)
-- [Model Distillation Research (2026)](https://arxiv.org/abs/distillation-trends-2026)
-- [Llama Factory](../frameworks/llama-factory.md)
-- [Unstructured](https://unstructured.io/)
+- [Agent Reinforcement Trainer (ART) GitHub](https://github.com/openpipe/art)
+- [Braintrust: Best LLM Fine-Tuning Platforms in 2026](https://www.braintrust.dev/articles/best-llm-fine-tuning-platforms-2026)
+- [Llama Factory Documentation](https://llamafactory.readthedocs.io/)
+- [Unstructured.io](https://unstructured.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
