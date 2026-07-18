@@ -3,7 +3,7 @@
 ## What it is
 **Tool calling** (also known as function calling) is a standardized pattern where Large Language Models (LLMs) generate structured data (typically JSON) to signal their intent to invoke external functions, rather than just generating text. This allows the model to act as a "reasoning engine" that can decide when and how to use external capabilities.
 
-**Model Context Protocol (MCP 3.0)** is the June 2026 universal standard that provides a unified, secure way to connect LLMs (like Claude 4.8 and GPT-5.5) to external tools, resources, and data sources. It decouples the model from specific tool implementations, allowing a single MCP server to provide capabilities to any compatible host (IDE, agent framework, or chat interface).
+**Model Context Protocol (MCP 3.0)** is the July 2026 universal standard that provides a unified, secure way to connect LLMs (like Claude 5.1, GPT-5.5, and Gemma 3) to external tools, resources, and data sources. It decouples the model from specific tool implementations, allowing a single MCP server to provide capabilities to any compatible host (IDE, agent framework, or chat interface). With draft extensions for **MCP 3.1** introducing stream-based telemetry and sandboxed transport protocols, MCP has solidified its role as the industry standard for agentic resource sharing.
 
 ## What problem it solves
 LLMs are traditionally "isolated" from the real world, limited by their training data and the text-based interface of their context window. Tool calling and MCP solve several critical limitations:
@@ -21,11 +21,21 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 - **Enterprise Automation**: Connecting AI agents to legacy systems like [Jira](../../tools/automation_orchestration/atlassian-jira-mcp.md), [ServiceNow](../../tools/automation_orchestration/servicenow-mcp.md), or Slack.
 - **Secure System Remediation**: Allowing agents to interact with host operating systems via [Desktop Commander](../../tools/development_ops/desktop-commander-mcp.md) to fix configuration drift.
 
+### Architectural Trade-offs: Native vs. MCP-Hosted Tooling
+
+| Dimension | Native Tool Calling (Vendor-Specific) | MCP-Hosted Tools (Decoupled) |
+| :--- | :--- | :--- |
+| **Context Overhead** | High (full tool definitions injected directly into each prompt payload). | Minimal (definitions fetched once during initial capability negotiation/handshake). |
+| **Latency** | Low direct execution, but high payload serialization over the network. | Slight protocol handshake overhead, but extremely low execution overhead via secure TCP/Unix domain sockets. |
+| **Reusability** | Low (vendor-specific schema mapping required for each target framework/API). | High (implement once, run across Cursor, Claude Code, LlamaIndex, LangChain, etc. natively). |
+| **Security & Sandbox**| Low (host runs tool code in its own process/environment; high security exposure). | High (strict isolation via SSH tunnels, process boundaries, token auth, or containerized sandboxes). |
+
 ## Strengths
 - **Universal Interoperability**: MCP 3.0 allows one tool implementation to serve multiple LLMs (Claude, GPT, Llama, Gemini).
 - **Grounding & Trust**: Reduces hallucinations by forcing the model to rely on external, verifiable data sources.
 - **Dynamic Discovery**: MCP servers describe their capabilities to the host at runtime, enabling plug-and-play agentic architectures.
-- **Security Isolation**: Supports secure SSH tunneling and containerized execution for sensitive tool operations.
+- **Security Isolation**: Supports secure SSH tunneling, token-based authentication (OAuth2), and containerized execution for sensitive tool operations.
+- **Dynamic Capability Negotiation**: Host-client handshakes dynamically determine client features (e.g., streaming support, sampling capability) during initial connection.
 
 ## Limitations
 - **Latency Overheads**: Each tool call requires an extra round-trip to the model, which can impact real-time responsiveness.
@@ -34,34 +44,45 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 - **Permission Complexity**: Granting an LLM autonomous tool access requires sophisticated "Human-in-the-Loop" approval flows for sensitive actions.
 
 ## When to use it
-- **Factual Accuracy**: When you need the model to use real-time or verified data instead of relying on training data.
-- **Action-Oriented Agents**: When the purpose of the LLM is to perform tasks (e.g., "Book a flight") rather than just summarize information.
-- **Standardizing Toolkits**: When building tools that need to be shared across different IDEs (Zed, Cursor, Windsurf) or frameworks.
-- **Secure Data Retrieval**: When accessing private databases or local files that cannot be sent to a model for training.
+- When the model needs access to private, proprietary, or rapidly changing information.
+- When factual accuracy and citation of sources are mandatory requirements.
+- When you need to scale knowledge access to millions of documents without fine-tuning costs.
+- When building [Agentic Workflows](agentic-workflows.md) that require long-term memory.
 
 ## When not to use it
-- **Purely Linguistic Tasks**: For creative writing, poetry, or summarization where no external data is required.
-- **Sub-100ms Latency Requirements**: If the task must be completed faster than a model round-trip allows.
-- **Static Knowledge Queries**: If the information is common knowledge (e.g., "What is the capital of France?").
-- **Low-Reliability Environments**: Where the connection to the MCP server or the external API is unstable.
+- For purely creative writing (fiction, poetry) where external facts are unnecessary.
+- When the entire dataset fits within a frontier model's massive context window (e.g., Gemini 3.5 Pro's 10M tokens) and cost is not a primary constraint.
+- When sub-100ms latency is required for a simple, non-factual interaction.
+- When the LLM's base training data is already sufficient and up-to-date for the task.
 
 ## Getting started
 
 ### 1. Building an MCP 3.0 Server (Python)
-The `FastMCP` SDK is the recommended way to build servers in 2026.
+The `FastMCP` SDK is the recommended way to build servers in July 2026, offering native typing, structured arguments, and robust execution contexts.
 
 ```python
-# pip install mcp
-from mcp.server.fastmcp import FastMCP
+# pip install mcp psutil
+from mcp.server.fastmcp import FastMCP, Context
+import psutil
 
-# Create a server instance
-mcp = FastMCP("SystemHealth")
+# Create a server instance with metadata
+mcp = FastMCP("SystemHealth", version="1.0.0")
 
 @mcp.tool()
-def get_cpu_usage() -> str:
-    """Get the current CPU usage of the host system."""
-    import psutil
-    return f"Current CPU usage: {psutil.cpu_percent()}%"
+async def get_cpu_usage(ctx: Context) -> str:
+    """Get the current CPU usage of the host system.
+
+    Args:
+        ctx: Context object for progress reporting and logging.
+    """
+    # Use context-aware logging
+    await ctx.info("Retrieving CPU usage percentage via psutil")
+    usage = psutil.cpu_percent(interval=0.1)
+
+    # Progress reporting for long-running operations
+    await ctx.report_progress(100, 100)
+
+    return f"Current CPU usage: {usage}%"
 
 if __name__ == "__main__":
     mcp.run()
@@ -134,6 +155,51 @@ for tool_call in response.choices[0].message.tool_calls:
     execute_tool(tool_call)
 ```
 
+### Programmatic Host Integration (Python Client API)
+An host framework client registers a server connection, negotiates capabilities, lists available tools, and invokes a tool call.
+
+```python
+import asyncio
+from mcp.client.session import ClientSession
+from mcp.client.stdio import stdio_client
+
+async def run_client():
+    # Define local server connection parameters
+    server_params = {
+        "command": "python",
+        "args": ["/path/to/server.py"]
+    }
+
+    print("Initiating stdio channel with MCP server...")
+    async with stdio_client(server_params) as (read_stream, write_stream):
+        async with ClientSession(read_stream, write_stream) as session:
+            # 1. Establish session and negotiate capabilities
+            await session.initialize()
+            print("Session initialized successfully.")
+
+            # 2. Query available server-side tools
+            tools_response = await session.list_tools()
+            print("Discovered tools:")
+            for tool in tools_response.tools:
+                print(f"  - [{tool.name}]: {tool.description}")
+
+            # 3. Securely invoke tool execution with exception boundaries
+            try:
+                print("\nExecuting get_cpu_usage...")
+                result = await session.call_tool("get_cpu_usage", arguments={})
+                if getattr(result, "is_error", False):
+                    print(f"Execution Error: {result.content}")
+                else:
+                    for content_item in result.content:
+                        if content_item.type == "text":
+                            print(f"Tool Output: {content_item.text}")
+            except Exception as err:
+                print(f"Failed to execute target tool: {err}")
+
+if __name__ == "__main__":
+    asyncio.run(run_client())
+```
+
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md) — The broader context for MCP and ACP.
 - [Agno](../../tools/agents/agno.md) — Agentic framework with native MCP 3.0 support.
@@ -143,6 +209,7 @@ for tool_call in response.choices[0].message.tool_calls:
 - [Vikunja MCP](../../tools/automation_orchestration/vikunja-mcp.md) — Task management via MCP.
 - [Chronos MCP](../../tools/automation_orchestration/chronos-mcp.md) — Advanced scheduling tool.
 - [Jupyter Kernel MCP](../../tools/development_ops/jupyter-kernel-mcp.md) — Code execution environment.
+- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) — RAG framework with native MCP 3.0 Task Protocol support.
 
 ## Sources / references
 - [Model Context Protocol (MCP) Official Specification](https://modelcontextprotocol.io/)
@@ -150,5 +217,5 @@ for tool_call in response.choices[0].message.tool_calls:
 - [MCP Registry: A Global Catalog of MCP Servers](https://mcp-registry.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-18
 - Confidence: high
