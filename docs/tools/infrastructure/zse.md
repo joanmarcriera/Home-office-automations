@@ -1,10 +1,10 @@
 # ZSE (Zero-Shot Engine)
 
 ## What it is
-ZSE is an open-source LLM inference engine optimized for extreme performance and deployment efficiency. As of June 2026, it is recognized for its ability to serve models with industry-leading "cold start" times, making it a favorite for serverless AI architectures.
+ZSE is an open-source LLM inference engine optimized for extreme performance and deployment efficiency. As of July 2026, it is recognized for its ability to serve models with industry-leading "cold start" times, making it a favorite for serverless AI architectures, dynamic agent orchestration, and edge deployment.
 
 ## What problem it solves
-It solves the latency bottleneck in on-demand LLM serving. Standard inference engines often take tens of seconds to load a model into VRAM; ZSE achieves cold start times as low as 3.9 seconds for 8B-parameter models, enabling truly responsive serverless AI without the cost of "always-on" GPUs.
+It solves the latency bottleneck in on-demand LLM serving. Standard inference engines often take tens of seconds to load a model into VRAM; ZSE achieves cold start times as low as 3.9 seconds for 8B-parameter models, enabling truly responsive serverless AI without the cost of "always-on" GPUs. This drastically lowers operational overhead for homelab clusters and corporate serverless endpoints.
 
 ## Where it fits in the stack
 **Infrastructure / Inference Engine**. It sits in the execution plane, serving models to agents, applications, and orchestration layers via an OpenAI-compatible API.
@@ -16,10 +16,11 @@ It solves the latency bottleneck in on-demand LLM serving. Standard inference en
 - **Development & Testing**: Rapidly iterating on prompts across different models without waiting for long load times.
 
 ## Strengths
-- **Ultra-Fast Cold Starts**: Optimized weights-loading and kernel initialization (3.9s for Llama-3-8B).
+- **Ultra-Fast Cold Starts**: Optimized weights-loading and kernel initialization (3.9s for Llama-3-8B and Gemma 3).
 - **Lightweight Architecture**: Minimal overhead compared to feature-heavy engines like vLLM.
 - **Open-Source Freedom**: Fully self-hostable with no licensing fees for standard deployment.
 - **Hardware Agnostic**: Supports NVIDIA (CUDA), Apple Silicon (MPS), and emerging NPUs.
+- **Optimized VRAM Reclamation**: Instantly purges inactive models from VRAM according to configurable TTL policies.
 
 ## Limitations
 - **Feature Set**: Lacks some of the complex speculative decoding and multi-LoRA features found in vLLM or SGLang.
@@ -32,7 +33,7 @@ It solves the latency bottleneck in on-demand LLM serving. Standard inference en
 - When you need a lightweight, no-frills inference runner for specialized local tasks.
 
 ## When not to use it
-- For massive, steady-state production clusters where absolute throughput (tokens/sec) is more important than startup speed.
+- For massive, steady-state production clusters where absolute throughput (tokens/sec) is more important than startup speed (use [vLLM](vllm.md)).
 - If you require the extensive UI and model-management features of [Ollama](../../services/ollama.md).
 - For research requiring cutting-edge speculative decoding or complex batching strategies.
 
@@ -45,7 +46,7 @@ pip install zyora-zse
 
 ### Initializing a Model
 ```bash
-zse init llama-3-8b-instruct
+zse init gemma-3-8b-instruct
 ```
 
 ### Simple Inference (Python)
@@ -53,7 +54,7 @@ zse init llama-3-8b-instruct
 from zse import ZSE
 
 # Initialize the engine
-engine = ZSE(model="llama-3-8b-instruct")
+engine = ZSE(model="gemma-3-8b-instruct")
 
 # Generate a response
 response = engine.generate("Explain the 'cold start' problem in serverless computing.")
@@ -65,7 +66,7 @@ print(response)
 ### Serving an API
 Start an OpenAI-compatible server on a specific port:
 ```bash
-zse serve --model llama-3-8b-instruct --port 8080 --host 0.0.0.0
+zse serve --model gemma-3-8b-instruct --port 8080 --host 0.0.0.0
 ```
 
 ### Monitoring Instances
@@ -90,7 +91,7 @@ Interact with the ZSE server using standard tools like `curl`.
 curl http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "llama-3-8b-instruct",
+    "model": "gemma-3-8b-instruct",
     "messages": [{"role": "user", "content": "What makes ZSE unique?"}]
   }'
 ```
@@ -113,7 +114,9 @@ requests.post("http://localhost:8080/control/warmup", json={"model": "mistral-7b
 - [Aphrodite Engine](aphrodite-engine.md) — High-throughput local alternative.
 - [LiteLLM](../../services/litellm.md) — Unified API proxy for ZSE and other engines.
 - [Model Routing Guide](../../knowledge_base/model_routing_guide.md) — Strategy for selecting the right engine.
-- [Model Context Protocol (MCP 3.0)](../../knowledge_base/self-healing-agent-research.md) — Protocol for agent-to-engine interaction.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for agentic context and tool registries.
+- [ExLlamaV2](exllamav2.md) — Highly optimized inference engine for NVIDIA GPUs.
+- [llama.cpp](llama-cpp.md) — Lightweight, cross-platform inference engine.
 
 ## Sources / references
 - [ZSE GitHub Repository](https://github.com/Zyora-Dev/zse)
@@ -122,5 +125,5 @@ requests.post("http://localhost:8080/control/warmup", json={"model": "mistral-7b
 - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
