@@ -10,7 +10,7 @@ This report implements **Action C** for the 5 oldest remaining stale documentati
 | Task | Status | Notes |
 | :--- | :--- | :--- |
 | `docs/knowledge_base/patterns/tool-calling-and-mcp.md` | Resolved | Upgraded to July 2026 SOTA; added comparison table and host Python API example. |
-| `docs/knowledge_base/patterns/rag.md` | Pending | Perform quarterly technical freshness audit. |
+| `docs/knowledge_base/patterns/rag.md` | Resolved | Upgraded to July 2026 SOTA; added contextual retrieval & modern local LlamaIndex/Smolagents. |
 | `docs/tools/infrastructure/aphrodite-engine.md` | Pending | Perform quarterly technical freshness audit. |
 | `docs/tools/infrastructure/openpipe.md` | Pending | Perform quarterly technical freshness audit. |
 | `docs/tools/infrastructure/supabase.md` | Pending | Perform quarterly technical freshness audit. |
