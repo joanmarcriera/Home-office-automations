@@ -1,154 +1,158 @@
 # Retrieval-Augmented Generation (RAG)
 
 ## What it is
-Retrieval-Augmented Generation (RAG) is an architectural pattern that optimizes the output of a Large Language Model (LLM) by referencing an authoritative knowledge base outside of its training data before generating a response. In June 2026, RAG has evolved into **Agentic RAG**, where models use [Tool Calling](tool-calling-and-mcp.md) to dynamically plan and execute multi-step retrieval strategies across heterogeneous data sources.
+Retrieval-Augmented Generation (RAG) is an architectural pattern that optimizes the output of a Large Language Model (LLM) by referencing an authoritative knowledge base outside of its training data before generating a response.
+
+As of July 2026, RAG has evolved beyond static vector-similarity matching into **Agentic RAG** and **GraphRAG**. This paradigm leverages:
+1. Autonomous, multi-turn retrieval planning where models use [Tool Calling](tool-calling-and-mcp.md) to dynamically choose and query heterogeneous data sources.
+2. Secure integration with [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) standards to access file systems, local databases, and live web APIs.
+3. Cognitive model enhancements such as Multi-Token Prediction (e.g., [Mellum2](../../tools/ai_knowledge/mellum2.md)) and compressed reasoning (e.g., [Flint](../../tools/ai_knowledge/flint.md)) to optimize token-window budgets during dense context loading.
 
 ## What problem it solves
-It bridges the gap between the generative power of LLMs and the need for factual, up-to-date, and private information.
-- **Hallucination Reduction**: Grounding models in retrieved facts significantly reduces incorrect "plausible-sounding" generation.
-- **Knowledge Freshness**: Enables access to real-time data (e.g., stock prices, news) without the cost of retraining.
-- **Explainability**: RAG systems provide citations, enabling users to verify the source of information.
-- **Data Sovereignty**: Allows general-purpose models to reason over private datasets (e.g., company wikis, legal archives) without exposing that data during the model training phase.
+It bridges the critical gap between the generative capability of general LLMs and the requirement for domain-specific, accurate, and real-time knowledge:
+- **Hallucination Mitigation**: Grounding models in retrieved source facts dramatically reduces the occurrence of plausible-sounding but false generation.
+- **Data Sovereignty and Privacy**: Allows enterprise organizations to safely reason over private assets using general-purpose frontier models (like [Claude 5.1](../../tools/providers/anthropic.md), GPT-5, or [Gemma 3](../../tools/providers/google.md)) without exposing proprietary data during base model pre-training.
+- **Knowledge Freshness**: Provides instant access to live, changing data points (like real-time inventory, stock tickers, or API states) without costly training or fine-tuning cycles.
+- **Explainability and Auditing**: Delivers clear, verifiable citations and source-grounding paths to ensure that responses can be audited by humans or automated policy engines.
 
 ## Where it fits in the stack
-RAG is a core **Reasoning Engine** pattern. It sits between the raw **Infrastructure/Models** (Layer 0-2) and the **Orchestration/Frameworks** (Layer 5-6) that implement the retrieval logic. It is often the primary mechanism for [Personal AI Assistants](../../knowledge_base/self-healing-agent-research.md) to access user-specific context.
+RAG serves as the **Knowledge & Reasoning Bridge** in the AI ecosystem. It sits between **Infrastructure / Storage** (Layer 3: Vector databases like [Milvus](../../tools/infrastructure/milvus.md), document stores, and SQL systems) and **Orchestration / Frameworks** (Layer 5-6: like [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) or [LangChain](../../tools/ai_knowledge/langchain.md)). It relies on layout-aware parsers (such as [Docling](../../tools/process_understanding/docling.md)) and multi-modal retrievers (such as [ColQwen](../../tools/ai_knowledge/colqwen.md)) to convert raw unstructured files into dense, queryable semantic layers.
 
 ## Typical use cases
-- **Personal Knowledge Management**: Querying a private library of notes, emails, and documents (e.g., via [NotebookLM](../../tools/ai_knowledge/notebooklm.md)).
-- **Technical Support**: Answering complex configuration questions based on product manuals and GitHub issues.
-- **Automated Financial Analysis**: Reasoning over real-time market data and historical earnings reports.
-- **Legal & Compliance**: Searching through vast repositories of contracts and regulations to identify specific clauses or risks.
-- **Medical Diagnostics Support**: Referencing the latest clinical research and patient history in a secure, RAG-grounded environment.
+- **Personal Knowledge Management (PKM)**: Querying a secure, highly-integrated library of personal notes, books, and logs (e.g., via [NotebookLM](../../tools/ai_knowledge/notebooklm.md)).
+- **Enterprise Customer Experience**: Automating precise technical support and customer queries by sourcing answers directly from product manuals and API schemas.
+- **Autonomous Dev & Ops Remediation**: Feeding log structures and system architectures to [Self-Healing Agents](../self-healing-agent-research.md) to autonomously troubleshoot and fix service outages.
+- **Legal and Regulatory Compliance**: Scanning massive corpora of contracts, regulatory filings, and guidelines to flag discrepancies.
+- **Scientific Literature Ingestion**: Synthesizing global research databases to build knowledge trees or hypothesis verification flows.
 
 ## Strengths
-- **Factual Reliability**: High accuracy for knowledge-intensive tasks compared to base LLMs.
-- **Resource Efficiency**: Updating a vector database is orders of magnitude cheaper than fine-tuning a model.
-- **Transparency**: Citations and "source-grounding" increase user trust and auditability.
-- **Flexibility**: Can be easily adapted to new domains by swapping the underlying document store.
+- **SOTA Factual Accuracy**: Unmatched capability in handling knowledge-intensive reasoning tasks compared to raw zero-shot base models.
+- **Dynamic Resource Efficiency**: Updating a database is orders of magnitude faster and cheaper than running continuous fine-tuning pipelines.
+- **Provenance and Trust**: Provides explicit citation trails, facilitating user review and building interface credibility.
+- **Flexible Data Boundaries**: Allows swapping underlying data collections instantly to change the domain expertise of the agent.
 
 ## Limitations
-- **Retrieval Fragility**: The answer is only as good as the retrieved chunks ("Garbage In, Garbage Out").
-- **Latency**: The retrieval, re-ranking, and context-augmentation steps add time to the overall response.
-- **Context Window Management**: Despite RAG, models still have limits on how much retrieved context they can effectively process in a single turn.
-- **Semantic Drift**: Vector search can occasionally retrieve semantically similar but factually irrelevant "noise."
+- **Retrieval Fragility**: The output is bounded by the quality of the retrieval; poor chunking, formatting, or parsing results in incorrect or missing responses.
+- **Latency Overhead**: Performing extraction, database query, re-ranking, and prompt augmentation introduces sub-second but measurable delays.
+- **Context Window Pollution**: Simply stuffing raw, unstructured chunks into massive context windows can cause "lost in the middle" phenomena, where models ignore critical context tucked in dense prompts.
+- **Semantic Mapping Drift**: Vector cosine-similarity can sometimes capture syntactically matching but semantically or factually irrelevant results.
 
 ## When to use it
-- When the model needs access to private, proprietary, or rapidly changing information.
-- When factual accuracy and citation of sources are mandatory requirements.
-- When you need to scale knowledge access to millions of documents without fine-tuning costs.
-- When building [Agentic Workflows](agentic-workflows.md) that require long-term memory.
+- When factual accuracy, safety, and auditable source attribution are strict requirements.
+- When working with highly dynamic data that updates on a daily, hourly, or real-time basis.
+- When reasoning over massive private files that must not leak to external foundation training pipelines.
+- When constructing complex [Agentic Workflows](agentic-workflows.md) that require persistent, external long-term memory.
 
 ## When not to use it
-- For purely creative writing (fiction, poetry) where external facts are unnecessary.
-- When the entire dataset fits within a frontier model's massive context window (e.g., Gemini 3.5 Pro's 10M tokens) and cost is not a primary constraint.
-- When sub-100ms latency is required for a simple, non-factual interaction.
-- When the LLM's base training data is already sufficient and up-to-date for the task.
+- For tasks requiring purely creative writing or open-ended stylistic generation where factual adherence is irrelevant.
+- If the entire database is small (e.g., under 100K tokens) and fits statically inside a model's active prefix-cached context window.
+- In ultra-low-latency applications (sub-50ms) where additional vector DB roundtrips are unacceptable.
+- If the query requires complex mathematical calculations, table joins, or strict relational queries that are far more suited to direct SQL or custom programming.
 
 ## Getting started
+In July 2026, building RAG systems typically involves a pipeline of layout-aware document ingestion, structured embedding, vector storage, and dynamic agentic tooling.
 
-### Minimal Agentic RAG Setup (Python)
-In 2026, [Smolagents](../../tools/frameworks/smolagents.md) is a popular way to build lightweight Agentic RAG.
+For a lightweight, modern Python implementation, developers leverage [Smolagents](../../tools/frameworks/smolagents.md) with custom code-as-tools.
 
 ```python
 from smolagents import CodeAgent, DuckDuckGoSearchTool, HfApiModel
 
-# 1. Define the agent with a search tool (Retrieval)
+# 1. Define the agent with a search tool for dynamic web retrieval
 agent = CodeAgent(
     tools=[DuckDuckGoSearchTool()],
     model=HfApiModel()
 )
 
 # 2. Run the agentic retrieval loop
-response = agent.run("What is the current status of the MCP 3.0 specification?")
+response = agent.run("What are the latest updates in the MCP 3.1 draft protocol?")
 print(response)
 ```
 
-### Local RAG with Ollama and LlamaIndex
+## CLI examples
+
+To run and test RAG pipelines directly from the terminal:
+
+### 1. Ingest and Parse a PDF directory with layout awareness using LlamaIndex CLI:
+```bash
+# Parse, chunk, and start an agentic RAG chat instantly over local PDFs using LlamaIndex v0.12.0
+llamaindex-cli rag --files "./data/*.pdf" --parse-tier agentic
+```
+
+### 2. Querying a specialized vector collection directly:
+```bash
+# Search and audit top-K retrieved chunk similarities
+ragflow-cli search --query "battery thermal runaway threshold" --collection documentation_v2 --top-k 5
+```
+
+## API examples
+
+### 1. Contextual Retrieval (Harnessing Anthropic's SDK for situating chunks)
+By prefixing each document chunk with metadata about its position and purpose in the larger file, retrieval similarity accuracy is boosted significantly.
+
+```python
+import os
+import anthropic
+
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+# Prepare the contextualized chunk to preserve global relevance
+situational_context = (
+    "This chunk is from the 'Thermal Regulation' section of the 'Model-X EV Battery Safety Manual', "
+    "specifically outlining warning thresholds and automated shutdown steps."
+)
+
+chunk_content = "At 85 degrees Celsius, trigger a Class-1 alert and immediately cycle the coolant pumps."
+
+# Consolidate into the contextual chunk pattern
+contextualized_text = f"<situational_context>\n{situational_context}\n</situational_context>\n\n{chunk_content}"
+
+# Generate embeddings or store this text block directly in the vector database
+print(contextualized_text)
+```
+
+### 2. Local LlamaIndex with Ollama Embedding and Gemma 3
 ```python
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
 
-# Setup local models
+# Configure modern, locally running embedding and reasoning LLMs as of July 2026
 Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
-Settings.llm = Ollama(model="llama3.1", request_timeout=360.0)
+Settings.llm = Ollama(model="gemma3:9b", request_timeout=360.0)
 
-# Load data and index
-documents = SimpleDirectoryReader("./my_docs").load_data()
+# Load document assets
+documents = SimpleDirectoryReader("./source_docs").load_data()
+
+# Process documents and index into vectors
 index = VectorStoreIndex.from_documents(documents)
 
-# Query
-query_engine = index.as_query_engine()
-print(query_engine.query("Summarize the Q2 highlights."))
-```
-
-## CLI examples
-
-### Indexing a Directory
-Using the `ragflow-cli` (v2026.5) to prepare a knowledge base:
-
-```bash
-# Parse and index all PDFs in a directory with layout awareness
-ragflow-cli index --path ./manuals --parser deepdoc --output-collection manuals_v1
-```
-
-### Testing Retrieval Quality
-```bash
-# Query the vector store directly and view top-K similarity scores
-ragflow-cli search --query "How do I reset the device?" --collection manuals_v1 --top-k 5
-```
-
-## API examples
-
-### Contextual Retrieval (Anthropic SDK)
-Prepending situational context to chunks to improve retrieval accuracy.
-
-```python
-import anthropic
-
-client = anthropic.Anthropic()
-
-# Every chunk is augmented with its position in the larger document
-contextual_chunk = """
-<situational_context>
-This chunk is from the 'Troubleshooting' section of the 'Model X' manual, specifically discussing battery issues.
-</situational_context>
-To reset the battery, hold the power button for 15 seconds until the LED flashes red.
-"""
-
-# Embed the contextualized chunk...
-```
-
-### Hybrid Search with Weaviate (MCP)
-```python
-import weaviate
-
-client = weaviate.connect_to_local()
-collection = client.collections.get("Manuals")
-
-# Combine vector search with keyword (BM25) search
-result = collection.query.hybrid(
-    query="battery reset",
-    alpha=0.5, # Balance between vector and keyword
-    limit=3
-)
+# Convert to an agentic query engine for multi-step reasoning
+query_engine = index.as_query_engine(similarity_top_k=5)
+response = query_engine.query("What is the protocol for emergency coolant shutoff?")
+print(response)
 ```
 
 ## Related tools / concepts
-- [Agentic RAG](data-copilot-agentic-rag.md) — Multi-step retrieval and reasoning.
-- [Tool Calling & MCP](tool-calling-and-mcp.md) — The mechanism for agent-driven retrieval.
-- [RAGFlow](../../tools/process_understanding/ragflow.md) — Vision-native knowledge engine.
-- [ColQwen](../../tools/ai_knowledge/colqwen.md) — Multi-modal RAG using late interaction.
-- [Docling](../../tools/process_understanding/docling.md) — High-fidelity document parsing for RAG.
-- [Vector Databases](../../tools/infrastructure/index.md#sub-categories) — The storage layer for RAG.
-- [GraphRAG](../../knowledge_base/patterns/agentic-workflows.md) — RAG using knowledge graphs for global context.
-- [Self-Healing Agents](../../knowledge_base/self-healing-agent-research.md) — Using RAG for autonomous system remediation.
+- [Agentic RAG](data-copilot-agentic-rag.md) — Autonomous multi-step retrieval.
+- [Tool Calling & MCP](tool-calling-and-mcp.md) — Fundamental agentic-hosting protocols.
+- [RAGFlow](../../tools/process_understanding/ragflow.md) — Deep-doc vision and layout parser engine.
+- [ColQwen](../../tools/ai_knowledge/colqwen.md) — Visual-document multi-modal late interaction retrieval.
+- [Docling](../../tools/process_understanding/docling.md) — High-fidelity document converter and parser.
+- [Vector Databases](../../tools/infrastructure/index.md#sub-categories) — Storage backend guide.
+- [GraphRAG](agentic-workflows.md) — Structuring semantic nodes via Knowledge Graphs.
+- [Self-Healing Agents](../self-healing-agent-research.md) — Automated troubleshooting loops backed by documentation RAG.
+- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) — Robust enterprise-grade framework for structured and unstructured RAG.
+- [LangChain](../../tools/ai_knowledge/langchain.md) — Standard framework for agent tool and data integration.
+- [Milvus](../../tools/infrastructure/milvus.md) — Distributed, production-grade vector database.
+- [Ragas](../../tools/process_understanding/ragas.md) — Standard evaluation framework for RAG correctness and grounding metrics.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Universal protocol for model-to-resource integrations.
 
 ## Sources / references
 - [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (Lewis et al. 2020)](https://arxiv.org/abs/2005.11401)
-- [Anthropic: Contextual Retrieval Guide (2025)](https://www.anthropic.com/news/contextual-retrieval)
-- [IBM Research: The Evolution of Agentic RAG (2026)](https://research.ibm.com/blog/evolution-agentic-rag)
+- [Anthropic Research: Contextual Retrieval and Prompt Enrichment Guide (2025)](https://www.anthropic.com/news/contextual-retrieval)
+- [Hugging Face Smolagents Technical Specification (2026)](https://huggingface.co/docs/smolagents)
+- [LlamaIndex v0.12.0 Reference Manual](https://docs.llamaindex.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
