@@ -1,7 +1,7 @@
 # Google Gemini CLI
 
 ## What it is
-**Google Gemini CLI** is a high-performance terminal interface and agentic toolkit that brings the Gemini model family directly into developer workflows. It acts as both a standalone CLI assistant for local development and a suite of GitHub Actions for automated repository management. As of June 2026, it supports **Gemini 3.5 Ultra/Flash** and native multimodal inputs via the command line.
+**Google Gemini CLI** is a high-performance terminal interface and agentic toolkit that brings the Gemini model family directly into developer workflows. It acts as both a standalone CLI assistant for local development and a suite of GitHub Actions for automated repository management. As of July 2026, it supports **Gemini 3.5 Ultra/Flash/Pro**, Gemini Spark (autonomous agents), and native multimodal inputs via the command line.
 
 ## What problem it solves
 It eliminates the "context switching" penalty by allowing developers to access state-of-the-art AI for code generation, explanation, and refactoring without leaving the terminal. In CI/CD, it automates high-volume maintenance tasks like issue triaging, PR reviews, and changelog generation using Google's frontier context windows (2M+ tokens).
@@ -22,6 +22,7 @@ It eliminates the "context switching" penalty by allowing developers to access s
 - **Google Ecosystem Integration**: First-class support for ground-truth search, code execution, and Vertex AI safety filters.
 - **Speed**: Extremely low latency when utilizing the 'Gemini 3.5 Flash' model family.
 - **Free Tier**: Generous free-tier access via Google AI Studio for individual developers.
+- **Autonomy via Gemini Spark**: Supports autonomous, multi-step agent planning with built-in sandbox validation.
 
 ## Limitations
 - **Internet Requirement**: Requires an active connection to Google's cloud APIs; no offline mode.
@@ -31,11 +32,11 @@ It eliminates the "context switching" penalty by allowing developers to access s
 ## When to use it
 - To automate high-volume repository maintenance on GitHub.
 - For a lightweight, CLI-native alternative to heavy AI IDEs like Cursor or Windsurf.
-- When working with very large files or projects that exceed the context limits of other agents (e.g., Claude or GPT-4o).
+- When working with very large files or projects that exceed the context limits of other agents (e.g., Claude or GPT-5).
 
 ## When not to use it
 - In air-gapped or high-security environments where outbound cloud traffic is prohibited.
-- For tasks requiring local-only inference (use [llama-cpp](../infrastructure/llama-cpp.md) or [Ollama](../../services/ollama.md)).
+- For tasks requiring local-only inference (use [llama.cpp](../infrastructure/llama-cpp.md) or [Ollama](../../services/ollama.md)).
 - If your organization mandates the use of a different cloud provider (e.g., AWS or Azure).
 
 ## Getting started
@@ -74,12 +75,12 @@ gemini --file app.py "Refactor this to use the repository pattern"
 ```
 
 ### Agentic Mode (Subagents)
-Spawn a subagent to handle a multi-step task:
+Spawn an autonomous subagent via Gemini Spark to handle a multi-step task:
 ```bash
 gemini "Find all deprecated API calls in /src and create a migration plan" --agentic
 ```
 
-### Multimodal Input (June 2026)
+### Multimodal Input (July 2026)
 Analyze a screenshot of a terminal error:
 ```bash
 gemini --image error_screenshot.png "What is causing this stack trace?"
@@ -120,22 +121,23 @@ jobs:
 
 ## Related tools / concepts
 - [Google Gemini](google-gemini.md) — Underlying model family.
-- [Aider](../development_ops/aider.md) — Alternative terminal-based agent.
-- [Claude Code](../development_ops/claude-code.md) — Anthropic's CLI-native agent.
-- [Vertex AI](../providers/google-vertex-ai.md) — Enterprise-grade hosting.
-- [Antigravity](../development_ops/anti_gravity.md) — Google's agentic framework.
-- [Nano Banana](nano-banana.md) — Gemini 3.1 Flash/Pro Image models.
-- [Gemini Flash TTS](gemini-flash-tts.md) — Speech synthesis model.
+- [Nano Banana](nano-banana.md) — Sibling edge/image processing tools.
+- [Gemini Flash TTS](gemini-flash-tts.md) — High-speed speech synthesis tools.
+- [Gemini Canvas](gemini-canvas.md) — Generative workspace integration tools.
+- [AnsiGPT](ansigpt.md) — Lightweight terminal styling and command assistants.
+- [Aider](../development_ops/aider.md) — Multi-file interactive coding agent for the terminal.
+- [Claude Code](../development_ops/claude-code.md) — Anthropic's terminal-based autonomous engineering assistant.
+- [Antigravity](../development_ops/anti_gravity.md) — Autonomous pipeline orchestration tool.
 
 ## Sources / references
-- [Vertex AI Documentation](https://docs.cloud.google.com/vertex-ai/docs)
-- [Official Gemini CLI GitHub](https://github.com/google-gemini/gemini-cli)
+- [Vertex AI Developer Documentation](https://docs.cloud.google.com/vertex-ai/docs)
+- [Official Gemini CLI GitHub Repository](https://github.com/google-gemini/gemini-cli)
 - [Google AI Studio Console](https://aistudio.google.com/)
-- [Gemini 3.5 Technical Report (June 2026)](https://deepmind.google/technologies/gemini/)
-- [GitHub Blog: Node.js 24 Support](https://github.blog/changelog/2026-01-20-node-24-actions/)
-- [MCP 3.0 Gemini Connector](https://modelcontextprotocol.io/connectors/gemini)
-- [Google Developer Blog: Agentic Workflows](https://developers.googleblog.com/en/gemini-cli-agentic-updates/)
+- [Gemini 3.5 Technical Report (2026)](https://deepmind.google/technologies/gemini/)
+- [GitHub Blog: Node.js 24 Action Support](https://github.blog/changelog/2026-01-20-node-24-actions/)
+- [Model Context Protocol (MCP 3.1) Gemini Connectors](https://modelcontextprotocol.io/connectors/gemini)
+- [Google Developers Blog: Agentic Ecosystem and Spark Launch](https://developers.googleblog.com/en/gemini-cli-agentic-updates/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
