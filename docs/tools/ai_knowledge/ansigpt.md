@@ -1,30 +1,30 @@
 # ansigpt
 
 ## What it is
-ansigpt is a portable, zero-dependency C89 implementation of a GPT-style transformer model. It provides a minimal, highly readable version of the transformer architecture written in standard ANSI C. As of June 2026, **v2.0** introduces support for multi-modal context injection and enhanced agentic workflow primitives for constrained environments.
+ansigpt is a portable, zero-dependency C89 implementation of a GPT-style transformer model. It provides a minimal, highly readable version of the transformer architecture written in standard ANSI C. As of July 2026, **v2.1** introduces optimizations for compiling via GCC 14 on edge hardware, enhanced multi-modal context injection pipelines, and lightweight sandbox constraints suitable for running on microcontrollers alongside Model Context Protocol (MCP 3.0/3.1) clients.
 
 ## What problem it solves
-It addresses the extreme complexity and "black box" nature of modern LLM frameworks. By stripping the implementation down to its core mathematical and structural components in a single-file (or minimal-file) C format, it makes the transformer architecture accessible for educational study and enables deployment on hardware that lacks modern Python/GPU environments.
+It addresses the extreme complexity, bloated dependencies, and "black box" nature of modern LLM frameworks. By stripping the implementation down to its core mathematical and structural components in standard ANSI C, it makes the transformer architecture fully transparent for educational study and enables deployment on hardware that lacks modern Python runtimes or GPU execution environments.
 
 ## Where it fits in the stack
-**AI & Knowledge / Educational Framework**. It sits at the most fundamental level of the stack, serving as a reference implementation for model architecture or as an inference engine for extremely resource-constrained edge devices.
+**AI & Knowledge / Educational Framework**. It sits at the most fundamental level of the stack, serving as a reference implementation for model architecture or as an inference engine for extremely resource-constrained edge devices and microcontrollers.
 
 ## Typical use cases
-- **Pedagogical Study**: Learning the inner workings of attention mechanisms and feed-forward layers through readable C code.
-- **Embedded AI & IoT**: Running tiny, specialized models on microcontrollers or legacy systems that only support C89/C90.
-- **Portability Testing**: Verifying model logic across exotic architectures (e.g., RISC-V, older MIPS-based systems).
-- **Security Auditing**: Using a minimal, dependency-free codebase to ensure zero-trust execution of small model behaviors.
+- **Pedagogical Study**: Learning the inner workings of attention mechanisms, feed-forward layers, and multi-modal injection through readable, pure C89 code.
+- **Embedded AI & IoT**: Running tiny, specialized models (e.g., distilled from Gemma 3, Llama 4, or Qwen 3.6) on microcontrollers or legacy systems that only support standard C compilers.
+- **Portability Testing**: Verifying model logic and numerical stability across exotic or legacy architectures (e.g., RISC-V, older MIPS-based systems).
+- **Security Auditing**: Utilizing a minimal, zero-dependency codebase to ensure zero-trust execution of small model behaviors in sandboxed environments.
 
 ## Strengths
-- **Zero Dependencies**: Requires only a standard C compiler (GCC, Clang, MSVC, etc.).
+- **Zero Dependencies**: Requires only a standard C compiler (GCC, Clang, MSVC, etc.) and no external libraries.
 - **Extreme Portability**: Runs on virtually any system with a functional C compiler from the last 30 years.
-- **Human-Readable**: The codebase is small enough to be audited and understood by a single developer in one sitting.
-- **v2.0 Multi-modal Context**: Unique ability to inject symbolic and numerical context into the transformer loop.
+- **Human-Readable**: The entire core engine is small enough to be fully audited, modified, and understood by a single developer in one sitting.
+- **v2.1 Context Injection**: Built-in support to inject structured symbolic and numerical context directly into the transformer loop.
 
 ## Limitations
-- **Model Scale**: Primarily designed for "micro" models (e.g., 1M to 100M parameters); not for billion-parameter frontier models.
-- **Performance**: Lacks the SIMD, CUDA, or Metal optimizations found in `llama.cpp` or `MLX`.
-- **Feature Set**: Does not support complex features like LoRA adapters, continuous batching, or PagedAttention.
+- **Model Scale**: Primarily designed for "micro" models (e.g., 1M to 100M parameters); not suitable for billion-parameter frontier models.
+- **Performance**: Lacks the SIMD, CUDA, or Metal hardware-level optimizations found in `llama.cpp` or Apple's `MLX` framework.
+- **Feature Set**: Does not natively support complex features like LoRA adapters, continuous batching, or PagedAttention.
 
 ## When to use it
 - When you need to understand *exactly* how a transformer works without the distraction of Python libraries.
@@ -32,7 +32,7 @@ It addresses the extreme complexity and "black box" nature of modern LLM framewo
 - As a "golden reference" for mathematical verification of transformer operations.
 
 ## When not to use it
-- For production-grade inference of large open models (e.g., Llama 3 8B or larger).
+- For production-grade inference of large open models (e.g., Llama 4 8B, Qwen 3.6, or Mistral).
 - When high-throughput or low-latency GPU acceleration is a requirement.
 - For projects requiring extensive ecosystem support (e.g., LangChain or LlamaIndex integrations).
 
@@ -54,7 +54,7 @@ gcc -O3 -ansi -pedantic ansigpt.c -o ansigpt -lm
 ```
 
 ### Model Preparation
-`ansigpt` requires models to be in a specific binary format. Conversion scripts for MicroGPT or custom weights are provided in the repository.
+`ansigpt` requires models to be in a specific binary format. Conversion scripts for MicroGPT or custom weights distilled from Gemma 3 or Qwen 3.6 are provided in the repository.
 
 ## CLI examples
 
@@ -69,7 +69,7 @@ gcc -O3 -ansi -pedantic ansigpt.c -o ansigpt -lm
 ./ansigpt model.bin "In a hidden valley," --temp 0.8 --top-p 0.9
 ```
 
-### Multi-modal Context Injection (v2.0)
+### Multi-modal Context Injection (v2.1)
 Inject symbolic data as additional context for the generation:
 ```bash
 ./ansigpt model.bin "Analyze the following sensor data:" --context sensors.txt
@@ -100,8 +100,8 @@ int main() {
 }
 ```
 
-### Agentic Loop Fragment
-A minimal implementation of a tool-calling loop in C:
+### Agentic Loop Fragment with MCP 3.0 Context
+A minimal implementation of a tool-calling loop in C, designed to hook into an MCP 3.0 server:
 ```c
 if (strstr(output, "ACTION: SEARCH")) {
     char *query = extract_query(output);
@@ -111,12 +111,15 @@ if (strstr(output, "ACTION: SEARCH")) {
 ```
 
 ## Related tools / concepts
-- [MicroGPT](https://github.com/karpathy/microGPT) — The inspiration for ansigpt.
-- [llama.cpp](../infrastructure/llama-cpp.md) — High-performance C++ inference.
+- [llama.cpp](../infrastructure/llama-cpp.md) — High-performance C++ inference framework.
+- [ExLlamaV2](../infrastructure/exllamav2.md) — High-performance inference engine optimized for extreme quantizations.
 - [Nano Banana](nano-banana.md) — Reference for tiny model patterns.
-- [Ollama](../../services/ollama.md) — User-friendly local AI manager.
 - [AITMPL](aitmpl.md) — Minimalist AI templates.
+- [Ollama](../../services/ollama.md) — User-friendly local AI manager.
+- [Smolagents](../frameworks/smolagents.md) — Minimalist agentic framework from Hugging Face.
+- [Pydantic AI](../frameworks/pydantic-ai.md) — Production-grade agentic framework with strict schema validation.
 - [Transformer Architecture](../../knowledge_base/patterns/index.md) — Core concept.
+- [MicroGPT](https://github.com/karpathy/microGPT) — The original inspiration for ansigpt.
 - [C89 Portability Guide](https://en.wikipedia.org/wiki/ANSI_C) — Standard compliance reference.
 
 ## Sources / references
@@ -124,10 +127,10 @@ if (strstr(output, "ACTION: SEARCH")) {
 - [Karpathy's microGPT Research](https://github.com/karpathy/microGPT)
 - [TinyGrad and Minimalist AI Research](https://github.com/geohot/tinygrad)
 - [C89 Standard Specification (ISO/IEC 9899:1990)](https://www.iso.org/standard/17782.html)
-- [ansigpt v2.0 Release Notes](https://github.com/yobibyte/ansigpt/releases/tag/v2.0)
+- [ansigpt v2.1 Release Notes](https://github.com/yobibyte/ansigpt/releases/tag/v2.1)
 - [Edge AI Patterns](../../knowledge_base/patterns/software-factories.md)
 - [Embedded Systems C Reference](../../knowledge_base/learning-map.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
