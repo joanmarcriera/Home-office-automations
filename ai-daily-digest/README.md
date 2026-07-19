@@ -1,5 +1,64 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-19
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Chinese Model Surge**: Kimi K3 is dominating benchmarks (ranking #1 on SpreadsheetBench 2), while anticipation builds for the release of DeepSeek V4.
+* 🚀 **Hardware & Infrastructure**: AMD has acquired FastFlowLM to accelerate AI inference, and new "unlocks" for NVIDIA CMP GPUs are surfacing in the local LLM community.
+* 🔬 **Reasoning & Architecture**: New research explores controlling "reasoning effort" in LLMs and a novel "KV cache grafting" method for Gemma 4 to improve knowledge retrieval.
+* 🛠️ **Agentic Shift**: Industry analysis suggests the primary bottleneck for AI agents has shifted from the model itself to the "context layer" and environment serving.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier & Large Models
+* **Kimi K3**: Now ranks #1 on SpreadsheetBench 2, surpassing Claude Fable 5. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzzecz/kimi_k3_ranks_1_on_afterquerys_spreadsheetbench_2/)
+* **DeepSeek V4**: Reports indicate V4 is imminent, with a "Flash" version already being tested by users on high-VRAM setups (80GB+). [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v04jq2/deepseek_v4_soon/) | [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0etj2/deepseek_v4_flash_on_80_gb_vram_and_128_gb_ddr4/)
+* **Grok 4.5**: New comparisons suggest Grok 4.5 may be competitive with Claude Opus for coding tasks while using significantly fewer tokens. [Source: The New Stack](https://thenewstack.io/grok-opus-coding-tokens/)
+* **Soofi S 30B-A3B**: A new open-source MoE hybrid Mamba-Transformer model optimized for German and English. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0cyix/german_soofi_team_launches_soofi_s_30ba3b_an/)
+
+### Local & Specialized Models
+* **openPangu-2.0-Flash**: A 92B-A6B model with 512K context length has been added to `llama.cpp` via pull request. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v03psf/model_add_openpangu20flash_92ba6b_with_mlalatent/)
+* **catmind-1.2b**: A whimsical fine-tune of LFM2.5 that uses its "thinking block" to tell unrelated stories about cats. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzxov4/model_catmind12b/)
+* **Bonsai 8b**: Experiments in fine-tuning this ternary (sub-2-bit) model on Metal are underway. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0egoi/i_tried_finetuning_a_ternary_model_bonsai_8b_on/)
+
+---
+
+## 🛠️ Tools & Agents
+
+* **Pinecone Nexus**: A new "knowledge engine" designed to compile business context into structured data, reducing token costs and increasing accuracy for AI agents. [Source: InfoQ](https://www.infoq.com/news/2026/07/pinecon-nexus-knowledge-engine/)
+* **MiniBot v2**: A comprehensive, single-file AI assistant tool updated for improved local workflows. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0a9jn/sharing_minibot_v2_this_is_what_im_currently/)
+* **Local Film Pipeline**: A user demonstrated a full local movie production pipeline on an M5 Max Mac using Flux (stills), Wan 2.2/LTX (animation), Piper (narration), and Ace-step (score). [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0ibu2/i_couldnt_find_anyone_making_full_movies_locally/)
+* **Cache Invalidation Tool**: A new simple tool for developers building LLM harnesses to detect cache invalidation. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uztipo/if_youre_building_a_harness_here_is_a_simple_tool/)
+
+---
+
+## 🔬 Research & Papers
+
+* **KV Cache Grafting**: A new method for Gemma 4 12B that stores verified knowledge as KV state, improving AIME 2025 routing from 76.7% to 90.0%. [Paper](https://arxiv.org/abs/2607.14431) | [Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1v07tib/byte_exact_kv_cache_grafting_on_frozen_gemma_4/)
+* **Reasoning Effort**: Sebastian Raschka explores how LLMs learn and switch between low, medium, and high-effort reasoning modes. [Source: Ahead of AI](https://magazine.sebastianraschka.com/p/controlling-reasoning-effort-in-llms)
+* **Neural Net Catapulting**: Research into achieving more human-like neural networks through "catapulting." [Source: Gwern](https://gwern.net/llm-catapult)
+
+---
+
+## 🏢 Industry News
+
+* 📌 **AMD Acquisition**: AMD has joined forces with FastFlowLM to advance AI inference capabilities. [Source: AMD Blog](https://www.amd.com/en/blogs/2026/fastflowlm-joins-amd-to-advance-ai-inference.html)
+* **The "Agent Bottleneck"**: Analysis suggests that reliability issues in AI agents are no longer a model problem, but a failure of the context layer and the speed of environment serving. [Source: The New Stack](https://thenewstack.io/ai-agent-infrastructure-bottleneck/)
+* **OpenAI Perspective**: Dean W. Ball (OpenAI) discusses the risks and strategic implications of high-capability open-weight models coming out of China. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0czbk/head_of_strategic_futures_from_openai_on/)
+* **GPU Market**: Discussion continues regarding the "AI Boom" inflating GPU prices, making it difficult for home server enthusiasts to upgrade VRAM. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v07ell/how_are_yall_stomaching_the_ai_boom_prices/)
+
+---
+
+## ⚠️ Community Alerts
+* **Scam Warning**: Users are flagging "Basalt Labs" for allegedly claiming fake HLE scores while serving DeepSeek models on their website and releasing Qwen-based weights. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uztylz/basalt_labs_pulling_a_generationally_dumb_scam/)
+
+---
+
+
 ## 📅 Digest for 2026-07-18
 
 # AI & Technology Daily Digest
