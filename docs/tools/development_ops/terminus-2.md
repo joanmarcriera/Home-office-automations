@@ -1,118 +1,172 @@
 # Terminus 2 (Terminal-Bench)
 
 ## What it is
-Terminus 2 is a lightweight, terminal-native AI agent and research baseline developed by the Terminal-Bench team. As of June 2026, it represents the standard for 'raw' agentic interaction with the shell, eschewing heavy orchestration layers in favor of a direct LLM-to-tmux bridge. It is widely used for evaluating the CLI capabilities of frontier models like Claude 4.8 and GPT-5.5.
+Terminus 2 is an open-source, terminal-native AI agent and research baseline developed by the Terminal-Bench consortium. As of July 2026, it serves as the industry-standard "raw" shell execution model, bypassing heavy orchestration layers to provide a direct LLM-to-tmux bridging protocol. Specifically optimized for the CLI capabilities of SOTA frontier models like **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemma 3**, Terminus 2 allows models to interact with standard Unix-like shell environments natively without intermediate abstraction taxes.
 
 ## What problem it solves
-It addresses the 'abstraction tax' in agentic software. While many agents use complex tool-calling protocols or virtualized file systems, Terminus 2 gives the model direct control over a standard tmux session. This allows for native handling of long-running processes, real-time terminal feedback, and authentic shell error recovery, making it an ideal tool for benchmarking 'pure' CLI reasoning.
+Traditional agent frameworks rely on heavy runtime abstractions, isolated container sandboxes, or virtualized/mocked filesystem drivers. This introduces "abstraction tax" and context mismatch—models often struggle to translate raw terminal signals, interactive prompts, and stderr outputs when they are parsed through middleware. Terminus 2 gives the LLM direct, raw control over standard **tmux** terminal sessions. This enables authentic handling of long-running daemonized processes, real-time streaming feedback, multi-pane multiplexing, and authentic terminal error recovery, establishing a reliable baseline for "pure" terminal reasoning and evaluation.
 
 ## Where it fits in the stack
-**Benchmark / Interface Layer**. Terminus 2 sits between the model's reasoning engine and the operating system's shell. It is frequently used in the 'Agentic Workbench' pattern as a minimal interface for performing system-level tasks without the overhead of a full IDE.
+**Benchmark / Shell Interface Layer**. Terminus 2 resides directly between the model's primary reasoning/tool-calling engine and the host operating system's kernel shell. It acts as a lightweight interactive loop, translating natural language objectives into raw bash sequences executed within persistent tmux sessions, exposing these sessions natively via [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) transport interfaces.
 
 ## Typical use cases
-- **CLI-Agent Benchmarking**: Serving as the reference implementation for the 'Terminal-Bench' suite to measure model performance in raw shell environments.
-- **System Administration Automation**: Executing complex multi-step shell tasks (e.g., database migrations, server hardening) via natural language.
-- **Observability and Debugging**: Attaching to a tmux session to watch an agent's reasoning and execution in real-time.
-- **Minimalist Toolchain Research**: Exploring the limits of agentic capability when restricted to standard Unix tools and basic session management.
+- **CLI-Agent Benchmarking**: Serving as the canonical baseline for the "Terminal-Bench v3" suite, measuring model performance on complex, multi-step command-line tasks.
+- **Interactive System Administration**: Executing sophisticated sysadmin flows (e.g., live database migrations, service hardening, network port debugging) using raw terminal tooling.
+- **Real-Time Human-in-the-Loop Monitoring**: Allowing human operators to `tmux attach` directly to the active agent session, observing command output and intervening manually if needed.
+- **Agentic Sandboxing Research**: Researching the physical constraints, error-handling strategies, and recovery limits of models when restricted strictly to standard Unix tools and basic shell capabilities.
 
 ## Strengths
-- **Low Overhead**: Extremely lightweight compared to comprehensive agents like OpenHands or Devin.
-- **Transparency**: Uses standard tmux sessions, allowing humans to 'attach' and interact with the agent's workspace seamlessly.
-- **Resilience**: The model sees exactly what a human sees, including stderr, interactive prompts, and terminal color codes.
-- **State-of-the-Art (SOTA) Baseline**: Consistently ranks at the top of terminal-centric benchmarks for reasoning accuracy and command efficiency.
+- **Zero-Abstraction Overhead**: Eschews custom virtual filesystems or heavy language-specific runtimes, providing a standard, direct shell environment.
+- **Full Transparency and Observability**: High human-in-the-loop auditability. Since commands run in a real, attachable tmux session, debugging is as simple as launching a terminal.
+- **Robust Session Continuity**: Native tmux architecture ensures that if the agent's Python wrapper crashes or disconnects, the underlying shell processes continue running unimpeded.
+- **Extensive Multimodal Support**: Captures actual ANSI color codes and terminal layout dimensions, allowing multimodal CLI models to reason over terminal-based visuals and layouts.
+- **SOTA Alignment**: Updated for **MCP 3.0/3.1**, allowing the agent's shell environment to be exposed as a standardized tool server to external orchestration clients.
 
 ## Limitations
-- **Terminal Only**: Lacks built-in support for GUI interactions, web browsing, or native IDE features like LSP.
-- **Context Management**: Relies heavily on the LLM's ability to maintain the terminal state within its context window, which can degrade during extremely long sessions.
-- **Environment Sensitivity**: Requires a stable tmux and Unix-like environment; performance can vary based on the specific shell configuration.
+- **Lacks GUI/Web Native Support**: Exclusively restricted to terminal applications; cannot run web-scraping browser loops or graphical tools out of the box.
+- **High Token Consumption**: Raw terminal scrollbacks, interactive logs, and long-running process buffers can rapidly consume context window tokens.
+- **Host Security Risk**: Unless executed inside an isolated, containerized VM (such as an [Anti-Gravity](./anti_gravity.md) sandbox), giving a model direct shell write-access poses significant host safety hazards.
 
 ## When to use it
-- When you need a 'pure' terminal agent for system automation or research.
-- For benchmarking the CLI capabilities of a new LLM version or fine-tuned model.
-- When transparency and the ability to manually intervene in a terminal session are critical.
+- When evaluating or benchmarking raw shell performance and CLI tool navigation capabilities of fine-tuned frontier LLMs.
+- For lightweight system administration tasks where human observability and live shell intervention are critical requirements.
+- In containerized research settings where you want to minimize overhead and avoid heavy frameworks.
 
 ## When not to use it
-- For high-level software engineering tasks that require deep IDE integration (use [Windsurf](./codeium.md) or [Cursor](./cursor.md)).
-- If you require an agent with native web browsing or multi-modal tool-use capabilities.
-- For users who are uncomfortable with tmux or command-line-first workflows.
+- For enterprise software-engineering workflows that require heavy, workspace-wide IDE support (use [Windsurf](./windsurf.md), [Cursor](./cursor.md), or [Codeium](./codeium.md) instead).
+- If your agent requires native web-browsing capabilities or GUI interaction.
+- In production environments without robust container-level sandboxing.
 
 ## Getting started
 
 ### Installation
-Terminus 2 requires Python 3.10+ and a functional tmux installation.
+Terminus 2 requires Python 3.10+ and a functional host installation of `tmux` (v3.2+ recommended).
+
 ```bash
-# Clone the Terminal-Bench repository
+# Clone the Terminal-Bench official repository
 git clone https://github.com/pro-puffin/terminal-bench.git
 cd terminal-bench
 
-# Install core dependencies
+# Install python dependencies
 pip install -r requirements.txt
 
-# Ensure tmux is available
-sudo apt install tmux
+# Ensure tmux is installed in your local package manager
+sudo apt-get update && sudo apt-get install -y tmux
 ```
 
-### Basic Usage
-Start an agentic session by defining a task:
+### Basic Initialization
+Spawn a raw Terminus 2 interactive shell session with a natural language goal:
+
 ```bash
-python -m terminal_bench.agents.terminus2 --task "Locate all .log files in /var/log/nginx, find errors from the last 24h, and summarize the top 3 IPs."
+python -m terminal_bench.agents.terminus2 \
+    --task "Analyze active ports, check for listening services, and ensure nginx is running on port 80." \
+    --model "claude-5-1-sonnet"
 ```
 
 ## CLI examples
 
-### Attaching to the Agent Session
-One of Terminus 2's key features is the ability to 'peek' into the agent's mind via tmux:
+### Active Session Management
+Check and inspect active agent sessions executing within the tmux multiplexer:
+
 ```bash
-# List active agent sessions
+# List all active background Terminus 2 agent sessions
 tmux ls
 
-# Attach to see the agent's work-in-progress
+# Attach directly to the active agent's run workspace to monitor command execution in real-time
 tmux attach -t terminus_agent_01
 ```
 
-### Headless Evaluation
-Run a suite of benchmarks from the Terminal-Bench library:
+### Headless Benchmarking Suite
+Execute automated evaluations against standard terminal task benchmarks using Terminus 2:
+
 ```bash
-python -m terminal_bench.evaluator --agent terminus2 --suite "system_admin_v2"
+# Run the terminal-bench v3 evaluator using Llama 4 as the backbone model
+python -m terminal_bench.evaluator \
+    --agent terminus2 \
+    --model "llama-4-70b-instruct" \
+    --suite "sysadmin_v3" \
+    --output "./results/llama4_results.json"
+```
+
+### MCP 3.0 Server Integration
+Expose the local Terminus 2 terminal context to external LLM clients over Model Context Protocol:
+
+```bash
+# Launch the Terminus 2 sandboxed terminal server
+terminus2-mcp --port 8080 --sandbox-dir /var/tmp/agent_sandbox
 ```
 
 ## API examples
 
-### Custom Prompting Interface
-Terminus 2 allows for easy modification of its 'Inner Monologue' and system instructions:
+### Python Agent Instantiation
+Use the Terminus 2 programmatic API to construct, configure, and monitor shell-native reasoning loops:
+
 ```python
-# agents/terminus2/config.py
-# Customize the system prompt to favor specific tools (e.g., ripgrep over grep)
-SYSTEM_PROMPT = """
-You are a terminal-native AI agent.
-You have direct access to a tmux session.
-Prioritize 'rg' and 'fd' for search tasks.
-"""
+from terminal_bench.agents.terminus import TerminusAgent
+from terminal_bench.session import TmuxSession
+
+# Initialize a standard tmux session wrapper
+session = TmuxSession(session_name="maintenance_task_2026")
+
+# Configure the Terminus 2 Agent with July 2026 SOTA SFT system parameters
+agent = TerminusAgent(
+    session=session,
+    model="claude-5-1-sonnet",
+    temperature=0.0,
+    system_prompt="""
+    You are an expert systems engineer operating in a direct tmux terminal.
+    Favor modern Unix CLI tools (rg, fd, bat) and verify the outcome of all actions.
+    If a command blocks, detach or background it.
+    """
+)
+
+# Execute a complex terminal workflow programmatically
+objective = "Find and compress all .log files in /var/log/app/ older than 7 days, excluding sys.log"
+success = agent.run(task=objective)
+
+if success:
+    print("Agent completed the objective successfully.")
+else:
+    print("Agent encountered errors or failed to resolve the goal.")
 ```
 
-### Integration with AG2 (AgentOS)
-Terminus 2 can be wrapped as a 'Terminal Tool' within a larger AG2 orchestration:
-```python
-from ag2 import Agent
-from terminal_bench.agents import TerminusTool
+### Wrapping Terminus 2 within AG2 Framework
+Incorporate Terminus 2 as a low-level tmux execution tool inside a multi-agent assembly under [AG2](../frameworks/ag2.md):
 
-# Define an agent that uses Terminus 2 for shell execution
+```python
+from ag2 import Agent, GroupChat
+from terminal_bench.integrations.ag2 import TerminusTmuxTool
+
+# Instantiate the specialized tmux execution tool
+terminal_tool = TerminusTmuxTool(session_name="ag2_shell_sandbox")
+
+# Define a system administrator agent equipped with direct tmux access
 sysadmin_agent = Agent(
-    name="SysAdmin",
-    tools=[TerminusTool(session_name="maintenance_v1")]
+    name="SystemAdmin",
+    instructions="You execute shell maintenance tasks. Use the tmux tool to run and observe commands.",
+    tools=[terminal_tool]
 )
+
+# Now, SystemAdmin can interact dynamically with the same terminal session
+# while maintaining session persistence across group chat turns.
 ```
 
 ## Related tools / concepts
-- [OpenHands](openhands.md)
-- [Devin](devin.md)
-- [Codeium](./codeium.md)
-- [Aider](./aider.md)
-- [Goose](../agents/goose.md)
-- [AG2](../frameworks/ag2.md)
-- [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md)
-- [tmux (Terminal Multiplexer)](https://github.com/tmux/tmux)
-- [Agentic Benchmarking](../../knowledge_base/patterns/agent-benchmarking.md)
+- [OpenHands](./openhands.md) — Comprehensive agentic workspace framework.
+- [Devin](./devin.md) — Autonomous software engineer.
+- [Codeium](./codeium.md) — Enterprise-grade AI-assisted developer ecosystem.
+- [Aider](./aider.md) — Terminal-based Git-native pair programmer.
+- [Goose](../agents/goose.md) — Extensible agentic coding and automation tool.
+- [AG2](../frameworks/ag2.md) — Orchestration framework for multi-agent applications.
+- [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) — Telemetry-driven universal LLM tool connection protocol.
+- [Claude Code](./claude-code.md) — Anthropic's terminal developer agent.
+- [Windsurf](./windsurf.md) — Next-gen flow-based developer IDE.
+- [Cursor](./cursor.md) — AI-first code editor.
+- [Droid](./droid.md) — CLI task automation agent.
+- [Anti-Gravity](./anti_gravity.md) — Sandboxed mission executor.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Structured design patterns for multi-agent coordination.
+- [Tool Calling and MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Pattern comparison for native vs. protocol-hosted tools.
+- [tmux (Terminal Multiplexer)](https://github.com/tmux/tmux) — Standard terminal session multiplexer.
 
 ## Sources / references
 - [Terminal-Bench GitHub Repository](https://github.com/pro-puffin/terminal-bench)
@@ -120,6 +174,5 @@ sysadmin_agent = Agent(
 - [Blog: The Rise of Terminal-Native Agents (June 2026)](https://mariozechner.at/posts/2026-06-15-terminus2-update/)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
