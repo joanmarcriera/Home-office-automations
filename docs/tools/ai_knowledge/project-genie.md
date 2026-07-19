@@ -1,47 +1,48 @@
 # Project Genie
 
 ## What it is
-Project Genie is a generative world model from Google DeepMind that can create interactive, navigable virtual environments from a single image or text prompt. Unlike traditional video generation, Genie produces a "world" that a user can actually control and explore in real-time, essentially acting as an AI-powered game engine that learns physics and mechanics from unlabeled internet videos. In June 2026, it serves as a foundational layer for the [Anti-Gravity](../../tools/agents/agno.md) agentic framework, providing simulated "Missions" for Gemini 3.5 agents.
+Project Genie (and its July 2026 iteration, Genie 3) is a pioneering generative world model developed by Google DeepMind. It generates interactive, navigable 2D and 3D virtual environments from a single prompt, image, or hand-drawn sketch. Unlike traditional video generation models, Genie models the underlying dynamics of a simulated world, allowing users to control characters and interact with the environment in real-time. It effectively functions as an AI-driven, unsupervised game engine that learns physics, mechanics, and latent actions entirely from unlabeled internet videos. In the modern AI stack, it serves as a high-fidelity sandbox for training and testing agentic frameworks, providing simulated "Missions" for frontier models such as Gemma 3, Claude 5.1, and Llama 4.
 
 ## What problem it solves
-It bridges the gap between passive content generation (like Sora) and interactive experiences. Traditionally, building a navigable 3D or 2D world requires thousands of hours of manual asset creation, physics programming, and level design. Genie automates this by "imagining" the world and its underlying rules of movement and interaction. It allows for the rapid creation of "synthetic training grounds" for agents to practice tool-use and navigation without real-world risk.
+Creating interactive virtual environments has historically required thousands of hours of manual labor, involving 3D asset modeling, game physics programming, collision detection, and level design. Genie automates this entire pipeline, generating functional, playable mechanics from simple text or image inputs. Furthermore, for AI agent training, Genie solves the scarcity of diverse, safe simulation environments. Instead of risking physical robotic or digital agents in real-world or manually hardcoded test beds, developers can dynamically spin up infinite synthetic training grounds with custom physical rules to evaluate agent behavior, tool-use, and spatial navigation.
 
 ## Where it fits in the stack
-Project Genie sits at the **Generative World Models** layer of the AI stack. It provides the environmental substrate for [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) and acts as a high-fidelity simulator for reinforcement learning, often interfaced via [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) for agent interaction.
+Project Genie operates at the **Generative World Modeling and Simulation Layer** of the AI ecosystem. It acts as the environmental substrate for agent training and reinforcement learning. By exposing its virtual worlds via the [Model Context Protocol (MCP 3.0/3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md), Genie interfaces seamlessly with downstream agentic systems, serving as a live simulator that translates high-level model decisions into latent actions and returns updated visual/spatial observations.
 
 ## Typical use cases
-- **Rapid Game Prototyping**: Generating a playable level from a sketch or a few sentences.
-- **Agent Training**: Creating diverse "gym" environments for training robotic or digital agents in safe, simulated physics.
-- **Interactive Storytelling**: Allowing users to enter and navigate a scene described in a narrative.
-- **Remixing Content**: Taking an existing image and transforming it into a navigable "remix."
-- **Simulated Mission Design**: Creating complex environments for [Anti-Gravity](../../tools/agents/agno.md) agents to solve multi-step objectives.
+- **Rapid Prototyping for Game Design**: Instantly generating functional gameplay loops and level concepts from raw art or text descriptions.
+- **Agentic Reinforcement Learning**: Creating diverse, complex, and highly customizable "gym" environments to benchmark multi-agent systems and spatial reasoning capabilities.
+- **Interactive Narrative Experiences**: Powering next-generation storytelling applications where audiences can step into and explore worlds described dynamically in prose.
+- **Synthetic Data Generation**: Creating high-fidelity video and sensory datasets to train secondary computer vision and object detection models.
+- **Agent Mission Simulation**: Underpinning frameworks like [Anti-Gravity](../agents/agno.md) by serving as a simulated, non-deterministic target environment for executing multi-step mission objectives.
 
 ## Strengths
-- **Interactive Consistency**: The world remains stable as you move; objects don't disappear when you look away.
-- **Zero-Code Mechanics**: Infers physics (gravity, collision, friction) without explicit programming.
-- **Multi-Modal Input**: Can be triggered by text, images, or even rough sketches.
-- **Real-Time Performance**: Optimized for low-latency inference on TPU v6 clusters, achieving 720p/24fps.
+- **Interactive Temporal Consistency**: Maintains high spatial and object stability; objects, landmarks, and terrain do not drift or disappear when the player or agent navigates away and returns.
+- **Unsupervised Physics Inference**: Infers complex mechanics like gravity, friction, momentum, and collision boundaries purely from visual observation without any hand-coded physical equations.
+- **Flexible Multi-Modal Grounding**: Accepts input prompts across text, photography, sketches, and digital art, maintaining the stylistic fidelity of the source material.
+- **SOTA Real-Time Inference**: Optimized for Google's TPU v6 clusters, achieving real-time 720p resolution at 24 frames per second with minimal latency.
+- **Latent Action Spaces**: Automatically learns a consistent action space (WASD/controller-compatible) across radically different visual genres.
 
 ## Limitations
-- **Resolution**: While high for real-time generative video (720p), it still lacks the fidelity of modern high-end game engines like Unreal Engine 5.
-- **Memory Horizon**: The "consistency" of the world may drift after several minutes of continuous, far-ranging navigation.
-- **Compute Intensity**: Requires significant TPU/GPU resources for real-time inference, typically served via cloud APIs.
+- **Fidelity vs. Native Engines**: While real-time generative capabilities are highly advanced, it still lacks the ultra-high-definition ray-traced rendering quality of modern rasterized engines like Unreal Engine 5.
+- **Finite Memory Horizon**: After extended periods (e.g., tens of minutes) of continuous, far-ranging exploration, subtle drift in global consistency or terrain layout can occur.
+- **High Compute Overhead**: Real-time generation demands substantial TPU or high-end GPU clusters, making local execution on consumer hardware impractical without API-based cloud streaming.
 
 ## When to use it
-- When you need a custom, navigable environment for an AI agent to explore.
-- For "vibe-based" game development where the atmosphere is more important than specific hardcoded mechanics.
-- To create interactive demos for creative concepts or architectural visualizations.
-- For testing [Agent Protocols](../../knowledge_base/agent_protocols.md) in non-deterministic environments.
+- When you require a dynamic, fully navigable simulation environment for training, testing, or benchmarking AI agents.
+- For rapid game design brainstorming and "vibe-based" prototyping where atmospheric exploration is more important than deterministic, competitive pixel-per-frame mechanics.
+- To generate interactive virtual companions or environments for multi-modal agent frameworks.
+- For evaluating [Agent Protocols](../../knowledge_base/agent_protocols.md) and tool interaction patterns in non-deterministic environments.
 
 ## When not to use it
-- For production-grade games that require precise, pixel-perfect collision and deterministic physics.
-- In low-latency applications where any frame generation delay is unacceptable (sub-16ms).
-- When operating in extremely resource-constrained environments without cloud connectivity.
+- For production-grade video games that require pixel-perfect collision, deterministic physics, and local execution on low-spec consumer consoles.
+- In latency-critical applications where any frame generation delay (e.g., competitive e-sports requiring sub-10ms response times) is unacceptable.
+- When working entirely offline in edge environments that lack high-bandwidth connections to specialized cloud TPU/GPU runtimes.
 
 ## Getting started
 
 ### Prompting Genie 3
-Effective world generation in Genie 3 involves three core elements: the **Environment**, the **Character**, and the **World Sketch**.
+Effective world generation in Genie 3 involves structuring prompts around three key components: the **Environment**, the **Character**, and the **World Sketch**.
 
 #### Example: Text-to-World Prompt
 ```text
@@ -52,8 +53,8 @@ Action: Navigate the bike through tight alleys and over high-rise bridges.
 
 ### Navigating the World
 Once the world is generated:
-1.  **Select the Character**: Click on the object you wish to control.
-2.  **Input Actions**: Use standard WASD or arrow keys. Genie interprets these "latent actions" based on the character's inferred physics.
+1. **Select the Character**: Choose the primary entity you wish to control.
+2. **Input Actions**: Use standard WASD or arrow keys. Genie interprets these "latent actions" based on the character's inferred physics.
 
 ## CLI examples
 
@@ -77,16 +78,16 @@ genie-cli inspect ./worlds/cyberpunk.genie --physics
 ## API examples
 
 ### Integration with Anti-Gravity Agent
-The following example shows how to load a Genie environment for a Gemini 3.5 agent using the Managed Agents API (June 2026).
+The following example demonstrates loading a Genie 3 environment for a Gemini 3.5 agent using the Managed Agents API in July 2026.
 
 ```python
 import google_antigravity as ag
 from google_genie import GenieEnvironment
 
-# Load the generative world
+# Load the generative world model
 world = GenieEnvironment.load("cyberpunk_city_v3")
 
-# Initialize the agent with the Genie world as its surface
+# Initialize the agent with the Genie world as its physical surface
 agent = ag.Agent(
     model="gemini-3.5-pro",
     surface=world,
@@ -102,6 +103,7 @@ print(f"Mission Status: {status.success}")
 ```python
 import genie_sdk
 
+# Initialize the environment
 env = genie_sdk.make("platformer_forest")
 obs = env.reset()
 
@@ -111,14 +113,15 @@ obs, reward, done, info = env.step(action=[0.1, -0.5], latent_step_size=0.05)
 ```
 
 ## Related tools / concepts
-- [Sora](sora.md) — Passive high-fidelity video generation.
-- [Luma Dream Machine](luma-dream-machine.md) — High-quality generative video.
-- [Runway Gen-3](runway.md) — Professional video generation suite.
-- [Google Lyria](google-lyria.md) — Generative music and audio for worlds.
-- [Nano Banana](nano-banana.md) — Multimodal image-to-video capabilities.
-- [Anti-Gravity](../agents/agno.md) — The agentic framework using Genie as a simulator.
-- [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Protocol for agent interaction.
-- [Simulation-Aware Agents](../../knowledge_base/learning-map.md) — Research on agents that understand generative physics.
+- [Sora](sora.md) — Passive, high-fidelity generative video model.
+- [Luma Dream Machine](luma-dream-machine.md) — Fast, high-quality video generation tool.
+- [Runway Gen-3](runwayml.md) — SOTA enterprise video generation suite.
+- [Google Lyria](google-lyria.md) — Generative audio and music model integrated with interactive worlds.
+- [Nano Banana](nano-banana.md) — High-efficiency, multimodal image-to-video capabilities.
+- [Anti-Gravity](../agents/agno.md) — Agentic framework utilizing generative simulations.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standardized tool integration protocol.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Concepts on chaining agent actions and tool use.
+- [Agent Protocols](../../knowledge_base/agent_protocols.md) — Operational frameworks for agent communication.
 
 ## Sources / references
 - [Google DeepMind: Genie: Generative Interactive Environments](https://deepmind.google/discover/blog/genie-generative-interactive-environments/)
@@ -126,5 +129,5 @@ obs, reward, done, info = env.step(action=[0.1, -0.5], latent_step_size=0.05)
 - [ALM Corp: Project Genie Technical Analysis](https://almcorp.com/blog/google-deepmind-project-genie-technical-analysis-applications/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
