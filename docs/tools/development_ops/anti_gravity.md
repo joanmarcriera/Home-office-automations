@@ -1,10 +1,10 @@
 # Anti-Gravity
 
 ## What it is
-Anti-Gravity (v2026.4.x+) is Google's premier agentic development framework, designed to build and orchestrate autonomous AI agents capable of navigating, reasoning about, and modifying complex software ecosystems. It provides high-level abstractions for "Missions" (long-horizon tasks) and "Surfaces" (the agent's operational context), leveraging Gemini 3.5 Ultra/Flash for advanced reasoning and native code execution.
+Anti-Gravity (v2026.4.x+) is Google's premier agentic development and execution framework, engineered to build, orchestrate, and deploy autonomous AI agents. It utilizes the Gemini 3.5 series (Ultra/Flash/Pro), Gemini Spark, and Gemini Omni models, and natively supports the Model Context Protocol (MCP 3.0/3.1) to expose surfaces and execute stateful, long-horizon tasks ("Missions") across complex software ecosystems.
 
 ## What problem it solves
-Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering. It simplifies the creation of agents that can safely refactor multi-million line codebases, handle cross-repository dependencies, and maintain state over long-running asynchronous tasks, reducing the boilerplate associated with manual LLM orchestration and tool-calling loops.
+Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering. It simplifies the creation of agents that can safely refactor multi-million line codebases, handle cross-repository dependencies, and maintain state over long-running asynchronous tasks, reducing the boilerplate associated with manual LLM orchestration and tool-calling loops. It mitigates token ingestion bottlenecks and execution loop failures by natively integrating state checkpointing, execution-aware compression, and multi-modal sandbox isolation.
 
 ## Where it fits in the stack
 **Development & Ops**. It serves as the primary framework for building "Antigravity Agents" within the Google Cloud and Vertex AI ecosystems. It bridges the gap between raw LLM capabilities and production-grade autonomous agent deployments.
@@ -14,12 +14,14 @@ Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering.
 - **Agentic CI/CD**: Integrating agents into the deployment pipeline to automatically fix test failures or security vulnerabilities.
 - **Legacy Modernization**: Systematically analyzing and rewriting legacy COBOL or Java services into modern Go/Python architectures.
 - **Architectural Discovery**: Autonomous mapping of undocumented system dependencies and data flows.
+- **SOTA Mission Execution**: Deploying long-range, self-correcting agent missions that interface with external networks via MCP 3.0/3.1 client/server standard transports.
 
 ## Strengths
 - **Native Gemini Integration**: Optimized for Gemini's 2M+ token context window and native code execution capabilities.
-- **Mission Abstraction**: Sophisticated handling of multi-step, stateful operations with built-in checkpointing and recovery.
+- **Mission Abstraction**: Sophisticated handling of multi-step, stateful operations with built-in checkpointing, rollback, and recovery.
 - **Enterprise Security**: Native integration with Google Cloud IAM, VPC Service Controls, and SHARP-compliant security guardrails.
-- **Advanced Observability**: Detailed tracing of agent reasoning steps via integration with Google Cloud Operations (formerly Stackdriver).
+- **Advanced Observability**: Detailed tracing of agent reasoning steps and state telemetry via integration with Google Cloud Operations (formerly Stackdriver) and MCP 3.1 streaming telemetry.
+- **Multi-Agent Capabilities**: Direct support for orchestrating dual-agent pipelines (such as Vertex AI Agents cooperating with external Claude 5.1 missions).
 
 ## Limitations
 - **Ecosystem Lock-in**: Deeply tied to Google Cloud and Vertex AI infrastructure.
@@ -30,6 +32,7 @@ Anti-Gravity addresses the "Complexity Wall" in autonomous software engineering.
 - When building production-grade autonomous agents for enterprise-scale software engineering.
 - When your organization is already standardized on Google Cloud Platform (GCP).
 - For tasks requiring massive context (e.g., auditing an entire repository in a single prompt).
+- When utilizing Gemini Spark or Gemini Omni features for multimodal agent workflows.
 
 ## When not to use it
 - For small, local-only coding tasks where [Aider](./aider.md) or [Cline](../agents/cline.md) is sufficient.
@@ -81,20 +84,24 @@ mission:
   ```
 
 ## API examples
-The Anti-Gravity SDK allows for programmatic mission orchestration:
+The Anti-Gravity SDK allows for programmatic mission orchestration and MCP tool integration:
 
 ```python
 from google.cloud import antigravity
 
 client = antigravity.AgentServiceClient()
 
-# Define the operational surface
+# Define the operational surface with MCP 3.0/3.1 server tools
 surface = antigravity.Surface(
     repository="https://source.developers.google.com/p/my-proj/r/my-repo",
-    context_depth="high"
+    context_depth="high",
+    mcp_servers=[
+        "mcp://localhost:8080/filesystem",
+        "mcp://localhost:8081/database"
+    ]
 )
 
-# Launch an autonomous mission
+# Launch an autonomous mission utilizing Gemini 3.5 Pro/Spark capabilities
 mission = client.create_mission(
     parent="projects/my-proj/locations/us-central1",
     mission={
@@ -126,5 +133,5 @@ print(f"Mission launched: {mission.name}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
