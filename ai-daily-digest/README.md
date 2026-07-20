@@ -1,5 +1,298 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-19
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Chinese Model Surge**: Kimi K3 is dominating benchmarks (ranking #1 on SpreadsheetBench 2), while anticipation builds for the release of DeepSeek V4.
+* 🚀 **Hardware & Infrastructure**: AMD has acquired FastFlowLM to accelerate AI inference, and new "unlocks" for NVIDIA CMP GPUs are surfacing in the local LLM community.
+* 🔬 **Reasoning & Architecture**: New research explores controlling "reasoning effort" in LLMs and a novel "KV cache grafting" method for Gemma 4 to improve knowledge retrieval.
+* 🛠️ **Agentic Shift**: Industry analysis suggests the primary bottleneck for AI agents has shifted from the model itself to the "context layer" and environment serving.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier & Large Models
+* **Kimi K3**: Now ranks #1 on SpreadsheetBench 2, surpassing Claude Fable 5. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzzecz/kimi_k3_ranks_1_on_afterquerys_spreadsheetbench_2/)
+* **DeepSeek V4**: Reports indicate V4 is imminent, with a "Flash" version already being tested by users on high-VRAM setups (80GB+). [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v04jq2/deepseek_v4_soon/) | [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0etj2/deepseek_v4_flash_on_80_gb_vram_and_128_gb_ddr4/)
+* **Grok 4.5**: New comparisons suggest Grok 4.5 may be competitive with Claude Opus for coding tasks while using significantly fewer tokens. [Source: The New Stack](https://thenewstack.io/grok-opus-coding-tokens/)
+* **Soofi S 30B-A3B**: A new open-source MoE hybrid Mamba-Transformer model optimized for German and English. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0cyix/german_soofi_team_launches_soofi_s_30ba3b_an/)
+
+### Local & Specialized Models
+* **openPangu-2.0-Flash**: A 92B-A6B model with 512K context length has been added to `llama.cpp` via pull request. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v03psf/model_add_openpangu20flash_92ba6b_with_mlalatent/)
+* **catmind-1.2b**: A whimsical fine-tune of LFM2.5 that uses its "thinking block" to tell unrelated stories about cats. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzxov4/model_catmind12b/)
+* **Bonsai 8b**: Experiments in fine-tuning this ternary (sub-2-bit) model on Metal are underway. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0egoi/i_tried_finetuning_a_ternary_model_bonsai_8b_on/)
+
+---
+
+## 🛠️ Tools & Agents
+
+* **Pinecone Nexus**: A new "knowledge engine" designed to compile business context into structured data, reducing token costs and increasing accuracy for AI agents. [Source: InfoQ](https://www.infoq.com/news/2026/07/pinecon-nexus-knowledge-engine/)
+* **MiniBot v2**: A comprehensive, single-file AI assistant tool updated for improved local workflows. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0a9jn/sharing_minibot_v2_this_is_what_im_currently/)
+* **Local Film Pipeline**: A user demonstrated a full local movie production pipeline on an M5 Max Mac using Flux (stills), Wan 2.2/LTX (animation), Piper (narration), and Ace-step (score). [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0ibu2/i_couldnt_find_anyone_making_full_movies_locally/)
+* **Cache Invalidation Tool**: A new simple tool for developers building LLM harnesses to detect cache invalidation. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uztipo/if_youre_building_a_harness_here_is_a_simple_tool/)
+
+---
+
+## 🔬 Research & Papers
+
+* **KV Cache Grafting**: A new method for Gemma 4 12B that stores verified knowledge as KV state, improving AIME 2025 routing from 76.7% to 90.0%. [Paper](https://arxiv.org/abs/2607.14431) | [Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1v07tib/byte_exact_kv_cache_grafting_on_frozen_gemma_4/)
+* **Reasoning Effort**: Sebastian Raschka explores how LLMs learn and switch between low, medium, and high-effort reasoning modes. [Source: Ahead of AI](https://magazine.sebastianraschka.com/p/controlling-reasoning-effort-in-llms)
+* **Neural Net Catapulting**: Research into achieving more human-like neural networks through "catapulting." [Source: Gwern](https://gwern.net/llm-catapult)
+
+---
+
+## 🏢 Industry News
+
+* 📌 **AMD Acquisition**: AMD has joined forces with FastFlowLM to advance AI inference capabilities. [Source: AMD Blog](https://www.amd.com/en/blogs/2026/fastflowlm-joins-amd-to-advance-ai-inference.html)
+* **The "Agent Bottleneck"**: Analysis suggests that reliability issues in AI agents are no longer a model problem, but a failure of the context layer and the speed of environment serving. [Source: The New Stack](https://thenewstack.io/ai-agent-infrastructure-bottleneck/)
+* **OpenAI Perspective**: Dean W. Ball (OpenAI) discusses the risks and strategic implications of high-capability open-weight models coming out of China. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v0czbk/head_of_strategic_futures_from_openai_on/)
+* **GPU Market**: Discussion continues regarding the "AI Boom" inflating GPU prices, making it difficult for home server enthusiasts to upgrade VRAM. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v07ell/how_are_yall_stomaching_the_ai_boom_prices/)
+
+---
+
+## ⚠️ Community Alerts
+* **Scam Warning**: Users are flagging "Basalt Labs" for allegedly claiming fake HLE scores while serving DeepSeek models on their website and releasing Qwen-based weights. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uztylz/basalt_labs_pulling_a_generationally_dumb_scam/)
+
+---
+
+
+## 📅 Digest for 2026-07-18
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Kimi K3 Emerges as a Powerhouse**: The open-weight Kimi K3 is dominating coding and science benchmarks, with reports of it topping the NextJS and Text Arena leaderboards and even beating Sonnet 5 on Simple Bench.
+* 📌 **Extreme Quantization Breakthroughs**: New reports show "Bonsai 27B" running on iPhones via 1-bit quantization (reducing 54GB to 3.9GB), while community discussions explore the limits of local LLM efficiency.
+* 🏢 **The "Agentic" Infrastructure Shift**: A strong industry trend is emerging toward "Agentic AI" infrastructure, with new releases from 1Password (credential management), DoorDash (CLI for agents), and CNCF (cloud-native foundations).
+* 📈 **OpenAI's ROI Framework**: OpenAI CFO Sarah Friar has introduced a practical "AI Scorecard" to help enterprises measure the actual return on compute and task success.
+
+---
+
+## 🚀 Models & Releases
+
+### The Rise of Kimi K3
+* **Benchmark Dominance**: Kimi K3 is currently topping the NextJS eval and the Text Arena leaderboard for science queries. It has also reportedly beaten Sonnet 5 on Simple Bench. [The New Stack](https://thenewstack.io/kimi-k3-open-weight-coding/), [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uza5wb/kimi_k3_is_top_of_nextjs_eval/)
+* **Real-world Capability**: A user demonstrated Kimi K3 recreating a macOS-like interface in a web browser in a single shot. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzob0w/kimi_k3_recreating_macos27_in_web_browser/)
+
+### Local & Open-Weight Models
+* **Bonsai 27B**: A 1-bit quantized version of Qwen3.6-27B that fits in 3.9GB, allowing it to run locally on iPhones while retaining ~90% of benchmark scores. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uyz9n2/bonsai_27b_runs_locally_on_an_iphone_a_27b_model/)
+* **DeepSeek V4 Flash**: Extensive community testing on RTX 3090/4090 and Mac M5 Max shows strong performance with 1M context windows via `llama.cpp`. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uz5w3y/deepseek_v4_flash_on_5090_in_llamacpp_with_1/)
+* **New Entries**: 
+    * **Intern-S2-Preview-397B**: A massive new preview model on HuggingFace. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzifq8/internlminterns2preview397b_huggingface/)
+    * **Soofi S (30B-A3B)**: A new European open-source foundation model. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uyysg1/soofi_s_30ba3b_european_open_source_model/)
+    * **Monolith-1.0**: New release from Basalt Labs AI. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzjnnb/basaltlabsaimonolith10_huggingface/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Agent Infrastructure & Security
+* **Credential Management**: 1Password has launched a browser integration for Claude to solve the "machine identity" problem for AI agents. [The New Stack](https://thenewstack.io/1password-agent-authentication-framework/)
+* **Agent Interfaces**: DoorDash is introducing a CLI specifically for agents to handle everyday tasks more reliably. [The New Stack](https://thenewstack.io/doordash-cli-agents-order/)
+* **Hardware Optimization**: Arm and Google are collaborating on smarter options for running agentic AI workloads via the Axion CPU. [The New Stack](https://thenewstack.io/cpu-agentic-ai-axion/)
+* **Observability**: The "Observer" open-source app now allows local LLMs to watch screens and trigger notifications via a simplified setup. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uz8596/a_year_ago_you_told_me_my_opensource/)
+
+### Developer Tools
+* **NVIDIA NeMo**: New integration with Hugging Face Diffusers for scaling the fine-tuning of video and image models. [Hugging Face](https://huggingface.co/blog/nvidia/scale-diffusers-finetuning-nemo-automodel)
+* **Dolt 2.0**: The version-controlled SQL database now features automatic storage cleanup and improved vector data support. [InfoQ](https://www.infoq.com/news/2026/07/dolt-version-control/)
+* **Trellis.cpp**: The GGML-ported image-to-3D generation pipeline is now producing high-quality assets. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uyw64s/trelliscpp_now_produces_high_quality_assets/)
+
+---
+
+## 🔬 Research & Analysis
+
+* **ROI Measurement**: OpenAI's new "AI Scorecard" focuses on cost per successful task and "return on compute" rather than vague productivity gains. [OpenAI](https://openai.com/index/a-scorecard-for-the-ai-age)
+* **Distillation Flywheels**: Research on using OpenTelemetry to track user interactions with AI agents to distill frontier model behavior into smaller, local SLMs. [InfoQ](https://www.infoq.com/presentations/otel-slm-ai/)
+* **Cloud Native AI**: The CNCF argues that the future of trustworthy agents will rely on existing cloud-native ecosystems rather than entirely new stacks. [InfoQ](https://www.infoq.com/news/2026/07/cncf-trustworthy-agentic-ai/)
+* **Satire Alert**: A viral post on r/LocalLLaMA claiming "Negative-Bit Quantization" via Phase-Inverted Tensor Embedding is marked as satire. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uz80b4/research_breaking_the_1bit_floor_achieving/)
+
+---
+
+## 🏢 Industry News
+
+* **Geopolitics**: Chinese President Xi Jinping reaffirmed China's commitment to open-source AI to promote "openness and win-win" cooperation. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uytamy/chinese_president_xi_jinping_speaks_at_world_ai/)
+* **Hardware**: The AMD Instinct MI350P is gaining attention as a high-performance HBM PCIe AI accelerator. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uzm202/the_amd_instinct_mi350p_is_a_hbm_pcie_ai/)
+* **Operational AI**: QCon AI Boston highlighted a shift from "prompting" to "platforms," emphasizing the need for security harnesses around production agents. [InfoQ](https://www.infoq.com/news/2026/07/production-ai-platforms-evals/)
+
+---
+
+
+## 📅 Digest for 2026-07-17
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Kimi K3 Emerges**: Moonshot AI has released Kimi K3, a massive 2.8 trillion parameter model. Early benchmarks suggest it rivals frontier models like Claude Opus 4.8 and GPT-5.5, with open weights promised by July 27th.
+* 🚀 **Open-Weight Momentum**: The community is buzzing over the rapid closure of the gap between closed-source "frontier" models and open-weight alternatives, though concerns remain regarding the hardware requirements to run these behemoths locally.
+* 🛠️ **Agentic Risks**: New reports highlight critical vulnerabilities in AI agents, ranging from "billing shocks" (thousands of dollars spent in hours) to prompt injection risks, prompting OpenAI to release GPT-Red for automated hardening.
+* 🏢 **Industry Stance**: Linus Torvalds has reaffirmed his support for AI in software development, telling critics to either accept it or fork the Linux kernel.
+
+---
+
+## 🚀 Models & Releases
+
+### The Kimi K3 Phenomenon 📌
+A massive wave of discussion surrounds the release of **Kimi K3** by Moonshot AI.
+* **Scale & Performance**: A 2.8T parameter model that is currently available via web/API. It is reportedly beating Claude Opus 4.8 and GPT-5.5 in several benchmarks. [Simon Willison](https://simonwillison.net/2026/Jul/16/kimi-k3/#atom-entries) | [Latent Space](https://www.latent.space/p/ainews-kimi-k3-28t-a50b-the-largest)
+* **Open Weights**: Weights are expected to be released on **July 27, 2026**, potentially making it the largest open-weight model to date. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uyb88e/kimi_k3_weights_to_be_released_on_the_27th/)
+* **Community Debate**: Discussions on `r/LocalLLaMA` highlight a tension between the excitement of "frontier-level" open models and the reality that 2.8T parameters are nearly impossible to run on consumer hardware. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uylutc/anyone_else_completely_tuning_out_these_massive/)
+
+### Other Model Updates
+* **NVIDIA Nemotron 3 Embed**: Now ranks #1 overall on the RTEB, advancing the state of agentic retrieval. [Hugging Face](https://huggingface.co/blog/nvidia/nemotron-3-embed-wins-rteb)
+* **Qwen 3.6 27B**: Users are reporting significant speedups using speculative decoding (MTP and DFlash), with some seeing up to 6x gains in coding tasks. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uyg3za/i_tested_all_llamacpps_speculative_decoding/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Security & Guardrails
+* **GPT-Red**: OpenAI has introduced GPT-Red to automate prompt injection testing, helping developers harden AI agents against adversarial attacks. [The New Stack](https://thenewstack.io/gpt-red-prompt-injection-testing/)
+* **Billing Hazards**: A warning for agent developers—cloud billing lags behind "agent-speed" spending. Recent incidents show agents provisioning thousands of dollars in infrastructure or API calls in under 24 hours. [InfoQ](https://www.infoq.com/news/2026/07/ai-agents-billing-guardrails/)
+* **GoDaddy's Agent API**: GoDaddy has opened its registrar to AI agents but emphasizes the necessity of strict guardrails to prevent automated chaos. [The New Stack](https://thenewstack.io/godaddy-developer-platform-domains/)
+
+### Software & Libraries
+* **LM Studio Bionic**: A new update to the popular local LLM runner. [LM Studio](https://lmstudio.ai/blog/introducing-lm-studio-bionic)
+* **Google Vids**: Updates including Gemini Omni and Personal Avatars for AI-driven video creation. [Google AI Blog](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars/)
+* **Search Integration**: Google is expanding the ability to connect more third-party apps directly to Search. [Google AI Blog](https://blog.google/products-and-platforms/products/search/connected-apps/)
+
+---
+
+## 🔬 Research & Analysis
+
+* **Fine-Tuning vs. RAG**: A comprehensive guide on when to use each approach for production LLMs, noting that most high-end systems actually use a hybrid of both. [n8n Blog](https://blog.n8n.io/fine-tuning-vs-rag/)
+* **Model Routing**: An exploration of the complexities involved in routing queries between different models to balance cost and performance. [Hugging Face](https://huggingface.co/blog/ibm-research/model-routing-is-simple-until-it-isnt)
+* **Bioresilience**: Google DeepMind and Isomorphic Labs are collaborating on AI models to improve global bioresilience. [DeepMind](https://deepmind.google/blog/our-approach-to-bioresilience/)
+* **The "Validation Problem"**: An argument that the current bottleneck in software isn't deployment, but the ability to validate AI-generated code effectively. [The New Stack](https://thenewstack.io/solving-the-validation-problem/)
+
+---
+
+## 🏢 Industry News
+
+* **Linus Torvalds on AI**: The Linux kernel creator tells "AI haters" to either move on or fork the project, signaling a pragmatic acceptance of AI in the dev workflow. [The New Stack](https://thenewstack.io/torvalds-linux-ai-stance/)
+* **OpenAI for Teens**: OpenAI is implementing new age-appropriate protections and parental controls to make ChatGPT safer for teenage users. [OpenAI Blog](https://openai.com/index/why-teens-deserve-access-safe-ai)
+* **Enterprise Adoption**: Cars24 reports recovering 12% of lost leads by implementing OpenAI-powered voice and chat agents. [OpenAI Blog](https://openai.com/index/cars24)
+* **Geopolitics**: Chinese President Xi Jinping has publicly touted open-source AI as a means to challenge U.S. dominance in the sector. [WSJ via r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uysngh/chinas_xi_touts_opensource_ai_and_takes_a_swipe/)
+* **Microsoft Nostalgia**: Microsoft has open-sourced the original app that helped popularize the Comic Sans font. [The New Stack](https://thenewstack.io/microsoft-comic-chat-open-source/)
+
+---
+
+
+## 📅 Digest for 2026-07-16
+
+## Digest fallback for 2026-07-16
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [The US is advancing AI safety through state and federal action](https://openai.com/index/advancing-ai-safety-through-state-and-federal-action) (OpenAI Blog)
+2. [GPT-Red: Unlocking Self-Improvement for Robustness](https://openai.com/index/unlocking-self-improvement-gpt-red) (OpenAI Blog)
+3. [Linus Torvalds tells people to stop attacking others for using AI](https://www.reddit.com/r/LocalLLaMA/comments/1uxbrw4/linus_torvalds_tells_people_to_stop_attacking/) (r/LocalLLaMA)
+4. [Thinking Machines releases first open-weight model “Inkling”](https://www.reddit.com/r/LocalLLaMA/comments/1uxdv34/thinking_machines_releases_first_openweight_model/) (r/LocalLLaMA)
+5. [The best model is the one you can actually run](https://www.reddit.com/r/LocalLLaMA/comments/1ux9xze/the_best_model_is_the_one_you_can_actually_run/) (r/LocalLLaMA)
+6. [Google is updating Gemma 4's chat templates, bringing major fixes to tool calling and reducing "laziness", and enabling Flash Attention 4 on Hopper GPUs, plus an interactive guide on how to work with and improve its vision!](https://www.reddit.com/r/LocalLLaMA/comments/1uxfu4k/google_is_updating_gemma_4s_chat_templates/) (r/LocalLLaMA)
+7. [Grok Build open sourced under Apache 2.0 license](https://www.reddit.com/r/LocalLLaMA/comments/1uxi5mf/grok_build_open_sourced_under_apache_20_license/) (r/LocalLLaMA)
+8. [Inkling by Thinking Machines is the #1 US open weight model now](https://www.reddit.com/r/LocalLLaMA/comments/1uxhpws/inkling_by_thinking_machines_is_the_1_us_open/) (r/LocalLLaMA)
+9. [Hy3 1Bit 89-93 GB](https://www.reddit.com/r/LocalLLaMA/comments/1uxm2d8/hy3_1bit_8993_gb/) (r/LocalLLaMA)
+10. [PSA: Nvidia's CMP 170HX Full Compute and Memory(80GB) may be unlockable via exploit](https://www.reddit.com/r/LocalLLaMA/comments/1uxqccx/psa_nvidias_cmp_170hx_full_compute_and_memory80gb/) (r/LocalLLaMA)
+11. [Qwen3.5 122B-A10B · ROCmFP4 iMatrix](https://www.reddit.com/r/LocalLLaMA/comments/1uxqgke/qwen35_122ba10b_rocmfp4_imatrix/) (r/LocalLLaMA)
+12. [German AI consortium releases Soofi S, an open 30B model that tops benchmarks in both English and German](https://www.reddit.com/r/LocalLLaMA/comments/1uxao7y/german_ai_consortium_releases_soofi_s_an_open_30b/) (r/LocalLLaMA)
+13. [kimi.ai teasing a video with lots of 3's in it](https://www.reddit.com/r/LocalLLaMA/comments/1uxm627/kimiai_teasing_a_video_with_lots_of_3s_in_it/) (r/LocalLLaMA)
+14. [Qwen 3.6 27B is solid up to 262K context. How high have you guys gone above that using Rope/Yarn scaling?](https://www.reddit.com/r/LocalLLaMA/comments/1uxstxs/qwen_36_27b_is_solid_up_to_262k_context_how_high/) (r/LocalLLaMA)
+15. [NVIDIA-Nemotron-Labs-3-Puzzle-75B-A9B on 2x3090s](https://www.reddit.com/r/LocalLLaMA/comments/1uxuf99/nvidianemotronlabs3puzzle75ba9b_on_2x3090s/) (r/LocalLLaMA)
+16. [Apple in talks with startup PrismML that shrinks AI models to run on an iPhone](https://www.reddit.com/r/LocalLLaMA/comments/1ux4cn2/apple_in_talks_with_startup_prismml_that_shrinks/) (r/LocalLLaMA)
+17. [AMD ROCm 7.14 "TheRock" tech preview tagged for latest AMD GPU compute stack](https://www.reddit.com/r/LocalLLaMA/comments/1uxq4kb/amd_rocm_714_therock_tech_preview_tagged_for/) (r/LocalLLaMA)
+18. [RL post-training on 14 Macs across 4 countries](https://www.reddit.com/r/LocalLLaMA/comments/1uxb3zn/rl_posttraining_on_14_macs_across_4_countries/) (r/LocalLLaMA)
+19. [The Benchmarks of Thinking Machine's first open-source model Inkling](https://www.reddit.com/r/LocalLLaMA/comments/1uxgi4c/the_benchmarks_of_thinking_machines_first/) (r/LocalLLaMA)
+20. [Bonsai-27B & Ternary-Bonsai-27B - Updates (on PRs)](https://www.reddit.com/r/LocalLLaMA/comments/1ux4wrx/bonsai27b_ternarybonsai27b_updates_on_prs/) (r/LocalLLaMA)
+21. [New wave of miniboss models you can run on dual DGX Spark](https://www.reddit.com/r/LocalLLaMA/comments/1uxkl8u/new_wave_of_miniboss_models_you_can_run_on_dual/) (r/LocalLLaMA)
+22. [Has anyone using antirez ds4 compared to the unsloth GGUF?](https://www.reddit.com/r/LocalLLaMA/comments/1uxil7b/has_anyone_using_antirez_ds4_compared_to_the/) (r/LocalLLaMA)
+23. [Current efficient frontier of open models](https://www.reddit.com/r/LocalLLaMA/comments/1ux41ue/current_efficient_frontier_of_open_models/) (r/LocalLLaMA)
+24. [cuda: extract Q1_0 elements via __byte_perm by dfriehs · Pull Request #25628 · ggml-org/llama.cpp](https://www.reddit.com/r/LocalLLaMA/comments/1uxsaim/cuda_extract_q1_0_elements_via_byte_perm_by/) (r/LocalLLaMA)
+25. [tencent/Hy-Embodied-RxBrain-1.0 · Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1ux0x0v/tencenthyembodiedrxbrain10_hugging_face/) (r/LocalLLaMA)
+26. [[AINews] Thinky's Inkling: 975B-A41B multimodal, new best American Apache 2.0 open model (with Inkling-Small, 276B-A12B)](https://www.latent.space/p/ainews-thinkys-inkling-975b-a41b) (Latent Space)
+27. [Kubernetes won the container decade. Google’s Agent Substrate wants the next one.](https://thenewstack.io/kubernetes-ai-agent-runtime/) (The New Stack)
+28. [Trust, transactions and tokenomics: AI agent infrastructure begins to standardize](https://thenewstack.io/x402-foundation-ai-agents-standards/) (The New Stack)
+29. [Elon Musk: “We will make the entire codebase of X open source, with no exceptions.”](https://thenewstack.io/x-open-source-codebase/) (The New Stack)
+30. [Atlassian wants developers to finally like Jira](https://thenewstack.io/atlassian-jira-coding-agents/) (The New Stack)
+31. [OpenAI’s first gadget is the $230 Codex Micro macropad](https://thenewstack.io/openai-codex-micro-macropad/) (The New Stack)
+32. [Anaconda buys Kilo, the open source coding agent that answers to no single model maker](https://thenewstack.io/anaconda-kilo-open-source-acquisition/) (The New Stack)
+33. [Meta and the rise of the accidental cloud](https://thenewstack.io/meta-compute-supply-fragmentation/) (The New Stack)
+34. [“The database is the product”: What breaks when memory devices scale](https://thenewstack.io/ai-notetaker-database-architecture/) (The New Stack)
+35. [AI Data Centers and the Concentration of Wealth](https://www.schneier.com/blog/archives/2026/07/ai-data-centers-and-the-concentration-of-wealth.html) (Lobsters — AI tag)
+36. [Inventing ELIZA - How the First Chatbot Shaped the Future of AI](https://mitpress.mit.edu/9780262052481/inventing-eliza/) (Lobsters — AI tag)
+37. [Stripe Benchmark Shows AI Agents Build Integrations but Struggle with Validation](https://www.infoq.com/news/2026/07/stripe-ai-agents-benchmark/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+38. [Presentation: Postgres for Production Agents: Your Relational Foundation for Enterprise AI](https://www.infoq.com/presentations/postgres-ai-agents/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+39. [AWS Ships Claude Apps Gateway as Self-Hosted Control Plane for Claude Code and Claude Desktop](https://www.infoq.com/news/2026/07/claude-apps-gateway-aws/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=AI%2C+ML+%26+Data+Engineering) (InfoQ — AI, ML & Data Engineering)
+
+
+---
+
+
+## 📅 Digest for 2026-07-15
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **The "1-bit" Breakthrough**: PrismML has released **Bonsai 27B**, a ternary model that drastically reduces memory requirements (from 54GB to ~3.8GB) while retaining high intelligence, enabling 27B-class models to run on phones and low-end hardware like the Jetson Orin Nano.
+* 🚀 **Open-Weight Momentum**: A wave of new releases is imminent, with rumors and leaks suggesting **Kimi K3**, **DeepSeek V4**, and **GLM 5.5** are arriving shortly, further closing the gap between open-weight and proprietary models.
+* 🏢 **Enterprise Shift**: A strong trend is emerging toward "Agentic Engineering"—moving from simply using agents to building entire systems around them—while companies increasingly worry about "paying for intelligence twice" (money + proprietary data).
+* 🧠 **Meta's BCI Progress**: Meta open-sourced **Brain2Qwerty v2**, a non-invasive brain-computer interface achieving 61% accuracy in decoding thoughts into sentences.
+
+---
+
+## 🚀 Models & Releases
+
+### Local & Open-Weight
+* 📌 **Bonsai 27B (PrismML)**: A major milestone in quantization. This 1-bit dense LLM uses custom WebGPU kernels to run in browsers and on mobile devices. It shrinks a 27B model to ~3.8GB with minimal intelligence loss. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uwhukq/bonsai_27b_the_first_27bclass_model_to_run_on_a/)
+* **Gemma-4-31B-AntiHal**: A steered variant of Gemma designed to push back on false premises and fabricated data rather than hallucinating. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uwhwt8/gemma431bantihal_gemma_steered_to_push_back_on/)
+* **Upcoming Releases**: High anticipation for **Kimi K3**, **DeepSeek V4**, **Liquid**, **Mistral**, and **GLM 5.5**. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uwe542/kimi_k3_in_the_next_few_hours_deepseek_v4_ga/)
+* **KAT-Coder-Air V2.5**: A new open coding model now available via OpenRouter. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uwbe7w/katcoderair_v25_open_model_soon/)
+
+### Proprietary
+* **OpenAI Codex**: Now hitting 8 million users, with growth reported at 1 million new users per day. [Source: The New Stack](https://thenewstack.io/gpt-5-6-codex-user-surge/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Frameworks & Standards
+* 📌 **Agentic Resource Discovery (ARD)**: Google and partners announced an open standard for publishing and verifying AI tools and APIs, building on MCP and OpenAPI. [Source: InfoQ](https://www.infoq.com/news/2026/07/agentic-resource-discovery-spec/)
+* **Google Genkit Agents API**: Now in preview for TypeScript and Go, featuring "detached turns" (agents work after client disconnect) and human-in-the-loop controls. [Source: InfoQ](https://www.infoq.com/news/2026/07/genkit-agents-api-preview/)
+* **ExLlamaV3 v1.0.0**: The first production release of ExLlamaV3, bringing major performance upgrades to local inference. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uwylut/exllamav3_v100_major_performance_upgrades/)
+
+### Developer Utilities
+* **audio.cpp**: New release 0.3 allows massive audio generation speeds (10 hours of audio in 3 mins on an RTX 5090). [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uwpvt9/audiocpp_10_hours_of_audio_generated_in_3_minutes/)
+* **Google Cloud Workbench**: New VS Code extension connects local IDEs directly to managed Jupyter notebooks on GCP. [Source: InfoQ](https://www.infoq.com/news/2026/07/cloud-workbench-vscode-extension/)
+
+---
+
+## 🏢 Industry & Enterprise
+
+### Strategy & Economics
+* **The "Data Tax"**: Discussion around Satya Nadella's warning that companies pay for AI twice: once in cash and once in proprietary knowledge. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1uwqgqs/some_of_yall_wonder_why_anyone_would_self_host_ai/)
+* **IBM Earnings**: A miss in earnings highlights struggles in adapting quickly enough to enterprise AI spending shifts. [Source: The New Stack](https://thenewstack.io/ibm-earnings-ai-infrastructure/)
+* **OpenAI Enterprise Guidance**: New guides on managing AI investments by measuring "useful work per dollar" and scaling high-value workflows. [Source: OpenAI Blog](https://openai.com/index/managing-ai-investments-in-agentic-era)
+
+### Security & Governance
+* **Cloud Monitoring**: AWS Security Hub now monitors Microsoft Azure resources. [Source: The New Stack](https://thenewstack.io/aws-security-hub-azure/)
+* **Agent Governance**: Concerns rising over "vibe coding slop" and the security risks of granting 200+ AI agents VPN access. [Source: The New Stack](https://thenewstack.io/unified-access-ai-agents/)
+
+---
+
+## 🔬 Research & Other
+
+* **Brain-Computer Interface**: Meta's **Brain2Qwerty v2** achieves 61% accuracy in decoding thoughts into text via non-invasive EEG/MEG. [Source: InfoQ](https://www.infoq.com/news/2026/07/meta-brain-interface/)
+* **Verifiable Inference**: New exploration into making AI inference verifiable. [Source: Lobsters](https://blog.vrypan.net/2026/07/14/verifiable-ai-inference/)
+* **Data Evolution**: Proposal for "Schemaboi," embedding schemas in file headers for forward/backward compatibility. [Source: InfoQ](https://www.infoq.com/news/2026/07/durable-document-schema/)
+
+---
+
+
 ## 📅 Digest for 2026-07-14
 
 # AI & Technology Daily Digest
