@@ -1,126 +1,170 @@
 # GPT Engineer
 
 ## What it is
-GPT Engineer is an AI tool that can build entire applications from a single prompt. It focuses on the "bootstrapping" phase of development, where it asks clarifying questions to refine requirements before generating a complete, functional codebase. As of June 2026, **v2.x** has introduced deep integration with **WebContainer** technology, allowing for real-time, full-stack previews directly in the browser.
+GPT Engineer is an AI-driven software engineering orchestrator and prototyping platform designed to generate complete, functional application codebases from high-level natural language prompts. It focuses specifically on the "bootstrapping" phase of software development, utilizing interactive prompting loops to clarify requirements prior to generation. As of July 2026, **v2.4.x+** introduces advanced integration with **WebContainer** environments to provide instant, browser-based full-stack previews, alongside full support for the **Model Context Protocol (MCP 3.0/3.1)** to ingest external schema definitions and API contracts.
 
 ## What problem it solves
-Reduces the time to bootstrap a new project by generating a complete codebase from a natural language description. It solves the "configuration hell" and boilerplate overhead associated with starting new applications, specifically optimized for prototypes, MVPs, and rapid full-stack iteration using the latest June 2026 framework standards.
+Reduces the cognitive and procedural overhead of starting new projects by automating boilerplate creation, environment configuration, and directory scaffolding. It bridges the gap between conceptual requirements and runnable applications, eliminating "configuration hell" and allowing developers to quickly test ideas in an isolated, previewable client-side sandbox.
 
 ## Where it fits in the stack
-**Development & Ops**. Functions as an AI-driven project scaffolding and code generation tool. It is often the first tool used in the "Software Factory" pipeline, bridging the gap between initial ideation and a functional, previewable application.
+**Development & Ops**. Functions as a high-fidelity codebase scaffolding and automated development system. It sits at the top of the "Software Factory" pipeline, turning product requirements into structured repositories that can be further developed using interactive coding assistants or manually by engineers.
 
 ## Typical use cases
-- **Rapid Prototyping**: Generating a full project codebase from a single intent.
-- **Full-stack Previews**: Using WebContainer integration to see a running version of the app immediately after generation.
-- **Microservices Scaffolding**: Generating boilerplate for complex microservices with standardized API contracts.
-- **Architectural Exploration**: Quickly generating variations of a project to compare different framework approaches.
+- **Greenfield Prototyping**: Instantly bootstrapping a React dashboard, Python microservice, or database-backed web application from a descriptive text prompt.
+- **Client-Side Interactive Previews**: Deploying generated code directly inside a WebContainer-based browser tab to visually inspect UI elements and interactive flows in real-time.
+- **API and Schema Bootstrapping**: Combining GPT Engineer with MCP servers to import database structures (e.g., PostgreSQL or Supabase schemas) and generate matching typed endpoints.
+- **Architectural Exploration**: Comparing different frontend frameworks (such as Svelte, Next.js, or Vue) by generating the same functional MVP across each stack.
 
 ## Strengths
-- **End-to-end Generation**: Creates complete, runnable projects rather than just snippets.
-- **Iterative Logic**: Interactive clarifying questions significantly improve output quality compared to "one-shot" generators.
-- **WebContainer Integration**: Native support for in-browser execution and preview of generated full-stack apps.
-- **Open Source**: Transparent logic and community-driven improvements.
-- **v2.x Performance**: Optimized for frontier models like Claude 4.8 and GPT-5.5, ensuring higher-fidelity architectural decisions.
+- **Interactive Clarification Loop**: Rather than generating code in a "one-shot" manner, it queries the developer on ambiguous specifications before writing a single line of code, significantly reducing logical errors.
+- **WebContainer Integration**: Compiles and runs generated full-stack Node.js environments client-side, removing the need for local package installations during exploration.
+- **Frontier Model Optimization**: Fully optimized for July 2026 reasoning models (including Claude 5.1, GPT-5.5, Gemma 3, Qwen 3.6, and Llama 4), ensuring superior code modularity and adherence to modern syntax rules.
+- **Extensible File System Manipulation**: Operates cleanly over local workspaces, producing editable files without lock-in.
 
 ## Limitations
-- **Maintenance**: Generated code can be difficult to maintain if the logic is complex or non-standard.
-- **Hallucinations**: Like all LLM tools, it may occasionally use deprecated libraries or invent non-existent APIs.
-- **Scalability**: Best suited for small-to-medium projects; large-scale systems still require significant manual architectural design.
-- **Compute Intensity**: Full-stack generation and WebContainer previews require significant client-side resources.
+- **Incremental Refactoring**: While outstanding at initial project creation, editing highly complex, multi-module legacy codebases remains a challenge; incremental tools like [Aider](aider.md) are better suited for these tasks.
+- **WebContainer Sandbox Constraints**: Client-side execution is limited to Node.js/browser environments; heavy server technologies (like Docker-based backend clusters or C++ runtimes) cannot run inside browser-native WebContainers.
+- **Security Auditing**: Generates code based on public packages; developers must manually audit dependencies and code blocks before promoting to production.
 
 ## When to use it
-- When bootstrapping a new project from scratch (Greenfield development).
-- When rapid prototyping is more important than production-hardened code.
-- For learning new frameworks by seeing how the AI structures a project.
-- When you need a "live" preview of a generated application immediately.
+- When you need to build a new application, feature prototype, or MVP from scratch.
+- When you want to immediately see and interact with your application without performing local `npm install` or setting up virtual environments.
+- When generating scaffolded microservices with strict schema boundaries.
+- For rapid training and experimentation with novel frontend frameworks.
 
 ## When not to use it
-- When making incremental changes to an existing codebase (use [Aider](aider.md) or [Plandex](plandex.md) instead).
-- When precise, enterprise-grade control over code structure and security is required from day one.
-- For high-security applications where AI-generated code must undergo rigorous manual auditing.
+- For modifying or refactoring large-scale, pre-existing enterprise applications (use [Aider](aider.md) or [Plandex](plandex.md)).
+- When building backend systems requiring non-Node, heavy server architectures (such as complex Kubernetes deployments or low-level systems programming).
+- In environments where absolute, manual control over every architectural pattern and package choice is required from day one.
 
 ## Getting started
 ### Installation
-GPT Engineer v2.x can be installed via pip or run directly via npx for the latest web-based features.
+GPT Engineer v2.4.x+ can be run directly from the shell via `npx` (which leverages WebContainers for browser-based work) or installed as a Python package via `pip` for local-only file generation.
 
 ```bash
-# Install via pip
-pip install gpt-engineer
-
-# Or run via npx for WebContainer-enabled projects
+# To run the WebContainer-integrated interactive generator:
 npx gpt-engineer
+
+# To install the command-line workspace generator locally:
+pip install gpt-engineer
 ```
 
 ### Basic Workflow
-1. **Create a project folder**: `mkdir my-app && cd my-app`
-2. **Initialize**: `gpt-engineer .`
-3. **Prompt**: Enter your requirements when prompted (e.g., "A React-based dashboard for home energy monitoring").
+1. **Prepare Workspace**: Create and navigate to a new empty directory:
+   ```bash
+   mkdir home-dashboard && cd home-dashboard
+   ```
+2. **Initialize Scaffolder**:
+   ```bash
+   gpt-engineer .
+   ```
+3. **Specify Requirements**: Provide a descriptive text description when prompted.
+4. **Clarify**: Respond to the interactive questions generated by the assistant.
+5. **Inspect & Run**: Review files created in the workspace.
 
 ## CLI examples
-### Project Generation
+### Greenfield App Generation
 ```bash
-# Generate a project in the current directory using a specific model
-gpt-engineer . --model claude-4.8-opus
+# Generate a React application in the current directory using Claude 5.1
+gpt-engineer . --model claude-5.1 --prompt "A sleek home automation panel tracking temperature and lighting"
 ```
 
-### Clarification Mode
+### Spec-First Generation (Clarify Mode)
 ```bash
-# Force the clarification loop to ensure detailed specs
-gpt-engineer . --steps clarify
+# Force the agent to run through an extended question-and-answer loop to build exact specifications
+gpt-engineer . --steps clarify --model gpt-5.5
 ```
 
-### Headless Generation
+### Non-Interactive CI/CD Scaffolding
 ```bash
-# Run without interactive prompts for CI/CD pipelines
-gpt-engineer . --prompt "A FastAPI backend for a book inventory" --no-interactive
+# Run headless code generation for a fastapi backend service using a predefined prompt file
+gpt-engineer . --prompt-file ./requirements.txt --no-interactive --model gemini-3.5-pro
 ```
 
 ## API examples
-### Programmatic Initialization (Python)
+### Python Core Programmatic Generation
+Developers can embed GPT Engineer within automated "Software Factories" to programmatically assemble codebases.
+
 ```python
 from gpt_engineer.core.ai import AI
 from gpt_engineer.core.steps import gen_code
+from gpt_engineer.core.db import DBs, Archive, DB
 
-def build_app(prompt_text):
-    ai = AI(model_name="gpt-5.5-preview")
-    # Execute the generation steps
-    dbs = gen_code(ai, prompt_text)
-    return dbs.workspace.path
+def generate_automated_microservice(requirements_path: str, output_path: str):
+    # Initialize connection to SOTA reasoning models
+    ai = AI(model_name="gpt-5.5")
+
+    # Setup working database structures
+    workspace = DB(output_path)
+    dbs = DBs(
+        workspace=workspace,
+        archive=Archive(output_path + "/archive"),
+        preprompts=DB("./preprompts")
+    )
+
+    # Ingest prompt file
+    with open(requirements_path, "r") as f:
+        prompt = f.read()
+
+    print(f"Generating codebase in: {output_path}")
+    # Execute generation steps
+    gen_code(ai, dbs, prompt)
+    print("Generation complete!")
 
 if __name__ == "__main__":
-    path = build_app("A simple todo app using Flask and SQLite")
-    print(f"App generated at: {path}")
+    generate_automated_microservice("specs.txt", "./src/generated_service")
 ```
 
-### WebContainer Preview Hook (JavaScript)
-```javascript
-import { GPTEngineer } from '@gpt-engineer/sdk';
+### JS/TS WebContainer SDK Integration
+ In-browser platforms can programmatically trigger GPT Engineer and mount the resulting workspace into a local iframe using WebContainers.
 
-const gpte = new GPTEngineer({ apiKey: 'your-api-key' });
+```typescript
+import { GPTEngineerSDK } from '@gpt-engineer/sdk';
 
-async function generateAndPreview() {
-  const project = await gpte.generate("A portfolio site for a photographer");
-  // The SDK automatically handles the WebContainer mounting
-  await project.preview();
+const client = new GPTEngineerSDK({
+  apiKey: process.env.GPT_ENGINEER_API_KEY,
+  mcpServers: ['http://localhost:3011/mcp'] // Connect to local MCP context
+});
+
+async function runBrowserEngine() {
+  const prompt = "A responsive dashboard for tracking local solar panel outputs";
+
+  // Scaffolds code and automatically returns a WebContainer-compatible volume object
+  const project = await client.createProject({
+    prompt,
+    framework: 'vite-react-ts',
+    llm: 'claude-5.1'
+  });
+
+  // Mounts the virtual file system client-side and returns the server URL
+  const previewUrl = await project.mountAndServe();
+
+  // Embed in iframe
+  const iframe = document.getElementById('preview-frame') as HTMLIFrameElement;
+  iframe.src = previewUrl;
 }
 ```
 
 ## Related tools / concepts
-- [Plandex](plandex.md) — For complex, multi-step code migrations.
-- [OpenHands](openhands.md) — Autonomous agentic platform for general tasks.
-- [Codeium](codeium.md) — Real-time AI autocomplete and refactoring.
-- [Aider](aider.md) — Terminal-based pair programming and editing.
-- [Software Factories](../../knowledge_base/patterns/software-factories.md) — The architectural pattern for automated code generation.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns for multi-step AI tasks.
-- [Claude Code](claude-code.md) — High-fidelity interactive coding agent.
-- [WebContainer API](https://webcontainers.io/) — The underlying technology for in-browser previews.
+- [Aider](aider.md) — Terminal-based collaborative coding tool optimized for incremental edits.
+- [Anti-Gravity](anti_gravity.md) — Google's premier agentic development and task orchestration framework.
+- [Claude Code](claude-code.md) — Anthropic's interactive high-fidelity terminal agent.
+- [Codeium](codeium.md) — Multi-IDE AI autocomplete and agentic refactoring.
+- [Cursor](cursor.md) — AI-first IDE optimized for codebase navigation and chat-driven edits.
+- [Devin](devin.md) — Full-featured autonomous software engineering agent.
+- [Droid](droid.md) — Specialized enterprise-grade coding orchestrator.
+- [Junie CLI](junie-cli.md) — JetBrains AI Lab terminal codebase navigation assistant.
+- [Melty](melty.md) — Open-source AI-native IDE with deep git and terminal loop integration.
+- [OpenHands](openhands.md) — General-purpose autonomous software agent platform.
+- [Plandex](plandex.md) — CLI-based multi-step code-generation orchestrator.
+- [../../knowledge_base/patterns/software-factories.md](../../knowledge_base/patterns/software-factories.md) — Pattern for automated code generation.
 
 ## Sources / references
 - [GPT Engineer GitHub Repository](https://github.com/AntonOsika/gpt-engineer)
-- [Official Documentation](https://gpt-engineer.readthedocs.io/)
-- [WebContainer Integration Guide](https://gpt-engineer.readthedocs.io/en/latest/webcontainers.html)
-- [GPT Engineer v2.0 Release Notes](https://github.com/AntonOsika/gpt-engineer/releases/tag/v2.0.0)
+- [Official Documentation and Guides](https://gpt-engineer.readthedocs.io/)
+- [WebContainer API Integration](https://webcontainers.io/)
+- [GPT Engineer v2.4.0 Release Notes](https://github.com/AntonOsika/gpt-engineer/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
