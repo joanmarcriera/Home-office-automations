@@ -1,11 +1,71 @@
 {
   "sources": {
+    "ag2.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "ai.google.dev": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "airflow.apache.org": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "aistudio.google.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "aitmpl.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "akiflow.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "amd.com": {
+      "discovered": 1,
+      "integrated": 0,
+      "score": 0.0
+    },
     "anthropic.com": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
+    "anytype.io": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
+    "app.runwayml.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "app.teamout.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "apple.com": {
       "discovered": 3,
       "integrated": 3,
       "score": 1.0
     },
-    "app.teamout.com": {
+    "argoproj.github.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "arize.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -15,7 +75,32 @@
       "integrated": 3,
       "score": 1.0
     },
+    "assistantbench.github.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "awesome-skills.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "awesomeclaude.ai": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "aws.amazon.com": {
+      "discovered": 6,
+      "integrated": 6,
+      "score": 1.0
+    },
     "ben-evans.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "bigswitch.eu": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -25,9 +110,54 @@
       "integrated": 1,
       "score": 1.0
     },
-    "code.claude.com": {
+    "blog.google": {
+      "discovered": 7,
+      "integrated": 6,
+      "score": 0.86
+    },
+    "braintrustdata.com": {
       "discovered": 1,
       "integrated": 1,
+      "score": 1.0
+    },
+    "build.nvidia.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "chatgpt.com": {
+      "discovered": 1,
+      "integrated": 0,
+      "score": 0.0
+    },
+    "claude.ai": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "clawhub.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "cline.bot": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "cloudflare.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "code.claude.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "cognition.ai": {
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "cohere.com": {
@@ -35,19 +165,204 @@
       "integrated": 2,
       "score": 1.0
     },
-    "deepseek.com": {
-      "discovered": 2,
-      "integrated": 0,
-      "score": 0.0
+    "comet.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
     },
-    "fireworks.ai": {
+    "copy.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "crfm.stanford.edu": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "cursor.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "dagster.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "deepmind.google": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "deepseek.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "developer.nvidia.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "developers.google.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "dify.ai": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
+    "docker.com": {
       "discovered": 2,
       "integrated": 2,
       "score": 1.0
     },
-    "gist.github.com": {
+    "docs.cloud.google.com": {
       "discovered": 1,
       "integrated": 1,
+      "score": 1.0
+    },
+    "docs.github.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "docs.heygen.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "docs.langchain.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "docs.litellm.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "docs.nvidia.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "docs.openclaw.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "docs.paperless-ngx.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "docs.python.org": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
+    "docs.searxng.org": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "docs.useanything.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "duckdb.org": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "elevenlabs.io": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "en.wikipedia.org": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "exa.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "example.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "factory.strongdm.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "fastapi.tiangolo.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "firebase.google.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "fireworks.ai": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "flexibits.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "flyte.org": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "gaia-benchmark.github.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "gemini.google": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "gemini.google.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "genspark.ai": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "getdex.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "giskard.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "gist.github.com": {
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "github.blog": {
@@ -56,8 +371,43 @@
       "score": 1.0
     },
     "github.com": {
-      "discovered": 37,
-      "integrated": 37,
+      "discovered": 221,
+      "integrated": 219,
+      "score": 0.99
+    },
+    "glaive.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "gnu.org": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "goauthentik.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "google.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "google.com?update=2026-03-30": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "google.com?update=2026-04-08": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "grafana.com": {
+      "discovered": 2,
+      "integrated": 2,
       "score": 1.0
     },
     "groq.com": {
@@ -65,17 +415,202 @@
       "integrated": 2,
       "score": 1.0
     },
+    "habitica.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "hamilton.dagworks.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "helm.sh": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "help.runwayml.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "heygen.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "home-assistant.io": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "huggingface.co": {
+      "discovered": 15,
+      "integrated": 13,
+      "score": 0.87
+    },
+    "hypothesis.works": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "infoq.com": {
+      "discovered": 4,
+      "integrated": 0,
+      "score": 0.0
+    },
+    "jan.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "jasper.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "jellyfin.org": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "joplinapp.org": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "json-schema.org": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "jupyter.org": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "k3s.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "k8slens.dev": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
     "kanyilmaz.me": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
     },
-    "langchain.com": {
+    "kestra.io": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
     },
+    "lakera.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "langchain.com": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
+    "langflow.org": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "langfuse.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "latent.space": {
+      "discovered": 7,
+      "integrated": 7,
+      "score": 1.0
+    },
+    "learn.microsoft.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
     "linum.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "litellm.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "livecodebench.github.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "llama.meta.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "llamaindex.ai": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
+    "llamatrace.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "lmstudio.ai": {
+      "discovered": 2,
+      "integrated": 1,
+      "score": 0.5
+    },
+    "lobehub.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "localai.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "logseq.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "longhorn.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "lumalabs.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "madalitso.me": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "make.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "mastra.ai": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -90,12 +625,57 @@
       "integrated": 1,
       "score": 1.0
     },
+    "microsoft.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "milvus.io": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
     "mistral.ai": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "modelcontextprotocol.info": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "modelcontextprotocol.io": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "morgen.so": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "msty.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "multion.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "n8n.io": {
       "discovered": 2,
       "integrated": 2,
       "score": 1.0
     },
-    "modelcontextprotocol.info": {
+    "netlify.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "newrelic.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -105,27 +685,217 @@
       "integrated": 1,
       "score": 1.0
     },
+    "nextcloud.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "notebooklm.google.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "notion.so": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
     "npmjs.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
     },
-    "ollama.com": {
+    "obsidian.md": {
       "discovered": 2,
-      "integrated": 0,
-      "score": 0.0
+      "integrated": 2,
+      "score": 1.0
+    },
+    "ollama.com": {
+      "discovered": 6,
+      "integrated": 6,
+      "score": 1.0
+    },
+    "opal.google": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "openai.com": {
+      "discovered": 18,
+      "integrated": 18,
+      "score": 1.0
+    },
+    "openbb.co": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "opencompass.org.cn": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
     },
     "openpipe.ai": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
     },
-    "replicate.com": {
+    "openrouter.ai": {
+      "discovered": 7,
+      "integrated": 7,
+      "score": 1.0
+    },
+    "opentelemetry.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "os-world.github.io": {
       "discovered": 2,
       "integrated": 2,
       "score": 1.0
     },
+    "outlook.live.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "pages.cloudflare.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "perplexity.ai": {
+      "discovered": 1,
+      "integrated": 0,
+      "score": 0.0
+    },
+    "pinecone.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "pipedream.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "platform.minimaxi.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "platform.moonshot.cn": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "playwright.dev": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "posthog.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "pptr.dev": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "prefect.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "prometheus.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "promptfoo.dev": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "proton.me": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "pulsemcp.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "python.langchain.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "pytorch.org": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "qwenlm.github.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "ragflow.io": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "railway.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "reclaim.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "reddit.com": {
+      "discovered": 85,
+      "integrated": 58,
+      "score": 0.68
+    },
+    "render.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "replicate.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "researchobject.org": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "rivet.ironcladapp.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "roamresearch.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
     "rockwotj.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "runwayml.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -135,9 +905,19 @@
       "integrated": 1,
       "score": 1.0
     },
+    "sdk.vercel.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "si.inc": {
       "discovered": 1,
       "integrated": 1,
+      "score": 1.0
+    },
+    "silverbullet.md": {
+      "discovered": 5,
+      "integrated": 5,
       "score": 1.0
     },
     "simonlermen.substack.com": {
@@ -145,7 +925,72 @@
       "integrated": 1,
       "score": 1.0
     },
+    "simonwillison.net": {
+      "discovered": 3,
+      "integrated": 2,
+      "score": 0.67
+    },
+    "skaffold.dev": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
+    "smartaitoolshub.online": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "stackone.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "stitch.withgoogle.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "supabase.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "superinterface.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "synthesia.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "tasks.google.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "tavily.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "techradar.com": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "temporal.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "thenewstack.io": {
+      "discovered": 31,
+      "integrated": 27,
+      "score": 0.87
+    },
+    "todoist.com": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -160,12 +1005,52 @@
       "integrated": 1,
       "score": 1.0
     },
+    "unsloth.ai": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "unstructured.io": {
+      "discovered": 4,
+      "integrated": 4,
+      "score": 1.0
+    },
+    "usemotion.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
     "valyu.ai": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
     },
+    "vaultproject.io": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "vercel.com": {
+      "discovered": 3,
+      "integrated": 3,
+      "score": 1.0
+    },
     "vibrantlabs.com": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
+    },
+    "vikunja.io": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "wandb.ai": {
+      "discovered": 2,
+      "integrated": 2,
+      "score": 1.0
+    },
+    "weaviate.io": {
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
@@ -174,7 +1059,17 @@
       "discovered": 1,
       "integrated": 1,
       "score": 1.0
+    },
+    "zapier.com": {
+      "discovered": 1,
+      "integrated": 0,
+      "score": 0.0
+    },
+    "zenml.io": {
+      "discovered": 1,
+      "integrated": 1,
+      "score": 1.0
     }
   },
-  "updated": "2026-03-02"
+  "updated": "2026-07-20"
 }
