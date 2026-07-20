@@ -37,55 +37,89 @@ Parea bridges the gap between prompt experimentation and production reliability.
 ## Getting started
 
 ### Installation
+Install the official Parea SDK via `pip` (Python) or `@parea-ai/sdk` (Node.js):
+
 ```bash
+# Install Python SDK
 pip install parea-ai
+
+# Or install Node.js SDK
+npm install @parea-ai/sdk
 ```
 
-### Basic Tracing
+### Authentication Setup
+Get your API key from the Parea dashboard and export it to your environment:
+
+```bash
+export PAREA_API_KEY="your_api_key_here"
+```
+
+### Hello World Example
+Initialize Parea and wrap your LLM function with the `@trace` decorator to automatically log execution data, token consumption, and latency:
+
 ```python
 from parea import Parea, trace
 
-p = Parea(api_key="YOUR_API_KEY")
+# Initialize the Parea SDK (reads PAREA_API_KEY from environment)
+p = Parea()
 
 @trace
-def my_llm_function(query: str):
-    # Your LLM logic here
-    return "Result"
+def my_llm_function(user_query: str) -> str:
+    # Your LLM call or business logic here
+    response_text = f"Processed query: {user_query}"
+    return response_text
 
-my_llm_function("Hello Parea!")
+# Run the function; trace is automatically dispatched to the dashboard
+print(my_llm_function("Hello Parea!"))
 ```
 
 ## CLI examples
+The `parea` command-line utility provides commands to manage local authentication, run batch evaluations, and fetch deployed prompts:
 
-### parea login
 ```bash
+# 1. Authenticate your local shell environment with Parea Cloud
 parea login
-```
 
-### parea experiment
-```bash
-parea experiment --func my_script.py:my_func --data my_data.json
+# 2. Run a local evaluation experiment on your functions against a dataset file
+parea experiment --func my_script.py:my_func --data ./test_dataset.json
+
+# 3. List or inspect locally deployed prompt assets in your active project
+parea deploy list
 ```
 
 ## API examples
+Deploy, run, and score automated evaluations (experiments) programmatically using the Parea client.
 
-### Python (Running an Experiment)
+### Programmatic Experiment with Heuristic Evaluators
+Define a target function, prepare a list of test cases, and execute a local evaluation pipeline with automated metric scoring:
+
 ```python
 from parea import Parea
 from parea.schemas import TestCase
+from parea.evals.general import levenshtein
 
-p = Parea(api_key="YOUR_API_KEY")
+p = Parea()
 
-def my_llm_func(input: str) -> str:
-    return f"AI says: {input}"
+def my_llm_runner(inputs: dict) -> str:
+    # Simulated LLM response
+    return f"AI Answer: {inputs['query']}"
 
-# Run evaluation on a small dataset
-data = [TestCase(inputs={"input": "Hello"}, target="AI says: Hello")]
-p.experiment(
-    name="baseline-test",
-    data=data,
-    func=my_llm_func,
+# Prepare test data with target outputs
+test_cases = [
+    TestCase(
+        inputs={"query": "Draft a welcome message"},
+        target="AI Answer: Draft a welcome message"
+    )
+]
+
+# Configure and run the experiment using the Levenshtein distance metric
+experiment_result = p.experiment(
+    name="welcome-prompt-test",
+    data=test_cases,
+    func=my_llm_runner,
 ).run()
+
+print(f"Experiment completed. Metrics: {experiment_result}")
 ```
 
 ## Related tools / concepts
@@ -102,8 +136,8 @@ p.experiment(
 ## Sources / References
 - [Parea AI Website](https://www.parea.ai/)
 - [Parea Documentation](https://docs.parea.ai/)
-- [Modern LLM Observability Patterns (June 2026)](https://example.com/parea-v2-patterns)
+- [Modern LLM Observability Patterns](https://docs.parea.ai/welcome/what_is_parea_ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-07-21
 - Confidence: high

@@ -37,46 +37,90 @@ It eliminates the need to write custom `curl` calls or complex API glue code for
 
 ## Getting started
 
-### 1. Installation
-Install via `npm` or download a pre-built binary:
+### Installation
+You can install `gws` via NPM, Homebrew, Cargo, or Nix:
+
 ```bash
+# Recommended for Node environments
 npm install -g @googleworkspace/cli
+
+# On macOS and Linux via Homebrew
+brew install googleworkspace-cli
+
+# From source using Cargo
+cargo install --git https://github.com/googleworkspace/cli --locked
+
+# Run instantly using Nix
+nix run github:googleworkspace/cli
 ```
 
-### 2. Setup & Login
-Initialize your Google Cloud project and authenticate:
-```bash
-gws auth setup
-gws auth login
-```
+### Setup & Authentication
+To use `gws`, you must configure a Google Cloud project with OAuth credentials:
+
+1. **Automatic Setup**:
+   ```bash
+   gws auth setup   # Automatically guides you through GCP project config
+   ```
+2. **Login & Scopes**:
+   Select individual services to stay within unverified app limits (Google limits unverified OAuth consent screens to ~25 scopes):
+   ```bash
+   gws auth login --scopes drive,gmail,calendar
+   ```
+
+> [!WARNING]
+> If your OAuth application is in "Testing" mode, you **must** add your Google Account email as a "Test user" under the GCP Console → APIs & Services → OAuth consent screen, otherwise authentication will fail with a generic `Access blocked` or `403` error.
 
 ### Hello World Example
-List your most recent Google Drive files to verify the connection:
+Retrieve your most recent Google Drive files formatted in structured JSON to verify a successful connection:
+
 ```bash
 gws drive files list --params '{"pageSize": 5}'
 ```
 
 ## CLI examples
+The CLI features built-in custom commands prefixed with `+` (such as `+agenda` and `+send`) that wrap complex, multi-step API workflows:
+
 ```bash
-# Show today's calendar agenda
+# 1. Fetch today's calendar agenda formatted in your account's timezone
 gws calendar +agenda
 
-# Send a quick email via Gmail
-gws gmail +send --to user@example.com --subject "Hello" --body "Sent via gws CLI"
+# 2. Append rows dynamically to a Google Sheet with shell escaping protection
+gws sheets +append --spreadsheet "SPREADSHEET_ID" --values "Alice,95"
 
-# Append a row to a Google Sheet
-gws sheets +append --spreadsheet SPREADSHEET_ID --values "Name,Score"
+# 3. Send a thread-aware email via Gmail
+gws gmail +send --to recipient@example.com --subject "Automation Update" --body "Task completed successfully via gws CLI."
 ```
 
 ## API examples
-AI agents use the `schema` command to introspect API requirements and structured JSON output for reasoning:
+`gws` outputs standard, structured JSON to stdout. AI agents or external scripts can programmatically inspect API endpoint schemas or export headless credentials for automated runs:
 
+### Schema Introspection
+To dynamically build payload structures, query the schema definition of any target method:
 ```bash
-# Introspect request/response schema for an API method
 gws schema drive.files.list
 ```
-> [!NOTE]
-> For direct API integration, use the standard Google Workspace client libraries or the included AI agent skills.
+
+### Programmatic Credential Usage (Python Integration)
+Complete interactive login on your workstation, export the token securely, and reuse it inside an automated script:
+
+```python
+import subprocess
+import json
+
+# Export the plaintext credentials from your local OS keyring
+try:
+    result = subprocess.run(
+        ["gws", "auth", "export", "--unmasked"],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    credentials = json.loads(result.stdout)
+    access_token = credentials.get("access_token")
+    print(f"Programmatic access token retrieved: {access_token[:10]}...")
+except subprocess.CalledProcessError as e:
+    print(f"Failed to export gws credentials: {e.stderr}")
+```
 
 ## Related tools / concepts
 - [Google Calendar](../calendar_tasks/google_calendar.md)
@@ -95,6 +139,5 @@ gws schema drive.files.list
 - [Google API Discovery Service](https://developers.google.com/discovery)
 
 ## Contribution Metadata
-
 - Last reviewed: 2026-07-21
 - Confidence: high

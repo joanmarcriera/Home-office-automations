@@ -37,58 +37,100 @@ It allows agents to manage tasks, projects, labels, and teams directly within a 
 
 ## Getting started
 
-Vikunja MCP is best used via `npx` in your MCP client configuration.
+Vikunja MCP is most commonly run on-demand using `npx` within your MCP client configuration (such as Claude Desktop).
+
+### Authentication Setup
+The server supports two authentication modes:
+1. **API Token Authentication (Default)**: Best for general automation and task management. Create a token in Vikunja Settings → API Tokens. Format starts with `tk_`.
+2. **JWT Authentication (Advanced)**: Enables user profile modifications and data exports. Extract the `token` key value from your browser's Local Storage for your Vikunja domain. Format starts with `eyJ`.
 
 ### 1. Installation
-The server is typically run directly via `npx`:
+The server runs headless via Node.js or `npx`:
+
 ```bash
+# Verify the package launches correctly
 npx -y @democratize-technology/vikunja-mcp
 ```
 
-### 2. Authentication
-Set the following environment variables:
-- `VIKUNJA_URL`: Your instance API URL (e.g., `https://tasks.example.com/api/v1`)
-- `VIKUNJA_API_TOKEN`: Your API token (starts with `tk_`)
+### 2. Client Configuration (Claude Desktop)
+Add the server configuration block to your `claude_desktop_config.json`:
 
-### 3. Configuration (Claude Desktop)
 ```json
 {
   "mcpServers": {
-    "vikunja": {
+    "vikunja-mcp": {
       "command": "npx",
       "args": ["-y", "@democratize-technology/vikunja-mcp"],
       "env": {
-        "VIKUNJA_URL": "https://your-vikunja.com/api/v1",
-        "VIKUNJA_API_TOKEN": "tk_yourtoken"
+        "VIKUNJA_URL": "https://tasks.yourdomain.com/api/v1",
+        "VIKUNJA_API_TOKEN": "tk_your_api_token_here"
       }
     }
   }
 }
 ```
 
-## CLI examples
+### Hello World Example
+Test connection status by authenticating and listing your active tasks across all projects:
+
 ```bash
-# Start the server with debug logging
+# Set environment variables
+export VIKUNJA_URL="https://tasks.yourdomain.com/api/v1"
+export VIKUNJA_API_TOKEN="tk_your_api_token"
+
+# List tasks via MCP-compatible schema testing
+npx @democratize-technology/vikunja-mcp
+```
+
+## CLI examples
+You can tune the runtime environment, rate limits, and circuit breakers of the MCP server using environment flags:
+
+```bash
+# 1. Start the server with verbose debug logs written to stderr
 DEBUG=true LOG_LEVEL=debug npx @democratize-technology/vikunja-mcp
 
-# Start with custom rate limiting
-RATE_LIMIT_PER_MINUTE=120 npx @democratize-technology/vikunja-mcp
+# 2. Apply strict API rate limits to protect your self-hosted instance from DoS
+RATE_LIMIT_ENABLED=true RATE_LIMIT_PER_MINUTE=60 npx @democratize-technology/vikunja-mcp
 
-# Using JWT for user-management features
-VIKUNJA_API_TOKEN="eyJ..." npx @democratize-technology/vikunja-mcp
+# 3. Connect using a browser-extracted JWT token to unlock advanced user tools
+VIKUNJA_API_TOKEN="eyJhbGciOiJIUzI1..." npx @democratize-technology/vikunja-mcp
 ```
 
 ## API examples
-Agents interact with the server using the `vikunja_tasks` toolset:
+The Vikunja MCP server uses structured subcommand structures.
+
+### Creating a Recurring Task (JSON Tool Input)
+AI assistants create projects, labels, and tasks by invoking registered tool definitions:
+
 ```json
-// Create a new task with labels and assignees
-vikunja_tasks.create({
-  "projectId": 1,
-  "title": "Complete 2026 Audit",
-  "priority": 5,
-  "labels": [10, 22],
-  "dueDate": "2026-06-30T12:00:00Z"
-})
+{
+  "name": "vikunja_tasks",
+  "arguments": {
+    "subcommand": "create",
+    "projectId": 1,
+    "title": "Weekly Security Audit",
+    "description": "Perform dependency and container scans",
+    "dueDate": "2026-12-01T10:00:00Z",
+    "priority": 4,
+    "repeatAfter": 7,
+    "repeatMode": "day",
+    "labels": [12]
+  }
+}
+```
+
+### Listing Tasks with Complex Filters
+Filter tasks using SQL-like expressions executed server-side with local fallback:
+
+```json
+{
+  "name": "vikunja_tasks",
+  "arguments": {
+    "subcommand": "list",
+    "filter": "(priority >= 4 && done = false) || (dueDate < now && done = false)",
+    "perPage": 10
+  }
+}
 ```
 
 ## Related tools / concepts
@@ -107,6 +149,5 @@ vikunja_tasks.create({
 - [Vikunja API Documentation](https://vikunja.io/docs/api/)
 
 ## Contribution Metadata
-
 - Last reviewed: 2026-07-21
 - Confidence: high

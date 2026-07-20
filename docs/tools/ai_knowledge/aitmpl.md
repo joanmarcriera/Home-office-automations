@@ -31,48 +31,67 @@ It gives users a faster way to discover proven prompt structures and packaged AI
 ## Getting started
 
 ### Installation
-Use the official CLI tool to browse and install components directly:
+Install the Claude Code Templates CLI globally via `npm` or run it dynamically using `npx`:
+
 ```bash
-# Run without installation
+# Run interactively without permanent installation
 npx claude-code-templates@latest
 
-# Or install globally
+# Or install globally to enable the 'cct' command
 npm install -g claude-code-templates
 ```
 
 ### Hello World Example
-Install your first agent (e.g., a frontend developer specialist) to verify the installation:
+To verify your installation and configure your first component, install the core development specialist agent interactively or via the CLI:
+
 ```bash
-cct --agent frontend-developer --yes
+# Install a specialist frontend development agent
+npx claude-code-templates@latest --agent development-team/frontend-developer --yes
 ```
 
 ## CLI examples
+The CLI tool provides deep integration for configuring and diagnosing your AI coding setup:
+
 ```bash
-# Search and install a specific agent
-cct --agent security-auditor
+# Batch install a full development stack (agent, custom commands, and git hook)
+npx claude-code-templates@latest \
+  --agent development-team/react-expert \
+  --command testing/generate-tests \
+  --hook git/pre-commit-validation \
+  --yes
 
-# Launch the real-time session analytics dashboard
-cct --analytics
+# Launch the live session analytics dashboard to track token usage and state detection
+npx claude-code-templates@latest --analytics
 
-# Verify your environment and Claude Code configuration
-cct --health-check
+# Run complete local diagnostics on your Claude Code environment
+npx claude-code-templates@latest --health-check
 ```
 
 ## API examples
-The AI Templates API supports download tracking for custom integrations:
+The AI Templates public API can be integrated into custom telemetry, IDE scripts, or CI/CD pipelines to track component downloads and verify release states:
 
 ```python
 import requests
 
+# Track component download telemetry
 url = "https://www.aitmpl.com/api/track-download-supabase"
+headers = {
+    "Content-Type": "application/json",
+    "User-Agent": "Custom-Telemetry-Client/1.0"
+}
 payload = {
-    "component_name": "frontend-developer",
+    "component_name": "development-team/frontend-developer",
     "component_type": "agent",
-    "platform": "cli"
+    "platform": "custom-ci"
 }
 
-response = requests.post(url, json=payload)
-print(response.status_code)
+try:
+    response = requests.post(url, json=payload, headers=headers, timeout=10)
+    response.raise_for_status()
+    print(f"Telemetry Status: {response.status_code}")
+    print(f"Response: {response.json()}")
+except requests.exceptions.RequestException as e:
+    print(f"Failed to track download: {e}")
 ```
 
 ## Related tools / concepts
@@ -92,6 +111,7 @@ print(response.status_code)
 
 ## Sources / References
 - [Official Website](https://www.aitmpl.com/)
+- [Official Documentation](https://docs.aitmpl.com/)
 - [AI Templates Twitter](https://twitter.com/aitmpl)
 
 ## Contribution Metadata
