@@ -1,114 +1,165 @@
 # Melty
 
 ## What it is
-Melty is an open-source AI code editor designed to be a "human-in-the-loop" collaborator that understands the intent behind your changes. As of June 2026, it has matured into a premier agentic editor, utilizing an "Intent-State" loop to synchronize developer actions with AI assistance. It focuses on the "Collaborative Editing" pattern, where the AI acts as a pair programmer rather than just a code generator.
+Melty is an open-source, AI-native Integrated Development Environment (IDE) designed to act as a stateful, "human-in-the-loop" collaborator that understands the intent behind every change. Built on a fully transparent VS Code-fork foundation, Melty implements a continuous "Intent-State" synchronization loop. As of July 2026, Melty fully supports frontier SOTA 2026 models (such as Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6). Rather than acting as a simple passive autocomplete helper, Melty operates as an active pair programmer, tracking real-time development context, terminal outputs, and git diffs to co-author software iteratively alongside the developer.
 
 ## What problem it solves
-Bridges the gap between AI code generation and developer intent. It solves the "black box" generation problem where AI makes changes that the developer doesn't fully understand or that don't align with the long-term architectural goals of the project. Melty ensures that every AI suggestion is grounded in the developer's current "Intent," making the AI a more reliable and predictable partner.
+Solves the cognitive friction and "black box" generation issues associated with traditional AI coding assistants. Standard tools often generate massive code dumps that are disconnected from the developer’s high-level architecture or current design patterns. Melty addresses this by tracking the developer's "Intent" incrementally across terminal sessions, compiler messages, and version control states. It reduces code-review overhead, mitigates model hallucinations by grounding context in current git diffs, and eliminates the risk of silent, untracked modifications by managing changes through explicit state verification loops.
 
 ## Where it fits in the stack
-**Development & Ops**. Serves as an AI-native code editor with intent-aware editing. It is a direct open-source competitor to proprietary editors like Cursor and Zed, providing a transparent and extensible platform for agentic development.
+**Development & Ops**. It serves as the primary developer workspace and AI-assisted code editor. Positioned as a fully open-source, customizable alternative to proprietary tools like [Cursor](cursor.md) or [Windsurf](windsurf.md), Melty sits at the intersection of local coding runtimes and remote or local LLM providers. It coordinates directly with terminal pipelines and git workflows, offering native hooks for external agentic orchestrators and repository managers.
 
 ## Typical use cases
-- **Intent-driven editing**: When the purpose of the change (e.g., "Refactor this class for better testability") is more important than the specific lines of code.
-- **Collaborative coding**: Working with an AI that respects and learns from your specific coding style and project-specific patterns.
-- **Open-source AI Stack**: For developers who prefer an entirely open-source toolchain for their primary development environment.
-- **Human-in-the-Loop Pair Programming**: Real-time collaboration where the AI proposes whole-block changes based on predicted developer intent.
+- **Intent-Driven Greenfield Prototyping**: Generating and scaffolding clean, module-based structures from high-level developer intents while keeping the developer's feedback loop tightly integrated.
+- **Continuous Real-Time Refactoring**: Aligning existing codebases with modern design conventions, where the AI suggests structural improvements as you write, responding dynamically to compiler outputs and linter warnings.
+- **SSH and Remote Environment Synchronization**: Developing directly on remote VMs or container environments using a local Melty instance connected over secure SSH/terminal channels.
+- **Multi-File Context-Aware Coding**: Working on features where modifications span across several frontend files, backend controllers, and database schemas concurrently, with the AI tracking files in a consolidated, active workspace context.
 
 ## Strengths
-- **Open Source**: Transparent, extensible, and community-driven.
-- **Intent-Awareness**: Focuses on higher-level reasoning and "Why" behind changes rather than simple line autocompletion.
-- **Developer Control**: Keeps the human developer firmly in the driver's seat through iterative feedback loops and explicit confirmation.
-- **Privacy Centric**: Optimized for local or self-hosted indexing, ensuring project-wide context doesn't necessarily require sending entire files to proprietary servers.
+- **Open-Source Transparency**: Fully open-source codebase, allowing deep, enterprise-level modifications, custom branding, and absolute privacy compliance.
+- **Stateful Git & Terminal Tracking**: Natively listens to local git diff changes and terminal output streams, allowing models to immediately self-correct errors if a build or test command fails.
+- **Native MCP 3.0/3.1 Integration**: Operates as a robust Model Context Protocol client, enabling developers to connect third-party MCP servers for dynamic database query execution, file system management, and real-time cloud resource access.
+- **Multi-Model Orchestration**: Supports swappable local and remote models, allowing developers to execute heavy-weight tasks with Claude 5.1 or GPT-5.5, and light-weight local autocompletion tasks using local Gemma 3 or Qwen 3.6 instances via Ollama.
 
 ## Limitations
-- **Maturity**: Younger project compared to established editors like VS Code; the extension ecosystem is still growing.
-- **Performance**: High-level intent tracking and real-time indexing can be resource-intensive on older hardware.
-- **Ecosystem**: Lacks some of the deep, pre-integrated features found in proprietary tools like GitHub Copilot or Devin.
-- **Learning Curve**: Users may need to adjust their workflow to effectively communicate "Intent" to the editor.
+- **Ecosystem Footprint**: Although built as a VS Code fork, some specialized extensions or proprietary visual features (such as side-by-side interactive timelines) are still maturing.
+- **Resource Footprint**: Active terminal scanning, real-time git state diffing, and maintaining high-dimensional local semantic vector indexes can be resource-intensive on older hardware.
+- **Dependency on High-Tier Reasoning**: Simpler, quantized offline models can sometimes lose track of multi-file intents, necessitating frontier model access for complex, multi-layered refactoring.
 
 ## When to use it
-- When you want an open-source AI editor focused on understanding developer intent and long-term architectural goals.
-- When you prefer a "Pair Programming" feel rather than "Autopilot" style assistance.
-- For projects where data privacy, open-source compliance, and transparency are critical requirements.
+- When you are looking for an open-source AI-native IDE that prioritizes developer intent, privacy, and continuous collaboration over passive black-box autocomplete.
+- When you require a development environment that natively integrates with the [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) to dynamically extend your LLM's capabilities.
+- For team-wide development where open-source transparency is necessary to ensure strict intellectual property and data sovereignty boundaries.
 
 ## When not to use it
-- When you rely on a vast library of legacy extensions only available for VS Code.
-- When performing rapid, low-level edits where advanced intent tracking might introduce unwanted overhead.
-- If you prefer a terminal-only workflow (use [Aider](aider.md) or [Junie CLI](junie-cli.md)).
+- If your daily development workflows require heavy visual, multi-editor GUI configurations or proprietary extension suites that are tightly locked to the official Microsoft VS Code marketplace.
+- If you are seeking a terminal-native, keyboard-only environment (in which case, [Aider](aider.md), [Junie CLI](junie-cli.md), or [Terminus 2](terminus-2.md) are more appropriate choices).
+- In highly resource-constrained environments where running an active, background-indexing visual IDE causes visible latency.
 
 ## Getting started
 ### Installation
-Melty is available as a standalone application or can be built from source for maximum customization.
+Melty can be installed as a precompiled standalone binary or compiled directly from source for local modification.
 
-1. **Download**: Fetch the latest release from the official Melty site or GitHub.
-2. **Setup**: Follow the onboarding wizard to configure your preferred LLM provider (e.g., OpenAI, Anthropic, or local Ollama).
-3. **Indexing**: Open your project folder and allow Melty to build its "Intent Index."
+```bash
+# Clone the repository and install dependencies
+git clone https://github.com/meltylabs/melty.git
+cd melty
+npm install
 
-### Basic Workflow
-As you begin typing or refactoring, look for the Melty "Intent Bar" to confirm its understanding of your task. You can explicitly override or refine the intent at any time.
+# Run Melty in development mode
+npm run dev
+```
+
+### Configuration and Model Setup
+Upon launching, Melty prompts for a preferred model provider. Configure your credentials or local endpoint:
+
+```bash
+# Configure Melty to use a local Ollama instance for Qwen 3.6 / Gemma 3
+melty config set provider ollama --url http://localhost:11434 --model gemma-3
+
+# Or configure remote API credentials
+melty config set provider anthropic --api-key $ANTHROPIC_API_KEY --model claude-5.1
+```
 
 ## CLI examples
-Melty primarily operates as a GUI editor, but it includes CLI utilities for management and integration.
+Melty features a command-line interface for starting the editor, indexing repositories, and executing headless refactoring.
 
-### Application Launch
+### Opening a Repository
 ```bash
-# Open a specific project folder in Melty
+# Open the current directory in Melty
 melty .
 ```
 
-### Indexing Management
+### Running Headless Refactoring Loops
 ```bash
-# Force a re-index of the current repository
-melty index --force
+# Run Melty in headless mode to apply changes based on an intent
+melty apply --intent "Refactor controllers to use async/await syntax and log output" --path ./src/controllers
 ```
 
-### Config Management
+### Workspace Indexing
 ```bash
-# View the current AI provider configuration
-melty config list
+# Force-refresh the local vector index of the codebase
+melty index --rebuild --exclude "**/node_modules/**"
 ```
 
 ## API examples
-Melty's core logic is accessible via an internal API for extension developers.
+Melty exposes an internal API for writing extensions, managing intents, and connecting custom context bridges.
 
-### Defining a Custom Intent Handler (TypeScript)
+### Custom Intent Provider (TypeScript)
+Developers can register custom intent providers to intercepts and modify Melty's AI recommendations.
+
 ```typescript
-import { IntentHandler } from '@melty/sdk';
+import { MeltyExtension, IntentContext, ProposedDiff } from '@melty/sdk';
 
-export const myRefactorHandler: IntentHandler = {
-  id: 'custom-refactor',
-  onIntentDetected: async (intent, context) => {
-    if (intent.type === 'refactor') {
-      // Custom logic to guide the AI's refactoring strategy
-      return context.proposeChanges('Consider using the Factory pattern here...');
+export class DatabaseOptimizerExtension implements MeltyExtension {
+  id = 'db-optimizer';
+
+  async onIntentDetected(intent: string, context: IntentContext): Promise<ProposedDiff | null> {
+    if (intent.toLowerCase().includes('optimize query') || intent.toLowerCase().includes('index sql')) {
+      const activeSQLFiles = await context.getFilesByPattern('**/*.sql');
+
+      // Inject database context or analyze schemas
+      const systemPrompt = `Analyze the SQL files: ${activeSQLFiles.map(f => f.name).join(', ')} and suggest optimized indexes.`;
+      const completion = await context.llm.generate(systemPrompt);
+
+      return context.createDiffFromCompletion(completion);
     }
+    return null;
   }
-};
+}
 ```
 
-### External Tool Integration
-```bash
-# Using Melty's headless mode to generate a diff based on a specific intent
-melty generate --intent "Implement logger in all controllers" --apply
+### Subprocess Workspace State Check (Python)
+Integrate external validation engines with Melty's active "Intent-State" loop via standard output.
+
+```python
+import subprocess
+import json
+
+def get_melty_session_state() -> dict:
+    """Queries Melty's headless daemon to retrieve active intent and changed file paths."""
+    try:
+        response = subprocess.run(
+            ["melty", "state", "--json"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return json.loads(response.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Error fetching Melty state: {e.stderr}")
+        return {}
+
+if __name__ == "__main__":
+    state = get_melty_session_state()
+    active_intent = state.get("current_intent", "None")
+    changed_files = state.get("staged_diff_files", [])
+    print(f"Active Intent: {active_intent}")
+    print(f"Pending changes in {len(changed_files)} files.")
 ```
 
 ## Related tools / concepts
-- [Cursor](cursor.md) — Proprietary AI-native IDE.
-- [Zed](zed.md) — High-performance, collaborative AI editor.
-- [Codeium](codeium.md) — Multi-IDE AI completion and chat.
-- [Aider](aider.md) — Terminal-based pair programming.
-- [Junie CLI](junie-cli.md) — Terminal-native AI assistant for codebase exploration.
-- [Software Factories](../../knowledge_base/patterns/software-factories.md) — Automated development architectures.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — High-level orchestration of AI tasks.
-- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Standard for integrating AI tools.
+- [Cursor](cursor.md) — A popular proprietary AI-native IDE built on VS Code.
+- [Zed](zed.md) — A high-performance, collaborative visual code editor written in Rust.
+- [Codeium](codeium.md) — Multi-IDE AI developer productivity and autocomplete platform.
+- [Windsurf](windsurf.md) — SOTA visual IDE implementing the Cascade-Devin interaction model.
+- [Aider](aider.md) — High-performance terminal-native pair programmer and git integration assistant.
+- [Junie CLI](junie-cli.md) — JetBrains AI Lab's keyboard-first terminal companion and indexer.
+- [Terminus 2](terminus-2.md) — Open-source terminal-native AI agent baseline with a tmux bridge.
+- [GPT Engineer](gpt_engineer.md) — Rapid prototyping and scaffolding orchestrator for greenfield codebases.
+- [Sourcegraph Cody](sourcegraph_cody.md) — Multi-repository code intelligence and semantic context indexing client.
+- [Anti-Gravity](anti_gravity.md) — Google's enterprise-grade agentic development and execution framework.
+- [Droid](droid.md) — Enterprise-grade AI coding orchestrator configuring dedicated sub-agents.
+- [Software Factories](../../knowledge_base/patterns/software-factories.md) — Automated development architectures and code production systems.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Orchestration patterns for multi-step AI planning.
+- [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Open standard for integrating AI tools and data sources.
 
 ## Sources / references
-- [Melty Labs Official Site](https://melty.sh/)
-- [GitHub Repository](https://github.com/meltylabs/melty)
-- [Melty Documentation Wiki](https://github.com/meltylabs/melty/wiki)
-- [Melty v1.2 Release Notes](https://github.com/meltylabs/melty/releases)
+- [Melty Labs Official Website](https://melty.sh/)
+- [Melty GitHub Repository](https://github.com/meltylabs/melty)
+- [Melty Technical Architecture Wiki](https://github.com/meltylabs/melty/wiki)
+- [Model Context Protocol v3.0 Specification](https://modelcontextprotocol.org)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
