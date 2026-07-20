@@ -37,53 +37,102 @@ Traditional Makefile MCP implementations often expose a single generic `make` to
 
 ## Getting started
 
-Makefile MCP registers documented targets as tools. Documentation is provided via `##` comments on the target line.
+Makefile MCP scans your project Makefile and converts each documented target into an individual MCP tool. Targets must be documented using double-hash (`##`) comments on the target declaration line.
+
+### Makefile Documentation Convention
+Ensure your project `Makefile` targets are structured as follows:
+```makefile
+.PHONY: test lint build
+
+test: ## Run the full unit and integration test suite
+	pytest tests/ -v
+
+lint: ## Execute lint and code style checks using ruff
+	ruff check src/
+
+build: lint test ## Package distribution archives
+	python3 -m build
+```
 
 ### 1. Installation
-Install using `uv` (recommended) or `pip`:
+Install the server package locally or run it dynamically using `uv` (recommended) or standard `pip`:
+
 ```bash
+# Recommended installation via uv
 uv pip install makefile-mcp
+
+# Standard installation via pip
+pip install makefile-mcp
+
+# Or run instantly without installation using uvx
+uvx makefile-mcp --list
 ```
 
 ### 2. Configuration (Claude Desktop)
-Configure your MCP client to run the server:
+To register the server with your MCP client, append it to your `claude_desktop_config.json` configuration file:
+
 ```json
 {
   "mcpServers": {
-    "make": {
+    "makefile-mcp": {
       "command": "uvx",
-      "args": ["makefile-mcp", "--cwd", "/path/to/project"]
+      "args": [
+        "makefile-mcp",
+        "--cwd",
+        "/absolute/path/to/your/project"
+      ]
     }
   }
 }
 ```
 
 ### Hello World Example
-Preview which targets will be discovered as tools in your current directory:
+Run the command in your shell to preview which Makefile targets will be exposed to your AI assistant as specialized tools:
+
 ```bash
 makefile-mcp --list
 ```
 
 ## CLI examples
-```bash
-# Start server with specific include/exclude patterns
-makefile-mcp --include "test,lint" --exclude "deploy"
+You can configure and customize target exposure and naming scopes directly via the command-line options:
 
-# Set a custom tool prefix to avoid collisions
+```bash
+# 1. Start the server exposing only safe targets while blocking dangerous ones
+makefile-mcp --include "test,lint,format" --exclude "deploy,publish"
+
+# 2. Expose targets with a custom tool prefix to avoid collision in client menus
 makefile-mcp --prefix "myproj_"
 
-# Use a specific Makefile and working directory
+# 3. Target a specific custom Makefile located outside the working directory
 makefile-mcp --makefile ./build/Makefile --cwd ./build
 ```
 
 ## API examples
-AI agents use the `set_working_directory` tool to switch context between projects at runtime:
+The Makefile MCP server registers specialized helper tools and exposes each target tool call programmatically.
+
+### Runtime Context Modification (JSON Protocol)
+AI agents can dynamically transition working directories or Makefile targets mid-session using the built-in `set_working_directory` tool:
 
 ```json
-// Change the working directory to a new project
-set_working_directory({
-  "path": "/absolute/path/to/new/project"
-})
+{
+  "name": "set_working_directory",
+  "arguments": {
+    "path": "/absolute/path/to/another/project/module"
+  }
+}
+```
+
+### Executing a Target Tool
+Once a target (e.g., `test`) is discovered, the agent invokes it with optional arguments or preview modes:
+
+```json
+{
+  "name": "make_test",
+  "arguments": {
+    "args": "VERBOSE=1",
+    "dry_run": false
+  }
+}
 ```
 
 ## Related tools / concepts
@@ -102,6 +151,5 @@ set_working_directory({
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
-
 - Last reviewed: 2026-07-21
 - Confidence: high
