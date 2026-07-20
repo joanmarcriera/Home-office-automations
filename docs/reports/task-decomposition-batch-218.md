@@ -10,7 +10,7 @@ This report implements **Action C** for the 5 oldest remaining stale documentati
 | Task | Status | Notes |
 | :--- | :--- | :--- |
 | `docs/tools/development_ops/gpt_engineer.md` | Resolved | Upgraded to July 2026 standard (v2.4.x+, Claude 5.1, GPT-5.5, Gemma 3, Llama 4, MCP 3.0/3.1), detailed CLI and API examples (Python and JS WebContainer), and 12 unique relative markdown links. |
-| `docs/tools/development_ops/junie-cli.md` | Pending | Upgrade to July 2026 standard (high-speed, terminal-native codebase navigation and autonomous tmux editing, JetBrains AI Lab SOTA models). |
+| `docs/tools/development_ops/junie-cli.md` | Resolved | Upgraded to July 2026 standard (v1.8+ / stable v2.0, terminal-native codebase navigation, autonomous tmux editing, SOTA JetBrains AI Lab & frontier models, and MCP 3.0/3.1 client/server integration), with 14 unique relative markdown links. |
 | `docs/tools/development_ops/ripgrep.md` | Pending | Upgrade to July 2026 standard (deeply integrates ripgrep v14+ with multi-threaded agentic codebase scanning, regex caching, and JSON streams). |
 | `docs/tools/development_ops/melty.md` | Pending | Upgrade to July 2026 standard (open-source AI-native IDE with deep git and terminal loop integration, supporting SOTA 2026 models). |
 | `docs/tools/benchmarking/lm-evaluation-harness.md` | Pending | Upgrade to July 2026 standard (lm-eval v0.4.x+ supporting Gemma 3, Llama 4, and custom local execution sandboxes with multi-GPU pipeline optimization). |
