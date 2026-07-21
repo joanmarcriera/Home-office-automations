@@ -26,6 +26,7 @@ A curated index of AI tools, platforms, and knowledge bases for research, conten
 | [Google Opal](google-opal.md) | AI-powered personal planning and scheduling agent |
 | [Jasper](jasper.md) | Enterprise-grade AI content creation platform |
 | [Jules](jules.md) | Google's software engineer agent for repository maintenance |
+| [J-Wash](j-wash.md) | Manual LLM alignment and representation editing framework |
 | [Kimi CLI](kimi-cli.md) | Terminal interface for the long-context Kimi model |
 | [LangChain](langchain.md) | Comprehensive framework for building LLM applications |
 | [LlamaIndex](llamaindex.md) | Data framework for RAG and context-heavy AI |
