@@ -268,6 +268,7 @@ nav:
           - MCP Registry: tools/automation_orchestration/mcp-registry.md
           - Model Context Protocol (MCP): tools/automation_orchestration/mcp.md
           - Open Interpreter: tools/automation_orchestration/open-interpreter.md
+          - Open WebUI Computer: tools/automation_orchestration/open-webui-computer.md
           - Picnic: tools/automation_orchestration/picnic.md
           - Pipedream: tools/automation_orchestration/pipedream.md
           - Playwright MCP: tools/automation_orchestration/playwright-mcp.md
