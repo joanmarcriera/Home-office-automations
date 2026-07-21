@@ -1,7 +1,7 @@
 # LM Evaluation Harness
 
 ## What it is
-LM Evaluation Harness (by EleutherAI) is a unified framework for few-shot evaluation of autoregressive language models. It provides a standardized interface to evaluate models on hundreds of different tasks, including MMLU, ARC, HellaSwag, GSM8K, and many more. It is the primary backend for the Hugging Face [Open LLM Leaderboard](../benchmarking/index.md) and supports the latest June 2026 frontier models including Claude 4.8 and GPT-5.5.
+LM Evaluation Harness (by EleutherAI) is a unified framework for few-shot evaluation of autoregressive language models. It provides a standardized interface to evaluate models on hundreds of different tasks, including MMLU, ARC, HellaSwag, GSM8K, and many more. It is the primary backend for the Hugging Face [Open LLM Leaderboard](index.md) and supports the latest July 2026 frontier models including Claude 5.1, GPT-5.5, Gemma 3, Llama 4, and Qwen 3.6.
 
 ## What problem it solves
 Eliminates the need for researchers to implement individual, often inconsistent, evaluation pipelines for every new benchmark. By providing a single, standardized framework, it ensures that results are comparable across different papers and models, reducing the "eval-hacking" potential and implementation overhead in the rapidly evolving agentic ecosystem.
@@ -14,18 +14,18 @@ Eliminates the need for researchers to implement individual, often inconsistent,
 - **Regression Testing**: Ensuring that quantization or optimization (using [vLLM](../infrastructure/index.md)) hasn't significantly degraded model performance.
 - **Custom Benchmark Development**: Implementing new evaluation tasks using the framework's YAML-based configuration system.
 - **Agentic Evaluation**: Measuring the core reasoning capabilities of agents before deployment in production environments.
-- **Multi-GPU Evaluation**: Using `accelerate` or `vLLM` backends to rapidly evaluate large models (e.g., Llama-4 100B) across multiple nodes.
+- **Multi-GPU Evaluation**: Using `accelerate` or `vLLM` backends to rapidly evaluate large models (e.g., Llama-4 100B) across multiple nodes using advanced multi-GPU pipeline optimization and custom local execution sandboxes.
 
 ## Strengths
-- **Massive Task Library**: Supports 100+ standard academic benchmarks with thousands of subtasks, including June 2026 additions like AIR-Bench.
+- **Massive Task Library**: Supports 100+ standard academic benchmarks with thousands of subtasks, including July 2026 additions like AIR-Bench and humanity's last exam (HLE).
 - **Model Agnostic**: Supports Hugging Face `transformers`, `vLLM`, `GGUF`, and various APIs (OpenAI, Anthropic, Gemini 3.5).
 - **Community Standard**: Widely adopted by industry and academia; results are considered high-signal.
-- **MCP 3.0 Integration**: Native support for Model Context Protocol 3.0, allowing specialized agents to contribute to evaluation runs.
+- **MCP 3.0/3.1 Integration**: Native support for Model Context Protocol 3.0/3.1, allowing specialized agents to contribute to evaluation runs and control sandboxed execution.
 - **Highly Configurable**: Support for Jinja2 prompt templates, multiple few-shot settings, and automated batch size detection.
 
 ## Limitations
 - **Focus on Causal LMs**: Primarily designed for autoregressive, decoder-only models; support for encoder-decoder models exists but is less central.
-- **Compute Intensive**: Running the full suite of benchmarks can take hours or days on high-end GPUs.
+- **Compute Intensive**: Running the full suite of benchmarks can take hours or days on high-end GPUs without pipeline optimization.
 - **Complexity**: The YAML configuration for new tasks can have a steep learning curve for complex multi-choice reasoning or visual RAG tasks.
 
 ## When to use it
@@ -45,10 +45,10 @@ The LM Evaluation Harness requires Python 3.10+ and a suitable backend for model
 
 ### Installation
 ```bash
-# Install core package
-pip install "lm_eval[hf,vllm,api]"
+# Install core package (v0.4.x+)
+pip install "lm_eval[hf,vllm,api]>=0.4.5"
 
-# For MCP 3.0 support
+# For MCP 3.0/3.1 support
 pip install "lm_eval[mcp]"
 ```
 
@@ -73,6 +73,16 @@ lm_eval --model vllm \
     --batch_size auto
 ```
 
+### Multi-GPU pipeline optimization for Gemma 3 and Llama 4
+Use `accelerate` or tensor parallelism with `vLLM` backend for multi-GPU pipelining on Gemma 3 or Llama 4 in isolated execution environments:
+```bash
+lm_eval --model vllm \
+    --model_args pretrained=google/gemma-3-27b-it,tensor_parallel_size=4,pipeline_parallel_size=2,gpu_memory_utilization=0.9 \
+    --tasks mmlu_pro,gsm8k \
+    --batch_size auto \
+    --max_batch_size 128
+```
+
 ### Evaluation with MCP Tools
 Enable MCP tool support for agentic evaluation:
 ```bash
@@ -91,7 +101,7 @@ The harness can be integrated directly into Python scripts for automated validat
 import lm_eval
 from lm_eval.models.huggingface import HFLM
 
-# Initialize model
+# Initialize model (lm-eval v0.4.x+)
 model = HFLM(pretrained="EleutherAI/pythia-160m")
 
 # Run evaluation
@@ -101,6 +111,34 @@ results = lm_eval.simple_evaluate(
     num_fewshot=5,
     batch_size=8,
     device="cuda:0"
+)
+
+# Print results
+print(lm_eval.utils.make_table(results))
+```
+
+### Advanced Pipeline Optimization on Llama 4 and Gemma 3
+This script runs programmatic evaluation with local sandboxing and multi-GPU tensor/pipeline parallelism.
+
+```python
+import lm_eval
+from lm_eval.models.vllm_causallm import VLLM
+
+# Initialize optimized multi-GPU pipeline
+model = VLLM(
+    pretrained="meta-llama/Llama-4-70b-it",
+    tensor_parallel_size=4,
+    pipeline_parallel_size=2,
+    trust_remote_code=True,
+    max_model_len=8192
+)
+
+# Run evaluation on isolated sandbox configuration
+results = lm_eval.simple_evaluate(
+    model=model,
+    tasks=["mmlu_pro", "gpqa"],
+    num_fewshot=5,
+    batch_size="auto"
 )
 
 # Print results
@@ -132,7 +170,7 @@ results = lm_eval.simple_evaluate(
 - [MMLU (Massive Multitask Language Understanding)](mmlu.md) - One of the most popular benchmarks in the harness.
 - [GSM8K](gsm8k.md) - Grade school math benchmark supported by the harness.
 - [HumanEval](human-eval.md) - Code generation benchmark.
-- [HLE (Humanity's Last Exam)](humanitys-last-exam.md) - A frontier-difficulty benchmark for June 2026.
+- [HLE (Humanity's Last Exam)](humanitys-last-exam.md) - A frontier-difficulty benchmark for June/July 2026.
 - [LLMPerf](llmperf.md) - Benchmarking operational performance (latency/throughput).
 - [Ollama Benchmark](ollama-benchmark-cli.md) - Benchmarking local model speed.
 - [SWE-bench](swe-bench.md) - Real-world software engineering benchmark.
@@ -146,5 +184,5 @@ results = lm_eval.simple_evaluate(
 - [Open LLM Leaderboard (Hugging Face)](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard)
 - [AIR-Bench 2026 Specifications](https://github.com/air-bench/air-bench)
 
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-21
 - Confidence: high
