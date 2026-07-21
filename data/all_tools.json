@@ -834,6 +834,12 @@
       "doc_path": "docs/tools/infrastructure/exllamav2.md"
     },
     {
+      "id": "exllamav3",
+      "name": "ExLlamaV3",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/exllamav3.md"
+    },
+    {
       "id": "fantastical",
       "name": "Fantastical",
       "category": "Calendar & Tasks",

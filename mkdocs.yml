@@ -529,6 +529,7 @@ nav:
           - ClawRouter: tools/infrastructure/clawrouter.md
           - Colibri: tools/infrastructure/colibri.md
           - ExLlamaV2: tools/infrastructure/exllamav2.md
+          - ExLlamaV3: tools/infrastructure/exllamav3.md
           - Flash-MSA: tools/infrastructure/flash-msa.md
           - GPT4All: tools/infrastructure/gpt4all.md
           - Jan.ai: tools/infrastructure/jan-ai.md
