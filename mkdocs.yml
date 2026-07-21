@@ -178,6 +178,7 @@ nav:
           - ansigpt: tools/ai_knowledge/ansigpt.md
           - AnythingLLM: tools/ai_knowledge/anythingllm.md
           - big-AGI: tools/ai_knowledge/big-agi.md
+          - Bonsai (PrismML): tools/ai_knowledge/bonsai.md
           - Chatbox AI: tools/ai_knowledge/chatbox-ai.md
           - Chatgpt: tools/ai_knowledge/chatgpt.md
           - Claude: tools/ai_knowledge/claude.md
