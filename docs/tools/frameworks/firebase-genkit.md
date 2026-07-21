@@ -1,7 +1,7 @@
 # Firebase Genkit
 
 ## What it is
-Firebase Genkit is an open-source framework from the Google Firebase team designed to help app developers build full-stack, AI-powered applications. It focuses on integrating generative AI features using familiar patterns and paradigms from the Firebase ecosystem.
+Firebase Genkit is an open-source framework from the Google Firebase team designed to help app developers build full-stack, AI-powered applications. It focuses on integrating generative AI features using familiar patterns and paradigms from the Firebase ecosystem, including the native **Genkit Agents API** introduced in preview in July 2026 for building stateful, autonomous agentic workflows.
 
 ## What problem it solves
 It reduces the friction of building production-ready AI apps by providing a unified interface for LLMs, a streamlined tool-calling system, and built-in observability for debugging and performance tracking. It is specifically designed to work seamlessly with serverless architectures like Firebase Cloud Functions and Cloud Run.
@@ -14,6 +14,7 @@ It reduces the friction of building production-ready AI apps by providing a unif
 - **Serverless AI Backends**: Running AI logic in Cloud Functions for Firebase or Google Cloud Run.
 - **RAG for App Data**: Integrating vector search and document retrieval using Firestore or other vector stores.
 - **Agentic App Logic**: Using Genkit "Flows" to orchestrate complex multi-step AI tasks.
+- **Multi-Agent Collaboration with Agents API**: Deploying specialized, tool-equipped autonomous agents using the Genkit Agents API to collaborate on complex objectives.
 
 ## Strengths
 - **App Developer Centric**: Uses paradigms and tooling familiar to mobile and web developers.
@@ -66,6 +67,39 @@ firebase deploy --only functions
 ```
 
 ## API examples
+
+### Genkit Agents API (TypeScript Preview)
+The native Agents API allows for standard tool binding and agent definitions directly within the Genkit instantiation loop.
+
+```typescript
+import { genkit, z } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
+
+const ai = genkit({
+  plugins: [googleAI()],
+});
+
+// Define tools for the agent
+const webSearchTool = ai.defineTool(
+  {
+    name: 'webSearch',
+    description: 'search the web for current information',
+    inputSchema: z.object({ query: z.string() }),
+    outputSchema: z.string(),
+  },
+  async (input) => {
+    return `Results for ${input.query}: Genkit Agents API released in July 2026.`;
+  }
+);
+
+// Define the agent using Genkit Agents API (preview)
+export const researchAgent = ai.defineAgent({
+  name: 'researchAgent',
+  model: googleAI.model('gemini-2.5-flash'),
+  prompt: 'You are a high-fidelity research agent. Use tools to find information.',
+  tools: [webSearchTool],
+});
+```
 
 ### Basic Flow Example (TypeScript)
 ```typescript
