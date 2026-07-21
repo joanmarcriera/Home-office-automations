@@ -202,6 +202,7 @@ nav:
           - Gemini CLI: tools/ai_knowledge/gemini-cli.md
           - Gemini Flash TTS: tools/ai_knowledge/gemini-flash-tts.md
           - Gemini for macOS: tools/ai_knowledge/gemini-macos.md
+          - Gemma 4 31B AntiHal: tools/ai_knowledge/gemma-4-31b-antihal.md
           - Genspark: tools/ai_knowledge/genspark.md
           - Glaive: tools/ai_knowledge/glaive.md
           - Google Gemini: tools/ai_knowledge/google-gemini.md
