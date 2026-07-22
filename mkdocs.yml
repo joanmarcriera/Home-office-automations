@@ -175,6 +175,7 @@ nav:
           - Overview: tools/ai_knowledge/index.md
           - AI Templates: tools/ai_knowledge/aitmpl.md
           - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
+          - AudioCPP: tools/ai_knowledge/audiocpp.md
           - ansigpt: tools/ai_knowledge/ansigpt.md
           - AnythingLLM: tools/ai_knowledge/anythingllm.md
           - big-AGI: tools/ai_knowledge/big-agi.md
@@ -397,6 +398,7 @@ nav:
           - Superconductor: tools/development_ops/superconductor.md
           - Sweep Dev: tools/development_ops/sweep_dev.md
           - Symbolic MCP Server: tools/development_ops/symbolic-mcp.md
+          - TrellisCPP: tools/development_ops/trelliscpp.md
           - Tabnine: tools/development_ops/tabnine.md
           - Terminus 2: tools/development_ops/terminus-2.md
           - Vercel: tools/development_ops/vercel.md
@@ -408,6 +410,7 @@ nav:
       - Intake & Storage:
           - AnyType: tools/intake_storage/anytype.md
           - Caldav: tools/intake_storage/caldav.md
+          - Dolt: tools/intake_storage/dolt.md
           - Khoj: tools/intake_storage/khoj.md
           - LlamaParse: tools/intake_storage/llamaparse.md
           - MinIO: tools/intake_storage/minio.md
@@ -454,6 +457,7 @@ nav:
           - Fireworks AI: tools/providers/fireworks.md
           - Groq: tools/providers/groq.md
           - Hugging Face: tools/providers/huggingface.md
+          - KatCoderAir: tools/providers/katcoderair.md
           - Microsoft Graph API: tools/providers/microsoft-graph.md
           - MiniMax: tools/providers/minimax.md
           - Mistral AI: tools/providers/mistral.md
