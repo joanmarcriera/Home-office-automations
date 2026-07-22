@@ -92,6 +92,22 @@ rclone mount remote:path /mnt/cloud \
 curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote": "path"}'
 ```
 
+### Trigger Sync via RC API
+```python
+# Programmatically trigger a sync task using Rclone's RC API
+import requests
+
+url = "http://localhost:5572/sync/sync"
+payload = {
+    "srcFs": "/mnt/data/docs",
+    "dstFs": "storj:backups",
+    "createEmptySrcDirs": True
+}
+response = requests.post(url, auth=("user", "pass"), json=payload)
+if response.status_code == 200:
+    print("Sync job triggered successfully:", response.json())
+```
+
 ### MCP 3.0 Tool Invocation
 Autonomous agents can invoke rclone tasks via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md):
 

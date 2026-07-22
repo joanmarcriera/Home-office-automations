@@ -103,6 +103,20 @@ score = context_precision.compute(dataset)
 print(f"Context Precision: {score}")
 ```
 
+### Faithfulness & Relevance Scoring
+```python
+# Calculate Faithfulness and Answer Relevance metrics
+from ragas.metrics import faithfulness, answer_relevance
+
+# Calculate faithfulness of generated answers to context
+faithfulness_score = faithfulness.compute(dataset)
+print(f"Faithfulness Score: {faithfulness_score}")
+
+# Calculate answer relevance to original question
+relevance_score = answer_relevance.compute(dataset)
+print(f"Answer Relevance: {relevance_score}")
+```
+
 ### Synthetic Test Set Generation
 ```python
 from ragas.testset.generator import TestsetGenerator

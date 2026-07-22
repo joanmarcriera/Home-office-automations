@@ -96,6 +96,21 @@ curl -X GET "http://localhost:4999/api/v1/status" \
      -H "x-api-key: YOUR_PEER_API_KEY"
 ```
 
+### Query Active Ports
+```python
+# Query Portracker's Active Ports API and list detected services
+import requests
+
+url = "http://localhost:4999/api/v1/ports"
+headers = {"Authorization": "Bearer YOUR_ACCESS_TOKEN"}
+
+response = requests.get(url, headers=headers)
+if response.status_code == 200:
+    ports_data = response.json()
+    for item in ports_data.get("active_ports", []):
+        print(f"Port: {item['port']} | Protocol: {item['protocol']} | Service: {item['service_name']} | Container: {item.get('container_name', 'Host')}")
+```
+
 ### Webhook Alerting
 Portracker can send POST requests to a webhook when changes are detected:
 

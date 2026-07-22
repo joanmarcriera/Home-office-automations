@@ -80,6 +80,12 @@ docker exec --user www-data nextcloud php occ user:resetpassword admin
 
 # Put the server into maintenance mode
 docker exec --user www-data nextcloud php occ maintenance:mode --on
+
+# Register an OpenID Connect provider (Authentik) programmatically
+docker exec --user www-data nextcloud php occ user_oidc:provider authentik \
+  --client-id="nextcloud-sso" \
+  --client-secret="super-secret-sso-key" \
+  --discovery-url="https://authentik.example.com/application/o/nextcloud/.well-known/openid-configuration"
 ```
 
 ## API examples
@@ -90,6 +96,18 @@ Nextcloud supports the OCS (Open Collaboration Services) API for remote manageme
 curl -u admin:password \
      -H "OCS-APIRequest: true" \
      -X GET "http://localhost:8080/ocs/v1.php/cloud/users/admin"
+```
+
+### Create a secure file share
+```bash
+# Create a new public link share with password protection
+curl -u admin:password \
+     -H "OCS-APIRequest: true" \
+     -X POST "http://localhost:8080/ocs/v1.php/apps/files_sharing/api/v1/shares" \
+     -d "path=/Documents" \
+     -d "shareType=3" \
+     -d "permissions=1" \
+     -d "password=SecurePassword123"
 ```
 
 ### List files via WebDAV
