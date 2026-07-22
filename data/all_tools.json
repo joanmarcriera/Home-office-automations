@@ -67,6 +67,12 @@
       "doc_path": "docs/tools/development_ops/aider.md"
     },
     {
+      "id": "air-gapped-provisioning",
+      "name": "Air-gapped Provisioning",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/air-gapped-provisioning.md"
+    },
+    {
       "id": "airops",
       "name": "AirOps",
       "category": "Automation & Orchestration",
@@ -130,6 +136,12 @@
       "name": "Anti-Gravity",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/anti_gravity.md"
+    },
+    {
+      "id": "antigravity-agent",
+      "name": "Antigravity Agent",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/antigravity-agent.md"
     },
     {
       "id": "any-do",
@@ -268,6 +280,12 @@
       "name": "Azure OpenAI Service",
       "category": "Providers",
       "doc_path": "docs/tools/providers/azure-openai.md"
+    },
+    {
+      "id": "backup-disaster-recovery",
+      "name": "Backup & Disaster Recovery",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/backup-disaster-recovery.md"
     },
     {
       "id": "bee-agent-framework",
@@ -456,12 +474,6 @@
       "doc_path": "docs/tools/agents/cline.md"
     },
     {
-      "id": "colibri",
-      "name": "Colibri",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/colibri.md"
-    },
-    {
       "id": "cloud-code",
       "name": "Cloud Code",
       "category": "Development & Ops",
@@ -514,6 +526,12 @@
         "Embed",
         "Rerank"
       ]
+    },
+    {
+      "id": "colibri",
+      "name": "Colibri",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/colibri.md"
     },
     {
       "id": "colqwen",
@@ -642,36 +660,6 @@
       "doc_path": "docs/playbooks/data-copilot-sql-validation.md"
     },
     {
-      "id": "fully-offline-assistant",
-      "name": "Fully Offline Assistant",
-      "category": "Playbooks",
-      "doc_path": "docs/playbooks/fully-offline-assistant.md"
-    },
-    {
-      "id": "graceful-degradation",
-      "name": "Graceful Degradation",
-      "category": "Playbooks",
-      "doc_path": "docs/playbooks/graceful-degradation.md"
-    },
-    {
-      "id": "backup-disaster-recovery",
-      "name": "Backup & Disaster Recovery",
-      "category": "Playbooks",
-      "doc_path": "docs/playbooks/backup-disaster-recovery.md"
-    },
-    {
-      "id": "air-gapped-provisioning",
-      "name": "Air-gapped Provisioning",
-      "category": "Playbooks",
-      "doc_path": "docs/playbooks/air-gapped-provisioning.md"
-    },
-    {
-      "id": "offline-transcription-pipeline",
-      "name": "Offline Transcription Pipeline",
-      "category": "Playbooks",
-      "doc_path": "docs/playbooks/offline-transcription-pipeline.md"
-    },
-    {
       "id": "datadog",
       "name": "Datadog",
       "category": "Process & Understanding",
@@ -744,18 +732,6 @@
       "doc_path": "docs/tools/infrastructure/docker.md"
     },
     {
-      "id": "dolt",
-      "name": "Dolt",
-      "category": "Intake & Storage",
-      "doc_path": "docs/tools/intake_storage/dolt.md"
-    },
-    {
-      "id": "duckdb",
-      "name": "DuckDB",
-      "category": "Infrastructure",
-      "doc_path": "docs/tools/infrastructure/duckdb.md"
-    },
-    {
       "id": "docling",
       "name": "Docling",
       "category": "Process & Understanding",
@@ -772,6 +748,12 @@
       "name": "Documentation Writer Skill",
       "category": "Agents",
       "doc_path": "docs/tools/agents/documentation-writer.md"
+    },
+    {
+      "id": "dolt",
+      "name": "Dolt",
+      "category": "Intake & Storage",
+      "doc_path": "docs/tools/intake_storage/dolt.md"
     },
     {
       "id": "drawio",
@@ -796,6 +778,12 @@
       "name": "DSPy",
       "category": "Frameworks",
       "doc_path": "docs/tools/frameworks/dspy.md"
+    },
+    {
+      "id": "duckdb",
+      "name": "DuckDB",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/duckdb.md"
     },
     {
       "id": "elastic",
@@ -957,6 +945,12 @@
       "name": "Free Will MCP",
       "category": "Development & Ops",
       "doc_path": "docs/tools/development_ops/free-will-mcp.md"
+    },
+    {
+      "id": "fully-offline-assistant",
+      "name": "Fully Offline Assistant",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/fully-offline-assistant.md"
     },
     {
       "id": "fuzzing-mcp-server",
@@ -1151,6 +1145,12 @@
       "doc_path": "docs/tools/infrastructure/gpt4all.md"
     },
     {
+      "id": "graceful-degradation",
+      "name": "Graceful Degradation",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/graceful-degradation.md"
+    },
+    {
       "id": "grafana-cloud",
       "name": "Grafana Cloud",
       "category": "Process & Understanding",
@@ -1316,6 +1316,12 @@
       "name": "InterCode",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/intercode.md"
+    },
+    {
+      "id": "internlm",
+      "name": "InternLM",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/internlm.md"
     },
     {
       "id": "it-tools",
@@ -1780,6 +1786,12 @@
       "doc_path": "docs/tools/benchmarking/mmlu.md"
     },
     {
+      "id": "monolith",
+      "name": "Monolith",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/monolith.md"
+    },
+    {
       "id": "moondream",
       "name": "Moondream",
       "category": "AI Assistants & Knowledge",
@@ -1853,6 +1865,12 @@
       "name": "Navidrome",
       "category": "Media & Entertainment",
       "doc_path": "docs/services/navidrome.md"
+    },
+    {
+      "id": "nemo-automodel",
+      "name": "NeMo AutoModel",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/nemo-automodel.md"
     },
     {
       "id": "nemo-retriever",
@@ -1933,6 +1951,12 @@
       "doc_path": "docs/tools/process_understanding/ocrmypdf.md"
     },
     {
+      "id": "offline-transcription-pipeline",
+      "name": "Offline Transcription Pipeline",
+      "category": "Playbooks",
+      "doc_path": "docs/playbooks/offline-transcription-pipeline.md"
+    },
+    {
       "id": "oh-my-opencode",
       "name": "oh-my-opencode",
       "category": "Development & Ops",
@@ -1973,6 +1997,12 @@
       "name": "Open WebUI",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/services/open-webui.md"
+    },
+    {
+      "id": "open-webui-computer",
+      "name": "Open WebUI Computer",
+      "category": "Automation & Orchestration",
+      "doc_path": "docs/tools/automation_orchestration/open-webui-computer.md"
     },
     {
       "id": "openai",
@@ -2442,6 +2472,12 @@
       "doc_path": "docs/tools/process_understanding/snowflake.md"
     },
     {
+      "id": "soofi",
+      "name": "Soofi",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/soofi.md"
+    },
+    {
       "id": "sora",
       "name": "Sora",
       "category": "AI Assistants & Knowledge",
@@ -2700,12 +2736,6 @@
       "doc_path": "docs/tools/automation_orchestration/vault-mcp.md"
     },
     {
-      "id": "wan-dancer",
-      "name": "Wan-Dancer",
-      "category": "AI Assistants & Knowledge",
-      "doc_path": "docs/tools/ai_knowledge/wan-dancer.md"
-    },
-    {
       "id": "vector-db-comparison",
       "name": "Vector DB Comparison",
       "category": "Knowledge Base",
@@ -2784,6 +2814,12 @@
       "doc_path": "docs/tools/development_ops/vscode.md"
     },
     {
+      "id": "wan-dancer",
+      "name": "Wan-Dancer",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/wan-dancer.md"
+    },
+    {
       "id": "wandb-weave",
       "name": "W&B Weave",
       "category": "Process & Understanding",
@@ -2842,12 +2878,6 @@
       "name": "ZSE",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/infrastructure/zse.md"
-    },
-    {
-      "id": "open-webui-computer",
-      "name": "Open WebUI Computer",
-      "category": "Automation & Orchestration",
-      "doc_path": "docs/tools/automation_orchestration/open-webui-computer.md"
     }
   ]
 }

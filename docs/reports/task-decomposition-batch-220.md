@@ -13,7 +13,7 @@ These tasks track deep integrations with Google's Antigravity frameworks, autono
 
 | Title | URL | Tags | Status | Canonical Page (Target) | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Antigravity Agent | [Link](https://github.com/search?q=Antigravity+Agent) | tool | **Pending** | `docs/tools/ai_knowledge/antigravity-agent.md` | Create a high-confidence doc for the agent platform. |
+| Antigravity Agent | [Link](https://github.com/search?q=Antigravity+Agent) | tool | **integrated** | `docs/tools/ai_knowledge/antigravity-agent.md` | Create a high-confidence doc for the agent platform. |
 | Antigravity Ecosystem | [Link](https://antigravity.google) | tool | **Pending** | `docs/tools/ai_knowledge/antigravity-ecosystem.md` | Document the broader Antigravity ecosystem and Google's agentic tools. |
 | Deep Agents | [Link](https://www.langchain.com/deep-agents?ref=2026-07-21-audit) | tool | **Pending** | `docs/tools/ai_knowledge/deep-agents.md` | Add LangChain's deep agents architecture. |
 | LaVague | [Link](https://github.com/lavague-ai/LaVague) | tool | **Pending** | `docs/tools/agents/lavague.md` | Document LaVague browser agent integration. |

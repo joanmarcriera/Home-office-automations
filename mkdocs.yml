@@ -175,6 +175,7 @@ nav:
           - Overview: tools/ai_knowledge/index.md
           - AI Templates: tools/ai_knowledge/aitmpl.md
           - Andrej Karpathy Skills: tools/ai_knowledge/karpathy-skills.md
+          - Antigravity Agent: tools/ai_knowledge/antigravity-agent.md
           - AudioCPP: tools/ai_knowledge/audiocpp.md
           - ansigpt: tools/ai_knowledge/ansigpt.md
           - AnythingLLM: tools/ai_knowledge/anythingllm.md
@@ -438,6 +439,7 @@ nav:
           - Mastra: tools/frameworks/mastra.md
           - Microsoft Agent Framework: tools/frameworks/microsoft-agent-framework.md
           - Mycelium: tools/frameworks/mycelium.md
+          - NeMo AutoModel: tools/frameworks/nemo-automodel.md
           - OpenAI Agents SDK: tools/frameworks/openai-agents-sdk.md
           - Overview: tools/frameworks/index.md
           - PydanticAI: tools/frameworks/pydantic-ai.md
@@ -457,16 +459,19 @@ nav:
           - Fireworks AI: tools/providers/fireworks.md
           - Groq: tools/providers/groq.md
           - Hugging Face: tools/providers/huggingface.md
+          - InternLM: tools/providers/internlm.md
           - KatCoderAir: tools/providers/katcoderair.md
           - Microsoft Graph API: tools/providers/microsoft-graph.md
           - MiniMax: tools/providers/minimax.md
           - Mistral AI: tools/providers/mistral.md
+          - Monolith: tools/providers/monolith.md
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
           - Perplexity: tools/providers/perplexity.md
           - Portkey AI Gateway: tools/providers/portkey.md
           - Replicate: tools/providers/replicate.md
+          - Soofi: tools/providers/soofi.md
           - Tavily: tools/providers/tavily.md
           - Together AI: tools/providers/together.md
           - Vercel AI Gateway: tools/providers/vercel-ai-gateway.md
