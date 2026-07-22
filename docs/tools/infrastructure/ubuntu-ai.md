@@ -108,6 +108,9 @@ else:
 - [Ubuntu 26.04 to include Cuda, Rocm snaps and inference models optimised for your hardware](https://www.reddit.com/r/LocalLLaMA/comments/1rnmo3n/ubuntu_2604_to_include_cuda_rocm_snaps_and/)
 - [Canonical / Ubuntu Blog](https://ubuntu.com/blog)
 - [GamingOnLinux: NVIDIA reveal more GPU driver security flaws for May 2026](https://www.gamingonlinux.com/2026/05/nvidia-reveal-more-gpu-driver-security-flaws-for-may-2026/)
+- [FastFlowLM](https://www.amd.com/en/blogs/2026/fastflowlm-joins-amd-to-advance-ai-inference.html) — Integrated from daily log reference.
+- [ROCm 7.14](https://www.reddit.com/r/LocalLLaMA/comments/1uxq4kb/amd_rocm_714_therock_tech_preview_tagged_for/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 

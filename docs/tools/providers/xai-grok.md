@@ -109,6 +109,8 @@ print(completion.choices[0].message.content)
 - [xAI API Documentation](https://docs.x.ai/)
 - [Grok AI Review 2026 (Simplify AI Tools)](https://simplifyaitools.com/blog/grok-ai-in-2026-what-it-is-how-to-use-it-and-why-its-on-every-top-ai-tools-list/)
 - [Portkey: xAI Models & Pricing](https://portkey.ai/models/x-ai)
+- [Grok Build](https://www.reddit.com/r/LocalLLaMA/comments/1uxi5mf/grok_build_open_sourced_under_apache_20_license/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21

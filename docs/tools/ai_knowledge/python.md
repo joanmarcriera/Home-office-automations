@@ -134,6 +134,8 @@ if __name__ == "__main__":
 - [Python Documentation](https://docs.python.org/3/)
 - [PyPI - The Python Package Index](https://pypi.org/)
 - [Python for AI Roadmap 2026](https://www.python.org/blogs/ai-roadmap-2026)
+- [Kilo](https://thenewstack.io/anaconda-kilo-open-source-acquisition/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-23

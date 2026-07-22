@@ -140,6 +140,8 @@ print(completion.choices[0].message.content)
 - [Hugging Face Repository: prism-ml/Bonsai-27B-mlx-1bit](https://huggingface.co/prism-ml/Bonsai-27B-mlx-1bit)
 - [Reddit LocalLLaMA Thread: Announcing Bonsai 27B](https://www.reddit.com/r/LocalLLaMA/comments/1uwhukq/bonsai_27b_the_first_27bclass_model_to_run_on_a/)
 - [Reddit r/LocalLLaMA: Fine-tuning Ternary Model Bonsai 8B](https://www.reddit.com/r/LocalLLaMA/comments/1v0egoi/i_tried_finetuning_a_ternary_model_bonsai_8b_on/)
+- [Hy-Embodied-RxBrain-1.0](https://www.reddit.com/r/LocalLLaMA/comments/1ux0x0v/tencenthyembodiedrxbrain10_hugging_face/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21

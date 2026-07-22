@@ -117,6 +117,8 @@ You are a specialist agent. Verify:
 - [MCP Specification and Servers](https://modelcontextprotocol.io)
 - [FastMCP 3.0 Release Notes](https://github.com/jlowin/fastmcp)
 - [Project-Specific Claude Config (GitHub Repo)](https://github.com/shanraisshan/claude-code-best-practice)
+- [Claude Apps Gateway](https://www.infoq.com/news/2026/07/claude-apps-gateway-aws/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-29
