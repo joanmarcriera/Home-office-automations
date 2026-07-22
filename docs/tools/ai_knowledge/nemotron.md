@@ -1,7 +1,7 @@
 # NVIDIA Nemotron
 
 ## What it is
-NVIDIA Nemotron is a family of open-source language models designed specifically for agentic AI, enterprise workflows, and high-precision reasoning. As of July 2026, the family includes the flagship **Nemotron 4** family, which optimizes for multi-agent coordination and high-throughput Blackwell inference, often benchmarked alongside [Gemma 3](local_llms.md).
+NVIDIA Nemotron is a family of open-source language models designed specifically for agentic AI, enterprise workflows, and high-precision reasoning. As of July 2026, the family includes the flagship **Nemotron 4** family, which optimizes for multi-agent coordination and high-throughput Blackwell inference, as well as the specialized **Nemotron-3 Embed** retrieval-optimized model series.
 
 ## What problem it solves
 It addresses the "thinking tax" and "context explosion" inherent in multi-agent systems. By using a hybrid Mamba-Transformer backbone and Latent MoE (Mixture-of-Experts), it provides high-capacity reasoning and a massive 1M-token context window with significantly higher throughput efficiency compared to traditional dense models on NVIDIA hardware.
@@ -17,6 +17,7 @@ It addresses the "thinking tax" and "context explosion" inherent in multi-agent 
 
 ## Strengths
 - **Agentic Performance**: Scores top-tier marks on benchmarks evaluating agentic planning and tool-use precision.
+- **Retrieval Optimization (Nemotron-3 Embed)**: Features highly optimized embedding models that won the Retrieval-focused Text Embedding benchmark (RTEb) for superior document retrieval.
 - **Hardware Affinity**: Extreme efficiency gains on NVIDIA Hopper and Blackwell architectures via native FP4/FP8 support.
 - **Open Weights**: Commercial-friendly NVIDIA Open Model License permits free download, specialization, and private deployment.
 - **Hybrid Architecture**: Combines Mamba-2 for efficiency with Transformers for precise recall.
@@ -99,6 +100,7 @@ for output in outputs:
 
 ## Sources / references
 - [NVIDIA Launches Nemotron Coalition (March 2026)](https://nvidianews.nvidia.com/news/nvidia-launches-nemotron-coalition-of-leading-global-ai-labs-to-advance-open-frontier-models)
+- [NVIDIA Nemotron-3 Embed Wins RTEb Benchmark](https://huggingface.co/blog/nvidia/nemotron-3-embed-wins-rteb)
 - [NVIDIA Nemotron-4 340B Technical Report](https://arxiv.org/abs/2406.11704)
 - [Optimizing Nemotron for Blackwell Architecture (NVIDIA Developer Blog)](https://developer.nvidia.com/blog/optimizing-nemotron-for-blackwell/)
 

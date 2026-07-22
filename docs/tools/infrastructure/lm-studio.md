@@ -17,6 +17,7 @@ It lowers the barrier to local LLM experimentation by packaging model discovery,
 
 ## Strengths
 - **Native Apple Silicon Support**: (June 2026) Fully optimized for M4/M5 unified memory architecture, allowing the M5 (48 GB) to host models up to 70B (Q4_K_M) with excellent performance.
+- **LM Studio Bionic**: (July 2026) Features a high-performance local discovery and coordination layer for distributed multi-device local inference and intelligent peer model synchronization.
 - **Integrated Model Browser**: Direct access to Hugging Face GGUF models with one-click downloads.
 - **Multi-Backend**: Supports both `llama.cpp` (GGUF) and native MLX backends (v0.3.6+).
 - **Zero-Config Server**: Instantly spin up an OpenAI-compatible API server.
@@ -91,6 +92,7 @@ print(response.choices[0].message.content)
 
 ## Sources / References
 - [Official Website](https://lmstudio.ai/)
+- [Introducing LM Studio Bionic](https://lmstudio.ai/blog/introducing-lm-studio-bionic)
 - [LM Studio CLI Documentation](https://lmstudio.ai/docs/cli)
 - [LM Studio v0.3.x Release Notes](https://lmstudio.ai/blog/v0.3.0)
 - [Apple Silicon Unified Memory for LLMs](https://developer.apple.com/metal/tensorflow-plugin/)
