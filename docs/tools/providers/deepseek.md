@@ -125,6 +125,7 @@ print(response.choices[0].message.content)
 - [DeepSeek API Documentation](https://api-docs.deepseek.com/)
 - [GitHub](https://github.com/deepseek-ai)
 - [DeepSeek-R1 Release Blog](https://api-docs.deepseek.com/news/news250120)
+- [Reddit r/LocalLLaMA: DeepSeek V4 Soon Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1v04jq2/deepseek_v4_soon/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21

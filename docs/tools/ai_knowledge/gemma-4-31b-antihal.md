@@ -127,6 +127,7 @@ print(tokenizer.decode(raw_outputs[0], skip_special_tokens=True))
 - [Specific Labs: Gemma-4-31B-AntiHal Model Repository on Hugging Face](https://huggingface.co/Specific-Labs/Gemma-4-31B-AntiHal)
 - [Reddit r/LocalLLaMA: Gemma-4-31B-AntiHal Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1uwhwt8/gemma431bantihal_gemma_steered_to_push_back_on/)
 - [Google DeepMind Gemma Model Card](https://huggingface.co/google/gemma-4-31B)
+- [Reddit r/LocalLLaMA: Google Updates Gemma 4 Chat Templates and Tool Calling](https://www.reddit.com/r/LocalLLaMA/comments/1uxfu4k/google_is_updating_gemma_4s_chat_templates/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21
