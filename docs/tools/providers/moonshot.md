@@ -102,6 +102,8 @@ print(completion.choices[0].message.content)
 - [Kimi Open Platform](https://platform.kimi.ai/)
 - [API Overview & Compatibility](https://platform.kimi.ai/docs/api/overview)
 - [Quickstart Guide](https://platform.kimi.ai/docs/guide/start-using-kimi-api)
+- [Simon Willison's Blog: Kimi K3 Announcement](https://simonwillison.net/2026/Jul/16/kimi-k3/#atom-entries)
+- [Reddit r/LocalLLaMA: Kimi K3 ranks #1 on Afterquery SpreadsheetBench 2](https://www.reddit.com/r/LocalLLaMA/comments/1uzzecz/kimi_k3_ranks_1_on_afterquerys_spreadsheetbench_2/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21

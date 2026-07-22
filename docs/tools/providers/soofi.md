@@ -108,6 +108,8 @@ print(response.choices[0].message.content)
 - [European Digital Sovereignty Association: Open LLM Workgroup](https://www.european-sovereignty.org/)
 - [Reddit r/LocalLLaMA: Soofi's 30B & 3B Sovereign European Models Release](https://www.reddit.com/r/LocalLLaMA/comments/1uyysg1/soofi_s_30ba3b_european_open_source_model/)
 - [Sovereign AI Initiative: High-Confidence Local Language Modeling](https://huggingface.co/soofi)
+- [Reddit r/LocalLLaMA: German AI Consortium Releases Soofi S 30B Model](https://www.reddit.com/r/LocalLLaMA/comments/1uxao7y/german_ai_consortium_releases_soofi_s_an_open_30b/)
+- [Reddit r/LocalLLaMA: German Soofi Team Launches Soofi S 30B/3B Models](https://www.reddit.com/r/LocalLLaMA/comments/1v0cyix/german_soofi_team_launches_soofi_s_30ba3b_an/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21
