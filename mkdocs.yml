@@ -299,6 +299,7 @@ nav:
           - GAIA (General AI Assistants): tools/benchmarking/gaia.md
           - Giskard: tools/benchmarking/giskard.md
           - Gpqa: tools/benchmarking/gpqa.md
+          - Gpt-Red: tools/benchmarking/gpt-red.md
           - Gsm8K: tools/benchmarking/gsm8k.md
           - HELM: tools/benchmarking/helm.md
           - Human Eval: tools/benchmarking/human-eval.md

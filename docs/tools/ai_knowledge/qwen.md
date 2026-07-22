@@ -1,7 +1,7 @@
 # Qwen
 
 ## What it is
-Qwen is a series of Large Language Models (LLMs) developed by Alibaba Cloud, including general-purpose (Qwen), coding (Qwen-Coder), and vision (Qwen-VL) models. As of June 2026, the family features standout agentic variants such as **Qwen 3.6-35B-A3B** (latest frontier variant), **Qwen 3.5-Max-Preview**, and **Qwen 3.5-Plus**. It remains one of the most capable model families available, particularly strong in coding, mathematics, and complex multi-agent workflows, often competing directly with **Claude 4.8** and **GPT-5.5** in technical benchmarks.
+Qwen is a series of Large Language Models (LLMs) developed by Alibaba Cloud, including general-purpose (Qwen), coding (Qwen-Coder), and vision (Qwen-VL) models. As of July 2026, the family features standout agentic variants such as **Qwen 3.6-35B-A3B** (latest frontier variant), the highly capable **Qwen 3.6-27B** with native 262k high-context support, **Qwen 3.5-Max-Preview**, and **Qwen 3.5-Plus**. It remains one of the most capable model families available, particularly strong in coding, mathematics, and complex multi-agent workflows, often competing directly with **Claude 4.8** and **GPT-5.5** in technical benchmarks.
 
 ## What problem it solves
 Provides high-performance, open-weight alternatives to proprietary models. It enables powerful local inference for coding assistants and private reasoning tasks without relying on cloud APIs. Qwen's efficiency (e.g., the A3B architecture) solves the "compute bottleneck" for high-performance local agents, allowing frontier-level intelligence on consumer-grade hardware.
@@ -91,6 +91,7 @@ print(response.choices[0].message.content)
 
 ## Sources / References
 - [Official Qwen Website](https://qwenlm.github.io/)
+- [Qwen 3.6 27B Context Window Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1uxstxs/qwen_36_27b_is_solid_up_to_262k_context_how_high/)
 - [Qwen GitHub Repository](https://github.com/QwenLM/Qwen)
 - [Hugging Face: Qwen/Qwen3.6-35B-A3B](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)
 - [NVIDIA NIM Model Card: qwen3.5-122b-a10b](https://build.nvidia.com/qwen/qwen3.5-122b-a10b/modelcard)

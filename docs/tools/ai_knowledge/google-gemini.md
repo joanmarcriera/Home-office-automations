@@ -19,6 +19,7 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 - **Massive Context Window**: Industry-leading 4-million token context window for Gemini 2.0 Pro.
 - **Context Caching**: Significantly reduces costs for tasks that reuse the same large token sets across multiple prompts.
 - **Native Multimodality**: Built from the ground up to reason across different modalities simultaneously.
+- **Gemini Omni Multimodal Integration**: (July 2026) Features support for Gemini Omni personal avatars, enabling real-time multimodal system analysis and highly contextual interactive workspace simulations.
 - **Integrated Code Execution**: Can generate, run, and learn from Python code natively within the model loop.
 
 ## Limitations
@@ -93,6 +94,7 @@ print(response.text)
 
 ## Sources / references
 - [Google DeepMind: Gemini 2.0](https://deepmind.google/technologies/gemini/v2-0/)
+- [Gemini Omni Personal Avatars in Workspace](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars/)
 - [Gemini API: Context Caching and 4M Token Window](https://ai.google.dev/gemini-api/docs/caching)
 - [Google Developers Blog: Gemini API New Features July 2026](https://developers.googleblog.com/en/july-2026-updates/)
 

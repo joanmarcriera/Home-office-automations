@@ -1133,6 +1133,12 @@
       "doc_path": "docs/tools/development_ops/gpt_engineer.md"
     },
     {
+      "id": "gpt-red",
+      "name": "GPT-Red",
+      "category": "Benchmarking",
+      "doc_path": "docs/tools/benchmarking/gpt-red.md"
+    },
+    {
       "id": "gpt-researcher",
       "name": "GPT Researcher",
       "category": "Agents",
