@@ -95,6 +95,9 @@ print(response.choices[0].message.content)
 - [MLX-LM Repository](https://github.com/ml-explore/mlx-examples)
 - [Llama 3.2 Vision Announcement](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/)
 - [LocalAI Blog: Announcing MCP Support](https://localai.io/blog/mcp-support/)
+- [CatMind-12B](https://www.reddit.com/r/LocalLLaMA/comments/1uzxov4/model_catmind12b/) — Integrated from daily log reference.
+- [Inkling](https://www.reddit.com/r/LocalLLaMA/comments/1uxdv34/thinking_machines_releases_first_openweight_model/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-23

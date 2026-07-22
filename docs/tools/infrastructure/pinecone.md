@@ -125,6 +125,8 @@ results = index.query(
 - [Pinecone Pricing](https://www.pinecone.io/pricing/)
 - [Pinecone Serverless Announcement](https://www.pinecone.io/blog/serverless/)
 - [Agentic RAG with Pinecone](https://docs.pinecone.io/guides/get-started/agentic-rag)
+- [Pinecone Nexus](https://www.infoq.com/news/2026/07/pinecon-nexus-knowledge-engine/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-06-24

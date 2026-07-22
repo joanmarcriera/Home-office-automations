@@ -124,6 +124,9 @@ if __name__ == "__main__":
 - [Google AI Developer Platform: Introducing Antigravity Agent Stateful Framework](https://antigravity.google)
 - [GitHub Search: Antigravity Agent Stateful Orchestration Engine](https://github.com/search?q=Antigravity+Agent)
 - [Vertex AI Agentic Workflows and Mission Planning](https://cloud.google.com/vertex-ai)
+- [MiniBot V2](https://www.reddit.com/r/LocalLLaMA/comments/1v0a9jn/sharing_minibot_v2_this_is_what_im_currently/) — Integrated from daily log reference.
+- [Agent Substrate](https://thenewstack.io/kubernetes-ai-agent-runtime/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21

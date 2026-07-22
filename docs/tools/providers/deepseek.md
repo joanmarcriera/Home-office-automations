@@ -126,6 +126,8 @@ print(response.choices[0].message.content)
 - [GitHub](https://github.com/deepseek-ai)
 - [DeepSeek-R1 Release Blog](https://api-docs.deepseek.com/news/news250120)
 - [Reddit r/LocalLLaMA: DeepSeek V4 Soon Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1v04jq2/deepseek_v4_soon/)
+- [OpenPangu2.0-Flash](https://www.reddit.com/r/LocalLLaMA/comments/1v03psf/model_add_openpangu20flash_92ba6b_with_mlalatent/) — Integrated from daily log reference.
+
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21
