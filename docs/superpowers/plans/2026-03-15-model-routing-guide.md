@@ -1,10 +1,10 @@
-# Model Routing Guide Implementation Plan (March 2026 - June 2026 Evolution)
+# Model Routing Guide Implementation Plan (March 2026 - July 2026 Evolution)
 
 ## What it is
-This document traces the implementation and evolution of the [Model Routing Guide](../../knowledge_base/model_routing_guide.md). Originally drafted in March 2026, it serves as the historical record of how the repository's model selection logic transitioned from legacy GPT-4o/Claude 3.5 patterns to the June 2026 standard of [Claude 4.8](../../tools/ai_knowledge/claude.md), [GPT-5.5](../../tools/ai_knowledge/openai.md), and [Gemini 3.5](../../tools/ai_knowledge/gemini.md).
+This document traces the implementation and evolution of the [Model Routing Guide](../../knowledge_base/model_routing_guide.md). Originally drafted in March 2026, it serves as the historical record of how the repository's model selection logic transitioned from legacy GPT-4o/Claude 3.5 patterns to the July 2026 standard of [Claude 5.1](../../tools/ai_knowledge/claude.md), [GPT-5.5](../../tools/ai_knowledge/openai.md), [Gemini 3.5](../../tools/ai_knowledge/gemini.md), [Llama 4](../../tools/ai_knowledge/local_llms.md), [Gemma 3](../../tools/ai_knowledge/gemma-4-31b-antihal.md), and [Qwen 3.6](../../tools/ai_knowledge/qwen.md).
 
 ## What problem it solves
-It provides architectural continuity for [Autonomous Agents](../../tools/agents/README.md) navigating the repository. By documenting the "why" behind the shift to effort-based routing (GPT-5.5) and tier-based routing (Claude 4.8), it prevents regressions to obsolete model selection logic.
+It provides architectural continuity for [Autonomous Agents](../../tools/agents/README.md) navigating the repository. By documenting the "why" behind the shift to effort-based routing (GPT-5.5) and tier-based routing (Claude 5.1), it prevents regressions to obsolete model selection logic.
 
 ## Where it fits in the stack
 **Meta-Documentation / Strategy**. It links the historical implementation plan with the current live [Model Routing Guide](../../knowledge_base/model_routing_guide.md) in the `knowledge_base`.
@@ -15,9 +15,9 @@ It provides architectural continuity for [Autonomous Agents](../../tools/agents/
 - **Performance Benchmarking**: Comparing current routing efficiency against the March 2026 baseline.
 
 ## Strengths
-- **Historical Context**: Preserves the original March 2026 goals while providing June 2026 updates.
+- **Historical Context**: Preserves the original March 2026 goals while providing July 2026 updates.
 - **Traceability**: Directly links implementation steps to final documentation artifacts.
-- **Adaptive Strategy**: Shows how the plan evolved to incorporate [MCP 3.0](../../tools/automation_orchestration/mcp.md).
+- **Adaptive Strategy**: Shows how the plan evolved to incorporate [MCP 3.0/3.1](../../tools/automation_orchestration/mcp.md).
 
 ## Limitations
 - **Temporal Specificity**: Highly tied to the mid-2026 model release cycle.
@@ -31,18 +31,23 @@ It provides architectural continuity for [Autonomous Agents](../../tools/agents/
 - For real-time model selection (use the [Model Routing Guide](../../knowledge_base/model_routing_guide.md)).
 - If you are only looking for current model API specifications.
 
-## Implementation Progress (June 2026 Update)
+## Implementation Progress (July 2026 Update)
 
 ### Phase 1: Foundation (Completed March 2026)
 - [x] Create central `docs/knowledge_base/model_routing_guide.md`.
 - [x] Extend `docs/tools/ai_knowledge/openai.md` with effort-level routing.
 - [x] Extend `docs/tools/development_ops/codex.md` with model routing.
 
-### Phase 2: Modernization (Completed June 2026)
-- [x] Upgrade guide to include Claude 4.8 (Haiku, Sonnet, Opus).
+### Phase 2: Modernization (Completed July 2026)
+- [x] Upgrade guide to include Claude 5.1 (Haiku, Sonnet, Opus).
 - [x] Integrate GPT-5.5 explicit "Reasoning Effort" parameters.
 - [x] Add Gemini 3.5 Flash/Pro context-based routing.
-- [x] Align with [MCP 3.0](../../tools/automation_orchestration/mcp.md) tool-calling standards.
+- [x] Support Llama 4, Gemma 3, and Qwen 3.6 for specialized/local workloads.
+- [x] Align with [MCP 3.1](../../tools/automation_orchestration/mcp.md) tool-calling standards.
+
+### Phase 3: Self-Adaptation (Planned Q3 2026)
+- [ ] Implement live latency and cost feedback to dynamically tune router weights.
+- [ ] Deploy client-side routing caches to reduce routing-decision latency.
 
 ## CLI examples
 
@@ -63,9 +68,12 @@ python3 scripts/check_docs_contract.py docs/knowledge_base/model_routing_guide.m
 def route_v1(task):
     return "claude-3-5-sonnet"
 
-# JUNE 2026 (Modern)
+# JULY 2026 (Modern)
 def route_v2(task, effort="medium"):
-    return f"gpt-5-5-effort-{effort}"
+    # Utilizes SOTA Claude 5.1 or GPT-5.5 with explicit effort parameters
+    if "reasoning" in task.lower() or effort == "high":
+        return f"gpt-5-5-effort-{effort}"
+    return "claude-5-1-sonnet"
 ```
 
 ## Related tools / concepts
@@ -85,5 +93,5 @@ def route_v2(task, effort="medium"):
 - [Internal Architecture Review - Model Routing (2026.Q2)](../../reports/architecture-review.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-24
 - Confidence: high
