@@ -1,10 +1,10 @@
 # NVIDIA PersonaPlex
 
 ## What it is
-NVIDIA PersonaPlex is a state-of-the-art, real-time, full-duplex speech-to-speech conversational model. As of June 2026, it represents the industry standard for low-latency, natural spoken interaction, allowing for human-like conversation where both the agent and user can speak simultaneously, handle interruptions, and maintain complex personas.
+NVIDIA PersonaPlex is a state-of-the-art, real-time, full-duplex speech-to-speech conversational framework. As of late July 2026, it represents the industry standard for low-latency, natural spoken interaction, allowing for human-like conversation where both the agent and user can speak simultaneously, handle interruptions, and maintain complex personas natively.
 
 ## What problem it solves
-It eliminates the "robotic" lag and awkward turn-taking typical of serial STT (Speech-to-Text) -> LLM -> TTS (Text-to-Speech) pipelines. PersonaPlex provides a unified, end-to-end multimodal architecture that processes audio signals directly, enabling sub-200ms response times and natural backchanneling (e.g., "uh-huh," "I see").
+It eliminates the "robotic" lag and awkward turn-taking typical of serial STT (Speech-to-Text) -> LLM -> TTS (Text-to-Speech) pipelines. PersonaPlex provides a unified, end-to-end multimodal architecture that processes audio signals directly, enabling sub-150ms response times and natural backchanneling (e.g., "uh-huh," "I see") under complex real-time scenarios.
 
 ## Where it fits in the stack
 **Category**: AI Assistants & Knowledge / Voice AI. It serves as the high-fidelity vocal interface layer for agentic systems, sitting between the raw audio stream and the semantic reasoning core.
@@ -18,8 +18,9 @@ It eliminates the "robotic" lag and awkward turn-taking typical of serial STT (S
 ## Strengths
 - **Native Full-Duplex**: Supports simultaneous listening and speaking with zero-shot interruption handling.
 - **Fine-Grained Persona Control**: Uses "Hybrid System Prompts" to define personality via text and vocal identity via audio embeddings.
-- **Low-Latency Audio Patterns**: (June 2026) Optimized for the Blackwell architecture, achieving near-instantaneous "reflexive" responses.
+- **Low-Latency Audio Patterns**: Optimized for the Blackwell architecture (such as the B200 and GB200 series), achieving near-instantaneous "reflexive" responses.
 - **Mimi Codec Integration**: Utilizes the Mimi 24kHz codec for high-fidelity, low-bandwidth audio transmission.
+- **Model Agnostic Routing**: Native integration with frontier models including Claude 5.1, GPT-5.5, Llama 4, Gemma 3, and Qwen 3.6.
 
 ## Limitations
 - **Hardware Requirements**: Requires high-end NVIDIA GPUs (B200/H100) for optimal real-time performance.
@@ -90,7 +91,8 @@ async def start_session():
     # Configure the session with a text prompt and audio embedding
     await client.configure(
         system_prompt="You are a helpful space station navigator.",
-        voice_embedding="path/to/navigator_voice.pt"
+        voice_embedding="path/to/navigator_voice.pt",
+        mcp_version="3.1"
     )
 
     # Start the full-duplex loop
@@ -103,10 +105,10 @@ asyncio.run(start_session())
 ## Related tools / concepts
 - [Moshi](https://kyutai.org/blog/2024-07-02-moshi) — The foundational full-duplex architecture.
 - [Helium](https://kyutai.org/blog/2025-04-30-helium) — The core LLM backbone for semantic understanding.
-- [Gemini Flash TTS](../ai_knowledge/gemini-flash-tts.md) — High-speed, steerable TTS alternative.
+- [Gemini Flash TTS](gemini-flash-tts.md) — High-speed, steerable TTS alternative.
 - [HeyGen](heygen.md) — Video avatar generation platform.
 - [Whisper](../../services/whisper.md) — Standard for high-accuracy offline transcription.
-- [Low-Latency Audio Patterns](../../knowledge_base/learning-map.md) — Research on optimizing audio pipelines.
+- [Agent Framework Learning Map](../../knowledge_base/agent_framework_learning_map.md) — Learning map of modern agent frameworks.
 - [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Connecting voice agents to external tools.
 - [Real-time Sync Engines](../../knowledge_base/real_time_sync_engines.md) — Synchronizing state across voice interactions.
 
@@ -118,5 +120,5 @@ asyncio.run(start_session())
 - [June 2026 Voice AI Landscape Report](../../knowledge_base/landscape-overview.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-27
 - Confidence: high
