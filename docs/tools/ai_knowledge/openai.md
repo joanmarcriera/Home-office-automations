@@ -1,32 +1,32 @@
 # OpenAI
 
 ## What it is
-OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs). By June 2026, the series has matured into the **GPT-5.5** family, including **GPT-5.5 Ultra**, **GPT-5.5 Flash**, and specialized reasoning models (formerly code-named "Strawberry").
+OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs). By late July 2026, the API series is anchored by the powerhouse **GPT-5.5** family, including **GPT-5.5 Ultra**, **GPT-5.5 Flash**, and specialized reasoning models designed to run highly stateful tasks.
 
 ## What problem it solves
 It provides state-of-the-art reasoning, coding, and instruction-following capabilities via a reliable, high-throughput API. It enables complex automation, multi-step agentic workflows, and human-like interaction by processing text, code, audio, and images natively within a unified model architecture.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine**. It serves as the primary intelligence layer for agentic systems, available via the OpenAI API and as the engine behind [ChatGPT](chatgpt.md). It supports standardized tool calling via [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+**LLM / Reasoning Engine**. It serves as the primary intelligence layer for agentic systems, available via the OpenAI API and as the engine behind [ChatGPT](chatgpt.md). It supports standardized tool calling via [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Typical use cases
-- **Autonomous Coding**: Powering agents like [Claude Code](../development_ops/claude-code.md) or [Windsurf](../development_ops/codeium.md) for complex software engineering tasks.
+- **Autonomous Coding**: Powering agents like [Claude Code](../development_ops/claude-code.md) or [Windsurf](../development_ops/windsurf.md) for complex software engineering tasks.
 - **Real-time Voice Interaction**: Utilizing the Realtime API for low-latency, multimodal human-AI communication.
 - **Enterprise Automation**: Automating customer support, data extraction, and report generation at scale.
 - **Scientific Research**: Leveraging advanced reasoning models for hypothesis generation and data analysis.
-- **Agentic Orchestration**: Serving as the "brain" for multi-agent systems built with frameworks like [AG2](../frameworks/ag2.md).
+- **Agentic Orchestration**: Serving as the "brain" for multi-agent systems built with frameworks like [LangChain](langchain.md).
 
 ## Strengths
 - **Frontier Intelligence**: Consistently ranks at the top of reasoning and coding benchmarks with the GPT-5.5 series.
 - **Multimodal Native**: Processes text, image, audio, and video in a single, high-fidelity reasoning engine.
 - **Realtime API**: Industry-leading low-latency multimodal streaming for voice and vision applications.
 - **Strong Ecosystem**: Broadest adoption across developer tools, libraries, and enterprise integrations.
-- **MCP 3.0 Support**: Native integration with the Model Context Protocol for seamless tool and context access.
+- **MCP 3.1 Support**: Native integration with the Model Context Protocol 3.1 for seamless tool and context access.
 
 ## Limitations
 - **Closed Source**: Model weights and training data are proprietary, limiting transparency and local fine-tuning.
 - **Privacy & Compliance**: Data handling policies may not meet the requirements for highly regulated or air-gapped environments.
-- **Cost**: High-reasoning models (GPT-5.5 Ultra) remain expensive for high-volume or low-complexity tasks compared to local SLMs.
+- **Cost**: High-reasoning models (GPT-5.5 Ultra) remain expensive for high-volume or low-complexity tasks compared to [Local LLMs](local_llms.md).
 
 ## When to use it
 - When you require the absolute highest level of logical reasoning and logical precision.
@@ -87,9 +87,9 @@ with client.beta.realtime.connect(model="gpt-5.5-realtime") as connection:
         print(event)
 ```
 
-### Tool Calling (MCP 3.0 compatible)
+### Tool Calling (MCP 3.1 compatible)
 ```python
-# GPT-5.5 performing a tool call
+# GPT-5.5 performing a tool call using OpenAI API
 response = client.chat.completions.create(
     model="gpt-5.5-flash",
     messages=[{"role": "user", "content": "What's the weather in San Francisco?"}],
@@ -105,14 +105,15 @@ response = client.chat.completions.create(
 
 ## Related tools / concepts
 - [ChatGPT](chatgpt.md)
-- [Claude](../ai_knowledge/claude.md)
-- [Gemini](../ai_knowledge/gemini.md)
+- [Claude](claude.md)
+- [Gemini](gemini.md)
 - [Local LLMs](local_llms.md)
 - [OpenRouter](openrouter.md)
-- [AG2](../frameworks/ag2.md)
 - [LangChain](langchain.md)
 - [LlamaIndex](llamaindex.md)
-- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [AnythingLLM](anythingllm.md)
+- [LobeHub](lobehub.md)
 
 ## Sources / References
 - [OpenAI Platform Documentation](https://platform.openai.com/docs/)
@@ -122,5 +123,5 @@ response = client.chat.completions.create(
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-27
 - Confidence: high
