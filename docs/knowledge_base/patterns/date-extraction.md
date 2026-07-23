@@ -1,116 +1,141 @@
 # Date Extraction
 
 ## What it is
-Date Extraction is a specialized subset of structured data extraction focused on identifying, parsing, and normalizing temporal references (e.g., "next Tuesday," "the 5th of July," "yesterday") from unstructured text into standardized formats like ISO 8601. In June 2026, this has evolved into **Temporal Reasoning**, where agents maintain a "Current State" context to resolve complex relative dates across multi-step plans.
+Date Extraction is a specialized subset of structured data extraction focused on identifying, parsing, and normalizing temporal references (e.g., "next Tuesday," "the 5th of July," "yesterday") from unstructured text into standardized formats like ISO 8601. In late July 2026, this has evolved into **Agentic Temporal Reasoning**, where autonomous agent loops maintain stateful "Current System Time" offsets and context structures to resolve highly complex relative dates, deadlines, and multi-step execution timelines.
 
 ## What problem it solves
 Temporal data is notoriously difficult for LLMs to handle accurately because:
-- **Relative References**: Words like "tomorrow" or "next week" require a reference point (the "current date") to be meaningful.
-- **Ambiguous Formats**: "01/02/03" could mean different dates depending on the locale (US vs. UK vs. ISO).
-- **Inconsistent Context**: Users often omit the year or use vague terms like "later this month."
-- **Normalization**: Backend systems and databases require absolute timestamps, not relative strings.
-- **Agentic Planning**: Autonomous agents need precise date extraction to schedule [Temporal](../../tools/orchestration/temporal.md) workflows or update [Google Calendar](../../tools/calendar_tasks/google_calendar.md).
+- **Relative Ambiguity**: Indexical words like "tomorrow" or "next week" require a precise, dynamic reference point (the "current system time") to be meaningful.
+- **Locale Ambiguities**: Formats like "01/02/03" can mean different dates depending on the user's regional configuration (US vs. UK vs. ISO).
+- **Vague Input Context**: Users frequently omit the year or reference fuzzy windows like "later this month."
+- **Standardized Normalization**: Backend databases and systems require precise absolute timestamps (UTC) rather than colloquial phrases.
+- **Agentic Scheduling**: Autonomous systems require precise, timezone-aware dates to invoke [Temporal](../../tools/orchestration/temporal.md) orchestrators or update [Google Calendar](../../tools/calendar_tasks/google_calendar.md) via MCP 3.1 tools.
 
 ## Where it fits in the stack
-This pattern is critical for **Scheduling Agents**, **Calendar Integrations**, and **Timeline Analysis** tools. It usually sits in the **Extraction layer** of an intake pipeline, feeding data into the [Orchestration Layer](../../tools/orchestration/index.md).
+This pattern is critical for **Scheduling Agents**, **Calendar Integrations**, and **Timeline Analysis** tools. It resides in the **Extraction layer** of an intake pipeline, feeding data into the [Orchestration Layer](../../tools/orchestration/index.md).
 
 ## Typical use cases
-- **Autonomous Scheduling**: Parsing "remind me to buy milk tomorrow at 9am" into a structured [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md).
-- **Log Analysis**: Normalizing relative timestamps in unstructured server logs for forensic analysis.
-- **Financial Auditing**: Extracting transaction dates from natural language descriptions or receipts for [Paperless-ngx](../../services/paperless-ngx.md).
-- **Multi-Step Mission Planning**: Determining the deadlines for sub-tasks in an [Antigravity](../../tools/agents/antigravity.md) mission.
+- **Autonomous Scheduling**: Converting "set a meeting for tomorrow at 2:30pm" into a structured [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) object with precise UTC bounds.
+- **Log Timeline Parsing**: Normalizing relative offsets in legacy database or server log streams into absolute temporal entries.
+- **Financial Document Ingestion**: Extracting transaction dates from invoices or receipts for indexing in [Paperless-ngx](../../services/paperless-ngx.md).
+- **Long-Horizon Mission Tracking**: Determining start, end, and duration parameters for sub-tasks within an [Antigravity](../../tools/agents/antigravity.md) execution plan.
 
 ## Strengths
-- **Programmatic Utility**: Turns human language into something a machine can schedule or query.
-- **Consistency**: Eliminates locale-based confusion by enforcing ISO 8601 standards.
-- **Enriched UX**: Allows users to interact with software using natural, relative timing.
-- **Durable Scheduling**: Provides the precision required for [Temporal](../../tools/orchestration/temporal.md) workflows.
+- **Downstream Reliability**: Converts arbitrary human language into machine-readable ISO 8601 strings for deterministic execution.
+- **Consistency**: Standardizes temporal data to UTC, eliminating regional and daylight-saving confusion.
+- **Enhanced User Experience**: Enables frictionless user interaction using conversational language rather than rigid date pickers.
+- **Precision Audits**: Crucial for tracking SLAs and retry thresholds in long-running [Temporal](../../tools/orchestration/temporal.md) processes.
 
 ## Limitations
-- **Timezone Complexity**: Handling user timezones vs. server timezones vs. UTC is a constant source of bugs.
-- **Edge Cases**: Leap years, daylight savings time changes, and non-standard work weeks (e.g., "next business day").
-- **Calculation Errors**: LLMs can occasionally fail at date math (e.g., calculating the date 45 days from now) without a scratchpad or tool.
-- **Context Drift**: If the "system time" provided to the model is stale, all relative extractions will be incorrect.
+- **Timezone Complexity**: Resolving the target timezone relative to the client's current offset and server UTC is prone to errors.
+- **Date Math Calculations**: LLMs occasionally make minor mathematical errors (e.g., Leap Year calculations) without scratchpad chains or tool integrations.
+- **Reference Context Drift**: If the prompt's reference system time is stale or missing, all extracted relative dates will be incorrect.
+- **Multi-Day Events**: Differentiating between all-day events, timezone-specific intervals, and recurring patterns requires complex schema designs.
 
 ## When to use it
-- Any time your application needs to act on a date or time provided by a user via text or voice.
-- For processing historical logs where the "reference date" might be the log's timestamp.
-- When building [Scheduling Agents](../../tools/calendar_tasks/google_calendar.md) or [Task Managers](../../tools/calendar_tasks/google-tasks.md).
+- When implementing a conversational voice or chat interface that schedules appointments, deadlines, or alarms.
+- For processing legacy documents containing relative dates (e.g., "30 days from invoice date").
+- For building agentic integrations with [Scheduling Tools](../../tools/calendar_tasks/google_calendar.md) or [Task Managers](../../tools/calendar_tasks/google-tasks.md).
 
 ## When not to use it
-- When the user is selecting a date from a UI picker (where the data is already structured).
-- For simple keyword-based systems where exact normalization isn't required.
-- When absolute dates are already provided in a consistent format (e.g., ISO-only logs).
+- When dates are already collected through structured GUI inputs (like calendar pickers).
+- In legacy pipelines where inputs are strictly guaranteed to be pre-formatted ISO 8601 strings.
+- For simple static keyword triggers that do not require logical temporal resolution.
 
 ## Getting started
-1. **Inject System Time**: Always provide the current ISO timestamp and day of the week in the system prompt.
-2. **Define a Pydantic Model**: Use [Instructor](../../tools/frameworks/instructor.md) to define a schema that includes a `datetime` object.
-3. **Set Reference Date**: Use a tool like [Duckling](https://github.com/facebook/duckling) for deterministic parsing if an LLM is overkill.
-4. **Implement Validation**: Ensure extracted dates are logical (e.g., a "due date" cannot be in 1970).
-5. **Handle Timezones**: Explicitly request UTC or provide the user's timezone offset in the context.
+1. **Always Inject Reference Time**: Pass the current absolute system date, time, and day of the week in the LLM's system prompt.
+2. **Design a Strict Pydantic Schema**: Use [Instructor](../../tools/frameworks/instructor.md) or [PydanticAI](../../tools/frameworks/pydantic-ai.md) to define a structure containing typed `datetime` values.
+3. **Handle Timezones Explicitly**: Pass the user's localized timezone offset (e.g., `America/New_York`) to resolve relative terms like "tonight."
+4. **Implement Range Validation**: Create validators to verify extracted times are logical (e.g., expiration dates cannot be in the past).
+5. **Add a Fallback Parser**: Integrate a deterministic library (like `dateparser` or Duckling) for simple, deterministic temporal segments.
 
 ## CLI examples
-Using the [Ollama](../../services/ollama.md) CLI to test date extraction with a system prompt:
+Using the [Ollama](../../services/ollama.md) CLI with a system instruction to test localized date extraction:
 
 ```bash
-# Ask the model to extract a date with a reference time
+# Extract relative date from user text with a provided reference timestamp
 curl http://localhost:11434/api/generate -d '{
-  "model": "llama3",
-  "system": "Current time is Friday, June 23, 2026, 10:00 AM UTC.",
-  "prompt": "Extract the ISO date for next Tuesday at 3pm.",
+  "model": "llama4",
+  "system": "The current system time is Friday, July 24, 2026, 14:00 UTC.",
+  "prompt": "Extract next Monday at 10 AM as an ISO 8601 UTC timestamp. Return JSON only.",
   "format": "json",
   "stream": false
 }'
 ```
 
-Using [Duckling](https://github.com/facebook/duckling) via Docker for deterministic extraction:
+Calling a local Duckling service via curl for high-speed, deterministic parsing:
 ```bash
-# Call Duckling service to parse a relative date
-curl -XPOST http://localhost:8000/parse \
-     -d "text=tomorrow at 9am" \
-     -d "reference_time=1782218400000" # June 23, 2026
+# Query Duckling parser with absolute reference time
+curl -X POST http://localhost:8000/parse \
+     -d "text=tomorrow at noon" \
+     -d "reference_time=1784901600000" # Milliseconds for July 24, 2026
 ```
 
 ## API examples
-Date normalization using [PydanticAI](../../tools/frameworks/pydantic-ai.md) with system context:
+Temporal reasoning and date extraction using [PydanticAI](../../tools/frameworks/pydantic-ai.md) with timezone-aware validation in Python:
 
 ```python
-from pydantic import BaseModel
 from datetime import datetime
+from zoneinfo import ZoneInfo
+from pydantic import BaseModel, Field, field_validator
 from pydantic_ai import Agent
 
-class DateResult(BaseModel):
-    normalized_date: datetime
-    original_text: str
+# Define the target structured date extraction schema
+class TemporalEvent(BaseModel):
+    normalized_utc: datetime = Field(description="The extracted event timestamp normalized to UTC")
+    event_title: str = Field(description="Fleshed out name or purpose of the event")
+    confidence_score: float = Field(ge=0.0, le=1.0)
 
-# Create an agent with the current time in the system prompt
+    # Validate that scheduled events are not set in the past
+    @field_validator("normalized_utc")
+    @classmethod
+    def prevent_past_events(cls, value: datetime) -> datetime:
+        now_utc = datetime.now(ZoneInfo("UTC"))
+        if value < now_utc:
+            raise ValueError("The extracted date cannot be in the past.")
+        return value
+
+# Define current context to inject into agent execution
+current_time_str = datetime.now(ZoneInfo("UTC")).strftime("%A, %Y-%m-%d %H:%M:%S UTC")
+
+# Initialize the PydanticAI Agent with SOTA late July 2026 model
 agent = Agent(
     'openai:gpt-5-5-preview',
-    result_type=DateResult,
-    system_prompt=f"The current date is {datetime.now().strftime('%A, %Y-%m-%d %H:%M:%S')}. Normalize user dates to ISO 8601."
+    result_type=TemporalEvent,
+    system_prompt=(
+        f"You are an expert temporal reasoning assistant. The current system time is exactly "
+        f"{current_time_str}. Use this exact timestamp to normalize relative references "
+        f"(e.g., 'tomorrow', 'next Tuesday') to an absolute ISO 8601 UTC date."
+    )
 )
 
-async def run():
-    result = await agent.run("Set a reminder for the third Thursday of next month")
-    print(result.data.normalized_date)
+async def extract_meeting_time(user_query: str) -> TemporalEvent:
+    # Run the agentic extraction loop (PydanticAI automatically handles self-correction/retries)
+    result = await agent.run(user_query)
+    return result.data
+
+# Example invocation
+# query: "Schedule a sync for our project retro next Wednesday at 3 PM PST"
+# result.normalized_utc -> Normalized absolute datetime object in UTC timezone
 ```
 
 ## Related tools / concepts
-- [Instructor](../../tools/frameworks/instructor.md) — For structured extraction and validation.
-- [PydanticAI](../../tools/frameworks/pydantic-ai.md) — For agentic context management.
-- [Duckling](https://github.com/facebook/duckling) — Deterministic temporal parser.
-- [Extraction and Classification](extraction-and-classification.md) — The broader pattern for structured data.
-- [Temporal](../../tools/orchestration/temporal.md) — Orchestrator that relies on precise timing.
-- [Google Calendar](../../tools/calendar_tasks/google_calendar.md) — Target surface for extracted dates.
-- [Google Tasks](../../tools/calendar_tasks/google-tasks.md) — Target surface for extracted tasks.
-- [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) — Standardized task metadata.
+- [Instructor](../../tools/frameworks/instructor.md) — For structured parsing and model constraint enforcement.
+- [PydanticAI](../../tools/frameworks/pydantic-ai.md) — For robust python-native system prompt context injections.
+- [Duckling](https://github.com/facebook/duckling) — Facebook's high-speed, deterministic relative date parser.
+- [Extraction and Classification](extraction-and-classification.md) — General patterns for entity parsing and structuring.
+- [Temporal](../../tools/orchestration/temporal.md) — Workflow engine requiring absolute execution timestamps.
+- [Google Calendar](../../tools/calendar_tasks/google_calendar.md) — Integration target for parsed scheduler data.
+- [Google Tasks](../../tools/calendar_tasks/google-tasks.md) — Integration target for extracted actionable lists.
+- [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) — Unified metadata specifications for enterprise task modeling.
 
 ## Sources / References
-- [LLMs and Date Math: Best Practices](https://github.com/jxnl/instructor/blob/main/docs/blog/posts/date-parsing.md)
-- [ISO 8601 Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
-- [Duckling: Relative Date Parsing](https://github.com/facebook/duckling)
-- [PydanticAI Documentation: Result Types](https://ai.pydantic.dev/results/)
+- [Instructor: Parsing and normalising dates with LLMs](https://github.com/jxnl/instructor/blob/main/docs/blog/posts/date-parsing.md)
+- [ISO 8601 Date and Time Format Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
+- [Duckling GitHub: Haskell-based parsing library](https://github.com/facebook/duckling)
+- [PydanticAI Results and Schema Structuring](https://ai.pydantic.dev/results/)
+- [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-25
 - Confidence: high
