@@ -1,7 +1,7 @@
 # LLMPerf
 
 ## What it is
-LLMPerf is a tool for benchmarking the performance, reliability, and cost of LLM APIs. Developed by the Ray Project, it provides standardized tests for measuring throughput (tokens per second), latency (time to first token, inter-token latency), and correctness across different providers and models. In June 2026, it is the primary tool for evaluating 'Agentic TPS' (Tokens Per Second) across federated inference endpoints.
+LLMPerf is a tool for benchmarking the performance, reliability, and cost of LLM APIs. Developed by the Ray Project, it provides standardized tests for measuring throughput (tokens per second), latency (time to first token, inter-token latency), and correctness across different providers and models. In July 2026, it is the primary tool for evaluating 'Agentic TPS' (Tokens Per Second) across federated inference endpoints and local high-concurrency clusters.
 
 ## What problem it solves
 Enables objective comparison of LLM API providers on operational metrics rather than just model quality. In a production environment, factors like speed, cost-per-token, and "time to first token" (TTFT) are critical for user experience. LLMPerf helps engineers make informed decisions about provider selection and capacity planning by providing reproducible performance data for high-concurrency agentic workloads.
@@ -10,7 +10,7 @@ Enables objective comparison of LLM API providers on operational metrics rather 
 **Benchmarking**. Used to measure and compare the operational performance of LLM inference endpoints (SaaS or self-hosted). It leverages [Ray](https://www.ray.io/) to parallelize requests and simulate high-concurrency workloads typical of multi-agent systems.
 
 ## Typical use cases
-- **Provider Comparison**: Comparing throughput and latency between OpenAI, Anthropic, and open-source models hosted on TogetherAI or Anyscale.
+- **Provider Comparison**: Comparing throughput and latency between OpenAI, Anthropic, Google, and open-weight models hosted on TogetherAI or Anyscale.
 - **Capacity Planning**: Determining how many concurrent requests an endpoint can handle before performance degrades significantly.
 - **Regression Testing**: Establishing performance baselines before and after infrastructure changes or model version updates.
 - **SLA Verification**: Ensuring that a third-party provider is meeting its advertised performance targets.
@@ -21,7 +21,7 @@ Enables objective comparison of LLM API providers on operational metrics rather 
 - **High Concurrency**: Built on Ray, allowing it to easily scale to thousands of concurrent requests.
 - **Broad Provider Support**: Integrates with OpenAI, Anthropic, Vertex AI, SageMaker, and any provider supported by [LiteLLM](../../services/litellm.md).
 - **Comprehensive Metrics**: Reports mean/stddev for input/output tokens, TTFT (Time To First Token), and total throughput.
-- **MCP Aware**: (June 2026) Support for benchmarking tool-use latency via MCP 3.0 protocol endpoints.
+- **MCP Aware**: (July 2026) Fully supports benchmarking tool-use latency via Model Context Protocol (MCP 3.0/3.1) endpoints.
 
 ## Limitations
 - **API Focused**: Primarily designed for API-based providers; while it can hit local endpoints (via OpenAI-compatible APIs), it doesn't measure local hardware utilization directly.
@@ -50,22 +50,34 @@ pip install -e .
 ## CLI examples
 
 ### Running a Throughput Load Test
-To measure throughput and latency for an OpenAI-compatible API:
+To measure throughput and latency for an OpenAI-compatible API running frontier models such as Claude 5.1 or GPT-5.5:
 
 ```bash
 export OPENAI_API_KEY="your_key"
 export OPENAI_API_BASE="https://api.openai.com/v1"
 
 python token_benchmark_ray.py \
-    --model "gpt-4o" \
+    --model "gpt-5.5-preview" \
     --mean-input-tokens 550 \
     --stddev-input-tokens 150 \
     --mean-output-tokens 150 \
     --stddev-output-tokens 10 \
-    --num-concurrent-requests 5 \
-    --max-num-completed-requests 20 \
+    --num-concurrent-requests 10 \
+    --max-num-completed-requests 50 \
     --llm-api openai \
     --results-dir "results"
+```
+
+### Running a Tool-calling (MCP) Concurrency Test
+Evaluate latency under concurrent tool-calling loads using MCP 3.1 endpoints:
+
+```bash
+python mcp_benchmark_ray.py \
+    --mcp-server-url "http://localhost:8000/mcp" \
+    --model "claude-5.1-sonnet" \
+    --num-tools-in-prompt 5 \
+    --num-concurrent-requests 5 \
+    --results-dir "mcp_results"
 ```
 
 ### Running a Correctness Test
@@ -73,7 +85,7 @@ To verify that a model can perform simple tasks accurately under load:
 
 ```bash
 python llm_correctness.py \
-    --model "gpt-4o" \
+    --model "gpt-5.5-preview" \
     --max-num-completed-requests 10 \
     --num-concurrent-requests 2 \
     --results-dir "correctness_results"
@@ -82,23 +94,24 @@ python llm_correctness.py \
 ## API examples
 LLMPerf's underlying `token_benchmark_ray.py` can be imported and used within custom Ray clusters for continuous performance monitoring.
 
-### Custom Ray Integration
+### Custom Ray Integration with Frontier Models
 ```python
 from llmperf.common import construct_clients
 from llmperf.ray_clients.openai_client import OpenAIClient
 
-# Construct a client for a specific endpoint
+# Construct a client for a specific endpoint (e.g. GPT-5.5)
 client = OpenAIClient(
-    model="gpt-4o",
+    model="gpt-5.5-preview",
     api_key="sk-...",
     api_base="https://api.openai.com/v1"
 )
 
-# Manually trigger a performance sample
+# Manually trigger a performance sample with high-concurrency config
 metrics = client.get_token_throughput(
-    prompt="Write a short story about Ray.",
-    max_tokens=100
+    prompt="Generate a high-throughput mock response stream simulating continuous data feed.",
+    max_tokens=200
 )
+print(f"TTFT: {metrics['time_to_first_token']}s")
 print(f"Tokens/Sec: {metrics['tokens_per_second']}")
 ```
 
@@ -119,5 +132,5 @@ print(f"Tokens/Sec: {metrics['tokens_per_second']}")
 - [Operationalizing LLMs at Scale (June 2026 Whitepaper)](https://example.com/llm-ops-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-24
 - Confidence: high

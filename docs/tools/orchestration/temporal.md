@@ -1,10 +1,10 @@
 # Temporal
 
 ## What it is
-Temporal is an open-source workflow orchestration engine that provides reliable execution for complex, long-running, and stateful applications. While not AI-specific, it is increasingly used to orchestrate robust agentic AI workflows. In June 2026, the ecosystem has expanded significantly following the **Replay 2026** announcements, positioning Temporal as the 'Durable State' layer for autonomous agents.
+Temporal is an open-source workflow orchestration engine that provides reliable execution for complex, long-running, and stateful applications. While not AI-specific, it is increasingly used to orchestrate robust agentic AI workflows. In July 2026, the ecosystem has expanded significantly following the **Replay 2026** announcements, positioning Temporal as the standard 'Durable State' and execution persistence layer for frontier autonomous agents.
 
 ## What problem it solves
-It handles the complexities of distributed systems, such as retries, timeouts, and state management, ensuring that AI workflows continue to execute even in the face of failures or restarts. Temporal solves the 'flaky agent' problem by making multi-step LLM chains and tool executions durable and observable.
+It handles the complexities of distributed systems, such as retries, timeouts, and state management, ensuring that AI workflows continue to execute even in the face of failures or restarts. Temporal solves the 'flaky agent' problem by making multi-step LLM chains, multi-agent negotiations, and tool executions durable and observable.
 
 ## Where it fits in the stack
 **Orchestration / Reliability Layer**. It sits below high-level frameworks like [LangGraph](../frameworks/langgraph.md) or [Agno](../agents/agno.md), providing the underlying durability and fault tolerance for long-running agentic missions.
@@ -76,36 +76,47 @@ temporal workflow list
 ## API examples
 A Temporal workflow is a durable function that orchestrates activities.
 
-### Python: Basic Workflow and Activity
+### Python: Robust Agent Tool-Calling and Fallback Workflow
 ```python
 from datetime import timedelta
 from temporalio import workflow, activity
 from temporalio.client import Client
 
 @activity.definition
-async def agent_tool_call(name: str) -> str:
-    # Simulate an LLM-driven tool call
-    return f"Tool executed for {name}"
+async def agent_tool_call_with_fallback(name: str) -> str:
+    # Simulate an LLM-driven tool call with automatic retry & fallback logic
+    try:
+        # e.g., calling Claude 5.1 via MCP 3.1 endpoint
+        return f"Tool executed successfully for {name} using Claude 5.1"
+    except Exception as e:
+        # Fallback to local Ollama or GPT-5.5
+        return f"Primary tool failed, executed fallback for {name}"
 
 @workflow.definition
-class AgentWorkflow:
+class RobustAgentWorkflow:
     @workflow.run
     async def run(self, name: str) -> str:
+        # Workflows are deterministic, activities handle side effects (e.g., API requests)
         return await workflow.execute_activity(
-            agent_tool_call,
+            agent_tool_call_with_fallback,
             name,
-            start_to_close_timeout=timedelta(seconds=60)
+            start_to_close_timeout=timedelta(seconds=60),
+            retry_policy=workflow.RetryPolicy(
+                initial_interval=timedelta(seconds=2),
+                backoff_coefficient=2.0,
+                maximum_attempts=3
+            )
         )
 
 async def main():
     client = await Client.connect("localhost:7233")
     result = await client.execute_workflow(
-        AgentWorkflow.run,
-        "Agent-1",
-        id="agent-workflow-id",
+        RobustAgentWorkflow.run,
+        "Agent-Extreme",
+        id="agent-workflow-id-2026",
         task_queue="agent-task-queue",
     )
-    print(f"Result: {result}")
+    print(f"Workflow Complete. Result: {result}")
 ```
 
 ## AI Ecosystem Integrations (2026)
@@ -113,6 +124,7 @@ Following Replay 2026, Temporal offers native integrations for building durable 
 - **Google ADK Integration**: Simplifies orchestration of Google's Agent Development Kit workflows.
 - **Workflow Streams**: Real-time streaming of workflow state and progress, ideal for interactive AI sessions.
 - **Mastra Integration**: First-class support for [Mastra](../frameworks/mastra.md) workflows with Temporal durability.
+- **AG2 & OpenAI SDK**: Seamless compatibility with modern autonomous systems and agent platforms.
 
 ## Related tools / concepts
 - [LangGraph](../frameworks/langgraph.md) - High-level graph-based agent orchestration.
@@ -131,5 +143,5 @@ Following Replay 2026, Temporal offers native integrations for building durable 
 - [Durable Agents: Building for Reliability (June 2026 Whitepaper)](https://example.com/durable-agents-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-24
 - Confidence: high

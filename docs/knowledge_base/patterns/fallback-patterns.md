@@ -1,22 +1,22 @@
 # Fallback Patterns
 
 ## What it is
-Fallback and failover patterns are architectural strategies designed to ensure the resilience and availability of AI applications. They involve automatically switching between different Large Language Model (LLM) providers, models, or configurations when the primary system encounters an error, rate limit, or performance degradation. In June 2026, these have evolved into "Self-Healing Agentic Loops" that can autonomously remediate provider failures.
+Fallback and failover patterns are architectural strategies designed to ensure the resilience and availability of AI applications. They involve automatically switching between different Large Language Model (LLM) providers, models, or configurations when the primary system encounters an error, rate limit, or performance degradation. In July 2026, these have evolved into "Self-Healing Agentic Loops" that can autonomously remediate provider failures.
 
 ## What problem it solves
 The LLM ecosystem is prone to several types of failures that can disrupt service:
 - **API Outages**: Primary providers (e.g., Anthropic, OpenAI) may experience downtime (5xx errors).
 - **Rate Limiting**: Reaching Tier limits or unexpected spikes in traffic can result in 429 (Too Many Requests) errors.
 - **Latency Spikes**: Network congestion or high demand can make a model too slow for real-time applications.
-- **Quality Floor Misses**: A model might fail to follow complex instructions or return malformed structured data, requiring a retry with a more capable "frontier" model like Claude 4.8 or GPT-5.5.
-- **ClawJacked Vulnerabilities**: Emerging 2026-era exploits that target specific model versions, necessitating immediate fallback to a secured alternative.
+- **Quality Floor Misses**: A model might fail to follow complex instructions or return malformed structured data, requiring a retry with a more capable "frontier" model like Claude 5.1 or GPT-5.5.
+- **ClawJacked Vulnerabilities**: Emerging 2026-era exploits that target specific model versions, necessitating immediate fallback to a secured, sandboxed alternative.
 
 ## Where it fits in the stack
 Fallback patterns typically reside in the **Middleware or Gateway layer**. They sit between the application logic and the various inference providers, acting as a programmable traffic controller. In modern agentic architectures, they are integrated into the **Durable State** layer (e.g., [Temporal](../../tools/orchestration/temporal.md)) to ensure task completion across retries.
 
 ## Typical use cases
-- **Frontier Failover**: Switching to GPT-5.5 if Claude 4.8 is down.
-- **Cost-Optimized Coding**: Using DeepSeek-V4 as primary and falling back to Sonnet 3.5 only if the cheaper model fails a unit test.
+- **Frontier Failover**: Switching to GPT-5.5 if Claude 5.1 is down.
+- **Cost-Optimized Coding**: Using DeepSeek-V4 as primary and falling back to Sonnet 5.1 only if the cheaper model fails a unit test.
 - **Rate Limit Buffering**: Distributing load across multiple providers ([OpenRouter](../../tools/ai_knowledge/openrouter.md), [LiteLLM](../../services/litellm.md)) to avoid 429 errors.
 - **Self-Healing Remediation**: Automatically switching to a local [Ollama](../../services/ollama.md) instance for critical system remediation when external APIs are unreachable.
 
@@ -61,7 +61,7 @@ litellm --config config.yaml
 curl -X POST http://0.0.0.0:4000/chat/completions \
      -H "Content-Type: application/json" \
      -d '{
-       "model": "gpt-4o",
+       "model": "gpt-5.5-preview",
        "messages": [{"role": "user", "content": "Hello"}]
      }'
 ```
@@ -69,22 +69,22 @@ curl -X POST http://0.0.0.0:4000/chat/completions \
 Example `config.yaml` with ordered fallbacks:
 ```yaml
 model_list:
-  - model_name: gpt-4o
+  - model_name: gpt-5.5-preview
     litellm_params:
-      model: openai/gpt-4o
+      model: openai/gpt-5.5-preview
       api_key: os.environ/OPENAI_API_KEY
-  - model_name: claude-3-5-sonnet
+  - model_name: claude-5-1-sonnet
     litellm_params:
-      model: anthropic/claude-3-5-sonnet-20240620
+      model: anthropic/claude-5-1-sonnet
       api_key: os.environ/ANTHROPIC_API_KEY
 
 router_settings:
   fallback_policy:
-    gpt-4o: ["claude-3-5-sonnet"]
+    gpt-5.5-preview: ["claude-5-1-sonnet"]
 ```
 
 ## API examples
-Example implementation using the [Vercel AI SDK](../../tools/providers/vercel-ai-gateway.md) for graceful degradation:
+Example implementation using the [Vercel AI SDK](../../tools/providers/vercel-ai-gateway.md) or standard client patterns for graceful degradation and local backup:
 
 ```typescript
 import { generateText } from 'ai';
@@ -95,16 +95,25 @@ async function generateWithFallback(prompt: string) {
   try {
     // Primary attempt with frontier model
     return await generateText({
-      model: anthropic('claude-4-8-sonnet'),
+      model: anthropic('claude-5-1-sonnet'),
       prompt: prompt,
     });
   } catch (error) {
     console.warn('Primary model failed, falling back to GPT-5.5...');
-    // Fallback attempt
-    return await generateText({
-      model: openai('gpt-5-5-preview'),
-      prompt: prompt,
-    });
+    try {
+      // Fallback attempt
+      return await generateText({
+        model: openai('gpt-5-5-preview'),
+        prompt: prompt,
+      });
+    } catch (innerError) {
+      console.error('All SaaS providers down! Falling back to local Ollama Llama 4...');
+      // Local recovery
+      return await generateText({
+        model: openai('ollama/llama4'),
+        prompt: prompt,
+      });
+    }
   }
 }
 ```
@@ -126,5 +135,5 @@ async function generateWithFallback(prompt: string) {
 - [OpenClaw Architectural Resilience Standards 2026](https://openclaw.io/standards/resilience)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-24
 - Confidence: high

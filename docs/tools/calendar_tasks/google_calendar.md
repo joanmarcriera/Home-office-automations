@@ -1,7 +1,7 @@
 # Google Calendar
 
 ## What it is
-Google Calendar is a time-management and scheduling calendar service developed by Google. It allows users to create and edit events, set reminders, and share calendars with others. In June 2026, it serves as a primary 'Surface' for agentic orchestration, allowing autonomous agents to manage human schedules via the Google Graph API and MCP 3.0.
+Google Calendar is a time-management and scheduling calendar service developed by Google. It allows users to create and edit events, set reminders, and share calendars with others. In July 2026, it serves as a primary 'Surface' for agentic orchestration, allowing autonomous agents to manage human schedules via the Google Graph API and Model Context Protocol (MCP 3.0/3.1) Task Protocols.
 
 ## What problem it solves
 Provides a centralized, cloud-based calendar for scheduling events, coordinating with others, and managing time across devices. It solves the coordination problem between human intent and machine execution by providing a standardized API that agents can use to block time, resolve conflicts, and trigger workflows based on temporal triggers.
@@ -20,7 +20,7 @@ Provides a centralized, cloud-based calendar for scheduling events, coordinating
 - **Widely Adopted**: Strong cross-platform support and ubiquitous presence in professional environments.
 - **Rich API**: Mature REST API and Google Graph API for programmatic access and automation.
 - **Seamless Ecosystem**: Deep integration with Gmail, Google Meet, and the broader Google Workspace.
-- **MCP 3.0 Support**: (June 2026) Native Model Context Protocol support for secure, granular agentic access.
+- **MCP 3.1 Support**: (July 2026) Native Model Context Protocol (MCP 3.1) support for secure, granular agentic access and live event stream monitoring.
 
 ## Limitations
 - **Privacy Concerns**: Cloud-hosted by Google; may not be suitable for highly sensitive scheduling data without encryption.
@@ -66,12 +66,12 @@ gam calendar user user@example.com delete event id <event_id>
 ## API examples
 The Google Calendar API (v3) is the standard way for agents to interact with schedules.
 
-### Python: Creating an Event
+### Python: Creating and Updating an Event
 ```python
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
-def create_calendar_event(summary, start_iso, end_iso):
+def create_and_update_event(summary, start_iso, end_iso):
     creds = Credentials.from_authorized_user_file('token.json')
     service = build('calendar', 'v3', credentials=creds)
 
@@ -81,10 +81,20 @@ def create_calendar_event(summary, start_iso, end_iso):
         'end': {'dateTime': end_iso, 'timeZone': 'UTC'},
     }
 
-    event = service.events().insert(calendarId='primary', body=event).execute()
-    print(f"Event created: {event.get('htmlLink')}")
+    # Insert the event
+    created_event = service.events().insert(calendarId='primary', body=event).execute()
+    print(f"Event created: {created_event.get('htmlLink')}")
 
-create_calendar_event('Deep Research Session', '2026-06-25T14:00:00Z', '2026-06-25T16:00:00Z')
+    # Patch the event (substantive update)
+    created_event['summary'] = f"[Confirmed] {summary}"
+    updated_event = service.events().patch(
+        calendarId='primary',
+        eventId=created_event['id'],
+        body={'summary': created_event['summary']}
+    ).execute()
+    print(f"Event updated: {updated_event.get('summary')}")
+
+create_and_update_event('Deep Research Session', '2026-07-24T14:00:00Z', '2026-07-24T16:00:00Z')
 ```
 
 ### Node.js: Listing Upcoming Events
@@ -124,5 +134,5 @@ calendar.events.list({
 - [Agentic Scheduling Patterns (June 2026 Research)](https://example.com/agentic-calendar-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-22
+- Last reviewed: 2026-07-24
 - Confidence: high
