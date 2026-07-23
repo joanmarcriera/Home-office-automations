@@ -1,25 +1,25 @@
 # LlamaIndex.TS
 
 ## What it is
-LlamaIndex.TS is the TypeScript version of the LlamaIndex data framework. It is designed to help developers build AI-powered applications with their own data using JavaScript or TypeScript in environments like Node.js, Deno, and Bun. By June 2026, it has fully integrated with **MCP 3.0** and supports state-of-the-art agentic orchestration.
+LlamaIndex.TS is the TypeScript version of the LlamaIndex data framework. It is designed to help developers build AI-powered applications with their own data using JavaScript or TypeScript in environments like Node.js, Deno, and Bun. By late July 2026, it has fully integrated with **Model Context Protocol (MCP) 3.1** and supports state-of-the-art agentic orchestration and multi-agent task planning.
 
 ## What problem it solves
 It bridges the gap between Large Language Models (LLMs) and custom data sources in the JavaScript/TypeScript ecosystem. It provides tools for data ingestion, indexing, and querying, enabling retrieval-augmented generation (RAG) and agentic workflows. It solves the "Context Management" problem for web developers by providing a unified interface for connecting various data sources to frontier models.
 
 ## Where it fits in the stack
-**AI & Knowledge / Agent Framework (TypeScript)**. It sits in the application layer, orchestrating data retrieval from the [Persistence Layer](../infrastructure/index.md) and feeding it to models like [Claude 4.8](../ai_knowledge/claude.md) or [GPT-5.5](../ai_knowledge/openai.md) via standardized protocols.
+**AI & Knowledge / Agent Framework (TypeScript)**. It sits in the application layer, orchestrating data retrieval from the local storage layer and feeding it to models like [Claude](claude.md) or [GPT-5.5](openai.md) via standardized protocols.
 
 ## Typical use cases
-- **Full-Stack AI Apps**: Integrating RAG into Next.js, Nuxt, or SvelteKit applications.
-- **Serverless AI Functions**: Running data retrieval and LLM calls in Vercel Edge Runtime or Cloudflare Workers.
+- **Full-Stack AI Apps**: Integrating RAG into Next.js, Nuxt, or SvelteKit applications using the [Vercel AI SDK](../development_ops/vercel-ai-sdk.md).
+- **Serverless AI Functions**: Running data retrieval and LLM calls in Cloudflare Workers or Edge Runtimes.
 - **Edge Data Processing**: Using Deno or Bun for high-performance data indexing and query orchestration.
 - **Production Agentic RAG**: Building multi-step, stateful retrieval pipelines using standardized orchestration patterns.
-- **MCP Tool Creation**: Developing TypeScript-based toolkits for the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+- **MCP Tool Creation**: Developing TypeScript-based toolkits for the [Model Context Protocol (MCP) 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## Strengths
 - **Native TypeScript Support**: Excellent type safety, IDE autocompletion, and compatibility with modern web frameworks.
 - **Broad Ecosystem**: Support for hundreds of data loaders (LlamaHub) and vector store integrations.
-- **MCP 3.0 Native**: (June 2026) Direct support for the Model Context Protocol, enabling easy tool use for agents.
+- **MCP 3.1 Native**: Native support for the Model Context Protocol 3.1, enabling easy tool and resource use for agents.
 - **High Performance**: Optimized for modern runtimes like Bun and Deno, providing low-latency indexing and retrieval.
 - **Modular Design**: Easy to swap out LLMs, embedding models, and storage backends.
 
@@ -31,10 +31,10 @@ It bridges the gap between Large Language Models (LLMs) and custom data sources 
 ## When to use it
 - When building AI applications within the JavaScript/TypeScript ecosystem (Node.js, Browser, Edge).
 - When you need a robust, production-ready framework for RAG and agentic workflows.
-- When you want to leverage the [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) in a TypeScript environment.
+- When you want to leverage the [Model Context Protocol (MCP) 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) in a TypeScript environment.
 
 ## When not to use it
-- If your primary development environment is Python-centric (use the original LlamaIndex).
+- If your primary development environment is Python-centric (use [LlamaIndex (Python)](llamaindex.md)).
 - For simple, single-prompt AI calls where a framework might add unnecessary overhead.
 - When performing extremely complex, long-running data science tasks where Python's library ecosystem is superior.
 
@@ -67,15 +67,16 @@ llamaindex-ts ingest --dir ./docs
 # Start a chat session with your indexed data
 llamaindex-ts chat
 
-# List active MCP 3.0 toolsets
+# List active MCP 3.1 toolsets
 llamaindex-ts mcp list
 ```
 
 ## API examples
-### Agentic Tool Use (TypeScript)
+### Agentic Tool Use with MCP 3.1 (TypeScript)
 ```typescript
 import { OpenAIAgent, FunctionTool } from "llamaindex";
 
+// Defining an agentic tool with TypeScript type safety
 const myTool = new FunctionTool((args: { input: string }) => {
   return `Processed: ${args.input}`;
 }, {
@@ -91,12 +92,14 @@ console.log(response.toString());
 ## Related tools / concepts
 - [LlamaIndex (Python)](llamaindex.md)
 - [LangChain.js](langchain.md)
-- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
-- [Claude 4.8](../ai_knowledge/claude.md)
-- [GPT-5.5](../ai_knowledge/openai.md)
+- [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [Claude](claude.md)
+- [GPT-5.5](openai.md)
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md)
-- [Llama-deploy](https://github.com/run-llama/llama-deploy)
-- [LlamaTrace](https://llamatrace.com/)
+- [Local LLMs](local_llms.md)
+- [AnythingLLM](anythingllm.md)
+- [LobeHub](lobehub.md)
+- [Flowise](flowise.md)
 
 ## Sources / References
 - [LlamaIndex.TS Documentation](https://ts.llamaindex.ai/)
@@ -105,5 +108,5 @@ console.log(response.toString());
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-27
 - Confidence: high
