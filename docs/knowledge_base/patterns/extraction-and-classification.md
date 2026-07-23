@@ -1,112 +1,152 @@
 # Extraction and Classification
 
 ## What it is
-Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (emails, logs, transcripts) is converted into a structured, typed format (JSON, Pydantic objects) or assigned to specific categories (labels). In June 2026, these patterns rely on **Schema-First Design** and the [Model Context Protocol (MCP 3.0)](../../tools/automation_orchestration/mcp.md) to enforce data integrity across agentic tool calls.
+Extraction and Classification are fundamental patterns in LLM-powered applications where unstructured text (such as emails, logs, transcripts, or invoices) is converted into a structured, typed format (e.g., JSON, Pydantic objects) or assigned to specific categorical enums. In late July 2026, these patterns rely on **Schema-First Design** and the **Model Context Protocol (MCP 3.1)** to enforce strict, validated data integrity constraints across multi-agent tool calls and collaborative workspaces.
 
 ## What problem it solves
-LLMs are naturally probabilistic and return text. In software engineering, we need deterministic data to drive application logic, update databases, or trigger specific workflows. This pattern solves:
-- **Data Hallucination**: Ensuring the LLM only returns fields defined in a schema.
-- **Malformed JSON**: Automatically retrying or correcting responses that fail to parse using frameworks like [Instructor](../../tools/frameworks/instructor.md).
-- **Logic Branching**: Mapping open-ended user intent to a fixed set of enums or categories that a system can act upon.
-- **Interoperability**: Enabling different agents to exchange structured state objects using standard schemas.
+LLMs are inherently probabilistic and return unstructured text by default. However, software architectures require deterministic, strongly typed data to execute downstream business logic, update relational databases, or trigger operational pipelines. This pattern solves:
+- **Data Hallucination**: Restricting the LLM's output parameters to explicitly defined schema fields and constraints.
+- **Malformed Parser Responses**: Automatically catching, retrying, or self-correcting JSON outputs that fail validation using tools like [Instructor](../../tools/frameworks/instructor.md).
+- **Automated Workflow Triage**: Seamlessly mapping free-form customer or system intent to fixed, actionable category labels and urgency levels.
+- **Ecosystem Interoperability**: Establishing shared, verifiable data contracts (such as [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md)) across heterogeneous agent systems.
 
 ## Where it fits in the stack
-This pattern is used at the **Input/Intake layer** of an application or as a **Preprocessing step** in an agentic workflow. It serves as the bridge between [Intake & Storage](../../tools/intake_storage/index.md) and the [Orchestration Layer](../../tools/orchestration/index.md).
+This pattern operates at the **Input/Intake and Preprocessing layers** of an agentic application. It serves as the bridge between raw ingestion sources ([Intake & Storage](../../tools/intake_storage/index.md)) and execution engines ([Orchestration Layer](../../tools/orchestration/index.md)).
 
 ## Typical use cases
-- **Autonomous Support Triage**: Classifying support tickets (Billing, Technical, Sales) and extracting order IDs into a [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md).
-- **Medical Records Synthesis**: Extracting symptoms and diagnoses from transcripts into standardized medical codes.
-- **Financial Log Parsing**: Converting bank statements into transaction objects with dates, amounts, and merchants.
-- **Agentic Skill Discovery**: Identifying which tool or "skill" an agent should use based on user intent classification.
+- **Autonomous Support Triage**: Classifying incoming support tickets into specialized departments (e.g., Billing, Technical, Sales) and extracting specific identifiers like order IDs into a [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md).
+- **Medical Diagnostics Parsing**: Normalizing clinical reports, patient notes, or voice transcripts into structured health enums and symptoms.
+- **Financial Transaction Extraction**: Converting unstructured bank statements or receipts into absolute, normalized expense objects with timestamps, merchant details, and amounts for ingestion.
+- **Intent-Based Skill Selection**: Classifying user queries in conversational assistants to select the most appropriate execution tool or sub-agent.
 
 ## Strengths
-- **Deterministic Output**: Guarantees that the application receives data it knows how to handle.
-- **Automatic Validation**: Validation logic (e.g., regex, range checks) can be baked into Pydantic or Zod schemas.
-- **Improved Accuracy**: Constraining the model's output space reduces the likelihood of creative "wandering."
-- **Standardization**: Use of [Task Schemas](../../reference-implementations/metadata-schemas/task-schema.md) allows for cross-platform task management.
+- **Type Safety and Determinism**: Guarantees that the orchestrator receives data in an expected format, reducing downstream failures.
+- **Baked-In Validation Rules**: Leverages built-in validation logic (e.g., regex constraints, numerical ranges, custom field validators) directly inside Pydantic or Zod models.
+- **Reduced Output Drift**: Forcing models to output schema-compliant formats drastically reduces creative "hallucinations."
+- **Observability**: Clearly logs structured state transitions, making the reasoning steps of agents auditable.
 
 ## Limitations
-- **Token Overhead**: Defining complex schemas in the prompt consumes input tokens.
-- **Model Capability**: Smaller models (e.g., 8B-70B) may struggle to strictly adhere to complex, nested JSON schemas.
-- **Latency**: Validation failures may trigger internal retries (Self-Correction), increasing the overall response time.
-- **Schema Rigidity**: Unexpected data formats in the source text might be dropped if they don't fit the predefined schema.
+- **Token Overhead**: Defining complex, nested schemas in system prompts or tool schemas consumes significant input tokens.
+- **Small-Model Compliance**: Smaller open-weight models (e.g., 8B parameters) can struggle to strictly adhere to complex, deeply nested schemas.
+- **Latency from Retries**: Undergoing self-correction loops when schema validation fails adds extra LLM rounds and latency.
+- **Rigid Data Structure**: Real-world variability that does not map directly to the predefined schema fields may be truncated or lost.
 
 ## When to use it
-- When you need to bridge the gap between unstructured human input and structured database/API operations.
-- To implement "guardrails" for your model's output format.
-- For high-volume data processing where manual classification is impossible.
-- When building [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) that require reliable tool inputs.
+- When bridging the gap between raw human input (text or speech) and structured backend systems (relational databases, REST APIs).
+- When implementing automated data validation, cleaning, or normalization pipelines.
+- For high-throughput classification tasks where manual taring is inefficient.
+- When orchestrating [Agentic Workflows](agentic-workflows.md) that require reliable inputs.
 
 ## When not to use it
-- For general-purpose chatbots where the user expects a conversational response without downstream side effects.
-- When the output structure is highly dynamic and cannot be defined upfront.
-- For simple keyword extraction that can be handled by regex or traditional NLP (e.g., [ripgrep](../../tools/development_ops/ripgrep.md)).
+- For open-ended, creative conversation interfaces where structured constraints are unnecessary.
+- When the expected target fields are highly dynamic and cannot be represented by a fixed, pre-defined schema.
+- For simple string searches or keyword detections that are more efficiently solved by deterministic regex engines or search utilities like [ripgrep](../../tools/development_ops/ripgrep.md).
 
 ## Getting started
-1. **Define the Schema**: Use [Pydantic](https://docs.pydantic.dev/) (Python) or [Zod](https://zod.dev/) (TypeScript) to describe the desired output.
-2. **Select a Framework**: Choose [Instructor](../../tools/frameworks/instructor.md) for multi-provider support or [PydanticAI](../../tools/frameworks/pydantic-ai.md) for Python-native workflows.
-3. **Configure the Model**: Ensure the model supports "JSON Mode" or "Tool Calling" (e.g., GPT-5.5, Claude 4.8).
-4. **Implement Retry Logic**: Set up a loop to handle validation errors by feeding them back into the model for correction.
-5. **Verify Output**: Pass the structured object to your downstream service (e.g., [ServiceNow](../../tools/automation_orchestration/servicenow-mcp.md)).
+1. **Define the Target Schema**: Use [Pydantic](https://docs.pydantic.dev/) in Python or [Zod](https://zod.dev/) in TypeScript to define the expected structure, enums, and validations.
+2. **Select an LLM Framework**: Utilize [Instructor](../../tools/frameworks/instructor.md) for lightweight, multi-provider structured extraction, or [PydanticAI](../../tools/frameworks/pydantic-ai.md) for specialized agentic workflows.
+3. **Choose a Structured Inference Model**: Ensure the target model natively supports JSON Mode or tool calling (e.g., Claude 5.1, GPT-5.5, Llama 4).
+4. **Configure Self-Correction Retries**: Set up validation handlers to capture schema violations and feed the errors back to the model for inline correction.
+5. **Route Extracted Entities**: Pass the validated object to down-stream services (e.g., [ServiceNow](../../tools/automation_orchestration/servicenow-mcp.md) or database interfaces).
 
 ## CLI examples
-Using the [Instructor](../../tools/frameworks/instructor.md) CLI to extract data from a text file:
+Using the [Instructor](../../tools/frameworks/instructor.md) CLI to extract structured data from an unstructured text document:
 
 ```bash
-# Extract entities from a text file using a predefined Pydantic schema (conceptual)
-instructor extract --model gpt-4o --schema schemas.TicketInfo --file input.txt
+# Extract entities from a log file using a predefined Pydantic model structure
+instructor extract --model gpt-5-5-preview --schema schemas.TicketInfo --file intake_email.txt
 ```
 
-Using [ripgrep](../../tools/development_ops/ripgrep.md) for simple, deterministic extraction:
+Using [ripgrep](../../tools/development_ops/ripgrep.md) for simple, deterministic regular expression extraction:
 ```bash
-# Find all occurrences of Order IDs in logs
-rg -o "ORD-[0-9]{5}" logs/production.log
+# Extract all matched invoice numbers from local audit files
+rg -o "INV-[0-9]{4}-[A-Z0-9]{3}" data/audit/
 ```
 
 ## API examples
-Extraction using [Instructor](../../tools/frameworks/instructor.md) and Pydantic in Python:
+Structured Extraction with automatic self-correction and validation logic using `instructor` (v1.x) and `pydantic` (v2.13+) in Python:
 
 ```python
-from pydantic import BaseModel, Field
-from enum import Enum
 import instructor
 from openai import OpenAI
+from pydantic import BaseModel, Field, field_validator
+from enum import Enum
 
-class Label(str, Enum):
+# Define schema classification enums
+class SupportCategory(str, Enum):
     BILLING = "billing"
-    TECH_SUPPORT = "tech_support"
+    TECHNICAL_SUPPORT = "tech_support"
+    GENERAL_INQUIRY = "general"
 
-class Ticket(BaseModel):
-    category: Label
-    urgency: int = Field(ge=1, le=5)
-    order_id: str | None
+# Define validation target model
+class SupportTicket(BaseModel):
+    category: SupportCategory
+    urgency: int = Field(
+        ...,
+        description="Priority of ticket from 1 (low) to 5 (critical)",
+        ge=1,
+        le=5
+    )
+    order_id: str | None = Field(
+        None,
+        description="The order ID if provided, matching standard format ORD-XXXXX"
+    )
 
+    # Implement custom Pydantic v2 field validator for strict format checks
+    @field_validator("order_id")
+    @classmethod
+    def validate_order_id(cls, value: str | None) -> str | None:
+        if value is not None:
+            if not value.startswith("ORD-") or len(value) != 9:
+                raise ValueError("Order ID must follow the pattern ORD-XXXXX with 5 digits.")
+        return value
+
+# Initialize Instructor Client with OpenAI
 client = instructor.from_provider(OpenAI())
 
-ticket = client.chat.completions.create(
-    model="gpt-5-5-preview",
-    response_model=Ticket,
-    messages=[{"role": "user", "content": "I need a refund for ORD-99821"}]
-)
-# Result: Ticket(category='billing', urgency=4, order_id='ORD-99821')
+def extract_ticket_info(user_email: str) -> SupportTicket:
+    # Instructor automatically handles self-correction/retries when ValueError is raised
+    ticket: SupportTicket = client.chat.completions.create(
+        model="gpt-5-5-preview",
+        response_model=SupportTicket,
+        max_retries=3,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a customer service intake system. Extract ticket category, urgency and order ID."
+            },
+            {
+                "role": "user",
+                "content": user_email
+            }
+        ]
+    )
+    return ticket
+
+# Example run
+email_content = "My order ORD-12345 has not arrived yet and I was already charged!"
+extracted_data = extract_ticket_info(email_content)
+print(extracted_data)
+# Output: category=<SupportCategory.BILLING: 'billing'> urgency=4 order_id='ORD-12345'
 ```
 
 ## Related tools / concepts
-- [Instructor](../../tools/frameworks/instructor.md) — The standard for structured LLM extraction.
-- [PydanticAI](../../tools/frameworks/pydantic-ai.md) — Agentic framework using Pydantic for validation.
-- [Vercel AI SDK](../../tools/development_ops/vercel-ai-sdk.md) — TypeScript toolkit for structured outputs.
-- [DSPy](../../tools/frameworks/dspy.md) — Optimizing extraction signatures programmatically.
-- [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) — Standardized metadata for tasks.
-- [Date Extraction](date-extraction.md) — Specialized pattern for temporal data.
-- [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md) — Target for extracted ticket data.
-- [ripgrep](../../tools/development_ops/ripgrep.md) — Deterministic keyword extraction.
+- [Instructor](../../tools/frameworks/instructor.md) — The lightweight industry standard for structured extraction.
+- [PydanticAI](../../tools/frameworks/pydantic-ai.md) — Agentic framework incorporating native Pydantic validation.
+- [Vercel AI SDK](../../tools/development_ops/vercel-ai-sdk.md) — Comprehensive TypeScript toolkit for streaming and structured JSON.
+- [DSPy](../../tools/frameworks/dspy.md) — For optimizing and compiling extraction prompt signatures.
+- [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md) — Enterprise standard schema for task representation.
+- [Date Extraction](date-extraction.md) — Specialized pattern for normalization of temporal values.
+- [ServiceNow MCP](../../tools/automation_orchestration/servicenow-mcp.md) — Enterprise service integration target.
+- [ripgrep](../../tools/development_ops/ripgrep.md) — High-performance regex tool for deterministic discovery.
 
 ## Sources / References
-- [Instructor Documentation: Philosophy of Extraction](https://python.useinstructor.com/concepts/philosophy/)
-- [OpenAI: Structured Outputs Guide](https://platform.openai.com/docs/guides/structured-outputs)
-- [PydanticAI: Results and Validation](https://ai.pydantic.dev/results/)
-- [Zod: TypeScript-first Schema Validation](https://zod.dev/)
+- [Instructor Documentation: Extraction and Validation](https://python.useinstructor.com/concepts/philosophy/)
+- [OpenAI Guide: Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
+- [PydanticAI Validation & Results](https://ai.pydantic.dev/results/)
+- [Zod: TypeScript-First Schema Validation](https://zod.dev/)
+- [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-25
 - Confidence: high
