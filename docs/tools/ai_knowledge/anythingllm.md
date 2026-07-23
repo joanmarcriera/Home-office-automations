@@ -1,7 +1,7 @@
 # AnythingLLM
 
 ## What it is
-AnythingLLM is a comprehensive, privacy-first AI workspace and Agentic RAG (Retrieval-Augmented Generation) platform. As of June 2026, it serves as a robust solution for teams to manage internal knowledge, deploy specialized agents, and interface with both local and cloud-based LLMs (Claude 4.8, GPT-5.5, Gemini 3.5).
+AnythingLLM is a comprehensive, privacy-first AI workspace and Agentic RAG (Retrieval-Augmented Generation) platform. As of late July 2026, it serves as a robust solution for teams to manage internal knowledge, deploy specialized agents, and interface with both local and cloud-based LLMs (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6, and Gemini 3.5).
 
 ## What problem it solves
 It solves the "Knowledge Fragmentation" problem by providing a unified interface for document-grounded AI. AnythingLLM simplifies the complex pipeline of document parsing, vector embedding, storage, and retrieval, allowing non-technical users to build and deploy sophisticated RAG-based agents in minutes rather than weeks.
@@ -13,12 +13,12 @@ It solves the "Knowledge Fragmentation" problem by providing a unified interface
 - **Internal Knowledge Bases**: Chatting with company wikis, PDFs, and documentation with 100% data privacy.
 - **Agentic Data Extraction**: Using agents to automatically summarize and extract key metrics from uploaded documents.
 - **Multi-Tenant AI Platforms**: Providing separate, secure workspaces for different departments or clients.
-- **Local RAG Sandbox**: Testing RAG performance using local models (Ollama, LocalAI) before scaling to production.
+- **Local RAG Sandbox**: Testing RAG performance using local models (Ollama, LocalAI, ExLlamaV3) before scaling to production.
 
 ## Strengths
 - **All-in-One Solution**: Includes built-in vector database, document parser, and UI.
 - **Privacy & Security**: Native support for local model backends ensures that sensitive data never leaves the premises.
-- **Agentic RAG Enhancements**: (June 2026) Features "Self-Correcting Retrieval" where agents can re-query or adjust filters if initial results are insufficient.
+- **Agentic RAG Enhancements**: Features "Self-Correcting Retrieval" under MCP 3.1, where agents can re-query or adjust filters if initial results are insufficient.
 - **Multi-User Collaboration**: Robust workspace-level permissions and shared agent libraries.
 
 ## Limitations
@@ -38,7 +38,7 @@ It solves the "Knowledge Fragmentation" problem by providing a unified interface
 AnythingLLM offers Desktop, Docker, and Enterprise versions.
 
 ### Desktop Installation
-Download the June 2026 release for Windows, macOS, or Linux from the [official download page](https://anythingllm.com/download).
+Download the late July 2026 release for Windows, macOS, or Linux from the [official download page](https://anythingllm.com/download).
 
 ### Docker Deployment (Recommended for Teams)
 ```bash
@@ -78,7 +78,8 @@ curl -X POST 'http://localhost:3001/api/v1/workspace/engineering-kb/chat' \
   -H "Content-Type: application/json" \
   -d '{
     "message": "What is our policy on remote work?",
-    "mode": "query"
+    "mode": "query",
+    "mcp_version": "3.1"
   }'
 ```
 
@@ -103,14 +104,15 @@ print(f"Document ID: {response.json()['id']}")
 - [Agentic RAG](../../knowledge_base/patterns/data-copilot-agentic-rag.md) — The core architectural pattern of AnythingLLM.
 - [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Support for external tool integration.
 - [Self-Healing Agents](../../knowledge_base/self-healing-agent-research.md) — Research on agents that correct their own retrieval errors.
+- [Data Copilot Reference Implementation](../../reference-implementations/data-copilot/skeleton-guide.md) — Reference design for agentic RAG.
 
 ## Sources / references
 - [AnythingLLM Official Site](https://anythingllm.com)
 - [AnythingLLM Documentation](https://docs.useanything.com)
 - [GitHub Repository](https://github.com/Mintplex-Labs/anything-llm)
-- [Agentic RAG Best Practices (2026)](https://anythingllm.com/blog/agentic-rag-patterns)
+- [Agentic RAG Best Practices](https://anythingllm.com/blog/agentic-rag-patterns)
 - [Data Copilot Reference Implementation](../../reference-implementations/data-copilot/skeleton-guide.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-27
 - Confidence: high

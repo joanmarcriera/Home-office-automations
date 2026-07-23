@@ -1,13 +1,13 @@
 # Python
 
 ## What it is
-Python is a high-level, interpreted, general-purpose programming language. Its design philosophy emphasizes code readability with its use of significant indentation. As of June 2026, Python remains the foundational language for the entire AI and machine learning ecosystem, from low-level tensor libraries to high-level agentic frameworks.
+Python is a high-level, interpreted, general-purpose programming language. Its design philosophy emphasizes code readability with its use of significant indentation. As of late July 2026, Python remains the foundational language for the entire AI and machine learning ecosystem, from low-level tensor libraries to high-level agentic frameworks.
 
 ## What problem it solves
 Python serves as the "lingua franca" of AI and machine learning. It provides a vast ecosystem of libraries and frameworks that simplify complex tasks such as data manipulation, statistical analysis, and model training. It allows developers and researchers to iterate quickly, bridging the gap between mathematical concepts and executable code.
 
 ## Where it fits in the stack
-**Category**: [AI Assistants & Knowledge](./index.md) / [Programming Language](../../knowledge_base/index.md). It is the foundational language for the majority of tools in this catalog, including [LangChain](./langchain.md), [LlamaIndex](./llamaindex.md), and [PydanticAI](../frameworks/pydantic-ai.md).
+**Category**: [AI Assistants & Knowledge](./index.md) / Programming Language. It is the foundational language for the majority of tools in this catalog, including [LangChain](./langchain.md), [LlamaIndex](./llamaindex.md), and [PydanticAI](../frameworks/pydantic-ai.md).
 
 ## Typical use cases
 - **AI Agents**: Developing autonomous workflows and multi-agent systems.
@@ -21,11 +21,11 @@ Python serves as the "lingua franca" of AI and machine learning. It provides a v
 - **Readability**: Easy to learn and maintain, which is critical for collaborative AI research.
 - **Interoperability**: Can easily call C/C++, Rust, or CUDA code for performance-critical sections.
 - **Strong Community**: Unrivaled documentation, tutorials, and third-party support.
-- **Agent-Ready**: Native support for almost all major AI service SDKs and MCP 3.0.
+- **Agent-Ready**: Native support for almost all major AI service SDKs and MCP 3.1.
 
 ## Limitations
-- **Execution Speed**: Being interpreted, it is slower than compiled languages (mitigated by C-extensions and modern JIT experiments).
-- **GIL (Global Interpreter Lock)**: Can limit performance in multi-threaded CPU-bound tasks (partially addressed in recent versions).
+- **Execution Speed**: Being interpreted, it is slower than compiled languages (mitigated by C-extensions, Rust integrations, and modern JIT experiments).
+- **GIL (Global Interpreter Lock)**: Can limit performance in multi-threaded CPU-bound tasks (partially addressed in recent Python 3.13 free-threaded builds).
 - **Mobile/Browser**: While improving, it is not as dominant as Swift or JavaScript in frontend environments.
 
 ## When to use it
@@ -41,7 +41,7 @@ Python serves as the "lingua franca" of AI and machine learning. It provides a v
 ## Getting started
 
 ### Installation
-Python 3.12+ is recommended for the latest AI library support.
+Python 3.13+ is recommended for the latest AI library support.
 ```bash
 # On Ubuntu/Debian
 sudo apt update && sudo apt install python3 python3-pip python3-venv
@@ -81,8 +81,8 @@ import os
 
 # Uses standard environment variables for API keys
 response = litellm.completion(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "Explain Python's role in AI June 2026."}]
+    model="gpt-5.5-preview",
+    messages=[{"role": "user", "content": "Explain Python's role in AI late July 2026."}]
 )
 
 print(response.choices[0].message.content)
@@ -126,17 +126,15 @@ if __name__ == "__main__":
 - [Jupyter Kernel MCP](../development_ops/jupyter-kernel-mcp.md) — Native execution for agents.
 - [Symbolic MCP](../development_ops/symbolic-mcp.md) — Advanced symbolic reasoning in Python.
 - [Crawl4AI](../process_understanding/crawl4ai.md) — Web scraping for agents.
-- [Poetry](../development_ops/poetry.md) — Modern dependency management for Python.
-- [UV](../development_ops/uv.md) — Extremely fast Python package installer and resolver.
+- [LlamaIndex](./llamaindex.md) — Framework for connecting custom data sources to LLMs.
 
-## Sources / References
+## Sources / references
 - [Python Official Website](https://www.python.org/)
 - [Python Documentation](https://docs.python.org/3/)
 - [PyPI - The Python Package Index](https://pypi.org/)
 - [Python for AI Roadmap 2026](https://www.python.org/blogs/ai-roadmap-2026)
 - [Kilo](https://thenewstack.io/anaconda-kilo-open-source-acquisition/) — Integrated from daily log reference.
 
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-27
 - Confidence: high

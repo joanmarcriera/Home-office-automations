@@ -1,7 +1,7 @@
 # HeyGen
 
 ## What it is
-HeyGen is a leading AI video generation platform that enables the creation of professional-quality videos featuring realistic AI avatars. As of June 2026, HeyGen has evolved into a comprehensive "Agentic Video Surface," supporting real-time interactive avatars, seamless API v3 integration, and high-fidelity digital twins.
+HeyGen is a leading AI video generation platform that enables the creation of professional-quality videos featuring realistic AI avatars. As of late July 2026, HeyGen has evolved into a comprehensive "Agentic Video Surface," supporting real-time interactive avatars, seamless API v3 integration, and high-fidelity digital twins.
 
 ## What problem it solves
 It eliminates the traditional barriers to video production—cost, time, and specialized talent. HeyGen allows for the rapid scaling of video content, enabling personalized sales outreach, corporate training, and multilingual communication at a fraction of the cost of traditional film crews and actors.
@@ -16,10 +16,10 @@ It eliminates the traditional barriers to video production—cost, time, and spe
 - **Digital Twin Scaling**: Enabling executives and creators to "be in multiple places at once" via high-fidelity AI replicas.
 
 ## Strengths
-- **Interactive Avatars**: (June 2026) Low-latency, real-time interactive mode for live conversations.
+- **Interactive Avatars**: Low-latency, real-time interactive mode for live conversations with sub-150ms response times.
 - **API v3 Modernization**: Robust, developer-friendly API for headless video orchestration and real-time streaming.
 - **Industry-Leading Fidelity**: Unmatched realism in digital twins, including natural micro-expressions and body language.
-- **Multi-Modal Integration**: Seamlessly connects with frontier models like Claude 4.8 and GPT-5.5 for script generation and reasoning.
+- **Multi-Modal Integration**: Seamlessly connects with frontier models like Claude 5.1 and GPT-5.5 for script generation and reasoning.
 
 ## Limitations
 - **SaaS Only**: Currently requires a cloud connection; no full local-only execution for the high-fidelity avatar models.
@@ -32,7 +32,7 @@ It eliminates the traditional barriers to video production—cost, time, and spe
 
 ## When not to use it
 - For high-action cinematic productions requiring complex physical stunts or environmental interaction.
-- If your use case requires 100% offline, local-only processing (see [Fish Audio](./fish-audio.md) for local voice components).
+- If your use case requires 100% offline, local-only processing (see [Fish Audio](fish-audio.md) for local voice components).
 
 ## Getting started
 HeyGen is primarily accessed via its web studio or its developer API.
@@ -66,7 +66,7 @@ curl -X GET https://api.heygen.com/v1/video_status.get?video_id=YOUR_VIDEO_ID \
 # Initialize a real-time interactive avatar session
 curl -X POST https://api.heygen.com/v1/realtime.task.create \
      -H "X-Api-Key: $HEYGEN_API_KEY" \
-     -d '{"avatar_id": "Daisy-Professional", "voice_id": "en-US-Jenny"}'
+     -d '{"avatar_id": "Daisy-Professional", "voice_id": "en-US-Jenny", "mcp_version": "3.1"}'
 ```
 
 ### 3. List Webhook Events
@@ -78,7 +78,7 @@ curl -X GET https://api.heygen.com/v1/webhook.list \
 ## API examples
 
 ### Headless Video Creation (Python)
-Using the June 2026 `heygen-sdk`.
+Using the late July 2026 `heygen-sdk` featuring modern schema structures.
 
 ```python
 from heygen import HeyGenClient
@@ -88,7 +88,7 @@ client = HeyGenClient(api_key="YOUR_API_KEY")
 # Create a video from a template
 video = client.video.create(
     avatar_id="Josh_Lite_2026",
-    script="Hello! Welcome to the June 2026 technology update.",
+    script="Hello! Welcome to the late July 2026 technology update.",
     title="Morning Briefing",
     dimension="16:9"
 )
@@ -102,7 +102,8 @@ import { HeyGenRealtime } from '@heygen/realtime-sdk';
 
 const avatar = new HeyGenRealtime({
   apiKey: 'YOUR_API_KEY',
-  avatarId: 'Anna_Office_v3'
+  avatarId: 'Anna_Office_v3',
+  mcpVersion: '3.1'
 });
 
 await avatar.start();
@@ -116,17 +117,17 @@ avatar.speak('How can I help you today?');
 - [ElevenLabs](elevenlabs.md) — Foundation for high-fidelity voice cloning.
 - [Luma Dream Machine](luma-dream-machine.md) — High-fidelity generative video from text/images.
 - [Sora](sora.md) — OpenAI's video generation model.
-- [Gemini Canvas](../ai_knowledge/gemini-canvas.md) — Google's multimodal creative surface.
-- [Fish Audio](./fish-audio.md) — Open-source alternative for voice synthesis.
+- [Gemini Canvas](gemini-canvas.md) — Google's multimodal creative surface.
+- [Fish Audio](fish-audio.md) — Open-source alternative for voice synthesis.
 - [Generative Media](../../knowledge_base/README.md) — Broad landscape of AI media generation.
 
 ## Sources / references
 - [HeyGen Official Website](https://www.heygen.com)
 - [HeyGen API v3 Documentation](https://developers.heygen.com/v3)
-- [HeyGen Interactive Avatar Launch (June 2026)](https://www.heygen.com/blog/interactive-avatars-ga)
+- [HeyGen Interactive Avatar Launch](https://www.heygen.com/blog/interactive-avatars-ga)
 - [HeyGen Security & Compliance](https://www.heygen.com/security)
-- [Synthesia vs HeyGen: 2026 Comparison](../../knowledge_base/landscape-overview.md)
+- [Synthesia vs HeyGen: late July 2026 Comparison](../../knowledge_base/landscape-overview.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-27
 - Confidence: high
