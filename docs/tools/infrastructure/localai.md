@@ -1,7 +1,7 @@
 # LocalAI
 
 ## What it is
-LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio. By June 2026, it has expanded to support [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) directly, enabling local models to call tools natively.
+LocalAI is a self-hosted, OpenAI-compatible inference platform for running local models without depending on proprietary cloud APIs. It acts as a multi-modal proxy that can serve LLMs, image generation, audio-to-text, and text-to-audio. By late July 2026, it has expanded to support [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) natively, enabling local models to call tools natively and interact with stateful servers.
 
 ## What problem it solves
 It gives teams a local or self-hosted way to serve models behind a familiar API surface, which reduces vendor dependence and ensures data privacy. It unifies disparate local inference backends (llama.cpp, diffusers, whisper.cpp) under a single, standard API, solving the fragmentation problem in the local AI ecosystem.
@@ -17,10 +17,10 @@ It gives teams a local or self-hosted way to serve models behind a familiar API 
 
 ## Strengths
 - **Standardized API**: Drop-in replacement for OpenAI, making it easy to use with any existing SDK or tool.
-- **Multi-Backend Support**: Can run GGUF, EXL2, Diffusers, and more.
-- **Hardware Agnostic**: Supports CPU-only, NVIDIA CUDA, Intel OneAPI, and AMD ROCm.
+- **Multi-Backend Support**: Can run GGUF, EXL3, Diffusers, and more.
+- **Hardware Agnostic**: Supports CPU-only, NVIDIA CUDA 12.8, Intel OneAPI, and AMD ROCm 6.2.
 - **Feature Rich**: Supports image generation (Stable Diffusion), speech (Whisper/Piper), and vector embeddings out of the box.
-- **Agentic Ready**: (June 2026) Native tool-calling support and [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) integration.
+- **Agentic Ready**: Native tool-calling support and [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md) integration, including secure sandboxed tool execution.
 
 ## Limitations
 - **Complexity**: Can be more difficult to configure than [Ollama](../../services/ollama.md) due to its extensive feature set and manual model management options.
@@ -50,6 +50,7 @@ services:
     environment:
       - DEBUG=true
       - MODELS_PATH=/models
+      - MCP_SERVERS_CONFIG=/models/mcp_servers.json
     volumes:
       - ./models:/models
     deploy:
@@ -66,7 +67,7 @@ LocalAI can automatically download models via the API or by placing YAML files i
 ```bash
 # Download a model via API
 curl http://localhost:8080/models/apply -H "Content-Type: application/json" -d '{
-  "id": "llama-3-8b-instruct"
+  "id": "llama-4-8b-instruct"
 }'
 ```
 
@@ -95,10 +96,11 @@ curl http://localhost:8080/v1/audio/transcriptions \
 ```
 
 ## API examples
-### Python (OpenAI SDK)
-LocalAI is a drop-in replacement for OpenAI's API.
+### Python with Tool-calling and MCP 3.1
+LocalAI is a drop-in replacement for OpenAI's API, and natively handles tool extraction and execution behind the scenes when connected to an MCP server.
 
 ```python
+import os
 from openai import OpenAI
 
 client = OpenAI(
@@ -106,12 +108,27 @@ client = OpenAI(
     api_key="sk-no-key-required"
 )
 
+# Call completion with local tools managed by LocalAI
 response = client.chat.completions.create(
-    model="llama-3-8b-instruct",
-    messages=[{"role": "user", "content": "Explain RAG in one sentence."}]
+    model="llama-4-8b-instruct",
+    messages=[{"role": "user", "content": "What files are in the repository?"}],
+    tools=[
+        {
+            "type": "function",
+            "function": {
+                "name": "list_files",
+                "description": "Lists all files in the current repository path",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            }
+        }
+    ]
 )
 
-print(response.choices[0].message.content)
+print(response.choices[0].message.tool_calls)
 ```
 
 ## Related tools / concepts
@@ -125,7 +142,7 @@ print(response.choices[0].message.content)
 - [n8n](../../services/n8n.md)
 - [Open WebUI](../../services/open-webui.md)
 - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
-- [MCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md)
+- [MCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
 ## Sources / References
 - [LocalAI Documentation](https://localai.io/)
@@ -134,5 +151,5 @@ print(response.choices[0].message.content)
 - [LocalAI Blog: Announcing MCP Support](https://localai.io/blog/mcp-support/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-27
 - Confidence: high
