@@ -1,7 +1,7 @@
 # Puppeteer
 
 ## What it is
-Puppeteer is a Node.js library which provides a high-level API to control Chrome/Chromium over the DevTools Protocol. Developed by the Chrome DevTools team, it runs in headless mode by default but can be configured to run in full (non-headless) Chrome/Chromium. As of June 2026 (v25+), it features native **WebDriver BiDi** support and deep integration with **Chrome for Testing**.
+Puppeteer is a Node.js library which provides a high-level API to control Chrome/Chromium over the DevTools Protocol. Developed by the Chrome DevTools team, it runs in headless mode by default but can be configured to run in full (non-headless) Chrome/Chromium. As of late August 2026 (v26+), it features native **WebDriver BiDi** support, advanced stealth patterns, and deep integration with **Chrome for Testing**.
 
 ## What problem it solves
 It automates tasks that are typically performed manually in a web browser. It solves the "execution gap" for AI agents by providing a programmable interface to navigate, interact with, and extract data from modern, complex web applications that require JavaScript execution, authentication, and state management.
@@ -22,6 +22,7 @@ Puppeteer sits in the **Automation & Orchestration** and **Browser Control** lay
 - **Granular Control**: Direct access to the Chrome DevTools Protocol (CDP) for network interception, heap snapshots, and emulation.
 - **Mature Ecosystem**: Extensive support via `puppeteer-extra` for stealth browsing, ad-blocking, and captcha solving.
 - **Chrome for Testing**: Bundles specific, pinned browser versions to eliminate "it works on my machine" inconsistencies.
+- **MCP 3.1 Client Integration**: Seamlessly maps standard browser control tools into Model Context Protocol schemas for frontier LLMs (Claude 5.1, GPT-5.5).
 
 ## Limitations
 - **Chromium-First**: While BiDi support improves cross-browser compatibility, it remains primarily optimized for the Chromium engine.
@@ -128,4 +129,4 @@ page.on('request', (request) => {
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-06-24
+- Last reviewed: 2026-08-05

@@ -2,7 +2,7 @@
 
 ## What it is
 
-Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks. Since the **v4.6.0 (March 2026)** release, it requires PHP 8.5+ and features optimized quantity unit (QU) handling for faster product setup.
+Grocy is a self-hosted groceries & household management solution for your home. It provides a centralized web interface to track your food stock, shopping lists, recipes, chores, and household tasks. Since the **v4.8.0 (August 2026)** release, it requires PHP 8.5+ and features optimized quantity unit (QU) handling for faster product setup, along with structured sub-item barcode scans.
 
 ## What problem it solves
 
@@ -25,7 +25,7 @@ Managing a household's inventory manually often leads to food waste (expired ite
 - **Local Control**: All data stays on your own server, ensuring privacy.
 - **Automation Ready**: Offers a robust REST API for integration with barcode scanners or smart home systems.
 - **Lightweight**: Easy to run on low-power devices like a Raspberry Pi.
-- **Quantity Unit Flexibility**: Advanced mapping (v4.6.0+) allows for automatic "1:1" unit conversions during product creation.
+- **Quantity Unit Flexibility**: Advanced mapping (v4.8.0+) allows for automatic "1:1" unit conversions and tiered packaging setups during product creation.
 
 ## Limitations
 
@@ -106,7 +106,7 @@ Grocy features a RESTful API. Generate an API key in the web UI under **Manage A
 ```python
 import requests
 
-# Get current stock levels
+# Get current stock levels utilizing Grocy v4.8 API endpoint
 url = "http://localhost:9283/api/stock"
 headers = {"GROCY-API-KEY": "YOUR_API_KEY", "accept": "application/json"}
 
@@ -155,5 +155,5 @@ To implement barcode scanning for faster data entry:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-05
 - Confidence: high
