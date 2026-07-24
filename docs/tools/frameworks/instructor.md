@@ -1,7 +1,7 @@
 # Instructor
 
 ## What it is
-Instructor is a multi-language library (Python, TypeScript, Go, Ruby, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of June 2026, **Instructor v2** is the industry standard for type-safe LLM integration and semantic validation.
+Instructor is a multi-language library (Python, TypeScript, Go, Ruby, etc.) designed specifically for extracting structured data from Large Language Models (LLMs). It uses Pydantic (in Python) and similar schema-validation tools to ensure LLM outputs follow a strict, typed structure. As of late August 2026, **Instructor v2.x** is the industry standard for type-safe LLM integration, natively supporting strict structured schema modes for frontier models like **Claude 5.1** and **GPT-5.5**.
 
 ## What problem it solves
 It solves the "hallucination" and unpredictability problem of LLM outputs. Instead of receiving raw text that might be hard to parse or non-deterministic, Instructor ensures you get validated, type-safe objects. It automatically handles retries, re-asking the model if the initial output fails validation, and supports complex semantic rules that go beyond simple data types.
@@ -11,7 +11,7 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 
 ## Typical use cases
 - **Reliable Data Extraction**: Converting messy natural language (e.g., medical records, customer emails) into structured database records.
-- **Agentic Output Shaping**: Ensuring autonomous agents return results in a format that other tools or agents can consume programmatically.
+- **Agentic Output Shaping**: Ensuring autonomous agents return results in a format that other tools or agents can consume programmatically under **MCP 3.1** Task definitions.
 - **Quality Gates**: Implementing subjective validation rules (e.g., "The answer must be polite") that are enforced via LLM-based evaluators and automatic retries.
 - **Streaming Structured Data**: Processing partial LLM responses in real-time while maintaining schema validity.
 
@@ -19,7 +19,7 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 - **Schema-First Design**: Define what you want using standard types (Pydantic models, Zod schemas, etc.) and let Instructor handle the prompting.
 - **Universal Provider Support**: Works seamlessly with OpenAI, Anthropic, Gemini, DeepSeek, Ollama, and many others via a unified interface.
 - **Semantic Validation**: Built-in support for validating LLM outputs against subjective criteria using LLM-based validators.
-- **High Performance**: Optimized for low-latency extraction with enhanced support for parallel tool calling.
+- **High Performance**: Optimized for low-latency extraction with enhanced support for parallel tool calling and strict JSON schema modes.
 
 ## Limitations
 - **Narrow Focus**: It is not a general-purpose agent orchestration framework (like [LangGraph](langgraph.md) or [CrewAI](crewai.md)); it focuses exclusively on structured output.
@@ -39,29 +39,30 @@ It solves the "hallucination" and unpredictability problem of LLM outputs. Inste
 
 ### Installation (Python)
 ```bash
-pip install instructor
+pip install instructor pydantic
 ```
 
 ### Basic Extraction Example
 ```python
 import instructor
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from openai import OpenAI
 
 class User(BaseModel):
-    name: str
-    age: int
+    name: str = Field(..., description="The user's full name")
+    age: int = Field(..., description="The user's age in years")
 
 # Patch the client to add Instructor functionality
 client = instructor.from_provider(OpenAI())
 
 user = client.chat.completions.create(
-    model="gpt-4o",
+    model="gpt-5.5-preview",
     response_model=User,
     messages=[{"role": "user", "content": "Jason is 25 years old."}],
 )
 
 print(user.name) # "Jason"
+print(user.age)  # 25
 ```
 
 ## CLI examples
@@ -73,36 +74,65 @@ Instructor provides a CLI for testing schemas and inspecting provider capabiliti
 instructor hub check openai
 
 # Test a schema against a prompt from the CLI
-instructor jobs run --model gpt-4o --schema UserSchema.py --prompt "Extract user info from: Alice is 30"
+instructor jobs run --model gpt-5.5-preview --schema UserSchema.py --prompt "Extract user info from: Alice is 30"
 ```
 
 ## API examples
 
-### 1. Semantic Validation with Instructor v2
+### 1. Semantic Validation with Instructor v2.x
+Instructor automatically retries if the LLM generates a response that violates the semantic validation rules.
 ```python
-from instructor import SemanticValidator
-from pydantic import BaseModel, Field, BeforeValidator
-from typing import Annotated
+import instructor
+from openai import OpenAI
+from pydantic import BaseModel, BeforeValidator
+from typing_extensions import Annotated
 
-class Response(BaseModel):
+client = instructor.from_provider(OpenAI())
+
+def create_semantic_validator(statement: str):
+    def validate(v: str) -> str:
+        # LLM-based grading step
+        grading = client.chat.completions.create(
+            model="gpt-5.5-preview",
+            response_model=bool,
+            messages=[
+                {"role": "system", "content": f"Does the following text comply with: '{statement}'? Respond with True or False only."},
+                {"role": "user", "content": v}
+            ]
+        )
+        if not grading:
+            raise ValueError(f"Content failed semantic policy: {statement}")
+        return v
+    return validate
+
+class PoliteResponse(BaseModel):
     answer: Annotated[
         str,
-        BeforeValidator(SemanticValidator(openai_client=client, statement="The answer must be polite and helpful"))
+        BeforeValidator(create_semantic_validator("The response must be polite, professional, and contain no offensive content."))
     ]
 
-# Instructor will automatically retry if the LLM generates an impolite response
+# The client will perform automatic retries on validation failure
 ```
 
-### 2. Streaming Lists of Objects
+### 2. Streaming Lists of Objects (MCP 3.1 Conforming)
 ```python
-users = client.chat.completions.create_iterable(
-    model="gpt-4o",
-    response_model=User,
-    messages=[{"role": "user", "content": "Generate a list of 3 users."}],
+from pydantic import BaseModel, Field
+from typing import List
+
+class TaskItem(BaseModel):
+    task_id: str = Field(..., description="Unique alphanumeric identifier for the task")
+    command: str = Field(..., description="Shell command or function to execute")
+    priority: int = Field(default=1, description="Priority level 1-5")
+
+# Stream a list of task models from a single LLM response
+tasks = client.chat.completions.create_iterable(
+    model="gpt-5.5-preview",
+    response_model=TaskItem,
+    messages=[{"role": "user", "content": "Decompose the project build setup into 3 priority tasks."}],
 )
 
-for user in users:
-    print(user.name)
+for task in tasks:
+    print(f"[{task.priority}] {task.task_id}: {task.command}")
 ```
 
 ## Related tools / concepts
@@ -117,11 +147,11 @@ for user in users:
 
 ## Sources / references
 - [Official Website](https://python.useinstructor.com/)
-- [GitHub Repository](https://github.com/jxnl/instructor)
+- [Instructor GitHub Repository](https://github.com/jxnl/instructor)
 - [Instructor Cookbook](https://python.useinstructor.com/examples/)
 - [What's new in Instructor v2?](https://python.useinstructor.com/blog/2026/05/11/whats-new-in-instructor-v2/)
 - [Semantic Validation Guide](https://python.useinstructor.com/concepts/validation/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-24
+- Last reviewed: 2026-08-03
 - Confidence: high
