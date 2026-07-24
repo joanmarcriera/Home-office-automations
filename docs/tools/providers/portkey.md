@@ -1,10 +1,10 @@
 # Portkey AI Gateway
 
 ## What it is
-Portkey AI Gateway is an open-source, high-performance gateway and control plane designed to route and manage requests to **2,000+ Large Language Models (LLMs)** across 250+ providers. As of June 2026, it serves as the industry-standard "Control Plane for Agentic AI," providing enterprise-grade observability, reliability, and governance through a single, unified API and native **MCP 3.0** support.
+Portkey AI Gateway is an open-source, high-performance gateway and control plane designed to route and manage requests to **2,000+ Large Language Models (LLMs)** across 250+ providers. As of late August 2026, it serves as the industry-standard "Control Plane for Agentic AI," providing enterprise-grade observability, reliability, and governance through a single, unified API and native **MCP 3.1** routing capabilities.
 
 ## What problem it solves
-It solves the complexity of managing multiple LLM providers and models in production agentic loops. By acting as a central proxy, it provides reliability (via fallbacks and retries), efficiency (via semantic caching), and security (via 100+ built-in guardrails). It eliminates "provider lock-in" by allowing agents to switch between Claude 4.8, GPT-5.5, and Gemini 3.5 without code changes.
+It solves the complexity of managing multiple LLM providers and models in production agentic loops. By acting as a central proxy, it provides reliability (via fallbacks and retries), efficiency (via semantic caching), and security (via 100+ built-in guardrails). It eliminates "provider lock-in" by allowing agents to switch dynamically between Claude 5.1, GPT-5.5, and Llama 4 without code changes.
 
 ## Where it fits in the stack
 Portkey sits in the **Providers / Infrastructure** layer. It acts as the gateway between agentic applications (like OpenClaw or Agency Agents) and the underlying model providers (OpenAI, Anthropic, Google, Groq, etc.).
@@ -18,9 +18,9 @@ Portkey sits in the **Providers / Infrastructure** layer. It acts as the gateway
 
 ## Strengths
 - **Unified SDK**: Connect to 2,000+ models with a single OpenAI-compatible SDK integration.
-- **Agentic Protocols**: Native support for the Model Context Protocol (MCP 3.0) and Agentic Tool Calling.
+- **MCP 3.1 Native**: Native support for the Model Context Protocol (MCP 3.1) and Agentic Tool Calling, routing tool calls smoothly to backend servers.
 - **High Performance**: Ultra-low latency overhead (<5ms) with local self-hosting options via Docker/K8s.
-- **Enterprise Guardrails**: Built-in PII detection, bias filtering, and custom regex-based validation.
+- **Enterprise Guardrails**: Built-in PII detection, bias filtering, custom regex-based validation, and LLM-based policy evaluators.
 - **Virtual Keys**: Manage provider API keys securely in the Portkey vault, using virtual keys in your application code.
 - **Semantic Caching**: Reduces costs and improves latency by caching responses based on semantic similarity.
 
@@ -65,7 +65,7 @@ Portkey provides a CLI for managing configurations and testing routes.
 npm install -g @portkey-ai/cli
 
 # Test a request through the gateway
-portkey chat --model gpt-5.5 --message "Hello Portkey!"
+portkey chat --model gpt-5.5-preview --message "Hello Portkey!"
 
 # List active virtual keys
 portkey virtual-keys list
@@ -77,7 +77,7 @@ portkey config validate ./my-config.json
 ## API examples
 Portkey is fully compatible with the OpenAI SDK and provides its own optimized SDK.
 
-### Using the OpenAI Python SDK
+### Using the OpenAI Python SDK (August 2026 specs)
 ```python
 from openai import OpenAI
 from portkey_ai import PORTKEY_GATEWAY_URL, createHeaders
@@ -88,23 +88,28 @@ client = OpenAI(
     default_headers=createHeaders(
         provider="anthropic",
         virtual_key="ANTHROPIC_VIRTUAL_KEY",
-        trace_id="agent-run-123"
+        trace_id="agent-run-123",
+        metadata={"user_tier": "enterprise", "mcp_version": "3.1"}
     )
 )
 
 response = client.chat.completions.create(
-    model="claude-4-8-opus-20260528",
+    model="claude-5-1-sonnet",
     messages=[{"role": "user", "content": "Analyze this data."}]
 )
 ```
 
-### Using Portkey Fallbacks (JSON Config)
+### Using Portkey Fallbacks with Semantic Caching (JSON Config)
 ```json
 {
   "strategy": { "mode": "fallback" },
+  "cache": {
+    "mode": "semantic",
+    "ttl": 86400
+  },
   "targets": [
-    { "provider": "openai", "model": "gpt-5.5" },
-    { "provider": "anthropic", "model": "claude-4-8-sonnet" }
+    { "provider": "openai", "model": "gpt-5.5-preview" },
+    { "provider": "anthropic", "model": "claude-5-1-sonnet" }
   ]
 }
 ```
@@ -118,12 +123,12 @@ response = client.chat.completions.create(
 - [Langfuse](../process_understanding/langfuse.md) - Open-source observability and analytics.
 - [Helicone](../process_understanding/helicone.md) - LLM observability platform.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://portkey.ai/)
 - [Portkey Documentation](https://docs.portkey.ai/)
 - [Portkey GitHub Repository](https://github.com/Portkey-AI/gateway)
 - [Enterprise AI Gateway Patterns (2026)](https://portkey.ai/blog/agentic-gateway-patterns)
 
 ## Contribution Metadata
+- Last reviewed: 2026-08-03
 - Confidence: high
-- Last reviewed: 2026-06-24
