@@ -4,7 +4,7 @@
 The AI Tooling Landscape is a comprehensive architectural map of the generative AI ecosystem. It categorizes the diverse range of technologies—from physical hardware and foundational models to agentic frameworks and end-user applications—into a structured 8-layer stack.
 
 ## What problem it solves
-The rapid expansion of AI has created a fragmented and overwhelming market of tools. This landscape provides a mental model and a "standard map" to help developers, architects, and hobbyists understand where a specific tool (like Ollama or LangGraph) fits, what its dependencies are, and what alternatives exist at the same layer.
+The rapid expansion of AI has created a fragmented and overwhelming market of tools. This landscape provides a mental model and a "standard map" to help developers, architects, and hobbyists understand where a specific tool (like Ollama or LangGraph) fits, what its dependencies are, and what alternatives exist at the same layer, updated for SOTA August 2026 systems.
 
 ## Where it fits in the stack
 This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry point for the entire `docs/knowledge_base/` section, providing the context needed to navigate specialized deep-dives into models, frameworks, and infrastructure.
@@ -17,8 +17,9 @@ This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry po
 
 ## Strengths
 - **Comprehensive**: Covers the entire lifecycle from raw compute to finished application.
-- **Interoperable**: Focuses on the "glue" (protocols like MCP 3.0) that connects layers.
+- **Interoperable**: Focuses on the "glue" (protocols like MCP 3.1) that connects layers.
 - **Homelab-Centric**: Prioritizes tools that can be run locally or self-hosted.
+- **Task Protocol Ready**: Standardized for stateful, long-running agent workflows under the MCP 3.1 specification.
 
 ## Limitations
 - **High Velocity**: The AI field moves so fast that specific tool placements may become outdated within months.
@@ -41,7 +42,7 @@ This document serves as the **Layer 0-7 Meta-Layer**. It is the primary entry po
 4. For a hands-on start, see the **How to use this repo** section at the bottom.
 
 ## CLI examples
-The following CLI tools are essential for navigating and managing the different layers of the landscape.
+The following CLI tools are essential for navigating and managing the different layers of the landscape in late 2026.
 
 ```bash
 # Infrastructure Layer (Layer 0): Check GPU status
@@ -50,29 +51,38 @@ nvidia-smi
 # Inference & Serving Layer (Layer 3): List local models
 ollama list
 
-# Development Layer (Layer 7): Run an AI coding session
-aider --model claude-4-8-sonnet
+# Development Layer (Layer 7): Run an AI coding session using Claude 5.1
+aider --model claude-5-1-sonnet
 ```
 
 ## API examples
-Most layers are connected via standardized APIs and protocols like MCP 3.0.
+Most layers are connected via standardized APIs and protocols like MCP 3.1.
 
-### Discovery via MCP 3.0
+### Discovery and Task Management via MCP 3.1
 ```python
-# Connecting to an MCP 3.0 server to discover tools at Layer 4
-from mcp import Client
+# Connecting to an MCP 3.1 server to discover tools and spawn tasks at Layer 4
+from mcp import Client, TaskProtocol
 
 client = Client("http://mcp-registry.local")
 tools = client.list_tools()
 for tool in tools:
     print(f"Tool: {tool.name}, Layer: {tool.metadata['layer']}")
+
+# Spawning a task using MCP 3.1 Task Protocol
+task_proto = TaskProtocol(client)
+async def init_agent_task():
+    task = await task_proto.create_task(
+        name="Telemetry Scan",
+        instruction="Verify local Ollama serving metrics and optimize VRAM allocation."
+    )
+    print(f"Spawned task ID: {task.id}")
 ```
 
 ### Routing across Layer 1 Providers
 ```python
 import litellm
 
-# Route to the most cost-effective model at Layer 2
+# Route to the most cost-effective model at Layer 2 (such as Gemini 3.5 Flash or Qwen 3.6)
 response = litellm.completion(
     model="openrouter/google/gemini-3.5-flash",
     messages=[{"role": "user", "content": "Analyze this landscape."}]
@@ -81,7 +91,7 @@ response = litellm.completion(
 
 ## Related tools / concepts
 - [Model Classes](model_classes.md) — Understanding the different "tiers" of models within the landscape.
-- [Agent Protocols](agent_protocols.md) — Deep dive into MCP 3.0 and ACP.
+- [Agent Protocols](agent_protocols.md) — Deep dive into MCP 3.1 and ACP.
 - [Home Lab Architecture](../architecture/infrastructure.md) — How the physical layer (Layer 0) is implemented in this repo.
 - [OpenRouter](../tools/ai_knowledge/openrouter.md) — A key Layer 1 provider that bridges many models.
 - [n8n](../services/n8n.md) — A primary Layer 6 orchestration tool used in this stack.
@@ -106,11 +116,11 @@ response = litellm.completion(
 ├───────────────────────────────────────────────────────────────────────────┤
 │ Layer 5: Frameworks (LangChain, LlamaIndex, Haystack, DSPy)               │
 ├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 4: Protocols & Standards (MCP 3.0, Tool Calling, A2A)               │
+│ Layer 4: Protocols & Standards (MCP 3.1, Tool Calling, A2A)               │
 ├───────────────────────────────────────────────────────────────────────────┤
 │ Layer 3: Inference & Serving (vLLM, TGI, Ollama, SGLang)                  │
 ├───────────────────────────────────────────────────────────────────────────┤
-│ Layer 2: Models (GPT-5.5, Claude 4.8, Llama 4, Gemini 3.5, Qwen 3.6)      │
+│ Layer 2: Models (Claude 5.1, GPT-5.5, Llama 4, Gemini 3.5, Qwen 3.6)      │
 ├───────────────────────────────────────────────────────────────────────────┤
 │ Layer 1: Providers (OpenAI, Anthropic, Google, Meta, Mistral, OpenRouter) │
 ├───────────────────────────────────────────────────────────────────────────┤
@@ -136,7 +146,7 @@ Development libraries used to build AI applications, handling prompt management,
 ### Layer 4: Protocols & Standards
 The "glue" that allows models to interact with tools and other agents consistently.
 - **Relevant Pages**: [Model Context Protocol (MCP)](agent_protocols.md), [Agent Client Protocol (ACP)](agent_protocols.md), [Tool Calling & MCP Patterns](patterns/tool-calling-and-mcp.md), [Mistral AI (Native MCP)](../tools/providers/mistral.md), [MCP Registry](../tools/automation_orchestration/mcp-registry.md).
-- **Key Trends**: Rapid adoption of MCP as the standard for model-to-tool communication.
+- **Key Trends**: Rapid adoption of MCP 3.1 as the standard for model-to-tool communication.
 
 ### Layer 3: Inference & Serving
 Engines that run model weights and provide APIs for applications to consume.
@@ -146,7 +156,7 @@ Engines that run model weights and provide APIs for applications to consume.
 ### Layer 2: Models
 The core reasoning engines (LLMs, VLMs) that process information and generate text or actions.
 - **Relevant Pages**: [OpenAI Models](../tools/ai_knowledge/openai.md), [Anthropic Claude](../tools/providers/anthropic.md), [Meta Llama](../tools/ai_knowledge/local_llms.md), [Mistral](../tools/providers/mistral.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md), [DeepSeek](../tools/providers/deepseek.md), [Model Classes](model_classes.md).
-- **Key Trends**: Rise of specialized reasoning models using test-time compute.
+- **Key Trends**: Rise of specialized reasoning models (like Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) using test-time compute.
 
 ### Layer 1: Providers
 Companies and platforms that host models and provide them as-a-service via API.
@@ -178,5 +188,5 @@ The underlying hardware, storage, and low-level optimizations.
 - **"I want to build a website or small app on free infrastructure"** → [AI Builder Index](ai_builder_index.md) and [Free AI Website Playbook](free_ai_website_playbook.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-24
+- Last reviewed: 2026-08-01
 - Confidence: high
