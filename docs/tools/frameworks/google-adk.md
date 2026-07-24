@@ -1,42 +1,44 @@
 # Google Agent Development Kit (ADK)
 
 ## What it is
-The Google Agent Development Kit (ADK) is an open-source framework designed for building, debugging, and deploying enterprise-grade AI agents at scale. As of June 2026, the ADK is in General Availability (GA), serving as the unified orchestration layer for Google's agentic ecosystem, including Gemini 3.5 and Vertex AI.
+The Google Agent Development Kit (ADK) is an open-source framework designed for building, debugging, and deploying enterprise-grade AI agents at scale. As of late July 2026, the ADK is in General Availability (GA), serving as the unified, stateful runtime orchestration layer for Google's agentic ecosystem. It is engineered to harness the advanced reasoning capabilities of the Gemini 3.5 series (Ultra, Pro, Flash), Gemini Spark (for planning and multi-agent coordination), and Gemini Omni (for multimodal stream processing), while maintaining full cross-compatibility with other frontier models like Claude 5.1 and GPT-5.5.
 
 ## What problem it solves
-It addresses the "Prototype-to-Production" gap. While many frameworks excel at simple chat loops, the ADK provides the rigorous state-machine orchestration, standardized "Skills" (tool-calling), and robust evaluation frameworks required for mission-critical, multi-agent business workflows.
+While lightweight scripting libraries are suitable for single-agent chat loops, they fail to bridge the "Prototype-to-Production" gap for complex corporate workflows. They often lack strict state management, explicit orchestration, multi-language interoperability, and robust evaluation paths. The ADK addresses these enterprise requirements by providing reliable, deterministic state-machine orchestration, standardized "Skills" (tool-calling interfaces), and integrated evaluation runtimes that ensure agent execution remains predictable, auditable, and SLA-compliant.
 
 ## Where it fits in the stack
-**Category**: Frameworks / Enterprise Agent Framework. It sits between the frontier models (Gemini, Claude) and the application layer, providing a structured runtime for agentic logic.
+**Category**: [Frameworks](index.md) / [Enterprise Agent Frameworks](../../knowledge_base/index.md).
+It sits directly between the foundation model layer (Gemini, Claude, GPT) and the production application layer, acting as a structured, stateful middleware that coordinates business logic, session state, tool execution, and deployment orchestration.
 
 ## Typical use cases
-- **Multi-Agent Enterprise Orchestration**: Coordinating complex, multi-step tasks across specialized agents (e.g., an "Accountant Agent" and a "Legal Agent").
-- **Mission-Critical Workflows**: Building agents where execution paths must be predictable, auditable, and reliable.
-- **Skill-Based Capability Extension**: Rapidly adding new tools to agents using standardized, cross-language Skill definitions.
-- **Vertex AI Deployment**: Scaling agents to production using Google Cloud's native infrastructure (Cloud Run, GKE).
+- **Multi-Agent Enterprise Orchestration**: Coordinating complex, stateful workflows across specialized agents (e.g., an "Invoicing Agent" routing verified financial documents to a "Compliance Agent" for secondary legal audits).
+- **Long-Horizon Stateful Missions**: Orchestrating autonomous tasks ("Missions") that require persisting and recovering state across asynchronous loops, API wait states, and human-in-the-loop approvals.
+- **Skill-Based Capability Scaling**: Extending agent functionalities rapidly across multi-language microservices by deploying standardized, discoverable "Skills".
+- **Vertex AI Production Deployment**: Scaling containerized agent runtimes natively to Google Cloud Platform (GCP) utilizing Cloud Run, Google Kubernetes Engine (GKE), and Vertex AI Agent Runtime.
 
 ## Strengths
-- **Production-Grade Reliability**: Based on the same infrastructure Google uses for internal AI services.
-- **Multi-Language Native**: Full, first-class support for Python, TypeScript, Go, and Java.
-- **General Availability (GA)**: (June 2026) Fully supported with enterprise SLAs and comprehensive documentation.
-- **Native MCP 3.0 Integration**: Seamlessly connects to any Model Context Protocol server for tool and data access.
-- **Standardized "Skills"**: A robust pattern for defining and discovering agent capabilities across different projects.
+- **Rigorous State-Machine Orchestration**: Prevents agents from entering infinite loops or executing unauthorized tools by enforcing explicit, deterministic state transitions.
+- **First-Class Multi-Language Support**: Complete, feature-parity SDKs available for Python, TypeScript, Go, and Java, enabling polyglot enterprise architectures.
+- **Native Model Context Protocol (MCP 3.1) Integration**: Built-in support for MCP 3.1 client/server patterns, letting agents seamlessly query external tools, databases, and filesystem contexts.
+- **Vertex AI Evaluation Integration**: Direct, out-of-the-box telemetry pipelines pointing to Vertex AI monitoring, logging, and evaluation frameworks to measure success and detect drift.
+- **Standardized Skill Definitions**: A declarative paradigm that auto-generates schema parameters, enabling easy sharing of tool schemas across different internal teams.
 
 ## Limitations
-- **Architectural Complexity**: The emphasis on state-machines and explicit orchestration may feel overly complex for simple, linear agents.
-- **Cloud-Centric Optimization**: While open-source, it is heavily optimized for the Google Cloud/Vertex AI ecosystem.
+- **Architectural Overhead**: The emphasis on explicit state transitions, strict schemas, and declarative configuration might feel unnecessarily verbose for simple, linear agent designs.
+- **Ecosystem Gravity**: Although fully open-source and model-agnostic, the ADK delivers maximum optimization, security, and velocity when paired with Google Cloud, Vertex AI, and Gemini models.
+- **Steep Learning Curve**: Developers must master state-machine concepts, context propagation boundaries, and skill schemas, rather than relying on intuitive, prompt-only steering.
 
 ## When to use it
-- When building large-scale, multi-agent systems that require high reliability and clear state management.
-- For enterprise projects where cross-language compatibility (e.g., a Go orchestrator with Python skills) is a requirement.
-- When you are already utilizing the Vertex AI ecosystem and want native integration with its evaluation and monitoring tools.
+- When building large-scale, multi-agent orchestrations that must run in robust, highly auditable production environments.
+- For projects that require cross-language compatibility (e.g., coordinating a Go-based core system with Python-based ML skills and TypeScript frontend components).
+- When leveraging Google Cloud Platform (GCP) and Vertex AI as the underlying hosting, logging, and model-inference infrastructure.
 
 ## When not to use it
-- For quick, experimental prototypes where a lighter framework like [smolagents](https://github.com/huggingface/smolagents) or `instructor` would be faster.
-- If you prefer a purely "vibe-based" or non-deterministic agent loop over structured state-machines.
+- For rapid, low-complexity prototyping or single-turn prompts where lightweight frameworks like `smolagents` or simple SDK scripts are more agile.
+- If you prefer purely non-deterministic, agent-steered "vibe loops" where the LLM is given complete, unconstrained control over execution paths without state boundaries.
 
 ## Getting started
-The ADK is available via standard package managers.
+The Google ADK is distributed as highly optimized packages through all major package managers.
 
 ### Python Installation
 ```bash
@@ -49,75 +51,100 @@ npm install @google/adk
 ```
 
 ## CLI examples
+The ADK command-line interface streamlines project scaffolding, local diagnostic execution, and production cloud deployment.
 
-### 1. Initialize a New Project
 ```bash
+# Initialize a new, structured ADK project
 adk init my-agentic-service --language python
-```
 
-### 2. Run Local Debugger
-```bash
-adk debug agent.yaml
-```
+# Run the local debugger to trace state-machine execution and variable states
+adk debug agent.yaml --port 8080
 
-### 3. Deploy to Vertex AI
-```bash
-adk deploy --project my-gcp-project --region us-central1
+# Run evaluation runs against a local test dataset
+adk test --dataset ./eval-queries.json --agent agent.yaml
+
+# Package and deploy the agent to Vertex AI Agent Runtime
+adk deploy --project enterprise-gcp-prod --region us-central1 --tag v2.4
 ```
 
 ## API examples
 
-### Defining a Standardized Skill (Python)
-The ADK uses decorators to transform functions into discoverable agent skills.
+### 1. Declaring and Registering a Standardized Skill (Python)
+The ADK leverages decorators to automatically extract function signatures, converting standard Python code into discoverable agent skills complete with Zod-compatible parameter validation.
 
 ```python
-from google_adk import Skill
+import os
+from google_adk import Skill, Agent
 
+# Define a secure, standardized Skill
 @Skill.define(
-    name="get_stock_price",
-    description="Fetches real-time stock pricing from the internal financial API."
+    name="get_inventory_status",
+    description="Fetches real-time stock levels and warehouse availability for a given product SKU."
 )
-def fetch_stock(ticker: str) -> float:
-    # Logic to query internal API
-    return 150.25
+def fetch_inventory(sku: str) -> dict:
+    # Logic to fetch from an internal enterprise ERP database
+    return {"sku": sku, "status": "In Stock", "quantity": 142, "warehouse": "us-east-1"}
 
-# Registering the skill with an agent
-from google_adk import Agent
-agent = Agent(name="FinanceAgent", model="gemini-1.5-pro", skills=[fetch_stock])
+# Initialize the Gemini-powered agent and register the Skill
+agent = Agent(
+    name="LogisticsAgent",
+    model="gemini-3.5-pro",
+    api_key=os.environ.get("GEMINI_API_KEY"),
+    skills=[fetch_inventory]
+)
+
+# Run the agent with context
+response = agent.run("Check inventory status for SKU-90812")
+print("Agent Response:", response.text)
 ```
 
-### Orchestrating a State-Machine Agent (TypeScript)
+### 2. State-Machine Orchestration with Context Propagation (TypeScript)
+Define deterministic transitions between state blocks using the TypeScript SDK.
+
 ```typescript
-import { Agent, StateMachine } from '@google/adk';
+import { Agent, StateMachine, Context } from '@google/adk';
 
 const sm = new StateMachine();
-sm.addState('INITIAL', async (context) => {
-  return context.input.includes('help') ? 'SUPPORT' : 'ROUTING';
+
+// Define states with explicit transitions
+sm.addState('INITIAL', async (context: Context) => {
+  if (context.input.includes('billing')) {
+    return 'BILLING_FLOW';
+  }
+  return 'GENERAL_ROUTE';
 });
 
-const agent = new Agent({
-  name: 'Orchestrator',
+sm.addState('BILLING_FLOW', async (context: Context) => {
+  // Logic to process billing queries via secure payment gateways
+  return 'COMPLETE';
+});
+
+sm.addState('GENERAL_ROUTE', async (context: Context) => {
+  // Logic to route general queries to Gemini 3.5 Flash
+  return 'COMPLETE';
+});
+
+const orchestratorAgent = new Agent({
+  name: 'EnterpriseRouter',
   workflow: sm
 });
 ```
 
 ## Related tools / concepts
-- [Gemini](../ai_knowledge/gemini.md) — The primary model backbone for ADK agents.
-- [LangGraph](../frameworks/langgraph.md) — Competitive framework for stateful multi-agent systems.
-- [CrewAI](../frameworks/crewai.md) — Popular alternative for multi-agent role-playing.
-- [MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Integrated standard for tool connectivity.
-- [Vertex AI](../infrastructure/supabase.md) — Google Cloud's AI platform for deployment.
-- [Jules](../ai_knowledge/jules.md) — Advanced agentic assistant developed by Google.
-- [Firebase Genkit](../frameworks/firebase-genkit.md) — Google's framework for AI-integrated web apps.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The fundamental pattern the ADK implements.
+- [Gemini](../ai_knowledge/google-gemini.md) — The core model backbone optimized for ADK's native context caching and planning.
+- [LangGraph](../frameworks/langgraph.md) — Multi-agent state-graph orchestration framework.
+- [CrewAI](../frameworks/crewai.md) — High-level role-playing multi-agent execution framework.
+- [Model Context Protocol](../../knowledge_base/patterns/tool-calling-and-mcp.md) — The unified protocol the ADK uses to communicate with external data servers.
+- [Supabase](../infrastructure/supabase.md) — Frequently utilized alongside ADK for managing session state storage and user authentication.
+- [Firebase Genkit](../frameworks/firebase-genkit.md) — Google's application developer framework for integrating AI into web and mobile backends.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The state-machine patterns and paradigms implemented by the ADK.
 
 ## Sources / references
-- [Google Cloud ADK Documentation](https://cloud.google.com/vertex-ai/docs/adk)
-- [ADK GitHub Repository](https://github.com/google/adk)
-- [Google Developers Blog: ADK General Availability](https://developers.googleblog.com/2026/06/adk-ga-launch)
+- [Google Vertex AI Agent SDK Guides](https://cloud.google.com/vertex-ai/docs/adk)
+- [Official Google ADK GitHub Repository](https://github.com/google/adk)
+- [Google Cloud Developers Blog: Launching ADK General Availability](https://developers.googleblog.com/2026/06/adk-ga-launch)
 - [Vertex AI Agent Runtime Guide](https://cloud.google.com/vertex-ai/docs/agents/runtime)
-- [June 2026 Framework Comparison](../../knowledge_base/landscape-overview.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-28
 - Confidence: high
