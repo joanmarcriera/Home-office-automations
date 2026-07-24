@@ -1,17 +1,17 @@
 # Pinecone
 
 ## What it is
-Pinecone is a managed, cloud-native vector database designed for high-performance AI applications. It provides a simple API for storing, indexing, and querying high-dimensional vector embeddings. As of June 2026, Pinecone has evolved into a "Serverless Knowledge Platform" optimized for low-latency agentic reasoning.
+Pinecone is a managed, cloud-native vector database designed for high-performance AI applications. It provides a simple API for storing, indexing, and querying high-dimensional vector embeddings. As of August 2026, Pinecone has evolved into a "Serverless Knowledge Platform" with the launch of Pinecone Nexus, optimized for low-latency agentic reasoning.
 
 ## What problem it solves
-Managing vector databases at scale is operationally complex. Developers need to handle indexing algorithms (like HNSW), resource allocation, scaling, and high availability. Pinecone solves this by offering a fully managed experience where the underlying infrastructure is abstracted away, allowing developers to focus on building AI features rather than managing database clusters. It specifically addresses "Agentic Latency" by providing optimized endpoints for rapid tool-calling and retrieval.
+Managing vector databases at scale is operationally complex. Developers need to handle indexing algorithms (like HNSW), resource allocation, scaling, and high availability. Pinecone solves this by offering a fully managed experience where the underlying infrastructure is abstracted away, allowing developers to focus on building AI features rather than managing database clusters. It specifically addresses "Agentic Latency" by providing optimized endpoints and native tool-calling integrations for rapid multi-turn agent sessions.
 
 ## Where it fits in the stack
-**Category**: Infrastructure / Vector Databases. It serves as a managed retrieval layer in the [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) stack, frequently used alongside [OpenAI](../ai_knowledge/openai.md) and [Anthropic](../providers/anthropic.md) for RAG.
+**Category**: Infrastructure / Vector Databases. It serves as a managed retrieval layer in the [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) stack, frequently used alongside [OpenAI](../ai_knowledge/openai.md) and [Anthropic](../providers/anthropic.md) for RAG and agent state persistence.
 
 ## Typical use cases
 - **Retrieval-Augmented Generation (RAG)**: Providing relevant context to LLMs by searching through millions of document embeddings.
-- **Agentic Workflows**: Using "Assistant API" integrations to maintain state and context across multi-turn agent sessions.
+- **Agentic Workflows**: Using "Assistant API" and Pinecone Nexus integrations to maintain state and context across multi-turn agent sessions.
 - **Semantic Search**: Finding similar text, images, or products based on meaning rather than exact keywords.
 - **Anomaly Detection**: Identifying data points that are significantly different from the "normal" clusters in vector space.
 
@@ -24,7 +24,7 @@ Managing vector databases at scale is operationally complex. Developers need to 
 ## Limitations
 - **Cloud-Only**: No self-hosted or on-premises version; strictly a SaaS offering on AWS, GCP, and Azure.
 - **Closed Source**: The core engine and indexing algorithms are proprietary.
-- **Cost at High Throughput**: While serverless is cost-effective for most, extremely high-throughput applications may find it more expensive than self-hosted alternatives like Milvus.
+- **Cost at High Throughput**: While serverless is cost-effective for most workloads, extremely high-throughput applications may find it more expensive than self-hosted alternatives like Milvus.
 
 ## When to use it
 - When you want to get to production quickly without managing database infrastructure.
@@ -55,12 +55,12 @@ pc = Pinecone(api_key="YOUR_API_KEY")
 ## CLI examples
 
 ### Pinecone CLI
-The Pinecone CLI allows for index management and data inspection from the terminal.
+The Pinecone CLI allows for index management and data inspection directly from the terminal.
 ```bash
-# List all indexes
+# List all indexes in your project
 pinecone list-indexes
 
-# Describe a specific index
+# Describe a specific index's configuration and status
 pinecone describe-index my-agent-memory
 ```
 
@@ -68,7 +68,9 @@ pinecone describe-index my-agent-memory
 
 ### 1. Creating a Serverless Index
 ```python
-from pinecone import ServerlessSpec
+from pinecone import Pinecone, ServerlessSpec
+
+pc = Pinecone(api_key="YOUR_API_KEY")
 
 pc.create_index(
     name="agent-memory",
@@ -83,13 +85,16 @@ pc.create_index(
 
 ### 2. Upserting Vectors with Agent Metadata
 ```python
+from pinecone import Pinecone
+
+pc = Pinecone(api_key="YOUR_API_KEY")
 index = pc.Index("agent-memory")
 
 index.upsert(
     vectors=[
         {
             "id": "mem_01",
-            "values": [0.1, 0.2, 0.3, ...],
+            "values": [0.1, 0.2] * 768,
             "metadata": {"agent_id": "jules-v2", "session_id": "s_9921", "type": "observation"}
         }
     ]
@@ -98,8 +103,13 @@ index.upsert(
 
 ### 3. Querying with Agent Filters
 ```python
+from pinecone import Pinecone
+
+pc = Pinecone(api_key="YOUR_API_KEY")
+index = pc.Index("agent-memory")
+
 results = index.query(
-    vector=[0.1, 0.2, 0.3, ...],
+    vector=[0.1, 0.2] * 768,
     top_k=5,
     include_metadata=True,
     filter={
@@ -107,6 +117,7 @@ results = index.query(
         "type": {"$eq": "observation"}
     }
 )
+print("Search Results:", results)
 ```
 
 ## Related tools / concepts
@@ -127,7 +138,6 @@ results = index.query(
 - [Agentic RAG with Pinecone](https://docs.pinecone.io/guides/get-started/agentic-rag)
 - [Pinecone Nexus](https://www.infoq.com/news/2026/07/pinecon-nexus-knowledge-engine/) — Integrated from daily log reference.
 
-
 ## Contribution Metadata
-- Last reviewed: 2026-06-24
+- Last reviewed: 2026-08-01
 - Confidence: high

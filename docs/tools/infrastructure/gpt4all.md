@@ -1,10 +1,10 @@
 # GPT4All
 
 ## What it is
-GPT4All is a free, privacy-first desktop application (and Python/Node SDK) for running large language models **fully offline** on consumer CPUs and GPUs. Maintained by Nomic AI, it bundles a model downloader, a chat UI, and a built-in retrieval feature (**LocalDocs**) that lets a local model answer questions over your own files without any data leaving the machine.
+GPT4All is a free, privacy-first desktop application (and Python/Node/C++ SDK) for running large language models **fully offline** on consumer CPUs and GPUs. Maintained by Nomic AI, it bundles a model downloader, a native chat UI, and a built-in retrieval feature (**LocalDocs**) that lets a local model answer questions over your own files without any data leaving the machine.
 
 ## What problem it solves
-It removes every barrier to local inference for non-experts: no command line, no Python environment, no API keys, and no network connection required after the initial model download. For a privacy-first home lab it provides a turnkey, air-gapped alternative to cloud chat assistants, and LocalDocs gives offline RAG over personal documents out of the box.
+It removes every barrier to local inference for non-experts: no command line, no Python environment, no API keys, and no network connection required after the initial model download. For a privacy-first home lab, it provides a turnkey, air-gapped alternative to cloud chat assistants, and LocalDocs gives offline RAG over personal documents out of the box.
 
 ## Where it fits in the stack
 **Infrastructure / Local inference + desktop client.** It sits alongside other local runtimes — it can complement [Ollama](../../services/ollama.md) and [llama.cpp](llama-cpp.md) as the user-facing chat surface, or stand alone as a self-contained offline assistant on a laptop or workstation.
@@ -14,17 +14,18 @@ It removes every barrier to local inference for non-experts: no command line, no
 - Offline question-answering over a folder of personal notes, manuals, or PDFs via LocalDocs.
 - Giving non-technical household members a simple, safe local AI without exposing cloud accounts.
 - Prototyping local-model behaviour before wiring a model into [n8n](../../services/n8n.md) or other automation.
+- Edge development in air-gapped systems utilizing GGUF or Apple-silicon MLX backends.
 
 ## Strengths
 - **Truly offline:** once a model is downloaded, no network access is needed — ideal for air-gapped or privacy-sensitive setups.
 - **Zero-friction install:** native installers for macOS, Windows, and Linux with a built-in model catalogue.
-- **LocalDocs RAG:** point it at a directory and it indexes and cites your own files locally.
-- **Cross-runtime:** supports GGUF models and runs on CPU or GPU, so it works on modest hardware.
+- **LocalDocs RAG:** point it at a directory and it indexes and cites your own files locally using local embedding models.
+- **Cross-runtime:** supports GGUF and GGUF2 models, and runs on CPU or GPU, so it works on modest hardware.
 
 ## Limitations
-- **Throughput:** desktop-oriented; not built for high-concurrency or multi-user serving (use [vLLM](vllm.md) for that).
-- **Smaller model focus:** practical on consumer hardware mostly with 3B–14B quantized models; large frontier models remain hardware-bound.
-- **Less scriptable than headless runtimes:** the GUI is the primary surface, though SDK bindings exist.
+- **Throughput**: desktop-oriented; not built for high-concurrency or multi-user serving (use [vLLM](vllm.md) for that).
+- **Smaller model focus**: practical on consumer hardware mostly with 3B–14B quantized models (such as Gemma 3 or Qwen 3.6-7B); large frontier models remain hardware-bound.
+- **Less scriptable than headless runtimes**: the GUI is the primary surface, though SDK bindings exist.
 
 ## When to use it
 - When you want the simplest possible **offline** chat + document-Q&A experience with no setup.
@@ -65,7 +66,7 @@ python3 -c "from gpt4all import GPT4All; print(GPT4All.list_models())"
 
 ### 2. Basic Generation via Python CLI
 ```bash
-python3 -c "from gpt4all import GPT4All; m=GPT4All('orca-mini-3b-gguf2-q4_0.gguf'); print(m.generate('Hello world'))"
+python3 -c "from gpt4all import GPT4All; m=GPT4All('orca-mini-3b-gguf2-q4_0.gguf'); print(m.generate('Hello world', max_tokens=10))"
 ```
 
 ## API examples
@@ -74,7 +75,8 @@ python3 -c "from gpt4all import GPT4All; m=GPT4All('orca-mini-3b-gguf2-q4_0.gguf
 ```python
 from gpt4all import GPT4All
 
-model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf")
+# Load a local model (e.g., Qwen 3.6 or Gemma 3 target GGUF)
+model = GPT4All("gemma-3-8b-it.Q4_0.gguf")
 with model.chat_session():
     tokens = model.generate("Explain quantum computing in one sentence.", streaming=True)
     for token in tokens:
@@ -88,7 +90,7 @@ from gpt4all import Embed4All
 embedder = Embed4All()
 text = "The quick brown fox jumps over the lazy dog"
 output = embedder.embed(text)
-print(output) # List of floats
+print(f"Embedding dimension: {len(output)}") # List of floats
 ```
 
 ## Licensing and cost
@@ -113,5 +115,5 @@ print(output) # List of floats
 - [GPT4All Documentation](https://docs.gpt4all.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-24
+- Last reviewed: 2026-08-01
 - Confidence: high
