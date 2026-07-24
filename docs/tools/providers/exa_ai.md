@@ -1,118 +1,147 @@
 # Exa AI
 
 ## What it is
-Exa AI is a search engine specifically designed for AI agents and LLMs. Unlike traditional keyword-based search engines, Exa uses embeddings-based search to find high-quality, relevant web content that is structured for machine consumption. As of June 2026, it serves as a foundational component for agentic search workflows.
+Exa AI is a neural search engine engineered specifically for large language models (LLMs) and autonomous AI agents. Unlike keyword-matching or SEO-biased traditional search platforms, Exa uses transformer-based embedding models to perform semantic searches, finding high-signal web content and delivering it in structured, LLM-clean formats.
 
 ## What problem it solves
-Traditional search engines (like Google or Bing) are optimized for human browsing, often returning SEO-heavy pages that are difficult for LLMs to parse. Exa provides clean, structured, and parsed web data, reducing the noise and token overhead when agents perform web research. It enables agents to navigate the "live" web with semantic intent rather than just keyword matches.
+Standard search engines optimize results for human browsers, often cluttering responses with sponsored ads, heavy javascript elements, and SEO-bloated pages. These structures consume massive token volume and introduce irrelevant noise into agent pipelines. Exa solves this by retrieving clean, pre-parsed markdown directly from the web, drastically decreasing latency, parsing errors, and input token overhead for agent reasoning loops.
 
 ## Where it fits in the stack
-**Category**: [Providers](index.md) / [Search & Ingest](../process_understanding/index.md). It acts as the primary web-intelligence layer for research-capable agents and RAG pipelines requiring real-time web grounding.
+**Data Ingestion / Web-Intelligence Provider**. It acts as the web-grounding layer for agentic retrieval-augmented generation (RAG) workflows, research-centric multi-agent pipelines, and dynamic information synthesis platforms.
 
 ## Typical use cases
-- **Agentic Search**: Giving LLMs the ability to find ground-truth information on the live web via MCP 3.0.
-- **Automated Research**: Compiling B2B leads, competitor analysis, or technical documentation reports.
-- **Real-time Data Ingestion**: Feeding fresh web content into RAG pipelines for up-to-date context.
-- **Fact Verification**: Automating the process of grounding agent claims with cited web sources.
+- **Agentic Deep-Research**: Powering agents running on frontier models (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) to execute complex, multi-query research missions over the live web.
+- **Dynamic Context Grounding**: Supplying real-time, high-fidelity context slices into enterprise RAG systems to keep corporate knowledge bases dynamically up to date.
+- **Automated Lead and Market Synthesis**: Aggregating structured company, academic, or product information via custom domain and timestamp filters.
+- **Factual Claims Verification**: Querying reference documents and extracting clean source texts to cross-examine and ground agent-generated responses.
 
 ## Strengths
-- **Clean Markdown**: Directly returns LLM-ready markdown, bypassing the need for complex custom scrapers.
-- **High Relevance**: Specifically finds high-signal content (blogs, docs, academic papers) instead of ads.
-- **Official SDKs**: Robust support for Python, TypeScript, and native MCP 3.0 integration.
-- **Neural Search**: Uses a transformer-based model to understand the semantic intent of a query.
+- **Clean Markdown Delivery**: Returns sanitized, readable markdown or raw text directly, bypassing the need for custom headless scrapers or proxy layers.
+- **High-Signal Neural Search**: Uses semantic vector representations to locate relevant pages based on exact intent rather than literal keyword occurrences.
+- **Flexible Filter Controls**: Supports precise filtering by domain, category (e.g., personal blogs, academic papers, news, company sites), and exact publish dates.
+- **Robust SDKs & MCP Integration**: Native libraries for Python and TypeScript, alongside fully compliant Model Context Protocol (MCP 3.1) servers for drag-and-drop tool integration.
 
 ## Limitations
-- **Subscription Required**: Requires an API key and has usage-based pricing.
-- **Web-Only**: Does not search private internal data (unless integrated into a custom pipeline).
-- **Rate Limits**: Subject to plan-based concurrency and request limits.
-- **SEO Gaps**: Occasionally misses extremely new or niche content that hasn't been indexed by its neural model yet.
+- **Key-Based API Billing**: Requires a paid subscription and charges based on monthly search volumes and token retrieval size.
+- **Web-Only Index**: Focuses strictly on publicly available web content, necessitating custom database connections for internal or private data ingestion.
+- **Rate-Limiting on Basic Plans**: Concurrency and request-per-minute ceilings on lower tiers can require robust retry mechanics in high-throughput production.
 
 ## When to use it
-- When your AI agent needs to perform "deep research" rather than just a quick keyword lookup.
-- When you want to avoid the maintenance of a custom scraping stack (JS rendering, proxy management).
-- For high-accuracy tasks where the quality of the source matters more than the volume of results.
-- When implementing Agentic RAG patterns that require high-fidelity web grounding.
+- When autonomous agents need to conduct open-ended, high-precision web browsing or fact-finding tasks.
+- To reduce developer maintenance overhead for internal scraping, JavaScript rendering, and HTML-to-Markdown processing pipelines.
+- When executing high-accuracy, long-horizon research workloads where source credibility and token conservation are prioritized.
 
 ## When not to use it
-- For simple, internal repository searches (use [ripgrep](../development_ops/ripgrep.md) instead).
-- If your project is 100% offline or requires strict on-premise data boundaries.
-- For extremely high-volume, low-value scraping tasks where cost is the primary constraint.
+- For searching local, on-premises private codebases or file shares (use [ripgrep](../development_ops/ripgrep.md) or custom local embeddings instead).
+- If your system operates in a completely air-gapped, offline, or strictly zero-trust environment.
+- For extremely high-volume, low-value generic web crawling tasks where cost is the absolute limiting factor.
 
 ## Getting started
+Exa AI can be integrated into your applications using the official python library and a registered developer API key.
 
-### Installation
+### 1. Installation
+Install the official Exa PyPI package:
 ```bash
 pip install exa_py
 ```
 
-### Basic Setup
-Get your API key from the [Exa Dashboard](https://dashboard.exa.ai/) and set it as an environment variable:
+### 2. Configure API Key
+Register and obtain an API key from the [Exa Developer Console](https://dashboard.exa.ai/) and set it:
 ```bash
-export EXA_API_KEY="your_api_key_here"
+export EXA_API_KEY="your-exa-api-key"
 ```
 
 ## CLI examples
-Exa can be used via its official CLI or via standard `curl` commands.
+Exa can be queried via standard curl commands or configured via command-line tools.
 
+### Querying the Semantic API with Curl
+Search for specialized articles on Model Context Protocol developments:
 ```bash
-# Search using the Exa CLI
-exa search "LLM observability patterns June 2026" --limit 3
+curl -X POST https://api.exa.ai/search \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $EXA_API_KEY" \
+  -d '{
+    "query": "Model Context Protocol MCP 3.1 implementation patterns",
+    "useAutoprompt": true,
+    "numResults": 3
+  }'
+```
 
-# Fetch contents for a specific URL as markdown
-exa contents https://docs.exa.ai/introduction --text
+### Fetching Parsed Page Contents
+Extract the clean markdown representation of a targeted web address using the REST API:
+```bash
+curl -X POST https://api.exa.ai/contents \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $EXA_API_KEY" \
+  -d '{
+    "urls": ["https://docs.exa.ai/introduction"],
+    "text": true
+  }'
 ```
 
 ## API examples
 
-### Basic Search (Python)
+### Simple Semantic Web Search (Python)
+Use the python client to perform autoprompted queries and retrieve structured results:
 ```python
 from exa_py import Exa
 import os
 
-exa = Exa(os.environ["EXA_API_KEY"])
+# Initialize client
+exa = Exa(api_key=os.getenv("EXA_API_KEY"))
 
-# Search for the latest AI agent frameworks
-results = exa.search(
-  "What are the top 5 open-source agent frameworks in June 2026?",
-  num_results=5,
-  use_autoprompt=True
+# Perform semantic neural search
+response = exa.search(
+    "Best design practices for building secure multi-agent systems in 2026",
+    num_results=3,
+    use_autoprompt=True
 )
 
-for result in results.results:
-  print(f"Title: {result.title}\nURL: {result.url}\n")
+# Parse and display results
+for result in response.results:
+    print(f"Title: {result.title}")
+    print(f"URL: {result.url}")
+    print(f"Published: {result.published_date}\n")
 ```
 
-### Content Extraction
-One of Exa's core strengths is the ability to get clean content directly from search results.
-
+### Combined Search and Highlight Extraction
+Perform a semantic query and retrieve clean markdown text blocks containing the most relevant highlights in a single API call:
 ```python
-# Search and get clean markdown content in one call
-search_and_contents = exa.search_and_contents(
-    "How to set up a LangGraph agent with MCP 3.0",
+# Execute combined search and contents call
+search_results = exa.search_and_contents(
+    "How to configure LangGraph with MCP 3.1 servers",
     num_results=1,
-    text=True # Returns clean parsed text
+    text=True,  # Return clean text
+    highlights={"num_sentences": 3}  # Extract semantic highlights
 )
 
-print(search_and_contents.results[0].text[:500])
+first_result = search_results.results[0]
+print(f"Extracted Content:\n{first_result.text[:500]}")
+print(f"\nSemantic Highlights:\n{first_result.highlights}")
 ```
 
 ## Related tools / concepts
-- [Tavily](tavily.md): A direct competitor also focused on AI search.
-- [Firecrawl](../process_understanding/firecrawl.md): For crawling and scraping specific domains.
-- [Crawl4AI](../process_understanding/crawl4ai.md): An open-source alternative for scraping.
-- [Perplexity](perplexity.md): A consumer-facing research engine with an API.
-- [Google Search](../ai_knowledge/google-search.md): Traditional search with broad coverage, now supporting Agentic Search.
-- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md): The architectural pattern Exa often powers.
-- [LangChain](../ai_knowledge/langchain.md): Frequently uses Exa as a research tool.
-- [MultiOn](../agents/multion.md): Used for web interaction, often following an Exa search.
-- [Jina Reader](../process_understanding/jina-reader.md): For converting URLs to markdown.
+- [Tavily](tavily.md) — Semantic search tailored specifically for LLM agents.
+- [Firecrawl](../process_understanding/firecrawl.md) — Conversion of entire websites to LLM-ready markdown.
+- [Crawl4AI](../process_understanding/crawl4ai.md) — Open-source automated crawling and markdown parsing.
+- [Perplexity](perplexity.md) — Conversational AI search engine and search API provider.
+- [Google Search](../ai_knowledge/google-search.md) — Broad-spectrum search engines supporting modern agent integrations.
+- [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) — Architecture powering generative web-grounded models.
+- [LangChain](../ai_knowledge/langchain.md) — LLM orchestration framework natively supporting Exa integrations.
+- [MultiOn](../agents/multion.md) — Autonomous browser control agent capable of interactive search.
+- [Docling](../process_understanding/docling.md) — High-quality document layout analyzer and parser.
+- [Docling MCP](../process_understanding/docling-mcp.md) — Model Context Protocol wrapper for parsing documents.
+
+## Licensing and cost
+- **Open Source**: The SDKs and integration wrappers are open source (MIT License).
+- **Cost**: Accessing the Exa search engine requires an API key. Exa offers a free starter tier with credits, moving to flexible pay-as-you-go or tier-based monthly enterprise billing.
 
 ## Sources / references
 - [Exa AI Official Website](https://exa.ai/)
-- [Exa Documentation](https://docs.exa.ai/)
-- [Exa Python SDK (GitHub)](https://github.com/exa-labs/exa-py)
-- [Agentic Search Patterns (June 2026)](https://exa.ai/blog/agentic-search)
+- [Exa AI Developer Documentation](https://docs.exa.ai/)
+- [Exa Python Client GitHub Repository](https://github.com/exa-labs/exa-py)
+- [Agentic Search Best Practices (2026 Blog)](https://exa.ai/blog/agentic-search)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-31
 - Confidence: high

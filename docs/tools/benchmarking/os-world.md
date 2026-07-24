@@ -1,100 +1,114 @@
 # OSWorld
 
 ## What it is
-OSWorld is a scalable, real computer environment for benchmarking multimodal agents. It supports task setup, execution-based evaluation, and interactive learning across operating systems like Ubuntu, Windows, and macOS. In June 2026, it is the primary environment for testing 'Computer Use' capabilities of frontier models like Claude 4.8 and GPT-5.5.
+OSWorld is a scalable, real computer environment designed for benchmarking multimodal agents. It supports unified task setup, execution-based evaluation, and interactive reinforcement learning across desktop operating systems such as Ubuntu, Windows, and macOS. It is the premier environment for testing 'Computer Use' and OS-level control capabilities of frontier models.
 
 ## What problem it solves
-Most agent benchmarks are limited to the web or specific applications. OSWorld provides a unified environment for assessing open-ended computer tasks that involve arbitrary desktop applications, file I/O, and workflows spanning multiple apps. It evaluates an agent's ability to act as a 'Digital Twin' or 'Desktop Assistant'.
+Most agent benchmarks are constrained to isolated web sandboxes or mock APIs. OSWorld provides an interactive "OS-in-a-box" environment for assessing open-ended computer tasks that involve arbitrary desktop applications, native file I/O, terminal commands, and workflows spanning multiple programs. It evaluates an agent's ability to act as a 'Digital Twin' or fully autonomous desktop assistant, handling real-world OS noise.
 
 ## Where it fits in the stack
-**Eval / Environment**. It provides both the benchmarking tasks and the interactive "OS-in-a-box" infrastructure for agent testing. It is a key component of the 'Agentic Workbench' testing pipeline.
+**Eval / Environment**. It provides the benchmarking tasks and virtualized runtime infrastructure (Docker, VirtualBox, VMware) required for executing and validating agentic computer control actions. It is a cornerstone of the evaluation layer for testing visual grounding and GUI navigation in VLMs.
 
 ## Typical use cases
-- **Desktop Agent Evaluation**: Testing agents that interact with native OS elements (menus, file explorers, desktop apps).
-- **Multi-app Workflows**: Evaluating tasks that require moving data between a spreadsheet, a browser, and a local text editor.
-- **VLM Grounding**: Benchmarking the visual grounding capabilities of Vision-Language Models (VLMs) on complex GUIs.
-- **Computer Use Research**: Developing new architectures for direct OS interaction without specialized APIs.
+- **Desktop Agent Evaluation**: Benchmarking autonomous agents interacting with native OS elements (e.g., system menus, file managers, desktop configurations).
+- **Multi-App GUI Workflows**: Testing an agent's ability to orchestrate tasks across applications, such as copying data from a spreadsheet, querying a web browser, and generating a local markdown report.
+- **Multimodal Visual Grounding**: Evaluating the ability of Vision-Language Models (VLMs) to translate pixel-level GUI screenshots into accurate click, drag, type, and scroll coordinates.
+- **Computer Use Research**: Training and assessing agents (e.g., Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6) on raw keyboard and mouse control without custom tool-specific APIs.
 
 ## Strengths
-- **Real OS Environments**: Uses VMware, VirtualBox, or Docker to host actual operating systems.
-- **Diverse Tasks**: 369+ tasks derived from real-world computer use cases.
-- **Execution-based Evaluation**: Uses custom scripts to verify the final state of the OS (e.g., "is the file saved in the correct directory?").
-- **Multi-OS**: Includes support for Ubuntu, Windows, and macOS.
-- **High Fidelity**: Captures the complexity of real desktop interactions (drag-and-drop, right-clicks, window management).
+- **Real OS Deployments**: Integrates with actual operating systems (Ubuntu, Windows, macOS) hosted inside secure virtual machines or containers.
+- **Rich Task Suite**: Over 369 diverse tasks modeled after real-world professional workflows.
+- **Execution-based State Verification**: Verifies success by running background scripts that inspect the final state of the file system or application registries rather than simple string-matching on logs.
+- **Comprehensive GUI Event Tracking**: Captures drag-and-drop, right-clicks, keyboard shortcuts, and complex mouse maneuvers.
 
 ## Limitations
-- **Heavy Infrastructure**: Requires virtualization software and significant local/cloud resources to run VM instances.
-- **Setup Complexity**: Initial environment configuration and VM image management can be challenging.
-- **Latency**: Virtualization overhead can introduce latency in agent feedback loops.
+- **Heavy Infrastructure Demands**: Running full virtualization software (VMware/VirtualBox) requires significant local CPU, RAM, and disk resources.
+- **High Setup Friction**: Initial VM image installation, snapshot configuration, and display server configuration can be complex.
+- **Inference Latency**: Incorporating multimodal screenshots into the agent loop can create execution and billing overhead due to massive visual token usage.
 
 ## When to use it
-- When developing "Computer Use" agents (like Claude Computer Use or Open Operator).
-- When you need to test an agent's ability to handle OS-level interactions and native apps.
-- For research into multimodal agentic planning in complex, stateful environments.
+- When developing or testing "Computer Use" agents or visual operating system controllers.
+- When evaluating VLM grounding and coordinate-mapping capabilities on raw desktop interfaces.
+- For academic or enterprise research in multimodal agentic planning, navigation, and self-correction.
 
 ## When not to use it
-- For lightweight testing of pure web agents (use WebArena or AssistantBench).
-- If you lack the hardware resources to run virtual machines.
-- For testing pure text-based reasoning without visual/GUI components.
+- For lightweight, non-visual agent benchmarking (use [GAIA](./gaia.md) or [AssistantBench](./assistant-bench.md) instead).
+- If your development environment lacks the hardware resources to support multiple parallel VM instances.
+- For testing pure text-based reasoning models that do not have visual processing (VLM) inputs.
 
 ## Getting started
-OSWorld is typically run by cloning the repository and setting up a virtual machine environment.
+OSWorld is run by cloning its repository, configuring the hypervisor backend (Docker, VMware, or VirtualBox), and loading the target OS virtual machine images.
 
 ### 1. Installation
+Clone the repository and install the standard dependencies:
 ```bash
 git clone https://github.com/xlang-ai/OSWorld
 cd OSWorld
 pip install -r requirements.txt
 ```
 
-### 2. Environment Setup
-OSWorld supports VMware, VirtualBox, and Docker. Refer to the [official documentation](https://os-world.github.io/) for OS image setup. Ensure you have the required VMX or OVA files for the target OS.
+### 2. Configure VM/Container Backend
+Ensure that Docker is running (for Ubuntu-only tasks) or that VMware/VirtualBox is configured on your host. Download the required virtual machine snapshots as instructed in the OSWorld documentation.
 
 ## CLI examples
 
-### Run a Specific Task
-Evaluate an agent on a single OSWorld task:
+### Executing a Single Task
+Evaluate an agent on a specific Docker-based Ubuntu task using a frontier model:
 ```bash
-python run_task.py --task_id "ubuntu-123" --model "anthropic/claude-4.8" --env_type "docker"
+python run_task.py \
+    --task_id "ubuntu-123" \
+    --model "anthropic/claude-5.1" \
+    --env_type "docker"
 ```
 
-### Batch Evaluation
-Run evaluation across a set of tasks:
+### Running Benchmark Set
+Execute a full evaluation suite against a defined configuration file using a GPT model:
 ```bash
-python run_benchmark.py --config configs/ubuntu_all.json --model "openai/gpt-5.5"
+python run_benchmark.py \
+    --config configs/ubuntu_all.json \
+    --model "openai/gpt-5.5"
 ```
 
-### Recording Trajectories
-Enable video recording of the agent's interaction for later review:
+### Recording Agent Trajectories
+Instruct OSWorld to record video of the desktop interaction for auditability and step-by-step diagnostic review:
 ```bash
-python run_task.py --task_id "windows-456" --record_video --output_dir ./recordings
+python run_task.py \
+    --task_id "windows-456" \
+    --record_video \
+    --output_dir ./recordings/ \
+    --model "meta-llama/llama-4-70b-instruct"
 ```
 
 ## API examples
 
-### Programmatic Environment Interaction
+### Programmatic Environment Setup
+The following python snippet shows how to instantiate the OSWorld environment and step through agent actions programmatically:
 ```python
 from osworld.env import OSWorldEnv
 
-# Initialize the environment
+# Initialize the environment for a Docker-backed Ubuntu task
 env = OSWorldEnv(os_type="ubuntu", backend="docker")
 
-# Reset to a specific task state
+# Reset to load the initial task state and retrieve the screenshot observation
 obs = env.reset(task_id="ubuntu-tasks-1")
 
-# Agent interaction loop (conceptual)
-action = agent.get_action(obs)
+# obs contains: {"screenshot": VLM_compatible_image, "instruction": str_task}
+# action format is a serialized computer command, e.g., mouse_click(x, y)
+action = "mouse_click(450, 300)"
 obs, reward, done, info = env.step(action)
 ```
 
-### Verification Script Example
-OSWorld uses Python scripts to verify task completion:
+### State-Verification Script Structure
+OSWorld executes target verification scripts inside the guest OS to determine task completion:
 ```python
 def verify_task_completion():
     import os
-    # Check if the expected file exists and has correct content
-    if os.path.exists("/home/user/report.pdf"):
-        return True
+    # Success condition: User must have downloaded the correct file and moved it
+    target_path = "/home/user/Desktop/invoice_july_2026.csv"
+    if os.path.exists(target_path):
+        with open(target_path, "r") as f:
+            if "total_due,4500.0" in f.read():
+                return True
     return False
 ```
 
@@ -105,18 +119,20 @@ def verify_task_completion():
 - [Claude Code](../development_ops/claude-code.md) — Agentic CLI for development.
 - [OpenHands](../development_ops/openhands.md) — Agentic software engineering platform.
 - [Terminal-Bench](./terminal-bench.md) — Benchmarking direct shell interactions.
-- [Claude Computer Use](../../knowledge_base/capabilities/claude-computer-use.md) — The foundational capability OSWorld measures.
 - [Inspect AI](./inspect-ai.md) — Framework for running agentic evaluations.
+- [Open WebUI Computer](../automation_orchestration/open-webui-computer.md) — Open workstation interface.
+- [Browser Use](../automation_orchestration/browser-use.md) — Library for web interaction.
+- [Tool Calling & MCP](../../knowledge_base/patterns/tool-calling-and-mcp.md) — Foundational protocol for agent tool use.
 
 ## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free, but requires significant compute/storage for VMs. LLM API costs for multimodal vision can be high.
+- **Open Source**: Yes (Apache 2.0).
+- **Cost**: The benchmark code is completely free. Executing visual GUI agents over multiple tasks requires significant local computing hardware and substantial multimodal LLM API token costs.
 
-## Sources / References
+## Sources / references
 - [OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks (ArXiv)](https://arxiv.org/abs/2404.07972)
 - [OSWorld Project Website](https://os-world.github.io/)
 - [OSWorld GitHub Repository](https://github.com/xlang-ai/OSWorld)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-31
 - Confidence: high
