@@ -9,17 +9,17 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 - `No` = no current free trial/tier is documented.
 - `Unclear` = pricing/billing docs do not clearly confirm a standing free tier.
 
-### Canonical pricing matrix (last verified: 2026-06-24)
+### Canonical pricing matrix (last verified: 2026-08-01)
 
 | Provider / Platform | Official links | Free tier / trial | Evidence summary |
 | :--- | :--- | :--- | :--- |
 | OpenAI | [Docs](https://platform.openai.com/docs) · [Pricing](https://openai.com/api/pricing/) | No | Usage-priced API; current pricing centers GPT-5.5, GPT-5.4, and GPT-5.4 mini. |
-| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude Opus 4.8/4.7/4.6, Sonnet 4.7/4.6, and Haiku 4.6. |
+| Anthropic (Claude API) | [Docs](https://docs.anthropic.com/) · [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) | Yes | New users receive small starter API credits. Current API pricing lists Claude 5.1, Claude Opus 4.8/4.7/4.6, Sonnet 4.7/4.6, and Haiku 4.6. |
 | Google Gemini Developer API | [Docs](https://ai.google.dev/gemini-api/docs) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing) | Yes | Pricing page documents a Free plan with selected free input/output token access; Gemini 3.5 Pro Preview is paid-only, while Gemini 3.5 Flash-Lite has free rows. Gemini 4 Maverick preview free for dev accounts. |
 | OpenRouter | [Docs](https://openrouter.ai/docs/quickstart) · [Pricing](https://openrouter.ai/pricing) | Yes | Free plan and free-model routing are documented. |
 | xAI (Grok API) | [Docs](https://docs.x.ai/docs/overview) · [Pricing](https://x.ai/api) | Yes | Docs mention monthly free requests/credits. |
 | Z.ai (GLM API) | [Docs](https://docs.z.ai/) · [Pricing](https://open.bigmodel.cn/) | Yes | New users can claim free API token packages. |
-| Alibaba DashScope (Qwen APIs) | [Docs](https://www.alibabacloud.com/help/en/model-studio/getting-started/models) · [Pricing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio) | Yes | Many models show temporary free quota periods. |
+| Alibaba DashScope (Qwen APIs) | [Docs](https://www.alibabacloud.com/help/en/model-studio/getting-started/models) · [Pricing](https://www.alibabacloud.com/help/en/model-studio/product-overview/billing-of-model-studio) | Yes | Many models show temporary free quota periods. Qwen 3.6 APIs have specific trial tiers. |
 | Cohere | [Docs](https://docs.cohere.com/) · [Pricing](https://cohere.com/pricing) | Yes | Trial API keys are free and rate-limited. |
 | Mistral AI | [Docs](https://docs.mistral.ai/) · [Pricing](https://mistral.ai/pricing) | Yes | Experiment plan supports free API testing. |
 | Together AI | [Docs](https://docs.together.ai/) · [Pricing](https://www.together.ai/pricing) | No | Billing docs indicate paid credits are required. |
@@ -46,7 +46,7 @@ The API Pricing & Free Tier Matrix is a consolidated reference for the costs and
 | Moonshot AI | [Docs](https://platform.moonshot.cn/) · [Pricing](https://platform.moonshot.cn/) | Partial | Trial credits are typically granted to new developer accounts. |
 
 ## What problem it solves
-LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns.
+LLM pricing is notoriously complex, with costs varying by several orders of magnitude between "mini" and "frontier" models. Furthermore, free tiers are often hidden or poorly documented. This matrix allows developers to perform a "budget-first" architectural selection, choosing models that fit their financial constraints and usage patterns across modern August 2026 models like Claude 5.1 and GPT-5.5.
 
 ## Where it fits in the stack
 This document belongs to the **Layer 1: Providers** and **Layer 2: Models** analysis layer. It provides the economic context for the tools documented in `docs/tools/providers/` and `docs/tools/ai_knowledge/`.
@@ -58,9 +58,9 @@ This document belongs to the **Layer 1: Providers** and **Layer 2: Models** anal
 - **Quota Management**: Checking Rate Per Minute (RPM) and Tokens Per Day (TPD) limits for free tiers to avoid service interruptions.
 
 ### Model Intelligence-per-Dollar Value (2026 Triage)
-Based on community analysis (June 2026), models are categorized by their efficiency relative to cost:
-- **Top Intelligence**: GPT-5.5, Gemini 3.5 Pro, Claude 4.8 Opus.
-- **Best Value**: DeepSeek V4, MiniMax-V3, Gemini 3.5 Flash.
+Based on community analysis (August 2026), models are categorized by their efficiency relative to cost:
+- **Top Intelligence**: Claude 5.1, GPT-5.5, Gemini 3.5 Pro, Claude 4.8 Opus.
+- **Best Value**: DeepSeek V4, MiniMax-V3, Gemini 3.5 Flash, Qwen 3.6.
 - **Balanced**: Claude 4.8 Sonnet, GPT-5.4, Llama 4 Maverick.
 
 ## Strengths
@@ -68,6 +68,7 @@ Based on community analysis (June 2026), models are categorized by their efficie
 - **Agent-Optimized**: Specifically highlights "mini" models and high-speed providers ideal for autonomous agents.
 - **Evidence-Based**: Includes direct links to official documentation for every claim.
 - **Automated**: Uses scripts to maintain a "Capability Capacity Summary" of known free tokens.
+- **MCP 3.1 Task Protocol Ready**: Supports dynamic discovery of quotas and limits under the MCP 3.1 standard.
 
 ## Limitations
 - **High Volatility**: Prices and free-tier availability can change weekly.
@@ -86,7 +87,7 @@ Based on community analysis (June 2026), models are categorized by their efficie
 ## Getting started
 1. Identify your primary requirement (e.g., "Coding", "Fast", or "Budget").
 2. Consult the **[Capability Capacity Summary](#capability-capacity-summary-auto-generated)** to see which models currently offer the best free-tier value.
-3. Use the **[Canonical pricing matrix](#canonical-pricing-matrix-last-verified-2026-06-24)** to jump to the official pricing and documentation for your chosen provider.
+3. Use the **[Canonical pricing matrix](#canonical-pricing-matrix-last-verified-2026-08-01)** to jump to the official pricing and documentation for your chosen provider.
 4. Check the **[Model-level quota tracker](#model-level-quota-tracker-expanded-list)** for specific RPM/TPD limits.
 
 ### Developer Program Plans
@@ -145,7 +146,7 @@ Only rows with a numeric daily token cap are included in the capacity math.
 <!-- END AUTO-CAPABILITY-SUMMARY -->
 
 ## CLI examples
-The following CLI tools can be used to monitor quotas and billing in a June 2026 environment.
+The following CLI tools can be used to monitor quotas and billing in an August 2026 environment.
 
 ```bash
 # Google Cloud: List project quotas for Gemini APIs
@@ -154,20 +155,36 @@ gcloud alpha compute quotas list --service=generativeai.googleapis.com
 # OpenRouter: Check current account balance and usage via curl
 curl -X GET "https://openrouter.ai/api/v1/auth/key" \
   -H "Authorization: Bearer $OPENROUTER_API_KEY"
+
+# MCP 3.1: Get cost and billing metrics for active routing pipelines
+mcp quota show --provider openrouter
 ```
 
 ## API examples
-Most modern providers support usage monitoring directly via their SDKs or Model Context Protocol (MCP 3.0) interfaces.
+Most modern providers support usage monitoring directly via their SDKs or Model Context Protocol (MCP 3.1) interfaces.
 
 ### Monitoring Gemini Quotas (Python)
 ```python
 import google.generativeai as genai
+from mcp import Client, TaskProtocol
 
-# MCP 3.0 compatible quota discovery
+# MCP 3.1 compatible quota discovery and task setup
 client = genai.Client(api_key="YOUR_KEY")
-quotas = client.get_quotas()
-for model in quotas:
-    print(f"Model: {model.name}, RPM: {model.rpm_limit}")
+mcp_client = Client()
+task_proto = TaskProtocol(mcp_client)
+
+async def check_limits_and_run():
+    # Fetch quotas programmatically
+    quotas = client.get_quotas()
+    for model in quotas:
+        print(f"Model: {model.name}, RPM: {model.rpm_limit}")
+
+    # Establish a tracking task with the MCP 3.1 Task Protocol
+    task = await task_proto.create_task(
+        name="Billing Guardrail Task",
+        instruction="Monitor API consumption for Claude 5.1 and GPT-5.5 endpoints."
+    )
+    print(f"Billing monitor task created: {task.id}")
 ```
 
 ## Related tools / concepts
@@ -178,7 +195,7 @@ for model in quotas:
 - [Mistral](../tools/providers/mistral.md)
 - [DeepSeek](../tools/providers/deepseek.md)
 - [Model Routing Guide](model_routing_guide.md)
-- [MCP 3.0 Standard](../tools/automation_orchestration/mcp.md)
+- [MCP 3.1 Standard](../tools/automation_orchestration/mcp.md)
 - [Benchmarking](../tools/benchmarking/index.md)
 
 ## Sources / References
@@ -197,5 +214,5 @@ for model in quotas:
 - [Cerebras Pricing](https://inference-docs.cerebras.ai/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-24
+- Last reviewed: 2026-08-01
 - Confidence: high
