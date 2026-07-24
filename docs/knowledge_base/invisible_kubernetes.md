@@ -1,7 +1,7 @@
 # Invisible Kubernetes
 
 ## What it is
-"Invisible Kubernetes" is an architectural movement and set of platform features designed to abstract the operational complexity of Kubernetes away from developers. It treats Kubernetes as a background utility—similar to how most users interact with the Linux kernel—rather than a platform requiring manual management. By June 2026, this has evolved into "Autonomous Infrastructure" where SRE agents like Claude 4.8 and GPT-5.5 manage the cluster lifecycle.
+"Invisible Kubernetes" is an architectural movement and set of platform features designed to abstract the operational complexity of Kubernetes away from developers. It treats Kubernetes as a background utility—similar to how most users interact with the Linux kernel—rather than a platform requiring manual management. By late August 2026, this has evolved into "Autonomous Infrastructure" where SRE agents like Claude 5.1 and GPT-5.5 manage the cluster lifecycle.
 
 ## What problem it solves
 Kubernetes is notoriously complex to manage, requiring deep expertise in networking, storage, and node orchestration. This "operational toil" distracts teams from building applications. Invisible Kubernetes solves this by:
@@ -23,7 +23,7 @@ It sits at the **Infrastructure Orchestration Layer**, serving as a managed or a
 - **Reduced Complexity**: Lower barrier to entry for developers and non-specialists.
 - **Operational Efficiency**: Automates patching, scaling, and node termination.
 - **Cost Optimization**: Right-sizes infrastructure in real-time via request-based scaling (Karpenter).
-- **Agent-Ready**: Natively supports the high-burst requirements of models like Claude 4.8 Opus.
+- **Agent-Ready**: Natively supports the high-burst requirements of models like Claude 5.1.
 - **Security**: Reduces human error in configuration and enforces immutable infrastructure patterns.
 
 ## Limitations
@@ -48,7 +48,7 @@ To implement "Invisible Kubernetes" patterns today:
 2.  **Deploy Karpenter**: For autonomous, request-based node scaling on any cloud provider or on-prem (with Cluster API).
 3.  **Implement Sidecarless Mesh**: Use Istio Ambient Mesh or Cilium to make networking and security transparent.
 4.  **Adopt Talos OS**: For an API-driven, immutable Linux distribution that makes the OS "invisible."
-5.  **Integrate MCP**: Use Model Context Protocol to give agents like Claude 4.8 direct visibility into cluster state for autonomous remediation.
+5.  **Integrate MCP**: Use Model Context Protocol (MCP 3.1) to give agents like Claude 5.1 direct visibility into cluster state for autonomous remediation.
 
 ## CLI examples
 
@@ -63,7 +63,7 @@ aws eks create-cluster \
 ```
 
 ### Karpenter NodePool Definition
-Karpenter abstracts node groups into declarative NodePools:
+Karpenter abstracts node groups into declarative NodePools (v1.2+ format):
 ```yaml
 # nodepool.yaml
 apiVersion: karpenter.sh/v1beta1
@@ -122,7 +122,7 @@ def trigger_scaling_burst(namespace="default"):
         "spec": {
             "containers": [{
                 "name": "worker",
-                "image": "claude-4.8-runtime:latest",
+                "image": "claude-5.1-runtime:latest",
                 "resources": {
                     "requests": {"cpu": "32", "memory": "128Gi"}
                 }
@@ -157,5 +157,5 @@ def trigger_scaling_burst(namespace="default"):
 - [EKS Auto Mode Documentation (AWS, 2026)](https://docs.aws.amazon.com/eks/latest/userguide/auto-mode.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-05
 - Confidence: high
