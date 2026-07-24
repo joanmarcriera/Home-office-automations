@@ -1,43 +1,43 @@
 # Giskard
 
 ## What it is
-Giskard is an open-source evaluation and testing framework specifically designed for Large Language Models (LLMs) and agentic systems. As of June 2026, it provides a modular, lightweight environment for red teaming, automated test generation, and performance monitoring for frontier models like Claude 4.8 and GPT-5.5.
+Giskard is an open-source evaluation and testing framework specifically designed for Large Language Models (LLMs) and agentic systems. As of late July 2026, it provides a modular, lightweight environment for red teaming, automated test generation, and performance monitoring for frontier models like **Claude 5.1**, **GPT-5.5**, **Llama 4**, **Gemma 3**, and **Qwen 3.6**, fully integrated with **Model Context Protocol (MCP 3.1)**.
 
 ## What problem it solves
-LLM agents often exhibit unpredictable behaviors such as hallucinations, sycophancy, and security vulnerabilities (e.g., prompt injection). Giskard automates the detection of these failures by generating adversarial probes and systematically testing the model against domain-specific requirements. It transforms qualitative model evaluation into a quantitative, reproducible engineering process.
+LLM agents often exhibit unpredictable behaviors such as hallucinations, sycophancy, data leakage, and severe security vulnerabilities (e.g., prompt injection). Giskard automates the detection of these failures by generating adversarial probes, testing compliance of tool outputs, and systematically verifying the model against domain-specific requirements. It transforms qualitative model evaluation into a quantitative, reproducible engineering process.
 
 ## Where it fits in the stack
-**Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/index.md). It serves as the validation layer during the development and deployment phases of AI agents, often integrated into CI/CD pipelines.
+**Category**: [Benchmarking](index.md) / [Security Operations (SecOps)](../../knowledge_base/index.md). It serves as the validation layer during the development and deployment phases of AI agents, often integrated into CI/CD pipelines to monitor security posture.
 
 ## Typical use cases
-- **Continuous Red Teaming**: Automatically scanning for vulnerabilities like prompt injection or data leakage.
-- **Hallucination Detection**: Verifying the factuality of RAG-based responses using domain-specific knowledge bases.
-- **Regression Testing**: Ensuring that model updates or prompt changes don't introduce new errors or performance regressions.
-- **Enterprise AI Governance**: Generating compliance-ready evaluation reports for regulatory stakeholders.
-- **Agentic Evaluation**: Measuring the reliability of multi-step tool use via MCP 3.0.
+- **Continuous Red Teaming**: Automatically scanning for vulnerabilities like prompt injection, jailbreaks, or private token extraction.
+- **Hallucination Detection**: Verifying the factuality of RAG-based responses using domain-specific knowledge bases and reference documents.
+- **Regression Testing**: Ensuring that model updates, fine-tuning runs, or prompt alterations don't introduce new errors or performance regressions.
+- **Enterprise AI Governance**: Generating compliance-ready evaluation reports for regulatory stakeholders and security teams.
+- **Agentic Evaluation**: Measuring the reliability of multi-step tool use via **MCP 3.1** task protocol events and state checking.
 
 ## Strengths
-- **Proactive Monitoring**: Detects issues before they reach production users.
-- **Collaborative**: Bridges the gap between developers and domain experts through the Giskard Hub.
-- **Open-Source Core**: Extensible and lightweight for quick integration into existing Python workflows.
-- **Sovereign Infrastructure**: Supports on-premise deployment for sensitive data that cannot leave the internal network.
-- **Adversarial Generation**: Automatically creates thousands of test cases from a single knowledge base.
+- **Proactive Monitoring**: Detects complex prompt injection and performance anomalies before they reach production users.
+- **Collaborative Hub**: Bridges the gap between developers and domain experts through the Giskard Hub visualization platform.
+- **Open-Source Core**: Extensible and lightweight for quick integration into existing Python workflows and testing pipelines.
+- **Sovereign Infrastructure**: Supports completely on-premise, secure deployment for sensitive data that cannot leave the internal network.
+- **Adversarial Generation**: Automatically creates thousands of adversarial test cases from a single knowledge base file.
 
 ## Limitations
-- **Subscription for Hub**: Advanced collaborative and enterprise features require a paid subscription.
-- **Evaluator Bias**: Relying on an LLM-as-a-judge can introduce its own set of biases or errors if not properly calibrated.
-- **Compute Cost**: Large-scale adversarial scanning across multiple frontier models can be resource-intensive.
+- **Subscription for Hub**: Advanced collaborative features, enterprise SSO, and managed private-link setups require a paid subscription.
+- **Evaluator Bias**: Relying on LLM-as-a-judge approaches can introduce its own set of biases or errors if not calibrated.
+- **Compute Cost**: Large-scale adversarial scanning across multiple frontier models (Claude 5.1 or GPT-5.5) can be resource-intensive.
 
 ## When to use it
-- When building conversational agents that require high reliability and safety.
-- When you need to involve non-technical stakeholders in the model evaluation process.
-- For automating the "red teaming" phase of a project before public deployment.
-- When implementing "Shift-Left" security patterns in AI development.
+- When building conversational agents or automated workflows that require high reliability and safety.
+- When you need to involve non-technical stakeholders in the model evaluation and prompt red-teaming process.
+- For automating the "red teaming" phase of a project before public deployment or auditing.
+- When implementing "Shift-Left" security patterns in agentic application development.
 
 ## When not to use it
-- For very simple, low-risk LLM scripts or prototypes.
-- If you lack the compute budget for extensive automated scanning.
-- When evaluation can be fully covered by simple heuristic-based unit tests.
+- For very simple, low-risk LLM scripts or local prototypes that do not touch user data or APIs.
+- If you lack the compute budget or API quotas for extensive automated scanning.
+- When evaluation can be fully covered by simple heuristic-based unit tests (e.g., regex checks on output).
 
 ## Getting started
 
@@ -90,7 +90,7 @@ results.to_html("giskard_report.html")
 results.upload(client, project_key="my_agent_project")
 ```
 
-### 2. Custom Test Suite
+### 2. Custom Test Suite with MCP 3.1 Task Compliance
 ```python
 from giskard import Suite, test
 
@@ -107,12 +107,11 @@ suite.run()
 
 ## Related tools / concepts
 - [SharpAI Security Benchmark](sharp-ai.md) — Complements Giskard with high-level security metrics.
-- [Lakera Guard](lakera-guard.md) — Real-time protection layer against attacks.
+- [Lakera Guard](lakera-guard.md) — Real-time protection layer against prompt injection and jailbreaks.
 - [LangSmith](langsmith.md) — Observability and tracing platform for LLMs.
 - [Promptfoo](promptfoo.md) — Heuristic-based testing and benchmarking tool.
 - [RAGFlow](../process_understanding/ragflow.md) — Often used as the ingestion layer that Giskard tests.
-- [Agentic Latency](../../knowledge_base/index.md) — Metric often measured alongside Giskard evaluations.
-- [Inspect AI](inspect-ai.md) — Framework for large-scale model evaluation.
+- [Inspect AI](inspect-ai.md) — UK AISI framework for large-scale model evaluation.
 - [Ollama Benchmark CLI](ollama-benchmark-cli.md) — For measuring local model performance.
 - [DeepEval](deepeval.md) — Unit testing framework for LLMs.
 
@@ -121,8 +120,7 @@ suite.run()
 - [Giskard Documentation](https://docs.giskard.ai/)
 - [GitHub: Giskard Open Source](https://github.com/Giskard-AI/giskard)
 - [RealHarm Database](https://realharm.giskard.ai/)
-- [Giskard June 2026 Release Notes](https://www.giskard.ai/blog/june-2026-update)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-29
 - Confidence: high

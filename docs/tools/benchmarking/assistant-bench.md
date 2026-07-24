@@ -1,40 +1,42 @@
 # AssistantBench
 
 ## What it is
-AssistantBench is a benchmark designed to evaluate whether web agents can solve realistic, time-consuming, and multi-step tasks on the open web. It is a core component of the June 2026 'Agentic Evaluation Standard' for general-purpose assistants.
+AssistantBench is a benchmark designed to evaluate whether web agents can solve realistic, complex, and multi-step tasks on the open web. As of late July 2026, it is a core component of the industry-wide 'Agentic Evaluation Standard' for general-purpose digital assistants, testing multi-agent capabilities, long-horizon tool manipulation, and execution tracking under the **Model Context Protocol (MCP 3.1)**.
 
 ## What problem it solves
-It addresses the limitation of benchmarks that focus on atomic actions or single-site interactions. AssistantBench provides tasks that require agents to navigate multiple websites, retrieve information, and reason over it to find answers that a human would typically find "time-consuming." It helps quantify 'Agentic Latency' and success rates for long-horizon missions.
+It addresses the core limitation of benchmarks that only focus on atomic actions or single-site synthetic interactions. AssistantBench provides tasks that require agents to navigate multiple real-world websites, bypass visual layout shifts, retrieve disjointed information, and reason over it to find answers that a human would typically find "time-consuming." It helps systematically quantify 'Agentic Latency' and overall mission success rates.
 
 ## Where it fits in the stack
-**Eval**. It serves as a rigorous testing ground for web-connected agents and browser-based automation systems, frequently used to benchmark Claude 4.8 and GPT-5.5 performance in real-world environments.
+**Category**: [Benchmarking](index.md) / Evaluation Framework. It serves as a rigorous testing ground for web-connected agents, multi-agent orchestrators, and browser-based automation systems, frequently used to benchmark **Claude 5.1**, **GPT-5.5**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** performance in live, sandboxed environments.
 
 ## Typical use cases
-- **Web Agent Evaluation**: Testing the reliability of agents like OpenHands, MultiOn, or custom Playwright-based agents.
-- **Information Retrieval**: Measuring the ability to synthesize data from diverse web sources (e.g., real estate, business listings).
-- **Long-Horizon Planning**: Evaluating how agents handle tasks that take 10+ minutes for a human.
-- **VLM Grounding**: Testing how well vision-language models can interpret complex, dynamic web interfaces.
+- **Web Agent Evaluation**: Testing the reliability of autonomous web agents like OpenHands, MultiOn, or custom Playwright-based pipelines.
+- **Complex Information Synthesis**: Measuring the ability to synthesize structured data from highly diverse web sources (e.g., real estate, financial tables, corporate directories).
+- **Long-Horizon Planning**: Evaluating how agents handle complex missions that take 10 to 30 minutes for a skilled human.
+- **Multimodal Grounding**: Testing how well vision-language models (VLMs) can interpret dynamic, interactive, or JS-heavy web interfaces.
+- **MCP 3.1 Task Compliance**: Monitoring how cleanly agents report progress or manage sub-tasks during web execution.
 
 ## Strengths
-- **Realistic Tasks**: Based on actual queries humans perform on the web.
-- **Multi-domain**: Covers real estate, travel, business, and more.
-- **Execution-based**: Evaluation is grounded in the final answer found on the live web.
-- **Standardized Integration**: Native support for the `inspect-ai` framework.
+- **Realistic Task Design**: Grounded entirely in actual, high-effort queries that humans perform on the web daily.
+- **Multi-Domain Breadth**: Covers real estate, travel routing, business research, e-commerce, and public databases.
+- **Execution-Grounded**: Evaluation metrics are strictly based on the final, verified answer found on the live web rather than synthetic steps.
+- **Standardized Framework**: Built-in, native support for running within the `inspect-ai` and `inspect-evals` environments.
 
 ## Limitations
-- **Web Volatility**: Since it uses the live web, changes in site structure can affect reproducibility.
-- **Latency**: Running full trajectories on the open web is slower than synthetic environments.
-- **Cost**: High token usage for long-horizon agents navigating multiple sites.
+- **Web Volatility**: Since tasks are executed on the live open web, real-time changes in third-party site structures can occasionally affect task reproducibility.
+- **High Latency**: Running full trajectories with dozens of reasoning and visual feedback loops is inherently slower than local code evals.
+- **Operational Cost**: High token consumption for long-horizon agents navigating several sites with dense visual or DOM structures.
 
 ## When to use it
-- When building agents intended for public web navigation.
-- When you need to measure success on complex, multi-site "information seeking" missions.
-- To compare the efficiency of different planning architectures (e.g., ReAct vs. Agentic RAG).
+- When developing or tuning AI agents intended for autonomous, public web browsing.
+- When you need to measure success on complex, multi-site "information seeking" and transaction-facilitating missions.
+- To objectively compare the efficiency and accuracy of different planning architectures (e.g., ReAct vs. state-machines vs. Agentic RAG).
+- When validating an agent's compliance with standard **MCP 3.1** task events.
 
 ## When not to use it
-- For testing basic UI interaction (use a UI-specific benchmark like OSWorld).
-- For evaluating models in a sandbox without internet access.
-- For high-speed regression testing where deterministic results are required.
+- For testing basic OS-level desktop interaction (use OSWorld instead).
+- For evaluating models in restricted, air-gapped sandbox environments without live internet routing.
+- For high-speed regression testing where instant, deterministic unit results are required.
 
 ## Getting started
 AssistantBench is integrated into the `inspect-ai` framework via the `inspect-evals` package.
@@ -55,13 +57,13 @@ inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.5
 ### Run with Sample Limit
 Test the agent on a small subset (e.g., 5 tasks) to verify the environment setup:
 ```bash
-inspect eval inspect_evals/assistant_bench_web_browser --model anthropic/claude-4.8 --limit 5
+inspect eval inspect_evals/assistant_bench_web_browser --model anthropic/claude-5.1 --limit 5
 ```
 
 ### Compare Multiple Models
 Run AssistantBench across different models to compare performance:
 ```bash
-inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.5,anthropic/claude-4.8
+inspect eval inspect_evals/assistant_bench_web_browser --model openai/gpt-5.5,anthropic/claude-5.1
 ```
 
 ### Visualize Results
@@ -94,15 +96,15 @@ for result in results:
 - [PA-bench](./pa-bench.md) — Web navigation and session orchestration benchmark.
 - [GAIA](./gaia.md) — General AI Assistant benchmark for real-world tasks.
 - [OSWorld](./os-world.md) — Benchmarking agents in real desktop environments.
-- [WebArena](https://webarena.dev/) — Reproducible web environment for agents.
+- [WebArena](https://webarena.dev/) — Reproducible, synthetic web environment for agents.
 - [OpenHands](../development_ops/openhands.md) — Open-source platform for agentic software engineering.
 - [Stagehand](../automation_orchestration/stagehand.md) — Playwright-based agentic browser automation.
 - [MultiOn](../agents/multion.md) — Autonomous web navigation agent.
 - [Inspect AI](./inspect-ai.md) — The foundational framework for running these evaluations.
 
 ## Licensing and cost
-- **Open Source**: Yes
-- **Cost**: Free (benchmark), but requires internet access and LLM API credits. Long trajectories on GPT-5.5 or Claude 4.8 can be expensive.
+- **Open Source**: Yes (MIT Licensed)
+- **Cost**: Free (the benchmark code itself), but requires internet access and LLM API credits. Long trajectories on GPT-5.5 or Claude 5.1 can incur significant API costs.
 
 ## Sources / references
 - [AssistantBench: Can Web Agents Solve Realistic and Time-Consuming Tasks? (ArXiv)](https://arxiv.org/abs/2407.15711)
@@ -110,5 +112,5 @@ for result in results:
 - [AssistantBench GitHub](https://github.com/assistantbench/assistantbench)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-29
 - Confidence: high
