@@ -1,97 +1,104 @@
 # GAIA (General AI Assistants)
 
 ## What it is
-GAIA (General AI Assistants) is a benchmark designed to evaluate General AI Assistants. It consists of 450 non-trivial questions that are conceptually simple for humans but challenging for most advanced AI systems. It is the gold standard for measuring 'System 2' reasoning in agents as of June 2026.
+GAIA (General AI Assistants) is a benchmark designed to evaluate General AI Assistants on non-trivial, multi-modal tasks. It consists of 450 carefully designed, high-fidelity questions that are conceptually simple for humans but extremely challenging for the most advanced AI systems. It is the gold standard for measuring 'System 2' reasoning, tool use, and long-horizon planning in autonomous agents.
 
 ## What problem it solves
-Existing benchmarks often focus on narrow tasks or synthetic reasoning. GAIA targets real-world tasks that require fundamental abilities such as reasoning, multi-modality handling, web browsing, and tool-use proficiency. It aims to measure how well an agent can function as a general-purpose assistant, effectively identifying the 'reasoning gap' in frontier models.
+Existing benchmarks often focus on synthetic reasoning, code syntax, or closed-book trivia. GAIA targets real-world, open-ended tasks that require fundamental human-like abilities: complex reasoning, multi-modality handling (text, spreadsheets, images, PDFs, audio), web browsing, and programmatic tool execution. It exposes the 'reasoning gap' in frontier models, serving as a reliable metric of actual operational utility.
 
 ## Where it fits in the stack
-**Eval**. It provides a high-signal benchmark for testing autonomous agents and LLMs on multi-step, real-world tasks. It is frequently used to validate the 'Agentic Core' of systems built on Claude 4.8 and GPT-5.5.
+**Eval / Benchmarking**. It provides a high-signal evaluation standard for testing autonomous agents, VLMs, and multi-agent workflows. It is used to validate the 'Agentic Core' of systems built on frontier LLMs such as Claude 5.1 and GPT-5.5.
 
 ## Typical use cases
-- **Agent Benchmarking**: Comparing the performance of different agent architectures on realistic assistant tasks.
-- **Tool-Use Proficiency**: Measuring an agent's ability to select and use external tools (browsers, interpreters, MCP 3.0 servers) correctly.
-- **Reasoning Evaluation**: Testing long-horizon reasoning and planning in open-ended environments.
-- **VLM Testing**: Benchmarking the vision capabilities of models when interacting with complex documents and images.
+- **Agent Architecture Benchmarking**: Comparing the performance of different agent runtimes and planning frameworks on realistic assistant tasks.
+- **Multimodal VLM Testing**: Benchmarking the vision and document-understanding capabilities of multimodal models when interacting with complex charts, PDFs, and media assets.
+- **Tool-Calling Verification**: Measuring an agent's ability to select, configure, and execute tools (e.g., Python interpreters, web browsers, and Model Context Protocol MCP 3.1 servers) correctly.
+- **Long-Horizon Planning**: Evaluating an agent's ability to maintain state and recover from execution failures over multi-step tasks.
 
 ## Strengths
-- **Non-synthetic**: Questions are grounded in real-world scenarios.
-- **Ease for Humans**: Tasks are generally easy for a human to complete in a few minutes, making the performance gap with AIs very clear.
-- **Multi-modal**: Requires handling text, images, and other file formats.
-- **Robustness**: Designed to be hard to solve via pure memorization or "cheating" through data contamination.
+- **Non-synthetic & Real-World**: Tasks are grounded in actual web, document, and system scenarios.
+- **Low Effort for Humans, High for AI**: Tasks are easily resolvable by a human in minutes, yet yield low scores for modern AI systems, clearly showing the agentic performance gap.
+- **Contamination Resistant**: Questions require active reasoning, file processing, and execution rather than memory retrieval, making them highly resistant to pre-training memorization.
+- **Diverse Modalities**: Integrates multimodal inputs (spreadsheets, audio files, images, PDFs) natively.
 
 ## Limitations
-- **Evaluation Difficulty**: Requires execution-based evaluation or human-in-the-loop for complex open-ended responses.
-- **Environment Dependency**: Web-based tasks are subject to site changes.
-- **High Friction**: Level 3 tasks can take significant time and API costs for agents to attempt.
+- **High API Execution Costs**: Running multi-step agent loops on GAIA tasks can incur significant LLM token costs.
+- **Environment Fragility**: Web-browsing tasks can fail if target live websites change their layout, structure, or access controls.
+- **Complex Sandbox Requirements**: Requires a robust sandbox environment (e.g., Docker) to safely run file operations and python tool executions.
 
 ## When to use it
-- When you want to evaluate the "generalist" capability of an AI agent.
-- When you need a benchmark that goes beyond simple RAG or coding.
-- To measure progress in autonomous planning and tool execution.
+- When evaluating the operational "generalist" and multi-modal capacity of an AI agent.
+- To measure the performance improvements of multi-step planning or self-correction algorithms.
+- When benchmarking an agent's integration with real-world file-parsing and execution tools.
 
 ## When not to use it
-- For testing very specific domain expertise (e.g., medical, legal) unless it falls under general assistant tasks.
-- For lightweight testing where a simpler benchmark (like MMLU-Pro) suffices.
-- For low-latency regression testing.
+- For testing domain-specific expertise (such as medical, legal, or advanced financial compliance) unless it falls under general digital assistant skills.
+- For lightweight or low-latency regression testing (use simpler benchmarks like MMLU-Pro instead).
+- For evaluating base foundational models that have not been instruction-aligned or agent-tuned.
 
 ## Getting started
-GAIA evaluations are primarily executed using the `inspect-ai` framework, which provides a standardized environment for agentic benchmarks.
+GAIA evaluations are typically orchestrated using the `inspect-ai` evaluation framework, which provides a structured sandboxed runner for executing agent benchmarks.
 
 ### 1. Installation
+Install the `inspect-ai` framework along with the standardized `inspect-evals` package:
 ```bash
 pip install inspect-ai inspect-evals
 ```
 
-### 2. Basic Evaluation
-Run the full GAIA validation set against a model:
+### 2. Configure Environment
+Set up your LLM API keys and configure docker for safe execution of agent actions:
 ```bash
-inspect eval inspect_evals/gaia --model openai/gpt-5.5
+export ANTHROPIC_API_KEY="your-api-key"
+export OPENAI_API_KEY="your-api-key"
 ```
 
 ## CLI examples
 
-### Run Specific Difficulty Levels
-GAIA is divided into levels 1, 2, and 3. You can run them individually:
+### Running GAIA Evaluations via Inspect
+Run the full GAIA validation suite against a frontier model:
 ```bash
-# Run only Level 1 (easiest)
-inspect eval inspect_evals/gaia_level1 --model anthropic/claude-4.8
-
-# Run only Level 3 (hardest)
-inspect eval inspect_evals/gaia_level3 --model anthropic/claude-4.8
+inspect eval inspect_evals/gaia --model anthropic/claude-5.1
 ```
 
-### Limit Samples and Parallelism
-For faster testing, limit the number of samples and control connection limits:
+### Filtering by Difficulty Levels
+GAIA categorizes questions into three difficulty levels. You can target specific subsets to save cost or test specialized agent traits:
 ```bash
-inspect eval inspect_evals/gaia --limit 10 --max-connections 5 --model openai/gpt-5.5
+# Evaluate Level 1 (easiest, basic tool use)
+inspect eval inspect_evals/gaia_level1 --model openai/gpt-5.5
+
+# Evaluate Level 3 (hardest, multi-step long-horizon reasoning)
+inspect eval inspect_evals/gaia_level3 --model anthropic/claude-5.1
 ```
 
-### Use Custom Prompts
-Override the default prompt template to test different agent instructions:
+### Running with Limited Samples
+For faster feedback loops, limit the evaluation to a subset of samples:
 ```bash
-inspect eval inspect_evals/gaia --model openai/gpt-5.5 -K input_prompt="Answer this: {question} using the provided file: {file}"
+inspect eval inspect_evals/gaia_level2 --limit 5 --model meta-llama/llama-4-70b-instruct
 ```
 
 ## API examples
-You can integrate GAIA into your own Python evaluation pipelines using the Inspect API.
+You can execute and custom-parse GAIA evaluations programmatically using the Inspect Python API.
 
-### Minimal Evaluation Script
+### Custom Evaluator Pipeline
 ```python
 from inspect_ai import eval
 from inspect_evals.gaia import gaia
 
-# Run GAIA validation set
+# Execute validation on GAIA programmatically
 results = eval(
     gaia(split="validation", subset="2023_all"),
-    model="openai/gpt-5.5",
-    limit=5
+    model="anthropic/claude-5.1",
+    limit=10,
+    max_tasks=2
 )
 
-# Access results
-for result in results:
-    print(f"Task ID: {result.sample_id}, Score: {result.scores['accuracy'].value}")
+# Extract and output performance statistics
+for task in results:
+    print(f"Task ID: {task.sample_id}")
+    print(f"Status: {task.status}")
+    if task.scores:
+        accuracy = task.scores.get("accuracy")
+        print(f"Score: {accuracy.value if accuracy else 'N/A'}")
 ```
 
 ## Related tools / concepts
@@ -104,14 +111,14 @@ for result in results:
 - [Inspect AI](./inspect-ai.md) — The framework used to run GAIA.
 
 ## Licensing and cost
-- **Open Source**: Yes (Apache 2.0 / CC-BY-SA 4.0)
-- **Cost**: Free to use the benchmark, but requires LLM API credits. High-level tasks can be expensive due to multiple tool calls.
+- **Open Source**: Yes (CC-BY-SA 4.0).
+- **Cost**: The benchmark dataset and evaluation software are open source. Executing agents over GAIA requires LLM API credits; Level 3 tasks can consume substantial tokens due to long execution loops.
 
-## Sources / References
+## Sources / references
 - [GAIA: A Benchmark for General AI Assistants (ArXiv)](https://arxiv.org/abs/2311.12983)
 - [GAIA Project Website](https://gaia-benchmark.github.io/)
 - [GAIA Leaderboard (Hugging Face)](https://huggingface.co/spaces/gaia-benchmark/leaderboard)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-23
+- Last reviewed: 2026-07-31
 - Confidence: high
