@@ -1,5 +1,58 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-24
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 📌 **OpenAI expands ChatGPT into Health**: Eligible U.S. users can now securely connect medical records and Apple Health for personalized health insights.
+* 🔥 **Black Forest Labs releases FLUX 3**: A major leap in multimodal flow models, reportedly outperforming Gemini Omni and Grok Imagine, alongside a new video-action robotics model.
+* 🏢 **DeepSeek's AGI Pivot**: Founder Liang Wenfeng reveals that DeepSeek is prioritizing the pursuit of AGI over commercialization and user growth.
+* ⚖️ **Geopolitical AI Tension**: A coalition of ~200 startups (The Little Tech Association) is urging the U.S. government not to ban Chinese open-weight AI models.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier Models
+* **FLUX 3 (Black Forest Labs)**: New multimodal flow models that claim to beat Seedance 2.0, Gemini Omni, and Grok Imagine. Also includes a FLUX-mimic model for robotics. [Latent Space](https://www.latent.space/p/ainews-black-forest-labs-flux-3-multimodal)
+* **AntLing-3.0-flash**: A hybrid-reasoning MoE model designed for production agents. Now live and free on OpenRouter through August 2026. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v4m5cr/antling30flash_is_now_live_on_openrouter_and_free/)
+* **Apertus-v1.5 (8B & 70B)**: A fully open, transparent multilingual and multimodal model family supporting contexts up to 262k tokens. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v539p8/swissaiapertusv15_70b8b/)
+
+### Local LLM Updates
+* **Laguna-S-2.1**: Users report "thinking loops" are likely quantization artifacts; switching to **APEX quants** and updated chat templates is recommended for stability. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v4p2f9/lagunas21_thinking_forever_loops_seem_to_be_a/)
+* **Qwen 3.6 35B MoE**: Community reports of successful deployment on edge devices (Xiaomi 12 Pro) and high-speed inference (55 tok/s) on RTX 5060 Ti. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v4q5gm/running_qwen_36_35b_moe_q4_k_m_on_a_zeus_xiaomi/)
+
+---
+
+## 🛠️ Tools & Agents
+
+* **audio.cpp Release 0.4**: Now features Higgs Audio v3 TTS 4B (10x real-time) and Fish Audio S2 Pro, with GGUF becoming a first-class citizen. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v4w5cj/audiocpp_release_04_higgs_audio_v3_tts_4b_10x/)
+* **HuggingHack**: A local Hugging Face project has officially migrated to GitHub. [GitHub](https://github.com/tyedalwaves/HuggingHack/)
+* **Model Routers**: Cursor (recently acquired by SpaceX), Ramp, and Meta are all developing model routers to optimize LLM selection. [The New Stack](https://thenewstack.io/cursor-ramp-meta-model-router/)
+* **Expedia's STAR**: An internal AI-assisted observability platform using FastAPI and Langfuse to accelerate production incident investigation. [InfoQ](https://www.infoq.com/news/2026/07/expedia-ai-observability-star/)
+
+---
+
+## 🔬 Research & Hardware
+
+* **Nvidia DNA Model**: A new model using JEPA (Joint-Embedding Predictive Architecture) to learn genomic patterns that standard token prediction misses. [The New Stack](https://thenewstack.io/nvidia-jepa-dna-genomics/)
+* **Apple M5 Optimization**: Early findings suggest the M5's matmul cores are underutilized; custom w8a8 kernels have shown a 1.4x speedup in Gemma 4 prefill tasks. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v4iw0n/apple_m5_isnt_making_full_use_of_its_matmul_cores/)
+* **MLIR Tour**: A deep dive into the Dialect Stack that underpins much of modern ML compilation. [Hiraditya Blog](https://hiraditya.github.io/posts/mlir-dialect-stack-for-ml/)
+* **Distillation Debate**: Heated discussions on r/LocalLLaMA regarding the legality and technical feasibility of "distilling" knowledge from frontier models to create superior smaller models. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v52t2d/the_distillation_claim_is_just_ridiculous_in/)
+
+---
+
+## 🏢 Industry News
+
+* **OpenAI vs. Anthropic**: Both labs released major voice updates simultaneously, signaling a "voice war" in the frontier AI space. [The New Stack](https://thenewstack.io/voice-ai-openai-anthropic/)
+* **Nvidia's Hybrid Strategy**: Nvidia expresses strong support for a world where both local (on-device) and frontier (cloud) models coexist. [The New Stack](https://thenewstack.io/nvidia-local-frontier-models/)
+* **Hardware Market**: Reports of extreme price volatility for RTX Pro 6000s, with some regions seeing prices nearly double in three months. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v4vsiq/how_much_are_rtx_pro_6000s_going_for_in_your/)
+* **Production AI Event**: Registration is now open for **QCon AI New York 2026** (Dec 15-16). [InfoQ](https://www.infoq.com/news/2026/07/qcon-ai-newyork-2026-live/)
+
+---
+
+
 ## 📅 Digest for 2026-07-23
 
 # AI & Technology Daily Digest
