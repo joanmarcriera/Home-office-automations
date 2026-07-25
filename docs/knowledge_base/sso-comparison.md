@@ -1,19 +1,19 @@
 # SSO Solutions Comparison (Self-Hosted)
 
 ## What it is
-A comparative analysis of self-hosted Single Sign-On (SSO) and Identity and Access Management (IAM) solutions. These platforms enable users to use a single set of secure credentials to access multiple independent software systems within a homelab or enterprise environment. In June 2026, the focus has shifted toward high-performance, security-first identities like Kanidm and minimalist LDAP directories like LLDAP.
+A comparative analysis of self-hosted Single Sign-On (SSO) and Identity and Access Management (IAM) solutions. These platforms enable users to use a single set of secure credentials to access multiple independent software systems within a homelab or enterprise environment. In late August 2026, the focus has shifted toward high-performance, security-first identities like Kanidm, minimalist LDAP directories like LLDAP, and native support for the Model Context Protocol (MCP 3.1) Task Protocol for multi-agent credential delegation.
 
 ## What problem it solves
-Managing separate usernames and passwords for dozens of self-hosted services (Nextcloud, Gitea, etc.) is insecure and leads to "password fatigue." SSO centralizes authentication, enables mandatory Multi-Factor Authentication (MFA) or WebAuthn across all services, and simplifies the lifecycle management (onboarding/offboarding) of users.
+Managing separate usernames and passwords for dozens of self-hosted services (Nextcloud, Gitea, etc.) is insecure and leads to "password fatigue." SSO centralizes authentication, enables mandatory Multi-Factor Authentication (MFA) or WebAuthn across all services, and simplifies the lifecycle management (onboarding/offboarding) of users. For autonomous AI agent swarms (e.g., using Claude 5.1 or GPT-5.5), central SSO is crucial to handle programmatic access without exposing raw passwords.
 
 ## Where it fits in the stack
-SSO sits in the **Identity and Access** layer of the infrastructure stack. It typically integrates with a directory service (like LDAP or Kanidm's internal store) and provides standardized authentication protocols—OIDC (OpenID Connect), SAML 2.0, and OAuth2—to application-layer services.
+SSO sits in the **Identity and Access** layer of the infrastructure stack. It typically integrates with a directory service (like LDAP or Kanidm's internal store) and provides standardized authentication protocols—OIDC (OpenID Connect), SAML 2.0, and OAuth2—to application-layer services, as well as sandboxed agent authentication tokens.
 
 ## Typical use cases
 - **Homelab Consolidation**: Unifying access to Gitea, Nextcloud, and Home Assistant dashboards.
 - **Enterprise-Lite**: Providing OIDC/SAML for small business internal tools with professional-grade security.
 - **Legacy Support**: Using LLDAP to provide authentication for older applications that only support the LDAP protocol.
-- **Agentic Authentication**: Allowing Claude 4.8 or GPT-5.5 agents to authenticate securely via OIDC to retrieve data from private services.
+- **Agentic Authentication**: Allowing Claude 5.1, Llama 4, Qwen 3.6, or GPT-5.5 agents to authenticate securely via OIDC token exchange (MCP 3.1 Task Protocol) to retrieve data from private services without master keys.
 
 ## Strengths
 
@@ -139,5 +139,5 @@ curl -H "Authorization: Bearer $API_TOKEN" \
 - [OAuth 2.0 and OpenID Connect Explained](https://openid.net/developers/specs/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

@@ -1,11 +1,11 @@
 # Family Values and Agent Communication Style
 
 ## What it is
-The Family Values and Agent Communication Style is a governance framework that defines the core ethical, operational, and behavioral boundaries for Ralph, the Home Admin Agent. In June 2026, this framework is essential for aligning frontier models like Claude 4.8 and GPT-5.5 with privacy-first household principles. It establishes the "Constitutional AI" foundation for the homelab, ensuring that autonomous agents act as trusted digital fiduciaries.
+The Family Values and Agent Communication Style is a governance framework that defines the core ethical, operational, and behavioral boundaries for Ralph, the Home Admin Agent. In late August 2026, this framework is essential for aligning frontier models like Claude 5.1, GPT-5.5, and Llama 4 Maverick with privacy-first household principles. It establishes the "Constitutional AI" foundation for the homelab, ensuring that autonomous agents act as trusted digital fiduciaries.
 
 ### Core Family Values
 1. **Privacy First**: Local data (schedules, health, documents) remains local by default. Use of cloud APIs requires explicit "Value-Based Consent."
-2. **Transparency**: Agents must be "legible," explaining their reasoning and tool use (MCP) in real-time.
+2. **Transparency**: Agents must be "legible," explaining their reasoning and tool use (MCP 3.1 Task Protocol) in real-time.
 3. **Proactivity without Intrusion**: Agents should anticipate needs (e.g., preparing for a storm) without becoming a source of notification fatigue.
 4. **Sovereignty**: All automation must be overrideable by human members; the agent is an assistant, not a ruler.
 
@@ -23,7 +23,7 @@ This sits in the **Governance & Policy Layer** of the KnowledgeOps architecture.
 
 ## Strengths
 - **Trust Preservation**: Builds long-term confidence in AI systems by making their behavior predictable and ethical.
-- **Model Agnostic**: Applies equally to Claude 4.8, GPT-5.5, or local Llama 4 Maverick models.
+- **Model Agnostic**: Applies equally to Claude 5.1, GPT-5.5, or local Llama 4 Maverick models.
 - **Safety**: Reduces the risk of "accidental leaks" or socially inappropriate AI behavior.
 
 ## Limitations
@@ -72,8 +72,15 @@ You are Ralph, the Home Admin Agent.
 ```
 
 ### Python: Policy-Based Filtering
+Using Pydantic v2 and late August 2026 patterns:
 ```python
-def is_action_compliant(action, values):
+from pydantic import BaseModel, Field
+
+class FamilyValuePolicy(BaseModel):
+    max_allowable_risk: float = Field(default=0.1, description="Threshold for data export risk")
+    privacy_strictness: str = "high"
+
+def is_action_compliant(action, values: FamilyValuePolicy) -> bool:
     if action.privacy_impact > values.max_allowable_risk:
         return False
     return True
@@ -94,5 +101,5 @@ def is_action_compliant(action, values):
 - [OpenClaw Ethics Charter (Internal Draft)](https://github.com/OpenClaw/OpenClaw/docs/architecture/ethics.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
