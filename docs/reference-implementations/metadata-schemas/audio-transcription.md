@@ -3,7 +3,7 @@
 ## What it is
 This document defines the structured metadata schema for personal audio transcriptions (audiobooks, podcasts, personal recordings). It specifies how speaker information, timestamps, and text content are organized to ensure interoperability between transcription pipelines and search interfaces.
 
-As of June 2026, this schema is the baseline for "Audio-to-Knowledge" workflows, enabling agents like **Claude 4.8** and **GPT-5.5** to reason over spoken content with high temporal precision.
+As of late August 2026, this schema is the baseline for "Audio-to-Knowledge" workflows, enabling frontier agents like **Claude 5.1**, **GPT-5.5**, and **Gemini 3.5 Ultra** to reason over spoken content with high temporal precision.
 
 ## What problem it solves
 Raw transcription output from various models (Whisper, Fish Audio, etc.) often lacks a consistent structure for speaker diarization, chapter markers, and confidence scores. This schema provides a standardized format that allows the [Unified Search API](../../scripts/unified_search.py) to index and query audio content as effectively as text-based documents, preventing the "information silo" effect for audio data.
@@ -21,7 +21,7 @@ This schema belongs to the **Data Contract and Metadata Layer**. It bridges the 
 - **Granular Timing**: Segment-level timestamps allow for deep-linking into audio files (e.g., `#t=300`).
 - **Speaker Aware**: Native support for speaker IDs enables filtering searches by specific participants.
 - **Confidence Tracking**: Probability scores help identify segments that may require manual correction or human-in-the-loop review.
-- **MCP Native**: Designed to be served via Model Context Protocol 3.0 for seamless agent interaction.
+- **MCP Native**: Designed to be served via Model Context Protocol 3.1 for seamless multi-agent interaction.
 
 ## Limitations
 - **Processing Overhead**: Generating high-fidelity metadata (especially speaker diarization) significantly increases transcription time.
@@ -45,8 +45,8 @@ Ensure you are using a model capable of producing segment-level timestamps. **Wh
 
 ### 2. Implementation logic
 When indexing audio transcriptions into the Vector DB or BM25 index:
-- **Chunks**: Long transcripts should be chunked by chapters or fixed time intervals (e.g., 5 minutes) with overlapping windows using **Claude 4.8** for high-quality summarization.
-- **Extraction**: Use a diarization model (like `pyannote-audio`) as a post-processing step if multiple speakers are detected.
+- **Chunks**: Long transcripts should be chunked by chapters or fixed time intervals (e.g., 5 minutes) with overlapping windows using **Claude 5.1** for high-quality summarization.
+- **Extraction**: Use a diarization model (like `pyannote-audio` v3.3+) as a post-processing step if multiple speakers are detected.
 
 ## CLI examples
 Use the reference implementation to generate and manage audio metadata.
@@ -69,7 +69,7 @@ The schema is implemented using Pydantic in [transcribe_audio.py](../../scripts/
 ```python
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 class TranscriptionSegment(BaseModel):
     """A single segment of transcribed text with timing."""
@@ -78,6 +78,13 @@ class TranscriptionSegment(BaseModel):
     text: str = Field(..., description="Transcribed text for this segment")
     speaker_id: Optional[str] = Field(None, description="Identifier for the speaker")
     probability: float = Field(..., description="Confidence score of the transcription")
+
+    @field_validator('probability')
+    @classmethod
+    def validate_probability(cls, v: float) -> float:
+        if not (0.0 <= v <= 1.0):
+            raise ValueError('Probability must be between 0.0 and 1.0')
+        return v
 
 class ChapterMarker(BaseModel):
     """Identified chapter or logical section in the audio."""
@@ -101,6 +108,46 @@ class AudioTranscriptionMetadata(BaseModel):
     full_text: str = Field(..., description="Complete concatenated transcript for indexing")
 ```
 
+### Schema Instantiation & Validation Example
+```python
+import json
+
+# Sample payload representing Whisper output enriched with metadata
+sample_payload = """
+{
+  "file_id": "aud-10928a",
+  "title": "Homelab Sprint Planning August 2026",
+  "author_artist": "Jules & User",
+  "transcribed_at": "2026-08-31T23:59:59Z",
+  "model_used": "distil-large-v3",
+  "language": "en",
+  "duration_seconds": 120.5,
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 12.4,
+      "text": "Today we are starting Ralph-loop Batch 240 audits.",
+      "speaker_id": "SPEAKER_00",
+      "probability": 0.98
+    }
+  ],
+  "chapters": [
+    {
+      "start": 0.0,
+      "end": 12.4,
+      "title": "Intro",
+      "summary": "Outline of the sprint."
+    }
+  ],
+  "tags": ["homelab", "planning", "august-2026"],
+  "full_text": "Today we are starting Ralph-loop Batch 240 audits."
+}
+"""
+
+metadata = AudioTranscriptionMetadata.model_validate_json(sample_payload)
+print(f"Validated transcription of title: {metadata.title} (duration: {metadata.duration_seconds}s)")
+```
+
 ## Related tools / concepts
 - [Audio Transcription Research](../../knowledge_base/audio-transcription-research.md) — Baseline research on Whisper and speaker diarization.
 - [Whisper Service](../../services/whisper.md) — The primary model used to generate these segments.
@@ -113,9 +160,9 @@ class AudioTranscriptionMetadata(BaseModel):
 
 ## Sources / references
 - [OpenAI Whisper Segment Schema](https://github.com/openai/whisper)
-- [Pydantic Documentation](https://docs.pydantic.dev/latest/)
-- [Model Context Protocol (MCP) 3.0 Specification](https://modelcontextprotocol.io/introduction)
+- [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
+- [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

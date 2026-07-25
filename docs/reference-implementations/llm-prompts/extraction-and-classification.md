@@ -3,7 +3,7 @@
 ## What it is
 A collection of specialized prompt templates and schemas for Large Language Models (LLMs) to perform two core administrative tasks: **Task Extraction** (identifying actionable items from text) and **Document Classification** (categorizing documents into predefined buckets).
 
-As of June 2026, these prompts are optimized for agents like **Claude 4.8** and **GPT-5.5** using **Model Context Protocol (MCP)** for schema validation.
+As of late August 2026, these prompts are optimized for frontier agents like **Claude 5.1** and **GPT-5.5** using **Model Context Protocol (MCP) 3.1** Task Protocol payloads for schema validation.
 
 ## What problem it solves
 Managing a high volume of scanned documents requires significant cognitive effort to decide where each file belongs and what actions are required. Manual classification and task creation are major bottlenecks. These prompts turn raw OCR text into structured data, allowing for automated routing to [Vikunja](../../services/vikunja.md) and [Paperless-ngx](../../services/paperless-ngx.md).
@@ -44,7 +44,7 @@ This implementation sits in the **Intelligent Processing Layer** of the ingestio
 Configure your scanner or phone to upload PDFs to a "To-Process" folder. Use **n8n** to trigger the extraction pipeline when a new file arrives.
 
 ### 2. Model Selection
-Use **Claude 4.8** for high-precision extraction or a local **Llama 4 Maverick** instance for privacy-sensitive documents.
+Use **Claude 5.1** for high-precision extraction or a local **Llama 4 Maverick** instance for privacy-sensitive documents.
 
 ### 3. Integration
 Map the JSON output to the [Calendar Mapping Rules](../calendar/mapping-rules.md) for date-based events or directly to the Vikunja API for tasks.
@@ -101,6 +101,45 @@ Return a list of JSON objects:
 }
 ```
 
+### Pydantic v2 Parsing & Extraction Validation
+The following code snippet demonstrates how to parse and validate extraction results programmatically using Pydantic v2:
+
+```python
+from typing import List, Optional
+from datetime import date
+from pydantic import BaseModel, Field, ValidationError
+
+class ActionableTask(BaseModel):
+    task: str = Field(..., description="Actionable description of the task")
+    due_date: Optional[date] = Field(None, description="Due date of the task")
+    priority: str = Field("medium", description="Priority level (low/medium/high)")
+    owner: Optional[str] = Field(None, description="Assigned owner of the task")
+
+class TaskExtractionResult(BaseModel):
+    tasks: List[ActionableTask]
+
+# Example validation
+json_data = """
+{
+  "tasks": [
+    {
+      "task": "Review and submit water bill",
+      "due_date": "2026-08-31",
+      "priority": "high",
+      "owner": "Jules"
+    }
+  ]
+}
+"""
+
+try:
+    result = TaskExtractionResult.model_validate_json(json_data)
+    for task in result.tasks:
+        print(f"Task: {task.task} | Due: {task.due_date} | Priority: {task.priority}")
+except ValidationError as e:
+    print(f"Schema validation failed: {e}")
+```
+
 ## Related tools / concepts
 - [Vikunja](../../services/vikunja.md): The target system for extracted tasks.
 - [Paperless-ngx](../../services/paperless-ngx.md): The target system for classified documents.
@@ -115,8 +154,8 @@ Return a list of JSON objects:
 ## Sources / references
 - [Home Office Automations (GitHub)](https://github.com/joanmarcriera/Home-office-automations)
 - [Pydantic Structured Outputs Documentation](https://docs.pydantic.dev/latest/concepts/json_schema/)
-- [Model Context Protocol (MCP) 3.0](https://modelcontextprotocol.io/introduction)
+- [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

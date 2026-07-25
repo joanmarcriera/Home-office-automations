@@ -1,15 +1,15 @@
 # Reference Implementation: Calendar Mapping Rules
 
 ## What it is
-This document defines the logic and formatting rules for mapping extracted metadata from LLMs to specific fields in a digital calendar (e.g., Google Calendar or Proton Calendar). It serves as a data contract for automation workflows, ensuring that AI-generated events are structured and searchable.
+This document defines the logic and formatting rules for mapping extracted metadata from LLMs to specific fields in a digital calendar (e.g., Google Calendar or Proton Calendar). It serves as a structured data contract for automation workflows, ensuring that AI-generated events are clean, consistent, and searchable.
 
-As of June 2026, these rules are the foundation for the **Chronos MCP** server, which provides a unified interface for calendar management.
+As of late August 2026, these rules are the foundation for the **Chronos MCP** server, which provides a unified interface for calendar and CalDAV management.
 
 ## What problem it solves
 LLM extraction outputs are often unstructured or follow inconsistent naming conventions. This reference implementation ensures that data is sanitized, formatted, and enriched correctly before being pushed to the calendar API, preventing "trash" data from cluttering the user's schedule and maintaining the integrity of the family's temporal source of truth.
 
 ## Where it fits in the stack
-This logic resides in the **Data Transformation step** of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like **n8n** or via an **MCP server**.
+This logic resides in the **Data Transformation step** of a workflow. It acts as the bridge between the **AI Service** (LLM extraction) and the **Productivity API** (Calendar service), typically implemented within an orchestration tool like **n8n** or via an **MCP server** running in the local homelab.
 
 ## Typical use cases
 - **Automatic Bill Reminders**: Mapping the due date of a scanned PDF bill to a calendar reminder with a link to the source document.
@@ -21,7 +21,7 @@ This logic resides in the **Data Transformation step** of a workflow. It acts as
 - **Consistency**: Ensures every AI-generated event follows the same structural pattern (e.g., Summary, Start/End, Description).
 - **Enrichment**: Adds value by linking back to the source document in **Paperless-ngx** using the `doc_id`.
 - **Flexibility**: The logic can be easily extended to support additional fields like "reminders", "visibility", or custom labels.
-- **MCP Native**: Fully compatible with Model Context Protocol 3.0 for agent-driven scheduling.
+- **MCP Native**: Fully compatible with Model Context Protocol 3.1 for agent-driven scheduling.
 
 ## Limitations
 - **Timezone Sensitivity**: Requires the extraction pipeline to be aware of the user's local timezone to avoid off-by-one errors during conversion to UTC.
@@ -41,7 +41,7 @@ This logic resides in the **Data Transformation step** of a workflow. It acts as
 ## Getting started
 
 ### 1. Extraction
-Use **Claude 4.8** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
+Use **Claude 5.1** with the [Date Extraction Prompt](../llm-prompts/date-extraction.md) to generate a JSON object.
 
 ### 2. Implementation
 Pass the JSON to the [gcal_sync_reference.py](../../scripts/gcal_sync_reference.py) script or the **Chronos MCP** server. The server will apply these mapping rules automatically during the event creation process.
@@ -57,7 +57,7 @@ python3 scripts/gcal_sync_reference.py --dry-run --input extracted_data.json
 python3 scripts/gcal_sync_reference.py --input extracted_data.json --provider google
 
 # Use Chronos MCP to list events for a specific day
-mcp-client chronos list-events --date 2026-06-26
+mcp-client chronos list-events --date 2026-08-31
 ```
 
 ## API examples
@@ -77,11 +77,51 @@ The following table defines how extracted LLM fields map to [Google Calendar](..
 ```json
 {
   "event_name": "Water Bill Due",
-  "start_date": "2026-06-20T12:00:00Z",
+  "start_date": "2026-08-31T12:00:00Z",
   "location": "Online Portal",
   "doc_id": "12345",
   "reasoning": "Detected 'due date' in scanned utility bill."
 }
+```
+
+### Pydantic v2 Implementation Schema
+Below is a robust Pydantic structure for verifying and processing mapping inputs:
+
+```python
+from typing import Optional
+from datetime import datetime, timedelta
+from pydantic import BaseModel, Field, model_validator
+
+class ExtractedEvent(BaseModel):
+    event_name: str = Field(..., description="Raw extracted name")
+    start_date: datetime = Field(..., description="Event start date and time")
+    end_date: Optional[datetime] = Field(None, description="Event end date and time")
+    location: str = "Online"
+    doc_id: Optional[str] = None
+    reasoning: Optional[str] = None
+
+    @model_validator(mode='after')
+    def default_end_date(self) -> 'ExtractedEvent':
+        if self.end_date is None:
+            self.end_date = self.start_date + timedelta(hours=1)
+        elif self.end_date <= self.start_date:
+            raise ValueError("end_date must be after start_date")
+        return self
+
+    def to_calendar_payload(self) -> dict:
+        description_parts = []
+        if self.reasoning:
+            description_parts.append(f"Auto-generated by AI: {self.reasoning}")
+        if self.doc_id:
+            description_parts.append(f"Source document ID: {self.doc_id}")
+
+        return {
+            "summary": self.event_name.title(),
+            "start": {"dateTime": self.start_date.isoformat()},
+            "end": {"dateTime": self.end_date.isoformat()},
+            "location": self.location,
+            "description": "\n\n".join(description_parts)
+        }
 ```
 
 ## Related tools / concepts
@@ -101,5 +141,5 @@ The following table defines how extracted LLM fields map to [Google Calendar](..
 - [JMAP for Calendars (RFC 8984)](https://datatracker.ietf.org/doc/html/rfc8984)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
