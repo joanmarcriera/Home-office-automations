@@ -18,7 +18,7 @@ Raw business documents are often fragmented, inconsistent, and unstructured, mak
 - **RAG Pre-processing**: Normalizing a fragmented knowledge base into Markdown for high-fidelity retrieval.
 - **Data Auditing**: Cleaning and deduplicating an archive of board packs and policy manuals.
 - **Synthetic Data Generation**: Using GPT-5.5 to generate high-quality training pairs from normalized document text.
-- **High-Fidelity Extraction**: Using Claude 4.8 for section-aware parsing of complex layout PDFs.
+- **High-Fidelity Extraction**: Using Claude 5.1 for section-aware parsing of complex layout PDFs.
 
 ## Strengths
 
@@ -26,7 +26,7 @@ Raw business documents are often fragmented, inconsistent, and unstructured, mak
 - **Metadata-Rich**: Includes a mandatory JSON manifest for every document to preserve provenance.
 - **Mac-Friendly**: Optimized for local execution using standard macOS and Docker tools.
 - **Scalable**: Provides clear rules for when to merge or split documents based on topical coherence.
-- **MCP Enabled**: Integrated with Docling MCP 3.0 for seamless tool-based extraction within agentic workflows.
+- **MCP Enabled**: Integrated with Docling MCP 3.1 for seamless tool-based extraction within agentic workflows.
 
 ## Limitations
 
@@ -59,7 +59,7 @@ flowchart TD
     D -- Apache Tika / Docling MCP --> E[Markdown Normalization]
     E --> F[Manifest Generation JSON]
     F --> G[Semantic Deduplication / GPT-5.5]
-    G --> H[Semantic Merging / Claude 4.8]
+    G --> H[Semantic Merging / Claude 5.1]
     H --> I[Final Training Corpus]
 ```
 
@@ -99,12 +99,12 @@ async def extract_structured_data(filepath):
     result = await client.call_tool("extract_markdown", {"path": filepath, "mode": "accurate"})
     return result['content']
 
-# Returns structured Markdown with tables preserved as Github Flavored Markdown
+# Returns structured Markdown with tables preserved as GitHub Flavored Markdown (GFM)
 markdown_data = await extract_structured_data("raw/q4-report.pdf")
 ```
 
 ### Generating a Document Manifest (JSON)
-Standardized metadata sidecar for every ingested document.
+Standardized metadata sidecar for every ingested document, adhering to MCP 3.1 schemas.
 ```json
 {
   "source_path": "raw/2026-03-16-policy-manual-original.docx",
@@ -112,12 +112,16 @@ Standardized metadata sidecar for every ingested document.
   "document_title": "Corporate Travel Policy 2026",
   "authors_or_owner": "HR Department",
   "created_at": "2026-01-10T09:00:00Z",
-  "exported_at": "2026-06-25T14:30:00Z",
+  "exported_at": "2026-08-20T14:30:00Z",
   "language": "en",
   "sensitivity": "internal",
   "ocr_used": false,
   "merge_group": "hr-policies",
-  "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "mcp_meta": {
+    "schema_version": "3.1",
+    "task_binding": "doc-prep-task-1"
+  }
 }
 ```
 
@@ -139,7 +143,8 @@ Standardized metadata sidecar for every ingested document.
 - [Apache Tika Server](https://cwiki.apache.org/confluence/display/TIKA/TikaServer)
 - [Google Drive export MIME types](https://developers.google.com/workspace/drive/api/guides/ref-export-formats)
 - [Docling MCP repository](https://github.com/docling-project/docling-mcp)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-20
 - Confidence: high

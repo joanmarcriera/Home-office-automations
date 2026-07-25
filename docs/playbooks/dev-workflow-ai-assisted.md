@@ -2,7 +2,7 @@
 
 ## What it is
 
-The AI-Assisted Dev Workflow is a structured architectural pattern for software development that leverages a hierarchy of AI coding agents. It defines how to move from initial drafting in a specialized IDE like Cursor, through targeted implementation with Aider, to asynchronous refactoring and verification using autonomous agents like Jules and Anti-Gravity.
+The AI-Assisted Dev Workflow is a structured architectural pattern for software development that leverages a hierarchy of AI coding agents. It defines how to move from initial drafting in a specialized IDE like Cursor or Melty, through targeted implementation with Aider, to asynchronous refactoring and verification using autonomous agents like Jules and Anti-Gravity.
 
 ## What problem it solves
 
@@ -15,7 +15,7 @@ Traditional software development is often slowed by repetitive tasks, context sw
 ## Typical use cases
 
 - **Bootstrapping New Scripts**: Rapidly generating Python automation scripts for homelab infrastructure using GPT-5.5.
-- **Legacy Code Refactoring**: Using [Jules](../tools/ai_knowledge/jules.md) (powered by Claude 4.8) to modernize old scripts with current best practices and better test coverage.
+- **Legacy Code Refactoring**: Using [Jules](../tools/ai_knowledge/jules.md) (powered by Claude 5.1) to modernize old scripts with current best practices and better test coverage.
 - **Large-Scale Maintenance**: Automating documentation audits and repository-wide consistency checks.
 - **Continuous Verification**: Running autonomous test loops to ensure infrastructure changes don't break complex Home Assistant or K3s configurations.
 
@@ -23,9 +23,9 @@ Traditional software development is often slowed by repetitive tasks, context sw
 
 - **High Velocity**: Significantly reduces the time from "idea" to "tested code."
 - **Layered Defense**: Uses different agents for different tasks (drafting vs. implementation vs. refactoring) to minimize errors.
-- **Local-First Ready**: Fully compatible with local models like `Llama 4 Maverick` for private, zero-cost development.
+- **Local-First Ready**: Fully compatible with local models like `Llama 4` or `Qwen 3.6` for private, zero-cost development.
 - **Reviewable Autonomy**: Includes a "PR-readiness gate" to ensure AI-generated work remains human-understandable.
-- **Protocol Native**: Natively supports the Model Context Protocol (MCP 3.0) for tool discovery and execution.
+- **Protocol Native**: Natively supports the Model Context Protocol (MCP 3.1) for tool discovery, context injection, and sandbox execution.
 
 ## Limitations
 
@@ -48,19 +48,19 @@ Traditional software development is often slowed by repetitive tasks, context sw
 
 To adopt the AI-Assisted Dev Workflow:
 
-1. **Setup the Environment**: Install [Cursor](../tools/development_ops/cursor.md) and [Aider](../tools/development_ops/aider.md).
-2. **Draft the Outline**: Use Cursor to define the high-level architecture and data contracts (GPT-5.5 is excellent for this).
-3. **Run the Implementation**: Start an Aider session: `aider --model claude-4.8 <file-to-edit>`.
+1. **Setup the Environment**: Install [Cursor](../tools/development_ops/cursor.md) or [Melty](../tools/development_ops/melty.md) and [Aider](../tools/development_ops/aider.md).
+2. **Draft the Outline**: Use Cursor to define the high-level architecture and data contracts (GPT-5.5 or Claude 5.1 are excellent for this).
+3. **Run the Implementation**: Start an Aider session: `aider --model claude-5.1 <file-to-edit>`.
 4. **Trigger the Audit**: Once the implementation is complete, run the verification scripts listed in the "Verification Checklist" below.
 5. **Review the Gate**: Complete the "PR-readiness gate" before merging your changes.
 
-### Workflow Architecture (June 2026)
+### Workflow Architecture (August 2026)
 
 ```mermaid
 flowchart TD
-    A[Drafting: Cursor / GPT-5.5] -->|Outline & Python script| B[Implementation: Aider / Claude 4.8]
-    B -->|Complex functions| C[Refactoring: Jules / Claude 4.8]
-    C -->|Best practices & Unit tests| D[Verification: Anti-Gravity / MCP 3.0]
+    A[Drafting: Cursor / GPT-5.5] -->|Outline & Python script| B[Implementation: Aider / Claude 5.1]
+    B -->|Complex functions| C[Refactoring: Jules / Claude 5.1]
+    C -->|Best practices & Unit tests| D[Verification: Anti-Gravity / MCP 3.1]
     D -->|Plan-Code-Test loop| E[Audit: Human Review]
     E -->|Approved| F[Merge to main]
     B -.->|Linter errors| B
@@ -72,8 +72,8 @@ flowchart TD
 ### Starting an Aider Session
 Launching Aider with a specific model and file context.
 ```bash
-# Start Aider with Claude 4.8 Opus
-aider --model claude-4-8-opus-20260528 docs/playbooks/dev-workflow-ai-assisted.md
+# Start Aider with Claude 5.1 Sonnet
+aider --model anthropic/claude-5-1-sonnet-20260820 docs/playbooks/dev-workflow-ai-assisted.md
 ```
 
 ### Running Repository Validation
@@ -92,11 +92,12 @@ Example of an agentic script initiating a verification loop via an API endpoint.
 import requests
 
 def trigger_verification_loop(branch_name):
-    url = "http://anti-gravity.local/api/v1/verify"
+    url = "http://anti-gravity.local/api/v2/verify"
     payload = {
         "branch": branch_name,
         "suites": ["unit", "lint", "docs-contract"],
-        "mcp_enabled": True
+        "mcp_enabled": True,
+        "mcp_version": "3.1"
     }
     response = requests.post(url, json=payload)
     return response.json()
@@ -112,8 +113,8 @@ An agent recording its discovery and validation process.
 import json
 
 gate_entry = {
-    "scope": "Updated dev-workflow playbook for June 2026.",
-    "discovery": "ripgrep search for 'Claude 4.7' to replace with 'Claude 4.8'.",
+    "scope": "Updated dev-workflow playbook for August 2026.",
+    "discovery": "ripgrep search for 'Claude 4.8' to replace with 'Claude 5.1'.",
     "validation": "Passed check_docs_contract.py locally.",
     "risk": "Low. Documentation update only.",
     "rollback_path": "git checkout main"
@@ -138,11 +139,12 @@ with open("docs/reports/pr-gate-feature-audit.json", "w") as f:
 - [Anti-Gravity](../tools/development_ops/anti_gravity.md)
 
 ## Sources / References
-- https://blog.cloudflare.com/vinext
+- [Aider Official Documentation](https://aider.chat/docs/)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 - [Repository standards](../standards.md)
 - [Knowledge Base Health Playbook](knowledge-base-health.md)
 - [ripgrep](../tools/development_ops/ripgrep.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-20
 - Confidence: high

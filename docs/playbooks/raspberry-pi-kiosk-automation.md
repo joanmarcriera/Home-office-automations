@@ -18,7 +18,7 @@ This playbook sits in the **Operations / Playbooks** layer. It coordinates tools
 ## Strengths
 - **Consistency**: Ensures the same configuration is applied every time, eliminating "it works on my Pi" issues.
 - **Resilience**: Configures systemd services to automatically recover from browser crashes or reboots.
-- **Agentic Recovery**: LLM-powered agents (Claude 4.8) can detect and fix common installation errors autonomously.
+- **Agentic Recovery**: LLM-powered agents (Claude 5.1) can detect and fix common installation errors autonomously.
 - **Remote-First**: Optimized for headless setup via SSH and Tailscale.
 
 ## Limitations
@@ -40,7 +40,7 @@ This playbook sits in the **Operations / Playbooks** layer. It coordinates tools
 ### Pre-requisites
 - A Raspberry Pi with Raspberry Pi OS installed (Bookworm or newer recommended).
 - SSH access enabled via [SSH Execution Patterns](../architecture/ssh_execution_patterns.md).
-- A June 2026-class agent like [Claude Code](../tools/development_ops/claude-code.md) (v4.8), [Aider](../tools/development_ops/aider.md), or [Llama 4 Maverick](../tools/ai_knowledge/llama.md).
+- An August 2026-class agent like [Claude Code](../tools/development_ops/claude-code.md) (v5.1), [Aider](../tools/development_ops/aider.md), or [Llama 4](../tools/ai_knowledge/llama.md).
 
 ### Typical Automation Workflow
 
@@ -124,9 +124,10 @@ sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium
 
 ## Sources / References
 - [Official Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 - https://github.com/joanmarcriera/Home-office-automations
 - [Chromium Command Line Switches](https://peter.sh/experiments/chromium-command-line-switches/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-20
 - Confidence: high
