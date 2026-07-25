@@ -1,15 +1,15 @@
 # Metadata Schema: Scanned Manuals
 
 ## What it is
-A YAML-based metadata schema that defines the structure for indexing, tagging, and retrieving scanned household manuals. It ensures that technical documentation is stored with enough context to be useful for both human reference and automated AI retrieval.
+A YAML-based and JSON-schema-validated metadata structure that defines the fields for indexing, tagging, and retrieving scanned household manuals. It ensures that technical documentation is stored with enough semantic context to be useful for both human reference and automated AI retrieval.
 
-As of June 2026, this schema enables agents like **Claude 4.8** and **GPT-5.5** to navigate complex physical documents by providing a semantic "table of contents."
+As of late August 2026, this schema enables frontier agents like **Claude 5.1**, **GPT-5.5**, and **Gemini 3.5 series** to navigate complex physical documents by providing a semantic "table of contents" and highly precise metadata anchors.
 
 ## What problem it solves
-Scanned manuals are often large, unsearchable PDFs. Without a schema, finding specific information (like the "Troubleshooting" section for a specific dishwasher model) is difficult. This schema enables "Section-Aware" indexing, making it possible for an AI agent to pinpoint exactly where the relevant information is located, reducing hallucinations and retrieval latency.
+Scanned manuals are often large, unsearchable PDFs. Without a structured schema, finding specific information (like the "Troubleshooting" section or "Error Codes" for a specific dishwasher model) is highly inefficient. This schema enables "Section-Aware" indexing, making it possible for an AI agent to pinpoint exactly where the relevant information is located, reducing hallucinations and retrieval latency.
 
 ## Where it fits in the stack
-The schema sits at the **Data Management Layer**. It is used by **Document Management Systems** (like Paperless-ngx) to organize files and by **Vector Databases** (like Chroma or Pinecone) to structure metadata for Retrieval-Augmented Generation (RAG).
+The schema sits at the **Data Management Layer**. It is used by **Document Management Systems** (like Paperless-ngx) to organize files and by **Vector Databases** (like Chroma, Milvus, or Pinecone) to structure metadata for Retrieval-Augmented Generation (RAG).
 
 ## Typical use cases
 - **Automated Troubleshooting**: An agent reads the "Error Codes" section of a manual to explain a blinking light on an appliance.
@@ -21,7 +21,7 @@ The schema sits at the **Data Management Layer**. It is used by **Document Manag
 - **Granularity**: Section-aware page ranges allow for precise retrieval of technical instructions.
 - **Consistency**: Standardizes how model numbers and manufacturers are recorded across the entire library.
 - **LLM-Friendly**: Structured metadata makes it easier for LLMs to filter results before reading content.
-- **MCP Native**: Integrates with Model Context Protocol 3.0 for querying via agentic tools.
+- **MCP Native**: Integrates with Model Context Protocol 3.1 for querying via agentic tools.
 
 ## Limitations
 - **Manual Effort**: Initially requires identifying page ranges for key sections (unless automated via VLM/OCR post-processing).
@@ -82,8 +82,34 @@ manual_metadata:
     - "Appliance/Kitchen" # Example category
 ```
 
-### Metadata Integration
-Include `manufacturer` and `model_number` in every vector's metadata in the Vector DB to allow for high-precision filtered retrieval during agentic loops.
+### Metadata Integration via Pydantic v2
+Here is how the YAML metadata is parsed, validated, and embedded in the vector store:
+
+```python
+from typing import List, Tuple, Optional
+from pydantic import BaseModel, Field, field_validator
+
+class ManualSection(BaseModel):
+    title: str = Field(..., description="Title of the section, e.g., 'Troubleshooting'")
+    page_range: Tuple[int, int] = Field(..., description="Start and end page indices (0-based)")
+
+    @field_validator('page_range')
+    @classmethod
+    def check_page_range(cls, v: Tuple[int, int]) -> Tuple[int, int]:
+        if v[0] > v[1]:
+            raise ValueError("Start page cannot be greater than end page")
+        return v
+
+class ManualMetadata(BaseModel):
+    document_type: str = "Manual"
+    product_name: str
+    manufacturer: str
+    model_number: str
+    year_of_manufacture: Optional[int] = None
+    language: str = "en"
+    sections: List[ManualSection]
+    tags: List[str] = []
+```
 
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The primary storage engine for these documents.
@@ -99,8 +125,8 @@ Include `manufacturer` and `model_number` in every vector's metadata in the Vect
 ## Sources / References
 - [Paperless-ngx Custom Fields](https://docs.paperless-ngx.com/usage/#custom-fields)
 - [YAML Standard Specification](https://yaml.org/spec/1.2.2/)
-- [Model Context Protocol (MCP) 3.0](https://modelcontextprotocol.io/introduction)
+- [Model Context Protocol (MCP) 3.1 Specification](https://modelcontextprotocol.io/introduction)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
