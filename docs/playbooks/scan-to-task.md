@@ -12,17 +12,17 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 ## Typical use cases
 - **Invoice Management**: Scanning a utility bill and automatically creating a task in Vikunja with the due date and amount.
 - **Mail Triage**: Scanning incoming letters and creating tasks for items requiring a response.
-- **Receipt Archival**: Scanning receipts for expense tracking, with the LLM (Claude 4.8 Vision) extracting the vendor and total.
+- **Receipt Archival**: Scanning receipts for expense tracking, with the LLM (Claude 5.1 Vision) extracting the vendor and total.
 - **Warranty Tracking**: Scanning product manuals or receipts to create a reminder for warranty expiration.
 
 ## Strengths
 - **Automation**: Reduces the friction of moving from physical paper to a digital action list.
 - **Searchability**: Documents are indexed and searchable in Paperless-ngx, linked directly from the task.
 - **Accuracy**: LLMs can extract structured data from diverse document layouts better than traditional regex-based systems.
-- **Vision Mastery**: Claude 4.8's improved vision capabilities allow for high-accuracy extraction from crumpled or low-contrast scans.
+- **Vision Mastery**: Claude 5.1's improved vision capabilities allow for high-accuracy extraction from crumpled or low-contrast scans.
 
 ## Limitations
-- **OCR Quality**: Success depends on the clarity of the original scan; handwritten or low-contrast text may fail (mitigated by using Claude 4.8 Vision).
+- **OCR Quality**: Success depends on the clarity of the original scan; handwritten or low-contrast text may fail (mitigated by using Claude 5.1 Vision).
 - **Privacy**: If using cloud-based LLMs, sensitive document text is sent to an external provider (mitigated by using local models).
 - **Setup Complexity**: Requires multiple services (Paperless, n8n, Vikunja) to be correctly configured and integrated.
 
@@ -41,9 +41,9 @@ This playbook sits in the **Operations / Playbooks** layer. It orchestrates the 
 - [Paperless-ngx](../services/paperless-ngx.md) for document storage and OCR.
 - [Vikunja](../services/vikunja.md) or another task manager with an API.
 - [n8n](../services/n8n.md) for workflow orchestration.
-- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4 Maverick` or Claude 4.8 via API).
+- A local or remote LLM (e.g., [Ollama](../services/ollama.md) running `Llama 4` or Claude 5.1 via API).
 
-### Workflow Architecture (June 2026 Update)
+### Workflow Architecture (August 2026 Update)
 
 ```mermaid
 flowchart TD
@@ -52,7 +52,7 @@ flowchart TD
     C -->|OCR & Classification| D{Action Required?}
     D -- Yes --> E[n8n Webhook Trigger]
     D -- No --> F[Archive]
-    E -->|Extraction| G[LLM Processing: Claude 4.8 Vision]
+    E -->|Extraction| G[LLM Processing: Claude 5.1 Vision]
     G -->|Create Task| H[Vikunja Task]
     H -->|Link Back| C
 ```
@@ -91,15 +91,20 @@ ocr_text = get_document_text(402, "your_api_token")
 print(f"Extracted OCR Text: {ocr_text[:100]}...")
 ```
 
-### Creating a Task in Vikunja via n8n
-Defining the JSON payload sent from n8n to Vikunja to create a linked task.
+### Creating a Task in Vikunja via n8n and MCP 3.1 payload
+Defining the JSON payload sent from n8n to Vikunja to create a linked task, incorporating MCP 3.1 Task Protocol fields.
 ```json
 {
   "title": "Pay Utility Bill - $145.20",
-  "description": "Extracted from Paperless Doc #402. Due: 2026-07-15. [View Document](http://paperless.local/documents/402)",
-  "due_date": "2026-07-15T23:59:59Z",
+  "description": "Extracted from Paperless Doc #402. Due: 2026-09-15. [View Document](http://paperless.local/documents/402)",
+  "due_date": "2026-09-15T23:59:59Z",
   "priority": 3,
-  "labels": ["finance", "automated"]
+  "labels": ["finance", "automated"],
+  "mcp_context": {
+    "task_id": "mcp-scan-to-task-402",
+    "mcp_version": "3.1",
+    "schema": "https://modelcontextprotocol.org/schemas/3.1/task-protocol.json"
+  }
 }
 ```
 
@@ -114,9 +119,10 @@ Defining the JSON payload sent from n8n to Vikunja to create a linked task.
 - [Extraction and Classification Prompt](../reference-implementations/llm-prompts/extraction-and-classification.md) — The specific prompt used to guide the LLM.
 
 ## Sources / References
-- https://github.com/joanmarcriera/Home-office-automations
 - [Paperless-ngx Documentation](https://docs.paperless-ngx.com/)
+- [Model Context Protocol Task Protocol v3.1](https://modelcontextprotocol.org/spec)
+- https://github.com/joanmarcriera/Home-office-automations
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-20
 - Confidence: high

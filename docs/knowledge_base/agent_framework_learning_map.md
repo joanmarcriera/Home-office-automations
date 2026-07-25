@@ -2,11 +2,11 @@
 
 ## What it is
 
-The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment.
+The Agent Framework Learning Map is a structured guide designed to help developers and architects navigate the rapidly evolving ecosystem of AI agent frameworks. It categorizes tools into stateful runtimes, lightweight SDKs, role-based frameworks, and specialized components to provide a clear path from conceptual learning to production deployment in late August 2026.
 
 ## What problem it solves
 
-The explosion of agentic tools has created a "choice overload" problem where every framework is marketed as a general-purpose solution. This map solves that by differentiating between tools optimized for research, rapid prototyping, autonomous coding, or high-reliability production orchestration. It prevents "framework fatigue" by recommending a specific learning order based on the desired outcome.
+The explosion of agentic tools has created a "choice overload" problem where every framework is marketed as a general-purpose solution. This map solves that by differentiating between tools optimized for research, rapid prototyping, autonomous coding, or high-reliability production orchestration. It prevents "framework fatigue" by recommending a specific learning order based on the desired outcome and current industry capabilities.
 
 ## Where it fits in the stack
 
@@ -15,11 +15,11 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 ## Typical use cases
 
 - **Architectural Triage**: Deciding whether a project requires a stateful graph (LangGraph) or a conversational multi-agent system (AutoGen).
-- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 4.8.
+- **Skill Upgrading**: Following a curated path to move from basic prompt chains to complex, long-horizon autonomous agents using Claude 5.1.
 - **Homelab Automation**: Selecting the right "personal OS" (OpenClaw) and routing layer (LiteLLM) for local-first agent workflows.
 - **Enterprise Prototyping**: Quickly identifying role-based frameworks (CrewAI) for demonstrating multi-agent collaboration to stakeholders.
 
-### Quick classification (June 2026)
+### Quick classification (August 2026)
 
 | Tool | Type | Learn from it | Use in production | Best reason to study or adopt |
 | :--- | :--- | :---: | :---: | :--- |
@@ -39,8 +39,8 @@ The explosion of agentic tools has created a "choice overload" problem where eve
 - **Outcome-Oriented**: Focuses on what the tool is *best for*, not just what it can do.
 - **Classification Clarity**: Separates libraries (SDKs) from environments (Operating Systems) and specialized modules.
 - **Local-First Friendly**: Prioritizes stacks that work well with local models and privacy-conscious architectures.
-- **Model Agnostic**: Explicitly supports routing between Claude 4.8 (reasoning), GPT-5.5 (speed), and Llama 4 Maverick (local).
-- **MCP Native**: Emphasizes frameworks that natively support the Model Context Protocol (MCP 3.0) for universal tool access.
+- **Model Agnostic**: Explicitly supports routing between Claude 5.1 (reasoning), GPT-5.5 (speed), and Llama 4 (local).
+- **MCP Native**: Emphasizes frameworks that natively support the Model Context Protocol (MCP 3.1) for universal tool access.
 
 ## Limitations
 
@@ -68,19 +68,19 @@ To begin your journey with agent frameworks, follow this path:
 3. **Explore Multi-Agent Dynamics**: Deploy a [CrewAI](../tools/frameworks/crewai.md) team of three agents (Researcher, Writer, Editor) to see how role-playing affects output quality.
 4. **Autonomous Execution**: Install [Aider](../tools/development_ops/aider.md) or explore the [OpenHands](../tools/development_ops/openhands.md) codebase to see how agents interact with a real terminal and file system.
 
-### Recommended Learning Order (June 2026 Update)
+### Recommended Learning Order (August 2026 Update)
 
 #### Fundamentals
-1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 4.8 for reasoning)
+1. [LangGraph](../tools/frameworks/langgraph.md) (paired with Claude 5.1 for reasoning)
 2. [OpenAI Agents SDK](../tools/frameworks/openai-agents-sdk.md) (using GPT-5.5)
 3. [CrewAI](../tools/frameworks/crewai.md)
 4. [AutoGen](../tools/frameworks/autogen.md)
 
 #### Coding Agents
-1. [OpenHands](../tools/development_ops/openhands.md) (with Claude 4.8 / Aider)
+1. [OpenHands](../tools/development_ops/openhands.md) (with Claude 5.1 / Aider)
 2. [OpenClaw](../tools/development_ops/openclaw.md)
 
-#### Specialised Patterns
+#### Specialized Patterns
 1. [Browser Use](../tools/automation_orchestration/browser-use.md)
 2. [GPT Researcher](../tools/agents/gpt-researcher.md)
 3. [Letta](../tools/agents/letta.md)
@@ -112,7 +112,7 @@ docker run -it \
 ## API examples
 
 ### Simple Agent Handoff (OpenAI Agents SDK)
-A minimal example showing how to hand off a task between two specialized agents.
+A minimal example showing how to hand off a task between two specialized agents using GPT-5.5.
 ```python
 from openai_agents import Agent, Runner
 
@@ -137,7 +137,7 @@ print(response.final_text)
 ```
 
 ### Stateful Graph Logic (LangGraph)
-Defining a simple cycle where an auditor checks the work of a writer.
+Defining a simple cycle where an auditor checks the work of a writer using Claude 5.1.
 ```python
 from langgraph.graph import StateGraph, END
 
@@ -162,6 +162,26 @@ workflow.add_conditional_edges(
 )
 
 app = workflow.compile()
+```
+
+### MCP 3.1 Task Protocol JSON Schema
+Standardized MCP 3.1 Task Protocol JSON payload structure for tool calling and task dispatching between agents.
+```json
+{
+  "$schema": "https://modelcontextprotocol.org/schemas/3.1/task-protocol.json",
+  "task_id": "task-abc-123",
+  "executor": "claude-5.1-sonnet",
+  "tool_calls": [
+    {
+      "name": "fetch_mcp_context",
+      "arguments": {
+        "repository": "home-automation",
+        "query": "LangGraph state preservation"
+      }
+    }
+  ],
+  "state_token": "token_session_xyz_789"
+}
 ```
 
 ## Related tools / concepts
@@ -190,8 +210,9 @@ app = workflow.compile()
 - [GPT Researcher GitHub](https://github.com/assafelovic/gpt-researcher)
 - [Letta documentation](https://docs.letta.com/)
 - [DeerFlow GitHub](https://github.com/bytedance/deer-flow)
+- [Model Context Protocol Specification v3.1](https://modelcontextprotocol.org/spec)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-20
 - Confidence: high
