@@ -2,7 +2,7 @@
 
 ## What it is
 
-A step-by-step operational guide for deploying a lightweight, highly available Kubernetes cluster using K3s. It focuses on the multi-master (control-plane) configuration with embedded etcd. As of June 2026, K3s v1.31+ and Cilium v1.17+ serve as the baseline for high-performance, agent-ready homelab clusters.
+A step-by-step operational guide for deploying a lightweight, highly available Kubernetes cluster using K3s. It focuses on the multi-master (control-plane) configuration with embedded etcd. As of late August 2026, K3s v1.32+ and Cilium v1.18+ serve as the baseline for high-performance, agent-ready homelab clusters.
 
 ## What problem it solves
 
@@ -16,7 +16,7 @@ This playbook belongs to the **Infrastructure / Compute** layer. It provides the
 
 - **Critical Home Services**: Hosting Nextcloud, Home Assistant, and Authentik with 24/7 uptime.
 - **Agentic Workflows**: Providing a resilient platform for [Multi-Agent KnowledgeOps](../architecture/multi_agent_knowledgeops.md).
-- **Scalable Compute**: Dynamically scaling compute for resource-intensive models like [Claude 4.8](../tools/ai_knowledge/claude.md).
+- **Scalable Compute**: Dynamically scaling compute for resource-intensive models like [Claude 5.1](../tools/ai_knowledge/claude.md).
 - **Edge Resilience**: Managing small clusters where manual SRE intervention is minimized via autonomous controllers.
 
 ## Strengths
@@ -88,7 +88,7 @@ curl -sfL https://get.k3s.io | K3S_TOKEN=YOUR_NODE_TOKEN sh -s - server \
 ### Installing Cilium CNI
 Using the Cilium CLI to install eBPF networking:
 ```bash
-cilium install --version 1.17.0
+cilium install --version 1.18.0
 ```
 
 ## API examples
@@ -147,5 +147,5 @@ spec:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-26
 - Confidence: high
