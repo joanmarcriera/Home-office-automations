@@ -11,9 +11,9 @@ In a complex, multi-tool environment with frequent contributions from AI agents,
 
 ## Typical use cases
 - **Documentation Audits**: Providing the criteria used by scripts like `check_docs_contract.py` to verify page quality.
-- **Agent Onboarding**: Giving new AI agents (e.g., Claude 4.8) the "rules of the road" for how to contribute safely and effectively.
+- **Agent Onboarding**: Giving new AI agents (e.g., Claude 5.1) the "rules of the road" for how to contribute safely and effectively.
 - **Workflow Design**: Setting the expectations for how n8n workflows should be named and how data should be formatted.
-- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.5 and Llama 4 Maverick for self-correction.
+- **Model Evaluation**: Standardizing the benchmarks and metrics used by GPT-5.5 and Llama 4 for self-correction.
 
 ## Strengths
 - **Consistency**: Enforces a uniform "look and feel" across hundreds of documentation pages.
@@ -35,7 +35,7 @@ In a complex, multi-tool environment with frequent contributions from AI agents,
 
 ## Getting started
 ### Repository Setup
-1. Clone the repository and install dependencies using Poetry.
+1. Clone the repository and install dependencies using Poetry or native package tools.
 2. Ensure you have the latest Python version (3.11+) and `mkdocs` installed.
 3. Run `python3 find_oldest_issues.py` to identify pending tasks.
 
@@ -53,7 +53,7 @@ python3 scripts/check_docs_contract.py docs/tools/ai_knowledge/claude.md
 python3 scripts/audit_docs_quality.py
 
 # Find documentation pages that are stale or missing metadata
-python3 scripts/check_doc_freshness.py
+python3 scripts/check_doc_freshness.py docs --max-days 30
 ```
 
 ## API examples
@@ -71,6 +71,36 @@ def get_last_reviewed(filepath):
 
 # Example usage
 # date = get_last_reviewed("docs/standards.md")
+```
+
+### Programmatic Integration with MCP 3.1 Task Protocol
+Under MCP 3.1, a verification tool standardizes reports using the Task Protocol schemas.
+
+```python
+import json
+import urllib.request
+
+def submit_standards_verification(task_id: str, file_path: str, passed: bool):
+    url = "http://localhost:8000/tasks/v1/verify"
+    payload = {
+        "task_id": task_id,
+        "step_name": f"standards-verification-{file_path}",
+        "status": "passed" if passed else "failed",
+        "metadata": {
+            "standards_version": "2026.8",
+            "enforcing_model": "Claude 5.1"
+        }
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={'Content-Type': 'application/json'},
+        method='POST'
+    )
+
+    with urllib.request.urlopen(req) as response:
+        return json.loads(response.read().decode())
 ```
 
 ## Core Taxonomy & Contracts
@@ -128,5 +158,5 @@ Every knowledge page must include this section at the bottom:
 - [n8n Best Practices](https://docs.n8n.io/workflows/best-practices/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

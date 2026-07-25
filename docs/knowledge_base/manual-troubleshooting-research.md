@@ -3,7 +3,7 @@
 ## What it is
 This research evaluates the user interface and orchestration layer for a chat-based assistant designed to troubleshoot household appliances using scanned manuals. It leverages Retrieval-Augmented Generation (RAG) over a local vector database.
 
-Key components evaluated in June 2026:
+Key components evaluated in late August 2026:
 - **UI Frameworks**: Comparison between Open WebUI and Streamlit for family use.
 - **RAG Orchestration**: Integration with Ollama and local embedding models.
 - **Agentic Loops**: Implementation of self-healing loops for autonomous remediation.
@@ -12,7 +12,7 @@ Key components evaluated in June 2026:
 Scanned manuals are often long, poorly indexed, and difficult to search during a "household emergency" (e.g., a leaking dishwasher). This assistant provides immediate, natural language answers to specific troubleshooting questions, reducing time-to-fix.
 
 ## Where it fits in the stack
-**User Interface / Orchestration Layer**. It connects the user to local LLMs (Claude 4.8 or GPT-5.5) and the Vector DB containing chunked manual data.
+**User Interface / Orchestration Layer**. It connects the user to local LLMs (Claude 5.1 or GPT-5.5) and the Vector DB containing chunked manual data.
 
 ## Typical use cases
 - Interpreting cryptic error codes on the oven or washing machine.
@@ -24,7 +24,7 @@ Scanned manuals are often long, poorly indexed, and difficult to search during a
 - **Accessibility**: Family members can ask questions via phone or tablet without technical knowledge.
 - **Privacy**: Entirely self-hosted when using local LLMs and embeddings.
 - **Accuracy**: RAG reduces hallucinations by grounding the LLM in the actual text of the manual.
-- **Frontier Support**: Optimized for Claude 4.8 and GPT-5.5 reasoning patterns.
+- **Frontier Support**: Optimized for Claude 5.1 and GPT-5.5 reasoning patterns.
 
 ## Limitations
 - **OCR Quality**: Poorly scanned manuals may lead to incorrect information retrieval.
@@ -71,12 +71,47 @@ The assistant can be integrated into larger workflows via API.
 import requests
 
 def get_troubleshooting_help(query):
-    # Example endpoint for the home admin agent (June 2026 pattern)
+    # Example endpoint for the home admin agent (late August 2026 pattern)
     response = requests.post(
         "http://localhost:8000/api/chat",
         json={"message": query, "context_tags": ["manuals"]}
     )
     return response.json()["answer"]
+```
+
+### Dynamic Troubleshooting using MCP 3.1 Task Protocol
+Under the late August 2026 standard, we can represent a troubleshooting task dynamically using the MCP 3.1 Task Protocol JSON payload.
+
+```json
+{
+  "$schema": "https://modelcontextprotocol.org/schemas/mcp-3.1-task.json",
+  "task": {
+    "id": "troubleshoot-dishwasher-0831",
+    "name": "Analyze Dishwasher Error",
+    "parameters": {
+      "appliance": "Bosch Dishwasher Series 800",
+      "error_code": "E24",
+      "rag_index": "household_manuals_v2"
+    },
+    "steps": [
+      {
+        "name": "query-vector-db",
+        "tool": "chromadb-search",
+        "arguments": {
+          "query": "E24 error drain pump drain hose blockage",
+          "limit": 3
+        }
+      },
+      {
+        "name": "generate-remediation",
+        "tool": "claude-5-1-reason",
+        "arguments": {
+          "prompt": "Based on retrieved chunks: {{steps.query-vector-db.output}}, construct clear, illustrated step-by-step instructions to clear the E24 error."
+        }
+      }
+    ]
+  }
+}
 ```
 
 ## Related tools / concepts
@@ -95,5 +130,5 @@ def get_troubleshooting_help(query):
 - [Self-Healing Agentic Loops for Homelab Automation](https://riera.co.uk/blog/self-healing-agents)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
