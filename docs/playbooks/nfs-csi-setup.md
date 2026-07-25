@@ -2,15 +2,15 @@
 
 ## What it is
 
-This playbook defines the technical process for configuring the NFS CSI (Container Storage Interface) driver on a K3s cluster. It enables Kubernetes pods to use persistent storage hosted on a [TrueNAS SCALE](../architecture/infrastructure.md) server via the NFS protocol, supporting dynamic volume provisioning. As of June 2026, this is the standard for 'Invisible Kubernetes' homelab clusters.
+This playbook defines the technical process for configuring the NFS CSI (Container Storage Interface) driver on a K3s cluster. It enables Kubernetes pods to use persistent storage hosted on a [TrueNAS SCALE](../architecture/infrastructure.md) server via the NFS protocol, supporting dynamic volume provisioning. As of late August 2026, this is the standard for 'Invisible Kubernetes' homelab clusters.
 
 ## What problem it solves
 
-Standard local path provisioning in K3s is limited to the storage available on individual nodes and does not support high availability or shared storage across nodes. This setup solves the "persistent storage bottleneck" by centralizing data on a dedicated NAS, allowing pods to migrate between nodes while maintaining access to their data. It is particularly useful for storing massive model weights for [Claude 4.8](../tools/ai_knowledge/claude.md) and [GPT-5.5](../tools/ai_knowledge/openai.md).
+Standard local path provisioning in K3s is limited to the storage available on individual nodes and does not support high availability or shared storage across nodes. This setup solves the "persistent storage bottleneck" by centralizing data on a dedicated NAS, allowing pods to migrate between nodes while maintaining access to their data. It is particularly useful for storing massive model weights for [Claude 5.1](../tools/ai_knowledge/claude.md) and [GPT-5.5](../tools/ai_knowledge/openai.md).
 
 ## Where it fits in the stack
 
-**Category**: Playbook / Infrastructure. It sits in the **storage abstraction layer**, connecting the **compute cluster** (K3s) to the **data persistence layer** (TrueNAS SCALE). It integrates with [EKS Auto Mode](../knowledge_base/invisible_kubernetes.md) patterns for automated node scaling via native [Karpenter](../knowledge_base/invisible_kubernetes.md) integration.
+**Category**: Playbook / Infrastructure. It sits in the **storage abstraction layer**, connecting the **compute cluster** (K3s) to the **data persistence layer** (TrueNAS SCALE). It integrates with [EKS Auto Mode](../knowledge_base/invisible_kubernetes.md) patterns for automated node scaling via native [Karpenter](../knowledge_base/invisible_kubernetes.md) integration, natively orchestrated using Model Context Protocol (MCP 3.1) Task Protocol agents.
 
 ## Workflow Architecture
 
@@ -39,9 +39,9 @@ flowchart TD
 
 - **Clustered App Storage**: Providing shared persistent volumes for applications like Nextcloud or Plex that may run on any cluster node.
 - **Dynamic Provisioning**: Automatically creating NFS sub-directories on the NAS whenever a pod requests a new `PersistentVolumeClaim`.
-- **Large Model Weights**: Storing 100GB+ weights for [Llama 4 Maverick](../tools/ai_knowledge/meta_llama.md) in a centralized, accessible location.
+- **Large Model Weights**: Storing 100GB+ weights for [Llama 4](../tools/ai_knowledge/meta_llama.md), Gemma 3, and Qwen 3.6 in a centralized, accessible location.
 - **High Availability**: Ensuring service continuity by allowing pods to restart on healthy nodes without data loss during a node failure.
-- **Agentic Infrastructure**: Supporting [Claude 4.8](../tools/ai_knowledge/claude.md) and [MCP](../tools/automation_orchestration/mcp.md) controlled storage lifecycle management.
+- **Agentic Infrastructure**: Supporting [Claude 5.1](../tools/ai_knowledge/claude.md) and [MCP](../tools/automation_orchestration/mcp.md) controlled storage lifecycle management.
 
 ## Strengths
 
@@ -132,7 +132,7 @@ kubectl logs -l app=nfs-subdir-external-provisioner --tail=50
 ## API examples
 
 ```yaml
-# Example of an automated StorageClass definition for a June 2026 cluster
+# Example of an automated StorageClass definition for a late August 2026 cluster
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -149,6 +149,47 @@ mountOptions:
   - noresvport
 ```
 
+### Programmatic Integration with MCP 3.1 Task Protocol
+Below is a Python snippet using the MCP 3.1 Task Protocol to programmatically declare and claim an NFS-backed volume for an agent task.
+
+```python
+import json
+import asyncio
+from mcp.task_protocol import TaskClient, VolumeMount
+
+async def provision_agent_nfs_volume():
+    # Programmatically provision and bind an NFS CSI volume for an agent task execution
+    client = TaskClient(endpoint="http://localhost:8000/tasks/v1")
+
+    # Define volume mount configuration leveraging the NFS StorageClass
+    task_spec = {
+        "task_name": "llama-4-inference-run",
+        "volumes": [
+            {
+                "name": "nfs-model-weights",
+                "storage_class": "truenas-nfs-auto",
+                "capacity": "100Gi",
+                "access_mode": "ReadWriteMany"
+            }
+        ],
+        "container": {
+            "image": "ollama/ollama:latest",
+            "volume_mounts": [
+                {
+                    "name": "nfs-model-weights",
+                    "mount_path": "/root/.ollama"
+                }
+            ]
+        }
+    }
+
+    task = await client.create_task(spec=task_spec)
+    print(f"Task created successfully. Task ID: {task.id}")
+    print(f"Volume status: {task.volumes[0].status}")
+
+asyncio.run(provision_agent_nfs_volume())
+```
+
 ## Related tools / concepts
 
 - [Infrastructure Architecture](../architecture/infrastructure.md)
@@ -157,9 +198,9 @@ mountOptions:
 - [Paperless-ngx Service](../services/paperless-ngx.md)
 - [Home Assistant Service](../services/home-assistant.md)
 - [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md)
-- [Claude 4.8](../tools/ai_knowledge/claude.md)
+- [Claude 5.1](../tools/ai_knowledge/claude.md)
 - [GPT-5.5](../tools/ai_knowledge/openai.md)
-- [Llama 4 Maverick](../tools/ai_knowledge/meta_llama.md)
+- [Llama 4](../tools/ai_knowledge/meta_llama.md)
 
 ## Sources / References
 
@@ -169,5 +210,5 @@ mountOptions:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-31
 - Confidence: high
