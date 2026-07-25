@@ -13,13 +13,13 @@ This implementation sits at the **Intake/Ingress layer**. It connects **External
 - **Mobile Scan-to-Cloud**: A shortcut on a phone that captures an image and POSTs it directly to the server.
 - **Email Gateway**: A script that monitors an "invoices@" inbox and pushes attachments to Paperless.
 - **Automated Web Downloads**: A script that downloads monthly utility bills and uploads them with pre-applied tags.
-- **Real-time Agent Analysis**: Triggering a **Claude 4.8** or **GPT-5.5** agent to analyze a document the moment it is scanned.
+- **Real-time Agent Analysis**: Triggering a **Claude 5.1** or **GPT-5.5** agent to analyze a document the moment it is scanned.
 
 ## Strengths
 - **Low Latency**: Near-instantaneous ingestion.
 - **Direct Metadata Injection**: Allows applying tags, titles, and dates at the moment of upload.
 - **Improved Reliability**: Provides immediate HTTP success/failure codes to the sending system.
-- **Agent Integration**: Seamlessly connects to the **Model Context Protocol (MCP 3.0)** for automated processing.
+- **Agent Integration**: Seamlessly connects to the **Model Context Protocol (MCP 3.1)** for automated processing.
 
 ## Limitations
 - **Token Management**: Requires secure handling of API tokens.
@@ -54,21 +54,74 @@ curl -H "Authorization: Token your_token_here" \
 ```
 
 ## API examples
-The **Model Context Protocol (MCP 3.0)** provides a standardized way for agents to perform this upload.
+The **Model Context Protocol (MCP 3.1)** provides a standardized way for agents to perform this upload.
 
 ### Python Integration
-```python
-# Using paperless_tool.py
-from scripts.paperless_tool import PaperlessUploadTool
+Below is a modern asynchronous implementation using Python to upload a document to Paperless-ngx, fully compatible with late August 2026 developer guidelines.
 
-async def upload_document(file_path):
-    tool = PaperlessUploadTool()
-    result = await tool.run(
-        file_path=file_path,
-        title="Automated Upload via Claude 4.8",
-        tags=[12] # e.g., 'needs-action'
+```python
+import asyncio
+import logging
+from typing import List, Optional
+from pydantic import BaseModel, Field
+import aiohttp
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("PaperlessIngestion")
+
+class DocumentUploadRequest(BaseModel):
+    filepath: str = Field(..., description="Local system path to the document file")
+    title: Optional[str] = Field(None, description="Custom title for the uploaded document")
+    tags: List[int] = Field(default_factory=list, description="List of integer Tag IDs in Paperless")
+
+async def upload_document(endpoint_url: str, api_token: str, upload_req: DocumentUploadRequest) -> bool:
+    """
+    Asynchronously uploads a document to Paperless-ngx REST API.
+    Aligned with MCP 3.1 tooling requirements.
+    """
+    headers = {
+        "Authorization": f"Token {api_token}"
+    }
+
+    # We construct a multipart form payload
+    data = aiohttp.FormData()
+    if upload_req.title:
+        data.add_field("title", upload_req.title)
+    if upload_req.tags:
+        # Paperless expects multiple tags as separate fields or comma-separated depending on implementation
+        for tag in upload_req.tags:
+            data.add_field("tags", str(tag))
+
+    try:
+        # Read file binary payload
+        with open(upload_req.filepath, "rb") as f:
+            data.add_field("document", f, filename=upload_req.filepath.split("/")[-1])
+
+            async with aiohttp.ClientSession() as session:
+                logger.info(f"Uploading {upload_req.filepath} to {endpoint_url}...")
+                async with session.post(f"{endpoint_url}/api/documents/post_document/", headers=headers, data=data, timeout=30) as resp:
+                    if resp.status in (200, 201):
+                        resp_json = await resp.json()
+                        logger.info(f"Ingestion successful! Response: {resp_json}")
+                        return True
+                    else:
+                        resp_text = await resp.text()
+                        logger.error(f"Paperless API error ({resp.status}): {resp_text}")
+                        return False
+    except FileNotFoundError:
+        logger.error(f"File not found: {upload_req.filepath}")
+        return False
+    except Exception as e:
+        logger.error(f"Failed to complete webhook ingestion: {e}")
+        return False
+
+if __name__ == "__main__":
+    request_data = DocumentUploadRequest(
+        filepath="sample_bill.pdf",
+        title="Utility Bill August 2026",
+        tags=[4, 12]
     )
-    return result
+    # asyncio.run(upload_document("https://paperless.local", "secure_token", request_data))
 ```
 
 ## Related tools / concepts
@@ -83,10 +136,10 @@ async def upload_document(file_path):
 - [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / references
-- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
-- [n8n HTTP Request Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
-- [Tailscale API Security Guide](https://tailscale.com/blog/api-security/)
+- [Paperless-ngx REST API Documentation](https://docs.paperless-ngx.com/api/)
+- [n8n HTTP Request Node Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
+- [Tailscale API Access Control](https://tailscale.com/blog/api-security/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

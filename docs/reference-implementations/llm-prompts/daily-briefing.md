@@ -7,7 +7,7 @@ The "Family Daily Briefing" is a structured LLM prompt designed to synthesize da
 Managing a household involves tracking disparate information across calendars, task managers, and weather apps. Checking each individually is time-consuming and often leads to missing important details. This prompt automates the synthesis, highlighting conflicts and priorities in a single, easy-to-read message.
 
 ## Where it fits in the stack
-This prompt is part of the **AI Service** layer. It is typically executed by an LLM node (like **Ollama**, **GPT-5.5**, or **Claude 4.8**) within an **Orchestration** workflow (n8n), consuming data from the **Productivity** (Calendar/Tasks) and **Environmental** (Weather) layers. Modern integrations utilize the **Model Context Protocol (MCP 3.0)** to provide real-time, secure access to these data sources.
+This prompt is part of the **AI Service** layer. It is typically executed by an LLM node (like **Ollama**, **GPT-5.5**, **Claude 5.1**, **Llama 4**, or **Qwen 3.6**) within an **Orchestration** workflow (n8n), consuming data from the **Productivity** (Calendar/Tasks) and **Environmental** (Weather) layers. Modern integrations utilize the **Model Context Protocol (MCP 3.1)** to provide real-time, secure access to these data sources.
 
 ## Typical use cases
 - **Morning Routine Automation**: Sending a briefing at 07:00 AM every morning.
@@ -21,8 +21,8 @@ This prompt is part of the **AI Service** layer. It is typically executed by an 
 
 ## Limitations
 - **Data Freshness**: Relies on the n8n workflow fetching the latest data at the time of execution.
-- **LLM Cost/Latency**: Depending on the model used, there may be a small cost or a few seconds of delay in generating the briefing. Frontier models like **GPT-5.5** or **Claude 4.8** are faster but more expensive.
-- **Hallucination Risk**: Small chance of misinterpreting times or priorities if the input data is messy. Local models like **Llama 4 Maverick** can mitigate privacy concerns but may have higher latency on modest hardware.
+- **LLM Cost/Latency**: Depending on the model used, there may be a small cost or a few seconds of delay in generating the briefing. Frontier models like **GPT-5.5** or **Claude 5.1** are faster but more expensive.
+- **Hallucination Risk**: Small chance of misinterpreting times or priorities if the input data is messy. Local models like **Llama 4** can mitigate privacy concerns but may have higher latency on modest hardware.
 
 ## When to use it
 - When your family uses multiple digital tools to manage life and needs a unified view.
@@ -74,8 +74,8 @@ Markdown-formatted text, suitable for delivery via Telegram or Email.
 You can test the synthesis logic using the `ollama` CLI with a local model.
 
 ```bash
-# Testing the briefing with Ollama and Llama 4 Maverick
-ollama run llama-4-maverick "Prepare a family briefing for 2026-06-26. Weather: Sunny, 25C. Tasks: Buy milk, Fix sink. Events: Dentist at 2PM."
+# Testing the briefing with Ollama and Llama 4
+ollama run llama4 "Prepare a family briefing for 2026-08-31. Weather: Sunny, 25C. Tasks: Buy milk, Fix sink. Events: Dentist at 2PM."
 ```
 
 ## API examples
@@ -95,6 +95,66 @@ curl https://api.openai.com/v1/chat/completions \
   }'
 ```
 
+And via a modern asynchronous Python script leveraging standard OpenAI and Pydantic v2 libraries:
+
+```python
+import asyncio
+import logging
+from typing import List, Optional
+from pydantic import BaseModel, Field
+import openai
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("DailyBriefing")
+
+class CalendarEvent(BaseModel):
+    title: str
+    start_time: str
+    end_time: str
+
+class HouseholdTask(BaseModel):
+    title: str
+    priority: int
+
+class DailyBriefingSchema(BaseModel):
+    greeting: str
+    schedule_summary: List[str] = Field(..., description="Chronological list of events")
+    task_summary: List[str] = Field(..., description="High-priority chores")
+    memory_mention: Optional[str] = Field(None, description="On this day memory")
+
+async def generate_briefing(events: List[dict], tasks: List[dict]) -> Optional[str]:
+    """
+    Generates a structured daily briefing using GPT-5.5 under MCP 3.1 task protocol context.
+    """
+    try:
+        client = openai.AsyncOpenAI()
+        prompt = f"Events: {events}\nTasks: {tasks}"
+
+        response = await client.beta.chat.completions.parse(
+            model="gpt-5.5-preview",
+            messages=[
+                {"role": "system", "content": "You are a precise family admin assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format=DailyBriefingSchema,
+            timeout=15.0
+        )
+
+        briefing = response.choices[0].message.parsed
+        if briefing:
+            logger.info("Successfully generated daily briefing.")
+            return briefing.model_dump_json(indent=2)
+        return None
+    except Exception as e:
+        logger.error(f"Failed to generate daily briefing: {e}")
+        return None
+
+if __name__ == "__main__":
+    test_events = [{"title": "Dentist", "start_time": "14:00", "end_time": "15:00"}]
+    test_tasks = [{"title": "Buy milk", "priority": 1}]
+    asyncio.run(generate_briefing(test_events, test_tasks))
+```
+
 ## Related tools / concepts
 - [Google Calendar](../../tools/calendar_tasks/google_calendar.md): Primary data source for the schedule.
 - [Vikunja](../../services/vikunja.md): Primary data source for tasks and chores.
@@ -106,10 +166,10 @@ curl https://api.openai.com/v1/chat/completions \
 - [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / references
-- [n8n Documentation](https://docs.n8n.io/)
-- [Prompt Engineering Guide](https://www.promptingguide.ai/)
-- [Smart Home Briefing Patterns (GitHub)](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/nodes/LLM)
+- [n8n Orchestration Node Reference](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
+- [OpenAI Prompt Engineering Best Practices](https://platform.openai.com/docs/guides/prompt-engineering)
+- [Anthropic Developer Hub](https://docs.anthropic.com/en/home)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

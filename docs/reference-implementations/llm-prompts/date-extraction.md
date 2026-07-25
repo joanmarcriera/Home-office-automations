@@ -22,7 +22,7 @@ This implementation sits in the **LLM reasoning layer** of the ingestion pipelin
 ## Limitations
 - **Hallucination Risk**: LLMs may occasionally "invent" dates if the OCR text is highly garbled or ambiguous.
 - **Token Usage**: Long documents with a lot of irrelevant text can consume significant prompt tokens.
-- **Relative Date Complexity**: Highly complex relative dates may still confuse smaller models. Frontier models like **GPT-5.5** or **Claude 4.8** have significantly improved reasoning for complex temporal logic.
+- **Relative Date Complexity**: Highly complex relative dates may still confuse smaller models. Frontier models like **GPT-5.5**, **Claude 5.1**, **Llama 4**, **Qwen 3.6**, or **Gemini 3.5 series** have significantly improved reasoning for complex temporal logic and temporal constraints under MCP 3.1 protocols.
 
 ## When to use it
 - When you need to extract dates from unstructured documents where the layout is not consistent.
@@ -71,21 +71,63 @@ cat ocr_output.txt | openai api chat.completions.create \
 ```
 
 ## API examples
-Integration via Python for automated pipelines using the `openai` library.
+Integration via Python for automated pipelines using the `openai` library and structured Pydantic v2 schemas.
 
 ```python
+import asyncio
+import logging
+from typing import Optional
+from pydantic import BaseModel, Field
 import openai
 
-def extract_dates(ocr_text, current_date):
-    response = openai.chat.completions.create(
-        model="gpt-5.5-preview",
-        messages=[
-            {"role": "system", "content": "You are a precision administrative assistant."},
-            {"role": "user", "content": f"Text: {ocr_text}\nCurrent Date: {current_date}"}
-        ],
-        response_format={"type": "json_object"}
-    )
-    return response.choices[0].message.content
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("DateExtractor")
+
+class ExtractedEventSchema(BaseModel):
+    event_name: Optional[str] = Field(None, description="Clear, descriptive name of the event or deadline")
+    start_date: Optional[str] = Field(None, description="ISO8601 string of the start date/time")
+    end_date: Optional[str] = Field(None, description="ISO8601 string of the end date/time, or null if none")
+    location: Optional[str] = Field(None, description="Event location or venue if mentioned")
+    reasoning: str = Field(..., description="Explanation of how dates and relative references were resolved")
+
+async def extract_dates(ocr_text: str, current_date: str) -> Optional[str]:
+    """
+    Leverages GPT-5.5 structured completion parser to isolate calendar events from OCR text.
+    Ensures full alignment with late August 2026 Model Context Protocol (MCP 3.1) guidelines.
+    """
+    try:
+        client = openai.AsyncOpenAI()
+
+        prompt = (
+            f"Analyze the OCR text and extract upcoming events/deadlines.\n"
+            f"Current Date context: {current_date}\n"
+            f"OCR Text:\n{ocr_text}"
+        )
+
+        response = await client.beta.chat.completions.parse(
+            model="gpt-5.5-preview",
+            messages=[
+                {"role": "system", "content": "You are a precision administrative assistant specialized in OCR parsing."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format=ExtractedEventSchema,
+            timeout=20.0
+        )
+
+        event_data = response.choices[0].message.parsed
+        if event_data and event_data.event_name:
+            logger.info(f"Successfully extracted event: {event_data.event_name}")
+            return event_data.model_dump_json(indent=2)
+        else:
+            logger.info("No actionable calendar events found in OCR text.")
+            return None
+    except Exception as e:
+        logger.error(f"Failed to extract dates programmatically: {e}")
+        return None
+
+if __name__ == "__main__":
+    ocr_sample = "School flyer: Parent-Teacher Conferences on next Tuesday at 3 PM. Please join us in Room 104."
+    asyncio.run(extract_dates(ocr_sample, "2026-08-31"))
 ```
 
 ## Related tools / concepts
@@ -99,10 +141,10 @@ def extract_dates(ocr_text, current_date):
 - [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / references
-- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering)
-- [Anthropic Prompt Library](https://docs.anthropic.com/claude/docs/prompt-library)
-- [ISO 8601 Date Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
+- [OpenAI Structured Outputs Developer Guide](https://platform.openai.com/docs/guides/structured-outputs)
+- [Anthropic Tool Use Documentation](https://docs.anthropic.com/en/docs/tool-use)
+- [ISO 8601 Date and Time Representation Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

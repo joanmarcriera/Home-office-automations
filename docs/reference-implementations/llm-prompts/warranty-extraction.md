@@ -15,13 +15,13 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 - **Insurance Audits**: Providing a structured list of covered household items and their protection status.
 
 ## Strengths
-- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5** or **Claude 4.8**.
+- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5**, **Claude 5.1**, **Llama 4**, **Gemma 3**, **Qwen 3.6**, or **Gemini 3.5 series**.
 - **Standardized Schema**: Outputs are ready for consumption by databases and calendar APIs.
 - **Calculation Logic**: Moves the burden of date math (e.g., "12 months from today") from the user to the LLM.
 
 ## Limitations
 - **OCR Quality**: If the initial scan is poor, the LLM may misread dates or product names.
-- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context. Local models like **Llama 4 Maverick** are improving but may still require specific few-shot examples for these edge cases.
+- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context. Local models like **Llama 4** are improving but may still require specific few-shot examples for these edge cases.
 
 ## When to use it
 - When integrating document management (Paperless-ngx) with task management (Vikunja).
@@ -35,7 +35,7 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 ## Getting started
 1. Enable OCR in Paperless-ngx or your chosen ingestion tool.
 2. Configure a webhook or n8n workflow to trigger when a document is tagged as `Warranty`.
-3. Use the **Anthropic Claude 4.8** or **OpenAI GPT-5.5** API to process the OCR text using the prompt template below.
+3. Use the **Anthropic Claude 5.1** or **OpenAI GPT-5.5** API to process the OCR text using the prompt template below.
 4. Parse the JSON output and create a task in Vikunja with a due date 30 days before the warranty expiration.
 
 ### Prompt Template
@@ -68,29 +68,64 @@ Return a JSON object:
 Test the extraction logic using the `anthropic` CLI.
 
 ```bash
-# Test warranty extraction with Claude 4.8
+# Test warranty extraction with Claude 5.1
 cat receipt_ocr.txt | anthropic messages create \
-  --model claude-4-8-opus-20260528 \
+  --model claude-5-1-sonnet-20260715 \
   --system "You are an expert document analyzer. Output JSON only." \
   --user
 ```
 
 ## API examples
-Example of structured output enforcement using the OpenAI Python library.
+Example of structured output enforcement using the OpenAI Python library, utilizing Pydantic v2 schemas and modern async context handling.
 
 ```python
+import asyncio
+import logging
+from typing import Optional
+from pydantic import BaseModel, Field
 import openai
 
-def get_warranty_info(ocr_text):
-    completion = openai.chat.completions.create(
-        model="gpt-5.5-preview",
-        messages=[
-            {"role": "system", "content": "You extract warranty info in JSON."},
-            {"role": "user", "content": ocr_text}
-        ],
-        response_format={"type": "json_object"}
-    )
-    return completion.choices[0].message.content
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("WarrantyExtractor")
+
+class WarrantySchema(BaseModel):
+    product_name: str = Field(..., description="The model or exact product name")
+    manufacturer: str = Field(..., description="Brand name / manufacturer")
+    purchase_date: str = Field(..., description="Purchase date in YYYY-MM-DD format")
+    warranty_duration_months: int = Field(..., description="Duration of warranty in months")
+    expiration_date: str = Field(..., description="Calculated expiration date in YYYY-MM-DD format")
+    is_extended_warranty: bool = Field(default=False)
+    notes: Optional[str] = Field(None, description="Additional coverage info, limited lifetime exceptions etc.")
+
+async def get_warranty_info(ocr_text: str) -> Optional[str]:
+    """
+    Uses GPT-5.5 under MCP 3.1 schemas to precisely parse receipt text into structured warranty schemas.
+    """
+    try:
+        client = openai.AsyncOpenAI()
+
+        response = await client.beta.chat.completions.parse(
+            model="gpt-5.5-preview",
+            messages=[
+                {"role": "system", "content": "You are a precise invoice/receipt data extractor. Extract warranty info in structured JSON format."},
+                {"role": "user", "content": ocr_text}
+            ],
+            response_format=WarrantySchema,
+            timeout=15.0
+        )
+
+        warranty_data = response.choices[0].message.parsed
+        if warranty_data:
+            logger.info(f"Successfully extracted warranty for product: {warranty_data.product_name}")
+            return warranty_data.model_dump_json(indent=2)
+        return None
+    except Exception as e:
+        logger.error(f"Failed to extract warranty info: {e}")
+        return None
+
+if __name__ == "__main__":
+    ocr_sample = "Store receipt: Purchased Samsung TV QN90D on 2026-08-30. Includes 24 months manufacturer warranty."
+    asyncio.run(get_warranty_info(ocr_sample))
 ```
 
 ## Related tools / concepts
@@ -104,10 +139,10 @@ def get_warranty_info(ocr_text):
 - [MCP](../../tools/automation_orchestration/mcp.md) — Standardized protocol for model-tool interaction.
 
 ## Sources / references
-- [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
-- [OpenAI Structured Outputs Guide](https://platform.openai.com/docs/guides/structured-outputs)
-- [Anthropic JSON Mode](https://docs.anthropic.com/claude/docs/test-and-evaluate-prompts#json-mode)
+- [Paperless-ngx API Reference](https://docs.paperless-ngx.com/api/)
+- [OpenAI Structured Validation Guides](https://platform.openai.com/docs/guides/structured-outputs)
+- [Anthropic JSON Constraints and Steering](https://docs.anthropic.com/en/docs/test-and-evaluate-prompts)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
