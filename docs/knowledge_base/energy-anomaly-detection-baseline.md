@@ -1,7 +1,7 @@
 # Home Energy Anomaly Detection Baseline
 
 ## What it is
-The Home Energy Anomaly Detection Baseline is a technical framework for monitoring household power consumption and identifying irregular patterns using a combination of statistical thresholds and AI-driven classification. In June 2026, this baseline incorporates "Self-Healing Agentic Loops" where agents not only detect but also autonomously remediate or investigate energy spikes. It leverages real-time sensor data from Home Assistant and high-level reasoning from models like Claude 4.8 or GPT-5.5.
+The Home Energy Anomaly Detection Baseline is a technical framework for monitoring household power consumption and identifying irregular patterns using a combination of statistical thresholds and AI-driven classification. In late August 2026, this baseline incorporates "Self-Healing Agentic Loops" where agents not only detect but also autonomously remediate or investigate energy spikes. It leverages real-time sensor data from Home Assistant and high-level reasoning from models like Claude 5.1, GPT-5.5, or Gemini 3.5 Pro, integrated natively via the Model Context Protocol (MCP 3.1) Task Protocol.
 
 The logic relies on three core pillars:
 1. **Statistical Baseline**: Calculating the moving average and standard deviation ($P_{avg} + 2\sigma$) for specific time buckets.
@@ -22,7 +22,7 @@ This pattern sits in the **Intelligence & Analytics Layer** of the homelab stack
 
 ## Strengths
 - **Low Latency Detection**: Initial spike detection occurs locally within Home Assistant (sub-second response).
-- **High Confidence Classification**: Uses Claude 4.8 or GPT-5.5 to eliminate false positives from complex appliance signatures.
+- **High Confidence Classification**: Uses Claude 5.1, Qwen 3.6, or GPT-5.5 to eliminate false positives from complex appliance signatures.
 - **Privacy First**: Can be implemented entirely on-premises using [Ollama](../services/ollama.md) and local inference for sensitive data.
 - **Extensible**: Easily integrates with new sensors as the homelab grows.
 
@@ -66,10 +66,12 @@ python3 scripts/hw-check.py --sensor sensor.fridge_power --threshold 500
 
 ## API examples
 
-### n8n Agentic Reasoning Payload (Claude 4.8)
+### n8n Agentic Reasoning Payload (Claude 5.1)
+Using MCP 3.1 Task Protocol JSON structure:
 ```json
 {
-  "model": "claude-4-8-opus-20260528",
+  "model": "claude-5.1-opus-20260824",
+  "task": "anomaly-detection",
   "messages": [
     {
       "role": "user",
@@ -102,5 +104,5 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
 - [Energy Anomaly Detection in Smart Homes (2025 Study)](https://arxiv.org/abs/2501.00000)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

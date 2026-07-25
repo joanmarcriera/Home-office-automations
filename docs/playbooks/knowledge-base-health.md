@@ -1,7 +1,7 @@
 # Playbook: Knowledge Base Health
 
 ## What it is
-Knowledge Base Health is a set of operational procedures and automated checks designed to ensure the repository remains accurate, up-to-date, and discoverable. It combines periodic manual audits with continuous integration (CI) quality gates.
+Knowledge Base Health is a set of operational procedures and automated checks designed to ensure the repository remains accurate, up-to-date, and discoverable. It combines periodic manual audits with continuous integration (CI) quality gates. In late August 2026, these gates natively inspect model tags for Claude 5.1, GPT-5.5, Llama 4, and other frontier architectures, integrated with the Model Context Protocol (MCP 3.1) Task Protocol.
 
 ## What problem it solves
 In a rapidly evolving technical environment, documentation quickly becomes stale or fragmented. This playbook prevents "documentation rot" by establishing clear ownership, a structured review cadence, and automated enforcement of formatting standards, ensuring users can always trust the information in the repository.
@@ -122,7 +122,7 @@ flowchart TD
 - **Category index out of sync**: a new tool doc is added to `mkdocs.yml` but not to its `index.md`.
 - **Orphaned JSON entries**: a tool page is deleted but its `all_tools.json` entry remains.
 - **Duplicate pages**: two pages document the same tool.
-- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 4.8").
+- **Stale model references**: docs reference old model names (e.g., "Claude 4.6" instead of "Claude 5.1").
 - **Starred-repo drift**: you star new GitHub repos but never stage them into `docs/new-sources/`.
 
 ## CLI examples
@@ -171,5 +171,5 @@ def check_catalog():
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
