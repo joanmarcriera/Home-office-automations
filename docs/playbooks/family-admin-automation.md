@@ -2,7 +2,7 @@
 
 ## What it is
 
-Family Admin Automation is an architectural pattern for managing and routing household administrative tasks (bills, insurance, medical documents). It leverages [Paperless-ngx](../services/paperless-ngx.md) for classification, [n8n](../services/n8n.md) for workflow orchestration, and [Home Assistant](../services/home-assistant.md) for family-wide notifications and dashboarding. By June 2026, this has evolved into a "Self-Healing Agentic Loop" where [Claude 4.8](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md) proactively manage household operations via [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md).
+Family Admin Automation is an architectural pattern for managing and routing household administrative tasks (bills, insurance, medical documents). It leverages [Paperless-ngx](../services/paperless-ngx.md) for classification, [n8n](../services/n8n.md) for workflow orchestration, and [Home Assistant](../services/home-assistant.md) for family-wide notifications and dashboarding. By late August 2026, this has evolved into a "Self-Healing Agentic Loop" where [Claude 5.1](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md) proactively manage household operations via [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 
@@ -10,7 +10,7 @@ Household administration is often fragmented across multiple family members, lea
 
 ## Where it fits in the stack
 
-**Category**: Playbook / Home Operations. It sits in the **actionable notification layer**, connecting the **document management system** (Paperless-ngx) to the **household control plane** (Home Assistant) and **communication channels** (Matrix/Signal). It utilizes [Model Context Protocol (MCP 3.0)](../knowledge_base/patterns/tool-calling-and-mcp.md) to allow agents to interact with both local and cloud-based administrative tools.
+**Category**: Playbook / Home Operations. It sits in the **actionable notification layer**, connecting the **document management system** (Paperless-ngx) to the **household control plane** (Home Assistant) and **communication channels** (Matrix/Signal). It utilizes [Model Context Protocol (MCP 3.1)](../knowledge_base/patterns/tool-calling-and-mcp.md) to allow agents to interact with both local and cloud-based administrative tools.
 
 ## Typical use cases
 
@@ -18,15 +18,15 @@ Household administration is often fragmented across multiple family members, lea
 - **Insurance Document Archival**: Tagging and filing insurance policies and medical records for easy retrieval during emergencies.
 - **School Form Routing**: Pushing new school forms to a shared "Action Required" dashboard in Home Assistant.
 - **Home Maintenance Tracking**: Automating reminders for recurring maintenance tasks based on scanned service records.
-- **Sentiment-Based Escalation**: Using [Claude 4.8](../tools/ai_knowledge/claude.md) to detect "Final Notice" language and trigger high-priority alerts.
+- **Sentiment-Based Escalation**: Using [Claude 5.1](../tools/ai_knowledge/claude.md) or [Qwen 3.6](../tools/ai_knowledge/qwen.md) to detect "Final Notice" language and trigger high-priority alerts.
 
 ## Strengths
 
 - **High Visibility**: Centralizes task status on a shared dashboard that all family members can see.
-- **Automatic Classification**: Uses Paperless-ngx matching rules and LLM-based reasoning (Claude 4.8) to route documents.
+- **Automatic Classification**: Uses Paperless-ngx matching rules and LLM-based reasoning (Claude 5.1) to route documents.
 - **Multi-Channel**: Supports notifications via Matrix, Signal, or Home Assistant mobile alerts.
 - **Archival Integrity**: Ensures every task is backed by a permanent, OCR'd digital record.
-- **Agent-Ready**: Natively supports [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md) for autonomous task resolution.
+- **Agent-Ready**: Natively supports [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) for autonomous task resolution.
 
 ## Limitations
 
@@ -51,14 +51,14 @@ Household administration is often fragmented across multiple family members, lea
 
 1.  **Configure Paperless**: Set up [Paperless-ngx](../services/paperless-ngx.md) with matching rules for tags like `Utility`, `Medical`, and `Insurance`.
 2.  **Setup the Workflow**: Deploy an [n8n](../services/n8n.md) workflow that triggers on the `needs-action` tag.
-3.  **Integrate LLM**: Use the [Claude 4.8](../tools/ai_knowledge/claude.md) node in n8n for document analysis.
+3.  **Integrate LLM**: Use the [Claude 5.1](../tools/ai_knowledge/claude.md) node in n8n for document analysis.
 4.  **Connect Home Assistant**: Link [Home Assistant](../services/home-assistant.md) to n8n to create notifications and update dashboard sensors.
 5.  **Step-by-Step Flow**:
     ```mermaid
     flowchart TD
         A[Ingest: Email or Scan] --> B[Classify: Paperless Matching Rules]
         B --> C[Process: n8n Workflow]
-        C --> D[LLM Reasoning: Claude 4.8/GPT-5.5]
+        C --> D[LLM Reasoning: Claude 5.1/GPT-5.5]
         D --> E[Notify: Home Assistant Alert]
         E --> F[Dashboard: HA Unprocessed Admin Card]
         F --> G[Action: Manual Tag Removal]
@@ -86,13 +86,13 @@ hass-cli service call notify.family_app \
 ## API examples
 
 ### n8n Agent Node Configuration (JSON)
-Extracting due dates and amounts from a Paperless document using Claude 4.8:
+Extracting due dates and amounts from a Paperless document using Claude 5.1:
 ```json
 {
-  "node": "Claude 4.8 Agent",
+  "node": "Claude 5.1 Agent",
   "parameters": {
     "prompt": "Analyze the following document text and extract the 'Due Date' and 'Amount Due'. Return only JSON.",
-    "model": "claude-4-8-opus-20260528",
+    "model": "claude-5-1-opus-20260820",
     "context": "{{$node[\"Paperless-ngx\"].json[\"content\"]}}"
   }
 }
@@ -127,7 +127,7 @@ print(response.status_code)
 - [Scan to Task](scan-to-task.md): Hardware-centric ingestion playbook.
 - [Email to Calendar](email-to-calendar.md): Complementary playbook for scheduling.
 - [Vikunja](../services/vikunja.md): Open-source task management.
-- [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md): Protocol for agentic tool use.
+- [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md): Protocol for agentic tool use.
 
 ## Sources / References
 
@@ -138,5 +138,5 @@ print(response.status_code)
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-26
 - Confidence: high

@@ -2,7 +2,7 @@
 
 ## What it is
 
-School Admin Intake is a specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG (Retrieval-Augmented Generation), and automated workflow triggers to ensure no school deadline is missed. By June 2026, it utilizes [Llama 4 Maverick](../tools/ai_knowledge/llama.md) (70B) for privacy-first, local document processing.
+School Admin Intake is a specialized administrative automation playbook designed to handle the high volume of correspondence, permission slips, and scheduling requests from educational institutions. It uses OCR, RAG (Retrieval-Augmented Generation), and automated workflow triggers to ensure no school deadline is missed. By late August 2026, it utilizes [Llama 4](../tools/ai_knowledge/llama.md) (70B) or [Gemma 3](../tools/ai_knowledge/gemma.md) for privacy-first, local document processing.
 
 ## What problem it solves
 
@@ -91,7 +91,7 @@ Extracting consent requirements using the Paperless-AI API:
 {
   "document_id": "4567",
   "query": "Is parental consent required for this activity? If so, what is the deadline?",
-  "model": "llama-4-maverick-70b",
+  "model": "llama-4-70b-instruct",
   "temperature": 0
 }
 ```
@@ -131,5 +131,5 @@ Creating a school event from extracted data:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-26
 - Confidence: high

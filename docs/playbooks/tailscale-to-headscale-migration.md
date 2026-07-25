@@ -40,9 +40,9 @@ To begin the migration:
 3.  **Perform a Pilot**: Migrate a single non-critical node first using the steps in this playbook.
 
 ### Agent-Assisted Migration
-Modern agents can significantly simplify the migration process. Use a June 2026-class agent (e.g., [Claude 4.8](../tools/ai_knowledge/claude.md) or [GPT-5.5](../tools/ai_knowledge/openai.md)) to:
+Modern agents can significantly simplify the migration process. Use a late August 2026-class agent (e.g., [Claude 5.1](../tools/ai_knowledge/claude.md), [GPT-5.5](../tools/ai_knowledge/openai.md), [Llama 4](../tools/ai_knowledge/llama.md), or [Qwen 3.6](../tools/ai_knowledge/qwen.md)) integrated with Model Context Protocol (MCP 3.1) to:
 - **Translate ACLs**: Convert Tailscale `policy.hujson` to Headscale-compatible YAML/ACL formats.
-- **Automate Client Rollout**: Script the `tailscale logout` and `tailscale up --login-server` commands across a fleet of Linux nodes via SSH.
+- **Automate Client Rollout**: Script the `tailscale logout` and `tailscale up --login-server` commands across a fleet of Linux nodes via SSH using MCP-enabled terminal tools.
 - **Validate OIDC Config**: Verify the `config.yaml` parameters against your [Authentik](../services/authentik.md) provider metadata.
 
 ### Migration Workflow
@@ -128,7 +128,7 @@ tailscale up
 ```
 
 ### Troubleshooting Migration Issues
-- **OIDC Redirect Loops**: Often caused by mismatched `server_url` in Headscale and `redirect_uris` in Authentik. Use Claude 4.8 to inspect the logs: `docker logs headscale`.
+- **OIDC Redirect Loops**: Often caused by mismatched `server_url` in Headscale and `redirect_uris` in Authentik. Use Claude 5.1 or GPT-5.5 to inspect the logs: `docker logs headscale`.
 - **Node Name Conflicts**: Headscale requires unique node names per user. If a migration fails due to naming, use `headscale nodes rename`.
 - **Pre-Auth Key Expiry**: If migrating headless nodes, ensure the pre-auth keys generated on the server have sufficient TTL.
 
@@ -198,5 +198,5 @@ def approve_node(headscale_url, api_key, user, node_key):
 - [Headscale v0.24.0 Release Notes](https://github.com/juanfont/headscale/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-26
 - Confidence: high

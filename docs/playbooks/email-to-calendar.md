@@ -2,7 +2,7 @@
 
 ## What it is
 
-Email to Calendar Automation is a specialized administrative workflow that leverages Large Language Models (LLMs) and [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md) to parse incoming emails (newsletters, flight confirmations, medical appointments) and sync them to a primary calendar. It utilizes [n8n](../services/n8n.md) as the orchestrator and [Claude 4.8](../tools/ai_knowledge/claude.md) for precise temporal reasoning.
+Email to Calendar Automation is a specialized administrative workflow that leverages Large Language Models (LLMs) and [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) to parse incoming emails (newsletters, flight confirmations, medical appointments) and sync them to a primary calendar. It utilizes [n8n](../services/n8n.md) as the orchestrator and [Claude 5.1](../tools/ai_knowledge/claude.md) for precise temporal reasoning.
 
 ## What problem it solves
 
@@ -21,10 +21,10 @@ Digital calendars are often incomplete because event data is trapped in unstruct
 
 ## Strengths
 
-- **High Precision**: Uses June 2026-class models ([Claude 4.8](../tools/ai_knowledge/claude.md)) for complex date/time reasoning.
+- **High Precision**: Uses late August 2026-class models ([Claude 5.1](../tools/ai_knowledge/claude.md)) for complex date/time reasoning.
 - **Self-Cleaning**: Automatically tags processed emails in [Paperless-ngx](../services/paperless-ngx.md) to avoid duplicate entries.
 - **Model Agnostic**: Supports routing between cloud models (GPT-5.5) and local models ([Llama 4](../tools/ai_knowledge/llama.md)) based on data sensitivity.
-- **Protocol Native**: Utilizes [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md) for standardized calendar tool access.
+- **Protocol Native**: Utilizes [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md) for standardized calendar tool access.
 
 ## Limitations
 
@@ -50,7 +50,7 @@ To implement Email to Calendar Automation:
 
 1.  **Monitor Inbox**: Set up an n8n IMAP trigger to watch a specific folder (e.g., `Automate/Calendar`).
 2.  **Capture and Store**: Forward the email to [Paperless-ngx](../services/paperless-ngx.md) for archiving and OCR.
-3.  **Extract with LLM**: Use the [Claude 4.8](../tools/ai_knowledge/claude.md) node in n8n with a structured prompt to return JSON.
+3.  **Extract with LLM**: Use the [Claude 5.1](../tools/ai_knowledge/claude.md) node in n8n with a structured prompt to return JSON.
 4.  **Sync to Calendar**: Use the [Google Calendar](../tools/calendar_tasks/google_calendar.md) node or [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) to create the event.
 5.  **Step-by-Step Flow**:
     ```mermaid
@@ -59,9 +59,9 @@ To implement Email to Calendar Automation:
         B --> C[Convert Email to PDF]
         C --> D[Upload to Paperless-ngx]
         D --> E[Extract Text via OCR]
-        E --> F[Call LLM (Claude 4.8) for Date Extraction]
+        E --> F[Call LLM (Claude 5.1) for Date Extraction]
         F --> G{Event Found?}
-        G -- Yes --> H[Create Calendar Event via MCP 3.0]
+        G -- Yes --> H[Create Calendar Event via MCP 3.1]
         G -- No --> I[Tag as Failed / Notify]
         H --> J[Update Paperless Tag: synced]
     ```
@@ -81,16 +81,16 @@ curl -X POST https://n8n.local/webhook/extract-calendar-event \
 An agent using the Chronos MCP CLI to verify event creation:
 ```bash
 # List events for the next 7 days
-mcp tool call chronos-mcp list_events --start_date "2026-06-25" --end_date "2026-07-02"
+mcp tool call chronos-mcp list_events --start_date "2026-08-26" --end_date "2026-09-02"
 ```
 
 ## API examples
 
 ### n8n Extraction Prompt (JSON)
-Configuring the Claude 4.8 node to return structured event data:
+Configuring the Claude 5.1 node to return structured event data:
 ```json
 {
-  "model": "claude-4-8-opus-20260528",
+  "model": "claude-5-1-opus-20260820",
   "prompt": "Extract event details from the following email text. Sent Date: {{ $json.sent_date }}. Return JSON with fields: event_name, start_date (ISO), end_date (ISO), location, and summary.",
   "text": "{{ $json.ocr_content }}"
 }
@@ -121,9 +121,9 @@ create_calendar_event("School Field Trip", "City Museum", "2026-06-30T09:00:00",
 
 - [n8n](../services/n8n.md): The primary workflow orchestrator.
 - [Paperless-ngx](../services/paperless-ngx.md): Document archive and OCR engine.
-- [Claude 4.8](../tools/ai_knowledge/claude.md): Recommended LLM for temporal reasoning.
+- [Claude 5.1](../tools/ai_knowledge/claude.md): Recommended LLM for temporal reasoning.
 - [Google Calendar](../tools/calendar_tasks/google_calendar.md): Default calendar target.
-- [MCP 3.0](../knowledge_base/patterns/tool-calling-and-mcp.md): Standard for agentic tool use.
+- [MCP 3.1](../knowledge_base/patterns/tool-calling-and-mcp.md): Standard for agentic tool use.
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md): Specialized calendar MCP server.
 - [Family Admin Automation](family-admin-automation.md): Broad household automation playbook.
 - [Scan to Task](scan-to-task.md): Physical-to-digital task ingestion.
@@ -138,5 +138,5 @@ create_calendar_event("School Field Trip", "City Museum", "2026-06-30T09:00:00",
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-26
 - Confidence: high
