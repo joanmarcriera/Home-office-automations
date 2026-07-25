@@ -1,5 +1,69 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-25
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Open-Weight Lobbying**: Over 20 industry giants, including NVIDIA, Meta, Microsoft, and Hugging Face, have signed a high-profile open letter urging policymakers to avoid premature restrictions on open-weight AI models.
+* 🚀 **Anthropic Opus 5**: Anthropic has released Opus 5, which reportedly delivers performance nearing their "Fable" class models at a significantly lower price point (roughly one-third the cost).
+* 🛠️ **Local LLM Breakthroughs**: New releases include AMD's `Instella-MoE-16B`, Hugging Face's `The Stack v3` (the largest open code dataset), and ultra-tiny TTS models via `Inflect v2`.
+* 🏢 **Market Shifts**: Reports indicate Stripe is exploring a potential $10 billion acquisition of the AI model marketplace OpenRouter.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier Models
+* **Anthropic Opus 5**: The latest iteration of the Opus series is out. Analysts note it provides "Fable-level" performance while being significantly cheaper, though some argue the drastic price drop creates new challenges for agentic coding costs.
+  * [Latent Space](https://www.latent.space/p/ainews-claude-opus-5-fable-level) | [The New Stack](https://thenewstack.io/anthropics-opus-5-almost-fable-5/) | [The New Stack (Cost Analysis)](https://thenewstack.io/opus-5-agentic-coding-cost/)
+
+### Local & Open-Weight Models
+* 📌 **AMD Instella-MoE-16B-A3B**: AMD has entered the open-source model arena with a new Mixture-of-Experts model. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5sb5b/amd_instellamoe16ba3b/)
+* **Laguna S 2.1**: Users are reporting mixed results; while some praise its ability to solve complex memory-budget coding problems, others highlight "overthinking loops" and template issues. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5ahaz/laguna_s21_updated_2_hours_ago_a_post_to_show/)
+* **Gemma 4 26B A4B**: Demonstrated running on an iPhone 17 Pro using model paging via the Noema app. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5p5sf/gemma_4_26b_a4b_running_on_iphone_17_pro_via/)
+* **Bonsai 27B (1-bit Quant)**: Users report high usability for local tutoring and literature review on low-end hardware (e.g., 16GB MacBook Air). [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5etch/using_the_bonsai_27b_1b_quant_locally_regularly/)
+
+### Specialized Models & Datasets
+* **The Stack v3**: Hugging Face has released the largest open code dataset to date, featuring near-deduplicated and PII-redacted content. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v59aek/hugging_face_releases_the_stack_v3_largest_open/)
+* **Inflect v2**: Two ultra-tiny TTS models (under 4M and 10M parameters) designed for local use. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5ve6v/i_released_inflect_v2_two_ultratiny_complete_tts/)
+
+---
+
+## 🛠️ Tools & Agents
+
+* **CachyLLama**: A `llama.cpp` fork introducing a persistent SSD-based KV cache to reduce repeated prompt processing for long agentic sessions. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5k08a/cachyllamas_llamacpp_fork_with_persistent_kv/)
+* **DKV (DifferentialKV)**: An open-source framework for KV-cache compression to enable longer context windows in local LLM inference. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5wviz/dkv_opensource_kvcache_compression_framework_for/)
+* **Cloud Agent Sandboxes**: AWS, Google Cloud, Azure, and Cloudflare have all launched agent code sandboxes, though their architectural implementations vary widely. [Source: The New Stack](https://thenewstack.io/cloud-agent-code-sandboxes/)
+* **n8n Governance Series**: New guides on bridging the "orchestration chasm," implementing AI agent governance (least-privilege access), and creating AI audit trails for production. [Source: n8n Blog](https://blog.n8n.io/ai-agent-governance/)
+
+---
+
+## 🔬 Research & Papers
+
+* **Statistically-Lossless Quantization**: A new paper explores quantization methods that preserve fidelity without the typical trade-offs of GPTQ or AWQ. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5j35f/paper_statisticallylossless_quantization_of_large/)
+* **Attention Survey (July 2026)**: A comprehensive architectural analysis of 23 open-weight models ranging from 20B to 500B parameters. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5luta/attention_survey_july_2026_23_model_open_weight/)
+* **Spatial Awareness Benchmarking**: Research into whether LLMs can solve mazes to measure spatial memory and reasoning. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5rvuq/can_llms_solve_mazes/)
+
+---
+
+## 🏢 Industry News
+
+* 📌 **The Open-Weight Letter**: A coalition of 20+ companies (NVIDIA, Meta, Microsoft, etc.) is lobbying Washington to prevent premature restrictions on open-weight models to maintain American AI leadership. [Source: The New Stack](https://thenewstack.io/nvidia-open-weight-letter/) | [Microsoft](https://www.microsoft.com/en-us/corporate-responsibility/topics/open-weight/)
+* **OpenRouter Acquisition**: Stripe is reportedly eyeing a $10 billion deal to acquire the AI model aggregator OpenRouter. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5l9m6/stripe_eyes_10_billion_deal_for_ai_model/)
+* **Hugging Face Breach**: Analysis of a recent security breach involving "state-of-the-art cyber capabilities" according to OpenAI. [Source: The New Stack](https://thenewstack.io/openai-huggingface-sandbox-breach/)
+* **Sovereign Cloud**: Airbus has selected Scaleway as its sovereign cloud provider to protect against non-European extraterritorial laws. [Source: InfoQ](https://www.infoq.com/news/2026/07/airbus-scaleway-sovereign-cloud/)
+
+---
+
+## 💡 Hardware & Tips
+
+* **Multi-GPU Warning**: A PSA warns against using Intel consumer platforms (like Z890) for multi-GPU AI setups due to lack of P2P support between GPUs, which severely hampers inference/training. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5x1h0/psa_do_not_use_intel_consumer_platforms_for/)
+* **OrangePi AI Studio Pro**: A user successfully implemented a stub for `rtGetDevMsg` to get `vLLM` and `torch_npu` running on this hardware. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v5w26z/orangepi_ai_studio_pro_qwen35122ba10b/)
+
+---
+
+
 ## 📅 Digest for 2026-07-24
 
 # AI & Technology Daily Digest
