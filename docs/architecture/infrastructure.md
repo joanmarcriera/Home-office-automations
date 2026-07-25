@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Home Lab Architecture is a multi-layered infrastructure design built on **TrueNAS SCALE** and **K3s**. As of June 2026, the architecture has evolved to support high-density AI workloads using **NVMe-over-Fabrics (NVMe-oF)**, dedicated GPU pools, and [EKS Auto Mode](../knowledge_base/invisible_kubernetes.md) patterns for "Invisible Kubernetes" orchestration.
+The Home Lab Architecture is a multi-layered infrastructure design built on **TrueNAS SCALE** and **K3s**. As of late August 2026, the architecture has evolved to support high-density AI workloads using **NVMe-over-Fabrics (NVMe-oF)**, dedicated GPU pools, and [EKS Auto Mode](../knowledge_base/invisible_kubernetes.md) patterns for "Invisible Kubernetes" orchestration.
 
 ## What problem it solves
 
@@ -10,12 +10,12 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 
 ## Where it fits in the stack
 
-**Category**: Architecture / Infrastructure. It is the **foundation layer** of the entire system, providing the hardware abstraction, storage primitives, and container orchestration (Docker/K8s) upon which all other services and tools are built. It integrates natively with [Cilium v1.17+](https://cilium.io/) for high-performance networking.
+**Category**: Architecture / Infrastructure. It is the **foundation layer** of the entire system, providing the hardware abstraction, storage primitives, and container orchestration (Docker/K8s) upon which all other services and tools are built. It integrates natively with [Cilium v1.18+](https://cilium.io/) for high-performance networking and uses Model Context Protocol (MCP 3.1) Task Protocol payloads for model-driven resource management.
 
 ## Typical use cases
 
 - **Centralized Data Lake**: Storing all family documents, media, and backups in a high-availability ZFS pool.
-- **Local AI Hosting**: Running [Claude 4.8](../tools/ai_knowledge/claude.md) (via local hooks) and [GPT-5.5](../tools/ai_knowledge/openai.md) reasoning loops on local GPU/CPU hardware.
+- **Local AI Hosting**: Running [Claude 5.1](../tools/ai_knowledge/claude.md) (via local hooks) and [GPT-5.5](../tools/ai_knowledge/openai.md) reasoning loops on local GPU/CPU hardware.
 - **Service Orchestration**: Deploying and managing a suite of interrelated tools (n8n, Paperless, Nextcloud) as a cohesive unit.
 - **Secure Remote Access**: Connecting to the home lab via [Tailscale](../services/tailscale.md) without exposing ports to the open internet.
 
@@ -24,7 +24,7 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 - **Data Integrity**: ZFS provides snapshots, replication, and self-healing to protect against data corruption.
 - **Scalability**: EKS Auto Mode and Karpenter allow the cluster to scale resources dynamically based on workload demand.
 - **Privacy**: All processing and storage happen locally, ensuring sensitive family data remains private.
-- **AI-Ready Storage**: High-IOPS NVMe pools ensure that large model weights (Llama 4 Maverick) load in seconds.
+- **AI-Ready Storage**: High-IOPS NVMe pools ensure that large model weights (Llama 4, Gemma 3, Qwen 3.6) load in seconds.
 
 ## Limitations
 
@@ -46,12 +46,12 @@ Self-hosting a complex stack of AI and automation tools requires a stable, scala
 
 ## Getting started
 
-To deploy the standard June 2026 infrastructure:
+To deploy the standard late August 2026 infrastructure:
 
-1.  **Hardware Provisioning**: Setup a server with at least 64GB RAM and an NVIDIA RTX 4090/5090.
+1.  **Hardware Provisioning**: Setup a server with at least 128GB RAM and dual NVIDIA RTX 5090/4090 GPUs.
 2.  **OS Installation**: Install TrueNAS SCALE (Cobia or Dragonfish releases).
 3.  **Cluster Setup**: Deploy K3s using the [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) playbook.
-4.  **Networking**: Configure [Tailscale](../services/tailscale.md) and [Cilium](https://cilium.io/) for secure mesh connectivity.
+4.  **Networking**: Configure [Tailscale](../services/tailscale.md) and [Cilium v1.18+](https://cilium.io/) for secure mesh connectivity.
 5.  **Storage**: Configure [NFS CSI](../playbooks/nfs-csi-setup.md) for dynamic persistent volume provisioning.
 
 ## CLI examples
@@ -73,7 +73,7 @@ kubectl get events -n karpenter --field-selector involvedObject.kind=Node
 ## API examples
 
 ```yaml
-# Example of a Karpenter NodePool for AI workloads (June 2026)
+# Example of a Karpenter NodePool for AI workloads (late August 2026)
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
@@ -84,7 +84,7 @@ spec:
       requirements:
         - key: "node.kubernetes.io/instance-type"
           operator: In
-          values: ["p4d.24xlarge", "g5.12xlarge"] # Or local equivalents
+          values: ["p4d.24xlarge", "g5.12xlarge", "local-h100-dual"] # Supports local cluster topology
         - key: "karpenter.sh/capacity-type"
           operator: In
           values: ["on-demand"]
@@ -94,6 +94,45 @@ spec:
           effect: "NoSchedule"
   disruption:
     consolidationPolicy: WhenUnderutilized
+```
+
+### Integration with MCP 3.1 Task Protocol JSON Schema
+To allow automated agents to scale and provision services programmatically, the infrastructure exposes an API compliant with the MCP 3.1 Task Protocol.
+
+```json
+{
+  "$schema": "https://modelcontextprotocol.org/schemas/mcp-3.1-task.json",
+  "task": {
+    "id": "infra-scale-event-0831",
+    "name": "Scale GPU Worker Node Pool",
+    "parameters": {
+      "pool_name": "gpu-pool",
+      "desired_replicas": 3,
+      "scale_reason": "High demand from Qwen 3.6 72B local inference tasks"
+    },
+    "actions": [
+      {
+        "type": "kubernetes/patch-resource",
+        "target": "karpenter.sh/v1beta1/NodePool/gpu-pool",
+        "payload": {
+          "spec": {
+            "template": {
+              "spec": {
+                "requirements": [
+                  {
+                    "key": "karpenter.sh/capacity-type",
+                    "operator": "In",
+                    "values": ["on-demand"]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
 ```
 
 ## Related tools / concepts
@@ -117,5 +156,5 @@ spec:
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-25
+- Last reviewed: 2026-08-31
 - Confidence: high

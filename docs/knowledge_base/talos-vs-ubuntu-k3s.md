@@ -1,7 +1,7 @@
 # Talos OS vs. Ubuntu for Homelab K3s
 
 ## What it is
-A technical comparison between a traditional general-purpose Linux distribution (Ubuntu) and a modern, immutable, API-managed operating system designed specifically for Kubernetes (Talos OS). In June 2026, this choice is central to the "Invisible Kubernetes" pattern, where infrastructure management is abstracted away via EKS Auto Mode or self-hosted Talos-managed clusters.
+A technical comparison between a traditional general-purpose Linux distribution (Ubuntu) and a modern, immutable, API-managed operating system designed specifically for Kubernetes (Talos OS). In late August 2026, this choice is central to the "Invisible Kubernetes" pattern, where infrastructure management is abstracted away via EKS Auto Mode or self-hosted Talos-managed clusters.
 
 | Feature | Ubuntu (Traditional) | Talos OS (Immutable) |
 | :--- | :--- | :--- |
@@ -12,7 +12,7 @@ A technical comparison between a traditional general-purpose Linux distribution 
 | **Resources** | Higher (includes many background services) | Minimalist (only what K8s needs) |
 
 ## What problem it solves
-Choosing the right base OS for a homelab Kubernetes cluster (K3s) affects maintenance overhead, security, and resource efficiency. This comparison helps engineers decide between the flexibility of a general-purpose OS (Ubuntu 26.04 Noble Numbat) and the stability of a container-optimized, security-hardened OS (Talos v1.9+).
+Choosing the right base OS for a homelab Kubernetes cluster (K3s) affects maintenance overhead, security, and resource efficiency. This comparison helps engineers decide between the flexibility of a general-purpose OS (Ubuntu 26.04 Noble Numbat) and the stability of a container-optimized, security-hardened OS (Talos v1.10+).
 
 ## Where it fits in the stack
 This comparison sits at the **infrastructure orchestration layer**. It defines the foundation upon which all other services (n8n, Paperless-ngx, etc.) are deployed, determining how nodes are provisioned, updated, and managed within the homelab environment.
@@ -21,7 +21,7 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 - **Evaluating Node OS**: Deciding which distribution to install on physical hardware or Proxmox VMs for a new K3s cluster.
 - **Security Hardening**: Planning a cluster migration from traditional Ubuntu to an immutable OS like Talos to eliminate SSH-based attack vectors.
 - **GitOps Implementation**: Designing a cluster where node configuration is entirely managed via YAML and stored in Git (e.g., via ArgoCD or Flux).
-- **AI Infrastructure**: Selecting the base OS for running GPU-intensive workloads with Claude 4.8 or Llama 4 Maverick, requiring specialized driver integration.
+- **AI Infrastructure**: Selecting the base OS for running GPU-intensive workloads with Claude 5.1 or Llama 4, requiring specialized driver integration.
 
 ## Strengths
 
@@ -56,7 +56,7 @@ This comparison sits at the **infrastructure orchestration layer**. It defines t
 
 ## Getting started
 ### Installation Prep
-1. Download the latest ISO for Ubuntu 26.04 LTS or the Talos OS v1.9+ image for your architecture (x86_64 or ARM64).
+1. Download the latest ISO for Ubuntu 26.04 LTS or the Talos OS v1.10+ image for your architecture (x86_64 or ARM64).
 2. Prepare your network environment (DHCP, DNS, and Static IPs for control plane nodes).
 3. If using Talos, install the `talosctl` CLI on your management machine.
 
@@ -82,7 +82,7 @@ talosctl dashboard --nodes 192.168.1.50
 
 **Upgrade Talos on a node:**
 ```bash
-talosctl upgrade --nodes 192.168.1.50 --image ghcr.io/siderolabs/installer:v1.9.0
+talosctl upgrade --nodes 192.168.1.50 --image ghcr.io/siderolabs/installer:v1.10.0
 ```
 
 ### Ubuntu Management
@@ -122,6 +122,41 @@ r = ansible_runner.run(private_data_dir='/tmp/demo', playbook='install_k3s.yml',
 print("{}: {}".format(r.status, r.rc))
 ```
 
+### Remote Management using MCP 3.1 Task Protocol
+Under MCP 3.1, a local automation agent can coordinate OS upgrades or cluster provisioning via standard Task Protocol payload actions.
+
+```json
+{
+  "$schema": "https://modelcontextprotocol.org/schemas/mcp-3.1-task.json",
+  "task": {
+    "id": "talos-upgrade-0831",
+    "name": "Upgrade Talos OS Node Pool",
+    "parameters": {
+      "target_version": "v1.10.0",
+      "nodes": ["192.168.1.50", "192.168.1.51", "192.168.1.52"]
+    },
+    "steps": [
+      {
+        "name": "backup-cluster",
+        "tool": "etcd-snapshot-backup",
+        "arguments": {
+          "endpoint": "https://192.168.1.50:6443"
+        }
+      },
+      {
+        "name": "apply-os-upgrade",
+        "tool": "talosctl-command",
+        "arguments": {
+          "command": "upgrade",
+          "nodes": "{{parameters.nodes}}",
+          "image": "ghcr.io/siderolabs/installer:v1.10.0"
+        }
+      }
+    ]
+  }
+}
+```
+
 ## Related tools / concepts
 - [Invisible Kubernetes](invisible_kubernetes.md) — For patterns on simplifying cluster management.
 - [K3s Cluster Setup](../playbooks/k3s-cluster-setup.md) — Practical deployment guide.
@@ -135,10 +170,10 @@ print("{}: {}".format(r.status, r.rc))
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — For agent-infrastructure interaction.
 
 ## Sources / References
-- [Talos OS v1.9 Documentation](https://www.talos.dev/v1.9/)
+- [Talos OS v1.10 Documentation](https://www.talos.dev/v1.10/)
 - [K3s Official Site](https://k3s.io/)
 - [Ubuntu 26.04 Noble Numbat Release Notes](https://discourse.ubuntu.com/t/noble-numbat-release-notes/44068)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
