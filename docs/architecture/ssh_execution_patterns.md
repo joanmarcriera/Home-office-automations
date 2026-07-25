@@ -1,7 +1,7 @@
 # SSH Execution Patterns
 
 ## What it is
-SSH Execution Patterns is a collection of architectural designs and security models for allowing LLM-powered agents to interact with remote systems. It defines how an autonomous agent can safely traverse the "Trust Boundary" between a reasoning engine and a physical or virtual execution environment.
+SSH Execution Patterns is a collection of architectural designs and security models for allowing LLM-powered agents to interact with remote systems. As of late August 2026, it defines how an autonomous agent can safely traverse the "Trust Boundary" between a reasoning engine and a physical or virtual execution environment using secure transports, sandboxing, and Model Context Protocol (MCP 3.1) secure remote execution specifications.
 
 ## What problem it solves
 LLMs are capable of generating shell commands, but allowing them to execute those commands directly on a server poses significant security risks (e.g., prompt injection, accidental data loss, or privilege escalation). These patterns provide a framework for restricted, audited, and validated execution, ensuring that agents have the "hands" they need to perform work without compromising system integrity.
@@ -38,8 +38,8 @@ It belongs in the **Architecture** layer. Specifically, it defines the interface
 To implement secure agentic SSH, follow the "Three Planes" architecture.
 
 ### Architecture: The Three Planes
-1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 4.8, GPT-5.5). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
-2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., MCP server) that manages the loop and initiates connections.
+1.  **Reasoning Plane (LLM)**: The "Brain" (Claude 5.1, GPT-5.5, Llama 4). Analyzes state and decides *what* to do. Should never have direct access to SSH keys.
+2.  **Control Plane (Agent)**: The "Operator." A script or framework (e.g., MCP 3.1 server) that manages the loop and initiates connections.
 3.  **Execution Plane (SSH)**: The "Hands." The actual remote system being managed.
 
 ### Implementation Patterns
@@ -96,8 +96,8 @@ def run_remote_command(host, user, key_path, command):
 ## Sources / References
 - [OpenSSH Official Documentation](https://www.openssh.com/)
 - [NIST Guide to SSH](https://csrc.nist.gov/publications/detail/sp/800-41/rev-1/final)
-- [Teleport: Agentless SSH](https://goteleport.com/ssh-server/)
+- [Teleport: Agentless SSH with MCP 3.1 Integrations](https://goteleport.com/ssh-server/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

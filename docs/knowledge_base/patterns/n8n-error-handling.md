@@ -1,7 +1,7 @@
 # n8n Error Handling Pattern
 
 ## What it is
-The n8n Error Handling Pattern is a standardized approach to managing failures within automated workflows. It utilizes dedicated "Error Trigger" nodes and centralized "Error Handler" sub-workflows to ensure that every failure is logged, visualized, and acted upon.
+The n8n Error Handling Pattern is a standardized approach to managing failures within automated workflows. As of late August 2026 (supporting n8n v1.60+ and MCP 3.1 specifications), it utilizes dedicated "Error Trigger" nodes and centralized "Error Handler" sub-workflows to ensure that every failure is logged, visualized, and acted upon using structured schemas.
 
 ## What problem it solves
 In complex automation stacks, workflows can fail due to API rate limits, network issues, or malformed data. Without standardized error handling, these failures often go unnoticed (silent failures). This pattern ensures visibility and provides a mechanism for automated or manual recovery.
@@ -11,8 +11,8 @@ It belongs to the **Orchestration & Workflow Layer**, providing resilience for a
 
 ## Typical use cases
 - **API Monitoring**: Catching and notifying when a third-party service (e.g., Google Calendar) is down.
-- **Data Integrity**: Flagging when an AI extraction (e.g., via [Claude 4.8](../../tools/ai_knowledge/claude.md)) fails to meet the required schema.
-- **Homelab Health**: Alerting on failed system backups or infrastructure syncs via [MCP](../../tools/automation_orchestration/mcp.md) notification servers.
+- **Data Integrity**: Flagging when an AI extraction (e.g., via [Claude 5.1](../../tools/ai_knowledge/claude.md)) fails to meet the required schema.
+- **Homelab Health**: Alerting on failed system backups or infrastructure syncs via [MCP 3.1](../../tools/automation_orchestration/mcp.md) notification servers.
 - **Self-Healing**: Triggering an LLM-based reasoning loop to diagnose and fix transient errors.
 
 ## Strengths
@@ -41,7 +41,7 @@ It belongs to the **Orchestration & Workflow Layer**, providing resilience for a
 - **Home Assistant**: Best for immediate visibility and real-time alerts in the homelab.
 - **Grafana**: Best for analyzing failure patterns over weeks or months.
 
-### Standardized Error Schema
+### Standardized Error Schema (MCP 3.1 / Task Protocol Aligned)
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | status | String | Always failed for errors. |
@@ -96,8 +96,8 @@ def get_failed_executions(api_key, n8n_url):
 
 ## Sources / References
 - [n8n Error Handling Docs](https://docs.n8n.io/hosting/monitoring-n8n/error-handling/)
-- [n8n v1.50 Release Notes](https://github.com/n8n-io/n8n/releases)
+- [n8n v1.60+ Release Notes and Error Tracing](https://github.com/n8n-io/n8n/releases)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

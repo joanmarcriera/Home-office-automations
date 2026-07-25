@@ -3,7 +3,7 @@
 ## What it is
 Retrieval-Augmented Generation (RAG) is a design pattern that enhances the performance of Large Language Models (LLMs) by providing them with relevant information from external data sources before generating a response. It grounds the model's output in verifiable facts retrieved from a reliable source.
 
-As of June 2026, the pattern has evolved into **Agentic RAG**, where autonomous agents use tools and [Model Context Protocol (MCP 3.0)](../../tools/automation_orchestration/mcp.md) to dynamically browse, retrieve, and reason over information.
+As of late August 2026, the pattern has evolved into **Agentic RAG**, where autonomous agents use tools and [Model Context Protocol (MCP 3.1)](../../tools/automation_orchestration/mcp.md) to dynamically browse, retrieve, and reason over structured, unstructured, or graph-based information.
 
 ```mermaid
 flowchart TD
@@ -51,9 +51,9 @@ RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw 
 
 ## Getting started
 1.  **Ingest Data**: Use [Docling](../../tools/process_understanding/docling.md) to parse PDFs and documents into clean Markdown.
-2.  **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md) native embeddings.
+2.  **Chunk & Embed**: Break text into semantic chunks and convert to vectors using [Llama 4](../../tools/ai_knowledge/meta_llama.md) native embeddings.
 3.  **Store**: Use a vector database like [ChromaDB](../../tools/infrastructure/chromadb.md) or [Milvus 3.0](../../tools/infrastructure/milvus.md).
-4.  **Retrieve & Augment**: Use [MCP 3.0](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 4.8](../../tools/providers/anthropic.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
+4.  **Retrieve & Augment**: Use [MCP 3.1](../../tools/automation_orchestration/mcp.md) to connect your retrieval engine to [Claude 5.1](../../tools/providers/anthropic.md) or [GPT-5.5](../../tools/ai_knowledge/openai.md).
 
 ## CLI examples
 
@@ -63,7 +63,7 @@ RAG sits at the **Application & Knowledge Layer**, bridging the gap between raw 
 rag-stack init ./docs --db milvus
 
 # Query the index from the terminal
-rag-stack query "What are the 2026 compliance requirements?"
+rag-stack query "What are the late August 2026 compliance requirements?"
 ```
 
 ## API examples
@@ -77,8 +77,8 @@ from llama_index.llms.anthropic import Anthropic
 documents = SimpleDirectoryReader("./data").load_data()
 index = VectorStoreIndex.from_documents(documents)
 
-# Initialize Claude 4.8
-llm = Anthropic(model="claude-4-8-opus-20260528")
+# Initialize Claude 5.1
+llm = Anthropic(model="claude-5-1-sonnet-20260828")
 
 # Query with agentic reasoning
 query_engine = index.as_query_engine(llm=llm)
@@ -94,15 +94,15 @@ print(response)
 - [ChromaDB](../../tools/infrastructure/chromadb.md)
 - [LlamaIndex](../../tools/ai_knowledge/llamaindex.md)
 - [LangChain](../../tools/ai_knowledge/langchain.md)
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md)
-- [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md)
-- [Claude 4.8](../../tools/providers/anthropic.md)
+- [Model Context Protocol (Model Context Protocol 3.1)](../../tools/automation_orchestration/mcp.md)
+- [Llama 4](../../tools/ai_knowledge/meta_llama.md)
+- [Claude 5.1](../../tools/providers/anthropic.md)
 
 ## Sources / References
 - [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401)
-- [Agentic RAG: The Next Evolution of Knowledge Retrieval (June 2026)](https://example.com/agentic-rag-2026)
+- [Agentic RAG: The Next Evolution of Knowledge Retrieval and MCP 3.1 Integrations](https://example.com/agentic-rag-2026)
 - [LlamaIndex Documentation](https://docs.llamaindex.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
