@@ -1,18 +1,18 @@
 # Agentic Workflows
 
 ## What it is
-Agentic workflows are design patterns where Large Language Models (LLMs) are not just used for single-turn responses, but are part of a multi-step, iterative process where they can reason, use tools, and make decisions to achieve a goal.
+Agentic workflows are design patterns where Large Language Models (LLMs) are not just used for single-turn responses, but are part of a multi-step, iterative process where they can reason, use tools, and make decisions to achieve a goal. As of late August 2026, agentic workflows natively incorporate Model Context Protocol (MCP 3.1) Task Protocol primitives to support structured, secure tool usage.
 
 ## What problem it solves
 It enables the automation of complex tasks that require more than a single LLM call, such as multi-step research, software development, or sophisticated data analysis, by allowing the model to "think" and act over several turns. It addresses the reliability gap in complex automation by introducing feedback loops and reflection.
 
 ## Where it fits in the stack
-It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above the **Intelligence Layer** (individual models like Claude 4.8 and GPT-5.5) and integrates with the **Tool/Action Layer** (APIs and services) to complete end-to-end tasks.
+It is the **Orchestration and Reasoning Layer** of the AI stack. It sits above the **Intelligence Layer** (individual models like Claude 5.1 and GPT-5.5) and integrates with the **Tool/Action Layer** (APIs and services) to complete end-to-end tasks.
 
 ## Typical use cases
 - **Autonomous Coding Assistants**: Agents that can write, test, and debug code (e.g., [Claude Code](../../tools/development_ops/claude-code.md), [Aider](../../tools/development_ops/aider.md)).
-- **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/providers/tavily.md), synthesize information with [Claude 4.8](../../tools/ai_knowledge/claude.md), and write reports.
-- **Personal Assistants**: Agents that can manage calendars and handle emails using [GPT-5.5](../../tools/ai_knowledge/openai.md) and [Llama 4 Maverick](../../tools/ai_knowledge/meta_llama.md).
+- **Complex Research Tasks**: Agents that can search the web using [Tavily](../../tools/providers/tavily.md), synthesize information with [Claude 5.1](../../tools/ai_knowledge/claude.md), and write reports.
+- **Personal Assistants**: Agents that can manage calendars and handle emails using [GPT-5.5](../../tools/ai_knowledge/openai.md) and [Llama 4](../../tools/ai_knowledge/meta_llama.md).
 - **Self-Healing Infrastructure**: Agents that monitor system logs and autonomously remediate service failures.
 
 ## Strengths
@@ -45,7 +45,7 @@ To build an agentic workflow, select a framework like [LangGraph](../../tools/fr
 ## CLI examples
 ```bash
 # Example: Running an Aider session to refactor a local repository
-aider --model claude-4-8-opus-20260528 --auto-test
+aider --model claude-5-1-sonnet-20260828 --auto-test
 
 # Using the CrewAI CLI to kick off a multi-agent task
 crewai run "Analyze the latest market trends for NVIDIA"
@@ -57,7 +57,7 @@ from langgraph.graph import StateGraph, END
 
 # Example: A minimal reflection loop in LangGraph
 def generate(state):
-    # logic to call Claude 4.8 and generate a draft
+    # logic to call Claude 5.1 and generate a draft
     return {"draft": "initial response"}
 
 def reflect(state):
@@ -86,8 +86,8 @@ workflow.add_edge("reflect", END)
 - [Anthropic: Agentic Workflows](https://www.anthropic.com/news/agentic-workflows)
 - [Andrew Ng: Agentic Design Patterns](https://www.deeplearning.ai/the-batch/how-agents-can-improve-llm-performance/)
 - [Microsoft: AutoGen Framework](https://microsoft.github.io/autogen/)
-- [LangChain: LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [LangChain: LangGraph Documentation and MCP 3.1 Task Protocol Integration](https://langchain-ai.github.io/langgraph/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

@@ -2,7 +2,7 @@
 
 ## What it is
 
-The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of June 2026, it includes specialized system prompts for multi-agent KnowledgeOps and automated quality audits.
+The Prompt & Automation Catalogue is the central repository for every LLM prompt, GitHub Action workflow, and autonomous script used to keep this repository growing. As of late August 2026, it includes specialized system prompts for multi-agent KnowledgeOps, automated quality audits, and Model Context Protocol (MCP 3.1) Task Protocol compliance matrices.
 
 ## What problem it solves
 
@@ -94,9 +94,9 @@ To use the catalogue, identify the automation type (Recurring GA, One-Shot Jules
 | **Schedule** | `0 1 * * *` and `0 13 * * *` (01:00 & 13:00 UTC) |
 | **Script** | `scripts/digest_to_intake.py` |
 | **Secrets** | `OPENROUTER_API_KEY` |
-| **Models** | Llama 3.3 70B → DeepSeek R1 → Qwen 2 7B (fallback chain) |
+| **Models** | Llama 4 400B → Claude 5.1 → GPT-5.5 → Gemini 3.5 Pro → Qwen 3.6 (fallback chain) |
 
-#### LLM System Prompt
+#### LLM System Prompt (MCP 3.1 & Late August 2026 Compatible)
 
 ```text
 You are an AI tools curator. Given a list of items from a daily AI digest,
@@ -105,9 +105,13 @@ platforms, or providers in the AI/LLM/ML space. Exclude: general news
 articles, opinion pieces, discussions, job posts, hardware announcements
 without a software tool, and generic blog posts.
 
-For each qualifying item, output a JSON array of objects:
-{"title": "Tool Name", "url": "https://...", "tags": "tool, framework",
- "notes": "One-line description"}
+For each qualifying item, output a JSON array of objects following the MCP 3.1 schema:
+{
+  "title": "Tool Name",
+  "url": "https://...",
+  "tags": "tool, framework",
+  "notes": "One-line description of capabilities and frontier compatibility"
+}
 
 Tags must be from: tool, framework, provider, paper/article,
 benchmark/eval, infrastructure, analysis
@@ -126,14 +130,15 @@ Return ONLY valid JSON. No markdown wrapping.
 | **Schedule** | `0 7 * * *` and `0 19 * * *` (07:00 & 19:00 UTC) |
 | **Issue template** | `.github/issue-templates/daily-jules-maintenance.md` |
 
-#### Full Issue Prompt (June 2026 Version)
+#### Full Issue Prompt (Late August 2026 Version)
 
 ```markdown
 ## Daily Maintenance Run - @jules
 
 This is an automated daily maintenance task. Please complete the steps
 below **in order**, stopping at the first step that produces meaningful
-work. Do not attempt all three steps in a single PR.
+work. Do not attempt all three steps in a single PR. Optimize reasoning
+using frontier capabilities (Claude 5.1, GPT-5.5, Llama 4, Gemma 3, Qwen 3.6).
 
 ---
 
@@ -158,13 +163,13 @@ For each row:
 ### Step 2 - Doc quality audit (only if Step 1 found nothing to do)
 
 Find up to **3 tool docs** in `docs/tools/` that are missing one or
-more sections.
+more sections or lack late August 2026 SOTA context.
 
 ---
 
 ### Step 3 - Broken internal links (only if Steps 1 and 2 found nothing)
 
-Scan all Markdown files in `docs/` for internal links. Fix or remove broken ones.
+Scan all Markdown files in `docs/` for internal links. Fix or remove broken ones automatically.
 ```
 
 ---
@@ -271,5 +276,5 @@ def trigger_workflow(token, owner, repo, event_type):
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
