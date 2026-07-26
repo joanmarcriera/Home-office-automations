@@ -1,74 +1,78 @@
 # OpenTelemetry Collector
 
 ## What it is
-The OpenTelemetry (OTel) Collector is a vendor-agnostic proxy designed to receive, process, and export telemetry data, including traces, metrics, and logs. As of June 2026, it serves as the backbone for AI observability, enabling seamless data flow between agentic frameworks (using **Claude 4.8**, **GPT-5.5**, or **Llama 4 Maverick**) and various storage or analysis backends.
+The OpenTelemetry (OTel) Collector is a high-performance, vendor-agnostic proxy designed to receive, process, and export telemetry data (traces, metrics, and logs). As of late August 2026, it serves as the universal standard for AI and agentic telemetry pipelines. It allows developers to unify metrics across traditional infrastructure layers and multi-agent workflows running on engines like **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemini 3.5**. It is open-source and highly self-hostable.
 
 ## What problem it solves
-Managing telemetry in complex AI and cloud architectures often leads to "agent fatigue" and vendor lock-in. The Collector addresses these issues by:
-- **Unified Ingestion**: Providing a single endpoint for all telemetry signals (OTLP), removing the need for multiple vendor-specific agents.
-- **Data Transformation**: Allowing for real-time processing, such as scrubbing PII (Personally Identifiable Information), adding metadata (e.g., environment, version), and filtering noise before data is exported.
-- **Multi-Destination Routing**: Enabling a "send once, route many" pattern where data can be simultaneously sent to multiple backends (e.g., [Datadog](datadog.md) for production monitoring and a local [ClickHouse](clickhouse.md) for long-term audit logs).
-- **Protocol Translation**: Converting legacy formats into modern OTLP.
-- **MCP 3.0 Support**: Bridging telemetry from **Model Context Protocol (MCP)** sessions into standard observability pipelines.
+Managing telemetry in multi-agent environments often introduces high performance overheads, strict vendor lock-in, and compliance risks related to personally identifiable information (PII). The OTel Collector mitigates these concerns by providing:
+- **Unified Ingestion**: A single OTLP gateway receiving telemetry signals from all microservices, eliminating the need to deploy distinct vendor-specific monitoring agents.
+- **Client-Side Processing**: Real-time scrubbing of sensitive customer fields, prompt content, or API keys directly within the local network prior to routing.
+- **Dynamic Routing**: A "receive once, distribute many" setup, sending trace metrics concurrently to cloud metrics providers, security databases, and local archives.
+- **Sampling Governance**: Cost-defensive tail-based sampling configurations to drop redundant, successful runs and isolate only anomalous or slow multi-turn traces.
+- **MCP 3.1 Session Instrumentation**: The ability to translate Model Context Protocol (MCP 3.1) connection patterns and payload responses into standardized OTLP traces.
 
 ## Where it fits in the stack
-The OpenTelemetry Collector sits in the **Observability Infrastructure** layer. It is positioned between the instrumented application (or streaming sources like [OpenRouter](../ai_knowledge/openrouter.md)) and the final observability backends.
+The OpenTelemetry Collector sits in the **Observability Infrastructure** layer, acting as a telemetry router positioned securely between your production agent workflows (or proxies like [OpenRouter](../ai_knowledge/openrouter.md)) and target downstream monitoring platforms.
 
 ## Typical use cases
-- **AI Telemetry Routing**: Receiving LLM traces from sources like OpenRouter and routing them to [Sentry](sentry.md) for error tracking and [Langfuse](langfuse.md) for performance evaluation.
-- **PII Redaction**: Automatically identifying and masking sensitive user data in LLM prompt logs before they are sent to a cloud-based observability provider.
-- **Metric Aggregation**: Collecting infrastructure metrics from a K3s cluster and LLM usage metrics from an application, then unifying them in a [Grafana Cloud](grafana-cloud.md) dashboard.
-- **Tail-based Sampling**: High-volume AI applications can use the Collector to only export "interesting" traces (e.g., those with high latency or errors) while dropping standard successful requests to save on ingest costs.
+- **PII Scrubbing and Safety Guarding**: Processing incoming LLM logs to identify and redact passwords, credentials, and medical data before cloud storage.
+- **System and Agentic Cross-Correlation**: Combining standard compute infrastructure telemetry (K3s CPU, memory use) with model-level latency indicators.
+- **Model Cost and Tokens Aggregation**: Extracting raw token counts from model payload fields and outputting them as custom prometheus gauges.
+- **Anomaly Selection (Tail Sampling)**: Dropping 95% of standard, cheap agent traces, while ensuring 100% of runs that throw exceptions or latency spikes >5000ms are preserved.
 
 ## Strengths
-- **Vendor Agnostic**: Compatible with almost every major observability platform, ensuring no single-provider lock-in.
-- **Highly Extensible**: Modular "Receivers, Processors, and Exporters" architecture allows for custom plugins.
-- **Resource Efficiency**: Written in Go and designed for high throughput with minimal CPU and memory overhead.
-- **Standardized Schema**: Enforces the OpenTelemetry semantic conventions, making data consistent across different services and teams.
+- **Ultimate Vendor Freedom**: Compatible with nearly every commercial and open-source observability engine on the market.
+- **Architectural Extensibility**: Modular "Receivers, Processors, and Exporters" pipeline design allows developers to write custom processors in Go.
+- **Incredible Efficiency**: Light memory and CPU footprint, capable of handling hundreds of thousands of events per second with sub-millisecond pipeline latency.
+- **Semantic Conventions**: Standardized, industry-backed schemas for modeling traces and metric tags uniformly.
 
 ## Limitations
-- **Operational Complexity**: Requires managing, scaling, and monitoring the Collector instances themselves.
-- **YAML Configuration**: The configuration can become very large and complex as the number of pipelines and transformations increases.
-- **Stateful Processing**: Features like tail-sampling or advanced aggregations require the Collector to be stateful, which complicates horizontal scaling.
+- **Substantial Operational Overhead**: Requires setup, management, horizontal scaling, and live-monitoring of the Collector cluster itself.
+- **Complex YAML Configurations**: Fine-tuning batching, retry limits, and security layers can result in massive, hard-to-maintain YAML configurations.
+- **Stateful Memory Overhead**: Stateful operations like tail-based sampling or metric accumulation require localized storage buffers, complicating container scheduling.
 
 ## When to use it
-- When you need to send telemetry data to more than one backend (e.g., a SaaS provider and a local database).
-- When you need to transform or filter data (like redacting secrets) at the infrastructure level rather than in application code.
-- When you want to standardize your observability stack on the OpenTelemetry protocol to avoid vendor lock-in.
-- When you are managing high-volume LLM workloads and need advanced sampling to control observability costs.
+- When routing telemetry data to multiple target platforms (e.g., an enterprise cloud provider and a local database).
+- When processing or sanitizing sensitive log text (like user input records) is required before leaving localized firewalls.
+- When you are scaling production LLM workloads and need fine-grained control over telemetry collection budgets and trace sampling.
+- When building robust multi-agent orchestration systems that demand vendor-agnostic standards.
 
 ## When not to use it
-- For small, simple applications where sending data directly from the application to a single backend is easier to manage.
-- If you have zero operational capacity to maintain additional infrastructure components.
-- If you are using a single SaaS provider that offers a highly specialized agent that provides features not yet available via the OTel Collector.
+- For single-developer script prototypes where directly exporting to a single destination is easier to bootstrap.
+- If your team has zero operational capacity or budget to set up and manage additional Docker or Kubernetes infrastructure.
+- When utilizing a specialized platform whose distinct, closed-source agent features cannot be easily modeled via OpenTelemetry APIs.
 
 ## Getting started
 
 ### Basic Configuration (`config.yaml`)
-This configuration receives traces via OTLP/HTTP and exports them to the console and a local [ClickHouse](clickhouse.md) instance.
+Create an OTel Collector configuration file specifying standard OTLP ingestion, a processing batch queue, and local console and database exporters:
 
 ```yaml
 receivers:
   otlp:
     protocols:
-      http:
-        endpoint: "0.0.0.0:4318"
       grpc:
         endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
 
 processors:
   batch:
+    send_batch_size: 8192
+    timeout: 1s
+    send_batch_max_size: 10240
   memory_limiter:
     check_interval: 1s
-    limit_mib: 1000
+    limit_percentage: 80
+    spike_limit_percentage: 20
 
 exporters:
-  logging:
-    verbosity: detailed
   otlp/clickhouse:
     endpoint: "clickhouse-server:4317"
     tls:
       insecure: true
+  logging:
+    verbosity: detailed
 
 service:
   pipelines:
@@ -76,38 +80,51 @@ service:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [logging, otlp/clickhouse]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [logging, otlp/clickhouse]
 ```
 
 ### Run via Docker
+Launch the OpenTelemetry Collector container mapping the necessary gRPC and HTTP OTLP ports:
+
 ```bash
-docker run -p 4317:4317 -p 4318:4318 \
+docker run -d \
+    -p 4317:4317 \
+    -p 4318:4318 \
     -v $(pwd)/config.yaml:/etc/otelcol/config.yaml \
-    otel/opentelemetry-collector:latest
+    --name otel-collector \
+    otel/opentelemetry-collector:0.108.0
 ```
 
 ## CLI examples
 
-### Validate Configuration
-Check if your `config.yaml` is syntactically correct before deploying:
+### Validate Configuration Syntax
+Validate a local YAML configuration file using the built-in validator tool:
+
 ```bash
 otelcol validate --config=config.yaml
 ```
 
-### Run with Custom Config
+### Starting the Collector Manually
+Start the OTel collector agent with customized logging levels:
+
 ```bash
-otelcol --config=config.yaml
+otelcol --config=config.yaml --log-level=info
 ```
 
-### Check Version
-Verify the installed version of the OTel Collector:
+### Querying Collector Performance Version
+Query the installed runtime version specifications:
+
 ```bash
 otelcol --version
 ```
 
 ## API examples
 
-### Python (OTLP Trace Export)
-Configure your Python application (e.g., a **Claude 4.8** agent) to send data to the local Collector:
+### Python Trace Ingestion (OTLP gRPC)
+Configure your multi-agentic application (e.g., a **Claude 5.1** task routing loop) to ship performance traces to your local Collector instance:
 
 ```python
 from opentelemetry import trace
@@ -115,22 +132,24 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
-# Setup tracer
+# Set up local Tracer provider
 trace.set_tracer_provider(TracerProvider())
 tracer = trace.get_tracer(__name__)
 
-# Export to local Collector (default gRPC port)
-otlp_exporter = OTLPSpanExporter(endpoint="localhost:4317", insecure=True)
+# Point exporter to local OTel Collector endpoint
+otlp_exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
 span_processor = BatchSpanProcessor(otlp_exporter)
 trace.get_tracer_provider().add_span_processor(span_processor)
 
-with tracer.start_as_current_span("ai-agent-run"):
-    # Your agent logic here
-    print("Telemetry being handled by OTel Collector")
+# Measure agent run latency and cost
+with tracer.start_as_current_span("agent-task-routing-span") as span:
+    span.set_attribute("llm.model", "claude-5-1-sonnet")
+    span.set_attribute("llm.prompt_tokens", 452)
+    print("Executing core agentic task routing logic...")
 ```
 
-### JavaScript (OTLP Metric Export)
-Recording custom AI metrics (e.g., token consumption) to the Collector:
+### Node.js Custom Token Metrics Export (OTLP HTTP)
+Log and increment custom metrics representing model token spend via OTLP over HTTP:
 
 ```javascript
 const { MeterProvider } = require('@opentelemetry/sdk-metrics');
@@ -141,33 +160,35 @@ const exporter = new OTLPMetricExporter({
 });
 
 const meterProvider = new MeterProvider();
-const meter = meterProvider.getMeter('ai-usage-meter');
+const meter = meterProvider.getMeter('agentic-usage-metrics');
 
-const tokenCounter = meter.createCounter('tokens_consumed', {
-  description: 'Count of tokens consumed by the agent',
+const tokenCounter = meter.createCounter('tokens_spent', {
+  description: 'Tracks total prompt and completion token counts',
 });
 
-tokenCounter.add(150, { 'model': 'gpt-5.5-preview' });
+// Record token cost metrics for a GPT-5.5 call
+tokenCounter.add(1024, { 'model.name': 'gpt-5.5-preview', 'agent.id': 'finance_routing_agent' });
 ```
 
 ## Related tools / concepts
-- [Datadog](datadog.md) - Enterprise SaaS observability backend.
-- [Sentry](sentry.md) - Error tracking platform with OTLP support.
-- [ClickHouse](clickhouse.md) - High-performance database often used as an OTel trace store.
-- [Langfuse](langfuse.md) - LLM observability platform that integrates with OTel.
-- [AgentOps](agentops.md) - Specialized agent monitoring that can coexist with OTel.
-- [Helicone](helicone.md) - Proxy-based observability alternative.
-- [OpenRouter](../ai_knowledge/openrouter.md) - Source of streaming LLM logs that can be broadcast via OTLP.
-- [Grafana Cloud](grafana-cloud.md) - Unified visualization for OTel metrics and traces.
-- [PostHog](posthog.md) - Product analytics that can ingest OTel events.
-- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Protocol that can be instrumented via OTel.
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Local model monitored via OTel.
+- [Datadog](datadog.md) — Enterprise cloud tracing.
+- [Sentry](sentry.md) — Exception tracking with native OTLP integration.
+- [ClickHouse](clickhouse.md) — Relational columnar store for high-throughput traces.
+- [Langfuse](langfuse.md) — Purpose-built open-source LLM tracing.
+- [AgentOps](agentops.md) — High-level agent framework analysis.
+- [Helicone](helicone.md) — LLM monitoring and request routing.
+- [OpenRouter](../ai_knowledge/openrouter.md) — Broad-scale model routing and metric logs.
+- [Grafana Cloud](grafana-cloud.md) — High-level telemetry dashboards.
+- [PostHog](posthog.md) — In-app product analytics.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized agent tool-calling protocol.
+- [Llama 4](../ai_knowledge/local_llms.md) — Monitored local execution runtime.
 
 ## Sources / references
-- [OpenTelemetry Collector Documentation](https://opentelemetry.io/docs/collector/)
-- [OTel Collector GitHub](https://github.com/open-telemetry/opentelemetry-collector)
-- [OpenRouter OTel Broadcast Guide](https://openrouter.ai/docs/guides/features/broadcast/otel-collector)
+- [OpenTelemetry Official Specification Portal](https://opentelemetry.io/)
+- [OpenTelemetry Collector Repository on GitHub](https://github.com/open-telemetry/opentelemetry-collector)
+- [W3C Trace Context Standard Spec](https://www.w3.org/TR/trace-context/)
+- [OpenTelemetry semantic conventions for AI applications](https://opentelemetry.io/docs/specs/semconv/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
