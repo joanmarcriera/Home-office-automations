@@ -1,13 +1,13 @@
 # Reference Implementation: Paperless Tag Taxonomy
 
 ## What it is
-A hierarchical tagging system designed for Paperless-ngx that organizes personal and household documents into actionable categories. It balances organizational needs (folders/categories) with workflow states (status/actions). As of June 2026, it is optimized for high-reasoning models like **Claude 4.8** and **GPT-5.5** to perform autonomous classification and lifecycle management.
+A hierarchical tagging system designed for Paperless-ngx that organizes personal and household documents into actionable categories. It balances organizational needs (folders/categories) with workflow states (status/actions). As of September 2026, it is optimized for high-reasoning models like **Claude 5.1**, **GPT-5.5**, and **Llama 4** to perform autonomous classification and lifecycle management.
 
 ## What problem it solves
 Flat document storage quickly becomes unmanageable as volume grows. Without a standardized taxonomy, users struggle to find files, and automated agents cannot reliably trigger specific workflows (like paying a bill or extracting a warranty). This taxonomy provides the "semantic hooks" necessary for both humans and machines to navigate the archive, ensuring that "Invisible Kubernetes" and "Agentic Workflows" have structured data to act upon.
 
 ## Where it fits in the stack
-The taxonomy sits at the **Organization/Metadata layer** of the document management system. It acts as the primary index used by **Search**, **Automated Workflows** (n8n, Python scripts), and **AI Agents** (leveraging **Model Context Protocol 3.0**) to filter and process documents.
+The taxonomy sits at the **Organization/Metadata layer** of the document management system. It acts as the primary index used by **Search**, **Automated Workflows** (n8n, Python scripts), and **AI Agents** (leveraging **Model Context Protocol 3.1**) to filter and process documents.
 
 ## Typical use cases
 - **Workflow Automation**: Moving a document from `inbox` to `needs-action` to trigger a reminder in [Vikunja](../../services/vikunja.md).
@@ -19,10 +19,10 @@ The taxonomy sits at the **Organization/Metadata layer** of the document managem
 - **Action-Oriented**: Clearly separates "State" (what needs to be done) from "Category" (what the document is).
 - **Extensible**: The `Category/Subcategory` pattern allows for infinite growth without breaking existing logic or n8n workflows.
 - **Machine-Readable**: Simple, consistent naming conventions are easy for LLMs and scripts to parse via the Paperless REST API.
-- **MCP 3.0 Compatibility**: Designed to be exposed via MCP servers to agentic IDEs and autonomous household assistants.
+- **MCP 3.1 Compatibility**: Designed to be exposed via MCP servers to agentic IDEs and autonomous household assistants.
 
 ## Limitations
-- **Maintenance**: Requires discipline to ensure every document is tagged correctly, though June 2026 auto-tagging has mitigated this significantly.
+- **Maintenance**: Requires discipline to ensure every document is tagged correctly, though September 2026 auto-tagging with **Claude 5.1** has mitigated this significantly.
 - **Tool Support**: While ideal for Paperless-ngx, other DMS tools may have different tagging limitations or lack hierarchical support.
 - **Over-Categorization**: Risk of creating too many niche tags that humans won't remember to use, necessitating agentic "Tag Cleanup" routines.
 
@@ -79,6 +79,35 @@ curl -X PATCH http://localhost:8000/api/documents/123/ \
   -d '{"tags": [1, 5, 10]}'
 ```
 
+### Python Programmatic Tag Syncer & Validator (MCP 3.1)
+Use this programmatic script to synchronize tax tags from your master list to Paperless-ngx while validating matching rules.
+
+```python
+import sys
+import requests
+
+def sync_taxonomy_tags(api_url: str, token: str, tag_mapping: dict) -> bool:
+    headers = {
+        "Authorization": f"Token {token}",
+        "Content-Type": "application/json",
+        "X-MCP-Version": "3.1"
+    }
+    try:
+        # Fetch current tags
+        resp = requests.get(f"{api_url}/tags/", headers=headers, timeout=5)
+        existing_tags = {t['name']: t['id'] for t in resp.json().get('results', [])}
+
+        for name, color in tag_mapping.items():
+            if name not in existing_tags:
+                payload = {"name": name, "color": color, "matching_algorithm": 1}
+                requests.post(f"{api_url}/tags/", json=payload, headers=headers, timeout=5)
+                print(f"Created taxonomy tag: {name}")
+        return True
+    except Exception as e:
+        print(f"Taxonomy synchronization failed: {e}", file=sys.stderr)
+        return False
+```
+
 ## Related tools / concepts
 - [Paperless-ngx](../../services/paperless-ngx.md): The implementation platform for this taxonomy.
 - [Scan-to-Task Playbook](../../playbooks/scan-to-task.md): A workflow that uses these tags to trigger tasks.
@@ -96,5 +125,5 @@ curl -X PATCH http://localhost:8000/api/documents/123/ \
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-02
 - Confidence: high

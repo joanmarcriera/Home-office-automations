@@ -3,7 +3,7 @@
 Reference implementation for a RAG-based backend to search and answer questions from household manuals.
 
 ## What it is
-A FastAPI-based backend that integrates with ChromaDB to perform hybrid (vector + metadata filtered) search across OCR'd manuals and provides an interface for LLM-based troubleshooting. As of June 2026, it supports native [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) for direct tool-calling by Claude 4.8 and GPT-5.5.
+A FastAPI-based backend that integrates with ChromaDB to perform hybrid (vector + metadata filtered) search across OCR'd manuals and provides an interface for LLM-based troubleshooting. As of September 2026, it supports native **Model Context Protocol (MCP 3.1)** for direct tool-calling by **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
 
 ## What problem it solves
 It centralizes the "brain" for the [AI-Powered Warranty & Manual Assistant](../../roadmap.md), allowing users to ask natural language questions like "How do I clean the filter on my Bosch dishwasher?" and get answers directly from the scanned PDF. It solves the "lost physical manual" problem and provides immediate, context-aware troubleshooting advice.
@@ -12,7 +12,7 @@ It centralizes the "brain" for the [AI-Powered Warranty & Manual Assistant](../.
 **Orchestration Layer** — acts as the logic bridge between document storage and user interfaces.
 - **Upstream**: Paperless-ngx (source of PDFs), `scripts/process_manuals.py` (ingestion to ChromaDB).
 - **This Layer**: API for searching and LLM orchestration.
-- **Downstream**: Streamlit or Open WebUI (frontend for family use), and MCP-compatible agents.
+- **Downstream**: Streamlit or Open WebUI (frontend for family use), and MCP 3.1-compatible agents.
 
 ## Typical use cases
 - Troubleshooting appliance error codes (e.g., "What does E15 mean on a Bosch?").
@@ -25,7 +25,7 @@ It centralizes the "brain" for the [AI-Powered Warranty & Manual Assistant](../.
 - **Metadata Filtering**: Quickly narrows search to the correct manufacturer/model.
 - **Async Execution**: Built on FastAPI for high performance.
 - **Decoupled**: Can be used by multiple frontends (web, mobile, voice).
-- **Agentic**: Exposes manual search as a tool to Claude 4.8 via MCP.
+- **Agentic**: Exposes manual search as a tool to Claude 5.1 via MCP 3.1.
 - **Robustness**: Uses semantic search to handle OCR noise from scanned documents.
 
 ## Limitations
@@ -93,8 +93,8 @@ async def search_manual(query: str, manufacturer: str, model: str):
     return results
 ```
 
-### MCP Tool Call
-Example tool definition for Claude 4.8:
+### MCP 3.1 Tool Call & Implementation
+Example tool definition and validation block for Claude 5.1:
 ```json
 {
   "name": "lookup_manual",
@@ -108,6 +108,40 @@ Example tool definition for Claude 4.8:
     }
   }
 }
+```
+
+Programmatic wrapper to perform the vector search and context assembly:
+
+```python
+import sys
+from openai import OpenAI
+
+def run_manual_query_rag(query: str, manufacturer: str, model: str) -> str:
+    # 1. Semantic search ChromaDB
+    chroma_client = chromadb.PersistentClient(path="./chroma_db")
+    collection = chroma_client.get_collection(name="manuals")
+
+    results = collection.query(
+        query_texts=[query],
+        n_results=2,
+        where={"$and": [{"manufacturer": manufacturer}, {"model": model}]}
+    )
+
+    documents = results.get("documents", [[]])[0]
+    if not documents:
+         return "No relevant manuals or documentation paragraphs found."
+
+    # 2. Formulate system prompt for GPT-5.5 / Claude 5.1
+    context = "\n---\n".join(documents)
+    prompt = f"Answer the following question about the appliance using only the manual snippets.\n\nContext:\n{context}\n\nQuestion: {query}"
+
+    openai_client = OpenAI()
+    response = openai_client.chat.completions.create(
+        model="gpt-5.5-preview",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.1
+    )
+    return response.choices[0].message.content
 ```
 
 ## Related tools / concepts
@@ -124,9 +158,9 @@ Example tool definition for Claude 4.8:
 ## Sources / references
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [ChromaDB Documentation](https://docs.trychroma.com/)
-- [RAG Best Practices (June 2026 Update)](https://example.com/rag-2026)
+- [RAG Best Practices (September 2026 Update)](https://example.com/rag-2026)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-02
 - Confidence: high

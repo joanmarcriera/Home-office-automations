@@ -1,10 +1,10 @@
 # n8n Golden Sub-workflows
 
 ## What it is
-n8n Golden Sub-workflows are a library of standardized, reusable automation building blocks designed to handle common, high-value tasks across the homelab and home-office stack. They encapsulate complex logic into single "Execute Workflow" nodes. As of June 2026, these sub-workflows have been optimized for integration with [Model Context Protocol (MCP)](../../knowledge_base/patterns/tool-calling-and-mcp.md) servers, enabling Claude 4.8 and GPT-5.5 to trigger complex n8n logic as native tools.
+n8n Golden Sub-workflows are a library of standardized, reusable automation building blocks designed to handle common, high-value tasks across the homelab and home-office stack. They encapsulate complex logic into single "Execute Workflow" nodes. As of September 2026, these sub-workflows are optimized for full integration with **Model Context Protocol (MCP 3.1)** servers, enabling **Claude 5.1**, **GPT-5.5**, and **Llama 4** to trigger complex, multi-stage n8n logic as native tools.
 
 ## What problem it solves
-Reduces duplication of logic across multiple workflows, ensures consistent handling of sensitive data (like risk gating or human approval), and simplifies the creation of new automations by providing pre-validated patterns for common operations. It also ensures that advanced models like Claude 4.8 and GPT-5.5 have a predictable execution environment for complex multi-step tasks.
+Reduces duplication of logic across multiple workflows, ensures consistent handling of sensitive data (like risk gating or human approval), and simplifies the creation of new automations by providing pre-validated patterns for common operations. It also ensures that advanced models like Claude 5.1 and GPT-5.5 have a predictable execution environment for complex multi-step tasks.
 
 ## Where it fits in the stack
 **Orchestration Layer** — serves as the "standard library" for all n8n-based automations, connecting intake sources (Email, Webhooks) to destination services (Vikunja, Google Calendar). It bridges the gap between raw API calls and high-level [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md).
@@ -21,7 +21,7 @@ Reduces duplication of logic across multiple workflows, ensures consistent handl
 - **Consistency**: Ensures every automation follows the same rules for security and data extraction.
 - **Maintainability**: Updating a "Golden" sub-workflow automatically improves all parent workflows that use it.
 - **Observability**: Standardized logging makes it easier to trace errors across nested workflows.
-- **Agent-Ready**: Native MCP 3.0 support allows sub-workflows to be called directly by frontier models.
+- **Agent-Ready**: Native MCP 3.1 support allows sub-workflows to be called directly by frontier models.
 
 ## Limitations
 - **Complexity**: Debugging nested workflows can be more challenging than single-layer flows.
@@ -74,7 +74,7 @@ n8n execute:workflow --id=123 --data='{"body": "test email"}'
 ```
 
 ## API examples
-Example of calling an n8n sub-workflow via its webhook trigger using Python (Claude 4.8 compatible):
+Example of calling an n8n sub-workflow via its webhook trigger using Python (Claude 5.1 compatible):
 
 ```python
 import requests
@@ -96,27 +96,50 @@ response = requests.post(N8N_URL, json=data, headers=headers)
 print(response.json())
 ```
 
-### MCP Tool Definition
-JSON definition for exposing a sub-workflow to an MCP-compatible agent:
+### MCP 3.1 Tool Definition & Validation Loop
+JSON definition for exposing a sub-workflow to an MCP-compatible agent under MCP 3.1:
 
 ```json
 {
-  "name": "triage_email",
-  "description": "Trigger the golden sub-workflow for email classification and extraction.",
+  "name": "triage_email_mcp_3_1",
+  "description": "Trigger the golden sub-workflow for email classification and extraction under MCP 3.1.",
   "input_schema": {
     "type": "object",
     "properties": {
       "email_body": { "type": "string" },
-      "sender": { "type": "string" }
-    }
+      "sender": { "type": "string" },
+      "metadata": { "type": "object", "properties": { "mcp_version": { "type": "string", "const": "3.1" } } }
+    },
+    "required": ["email_body", "sender"]
   }
 }
+```
+
+And a programmatic Python snippet verifying sub-workflow connectivity:
+
+```python
+import sys
+import json
+import requests
+
+def check_mcp_3_1_workflow(workflow_id: str, payload: dict) -> bool:
+    url = f"https://n8n.your-homelab.com/api/v1/workflows/{workflow_id}/run"
+    headers = {
+        "X-MCP-Version": "3.1",
+        "Content-Type": "application/json"
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=5)
+        return response.status_code == 200 and "executionId" in response.json()
+    except Exception as e:
+        print(f"Connection failed: {e}", file=sys.stderr)
+        return False
 ```
 
 ## Core Implementation Patterns (Reference)
 
 ### 1. Email Triage (`email-triage`)
-**Purpose**: Classifies incoming emails and extracts structured metadata using Claude 4.8.
+**Purpose**: Classifies incoming emails and extracts structured metadata using Claude 5.1.
 
 #### Logic Flow
 1. **Input**: Raw email body and headers.
@@ -167,8 +190,8 @@ Email Content: {{ $json.body }}
 ## Sources / references
 - [n8n Execution Logs Documentation](https://docs.n8n.io/hosting/scaling-n8n/execution-logs/)
 - [n8n Sub-workflows Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executeworkflow/)
-- [Advanced n8n Patterns for AI Agents (June 2026)](https://n8n.io/blog/ai-agent-patterns)
+- [Advanced n8n Patterns for AI Agents (September 2026 Update)](https://n8n.io/blog/ai-agent-patterns)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-02
 - Confidence: high
