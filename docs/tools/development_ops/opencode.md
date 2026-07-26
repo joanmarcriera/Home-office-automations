@@ -1,116 +1,144 @@
 # Oh My OpenAgent (OmO) / oh-my-opencode
 
 ## What it is
-Oh My OpenAgent (previously oh-my-opencode) is an open-source agent harness designed to provide a "world-class" development experience across multiple LLM providers. It acts as an orchestration layer on top of OpenCode, offering a full AI developer team in your terminal. It is a free, self-hostable tool released under the SUL 1.0 license.
+Oh My OpenAgent (OmO, previously styled as oh-my-opencode) is an open-source, highly customizable agent harness and terminal workspace. It is designed to orchestrate complex multi-agent coding sessions across various model providers. Operating under the SUL 1.0 license, it provides a powerful developer cockpit, combining local developer servers, AST analyzers, and agent planners to convert terminal prompts into high-success-rate edits.
 
 ## What problem it solves
-It solves the "harness problem" where models fail not because of intelligence, but because of poor edit tools and narrow context. It provides reliable multi-model orchestration, surgical editing via Hashline (content hashes), and a "Discipline Agent" system that ensures tasks are driven to 100% completion using frontier models like **Claude 4.8** and **GPT-5.5**.
+It tackles the "harness problem" in AI engineering, where advanced reasoning models fail not due to intelligence limitations, but because they are bottlenecked by low-fidelity shell interactions, poor context caching, or rigid file-editing APIs. OmO provides programmatic safeguards, including AST-guided syntax validations, multi-threaded codebase indexing, and multi-model consensus routing. This ensures that agents running on **Claude 5.1**, **GPT-5.5**, **Llama 4**, or **Qwen 3.6** execute modifications with high precision.
 
 ## Where it fits in the stack
-**Development & Ops / Agent Harness**. It is the open-source alternative to proprietary "walled garden" agents like [Claude Code](claude-code.md) or [Windsurf](windsurf.md).
+**Development & Ops / Agent Harness**. OmO represents an open, customizable, terminal-based alternative to proprietary "walled garden" developer engines like [Claude Code](claude-code.md), cursor-based IDEs, or [Windsurf](windsurf.md).
 
 ## Typical use cases
-- **Complex Feature Building**: Using the `ultrawork` command to trigger a multi-agent plan-and-execute loop.
-- **Large-scale Refactoring**: Leveraging LSP and AST-Grep integration for deterministic code changes (e.g., workspace-level renames).
-- **Autonomous Debugging**: Deploying specialized agents (Oracle, Librarian) to root cause and fix elusive bugs.
-- **Browser Automation**: Using the built-in Playwright skill for UI testing or data scraping.
-- **Context Injection**: Auto-generating hierarchical `AGENTS.md` files for lean, project-specific context.
+- **Multi-File Structural Refactoring**: Decomposing monolithic backend directories into micro-libraries using automated AST modifications.
+- **Autonomous Feature Delivery**: Initiating `ultrawork` execution loops that plan changes, write unit tests, run lints, and perform self-healing until code passes validation.
+- **Deep Codebase Diagnostics**: Querying complex repository patterns using LSP-integrated semantic search models to root-cause intermittent test failures.
+- **Standardized Context Management**: Setting up deep, hierarchical `AGENTS.md` boundaries across directories to provide localized rules to downstream agents.
 
 ## Key Agents (The Sisyphus Team)
-OmO uses a "Discipline Agent" system where specialized agents collaborate in parallel:
-- **Sisyphus**: The main orchestrator. Plans, delegates, and ensures tasks never stop halfway.
-- **Hephaestus**: The "Deep Worker" (Implementer). Explores codebases and executes edits using Hashline.
-- **Prometheus**: The Strategic Planner. Interviews the user to refine requirements before execution starts.
-- **Oracle**: The Reasoner. Specialized in architecture decisions and deep debugging.
-- **Librarian**: Focuses on documentation and context retrieval.
-- **Explore**: Handles web search and research via Exa MCP.
+OmO features a specialized multi-agent division of labor called the **Sisyphus Team**:
+- **Sisyphus**: The master coordinator. Evaluates intermediate outputs, manages states, and drives execution until tasks are validated.
+- **Hephaestus**: The heavy-lifting compiler and developer. Explores directory layouts and applies localized search-and-replace edits using AST hashing algorithms.
+- **Prometheus**: The architect and requirement collector. Interviews developers on complex prompts to construct unambiguous execution plans.
+- **Oracle**: The deep reasoner. Solves complex logical bottlenecks, validates code syntax, and analyzes runtime errors.
+- **Librarian**: The contextual database manager. Retrieves relevant code blocks and parses local `AGENTS.md` rules.
+- **Explore**: The external search researcher. Uses Exa and other search MCP engines to look up package documentation or API specifications.
 
 ## Strengths
-- **Multi-Model Orchestration**: Routes tasks to the best model (e.g., Claude 4.8 for logic, Gemini 3.5 for creativity).
-- **Hashline (Hash-Anchored Edits)**: Edits lines by referencing content hashes, eliminating stale-line errors.
-- **Claude Code Compatibility**: Supports `CLAUDE.md` and `AGENTS.md` skills, hooks, and MCP 3.0.
-- **LSP + AST-Grep**: IDE-quality refactoring and AST-aware code search/rewrites.
-- **Transparent & Open**: No vendor lock-in; supports local models like [Llama 4 Maverick](../ai_knowledge/local_llms.md).
+- **Surgical Code Editing**: Employs structural code hashing to apply edits precisely, avoiding line-drift errors common in simple regex-based replacements.
+- **Multi-Provider Consensus**: Supports routing tasks to the best-suited model engine (e.g., calling **Claude 5.1** for reasoning, and **Qwen 3.6** for rapid syntax generation).
+- **First-Class MCP 3.1 Protocols**: Seamlessly hosts Model Context Protocol (MCP 3.1) servers to grant agents access to terminal commands, databases, and memory engines.
+- **Advanced AST and LSP Integration**: Uses `ast-grep` and Language Server Protocols (LSP) to perform type-aware edits and semantic symbol searches.
+- **Fully Self-Hostable**: Free from vendor lock-in; connects to local model infrastructures like [Llama 4](../ai_knowledge/local_llms.md) via llama.cpp or Ollama.
 
 ## Limitations
-- **Setup Complexity**: While improved with `/init-deep`, advanced multi-model configuration requires API key management for several providers.
-- **Resource Usage**: Running multiple specialized agents in parallel can consume more tokens than a single-agent approach.
-- **CLI-Centric**: Lacks a native heavy-GUI for users who prefer visual IDE integrations over terminal-based workflows.
+- **Substantial Initial Setup**: Requires managing and configuring API keys for multiple providers to achieve optimal performance.
+- **High Token Consumption**: Running complex multi-agent parallel loops can consume a high volume of input and output tokens.
+- **Exclusively Terminal-Centric**: Lacks a primary visual graphical editor, making it less appealing to developers who prefer GUI-focused IDEs.
 
 ## When to use it
-- When you want a "Ubuntu" like experience for AI coding—stable, open, and powerful.
-- When surgical precision and high success rates for complex edits are more important than speed.
-- For large-scale refactors where AST-aware tools are required.
+- When implementing extensive, multi-file code modifications that require semantic type awareness.
+- When building a fully open, self-hosted AI developer environment using local open-weight model architectures.
+- For complex software migration tasks where agents must compile, test, and resolve issues autonomously.
 
 ## When not to use it
-- For trivial, single-file changes where a simple chat interface suffices.
-- If you prefer the simplicity of a single-provider, managed experience.
-- In resource-constrained environments where running multiple agent loops is prohibitive.
+- For quick, single-file edits or simple script creations where a direct web-chat client is faster to access.
+- If your environment requires a full-fledged visual GUI or deep, out-of-the-box VS Code extensions.
+- In low-bandwidth or cost-constrained situations where running parallel agent loops is too expensive.
 
 ## Getting started
 
 ### Installation
-You can install OmO via npm:
+Install the Oh My OpenAgent CLI globally via your preferred package manager (Node or Bun environments):
 
 ```bash
 npm install -g oh-my-opencode
 ```
 
-### Initializing a Project
-Run the deep initialization to set up hierarchical context for your agents:
+### Initializing the Repository Workspace
+Generate standard hierarchal agent instruction files and index symbols in your target project directory:
 
 ```bash
 /init-deep
 ```
 
-### Basic Example
+### Running Basic Queries
+Initiate a single-shot terminal request with your active developer model:
+
 ```bash
-omo "Explain how the authentication flow works in this project"
+omo "Review our standard testing files and summarize current coverage gaps"
 ```
 
 ## CLI examples
+
+### Starting an Autonomous Coding Loop
+Initialize the `ultrawork` loop to implement a feature, run tests, and self-heal automatically:
+
 ```bash
-# Start the "Ultrawork" loop (Plan -> Execute -> Verify)
-ultrawork "Implement the authentication flow using NextAuth"
+ultrawork "Implement an authenticated web-hook receiver with signature verification"
+```
 
-# Trigger a planning session with Prometheus
+### Starting an Architecture Interview
+Launch an interactive planning session with Prometheus to gather project context and design specifications:
+
+```bash
 /start-work
+```
 
-# Self-referential loop until 100% done
-/ulw-loop "Fix all linting errors and update dependencies"
+### Executing an Uninterrupted Recovery Loop
+Run a continuous self-healing loop to fix linting, formatting, or compiler errors:
 
-# Run project diagnostics
+```bash
+/ulw-loop "Analyze all build output errors and resolve them"
+```
+
+### Troubleshooting the Installation
+Perform a local diagnostics check to verify API keys, LSP connections, and MCP settings:
+
+```bash
 bunx oh-my-opencode doctor
 ```
 
 ## API examples
-OmO can be integrated into custom scripts using its CLI-first interface or by importing its core modules in a Bun/Node environment.
+
+### Invoking Sisyphus Programmatically
+Initialize and trigger Sisyphus multi-agent planning loops from local TypeScript automation scripts:
 
 ```typescript
-// Example using the internal task runner
 import { Sisyphus } from "oh-my-openagent/core";
 
-const task = await Sisyphus.plan("Refactor the payment gateway to use Stripe v2026");
-await task.execute();
+async function runAutomation() {
+  // Construct a detailed planning task
+  const task = await Sisyphus.plan({
+    instruction: "Refactor core database connection layers to utilize modern pool pooling options",
+    workspace: "./src/db"
+  });
+
+  // Execute the planning, compiling, and validation stages autonomously
+  const executionReport = await task.execute();
+  console.log(`Task status: ${executionReport.success ? 'Success' : 'Failure'}`);
+}
+
+runAutomation();
 ```
 
 ## Related tools / concepts
-- [Aider](aider.md)
-- [Claude Code](claude-code.md)
-- [Windsurf](windsurf.md)
-- [MCP](../automation_orchestration/mcp.md)
-- [OpenHands](openhands.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
-- [Claude](../providers/anthropic.md)
-- [Gemini](../ai_knowledge/gemini.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [Aider](aider.md) — Terminal-centric Git-integrated editing assistant.
+- [Claude Code](claude-code.md) — Anthropic's agentic command-line developer.
+- [Windsurf](windsurf.md) — Multi-agent developer IDE.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open tool-calling protocol.
+- [OpenHands](openhands.md) — Browser-based open-source software agent framework.
+- [Llama 4](../ai_knowledge/local_llms.md) — State-of-the-art open-weights model engine.
+- [Claude](../providers/anthropic.md) — SOTA model developer interface.
+- [Gemini](../ai_knowledge/gemini.md) — Multimodal foundation model family.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Industry-standard agent design patterns.
 
 ## Sources / references
-- [Oh My OpenAgent (GitHub)](https://github.com/code-yeongyu/oh-my-openagent)
-- [The Harness Problem (Can Bölük)](https://blog.can.ac/2026/02/12/the-harness-problem/)
-- [Oh My OpenCode Documentation](https://opencode.ai/docs/)
-- [OmO Agent Deep Dive](https://www.glukhov.org/ai-devtools/opencode/oh-my-opencode-agents/)
+- [Oh My OpenAgent Project Codebase on GitHub](https://github.com/code-yeongyu/oh-my-openagent)
+- [The Harness Problem: Why Agent Interfaces Matter](https://blog.can.ac/2026/02/12/the-harness-problem/)
+- [Oh My OpenCode Developer Documentation Hub](https://opencode.ai/docs/)
+- [OmO Multi-Agent Collaboration and Code Analysis Architecture](https://www.glukhov.org/ai-devtools/opencode/oh-my-opencode-agents/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

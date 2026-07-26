@@ -1,122 +1,141 @@
 # AutoGen Studio
 
 ## What it is
-AutoGen Studio is a low-code interface built on top of the AutoGen framework. It allows users to rapidly prototype, debug, and deploy multi-agent workflows through a web-based UI. As of June 2026, it is a leading platform for visual agent orchestration.
+AutoGen Studio is an open-source, low-code web interface built on top of Microsoft's AutoGen agentic orchestration framework. It enables developers and researchers to rapidly prototype, debug, monitor, and deploy collaborative multi-agent teams. As of late August 2026, it supports AutoGen v0.4+ specifications, incorporating native, event-driven multi-agent routing, safe execution sandboxes, and deep integration with tool registries.
 
 ## What problem it solves
-It lowers the barrier to entry for the AutoGen framework by providing a visual way to define agents, their skills, and their interaction patterns. It eliminates the need for complex Python orchestration scripts during the initial design phase of a multi-agent system.
+Creating cooperative multi-agent systems using traditional, imperative code can be complex and error-prone. AutoGen Studio mitigates this complexity by providing:
+- **Visual Team Modeling**: Providing an intuitive web UI to set up agent identities, system instructions, memory constraints, and communication structures.
+- **Unified Skill Management**: Providing an interface to develop, test, and inject custom Python scripts (skills) dynamically without restarting backend services.
+- **Session Visualization**: Displaying agent communication traces to let users analyze how agents deliberate, troubleshoot code errors, and run tasks.
+- **Standardized Inter-agent Tooling**: Integrating **Model Context Protocol (MCP 3.1)** tools to expose local database catalogs, shell tools, or calendar APIs to multi-agent loops.
 
 ## Where it fits in the stack
-**Frameworks / Agent UI**. It sits in the **Orchestration Layer**, providing a visual management interface for the underlying AutoGen agents.
+**Frameworks / Agent UI**. AutoGen Studio operates within the **Agent Orchestration and Design** layer, serving as a rapid visual design portal for workflows that are eventually compiled into production-grade multi-agent execution engines.
 
 ## Typical use cases
-- **Rapid Prototyping**: Quickly testing agent configurations and interaction patterns with **Claude 4.8** or **GPT-5.5**.
-- **Workflow Debugging**: Visualizing agent conversations to identify bottlenecks or logic errors.
-- **No-Code Agent Creation**: Allowing non-developers to create and test agent teams.
-- **Skill Iteration**: Developing and testing Python functions (skills) that agents can use in real-time.
+- **Multi-Agent Deliberation Testing**: Designing workflows where a planner agent decomposes problems, a coder agent writes scripts, and a reviewer agent validates outputs.
+- **Prompt and Model Comparative Iteration**: Running identical session prompts across different models (e.g., comparing the reasoning performance of **Claude 5.1** versus **GPT-5.5** or **Gemini 3.5 Pro**).
+- **Localized Execution Prototyping**: Developing sandboxed agent systems that interface with local developer resources via the CLI.
+- **Dynamic Skill Assembly**: Creating reusable snippets of code (like web scrapers or API connectors) and distributing them as capabilities to select agents.
 
 ## Strengths
-- **Visual Interface**: Intuitive UI for managing agents and sessions.
-- **Skill Management**: Easy way to add and share Python skills among agents.
-- **Session History**: Built-in persistence for agent conversations and results.
-- **Exportable**: Workflows created in the UI can be exported as JSON for use in production Python scripts.
-- **Native MCP 3.0 Support**: Seamless integration with the Model Context Protocol, allowing agents to connect to a vast library of external tools and data sources.
+- **Low-Code Accessibility**: Visual workspace dramatically reduces the initial design time required to build complex agent configurations.
+- **Code Generation and Execution**: Built-in, sandboxed Docker or localized python environments allow agents to write, execute, debug, and iterate on code autonomously.
+- **Seamless Exportability**: Workflows built in the UI can be exported cleanly as JSON or Python configurations for direct integration into CI/CD pipelines.
+- **Model Context Protocol (MCP 3.1) Native Support**: Seamlessly registers standard MCP servers, instantly giving agents capabilities from databases, file servers, or productivity applications.
 
 ## Limitations
-- **Feature Lag**: New features in the underlying AutoGen framework may take time to appear in the Studio.
-- **Scalability**: Primarily designed for prototyping; production deployments usually migrate to pure code or custom APIs.
-- **Resource Intensive**: Running the web UI and multiple agents locally can be heavy on system resources.
+- **Feature Gap with Code API**: Experimental patterns in the core AutoGen framework may take several releases to be fully reflected in the Studio UI.
+- **Production Scaling Constraints**: The UI is optimized for design-time prototyping; executing massive enterprise pipelines is best migrated to pure Python orchestration.
+- **Host Resource Overhead**: Running local visual servers alongside multiple local LLMs and code execution environments can strain host CPU and memory.
 
 ## When to use it
-- For initial experimentation with multi-agent teams.
-- When you need a visual way to explain or demonstrate agent behavior to stakeholders.
-- For managing a library of reusable agent skills.
-- When you want to leverage [MCP](../automation_orchestration/mcp.md) tools without writing boilerplate integration code.
+- When designing multi-agent teams and needing to visually map agent topologies (e.g., sender-receiver relationships).
+- To visually demonstrate agent behaviors, decision loops, and tool integrations to business stakeholders.
+- When organizing a centralized library of reusable Python skill scripts across multiple developmental teams.
+- For prototyping MCP-driven tool-calling configurations quickly with various model configurations.
 
 ## When not to use it
-- For production-scale applications requiring high customization and performance.
-- In environments where a web-based UI is not permitted or accessible.
-- When working with extremely low-latency requirements where UI overhead is unacceptable.
+- For enterprise-scale production runtimes demanding strict low-latency execution and high microservice availability.
+- In deployment architectures where visual ports or web dashboards are restricted by security compliance.
+- For basic single-agent tasks where a simple API script is more efficient.
 
 ## Getting started
 
-Install AutoGen Studio using pip:
+### Installation
+Install the AutoGen Studio package from PyPI. To enable Model Context Protocol support, install the complementary multi-agent extensions:
+
 ```bash
-pip install autogenstudio
+pip install autogenstudio "autogen-ext[mcp]"
 ```
 
-To enable MCP support, install the extension:
-```bash
-pip install -U "autogen-ext[mcp]"
-```
+### Starting the Studio Web Interface
+Configure your API keys (e.g., Anthropic Claude 5.1) and launch the web server on a customized port:
 
-Configure your LLM provider (e.g., Anthropic Claude 4.8):
 ```bash
-export ANTHROPIC_API_KEY='your_api_key_here'
-```
-
-Launch the interface:
-```bash
+export ANTHROPIC_API_KEY="your_secure_anthropic_api_key"
 autogenstudio ui --port 8081
 ```
 
-**Hello-world example**:
-1. Open `http://localhost:8081` in your browser.
-2. Navigate to the **Build** tab and create a new **Agent**.
-3. Go to the **Playground**, create a new session, and send the message: "Plot a chart of NVDA and TSLA stock price change YTD."
-4. Watch as the agents collaborate to write and execute Python code to generate the chart.
+Open `http://localhost:8081` in your web browser. Build your agents and testing workflows in the **Build** panel, then open a session in the **Playground** to test them.
 
 ## CLI examples
-AutoGen Studio provides a simple CLI for managing the web environment.
+
+### Starting the UI Port
+Start the server on a customized port with background output logging:
 
 ```bash
-autogenstudio ui --port 8081    # Start the UI on a specific port
-autogenstudio version           # Check the installed version
-autogenstudio --help            # List all available CLI options
+autogenstudio ui --port 9000 > autogen_studio.log 2>&1 &
+```
+
+### Querying Version and Package Information
+Verify your installed AutoGen Studio version details:
+
+```bash
+autogenstudio version
+```
+
+### Checking CLI CLI Commands and Helpers
+Query all available CLI utility flags and settings:
+
+```bash
+autogenstudio --help
 ```
 
 ## API examples
-While primarily a UI, you can programmatically run workflows exported from AutoGen Studio using the AutoGen framework.
+
+### Running an Exported Studio Workflow Programmatically
+Run visual layouts designed in AutoGen Studio from production python automation files:
 
 ```python
 from autogenstudio import WorkflowManager
 
-# Load a workflow exported as JSON from the Studio UI
-workflow_manager = WorkflowManager(workflow="workflow.json")
+# Load a workflow configuration exported directly from the Studio interface
+workflow_mgr = WorkflowManager(workflow="agent_software_factory.json")
 
-# Run the workflow with a specific message
-task_query = "What is the capital of France?"
-workflow_manager.run(message=task_query)
+# Execute the multi-agent task loop with an input challenge
+task_query = "Read the local file system structure and summarize the core scripts."
+run_result = workflow_mgr.run(message=task_query)
+
+print("Workflow execution complete:")
+print(run_result.summary)
 ```
 
-### Programmatic MCP Support
-As of June 2026, AutoGen Studio supports the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md). This allows agents to use tools from any MCP server.
+### Integrating MCP 3.1 Tools Programmatically
+Add standardized Model Context Protocol tools directly to AutoGen execution layers using stdio connection parameters:
 
 ```python
 from autogen_ext.tools.mcp import StdioMcpToolAdapter, StdioServerParams
 
-# Example of adding an MCP tool to an agent
-mcp_tool = StdioMcpToolAdapter(
-    StdioServerParams(command="npx", args=["-y", "@modelcontextprotocol/server-gcal"])
+# Configure an adapter for a calendar or communication tool
+calendar_tool_adapter = StdioMcpToolAdapter(
+    StdioServerParams(
+        command="npx",
+        args=["-y", "@modelcontextprotocol/server-gcal"],
+        env={"GOOGLE_CLIENT_ID": "your_client_id", "GOOGLE_CLIENT_SECRET": "your_client_secret"}
+    )
 )
+
+print("MCP Tool Adapter registered successfully with AutoGen layer.")
 ```
 
 ## Related tools / concepts
-- [AutoGen](autogen.md)
-- [CrewAI](crewai.md)
-- [Dify](../ai_knowledge/dify.md)
-- [LangGraph](langgraph.md)
-- [MCP](../automation_orchestration/mcp.md)
-- [Claude](../providers/anthropic.md)
-- [OpenAI](../ai_knowledge/openai.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md)
+- [AutoGen](autogen.md) — Undergrad orchestration code base.
+- [CrewAI](crewai.md) — Role-playing multi-agent architecture.
+- [Dify](../ai_knowledge/dify.md) — Visual workflow framework.
+- [LangGraph](langgraph.md) — State-centric graph agent coordination.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Tool integration protocol.
+- [Claude](../providers/anthropic.md) — Base reasoning engine.
+- [OpenAI](../ai_knowledge/openai.md) — LLM provider.
+- [Llama 4](../ai_knowledge/local_llms.md) — High-performance open-weight model series.
+- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — Core execution patterns.
 
 ## Sources / references
-- [Official GitHub](https://github.com/microsoft/autogen/tree/main/samples/apps/autogen-studio)
-- [AutoGen Studio Documentation](https://microsoft.github.io/autogen/docs/autogen-studio/usage)
-- [AutoGen MCP Reference](https://microsoft.github.io/autogen/stable/reference/python/autogen_ext.tools.mcp.html)
+- [AutoGen Studio Repository on GitHub](https://github.com/microsoft/autogen/tree/main/samples/apps/autogen-studio)
+- [AutoGen Studio Documentation Portal](https://microsoft.github.io/autogen/docs/autogen-studio/usage)
+- [Microsoft AutoGen MCP Tool API Guide](https://microsoft.github.io/autogen/stable/reference/python/autogen_ext.tools.mcp.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

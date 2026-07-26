@@ -1,72 +1,73 @@
 # New Relic AI
 
 ## What it is
-New Relic AI (part of the New Relic Intelligent Observability platform) is a specialized observability solution for monitoring LLM-powered applications. It provides "one-click" visibility into AI performance and quality, integrated with the broader New Relic ecosystem. It is a proprietary, usage-based SaaS offering that is not self-hostable.
+New Relic AI (part of the New Relic Intelligent Observability platform) is a specialized, enterprise-grade observability solution for monitoring large language model (LLM) applications and multi-agentic workflows. It provides "one-click" automated visibility into AI performance, security, and quality, seamlessly integrated with the broader New Relic Application Performance Monitoring (APM) ecosystem. It is a proprietary, usage-based SaaS offering that is not self-hostable.
 
 ## What problem it solves
-It addresses the unique challenges of AI monitoring, such as tracking non-deterministic outputs, monitoring "hallucinations," and managing LLM costs across multiple providers. It bridges the gap between infrastructure metrics and AI application logic, especially as complexity grows with **Claude 4.8** and **GPT-5.5** deployments.
+It addresses the distinct challenges of production AI systems, including tracking non-deterministic model outputs, identifying token inefficiencies, detecting hallucinations or prompt injections, and managing spiraling LLM costs across highly distributed providers. By uniting system-level infrastructure telemetry with complex agent-level logic, New Relic AI gives developers complete visibility into system operations, especially as complexity grows with **Claude 5.1**, **GPT-5.5**, **Llama 4**, and **Gemini 3.5** deployments.
 
 ## Where it fits in the stack
-**Observability / Eval**. It competes with [Grafana Cloud](grafana-cloud.md) and [Langfuse](langfuse.md) as a primary observability platform for production AI within the **Governance & Monitoring** layer.
+**Observability / Eval**. It operates within the **Governance & Monitoring** layer of modern agentic frameworks, competing directly with enterprise platforms like [Datadog](datadog.md) and open-source or specialized alternatives such as [Grafana Cloud](grafana-cloud.md) and [Langfuse](langfuse.md).
 
 ## Typical use cases
-- **LLM Performance Monitoring**: Tracking response times and token usage across different models like **Claude 4.8** or **GPT-5.5**.
-- **Quality Analysis**: Measuring output quality and relevance using built-in or custom evaluators.
-- **Trace Visualization**: Seeing the full lifecycle of an AI request, from user input to multiple tool calls and final response.
-- **Cost Management**: Real-time tracking of LLM spend with per-user or per-project attribution.
+- **LLM Performance Monitoring**: Real-time tracking of latency, response times, and token usage statistics across diverse model engines including **Claude 5.1**, **GPT-5.5**, and **Qwen 3.6**.
+- **Quality and Bias Analysis**: Programmatically measuring output sentiment, quality, and semantic relevance using built-in or custom NLP evaluators.
+- **Trace Visualization**: Visualizing full multi-turn agent execution runs, highlighting where slow tool calls, database fetches, or intermediate prompts introduce performance bottlenecks.
+- **Cost Management**: Granular attribution of LLM spend on a per-user, per-organization, or per-agent-task basis to manage operational margins.
 
 ## Strengths
-- **Low Effort**: Easy integration with popular AI frameworks like [LangChain](../ai_knowledge/langchain.md) and [LlamaIndex](../ai_knowledge/llamaindex.md).
-- **Holistic View**: Connects AI metrics with the underlying infrastructure (CPU, Memory, Network).
-- **Security & Privacy**: Features to redact PII from logs before they are stored.
-- **Native MCP 3.0 Support**: Official Model Context Protocol server for direct AI assistant interaction.
+- **Low-Configuration Setup**: Automatic, zero-code instrumentation for major developer libraries including [LangChain](../ai_knowledge/langchain.md) and [LlamaIndex](../ai_knowledge/llamaindex.md).
+- **Unified Telemetry**: Seamlessly correlates high-level AI application tracing with system-level infrastructure metrics (CPU, Memory, IO, Kubernetes health).
+- **Security & PII Redaction**: Robust client-side filters and server-side rules to scrub sensitive personal data, API tokens, and credentials before persistent logging.
+- **Native MCP 3.1 Support**: Features an official Model Context Protocol (MCP 3.1) server implementation enabling conversational AI assistants to query historical telemetry directly.
 
 ## Limitations
-- **Proprietary**: High level of vendor lock-in compared to OpenTelemetry-based solutions.
-- **Cost**: Can become expensive as data volume and number of users increase; usage-based pricing requires careful monitoring.
-- **Regional Constraints**: Some AI monitoring features may vary between US and EU regions.
+- **SaaS Vendor Lock-in**: Proprietary platform with significant egress and structural dependencies compared to pure OpenTelemetry frameworks.
+- **Cost Scaling**: Volume-based and ingestion-heavy pricing requires defensive filtering to avoid surprise bills under heavy multi-agent production workloads.
+- **Regional Disparities**: Select AI auditing and real-time security compliance tools may experience feature lag or restricted rollout in European and Asian regions.
 
 ## When to use it
-- When you need a "batteries-included" observability solution for your AI stack.
-- When you are already a New Relic customer and want to extend monitoring to LLMs.
-- When you want to leverage official [MCP](../automation_orchestration/mcp.md) tools for debugging production AI systems.
+- When you require a robust, enterprise-supported, out-of-the-box observability setup for complex multi-agent setups.
+- When your engineering organization is already standardized on New Relic for traditional APM and wants to consolidate AI telemetry.
+- When you want to leverage official [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers for live-debugging systems via terminal interfaces.
 
 ## When not to use it
-- If you have a strict preference for open-source observability tools like [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml).
-- For small-scale experiments where lightweight tools like [Arize Phoenix](arize-ai.md) or [LLMware](../automation_orchestration/llmware.md) are sufficient.
+- If your stack mandates fully open-source, local-first, or self-hosted telemetry tools (e.g., [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml) and [Grafana Cloud](grafana-cloud.md)).
+- For localized prototype environments or tiny test scripts where lighter tools like [Arize Phoenix](arize-ai.md) or [Parea](parea.md) are sufficient.
 
 ## Getting started
 
 ### Installation
-For Python applications, install the New Relic agent:
+For Python application monitoring, install the latest New Relic agent package:
 
 ```bash
 pip install newrelic
 ```
 
 ### Basic Configuration
-1. Obtain your `NEW_RELIC_LICENSE_KEY` from the New Relic dashboard.
-2. Initialize the agent at the very beginning of your application.
+Set your license and configuration options using environment variables before running your main entrypoint:
 
 ```bash
-# Set environment variables
-export NEW_RELIC_LICENSE_KEY="your_key"
-export NEW_RELIC_APP_NAME="AI-App-01"
+# Set necessary environment variables
+export NEW_RELIC_LICENSE_KEY="your_secure_license_key"
+export NEW_RELIC_APP_NAME="Agent-Factory-Observability"
+export NEW_RELIC_HOST="collector.newrelic.com"
 ```
 
-### Model Context Protocol (MCP) Integration
-New Relic provides an official **MCP Server** that allows AI assistants like **Claude Code** to query your telemetry data directly. Add the following to your `mcp.json`:
+### Model Context Protocol (MCP 3.1) Integration
+New Relic's MCP server can be added directly to your standard `mcp-config.json` configuration block to expose logs to frontier agent engines:
 
 ```json
 {
   "mcpServers": {
-    "new-relic": {
+    "new-relic-mcp": {
       "command": "uvx",
       "args": ["mcp-newrelic"],
       "env": {
-        "NEW_RELIC_API_KEY": "your_api_key",
-        "NEW_RELIC_ACCOUNT_ID": "your_account_id",
-        "NEW_RELIC_REGION": "US"
+        "NEW_RELIC_API_KEY": "NRAK-XXXXXXXXXXXXXXXXXXXXX",
+        "NEW_RELIC_ACCOUNT_ID": "1234567",
+        "NEW_RELIC_REGION": "US",
+        "MCP_PROTOCOL_VERSION": "3.1"
       }
     }
   }
@@ -76,16 +77,26 @@ New Relic provides an official **MCP Server** that allows AI assistants like **C
 ## CLI examples
 
 ### Recording a Deployment
+Record deployments to correlate performance shifts with specific model prompt adjustments:
+
 ```bash
-newrelic-admin record-deploy --user="admin" --revision="v1.2.3" "AI Agent Service"
+newrelic-admin record-deploy \
+  --user="ci-cd-pipeline" \
+  --revision="release-v2.6.1-gpt5.5" \
+  --description="Upgraded agent backbone to GPT-5.5 and added MCP 3.1 tools" \
+  "Agent-Factory-Observability"
 ```
 
 ### Validating Configuration
+Validate your local `.ini` configuration and test credentials directly:
+
 ```bash
 newrelic-admin validate-config newrelic.ini
 ```
 
-### Checking Agent Status
+### Checking Agent Connection Status
+Query connection state and local environment specifications:
+
 ```bash
 newrelic-admin server-config
 ```
@@ -93,7 +104,7 @@ newrelic-admin server-config
 ## API examples
 
 ### Monitoring a LangChain Application
-The New Relic agent automatically instruments [LangChain](../ai_knowledge/langchain.md) when initialized.
+The New Relic agent automatically intercepts calls to LangChain and extracts system and LLM metadata when initialized at the application root:
 
 ```python
 import newrelic.agent
@@ -101,47 +112,52 @@ newrelic.agent.initialize()
 
 from langchain_openai import ChatOpenAI
 
-# LLM metrics for GPT-5.5 will be automatically captured
-llm = ChatOpenAI(model_name="gpt-5.5")
-response = llm.invoke("Summarize the Llama 4 Maverick architecture.")
+# LLM metrics for GPT-5.5 and Llama 4 are captured autonomously
+llm = ChatOpenAI(model_name="gpt-5.5", temperature=0.2)
+response = llm.invoke("Summarize the late August 2026 SOTA changes in Model Context Protocol v3.1.")
+print(response.content)
 ```
 
 ### Querying Metrics via NRQL
+Use Python to execute custom New Relic Query Language (NRQL) requests to audit model performance programmatically:
+
 ```python
 import requests
 
-API_URL = "https://insights-api.newrelic.com/v1/accounts/YOUR_ACCOUNT_ID/query"
-API_KEY = "YOUR_QUERY_KEY"
+ACCOUNT_ID = "1234567"
+QUERY_KEY = "NRAK-YYYYYYYYYYYYYYYYYYYYYY"
+API_URL = f"https://insights-api.newrelic.com/v1/accounts/{ACCOUNT_ID}/query"
 
 headers = {
-    "X-Query-Key": API_KEY,
+    "X-Query-Key": QUERY_KEY,
     "Accept": "application/json"
 }
 
-nrql = "SELECT average(llm.response.time) FROM Transaction WHERE appName = 'AI-App-01' SINCE 1 day ago"
-params = {'nrql': nrql}
+# Fetch average latency for the new Claude 5.1 and GPT-5.5 endpoints
+nrql_query = "SELECT average(llm.response.time) FROM Transaction WHERE appName = 'Agent-Factory-Observability' SINCE 1 week ago"
+params = {"nrql": nrql_query}
 
 response = requests.get(API_URL, headers=headers, params=params)
 print(response.json())
 ```
 
 ## Related tools / concepts
-- [Datadog](datadog.md)
-- [Grafana Cloud](grafana-cloud.md)
-- [Langfuse](langfuse.md)
-- [Arize Phoenix](arize-ai.md)
-- [Parea](parea.md)
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [LangChain](../ai_knowledge/langchain.md)
-- [LlamaIndex](../ai_knowledge/llamaindex.md)
-- [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml)
+- [Datadog](datadog.md) — Main enterprise SaaS monitoring alternative.
+- [Grafana Cloud](grafana-cloud.md) — Open-source-friendly cloud metrics and logging.
+- [Langfuse](langfuse.md) — Open-source LLM engineering and tracing platform.
+- [Arize Phoenix](arize-ai.md) — Localized agent evaluation and tracking.
+- [Parea](parea.md) — LLM evaluation and testing tool.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Protocol for model-tool interaction.
+- [LangChain](../ai_knowledge/langchain.md) — Mainstream orchestration library.
+- [LlamaIndex](../ai_knowledge/llamaindex.md) — Data-connective LLM framework.
+- [Prometheus](../../reference-implementations/k8s-infrastructure/monitoring/prometheus-grafana-values.yaml) — Self-hosted time-series metrics.
 
 ## Sources / references
 - [New Relic AI Monitoring Official Site](https://newrelic.com/products/ai-monitoring)
 - [New Relic MCP Server Guide](https://docs.newrelic.com/docs/apis/mcp-server/)
-- [Monitoring Llama 4 Maverick with New Relic](https://docs.newrelic.com/docs/observability/ai-monitoring/llama-4-guide/)
+- [Monitoring Llama 4 and Claude 5.1 with New Relic](https://docs.newrelic.com/docs/observability/ai-monitoring/llama-4-guide/)
 - [New Relic Python Agent AI Guide](https://docs.newrelic.com/docs/apm/agents/python-agent/getting-started/introduction-new-relic-python/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
