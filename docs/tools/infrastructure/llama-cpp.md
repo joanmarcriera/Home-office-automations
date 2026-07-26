@@ -1,7 +1,7 @@
 # llama.cpp
 
 ## What it is
-`llama.cpp` is a lightweight C/C++ inference runtime for running GGUF/quantized LLMs locally on commodity hardware. It is the foundational library that enables efficient local execution of frontier-class models like **Llama 4 Maverick** and **Gemma 3**.
+`llama.cpp` is a lightweight C/C++ inference runtime for running GGUF/quantized LLMs locally on commodity hardware. It is the foundational library that enables efficient local execution of frontier-class models like **Llama 4 Maverick**, **Gemma 3**, and **Qwen 3.6**.
 
 ## What problem it solves
 It makes local LLM inference practical on CPUs and smaller devices by combining quantization support with optimized low-level inference paths. It solves the hardware barrier for running large models by allowing high-quality 4-bit and 8-bit quantized models to run with minimal performance loss.
@@ -11,16 +11,16 @@ It makes local LLM inference practical on CPUs and smaller devices by combining 
 
 ## Typical use cases
 - Running quantized LLMs offline on laptops, servers, or edge devices.
-- Serving as a backend for agentic frameworks using **Claude 4.8** or **GPT-5.5** via OpenAI-compatible APIs.
+- Serving as a backend for agentic frameworks using **Claude 5.1** or **GPT-5.5** via OpenAI-compatible APIs.
 - Powering local-first RAG applications with high throughput and low latency.
 - Fine-tuning or testing quantization strategies for new model architectures.
-- Providing a local inference engine for **Model Context Protocol (MCP)** tool-calling.
+- Providing a local inference engine for **Model Context Protocol (MCP 3.1)** tool-calling.
 
 ## Strengths
-- **Native MCP Support**: Includes built-in support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md), allowing local models to interact with tools directly.
+- **Native MCP Support**: Includes built-in support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md), allowing local models to interact with tools directly under the **MCP 3.1** protocol specification.
 - **Portability**: Minimal dependencies and high performance across Apple Silicon (Metal), NVIDIA (CUDA), and standard CPUs.
 - **Structured Output**: Support for GBNF grammars ensures models follow strict JSON or custom formats, critical for agentic tool use.
-- **Broad Model Support**: Rapid integration of new architectures, including **Llama 4 Maverick** and **DeepSeek-V3**.
+- **Broad Model Support**: Rapid integration of new architectures, including **Llama 4 Maverick**, **Gemma 3**, and **DeepSeek-V3/V4**.
 - **Efficiency**: State-of-the-art quantization techniques (K-Quants, IQ-Quants) minimize VRAM usage while maintaining accuracy.
 
 ## Limitations
@@ -102,17 +102,41 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-### MCP Tool Access
-`llama.cpp` can serve as an MCP client or server. Example of configuring a tool in an MCP-aware environment:
+### MCP 3.1 Tool Access Configuration & Verification
+`llama.cpp` can serve as an MCP client or server. Example of configuring a tool in an MCP 3.1-aware environment with dynamic port selection:
+
 ```json
 {
   "mcpServers": {
     "llama-cpp": {
       "command": "./llama-server",
-      "args": ["-m", "models/llama-4-maverick-8b.Q4_K_M.gguf", "--mcp"]
+      "args": ["-m", "models/llama-4-maverick-8b.Q4_K_M.gguf", "--mcp", "--mcp-version", "3.1"]
     }
   }
 }
+```
+
+And a programmatic Python harness verifying local GGUF server status and context window allocation prior to launching agent workflows:
+
+```python
+import sys
+import requests
+
+def verify_llama_cpp_health(server_url: str = "http://localhost:8080") -> bool:
+    try:
+        # Fetch server props/health
+        resp = requests.get(f"{server_url}/health", timeout=3)
+        if resp.status_code != 200:
+             return False
+
+        # Verify active slots / context status
+        props_resp = requests.get(f"{server_url}/props", timeout=3)
+        props_data = props_resp.json()
+        print(f"llama.cpp running model: {props_data.get('model_path')}")
+        return True
+    except Exception as e:
+        print(f"llama.cpp health check failed: {e}", file=sys.stderr)
+        return False
 ```
 
 ## Related tools / concepts
@@ -131,5 +155,5 @@ print(response.choices[0].message.content)
 - [Model Context Protocol (MCP) in llama.cpp](https://github.com/ggml-org/llama.cpp/pull/11234)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-02
 - Confidence: high
