@@ -1,5 +1,51 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-07-26
+
+# AI & Tech Daily Digest
+
+## Executive Summary
+* 🔥 **The Open-Weights Divide**: A significant industry rift has emerged as Microsoft, Nvidia, Meta, and Google publicly defend open-weight models, while OpenAI and Anthropic notably abstain from these endorsements.
+* 📌 **Llama.cpp Milestone**: `llama.cpp` now features full Model Context Protocol (MCP) support, enabling the WebUI to function as a full-fledged agentic chat interface.
+* 📉 **Anthropic Turmoil?**: Speculation is mounting regarding Andrej Karpathy's departure from Anthropic after he removed the company from his social media bio.
+* 🛠️ **Local LLM Hardware**: Community discussions are peaking around high-VRAM configurations (128GB MacBooks, 4x 3090 setups) to challenge frontier model capabilities locally.
+
+---
+
+## 🚀 Models & Releases
+* **Kimi Linear 48B A3B**: Users are testing this 1M context MoE model, noting high speeds compared to Qwen 3.6 35B, though some report a tendency toward overly concise outputs. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6f5vf/kimi_linear_48b_a3b/)
+* **LFM 2.5 230M**: A demonstration of this tiny model running at a blistering 1440 tok/s in-browser via WebGPU. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6e0uq/lfm_25_230m_running_at_1440_toks_inbrowser/)
+* **Model Comparisons**: Community debates are ongoing regarding whether **DeepSeek V4 Flash** or **Qwen 3.6 27B** remains the superior choice for agentic coding tasks. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6jlva/deepseek_v4_flash_hy3_or_is_qwen36_27b_still_the/)
+
+---
+
+## 🛠️ Tools & Agents
+* 📌 **Llama.cpp MCP Support**: Now supports all MCP protocols, including stdio servers. This allows `llama-cli` and the WebUI to integrate native tools for agentic workflows. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6n33i/llamacpp_now_has_full_mcp_support/)
+* **TensorSharp**: A new open-source inference engine for Unsloth (GGUF) models supporting Gemma 4 and Qwen 3.6 with multi-modal capabilities. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6ect8/benchmarks_tensorsharp_vs_llamacpp/)
+* **Agentic Systems**: A provocative piece argues that engineers should stop correcting AI-generated code and instead focus on building the systemic environments that agents need to succeed. [Source: The New Stack](https://thenewstack.io/stop-correcting-ai-code-build-the-system-agents-need/)
+
+---
+
+## 🏢 Industry News
+* 🔥 **Open-Weight Coalition**: A coalition including Microsoft, Nvidia, and Meta has defended open-weight AI against White House scrutiny. Anthropic and OpenAI notably did not sign the defense, highlighting a strategic split in the industry. [Source: The New Stack](https://thenewstack.io/microsoft-nvidia-meta-and-open-weights/) / [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6axx3/google_comes_out_in_favor_of_openweight_models_it/)
+* **Karpathy & Anthropic**: Andrej Karpathy has reportedly removed Anthropic from his X bio, leading to speculation about his departure and potential disagreements over open-source AI. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6pkji/karparthy_removed_anthropic_from_his_bio/)
+
+---
+
+## 🔬 Research & Analysis
+* **Context Engineering vs. Reasoning**: New evidence suggests that for AI Root Cause Analysis (RCA), the bottleneck is no longer the model's reasoning ability, but the "context engineering" (the pipelines that correlate telemetry). [Source: InfoQ](https://www.infoq.com/news/2026/07/ai-rca-context-engineering/)
+* **Latent Spaces**: An exploration of languages viewed as designed latent spaces. [Source: Lobsters](https://lobste.rs/s/ljg2qr/languages_as_designed_latent_spaces)
+
+---
+
+## 💻 Hardware & Local LLM Community
+* **The VRAM Quest**: Extensive discussions on the viability of **128GB MacBook Pros** and **4x RTX 3090** setups for running frontier-class models locally to avoid subscription costs. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6jpvn/is_it_worth_getting_128gb_macbook_pro_will_it/)
+* **GPU Testing**: Power curve tests for the **AMD MI50** show significant variance in real power usage despite software limits. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6ns73/mi50_power_curve_tests/)
+* **Small Model Ceiling**: A community debate on whether small model intelligence is hard-capped by parameter count or if data quality can continue to push the ceiling higher. [Source: r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v6q22t/will_small_model_intelligence_be_limited_by/)
+
+---
+
+
 ## 📅 Digest for 2026-07-25
 
 # AI & Technology Daily Digest
