@@ -15,13 +15,13 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 - **Insurance Audits**: Providing a structured list of covered household items and their protection status.
 
 ## Strengths
-- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5** or **Claude 4.8**.
+- **High Precision**: Focused extraction rules minimize "hallucination" of dates, especially when using frontier models like **GPT-5.5** or **Claude 5.1**.
 - **Standardized Schema**: Outputs are ready for consumption by databases and calendar APIs.
 - **Calculation Logic**: Moves the burden of date math (e.g., "12 months from today") from the user to the LLM.
 
 ## Limitations
 - **OCR Quality**: If the initial scan is poor, the LLM may misread dates or product names.
-- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context. Local models like **Llama 4 Maverick** are improving but may still require specific few-shot examples for these edge cases.
+- **Complex Terms**: May struggle with highly technical "Limited Lifetime" vs "Full" warranty nuances without additional context. Local models like **Llama 4** are improving but may still require specific few-shot examples for these edge cases.
 
 ## When to use it
 - When integrating document management (Paperless-ngx) with task management (Vikunja).
@@ -35,7 +35,7 @@ This implementation operates within the **Data Extraction/Intelligence layer** o
 ## Getting started
 1. Enable OCR in Paperless-ngx or your chosen ingestion tool.
 2. Configure a webhook or n8n workflow to trigger when a document is tagged as `Warranty`.
-3. Use the **Anthropic Claude 4.8** or **OpenAI GPT-5.5** API to process the OCR text using the prompt template below.
+3. Use the **Anthropic Claude 5.1** or **OpenAI GPT-5.5** API to process the OCR text using the prompt template below.
 4. Parse the JSON output and create a task in Vikunja with a due date 30 days before the warranty expiration.
 
 ### Prompt Template
@@ -68,29 +68,67 @@ Return a JSON object:
 Test the extraction logic using the `anthropic` CLI.
 
 ```bash
-# Test warranty extraction with Claude 4.8
+# Test warranty extraction with Claude 5.1
 cat receipt_ocr.txt | anthropic messages create \
-  --model claude-4-8-opus-20260528 \
+  --model claude-5-1-sonnet-20260620 \
   --system "You are an expert document analyzer. Output JSON only." \
   --user
 ```
 
 ## API examples
-Example of structured output enforcement using the OpenAI Python library.
+Example of structured output enforcement using the OpenAI Python library, integrating Pydantic v2 schemas and the custom Vikunja task creation tool.
 
 ```python
+import asyncio
+from pydantic import BaseModel, Field
+from typing import Optional
 import openai
+from scripts.vikunja_tool import VikunjaCreateTool
 
-def get_warranty_info(ocr_text):
-    completion = openai.chat.completions.create(
+class WarrantyDetails(BaseModel):
+    product_name: str = Field(..., description="The name of the purchased product.")
+    manufacturer: str = Field(..., description="The brand or manufacturer name.")
+    purchase_date: str = Field(..., description="Purchase date formatted as YYYY-MM-DD.")
+    warranty_duration_months: int = Field(..., description="Duration of warranty coverage in months.")
+    expiration_date: str = Field(..., description="Calculated expiration date formatted as YYYY-MM-DD.")
+    is_extended_warranty: bool = Field(..., description="Whether this is an extended warranty policy.")
+    notes: Optional[str] = Field(None, description="Any specific coverage exclusions or details.")
+
+async def extract_and_schedule_warranty(ocr_text: str):
+    client = openai.AsyncOpenAI()
+
+    completion = await client.beta.chat.completions.parse(
         model="gpt-5.5-preview",
         messages=[
-            {"role": "system", "content": "You extract warranty info in JSON."},
+            {"role": "system", "content": "You are a professional metadata extraction agent specializing in warranty receipts."},
             {"role": "user", "content": ocr_text}
         ],
-        response_format={"type": "json_object"}
+        response_format=WarrantyDetails
     )
-    return completion.choices[0].message.content
+
+    warranty = completion.choices[0].message.parsed
+    if warranty and warranty.expiration_date:
+        # Create a reminder in Vikunja project 5 (e.g., 'Home Admin')
+        # set due date 30 days before expiration
+        from datetime import datetime, timedelta
+        exp_dt = datetime.strptime(warranty.expiration_date, "%Y-%m-%d")
+        reminder_dt = exp_dt - timedelta(days=30)
+        due_date_str = reminder_dt.strftime("%Y-%m-%dT12:00:00Z")
+
+        # Instantiate Vikunja tool
+        vikunja = VikunjaCreateTool()
+        result = await vikunja.run(
+            title=f"Warranty Expiry: {warranty.manufacturer} {warranty.product_name}",
+            project_id=5,
+            description=f"Original Purchase: {warranty.purchase_date}\nDuration: {warranty.warranty_duration_months} months.\nNotes: {warranty.notes}",
+            due_date=due_date_str,
+            priority=3
+        )
+        print(result)
+
+if __name__ == "__main__":
+    ocr_sample = "SAMSUNG Fridge RF27T purchased on 2026-01-15. Includes 1 year manufacturer warranty."
+    asyncio.run(extract_and_schedule_warranty(ocr_sample))
 ```
 
 ## Related tools / concepts
@@ -109,5 +147,5 @@ def get_warranty_info(ocr_text):
 - [Anthropic JSON Mode](https://docs.anthropic.com/claude/docs/test-and-evaluate-prompts#json-mode)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

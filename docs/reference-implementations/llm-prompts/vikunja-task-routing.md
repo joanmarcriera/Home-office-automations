@@ -21,7 +21,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 
 ## Limitations
 - **Project Overlap**: Ambiguous tasks might be routed to the 'Inbox' if project descriptions are not distinct.
-- **Model Dependency**: Requires a model capable of reliable JSON output (e.g., **GPT-5.5**, **Claude 4.8**, or **Llama 4 Maverick**).
+- **Model Dependency**: Requires a model capable of reliable structured JSON output (e.g., **GPT-5.5**, **Claude 5.1**, **Qwen 3.6**, or **Llama 4**).
 
 ## When to use it
 - When you have more than 3-5 distinct projects in Vikunja.
@@ -33,7 +33,7 @@ This prompt sits at the **Reasoning/Execution layer** of a Home Admin Agent. It 
 - If the agent does not have real-time access to the current project IDs (risk of hallucinating IDs).
 
 ## Getting started
-To implement this pattern, you need a Vikunja instance, an LLM provider (e.g., Anthropic Claude 4.8), and an orchestration tool (n8n).
+To implement this pattern, you need a Vikunja instance, an LLM provider (e.g., Anthropic Claude 5.1), and an orchestration tool (n8n).
 1. Define your core project names and IDs in Vikunja.
 2. Configure your system prompt using the template provided below.
 3. Set up an n8n workflow that triggers on user input and calls the LLM with the project list.
@@ -77,20 +77,20 @@ Return a JSON object:
 You can test the prompt logic using a CLI tool like `llm` or `curl` to interact with your LLM provider.
 
 ```bash
-# Example using curl to test the routing logic with Claude 4.8
+# Example using curl to test the routing logic with Claude 5.1
 curl https://api.anthropic.com/v1/messages \
      -H "x-api-key: $ANTHROPIC_API_KEY" \
      -H "anthropic-version: 2023-06-01" \
      -H "content-type: application/json" \
      -d '{
-       "model": "claude-4-8-opus-20260528",
+       "model": "claude-5-1-sonnet-20260620",
        "max_tokens": 1024,
        "messages": [{"role": "user", "content": "Remind me to fix the kitchen sink tomorrow"}]
      }'
 ```
 
 ## API examples
-Integration via the **Model Context Protocol (MCP 3.0)** allows for direct tool calling into Vikunja.
+Integration via the **Model Context Protocol (MCP 3.1)** allows for direct tool calling into Vikunja.
 
 ### JSON Schema for Constrained Output
 ```json
@@ -111,15 +111,34 @@ Integration via the **Model Context Protocol (MCP 3.0)** allows for direct tool 
 
 ### Agent Integration Pattern (Python)
 ```python
-# Using vikunja_tool.py for execution
-from scripts.vikunja_tool import VikunjaTool
+# Using VikunjaCreateTool for execution
+import asyncio
+from scripts.vikunja_tool import VikunjaCreateTool
 
-async def route_task(user_input):
-    vikunja = VikunjaTool()
-    # Logic to call LLM with the routing prompt and then execute
-    # result = await llm.generate_json(prompt, schema)
-    # await vikunja.create_task(result)
-    pass
+async def route_task(user_input: str, parsed_json: dict):
+    # Initialize the create tool
+    tool = VikunjaCreateTool()
+
+    # Execute creation payload with Pydantic v2 validation and MCP 3.1 Task Protocol compliance
+    result = await tool.run(
+        title=parsed_json["title"],
+        project_id=parsed_json["project_id"],
+        description=parsed_json.get("description"),
+        due_date=parsed_json.get("due_date"),
+        priority=parsed_json.get("priority")
+    )
+    print(result)
+
+# Example execution mock
+if __name__ == "__main__":
+    mock_payload = {
+        "title": "Fix the leaking kitchen sink faucet",
+        "project_id": 4,
+        "description": "Under-sink pipe shows light moisture. Inspect and seal.",
+        "due_date": "2026-09-01T12:00:00Z",
+        "priority": 5
+    }
+    asyncio.run(route_task("Fix leaking sink faucet tomorrow", mock_payload))
 ```
 
 ## Related tools / concepts
@@ -138,5 +157,5 @@ async def route_task(user_input):
 - [Anthropic Claude Documentation](https://docs.anthropic.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
