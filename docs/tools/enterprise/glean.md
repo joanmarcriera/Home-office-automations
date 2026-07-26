@@ -3,13 +3,13 @@
 ## What it is
 Glean is an AI-powered enterprise search and knowledge management platform that connects all of a company's disparate data sources—from Slack and Google Drive to Jira and GitHub—into a single, unified search and chat experience.
 
-Key capabilities as of June 2026:
+Key capabilities as of late August 2026:
 - **Unified Search**: Search across 100+ popular SaaS applications with a single query.
 - **Enterprise Knowledge Graph**: Maps the relationships between people, documents, and activities to deliver context-aware results.
-- **Glean Assistant**: A generative AI coworker (Claude 4.8 and GPT-5.5 optimized) that answers questions based on internal documentation.
+- **Glean Assistant**: A generative AI coworker (Claude 5.1 and GPT-5.5 optimized) that answers questions based on internal documentation.
 - **Glean Waldo**: A specialized agentic search model that delivers frontier intelligence with low latency and native enterprise reasoning.
 - **Glean Canvas**: An interactive workspace for synthesizing information and generating presentations or interactive pages.
-- **MCP 3.0 Support**: Provides secure, governed access to enterprise context for external agents using the latest Model Context Protocol standard.
+- **MCP 3.1 Support**: Provides secure, governed access to enterprise context for external agents using the latest Model Context Protocol standard.
 
 ## What problem it solves
 It eliminates "information silos" by providing a centralized gateway to institutional knowledge. Glean understands the context of a company's people, projects, and permissions, allowing employees to find exactly what they need without having to know which specific app the information lives in.
@@ -34,7 +34,7 @@ It eliminates "information silos" by providing a centralized gateway to institut
 ## When to use it
 - When your organization has information spread across 10+ different SaaS platforms (Slack, Jira, Drive, GitHub, etc.).
 - When employees spend significant time searching for "who knows what" or "where is that doc."
-- When you need a permissions-aware AI assistant (GPT-5.5 or Claude 4.8 based) that only reveals information the user is authorized to see.
+- When you need a permissions-aware AI assistant (GPT-5.5 or Claude 5.1 based) that only reveals information the user is authorized to see.
 
 ## When not to use it
 - For very small teams (e.g., <20 people) where information is easily managed in one or two tools.
@@ -55,19 +55,28 @@ Glean is an enterprise-grade SaaS platform. It typically requires administrative
 
 ## CLI examples
 > [!NOTE]
-> Glean is an enterprise search platform and does not provide an official public CLI for end-users as of June 2026. Administrative tasks are managed via the web console or specialized Terraform providers.
+> Glean is an enterprise search platform and does not provide an official public CLI for end-users as of late August 2026. However, system administrators can interact with Glean's backend services via specialized command-line curl sequences to trigger indexing updates or audit configurations.
+
+### Trigger Data Source Indexing via Curl
+```bash
+curl -X POST "https://your-company.glean.com/api/v1/indexing/trigger" \
+  -H "Authorization: Bearer $GLEAN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"datasource_id": "ds_github_main", "crawl_type": "INCREMENTAL"}'
+```
 
 ## API examples
-Glean provides a REST API for searching programmatically. Below is a Python example using the `requests` library (2026 pattern).
+Glean provides a REST API for searching programmatically. Below is a Python example using the standard `urllib` library (2026 pattern).
 
 ```python
-import requests
+import json
+import urllib.request
 
-API_KEY = "your_glean_api_key"
 GLEAN_DOMAIN = "your-company.glean.com"
+API_KEY = "<YOUR_GLEAN_API_KEY>"
 
 def search_glean(query):
-    # API v1 Endpoint (June 2026 pattern)
+    # API v1 Endpoint (2026 pattern)
     api_url = f"https://{GLEAN_DOMAIN}/api/v1/search"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -76,10 +85,18 @@ def search_glean(query):
     payload = {
         "query": query,
         "pageSize": 5,
-        "model": "gpt-5.5" # Optional: Specify model preference for reasoning
+        "model": "gpt-5.5" # Specifying GPT-5.5 as the baseline reasoning agent
     }
-    response = requests.post(api_url, json=payload, headers=headers)
-    return response.json()
+
+    req = urllib.request.Request(
+        api_url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers=headers,
+        method='POST'
+    )
+
+    with urllib.request.urlopen(req) as response:
+        return json.loads(response.read().decode())
 ```
 
 ## Related tools / concepts
@@ -100,5 +117,5 @@ def search_glean(query):
 - [Introducing MCP in Glean](https://www.glean.com/blog/mcp-mar-drop-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

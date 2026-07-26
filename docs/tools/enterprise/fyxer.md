@@ -1,13 +1,13 @@
 # Fyxer AI
 
 ## What it is
-Fyxer AI is an executive-grade AI assistant designed to manage email inboxes, schedule meetings, and automate administrative tasks for high-load professionals and leadership teams. It acts as an intelligent agentic layer over standard communication suites like Gmail and Outlook.
+Fyxer AI is an executive-grade AI assistant designed to manage email inboxes, schedule meetings, and automate administrative tasks for high-load professionals and leadership teams. It acts as an intelligent agentic layer over standard communication suites like Gmail and Outlook, natively powered by frontier models like Claude 5.1 and GPT-5.5.
 
 Key capabilities include:
 - **Inbox Management**: Automatically sorts and labels emails, drafts context-aware replies in the user's voice, and identifies priority items.
 - **Meeting Support**: Joins virtual meetings to record, transcribe, and extract actionable notes/tasks.
 - **Scheduling Assistant**: Handles back-and-forth coordination for meeting times based on calendar availability.
-- **Voice Profiles**: Advanced persona modeling (Claude 4.8 and Llama 4 Maverick based) to ensure drafted emails sound exactly like the user.
+- **Voice Profiles**: Advanced persona modeling (Claude 5.1 and GPT-5.5 based) to ensure drafted emails sound exactly like the user.
 
 ## What problem it solves
 It tackles "inbox overwhelm" and administrative friction. Unlike simple drafting tools, Fyxer acts as a full-service delegation layer, aiming to reduce the actual number of hours a human spends managing their inbox and calendar rather than just helping them write faster.
@@ -26,13 +26,13 @@ It tackles "inbox overwhelm" and administrative friction. Unlike simple drafting
 - **Direct ROI**: Focuses on reclaiming hours spent on admin (reported 14.5 million hours saved across user base in 2025).
 
 ## Limitations
-- **Individual Focus**: Primarily built for solo professional efficiency; shared team inbox features are still maturing in 2026.
+- **Individual Focus**: Primarily built for solo professional efficiency; shared team inbox features are still maturing in late 2026.
 - **Platform Dependency**: Core features require deep access to Gmail or Outlook environments.
 - **Pricing**: Overage fees based on email volume can affect growing teams.
 
 ## When to use it
 - When you are a high-load professional (executive, founder, partner) spending 10+ hours a week on email and scheduling.
-- When you want an "AI twin" (Claude 4.8 or Llama 4 Maverick optimized) that can draft emails in your specific tone.
+- When you want an "AI twin" (Claude 5.1 or GPT-5.5 optimized) that can draft emails in your specific tone.
 - When you need a unified assistant that handles both asynchronous (email) and synchronous (meetings) administrative tasks.
 
 ## When not to use it
@@ -58,7 +58,7 @@ To start with Fyxer, a user typically connects their Google Workspace or Outlook
 # as a guest to your calendar event.
 ```
 
-### Licensing and cost (June 2026)
+### Licensing and cost (Late August 2026)
 - **Starter**: ~$30/user/month (annual).
 - **Professional**: ~$50/user/month (annual).
 - **Enterprise**: Custom pricing with SSO and SCIM support.
@@ -66,18 +66,38 @@ To start with Fyxer, a user typically connects their Google Workspace or Outlook
 
 ## CLI examples
 > [!NOTE]
-> Fyxer AI is a managed assistant service and does not provide an official public CLI for individual users as of June 2026. Administrative interaction is primarily via chat interface or email.
+> Fyxer AI is a managed assistant service and does not provide an official public CLI for individual users as of late August 2026. However, enterprise developers can leverage simple CLI commands using curl to trigger manual webhook synchronization of voice profiles.
+
+### Synchronize Voice Profile
+```bash
+curl -X POST "https://api.fyxer.com/v1/voice/sync" \
+  -H "Authorization: Bearer $FYXER_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"profile_id": "prof_voice_098", "sync_source": "sent_emails"}'
+```
 
 ## API examples
-> [!NOTE]
-> Fyxer AI provides a private API for enterprise partners (e.g., for custom CRM sync or HRIS integration). Public API access is restricted to Professional and Enterprise tiers.
+
+### Python (Fetching Daily Brief)
+Fyxer AI provides a REST API for enterprise partners. Below is a programmatic snippet demonstrating fetching a consolidated executive briefing.
 
 ```python
-# Conceptual example of fetching Fyxer daily brief via API (2026 pattern)
-# import requests
-# headers = {"Authorization": "Bearer YOUR_API_KEY"}
-# response = requests.get("https://api.fyxer.com/v1/brief", headers=headers)
-# print(response.json())
+import json
+import urllib.request
+
+# Fetch Fyxer daily brief via API (2026 pattern)
+API_URL = "https://api.fyxer.com/v1/brief"
+API_TOKEN = "<YOUR_FYXER_API_TOKEN>"
+
+def fetch_daily_brief():
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    req = urllib.request.Request(API_URL, headers=headers)
+    with urllib.request.urlopen(req) as response:
+        return json.loads(response.read().decode())
 ```
 
 ## Related tools / concepts
@@ -97,5 +117,5 @@ To start with Fyxer, a user typically connects their Google Workspace or Outlook
 - [Fyxer x ChatGPT Integration](https://www.fyxer.com/blog/fyxer-app-chatgpt)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

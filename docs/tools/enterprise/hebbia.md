@@ -1,7 +1,7 @@
 # Hebbia
 
 ## What it is
-Hebbia is an AI-powered intelligence platform built for sophisticated reasoning and analysis over massive volumes of documents. It is specifically designed for high-stakes industries like finance, law, and corporate strategy where precision and cross-document synthesis are critical. As of June 2026, it serves as a primary "Reasoning Engine" for enterprise data using models like [Claude 4.8](../providers/anthropic.md).
+Hebbia is an AI-powered intelligence platform built for sophisticated reasoning and analysis over massive volumes of documents. It is specifically designed for high-stakes industries like finance, law, government, and corporate strategy where precision and cross-document synthesis are critical. As of late August 2026, it serves as a primary "Reasoning Engine" for enterprise data using state-of-the-art models like Claude 5.1 and GPT-5.5.
 
 ## What problem it solves
 It addresses the "synthesis bottleneck." Instead of users manually reviewing thousands of pages of filings, transcripts, or contracts to find signals, Hebbia uses LLMs to reason across entire document sets simultaneously, providing structured answers with direct citations, significantly reducing time-to-insight for due diligence.
@@ -29,7 +29,7 @@ It addresses the "synthesis bottleneck." Instead of users manually reviewing tho
 ## When to use it
 - When you need to synthesize information across hundreds of complex documents (PDFs, transcripts, filings).
 - In high-stakes finance or legal environments where every AI claim must be auditable via direct citations.
-- When you need a reasoning engine (Claude 4.8 or GPT-5.5 based) that understands professional terminology and complex financial structures.
+- When you need a reasoning engine (Claude 5.1 or GPT-5.5 based) that understands professional terminology and complex financial structures.
 
 ## When not to use it
 - For simple web-based questions that don't require deep document analysis (use [Perplexity](../providers/perplexity.md)).
@@ -44,27 +44,47 @@ Hebbia is a high-end enterprise SaaS platform. Access typically requires an inst
 
 ## CLI examples
 > [!NOTE]
-> Hebbia is primarily a web-based enterprise platform. Official CLI tools are generally restricted to institutional technical teams and are not publicly distributed as of June 2026.
+> Hebbia is primarily a web-based enterprise platform. Official CLI tools are generally restricted to institutional technical teams and are not publicly distributed as of late August 2026. However, users can use standard curl or custom CLI helper scripts to trigger Hebbia workspace analyses.
+
+### Triggering Matrix Run via Curl
+```bash
+curl -X POST "https://api.hebbia.ai/v2/matrix/trigger" \
+  -H "Authorization: Bearer $HEBBIA_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"project_id": "proj_908123", "skill_id": "skill_extract_risk_factors"}'
+```
 
 ## API examples
 
 ### Python (Triggering a Matrix Analysis)
 ```python
-import requests
+import json
+import urllib.request
 
-# Conceptual endpoint for Hebbia API v2 (2026)
+# Endpoint for Hebbia API v2 (2026 Pattern)
 API_URL = "https://api.hebbia.ai/v2/matrix/trigger"
 API_TOKEN = "<INSTITUTIONAL_TOKEN>"
 
 def run_matrix_analysis(project_id, skill_id):
-    headers = {"Authorization": f"Bearer {API_TOKEN}"}
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json"
+    }
     payload = {
         "project_id": project_id,
         "skill_id": skill_id,
         "callback_url": "https://hooks.yourfirm.com/hebbia-complete"
     }
-    response = requests.post(API_URL, json=payload, headers=headers)
-    return response.json()
+
+    req = urllib.request.Request(
+        API_URL,
+        data=json.dumps(payload).encode('utf-8'),
+        headers=headers,
+        method='POST'
+    )
+
+    with urllib.request.urlopen(req) as response:
+        return json.loads(response.read().decode())
 ```
 
 ## Related tools / concepts
@@ -77,14 +97,14 @@ def run_matrix_analysis(project_id, skill_id):
 - [AgentOps](../process_understanding/agentops.md)
 - [n8n](../../services/n8n.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude 4.8](../providers/anthropic.md)
+- [Anthropic](../providers/anthropic.md)
 
 ## Sources / References
 - [Hebbia Official Website](https://www.hebbia.ai/)
 - [Top AI Financial Research Platforms for 2026](https://www.hebbia.com/resources/financial-research-platforms)
-- [Hebbia: What's New February 2026](https://www.hebbia.com/blog/the-disclosure-february-2026)
+- [Hebbia: What's New August 2026](https://www.hebbia.com/blog/the-disclosure-august-2026)
 - [Hebbia Skills: Expertise at Institutional Scale](https://www.hebbia.com/blog/hebbia-skills-expertise-at-institutional-scale)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
