@@ -22,7 +22,7 @@ This implementation sits in the **LLM reasoning layer** of the ingestion pipelin
 ## Limitations
 - **Hallucination Risk**: LLMs may occasionally "invent" dates if the OCR text is highly garbled or ambiguous.
 - **Token Usage**: Long documents with a lot of irrelevant text can consume significant prompt tokens.
-- **Relative Date Complexity**: Highly complex relative dates may still confuse smaller models. Frontier models like **GPT-5.5** or **Claude 4.8** have significantly improved reasoning for complex temporal logic.
+- **Relative Date Complexity**: Highly complex relative dates may still confuse smaller models. Frontier models like **GPT-5.5** or **Claude 5.1** have significantly improved reasoning for complex temporal logic.
 
 ## When to use it
 - When you need to extract dates from unstructured documents where the layout is not consistent.
@@ -71,21 +71,56 @@ cat ocr_output.txt | openai api chat.completions.create \
 ```
 
 ## API examples
-Integration via Python for automated pipelines using the `openai` library.
+Integration via Python for automated pipelines using the `openai` library and `Pydantic` v2 schema enforcement.
 
 ```python
+import asyncio
+from pydantic import BaseModel, Field
+from typing import Optional
 import openai
+from scripts.calendar_tool import GCalendarCreateTool
 
-def extract_dates(ocr_text, current_date):
-    response = openai.chat.completions.create(
+class EventExtraction(BaseModel):
+    event_name: Optional[str] = Field(None, description="Extracted event name or summary.")
+    start_date: Optional[str] = Field(None, description="ISO8601 start date-time string.")
+    end_date: Optional[str] = Field(None, description="ISO8601 end date-time string.")
+    location: Optional[str] = Field(None, description="Optional venue or meeting location.")
+    reasoning: str = Field(..., description="Brief explanation of why these dates were chosen.")
+
+async def extract_and_create_event(ocr_text: str, current_date: str):
+    client = openai.AsyncOpenAI()
+
+    completion = await client.beta.chat.completions.parse(
         model="gpt-5.5-preview",
         messages=[
-            {"role": "system", "content": "You are a precision administrative assistant."},
-            {"role": "user", "content": f"Text: {ocr_text}\nCurrent Date: {current_date}"}
+            {"role": "system", "content": f"You are a precision administrative assistant. Today's date is {current_date}."},
+            {"role": "user", "content": ocr_text}
         ],
-        response_format={"type": "json_object"}
+        response_format=EventExtraction
     )
-    return response.choices[0].message.content
+
+    extracted = completion.choices[0].message.parsed
+    if extracted and extracted.event_name and extracted.start_date:
+        # Default end date to 1 hour after start date if not found
+        end_time = extracted.end_date or extracted.start_date
+
+        # Instantiate GCal Tool to schedule the extracted event
+        gcal = GCalendarCreateTool()
+        result = await gcal.run(
+            summary=extracted.event_name,
+            start_time=extracted.start_date,
+            end_time=end_time,
+            location=extracted.location,
+            description=f"Auto-extracted via GPT-5.5.\nReasoning: {extracted.reasoning}"
+        )
+        print(result)
+    else:
+        print("No event found in OCR text.")
+
+# Example trigger
+if __name__ == "__main__":
+    ocr_sample = "Dentist appointment scheduled for Sept 15th, 2026 at 2 PM at Smile Clinic."
+    asyncio.run(extract_and_create_event(ocr_sample, "2026-08-31"))
 ```
 
 ## Related tools / concepts
@@ -104,5 +139,5 @@ def extract_dates(ocr_text, current_date):
 - [ISO 8601 Date Standard](https://www.iso.org/iso-8601-date-and-time-format.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

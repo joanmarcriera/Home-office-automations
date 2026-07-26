@@ -13,13 +13,13 @@ This implementation sits at the **Intake/Ingress layer**. It connects **External
 - **Mobile Scan-to-Cloud**: A shortcut on a phone that captures an image and POSTs it directly to the server.
 - **Email Gateway**: A script that monitors an "invoices@" inbox and pushes attachments to Paperless.
 - **Automated Web Downloads**: A script that downloads monthly utility bills and uploads them with pre-applied tags.
-- **Real-time Agent Analysis**: Triggering a **Claude 4.8** or **GPT-5.5** agent to analyze a document the moment it is scanned.
+- **Real-time Agent Analysis**: Triggering a **Claude 5.1** or **GPT-5.5** agent to analyze a document the moment it is scanned.
 
 ## Strengths
 - **Low Latency**: Near-instantaneous ingestion.
 - **Direct Metadata Injection**: Allows applying tags, titles, and dates at the moment of upload.
 - **Improved Reliability**: Provides immediate HTTP success/failure codes to the sending system.
-- **Agent Integration**: Seamlessly connects to the **Model Context Protocol (MCP 3.0)** for automated processing.
+- **Agent Integration**: Seamlessly connects to the **Model Context Protocol (MCP 3.1)** for automated processing.
 
 ## Limitations
 - **Token Management**: Requires secure handling of API tokens.
@@ -54,21 +54,36 @@ curl -H "Authorization: Token your_token_here" \
 ```
 
 ## API examples
-The **Model Context Protocol (MCP 3.0)** provides a standardized way for agents to perform this upload.
+The **Model Context Protocol (MCP 3.1)** provides a standardized way for agents to perform this upload.
 
 ### Python Integration
 ```python
-# Using paperless_tool.py
+# Using paperless_tool.py for automated ingestion
+import asyncio
 from scripts.paperless_tool import PaperlessUploadTool
 
-async def upload_document(file_path):
+async def upload_document(file_path: str):
+    # Initialize the high-level ingestion upload tool
     tool = PaperlessUploadTool()
+
+    # Trigger the API upload with Pydantic v2 schemas and MCP 3.1 compliance
     result = await tool.run(
         file_path=file_path,
-        title="Automated Upload via Claude 4.8",
+        title="Automated Upload via Claude 5.1",
         tags=[12] # e.g., 'needs-action'
     )
     return result
+
+# Example mock execution
+if __name__ == "__main__":
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix=".txt") as temp_file:
+        temp_file.write(b"Mock invoice scan text content.")
+        temp_file.flush()
+
+        # Run async ingestion task
+        response = asyncio.run(upload_document(temp_file.name))
+        print(response)
 ```
 
 ## Related tools / concepts
@@ -88,5 +103,5 @@ async def upload_document(file_path):
 - [Tailscale API Security Guide](https://tailscale.com/blog/api-security/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high

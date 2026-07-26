@@ -7,7 +7,7 @@ The "Family Daily Briefing" is a structured LLM prompt designed to synthesize da
 Managing a household involves tracking disparate information across calendars, task managers, and weather apps. Checking each individually is time-consuming and often leads to missing important details. This prompt automates the synthesis, highlighting conflicts and priorities in a single, easy-to-read message.
 
 ## Where it fits in the stack
-This prompt is part of the **AI Service** layer. It is typically executed by an LLM node (like **Ollama**, **GPT-5.5**, or **Claude 4.8**) within an **Orchestration** workflow (n8n), consuming data from the **Productivity** (Calendar/Tasks) and **Environmental** (Weather) layers. Modern integrations utilize the **Model Context Protocol (MCP 3.0)** to provide real-time, secure access to these data sources.
+This prompt is part of the **AI Service** layer. It is typically executed by an LLM node (like **Ollama**, **GPT-5.5**, **Claude 5.1**, **Qwen 3.6**, or **Gemini 3.5 series**) within an **Orchestration** workflow (n8n), consuming data from the **Productivity** (Calendar/Tasks) and **Environmental** (Weather) layers. Modern integrations utilize the **Model Context Protocol (MCP 3.1)** to provide real-time, secure access to these data sources.
 
 ## Typical use cases
 - **Morning Routine Automation**: Sending a briefing at 07:00 AM every morning.
@@ -21,8 +21,8 @@ This prompt is part of the **AI Service** layer. It is typically executed by an 
 
 ## Limitations
 - **Data Freshness**: Relies on the n8n workflow fetching the latest data at the time of execution.
-- **LLM Cost/Latency**: Depending on the model used, there may be a small cost or a few seconds of delay in generating the briefing. Frontier models like **GPT-5.5** or **Claude 4.8** are faster but more expensive.
-- **Hallucination Risk**: Small chance of misinterpreting times or priorities if the input data is messy. Local models like **Llama 4 Maverick** can mitigate privacy concerns but may have higher latency on modest hardware.
+- **LLM Cost/Latency**: Depending on the model used, there may be a small cost or a few seconds of delay in generating the briefing. Frontier models like **GPT-5.5** or **Claude 5.1** are faster but more expensive.
+- **Hallucination Risk**: Small chance of misinterpreting times or priorities if the input data is messy. Local models like **Llama 4** can mitigate privacy concerns but may have higher latency on modest hardware.
 
 ## When to use it
 - When your family uses multiple digital tools to manage life and needs a unified view.
@@ -74,8 +74,8 @@ Markdown-formatted text, suitable for delivery via Telegram or Email.
 You can test the synthesis logic using the `ollama` CLI with a local model.
 
 ```bash
-# Testing the briefing with Ollama and Llama 4 Maverick
-ollama run llama-4-maverick "Prepare a family briefing for 2026-06-26. Weather: Sunny, 25C. Tasks: Buy milk, Fix sink. Events: Dentist at 2PM."
+# Testing the briefing with Ollama and Llama 4
+ollama run llama-4 "Prepare a family briefing for 2026-08-31. Weather: Sunny, 25C. Tasks: Buy milk, Fix sink. Events: Dentist at 2PM."
 ```
 
 ## API examples
@@ -111,5 +111,5 @@ curl https://api.openai.com/v1/chat/completions \
 - [Smart Home Briefing Patterns (GitHub)](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/nodes/LLM)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-26
+- Last reviewed: 2026-08-31
 - Confidence: high
