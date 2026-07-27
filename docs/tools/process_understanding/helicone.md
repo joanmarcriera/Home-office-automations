@@ -1,7 +1,7 @@
 # Helicone
 
 ## What it is
-Helicone is an open-source AI Gateway and LLM observability platform that acts as a proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, and Groq). As of June 2026, it has expanded to support the **Model Context Protocol (MCP 3.0)**, allowing agents to query observability data directly within their execution context.
+Helicone is an open-source AI Gateway and LLM observability platform that acts as a proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, and Groq). In late July 2026, it has expanded to support the **Model Context Protocol (MCP 3.1)**, allowing agents to query observability data and session telemetry directly within their execution context.
 
 ## What problem it solves
 Developing LLM applications often lacks transparency regarding what is happening "under the hood." Helicone addresses several critical pain points:
@@ -9,7 +9,7 @@ Developing LLM applications often lacks transparency regarding what is happening
 - **Cost and Latency Tracking**: Provides real-time metrics on token usage, financial spend, and performance bottlenecks across different models.
 - **Reliability Issues**: Offers intelligent routing, retries, and automatic fallbacks to ensure application uptime even when a specific provider is down.
 - **Prompt Iteration**: Decouples prompts from code with a centralized management system and version control.
-- **Agentic Debugging**: Solves the difficulty of tracing multi-step reasoning loops in models like **Claude 4.8** and **GPT-5.5**.
+- **Agentic Debugging**: Solves the difficulty of tracing multi-step reasoning loops in models like **Claude 5.1** and **GPT-5.5**.
 
 ## Where it fits in the stack
 Helicone sits in the **AI Gateway and Observability** layer. It is positioned between the application code and the inference providers, acting as an intelligent intermediary that manages telemetry and request flow.
@@ -20,7 +20,7 @@ Helicone sits in the **AI Gateway and Observability** layer. It is positioned be
 - **Prompt Engineering**: Testing and versioning prompts in a UI-based playground using production data.
 - **Fine-tuning Preparation**: Tagging and exporting specific request/response pairs to fine-tuning partners like OpenPipe.
 - **Caching**: Implementing proxy-level caching to reduce costs and latency for repetitive LLM queries.
-- **MCP Integration**: Using an MCP 3.0 server to allow **Llama 4 Maverick** to self-audit its own performance logs.
+- **MCP Integration**: Using an MCP 3.1 server to allow **Llama 4 Maverick** to self-audit its own performance logs.
 
 ## Strengths
 - **Low-Friction Integration**: Usually requires changing only the `baseURL` and adding a Helicone API key header.
@@ -52,7 +52,7 @@ Helicone sits in the **AI Gateway and Observability** layer. It is positioned be
 To use Helicone with the OpenAI Python SDK, no special installation is required beyond the standard SDK.
 
 ```bash
-pip install openai
+pip install openai pydantic
 ```
 
 ### Basic Integration
@@ -96,15 +96,24 @@ curl https://gateway.helicone.ai/v1/chat/completions \
 
 ## API examples
 
-### Completion with Custom Properties
+### Completion with Custom Properties (Pydantic v2 Validation)
 You can add custom properties to your requests to enable advanced filtering and analytics in the Helicone dashboard:
 
 ```python
+from pydantic import BaseModel, Field
+
+class SummarizationRequest(BaseModel):
+    document_id: str = Field(..., description="The unique ID of the document")
+    user_plan: str = Field("free", description="Subscribed plan tier of the user")
+
+# Setup query payload
+request_meta = SummarizationRequest(document_id="doc-9941", user_plan="premium")
+
 response = client.chat.completions.create(
   model="gpt-5.5-preview",
-  messages=[{"role": "user", "content": "Summarize this document."}],
+  messages=[{"role": "user", "content": f"Summarize document: {request_meta.document_id}"}],
   extra_headers={
-    "Helicone-Property-User-Plan": "premium",
+    "Helicone-Property-User-Plan": request_meta.user_plan,
     "Helicone-Property-Source": "mobile-app"
   }
 )
@@ -148,5 +157,5 @@ async def main():
 - [Helicone GitHub Repository](https://github.com/Helicone/helicone)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-27
 - Confidence: high

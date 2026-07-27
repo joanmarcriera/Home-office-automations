@@ -24,7 +24,7 @@ It centralizes monitoring from disparate sources into a single dashboarding inte
 ## Limitations
 - **Complexity**: Setting up advanced dashboards and alerts requires significant knowledge of PromQL or LogQL.
 - **Data Silos**: Requires active effort to ensure all relevant data is being ingested.
-- **Public Preview**: Some AI Observability features are still in public preview as of June 2026.
+- **Public Preview**: Some AI Observability features are still in public preview as of late July 2026.
 
 ## When to use it
 - When you already use Grafana for infrastructure and want to add AI observability.
@@ -41,7 +41,7 @@ It centralizes monitoring from disparate sources into a single dashboarding inte
 Grafana Cloud doesn't require a local installation for the UI, but you typically need an agent like **Grafana Alloy** to ship data.
 
 ```bash
-# Install Grafana Alloy (example for Debian/Ubuntu)
+# Install Grafana Alloy (debian/ubuntu stable repository setup)
 sudo apt-get install alloy
 ```
 
@@ -73,20 +73,26 @@ grafana-cli plugins ls
 ## API examples
 
 ### Shipping LLM Metrics with OpenTelemetry (Python)
-Grafana Cloud supports OpenTelemetry natively. You can use the OpenTelemetry SDK to track token usage for models like **Claude 4.8** or **GPT-5.5**.
+Grafana Cloud supports OpenTelemetry natively. You can use the OpenTelemetry SDK to track token usage for models like **Claude 5.1** or **GPT-5.5**.
 
 ```python
+import os
 from opentelemetry import metrics
 from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+from pydantic import BaseModel, Field
 
-API_URL = "https://otlp-gateway-prod-us-central1.grafana.net/v1/metrics"
-API_TOKEN = "your_grafana_cloud_token"
+class GrafanaConfig(BaseModel):
+    api_url: str = Field("https://otlp-gateway-prod-us-central1.grafana.net/v1/metrics", description="OTLP endpoint URL")
+    api_token: str = Field(..., description="Grafana Cloud Access Token")
+
+# Configuration with Pydantic v2 validation
+config = GrafanaConfig(api_token=os.environ.get("GRAFANA_CLOUD_TOKEN", "fallback-token"))
 
 headers = {
-    "Authorization": f"Basic {API_TOKEN}"
+    "Authorization": f"Basic {config.api_token}"
 }
 
-exporter = OTLPMetricExporter(endpoint=API_URL, headers=headers)
+exporter = OTLPMetricExporter(endpoint=config.api_url, headers=headers)
 # ... configure meter and instrument to track token usage
 ```
 
@@ -119,5 +125,5 @@ print(response.json())
 - [Llama 4 Maverick Observability Patterns](https://grafana.com/blog/2026/05/monitoring-llama-4-maverick/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-27
 - Confidence: high

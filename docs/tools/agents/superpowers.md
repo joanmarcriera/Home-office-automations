@@ -1,7 +1,7 @@
 # Superpowers
 
 ## What it is
-Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) while utilizing **Gemini 3.5 visual reasoning** for complex UI tasks.
+Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) while utilizing **Gemini 3.5 visual reasoning** for complex UI tasks.
 
 ## What problem it solves
 It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents common failure modes like "hallucinating" file paths, circular refactoring, and code rot, ensuring high performance on benchmarks like [SWE-bench](../benchmarking/swe-bench.md).
@@ -17,11 +17,11 @@ It addresses the lack of discipline and engineering rigor in standard AI coding 
 - Standardizing agent behavior across a distributed engineering team.
 
 ## Strengths
-- **MCP 3.0 Task Protocol**: Native implementation of the standardized task protocol for multi-agent handoffs and verifiable progress.
+- **MCP 3.1 Task Protocol**: Native implementation of the standardized task protocol for multi-agent handoffs, complex multi-step payloads, and verifiable progress.
 - **Visual Reasoning**: Integration with **Gemini 3.5** for automated UI/UX verification and visual regression testing.
 - **Process Rigor**: Enforces high-quality engineering standards (TDD, YAGNI, DRY).
 - **Agent Autonomy**: Increases reliability through explicit verification steps and self-correction loops.
-- **Context Handling**: Optimized for [Claude 4.8 Opus](../providers/anthropic.md)'s 2.5M token context window.
+- **Context Handling**: Optimized for [Claude 5.1](../providers/anthropic.md)'s 2.5M token context window.
 
 ## Limitations
 - Higher process overhead for trivial tasks.
@@ -51,7 +51,7 @@ It addresses the lack of discipline and engineering rigor in standard AI coding 
 Superpowers skills are defined using a structured YAML format that specifies the tool's signature, implementation, and description for the LLM.
 
 ```yaml
-# example_skill.yaml
+# run_tests_skill.yaml
 name: "run_tests"
 description: "Executes the test suite for the current project and returns results."
 parameters:
@@ -87,7 +87,7 @@ For complex refactors, you can define custom verification steps in your `superpo
 ## Getting started
 
 ### Installation (Claude Code)
-Superpowers is typically installed as a plugin or set of skills using the MCP 3.0 protocol:
+Superpowers is typically installed as a plugin or set of skills using the MCP 3.1 protocol:
 
 ```bash
 /plugin marketplace add obra/superpowers-marketplace
@@ -191,5 +191,5 @@ Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Re
 - [awesome-skills.com](https://awesome-skills.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-27
 - Confidence: high

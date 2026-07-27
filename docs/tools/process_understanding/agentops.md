@@ -11,7 +11,7 @@ Developing autonomous agents is uniquely challenging due to their non-determinis
 - **Benchmarking**: Evaluation metrics to measure agent success and performance over time.
 
 ## Where it fits in the stack
-AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the **Model Context Protocol (MCP 3.0)**.
+AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the **Model Context Protocol (MCP 3.1)**.
 
 ## Typical use cases
 - **Multi-Agent Orchestration**: Monitoring interactions and handoffs between multiple agents in frameworks like [CrewAI](../frameworks/crewai.md) or AG2 ([AutoGen](../frameworks/autogen.md)).
@@ -46,7 +46,7 @@ AgentOps sits in the **AI Observability and Developer Tooling** layer. It is spe
 
 ### Installation
 ```bash
-pip install agentops
+pip install agentops pydantic
 ```
 
 ### Basic Integration
@@ -58,7 +58,7 @@ import agentops
 
 # Initialize the AgentOps client
 # agentops.init() will look for AGENTOPS_API_KEY in your environment variables
-agentops.init(api_key="your-api-key")
+agentops.init(api_key=os.environ.get("AGENTOPS_API_KEY", "fallback-key"))
 
 # Your agentic logic here...
 # e.g., working with CrewAI or AutoGen
@@ -67,25 +67,31 @@ agentops.init(api_key="your-api-key")
 agentops.end_session('Success')
 ```
 
-### Using Decorators for Custom Agents
-For custom agent implementations, use decorators to create a rich trace hierarchy.
+### Using Decorators for Custom Agents (Pydantic v2 Validation)
+For custom agent implementations, use decorators to create a rich trace hierarchy and model inputs properly.
 
 ```python
+from pydantic import BaseModel, Field
 from agentops.sdk.decorators import agent, operation
+
+class SearchConfig(BaseModel):
+    query: str = Field(..., max_length=100)
+    limit: int = Field(5, ge=1, le=20)
 
 @agent
 class ResearchAgent:
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
 
     @operation
-    def search_topic(self, query):
-        # Implementation logic...
-        return f"Results for {query}"
+    def search_topic(self, config: SearchConfig) -> str:
+        # Implementation logic validated by Pydantic v2...
+        return f"Results for {config.query} (limit {config.limit})"
 
 def run_research():
     my_agent = ResearchAgent("Researcher")
-    return my_agent.search_topic("Latest AI trends")
+    config = SearchConfig(query="Latest AI trends", limit=10)
+    return my_agent.search_topic(config)
 ```
 
 ## CLI examples
@@ -115,14 +121,14 @@ agentops export --session_id <id> --format json
 import agentops
 
 @agentops.sdk.decorators.operation
-def use_mcp_tool(tool_name, params):
-    # Log specific MCP 3.0 tool interactions
+def use_mcp_tool(tool_name: str, params: dict):
+    # Log specific MCP 3.1 tool interactions
     agentops.record_action(f"Calling MCP Tool: {tool_name}", params=params)
     # ... execution logic
 ```
 
 ### Handling Multi-Model Sessions
-Track performance across **Claude 4.8** and **GPT-5.5** within the same session.
+Track performance across **Claude 5.1** and **GPT-5.5** within the same session.
 
 ```python
 agentops.init(tags=["multi-model-test"])
@@ -147,5 +153,5 @@ agentops.end_session('Success')
 - [AgentOps GitHub Repository](https://github.com/AgentOps-AI/agentops)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-27
 - Confidence: high
