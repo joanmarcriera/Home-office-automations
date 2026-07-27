@@ -1,10 +1,10 @@
 # TeamOut
 
 ## What it is
-TeamOut is an AI-native platform designed for the end-to-end planning and logistics of company retreats, offsites, and corporate events. It utilizes specialized agents to automate venue sourcing, budget management, and itinerary generation, fully supporting the MCP 3.0 protocol.
+TeamOut is an AI-native platform designed for the end-to-end planning and logistics of company retreats, offsites, and corporate events. It utilizes specialized agentic networks to automate venue sourcing, budget management, and itinerary generation, fully supporting the Model Context Protocol (MCP 3.1) standard.
 
 ## What problem it solves
-Planning large-scale corporate events is traditionally a manual, months-long process involving thousands of emails. TeamOut reduces this to minutes by using AI to match company requirements (budget, team size, activities) with a global database of retreat-vetted venues. It leverages Claude 4.8 and GPT-5.5 for high-precision semantic matching and reasoning.
+Planning large-scale corporate events is traditionally a manual, months-long process involving thousands of emails. TeamOut reduces this to minutes by using AI to match company requirements (budget, team size, activities) with a global database of retreat-vetted venues. It leverages Claude 5.1 and GPT-5.5 for high-precision semantic matching and deep reasoning.
 
 ## Where it fits in the stack
 **AI & Knowledge / Agents**. It is a verticalized AI agent specialized in the corporate travel and logistics domain, integrating with the home-office stack via [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
@@ -16,7 +16,7 @@ Planning large-scale corporate events is traditionally a manual, months-long pro
 
 ## Strengths
 - **Domain-Specific Logic**: Unlike general-purpose agents, TeamOut is pre-trained on travel logistics and corporate venue data.
-- **Workflow Integration**: Integrates directly with Slack, Google Calendar, and MCP 3.0-compliant clients for team coordination.
+- **Workflow Integration**: Integrates directly with Slack, Google Calendar, and MCP 3.1-compliant clients for team coordination.
 - **High Signal Data**: Uses proprietary datasets of "retreat-ready" hotels that aren't always prioritized in general search engines.
 
 ## Limitations
@@ -37,7 +37,7 @@ Planning large-scale corporate events is traditionally a manual, months-long pro
 TeamOut primarily operates as a managed service. To use the integration SDK for agents:
 
 ```bash
-pip install teamout-sdk
+pip install teamout-sdk pydantic>=2.0
 ```
 
 ### Quick Start
@@ -55,38 +55,55 @@ While TeamOut is platform-first, the `teamout` CLI allows for programmatic statu
 teamout status --retreat-id R_12345
 
 # Export a draft itinerary to JSON for local review
-teamout export --retreat-id R_12345 --format json
+teamout export --retreat-id R_12345 --format json --output ./itinerary.json
 
-# List all active retreat projects
-teamout projects list
+# List all active retreat projects with verbose logging
+teamout projects list --verbose
 ```
 
 ## API examples
 
 ### Programmatic Retreat Request
-Using the SDK to trigger a search from a custom agent (e.g., a Claude 4.8-based assistant).
+Using the Python SDK with Pydantic v2 validation to trigger a search from a custom agent (e.g., a Claude 5.1-based assistant).
 
 ```python
+from typing import List, Optional
+from pydantic import BaseModel, Field
 from teamout import TeamOutClient
+
+# Define payload schema for strict Pydantic v2 validation
+class RetreatSearchQuery(BaseModel):
+    team_size: int = Field(..., gt=0, description="Number of participants")
+    location: str = Field(..., description="Target region or country")
+    budget_cap: float = Field(..., gt=0, description="Maximum budget in USD")
+    requirements: List[str] = Field(default_factory=list, description="Core requirements")
 
 client = TeamOutClient(api_key="TO_SEC_XYZ")
 
-# Request a venue search for a 25-person team in Portugal
-retreat = client.search_venues(
+# Validate input parameters
+query = RetreatSearchQuery(
     team_size=25,
     location="Portugal",
-    budget_cap=35000,
+    budget_cap=35000.0,
     requirements=["meeting-rooms", "beach-access"]
 )
 
+# Request a venue search
+retreat = client.search_venues(
+    team_size=query.team_size,
+    location=query.location,
+    budget_cap=query.budget_cap,
+    requirements=query.requirements
+)
+
 for venue in retreat.recommendations:
-    print(f"Found: {venue.name} - Score: {venue.match_score}%")
+    print(f"Found: {venue.name} - Match Score: {venue.match_score}% - Est. Cost: ${venue.estimated_cost}")
 ```
 
 ## Related tools / concepts
 - [AI Agents](../agents/agency-agents.md) — Broader context on AI agent frameworks.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for agentic communication.
-- [Claude 4.8](../providers/anthropic.md) — Frontier model used for retreat reasoning.
+- [Claude 5.1](../providers/anthropic.md) — Frontier model used for retreat reasoning.
 - [GPT-5.5](openai.md) — LLM provider for travel logistics synthesis.
 - [Make](../automation_orchestration/make.md) — Used for automating retreat workflows.
 - [Vercel AI SDK](../development_ops/vercel-ai-sdk.md) — Framework for building agentic travel apps.
@@ -96,7 +113,8 @@ for venue in retreat.recommendations:
 ## Sources / references
 - [Official TeamOut AI Page](https://app.teamout.com/ai)
 - [TeamOut API Documentation (Preview)](https://docs.teamout.com/)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-25
 - Confidence: high
