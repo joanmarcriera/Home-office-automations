@@ -1,13 +1,13 @@
 # Kimi Code CLI
 
 ## What it is
-Kimi Code CLI (officially `kimi-cli`) is an open-source, terminal-native AI coding agent from Moonshot AI. It operates as an agentic loop directly in the terminal, capable of reading and editing code, executing shell commands, searching the web, and autonomously planning multi-step software development tasks. As of June 2026, it is a leading alternative for developers seeking high-performance agentic workflows outside of browser-based IDEs.
+Kimi Code CLI (officially `kimi-cli`) is an open-source, terminal-native AI coding agent from Moonshot AI. It operates as an agentic loop directly in the terminal, capable of reading and editing code, executing shell commands, searching the web, and autonomously planning multi-step software development tasks. As of late August/September 2026, it is a leading alternative for developers seeking high-performance agentic workflows outside of browser-based IDEs.
 
 ## What problem it solves
 It reduces context switching by bringing AI-powered software engineering capabilities into the developer's primary workspace: the terminal. Unlike standard chat interfaces, Kimi Code CLI has direct access to the local filesystem and shell, allowing it to perform actions like refactoring code, running tests, and fixing build errors autonomously. It leverages frontier reasoning models to handle complex multi-file edits that traditional autocomplete tools cannot manage.
 
 ## Where it fits in the stack
-**Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md), optimized for high-speed terminal interaction and agentic workflows. It integrates with the broader ecosystem via the **Model Context Protocol (MCP) 3.0** for tool discovery and resource management.
+**Development & Ops / AI Coding Agent**. It is a CLI-native alternative to [Aider](../development_ops/aider.md) or [Claude Code](../development_ops/claude-code.md), optimized for high-speed terminal interaction and agentic workflows. It integrates with the broader ecosystem via the **Model Context Protocol (MCP) 3.1** for tool discovery and resource management.
 
 ## Typical use cases
 - **Autonomous Feature Implementation**: Describing a new feature and letting the agent write the code and verify it.
@@ -19,9 +19,9 @@ It reduces context switching by bringing AI-powered software engineering capabil
 ## Strengths
 - **Agentic Loop**: Plans, executes, and adjusts actions based on terminal feedback.
 - **Native Terminal Integration**: No need to leave the shell for AI assistance.
-- **MCP 3.0 Support**: Full support for the Model Context Protocol, enabling connection to thousands of external tools and data sources.
+- **MCP 3.1 Support**: Full support for the Model Context Protocol, enabling connection to thousands of external tools and data sources.
 - **Web Access**: Can search and fetch live documentation to ground its coding suggestions.
-- **Multi-Model Support**: Native support for `claude-4-8-opus-20260528`, GPT-5.5, and Moonshot's Kimi K2 models.
+- **Multi-Model Support**: Native support for Claude 5.1, GPT-5.5, and Moonshot's Kimi K3 models.
 - **NVIDIA NIM Integration**: Can be configured to use local NVIDIA Inference Microservices (NIM) for ultra-low latency on **NVIDIA Rubin** GPUs.
 
 ## Limitations
@@ -87,7 +87,7 @@ kimi "Use the github-mcp server to list open issues in this repo"
 
 ## API examples
 
-### IDE Integration (Zed)
+### IDE Integration (Zed setting setting)
 Kimi Code CLI supports the Agent Client Protocol (ACP). To use it as an agent server in Zed, add this to your `settings.json`:
 
 ```json
@@ -117,6 +117,39 @@ base_url = "http://localhost:8000/v1"
 api_key = "nim-local"
 ```
 
+### Programmatic Integration (MCP 3.1 compliant)
+Executing coding tasks programmatically using a JSON-RPC MCP 3.1 interface:
+
+```python
+import json
+import urllib.request
+from pydantic import BaseModel, Field
+
+class KimiTaskPayload(BaseModel):
+    prompt: str = Field(..., description="Coding instruction/task description.")
+    workspace_path: str = Field(..., description="Absolute path to the repository.")
+    mcp_version: str = Field(default="3.1", description="Model Context Protocol specification version.")
+
+def invoke_kimi_mcp_task(task: KimiTaskPayload) -> dict:
+    url = "http://localhost:8000/v1/mcp/tasks"
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "execute_kimi_agent",
+        "params": task.model_dump(),
+        "id": "kimi-cli-task-execution"
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={'Content-Type': 'application/json'},
+        method='POST'
+    )
+
+    with urllib.request.urlopen(req) as res:
+        return json.loads(res.read().decode('utf-8'))
+```
+
 ## Related tools / concepts
 - [Aider](../development_ops/aider.md)
 - [Claude Code](../development_ops/claude-code.md)
@@ -135,5 +168,5 @@ api_key = "nim-local"
 - [NVIDIA NIM for LLMs](https://www.nvidia.com/en-us/ai-data-science/generative-ai/nim/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-03
 - Confidence: high
