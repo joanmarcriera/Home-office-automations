@@ -63,6 +63,12 @@ curl -X POST "https://api.groq.com/openai/v1/chat/completions" \
 # List available models via API
 curl https://api.groq.com/openai/v1/models \
      -H "Authorization: Bearer $GROQ_API_KEY"
+
+# Transcribe an audio file using the Whisper model via Groq's transcription endpoint
+curl -X POST "https://api.groq.com/openai/v1/audio/transcriptions" \
+     -H "Authorization: Bearer $GROQ_API_KEY" \
+     -F "file=@sample.mp3" \
+     -F "model=whisper-large-v3"
 ```
 
 ## API examples
