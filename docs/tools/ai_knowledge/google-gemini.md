@@ -1,40 +1,44 @@
 # Google Gemini
 
 ## What it is
-Google Gemini is a family of multimodal large language models developed by Google DeepMind. As of July 2026, it represents Google's most capable AI ecosystem, featuring Gemini 2.0 Pro and Flash models. It is uniquely characterized by its massive context window, native multimodal reasoning, and seamless integration with [Gemma 3](local_llms.md) for hybrid cloud-local workflows.
+Google Gemini is a family of multimodal large language models developed by Google DeepMind. As of late July 2026, the ecosystem features the cutting-edge **Gemini 3.6** and **Gemini 3.5** model families, which include the highly capable **Gemini 3.6 Flash**, the high-throughput **Gemini 3.5 Flash-Lite**, the secure specialized **Gemini 3.5 Flash Cyber** (integrated within CodeMender for vulnerability patching), and the enterprise-tier **Gemini 3.5 Pro** and **Gemini 3.5 Ultra**.
 
 ## What problem it solves
-It provides state-of-the-art reasoning across text, code, images, audio, and video. Notably, Gemini 2.0 Pro features an expanded 4-million token context window, solving the problem of analyzing massive data lakes, entire repositories, or long-form video archives in a single pass. It also leverages [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.0 for advanced tool orchestration.
+It provides state-of-the-art native multimodal reasoning across text, code, images, audio, and video, addressing performance bottlenecks and high operating costs of agentic workflows by:
+- **Increasing Token Efficiency**: Gemini 3.6 Flash reduces overall output token usage by 17% compared to 3.5 Flash, and by up to 65% in execution benchmarks like Datacurve's DeepSWE.
+- **Minimizing Latency**: Gemini 3.5 Flash-Lite generates a blistering 350 output tokens per second, making it the fastest model in the 3.5 class.
+- **Automating Code Security**: Gemini 3.5 Flash Cyber automates the identification and fixing of critical vulnerabilities under CodeMender.
+- **Simplifying UI Interactivity**: Native computer use capabilities remove the need for custom scraping and manual browser automation setups.
 
 ## Where it fits in the stack
-**Provider / LLM**. It serves as a primary reasoning engine for agents and applications requiring deep multimodal understanding, extremely large context processing, or integration with the Google Cloud (Vertex AI) ecosystem, often working in tandem with [FastMCP 3.0](../automation_orchestration/mcp.md).
+**Provider / LLM**. It serves as a primary reasoning engine for agents and applications requiring deep multimodal understanding, high-throughput context processing, or integration with the Google Cloud (Vertex AI) ecosystem, working in tandem with [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1.
 
 ## Typical use cases
-- **Ultra-Long Context Analysis**: Processing massive repositories or hour-long videos (up to 4M tokens) in one prompt.
-- **Multimodal Workflows**: Extracting information from complex visual and auditory data without intermediate steps.
-- **Cost-Efficient RAG**: Using context caching to store large, frequently accessed datasets for low-cost querying.
-- **Agentic Automation**: Leveraging Gemini's native tool-use capabilities integrated with [MCP 3.0](../automation_orchestration/mcp.md) servers.
+- **Multi-Agent Coding Pipelines**: Running codebase migrations and automated debugging using Gemini 3.6 Flash's high-precision coding abilities (MLE Bench: 63.9%, DeepSWE: 49%).
+- **High-Throughput Translation and Data Extraction**: Querying massive datasets cost-effectively with Gemini 3.5 Flash-Lite.
+- **Real-Time Interactive Workspace Simulation**: Building interactive UI mockups and canvas tools leveraging real-time vision capabilities.
+- **Secure Code Patching**: Executing closed-loop vulnerability identification and repair via Gemini 3.5 Flash Cyber managed agents.
 
 ## Strengths
-- **Massive Context Window**: Industry-leading 4-million token context window for Gemini 2.0 Pro.
-- **Context Caching**: Significantly reduces costs for tasks that reuse the same large token sets across multiple prompts.
-- **Native Multimodality**: Built from the ground up to reason across different modalities simultaneously.
-- **Gemini Omni Multimodal Integration**: (July 2026) Features support for Gemini Omni personal avatars, enabling real-time multimodal system analysis and highly contextual interactive workspace simulations.
-- **Integrated Code Execution**: Can generate, run, and learn from Python code natively within the model loop.
+- **Reduced Pricing**: Gemini 3.6 Flash costs $1.50/1M input tokens and $7.50/1M output tokens, cutting overall cost per agentic task.
+- **Ultra-High Speed**: Gemini 3.5 Flash-Lite runs at 350 output tokens/s.
+- **Configurable Intelligence**: Flash-Lite features multiple "thinking levels" (minimal/low/high) to trade off speed for logical depth.
+- **Fewer Loop Refusals**: Highly precise instructions prevent unnecessary tool-calling loops and unwanted file edits.
+- **Frontier Safeguards**: Includes top-tier defenses against Chemical, Biological, Radiological, and Nuclear (CBRN) misuses.
 
 ## Limitations
-- **Privacy Constraints**: As a proprietary cloud model, data is processed on Google's infrastructure (managed via Vertex AI or AI Studio).
-- **Over-Filtering**: Safety guardrails can sometimes be aggressive, potentially impacting certain technical workflows.
-- **Cost of Large Context**: While caching helps, un-cached multi-million token prompts can be expensive for high-volume applications.
+- **Ecosystem Lock-in**: Deepest integration is limited to Google Cloud/Workspace and Google Antigravity platforms.
+- **Restricted Pilot Access**: Gemini 3.5 Flash Cyber is strictly limited to governments and approved enterprise partners.
+- **Proprietary Cloud Infrastructure**: Requires external API calls, which may not satisfy local data residency laws.
 
 ## When to use it
-- When your task requires processing contexts larger than 200k tokens (e.g., analyzing a 5,000-page PDF).
-- For complex multimodal tasks involving video, audio, or multi-image reasoning.
-- When you need a highly efficient, low-latency model with significant reasoning power (Gemini 2.0 Flash).
+- When building enterprise agents requiring rapid multi-agent collaboration with a master router model (3.6 Flash) and low-latency subagents (3.5 Flash-Lite).
+- When you require native computer use client tools out of the box.
+- For high-volume e-commerce or metadata extraction workflows where speed and cost-per-token are key constraints.
 
 ## When not to use it
 - For strictly local or air-gapped tasks requiring 100% data sovereignty; use [Gemma 3](local_llms.md) instead.
-- For simple, low-token text tasks where a cheaper or specialized local model would be more efficient.
+- If your workflow is strictly single-modality and does not require low-latency or high-throughput optimizations.
 
 ## Getting started
 1. **Access**: Visit [Google AI Studio](https://aistudio.google.com/) for a developer-friendly playground and API access.
@@ -46,19 +50,16 @@ It provides state-of-the-art reasoning across text, code, images, audio, and vid
 The `gcloud` CLI and specialized SDK wrappers provide terminal-based interaction with Gemini models.
 
 ```bash
-# Generate content via curl using your API key (2.0 Flash example)
-curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GOOGLE_API_KEY" \
+# Generate content via curl using your API key (3.6 Flash example)
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=$GOOGLE_API_KEY" \
     -H 'Content-Type: application/json' \
     -X POST \
     -d '{ "contents": [{ "parts":[{"text": "Analyze these logs for July 2026 security anomalies."}]}] }'
 
-# List available Gemini models via gcloud
-gcloud ai models list --region=us-central1 --project=$PROJECT_ID
-
-# Use context caching for a large dataset
+# Use context caching for a large dataset on Gemini 3.6 Flash
 curl -X POST "https://generativelanguage.googleapis.com/v1beta/cachedContents?key=$GOOGLE_API_KEY" \
     -H 'Content-Type: application/json' \
-    -d '{ "model": "models/gemini-2.0-pro-exp", "contents": [...] }'
+    -d '{ "model": "models/gemini-3.6-flash", "contents": [...] }'
 ```
 
 ## API examples
@@ -70,9 +71,9 @@ import os
 
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
-# Initialize the model with code execution enabled
+# Initialize the 3.6 Flash model with code execution enabled
 model = genai.GenerativeModel(
-    model_name='gemini-2.0-pro',
+    model_name='gemini-3.6-flash',
     tools='code_execution'
 )
 
@@ -93,11 +94,11 @@ print(response.text)
 - [NotebookLM](./notebooklm.md) — Google's AI-powered research and note-taking tool built on Gemini.
 
 ## Sources / references
-- [Google DeepMind: Gemini 2.0](https://deepmind.google/technologies/gemini/v2-0/)
+- [Introducing Gemini 3.6 Flash, 3.5 Flash-Lite, and 3.5 Flash Cyber](https://deepmind.google/blog/introducing-gemini-36-flash-35-flash-lite-and-35-flash-cyber/)
 - [Gemini Omni Personal Avatars in Workspace](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars/)
 - [Gemini API: Context Caching and 4M Token Window](https://ai.google.dev/gemini-api/docs/caching)
 - [Google Developers Blog: Gemini API New Features July 2026](https://developers.googleblog.com/en/july-2026-updates/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-07-27
 - Confidence: high

@@ -1,42 +1,46 @@
 # Gemini
 
 ## What it is
-Gemini is Google's most capable and general family of AI models, built to be natively multimodal from the ground up. By late July 2026, the series has matured into the **Gemini 3.5** family, including **Gemini 3.5 Ultra**, **Gemini 3.5 Pro**, **Gemini 3.5 Flash**, and the speed-optimized **Gemini 3.1 Flash-Lite**.
+Gemini is Google's most capable and general family of AI models, built to be natively multimodal from the ground up. By late July 2026, the series has matured into the **Gemini 3.5 and 3.6** families, representing Google's most advanced AI ecosystem. This includes the highly capable workhorse **Gemini 3.6 Flash**, the high-throughput speed champion **Gemini 3.5 Flash-Lite**, the secure specialized **Gemini 3.5 Flash Cyber** (deployed within the CodeMender code security agent), and the frontier-class **Gemini 3.5 Ultra** and **Gemini 3.5 Pro**.
 
 ## What problem it solves
-Gemini provides a highly integrated AI experience across the Google ecosystem, solving the "Multimodal Gap" by processing text, code, audio, image, and video within a single native reasoning engine. Its massive context window (up to 2 million tokens) addresses the limitation of traditional RAG systems by allowing entire codebases or hours of video to be processed in-context, coupled with late July 2026 structured caching to minimize latency and token overhead.
+Gemini solves the "Multimodal Gap" by processing text, code, audio, image, and video within a single native reasoning engine. It addresses the overhead, high costs, and latency of traditional LLM pipelines in agentic workflows by:
+- **Reducing Output Token Verbosity**: Gemini 3.6 Flash consumes 17% fewer output tokens compared to Gemini 3.5 Flash on Artificial Analysis, and up to 65% on coding tasks like DeepSWE.
+- **Extreme Speed/Throughput**: Gemini 3.5 Flash-Lite runs at 350 output tokens per second, making real-time high-volume processing highly viable.
+- **Native Computer Use**: Simplifies automated desktop/browser interaction by exposing "computer use" as a native client-side tool.
+- **Cybersecurity Vulnerability Mitigation**: Gemini 3.5 Flash Cyber addresses the slow turnaround of vulnerability patching by detecting, validating, and patching flaws in secure environments.
 
 ## Where it fits in the stack
-**AI Model / Multimodal Foundation**. It serves as the primary intelligence layer for Google-integrated agentic workflows, available via Google AI Studio, Vertex AI, and as the engine behind [Antigravity Agent](antigravity-agent.md).
+**AI Model / Multimodal Foundation**. It serves as the primary intelligence layer for Google-integrated agentic workflows, available via Google AI Studio, Vertex AI, and Google Antigravity (AGY), often working in tandem with [Antigravity Agent](antigravity-agent.md).
 
 ## Typical use cases
-- **Multimodal analysis**: Analyzing video, audio, and images natively (e.g., "Summarize the events in this security footage").
-- **Large-scale codebase analysis**: Refactoring and documenting massive repositories using the 2M token context window.
-- **Agentic Workflows**: Using Gemini 3.5 Flash for high-speed tool use and autonomous reasoning via the **Antigravity Agent** platform.
-- **Production RAG**: High-efficiency retrieval augmented generation with Flash-tier models, utilizing native vector indexing.
-- **Agentic Search**: Powering [Google Search](google-search.md) synthesis and multi-step research tasks.
+- **Multi-Agent Orchestration**: Coordinating complex, multi-turn reasoning steps with 3.6 Flash serving as a master router and 3.5 Flash-Lite as subagents generating rapid concepts.
+- **High-Throughput Ingestion**: Powering large-scale translation, receipt scanning, and product metadata extraction at minimal cost.
+- **Autonomous Agentic Coding**: Running code migrations and complex refactoring with 3.6 Flash (MLE Bench rating: 63.9%, DeepSWE: 49%).
+- **Interactive Visual Studios**: Building visual theme builders or mockups using real-time image understanding coupled with tldraw.
+- **Automated Security Patching**: Deploying 3.5 Flash Cyber within CodeMender to automatically generate secure pull requests on compromised codebases.
 
 ## Strengths
-- **Native Multimodality**: Built from the ground up to handle text, images, video, and audio simultaneously without separate encoders.
-- **Industry-Leading Context Window**: 2M tokens standard across the 3.5 series, enabling "Long-Context as a Service".
-- **Structured Caching**: (July 2026) Allows persistent in-memory caching of large context blocks (repos, manuals), reducing prompt cost by 90% and response latency for multi-turn runs.
-- **Managed Agents**: Support for stateful, autonomous agents running in secure sandboxes (Antigravity).
-- **Speed**: Gemini 3.5 Flash offers 4x output speed compared to previous generation Pro models while maintaining frontier-level intelligence.
-- **MCP 3.1 Support**: Native integration with the Model Context Protocol (MCP 3.1) for seamless, secure tool calling.
+- **Reduced Output Costs**: Gemini 3.6 Flash is priced cost-effectively at $1.50 per 1M input tokens and $7.50 per 1M output tokens.
+- **Blazing Speed**: Gemini 3.5 Flash-Lite leads the industry with 350 output tokens/s.
+- **Fine-grained Control**: 3.5 Flash-Lite allows developers to configure minimal, low, or high thinking levels depending on workload complexity.
+- **Fewer Execution Loops**: Substantial reduction in unwanted code edits and infinite tool-calling loops.
+- **Native Tool Integration**: Built-in native support for Computer Use and Code Execution.
+- **Frontier Safety**: Shipped with advanced safeguards against Chemical, Biological, Radiological, and Nuclear (CBRN) risks, and robust resistance to adversarial jailbreaks.
 
 ## Limitations
-- **Ecosystem Lock-in**: Deepest integration is limited to Google Cloud/Workspace services.
-- **Privacy**: Proprietary models with data handling policies that may not suit local-first or highly regulated requirements.
-- **Context Latency**: While throughput is high, very large context prompts (1M+ tokens) still incur significant time-to-first-token (TTFT) delays if not cached.
+- **Ecosystem Lock-in**: Deepest integration is limited to Google Cloud/Workspace and Google Antigravity platforms.
+- **Restricted Access**: Gemini 3.5 Flash Cyber is restricted to governments and trusted partners in a limited pilot program.
+- **Privacy**: Proprietary cloud processing is required for full multimodal, large-scale workflows (though small local tasks can offload to Gemma).
 
 ## When to use it
+- When building production-scale autonomous agents requiring low-cost, low-latency execution (using 3.5 Flash-Lite and 3.6 Flash).
 - When you need to process extremely long documents, multiple hours of video, or entire codebases in a single prompt.
-- When building autonomous agents that require high-speed tool calling and native web browsing (via Antigravity).
-- For native video-to-image or video-to-text generation tasks where alignment between frames is critical.
+- For tasks requiring robust, native client-side computer use capabilities.
 
 ## When not to use it
 - If you require a fully local, air-gapped solution (use Gemma or Llama 3/4 via [Ollama](../../services/ollama.md) instead).
-- If your workload is primarily small-context, high-reasoning text where [Claude](claude.md) may have an edge in logical precision.
+- If your workload does not benefit from multimodal inputs or token/caching optimization.
 
 ## Getting started
 1. **API Key**: Obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com/).
@@ -53,7 +57,7 @@ client = genai.Client(api_key="YOUR_API_KEY")
 4. **First Prompt**:
 ```python
 response = client.models.generate_content(
-    model='gemini-3.5-flash',
+    model='gemini-3.6-flash',
     contents="What is the current state of agentic RAG?"
 )
 print(response.text)
@@ -63,14 +67,14 @@ print(response.text)
 Using the [Gemini CLI](gemini-cli.md) for terminal-based interaction:
 
 ```bash
-# Basic text generation
-gemini-cli "Summarize the latest trends in MCP 3.1"
+# Basic text generation using 3.6 Flash
+gemini-cli --model gemini-3.6-flash "Summarize the latest trends in MCP 3.1"
 
-# Multimodal input (sending a screenshot)
-gemini-cli --image screenshot.png "Explain this UI layout"
+# Multimodal input (sending a screenshot to Flash-Lite)
+gemini-cli --model gemini-3.5-flash-lite --image screenshot.png "Explain this UI layout"
 
 # Processing a video file
-gemini-cli --video meeting_recording.mp4 "What were the action items?"
+gemini-cli --model gemini-3.6-flash --video meeting_recording.mp4 "What were the action items?"
 ```
 
 ## API examples
@@ -85,7 +89,7 @@ client = genai.Client(api_key="YOUR_API_KEY")
 video_file = client.files.upload(file="large_codebase_walkthrough.mp4")
 
 response = client.models.generate_content(
-    model='gemini-3.5-pro',
+    model='gemini-3.6-flash',
     contents=[
         video_file,
         "Based on this video, write a technical specification for the authentication module."
@@ -95,16 +99,25 @@ response = client.models.generate_content(
 print(response.text)
 ```
 
-### Managed Agents (Antigravity Preview)
+### Configurable Thinking Levels (Python)
 ```python
 from google import genai
+from google.genai import types
 
 client = genai.Client(api_key="YOUR_API_KEY")
-# Utilizing the Antigravity agentic platform via unified client
-response = client.models.generate_content(
-    model='antigravity-preview',
-    contents="Research the latest developments in Blackwell GPUs and write a 500-word report."
+
+# Setting thinking levels for high-throughput subagent tasks with Gemini 3.5 Flash-Lite
+config = types.GenerateContentConfig(
+    thinking_level="high",  # Can be minimal, low, or high
+    temperature=0.2
 )
+
+response = client.models.generate_content(
+    model='gemini-3.5-flash-lite',
+    contents="Synthesize e-commerce product features across 10,000 product rows.",
+    config=config
+)
+
 print(response.text)
 ```
 
@@ -122,10 +135,9 @@ print(response.text)
 - [Antigravity Agent](antigravity-agent.md)
 - [Model Context Protocol (MCP) 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md)
 
-## Sources / References
-- [Official Website](https://gemini.google.com/)
+## Sources / references
+- [Introducing Gemini 3.6 Flash, 3.5 Flash-Lite, and 3.5 Flash Cyber](https://deepmind.google/blog/introducing-gemini-36-flash-35-flash-lite-and-35-flash-cyber/)
 - [Gemini API Release Notes (July 2026)](https://ai.google.dev/gemini-api/docs/changelog)
-- [Announcing Gemini 3.5](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5-announcement/)
 - [Google AI Studio](https://aistudio.google.com/)
 - [Antigravity Agent Guide](https://ai.google.dev/gemini-api/docs/antigravity)
 - [Managed Agents Overview](https://aistudio.google.com/managed-agents)
