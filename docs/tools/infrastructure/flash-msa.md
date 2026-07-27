@@ -87,6 +87,9 @@ output = model(x)
 - **[FlashAttention-3](../infrastructure/flash-attention.md)**: The underlying dense attention optimization that Flash-MSA extends into the sparse domain.
 - **[DeepSeek V4](../providers/deepseek.md)**: Employs similar sparse attention strategies for large-scale MoE training.
 - **[MCP](../automation_orchestration/mcp.md)**: Used to orchestrate long-context agents powered by Flash-MSA.
+- **[vLLM](vllm.md)**: A high-throughput, memory-efficient LLM serving engine.
+- **[ExLlamaV3](exllamav3.md)**: An ultra-fast local inference engine optimized for quantized models.
+- **[SGLang](sglang.md)**: High-performance serving framework designed for structured outputs.
 
 ## Sources / References
 - [Flash-MSA: Accelerating Million-Token Training with Sparse Attention Kernels](https://www.reddit.com/r/LocalLLaMA/comments/1uv1f1q/flashmsa_accelerating_milliontoken_training_with/)
