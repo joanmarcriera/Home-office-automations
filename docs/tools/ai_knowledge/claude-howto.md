@@ -1,124 +1,134 @@
 # Claude How-To
 
 ## What it is
-`claude-howto` is a collection of guides and examples focused on mastering Claude and its associated ecosystem, including Claude Code, MCP (Model Context Protocol), and advanced agentic patterns. As of June 2026, it is a primary resource for developers transitioning from basic LLM usage to high-fidelity agentic engineering.
+`claude-howto` is a curated collection of advanced technical guides and hands-on examples focused on mastering the Claude model family and its associated development ecosystem. As of July 2026, it serves as the primary educational resource for software engineers transitioning from basic prompt engineering to high-fidelity agentic engineering with Claude 5.1 and other frontier models.
 
 ## What problem it solves
-It bridges the gap between conversational AI and functional AI agents. It provides structured, hands-on instructions for configuring specialized environment files (like `CLAUDE.md`), implementing complex tool-calling patterns, and mastering the low-level interactions required to make frontier models like `claude-4-8-opus-20260528` operate autonomously and reliably.
+It bridges the gap between conversational AI interfaces and functional, autonomous software development agents. The project provides structured, battle-tested guidelines for constructing specialised agent context files (such as `.claude/config.json` and `CLAUDE.md`), managing the Model Context Protocol (MCP 3.1), and optimizing token efficiency during iterative code modifications.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / Educational Layer**. It serves as the operational manual for the **Development & Ops** layer, specifically for teams using the Claude suite of tools for automation and coding.
+**AI Assistants & Knowledge / Educational Layer**. It provides the operational playbook for developers utilizing the **Development & Ops** tooling layer, ensuring safe, consistent, and structured multi-agent interactions within active codebases.
 
 ## Typical use cases
-- **Developer Onboarding**: Quickly training a team on the specific idioms and commands of Claude Code.
-- **Agent Environment Setup**: Implementing standardized `CLAUDE.md` and hook configurations across a repository using Claude Hooks.
-- **MCP Mastery**: Learning how to build, deploy, and connect custom MCP 3.0 servers to extend agent capabilities.
-- **Workflow Optimization**: Using lesson modules to reduce token usage and improve reasoning performance in agent loops with Claude 4.8.
+- **Developer Workflow Standardization**: Setting up unified repo rules via `CLAUDE.md` to guide agents like Claude Code, Cursor, and Melty.
+- **MCP 3.1 Server Deployment**: Guided building and deploying of custom Model Context Protocol (MCP 3.1) servers to provide agents with local filesystem and testing tools.
+- **Autonomous Multi-Agent Orchestration**: Coordinating autonomous subagents under Claude 5.1 for automated pull-request reviews.
+- **Prompt Caching Audits**: Configuring system prompts to match exact boundaries, maximizing cost-savings through Anthropic prompt caching.
 
 ## Strengths
-- **Structured Learning**: Organized into progressive modules that build from basic CLI usage to advanced multi-agent orchestration.
-- **Practical Templates**: Includes battle-tested configurations for slash commands and operational guardrails.
-- **Visual Learning**: Extensive use of diagrams to explain the internal logic of features like prompt caching and tool-use cycles.
-- **Interactive Assessments**: Built-in `/self-assessment` and `/lesson-quiz` hooks for personalized learning paths.
-- **Production-Ready**: Focuses on real-world scenarios, avoiding "toy" examples in favor of complex engineering tasks.
+- **SOTA Alignment**: Updated for Claude 5.1, featuring native multi-agent delegation frameworks and deep reasoning controls.
+- **Interactive Environment**: Supports interactive assessments using Anthropic's CLI agent and custom `/self-assessment` hooks.
+- **Security-First Focus**: Outlines advanced procedures to isolate agent execution using sandboxed containers and permission scopes.
+- **Detailed Token Management**: Demonstrates practical patterns for optimizing context limits through active token counting.
 
 ## Limitations
-- **Platform Specificity**: Deeply specialized for the Anthropic ecosystem; many patterns do not translate directly to other CLI agents.
-- **Intensity**: Requires a significant time commitment (11-13 hours) for full mastery of the curriculum.
-- **Dependency Heavy**: Relies on specific versions of Claude Code and Python development tools (like `uv`) for the interactive components.
+- **Platform Concentration**: Highly specialized for the Anthropic ecosystem; the unique syntax patterns (such as slash commands and CLAUDE.md styles) do not map directly to alternative LLM CLI setups.
+- **High Complexity**: Demands a solid baseline in software engineering and Python/Node.js scripting to leverage custom MCP servers.
+- **Rapid Ecosystem Drift**: Heavy dependencies on specific CLI releases of Claude Code require frequent configuration maintenance.
 
 ## When to use it
-- When you are migrating from a general-purpose IDE to an agent-first development workflow using Claude Code.
-- When you need to standardize how AI agents interact with your codebase via `CLAUDE.md`.
-- When training engineers to build custom Model Context Protocol (MCP) servers.
+- When implementing a repository-wide standard for how autonomous coding assistants interact with your team's code.
+- When creating custom tools for Claude via the Model Context Protocol (MCP 3.1) specifications.
+- When training software engineering teams to transition from standard autocomplete extensions to fully agentic workflows.
 
 ## When not to use it
-- If you primarily use Claude through the web-based chat interface or mobile application.
-- If your primary development stack is exclusively built around Microsoft's GitHub Copilot or OpenAI's proprietary IDE integrations.
-- If you require a high-level conceptual overview rather than a deep technical "how-to."
+- If your development team exclusively utilizes web UI assistants rather than terminal or IDE integrated agents.
+- If your workflow is strictly limited to proprietary Microsoft or OpenAI environments without room for custom CLI tool integrations.
+- For high-level conceptual summaries of AI that do not require operational commands or scripts.
 
 ## Getting started
-To begin with the `claude-howto` guide, clone the repository and set up the development environment:
+To initialize the `claude-howto` guide locally, set up the development environment using Python and the `uv` package manager:
 
 ```bash
+# Clone the educational repository
 git clone https://github.com/luongnv89/claude-howto.git
 cd claude-howto
 
-# Set up environment using uv
+# Setup environment with uv
 pip install uv
 uv venv
 source .venv/bin/activate
 uv pip install -r scripts/requirements-dev.txt
 
-# Run initial verification
+# Execute validation suite
 pytest scripts/tests/
 ```
 
 ## CLI examples
-The `claude-howto` repository includes several utility scripts for managing the learning experience.
+The `claude-howto` repository includes scripts to generate study materials and verify local setup integrity.
 
-### 1. Build the Offline Ebook
+### 1. Render Local Ebook Assets
 ```bash
-# Generate an EPUB version of the entire guide for offline study
-uv run scripts/build_epub.py
+# Compile markdown educational guides into offline EPUB assets
+uv run scripts/build_epub.py --output-dir ./dist/
 ```
 
-### 2. Run Quality Audit
+### 2. Execute Codebase Linting Check
 ```bash
-# Verify the integrity of the lesson files and scripts
+# Verify formatting of the helper scripts and lessons
 ruff check scripts/
 ruff format --check scripts/
 ```
 
-### 3. Start Interactive Assessment
-From within a Claude Code session:
+### 3. Launch the Terminal Learning Environment
 ```bash
-# Launch the skills assessment module
-/self-assessment
+# Open interactive shell assessment inside the Claude Code agent
+/self-assessment --interactive --module "mcp-routing"
 ```
 
 ## API examples
-While primarily a documentation repository, `claude-howto` provides internal Python helpers for guide automation.
+While predominantly a text-based learning resource, `claude-howto` supplies Python utilities to automate educational workflow deployments.
 
-### Programmatic Build Trigger
+### Automating Lesson Build Pipelines
 ```python
+import os
 import subprocess
 import sys
 
-def build_educational_assets():
+def compile_educational_assets(target_format: str = "epub") -> bool:
+    """
+    Automates the compilation of markdown lessons into offline formats.
+    Optimized for Python 3.11+ and compatible with uv environments.
+    """
+    if target_format not in ["epub", "pdf"]:
+        print(f"Unsupported format: {target_format}", file=sys.stderr)
+        return False
+
     try:
-        subprocess.run(
-            ["uv", "run", "scripts/build_epub.py"],
+        result = subprocess.run(
+            ["uv", "run", "scripts/build_epub.py", "--format", target_format],
             check=True,
             capture_output=True,
             text=True
         )
-        print("Ebook generated successfully.")
+        print(f"Compilation output: {result.stdout}")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Error during build: {e.stderr}", file=sys.stderr)
+        print(f"Asset compilation failed: {e.stderr}", file=sys.stderr)
+        return False
 
 if __name__ == "__main__":
-    build_educational_assets()
+    compile_educational_assets("epub")
 ```
 
 ## Related tools / concepts
-- [Claude](../development_ops/claude-code.md) — The core AI model family.
-- [Claude Code](../development_ops/claude-code.md) — The terminal-based agent for which this guide is built.
-- [Everything Claude Code](everything-claude-code.md) — Performance optimization ecosystem for Claude.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — The standard for connecting tools.
-- [Cline](../agents/cline.md) — An alternative agentic interface for VS Code.
-- [Aider](../development_ops/aider.md) — A popular terminal-based AI coding assistant.
-- [Prompt Caching](../../knowledge_base/patterns/agentic-workflows.md) — A critical pattern for cost-efficient agent usage.
-- [GPT-5.5](openai.md) — The industry baseline for comparison.
-- [Llama 4](../ai_knowledge/local_llms.md) — The open-weights alternative for local agentic workflows.
-- [Claude Hooks](../development_ops/claude-hooks.md) — Specialized lifecycle logic for Claude Code.
+- [Claude](claude.md) — The core AI model family.
+- [Claude Code](../development_ops/claude-code.md) — Terminal-native agent for which this guide is optimized.
+- [Everything Claude Code](everything-claude-code.md) — Comprehensive performance and optimization system for Claude.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized open protocol for connecting AI models to tools.
+- [Cline](../agents/cline.md) — VS Code-based autonomous agent support.
+- [Aider](../development_ops/aider.md) — Highly popular command-line editing agent.
+- [Prompt Caching](../../knowledge_base/patterns/agentic-workflows.md) — Critical pattern for cost-effective agent usage.
+- [GPT-5.5](openai.md) — Frontier model standard for comparison.
+- [Llama 4](local_llms.md) — SOTA open-weights model for local workflows.
+- [Claude Hooks](../development_ops/claude-hooks.md) — Specialized lifecycle management for terminal agents.
 
 ## Sources / references
 - [claude-howto GitHub Repository](https://github.com/luongnv89/claude-howto)
-- [Anthropic Developer Documentation](https://docs.anthropic.com/)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [MCP 3.0 Release Notes](https://modelcontextprotocol.io/blog/mcp-3-0)
+- [Anthropic Developer Guides](https://docs.anthropic.com/)
+- [Model Context Protocol (MCP) official site](https://modelcontextprotocol.io/)
+- [Anthropic Prompt Caching Guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-27
 - Confidence: high
