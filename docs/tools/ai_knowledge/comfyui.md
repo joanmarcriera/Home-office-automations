@@ -1,39 +1,39 @@
 # ComfyUI
 
 ## What it is
-ComfyUI is an open-source, node-based graphical interface and inference pipeline for local image generation using diffusion models (Flux, SD3, SDXL, SD 1.5). Unlike linear web UIs, ComfyUI exposes the full diffusion graph as a composable canvas of nodes — each step (CLIP encode, KSampler, VAE decode, upscale) is wired visually and can be modified or extended. As of June 2026, it supports **MCP 3.0** for agentic workflow orchestration.
+ComfyUI is an open-source, node-based graphical interface and inference pipeline for local image and video generation using diffusion models (Flux.1, SD3, SDXL, SD 1.5, HunyuanVideo). Unlike linear web UIs, ComfyUI exposes the full diffusion graph as a composable canvas of nodes — each step (CLIP encode, KSampler, VAE decode, upscale) is wired visually and can be modified or extended. As of late September 2026, it natively supports **MCP 3.1** for autonomous agentic workflow discovery and execution by frontier models.
 
 ## What problem it solves
-Local image generation tools typically hide the pipeline in a fixed UI. ComfyUI makes every parameter of the diffusion process explicit, composable, and automatable. Workflows are saved as JSON graphs, making them version-controllable, reproducible, and callable from external tools like n8n or autonomous Home Admin agents.
+Local image and generative media tools typically hide the pipeline in a fixed UI. ComfyUI makes every parameter of the diffusion process explicit, composable, and automatable. Workflows are saved as JSON graphs, making them version-controllable, reproducible, and callable from external tools like n8n or autonomous Home Admin agents. In September 2026, ComfyUI solves the orchestration challenge of high-resource tasks (like video synthesis) by allowing agents running Llama 4 or Claude 5.1 to dynamically configure node properties via structured REST payloads.
 
 ## Where it fits in the stack
-**Category**: AI & Knowledge / Local Generative Media. Complements the LLM stack by adding local image synthesis alongside Ollama. It operates at the **Inference & Content Generation layer**, providing high-quality visuals without cloud API dependencies.
+**Category**: AI & Knowledge / Local Generative Media. Complements the LLM stack by adding local image synthesis alongside Ollama. It operates at the **Inference & Content Generation layer**, providing high-quality visuals and video generation without cloud API dependencies.
 
 ## Typical use cases
-- **Automated Documentation**: Generating reference images for technical manuals or playbooks.
-- **Batch Image Pipelines**: Triggering complex workflows (e.g., upscaling + inpainting) via n8n.
+- **Automated Documentation**: Generating reference images for technical manuals, playbooks, or system diagrams.
+- **Batch Image & Video Pipelines**: Triggering complex workflows (e.g., HunyuanVideo synthesis, upscaling + inpainting) via n8n.
 - **Agentic Content Creation**: Home agents using [Runway ML](runwayml.md) or local Flux models to visualize task outcomes.
-- **Legacy Photo Restoration**: Restoring family archives using specialized ControlNet nodes and VAE refinement.
+- **Legacy Photo & Video Restoration**: Restoring family archives using specialized ControlNet nodes and VAE refinement.
 
 ## Strengths
 - **Reproducible workflows**: Every run is defined by a JSON graph — version-controllable and shareable.
 - **API-first**: The `/prompt` endpoint accepts JSON workflows, enabling full automation from any programming language.
 - **Massive community library**: Thousands of pre-built workflows available; ComfyUI-Manager handles automated node installation.
-- **Memory-efficient**: Launch flags like `--lowvram` allow running SOTA models like Flux on 8GB GPUs.
-- **MCP 3.0 Integration**: Agents can discover and execute ComfyUI workflows as native tools.
+- **Memory-efficient**: Launch flags like `--lowvram` allow running SOTA models like Flux.1 and HunyuanVideo on 8GB GPUs.
+- **MCP 3.1 Integration**: Agents can discover, adapt, and execute ComfyUI workflows as native tools.
 
 ## Limitations
-- **Learning Curve**: Steep entry barrier compared to linear UIs like Automatic1111; requires understanding of diffusion pipelines.
+- **Learning Curve**: Steep entry barrier compared to linear UIs; requires understanding of diffusion pipelines and tensor dimensions.
 - **Ecosystem Fragmentation**: Custom nodes are developed independently, leading to occasional version conflicts.
 - **Storage Requirements**: Model checkpoints and Loras can consume hundreds of gigabytes (best stored on ZFS/NAS).
 
 ## When to use it
-- When you need fully local, private image generation with zero per-image cost.
+- When you need fully local, private image or video generation with zero per-image cost.
 - When you want repeatable, automatable image pipelines integrated into a larger home automation stack.
 - For professional-grade ControlNet and IP-Adapter control over the generation process.
 
 ## When not to use it
-- When you need photorealistic video generation (use [Runway ML](runwayml.md) or [Luma Dream Machine](luma-dream-machine.md) for temporal consistency).
+- When you need cloud-only high-throughput video generation (use [Runway ML](runwayml.md) or [Luma Dream Machine](luma-dream-machine.md) if local hardware is limited).
 - On machines without a dedicated GPU (CPU-only mode is prohibitively slow for 2026 models).
 - If you require a "one-click" experience without wanting to manage nodes.
 
@@ -44,7 +44,7 @@ Local image generation tools typically hide the pipeline in a fixed UI. ComfyUI 
    cd ComfyUI
    pip install -r requirements.txt
    ```
-2. **Download Models**: Place your checkpoints (Flux, SDXL) in the `models/checkpoints/` directory.
+2. **Download Models**: Place your checkpoints (Flux, HunyuanVideo) in the `models/checkpoints/` directory.
 3. **Launch**: Start the server using the appropriate hardware flags (see CLI examples).
 4. **Manager**: Install `ComfyUI-Manager` to handle node dependencies automatically.
 
@@ -61,8 +61,8 @@ python main.py --lowvram
 # Apple Silicon (M4/M5) launch using Metal
 python main.py --use-pytorch-mps
 
-# Headless mode for API-only use
-python main.py --headless --listen 0.0.0.0
+# Headless mode for API-only use on a specific port
+python main.py --headless --listen 0.0.0.0 --port 8188
 ```
 
 ## API examples
@@ -102,5 +102,5 @@ print(f"Queued: {queue_workflow(wf)}")
 - [OpenArt ComfyUI Workflows](https://openart.ai/workflows/home)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-24
 - Confidence: high

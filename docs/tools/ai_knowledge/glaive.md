@@ -1,20 +1,20 @@
 # Glaive
 
 ## What it is
-Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. In June 2026, it is a critical tool for creating datasets that improve a model's ability to use [MCP 3.0](../../tools/automation_orchestration/mcp.md) tools, call APIs, and reason through complex, multi-step tasks, which are foundational capabilities for autonomous agents like [Claude Code](../development_ops/claude-code.md).
+Glaive is an AI platform specialized in generating high-quality synthetic data for training and fine-tuning Small Language Models (SLMs) and agentic systems. In late September 2026, it is a critical tool for creating datasets that improve a model's ability to use [MCP 3.1](../../tools/automation_orchestration/mcp.md) tools, call APIs, and reason through complex, multi-step tasks, which are foundational capabilities for autonomous agents like [Claude Code](../development_ops/claude-code.md) or GPT-5.5 pipelines.
 
 ## What problem it solves
 Generic synthetic data generation often fails to capture the nuances of real-world tool use and API interactions. Glaive addresses this by:
-- **Generating Functional Data**: Creating datasets that specifically target function calling and structured output according to the latest [MCP 3.0](../../tools/automation_orchestration/mcp.md) specifications.
-- **Improving SLM Performance**: Enabling smaller models like [Llama 4 Maverick](../ai_knowledge/local_llms.md) to punch above their weight in agentic workflows.
-- **Reducing Dependency on Frontier Models**: Providing a way to distill the reasoning capabilities of [Claude 4.8 Opus](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md) into smaller, more cost-effective specialized models.
+- **Generating Functional Data**: Creating datasets that specifically target function calling and structured output according to the latest [MCP 3.1](../../tools/automation_orchestration/mcp.md) specifications.
+- **Improving SLM Performance**: Enabling smaller models like [Llama 4 Maverick](../ai_knowledge/local_llms.md) and Gemma 3 to punch above their weight in agentic workflows.
+- **Reducing Dependency on Frontier Models**: Providing a way to distill the reasoning capabilities of [Claude 5.1 Sonnet](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md) into smaller, more cost-effective specialized models.
 
 ## Where it fits in the stack
 Glaive sits in the **AI & Knowledge / Synthetic Data** layer. It provides high-quality training signals used to adapt base models for agentic behavior, often being paired with fine-tuning tools like [Unsloth](../infrastructure/unsloth.md) or [LLaMA Factory](../frameworks/llama-factory.md).
 
 ## Typical use cases
-- **Agentic Tool-Use Training**: Generating datasets of natural language prompts followed by correct tool calls using the [MCP 3.0](../../tools/automation_orchestration/mcp.md) Task Protocol.
-- **Function Calling Distillation**: Training a 7B or 8B model to be as reliable at function calling as [Claude 4.8 Opus](../providers/anthropic.md).
+- **Agentic Tool-Use Training**: Generating datasets of natural language prompts followed by correct tool calls using the [MCP 3.1](../../tools/automation_orchestration/mcp.md) Task Protocol.
+- **Function Calling Distillation**: Training a 7B or 8B model to be as reliable at function calling as [Claude 5.1 Sonnet](../providers/anthropic.md).
 - **Multi-Step Reasoning**: Creating synthetic examples of "Chain of Thought" reasoning for complex problem solving in autonomous loops.
 - **API Sandbox Data**: Generating realistic API responses and error states to train models on robust error handling and self-correction.
 
@@ -31,7 +31,7 @@ Glaive sits in the **AI & Knowledge / Synthetic Data** layer. It provides high-q
 
 ## When to use it
 - When you are building an autonomous agent and need it to be reliable at tool calling.
-- When you want to use a small model (e.g., Llama 3 8B or Phi-3) for complex API orchestration.
+- When you want to use a small model (e.g., Llama 4 8B or Gemma 3) for complex API orchestration.
 - When you have a specific set of tools/APIs and need a custom dataset to teach a model how to use them.
 
 ## When not to use it
@@ -88,11 +88,11 @@ headers = {"Authorization": f"Bearer {api_key}"}
 # Verify API connectivity
 curl -I https://api.glaive.ai/v1/health
 
-# Trigger a dataset generation job
+# Trigger a dataset generation job matching MCP 3.1 standard
 curl -X POST https://api.glaive.ai/v1/generate \
      -H "Authorization: Bearer $GLAIVE_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '{"task": "calculator_tool", "num_examples": 10}'
+     -d '{"task": "calculator_tool", "num_examples": 10, "mcp_version": "3.1"}'
 
 # Download a completed dataset
 curl -O https://api.glaive.ai/v1/datasets/ds_12345/download?api_key=$GLAIVE_API_KEY
@@ -108,7 +108,8 @@ def generate_tool_data(tool_definition):
     payload = {
         "description": "Generate conversations where a user asks to use this tool",
         "tools": [tool_definition],
-        "temperature": 0.7
+        "temperature": 0.7,
+        "mcp_version": "3.1"
     }
     # r = requests.post("https://api.glaive.ai/v1/generate", json=payload)
     # return r.json()
@@ -138,5 +139,5 @@ weather_tool = {
 - [Training Small Models for Tool Use (Blog)](https://glaive.ai/blog)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-24
 - Confidence: high
