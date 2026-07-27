@@ -1,7 +1,7 @@
 # Jasper
 
 ## What it is
-Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. In June 2026, it specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer and **Advanced Brand Voice Profiles**, optimized for frontier reasoning models like `claude-4-8-opus-20260528` and GPT-5.5.
+Jasper is an AI-powered content generation and marketing orchestration platform designed for enterprise teams. In late September 2026, it specializes in high-fidelity, brand-aligned content creation across multiple channels through its **Jasper IQ** intelligence layer and **Advanced Brand Voice Profiles**, optimized for frontier reasoning models like `claude-5-1-pro-20260915` and GPT-5.5.
 
 ## What problem it solves
 Automates the production of marketing assets while ensuring strict adherence to brand voice, style guides, and product knowledge. It eliminates content silos by allowing teams to plan and execute multi-channel campaigns from a single source of truth.
@@ -18,8 +18,8 @@ Automates the production of marketing assets while ensuring strict adherence to 
 ## Strengths
 - **Jasper IQ**: An integrated intelligence layer that combines Brand Voice, Knowledge Base (private data), and Style Guides for grounded outputs.
 - **Brand Voice Profiles**: Granular control over tone, style, and messaging across different departments or product lines.
-- **Campaign Agent**: A purpose-built agent that handles omnichannel planning, generating tailored assets for each platform in a single workflow.
-- **MCP 3.0 Support**: Native integration with the Model Context Protocol for agentic tool discovery and data resource connection.
+- **Campaign Agent v3**: A purpose-built agent that handles omnichannel planning, generating tailored assets for each platform in a single, parallel workflow.
+- **MCP 3.1 Support**: Native integration with the Model Context Protocol for agentic tool discovery and data resource connection.
 - **Enterprise API**: Robust API support for integrating Jasper's generation and brand-voice capabilities directly into custom CMS or marketing tools.
 - **Reliability**: Built for enterprise-scale with 99.99% uptime and SOC2 compliance.
 
@@ -51,51 +51,58 @@ For developers, generate an API key from the **Settings > Developer** section to
 ## CLI examples
 
 > [!NOTE]
-> As of June 2026, Jasper does not provide a standalone CLI. Terminal testing and integration are performed via `curl` against the Jasper REST API.
+> As of late September 2026, Jasper does not provide a standalone CLI. Terminal testing and integration are performed via `curl` against the Jasper REST API.
 
 ### 1. Generate Content via API
 ```bash
 curl -X POST https://api.jasper.ai/v1/content/generate \
   -H "Authorization: Bearer $JASPER_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Write a blog post about AI in 2026", "brand_voice_id": "bv_987"}'
+  -d '{"prompt": "Write a blog post about AI in 2026", "brand_voice_id": "bv_987", "model": "jasper-v3"}'
 ```
 
 ### 2. List Brand Voices
 ```bash
-curl https://api.jasper.ai/v1/brand-voices \
-  -H "Authorization: Bearer $JASPER_API_KEY"
+curl -H "Authorization: Bearer $JASPER_API_KEY" https://api.jasper.ai/v1/brand-voices
 ```
 
 ### 3. Retrieve Campaign Status
 ```bash
-curl https://api.jasper.ai/v1/campaigns/camp_123 \
-  -H "Authorization: Bearer $JASPER_API_KEY"
+curl -H "Authorization: Bearer $JASPER_API_KEY" https://api.jasper.ai/v1/campaigns/camp_123
 ```
 
 ## API examples
 
 ### Python: Brand-Aligned Content Generation
-The Jasper API allows for seamless integration of brand-aware generation into custom CMS or marketing dashboards.
+The Jasper API allows for seamless integration of brand-aware generation into custom CMS or marketing dashboards, utilizing Pydantic v2 validation.
 
 ```python
-import requests
 import os
+import requests
+from pydantic import BaseModel, Field
 
-def generate_brand_summary(text, voice_id):
+# Define schema for content generation payload
+class GenerationPayload(BaseModel):
+    model: str = Field(default="jasper-v3", description="The engine model to use")
+    prompt: str = Field(..., min_length=10, description="Detailed text prompt for Jasper")
+    brand_voice_id: str = Field(..., description="Unique ID representing the brand voice profile")
+
+def generate_brand_summary(text: str, voice_id: str) -> str:
     url = "https://api.jasper.ai/v1/content/generate"
     headers = {
-        "Authorization": f"Bearer {os.getenv('JASPER_API_KEY')}",
+        "Authorization": f"Bearer {os.getenv('JASPER_API_KEY', '')}",
         "Content-Type": "application/json"
     }
-    payload = {
-        "model": "jasper-v1",
-        "prompt": f"Summarize this in our brand voice: {text}",
-        "brand_voice_id": voice_id
-    }
 
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json().get("content")
+    # Validate payload
+    payload = GenerationPayload(
+        prompt=f"Summarize this in our brand voice: {text}",
+        brand_voice_id=voice_id
+    )
+
+    response = requests.post(url, json=payload.model_dump(), headers=headers)
+    response.raise_for_status()
+    return response.json().get("content", "")
 
 # Example usage
 # summary = generate_brand_summary("Our Q2 growth was 15%.", "bv_98765")
@@ -121,5 +128,5 @@ def generate_brand_summary(text, voice_id):
 - [Jasper API Documentation](https://help.jasper.ai/hc/en-us/articles/18618701173659-Jasper-s-API)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-25
 - Confidence: high

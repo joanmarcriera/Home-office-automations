@@ -1,7 +1,7 @@
 # Copy.ai
 
 ## What it is
-Copy.ai is an AI-driven marketing and sales automation platform that combines advanced copywriting models with a powerful **Workflows** engine for end-to-end go-to-market (GTM) automation. In June 2026, it is widely utilized for its deep integration with frontier models like `claude-4-8-opus-20260528` and GPT-5.5 to power complex creative pipelines.
+Copy.ai is an AI-driven marketing and sales automation platform that combines advanced copywriting models with a powerful **Workflows** engine for end-to-end go-to-market (GTM) automation. In late September 2026, it is widely utilized for its deep integration with frontier models like `claude-5-1-opus-20260915` and GPT-5.5 to power complex creative pipelines.
 
 ## What problem it solves
 Reduces creative bottlenecks and automates repetitive GTM tasks—such as competitive intelligence, personalized sales outreach, and content repurposing—by connecting LLMs to external data sources and internal tools. It enables teams to scale their content operations without a proportional increase in headcount, ensuring that high-quality, brand-aligned content is produced at the speed of the market.
@@ -18,7 +18,7 @@ Reduces creative bottlenecks and automates repetitive GTM tasks—such as compet
 
 ## Strengths
 - **Powerful Workflows Engine**: A low-code automation builder that allows for complex, multi-step AI processes with branching logic and parallel execution.
-- **MCP 3.0 Integration**: Native support for the [Model Context Protocol](../../tools/automation_orchestration/mcp.md) (MCP 3.0) allows workflows to seamlessly connect to a vast ecosystem of agentic tools and resources.
+- **MCP 3.1 Integration**: Native support for the [Model Context Protocol](../../tools/automation_orchestration/mcp.md) (MCP 3.1) allows workflows to seamlessly connect to a vast ecosystem of agentic tools and resources.
 - **Deep External Data Integration**: Seamlessly fetches live data from the web, CRMs (Salesforce, HubSpot), and other external APIs to ground AI outputs in factual reality.
 - **Scheduling & Triggers**: Supports running workflows on a schedule (e.g., every Monday at 9 AM) or triggered by external events via webhooks or API calls.
 - **Brand Voice Consistency**: Centralized "Brand Voice" settings allow users to upload style guides and sample content to ensure all generated outputs align with company standards.
@@ -47,12 +47,12 @@ Sign up at [Copy.ai](https://www.copy.ai) and navigate to the **Workflows** tab 
 Workflows are built using a visual canvas. You can start with a template (e.g., "SEO Blog Post Generator") or build from scratch by connecting various logic and AI blocks.
 
 ### 3. Integration & MCP
-Connect your CRM (Salesforce, HubSpot) or internal tools via API keys. In June 2026, you can also connect [MCP 3.0](../../tools/automation_orchestration/mcp.md) servers to extend the available tools for your workflows.
+Connect your CRM (Salesforce, HubSpot) or internal tools via API keys. In late 2026, you can also connect [MCP 3.1](../../tools/automation_orchestration/mcp.md) servers to extend the available tools for your workflows.
 
 ## CLI examples
 
 > [!NOTE]
-> As of June 2026, Copy.ai does not provide an official standalone CLI. Terminal interaction is performed via `curl` against the Workflows API or through MCP-enabled terminal agents like [Claude Code](../development_ops/claude-code.md).
+> As of late September 2026, Copy.ai does not provide an official standalone CLI. Terminal interaction is performed via `curl` against the Workflows API or through MCP-enabled terminal agents like [Claude Code](../development_ops/claude-code.md).
 
 ### 1. Trigger a Workflow
 ```bash
@@ -77,24 +77,30 @@ curl https://api.copy.ai/v1/workflows \
 ## API examples
 
 ### Python: Triggering a GTM Workflow
-Copy.ai workflows can be integrated into Python applications to automate GTM tasks programmatically.
+Copy.ai workflows can be integrated into Python applications to automate GTM tasks programmatically, with input validation using Pydantic v2.
 
 ```python
-import requests
 import os
+import requests
+from pydantic import BaseModel, HttpUrl, Field
 
-def trigger_outreach_workflow(name, company):
+# Schema definition for GTM outreach validation
+class OutreachPayload(BaseModel):
+    prospect_name: str = Field(..., min_length=2, max_length=100)
+    company_url: HttpUrl = Field(..., description="The official website of the target company")
+
+def trigger_outreach_workflow(name: str, company: str) -> dict:
     url = "https://api.copy.ai/v1/workflows/wp_12345/run"
     headers = {
-        "x-api-key": os.getenv("COPYAI_API_KEY"),
+        "x-api-key": os.getenv("COPYAI_API_KEY", ""),
         "Content-Type": "application/json"
     }
-    payload = {
-        "prospect_name": name,
-        "company_url": company
-    }
 
-    response = requests.post(url, json=payload, headers=headers)
+    # Validate payload
+    payload = OutreachPayload(prospect_name=name, company_url=company) # type: ignore
+
+    response = requests.post(url, json=payload.model_dump(), headers=headers)
+    response.raise_for_status()
     return response.json()
 
 # Example usage for personalized outreach
@@ -119,8 +125,8 @@ def trigger_outreach_workflow(name, company):
 - [Official Website](https://www.copy.ai/)
 - [Copy.ai Workflows Product Page](https://www.copy.ai/product/workflows)
 - [Copy.ai API Documentation](https://developer.copy.ai/)
-- [Workflow Automation Review 2025](https://workflowautomation.net/reviews/copy-ai)
+- [Workflow Automation Review 2026](https://workflowautomation.net/reviews/copy-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-25
 - Confidence: high
