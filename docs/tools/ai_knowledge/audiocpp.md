@@ -129,7 +129,9 @@ engine.synthesize_to_file(
 ## Sources / references
 - [AudioCPP Repository](https://github.com/audiocpp/audiocpp)
 - [Reddit LocalLLaMA Thread: AudioCPP 10 hours of audio in 3 minutes](https://www.reddit.com/r/LocalLLaMA/comments/1uwpvt9/audiocpp_10_hours_of_audio_generated_in_3_minutes/)
+- [Higgs Audio v3 Model Release (AudioCPP Release 0.4)](https://www.reddit.com/r/LocalLLaMA/comments/1v4w5cj/audiocpp_release_04_higgs_audio_v3_tts_4b_10x/) — Higgs Audio v3 TTS 4B model for high-speed audio generation on AudioCPP.
+- [Inflect v2 Release](https://www.reddit.com/r/LocalLLaMA/comments/1v5ve6v/i_released_inflect_v2_two_ultratiny_complete_tts/) — Two ultra-tiny complete text-to-speech (TTS) models.
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-10-01
 - Confidence: high

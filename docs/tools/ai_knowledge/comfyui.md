@@ -100,7 +100,9 @@ print(f"Queued: {queue_workflow(wf)}")
 - [ComfyUI Official GitHub](https://github.com/comfyanonymous/ComfyUI)
 - [ComfyUI Wiki & Documentation](https://comfyui-wiki.com)
 - [OpenArt ComfyUI Workflows](https://openart.ai/workflows/home)
+- [FLUX.1 Announcement](https://www.latent.space/p/ainews-black-forest-labs-flux-3-multimodal) — Multimodal image generation model by Black Forest Labs.
+- [Nunchaku Diffusers](https://huggingface.co/blog/nunchaku-diffusers) — Optimization library for local diffusion model inference.
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-24
+- Last reviewed: 2026-10-01
 - Confidence: high
