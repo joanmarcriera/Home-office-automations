@@ -1,5 +1,18 @@
 # Playbook: Fully Offline Assistant
 
+```mermaid
+flowchart TD
+    User([User Prompt / Query]) -->|1. Request| WebUI[Open WebUI / Interface]
+    WebUI -->|2. Generate Embeddings| Embed[Ollama Embedding Engine\nnomic-embed-text]
+    Embed -->|3. Search Vectors| Milvus[(Milvus Standalone DB\nhomelab_docs)]
+    Milvus -->|4. Return Relevant Context| WebUI
+    WebUI -->|5. Local Web Cache Lookup| Kiwix[Kiwix Serve\nWikipedia / Local ZIMs]
+    Kiwix -->|6. Return Web Context| WebUI
+    WebUI -->|7. Synthesized Prompt with Context| Ollama[Ollama Inference Engine\ngemma3-27b-it]
+    Ollama -->|8. Local LLM Generation| WebUI
+    WebUI -->|9. Stream Response| User
+```
+
 ## What it is
 The Fully Offline Assistant is an end-to-end architecture for deploying a private, air-gapped AI stack on local hardware. It integrates [Ollama](../services/ollama.md) for LLM inference, [Open WebUI](../services/open-webui.md) for the interface, local embeddings for RAG, a local vector database ([Milvus](../tools/infrastructure/milvus.md) or Chroma), and [Kiwix](../services/kiwix.md) for offline web knowledge.
 

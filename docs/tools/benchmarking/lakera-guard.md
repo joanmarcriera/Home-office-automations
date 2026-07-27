@@ -132,11 +132,11 @@ async def secure_mcp_tool_executor(tool_name: str, parameters: dict, session_id:
 ## Related tools / concepts
 - [SharpAI Security Benchmark](sharp-ai.md) — Evaluation platform for analyzing agentic guardrail performance.
 - [Giskard](giskard.md) — Open-source red-teaming and automated adversarial testing framework.
-- [NVIDIA NeMo Guardrails](../frameworks/nemo-guardrails.md) — Open-source framework for developing programmatic guardrails and dialogue gates.
-- [Prompt Injection Defense](../../knowledge_base/threat_vectors/prompt_injection.md) — Architectural overview of prompt injection risks.
-- [Agentic RAG Security](../../knowledge_base/patterns/agentic-rag-security.md) — Securing retrieval loops against injection vectors.
+- [NVIDIA NeMo AutoModel](../frameworks/nemo-automodel.md) — Open-source framework for developing programmatic guardrails and dialogue gates.
+- [LLM Trust Boundaries](../../knowledge_base/patterns/llm-trust-boundaries.md) — Architectural overview of prompt injection risks.
+- [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md) — Securing retrieval loops against injection vectors.
 - [Vercel AI Gateway](../providers/vercel-ai-gateway.md) — High-throughput gateway facilitating inline security middleware integrations.
-- [OpenClaw Security and Operations](../../knowledge_base/patterns/openclaw-security-operations.md) — Deployment practices for enterprise-level agent protection.
+- [OpenClaw Security Operations](../../knowledge_base/patterns/openclaw-security-operations.md) — Deployment practices for enterprise-level agent protection.
 
 ## Sources / references
 - [Lakera Official Site](https://www.lakera.ai/)
