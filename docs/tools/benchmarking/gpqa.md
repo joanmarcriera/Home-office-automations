@@ -122,7 +122,7 @@ An agent might use an MCP tool to fetch the latest GPQA rankings:
 - [LM Evaluation Harness](lm-evaluation-harness.md)
 - [Anthropic](../providers/anthropic.md)
 - [OpenAI](../ai_knowledge/openai.md)
-- [Meta](../providers/meta.md)
+- [Hugging Face](../providers/huggingface.md)
 - [Math Benchmark](math-benchmark.md)
 
 ## Sources / references

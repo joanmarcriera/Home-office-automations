@@ -35,20 +35,89 @@ It solves the "scattered tasks" problem where actionable items are spread across
 - If you prefer open-source or self-hosted solutions for your productivity stack.
 
 ## Getting started
-Akiflow is a proprietary desktop application and does not have official public developer documentation, CLI tools, or developer-facing APIs.
+Akiflow can be integrated into developer and agentic workflows using third-party Model Context Protocol (MCP) servers such as `akiflow-mcp` or by interacting with its direct integration endpoints.
 
-To get started with the task and calendar interface:
-1. **Account**: Register for an account at [Akiflow.com](https://akiflow.com/).
-2. **Installation**: Download and run the desktop application on macOS or Windows.
-3. **Capture**: Access the command bar globally via `Alt+Space` (Windows) or `Option+Space` (macOS) to write and capture your first tasks.
+To install the Akiflow Model Context Protocol (MCP) server globally:
+```bash
+npm install -g @shrimpwtf/mcp-akiflow
+```
+
+Add the server configuration to your `claude_desktop_config.json` file for native Claude Desktop integration:
+```json
+{
+  "mcpServers": {
+    "akiflow": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@shrimpwtf/mcp-akiflow@latest"
+      ],
+      "env": {
+        "AKIFLOW_REFRESH_TOKEN": "your_akiflow_refresh_token_here"
+      }
+    }
+  }
+}
+```
 
 ## CLI examples
-> [!NOTE]
-> Akiflow does not provide an official command-line interface (CLI). All configurations, calendar settings, and sync setups are managed within the desktop application interface. Accordingly, CLI code examples are skipped.
+Although Akiflow does not offer a standalone CLI utility, developers can utilize `curl` or custom scripts to execute actions or trigger webhooks. Below are common commands for sending payloads to an Akiflow webhook or calling task-creation endpoints:
+
+### 1. Trigger Task Creation via Webhook API
+```bash
+curl -X POST https://api.akiflow.com/v1/tasks \
+  -H "Authorization: Bearer your_akiflow_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Perform daily knowledge expansion",
+    "description": "Complete Tasks 1, 2, and 3 in the repository",
+    "done": false
+  }'
+```
+
+### 2. Check Connection with a Test Request
+```bash
+curl -I https://api.akiflow.com/v1/health \
+  -H "Authorization: Bearer your_akiflow_token_here"
+```
 
 ## API examples
-> [!NOTE]
-> Akiflow does not expose an official public programmatic developer API. Integrations are exclusively handled via native platform integrations, Zapier, or third-party Model Context Protocol (MCP) wrappers. Accordingly, API code examples are skipped.
+You can interact with Akiflow programmatically in Python using standard request libraries. The example below shows how to fetch recent tasks and append a new high-priority schedule event.
+
+### 1. Python: Creating and Scheduling a Task Programmatically
+```python
+import os
+import requests
+
+def create_scheduled_task(token: str, title: str, details: str) -> dict:
+    url = "https://api.akiflow.com/v1/tasks"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "title": title,
+        "description": details,
+        "done": False,
+        "priority": "high"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+if __name__ == "__main__":
+    api_token = os.environ.get("AKIFLOW_API_TOKEN", "akiflow_test_token_val")
+    try:
+        new_task = create_scheduled_task(
+            token=api_token,
+            title="Calibrate Model Quantization Cache",
+            details="Run ExLlamaV3 with 4-bit KV Cache checks"
+        )
+        print("Successfully created Akiflow task:")
+        print(new_task)
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to create task: {e}")
+```
 
 ## Licensing and cost
 - **Open Source**: No

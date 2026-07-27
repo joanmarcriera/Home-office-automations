@@ -153,11 +153,11 @@ print("Suite execution status:", suite_results.success)
 ## Related tools / concepts
 - [SharpAI Security Benchmark](sharp-ai.md) — Complements Giskard with high-level agent security metrics.
 - [Lakera Guard](lakera-guard.md) — High-throughput real-time protection layer (Agentic Firewall) against attacks.
-- [DeepEval](deepeval.md) — Python-based LLM unit testing framework.
+- **DeepEval** — Python-based LLM unit testing framework.
 - [Promptfoo](promptfoo.md) — Developer-centric CLI tool for evaluating prompts and heuristic assertions.
 - [RAGFlow](../process_understanding/ragflow.md) — Deeply structured RAG framework whose pipelines are frequently evaluated with Giskard.
-- [Agentic Latency](../../knowledge_base/index.md) — Metric representing response delays, heavily monitored during automated multi-turn evaluations.
-- [Inspect AI](inspect-ai.md) — Foundational model evaluation framework for large-scale benchmarks.
+- [Agentic Latency](../../knowledge_base/patterns/index.md) — Metric representing response delays, heavily monitored during automated multi-turn evaluations.
+- **Inspect AI** — Foundational model evaluation framework for large-scale benchmarks.
 - [Ollama Benchmark CLI](ollama-benchmark-cli.md) — For measuring hardware and inference speeds of local model setups.
 
 ## Sources / references
