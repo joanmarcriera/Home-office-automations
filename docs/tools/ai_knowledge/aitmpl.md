@@ -31,11 +31,14 @@ It gives users a faster way to discover proven prompt structures and packaged AI
 ## Getting started
 
 ### Installation
-Install the Claude Code Templates CLI globally via `npm` or run it dynamically using `npx`:
+Install the Claude Code Templates CLI globally via `npm` or run it dynamically using `npx` (or the short alias `cct`):
 
 ```bash
 # Run interactively without permanent installation
 npx claude-code-templates@latest
+
+# Or use the quick shortcut alias
+npx cct@latest
 
 # Or install globally to enable the 'cct' command
 npm install -g claude-code-templates
@@ -65,15 +68,20 @@ npx claude-code-templates@latest --analytics
 
 # Run complete local diagnostics on your Claude Code environment
 npx claude-code-templates@latest --health-check
+
+# Launch a mobile-optimized interface for viewing active conversations local or via tunnel
+npx claude-code-templates@latest --chats --tunnel
 ```
 
 ## API examples
-The AI Templates public API can be integrated into custom telemetry, IDE scripts, or CI/CD pipelines to track component downloads and verify release states:
+The AI Templates public API is hosted on Vercel and can be integrated into custom telemetry, IDE scripts, or CI/CD pipelines to track component downloads, query Discord integrations, or monitor Claude Code release status:
 
 ```python
 import requests
 
-# Track component download telemetry
+# Base API URL: https://www.aitmpl.com/api
+
+# 1. Track component download telemetry
 url = "https://www.aitmpl.com/api/track-download-supabase"
 headers = {
     "Content-Type": "application/json",
@@ -92,6 +100,14 @@ try:
     print(f"Response: {response.json()}")
 except requests.exceptions.RequestException as e:
     print(f"Failed to track download: {e}")
+
+# 2. Check Claude Code version releases via version monitor
+try:
+    ver_response = requests.get("https://www.aitmpl.com/api/claude-code-check", timeout=5)
+    if ver_response.status_code == 200:
+        print("Release check active and running.")
+except Exception as e:
+    print(f"Failed to query version check endpoint: {e}")
 ```
 
 ## Related tools / concepts

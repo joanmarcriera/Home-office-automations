@@ -35,25 +35,20 @@ It solves the "scattered tasks" problem where actionable items are spread across
 - If you prefer open-source or self-hosted solutions for your productivity stack.
 
 ## Getting started
+Akiflow is a proprietary desktop application and does not have official public developer documentation, CLI tools, or developer-facing APIs.
 
-### Installation
-1.  **Account**: Create an account at [Akiflow.com](https://akiflow.com/).
-2.  **Desktop**: Download and install the desktop app for macOS or Windows.
-3.  **Integrations**: Open Settings > Integrations and connect your primary tools (Gmail, Slack, etc.).
-
-### Hello World Example
-Capture your first task using the global command bar:
-1.  Press `Alt+Space` (Windows) or `Option+Space` (macOS).
-2.  Type "Review KnowledgeOps documentation" and press `Enter`.
-3.  The task appears in your **Inbox**, ready to be dragged onto the calendar.
+To get started with the task and calendar interface:
+1. **Account**: Register for an account at [Akiflow.com](https://akiflow.com/).
+2. **Installation**: Download and run the desktop application on macOS or Windows.
+3. **Capture**: Access the command bar globally via `Alt+Space` (Windows) or `Option+Space` (macOS) to write and capture your first tasks.
 
 ## CLI examples
 > [!NOTE]
-> Akiflow does not currently provide an official CLI.
+> Akiflow does not provide an official command-line interface (CLI). All configurations, calendar settings, and sync setups are managed within the desktop application interface. Accordingly, CLI code examples are skipped.
 
 ## API examples
 > [!NOTE]
-> Akiflow does not currently offer a public-facing developer API. Automation is primarily handled via native integrations, Zapier, or the [Model Context Protocol](https://akiflow.com/mcp).
+> Akiflow does not expose an official public programmatic developer API. Integrations are exclusively handled via native platform integrations, Zapier, or third-party Model Context Protocol (MCP) wrappers. Accordingly, API code examples are skipped.
 
 ## Licensing and cost
 - **Open Source**: No

@@ -37,33 +37,20 @@ Raw agent environments can be chaotic and overwhelming. Picnic provides a human-
 - If you prefer a simple chat interface without project management features.
 
 ## Getting started
-### 1. Download
-Download the Picnic desktop app for your operating system (Windows, Linux, or Mac) from the [official site](https://picnicos.com/).
+Picnic is a desktop GUI application and does not have official developer documentation, CLI tools, or programmatic APIs.
 
-### 2. Connect
-Log in and connect your AI provider credentials. Picnic works with standard subscriptions or direct API keys.
-
-### 3. Create a Project
-Start a new project (Business, Personal, or Blank) and begin adding your notes, files, and goals.
+To get started with the desktop interface:
+1. **Download**: Obtain the desktop application for Windows, Linux, or macOS from the [official website](https://picnicos.com/).
+2. **Setup**: Authenticate and configure your preferred LLM provider credentials (e.g., Anthropic, OpenAI, or local models).
+3. **Organize**: Create a new project space and begin managing notes, files, and goals.
 
 ## CLI examples
 > [!NOTE]
-> Picnic is primarily a GUI-driven application. CLI access is managed via the underlying [OpenClaw](../development_ops/openclaw.md) runtime.
-```bash
-# Verify the OpenClaw core version Picnic is using
-openclaw --version
-```
+> Picnic does not provide an official command-line interface (CLI). All operational workflows and configurations are managed within the desktop application GUI. Accordingly, CLI code examples are skipped.
 
 ## API examples
 > [!NOTE]
-> Picnic does not currently expose a direct public API. Interaction is handled via the GUI or by extending [OpenClaw](../development_ops/openclaw.md) skills.
-```json
-// Example of an OpenClaw skill used within Picnic
-{
-  "name": "picnic_context_helper",
-  "description": "Assists with project organization inside Picnic"
-}
-```
+> Picnic does not expose a public programmatic API or developer SDK. Interaction and automation are handled entirely through the built-in workspace and browser integration. Accordingly, API code examples are skipped.
 
 ## Related tools / concepts
 - [OpenClaw](../development_ops/openclaw.md)

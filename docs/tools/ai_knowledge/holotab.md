@@ -32,50 +32,20 @@ It addresses the need for a more integrated and proactive AI assistant within th
 - For highly specialized technical tasks that require a more dedicated development environment like VS Code or terminal-based agents.
 
 ## Getting started
+HoloTab is a browser extension and does not have official developer documentation, command-line tools (CLI), or programmatic developer APIs.
 
-### Installation
-HoloTab is currently available as a browser extension (Chrome, Edge).
-
-1.  **Install the Extension**: Download HoloTab from the [Chrome Web Store](https://chromewebstore.google.com/).
-2.  **Authenticate**: Log in with your HCompany account to sync your preferences and history.
-3.  **Activate**: Click the HoloTab icon or use the shortcut `Alt + H` to open the sidebar.
-4.  **Prompt**: Ask the assistant to help with your current page.
-
-### Configuration (MCP 3.0 Task Protocol)
-To enable HoloTab to use local tools via the **MCP 3.0 Task Protocol**, configure the bridge in the extension settings:
-```json
-{
-  "mcpBridge": {
-    "enabled": true,
-    "localServers": ["http://localhost:3000"]
-  }
-}
-```
+To get started with the browser assistant:
+1. **Download**: Install HoloTab from the [Chrome Web Store](https://chromewebstore.google.com/).
+2. **Access**: Pin the extension and access it via Chrome's Side Panel or using the shortcut `Alt + H`.
+3. **Automate**: Type or narrate a task to have the AI agent perform actions natively within your active tab.
 
 ## CLI examples
-While primarily a browser tool, HoloTab offers a background service CLI for managing extension state:
-
-```bash
-# Check HoloTab service status
-holotab-cli status
-
-# Clear local context cache
-holotab-cli cache clear
-```
+> [!NOTE]
+> HoloTab does not provide an official command-line interface (CLI). Extension settings and execution behaviors are managed entirely inside the browser companion's sidebar GUI. Accordingly, CLI code examples are skipped.
 
 ## API examples
-HoloTab can be interacted with via browser-level automation or custom shortcuts:
-
-```javascript
-// Example: Programmatically opening the HoloTab sidebar
-window.postMessage({ type: "HOLOTAB_TOGGLE_SIDEBAR" }, "*");
-
-// Example: Sending a snippet to HoloTab for processing via the background script
-chrome.runtime.sendMessage("holotab-extension-id", {
-  action: "PROCESS_SELECTION",
-  text: window.getSelection().toString()
-});
-```
+> [!NOTE]
+> HoloTab does not expose a public developer API or programmatic SDK. Interaction and automation routines are recorded, scheduled, and triggered directly through the extension's user interface. Accordingly, API code examples are skipped.
 
 ## Related tools / concepts
 - [Gemma 3](local_llms.md)
