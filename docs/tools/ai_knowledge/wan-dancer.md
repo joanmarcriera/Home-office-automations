@@ -83,6 +83,9 @@ print(f"Video saved to {video_path}")
 - **[Sora](../ai_knowledge/sora.md)**: The industry benchmark for video generation (not currently open-weights).
 - **[ComfyUI](../ai_knowledge/comfyui.md)**: Can be used to build custom Wan-Dancer workflows via community nodes.
 - **[RoPE Embeddings](../ai_knowledge/index.md)**: The underlying positional encoding technology used for rhythmic alignment.
+- **[Synthesia](synthesia.md)**: Enterprise AI video generation platform for human-like avatars.
+- **[ElevenLabs](elevenlabs.md)**: Industry-leading audio generation and voice synthesis API.
+- **[Fish Audio](fish-audio.md)**: High-performance open-source voice synthesis and cloning.
 
 ## Sources / References
 - [Wan-Dancer: A Hierarchical Framework for Minute-scale Coherent Music-to-Dance Generation](https://arxiv.org/abs/2607.09581)
