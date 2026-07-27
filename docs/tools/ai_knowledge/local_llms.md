@@ -99,7 +99,11 @@ print(response.choices[0].message.content)
 - [LocalAI Blog: Announcing MCP Support](https://localai.io/blog/mcp-support/)
 - [CatMind-12B](https://www.reddit.com/r/LocalLLaMA/comments/1uzxov4/model_catmind12b/) — Integrated from daily log reference.
 - [Inkling](https://www.reddit.com/r/LocalLLaMA/comments/1uxdv34/thinking_machines_releases_first_openweight_model/) — Integrated from daily log reference.
+- [GS1-1T Model Announcement](https://www.reddit.com/r/LocalLLaMA/comments/1v3q47x/genesisscience1_gs1_1t_openweight_model_later/) — Open-weight 1-Trillion parameter model released by GenesisScience.
+- [G9V-33B Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v46ay5/ai9stars_released_g9v33b/) — 33B local open LLM model released by AI9Stars.
+- [Microsoft Fara-1527B on Hugging Face](https://www.reddit.com/r/LocalLLaMA/comments/1v3ny84/microsoftfara1527b_hugging_face/) — Extremely large open-weights model family from Microsoft.
+- [SwissAI Apertus v1.5 Model Release](https://www.reddit.com/r/LocalLLaMA/comments/1v539p8/swissaiapertusv15_70b8b/) — Open-source LLM series by SwissAI.
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-10-01
 - Confidence: high

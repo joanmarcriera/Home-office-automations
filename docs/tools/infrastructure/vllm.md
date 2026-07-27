@@ -204,7 +204,8 @@ if __name__ == "__main__":
 - [vLLM GitHub Repository](https://github.com/vllm-project/vllm)
 - [vLLM Documentation](https://docs.vllm.ai/)
 - [PagedAttention: High-Throughput LLM Serving with vLLM](https://arxiv.org/abs/2309.06180)
+- [DKV: Open-Source KV-Cache Compression Framework](https://www.reddit.com/r/LocalLLaMA/comments/1v5wviz/dkv_opensource_kvcache_compression_framework_for/) — Open-source KV-cache compression and management framework for large context serving optimization.
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2026-10-01
 - Confidence: high

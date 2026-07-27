@@ -153,7 +153,11 @@ def verify_llama_cpp_health(server_url: str = "http://localhost:8080") -> bool:
 - [llama.cpp GitHub Repository](https://github.com/ggml-org/llama.cpp)
 - [GGUF Format Specification](https://github.com/philpax/gguf-spec)
 - [Model Context Protocol (MCP) in llama.cpp](https://github.com/ggml-org/llama.cpp/pull/11234)
+- [MindControl Fork](https://www.reddit.com/r/LocalLLaMA/comments/1v3ms3c/mindcontrol_llamacpp_fork_to_guide_the_reasoning/) — llama.cpp fork designed to guide reasoning paths.
+- [MLIR Dialect Stack](https://hiraditya.github.io/posts/mlir-dialect-stack-for-ml/) — Multi-Level Intermediate Representation compilation stack for local ML compilers.
+- [cachyllamas Fork](https://www.reddit.com/r/LocalLLaMA/comments/1v5k08a/cachyllamas_llamacpp_fork_with_persistent_kv/) — llama.cpp fork featuring persistent host KV caching.
+- [TensorSharp vs llama.cpp Benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1v6ect8/benchmarks_tensorsharp_vs_llamacpp/) — Performance and throughput comparisons of .NET-based tensor libraries against native C++ execution.
 
 ## Contribution Metadata
-- Last reviewed: 2026-09-02
+- Last reviewed: 2026-10-01
 - Confidence: high

@@ -121,7 +121,8 @@ response = client.chat.completions.create(
 - [GPT-5.5 Technical Overview](https://openai.com/news/gpt-5-5-announcement/)
 - [Realtime API Guide](https://platform.openai.com/docs/guides/realtime)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [Introducing OpenAI Presence](https://openai.com/index/introducing-openai-presence) — Enterprise agent platform from OpenAI.
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-27
+- Last reviewed: 2026-10-01
 - Confidence: high

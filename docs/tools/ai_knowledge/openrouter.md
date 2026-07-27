@@ -121,7 +121,8 @@ completion = client.chat.completions.create(
 - [OpenRouter Blog and Release Logs](https://openrouter.ai/blog)
 - [Community Integration Guide](../../knowledge_base/patterns/prompt_requests.md)
 - [Unified Billing Architecture and Enterprise Credits](https://openrouter.ai/docs#billing)
+- [Antling-30B-Flash on OpenRouter](https://www.reddit.com/r/LocalLLaMA/comments/1v4m5cr/antling30flash_is_now_live_on_openrouter_and_free/) — Antling-30B-Flash live on OpenRouter for free testing.
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-10-01
 - Confidence: high

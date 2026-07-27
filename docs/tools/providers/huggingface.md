@@ -133,7 +133,8 @@ api.upload_folder(
 - [Hugging Face Documentation](https://huggingface.co/docs)
 - [Introducing Storage Buckets on the Hugging Face Hub](https://huggingface.co/blog/storage-buckets)
 - [Hugging Face GitHub](https://github.com/huggingface)
+- [Hugging Face Releases The Stack v3](https://www.reddit.com/r/LocalLLaMA/comments/1v59aek/hugging_face_releases_the_stack_v3_largest_open/) — Hugging Face's code-centric dataset standard for training and optimizing programming models.
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-01
+- Last reviewed: 2026-10-01
 - Confidence: high
