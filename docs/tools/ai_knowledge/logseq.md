@@ -1,17 +1,17 @@
 # Logseq
 
 ## What it is
-Logseq is a privacy-first, open-source knowledge management and collaboration platform. It is a local-first application that treats information as a "knowledge graph" rather than a set of files, utilizing an outliner-based approach to capture and organize thoughts. By June 2026, it has become a cornerstone of the "Invisible PKM" movement, supporting native **MCP 3.0** for autonomous agent interaction.
+Logseq is a privacy-first, open-source knowledge management and collaboration platform. It is a local-first application that treats information as a "knowledge graph" rather than a set of files, utilizing an outliner-based approach to capture and organize thoughts. By late September 2026, it has become a cornerstone of the "Invisible PKM" movement, supporting native SQLite database storage option in parallel with Markdown/Org-mode and fully complying with **MCP 3.1** for autonomous agent interaction.
 
 ## What problem it solves
-Traditional note-taking apps often struggle with "file-system thinking," where information is siloed into rigid folder structures. Logseq solves this by using bidirectional linking and block-level references, allowing users to build a non-linear network of ideas while maintaining 100% data ownership via local plain-text files (Markdown or Org-mode). This prevents "vendor lock-in" and ensures your second brain remains accessible regardless of cloud service availability.
+Traditional note-taking apps often struggle with "file-system thinking," where information is siloed into rigid folder structures. Logseq solves this by using bidirectional linking and block-level references, allowing users to build a non-linear network of ideas while maintaining 100% data ownership via local plain-text files (Markdown or Org-mode) and high-speed local database indexes. This prevents "vendor lock-in" and ensures your second brain remains accessible regardless of cloud service availability.
 
 ## Where it fits in the stack
-**AI & Knowledge** — serves as a privacy-focused knowledge intake and storage point. Its block-level granularity makes it exceptionally well-suited for RAG (Retrieval-Augmented Generation) applications using models like **Claude 4.8** or **Llama 4 Maverick**, as agents can cite specific bullet points rather than entire documents, significantly reducing context window noise.
+**AI & Knowledge** — serves as a privacy-focused knowledge intake and storage point. Its block-level granularity makes it exceptionally well-suited for RAG (Retrieval-Augmented Generation) applications using models like **Claude 5.1** or **Llama 4**, as agents can cite specific bullet points rather than entire documents, significantly reducing context window noise.
 
 ## Typical use cases
 - **Daily Journaling**: Using the "Journals" page as the primary entry point for all thoughts, tasks, and meetings.
-- **Agentic PKM**: Connecting Logseq to an [MCP 3.0](../automation_orchestration/mcp.md) server to allow **GPT-5.5** to read and write to your knowledge graph autonomously.
+- **Agentic PKM**: Connecting Logseq to an [MCP 3.1](../automation_orchestration/mcp.md) server to allow **GPT-5.5** and Llama 4 to read and write to your knowledge graph autonomously.
 - **Project Management**: Linking blocks to project pages to create a dynamic view of all related information across different dates.
 - **Research Database**: Utilizing block-level citations and PDF annotation features to build a structured knowledge base for academic or professional work.
 
@@ -19,13 +19,13 @@ Traditional note-taking apps often struggle with "file-system thinking," where i
 - **Open Source**: Fully transparent codebase with a strong community-driven development model.
 - **Privacy-First**: No cloud sync required; all data stays on your local machine by default.
 - **Granularity**: Block-level references allow for extremely precise linking and retrieval, ideal for LLM-based RAG.
-- **MCP 3.0 Native**: Full support for the **Model Context Protocol (MCP 3.0)** allows AI agents to interact with the graph as a sophisticated tool.
+- **MCP 3.1 Native**: Full support for the **Model Context Protocol (MCP 3.1)** allows AI agents to interact with the graph as a sophisticated tool.
 - **Version Control**: Native Git integration for tracking changes and syncing across devices.
 
 ## Limitations
 - **Learning Curve**: The outliner-only paradigm and query language (Datalog) can be daunting for users accustomed to traditional document editors.
 - **Performance**: Very large graphs (50k+ blocks) can occasionally experience slow indexing times without high-speed NVMe storage.
-- **Mobile Sync**: While improved in 2026, it still requires third-party tools like iCloud, Git, or Syncthing for reliable cross-device synchronization without the official sync service.
+- **Mobile Sync**: While improved in late 2026, it still requires third-party tools like iCloud, Git, or Syncthing for reliable cross-device synchronization without the official sync service.
 
 ## When to use it
 - When you want a local-first knowledge graph that prioritizes relationships between ideas over file organization.
@@ -69,10 +69,10 @@ You can use standard CLI tools to process the Markdown files:
 grep -r "TODO" ~/my-logseq-graph/journals/*.md
 ```
 
-### 3. Logseq API via MCP 3.0
-If running an MCP server for Logseq, you can query it via the `mcp-cli`:
+### 3. Logseq API via MCP 3.1
+If running an MCP server for Logseq, you can query it via the `mcp-cli` conforming to MCP 3.1:
 ```bash
-mcp call logseq-server search_blocks --query "Project Alpha"
+mcp call logseq-server search_blocks --query "Project Alpha" --mcp-version 3.1
 ```
 
 ## API examples
@@ -84,22 +84,22 @@ Since Logseq uses plain Markdown, you can parse it directly, but for structured 
 import pathlib
 
 # Simple direct file access to a journal entry
-graph_path = pathlib.Path("~/Documents/logseq/journals/2026_06_28.md").expanduser()
+graph_path = pathlib.Path("~/Documents/logseq/journals/2026_09_24.md").expanduser()
 if graph_path.exists():
-    content = graph_path.read_text()
+    content = graph_path.expanduser().read_text()
     todo_blocks = [line for line in content.splitlines() if "TODO" in line]
     print(f"Today's Tasks: {todo_blocks}")
 ```
 
-### MCP 3.0 Tool Call (Agentic)
-An AI agent using **Claude 4.8** might call the following tool to add a note:
+### MCP 3.1 Tool Call (Agentic)
+An AI agent using **Claude 5.1** might call the following tool to add a note:
 
 ```json
 {
   "tool": "logseq_add_note",
   "arguments": {
-    "page": "2026-06-28",
-    "content": "Verified Llama 4 Maverick quantization on the new Home Admin server.",
+    "page": "2026-09-24",
+    "content": "Verified Llama 4 quantization on the new Home Admin server.",
     "parent_block_id": "optional-uuid"
   }
 }
@@ -110,7 +110,7 @@ An AI agent using **Claude 4.8** might call the following tool to add a note:
 - [Anytype](../intake_storage/anytype.md) - Local-first, object-oriented PKM with a focus on privacy.
 - [SilverBullet](../intake_storage/silverbullet.md) - Markdown-based extensible wiki system for power users.
 - [Ollama](../../services/ollama.md) - Run local models for Logseq AI plugins and agentic workflows.
-- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Standard for AI-Logseq interaction (MCP 3.0).
+- [MCP (Model Context Protocol)](../automation_orchestration/mcp.md) - Standard for AI-Logseq interaction (MCP 3.1).
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md) - Using Logseq as a primary source for Retrieval-Augmented Generation.
 - [Syncthing](../../services/syncthing.md) - Recommended open-source tool for syncing Logseq graphs across devices.
 
@@ -120,5 +120,5 @@ An AI agent using **Claude 4.8** might call the following tool to add a note:
 - [MCP Logseq Server](https://github.com/logseq/mcp-server-logseq)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-24
 - Confidence: high

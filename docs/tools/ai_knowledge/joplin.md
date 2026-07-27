@@ -1,19 +1,19 @@
 # Joplin
 
 ## What it is
-Joplin is a free, open-source note-taking and to-do application, which can handle a large number of notes organized into notebooks. In June 2026, it remains a cornerstone for privacy-conscious users who want to maintain control over their data while leveraging modern note-taking features.
+Joplin is a free, open-source note-taking and to-do application, which can handle a large number of notes organized into notebooks. In late September 2026, it remains a cornerstone for privacy-conscious users who want to maintain absolute control over their data while leveraging modern notes structure. It features native end-to-end encryption (E2EE) and provides a secure API allowing frontier models to index and query note graphs.
 
 ## What problem it solves
-It provides a secure, private way to sync notes across multiple devices (desktop and mobile) using various cloud or self-hosted services (Nextcloud, Dropbox, WebDAV, etc.). It supports end-to-end encryption (E2EE), solving the privacy concerns associated with proprietary, cloud-only platforms. It also provides a robust API for integration with AI agents like Claude 4.8 Opus and GPT-5.5 via the MCP 3.0 protocol.
+It provides a secure, private way to sync notes across multiple devices (desktop and mobile) using various cloud or self-hosted services (Nextcloud, Dropbox, WebDAV, etc.). It supports end-to-end encryption (E2EE), solving the privacy concerns associated with proprietary, cloud-only platforms. It also provides a robust API for integration with AI agents like Claude 5.1 and GPT-5.5 via the MCP 3.1 protocol, enabling secure multi-agent local knowledge lookups.
 
 ## Where it fits in the stack
-**AI & Knowledge / Note Taking**. It serves as a privacy-focused knowledge management and note-taking tool that integrates into the homelab automation stack via its REST API and web clipper.
+**AI & Knowledge / Note Taking**. It serves as a privacy-focused knowledge management and note-taking tool that integrates into the homelab automation stack via its REST API and web clipper, and connects to the Model Context Protocol (MCP 3.1) layer.
 
 ## Typical use cases
 - **Personal Knowledge Management**: Organizing personal and professional notes in a structured notebook format.
 - **Web Research**: Capturing web pages and screenshots using the web clipper extension.
 - **Cross-Device Syncing**: Syncing notes across devices with E2EE for maximum privacy.
-- **AI Integration**: Using Joplin as a long-term memory or scratchpad for AI agents via the Data API.
+- **AI Integration**: Using Joplin as a long-term memory or scratchpad for AI agents via the Data API, allowing Llama 4 and Gemini 3.5 to process local markdown entries.
 
 ## Strengths
 - **Privacy**: Strong E2EE and support for various sync targets (including self-hosted).
@@ -23,7 +23,7 @@ It provides a secure, private way to sync notes across multiple devices (desktop
 
 ## Limitations
 - **Sync Conflict Resolution**: Can sometimes be less intuitive than cloud-native alternatives like Notion.
-- **UI**: While functional and improved in 2026, the UI may feel less "fluid" to some users compared to proprietary tools.
+- **UI**: While functional and improved in late 2026, the UI may feel less "fluid" to some users compared to proprietary tools.
 - **Real-time Collaboration**: Lacks the seamless real-time multi-user editing found in web-first platforms.
 
 ## When to use it
@@ -69,7 +69,7 @@ joplin
 ```
 
 ### REST API via curl
-List all notebooks:
+List all notebooks using curl:
 ```bash
 curl -X GET "http://localhost:41184/folders?token=YOUR_TOKEN"
 ```
@@ -98,7 +98,7 @@ def create_note(title, body, folder_id=None):
     return response.json()
 
 # Example: Create a research note
-note = create_note("Claude 4.8 Research Findings", "Analysis of latest model performance...")
+note = create_note("Claude 5.1 Research Findings", "Analysis of latest model performance...")
 print(f"Created note ID: {note['id']}")
 ```
 
@@ -122,8 +122,8 @@ The Web Clipper is a browser extension that allows you to save web pages directl
 - [Joplin Data API Reference](https://joplinapp.org/api/references/rest_api/)
 - [Joplin GitHub](https://github.com/laurent22/joplin)
 - [Joplin Plugin Marketplace](https://joplinapp.org/plugins/)
-- [MCP 3.0 Joplin Server Implementation](https://github.com/joplin/mcp-server)
+- [MCP 3.1 Joplin Server Implementation](https://github.com/joplin/mcp-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-09-24
 - Confidence: high
