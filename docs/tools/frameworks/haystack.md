@@ -1,19 +1,19 @@
 # Haystack
 
 ## What it is
-Haystack is an end-to-end open-source framework for building applications powered by LLMs, Transformer models, and vector search. It is developed by deepset and designed to handle large-scale RAG and agentic workflows using models like Claude 4.8 and GPT-5.5.
+Haystack is an end-to-end open-source framework for building applications powered by LLMs, Transformer models, and vector search. It is developed by deepset and designed to handle large-scale RAG and agentic workflows using models like Claude 5.1, GPT-5.5, and Gemini 4.0.
 
 ## What problem it solves
 It simplifies the construction of complex LLM pipelines by providing modular components for document loading, indexing, retrieval, and generation. Its "Pipeline" abstraction allows for flexible, DAG-based architectures that can handle non-linear logic and conditional routing. It addresses the need for production-grade, serialized pipelines that are easy to maintain and scale.
 
 ## Where it fits in the stack
-**Framework / RAG Orchestrator**. It specializes in production-grade retrieval-augmented generation and modular AI pipeline design. In June 2026, it serves as a primary framework for building [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) compatible RAG services.
+**Framework / RAG Orchestrator**. It specializes in production-grade retrieval-augmented generation and modular AI pipeline design. In late 2026, it serves as a primary framework for building [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) compatible RAG services.
 
 ## Typical use cases
 - **Enterprise RAG**: Building search systems over millions of documents.
 - **Conversational Agents**: Creating chatbots that use tools and access external data.
-- **Extracted Metadata**: Using LLMs to structure unstructured data from various sources.
-- **Multi-model Orchestration**: Routing tasks between Claude 4.8 Opus and GPT-5.5 based on cost or complexity.
+- **Extracted Metadata**: Using LLMs to structure unstructured data from various sources with high-precision Pydantic v2 validation schemas.
+- **Multi-model Orchestration**: Routing tasks between Claude 5.1 and GPT-5.5 based on cost or complexity.
 - **MCP Tool Generation**: Automatically creating tool definitions for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers.
 
 ## Strengths
@@ -21,11 +21,11 @@ It simplifies the construction of complex LLM pipelines by providing modular com
 - **Production Ready**: Designed with scaling, deployment, and serialization (YAML/JSON) in mind.
 - **Haystack 2.x Features**: Enhanced support for dynamic components and runtime validation.
 - **Advanced Routing**: `ConditionalRouter` allows for complex, logic-driven data flows.
-- **Native MCP 3.0 Support**: Seamlessly connects to MCP servers for tool and resource discovery.
+- **Native MCP 3.1 Support**: Seamlessly connects to MCP servers for tool and resource discovery.
 - **Secrets Management**: Standardized `Secret` type for secure handling of API keys.
 
 ## Limitations
-- **Ecosystem Size**: While growing, it has fewer community integrations than LangChain for niche edge cases.
+- **Ecosystem Size**: While growing, it has fewer community integrations than [LangChain](../ai_knowledge/langchain.md) for niche edge cases.
 - **Transitioning**: Users of Haystack 1.x may find the shift to 2.0+ requires significant code changes.
 - **Learning Curve**: Mastering the explicit connection paradigm in the modern API takes time.
 
@@ -36,14 +36,14 @@ It simplifies the construction of complex LLM pipelines by providing modular com
 
 ## When not to use it
 - For very simple scripts where a basic API call suffices.
-- If you are already deeply committed to another framework's ecosystem (e.g., LlamaIndex).
+- If you are already deeply committed to another framework's ecosystem (e.g., [LlamaIndex](../ai_knowledge/llamaindex.md)).
 - For research projects that require frequent, breaking changes to the core framework logic.
 
 ## Getting started
 
 ### Installation
 ```bash
-pip install haystack-ai
+pip install haystack-ai pydantic>=2.0.0
 ```
 
 ### Minimal Python Example
@@ -77,12 +77,40 @@ haystack-validate --file pipeline.yaml
 
 ## API examples
 
-### Conditional Routing with Claude 4.8
+### Programmatic Component Validation with Pydantic v2
+Here is how to design a custom Haystack 2.x component that performs validation on input parameters using Pydantic v2.
+
 ```python
+from pydantic import BaseModel, Field, field_validator
+from haystack import component
+
+class QuerySchema(BaseModel):
+    query: str = Field(..., min_length=3, description="The query to process")
+    limit: int = Field(default=5, ge=1, le=20)
+
+    @field_validator("query")
+    @classmethod
+    def no_sql_injection(cls, v: str) -> str:
+        if "DROP TABLE" in v.upper() or "UNION SELECT" in v.upper():
+            raise ValueError("Potential SQL injection detected in query.")
+        return v
+
+@component
+class ValidatedQueryProcessor:
+    @component.output_types(query=str, limit=int)
+    def run(self, query: str, limit: int = 5):
+        # Perform runtime Pydantic validation
+        validated = QuerySchema(query=query, limit=limit)
+        return {"query": validated.query, "limit": validated.limit}
+```
+
+### Conditional Routing with Claude 5.1
+```python
+from haystack import Pipeline
 from haystack.components.routers import ConditionalRouter
 from haystack.components.generators import AnthropicGenerator
 
-# Route to Claude 4.8 for complex queries
+# Route to Claude 5.1 for complex queries
 router_template = [
     {
         "condition": "{{query|length > 100}}",
@@ -93,24 +121,12 @@ router_template = [
 ]
 
 router = ConditionalRouter(routes=router_template)
-claude_gen = AnthropicGenerator(model="claude-4-8-opus-20260528")
+claude_gen = AnthropicGenerator(model="claude-5-1-sonnet-20261022")
 
 pipeline = Pipeline()
 pipeline.add_component("router", router)
 pipeline.add_component("claude", claude_gen)
 pipeline.connect("router.complex_query", "claude.prompt")
-```
-
-### Secrets Management
-```python
-from haystack.utils import Secret
-from haystack.components.generators import OpenAIGenerator
-
-# Load from environment variable (preferred)
-generator = OpenAIGenerator(api_key=Secret.from_env_var("OPENAI_API_KEY"))
-
-# Serialization maintains secret references, not tokens
-yaml_str = pipeline.dumps()
 ```
 
 ## Related tools / concepts
@@ -120,16 +136,15 @@ yaml_str = pipeline.dumps()
 - [DSPy](dspy.md) — Programmatic prompt optimization.
 - [Smolagents](smolagents.md) — Minimalist agent library.
 - [RAG Patterns](../../knowledge_base/patterns/rag-pattern.md) — Reference implementations.
-- [Semantic Kernel](semantic-kernel.md) — Microsoft's enterprise AI framework.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Integrated tool protocol.
-- [NVIDIA NIM](../providers/nvidia.md) — Optimized inference backend.
+- [NVIDIA](../providers/nvidia.md) — Hardware and software acceleration standard.
 
-## Sources / References
+## Sources / references
 - [Official Website](https://haystack.deepset.ai/)
 - [GitHub](https://github.com/deepset-ai/haystack)
 - [Documentation](https://docs.haystack.deepset.ai/)
 - [Haystack 2.0 Release Notes](https://haystack.deepset.ai/blog/haystack-2-release)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
