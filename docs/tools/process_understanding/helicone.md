@@ -1,26 +1,26 @@
 # Helicone
 
 ## What it is
-Helicone is an open-source AI Gateway and LLM observability platform that acts as a proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, and Groq). As of June 2026, it has expanded to support the **Model Context Protocol (MCP 3.0)**, allowing agents to query observability data directly within their execution context.
+Helicone is an open-source AI Gateway and LLM observability platform that acts as a high-performance proxy between your application and various LLM providers (such as OpenAI, Anthropic, Gemini, Groq, and Cohere). In late September 2026, it fully supports the **Model Context Protocol (MCP 3.1)**, allowing agents to dynamically query observability telemetry, tracing logs, and cost analytics directly within their runtime context.
 
 ## What problem it solves
-Developing LLM applications often lacks transparency regarding what is happening "under the hood." Helicone addresses several critical pain points:
-- **Visibility Gap**: Developers can see exactly what prompts were sent, what responses were received, and the associated metadata.
-- **Cost and Latency Tracking**: Provides real-time metrics on token usage, financial spend, and performance bottlenecks across different models.
-- **Reliability Issues**: Offers intelligent routing, retries, and automatic fallbacks to ensure application uptime even when a specific provider is down.
-- **Prompt Iteration**: Decouples prompts from code with a centralized management system and version control.
-- **Agentic Debugging**: Solves the difficulty of tracing multi-step reasoning loops in models like **Claude 4.8** and **GPT-5.5**.
+Developing robust LLM applications often suffers from opaque prompt-response cycles, unpredictable latency, and unmonitored costs. Helicone solves these challenges by:
+- **Visibility Gap**: Developers can see exactly what prompts were sent, what responses were received, and the associated metadata in real-time event graphs.
+- **Cost and Latency Tracking**: Providing real-time metrics on token usage, financial spend, and performance bottlenecks across diverse model configurations.
+- **Reliability Issues**: Offering intelligent routing, automatic retries, custom rate-limiting, and automatic fallbacks to ensure application uptime.
+- **Prompt Iteration**: Decoupling prompts from application code with a centralized management system and semantic version control.
+- **Agentic Debugging**: Enabling deep nesting trace visualizations for multi-step reasoning loops in models like **Claude 5.1** and **GPT-5.5**.
 
 ## Where it fits in the stack
-Helicone sits in the **AI Gateway and Observability** layer. It is positioned between the application code and the inference providers, acting as an intelligent intermediary that manages telemetry and request flow.
+Helicone sits in the **AI Gateway and Observability** layer. It is positioned between the application code and the inference providers, acting as an intelligent intermediary that manages telemetry, caching, routing, and request flow.
 
 ## Typical use cases
 - **Production Monitoring**: Tracking real-time throughput, error rates, and costs for live AI features.
 - **Agent Tracing**: Inspecting complex multi-step sessions to identify where an agentic loop failed or became inefficient.
 - **Prompt Engineering**: Testing and versioning prompts in a UI-based playground using production data.
 - **Fine-tuning Preparation**: Tagging and exporting specific request/response pairs to fine-tuning partners like OpenPipe.
-- **Caching**: Implementing proxy-level caching to reduce costs and latency for repetitive LLM queries.
-- **MCP Integration**: Using an MCP 3.0 server to allow **Llama 4 Maverick** to self-audit its own performance logs.
+- **Caching**: Implementing proxy-level semantic caching to reduce costs and latency for repetitive LLM queries.
+- **MCP Integration**: Using an MCP 3.1 server to allow **Llama 4** to self-audit its own performance logs and correct errors.
 
 ## Strengths
 - **Low-Friction Integration**: Usually requires changing only the `baseURL` and adding a Helicone API key header.
@@ -96,24 +96,8 @@ curl https://gateway.helicone.ai/v1/chat/completions \
 
 ## API examples
 
-### Completion with Custom Properties
-You can add custom properties to your requests to enable advanced filtering and analytics in the Helicone dashboard:
-
-```python
-response = client.chat.completions.create(
-  model="gpt-5.5-preview",
-  messages=[{"role": "user", "content": "Summarize this document."}],
-  extra_headers={
-    "Helicone-Property-User-Plan": "premium",
-    "Helicone-Property-Source": "mobile-app"
-  }
-)
-
-print(response.choices[0].message.content)
-```
-
-### Async Integration (Python)
-Helicone supports asynchronous requests natively via the standard OpenAI async client.
+### Completion with Custom Properties (Async Python)
+You can add custom properties to your asynchronous requests to enable advanced filtering, tracking, and analytics in the Helicone dashboard:
 
 ```python
 import asyncio
@@ -128,7 +112,20 @@ async def main():
             "Helicone-Auth": f"Bearer {os.environ.get('HELICONE_API_KEY')}"
         }
     )
-    # ... execution logic
+
+    response = await client.chat.completions.create(
+        model="gpt-5.5-preview",
+        messages=[{"role": "user", "content": "Summarize this document."}],
+        extra_headers={
+            "Helicone-Property-User-Plan": "premium",
+            "Helicone-Property-Source": "mobile-app",
+            "Helicone-Cache": "true"  # Enable Helicone semantic caching
+        }
+    )
+    print(response.choices[0].message.content)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Related tools / concepts
@@ -148,5 +145,5 @@ async def main():
 - [Helicone GitHub Repository](https://github.com/Helicone/helicone)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-10-01
 - Confidence: high
