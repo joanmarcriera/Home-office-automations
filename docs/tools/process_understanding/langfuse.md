@@ -1,7 +1,7 @@
 # Langfuse
 
 ## What it is
-Langfuse is an open-source LLM engineering platform designed for tracing, observability, metrics, and evaluation. As of June 2026, it serves as a central hub for teams to collaboratively debug, analyze, and iterate on their LLM applications (including those powered by **Claude 4.8**, **GPT-5.5**, and **Llama 4 Maverick**) throughout the entire development lifecycle.
+Langfuse is an open-source LLM engineering platform designed for tracing, observability, metrics, and evaluation. As of late October / November 2026, it serves as a central hub for teams to collaboratively debug, analyze, and iterate on their LLM applications (including those powered by **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4 Maverick**) throughout the entire development lifecycle.
 
 ## What problem it solves
 LLM applications involve complex, non-deterministic interactions that are difficult to monitor using traditional software tools. Langfuse solves these challenges by providing:
@@ -9,7 +9,7 @@ LLM applications involve complex, non-deterministic interactions that are diffic
 - **Cost and Latency Management**: Precise tracking of token usage, model costs, and performance bottlenecks across diverse providers.
 - **Quality Assurance**: Tools for measuring output quality via LLM-as-a-judge, user feedback, and manual labeling.
 - **Prompt Fragmentation**: Centralized prompt management to decouple prompts from code and enable version control.
-- **MCP Integration**: Enhanced support for monitoring **Model Context Protocol (MCP 3.0)** sessions and resource retrieval.
+- **MCP Integration**: Enhanced support for monitoring **Model Context Protocol (MCP 3.1)** sessions and resource retrieval.
 
 ## Where it fits in the stack
 Langfuse sits in the **Observability and Evaluation** layer of the AI stack. It integrates directly with LLM providers, frameworks (like LangChain and LlamaIndex), and gateways (like [LiteLLM](../../services/litellm.md)) to capture telemetry data. It often uses [ClickHouse](clickhouse.md) as a high-performance backend for analytical queries.
@@ -19,7 +19,7 @@ Langfuse sits in the **Observability and Evaluation** layer of the AI stack. It 
 - **Regression Testing**: Using datasets and experiments to ensure a new prompt version or model doesn't degrade performance.
 - **Production Monitoring**: Tracking real-world usage, user feedback, and cost across different models and versions.
 - **Prompt Engineering**: Collaboratively iterating on prompts in a UI-based playground and deploying them via API without redeploying code.
-- **MCP Session Audit**: Tracing the lifecycle of MCP 3.0 connections and the context provided to models.
+- **MCP Session Audit**: Tracing the lifecycle of MCP 3.1 connections and the context provided to models.
 
 ## Strengths
 - **Open Source and Self-hostable**: Complete control over data and infrastructure, with a community-driven development model.
@@ -90,40 +90,63 @@ langfuse health
 ### Exporting Traces
 Export traces for a specific period for offline analysis:
 ```bash
-langfuse export --from 2026-06-01 --to 2026-06-28 --format csv > traces.csv
+langfuse export --from 2026-10-01 --to 2026-11-01 --format csv > traces.csv
 ```
 
 ## API examples
 
-### Python: Manual Tracing
+### Python: Manual Tracing (with Async & Type Hints)
 For non-standard integrations (e.g., custom **Llama 4 Maverick** local deployments), use the native SDK:
 
 ```python
+import asyncio
+from typing import Dict, Any
 from langfuse import Langfuse
 
-langfuse = Langfuse()
+langfuse_client = Langfuse()
 
-trace = langfuse.trace(name = "maverick-translation-task")
-span = trace.span(name = "translate-to-german", input = "Hello world")
+async def trace_translation_task(text: str, target_lang: str) -> Dict[str, Any]:
+    trace = langfuse_client.trace(
+        name="maverick-translation-task",
+        input={"text": text, "target": target_lang}
+    )
 
-# ... call your translation logic ...
-span.end(output = "Hallo Welt")
+    span = trace.span(
+        name="translate-to-german",
+        input={"text": text}
+    )
+
+    try:
+        # Simulate async LLM call logic
+        await asyncio.sleep(0.1)
+        translated_text = f"Hallo {text.split()[-1]}" if "world" in text.lower() else "Hallo Welt"
+        span.end(output={"translated_text": translated_text})
+        return {"status": "success", "result": translated_text}
+    except Exception as e:
+        span.end(level="ERROR", status_message=str(e))
+        raise e
 ```
 
-### JavaScript: Recording Feedback
+### JavaScript: Recording Feedback (with Type Definitions)
 Record user feedback on an LLM output from a web interface:
 
-```javascript
+```typescript
 import { Langfuse } from "langfuse";
 
 const langfuse = new Langfuse();
 
-async function submitFeedback(traceId, score, comment) {
+interface FeedbackPayload {
+  traceId: string;
+  score: number;
+  comment?: string;
+}
+
+async function submitFeedback(payload: FeedbackPayload): Promise<void> {
   await langfuse.score({
-    traceId: traceId,
+    traceId: payload.traceId,
     name: "user-feedback",
-    value: score,
-    comment: comment
+    value: payload.score,
+    comment: payload.comment
   });
 }
 ```
@@ -146,5 +169,5 @@ async function submitFeedback(traceId, score, comment) {
 - [Langfuse SDK Reference](https://langfuse.com/docs/sdk/overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

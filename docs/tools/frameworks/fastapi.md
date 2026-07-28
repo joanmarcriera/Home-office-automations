@@ -4,10 +4,10 @@
 FastAPI is a modern, high-performance web framework for building APIs with Python 3.8+ based on standard Python type hints. It is designed to be easy to use, fast to code, and ready for production.
 
 ## What problem it solves
-It allows for rapid development of robust, high-performance APIs with automatic interactive documentation (Swagger UI/ReDoc). It significantly reduces developer error through type validation via Pydantic and provides native support for asynchronous programming (async/await), making it ideal for I/O-bound tasks like calling frontier LLM APIs such as Claude 4.8 Opus and GPT-5.5.
+It allows for rapid development of robust, high-performance APIs with automatic interactive documentation (Swagger UI/ReDoc). It significantly reduces developer error through type validation via **Pydantic v2** and provides native support for asynchronous programming (async/await), making it ideal for I/O-bound tasks like calling frontier LLM APIs such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
 
 ## Where it fits in the stack
-**Framework / Backend**. Often used as the orchestration or serving layer for AI agents, [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers, and custom homelab microservices. It bridges the gap between Python's data science ecosystem and web-standard production environments.
+**Framework / Backend**. Often used as the orchestration or serving layer for AI agents, [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) servers, and custom homelab microservices. It bridges the gap between Python's data science ecosystem and web-standard production environments.
 
 ## Typical use cases
 - Building RESTful APIs for AI agents and tools (e.g., [CrewAI](crewai.md) or [LangGraph](langgraph.md)).
@@ -19,7 +19,7 @@ It allows for rapid development of robust, high-performance APIs with automatic 
 ## Strengths
 - **Performance**: On par with NodeJS and Go, thanks to Starlette and Pydantic.
 - **Developer Experience**: Fast to code, easy to learn, and provides excellent editor support (autocompletion).
-- **Validation**: Automatic data validation and serialization using Pydantic v2.
+- **Validation**: Automatic data validation and serialization using **Pydantic v2**.
 - **Documentation**: Automatic interactive API documentation (OpenAPI and JSON Schema).
 - **Dependency Injection**: Powerful and easy-to-use dependency injection system for managing database sessions, security, and shared resources.
 - **Native Async**: First-class support for `async/await`, crucial for high-concurrency LLM interactions.
@@ -82,40 +82,50 @@ python -c "import json; from main import app; print(json.dumps(app.openapi()))" 
 
 ## API examples
 
-### Pydantic Model Validation
+### Pydantic Model Validation (Pydantic v2 Compliance)
 ```python
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, status
+from pydantic import BaseModel, Field, field_validator
 
 class AgentTask(BaseModel):
-    id: str
-    goal: str
-    priority: int = 1
+    id: str = Field(..., min_length=3, description="Unique task identifier")
+    goal: str = Field(..., description="High-level objective for the agent")
+    priority: int = Field(default=1, ge=1, le=5)
+
+    @field_validator("id")
+    @classmethod
+    def validate_id_prefix(cls, v: str) -> str:
+        if not v.startswith("task_"):
+            raise ValueError("Task ID must start with 'task_'")
+        return v
 
 app = FastAPI()
 
-@app.post("/tasks")
-async def create_task(task: AgentTask):
+@app.post("/tasks", status_code=status.HTTP_201_CREATED)
+async def create_task(task: AgentTask) -> dict:
     return {"status": "created", "task_id": task.id}
 ```
 
-### Dependency Injection (Auth Example)
+### Dependency Injection (Auth Example with Explicit Type Hints)
 ```python
-from fastapi import Depends, FastAPI, HTTPException, Security
+from fastapi import Depends, FastAPI, HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 
 api_key_header = APIKeyHeader(name="X-API-Key")
 
-async def get_api_key(api_key: str = Security(api_key_header)):
+async def get_api_key(api_key: str = Security(api_key_header)) -> str:
     if api_key != "secret-token":
-        raise HTTPException(status_code=403)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate API Key credentials"
+        )
     return api_key
 
 app = FastAPI()
 
 @app.get("/secure")
-async def secure_route(key: str = Depends(get_api_key)):
-    return {"data": "protected"}
+async def secure_route(key: str = Depends(get_api_key)) -> dict:
+    return {"data": "protected", "api_key_status": "verified"}
 ```
 
 ## Related tools / concepts
@@ -136,5 +146,5 @@ async def secure_route(key: str = Depends(get_api_key)):
 - [Starlette Framework](https://www.starlette.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
