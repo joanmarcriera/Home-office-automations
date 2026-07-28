@@ -1,17 +1,17 @@
 # LLaMA Factory
 
 ## What it is
-LLaMA Factory is a unified, efficient fine-tuning framework that supports over 100 Large Language Models (LLMs). In June 2026, it is the industry standard for democratizing model adaptation, supporting everything from Llama 4 Maverick to Qwen 3.6.
+LLaMA Factory is a unified, efficient fine-tuning framework that supports over 100 Large Language Models (LLMs). In late October and November 2026, it is the industry standard for democratizing model adaptation, supporting everything from Llama 4 and Gemma 3 to Qwen 3.6 and Gemini 4.0 models.
 
 ## What problem it solves
 Fine-tuning different LLM architectures often requires custom code and deep expertise in various libraries (e.g., PEFT, DeepSpeed, TRT-LLM). LLaMA Factory simplifies this by:
 - **Standardizing the Workflow**: Providing a single entry point for fine-tuning diverse models.
 - **Reducing Technical Barrier**: Offering the "LLaMA Board" no-code web UI for rapid experimentation.
 - **Integrating Best Practices**: Built-in support for advanced techniques like GaLore, BAdam, DoRA, and Mixture-of-Experts (MoE) tuning.
-- **Optimizing for Frontier Benchmarks**: Enables efficient distillation of reasoning from Claude 4.8 Opus or GPT-5.5 into smaller, task-specific models.
+- **Optimizing for Frontier Benchmarks**: Enables efficient distillation of reasoning from Claude 5.1 or GPT-5.5 into smaller, task-specific models.
 
 ## Where it fits in the stack
-**Frameworks / Fine-tuning**. It is an orchestration framework that coordinates lower-level libraries (PyTorch, Transformers, [NVIDIA NIM](../providers/nvidia.md)) to perform complex training tasks.
+**Frameworks / Fine-tuning**. It is an orchestration framework that coordinates lower-level libraries (PyTorch, Transformers, [NVIDIA](../providers/nvidia.md) NIM) to perform complex training tasks.
 
 ## Typical use cases
 - **Multi-Model Experimentation**: Quickly comparing fine-tuning results across different model families.
@@ -20,7 +20,7 @@ Fine-tuning different LLM architectures often requires custom code and deep expe
 - **Agentic Fine-tuning**: Training models to better follow [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) schemas using synthetic data from [Glaive](../ai_knowledge/glaive.md).
 
 ## Strengths
-- **Massive Model Support**: Covers almost all popular open-source LLMs, including Llama 4 Maverick.
+- **Massive Model Support**: Covers almost all popular open-source LLMs, including Llama 4 and Qwen 3.6.
 - **Web UI (LLaMA Board)**: Exceptional ease of use for beginners and rapid experimentation.
 - **Efficiency**: Supports 4-bit/8-bit QLoRA and various memory-saving optimizers like [Unsloth](../infrastructure/unsloth.md) backends.
 - **NVIDIA Integration**: Native support for NVIDIA Rubin architecture and NIM GA microservices for training and evaluation.
@@ -112,5 +112,5 @@ model = ChatModel(args)
 - [Hugging Face Blog: Fine-tuning with LLaMA Factory](https://huggingface.co/blog/llama-factory)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
