@@ -1,7 +1,7 @@
 # Superpowers
 
 ## What it is
-Superpowers is a comprehensive software development workflow and agentic skills framework designed for coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) while utilizing **Gemini 3.5 visual reasoning** for complex UI tasks.
+Superpowers is a comprehensive software development workflow and agentic skills framework designed for next-generation coding agents like [Claude Code](../development_ops/claude-code.md), [Cursor](../development_ops/cursor.md), and [Aider](../development_ops/aider.md). It builds on top of composable "skills" to enforce a rigorous engineering process, optimized for frontier models like [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) while utilizing **Gemini 3.5/3.6 visual reasoning** for complex UI tasks and front-end verification.
 
 ## What problem it solves
 It addresses the lack of discipline and engineering rigor in standard AI coding interactions by providing a structured, skills-based workflow for design, planning, and implementation. This prevents common failure modes like "hallucinating" file paths, circular refactoring, and code rot, ensuring high performance on benchmarks like [SWE-bench](../benchmarking/swe-bench.md).
@@ -17,11 +17,11 @@ It addresses the lack of discipline and engineering rigor in standard AI coding 
 - Standardizing agent behavior across a distributed engineering team.
 
 ## Strengths
-- **MCP 3.0 Task Protocol**: Native implementation of the standardized task protocol for multi-agent handoffs and verifiable progress.
-- **Visual Reasoning**: Integration with **Gemini 3.5** for automated UI/UX verification and visual regression testing.
+- **MCP 3.1 Task Protocol**: Native implementation of the standardized task protocol for multi-agent handoffs, state serialization, and verifiable progress.
+- **Visual Reasoning**: Integration with **Gemini 3.5/3.6** for automated UI/UX verification and visual regression testing.
 - **Process Rigor**: Enforces high-quality engineering standards (TDD, YAGNI, DRY).
 - **Agent Autonomy**: Increases reliability through explicit verification steps and self-correction loops.
-- **Context Handling**: Optimized for [Claude 4.8 Opus](../providers/anthropic.md)'s 2.5M token context window.
+- **Context Handling**: Optimized for [Claude 5.1](../providers/anthropic.md)'s expanded token context window.
 
 ## Limitations
 - Higher process overhead for trivial tasks.
@@ -39,55 +39,10 @@ It addresses the lack of discipline and engineering rigor in standard AI coding 
 - If you prefer an ad-hoc, conversational approach to coding without structured planning.
 - In environments where agents lack terminal or filesystem access (though remote MCP can bridge this).
 
-## Key Workflow Components
-1. **Brainstorming**: Socratic design refinement before writing code.
-2. **Isolated Workspaces**: Uses Git worktrees to ensure a clean baseline.
-3. **Bite-sized Planning**: Breaks work into 2-5 minute tasks with exact file paths and verification steps.
-4. **Subagent-Driven Development**: Dispatches fresh subagents per task with two-stage reviews.
-5. **Strict TDD**: Enforces RED-GREEN-REFACTOR cycle.
-6. **Formal Code Review**: Automated reviews against the plan before merging.
-
-## Technical Implementation: Skill YAML Example
-Superpowers skills are defined using a structured YAML format that specifies the tool's signature, implementation, and description for the LLM.
-
-```yaml
-# example_skill.yaml
-name: "run_tests"
-description: "Executes the test suite for the current project and returns results."
-parameters:
-  type: "object"
-  properties:
-    path:
-      type: "string"
-      description: "Path to the test directory or file."
-    filter:
-      type: "string"
-      description: "Optional regex to filter tests."
-implementation: |
-  # The actual shell command or script to run
-  pytest {{path}} -k {{filter}}
-```
-
-## Advanced Usage: Custom Task Verification
-For complex refactors, you can define custom verification steps in your `superpowers.json` or `.claudestatus` files to ensure the agent doesn't just "complete" the task but actually fixes the underlying issue.
-
-```json
-{
-  "tasks": [
-    {
-      "id": "refactor-auth-logic",
-      "description": "Move auth logic to middleware",
-      "files": ["src/middleware/auth.js", "src/routes/user.js"],
-      "verification": "npm test src/tests/auth.test.js && curl -I http://localhost:3000/api/user"
-    }
-  ]
-}
-```
-
 ## Getting started
 
-### Installation (Claude Code)
-Superpowers is typically installed as a plugin or set of skills using the MCP 3.0 protocol:
+### Installation (Claude Code Plugin)
+Superpowers is typically installed as a plugin or set of skills using the MCP 3.1 protocol:
 
 ```bash
 /plugin marketplace add obra/superpowers-marketplace
@@ -100,8 +55,8 @@ To enable visual verification with Gemini 3.5:
 superpowers config set vision_provider gemini-3.5-pro
 ```
 
-### Hello-world (Custom Skill)
-Create a `hello_world.yaml` skill file:
+### Creating custom skills
+Create a simple `hello_world.yaml` skill file:
 
 ```yaml
 name: "hello_world"
@@ -136,7 +91,7 @@ superpowers verify --task-id 123 --file tests/auth_test.py
 
 ## API examples
 
-### Defining a Verification Skill
+### Defining a Verification Skill (YAML)
 Skills are defined in YAML and consumed by the agent's tool-calling logic.
 
 ```yaml
@@ -153,25 +108,21 @@ implementation: |
   coverage run -m pytest && coverage report --fail-under={{threshold}}
 ```
 
-## Example company use cases
-- **Product engineering**: enforce design-first planning and verification for every AI-generated pull request.
-- **Agency delivery**: keep client repos consistent even when different agents or contractors are contributing.
-- **Internal automation team**: standardize how agents propose, implement, verify, and hand off workflow changes.
+### Custom Task Verification (JSON)
+For complex refactors, you can define custom verification steps in your `superpowers.json` file to ensure the agent performs regression tests before proposing a merge.
 
-## Example workflow
-```text
-Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Review -> Merge
+```json
+{
+  "tasks": [
+    {
+      "id": "refactor-auth-logic",
+      "description": "Move auth logic to middleware",
+      "files": ["src/middleware/auth.js", "src/routes/user.js"],
+      "verification": "npm test src/tests/auth.test.js && curl -I http://localhost:3000/api/user"
+    }
+  ]
+}
 ```
-
-## Ecosystem notes
-- Superpowers sits inside the broader [Claude Skills Ecosystem](claude-skills-ecosystem.md) alongside Anthropic's reference [skills repository](https://github.com/anthropics/skills).
-- It is often paired with other coding tools like [Mentat](../development_ops/mentat.md) or [Plandex](../development_ops/plandex.md) for specialized refactoring tasks.
-- Community variants such as `ui-ux-pro-max-skill` are useful specialization examples, but they should be reviewed like code because they encode process, tools, and risk assumptions.
-
-## Selection comments
-- Superpowers is strongest when quality and repeatability matter more than raw speed.
-- Use it by default for code that affects production systems, shared libraries, or client deliverables.
-- Do not force it on trivial one-off edits where the process overhead outweighs the risk.
 
 ## Related tools / concepts
 - [Agency-Agents](agency-agents.md)
@@ -182,7 +133,6 @@ Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Re
 - [Plandex](../development_ops/plandex.md)
 - [Mentat](../development_ops/mentat.md)
 - [SWE-bench](../benchmarking/swe-bench.md)
-- [Anthropic Agent Skills](anthropic-agent-skills.md)
 
 ## Sources / references
 - [Official GitHub Repository](https://github.com/obra/superpowers)
@@ -191,5 +141,5 @@ Problem -> Brainstorming -> Written plan -> Implementation -> Verification -> Re
 - [awesome-skills.com](https://awesome-skills.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-10-01
 - Confidence: high

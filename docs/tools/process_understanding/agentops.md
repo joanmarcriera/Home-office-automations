@@ -1,21 +1,21 @@
 # AgentOps
 
 ## What it is
-AgentOps is a specialized observability and development platform designed specifically for autonomous agents. It provides a comprehensive suite of tools for tracking agent performance, debugging complex multi-step workflows, and monitoring production agent deployments.
+AgentOps is a specialized, enterprise-grade observability and development platform designed specifically for autonomous AI agents. It provides a comprehensive suite of tools for tracking agent performance, debugging complex multi-step workflows, visualizing prompt chains, and monitoring production agent deployments.
 
 ## What problem it solves
-Developing autonomous agents is uniquely challenging due to their non-deterministic nature and the complexity of multi-turn interactions. AgentOps solves the "black box" problem by providing:
-- **Execution Transparency**: Step-by-step agent execution graphs and session replays.
-- **Reliability Tracking**: Identification of infinite loops, recursive thoughts, and faulty reasoning patterns.
+Developing autonomous agents is uniquely challenging due to their non-deterministic nature, execution loops, and the complexity of multi-turn interactions. AgentOps solves the "black box" problem by providing:
+- **Execution Transparency**: Step-by-step agent execution graphs, trace nesting, and session replays.
+- **Reliability Tracking**: Direct identification of infinite loops, recursive thoughts, and faulty reasoning patterns.
 - **Cost Management**: Real-time tracking of spend across 400+ LLM providers via gateways like [LiteLLM](../../services/litellm.md).
-- **Benchmarking**: Evaluation metrics to measure agent success and performance over time.
+- **Benchmarking**: Rigorous evaluation metrics to measure agent success, tool utilization, and performance over time.
 
 ## Where it fits in the stack
-AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the **Model Context Protocol (MCP 3.0)**.
+AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the **Model Context Protocol (MCP 3.1)**.
 
 ## Typical use cases
 - **Multi-Agent Orchestration**: Monitoring interactions and handoffs between multiple agents in frameworks like [CrewAI](../frameworks/crewai.md) or AG2 ([AutoGen](../frameworks/autogen.md)).
-- **MCP Tool Observability**: Tracking calls to [MCP](../automation_orchestration/mcp.md) servers to identify tool latency and failure rates.
+- **MCP Tool Observability**: Tracking calls to [MCP](../automation_orchestration/mcp.md) servers to identify tool latency and failure rates under MCP 3.1.
 - **Debugging Tool Failures**: Investigating exactly why an agent selected a specific tool and how it handled the tool's output.
 - **Production Session Analysis**: Replaying user-agent interactions to identify edge cases and improve agent reliability.
 - **Token and Bill Tracking**: Monitoring real-time costs of long-running autonomous tasks across multiple model providers.
@@ -116,18 +116,25 @@ import agentops
 
 @agentops.sdk.decorators.operation
 def use_mcp_tool(tool_name, params):
-    # Log specific MCP 3.0 tool interactions
+    # Log specific MCP 3.1 tool interactions
     agentops.record_action(f"Calling MCP Tool: {tool_name}", params=params)
     # ... execution logic
 ```
 
 ### Handling Multi-Model Sessions
-Track performance across **Claude 4.8** and **GPT-5.5** within the same session.
+Track performance across **Claude 5.1** and **GPT-5.5** within the same session.
 
 ```python
-agentops.init(tags=["multi-model-test"])
-# ... model logic
-agentops.end_session('Success')
+import agentops
+
+def run_multi_model_session():
+    # Initialize session with specific tracking tags
+    agentops.init(tags=["multi-model-test"])
+
+    # ... execute Claude 5.1 step
+    # ... execute GPT-5.5 step
+
+    agentops.end_session('Success')
 ```
 
 ## Related tools / concepts
@@ -147,5 +154,5 @@ agentops.end_session('Success')
 - [AgentOps GitHub Repository](https://github.com/AgentOps-AI/agentops)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-10-01
 - Confidence: high
