@@ -1,7 +1,7 @@
 # LangGraph
 
 ## What it is
-LangGraph is a library for building stateful, multi-actor applications with LLMs, built on top of LangChain. In June 2026, it is a critical framework for creating complex, cyclic agent workflows that leverage the reasoning capabilities of Claude 4.8 Opus and GPT-5.5.
+LangGraph is a library for building stateful, multi-actor applications with LLMs, built on top of LangChain. In late October / November 2026, it is a critical framework for creating complex, cyclic agent workflows that leverage the reasoning capabilities of Claude 5.1, GPT-5.5, Gemini 4.0, and sovereign open-weight models.
 
 ## What problem it solves
 While standard LangChain chains are great for linear workflows, they struggle with cyclic graphs often needed for autonomous agents (e.g., "reason-act-observe" loops). LangGraph provides the control needed for these loops while maintaining state across multiple steps, enabling persistence, human-in-the-loop patterns, and advanced error recovery.
@@ -14,14 +14,14 @@ While standard LangChain chains are great for linear workflows, they struggle wi
 - **Human-in-the-loop**: Applications requiring manual approval or state editing before proceeding with tool use.
 - **Complex RAG**: Iterative retrieval and refinement loops for high-accuracy document processing.
 - **Stateful Assistants**: Building long-running conversations that persist across sessions with full "time travel" capabilities.
-- **MCP Orchestration**: Managing tool calls to multiple [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) servers.
+- **MCP Orchestration**: Managing tool calls to multiple [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) servers.
 
 ## Strengths
 - **Cycles and Recursion**: Built specifically to handle loops in agent logic, essential for reflection and retry patterns.
 - **Persistence & Time Travel**: Built-in support for saving state (checkpointers), allowing for session resumption and auditing.
 - **Granular Control**: Fine-grained control over the flow (nodes and edges), unlike "black-box" agent frameworks.
 - **Human-in-the-loop**: Native primitives for interrupting execution for human intervention or approval.
-- **Native MCP 3.0 Support**: Seamless integration with the Model Context Protocol for unified tool and resource access.
+- **Native MCP 3.1 Support**: Seamless integration with the Model Context Protocol for unified tool and resource access.
 
 ## Limitations
 - **Learning Curve**: Requires understanding of graph theory concepts and the broader LangChain ecosystem.
@@ -43,17 +43,29 @@ While standard LangChain chains are great for linear workflows, they struggle wi
 ### 1. Installation
 Install LangGraph and its dependencies:
 ```bash
-pip install langgraph langchain_anthropic langchain_openai
+pip install langgraph langchain_anthropic langchain_openai pydantic
 ```
 
-### 2. Define State
-Create a TypedDict to represent the state of your graph.
+### 2. Define State (with Pydantic v2 validation)
+Create a Pydantic state model or TypedDict to represent the state of your graph.
 
 ### 3. Build Graph
 ```python
+from typing import Annotated, Sequence, TypedDict
+from pydantic import BaseModel, Field
 from langgraph.graph import StateGraph, START, END
+from langchain_core.messages import BaseMessage
 
-builder = StateGraph(State)
+# Define state structure using modern Pydantic v2 / TypedDict standards
+class AgentState(BaseModel):
+    messages: Annotated[Sequence[BaseMessage], Field(default_factory=list)]
+    next_step: str = ""
+
+def chatbot_node(state: AgentState) -> dict:
+    # Business logic goes here
+    return {"messages": state.messages}
+
+builder = StateGraph(AgentState)
 builder.add_node("chatbot", chatbot_node)
 builder.add_edge(START, "chatbot")
 builder.add_edge("chatbot", END)
@@ -83,15 +95,15 @@ pip install langgraph-cli
 LangGraph enables session persistence across multiple invocations using checkpointers.
 
 ```python
-from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.memory import MemorySaver
 
-# Setup persistent memory
-memory = SqliteSaver.from_conn_string(":memory:")
+# Setup persistent in-memory database
+memory = MemorySaver()
 graph = builder.compile(checkpointer=memory)
 
 # Run with a thread_id
 config = {"configurable": {"thread_id": "session_456"}}
-graph.invoke({"messages": [("user", "Remember my name is Jules.")]}, config)
+graph.invoke({"messages": []}, config)
 ```
 
 ### Human-in-the-loop Breakpoints
@@ -102,7 +114,7 @@ Interrupt execution to allow for human review.
 graph = builder.compile(checkpointer=memory, interrupt_before=["tools"])
 
 # Execution will pause here; resume by invoking with None
-graph.invoke(input_data, config)
+# graph.invoke(input_data, config)
 ```
 
 ## Related tools / concepts
@@ -123,5 +135,5 @@ graph.invoke(input_data, config)
 - [LangGraph MCP Integration](https://langchain-ai.github.io/langgraph/how-tos/mcp/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

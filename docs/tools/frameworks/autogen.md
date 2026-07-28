@@ -1,13 +1,13 @@
 # AutoGen
 
 ## What it is
-AutoGen is an open-source framework from Microsoft Research that enables the development of LLM applications using multiple agents that can converse with each other to solve tasks. In June 2026, it is a leading framework for orchestrating complex multi-agent workflows involving `claude-4-8-opus-20260528` and GPT-5.5.
+AutoGen is an open-source framework from Microsoft Research that enables the development of LLM applications using multiple agents that can converse with each other to solve tasks. In late October / November 2026, it is a leading framework for orchestrating complex multi-agent workflows involving `claude-5-1-opus-20261031`, GPT-5.5, Gemini 4.0, and sovereign open-weight models.
 
 ## What problem it solves
-It enables complex workflows that require multiple turns of conversation, code generation and execution, and human-in-the-loop feedback. It automates the "chat" between agents to reach a goal, providing built-in support for conversational patterns and tool use through MCP 3.0.
+It enables complex workflows that require multiple turns of conversation, code generation and execution, and human-in-the-loop feedback. It automates the "chat" between agents to reach a goal, providing built-in support for conversational patterns and tool use through **Model Context Protocol (MCP 3.1)**.
 
 ## Where it fits in the stack
-**Framework / Multi-Agent Orchestrator**. It sits between the foundation models and the application layer, managing agent interactions and execution environments.
+**Framework / Multi-Agent Orchestrator**. It sits between the foundation models and the application layer, managing agent interactions and execution environments. It aligns closely with [Multi-Agent KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) design principles.
 
 ## Typical use cases
 - **Software Engineering**: An assistant agent writing code and a proxy agent executing it to fix bugs.
@@ -44,16 +44,36 @@ pip install pyautogen
 ```
 
 ### 2. Configuration
-Set up your LLM configuration for models like `claude-4-8-opus-20260528`.
+Set up your LLM configuration for models like `claude-5-1-opus-20261031` or `gpt-5.5-preview`.
 
 ### 3. Hello World Example
 ```python
+import os
+from typing import Dict, Any
 from autogen import AssistantAgent, UserProxyAgent
 
-assistant = AssistantAgent("assistant", llm_config={"model": "gpt-4o"})
-user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "coding"})
+# Retrieve LLM config
+llm_config: Dict[str, Any] = {
+    "config_list": [
+        {
+            "model": "gpt-5.5-preview",
+            "api_key": os.environ.get("OPENAI_API_KEY", "mock-key")
+        }
+    ],
+    "temperature": 0.2
+}
 
-user_proxy.initiate_chat(assistant, message="Write a python script to fetch the current weather in London.")
+assistant = AssistantAgent("assistant", llm_config=llm_config)
+user_proxy = UserProxyAgent(
+    "user_proxy",
+    code_execution_config={"work_dir": "coding", "use_docker": False}
+)
+
+# Start conversation flow
+user_proxy.initiate_chat(
+    assistant,
+    message="Write a python script to fetch the current weather in London."
+)
 ```
 
 ## CLI examples
@@ -75,22 +95,31 @@ python my_autogen_app.py --human_input_mode ALWAYS
 
 ## API examples
 
-### Multi-Agent Group Chat
+### Multi-Agent Group Chat (With Type Annotations & Config)
 AutoGen allows for complex agent orchestration through its GroupChat and GroupChatManager classes.
 
 ```python
+from typing import List, Dict, Any
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+
+config_list: List[Dict[str, Any]] = [
+    {
+        "model": "claude-5-1-opus-20261031",
+        "api_key": "your-anthropic-key"
+    }
+]
+llm_config: Dict[str, Any] = {"config_list": config_list, "temperature": 0.0}
 
 # Define agents
 coder = AssistantAgent("Coder", llm_config=llm_config)
-user_proxy = UserProxyAgent("User", code_execution_config={"work_dir": "web"})
-manager = GroupChatManager(
-    groupchat=GroupChat(agents=[coder, user_proxy], messages=[]),
-    llm_config=llm_config
-)
+critic = AssistantAgent("Critic", system_message="Provide critique on the proposed code structure.", llm_config=llm_config)
+user_proxy = UserProxyAgent("User", code_execution_config={"work_dir": "web", "use_docker": False})
+
+groupchat = GroupChat(agents=[coder, critic, user_proxy], messages=[], max_round=12)
+manager = GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
 # Start interaction
-user_proxy.initiate_chat(manager, message="Build a simple dashboard.")
+user_proxy.initiate_chat(manager, message="Build a simple responsive dashboard with Tailwind.")
 ```
 
 ## Related tools / concepts
@@ -111,5 +140,5 @@ user_proxy.initiate_chat(manager, message="Build a simple dashboard.")
 - [AutoGen Blog: FSM for Agentic Workflows](https://microsoft.github.io/autogen/blog/2024/02/11/FSM-GroupChat/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

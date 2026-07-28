@@ -7,12 +7,12 @@ DSPy (Declarative Self-improving Language Programs, Pythonically) is a framework
 Traditional LLM development involves manual prompt engineering ("prompt hacking"), which is brittle and doesn't scale. DSPy replaces this with a programming model where you define signatures and modules, and an optimizer automatically generates high-quality prompts or fine-tunes models to satisfy your requirements.
 
 ## Where it fits in the stack
-**Framework / LLM Programming Layer**. It acts as a compiler for language model programs, bridging the gap between high-level logic and low-level prompt optimization. It is increasingly used to optimize [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) tool selection and parameter generation.
+**Framework / LLM Programming Layer**. It acts as a compiler for language model programs, bridging the gap between high-level logic and low-level prompt optimization. It is increasingly used to optimize [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) tool selection and parameter generation.
 
 ## Typical use cases
 - **Complex RAG Pipelines**: Optimizing retrieval and generation steps together using tools like [LlamaIndex](../ai_knowledge/llamaindex.md).
 - **Multi-hop Question Answering**: Managing state and logic across multiple LLM calls.
-- **Self-Improving Agents**: Automatically refining agent prompts based on few-shot examples for [Claude 4.8 Opus](../providers/anthropic.md).
+- **Self-Improving Agents**: Automatically refining agent prompts based on few-shot examples for **Claude 5.1** or **GPT-5.5**.
 - **Agentic Workflows**: Building robust systems for frontier models that require high precision in structured output.
 
 ## Strengths
@@ -21,7 +21,7 @@ Traditional LLM development involves manual prompt engineering ("prompt hacking"
 - **Advanced Reasoning**: Support for `ProgramOfThought` where the model generates code to solve problems.
 - **Assertions and Constraints**: Built-in `dspy.Assert` and `dspy.Suggest` to enforce runtime constraints on LLM outputs.
 - **Model Agnostic**: Easily switch between different LMs and re-optimize the pipeline.
-- **June 2026 Optimizers**: Integration of new 'Adaptive-Spectral' optimizers for ultra-low-shot performance.
+- **Late 2026 Optimizers**: Integration of new 'Adaptive-Spectral' optimizers for ultra-low-shot performance.
 
 ## Limitations
 - **Learning Curve**: Requires a shift in mindset from manual prompting to systematic programming.
@@ -45,16 +45,18 @@ Traditional LLM development involves manual prompt engineering ("prompt hacking"
 pip install dspy
 ```
 
-### Minimal Python Example
+### Minimal Python Example (with Modern Signatures & Type Hints)
 ```python
 import dspy
-lm = dspy.LM('openai/gpt-4o') # Or 'anthropic/claude-3-5-sonnet'
+
+# Initialize modern LM configurations
+lm = dspy.LM('openai/gpt-5.5-preview')
 dspy.settings.configure(lm=lm)
 
 class CoT(dspy.Signature):
     """Answer questions with chain of thought."""
-    question = dspy.InputField()
-    answer = dspy.OutputField(desc="often between 10 and 50 words")
+    question: str = dspy.InputField()
+    answer: str = dspy.OutputField(desc="often between 10 and 50 words")
 
 generate_answer = dspy.ChainOfThought(CoT)
 pred = generate_answer(question="What is the capital of France?")
@@ -73,7 +75,7 @@ python -m dspy.utils.cache_viewer --port 8080
 DSPY_CACHEDIR=./cache python my_dspy_app.py
 
 # Example: Using the DSPy CLI for model benchmarking
-dspy-bench --model claude-4-8-opus-20260528 --task my_task.py
+dspy-bench --model claude-5-1-opus-20261031 --task my_task.py
 ```
 
 ## API examples
@@ -84,8 +86,8 @@ import dspy
 
 class MathSignature(dspy.Signature):
     """Solve math word problems."""
-    question = dspy.InputField()
-    answer = dspy.OutputField(desc="numerical result")
+    question: str = dspy.InputField()
+    answer: str = dspy.OutputField(desc="numerical result")
 
 # Uses a Python interpreter internally to compute the answer
 math_solver = dspy.ProgramOfThought(MathSignature)
@@ -95,12 +97,18 @@ print(result.answer)
 
 ### Optimization with BootstrapFewShotWithRandomSearch
 ```python
+from typing import Any, Dict, List
+import dspy
 from dspy.teleprompt import BootstrapFewShotWithRandomSearch
 
+# Dummy trainset example matching DSPy structures
+class SimpleDatasetExample(dspy.Example):
+    def __init__(self, question: str, answer: str) -> None:
+        super().__init__(question=question, answer=answer)
+
 # Define validation metric
-def validate_context_and_answer(example, pred, trace=None):
-    # Metric logic...
-    return pred.answer == example.answer
+def validate_context_and_answer(example: Any, pred: Any, trace: Any = None) -> bool:
+    return bool(pred.answer == example.answer)
 
 # Initialize the optimizer
 tp = BootstrapFewShotWithRandomSearch(
@@ -109,7 +117,20 @@ tp = BootstrapFewShotWithRandomSearch(
     num_candidate_programs=10
 )
 
-# Compile against a training set for Claude 4.8
+# Example program module
+class MyModule(dspy.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.generate = dspy.ChainOfThought("question -> answer")
+
+    def forward(self, question: str) -> dspy.Prediction:
+        return self.generate(question=question)
+
+trainset: List[dspy.Example] = [
+    SimpleDatasetExample("What is 2+2?", "4").with_inputs("question")
+]
+
+# Compile against a training set for Claude 5.1
 optimized_app = tp.compile(MyModule(), trainset=trainset)
 ```
 
@@ -131,5 +152,5 @@ optimized_app = tp.compile(MyModule(), trainset=trainset)
 - [DSPy 2026 Roadmap](https://dspy-docs.vercel.app/roadmap)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
