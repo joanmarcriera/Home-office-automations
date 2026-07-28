@@ -143,7 +143,8 @@ async def secure_mcp_tool_executor(tool_name: str, parameters: dict, session_id:
 - [Lakera Technical Documentation Hub](https://docs.lakera.ai/)
 - [Gandalf AI Challenge](https://gandalf.lakera.ai/)
 - [Lakera: Defending Autonomous Agents in late 2026](https://www.lakera.ai/ai-security-guides/agentic-ai-security-the-enterprise-playbook)
+- [Agentic RAG Security Search & Verification](https://github.com/search?q=Agentic+RAG+Security&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-28
+- Last reviewed: 2026-07-27
 - Confidence: high

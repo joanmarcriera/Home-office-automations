@@ -98,7 +98,8 @@ response = client.messages.create(
 - [Anthropic: Context Window Engineering](https://docs.anthropic.com/claude/docs/long-context-window-tips)
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
 - [Claude Desktop Documentation](https://docs.anthropic.com/claude/docs/claude-desktop-overviews)
+- [Architecture Index Search & Verification](https://github.com/search?q=Architecture+Index&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-30
+- Last reviewed: 2026-07-27
 - Confidence: high

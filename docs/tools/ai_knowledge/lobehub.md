@@ -108,6 +108,7 @@ In the LobeChat settings or via the Agent configuration:
 - [LobeHub Documentation](https://lobehub.com/docs)
 - [MCP 3.1 Specification](https://modelcontextprotocol.io)
 - [June 2026 Agentic Ecosystem Report](https://lobehub.com/blog/june-2026-update)
+- [Agentic Workbench Search & Verification](https://github.com/search?q=Agentic+Workbench&ref=2026-07-27-audit)
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-27
