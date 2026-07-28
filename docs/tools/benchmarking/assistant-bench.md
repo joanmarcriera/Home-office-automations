@@ -143,7 +143,8 @@ print(f"Mean Accuracy: {summary.metrics.get('accuracy').value}")
 - [AssistantBench Official Webpage](https://assistantbench.github.io/)
 - [AssistantBench Project GitHub Repository](https://github.com/assistantbench/assistantbench)
 - [UK AISI Inspect-AI Documentation](https://github.com/UKGovernmentBEIS/inspect-ai)
+- [Agentic Latency Search & Verification](https://github.com/search?q=Agentic+Latency&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-28
+- Last reviewed: 2026-07-27
 - Confidence: high

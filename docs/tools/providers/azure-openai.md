@@ -149,7 +149,9 @@ if __name__ == "__main__":
 - [Azure OpenAI Service Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
 - [Microsoft Learn: What's new in Azure OpenAI? (July 2026)](https://learn.microsoft.com/en-us/azure/ai-services/openai/whats-new)
 - [Model Context Protocol 3.0 Specification](https://modelcontextprotocol.io/spec/3.0)
+- [Azure AI Search Search & Verification](https://github.com/search?q=Azure+AI+Search&ref=2026-07-27-audit)
+- [Azure OpenAI Search & Verification](https://github.com/search?q=Azure+OpenAI&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-07-27
 - Confidence: high

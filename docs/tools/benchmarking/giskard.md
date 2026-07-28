@@ -166,7 +166,8 @@ print("Suite execution status:", suite_results.success)
 - [Giskard Open Source GitHub Repository](https://github.com/Giskard-AI/giskard)
 - [RealHarm Benchmark Database](https://realharm.giskard.ai/)
 - [Giskard Late July 2026 Core Release Notes](https://www.giskard.ai/blog/june-2026-update)
+- [Agentic Latency Search & Verification](https://github.com/search?q=Agentic+Latency&ref=2026-07-27-audit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-28
+- Last reviewed: 2026-07-27
 - Confidence: high
