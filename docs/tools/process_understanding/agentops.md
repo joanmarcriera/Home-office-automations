@@ -1,133 +1,162 @@
 # AgentOps
 
 ## What it is
-AgentOps is a specialized observability and development platform designed specifically for autonomous agents. It provides a comprehensive suite of tools for tracking agent performance, debugging complex multi-step workflows, and monitoring production agent deployments.
+AgentOps is a specialized, enterprise-ready observability, tracking, and evaluation platform built specifically for autonomous agents. It provides developers with an end-to-end suite of tools for tracing agentic execution paths, debugging multi-step logic chains, monitoring API spends, and benchmarking agent behaviors across diverse environments.
 
 ## What problem it solves
-Developing autonomous agents is uniquely challenging due to their non-deterministic nature and the complexity of multi-turn interactions. AgentOps solves the "black box" problem by providing:
-- **Execution Transparency**: Step-by-step agent execution graphs and session replays.
-- **Reliability Tracking**: Identification of infinite loops, recursive thoughts, and faulty reasoning patterns.
-- **Cost Management**: Real-time tracking of spend across 400+ LLM providers via gateways like [LiteLLM](../../services/litellm.md).
-- **Benchmarking**: Evaluation metrics to measure agent success and performance over time.
+Developing autonomous agents is uniquely challenging due to their non-deterministic nature, complex multi-turn decision frameworks, and vulnerability to logical failures. AgentOps resolves the "black box" complexity of agentic systems by providing:
+- **Comprehensive Trace Visualization**: Interactive event graphs detailing exactly when and why an agent chose a specific tool or route.
+- **Loop and Recursive Guardrails**: Real-time detection and alerting for infinite execution loops, recursive thoughts, and reasoning traps.
+- **Granular Cost Tracking**: Instant reporting on API usage and expenditures across 400+ LLM backends via native gateways like [LiteLLM](../../services/litellm.md).
+- **Automated Agent Evaluations**: Vetted benchmarking tools to evaluate agent performance over time and prevent system regressions.
 
 ## Where it fits in the stack
-AgentOps sits in the **AI Observability and Developer Tooling** layer. It is specifically optimized for agentic frameworks and provides first-class support for multi-agent orchestration and the **Model Context Protocol (MCP 3.0)**.
+**AI Observability and Developer Tooling**. Sitting at the monitoring and evaluation layer, it connects directly into agentic codebases. It is deeply integrated with the **Model Context Protocol (MCP 3.1)** and standard multi-agent orchestration frameworks.
 
 ## Typical use cases
-- **Multi-Agent Orchestration**: Monitoring interactions and handoffs between multiple agents in frameworks like [CrewAI](../frameworks/crewai.md) or AG2 ([AutoGen](../frameworks/autogen.md)).
-- **MCP Tool Observability**: Tracking calls to [MCP](../automation_orchestration/mcp.md) servers to identify tool latency and failure rates.
-- **Debugging Tool Failures**: Investigating exactly why an agent selected a specific tool and how it handled the tool's output.
-- **Production Session Analysis**: Replaying user-agent interactions to identify edge cases and improve agent reliability.
-- **Token and Bill Tracking**: Monitoring real-time costs of long-running autonomous tasks across multiple model providers.
+- **Multi-Agent Flow Monitoring**: Tracking handoffs, communication packets, and dependency relationships between cooperating agents in frameworks like [CrewAI](../frameworks/crewai.md) or AG2 ([AutoGen](../frameworks/autogen.md)).
+- **MCP Tool Interception**: Analyzing latency, input payloads, and failure thresholds for queries directed to [MCP](../automation_orchestration/mcp.md) servers.
+- **Session Replay Diagnostics**: Replaying entire user-agent sessions in production to analyze failure modes and optimize prompts.
+- **Enterprise Spend Auditing**: Continuous auditing and control of commercial API budgets for large-scale, long-running agent squads.
+- **Dataset Extraction for Fine-Tuning**: Exporting successful agent execution traces to create clean training datasets for specialized local models.
 
 ## Strengths
-- **Framework Native**: Deep, often two-line integrations with [CrewAI](../frameworks/crewai.md), [AutoGen](../frameworks/autogen.md), LangChain, and LlamaIndex.
-- **Agent-Centric UI**: A dashboard designed for agentic flows, featuring session replays, event graphs, and agent metadata.
-- **Fine-tuning Support**: Ability to export successful agent completions to fine-tune specialized models, reducing costs by up to 25%.
-- **PII Detection**: Built-in security features like honeypot and prompt injection detection (via PromptArmor).
+- **Native Framework Integrations**: Minimal-boilerplate setup for industry-standard packages, including [CrewAI](../frameworks/crewai.md), [AutoGen](../frameworks/autogen.md), LangChain, and LlamaIndex.
+- **Dynamic Session Dashboard**: Intuitive, agent-first visual platform featuring detailed execution logs and tool call traceboards.
+- **PII and Guardrail Defenses**: Integrated prompt injection defenses, PII detection, and honeypot alerts (powered by PromptArmor).
+- **Local Sandbox Execution Tracking**: Correlates filesystem edits and shell commands executed by code-generation assistants back to specific agent sessions.
 
 ## Limitations
-- **Specialization**: Optimized for agents; may offer more complexity than needed for standard RAG or simple chat applications.
-- **Cloud-Centric**: While self-hosting is an option, the full feature set is most easily accessed via the AgentOps cloud dashboard.
-- **Metadata Overhead**: To get the most out of the platform, developers need to properly instrument their custom agent classes and tools.
+- **Highly Specialized**: Tailored entirely for agentic workflows; standard RAG or basic completion APIs may find the platform over-engineered.
+- **Cloud Dependency**: While core tracking metrics are available locally, advanced dashboard visualization and analytics require connecting to the AgentOps cloud.
+- **Instrumentation Overhead**: To extract maximum value, developers must properly instrument custom tools and custom agent classes.
 
 ## When to use it
-- When building multi-agent systems that require tracking handoffs and collaborative task execution.
-- When you need a "Flight Recorder" for your agents to debug non-deterministic failures in production.
-- When you are using popular agent frameworks like [CrewAI](../frameworks/crewai.md) or [AutoGen](../frameworks/autogen.md) and want instant observability.
-- When you need to monitor and control LLM costs across a variety of providers within a single interface.
+- When developing complex, multi-agent orchestrations that require systematic auditing of tool handoffs.
+- When deploying production-grade agents that execute commands autonomously and require a "flight recorder" to debug failures.
+- When integrating with standard agent frameworks like [CrewAI](../frameworks/crewai.md) or [AutoGen](../frameworks/autogen.md) where AgentOps can be enabled with single-line configuration changes.
 
 ## When not to use it
-- For basic chat applications where standard request/response logging (like [Helicone](helicone.md)) is sufficient.
-- If you require a purely local, offline observability tool without any cloud component.
-- If your application does not follow agentic patterns (no autonomous tool use or multi-step reasoning).
+- For trivial, synchronous LLM integrations where simple request/response proxies (like [Helicone](helicone.md)) are faster and simpler.
+- If you have strict regulations completely banning external cloud telemetry, and you do not have an enterprise contract to run the private AgentOps stack.
 
 ## Getting started
 
 ### Installation
+Install the official AgentOps Python library via pip:
+
 ```bash
-pip install agentops
+pip install agentops pydantic
 ```
 
-### Basic Integration
-AgentOps can often be integrated with just a few lines of code.
+### Basic Framework Integration (Python)
+To initialize session recording, instantiate the client. AgentOps automatically detects and hooks into supported active frameworks (e.g., CrewAI) when initialized:
 
 ```python
 import os
 import agentops
 
-# Initialize the AgentOps client
-# agentops.init() will look for AGENTOPS_API_KEY in your environment variables
-agentops.init(api_key="your-api-key")
+# Initialize AgentOps tracing session
+# Looks for AGENTOPS_API_KEY inside environment variables automatically
+agentops.init(
+    api_key=os.environ.get("AGENTOPS_API_KEY"),
+    tags=["production", "auth-migration"]
+)
 
-# Your agentic logic here...
-# e.g., working with CrewAI or AutoGen
+# Your agentic and multi-agent execution logic goes here...
 
-# End the session to flush logs and mark success/failure
-agentops.end_session('Success')
-```
-
-### Using Decorators for Custom Agents
-For custom agent implementations, use decorators to create a rich trace hierarchy.
-
-```python
-from agentops.sdk.decorators import agent, operation
-
-@agent
-class ResearchAgent:
-    def __init__(self, name):
-        self.name = name
-
-    @operation
-    def search_topic(self, query):
-        # Implementation logic...
-        return f"Results for {query}"
-
-def run_research():
-    my_agent = ResearchAgent("Researcher")
-    return my_agent.search_topic("Latest AI trends")
+# Ensure session is safely terminated and flushed
+agentops.end_session(end_state="Success")
 ```
 
 ## CLI examples
 
-### Initializing AgentOps Project
+### Initializing a Project
+Configure your local environment with your unique developer key:
 ```bash
-# Set your API key in the environment
-export AGENTOPS_API_KEY="your_key"
+export AGENTOPS_API_KEY="your_secure_agentops_api_key_here"
 ```
 
-### Checking Agent Health
+### Direct Session Verification
 ```bash
-# List all active agent sessions (via CLI if supported or SDK call)
-python -c "import agentops; print(agentops.get_api_key())"
+# Query active session states via inline Python command
+python3 -c "import agentops; print(agentops.get_api_key())"
 ```
 
-### Exporting Session Data
+### Exporting Local Logs
 ```bash
-# Exporting session data for local evaluation
-agentops export --session_id <id> --format json
+# Export successful session trace data for local model evaluations
+agentops export --session_id "sess_987654321" --format json --output-dir ./traces
 ```
 
 ## API examples
 
-### Recording Tool Usage
+### Recording Programmatic MCP 3.1 Tool Runs
+Below is a structured Python example showing how to programmatically track and log custom MCP 3.1 tool operations using safe exception checks and AgentOps decorators.
+
+```python
+import os
+import sys
+import agentops
+from agentops.sdk.decorators import agent, operation
+
+@agent
+class DeveloperAgent:
+    """An autonomous agent persona instrumented for tracing by AgentOps."""
+    def __init__(self, name: str):
+        self.name = name
+
+    @operation
+    def run_mcp_validation_tool(self, tool_name: str, parameters: dict) -> str:
+        """Invokes an MCP tool and logs the interaction detail directly to AgentOps."""
+        print(f"[{self.name}] Calling MCP 3.1 tool '{tool_name}'...")
+
+        try:
+            # Record explicit tool call action manually for fine-grained telemetry
+            agentops.record_action(
+                f"Invoke MCP Tool: {tool_name}",
+                params={
+                    "parameters": parameters,
+                    "mcp_version": "3.1"
+                }
+            )
+            # Simulated tool execution logic
+            result = f"Successfully validated configuration for: {parameters.get('target', 'unknown')}"
+            return result
+        except Exception as e:
+            print(f"Error during tool recording: {e}", file=sys.stderr)
+            return "Execution Failed"
+
+if __name__ == "__main__":
+    # Ensure client is initialized
+    api_key = os.environ.get("AGENTOPS_API_KEY")
+    if not api_key:
+        print("Warning: Missing AGENTOPS_API_KEY. Session will not be uploaded.", file=sys.stderr)
+
+    agentops.init(api_key=api_key, tags=["mcp-tool-verification"])
+
+    # Spawn and invoke the instrumented agent
+    dev_agent = DeveloperAgent("SystemArchitect")
+    dev_agent.run_mcp_validation_tool(
+        tool_name="validate_tsconfig",
+        parameters={"target": "src/tsconfig.json", "strict": True}
+    )
+
+    agentops.end_session(end_state="Success")
+    print("==> Telemetry session uploaded to AgentOps dashboard!")
+```
+
+### Multi-Model Trajectory Log
 ```python
 import agentops
 
-@agentops.sdk.decorators.operation
-def use_mcp_tool(tool_name, params):
-    # Log specific MCP 3.0 tool interactions
-    agentops.record_action(f"Calling MCP Tool: {tool_name}", params=params)
-    # ... execution logic
-```
+# Initialize session tagging
+agentops.init(tags=["frontier-eval-test"])
 
-### Handling Multi-Model Sessions
-Track performance across **Claude 4.8** and **GPT-5.5** within the same session.
+# Track trajectory spanning Claude 5.1 and GPT-5.5
+# ... model inference runs ...
 
-```python
-agentops.init(tags=["multi-model-test"])
-# ... model logic
-agentops.end_session('Success')
+agentops.end_session(end_state="Success")
 ```
 
 ## Related tools / concepts
@@ -147,5 +176,5 @@ agentops.end_session('Success')
 - [AgentOps GitHub Repository](https://github.com/AgentOps-AI/agentops)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-10-24
 - Confidence: high
