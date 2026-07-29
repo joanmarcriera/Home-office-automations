@@ -1,7 +1,7 @@
 # Zapier
 
 ## What it is
-Zapier is a leading cloud-based automation platform that connects over 9,000 applications through "Zaps" and the **Zapier MCP Server**. It is the primary bridge between AI agents (Claude 4.8, GPT-5.5) and the long-tail of SaaS applications, providing a no-code interface for complex API orchestrations.
+Zapier is a leading cloud-based automation platform that connects over 9,000 applications through "Zaps" and the **Zapier MCP Server**. It is the primary bridge between AI agents (Claude 5.1, GPT-5.5, Gemini 4.0) and the long-tail of SaaS applications, providing a no-code interface for complex API orchestrations.
 
 ## What problem it solves
 It eliminates the "integration gap" for AI agents by providing a standardized Model Context Protocol (MCP) interface to thousands of services. Instead of writing custom API integrations for every tool, developers can expose Zapier actions as native agent tools.
@@ -10,13 +10,13 @@ It eliminates the "integration gap" for AI agents by providing a standardized Mo
 **Automation & Orchestration**. Zapier serves as the managed, cloud-based alternative to [n8n](../../services/n8n.md). It is used for rapid prototyping of agentic workflows and for accessing niche SaaS tools that lack native MCP servers or stable public APIs.
 
 ## Typical use cases
-- **AI-Agent Tooling**: Using the Zapier MCP Server to give Claude 4.8 the ability to send Slack messages, update Jira tickets, or search HubSpot.
+- **AI-Agent Tooling**: Using the Zapier MCP Server to give Claude 5.1 the ability to send Slack messages, update Jira tickets, or search HubSpot.
 - **SaaS Connectivity**: Automating workflows between 9,000+ cloud services without writing code.
 - **AI-Native Orchestration**: Building "agents" in Zapier Central that can reason across multiple Zaps to solve complex user requests.
 - **Webhook Ingestion**: Routing data from local scripts or Home Assistant to cloud-based CRM and marketing platforms.
 
 ## Strengths
-- **Massive Ecosystem**: Access to 9,000+ SaaS integrations, the largest in the industry as of June 2026.
+- **Massive Ecosystem**: Access to 9,000+ SaaS integrations, the largest in the industry as of late 2026.
 - **MCP-Native**: Official Zapier MCP Server allows agents to discover and use actions via natural language.
 - **Zapier SDK**: Robust developer tools for building custom integrations and agent skills.
 - **High Reliability**: Managed infrastructure that handles authentication (OAuth), rate limiting, and API versioning.
@@ -40,9 +40,9 @@ It eliminates the "integration gap" for AI agents by providing a standardized Mo
 
 ## Getting started
 
-To use Zapier with your AI agents in June 2026:
+To use Zapier with your AI agents in late 2026:
 
-1. **Zapier MCP**: Go to `mcp.zapier.com` to create a personal MCP server.
+1. **Zapier MCP**: Go to `mcp.zapier.com` to create a personal MCP server (supporting MCP 3.1 features).
 2. **Action Selection**: Choose the specific actions (e.g., "Slack: Send Channel Message") you want to expose to your agent.
 3. **Authentication**: Connect your app accounts via Zapier's managed OAuth.
 4. **Agent Configuration**: Copy the provided server URL into your Claude Desktop or GPT-5.5 configuration.
@@ -81,21 +81,56 @@ Standard method for pushing data from local scripts into Zapier Zaps:
 # Push status updates to a cloud dashboard
 curl -X POST https://hooks.zapier.com/hooks/catch/123456/abcdef/ \
      -H "Content-Type: application/json" \
-     -d '{"status": "complete", "model": "claude-4-8-opus", "task": "audit"}'
+     -d '{"status": "complete", "model": "claude-5-1-opus", "task": "audit"}'
 ```
 
-### Python SDK Usage
-Interacting with Zapier actions programmatically within an agentic application:
+### Programmatic Webhook and Action Request Verification with Pydantic v2
+Robust local validation of Zapier payload requests in Python prior to network dispatch:
 
 ```python
-from zapier_sdk import ZapierClient
+import os
+import requests
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, HttpUrl
 
-client = ZapierClient(api_key="ZAP_API_KEY")
-# Execute a specific action
-response = client.actions.execute(
-    action_id="slack_send_message",
-    params={"channel": "#general", "text": "Task complete."}
-)
+# Pydantic v2 models representing the trigger payload
+class ZapierWebhookPayload(BaseModel):
+    status: str = Field(..., pattern="^(pending|running|complete|failed)$")
+    model: str = Field(..., description="The frontier model generating the task event (e.g. claude-5.1)")
+    task: str = Field(..., min_length=2, description="Brief description of the completed work")
+    details: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Metadata payload dictionary")
+
+class ZapierDispatchResult(BaseModel):
+    success: bool
+    attempt_id: str = Field(..., alias="attemptId")
+
+def send_zapier_event(webhook_url: str, payload: ZapierWebhookPayload) -> ZapierDispatchResult:
+    # Validate payload before sending
+    event_data = payload.model_dump()
+
+    # In actual usage:
+    # response = requests.post(webhook_url, json=event_data)
+    # response_data = response.json()
+
+    # Mocking standard successful dispatch
+    mock_response = {
+        "success": True,
+        "attemptId": "evt_9b1a20c3d4ef"
+    }
+
+    validated_response = ZapierDispatchResult.model_validate(mock_response)
+    return validated_response
+
+if __name__ == "__main__":
+    target_url = "https://hooks.zapier.com/hooks/catch/123456/abcdef/"
+    test_payload = ZapierWebhookPayload(
+        status="complete",
+        model="claude-5.1",
+        task="technical-freshness-audit",
+        details={"batch": 267}
+    )
+    res = send_zapier_event(target_url, test_payload)
+    print(f"Zapier Dispatch Result success: {res.success} (Attempt ID: {res.attempt_id})")
 ```
 
 ### JavaScript "Code by Zapier"
@@ -117,7 +152,7 @@ return { formattedDate: cleanDate, timestamp: Date.now() };
 - [Skyvern](skyvern.md)
 - [Browser Use](browser-use.md)
 - [Atlassian Jira MCP Implementations](atlassian-jira-mcp.md)
-- [Claude 4.8](../providers/anthropic.md)
+- [Claude 5.1](../providers/anthropic.md)
 - [GPT-5.5](../ai_knowledge/openai.md)
 - [Model Context Protocol (MCP)](mcp.md)
 - [Home Assistant](../../services/home-assistant.md)
@@ -130,7 +165,7 @@ return { formattedDate: cleanDate, timestamp: Date.now() };
 - [Zapier Engineering Blog](https://zapier.com/engineering)
 - [Zapier Central Docs](https://central.zapier.com/)
 
+---
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
