@@ -4,7 +4,7 @@
 Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux. It comes with built-in support for JavaScript, TypeScript and Node.js and has a rich ecosystem of extensions for other languages and runtimes.
 
 ## What problem it solves
-It provides a highly extensible "middle ground" between a simple text editor and a heavy Integrated Development Environment (IDE). Its vast extension ecosystem makes it the primary platform for AI-powered development tools, allowing developers to mix and match different AI assistants and productivity tools. By June 2026, it serves as the reference implementation for the **Model Context Protocol (MCP 3.0) Task Protocol**, enabling seamless agentic orchestration between the editor and external tools.
+It provides a highly extensible "middle ground" between a simple text editor and a heavy Integrated Development Environment (IDE). Its vast extension ecosystem makes it the primary platform for AI-powered development tools, allowing developers to mix and match different AI assistants and productivity tools. As of late 2026, it serves as the reference implementation for the **Model Context Protocol (MCP 3.1) Task Protocol**, enabling seamless agentic orchestration between the editor and external tools.
 
 ## Where it fits in the stack
 **Development & Ops / Editor**. It serves as the primary interface for coding and serves as the "host" for various AI extensions like GitHub Copilot, Continue, and Codeium.
@@ -40,11 +40,11 @@ It provides a highly extensible "middle ground" between a simple text editor and
 ### Installation
 Download and install for your platform from the [official website](https://code.visualstudio.com/).
 
-### Key Extensions for AI (June 2026)
-- **GitHub Copilot**: The standard AI completion engine (now with Claude 4.8 support).
-- **Continue**: Open-source autopilot that allows using any LLM (optimized for local Ollama).
+### Key Extensions for AI (Late 2026)
+- **GitHub Copilot**: The standard AI completion engine (now with **Claude 5.1** and **Gemini 4.0** support).
+- **Continue**: Open-source autopilot that allows using any LLM (optimized for local Ollama and remote frontier APIs).
 - **Codeium**: Fast, free (for individuals) AI autocomplete and chat.
-- **MCP Extension**: Native support for Model Context Protocol servers.
+- **MCP Extension**: Native support for Model Context Protocol (MCP 3.1) servers.
 
 ## CLI examples
 
@@ -76,9 +76,9 @@ To ensure AI extensions don't interfere with standard IDE features or each other
   },
   "continue.models": [
     {
-      "title": "Claude 4.8 Opus",
+      "title": "Claude 5.1 Opus",
       "provider": "anthropic",
-      "model": "claude-4-8-opus-20260528",
+      "model": "claude-5-1-opus-20261024",
       "apiKey": "${env:ANTHROPIC_API_KEY}"
     }
   ]
@@ -102,5 +102,5 @@ To ensure AI extensions don't interfere with standard IDE features or each other
 - [Remote Development in VS Code](https://code.visualstudio.com/docs/remote/remote-overview)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

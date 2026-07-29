@@ -1,7 +1,7 @@
 # Chatbot Arena (LMSYS)
 
 ## What it is
-Chatbot Arena is a crowdsourced open platform for evaluating LLMs through human preference. Developed by LMSYS (Large Model Systems Organization), it uses an Elo rating system based on pairwise comparisons where humans vote for the better response from two anonymous models. As of June 2026, it remains the gold standard for evaluating "vibe," conversational reasoning, and nuanced helpfulness for models like **Claude 4.8**, **GPT-5.5**, and **Llama 4 Maverick**.
+Chatbot Arena is a crowdsourced open platform for evaluating LLMs through human preference. Developed by LMSYS (Large Model Systems Organization), it uses an Elo rating system based on pairwise comparisons where humans vote for the better response from two anonymous models. As of late 2026, it remains the gold standard for evaluating "vibe," conversational reasoning, and nuanced helpfulness for models like **Claude 5.1**, **GPT-5.5**, and **Llama 4**.
 
 ## What problem it solves
 It provides a human-preference-based ranking of LLMs that captures subjective quality differences not easily measured by automated, synthetic benchmarks. It counters "benchmark contamination" (where models are trained on test data) by using blind human testing on unpredictable user prompts, providing a critical counter-narrative to traditional metrics like MMLU or GSM8K.
@@ -10,8 +10,8 @@ It provides a human-preference-based ranking of LLMs that captures subjective qu
 **Benchmarking**. Serves as the primary reference leaderboard for comparing LLM quality and "reasoning density" based on real-world human interactions and preferences.
 
 ## Typical use cases
-- Tracking the rise of reasoning models (e.g., **GPT-5.5** vs. **Claude 4.8 Opus**) in specialized categories like the "Hard Prompts" leaderboard.
-- Evaluating the performance gap between frontier closed models and the latest open-weight releases like **Llama 4 Maverick**.
+- Tracking the rise of reasoning models (e.g., **GPT-5.5** vs. **Claude 5.1 Opus**) in specialized categories like the "Hard Prompts" leaderboard.
+- Evaluating the performance gap between frontier closed models and the latest open-weight releases like **Llama 4** and **Qwen 3.6**.
 - Deciding on a primary model for agentic orchestration based on its "Coding" and "Long Context" Arena scores.
 - Analyzing model drift and the impact of "alignment tuning" on conversational utility over time.
 
@@ -54,7 +54,7 @@ huggingface-cli download lmsys/chatbot_arena_conversations --repo-type dataset
 ```
 
 ### 2. Running Local Evaluation (Arena Hard)
-If you have a local model (e.g., **Llama 4 Maverick**), you can run the "Arena Hard" benchmark locally to estimate its Elo:
+If you have a local model (e.g., **Llama 4**), you can run the "Arena Hard" benchmark locally to estimate its Elo:
 ```bash
 python3 -m arena_hard.gen_answers --model-path ./models/llama-4-maverick
 python3 -m arena_hard.answer_eval --judge-model gpt-5.5
@@ -68,16 +68,20 @@ curl -X GET "https://api.lmsys.org/v1/leaderboard?category=coding&limit=5"
 
 ## API examples
 
-### 1. Python: Analyzing Win Rates
-Use the Bradley-Terry model to calculate expected win rates between two models based on their current Arena Elo:
+### 1. Python: Analyzing Win Rates with Strict Type Hints
+Use the Bradley-Terry model to calculate expected win rates between two models based on their current Arena Elo rating:
 
 ```python
-def expected_win_rate(elo_a, elo_b):
-    return 1 / (1 + 10 ** ((elo_b - elo_a) / 400))
+def expected_win_rate(elo_a: float, elo_b: float) -> float:
+    """
+    Calculates the expected probability that model A wins against model B
+    using the Elo Bradley-Terry logistic formula.
+    """
+    return 1.0 / (1.0 + 10.0 ** ((elo_b - elo_a) / 400.0))
 
-# GPT-5.5 (est. 1360) vs Claude 4.8 Opus (est. 1355)
-win_rate = expected_win_rate(1360, 1355)
-print(f"Expected Win Rate for GPT-5.5 against Claude 4.8: {win_rate:.2%}")
+# GPT-5.5 (est. 1420) vs Claude 5.1 Opus (est. 1415)
+win_rate: float = expected_win_rate(1420.0, 1415.0)
+print(f"Expected Win Rate for GPT-5.5 against Claude 5.1: {win_rate:.2%}")
 ```
 
 ### 2. Loading the Dataset for Fine-tuning
@@ -85,13 +89,14 @@ Load the human preference dataset for Reward Model training:
 
 ```python
 from datasets import load_dataset
+from typing import Any
 
-dataset = load_dataset("lmsys/chatbot_arena_conversations", split="train")
+dataset: Any = load_dataset("lmsys/chatbot_arena_conversations", split="train")
 print(f"Sample Interaction: {dataset[0]['conversation_a'][0]['content']}")
 ```
 
-### 3. MCP Leaderboard Tool call
-An agent might use an MCP tool to fetch the latest rankings before recommending a model:
+### 3. MCP Leaderboard Tool call (MCP 3.1 Schema)
+An agent might use an MCP 3.1 server tool to fetch the latest rankings before recommending a model:
 ```json
 {
   "tool": "get_arena_rankings",
@@ -112,7 +117,7 @@ An agent might use an MCP tool to fetch the latest rankings before recommending 
 - [MMLU](mmlu.md) - Massive Multitask Language Understanding (synthetic benchmark).
 - [Claude](../ai_knowledge/claude.md) - Frequent top performer in the Arena.
 - [GPT-5.5](../ai_knowledge/openai.md) - Current state-of-the-art contender.
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - High-performing open-weight model in 2026.
+- [Llama 4](../ai_knowledge/local_llms.md) - High-performing open-weight model in late 2026.
 
 ## Sources / references
 - [LMSYS Chatbot Arena Official Site](https://arena.lmsys.org/)
@@ -120,5 +125,5 @@ An agent might use an MCP tool to fetch the latest rankings before recommending 
 - [Arena Hard Auto GitHub Repository](https://github.com/lm-sys/arena-hard-auto)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
