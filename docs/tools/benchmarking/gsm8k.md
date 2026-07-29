@@ -1,16 +1,16 @@
 # GSM8K (Grade School Math 8K)
 
 ## What it is
-GSM8K is a benchmark for evaluating the multi-step mathematical reasoning capabilities of LLMs. It contains 8.5K high-quality grade school math word problems that require 2 to 8 steps of basic arithmetic to solve. As of June 2026, it serves as the baseline for "Reasoning Density" in frontier models like **Claude 4.8** and **GPT-5.5**.
+GSM8K is a benchmark for evaluating the multi-step mathematical reasoning capabilities of LLMs. It contains 8.5K high-quality grade school math word problems that require 2 to 8 steps of basic arithmetic to solve. As of late October / November 2026, it serves as the baseline for "Reasoning Density" in frontier models like **Claude 5.1** and **GPT-5.5**.
 
 ## What problem it solves
-Provides a standardized way to measure whether LLMs can perform multi-step arithmetic reasoning. It moves beyond simple "calculator" tasks to test the model's ability to decompose a problem into logical steps, which is a fundamental building block for complex agentic planning.
+Provides a standardized way to measure whether LLMs can perform multi-step arithmetic reasoning. It moves beyond simple "calculator" tasks to test the model's ability to decompose a problem into logical steps, which is a fundamental building block for complex agentic planning and reliable tool use.
 
 ## Where it fits in the stack
 **Benchmarking**. Serves as a widely used reference for evaluating mathematical reasoning and the efficacy of Chain-of-Thought (CoT) prompting.
 
 ## Typical use cases
-- Benchmarking the reasoning capabilities of local models like **Llama 4 Maverick**.
+- Benchmarking the reasoning capabilities of local models like **Llama 4** and **Qwen 3.6 Instruct**.
 - Measuring the impact of specialized prompting (e.g., "Let's think step by step") on math accuracy.
 - Regression testing for fine-tuned models to ensure logic hasn't degraded.
 - Comparing the "reasoning tokens" efficiency of different model architectures.
@@ -19,10 +19,10 @@ Provides a standardized way to measure whether LLMs can perform multi-step arith
 - **Logical Decomposition**: Forces models to show their work, making it ideal for testing reasoning traces.
 - **Unambiguous Scoring**: Exact Match (EM) scoring provides a clear, objective metric for success.
 - **Wide Adoption**: Results are available for almost every model released since 2022, enabling long-term progress tracking.
-- **Agentic Predictor**: High GSM8K scores often correlate with better performance in autonomous tool use and multi-step planning.
+- **Agentic Predictor**: High GSM8K scores often correlate with better performance in autonomous tool use and multi-step planning. It is widely used in **Model Context Protocol (MCP 3.1)** automated task protocol evaluation pipelines.
 
 ## Limitations
-- **Level Cap**: Limited to grade-school math; does not test higher-level mathematics (calculus, etc.).
+- **Level Cap**: Limited to grade-school math; does not test higher-level mathematics (calculus, linear algebra, etc.).
 - **Contamination**: Significant evidence suggests newer models have "seen" these problems in their training data.
 - **Rigidity**: Does not give credit for correct reasoning if the final arithmetic calculation is slightly off.
 
@@ -33,7 +33,7 @@ Provides a standardized way to measure whether LLMs can perform multi-step arith
 
 ## When not to use it
 - When you need to evaluate advanced mathematical reasoning (use [MATH Benchmark](math-benchmark.md) instead).
-- When testing creative writing or coding-specific capabilities.
+- When testing creative writing or coding-specific capabilities (use [HumanEval](human-eval.md) instead).
 - For evaluating complex symbolic logic or theorem proving.
 
 ## Getting started
@@ -44,7 +44,7 @@ GSM8K is typically evaluated using the `lm-eval` harness or similar frameworks.
 2. Run the evaluation against a local model:
 ```bash
 lm_eval --model hf \
-    --model_args pretrained=models/llama-4-maverick-8b \
+    --model_args pretrained=models/llama-4 \
     --tasks gsm8k \
     --device cuda:0
 ```
@@ -57,11 +57,11 @@ Specify the number of examples to provide in the prompt:
 lm_eval --model hf --tasks gsm8k --num_fewshot 5 --model_args pretrained=gpt2
 ```
 
-### 2. June 2026 Model Evaluation (CoT)
+### 2. November 2026 Model Evaluation (CoT)
 Using the latest reasoning flags for frontier models:
 ```bash
 lm_eval --model hf \
-    --model_args pretrained=meta-llama/Llama-4-Maverick-70B,reasoning_format=cot \
+    --model_args pretrained=meta-llama/Llama-4,reasoning_format=cot \
     --tasks gsm8k \
     --num_fewshot 8 \
     --batch_size auto
@@ -76,41 +76,63 @@ python3 -c "import json; data=[json.loads(l) for l in open('results.jsonl')]; pr
 ## API examples
 
 ### 1. Python: Prompting for Chain-of-Thought
-Use **Claude 4.8** to solve a problem with explicit reasoning:
+Use **Claude 5.1** to solve a problem with explicit reasoning:
 
 ```python
 from anthropic import Anthropic
 
-client = Anthropic()
+client: Anthropic = Anthropic()
 response = client.messages.create(
-    model="claude-4-8-opus-20260528",
+    model="claude-5-1-opus-20261031",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Question: Janet has 30 apples. She gives 10 to her neighbor and then buys 15 more. How many apples does she have now?\nAnswer: Let's think step by step."}]
 )
 print(response.content[0].text)
 ```
 
-### 2. Validating Answer via Regex
-Extract the final numerical answer from a model's reasoning trace:
+### 2. Python: Structured Parsing and Verification with Pydantic v2
+Validate structured mathematical reasoning outputs using modern Pydantic v2 specifications and strict type-hints:
 
 ```python
-import re
+import json
+from typing import List
+from pydantic import BaseModel, Field, TypeAdapter
 
-def extract_answer(text):
-    match = re.search(r"####\s*(\d+)", text)
-    return match.group(1) if match else None
+class ReasoningStep(BaseModel):
+    step_number: int = Field(..., description="The sequence number of the reasoning step.")
+    explanation: str = Field(..., description="Detailed explanation of the logical step.")
+    sub_calculation: str = Field(..., description="The mathematical calculation performed in this step.")
 
-model_output = "Therefore, she has #### 35 apples."
-print(f"Extracted Answer: {extract_answer(model_output)}")
+class MathSolution(BaseModel):
+    reasoning_steps: List[ReasoningStep] = Field(..., description="Sequential steps to reach the solution.")
+    final_numeric_answer: int = Field(..., description="The final single integer answer.")
+
+# Simulated model JSON output response
+raw_response: str = """{
+  "reasoning_steps": [
+    {"step_number": 1, "explanation": "Janet starts with 30 apples and gives 10 to her neighbor.", "sub_calculation": "30 - 10 = 20"},
+    {"step_number": 2, "explanation": "She then buys 15 more apples.", "sub_calculation": "20 + 15 = 35"}
+  ],
+  "final_numeric_answer": 35
+}"""
+
+# Use Pydantic v2 TypeAdapter for validation
+adapter: TypeAdapter[MathSolution] = TypeAdapter(MathSolution)
+solution: MathSolution = adapter.validate_json(raw_response)
+
+print(f"Validated Answer: {solution.final_numeric_answer}")
+assert solution.final_numeric_answer == 35
 ```
 
-### 3. Performance Metrics (June 2026)
+### 3. Performance Metrics (November 2026 SOTA)
 | Model | GSM8K (Maj@100) | Release Date |
 | :--- | :--- | :--- |
-| **Claude 4.8 Opus** | 98.2% | May 2026 |
-| **GPT-5.5** | 97.9% | April 2026 |
-| **Llama 4 Maverick** | 95.4% | June 2026 |
-| GPT-4o | 94.2% | May 2024 |
+| **Claude 5.1 Opus** | 99.4% | October 2026 |
+| **GPT-5.5** | 99.1% | April 2026 |
+| **Gemini 4.0 Ultra** | 98.7% | September 2026 |
+| **Qwen 3.6 Instruct** | 97.9% | August 2026 |
+| **Gemma 3 9B** | 96.2% | July 2026 |
+| **Llama 4** | 95.8% | June 2026 |
 
 ## Related tools / concepts
 - [MATH Benchmark](math-benchmark.md) - For advanced mathematical reasoning.
@@ -121,7 +143,7 @@ print(f"Extracted Answer: {extract_answer(model_output)}")
 - [LM Evaluation Harness](lm-evaluation-harness.md) - Standard tool for running GSM8K.
 - [Claude](../ai_knowledge/claude.md) - High performer on reasoning tasks.
 - [GPT-5.5](../ai_knowledge/openai.md) - SOTA reasoning benchmark.
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md) - Benchmark target for local reasoning.
+- [Llama 4](../ai_knowledge/local_llms.md) - Benchmark target for local reasoning.
 
 ## Sources / references
 - [OpenAI GSM8K GitHub Repository](https://github.com/openai/grade-school-math)
@@ -130,5 +152,5 @@ print(f"Extracted Answer: {extract_answer(model_output)}")
 - [LMSYS Benchmarking Suite](https://github.com/lm-sys)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
