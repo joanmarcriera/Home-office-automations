@@ -1,7 +1,7 @@
 # Cursor
 
 ## What it is
-Cursor is an AI-native fork of VS Code that integrates large language models directly into the editor's core. As of June 2026, **Cursor 3.0** introduces **Composer 3.0**, **Design Mode**, and native **MCP 3.0** support, making it the standard for high-velocity AI engineering.
+Cursor is an AI-native fork of VS Code that integrates large language models directly into the editor's core. As of late July 2026, **Cursor 3.2** introduces **Composer 3.2**, **Design Mode v2**, and native **MCP 3.1** support, making it the standard for high-velocity AI engineering.
 
 ## What problem it solves
 It eliminates the "context-switching" penalty of moving between an editor and an LLM chat interface. Cursor deeply indexes your entire codebase (locally and securely), allowing the AI to provide relevant code suggestions, perform complex refactors, and answer architectural questions with full awareness of your project's structure.
@@ -17,12 +17,12 @@ It eliminates the "context-switching" penalty of moving between an editor and an
 
 ## Strengths
 - **Native Indexing**: Extremely fast and accurate codebase awareness via local embeddings.
-- **Composer 3.0**: A powerful "multi-agent" workspace that can plan and execute complex features autonomously.
+- **Composer 3.2**: A powerful "multi-agent" workspace that can plan and execute complex features autonomously.
 - **VS Code Compatibility**: Supports all existing VS Code extensions and keybindings.
 - **Privacy First**: Offers "Local Mode" where code never leaves your machine (requires a local model like **Llama 4 Maverick**).
 
 ## Limitations
-- **Subscription Required**: Advanced features like Composer 3.0 require a paid subscription.
+- **Subscription Required**: Advanced features like Composer 3.2 require a paid subscription.
 - **Closed Source Core**: While based on VS Code, the AI integration layer is proprietary.
 - **Memory Usage**: Deep indexing of very large projects (multi-million lines) can be resource-intensive.
 
@@ -46,7 +46,7 @@ Upon first launch, Cursor will offer to index your current project. This is high
 
 1. Open a folder.
 2. Click the `Index` button in the bottom-right status bar.
-3. Select your preferred model (e.g., **Claude 4.8** or **GPT-5.5**).
+3. Select your preferred model (e.g., **Claude 5.1** or **GPT-5.5**).
 
 ## CLI examples
 
@@ -57,7 +57,7 @@ Launch Cursor in the current directory:
 cursor .
 ```
 
-### Using the Cursor CLI Agent (June 2026)
+### Using the Cursor CLI Agent (July 2026)
 Execute AI-assisted tasks directly from your shell using the new `cursor-agent` binary:
 
 ```bash
@@ -65,7 +65,7 @@ cursor-agent "Update all API endpoints to use the v3 schema"
 ```
 
 ### Managing MCP Servers
-Cursor 3.0 allows you to manage **MCP 3.0** servers via the CLI:
+Cursor 3.2 allows you to manage **MCP 3.1** servers via the CLI:
 
 ```bash
 cursor-mcp add-server "npx @modelcontextprotocol/server-postgres"
@@ -102,6 +102,35 @@ Expose local scripts as tools that Cursor can use in Composer sessions:
 }
 ```
 
+### Programmatic Setup with Pydantic v2
+Validate local workspace config and agent limits securely before initiating composer pipelines:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class CursorConfig(BaseModel):
+    model: str = Field(default="claude-5.1")
+    enable_mcp: bool = Field(default=True, alias="enableMCP")
+    indexing_excludes: List[str] = Field(default_factory=list, alias="indexingExcludes")
+    mcp_servers: List[str] = Field(default_factory=list, alias="mcpServers")
+
+    class Config:
+        populate_by_name = True
+
+# Parse and validate setup configuration
+config_data = {
+    "model": "claude-5.1",
+    "enableMCP": True,
+    "indexingExcludes": ["**/node_modules/**", "**/dist/**"],
+    "mcpServers": ["npx @modelcontextprotocol/server-postgres"]
+}
+
+session = CursorConfig.model_validate(config_data)
+print(f"Validated model: {session.model}")
+print(f"MCP Servers: {session.mcp_servers}")
+```
+
 ## Related tools / concepts
 - [VS Code](../development_ops/vscode.md) — The foundation for Cursor.
 - [Windsurf](../development_ops/windsurf.md) — A direct competitor with "Flow" based orchestration.
@@ -116,8 +145,8 @@ Expose local scripts as tools that Cursor can use in Composer sessions:
 ## Sources / references
 - [Cursor Official Website](https://cursor.com/)
 - [Cursor Forum / Community](https://forum.cursor.com/)
-- [Documentation: Composer 3.0](https://docs.cursor.com/composer)
+- [Documentation: Composer](https://docs.cursor.com/composer)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-29
 - Confidence: high

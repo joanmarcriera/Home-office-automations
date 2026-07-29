@@ -66,7 +66,7 @@ npx continue-index .
 You can use the Continue CLI to manage your local config programmatically:
 
 ```bash
-continue config set models.default "anthropic/claude-4-8-opus"
+continue config set models.default "anthropic/claude-5.1"
 ```
 
 ### Checking Context Provider Health
@@ -78,16 +78,16 @@ continue doctor
 
 ## API examples
 
-### config.json with Native MCP Support (June 2026)
-As of June 2026, Continue supports [Model Context Protocol](../automation_orchestration/mcp.md) servers directly in the configuration:
+### config.json with Native MCP Support (July 2026)
+As of July 2026, Continue supports [Model Context Protocol](../automation_orchestration/mcp.md) servers directly in the configuration (supporting MCP 3.1):
 
 ```json
 {
   "models": [
     {
-      "title": "Claude 4.8 Opus",
+      "title": "Claude 5.1",
       "provider": "anthropic",
-      "model": "claude-4-8-opus-20260528"
+      "model": "claude-5.1-opus-20260715"
     }
   ],
   "contextProviders": [
@@ -119,6 +119,45 @@ export async function getCustomContext(query: string) {
 }
 ```
 
+### Programmatic Setup with Pydantic v2
+Validate the `config.json` structure programmatically to ensure flawless IDE extension loading:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+
+class ModelConfig(BaseModel):
+    title: str
+    provider: str
+    model: str
+
+class ContextProviderConfig(BaseModel):
+    name: str
+    params: Dict[str, Any] = Field(default_factory=dict)
+
+class ContinueConfig(BaseModel):
+    models: List[ModelConfig] = Field(default_factory=list)
+    context_providers: List[ContextProviderConfig] = Field(default_factory=list, alias="contextProviders")
+
+    class Config:
+        populate_by_name = True
+
+# Validate a potential config payload
+raw_data = {
+    "models": [
+        {"title": "Claude 5.1", "provider": "anthropic", "model": "claude-5.1"}
+    ],
+    "contextProviders": [
+        {"name": "mcp", "params": {"url": "http://localhost:3000/mcp"}},
+        {"name": "codebase", "params": {}}
+    ]
+}
+
+parsed_config = ContinueConfig.model_validate(raw_data)
+print(f"Validated models count: {len(parsed_config.models)}")
+print(f"First model title: {parsed_config.models[0].title}")
+```
+
 ## Related tools / concepts
 - [Cursor](cursor.md) — The leading AI-native IDE fork.
 - [Zed](zed.md) — High-performance Rust editor with native AI features.
@@ -138,5 +177,5 @@ export async function getCustomContext(query: string) {
 - [MCP Integration Guide](https://docs.continue.dev/customization/context-providers#mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-29
 - Confidence: high

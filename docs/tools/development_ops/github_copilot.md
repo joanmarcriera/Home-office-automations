@@ -19,7 +19,7 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 ## Strengths
 - Deep integration with GitHub ecosystem (Issues, PRs, Actions).
 - Supported in many popular IDEs (VS Code, JetBrains, Visual Studio, Neovim).
-- Support for multiple frontier models, including [GPT-5.5](../ai_knowledge/openai.md) and [Claude 4.8 Opus](../ai_knowledge/claude.md).
+- Support for multiple frontier models, including [GPT-5.5](../ai_knowledge/openai.md) and [Claude 5.1](../providers/anthropic.md).
 - Enterprise-grade security and compliance features.
 
 ## Limitations
@@ -30,10 +30,10 @@ Speeds up coding by generating inline code suggestions, reducing the time spent 
 ## When to use it
 - When you want a well-supported, mainstream AI code completion tool.
 - When working within the GitHub ecosystem.
-- When you need to toggle between different frontier models (GPT-5.5 vs Claude 4.8) for different tasks.
+- When you need to toggle between different frontier models (GPT-5.5 vs Claude 5.1) for different tasks.
 
 ## When not to use it
-- When strict local-only code processing is required (consider [Ollama](../../services/ollama.md) + [Continue](continue.md)).
+- When strict local-only code processing is required (consider [Ollama](../../services/ollama.md) + [Continue](continue_dev.md)).
 - When you prefer a free alternative (consider [Codeium](codeium.md)).
 
 ## Getting started
@@ -45,10 +45,10 @@ GitHub Copilot is available as an extension for VS Code, Visual Studio, JetBrain
 2. **Auth**: Sign in to your GitHub account with an active Copilot subscription.
 3. **Use**: Start typing to see inline suggestions, or press `Cmd+I` (Mac) / `Ctrl+I` (Windows) to open the inline chat.
 
-### Model Selection (June 2026)
+### Model Selection (July 2026)
 You can now select your preferred model in the Copilot Chat settings:
 - **Default**: GPT-5.5 (Optimized for speed and general coding).
-- **Advanced Reasoning**: Claude 4.8 Opus (Optimized for complex architectural tasks).
+- **Advanced Reasoning**: Claude 5.1 (Optimized for complex architectural tasks).
 
 ## CLI examples
 
@@ -84,6 +84,44 @@ export async function handleRequest(request) {
 }
 ```
 
+### Programmatic Python Setup (Pydantic v2)
+Validate enterprise configuration properties and model routing policies:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Literal, Optional
+
+class EnterprisePolicy(BaseModel):
+    allowed_models: List[str] = Field(default_factory=list, alias="allowedModels")
+    allow_telemetry: bool = Field(default=False, alias="allowTelemetry")
+    blocked_patterns: List[str] = Field(default_factory=list, alias="blockedPatterns")
+
+class CopilotConfig(BaseModel):
+    user_model: Literal["gpt-5.5", "claude-5.1"] = Field(default="gpt-5.5")
+    enable_autocomplete: bool = Field(default=True)
+    policy: Optional[EnterprisePolicy] = None
+
+    class Config:
+        populate_by_name = True
+
+# Validate active policy configuration
+config_data = {
+    "user_model": "claude-5.1",
+    "enable_autocomplete": True,
+    "policy": {
+        "allowedModels": ["gpt-5.5", "claude-5.1"],
+        "allowTelemetry": False,
+        "blockedPatterns": ["**/*.key", "**/*.pem"]
+    }
+}
+
+config = CopilotConfig.model_validate(config_data)
+print(f"Validated Model selection: {config.user_model}")
+if config.policy:
+    print(f"Telemetry allowed: {config.policy.allow_telemetry}")
+    print(f"Blocked path patterns count: {len(config.policy.blocked_patterns)}")
+```
+
 ## Related tools / concepts
 - [Codeium](codeium.md) — Fast, free AI coding assistant.
 - [Tabnine](tabnine.md) — Privacy-focused AI pair programmer.
@@ -100,5 +138,5 @@ export async function handleRequest(request) {
 - [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-29
 - Confidence: high

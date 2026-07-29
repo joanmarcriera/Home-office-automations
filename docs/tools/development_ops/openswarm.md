@@ -1,7 +1,7 @@
 # OpenSwarm
 
 ## What it is
-OpenSwarm is a multi-agent orchestrator for the Claude CLI, designed specifically for managing workflows on platforms like Linear and GitHub. It leverages the agentic capabilities of Claude to automate repetitive development and project management tasks. As of June 2026, OpenSwarm features native support for the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol, enabling seamless coordination of complex, long-running agentic tasks.
+OpenSwarm is a multi-agent orchestrator for the Claude CLI, designed specifically for managing workflows on platforms like Linear and GitHub. It leverages the agentic capabilities of Claude to automate repetitive development and project management tasks. As of late July 2026, OpenSwarm features native support for the **Model Context Protocol (MCP 3.1)** Task Protocol, enabling seamless coordination of complex, long-running agentic tasks.
 
 ## What problem it solves
 It simplifies the coordination of multiple AI agents performing complex, interdependent tasks across project management and version control systems, reducing the manual overhead of managing individual agent runs. It bridges the gap between raw LLM APIs and the specific workflows used by engineering teams.
@@ -20,7 +20,7 @@ It simplifies the coordination of multiple AI agents performing complex, interde
 - **Workflow Focused**: Specifically tuned for the tools developers use most (Linear, GitHub).
 - **Open Source**: Allows for community customization and extension.
 - **Scalable**: Can manage a "swarm" of agents working in parallel on different parts of a project.
-- **Frontier Model Ready**: Optimized for [Claude 4.8 Opus](../ai_knowledge/claude.md) and [GPT-5.5](../ai_knowledge/openai.md).
+- **Frontier Model Ready**: Optimized for [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
 
 ## Limitations
 - **Narrow Ecosystem**: Primarily focused on Linear and GitHub; may require custom work for other integrations.
@@ -87,10 +87,47 @@ import { OpenSwarm } from '@intrect/openswarm';
 
 const swarm = new OpenSwarm({
   provider: 'anthropic',
-  model: 'claude-4-8-opus-20260528'
+  model: 'claude-5.1-opus-20260715'
 });
 
 await swarm.dispatch('linear', 'triage', { team: 'ENG' });
+```
+
+### Programmatic Python Session Handler (Pydantic v2)
+Manage the state of multi-agent execution safely using Pydantic validation:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Literal, Optional
+
+class AgentTask(BaseModel):
+    agent_id: str = Field(..., alias="agentId")
+    strategy: Literal["security", "performance", "style", "triage"]
+    max_duration_seconds: int = Field(default=300, alias="maxDurationSeconds")
+
+class SwarmDispatchConfig(BaseModel):
+    session_id: str = Field(..., alias="sessionId")
+    provider: str = Field(default="anthropic")
+    model: str = Field(default="claude-5.1")
+    tasks: List[AgentTask] = Field(default_factory=list)
+
+    class Config:
+        populate_by_name = True
+
+# Validate active dispatcher session
+dispatch_payload = {
+    "sessionId": "swarm-session-abc-123",
+    "provider": "anthropic",
+    "model": "claude-5.1",
+    "tasks": [
+        {"agentId": "agent-1", "strategy": "security", "maxDurationSeconds": 600},
+        {"agentId": "agent-2", "strategy": "triage"}
+    ]
+}
+
+config = SwarmDispatchConfig.model_validate(dispatch_payload)
+print(f"Validated swarm session: {config.session_id}")
+print(f"Dispatched {len(config.tasks)} agents using model {config.model}")
 ```
 
 ## Related tools / concepts
@@ -109,5 +146,5 @@ await swarm.dispatch('linear', 'triage', { team: 'ENG' });
 - [Anthropic Claude CLI Documentation](https://docs.anthropic.com/claude/docs/claude-cli)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-29
 - Confidence: high
