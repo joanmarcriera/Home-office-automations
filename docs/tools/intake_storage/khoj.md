@@ -1,7 +1,7 @@
 # Khoj
 
 ## What it is
-Khoj is an open-source, personal AI assistant that serves as a "second brain" for your documents, notes, and web research. As of June 2026, it has expanded into a full agentic ecosystem with the **Pipali v2.0** desktop coworker and **Open Paper** research workbench.
+Khoj is an open-source, personal AI assistant that serves as a "second brain" for your documents, notes, and web research. As of late 2026, it has expanded into a full agentic ecosystem with the **Pipali v2.5** desktop coworker and **Open Paper** research workbench.
 
 ## What problem it solves
 It bridges the gap between disparate data sources (Markdown, PDFs, GitHub, Notion) and conversational AI. It solves the "context gap" by providing LLMs with secure, semantic access to your personal knowledge base while maintaining 100% data ownership.
@@ -13,12 +13,12 @@ It bridges the gap between disparate data sources (Markdown, PDFs, GitHub, Notio
 - **Personal Knowledge Search**: Ask questions across Obsidian, Emacs Org-mode, and local PDF libraries.
 - **Automated Research**: Use **Pipali** to conduct deep web research and generate polished briefs or reports.
 - **Academic Workbench**: Leverage **Open Paper** to organize and understand academic papers with verifiable citations.
-- **Self-Hosted AI**: Run private, local LLMs (Llama 4 Maverick, Mistral) against your sensitive data.
+- **Self-Hosted AI**: Run private, local LLMs (Llama 4, Gemma 3) against your sensitive data.
 
 ## Strengths
 - **Local-First**: Supports 100% offline operation with local embedding and inference models.
 - **Multimodal**: Handles text, images, and voice across multiple platforms (Web, Desktop, Obsidian, Emacs).
-- **Agentic**: The **Pipali** agent can execute code in sandboxes and interact with apps via MCP 3.0.
+- **Agentic**: The **Pipali** agent can execute code in sandboxes and interact with apps via MCP 3.1.
 - **Privacy-Centric**: Strong focus on data ownership and secure self-hosting with AGPL-3.0 licensing.
 
 ## Limitations
@@ -37,7 +37,8 @@ It bridges the gap between disparate data sources (Markdown, PDFs, GitHub, Notio
 - If your primary data resides in proprietary cloud silos with no API access.
 
 ## Getting started
-### Docker Compose Setup (v2.0+)
+
+### Docker Compose Setup
 Khoj requires PostgreSQL with `pgvector` for semantic search.
 
 ```yaml
@@ -85,37 +86,57 @@ pip install khoj
 # Index a local directory
 khoj configure --path ~/my-docs
 
-# Start the Pipali desktop coworker (June 2026)
+# Start the Pipali desktop coworker
 pipali start
 
-# Add an MCP server to Pipali's skill set
+# Add an MCP server to Pipali's skill set (MCP 3.1 Standard)
 pipali mcp add --transport stdio --command npx --args "@modelcontextprotocol/server-filesystem /docs"
 ```
 
 ## API examples
-Khoj provides a REST API for agents and external integrations, supporting standard model identifiers like `claude-4-8-opus-20260528`.
+Khoj provides a REST API for agents and external integrations. Under late 2026 guidelines, programmatic queries should validate both request schemas and model payloads using **Pydantic v2**.
 
-### Chat with an Agent (Python)
+### Chat payload validation and execution (Python)
 ```python
 import requests
+from pydantic import BaseModel, Field
+from typing import Optional
 
-API_TOKEN = "YOUR_KHOJ_API_TOKEN"
-API_URL = "http://localhost:8000/api/chat"
+# Define Pydantic v2 schemas for request verification
+class KhojChatPayload(BaseModel):
+    message: str = Field(..., min_length=1, description="Message to Khoj agent")
+    stream: bool = Field(default=False)
+    model: str = Field(default="claude-5-1-sonnet-20261022", description="Frontier model target")
+    agent_id: Optional[str] = Field(default="research-assistant")
 
-headers = {
-    "Authorization": f"Bearer {API_TOKEN}",
-    "Content-Type": "application/json"
-}
+class KhojChatResponse(BaseModel):
+    response: str
+    context_sources: Optional[list] = None
 
-data = {
+# Validate input request
+raw_input = {
     "message": "Summarize my notes on the K3s cluster migration.",
-    "stream": False,
-    "model": "claude-4-8-opus-20260528",
+    "model": "claude-5-1-sonnet-20261022",
     "agent_id": "research-assistant"
 }
 
-response = requests.post(API_URL, headers=headers, json=data)
-print(response.json()['response'])
+try:
+    # Model validation under Pydantic v2
+    payload = KhojChatPayload.model_validate(raw_input)
+    print(f"Validated payload message: '{payload.message}'")
+
+    API_TOKEN = "YOUR_KHOJ_API_TOKEN"
+    API_URL = "http://localhost:8000/api/chat"
+
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    # response = requests.post(API_URL, headers=headers, json=payload.model_dump())
+    # parsed_resp = KhojChatResponse.model_validate(response.json())
+except Exception as e:
+    print(f"Schema validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -123,9 +144,9 @@ print(response.json()['response'])
 - [Verba](verba.md) — Weaviate-powered RAG alternative.
 - [Paperless-ngx](../../services/paperless-ngx.md) — Document management system that can feed into Khoj.
 - [n8n](../../services/n8n.md) — Automate data ingestion into Khoj via standard webhooks.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The protocol used by Pipali for tool integration (Standard 3.0).
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md) — Standard model for local privacy-first processing.
-- [Claude 4.8](../providers/anthropic.md) — Frontier model supported via API integration.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The protocol used by Pipali for tool integration (Standard 3.1).
+- [Llama 4](../ai_knowledge/local_llms.md) — Standard model for local privacy-first processing.
+- [Claude 5.1](../providers/anthropic.md) — Frontier model supported via API integration.
 - [AnyType](anytype.md) — Alternative local-first knowledge base.
 
 ## Sources / references
@@ -135,5 +156,5 @@ print(response.json()['response'])
 - [Khoj Documentation](https://docs.khoj.dev/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

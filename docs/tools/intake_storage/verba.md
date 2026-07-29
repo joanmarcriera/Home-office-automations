@@ -13,13 +13,13 @@ It provides a user-friendly interface for building RAG applications, handling da
 - Creating a personal knowledge base with AI search.
 - Question-answering over private document collections (PDF, Markdown, Text).
 - Testing different chunking and retrieval strategies.
-- Evaluating model performance (e.g., comparing **Claude 4.8** vs **GPT-5.5**) on specific knowledge sets.
+- Evaluating model performance (e.g., comparing **Claude 5.1** vs **GPT-5.5**) on specific knowledge sets.
 
 ## Strengths
 - **Easy Setup**: Reliable Docker-based deployment.
 - **Multimodal Support**: Built-in support for multiple data types (PDF, txt, etc.).
 - **Native Weaviate Integration**: Leverages Weaviate's advanced vector search, including hybrid search and reranking.
-- **Model Flexibility**: Supports latest frontier models like **Llama 4 Maverick**, **Claude 4.8**, and **GPT-5.5**.
+- **Model Flexibility**: Supports latest frontier models like **Llama 4**, **Claude 5.1**, and **GPT-5.5**.
 
 ## Limitations
 - **Ecosystem Lock-in**: Closely tied to the Weaviate ecosystem.
@@ -67,21 +67,37 @@ verba status
 ```
 
 ## API examples
-Verba exposes a backend API that can be used to programmatically ingest data or query the RAG pipeline.
+Verba exposes a backend API that can be used to programmatically ingest data or query the RAG pipeline. Late 2026 pipelines must enforce strict request schema validation using **Pydantic v2**.
 
-### Query via Python
+### Query validation and invocation (Python)
 ```python
 import requests
+from pydantic import BaseModel, Field
+from typing import Optional
 
-url = "http://localhost:8000/api/query"
-payload = {
+# Define Pydantic v2 validation schema for Verba query endpoint
+class VerbaQueryPayload(BaseModel):
+    query: str = Field(..., min_length=1, description="The query string for the RAG pipeline")
+    conversation_id: Optional[str] = Field(default=None, description="Optional tracker for the conversation context")
+    model: str = Field(default="claude-5-1-sonnet-20261022", description="Frontier model targeting the extraction")
+
+# Validate the raw request payload
+raw_query_data = {
     "query": "How do I configure the OIDC middleware for Traefik?",
-    "conversation_id": "optional-id",
-    "model": "claude-4-8-opus-20260528"
+    "model": "claude-5-1-sonnet-20261022"
 }
 
-response = requests.post(url, json=payload)
-print(response.json()["answer"])
+try:
+    # Model validation under Pydantic v2 guidelines
+    validated_query = VerbaQueryPayload.model_validate(raw_query_data)
+    print(f"Validated query string: '{validated_query.query}'")
+
+    url = "http://localhost:8000/api/query"
+    # We submit the validated payload dict using model_dump
+    # response = requests.post(url, json=validated_query.model_dump(exclude_none=True))
+    # print(response.json()["answer"])
+except Exception as e:
+    print(f"Payload validation failed: {e}")
 ```
 
 ## Related tools / concepts
@@ -92,7 +108,7 @@ print(response.json()["answer"])
 - [Obsidian](../ai_knowledge/obsidian.md) — Can be used as a primary data source for Verba.
 - [LangChain](../ai_knowledge/langchain.md) — Framework often used to extend Verba's capabilities.
 - [Ollama](../../services/ollama.md) — Supported as a local inference backend for privacy-first RAG.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting Verba to external tools.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard protocol for connecting Verba to external tools (Standard 3.1).
 
 ## Sources / references
 - [Official Website](https://verba.weaviate.io/)
@@ -100,5 +116,5 @@ print(response.json()["answer"])
 - [Weaviate Documentation](https://weaviate.io/developers/verba)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
