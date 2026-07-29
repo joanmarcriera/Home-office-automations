@@ -4,7 +4,7 @@
 An open-source library and platform for pre-processing and "unstructuring" messy data (PDFs, HTML, Word docs) into AI-ready formats. It is a foundational tool for building high-quality RAG pipelines.
 
 ## What problem it solves
-It automates the ingestion of diverse document types, handling complex layouts and extracting clean text and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that LLMs like **Claude 4.8 Opus** and **GPT-5.5** receive structured, high-signal context.
+It automates the ingestion of diverse document types, handling complex layouts and extracting clean text and metadata. It eliminates the "garbage in, garbage out" problem by ensuring that LLMs like **Claude 5.1** and **GPT-5.5** receive structured, high-signal context.
 
 ## Where it fits in the stack
 **Category**: Intake & Storage / Data Processing. It acts as the "ETL for LLMs," sitting between raw data sources and vector databases.
@@ -13,13 +13,13 @@ It automates the ingestion of diverse document types, handling complex layouts a
 - **RAG Pipelines**: Extracting text and metadata from varied document sets for ingestion into [Weaviate](../infrastructure/weaviate.md) or [Pinecone](../infrastructure/pinecone.md).
 - **Data Lake Hydration**: Normalizing disparate document formats (PDF, Word, Email) into a standard JSON/Markdown format.
 - **Knowledge Graph Construction**: Extracting structured elements and relationships from messy documents.
-- **Agentic Workflows**: Using the [Model Context Protocol (MCP 3.0)](../automation_orchestration/mcp.md) to give agents real-time parsing capabilities.
+- **Agentic Workflows**: Using the [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) to give agents real-time parsing capabilities.
 
 ## Strengths
 - **Broad Format Support**: Handles 20+ file types including PDF, HTML, Word, and PowerPoint.
 - **Open-Source & Local**: Can be run fully offline without data leaving your infrastructure.
 - **Layout Awareness**: Not just OCR; it understands headers, lists, and tables.
-- **June 2026 Optimized**: Fully supports **Llama 4 Maverick** tokenization and native [MCP 3.0](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
+- **November 2026 Optimized**: Fully supports **Llama 4** tokenization and native [MCP 3.1](../automation_orchestration/mcp.md) integration via the `UNS-MCP` server.
 
 ## Limitations
 - **Resource Intensive**: Complex partitioning (especially with vision models) requires significant CPU/GPU.
@@ -34,17 +34,6 @@ It automates the ingestion of diverse document types, handling complex layouts a
 ## When not to use it
 - For very simple text files or clean Markdown where standard readers suffice.
 - If you need real-time, low-latency parsing (it is optimized for batch ETL).
-
-## Partitioning Strategies
-The Unstructured library offers several strategies for preprocessing documents, specified via the `strategy` parameter.
-
-| Strategy | Type | Best For | Trade-offs |
-| :--- | :--- | :--- | :--- |
-| `auto` | Hybrid | Most documents | Default; balances speed and accuracy automatically. |
-| `fast` | Rule-based | Plain text / clean PDFs | 100x faster than model-based; fails on tables/images. |
-| `hi_res` | Model-based | Complex layouts / Tables | Highest accuracy for structural elements; slower. |
-| `ocr_only` | Model-based | Scanned docs / Images | Pure OCR approach; ignores non-image text paths. |
-| `vlm` | Vision-model | Challenging/Handwritten | Uses Vision Language Models for maximum semantic recovery. |
 
 ## Getting started
 
@@ -113,6 +102,17 @@ for chunk in elements:
     print(f"Content: {chunk.text[:50]}...")
 ```
 
+### Partitioning Strategies
+The Unstructured library offers several strategies for preprocessing documents, specified via the `strategy` parameter.
+
+| Strategy | Type | Best For | Trade-offs |
+| :--- | :--- | :--- | :--- |
+| `auto` | Hybrid | Most documents | Default; balances speed and accuracy automatically. |
+| `fast` | Rule-based | Plain text / clean PDFs | 100x faster than model-based; fails on tables/images. |
+| `hi_res` | Model-based | Complex layouts / Tables | Highest accuracy for structural elements; slower. |
+| `ocr_only` | Model-based | Scanned docs / Images | Pure OCR approach; ignores non-image text paths. |
+| `vlm` | Vision-model | Challenging/Handwritten | Uses Vision Language Models for maximum semantic recovery. |
+
 ## CLI examples
 ```bash
 # Process a local directory and output JSON
@@ -130,32 +130,53 @@ unstructured-ingest s3 \
   --anonymous \
   --recursive
 
-# Start the UNS-MCP server (June 2026)
-uvx uns_mcp
+# Start the UNS-MCP server (November 2026 Standard)
+uvx uns_mcp --mcp-version 3.1
 ```
 
 ## API examples
+The Unstructured REST API provides scalable document processing. Python integrations in late 2026 must utilize robust **Pydantic v2** validation to model API parameters and parsed results.
+
+### Unstructured API Payload Validation (Python)
 ```python
 import requests
+from pydantic import BaseModel, Field
+from typing import Optional, List
 
-url = "https://api.unstructured.io/general/v0/general"
-headers = {"Accept": "application/json", "unstructured-api-key": "YOUR_API_KEY"}
-files = {"files": open("example.pdf", "rb")}
+# Define a robust Pydantic v2 model for the API requests
+class UnstructuredAPIRequest(BaseModel):
+    strategy: str = Field(default="hi_res", pattern="^(hi_res|fast|auto|ocr_only|vlm)$")
+    coordinates: bool = Field(default=False)
+    output_format: str = Field(default="application/json")
+    extract_image_block_types: Optional[List[str]] = Field(default=None)
+    languages: Optional[List[str]] = Field(default=None)
 
-# Add strategy and coordinates parameters
-data = {
+# Sample parameters
+raw_params = {
     "strategy": "hi_res",
-    "coordinates": "true"
+    "coordinates": True,
+    "languages": ["eng"]
 }
 
-response = requests.post(url, headers=headers, files=files, data=data)
-print(response.json())
-```
+try:
+    # Validate payload under Pydantic v2 guidelines
+    validated_payload = UnstructuredAPIRequest.model_validate(raw_params)
+    print(f"Successfully validated API request parameters: {validated_payload.model_dump()}")
 
-## Licensing and cost
-- **Open Source**: Yes (Apache 2.0)
-- **Cost**: Free (Self-hosted) / Paid (Unstructured API / Platform)
-- **Self-hostable**: Yes
+    url = "https://api.unstructured.io/general/v0/general"
+    headers = {
+        "Accept": "application/json",
+        "unstructured-api-key": "YOUR_API_KEY"
+    }
+
+    # We send the validated payload alongside files
+    files = {"files": ("example.pdf", open("example.pdf", "rb"))}
+    data = validated_payload.model_dump(mode="json")
+
+    # response = requests.post(url, headers=headers, files=files, data=data)
+except Exception as e:
+    print(f"Validation failed: {e}")
+```
 
 ## Related tools / concepts
 - [LlamaParse](llamaparse.md)
@@ -163,9 +184,9 @@ print(response.json())
 - [Docling](../process_understanding/docling.md)
 - [RAG Pattern](../../knowledge_base/patterns/rag-pattern.md)
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
-- [Claude 4.8](../providers/anthropic.md)
+- [Claude 5.1](../providers/anthropic.md)
 - [GPT-5.5](../ai_knowledge/openai.md)
-- [Llama 4 Maverick](../ai_knowledge/local_llms.md)
+- [Llama 4](../ai_knowledge/local_llms.md)
 - [Weaviate](../infrastructure/weaviate.md)
 - [Khoj](khoj.md)
 
@@ -176,5 +197,5 @@ print(response.json())
 - [Unstructured MCP Server (UNS-MCP)](https://github.com/Unstructured-IO/UNS-MCP)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
