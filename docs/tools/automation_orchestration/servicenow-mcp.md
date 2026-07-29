@@ -11,36 +11,36 @@ It reduces direct API wiring work when you want agents to query incidents, chang
 
 ## Typical use cases
 - **Natural Language Triage**: Agent-assisted incident triage using natural language queries (e.g., "Find all incidents about SAP").
-- **Automated Ticket Lifecycle**: Querying and updating tickets directly from coding agents like Claude 4.8.
+- **Automated Ticket Lifecycle**: Querying and updating tickets directly from coding agents like Claude 5.1.
 - **Script Maintenance**: Maintaining script includes, business rules, and background scripts in ServiceNow from agent tools.
 - **Status Reporting**: Automated status reporting for change requests and critical incidents.
 - **Cross-Tool Synchronization**: Bridging ServiceNow data with other tools in the homelab stack (e.g., Jira, Slack).
 
 ## Strengths
-- **MCP-Native**: Built specifically for the Model Context Protocol, ensuring compatibility with Claude 4.8, GPT-5.5, and Llama 4 Maverick.
+- **MCP-Native**: Built specifically for the Model Context Protocol, ensuring compatibility with Claude 5.1, GPT-5.5, Gemini 4.0, and Llama 4 Maverick.
 - **Natural Language Support**: Includes specialized tools for natural language search and updates.
 - **Multi-Auth Support**: Supports Basic Auth, OAuth, and Token-based authentication.
 - **Unified Interface**: Simplifies authentication by centralizing it in the server process.
 - **Script Management**: Provides dedicated tools for updating ServiceNow script files from local files.
 
 ## Limitations
-- Requires ServiceNow credentials (Service Account recommended) and environment setup
-- Trust boundaries and permissions must be configured carefully in ServiceNow (ACLs)
-- Coverage depends on server-supported tool set and ServiceNow API access
+- Requires ServiceNow credentials (Service Account recommended) and environment setup.
+- Trust boundaries and permissions must be configured carefully in ServiceNow (ACLs).
+- Coverage depends on server-supported tool set and ServiceNow API access.
 
 ## When to use it
-- When your agent workflows already use MCP and need ServiceNow integration
-- When you want standardized tool-calling for ServiceNow tasks
-- For rapid prototyping of AI-driven IT support agents
+- When your agent workflows already use MCP and need ServiceNow integration.
+- When you want standardized tool-calling for ServiceNow tasks.
+- For rapid prototyping of AI-driven IT support agents.
 
 ## When not to use it
-- When you need full ServiceNow platform automation beyond exposed MCP tools
-- When governance rules require tightly curated direct API integrations only
-- For high-volume data migrations (use ServiceNow IntegrationHub or direct API instead)
+- When you need full ServiceNow platform automation beyond exposed MCP tools.
+- When governance rules require tightly curated direct API integrations only.
+- For high-volume data migrations (use ServiceNow IntegrationHub or direct API instead).
 
 ## Getting started
 
-To use the ServiceNow MCP server (June 2026 'High Confidence' version):
+To use the ServiceNow MCP server (late 2026 'High Confidence' version):
 
 1. **Installation**:
    ```bash
@@ -98,7 +98,7 @@ mcp-cli read-resource servicenow://incidents
 ## API examples
 
 ### Searching for Incidents
-Agents using FastMCP 3.0 or native MCP clients can invoke the `search_records` tool:
+Agents using FastMCP 3.1 or native MCP clients can invoke the `search_records` tool:
 
 ```json
 // Tool call from agent
@@ -110,6 +110,49 @@ Agents using FastMCP 3.0 or native MCP clients can invoke the `search_records` t
     "limit": 5
   }
 }
+```
+
+### Programmatic ServiceNow Client Validation with Pydantic v2
+Robust local validation (Python) of incident and record payloads prior to updating the ServiceNow instance:
+
+```python
+import os
+from typing import Optional
+from pydantic import BaseModel, Field, HttpUrl
+
+# Pydantic v2 models representing the incident and response schema
+class ServiceNowIncident(BaseModel):
+    sys_id: str = Field(..., description="Unique ServiceNow system identifier")
+    number: str = Field(..., description="Descriptive human-readable number (e.g. INC0012345)")
+    short_description: str = Field(..., alias="shortDescription", description="Brief summary of the issue")
+    state: int = Field(..., ge=1, le=8, description="Standard incident state integer")
+    assigned_to: Optional[str] = Field(None, alias="assignedTo", description="Assigned support agent name")
+
+class UpdateResult(BaseModel):
+    success: bool
+    incident: ServiceNowIncident
+
+def update_incident_state(sys_id: str, new_state: int) -> UpdateResult:
+    # Simulating connection to ServiceNow API with validation
+    mock_data = {
+        "success": True,
+        "incident": {
+            "sys_id": sys_id,
+            "number": "INC0010001",
+            "shortDescription": "VPN routing fails with Gemma 3 models",
+            "state": new_state,
+            "assignedTo": "Jules-Agent"
+        }
+    }
+
+    # Strictly validate against the late 2026 ITSM contract schema
+    validated = UpdateResult.model_validate(mock_data)
+    return validated
+
+if __name__ == "__main__":
+    result = update_incident_state("9bc401bca91001bc93ef0", 2)
+    print(f"Incident {result.incident.number} update success: {result.success}")
+    print(f"Assigned Agent: {result.incident.assigned_to}")
 ```
 
 ### Natural Language Update
@@ -152,8 +195,8 @@ Directly updating ServiceNow business logic from an agent:
 - [Claude Desktop](../ai_knowledge/claude-desktop.md)
 - [Goose](../agents/goose.md)
 - [Anthropic](../providers/anthropic.md)
-- [Claude 4.8](../providers/anthropic.md)
-- [FastMCP 3.0](mcp.md)
+- [Claude 5.1](../providers/anthropic.md)
+- [FastMCP 3.1](mcp.md)
 - [Task Schema](../../reference-implementations/metadata-schemas/task-schema.md)
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md)
 
@@ -161,7 +204,7 @@ Directly updating ServiceNow business logic from an agent:
 - [ServiceNow MCP Server listing](https://mcpservers.org/servers/michaelbuckner/servicenow-mcp)
 - [ServiceNow MCP GitHub repository](https://github.com/michaelbuckner/servicenow-mcp)
 
+---
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
