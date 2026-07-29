@@ -20,7 +20,7 @@ It automates the conversion of GitHub issues into working pull requests, reducin
 - **End-to-End Automation**: Handles cloning, branching, coding, and PR creation without human intervention.
 - **"Sweep Rules"**: Allows defining project-specific coding standards that the agent must follow.
 - **Interactive PRs**: Users can comment on the generated PR, and Sweep will iterate on the code.
-- **Frontier Model Support**: Utilizes [Claude 4.8 Opus](../ai_knowledge/claude.md) and [GPT-5.5](../ai_knowledge/openai.md) for complex reasoning tasks.
+- **Frontier Model Support**: Utilizes [Claude 5.1](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md) for complex reasoning tasks.
 
 ## Limitations
 - **Scope Restriction**: Primarily optimized for tasks that can be completed in a few hundred lines of code.
@@ -98,6 +98,35 @@ jobs:
           sweep_api_key: ${{ secrets.SWEEP_API_KEY }}
 ```
 
+### Programmatic Python Rule Validator (Pydantic v2)
+Validate Sweep rule structures programmatically to ensure perfect alignment with repository configuration requirements:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class SweepRuleConfig(BaseModel):
+    branch: str = Field(default="main")
+    rules: List[str] = Field(default_factory=list)
+    exclude: List[str] = Field(default_factory=list)
+    description: Optional[str] = Field(None)
+
+# Validate config structure
+yaml_data = {
+    "branch": "main",
+    "rules": [
+        "Always use functional components.",
+        "Include unit tests."
+    ],
+    "exclude": ["node_modules/**"],
+    "description": "Auto-maintenance junior developer configuration"
+}
+
+config = SweepRuleConfig.model_validate(yaml_data)
+print(f"Target Branch: {config.branch}")
+print(f"Loaded {len(config.rules)} active rules")
+```
+
 ## Related tools / concepts
 - [Aider](aider.md) — For interactive, developer-led terminal editing.
 - [Mentat](./mentat.md) — Multi-file terminal-based AI editing.
@@ -116,5 +145,5 @@ jobs:
 - [GitHub Repository](https://github.com/sweepai/sweep)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-07-29
 - Confidence: high
