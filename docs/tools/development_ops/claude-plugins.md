@@ -1,7 +1,7 @@
 # Claude Plugins
 
 ## What it is
-Claude plugins are community-distributed extensions that package extra commands, tools, or integrations around Claude Code workflows. As of June 2026, they represent a mature ecosystem for extending the capabilities of **Claude 4.8** and other agentic models within the terminal and development environments.
+Claude plugins are community-distributed extensions that package extra commands, tools, or integrations around Claude Code workflows. As of late 2026, they represent a mature ecosystem for extending the capabilities of **Claude 5.1** and other agentic frontier models (such as **GPT-5.5** and **Gemini 4.0**) within terminal environments and development workflows.
 
 ## What problem it solves
 They make common add-ons easier to install and reuse instead of copying prompts, scripts, or workflow glue by hand across repos. They solve:
@@ -16,7 +16,7 @@ Claude Plugins sit in the **Development & Ops / Extension Ecosystem** layer. Thi
 - **Web Orchestration**: Installing shared tool integrations such as browser automation via [Browser Use](../automation_orchestration/browser-use.md).
 - **Environment Standardization**: Reusing workflow packs across multiple repos or teams.
 - **Skill Discovery**: Standardizing local coding-agent environments using [Superpowers](../agents/superpowers.md).
-- **Data Access**: Integrating with **Model Context Protocol (MCP 3.0)** servers to expose local data.
+- **Data Access**: Integrating with **Model Context Protocol (MCP 3.1)** servers to expose local data.
 - **Automated Quality**: Running [Agentlint](../agents/agentlint.md) to check whether a repo is friendly to AI agents.
 - **PR Review**: Using `code-review` plugins to run structured PR reviews before shipping.
 - **Bug Remediation**: Utilizing `debugger` and `bug-fix` plugins to investigate complex failures and apply targeted patches.
@@ -82,7 +82,7 @@ def audit_doc(filepath: str) -> str:
 ### Running a Plugin Command
 Many plugins expose new top-level commands to Claude:
 ```bash
-claude browser-use "Search for the latest Claude 4.8 features"
+claude browser-use "Search for the latest Claude 5.1 features"
 ```
 
 ### Checking Plugin Health
@@ -118,6 +118,44 @@ The structure of a community-distributed Claude plugin:
 }
 ```
 
+### Programmatic Python Plugin Config Validator (Pydantic v2)
+Ensure community plugins conform to schema specifications:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class Command(BaseModel):
+    name: str = Field(..., description="The command name")
+    description: str = Field(..., description="Short explanation of command capability")
+    exec: str = Field(..., description="Local command to run")
+
+class PluginManifest(BaseModel):
+    name: str = Field(..., description="Package name of the Claude plugin")
+    version: str = Field(..., description="SemVer string")
+    description: str = Field(..., description="Usage info")
+    commands: List[Command] = Field(default_factory=list, description="Exposed CLI tools")
+    mcp_servers: Optional[List[str]] = Field(default=None, description="Associated MCP endpoint URLs")
+
+# Example validation
+manifest_data = {
+    "name": "knowledge-ops-helper",
+    "version": "1.2.0",
+    "description": "Tools for maintaining KnowledgeOps standards",
+    "commands": [
+        {
+            "name": "audit",
+            "description": "Run the KnowledgeOps audit script",
+            "exec": "python3 scripts/audit_docs_quality.py"
+        }
+    ],
+    "mcp_servers": ["http://localhost:8000/mcp"]
+}
+
+manifest = PluginManifest.model_validate(manifest_data)
+print(f"Validated plugin: {manifest.name} v{manifest.version}")
+```
+
 ## Related tools / concepts
 - [Claude Code](claude-code.md) - The primary CLI for running these plugins.
 - [Claude Hooks](claude-hooks.md) - Event-based automation within Claude Code.
@@ -129,7 +167,7 @@ The structure of a community-distributed Claude plugin:
 - [Aider](aider.md) - Terminal-native pair programmer.
 - [Plandex](plandex.md) - Plan-first engineering engine.
 
-## Sources / References
+## Sources / references
 - [awesomeclaude.ai](https://awesomeclaude.ai/)
 - [AI Templates](https://www.aitmpl.com/)
 - [Superpowers](https://github.com/obra/superpowers)
@@ -137,5 +175,5 @@ The structure of a community-distributed Claude plugin:
 - [Issue #404 source discussion](https://github.com/joanmarcriera/Home-office-automations/issues/404)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

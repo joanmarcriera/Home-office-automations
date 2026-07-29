@@ -1,7 +1,7 @@
 # Aider
 
 ## What it is
-Aider is a leading terminal-based AI pair programmer that allows developers to edit code, create new projects, and manage Git repositories using natural language. As of June 2026, Aider features **Architect Mode** powered by **Claude 4.8 Opus** and native **MCP 3.0** integration for advanced tool-use capabilities.
+Aider is a leading terminal-based AI pair programmer that allows developers to edit code, create new projects, and manage Git repositories using natural language. As of late 2026, Aider features advanced **Architect Mode** powered by **Claude 5.1** and native **MCP 3.1** integration for sophisticated tool-use capabilities.
 
 ## What problem it solves
 It bridges the gap between high-level reasoning and low-level file manipulation. Aider eliminates the need for manual copy-pasting by directly applying AI-generated diffs to the local filesystem, handling Git commits automatically, and maintaining a coherent "map" of the entire codebase for context.
@@ -18,8 +18,8 @@ It bridges the gap between high-level reasoning and low-level file manipulation.
 ## Strengths
 - **Multi-file Editing**: Excels at coordinating changes across large codebases using its "repository map."
 - **Git Integration**: Automatically creates descriptive commit messages and manages local branches.
-- **Tool Choice**: Supports a wide range of models including **Claude 4.8**, **GPT-5.5**, and local models via **Ollama**.
-- **Architect Mode**: Separates the high-level planning from the low-level implementation for better reliability on complex tasks.
+- **Tool Choice**: Supports a wide range of models including **Claude 5.1**, **GPT-5.5**, and local models via **Ollama**.
+- **Architect Mode**: Separates high-level planning from low-level implementation for better reliability on complex tasks.
 
 ## Limitations
 - **Terminal Reliance**: Requires comfort with command-line interfaces.
@@ -53,8 +53,8 @@ export ANTHROPIC_API_KEY=your_key_here
 aider
 ```
 
-### June 2026 Architecture
-Aider now supports the `architect` mode by default for complex tasks:
+### Modern Architecture Setup
+Aider supports advanced models and `architect` mode natively:
 
 ```bash
 aider --model claude-3-7-sonnet-20250219 --architect
@@ -62,11 +62,11 @@ aider --model claude-3-7-sonnet-20250219 --architect
 
 ## CLI examples
 
-### Architect Mode with Claude 4.8
+### Architect Mode with Claude 5.1
 Use the high-level architect mode to plan and execute a complex feature:
 
 ```bash
-aider --architect --message "Implement a new authentication flow using OIDC and MCP 3.0"
+aider --architect --message "Implement a new authentication flow using OIDC and MCP 3.1"
 ```
 
 ### Automated Bug Fixing
@@ -76,7 +76,7 @@ Pipe a failing test output directly into Aider for immediate repair:
 pytest | aider --message "Fix the failing tests in the output"
 ```
 
-### Native MCP Integration (June 2026)
+### Native MCP Integration
 Connect Aider to specialized MCP servers for enhanced context:
 
 ```bash
@@ -109,6 +109,36 @@ mcp-servers:
   - "uvx mcp-server-git"
 ```
 
+### Programmatic Setup with Pydantic v2
+Validating Aider workspace sessions and configurations:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class AiderSessionConfig(BaseModel):
+    model: str = Field(default="claude-3-7-sonnet-20250219")
+    architect: bool = Field(default=True)
+    auto_commits: bool = Field(default=True, alias="auto-commits")
+    map_tokens: int = Field(default=2048, alias="map-tokens")
+    mcp_servers: List[str] = Field(default_factory=list, alias="mcp-servers")
+
+    class Config:
+        populate_by_name = True
+
+# Parse and validate setup configuration
+config_data = {
+    "model": "claude-3-7-sonnet-20250219",
+    "architect": True,
+    "auto-commits": True,
+    "mcp-servers": ["uvx mcp-server-git"]
+}
+
+session = AiderSessionConfig.model_validate(config_data)
+print(f"Validated session model: {session.model}")
+print(f"Configured MCP servers: {session.mcp_servers}")
+```
+
 ## Related tools / concepts
 - [Claude Code](claude-code.md) — Anthropic's official terminal agent.
 - [Cursor](cursor.md) — AI-native IDE with deep indexing.
@@ -126,5 +156,5 @@ mcp-servers:
 - [Aider Documentation: Architect Mode](https://aider.chat/docs/architect.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

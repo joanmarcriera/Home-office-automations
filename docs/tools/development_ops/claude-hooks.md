@@ -1,10 +1,10 @@
 # Claude Hooks
 
 ## What it is
-Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap **Claude Code** sessions with deterministic guardrails. As of June 2026, they natively support **MCP 3.0** and allow for complex `PreToolUse` and `PostToolUse` logic to be injected into the agentic loop.
+Claude Hooks are middleware patterns and JSON-based configuration standards used to wrap **Claude Code** sessions with deterministic guardrails. As of late 2026, they natively support **MCP 3.1** and allow for complex `PreToolUse` and `PostToolUse` logic to be injected into the agentic loop.
 
 ## What problem it solves
-Autonomous agents like **Claude 4.8 Opus** and **GPT-5.5** can occasionally overlook repository-specific rules or security constraints. Claude Hooks solve this by providing an "interceptor" layer that can block or modify tool calls based on hard-coded conditions (e.g., preventing a commit if secrets are detected or automatically formatting code).
+Autonomous agents like **Claude 5.1** and **GPT-5.5** can occasionally overlook repository-specific rules or security constraints. Claude Hooks solve this by providing an "interceptor" layer that can block or modify tool calls based on hard-coded conditions (e.g., preventing a commit if secrets are detected or automatically formatting code).
 
 ## Where it fits in the stack
 **Development & Ops / Workflow Guardrails**. It acts as a configuration and orchestration layer sitting directly between the agent and the operating system, often integrated via specialized **MCP** servers or custom shell wrappers.
@@ -17,8 +17,8 @@ Autonomous agents like **Claude 4.8 Opus** and **GPT-5.5** can occasionally over
 
 ## Strengths
 - **Deterministic**: Logic is executed by the shell or a local runtime, not the LLM, ensuring 100% compliance with defined rules.
+- **Complexity Management**: Simplifies cascading execution requirements in complex developer tools.
 - **Transparency**: Uses standard JSON schemas (`hooks.json`) that are easy to audit, version control, and share across teams.
-- **Low Friction**: Integrates directly with existing CLI agents like **Aider**, **Cursor**, and **Claude Code** via standard wrapper patterns.
 - **Extensible**: Supports any local binary or script as a hook action.
 
 ## Limitations
@@ -55,12 +55,12 @@ Since hooks are often implemented as middleware, you can wrap your agent executi
 python3 scripts/pre_hook_audit.py && claude && bash scripts/post_hook_cleanup.sh
 ```
 
-### v0.4 Hooks Schema
-The June 2026 schema supports conditional execution based on tool arguments:
+### v0.5 Hooks Schema
+The late 2026 schema supports conditional execution based on tool arguments and schema definitions conforming to **MCP 3.1**:
 
 ```json
 {
-  "version": "0.4",
+  "version": "0.5",
   "hooks": [
     {
       "name": "Audit Commits",
@@ -98,7 +98,7 @@ tail -f .claude/hooks.log
 ## API examples
 
 ### Hook Definition (JSON)
-Define hooks using the standard middleware pattern for **Claude Code** and **MCP 3.0**.
+Define hooks using the standard middleware pattern for **Claude Code** and **MCP 3.1**.
 
 ```json
 {
@@ -121,18 +121,41 @@ Define hooks using the standard middleware pattern for **Claude Code** and **MCP
 }
 ```
 
-### Custom Python Hook (Middleware Logic)
+### Custom Python Hook (Middleware Logic) with Pydantic v2
+Run robust validation of hook payload data programmatically:
+
 ```python
+from pydantic import BaseModel, Field
+from typing import Literal, Dict, Any, Union
 import sys
-import json
 
-def pre_tool_hook(tool_name, arguments):
-    if tool_name == "delete_file" and "protected" in arguments["path"]:
-        print("Error: Cannot delete protected files.")
-        sys.exit(1)
-    return True
+class HookPayload(BaseModel):
+    hook_name: str = Field(..., description="The label of the hook execution")
+    type: Literal["PreToolUse", "PostToolUse"]
+    tool_name: str = Field(..., description="Name of intercepted tool")
+    arguments: Dict[str, Any] = Field(default_factory=dict, description="Captured tool parameters")
 
-# Hook implementation logic here
+def evaluate_tool_execution(payload_data: Dict[str, Any]) -> bool:
+    try:
+        payload = HookPayload.model_validate(payload_data)
+        if payload.tool_name == "delete_file" and "protected" in payload.arguments.get("path", ""):
+            print(f"Error [{payload.hook_name}]: Aborted tool run. Cannot delete protected path.", file=sys.stderr)
+            return False
+        return True
+    except Exception as e:
+        print(f"Validation failure: {e}", file=sys.stderr)
+        return False
+
+# Example payload
+test_payload = {
+    "hook_name": "Audit Deletions",
+    "type": "PreToolUse",
+    "tool_name": "delete_file",
+    "arguments": {"path": "docs/protected/standards.md"}
+}
+
+is_allowed = evaluate_tool_execution(test_payload)
+print(f"Execution Allowed? {is_allowed}")
 ```
 
 ## Related tools / concepts
@@ -150,8 +173,8 @@ def pre_tool_hook(tool_name, arguments):
 - [Claude Hooks Pattern Library](https://github.com/johnlindquist/claude-hooks)
 - [Anthropic: Tool Use Middleware Patterns](https://docs.anthropic.com/claude/docs/tool-use-middleware)
 - [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code)
-- [MCP 3.0 Specification](https://modelcontextprotocol.io/spec)
+- [MCP 3.1 Specification](https://modelcontextprotocol.io/spec)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
