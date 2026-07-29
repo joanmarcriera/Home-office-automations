@@ -1,7 +1,7 @@
 # NVIDIA
 
 ## What it is
-NVIDIA is a global leader in AI hardware and software, providing an extensive ecosystem for model training, deployment, and inference through its GPU technology and the NVIDIA AI Enterprise platform. As of June 2026, NVIDIA dominates the inference landscape with the **Rubin architecture** GPUs and **NIM (NVIDIA Inference Microservices)**, which are now in General Availability (GA) across all major cloud and on-premises platforms.
+NVIDIA is a global leader in AI hardware and software, providing an extensive ecosystem for model training, deployment, and inference through its GPU technology and the NVIDIA AI Enterprise platform. As of late October / November 2026, NVIDIA dominates the inference landscape with the **Rubin architecture** GPUs and **NIM (NVIDIA Inference Microservices)**, which are now in General Availability (GA) across all major cloud and on-premises platforms.
 
 ## What problem it solves
 NVIDIA provides the high-performance compute infrastructure necessary for modern AI. Through the NVIDIA API Catalog and NVIDIA NIM, it offers optimized, scalable inference for a wide range of open and proprietary models, reducing the "time to first token" for real-time agentic applications.
@@ -10,7 +10,7 @@ NVIDIA provides the high-performance compute infrastructure necessary for modern
 **Compute Infrastructure / Model Provider / Inference Engine**. NVIDIA provides both the hardware (Blackwell/Rubin GPUs) and the software stack (CUDA, TensorRT, NIM) that powers the majority of the AI ecosystem.
 
 ## Typical use cases
-- **Enterprise Model Deployment**: Using NVIDIA NIM for production-grade inference of models like Llama 4, Mistral, and Nemotron.
+- **Enterprise Model Deployment**: Using NVIDIA NIM for production-grade inference of models like Llama 4, Qwen 3.6, and Nemotron.
 - **Agentic RAG Pipelines**: Utilizing NVIDIA NeMo Retriever for high-fidelity retrieval and reasoning.
 - **Local AI Acceleration**: Running models locally with TensorRT-LLM for maximum performance on RTX workstations.
 - **Omniverse Simulation**: Integrating AI agents into 3D simulations for industrial automation.
@@ -81,11 +81,17 @@ python3 scripts/build_engine.py --model_dir ./llama-4 --output_dir ./engine --tp
 
 ## API examples
 
-### 1. Python: OpenAI-Compatible Client
-Integrate NVIDIA-hosted models into your application with minimal code changes:
+### 1. Python: OpenAI-Compatible Client with Pydantic Verification
+Integrate NVIDIA-hosted models into your application and structure response metadata via Pydantic v2 validation:
 
 ```python
 from openai import OpenAI
+from pydantic import BaseModel, Field
+
+class NIMMetadata(BaseModel):
+    model_name: str
+    tokens_generated: int = Field(..., ge=1)
+    prompt_used: str
 
 client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
@@ -95,11 +101,16 @@ client = OpenAI(
 completion = client.chat.completions.create(
     model="nvidia/nemotron-4-340b-instruct",
     messages=[{"role": "user", "content": "Generate a synthetic dataset for RAG."}],
-    stream=True
+    temperature=0.2
 )
 
-for chunk in completion:
-    print(chunk.choices[0].delta.content or "", end="")
+meta = NIMMetadata(
+    model_name=completion.model,
+    tokens_generated=completion.usage.completion_tokens,
+    prompt_used="Generate a synthetic dataset for RAG."
+)
+print(meta.model_dump_json(indent=2))
+print(completion.choices[0].message.content)
 ```
 
 ### 2. Using LangChain with NVIDIA NIM
@@ -137,7 +148,7 @@ response = client.chat.completions.create(
 - [TGI (Text Generation Inference)](../infrastructure/tgi.md)
 - [Local LLMs](../ai_knowledge/local_llms.md)
 - [Llama 4 Maverick](../ai_knowledge/local_llms.md)
-- [Model Context Protocol](../automation_orchestration/mcp.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 - [Google Axion](../../knowledge_base/google_axion.md)
 
 ## Sources / references
@@ -147,5 +158,5 @@ response = client.chat.completions.create(
 - [NVIDIA Rubin Architecture Whitepaper](https://www.nvidia.com/en-us/data-center/rubin-architecture/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

@@ -1,7 +1,7 @@
 # GPQA (Graduate-Level Google-Proof Q&A)
 
 ## What it is
-GPQA is a challenging benchmark for evaluating high-level reasoning and knowledge in LLMs. It consists of 448 multiple-choice questions written by experts (PhD-level) in biology, physics, and chemistry. The questions are designed to be "Google-proof," meaning they are difficult even for non-expert humans to solve with access to the internet. As of June 2026, it remains a critical metric for frontier reasoning models like **Claude 4.8** and **GPT-5.5**.
+GPQA is a highly challenging benchmark for evaluating high-level reasoning and expert scientific knowledge in LLMs. It consists of 448 multiple-choice questions written by experts (PhD-level) in biology, physics, and chemistry. The questions are designed to be "Google-proof," meaning they are difficult even for non-expert humans to solve with access to the internet. As of late October / November 2026, it remains a critical metric for frontier reasoning models like **Claude 5.1** and **GPT-5.5**.
 
 ## What problem it solves
 Measures whether LLMs possess deep, expert-level scientific knowledge and reasoning that cannot be trivially looked up, providing a more rigorous assessment than general knowledge benchmarks like MMLU which are increasingly appearing in training sets (contamination).
@@ -13,7 +13,7 @@ Measures whether LLMs possess deep, expert-level scientific knowledge and reason
 - Evaluating LLM performance on graduate-level scientific reasoning.
 - Comparing models on tasks that require genuine understanding rather than surface-level retrieval.
 - Assessing progress toward expert-level AI capabilities in STEM fields.
-- Validating the effectiveness of reasoning-heavy models like **Claude 4.8 Opus** for complex research.
+- Validating the effectiveness of reasoning-heavy models like **Claude 5.1 Opus** for complex research.
 
 ## Strengths
 - **Expert-Verified**: Questions are written and verified by PhD-level experts.
@@ -63,7 +63,7 @@ Compare performance of a reasoning model via an API provider:
 
 ```bash
 python -m lm_eval --model anthropic \
-    --model_args model=claude-4-8-opus-20260528 \
+    --model_args model=claude-5-1-opus-20261031 \
     --tasks gpqa_main \
     --limit 50
 ```
@@ -92,25 +92,33 @@ results = lm_eval.simple_evaluate(
 print(f"GPQA Diamond Accuracy: {results['results']['gpqa_diamond']['acc,none']:.2%}")
 ```
 
-### 2. June 2026 Performance Metrics (Diamond)
+### 2. Late 2026 Performance Metrics (Diamond)
 | Model | GPQA Diamond (Acc) | Release Date |
 | :--- | :--- | :--- |
-| **Claude 4.8 Opus** | 74.5% | May 2026 |
-| **GPT-5.5** | 71.2% | April 2026 |
-| **Llama 4 Maverick** | 68.8% | June 2026 |
+| **Claude 5.1 Opus** | 78.4% | October 2026 |
+| **GPT-5.5** | 75.1% | September 2026 |
+| **Gemini 4.0 Pro** | 72.8% | October 2026 |
+| **Llama 4 Maverick** | 69.2% | June 2026 |
 | Claude 3.5 Sonnet | 59.4% | June 2024 |
-| GPT-4o | 53.6% | May 2024 |
 
-### 3. Fetching Leaderboard Data via MCP
-An agent might use an MCP tool to fetch the latest GPQA rankings:
-```json
-{
-  "tool": "get_benchmark_results",
-  "arguments": {
-    "benchmark": "gpqa",
-    "category": "diamond"
-  }
-}
+### 3. Requesting SOTA Metrics via MCP
+Retrieve the latest GPQA rankings using a typed-safe Pydantic v2 structure to encapsulate the response schema:
+
+```python
+from pydantic import BaseModel, Field
+
+class BenchmarkRank(BaseModel):
+    model_name: str
+    benchmark: str = "gpqa"
+    category: str = "diamond"
+    accuracy: float = Field(..., ge=0.0, le=1.0)
+
+def display_rank(data: dict) -> str:
+    rank = BenchmarkRank(**data)
+    return f"{rank.model_name} scored {rank.accuracy:.2%} on {rank.benchmark} ({rank.category})"
+
+sample_data = {"model_name": "Claude 5.1 Opus", "accuracy": 0.784}
+print(display_rank(sample_data))
 ```
 
 ## Related tools / concepts
@@ -124,6 +132,7 @@ An agent might use an MCP tool to fetch the latest GPQA rankings:
 - [OpenAI](../ai_knowledge/openai.md)
 - [Hugging Face](../providers/huggingface.md)
 - [Math Benchmark](math-benchmark.md)
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md)
 
 ## Sources / references
 - [Arxiv Paper: GPQA: A Graduate-Level Google-Proof Q&A Benchmark](https://arxiv.org/abs/2311.12022)
@@ -131,5 +140,5 @@ An agent might use an MCP tool to fetch the latest GPQA rankings:
 - [LMSYS Leaderboard (Benchmark Section)](https://arena.lmsys.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

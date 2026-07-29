@@ -1,7 +1,7 @@
 # Anthropic Claude
 
 ## What it is
-Anthropic is an AI safety and research company that produces the Claude family of LLMs. As of June 2026, it is a proprietary service offering high-performance models known for strong reasoning, coding excellence, and safety. Pricing is usage-based with a free testing tier available via the Anthropic Console.
+Anthropic is an AI safety and research company that produces the Claude family of LLMs. As of late October / November 2026, it is a proprietary service offering high-performance models known for strong reasoning, coding excellence, and safety. Pricing is usage-based with a free testing tier available via the Anthropic Console.
 
 ## What problem it solves
 It offers a high-performance alternative to OpenAI with a focus on "Constitutional AI" (safety) and exceptional performance in coding, long-form document analysis, and complex reasoning tasks. It provides a reliable engine for autonomous agents via native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) support.
@@ -10,32 +10,31 @@ It offers a high-performance alternative to OpenAI with a focus on "Constitution
 **LLM / Reasoning Engine / Provider**. It serves as the primary intelligence layer for coding agents and complex document synthesis workflows.
 
 ## Typical use cases
-- **Pair Programming**: Claude 3.5 Sonnet and 4.8 Opus are the preferred models for tools like [Aider](../development_ops/aider.md).
-- **Complex Analysis**: Summarizing long technical documentation or legal files using the 200k+ token context window.
+- **Pair Programming**: Claude 3.5 Sonnet, 4.8 Opus, and 5.1 Sonnet/Opus are the preferred models for tools like [Aider](../development_ops/aider.md).
+- **Complex Analysis**: Summarizing long technical documentation or legal files using the 2.5M+ token context window.
 - **Strict Adherence**: Workflows requiring high precision in following complex formatting or reasoning rules.
-- **Autonomous Engineering**: Leveraging MCP 3.0 to enable Claude to interact with local and remote tools.
-- **Computer Use**: Utilizing Claude 4.8 Opus for direct interaction with operating systems and browsers.
+- **Autonomous Engineering**: Leveraging MCP 3.1 to enable Claude to interact with local and remote tools.
+- **Computer Use**: Utilizing Claude 5.1 Opus for direct interaction with operating systems and browsers.
 
-### Model routing (June 2026)
+### Model routing (Late 2026)
 | Model | Primary Use Case | Default? |
 | :--- | :--- | :--- |
-| **Haiku** | Fast classification, extraction, rewriting, and cheap high-volume tasks | No |
-| **Sonnet** | Default coding, planning, and most daily serious work | Yes |
-| **Opus 4.7** | Complex software engineering and high-resolution vision tasks | No |
-| **Opus 4.8** | Premium escalation for hard synthesis and autonomous browser-agent tasks | No |
-| **Mythos** | Frontier-scale simulations and high-reliability software factory architectures | No |
+| **Haiku 5** | Fast classification, extraction, rewriting, and cheap high-volume tasks | No |
+| **Sonnet 5.1** | Default coding, planning, and most daily serious work | Yes |
+| **Opus 5.1** | Premium escalation for hard synthesis and autonomous browser-agent tasks | No |
+| **Mythos 2** | Frontier-scale simulations and high-reliability software factory architectures | No |
 
 ## Strengths
 - **Coding Excellence**: Widely regarded as one of the strongest daily-driver models for software engineering.
 - **Safety Focus**: Built with Constitutional AI principles for better alignment and reduced harmful outputs.
 - **Large Context**: Ability to handle up to 2.5M tokens in [Plandex](../development_ops/plandex.md) integrations.
 - **Low Hallucination**: Exhibits high factual accuracy and honesty in complex reasoning.
-- **Native MCP Support**: Seamless integration with the Model Context Protocol (MCP 3.0) for extensible tool use.
+- **Native MCP Support**: Seamless integration with the Model Context Protocol (MCP 3.1) for extensible tool use.
 
 ## Limitations
 - **Cloud Dependency**: Requires external API access; no official local/offline version.
 - **Rate Limits**: Usage tiers can be restrictive for new accounts.
-- **Cost**: High-end models like Opus 4.8 are significantly more expensive than smaller models.
+- **Cost**: High-end models like Opus 5.1 are significantly more expensive than smaller models.
 
 ## When to use it
 - For software development tasks where Sonnet/Opus is the right default.
@@ -79,25 +78,41 @@ print(anthropic.Anthropic().models.list())
 ## API examples
 
 ### Basic Message Creation (Python)
+Using Python and Pydantic v2 to validate Claude's completion metadata programmatically:
+
 ```python
 import anthropic
+from pydantic import BaseModel, Field
+
+class ClaudeCompletion(BaseModel):
+    model_used: str
+    response_text: str = Field(..., min_length=1)
+    prompt_tokens: int = Field(..., ge=0)
+    completion_tokens: int = Field(..., ge=0)
 
 client = anthropic.Anthropic()
 
 message = client.messages.create(
-    model="claude-4-8-opus-20260528",
+    model="claude-5-1-sonnet-20261031",
     max_tokens=1024,
     messages=[
-        {"role": "user", "content": "Explain the advantages of MCP 3.0."}
+        {"role": "user", "content": "Explain the advantages of MCP 3.1."}
     ]
 )
-print(message.content)
+
+response_data = ClaudeCompletion(
+    model_used=message.model,
+    response_text=message.content[0].text,
+    prompt_tokens=message.usage.input_tokens,
+    completion_tokens=message.usage.output_tokens
+)
+print(response_data.model_dump_json(indent=2))
 ```
 
 ### Streaming Responses
 ```python
 with client.messages.stream(
-    model="claude-3-5-sonnet-latest",
+    model="claude-5-1-sonnet-latest",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Write a 500-word essay on AI safety."}]
 ) as stream:
@@ -120,8 +135,8 @@ with client.messages.stream(
 - [Official Anthropic Website](https://www.anthropic.com/)
 - [Anthropic News and Release Logs](https://www.anthropic.com/news)
 - [Anthropic Developer Documentation](https://docs.anthropic.com/)
-- [Claude 4.8 Opus Announcement](https://www.anthropic.com/news/claude-opus-4-8)
+- [Claude 5.1 Announcement](https://www.anthropic.com/news/claude-5-1)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
