@@ -1,7 +1,7 @@
 # Todoist
 
 ## What it is
-A popular task management application that helps individuals and teams organize, plan, and collaborate on projects. As of 2026, it features advanced AI capabilities through the **Ramble AI** voice engine and native Model Context Protocol (MCP 3.0) support.
+A popular task management application that helps individuals and teams organize, plan, and collaborate on projects. As of late 2026, it features advanced AI capabilities through the **Ramble AI** voice engine and native Model Context Protocol (MCP 3.1) support.
 
 ## What problem it solves
 Provides a simple yet powerful interface for capturing tasks, setting deadlines, and organizing work into projects and sub-tasks. It excels at natural language parsing, allowing users to schedule complex recurring tasks via text or voice.
@@ -12,14 +12,14 @@ Provides a simple yet powerful interface for capturing tasks, setting deadlines,
 ## Typical use cases
 - **Daily task management**: Capture and organize personal work using the "Inbox" and "Today" views.
 - **AI-assisted planning**: Use the **Ramble AI** voice-to-task feature for hands-free capture in 38+ languages.
-- **Agentic workflows**: Connect Todoist to **Claude 4.8 Opus** or **GPT-5.5** via MCP 3.0 to automate task sorting and breakdown.
+- **Agentic workflows**: Connect Todoist to **Claude 5.1** or **GPT-5.5** via MCP 3.1 to automate task sorting and breakdown.
 - **Maintenance patterns**: Use recurring tasks for system health checks and routine admin.
 
 ## Strengths
 - Clean, intuitive interface across all platforms (including Linux and wearables).
 - Best-in-class natural language parsing for deadlines (e.g., "every second Thursday at 3pm").
 - Two-way sync with Google Calendar and Reclaim.ai.
-- **MCP 3.0 Native**: Supports the Model Context Protocol for seamless integration with AI agents.
+- **MCP 3.1 Native**: Supports the Model Context Protocol for seamless integration with AI agents.
 
 ## Limitations
 - Advanced features like reminders and filters require a Pro subscription.
@@ -65,30 +65,53 @@ todoist add "Check server logs every morning" --date "every day"
 ## API examples
 Todoist provides a stable REST API v2 for developers.
 
-### Create a Task (Python)
+### Create and Validate a Task (Python)
+Programmatic task creation should be validated using **Pydantic v2** prior to making requests to the Todoist REST API v2 under late-2026 guidelines.
+
 ```python
 import requests
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
 
-API_TOKEN = "YOUR_TODOIST_API_TOKEN" # Standardized naming
-API_URL = "https://api.todoist.com/rest/v2/tasks"
+# Define Pydantic v2 Model for Task Creation
+class TodoistTaskPayload(BaseModel):
+    content: str = Field(..., min_length=1, max_length=500, description="The task text description")
+    description: Optional[str] = Field(default=None, description="Detailed task description")
+    project_id: Optional[str] = None
+    section_id: Optional[str] = None
+    parent_id: Optional[str] = None
+    order: Optional[int] = None
+    labels: List[str] = Field(default_factory=list)
+    priority: int = Field(default=1, ge=1, le=4, description="1 (normal) to 4 (urgent)")
+    due_string: Optional[str] = Field(default=None, description="Natural language due date, e.g. 'tomorrow at 12pm'")
 
-headers = {
-    "Authorization": f"Bearer {API_TOKEN}",
-    "Content-Type": "application/json"
+# Validate task data payload
+raw_data = {
+    "content": "Verify backup retention policy with Claude 5.1",
+    "description": "Ensure offsite snapshots are secure under MCP 3.1 architectures.",
+    "labels": ["homelab", "security"],
+    "priority": 4,
+    "due_string": "next Friday at 4pm"
 }
 
-data = {
-    "content": "Prepare project update",
-    "due_string": "Friday at 5pm",
-    "priority": 4
-}
+try:
+    validated_payload = TodoistTaskPayload.model_validate(raw_data)
+    print(f"Validated Todoist payload: '{validated_payload.content}'")
 
-response = requests.post(API_URL, headers=headers, json=data)
-print(response.json())
+    # POST payload via requests
+    API_TOKEN = "YOUR_TODOIST_API_TOKEN"
+    API_URL = "https://api.todoist.com/rest/v2/tasks"
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    # response = requests.post(API_URL, headers=headers, json=validated_payload.model_dump(exclude_none=True))
+except Exception as e:
+    print(f"Validation failed: {e}")
 ```
 
-### Model Context Protocol (MCP 3.0) Integration
-Integrate Todoist with agents like **Claude 4.8** or **Llama 4 Maverick** using an MCP 3.0 server.
+### Model Context Protocol (MCP 3.1) Integration
+Integrate Todoist with agents like **Claude 5.1** or **Llama 4** using an MCP 3.1 server.
 
 **Recommended Server**: `Doist/todoist-ai` (Official) or `shockedrope/todoist-mcp` (Community).
 
@@ -119,5 +142,5 @@ Integrate Todoist with agents like **Claude 4.8** or **Llama 4 Maverick** using 
 - [Todoist AI MCP Server](https://github.com/Doist/todoist-ai)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

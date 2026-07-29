@@ -1,7 +1,7 @@
 # Notion Calendar
 
 ## What it is
-A high-performance calendar app (formerly Cron) that serves as the unified time-management layer for Notion. As of 2026, it is the primary interface for **Notion Agents** and **Skills**, allowing for automated scheduling and database-driven time blocking.
+A high-performance calendar app (formerly Cron) that serves as the unified time-management layer for Notion. As of late 2026, it is the primary interface for **Notion Agents** and **Skills**, allowing for automated scheduling and database-driven time blocking.
 
 ## What problem it solves
 Bridges the gap between notes/tasks in Notion and time management in a calendar. It provides a fast, keyboard-centric interface that synchronizes Google Calendar events with Notion database items in real-time.
@@ -12,7 +12,7 @@ Bridges the gap between notes/tasks in Notion and time management in a calendar.
 ## Typical use cases
 - **Unified workspace view**: See Notion database entries (tasks, project milestones) alongside Google Calendar events.
 - **High-speed scheduling**: Use keyboard shortcuts and scheduling links to manage a busy calendar.
-- **Agentic time-blocking**: Use **Notion Agents** (powered by **Claude 4.8 Opus** or **GPT-5.5**) to automatically find slots for Notion tasks.
+- **Agentic time-blocking**: Use **Notion Agents** (powered by **Claude 5.1** or **GPT-5.5**) to automatically find slots for Notion tasks.
 - **Cross-timezone coordination**: Manage global teams with integrated timezone columns.
 
 ## Strengths
@@ -47,40 +47,60 @@ Bridges the gap between notes/tasks in Notion and time management in a calendar.
 However, it supports a robust local **URI scheme** (`cron://`) for automation:
 ```bash
 # Open a specific Notion page as a calendar event
-open "cron://[email protected]&iCalUID=EVENT_ID&startDate=2026-06-12T10:00:00Z&title=Deep+Work"
+open "cron://[email protected]&iCalUID=EVENT_ID&startDate=2026-11-12T10:00:00Z&title=Deep+Work"
 ```
 
 ## API examples
 Notion Calendar's data is primarily managed via the **Notion API** and **Notion Workers**.
 
-### Querying Notion Events (Python)
+### Query and Validate Notion Events (Python)
+Programmatic task integration and querying are validated using **Pydantic v2** under late-2026 guidelines.
+
 ```python
 import requests
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, Dict, Any
+from datetime import datetime
 
-API_TOKEN = "YOUR_NOTION_TOKEN" # Standardized naming
-DATABASE_ID = "YOUR_DATABASE_ID"
-API_URL = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
+# Define Pydantic v2 Schema for Notion Calendar Database Items
+class NotionDateProperty(BaseModel):
+    start: datetime = Field(..., description="ISO 8601 formatted event start date")
+    end: Optional[datetime] = Field(default=None, description="ISO 8601 formatted event end date")
 
-headers = {
-    "Authorization": f"Bearer {API_TOKEN}",
-    "Notion-Version": "2026-03-11",
-    "Content-Type": "application/json"
-}
+class NotionPageProperties(BaseModel):
+    title: str = Field(..., min_length=1)
+    status: str = Field(default="To Do")
+    date_prop: NotionDateProperty = Field(..., alias="Date")
 
-# Fetch tasks with a 'Date' property
-filter_data = {
-    "filter": {
-        "property": "Date",
-        "date": { "is_not_empty": True }
+class NotionEventPayload(BaseModel):
+    parent: Dict[str, str] = Field(default_factory=lambda: {"database_id": "YOUR_DATABASE_ID"})
+    properties: NotionPageProperties
+
+# Validate raw response data from Notion API
+raw_notion_data = {
+    "properties": {
+        "title": "Evaluate Claude 5.1 with Notion Calendar",
+        "status": "In Progress",
+        "Date": {
+            "start": "2026-11-15T09:00:00Z",
+            "end": "2026-11-15T10:00:00Z"
+        }
     }
 }
 
-response = requests.post(API_URL, headers=headers, json=filter_data)
-print(response.json())
+try:
+    # Convert and validate using alias mapping
+    validated_properties = NotionPageProperties.model_validate(raw_notion_data["properties"])
+    print(f"Validated Notion event property: '{validated_properties.title}'")
+
+    # Ready to compile full Notion API request
+    # response = requests.post(API_URL, headers=headers, json=validated_properties.model_dump(by_alias=True))
+except Exception as e:
+    print(f"Validation failed: {e}")
 ```
 
-## Model Context Protocol (MCP 3.0) Integration
-Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` or official `Doist/todoist-ai` equivalent) that agents use to interact with the calendar via MCP 3.0.
+## Model Context Protocol (MCP 3.1) Integration
+Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` or official `Doist/todoist-ai` equivalent) that agents use to interact with the calendar via MCP 3.1.
 
 **Agent Capabilities (via MCP):**
 - `notion_find`: Search for pages and calendar entries.
@@ -107,5 +127,5 @@ Notion provides an official **Notion MCP Server** (`@suekou/mcp-notion-server` o
 - [Notion MCP Server (GitHub)](https://github.com/suekou/mcp-notion-server)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

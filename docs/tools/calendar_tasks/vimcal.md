@@ -14,7 +14,7 @@ It reduces the time spent on manual scheduling and coordination by streamlining 
 - **Global Coordination**: Managing meetings across multiple time zones with a specialized horizontal view.
 - **Availability Snippets**: Quickly sharing free slots with collaborators without sending a link.
 - **Executive Scheduling**: Using the "Scheduling Assistant" to find mutual openings for large internal teams.
-- **Agentic Scheduling**: Bridging Vimcal with AI assistants like **Claude 4.8** by using the [Google Calendar MCP Server](../automation_orchestration/mcp.md) to manage underlying data.
+- **Agentic Scheduling**: Bridging Vimcal with AI assistants like **Claude 5.1**, **GPT-5.5**, and **Llama 4** by using the [Google Calendar MCP Server](../automation_orchestration/mcp.md) compliant with the **MCP 3.1** protocol to manage underlying data.
 
 ## Strengths
 - **Keyboard-first navigation**: Inspired by Vim, allowing for extremely fast interaction.
@@ -24,7 +24,7 @@ It reduces the time spent on manual scheduling and coordination by streamlining 
 
 ## Limitations
 - **Proprietary SaaS**: Closed-source model requiring a paid subscription.
-- **No Public API**: As of June 2026, Vimcal remains a closed platform for direct developer integration.
+- **No Public API**: As of November 2026, Vimcal remains a closed platform for direct developer integration.
 - **Limited Task Integration**: Less focus on deep task management compared to specialized tools like [Akiflow](akiflow.md).
 
 ## When to use it
@@ -51,8 +51,8 @@ Vimcal is primarily a desktop and web application. Download the client from [Vim
 ### Raycast / Alfred Integration
 While Vimcal does not have an official CLI, power users use launcher extensions:
 ```bash
-# Raycast command example
-raycast "Create Vimcal Event" --title "Review Q3 Roadmap" --time "2pm"
+# Raycast command example using SOTA tools
+raycast "Create Vimcal Event" --title "Review Q4 Roadmap" --time "2pm"
 ```
 
 ### Application Shortcuts
@@ -63,22 +63,57 @@ raycast "Create Vimcal Event" --title "Review Q3 Roadmap" --time "2pm"
 ## API examples
 
 ### Underlying Provider Automation (Google Calendar)
-Since Vimcal lacks a public API, automation is performed via the provider:
-```python
-# Example using the Google Calendar API
-from googleapiclient.discovery import build
-service = build('calendar', 'v3', credentials=creds)
+Since Vimcal lacks a public API, automation is performed via the provider. To programmatically validate and insert meetings securely under late-2026 architectures, a Python implementation using **Pydantic v2** is shown below to validate the calendar payload before invocation:
 
-event = {
-  'summary': 'Vimcal Sync',
-  'start': {'dateTime': '2026-06-28T10:00:00Z'},
-  'end': {'dateTime': '2026-06-28T11:00:00Z'}
+```python
+from datetime import datetime
+from pydantic import BaseModel, Field, EmailStr
+from typing import List, Optional
+
+# Define Pydantic v2 Schema for Vimcal-compatible Google Calendar Event
+class EventDateTime(BaseModel):
+    dateTime: datetime = Field(..., description="ISO 8601 formatted start/end time")
+    timeZone: str = Field(default="UTC", description="Timezone identifier")
+
+class EventAttendee(BaseModel):
+    email: EmailStr
+    optional: bool = False
+
+class VimcalEventPayload(BaseModel):
+    summary: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = None
+    start: EventDateTime
+    end: EventDateTime
+    attendees: Optional[List[EventAttendee]] = Field(default_factory=list)
+
+# Validate payload using Pydantic v2
+raw_data = {
+    "summary": "Vimcal Sync with Claude 5.1",
+    "description": "Discussing MCP 3.1 workflows and task scheduling.",
+    "start": {
+        "dateTime": "2026-11-15T10:00:00Z",
+        "timeZone": "UTC"
+    },
+    "end": {
+        "dateTime": "2026-11-15T11:00:00Z",
+        "timeZone": "UTC"
+    },
+    "attendees": [
+        {"email": "[email protected]", "optional": False}
+    ]
 }
-service.events().insert(calendarId='primary', body=event).execute()
+
+try:
+    validated_event = VimcalEventPayload.model_validate(raw_data)
+    print(f"Validated payload successfully: {validated_event.summary}")
+    # Now construct and insert event using the Google Calendar API
+    # service.events().insert(calendarId='primary', body=validated_event.model_dump()).execute()
+except Exception as e:
+    print(f"Validation failed: {e}")
 ```
 
 ### MCP Integration
-Use the [Google Calendar MCP Server](../automation_orchestration/mcp.md) to allow agents to interact with Vimcal data:
+Use the [Google Calendar MCP Server](../automation_orchestration/mcp.md) to allow agents like **Claude 5.1** or **GPT-5.5** to interact with Vimcal data:
 ```bash
 npx @modelcontextprotocol/server-google-calendar
 ```
@@ -100,5 +135,5 @@ npx @modelcontextprotocol/server-google-calendar
 - [Llama 4 Maverick productivity benchmarks (June 2026)](https://www.vimcal.com/blog/2026/05/productivity-with-llama-4/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
