@@ -1,7 +1,7 @@
 # Superconductor
 
 ## What it is
-Superconductor is a multiplayer, cloud-native AI workspace designed for parallel agent orchestration. It allows developers to deploy, monitor, and collaborate with multiple AI agents (e.g., **Claude 4.8**, **GPT-5.5**, and **Llama 4 Maverick**) in a synchronized, sandboxed environment.
+Superconductor is a multiplayer, cloud-native AI workspace designed for parallel agent orchestration. It allows developers to deploy, monitor, and collaborate with multiple AI agents (e.g., **Claude 5.1**, **GPT-5.5**, and **Llama 4 Maverick**) in a synchronized, sandboxed environment.
 
 ## What problem it solves
 Managing multiple autonomous agents in a single project often leads to "state drift" and conflicting changes. Superconductor solves this by providing a unified "ground truth" workspace where agents can work in parallel on different branches, with live previews and integrated network sandboxing to prevent unauthorized data exfiltration.
@@ -54,7 +54,7 @@ auth:
   method: oidc
   provider: google
 models:
-  - id: claude-4.8-opus
+  - id: claude-5.1-opus
     api_key: env:ANTHROPIC_API_KEY
 ```
 
@@ -116,6 +116,50 @@ async function checkStatus() {
 }
 ```
 
+### Programmatic Python Session Handler (Pydantic v2)
+Ensure agent session requests comply with security policy and configuration settings:
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional, Literal
+
+class AgentSessionRequest(BaseModel):
+    persona: str = Field(..., description="The agent role, e.g., Backend Architect")
+    task: str = Field(..., description="The objective of the run")
+    sandbox_image: str = Field(default="node:20-alpine", description="Docker image to spin up")
+    autonomy_level: Literal["low", "medium", "high"] = Field(default="medium")
+    max_tokens: int = Field(default=4000, description="Max token spend allowed")
+
+class WorkspaceTrigger(BaseModel):
+    workspace_id: str = Field(..., description="Unique ID of collaborative space")
+    agents: List[AgentSessionRequest] = Field(default_factory=list, description="Target list of parallel agents")
+    enable_network_sandbox: bool = Field(default=True, description="Strict firewalling")
+
+# Validate orchestration request
+trigger_payload = {
+    "workspace_id": "ws_123",
+    "agents": [
+        {
+            "persona": "Backend Architect",
+            "task": "Optimize database indices",
+            "autonomy_level": "medium",
+            "max_tokens": 8000
+        },
+        {
+            "persona": "QA-Tester",
+            "task": "Run load testing suite on index performance",
+            "autonomy_level": "low",
+            "max_tokens": 4000
+        }
+    ],
+    "enable_network_sandbox": True
+}
+
+trigger = WorkspaceTrigger.model_validate(trigger_payload)
+print(f"Validated trigger for workspace: {trigger.workspace_id}")
+print(f"Spinning up {len(trigger.agents)} isolated agents with network sandboxing={trigger.enable_network_sandbox}")
+```
+
 ## Related tools / concepts
 - [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The core design pattern.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — For agent tool integration.
@@ -133,5 +177,5 @@ async function checkStatus() {
 - [Documentation: Multi-Agent Parallelism](https://docs.superconductor.ai/concepts/parallelism)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
