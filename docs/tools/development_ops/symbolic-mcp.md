@@ -1,7 +1,7 @@
 # Symbolic MCP Server
 
 ## What it is
-A secure, sandboxed symbolic execution engine for the Model Context Protocol that discovers edge cases and hidden bugs in Python code through mathematical path analysis. As of June 2026, it is the premier formal verification tool for the MCP 3.0 ecosystem, optimized for integration with frontier models like Claude 4.8 Opus and GPT-5.5.
+A secure, sandboxed symbolic execution engine for the Model Context Protocol that discovers edge cases and hidden bugs in Python code through mathematical path analysis. As of late October / November 2026, it is the premier formal verification tool for the MCP 3.1 ecosystem, optimized for integration with frontier models like Claude 5.1 and GPT-5.5.
 
 ## What problem it solves
 Unlike traditional fuzzing (random inputs), symbolic execution treats inputs as symbolic variables and explores all possible execution paths algebraically using the Z3 solver. This provides mathematical guarantees of correctness and finds deep, hidden bugs that random testing might miss. It specifically addresses:
@@ -23,20 +23,20 @@ Unlike traditional fuzzing (random inputs), symbolic execution treats inputs as 
 - **Path-sensitive analysis**: Explores all possible code paths, including nested logic.
 - **Constraint solving**: Uses the latest Z3 solver to find precise trigger inputs.
 - **Security Architecture**: Features whitelist-only module access, memory caps, and process isolation.
-- **Stability**: Production-ready (v1.2.0+) with high test coverage and native MCP 3.0 support.
+- **Stability**: Production-ready (v1.5.0+) with high test coverage and native MCP 3.1 support.
 - **Efficiency**: Optimized for small-to-medium functions common in agentic tool-use.
 
 ## Limitations
 - **Scaling Limits**: Practical limit for Z3 solver is approximately 10K lines of code per analysis unit.
 - **Resource Intensive**: Requires significant memory for complex constraint solving.
 - **Sandbox Restrictions**: Module whitelist is restricted to vetted modules to maintain security.
-- **Language Support**: Currently restricted to Python (v3.10+).
+- **Language Support**: Currently restricted to Python (v3.11+).
 
 ## When to use it
 - When you need mathematical proofs of code behavior.
 - For high-stakes logic where random fuzzing is insufficient to find deep edge cases.
 - During refactoring to ensure performance optimizations don't change behavior.
-- When validating AI-generated functions from Claude 4.8 or GPT-5.5.
+- When validating AI-generated functions from Claude 5.1 or GPT-5.5.
 
 ## When not to use it
 - For very large codebases that exceed constraint solver capacity.
@@ -119,6 +119,56 @@ Verify that two implementations are semantically identical for all inputs.
 }
 ```
 
+### 3. Python Verification Schema Validation using Pydantic v2
+This Python snippet models and validates the symbolic path solver results using **Pydantic v2** schemas.
+
+```python
+import json
+from typing import List, Dict, Union, Optional
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
+
+class VariableBound(BaseModel):
+    name: str = Field(description="Name of the symbolic variable constraint")
+    value: Union[int, float, str, bool] = Field(description="Z3-solved concrete counterexample value")
+
+class SymbolicPathResult(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    path_id: int = Field(validation_alias="pathId", description="Incremental path index identified by symbolic traversal")
+    reachable: bool = Field(description="Whether the path is mathematically reachable under the current solver constraints")
+    constraints: List[str] = Field(default_factory=list, description="Set of logic constraints generated along this execution path")
+    counterexample: Optional[Dict[str, VariableBound]] = Field(None, description="Concrete variable assignments that break the defined contract")
+
+def validate_symbolic_path(raw_json: str) -> Optional[SymbolicPathResult]:
+    try:
+        data = json.loads(raw_json)
+        # Validate utilizing Pydantic v2
+        path_result = SymbolicPathResult.model_validate(data)
+        return path_result
+    except json.JSONDecodeError:
+        print("Invalid JSON.")
+    except ValidationError as e:
+        print(f"Path Result validation failed: {e.errors()}")
+    return None
+
+# Example usage:
+# if __name__ == "__main__":
+#     sample_result = """
+#     {
+#       "pathId": 3,
+#       "reachable": true,
+#       "constraints": ["x > 1000", "x * 2 == 2050"],
+#       "counterexample": {
+#         "x": {
+#           "name": "x",
+#           "value": 1025
+#         }
+#       }
+#     }
+#     """
+#     path_obj = validate_symbolic_path(sample_result)
+```
+
 ## Related tools / concepts
 - [CrossHair](https://github.com/pschanely/CrossHair)
 - [Z3 Solver](https://github.com/Z3Prover/z3)
@@ -133,8 +183,8 @@ Verify that two implementations are semantically identical for all inputs.
 - [Symbolic MCP GitHub](https://github.com/democratize-technology/symbolic-mcp)
 - [Z3 Prover Guide](https://microsoft.github.io/z3guide/)
 - [Formal Verification for LLM Code Generation (2026 Paper)](https://arxiv.org/abs/symbolic-eval-2026)
-- [MCP 3.0 Task Protocol Specification](https://mcp.dev/protocol/3.0/tasks)
+- [MCP 3.1 Task Protocol Specification](https://mcp.dev/protocol/3.1/tasks)
 
 ## Contribution Metadata
+- Last reviewed: 2026-11-01
 - Confidence: high
-- Last reviewed: 2026-06-30
