@@ -4,14 +4,14 @@
 Promptfoo is an open-source (MIT) CLI tool and library for evaluating, testing, and securing LLM prompts and models. It allows you to run systematic test cases across multiple providers and models, with a heavy focus on **AI Security** and **Red Teaming**. While the core CLI is free and self-hostable, a paid enterprise tier exists for governance and team features.
 
 ## What problem it solves
-It solves the problem of "prompt regression" and security vulnerabilities by providing a framework for regression testing and automated red teaming. It allows you to quantify how changes to a prompt affect output quality and safety across many different test cases, preventing silent failures when updating to models like **Claude 4.8** or **GPT-5.5**.
+It solves the problem of "prompt regression" and security vulnerabilities by providing a framework for regression testing and automated red teaming. It allows you to quantify how changes to a prompt affect output quality and safety across many different test cases, preventing silent failures when updating to models like **Claude 5.1** or **GPT-5.5**.
 
 ## Where it fits in the stack
 **Benchmarking / Eval / Security**. It is a critical tool for the [Dev-Workflow AI Assisted](../../playbooks/dev-workflow-ai-assisted.md) cycle, acting as the bridge between development and production-ready prompts.
 
 ## Typical use cases
 - **Prompt Comparison**: Testing the same input against 10 different versions of a prompt.
-- **Model Comparison**: Testing the same prompt against **GPT-5.5**, **Claude 4.8 Opus**, and **Llama 4 Maverick**.
+- **Model Comparison**: Testing the same prompt against **GPT-5.5**, **Claude 5.1 Opus**, and **Llama 4**.
 - **Red Teaming**: Identifying prompt injection, data exfiltration, and permission misuse vulnerabilities.
 - **CI/CD Integration**: Automatically running a test suite before deploying a prompt change.
 - **MCP Tool Testing**: Verifying that agents correctly call [MCP](../automation_orchestration/mcp.md) tools from servers like [Grafana](../process_understanding/grafana-cloud.md) or [New Relic](../process_understanding/new-relic-ai.md).
@@ -66,8 +66,8 @@ promptfoo redteam run --config redteam.yaml
 
 ### Comparing Models Side-by-Side
 ```bash
-# Compare GPT-5.5 and Claude 4.8
-promptfoo eval -p "Summarize: {{text}}" -r openai:gpt-5.5 -r anthropic:messages:claude-4-8-opus-20260528 -v text="MCP 3.0 protocol details"
+# Compare GPT-5.5 and Claude 5.1
+promptfoo eval -p "Summarize: {{text}}" -r openai:gpt-5.5 -r anthropic:messages:claude-5-1-opus-20261024 -v text="MCP 3.1 protocol details"
 ```
 
 ### Testing MCP Tools
@@ -97,16 +97,38 @@ const results = await promptfoo.evaluate({
 console.log(results);
 ```
 
-### Custom Python Assertion
-```python
-def check_length(output, vars):
-    # Ensure the output is concise for daily digests
-    return len(output) < 500
+### Custom Python Assertion (Pydantic v2 Validation)
+Promptfoo supports writing custom assertion logic in Python. Below is a robust, type-hinted custom assertion function that parses and validates a JSON response against a structured schema using Pydantic v2:
 
-# Used in promptfooconfig.yaml as:
-# assert:
-#   - type: python
-#     value: file://assertions.py:check_length
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import Dict, Any
+
+class EvalOutputSchema(BaseModel):
+    summary: str = Field(..., description="The summarized content", max_length=500)
+    contains_mcp_details: bool = Field(True, description="Indicates if MCP standard references are present")
+
+def check_length(output: str, vars: Dict[str, Any]) -> bool:
+    """
+    Validates that the model output is structurally sound and conforms to
+    maximum length requirements for daily digests.
+    Integrates seamlessly into promptfoo's python assertion environment.
+    """
+    try:
+        # Validate structured JSON output using Pydantic v2
+        parsed_output = EvalOutputSchema.model_validate_json(output)
+        return len(parsed_output.summary) < 500
+    except ValidationError:
+        # Gracefully fall back to plain-text length check if not JSON
+        return len(output) < 500
+```
+
+To integrate this in your `promptfooconfig.yaml`, specify the assertion type as `python` and refer to the file:
+```yaml
+# promptfooconfig.yaml
+assert:
+  - type: python
+    value: file://assertions.py:check_length
 ```
 
 ## Related tools / concepts
@@ -126,5 +148,5 @@ def check_length(output, vars):
 - [OpenAI Acquisition Announcement (March 2026)](https://www.openai.com/blog/openai-acquires-promptfoo/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

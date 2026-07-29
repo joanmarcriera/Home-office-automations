@@ -22,7 +22,7 @@ It addresses the critical security concern of sending proprietary or sensitive s
 - **Multi-IDE Support**: Excellent coverage for VS Code, JetBrains, Sublime, Vim, and more.
 
 ## Limitations
-- **Completion Quality**: Local models may occasionally lag behind state-of-the-art cloud models like [Claude 4.8 Opus](../providers/anthropic.md) or [GPT-5.5](../ai_knowledge/openai.md).
+- **Completion Quality**: Local models may occasionally lag behind state-of-the-art cloud models like **Claude 5.1** or **GPT-5.5**.
 - **Resource Usage**: Local inference requires significant RAM and CPU/GPU resources on the developer's machine.
 - **Cost**: The most advanced privacy and custom features are locked behind high-tier enterprise pricing.
 
@@ -137,5 +137,5 @@ services:
 - [Tabnine for Enterprise](https://www.tabnine.com/enterprise)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high

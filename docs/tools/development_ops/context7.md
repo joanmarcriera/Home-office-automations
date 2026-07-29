@@ -4,7 +4,7 @@
 Context7 is an Upstash project that gives coding agents and AI editors access to current library and framework documentation through a dedicated context layer. It acts as a specialized RAG (Retrieval-Augmented Generation) source specifically for software documentation.
 
 ## What problem it solves
-It reduces one of the biggest failure modes in coding agents: confidently using stale or hallucinated package APIs because the base model does not know the latest docs. By providing "up-to-the-minute" documentation, it ensures agents use the correct parameters and methods for fast-moving libraries.
+It reduces one of the biggest failure modes in coding agents: confidently using stale or hallucinated package APIs because the base model does not know the latest docs. By providing "up-to-the-minute" documentation, it ensures agents use the correct parameters and methods for fast-moving libraries. This is particularly crucial when coordinating state-of-the-art models like **Claude 5.1** and **GPT-5.5**.
 
 ## Where it fits in the stack
 **Development & Ops / Context Retrieval**. It acts as a live documentation layer for coding agents rather than a general-purpose search engine.
@@ -64,7 +64,7 @@ Add the following to your `claude_desktop_config.json`:
 ## CLI examples
 
 ### Querying Documentation via MCP CLI
-You can test the MCP server directly using `mcp-cli`:
+You can test the MCP server directly using `mcp-cli` under MCP 3.1:
 
 ```bash
 # Search for documentation on a specific package
@@ -79,22 +79,38 @@ mcp-cli call context7 list_packages
 
 ## API examples
 
-### Python Integration
-Context7 can be used programmatically to ground your custom agents:
+### Python Integration (Pydantic v2 Validation)
+Context7 can be used programmatically to ground custom agent workflows (such as those using **Claude 5.1** or **GPT-5.5**). Below is a fully validated implementation utilizing Pydantic v2:
 
 ```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl
 import requests
 
-def fetch_package_docs(package_name, query):
+class Context7SearchResult(BaseModel):
+    package_name: str = Field(..., description="Name of the queried package")
+    query: str = Field(..., description="The search query submitted")
+    content: str = Field(..., description="The retrieved documentation context")
+    relevance_score: float = Field(..., description="The relevance confidence score of the match")
+    source_url: Optional[HttpUrl] = Field(None, description="Direct link to the canonical documentation page")
+
+def fetch_package_docs(package_name: str, query: str) -> Context7SearchResult:
     """
     Fetches the latest documentation for a package using Context7.
+    Validates and formats the result using Pydantic v2.
     """
     url = f"https://context7.upstash.io/docs/{package_name}/search"
-    response = requests.get(url, params={"q": query})
-    return response.json()["content"]
+    response = requests.get(url, params={"q": query}, timeout=10)
+    response.raise_for_status()
+
+    # Parse and validate response
+    payload = response.json()
+    return Context7SearchResult.model_validate(payload)
 
 # Usage
-# content = fetch_package_docs("langchain", "how to use FastMCP 3.0")
+# result = fetch_package_docs("langchain", "how to use FastMCP 3.1")
+# print(f"Context relevance: {result.relevance_score}")
+# print(result.content)
 ```
 
 ## Related tools / concepts
@@ -115,5 +131,5 @@ def fetch_package_docs(package_name, query):
 - [Upstash Documentation](https://docs.upstash.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-28
+- Last reviewed: 2026-11-01
 - Confidence: high
