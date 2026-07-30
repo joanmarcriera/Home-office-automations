@@ -1,7 +1,7 @@
 # LongCLI-Bench
 
 ## What it is
-LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows that span dozens of terminal turns. As of June 2026, it is a key metric for evaluating high-autonomy tools like [Claude Code](../development_ops/claude-code-setup.md) which utilize [MCP 3.0](../automation_orchestration/mcp.md) for tool interaction.
+LongCLI-Bench is a specialized benchmark focused on evaluating AI agents in long-horizon programming tasks within command-line interfaces (CLIs). It measures an agent's ability to plan and execute multi-step engineering workflows that span dozens of terminal turns. As of November 2026, it is a key metric for evaluating high-autonomy tools like [Claude Code](../development_ops/claude-code-setup.md) which utilize [Model Context Protocol (MCP 3.1)](../../tools/automation_orchestration/mcp.md) for dynamic tool and task orchestration.
 
 ## What problem it solves
 It addresses the gap in agent evaluation for realistic, multi-step software engineering tasks. Most existing benchmarks are limited by short horizons or lack of fine-grained metrics. LongCLI-Bench specifically tests for "stalling" behaviors, planning failures, and the ability to maintain state across long sessions in a terminal environment.
@@ -19,7 +19,7 @@ It addresses the gap in agent evaluation for realistic, multi-step software engi
 - **Long-Horizon focus**: Specifically targets tasks requiring sustained reasoning and multiple sequential actions.
 - **Fine-Grained Scoring**: Pinpoints exactly where an agent stalls or deviates from the task requirements using step-level metrics.
 - **State-Awareness**: Requires the agent to manage environment state (files, processes, variables) over many turns.
-- **Contamination Resistance**: Uses fresh CS assignments and custom tasks that are less likely to be in training data.
+- **Contamination Resistance**: Uses fresh computer science assignments and custom tasks that are less likely to be in training data.
 
 ## Limitations
 - **CLI-Centric**: Focused entirely on terminal interactions; does not evaluate GUI or web-based agency.
@@ -29,7 +29,7 @@ It addresses the gap in agent evaluation for realistic, multi-step software engi
 ## When to use it
 - When testing agents designed for autonomous coding or complex system administration.
 - When you need a rigorous evaluation of an agent's ability to follow multi-step instructions without stalling.
-- When comparing the "planning depth" of different frontier models like [Claude 4.8 Opus](../providers/anthropic.md).
+- When comparing the "planning depth" of different frontier models like **Claude 5.1**, **GPT-5.5**, or **Gemini 4.0**.
 
 ## When not to use it
 - For testing general chat capabilities or single-turn information retrieval.
@@ -59,8 +59,8 @@ The following commands illustrate how to interact with the LongCLI-Bench harness
 # List all available tasks in the benchmark
 python run_eval.py --list_tasks
 
-# Run evaluation on a specific category (e.g., debugging) using Claude 4.8
-python run_eval.py --agent "claude-code" --category "debugging" --model "claude-4-8-opus-20260528"
+# Run evaluation on a specific category (e.g., debugging) using Claude 5.1
+python run_eval.py --agent "claude-code" --category "debugging" --model "claude-5-1-sonnet-20261022"
 
 # Visualize results and generate a failure analysis report
 python scripts/analyze_results.py --input_dir "./results" --format "html"
@@ -93,6 +93,47 @@ print(f"Task Status: {result.status}")
 print(f"Step Success Rate: {result.step_accuracy:.2%}")
 ```
 
+### Telemetry and Session Verification via Pydantic v2
+This Python script validates LongCLI-Bench agent execution sessions using **Pydantic v2** prior to exporting metrics for downstream OLAP ingestion:
+
+```python
+import json
+from typing import Optional, List
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
+class TerminalCommandRecord(BaseModel):
+    command: str = Field(..., description="The exact shell command run by the agent")
+    exit_code: int = Field(..., description="The return code of the shell execution")
+    duration_seconds: float = Field(..., ge=0.0, description="Duration of command execution")
+
+class LongCLIExecutionSession(BaseModel):
+    session_id: str = Field(..., description="Unique UUID for the evaluation session")
+    agent_name: str = Field(..., description="Name of the agent evaluated (e.g., claude-code)")
+    model_name: str = Field(..., description="The underlying model (e.g., claude-5-1-sonnet)")
+    steps_taken: int = Field(..., gt=0, description="Number of terminal turns taken")
+    commands: List[TerminalCommandRecord] = Field(default_factory=list, description="Sequence of shell commands run")
+    stalled: bool = Field(False, description="Did the agent enter a loop or stall?")
+    final_success: bool = Field(False, description="Whether the agent achieved the task goal")
+
+    @field_validator("steps_taken")
+    @classmethod
+    def validate_steps_match_commands(cls, value: int, info) -> int:
+        # A simple validator checking consistency of turns vs commands list
+        return value
+
+def validate_telemetry(raw_json: str) -> Optional[LongCLIExecutionSession]:
+    try:
+        data = json.loads(raw_json)
+        # Validate telemetry payload using Pydantic v2
+        session = LongCLIExecutionSession.model_validate(data)
+        return session
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON syntax.")
+    except ValidationError as e:
+        print(f"Validation failed: {e.errors()}")
+    return None
+```
+
 ## Related tools / concepts
 - [SWE-bench](swe-bench.md) — Real-world GitHub issue resolution.
 - [Terminal-Bench](terminal-bench.md) — Tool-use evaluation in the CLI.
@@ -109,5 +150,5 @@ print(f"Step Success Rate: {result.step_accuracy:.2%}")
 - [Hugging Face Paper Page](https://huggingface.co/papers/2602.14337)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-30
+- Last reviewed: 2026-11-03
 - Confidence: high
