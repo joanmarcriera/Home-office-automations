@@ -1,7 +1,7 @@
 # Chronos MCP
 
 ## What it is
-Chronos MCP is a high-performance Model Context Protocol (MCP) server for CalDAV calendar and task management. As of July 2026, it is built on **FastMCP 3.0** and supports the **MCP 3.0** Task Protocol, enabling frontier models like **Gemma 3**, Claude 4.8 Opus, and GPT-5.5 to perform deep orchestration across multiple CalDAV-compliant servers including Nextcloud, iCloud, and Fastmail.
+Chronos MCP is a high-performance Model Context Protocol (MCP) server for CalDAV calendar and task management. As of late October / November 2026, it is built on **FastMCP 3.1** and supports the **MCP 3.1** Task Protocol, enabling frontier models like **Gemma 3**, Claude 5.1, and GPT-5.5 to perform deep orchestration across multiple CalDAV-compliant servers including Nextcloud, iCloud, and Fastmail.
 
 ## What problem it solves
 It bridges the gap between autonomous AI agents and standard calendar protocols (RFC 4791, RFC 4918). Chronos allows agents to manage complex scheduling, task lists (VTODO), and journals (VJOURNAL) without needing bespoke integrations for every calendar provider, while maintaining high security through system-level keyring integration.
@@ -16,7 +16,7 @@ It bridges the gap between autonomous AI agents and standard calendar protocols 
 - **Automated Logging**: Using VJOURNAL entries to maintain an agentic work log or technical journal.
 
 ## Strengths
-- **Native FastMCP 3.0**: Leverages the latest MCP features for improved tool discovery and type safety.
+- **Native FastMCP 3.1**: Leverages the latest MCP features for improved tool discovery and type safety.
 - **Advanced Search Engine**: Includes relevance-ranked search with regex and fuzzy-match capabilities.
 - **Keyring Security**: Securely stores credentials using OS-native secret managers (Keychain, Windows Credential Locker).
 - **Comprehensive VObject Support**: Handles Events, Tasks, and Journals with full CRUD operations.
@@ -74,7 +74,6 @@ chronos-mcp-migrate-keyring
 ```
 
 ## API examples
-Agents interact with Chronos via the following standard MCP tools:
 
 ### Create a Task (VTODO)
 ```json
@@ -84,8 +83,8 @@ Agents interact with Chronos via the following standard MCP tools:
     "name": "create_task",
     "arguments": {
       "account": "Nextcloud",
-      "summary": "Implement MCP 3.0 Routing Logic",
-      "due": "2026-07-20T17:00:00Z",
+      "summary": "Implement MCP 3.1 Routing Logic",
+      "due": "2026-11-20T17:00:00Z",
       "priority": 1
     }
   }
@@ -100,11 +99,48 @@ Agents interact with Chronos via the following standard MCP tools:
     "name": "search_events",
     "arguments": {
       "query": "Project Gemma",
-      "start_date": "2026-07-01",
-      "end_date": "2026-07-31"
+      "start_date": "2026-11-01",
+      "end_date": "2026-11-30"
     }
   }
 }
+```
+
+### CalDAV Event Validation with Pydantic v2
+This Python script parses and validates standard CalDAV event payloads retrieved by the Chronos MCP server using **Pydantic v2**:
+
+```python
+import json
+from datetime import datetime
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+
+class CalDAVAttendee(BaseModel):
+    email: str = Field(..., description="Attendee email address")
+    cn: Optional[str] = Field(None, description="Common name or display name")
+    status: str = Field("NEEDS-ACTION", description="Participation status")
+
+class CalDAVEvent(BaseModel):
+    uid: str = Field(..., description="Unique event identifier (UID)")
+    summary: str = Field(..., description="Event title or brief summary")
+    description: Optional[str] = Field(None, description="Detailed description of the event")
+    start: datetime = Field(..., description="Event start date and time")
+    end: datetime = Field(..., description="Event end date and time")
+    location: Optional[str] = Field(None, description="Physical location or conference URL")
+    attendees: List[CalDAVAttendee] = Field(default_factory=list, description="List of event participants")
+    url: Optional[HttpUrl] = Field(None, description="External resource URL associated with the event")
+
+def validate_caldav_event(raw_json: str) -> Optional[CalDAVEvent]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2 model_validate
+        return CalDAVEvent.model_validate(data)
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON.")
+        return None
 ```
 
 ## Related tools / concepts
@@ -115,15 +151,15 @@ Agents interact with Chronos via the following standard MCP tools:
 - [Vikunja MCP](vikunja-mcp.md) — Specialized task management MCP server.
 - [Google Workspace CLI](google-workspace-cli.md) — Comparison tool for Google ecosystems.
 - [Claude Code](../development_ops/claude-code.md) — Agentic CLI that utilizes Chronos.
-- [Gemma 3](../ai_knowledge/local_llms.md) — Native support for MCP 3.0 tool calling.
+- [Gemma 3](../ai_knowledge/local_llms.md) — Native support for MCP 3.1 tool calling.
 - [MCP Registry](mcp-registry.md) — Discover other servers.
 
 ## Sources / references
 - [Chronos MCP GitHub Repository](https://github.com/democratize-technology/chronos-mcp)
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 - [RFC 4791 - CalDAV Specification](https://datatracker.ietf.org/doc/html/rfc4791)
-- [MCP 3.0 Release Notes](../../knowledge_base/agent_protocols.md)
+- [MCP 3.1 Release Notes](../../knowledge_base/agent_protocols.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-02
+- Last reviewed: 2026-11-05
 - Confidence: high

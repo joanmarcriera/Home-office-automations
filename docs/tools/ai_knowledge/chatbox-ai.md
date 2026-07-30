@@ -1,13 +1,13 @@
 # Chatbox AI
 
 ## What it is
-Chatbox AI is a comprehensive, multi-platform AI client that allows users to access a wide range of frontier models (including **Claude 4.8 Opus**, **GPT-5.5**, **Gemini 2.0**, and local models via **Ollama**) through a unified, privacy-focused interface. As of July 2026, it is a leading "cockpit" for human-AI collaboration, available on Windows, macOS, Linux, iOS, Android, and the web.
+Chatbox AI is a comprehensive, multi-platform AI client that allows users to access a wide range of frontier models (including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and local models via **Ollama**) through a unified, privacy-focused interface. As of late October / November 2026, it is a leading "cockpit" for human-AI collaboration, available on Windows, macOS, Linux, iOS, Android, and the web.
 
 ## What problem it solves
 It centralizes AI interaction, eliminating the need to manage multiple browser tabs or individual subscriptions for different providers. By allowing users to "Bring Your Own Key" (BYOK), it provides a cost-effective and privacy-conscious way to use high-end AI models while keeping conversation history, custom agents, and settings synchronized across all devices with end-to-end encryption.
 
 ## Where it fits in the stack
-**AI Consumption & Interaction Layer**. It acts as a sophisticated front-end for various API providers and local inference engines. It now natively supports the **Model Context Protocol (MCP) 3.0**, allowing the client to act as a host for diverse tool-using agents.
+**AI Consumption & Interaction Layer**. It acts as a sophisticated front-end for various API providers and local inference engines. It natively supports the **Model Context Protocol (MCP) 3.1**, allowing the client to act as a host for diverse tool-using agents utilizing standardized Task Protocols.
 
 ## Typical use cases
 - **Multi-Device Research**: Starting a complex research prompt on a desktop and continuing the conversation seamlessly on a mobile device while commuting.
@@ -17,19 +17,19 @@ It centralizes AI interaction, eliminating the need to manage multiple browser t
 
 ## Strengths
 - **Native Multi-Platform Support**: Consistent, high-quality experience across desktop and mobile.
-- **MCP 3.0 Integration**: Can connect to any MCP-compliant server for local tool execution and data retrieval.
+- **MCP 3.1 Integration**: Can connect to any MCP-compliant server for local tool execution and data retrieval.
 - **Broad Model Support**: Direct integration with OpenAI, Anthropic, Google, DeepSeek, and local providers.
 - **Superior Artifact Handling**: Modern "Artifacts" view for code, documents, and web previews, similar to Claude's native interface.
 
 ## Limitations
 - **Semi-Proprietary**: While the issue tracker and some components are public, the core application remains closed-source.
 - **Sync Requires Subscription**: Advanced features like cross-device synchronization and certain "Agentic Presets" require a Pro subscription.
-- **Limited to Chat-centric Agents**: While it supports tool-use, it is primarily a chat interface and lacks the deep filesystem automation of dedicated CLI agents like [Claude Code](../development_ops/claude-code.md).
+- **Limited to Chat-centric Agents**: Primarily a chat interface and lacks the deep filesystem automation of dedicated CLI agents like [Claude Code](../development_ops/claude-code.md).
 
 ## When to use it
 - If you use multiple different AI models daily and want a single, high-quality application to manage them.
 - If you value having your AI history and custom agents available on your mobile device as well as your workstation.
-- When you want to use frontier models like Claude 4.8 with local tools via MCP 3.0 without writing custom code.
+- When you want to use frontier models like Claude 5.1 with local tools via MCP 3.1 without writing custom code.
 
 ## When not to use it
 - For tasks requiring fully autonomous, filesystem-level agentic behavior (use [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md)).
@@ -83,6 +83,44 @@ In the Chatbox Settings:
 }
 ```
 
+### Configuration Schema Validation with Pydantic v2
+This Python script parses and validates a Chatbox AI multi-provider configuration profile (which contains local Ollama configurations, custom OpenAI-compatible endpoints, and MCP 3.1 server connection structures) using **Pydantic v2**:
+
+```python
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+
+class MCPServerConfig(BaseModel):
+    name: str = Field(..., description="The name of the MCP server")
+    url: HttpUrl = Field(..., description="The connection endpoint URL")
+    enabled: bool = Field(True, description="Whether the server is currently enabled")
+
+class ProviderProfile(BaseModel):
+    name: str = Field(..., description="Provider custom identifier")
+    api_key: str = Field(..., description="API connection key or token")
+    base_url: Optional[HttpUrl] = Field(None, description="Optional custom base endpoint URL")
+    model: str = Field(..., description="Flagship target model, e.g., claude-5-1-sonnet")
+    mcp_servers: List[MCPServerConfig] = Field(default_factory=list, description="Associated MCP servers")
+
+class ChatboxConfig(BaseModel):
+    version: str = Field("2.0.0", description="Chatbox config schema version")
+    active_profile: str = Field(..., description="ID of the currently active profile")
+    profiles: List[ProviderProfile] = Field(..., description="List of registered connection profiles")
+
+def validate_chatbox_config(raw_json: str) -> Optional[ChatboxConfig]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2 model_validate
+        return ChatboxConfig.model_validate(data)
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON.")
+        return None
+```
+
 ## Related tools / concepts
 - [TypingMind](typingmind.md) — The primary competitor for professional AI chat interfaces.
 - [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — The standard for client-tool communication.
@@ -99,5 +137,5 @@ In the Chatbox Settings:
 - [MCP Integration Guide for Chatbox](https://chatboxai.app/docs/mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-02
+- Last reviewed: 2026-11-05
 - Confidence: high
