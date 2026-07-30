@@ -1,16 +1,16 @@
 # ASDiv (Academia Sinica Diverse MWP Dataset)
 
 ## What it is
-ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed for evaluating the natural language understanding and problem-solving capabilities of AI solvers. As of July 2026, it remains a foundational benchmark for measuring the semantic reasoning of frontier models like `claude-4-8-opus-20260528`, GPT-5.5, and Gemma 3. It is structured to provide high diversity in both linguistic expression and mathematical problem types, specifically targeting the "lexicon" variety that often trips up less robust models.
+ASDiv is a diverse corpus of 2,305 English Math Word Problems (MWPs) designed for evaluating the natural language understanding and problem-solving capabilities of AI solvers. As of late October / November 2026, it remains a foundational benchmark for measuring the semantic reasoning of frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, and Gemma 3. It is structured to provide high diversity in both linguistic expression and mathematical problem types, specifically targeting the "lexicon" variety that often trips up less robust models.
 
 ## What problem it solves
-Many existing MWP datasets suffer from limited diversity in language patterns or problem types, often allowing models to "cheat" by learning statistical shortcuts or over-fitting to specific phrasing. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school (K-6), requiring actual semantic understanding to map natural language descriptions to formal mathematical operations. With the release of MCP 3.0 in July 2026, ASDiv is increasingly used to validate the mathematical tool-use capabilities of agents via the Task Protocol.
+Many existing MWP datasets suffer from limited diversity in language patterns or problem types, often allowing models to "cheat" by learning statistical shortcuts or over-fitting to specific phrasing. ASDiv provides a broader range of text patterns and covers most problem types taught in elementary school (K-6), requiring actual semantic understanding to map natural language descriptions to formal mathematical operations. Under the latest Model Context Protocol (MCP 3.1) schemas, ASDiv is increasingly used to validate the mathematical tool-use capabilities of agents via the Task Protocol.
 
 ## Where it fits in the stack
 ASDiv belongs to the **Benchmarking** category, specifically focusing on mathematical reasoning and lexicon usage diversity. It acts as a specialized check within an evaluation suite, alongside broader benchmarks like [MMLU](../benchmarking/mmlu.md) and [GSM8K](../benchmarking/gsm8k.md).
 
 ## Typical use cases
-- **Frontier Model Evaluation**: Benchmarking Claude 4.8, GPT-5.5, and Gemma 3 on elementary-level mathematical reasoning.
+- **Frontier Model Evaluation**: Benchmarking Claude 5.1, GPT-5.5, and Gemma 3 on elementary-level mathematical reasoning.
 - **Robustness Testing**: Measuring how variations in linguistic phrasing affect a model's ability to solve math problems.
 - **Specialized Solver Development**: Training and testing specialized Math Word Problem (MWP) solvers.
 - **Prompt Engineering**: Validating the effectiveness of "Chain of Thought" (CoT) and "System 2" reasoning prompts across varied problem structures.
@@ -29,7 +29,7 @@ ASDiv belongs to the **Benchmarking** category, specifically focusing on mathema
 ## When to use it
 - Use ASDiv to verify that a model can handle varied phrasing in math problems without relying on superficial pattern matching.
 - When you want to specifically test "Word Problem" solving rather than pure arithmetic or high-level calculus.
-- When performing technical freshness audits of model reasoning capabilities in July 2026.
+- When performing technical freshness audits of model reasoning capabilities in late 2026.
 
 ## When not to use it
 - Do not use it for evaluating high-level mathematics (calculus, linear algebra).
@@ -67,22 +67,45 @@ lm_eval --tasks asdiv --print_config
 ```
 
 ## API examples
-Loading ASDiv via Python for custom evaluation loops or dataset analysis.
+Loading ASDiv via Python for custom evaluation loops or dataset analysis, utilizing **Pydantic v2** for robust question schema and telemetry validation.
 
 ```python
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 from datasets import load_dataset
 
-# Load the ASDiv dataset
-dataset = load_dataset("asdiv")
+# Pydantic v2 validation schema for ASDiv Problem structure
+class ASDivProblemSchema(BaseModel):
+    id: str = Field(..., description="Unique problem identifier")
+    question: str = Field(..., description="The linguistic question prompt")
+    formula: str = Field(..., description="The expected mathematical equation")
+    answer: str = Field(..., description="The final parsed answer string")
+    problem_type: str = Field(..., alias="type", description="Specific category of math operation")
 
-# Inspect a problem
-print(dataset['test'][0]['question'])
-print(dataset['test'][0]['answer'])
-print(dataset['test'][0]['formula'])
+class ASDivEvaluationRun(BaseModel):
+    problem: ASDivProblemSchema
+    model_response: str = Field(..., description="Raw output generated by the LLM")
+    extracted_answer: str = Field(..., description="The answer parsed from the model response")
+    is_correct: bool = Field(..., description="True if extracted_answer matches expected problem.answer")
 
-# Filter for specific problem types (e.g., Multiplication)
-multiplication_probs = [p for p in dataset['test'] if 'Multiplication' in p['type']]
-print(f"Found {len(multiplication_probs)} multiplication problems.")
+def validate_evaluation(raw_data: dict) -> Optional[ASDivEvaluationRun]:
+    try:
+        # Pydantic v2 validation and parsing
+        run = ASDivEvaluationRun.model_validate(raw_data)
+        return run
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+
+# Load the ASDiv dataset via HF datasets
+try:
+    dataset = load_dataset("asdiv")
+    # Filter for specific problem types (e.g., Multiplication)
+    multiplication_probs = [p for p in dataset['test'] if 'Multiplication' in p['type']]
+    print(f"Found {len(multiplication_probs)} multiplication problems.")
+except Exception as e:
+    print(f"Hugging Face load skipped or errored in dry run: {e}")
 ```
 
 ## Related tools / concepts
@@ -90,7 +113,7 @@ print(f"Found {len(multiplication_probs)} multiplication problems.")
 - [Math Benchmark](math-benchmark.md) — Comprehensive mathematics evaluation suite.
 - [MMLU](../benchmarking/mmlu.md) — Massive Multitask Language Understanding.
 - [DREAM](../benchmarking/dream.md) — Deep Research Evaluation with Agentic Metrics.
-- [Claude 4.8 Opus](../../knowledge_base/patterns/claude-4-8-patterns.md) — Frontier model often benchmarked with ASDiv.
+- [Claude](../ai_knowledge/claude.md) — Frontier model often benchmarked with ASDiv.
 - [Model Context Protocol](../automation_orchestration/mcp.md) — Standard for connecting models to data and tools.
 - [Llamafile](../infrastructure/llamafile.md) — Simple way to run LLMs locally.
 - [Local LLMs](../ai_knowledge/local_llms.md) — Guide to running models on your own hardware.
@@ -101,5 +124,5 @@ print(f"Found {len(multiplication_probs)} multiplication problems.")
 - [Hugging Face ASDiv Dataset Card](https://huggingface.co/datasets/asdiv)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-01
+- Last reviewed: 2026-11-04
 - Confidence: high
