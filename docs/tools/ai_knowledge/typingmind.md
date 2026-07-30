@@ -1,7 +1,7 @@
 # TypingMind
 
 ## What it is
-TypingMind is an advanced AI chat interface that allows users to interact with multiple frontier models (Claude 4.8 Opus, GPT-5.5, Gemini 2.0, Gemma 3, etc.) through a single, feature-rich UI. As of July 2026, it is available as a web application, a desktop client, and a self-hosted "TypingMind Custom" instance for enterprises.
+TypingMind is an advanced AI chat interface that allows users to interact with multiple frontier models (Claude 5.1, GPT-5.5, Gemini 4.0, Gemma 3, etc.) through a single, feature-rich UI. As of late October / November 2026, it is available as a web application, a desktop client, and a self-hosted "TypingMind Custom" instance for enterprises.
 
 ## What problem it solves
 It provides a superior, professional-grade user experience compared to default AI chat interfaces. It adds critical features for power users and teams, such as deep chat organization (nested folders, smart tags), prompt libraries, and an "Agentic Canvas" for building multi-agent workflows. It also enables "Bring Your Own Key" (BYOK) usage, allowing for direct API pricing and bypassing the constraints of official consumer clients.
@@ -12,14 +12,14 @@ It provides a superior, professional-grade user experience compared to default A
 ## Typical use cases
 - **Professional Research Workspace**: Organizing thousands of research threads into structured projects with full-text search.
 - **Enterprise Agent Development**: Building and deploying custom AI agents with specialized knowledge bases and MCP-driven toolsets for teams.
-- **Multi-Model Orchestration**: Comparing responses from different models (e.g., GPT-5.5 vs. Claude 4.8) in parallel and using the "Agentic Canvas" to link their outputs.
+- **Multi-Model Orchestration**: Comparing responses from different models (e.g., GPT-5.5 vs. Claude 5.1) in parallel and using the "Agentic Canvas" to link their outputs.
 - **Secure Team AI**: Providing a standardized, secure interface for employees with centralized API key management and audit logs in the "TypingMind Teams" version.
 
 ## Strengths
 - **Advanced Workflow Tools**: Includes an "Agentic Canvas" for visual agent building, high-fidelity Artifacts, and native support for prompt caching.
 - **Best-in-Class Organization**: Unmatched chat management with nested folders, tag-based filtering, and project-based workspaces.
 - **Privacy & Security**: Data is stored locally by default (IndexDB), with end-to-end encrypted sync and self-hosting options for enterprises.
-- **Extensible Architecture**: Native, robust support for **MCP 3.0**, allowing agents to use local and cloud-based tools seamlessly.
+- **Extensible Architecture**: Native, robust support for **MCP 3.1**, allowing agents to use local and cloud-based tools seamlessly.
 
 ## Limitations
 - **Cost**: Requires a one-time license purchase for individual pro features or a subscription for team-based enterprise versions.
@@ -46,10 +46,10 @@ It provides a superior, professional-grade user experience compared to default A
 ### Configuring Providers
 TypingMind uses a "Bring Your Own Key" (BYOK) model.
 1. Navigate to **Settings** > **AI Providers**.
-2. Add your keys for Anthropic (`claude-4-8-opus-20260528`), OpenAI (`gpt-5.5-preview`), or [OpenRouter](openrouter.md).
+2. Add your keys for Anthropic (`claude-5-1-opus-20261015`), OpenAI (`gpt-5-5-preview`), or [OpenRouter](openrouter.md).
 3. (Optional) Connect to a local **Ollama** instance at `http://localhost:11434`.
 
-### Adding MCP 3.0 Servers
+### Adding MCP 3.1 Servers
 1. Go to **Settings** > **MCP Servers**.
 2. Click **Add New Server** and enter the name and endpoint.
 3. Enable the tools for your desired agents.
@@ -89,10 +89,47 @@ Prompts can be exported and imported via a standardized JSON format.
       "title": "Architectural Auditor",
       "content": "Analyze the following system design for scalability and security bottlenecks: {{system_design}}",
       "tags": ["architecture", "security"],
-      "model": "claude-4-8-opus"
+      "model": "claude-5-1-opus"
     }
   ]
 }
+```
+
+### Custom Model Configuration Validation with Pydantic v2
+This Python script validates Custom Model Lists and JSON formats used in TypingMind custom endpoints using **Pydantic v2**:
+
+```python
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+
+class ModelCapability(BaseModel):
+    id: str = Field(..., description="Capability identifier, e.g., vision, tools")
+    enabled: bool = Field(True, description="Whether the capability is activated")
+
+class CustomModel(BaseModel):
+    id: str = Field(..., description="Unique model identifier used by the API")
+    name: str = Field(..., description="Display name of the model in the UI")
+    context_window: int = Field(..., description="Context window size in tokens")
+    capabilities: List[str] = Field(default_factory=list, description="Model capability list")
+
+class CustomProviderConfig(BaseModel):
+    name: str = Field(..., description="Custom provider identifier")
+    api_key: str = Field(..., description="Provider API connection key")
+    base_url: HttpUrl = Field(..., description="API base endpoint url")
+    model_list: List[CustomModel] = Field(..., description="Registered models for this custom endpoint")
+
+def validate_custom_provider(raw_json: str) -> Optional[CustomProviderConfig]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2 model_validate
+        return CustomProviderConfig.model_validate(data)
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON.")
+        return None
 ```
 
 ## Related tools / concepts
@@ -111,5 +148,5 @@ Prompts can be exported and imported via a standardized JSON format.
 - [TypingMind Teams: Enterprise AI Collaboration](https://www.typingmind.com/teams)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-02
+- Last reviewed: 2026-11-05
 - Confidence: high

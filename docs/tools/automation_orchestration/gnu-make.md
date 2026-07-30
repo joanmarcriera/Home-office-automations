@@ -1,10 +1,10 @@
 # GNU Make
 
 ## What it is
-GNU Make is a foundational build automation tool that controls the generation of executables and other non-source files from a project's source files. It is the industry standard for managing complex build dependencies and is increasingly utilized as a universal task runner for AI-agentic workflows, supporting frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, and GPT-5.5.
+GNU Make is a foundational build automation tool that controls the generation of executables and other non-source files from a project's source files. It is the industry standard for managing complex build dependencies and is increasingly utilized as a universal task runner for AI-agentic workflows, supporting frontier models like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, and GPT-5.5.
 
 ## What problem it solves
-In large-scale software projects and multi-tool AI pipelines, manually tracking which files need recompilation or which tasks need execution is error-prone and inefficient. GNU Make automates this by intelligently determining which targets are out-of-date based on file modification timestamps, ensuring consistent and reproducible environments for complex agentic loops and the **MCP 3.0 Task Protocol**.
+In large-scale software projects and multi-tool AI pipelines, manually tracking which files need recompilation or which tasks need execution is error-prone and inefficient. GNU Make automates this by intelligently determining which targets are out-of-date based on file modification timestamps, ensuring consistent and reproducible environments for complex agentic loops and the **MCP 3.1 Task Protocol**.
 
 ## Where it fits in the stack
 **Orchestration / Tooling**. GNU Make serves as the "glue" layer between raw source code/data and final artifacts, providing a unified entry point for compilers, linters, and AI agents.
@@ -126,7 +126,7 @@ run_make_target('build')
 ```
 
 ### Makefile MCP Integration
-As of July 2026, agents utilizing the [MCP 3.0 Task Protocol](mcp.md) can interact with the [Makefile MCP](makefile-mcp.md) server to parse and execute targets directly:
+As of late October / November 2026, agents utilizing the [MCP 3.1 Task Protocol](mcp.md) can interact with the [Makefile MCP](makefile-mcp.md) server to parse and execute targets directly:
 
 ```json
 {
@@ -136,6 +136,42 @@ As of July 2026, agents utilizing the [MCP 3.0 Task Protocol](mcp.md) can intera
     "path": "./Makefile"
   }
 }
+```
+
+### Makefile Target Validation with Pydantic v2
+This Python script parses and validates Make targets representation extracted by an AI agent or Makefile MCP tool using **Pydantic v2**:
+
+```python
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+
+class MakefileCommand(BaseModel):
+    command: str = Field(..., description="The raw shell command sequence")
+    silent: bool = Field(False, description="Whether the command output is hidden (prefixed with @)")
+
+class MakefileTarget(BaseModel):
+    name: str = Field(..., description="The name of the target")
+    dependencies: List[str] = Field(default_factory=list, description="List of target dependencies")
+    commands: List[MakefileCommand] = Field(default_factory=list, description="Associated build/run commands")
+    description: Optional[str] = Field(None, description="Extracted helper description or comment")
+    is_phony: bool = Field(False, description="Whether the target is designated as .PHONY")
+
+class MakefileSchema(BaseModel):
+    filepath: str = Field(..., description="Path to the analyzed Makefile")
+    targets: List[MakefileTarget] = Field(..., description="List of parsed Makefile targets")
+
+def validate_makefile_schema(raw_json: str) -> Optional[MakefileSchema]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2 model_validate
+        return MakefileSchema.model_validate(data)
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON.")
+        return None
 ```
 
 ## Related tools / concepts
@@ -155,8 +191,8 @@ As of July 2026, agents utilizing the [MCP 3.0 Task Protocol](mcp.md) can intera
 - [GNU Make Official Site](https://www.gnu.org/software/make/)
 - [GNU Make Manual](https://www.gnu.org/software/make/manual/make.html)
 - [Makefile Tutorial](https://makefiletutorial.com/)
-- [MCP 3.0 Specification](https://modelcontextprotocol.io/)
+- [MCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-02
+- Last reviewed: 2026-11-05
 - Confidence: high
