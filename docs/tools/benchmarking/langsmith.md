@@ -1,10 +1,10 @@
 # LangSmith
 
 ## What it is
-LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of July 2026, it serves as the industry-standard "control plane" for complex agentic fleets, featuring native support for [MCP 3.0](../../tools/automation_orchestration/mcp.md) observability.
+LangSmith is a unified platform for debugging, testing, evaluating, and monitoring LLM applications. It is part of the LangChain ecosystem but is model-agnostic and can be used with any LLM framework. As of November 2026, it serves as the industry-standard "control plane" for complex agentic fleets, featuring native support for [Model Context Protocol (MCP 3.1)](../../tools/automation_orchestration/mcp.md) observability.
 
 ## What problem it solves
-It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions. With the July 2026 update, it now utilizes **ClickHouse** for high-volume OLAP telemetry, enabling sub-second analytics on millions of traces.
+It addresses the "black box" nature of LLMs by providing full visibility into the execution traces of complex chains and agents. It provides tools for creating "golden" evaluation datasets, running automated tests (LLM-as-a-judge), and monitoring production performance for cost, latency, and quality regressions. It utilizes **ClickHouse** for high-volume OLAP telemetry, enabling sub-second analytics on millions of traces.
 
 ## Where it fits in the stack
 **Benchmarking / Observability**. It is the primary tool for managing the lifecycle of LLM applications from prototype to production.
@@ -18,9 +18,9 @@ It addresses the "black box" nature of LLMs by providing full visibility into th
 - **Agentic Session Replay**: Utilizing [AgentOps](../process_understanding/agentops.md) integration for visual execution graphs and step-by-step session replays.
 
 ## Strengths
-- **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.0.
+- **Deep Ecosystem Integration**: Seamlessly works with LangChain, [LangGraph](../frameworks/langgraph.md), and FastMCP 3.1.
 - **High-Fidelity Tracing**: Visualizes hierarchical execution paths including nested tool calls and parallel branches.
-- **Advanced Evaluators**: Native support for complex automated grading using frontier models like [Claude 4.8 Opus](../providers/anthropic.md).
+- **Advanced Evaluators**: Native support for complex automated grading using frontier models like **Claude 5.1** and **GPT-5.5**.
 - **Polly AI Integration**: Embedded assistant for natural language analysis of failure patterns and performance trends.
 - **Scalable Telemetry**: Powered by ClickHouse for real-time OLAP queries on massive agentic datasets.
 
@@ -69,7 +69,7 @@ def my_agent(question: str):
         messages=[{"role": "user", "content": question}]
     )
 
-my_agent("What is the state of MCP in June 2026?")
+my_agent("What is the state of MCP in November 2026?")
 ```
 
 ## CLI examples
@@ -122,6 +122,48 @@ summary = client.analyze_traces(
 print(summary.findings)
 ```
 
+### Run and Telemetry Validation using Pydantic v2
+This Python script validates LangSmith evaluation runs and telemetry payload schemas using **Pydantic v2** prior to submitting them to custom dashboard collectors:
+
+```python
+import json
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
+class LangSmithRunMetrics(BaseModel):
+    latency_seconds: float = Field(..., ge=0.0, description="Inference latency in seconds")
+    prompt_tokens: int = Field(..., ge=0, description="Tokens consumed in prompt")
+    completion_tokens: int = Field(..., ge=0, description="Tokens generated in completion")
+    cost_usd: Optional[float] = Field(None, ge=0.0, description="Calculated USD cost of the run")
+
+class LangSmithEvalRun(BaseModel):
+    run_id: str = Field(..., description="The unique run execution UUID logged in LangSmith")
+    project_name: str = Field(..., description="Target project name (e.g., prod-fleet)")
+    model_name: str = Field(..., description="Model tested, e.g., claude-5-1-sonnet")
+    metrics: LangSmithRunMetrics = Field(..., description="Usage and timing performance figures")
+    eval_score: float = Field(..., ge=0.0, le=1.0, description="Evaluation score between 0.0 and 1.0 (e.g. LLM-as-a-judge correctness)")
+    feedback_tags: Dict[str, Any] = Field(default_factory=dict, description="Metadata key-value tags assigned to this run")
+
+    @field_validator("project_name")
+    @classmethod
+    def validate_project_non_empty(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("project_name cannot be empty or whitespace only")
+        return value
+
+def validate_eval_payload(raw_json: str) -> Optional[LangSmithEvalRun]:
+    try:
+        data = json.loads(raw_json)
+        # Validate run object using Pydantic v2
+        validated_run = LangSmithEvalRun.model_validate(data)
+        return validated_run
+    except json.JSONDecodeError:
+        print("Error: Line is not valid JSON syntax.")
+    except ValidationError as e:
+        print(f"Validation failed: {e.errors()}")
+    return None
+```
+
 ## Related tools / concepts
 - [Promptfoo](promptfoo.md) — Open-source evaluation CLI.
 - [LangChain](../ai_knowledge/langchain.md) — Primary integration framework.
@@ -142,5 +184,5 @@ print(summary.findings)
 - [ClickHouse Integration for Observability](https://clickhouse.com/blog/observability-with-clickhouse)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-01
+- Last reviewed: 2026-11-03
 - Confidence: high
