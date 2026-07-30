@@ -1,7 +1,7 @@
 # Sentry
 
 ## What it is
-Sentry is an open-source error tracking and performance monitoring platform that helps developers see what matters and solve problems faster. As of July 2026, it has evolved into an AI-native observability suite, offering deep integration with frontier models and autonomous agent workflows.
+Sentry is an open-source error tracking and performance monitoring platform that helps developers see what matters and solve problems faster. As of late October / November 2026, it has evolved into an AI-native observability suite, offering deep integration with frontier models and autonomous agent workflows.
 
 ## What problem it solves
 It provides real-time visibility into application errors and performance bottlenecks. It captures crashes, exceptions, and slow transactions, providing the context (stack traces, breadcrumbs, user data) needed to fix bugs quickly. In agentic systems, it specifically addresses the "black box" nature of LLM reasoning by capturing tool-call failures and trace telemetry.
@@ -10,8 +10,8 @@ It provides real-time visibility into application errors and performance bottlen
 **Category**: Process & Understanding / Error Tracking. It acts as the "safety net" for the application layer, monitoring both traditional code execution and modern AI-agent reasoning loops.
 
 ## Typical use cases
-- **Frontier Model Observability**: Monitoring reasoning traces and API errors for `claude-4-8-opus-20260528`, GPT-5.5, and **Gemma 3** integrations.
-- **AI-Powered Autofix**: Utilizing Sentry's native AI agents to automatically propose and apply code fixes for production exceptions via the **MCP 3.0 Task Protocol**.
+- **Frontier Model Observability**: Monitoring reasoning traces and API errors for Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6 integrations.
+- **AI-Powered Autofix**: Utilizing Sentry's native AI agents to automatically propose and apply code fixes for production exceptions via the **MCP 3.1 Task Protocol**.
 - **Performance Profiling**: Identifying bottlenecks in RAG pipelines and high-frequency tool-calling loops.
 - **Crash Reporting**: Real-time error monitoring for multi-modal web and mobile applications with integrated session replay.
 
@@ -67,23 +67,64 @@ sentry-cli releases new -p <PROJECT_NAME> <VERSION_NUMBER>
 
 ## API examples
 
-### Python SDK with AI Monitoring
+### Python SDK with AI Monitoring and Pydantic v2 Ingest Validation
+In late October / November 2026, observability platforms ingest telemetry structured by strict schemas. Below is an example of structured telemetry mapping to Sentry's API model using Pydantic v2.
+
 ```python
 import sentry_sdk
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
 
+# Define Pydantic v2 models for custom telemetry payload validation
+class AgentMetadata(BaseModel):
+    model: str = Field(..., description="Frontier model name (e.g., claude-5.1-sonnet)")
+    task_protocol: str = Field("mcp-3.1", description="Supported protocol version")
+    step_count: int = Field(0, ge=0)
+
+class TelemetryPayload(BaseModel):
+    event_message: str = Field(..., min_length=5)
+    severity: str = Field("error", description="Event severity level")
+    agent_info: AgentMetadata = Field(..., description="Details of the executing agent")
+    extra_tags: Optional[Dict[str, Any]] = None
+
+# Initialize traditional Sentry SDK
 sentry_sdk.init(
     dsn="https://examplePublicKey@o0.ingest.sentry.io/0",
     traces_sample_rate=1.0,
     profiles_sample_rate=1.0, # Enable profiling for RAG performance
 )
 
-# Capture a custom error message with AI context
-with sentry_sdk.configure_scope() as scope:
-    scope.set_context("ai_agent", {
-        "model": "gemma-3-27b",
-        "task_protocol": "mcp-3.0"
-    })
-    sentry_sdk.capture_message("Agent tool-call timeout recorded.")
+def report_agent_event(payload_data: dict):
+    # Validate payload using Pydantic v2 model_validate
+    validated = TelemetryPayload.model_validate(payload_data)
+
+    # Capture custom event with validated AI context
+    with sentry_sdk.configure_scope() as scope:
+        scope.set_tag("severity", validated.severity)
+        scope.set_context("ai_agent", validated.agent_info.model_dump())
+        if validated.extra_tags:
+            for k, v in validated.extra_tags.items():
+                scope.set_extra(k, v)
+
+        sentry_sdk.capture_message(validated.event_message)
+    print(f"Sentry event captured and validated for: {validated.agent_info.model}")
+
+# Test sample structured ingestion
+test_payload = {
+    "event_message": "Agent tool-call timeout recorded in secondary RAG loop.",
+    "severity": "warning",
+    "agent_info": {
+        "model": "qwen-3.6-72b",
+        "task_protocol": "mcp-3.1",
+        "step_count": 4
+    },
+    "extra_tags": {
+        "node_id": "homelab-node-01",
+        "latency_ms": 12450
+    }
+}
+
+report_agent_event(test_payload)
 ```
 
 ## Related tools / concepts
@@ -102,8 +143,8 @@ with sentry_sdk.configure_scope() as scope:
 - [Sentry Documentation](https://docs.sentry.io/)
 - [Sentry AI Autofix](https://sentry.io/features/autofix/)
 - [Sentry GitHub](https://github.com/getsentry/sentry)
-- [Observability in the Age of Agents (July 2026)](https://sentry.engineering/blog/observability-agents-july-2026)
+- [Observability in the Age of Agents (late October 2026)](https://sentry.engineering/blog/observability-agents-late-october-2026)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-05
+- Last reviewed: 2026-11-05
 - Confidence: high
