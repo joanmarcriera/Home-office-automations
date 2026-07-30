@@ -1,10 +1,10 @@
 # SWE-bench
 
 ## What it is
-SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of June 2026, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like [Claude 4.8 Opus](../providers/anthropic.md) and [GPT-5.5](../ai_knowledge/openai.md).
+SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of November 2026, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
 
 ## What problem it solves
-Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment, often leveraging [MCP 3.0](../automation_orchestration/mcp.md) for tool-discovery.
+Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment, often leveraging **Model Context Protocol (MCP 3.1)** for dynamic tool discovery.
 
 ## Where it fits in the stack
 **Benchmarking / Eval**. It is used as a reference benchmark for evaluating real-world software engineering capabilities of AI agents and coding assistants.
@@ -50,7 +50,7 @@ To get started, you can run an inference pass using a lightweight model or a spe
 ```bash
 python -m swebench.inference.run_api \
     --dataset_name princeton-nlp/SWE-bench_Lite \
-    --model_name claude-4-8-opus-20260528 \
+    --model_name claude-5-1-sonnet-20261022 \
     --output_dir ./predictions
 ```
 
@@ -69,9 +69,8 @@ docker run -v $(pwd)/predictions:/predictions swebench/swe-bench-eval --predicti
 ```
 
 ## API examples
-You can interact with SWE-bench programmatically using the `datasets` library and the `swebench` harness.
 
-### Loading the Dataset
+### Loading the Dataset (Python)
 ```python
 from datasets import load_dataset
 
@@ -84,7 +83,7 @@ print(f"Task ID: {task['instance_id']}")
 print(f"Problem: {task['problem_statement']}")
 ```
 
-### Running an Evaluation Instance
+### Running an Evaluation Instance (Python)
 ```python
 from swebench.harness.test_spec import make_test_spec
 from swebench.harness.run_evaluation import run_instance
@@ -102,6 +101,56 @@ instance = {
 spec = make_test_spec(instance)
 result = run_instance(spec)
 print(f"Issue Resolved: {result['resolved']}")
+```
+
+### Programmatic Prediction Validation using Pydantic v2
+This Python script validates predicting patches and evaluation inputs for SWE-bench instances using **Pydantic v2** prior to kicking off Docker execution runs:
+
+```python
+import json
+from typing import Optional, List
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
+class SWEBenchPrediction(BaseModel):
+    instance_id: str = Field(..., description="The unique SWE-bench task identifier (e.g. django__django-12345)")
+    model_name: str = Field(..., description="Name of the model generating the patch")
+    patch: str = Field(..., description="The generated git diff patch proposing the bugfix")
+    explanation: Optional[str] = Field(None, description="Optional reasoning chain leading to this fix")
+    tokens_used: Optional[int] = Field(None, ge=0, description="Inference token count consumed")
+
+    @field_validator("patch")
+    @classmethod
+    def validate_is_git_patch(cls, value: str) -> str:
+        if value and not value.startswith("diff --git"):
+            raise ValueError("Patch must be a valid unified diff starting with 'diff --git'")
+        return value
+
+def validate_prediction_file(raw_json_line: str) -> Optional[SWEBenchPrediction]:
+    try:
+        data = json.loads(raw_json_line)
+        # Validate prediction using Pydantic v2
+        prediction = SWEBenchPrediction.model_validate(data)
+        return prediction
+    except json.JSONDecodeError:
+        print("Error: Line is not valid JSON.")
+    except ValidationError as e:
+        print(f"Validation failed: {e.errors()}")
+    return None
+
+# Example usage:
+# if __name__ == "__main__":
+#     sample_prediction = """
+#     {
+#         "instance_id": "django__django-12345",
+#         "model_name": "claude-5-1-sonnet-20261022",
+#         "patch": "diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\\n--- a/django/db/models/fields/__init__.py\\n+++ b/django/db/models/fields/__init__.py\\n@@ -1,1 +1,2 @@\\n",
+#         "tokens_used": 14205
+#     }
+#     """
+#     validated = validate_prediction_file(sample_prediction)
+#     if validated:
+#         print("SWE-bench prediction schema is valid!")
+#         print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -122,5 +171,5 @@ print(f"Issue Resolved: {result['resolved']}")
 - [SWE-bench Verified Announcement](https://openai.com/index/introducing-swe-bench-verified/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-30
+- Last reviewed: 2026-11-03
 - Confidence: high
