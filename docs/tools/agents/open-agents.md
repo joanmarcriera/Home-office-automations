@@ -1,10 +1,10 @@
 # Open Agents
 
 ## What it is
-Open Agents is an open-source framework and collection of deployable AI agents developed by Vercel Labs. It is designed to enable "Computer Use" and "Web Use" capabilities, allowing agents to navigate the web, interact with authenticated applications, and perform complex tasks across different software ecosystems. As of July 2026, it serves as a primary reference implementation for building autonomous browser-based agents that are optimized for serverless deployment and now features native support for the **MCP 3.0 Task Protocol**.
+Open Agents is an open-source framework and collection of deployable AI agents developed by Vercel Labs. It is designed to enable "Computer Use" and "Web Use" capabilities, allowing agents to navigate the web, interact with authenticated applications, and perform complex tasks across different software ecosystems. As of late October / November 2026, it serves as a primary reference implementation for building autonomous browser-based agents that are optimized for serverless deployment and features native support for the **MCP 3.1 Task Protocol**.
 
 ## What problem it solves
-It bridges the gap between static LLM text generation and actionable web-based automation. Open Agents solves the complexity of managing browser sessions, handling authentication in agentic workflows, and providing a reliable feedback loop for "Computer Use" tasks. By adopting MCP 3.0, it also standardizes how web-based agents discover and execute tasks, making them more interoperable with other agentic systems.
+It bridges the gap between static LLM text generation and actionable web-based automation. Open Agents solves the complexity of managing browser sessions, handling authentication in agentic workflows, and providing a reliable feedback loop for "Computer Use" tasks. By adopting MCP 3.1, it also standardizes how web-based agents discover and execute tasks, making them more interoperable with other agentic systems.
 
 ## Where it fits in the stack
 **Agent / Web Automation / Developer Platform**. It functions as an orchestration layer that combines the Vercel AI SDK with headless browser controllers (Playwright/Puppeteer) and sandboxed execution environments.
@@ -14,13 +14,13 @@ It bridges the gap between static LLM text generation and actionable web-based a
 - **SaaS Task Execution**: Performing administrative tasks across platforms like HubSpot, Jira, or AWS Console.
 - **Dynamic Data Ingestion**: Scraping and structuring data from complex, JavaScript-heavy web applications.
 - **Computer-as-a-Service**: Deploying agents that can execute terminal and browser tasks in isolated Vercel Sandboxes.
-- **Standardized Task Execution**: Using the MCP 3.0 Task Protocol to receive and report on tasks from parent orchestrators.
+- **Standardized Task Execution**: Using the MCP 3.1 Task Protocol to receive and report on tasks from parent orchestrators.
 
 ## Strengths
 - **Optimized for Vercel Ecosystem**: Seamless integration with Next.js, Vercel AI SDK, and Vercel Functions.
 - **Reliable Computer Use**: Built-in patterns for high-fidelity browser interaction and visual feedback processing.
 - **Serverless Ready**: Designed to operate within ephemeral environments, minimizing infrastructure management.
-- **Frontier Model Native**: Optimized for the latest "Computer Use" capabilities in Claude 4.8 Opus and GPT-5.5, while maintaining compatibility with **Gemma 3** for local/hybrid workflows.
+- **Frontier Model Native**: Optimized for the latest "Computer Use" capabilities in Claude 5.1 and GPT-5.5, while maintaining compatibility with **Gemma 3** and **Qwen 3.6** for local/hybrid workflows.
 - **Modular Skills**: Features a composable architecture where agents can be granted specific "skills" (e.g., search, email, browser).
 
 ## Limitations
@@ -50,7 +50,7 @@ npm install
 ```
 
 ### Basic Configuration
-1. Create a `.env.local` file and add your `ANTHROPIC_API_KEY` (for Claude 4.8 Opus) or `OPENAI_API_KEY` (for GPT-5.5).
+1. Create a `.env.local` file and add your `ANTHROPIC_API_KEY` (for Claude 5.1) or `OPENAI_API_KEY` (for GPT-5.5).
 2. Configure a Vercel Sandbox if you require isolated code execution.
 3. Start the development server: `npm run dev`.
 
@@ -81,7 +81,7 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 
 const result = await generateText({
-  model: anthropic('claude-4-8-opus-20260528'),
+  model: anthropic('claude-5-1-sonnet-20261022'),
   tools: {
     browser_navigate: tool({
       description: 'Navigate to a URL and wait for the page to load',
@@ -94,6 +94,40 @@ const result = await generateText({
   },
   prompt: 'Go to the Vercel status page and check for any active incidents.',
 });
+```
+
+### Validation of Task Session Profiles with Pydantic v2
+This python example parses and validates open agents' browser step action sequence and task-execution profiles using **Pydantic v2**:
+
+```python
+import json
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+
+class BrowserStep(BaseModel):
+    step_id: int = Field(..., description="Chronological step number")
+    action: str = Field(..., description="Action name, e.g., navigate, click, fill, screenshot")
+    target: Optional[str] = Field(None, description="CSS selector or coordinate target")
+    value: Optional[str] = Field(None, description="Input value or text if applicable")
+
+class OpenAgentSession(BaseModel):
+    session_id: str = Field(..., description="Unique browser session identifier")
+    task_description: str = Field(..., description="Instruction given to the agent")
+    start_url: HttpUrl = Field(..., description="Initial landing page URL")
+    steps: List[BrowserStep] = Field(default_factory=list, description="Sequence of browser actions executed")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Execution run telemetry")
+
+def validate_agent_session(raw_json: str) -> Optional[OpenAgentSession]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2 model_validate
+        return OpenAgentSession.model_validate(data)
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON.")
+        return None
 ```
 
 ## Related tools / concepts
@@ -110,8 +144,8 @@ const result = await generateText({
 - [Vercel Labs Open Agents GitHub](https://github.com/vercel-labs/open-agents)
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
 - [Vercel Sandbox Guide](https://vercel.com/docs/functions/sandboxes)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/task-protocol)
+- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/task-protocol)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-03
+- Last reviewed: 2026-11-05
 - Confidence: high
