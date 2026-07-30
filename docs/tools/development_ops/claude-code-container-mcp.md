@@ -1,24 +1,24 @@
 # Claude Code Container MCP Server
 
 ## What it is
-An MCP server that manages containerized Claude Code sessions, transforming the CLI tool into an orchestratable, isolated service. It allows models like **Claude 4.8 Opus** and **GPT-5.5** to manage their own execution environments via Docker.
+An Model Context Protocol (MCP 3.1) server that manages containerized Claude Code sessions, transforming the CLI tool into an orchestratable, isolated service. It allows reasoning models like **Claude 5.1** and **GPT-5.5** to manage their own execution environments securely via Docker.
 
 ## What problem it solves
 It enables AI assistants to create and control isolated Claude Code instances programmatically. It provides Docker-based isolation, multi-session management, and support for **AWS Bedrock**, making it suitable for enterprise AI-to-AI workflows. It solves the risk of an agent performing destructive actions on a host machine by confining the agent to a disposable container.
 
 ## Where it fits in the stack
-**Tool / Orchestration**. It provides a managed environment for running other coding agents, following the [Agent Protocols](../../knowledge_base/agent_protocols.md) for structured tool interaction.
+**Tool / Orchestration**. It provides a managed environment for running other coding agents, following the [Agent Protocols](../../knowledge_base/agent_protocols.md) for structured tool interaction and MCP 3.1 communication.
 
 ## Typical use cases
-- Parallel development workflows (managing different microservices in separate containers).
+- Parallel development workflows (managing different microservices in separate, isolated containers).
 - Automated code reviews in CI/CD pipelines using GitHub Actions.
-- Enterprise batch operations across multiple legacy projects.
+- Enterprise batch operations across multiple legacy repositories.
 - Running Claude Code with **AWS Bedrock** for enterprise compliance and data residency.
 
 ## Strengths
 - **Isolation**: Docker containers protect the host system and isolate projects from each other.
 - **Scalability**: Can run dozens of Claude Code sessions simultaneously on a single host.
-- **AWS Bedrock Integration**: Native support for AWS enterprise LLM endpoints for secure inference.
+- **AWS Bedrock Integration**: Native support for AWS enterprise LLM endpoints for secure, compliant inference.
 - **Programmable API**: Full MCP tools for creating, executing, and destroying sessions programmatically.
 
 ## Limitations
@@ -112,17 +112,64 @@ Use enterprise-grade models via AWS Bedrock for the session for enhanced securit
 }
 ```
 
-### 3. Executing Commands in Session
-Send a prompt to an active Claude Code container to perform work asynchronously.
+### 3. Programmatic Session Validation using Pydantic v2
+This Python script validates isolated containerized Claude Code session payloads against provider requirements (either Anthropic API or AWS Bedrock) using **Pydantic v2**:
 
-```json
-{
-  "tool": "execute_in_session",
-  "arguments": {
-    "sessionId": "abc-123-xyz",
-    "prompt": "Refactor the authentication middleware to use JWT instead of sessions."
-  }
-}
+```python
+import json
+from typing import Optional
+from pydantic import BaseModel, Field, ValidationError, ConfigDict, model_validator
+
+class ClaudeSessionConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    project_path: str = Field(..., validation_alias="projectPath", description="Absolute local path to clone or mount")
+    session_name: str = Field(..., validation_alias="sessionName", description="A unique identifier for the Claude session")
+    api_key: Optional[str] = Field(None, validation_alias="apiKey", description="Anthropic API key for direct access")
+
+    # AWS Bedrock specific parameters
+    use_bedrock: bool = Field(False, validation_alias="useBedrock")
+    aws_region: Optional[str] = Field(None, validation_alias="awsRegion")
+    bedrock_model: Optional[str] = Field(None, validation_alias="bedrockModel")
+
+    @model_validator(mode="after")
+    def validate_provider_config(self) -> 'ClaudeSessionConfig':
+        if self.use_bedrock:
+            if not self.aws_region or not self.bedrock_model:
+                raise ValueError("awsRegion and bedrockModel are required when useBedrock is set to True.")
+        else:
+            if not self.api_key:
+                raise ValueError("apiKey is required when using direct Anthropic API access.")
+        return self
+
+def validate_session_payload(raw_json: str) -> Optional[ClaudeSessionConfig]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2
+        config = ClaudeSessionConfig.model_validate(data)
+        return config
+    except json.JSONDecodeError:
+        print("Error: Input is not valid JSON.")
+    except ValidationError as e:
+        print(f"Validation failed: {e.errors()}")
+    return None
+
+# Example usage:
+# if __name__ == "__main__":
+#     # Valid Bedrock config
+#     bedrock_payload = """
+#     {
+#         "projectPath": "/workspace/pipeline",
+#         "sessionName": "bedrock-sync",
+#         "useBedrock": true,
+#         "awsRegion": "us-east-1",
+#         "bedrockModel": "us.anthropic.claude-3-5-sonnet-20240620-v1:0"
+#     }
+#     """
+#     validated = validate_session_payload(bedrock_payload)
+#     if validated:
+#         print("Claude Container Session Config successfully validated!")
+#         print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -144,6 +191,5 @@ Send a prompt to an active Claude Code container to perform work asynchronously.
 - [AWS Bedrock Model IDs](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)
 
 ## Contribution Metadata
-
-- Last reviewed: 2026-06-30
+- Last reviewed: 2026-11-02
 - Confidence: high

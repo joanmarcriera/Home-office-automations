@@ -1,23 +1,23 @@
 # Desktop Commander MCP
 
 ## What it is
-A privacy-first Model Context Protocol (MCP 3.0) server that provides AI assistants with terminal control, filesystem access, and surgical text editing capabilities. It is built to be the "local hands" for frontier models like **Claude 4.8 Opus** and **GPT-5.5**.
+A privacy-first Model Context Protocol (MCP 3.1) server that provides AI assistants with terminal control, filesystem access, and surgical text editing capabilities. It is built to be the "local hands" for frontier models like **Claude 5.1** and **GPT-5.5**.
 
 ## What problem it solves
-It enables AI assistants to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools. It solves the "trust gap" in agentic workflows by ensuring no data leaves the local environment except through explicitly defined MCP tool calls.
+It enables AI assistants to interact directly with the local machine's development environment while strictly removing all telemetry, analytics, and external tracking typically found in similar tools. It solves the "trust gap" in agentic workflows by ensuring no data leaves the local environment except through explicitly defined MCP 3.1 tool calls.
 
 ## Where it fits in the stack
-**Development & Ops / Tool Layer**. It serves as a secure bridge between an LLM-based agent (running in an MCP-compliant host like Claude Desktop or Cursor 3.0) and the local OS.
+**Development & Ops / Tool Layer**. It serves as a secure bridge between an LLM-based agent (running in an MCP-compliant host like Claude Desktop or Cursor) and the local OS.
 
 ## Typical use cases
 - Reading and writing files in a local development environment.
-- Executing terminal commands and managing local processes for **Llama 4 Maverick** fine-tuning.
+- Executing terminal commands and managing local processes for **Llama 4** fine-tuning.
 - Searching code using `ripgrep` integrations for complex refactoring.
 - Applying targeted search/replace operations (edit blocks) across multiple files.
 
 ## Strengths
 - **Privacy-First**: No telemetry, analytics, or external connections; operates entirely on-device.
-- **MCP 3.0 Native**: Full support for the latest Task Protocol and resource discovery.
+- **MCP 3.1 Native**: Full support for the latest Task Protocol, secure resource connection, and resource discovery.
 - **Surgical Editing**: Includes the `edit_block` tool for precise, idempotent text replacements.
 - **Configurable Security**: Allows blocking specific commands and restricting access to white-listed directories.
 
@@ -28,7 +28,7 @@ It enables AI assistants to interact directly with the local machine's developme
 
 ## When to use it
 - When you want to give an agent access to your local dev environment but are concerned about privacy or data leakage.
-- When you need a lightweight, reliable bridge for filesystem and terminal operations for `claude-4-8-opus-20260528`.
+- When you need a lightweight, reliable bridge for filesystem and terminal operations for `claude-5-1-20261101`.
 - In highly regulated environments where telemetry is strictly prohibited.
 
 ## When not to use it
@@ -113,17 +113,59 @@ Apply precise text replacements using SEARCH/REPLACE blocks.
 }
 ```
 
-### 3. Terminal Control (start_process)
-Start a background process and manage its lifecycle using MCP 3.0 protocols.
+### 3. Programmatic Configuration Validation using Pydantic v2
+This Python script validates Desktop Commander directory whitelists and surgical editing arguments using **Pydantic v2** models before they are invoked by the local agent:
 
-```json
-{
-  "tool": "start_process",
-  "arguments": {
-    "command": "npm run build",
-    "cwd": "./project"
-  }
-}
+```python
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError, ConfigDict, field_validator
+
+class EditBlockArgs(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    path: str = Field(..., description="Target file path relative to allowed directories")
+    edit: str = Field(..., description="The git merge diff block containing SEARCH/REPLACE blocks")
+
+    @field_validator("edit")
+    @classmethod
+    def check_edit_block_syntax(cls, v: str) -> str:
+        if "<<<<<<< SEARCH" not in v or "=======" not in v or ">>>>>>> REPLACE" not in v:
+            raise ValueError("The edit must contain valid SEARCH/REPLACE markers: <<<<<<< SEARCH, =======, >>>>>>> REPLACE")
+        return v
+
+class CommanderConfig(BaseModel):
+    allowed_directories: List[str] = Field(
+        ...,
+        validation_alias="allowedDirectories",
+        description="Whitelist of host file system directories the agent is allowed to access"
+    )
+    port: int = Field(3000, description="TCP port to run the MCP server on")
+
+def validate_commander_args(raw_json: str) -> Optional[EditBlockArgs]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2
+        args = EditBlockArgs.model_validate(data)
+        return args
+    except json.JSONDecodeError:
+        print("Error: Input is not valid JSON.")
+    except ValidationError as e:
+        print(f"Validation failed: {e.errors()}")
+    return None
+
+# Example usage:
+# if __name__ == "__main__":
+#     sample_args = """
+#     {
+#         "path": "src/auth.py",
+#         "edit": "<<<<<<< SEARCH\\n    return user.id\\n=======\\n    return user.id, user.role\\n>>>>>>> REPLACE"
+#     }
+#     """
+#     validated_args = validate_commander_args(sample_args)
+#     if validated_args:
+#         print("Edit block configuration successfully verified!")
+#         print(validated_args.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -142,5 +184,5 @@ Start a background process and manage its lifecycle using MCP 3.0 protocols.
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-30
+- Last reviewed: 2026-11-02
 - Confidence: high

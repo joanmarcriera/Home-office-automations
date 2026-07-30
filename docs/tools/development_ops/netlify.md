@@ -1,41 +1,41 @@
 # Netlify
 
 ## What it is
-Netlify is a cloud platform for deploying websites and frontend applications, with a strong focus on JAMstack workflows, deploy previews, and simple frontend operations.
+Netlify is a cloud platform for deploying websites and frontend applications, with a strong focus on modern JAMstack/Composable architecture workflows, automated deploy previews, and seamless serverless frontend operations.
 
 ## What problem it solves
-It makes it easy to publish and iterate on frontend sites without building a full deployment platform from scratch. It provides atomic deploys, instant rollbacks, and automated SSL, solving the complexity of manual web server management.
+It makes it easy to publish and iterate on modern frontend applications without building or managing complex cloud deployment pipelines from scratch. It provides atomic deploys, instant rollbacks, edge routing, and automated SSL, solving the complexity of manual web server and DNS management.
 
 ## Where it fits in the stack
-**Development & Ops / Frontend Hosting Platform**. It is a solid option for marketing sites, JAMstack projects, and frontend-first web experiences. It is often used as a deployment target for projects assisted by **Claude 4.8 Opus** and **GPT-5.5**.
+**Development & Ops / Composable Frontend Hosting Platform**. It is a premier cloud platform for marketing sites, Hugo/Astro projects, and advanced frontend frameworks like **Next.js 15** and **Remix**. It is a common target for projects created or maintained by autonomous agents like **Claude 5.1** and **GPT-5.5**.
 
 ## Typical use cases
-- Marketing websites and landing pages.
-- Small product sites and prototypes built with **React** or **Next.js**.
-- Static or mostly static frontend projects (e.g., Hugo, Gatsby).
-- Form-driven lead capture pages using Netlify Forms.
-- Documentation sites where deploy previews matter for collaborative review.
+- High-performance marketing websites and landing pages.
+- Composable frontend apps utilizing headless CMS backends.
+- Deployment of documentation engines (such as MkDocs, Astro Starlight) where Deploy Previews streamline PR review processes.
+- Form-driven user capture leveraging native Netlify Forms.
+- Edge-personalized web applications using Edge Functions.
 
 ## Strengths
-- **Developer Experience**: Exceptionally smooth onboarding and integration with GitHub/GitLab.
-- **JAMstack Native**: Optimized for modern static site generators and frontend frameworks.
-- **Deploy Previews**: Automatically generates a unique URL for every pull request, simplifying review.
-- **Edge Functions**: Powered by Deno, allowing low-latency logic at the network edge.
+- **Developer-Centric UX**: Standard-setting integration with GitHub/GitLab with instant deployment on push.
+- **Deploy Previews**: Automated generation of isolated, unique preview URLs for every pull request, simplifying visual validation.
+- **Deno-Powered Edge Functions**: Serverless logic running at the nearest edge location using modern Deno 2.1 runtimes.
+- **Unified Platform**: Integrated forms, identity management, and serverless background functions out of the box.
 
 ## Limitations
-- **Backend Constraints**: Backend usually requires external services (e.g., Supabase, Firebase) as Netlify is primarily frontend-focused.
-- **Pricing Tiers**: Costs can escalate quickly for enterprise features or high-bandwidth sites.
-- **Less AI-Default**: [Vercel](vercel.md) is often the more common default choice for many AI-native frontend templates.
+- **Backend Architecture**: Best suited for stateless or static applications; complex persistent database layers require third-party services (e.g., Supabase, Neon).
+- **Bandwidth Limits**: Scale pricing can escalate quickly if high volumes of media or bandwidth are consumed on lower-tier plans.
+- **Lock-In Risk**: Specific feature integrations (Netlify Forms, Identity) can introduce lock-in compared to pure containerized deployments.
 
 ## When to use it
-- When the site is primarily frontend and the team values a streamlined deployment workflow.
-- When deploy previews and atomic frontend iteration are central to your development cycle.
-- When you want a credible, generous free-tier option for launching prototypes.
+- When building modern JAMstack sites (Next.js, Gatsby, Astro, Hugo) where rapid, atomic frontend iteration is vital.
+- For collaborative teams that heavily leverage visual review and PR deploy previews.
+- When you want a low-maintenance, fully managed environment for static docs and prototypes.
 
 ## When not to use it
-- When [Vercel](vercel.md) is the clearer default for a specific product or AI demo framework.
-- When [GitHub Pages](github-pages.md) is sufficient for simple, repo-native static documentation.
-- When the primary challenge involves complex server-side state or heavy custom backend infrastructure.
+- For monolithic server-rendered applications (e.g. Django, Ruby on Rails, Laravel) that require a persistent node/runtime process.
+- When [GitHub Pages](github-pages.md) is already sufficient and natively integrated for simple static markdown repository documentation.
+- When on-premise hosting or strict private cloud sandboxing is required (see [Grocy](../../services/grocy.md) or private Kubernetes).
 
 ## Getting started
 
@@ -77,7 +77,7 @@ netlify status
 ```
 
 ### 2. Local Development Server
-Spin up a local environment that emulates Netlify's production environment (including Functions and Edge Functions):
+Spin up a local environment that emulates Netlify's production environment (including serverless Functions and Edge Functions):
 ```bash
 netlify dev
 ```
@@ -101,8 +101,8 @@ export default async (req: Request, context: Context) => {
 }
 ```
 
-### Edge Functions (Deno)
-Example of an Edge Function that modifies the response based on the user's geographic location:
+### Edge Functions (Deno 2.1+)
+Example of an Edge Function that modifies the response based on the user's geographic location using modern Deno APIs:
 
 ```typescript
 import { Context } from "@netlify/edge-functions";
@@ -113,6 +113,72 @@ export default async (request: Request, context: Context) => {
     headers: { "content-type": "text/html" },
   });
 };
+```
+
+### Programmatic netlify.toml Validation using Pydantic v2
+This Python script parses and validates Netlify deployment files (`netlify.toml`) against strict schema definitions using **Pydantic v2** to ensure deploy builds never fail in CI:
+
+```python
+import json
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
+
+class NetlifyBuildConfig(BaseModel):
+    command: str = Field(..., description="Build command (e.g. npm run build)")
+    publish: str = Field(..., description="Output directory to publish (e.g. dist, out)")
+    functions: str = Field("netlify/functions", description="Folder containing serverless functions")
+
+class NetlifyHeaderRule(BaseModel):
+    for_path: str = Field(..., alias="for", description="URL path matcher")
+    values: Dict[str, str] = Field(..., description="HTTP headers to inject")
+
+class NetlifyConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    build: NetlifyBuildConfig = Field(..., description="Project build parameters")
+    headers: List[NetlifyHeaderRule] = Field(default_factory=list, description="Custom HTTP header injection rules")
+    edge_functions: List[Dict[str, str]] = Field(
+        default_factory=list,
+        validation_alias="edgeFunctions",
+        description="Edge function mapping paths"
+    )
+
+def validate_netlify_config(raw_json: str) -> Optional[NetlifyConfig]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2
+        config = NetlifyConfig.model_validate(data)
+        return config
+    except json.JSONDecodeError:
+        print("Error: Input is not valid JSON.")
+    except ValidationError as e:
+        print(f"Validation failed: {e.errors()}")
+    return None
+
+# Example usage:
+# if __name__ == "__main__":
+#     sample_config = """
+#     {
+#         "build": {
+#             "command": "npm run build",
+#             "publish": "dist",
+#             "functions": "netlify/functions"
+#         },
+#         "headers": [
+#             {
+#                 "for": "/*",
+#                 "values": {
+#                     "X-Frame-Options": "DENY",
+#                     "X-Content-Type-Options": "nosniff"
+#                 }
+#             }
+#         ]
+#     }
+#     """
+#     validated = validate_netlify_config(sample_config)
+#     if validated:
+#         print("netlify.toml parsed and validated successfully!")
+#         print(validated.model_dump_json(indent=2))
 ```
 
 ## Related tools / concepts
@@ -132,5 +198,5 @@ export default async (request: Request, context: Context) => {
 - [Netlify CLI Reference](https://cli.netlify.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-06-30
+- Last reviewed: 2026-11-02
 - Confidence: high
