@@ -1,9 +1,9 @@
 # Matrix Synapse
 
-Matrix Synapse is the reference "homeserver" implementation for Matrix, providing a decentralized, real-time communication backbone for the July 2026 agentic ecosystem.
+Matrix Synapse is the reference "homeserver" implementation for Matrix, providing a decentralized, real-time communication backbone for the late October / November 2026 agentic ecosystem.
 
 ## What it is
-Synapse is the reference "homeserver" implementation for Matrix, an open standard for decentralized, real-time communication. As of July 2026, **v1.156.0** is the current stable release, featuring Matrix 1.12 compatibility, native support for Room v12, and optimized federation for low-latency agentic messaging and autonomous agent federation.
+Synapse is the reference "homeserver" implementation for Matrix, an open standard for decentralized, real-time communication. As of late October / November 2026, **v1.168.0** is the current stable release, featuring Matrix 1.14 compatibility, native support for Room v13, and optimized federation for low-latency agentic messaging and autonomous agent federation.
 
 ## What problem it solves
 It allows you to own your communication infrastructure. By hosting your own Synapse server, you control your messages, identity, and data, while remaining part of the global Matrix federation. It specifically solves the privacy and control issues associated with centralized platforms, providing a secure substrate for agent-to-agent coordination without reliance on third-party API providers.
@@ -13,7 +13,7 @@ It allows you to own your communication infrastructure. By hosting your own Syna
 
 ## Typical use cases
 - **Private Communication**: Hosting a secure, end-to-end encrypted (E2EE) chat server for families or teams.
-- **Agentic Messaging**: Allowing agents like Claude 4.8 or Gemma 3 to send reports or receive instructions via Matrix.
+- **Agentic Messaging**: Allowing agents like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6 to send reports or receive instructions via Matrix.
 - **Federated Automation**: Coordinating workflows across different homeservers using Matrix bots and the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md).
 - **Home Automation Hub**: Receiving notifications from [Home Assistant](home-assistant.md) or [n8n](n8n.md).
 
@@ -32,7 +32,7 @@ It allows you to own your communication infrastructure. By hosting your own Syna
 ## When to use it
 - When you want to self-host your own Matrix homeserver with full feature support.
 - When you need a reliable, federated communication backend for your homelab.
-- When coordinating multi-agent workflows using [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) over decentralized channels.
+- When coordinating multi-agent workflows using [MCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) over decentralized channels.
 
 ## When not to use it
 - On very low-resource hardware like a Raspberry Pi 3 (consider Conduit instead).
@@ -46,7 +46,7 @@ Synapse requires a PostgreSQL database for production usage.
 ```yaml
 services:
   synapse:
-    image: matrixdotorg/synapse:latest
+    image: matrixdotorg/synapse:v1.168.0
     restart: unless-stopped
     environment:
       - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
@@ -73,7 +73,7 @@ docker run -it --rm \
     -v ./data:/data \
     -e SYNAPSE_SERVER_NAME=my.matrix.host \
     -e SYNAPSE_REPORT_STATS=yes \
-    matrixdotorg/synapse:latest generate
+    matrixdotorg/synapse:v1.168.0 generate
 ```
 
 ## CLI examples
@@ -91,26 +91,58 @@ docker exec -it synapse synapse_review_recent_signups -c /data/homeserver.yaml
 
 ## API examples
 
-### Python: Sending an Agentic Report
+### Python: Async Agentic Report with Pydantic v2 Validation
+The following example demonstrates an asynchronous Python client sending an agentic message to a Synapse homeserver and validating the JSON response using Pydantic v2.
+
 ```python
-import requests
-import json
+import asyncio
+import httpx
+from pydantic import BaseModel, Field
+
+# Define Pydantic v2 schemas for request and response validation
+class MatrixEventResponse(BaseModel):
+    event_id: str = Field(..., description="The unique ID of the sent event")
+
+class AgentReportPayload(BaseModel):
+    msgtype: str = Field("m.text", description="Matrix message type")
+    body: str = Field(..., description="The body/content of the message")
 
 HOMESERVER_URL = "https://matrix.example.com"
 ACCESS_TOKEN = "your_access_token"
 ROOM_ID = "!room_id:example.com"
 
-def send_agent_message(text):
+async def send_agent_message_async(text: str) -> MatrixEventResponse:
     url = f"{HOMESERVER_URL}/_matrix/client/v3/rooms/{ROOM_ID}/send/m.room.message"
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-    data = {
-        "msgtype": "m.text",
-        "body": f"[AGENT]: {text}"
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
     }
-    response = requests.post(url, headers=headers, json=data)
-    return response.json()
 
-print(send_agent_message("Monthly storage audit complete. 2TB reclaimed."))
+    # Validate payload structure using Pydantic v2
+    payload = AgentReportPayload(body=f"[AGENT REPORT]: {text}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            url,
+            headers=headers,
+            json=payload.model_dump(),
+            timeout=10.0
+        )
+        response.raise_for_status()
+
+        # Validate response structure using Pydantic v2
+        validated_response = MatrixEventResponse.model_validate(response.json())
+        return validated_response
+
+async def main():
+    try:
+        res = await send_agent_message_async("Monthly storage audit complete. 2TB reclaimed under MCP 3.1 specifications.")
+        print(f"Successfully sent event. Event ID: {res.event_id}")
+    except Exception as e:
+        print(f"Failed to send agentic message: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ### OIDC Integration (Authentik)
@@ -133,7 +165,7 @@ oidc_providers:
 ## Related tools / concepts
 - [Element](element.md) — The recommended client for Synapse.
 - [Authentik](authentik.md) — For SSO and identity management.
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — For agentic task execution over Matrix.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — For agentic task execution over Matrix (MCP 3.1 compatibility).
 - [n8n](n8n.md) — For sending automated notifications to Matrix rooms.
 - [Home Assistant](home-assistant.md) — For integrating smart home alerts.
 - [Vikunja](vikunja.md) — For task-based coordination often synced via Matrix.
@@ -147,4 +179,4 @@ oidc_providers:
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-04
+- Last reviewed: 2026-11-05

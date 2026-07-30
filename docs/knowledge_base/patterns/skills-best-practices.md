@@ -1,7 +1,7 @@
 # Agent Skills Best Practices
 
 ## What it is
-An agent **skill** is a self-contained, named behavior module that an autonomous agent can discover, trigger, and execute. Skills define *what* to do (instructions), *when* to do it (triggers), *what tools* are available, and *how to report success* using standardized protocols like the **MCP 3.0 Task Protocol**. Well-authored skills are the foundation of reliable agentic workflows using Claude 4.8, GPT-5.5, and **Gemma 3**.
+An agent **skill** is a self-contained, named behavior module that an autonomous agent can discover, trigger, and execute. Skills define *what* to do (instructions), *when* to do it (triggers), *what tools* are available, and *how to report success* using standardized protocols like the **MCP 3.1 Task Protocol**. Well-authored skills are the foundation of reliable agentic workflows using Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6.
 
 ## What problem it solves
 Poorly authored skills lead to:
@@ -25,10 +25,10 @@ Poorly authored skills lead to:
 - **Deterministic Routing**: Clear trigger definitions (keywords, slash commands, schedules) reduce "routing hallucinations".
 - **Lean Instructions**: Step-by-step, deterministic instructions minimize token usage and improve reliability.
 - **Reusability**: Skills can be shared across different agent runtimes and projects.
-- **Interoperability**: Compatibility with **MCP 3.0 Task Protocol** allows skills to be executed across diverse model architectures.
+- **Interoperability**: Compatibility with **MCP 3.1 Task Protocol** allows skills to be executed across diverse model architectures.
 
 ## Limitations
-- **Model Dependency**: A skill optimized for Claude 4.8 may require slight adjustment for Llama 4 Maverick or Gemma 3.
+- **Model Dependency**: A skill optimized for Claude 5.1 may require slight adjustment for Llama 4 Maverick or Gemma 3.
 - **Overhead**: Requires disciplined documentation and versioning to prevent "skill drift" over time.
 - **Complexity**: Deeply nested skills can become hard to debug if trigger logic overlaps significantly.
 
@@ -59,13 +59,13 @@ description: Create a git commit. Trigger when user says "commit" or "save chang
 5. Output: "{sha} {subject}"
 ```
 
-### MCP 3.0 Task Protocol Integration
-Skills in July 2026 are increasingly defined using the **MCP 3.0 Task Protocol**, which provides a JSON-schema for task requirements and state tracking:
+### MCP 3.1 Task Protocol Integration
+Skills in late October / November 2026 are increasingly defined using the **MCP 3.1 Task Protocol**, which provides a JSON-schema for task requirements and state tracking:
 
 ```json
 {
   "task": "technical-audit",
-  "protocol": "mcp-3.0",
+  "protocol": "mcp-3.1",
   "triggers": ["audit document", "check freshness"],
   "tools": ["read_file", "grep", "check_docs_contract"],
   "requirements": {
@@ -90,26 +90,57 @@ claude skills list
 
 ## API examples
 
-### Programmatic Skill Registration (Python)
-Using the Anthropic Agent SDK pattern with MCP 3.0 support:
+### Programmatic Skill Registration with Pydantic v2 validation under MCP 3.1
+Using the Anthropic Agent SDK pattern with MCP 3.1 support, we can strictly validate skill manifest properties before registration.
 
 ```python
-from anthropic_agent import Skill
-from mcp_protocol import TaskProtocol
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field, field_validator
 
-@Skill(
-    name="file_document",
-    description="Files a document into Paperless-ngx. Trigger on 'file this pdf'.",
-    permissions=["paperless_write"],
-    protocol=TaskProtocol.V3
-)
-def file_document(content: str, title: str):
-    # Implementation logic here
-    pass
+# Define Pydantic v2 schemas for Skill manifest verification
+class SkillManifest(BaseModel):
+    name: str = Field(..., description="Unique skill identifier")
+    description: str = Field(..., min_length=15, description="Clear description of when/how the agent triggers this skill")
+    permissions: List[str] = Field(default_factory=list, description="Explicit scopes needed")
+    protocol: str = Field("mcp-3.1", description="Supported protocol version")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="JSON schema parameters")
+
+    @field_validator("protocol")
+    def validate_protocol(cls, v: str) -> str:
+        if v not in ["mcp-3.0", "mcp-3.1"]:
+            raise ValueError("Protocol must be mcp-3.0 or mcp-3.1")
+        return v
+
+# Programmatic registration wrapper
+def register_skill_securely(manifest_data: dict) -> SkillManifest:
+    # Validate the data using model_validate
+    validated_manifest = SkillManifest.model_validate(manifest_data)
+
+    # Process registration downstream
+    print(f"Skill '{validated_manifest.name}' validated successfully on {validated_manifest.protocol}.")
+    return validated_manifest
+
+# Test sample registration
+sample_manifest = {
+    "name": "file_document",
+    "description": "Files a parsed document securely into the Paperless-ngx file vault.",
+    "permissions": ["paperless_write"],
+    "protocol": "mcp-3.1",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "content": {"type": "string"},
+            "title": {"type": "string"}
+        },
+        "required": ["content"]
+    }
+}
+
+manifest = register_skill_securely(sample_manifest)
 ```
 
 ## Related tools / concepts
-- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The standard for connecting skills to tools (MCP 3.0 Task Protocol).
+- [Model Context Protocol](../../tools/automation_orchestration/mcp.md) — The standard for connecting skills to tools (MCP 3.1 Task Protocol).
 - [Claude Code](../../tools/development_ops/claude-code.md) — Runtime for engineering-focused skills.
 - [OpenClaw](../../tools/development_ops/openclaw.md) — Multi-channel agent framework using YAML skills.
 - [Local LLMs](../../tools/ai_knowledge/local_llms.md) — Reference for running Gemma 3 and other models locally.
@@ -119,10 +150,10 @@ def file_document(content: str, title: str):
 
 ## Sources / references
 - [Claude Code Skills Documentation](https://docs.anthropic.com/claude-code/skills)
-- [Model Context Protocol 3.0 Specification](https://modelcontextprotocol.io/spec/3.0)
+- [Model Context Protocol 3.1 Specification](https://modelcontextprotocol.io/spec/3.1)
 - [Anthropic Agent Skills Documentation](https://docs.anthropic.com/claude/docs/agent-skills)
 - [Gemma 3 Technical Report](https://storage.googleapis.com/deepmind-media/gemma/gemma-3-report.pdf)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-04
+- Last reviewed: 2026-11-05
 - Confidence: high

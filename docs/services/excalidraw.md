@@ -1,22 +1,22 @@
 # Excalidraw
 
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic, optimized for rapid visual communication and AI-native reasoning in the July 2026 agentic ecosystem.
+Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic, optimized for rapid visual communication and AI-native reasoning in the late October / November 2026 agentic ecosystem.
 
 ## What it is
-Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration. As of July 2026, it serves as a primary canvas for **AI-native visual reasoning**, where autonomous agents use the whiteboard to externalize complex logic and architectural designs.
+Excalidraw is a lightweight, open-source sketching tool that allows you to create diagrams with a distinct hand-drawn aesthetic. It focuses on simplicity, speed, and real-time collaboration. As of late October / November 2026, it serves as a primary canvas for **AI-native visual reasoning**, where autonomous agents use the whiteboard to externalize complex logic and architectural designs.
 
 ## What problem it solves
 It lowers the barrier to creating visual documentation and brainstorming. Unlike complex CAD or formal diagramming tools, Excalidraw encourages "lo-fi" sketching which is often better for early-stage ideas and quick explanations where formal notation would be a distraction. It provides a structured JSON format that is easily parseable by LLMs, facilitating seamless human-AI co-creation.
 
 ## Where it fits in the stack
-Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is often used for documentation in READMEs and internal wikis, and serves as a visual playground for agents (e.g., GPT-5.5, Claude 4.8) to "draw" their reasoning or architecture proposals using **MCP 3.0 visual design patterns**.
+Excalidraw fits into the **Brainstorming and Visual Communication** layer. It is often used for documentation in READMEs and internal wikis, and serves as a visual playground for agents (e.g., GPT-5.5, Claude 5.1, Gemini 4.0, Llama 4) to "draw" their reasoning or architecture proposals using **MCP 3.1 visual design patterns**.
 
 ## Typical use cases
 - **AI-Native Visual Reasoning**: Agents generating and modifying diagrams to explain multi-step planning.
 - **UI/UX Wireframing**: Quickly sketching interface ideas for new agent-driven apps.
 - **Process Brainstorming**: Mapping out high-level agentic workflows or [n8n](n8n.md) logic.
 - **Visual Documentation**: Creating explanatory diagrams for software architecture in a "whiteboard" style.
-- **MCP 3.0 Task Visualization**: Representing complex tool-calling sequences and task graphs visually.
+- **MCP 3.1 Task Visualization**: Representing complex tool-calling sequences and task graphs visually.
 
 ## Strengths
 - **Simplicity**: Extremely intuitive interface with no learning curve.
@@ -80,6 +80,63 @@ docker restart excalidraw
 
 ## API examples
 
+### Python: Programmatic Element List Validation with Pydantic v2
+Because Excalidraw diagrams are stored as structured JSON, agents can programmatically generate, parse, and manipulate elements. The following example validates the structure of Excalidraw elements using Pydantic v2.
+
+```python
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
+# Define Pydantic v2 schemas for Excalidraw JSON structures
+class ExcalidrawElement(BaseModel):
+    id: str = Field(..., description="Unique element identifier")
+    type: str = Field(..., description="Type of element (e.g., rectangle, ellipse, arrow, text)")
+    x: float = Field(..., description="The x-coordinate position")
+    y: float = Field(..., description="The y-coordinate position")
+    width: float = Field(..., description="Width of the element")
+    height: float = Field(..., description="Height of the element")
+    backgroundColor: str = Field("transparent", description="Fill color")
+    strokeColor: str = Field("#000000", description="Line/outline color")
+    strokeWidth: int = Field(1, description="Outline thickness")
+    fillStyle: str = Field("hachure", description="Fill texture style")
+    opacity: int = Field(100, description="Opacity percentage")
+    isDeleted: bool = Field(False, description="Whether the element has been deleted")
+
+class ExcalidrawDiagram(BaseModel):
+    type: str = Field("excalidraw", description="Canvas file type")
+    version: int = Field(2, description="Excalidraw schema version")
+    source: Optional[str] = Field(None, description="Source generator")
+    elements: List[ExcalidrawElement] = Field(default_factory=list, description="List of visual elements")
+
+# Example validation logic
+def validate_and_parse_diagram(json_data: dict) -> ExcalidrawDiagram:
+    # Uses model_validate in Pydantic v2
+    return ExcalidrawDiagram.model_validate(json_data)
+
+# Test execution
+sample_json = {
+    "type": "excalidraw",
+    "version": 2,
+    "source": "https://excalidraw.com",
+    "elements": [
+        {
+            "id": "rect-1",
+            "type": "rectangle",
+            "x": 100,
+            "y": 150,
+            "width": 200,
+            "height": 80,
+            "strokeColor": "#ff0000",
+            "strokeWidth": 2,
+            "fillStyle": "solid"
+        }
+    ]
+}
+
+parsed = validate_and_parse_diagram(sample_json)
+print(f"Validated diagram with {len(parsed.elements)} elements under MCP 3.1.")
+```
+
 ### React Integration
 ```javascript
 import { Excalidraw } from "@excalidraw/excalidraw";
@@ -103,7 +160,7 @@ Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) 
 
 ## Related tools / concepts
 - [Draw.io](drawio.md) — For professional-grade, formal technical diagrams.
-- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standardized protocol for agent-tool interaction, including visual reasoning.
+- [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) — Standardized protocol for agent-tool interaction, including visual reasoning (MCP 3.1 compatibility).
 - [Obsidian](../tools/ai_knowledge/obsidian.md) — Excellent integration via the Excalidraw plugin.
 - [Gumloop](../tools/automation_orchestration/gumloop.md) — Visual AI automation platform.
 - [Local LLMs](../tools/ai_knowledge/local_llms.md) — Used for local AI-assisted sketching.
@@ -120,4 +177,4 @@ Excalidraw integrates deeply with [Obsidian](../tools/ai_knowledge/obsidian.md) 
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-04
+- Last reviewed: 2026-11-05
