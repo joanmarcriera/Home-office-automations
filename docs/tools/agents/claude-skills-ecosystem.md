@@ -1,27 +1,27 @@
 # Claude Skills Ecosystem
 
 ## What it is
-The Claude skills ecosystem is the growing collection of reusable skill packs, command libraries, and workflow repositories built around [Claude Code](../development_ops/claude-code.md) and related coding-agent tools. It leverages Anthropic's native tool-calling capabilities to provide high-level "skills" that can be imported into an agent's runtime. As of July 2026, the ecosystem has expanded to include cross-platform skills compatible with **Gemma 3** and other frontier models via the **Model Context Protocol (MCP) 3.0**.
+The Claude skills ecosystem is the growing collection of reusable skill packs, command libraries, and workflow repositories built around [Claude Code](../development_ops/claude-code.md) and related coding-agent tools. It leverages Anthropic's native tool-calling capabilities to provide high-level "skills" that can be imported into an agent's runtime. As of late October / November 2026, the ecosystem has expanded to include cross-platform skills compatible with **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Gemma 3** via the **Model Context Protocol (MCP) 3.1**.
 
 ## What problem it solves
-It makes operational know-how reusable and modular. Instead of rediscovering the same prompting, planning, debugging, or repository conventions, teams can package them as skills. This addresses the "cold start" problem for agents by providing them with a predefined library of capabilities for specific domains. The adoption of MCP 3.0 has further solved the interoperability problem, allowing "Claude Skills" to be used by a wider range of agentic orchestrators.
+It makes operational know-how reusable and modular. Instead of rediscovering the same prompting, planning, debugging, or repository conventions, teams can package them as skills. This addresses the "cold start" problem for agents by providing them with a predefined library of capabilities for specific domains. The adoption of MCP 3.1 has further solved the interoperability problem, allowing "Claude Skills" to be used by a wider range of agentic orchestrators.
 
 ## Where it fits in the stack
-**Agents / Reusable Agent Capabilities**. Skills are composable behavior packages for coding agents, sitting between the raw model (Claude 4.8 Opus, **Gemma 3**) and the specific application code.
+**Agents / Reusable Agent Capabilities**. Skills are composable behavior packages for coding agents, sitting between the raw model (Claude 5.1, **Gemma 3**) and the specific application code.
 
 ## Typical use cases
 - **UI Prototyping**: Using the `frontend-design` skill for production-grade React/Next.js generation following modern design systems.
 - **Web Automation**: Using the `browser-use` skill for live web research and multi-site automation via [Playwright](../development_ops/playwright.md).
 - **Autonomous Security**: Using the `shannon` skill for automated pen-testing and vulnerability scanning.
 - **Code Refinement**: Using the `simplify` skill for automated quality reviews and architectural simplification.
-- **Cross-Model Skills**: Utilizing MCP-compliant skills that work identically across Claude 4.8 and **Gemma 3** runtimes.
+- **Cross-Model Skills**: Utilizing MCP-compliant skills that work identically across Claude 5.1, GPT-5.5, and **Gemma 3** runtimes.
 
 ## Strengths
 - **Modular Design**: Reuse of proven workflows across different projects and teams.
 - **Onboarding Speed**: Faster transition for engineering teams adopting [Claude Code](../development_ops/claude-code.md) by leveraging community-vetted patterns.
 - **Consistency**: Enforces standardized execution patterns (e.g., how to write tests or handle migrations) across a fleet of agents.
 - **Extensibility**: Easily allows adding new capabilities to an agent without retraining or complex fine-tuning.
-- **MCP 3.0 Interoperability**: Skills are increasingly developed as MCP servers, making them portable across different agent platforms like [Roo Code](roo-code.md) and [Cline](cline.md).
+- **MCP 3.1 Interoperability**: Skills are increasingly developed as MCP servers, making them portable across different agent platforms like [Roo Code](roo-code.md) and [Cline](cline.md).
 
 ## Limitations
 - **Varied Quality**: Skill quality and maintenance levels vary significantly across community-contributed repositories.
@@ -63,18 +63,42 @@ Once installed, Claude or other compatible agents (like [Cline](cline.md) or [Ge
 ```
 
 ## API examples
-When interacting with an agent that supports a skills-aware runtime, you can trigger skills programmatically:
+When interacting with an agent that supports a skills-aware runtime, you can trigger skills programmatically. This python example validates a composable skill pack's registered actions and parameter requirements using **Pydantic v2**:
 
-```json
-{
-  "skill": "documentation-writer",
-  "action": "generate-readme",
-  "parameters": {
-    "target_dir": "./src",
-    "output_file": "README.md",
-    "model_context": "claude-4-8-opus-20260528"
-  }
-}
+```python
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl, ValidationError
+
+class SkillParameter(BaseModel):
+    name: str = Field(..., description="Parameter name")
+    param_type: str = Field(..., alias="type", description="Data type of the parameter")
+    description: str = Field(..., description="Parameter description")
+    required: bool = Field(default=False, description="Whether the parameter is mandatory")
+
+class SkillAction(BaseModel):
+    name: str = Field(..., description="Unique action name/trigger within the skill pack")
+    description: str = Field(..., description="Action purpose and expected outcome")
+    parameters: List[SkillParameter] = Field(default_factory=list, description="Inputs required by this action")
+
+class SkillPackConfig(BaseModel):
+    pack_name: str = Field(..., alias="packName", description="The package or skill pack display name")
+    version: str = Field(..., description="Semantic version of the skill pack")
+    author: str = Field(..., description="Author of the skill pack")
+    repository: Optional[HttpUrl] = Field(None, description="Source code repository URL")
+    actions: List[SkillAction] = Field(..., description="List of executable actions registered in this skill pack")
+
+def validate_skill_pack(raw_json: str) -> Optional[SkillPackConfig]:
+    try:
+        data = json.loads(raw_json)
+        # Validate using Pydantic v2 model_validate
+        return SkillPackConfig.model_validate(data)
+    except ValidationError as e:
+        print(f"Validation Error: {e.json()}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON.")
+        return None
 ```
 
 ## Related tools / concepts
@@ -93,8 +117,8 @@ When interacting with an agent that supports a skills-aware runtime, you can tri
 - [Awesome Claude Skills](https://github.com/BehiSecc/awesome-claude-skills)
 - [Superpowers - Composable Skills](https://github.com/obra/superpowers)
 - [Skill Seekers Community](https://github.com/yusufkaraaslan/Skill_Seekers)
-- [MCP 3.0 Ecosystem Update](https://modelcontextprotocol.io/ecosystem)
+- [MCP 3.1 Ecosystem Update](https://modelcontextprotocol.io/ecosystem)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-03
+- Last reviewed: 2026-11-05
 - Confidence: high
