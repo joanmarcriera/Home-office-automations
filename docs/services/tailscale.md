@@ -1,18 +1,18 @@
 # Tailscale
 
 ## What it is
-Tailscale is a zero-config VPN that builds a secure, WireGuard-based mesh network (a "tailnet") between your devices. In July 2026, it has introduced **Identity-Aware Tool Routing**, allowing autonomous agents to securely traverse the tailnet using short-lived, verifiable credentials. It provides the secure backbone for distributed homelabs, enabling cloud-hosted agents to interact with local services as if they were on the same network.
+Tailscale is a zero-config VPN that builds a secure, WireGuard-based mesh network (a "tailnet") between your devices. In November 2026, it natively supports **Identity-Aware Tool Routing**, allowing autonomous agents to securely traverse the tailnet using short-lived, verifiable credentials. It provides the secure backbone for distributed homelabs, enabling cloud-hosted agents to interact with local services as if they were on the same network.
 
 ## What problem it solves
-Managing secure remote access traditionally involves complex firewall rules, manual port forwarding, and static VPN keys. Tailscale eliminates this complexity, providing a private network overlay that works across complex firewalls and NATs. It solves the "secure connectivity" problem for distributed environments, allowing **Gemma 3** agents and remote users to securely access services like [Home Assistant](home-assistant.md) without public exposure.
+Managing secure remote access traditionally involves complex firewall rules, manual port forwarding, and static VPN keys. Tailscale eliminates this complexity, providing a private network overlay that works across complex firewalls and carrier-grade NATs. It solves the "secure connectivity" problem for distributed environments, allowing **Gemini 4.0** and **Gemma 3** agents as well as remote users to securely access services like [Home Assistant](home-assistant.md) without public port exposure.
 
 ## Where it fits in the stack
-**Category**: Service / Infrastructure / Networking. Tailscale acts as the **secure connectivity layer**, providing the private mesh backbone that links all homelab services, agents, and user endpoints. It integrates with **FastMCP 3.0** for secure, low-latency tool discovery across distributed nodes.
+**Category**: Service / Infrastructure / Networking. Tailscale acts as the **secure connectivity layer**, providing the private mesh backbone that links all homelab services, agents, and user endpoints. It integrates with **FastMCP 3.1** for secure, low-latency tool and resource discovery across distributed nodes.
 
 ## Typical use cases
 - **Secure Remote Management**: Accessing [Paperless-ngx](paperless-ngx.md) or [Nextcloud](nextcloud.md) from any device while traveling.
 - **Cross-Cloud Mesh**: Connecting local servers to remote VPS instances for [Storj](storj.md) nodes or [n8n](n8n.md) runners.
-- **Agentic Tool Access**: Allowing a cloud-hosted Claude 4.8 instance to securely call local APIs via a Tailscale tunnel.
+- **Agentic Tool Access**: Allowing a cloud-hosted Claude 5.1 instance to securely call local APIs via a Tailscale tunnel.
 - **Zero-Trust SSH**: Securely accessing homelab servers without traditional SSH keys via **Tailscale SSH**.
 - **Exit Node Routing**: Routing traffic through a trusted home network when using untrusted public Wi-Fi.
 
@@ -80,26 +80,37 @@ tailscale ssh --check <peer-hostname>
 ## API examples
 Tailscale provides a REST API (v2) for programmatic tailnet administration.
 
-### Python: Listing Devices via API
+### Python: Listing Devices via API and validating with Pydantic v2
+This example queries Tailscale API devices and parses them using **Pydantic v2** models to guarantee structured data format.
+
 ```python
 import requests
+from pydantic import BaseModel, Field
+from typing import List
 
-API_KEY = "YOUR_TAILSCALE_API_KEY"
-TAILNET = "your-tailnet.ts.net"
+# Define Pydantic v2 schemas
+class TailscaleDevice(BaseModel):
+    hostname: str = Field(..., description="Hostname of the tailnet device")
+    addresses: List[str] = Field(..., description="Tailscale IP addresses assigned")
+    authorized: bool = Field(..., description="Authorization state on the tailnet")
+    os_name: str = Field(..., alias="os", description="Operating system running on the device")
 
-def list_devices():
-    url = f"https://api.tailscale.com/api/v2/tailnet/{TAILNET}/devices"
-    headers = {"Authorization": f"Bearer {API_KEY}"}
+class TailnetDevicesResponse(BaseModel):
+    devices: List[TailscaleDevice]
+
+def list_and_validate_devices(api_key: str, tailnet: str) -> List[TailscaleDevice]:
+    url = f"https://api.tailscale.com/api/v2/tailnet/{tailnet}/devices"
+    headers = {"Authorization": f"Bearer {api_key}"}
+
     response = requests.get(url, headers=headers)
-    return response.json()
+    response.raise_for_status()
 
-# Example usage
-devices = list_devices()
-for device in devices.get('devices', []):
-    print(f"Device: {device['hostname']}, IP: {device['addresses'][0]}")
+    # Validate payload using Pydantic v2 model parsing
+    validated_response = TailnetDevicesResponse.model_validate(response.json())
+    return validated_response.devices
 ```
 
-### FastMCP 3.0 Secure Tool Routing
+### FastMCP 3.1 Secure Tool Routing
 Exposing a local service to a tailnet-connected agent.
 
 ```typescript
@@ -129,8 +140,8 @@ mcp.serve();
 - [Ollama](ollama.md) — For providing private AI services across the tailnet.
 - [Nextcloud](nextcloud.md) — For private file sharing within the mesh.
 - [Storj](storj.md) — For backing up tailnet-connected servers.
-- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Protocol for agentic tool discovery over Tailscale.
-- [FastMCP 3.0](../tools/automation_orchestration/mcp.md) — High-performance tool hosting for distributed agents.
+- [MCP 3.1](../tools/automation_orchestration/mcp.md) — Protocol for agentic tool discovery over Tailscale.
+- [FastMCP 3.1](../tools/automation_orchestration/mcp.md) — High-performance tool hosting for distributed agents.
 
 ## Sources / References
 - [Official Website](https://tailscale.com/)
@@ -139,5 +150,5 @@ mcp.serve();
 - [Headscale GitHub](https://github.com/juanfont/headscale)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-06
+- Last reviewed: 2026-11-05
 - Confidence: high
