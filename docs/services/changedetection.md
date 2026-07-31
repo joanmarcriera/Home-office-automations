@@ -1,13 +1,13 @@
 # Changedetection.io
 
 ## What it is
-Changedetection.io is a self-hosted open-source tool designed to monitor websites for content changes. It provides a clean web interface to add URLs, set up filters, and configure notification triggers, allowing users to track modifications in specific parts of a page with high precision. In July 2026, it is the standard for triggering agentic workflows based on external web events, featuring deep integration with the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md).
+Changedetection.io is a self-hosted open-source tool designed to monitor websites for content changes. It provides a clean web interface to add URLs, set up filters, and configure notification triggers, allowing users to track modifications in specific parts of a page with high precision. In late October / November 2026, it is the standard for triggering agentic workflows based on external web events, featuring deep integration with the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) and FastMCP setups.
 
 ## What problem it solves
-It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs. It allows [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md) agents to stay updated on web-based information without constant polling.
+It eliminates the need for manual website checking by automating the observation process. It solves the problem of "information decay" by pushing alerts when price drops, software releases, or policy updates occur. It acts as a bridge between static web content and dynamic automation pipelines, providing reliable change detection for pages that lack RSS feeds or official APIs. It allows [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), and [Claude 5.1](../tools/providers/anthropic.md) agents to stay updated on web-based information without constant polling.
 
 ## Where it fits in the stack
-In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using autonomous agents. It can also be controlled via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) to dynamically add or modify watches based on agentic requirements.
+In the automation ecosystem, Changedetection.io acts as a **Web Event Trigger**. It sits in the ingestion layer, sending webhooks to [n8n](n8n.md) or Apprise, which then kick off complex workflows using autonomous agents. It can also be controlled via the [MCP 3.1 / FastMCP Specification](../tools/automation_orchestration/mcp.md) to dynamically add or modify watches based on agentic requirements.
 
 ## Typical use cases
 - **Price Tracking**: Monitoring retail sites for discounts or stock availability.
@@ -91,17 +91,51 @@ curl http://localhost:5000/api/v1/watch \
      -H "x-api-key: <your_api_key>"
 ```
 
-### Checking Watch Status (Python)
+### Checking Watch Status with Pydantic v2 Validation (Python)
+In late October / November 2026, integrating AI pipelines requires structured validation. Here is an async example validating watch data using **Pydantic v2**:
+
 ```python
-import requests
+import asyncio
+import httpx
+from pydantic import BaseModel, Field, HttpUrl
+from typing import Dict, Optional
 
-API_URL = "http://localhost:5000/api/v1/watch"
-headers = {"x-api-key": "your_api_key_here"}
+class WatchModel(BaseModel):
+    title: str = Field(..., description="The user-defined title for the watch")
+    url: HttpUrl = Field(..., description="The validated target URL")
+    last_checked: Optional[int] = Field(None, description="POSIX timestamp of last execution")
+    last_changed: Optional[int] = Field(None, description="POSIX timestamp of last modification")
+    paused: bool = Field(default=False, description="Whether checking is currently suspended")
 
-response = requests.get(API_URL, headers=headers)
-if response.status_code == 200:
-    for uuid, data in response.json().items():
-        print(f"Watch: {data.get('title')} | Last Checked: {data.get('last_checked')}")
+class WatchAPIResponse(BaseModel):
+    watches: Dict[str, WatchModel]
+
+async def fetch_and_validate_watches(base_url: str, api_key: str) -> WatchAPIResponse:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{base_url}/api/v1/watch",
+            headers={"x-api-key": api_key, "Accept": "application/json"}
+        )
+        response.raise_for_status()
+        raw_data = response.json()
+
+        # Validate raw REST response against the Pydantic v2 schema
+        return WatchAPIResponse(watches=raw_data)
+
+# Example execution within agent context
+async def main():
+    try:
+        validated_response = await fetch_and_validate_watches(
+            base_url="http://localhost:5000",
+            api_key="your_api_key_here"
+        )
+        for watch_id, watch in validated_response.watches.items():
+            print(f"Watch {watch_id}: {watch.title} (Paused: {watch.paused}) -> {watch.url}")
+    except Exception as e:
+        print(f"Validation failed: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Related tools / concepts
@@ -123,5 +157,5 @@ if response.status_code == 200:
 - [Changedetection.io REST API Docs](https://github.com/dgtlmoon/changedetection.io/wiki/API)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-05
 - Confidence: high

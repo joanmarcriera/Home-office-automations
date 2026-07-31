@@ -1,13 +1,13 @@
 # Paperless-ngx
 
 ## What it is
-Paperless-ngx is a community-supported document management system (DMS) that transforms your physical documents into a searchable digital archive. It provides a web-based interface for managing scanned PDFs and images, utilizing advanced OCR and machine learning for automated organization. In July 2026, it serves as the cornerstone of private document intelligence, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for direct agentic access.
+Paperless-ngx is a community-supported document management system (DMS) that transforms your physical documents into a searchable digital archive. It provides a web-based interface for managing scanned PDFs and images, utilizing advanced OCR and machine learning for automated organization. In late October / November 2026, it serves as the cornerstone of private document intelligence, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) and FastMCP specifications for direct agentic access.
 
 ## What problem it solves
-It eliminates paper clutter and "digital fragmentation" by providing a central, private repository for all household and office documents. It solves the problem of unsearchable scanned files by performing automatic Optical Character Recognition (OCR) and uses machine learning to suggest tags, correspondents, and document types based on content. It enables models like [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md) to reason over physical mail, bills, and tax records securely.
+It eliminates paper clutter and "digital fragmentation" by providing a central, private repository for all household and office documents. It solves the problem of unsearchable scanned files by performing automatic Optical Character Recognition (OCR) and uses machine learning to suggest tags, correspondents, and document types based on content. It enables frontier models like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), [GPT-5.5](../tools/providers/index.md), and [Claude 5.1](../tools/providers/anthropic.md) to reason over physical mail, bills, and tax records securely.
 
 ## Where it fits in the stack
-**Ingestion & Storage Layer**. It serves as the primary archival system for documents in the homelab, sitting between capture tools (scanners, emails) and consumption tools (AI agents, mobile apps). It integrates with [Authentik](authentik.md) for SSO, [n8n](n8n.md) for automated workflows, and the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) for standardized agent discovery and execution.
+**Ingestion & Storage Layer**. It serves as the primary archival system for documents in the homelab, sitting between capture tools (scanners, emails) and consumption tools (AI agents, mobile apps). It integrates with [Authentik](authentik.md) for SSO, [n8n](n8n.md) for automated workflows, and the [MCP 3.1 / FastMCP Specification](../tools/automation_orchestration/mcp.md) for standardized agent discovery, tool definitions, and resource/prompt sharing.
 
 ## Typical use cases
 - **Household Digitization**: Storing and indexing medical records, utility bills, and tax documents.
@@ -95,38 +95,58 @@ docker exec -it paperless-webserver python3 manage.py document_index reindex
 curl -X POST http://localhost:8000/api/documents/post_document/ \
   -H "Authorization: Token your_api_token" \
   -F "document=@/path/to/invoice.pdf" \
-  -F "title=July 2026 Utility Bill"
+  -F "title=Utility Bill"
 ```
 
-### n8n (Document Ingestion Workflow)
-Import this snippet into [n8n](n8n.md) to automate uploads from various sources:
-```json
-{
-  "nodes": [
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://paperless:8000/api/documents/post_document/",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBinaryData": true,
-        "binaryPropertyName": "data",
-        "bodyParametersUi": {
-          "parameter": [
-            {
-              "name": "title",
-              "value": "={{$node[\"Read File\"].binary.data.fileName}}"
-            }
-          ]
-        }
-      },
-      "name": "Upload to Paperless",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [450, 300]
-    }
-  ]
-}
+### Programmatic Ingestion and Document Retrieval with Pydantic v2 (Python)
+In late October / November 2026, parsing and querying files agentically requires strict validation layers. Below is an asynchronous Python snippet retrieving and validating document metadata from Paperless-ngx using **Pydantic v2**:
+
+```python
+import asyncio
+import httpx
+from pydantic import BaseModel, Field, HttpUrl
+from typing import List, Optional
+
+class DocumentModel(BaseModel):
+    id: int = Field(..., description="Unique document ID in Paperless-ngx")
+    title: str = Field(..., description="Document title")
+    content: str = Field(..., description="Extracted OCR text content")
+    added: str = Field(..., description="ISO 8601 timestamp representing addition date")
+    tags: List[int] = Field(default=[], description="List of tag IDs assigned to this document")
+    correspondent: Optional[int] = Field(None, description="ID of the assigned correspondent")
+
+class DocumentListResponse(BaseModel):
+    count: int
+    next_url: Optional[HttpUrl] = Field(None, alias="next")
+    previous_url: Optional[HttpUrl] = Field(None, alias="previous")
+    results: List[DocumentModel]
+
+async def get_recent_documents(base_url: str, token: str) -> DocumentListResponse:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{base_url}/api/documents/",
+            headers={"Authorization": f"Token {token}", "Accept": "application/json"}
+        )
+        response.raise_for_status()
+        raw_payload = response.json()
+
+        # Validates and parses the JSON dictionary via Pydantic v2
+        return DocumentListResponse.model_validate(raw_payload)
+
+async def main():
+    try:
+        data = await get_recent_documents(
+            base_url="http://localhost:8000",
+            token="your_secret_api_token_here"
+        )
+        print(f"Total documents found: {data.count}")
+        for doc in data.results:
+            print(f"[{doc.id}] {doc.title} (Added: {doc.added}) - OCR length: {len(doc.content)} chars")
+    except Exception as e:
+        print(f"Structured validation failed: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Related tools / concepts
@@ -145,5 +165,5 @@ Import this snippet into [n8n](n8n.md) to automate uploads from various sources:
 - [Paperless-ngx API Documentation](https://docs.paperless-ngx.com/api/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-05
 - Confidence: high

@@ -1,12 +1,12 @@
 # Diskover
 
-Diskover is an open-source file indexer and data management tool that uses Elasticsearch to index and manage data across heterogeneous storage systems, providing critical storage intelligence for agentic workflows in July 2026.
+Diskover is an open-source file indexer and data management tool that uses Elasticsearch to index and manage data across heterogeneous storage systems, providing critical storage intelligence for agentic workflows in late October / November 2026.
 
 ## What it is
-Diskover is a high-performance file system crawler and disk space analyzer. It crawls your storage (local drives, NFS, SMB) and stores the metadata in Elasticsearch, providing a powerful web interface and API to search, filter, and visualize your data. In the July 2026 ecosystem, it serves as the ground truth for agents managing large-scale data archives, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for automated storage queries.
+Diskover is a high-performance file system crawler and disk space analyzer. It crawls your storage (local drives, NFS, SMB) and stores the metadata in Elasticsearch, providing a powerful web interface and API to search, filter, and visualize your data. In the late October / November 2026 ecosystem, it serves as the ground truth for agents managing large-scale data archives, supporting the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) and FastMCP specifications for automated storage queries.
 
 ## What problem it solves
-It solves the problem of "Data Sprawl" across large storage arrays. When you have terabytes of data across multiple servers, finding old versions of files, identifying duplicate data, or seeing which user is consuming the most space becomes difficult. Diskover makes your entire storage infrastructure searchable and quantifiable, allowing tools like [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md) to make informed decisions about data retention.
+It solves the problem of "Data Sprawl" across large storage arrays. When you have terabytes of data across multiple servers, finding old versions of files, identifying duplicate data, or seeing which user is consuming the most space becomes difficult. Diskover makes your entire storage infrastructure searchable and quantifiable, allowing tools like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), and [Claude 5.1](../tools/providers/anthropic.md) to make informed decisions about data retention.
 
 ## Where it fits in the stack
 In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides the metadata that allows automation scripts and autonomous agents to identify which files should be archived, moved to cold storage (like [Storj](storj.md)), or deleted to free up space. It integrates with [n8n](n8n.md) for automated lifecycle management.
@@ -35,7 +35,7 @@ In a homelab, Diskover acts as the **Storage Intelligence Layer**. It provides t
 - When you need to gain visibility into large, heterogeneous storage environments.
 - To identify "dark data," such as old, large, or duplicate files that are wasting space.
 - When you want a searchable index of your files without having to scan the live file system every time.
-- To provide storage-context to AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) or [Claude 4.8](../tools/providers/anthropic.md).
+- To provide storage-context to AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) or [Claude 5.1](../tools/providers/anthropic.md).
 
 ## When not to use it
 - If you only need a simple, real-time disk usage visualizer for a single local drive (consider `ncdu` or WizTree).
@@ -111,17 +111,53 @@ Diskover stores its data in Elasticsearch, allowing you to use the standard Elas
 curl -X GET "http://elasticsearch:9200/diskover-data/_search?q=filesize:>1073741824&pretty"
 ```
 
-### Python example to query indices
+### Python example to query indices with Pydantic v2 Validation
+In late October / November 2026, integrating Storage Intelligence into AI pipelines relies on structured schemas. Below is an asynchronous Python snippet retrieving and validating indices and storage statistics from Diskover's backend Elasticsearch engine using **Pydantic v2**:
+
 ```python
-import requests
+import asyncio
+import httpx
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
 
-es_url = "http://elasticsearch:9200/_cat/indices?format=json"
-response = requests.get(es_url)
-indices = response.json()
+class ElasticsearchIndexModel(BaseModel):
+    health: str = Field(..., description="The status of the Elasticsearch index (green, yellow, red)")
+    status: str = Field(..., description="The open/close status of the index")
+    index: str = Field(..., description="Name of the index")
+    docs_count: Optional[int] = Field(None, alias="docs.count", description="Number of indexed file objects")
+    store_size: Optional[str] = Field(None, alias="store.size", description="Raw text representing total size on disk")
 
-for index in indices:
-    if index['index'].startswith('diskover-'):
-        print(f"Diskover Index: {index['index']}, Documents: {index['docs.count']}")
+    @field_validator("docs_count", mode="before")
+    @classmethod
+    def parse_docs_count(cls, value):
+        if value is None or value == "null" or value == "":
+            return 0
+        try:
+            return int(value)
+        except ValueError:
+            return 0
+
+async def query_diskover_indices(es_host: str) -> List[ElasticsearchIndexModel]:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{es_host}/_cat/indices?format=json")
+        response.raise_for_status()
+        raw_list = response.json()
+
+        # Validates and parses the Elasticsearch metadata payload using Pydantic v2
+        return [ElasticsearchIndexModel.model_validate(item) for item in raw_list]
+
+async def main():
+    try:
+        indices = await query_diskover_indices("http://localhost:9200")
+        diskover_indices = [idx for idx in indices if idx.index.startswith("diskover-")]
+        print(f"Discovered {len(diskover_indices)} Diskover index/indices:")
+        for idx in diskover_indices:
+            print(f"- Index: {idx.index} | Health: {idx.health} | Files Indexed: {idx.docs_count} | Storage: {idx.store_size}")
+    except Exception as e:
+        print(f"Validation failed: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Related tools / concepts
@@ -171,5 +207,5 @@ docker exec -it diskover python3 /app/diskover/diskover.py -i truenas-index /dat
 - [Elasticsearch Documentation](https://www.elastic.co/guide/index.html)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-05
 - Confidence: high
