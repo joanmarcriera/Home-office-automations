@@ -1,13 +1,13 @@
 # OpenAI Agents SDK
 
 ## What it is
-The OpenAI Agents SDK is a framework designed to build and orchestrate AI agents. It introduces a separation between the "harness" (the control logic) and the "compute" (the LLM reasoning), allowing for more flexible and scalable agent architectures. By July 2026, it has become a standard for deploying high-autonomy agents, often compared against **Gemma 3** based agentic workflows for cross-platform versatility.
+The OpenAI Agents SDK is a framework designed to build and orchestrate AI agents. It introduces a separation between the "harness" (the control logic) and the "compute" (the LLM reasoning), allowing for more flexible and scalable agent architectures. By late October / November 2026, it has become a standard for deploying high-autonomy agents, often compared against **Gemma 3** based agentic workflows for cross-platform versatility and multi-model routing.
 
 ## What problem it solves
 It simplifies the process of creating agents that can use tools, maintain state, and perform complex multi-step tasks. By separating the harness from the compute, it enables better resource management, sandboxed execution, and multi-tenant scaling, solving the security and reliability challenges of early autonomous agent implementations.
 
 ## Where it fits in the stack
-**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5** and the **O4 reasoning series**, while supporting the **MCP 3.0 Task Protocol** for standardized tool execution.
+**Category**: [Frameworks](./index.md) / [Agents](../agents/index.md). It acts as the orchestration layer for **GPT-5.5** and the **O5 reasoning series**, while fully supporting the **MCP 3.1 Task Protocol** for standardized tool execution.
 
 ## Typical use cases
 - **Multi-step Reasoning**: Agents that need to perform a sequence of actions to reach a goal.
@@ -17,13 +17,13 @@ It simplifies the process of creating agents that can use tools, maintain state,
 
 ## Strengths
 - **Decoupled Architecture**: Separates agent logic (harness) from LLM execution (compute).
-- **Native OpenAI Integration**: Designed to work seamlessly with the OpenAI platform and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md).
+- **Native OpenAI Integration**: Designed to work seamlessly with the OpenAI platform and the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) (MCP 3.1 specifications).
 - **Scalability**: Easier to manage multiple agents and concurrent tasks.
 - **Security-First**: Built-in support for sandboxing and permission management.
-- **Autonomous Excellence**: Optimized for high-autonomy tasks using the **O4 series**.
+- **Autonomous Excellence**: Optimized for high-autonomy tasks using the **O5 series**.
 
 ## Limitations
-- **Platform Dependency**: Primarily optimized for OpenAI models, though Gemma 3 integrations are emerging via third-party bridges.
+- **Platform Dependency**: Primarily optimized for OpenAI models, though Gemma 3 and Qwen 3.6 integrations are emerging via third-party bridges.
 - **Complexity**: The harness/compute separation adds a layer of abstraction that may be unnecessary for simple tasks.
 - **Ecosystem Maturity**: While standard, it requires deep integration with specific OpenAI API features.
 
@@ -40,7 +40,7 @@ It simplifies the process of creating agents that can use tools, maintain state,
 Install the SDK and configure a basic agent with tools.
 
 ```bash
-pip install openai-agents
+pip install openai-agents pydantic>=2.0.0
 ```
 
 ### Basic Agent Configuration
@@ -84,22 +84,67 @@ openai-agents --version
 ## API examples
 The SDK provides advanced patterns for resource separation, sandboxing, and orchestration.
 
-### Harness vs. Compute Separation
+### Harness vs. Compute Validation with Pydantic v2
+This example demonstrates configuring and validating compute configurations and tool interfaces prior to starting the OpenAI Agents harness loop.
+
 ```python
-from openai_agents import Harness, Compute
+import json
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-compute = Compute(
-    model="gpt-5.5-preview",
-    temperature=0.1,
-    max_tokens=2000
-)
+# Define Pydantic v2 models for validation
+class ToolDefinitionSchema(BaseModel):
+    name: str = Field(..., description="Unique tool identifier")
+    description: str = Field(..., description="Semantic explanation of tool function")
+    parameters_schema: Dict[str, Any] = Field(..., alias="parametersSchema", description="Zod or JSON schema of tool parameters")
 
-harness = Harness(
-    agent=agent,
-    compute=compute
-)
+class ComputeConfigSchema(BaseModel):
+    model: str = Field("gpt-5.5", description="Target OpenAI model, e.g., gpt-5.5-preview or o5-mini")
+    temperature: float = Field(0.1, ge=0.0, le=2.0)
+    max_tokens: int = Field(2000, gt=0)
 
-result = harness.run("What's the weather in London?")
+class AgentHarnessSchema(BaseModel):
+    agent_name: str = Field(..., alias="agentName")
+    compute_config: ComputeConfigSchema = Field(..., alias="computeConfig")
+    tools: List[ToolDefinitionSchema] = Field(default_factory=list)
+
+def validate_and_launch_harness(raw_json: str) -> Optional[AgentHarnessSchema]:
+    try:
+        # Validate JSON config using Pydantic v2 model_validate_json
+        validated_harness = AgentHarnessSchema.model_validate_json(raw_json)
+        print(f"Harness validation successful for: {validated_harness.agent_name}")
+        print(f"Launching model: {validated_harness.compute_config.model}")
+        return validated_harness
+    except ValidationError as e:
+        print(f"Harness configuration is invalid: {e.errors()}")
+        return None
+
+# Validating a GPT-5.5 high autonomy agent configuration
+config_payload = """
+{
+    "agentName": "ResearchHarnessAgent",
+    "computeConfig": {
+        "model": "gpt-5.5-preview",
+        "temperature": 0.0,
+        "max_tokens": 4096
+    },
+    "tools": [
+        {
+            "name": "fetch_mcp_docs",
+            "description": "Fetch MCP 3.1 specifications",
+            "parametersSchema": {
+                "type": "object",
+                "properties": {
+                    "section": {"type": "string"}
+                },
+                "required": ["section"]
+            }
+        }
+    ]
+}
+"""
+
+validated_config = validate_and_launch_harness(config_payload)
 ```
 
 ### Sandboxed Tool Execution
@@ -123,7 +168,7 @@ researcher = Agent(name="Researcher", ...)
 writer = Agent(name="Writer", ...)
 
 orchestrator = Orchestrator(agents=[researcher, writer])
-final_report = orchestrator.run("Research and write a report on MCP.")
+final_report = orchestrator.run("Research and write a report on MCP 3.1 specifications.")
 ```
 
 ## Related tools / concepts
@@ -132,7 +177,7 @@ final_report = orchestrator.run("Research and write a report on MCP.")
 - [CrewAI](./crewai.md) — Collaborative agent framework.
 - [Agency Swarm](../agents/agency-swarm.md) — Collaborative agents.
 - [Agentic Automation Canvas (AAC)](../agents/agentic-automation-canvas.md) — Design framework.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standardized tool-calling (MCP 3.1 support).
 - [OpenHands](../development_ops/openhands.md) — Engineering agent.
 - [AutoGen](./autogen.md) — Conversational agent framework.
 
@@ -143,5 +188,5 @@ final_report = orchestrator.run("Research and write a report on MCP.")
 - **Licensing**: Open-source SDK (MIT).
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-05
+- Last reviewed: 2026-11-05
 - Confidence: high
