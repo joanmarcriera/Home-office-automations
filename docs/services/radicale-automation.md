@@ -1,12 +1,12 @@
 # Radicale Automation
 
-Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server, optimized for the July 2026 agentic ecosystem.
+Automated workflows and maintenance patterns for the Radicale CalDAV/CardDAV server, optimized for the late October / November 2026 agentic ecosystem.
 
 ## What it is
-Radicale Automation refers to the set of scripts, [n8n](n8n.md) workflows, and [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) integrations used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md). In July 2026, this increasingly involves the use of autonomous agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md) to perform natural language scheduling and contact deduplication.
+Radicale Automation refers to the set of scripts, [n8n](n8n.md) workflows, and [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) (v3.1) integrations used to automate calendar management, contact synchronization, and server maintenance for [Radicale](radicale.md). In late October / November 2026, this increasingly involves the use of autonomous agents like [Gemma 3](../tools/ai_knowledge/local_llms.md), [Llama 4](../tools/ai_knowledge/local_llms.md), and [Claude 5.1](../tools/providers/anthropic.md) to perform natural language scheduling and contact deduplication.
 
 ## What problem it solves
-It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md).
+It reduces the manual effort required to manage self-hosted calendars and contacts. This includes automated backups of `.ics` and `.vcf` files, syncing contacts from external sources (like CRM or social media), and setting up automated alerts for server health. It specifically addresses the "silo" problem of self-hosted data by making it accessible to modern AI agents via the [MCP 3.1 / FastMCP Specification](../tools/automation_orchestration/mcp.md).
 
 ## Where it fits in the stack
 **Category**: Services / Automation. It bridges the gap between raw data storage in Radicale and actionable scheduling/contact management, acting as the integration layer for the [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) server. It sits alongside other automation tools like [n8n](n8n.md) and [Home Assistant](home-assistant.md).
@@ -32,7 +32,7 @@ It reduces the manual effort required to manage self-hosted calendars and contac
 ## When to use it
 - To ensure your self-hosted calendar data is regularly backed up and synchronized.
 - When you need to integrate your private calendar with other automation tools like [n8n](n8n.md) or [Home Assistant](home-assistant.md).
-- To enable agentic scheduling via [Claude 4.8](../tools/providers/anthropic.md) or [Gemma 3](../tools/ai_knowledge/local_llms.md).
+- To enable agentic scheduling via [Claude 5.1](../tools/providers/anthropic.md) or [Gemma 3](../tools/ai_knowledge/local_llms.md).
 - For maintaining a private, air-gapped scheduling system.
 
 ## When not to use it
@@ -90,31 +90,76 @@ curl -u user:pass -X MKCOL \
 ### Agentic Interaction via MCP
 ```bash
 # If using the Chronos MCP server, an agent can list events:
-mcp-client chronos list-events --calendar "personal" --start "2026-07-01"
+mcp-client chronos list-events --calendar "personal" --start "2026-11-01"
 ```
 
 ## API examples
 
-### Python (Syncing Contacts)
+### Python (Syncing Contacts with Pydantic v2 Validation)
+In late October / November 2026, programmatic interactions between AI schedulers and CardDAV/CalDAV servers are strictly typed. Below is an example validating a contact schema using **Pydantic v2** prior to putting it to Radicale:
+
 ```python
-import requests
+import httpx
+import asyncio
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional
 
-# Example of pushing a new VCard to Radicale
-url = "http://localhost:5232/user/contacts/new-contact.vcf"
-vcard_data = """BEGIN:VCARD
-VERSION:3.0
-FN:John Doe
-N:Doe;John;;;
-EMAIL;TYPE=INTERNET:john.doe@example.com
-END:VCARD"""
+class RadicaleContactModel(BaseModel):
+    first_name: str = Field(..., description="Given name of the contact")
+    last_name: str = Field(..., description="Family name of the contact")
+    email: EmailStr = Field(..., description="Validated primary email address")
+    phone: Optional[str] = Field(None, description="Optional phone number")
 
-response = requests.put(
-    url,
-    data=vcard_data,
-    auth=("user", "pass"),
-    headers={"Content-Type": "text/vcard"}
-)
-print(f"Status Code: {response.status_code}")
+    def to_vcard(self) -> str:
+        """Serializes the model fields into RFC-compliant vCard v3.0 format."""
+        vcard = [
+            "BEGIN:VCARD",
+            "VERSION:3.0",
+            f"FN:{self.first_name} {self.last_name}",
+            f"N:{self.last_name};{self.first_name};;;",
+            f"EMAIL;TYPE=INTERNET:{self.email}"
+        ]
+        if self.phone:
+            vcard.append(f"TEL;TYPE=CELL:{self.phone}")
+        vcard.append("END:VCARD")
+        return "\n".join(vcard)
+
+async def upload_contact(base_url: str, collection_path: str, contact: RadicaleContactModel, auth_tuple: tuple):
+    vcard_data = contact.to_vcard()
+    filename = f"{contact.first_name.lower()}-{contact.last_name.lower()}.vcf"
+    target_url = f"{base_url.rstrip('/')}/{collection_path.lstrip('/')}/{filename}"
+
+    async with httpx.AsyncClient() as client:
+        response = await client.put(
+            target_url,
+            content=vcard_data,
+            auth=auth_tuple,
+            headers={"Content-Type": "text/vcard; charset=utf-8"}
+        )
+        response.raise_for_status()
+        print(f"Uploaded contact successfully: {contact.first_name} {contact.last_name}")
+
+async def main():
+    # Instantiate and validate input via Pydantic v2
+    contact = RadicaleContactModel(
+        first_name="Jane",
+        last_name="Doe",
+        email="jane.doe@example.com",
+        phone="+15550199"
+    )
+
+    try:
+        await upload_contact(
+            base_url="http://localhost:5232",
+            collection_path="/user/contacts",
+            contact=contact,
+            auth_tuple=("user", "pass")
+        )
+    except Exception as e:
+        print(f"Radicale automation failed: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ### curl (Exporting Calendar)
@@ -139,5 +184,5 @@ curl -u user:pass "http://localhost:5232/user/calendar/" -o my_calendar.ics
 - https://agentskills.io/spec/chronos-caldav/
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-05
 - Confidence: high
