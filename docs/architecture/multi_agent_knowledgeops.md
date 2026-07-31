@@ -1,44 +1,44 @@
 # Multi-Agent KnowledgeOps Governance
 
 ## What it is
-Multi-Agent KnowledgeOps Governance is a structured framework and operating contract that defines how multiple autonomous AI agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 4.8 Opus, GPT-5.5) can safely, consistently, and concurrently grow a shared knowledge repository. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.0)** and **FastMCP 3.0** to coordinate between specialized agents while preserving canonical ownership, source traceability, and freshness signals.
+Multi-Agent KnowledgeOps Governance is a structured software engineering framework and operating contract that defines how multiple concurrent, autonomous AI agents (e.g., [Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, Gemini 4.0) can safely, consistently, and concurrently scale and manage a shared technical knowledge repository. It establishes a "Federated KnowledgeOps" model using **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** to coordinate specialized agents while preserving canonical ownership, source traceability, and freshness signals.
 
 ### Multi-Agent KnowledgeOps Contract (Mandatory)
 All AI-authored documentation and repository updates must satisfy this contract:
-1. **Respect Canonical Ownership**: Search for existing tool/topic names and aliases before creating new pages.
-2. **Use Repository Taxonomy**: Adhere to the structure defined in `docs/standards.md` and use standard templates.
-3. **Include Auditable Metadata**: Every AI-authored page must include `Last reviewed` (ISO format), `Confidence` level, and `Sources / References`.
-4. **Limit PR Intent**: Each PR should have one clear intent (Intake, Curation, or Audit).
-5. **Verified with KnowledgeOps Tools**: All changes must pass `check_docs_contract.py` and `audit_docs_quality.py`.
-6. **MCP 3.0 Task Protocol Compliance**: Agents must utilize the standardized Task Protocol for automated benchmarking and execution.
+1. **Respect Canonical Ownership**: Perform an exhaustive search for existing tool/topic names and their aliases before creating new pages.
+2. **Use Repository Taxonomy**: Strictly adhere to the taxonomic structures defined in `docs/standards.md` and utilize standard markdown section templates.
+3. **Include Auditable Metadata**: Every AI-authored page must maintain a dedicated Contribution Metadata block containing `Last reviewed` (ISO format), `Confidence` level, and valid `Sources / references`.
+4. **Limit Pull Request Intent**: Each PR must focus strictly on one specific intent: Intake queue processing, canonical Curation, or technical Freshness Audits.
+5. **Verified with KnowledgeOps Tools**: All changes must pass programmatic checks via `check_docs_contract.py` and `audit_docs_quality.py`.
+6. **MCP 3.1 Task Protocol Compliance**: Agents must utilize the standardized Model Context Protocol v3.1 Task Protocol for automated benchmarking and execution.
 
 ## What problem it solves
-The primary scaling risk in AI-augmented documentation is "agentic entropy"—the rapid accumulation of low-quality, duplicate, or conflicting information produced by multiple agents working in parallel. This governance model provides a common "policy engine" and quality gates to keep throughput high while preventing information decay and maintaining a "High Confidence" standard.
+The primary scaling risk in AI-augmented documentation is "agentic entropy"—the rapid, uncontrolled accumulation of low-quality, duplicate, or conflicting technical information produced by multiple agents working in parallel. This governance model provides a common "policy engine" and quality gates to keep throughput high while preventing information decay, ensuring the repository adheres to a "High Confidence" standard.
 
 ## Where it fits in the stack
-**Governance & Orchestration Layer** — It acts as the policy layer for the [Automated Contribution System](./automated_contributions.md). It leverages **FastMCP 3.0** for high-performance tool hosting and **MCP 3.0** to expose repository standards and validation tools as discoverable skills for any agent entering the environment.
+**Governance & Orchestration Layer** — It acts as the core policy layer for the [Automated Contribution System](./automated_contributions.md). It leverages **FastMCP 3.1** for high-performance tool hosting and **MCP 3.1** to expose repository standards and validation tools as discoverable skills for any agent entering the environment.
 
 ## Typical use cases
-- **Parallel Documentation Scaling**: Managing multiple agent lanes (Intake, Curation, Audit) working simultaneously.
-- **Federated Knowledge Ingestion**: Using specialized agents to monitor different source feeds (Reddit, GitHub, Arxiv) and integrate them into a central hub.
-- **Autonomous Quality Auditing**: Continuous background agents identifying stale content or broken links using the `audit_docs_quality.py` suite.
-- **Agentic Session Orchestration**: Coordinating complex, multi-day documentation sprints across multiple frontier models.
+- **Parallel Documentation Scaling**: Coordinating multiple agent lanes (Intake, Curation, Audit) operating simultaneously without git conflicts.
+- **Federated Knowledge Ingestion**: Employing specialized agents to monitor different developer streams (GitHub, Arxiv, vendor changelogs) and ingest them into a central repository.
+- **Autonomous Quality Auditing**: Background cron agents continuously identifying stale content or broken links using the `audit_docs_quality.py` suite.
+- **Agentic Session Orchestration**: Coordinating complex, multi-day documentation sprints across multiple frontier models using unified state tracing.
 
 ## Strengths
-- **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of authorship.
-- **FastMCP 3.0 Integration**: Features ultra-low latency execution and standardized agent discovery.
-- **Traceability**: Creates a verifiable audit trail for every fact, tied to a specific agent, source, and review date.
-- **Conflict Avoidance**: Clear "Ralph-loop" strategies for different agent roles minimize repository-wide friction.
+- **Predictable Quality**: Ensures all contributions meet the 13-section "High Confidence" standard regardless of which model authored them.
+- **FastMCP 3.1 Integration**: Low-latency execution and standardized agent discovery for rapid tooling validation.
+- **High Fact Traceability**: Verifiable audit trail for every fact, tied to a specific agent, raw source, and review date.
+- **Clear Conflict Resolution**: Transparent "Ralph-loop" strategies for different agent roles minimize repository-wide friction.
 
 ## Limitations
-- **Token Overhead**: Requires agents to perform exhaustive duplication checks and metadata validation, increasing operational costs.
+- **Token Overhead**: Requires agents to perform exhaustive duplication checks and metadata validation, increasing operational token costs.
 - **Rigidity**: Strict section requirements may struggle with non-standard research papers or experimental architecture notes.
 - **Bootstrap Complexity**: Requires initial setup of FastMCP servers and validation scripts to be effective.
 
 ## When to use it
 - When operating a knowledge base that receives contributions from more than one automated agent or worker lane.
 - When maintaining a "High Confidence" technical repository with 500+ pages of documentation.
-- To provide a clear "Role Model" and operating contract for frontier models ([Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 4.8, GPT-5.5) during autonomous sprints.
+- To provide a clear "Role Model" and operating contract for frontier models ([Gemma 3](../tools/ai_knowledge/local_llms.md), Claude 5.1, GPT-5.5, Gemini 4.0) during autonomous sprints.
 
 ## When not to use it
 - For small, personal repositories with a single human contributor and low update frequency.
@@ -117,18 +117,18 @@ else:
 - [KnowledgeOps Standards](../standards.md) — Repository taxonomy and metadata conventions.
 - [Contributing Guide](../CONTRIBUTING.md) — The operational manual for humans and agents.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for agentic tool-use.
-- [FastMCP 3.0](../tools/automation_orchestration/mcp.md) — High-performance tool hosting.
+- [FastMCP 3.1](../tools/automation_orchestration/mcp.md) — High-performance tool hosting.
 - [Data Copilot Architecture](./data-copilot-text-to-sql.md) — Text-to-SQL agent patterns.
 - [Agentic Flows](./flows.md) — Orchestration patterns for multi-agent systems.
 
 ## Sources / references
 - [KnowledgeOps Manifesto](https://github.com/joanmarcriera/Home-office-automations/blob/main/docs/architecture/multi_agent_knowledgeops.md)
-- [MCP 3.0 Specification](https://modelcontextprotocol.io/specification)
+- [MCP 3.1 Specification](https://modelcontextprotocol.io/specification)
 - [Ralph-loop Implementation Reports](../reports/)
 - [Anthropic: Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
-- [FastMCP 3.0: Ultra-low Latency Execution](https://modelcontextprotocol.io/fastmcp)
+- [FastMCP 3.1: Ultra-low Latency Execution](https://modelcontextprotocol.io/fastmcp)
 
 ---
 ## Contribution Metadata
-- Last reviewed: 2026-07-09
+- Last reviewed: 2026-11-05
 - Confidence: high
