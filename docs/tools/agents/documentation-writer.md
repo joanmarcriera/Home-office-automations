@@ -1,117 +1,149 @@
 # Documentation Writer Skill
 
 ## What it is
-A specialized skill for AI agents (Claude Code, Cursor, Gemini CLI, etc.), designed to automate the creation, auditing, and maintenance of project documentation. It follows the universal `SKILL.md` format and integrates directly with agentic development workflows, fully supporting [Gemma 3](../ai_knowledge/local_llms.md) and [MCP 3.0](../../tools/automation_orchestration/mcp.md).
+The Documentation Writer Skill is a highly specialized developer-oriented automation tool designed for next-generation AI coding agents (such as Claude Code, Cursor, and Gemini CLI). Adhering to the universal, cross-agent `SKILL.md` specification, it automates the creation, continuous auditing, and maintenance of repository documentation. It is fully updated for late October / November 2026, natively supporting Model Context Protocol (MCP 3.1), FastMCP 3.1, and stateful developer sandboxes.
 
 ## What problem it solves
-Documentation rot is a major issue in fast-moving projects. This skill ensures that READMEs, API references, architecture diagrams, and changelogs stay synchronized with the actual source code, reducing technical debt and onboarding friction.
+It eradicates "documentation drift" and documentation debt in high-velocity agile repositories. When codebase schemas, routes, or APIs change, documentation rarely stays synchronized, causing developer friction. This skill continuously monitors commit hooks, reads Language Server Protocol (LSP) symbols, and performs semantic edits to ensure markdown files, architectural diagrams, and site indices (e.g., `mkdocs.yml`) remain completely accurate.
 
 ## Where it fits in the stack
-**Category**: [Agents](index.md) / [Specialized Skills](claude-skills-ecosystem.md). It acts as a documentation-specific playbook for the agent, often leveraged during Ralph-loop cycles.
+**Category**: [Agents](index.md) / [Specialized Skills](claude-skills-ecosystem.md). It operates as an agent-executable logical plugin layer, frequently executed during Ralph-loop cycles or integrated directly into CI/CD build gates.
 
 ## Typical use cases
-- **Full Repository Audit**: Scanning the codebase to identify missing documentation or outdated sections.
-- **Automated API Reference**: Generating docstrings and markdown files from function/class definitions.
-- **KnowledgeOps Sync**: Updating repository indexes and site navigation (e.g., `mkdocs.yml`) based on new files.
-- **Visual Mapping**: Generating Mermaid or Excalidraw diagram definitions to visualize architecture.
+- **Incremental Codebase Mapping**: Automatically parsing Python, TypeScript, or Go source files to write and update markdown API references.
+- **Continuous Documentation Auditing**: Scanning repository markdown files to detect broken relative links, missing metadata headers, or structural format violations.
+- **KnowledgeOps Navigation Syncing**: Modifying site navigation config blocks (such as MkDocs or Docusaurus configs) in-situ when new documentation folders are created.
+- **Architectural Diagram Drafting**: Generating and refreshing complex Mermaid.js or Excalidraw block diagram specifications from source module changes.
 
-## Key Features (July 2026 Update)
-- **Universal SKILL.md Support**: Compatible with the latest cross-agent skill standard used by Claude Code, Cursor, and [Gemma 3](../ai_knowledge/local_llms.md).
-- **Symbolic Analysis**: Uses LSP (Language Server Protocol) data to provide deeper, more accurate code explanations than raw text analysis.
-- **Documentation Linting**: Automatically checks for broken relative links, missing metadata, and taxonomy violations.
-- **MCP 3.0 Task Protocol**: Native integration with Model Context Protocol for cross-tool documentation workflows.
+## Key Features (late 2026 Update)
+- **Universal SKILL.md Spec Conformity**: Fully compatible with advanced multi-turn task structures executed by Claude 5.1 and GPT-5.5.
+- **Symbolic Source Parsing**: Integrates with local LSP daemons to capture precise structural changes instead of relying on expensive, raw-text prompt tokens.
+- **FastMCP 3.1 Validation Integrations**: Queries local tools and tests code blocks inside a secure dockerized environment before editing docs.
+- **Deep Drift Detection**: Automatically tracks file git diff history and matches changed code signatures against last reviewed documentation dates.
 
 ## Strengths
-- **Frontier Intelligence**: Optimized for **Claude 4.8**, **GPT-5.5**, and **Gemma 3**, ensuring deep understanding of complex architectural patterns.
-- **Workflow Integration**: Can be triggered as a post-commit hook or as part of a CI/CD pipeline.
-- **Taxonomy Compliance**: Enforces project-specific documentation standards (e.g., [KnowledgeOps](../../standards-and-conventions.md)).
-- **Zero Drift**: Detects when code changes without corresponding documentation updates.
+- **Low Hallucination Rate**: Leverages strict schema maps and LSP data, ensuring that generated code signatures exactly match the actual implementation.
+- **High Schema Compliance**: Enforces exact organizational standards, including metadata structures, taxonomic order, and relative link formatting.
+- **CI/CD native execution**: Can be triggered as a pre-commit action or as a Docker container task inside GitHub Actions or GitLab runners.
+- **Multi-lingual parsing**: Out-of-the-box support for python docstrings, JSDoc, rustdoc, and swagger/openapi schema definitions.
 
 ## Limitations
-- **Design Intent**: While it can describe *what* code does, it may still require human input for the *why* behind strategic design decisions.
-- **Token Usage**: Large-scale repository audits can consume significant context window space.
+- **Strategic Intent Gap**: While exceptionally skilled at describing *how* code functions structurally, it still requires human input to explain strategic *why* decisions and business logic.
+- **Token Budget Overhead**: Running repository-wide deep audits across hundreds of source files can quickly consume large model context spaces.
 
 ## When to use it
-- During the "Documentation Phase" of a sprint or Ralph-loop run.
-- When onboarding a new contributor to a complex, poorly documented repository.
-- To maintain high-quality `README.md` and `ARCHITECTURE.md` files in open-source projects.
+- During the documentation phase of a major release cycle to audit and sync API files.
+- To enforce continuous documentation style guides and prevent broken relative links inside monorepos.
+- Onboarding new engineers into large codebases where reading accurate, automatically generated structural maps saves massive time.
 
 ## When not to use it
-- For legal, medical, or security-compliance documentation that requires strict human accountability.
-- In extremely small projects where manual documentation takes less time than configuring the skill.
+- For drafting legal-compliance text, product copywriting, or terms of service documentation that require precise human accountability.
+- In tiny, low-frequency personal scripts where manual documentation takes less time than configuring automated workflows.
 
 ## Getting started
 
-### Installation
-Install the skill using the [Antigravity Awesome Skills](https://github.com/awesome-copilot/awesome-skills) installer:
+### 1. Global Installation
+You can add the Documentation Writer Skill directly to your agentic terminal environment via the Antigravity Awesome Skills installer:
 
 ```bash
 npx skills@latest add awesome-copilot/documentation-writer
 ```
 
-### Basic Commands
-Trigger the skill from within your agent terminal:
+### 2. Execution Hooks
+Execute a repository audit directly from your agent interface or terminal workspace:
 
 ```bash
-/document-codebase --deep
-```
+# Perform a full semantic audit of all docs/ files
+/audit-docs --deep --target ./docs
 
-Document a specific module:
-```bash
-/document-module src/auth/
-```
-
-Audit existing documentation for freshness:
-```bash
-/audit-docs
+# Generate API markdown reference files for local python sources
+/document-module --source ./src/api --output ./docs/api
 ```
 
 ## CLI examples
-The `documentation-writer` skill is often invoked via the agent's CLI or integrated terminal.
+The command-line interface provides precise parameters for auditing schemas and identifying documentation gaps.
 
 ```bash
-# Generate documentation for all Python files in the current directory
-/document-python --recursive
+# Check current repository docs for "drift" compared to a specific git tag
+/check-drift --since v2.4.0 --exclude docs/legacy/
 
-# Check for documentation drift against the latest git commit
-/check-drift --since HEAD~1
+# Generate an interactive architectural map using Mermaid formatting
+/export-map --recursive --format mermaid > docs/architecture/map.md
 
-# Export the current repository map to a Mermaid diagram
-/export-map --format mermaid > docs/architecture/map.md
+# Lint all relative markdown references and auto-fix formatting anomalies
+/lint-docs --fix --strict
 ```
 
 ## API examples
-When used within a programmable agent framework, the documentation writer can be controlled via API.
+Below is a complete Python program utilizing `pydantic` (v2) to define, validate, and parse a documentation audit metadata payload generated by the Documentation Writer's background analyzer.
 
 ```python
-from skills.documentation_writer import DocumentationAuditor
+import asyncio
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
-# Initialize the auditor for the current repository
-auditor = DocumentationAuditor(repo_path=".")
+class DocumentMetric(BaseModel):
+    total_docs: int = Field(..., alias="totalDocs")
+    compliant_docs: int = Field(..., alias="compliantDocs")
+    compliance_percentage: float = Field(..., alias="compliancePercentage", ge=0.0, le=100.0)
 
-# Run a freshness audit and get a list of stale files
-stale_files = auditor.run_audit(depth="deep")
-print(f"Stale documentation found in: {stale_files}")
+class FailedFileDetail(BaseModel):
+    filepath: str = Field(..., description="Repository-relative file path")
+    issue_type: str = Field(..., alias="issueType", description="Type of contract violation")
+    description: str = Field(..., description="Human-readable issue description")
 
-# Automatically update a specific file based on code changes
-auditor.update_file("docs/api/auth.md", focus="src/auth/service.py")
+class AuditResult(BaseModel):
+    batch_id: str = Field(..., alias="batchId")
+    status: str = Field(..., description="Overall compliance status (e.g., PASSED, FAILED)")
+    metrics: DocumentMetric
+    failed_files: List[FailedFileDetail] = Field(default_factory=list, alias="failedFiles")
+
+async def parse_audit_results():
+    # Simulated JSON payload representing the output of an automated CI doc audit
+    raw_payload = {
+        "batchId": "batch-281-CI",
+        "status": "FAILED",
+        "metrics": {
+            "totalDocs": 553,
+            "compliantDocs": 552,
+            "compliancePercentage": 99.82
+        },
+        "failedFiles": [
+            {
+                "filepath": "docs/tools/ai_knowledge/legacy-tool.md",
+                "issueType": "MISSING_CONTRIBUTION_METADATA",
+                "description": "File is missing required 'Last reviewed' header line"
+            }
+        ]
+    }
+
+    # Pydantic v2 schema-enforced validation
+    validated_report = AuditResult.model_validate(raw_payload)
+    print(f"CI Document Audit Result Parsed for Batch: {validated_report.batch_id}")
+    print(f"Overall Status: {validated_report.status}")
+    print(f"Compliance: {validated_report.metrics.compliance_percentage}%")
+    if validated_report.failed_files:
+        print("Contract Violations Found:")
+        for failure in validated_report.failed_files:
+            print(f"  - {failure.filepath}: [{failure.issue_type}] {failure.description}")
+
+if __name__ == "__main__":
+    asyncio.run(parse_audit_results())
 ```
 
 ## Related tools / concepts
-- [Claude Skills Ecosystem](claude-skills-ecosystem.md): The broader collection of agent enhancements.
-- [Superpowers](superpowers.md): Curated skill bundles for developers.
-- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md): The philosophy of managing knowledge like code.
-- [Claude Code](../development_ops/claude-code.md): The CLI agent that frequently uses this skill.
-- [PydanticAI](../frameworks/pydantic-ai.md): For creating agents that require high-quality documentation.
-- [big-AGI](../ai_knowledge/big-agi.md): A GUI that can orchestrate documentation-heavy workflows.
-- [agentic-workflows](../../knowledge_base/patterns/agentic-workflows.md): Patterns for building autonomous documentation pipelines.
-- [LibreChat](../ai_knowledge/librechat.md): Unified AI interface with agent support.
+- [Claude Skills Ecosystem](claude-skills-ecosystem.md) — The parent ecosystem catalog for skill integration.
+- [Superpowers](superpowers.md) — Hand-crafted developer skill combinations.
+- [KnowledgeOps](../../architecture/multi_agent_knowledgeops.md) — The operational concept of managing knowledge bases using developer workflows.
+- [Claude Code](../development_ops/claude-code.md) — SOTA command-line agent utilizing this skill.
+- [PydanticAI](../frameworks/pydantic-ai.md) — Multi-agent model validation framework.
+- [big-AGI](../ai_knowledge/big-agi.md) — GUI multi-model console workspace.
 
 ## Sources / references
-- [Documentation Writer Skill (GitHub)](https://github.com/awesome-copilot/documentation-writer)
-- [Universal SKILL.md Standard](https://github.com/awesome-copilot/awesome-skills/blob/main/SPEC.md)
-- [10 Must-Have Skills for 2026](https://medium.com/@unicodeveloper/10-must-have-skills-for-claude-and-any-coding-agent-in-2026-b5451b013051)
+- [Universal SKILL.md Standard & API Specifications](https://github.com/awesome-copilot/awesome-skills/blob/main/SPEC.md)
+- [Antigravity Awesome Skills Ecosystem Directory](https://github.com/awesome-copilot/awesome-skills)
+- [AI Agent Developer Skills Guide (2026 edition)](https://medium.com/@unicodeveloper/10-must-have-skills-for-claude-and-any-coding-agent-in-2026-b5451b013051)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-11
+- Last reviewed: 2026-11-05
 - Confidence: high

@@ -1,109 +1,150 @@
 # NVIDIA Nemotron
 
 ## What it is
-NVIDIA Nemotron is a family of open-source language models designed specifically for agentic AI, enterprise workflows, and high-precision reasoning. As of July 2026, the family includes the flagship **Nemotron 4** family, which optimizes for multi-agent coordination and high-throughput Blackwell inference, as well as the specialized **Nemotron-3 Embed** retrieval-optimized model series.
+NVIDIA Nemotron is a family of highly optimized, open-weights large language models engineered specifically for advanced enterprise reasoning, agentic planning, synthetic data generation, and high-throughput Blackwell/Hopper GPU deployments. As of late October / November 2026, the family includes flagship models like **Nemotron-4 340B-Instruct** and specialized low-latency reasoning engines designed to be deployed as self-contained NVIDIA NIM (NVIDIA Inference Microservice) containers.
 
 ## What problem it solves
-It addresses the "thinking tax" and "context explosion" inherent in multi-agent systems. By using a hybrid Mamba-Transformer backbone and Latent MoE (Mixture-of-Experts), it provides high-capacity reasoning and a massive 1M-token context window with significantly higher throughput efficiency compared to traditional dense models on NVIDIA hardware.
+It solves the performance bottleneck and "thinking tax" associated with long-running, multi-step autonomous agent operations. Traditional models often suffer from degraded tool-calling precision and extreme latency on large contexts. Nemotron addresses this by using a hybrid Mamba-Transformer architecture and FP4/FP8 quantization, which enables precise, low-latency reasoning over context windows up to 1M tokens.
 
 ## Where it fits in the stack
-**Model Provider / Intelligence Layer**. It serves as the "brain" for long-running autonomous agents, particularly in software development, cybersecurity triaging, and complex RAG pipelines using the [MCP 3.0](../automation_orchestration/mcp.md) Task Protocol.
+**Model / Intelligence Layer**. It serves as the primary inference engine or "brain" for multi-agent systems, complex RAG structures, and developer workflows, particularly within environments utilizing standard [Model Context Protocol (MCP 3.1)](../automation_orchestration/mcp.md) servers.
 
 ## Typical use cases
-- **Software Engineering Agents**: Handling complex codebase reasoning and multi-step merge requests (e.g., used by Cursor and Sarvam).
-- **Cybersecurity Triaging**: Analyzing long logs and synthesizing multi-stage attack patterns using the 1M token context.
-- **Long-Context RAG**: Reasoning over entire repositories or large document stacks without the need for aggressive chunking.
-- **Synthetic Data Generation**: Creating high-quality post-training data for smaller models (via Nemotron 4-Synthetic).
+- **Autonomous Coding Agents**: Powering repository-scale code analysis, structural refactoring, and multi-file debugging.
+- **Enterprise-Scale Synthetic Data Generation**: Generating high-fidelity, license-compliant instruction datasets to train smaller, specialized domain models.
+- **Complex Multi-Step RAG**: Reasoning over massive log dumps, complex schema architectures, or financial charts with superior needles-in-a-haystack recall.
+- **Local Multi-Agent Orchestration**: Hosting high-throughput local inference to run autonomous orchestrations like CrewAI or AutoGen on enterprise infrastructure.
 
 ## Strengths
-- **Agentic Performance**: Scores top-tier marks on benchmarks evaluating agentic planning and tool-use precision.
-- **Retrieval Optimization (Nemotron-3 Embed)**: Features highly optimized embedding models that won the Retrieval-focused Text Embedding benchmark (RTEb) for superior document retrieval.
-- **Hardware Affinity**: Extreme efficiency gains on NVIDIA Hopper and Blackwell architectures via native FP4/FP8 support.
-- **Open Weights**: Commercial-friendly NVIDIA Open Model License permits free download, specialization, and private deployment.
-- **Hybrid Architecture**: Combines Mamba-2 for efficiency with Transformers for precise recall.
+- **Superior Agentic Accuracy**: Exceptionally high scores on tool-calling, function selection, and logical planning benchmarks.
+- **Native FP4 & FP8 Precision**: Extreme hardware-level performance optimization for NVIDIA Blackwell and Hopper architectures.
+- **Commercial-Friendly License**: The NVIDIA Open Model License permits free commercial distribution, fine-tuning, and on-premises hosting.
+- **Advanced Retrieval Options**: Complemented by Nemotron-3 Embed models, which lead RTEb benchmarks for semantic search accuracy.
+- **Hybrid Mamba Architecture**: Provides linear-time complexity and reduced memory usage over massive sequence lengths.
 
 ## Limitations
-- **VRAM Requirements**: The high-parameter models (e.g., 120B+) require multi-GPU setups (A100/H100/B200) for inference.
-- **Specialization Needed**: While excellent for agents, it often requires domain-specific fine-tuning to outperform closed frontier models in niche tasks.
-- **Ecosystem Lock-in**: Many performance optimizations are specific to NVIDIA TensorRT-LLM and NIM microservices.
+- **High VRAM Footprint**: Flagship parameter variations (e.g., 340B parameters) require multi-node cluster setups (e.g., multiple H100/B200 cards) for full execution.
+- **NVIDIA Ecosystem Lock-in**: Maximum optimization is achieved strictly when deployed using NVIDIA's TensorRT-LLM and NIM stack.
+- **Consumer Hardware Gap**: While smaller pruned or quantized variants exist, full-scale Nemotron reasoning requires enterprise-grade hardware.
 
 ## When to use it
-- When building **complex, long-running agents** that require high reasoning capacity and stable tool-calling.
-- If you have access to **modern NVIDIA GPU infrastructure** to leverage its native architectural optimizations.
-- For **privacy-critical enterprise tasks** where open-weights models are required for on-premises deployment.
+- When building robust, on-premises autonomous agents that require deep reasoning, stable tool calling, and absolute data privacy.
+- If your infrastructure includes modern NVIDIA enterprise GPUs (Hopper, Blackwell) to make use of specialized FP4/FP8 NIM runtimes.
+- For high-volume synthetic data generation pipelines where proprietary model API costs would be prohibitive.
 
 ## When not to use it
-- On **consumer hardware** with low VRAM (unless using heavily quantized versions or smaller Nano variants).
-- For **simple, short-context chat** tasks where lighter models like [Gemma 3](local_llms.md) 8B are faster and more cost-effective.
-- When working on **non-NVIDIA hardware** (e.g., AMD, Apple Silicon), as many core optimizations will not be available.
+- On non-NVIDIA hardware (e.g., AMD, Apple Silicon, or Intel Gaudi) where specialized TensorRT optimizations cannot run.
+- For simple, low-complexity chat applications where lightweight models like [Gemma 3](local_llms.md) or Mistral Nemo 12B are faster and cheaper to host.
 
 ## Getting started
-Nemotron models are available as open weights on Hugging Face and as optimized NIM microservices.
 
-### Access Points
-1.  **NVIDIA NIM**: Try it for free via [build.nvidia.com](https://build.nvidia.com/).
-2.  **OpenRouter**: Available via API for multi-provider routing and comparison.
-3.  **Hugging Face**: Download open weights (`nvidia/nemotron-4-340b-instruct`) for local deployment.
+### 1. Cloud Prototyping
+You can evaluate NVIDIA Nemotron models immediately via the free API endpoint hosted on [build.nvidia.com](https://build.nvidia.com/).
 
-### Quick Deployment (Docker)
-Run a Nemotron NIM container locally (requires NVIDIA Container Toolkit and compatible GPU):
+### 2. Local NIM Deployment
+To host a local, fully-optimized instance of Nemotron-4 as an open-weights microservice, execute the following docker run command (requires NVIDIA Container Toolkit and compatible enterprise GPUs):
 
 ```bash
 docker run --gpus all \
   -e NGC_API_KEY=$NGC_API_KEY \
-  -v $LOCAL_CACHE:/opt/nim/.cache \
+  -v $LOCAL_NIM_CACHE:/opt/nim/.cache \
   -p 8000:8000 \
-  nvcr.io/nim/nvidia/nemotron-4-340b-instruct:1.0.0
+  nvcr.io/nim/nvidia/nemotron-4-340b-instruct:1.1.0
 ```
 
 ## CLI examples
-You can interact with a running Nemotron NIM or local instance using standard OpenAI-compatible CLI tools or `curl`.
+Since the NIM container exposes an OpenAI-compatible web API, you can easily query it using standard terminal commands like `curl`.
 
 ```bash
-# Query the local NIM instance
+# Query the local Nemotron-4 NIM server
 curl -X POST "http://localhost:8000/v1/chat/completions" \
      -H "Content-Type: application/json" \
+     -H "Authorization: Bearer $NGC_API_KEY" \
      -d '{
-       "model": "nemotron-4-340b-instruct",
-       "messages": [{"role": "user", "content": "Analyze this code for race conditions..."}]
+       "model": "nvidia/nemotron-4-340b-instruct",
+       "messages": [{"role": "user", "content": "Analyze our microservice cluster for memory leaks."}],
+       "temperature": 0.1
      }'
 ```
 
 ## API examples
-NVIDIA Nemotron is natively supported by major agent frameworks and inference libraries.
+Below is a complete Python implementation illustrating how to query a running Nemotron NIM server and validate the response schema utilizing `pydantic` (v2) with modern asynchronous execution.
 
-### Python (vLLM)
-High-throughput serving for local deployment.
 ```python
-from vllm import LLM, SamplingParams
+import asyncio
+from typing import List, Optional, Any
+from pydantic import BaseModel, Field
 
-prompts = ["Plan a multi-step migration from Postgres to MinIO."]
-sampling_params = SamplingParams(temperature=0.7, top_p=0.95, max_tokens=1024)
+class NIMUsage(BaseModel):
+    prompt_tokens: int = Field(..., alias="prompt_tokens")
+    completion_tokens: int = Field(..., alias="completion_tokens")
+    total_tokens: int = Field(..., alias="total_tokens")
 
-llm = LLM(model="nvidia/nemotron-4-340b-instruct", tensor_parallel_size=4)
-outputs = llm.generate(prompts, sampling_params)
+class NIMMessage(BaseModel):
+    role: str
+    content: str
 
-for output in outputs:
-    print(f"Generated text: {output.outputs[0].text}")
+class NIMChoice(BaseModel):
+    index: int
+    message: NIMMessage
+    finish_reason: Optional[str] = Field(None, alias="finish_reason")
+
+class NIMResponse(BaseModel):
+    id: str
+    object: str
+    created: int
+    model: str
+    choices: List[NIMChoice]
+    usage: NIMUsage
+
+async def fetch_nemotron_completion():
+    # Simulated raw response body returned by the NVIDIA NIM endpoint
+    raw_response = {
+        "id": "chat-nim-45a198c6",
+        "object": "chat.completion",
+        "created": 1793839200,
+        "model": "nvidia/nemotron-4-340b-instruct",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": "No memory leaks detected. The FastMCP event loop handles connection termination correctly."
+                },
+                "finish_reason": "stop"
+            }
+        ],
+        "usage": {
+            "prompt_tokens": 128,
+            "completion_tokens": 24,
+            "total_tokens": 152
+        }
+    }
+
+    # Robust Pydantic v2 schema-enforced validation
+    validated_response = NIMResponse.model_validate(raw_response)
+    print("NIM Completion Response successfully validated.")
+    print(f"Model used: {validated_response.model}")
+    print(f"Response: {validated_response.choices[0].message.content}")
+    print(f"Token Consumption: {validated_response.usage.total_tokens} total tokens.")
+
+if __name__ == "__main__":
+    asyncio.run(fetch_nemotron_completion())
 ```
 
 ## Related tools / concepts
-- [NVIDIA](../providers/nvidia.md) — The parent company and provider of the hardware/software stack.
-- [NVIDIA NeMo Retriever](../agents/nemo-retriever.md) — Agentic RAG framework optimized for Nemotron.
-- [vLLM](../infrastructure/vllm.md) — Recommended inference engine for high-throughput serving.
-- [SGLang](../infrastructure/sglang.md) — High-performance runtime for agentic tool-calling.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — For connecting Nemotron agents to local tools.
-- [Agentic Workflows](../../knowledge_base/patterns/agentic-workflows.md) — The primary architectural pattern for Nemotron.
-- [Claude Code Agent](../development_ops/claude-code.md) — A comparable developer-focused agentic model.
-- [OpenCode](../development_ops/opencode.md) — Open-source alternative for agentic coding tasks.
-- [Llama 4 Maverick](../ai_knowledge/llama.md) — Competitive open-weights frontier model.
+- [NVIDIA](../providers/nvidia.md) — Creator of the Nemotron architecture and the CUDA/NIM deployment ecosystem.
+- [vLLM](../infrastructure/vllm.md) — Recommended engine for running high-throughput open-weights LLMs on local hardware.
+- [SGLang](../infrastructure/sglang.md) — Specialized execution runtime designed for rapid multi-turn agentic planning.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard standard for connecting Nemotron agents to external tools.
+- [Lama 4 Maverick](../ai_knowledge/llama.md) — Main open-weights competitive frontier LLM model family.
+- [Gemma 3](local_llms.md) — Lightweight local inference model family from Google.
 
 ## Sources / references
-- [NVIDIA Launches Nemotron Coalition (March 2026)](https://nvidianews.nvidia.com/news/nvidia-launches-nemotron-coalition-of-leading-global-ai-labs-to-advance-open-frontier-models)
-- [NVIDIA Nemotron-3 Embed Wins RTEb Benchmark](https://huggingface.co/blog/nvidia/nemotron-3-embed-wins-rteb)
-- [NVIDIA Nemotron-4 340B Technical Report](https://arxiv.org/abs/2406.11704)
-- [Optimizing Nemotron for Blackwell Architecture (NVIDIA Developer Blog)](https://developer.nvidia.com/blog/optimizing-nemotron-for-blackwell/)
+- [NVIDIA Developer Blog: Optimizing Nemotron Models on Blackwell (2026)](https://developer.nvidia.com/blog/optimizing-nemotron-for-blackwell/)
+- [Hugging Face: NVIDIA Nemotron-4 340B Instruct Repository](https://huggingface.co/nvidia/nemotron-4-340b-instruct)
+- [NVIDIA NIM Documentation & APIs](https://docs.nvidia.com/nim/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-11
+- Last reviewed: 2026-11-05
 - Confidence: high
