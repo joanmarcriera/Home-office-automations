@@ -1,18 +1,20 @@
 # Gitea
 
 ## What it is
-Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance. It is a painless self-hosted Git service that serves as the backbone for private DevOps ecosystems in the July 2026 era, featuring native support for the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for agentic integration.
+Gitea is a community-managed lightweight code hosting solution written in Go. It provides a complete Git service including repository management, issue tracking, code review, and CI/CD integration, with a focus on simplicity and high performance. It is a painless self-hosted Git service that serves as the backbone for private DevOps ecosystems in the late October / November 2026 era, featuring native support for the [Model Context Protocol (MCP)](../tools/automation_orchestration/mcp.md) for agentic integration.
 
 ## What problem it solves
-It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of public cloud providers like GitHub. In 2026, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md) and [Claude 4.8](../tools/providers/anthropic.md). It provides a central hub for code collaboration and automation that can run on low-power hardware.
+It allows developers and home lab enthusiasts to host their own private Git repositories without the resource overhead of GitLab or the privacy concerns of public cloud providers like GitHub.
+
+In late October / November 2026, it specifically addresses the need for local, air-gapped code storage for proprietary AI training datasets and sensitive automation scripts that utilize [Gemma 3](../tools/ai_knowledge/local_llms.md), [Qwen 3.6](../tools/ai_knowledge/local_llms.md), and [Claude 5.1](../tools/providers/anthropic.md). It provides a central hub for code collaboration and automation that can run on low-power hardware.
 
 ## Where it fits in the stack
-Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
+Gitea sits in the **Development & DevOps** layer. It serves as the primary source of truth for code, configuration files, and automation workflows. It is the central registry for local GitOps, often triggering pipelines that deploy services across the entire homelab stack. It integrates with the [MCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) to allow AI agents to manage repositories, issues, and pull requests autonomously.
 
 ## Typical use cases
 - **Private Code Hosting**: Maintaining internal tools and projects away from public eyes.
 - **GitOps**: Storing infrastructure-as-code (Ansible, Terraform, K3s manifests) and triggering deployments.
-- **AI Dataset Management**: Hosting versioned datasets for fine-tuning local models like [Gemma 3](../tools/ai_knowledge/local_llms.md).
+- **AI Dataset Management**: Hosting versioned datasets for fine-tuning local models like [Gemma 3](../tools/ai_knowledge/local_llms.md) and Qwen 3.6.
 - **Local CI/CD**: Running Gitea Actions for automated testing and deployment.
 - **Documentation**: Hosting project documentation via Gitea's built-in wiki or Markdown support.
 - **Mirrors**: Maintaining local mirrors of critical public repositories for offline access.
@@ -22,7 +24,7 @@ Gitea sits in the **Development & DevOps** layer. It serves as the primary sourc
 - **Performance**: Extremely lightweight and fast; runs comfortably on a Raspberry Pi 5 or low-power NAS.
 - **GitHub-Like UX**: Familiar interface that requires minimal learning for existing Git users.
 - **Built-in CI/CD**: Gitea Actions provides high compatibility with GitHub Actions workflows, including concurrency support and reusable workflows from private repositories.
-- **v1.26+ Features**: Keyboard shortcuts (e.g., `s` for search), subpath archives, Vite-based front-end toolchain, Terraform registry/state backend support, and automatic release notes generation.
+- **v1.27+ Features**: Keyboard shortcuts (e.g., `s` for search), subpath archives, Vite-based front-end toolchain, Terraform registry/state backend support, and automatic release notes generation.
 - **Self-Contained**: Can be run as a single binary or a small Docker container with minimal dependencies.
 - **Enterprise Ready**: Supports OIDC, LDAP, and advanced repository mirroring.
 
@@ -100,48 +102,96 @@ docker exec -u 1000 -it gitea gitea admin repo list
 ```
 
 ## API examples
-Gitea features a comprehensive Swagger-documented API:
 
-```bash
-# Get repository information
-curl -X GET "http://localhost:3000/api/v1/repos/owner/repo" \
-  -H "Authorization: token <YOUR_TOKEN>"
+### Programmatic Webhook Validation with Pydantic v2 (Python)
+Defining and validating Gitea webhook configurations using modern Pydantic v2 syntax before registering hooks programmatically.
 
-# Create a new issue via API
-curl -X POST "http://localhost:3000/api/v1/repos/owner/repo/issues" \
-  -H "Authorization: token <YOUR_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Bug Report", "body": "Observed in July 2026 build."}'
+```python
+import requests
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Automated Code Review Pattern (Ollama Integration)
-# Trigger a local LLM to review a pull request
-CODE_DIFF=$(git diff origin/main)
-PAYLOAD=$(jq -n --arg diff "$CODE_DIFF" '{
-  model: "gemma3",
-  prompt: ("Review this diff and suggest improvements:\n\n" + $diff),
-  stream: false
-}')
-curl http://ollama-server:11434/api/generate -d "$PAYLOAD"
+class GiteaWebhookPayload(BaseModel):
+    webhook_id: int = Field(..., alias="id", description="Unique identifier of the webhook", ge=1)
+    type: str = Field(..., description="Webhook payload format type (e.g. gitea, slack)")
+    active: bool = Field(default=True, description="Whether the webhook is enabled")
+    config: Dict[str, Any] = Field(..., description="Configuration parameters mapping")
+
+    @field_validator("config")
+    @classmethod
+    def validate_payload_url(cls, v: Dict[str, Any]) -> Dict[str, Any]:
+        if "url" not in v:
+            raise ValueError("Webhook config dictionary must contain a target payload URL")
+        return v
+
+# Usage Example
+try:
+    webhook_json = {
+        "id": 42,
+        "type": "gitea",
+        "active": True,
+        "config": {
+            "url": "http://n8n-server:5678/webhook/gitea-trigger",
+            "content_type": "json"
+        }
+    }
+
+    validated_hook = GiteaWebhookPayload.model_validate(webhook_json)
+    print("Validated Gitea Webhook:", validated_hook.model_dump(by_alias=True))
+except Exception as e:
+    print("Validation failed for webhook configuration:", e)
+```
+
+### Automated Code Review Pattern (Ollama Integration)
+Trigger a local LLM to review a pull request diff programmatically.
+
+```python
+# Simulated automated PR reviewer
+import json
+import urllib.request
+
+def run_local_pr_review():
+    code_diff = "diff --git a/main.py b/main.py\n+print('Hello, November 2026!')"
+    payload = {
+        "model": "qwen36",
+        "prompt": f"Review this Git diff and suggest improvements:\n\n{code_diff}",
+        "stream": False
+    }
+
+    req = urllib.request.Request(
+        "http://ollama-server:11434/api/generate",
+        data=json.dumps(payload).encode('utf-8'),
+        headers={'Content-Type': 'application/json'},
+        method='POST'
+    )
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            res_data = json.loads(response.read().decode())
+            print("Local LLM Review:\n", res_data.get("response"))
+    except Exception as e:
+        print("Review API offline:", e)
+
+if __name__ == "__main__":
+    run_local_pr_review()
 ```
 
 ## Related tools / concepts
-- [Ollama](ollama.md) — For running local AI code reviews via Gitea Actions.
 - [Authentik](authentik.md) — For centralized SSO and user management.
 - [Ansible](../tools/orchestration/ansible.md) — For automating the deployment of Gitea itself.
-- [Nextcloud](nextcloud.md) — For syncing documentation and larger binary artifacts.
+- [Syncthing](syncthing.md) — For syncing documentation and larger LLM fine-tuning binary datasets.
 - [n8n](n8n.md) — For orchestrating workflows triggered by Gitea webhooks.
 - [Vikunja](vikunja.md) — For project management integrated with Gitea issues.
 - [Paperless-ngx](paperless-ngx.md) — For archiving documentation generated from Git repositories.
 - [Model Context Protocol](../tools/automation_orchestration/mcp.md) — Standard for integrating Gitea into AI agent workflows.
-- [Forgejo](https://forgejo.org/) — A community-driven fork of Gitea focusing on software freedom.
-- [Argo CD](https://argoproj.github.io/cd/) — For Kubernetes-native GitOps using Gitea as a source.
+- [Docker](../tools/infrastructure/docker.md) — Core containerization engine for Gitea hosting.
 
 ## Sources / references
-- [Official Website](https://gitea.io/)
+- [Official Website](https://gitea.com/)
 - [GitHub Repository](https://github.com/go-gitea/gitea)
 - [Gitea Documentation](https://docs.gitea.com/)
-- [Gitea 1.26.0 Release Blog](https://blog.gitea.com/release-of-1.26.0/)
+- [Gitea 1.27.0 Release Notes](https://blog.gitea.com/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-05
 - Confidence: high

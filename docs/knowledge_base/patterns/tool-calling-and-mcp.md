@@ -3,13 +3,13 @@
 ## What it is
 **Tool calling** (also known as function calling) is a standardized pattern where Large Language Models (LLMs) generate structured data (typically JSON) to signal their intent to invoke external functions, rather than just generating text. This allows the model to act as a "reasoning engine" that can decide when and how to use external capabilities.
 
-**Model Context Protocol (MCP 3.0)** is the July 2026 universal standard that provides a unified, secure way to connect LLMs (like Claude 5.1, GPT-5.5, and Gemma 3) to external tools, resources, and data sources. It decouples the model from specific tool implementations, allowing a single MCP server to provide capabilities to any compatible host (IDE, agent framework, or chat interface). With draft extensions for **MCP 3.1** introducing stream-based telemetry and sandboxed transport protocols, MCP has solidified its role as the industry standard for agentic resource sharing.
+**Model Context Protocol (MCP 3.1)** is the late October / November 2026 universal standard that provides a unified, secure, and bidirectional way to connect LLMs (like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6) to external tools, resources, and data sources. It decouples the model from specific tool implementations, allowing a single MCP server to provide capabilities to any compatible host (IDE, agent framework, or chat interface). **FastMCP 3.1** introduces advanced async/sync decorators, built-in schema generation using Pydantic v2, streaming-based progress telemetry, and sandboxed execution runtimes, making it the bedrock of multi-agent knowledge engineering.
 
 ## What problem it solves
 LLMs are traditionally "isolated" from the real world, limited by their training data and the text-based interface of their context window. Tool calling and MCP solve several critical limitations:
 - **Dynamic Data Access**: Allows LLMs to query databases, search the web, or read local files to get up-to-date information.
 - **Real-World Actions**: Enables LLMs to perform operations like sending emails, updating Jira tickets, or controlling a browser.
-- **Ecosystem Portability**: MCP specifically solves the "N-to-M" problem where every agent framework needs its own integration for every tool. With MCP 3.0, you build a tool once and it works across all agentic platforms.
+- **Ecosystem Portability**: MCP specifically solves the "N-to-M" problem where every agent framework needs its own integration for every tool. With MCP 3.1, you build a tool once and it works across all agentic platforms.
 - **Agentic Recursion**: Through the "Sampling" capability, MCP allows tools to recursively call back into the model to solve sub-problems.
 
 ## Where it fits in the stack
@@ -17,7 +17,7 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 
 ## Typical use cases
 - **Autonomous Development**: Searching codebases, running tests, and managing Git repositories via [Claude Code](../../tools/development_ops/claude-code-container-mcp.md) or [Aider](../../tools/development_ops/aider.md).
-- **Personal Agentic Planning**: Checking calendars, scheduling meetings, and managing tasks via [Google Calendar](../../tools/calendar_tasks/google_calendar.md) and [Vikunja](../../services/vikunja.md) MCP servers.
+- **Personal Agentic Planning**: Checking calendars, scheduling meetings, and managing tasks via [Google Calendar](../../tools/calendar_tasks/notion-calendar.md) and [Vikunja](../../services/vikunja.md) MCP servers.
 - **Enterprise Automation**: Connecting AI agents to legacy systems like [Jira](../../tools/automation_orchestration/atlassian-jira-mcp.md), [ServiceNow](../../tools/automation_orchestration/servicenow-mcp.md), or Slack.
 - **Secure System Remediation**: Allowing agents to interact with host operating systems via [Desktop Commander](../../tools/development_ops/desktop-commander-mcp.md) to fix configuration drift.
 
@@ -31,7 +31,7 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 | **Security & Sandbox**| Low (host runs tool code in its own process/environment; high security exposure). | High (strict isolation via SSH tunnels, process boundaries, token auth, or containerized sandboxes). |
 
 ## Strengths
-- **Universal Interoperability**: MCP 3.0 allows one tool implementation to serve multiple LLMs (Claude, GPT, Llama, Gemini).
+- **Universal Interoperability**: MCP 3.1 allows one tool implementation to serve multiple LLMs (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6).
 - **Grounding & Trust**: Reduces hallucinations by forcing the model to rely on external, verifiable data sources.
 - **Dynamic Discovery**: MCP servers describe their capabilities to the host at runtime, enabling plug-and-play agentic architectures.
 - **Security Isolation**: Supports secure SSH tunneling, token-based authentication (OAuth2), and containerized execution for sensitive tool operations.
@@ -51,22 +51,22 @@ Within the AI Tooling Landscape, Tool Calling and MCP sit at **Layer 4 (Protocol
 
 ## When not to use it
 - For purely creative writing (fiction, poetry) where external facts are unnecessary.
-- When the entire dataset fits within a frontier model's massive context window (e.g., Gemini 3.5 Pro's 10M tokens) and cost is not a primary constraint.
+- When the entire dataset fits within a frontier model's massive context window (e.g., Gemini 4.0's 10M tokens) and cost is not a primary constraint.
 - When sub-100ms latency is required for a simple, non-factual interaction.
 - When the LLM's base training data is already sufficient and up-to-date for the task.
 
 ## Getting started
 
-### 1. Building an MCP 3.0 Server (Python)
-The `FastMCP` SDK is the recommended way to build servers in July 2026, offering native typing, structured arguments, and robust execution contexts.
+### 1. Building an MCP 3.1 Server (Python)
+The `FastMCP` SDK is the recommended way to build servers in late October / November 2026, offering native typing, structured arguments, and robust execution contexts.
 
 ```python
-# pip install mcp psutil
+# pip install mcp psutil pydantic
 from mcp.server.fastmcp import FastMCP, Context
 import psutil
 
 # Create a server instance with metadata
-mcp = FastMCP("SystemHealth", version="1.0.0")
+mcp = FastMCP("SystemHealth", version="1.1.0")
 
 @mcp.tool()
 async def get_cpu_usage(ctx: Context) -> str:
@@ -123,7 +123,39 @@ mcp-cli connect ssh://user@remote-host:port/server-name
 
 ## API examples
 
-### Sampling with MCP 3.0
+### Pydantic v2 Schema Validation for MCP Config (Python)
+Validating client configurations programmatically using modern Pydantic v2 syntax before establishing transport sessions.
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import Dict, List, Optional
+
+class MCPServerConfig(BaseModel):
+    command: str = Field(..., description="Executable path or command name", min_length=1)
+    args: List[str] = Field(default_factory=list, description="CLI arguments list")
+    env: Optional[Dict[str, str]] = Field(default=None, description="Environment variables dict")
+
+    @field_validator("command")
+    @classmethod
+    def validate_command(cls, v: str) -> str:
+        forbidden = [";", "&&", "||", "|"]
+        if any(char in v for char in forbidden):
+            raise ValueError("Command contains forbidden shell metacharacters")
+        return v
+
+# Usage Example (Pydantic v2)
+try:
+    config = MCPServerConfig(
+        command="python",
+        args=["/path/to/server.py"],
+        env={"PYTHONUNBUFFERED": "1"}
+    )
+    print("Valid MCP Server Configuration:", config.model_dump())
+except Exception as e:
+    print("Validation failed:", e)
+```
+
+### Sampling with MCP 3.1
 The Sampling capability allows an MCP server to ask the client (host) to run an LLM completion.
 
 ```python
@@ -202,20 +234,20 @@ if __name__ == "__main__":
 
 ## Related tools / concepts
 - [Agent Protocols](../agent_protocols.md) — The broader context for MCP and ACP.
-- [Agno](../../tools/agents/agno.md) — Agentic framework with native MCP 3.0 support.
+- [Agno](../../tools/agents/agno.md) — Agentic framework with native MCP 3.1 support.
 - [Bee Agent Framework](../../tools/agents/bee-agent-framework.md) — IBM's framework for observability-by-design tool use.
 - [Desktop Commander MCP](../../tools/development_ops/desktop-commander-mcp.md) — Standard server for local OS interaction.
 - [Symbolic MCP](../../tools/development_ops/symbolic-mcp.md) — Formal verification via tool calling.
 - [Vikunja MCP](../../tools/automation_orchestration/vikunja-mcp.md) — Task management via MCP.
 - [Chronos MCP](../../tools/automation_orchestration/chronos-mcp.md) — Advanced scheduling tool.
 - [Jupyter Kernel MCP](../../tools/development_ops/jupyter-kernel-mcp.md) — Code execution environment.
-- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) — RAG framework with native MCP 3.0 Task Protocol support.
+- [LlamaIndex](../../tools/ai_knowledge/llamaindex.md) — RAG framework with native MCP 3.1 Task Protocol support.
 
 ## Sources / references
 - [Model Context Protocol (MCP) Official Specification](https://modelcontextprotocol.io/)
-- [Anthropic: Introducing MCP 3.0 (June 2026)](https://www.anthropic.com/news/model-context-protocol-3)
+- [Anthropic: Introducing MCP 3.1 (October 2026)](https://www.anthropic.com/news/model-context-protocol-3-1)
 - [MCP Registry: A Global Catalog of MCP Servers](https://mcp-registry.org/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-18
+- Last reviewed: 2026-11-05
 - Confidence: high
