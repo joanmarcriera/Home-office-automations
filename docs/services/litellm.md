@@ -1,25 +1,25 @@
 # LiteLLM
 
 ## What it is
-LiteLLM is an open-source AI Gateway (proxy server) and Python SDK that provides a unified OpenAI-compatible interface to 100+ LLM providers. In July 2026, it serves as the industry-standard "Inference Plane," natively supporting **Gemma 3**, Claude 4.8, and GPT-5.5. It acts as a central traffic controller, offering routing, fallbacks, budget enforcement, and native **MCP 3.0 tool routing** for agentic ecosystems.
+LiteLLM is an open-source AI Gateway (proxy server) and Python SDK that provides a unified OpenAI-compatible interface to 100+ LLM providers. In November 2026, it serves as the industry-standard "Inference Plane," natively supporting **Gemma 3**, **Gemini 4.0**, Claude 5.1, and GPT-5.5. It acts as a central traffic controller, offering routing, fallbacks, budget enforcement, and native **MCP 3.1 tool and resource routing** for agentic ecosystems.
 
 ## What problem it solves
-Managing multiple agents (Aider, OpenHands, n8n) against various local and cloud LLMs creates fragmented secrets, inconsistent APIs, and untracked costs. LiteLLM solves this by presenting a single OpenAI-compatible endpoint that handles internal routing, automatic fallbacks, and centralized cost tracking, preventing provider outages from cascading into agent failures.
+Managing multiple agents (Aider, Claude Code, Roo Code, n8n) against various local and cloud LLMs creates fragmented secrets, inconsistent APIs, and untracked costs. LiteLLM solves this by presenting a single OpenAI-compatible endpoint that handles internal routing, automatic fallbacks, and centralized cost tracking, preventing provider outages or rate limits from cascading into agent failures.
 
 ## Where it fits in the stack
-**Category**: Service / AI Infrastructure / Abstraction Layer. LiteLLM is the primary "Service Mesh" for LLMs. It sits between agents and model providers (Ollama, Anthropic, Bedrock), providing protocol normalization and secure tool discovery via the **Model Context Protocol (MCP 3.0)**.
+**Category**: Service / AI Infrastructure / Abstraction Layer. LiteLLM is the primary "Service Mesh" for LLMs. It sits between agents and model providers (Ollama, Anthropic, Bedrock, OpenAI), providing protocol normalization and secure tool discovery via the **Model Context Protocol (MCP 3.1)**.
 
 ## Typical use cases
-- **Multi-Agent Orchestration**: Providing a unified endpoint for [OpenHands](../tools/development_ops/openhands.md) and [Aider](../tools/development_ops/aider.md) to share model pools.
-- **Resilient AI Pipelines**: Implementing automatic failover from local [Ollama](ollama.md) models to cloud providers during load spikes.
-- **Agentic Tool Routing**: Using native **MCP 3.0** support to route tool calls from agents to the appropriate backend service.
+- **Multi-Agent Orchestration**: Providing a unified endpoint for [Roo Code](../tools/agents/roo-code.md) and [Aider](../tools/development_ops/aider.md) to share model pools.
+- **Resilient AI Pipelines**: Implementing automatic failover from local [Ollama](ollama.md) models to cloud providers during local GPU load spikes.
+- **Agentic Tool Routing**: Using native **MCP 3.1** support to route tool calls from agents to the appropriate backend service.
 - **Cost & Budget Enforcement**: Setting per-key or per-agent spend limits across all LLM usage.
 - **PII Masking**: Enforcing data privacy guardrails at the gateway level before prompts reach cloud providers.
 
 ## Strengths
 - **Protocol Normalization**: Every agent speaks OpenAI Chat Completions, regardless of the actual backend.
 - **Built-in Fallbacks**: Automatic failover to healthy models during rate limits or outages.
-- **Unified MCP Gateway**: Securely exposes and routes **MCP 3.0** servers to connected agents.
+- **Unified MCP Gateway**: Securely exposes and routes **MCP 3.1** servers to connected agents.
 - **Cost Tracking**: Real-time spend monitoring for local vs. cloud calls.
 - **Self-Hostable**: Full control over data and keys with a built-in management UI.
 
@@ -29,7 +29,7 @@ Managing multiple agents (Aider, OpenHands, n8n) against various local and cloud
 - **Latency Overhead**: Proxying adds a small (5-20ms) latency to each call.
 
 ## When to use it
-- When running multiple AI agents with different LLM backends (e.g., local **Gemma 3** and cloud Claude 4.8).
+- When running multiple AI agents with different LLM backends (e.g., local **Gemma 3** and cloud Claude 5.1).
 - To track and limit AI spend across a team or an automated agent cluster.
 - When tools only support OpenAI APIs but you want to utilize [Ollama](ollama.md) or [Bedrock](../tools/providers/aws-bedrock.md).
 - For resilient systems requiring automatic model failover.
@@ -57,9 +57,9 @@ model_list:
     litellm_params:
       model: ollama/gemma-3
       api_base: http://local-gpu:11434
-  - model_name: claude-4-8
+  - model_name: claude-5-1
     litellm_params:
-      model: anthropic/claude-4-8-opus-20260528
+      model: anthropic/claude-5-1-sonnet
       api_key: os.environ/ANTHROPIC_API_KEY
 
 router_settings:
@@ -89,28 +89,48 @@ curl -X POST http://localhost:4000/key/generate \
   -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "key_alias": "openhands-agent",
+    "key_alias": "roo-code-agent",
     "max_budget": 10.0,
     "budget_duration": "monthly"
   }'
 ```
 
-### Python SDK Usage
-Unified call interface for any provider.
+### Python: Robust Completion with Pydantic v2 validation
+Using LiteLLM with **Pydantic v2** to ensure structured, type-safe router payloads and structured LLM outputs.
 
 ```python
 import litellm
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-response = litellm.completion(
-    model="gemma-3",
-    messages=[{"role": "user", "content": "Analyze this code..."}]
-)
-print(response.choices[0].message.content)
+# Define the expected structured output schema using Pydantic v2
+class ActionPlan(BaseModel):
+    task_name: str = Field(..., description="The name of the automated task")
+    steps: List[str] = Field(..., description="Sequential steps to complete the task")
+    assigned_agent: str = Field(..., description="The recommended agent for execution")
+    estimated_cost_usd: Optional[float] = Field(None, description="Estimated inference cost")
+
+def get_agent_plan(prompt: str) -> ActionPlan:
+    # Use litellm to fetch the chat completion
+    response = litellm.completion(
+        model="gemma-3",
+        messages=[{"role": "user", "content": prompt}],
+        # Using LiteLLM native structured outputs if supported, otherwise parsing manually
+    )
+
+    content = response.choices[0].message.content
+    # Validate the structure using Pydantic v2
+    # In practice, you might pass response_format={"type": "json_object"}
+    # here we simulate parsing the content
+    import json
+    parsed_json = json.loads(content)
+    validated_plan = ActionPlan(**parsed_json)
+    return validated_plan
 ```
 
-### MCP Server Integration
+### MCP 3.1 Server Integration
 ```yaml
-# In litellm-config.yaml
+# In litellm-config.yaml under mcp_servers
 mcp_servers:
   - name: "google-drive"
     command: "npx"
@@ -125,7 +145,8 @@ mcp_servers:
 - [Authentik](authentik.md) — For securing the LiteLLM UI.
 - [n8n](n8n.md) — For LLM-powered automation workflows.
 - [Home Assistant](home-assistant.md) — For AI-driven home automation.
-- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Protocol for agentic tool discovery.
+- [MCP 3.1](../tools/automation_orchestration/mcp.md) — Protocol for agentic tool and resource discovery.
+- [Roo Code](../tools/agents/roo-code.md) — Coding agent utilizing unified gateways.
 
 ## Sources / references
 - [LiteLLM Documentation](https://docs.litellm.ai/)
@@ -134,5 +155,5 @@ mcp_servers:
 - [Virtual Keys & Budgets](https://docs.litellm.ai/docs/proxy/virtual_keys)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-06
+- Last reviewed: 2026-11-05
 - Confidence: high

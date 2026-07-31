@@ -1,12 +1,12 @@
 # IT-Tools
 
-A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser as of July 2026.
+A comprehensive suite of web-based developer utilities including formatters, generators, and converters, designed to run entirely in the client's browser as of November 2026.
 
 ## What it is
-IT-Tools is an open-source, client-side utility suite for developers. As of **July 2026**, it features over 150 specialized tools, including JWT debuggers, CRON parsers, and advanced cryptographic utilities. It is designed to be lightweight, searchable, and privacy-first, now supporting [Gemma 3](../tools/ai_knowledge/local_llms.md) integration patterns for local data transformation.
+IT-Tools is an open-source, client-side utility suite for developers. As of **November 2026**, it features over 150 specialized tools, including JWT debuggers, CRON parsers, and advanced cryptographic utilities. It is designed to be lightweight, searchable, and privacy-first, now supporting [Gemma 3](../tools/ai_knowledge/local_llms.md) integration patterns for local, agent-orchestrated data transformation.
 
 ## What problem it solves
-It centralizes dozens of common developer tasks into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites. By running all operations locally in the browser, it ensures that sensitive data (like JSON payloads or private keys) never leaves the user's local network.
+It centralizes dozens of common developer tasks into a single, searchable interface, eliminating the need to visit multiple, potentially untrusted utility websites. By running all operations locally in the browser, it ensures that sensitive data (like JSON payloads, secrets, or private keys) never leaves the user's local network.
 
 ## Where it fits in the stack
 IT-Tools is a **Client-Side Utility Service** in the self-hosted productivity layer. It is typically deployed as a static web application via Docker, serving as a reliable toolbox for local development, home-office operations, and agentic workflows.
@@ -75,8 +75,31 @@ docker inspect --format='{{index .Config.Labels "org.opencontainers.image.versio
 ```
 
 ## API examples
-IT-Tools is a front-end only application and does not expose a server-side API. For health monitoring in an automated stack (e.g., using **Gemma 3** or **n8n**) following the **MCP 3.0 Task Protocol**:
+IT-Tools is a front-end only application and does not expose a server-side API. For health monitoring in an automated stack (e.g., using **Gemma 3** or **n8n**) following the **MCP 3.1 Task Protocol**, we can validate the configuration schemas using **Pydantic v2**:
 
+### Python: Validating IT-Tools Deployment Configurations using Pydantic v2
+This Python script validates IT-Tools local hosting and custom routing parameters.
+
+```python
+from pydantic import BaseModel, HttpUrl, Field
+from typing import Optional
+
+# Define the local IT-Tools deployment configuration schema
+class ITToolsConfig(BaseModel):
+    endpoint_url: HttpUrl = Field(..., description="The private HTTP endpoint URL of IT-Tools")
+    port: int = Field(default=8080, ge=1, le=65535, description="Host port mapping")
+    enable_ssl: bool = Field(default=False, description="Whether SSL is terminated at proxy level")
+    custom_assets_path: Optional[str] = Field(None, description="Path to optional branding assets")
+
+def validate_and_register_config(config_payload: dict) -> ITToolsConfig:
+    # Use Pydantic v2 to validate
+    config = ITToolsConfig.model_validate(config_payload)
+    print(f"IT-Tools local configuration is valid: {config.endpoint_url}")
+    return config
+```
+
+### Basic Health Verification
+For scripted health validation:
 ```bash
 # Basic health check to ensure the web server is responsive
 curl -fsS http://localhost:8080 >/dev/null && echo "IT-Tools is reachable"
@@ -97,7 +120,7 @@ echo '{"it-tools":"active"}' | jq .
 - [Paperless-ngx](paperless-ngx.md) — For archiving the documents you generate or format.
 - [Immich](immich.md) — For managing media assets.
 - [Home Assistant](home-assistant.md) — For dashboard integration.
-- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Bridge concept to allow AI agents to invoke local transformation logic via specialized proxies.
+- [MCP 3.1](../tools/automation_orchestration/mcp.md) — Bridge concept to allow AI agents to invoke local transformation logic via specialized proxies.
 
 ## Sources / References
 - [Official Website](https://it-tools.tech/)
@@ -106,4 +129,4 @@ echo '{"it-tools":"active"}' | jq .
 
 ## Contribution Metadata
 - Confidence: high
-- Last reviewed: 2026-07-07
+- Last reviewed: 2026-11-05

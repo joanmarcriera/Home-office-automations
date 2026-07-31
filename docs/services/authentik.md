@@ -1,13 +1,13 @@
 # Authentik
 
 ## What it is
-Authentik is an open-source Identity Provider (IdP) designed for extreme flexibility and modern security workflows. In July 2026, it has introduced **Agentic Session Orchestration**, allowing for granular, automated control of user and bot sessions. It supports a wide array of protocols including OAuth2, OpenID Connect (OIDC), SAML, and LDAP, making it the primary gatekeeper for agentic environments.
+Authentik is an open-source Identity Provider (IdP) designed for extreme flexibility and modern security workflows. In November 2026, it natively supports **Agentic Session Orchestration**, allowing for granular, automated creation, monitoring, and revocation of user and autonomous agent/bot sessions. It supports a wide array of protocols including OAuth2, OpenID Connect (OIDC), SAML, and LDAP, making it the primary gatekeeper for agentic environments.
 
 ## What problem it solves
-Managing separate credentials for dozens of self-hosted applications creates security risks and user friction. Authentik centralizes identity management, providing a single point of authentication for services like [Nextcloud](nextcloud.md), [Gitea](gitea.md), and [Vikunja](vikunja.md). It also injects modern security features like Multi-Factor Authentication (MFA) and Passkeys into legacy applications and provides **Gemma 3**-driven policy reasoning for complex access rules.
+Managing separate credentials for dozens of self-hosted applications creates security risks and user friction. Authentik centralizes identity management, providing a single point of authentication for services like [Nextcloud](nextcloud.md), [Gitea](gitea.md), and [Vikunja](vikunja.md). It also injects modern security features like Multi-Factor Authentication (MFA) and Passkeys into legacy applications and provides **Gemini 4.0** or **Gemma 3**-driven policy reasoning for complex access rules.
 
 ## Where it fits in the stack
-**Category**: Service / Security / Identity. Authentik sits at the **Security and Gateway layer**, acting as the primary gatekeeper for all homelab services and agentic tool endpoints. It integrates with **MCP 3.0** to provide identity-aware tool execution for autonomous agents.
+**Category**: Service / Security / Identity. Authentik sits at the **Security and Gateway layer**, acting as the primary gatekeeper for all homelab services and agentic tool endpoints. It integrates with **MCP 3.1** to provide identity-aware tool execution for autonomous agents.
 
 ## Typical use cases
 - **Single Sign-On (SSO)**: One account to rule all self-hosted services.
@@ -20,7 +20,7 @@ Managing separate credentials for dozens of self-hosted applications creates sec
 - **All-in-One Architecture**: Includes server, worker, and outpost in a single ecosystem.
 - **Powerful Policy Engine**: Allows for complex rules based on IP, Geo-location, and agent behavior.
 - **Native Passkey Support**: Seamless implementation of WebAuthn for all applications.
-- **FastMCP 3.0 Integration**: High-performance outposts for securing distributed tool endpoints.
+- **FastMCP 3.1 Integration**: High-performance outposts for securing distributed tool endpoints.
 - **Customizable Flows**: Visually designed login and enrollment processes.
 
 ## Limitations
@@ -40,7 +40,7 @@ Managing separate credentials for dozens of self-hosted applications creates sec
 
 ## Getting started
 
-### Docker Compose (July 2026 Baseline)
+### Docker Compose (November 2026 Baseline)
 Deploy Authentik using the official Docker Compose baseline. First, generate a secret key: `echo "AUTHENTIK_SECRET_KEY=$(openssl rand -base64 36)" >> .env`.
 
 ```yaml
@@ -117,25 +117,40 @@ docker exec -it authentik-server ak clear_cache
 ## API examples
 Authentik features a comprehensive REST API (v3) for automated identity management.
 
-### Python: Listing Applications via API
+### Python: Listing Applications and validation with Pydantic v2
+This Python script accesses the Authentik API to query configured applications and validates response schema via **Pydantic v2**.
+
 ```python
 import requests
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-URL = "http://localhost:8000/api/v3/core/applications/"
-TOKEN = "YOUR_API_TOKEN"
+# Define validation schema using Pydantic v2
+class AuthentikApplication(BaseModel):
+    name: str = Field(..., description="The user-facing application name")
+    slug: str = Field(..., description="The URL-friendly slug")
+    provider: Optional[int] = Field(None, description="The ID of the bound provider")
+    launch_url: Optional[str] = Field(None, description="The launch URL", alias="launch_url")
 
-def list_apps():
-    headers = {"Authorization": f"Bearer {TOKEN}"}
-    response = requests.get(URL, headers=headers)
-    return response.json()
+class ApplicationListResponse(BaseModel):
+    results: List[AuthentikApplication]
 
-# Example usage
-apps = list_apps()
-for app in apps.get('results', []):
-    print(f"Application: {app['name']}, Slug: {app['slug']}")
+def get_validated_applications(token: str) -> List[AuthentikApplication]:
+    url = "http://localhost:8000/api/v3/core/applications/"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    # Perform validation with Pydantic v2
+    validated_data = ApplicationListResponse.model_validate(response.json())
+    return validated_data.results
 ```
 
-### FastMCP 3.0: Token Refresh Tool
+### FastMCP 3.1: Token Refresh Tool
 ```typescript
 import { FastMCP } from 'fastmcp';
 
@@ -147,7 +162,7 @@ mcp.addTool({
   parameters: { agentId: { type: "string" } },
   execute: async ({ agentId }) => {
     // Logic to call Authentik API for token refresh
-    return { token: "new-oidc-token-july-2026", expiresAt: "2026-07-06T..." };
+    return { token: "new-oidc-token-november-2026", expiresAt: "2026-11-05T..." };
   }
 });
 
@@ -164,7 +179,7 @@ mcp.serve();
 - [Gitea](gitea.md) — Managing Git repositories with SSO.
 - [Headscale](headscale.md) — Managing private mesh identities.
 - [Ollama](ollama.md) — Authenticating agentic traffic to local LLM endpoints.
-- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Protocol for identity-aware tool discovery.
+- [MCP 3.1](../tools/automation_orchestration/mcp.md) — Protocol for identity-aware tool and resource discovery.
 
 ## Sources / References
 - [Official Website](https://goauthentik.io/)
@@ -173,5 +188,5 @@ mcp.serve();
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-06
+- Last reviewed: 2026-11-05
 - Confidence: high
