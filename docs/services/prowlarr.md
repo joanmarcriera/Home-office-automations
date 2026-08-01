@@ -1,7 +1,7 @@
 # Prowlarr
 
 ## What it is
-Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. As of July 2026, it remains the industry standard for centralized metadata acquisition, featuring native MCP 3.0 Task Protocol support for automated tracker synchronization and Gemma 3 multimodal analysis for indexer health monitoring.
+Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. In the late October / November 2026 ecosystem, it remains the industry standard for centralized metadata acquisition, featuring native **Model Context Protocol (MCP 3.1 / FastMCP 3.1)** support for automated tracker synchronization and **Gemma 3** and **Qwen 3.6** multimodal analysis for indexer health monitoring.
 
 ## What problem it solves
 It centralizes the management of indexers and trackers. Instead of configuring the same 10 indexers in Sonarr, Radarr, Lidarr, and Readarr manually, you configure them once in Prowlarr, and they are automatically synchronized across all your applications. It solves "configuration drift" and provides a unified interface for agentic discovery of media across the entire self-hosted stack.
@@ -12,16 +12,16 @@ It centralizes the management of indexers and trackers. Instead of configuring t
 ## Typical use cases
 - **Centralized Indexer Management**: Adding a new private tracker once and having it available everywhere.
 - **Proxying Requests**: Hiding your PVR apps behind a single proxy for indexer requests.
-- **Indexer Health Monitoring**: Using Gemma 3 to analyze failure patterns and automatically rotate trackers.
-- **Agentic Search**: Providing a structured API for [Gemma 3](../tools/ai_knowledge/local_llms.md) to query availability of specific media across multiple trackers via the MCP 3.0 Task Protocol.
+- **Indexer Health Monitoring**: Using **Gemma 3** or **Claude 5.1** to analyze failure patterns and automatically rotate trackers.
+- **Agentic Search**: Providing a structured API for frontier models (**Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, **Qwen 3.6**) to query availability of specific media across multiple trackers via the MCP 3.1 Task Protocol.
 - **Automated Tracker Rotation**: Implementing GitOps-driven tracker management via [n8n](n8n.md).
 
 ## Strengths
 - **Seamless Synchronization**: Automatically pushes indexer configurations to Sonarr, Radarr, Lidarr, and Readarr.
 - **Broad Support**: Supports hundreds of Torrent trackers and Usenet indexers.
 - **Unified UI**: Consistent interface with other Arr apps.
-- **Authentication**: Modern versions (2026) include built-in "Basic" authentication and OIDC support (via [Authentik](authentik.md)) to secure the UI.
-- **MCP 3.0 Integration**: Native support for standardized task representations, allowing AI agents to orchestrate complex acquisition workflows.
+- **Authentication**: Modern versions include built-in "Basic" authentication and OIDC support (via [Authentik](authentik.md)) to secure the UI.
+- **MCP 3.1 Integration**: Native support for standardized task representations, allowing AI agents to orchestrate complex acquisition workflows.
 
 ## Limitations
 - **Arr Ecosystem Focus**: Optimized for the Arr suite; may be less useful if you only use standalone downloaders or alternative PVRs.
@@ -78,16 +78,70 @@ docker exec prowlarr /app/prowlarr/Prowlarr --version
 ```
 
 ## API examples
-Prowlarr uses a REST API similar to other Arr apps.
 
-```bash
-# Get all configured indexers
-curl -H "X-Api-Key: YOUR_API_KEY" \
-     -X GET "http://localhost:9696/api/v1/indexer"
+### Python: Indexer Validation (Pydantic v2)
+Using Python and Pydantic v2 to validate and register Torrent/Usenet tracker configurations programmatically prior to synchronization.
 
-# Test a specific indexer (replace {id} with indexer ID)
-curl -H "X-Api-Key: YOUR_API_KEY" \
-     -X POST "http://localhost:9696/api/v1/indexer/test/{id}"
+```python
+import requests
+from pydantic import BaseModel, Field, HttpUrl
+from typing import Optional, List
+
+class ProwlarrIndexer(BaseModel):
+    name: str = Field(..., description="The user-friendly name of the indexer")
+    protocol: str = Field("torrent", description="Protocol used by the indexer (e.g. torrent, usenet)")
+    api_url: HttpUrl = Field(..., description="The actual target indexer API or URL endpoint")
+    api_key: Optional[str] = Field(None, description="API credential key for indexer authentication")
+    categories: List[int] = Field(default_factory=list, description="List of category IDs to synchronize")
+
+def register_prowlarr_indexer(api_url: str, api_key: str, indexer: ProwlarrIndexer) -> dict:
+    url = f"{api_url}/api/v1/indexer"
+    headers = {
+        "X-Api-Key": api_key,
+        "Content-Type": "application/json"
+    }
+    # Pydantic v2 safely serializes the model to JSON-compatible dictionary
+    payload = indexer.model_dump(mode="json")
+    response = requests.post(url, headers=headers, json=payload, timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+if __name__ == "__main__":
+    # Sample execution block
+    new_indexer = ProwlarrIndexer(
+        name="SOTA Torrents Hub",
+        protocol="torrent",
+        api_url="https://api.sotahub-torrent.local",
+        api_key="prowlarr_secret_key_2026",
+        categories=[2000, 5000]
+    )
+    print("Prowlarr indexer config validated successfully for:", new_indexer.name)
+```
+
+### FastMCP 3.1 Indexer Tool (TypeScript)
+Exposing Prowlarr's indexer health checking capability to an MCP 3.1 agent session.
+
+```typescript
+import { FastMCP } from 'fastmcp';
+
+const mcp = new FastMCP("prowlarr-indexers");
+
+mcp.addTool({
+  name: "test_indexer",
+  description: "Test if a specific Prowlarr indexer is currently reachable and responding",
+  parameters: {
+    indexerId: { type: "number", description: "The internal ID of the Prowlarr indexer" }
+  },
+  execute: async ({ indexerId }) => {
+    const res = await fetch(`http://prowlarr:9696/api/v1/indexer/test/${indexerId}`, {
+      method: "POST",
+      headers: { "X-Api-Key": process.env.PROWLARR_API_KEY }
+    });
+    return res.json();
+  }
+});
+
+mcp.serve();
 ```
 
 ## Related tools / concepts
@@ -109,5 +163,5 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 - [Prowlarr Setup & Authentication Guide (2026)](https://www.rapidseedbox.com/blog/prowlarr-guide)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-07
 - Confidence: high

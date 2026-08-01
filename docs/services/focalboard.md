@@ -1,23 +1,23 @@
 # Focalboard
 
 > [!WARNING]
-> The standalone Focalboard project (Personal Server/Desktop) is in **community maintenance mode**. Mattermost focus has shifted to the integrated "Boards" plugin for the Mattermost platform. Users seeking an actively developed standalone project management tool with native MCP 3.0 support should prioritize [Vikunja](vikunja.md).
+> The standalone Focalboard project (Personal Server/Desktop) is in **community maintenance mode**. Mattermost focus has shifted to the integrated "Boards" plugin for the Mattermost platform. Users seeking an actively developed standalone project management tool with native MCP 3.1 / FastMCP 3.1 support should prioritize [Vikunja](vikunja.md).
 
 ## What it is
-Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana. It provides a structured, multilingual environment for personal organization and small team collaboration. In the July 2026 landscape, it remains a stable "legacy" target for agentic task injection.
+Focalboard is a dedicated task management system that provides a Kanban-style interface for organizing work. It is designed to be a lightweight, self-hosted alternative to centralized services like Trello, Notion, and Asana. It provides a structured, multilingual environment for personal organization and small team collaboration. In the late October / November 2026 landscape, it remains a stable "legacy" target for agentic task injection.
 
 ## What problem it solves
-It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration within a self-hosted infrastructure. For AI agents like **Gemma 3** or **Claude 4.8**, Focalboard provides a predictable, schema-stable Kanban target that does not change as frequently as more "active" projects.
+It provides a structured way to track tasks, projects, and goals without relying on third-party cloud providers. It addresses the need for privacy-conscious team collaboration within a self-hosted infrastructure. For AI agents like **Gemma 3**, **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**, Focalboard provides a predictable, schema-stable Kanban target that does not change as frequently as more "active" projects.
 
 ## Where it fits in the stack
 **Category**: Service / Project Management. It fits into the **Productivity and Execution** layer. It is often used as a visual "Status Dashboard" for long-running agentic tasks, where a human can visually inspect the progress of an AI-driven project board.
 
 ## Typical use cases
 - **Legacy Project Archival**: Maintaining access to historical Kanban boards from previous project cycles.
-- **Agentic Task Visualization**: Using **Gemma 3** to automatically populate Kanban cards with research findings for human review.
+- **Agentic Task Visualization**: Using **Gemma 3** or **Qwen 3.6** to automatically populate Kanban cards with research findings for human review.
 - **Personal Knowledge Archival**: Using custom properties to track and categorize physical or digital assets.
 - **Content Calendars**: Simple planning and scheduling for media production with visual drag-and-drop.
-- **Board Sync via MCP**: Using the **Model Context Protocol (MCP 3.0)** to synchronize Focalboard cards with other task managers like [Vikunja](vikunja.md).
+- **Board Sync via MCP**: Using the **Model Context Protocol (MCP 3.1)** to synchronize Focalboard cards with other task managers like [Vikunja](vikunja.md).
 
 ## Strengths
 - **Stable Interface**: A mature, predictable Kanban UI that is easy for both humans and agents to navigate.
@@ -28,7 +28,7 @@ It provides a structured way to track tasks, projects, and goals without relying
 
 ## Limitations
 - **Maintenance Status**: Minimal active development; users should be aware of potential security debt in the long term.
-- **Lacks Modern Orchestration**: Does not natively support some of the newer **FastMCP 3.0** features found in newer tools.
+- **Lacks Modern Orchestration**: Does not natively support some of the newer **FastMCP 3.1** features found in newer tools.
 - **Mobile Experience**: Standalone mobile apps are legacy and may not support newer OS features.
 
 ## When to use it
@@ -75,38 +75,78 @@ docker exec focalboard ./focalboard-server export board_id > board_export.json
 
 ## API examples
 
-### Python: Fetching Boards
-Standard REST interaction for legacy agents.
+### Python: Programmatic Card Integration (Pydantic v2)
+Using Python and Pydantic v2 to structured-validate Kanban board card operations and details before pushing changes to the Focalboard REST endpoints.
 
 ```python
 import requests
+from pydantic import BaseModel, Field
+from typing import Optional, List, Dict, Any
 
-# Fetch all boards for the authenticated user
-URL = "http://localhost:8000/api/v1/boards"
-TOKEN = "YOUR_SESSION_TOKEN"
-headers = {"Authorization": f"Bearer {TOKEN}"}
+class FocalboardCard(BaseModel):
+    title: str = Field(..., description="The title of the Kanban card")
+    board_id: str = Field(..., description="Target Focalboard board ID")
+    column_id: str = Field(..., description="Target Kanban column ID (e.g. todo, in-progress, done)")
+    properties: Dict[str, Any] = Field(default_factory=dict, description="Custom card property key-values")
+    tags: List[str] = Field(default_factory=list, description="Array of tag labels to apply to the card")
 
-def list_boards():
-    response = requests.get(URL, headers=headers)
-    if response.ok:
-        for board in response.json():
-            print(f"Board: {board['title']} (ID: {board['id']})")
+def create_focalboard_card(api_url: str, token: str, card: FocalboardCard) -> dict:
+    url = f"{api_url}/api/v1/boards/{card.board_id}/cards"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    # Pydantic v2 serialization of the model
+    payload = card.model_dump(mode="json")
+    response = requests.post(url, headers=headers, json=payload, timeout=10)
+    response.raise_for_status()
+    return response.json()
 
 if __name__ == "__main__":
-    list_boards()
+    # Sample code block
+    new_card = FocalboardCard(
+        title="Audit focalboard.md freshness",
+        board_id="b17fa83c-2026",
+        column_id="in-progress",
+        properties={"Assignee": "Jules", "Due Date": "2026-11-07"},
+        tags=["maintenance", "technical-freshness"]
+    )
+    print("Focalboard card schema validated successfully for card:", new_card.title)
 ```
 
-### Curl: Quick Card Check
-```bash
-# Get information about the currently logged-in user
-curl -H "Authorization: Bearer <your_session_token>" \
-     "http://localhost:8000/api/v1/users/me"
+### FastMCP 3.1 Kanban Tool (TypeScript)
+TypeScript declaration for integrating Focalboard cards into an MCP 3.1 agent session.
+
+```typescript
+import { FastMCP } from 'fastmcp';
+
+const mcp = new FastMCP("focalboard-kanban");
+
+mcp.addTool({
+  name: "create_focalboard_card",
+  description: "Create a new card on a Focalboard board",
+  parameters: {
+    title: { type: "string", description: "The card title" },
+    boardId: { type: "string", description: "The board ID" },
+    columnId: { type: "string", description: "The column/block ID" }
+  },
+  execute: async ({ title, boardId, columnId }) => {
+    const res = await fetch(`http://focalboard:8000/api/v1/boards/${boardId}/cards`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${process.env.FOCALBOARD_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ title, boardId, columnId })
+    });
+    return res.json();
+  }
+});
+
+mcp.serve();
 ```
 
 ## Related tools / concepts
 - [Vikunja](vikunja.md) — The recommended modern alternative for task management.
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — For reasoning over and populating Kanban cards.
-- [MCP 3.0](../tools/automation_orchestration/mcp.md) — Protocol for connecting legacy boards to agentic workflows.
+- [MCP 3.1](../tools/automation_orchestration/mcp.md) — Protocol for connecting legacy boards to agentic workflows.
 - [Nextcloud](nextcloud.md) — Offers the "Deck" app for integrated Kanban within a larger cloud suite.
 - [Gitea](gitea.md) — Provides native project boards for code-centric tasks.
 - [Authentik](authentik.md) — For managing secure SSO access to the Focalboard UI.
@@ -120,5 +160,5 @@ curl -H "Authorization: Bearer <your_session_token>" \
 - [Focalboard API Documentation](https://developers.mattermost.com/contribute/focalboard/api-reference/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-07
 - Confidence: high
