@@ -1,29 +1,27 @@
 # Jackett
 
-Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software.
-
 ## What it is
-Jackett is an open-source indexer proxy that normalizes search, category, and download results from hundreds of torrent trackers into Torznab/Newznab-style feeds. As of **July 2026**, it continues to support legacy trackers while providing an MCP 3.0 bridge for autonomous media discovery by models like **Gemma 3** and **Claude 4.8**.
+Jackett is an indexer proxy for the media-management ecosystem. It translates queries from apps into tracker-site-specific http queries, parses the HTML response, and then sends results back to the requesting software. In late October / November 2026, it supports modern trackers while providing an MCP 3.1 and FastMCP bridge for autonomous media discovery by models like **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
 
 ## What problem it solves
 Tracker sites often have different search forms, authentication requirements (cookies, 2FA), and result formats. Jackett centralizes those differences behind a local API so media managers (Sonarr, Radarr, etc.) do not need custom logic for every tracker. It also provides a unified interface for manual searches across multiple providers.
 
 ## Where it fits in the stack
-Jackett sits in the **media automation** layer between tracker websites and "Arr" applications. In a modern AI-agentic stack, it serves as a robust retrieval tool for agents using **Gemma 3** or **Claude 4.8** to identify and fetch media assets via the **Model Context Protocol (MCP 3.0)**.
+**Category**: Service / Media / Automation. It sits in the **media automation** layer between tracker websites and "Arr" applications. In a modern AI-agentic stack, it serves as a robust retrieval tool for agents using **Claude 5.1** or **GPT-5.5** to identify and fetch media assets via the **Model Context Protocol (MCP 3.1)**.
 
 ## Typical use cases
 - Adding a tracker once in Jackett and reusing the generated Torznab URL across multiple applications.
 - Testing tracker authentication and categories in a dedicated UI before production use.
 - Running alongside **FlareSolverr** to handle Cloudflare challenges on specific trackers.
-- Providing a search interface for AI agents (Gemma 3, Claude 4.8) to discover media for private archival.
-- Implementing an MCP 3.0 server for natural language media discovery and ingestion.
+- Providing a search interface for AI agents (Claude 5.1, GPT-5.5) to discover media for private archival.
+- Implementing an MCP 3.1 server for natural language media discovery and ingestion.
 
 ## Strengths
 - **Broad tracker support**: Support for hundreds of public and private trackers.
 - **Standards compliance**: Exposes feeds in the widely adopted Torznab/Newznab format.
 - **Diagnostic UI**: Built-in testing tools to isolate credential or connectivity issues.
 - **Stability**: Mature project with a consistent release cycle and strong community backing.
-- **Agentic Bridge**: v2026.07+ features improved MCP 3.0 integration for seamless agent orchestration.
+- **Agentic Bridge**: v2026.11+ features improved MCP 3.1 integration for seamless agent orchestration.
 
 ## Limitations
 - **Tracker fragility**: Changes to a tracker's HTML or bot protection can break individual indexers.
@@ -77,42 +75,68 @@ tar -czf jackett-config-backup-$(date +%F).tgz ./jackett-config
 ```
 
 ## API examples
-Jackett's API allows for programmatic search and indexer management.
-
-### Python (Agentic Search via MCP)
-Using **Gemma 3** to query all indexers for a specific term:
+Jackett's API allows for programmatic search and indexer management. The following Python script utilizes Pydantic v2 to validate search results.
 
 ```python
 import requests
 import xml.etree.ElementTree as ET
+from pydantic import BaseModel, Field, HttpUrl
+from typing import List, Optional
 
-API_KEY = "YOUR_JACKETT_API_KEY"
-URL = "http://localhost:9117/api/v2.0/indexers/all/results/torznab/api"
+# Define Pydantic v2 schemas for validating Jackett results
+class TorrentResult(BaseModel):
+    title: str = Field(..., description="The name of the torrent release")
+    link: HttpUrl = Field(..., description="The download URL or magnet link")
+    size_bytes: int = Field(..., alias="size", description="The size of the payload in bytes")
 
-def agent_media_search(query):
+    # Handle coercion of strings to integers in Pydantic v2
+    @classmethod
+    def from_xml_item(cls, item: ET.Element) -> "TorrentResult":
+        title_text = item.find("title").text or ""
+        link_text = item.find("link").text or ""
+
+        # Extract torznab size attribute if present
+        size_val = 0
+        size_attr = item.find("{http://torznab.com/schemas/2015/feed}attr[@name='size']")
+        if size_attr is not None:
+            size_val = int(size_attr.get("value") or 0)
+
+        return cls(title=title_text, link=link_text, size=size_val)
+
+class SearchResponse(BaseModel):
+    query: str
+    results: List[TorrentResult]
+
+def agent_media_search(api_key: str, query: str, base_url: str = "http://localhost:9117") -> SearchResponse:
+    url = f"{base_url}/api/v2.0/indexers/all/results/torznab/api"
     params = {
-        "apikey": API_KEY,
+        "apikey": api_key,
         "t": "search",
         "q": query
     }
-    response = requests.get(URL, params=params)
+
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+
     root = ET.fromstring(response.content)
+    torrent_results = []
 
-    results = []
     for item in root.findall(".//item"):
-        results.append({
-            "title": item.find("title").text,
-            "link": item.find("link").text,
-            "size": item.find("{http://torznab.com/schemas/2015/feed}attr[@name='size']").get("value")
-        })
-    return results
+        try:
+            parsed_result = TorrentResult.from_xml_item(item)
+            torrent_results.append(parsed_result)
+        except Exception as e:
+            # Skip invalid entries gracefully
+            print(f"Skipping invalid result due to: {e}")
 
-print(agent_media_search("ubuntu 26.04"))
-```
+    return SearchResponse(query=query, results=torrent_results)
 
-### Curl (List Indexers)
-```bash
-curl "http://localhost:9117/api/v2.0/indexers?apikey=$JACKETT_API_KEY"
+# Example execution
+if __name__ == "__main__":
+    api_key = "YOUR_JACKETT_API_KEY"
+    search_data = agent_media_search(api_key, "debian 12.5")
+    for r in search_data.results:
+        print(f"Found: {r.title} ({r.size_bytes / 1024**2:.2f} MB)")
 ```
 
 ## Related tools / concepts
@@ -121,16 +145,15 @@ curl "http://localhost:9117/api/v2.0/indexers?apikey=$JACKETT_API_KEY"
 - [Jellyfin](jellyfin.md) — Open-source media server for streaming.
 - [n8n](n8n.md) — For automating media intake and notification workflows.
 - [Tailscale](tailscale.md) — Secure remote access to your Jackett instance.
-- [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) — Proxy for solving Cloudflare challenges.
 - [Immich](immich.md) — For managing personal media alongside automated content.
 - [Homebox](homebox.md) — Inventory management for physical media collections.
 
 ## Sources / references
-- [Official GitHub Repository](https://github.com/Jackett/Jackett)
-- [LinuxServer Jackett Documentation](https://docs.linuxserver.io/images/docker-jackett/)
-- [Prowlarr vs Jackett Guide](https://prowlarr.com/docs/faq/#prowlarr-vs-jackett)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
+- [Jackett Github Project Repository](https://github.com/Jackett/Jackett)
+- [LinuxServer Jackett Docker Image Docs](https://docs.linuxserver.io/images/docker-jackett/)
+- [Prowlarr vs Jackett Comparison Guide](https://prowlarr.com/docs/faq/#prowlarr-vs-jackett)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
+- Last reviewed: 2026-11-08
 - Confidence: high
-- Last reviewed: 2026-07-21

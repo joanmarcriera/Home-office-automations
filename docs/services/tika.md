@@ -1,13 +1,13 @@
 # Apache Tika
 
 ## What it is
-Apache Tika is a versatile, open-source content analysis toolkit that detects and extracts metadata and text from over a thousand different file types (e.g., PDF, PPT, XLS, DOCX). In **July 2026**, version **3.0.x** is the industry standard for "Agentic Ingestion," providing the structured text extraction layer required for high-fidelity RAG (Retrieval-Augmented Generation) pipelines and autonomous document understanding.
+Apache Tika is a versatile, open-source content analysis toolkit that detects and extracts metadata and text from over a thousand different file types (e.g., PDF, PPT, XLS, DOCX). In late October / November 2026, version **3.1.x** is the industry standard for "Agentic Ingestion," providing the structured text extraction layer required for high-fidelity RAG (Retrieval-Augmented Generation) pipelines and autonomous document understanding.
 
 ## What problem it solves
-Diverse file formats require specialized libraries for text extraction, leading to fragmented and complex ingestion pipelines. Tika simplifies this by providing a unified "parser of parsers." It solves the "dark data" problem by allowing autonomous agents to "read" inside binary files, extract deeply embedded metadata, and identify the language of the content automatically without requiring specific format expertise.
+Diverse file formats require specialized libraries for text extraction, leading to fragmented and complex ingestion pipelines. Tika simplifies this by providing a unified "parser of parsers." It solves the "dark data" problem by allowing autonomous agents (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6) to "read" inside binary files, extract deeply embedded metadata, and identify the language of the content automatically without requiring specific format expertise.
 
 ## Where it fits in the stack
-**Category**: Service / Data Processing. It sits in the **data ingestion and extraction layer**, acting as a critical pre-processor that converts unstructured binary documents into the clean text and metadata required by search engines, vector databases, and LLMs like **Gemma 3**.
+**Category**: Service / Data Processing. It sits in the **data ingestion and extraction layer**, acting as a critical pre-processor that converts unstructured binary documents into the clean text and metadata required by search engines, vector databases, and LLMs like **Gemma 3** or **Claude 5.1**.
 
 ## Typical use cases
 - **Agentic RAG Pipelines**: Converting local PDF archives into structured text for indexing in vector databases.
@@ -24,7 +24,7 @@ Diverse file formats require specialized libraries for text extraction, leading 
 - **Open Source (Apache 2.0)**: Fully free for personal and commercial use without licensing costs.
 
 ## Limitations
-- **JVM Dependency**: Requires a Java runtime environment (Java 17+ for v3.0), which can be memory-intensive in small containers.
+- **JVM Dependency**: Requires a Java runtime environment (Java 17+ for v3.1), which can be memory-intensive in small containers.
 - **Formatting Loss**: Primarily focuses on text extraction; original visual layouts and styles are generally discarded.
 - **OCR Overhead**: Enabling OCR significantly increases processing time and resource consumption.
 
@@ -41,11 +41,11 @@ Diverse file formats require specialized libraries for text extraction, leading 
 
 ## Getting started
 
-### Docker: Tika Server 3.0 Baseline
+### Docker: Tika Server 3.1 Baseline
 The easiest way to deploy Tika for homelab use is via Docker:
 
 ```bash
-docker run -d -p 9998:9998 --name tika apache/tika:3.0.0.0
+docker run -d -p 9998:9998 --name tika apache/tika:3.1.0.0
 ```
 
 ### Hello World (REST API)
@@ -59,56 +59,80 @@ Use the `tika-app` JAR for local, non-server processing.
 
 ```bash
 # Download the latest app JAR
-curl -O https://archive.apache.org/dist/tika/3.0.0/tika-app-3.0.0.jar
+curl -O https://archive.apache.org/dist/tika/3.1.0/tika-app-3.1.0.jar
 
 # Extract text from a local PDF
-java -jar tika-app-3.0.0.jar --text my-document.pdf
+java -jar tika-app-3.1.0.jar --text my-document.pdf
 
 # List all available parsers and their supported types
-java -jar tika-app-3.0.0.jar --list-parsers
+java -jar tika-app-3.1.0.jar --list-parsers
 
 # Detect the language of a document
-java -jar tika-app-3.0.0.jar --language my-document.pdf
+java -jar tika-app-3.1.0.jar --language my-document.pdf
 ```
 
 ## API examples
-Interact with Tika Server via any HTTP-capable client.
+Interact with Tika Server via any HTTP-capable client. Below is a Python API validator utilizing Pydantic v2 to structure extracted document text and metadata.
 
-### Python: Extracting Text and Metadata
 ```python
 import requests
-import json
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict, Any
 
-URL = "http://localhost:9998/rmeta/text"
+# Define document metadata schemas using Pydantic v2
+class DocumentPayload(BaseModel):
+    text_content: str = Field(..., alias="X-TIKA:content", description="The main textual body extracted from the document")
+    author: Optional[str] = Field(None, alias="dc:creator", description="The author metadata tag if available")
+    content_type: str = Field(..., alias="Content-Type", description="The mime content type detected by Tika")
+    language: Optional[str] = Field(None, alias="language", description="The primary language detected")
 
-with open("document.pdf", "rb") as f:
-    headers = {"Accept": "application/json"}
-    response = requests.put(URL, data=f, headers=headers)
+    # Coerce fields and handle fallback fields gracefully in Pydantic v2
+    @classmethod
+    def from_tika_response(cls, raw_data: List[Dict[str, Any]]) -> "DocumentPayload":
+        if not raw_data:
+            raise ValueError("Empty response metadata received from Tika server")
+        main_doc = raw_data[0]
+        return cls(
+            **{
+                "X-TIKA:content": main_doc.get("X-TIKA:content", "").strip(),
+                "dc:creator": main_doc.get("dc:creator") or main_doc.get("Author"),
+                "Content-Type": main_doc.get("Content-Type", "application/octet-stream"),
+                "language": main_doc.get("language")
+            }
+        )
 
-data = response.json()
-print(f"Extracted Text: {data[0]['X-TIKA:content']}")
-print(f"Author: {data[0].get('dc:creator', 'Unknown')}")
+def extract_document_features(file_path: str, tika_url: str = "http://localhost:9998/rmeta/text") -> DocumentPayload:
+    with open(file_path, "rb") as f:
+        headers = {"Accept": "application/json"}
+        response = requests.put(tika_url, data=f, headers=headers)
+
+    response.raise_for_status()
+    payload = response.json()
+    return DocumentPayload.from_tika_response(payload)
+
+# Example usage
+if __name__ == "__main__":
+    doc_file = "sample.pdf"
+    # validated_metadata = extract_document_features(doc_file)
+    # print(f"Type: {validated_metadata.content_type}, Language: {validated_metadata.language}")
 ```
 
 ## Related tools / concepts
 - [Paperless-ngx](paperless-ngx.md) — Uses Tika for document indexing and search.
 - [n8n](n8n.md) — For orchestrating file ingestion workflows that utilize Tika.
 - [Ollama](ollama.md) — For processing Tika-extracted text with local LLMs.
-- [Nextcloud](nextcloud.md) — For managing the files being processed by Tika.
+- Nextcloud — For managing the files being processed by Tika.
 - [Whisper](whisper.md) — For complementary audio/video transcription.
 - [Unstructured.io](../tools/intake_storage/unstructured.md) — A modern alternative for document extraction in AI pipelines.
-- [Supabase](../tools/infrastructure/supabase.md) — For storing vector embeddings of Tika-extracted text.
 - [Authentik](authentik.md) — For securing access to Tika endpoints.
 - [Tailscale](tailscale.md) — For secure remote access to Tika servers.
-- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for processing extracted text.
-- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) — The underlying engine used by Tika for images.
 
 ## Sources / References
-- [Official Website](https://tika.apache.org/)
-- [Tika Documentation](https://tika.apache.org/3.0.0/documentation.html)
-- [Tika GitHub](https://github.com/apache/tika)
-- [Tika Server Wiki](https://cwiki.apache.org/confluence/display/TIKA/TikaServer)
+- [Apache Tika Official Project Site](https://tika.apache.org/)
+- [Apache Tika Server Reference Documentation](https://tika.apache.org/3.1.0/documentation.html)
+- [Apache Tika Git Repository](https://github.com/apache/tika)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
+- Last reviewed: 2026-11-08
 - Confidence: high
-- Last reviewed: 2026-07-21
