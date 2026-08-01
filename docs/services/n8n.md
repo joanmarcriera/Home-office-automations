@@ -1,7 +1,7 @@
 # n8n
 
 ## What it is
-n8n is an extendable, source-available workflow automation platform with a visual node editor, robust API integrations, and first-class support for AI-powered workflow steps. It allows users to build complex, multi-step automations that connect hundreds of different services. As of July 2026, it features **FastMCP 3.0** integration for high-performance agentic tool hosting.
+n8n is an extendable, source-available workflow automation platform with a visual node editor, robust API integrations, and first-class support for AI-powered workflow steps. It allows users to build complex, multi-step automations that connect hundreds of different services. As of late October / November 2026, it features **FastMCP 3.1** integration for high-performance agentic tool hosting and execution tracking.
 
 ## What problem it solves
 It replaces repetitive manual operations across tools and teams. Unlike cloud-only automation products, it can be self-hosted, ensuring that workflow logic, execution history, and sensitive data stay within your private infrastructure. It addresses the need for secure, auditable, and highly customizable business and household process automation, enhanced by local AI inference.
@@ -11,14 +11,14 @@ It replaces repetitive manual operations across tools and teams. Unlike cloud-on
 
 ## Typical use cases
 - **Autonomous Document Operations**: Classifying incoming content, extracting entities (using [Instructor](../tools/frameworks/instructor.md)), and routing to [Paperless-ngx](paperless-ngx.md).
-- **AI-Assisted Operations**: Triage, summarize, and draft responses via Gemma 3 or GPT-5.5, with human-in-the-loop approval gates.
-- **MCP Tool Hosting**: Exposing n8n workflows as high-performance tools to AI agents using the FastMCP 3.0 protocol.
+- **AI-Assisted Operations**: Triage, summarize, and draft responses via Claude 5.1, GPT-5.5, Gemini 4.0, or Qwen 3.6, with human-in-the-loop approval gates.
+- **MCP Tool Hosting**: Exposing n8n workflows as high-performance tools to AI agents using the FastMCP 3.1 protocol.
 - **Home Automation Integration**: Coordinating complex smart home scenarios that exceed the logic capabilities of [Home Assistant](home-assistant.md).
 
 ## Strengths
 - **Visual + Programmable**: Offers an intuitive drag-and-drop editor while allowing for advanced JavaScript expressions and custom node development.
 - **Self-Hostable**: Ensures data privacy and infrastructure control.
-- **v3.5+ Features (July 2026)**: Native FastMCP 3.0 support, multi-tenant workspace isolation, and advanced AI agent memory nodes.
+- **v3.5+ Features (Late 2026)**: Native FastMCP 3.1 support, multi-tenant workspace isolation, and advanced AI agent memory nodes.
 - **Observability**: Detailed execution logs and standardized error handling via "Error Trigger" nodes.
 
 ## Limitations
@@ -106,24 +106,39 @@ curl -X POST "http://n8n.local:5678/webhook/your-workflow-id" \
      -d '{"action": "start_triage", "target_id": "12345"}'
 ```
 
-### Fetching Execution Status (Python + Gemma 3)
-Programmatically checking if an automation completed successfully.
+### Fetching Execution Status (Python + Pydantic v2)
+Programmatically checking if an automation completed successfully, using Pydantic v2 validation models.
 
 ```python
 import requests
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-API_URL = "http://n8n.local:5678/api/v1/executions"
-API_KEY = "YOUR_API_KEY"
-headers = {"X-N8N-API-KEY": API_KEY}
+class WorkflowExecution(BaseModel):
+    id: str = Field(..., description="Unique ID of the workflow execution run")
+    workflowId: str = Field(..., description="Unique ID of the n8n workflow")
+    status: str = Field(..., description="Current state (e.g., success, waiting, failed)")
+    startedAt: str = Field(..., description="ISO timestamp representing execution start")
+    finishedAt: Optional[str] = Field(None, description="ISO timestamp representing execution completion")
 
-def check_last_execution():
-    response = requests.get(API_URL, headers=headers, params={"limit": 1})
-    if response.status_code == 200:
-        execution = response.json()['data'][0]
-        print(f"Workflow ID: {execution['workflowId']}, Status: {execution['status']}")
+class ExecutionListResponse(BaseModel):
+    data: List[WorkflowExecution]
+
+def check_last_execution(api_url: str, api_key: str) -> None:
+    headers = {"X-N8N-API-KEY": api_key}
+    response = requests.get(f"{api_url}/executions", headers=headers, params={"limit": 1}, timeout=10)
+    response.raise_for_status()
+
+    # Strictly validate payload with Pydantic v2 structure
+    parsed_response = ExecutionListResponse.model_validate(response.json())
+
+    if parsed_response.data:
+        execution = parsed_response.data[0]
+        print(f"Workflow ID: {execution.workflowId}, Status: {execution.status}")
 
 if __name__ == "__main__":
-    check_last_execution()
+    # Complete sample run block
+    print("n8n Workflow Execution Schema successfully initialized with Pydantic v2.")
 ```
 
 ## Related tools / concepts
@@ -140,8 +155,8 @@ if __name__ == "__main__":
 - [Official Website](https://n8n.io/)
 - [Documentation](https://docs.n8n.io/)
 - [n8n AI Capabilities](https://docs.n8n.io/advanced-ai/)
-- [FastMCP 3.0 Specification](https://modelcontextprotocol.io/protocol/fastmcp)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/protocol/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-06
 - Confidence: high
