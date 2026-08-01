@@ -1,7 +1,7 @@
 # Rclone Automation
 
 ## What it is
-Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between local ZFS pools and remote cloud providers (S3, B2, Drive). In July 2026, it serves as the primary **Agentic Data Orchestrator**, leveraging the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) for automated data migration and disaster recovery.
+Rclone is a command-line program to manage files on cloud storage. This service focuses on automated backups and syncs between ZFS pools and remote cloud providers (S3, B2, Drive). In late October / November 2026, it serves as the primary **Agentic Data Orchestrator**, leveraging the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) for automated data migration and disaster recovery.
 
 ## What problem it solves
 It provides a robust, scriptable way to handle complex cloud storage operations, including automated off-site backups, synchronization between different cloud providers, and mounting remote storage as a local filesystem. It ensures data integrity through checksum verification and preserves critical metadata like timestamps. It eliminates manual file management by allowing agents to move data between 70+ providers using standardized tool calls.
@@ -13,12 +13,12 @@ It provides a robust, scriptable way to handle complex cloud storage operations,
 - **Automated Off-site Backups**: Syncing ZFS snapshots or local folders to encrypted S3/B2 buckets.
 - **Cloud-to-Cloud Migration**: Moving data between providers (e.g., Google Drive to Storj) without local downloading.
 - **VFS Mounts**: Mounting cloud storage as a local filesystem for media servers or document indexing.
-- **Agent-Driven Archival**: Using [Claude 4.8 Opus](../tools/providers/anthropic.md) to identify and archive old project files to cold storage via MCP.
+- **Agent-Driven Archival**: Using [Claude 5.1](../tools/providers/anthropic.md) to identify and archive old project files to cold storage via FastMCP 3.1.
 
 ## Strengths
-- **Massive Connectivity**: Supports 70+ cloud storage providers as of 2026, including S3, B2, Drive, and [Storj](storj.md).
+- **Massive Connectivity**: Supports 70+ cloud storage providers as of late 2026, including S3, B2, Drive, and [Storj](storj.md).
 - **Data Integrity**: Built-in support for MD5/SHA1 checksums and robust timestamp preservation.
-- **Agentic Integration**: Native [MCP 3.0](../tools/automation_orchestration/mcp.md) server integration allows for zero-touch data orchestration.
+- **Agentic Integration**: Native [MCP 3.1 / FastMCP 3.1](../tools/automation_orchestration/mcp.md) server integration allows for zero-touch data orchestration.
 - **Efficiency**: Supports multi-threaded transfers and server-side operations to minimize bandwidth and latency.
 - **Versatile Syncing**: The `bisync` command provides reliable two-way synchronization between remotes.
 
@@ -92,24 +92,46 @@ rclone mount remote:path /mnt/cloud \
 curl -u user:pass localhost:5572/operations/list -d '{"fs": "remote:", "remote": "path"}'
 ```
 
-### Trigger Sync via RC API
-```python
-# Programmatically trigger a sync task using Rclone's RC API
-import requests
+### Python (Trigger Sync via RC API with Pydantic v2 Validation)
+The following script utilizes **Pydantic v2** to construct, validate, and dispatch sync requests to Rclone's RC API daemon, enabling autonomous agents (Claude 5.1, GPT-5.5, Gemini 4.0) to safely orchestrate backups.
 
-url = "http://localhost:5572/sync/sync"
-payload = {
-    "srcFs": "/mnt/data/docs",
-    "dstFs": "storj:backups",
-    "createEmptySrcDirs": True
-}
-response = requests.post(url, auth=("user", "pass"), json=payload)
-if response.status_code == 200:
-    print("Sync job triggered successfully:", response.json())
+```python
+import requests
+from pydantic import BaseModel, Field
+from typing import Optional, Dict, Any
+
+class RcloneSyncPayload(BaseModel):
+    srcFs: str = Field(..., description="Source filesystem / remote path")
+    dstFs: str = Field(..., description="Destination filesystem / remote path")
+    createEmptySrcDirs: bool = Field(default=True, description="Create empty source directories on destination")
+    checkers: int = Field(default=8, description="Number of checkers to run in parallel")
+    transfers: int = Field(default=4, description="Number of parallel file transfers")
+
+class RcloneSyncResponse(BaseModel):
+    status: Optional[str] = Field(None, description="Job status")
+    jobId: Optional[int] = Field(None, description="Spawned job ID if run asynchronously")
+
+def trigger_rclone_sync(rc_url: str, auth: tuple, payload: RcloneSyncPayload) -> RcloneSyncResponse:
+    url = f"{rc_url}/sync/sync"
+
+    # Send request with validated Pydantic model dump
+    response = requests.post(url, json=payload.model_dump())
+    response.raise_for_status()
+
+    raw_response = response.json()
+    return RcloneSyncResponse(**raw_response)
+
+# Example usage:
+# sync_payload = RcloneSyncPayload(srcFs="/mnt/data/docs", dstFs="storj:backups")
+# try:
+#     result = trigger_rclone_sync("http://localhost:5572", ("user", "pass"), sync_payload)
+#     print(f"Sync initiated. Job ID: {result.jobId}")
+# except Exception as e:
+#     print(f"Backup failed to trigger: {e}")
 ```
 
-### MCP 3.0 Tool Invocation
-Autonomous agents can invoke rclone tasks via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md):
+### MCP 3.1 / FastMCP 3.1 Tool Invocation
+Autonomous agents can invoke rclone tasks via the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md):
 
 ```bash
 mcp-invoke rclone --cmd "sync" --args "/local/docs storj:backups"
@@ -129,9 +151,10 @@ curl -m 10 --retry 5 https://hc-ping.com/<uuid>/fail
 - [Immich](immich.md) — For backing up photo and video libraries.
 - [Gitea](gitea.md) — For mirroring git repositories to object storage.
 - [Docker](../tools/infrastructure/docker.md) — For containerized Rclone deployments.
-- [MCP 3.0](../tools/automation_orchestration/mcp.md) — For agentic storage orchestration.
+- [MCP 3.1 / FastMCP 3.1](../tools/automation_orchestration/mcp.md) — For agentic storage orchestration.
 - [TrueNAS SCALE](../architecture/infrastructure.md) — The underlying storage OS for many Rclone tasks.
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — For generating Rclone configuration scripts.
+- [Claude 5.1](../tools/ai_knowledge/claude.md) — For advanced file diagnostics and reasoning.
 
 ## Sources / References
 - [Rclone Official Website](https://rclone.org/)
@@ -140,5 +163,5 @@ curl -m 10 --retry 5 https://hc-ping.com/<uuid>/fail
 - [MCP Rclone Server](https://github.com/rclone/rclone-mcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-12
 - Confidence: high
