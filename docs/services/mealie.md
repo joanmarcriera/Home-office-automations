@@ -3,7 +3,7 @@
 Mealie is a self-hosted recipe manager and meal planner with a REST API backend and a modern, reactive frontend.
 
 ## What it is
-Mealie is a comprehensive culinary management system that allows users to import recipes from the web, organize their collection, create meal plans, and generate shopping lists in a centralized, private environment. As of July 2026, it features native integration with **Claude 4.8** and **Gemma 3** for AI-powered recipe scaling, nutrition analysis, and autonomous grocery orchestration via **MCP 3.0**.
+Mealie is a comprehensive culinary management system that allows users to import recipes from the web, organize their collection, create meal plans, and generate shopping lists in a centralized, private environment. As of late October / November 2026, it features native integration with frontier models including **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, **Gemma 3**, and **Qwen 3.6** for AI-powered recipe scaling, nutrition analysis, and autonomous grocery orchestration via **MCP 3.1 / FastMCP**.
 
 ## What problem it solves
 Keeping track of digital recipes often involves scattered bookmarks, screenshots, or reliance on third-party SaaS platforms filled with ads and tracking. Mealie solves this by providing a unified, self-hosted vault where recipes are parsed into a clean, consistent format, making them easy to search, scale, and plan for the week.
@@ -16,12 +16,12 @@ Keeping track of digital recipes often involves scattered bookmarks, screenshots
 - **Weekly Meal Planning**: Planning breakfast, lunch, and dinner for the household using a visual calendar.
 - **Automated Shopping Lists**: Generating consolidated shopping lists based on a weekly meal plan.
 - **Recipe Scaling**: Automatically adjusting ingredient quantities for different serving sizes using [Gemma 3](../tools/ai_knowledge/local_llms.md).
-- **AI Ingredient Extraction**: Using [Claude 4.8](../tools/providers/anthropic.md) or GPT-5.5 to extract ingredients from unstructured text or voice notes.
+- **AI Ingredient Extraction**: Using [Claude 5.1](../tools/providers/anthropic.md) or GPT-5.5 to extract ingredients from unstructured text or voice notes.
 
 ## Strengths
 - **Superior Parsing**: Highly accurate recipe scraping from almost any URL using the `recipe-scrapers` library.
 - **Mobile Friendly**: The web interface is fully responsive and behaves like a native app on mobile devices.
-- **Extensive API**: Every feature is exposed via a REST API and [MCP 3.0](../tools/automation_orchestration/mcp.md) server, enabling deep integration with other home automation tools.
+- **Extensive API**: Every feature is exposed via a REST API and [MCP 3.1](../tools/automation_orchestration/mcp.md) server, enabling deep integration with other home automation tools.
 - **Multi-User**: Supports multiple users with shared or private recipe collections and meal plans.
 - **AI Video Import**: Supports recipe imports from YouTube and TikTok via transcription and analysis.
 
@@ -44,7 +44,7 @@ Keeping track of digital recipes often involves scattered bookmarks, screenshots
 ## Getting started
 
 ### Installation (Docker Compose)
-Mealie v3.19.0 (July 2026) supports both SQLite and PostgreSQL backends and features an integrated **MCP 3.0** server.
+Mealie v3.22.0 (late October / November 2026) supports both SQLite and PostgreSQL backends and features an integrated **MCP 3.1** server.
 
 ```yaml
 services:
@@ -70,15 +70,15 @@ services:
       - DEFAULT_HOUSEHOLD=Family
 ```
 
-## Groups and Households
+### Groups and Households
 Mealie utilizes a two-tier user model for multi-tenant or multi-family deployments:
 - **Groups**: Isolated tenants (no shared data between groups).
 - **Households**: Subdivisions within a group. Members share recipes but have separate meal plans and shopping lists.
 
-## AI Video Import (YouTube, TikTok)
+### AI Video Import (YouTube, TikTok)
 Mealie supports AI-powered recipe imports from social media videos using the [Whisper](whisper.md) model or cloud APIs.
 - **Workflow**: Paste a YouTube or TikTok URL into the import field.
-- **Backend**: Transcribes video and structures ingredients/steps using GPT-5.5 or [Claude 4.8](../tools/providers/anthropic.md).
+- **Backend**: Transcribes video and structures ingredients/steps using GPT-5.5 or [Claude 5.1](../tools/providers/anthropic.md).
 - **Setup**: Requires an API key configured in `Settings -> Integrations`.
 
 ## CLI examples
@@ -97,29 +97,46 @@ docker exec mealie tar -czf /app/data/mealie_backup.tar.gz /app/data/mealie.db
 
 ## API examples
 
-### Get all recipes (Python)
-Mealie provides a comprehensive API and **MCP 3.0** Task Protocol support.
-
-```python
-import requests
-
-MEALIE_URL = "http://localhost:9925/api"
-API_TOKEN = "your-api-token"
-
-headers = {
-    "Authorization": f"Bearer {API_TOKEN}"
-}
-
-response = requests.get(f"{MEALIE_URL}/recipes", headers=headers)
-if response.status_code == 200:
-    for recipe in response.json()['data']:
-        print(f"Recipe: {recipe['name']}, Rating: {recipe['rating']}")
-```
-
 ### Fetch a specific recipe (Curl)
 ```bash
 curl -H "Authorization: Bearer YOUR_API_TOKEN" \
      "http://localhost:9925/api/recipes/your-recipe-slug"
+```
+
+### Get all recipes and Pydantic Validation (Python)
+Mealie provides a comprehensive API and **MCP 3.1** Task Protocol support. Here is a Python example utilizing **Pydantic v2** to parse and validate Mealie's recipe data models:
+
+```python
+import requests
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class MealieRecipeModel(BaseModel):
+    """
+    Pydantic v2 model representing a Mealie recipe structure parsed from URLs
+    or created manually in the system.
+    """
+    name: str = Field(..., min_length=1, description="Name of the recipe")
+    slug: str = Field(..., description="Unique URL slug generated by Mealie")
+    description: Optional[str] = Field(None, description="Short summary or description")
+    recipe_yield: str = Field(..., description="Yield or servings of the recipe (e.g., '4 servings')")
+    ingredients: List[str] = Field(default_factory=list, description="List of raw ingredients")
+    steps: List[str] = Field(default_factory=list, description="Sequential preparation steps")
+    tags: List[str] = Field(default_factory=list, description="Organizational categories or tags")
+
+# Ingestion validation
+raw_recipe = {
+    "name": "Spaghetti Carbonara",
+    "slug": "spaghetti-carbonara",
+    "description": "Classic Roman pasta dish with eggs, hard cheese, cured pork, and black pepper.",
+    "recipe_yield": "4 servings",
+    "ingredients": ["400g Spaghetti", "150g Guanciale", "4 large Eggs", "75g Pecorino Romano", "Black Pepper"],
+    "steps": ["Boil pasta in salted water.", "Crisp guanciale in a pan.", "Whisk eggs and cheese together.", "Combine pasta, guanciale, and egg mixture off-heat.", "Serve with extra cheese and pepper."],
+    "tags": ["Pasta", "Italian", "Quick Dinner"]
+}
+
+recipe = MealieRecipeModel.model_validate(raw_recipe)
+print(f"Validated recipe: {recipe.name} ({recipe.recipe_yield}) with {len(recipe.ingredients)} ingredients.")
 ```
 
 ## Related tools / concepts
@@ -139,5 +156,5 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 - [Mealie MCP Server GitHub](https://github.com/mealie-recipes/mcp-server-mealie)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-06
 - Confidence: high
