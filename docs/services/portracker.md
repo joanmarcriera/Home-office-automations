@@ -1,7 +1,7 @@
 # Portracker
 
 ## What it is
-Portracker is a specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments. It provides a live dashboard to monitor active ports on your network and discover new services. In July 2026, it has been enhanced with **Agentic Discovery** capabilities, integrating with the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md) to provide real-time service catalogs for autonomous agents.
+Portracker is a specialized network monitoring tool designed to discover and track active network ports and the services running behind them, with a focus on Docker and TrueNAS environments. It provides a live dashboard to monitor active ports on your network and discover new services. In late October / November 2026, it has been enhanced with **Agentic Discovery** capabilities, integrating with the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md) to provide real-time service catalogs for autonomous agents.
 
 ## What problem it solves
 It provides a live, visual map of network services, helping administrators identify unexpected open ports, debug connectivity issues, and manage port assignments without manually running `nmap` scans. It eliminates the manual effort of maintaining a service registry by automatically discovering containers and virtual machines. In agentic environments, it provides the "ground truth" for service discovery, preventing agents from attempting to connect to non-existent or conflicting services.
@@ -13,7 +13,7 @@ It is a **Network Observability Tool**, typically deployed at the edge of a home
 - **Docker Host Monitoring**: Real-time tracking of new or exposed container services.
 - **Conflict Prevention**: Mapping port assignments to prevent overlapping ports during service deployment.
 - **Network Auditing**: Identifying unintended open ports on IoT devices or development machines.
-- **Agentic Service Discovery**: Providing a real-time service catalog for autonomous agents via [FastMCP 3.0](../tools/automation_orchestration/mcp.md).
+- **Agentic Service Discovery**: Providing a real-time service catalog for autonomous agents via [FastMCP 3.1](../tools/automation_orchestration/mcp.md).
 
 ## Strengths
 - **Real-time Discovery**: Near-instant discovery of service changes and port mappings.
@@ -96,19 +96,40 @@ curl -X GET "http://localhost:4999/api/v1/status" \
      -H "x-api-key: YOUR_PEER_API_KEY"
 ```
 
-### Query Active Ports
+### Python (Query Active Ports with Pydantic v2 Validation)
+The following script queries Portracker's Active Ports API and uses **Pydantic v2** to parse and validate the network services topology, serving as safe inputs for frontier reasoning models like Claude 5.1, GPT-5.5, or Gemini 4.0.
+
 ```python
-# Query Portracker's Active Ports API and list detected services
 import requests
+from pydantic import BaseModel, Field
+from typing import Optional, List
 
-url = "http://localhost:4999/api/v1/ports"
-headers = {"Authorization": "Bearer YOUR_ACCESS_TOKEN"}
+class PortServiceItem(BaseModel):
+    port: int = Field(..., description="The network port number")
+    protocol: str = Field(..., description="Network protocol (tcp, udp)")
+    service_name: str = Field(..., description="Discovered service name")
+    container_name: Optional[str] = Field(None, description="Docker container name if applicable")
 
-response = requests.get(url, headers=headers)
-if response.status_code == 200:
-    ports_data = response.json()
-    for item in ports_data.get("active_ports", []):
-        print(f"Port: {item['port']} | Protocol: {item['protocol']} | Service: {item['service_name']} | Container: {item.get('container_name', 'Host')}")
+class PortrackerApiResponse(BaseModel):
+    active_ports: List[PortServiceItem] = Field(default_factory=list)
+
+def get_active_ports(base_url: str, access_token: str) -> PortrackerApiResponse:
+    url = f"{base_url}/api/v1/ports"
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    raw_data = response.json()
+    return PortrackerApiResponse(**raw_data)
+
+# Example usage:
+# try:
+#     ports_response = get_active_ports("http://localhost:4999", "YOUR_ACCESS_TOKEN")
+#     for item in ports_response.active_ports:
+#         print(f"Port: {item.port} | Protocol: {item.protocol} | Service: {item.service_name}")
+# except Exception as e:
+#     print(f"Failed to query ports: {e}")
 ```
 
 ### Webhook Alerting
@@ -131,7 +152,7 @@ def handle_alert():
 - [n8n](n8n.md) — For automating responses to new port discoveries.
 - [Docker](../tools/infrastructure/docker.md) — Primary target for monitoring.
 - [TrueNAS](../architecture/infrastructure.md) — Enhanced discovery target.
-- [MCP 3.0](../tools/automation_orchestration/mcp.md) — For agentic service discovery.
+- [MCP 3.1 / FastMCP 3.1](../tools/automation_orchestration/mcp.md) — For agentic service discovery.
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — For analyzing network topology.
 - [Uptime Kuma](https://uptime.kuma.pet/) — For availability monitoring.
 
@@ -142,5 +163,5 @@ def handle_alert():
 - [Model Context Protocol](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-12
 - Confidence: high

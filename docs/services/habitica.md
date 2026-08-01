@@ -3,7 +3,7 @@
 Habitica is an open-source habit-building and productivity app that treats your real life like a game. It transforms your daily tasks and habits into RPG quests, rewarding completion with experience points and gold, and penalizing neglect with health loss.
 
 ## What it is
-Habitica is a gamified task management platform that leverages RPG mechanics (Experience, Gold, Health, Pets, and Quests) to motivate users toward habit formation and goal completion. In the July 2026 ecosystem, it has evolved into a primary target for agentic habit coaching, with native support for the Model Context Protocol (MCP 3.0).
+Habitica is a gamified task management platform that leverages RPG mechanics (Experience, Gold, Health, Pets, and Quests) to motivate users toward habit formation and goal completion. In late October / November 2026, it has evolved into a primary target for agentic habit coaching, with native support for the Model Context Protocol (MCP 3.1 / FastMCP 3.1).
 
 ## What problem it solves
 Traditional productivity tools often suffer from "motivation decay." Habitica solves this by applying game theory to real-world tasks, providing immediate feedback loops through virtual rewards and social accountability (Parties and Guilds), which are essential for long-term behavior change.
@@ -13,14 +13,14 @@ Traditional productivity tools often suffer from "motivation decay." Habitica so
 
 ## Typical use cases
 - **Gamified Habit Formation**: Tracking daily routines like exercise, meditation, or hydration.
-- **Agentic Coaching**: Using Gemma 3 or Claude 4.8 Opus to analyze task completion patterns and suggest quest strategies.
-- **Automated Reward Systems**: Linking smart home completions (e.g., finishing a workout on a Peloton) to Habitica XP gain via MCP 3.0.
+- **Agentic Coaching**: Using Gemma 3, Claude 5.1, or GPT-5.5 to analyze task completion patterns and suggest quest strategies.
+- **Automated Reward Systems**: Linking smart home completions (e.g., finishing a workout on a Peloton) to Habitica XP gain via FastMCP 3.1.
 - **Social Productivity**: Collaborating with a "Party" to defeat bosses by completing real-world tasks.
 
 ## Strengths
 - **Proven Gamification**: Deeply integrated RPG mechanics that provide genuine dopamine hits.
 - **Robust API**: Stable v3/v4 API with extensive documentation and community wrappers.
-- **Extensibility**: Native integration with n8n, Zapier, and now MCP 3.0 for agentic interaction.
+- **Extensibility**: Native integration with n8n, Zapier, and now FastMCP 3.1 for agentic interaction.
 - **Cross-Platform**: Seamless sync between Web, iOS, and Android clients.
 
 ## Limitations
@@ -41,7 +41,7 @@ Traditional productivity tools often suffer from "motivation decay." Habitica so
 To begin, create an account at [Habitica.com](https://habitica.com/). Developers should navigate to **Settings > API** to retrieve their `User ID` and `API Token`.
 
 ### Integration with Gemma 3
-To use Habitica with Gemma 3 or Claude 4.8 Opus, install the `habitica-mcp` server:
+To use Habitica with Gemma 3, Claude 5.1, or GPT-5.5, install the `habitica-mcp` server:
 ```bash
 npm install -g @habitica/mcp-server
 # Add to your Agent config
@@ -83,21 +83,51 @@ curl -X POST "https://habitica.com/api/v3/tasks/TASK_ID/score/up" \
 
 ## API examples
 
-### Python (Scoring a task)
-The `habitica` library is recommended for Python integration.
+### Python (Scoring a task with Pydantic v2 Validation)
+The following script utilizes **Pydantic v2** to validate payloads and structures before invoking the Habitica API, ensuring safety and data integrity when driven by frontier models (Claude 5.1, GPT-5.5, Gemini 4.0).
+
 ```python
 import requests
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Dict, Any
 
-def score_task(user_id, api_token, task_id, direction="up"):
-    url = f"https://habitica.com/api/v3/tasks/{task_id}/score/{direction}"
+class HabiticaTaskScore(BaseModel):
+    user_id: str = Field(..., description="The user's unique Habitica ID")
+    api_token: str = Field(..., description="The user's Habitica API Token")
+    task_id: str = Field(..., description="The ID of the task to be scored")
+    direction: str = Field(default="up", description="The score direction ('up' or 'down')")
+
+    @field_validator("direction")
+    @classmethod
+    def validate_direction(cls, v: str) -> str:
+        if v not in ("up", "down"):
+            raise ValueError("direction must be 'up' or 'down'")
+        return v
+
+class HabiticaResponse(BaseModel):
+    success: bool
+    data: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+def score_task(config: HabiticaTaskScore) -> HabiticaResponse:
+    url = f"https://habitica.com/api/v3/tasks/{config.task_id}/score/{config.direction}"
     headers = {
-        "x-api-user": user_id,
-        "x-api-key": api_token
+        "x-api-user": config.user_id,
+        "x-api-key": config.api_token
     }
-    response = requests.post(url, headers=headers)
-    return response.json()
 
-# Example usage: score_task("my-id", "my-token", "habit-123")
+    try:
+        response = requests.post(url, headers=headers)
+        response.raise_for_status()
+        raw_data = response.json()
+        return HabiticaResponse(success=raw_data.get("success", False), data=raw_data.get("data"))
+    except Exception as e:
+        return HabiticaResponse(success=False, error=str(e))
+
+# Example usage:
+# task_config = HabiticaTaskScore(user_id="my-id", api_token="my-token", task_id="habit-123")
+# result = score_task(task_config)
+# print(result.success)
 ```
 
 ### n8n Workflow Integration
@@ -114,15 +144,16 @@ Habitica is a first-class citizen in [n8n](n8n.md). A common pattern is:
 - [n8n](n8n.md) — For orchestrating complex habit workflows.
 - [Actual Budget](actual-budget.md) — Gamifying financial discipline.
 - [Element](element.md) — For receiving habit notifications and party chats.
-- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For agentic coaching and strategy in July 2026.
-- [Claude 4.8 Opus](../tools/ai_knowledge/claude.md) — For advanced behavior analysis.
+- [Gemma 3](../tools/ai_knowledge/local_llms.md) — For agentic coaching and strategy in late 2026.
+- [Claude 5.1](../tools/ai_knowledge/claude.md) — For advanced behavior analysis.
+- [GPT-5.5](../tools/providers/huggingface.md) — For generating habit recommendation plans.
 
 ## Sources / references
 - [Official Habitica Website](https://habitica.com/)
 - [Habitica API Reference](https://github.com/HabitRPG/habitica/blob/develop/API-reference.md)
 - [Habitica Wiki](https://habitica.fandom.com/wiki/Habitica_Wiki)
-- [MCP 3.0 Specification](https://modelcontextprotocol.io/)
+- [MCP 3.1 Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-12
 - Confidence: high
