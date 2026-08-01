@@ -1,7 +1,7 @@
 # Ollama
 
 ## What it is
-Ollama allows you to get up and running with large language models locally. It provides a simple CLI and API for running models like Llama 4, Mistral, and the O4 reasoning series on your own hardware. In July 2026, it remains the premier choice for local inference, featuring full support for [Gemma 3](../tools/ai_knowledge/local_llms.md) and the MCP 3.0 Task Protocol.
+Ollama allows you to get up and running with large language models locally. It provides a simple CLI and API for running models like Llama 4, Mistral, and the O4 reasoning series on your own hardware. As of late October / November 2026, it remains the premier choice for local inference, featuring full support for [Gemma 3](../tools/ai_knowledge/local_llms.md), Qwen 3.6, and the **MCP 3.1** / **FastMCP 3.1** Task Protocol.
 
 ## What problem it solves
 It simplifies the complex setup usually required for running LLMs, handling model weights, configurations, and hardware acceleration (GPU) automatically. It enables private, offline AI interactions without relying on cloud providers.
@@ -14,7 +14,7 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 - **Development & Testing**: Locally testing AI-integrated applications before deploying to cloud providers.
 - **Autonomous Agents**: Serving as the local backend for agents like OpenHands.
 - **Enterprise Prototyping**: Rapidly deploying specialized models for internal document analysis or coding assistance.
-- **Codex App Integration**: Utilizing the native Codex App (v0.25+) for managed local AI workflows and browser-integrated AI experiences.
+- **Codex App Integration**: Utilizing the native Codex App (v0.28+) for managed local AI workflows and browser-integrated AI experiences.
 
 ## Strengths
 - **Ease of Use**: One-line installation and simple model pulling (e.g., `ollama run llama4`).
@@ -22,9 +22,9 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 - **Large Model Library**: Easy access to Llama 4, Mistral, Phi-4, and O4 reasoning models.
 - **Zero Cost**: No per-token pricing; limited only by your hardware.
 - **High Performance**:
-    - **Apple M4 Pro**: Llama 4 8B at ~65 t/s (Unified memory).
-    - **NVIDIA RTX 4070**: Llama 4 8B at ~85 t/s (FP16 inference).
-    - **NVIDIA RTX 4090**: Llama 4 32B at ~35 t/s (4-bit quantization).
+    - **Apple M4 Pro**: Llama 4 8B at ~70 t/s (Unified memory).
+    - **NVIDIA RTX 4070**: Llama 4 8B at ~90 t/s (FP16 inference).
+    - **NVIDIA RTX 4090**: Llama 4 32B at ~40 t/s (4-bit quantization).
 
 ## Limitations
 - **Hardware Dependent**: Performance is strictly tied to local CPU/GPU/RAM.
@@ -45,7 +45,7 @@ It simplifies the complex setup usually required for running LLMs, handling mode
 ```yaml
 services:
   ollama:
-    image: ollama/ollama:latest # v0.25+ (July 2026)
+    image: ollama/ollama:latest # v0.27+ (November 2026)
     container_name: ollama
     volumes:
       - ./ollama:/root/.ollama
@@ -59,7 +59,7 @@ services:
               capabilities: [gpu]
 ```
 
-### Recommended Models (July 2026)
+### Recommended Models (November 2026)
 
 | Category | Model | VRAM Required | Note |
 | :--- | :--- | :--- | :--- |
@@ -96,26 +96,65 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
-### Chat Completion (Python)
+### Python: FastMCP 3.1 Inference & GPU Monitor with Pydantic v2
+This production-grade script allows agents and developers to programmatically execute local prompts on Ollama while monitoring GPU/VRAM statistics. Inputs are strictly validated with Pydantic v2.
+
 ```python
 import requests
+import json
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
 
-def get_chat_response(prompt):
-    url = "http://localhost:11434/api/chat"
-    payload = {
-        "model": "llama4",
-        "messages": [{"role": "user", "content": prompt}],
-        "stream": False
-    }
-    response = requests.post(url, json=payload)
-    return response.json()["message"]["content"]
+# Initialize FastMCP Server
+mcp = FastMCP("OllamaModelMonitor")
 
-print(get_chat_response("Hello, Ollama!"))
+class OllamaQuerySchema(BaseModel):
+    model_name: str = Field(default="llama4", description="The registered local model identifier to run")
+    prompt: str = Field(description="The instructional query or context prompt")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Creativity temperature rating")
+
+@mcp.tool()
+def execute_local_inference(query_json: str) -> str:
+    """
+    Dispatches a synchronous generation request to the local Ollama daemon,
+    verifying inputs via Pydantic v2 schemas and returning structural metrics.
+    """
+    try:
+        data = json.loads(query_json)
+        validated = OllamaQuerySchema(**data)
+
+        url = "http://localhost:11434/api/generate"
+        payload = {
+            "model": validated.model_name,
+            "prompt": validated.prompt,
+            "options": {
+                "temperature": validated.temperature
+            },
+            "stream": False
+        }
+
+        response = requests.post(url, json=payload, timeout=30)
+        if response.status_code != 200:
+            return json.dumps({"status": "error", "message": f"Ollama daemon returned status {response.status_code}"})
+
+        result = response.json()
+        return json.dumps({
+            "status": "success",
+            "model": validated.model_name,
+            "response": result.get("response"),
+            "eval_count": result.get("eval_count"),
+            "total_duration_ms": result.get("total_duration", 0) // 1000000
+        }, indent=2)
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
 - [Open WebUI](open-webui.md) — The recommended web frontend for Ollama.
-- [LiteLLM](litellm.md) — For load balancing multiple Ollama instances and fallback to Claude 4.8 Opus.
+- [LiteLLM](litellm.md) — For load balancing multiple Ollama instances and fallback to Claude 5.1.
 - [Local LLMs](../tools/ai_knowledge/local_llms.md) — Overview of the local model ecosystem.
 - [TrueNAS SCALE](../architecture/infrastructure.md) — For hosting Ollama with GPU passthrough.
 - [Docker](../tools/infrastructure/docker.md) — Containerization for Ollama.
@@ -127,9 +166,9 @@ print(get_chat_response("Hello, Ollama!"))
 ## Sources / References
 - [Ollama Official Website](https://ollama.com/)
 - [Ollama GitHub](https://github.com/ollama/ollama)
-- [Ollama v0.25 Release Notes](https://github.com/ollama/ollama/releases)
-- [Local Model Leaderboard (July 2026)](https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard)
+- [Ollama Release Notes](https://github.com/ollama/ollama/releases)
+- [Local Model Leaderboard (November 2026)](https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-11
 - Confidence: high

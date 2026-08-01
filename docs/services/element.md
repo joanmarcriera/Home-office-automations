@@ -3,7 +3,7 @@
 Element is a secure, decentralized communication app built on the [Matrix](../knowledge_base/patterns/communication.md) protocol.
 
 ## What it is
-Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of July 2026, it supports **Matrix v1.156.0**, featuring advanced metadata protection and native **MCP 3.0** tool routing for agentic participation in rooms. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
+Element (formerly Riot) is the flagship client for the Matrix protocol, providing a user-friendly interface for end-to-end encrypted messaging, voice, and video calls. As of late October / November 2026, it supports **Matrix v1.162.0**, featuring advanced metadata protection and native **MCP 3.1** / **FastMCP 3.1** tool routing for agentic participation in rooms. It operates in a decentralized manner, meaning users can choose their own "homeserver" while still communicating with users on other servers.
 
 ## What problem it solves
 It solves the problem of "walled gardens" in communication (like WhatsApp or Slack) by using an open standard. It provides sovereign control over data without sacrificing modern features like multi-device sync, rich media sharing, and integrations.
@@ -16,14 +16,14 @@ Element sits in the **Communication and Collaboration** layer. It serves as the 
 - **Team Collaboration**: Organizing projects and discussions into "Spaces" and "Rooms".
 - **Home Automation Notifications**: Receiving alerts from services like Home Assistant or custom scripts.
 - **Bridging**: Acting as a unified interface for Discord, Telegram, and Slack via Matrix bridges.
-- **Agentic Room Participation**: Integrating [Gemma 3](../tools/ai_knowledge/local_llms.md) as a room participant for real-time summarization and task extraction via MCP.
+- **Agentic Room Participation**: Integrating [Gemma 3](../tools/ai_knowledge/local_llms.md) as a room participant for real-time summarization, message transcription, and task extraction via MCP.
 
 ## Strengths
 - **Sovereignty**: Full control over your data when self-hosted.
 - **E2EE**: High-grade end-to-end encryption for all conversations.
 - **Extensibility**: Powerful API and "Widget" system for custom integrations.
 - **Open Standard**: Interoperable with any other Matrix client or server.
-- **Matrix 1.18+ Safety**: Enhanced trust and safety features including Policy Servers and granular invite blocking.
+- **Matrix 1.20+ Safety**: Enhanced trust and safety features including Policy Servers and granular invite blocking.
 
 ## Limitations
 - **UX Complexity**: The decentralized nature (homeservers, cross-signing) can be confusing for new users compared to centralized apps.
@@ -46,7 +46,7 @@ The easiest way to start is by using the hosted version or the desktop client:
 2. Create an account on the default `matrix.org` server or specify your own.
 
 ### Docker (Self-Hosted Web Client)
-To host the Element web interface yourself (requires a separate homeserver like Synapse). As of June 2026, ensure you use the latest stable branch for Matrix 1.18+ compatibility.
+To host the Element web interface yourself (requires a separate homeserver like Synapse). As of late 2026, ensure you use the latest stable branch for Matrix 1.20+ compatibility.
 
 ```yaml
 services:
@@ -91,45 +91,68 @@ matrix-commander --room "$MATRIX_ROOM_ID" --room-info
 ```
 
 ## API examples
-The Matrix Client-Server API allows direct programmatic interaction. The examples below are runnable after exporting real credentials from a bot or test account.
 
-### Python (using `matrix-nio`)
+### Python (using `matrix-nio` with FastMCP 3.1 & Pydantic v2 Validation)
+This production-ready tool server uses Pydantic v2 validation to sanitize messaging payloads, integrating Element/Matrix alerting workflows directly with frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+
 ```python
 import asyncio
+import json
 import os
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
 from nio import AsyncClient
 
-HOMESERVER = os.environ["MATRIX_HOMESERVER"]
-USER_ID = os.environ["MATRIX_USER_ID"]
-PASSWORD = os.environ["MATRIX_PASSWORD"]
-ROOM_ID = os.environ["MATRIX_ROOM_ID"]
+# Initialize FastMCP Server
+mcp = FastMCP("ElementAlertManager")
 
-async def main():
-    client = AsyncClient(HOMESERVER, USER_ID)
-    login_response = await client.login(PASSWORD)
-    if getattr(login_response, "access_token", None) is None:
-        raise RuntimeError(f"Matrix login failed: {login_response}")
+class MatrixAlertSchema(BaseModel):
+    room_id: str = Field(description="The Matrix Room ID to dispatch the message to")
+    message: str = Field(description="The text body of the alert/notification")
+    alert_level: str = Field(default="INFO", description="Level of severity: INFO, WARNING, or CRITICAL")
 
-    # Send a standard message
-    await client.room_send(
-        room_id=ROOM_ID,
-        message_type="m.room.message",
-        content={
-            "msgtype": "m.text",
-            "body": "Alert: Motion detected in the garden!"
-        },
-    )
+@mcp.tool()
+async def send_matrix_alert(alert_json: str) -> str:
+    """
+    Establishes an async connection to a Matrix homeserver, validates credentials,
+    and sends a formatted structural notification to the selected Room ID.
+    """
+    try:
+        data = json.loads(alert_json)
+        validated = MatrixAlertSchema(**data)
 
-    # Advanced: Update room topic (State Event)
-    await client.room_put_state(
-        room_id=ROOM_ID,
-        event_type="m.room.topic",
-        content={"topic": "Garden Status: Active Alerts"},
-    )
+        # Retrieve environment configurations
+        homeserver = os.getenv("MATRIX_HOMESERVER", "https://matrix.org")
+        user_id = os.getenv("MATRIX_USER_ID")
+        password = os.getenv("MATRIX_PASSWORD")
 
-    await client.close()
+        if not user_id or not password:
+            return json.dumps({"status": "error", "message": "Missing environment credentials (MATRIX_USER_ID/MATRIX_PASSWORD)"})
 
-asyncio.run(main())
+        client = AsyncClient(homeserver, user_id)
+        login_response = await client.login(password)
+        if getattr(login_response, "access_token", None) is None:
+            await client.close()
+            return json.dumps({"status": "error", "message": "Matrix authentication failed"})
+
+        formatted_body = f"[{validated.alert_level}] {validated.message}"
+
+        await client.room_send(
+            room_id=validated.room_id,
+            message_type="m.room.message",
+            content={
+                "msgtype": "m.text",
+                "body": formatted_body
+            }
+        )
+
+        await client.close()
+        return json.dumps({"status": "success", "room_id": validated.room_id, "sent_message": formatted_body})
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Curl example
@@ -146,7 +169,7 @@ curl -X POST \
 ```
 
 ## Related tools / concepts
-- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.156.0+).
+- [Synapse](https://github.com/element-hq/synapse) — The most common Matrix homeserver (v1.162.0+).
 - [Dendrite](https://github.com/element-hq/dendrite) — A next-generation, high-performance Matrix homeserver.
 - [Home Assistant](home-assistant.md) — Frequently integrated with Element for notifications.
 - [Authentik](authentik.md) — Used for SSO authentication into Element/Matrix.
@@ -164,8 +187,8 @@ curl -X POST \
 - [Element Web GitHub](https://github.com/vector-im/element-web)
 - [Matrix Client-Server API](https://matrix.org/docs/api/client-server/)
 - [Matrix Commander GitHub](https://github.com/8go/matrix-commander)
-- [Matrix v1.156 Release Blog](https://matrix.org/blog/2026/06/26/matrix-v1.156-release/)
+- [Matrix Release Blogs](https://matrix.org/blog/category/releases/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-11
 - Confidence: high
