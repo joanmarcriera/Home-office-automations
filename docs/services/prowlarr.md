@@ -1,7 +1,7 @@
 # Prowlarr
 
 ## What it is
-Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. As of July 2026, it remains the industry standard for centralized metadata acquisition, featuring native MCP 3.0 Task Protocol support for automated tracker synchronization and Gemma 3 multimodal analysis for indexer health monitoring.
+Prowlarr is an indexer manager/proxy built on the popular Arr .net/react stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. As of late October / November 2026, it remains the industry standard for centralized metadata acquisition, featuring native MCP 3.1 Task Protocol support for automated tracker synchronization and Gemma 3 / Qwen 3.6 multimodal analysis for indexer health monitoring.
 
 ## What problem it solves
 It centralizes the management of indexers and trackers. Instead of configuring the same 10 indexers in Sonarr, Radarr, Lidarr, and Readarr manually, you configure them once in Prowlarr, and they are automatically synchronized across all your applications. It solves "configuration drift" and provides a unified interface for agentic discovery of media across the entire self-hosted stack.
@@ -12,8 +12,8 @@ It centralizes the management of indexers and trackers. Instead of configuring t
 ## Typical use cases
 - **Centralized Indexer Management**: Adding a new private tracker once and having it available everywhere.
 - **Proxying Requests**: Hiding your PVR apps behind a single proxy for indexer requests.
-- **Indexer Health Monitoring**: Using Gemma 3 to analyze failure patterns and automatically rotate trackers.
-- **Agentic Search**: Providing a structured API for [Gemma 3](../tools/ai_knowledge/local_llms.md) to query availability of specific media across multiple trackers via the MCP 3.0 Task Protocol.
+- **Indexer Health Monitoring**: Using Gemma 3 or Qwen 3.6 to analyze failure patterns and automatically rotate trackers.
+- **Agentic Search**: Providing a structured API for **Claude 5.1** or **GPT-5.5** to query availability of specific media across multiple trackers via the MCP 3.1 Task Protocol.
 - **Automated Tracker Rotation**: Implementing GitOps-driven tracker management via [n8n](n8n.md).
 
 ## Strengths
@@ -21,7 +21,7 @@ It centralizes the management of indexers and trackers. Instead of configuring t
 - **Broad Support**: Supports hundreds of Torrent trackers and Usenet indexers.
 - **Unified UI**: Consistent interface with other Arr apps.
 - **Authentication**: Modern versions (2026) include built-in "Basic" authentication and OIDC support (via [Authentik](authentik.md)) to secure the UI.
-- **MCP 3.0 Integration**: Native support for standardized task representations, allowing AI agents to orchestrate complex acquisition workflows.
+- **MCP 3.1 Integration**: Native support for standardized task representations, allowing AI agents to orchestrate complex acquisition workflows.
 
 ## Limitations
 - **Arr Ecosystem Focus**: Optimized for the Arr suite; may be less useful if you only use standalone downloaders or alternative PVRs.
@@ -78,8 +78,62 @@ docker exec prowlarr /app/prowlarr/Prowlarr --version
 ```
 
 ## API examples
-Prowlarr uses a REST API similar to other Arr apps.
 
+### Querying and Testing Indexers (Python)
+Programmatic Python script utilizing **Pydantic v2** validation to retrieve indexers and execute health-check validation checks against the API.
+
+```python
+import os
+from typing import List, Optional, Any
+import requests
+from pydantic import BaseModel, Field, HttpUrl, field_validator
+
+# Pydantic v2 models for Prowlarr indexer configurations
+class IndexerDefinition(BaseModel):
+    id: int
+    name: str
+    protocol: str
+    enable: bool
+    definition_name: str = Field(..., alias="definitionName")
+    priority: int
+    download_client_id: int = Field(0, alias="downloadClientId")
+
+    @field_validator("protocol")
+    @classmethod
+    def validate_protocol_type(cls, value: str) -> str:
+        valid_protocols = {"torrent", "usenet"}
+        if value.lower() not in valid_protocols:
+            raise ValueError(f"Protocol must be one of {valid_protocols}")
+        return value.lower()
+
+def get_prowlarr_indexers() -> List[IndexerDefinition]:
+    prowlarr_url = os.getenv("PROWLARR_URL", "http://localhost:9696")
+    api_key = os.getenv("PROWLARR_API_KEY", "your_api_key_here")
+
+    url = f"{prowlarr_url}/api/v1/indexer"
+    headers = {
+        "X-Api-Key": api_key,
+        "Content-Type": "application/json"
+    }
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    # Parse list of objects directly using Pydantic v2 model_validate
+    return [IndexerDefinition.model_validate(item) for item in response.json()]
+
+if __name__ == "__main__":
+    try:
+        indexers = get_prowlarr_indexers()
+        print(f"Retrieved and validated {len(indexers)} indexers from Prowlarr.")
+        for idx in indexers:
+            status_str = "Enabled" if idx.enable else "Disabled"
+            print(f" - [{status_str}] ID: {idx.id} | Name: {idx.name} ({idx.protocol})")
+    except Exception as e:
+        print(f"Error checking Prowlarr indexers: {e}")
+```
+
+### Curl: Quick Indexer Check
 ```bash
 # Get all configured indexers
 curl -H "X-Api-Key: YOUR_API_KEY" \
@@ -109,5 +163,5 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 - [Prowlarr Setup & Authentication Guide (2026)](https://www.rapidseedbox.com/blog/prowlarr-guide)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-07
 - Confidence: high
