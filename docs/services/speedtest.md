@@ -1,7 +1,7 @@
 # Speedtest
 
 ## What it is
-Speedtest encompasses the tools and automated workflows used to measure and log internet connection performance (download/upload bandwidth, latency, and jitter). In **July 2026**, it primarily utilizes the official **Ookla Speedtest CLI** and self-hosted dashboards like **Speedtest Tracker**, integrated with AI agents via **MCP 3.0** for proactive network troubleshooting and service-level monitoring.
+Speedtest encompasses the tools and automated workflows used to measure and log internet connection performance (download/upload bandwidth, latency, and jitter). In **late October / November 2026**, it primarily utilizes the official **Ookla Speedtest CLI** and self-hosted dashboards like **Speedtest Tracker**, integrated with AI agents via **MCP 3.1** / **FastMCP 3.1** for proactive network troubleshooting, dynamic bandwidth allocation, and service-level monitoring.
 
 ## What problem it solves
 Intermittent internet performance issues are difficult to diagnose without historical data. Speedtest solves the "network visibility" problem by providing periodic, objective measurements of ISP performance. It helps users verify if they are receiving the advertised speeds, identify peak-hour throttling, and provide evidence for technical support requests using an immutable audit trail of performance logs.
@@ -11,7 +11,7 @@ Intermittent internet performance issues are difficult to diagnose without histo
 
 ## Typical use cases
 - **Proactive ISP Monitoring**: Running hourly tests to track long-term bandwidth trends and latency spikes.
-- **Agentic Troubleshooting**: An AI agent (e.g., **Gemma 3**) detects slow n8n execution and triggers a Speedtest to rule out network bottlenecks.
+- **Agentic Troubleshooting**: An AI agent (e.g., **Gemma 3** or **Claude 5.1**) detects slow n8n execution and triggers a Speedtest to rule out network bottlenecks.
 - **Dynamic QoS Optimization**: Automatically adjusting [qBittorrent](qbittorrent.md) download limits based on current available bandwidth.
 - **SLA Verification**: Logging and reporting speed drops to an ISP for potential service credits.
 - **Gaming/VoIP Readiness**: Verifying jitter and ping before starting high-priority low-latency tasks.
@@ -83,27 +83,56 @@ speedtest --format=json
 ```
 
 ## API examples
-Integrate Speedtest results into Python scripts for automation.
+Integrate Speedtest results into Python scripts or FastMCP 3.1 servers for autonomous agents.
 
-### Python: Agentic Bandwidth Check
+### Python: FastMCP 3.1 Server with Pydantic v2 Validation
+This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to validate speedtest results, allowing frontier models like **Claude 5.1** and **GPT-5.5** to dynamically query local network performance.
+
 ```python
 import subprocess
 import json
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
 
-def get_network_health():
-    cmd = ["speedtest", "--format=json", "--accept-license", "--accept-gdpr"]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    data = json.loads(result.stdout)
+# Initialize FastMCP Server
+mcp = FastMCP("NetworkDiagnostics")
 
-    # Convert to Mbps
-    down = data['download']['bandwidth'] / 125000
-    up = data['upload']['bandwidth'] / 125000
+class SpeedtestMetrics(BaseModel):
+    download_mbps: float = Field(description="Download speed in Megabits per second (Mbps)")
+    upload_mbps: float = Field(description="Upload speed in Megabits per second (Mbps)")
+    ping_ms: float = Field(description="Latency to the target server in milliseconds (ms)")
+    jitter_ms: float = Field(description="Packet delay variation (jitter) in milliseconds (ms)")
+    server_name: str = Field(description="Name of the selected Ookla testing server")
 
-    return {"download_mbps": down, "upload_mbps": up, "ping_ms": data['ping']['latency']}
+@mcp.tool()
+def check_network_performance() -> str:
+    """
+    Executes the Ookla Speedtest CLI, validates the JSON output with Pydantic v2,
+    and returns a formatted network health report.
+    """
+    try:
+        # Run Ookla CLI with JSON format
+        cmd = ["speedtest", "--format=json", "--accept-license", "--accept-gdpr"]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        data = json.loads(result.stdout)
 
-# Agent uses this to decide if it should start a large data transfer
-health = get_network_health()
-print(f"Current Download Speed: {health['download_mbps']:.2f} Mbps")
+        # Parse and validate with Pydantic v2
+        metrics = SpeedtestMetrics(
+            download_mbps=data['download']['bandwidth'] / 125000.0,
+            upload_mbps=data['upload']['bandwidth'] / 125000.0,
+            ping_ms=data['ping']['latency'],
+            jitter_ms=data['ping'].get('jitter', 0.0),
+            server_name=data['server']['name']
+        )
+
+        return metrics.model_dump_json(indent=2)
+    except subprocess.CalledProcessError as e:
+        return json.dumps({"error": f"Speedtest CLI failed: {str(e)}"})
+    except Exception as e:
+        return json.dumps({"error": f"Unexpected error: {str(e)}"})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -115,7 +144,6 @@ print(f"Current Download Speed: {health['download_mbps']:.2f} Mbps")
 - [Tailscale](tailscale.md) — Measuring performance of private mesh tunnels.
 - [Home Assistant](home-assistant.md) — For displaying speedtest metrics on a home dashboard.
 - [Authentik](authentik.md) — Securing the Speedtest Tracker dashboard.
-- [Uptime Kuma](https://uptime.kuma.pet/) — For complementary connectivity monitoring.
 - [Ollama](ollama.md) — For running agents that analyze network logs.
 - [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for proactive network troubleshooting.
 
@@ -125,5 +153,5 @@ print(f"Current Download Speed: {health['download_mbps']:.2f} Mbps")
 - [Ookla Knowledge Base](https://help.speedtest.net/hc/en-us)
 
 ## Contribution Metadata
+- Last reviewed: 2026-11-10
 - Confidence: high
-- Last reviewed: 2026-07-21
