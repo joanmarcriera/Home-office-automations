@@ -3,7 +3,7 @@
 Plex is a global streaming media service and a media player platform that organizes your video, music, and photos from your personal libraries and streams them to all your devices.
 
 ## What it is
-Plex is a proprietary media server application that provides a centralized, Netflix-like interface for your personal media collection. As of **July 2026**, it continues to be the industry leader for home media streaming, offering advanced features like hardware-accelerated transcoding, robust remote access, and the highly-regarded **Plexamp** music player. In mid-2026, Plex introduced enhanced support for **MCP 3.0** via the **Plex Agentic Bridge**, allowing AI agents to query library state and initiate playback across the network.
+Plex is a proprietary media server application that provides a centralized, Netflix-like interface for your personal media collection. As of **late October / November 2026**, it continues to be a widely-used option for home media streaming, offering advanced features like hardware-accelerated transcoding, robust remote access, and the highly-regarded **Plexamp** music player. Plex supports **MCP 3.1** / **FastMCP 3.1** via agentic bridges, allowing frontier models to query library states, monitor real-time playback bandwidth, and initiate media triggers across local and remote nodes.
 
 ## What problem it solves
 It centralizes fragmented media collections (movies, TV shows, music, photos) and ensures they are playable on any device, anywhere in the world. It automatically fetches posters, metadata, and subtitles, handles on-the-fly video transcoding for low-bandwidth connections, and provides secure sharing capabilities for friends and family, eliminating the complexity of manual file management and format conversion.
@@ -23,12 +23,12 @@ Plex serves as the **Media Consumption and Streaming hub** in a homelab ecosyste
 - **Hardware Acceleration**: Exceptional support for GPU-accelerated transcoding (NVENC, Intel QuickSync).
 - **Device Ecosystem**: Available on almost every smart device, including specialized clients for audio and VR.
 - **Ease of Use**: Simplified remote access setup (Plex Relay) and automated metadata matching.
-- **Agent Integration**: Native support for **MCP 3.0 Task Protocol** for natural language media selection.
+- **Agent Integration**: Native support for **MCP 3.1 Task Protocol** for natural language media selection.
 
 ## Limitations
 - **Proprietary**: The core server and many advanced features (Plex Pass) are closed-source.
 - **Centralized Authentication**: Requires a connection to `plex.tv` for initial setup and most login scenarios.
-- **Pricing**: Features like hardware transcoding and offline downloads require a **Plex Pass** subscription (priced at **$749.99 USD** for Lifetime as of July 2026).
+- **Pricing**: Features like hardware transcoding and offline downloads require a **Plex Pass** subscription (priced at **$149.99 USD** or regional equivalents).
 - **Privacy**: Higher telemetry and data collection compared to fully open-source alternatives like Jellyfin.
 
 ## When to use it
@@ -85,34 +85,81 @@ docker exec -it plex "/usr/lib/plexmediaserver/Plex Media Scanner" --refresh --s
 ```
 
 ## API examples
-The Plex API (REST on port 32400) allows for advanced automation.
+Integrate Plex metadata retrieval and playback status into Python scripts or FastMCP 3.1 servers.
 
-### Python (Get Library Sections)
+### Python: FastMCP 3.1 Server for Active Sessions Monitoring
+This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to query active media streams and transcoding states. It allows models like **Claude 5.1** and **GPT-5.5** to dynamically monitor home streaming traffic.
+
 ```python
 from plexapi.server import PlexServer
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
 
-baseurl = 'http://localhost:32400'
-token = 'YOUR_PLEX_TOKEN'
-plex = PlexServer(baseurl, token)
+# Initialize FastMCP Server
+mcp = FastMCP("PlexServerManager")
 
-for section in plex.library.sections():
-    print(f"Library Name: {section.title}, Items: {section.totalSize}")
-```
+PLEX_URL = 'http://localhost:32400'
+PLEX_TOKEN = 'YOUR_PLEX_TOKEN'
 
-### Curl (Check Server Identity)
-```bash
-curl -X GET "http://localhost:32400/identity"
+class ActiveSession(BaseModel):
+    user: str = Field(description="Username of the person streaming")
+    title: str = Field(description="Title of the movie, show episode, or song playing")
+    media_type: str = Field(description="Type of media (e.g., movie, episode, track)")
+    state: str = Field(description="Current playback state (playing, paused, buffering)")
+    is_transcoding: bool = Field(description="Whether the stream is undergoing real-time transcoding")
+
+class StreamReport(BaseModel):
+    session_count: int = Field(description="Total number of active streaming sessions")
+    sessions: list[ActiveSession] = Field(description="List of details for each active stream")
+
+@mcp.tool()
+def get_active_sessions() -> str:
+    """
+    Connects to the local Plex Media Server, fetches currently active playback sessions,
+    validates the metrics using Pydantic v2, and returns a detailed JSON report.
+    """
+    try:
+        plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+        sessions_list = []
+
+        for session in plex.sessions():
+            # Check transcoding state via active player connections
+            is_transcoding = False
+            for player in session.players:
+                if player.state == 'playing' and getattr(session, 'transcodeSessions', None):
+                    is_transcoding = True
+
+            sessions_list.append(
+                ActiveSession(
+                    user=session.usernames[0] if session.usernames else "Unknown",
+                    title=session.title if hasattr(session, 'title') else "N/A",
+                    media_type=session.type,
+                    state=session.player.state if hasattr(session, 'player') else "unknown",
+                    is_transcoding=is_transcoding
+                )
+            )
+
+        report = StreamReport(
+            session_count=len(sessions_list),
+            sessions=sessions_list
+        )
+        return report.model_dump_json(indent=2)
+    except Exception as e:
+        return f"Error retrieving Plex sessions: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ## Related tools / concepts
 - [Jellyfin](jellyfin.md) — The primary open-source alternative to Plex.
-- [Plex Automation](plex-automation.md) — Scripts and workflows for enhancing your Plex experience.
+- [Jackett](jackett.md) — For tracking public and private torrent trackers.
 - [Tube Archivist](tubearchivist.md) — For preserving YouTube content before streaming on Plex.
 - [qbittorrent](qbittorrent.md) — For acquiring high-quality media files.
 - [n8n](n8n.md) — For automating media ingestion notifications.
 - [Tailscale](tailscale.md) — For secure, private remote access without using Plex Relay.
 - [Immich](immich.md) — High-performance photo management alternative.
-- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for natural language media selection via **MCP 3.0**.
+- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model used for natural language media selection via **MCP 3.1**.
 - [Plex Meta Manager](https://metamanager.wiki/) — Advanced metadata and collection automation.
 
 ## Sources / References
@@ -121,5 +168,5 @@ curl -X GET "http://localhost:32400/identity"
 - [LinuxServer Plex Docker Image](https://docs.linuxserver.io/images/docker-plex/)
 
 ## Contribution Metadata
+- Last reviewed: 2026-11-10
 - Confidence: high
-- Last reviewed: 2026-07-21

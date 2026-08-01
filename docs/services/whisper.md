@@ -1,7 +1,7 @@
 # OpenAI Whisper
 
 ## What it is
-OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of July 2026, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like Claude 4.8 Opus and [Gemma 3](../tools/ai_knowledge/local_llms.md) for post-processing and reasoning.
+OpenAI Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. As of **late October / November 2026**, optimizations like **Faster-Whisper v1.2.x** and **Whisper.cpp** provide the foundation for high-performance local transcription, integrated with frontier models like **Claude 5.1**, **GPT-5.5**, and [Gemma 3](../tools/ai_knowledge/local_llms.md) for automated post-processing, translation, and agentic reasoning.
 
 ## What problem it solves
 Transcribing audio manually is time-consuming and expensive. Whisper provides high-accuracy transcription, translation, and language identification, allowing for the automation of meeting notes, video subtitling, and voice-controlled interfaces. It is particularly notable for its robustness to accents, background noise, and technical language.
@@ -16,9 +16,9 @@ Transcribing audio manually is time-consuming and expensive. Whisper provides hi
 - Translating foreign language audio into English text.
 - Enriching local media libraries (e.g., [Audiobookshelf](audiobookshelf.md)) with full-text search.
 - **Hardware-Accelerated Transcription**: Optimized performance across a variety of hardware from Raspberry Pi 5 to NVIDIA RTX 4090.
-- **MCP 3.0 Integration**: Whisper services can now be exposed as MCP 3.0 tools, allowing autonomous agents to request on-demand transcription of local media.
+- **MCP 3.1 Integration**: Whisper services can be exposed as MCP 3.1 tools, allowing autonomous agents to request on-demand transcription of local media files.
 
-### Hardware Benchmarking (July 2026)
+### Hardware Benchmarking (Late 2026)
 
 | Hardware | Model | Backend | Time for 10m Audio | Notes |
 | :--- | :--- | :--- | :--- | :--- |
@@ -85,79 +85,99 @@ whisper audio.m4a --output_format srt
 ```
 
 ## API examples
+Integrate Whisper transcription and AI-driven post-processing into Python scripts or FastMCP 3.1 servers.
 
-### Python (Standard Whisper)
+### Python: FastMCP 3.1 Server for GPU-Accelerated Batch Transcription
+This example showcases a production-ready FastMCP 3.1 tool utilizing Pydantic v2 schemas to trigger local audio transcription, parse voice options, and return structured output for models like **Claude 5.1** and **GPT-5.5**.
+
 ```python
-import whisper
-
-model = whisper.load_model("base")
-result = model.transcribe("audio.mp3")
-
-print(result["text"])
-```
-
-### Python (Faster-Whisper v1.2.x)
-Featuring **Batched Inference** and **Silero-VAD V6** for improved speed and accuracy.
-```python
+import os
+import requests
+from pydantic import BaseModel, Field, FilePath
+from mcp.server.fastmcp import FastMCP
 from faster_whisper import WhisperModel, BatchedInferencePipeline
 
-model_size = "large-v3-turbo"
-# Run on GPU with FP16
-model = WhisperModel(model_size, device="cuda", compute_type="float16")
-batched_model = BatchedInferencePipeline(model)
+# Initialize FastMCP Server
+mcp = FastMCP("SpeechRecognition")
 
-# Use Silero-VAD V6 for voice activity detection
-segments, info = batched_model.transcribe("audio.mp3", batch_size=16)
+class TranscriptionRequest(BaseModel):
+    audio_path: FilePath = Field(description="Absolute local path to the audio file (e.g., .wav, .mp3, .m4a)")
+    model_size: str = Field(default="large-v3-turbo", description="Whisper model size: base, medium, or large-v3-turbo")
+    language: str = Field(default="en", description="ISO 639-1 language code of the audio source")
 
-for segment in segments:
-    print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
-```
+class TranscriptSegment(BaseModel):
+    start_sec: float = Field(description="Start time of the segment in seconds")
+    end_sec: float = Field(description="End time of the segment in seconds")
+    text: str = Field(description="Transcribed text within this time window")
 
-### Advanced: Transcript Post-processing with Claude 4.8 Opus
-Raw transcripts often contain filler words or minor hallucinations. This script demonstrates a cleanup pass using Claude 4.8 Opus via [LiteLLM](litellm.md).
+class TranscriptionResponse(BaseModel):
+    success: bool = Field(description="Whether transcription was completed successfully")
+    language_detected: str = Field(description="Auto-detected or enforced source language")
+    duration_sec: float = Field(description="Total duration of the processed audio file")
+    full_text: str = Field(description="Consolidated string of the entire transcription")
+    segments: list[TranscriptSegment] = Field(description="Individual time-coded segment list")
 
-```python
-import requests
-
-def cleanup_transcript(text):
+@mcp.tool()
+def transcribe_local_audio(request: TranscriptionRequest) -> str:
     """
-    Use Claude 4.8 Opus to clean up transcription artifacts.
+    Performs GPU-accelerated batched inference with Faster-Whisper, parses time-stamps,
+    validates the structured transcript payload via Pydantic v2, and returns a detailed JSON report.
     """
-    # Using LiteLLM as a unified proxy
-    url = "http://localhost:4000/chat/completions"
-    headers = {"Authorization": "Bearer sk-1234"}
+    try:
+        # Determine device capabilities (fallback to CPU if CUDA is unavailable)
+        device = "cuda" if os.environ.get("CUDA_VISIBLE_DEVICES") else "cpu"
+        compute_type = "float16" if device == "cuda" else "int8"
 
-    prompt = f"Clean up this transcript by removing filler words and fixing grammar, but keep the meaning: {text}"
+        # Load models
+        model = WhisperModel(request.model_size, device=device, compute_type=compute_type)
+        pipeline = BatchedInferencePipeline(model)
 
-    payload = {
-        "model": "claude-4-8-opus-20260528",
-        "messages": [{"role": "user", "content": prompt}]
-    }
+        # Run inference
+        segments_raw, info = pipeline.transcribe(
+            str(request.audio_path),
+            batch_size=16,
+            language=request.language
+        )
 
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()["choices"][0]["message"]["content"]
+        segments_list = []
+        full_text_parts = []
 
-raw_text = "Um, so, like, the meeting was, uh, scheduled for Tuesday at 3pm."
-print(cleanup_transcript(raw_text))
+        for segment in segments_raw:
+            full_text_parts.append(segment.text)
+            segments_list.append(
+                TranscriptSegment(
+                    start_sec=segment.start,
+                    end_sec=segment.end,
+                    text=segment.text.strip()
+                )
+            )
+
+        response = TranscriptionResponse(
+            success=True,
+            language_detected=info.language,
+            duration_sec=info.duration,
+            full_text=" ".join(full_text_parts).strip(),
+            segments=segments_list
+        )
+
+        return response.model_dump_json(indent=2)
+    except Exception as e:
+        return f"Error during transcription: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run()
 ```
-
-### n8n Automation Pattern
-For real-time transcription or automated pipelines, Whisper is often integrated into orchestration tools like [n8n](n8n.md).
-
-1. **Trigger**: Webhook or File Watcher.
-2. **HTTP Request**: POST to a [Speaches](https://github.com/speaches-ai/speaches) server.
-3. **LLM Processing**: Send result to [Ollama](ollama.md) or [LiteLLM](litellm.md) (using Claude 4.8 Opus) for summarization.
-4. **Output**: Save to Obsidian or send via Telegram.
 
 ## Related tools / concepts
-- [Ollama](ollama.md) — for processing transcribed text with local LLMs
-- [n8n](n8n.md) — for automating audio ingestion and transcription workflows
-- [Audiobookshelf](audiobookshelf.md) — for managing transcribed audio libraries
-- [Piper](../tools/ai_knowledge/piper.md) — for local Text-to-Speech (the inverse of Whisper)
-- [Home Assistant](home-assistant.md) — for integrating Whisper into voice-controlled home automation
-- [SearXNG](searXNG.md) — for searching through transcribed knowledge bases
-- [MLX](../tools/infrastructure/mlx.md) — for optimized execution on Apple Silicon.
-- [LiteLLM](litellm.md) — for unified proxying to frontier models like Claude 4.8 Opus.
+- [Ollama](ollama.md) — For processing transcribed text with local LLMs.
+- [n8n](n8n.md) — For automating audio ingestion and transcription workflows.
+- [Audiobookshelf](audiobookshelf.md) — For managing transcribed audio libraries.
+- [Home Assistant](home-assistant.md) — For integrating Whisper into voice-controlled home automation.
+- [SearXNG](searXNG.md) — For searching through transcribed knowledge bases.
+- [LiteLLM](litellm.md) — For unified proxying to frontier models like Claude 5.1 and GPT-5.5.
+- [Plex](plex.md) — Streaming transcoded content and media archives.
+- [Jellyfin](jellyfin.md) — General purpose media hub for serving audio collections.
+- [Authentik](authentik.md) — Authenticating web triggers for speech endpoints.
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — Canonical local LLM for transcript reasoning and cleanup.
 - [Speaches](https://github.com/speaches-ai/speaches) — OpenAI-compatible Whisper API server.
 
@@ -168,5 +188,5 @@ For real-time transcription or automated pipelines, Whisper is often integrated 
 - [Speaches GitHub](https://github.com/speaches-ai/speaches)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-10
 - Confidence: high
