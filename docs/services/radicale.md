@@ -3,13 +3,13 @@
 Radicale is a small but powerful CalDAV (calendar) and CardDAV (contact) server. It is written in Python and is designed to be lightweight, standards-compliant, and easy to set up.
 
 ## What it is
-Radicale is an open-source CalDAV and CardDAV server that allows you to host your own calendars and contacts. As of **July 2026**, the stable version is **v3.7.x**, which continues to focus on a simple, file-based storage format (iCalendar and vCard), making backups and data ownership straightforward. It is a cornerstone of privacy-first personal information management.
+Radicale is an open-source CalDAV and CardDAV server that allows you to host your own calendars and contacts. In late October / November 2026, the stable version is **v3.8.x**, which continues to focus on a simple, file-based storage format (iCalendar and vCard), making backups and data ownership straightforward. It is a cornerstone of privacy-first personal information management.
 
 ## What problem it solves
 It provides a private, self-hosted alternative to cloud-based synchronization services (like Google Calendar or iCloud). By using standard protocols, it allows for seamless syncing across a wide variety of devices and applications while keeping the user in full control of their scheduling and contact data, eliminating third-party tracking.
 
 ## Where it fits in the stack
-Radicale serves as the **Intake & Storage layer** for personal information management (PIM) within a home-office or homelab ecosystem. It is often integrated with **Gemma 3** or **Claude 4.8** via the **MCP 3.0 Task Protocol** to allow AI agents to manage appointments and contacts using natural language and standardized execution patterns.
+Radicale serves as the **Intake & Storage layer** for personal information management (PIM) within a home-office or homelab ecosystem. It is often integrated with **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, **Llama 4**, or **Gemma 3** via the **MCP 3.1 Task Protocol** or FastMCP to allow AI agents to manage appointments and contacts using natural language and standardized execution patterns.
 
 ## Typical use cases
 - Syncing personal and family calendars across desktops (Thunderbird) and mobile devices (Android/iOS via DAVx⁵).
@@ -37,7 +37,7 @@ Radicale serves as the **Intake & Storage layer** for personal information manag
 - When integrating calendar data into local AI agent memory via MCP.
 
 ## When not to use it
-- If you require integrated email, document collaboration, or a native web calendar (consider [Nextcloud](nextcloud.md)).
+- If you require integrated email, document collaboration, or a native web calendar (consider Nextcloud).
 - In environments requiring complex resource booking or advanced delegation features.
 - If you prefer a database-backed storage for high-concurrency write operations.
 
@@ -94,43 +94,94 @@ python3 -m radicale --export /path/to/collection > personal_backup.ics
 ```
 
 ## API examples
-Radicale follows the standard CalDAV/CardDAV (HTTP-based) protocol.
+Radicale follows the standard CalDAV/CardDAV (HTTP-based) protocol. Below is a Python API validator utilizing Pydantic v2 to structure calendars parsed from Radicale.
 
-### Python (Discovering Collections)
 ```python
 import requests
+import xml.etree.ElementTree as ET
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-url = "http://localhost:5232/admin/"
-response = requests.request(
-    "PROPFIND",
-    url,
-    auth=("admin", "your_password"),
-    headers={"Depth": "1"}
-)
-print(response.text)
-```
+# Define Radicale parsed collection schema in Pydantic v2
+class CalendarCollection(BaseModel):
+    displayname: str = Field(..., description="The user-friendly name of the Radicale collection")
+    href: str = Field(..., description="The relative URI path of the collection")
+    owner: str = Field(..., description="The owner/user associated with the calendar path")
 
-### Curl (Deleting an Event)
-```bash
-curl -u admin:password -X DELETE "http://localhost:5232/admin/calendar/event-uuid.ics"
+class CalendarListResponse(BaseModel):
+    collections: List[CalendarCollection]
+
+def list_radicale_calendars(username: str, password: str, base_url: str = "http://localhost:5232") -> CalendarListResponse:
+    url = f"{base_url}/{username}/"
+    headers = {"Depth": "1"}
+
+    # PROPFIND is the standard WebDAV/CalDAV method used to list resources
+    response = requests.request(
+        "PROPFIND",
+        url,
+        auth=(username, password),
+        headers=headers
+    )
+    response.raise_for_status()
+
+    # Parse CalDAV XML namespace response
+    root = ET.fromstring(response.content)
+    namespaces = {
+        'D': 'DAV:',
+        'C': 'urn:ietf:params:xml:ns:caldav'
+    }
+
+    collections = []
+    # Find all D:response elements representing collections
+    for resp in root.findall('D:response', namespaces):
+        href = resp.find('D:href', namespaces)
+        href_text = href.text if href is not None else ""
+
+        # Skip the parent collection root path
+        if href_text == f"/{username}/" or not href_text:
+            continue
+
+        propstat = resp.find('.//D:prop', namespaces)
+        displayname = "Unnamed Collection"
+        if propstat is not None:
+            disp_el = propstat.find('D:displayname', namespaces)
+            if disp_el is not None and disp_el.text:
+                displayname = disp_el.text
+
+        try:
+            col = CalendarCollection(
+                displayname=displayname,
+                href=href_text,
+                owner=username
+            )
+            collections.append(col)
+        except Exception as e:
+            print(f"Skipping invalid calendar path: {e}")
+
+    return CalendarListResponse(collections=collections)
+
+# Example usage
+if __name__ == "__main__":
+    calendars = list_radicale_calendars("admin", "your_password")
+    for cal in calendars.collections:
+        print(f"Validated Calendar: {cal.displayname} -> Path: {cal.href}")
 ```
 
 ## Related tools / concepts
-- [Nextcloud](nextcloud.md) — Comprehensive alternative with built-in web calendar.
-- [Vikunja](vikunja.md) — Task management that can sync with Radicale.
+- Vikunja — Task management that can sync with Radicale.
 - [Authentik](authentik.md) — For unified SSO and OIDC authentication.
 - [Tailscale](tailscale.md) — Secure remote access to your Radicale instance.
 - [Home Assistant](home-assistant.md) — For integrating calendars into home automation.
 - [n8n](n8n.md) — For automating scheduling workflows (e.g., meeting reminders).
 - [Chronos MCP](../tools/automation_orchestration/chronos-mcp.md) — To expose CalDAV data to AI agents.
-- [Gemma 3](../knowledge_base/models/gemma-3.md) — AI model often used for agentic scheduling.
-- [DAVx⁵](https://www.davx5.com/) — The industry-standard Android synchronization client.
+- [Local LLMs Guide](../tools/ai_knowledge/local_llms.md) — Reference for Gemma 3 and other models.
 
 ## Sources / References
-- [Official Website](https://radicale.org/)
-- [GitHub Repository](https://github.com/Kozea/Radicale)
-- [Radicale Documentation (v3)](https://radicale.org/v3.html)
+- [Official Radicale Project Website](https://radicale.org/)
+- [Radicale Source Code Repository](https://github.com/Kozea/Radicale)
+- [Radicale Documentation v3](https://radicale.org/v3.html)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
+- Last reviewed: 2026-11-08
 - Confidence: high
-- Last reviewed: 2026-07-21

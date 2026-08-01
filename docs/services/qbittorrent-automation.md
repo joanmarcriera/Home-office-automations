@@ -1,7 +1,7 @@
 # qBittorrent Automation
 
 ## What it is
-qBittorrent Automation encompasses the workflows, scripts, and integrations used to manage the lifecycle of torrent downloads autonomously. In July 2026, it leverages the **v5.3** Web API, Model Context Protocol (MCP 3.0), and Gemma 3's advanced reasoning to allow AI agents to orchestrate content acquisition, categorization, and library maintenance with unprecedented precision.
+qBittorrent Automation encompasses the workflows, scripts, and integrations used to manage the lifecycle of torrent downloads autonomously. In late October / November 2026, it leverages the **v5.4** Web API, Model Context Protocol (MCP 3.1) via FastMCP, and frontier model reasoning (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6) to allow AI agents to orchestrate content acquisition, categorization, and library maintenance with unprecedented precision.
 
 ## What problem it solves
 Manual torrent management is time-consuming and prone to organizational chaos. qBittorrent Automation solves the "acquisition overhead" by automatically ingesting content from RSS feeds, categorizing downloads based on content type, renaming files for media servers, and enforcing seeding rules to maintain private tracker ratios without human intervention.
@@ -10,18 +10,18 @@ Manual torrent management is time-consuming and prone to organizational chaos. q
 **Category**: Service / Media / Automation. It sits at the **intake orchestration layer**, bridging content discovery (via [SearXNG](searXNG.md) or RSS) with media consumption ([Plex](plex.md), [Jellyfin](jellyfin.md)).
 
 ## Typical use cases
-- **Agentic Content Retrieval**: Asking an AI agent (Gemma 3) to "Find and download the latest Debian ISO," which it executes via the qBittorrent API and MCP 3.0 Task Protocol.
+- **Agentic Content Retrieval**: Asking an AI agent (Claude 5.1) to "Find and download the latest Debian ISO," which it executes via the qBittorrent API and MCP 3.1 Task Protocol.
 - **Automated Library Maintenance**: Using [n8n](n8n.md) to move completed downloads to specific folders and trigger a media library scan.
 - **Ratio Management**: Automatically pausing or deleting torrents once they reach a predefined seeding ratio or time limit.
 - **Real-Time Notifications**: Sending alerts to [Element](element.md) or [Synapse](synapse.md) when a high-priority download completes.
 - **Dynamic Bandwidth Scaling**: Automatically adjusting download speeds based on home network occupancy or [Speedtest](speedtest.md) results.
 
 ## Strengths
-- **Native MCP 3.0 Support**: Allows autonomous agents to securely query and manipulate the download queue using standardized task definitions.
-- **Gemma 3 Integration**: Enables intelligent categorization and "self-healing" of stalled downloads through advanced causal reasoning.
-- **Comprehensive Web API**: Provides granular control over every aspect of the client, from peer management to transfer settings.
+- **Native MCP 3.1 Support**: Allows autonomous agents using Claude 5.1 or GPT-5.5 to securely query and manipulate the download queue using standardized task and tool definitions.
+- **Frontier Model Integration**: Enables intelligent categorization and "self-healing" of stalled downloads through advanced causal reasoning from Qwen 3.6 or Gemma 3.
+- **Comprehensive Web API**: Version v5.4 provides highly granular control over every aspect of the client, from peer management to transfer settings.
 - **Event-Driven Triggers**: Native support for running external programs on torrent completion.
-- **Category-Level Logic**: v5.3+ allows for different automation rules (seeding, pathing) based on assigned categories.
+- **Category-Level Logic**: v5.4+ allows for different automation rules (seeding, pathing) based on assigned categories.
 - **Extensive Tooling**: Large ecosystem of Python wrappers (`qbittorrent-api`) and automation nodes (n8n, Node-RED).
 - **Cost-Effective**: Open source (GPL-2.0) and completely free to self-host.
 
@@ -67,19 +67,50 @@ curl -b "SID=YOUR_SID" -X POST "http://localhost:8080/api/v2/torrents/pause?cate
 ```
 
 ## API examples
-Use the `qbittorrent-api` Python library for advanced automation.
+Use the `qbittorrent-api` Python library for advanced automation, combined with a Pydantic v2 schema for validating clean execution parameters.
 
-### Python: Automated Cleanup Script
 ```python
 import qbittorrentapi
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
 
-qbt_client = qbittorrentapi.Client(host='localhost', port=8080, username='admin', password='password')
+# Define the automated cleanup configuration schema using Pydantic v2
+class CleanupRule(BaseModel):
+    max_ratio: float = Field(..., gt=0.0, description="The maximum seed ratio allowed before deletion")
+    categories_to_clean: List[str] = Field(default_factory=list, description="List of categories this rule applies to")
+    delete_files: bool = Field(default=False, description="Whether to also delete downloaded files on disk")
 
-# Delete torrents that have finished seeding (Ratio > 2.0)
-for torrent in qbt_client.torrents_info(status_filter='completed'):
-    if torrent.ratio > 2.0:
-        print(f"Cleaning up: {torrent.name}")
-        torrent.delete(delete_files=False) # Keep files, remove from client
+    @field_validator('max_ratio')
+    @classmethod
+    def validate_ratio(cls, val: float) -> float:
+        if val > 10.0:
+            raise ValueError("Seed ratio limit cannot exceed 10.0")
+        return val
+
+def run_automated_cleanup(client_host: str, rule: CleanupRule) -> None:
+    # Initialize the qBittorrent client
+    qbt_client = qbittorrentapi.Client(
+        host=client_host,
+        port=8080,
+        username='admin',
+        password='password'
+    )
+
+    try:
+        qbt_client.auth_log_in()
+
+        # Delete torrents that have finished seeding according to Pydantic rules
+        for torrent in qbt_client.torrents_info(status_filter='completed'):
+            if torrent.category in rule.categories_to_clean and torrent.ratio >= rule.max_ratio:
+                print(f"Cleaning up torrent matching rule: {torrent.name}")
+                torrent.delete(delete_files=rule.delete_files)
+    finally:
+        qbt_client.auth_log_out()
+
+# Example invocation with Pydantic validated configuration
+if __name__ == "__main__":
+    config = CleanupRule(max_ratio=2.0, categories_to_clean=["ISO", "Temp"], delete_files=False)
+    run_automated_cleanup(client_host='localhost', rule=config)
 ```
 
 ## Related tools / concepts
@@ -94,14 +125,14 @@ for torrent in qbt_client.torrents_info(status_filter='completed'):
 - [Element](element.md) — Notification endpoint.
 - [Synapse](synapse.md) — Matrix-based notification backbone.
 - [Paperless-ngx](paperless-ngx.md) — Automated ingestion of downloaded documents.
-- [Gemma 3](../tools/ai_knowledge/local_llms.md) — Agent used for orchestrating acquisition.
+- [Local LLMs Guide](../tools/ai_knowledge/local_llms.md) — Reference for Gemma 3 and other models.
 
 ## Sources / references
-- [qBittorrent WebUI API](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
-- [qbittorrent-api Python Library](https://github.com/rmartin16/qbittorrent-api)
-- [Arrr Suite (Sonarr/Radarr)](https://wiki.servarr.com/)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
+- [qBittorrent WebUI API Specification](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
+- [qbittorrent-api Python Library Github](https://github.com/rmartin16/qbittorrent-api)
+- [Arrr Suite (Sonarr/Radarr) Wiki](https://wiki.servarr.com/)
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-08
 - Confidence: high

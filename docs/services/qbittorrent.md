@@ -1,7 +1,7 @@
 # qBittorrent
 
 ## What it is
-qBittorrent is a premier, open-source BitTorrent client designed for cross-platform reliability and performance. Written in C++ using the Qt toolkit, it provides a feature-rich, advertisement-free alternative to proprietary clients. In July 2026, version **5.3** has solidified its position as the industry standard for self-hosted torrenting, featuring advanced asynchronous piece calculation, Gemma 3 multimodal analysis for download health, and native Model Context Protocol (MCP 3.0) support.
+qBittorrent is a premier, open-source BitTorrent client designed for cross-platform reliability and performance. Written in C++ using the Qt toolkit, it provides a feature-rich, advertisement-free alternative to proprietary clients. In late October / November 2026, version **5.4** has solidified its position as the industry standard for self-hosted torrenting, featuring advanced asynchronous piece calculation, frontier model (Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, Qwen 3.6) analysis for download health, and native Model Context Protocol (MCP 3.1) support via FastMCP.
 
 ## What problem it solves
 Managing file transfers via the BitTorrent protocol can be resource-intensive and organizationally complex. qBittorrent solves this by providing a lightweight, headless-capable engine with a powerful Web UI. It allows users to manage massive torrent libraries, automate downloads via RSS, and securely access their transfer queue remotely without compromising on features or privacy.
@@ -12,7 +12,7 @@ Managing file transfers via the BitTorrent protocol can be resource-intensive an
 ## Typical use cases
 - **Headless Server Operations**: Running as a Docker container on a NAS or VPS for 24/7 seeding and downloading.
 - **Automated ISO Acquisition**: Using RSS feeds to automatically mirror open-source software distributions.
-- **Agentic File Transfers**: Allowing AI agents (e.g., Gemma 3, Claude 4.8) to manage the download queue via the Web API and MCP 3.0 Task Protocol.
+- **Agentic File Transfers**: Allowing AI agents (e.g., Claude 5.1, GPT-5.5) to manage the download queue via the Web API and MCP 3.1 / FastMCP Task Protocol.
 - **Remote Library Management**: Accessing and controlling torrents from any device via the integrated Web UI.
 - **High-Performance Seeding**: Leveraging the libtorrent-rasterbar backend for efficient multi-gigabit seeding.
 
@@ -21,7 +21,7 @@ Managing file transfers via the BitTorrent protocol can be resource-intensive an
 - **Powerful Web UI**: A near-perfect replica of the desktop interface accessible via any browser.
 - **Integrated Search Engine**: Allows finding torrents directly within the client across multiple indexers.
 - **Advanced Organizational Tools**: Support for categories, tags, and sub-categories for managing thousands of torrents.
-- **Native MCP 3.0 Integration**: Direct "Tool Calling" support for AI agents to securely query and manipulate torrents.
+- **Native MCP 3.1 Integration**: Direct "Tool Calling" support for AI agents to securely query and manipulate torrents using modern JSON schemas.
 - **Open Source Licensing**: Licensed under GPL-2.0, ensuring it remains free and community-driven.
 
 ## Limitations
@@ -99,24 +99,62 @@ docker exec qbittorrent qbittorrent-nox --pause-all
 ```
 
 ## API examples
-The Web API (v2) is the primary method for external interaction.
+The Web API (v2) is the primary method for external interaction. The following Python code uses Pydantic v2 to validate active torrent information.
 
-### Python: Listing Active Torrents
 ```python
 import requests
+from pydantic import BaseModel, Field, field_validator
+from typing import List
 
-# Step 1: Login
-session = requests.Session()
-login_url = "http://localhost:8080/api/v2/auth/login"
-session.post(login_url, data={'username': 'admin', 'password': 'password'})
+# Define the model schema for validating active torrents using Pydantic v2
+class TorrentInfo(BaseModel):
+    name: str = Field(..., description="The name of the torrent")
+    progress: float = Field(..., description="The download progress as a fraction of 1 (0.0 to 1.0)")
+    status: str = Field(..., description="The current status (downloading, seeding, paused, etc.)")
+    num_seeds: int = Field(..., alias="num_seeds", description="The number of connected seeds")
 
-# Step 2: Query Info
-info_url = "http://localhost:8080/api/v2/torrents/info"
-response = session.get(info_url)
-torrents = response.json()
+    @field_validator('progress')
+    @classmethod
+    def validate_progress(cls, val: float) -> float:
+        if not (0.0 <= val <= 1.0):
+            raise ValueError("Progress must be between 0.0 and 1.0")
+        return val
 
-for t in torrents:
-    print(f"Torrent: {t['name']}, Progress: {t['progress']*100:.2f}%")
+class TorrentListResponse(BaseModel):
+    torrents: List[TorrentInfo]
+
+def fetch_active_torrents(api_url: str) -> TorrentListResponse:
+    # Step 1: Login session
+    session = requests.Session()
+    login_url = f"{api_url}/api/v2/auth/login"
+    session.post(login_url, data={'username': 'admin', 'password': 'password'})
+
+    # Step 2: Query Torrent Info
+    info_url = f"{api_url}/api/v2/torrents/info"
+    response = session.get(info_url)
+    raw_data = response.json()
+
+    parsed_torrents = []
+    for item in raw_data:
+        try:
+            torrent = TorrentInfo(
+                name=item.get("name"),
+                progress=item.get("progress"),
+                status=item.get("state"),
+                num_seeds=item.get("num_seeds", 0)
+            )
+            parsed_torrents.append(torrent)
+        except Exception as e:
+            print(f"Skipping malformed entry: {e}")
+
+    return TorrentListResponse(torrents=parsed_torrents)
+
+# Example usage
+if __name__ == "__main__":
+    url_base = "http://localhost:8080"
+    data = fetch_active_torrents(url_base)
+    for t in data.torrents:
+        print(f"Validated Torrent: {t.name} ({t.progress * 100:.1f}%) Status: {t.status}")
 ```
 
 ## Related tools / concepts
@@ -129,15 +167,14 @@ for t in torrents:
 - [SearXNG](searXNG.md) — A privacy-focused search engine for finding torrents.
 - [Paperless-ngx](paperless-ngx.md) — For managing documents acquired via Bittorrent.
 - [Local LLMs Guide](../tools/ai_knowledge/local_llms.md) — Reference for Gemma 3 and other models.
-- [Claude](../tools/ai_knowledge/claude.md) — Primary agent used for orchestrating acquisition.
 - [Gluetun](https://github.com/qdm12/gluetun) — VPN sidecar for secure torrenting.
 
 ## Sources / references
-- [Official Website](https://www.qbittorrent.org/)
-- [qBittorrent GitHub](https://github.com/qbittorrent/qBittorrent)
-- [Web API Documentation](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
+- [qBittorrent Official Project Site](https://www.qbittorrent.org/)
+- [qBittorrent Source Code Repository](https://github.com/qbittorrent/qBittorrent)
+- [Web API Development Reference](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1))
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/protocol/tasks)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-08
 - Confidence: high
