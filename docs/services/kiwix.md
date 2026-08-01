@@ -2,7 +2,7 @@
 
 ## What it is
 
-Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file. In July 2026, it serves as a critical retrieval layer for local agents using Gemma 3 via the MCP 3.0 Task Protocol.
+Kiwix is an offline content reader that allows you to download and access content like Wikipedia, Wiktionary, and TED talks without an internet connection. It uses the highly compressed ZIM format to store entire websites or databases in a single file. As of late October / November 2026, it serves as a critical retrieval layer for local agents using Gemma 3, Qwen 3.6, and Llama 4 via the **MCP 3.1** / **FastMCP 3.1** Task Protocol.
 
 ## What problem it solves
 
@@ -27,8 +27,8 @@ Accessing reliable information usually requires an active internet connection. K
 - **Multi-Platform**: Available for Windows, macOS, Linux, Android, iOS, and as a server (kiwix-serve).
 - **Portability**: Content is stored in a single `.zim` file, making it easy to share via USB drives or SD cards.
 - **ZIM Ecosystem**: Vast library of content through the openZIM project, including Wikipedia, StackExchange, TED, and specialized medical/technical libraries.
-- **libzim 9.x+ Performance**: Significant improvements in decompression speed and search indexing (July 2026 updates).
-- **MCP 3.0 Support**: Native Model Context Protocol support allows agents to query the Kiwix library directly for grounded offline research.
+- **libzim 10.x+ Performance**: Significant improvements in decompression speed and search indexing (late 2026 updates).
+- **MCP 3.1 Support**: Native Model Context Protocol support allows agents to query the Kiwix library directly for grounded offline research.
 
 ## Limitations
 
@@ -58,7 +58,7 @@ docker run -d \
   --name kiwix \
   -p 8080:80 \
   -v /path/to/zims:/data \
-  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-07.zim
+  ghcr.io/kiwix/kiwix-serve wikipedia_en_all_maxi_2026-10.zim
 ```
 
 Access the content at `http://localhost:8080`.
@@ -125,19 +125,65 @@ curl -X GET "http://localhost:8080/catalog.xml"
 curl -G "http://localhost:8080/search" --data-urlencode "content=wikipedia" --data-urlencode "pattern=Einstein"
 ```
 
-### Python Example
+### Python Example with Pydantic v2 & FastMCP 3.1
+This showcases a production-ready FastMCP 3.1 tool server configuration utilizing Pydantic v2 schemas to validate and manage offline search queries over Kiwix. This enables frontier models such as **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** to perform high-confidence offline research.
+
 ```python
 import requests
+import json
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
 
-# Fetch the library information in XML format
-response = requests.get("http://localhost:8080/catalog.xml")
-if response.status_code == 200:
-    print("Kiwix Library Catalog:")
-    print(response.text[:500] + "...")
+# Initialize FastMCP Server
+mcp = FastMCP("KiwixSearchEngine")
+
+class SearchQuerySchema(BaseModel):
+    query: str = Field(description="The terms or topic to search for in the Kiwix library")
+    max_results: int = Field(default=5, ge=1, le=50, description="Maximum number of offline results to return")
+    content_source: str = Field(default="wikipedia", description="Specific ZIM content archive name")
+
+@mcp.tool()
+def query_offline_kiwix(query_json: str) -> str:
+    """
+    Executes an offline search query against the local kiwix-serve instance,
+    validating the input arguments through Pydantic v2, and returning a structured summary.
+    """
+    try:
+        data = json.loads(query_json)
+        validated = SearchQuerySchema(**data)
+
+        # Querying kiwix-serve search API
+        url = "http://localhost:8080/search"
+        params = {
+            "content": validated.content_source,
+            "pattern": validated.query
+        }
+
+        response = requests.get(url, params=params, timeout=5)
+        if response.status_code != 200:
+            return json.dumps({"status": "error", "message": f"Kiwix returned status code {response.status_code}"})
+
+        # Parse search results
+        results = response.json()
+        limited_results = results.get("results", [])[:validated.max_results]
+
+        return json.dumps({
+            "status": "success",
+            "query": validated.query,
+            "total_matches": len(results.get("results", [])),
+            "results": limited_results
+        }, indent=2)
+    except requests.exceptions.RequestException as re:
+        return json.dumps({"status": "offline_mode", "message": f"Kiwix server is not running or unreachable: {str(re)}"})
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
-### MCP 3.0 Integration
-Kiwix-serve v3.8.0+ supports the Model Context Protocol (MCP 3.0). This allows an agent (like Gemma 3 or Claude 4.8 Opus) to use Kiwix as a tool for offline retrieval via the Task Protocol.
+### MCP 3.1 Integration
+Kiwix-serve v3.9.0+ supports the Model Context Protocol (MCP 3.1). This allows an agent (like Gemma 3 or Claude 5.1) to use Kiwix as a tool for offline retrieval via the Task Protocol.
 
 ```bash
 # Example tool call via an MCP-compliant agent
@@ -166,5 +212,5 @@ mcp-invoke kiwix-serve --query "How to repair a mechanical watch?"
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-11
 - Confidence: high

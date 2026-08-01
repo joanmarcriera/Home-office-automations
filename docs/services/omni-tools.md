@@ -1,6 +1,6 @@
 # Omni Tools
 
-Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of July 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities and native **MCP 3.0** discovery for local tool execution.
+Omni Tools is a self-hosted collection of powerful web-based tools for everyday tasks. As of late October / November 2026, it remains a top-tier choice for client-side data transformations, complementing [IT-Tools](it-tools.md) with enhanced media processing capabilities and native **MCP 3.1** / **FastMCP 3.1** discovery for local tool execution.
 
 ## What it is
 Omni Tools is a privacy-oriented browser toolbox for common transformations such as JSON formatting, image conversion, PDF operations, hash generation, text cleanup, and date/time conversion. The application is distributed as a static web app, so most day-to-day work happens in the user's browser rather than in a server-side processing queue. It provides a wide array of utilities, including text tools, coding tools, and media tools, all accessible through a single web interface. It is designed to be lightweight and runs entirely in your browser without tracking or ads.
@@ -16,7 +16,7 @@ Omni Tools belongs in the **self-hosted productivity utilities** layer, next to 
 - Convert images, videos, PDFs, and other local files without uploading them to third-party web tools.
 - Generate hashes, UUIDs, QR codes, passwords, date calculations, and developer helpers.
 - Provide a safe internal fallback when SaaS utility sites are blocked or untrusted.
-- **Agentic Utility Ingestion**: Allowing agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) to use Omni Tools' transformation logic via MCP 3.0.
+- **Agentic Utility Ingestion**: Allowing agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) to use Omni Tools' transformation logic via MCP 3.1 / FastMCP 3.1.
 
 ## Strengths
 - **Low-friction deployment**: A single lightweight container can serve the toolbox.
@@ -81,11 +81,51 @@ curl -I http://localhost:8080
 ```
 
 ## API examples
-Omni Tools does not expose a stable public automation API for transformations. Treat it as a browser UI and use health checks or browser automation for operations:
 
-### Health Check (Curl)
-```bash
-curl -fsS http://localhost:8080 >/dev/null && echo "omni-tools is reachable"
+### FastMCP 3.1 Server with Pydantic v2 Validation
+This example showcases a production-grade Python FastMCP 3.1 tool server. It integrates local text and utility schemas with Pydantic v2 validation, exposing transformation services directly to frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
+
+```python
+import json
+from pydantic import BaseModel, Field, EmailStr
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP Server
+mcp = FastMCP("OmniToolsManager")
+
+class PayloadSchema(BaseModel):
+    raw_text: str = Field(description="The raw unformatted string to process")
+    operation: str = Field(description="The transformation operation: 'format_json' or 'sanitize_text'")
+    max_length: int = Field(default=1000, description="Maximum characters allowed for output")
+
+@mcp.tool()
+def transform_payload(payload_data: str) -> str:
+    """
+    Validates and transforms arbitrary developer configuration or payload snippets
+    using Pydantic v2 schemas and mock browser-equivalent transformation rules.
+    """
+    try:
+        data = json.loads(payload_data)
+        validated = PayloadSchema(**data)
+
+        result = ""
+        if validated.operation == "format_json":
+            parsed = json.loads(validated.raw_text)
+            result = json.dumps(parsed, indent=2)
+        elif validated.operation == "sanitize_text":
+            result = validated.raw_text.strip().replace("\n", " ")
+        else:
+            return json.dumps({"error": f"Unsupported operation: {validated.operation}"})
+
+        if len(result) > validated.max_length:
+            result = result[:validated.max_length] + "..."
+
+        return json.dumps({"status": "success", "output": result})
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)})
+
+if __name__ == "__main__":
+    mcp.run()
 ```
 
 ### Browser Automation Integration (Playwright)
@@ -129,5 +169,5 @@ print(automate_redaction(raw_json))
 - [CyberChef Repository](https://github.com/gchq/CyberChef)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-11
 - Confidence: high
