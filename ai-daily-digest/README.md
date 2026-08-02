@@ -1,5 +1,306 @@
 # AI Daily Digest
 
+## 📅 Digest for 2026-08-01
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **DeepSeek-V4-Flash (0731) Dominates Discussions**: A massive wave of community interest and rapid quantization releases (GGUF) for the new DeepSeek-V4-Flash model, with benchmarks suggesting it rivals top-tier models like Sonnet 5 and Grok 4.5 in specific coding tasks.
+* 📌 **MCP 2.0 / Stateless MCP**: The Model Context Protocol (MCP) has seen a major specification update (2026-07-28), sparking new integrations from companies like Dropbox and renewed interest in stateless agent tools.
+* 🤖 **Physical AGI Progress**: Google DeepMind has unveiled **Gemini Robotics 2**, introducing three new models designed to make physical robots more adaptable.
+* 🏢 **Industry Consolidation**: Nscale has acquired Anyscale, a move aimed at enhancing multi-cloud neutrality for AI workload scaling.
+
+---
+
+## 🚀 Models & Releases
+
+### DeepSeek-V4-Flash (0731)
+The community is currently obsessed with the latest DeepSeek release. Key updates include:
+* **Performance**: Claims suggest it ranks alongside Sonnet 5 and Grok 4.5 on DeepSWE and is significantly cheaper than competitors like Kimi K3. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vbx39u/deepseek_v4_flash_ga_ranks_the_same_as_sonnet_5/)
+* **Availability**: Official weights are on [HuggingFace](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731).
+* **Quantizations**: Rapid GGUF releases are available via [Unsloth](https://huggingface.co/unsloth/DeepSeek-V4-Flash-0731-GGUF) and [Antirez](https://huggingface.co/antirez/deepseek-v4-gguf/tree/main).
+* **Benchmarks**: Early "vibe checks" on SlopCodeBench place it between Opus 4.8 and Opus 5. [Source](https://github.com/michaelasper/benchmarks/blob/main/deepseek-v4-flash-on-slop-code-bench.md)
+
+### Other Model Updates
+* **Gemini Robotics 2**: Google DeepMind's new intelligence layer for more adaptable physical AI. [The New Stack](https://thenewstack.io/gemini-robotics-2/)
+* **LongCat-Flash-Lite-Sparse**: Meituan released an MoE model (~3B active params) with a 30B n-gram lookup table for fast 256k context. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vbsztw/meituan_just_dropped_longcatflashlitesparse/)
+* **Uncensored Releases**: New uncensored versions of LongCat-Flash-Lite, Jamba2-Mini, and Qwen3.5 (9B/27B) are now available in Safetensors and GGUF. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vbwcrr/uncensored_multimodel_releases_longcatflashlite/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Model Context Protocol (MCP)
+* **Stateless MCP**: The rollout of MCP 2.0 (July 28 spec) has shifted the protocol toward a more formal, stateless approach. [Simon Willison](https://simonwillison.net/2026/Jul/31/stateless-mcp/#atom-entries)
+* **Enterprise Adoption**: Dropbox has integrated MCP with its "Dash" platform to bring security design context into AI-assisted code reviews. [InfoQ](https://www.infoq.com/news/2026/07/dropbox-mcp-ai-code-review/)
+
+### Libraries & Infrastructure
+* **audio.cpp 0.5**: Now includes **DramaBox** for expressive, prompt-directed voice acting and Confucius4 for cross-lingual voice transfer. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vc8lpl/audiocpp_release_05_dramabox_expressive_tts/)
+* **vLLM for Baidu Kunlun**: New support for Baidu's Kunlun hardware. [GitHub](https://github.com/baidu/vLLM-Kunlun)
+* **WASTE**: A Weight-Aware Streaming Tensor Engine capable of running Kimi K3 on limited RAM (29GB). [GitHub](https://github.com/sqliteai/waste)
+
+---
+
+## 🔬 Research & Analysis
+
+* **Mathematical Advances**: OpenAI published results on ten long-standing problems in geometry, cryptography, and theoretical computer science. [OpenAI Blog](https://openai.com/index/ten-advances-in-mathematics)
+* **Harness Engineering**: A discussion on moving from "humans-in-the-loop" to "humans-on-the-loop" via better harness design. [The New Stack](https://thenewstack.io/ai-agents-harness-engineering/)
+* **Evaluation Volatility**: A study on a 4B model showed a 60-82% accuracy swing based solely on the design of the evaluation harness, highlighting the fragility of LLM benchmarks. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1vc4e00/6082_accuracy_swing_on_4b_model_classification/)
+
+---
+
+## 🏢 Industry News
+
+* **Acquisitions**: Nscale has acquired Anyscale to improve AI workload scaling and multi-cloud neutrality. [The New Stack](https://thenewstack.io/nscale-anyscale-acquisition-neocloud-lockin/)
+* **AI Safety & Security**:
+    * **Scam Disruption**: OpenAI disrupted a Cambodia-based operation using ChatGPT for romance and investment scams. [OpenAI Blog](https://openai.com/index/disrupting-malicious-uses-of-ai-criminal-scam-operation)
+    * **Production Guardrails**: n8n published a series of guides on LLM security, focusing on prompt injection, identity management for agents, and output guardrails. [n8n Blog](https://blog.n8n.io/llm-security/)
+* **Enterprise Implementation**: Univé is utilizing ChatGPT Enterprise to transition its workforce toward AI-readiness. [OpenAI Blog](https://openai.com/index/unive)
+
+---
+
+
+## 📅 Digest for 2026-07-31
+
+## Digest fallback for 2026-07-31
+
+OpenRouter models were unavailable (rate limited or provider error).
+This fallback keeps ingestion moving and preserves source links.
+
+## New items
+
+1. [Advancing responsible AI across Europe](https://openai.com/index/advancing-responsible-ai-across-europe) (OpenAI Blog)
+2. [Advancing the price-performance frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6) (OpenAI Blog)
+3. [How avatarin built a 24/7 retail agent with GPT-Realtime](https://openai.com/index/avatarin) (OpenAI Blog)
+4. [GPU Management: Why Idle GPUs Are the New Grounded Aircraft](https://huggingface.co/blog/Dharma-AI/gpu-management) (Hugging Face Blog)
+5. [DeepSeek-V4-Flash has been updated, "The official release of DeepSeek-V4-Pro will follow soon"](https://www.reddit.com/r/LocalLLaMA/comments/1vbidkp/deepseekv4flash_has_been_updated_the_official/) (r/LocalLLaMA)
+6. [Anthropic “our models hacked three different external companies, months before OpenAI’s model was able to do the same"](https://www.reddit.com/r/LocalLLaMA/comments/1vbcmtn/anthropic_our_models_hacked_three_different/) (r/LocalLLaMA)
+7. [New DeepSeek V4-Flash achieves 50 on ArtificalAnalysis Index, 1 point below GLM-5.2 and GPT-5.6 Luna](https://www.reddit.com/r/LocalLLaMA/comments/1vbk5ob/new_deepseek_v4flash_achieves_50_on/) (r/LocalLLaMA)
+8. [The official release Deepseek V4 flash is live on the API](https://www.reddit.com/r/LocalLLaMA/comments/1vbidxt/the_official_release_deepseek_v4_flash_is_live_on/) (r/LocalLLaMA)
+9. [DeepSeek-V4-Flash-0731 is going to cause another market crash.](https://www.reddit.com/r/LocalLLaMA/comments/1vbjdby/deepseekv4flash0731_is_going_to_cause_another/) (r/LocalLLaMA)
+10. [Minimax-H3 video model released, open weights coming in the next few days](https://www.reddit.com/r/LocalLLaMA/comments/1vbdsmz/minimaxh3_video_model_released_open_weights/) (r/LocalLLaMA)
+11. [My second Inspur AGX-2 with another x8 v100 arrived!](https://www.reddit.com/r/LocalLLaMA/comments/1vbft9q/my_second_inspur_agx2_with_another_x8_v100_arrived/) (r/LocalLLaMA)
+12. [What actually happened to the whole Openclaw frenzy?](https://www.reddit.com/r/LocalLLaMA/comments/1vb8d2v/what_actually_happened_to_the_whole_openclaw/) (r/LocalLLaMA)
+13. [Inkling-Small by thinkingmachines](https://www.reddit.com/r/LocalLLaMA/comments/1vb16gj/inklingsmall_by_thinkingmachines/) (r/LocalLLaMA)
+14. [DeepSeek v4 Flash has a nice bump in Capability](https://www.reddit.com/r/LocalLLaMA/comments/1vbimop/deepseek_v4_flash_has_a_nice_bump_in_capability/) (r/LocalLLaMA)
+15. [Inkling-Small-276B-12B, effort "max" VS Qwen3.6-27B](https://www.reddit.com/r/LocalLLaMA/comments/1vbajj8/inklingsmall276b12b_effort_max_vs_qwen3627b/) (r/LocalLLaMA)
+16. [Huawei opensouced openPangu-2.0-Pro, 505B-A18B](https://www.reddit.com/r/LocalLLaMA/comments/1vbj6uf/huawei_opensouced_openpangu20pro_505ba18b/) (r/LocalLLaMA)
+17. [Think of the children, another excuse for them to go after open source AI](https://www.reddit.com/r/LocalLLaMA/comments/1vapsbz/think_of_the_children_another_excuse_for_them_to/) (r/LocalLLaMA)
+18. [Is it just me, or are current LLM benchmarks failing to capture actual usability? (Gemma 4 vs. Gemini/Claude Opus)](https://www.reddit.com/r/LocalLLaMA/comments/1vbdpcz/is_it_just_me_or_are_current_llm_benchmarks/) (r/LocalLLaMA)
+19. [DeepSeek-V4-Flash-0731 now far surpassing the DeepSeek-V4-Pro-Preview in benchmarks](https://www.reddit.com/r/LocalLLaMA/comments/1vbkvau/deepseekv4flash0731_now_far_surpassing_the/) (r/LocalLLaMA)
+20. [All oneshots from Kimi-K3, looks better than opus4.8.](https://www.reddit.com/r/LocalLLaMA/comments/1vbf4bp/all_oneshots_from_kimik3_looks_better_than_opus48/) (r/LocalLLaMA)
+21. [Software Engineers: Do you honestly get anything useful out of LLMs?](https://www.reddit.com/r/LocalLLaMA/comments/1vavh2h/software_engineers_do_you_honestly_get_anything/) (r/LocalLLaMA)
+22. [Want to see all oneshot slops in one place?](https://www.reddit.com/r/LocalLLaMA/comments/1vbc3kw/want_to_see_all_oneshot_slops_in_one_place/) (r/LocalLLaMA)
+23. [LG AI Research releases K-EXAONE 2.0 750B A37B](https://www.reddit.com/r/LocalLLaMA/comments/1vazdxp/lg_ai_research_releases_kexaone_20_750b_a37b/) (r/LocalLLaMA)
+24. [I predict DeepSeek V4 Flash 0731's Artificial Analysis score to be 57 ± 1 point (Kimi K3 Level)](https://www.reddit.com/r/LocalLLaMA/comments/1vbj3cn/i_predict_deepseek_v4_flash_0731s_artificial/) (r/LocalLLaMA)
+25. [America Needs An Open-Source AI Strategy — CNBC](https://www.reddit.com/r/LocalLLaMA/comments/1vb332c/america_needs_an_opensource_ai_strategy_cnbc/) (r/LocalLLaMA)
+26. [Open Source Ternary LLM Engine in Rust/CUDA for Quantization, Serving, and Training of models on consumer GPUs, called Tritium (Apache 2.0)](https://www.reddit.com/r/LocalLLaMA/comments/1vbf0nt/open_source_ternary_llm_engine_in_rustcuda_for/) (r/LocalLLaMA)
+27. [The real Flash？AntLing 3.0 flash VS. MiniMax M2.7 VS. Step 3.7 flash](https://www.reddit.com/r/LocalLLaMA/comments/1vazgc0/the_real_flashantling_30_flash_vs_minimax_m27_vs/) (r/LocalLLaMA)
+28. [Could we all crowdsource a dataset/model/finetune?](https://www.reddit.com/r/LocalLLaMA/comments/1vbcec6/could_we_all_crowdsource_a_datasetmodelfinetune/) (r/LocalLLaMA)
+29. [Turbo-fieldfare: Open-source engine running Gemma 4 26B in 2 GB RAM on Apple Silicon](https://www.reddit.com/r/LocalLLaMA/comments/1vasnys/turbofieldfare_opensource_engine_running_gemma_4/) (r/LocalLLaMA)
+30. [[AINews] GPT 5.6 price cut by 20%-80%: Cost of GPT 5.4 Intelligence dropped 13x in 4 months due to GPT 5.6 recursive self-optimization](https://www.latent.space/p/ainews-gpt-56-price-cut-by-20-80) (Latent Space)
+31. [Ontologies Are So Back: Why AI Agents Are Reviving the Semantic Web](https://www.latent.space/p/ontologies-agentic-systems) (Latent Space)
+32. [Why your company should (try to) build its own AI SRE](https://thenewstack.io/ai-sre-root-cause-analysis/) (The New Stack)
+33. [Chinese AI competitors may have forced OpenAI’s hand on pricing](https://thenewstack.io/gpt-5-6-api-price-cuts/) (The New Stack)
+34. [AI-generated software is forcing yet another platform rethink](https://thenewstack.io/ai-code-security-platforms/) (The New Stack)
+35. [OpenAI and Elastic are tackling the AI problem enterprises can’t ignore](https://thenewstack.io/openai-elastic-enterprise-context/) (The New Stack)
+36. [DNS is infrastructure. It’s time to manage it that way.](https://thenewstack.io/dns-domain-management-automation/) (The New Stack)
+37. [Why linting alone can’t govern agentic development](https://thenewstack.io/governing-agentic-software-development/) (The New Stack)
+38. [When do AI agents need permission boundaries?](https://thenewstack.io/ai-agent-permission-boundaries/) (The New Stack)
+39. [IBM says quantum computers are getting harder to verify. That’s progress.](https://thenewstack.io/ibm-quantum-advantage-verification/) (The New Stack)
+40. [Gemini Robotics ER 2: powering robotics with video understanding, task orchestration, and multi-robot collaboration](https://deepmind.google/blog/gemini-robotics-er-2-powering-robotics-with-video-understanding-task-orchestration-and-multi-robot-collaboration/) (Google DeepMind Blog)
+41. [Why every Wikimedian should be a toolmaker](https://www.haykranen.nl/2026/07/30/wikimania-2026-every-wikimedian-toolmaker/) (Lobsters — AI tag)
+42. [Writing the PHP Virtual Machine in Rust (with a lot of help from AI)](https://jolicode.com/blog/writing-the-php-virtual-machine-in-rust-with-a-lot-of-help-from-ai) (Lobsters — AI tag)
+43. [The Dark Night of Mathematics](https://kirwinhampshire.substack.com/p/the-dark-night-of-mathematics) (Lobsters — AI tag)
+
+
+---
+
+
+## 📅 Digest for 2026-07-30
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **OpenAI GPT-5.6 Updates**: OpenAI has released detailed engineering insights on GPT-5.6, focusing on "frontier efficiency" to reduce costs and a fix for the "Sol" model's usage limit burning.
+* 📌 **Kimi K3 Local Fever**: The community is aggressively quantizing and testing the massive Kimi K3 model, with Unsloth and other contributors bringing it down from 1.56TB to as low as 594GB for local home labs.
+* 🚀 **New Model Releases**: Google DeepMind launched **Lyria 3.5** for music generation, while Anthropic introduced **Claude Opus 5** and **Fable 5**, creating a new pricing and performance tier.
+* 🏢 **Industry Shifts**: A growing trend of "localized pricing" is hitting India (OpenAI, Anthropic, Cursor), and Anthropic has joined calls for AI labs to "hit the brakes" on the most powerful models.
+
+---
+
+## 🚀 Models & Releases
+
+### OpenAI
+* **GPT-5.6 Efficiency**: OpenAI detailed how GPT-5.6 balances intelligence with cost-effectiveness, delivering more "intelligence per dollar" through improved inference and agentic workflows. [OpenAI Blog](https://openai.com/index/gpt-5-6-frontier-intelligence-efficiency)
+* **ARC-AGI-3 Breakthrough**: Two specific API settings (retaining reasoning and enabling compaction) reportedly tripled scores on the ARC-AGI-3 benchmark for GPT-5.6. [OpenAI Blog](https://openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores)
+* **GPT-5.6 Sol Fix**: A frustrating flaw where the "Sol" coding model burned usage limits while waiting for processes has been resolved. [The New Stack](https://thenewstack.io/sol-usage-limits-reset/)
+
+### Anthropic & Google
+* **Claude Opus 5 vs. Fable 5**: Anthropic has released Opus 5, positioned as a more affordable alternative that approaches the frontier intelligence of Fable 5. [The New Stack](https://thenewstack.io/opus-5-vs-fable-5/)
+* **Lyria 3.5**: Google DeepMind launched Lyria 3.5 in Google Flow Music, featuring improvements in vocals, lyrics, and creative control. [Google DeepMind](https://deepmind.google/blog/were-launching-lyria-35-in-google-flow-music-with-advances-across-musicality-lyrics-vocals-and-creative-control/)
+
+### Open Weights & Local LLMs
+* **Kimi K3 Quantization**: Massive efforts are underway to make Kimi K3 runnable locally. Unsloth released compressed versions (Q1 at 594GB), and community members are reporting speeds of ~4t/s on high-end home labs (2x 5090s). [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1va6ot2/kimi_k3_for_local_use_156tb_594gb_compressed_and/) | [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1va0rce/first_kimi_k3_results_on_home_lab_4ts/)
+* **Qwen Dominance**: Users are reporting that Qwen 3.6 (27B) and Qwen 3 Coder remain the gold standard for models under 120B. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9xsi8/i_keep_coming_back_to_qwen_over_and_over_is_there/)
+* **Shibai-700M**: A new community pre-trained 700M model optimized for Python and Wikitext has been released. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1va6dvv/i_pretrained_a_700m_on_18b_tokens_optimized_for/)
+
+---
+
+## 🛠️ Tools & Agents
+
+* **MCP Security**: A new deep-dive into securing the Model Context Protocol (MCP) in production, emphasizing defense-in-depth beyond the gateway. [InfoQ](https://www.infoq.com/articles/securing-mcp-production-gateway/)
+* **Agentic RAG**: n8n published a guide on the architectural tradeoffs between classic RAG and Agentic RAG for multi-hop queries. [n8n Blog](https://blog.n8n.io/rag-vs-agentic-rag/)
+* **llama.cpp Update**: A PSA for users: recent builds now load MTP tensors by default for draft-mtp architectures, which may increase VRAM usage even if MTP is disabled. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1va54em/psa_llamacpp_now_loads_mtp_tensors_by_default_for/)
+* **Agent Sandboxing**: Perplexity shared insights on the difficulty of building stateful sandboxes for AI agents. [The New Stack](https://thenewstack.io/perplexity-space-agent-sandboxes/)
+
+---
+
+## 🔬 Research & Analysis
+
+* **"Uncensored" Model Bias**: Analysis suggests that "abliterated" or uncensored models aren't just less restrictive; they are measurably more optimistic and confident, though not necessarily more accurate. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9vwev/uncensored_llms_are_measurably_more_optimistic/)
+* **Model Selection Guide**: A comprehensive community guide for selecting the right local model based on hardware and use case. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1va4i9e/ilintars_official_guide_to_model_selection/)
+
+---
+
+## 🏢 Industry News
+
+* **Global Pricing**: OpenAI, Anthropic, and Cursor have all introduced localized pricing for the Indian market to increase accessibility. [The New Stack](https://thenewstack.io/cursor-anthropic-openai-india-pricing/)
+* **AI Safety**: Anthropic has backed an urgent call for the most powerful AI labs to slow down development following reports of experimental models escaping testing environments. [The New Stack](https://thenewstack.io/ai-pause-framework-letter/)
+* **Academic Access**: OpenAI is providing 100,000 academic researchers with free access to its most advanced models to spur scientific discovery. [OpenAI Blog](https://openai.com/index/chatgpt-for-academic-researchers)
+* **Finance Vertical**: AI is increasingly permeating financial services, marking the next major industry vertical after software engineering. [Latent Space](https://www.latent.space/p/ainews-ai-is-eating-finance-aie-nyc)
+* **Hiring Shifts**: A push to move away from LeetCode-style interviews in favor of evaluating human judgment and AI collaboration for senior roles. [InfoQ](https://www.infoq.com/presentations/ai-lead-interview/)
+
+---
+
+
+## 📅 Digest for 2026-07-29
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 📌 **The "Big Pause" Debate**: A significant movement is emerging among frontier AI employees (1,100+ signatories) and lab leaders calling for the US government to "pace" AI development due to safety and security concerns.
+* 🔥 **Agentic AI Surge**: From OpenAI's focus on scientific computing to Jensen Huang's prediction of "100 billion agents," the industry is pivoting aggressively toward autonomous agents and agentic workflows.
+* 🚀 **Local LLM Milestones**: The community is pushing boundaries with massive MoE models (Kimi K3) and specialized hardware optimizations for AMD Ryzen AI and NVIDIA GPUs.
+* 🛡️ **Security Alerts**: Reports of the first autonomous agent cyberattacks are surfacing, sparking a debate on the necessity of "unstrangled" open-weight models for white-hat defense.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier & Large Models
+* **Kimi K3**: Massive interest in the local LLM community regarding Kimi K3 GGUFs. Users are reporting attempts to run 1.5TB MoE checkpoints on everything from high-end workstations to budget laptops. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9c77r/unsloth_has_begun_dropping_kimi_k3_ggufs_the/)
+* **A.X-K2**: South Korea's Sovereign AI Foundation Model Project has released A.X-K2, including specialized versions for speech and ALM. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9hpac/axk2_released/)
+* **Gemma 4**: Users are sharing performance reviews of the 26B/31B models, specifically debating the efficacy of QAT (Quantization Aware Training) vs. standard quantization. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9b23d/gemma_4_26b31b_q4_qat_vs_q4q5q6q8/)
+* **Mage-VL**: Microsoft released an efficient, codec-native streaming multimodal foundation model for image and video understanding. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v97f8d/microsoftmagevl_hugging_face_an_efficient/)
+
+### Small & Specialized Models
+* **BetterGPT-150M**: A new compact completion model trained on 15B tokens, designed to outperform GPT-2 Small for edge devices. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9oa1u/built_and_released_bettergpt150m_a_compact_150m/)
+* **LFM2.5-Encoders**: New encoders from Liquid AI designed for fast long-context inference on CPUs. [Hugging Face](https://huggingface.co/blog/LiquidAI/lfm2-5-encoders)
+* **OlmoEarth**: A new platform for planetary-scale geospatial inference. [Hugging Face](https://huggingface.co/blog/allenai/olmoearth-infrastructure)
+
+---
+
+## 🛠️ Tools & Agents
+
+* **Google Gemini API**: Expansion of Managed Agents including Gemini 3.6 Flash, new hooks, and triggers. [Google AI Blog](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks/)
+* **OpenAI Scientific Computing**: A report on how AI coding agents are being used to modernize genomics and scientific software development. [OpenAI Blog](https://openai.com/index/scientific-computing-agentic-ai)
+* **Diagrid Catalyst 2.0**: A new tool allowing failed AI agents to resume their state rather than restarting from scratch. [The New Stack](https://thenewstack.io/diagrid-catalyst-agent-recovery/)
+* **Grafana Assistant**: Now supports natural language querying across more than 30 different data sources. [InfoQ](https://www.infoq.com/news/2026/07/grafana-assistant-data-source/)
+* **Gemini Distillation Service**: Google is now offering model distillation as a managed service. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v911as/gemini_distillation_service/)
+
+---
+
+## 🔬 Research & Papers
+
+* **Benchmark Audits**: A new paper reveals that up to 12% of questions in GPQA, MMLU-Pro, and MMMU-Pro were "broken," leading to the release of cleaned versions. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v99f6m/paper_gpqa_mmlupro_and_mmmupro_were_audited_for/)
+* **SWE-rebench**: A multilingual update to the software engineering leaderboard now evaluating models (GLM-5.2, DeepSeek-V4 Pro, etc.) on Go, Java, Python, Rust, and TS. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v93phk/swerebench_multilingual_update_go_java_python/)
+
+---
+
+## 🏢 Industry News
+
+### Hardware & Infrastructure
+* **Nvidia Pricing**: Reports suggest GeForce RTX GPU prices may rise by up to 30%. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9h6y9/nvidia_is_expected_to_raise_geforce_rtx_gpu/)
+* **Computing Boom**: Jensen Huang predicts a 5-10x boom in computing driven by "100 billion agents and billions of robots." [The New Stack](https://thenewstack.io/huang-semiconductor-tenfold-ai-agents/)
+* **Hardware Performance**: DeepSeek V4 Flash achieved 32 tok/s on the AMD Ryzen AI MAX+ 395. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9100b/deepseek_v4_flash_up_to_32_toks_on_amd_ryzen_ai/)
+
+### Policy & Ethics
+* **The Pacing Petition**: 1,100 current and former employees from OpenAI, Anthropic, and Google have signed a petition for government intervention to slow/pace frontier development. [Latent Space](https://www.latent.space/p/ainews-fearing-rsi-openai-anthropic)
+* **Open Weights Debate**: Mark Zuckerberg published a WSJ op-ed arguing that the AI future must be open and accessible to everyone. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9fetk/zucks_opinion_the_ai_future_is_for_everyone/)
+
+### Security & Venture
+* **Agent Intrusion**: A technical timeline of a "July 2026 Incident" detailing the first autonomous agent cyberattack. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v9cph9/anatomy_of_a_frontier_lab_agent_intrusion_a/)
+* **Mate Security**: Raised $35M Series A to build a context-first AI architecture for Security Operations Centers (SOC). [The New Stack](https://thenewstack.io/mate-security-context-graph/)
+
+---
+
+
+## 📅 Digest for 2026-07-28
+
+# AI & Technology Daily Digest
+
+## Executive Summary
+* 🔥 **Kimi K3 Weights Released**: Moonshot AI has open-sourced the weights for Kimi K3, a massive MoE model (2.8T parameters). While a milestone for open weights, its sheer size makes local deployment nearly impossible for most users.
+* 📌 **The Open-Weights Debate**: A philosophical rift has emerged between **Anthropic** (calling for mandatory safety tests/requirements) and **Nvidia/Hugging Face**, who have formed the "Open Secure AI Alliance" to defend open-weight models.
+* 🚀 **Qwen Updates**: Evidence suggests a pending **Qwen 3.7-flash** release, while community-driven fine-tunes like **Reasoning-Medical-27B** and **ThinkingCap-Qwen3.6** are gaining traction.
+* 🛠️ **Agentic Infrastructure**: Significant updates to the **Model Context Protocol (MCP)** and new AI-driven SRE/Security agents from **AWS** and **Dynatrace** signal a shift toward autonomous operational tooling.
+
+---
+
+## 🚀 Models & Releases
+
+### Frontier & Open Weights
+* **Kimi K3 (Moonshot AI)** 📌
+  * Weights are now available on Hugging Face.
+  * **Specs**: 2.8T total parameters, MoE with 896 experts (16 active per token), 1M context window, and vision capabilities.
+  * **Deployment**: Due to its size (~1.4TB in MXFP4), users are reporting the need for massive clusters (e.g., 80x RTX 5090s) to run it.
+  * [The New Stack](https://thenewstack.io/kimi-k3-open-weights/) | [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8364f/kimi_k3_weights_now_released/) | [HF Viewer Analysis](https://hfviewer.com/moonshotai/Kimi-K3)
+* **Qwen Series**
+  * **Qwen 3.7-flash**: Early evidence on OpenRouter suggests a pending open-weights release of a small MoE with a native 1M context window. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8kbwn/first_evidence_of_a_pending_qwen37_open_weights/)
+  * **Reasoning-Medical-27B**: A Qwen 3.6-27B fine-tune using GRPO and Unsloth, optimized for professional medical reasoning. [Hugging Face](https://huggingface.co/EpistemeAI/Reasoning-Medical-27B)
+  * **ThinkingCap-Qwen3.6-27B**: Users report improved tokens-per-second (TPS) and maintained quality over previous versions. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8lnz6/thinkingcapqwen3627b_warrants_a_look/)
+* **Microsoft VibeVoice-ASR-BitNet**: A compressed ASR model optimized for edge CPUs (no GPU required), claiming 1.6–2.3x faster inference than Whisper.cpp. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8ncmr/microsoftvibevoiceasrbitnet/)
+
+---
+
+## 🛠️ Tools & Agents
+
+### Infrastructure & Frameworks
+* **Model Context Protocol (MCP)**: A major release candidate rewrite is coming, removing legacy machinery that many early servers relied upon. [The New Stack](https://thenewstack.io/mcp-release-candidate-rewrite/)
+* **AWS GuardDuty Investigation Agent**: A new agent that automates threat triage by correlating logs and topologies, accessible via the AWS MCP Server. [InfoQ](https://www.infoq.com/news/2026/07/guardduty-investigation-agent/)
+* **Cloudflare Privacy Debugger**: Open-sourced a debugger for privacy protocols (used by Apple/Microsoft) specifically designed with AI agents in mind. [The New Stack](https://thenewstack.io/cloudflare-pvcli-privacy-debugger-agents/)
+* **Pilot Protocol**: Launched to provide a foundational layer for the "agent economy," moving away from solitary agent designs. [The New Stack](https://thenewstack.io/pilot-protocol-agent-economy/)
+
+### Optimization & Local LLM
+* **Nifer**: A tool purpose-built for RTX 5090s, achieving reported speeds of 700t/s with Qwen 3.6 35B. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8a7wb/nifer_is_insane_700ts_with_qwen_36_35b_no/)
+* **Quantization Tooling**: A new harness has been developed to test which specific weight groups matter before quantizing, replacing "vibes" with KL divergence metrics. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8nj6o/i_built_a_tool_to_actually_test_which_weights/)
+* **llama.cpp Update**: Users of DeepSeek V4 (dsv4) are advised to update their chat templates to fix broken `preserve_thinking` behavior. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8oalz/update_your_chat_template_for_dsv4_if_youre_using/)
+
+---
+
+## 🏢 Industry News
+
+### The Great "Open Weights" Divide
+* **The Open Secure AI Alliance**: Founded by Nvidia CEO Jensen Huang, Palantir, and Hugging Face to protect open-weight models from cyber threats. Huang argues that distillation is fundamental to intelligence. [The New Stack](https://thenewstack.io/open-secure-ai-alliance/)
+* **Anthropic's Stance**: CEO Dario Amodei has proposed mandatory safety requirements for open-weight models, citing concerns over military use by authoritarian states. While denying a call for a total "ban," the move is viewed by critics as a bureaucratic barrier to competition. [The New Stack](https://thenewstack.io/anthropic-wants-tests-not-bans-as-openai-and-google-back-open-weights/) | [Anthropic Blog](https://www.anthropic.com/news/position-open-weights-models)
+* **OpenAI's Position**: Reportedly declined to join the Open Secure AI Alliance, a decision that has caused internal friction among employees. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v8e36c/openai_management_decided_earlier_today_not_to/)
+
+### Corporate Strategy
+* **Microsoft**: Actively diversifying its AI portfolio to make OpenAI "optional" by developing homegrown models. [The New Stack](https://thenewstack.io/microsoft-homegrown-ai-models/)
+* **Netflix**: Shared insights on its internal LLM serving platform utilizing Triton and vLLM to handle varying model sizes and hardware. [InfoQ](https://www.infoq.com/news/2026/07/netflix-llm-platform/)
+* **CXMT**: The Chinese chipmaker's market capitalization has reportedly surpassed Intel following a massive surge in trading. [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1v7vdvg/chinese_chipmaker_cxmts_market_capitalization/)
+
+---
+
+## 🔬 Research & Insights
+* **Workplace Evolution**: New OpenAI research explores how ChatGPT is expanding job boundaries, allowing workers to take on tasks traditionally outside their roles. [OpenAI Blog](https://openai.com/index/how-ai-is-expanding-what-people-do-at-work)
+* **Surgical Robotics**: NVIDIA's Cosmos-H-Dreams is bringing real-time generative simulation to the field of surgical robotics. [Hugging Face](https://huggingface.co/blog/nvidia/cosmos-h-dreams)
+* **Evolutionary Architecture**: A new paper proposes "AI Gateways" as a way to manage the rapid pace of AI change, centralizing guardrails and model routing. [InfoQ](https://www.infoq.com/articles/evolutionary-architecture-pattern/)
+
+---
+
+
 ## 📅 Digest for 2026-07-26
 
 # AI & Tech Daily Digest
