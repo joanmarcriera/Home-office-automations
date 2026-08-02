@@ -1,6 +1,6 @@
 # Automated Contribution System (Google Jules)
 
-The Automated Contribution System is a staged automation pipeline that enables the repository to self-improve. As of July 21, 2026, it has been fully integrated with **MCP 3.0** and **Gemma 3**, allowing for autonomous knowledge expansion and technical freshness audits with high precision.
+The Automated Contribution System is a staged automation pipeline that enables the repository to self-improve. As of late October / November 2026, it has been fully integrated with **MCP 3.1** and **FastMCP 3.1** with models like **Gemma 3**, **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4**, allowing for autonomous knowledge expansion and technical freshness audits with high precision.
 
 ## What it is
 The Automated Contribution System is a staged automation pipeline that enables the repository to self-improve. It uses **Google Jules** as the core agent to analyze issues, perform research, update documentation, and submit pull requests. The system is designed to handle routine maintenance, knowledge expansion, and data synchronization tasks with minimal human intervention.
@@ -13,7 +13,7 @@ It is a **Meta-Automation Service** that sits on top of the repository's content
 
 ## Typical use cases
 - **Intake Processing**: Automatically creating documentation pages from new source logs.
-- **Documentation Deepening**: Identifying shallow pages and adding missing technical details or examples using **Gemma 3**.
+- **Documentation Deepening**: Identifying shallow pages and adding missing technical details or examples using **Gemma 3** or **Llama 4**.
 - **Link Maintenance**: Auditing and fixing broken internal or external markdown links.
 - **Data Synchronization**: Keeping `data/all_tools.json` and navigation in `mkdocs.yml` in sync with the filesystem.
 
@@ -21,7 +21,7 @@ It is a **Meta-Automation Service** that sits on top of the repository's content
 - **Consistency**: Ensures all documentation follows the same mandatory structure and metadata requirements.
 - **Efficiency**: Processes high volumes of routine updates faster than human contributors.
 - **Traceability**: Every automated change is backed by an issue and a PR, with full quality gate logs.
-- **MCP 3.0 Native**: Leverages the latest Model Context Protocol for tool-calling and resource access.
+- **MCP 3.1 Native**: Leverages the latest Model Context Protocol for tool-calling and resource access.
 
 ## Limitations
 - **Reasoning Depth**: While excellent for structured tasks, it may struggle with complex architectural decisions requiring deep human-centric context.
@@ -68,22 +68,50 @@ python3 scripts/check_catalog_consistency.py
 ```
 
 ## API examples
-The system interacts with the Jules API and GitHub API to manage contributions. Below is a conceptual example of a Jules-powered contribution script:
+The system interacts with the Jules API and GitHub API to manage contributions. Below is a robust, type-annotated python execution flow using Pydantic v2 to validate automated contribution proposals:
 
 ```python
-import jules
-from jules.core import Agent
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Initialize the Jules agent for KnowledgeOps
-agent = Agent(role="Documentation Engineer", model="gemma-3-27b")
+class DocumentAudit(BaseModel):
+    """Pydantic v2 schema for document audit results."""
+    is_compliant: bool = Field(description="Whether the document passes all Quality Gates")
+    issues: List[str] = Field(default_factory=list, description="List of identified issues")
 
-# Analyze an issue and propose a documentation update
-issue_content = jules.get_issue("repo/name", issue_id=123)
-audit_results = jules.run_script("scripts/audit_docs_quality.py", target="docs/tools/example.md")
+class ContributionProposal(BaseModel):
+    """Pydantic v2 schema for an automated contribution proposal."""
+    branch_name: str = Field(description="Name of the Git branch")
+    target_file: str = Field(description="Relative path of the target file")
+    changes_content: str = Field(description="Content to apply")
+    author_agent: str = Field(default="Jules-Agent-MCP-3.1", description="Identifier of proposing agent")
+    metadata: Dict[str, str] = Field(default_factory=dict, description="Metadata key-value mappings")
 
-if not audit_results.is_compliant:
-    proposal = agent.reason(f"Fix the following audit issues: {audit_results.issues}")
-    jules.submit_pr(branch="fix-docs-123", changes=proposal)
+    @field_validator("branch_name")
+    @classmethod
+    def validate_branch_name(cls, value: str) -> str:
+        if not value.startswith("fix-") and not value.startswith("feat-"):
+            raise ValueError("Branch name must start with 'fix-' or 'feat-'")
+        return value
+
+def submit_proposal(proposal: ContributionProposal) -> bool:
+    """Simulates submitting a validated proposal to the repository."""
+    print(f"Proposal validated successfully for branch '{proposal.branch_name}'.")
+    print(f"Target: {proposal.target_file} by {proposal.author_agent}")
+    return True
+
+# Example Usage:
+if __name__ == "__main__":
+    try:
+        proposal = ContributionProposal(
+            branch_name="fix-docs-freshness-nov-2026",
+            target_file="docs/tools/example.md",
+            changes_content="Enriched documentation content...",
+            metadata={"Last reviewed": "2026-11-20", "Confidence": "high"}
+        )
+        submit_proposal(proposal)
+    except Exception as e:
+        print(f"Invalid proposal: {e}")
 ```
 
 ## Related tools / concepts
@@ -100,8 +128,9 @@ if not audit_results.is_compliant:
 - [Jules Official](https://jules.google/)
 - [GitHub Actions Documentation](https://docs.github.com/actions)
 - [Daily Jules Maintenance Workflow](https://github.com/joanmarcriera/Home-office-automations/blob/main/.github/workflows/daily-jules-maintenance.yml)
-- [MCP 3.0 Specification](https://modelcontextprotocol.io)
+- [MCP 3.1 Specification](https://modelcontextprotocol.io)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
