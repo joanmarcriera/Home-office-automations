@@ -3,7 +3,7 @@
 Diagnostic analytics often requires more than just a SQL query. Answering "Why did revenue drop?" requires looking at data (SQL), standard operating procedures (SOPs), policy changes (Meeting Notes), and external factors. This pattern defines an agentic retrieval system that decides between structured (SQL) and unstructured (Docs) sources.
 
 ## What it is
-The Agentic RAG (Retrieval-Augmented Generation) and Hybrid Retrieval pattern is a sophisticated data access strategy where an AI agent acts as a dynamic planner. By July 2026, this pattern has matured with [Gemma 3](../../tools/ai_knowledge/local_llms.md) providing high-efficiency local planning and the **MCP 3.0 Task Protocol** standardizing how agents hand off sub-tasks between specialized retrieval tools. It determines the most effective way to answer a complex query by coordinating between structured data sources (like SQL databases) and unstructured data sources (like Markdown documentation or PDFs).
+The Agentic RAG (Retrieval-Augmented Generation) and Hybrid Retrieval pattern is a sophisticated data access strategy where an AI agent acts as a dynamic planner. In late October / November 2026, this pattern has matured with [Gemma 3](../../tools/ai_knowledge/local_llms.md) and [Llama 4](../../tools/ai_knowledge/local_llms.md) providing high-efficiency local planning and the **MCP 3.1 Task Protocol** standardizing how agents hand off sub-tasks between specialized retrieval tools. It determines the most effective way to answer a complex query by coordinating between structured data sources (like SQL databases) and unstructured data sources (like Markdown documentation or PDFs).
 
 ### Hybrid Retrieval Workflow
 
@@ -29,18 +29,19 @@ flowchart TD
 Traditional RAG often fails at complex diagnostic questions (e.g., "Why did revenue drop?") because the answer is split across multiple systems. Structured data provides the "what" (the numbers), while unstructured documents provide the "why" (policy changes, meeting notes, project logs). This pattern bridges that gap, providing a unified, causal explanation.
 
 ## Where it fits in the stack
-This pattern resides at the **Reasoning & Orchestration Layer** of the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md). It serves as the intelligence layer above the raw [MCP Tooling](data-copilot-mcp-tooling.md) and database connectors, leveraging **FastMCP 3.0** for low-latency tool discovery and execution.
+This pattern resides at the **Reasoning & Orchestration Layer** of the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md). It serves as the intelligence layer above the raw [MCP Tooling](data-copilot-mcp-tooling.md) and database connectors, leveraging **FastMCP 3.1** for low-latency tool discovery and execution.
 
 ## Typical use cases
 - **Root Cause Analysis**: Diagnosing business metric fluctuations by correlating data spikes with project logs.
 - **Compliance Auditing**: Checking if financial transactions (SQL) adhere to corporate travel policies (RAG).
 - **Customer Support**: Troubleshooting technical issues by matching user account history (SQL) with technical manuals (RAG).
 - **Personal Finance**: Explaining spending anomalies by linking bank statements to calendar events and receipts.
+- **Planner Logic Validation**: Programmatically routing queries using schema validation models in Python.
 
 ## Strengths
 - **Comprehensive Context**: Combines quantitative proof with qualitative reasoning.
 - **Autonomous Investigation**: Can perform "multi-hop" queries to track down missing information without human intervention.
-- **Late Interaction (ColBERT)**: By 2026, agentic RAG has pivoted towards "late interaction" models like ColBERTv2 for significantly higher retrieval precision in deep research tasks.
+- **Late Interaction (ColBERT)**: By late 2026, agentic RAG has pivoted towards "late interaction" models like ColBERTv2 for significantly higher retrieval precision in deep research tasks.
 - **Traceability**: Provides a clear audit trail from the final answer back to both database rows and document snippets.
 
 ## Limitations
@@ -113,23 +114,62 @@ mcp-cli call filesystem_server search_docs "revenue drop meeting notes"
 ```
 
 ## API examples
-The following example shows a simplified "Planner" logic in Python.
+
+### Agentic Planner Route Schema (Python & Pydantic v2)
+The following Python script defines how a Planner Agent routes incoming requests, validating and scoring the classification using modern Pydantic v2 models.
 
 ```python
-def planner_route(query: str) -> str:
-    structured_keywords = ["total", "count", "average", "highest"]
-    unstructured_keywords = ["why", "policy", "process", "reason"]
+from enum import Enum
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
-    if any(k in query.lower() for k in structured_keywords) and any(k in query.lower() for k in unstructured_keywords):
-        return "hybrid"
-    elif any(k in query.lower() for k in unstructured_keywords):
-        return "rag"
-    else:
-        return "sql"
+class RouteDestination(str, Enum):
+    """The target retrieval system for the query."""
+    SQL = "sql"
+    RAG = "rag"
+    HYBRID = "hybrid"
 
-# Example usage
-route = planner_route("Why did grocery spending spike last week?")
-print(f"Routing to: {route}") # Output: hybrid
+class QueryAnalysis(BaseModel):
+    """Pydantic v2 schema for capturing planner-analyzed query parameters and routing."""
+    original_query: str = Field(..., description="The unmodified user request query string")
+    route: RouteDestination = Field(..., description="Calculated routing destination based on keywords and heuristics")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="The planner's classification confidence")
+    extracted_keywords: List[str] = Field(default_factory=list, description="Extracted semantic entities or keywords")
+
+    @field_validator("route", mode="before")
+    @classmethod
+    def apply_keyword_heuristics(cls, v: str, info) -> str:
+        """Heuristically override route based on presence of key terms if classification is ambiguous."""
+        query = info.data.get("original_query", "").lower()
+        structured_keywords = ["total", "count", "average", "highest", "percent"]
+        unstructured_keywords = ["why", "policy", "process", "reason", "explain"]
+
+        has_struct = any(k in query for k in structured_keywords)
+        has_unstruct = any(k in query for k in unstructured_keywords)
+
+        if has_struct and has_unstruct:
+            return RouteDestination.HYBRID
+        elif has_unstruct:
+            return RouteDestination.RAG
+        elif has_struct:
+            return RouteDestination.SQL
+        return v
+
+# Example Verification Usage
+if __name__ == "__main__":
+    test_payload = {
+        "original_query": "Why did grocery spending spike in June?",
+        "route": "sql", # Will be heuristically overridden to hybrid
+        "confidence_score": 0.95,
+        "extracted_keywords": ["grocery", "spending", "spike", "june"]
+    }
+
+    try:
+        analyzed_query = QueryAnalysis.model_validate(test_payload)
+        print(f"Analysis Succeeded! Route: {analyzed_query.route.value}")
+        print(f"Confidence: {analyzed_query.confidence_score}")
+    except ValidationError as e:
+        print(f"Validation failed: {e.json(indent=2)}")
 ```
 
 ## Related tools / concepts
@@ -152,5 +192,5 @@ print(f"Routing to: {route}") # Output: hybrid
 - [ColBERTv2: Effective and Efficient Retrieval](https://arxiv.org/abs/2112.01488)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
