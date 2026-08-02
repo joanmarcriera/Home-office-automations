@@ -1,16 +1,16 @@
 # Model Comparison and Evaluation
 
 ## What it is
-Model comparison and evaluation is the systematic process of measuring the performance, reliability, and cost-effectiveness of Large Language Models (LLMs). In July 2026, this extends beyond simple text accuracy to include "Agentic Latency," "Chain-of-Thought Depth," and "Tool-Use Reliability" (under the **Model Context Protocol (MCP) 3.0** standard). It involves using standardized benchmarks (MMLU, SWE-bench), human preference arenas (Chatbot Arena), and specialized agentic tests (Terminal-Bench) to guide model selection for specific technical tasks across various families (e.g., Gemma 3, Claude 5.1, and GPT-5).
+Model comparison and evaluation is the systematic process of measuring the performance, reliability, and cost-effectiveness of Large Language Models (LLMs). In late October / November 2026, this extends beyond simple text accuracy to include "Agentic Latency," "Chain-of-Thought Depth," and "Tool-Use Reliability" under the **Model Context Protocol (MCP) 3.1** standard. It involves using standardized benchmarks (MMLU, SWE-bench), human preference arenas (Chatbot Arena), and specialized agentic tests (Terminal-Bench) to guide model selection for specific technical tasks across various families (e.g., Gemma 3, Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Qwen 3.6).
 
 ## What problem it solves
-It solves the "black box" problem of AI by providing objective data to guide model selection. Without systematic evaluation, organizations risk overpaying for "frontier" models (like Claude 5.1 or GPT-5) when a smaller, highly efficient open-weights model (like Gemma 3-27B or Gemma 3-12B) would suffice. It also mitigates the risk of deploying models that are prone to hallucination or lack the reasoning depth required for complex [Agentic Workflows](patterns/agentic-workflows.md).
+It solves the "black box" problem of AI by providing objective data to guide model selection. Without systematic evaluation, organizations risk overpaying for "frontier" models (like Claude 5.1 or GPT-5.5) when a smaller, highly efficient open-weights model (like Gemma 3-27B, Gemma 3-12B, or Qwen 3.6-72B) would suffice. It also mitigates the risk of deploying models that are prone to hallucination or lack the reasoning depth required for complex [Agentic Workflows](patterns/agentic-workflows.md).
 
 ## Where it fits in the stack
 Evaluation sits at the **Quality & Governance Layer** of the AI stack. It informs the logic in the [Model Routing Guide](model_routing_guide.md) and provides the success metrics for [Prompt Engineering](patterns/prompt_requests.md). It is the critical feedback loop that enables "Satisfaction-Based Validation" in automated software factories.
 
 ## Typical use cases
-- **Model Selection**: Choosing between frontier reasoning models (GPT-5, Claude 5.1) for complex coding or reasoning vs. smaller, highly optimized models (such as Gemma 3-4B) for high-speed, low-cost tasks.
+- **Model Selection**: Choosing between frontier reasoning models (GPT-5.5, Claude 5.1) for complex coding or reasoning vs. smaller, highly optimized models (such as Gemma 3-4B or Qwen 3.6-14B) for high-speed, low-cost tasks.
 - **Agentic Benchmarking**: Evaluating how well a model operates in terminal shells or developer workspaces using **Terminal-Bench (Terminus 2)** or manages multi-step web workflows using **PA-bench**.
 - **Reasoning Depth Analysis**: Measuring chain-of-thought (CoT) transparency and correctness in reasoning models like DeepSeek R1 or OpenAI o3/o5.
 - **Regression Testing**: Ensuring that fine-tuned local models or modified system prompts haven't degraded core performance.
@@ -31,7 +31,7 @@ Evaluation sits at the **Quality & Governance Layer** of the AI stack. It inform
 ## When to use it
 - When selecting a foundational model for a new product, local agentic stack, or enterprise pipeline.
 - During the development of [Agentic RAG](patterns/data-copilot-agentic-rag.md) to measure retrieval and generation accuracy.
-- When evaluating the impact of [MCP 3.0](patterns/tool-calling-and-mcp.md) tool definitions on model performance.
+- When evaluating the impact of [MCP 3.1](patterns/tool-calling-and-mcp.md) tool definitions on model performance.
 - When deciding whether to upgrade to a newly released frontier model (e.g., Claude 5.1).
 
 ## When not to use it
@@ -41,7 +41,7 @@ Evaluation sits at the **Quality & Governance Layer** of the AI stack. It inform
 
 ## Getting started
 
-### Key Benchmarks (July 2026)
+### Key Benchmarks (Late October / November 2026)
 1.  **[Chatbot Arena (LMSYS)](../tools/benchmarking/chatbot-arena.md)**: The "Gold Standard" for human preference and general helpfulness.
 2.  **[Terminal-Bench (Terminus 2)](../tools/benchmarking/terminal-bench.md)**: The primary benchmark for evaluating LLM interaction with a Linux shell and tmux.
 3.  **[Humanity's Last Exam (HLE)](../tools/benchmarking/humanitys-last-exam.md)**: A frontier-difficulty benchmark designed for models approaching human-level reasoning.
@@ -49,7 +49,7 @@ Evaluation sits at the **Quality & Governance Layer** of the AI stack. It inform
 5.  **[GPQA](../tools/benchmarking/gpqa.md)**: Expert-level Q&A in STEM fields that is "google-proof."
 
 ### Running a Basic Evaluation
-Using the `inspect-ai` framework (standard in 2026):
+Using the `inspect-ai` framework (standard in late 2026):
 
 ```bash
 # Install the inspection tool
@@ -65,8 +65,8 @@ inspect eval terminal_bench --model anthropic/claude-5-1-sonnet
 Using the `llmperf` CLI to measure TPS and TTFT:
 
 ```bash
-# Compare GPT-5 and Claude 5.1 on a 1000-token generation task
-llmperf compare --models openai/gpt-5,anthropic/claude-5.1-sonnet --tokens 1000
+# Compare GPT-5.5 and Claude 5.1 on a 1000-token generation task
+llmperf compare --models openai/gpt-5.5,anthropic/claude-5.1-sonnet --tokens 1000
 ```
 
 ### Checking Leaderboard Status
@@ -77,28 +77,54 @@ chatbot-arena-cli top 5 --category coding
 
 ## API examples
 
-### Programmatic Evaluation with RAGAS
-Measuring the accuracy of a RAG system:
+### Programmatic Evaluation with RAGAS and Pydantic v2
+Measuring the accuracy of a RAG system and validating evaluation scores using Pydantic v2 schemas:
 
 ```python
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 from ragas import evaluate
 from ragas.metrics import faithfulness, answer_relevancy
 
+class EvalResultSchema(BaseModel):
+    """Schema for validating LLM evaluation metrics to ensure they stay in-bounds."""
+    model_name: str = Field(..., description="Name of the model being evaluated.")
+    faithfulness_score: float = Field(..., ge=0.0, le=1.0, description="Faithfulness of response.")
+    relevancy_score: float = Field(..., ge=0.0, le=1.0, description="Relevancy of answer.")
+    metadata: Optional[dict] = Field(default_factory=dict, description="Custom evaluation metadata.")
+
+    @field_validator("faithfulness_score", "relevancy_score")
+    @classmethod
+    def validate_metrics(cls, val: float) -> float:
+        if val < 0.0 or val > 1.0:
+            raise ValueError("Evaluation scores must be strictly between 0.0 and 1.0 inclusive.")
+        return val
+
 # Dataset containing the question, answer, and retrieved context
 data_samples = {
-    'question': ['How do I configure MCP 3.0?'],
-    'answer': ['You use the FastMCP Python SDK...'],
-    'contexts': [['The MCP 3.0 specification emphasizes...']]
+    'question': ['How do I configure MCP 3.1?'],
+    'answer': ['You use the FastMCP Python SDK with fastmcp-3.1 spec...'],
+    'contexts': [['The MCP 3.1 specification emphasizes...']]
 }
 
-# Evaluate the samples using GPT-5 as the judge
+# Evaluate the samples using GPT-5.5 as the judge
 result = evaluate(
     data_samples,
     metrics=[faithfulness, answer_relevancy],
-    llm="openai/gpt-5"
+    llm="openai/gpt-5.5"
 )
 
-print(f"RAG Faithfulness: {result['faithfulness']}")
+# Validate the raw output using Pydantic v2 BaseModel parsing
+validated_result = EvalResultSchema(
+    model_name="openai/gpt-5.5",
+    faithfulness_score=result['faithfulness'],
+    relevancy_score=result['answer_relevancy'],
+    metadata={"version": "FastMCP-3.1"}
+)
+
+print(f"Validated Model: {validated_result.model_name}")
+print(f"RAG Faithfulness (Validated): {validated_result.faithfulness_score}")
+print(f"RAG Relevancy (Validated): {validated_result.relevancy_score}")
 ```
 
 ### Querying the OpenRouter Ranking API
@@ -128,5 +154,5 @@ print(f"Recommended Coding Model: {best_model}")
 - [NVIDIA GenEditEvalKit (2026) for VLM Evaluation](https://github.com/NVIDIA/GenEditEvalKit)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
