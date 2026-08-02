@@ -1,7 +1,7 @@
 # Component Map
 
 ## What it is
-The Component Map is the architectural blueprint of the repository's technology stack. It categorizes every tool, service, and protocol into a functional lifecycle: Ingest, Store, Understand, Decide, Act, and Sync.
+The Component Map is the architectural blueprint of the repository's technology stack. It categorizes every tool, service, and protocol into a functional lifecycle: Ingest, Store, Understand, Decide, Act, and Sync. In late October / November 2026, this map fully integrates the **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** ecosystems.
 
 ### Functional Categories
 
@@ -26,8 +26,8 @@ The Component Map is the architectural blueprint of the repository's technology 
 
 #### 3. Understand (Reasoning Engines)
 *The brains of the stack that process and reason over information.*
-- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [Mistral AI](../tools/providers/mistral.md), [DeepSeek](../tools/providers/deepseek.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md)
-- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (Gemma 3)](../tools/ai_knowledge/local_llms.md), [vLLM](../tools/infrastructure/vllm.md), [TGI](../tools/infrastructure/tgi.md), [SGLang](../tools/infrastructure/sglang.md), [ExLlamaV2](../tools/infrastructure/exllamav2.md), [Aphrodite Engine](../tools/infrastructure/aphrodite-engine.md), [MLX](../tools/infrastructure/mlx.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
+- **Proprietary APIs**: [OpenAI](../tools/ai_knowledge/openai.md), [Anthropic](../tools/providers/anthropic.md), [Mistral AI](../tools/providers/mistral.md), [DeepSeek](../tools/providers/deepseek.md), [Google Gemini](../tools/ai_knowledge/google-gemini.md) (Claude 5.1, GPT-5.5, Gemini 4.0, Qwen 3.6)
+- **Local Models**: [Ollama](../services/ollama.md), [Local LLMs (Gemma 3, Llama 4)](../tools/ai_knowledge/local_llms.md), [vLLM](../tools/infrastructure/vllm.md), [TGI](../tools/infrastructure/tgi.md), [SGLang](../tools/infrastructure/sglang.md), [ExLlamaV2](../tools/infrastructure/exllamav2.md), [Aphrodite Engine](../tools/infrastructure/aphrodite-engine.md), [MLX](../tools/infrastructure/mlx.md), [ansigpt](../tools/ai_knowledge/ansigpt.md), [ZSE](../tools/infrastructure/zse.md)
 - **Aggregators**: [OpenRouter](../tools/ai_knowledge/openrouter.md), [Perplexity](../tools/providers/perplexity.md), [Valyu](../tools/ai_knowledge/valyu.md)
 - **Semantic Search**: [Paperless-AI](../services/paperless-ai.md), [RAGFlow](../tools/process_understanding/ragflow.md), [PageIndex](../tools/process_understanding/pageindex.md)
 
@@ -63,7 +63,7 @@ The Component Map is the architectural blueprint of the repository's technology 
 In a rapidly expanding ecosystem of AI agents and self-hosted services, it is easy to lose track of how individual components interact. This map provides a high-level view of the pipeline, helping users and automated agents identify gaps, avoid duplicates, and understand the flow of information from raw data to autonomous action.
 
 ## Where it fits in the stack
-It is a **Core Architectural Document** that serves as the foundation for documentation taxonomy. It guides where new tools should be placed in `mkdocs.yml` and how they should be linked in the KnowledgeOps graph. It is fully updated for the **July 2026** context, incorporating **MCP 3.0** and **Gemma 3** ([Gemma 3](../tools/ai_knowledge/local_llms.md)) reasoning patterns.
+It is a **Core Architectural Document** that serves as the foundation for documentation taxonomy. It guides where new tools should be placed in `mkdocs.yml` and how they should be linked in the KnowledgeOps graph. It is fully updated for the **late October / November 2026** context, incorporating **MCP 3.1** and **Gemma 3 / Llama 4** reasoning patterns.
 
 ## Typical use cases
 - **Onboarding**: Helping new contributors understand the relationship between different parts of the stack.
@@ -109,23 +109,45 @@ python3 scripts/check_docs_contract.py docs/architecture/component_map.md
 ```
 
 ## API examples
-The map is backed by `data/all_tools.json`. You can programmatically query the categories defined in this map:
+The map is backed by `data/all_tools.json`. You can programmatically query and validate the categories defined in this map using Pydantic v2:
 
 ```python
 import json
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field
 
-# Load the tool database
-with open("data/all_tools.json", "r") as f:
-    data = json.load(f)
+class ToolItem(BaseModel):
+    """Pydantic v2 schema for a tool in the catalog."""
+    name: str = Field(description="Name of the tool")
+    category: str = Field(description="Architectural category (e.g., Ingest, Store, Understand, Decide, Act, Sync)")
+    description: Optional[str] = Field(default=None, description="Short description of tool purpose")
+    url: Optional[str] = Field(default=None, description="Path to documentation or repository")
 
-# Group tools by their architectural category
-categories = {}
-for tool in data["tools"]:
-    cat = tool.get("category", "Uncategorized")
-    categories.setdefault(cat, []).append(tool["name"])
+class ToolCatalog(BaseModel):
+    """Pydantic v2 schema for the full tools catalog."""
+    tools: List[ToolItem] = Field(default_factory=list, description="List of registered tools")
 
-# Example: Print all tools in the 'Agents' category
-print(f"Agents: {', '.join(categories.get('Agents', []))}")
+def query_tools_by_category(catalog_path: str, target_category: str) -> List[str]:
+    """Loads and validates the tool catalog, returning names of tools in the target category."""
+    try:
+        with open(catalog_path, "r") as f:
+            raw_data = json.load(f)
+
+        # Parse and validate with Pydantic v2
+        catalog = ToolCatalog.model_validate(raw_data)
+
+        return [
+            tool.name for tool in catalog.tools
+            if tool.category.lower() == target_category.lower()
+        ]
+    except Exception as e:
+        print(f"Validation failed: {e}")
+        return []
+
+# Example usage:
+if __name__ == "__main__":
+    tools_in_act = query_tools_by_category("data/all_tools.json", "Act")
+    print(f"Validated 'Act' tools: {', '.join(tools_in_act)}")
 ```
 
 ## Related tools / concepts
@@ -141,8 +163,9 @@ print(f"Agents: {', '.join(categories.get('Agents', []))}")
 ## Sources / references
 - [Stack Overview](http://ai.riera.co.uk)
 - [Component Map Source Data](https://github.com/joanmarcriera/Home-office-automations/blob/main/data/all_tools.json)
-- [MCP 3.0 Protocol](https://modelcontextprotocol.io)
+- [MCP 3.1 Protocol](https://modelcontextprotocol.io)
 
+---
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
