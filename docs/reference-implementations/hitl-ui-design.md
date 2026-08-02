@@ -1,13 +1,13 @@
 # HITL UI for Document Extraction
 
 ## What it is
-A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-driven metadata extraction and the final system of record (e.g., Google Calendar, Vikunja, Paperless-ngx). It allows users to review, correct, and approve data before it is permanently committed to the database. It leverages **Claude 4.8** and **GPT-5.5** for initial processing, with a human gatekeeper for final validation.
+A Human-in-the-Loop (HITL) interface designed to bridge the gap between AI-driven metadata extraction and the final system of record (e.g., Google Calendar, Vikunja, Paperless-ngx). It allows users to review, correct, and approve data before it is permanently committed to the database. It leverages **Claude 5.1** and **GPT-5.5** for initial processing, with a human gatekeeper for final validation.
 
 ## What problem it solves
 LLMs occasionally hallucinate or misinterpret dates and priorities in scanned documents. Automatically pushing these to a calendar can lead to cluttered or incorrect schedules. This UI provides a "staging area" for human verification, ensuring 100% accuracy for critical data like bill due dates or medical appointments. It eliminates the risk of "silent failures" in autonomous workflows.
 
 ## Where it fits in the stack
-This interface sits in the **Interaction** layer of the AI-augmented home office. It acts as an optional "gatekeeper" within a workflow, triggered after the **AI Service** layer (using **Claude 4.8** or **GPT-5.5**) has processed a document but before the **Productivity API** layer has written the final result. It is often implemented as a Streamlit app or integrated into the [Home Admin UI](../../scripts/home_admin_ui.py).
+This interface sits in the **Interaction** layer of the AI-augmented home office. It acts as an optional "gatekeeper" within a workflow, triggered after the **AI Service** layer (using **Claude 5.1** or **GPT-5.5**) has processed a document but before the **Productivity API** layer has written the final result. It is often implemented as a Streamlit app or integrated into the [Home Admin UI](../../scripts/home_admin_ui.py).
 
 ## Typical use cases
 - **Financial Document Ingestion**: Reviewing extracted amounts and account numbers from scanned invoices.
@@ -46,7 +46,7 @@ This interface sits in the **Interaction** layer of the AI-augmented home office
    streamlit run scripts/home_admin_ui.py
    ```
 3. **Integrate with n8n**: Configure your n8n workflow to send extracted metadata to the staging database instead of directly to the final service.
-4. **Agentic Review (MCP)**: As of July 2026, HITL actions are increasingly exposed via **MCP 3.0** servers. An agent (like Claude Code) can detect that a document requires human verification and use an MCP tool to "stage" the document.
+4. **Agentic Review (MCP)**: As of late October / November 2026, HITL actions are increasingly exposed via **MCP 3.1 / FastMCP 3.1** servers. An agent (like Claude Code) can detect that a document requires human verification and use an MCP tool to "stage" the document.
 
 ## CLI examples
 
@@ -68,22 +68,64 @@ curl -X POST http://localhost:8000/staged-docs \
 
 ## API examples
 
-### Approve Document Endpoint (FastAPI)
+### Document Schema Staging and Approval with Pydantic v2
+This API script manages the data parsing, type validation, and strict formatting checks required for a high-fidelity Human-in-the-Loop approval backend.
+
 ```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from datetime import date
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
-app = FastAPI()
+class StagedDocument(BaseModel):
+    doc_id: str = Field(..., description="Unique ID of the staged document")
+    source_ref: str = Field(..., description="System of record source reference (e.g., Paperless doc ID)")
+    extracted_metadata: Dict[str, Any] = Field(..., description="Original raw dictionary extracted by VLM/LLM")
+    confidence_score: float = Field(..., description="LLM/VLM generation confidence (0.0 to 1.0)")
+    user_corrections: Optional[Dict[str, Any]] = Field(default=None, description="Modifications applied by human reviewer")
 
-class MetadataUpdate(BaseModel):
-    corrected_metadata: dict
+    @field_validator("confidence_score")
+    @classmethod
+    def check_confidence_range(cls, val: float) -> float:
+        if not (0.0 <= val <= 1.0):
+            raise ValueError("Confidence score must be in the range [0.0, 1.0]")
+        return val
 
-@app.post("/approve/{doc_id}")
-async def approve_doc(doc_id: str, update: MetadataUpdate):
-    # Logic to move data to Vikunja/Google Calendar
-    # Then mark as 'approved' in staging DB
-    print(f"Approving {doc_id} with data: {update.corrected_metadata}")
-    return {"status": "committed"}
+class ApprovalPayload(BaseModel):
+    corrected_title: str = Field(..., min_length=3, max_length=100)
+    confirmed_due_date: date = Field(..., description="Human-verified due date for task actioning")
+    final_cost: float = Field(default=0.0, description="Corrected monetary amount")
+
+    @field_validator("final_cost")
+    @classmethod
+    def check_cost(cls, val: float) -> float:
+        if val < 0.0:
+            raise ValueError("Monetary amount cannot be negative")
+        return val
+
+# Instantiating a Staged Ingestion
+raw_staged_item = {
+    "doc_id": "staged_task_2291",
+    "source_ref": "paperless_ocr_992",
+    "extracted_metadata": {"title": "City Power Invoic", "due_date": "2026-12-15", "amount": 142.10},
+    "confidence_score": 0.81
+}
+
+# Human correction form payload
+form_correction = {
+    "corrected_title": "City Power Invoice",
+    "confirmed_due_date": "2026-12-15",
+    "final_cost": 142.10
+}
+
+try:
+    staged_doc = StagedDocument.model_validate(raw_staged_item)
+    user_payload = ApprovalPayload.model_validate(form_correction)
+
+    # Merge and commit
+    staged_doc.user_corrections = user_payload.model_dump()
+    print(f"Staged doc {staged_doc.doc_id} corrected and ready to commit to Vikunja.")
+except ValidationError as e:
+    print(f"Schema Validation Error: {e.json()}")
 ```
 
 ### Streamlit HITL Interface Snippet
@@ -120,5 +162,5 @@ if doc:
 - [Human-in-the-loop (Wikipedia)](https://en.wikipedia.org/wiki/Human-in-the-loop)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
