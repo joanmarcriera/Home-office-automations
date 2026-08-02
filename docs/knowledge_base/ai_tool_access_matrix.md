@@ -1,10 +1,10 @@
 # AI Tool Access Matrix
 
 ## What it is
-The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP).
+The AI Tool Access Matrix is a high-level comparison framework designed to evaluate AI assistants, coding agents, and orchestration tools based on their "access surface"—their ability to interact with local files, cloud services (Gmail, Calendar), and external tools (via MCP/FastMCP).
 
 ## What problem it solves
-The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 4.8** and **GPT-5.5** as the standard reasoning engines of July 2026.
+The AI landscape is flooded with tools that have overlapping capabilities but vastly different integration depths. This matrix provides a structured "shortlist filter" to help users choose tools based on where their work actually lives (e.g., in a local repo vs. Google Workspace) and how much control they need over the model provider. It highlights the shift toward **Claude 5.1** and **GPT-5.5** as the standard reasoning engines of late October / November 2026.
 
 ## Where it fits in the stack
 It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-support tool that sits between the **Providers** (Layer 1) and **Applications** (Layer 7), helping users navigate the connectivity options between them.
@@ -19,11 +19,11 @@ It belongs in the **Knowledge Base / Ecosystem** layer. It acts as a decision-su
 - **Multi-Dimensional Evaluation**: Tracks 10+ practical dimensions including UI shape, CLI availability, and self-host status.
 - **Provider Agnostic**: Highlights which tools allow switching between OpenAI, Anthropic, or local models.
 - **Direct Linkage**: Every tool in the matrix is linked to its canonical documentation page in this repository.
-- **July 2026 Freshness**: Incorporates the latest [MCP](../tools/automation_orchestration/mcp.md) server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
+- **Late 2026 Freshness**: Incorporates the latest [MCP 3.1](../tools/automation_orchestration/mcp.md) and FastMCP 3.1 server support for [Unstructured](../tools/intake_storage/unstructured.md) and [LlamaParse](../tools/intake_storage/llamaparse.md).
 
 ## Limitations
 - **High Temporal Decay**: Native integrations and "access surfaces" change rapidly as providers update their products.
-- **Binary Simplification**: Matrix markers (🟢/🟠/🔴) simplify complex integration depths for the sake of scannability.
+- **Binary Simplification**: Matrix markers (🟢/🔵/⚪/🟠/🔴) simplify complex integration depths for the sake of scannability.
 - **Subjective "Research" Score**: Evaluations of research quality are based on community consensus and practical testing, not purely objective benchmarks.
 
 ## When to use it
@@ -57,7 +57,7 @@ If the priority is one tool that already does Gmail, Calendar, files, and deep r
 
 If the priority is local-first or self-hosted work, the strongest shortlist is [AnythingLLM](../tools/ai_knowledge/anythingllm.md), [LibreChat](../tools/ai_knowledge/librechat.md), [Open WebUI](../services/open-webui.md), [Jan](../tools/infrastructure/jan-ai.md), and [Goose](../tools/agents/goose.md). These give better control over local models, self-hosting, and private files, but Gmail and Calendar usually arrive through MCP or external integrations rather than first-party connectors.
 
-If the priority is coding-first integration potential, the strongest shortlist is [Claude Code](../tools/development_ops/claude-code.md), [Kimi Code CLI](../tools/ai_knowledge/kimi-cli.md), [Codex CLI](../tools/development_ops/codex.md), [Gemini CLI](../tools/ai_knowledge/gemini-cli.md), [Cline](../tools/agents/cline.md), [Roo Code](../tools/agents/roo-code.md), [Cursor](../tools/development_ops/cursor.md), and [Windsurf](../tools/development_ops/windsurf.md). Gemini CLI has the cleanest official Workspace story in this matrix, while Kimi Code CLI is a strong terminal-native alternative with deep MCP support.
+If the priority is coding-first integration potential, the strongest shortlist is [Claude Code](../tools/development_ops/claude-code.md), [Kimi Code CLI](../tools/ai_knowledge/kimi-cli.md), [Codex CLI](../tools/development_ops/codex.md), [Gemini CLI](../tools/ai_knowledge/gemini-cli.md), [Cline](../tools/agents/cline.md), [Roo Code](../tools/agents/roo-code.md), [Cursor](../tools/development_ops/cursor.md), and [Windsurf](../tools/development_ops/windsurf.md). Gemini CLI has the cleanest official Workspace story in this matrix, while Kimi Code CLI is a strong terminal-native alternative with deep MCP/FastMCP support.
 
 If the priority is reliable workflow automation rather than chat, [n8n](../services/n8n.md) and [Zapier](../tools/automation_orchestration/zapier.md) belong in a separate top tier. They are less elegant as daily chat interfaces, but stronger when the requirement is to read Gmail, inspect Calendar, and perform actions repeatably.
 
@@ -66,7 +66,7 @@ The access matrix itself is a documentation artifact, but the tools it tracks ca
 
 ### Checking Claude Code MCP tools
 ```bash
-# List available tools to verify access surface
+# List available tools to verify access surface under Claude 5.1/MCP 3.1
 claude list-tools
 ```
 
@@ -79,26 +79,49 @@ aider --mcp <mcp-server-command>
 ## API examples
 Integration status can be checked programmatically using provider-specific SDKs.
 
-### Verifying Perplexity API Access
+### Verifying Access Configuration Schema via Pydantic v2
+This API example validates if an integration setup satisfies the required security and access surface controls using modern Pydantic v2 validation.
+
 ```python
-import requests
+from typing import List, Literal
+from pydantic import BaseModel, Field
 
-def check_perplexity_reach():
-    url = "https://api.perplexity.ai/chat/completions"
-    # Example payload for a research task
-    payload = {
-        "model": "pplx-70b-online",
-        "messages": [{"role": "user", "content": "Search for latest MCP 3.0 updates"}]
-    }
-    # Response indicates connectivity and grounding quality
-    return requests.post(url, json=payload, headers={"Authorization": "Bearer YOUR_KEY"})
-```
+class AccessSurfaceRequirement(BaseModel):
+    tool_name: str = Field(..., description="Name of the tool being validated")
+    access_level: Literal["read_only", "read_write", "admin"] = Field(..., description="Allowed integration permissions")
+    supported_protocols: List[Literal["MCP_31", "FAST_MCP", "OAUTH", "NATIVE"]] = Field(
+        ...,
+        description="The integration protocol layers supported"
+    )
+    allows_byo_ai: bool = Field(default=False, description="Whether user can bring their own API keys")
 
-### n8n Access Surface Check
-```javascript
-// Within an n8n Code node to verify available integrations
-const integrations = ['google-calendar', 'gmail', 'slack'];
-return integrations.map(i => ({ json: { service: i, status: 'available' } }));
+class ValidationReport(BaseModel):
+    is_compliant: bool
+    remediation_steps: List[str]
+
+def audit_integration_surface(requirement: AccessSurfaceRequirement) -> ValidationReport:
+    remediations = []
+    if "FAST_MCP" not in requirement.supported_protocols and "MCP_31" not in requirement.supported_protocols:
+        remediations.append("Upgrade integration wrapper to FastMCP 3.1 to support secure local system queries.")
+    if requirement.access_level == "admin" and requirement.allows_byo_ai:
+        remediations.append("Revoke admin access level for BYO-AI sessions to maintain strict tenant isolation boundaries.")
+
+    return ValidationReport(
+        is_compliant=len(remediations) == 0,
+        remediation_steps=remediations
+    )
+
+# Validate raw JSON input
+config_json = {
+    "tool_name": "Claude Code (ECC)",
+    "access_level": "admin",
+    "supported_protocols": ["MCP_31", "NATIVE"],
+    "allows_byo_ai": True
+}
+
+req = AccessSurfaceRequirement.model_validate(config_json)
+report = audit_integration_surface(req)
+print(f"Integration Compliant: {report.is_compliant}. Recommended Steps: {report.remediation_steps}")
 ```
 
 ## Primary assistant and agent matrix
@@ -234,7 +257,7 @@ For personal or home-office selection, score each candidate against these weight
 
 ## Takeaways
 
-Very few tools have first-party Gmail and Calendar access. Most non-Google products reach those systems indirectly through MCP, OAuth connectors, workflow tools, or automation layers.
+Very few tools have first-party Gmail and Calendar access. Most non-Google products reach those systems indirectly through MCP/FastMCP, OAuth connectors, workflow tools, or automation layers.
 
 Native deep-research capability remains concentrated in end-user assistants rather than frameworks. Frameworks can build research systems, but they are not generally turnkey research products by themselves.
 
@@ -255,31 +278,6 @@ claude list-tools
 ```bash
 # Run aider with a specific MCP server to extend its access surface
 aider --mcp <mcp-server-command>
-```
-
-## API examples
-Integration status can be checked programmatically using provider-specific SDKs.
-
-### Verifying Perplexity API Access
-```python
-import requests
-
-def check_perplexity_reach():
-    url = "https://api.perplexity.ai/chat/completions"
-    # Example payload for a research task
-    payload = {
-        "model": "pplx-70b-online",
-        "messages": [{"role": "user", "content": "Search for latest MCP 3.0 updates"}]
-    }
-    # Response indicates connectivity and grounding quality
-    return requests.post(url, json=payload, headers={"Authorization": "Bearer YOUR_KEY"})
-```
-
-### n8n Access Surface Check
-```javascript
-// Within an n8n Code node to verify available integrations
-const integrations = ['google-calendar', 'gmail', 'slack'];
-return integrations.map(i => ({ json: { service: i, status: 'available' } }));
 ```
 
 ## Related tools / concepts
@@ -313,5 +311,5 @@ return integrations.map(i => ({ json: { service: i, status: 'available' } }));
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high

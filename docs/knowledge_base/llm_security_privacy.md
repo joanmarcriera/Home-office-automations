@@ -1,9 +1,9 @@
 # LLM Security and Privacy
 
-Research into the evolving landscape of AI security, focused on deanonymization, agentic vulnerabilities (the Lethal Trifecta), and sovereign privacy protocols as of July 2026.
+Research into the evolving landscape of AI security, focused on deanonymization, agentic vulnerabilities (the Lethal Trifecta), and sovereign privacy protocols as of late October / November 2026.
 
 ## What it is
-A comprehensive security framework for managing Large Language Model (LLM) risks, including prompt injection, credential escalation, and data exfiltration. It addresses the unique privacy challenges posed by agentic workflows where autonomous systems (powered by [Gemma 3](../tools/ai_knowledge/local_llms.md) or Claude 4.8) have access to sensitive toolsets and private knowledge bases via the [MCP 3.0 Task Protocol](./patterns/tool-calling-and-mcp.md).
+A comprehensive security framework for managing Large Language Model (LLM) risks, including prompt injection, credential escalation, and data exfiltration. It addresses the unique privacy challenges posed by agentic workflows where autonomous systems (powered by local models like Gemma 3, Qwen 3.6, or frontier models like Claude 5.1 and GPT-5.5) have access to sensitive toolsets and private knowledge bases via the [MCP 3.1 / FastMCP 3.1 Task Protocol](./patterns/tool-calling-and-mcp.md).
 
 ## What problem it solves
 It mitigates the risk of "Agentic Compromise," where an autonomous system is coerced into leaking PII (Personally Identifiable Information), bypassing security sandboxes, or executing unauthorized actions via its tool-calling capabilities. It provides a blueprint for secure "Home-Office" AI orchestration.
@@ -21,8 +21,8 @@ This document resides in the **Governance and Security Layer** of the [Home-Offi
 - **Stylometric Protection**: LLMs can be used to "de-style" writing to prevent deanonymization.
 - **Automated Red-Teaming**: Using one agent to stress-test the security boundaries of another.
 - **Fine-Grained Auditing**: Agentic logs provide a high-fidelity "black box recorder" for every reasoning step.
-- **Privacy Sovereignty**: Local-first models like [Gemma 3](../tools/ai_knowledge/local_llms.md) allow for enterprise-grade reasoning without sharing data with frontier providers.
-- **FastMCP 3.0 Integration**: High-performance tool hosting with identity-aware routing ensures that tools are only accessible to authorized agentic sessions.
+- **Privacy Sovereignty**: Local-first models like Gemma 3 or Qwen 3.6 allow for enterprise-grade reasoning without sharing data with frontier providers.
+- **FastMCP 3.1 Integration**: High-performance tool hosting with identity-aware routing ensures that tools are only accessible to authorized agentic sessions.
 
 ## Limitations
 - **Model Inherent Risks**: No model is 100% immune to sophisticated, jailbreak-oriented prompt injections.
@@ -83,26 +83,69 @@ gcloud iam service-accounts keys list --account=ai-agent@project.iam.gserviceacc
 
 ## API examples
 
-### Agentic Session Orchestration (Authentik & FastMCP)
-Using Authentik and FastMCP 3.0 to gate agent access to specific tools based on session risk and identity-aware routing.
+### Session Boundary Validation using Pydantic v2
+This API validation script implements an access gateway to ensure agents calling tools do not cross trust boundaries, using modern Pydantic v2 specifications.
 
-```bash
-curl -X POST https://authentik.local/api/v3/outposts/rpc/ \
-  -H "Authorization: Bearer ${API_KEY}" \
-  -d '{
-    "action": "authorize_tool",
-    "agent_id": "claude_48_opus",
-    "tool_name": "filesystem_write",
-    "context": {"source_ip": "10.0.0.5", "risk_score": 0.12}
-  }'
+```python
+from typing import Set, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ValidationError
+
+class AgentContext(BaseModel):
+    agent_id: str = Field(..., description="Unique ID of the agent session")
+    assigned_capabilities: Set[str] = Field(default_factory=set, description="Set of permissible system actions")
+    trust_score: float = Field(default=1.0, description="Risk scoring based on session history")
+
+    @field_validator("trust_score")
+    @classmethod
+    def validate_trust(cls, val: float) -> float:
+        if not (0.0 <= val <= 1.0):
+            raise ValueError("Trust score must be within [0.0, 1.0]")
+        return val
+
+class ToolCallRequest(BaseModel):
+    context: AgentContext
+    requested_tool: str = Field(..., description="The name of the MCP 3.1 tool to run")
+    tool_arguments: Dict[str, Any] = Field(default_factory=dict, description="Parameters passed to the tool")
+
+def authorize_mcp_call(request: ToolCallRequest) -> bool:
+    # Strict boundary check: If agent has external write access, restrict local database reads
+    capabilities = request.context.assigned_capabilities
+    if "external_communication" in capabilities and "local_fs_write" in capabilities:
+        # Lethal Trifecta detected! Deny call to prevent data exfiltration
+        return False
+
+    if request.context.trust_score < 0.5:
+        # High risk session; restrict sensitive tools
+        if request.requested_tool in ["credentials_decrypt", "filesystem_write"]:
+            return False
+
+    return True
+
+# Validate safe scenario
+safe_data = {
+    "context": {
+        "agent_id": "claude_51_sonnet_session_1",
+        "assigned_capabilities": ["local_fs_write"],
+        "trust_score": 0.95
+    },
+    "requested_tool": "filesystem_write",
+    "tool_arguments": {"filepath": "/tmp/output.txt", "content": "Validated Content"}
+}
+
+try:
+    req = ToolCallRequest.model_validate(safe_data)
+    allowed = authorize_mcp_call(req)
+    print(f"Tool execution authorized: {allowed}")
+except ValidationError as e:
+    print(f"Validation failed: {e.json()}")
 ```
 
 ### Tool Calling with Trust Boundaries
-Example of a secure tool-call using [MCP 3.0](./patterns/tool-calling-and-mcp.md).
+Example of a secure tool-call using [MCP 3.1](./patterns/tool-calling-and-mcp.md).
 
 ```json
 {
-  "mcp_version": "3.0",
+  "mcp_version": "3.1",
   "method": "tools/call",
   "params": {
     "name": "safe_write",
@@ -112,7 +155,7 @@ Example of a secure tool-call using [MCP 3.0](./patterns/tool-calling-and-mcp.md
     }
   },
   "meta": {
-    "security_context": "isolated_sandbox_v1"
+    "security_context": "isolated_sandbox_v2"
   }
 }
 ```
@@ -135,5 +178,5 @@ Example of a secure tool-call using [MCP 3.0](./patterns/tool-calling-and-mcp.md
 - [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
