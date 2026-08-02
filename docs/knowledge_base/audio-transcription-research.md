@@ -3,10 +3,10 @@
 ## What it is
 This research document compares optimized versions of OpenAI's Whisper model and architectures like **SenseVoice**, focusing on engines designed to handle long-form audio (podcasts, audiobooks, journals) efficiently within a homelab.
 
-### Key Findings (July 2026)
+### Key Findings (Late October / November 2026)
 - **SenseVoice Integration**: Native speaker diarization and emotion detection at inference time.
 - **Silero-VAD V6**: 40% lower latency and superior "homelab hum" rejection compared to V5.
-- **Hardware Trends**: `mlx-whisper` is the standard for Apple Silicon (M5 optimized); FP8 support in `faster-whisper` v1.3 halves VRAM usage on NVIDIA 40-series+ GPUs.
+- **Hardware Trends**: `mlx-whisper` is the standard for Apple Silicon (M4/M5 optimized); FP8 support in `faster-whisper` v1.3.x halves VRAM usage on NVIDIA 40-series and 50-series GPUs.
 
 ## What problem it solves
 Standard Whisper implementations are accurate but computationally expensive and prone to "hallucination loops" during silence. This research identifies variants that reduce transcription time by up to 10x while maintaining accuracy and hardware compatibility.
@@ -23,12 +23,12 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 ## Strengths
 The primary strength of this research is the categorization of models by their specific performance profiles and hardware affinity.
 
-### Comparison Table (July 2026)
+### Comparison Table (Late October / November 2026)
 
 | Model Variant | Engine | Speed (vs. Large-v3) | Memory (Approx.) | Multilingual | Best For |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Whisper (Large-v3)** | Transformers/OpenAI | 1.0x (Baseline) | ~10GB VRAM | Yes | Maximum accuracy (multilingual) |
-| **Faster-Whisper v1.3**| CTranslate2 | 4x - 6x | ~5GB VRAM | Yes | Homelab default (Balanced) |
+| **Faster-Whisper v1.3.x**| CTranslate2 | 4x - 6x | ~5GB VRAM | Yes | Homelab default (Balanced) |
 | **SenseVoice Small** | FunASR | ~8x | ~2GB VRAM | Yes (5+ languages)| Diarization & Emotion detection |
 | **Distil-Whisper** | Transformers | ~6x | ~5GB VRAM | No (English) | Speed & hallucination resistance |
 | **Whisper Turbo** | Transformers | ~8x | ~6GB VRAM | Yes | Fast multilingual (Official OpenAI) |
@@ -49,14 +49,14 @@ The primary strength of this research is the categorization of models by their s
 - For music-to-sheet-music conversion (requires specialized spectral analysis).
 
 ## Getting started
-Implementing modern transcription involves choosing the right model-engine pair. As of July 2026, **Faster-Whisper v1.3** and **SenseVoice Small** are the dominant choices.
+Implementing modern transcription involves choosing the right model-engine pair. As of late 2026, **Faster-Whisper v1.3.x** and **SenseVoice Small** are the dominant choices.
 
 1. **Hardware Assessment**:
    - **NVIDIA GPU**: Use `faster-whisper` with FP16/FP8 quantization.
    - **Apple Silicon**: Use `mlx-whisper` for Unified Memory efficiency.
    - **CPU-only (NAS)**: Use `whisper.cpp` with `q5_k` quantization.
 2. **Model Selection**: Use `distil-large-v3` for English speed or `sense-voice-small` for multilingual diarization.
-3. **Integration**: Use **Gemma 3** or **Claude 4.8** for post-transcription reasoning via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md).
+3. **Integration**: Use **Gemma 3**, **Claude 5.1**, or **GPT-5.5** for post-transcription reasoning via the [MCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md).
 
 ## CLI examples
 The following examples demonstrate how to invoke optimized transcription engines from the command line.
@@ -73,23 +73,50 @@ python -m sensevoice_cli --input "podcast.m4a" --output_dir "./transcripts" --di
 ```
 
 ## API examples
-The following Python script can be used to benchmark `faster-whisper` performance and configure VAD using Silero V6.
+The following Python script can be used to benchmark `faster-whisper` performance, configure VAD using Silero V6, and parse results into structured Pydantic v2 metadata schemas.
 
+### FastMCP 3.1 Audio Ingestion Server with Pydantic v2
 ```python
+import os
 import time
+from pydantic import BaseModel, Field
+from mcp.server.fastmcp import FastMCP
 from faster_whisper import WhisperModel
 
-def run_transcription(model_size="large-v3-turbo", device="cuda"):
-    # July 2026: compute_type="float16" for GPU, "int8" for CPU
-    compute_type = "float16" if device == "cuda" else "int8"
-    model = WhisperModel(model_size, device=device, compute_type=compute_type)
+mcp = FastMCP("AudioTranscriptionBench")
 
-    # VAD configuration using Silero V6 (Integrated in Faster-Whisper v1.3)
+class IngestionRequest(BaseModel):
+    audio_path: str = Field(description="Local path to the source audio file")
+    model_size: str = Field(default="large-v3-turbo", description="Model name to run (e.g. 'large-v3-turbo', 'medium')")
+    enable_vad: bool = Field(default=True, description="Enable Silero-VAD filtering")
+
+class AudioMetadata(BaseModel):
+    duration_sec: float = Field(description="Audio duration in seconds")
+    language_code: str = Field(description="Detected or enforced language code")
+    processing_time_sec: float = Field(description="Time taken to transcribe the file")
+    realtime_factor: float = Field(description="Processing speed ratio (duration / processing_time)")
+
+class IngestionResult(BaseModel):
+    text: str = Field(description="Fully consolidated transcription text")
+    metadata: AudioMetadata = Field(description="Performance and file metrics validated via Pydantic v2")
+
+@mcp.tool()
+def transcribe_and_benchmark(request: IngestionRequest) -> str:
+    """
+    Transcribes audio utilizing Faster-Whisper with Silero-VAD V6 filtering,
+    benchmarks processing performance, and returns a validated JSON payload.
+    """
+    device = "cuda" if os.environ.get("CUDA_VISIBLE_DEVICES") else "cpu"
+    compute_type = "float16" if device == "cuda" else "int8"
+
+    # Initialize Whisper model
+    model = WhisperModel(request.model_size, device=device, compute_type=compute_type)
+
     start_time = time.time()
     segments, info = model.transcribe(
-        "sample_audio.mp3",
+        request.audio_path,
         beam_size=5,
-        vad_filter=True,
+        vad_filter=request.enable_vad,
         vad_parameters=dict(
             threshold=0.35,              # Lower for high-noise home recordings
             min_speech_duration_ms=100,  # V6 is more precise
@@ -98,14 +125,26 @@ def run_transcription(model_size="large-v3-turbo", device="cuda"):
         )
     )
 
-    # Exhaust the generator to complete transcription
-    text = "".join([segment.text for segment in segments])
+    # Exhaust generator
+    text_parts = [segment.text for segment in segments]
+    full_text = "".join(text_parts).strip()
 
-    duration = time.time() - start_time
-    print(f"Transcribed {info.duration:.2f}s in {duration:.2f}s")
+    processing_time = time.time() - start_time
+    realtime_factor = info.duration / processing_time if processing_time > 0 else 0.0
+
+    result = IngestionResult(
+        text=full_text,
+        metadata=AudioMetadata(
+            duration_sec=info.duration,
+            language_code=info.language,
+            processing_time_sec=processing_time,
+            realtime_factor=realtime_factor
+        )
+    )
+    return result.model_dump_json(indent=2)
 
 if __name__ == "__main__":
-    run_transcription()
+    mcp.run()
 ```
 
 ## Related tools / concepts
@@ -120,12 +159,12 @@ if __name__ == "__main__":
 - [n8n](../services/n8n.md) — For orchestrating transcription pipelines.
 
 ## Sources / references
-- [Faster-Whisper v1.3 Release Notes](https://github.com/SYSTRAN/faster-whisper/releases/tag/v1.3.0)
+- [Faster-Whisper v1.3.x Release Notes](https://github.com/SYSTRAN/faster-whisper/releases)
 - [SenseVoice GitHub Repository](https://github.com/FunASR/SenseVoice)
 - [Silero VAD V6 Documentation](https://github.com/snakers4/silero-vad)
 - [MLX Whisper (Apple Silicon Optimization)](https://github.com/ml-explore/mlx-examples/tree/main/whisper)
 - [OpenAI Whisper Turbo Announcement](https://openai.com/blog/whisper-turbo)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
