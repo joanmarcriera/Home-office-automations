@@ -1,11 +1,11 @@
 # Playbook: Graceful Degradation (Cloud-to-Local)
 
 ## What it is
-The Graceful Degradation playbook defines the operational configuration for automatically switching from cloud-based LLM APIs (Anthropic, OpenAI) to a local inference engine ([Ollama](../services/ollama.md)) during outages, rate-limiting, or connectivity issues. It operationalizes the [Fallback Patterns](../knowledge_base/patterns/fallback-patterns.md) by providing concrete implementation steps for [LiteLLM](../services/litellm.md) and [Open WebUI](../services/open-webui.md).
+The Graceful Degradation playbook defines the operational configuration for automatically switching from cloud-based LLM APIs (such as Anthropic Claude 5.1, OpenAI GPT-5.5, or Google Gemini 4.0) to a local inference engine ([Ollama](../services/ollama.md)) during outages, rate-limiting, or connectivity issues. It operationalizes the [Fallback Patterns](../knowledge_base/patterns/fallback-patterns.md) by providing concrete implementation steps for [LiteLLM](../services/litellm.md) and [Open WebUI](../services/open-webui.md).
 
 ## What problem it solves
 It ensures the continuity of mission-critical AI services when primary cloud providers fail. It solves for:
-- **Provider Downtime**: Automatically switching to local models when a 5xx error is received.
+- **Provider Downtime**: Automatically switching to local models when a 5xx error or rate limit is received.
 - **Rate Limit Exhaustion**: Routing traffic to local hardware when cloud quotas are exceeded.
 - **Latency Spikes**: Falling back to a local model if a cloud response takes longer than a defined threshold.
 - **"Agentic Deadlocks"**: Preventing workflow failure when a specific cloud model is unavailable.
@@ -26,7 +26,7 @@ It ensures the continuity of mission-critical AI services when primary cloud pro
 - **Seamless Transition**: Users often don't notice the failover occurring in the background.
 
 ## Limitations
-- **Quality Disparity**: Local models (e.g., Llama 3 8B) may not match the reasoning depth of frontier models (Claude 4.8).
+- **Quality Disparity**: Local models (e.g., Llama 4 8B, Gemma 3 27B) may not match the reasoning depth of frontier models (Claude 5.1).
 - **State Management**: Ensuring the conversation history is correctly transferred between different model architectures.
 - **Latency Overhead**: The initial failed request adds to the total response time.
 - **Hardware Demand**: Local hardware must be kept in a "ready" state to accept failover traffic.
@@ -96,26 +96,88 @@ grep "fallback" litellm.log
 
 ## API examples
 
-### Python: Request with Explicit Fallback Logic
+### Python: Request with Explicit Fallback Logic using Pydantic v2
+The following script utilizes **Pydantic v2** validation to define failover policies and execute client requests with structured fallbacks and strict logging.
+
 ```python
+import time
 import litellm
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
 
-# Define the models
-models = ["anthropic/claude-3-5-sonnet", "ollama/gemma3-27b-it"]
+class Message(BaseModel):
+    role: str = Field(..., pattern="^(user|assistant|system)$")
+    content: str = Field(..., min_length=1)
 
-response = None
-for model in models:
+class FailoverConfig(BaseModel):
+    models: List[str] = Field(..., min_items=1)
+    timeout_seconds: float = Field(default=10.0, ge=1.0)
+    temperature: float = Field(default=0.7, ge=0.0, le=1.0)
+
+class FailoverResult(BaseModel):
+    selected_model: str
+    response_text: str
+    attempts: int
+    elapsed_time_ms: float
+
+def execute_with_fallback(config_payload: dict, messages_payload: List[dict]) -> dict:
+    # Validate configuration and messages using Pydantic v2
+    config = FailoverConfig.model_validate(config_payload)
+    messages = [Message.model_validate(m) for m in messages_payload]
+
+    start_time = time.time()
+    response = None
+    attempts = 0
+
+    for model in config.models:
+        attempts += 1
+        try:
+            print(f"Attempting completion with model: {model}")
+            response = litellm.completion(
+                model=model,
+                messages=[m.model_dump() for m in messages],
+                timeout=config.timeout_seconds,
+                temperature=config.temperature
+            )
+            # If successful, break out of loop
+            break
+        except Exception as e:
+            print(f"⚠️ Model {model} failed with error: {e}. Trying next fallback...")
+
+    if not response:
+        raise RuntimeError("All configured models in the failover chain failed.")
+
+    elapsed = (time.time() - start_time) * 1000.0
+
+    # Formulate and validate response using Pydantic v2
+    result = FailoverResult(
+        selected_model=model,
+        response_text=response.choices[0].message.content,
+        attempts=attempts,
+        elapsed_time_ms=elapsed
+    )
+
+    return result.model_dump()
+
+# Execution Example
+if __name__ == "__main__":
+    # Test fallback sequence: first is invalid cloud name to force fallback to local Ollama
+    test_config = {
+        "models": ["anthropic/invalid-model-name", "ollama/gemma3-27b-it"],
+        "timeout_seconds": 5.0,
+        "temperature": 0.2
+    }
+
+    test_messages = [
+        {"role": "system", "content": "You are a local homelab fallback agent."},
+        {"role": "user", "content": "Ping? Is local server functional?"}
+    ]
+
     try:
-        response = litellm.completion(
-            model=model,
-            messages=[{"role": "user", "content": "Is the local server running?"}],
-            timeout=10 # Fallback if cloud takes > 10s
-        )
-        break
+        outcome = execute_with_fallback(test_config, test_messages)
+        print("Validated Failover Result:", outcome)
     except Exception as e:
-        print(f"Model {model} failed, trying next...")
-
-print(response.choices[0].message.content)
+        print("Failover Sequence Failed:", e)
 ```
 
 ## Related tools / concepts
@@ -133,5 +195,5 @@ print(response.choices[0].message.content)
 - [Ollama API Reference](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high

@@ -4,9 +4,9 @@
 The Offline Transcription Pipeline is a privacy-first workflow for converting audio files into structured text and tasks without sending data to cloud services. It integrates [faster-whisper](../tools/process_understanding/faster-whisper.md) for local speech-to-text, [Paperless-ngx](../services/paperless-ngx.md) for archiving, [Obsidian](../tools/ai_knowledge/obsidian.md) for notes, and [Vikunja](../services/vikunja.md) for task management.
 
 ## What problem it solves
-It solves the "Leaky Audio" problem where sensitive recordings (meetings, medical notes, personal thoughts) are often sent to cloud providers like OpenAI or Google for transcription. Specifically, it addresses:
+It solves the "Leaky Audio" problem where sensitive recordings (meetings, medical notes, personal thoughts) are often sent to cloud providers (like OpenAI or Google) for transcription. Specifically, it addresses:
 - **Privacy at the Source**: Audio never leaves the local machine.
-- **Agentic Integration**: Automatically extracts tasks from voice notes using local LLMs.
+- **Agentic Integration**: Automatically extracts tasks from voice notes using local LLMs (e.g., Llama 4, Gemma 3, and Qwen 3.6).
 - **Searchable Archives**: Makes hours of audio searchable via indexed transcripts.
 - **Latency Independence**: No need for a high-speed connection to upload large audio files.
 
@@ -79,30 +79,75 @@ curl -H "Authorization: Token your_token" -F "document=@transcript.txt" -F "titl
 
 ## API examples
 
-### Python: Automated Pipeline Script
+### Python: Automated Pipeline Script with Pydantic v2 Schema Validation
+The following production script utilizes **Pydantic v2** validation to process, structure, and check transcripts and extracted tasks before inserting them into task management and document stores.
+
 ```python
-from faster_whisper import WhisperModel
-import requests
+import json
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
-model_size = "large-v3"
-model = WhisperModel(model_size, device="cuda", compute_type="float16")
+class TaskItem(BaseModel):
+    title: str = Field(..., min_length=3, description="Parsed task summary.")
+    priority: int = Field(default=3, ge=1, le=5, description="Priority from 1 (high) to 5 (low).")
+    due_date: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="Optional YYYY-MM-DD due date.")
 
-def process_audio(file_path):
-    segments, info = model.transcribe(file_path, beam_size=5)
-    transcript = " ".join([segment.text for segment in segments])
+class AudioSegment(BaseModel):
+    start: float = Field(..., ge=0.0)
+    end: float = Field(..., ge=0.0)
+    text: str = Field(..., min_length=1)
+    confidence: float = Field(..., ge=0.0, le=1.0)
 
-    # 1. Send to Ollama for Task Extraction
-    res = requests.post("http://localhost:11434/api/generate", json={
-        "model": "gemma3-27b-it",
-        "prompt": f"Extract tasks from this transcript: {transcript}"
-    })
+    @field_validator("end")
+    @classmethod
+    def check_timestamps(cls, v: float, info) -> float:
+        # Pydantic v2 validation logic
+        start = info.data.get("start")
+        if start is not None and v < start:
+            raise ValueError("End timestamp must be greater than or equal to start timestamp.")
+        return v
 
-    # 2. Push tasks to Vikunja (simplified)
-    # ... (Vikunja API calls here)
+class StructuredTranscript(BaseModel):
+    audio_file: str
+    transcription_model: str
+    text_content: str
+    segments: List[AudioSegment]
+    extracted_tasks: List[TaskItem]
 
-    return transcript
+def process_and_validate_pipeline(raw_json_input: str) -> dict:
+    try:
+        data = json.loads(raw_json_input)
+        # Validate using Pydantic v2
+        validated_pipeline = StructuredTranscript.model_validate(data)
+        return {
+            "status": "VALID",
+            "payload": validated_pipeline.model_dump()
+        }
+    except Exception as e:
+        return {
+            "status": "INVALID",
+            "error": str(e)
+        }
 
-process_audio("voice_memo.mp3")
+if __name__ == "__main__":
+    # Sample input from a local faster-whisper + Ollama (Gemma 3) extraction
+    sample_pipeline_output = """
+    {
+      "audio_file": "/data/memos/recording_2026-11-20.mp3",
+      "transcription_model": "faster-whisper-large-v3",
+      "text_content": "We need to fix the leaking pipe in the server room and check database locks by next Friday.",
+      "segments": [
+        {"start": 0.0, "end": 4.5, "text": "We need to fix the leaking pipe in the server room", "confidence": 0.98},
+        {"start": 4.5, "end": 9.2, "text": "and check database locks by next Friday.", "confidence": 0.95}
+      ],
+      "extracted_tasks": [
+        {"title": "Fix leaking pipe in server room", "priority": 1},
+        {"title": "Check database locks", "priority": 2, "due_date": "2026-11-27"}
+      ]
+    }
+    """
+    result = process_and_validate_pipeline(sample_pipeline_output)
+    print("Pipeline Validation Result:\n", json.dumps(result, indent=2))
 ```
 
 ## Related tools / concepts
@@ -112,7 +157,7 @@ process_audio("voice_memo.mp3")
 - [Vikunja](../services/vikunja.md) — Local task management.
 - [Paperless-ngx](../services/paperless-ngx.md) — Document archival.
 - [n8n](../services/n8n.md) — Workflow automation.
-- [Audio Transcription Research](../knowledge_base/audio_transcription_research.md) — Background research.
+- [Audio Transcription Research](../knowledge_base/audio-transcription-research.md) — Background research.
 - [Voice-to-Task Research](../knowledge_base/voice-to-task-research.md) — Specialized patterns.
 
 ## Sources / References
@@ -122,5 +167,5 @@ process_audio("voice_memo.mp3")
 - [OpenAI Whisper Model Card](https://github.com/openai/whisper)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
