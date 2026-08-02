@@ -14,14 +14,14 @@ flowchart TD
 ```
 
 ## What it is
-The Fully Offline Assistant is an end-to-end architecture for deploying a private, air-gapped AI stack on local hardware. It integrates [Ollama](../services/ollama.md) for LLM inference, [Open WebUI](../services/open-webui.md) for the interface, local embeddings for RAG, a local vector database ([Milvus](../tools/infrastructure/milvus.md) or Chroma), and [Kiwix](../services/kiwix.md) for offline web knowledge.
+The Fully Offline Assistant is an end-to-end architecture for deploying a private, air-gapped AI stack on local hardware. It integrates [Ollama](../services/ollama.md) for LLM inference, [Open WebUI](../services/open-webui.md) for the interface, local embeddings for RAG, a local vector database ([Milvus](../tools/infrastructure/milvus.md) or Chroma), and [Kiwix](../services/kiwix.md) for offline web knowledge. It integrates local tools and context-routing using the [Model Context Protocol (MCP 3.1)](../tools/automation_orchestration/mcp.md) and **FastMCP 3.1** standards.
 
 ## What problem it solves
-It eliminates reliance on cloud-based AI providers, solving for:
-- **Data Privacy**: Sensitive data never leaves the local network.
+It eliminates reliance on cloud-based AI providers (such as Anthropic Claude 5.1, OpenAI GPT-5.5, or Google Gemini 4.0), solving for:
+- **Data Privacy**: Sensitive personal and diagnostic data never leaves the local network.
 - **Internet Independence**: The system remains functional during ISP outages or in remote/air-gapped environments.
-- **Cost Predictability**: Eliminates monthly subscription fees and token-based pricing.
-- **Data Sovereignty**: Complete control over which models and knowledge bases are used.
+- **Cost Predictability**: Eliminates monthly subscription fees and token-based cloud pricing.
+- **Data Sovereignty**: Complete control over which local models (such as LLaMA 4, Gemma 3, and Qwen 3.6) and knowledge bases are used.
 
 ## Where it fits in the stack
 **Category**: Playbook / Infrastructure. It serves as the **operational blueprint** for the Privacy-First AI layer, orchestrating multiple services from the `docs/services/` and `docs/tools/` directories into a unified, functional assistant.
@@ -33,7 +33,7 @@ It eliminates reliance on cloud-based AI providers, solving for:
 - **Disaster Recovery Knowledge**: Maintaining access to technical manuals and survival guides during extended outages.
 
 ## Strengths
-- **Zero Latency (Network)**: No network round-trips to external servers.
+- **Zero Latency (Network)**: No network round-trips to external cloud servers.
 - **Uncensored Reasoning**: Ability to use models without restrictive cloud-based filters.
 - **Infinite Context**: Leverage local RAG to "talk" to terabytes of local data.
 - **Customizable**: Swap models, embedding engines, or vector DBs based on hardware capabilities.
@@ -100,32 +100,91 @@ curl http://localhost:9091/healthz
 
 ## API examples
 
-### Python: End-to-End RAG Query (Local)
+### Python: End-to-End RAG Query (Local with Pydantic v2 & FastMCP 3.1 validation)
+The following script utilizes **Pydantic v2** validation to process local query intents, interface with local embedding engines, and construct safe, structured prompts for local LLMs running on Ollama.
+
 ```python
 import ollama
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl
 from pymilvus import Collection, connections
 
-# 1. Generate local embedding
-embed = ollama.embeddings(model="nomic-embed-text", prompt="How do I setup Kiwix?")
+# Define Pydantic v2 Schemas for Query Inputs and Tool Schemas
+class OfflineQueryRequest(BaseModel):
+    query: str = Field(..., min_length=3, description="The offline user query.")
+    limit: int = Field(default=3, ge=1, le=10, description="Number of context segments to retrieve.")
+    embedding_model: str = Field(default="nomic-embed-text", description="Name of the local embedding model.")
+    inference_model: str = Field(default="gemma3-27b-it", description="Name of the local LLM model.")
 
-# 2. Query local Vector DB (Milvus)
-connections.connect("default", host="localhost", port="19530")
-collection = Collection("homelab_docs")
-results = collection.search(
-    data=[embed["embedding"]],
-    anns_field="vector",
-    param={"metric_type": "L2", "params": {"nprobe": 10}},
-    limit=3,
-    output_fields=["text"]
-)
+class ContextSegment(BaseModel):
+    id: int
+    text: str = Field(..., description="The context raw text.")
+    distance: float = Field(..., description="The vector distance metrics.")
 
-# 3. Generate Answer with Context
-context = "\n".join([r[0].entity.get("text") for r in results])
-response = ollama.generate(
-    model="gemma3-27b-it",
-    prompt=f"Context: {context}\nQuestion: How do I setup Kiwix?"
-)
-print(response['response'])
+class AssistantResponse(BaseModel):
+    query: str
+    context_used: List[ContextSegment]
+    generated_answer: str
+
+def execute_local_rag(request_payload: dict) -> dict:
+    # Validate input payload using Pydantic v2
+    req = OfflineQueryRequest.model_validate(request_payload)
+
+    # 1. Generate local embedding using Ollama
+    embed = ollama.embeddings(model=req.embedding_model, prompt=req.query)
+    vector = embed["embedding"]
+
+    # 2. Query local Vector DB (Milvus)
+    connections.connect("default", host="localhost", port="19530")
+    collection = Collection("homelab_docs")
+    results = collection.search(
+        data=[vector],
+        anns_field="vector",
+        param={"metric_type": "L2", "params": {"nprobe": 10}},
+        limit=req.limit,
+        output_fields=["text"]
+    )
+
+    # 3. Construct and validate retrieved contexts
+    context_segments = []
+    text_contexts = []
+    for i, res in enumerate(results[0]):
+        text = res.entity.get("text")
+        segment = ContextSegment(id=i, text=text, distance=res.distance)
+        context_segments.append(segment)
+        text_contexts.append(text)
+
+    # 4. Synthesize answer with context using local LLM
+    context_str = "\n---\n".join(text_contexts)
+    prompt = f"Context:\n{context_str}\n\nQuestion: {req.query}"
+
+    response = ollama.generate(
+        model=req.inference_model,
+        prompt=prompt
+    )
+
+    # 5. Formulate structured response and validate using Pydantic v2
+    outcome = AssistantResponse(
+        query=req.query,
+        context_used=context_segments,
+        generated_answer=response['response']
+    )
+
+    return outcome.model_dump()
+
+# Execution Example
+if __name__ == "__main__":
+    test_input = {
+        "query": "How do I setup Kiwix offline server?",
+        "limit": 2,
+        "embedding_model": "nomic-embed-text",
+        "inference_model": "gemma3-27b-it"
+    }
+    try:
+        result = execute_local_rag(test_input)
+        print("Validated Response:", result)
+    except Exception as e:
+        print("Validation or Runtime Error:", e)
 ```
 
 ## Related tools / concepts
@@ -144,5 +203,5 @@ print(response['response'])
 - [Milvus Documentation](https://milvus.io/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
