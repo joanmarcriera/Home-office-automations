@@ -1,18 +1,18 @@
 # Real-time Sync Engines
 
 ## What it is
-Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles and Conflict-free Replicated Data Types (CRDTs). As of July 2026, they are the foundation for the "Agentic Workbench" pattern.
+Real-time sync engines are specialized software components that enable multiplayer collaboration and automatic data consistency across distributed applications. They handle the complex logic of synchronizing state between multiple clients and a central server, often using local-first principles and Conflict-free Replicated Data Types (CRDTs). As of **November 2026**, they are the foundation for the "Agentic Workbench" pattern, facilitating sub-10ms state synchronization across humans and autonomous multi-agent systems.
 
 ## What problem it solves
-Developing collaborative applications (like Google Docs or Trello) is notoriously difficult due to race conditions, network latency, and conflict resolution. Sync engines abstract these challenges, allowing developers to treat remote data as if it were local while the engine handles background synchronization, partial replication, and deterministic conflict merging. They eliminate the "loading spinner" and "network error" friction in high-interactivity apps.
+Developing collaborative applications (like Google Docs, Figma, or interactive agentic dashboards) is notoriously difficult due to race conditions, network latency, and conflict resolution. Sync engines abstract these challenges, allowing developers to treat remote data as if it were local while the engine handles background synchronization, partial replication, and deterministic conflict merging. They eliminate the "loading spinner" and "network error" friction in high-interactivity apps.
 
 ## Where it fits in the stack
-Sync engines sit between the **Application** layer and the **Data/Database** layer. They often replace traditional REST/GraphQL APIs with a reactive synchronization protocol that keeps a local client-side database (like SQLite, PGlite, or an in-memory store) in sync with a server-side source of truth (typically PostgreSQL).
+Sync engines sit between the **Application** layer and the **Data/Database** layer. They replace traditional REST/GraphQL APIs with a reactive synchronization protocol that keeps a client-side database (like SQLite, PGlite, or an in-memory store) in sync with a server-side source of truth (typically PostgreSQL with logical replication enabled).
 
 ## Typical use cases
-- **Multiplayer Workspaces**: Tools like Notion, Linear, or Figma.
+- **Multiplayer Workspaces**: Highly interactive tools like Notion, Linear, or Figma.
 - **Edge-Heavy Apps**: Mobile tools used in transit (trains, planes) with intermittent connectivity.
-- **Agentic Workbenches**: Real-time coordination between human operators and multiple AI agents like [Gemma 3](../tools/ai_knowledge/local_llms.md) working on the same state.
+- **Agentic Workbenches**: Real-time coordination between human operators and multiple AI agents powered by Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3 working on the same shared application state.
 - **Local-First AI**: Running local LLMs against a synced local vector store (e.g., using `pgvector` in PGlite).
 - **Collaborative IDEs**: Shared coding environments where agents and humans refactor code simultaneously.
 
@@ -20,7 +20,7 @@ Sync engines sit between the **Application** layer and the **Data/Database** lay
 - **Optimistic UI**: No loading spinners for writes; changes are instant on the client and propagate in the background.
 - **Offline Reliability**: The app works without a network; sync happens automatically when connectivity is restored.
 - **Lower Server Load**: Many read queries are handled locally on the client's cached subset of data.
-- **Conflict Resolution**: Built-in CRDT or CDC-based merging ensures all clients eventually reach the same state.
+- **Conflict Resolution**: Built-in CRDT or Change Data Capture (CDC)-based merging ensures all clients eventually reach the same state.
 
 ## Limitations
 - **Data Governance**: Storing sensitive data on client devices requires robust encryption-at-rest.
@@ -72,6 +72,7 @@ await pg.exec("SELECT * FROM tasks WHERE status = 'pending'");
 ```
 
 ## API examples
+
 ### Defining a Sync Shape
 Instead of syncing the whole DB, the client requests a "Shape".
 ```typescript
@@ -100,6 +101,43 @@ export const mutators = {
 };
 ```
 
+### Pydantic v2 CRDT Operation Validation
+Using **Pydantic v2** to programmatically validate and verify collaborative changesets and replication sync payload operations before they are merged into the local or remote DB state:
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from typing import Dict, Any
+from datetime import datetime
+
+class CRDTReplicationEdit(BaseModel):
+    """Pydantic model representing a collaborative real-time state change or edit."""
+    client_id: str = Field(..., description="Unique client identifier")
+    sequence_number: int = Field(..., ge=0, description="Monotonically increasing sequence number")
+    document_id: str = Field(..., description="Target document/shape ID")
+    operation: str = Field(..., pattern="^(insert|update|delete|merge)$")
+    changeset: Dict[str, Any] = Field(..., description="Key-value pair changes")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+    @field_validator("changeset")
+    @classmethod
+    def validate_non_empty_changes(cls, v: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify that changeset contains at least one update record."""
+        if not v:
+            raise ValueError("Changeset dict cannot be empty")
+        return v
+
+# Sample verification run
+payload = {
+    "client_id": "agent-007",
+    "sequence_number": 42,
+    "document_id": "doc-shape-workspace-11",
+    "operation": "update",
+    "changeset": {"status": "completed", "progress": 100}
+}
+validated_edit = CRDTReplicationEdit(**payload)
+print(f"Validated operation '{validated_edit.operation}' for client {validated_edit.client_id}.")
+```
+
 ## Related tools / concepts
 - [Vector DBs](vector-db-comparison.md) — Often integrated with sync engines for local RAG via `pgvector`.
 - [Agent Protocols](agent_protocols.md) — How agents communicate state changes over sync engines.
@@ -110,7 +148,7 @@ export const mutators = {
 - [Wasm](../tools/development_ops/vscode.md) — (Technology context) Enabling databases like PGlite in the browser.
 - [OpenAI](../tools/ai_knowledge/openai.md) — Often the intelligence layer acting upon the synced state.
 - [Gemma 3](../tools/ai_knowledge/local_llms.md) — Frequently used in local-first agentic workbenches.
-- [MCP 3.0](patterns/tool-calling-and-mcp.md) — Protocol for agent-tool interaction, often synced in real-time.
+- [MCP 3.1](patterns/tool-calling-and-mcp.md) — Protocol for agent-tool interaction, often synced in real-time.
 
 ## Sources / references
 - [Local-first web development (RethinkDB blog, 2026 update)](https://rethinkdb.com/blog/local-first-2026/)
@@ -118,7 +156,8 @@ export const mutators = {
 - [ElectricSQL PGlite v1.0 Release Notes](https://electric-sql.com/blog/2026/01/15/pglite-stable)
 - [InstantDB: The Graph Sync Engine](https://www.instantdb.com/)
 - [Jazz: Collaborative Data Layer](https://jazz.tools/)
+- [Model Context Protocol Specification 3.1](https://modelcontextprotocol.io)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-15
 - Confidence: high

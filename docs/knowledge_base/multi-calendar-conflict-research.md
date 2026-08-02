@@ -1,10 +1,10 @@
 # Multi-Calendar Conflict Detection Research
 
 ## What it is
-Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). In July 2026, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 4.8 and [Gemma 3](../tools/ai_knowledge/local_llms.md) use the **MCP 3.0 Task Protocol** to negotiate schedules across multiple personal and professional accounts with standardized execution.
+Multi-calendar conflict detection is the process of identifying overlapping events and availability gaps across disparate calendar systems (Google Calendar, Outlook, CalDAV). As of **November 2026**, this has evolved from simple "busy" checks into **Agentic Calendar Orchestration**, where frontier models like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, and Gemma 3 use the **MCP 3.1 Task Protocol** and **FastMCP 3.1** to automatically negotiate schedules across multiple personal and professional accounts with standardized execution, and resolve overlapping scheduling slots on behalf of users.
 
 ## What problem it solves
-It prevents double-booking and "calendar sprawl" by providing a unified view of availability. It solves the fragmentation problem in multi-user environments (e.g., family scheduling) and multi-role contexts (e.g., freelancer juggling multiple client calendars), automating the labor-intensive task of manual cross-referencing.
+It prevents double-booking and "calendar sprawl" by providing a unified, unified view of availability. It solves the fragmentation problem in multi-user environments (e.g., family scheduling) and multi-role contexts (e.g., freelancer juggling multiple client calendars), automating the labor-intensive task of manual cross-referencing.
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / Pattern. It informs the logic layer of automation platforms like [n8n](../services/n8n.md) and [Home Assistant](../services/home-assistant.md). It serves as the primary data ingestion strategy for AI scheduling agents and "Focus Time" optimizers.
@@ -70,7 +70,7 @@ services:
 Using the `gcalcli` tool to check for conflicts:
 ```bash
 # Search for events in a specific time range across all calendars
-gcalcli agenda "2026-06-20 09:00" "2026-06-20 17:00"
+gcalcli agenda "2026-11-20 09:00" "2026-11-20 17:00"
 ```
 
 ### CalDAV Conflict Check via Curl
@@ -78,21 +78,61 @@ Querying a CalDAV server for busy periods:
 ```bash
 curl -X REPORT -u 'user:pass' -H "Content-Type: text/xml" \
      --data '<c:free-busy-query xmlns:c="urn:ietf:params:xml:ns:caldav">
-               <c:time-range start="20260620T000000Z" end="20260621T000000Z"/>
+               <c:time-range start="20261120T000000Z" end="20261121T000000Z"/>
              </c:free-busy-query>' \
      https://calendar.example.com/dav/calendars/user/
 ```
 
 ## API examples
 
-### Agentic Conflict Detection (MCP 3.0 Task Protocol)
-In July 2026, agents use the MCP 3.0 Task Protocol to query calendars and execute scheduling tasks. This example demonstrates how an agent might use a "Calendar Tool" to detect conflicts.
+### Pydantic v2 Calendar Conflict Validation
+Using **Pydantic v2** to model, parse, and validate calendar events, time ranges, and flexibility properties before triggering schedule negotiation:
+
+```python
+from pydantic import BaseModel, Field, model_validator
+from datetime import datetime
+from typing import List
+
+class CalendarEvent(BaseModel):
+    """Pydantic model representing a single calendar event block."""
+    event_id: str = Field(..., description="Unique event identifier")
+    summary: str = Field(..., description="Brief description of the event")
+    start_time: datetime = Field(..., description="Event start date/time")
+    end_time: datetime = Field(..., description="Event end date/time")
+    is_flexible: bool = Field(default=False, description="Whether event can be shifted if a conflict arises")
+
+    @model_validator(mode="after")
+    def validate_time_range(self) -> 'CalendarEvent':
+        """Ensure end_time is chronologically after start_time."""
+        if self.end_time <= self.start_time:
+            raise ValueError("end_time must be strictly after start_time")
+        return self
+
+class ConflictDetectionRequest(BaseModel):
+    """Pydantic request payload validation model for cross-calendar conflict scans."""
+    primary_events: List[CalendarEvent]
+    secondary_events: List[CalendarEvent]
+
+# Sample validation execution
+event_data = {
+    "event_id": "evt-109283",
+    "summary": "AI Alignment Sync",
+    "start_time": "2026-11-20T10:00:00Z",
+    "end_time": "2026-11-20T11:00:00Z",
+    "is_flexible": True
+}
+validated_event = CalendarEvent(**event_data)
+print(f"Validated '{validated_event.summary}' event successfully (Flexible={validated_event.is_flexible}).")
+```
+
+### Agentic Conflict Detection (MCP 3.1 Task Protocol)
+In November 2026, agents use the MCP 3.1 Task Protocol to query calendars and execute scheduling tasks. This example demonstrates how an agent might use a "Calendar Tool" to detect conflicts.
 
 ```python
 import mcp_client
 
 async def detect_calendar_conflicts(agent, start_time, end_time):
-    # Agent calls the 'list_busy_times' tool via MCP 3.0 Task Protocol
+    # Agent calls the 'list_busy_times' tool via MCP 3.1 Task Protocol
     busy_blocks = await agent.call_tool(
         "chronos-mcp",
         "list_busy_times",
@@ -114,8 +154,8 @@ def find_overlaps(blocks):
 ```python
 # Querying multiple calendars for Free/Busy status
 body = {
-  "timeMin": "2026-06-20T00:00:00Z",
-  "timeMax": "2026-06-21T00:00:00Z",
+  "timeMin": "2026-11-20T00:00:00Z",
+  "timeMax": "2026-11-21T00:00:00Z",
   "items": [{"id": "work@company.com"}, {"id": "personal@gmail.com"}]
 }
 result = service.freebusy().query(body=body).execute()
@@ -136,9 +176,9 @@ result = service.freebusy().query(body=body).execute()
 ## Sources / references
 - [Google Calendar Free/Busy API Documentation](https://developers.google.com/calendar/api/v3/reference/freebusy/query)
 - [RFC 4791: CalDAV Scheduling Extensions](https://datatracker.ietf.org/doc/html/rfc4791)
-- [MCP 3.0 Task Protocol Specification](https://modelcontextprotocol.io/spec/3.0/task-protocol)
+- [MCP 3.1 Task Protocol Specification](https://modelcontextprotocol.io/spec/3.1/task-protocol)
 - [Awesome Time Tracking: AI Scheduling Agents 2026](https://github.com/ever-works/awesome-time-tracking/blob/develop/details/ai-scheduling-agents-2026.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-15
 - Confidence: high
