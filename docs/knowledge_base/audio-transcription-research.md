@@ -3,10 +3,10 @@
 ## What it is
 This research document compares optimized versions of OpenAI's Whisper model and architectures like **SenseVoice**, focusing on engines designed to handle long-form audio (podcasts, audiobooks, journals) efficiently within a homelab.
 
-### Key Findings (July 2026)
+### Key Findings (Late 2026)
 - **SenseVoice Integration**: Native speaker diarization and emotion detection at inference time.
 - **Silero-VAD V6**: 40% lower latency and superior "homelab hum" rejection compared to V5.
-- **Hardware Trends**: `mlx-whisper` is the standard for Apple Silicon (M5 optimized); FP8 support in `faster-whisper` v1.3 halves VRAM usage on NVIDIA 40-series+ GPUs.
+- **Hardware Trends**: `mlx-whisper` is the standard for Apple Silicon (M5/M4 optimized); FP8 support in `faster-whisper` v1.3 halves VRAM usage on NVIDIA 40-series+ and 50-series GPUs.
 
 ## What problem it solves
 Standard Whisper implementations are accurate but computationally expensive and prone to "hallucination loops" during silence. This research identifies variants that reduce transcription time by up to 10x while maintaining accuracy and hardware compatibility.
@@ -23,7 +23,7 @@ This document belongs to the **Layer 0: Infrastructure** and **Process Understan
 ## Strengths
 The primary strength of this research is the categorization of models by their specific performance profiles and hardware affinity.
 
-### Comparison Table (July 2026)
+### Comparison Table (Late 2026)
 
 | Model Variant | Engine | Speed (vs. Large-v3) | Memory (Approx.) | Multilingual | Best For |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -49,14 +49,14 @@ The primary strength of this research is the categorization of models by their s
 - For music-to-sheet-music conversion (requires specialized spectral analysis).
 
 ## Getting started
-Implementing modern transcription involves choosing the right model-engine pair. As of July 2026, **Faster-Whisper v1.3** and **SenseVoice Small** are the dominant choices.
+Implementing modern transcription involves choosing the right model-engine pair. As of late 2026, **Faster-Whisper v1.3** and **SenseVoice Small** are the dominant choices.
 
 1. **Hardware Assessment**:
    - **NVIDIA GPU**: Use `faster-whisper` with FP16/FP8 quantization.
    - **Apple Silicon**: Use `mlx-whisper` for Unified Memory efficiency.
    - **CPU-only (NAS)**: Use `whisper.cpp` with `q5_k` quantization.
 2. **Model Selection**: Use `distil-large-v3` for English speed or `sense-voice-small` for multilingual diarization.
-3. **Integration**: Use **Gemma 3** or **Claude 4.8** for post-transcription reasoning via the [MCP 3.0 Task Protocol](../tools/automation_orchestration/mcp.md).
+3. **Integration**: Use **Gemma 3** or **Claude 5.1** for post-transcription reasoning via the [MCP 3.1 / FastMCP 3.1 Task Protocol](../tools/automation_orchestration/mcp.md).
 
 ## CLI examples
 The following examples demonstrate how to invoke optimized transcription engines from the command line.
@@ -73,29 +73,53 @@ python -m sensevoice_cli --input "podcast.m4a" --output_dir "./transcripts" --di
 ```
 
 ## API examples
-The following Python script can be used to benchmark `faster-whisper` performance and configure VAD using Silero V6.
+The following Python script can be used to benchmark `faster-whisper` performance, configure VAD using Silero V6, and validate configuration options utilizing Pydantic v2.
 
 ```python
 import time
+from typing import Optional
+from pydantic import BaseModel, Field, field_validator
 from faster_whisper import WhisperModel
 
-def run_transcription(model_size="large-v3-turbo", device="cuda"):
-    # July 2026: compute_type="float16" for GPU, "int8" for CPU
-    compute_type = "float16" if device == "cuda" else "int8"
-    model = WhisperModel(model_size, device=device, compute_type=compute_type)
+class VADParameters(BaseModel):
+    threshold: float = Field(0.35, ge=0.0, le=1.0, description="VAD voice threshold")
+    min_speech_duration_ms: int = Field(100, ge=10)
+    min_silence_duration_ms: int = Field(200, ge=10)
+    window_size_samples: int = Field(512, description="Window size for Silero VAD v6")
 
-    # VAD configuration using Silero V6 (Integrated in Faster-Whisper v1.3)
+class TranscriptionConfig(BaseModel):
+    model_size: str = Field("large-v3-turbo", description="Whisper model size/variant")
+    device: str = Field("cuda", description="Execution device (cuda or cpu)")
+    compute_type: str = Field("float16", description="Quantization / precision level")
+    vad_filter: bool = True
+    vad_parameters: Optional[VADParameters] = None
+
+    @field_validator("device")
+    @classmethod
+    def validate_device(cls, v: str) -> str:
+        if v not in {"cuda", "cpu"}:
+            raise ValueError("Device must be either 'cuda' or 'cpu'")
+        return v
+
+def run_transcription(config: TranscriptionConfig):
+    model = WhisperModel(
+        config.model_size,
+        device=config.device,
+        compute_type=config.compute_type
+    )
+
     start_time = time.time()
+
+    # Configure VAD parameters safely from parsed Pydantic config
+    vad_params_dict = {}
+    if config.vad_parameters:
+        vad_params_dict = config.vad_parameters.model_dump()
+
     segments, info = model.transcribe(
         "sample_audio.mp3",
         beam_size=5,
-        vad_filter=True,
-        vad_parameters=dict(
-            threshold=0.35,              # Lower for high-noise home recordings
-            min_speech_duration_ms=100,  # V6 is more precise
-            min_silence_duration_ms=200,
-            window_size_samples=512      # V6 optimized window
-        )
+        vad_filter=config.vad_filter,
+        vad_parameters=vad_params_dict
     )
 
     # Exhaust the generator to complete transcription
@@ -105,7 +129,13 @@ def run_transcription(model_size="large-v3-turbo", device="cuda"):
     print(f"Transcribed {info.duration:.2f}s in {duration:.2f}s")
 
 if __name__ == "__main__":
-    run_transcription()
+    validated_config = TranscriptionConfig(
+        model_size="large-v3-turbo",
+        device="cuda",
+        compute_type="float16",
+        vad_parameters=VADParameters(threshold=0.35)
+    )
+    run_transcription(validated_config)
 ```
 
 ## Related tools / concepts
@@ -127,5 +157,5 @@ if __name__ == "__main__":
 - [OpenAI Whisper Turbo Announcement](https://openai.com/blog/whisper-turbo)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high

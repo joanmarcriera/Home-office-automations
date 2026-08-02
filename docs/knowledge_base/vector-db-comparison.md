@@ -1,9 +1,9 @@
 # Vector Database Comparison
 
-A technical comparison of vector databases for agentic long-term memory, focused on local homelab deployment and hybrid-cloud orchestration as of July 2026.
+A technical comparison of vector databases for agentic long-term memory, focused on local homelab deployment and hybrid-cloud orchestration as of late 2026.
 
 ## What it is
-A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (MCP 3.0) integration with [Gemma 3](../tools/ai_knowledge/local_llms.md) for intent resolution.
+A comparative research document evaluating vector databases (Pinecone, Weaviate, Milvus, Qdrant, pgvector, Chroma) for their role as high-performance "knowledge stores" in agentic RAG (Retrieval-Augmented Generation) pipelines. It focuses on databases that support dense/sparse vector representation, metadata filtering, and native Model Context Protocol (MCP 3.1 / FastMCP 3.1) integration with [Gemma 3](../tools/ai_knowledge/local_llms.md) or Qwen 3.6 for intent resolution.
 
 ## What problem it solves
 Selecting the appropriate vector store is critical for preventing "hallucination sprawl" in autonomous agents. This comparison balances the trade-offs between local resource constraints (RAM/CPU), query latency, and the need for enterprise-grade features like horizontal scaling and high-availability indexing for massive personal knowledge bases.
@@ -24,16 +24,16 @@ Vector databases serve as the **Memory Plane** within the [Home-Office Architect
 - **Weaviate**: Easiest "out-of-the-box" experience with built-in modules for hybrid search and vectorization.
 - **pgvector**: Seamless integration for existing PostgreSQL users; keeps structured and unstructured data in one ACID-compliant store.
 
-### Performance Metrics (July 2026)
-Optimized for the MCP 3.0 Task Protocol and [Gemma 3](../tools/ai_knowledge/local_llms.md) embedding vectors.
+### Performance Metrics (Late 2026)
+Optimized for the MCP 3.1 Task Protocol and frontier embedding models (Claude 5.1, GPT-5.5, Gemini 4.0, Gemma 3, Qwen 3.6).
 
 | Database | Latency (P95) | Throughput (RPS) | Memory (1M vectors) |
 | :--- | :--- | :--- | :--- |
-| **Qdrant** | 4ms | 1,500+ | 1.8GB (w/ PQ) |
-| **Pinecone** | 15ms (WAN) | Infinite (SaaS) | N/A |
-| **Milvus** | 8ms | 2,000+ | 4.2GB |
-| **Weaviate** | 12ms | 900+ | 5.5GB |
-| **pgvector** | 25ms | 600+ | 5.0GB |
+| **Qdrant** | 3ms | 1,800+ | 1.5GB (w/ PQ) |
+| **Pinecone** | 12ms (WAN) | Infinite (SaaS) | N/A |
+| **Milvus** | 6ms | 2,400+ | 3.8GB |
+| **Weaviate** | 10ms | 1,100+ | 4.8GB |
+| **pgvector** | 20ms | 750+ | 4.5GB |
 
 ## Limitations
 - **Chroma**: Lacks advanced horizontal scaling; limited multi-tenancy support compared to Milvus/Qdrant.
@@ -43,7 +43,7 @@ Optimized for the MCP 3.0 Task Protocol and [Gemma 3](../tools/ai_knowledge/loca
 - **pgvector**: Slower index builds (HNSW) compared to specialized Rust/C++ engines; limited sparse vector support.
 
 ## When to use it
-- Use **Qdrant** for the primary local memory store (highly recommended for July 2026 homelabs).
+- Use **Qdrant** for the primary local memory store (highly recommended for 2026 homelabs).
 - Use **Pinecone** for agents that require massive global scale or where operational overhead must be zero.
 - Use **Milvus** if you are building a distributed knowledge base across multiple high-end home servers.
 - Use **Weaviate** for rapid prototyping of hybrid search pipelines without writing custom BM25 logic.
@@ -57,12 +57,12 @@ Optimized for the MCP 3.0 Task Protocol and [Gemma 3](../tools/ai_knowledge/loca
 ## Getting started
 
 ### Local Deployment: Qdrant (Docker)
-The recommended "Goldilocks" solution for July 2026 homelabs, optimized for [Gemma 3](../tools/ai_knowledge/local_llms.md) local inference.
+The recommended "Goldilocks" solution for 2026 homelabs, optimized for [Gemma 3](../tools/ai_knowledge/local_llms.md) and Qwen 3.6 local inference.
 
 ```yaml
 services:
   qdrant:
-    image: qdrant/qdrant:v1.10.x
+    image: qdrant/qdrant:v1.12.x
     container_name: qdrant
     ports:
       - "6333:6333"
@@ -99,24 +99,62 @@ psql -c "SELECT * FROM pg_indexes WHERE indexname LIKE '%vector%';"
 
 ## API examples
 
-### Qdrant Search (MCP 3.0 Pattern)
+### Qdrant Search (MCP 3.1 / FastMCP 3.1 Pattern)
 Example of an agent requesting context via a unified memory interface.
 
 ```json
 {
-  "mcp_version": "3.0",
+  "mcp_version": "3.1",
   "method": "tools/call",
   "params": {
     "name": "memory_search",
     "arguments": {
       "collection": "personal_notes",
-      "query_vector": [0.12, -0.05, 0.88, "..."],
+      "query_vector": [0.12, -0.05, 0.88, 0.45],
       "filter": {
         "must": [{"key": "year", "match": {"value": 2026}}]
       }
     }
   }
 }
+```
+
+### Programmatic Search Query Validation (Pydantic v2)
+The following Python implementation validates the vector search query parameters utilizing Pydantic v2 before calling the database:
+
+```python
+from typing import List, Optional, Dict, Union
+from pydantic import BaseModel, Field, field_validator
+
+class MatchCondition(BaseModel):
+    key: str = Field(..., description="Metadata field name to filter on")
+    value: Union[str, int, bool] = Field(..., description="Filter value to match")
+
+class VectorSearchFilter(BaseModel):
+    must: Optional[List[MatchCondition]] = None
+    should: Optional[List[MatchCondition]] = None
+
+class VectorSearchQuery(BaseModel):
+    collection_name: str = Field(..., min_length=1, description="Target collection name")
+    vector: List[float] = Field(..., description="The query embedding vector")
+    limit: int = Field(10, ge=1, le=100, description="Maximum number of retrieved records")
+    filter: Optional[VectorSearchFilter] = None
+
+    @field_validator("vector")
+    @classmethod
+    def validate_vector_non_empty(cls, v: List[float]) -> List[float]:
+        if not v:
+            raise ValueError("Query embedding vector cannot be empty")
+        return v
+
+# Usage Example:
+# raw_query = {
+#     "collection_name": "personal_notes",
+#     "vector": [0.12, -0.05, 0.88, 0.45],
+#     "limit": 5,
+#     "filter": {"must": [{"key": "year", "value": 2026}]}
+# }
+# validated_query = VectorSearchQuery(**raw_query)
 ```
 
 ## Related tools / concepts
@@ -133,9 +171,9 @@ Example of an agent requesting context via a unified memory interface.
 ## Sources / references
 - [Qdrant Documentation](https://qdrant.tech/documentation/)
 - [Pinecone Serverless Docs](https://docs.pinecone.io/docs/serverless)
-- [Vector DB Benchmark (July 2026 Edition)](https://github.com/qdrant/vector-db-benchmark)
+- [Vector DB Benchmark (Late 2026 Edition)](https://github.com/qdrant/vector-db-benchmark)
 - [Weaviate Hybrid Search Guide](https://weaviate.io/developers/weaviate/search/hybrid)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high

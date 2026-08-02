@@ -1,7 +1,7 @@
 # Free AI Website Playbook
 
 ## What it is
-The Free AI Website Playbook is a comprehensive guide for builders, founders, and hobbyists looking to launch web properties using zero-cost infrastructure. It covers hosting selection, stack architecture, and prompt engineering strategies to maximize the value of "free tier" services from providers like Vercel, Cloudflare, and GitHub. It incorporates the latest July 2026 standards for agentic deployment and serverless orchestration.
+The Free AI Website Playbook is a comprehensive guide for builders, founders, and hobbyists looking to launch web properties using zero-cost infrastructure. It covers hosting selection, stack architecture, and prompt engineering strategies to maximize the value of "free tier" services from providers like Vercel, Cloudflare, and GitHub. It incorporates the latest late 2026 standards for agentic deployment and serverless orchestration.
 
 ### Website archetypes
 - **Landing page**: Use this when you need one clear conversion goal: book a call, join a waitlist, or try a product.
@@ -36,7 +36,7 @@ flowchart TD
 ```
 
 ## What problem it solves
-It eliminates the "choice paralysis" and technical hurdles of starting a new project on a budget. By mapping specific website archetypes (landing pages, blogs, AI demos) to the best free-tier providers, it helps users avoid costly mistakes, performance bottlenecks, and the limitations of mismatched technology. It provides a clear path for using **Claude 4.8** and **GPT-5.5** to generate production-ready code for these platforms.
+It eliminates the "choice paralysis" and technical hurdles of starting a new project on a budget. By mapping specific website archetypes (landing pages, blogs, AI demos) to the best free-tier providers, it helps users avoid costly mistakes, performance bottlenecks, and the limitations of mismatched technology. It provides a clear path for using **Claude 5.1** and **GPT-5.5** to generate production-ready code for these platforms.
 
 ## Where it fits in the stack
 **Category**: Knowledge Base / Playbook
@@ -83,11 +83,11 @@ Free tiers are best for distribution, validation, and early workflow testing. Th
 ## Getting started
 1. **Choose your Archetype**: Determine if you are building a landing page, a doc site, or a full app MVP.
 2. **Select your Host**: Use the Selection Matrix and Map above to pick the best provider.
-3. **Draft your Prompt**: Use the [How to instruct the LLM](#how-to-instruct-the-llm) section to generate your code using **Claude 4.8** or **GPT-5.5**.
+3. **Draft your Prompt**: Use the [How to instruct the LLM](#how-to-instruct-the-llm) section to generate your code using **Claude 5.1** or **GPT-5.5**.
 4. **Deploy via CLI**: Use the provider's CLI to deploy your site.
 
 ### Model Context Protocol (MCP) Integration
-As of July 2026, using **Claude 4.8**, **GPT-5.5**, or **Llama 4 Maverick** with **MCP 3.0** servers is the recommended way to scaffold and manage these sites.
+As of late 2026, using **Claude 5.1**, **GPT-5.5**, or **Llama 4** with **MCP 3.1 / FastMCP 3.1** servers is the recommended way to scaffold and manage these sites.
 - **Environment Management**: Use an MCP server to securely inject environment variables (like `SUPABASE_KEY`) into your deployment pipeline.
 - **Scaffolding**: Leverage agentic tools to generate the boilerplate for [Vercel](../tools/development_ops/vercel.md) or [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md) directly from a natural language prompt.
 - **Automated Deployment**: Instruct the agent to run the necessary CLI commands to push changes to production.
@@ -96,7 +96,7 @@ As of July 2026, using **Claude 4.8**, **GPT-5.5**, or **Llama 4 Maverick** with
 **Reusable prompt skeleton**:
 ```text
 Build a [website type] for [audience] whose main goal is [conversion or user job].
-Use [stack/framework] (e.g. Next.js with Vercel AI SDK v4.5) and optimize for [speed / SEO / clarity].
+Use [stack/framework] (e.g. Next.js with Vercel AI SDK v5.x) and optimize for [speed / SEO / clarity].
 Deployment target: [Vercel / Cloudflare Pages / GitHub Pages].
 Backend: [none / Supabase / external API].
 ```
@@ -138,7 +138,7 @@ git push origin main:gh-pages
 
 ## API examples
 
-### Vercel AI SDK (v4.5) with Claude 4.8
+### Vercel AI SDK (v5.0) with Claude 5.1
 This example shows how to integrate an AI chat interface into your free Vercel app.
 
 ```typescript
@@ -150,7 +150,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const result = await streamText({
-    model: anthropic('claude-4-8-opus-20260528'),
+    model: anthropic('claude-5-1-sonnet-20261022'),
     messages,
   });
 
@@ -175,6 +175,39 @@ async function joinWaitlist(email) {
 }
 ```
 
+### Site Deployment Configuration Validation (Pydantic v2)
+The following Python script models and validates site deployment configuration using Pydantic v2 before initiating agentic deployment pipelines:
+
+```python
+from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator
+
+class DeploymentConfig(BaseModel):
+    project_name: str = Field(..., pattern=r"^[a-z0-9\-]+$", description="DNS/URL-friendly lowercase project name")
+    provider: str = Field(..., description="Target hosting platform (vercel, cloudflare, github)")
+    custom_domain: Optional[str] = Field(None, description="Optional custom domain URL")
+    env_vars: List[str] = Field(default_factory=list, description="Required environment variables")
+
+    @field_validator("provider")
+    @classmethod
+    def validate_provider(cls, v: str) -> str:
+        valid_providers = {"vercel", "cloudflare", "github"}
+        if v.lower() not in valid_providers:
+            raise ValueError(f"Provider must be one of {valid_providers}")
+        return v.lower()
+
+# Usage Example:
+# try:
+#     config = DeploymentConfig(
+#         project_name="my-cool-free-app",
+#         provider="Vercel",
+#         env_vars=["SUPABASE_URL", "SUPABASE_ANON_KEY"]
+#     )
+#     print(f"Validated configuration for: {config.project_name} on {config.provider}")
+# except Exception as e:
+#     print(f"Validation failed: {e}")
+```
+
 ## Related tools / concepts
 - [Vercel](../tools/development_ops/vercel.md)
 - [Cloudflare Pages](../tools/development_ops/cloudflare-pages.md)
@@ -194,5 +227,5 @@ async function joinWaitlist(email) {
 - [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-20
 - Confidence: high
