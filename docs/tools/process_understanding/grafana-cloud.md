@@ -6,6 +6,8 @@ Grafana Cloud is a fully managed, high-performance observability platform that p
 ## What problem it solves
 It centralizes and correlates telemetry from diverse, decoupled systems into a single dashboarding and alerting interface. For AI applications, it eliminates the tracking gap by correlating infrastructure behavior with LLM parameters (latency, token usage, cost, error rates, and prompt performance). Its **Actually Useful AI™** suite, including Grafana Assistant, automates incident diagnosis and dashboard generation.
 
+Through the **Grafana Assistant Data Source** integration, operators can query and correlate unified observability metrics across more than 30 diverse data sources via natural language. This eliminates manual timestamp correlation and tool-switching across cloud platforms, databases, and issue trackers by translating natural language requests into complex PromQL, LogQL, TraceQL, or SQL queries.
+
 ## Where it fits in the stack
 **Infrastructure / Observability / Eval**. It serves as the primary visualization, alerting, and analysis layer for the [OpenTelemetry](opentelemetry-collector.md) and Prometheus ecosystems.
 
@@ -132,6 +134,7 @@ print(response.json())
 - [Grafana MCP Server](https://grafana.com/docs/grafana/latest/developer-resources/mcp/)
 - [Actually Useful AI™ in Grafana Cloud](https://grafana.com/products/cloud/ai-observability/)
 - [Llama 4 Maverick Observability Patterns](https://grafana.com/blog/2026/05/monitoring-llama-4-maverick/)
+- [Grafana Assistant Expands to More Than 30 Data Sources - InfoQ](https://www.infoq.com/news/2026/07/grafana-assistant-data-source/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-01

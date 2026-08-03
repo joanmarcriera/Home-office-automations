@@ -1,7 +1,9 @@
 # DeepSeek
 
 ## What it is
-DeepSeek is a leading AI research organization specializing in high-performance, cost-effective large language models (LLMs). As of July 2026, their flagship model is **DeepSeek-V4**, which utilizes a sophisticated Mixture-of-Experts (MoE) architecture to provide frontier-level reasoning and coding capabilities. DeepSeek is known for its "open-weights" philosophy and for pushing the boundaries of what is possible with efficient model training and inference. In July 2026 benchmarks, DeepSeek-V4 maintains a significant lead in coding efficiency and mathematical reasoning, often outperforming frontier models like Gemma 3 in specific software engineering tasks.
+DeepSeek is a leading AI research organization specializing in high-performance, cost-effective large language models (LLMs). Their model series is anchored by **DeepSeek-V4**, which utilizes a sophisticated Mixture-of-Experts (MoE) architecture to provide frontier-level reasoning and coding capabilities. DeepSeek is known for its "open-weights" philosophy and for pushing the boundaries of what is possible with efficient model training and inference.
+
+DeepSeek's portfolio includes **DeepSeek-V4-Flash**, a preview model of the DeepSeek-V4 series. It is a Mixture-of-Experts model with 284B total parameters and 13B activated parameters, built specifically for efficient, high-performance, and low-latency reasoning across a massive 1-million-token context window. DeepSeek maintains a significant lead in coding efficiency and mathematical reasoning, making its API and local models highly competitive.
 
 ## What problem it solves
 It addresses the high cost and "black box" nature of proprietary frontier models. DeepSeek provides models that rival the performance of GPT-5.5 and Claude 4.8 Opus in specific domains—particularly mathematics, logic, and software engineering—at a significantly lower price point. It allows developers to use state-of-the-art AI without being locked into a single ecosystem.
@@ -127,6 +129,7 @@ print(response.choices[0].message.content)
 - [DeepSeek-R1 Release Blog](https://api-docs.deepseek.com/news/news250120)
 - [Reddit r/LocalLLaMA: DeepSeek V4 Soon Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1v04jq2/deepseek_v4_soon/)
 - [OpenPangu2.0-Flash](https://www.reddit.com/r/LocalLLaMA/comments/1v03psf/model_add_openpangu20flash_92ba6b_with_mlalatent/) — Integrated from daily log reference.
+- [DeepSeek-V4-Flash Release - Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vbidxt/the_official_release_deepseek_v4_flash_is_live_on/)
 
 
 ## Contribution Metadata

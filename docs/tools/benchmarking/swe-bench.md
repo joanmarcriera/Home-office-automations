@@ -3,6 +3,8 @@
 ## What it is
 SWE-bench is a benchmark for evaluating LLMs on real-world software engineering tasks. It uses actual issues from GitHub and requires the model to generate a functional patch that passes existing tests. As of November 2026, it remains the industry standard for measuring the autonomous coding capabilities of frontier models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0**.
 
+With the launch of **SWE-bench Multilingual**, the benchmark has been expanded to support a wider array of programming languages (C, C++, Go, Java, JavaScript, TypeScript, PHP, Ruby, and Rust), making it a truly language-agnostic evaluator for autonomous engineering agents across diverse modern software stacks.
+
 ## What problem it solves
 Measures whether LLMs can perform practical software engineering work—understanding codebases, diagnosing issues, and producing working fixes—rather than just solving isolated coding puzzles. It identifies "stalling" behaviors and evaluates the robustness of agentic loops in a terminal environment, often leveraging **Model Context Protocol (MCP 3.1)** for dynamic tool discovery.
 
@@ -23,7 +25,7 @@ Measures whether LLMs can perform practical software engineering work—understa
 
 ## Limitations
 - **Computational Cost**: Requires a Docker environment and significant compute to run full test suites.
-- **Language Bias**: Primarily focused on Python repositories in the standard dataset.
+- **Language Bias**: Historically focused on Python repositories in the standard dataset, although this is now resolved by the **SWE-bench Multilingual** dataset covering 9 major programming languages.
 - **Static Nature**: While updated, older subsets can suffer from data contamination in newer model training sets.
 - **Limited Scope**: Does not typically evaluate documentation-only changes or complex multi-repository dependencies.
 
@@ -169,6 +171,8 @@ def validate_prediction_file(raw_json_line: str) -> Optional[SWEBenchPrediction]
 - [GitHub Repository](https://github.com/princeton-nlp/SWE-bench)
 - [SWE-bench Paper (arXiv:2310.06770)](https://arxiv.org/abs/2310.06770)
 - [SWE-bench Verified Announcement](https://openai.com/index/introducing-swe-bench-verified/)
+- [SWE-bench Multilingual Release Discussion - Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1v93phk/swerebench_multilingual_update_go_java_python/)
+- [SWE-bench Multilingual Official Documentation](https://www.swebench.com/multilingual.html)
 
 ## Contribution Metadata
 - Last reviewed: 2026-11-03
