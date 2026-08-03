@@ -116,9 +116,9 @@
       "score": 1.0
     },
     "blog.google": {
-      "discovered": 7,
+      "discovered": 8,
       "integrated": 7,
-      "score": 1.0
+      "score": 0.88
     },
     "bloomberg.com": {
       "discovered": 1,
@@ -206,9 +206,9 @@
       "score": 1.0
     },
     "deepmind.google": {
-      "discovered": 2,
-      "integrated": 1,
-      "score": 0.5
+      "discovered": 3,
+      "integrated": 2,
+      "score": 0.67
     },
     "deepseek.com": {
       "discovered": 3,
@@ -401,9 +401,9 @@
       "score": 1.0
     },
     "github.com": {
-      "discovered": 250,
-      "integrated": 250,
-      "score": 1.0
+      "discovered": 293,
+      "integrated": 291,
+      "score": 0.99
     },
     "glaive.ai": {
       "discovered": 1,
@@ -477,8 +477,8 @@
     },
     "hiraditya.github.io": {
       "discovered": 1,
-      "integrated": 0,
-      "score": 0.0
+      "integrated": 1,
+      "score": 1.0
     },
     "home-assistant.io": {
       "discovered": 2,
@@ -486,9 +486,9 @@
       "score": 1.0
     },
     "huggingface.co": {
-      "discovered": 17,
-      "integrated": 16,
-      "score": 0.94
+      "discovered": 20,
+      "integrated": 17,
+      "score": 0.85
     },
     "hydra.rightsify.com": {
       "discovered": 1,
@@ -506,9 +506,9 @@
       "score": 1.0
     },
     "infoq.com": {
-      "discovered": 4,
+      "discovered": 5,
       "integrated": 4,
-      "score": 1.0
+      "score": 0.8
     },
     "jan.ai": {
       "discovered": 1,
@@ -597,8 +597,8 @@
     },
     "latent.space": {
       "discovered": 8,
-      "integrated": 7,
-      "score": 0.88
+      "integrated": 8,
+      "score": 1.0
     },
     "learn.microsoft.com": {
       "discovered": 3,
@@ -826,8 +826,8 @@
       "score": 1.0
     },
     "openai.com": {
-      "discovered": 19,
-      "integrated": 18,
+      "discovered": 20,
+      "integrated": 19,
       "score": 0.95
     },
     "openbb.co": {
@@ -1001,9 +1001,9 @@
       "score": 1.0
     },
     "reddit.com": {
-      "discovered": 97,
-      "integrated": 85,
-      "score": 0.88
+      "discovered": 109,
+      "integrated": 97,
+      "score": 0.89
     },
     "render.com": {
       "discovered": 1,
@@ -1166,9 +1166,9 @@
       "score": 1.0
     },
     "thenewstack.io": {
-      "discovered": 31,
+      "discovered": 32,
       "integrated": 31,
-      "score": 1.0
+      "score": 0.97
     },
     "todoist.com": {
       "discovered": 1,
@@ -1286,5 +1286,5 @@
       "score": 1.0
     }
   },
-  "updated": "2026-07-27"
+  "updated": "2026-08-03"
 }
