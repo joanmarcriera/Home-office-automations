@@ -6,6 +6,10 @@ This index tracks daily source-ingestion files. Each day gets a dedicated log fi
 
 | Date | Log File | New | Integrated | Notes |
 | :--- | :--- | :---: | :---: | :--- |
+| 2026-08-02 | [2026-08-02](/new-sources/2026-08-02/) | 0 | 0 | Bridge auto-discovery |
+| 2026-08-01 | [2026-08-01](/new-sources/2026-08-01/) | 0 | 0 | Bridge auto-discovery |
+| 2026-07-31 | [2026-07-31](/new-sources/2026-07-31/) | 0 | 0 | Bridge auto-discovery |
+| 2026-07-29 | [2026-07-29](/new-sources/2026-07-29/) | 0 | 0 | Bridge auto-discovery |
 | 2026-07-27 | [2026-07-27](/new-sources/2026-07-27/) | 41 | 0 | Logged missing tools referenced in related sections. |
 | 2026-07-26 | [2026-07-26](/new-sources/2026-07-26/) | 0 | 0 | Bridge auto-discovery |
 | 2026-07-25 | [2026-07-25](/new-sources/2026-07-25/) | 0 | 0 | Bridge auto-discovery |
