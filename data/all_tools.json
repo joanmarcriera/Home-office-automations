@@ -714,6 +714,12 @@
       "doc_path": "docs/tools/ai_knowledge/dex.md"
     },
     {
+      "id": "diagrid-catalyst",
+      "name": "Diagrid Catalyst",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/diagrid-catalyst.md"
+    },
+    {
       "id": "dify",
       "name": "Dify",
       "category": "AI Assistants & Knowledge",

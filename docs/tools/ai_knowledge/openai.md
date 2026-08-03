@@ -1,7 +1,12 @@
 # OpenAI
 
 ## What it is
-OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs). By late July 2026, the API series is anchored by the powerhouse **GPT-5.5** family, including **GPT-5.5 Ultra**, **GPT-5.5 Flash**, and specialized reasoning models designed to run highly stateful tasks.
+OpenAI is a leading AI research and deployment company that provides high-performance Large Language Models (LLMs). The model portfolio is anchored by the powerhouse **GPT-5.5** and **GPT-5.6** families.
+
+The **GPT-5.6** series pushes the price-performance frontier to new heights with three key models:
+- **GPT-5.6 Sol**: The flagship model, bringing a massive 2.5x performance boost across coding, knowledge work, cybersecurity, and scientific tasks.
+- **GPT-5.6 Luna**: An extremely low-cost, efficient model with pricing decreased by up to 80%.
+- **GPT-5.6 Terra**: A highly optimized mid-tier model designed for high-throughput enterprise deployments.
 
 ## What problem it solves
 It provides state-of-the-art reasoning, coding, and instruction-following capabilities via a reliable, high-throughput API. It enables complex automation, multi-step agentic workflows, and human-like interaction by processing text, code, audio, and images natively within a unified model architecture.
@@ -122,6 +127,8 @@ response = client.chat.completions.create(
 - [Realtime API Guide](https://platform.openai.com/docs/guides/realtime)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - [Introducing OpenAI Presence](https://openai.com/index/introducing-openai-presence) — Enterprise agent platform from OpenAI.
+- [Advancing the Price-Performance Frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6)
+- [GPT-5.6: Frontier Intelligence that Scales](https://openai.com/index/gpt-5-6/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-01

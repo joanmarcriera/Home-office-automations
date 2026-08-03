@@ -535,6 +535,7 @@ nav:
           - Temporal: tools/orchestration/temporal.md
           - ZenML: tools/orchestration/zenml.md
       - Infrastructure:
+          - Diagrid Catalyst: tools/infrastructure/diagrid-catalyst.md
           - Docker: tools/infrastructure/docker.md
           - DuckDB: tools/infrastructure/duckdb.md
           - Headscale: services/headscale.md
