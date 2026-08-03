@@ -1,7 +1,7 @@
 # MiniMax
 
 ## What it is
-MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation. Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing. As of July 2026, it remains a top-tier choice for agentic software engineering, maintaining competitive reasoning parity with frontier models like Gemma 3 and Claude 4.8 while offering superior throughput for long-horizon tasks.
+MiniMax is a leading AI provider specializing in large-scale multi-modal models, including the flagship **M3 series** (text, coding, reasoning) and specialized models for speech, video, and music generation. Known for its "Linear Attention" architecture, MiniMax delivers high-performance LLMs with efficient long-context processing. As of July 2026, it remains a top-tier choice for agentic software engineering, maintaining competitive reasoning parity with frontier models like Gemma 3 and Claude 4.8 while offering superior throughput for long-horizon tasks. Additionally, MiniMax features advanced video and multimodal generation capabilities, most notably through its **Hailuo AI** suite and the open-weights **Minimax-H3** video model, which delivers state-of-the-art visual consistency and dynamic camera motion control.
 
 ## What problem it solves
 MiniMax addresses the high cost and latency of traditional transformer-based models through its optimized M3 architecture. By offering a "Token Plan" subscription model that decouples cost from usage, it solves the "token anxiety" for heavy users of autonomous agents and coding assistants, providing a cost-effective alternative to global providers like Anthropic and OpenAI.
@@ -11,7 +11,7 @@ MiniMax addresses the high cost and latency of traditional transformer-based mod
 
 ## Typical use cases
 - **Agentic Coding**: Powering [Claude Code](../development_ops/claude-code.md) or [Aider](../development_ops/aider.md) for long-horizon repository editing tasks.
-- **Multimodal Video Generation**: Leveraging the **Hailuo (V3)** model for high-fidelity cinematic video synthesis.
+- **Multimodal Video Generation**: Leveraging the **Hailuo (V3)** and **Minimax-H3** models for high-fidelity cinematic video synthesis, with Minimax-H3 offering a powerful open-weights option for local integration and deployment.
 - **Real-time Neural Speech**: Using their low-latency TTS models for interactive voice agents and assistants.
 - **High-Throughput RAG**: Processing massive document sets using their efficient long-context models (up to 1M tokens).
 
@@ -113,6 +113,7 @@ response.stream_to_file("output.mp3")
 - [MiniMax Open Platform Documentation](https://platform.minimaxi.com/docs/)
 - [Token Plan (Subscription) Details](https://platform.minimaxi.com/docs/token-plan/intro)
 - [Linear Attention Architecture Paper](https://arxiv.org/abs/2312.00752) (Background)
+- [Reddit r/LocalLLaMA: Minimax-H3 Video Model Released with Upcoming Open Weights](https://www.reddit.com/r/LocalLLaMA/comments/1vbdsmz/minimaxh3_video_model_released_open_weights/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21

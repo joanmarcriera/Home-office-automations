@@ -20,7 +20,7 @@ Enables the processing and analysis of massive documents, entire codebases, or l
 - **Native Long Context**: A pioneer in reliable 128k to 256k context windows, maintaining high retrieval accuracy (needle-in-a-haystack).
 - **OpenAI Compatibility**: Kimi provides an OpenAI-compatible HTTP API, allowing developers to use the standard OpenAI SDKs by simply changing the `base_url`.
 - **Trillion-Parameter Reasoning**: The proprietary K2.6 models offer state-of-the-art performance in complex logic and professional code generation.
-- **Open-Weights Ecosystem (Kimi K3)**: The release of the Kimi K3 model brings powerful Chinese and English coding and reasoning capabilities to local consumer GPUs, eliminating API subscription constraints.
+- **Open-Weights Ecosystem (Kimi K3)**: The release of the Kimi K3 model brings powerful Chinese and English coding and reasoning capabilities to local consumer GPUs, eliminating API subscription constraints. Notably, Kimi K3 excels at complex one-shot generation and instruction compliance, with community benchmarks showing it frequently outperforming premier API models like Claude 4.8 Opus on high-fidelity single-turn coding queries.
 - **Tool Calling**: Robust support for function calling and external tool integration, now optimized for MCP 3.0.
 
 ## Limitations
@@ -104,6 +104,7 @@ print(completion.choices[0].message.content)
 - [Quickstart Guide](https://platform.kimi.ai/docs/guide/start-using-kimi-api)
 - [Simon Willison's Blog: Kimi K3 Announcement](https://simonwillison.net/2026/Jul/16/kimi-k3/#atom-entries)
 - [Reddit r/LocalLLaMA: Kimi K3 ranks #1 on Afterquery SpreadsheetBench 2](https://www.reddit.com/r/LocalLLaMA/comments/1uzzecz/kimi_k3_ranks_1_on_afterquerys_spreadsheetbench_2/)
+- [Reddit r/LocalLLaMA: All One-Shots from Kimi-K3 looks better than Opus 4.8](https://www.reddit.com/r/LocalLLaMA/comments/1vbf4bp/all_oneshots_from_kimik3_looks_better_than_opus48/)
 
 ## Contribution Metadata
 - Last reviewed: 2026-07-21

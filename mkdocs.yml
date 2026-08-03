@@ -215,6 +215,7 @@ nav:
           - Heretic / ARA: tools/ai_knowledge/heretic-ara.md
           - HeyGen: tools/ai_knowledge/heygen.md
           - HoloTab: tools/ai_knowledge/holotab.md
+          - Inkling-Small: tools/ai_knowledge/inkling-small.md
           - Jasper: tools/ai_knowledge/jasper.md
           - Joplin: tools/ai_knowledge/joplin.md
           - Jules: tools/ai_knowledge/jules.md
@@ -458,6 +459,7 @@ nav:
           - Codestral: tools/providers/codestral.md
           - Cohere: tools/providers/cohere.md
           - DeepSeek: tools/providers/deepseek.md
+          - EXAONE: tools/providers/exaone.md
           - Exa AI: tools/providers/exa_ai.md
           - Fireworks AI: tools/providers/fireworks.md
           - Groq: tools/providers/groq.md
@@ -472,6 +474,7 @@ nav:
           - Moonshot AI: tools/providers/moonshot.md
           - NVIDIA: tools/providers/nvidia.md
           - Overview: tools/providers/index.md
+          - openPangu: tools/providers/openpangu.md
           - Perplexity: tools/providers/perplexity.md
           - Portkey AI Gateway: tools/providers/portkey.md
           - Replicate: tools/providers/replicate.md
