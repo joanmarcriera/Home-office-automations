@@ -4,7 +4,7 @@ This is the primary system prompt for Ralph, the Home Admin Agent. It defines hi
 
 ## What it is
 
-This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (July 2026) includes multi-agent coordination patterns, [MCP 3.0](../../tools/automation_orchestration/mcp.md) tool routing, and advanced preference injection logic optimized for [Gemma 3](../../tools/ai_knowledge/local_llms.md).
+This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (November 2026) includes multi-agent coordination patterns, [MCP 3.1](../../tools/automation_orchestration/mcp.md) tool routing, and advanced preference injection logic optimized for [Gemma 3](../../tools/ai_knowledge/local_llms.md).
 
 ## What problem it solves
 
@@ -76,21 +76,38 @@ jules test-briefing --context-file data/mock/family_context.json
 
 ## API examples
 
-Programmatically loading the prompt using the `litellm` library:
+Programmatically loading the prompt using the `litellm` library and validating the configuration with Pydantic v2:
 
 ```python
 import litellm
 import json
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any
 
-def get_ralph_response(user_input, prefs_json):
+# Define structural models for validation
+class UserPreferences(BaseModel):
+    dietary_restrictions: List[str] = Field(default_factory=list)
+    schedule_buffer_minutes: int = Field(default=15)
+    preferred_tone: str = Field(default="concise")
+
+class FamilyContext(BaseModel):
+    preferences: UserPreferences
+    current_date: str
+    calendar_summary: str
+    task_summary: str
+
+def get_ralph_response(user_input: str, context_data: FamilyContext) -> str:
     # Load the prompt template from this file
     with open("docs/reference-implementations/llm-prompts/family-context.md", "r") as f:
         content = f.read()
         # Extract the system prompt block
         system_prompt = content.split("```markdown")[1].split("```")[0].strip()
 
-    # Inject preferences
-    system_prompt = system_prompt.replace("{{ user_preferences_json }}", json.dumps(prefs_json))
+    # Inject preferences and dynamic context safely
+    system_prompt = system_prompt.replace("{{ user_preferences_json }}", context_data.preferences.model_dump_json())
+    system_prompt = system_prompt.replace("{{ current_date }}", context_data.current_date)
+    system_prompt = system_prompt.replace("{{ calendar_summary }}", context_data.calendar_summary)
+    system_prompt = system_prompt.replace("{{ task_summary }}", context_data.task_summary)
 
     # Call the model (Gemma 3 27B)
     response = litellm.completion(
@@ -166,5 +183,5 @@ Recent System Events: {{ system_log_summary }}
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high

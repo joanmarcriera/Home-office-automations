@@ -1,16 +1,16 @@
 # Data Copilot: Reference Implementation
 
 ## What it is
-This reference implementation provides a Python-based skeleton for the layered Text-to-SQL pipeline. By July 2026, it has been optimized to leverage [Gemma 3](../../tools/ai_knowledge/local_llms.md) for low-cost schema pruning and the **MCP 3.0 Task Protocol** for standardized tool orchestration. It demonstrates how to use Pydantic for structured data exchange between the different agent layers, where to insert human corrections, and how to keep model routing configurable for free/cheap-first deployments.
+This reference implementation provides a Python-based skeleton for the layered Text-to-SQL pipeline. By late October / November 2026, it has been optimized to leverage [Gemma 3](../../tools/ai_knowledge/local_llms.md) for low-cost schema pruning and the **MCP 3.1 Task Protocol** (supported by **FastMCP 3.1** servers) for standardized tool orchestration. It demonstrates how to use Pydantic for structured data exchange between the different agent layers, where to insert human corrections, and how to keep model routing configurable for free/cheap-first deployments.
 
 ## What problem it solves
 - **Complexity in Text-to-SQL**: Breaks down a complex single-shot prompt into manageable agentic layers.
 - **Data Leakage and Token Bloat**: Uses Column Pruning to ensure only relevant schema context is sent to the final SQL generator.
 - **Lack of Control**: Provides explicit "Human-in-the-Loop" (HITL) points to correct agent mistakes before execution.
-- **Cost Management**: Enables routing different tasks to different models (e.g., local Ollama for pruning, Claude 4.8 for generation).
+- **Cost Management**: Enables routing different tasks to different models (e.g., local Ollama for pruning, Claude 5.1 for generation).
 
 ## Where it fits in the stack
-**Reference Implementation**. It serves as a blueprint for building data-focused agents within the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) and integrates with the [Model Routing Guide](../../knowledge_base/model_routing_guide.md). It utilizes **FastMCP 3.0** for high-performance communication between the orchestration layer and database-specific MCP servers.
+**Reference Implementation**. It serves as a blueprint for building data-focused agents within the [Data Copilot Architecture](../../architecture/data-copilot-text-to-sql.md) and integrates with the [Model Routing Guide](../../knowledge_base/model_routing_guide.md). It utilizes **FastMCP 3.1** for high-performance communication between the orchestration layer and database-specific MCP servers.
 
 ## Typical use cases
 - **Self-Service Analytics**: Allowing non-technical users to query business databases using natural language.
@@ -66,10 +66,10 @@ python3 skeleton.py --query "Show me top users" --hitl
 ```
 
 ## API examples
-The skeleton exposes an asynchronous `process_query` function that can be integrated into larger agentic workflows. The following defines the Pydantic interfaces for the Workspace Router, Intent Agent, Table Agent, Column Prune Agent, and SQL Generator.
+The skeleton exposes an asynchronous `process_query` function that can be integrated into larger agentic workflows. The following defines the Pydantic v2 interfaces for the Workspace Router, Intent Agent, Table Agent, Column Prune Agent, and SQL Generator.
 
 ```python
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 class ColumnMetadata(BaseModel):
@@ -87,7 +87,7 @@ class PrunedSchema(BaseModel):
 
 # Example Agent Call for Column Pruning
 async def prune_columns(table: TableMetadata, intent: str) -> List[str]:
-    # Logic to call LLM (e.g., Gemma 3) and filter relevant columns
+    # Logic to call LLM (e.g., Gemma 3, Qwen 3.6) and filter relevant columns
     pass
 
 # Main Processing Loop
@@ -120,11 +120,11 @@ if __name__ == "__main__":
 - [Claude Code Agent](../../tools/development_ops/claude-code.md) — For automated implementation of the SQL generator.
 
 ## Sources / References
-- [Pydantic Documentation](https://docs.pydantic.dev/)
+- [Pydantic v2 Documentation](https://docs.pydantic.dev/latest/)
 - [Python Asyncio](https://docs.python.org/3/library/asyncio.html)
 - [Ollama Documentation](https://docs.ollama.com/)
 - [LangGraph: Stateful Agentic RAG (2026)](https://medium.com/@vinodkrane/next-generation-agentic-rag-with-langgraph-2026-edition-d1c4c068d2b8)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high

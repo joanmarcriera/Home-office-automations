@@ -6,6 +6,8 @@ The OpenClaw Use-Case Catalog is a categorized directory of recurring automation
 
 The OpenClaw Use-Case Catalog is a categorized directory of recurring automation and assistant workflows optimized for the [OpenClaw](../../tools/development_ops/openclaw.md) agent runtime. It distills real-world implementation notes from the community into a selection guide for users looking to deploy autonomous agents in their personal or professional environments.
 
+As of late October / November 2026, the catalog is fully aligned with frontier models (Claude 5.1, GPT-5.5, Gemini 4.0) alongside local models (Gemma 3, Llama 4, Qwen 3.6), and native integration with standard **MCP 3.1** and **FastMCP 3.1** tools.
+
 ## What problem it solves
 
 New users often find OpenClaw's flexibility overwhelming, leading to "blank canvas" syndrome. This catalog solves that by translating abstract agent capabilities into concrete workload shapes, providing the necessary guardrails and implementation notes to ensure workflows are reliable and safe.
@@ -16,7 +18,7 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 
 ## Typical use cases
 
-The following table summarizes proven patterns for OpenClaw deployment in July 2026:
+The following table summarizes proven patterns for OpenClaw deployment in late 2026:
 
 | Category | Use case | Why OpenClaw fits | Guardrail |
 |---|---|---|---|
@@ -41,7 +43,7 @@ The following table summarizes proven patterns for OpenClaw deployment in July 2
 
 - **User Bias**: Community examples often reflect the needs of "power users" and may be too complex for beginners.
 - **Reliability Variance**: Not all documented workflows have the same level of production-grade stability.
-- **Maintenance Overhead**: As the OpenClaw API and [MCP 3.0](../../tools/automation_orchestration/mcp.md) integrations evolve, these use cases require periodic refreshing.
+- **Maintenance Overhead**: As the OpenClaw API and [MCP 3.1](../../tools/automation_orchestration/mcp.md) integrations evolve, these use cases require periodic refreshing.
 - **Token Usage**: Complex recursive workflows in the catalog can quickly consume LLM token budgets.
 
 ## When to use it
@@ -82,15 +84,23 @@ openclaw audit skills/research_digest.yaml
 
 ## API examples
 
-Programmatically invoking a use-case pattern via the OpenClaw Python SDK:
+Programmatically invoking a use-case pattern via the OpenClaw Python SDK, leveraging Pydantic v2 schemas:
 
 ```python
+from pydantic import BaseModel, Field
 from openclaw import OpenClawClient
+
+# Define structural model for validating the execute-skill response payload
+class SkillExecutionResponse(BaseModel):
+    skill_name: str
+    status: str = Field(..., description="Run status of the invoked skill (e.g., success, failed, pending)")
+    execution_time: float
+    output: dict
 
 client = OpenClawClient(api_key="your_key")
 
 # Trigger a "Second Brain" capture workflow
-response = client.execute_skill(
+response_raw = client.execute_skill(
     skill_name="second_brain_capture",
     inputs={
         "url": "https://example.com/article",
@@ -99,6 +109,7 @@ response = client.execute_skill(
     }
 )
 
+response = SkillExecutionResponse(**response_raw)
 print(f"Workflow status: {response.status}")
 ```
 
@@ -113,7 +124,7 @@ print(f"Workflow status: {response.status}")
 - [Skills Best Practices](skills-best-practices.md) — Guidelines for authoring the skills used in this catalog.
 - [Software Factories](software-factories.md) — High-scale pattern for autonomous code generation.
 - [Gemma 3](../../tools/ai_knowledge/local_llms.md) — Recommended local model for catalog workflow execution.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for tool integration in July 2026.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for tool integration as of late 2026.
 
 ## Sources / References
 
@@ -123,5 +134,5 @@ print(f"Workflow status: {response.status}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high
