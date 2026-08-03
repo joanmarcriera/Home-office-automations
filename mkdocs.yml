@@ -179,6 +179,7 @@ nav:
           - AudioCPP: tools/ai_knowledge/audiocpp.md
           - ansigpt: tools/ai_knowledge/ansigpt.md
           - AnythingLLM: tools/ai_knowledge/anythingllm.md
+          - BetterGPT-150M: tools/ai_knowledge/bettergpt-150m.md
           - big-AGI: tools/ai_knowledge/big-agi.md
           - Bonsai (PrismML): tools/ai_knowledge/bonsai.md
           - Chatbox AI: tools/ai_knowledge/chatbox-ai.md
@@ -437,6 +438,7 @@ nav:
           - LLaMA Factory: tools/frameworks/llama-factory.md
           - LangGraph: tools/frameworks/langgraph.md
           - Langflow: tools/frameworks/langflow.md
+          - MageVL: tools/frameworks/magevl.md
           - Mastra: tools/frameworks/mastra.md
           - Microsoft Agent Framework: tools/frameworks/microsoft-agent-framework.md
           - Mycelium: tools/frameworks/mycelium.md
@@ -462,6 +464,7 @@ nav:
           - Hugging Face: tools/providers/huggingface.md
           - InternLM: tools/providers/internlm.md
           - KatCoderAir: tools/providers/katcoderair.md
+          - LFM-2.5 Encoders: tools/providers/lfm-encoders.md
           - Microsoft Graph API: tools/providers/microsoft-graph.md
           - MiniMax: tools/providers/minimax.md
           - Mistral AI: tools/providers/mistral.md
@@ -504,6 +507,7 @@ nav:
           - Composio: tools/agents/composio.md
           - Documentation Writer: tools/agents/documentation-writer.md
           - DeerFlow: tools/agents/deerflow.md
+          - Gemini API Managed Agents: tools/agents/gemini-managed-agents.md
           - Goose: tools/agents/goose.md
           - GPT Researcher: tools/agents/gpt-researcher.md
           - Letta: tools/agents/letta.md
@@ -551,6 +555,7 @@ nav:
           - Milvus: tools/infrastructure/milvus.md
           - MLX: tools/infrastructure/mlx.md
           - Msty: tools/infrastructure/msty.md
+          - OLMoEarth: tools/infrastructure/olmoearth.md
           - OpenPipe: tools/infrastructure/openpipe.md
           - Pinecone: tools/infrastructure/pinecone.md
           - SGLang: tools/infrastructure/sglang.md

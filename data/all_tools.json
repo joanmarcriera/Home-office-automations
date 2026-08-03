@@ -294,6 +294,12 @@
       "doc_path": "docs/tools/agents/bee-agent-framework.md"
     },
     {
+      "id": "bettergpt-150m",
+      "name": "BetterGPT-150M",
+      "category": "AI Assistants & Knowledge",
+      "doc_path": "docs/tools/ai_knowledge/bettergpt-150m.md"
+    },
+    {
       "id": "big-agi",
       "name": "big-AGI",
       "category": "AI Assistants & Knowledge",
@@ -1001,6 +1007,12 @@
       "doc_path": "docs/tools/ai_knowledge/gemini-macos.md"
     },
     {
+      "id": "gemini-managed-agents",
+      "name": "Gemini API Managed Agents",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/gemini-managed-agents.md"
+    },
+    {
       "id": "gemma-4-31b-antihal",
       "name": "Gemma 4 31B AntiHal",
       "category": "AI Assistants & Knowledge",
@@ -1504,6 +1516,12 @@
       "doc_path": "docs/tools/agents/letta.md"
     },
     {
+      "id": "lfm-encoders",
+      "name": "LFM-2.5 Encoders",
+      "category": "Providers",
+      "doc_path": "docs/tools/providers/lfm-encoders.md"
+    },
+    {
       "id": "librechat",
       "name": "LibreChat",
       "category": "AI Assistants & Knowledge",
@@ -1634,6 +1652,12 @@
       "name": "Luma Dream Machine",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/tools/ai_knowledge/luma-dream-machine.md"
+    },
+    {
+      "id": "magevl",
+      "name": "MageVL",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/magevl.md"
     },
     {
       "id": "make",
@@ -1979,6 +2003,12 @@
       "name": "Ollama Benchmark CLI",
       "category": "Benchmarking",
       "doc_path": "docs/tools/benchmarking/ollama-benchmark-cli.md"
+    },
+    {
+      "id": "olmoearth",
+      "name": "OLMoEarth",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/olmoearth.md"
     },
     {
       "id": "omni-tools",
