@@ -1,103 +1,158 @@
 # Flash-MSA
 
 ## What it is
-Flash-MSA (Million-token Sparse Attention) is an advanced acceleration framework designed to optimize the training and inference of large language models with extremely long contexts. It leverages high-performance sparse attention kernels to enable efficient processing of sequences reaching millions of tokens, significantly reducing the quadratic computational complexity typically associated with standard Transformer architectures.
+Flash-MSA (Million-token Sparse Attention) is an advanced acceleration framework designed to optimize the training and inference of large language models with extremely long contexts. By leveraging high-performance sparse attention Triton/CUDA kernels, it enables efficient execution of sequence lengths reaching up to millions of tokens, significantly reducing the quadratic computational and memory complexity ($O(n^2)$) typically associated with standard Transformer architectures.
 
 ## What problem it solves
-Processing million-token contexts in standard Transformers is prohibitively expensive due to the $O(n^2)$ complexity of full self-attention. Flash-MSA solves this by implementing sparse attention mechanisms that focus compute on the most relevant token interactions. This reduces memory pressure and increases throughput, making "infinite context" training and deployment technically and economically viable on modern GPU clusters.
+Processing million-token contexts in standard Transformers is prohibitively expensive due to the quadratic complexity of full self-attention. Flash-MSA solves this by implementing sparse block-attention mechanisms that focus compute only on the most relevant token-to-token interactions. This dramatically reduces memory pressure (KV cache size) and increases hardware execution throughput, making "infinite context" training, alignment, and deployment technically and economically viable on modern GPU clusters (such as NVIDIA H100 and B200 architectures).
 
 ## Where it fits in the stack
-**Category**: Infrastructure / AI Acceleration Frameworks. It sits between the high-level model architecture (e.g., Minimax M3, DeepSeek V4) and the low-level hardware abstractions (CUDA/Triton), providing optimized kernels that frameworks like PyTorch or JAX can utilize during training and inference.
+**Category**: Infrastructure / AI Acceleration Frameworks. It sits directly above the raw hardware level (CUDA/Triton) and below the high-level deep learning and serving frameworks (PyTorch, JAX, [vLLM](vllm.md), or [Aphrodite Engine](aphrodite-engine.md)). It provides the highly optimized mathematical kernels that attention layers in frontier models use during run-time execution.
+
+```
+┌────────────────────────────────────────┐
+│      Agent / Orchestration Layer       │
+│     (Claude 5.1, FastMCP, n8n)         │
+└───────────────────┬────────────────────┘
+                    │ Execute Query
+┌───────────────────▼────────────────────┐
+│      Model Serving / Engine Layer      │
+│     (vLLM, Aphrodite, SGLang)          │
+└───────────────────┬────────────────────┘
+                    │ Invokes Sparse Attention
+┌───────────────────▼────────────────────┐
+│           FLASH-MSA KERNELS            │ (Triton / CUDA)
+└────────────────────────────────────────┘
+```
 
 ## Typical use cases
-- **Long-context Training**: Pre-training or fine-tuning models on massive document sets, long-form video, or entire codebases.
-- **Agentic Memory Retrieval**: Powering agents that need to "read" and reason over millions of tokens of history or documentation without resorting to aggressive lossy compression.
-- **Unified Multimodal Understanding**: Accelerating unified models that integrate high-resolution visual inputs and text, where token counts grow rapidly.
+- **Long-context pre-training and fine-tuning**: Training models with context windows extending up to 1M+ tokens on massive source repositories or clinical records.
+- **Agentic Session Memory**: Powering local agents that need to ingest and reason over massive transaction logs, multi-hour meeting transcripts, or large codebases without information loss.
+- **Unified Multimodal Contexts**: Handling high-resolution video frames or complex multi-document setups where token density grows rapidly.
 
 ## Strengths
-- **Linear Scaling**: Provides near-linear scaling for attention computation relative to sequence length.
-- **Memory Efficiency**: Dramatically reduces the VRAM footprint required for long-context KV caches.
-- **High Throughput**: Optimized Triton and CUDA kernels provide significantly higher TFLOPS than naive sparse implementations.
-- **Hardware Optimized**: Specifically tuned for NVIDIA H100/B200 architectures.
+- **Linear Complexity Scaling**: Near-linear scaling of attention compute and memory overhead relative to sequence length.
+- **KV Cache Memory Reduction**: Block-sparse mechanisms prune unneeded key-value pairs, reducing GPU VRAM allocation for active contexts.
+- **Hardware-Level Optimization**: Custom Triton/CUDA kernels utilize FP8/BF16 tensor cores fully to maximize TFLOPS output.
+- **Extensible Sparsity Patterns**: Supports customizable dynamic masks, block-sparsity, and sliding-window attention configurations.
 
 ## Limitations
-- **Hardware Specificity**: Primarily optimized for high-end NVIDIA GPUs; performance on consumer hardware or alternative vendors (AMD/Intel) may vary.
-- **Implementation Complexity**: Requires deep integration into the model's attention layers, which may not be "plug-and-play" for all architectures.
-- **Approximation Trade-offs**: While highly effective, sparse attention can occasionally miss extremely subtle long-range dependencies compared to full dense attention.
+- **Hardware Specificity**: Highly optimized for modern enterprise GPUs (NVIDIA Ampere, Hopper, and Blackwell); performance on legacy or alternative architectures (AMD, Apple Silicon) is heavily limited.
+- **Implementation Complexity**: Requires integration deep within the attention layers of the model definition, making it less of a plug-and-play solution than dense attention.
+- **Dependency on Context Saliency**: If a task relies on extreme, uniform distribution of information across the entire sequence, aggressive block pruning can occasionally miss critical subtle dependencies.
 
 ## When to use it
-- When training models with context windows exceeding 128k tokens.
-- When deploying real-time agents that require access to million-token session histories.
-- When working with native unified models (e.g., Minimax M3) that utilize sparse attention natively.
+- When training, fine-tuning, or running inference on sequences exceeding 128k tokens.
+- When deploying real-time multi-step agents that must query long-context histories.
+- When serving models natively optimized for sparse attention structures (such as Minimax M3).
 
 ## When not to use it
-- For standard short-context tasks (e.g., < 8k tokens) where the overhead of sparse kernel management may outweigh the benefits.
-- On legacy hardware that lacks the tensor core features required for Flash-MSA's optimized paths.
+- On standard short-context models (e.g., < 8k tokens) where the overhead of sparse block indexing exceeds the attention computation gains.
+- On client desktop devices lacking high-end NVIDIA GPUs with dedicated tensor core support.
 
 ## Getting started
-To integrate Flash-MSA into a PyTorch-based training pipeline:
 
-1. Install the required sparse kernels:
-   ```bash
-   pip install flash-msa-kernels
-   ```
-2. Replace standard attention layers with Flash-MSA's sparse attention implementation in your model definition.
-3. Configure the sparsity pattern based on your context length requirements.
+### Installation
+To utilize Flash-MSA within a PyTorch-based alignment or training pipeline:
 
-## CLI examples
-Registering a Flash-MSA optimized server via MCP (Model Context Protocol):
+```bash
+# Install the required sparse attention kernels
+pip install flash-msa-kernels
+```
+
+### Server Execution via MCP
+To register an instance of an LLM server utilizing Flash-MSA kernels under the Model Context Protocol (MCP 3.1):
+
 ```bash
 mcp register "flash-msa-engine" --command "python" --args "-m flash_msa.server --model minimax-m3-sparse --port 8080"
 ```
 
-Benchmarking sparse attention performance:
+## CLI examples
+
+### Running Performance Benchmarks
+Benchmark flash-msa sparse attention performance across varying sequence lengths:
 ```bash
-flash-msa-bench --seq-len 1000000 --batch-size 1 --dtype bfloat16
+flash-msa-bench --seq-len 1048576 --batch-size 1 --dtype bfloat16 --sparsity 0.90
+```
+
+### Custom Block Mask Generation
+Generate and export sparse attention block indices for custom document sequence alignment:
+```bash
+flash-msa-mask --input-tokens ./document_stream.json --block-size 128 --output ./masks.pt
 ```
 
 ## API examples
-Using Flash-MSA in a custom PyTorch module:
+
+### 1. Programmatic Sparse Attention Configuration Validation (Pydantic v2)
+In enterprise workflows, validating the hyperparameters for high-dimensional sparse attention before launching massive multi-node training clusters avoids out-of-memory (OOM) errors. This example shows validation of block attention configuration utilizing Pydantic v2.
 
 ```python
+from pydantic import BaseModel, Field, field_validator
+from typing import List
+
+class FlashMsaConfig(BaseModel):
+    block_size: int = Field(default=128, description="Size of the sparse attention block in tokens")
+    sparsity_ratio: float = Field(default=0.875, description="Percentage of tokens pruned by block selection")
+    sequence_length: int = Field(description="Total token sequence length under evaluation")
+    attention_heads: int = Field(default=32, description="Number of query/key/value attention heads")
+
+    @field_validator("sequence_length")
+    @classmethod
+    def validate_seq_len(cls, value: int) -> int:
+        if value < 1024 or value % 128 != 0:
+            raise ValueError("Sequence length must be at least 1024 and divisible by 128 (block boundary)")
+        return value
+
+    @field_validator("sparsity_ratio")
+    @classmethod
+    def validate_sparsity(cls, value: float) -> float:
+        if not (0.0 <= value < 1.0):
+            raise ValueError("Sparsity ratio must be between 0.0 and 1.0")
+        return value
+
+# Instance configuration validation
+config = FlashMsaConfig(
+    block_size=128,
+    sparsity_ratio=0.90,
+    sequence_length=1048576, # 1 Million token context
+    attention_heads=32
+)
+
+print(f"Validated Flash-MSA Config: {config.model_dump_json(indent=2)}")
+```
+
+### 2. FastMCP (MCP 3.1) Tool Wrapper
+Providing an agent (like Claude 5.1 or GPT-5.5) with direct capability to check hardware-bound attention capacity through an MCP tool call:
+
+```python
+from mcp.server.fastmcp import FastMCP
 import torch
-from flash_msa import FlashSparseAttention
 
-class LongContextModel(torch.nn.Module):
-    def __init__(self, config):
-        super().__init__()
-        self.attention = FlashSparseAttention(
-            dim=config.hidden_size,
-            heads=config.num_heads,
-            sparsity_type="block-sparse",
-            block_size=128
-        )
+mcp = FastMCP("Flash-MSA Controller")
 
-    def forward(self, x, mask=None):
-        # Flash-MSA handles the million-token sequence efficiently
-        return self.attention(x, key_padding_mask=mask)
+@mcp.tool()
+def evaluate_gpu_memory_headroom(model_size_b: float, seq_len: int) -> str:
+    """Calculates estimated VRAM requirements using Flash-MSA vs standard dense attention."""
+    # Compute rough sparse cache overhead vs dense cache overhead
+    dense_cache_gb = (seq_len * 2 * 4096 * 32 * 2) / (1024**3)
+    sparse_cache_gb = dense_cache_gb * 0.10 # Assuming 90% block sparsity
 
-# Example usage with 1M tokens
-x = torch.randn(1, 1000000, 4096).to("cuda").to(torch.bfloat16)
-model = LongContextModel(config).to("cuda")
-output = model(x)
+    return f"Estimated KV Cache VRAM (Dense): {dense_cache_gb:.2f} GB | (Flash-MSA Sparse): {sparse_cache_gb:.2f} GB"
 ```
 
 ## Related tools / concepts
-- **[Minimax M3](../ai_knowledge/minimax-m3.md)**: A unified model series that utilizes Flash-MSA style kernels for million-token reasoning.
-- **[FlashAttention-3](../infrastructure/flash-attention.md)**: The underlying dense attention optimization that Flash-MSA extends into the sparse domain.
-- **[DeepSeek V4](../providers/deepseek.md)**: Employs similar sparse attention strategies for large-scale MoE training.
-- **[MCP](../automation_orchestration/mcp.md)**: Used to orchestrate long-context agents powered by Flash-MSA.
-- **[vLLM](vllm.md)**: A high-throughput, memory-efficient LLM serving engine.
-- **[ExLlamaV3](exllamav3.md)**: An ultra-fast local inference engine optimized for quantized models.
-- **[SGLang](sglang.md)**: High-performance serving framework designed for structured outputs.
+- **[Minimax M3](../ai_knowledge/minimax-m3.md)**: A unified model series utilizing Flash-MSA style sparse attention for native 1M+ token processing.
+- **[vLLM](vllm.md)**: High-throughput memory-efficient inference serving engine.
+- **[Aphrodite Engine](aphrodite-engine.md)**: Local-first high-throughput inference server with advanced sampler controls.
+- **[ExLlamaV3](exllamav3.md)**: Quantized local GPU model runner.
+- **[SGLang](sglang.md)**: Fast structured JSON generation server.
+- **[MCP](../automation_orchestration/mcp.md)**: Model Context Protocol for orchestrating tool integration.
 
-## Sources / References
+## Sources / references
 - [Flash-MSA: Accelerating Million-Token Training with Sparse Attention Kernels](https://www.reddit.com/r/LocalLLaMA/comments/1uv1f1q/flashmsa_accelerating_milliontoken_training_with/)
 - [Minimax M3 Technical Report (June 2026)](https://arxiv.org/abs/2606.09876)
 - [NVIDIA Developer: Scaling to Millions of Tokens](https://developer.nvidia.com/blog/scaling-to-millions-of-tokens-with-efficient-long-context-llm-training/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
-- Confidence: High
-- Category: Infrastructure
-- Tags: Long-Context, Sparse-Attention, LLM-Training, Million-Token
+- Last reviewed: 2026-11-23
+- Confidence: high

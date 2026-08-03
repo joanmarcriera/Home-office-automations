@@ -1,91 +1,152 @@
 # Msty
 
 ## What it is
-Msty is a local-first AI desktop application designed to provide a professional, offline-capable workspace for interacting with both local models (via Ollama/Llama.cpp) and cloud-based AI providers. Since the release of Msty Claw (v0.10.0 in June 2026), it has evolved into a modular "AI Operating System" featuring a robust extension ecosystem and native support for the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.0 Task Protocol.
+Msty is a highly professional, local-first AI desktop application designed to provide a secure and integrated workspace for executing both local models (via Ollama/Llama.cpp/Aphrodite Engine) and major cloud-based API providers. Following major upgrades throughout 2026 (including the stable Msty Claw series), it has evolved from a simple graphical chat wrapper into a modular "AI Desktop Operating System." It features a robust, isolated extension marketplace, dynamic local RAG indexers, and native client integration with the [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 specifications.
 
 ## What problem it solves
-It simplifies the process of running and managing local LLMs, providing tools like a VRAM calculator and a model hub, while maintaining the flexibility to route complex queries to powerful cloud models. It addresses "context noise" through modular Memory Packs and provides a controlled environment for multi-agent "Crew Conversations" using July 2026 state-of-the-art models like [Gemma 3](../ai_knowledge/local_llms.md).
+Managing local model dependencies, model files, VRAM calculations, and multi-model routing can be highly complex and intimidating. Msty solves this by providing a unified, user-friendly desktop dashboard. It handles VRAM estimation dynamically to prevent allocation crashes, organizes disjointed PDFs/documents into searchable "Knowledge Stacks" for context-injection (RAG), and allows running collaborative, multi-agent "Crews" locally. Furthermore, it addresses "context pollution" and model amnesia during long agent cycles by implementing structured, reusable "Memory Packs."
 
 ## Where it fits in the stack
-**Category**: Infrastructure / AI Desktop App. It serves as the primary local interface for model orchestration, RAG, and agentic workflows on the desktop, leveraging [FastMCP 3.0](../automation_orchestration/mcp.md) for rapid tool integration.
+**Category**: Infrastructure / AI Desktop Clients. It sits at the top of the local infrastructure layer, acting as the user interface and orchestration client. It connects down to local model execution backends (like Ollama, llama.cpp, or [Aphrodite Engine](aphrodite-engine.md)) or cloud provider endpoints, and leverages FastMCP 3.1 tools to interact with local system resources safely.
+
+```
+┌────────────────────────────────────────┐
+│               USER UI                  │
+│       Msty Desktop Workspace           │
+└───────────────────┬────────────────────┘
+                    │ Manages Workflows / Extensions
+┌───────────────────▼────────────────────┐
+│      LOCAL ORCHESTRATION CLIENT        │
+│    Crews, Memory Packs, RAG Index      │
+└───────────────────┬────────────────────┘
+                    │ REST / API Calls
+┌───────────────────▼────────────────────┐
+│      Inference Server / Provider       │
+│     (Ollama, Aphrodite, Claude 5.1)    │
+└────────────────────────────────────────┘
+```
 
 ## Typical use cases
-- **Private Local Chat**: Running [Gemma 3](../ai_knowledge/local_llms.md) or Qwen 2.5 models entirely offline for sensitive data.
-- **Multi-Agent Orchestration**: Using "Crew Conversations" in Msty Studio to simulate team-based problem solving with specialized AI experts.
-- **Modular Knowledge Management**: Organizing documents into "Knowledge Stacks" for precise, stack-specific RAG.
-- **Capability Extension**: Using the "Discover Hub" to install third-party Skills, Turnstiles, and Workflows built on MCP 3.0.
+- **Secure, Offline Chat**: Running highly capable local models (such as Gemma 3 27B or Qwen 3.6 14B) fully offline for secure document analysis.
+- **Local Multi-Agent Simulations**: Designing and orchestrating local teams of specialized AI workers ("Crews") using local LLMs.
+- **Dynamic Context Injection (RAG)**: Indexing gigabytes of research papers, code repositories, or financial records into custom "Knowledge Stacks" for zero-configuration Q&A.
+- **Tool-Enabled Desktop Automation**: Installing third-party "Skills" and custom tools via MCP 3.1 to enable local models to read webpages, parse system files, or execute Python code safely.
 
 ## Strengths
-- **Modular Extensions**: Support for custom tools, workflows, themes, and agent harness controls via the Claw extension system and [FastMCP 3.0](../automation_orchestration/mcp.md).
-- **Professional Governance**: Features like "Persona Studio" allow teams to design, test, and scale consistent AI behaviors.
-- **Local-First Design**: Deep integration for Apple Silicon (M5 optimized) and local inference engines with a consolidated "One Local Model Hub."
-- **Focus on Memory**: "Memory Packs" ensure that AI context stays focused, reusable, and optional, preventing long-term context degradation.
+- **Isolated Extension Architecture**: Extension-based system allows installing Skills, Custom Personas, and Workflows safely.
+- **Dynamic Memory Control**: Supports modular "Memory Packs" to keep context relevant, highly focused, and memory-efficient.
+- **VRAM Matchmaker**: Built-in visual hardware profiler and VRAM calculator that recommends the perfect quantization sizes of GGUF/EXL2 files for the user's specific GPU setup.
+- **Universal Connection Hub**: Connects natively to local Ollama endpoints, local OpenAI-compatible APIs, and enterprise providers (Anthropic, OpenAI, Azure, Bedrock).
+- **Advanced UI Workspace**: Multi-tab interface supporting side-by-side chats, branchable chat histories, and multi-model comparative evaluation.
 
 ## Limitations
-- **Proprietary Core**: While it supports open-source extensions, the core application remains closed-source.
-- **Hardware Dependent**: Local performance is strictly limited by the user's GPU VRAM (though the "Matchmaker" helps mitigate this).
-- **Licensing**: Advanced enterprise features (SSO, Azure/Bedrock) require a paid "Aurum" license.
+- **Closed-Source Core**: Although the application is free to use and fully supports open-source extensions and models, the core desktop container is proprietary.
+- **No Native Multi-User Sharing**: Built primarily as a single-user desktop client application rather than a shared, collaborative multi-user web portal.
+- **Hardware Bound**: Executing highly capable local models remains strictly limited by local system resources (RAM/VRAM), although the app mitigates this via split-offloading estimators.
 
 ## When to use it
-- When you need a professional-grade, local-first workspace that supports both local and cloud models.
-- When your workflow involves multi-agent collaboration (Crews) and complex RAG (Knowledge Stacks) using the latest July 2026 protocols.
-- If you value a modular ecosystem where you can add specific "Skills" and "Workflows" via a hub.
+- When you require a polished, desktop AI workspace that integrates local and cloud models.
+- When your workflows rely heavily on local document retrieval (RAG) and multi-agent crews.
+- When you want to utilize modular MCP 3.1 tools and extension "Skills" without configuring command-line environments.
 
 ## When not to use it
-- If you strictly require a 100% open-source stack from the core up.
-- For lightweight, single-model needs where a simple CLI like Ollama or a thin wrapper might suffice.
+- If your environment demands a 100% open-source core stack (use [Jan.ai](jan-ai.md) or [LobeHub](../ai_knowledge/lobehub.md) instead).
+- If you need to serve model API endpoints to thousands of concurrent network clients (use [vLLM](vllm.md) or [Aphrodite Engine](aphrodite-engine.md)).
 
 ## Getting started
-1. **Download**: Obtain the latest version from [msty.ai](https://msty.ai/).
-2. **Setup**: Launch the app and use the "Discover Hub" to browse available Skills and Knowledge Stacks.
-3. **Models**: Use the "One Local Model Hub" to download and configure local models; the "Matchmaker" will recommend models like [Gemma 3](../ai_knowledge/local_llms.md) based on your hardware.
-4. **Extend**: Visit the Extensions gallery to add support for web search, URL reading, or native code execution using MCP 3.0 servers.
+1. **Download**: Install the latest desktop release matching your operating system from the [Official Msty Portal](https://msty.ai/).
+2. **Model Download**: Open the model manager ("One Local Model Hub") to fetch an optimized model; the "Matchmaker" will recommend appropriate weights (such as `gemma-3-27b-it`) based on your hardware profile.
+3. **Configure RAG**: Create a "Knowledge Stack", drag and drop local directories or files, and allow the background vectorizer to complete indexing.
+4. **Extend**: Visit the extension gallery to enable advanced Skills and register local or remote MCP 3.1 servers.
 
 ## CLI examples
-Msty supports command-line arguments for automation and quick-launching specific personas or agents.
 
+### 1. Launch with Specific Persona
+Start Msty on your desktop with a pre-configured persona immediately active:
 ```bash
-# Launch Msty with a specific persona active
 msty --persona "Security Auditor"
+```
 
-# Run in headless mode to serve as a local API backend
+### 2. Headless Local Server Launch
+Run Msty in headless mode to serve as a local proxy or API backend for third-party scripts:
+```bash
 msty --headless --port 5050
+```
 
-# Calculate VRAM requirements for a local GGUF file
-msty calculate-vram ~/models/gemma-3-27b.gguf
+### 3. VRAM Requirement Estimation
+Estimate hardware headroom for a prospective local model configuration:
+```bash
+msty calculate-vram --model ~/models/gemma-3-27b-Q4_K_M.gguf --gpu-vram 16
 ```
 
 ## API examples
-Msty provides an OpenAI-compatible API (typically on port 5050) to allow other tools to leverage its managed models and Knowledge Stacks.
+
+### 1. Python: Importing and Validating an Extension Manifest (Pydantic v2)
+In the modern Msty Claw ecosystem, extension packages and skills are structured via JSON manifests. This Python script validates an extension manifest using strict Pydantic v2 models before loading.
 
 ```python
-import openai
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional
 
-# Connect to Msty's local inference server
-client = openai.OpenAI(base_url="http://localhost:5050/v1", api_key="msty")
+class ExtensionManifest(BaseModel):
+    extension_id: str = Field(description="Unique namespace identifier for the Msty extension")
+    version: str = Field(description="Semantic version string")
+    required_mcp_version: str = Field(default="3.1", description="Required minimum MCP version")
+    supported_models: List[str] = Field(description="List of compatible model names/wildcards")
+    sandbox_permissions: List[str] = Field(description="System permission scopes required")
 
-response = client.chat.completions.create(
-    model="knowledge-stack-finance", # Route query through a specific Knowledge Stack
-    messages=[{"role": "user", "content": "Summarize the Q2 2026 tax implications."}]
-)
-print(response.choices[0].message.content)
+    @field_validator("version")
+    @classmethod
+    def validate_semver(cls, value: str) -> str:
+        import re
+        if not re.match(r"^\d+\.\d+\.\d+$", value):
+            raise ValueError("Version must follow strict semantic versioning format (e.g., 1.2.0)")
+        return value
+
+# Example configuration representation
+raw_manifest = {
+    "extension_id": "msty.skills.websearch",
+    "version": "1.4.2",
+    "required_mcp_version": "3.1",
+    "supported_models": ["gemma-3-*", "llama-4-*"],
+    "sandbox_permissions": ["network", "local-filesystem-read"]
+}
+
+# Perform parsing and strict validation
+validated_manifest = ExtensionManifest(**raw_manifest)
+print(f"Validated Msty Extension Manifest: {validated_manifest.model_dump_json(indent=2)}")
+```
+
+### 2. Dynamic Connection via FastMCP (MCP 3.1)
+Exposing local tools to Msty via FastMCP 3.1. When registered, Msty allows models to query this tool automatically:
+
+```python
+from mcp.server.fastmcp import FastMCP
+import shutil
+
+mcp = FastMCP("Msty System Companion")
+
+@mcp.tool()
+def check_disk_space() -> str:
+    """Returns the available and total storage space of the local homelab disk."""
+    total, used, free = shutil.disk_usage("/")
+    return f"Total: {total // (2**30)} GB | Free: {free // (2**30)} GB"
 ```
 
 ## Related tools / concepts
-- [Jan.ai](../infrastructure/jan-ai.md) — Open-source local-first alternative.
-- [LM Studio](../infrastructure/lm-studio.md) — Popular local model explorer.
-- [Ollama](../../services/ollama.md) — Core local inference engine.
-- [GPT Researcher](../agents/gpt-researcher.md) — Can be used as a skill within Msty.
-- [AnythingLLM](../ai_knowledge/anythingllm.md) — Alternative for desktop RAG.
-- [LobeHub](../ai_knowledge/lobehub.md) — Modern web-based AI interface.
-- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Standard for Msty's tool and server integration (v3.0).
-- [Gemma 3](../ai_knowledge/local_llms.md) — High-performance local model supported by Msty.
+- [Jan.ai](jan-ai.md) — Open-source local-first alternative AI desktop client.
+- [LM Studio](lm-studio.md) — Desktop local model explorer and server.
+- [Ollama](../../services/ollama.md) — High-performance, easy-to-use local model runner.
+- [GPT Researcher](../agents/gpt-researcher.md) — Autonomous agent often integrated as a researcher skill.
+- [AnythingLLM](../ai_knowledge/anythingllm.md) — Desktop client specialized for document-heavy RAG.
+- [LobeHub](../ai_knowledge/lobehub.md) — Modern visual agent frontend and server.
+- [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) — Open standard for connecting model UI clients to local tool servers.
 
 ## Sources / references
-- [Msty Official Site](https://msty.ai/)
-- [Msty Claw Changelog](https://msty.ai/claw/changelog/)
-- [Msty Blog: Memory Packs and Crews](https://msty.ai/blog/)
+- [Msty Official Website](https://msty.ai/)
+- [Msty Claw Extensions & Changelog](https://msty.ai/claw/changelog/)
+- [Msty Blog: Memory Packs & Crews](https://msty.ai/blog/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high
