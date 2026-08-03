@@ -16,7 +16,7 @@ This catalog sits at the **Pattern & Selection Layer** of the agentic ecosystem.
 
 ## Typical use cases
 
-The following table summarizes proven patterns for OpenClaw deployment in July 2026:
+The following table summarizes proven patterns for OpenClaw deployment in late October / November 2026:
 
 | Category | Use case | Why OpenClaw fits | Guardrail |
 |---|---|---|---|
@@ -35,13 +35,13 @@ The following table summarizes proven patterns for OpenClaw deployment in July 2
 - **Practicality**: Based on long-running, real-world workflows rather than theoretical possibilities.
 - **Safety-First**: Provides specific "Guardrails" for every use case to prevent unintended side effects.
 - **Comparative Guidance**: Clearly defines when the agent is a "good fit" versus a "poor fit" for a task.
-- **Extensibility**: Skills are defined in YAML, making it easy to share and adapt catalog patterns.
+- **Extensibility**: Skills are defined in YAML/JSON config layers, making it easy to share and adapt catalog patterns.
 
 ## Limitations
 
 - **User Bias**: Community examples often reflect the needs of "power users" and may be too complex for beginners.
 - **Reliability Variance**: Not all documented workflows have the same level of production-grade stability.
-- **Maintenance Overhead**: As the OpenClaw API and [MCP 3.0](../../tools/automation_orchestration/mcp.md) integrations evolve, these use cases require periodic refreshing.
+- **Maintenance Overhead**: As the OpenClaw API and [MCP 3.1](../../tools/automation_orchestration/mcp.md) integrations evolve, these use cases require periodic refreshing.
 - **Token Usage**: Complex recursive workflows in the catalog can quickly consume LLM token budgets.
 
 ## When to use it
@@ -82,7 +82,7 @@ openclaw audit skills/research_digest.yaml
 
 ## API examples
 
-Programmatically invoking a use-case pattern via the OpenClaw Python SDK:
+### 1. Programmatically invoking a use-case pattern via the OpenClaw Python SDK:
 
 ```python
 from openclaw import OpenClawClient
@@ -102,6 +102,77 @@ response = client.execute_skill(
 print(f"Workflow status: {response.status}")
 ```
 
+### 2. Validating OpenClaw Skill Configurations with Pydantic v2
+To enforce security guardrails and parameter correctness, skill schemas are parsed and validated programmatically in late October / November 2026.
+
+```python
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List, Dict, Any, Optional
+import re
+
+class SkillParameter(BaseModel):
+    name: str
+    type: str = Field(..., description="Parameter type: string, integer, boolean, float, list, etc.")
+    description: str
+    required: bool = True
+    default: Optional[Any] = None
+
+class SkillMetadata(BaseModel):
+    author: str
+    version: str
+    category: str
+    description: str
+    tags: List[str] = Field(default_factory=list)
+
+class OpenClawSkill(BaseModel):
+    name: str
+    description: str
+    metadata: SkillMetadata
+    parameters: List[SkillParameter]
+    guardrails: List[str] = Field(default_factory=list)
+    dry_run: bool = True
+
+    @field_validator('name')
+    @classmethod
+    def validate_name_format(cls, value: str) -> str:
+        if not re.match(r'^[a-z_][a-z0-9_]*$', value):
+            raise ValueError("Skill name must be lowercase snake_case (e.g., 'morning_briefing').")
+        return value
+
+# Validate a custom skill schema
+skill_data = {
+    "name": "morning_briefing",
+    "description": "Aggregates family schedule and alerts.",
+    "metadata": {
+        "author": "Jules",
+        "version": "2.1.0",
+        "category": "Home Automation",
+        "description": "Gemma 3 local scheduling skill",
+        "tags": ["calendar", "weather"]
+    },
+    "parameters": [
+        {
+            "name": "city",
+            "type": "string",
+            "description": "Target city for weather lookup",
+            "required": True
+        }
+    ],
+    "guardrails": [
+        "Read-only mode for email summary tasks",
+        "Verify API rate limits before triggering search"
+    ],
+    "dry_run": True
+}
+
+try:
+    validated_skill = OpenClawSkill(**skill_data)
+    print("Skill validated successfully!")
+    print(validated_skill.model_dump_json(indent=2))
+except ValidationError as e:
+    print("Validation failed:", e.json())
+```
+
 ## Related tools / concepts
 
 - [OpenClaw](../../tools/development_ops/openclaw.md) — The primary runtime for these use cases.
@@ -113,7 +184,7 @@ print(f"Workflow status: {response.status}")
 - [Skills Best Practices](skills-best-practices.md) — Guidelines for authoring the skills used in this catalog.
 - [Software Factories](software-factories.md) — High-scale pattern for autonomous code generation.
 - [Gemma 3](../../tools/ai_knowledge/local_llms.md) — Recommended local model for catalog workflow execution.
-- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for tool integration in July 2026.
+- [Model Context Protocol (MCP)](../../tools/automation_orchestration/mcp.md) — Standard for tool integration in late October / November 2026 (incorporating MCP 3.1 / FastMCP 3.1).
 
 ## Sources / References
 
@@ -123,5 +194,5 @@ print(f"Workflow status: {response.status}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high

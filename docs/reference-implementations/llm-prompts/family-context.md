@@ -4,7 +4,7 @@ This is the primary system prompt for Ralph, the Home Admin Agent. It defines hi
 
 ## What it is
 
-This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (July 2026) includes multi-agent coordination patterns, [MCP 3.0](../../tools/automation_orchestration/mcp.md) tool routing, and advanced preference injection logic optimized for [Gemma 3](../../tools/ai_knowledge/local_llms.md).
+This is the primary system prompt for Ralph, the Home Admin Agent. It defines his identity, communication style, and how he should handle family data. It acts as the "personality" and "governance" layer for all family-facing interactions. This version (late October / November 2026) includes multi-agent coordination patterns, [MCP 3.1](../../tools/automation_orchestration/mcp.md) tool routing, FastMCP 3.1 schemas, and advanced preference injection logic optimized for local [Gemma 3](../../tools/ai_knowledge/local_llms.md) and frontier models such as Claude 5.1 and GPT-5.5.
 
 ## What problem it solves
 
@@ -76,7 +76,7 @@ jules test-briefing --context-file data/mock/family_context.json
 
 ## API examples
 
-Programmatically loading the prompt using the `litellm` library:
+### 1. Programmatically loading the prompt using the `litellm` library:
 
 ```python
 import litellm
@@ -101,6 +101,64 @@ def get_ralph_response(user_input, prefs_json):
         ]
     )
     return response.choices[0].message.content
+```
+
+### 2. Validating User Preferences with Pydantic v2
+To guarantee preference injection structures conform to expectations before LLM context generation in late October / November 2026.
+
+```python
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List, Dict, Any, Optional
+import re
+
+class DietRestriction(BaseModel):
+    member_name: str
+    allergies: List[str] = Field(default_factory=list)
+    preferences: List[str] = Field(default_factory=list, description="Likes, dislikes, or dietary habits.")
+
+class SchedulePreference(BaseModel):
+    member_name: str
+    schedule_buffer_minutes: int = Field(default=15, ge=0, le=120)
+    preferred_active_hours: str = Field(default="08:00-22:00")
+
+    @field_validator('preferred_active_hours')
+    @classmethod
+    def validate_hours_format(cls, value: str) -> str:
+        if not re.match(r'^\d{2}:\d{2}-\d{2}:\d{2}$', value):
+            raise ValueError("Active hours must be formatted as HH:MM-HH:MM.")
+        return value
+
+class FamilyPreferences(BaseModel):
+    family_surname: str
+    dietary: List[DietRestriction] = Field(default_factory=list)
+    schedule: List[SchedulePreference] = Field(default_factory=list)
+    additional_context: Dict[str, Any] = Field(default_factory=dict)
+
+# Example preference configuration validation
+prefs_data = {
+    "family_surname": "Smith",
+    "dietary": [
+        {
+            "member_name": "Mom",
+            "allergies": ["peanuts"],
+            "preferences": ["vegetarian", "prefers organic"]
+        }
+    ],
+    "schedule": [
+        {
+            "member_name": "Dad",
+            "schedule_buffer_minutes": 20,
+            "preferred_active_hours": "07:30-21:30"
+        }
+    ]
+}
+
+try:
+    validated_prefs = FamilyPreferences(**prefs_data)
+    print("User preferences validated successfully!")
+    print(validated_prefs.model_dump_json(indent=2))
+except ValidationError as e:
+    print("Validation failed:", e.json())
 ```
 
 ## Related tools / concepts
@@ -166,5 +224,5 @@ Recent System Events: {{ system_log_summary }}
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high
