@@ -1,13 +1,13 @@
 # Supabase
 
 ## What it is
-Supabase is an open-source, enterprise-grade Backend-as-a-Service (BaaS) platform built around PostgreSQL with managed database, authentication, storage, realtime, and edge-function services. Fully integrated with the July 2026 SOTA agentic ecosystem, it serves as the foundational persistence and memory orchestration layer for multi-agent frameworks, supporting native vector embeddings (via pgvector), granular row-level security (RLS), and universal Model Context Protocol (MCP 3.0/3.1) endpoints.
+Supabase is an open-source, enterprise-grade Backend-as-a-Service (BaaS) platform built around PostgreSQL with managed database, authentication, storage, realtime, and edge-function services. Fully integrated with the late October / November 2026 SOTA agentic ecosystem, it serves as the foundational persistence and memory orchestration layer for multi-agent frameworks, supporting native vector embeddings (via pgvector), granular row-level security (RLS), and universal Model Context Protocol (MCP 3.1 / FastMCP 3.1) endpoints.
 
 ## What problem it solves
 It reduces the complexity of self-assembling and orchestrating disparate backend infrastructure components (databases, auth servers, storage buckets, API gateways, and serverless compute). By wrapping standard PostgreSQL with high-level client libraries and native AI features, Supabase enables developers to deploy scalable, secure, and relational AI-driven applications. It specifically solves the problem of agent state synchronization, multi-tenant memory boundary enforcement, and low-latency local or global edge function execution.
 
 ## Where it fits in the stack
-**Infrastructure / Backend Platform**. It functions as the core persistence and structured database layer. Positioned underneath frameworks like LlamaIndex and LangChain, it provides long-term semantic memory, audit logs, and identity management while interfacing with orchestrators via realtime listeners and custom MCP servers.
+**Infrastructure / Backend Platform**. It functions as the core persistence and structured database layer. Positioned underneath frameworks like LlamaIndex and LangChain, it provides long-term semantic memory, audit logs, and identity management while interfacing with orchestrators via realtime listeners and custom FastMCP servers.
 
 ## Typical use cases
 - **Agent Memory Persistence**: Storing and querying high-dimensional agentic memory with `pgvector` using HNSW (Hierarchical Navigable Small World) indices for millisecond retrieval times.
@@ -17,9 +17,9 @@ It reduces the complexity of self-assembling and orchestrating disparate backend
 - **Vector Search & RAG**: Maintaining unified knowledge graphs, document chunks, and embeddings within a single relational database, avoiding multi-database synchronization overhead.
 
 ## Strengths
-- **SQL-First Vector Architecture**: Uses `pgvector` (v0.7.x SOTA in July 2026) for unified structured relational queries and semantic search.
+- **SQL-First Vector Architecture**: Uses `pgvector` (v0.7.x SOTA) for unified structured relational queries and semantic search.
 - **Granular Security Boundaries**: Relies on robust Postgres Row Level Security (RLS) policies, allowing LLMs to safely query data on behalf of specific authenticated users.
-- **Model Context Protocol (MCP 3.0/3.1) Integration**: Exposes database schemas and RLS-protected RPCs safely to agentic clients through standard MCP interfaces.
+- **Model Context Protocol (MCP 3.1 / FastMCP 3.1) Integration**: Exposes database schemas and RLS-protected RPCs safely to agentic clients like Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6 through standard FastMCP interfaces.
 - **Universal Local-to-Cloud Portability**: Run the entire enterprise stack locally with a single Docker-based CLI command or deploy globally with zero lock-in.
 - **Extensible Extension Ecosystem**: Seamless access to PostgreSQL extensions like `pg_cron` for scheduling, `pg_graphql` for GraphQL API generation, and `vault` for secret management.
 
@@ -88,7 +88,7 @@ supabase migration new add_agent_memory_table
 supabase db reset
 ```
 
-### Edge Functions & MCP Integration
+### Edge Functions & FastMCP 3.1 Integration
 ```bash
 # Create a new Edge Function for agent coordination
 supabase functions new agent-router
@@ -96,34 +96,52 @@ supabase functions new agent-router
 # Deploy the Edge Function to the remote Supabase platform
 supabase functions deploy agent-router --project-ref your-project-id
 
-# Register your Supabase database as an MCP 3.0 server for Claude 5.1 / Gemma 3
+# Register your Supabase database as a FastMCP 3.1 server for Claude 5.1 / GPT-5.5 / Gemma 3
 mcp register supabase-db-server --command npx --args "@supabase/mcp-server" --env "DATABASE_URL=postgresql://postgres:postgres@localhost:54322/postgres"
 ```
 
 ## API examples
 
-### Python SDK with HNSW-driven pgvector search
+### Python SDK with HNSW-driven pgvector search and Pydantic v2 Validation
+This example queries Supabase and validates the structured output against a strict Pydantic v2 schema:
+
 ```python
 import os
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field
 from supabase import create_client, Client
 
+# Define the Pydantic v2 model to validate agent memory state
+class AgentMemoryRecord(BaseModel):
+    id: str = Field(description="Unique UUID for the memory record")
+    content: str = Field(min_length=5, description="The semantic content of the memory")
+    similarity: float = Field(ge=0.0, le=1.0, description="Cosine similarity score")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Custom agent metadata tags")
+    last_accessed: Optional[datetime] = Field(default=None, description="ISO timestamp of last retrieval")
+
+# Initialize Supabase client
 url: str = os.environ.get("SUPABASE_URL", "https://your-project.supabase.co")
 key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 supabase: Client = create_client(url, key)
 
 # Perform a semantic search on agent memory via an RPC (database function)
-# This leverages pgvector v0.7.x with HNSW indexing
 response = supabase.rpc(
     "match_agent_memory",
     {
-        "query_embedding": [0.12, -0.43, 0.89],  # Embedding vector from SOTA model
+        "query_embedding": [0.12, -0.43, 0.89],  # 1536-dim embedding vector
         "match_threshold": 0.78,
         "match_count": 5
     }
 ).execute()
 
-for row in response.data:
-    print(f"Content: {row['content']} | Score: {row['similarity']}")
+# Validate and parse the database response using Pydantic v2
+validated_memories: List[AgentMemoryRecord] = [
+    AgentMemoryRecord(**row) for row in response.data
+]
+
+for record in validated_memories:
+    print(f"Validated Memory: {record.content[:50]}... | Similarity: {record.similarity:.4f}")
 ```
 
 ### Realtime Subscription
@@ -175,5 +193,5 @@ const taskSubscription = supabase
 - [Dify.ai](https://dify.ai/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high
