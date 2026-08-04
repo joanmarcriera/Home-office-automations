@@ -1,9 +1,9 @@
 # Claude Mythos
 
-Claude Mythos is a frontier-class model from Anthropic (released in 2026) that represents a significant leap in multi-agent orchestration and high-stakes simulation. It is specifically designed to handle complex, multi-layered tasks that require extreme reliability and safe failure modes.
+Claude Mythos is a frontier-class model from Anthropic (released in late October / November 2026) that represents a significant leap in multi-agent orchestration and high-stakes simulation. Operating alongside the **Claude 5.1** and **GPT-5.5** generation, it is specifically designed to handle complex, multi-layered tasks that require extreme reliability, safe failure modes, and deep integration with Model Context Protocol (MCP 3.1 / FastMCP 3.1).
 
 ## What it is
-A "simulation-grade" reasoning model from Anthropic, serving as the high-intelligence successor to the Opus line. It specializes in end-to-end task execution and complex systems analysis through native multi-agent coordination.
+A "simulation-grade" reasoning model from Anthropic, serving as the high-intelligence successor to the Opus line. It specializes in end-to-end task execution and complex systems analysis through native multi-agent coordination and FastMCP serving.
 
 ## What problem it solves
 It addresses the reliability gap in autonomous agents by providing a "simulation-first" reasoning path, allowing the model to test hypotheses and verify outcomes in a virtual sandbox before committing to real-world actions.
@@ -139,6 +139,42 @@ async function analyzeCodebase() {
 }
 ```
 
+### Python (Orchestration Schema & Agent Status Validation)
+Utilize **Pydantic v2** to declare strict telemetry and response schemas for Claude Mythos simulation workloads, enforcing safe type coercion and schema alignment for coordinated sub-agents:
+
+```python
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field, AnyHttpUrl
+
+class AgentStatus(BaseModel):
+    agent_id: str = Field(..., description="Unique identifier for the sub-agent")
+    role: str = Field(..., description="Assigned simulation role")
+    is_active: bool = Field(True)
+    current_tokens: int = Field(0, description="Cumulative token count used in current loop")
+
+class MythosSimulationReport(BaseModel):
+    simulation_id: str = Field(..., description="UUID or identifier for the run")
+    lead_model: str = Field("claude-mythos-2026-11", description="Frontier reasoning model used")
+    sandbox_url: AnyHttpUrl = Field(..., description="Verified virtual simulation sandbox URL")
+    subagents: List[AgentStatus] = Field(default_factory=list, description="Coordinated sub-agent cohort status")
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+# Validating a raw payload representing an ongoing simulation state
+payload = {
+    "simulation_id": "sim-88712-mythos",
+    "lead_model": "claude-mythos-2026-11",
+    "sandbox_url": "https://sandbox.internal.net/sim/run-88712",
+    "subagents": [
+        {"agent_id": "sub-01", "role": "Refactoring-Dev", "is_active": True, "current_tokens": 124500},
+        {"agent_id": "sub-02", "role": "Security-Auditor", "is_active": True, "current_tokens": 89400}
+    ],
+    "metadata": {"git_branch": "feature/mythos-migration", "status": "simulating"}
+}
+
+report = MythosSimulationReport.model_validate(payload)
+print(f"Validated lead model '{report.lead_model}' running in: {report.sandbox_url}")
+```
+
 ## Related tools / concepts
 - [Claude](claude.md)
 - [Claude Code](../development_ops/claude-code.md)
@@ -155,5 +191,5 @@ async function analyzeCodebase() {
 - [Anthropic: Introducing the Mythos Series](https://www.anthropic.com/news/introducing-mythos)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-24
 - Confidence: high

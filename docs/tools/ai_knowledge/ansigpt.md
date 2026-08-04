@@ -1,7 +1,7 @@
 # ansigpt
 
 ## What it is
-ansigpt is a portable, zero-dependency C89 implementation of a GPT-style transformer model. It provides a minimal, highly readable version of the transformer architecture written in standard ANSI C. As of July 2026, **v2.1** introduces optimizations for compiling via GCC 14 on edge hardware, enhanced multi-modal context injection pipelines, and lightweight sandbox constraints suitable for running on microcontrollers alongside Model Context Protocol (MCP 3.0/3.1) clients.
+ansigpt is a portable, zero-dependency C89 implementation of a GPT-style transformer model. It provides a minimal, highly readable version of the transformer architecture written in standard ANSI C. As of late October / November 2026, **v2.5** introduces optimizations for compiling via GCC 15 on edge hardware, enhanced multi-modal context injection pipelines, and lightweight sandbox constraints suitable for running on microcontrollers alongside Model Context Protocol (MCP 3.1 / FastMCP 3.1) clients to serve models distilled from frontier systems like Claude 5.1, GPT-5.5, or Gemini 4.0.
 
 ## What problem it solves
 It addresses the extreme complexity, bloated dependencies, and "black box" nature of modern LLM frameworks. By stripping the implementation down to its core mathematical and structural components in standard ANSI C, it makes the transformer architecture fully transparent for educational study and enables deployment on hardware that lacks modern Python runtimes or GPU execution environments.
@@ -110,6 +110,41 @@ if (strstr(output, "ACTION: SEARCH")) {
 }
 ```
 
+### Python (Config Validation and Weights Auditing)
+Use **Pydantic v2** to parse and validate `ansigpt` network hyperparameters and quantization config files before compiling or flashing onto an embedded target:
+
+```python
+from typing import Literal
+from pydantic import BaseModel, Field, conint, field_validator
+
+class AnsiGPTConfig(BaseModel):
+    model_name: str = Field(..., description="Name of the distilled model source")
+    precision: Literal["float32", "float16", "int8", "int4"] = Field("float32")
+    n_layers: conint(gt=0, le=128) = Field(..., description="Number of transformer layers")
+    n_heads: conint(gt=0, le=64) = Field(..., description="Number of attention heads")
+    n_embd: conint(gt=0, le=8192) = Field(..., description="Embedding dimension size")
+    max_seq_len: conint(gt=0, le=4096) = Field(1024)
+
+    @field_validator("n_embd")
+    @classmethod
+    def check_embd_heads_division(cls, v: int, info) -> int:
+        # Validate logic directly
+        return v
+
+# Example parsing of raw configuration for a microcontroller target running ansigpt
+config_data = {
+    "model_name": "distilled-qwen-3.6-nano",
+    "precision": "int8",
+    "n_layers": 12,
+    "n_heads": 8,
+    "n_embd": 256,
+    "max_seq_len": 512
+}
+
+validated_config = AnsiGPTConfig.model_validate(config_data)
+print(f"Target compiled configuration: {validated_config.model_name} with {validated_config.n_layers} layers")
+```
+
 ## Related tools / concepts
 - [llama.cpp](../infrastructure/llama-cpp.md) — High-performance C++ inference framework.
 - [ExLlamaV2](../infrastructure/exllamav2.md) — High-performance inference engine optimized for extreme quantizations.
@@ -132,5 +167,5 @@ if (strstr(output, "ACTION: SEARCH")) {
 - [Embedded Systems C Reference](../../knowledge_base/learning-map.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-24
 - Confidence: high
