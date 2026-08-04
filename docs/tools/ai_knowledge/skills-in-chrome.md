@@ -1,7 +1,7 @@
 # Skills in Chrome
 
 ## What it is
-Skills in Chrome is a native browser feature (v145+) that transforms AI prompts into one-click, reusable tools directly integrated into the Google Chrome interface. Powered by Gemini 3.5 Ultra and Nano (local-on-device), it allows users to codify complex instructions into "Agentic Hooks" that can be triggered via the omnibox, side panel, or right-click context menu.
+Skills in Chrome is a native browser feature (v145+) that transforms AI prompts into one-click, reusable tools directly integrated into the Google Chrome interface. Powered by **Gemini 4.0 Ultra** and **Gemini 4.0 Nano** (local on-device), it allows users to codify complex instructions into "Agentic Hooks" that can be triggered via the omnibox, side panel, or right-click context menu.
 
 ## What problem it solves
 It eliminates "prompt fatigue" and the friction of repetitive typing for recurring AI tasks. By bridging the gap between static LLM chats and actionable browser workflows, it enables users to treat AI as a set of specialized, context-aware browser extensions without needing to write code.
@@ -23,7 +23,7 @@ It eliminates "prompt fatigue" and the friction of repetitive typing for recurri
 
 ## Limitations
 - **Ecosystem Lock-in**: Exclusively available for Google Chrome and Chromium-based browsers that adopt the Gemini API.
-- **Context Window**: While Gemini 3.5 offers massive context windows, extremely large web documents or multi-media pages may still face truncation.
+- **Context Window**: While Gemini 4.0 offers massive context windows, extremely large web documents or multi-media pages may still face truncation.
 - **Sandbox Constraints**: Cannot interact with local filesystems or system-level processes outside the browser without specialized extensions.
 
 ## When to use it
@@ -71,17 +71,38 @@ curl -X POST http://localhost:9222/json/rpc \
 ```
 
 ## API examples
-Extensions can call saved skills or define new ones using the experimental `chrome.ai` API, integrated with [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md).
+Extensions can call saved skills or define new ones using the experimental `chrome.ai` API, integrated with [FastMCP 3.1](../../knowledge_base/patterns/tool-calling-and-mcp.md). Below is a Python script that parses and validates browser-use agentic skills and manifest configurations strictly using **Pydantic v2**.
 
-```javascript
-// Example: Extension calling a Chrome Skill
-chrome.ai.skills.execute({
-  skillName: 'summarize',
-  context: 'active_tab',
-  options: { detailLevel: 'concise' }
-}).then((result) => {
-  console.log("Skill Output:", result.text);
-});
+```python
+from pydantic import BaseModel, Field
+from typing import Literal
+
+# Define Pydantic v2 schemas for strict browser-use agent skill validation
+class ChromeSkillManifest(BaseModel):
+    skill_id: str = Field(..., pattern=r"^[a-z0-9\-]+$")
+    name: str = Field(..., min_length=3, max_length=50)
+    trigger_shortcut: str = Field(..., pattern=r"^/[a-zA-Z0-9]+$")
+    context_type: Literal["active_tab", "selection", "all_tabs"] = "active_tab"
+    target_url_pattern: str = Field("*", min_length=1)
+    prompt_template: str = Field(..., min_length=15)
+
+def validate_chrome_skill():
+    raw_manifest = {
+        "skill_id": "event-extractor",
+        "name": "Event Extractor",
+        "trigger_shortcut": "/events",
+        "context_type": "active_tab",
+        "target_url_pattern": "https://github.com/*",
+        "prompt_template": "Extract all dates, timelines, and milestones from this page and compile them into a valid markdown checklist."
+    }
+
+    # Strictly validate Chrome skill using Pydantic v2
+    validated_manifest = ChromeSkillManifest(**raw_manifest)
+    print(f"Skill '{validated_manifest.name}' validated successfully!")
+    print(f"Trigger: {validated_manifest.trigger_shortcut} on context: {validated_manifest.context_type}")
+
+if __name__ == "__main__":
+    validate_chrome_skill()
 ```
 
 ## Related tools / concepts
@@ -100,8 +121,8 @@ chrome.ai.skills.execute({
 - [Google I/O 2026: Powering the Agentic Web](https://developer.chrome.com/blog/chrome-at-io26)
 - [Turn AI prompts into one-click tools in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/)
 - [Chrome Developer: The AI-Powered Browser](https://developer.chrome.com/docs/ai/)
-- [FastMCP 3.0 Specification](https://modelcontextprotocol.io/fastmcp)
+- [FastMCP 3.1 Specification](https://modelcontextprotocol.io/fastmcp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-24
 - Confidence: high

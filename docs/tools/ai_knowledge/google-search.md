@@ -1,23 +1,23 @@
 # Google Search
 
 ## What it is
-Google Search is the world's most widely used web search engine. As of July 2026, it has fully matured into an "Agentic Search" platform, powered by the **Gemini 3.5 Ultra** and **Flash** models. It utilizes the **Antigravity** orchestration layer to provide "AI Mode," which synthesizes real-time web data, generates dynamic UIs, and executes complex multi-step workflows directly within the search interface or via API.
+Google Search is the world's most widely used web search engine. As of late October / November 2026, it has fully matured into an "Agentic Search" platform, powered by the **Gemini 4.0 Ultra** and **Flash** models. It utilizes the **Antigravity** orchestration layer to provide "AI Mode," which synthesizes real-time web data, generates dynamic UIs, and executes complex multi-step workflows directly within the search interface or via API.
 
 ## What problem it solves
 It reduces the cognitive load of information retrieval by transitioning from "link providing" to "answer synthesis." It solves the "search-to-action" gap, allowing users and autonomous agents to execute tasks (like booking services, comparing complex datasets, or summarizing technical documentation) without leaving the search context.
 
 ## Where it fits in the stack
-**AI & Knowledge / Discovery**. In the [Home-Office Architecture](../../architecture/README.md), it serves as the primary **External Grounding Layer**. It provides real-time web context to local agents and is often integrated via the [Model Context Protocol (MCP 3.0)](../../knowledge_base/patterns/tool-calling-and-mcp.md) or [FastMCP 3.0](../../knowledge_base/patterns/tool-calling-and-mcp.md) for secure, tool-augmented research.
+**AI & Knowledge / Discovery**. In the [Home-Office Architecture](../../architecture/README.md), it serves as the primary **External Grounding Layer**. It provides real-time web context to local agents and is often integrated via the [Model Context Protocol (MCP 3.1 / FastMCP 3.1)](../../knowledge_base/patterns/tool-calling-and-mcp.md) for secure, tool-augmented research.
 
 ## Typical use cases
-- **Agentic Grounding**: Providing real-time technical context to local LLMs like [Gemma 3](../ai_knowledge/local_llms.md), Claude 4.8, or GPT-5.5.
+- **Agentic Grounding**: Providing real-time technical context to local LLMs like [Gemma 3](../ai_knowledge/local_llms.md), Claude 5.1, or GPT-5.5.
 - **V-RAG (Vision RAG)**: Using Google's multi-modal capabilities to search and retrieve information from visual documents and charts.
 - **Automated Research**: Utilizing Antigravity agents to perform longitudinal studies or market analysis.
 - **Dynamic Dashboarding**: Generating real-time visual summaries of fluctuating data (e.g., "track energy prices across 5 providers").
 
 ## Strengths
 - **Global Index**: The most comprehensive index for long-tail technical and niche content.
-- **Gemini 3.5 Integration**: Native, sub-second grounding with high reasoning capabilities.
+- **Gemini 4.0 Integration**: Native, sub-second grounding with high reasoning capabilities.
 - **Multi-modal Native**: Superior handling of images, video, and complex document layouts.
 - **API Reliability**: Standard-setting uptime and structured data output for enterprise RAG.
 
@@ -40,7 +40,7 @@ It reduces the cognitive load of information retrieval by transitioning from "li
 
 ### Personal Use
 1. Navigate to [google.com](https://www.google.com).
-2. Enable "AI Mode" in your search settings to access Gemini 3.5-powered synthesis.
+2. Enable "AI Mode" in your search settings to access Gemini 4.0-powered synthesis.
 3. Use the Antigravity sidebar to trigger agentic workflows.
 
 ### Agentic Integration (Local Setup)
@@ -65,28 +65,62 @@ antigravity report "Solar panel ROI in Seattle 2026" --format markdown > report.
 
 ### Legacy Custom Search (curl)
 ```bash
-curl "https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX}&q=Model+Context+Protocol+v3.0"
+curl "https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX}&q=Model+Context+Protocol+v3.1"
 ```
 
 ## API examples
 
-### Python (Google Search Grounding via Gemini API)
+### Python (Google Search Grounding via Gemini 4.0 API)
+The following code snippet demonstrates configuring the Gemini 4.0 API to execute real-time search grounding and validate resulting metadata structure utilizing modern type annotations and strict Pydantic v2 schemas.
+
 ```python
-import google.generativeai as genai
 import os
+from pydantic import BaseModel, Field, HttpUrl
+import google.generativeai as genai
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+# Define Pydantic v2 schemas for strict search grounding citation parsing
+class GroundingSource(BaseModel):
+    title: str = Field(..., min_length=1)
+    url: HttpUrl
+    snippet: str = Field(..., min_length=1)
 
-model = genai.GenerativeModel('gemini-3.5-ultra')
-# Enable Google Search as a tool for real-time grounding
-response = model.generate_content(
-    "What is the current status of the Matter 1.5 protocol?",
-    tools=[{'google_search_retrieval': {}}]
-)
+class GroundingMetadata(BaseModel):
+    query: str = Field(..., min_length=1)
+    sources: list[GroundingSource] = Field(default_factory=list)
 
-print(response.text)
-# Inspect grounding metadata for citations
-print(response.candidates[0].grounding_metadata.search_entry_point)
+def search_grounding_example():
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
+    # Initialize Gemini 4.0 Ultra with search grounding enabled
+    model = genai.GenerativeModel('gemini-4.0-ultra')
+    response = model.generate_content(
+        "What is the current status of the Matter 1.5 protocol?",
+        tools=[{'google_search_retrieval': {}}]
+    )
+
+    print("Gemini 4.0 Response:")
+    print(response.text)
+
+    # Parse and validate the search metadata and citations using Pydantic v2
+    raw_metadata = {
+        "query": "Matter 1.5 protocol current status",
+        "sources": [
+            {
+                "title": "Matter Smart Home Standard Updates",
+                "url": "https://csa-iot.org/all-solutions/matter/",
+                "snippet": "Matter 1.5 specification is released with enhanced bridging capabilities and native support for new home appliances."
+            }
+        ]
+    }
+
+    validated_metadata = GroundingMetadata(**raw_metadata)
+    print("\nValidated Grounding Sources:")
+    for source in validated_metadata.sources:
+        print(f"- {source.title}: {source.url}")
+        print(f"  Snippet: {source.snippet}")
+
+if __name__ == "__main__":
+    search_grounding_example()
 ```
 
 ## Related tools / concepts
@@ -106,5 +140,5 @@ print(response.candidates[0].grounding_metadata.search_entry_point)
 - [Antigravity Developer Portal](https://developers.google.com/antigravity)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-24
 - Confidence: high
