@@ -451,6 +451,7 @@ nav:
           - Semantic Kernel: tools/frameworks/semantic-kernel.md
           - Smolagents: tools/frameworks/smolagents.md
           - Superinterface: tools/frameworks/superinterface.md
+          - Tritium: tools/frameworks/tritium.md
       - Providers:
           - AWS Bedrock: tools/providers/aws-bedrock.md
           - Anthropic: tools/providers/anthropic.md
