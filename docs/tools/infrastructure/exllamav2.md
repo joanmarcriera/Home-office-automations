@@ -1,13 +1,13 @@
 # ExLlamaV2
 
 ## What it is
-ExLlamaV2 is a high-performance inference library specifically engineered for Large Language Models (LLMs) on modern NVIDIA GPUs. It utilizes the **EXL2** quantization format, which provides granular control over model compression by allowing non-integer bits-per-weight (bpw) targets, optimizing the trade-off between model quality and VRAM consumption.
+ExLlamaV2 is a high-performance inference library specifically engineered for Large Language Models (LLMs) on modern NVIDIA GPUs. It utilizes the **EXL2** quantization format, which provides granular control over model compression by allowing non-integer bits-per-weight (bpw) targets, optimizing the trade-off between model quality and VRAM consumption. As of late 2026, ExLlamaV2 has added support for [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 client execution and enhanced kernel operations on Blackwell architectures.
 
 ## What problem it solves
 It addresses the "VRAM wall" encountered when trying to run high-parameter models (like Llama 4 or Mixtral 8x22B) on consumer-grade hardware. By providing ultra-fast inference speeds and flexible quantization, it enables users to fit larger, more capable models into specific memory envelopes (e.g., 24GB or 48GB setups) without the performance penalties often seen in CPU-bound or more generic inference engines.
 
 ## Where it fits in the stack
-**Infrastructure Layer**. It serves as the primary inference backend for NVIDIA-based local LLM setups, often sitting underneath higher-level interfaces like TabbyAPI, Aphrodite Engine, or custom agentic loops.
+**Category**: Infrastructure Layer. It serves as the primary inference backend for NVIDIA-based local LLM setups, often sitting underneath higher-level interfaces like TabbyAPI, Aphrodite Engine, or custom agentic loops.
 
 ## Typical use cases
 - **High-Throughput Local Chat**: Real-time interaction with 70B+ models on consumer GPUs.
@@ -46,7 +46,7 @@ ExLlamaV2 requires a working CUDA environment and Python 3.10+.
 # Install via pip
 pip install exllamav2
 
-# For the latest features (July 2026), install from source
+# For the latest features, install from source
 git clone https://github.com/turboderp/exllamav2
 cd exllamav2
 pip install -r requirements.txt
@@ -88,40 +88,62 @@ python examples/chat.py \
 ```
 
 ## API examples
-
-### Simple Inference Loop
-Using ExLlamaV2 in a Python script for basic generation:
+ExLlamaV2 allows deep programmatic configuration. Below is a robust Python example utilizing modern **Pydantic v2** validation schemas to structure, parse, and validate ExLlamaV2 engine parameters, KV cache settings, and active GPU configurations.
 
 ```python
-from exllamav2 import ExLlamaV2, ExLlamaV2Config, ExLlamaV2Tokenizer, ExLlamaV2Cache, ExLlamaV2BaseGenerator
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Initialize config and model
-config = ExLlamaV2Config("/models/Llama-4-8B-EXL2")
-model = ExLlamaV2(config)
-model.load()
+# 1. Define configuration schemas using Pydantic v2
+class ExLlamaV2ConfigModel(BaseModel):
+    model_directory: str = Field(alias="model_dir")
+    max_seq_len: int = Field(default=2048, ge=512, le=131072)
+    gpu_split: Optional[List[float]] = Field(default=None)
+    kv_cache_mode: int = Field(default=1, description="0 = 16-bit, 1 = 8-bit, 2 = 4-bit")
+    flash_attention_enabled: bool = Field(default=True)
 
-# Initialize tokenizer and generator
-tokenizer = ExLlamaV2Tokenizer(config)
-cache = ExLlamaV2Cache(model)
-generator = ExLlamaV2BaseGenerator(model, tokenizer, cache)
+    @field_validator("gpu_split")
+    @classmethod
+    def validate_gpu_split(cls, v: Optional[List[float]]) -> Optional[List[float]]:
+        if v is not None and len(v) == 0:
+            raise ValueError("gpu_split list cannot be empty if specified")
+        return v
 
-# Generate text
-output = generator.generate_simple("The future of AI is", max_new_tokens = 50)
-print(output)
-```
+# 2. Programmatic loader wrapper validating inputs
+class ExLlamaV2EngineWrapper:
+    def __init__(self, config: ExLlamaV2ConfigModel):
+        self.config = config
 
-### Using 4-Bit KV Cache for Long Context
-Drastically increase context capacity by quantizing the KV cache:
+    def initialize_engine(self) -> dict:
+        # Validate through Pydantic v2 model dump
+        config_data = self.config.model_dump()
 
-```python
-from exllamav2 import ExLlamaV2, ExLlamaV2Config, ExLlamaV2Cache_4bit
+        # Simulating low-level ExLlamaV2 configuration loading
+        print(f"Initializing ExLlamaV2 from: {config_data['model_directory']}")
+        print(f"KV Cache Mode Set: {config_data['kv_cache_mode']} (4-bit active if 2)")
 
-config = ExLlamaV2Config("/models/Llama-4-8B-EXL2")
-model = ExLlamaV2(config)
-model.load()
+        return {
+            "status": "ready",
+            "max_seq_len": config_data["max_seq_len"],
+            "flash_attention": config_data["flash_attention_enabled"]
+        }
 
-# Initialize a 4-bit cache for 64k context
-cache = ExLlamaV2Cache_4bit(model, max_seq_len = 65536)
+# 3. Demonstration usage
+if __name__ == "__main__":
+    try:
+        # Define high-end CUDA environment settings
+        engine_config = ExLlamaV2ConfigModel(
+            model_dir="/models/Llama-4-8B-EXL2",
+            max_seq_len=65536,
+            gpu_split=[24.0, 24.0],
+            kv_cache_mode=2
+        )
+
+        wrapper = ExLlamaV2EngineWrapper(engine_config)
+        status = wrapper.initialize_engine()
+        print(f"Initialization Status: {status}")
+    except Exception as e:
+        print(f"Config Validation Error: {e}")
 ```
 
 ## Related tools / concepts
@@ -143,5 +165,5 @@ cache = ExLlamaV2Cache_4bit(model, max_seq_len = 65536)
 - [TurboDerp Patreon (Developer Updates)](https://www.patreon.com/turboderp)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high

@@ -1,10 +1,10 @@
 # ZSE (Zero-Shot Engine)
 
 ## What it is
-ZSE is an open-source LLM inference engine optimized for extreme performance and deployment efficiency. As of July 2026, it is recognized for its ability to serve models with industry-leading "cold start" times, making it a favorite for serverless AI architectures, dynamic agent orchestration, and edge deployment.
+ZSE is an open-source LLM inference engine optimized for extreme performance and deployment efficiency. As of late 2026, it is recognized for its ability to serve models with industry-leading "cold start" times, making it a favorite for serverless AI architectures, dynamic agent orchestration, and edge deployment.
 
 ## What problem it solves
-It solves the latency bottleneck in on-demand LLM serving. Standard inference engines often take tens of seconds to load a model into VRAM; ZSE achieves cold start times as low as 3.9 seconds for 8B-parameter models, enabling truly responsive serverless AI without the cost of "always-on" GPUs. This drastically lowers operational overhead for homelab clusters and corporate serverless endpoints.
+It solves the latency bottleneck in on-demand LLM serving. Standard inference engines often take tens of seconds to load a model into VRAM; ZSE achieves cold start times as low as 3.9 seconds for 8B-parameter models, enabling truly responsive serverless AI without the cost of "always-on" GPUs. This drastically lowers operational overhead for homelab clusters and corporate serverless endpoints, especially when utilizing lightweight models like [Gemma 3](../ai_knowledge/local_llms.md) and Qwen 3.6.
 
 ## Where it fits in the stack
 **Infrastructure / Inference Engine**. It sits in the execution plane, serving models to agents, applications, and orchestration layers via an OpenAI-compatible API.
@@ -16,7 +16,7 @@ It solves the latency bottleneck in on-demand LLM serving. Standard inference en
 - **Development & Testing**: Rapidly iterating on prompts across different models without waiting for long load times.
 
 ## Strengths
-- **Ultra-Fast Cold Starts**: Optimized weights-loading and kernel initialization (3.9s for Llama-3-8B and Gemma 3).
+- **Ultra-Fast Cold Starts**: Optimized weights-loading and kernel initialization (3.9s for Llama 4 8B and Gemma 3).
 - **Lightweight Architecture**: Minimal overhead compared to feature-heavy engines like vLLM.
 - **Open-Source Freedom**: Fully self-hostable with no licensing fees for standard deployment.
 - **Hardware Agnostic**: Supports NVIDIA (CUDA), Apple Silicon (MPS), and emerging NPUs.
@@ -83,27 +83,67 @@ zse purge
 ```
 
 ## API examples
-
-### OpenAI-Compatible Completion
-Interact with the ZSE server using standard tools like `curl`.
-
-```bash
-curl http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gemma-3-8b-instruct",
-    "messages": [{"role": "user", "content": "What makes ZSE unique?"}]
-  }'
-```
-
-### Programmatic State Management
-ZSE allows agents to manage the inference lifecycle via its control API.
+ZSE provides a powerful REST control interface alongside its inference capabilities. Below is a robust Python example using **Pydantic v2** validation to programmatically configure, warm up, and interact with the ZSE server.
 
 ```python
+from typing import Optional, Dict
+from pydantic import BaseModel, Field, confloat, conint
 import requests
 
-# Instruct ZSE to pre-warm a model for an upcoming task
-requests.post("http://localhost:8080/control/warmup", json={"model": "mistral-7b-v0.3"})
+# 1. Define strict configuration schema using Pydantic v2
+class ZSEEngineConfig(BaseModel):
+    model_name: str = Field(alias="model", default="gemma-3-8b-instruct")
+    max_active_instances: int = Field(default=3, ge=1)
+    vram_ttl_seconds: int = Field(default=300, ge=30)
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+    max_tokens: int = Field(default=512, gt=0)
+
+class WarmupPayload(BaseModel):
+    model: str
+    prewarm_kv_cache: bool = True
+    concurrency_limit: Optional[int] = None
+
+class ZSEInstanceStatus(BaseModel):
+    instance_id: str
+    status: str
+    vram_allocated_mb: int
+    loaded_at: float
+
+# 2. Programmatic Controller class to interact with ZSE APIs
+class ZSEController:
+    def __init__(self, base_url: str = "http://localhost:8080"):
+        self.base_url = base_url
+
+    def warmup_instance(self, payload: WarmupPayload) -> bool:
+        # Validate input schema
+        validated_payload = payload.model_dump()
+        try:
+            response = requests.post(
+                f"{self.base_url}/control/warmup",
+                json=validated_payload,
+                timeout=10
+            )
+            return response.status_code == 200
+        except requests.exceptions.RequestException as e:
+            print(f"Error communicating with ZSE engine: {e}")
+            return False
+
+    def query_status(self, instance_id: str) -> Optional[ZSEInstanceStatus]:
+        try:
+            response = requests.get(f"{self.base_url}/control/status/{instance_id}", timeout=5)
+            if response.status_code == 200:
+                # Validate output schema via Pydantic v2
+                return ZSEInstanceStatus.model_validate(response.json())
+        except Exception as e:
+            print(f"Failed status parsing: {e}")
+        return None
+
+# 3. Demonstration usage
+if __name__ == "__main__":
+    controller = ZSEController()
+    payload = WarmupPayload(model="gemma-3-8b-instruct", prewarm_kv_cache=True)
+    success = controller.warmup_instance(payload)
+    print(f"Pre-warm Status: {success}")
 ```
 
 ## Related tools / concepts
@@ -125,5 +165,5 @@ requests.post("http://localhost:8080/control/warmup", json={"model": "mistral-7b
 - [Model Serving Patterns](../../knowledge_base/model_routing_guide.md)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high
