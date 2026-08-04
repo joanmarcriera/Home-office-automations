@@ -38,6 +38,9 @@ LLM serving is often bottlenecked by KV cache memory management. Traditional sys
 - When deploying on Apple Silicon — vLLM is not natively optimized for Metal; use [MLX](mlx.md) instead.
 - For extremely simple, low-volume scripts where the overhead of a dedicated server is unnecessary.
 
+## Hardware plugins and extensions
+- **vLLM-Kunlun**: A community-maintained hardware plugin designed to seamlessly run vLLM on the Baidu Kunlun3 XPU (specifically the P800 series). It adheres to vLLM's pluggable hardware backend RFC, decoupling hardware-specific code and allowing popular Mixture-of-Experts, Transformer, and multimodal models to execute on Kunlun processors.
+
 ## Getting started
 
 ### Installation
@@ -205,6 +208,7 @@ if __name__ == "__main__":
 - [vLLM Documentation](https://docs.vllm.ai/)
 - [PagedAttention: High-Throughput LLM Serving with vLLM](https://arxiv.org/abs/2309.06180)
 - [DKV: Open-Source KV-Cache Compression Framework](https://www.reddit.com/r/LocalLLaMA/comments/1v5wviz/dkv_opensource_kvcache_compression_framework_for/) — Open-source KV-cache compression and management framework for large context serving optimization.
+- [vLLM-Kunlun hardware plugin - Baidu](https://github.com/baidu/vLLM-Kunlun)
 
 ## Contribution Metadata
 - Last reviewed: 2026-10-01

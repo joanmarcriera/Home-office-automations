@@ -1025,6 +1025,12 @@
       "doc_path": "docs/tools/agents/gemini-managed-agents.md"
     },
     {
+      "id": "gemini-robotics",
+      "name": "Gemini Robotics",
+      "category": "Agents",
+      "doc_path": "docs/tools/agents/gemini-robotics.md"
+    },
+    {
       "id": "gemma-4-31b-antihal",
       "name": "Gemma 4 31B AntiHal",
       "category": "AI Assistants & Knowledge",
@@ -1466,6 +1472,12 @@
       "name": "Kiwix",
       "category": "AI Assistants & Knowledge",
       "doc_path": "docs/services/kiwix.md"
+    },
+    {
+      "id": "koboldcpp",
+      "name": "Koboldcpp",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/koboldcpp.md"
     },
     {
       "id": "kokoclone",
@@ -2760,6 +2772,12 @@
       "doc_path": "docs/services/tubearchivist.md"
     },
     {
+      "id": "turbo-fieldfare",
+      "name": "Turbo-fieldfare",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/turbo-fieldfare.md"
+    },
+    {
       "id": "typingmind",
       "name": "TypingMind",
       "category": "AI Assistants & Knowledge",
@@ -2890,6 +2908,12 @@
       "name": "W&B Weave",
       "category": "Process & Understanding",
       "doc_path": "docs/tools/process_understanding/wandb-weave.md"
+    },
+    {
+      "id": "waste",
+      "name": "WASTE",
+      "category": "Infrastructure",
+      "doc_path": "docs/tools/infrastructure/waste.md"
     },
     {
       "id": "weaviate",
