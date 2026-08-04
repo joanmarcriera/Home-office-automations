@@ -2736,6 +2736,12 @@
       ]
     },
     {
+      "id": "tritium",
+      "name": "Tritium",
+      "category": "Frameworks",
+      "doc_path": "docs/tools/frameworks/tritium.md"
+    },
+    {
       "id": "trelliscpp",
       "name": "TrellisCPP",
       "category": "Development & Ops",
