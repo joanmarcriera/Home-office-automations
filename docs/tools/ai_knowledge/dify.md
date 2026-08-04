@@ -102,6 +102,49 @@ response = client.create_chat_message(
 print(f"Dify Response: {response.json().get('answer')}")
 ```
 
+### Python (Dify App Input and Workflow Schema Validation)
+Use **Pydantic v2** to enforce strict data contracts on Dify node variables and user context before dispatching chat payloads to the Dify HTTP API:
+
+```python
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, field_validator
+
+class DifyAppInput(BaseModel):
+    user_context: str = Field(..., description="Homelab environment or workspace identifier")
+    variables: Dict[str, Any] = Field(default_factory=dict, description="Key-value pairs representing node variables")
+    max_steps: int = Field(50, gt=0, le=100)
+
+    @field_validator("user_context")
+    @classmethod
+    def validate_workspace(cls, v: str) -> str:
+        allowed = ["home-office", "production-server", "staging-cluster"]
+        if v not in allowed:
+            raise ValueError(f"user_context must be one of {allowed}")
+        return v
+
+class DifyChatPayload(BaseModel):
+    query: str = Field(..., min_length=1, description="Message string to send to Dify agent")
+    user: str = Field(..., description="Unique ID of the end-user")
+    inputs: DifyAppInput = Field(..., description="Structured variables matching Dify workspace schemas")
+    response_mode: str = Field("blocking", pattern="^(blocking|streaming)$")
+
+# Example construction of safe Dify request payload
+payload_data = {
+    "query": "How do I integrate Dify with my local Ollama instance?",
+    "user": "jules_agent",
+    "inputs": {
+        "user_context": "home-office",
+        "variables": {"model_backend": "gemma-3-9b", "temperature": 0.1}
+    },
+    "response_mode": "blocking"
+}
+
+validated_payload = DifyChatPayload.model_validate(payload_data)
+# Convert to dictionary ready for requests.post() payload
+request_body = validated_payload.model_dump()
+print(f"Validated payload prepared for user: {request_body['user']}")
+```
+
 ## Related tools / concepts
 
 - [Flowise](../ai_knowledge/flowise.md) — Alternative visual LLM orchestration.
@@ -122,5 +165,5 @@ print(f"Dify Response: {response.json().get('answer')}")
 
 ## Contribution Metadata
 
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-24
 - Confidence: high

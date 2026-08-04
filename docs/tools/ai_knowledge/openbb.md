@@ -1,7 +1,7 @@
 # OpenBB
 
 ## What it is
-OpenBB is a comprehensive, open-source financial data platform designed for financial analysts, quantitative researchers, and AI agents. It standardizes access to hundreds of financial data endpoints across diverse asset classes (equities, options, crypto, forex, macroeconomics, fixed income) using a single unified Python SDK, a Terminal (CLI), or a web-based dashboard. As of July 2026, **OpenBB Platform v4.7** fully standardizes native Model Context Protocol (MCP 3.0/3.1) integration, enabling AI agents and LLMs to autonomously execute high-fidelity financial queries and synthesize market intelligence in real-time.
+OpenBB is a comprehensive, open-source financial data platform designed for financial analysts, quantitative researchers, and AI agents. It standardizes access to hundreds of financial data endpoints across diverse asset classes (equities, options, crypto, forex, macroeconomics, fixed income) using a single unified Python SDK, a Terminal (CLI), or a web-based dashboard. As of late October / November 2026, **OpenBB Platform v5.0** fully standardizes native Model Context Protocol (MCP 3.1 / FastMCP 3.1) integration, enabling AI agents and LLMs (such as Claude 5.1, GPT-5.5, Gemini 4.0, Llama 4, Gemma 3, and Qwen 3.6) to autonomously execute high-fidelity financial queries and synthesize market intelligence in real-time.
 
 ## What problem it solves
 It eliminates the critical challenge of fragmentation in financial data acquisition. Traditional research requires maintaining separate API integrations, pipelines, and schema-normalizations for dozens of disparate financial data providers (e.g., FMP, Polygon, AlphaVantage, FRED, SEC EDGAR, Benzinga). OpenBB normalizes data schemas, provides a consistent command-and-query interface, and delivers structured, high-fidelity JSON data directly to LLMs, bypassing the latency, hallucinations, and unreliability associated with general web-scraping or unstructured searches.
@@ -112,6 +112,49 @@ def analyze_company_fundamentals(symbol: str) -> dict:
 print(analyze_company_fundamentals("MSFT"))
 ```
 
+### Python (Financial Data Schema Validation with Pydantic v2)
+Ensure data integrity when fetching financial intelligence from OpenBB by validating raw API data outputs against clean, type-coerced Pydantic schemas:
+
+```python
+from datetime import date
+from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator
+
+class CorporateFundamentals(BaseModel):
+    symbol: str = Field(..., description="Standardized stock ticker symbol")
+    fiscal_date: date = Field(..., description="Ending date of the audited period")
+    net_income: int = Field(..., description="Net income in USD")
+    revenue: int = Field(..., description="Total top-line revenue in USD")
+    eps: float = Field(..., description="Diluted earnings per share")
+    mcp_discovery_token: Optional[str] = Field(None, description="MCP 3.1 session identifier")
+
+    @field_validator("symbol")
+    @classmethod
+    def normalize_ticker(cls, v: str) -> str:
+        return v.upper().strip()
+
+class ValuationProfile(BaseModel):
+    company_name: str = Field(..., description="Legal company name")
+    metrics: CorporateFundamentals = Field(..., description="Corporate fundamental metrics")
+    valuation_score: int = Field(..., ge=0, le=100)
+
+# Example parsing of raw data received from OpenBB's stocks.fa.income endpoint
+raw_response = {
+    "company_name": "Microsoft Corporation",
+    "metrics": {
+        "symbol": " msft ",
+        "fiscal_date": "2026-09-30",
+        "net_income": 22000000000,
+        "revenue": 56000000000,
+        "eps": 2.95
+    },
+    "valuation_score": 92
+}
+
+profile = ValuationProfile.model_validate(raw_response)
+print(f"Validated financial profile for {profile.company_name} (Ticker: {profile.metrics.symbol})")
+```
+
 ### Custom MCP Server Instance (FastAPI)
 Developers can wrap an existing FastAPI instance with OpenBB's MCP generator and configure custom tool behavior:
 
@@ -193,5 +236,5 @@ Connect your local OpenBB MCP server to Claude Desktop by updating your `claude_
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-24
 - Confidence: high
