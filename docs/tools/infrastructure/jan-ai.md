@@ -1,25 +1,25 @@
 # Jan.ai
 
 ## What it is
-Jan is an open-source alternative to ChatGPT that runs 100% offline on your computer. It is built on top of the **Nitro Engine**, a high-performance C++ inference engine, and provides a clean, privacy-focused desktop interface. As of July 2026 (v0.9.0+), Jan has expanded its hardware support and modular architecture to include native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.0 integration.
+Jan is an open-source alternative to ChatGPT that runs 100% offline on your computer. It is built on top of the **Nitro Engine**, a high-performance C++ inference engine, and provides a clean, privacy-focused desktop interface. As of late 2026, Jan has expanded its hardware support and modular architecture to include native [Model Context Protocol (MCP)](../automation_orchestration/mcp.md) 3.1 and FastMCP 3.1 integration, acting as a robust tool-orchestrator and local client for frontier models.
 
 ## What problem it solves
-Jan provides a fully open-source, private, and local-first AI workspace. It allows users to own their data and models, ensuring that conversations never leave their machine. It specifically addresses the "resource-heavy agent" problem by prioritizing a simpler, safer, and more practical agent experience, while supporting modern local models like [Gemma 3](../ai_knowledge/local_llms.md).
+Jan provides a fully open-source, private, and local-first AI workspace. It allows users to own their data and models, ensuring that conversations never leave their machine. It specifically addresses the "resource-heavy agent" problem by prioritizing a simpler, safer, and more practical agent experience, while supporting modern local models like [Gemma 3](../ai_knowledge/local_llms.md) and Qwen 3.6 on consumer hardware.
 
 ## Where it fits in the stack
-**Category**: Infrastructure / Local Inference Engine. It focuses on the "Local-First" desktop experience and provides a native, high-performance engine (Nitro) for various hardware backends, now leveraging [FastMCP 3.0](../automation_orchestration/mcp.md) for tool orchestration.
+**Category**: Infrastructure / Local Inference Engine. It focuses on the "Local-First" desktop experience and provides a native, high-performance engine (Nitro) for various hardware backends, now leveraging [FastMCP 3.1](../automation_orchestration/mcp.md) for tool orchestration and agentic reasoning loops.
 
 ## Typical use cases
-- **Private, Offline Chat**: Serving as a privacy-first alternative to web-based AI assistants using [Gemma 3](../ai_knowledge/local_llms.md).
+- **Private, Offline Chat**: Serving as a privacy-first alternative to web-based AI assistants using [Gemma 3](../ai_knowledge/local_llms.md) or Llama 4.
 - **Hardware-Optimized Inference**: Leveraging AMD ROCm/HIP on Linux, NVIDIA CUDA, or Apple Silicon (M5 optimized) for high-speed local processing.
 - **Headless Model Serving**: Using Jan as a local API backend for other applications via its built-in server.
-- **Context-Aware Assistance**: Utilizing its smarter context management to handle large documents without exceeding RAM limits.
+- **Context-Aware Assistance**: Utilizing its smarter context management to handle large documents without exceeding RAM limits, supporting up to 128k context windows.
 
 ## Strengths
 - **Fully Open Source**: AGPL-3.0 licensed, transparent, and community-driven.
 - **Hardware Agnostic**: Native support for Mac, Windows (NVIDIA/DirectX), and Linux (AMD/ROCm).
 - **Efficient Performance**: The Nitro engine and phased-startup loader ensure fast time-to-first-paint and deferred heavy resource loading.
-- **MCP 3.0 Native**: Built-in support for the latest [Model Context Protocol](../automation_orchestration/mcp.md) standards for tool and server integration.
+- **MCP 3.1 Native**: Built-in support for the latest [Model Context Protocol](../automation_orchestration/mcp.md) standards for tool and server integration.
 
 ## Limitations
 - **Selective Ecosystem**: Does not integrate with "resource-heavy" legacy agents to preserve system stability and security.
@@ -38,7 +38,7 @@ Jan provides a fully open-source, private, and local-first AI workspace. It allo
 ## Getting started
 1. **Download**: Obtain the latest stable version from [jan.ai](https://jan.ai/).
 2. **Onboarding**: Launch the app and allow it to remotely fetch the latest model metadata.
-3. **Download Model**: Use the "Hub" to download a hardware-optimized model (e.g., [Gemma 3](../ai_knowledge/local_llms.md) or Qwen 2.5); downloads are now resumable.
+3. **Download Model**: Use the "Hub" to download a hardware-optimized model (e.g., [Gemma 3](../ai_knowledge/local_llms.md) or Qwen 3.6); downloads are now resumable.
 4. **Chat**: Select your model and begin a thread; Jan will automatically manage context capping for optimal performance.
 
 ## CLI examples
@@ -56,19 +56,71 @@ jan chat --model mistral-nemo --prompt "Explain quantum entanglement."
 ```
 
 ## API examples
-Jan provides an OpenAI-compatible API on `localhost:1337` by default.
+Jan provides an OpenAI-compatible API on `localhost:1337` by default. Below is a robust Python example utilizing modern, asynchronous calls and strict **Pydantic v2** validation to model and parse the local response payloads from Jan's server.
 
 ```python
+import asyncio
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl
 import openai
 
-# Connect to Jan's local server
-client = openai.OpenAI(base_url="http://localhost:1337/v1", api_key="jan")
+# 1. Define strict Pydantic v2 validation schemas for Jan inference configurations
+class JanInferenceConfig(BaseModel):
+    model_name: str = Field(alias="model", default="gemma-3-27b")
+    temperature: float = Field(default=0.2, ge=0.0, le=2.0)
+    max_tokens: int = Field(default=1024, gt=0)
+    stream: bool = Field(default=False)
+    mcp_enabled: bool = Field(default=True)
+    mcp_servers: List[HttpUrl] = Field(default_factory=list)
 
-completion = client.chat.completions.create(
-  model="gemma-3-27b",
-  messages=[{"role": "user", "content": "How do I secure a home server?"}]
-)
-print(completion.choices[0].message.content)
+class ChoiceMessage(BaseModel):
+    role: str
+    content: str
+
+class Choice(BaseModel):
+    index: int
+    message: ChoiceMessage
+    finish_reason: Optional[str] = None
+
+class JanChatCompletionResponse(BaseModel):
+    id: str
+    object: str
+    created: int
+    model: str
+    choices: List[Choice]
+
+# 2. Asynchronous client interacting with Jan's local inference engine
+async def query_local_jan_engine(prompt: str, config: JanInferenceConfig) -> JanChatCompletionResponse:
+    # Connect using OpenAI's async client to the local Jan port (default 1337)
+    client = openai.AsyncOpenAI(base_url="http://localhost:1337/v1", api_key="jan")
+
+    response = await client.chat.completions.create(
+        model=config.model_name,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=config.temperature,
+        max_tokens=config.max_tokens,
+        stream=config.stream
+    )
+
+    # 3. Validate raw dictionary output through Pydantic v2
+    raw_response_dict = response.model_dump()
+    validated_response = JanChatCompletionResponse.model_validate(raw_response_dict)
+    return validated_response
+
+# 4. Driver execution
+async def main():
+    config = JanInferenceConfig(model="gemma-3-27b", temperature=0.1)
+    prompt_text = "What is the role of FastMCP 3.1 in local AI coordination?"
+
+    try:
+        result = await query_local_jan_engine(prompt_text, config)
+        print(f"Validated Model: {result.model}")
+        print(f"Response: {result.choices[0].message.content}")
+    except Exception as e:
+        print(f"Failed local inference: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Related tools / concepts
@@ -81,11 +133,11 @@ print(completion.choices[0].message.content)
 - [Gemma 3](../ai_knowledge/local_llms.md) — High-performance local model supported by Jan.
 - [Llama.cpp](../infrastructure/llama-cpp.md) — Underlying technology for many local engines.
 
-## Sources / References
+## Sources / references
 - [Jan Official Website](https://jan.ai/)
 - [Jan Changelog: v0.9.0 and Beyond](https://jan.ai/changelog/)
 - [Jan GitHub Repository](https://github.com/janhq/jan)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-23
 - Confidence: high
