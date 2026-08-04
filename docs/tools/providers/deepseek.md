@@ -130,6 +130,7 @@ print(response.choices[0].message.content)
 - [Reddit r/LocalLLaMA: DeepSeek V4 Soon Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1v04jq2/deepseek_v4_soon/)
 - [OpenPangu2.0-Flash](https://www.reddit.com/r/LocalLLaMA/comments/1v03psf/model_add_openpangu20flash_92ba6b_with_mlalatent/) — Integrated from daily log reference.
 - [DeepSeek-V4-Flash Release - Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1vbidxt/the_official_release_deepseek_v4_flash_is_live_on/)
+- [DeepSeek-V4-Flash Model - HuggingFace](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731)
 
 
 ## Contribution Metadata

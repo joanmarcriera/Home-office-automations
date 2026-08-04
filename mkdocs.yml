@@ -512,6 +512,7 @@ nav:
           - Documentation Writer: tools/agents/documentation-writer.md
           - DeerFlow: tools/agents/deerflow.md
           - Gemini API Managed Agents: tools/agents/gemini-managed-agents.md
+          - Gemini Robotics: tools/agents/gemini-robotics.md
           - Goose: tools/agents/goose.md
           - GPT Researcher: tools/agents/gpt-researcher.md
           - Letta: tools/agents/letta.md
@@ -552,6 +553,7 @@ nav:
           - Flash-MSA: tools/infrastructure/flash-msa.md
           - GPT4All: tools/infrastructure/gpt4all.md
           - Jan.ai: tools/infrastructure/jan-ai.md
+          - Koboldcpp: tools/infrastructure/koboldcpp.md
           - Kubernetes (K3s): tools/infrastructure/k3s.md
           - llama.cpp: tools/infrastructure/llama-cpp.md
           - Llamafile: tools/infrastructure/llamafile.md
@@ -566,9 +568,11 @@ nav:
           - SGLang: tools/infrastructure/sglang.md
           - Supabase: tools/infrastructure/supabase.md
           - Text Generation Inference (TGI): tools/infrastructure/tgi.md
+          - Turbo-fieldfare: tools/infrastructure/turbo-fieldfare.md
           - Ubuntu AI Snaps: tools/infrastructure/ubuntu-ai.md
           - Unsloth: tools/infrastructure/unsloth.md
           - vLLM: tools/infrastructure/vllm.md
+          - WASTE: tools/infrastructure/waste.md
           - Weaviate: tools/infrastructure/weaviate.md
           - ZSE: tools/infrastructure/zse.md
       - Process & Understanding:
