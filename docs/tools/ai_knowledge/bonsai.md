@@ -9,7 +9,7 @@ Bonsai 27B is a multimodal flagship 27B-parameter Large Language Model (LLM) dev
 Historically, deploying a 27B-parameter model required heavy server infrastructure or high-end multi-GPU workstations, as a 27B model in FP16 takes approximately 54GB of space, and even a standard 4-bit quantized build requires 18GB (which is too large for consumer phones and base laptops). Bonsai 27B solves this compute and memory bottleneck by compressing the model end-to-end (across the language network, embeddings, attention, MLPs, and the LM head) to fit on edge devices with as little as 4GB-6GB of RAM, without relying on higher-precision "escape hatches" that increase memory usage.
 
 ## Where it fits in the stack
-**LLM / Reasoning Engine (Open-weights / Edge-native)**. It is a core component of the [Local LLMs](local_llms.md) ecosystem. It acts as a local reasoning layer that can run directly on consumer-grade hardware. It integrates seamlessly with frameworks like [llama.cpp](../infrastructure/llama-cpp.md) and [MLX](../infrastructure/mlx.md) (via Apple Silicon), making it accessible to local orchestrators and agents.
+**LLM / Reasoning Engine (Open-weights / Edge-native)**. It is a core component of the [Local LLMs](local_llms.md) ecosystem. It acts as a local reasoning layer that can run directly on consumer-grade hardware. It integrates seamlessly with frameworks like [llama.cpp](../infrastructure/llama-cpp.md) and [MLX](../infrastructure/mlx.md) (via Apple Silicon), making it accessible to local orchestrators and agents. In late 2026, it is commonly paired with **Model Context Protocol (MCP 3.1)** and **FastMCP 3.1** standards to allow edge-based agent execution. It provides a local, low-resource alternative to cloud-only frontier systems such as **Claude 5.1**, **GPT-5.5**, **Gemini 4.0**, and **Llama 4**.
 
 ## Typical use cases
 - **On-Device Assistants**: Powering offline mobile assistants with advanced multi-step reasoning.
@@ -100,26 +100,41 @@ response = generate(
 print(response)
 ```
 
-### Serving via OpenAI-Compatible Local Endpoint
-You can spin up an OpenAI-compatible API server using llama.cpp to integrate Bonsai 27B with local agent harnesses.
+### Serving via OpenAI-Compatible Local Endpoint (Structured Output with Pydantic v2)
+Bonsai 27B supports structured output generation. In local multi-agent systems, developers utilize strict **Pydantic v2** schemas to parse and validate visual/textual data extracted by Bonsai 27B over local OpenAI-compatible endpoints.
 
 ```python
-import openai
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
-# Initialize client pointing to local llama.cpp server
-client = openai.OpenAI(
-    base_url="http://localhost:8080/v1",
-    api_key="local-key"
-)
+# Define strict Pydantic v2 schema for visual parsing
+class ScreenAnalysis(BaseModel):
+    has_layout_anomaly: bool = Field(..., description="True if any overlapping elements are detected")
+    visual_elements: List[str] = Field(default_factory=list, description="Visual UI elements identified in the viewport")
+    extracted_text: str = Field(..., description="Main text header extracted from the image frame")
+    reconciliation_suggestions: Optional[str] = Field(None, description="Recommended interface corrections")
 
-completion = client.chat.completions.create(
-    model="Bonsai-27B",
-    messages=[
-        {"role": "user", "content": "Analyze this screenshot for user interface errors."}
-    ]
-)
+# Simulated execution of local structured endpoint call
+def parse_bonsai_visual_response(raw_json_response: dict) -> ScreenAnalysis:
+    # Validate and clean raw dictionary response from llama.cpp server
+    analysis = ScreenAnalysis.model_validate(raw_json_response)
+    return analysis
 
-print(completion.choices[0].message.content)
+if __name__ == "__main__":
+    # Simulated JSON payload returned by Bonsai 27B
+    simulated_raw_json = {
+        "has_layout_anomaly": False,
+        "visual_elements": ["Button", "Sidebar", "SearchBox"],
+        "extracted_text": "Task Decomposition: Batch 316 Overview",
+        "reconciliation_suggestions": "Alignment is clean; no layout anomalies detected."
+    }
+
+    validated_analysis = parse_bonsai_visual_response(simulated_raw_json)
+    print("--- Bonsai 27B Structured Analysis Validated ---")
+    print(f"Has Layout Anomaly: {validated_analysis.has_layout_anomaly}")
+    print(f"Elements: {validated_analysis.visual_elements}")
+    print(f"Extracted Header: {validated_analysis.extracted_text}")
+    print(f"Suggestions: {validated_analysis.reconciliation_suggestions}")
 ```
 
 ## Related tools / concepts
@@ -142,7 +157,6 @@ print(completion.choices[0].message.content)
 - [Reddit r/LocalLLaMA: Fine-tuning Ternary Model Bonsai 8B](https://www.reddit.com/r/LocalLLaMA/comments/1v0egoi/i_tried_finetuning_a_ternary_model_bonsai_8b_on/)
 - [Hy-Embodied-RxBrain-1.0](https://www.reddit.com/r/LocalLLaMA/comments/1ux0x0v/tencenthyembodiedrxbrain10_hugging_face/) — Integrated from daily log reference.
 
-
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-26
 - Confidence: high

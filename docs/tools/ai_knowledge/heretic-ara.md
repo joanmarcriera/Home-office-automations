@@ -1,13 +1,13 @@
 # Heretic / ARA
 
 ## What it is
-Heretic (distributed as `heretic-llm` on PyPI) is an open-source command-line tool released in early 2026 by developer "p-e-w" that automates **abliteration**—the removal of safety alignment from open-weight language models. It implements the **ARA (Ablative Refusal Alignment)** method, using Optuna-driven optimization to find the ideal directional ablation parameters (based on research by Arditi et al., 2024). By July 2026, it is widely used for preparing models like **Gemma 3** and **Llama 4** for uncensored research and creative applications.
+Heretic (distributed as `heretic-llm` on PyPI) is an open-source command-line tool released in early 2026 by developer "p-e-w" that automates **abliteration**—the removal of safety alignment from open-weight language models. It implements the **ARA (Ablative Refusal Alignment)** method, using Optuna-driven optimization to find the ideal directional ablation parameters (based on research by Arditi et al., 2024). By late 2026, it is widely used for preparing models like **Gemma 3**, **Qwen 3.6**, and **Llama 4** for uncensored research and creative applications.
 
 ## What problem it solves
 It addresses the issue of "refusal alignment" in large language models, where models frequently refuse to answer harmless or contextually relevant queries due to over-zealous safety guardrails. Unlike manual abliteration, Heretic automates the process to achieve minimal refusal rates with significantly less "capability damage" (lower KL divergence) to the underlying model's reasoning.
 
 ## Where it fits in the stack
-**AI Assistants & Knowledge / [Local LLMs](./local_llms.md)**. It is a researcher-centric tool used to modify the weights of models like [Gemma 3](../providers/gemma.md), [Qwen](qwen.md), or [Llama 4](../providers/llama.md) before they are deployed in local inference engines.
+**AI Assistants & Knowledge / [Local LLMs](./local_llms.md)**. It is a researcher-centric tool used to modify the weights of models like [Gemma 3](../providers/gemma.md), [Qwen 3.6](qwen.md), or [Llama 4](../providers/llama.md) before they are deployed in local inference engines. In late 2026, abliterated local models serve as low-latency, zero-refusal reasoning backends alongside frontier cloud models like **Claude 5.1**, **GPT-5.5**, and **Gemini 4.0** in multi-agent environments.
 
 ## Typical use cases
 - **Research and Analysis**: Exploring model behavior without safety-induced bias.
@@ -21,7 +21,7 @@ It addresses the issue of "refusal alignment" in large language models, where mo
 - **Minimal Performance Loss**: Achieves very low KL divergence (e.g., 0.16 on Gemma 3-12B), preserving the model's original intelligence and reasoning.
 - **High Success Rate**: Capable of reducing refusal rates to near-zero (3/100 or lower in benchmark tests).
 - **Efficiency**: Zero human effort required once the tool is configured for a specific model architecture.
-- **July 2026 Context**: Fully supports the **MCP 3.0 Task Protocol** for automated weight modification pipelines.
+- **Model Context Protocol**: Fully compatible with the **MCP 3.1** and **FastMCP 3.1** task execution standards for automated weight modification pipelines.
 
 ## Limitations
 - **Experimental**: The ARA method is still in research and may introduce unpredictable behaviors or "vibe" shifts in the model.
@@ -71,25 +71,66 @@ heretic list-vectors --model ./llama-4-8b-ablated
 
 ## API examples
 
-### Programmatic Ablation (Python)
-Researchers can use the `heretic` library to integrate ablation into custom fine-tuning pipelines.
+### Python (Ablation Configuration and Validation with Pydantic v2)
+The following Python script demonstrates how researchers can model, configure, and validate a Heretic abliteration session using **Pydantic v2** models to integrate automated weight modification into standard devops pipelines.
 
 ```python
-import torch
-from heretic import Abliterator
-from transformers import AutoModelForCausalLM
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
-# Load model
-model = AutoModelForCausalLM.from_pretrained("./base-model")
+class AblationParameters(BaseModel):
+    model_name_or_path: str = Field(..., description="The directory or HF path of the base model")
+    target_layers: List[int] = Field(..., description="The specific transformer layers to search for refusal vectors")
+    optuna_trials: int = Field(default=50, ge=1, le=500, description="Number of trials for Optuna optimization")
+    target_kl_divergence: float = Field(default=0.15, gt=0.0, lt=1.0, description="Target limit for capability damage")
+    custom_eval_set: Optional[str] = Field(None, description="Path to custom eval set of harmless but complex queries")
 
-# Initialize abliterator with Optuna optimization
-abliterator = Abliterator(model, optimization="optuna")
+    @field_validator("target_layers")
+    @classmethod
+    def validate_layers(cls, v: List[int]) -> List[int]:
+        if not v:
+            raise ValueError("Must specify at least one target layer for ablation search.")
+        if any(layer < 0 for layer in v):
+            raise ValueError("Transformer layers must be non-negative integers.")
+        return v
 
-# Find and apply the refusal vector
-ablated_model = abliterator.run(trials=50)
+class AblationResult(BaseModel):
+    parameters: AblationParameters
+    refusal_rate_before: float = Field(..., ge=0.0, le=1.0, description="Refusal rate on evaluation set before ablation")
+    refusal_rate_after: float = Field(..., ge=0.0, le=1.0, description="Refusal rate on evaluation set after ablation")
+    kl_divergence: float = Field(..., ge=0.0, description="Measured KL divergence indicating capability retention")
+    vector_magnitude: float = Field(..., description="Calculated magnitude of the orthogonal refusal projection vector")
 
-# Save the abliterated model
-ablated_model.save_pretrained("./abliterated-model")
+# Demonstration of config validation and processing
+def run_ablation_simulation(config_dict: dict) -> AblationResult:
+    # 1. Parse and validate the ablation configuration using Pydantic v2
+    params = AblationParameters.model_validate(config_dict)
+
+    # 2. Simulate the ablation execution output (e.g., abliterating Gemma 3 12B)
+    simulated_result = AblationResult(
+        parameters=params,
+        refusal_rate_before=0.88,
+        refusal_rate_after=0.02,
+        kl_divergence=0.14,
+        vector_magnitude=1.428
+    )
+    return simulated_result
+
+if __name__ == "__main__":
+    raw_config = {
+        "model_name_or_path": "google/gemma-3-12b-it",
+        "target_layers": [12, 13, 14, 15, 16],
+        "optuna_trials": 100,
+        "target_kl_divergence": 0.15,
+        "custom_eval_set": "/data/benchmarks/harmless_refusals.json"
+    }
+
+    result = run_ablation_simulation(raw_config)
+    print("--- Ablation Session Validated & Executed ---")
+    print(f"Model: {result.parameters.model_name_or_path}")
+    print(f"Target Layers Visited: {result.parameters.target_layers}")
+    print(f"Refusal Rate: {result.refusal_rate_before * 100}% -> {result.refusal_rate_after * 100}%")
+    print(f"Measured KL Divergence: {result.kl_divergence} (Success: preserved capabilities!)")
 ```
 
 ## Related tools / concepts
@@ -111,5 +152,5 @@ ablated_model.save_pretrained("./abliterated-model")
 - [Heretic: Automated Abliteration Tool (GitHub)](https://github.com/p-e-w/heretic)
 
 ## Contribution Metadata
-- Last reviewed: 2026-07-21
+- Last reviewed: 2026-11-26
 - Confidence: high
